@@ -22,7 +22,6 @@ import com.google.gson.JsonParser;
 import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.message.BallerinaMessageDataSource;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
@@ -71,14 +70,18 @@ public final class BJSON extends BallerinaMessageDataSource implements BRefType<
      */
     public BJSON(String jsonString, String schema) {
         JsonParser parser = new JsonParser();
-        if (jsonString != null && !jsonString.isEmpty()) {
+        if (jsonString == null || jsonString.isEmpty()) {
+            throw new IllegalArgumentException("cannot parse an empty string to json");
+        }
+        
+        try {
             this.value = parser.parse(jsonString);
-        } else {
-            throw new IllegalArgumentException("Cannot parse an empty string to json.");
-        }
-        if (schema != null) {
-            this.schema = parser.parse(schema);
-        }
+            if (schema != null) {
+                this.schema = parser.parse(schema);
+            }
+        } catch (Throwable t) {
+            handleJsonException("failed to create json: ", t);
+        } 
     }
 
     /**
@@ -97,9 +100,13 @@ public final class BJSON extends BallerinaMessageDataSource implements BRefType<
      */
     public BJSON(InputStream in, String schema) {
         JsonParser parser = new JsonParser();
-        this.value = parser.parse(new InputStreamReader(in, StandardCharsets.UTF_8));
-        if (schema != null) {
-            this.schema = parser.parse(schema);
+        try {
+            this.value = parser.parse(new InputStreamReader(in, StandardCharsets.UTF_8));
+            if (schema != null) {
+                this.schema = parser.parse(schema);
+            }
+        } catch (Throwable t) {
+            handleJsonException("failed to create json: ", t);
         }
     }
 
@@ -141,8 +148,8 @@ public final class BJSON extends BallerinaMessageDataSource implements BRefType<
     public void serializeData() {
         try {
             this.outputStream.write(this.value.toString().getBytes());
-        } catch (IOException e) {
-            throw new BallerinaException("Error occurred during writing the message to the output stream", e);
+        } catch (Throwable t) {
+            handleJsonException("error occurred during writing the message to the output stream: ", t);
         }
     }
 
@@ -163,11 +170,40 @@ public final class BJSON extends BallerinaMessageDataSource implements BRefType<
 
     @Override
     public String stringValue() {
-        return this.value.toString();
+        try {
+            return this.value.toString();
+        } catch (Throwable t) {
+            handleJsonException("failed to get json as string: ", t);
+        }
+        return null;
     }
 
     @Override
     public String getMessageAsString() {
-        return this.value.toString();
+        try {
+            return this.value.toString();
+        } catch (Throwable t) {
+            handleJsonException("failed to get json as string: ", t);
+        }
+        return null;
+    }
+    
+    private static void handleJsonException(String message, Throwable t) {
+        // Here local message of the cause is logged whenever possible, to avoid java class being logged
+        // along with the error message.
+        if (t.getCause() != null) {
+            throw new BallerinaException(message + t.getCause().getMessage());
+        } else {
+            throw new BallerinaException(message + t.getMessage());
+        }
+    }
+
+    @Override
+    public BallerinaMessageDataSource clone() {
+        BJSON clonedMessage = new BJSON("{}");
+        String elementString = this.getMessageAsString();
+        JsonElement clonedContent = new JsonParser().parse(elementString);
+        clonedMessage.setValue(clonedContent);
+        return clonedMessage;
     }
 }

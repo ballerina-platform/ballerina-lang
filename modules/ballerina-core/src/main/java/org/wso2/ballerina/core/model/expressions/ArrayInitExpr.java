@@ -1,5 +1,5 @@
 /*
-*  Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+*  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 *
 *  WSO2 Inc. licenses this file to you under the Apache License,
 *  Version 2.0 (the "License"); you may not use this file except
@@ -18,11 +18,9 @@
 package org.wso2.ballerina.core.model.expressions;
 
 import org.wso2.ballerina.core.model.NodeExecutor;
+import org.wso2.ballerina.core.model.NodeLocation;
 import org.wso2.ballerina.core.model.NodeVisitor;
 import org.wso2.ballerina.core.model.values.BValue;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * {@code ArrayInitExpr} represents an array initializer expression.
@@ -34,10 +32,10 @@ import java.util.List;
  *
  * @since 0.8.0
  */
-public class ArrayInitExpr extends NaryExpression {
+public class ArrayInitExpr extends RefTypeInitExpr {
 
-    public ArrayInitExpr(Expression[] argExprs) {
-        super(null, null, argExprs);
+    public ArrayInitExpr(NodeLocation location, Expression[] argExprs) {
+        super(location, argExprs);
     }
 
     @Override
@@ -45,27 +43,9 @@ public class ArrayInitExpr extends NaryExpression {
         visitor.visit(this);
     }
 
+    @Override
     public BValue execute(NodeExecutor executor) {
         return executor.visit(this);
     }
 
-    /**
-     * {@code ArrayInitExprBuilder} represents an array initializer expression builder.
-     *
-     * @since 0.8.0
-     */
-    public static class ArrayInitExprBuilder {
-        List<Expression> argList = new ArrayList<>();
-
-        public ArrayInitExprBuilder() {
-        }
-
-        public void setArgList(List<Expression> argList) {
-            this.argList = argList;
-        }
-
-        public ArrayInitExpr build() {
-            return new ArrayInitExpr(argList.toArray(new Expression[argList.size()]));
-        }
-    }
 }

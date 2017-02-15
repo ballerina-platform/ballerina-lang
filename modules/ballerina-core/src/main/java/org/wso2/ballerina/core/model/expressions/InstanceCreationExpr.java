@@ -1,5 +1,5 @@
 /*
-*  Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+*  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 *
 *  WSO2 Inc. licenses this file to you under the Apache License,
 *  Version 2.0 (the "License"); you may not use this file except
@@ -18,6 +18,7 @@
 package org.wso2.ballerina.core.model.expressions;
 
 import org.wso2.ballerina.core.model.NodeExecutor;
+import org.wso2.ballerina.core.model.NodeLocation;
 import org.wso2.ballerina.core.model.NodeVisitor;
 import org.wso2.ballerina.core.model.values.BValue;
 
@@ -26,8 +27,8 @@ import org.wso2.ballerina.core.model.values.BValue;
  */
 public class InstanceCreationExpr extends UnaryExpression {
 
-    public InstanceCreationExpr(Expression rExpr) {
-        super(null, rExpr);
+    public InstanceCreationExpr(NodeLocation location, Expression rExpr) {
+        super(location, null, rExpr);
     }
 
     @Override
@@ -38,4 +39,5 @@ public class InstanceCreationExpr extends UnaryExpression {
     public BValue execute(NodeExecutor executor) {
         return executor.visit(this);
     }
+
 }

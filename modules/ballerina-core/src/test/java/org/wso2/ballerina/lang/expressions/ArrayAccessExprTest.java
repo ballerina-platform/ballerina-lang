@@ -91,24 +91,31 @@ public class ArrayAccessExprTest {
     
     @Test(description = "Test accessing an out of bound array-index",
             expectedExceptions = { BallerinaException.class },
-            expectedExceptionsMessageRegExp = "Array index out of range: Index: 5, Size: 2")
+            expectedExceptionsMessageRegExp = "array index out of range: Index: 5, Size: 2")
     public void testArrayIndexOutOfBoundError() {
         Functions.invoke(bFile, "arrayIndexOutOfBoundTest");
     }
     
     @Test(description = "Test array access with a key",
             expectedExceptions = {SemanticException.class },
-            expectedExceptionsMessageRegExp = "Array index should be of type int, not string. Array name: animals in " +
-            "incorrect-array-access.bal:4")
+            expectedExceptionsMessageRegExp = "incorrect-array-access.bal:4: non-integer array index type 'string'")
     public void testArrayAccessWithKey() {
         ParserUtils.parseBalFile("lang/expressions/incorrect-array-access.bal");
     }
     
-    @Test(description = "Test access a primitive a an array",
+    @Test(description = "Test access a primitive as an array",
             expectedExceptions = {SemanticException.class },
-            expectedExceptionsMessageRegExp = "Attempt to index non-array, non-map variable: animal in " +
-            "access-primitive-as-array.bal:3")
+            expectedExceptionsMessageRegExp = "access-primitive-as-array.bal:3: invalid operation: " +
+                    "type 'string' does not support indexing")
     public void testAccessPrimitiveAsArray() {
         ParserUtils.parseBalFile("lang/expressions/access-primitive-as-array.bal");
+    }
+    
+    @Test(description = "Test access an non-initialized array", 
+            expectedExceptions = BallerinaException.class,
+            expectedExceptionsMessageRegExp = "variable 'fruits' is null")
+    public void testNonInitArrayAccess() {
+        Functions.invoke(bFile, "testNonInitArrayAccess");
+        Assert.fail("Test should fail at this point.");
     }
 }

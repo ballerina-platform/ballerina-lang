@@ -1,5 +1,5 @@
 /*
-*  Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+*  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 *
 *  WSO2 Inc. licenses this file to you under the Apache License,
 *  Version 2.0 (the "License"); you may not use this file except
@@ -18,6 +18,7 @@
 package org.wso2.ballerina.core.model.statements;
 
 import org.wso2.ballerina.core.model.NodeExecutor;
+import org.wso2.ballerina.core.model.NodeLocation;
 import org.wso2.ballerina.core.model.NodeVisitor;
 import org.wso2.ballerina.core.model.expressions.Expression;
 
@@ -30,7 +31,8 @@ public class ReplyStmt extends AbstractStatement {
 
     private Expression replyExpr;
 
-    public ReplyStmt(Expression replyExpr) {
+    public ReplyStmt(NodeLocation location, Expression replyExpr) {
+        super(location);
         this.replyExpr = replyExpr;
     }
 
@@ -48,23 +50,4 @@ public class ReplyStmt extends AbstractStatement {
         executor.visit(this);
     }
 
-    /**
-     * Builds a {@code ReturnStmt} statement.
-     *
-     * @since 0.8.0
-     */
-    public static class ReplyStmtBuilder {
-        Expression replyExpr;
-
-        public ReplyStmtBuilder() {
-        }
-
-        public void setExpression(Expression expr) {
-            replyExpr = expr;
-        }
-
-        public ReplyStmt build() {
-            return new ReplyStmt(replyExpr);
-        }
-    }
 }

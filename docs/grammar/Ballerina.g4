@@ -11,7 +11,7 @@ compilationUnit
     |   functionDefinition
     |   connectorDefinition
     |   structDefinition
-    |   typeConvertorDefinition
+    |   typeMapperDefinition
     |   constantDefinition
     )+
         EOF
@@ -34,7 +34,7 @@ serviceBody
     ;
 
 serviceBodyDeclaration
-    :  connectorDeclaration* variableDeclaration* resourceDefinition+
+    :  variableDefinitionStatement* resourceDefinition*
     ;
 
 
@@ -43,61 +43,90 @@ resourceDefinition
     ;
 
 functionDefinition
-    :   annotation* 'public'? 'function' Identifier '(' parameterList? ')' returnParameters? ('throws' Identifier)? functionBody
+    :   nativeFunction
+    |   function
+    ;
+
+nativeFunction
+    :   annotation* 'native' 'function' Identifier '(' parameterList? ')' returnParameters? ('throws' Identifier)? ';'
+    ;
+
+function
+    :   annotation* 'function' Identifier '(' parameterList? ')' returnParameters? ('throws' Identifier)? functionBody
     ;
 
 //todo rename, this is used in resource, action and funtion
 functionBody
-    : '{' connectorDeclaration* variableDeclaration* workerDeclaration* statement+ '}'
+    : '{' workerDeclaration* statement* '}'
     ;
 
 connectorDefinition
-    :   annotation* 'connector' Identifier '(' parameterList ')' connectorBody
+    :   nativeConnector
+    |   connector
+    ;
+
+nativeConnector
+    :   annotation* 'native' 'connector' Identifier '(' parameterList? ')' nativeConnectorBody
+    ;
+
+nativeConnectorBody
+    :   '{' nativeAction* '}'
+    ;
+
+connector
+    :   annotation* 'connector' Identifier '(' parameterList? ')' connectorBody
     ;
 
 connectorBody
-    :   '{' connectorDeclaration* variableDeclaration* actionDefinition+ '}'
+    :   '{' variableDefinitionStatement* action* '}'
     ;
 
-actionDefinition
+nativeAction
+    :   annotation* 'native' 'action' Identifier '(' parameterList ')' returnParameters?  ('throws' Identifier)? ';'
+    ;
+
+action
     :   annotation* 'action' Identifier '(' parameterList ')' returnParameters?  ('throws' Identifier)? functionBody
     ;
 
-connectorDeclaration
-    :   qualifiedReference Identifier '=' 'new' qualifiedReference '(' expressionList? ')'';'
-    ;
-
 structDefinition
-    :   'public'? 'type' Identifier structDefinitionBody
+    :   annotation* 'struct' Identifier structDefinitionBody
     ;
 
 structDefinitionBody
-    :   '{' (typeName Identifier ';')+ '}'
+    :   '{' (typeName Identifier ';')* '}'
     ;
 
-typeConvertorDefinition
-    :   'typeconvertor' Identifier '(' typeConvertorInput ')' '('typeConvertorType')' typeConvertorBody
+typeMapperDefinition
+    :   nativeTypeMapper
+    |   typeMapper
     ;
 
-typeConvertorInput
-    :   typeConvertorType Identifier
+nativeTypeMapper
+    :   'native' 'typemapper' Identifier '(' typeMapperInput ')' '('typeMapperType')' ';'
     ;
 
-typeConvertorBody
-    :   '{' variableDeclaration* statement+ '}'
+typeMapper
+    :   'typemapper' Identifier '(' typeMapperInput ')' '('typeMapperType')' typeMapperBody
+    ;
+
+typeMapperInput
+    :   typeMapperType Identifier
+    ;
+
+// cannot have conector declaration, need to validate at semantic analyzing
+typeMapperBody
+    :   '{' statement* '}'
     ;
 
 constantDefinition
     :   'const' typeName Identifier '=' literalValue ';'
     ;
 
-variableDeclaration
-    :   typeName Identifier ';'
-    ;
-
+// cannot have conector declaration, need to validate at semantic analyzing
 // typeName below is only 'message' type
 workerDeclaration
-    :   'worker' Identifier '(' typeName Identifier ')'  '{' variableDeclaration* statement+ '}'
+    :   'worker' Identifier '(' namedParameter ')'  '{' statement* '}'
     ;
 
 returnParameters
@@ -120,7 +149,7 @@ qualifiedTypeName
     :   packageName ':' unqualifiedTypeName
     ;
 
-typeConvertorType
+typeMapperType
     :   simpleType
     |   withFullSchemaType
     |   withSchemaIdType
@@ -196,10 +225,6 @@ typeName
     |   qualifiedTypeName
     ;
 
-qualifiedReference
-    :   packageName ':' Identifier
-    ;
-
 parameterList
     :   parameter (',' parameter)*
     ;
@@ -226,7 +251,7 @@ literalValue
      :   '@' annotationName ( '(' ( elementValuePairs | elementValue )? ')' )?
      ;
 
- annotationName : Identifier ;
+ annotationName : Identifier (':' Identifier)?  ;
 
  elementValuePairs
      :   elementValuePair (',' elementValuePair)*
@@ -250,7 +275,8 @@ literalValue
 // STATEMENTS / BLOCKS
 
 statement
-    :   assignmentStatement
+    :   variableDefinitionStatement
+    |   assignmentStatement
     |   ifElseStatement
     |   iterateStatement
     |   whileStatement
@@ -266,6 +292,10 @@ statement
     |   functionInvocationStatement
     ;
 
+variableDefinitionStatement
+    :   typeName Identifier ('=' expression)? ';'
+    ;
+
 assignmentStatement
     :   variableReferenceList '=' expression ';'
     ;
@@ -275,7 +305,11 @@ variableReferenceList
     ;
 
 ifElseStatement
-    :   'if' '(' expression ')' '{' statement* '}' elseIfClause* elseClause?
+    :  ifClause elseIfClause* elseClause?
+    ;
+
+ifClause
+    :   'if' '(' expression ')' '{' statement* '}'
     ;
 
 elseIfClause
@@ -287,11 +321,11 @@ elseClause
     ;
 
 iterateStatement
-    :   'iterate' '(' typeName Identifier ':' expression ')' '{' statement+ '}'
+    :   'iterate' '(' typeName Identifier ':' expression ')' '{' statement* '}'
     ;
 
 whileStatement
-    :   'while' '(' expression ')' '{' statement+ '}'
+    :   'while' '(' expression ')' '{' statement* '}'
     ;
 
 breakStatement
@@ -300,31 +334,31 @@ breakStatement
 
 // typeName is only message
 forkJoinStatement
-    :   'fork' '(' typeName Identifier ')' '{' workerDeclaration+ '}' joinClause? timeoutClause?
+    : 'fork' '(' variableReference ')' '{' workerDeclaration* '}' joinClause? timeoutClause?
     ;
 
 // below typeName is only 'message[]'
 joinClause
-    :   'join' '(' joinConditions ')' '(' typeName Identifier ')'  '{' statement+ '}'
+    :   'join' '(' joinConditions ')' '(' typeName Identifier ')' '{' statement* '}'
     ;
 
 joinConditions
-    :   'any' IntegerLiteral (Identifier (',' Identifier)*)?
-    |   'all' (Identifier (',' Identifier)*)?
+    : 'any' IntegerLiteral (Identifier (',' Identifier)*)? 	    # anyJoinCondition
+    | 'all' (Identifier (',' Identifier)*)? 		            # allJoinCondition
     ;
 
 // below typeName is only 'message[]'
 timeoutClause
-    :   'timeout' '(' expression ')' '(' typeName Identifier ')'  '{' statement+ '}'
+    :   'timeout' '(' expression ')' '(' typeName Identifier ')'  '{' statement* '}'
     ;
 
 tryCatchStatement
-    :   'try' '{' statement+ '}' catchClause
+    :   'try' '{' statement* '}' catchClause
     ;
 
 // below tyeName is only 'exception'
 catchClause
-    :   'catch' '(' typeName Identifier ')' '{' statement+ '}'
+    :   'catch' '(' typeName Identifier ')' '{' statement* '}'
     ;
 
 throwStatement
@@ -382,11 +416,15 @@ functionInvocationStatement
     ;
 
 functionName
-    :   (packageName ':')? Identifier
+    :   callableUnitName
     ;
 
 actionInvocation
-    :   packageName ':' Identifier '.' Identifier
+    :   callableUnitName '.' Identifier
+    ;
+
+callableUnitName
+    :   (packageName ':')? Identifier
     ;
 
 backtickString
@@ -394,116 +432,36 @@ backtickString
    ;
 
 expression
-    :   literalValue                                                        # literalExpression
-    |   variableReference                                                   # variableReferenceExpression
-    |   backtickString                                                      # templateExpression
-    |   functionName argumentList                                           # functionInvocationExpression
-    |   actionInvocation argumentList                                       # actionInvocationExpression
-    |   '(' typeName ')' expression                                         # typeCastingExpression
-    |   ('+'|'-'|'!') expression                                            # unaryExpression
-    |   '(' expression ')'                                                  # bracedExpression
-    |   expression ('^') expression                                         # binaryPowExpression
-    |   expression ('/') expression                                         # binaryDivisionExpression
-    |   expression ('*') expression                                         # binaryMultiplicationExpression
-    |   expression ('%') expression                                         # binaryModExpression
-    |   expression ('&&') expression                                        # binaryAndExpression
-    |   expression ('+') expression                                         # binaryAddExpression
-    |   expression ('-') expression                                         # binarySubExpression
-    |   expression ('||') expression                                        # binaryOrExpression
-    |   expression ('>') expression                                         # binaryGTExpression
-    |   expression ('>=') expression                                        # binaryGEExpression
-    |   expression ('<') expression                                         # binaryLTExpression
-    |   expression ('<=') expression                                        # binaryLEExpression
-    |   expression ('==') expression                                        # binaryEqualExpression
-    |   expression ('!=') expression                                        # binaryNotEqualExpression
-    |   '[' expressionList ']'                                              # arrayInitializerExpression
-    |   '{' mapInitKeyValueList '}'                                         # mapInitializerExpression
-    |   'new' (packageName ':' )? Identifier ('(' expressionList? ')')?     # structInitializeExpression
+    :   literalValue                                    # literalExpression
+    |   variableReference                               # variableReferenceExpression
+    |   backtickString                                  # templateExpression
+    |   functionName argumentList                       # functionInvocationExpression
+    |   actionInvocation argumentList                   # actionInvocationExpression
+    |   '(' typeName ')' expression                     # typeCastingExpression
+    |   ('+' | '-' | '!') expression                    # unaryExpression
+    |   '(' expression ')'                              # bracedExpression
+    |   expression '^' expression                       # binaryPowExpression
+    |   expression ('/' | '*' | '%') expression         # binaryDivMulModExpression
+    |   expression ('+' | '-') expression               # binaryAddSubExpression
+    |   expression ('<=' | '>=' | '>' | '<') expression # binaryCompareExpression
+    |   expression ('==' | '!=') expression             # binaryEqualExpression
+    |   expression '&&' expression                      # binaryAndExpression
+    |   expression '||' expression                      # binaryOrExpression
+    |   '[]'                                            # arrayInitExpression
+    |   '[' expressionList ']'                          # arrayInitExpression // couldn't match empty array with:  '[' expressionList? ']' hence writing in two branches
+    |   '{' mapStructInitKeyValueList? '}'              # refTypeInitExpression
+    |   'create' typeName argumentList                  # connectorInitExpression
     ;
 
-mapInitKeyValueList
-    :   mapInitKeyValue (',' mapInitKeyValue)*
+mapStructInitKeyValueList
+    :   mapStructInitKeyValue (',' mapStructInitKeyValue)*
     ;
 
-mapInitKeyValue
-    :   QuotedStringLiteral ':' expression
+mapStructInitKeyValue
+    :   expression ':' expression
     ;
 
 // LEXER
-
-// §3.9 Ballerina keywords
-
-ACTION	        :	'action';
-BREAK	        :	'break';
-CATCH	        :	'catch';
-CONNECTOR	    :	'connector';
-CONST	        :	'const';
-ELSE	        :	'else';
-FORK	        :	'fork';
-FUNCTION	    :	'function';
-IF	            :	'if';
-IMPORT	        :	'import';
-ITERATE	        :	'iterate';
-JOIN	        :	'join';
-NEW	            :	'new';
-PACKAGE	        :	'package';
-REPLY	        :	'reply';
-RESOURCE	    :	'resource';
-RETURN	        :	'return';
-SERVICE	        :	'service';
-THROW	        :	'throw';
-THROWS	        :	'throws';
-TRY	            :	'try';
-TYPE	        :	'type';
-TYPECONVERTOR	:	'typeconvertor';
-WHILE	        :	'while';
-WORKER	        :	'worker';
-BACKTICK        :   '`';
-VERSION         :   'version';
-PUBLIC          :   'public';
-ANY             :   'any';
-ALL             :   'all';
-AS              :   'as';
-TIMEOUT         :   'timeout';
-SENDARROW       :   '->';
-RECEIVEARROW    :   '<-';
-
-// §3.11 Separators
-
-LPAREN          : '(';
-RPAREN          : ')';
-LBRACE          : '{';
-RBRACE          : '}';
-LBRACK          : '[';
-RBRACK          : ']';
-SEMI            : ';';
-COMMA           : ',';
-DOT             : '.';
-
-// §3.12 Operators
-
-ASSIGN          : '=';
-GT              : '>';
-LT              : '<';
-BANG            : '!';
-TILDE           : '~';
-QUESTION        : '?';
-COLON           : ':';
-EQUAL           : '==';
-LE              : '<=';
-GE              : '>=';
-NOTEQUAL        : '!=';
-AND             : '&&';
-OR              : '||';
-ADD             : '+';
-SUB             : '-';
-MUL             : '*';
-DIV             : '/';
-BITAND          : '&';
-BITOR           : '|';
-CARET           : '^';
-MOD             : '%';
-DOLLAR_SIGN     : '$';
 
 // §3.10.1 Integer Literals
 IntegerLiteral
@@ -797,5 +755,5 @@ WS  :  [ \t\r\n\u000C]+ -> skip
     ;
 
 LINE_COMMENT
-    :   '//' ~[\r\n]* -> skip
+    :   '//' ~[\r\n]*
     ;

@@ -1,5 +1,5 @@
 /*
-*  Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+*  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 *
 *  WSO2 Inc. licenses this file to you under the Apache License,
 *  Version 2.0 (the "License"); you may not use this file except
@@ -18,40 +18,40 @@
 package org.wso2.ballerina.core.model.expressions;
 
 import org.wso2.ballerina.core.model.ExecutableExpr;
-import org.wso2.ballerina.core.model.Node;
-import org.wso2.ballerina.core.model.Position;
+import org.wso2.ballerina.core.model.LinkedNode;
 import org.wso2.ballerina.core.model.types.BType;
 
 /**
- * {@code Expression} represents a generic expression in Ballerina.
+ * {@code Expression} represents a generic expression node in Ballerina.
  *
  * @see AddExpression
  * @see VariableRefExpr
  * @see FunctionInvocationExpr
  * @since 0.8.0
  */
-public interface Expression extends Node, ExecutableExpr {
+public interface Expression extends LinkedNode, ExecutableExpr {
 
     BType getType();
 
     void setType(BType type);
 
-    int getOffset();
-
     void setOffset(int offset);
-    
+
+    boolean isMultiReturnExpr();
+
     /**
-     * Get the source location of this expression.
-     * Return the source file and the line number of this expression.
-     * 
-     * @return  Source location of this expression
+     * Get Temporary Location of the stack frame of the expression.
+     *
+     * @return temporary offset in the stack frame.
      */
-    public Position getLocation();
-    
+    int getTempOffset();
+
     /**
-     * Set the source location of this expression.
-     * 
-     * @param location  Source location of this expression.
+     * Set Temporary Location in stack frame for storing expression result.
+     *
+     * @param tempOffset calculated temporary offset.
      */
-    public void setLocation(Position location);
+    void setTempOffset(int tempOffset);
+
+    boolean hasTemporaryValues();
 }

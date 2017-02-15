@@ -1,7 +1,5 @@
-import ballerina.lang.system;
-
 function mapAccessTest(int x, int y)(int) {
-    map testMap;
+    map testMap = {};
     int xx;
     int yy;
     testMap["first"] = x;
@@ -10,14 +8,12 @@ function mapAccessTest(int x, int y)(int) {
     testMap["forth"] = x - y;
     xx = testMap["first"];
     yy = testMap["second"];
-    system:println(xx);
-    system:println(yy);
 
     return xx + yy;
 }
 
 function mapReturnTest(string firstName, string lastName) (map) {
-    map testMap;
+    map testMap = {};
     testMap["fname"] = firstName;
     testMap["lname"] = lastName;
     testMap[ firstName + lastName ] = firstName + lastName;

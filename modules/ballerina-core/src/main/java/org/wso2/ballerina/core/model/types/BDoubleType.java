@@ -17,6 +17,7 @@
 */
 package org.wso2.ballerina.core.model.types;
 
+import org.wso2.ballerina.core.model.SymbolScope;
 import org.wso2.ballerina.core.model.values.BDouble;
 import org.wso2.ballerina.core.model.values.BValue;
 
@@ -33,8 +34,8 @@ class BDoubleType extends BType {
      *
      * @param typeName string name of the type
      */
-    BDoubleType(String typeName) {
-        super(typeName, BDouble.class);
+    BDoubleType(String typeName, String pkgPath, SymbolScope symbolScope) {
+        super(typeName, pkgPath, symbolScope, BDouble.class);
     }
 
     @SuppressWarnings("unchecked")

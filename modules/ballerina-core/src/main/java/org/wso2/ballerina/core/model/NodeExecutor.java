@@ -19,18 +19,21 @@ package org.wso2.ballerina.core.model;
 
 import org.wso2.ballerina.core.interpreter.ConnectorVarLocation;
 import org.wso2.ballerina.core.interpreter.ConstantLocation;
-import org.wso2.ballerina.core.interpreter.LocalVarLocation;
 import org.wso2.ballerina.core.interpreter.ServiceVarLocation;
+import org.wso2.ballerina.core.interpreter.StackVarLocation;
 import org.wso2.ballerina.core.interpreter.StructVarLocation;
+import org.wso2.ballerina.core.interpreter.WorkerVarLocation;
 import org.wso2.ballerina.core.model.expressions.ActionInvocationExpr;
 import org.wso2.ballerina.core.model.expressions.ArrayInitExpr;
 import org.wso2.ballerina.core.model.expressions.ArrayMapAccessExpr;
 import org.wso2.ballerina.core.model.expressions.BacktickExpr;
 import org.wso2.ballerina.core.model.expressions.BasicLiteral;
 import org.wso2.ballerina.core.model.expressions.BinaryExpression;
+import org.wso2.ballerina.core.model.expressions.ConnectorInitExpr;
 import org.wso2.ballerina.core.model.expressions.FunctionInvocationExpr;
 import org.wso2.ballerina.core.model.expressions.InstanceCreationExpr;
 import org.wso2.ballerina.core.model.expressions.MapInitExpr;
+import org.wso2.ballerina.core.model.expressions.RefTypeInitExpr;
 import org.wso2.ballerina.core.model.expressions.ResourceInvocationExpr;
 import org.wso2.ballerina.core.model.expressions.StructFieldAccessExpr;
 import org.wso2.ballerina.core.model.expressions.StructInitExpr;
@@ -40,11 +43,18 @@ import org.wso2.ballerina.core.model.expressions.VariableRefExpr;
 import org.wso2.ballerina.core.model.statements.ActionInvocationStmt;
 import org.wso2.ballerina.core.model.statements.AssignStmt;
 import org.wso2.ballerina.core.model.statements.BlockStmt;
+import org.wso2.ballerina.core.model.statements.BreakStmt;
+import org.wso2.ballerina.core.model.statements.ForkJoinStmt;
 import org.wso2.ballerina.core.model.statements.FunctionInvocationStmt;
 import org.wso2.ballerina.core.model.statements.IfElseStmt;
 import org.wso2.ballerina.core.model.statements.ReplyStmt;
 import org.wso2.ballerina.core.model.statements.ReturnStmt;
+import org.wso2.ballerina.core.model.statements.ThrowStmt;
+import org.wso2.ballerina.core.model.statements.TryCatchStmt;
+import org.wso2.ballerina.core.model.statements.VariableDefStmt;
 import org.wso2.ballerina.core.model.statements.WhileStmt;
+import org.wso2.ballerina.core.model.statements.WorkerInvocationStmt;
+import org.wso2.ballerina.core.model.statements.WorkerReplyStmt;
 import org.wso2.ballerina.core.model.values.BValue;
 
 /**
@@ -56,19 +66,33 @@ public interface NodeExecutor {
 
     void visit(BlockStmt blockStmt);
 
+    void visit(VariableDefStmt varDefStmt);
+
     void visit(AssignStmt assignStmt);
 
     void visit(IfElseStmt ifElseStmt);
 
     void visit(WhileStmt whileStmt);
 
+    void visit(BreakStmt breakStmt);
+
+    void visit(TryCatchStmt tryCatchStmt);
+
+    void visit(ThrowStmt throwStmt);
+
     void visit(FunctionInvocationStmt funcIStmt);
 
     void visit(ActionInvocationStmt actionIStmt);
 
+    void visit(WorkerInvocationStmt workerInvocationStmt);
+
+    void visit(WorkerReplyStmt workerReplyStmt);
+
     void visit(ReturnStmt returnStmt);
 
     void visit(ReplyStmt replyStmt);
+
+    void visit(ForkJoinStmt forkJoinStmt);
 
     BValue[] visit(FunctionInvocationExpr funcIExpr);
 
@@ -84,11 +108,19 @@ public interface NodeExecutor {
 
     BValue visit(ArrayMapAccessExpr arrayMapAccessExpr);
 
+    BValue visit(StructFieldAccessExpr structAttributeAccessExpr);
+
     BValue visit(ArrayInitExpr arrayInitExpr);
 
-    BValue visit(MapInitExpr mapInitExpr);
+    BValue visit(RefTypeInitExpr refTypeInitExpr);
+
+    BValue visit(ConnectorInitExpr connectorInitExpr);
 
     BValue visit(BacktickExpr backtickExpr);
+
+    BValue visit(StructInitExpr structInitExpr);
+
+    BValue visit(MapInitExpr mapInitExpr);
 
     BValue visit(VariableRefExpr variableRefExpr);
 
@@ -96,7 +128,7 @@ public interface NodeExecutor {
 
     BValue visit(BasicLiteral basicLiteral);
 
-    BValue visit(LocalVarLocation localVarLocation);
+    BValue visit(StackVarLocation stackVarLocation);
 
     BValue visit(ConstantLocation constantLocation);
 
@@ -106,7 +138,5 @@ public interface NodeExecutor {
 
     BValue visit(StructVarLocation structVarLocation);
 
-    BValue visit(StructInitExpr structInitExpr);
-
-    BValue visit(StructFieldAccessExpr structAttributeAccessExpr);
+    BValue visit(WorkerVarLocation workerVarLocation);
 }

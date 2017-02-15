@@ -18,10 +18,12 @@
 package org.wso2.ballerina.core.model.expressions;
 
 import org.wso2.ballerina.core.model.NodeExecutor;
+import org.wso2.ballerina.core.model.NodeLocation;
 import org.wso2.ballerina.core.model.NodeVisitor;
 import org.wso2.ballerina.core.model.SymbolName;
-import org.wso2.ballerina.core.model.TypeConvertor;
+import org.wso2.ballerina.core.model.TypeMapper;
 import org.wso2.ballerina.core.model.types.BType;
+import org.wso2.ballerina.core.model.types.SimpleTypeName;
 import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.model.values.BValueType;
 
@@ -29,24 +31,33 @@ import java.util.function.Function;
 
 /**
  * Class to hold the data related to type casting expression
+ *
+ * @since 0.8.0
  */
-public class TypeCastExpression extends AbstractExpression implements CallableUnitInvocationExpr<TypeConvertor> {
-
-    private Expression sourceExpression;
+public class TypeCastExpression extends AbstractExpression implements CallableUnitInvocationExpr<TypeMapper> {
+    private String name;
+    private String pkgName;
+    private String pkgPath;
+    private SimpleTypeName typeName;
+    private Expression rExpr;
     private BType targetType;
     private String packageName;
-    private SymbolName typeConverterName;
-    private TypeConvertor typeConvertor;
+    private SymbolName typeMapperName;
+    private TypeMapper typeMapper;
     protected Function<BValueType, BValueType> evalFuncNewNew;
+    private int retuningBranchID;
+    private boolean hasReturningBranch;
 
-    public TypeCastExpression(Expression sourceExpression, BType targetType) {
-        this.sourceExpression = sourceExpression;
+    public TypeCastExpression(NodeLocation location, Expression rExpr, BType targetType) {
+        super(location);
+        this.rExpr = rExpr;
         this.targetType = targetType;
     }
 
-    public TypeCastExpression(String packageName, SymbolName typeConverterName) {
-        this.packageName = packageName;
-        this.typeConverterName = typeConverterName;
+    public TypeCastExpression(NodeLocation location, SimpleTypeName typeName, Expression rExpr) {
+        super(location);
+        this.rExpr = rExpr;
+        this.typeName = typeName;
     }
 
     public Function<BValueType, BValueType> getEvalFunc() {
@@ -57,12 +68,12 @@ public class TypeCastExpression extends AbstractExpression implements CallableUn
         this.evalFuncNewNew = evalFuncNewNew;
     }
 
-    public Expression getSourceExpression() {
-        return sourceExpression;
+    public Expression getRExpr() {
+        return rExpr;
     }
 
-    public void setSourceExpression(Expression sourceExpression) {
-        this.sourceExpression = sourceExpression;
+    public SimpleTypeName getTypeName() {
+        return typeName;
     }
 
     @Override
@@ -78,20 +89,16 @@ public class TypeCastExpression extends AbstractExpression implements CallableUn
         this.targetType = targetType;
     }
 
-    public String getPackageName() {
-        return packageName;
-    }
-
     public void setPackageName(String packageName) {
         this.packageName = packageName;
     }
 
-    public SymbolName getTypeConverterName() {
-        return typeConverterName;
+    public SymbolName getTypeMapperName() {
+        return typeMapperName;
     }
 
-    public void setTypeConverterName(SymbolName typeConverterName) {
-        this.typeConverterName = typeConverterName;
+    public void setTypeMapperName(SymbolName typeMapperName) {
+        this.typeMapperName = typeMapperName;
     }
 
     @Override
@@ -104,14 +111,19 @@ public class TypeCastExpression extends AbstractExpression implements CallableUn
         return executor.visit(this);
     }
 
-    /**
-     * Returns the symbol name of this callable unit invocation expression
-     *
-     * @return the symbol name
-     */
     @Override
-    public SymbolName getCallableUnitName() {
-        return typeConverterName;
+    public String getName() {
+        return name;
+    }
+
+    @Override
+    public String getPackageName() {
+        return pkgName;
+    }
+
+    @Override
+    public String getPackagePath() {
+        return pkgPath;
     }
 
     /**
@@ -121,7 +133,7 @@ public class TypeCastExpression extends AbstractExpression implements CallableUn
      */
     @Override
     public Expression[] getArgExprs() {
-        Expression[] expressions = {this.sourceExpression};
+        Expression[] expressions = {this.rExpr};
         return expressions;
     }
 
@@ -131,8 +143,8 @@ public class TypeCastExpression extends AbstractExpression implements CallableUn
      * @return the linked {@code CallableUnit}
      */
     @Override
-    public TypeConvertor getCallableUnit() {
-        return this.typeConvertor;
+    public TypeMapper getCallableUnit() {
+        return this.typeMapper;
     }
 
     /**
@@ -141,8 +153,8 @@ public class TypeCastExpression extends AbstractExpression implements CallableUn
      * @param callableUnit type of the callable unit
      */
     @Override
-    public void setCallableUnit(TypeConvertor callableUnit) {
-        this.typeConvertor = callableUnit;
+    public void setCallableUnit(TypeMapper callableUnit) {
+        this.typeMapper = callableUnit;
 
     }
 
@@ -176,4 +188,25 @@ public class TypeCastExpression extends AbstractExpression implements CallableUn
     public BValue[] executeMultiReturn(NodeExecutor executor) {
         return new BValue[0];
     }
+
+    @Override
+    public int getGotoBranchID() {
+        return retuningBranchID;
+    }
+
+    @Override
+    public void setGotoBranchID(int retuningBranchID) {
+        this.retuningBranchID = retuningBranchID;
+    }
+
+    @Override
+    public boolean hasGotoBranchID() {
+        return hasReturningBranch;
+    }
+
+    @Override
+    public void setHasGotoBranchID(boolean hasReturningBranch) {
+        this.hasReturningBranch = hasReturningBranch;
+    }
+
 }

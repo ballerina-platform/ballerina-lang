@@ -1,5 +1,5 @@
 /*
-*  Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+*  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 *
 *  WSO2 Inc. licenses this file to you under the Apache License,
 *  Version 2.0 (the "License"); you may not use this file except
@@ -18,6 +18,7 @@
 package org.wso2.ballerina.core.model.statements;
 
 import org.wso2.ballerina.core.model.NodeExecutor;
+import org.wso2.ballerina.core.model.NodeLocation;
 import org.wso2.ballerina.core.model.NodeVisitor;
 import org.wso2.ballerina.core.model.expressions.Expression;
 
@@ -35,7 +36,12 @@ public class IfElseStmt extends AbstractStatement {
     private ElseIfBlock[] elseIfBlocks;
     private Statement elseBody;
 
-    private IfElseStmt(Expression ifCondition, Statement thenBody, ElseIfBlock[] elseIfBlocks, Statement elseBody) {
+    private IfElseStmt(NodeLocation location,
+                       Expression ifCondition,
+                       Statement thenBody,
+                       ElseIfBlock[] elseIfBlocks,
+                       Statement elseBody) {
+        super(location);
         this.ifCondition = ifCondition;
         this.thenBody = thenBody;
         this.elseIfBlocks = elseIfBlocks;
@@ -72,10 +78,12 @@ public class IfElseStmt extends AbstractStatement {
      * Represent an else if block of an if statement.
      */
     public static class ElseIfBlock {
+        NodeLocation location;
         Expression elseIfCondition;
         BlockStmt elseIfBody;
 
-        public ElseIfBlock(Expression elseIfCondition, BlockStmt elseIfBody) {
+        public ElseIfBlock(NodeLocation location, Expression elseIfCondition, BlockStmt elseIfBody) {
+            this.location = location;
             this.elseIfCondition = elseIfCondition;
             this.elseIfBody = elseIfBody;
         }
@@ -95,13 +103,18 @@ public class IfElseStmt extends AbstractStatement {
      * @since 0.8.0
      */
     public static class IfElseStmtBuilder {
-
+        private NodeLocation location;
         private Expression ifCondition;
         private Statement thenBody;
         private List<ElseIfBlock> elseIfBlockList = new ArrayList<>();
         private Statement elseBody;
 
-        public IfElseStmtBuilder() {
+        public NodeLocation getLocation() {
+            return location;
+        }
+
+        public void setNodeLocation(NodeLocation location) {
+            this.location = location;
         }
 
         public void setIfCondition(Expression ifCondition) {
@@ -112,8 +125,8 @@ public class IfElseStmt extends AbstractStatement {
             this.thenBody = thenBody;
         }
 
-        public void addElseIfBlock(Expression elseIfCondition, BlockStmt elseIfBody) {
-            this.elseIfBlockList.add(new ElseIfBlock(elseIfCondition, elseIfBody));
+        public void addElseIfBlock(NodeLocation location, Expression elseIfCondition, BlockStmt elseIfBody) {
+            this.elseIfBlockList.add(new ElseIfBlock(location, elseIfCondition, elseIfBody));
         }
 
         public void setElseBody(BlockStmt elseBody) {
@@ -122,6 +135,7 @@ public class IfElseStmt extends AbstractStatement {
 
         public IfElseStmt build() {
             return new IfElseStmt(
+                    location,
                     ifCondition,
                     thenBody,
                     elseIfBlockList.toArray(new ElseIfBlock[elseIfBlockList.size()]),

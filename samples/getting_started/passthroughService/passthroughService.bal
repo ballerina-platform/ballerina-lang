@@ -1,29 +1,24 @@
 import ballerina.lang.message;
 import ballerina.net.http;
 
-@BasePath ("/passthrough")
+@http:BasePath ("/passthrough")
 service passthrough {
 
-    @GET
+    @http:GET
     resource passthrough (message m) {
-        http:HTTPConnector nyseEP = new http:HTTPConnector("http://localhost:9090");
-        message response;
-
-        response = http:HTTPConnector.get(nyseEP, "/nyseStock", m);
-
+        http:ClientConnector nyseEP = create http:ClientConnector("http://localhost:9090");
+        message response = http:ClientConnector.get(nyseEP, "/nyseStock", m);
         reply response;
     }
 }
 
-@BasePath("/nyseStock")
+@http:BasePath("/nyseStock")
 service nyseStockQuote {
 
-    @GET
+    @http:GET
     resource stocks (message m) {
-        message response;
-        json payload;
-
-        payload = `{"exchange":"nyse", "name":"IBM", "value":"127.50"}`;
+        json payload = `{"exchange":"nyse", "name":"IBM", "value":"127.50"}`;
+        message response = {};
         message:setJsonPayload(response, payload);
         reply response;
     }

@@ -2,13 +2,12 @@ package samples.connectors.test;
 
 import ballerina.lang.message;
 import ballerina.lang.string;
-import ballerina.lang.system;
 
 const string myConst = "MyParam1";
 
 connector TestConnector(string param1, string param2, int param3) {
 
-    test:EchoConnector echoConnector = new test:EchoConnector(param1);
+    EchoConnector echoConnector = create EchoConnector(param1);
 
     boolean action2Invoked;
 
@@ -30,15 +29,15 @@ connector TestConnector(string param1, string param2, int param3) {
 
     action action5(TestConnector testConnector, string actionParam) (string) {
         string s;
-        s = test:EchoConnector.echoAction(echoConnector, actionParam);
+        s = EchoConnector.echoAction(echoConnector, actionParam);
         return s;
     }
 
     action action6(TestConnector testConnector, string echoConnectorParam, string actionParam) (string) {
-        test:EchoConnector localEchoConnector = new test:EchoConnector(echoConnectorParam);
+        EchoConnector localEchoConnector = create EchoConnector(echoConnectorParam);
         string s;
 
-        s =  test:EchoConnector.echoAction(localEchoConnector, actionParam);
+        s =  EchoConnector.echoAction(localEchoConnector, actionParam);
         return s;
     }
 }
@@ -54,17 +53,16 @@ connector EchoConnector(string greeting) {
 @BasePath ("/invoke")
 service actionInvokeService {
 
-    test:TestConnector testConnector = new test:TestConnector(myConst, "MyParam2", 5);
+    TestConnector testConnector = create TestConnector(myConst, "MyParam2", 5);
 
     @GET
     @Path ("/action3")
     resource action3Resource (message m) {
 
         string actionResponse;
-        message response;
 
-        actionResponse = test:TestConnector.action3(testConnector);
-        response = new message;
+        actionResponse = TestConnector.action3(testConnector);
+        message response = {};
         message:setStringPayload(response, actionResponse);
         reply response;
     }
@@ -75,10 +73,9 @@ service actionInvokeService {
     resource action1Resource (message m) {
 
         boolean actionResponse;
-        message response;
 
-        actionResponse = test:TestConnector.action1(testConnector);
-        response = new message;
+        actionResponse = TestConnector.action1(testConnector);
+        message response = {};
         message:setStringPayload(response, string:valueOf(actionResponse));
         reply response;
     }
@@ -88,7 +85,7 @@ service actionInvokeService {
     @Path ("/action2")
     resource action2Resource (message m) {
 
-        test:TestConnector.action2(testConnector);
+        TestConnector.action2(testConnector);
         reply m;
     }
 
@@ -97,10 +94,9 @@ service actionInvokeService {
     resource action5Resource (message m) {
 
         string actionResponse;
-        message response;
 
-        actionResponse = test:TestConnector.action5(testConnector, myConst);
-        response = new message;
+        actionResponse = TestConnector.action5(testConnector, myConst);
+        message response = {};
         message:setStringPayload(response, actionResponse);
         reply response;
     }
@@ -110,10 +106,9 @@ service actionInvokeService {
     resource action6Resource (message m) {
 
         string actionResponse;
-        message response;
 
-        actionResponse = test:TestConnector.action6(testConnector, "Hello", "World");
-        response = new message;
+        actionResponse = TestConnector.action6(testConnector, "Hello", "World");
+        message response = {};
         message:setStringPayload(response, actionResponse);
         reply response;
     }

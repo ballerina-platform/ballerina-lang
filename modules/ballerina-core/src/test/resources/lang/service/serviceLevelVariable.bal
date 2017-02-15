@@ -1,17 +1,12 @@
-import ballerina.net.http;
-import ballerina.lang.system;
-
-@BasePath ("/var")
+@http:BasePath ("/var")
 service echo {
 
     int int_value;
 
-    @GET
-    @Path ("/message")
+    @http:GET
+    @http:Path ("/message")
     resource echo (message m) {
         int_value = 10;
-        system:println(int_value);
-        http:convertToResponse(m);
         reply m;
     }
 }

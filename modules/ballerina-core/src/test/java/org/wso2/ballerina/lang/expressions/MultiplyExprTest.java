@@ -109,8 +109,8 @@ public class MultiplyExprTest {
     
     @Test(description = "Test multiplying values of unsupported types (json)",
             expectedExceptions = {SemanticException.class },
-            expectedExceptionsMessageRegExp = "Multiply operation is not supported for type: json in " +
-            "multiply-unsupported-types.bal:10")
+            expectedExceptionsMessageRegExp = "multiply-unsupported-types.bal:10: invalid operation: " +
+                    "operator \\* not defined on 'json'")
     public void testMultiplyUnsupportedTypes() {
         ParserUtils.parseBalFile("lang/expressions/multiply-unsupported-types.bal");
     }

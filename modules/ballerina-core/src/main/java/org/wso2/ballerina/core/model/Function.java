@@ -23,8 +23,4 @@ package org.wso2.ballerina.core.model;
  */
 public interface Function extends CallableUnit {
 
-    // TODO Refactor function name related methods
-    String getFunctionName();
-
-    boolean isPublic();
 }

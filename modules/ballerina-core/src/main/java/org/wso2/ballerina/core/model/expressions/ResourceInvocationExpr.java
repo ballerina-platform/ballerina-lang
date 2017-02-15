@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -19,7 +19,6 @@
 package org.wso2.ballerina.core.model.expressions;
 
 import org.wso2.ballerina.core.model.ExecutableMultiReturnExpr;
-import org.wso2.ballerina.core.model.Node;
 import org.wso2.ballerina.core.model.NodeExecutor;
 import org.wso2.ballerina.core.model.NodeVisitor;
 import org.wso2.ballerina.core.model.Resource;
@@ -30,12 +29,12 @@ import org.wso2.ballerina.core.model.values.BValue;
  *
  * @since 0.8.0
  */
-public class ResourceInvocationExpr implements Node, ExecutableMultiReturnExpr {
-
+public class ResourceInvocationExpr extends AbstractExpression implements ExecutableMultiReturnExpr {
     private Resource resource;
     private Expression[] exprs;
 
     public ResourceInvocationExpr(Resource resource, Expression[] exprs) {
+        super(null);
         this.resource = resource;
         this.exprs = exprs;
     }
@@ -57,4 +56,5 @@ public class ResourceInvocationExpr implements Node, ExecutableMultiReturnExpr {
     public BValue[] executeMultiReturn(NodeExecutor executor) {
         return executor.visit(this);
     }
+
 }

@@ -1,68 +1,57 @@
 import ballerina.lang.message;
 import ballerina.net.http;
 import ballerina.lang.system;
-import ballerina.lang.string;
 import ballerina.lang.json;
 
-@BasePath ("/ABCBank")
+@http:BasePath ("/ABCBank")
 service ATMLocator {
 
-    @POST
-    @Path ("/locator")
+    @http:POST
+    @http:Path ("/locator")
     resource locator (message m) {
-        http:HTTPConnector branchLocatorService = new http:HTTPConnector("http://localhost:9090/branchlocator");
-        http:HTTPConnector bankInfoService = new http:HTTPConnector("http://localhost:9090/bankinfo");
-        message response;
-        message backendServiceReq;
+        http:ClientConnector branchLocatorService = create http:ClientConnector("http://localhost:9090/branchlocator");
+        http:ClientConnector bankInfoService = create http:ClientConnector("http://localhost:9090/bankinfo");
 
-        json branchLocatorReq;
-        json bankInfoReq;
+        message backendServiceReq = {};
 
-        string zipCode;
-        string branchCode;
+        json jsonLocatorReq = message:getJsonPayload(m);
 
-        json jsonLocatorReq;
-        json branchLocatorRes;
-
-        jsonLocatorReq = message:getJsonPayload(m);
-        zipCode = json:getString(jsonLocatorReq, "$.ATMLocator.ZipCode");
+        string zipCode = json:getString(jsonLocatorReq, "$.ATMLocator.ZipCode");
         system:println("Zip Code " + zipCode);
 
-        branchLocatorReq = `{"BranchLocator": {"ZipCode":""}}`;
+        json branchLocatorReq = `{"BranchLocator": {"ZipCode":""}}`;
         json:set(branchLocatorReq, "$.BranchLocator.ZipCode", zipCode);
         message:setJsonPayload(backendServiceReq, branchLocatorReq);
-        response = http:HTTPConnector.post(branchLocatorService, "", backendServiceReq);
 
-        branchLocatorRes = message:getJsonPayload(response);
+        message response = http:ClientConnector.post(branchLocatorService, "", backendServiceReq);
 
-        branchCode = json:getString(branchLocatorRes, "$.ABCBank.BranchCode");
+        json branchLocatorRes = message:getJsonPayload(response);
+
+        string branchCode = json:getString(branchLocatorRes, "$.ABCBank.BranchCode");
         system:println("Branch Code " + branchCode);
 
-        bankInfoReq = `{"BranchInfo": {"BranchCode":""}}`;
-
+        json bankInfoReq = `{"BranchInfo": {"BranchCode":""}}`;
         json:set(bankInfoReq, "$.BranchInfo.BranchCode", branchCode);
         message:setJsonPayload(backendServiceReq, bankInfoReq);
 
-        response = http:HTTPConnector.post(bankInfoService, "", backendServiceReq);
+        response = http:ClientConnector.post(bankInfoService, "", backendServiceReq);
 
         reply response;
     }
 }
 
 
-@BasePath("/branchlocator")
+@http:BasePath("/branchlocator")
 service Banklocator {
 
-    @POST
+    @http:POST
     resource product (message m) {
-        message response;
-        json payload;
-        json jsonRequest;
-        string zipCode;
+        message response = {};
 
-        jsonRequest = message:getJsonPayload(m);
-        zipCode = json:getString(jsonRequest, "$.BranchLocator.ZipCode");
+        json jsonRequest = message:getJsonPayload(m);
+        string zipCode = json:getString(jsonRequest, "$.BranchLocator.ZipCode");
 
+        json payload = {};
         if (zipCode == "95999") {
             payload = `{"ABCBank": {"BranchCode":"123"}}`;
         } else {
@@ -74,25 +63,22 @@ service Banklocator {
 }
 
 
-@BasePath("/bankinfo")
+@http:BasePath("/bankinfo")
 
 service Bankinfo {
 
-    @POST
+    @http:POST
     resource product (message m) {
-        message response;
-        json payload;
-        json jsonRequest;
-        string branchCode;
+        message response = {};
 
+        json jsonRequest = message:getJsonPayload(m);
+        string branchCode = json:getString(jsonRequest, "$.BranchInfo.BranchCode");
 
-        jsonRequest = message:getJsonPayload(m);
-        branchCode = json:getString(jsonRequest, "$.BranchInfo.BranchCode");
+        json payload = {};
         if (branchCode == "123") {
             payload = `{"ABC Bank": {"Address": "111 River Oaks Pkwy, San Jose, CA 95999"}}`;
         } else {
             payload = `{"ABC Bank": {"error": "No branches found."}}`;
-
         }
 
         message:setJsonPayload(response, payload);

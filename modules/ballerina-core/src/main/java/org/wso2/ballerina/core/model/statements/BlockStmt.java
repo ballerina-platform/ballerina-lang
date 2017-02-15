@@ -1,5 +1,5 @@
 /*
-*  Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+*  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 *
 *  WSO2 Inc. licenses this file to you under the Apache License,
 *  Version 2.0 (the "License"); you may not use this file except
@@ -18,22 +18,35 @@
 package org.wso2.ballerina.core.model.statements;
 
 import org.wso2.ballerina.core.model.NodeExecutor;
+import org.wso2.ballerina.core.model.NodeLocation;
 import org.wso2.ballerina.core.model.NodeVisitor;
+import org.wso2.ballerina.core.model.SymbolName;
+import org.wso2.ballerina.core.model.SymbolScope;
+import org.wso2.ballerina.core.model.nodes.GotoNode;
+import org.wso2.ballerina.core.model.symbols.BLangSymbol;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * A BlockStmt represents a list of statements between balanced braces.
  *
  * @since 0.8.0
  */
-public class BlockStmt extends AbstractStatement {
-
+public class BlockStmt extends AbstractStatement implements SymbolScope {
     private Statement[] statements;
+    private GotoNode gotoNode;
 
-    public BlockStmt(Statement[] statements) {
-        this.statements = statements;
+    // Scope related variables
+    private SymbolScope enclosingScope;
+    private Map<SymbolName, BLangSymbol> symbolMap;
+
+    private BlockStmt(NodeLocation location, SymbolScope enclosingScope) {
+        super(location);
+        this.enclosingScope = enclosingScope;
+        this.symbolMap = new HashMap<>();
     }
 
     public Statement[] getStatements() {
@@ -50,16 +63,49 @@ public class BlockStmt extends AbstractStatement {
         executor.visit(this);
     }
 
+    @Override
+    public ScopeName getScopeName() {
+        return ScopeName.LOCAL;
+    }
+
+    @Override
+    public SymbolScope getEnclosingScope() {
+        return enclosingScope;
+    }
+
+    @Override
+    public void define(SymbolName name, BLangSymbol symbol) {
+        symbolMap.put(name, symbol);
+    }
+
+    @Override
+    public BLangSymbol resolve(SymbolName name) {
+        return resolve(symbolMap, name);
+    }
+
+    public GotoNode getGotoNode() {
+        return gotoNode;
+    }
+
+    public void setGotoNode(GotoNode gotoNode) {
+        this.gotoNode = gotoNode;
+    }
+
     /**
      * Builds a {@code BlockStmt}.
      *
      * @since 0.8.0
      */
     public static class BlockStmtBuilder {
-
+        private BlockStmt blockStmt;
         private List<Statement> statementList = new ArrayList<>();
 
-        public BlockStmtBuilder() {
+        public BlockStmtBuilder(NodeLocation location, SymbolScope enclosingScope) {
+            blockStmt = new BlockStmt(location, enclosingScope);
+        }
+
+        public SymbolScope getCurrentScope() {
+            return blockStmt;
         }
 
         public void addStmt(Statement statement) {
@@ -67,7 +113,8 @@ public class BlockStmt extends AbstractStatement {
         }
 
         public BlockStmt build() {
-            return new BlockStmt(statementList.toArray(new Statement[statementList.size()]));
+            this.blockStmt.statements = statementList.toArray(new Statement[statementList.size()]);
+            return blockStmt;
         }
     }
 }

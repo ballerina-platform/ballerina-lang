@@ -1,5 +1,5 @@
 /*
-*  Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+*  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 *
 *  WSO2 Inc. licenses this file to you under the Apache License,
 *  Version 2.0 (the "License"); you may not use this file except
@@ -18,8 +18,8 @@
 package org.wso2.ballerina.core.model.expressions;
 
 import org.wso2.ballerina.core.model.NodeExecutor;
+import org.wso2.ballerina.core.model.NodeLocation;
 import org.wso2.ballerina.core.model.Operator;
-import org.wso2.ballerina.core.model.Position;
 import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.model.values.BValueType;
 
@@ -39,8 +39,8 @@ public class BinaryExpression extends UnaryExpression {
     protected Expression lExpr;
     protected BiFunction<BValueType, BValueType, BValueType> evalFuncNewNew;
 
-    public BinaryExpression(Expression lExpr, Operator op, Expression rExpr, Position location) {
-        super(op, rExpr, location);
+    public BinaryExpression(NodeLocation location, Expression lExpr, Operator op, Expression rExpr) {
+        super(location, op, rExpr);
         this.lExpr = lExpr;
     }
 
@@ -64,4 +64,7 @@ public class BinaryExpression extends UnaryExpression {
         this.rExpr = rExpr;
     }
 
+    public void setLExpr(Expression lExpr) {
+        this.lExpr = lExpr;
+    }
 }

@@ -17,6 +17,7 @@
 */
 package org.wso2.ballerina.core.model.types;
 
+import org.wso2.ballerina.core.model.SymbolScope;
 import org.wso2.ballerina.core.model.values.BLong;
 import org.wso2.ballerina.core.model.values.BValue;
 
@@ -32,8 +33,8 @@ class BLongType extends BType {
      *
      * @param typeName string name of the type
      */
-    BLongType(String typeName) {
-        super(typeName, BLong.class);
+    BLongType(String typeName, String pkgPath, SymbolScope symbolScope) {
+        super(typeName, pkgPath, symbolScope, BLong.class);
     }
 
     @SuppressWarnings("unchecked")

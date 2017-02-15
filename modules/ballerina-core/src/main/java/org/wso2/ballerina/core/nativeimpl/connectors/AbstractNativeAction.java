@@ -15,147 +15,56 @@
  */
 package org.wso2.ballerina.core.nativeimpl.connectors;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 import org.wso2.ballerina.core.exception.BallerinaException;
+import org.wso2.ballerina.core.exception.FlowBuilderException;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.Action;
 import org.wso2.ballerina.core.model.Annotation;
-import org.wso2.ballerina.core.model.Const;
-import org.wso2.ballerina.core.model.Parameter;
-import org.wso2.ballerina.core.model.Position;
+import org.wso2.ballerina.core.model.NativeUnit;
+import org.wso2.ballerina.core.model.NodeLocation;
+import org.wso2.ballerina.core.model.NodeVisitor;
+import org.wso2.ballerina.core.model.ParameterDef;
 import org.wso2.ballerina.core.model.SymbolName;
-import org.wso2.ballerina.core.model.VariableDcl;
+import org.wso2.ballerina.core.model.SymbolScope;
+import org.wso2.ballerina.core.model.VariableDef;
 import org.wso2.ballerina.core.model.statements.BlockStmt;
 import org.wso2.ballerina.core.model.types.BType;
-import org.wso2.ballerina.core.model.types.BTypes;
-import org.wso2.ballerina.core.model.types.TypeEnum;
+import org.wso2.ballerina.core.model.types.SimpleTypeName;
 import org.wso2.ballerina.core.model.values.BValue;
-import org.wso2.ballerina.core.nativeimpl.NativeConstruct;
-import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaAction;
-import org.wso2.ballerina.core.nativeimpl.annotations.Utils;
 import org.wso2.ballerina.core.nativeimpl.exceptions.ArgumentOutOfRangeException;
-import org.wso2.ballerina.core.nativeimpl.exceptions.MalformedEntryException;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**
  * Represents Native Ballerina Action.
  */
-public abstract class AbstractNativeAction implements Action, NativeConstruct {
-
+public abstract class AbstractNativeAction implements NativeUnit, Action {
     public static final BValue[] VOID_RETURN = new BValue[0];
-    private static final Logger log = LoggerFactory.getLogger(AbstractNativeAction.class);
-    private String packageName, actionName;
-    private SymbolName symbolName;
+
+    // BLangSymbol related attributes
+    protected String name;
+    protected String pkgPath;
+    protected boolean isPublic = true;
+    protected SymbolName symbolName;
+
     private List<Annotation> annotations;
-    private List<Parameter> parameters;
-    private List<Parameter> returnParams;
-    private List<Const> constants;
+    private List<ParameterDef> parameterDefs;
+    private List<ParameterDef> returnParams;
     private int stackFrameSize;
-    private Position actionLocation;
+
+    private BType[] returnParamTypes;
+    private BType[] parameterTypes;
+    private SimpleTypeName[] returnParamTypeNames;
+    private SimpleTypeName[] argTypeNames;
+
+    private int tempStackFrameSize;
 
     public AbstractNativeAction() {
-        parameters = new ArrayList<>();
+        parameterDefs = new ArrayList<>();
         returnParams = new ArrayList<>();
         annotations = new ArrayList<>();
-        constants = new ArrayList<>();
-        buildModel();
-
-    }
-
-    /*
-     * Build Native Action Model using Java annotation.
-     */
-    private void buildModel() {
-        BallerinaAction action = this.getClass().getAnnotation(BallerinaAction.class);
-        packageName = action.packageName();
-        actionName = action.actionName();
-        String connectorName = action.connectorName();
-        String symName = packageName + ":" + connectorName + "." + actionName;
-        symbolName = new SymbolName(symName);
-        stackFrameSize = action.args().length;
-        Arrays.stream(action.args()).
-                forEach(argument -> {
-                    try {
-                        BType bType;
-                        if (!argument.type().equals(TypeEnum.ARRAY)) {
-                            bType = BTypes.getType(argument.type().getName());
-                        } else {
-                            bType = BTypes.getArrayType(argument.elementType().getName());
-                        }
-                        parameters.add(new Parameter(bType, new SymbolName(argument.name())));
-                    } catch (BallerinaException e) {
-                        // TODO: Fix this when TypeC.getType method is improved.
-                        log.error("Internal Error..! Error while processing Parameters for Native ballerina" +
-                                " action {}:{}.", packageName, actionName, e);
-                    }
-                });
-        Arrays.stream(action.returnType()).forEach(returnType -> {
-            try {
-                returnParams.add(new Parameter(BTypes.getType(returnType.getName()), null));
-            } catch (BallerinaException e) {
-                // TODO: Fix this when TypeC.getType method is improved.
-                log.error("Internal Error..! Error while processing ReturnTypes for Native ballerina" +
-                        " action {}:{}.", packageName, actionName, e);
-            }
-        });
-        Arrays.stream(action.consts()).forEach(constant -> {
-            try {
-                constants.add(Utils.getConst(constant));
-            } catch (MalformedEntryException e) {
-                log.error("Internal Error..! Error while processing pre defined const {} for Native ballerina" +
-                        " action {}:{}.", constant.identifier(), packageName, actionName, e);
-            }
-        });
-        // TODO: Handle Ballerina Annotations.
-    }
-
-    public String getPackageName() {
-        return packageName;
-    }
-
-    @Override
-    public String getName() {
-        return symbolName.getName();
-    }
-
-    public SymbolName getSymbolName() {
-        return symbolName;
-    }
-
-    @Override
-    public void setSymbolName(SymbolName symbolName) {
-        this.symbolName = symbolName;
-    }
-
-    @Override
-    public Annotation[] getAnnotations() {
-        return annotations.toArray(new Annotation[annotations.size()]);
-    }
-
-    @Override
-    public Parameter[] getParameters() {
-        return parameters.toArray(new Parameter[parameters.size()]);
-    }
-
-    public VariableDcl[] getVariableDcls() {
-        return new VariableDcl[0];
-    }
-
-    @Override
-    public Parameter[] getReturnParameters() {
-        return returnParams.toArray(new Parameter[returnParams.size()]);
-    }
-
-    public int getStackFrameSize() {
-        return stackFrameSize;
-    }
-
-    public void setStackFrameSize(int stackFrameSize) {
-        this.stackFrameSize = stackFrameSize;
     }
 
     /**
@@ -166,32 +75,196 @@ public abstract class AbstractNativeAction implements Action, NativeConstruct {
      * @return BValue;
      */
     public BValue getArgument(Context context, int index) {
-        if (index > -1 && index < parameters.size()) {
-            return context.getControlStack().getCurrentFrame().values[index];
+        if (index > -1 && index < argTypeNames.length) {
+            BValue result = context.getControlStack().getCurrentFrame().values[index];
+            if (result == null) {
+                throw new BallerinaException("argument " + index + " is null");
+            }
+            return result;
         }
         throw new ArgumentOutOfRangeException(index);
     }
 
     public abstract BValue execute(Context context);
 
-//    @Override
-//    public void interpret(Context ctx) {
-//        execute(ctx);
-
-    // TODO : Support for multiple return values and to be change after  support statement callback chaning
-
-//    }
+    /**
+     * Invoke Non Blocking Native Action.
+     *
+     * @param context           Ballerina context.
+     * @param connectorCallback Callback instance to notify completion of the action invocation.
+     */
+    public abstract void execute(Context context, BalConnectorCallback connectorCallback);
 
     /**
-     * {@inheritDoc}
+     * Validate Native Action invocation. This method will be invoked when callback.done().
+     *
+     * @param connectorCallback Connector Callback instance.
+     */
+    public abstract void validate(BalConnectorCallback connectorCallback);
+
+    // Methods in CallableUnit interface
+
+    /**
+     * Get all the Annotations associated with a BallerinaFunction.
+     *
+     * @return list of Annotations
      */
     @Override
-    public Position getLocation() {
-        return actionLocation;
+    public Annotation[] getAnnotations() {
+        return annotations.toArray(new Annotation[annotations.size()]);
+    }
+
+    /**
+     * Get list of Arguments associated with the function definition.
+     *
+     * @return list of Arguments
+     */
+    @Override
+    public ParameterDef[] getParameterDefs() {
+        return parameterDefs.toArray(new ParameterDef[parameterDefs.size()]);
+    }
+
+    /**
+     * Get all the variableDcls declared in the scope of BallerinaFunction.
+     *
+     * @return list of all BallerinaFunction scoped variableDcls
+     */
+    @Override
+    public VariableDef[] getVariableDefs() {
+        return new VariableDef[0];
     }
 
     @Override
     public BlockStmt getCallableUnitBody() {
         return null;
+    }
+
+    @Override
+    public ParameterDef[] getReturnParameters() {
+        return returnParams.toArray(new ParameterDef[returnParams.size()]);
+    }
+
+    @Override
+    public int getStackFrameSize() {
+        return stackFrameSize;
+    }
+
+    @Override
+    public void setStackFrameSize(int stackFrameSize) {
+        this.stackFrameSize = stackFrameSize;
+    }
+
+    @Override
+    public int getTempStackFrameSize() {
+        return tempStackFrameSize;
+    }
+
+    @Override
+    public void setTempStackFrameSize(int stackFrameSize) {
+        if (this.tempStackFrameSize > 0 && stackFrameSize != this.tempStackFrameSize) {
+            throw new FlowBuilderException("Attempt to Overwrite tempValue Frame size. current :" +
+                    this.tempStackFrameSize + ", new :" + stackFrameSize);
+        }
+        this.tempStackFrameSize = stackFrameSize;
+    }
+
+    @Override
+    public BType[] getReturnParamTypes() {
+        return returnParamTypes;
+    }
+
+    @Override
+    public void setReturnParamTypes(BType[] returnParamTypes) {
+        this.returnParamTypes = returnParamTypes;
+    }
+
+    @Override
+    public BType[] getArgumentTypes() {
+        return parameterTypes;
+    }
+
+    @Override
+    public void setParameterTypes(BType[] parameterTypes) {
+        this.parameterTypes = parameterTypes;
+    }
+
+    @Override
+    public void accept(NodeVisitor visitor) {
+    }
+
+    // Methods in Node interface
+
+    @Override
+    public NodeLocation getNodeLocation() {
+        return null;
+    }
+
+    @Override
+    public String getName() {
+        return name;
+    }
+
+    // Methods in BLangSymbol interface
+
+    @Override
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    @Override
+    public String getPackagePath() {
+        return pkgPath;
+    }
+
+    @Override
+    public void setPackagePath(String packagePath) {
+        this.pkgPath = packagePath;
+    }
+
+    @Override
+    public boolean isPublic() {
+        return true;
+    }
+
+    @Override
+    public boolean isNative() {
+        return true;
+    }
+
+    @Override
+    public SymbolName getSymbolName() {
+        return symbolName;
+    }
+
+    // Methods in NativeCallableUnit interface
+
+    @Override
+    public void setSymbolName(SymbolName symbolName) {
+        this.symbolName = symbolName;
+    }
+
+    @Override
+    public SymbolScope getSymbolScope() {
+        return null;
+    }
+
+    @Override
+    public void setArgTypeNames(SimpleTypeName[] argTypes) {
+        this.argTypeNames = argTypes;
+    }
+
+    @Override
+    public SimpleTypeName[] getArgumentTypeNames() {
+        return argTypeNames;
+    }
+
+    @Override
+    public SimpleTypeName[] getReturnParamTypeNames() {
+        return returnParamTypeNames;
+    }
+
+    @Override
+    public void setReturnParamTypeNames(SimpleTypeName[] returnParamTypes) {
+        this.returnParamTypeNames = returnParamTypes;
     }
 }

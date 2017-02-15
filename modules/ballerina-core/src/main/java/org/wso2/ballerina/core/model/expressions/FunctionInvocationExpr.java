@@ -1,5 +1,5 @@
 /*
-*  Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+*  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 *
 *  WSO2 Inc. licenses this file to you under the Apache License,
 *  Version 2.0 (the "License"); you may not use this file except
@@ -19,8 +19,8 @@ package org.wso2.ballerina.core.model.expressions;
 
 import org.wso2.ballerina.core.model.Function;
 import org.wso2.ballerina.core.model.NodeExecutor;
+import org.wso2.ballerina.core.model.NodeLocation;
 import org.wso2.ballerina.core.model.NodeVisitor;
-import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.model.types.BType;
 import org.wso2.ballerina.core.model.values.BValue;
 
@@ -30,20 +30,40 @@ import org.wso2.ballerina.core.model.values.BValue;
  * @since 0.8.0
  */
 public class FunctionInvocationExpr extends AbstractExpression implements CallableUnitInvocationExpr<Function> {
-
-    private SymbolName functionName;
+    private String name;
+    private String pkgName;
+    private String pkgPath;
     private Expression[] exprs;
     private Function calleeFunction;
     private BType[] types = new BType[0];
+    private int retuningBranchID;
+    private boolean hasReturningBranch;
 
-    public FunctionInvocationExpr(SymbolName functionName, Expression[] exprs) {
-        this.functionName = functionName;
+    public FunctionInvocationExpr(NodeLocation location,
+                                  String name,
+                                  String pkgName,
+                                  String pkgPath,
+                                  Expression[] exprs) {
+        super(location);
+        this.name = name;
+        this.pkgName = pkgName;
+        this.pkgPath = pkgPath;
         this.exprs = exprs;
     }
 
     @Override
-    public SymbolName getCallableUnitName() {
-        return functionName;
+    public String getName() {
+        return name;
+    }
+
+    @Override
+    public String getPackageName() {
+        return pkgName;
+    }
+
+    @Override
+    public String getPackagePath() {
+        return pkgPath;
     }
 
     @Override
@@ -69,6 +89,11 @@ public class FunctionInvocationExpr extends AbstractExpression implements Callab
     @Override
     public void setTypes(BType[] types) {
         this.types = types;
+
+        multipleReturnsAvailable = types.length > 1;
+        if (!multipleReturnsAvailable && types.length == 1) {
+            this.type = types[0];
+        }
     }
 
     @Override
@@ -85,10 +110,31 @@ public class FunctionInvocationExpr extends AbstractExpression implements Callab
     public BValue execute(NodeExecutor executor) {
         BValue[] values = executor.visit(this);
 
-        if (calleeFunction.getReturnParameters().length == 0) {
+        if (calleeFunction.getReturnParamTypes().length == 0) {
             return null;
         }
 
         return values[0];
     }
+
+    @Override
+    public int getGotoBranchID() {
+        return retuningBranchID;
+    }
+
+    @Override
+    public void setGotoBranchID(int retuningBranchID) {
+        this.retuningBranchID = retuningBranchID;
+    }
+
+    @Override
+    public boolean hasGotoBranchID() {
+        return hasReturningBranch;
+    }
+
+    @Override
+    public void setHasGotoBranchID(boolean hasReturningBranch) {
+        this.hasReturningBranch = hasReturningBranch;
+    }
+
 }

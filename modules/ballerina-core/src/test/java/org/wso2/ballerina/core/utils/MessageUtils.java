@@ -20,7 +20,7 @@ package org.wso2.ballerina.core.utils;
 
 import org.wso2.ballerina.core.message.BallerinaMessageDataSource;
 import org.wso2.ballerina.core.message.StringDataSource;
-import org.wso2.ballerina.core.nativeimpl.connectors.http.Constants;
+import org.wso2.ballerina.core.runtime.dispatching.http.Constants;
 import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.DefaultCarbonMessage;
 import org.wso2.carbon.messaging.Header;
@@ -58,9 +58,9 @@ public class MessageUtils {
 
         // Set meta data
         carbonMessage.setProperty(org.wso2.carbon.messaging.Constants.PROTOCOL,
-                                  org.wso2.ballerina.core.nativeimpl.connectors.http.Constants.PROTOCOL_HTTP);
+                                  Constants.PROTOCOL_HTTP);
         carbonMessage.setProperty(org.wso2.carbon.messaging.Constants.LISTENER_INTERFACE_ID,
-                                  org.wso2.ballerina.core.nativeimpl.connectors.http.Constants.DEFAULT_INTERFACE);
+                                  Constants.DEFAULT_INTERFACE);
         // Set url
         carbonMessage.setProperty(org.wso2.carbon.messaging.Constants.TO, path);
 

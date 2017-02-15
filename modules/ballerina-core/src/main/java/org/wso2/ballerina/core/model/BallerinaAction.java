@@ -18,8 +18,14 @@
 
 package org.wso2.ballerina.core.model;
 
+import org.wso2.ballerina.core.exception.FlowBuilderException;
+import org.wso2.ballerina.core.model.builder.CallableUnitBuilder;
 import org.wso2.ballerina.core.model.statements.BlockStmt;
+import org.wso2.ballerina.core.model.symbols.BLangSymbol;
 import org.wso2.ballerina.core.model.types.BType;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * An {@code Action} is a operation (function) that can be executed against a connector.
@@ -36,51 +42,36 @@ import org.wso2.ballerina.core.model.types.BType;
  *
  * @since 0.8.0
  */
-@SuppressWarnings("unused")
-public class BallerinaAction implements Action, Node {
+public class BallerinaAction implements Action, SymbolScope, Node {
+    private NodeLocation location;
 
-    private SymbolName name;
+    // BLangSymbol related attributes
+    protected String name;
+    protected String pkgPath;
+    protected boolean isPublic;
+    protected SymbolName symbolName;
+
     private Annotation[] annotations;
-    private Parameter[] parameters;
-    private ConnectorDcl[] connectorDcls;
-    private VariableDcl[] variableDcls;
+    private ParameterDef[] parameterDefs;
+    private BType[] parameterTypes;
     private Worker[] workers;
-    private BType[] returnTypes;
-    private Parameter[] returnParams;
+    private ParameterDef[] returnParams;
+    private BType[] returnParamTypes;
     private BlockStmt actionBody;
-    private Position actionLocation;
-
+    private BallerinaConnectorDef connectorDef;
     private int stackFrameSize;
 
-    public BallerinaAction(SymbolName name,
-                           Position location,
-                           Annotation[] annotations,
-                           Parameter[] parameters,
-                           Parameter[] returnParams,
-                           ConnectorDcl[] connectorDcls,
-                           VariableDcl[] variableDcls,
-                           Worker[] workers,
-                           BlockStmt actionBody) {
+    // Scope related variables
+    private SymbolScope enclosingScope;
+    private Map<SymbolName, BLangSymbol> symbolMap;
 
-        this.name = name;
-        this.actionLocation = location;
-        this.annotations = annotations;
-        this.parameters = parameters;
-        this.returnParams = returnParams;
-        this.connectorDcls = connectorDcls;
-        this.variableDcls = variableDcls;
-        this.workers = workers;
-        this.actionBody = actionBody;
-    }
+    // Linker related variables
+    private int tempStackFrameSize;
+    private boolean isFlowBuilderVisited;
 
-    @Override
-    public String getName() {
-        return name.getName();
-    }
-
-    @Override
-    public String getPackageName() {
-        return null;
+    private BallerinaAction(SymbolScope enclosingScope) {
+        this.enclosingScope = enclosingScope;
+        this.symbolMap = new HashMap<>();
     }
 
     @Override
@@ -88,23 +79,17 @@ public class BallerinaAction implements Action, Node {
         return annotations;
     }
 
-    @Override
-    public Parameter[] getParameters() {
-        return parameters;
-    }
-
-    @Override
-    public SymbolName getSymbolName() {
-        return name;
+    public ParameterDef[] getParameterDefs() {
+        return parameterDefs;
     }
 
     @Override
     public void setSymbolName(SymbolName symbolName) {
-        name = symbolName;
+        this.symbolName = symbolName;
     }
 
     @Override
-    public Parameter[] getReturnParameters() {
+    public ParameterDef[] getReturnParameters() {
         return returnParams;
     }
 
@@ -119,28 +104,164 @@ public class BallerinaAction implements Action, Node {
     }
 
     @Override
+    public int getTempStackFrameSize() {
+        return tempStackFrameSize;
+    }
+
+    @Override
+    public void setTempStackFrameSize(int stackFrameSize) {
+        if (this.tempStackFrameSize > 0 && stackFrameSize != this.tempStackFrameSize) {
+            throw new FlowBuilderException("Attempt to Overwrite tempValue Frame size. current :" +
+                    this.tempStackFrameSize + ", new :" + stackFrameSize);
+        }
+        this.tempStackFrameSize = stackFrameSize;
+    }
+
+    @Override
     public BlockStmt getCallableUnitBody() {
         return actionBody;
     }
 
-    public VariableDcl[] getVariableDcls() {
-        return variableDcls;
+    public VariableDef[] getVariableDefs() {
+        return null;
     }
+
+    public Worker[] getWorkers() {
+        return workers;
+    }
+
+    public ConnectorDcl[] getConnectorDcls() {
+        return null;
+    }
+
+    @Override
+    public BType[] getReturnParamTypes() {
+        return returnParamTypes;
+    }
+
+    @Override
+    public void setReturnParamTypes(BType[] returnParamTypes) {
+        this.returnParamTypes = returnParamTypes;
+    }
+
+    @Override
+    public BType[] getArgumentTypes() {
+        return parameterTypes;
+    }
+
+    @Override
+    public void setParameterTypes(BType[] parameterTypes) {
+        this.parameterTypes = parameterTypes;
+    }
+
+    public BallerinaConnectorDef getConnectorDef() {
+        return connectorDef;
+    }
+
+    public void setConnectorDef(BallerinaConnectorDef connectorDef) {
+        this.connectorDef = connectorDef;
+    }
+
+    // Methods in Node interface
 
     @Override
     public void accept(NodeVisitor visitor) {
         visitor.visit(this);
     }
 
-    public ConnectorDcl[] getConnectorDcls() {
-        return connectorDcls;
+    @Override
+    public NodeLocation getNodeLocation() {
+        return location;
+    }
+
+    // Methods in BLangSymbol interface
+
+    @Override
+    public String getName() {
+        return name;
+    }
+
+    @Override
+    public String getPackagePath() {
+        return pkgPath;
+    }
+
+    @Override
+    public boolean isPublic() {
+        return isPublic;
+    }
+
+    @Override
+    public boolean isNative() {
+        return false;
+    }
+
+    @Override
+    public SymbolName getSymbolName() {
+        return symbolName;
+    }
+
+    @Override
+    public SymbolScope getSymbolScope() {
+        return this;
+    }
+
+
+    // Methods in the SymbolScope interface
+
+    @Override
+    public ScopeName getScopeName() {
+        return ScopeName.LOCAL;
+    }
+
+    @Override
+    public SymbolScope getEnclosingScope() {
+        return enclosingScope;
+    }
+
+    @Override
+    public void define(SymbolName name, BLangSymbol symbol) {
+        symbolMap.put(name, symbol);
+    }
+
+    @Override
+    public BLangSymbol resolve(SymbolName name) {
+        return resolve(symbolMap, name);
+    }
+
+    public boolean isFlowBuilderVisited() {
+        return isFlowBuilderVisited;
+    }
+
+    public void setFlowBuilderVisited(boolean flowBuilderVisited) {
+        isFlowBuilderVisited = flowBuilderVisited;
     }
 
     /**
-     * {@inheritDoc}
+     * {@code BallerinaActionBuilder} is responsible for building a {@cdoe BallerinaAction} node.
+     *
+     * @since 0.8.0
      */
-    @Override
-    public Position getLocation() {
-        return actionLocation;
+    public static class BallerinaActionBuilder extends CallableUnitBuilder {
+        private BallerinaAction bAction;
+
+        public BallerinaActionBuilder(SymbolScope enclosingScope) {
+            bAction = new BallerinaAction(enclosingScope);
+            currentScope = bAction;
+        }
+
+        public BallerinaAction buildAction() {
+            bAction.location = this.location;
+            bAction.name = this.name;
+            bAction.pkgPath = this.pkgPath;
+            bAction.symbolName = new SymbolName(name, pkgPath);
+
+            bAction.annotations = this.annotationList.toArray(new Annotation[this.annotationList.size()]);
+            bAction.parameterDefs = this.parameterDefList.toArray(new ParameterDef[this.parameterDefList.size()]);
+            bAction.returnParams = this.returnParamList.toArray(new ParameterDef[this.returnParamList.size()]);
+            bAction.workers = this.workerList.toArray(new Worker[this.workerList.size()]);
+            bAction.actionBody = this.body;
+            return bAction;
+        }
     }
 }

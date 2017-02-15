@@ -34,10 +34,10 @@ public class Symbol {
     private MemoryLocation location;
 
     private Function function;
-    private TypeConvertor typeConvertor;
+    private TypeMapper typeMapper;
     private Action action;
     private Connector connector;
-    private BallerinaStruct struct;
+    private StructDef structDef;
 
     public Symbol(BType type, SymScope.Name scopeName, MemoryLocation location) {
         this.type = type;
@@ -49,8 +49,8 @@ public class Symbol {
         this.function = function;
     }
 
-    public Symbol(TypeConvertor typeConvertor) {
-        this.typeConvertor = typeConvertor;
+    public Symbol(TypeMapper typeMapper) {
+        this.typeMapper = typeMapper;
     }
 
     public Symbol(Action action) {
@@ -61,8 +61,8 @@ public class Symbol {
         this.connector = connector;
     }
 
-    public Symbol(BallerinaStruct struct) {
-        this.struct = struct;
+    public Symbol(StructDef structDef) {
+        this.structDef = structDef;
     }
 
     public BType getType() {
@@ -81,8 +81,8 @@ public class Symbol {
         return function;
     }
 
-    public TypeConvertor getTypeConvertor() {
-        return typeConvertor;
+    public TypeMapper getTypeMapper() {
+        return typeMapper;
     }
 
     public Action getAction() {
@@ -93,8 +93,8 @@ public class Symbol {
         return connector;
     }
     
-    public BallerinaStruct getStruct() {
-        return struct;
+    public StructDef getStructDef() {
+        return structDef;
     }
 }
 

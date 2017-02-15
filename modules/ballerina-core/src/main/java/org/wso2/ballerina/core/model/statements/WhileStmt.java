@@ -1,5 +1,5 @@
 /*
-*  Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+*  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 *
 *  WSO2 Inc. licenses this file to you under the Apache License,
 *  Version 2.0 (the "License"); you may not use this file except
@@ -18,6 +18,7 @@
 package org.wso2.ballerina.core.model.statements;
 
 import org.wso2.ballerina.core.model.NodeExecutor;
+import org.wso2.ballerina.core.model.NodeLocation;
 import org.wso2.ballerina.core.model.NodeVisitor;
 import org.wso2.ballerina.core.model.expressions.Expression;
 
@@ -31,7 +32,8 @@ public class WhileStmt extends AbstractStatement {
     private BlockStmt whileBody;
 
     // TODO Make this constructor private
-    public WhileStmt(Expression whileCondition, BlockStmt whileBody) {
+    public WhileStmt(NodeLocation location, Expression whileCondition, BlockStmt whileBody) {
+        super(location);
         this.whileCondition = whileCondition;
         this.whileBody = whileBody;
     }
@@ -60,11 +62,12 @@ public class WhileStmt extends AbstractStatement {
      * @since 0.8.0
      */
     public static class WhileStmtBuilder {
-
+        private NodeLocation location;
         private Expression whileCondition;
         private BlockStmt whileBody;
 
-        public WhileStmtBuilder() {
+        public void setNodeLocation(NodeLocation location) {
+            this.location = location;
         }
 
         public void setCondition(Expression whileCondition) {
@@ -76,7 +79,7 @@ public class WhileStmt extends AbstractStatement {
         }
 
         public WhileStmt build() {
-            return new WhileStmt(whileCondition, whileBody);
+            return new WhileStmt(location, whileCondition, whileBody);
         }
     }
 }

@@ -1,5 +1,5 @@
 /*
-*  Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+*  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 *
 *  WSO2 Inc. licenses this file to you under the Apache License,
 *  Version 2.0 (the "License"); you may not use this file except
@@ -18,9 +18,9 @@
 package org.wso2.ballerina.core.model.expressions;
 
 import org.wso2.ballerina.core.model.NodeExecutor;
+import org.wso2.ballerina.core.model.NodeLocation;
 import org.wso2.ballerina.core.model.NodeVisitor;
 import org.wso2.ballerina.core.model.Operator;
-import org.wso2.ballerina.core.model.Position;
 import org.wso2.ballerina.core.model.values.BBoolean;
 import org.wso2.ballerina.core.model.values.BDouble;
 import org.wso2.ballerina.core.model.values.BFloat;
@@ -77,16 +77,11 @@ public class UnaryExpression extends AbstractExpression {
     public void setEvalFunc(BiFunction<BValueType, BValueType, BValueType> evalFuncNewNew) {
         this.evalFuncNewNew = evalFuncNewNew;
     }
-
-    public UnaryExpression(Operator op, Expression rExpr) {
-        this.op = op;
-        this.rExpr = rExpr;
-    }
     
-    public UnaryExpression(Operator op, Expression rExpr, Position location) {
+    public UnaryExpression(NodeLocation location, Operator op, Expression rExpr) {
+        super(location);
         this.op = op;
         this.rExpr = rExpr;
-        expressionLocation = location;
     }
 
     public Expression getRExpr() {
