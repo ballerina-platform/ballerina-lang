@@ -113,6 +113,7 @@ public class BLangExecutor implements NodeExecutor {
     private Context bContext;
     private ControlStack controlStack;
     private boolean returnedOrReplied;
+    private boolean isForkJoinTimedOut;
     private ExecutorService executor;
 
     public BLangExecutor(RuntimeEnvironment runtimeEnv, Context bContext) {
@@ -405,7 +406,7 @@ public class BLangExecutor implements NodeExecutor {
             String[] joinWorkerNames = forkJoinStmt.getJoin().getJoinWorkers();
             if (joinWorkerNames.length == 0) {
                 // If there are no workers specified, wait for any of all the workers
-                BMessage res = invokeAnyWorker(workerRunnerList, timeout, forkJoinStmt);
+                BMessage res = invokeAnyWorker(workerRunnerList, timeout);
                 if (res != null) {
                     resultMsgs.add(res);
                 }
@@ -414,7 +415,7 @@ public class BLangExecutor implements NodeExecutor {
                 for (String workerName : joinWorkerNames) {
                     workerRunnersSpecified.add(triggeredWorkers.get(workerName));
                 }
-                BMessage res = invokeAnyWorker(workerRunnersSpecified, timeout, forkJoinStmt);
+                BMessage res = invokeAnyWorker(workerRunnersSpecified, timeout);
                 if (res != null) {
                     resultMsgs.add(res);
                 }
@@ -423,17 +424,17 @@ public class BLangExecutor implements NodeExecutor {
             String[] joinWorkerNames = forkJoinStmt.getJoin().getJoinWorkers();
             if (joinWorkerNames.length == 0) {
                 // If there are no workers specified, wait for all of all the workers
-                resultMsgs.addAll(invokeAllWorkers(workerRunnerList, timeout, forkJoinStmt));
+                resultMsgs.addAll(invokeAllWorkers(workerRunnerList, timeout));
             } else {
                 List<WorkerRunner> workerRunnersSpecified = new ArrayList<>();
                 for (String workerName : joinWorkerNames) {
                     workerRunnersSpecified.add(triggeredWorkers.get(workerName));
                 }
-                resultMsgs.addAll(invokeAllWorkers(workerRunnersSpecified, timeout, forkJoinStmt));
+                resultMsgs.addAll(invokeAllWorkers(workerRunnersSpecified, timeout));
             }
         }
 
-        if (forkJoinStmt.isTimedOut()) {
+        if (isForkJoinTimedOut) {
             // Execute the timeout block
 
             // Creating a new array
@@ -468,8 +469,7 @@ public class BLangExecutor implements NodeExecutor {
 
     }
 
-    private BMessage invokeAnyWorker(List<WorkerRunner> workerRunnerList, int timeout,
-                                     ForkJoinStmt forkJoinStmt) {
+    private BMessage invokeAnyWorker(List<WorkerRunner> workerRunnerList, int timeout) {
         ExecutorService anyExecutor = Executors.newWorkStealingPool();
         BMessage result;
         try {
@@ -477,15 +477,14 @@ public class BLangExecutor implements NodeExecutor {
         } catch (InterruptedException | ExecutionException e) {
             return null;
         } catch (TimeoutException e) {
-            forkJoinStmt.setTimedOut(true);
+            isForkJoinTimedOut = true;
             return null;
            // throw new BallerinaException("Fork-Join statement at " + position + " timed out", e);
         }
         return result;
     }
 
-    private List<BMessage> invokeAllWorkers(List<WorkerRunner> workerRunnerList, int timeout,
-                                            ForkJoinStmt forkJoinStmt) {
+    private List<BMessage> invokeAllWorkers(List<WorkerRunner> workerRunnerList, int timeout) {
         ExecutorService allExecutor = Executors.newWorkStealingPool();
         List<BMessage> result = new ArrayList<>();
         try {
@@ -494,7 +493,7 @@ public class BLangExecutor implements NodeExecutor {
                     return bMessageFuture.get();
                 } catch (CancellationException e) {
                     // This means task has been timedout and cancelled by system.
-                    forkJoinStmt.setTimedOut(true);
+                    isForkJoinTimedOut = true;
                     return null;
                 } catch (Exception e) {
                     return null;

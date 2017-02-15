@@ -50,7 +50,6 @@ public class ForkJoinStmt extends AbstractStatement implements SymbolScope, Comp
     private Join join;
     private Timeout timeout;
     private VariableRefExpr messageReference;
-    private boolean isTimedOut;
     // Scope related variables
     private SymbolScope enclosingScope;
     private Map<SymbolName, BLangSymbol> symbolMap;
@@ -204,14 +203,6 @@ public class ForkJoinStmt extends AbstractStatement implements SymbolScope, Comp
         return workers;
     }
 
-    public void setTimedOut(boolean timedOut) {
-        isTimedOut = timedOut;
-    }
-
-    public boolean isTimedOut() {
-        return isTimedOut;
-    }
-
     public VariableRefExpr getMessageReference() {
         return messageReference;
     }
@@ -343,11 +334,7 @@ public class ForkJoinStmt extends AbstractStatement implements SymbolScope, Comp
      */
     @Override
     public BlockStmt getCallableUnitBody() {
-        if (this.isTimedOut) {
-            return (BlockStmt) this.timeout.getTimeoutBlock();
-        } else {
-            return (BlockStmt) this.join.getJoinBlock();
-        }
+        return null;
     }
 
     /**
