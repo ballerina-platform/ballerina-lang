@@ -30,25 +30,25 @@ import org.wso2.ballerina.lang.util.Functions;
 public class VariableScopeTest {
 
     @Test(expectedExceptions = SemanticException.class,
-          expectedExceptionsMessageRegExp = "variable-if-scope.bal:12: : undefined symbol 'k'")
+          expectedExceptionsMessageRegExp = "variable-if-scope.bal:12: undefined symbol 'k'")
     public void testIfScope() {
         ParserUtils.parseBalFile("lang/statements/variable-if-scope.bal");
     }
 
     @Test(expectedExceptions = SemanticException.class,
-          expectedExceptionsMessageRegExp = "variable-else-scope.bal:9: : undefined symbol 'b'")
+          expectedExceptionsMessageRegExp = "variable-else-scope.bal:9: undefined symbol 'b'")
     public void testElseScope() {
         ParserUtils.parseBalFile("lang/statements/variable-else-scope.bal");
     }
 
     @Test(expectedExceptions = SemanticException.class,
-          expectedExceptionsMessageRegExp = "variable-while-scope.bal:7: : undefined symbol 'b'")
+          expectedExceptionsMessageRegExp = "variable-while-scope.bal:7: undefined symbol 'b'")
     public void testWhileScope() {
         ParserUtils.parseBalFile("lang/statements/variable-while-scope.bal");
     }
 
     @Test(expectedExceptions = SemanticException.class,
-          expectedExceptionsMessageRegExp = "variable-resource-scope.bal:10: : undefined symbol 'b'")
+          expectedExceptionsMessageRegExp = "variable-resource-scope.bal:10: undefined symbol 'b'")
     public void testResourceScope() {
         ParserUtils.parseBalFile("lang/statements/variable-resource-scope.bal");
     }

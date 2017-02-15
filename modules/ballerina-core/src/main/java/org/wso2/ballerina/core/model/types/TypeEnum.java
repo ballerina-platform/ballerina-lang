@@ -35,6 +35,7 @@ public enum TypeEnum {
     MAP("map"),
     ARRAY("array"),
     CONNECTOR("connector"),
+    EXCEPTION("exception"),
     DATATABLE("datatable"),
     EMPTY("");
 

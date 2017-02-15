@@ -25,7 +25,8 @@ import org.wso2.ballerina.core.model.values.BValue;
 
 /**
  * {@code MapInitExpr} represents a Map initializer expression.
- **
+ * *
+ *
  * @since 1.0.0
  */
 public class MapInitExpr extends RefTypeInitExpr {
