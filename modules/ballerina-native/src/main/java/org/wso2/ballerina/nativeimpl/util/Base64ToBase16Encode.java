@@ -34,9 +34,9 @@ import java.nio.charset.Charset;
 import java.util.Base64;
 
 /**
- * Native function ballerina.util:getHmac.
+ * Native function ballerina.util:base64ToBase16Encode.
  *
- * @since 1.0.0
+ * @since 0.8.0
  */
 
 @BallerinaFunction(

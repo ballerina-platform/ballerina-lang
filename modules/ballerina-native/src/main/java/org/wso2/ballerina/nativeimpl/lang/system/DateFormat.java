@@ -32,9 +32,9 @@ import java.util.Date;
 import java.util.TimeZone;
 
 /**
- * Native function ballerina.lang.system:currentTimeMillis.
+ * Native function ballerina.lang.system:getDateFormat.
  *
- * @since 1.0.0
+ * @since 0.8.0
  */
 @BallerinaFunction(
         packageName = "ballerina.lang.system",
