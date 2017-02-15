@@ -20,6 +20,7 @@ define(['lodash', './node'], function (_, ASTNode) {
     var VariableDefinition = function (args) {
         ASTNode.call(this, 'VariableDefinition');
         this._name = _.get(args, 'name', 'newIdentifier');
+        this._typeName = _.get(args, 'name', 'newTypeName');
         this._pkgPath = _.get(args, 'pkgPath', 'newPkgPath');
         this._isPublic = _.get(args, 'isPublic', false);
     };
@@ -42,11 +43,33 @@ define(['lodash', './node'], function (_, ASTNode) {
     };
 
     /**
+     * set the type of the variable def
+     * @param typeName
+     * @param options
+     */
+    VariableDefinition.prototype.setTypeName = function (typeName, options) {
+        if (!_.isNil(typeName)) {
+            this.setAttribute('_name', typeName, options);
+        } else {
+            log.error('Invalid Type Name [' + typeName + '] Provided');
+            throw 'Invalid Type Name [' + typeName + '] Provided';
+        }
+    };
+
+    /**
      * returns the  name
      * @returns {*}
      */
     VariableDefinition.prototype.getName = function () {
         return this._name;
+    };
+
+    /**
+     * returns the  Type Name
+     * @returns {*}
+     */
+    VariableDefinition.prototype.getTypeName = function () {
+        return this._typeName;
     };
 
     /**

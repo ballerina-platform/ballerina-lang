@@ -104,8 +104,6 @@ define(['lodash', './ballerina-ast-factory'], function (_, BallerinaASTFactory) 
 
         var variableReferenceExpression = BallerinaASTFactory.createVariableReferenceExpression(args);
         var variableDefinition = BallerinaASTFactory.createVariableDefinition(args);
-        var simpleTypeName = BallerinaASTFactory.createSimpleTypeName(args);
-        variableDefinition.addChild(simpleTypeName);
         variableReferenceExpression.addChild(variableDefinition);
         leftOperandExpression.addChild(variableReferenceExpression);
 

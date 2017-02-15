@@ -104,7 +104,7 @@ define(['lodash', './node', '../utils/common-utils'], function (_, ASTNode, Comm
 
         _.forEach(this.getChildren(), function (child) {
             if (ballerinaASTFactory.isReturnType(child)) {
-               returnType = child.getType();
+                returnType = child.getType();
             }
         });
         return returnType;
@@ -260,12 +260,7 @@ define(['lodash', './node', '../utils/common-utils'], function (_, ASTNode, Comm
         });
 
         variableDefinition.setName(identifier);
-
-        var simpleTypeName = _.find(variableDefinition.getChildren(), function (child) {
-            return ballerinaASTFactory.isSimpleTypeName(child);
-        });
-
-        simpleTypeName.setName(structName);
+        variableDefinition.setTypeName(structName);
     };
 
     /**
@@ -309,7 +304,7 @@ define(['lodash', './node', '../utils/common-utils'], function (_, ASTNode, Comm
         var sourceStructFieldAccessExpression = this.getFactory().createStructFieldAccessExpression();
         var sourceVariableReferenceExpressionForIdentifier = this.getFactory().createVariableReferenceExpression();
         sourceVariableReferenceExpressionForIdentifier.setVariableReferenceName(sourceIdentifier);
-        var sourceFieldExpression = this.getFactory().createFieldExpression();
+        var sourceFieldExpression = this.getFactory().createStructFieldAccessExpression();
         var tempRefOfFieldExpression;
 
         _.forEach(sourceValue, function (sourceVal) {
@@ -320,7 +315,7 @@ define(['lodash', './node', '../utils/common-utils'], function (_, ASTNode, Comm
                 sourceFieldExpression.addChild(tempVariableReferenceExpression);
                 tempRefOfFieldExpression = sourceFieldExpression
             }else{
-                tempFieldExpression = self.getFactory().createFieldExpression();
+                tempFieldExpression = self.getFactory().createStructFieldAccessExpression();
                 tempFieldExpression.addChild(tempVariableReferenceExpression);
                 tempRefOfFieldExpression.addChild(tempFieldExpression);
                 tempRefOfFieldExpression = tempFieldExpression;
@@ -333,7 +328,7 @@ define(['lodash', './node', '../utils/common-utils'], function (_, ASTNode, Comm
         var targetStructFieldAccessExpression = this.getFactory().createStructFieldAccessExpression();
         var targetVariableReferenceExpressionForIdentifier = this.getFactory().createVariableReferenceExpression();
         targetVariableReferenceExpressionForIdentifier.setVariableReferenceName(targetIdentifier);
-        var targetFieldExpression = this.getFactory().createFieldExpression();
+        var targetFieldExpression = this.getFactory().createStructFieldAccessExpression();
         var tempRefOfFieldExpression;
 
         _.forEach(targetValue, function (targetVal) {
@@ -344,7 +339,7 @@ define(['lodash', './node', '../utils/common-utils'], function (_, ASTNode, Comm
                 targetFieldExpression.addChild(tempVariableReferenceExpression);
                 tempRefOfFieldExpression = targetFieldExpression
             }else{
-                tempFieldExpression = self.getFactory().createFieldExpression();
+                tempFieldExpression = self.getFactory().createStructFieldAccessExpression();
                 tempFieldExpression.addChild(tempVariableReferenceExpression);
                 tempRefOfFieldExpression.addChild(tempFieldExpression);
                 tempRefOfFieldExpression = tempFieldExpression;

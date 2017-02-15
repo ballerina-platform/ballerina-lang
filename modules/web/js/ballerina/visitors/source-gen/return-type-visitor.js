@@ -15,8 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require','lodash', 'log', 'event_channel', './abstract-source-gen-visitor', '../../ast/module','./simple-type-name-visitor'],
-    function(require, _, log, EventChannel, AbstractSourceGenVisitor, AST, SimpleTypeNameVisitor) {
+define(['require','lodash', 'log', 'event_channel', './abstract-source-gen-visitor', '../../ast/module',],
+    function(require, _, log, EventChannel, AbstractSourceGenVisitor, AST) {
 
         var ReturnTypeVisitor = function(parent){
             AbstractSourceGenVisitor.call(this,parent);
@@ -44,10 +44,10 @@ define(['require','lodash', 'log', 'event_channel', './abstract-source-gen-visit
            log.debug('End Visit Return Type');
         };
 
-        ReturnTypeVisitor.prototype.visitSimpleTypeName = function(simpleTypeName){
-            var simpleTypeNameVisitor = new SimpleTypeNameVisitor(this);
-            simpleTypeName.accept(simpleTypeNameVisitor);
-        };
+        // ReturnTypeVisitor.prototype.visitSimpleTypeName = function(simpleTypeName){
+        //     var simpleTypeNameVisitor = new SimpleTypeNameVisitor(this);
+        //     simpleTypeName.accept(simpleTypeNameVisitor);
+        // };
 
         return ReturnTypeVisitor;
     });

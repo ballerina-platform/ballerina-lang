@@ -43,10 +43,5 @@ define(['require','lodash', 'log', 'event_channel', './abstract-source-gen-visit
             log.debug('End Visit Variable Definition');
         };
 
-        VariableDefinitionVisitor.prototype.visitSimpleTypeName = function(simpleTypeName){
-            var simpleTypeNameVisitor = new SimpleTypeNameVisitor(this);
-            simpleTypeName.accept(simpleTypeNameVisitor);
-        };
-
         return VariableDefinitionVisitor;
     });
