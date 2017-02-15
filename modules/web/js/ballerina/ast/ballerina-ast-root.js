@@ -269,10 +269,16 @@ define(['lodash', 'log', './node', './import-declaration'], function (_, log, AS
                 return self.getFactory().isConstantDefinition(child);
             });
 
+            // If index is still -1, then get the index of the last import.
             if (index == -1) {
                 index = _.findLastIndex(this.getChildren(), function (child) {
                     return self.getFactory().isImportDeclaration(child);
                 })
+            }
+
+            // If index is still -1, then consider the package definition.
+            if (_.isEqual(index, -1) && !_.isNil(this.getPackageDefinition())) {
+                 index = 0;
             }
 
             this.addChild(newConstantDefinition, index + 1);
