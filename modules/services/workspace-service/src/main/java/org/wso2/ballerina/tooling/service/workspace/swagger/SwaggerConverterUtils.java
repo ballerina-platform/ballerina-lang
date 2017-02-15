@@ -30,15 +30,20 @@ import io.swagger.util.Json;
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.wso2.ballerina.core.model.GlobalScope;
+import org.wso2.ballerina.core.model.NodeLocation;
 import org.wso2.ballerina.core.model.Resource;
 import org.wso2.ballerina.core.model.Annotation;
 import org.wso2.ballerina.core.model.Service;
 import org.wso2.ballerina.core.model.BLangPackage;
 import org.wso2.ballerina.core.model.SymbolName;
+import org.wso2.ballerina.core.model.SymbolScope;
 import org.wso2.ballerina.core.model.builder.BLangModelBuilder;
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.ParameterDef;
+import org.wso2.ballerina.core.model.statements.BlockStmt;
 import org.wso2.ballerina.core.model.types.BTypes;
+import org.wso2.ballerina.core.model.types.SimpleTypeName;
+import org.wso2.ballerina.core.model.values.BMessage;
 import org.wso2.ballerina.core.parser.BallerinaLexer;
 import org.wso2.ballerina.core.parser.BallerinaParser;
 import org.wso2.ballerina.core.parser.BallerinaParserErrorStrategy;
@@ -214,6 +219,14 @@ public class SwaggerConverterUtils {
             //annotation map and array. But there is no way to update array other than
             //constructor method.
             resourceBuilder.setName(entry.nickname);
+            //Following code block will generate message input parameter definition for newly created
+            //resource as -->	resource TestPost(message m) {
+            //This logic can be improved to pass user defined types.
+            ParameterDef parameterDef = new ParameterDef(
+                    new NodeLocation("<unknown>"),"m", new SimpleTypeName("message"), new SymbolName("m"),
+                    resourceBuilder.buildResource());
+            //Then add created parameter.
+            resourceBuilder.addParameter(parameterDef);
             Resource resourceToBeAdd = resourceBuilder.buildResource();
             resourceList.add(resourceToBeAdd);
         }
