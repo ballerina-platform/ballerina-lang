@@ -56,7 +56,7 @@ define(['require', 'lodash', 'log', './compound-statement-view', './../ast/tryca
          * @param {TryStatement} statement
          */
         TryCatchStatementView.prototype.visitTryStatement = function(statement){
-            this._tryBlockView = this.renderChildStatement(statement);
+            this._tryBlockView = this.visitChildStatement(statement);
         };
 
         /**
@@ -64,7 +64,7 @@ define(['require', 'lodash', 'log', './compound-statement-view', './../ast/tryca
          * @param {CatchStatement} statement
          */
         TryCatchStatementView.prototype.visitCatchStatement = function(statement){
-            this._catchBlockView = this.renderChildStatement(statement);
+            this._catchBlockView = this.visitChildStatement(statement);
         };
 
         /**

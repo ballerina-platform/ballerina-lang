@@ -21,12 +21,11 @@ define(
     function (require, _, log, BallerinaStatementView, D3Utils, d3, Point) {
 
         /**
-         * Compound statement contains one or more block statements as its children.
+         * Compound statement.
          * @param args {*} arguments for the creating view
          * @class CompoundStatementView
          * @constructor
          * @extends BallerinaStatementView
-         * @see {@link BlockStatementView}
          */
         var CompoundStatementView = function (args) {
             BallerinaStatementView.call(this, args);
@@ -67,11 +66,11 @@ define(
         };
 
         /**
-         * Renders the specified child statement of this compound statement.
-         * @param childStatement {Statement} child statement to be rendered
-         * @return {BlockStatementView} statement view of he child statement
+         *
+         * @param childStatement
+         * @return {BlockStatementView}
          */
-        CompoundStatementView.prototype.renderChildStatement = function (childStatement) {
+        CompoundStatementView.prototype.visitChildStatement = function (childStatement) {
             var boundingBox = this.getBoundingBox();
             var topCenter = this.getTopCenter();
             var renderingContext = this.getDiagramRenderingContext();
