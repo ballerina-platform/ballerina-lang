@@ -493,23 +493,22 @@
     display: inline !important;
 }
 
-.tt-hint {
-    width: 276px;
+.action-import-wrapper-heading .tt-hint {
+    width: 100%;
     color: #999;
-    margin-top: -1px;
+    top:13px !important;
+    background: none !important;
 }
 
-.tt-menu {
-    width: 276px;
-    margin-top: 6px;
-    margin-left: 2px;
+.action-import-wrapper-heading .tt-menu {
+    margin-top: 18px;
     background-color: #fff;
     border: 1px solid #ccc;
     border: 1px solid rgba(0, 0, 0, 0.2);
-    box-shadow: 0 5px 10px rgba(0,0,0,.2);
+    width: 100%;
 }
 
-.tt-suggestion {
+.action-import-wrapper-heading  .tt-suggestion {
     padding: 3px 7px;
 }
 /** End of typeahead CSS **/
@@ -551,16 +550,20 @@
 
 .type-drop-wrapper{
     float: left;
+    margin: 0 5px 0 0;
+}
+
+.type-drop-wrapper.struct-view{
     margin: 11px 5px 0 5px;
 }
 
 .type-drop-wrapper .select2.select2-container {
-    min-width: 120px;
+    min-width: 110px;
     border-radius: 0;
 }
 
 .type-drop-wrapper .select2.select2-container .select2-selection--single {
-    min-width: 120px;
+    min-width: 110px;
     border-radius: 0;
     height: 24px;
 }
@@ -568,7 +571,32 @@
 .type-drop-wrapper .select2.select2-container .select2-selection--single .select2-selection__rendered {
     line-height: 24px;
 }
+.type-drop-wrapper .select2-container--default .select2-selection--single .select2-selection__arrow{
+    height:20px;
+}
+div.type-drop-wrapper.service{
+    margin: 0;
+}
 
+div.type-drop-wrapper.service .select2.select2-container .select2-selection--single {
+    height: 20px;
+}
+
+div.type-drop-wrapper.service .select2.select2-container .select2-selection--single .select2-selection__rendered{
+    line-height: 20px;
+}
+
+div.type-drop-wrapper.resource{
+    margin: 0 5px 0 0;
+}
+
+div.type-drop-wrapper.resource .select2.select2-container .select2-selection--single {
+    height: 24px;
+}
+
+div.type-drop-wrapper.resource .select2.select2-container .select2-selection--single .select2-selection__rendered{
+    line-height: 24px;
+}
 .add-struct-variable-button {
     height: 25px;
     width: 25px;
@@ -669,9 +697,9 @@
 /** End of Struct view CSS **/
 
 span.package-pane {
-    padding: 5px;
+    padding: 2px;
     margin-left: 0px;
-    background-color: #fff;
+    background-color: #ddd;
     border: 1px solid #bfbfbf;
     display: none;
     color: #333;
@@ -688,14 +716,16 @@ input#package-name-input {
     padding-left: 7px;
     margin-left: 2px;
     border: 1px solid #ccc;
+    line-height: 18px;
 }
 
 .package-name-btn span {
     cursor: pointer;
 }
 
-.package-definition-main-wrapper {
+.package-definition-wrapper, .package-imports-wrapper {
     height: 50px;
+    clear: both;
 }
 
 .tooltip-inner {

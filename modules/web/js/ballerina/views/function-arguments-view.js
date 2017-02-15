@@ -48,6 +48,9 @@ define(['require', 'lodash', 'jquery', 'ballerina/ast/ballerina-ast-factory'],
 
             // Creating arguments dropdown.
             var argumentTypeDropDown = $("<select/>").appendTo(headerWrapper);
+            var typeDropdownWrapper = $('<div class="type-drop-wrapper"></div>');
+            argumentTypeDropDown.appendTo(typeDropdownWrapper);
+            typeDropdownWrapper.appendTo(headerWrapper);
 
             var variableTypes = diagramRenderingContext.getEnvironment().getTypes();
             // Adding dropdown elements.
@@ -56,6 +59,12 @@ define(['require', 'lodash', 'jquery', 'ballerina/ast/ballerina-ast-factory'],
                 argumentTypeDropDown.append(
                     $('<option></option>').val(type).html(type)
                 );
+            });
+
+            argumentTypeDropDown.select2({
+                tags: true,
+                selectOnClose: true
+
             });
 
             // Text input for editing the identifier of an arguments.

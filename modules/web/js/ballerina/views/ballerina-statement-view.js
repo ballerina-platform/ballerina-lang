@@ -187,8 +187,10 @@ define(['require', 'lodash', 'log', './../visitors/statement-visitor', 'd3', 'd3
             "class": viewOptions.propertyForm.body.class
         }).appendTo(propertyPaneWrapper);
 
-        expressionEditor.createEditor(propertyPaneBody,
-            viewOptions.propertyForm.body.property.wrapper, editableProperties);
+        expressionEditor.createEditor(propertyPaneBody, viewOptions.propertyForm.body.property.wrapper,
+            editableProperties, function(){
+                self.trigger('edit-mode-disabled');
+            });
 
         $(deleteButtonRect.node()).click(function(event){
             event.stopPropagation();
@@ -237,6 +239,8 @@ define(['require', 'lodash', 'log', './../visitors/statement-visitor', 'd3', 'd3
         var self = this;
         $(statementGroup.node()).click(function (event) {
             self.trigger('edit-mode-enabled');
+            // make current active editors close
+            $(window).click();
             event.stopPropagation();
             $(window).click(function (event) {
                 self.trigger('edit-mode-disabled');
