@@ -333,6 +333,7 @@ define(['lodash', 'log','./ballerina-view', './variables-view', './type-struct-d
                     model: blockStatement, parentView: this,sourceInfo: self.getSourceInfo(),targetInfo: self.getTargetInfo()
                 }));
                 self.getBlockStatementView().initializeConnections();
+                self.getBlockStatementView().render(this.diagramRenderingContext);
             }else{
                 self.getBlockStatementView().setModel(blockStatement);
                 self.getBlockStatementView().setSourceInfo(self.getSourceInfo());
