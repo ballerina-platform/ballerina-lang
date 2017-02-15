@@ -174,7 +174,8 @@ public class HTTPServiceDispatcher implements ServiceDispatcher {
                 if (sourceInterfaceVal != null) {   //TODO: Filter non-http protocols
                     listenerInterface = sourceInterfaceVal;
                 }
-            } else if (annotation.getName().equals(Constants.ANNOTATION_NAME_BASE_PATH)) {
+            } else if (annotation.getName().equals(
+                    Constants.PROTOCOL_HTTP + ":" + Constants.ANNOTATION_NAME_BASE_PATH)) {
                 basePath = annotation.getValue();
             }
         }
