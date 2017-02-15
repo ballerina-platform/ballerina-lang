@@ -107,6 +107,10 @@ public class BallerinaAction implements Action, SymbolScope, Node {
         return null;
     }
 
+    public Worker[] getWorkers() {
+        return workers;
+    }
+
     public ConnectorDcl[] getConnectorDcls() {
         return null;
     }

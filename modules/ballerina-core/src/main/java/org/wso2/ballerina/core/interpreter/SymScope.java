@@ -95,7 +95,7 @@ public class SymScope {
         RESOURCE("_resource"),
         ACTION("_action"),
         STRUCT("_struct"),
-        TYPECONVERTOR("_typeconvertor");
+        TYPEMAPPER("_typemapper");
 
         private String name;
 

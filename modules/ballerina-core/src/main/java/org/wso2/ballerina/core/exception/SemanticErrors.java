@@ -72,7 +72,8 @@ public enum SemanticErrors {
     REF_TYPE_MESSAGE_ALLOWED("ref.type.message.allowed", "SEMANTIC_0047"),
     UNDEFINED_PACKAGE_NAME("undefined.package.name", "SEMANTIC_0048"),
     TEMPLATE_EXPRESSION_NOT_ALLOWED_HERE("template.expression.not.allowed.here", "SEMANTIC_0049"),
-    CONNECTOR_INIT_NOT_ALLOWED_HERE("connector.init.not.allowed.here", "SEMANTIC_0050");
+    CONNECTOR_INIT_NOT_ALLOWED_HERE("connector.init.not.allowed.here", "SEMANTIC_0050"),
+    ONLY_COUNT_1_ALLOWED_THIS_VERSION("only.count.1.allowed.this.version", "SEMANTIC_0051");
 
     private String errorMsgKey;
     private String errorCode;

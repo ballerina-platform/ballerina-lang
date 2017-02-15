@@ -54,6 +54,10 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     private boolean isArrayType;
 
+    // Variable to keep whether worker creation has been started. This is used at BLangAntlr4Listener class
+    // to create parameter when there is a named parameter
+    private boolean isWorkerStarted = false;
+
     public BLangAntlr4Listener(BLangModelBuilder modelBuilder) {
         this.modelBuilder = modelBuilder;
     }
@@ -360,36 +364,36 @@ public class BLangAntlr4Listener implements BallerinaListener {
     }
 
     @Override
-    public void enterTypeConvertorDefinition(BallerinaParser.TypeConvertorDefinitionContext ctx) {
+    public void enterTypeMapperDefinition(BallerinaParser.TypeMapperDefinitionContext ctx) {
 
     }
 
     @Override
-    public void exitTypeConvertorDefinition(BallerinaParser.TypeConvertorDefinitionContext ctx) {
+    public void exitTypeMapperDefinition(BallerinaParser.TypeMapperDefinitionContext ctx) {
 
     }
 
     @Override
-    public void enterNativeTypeConvertor(BallerinaParser.NativeTypeConvertorContext ctx) {
+    public void enterNativeTypeMapper(BallerinaParser.NativeTypeMapperContext ctx) {
 
     }
 
     @Override
-    public void exitNativeTypeConvertor(BallerinaParser.NativeTypeConvertorContext ctx) {
+    public void exitNativeTypeMapper(BallerinaParser.NativeTypeMapperContext ctx) {
 
     }
 
     @Override
-    public void enterTypeConvertor(BallerinaParser.TypeConvertorContext ctx) {
+    public void enterTypeMapper(BallerinaParser.TypeMapperContext ctx) {
         if (ctx.exception == null) {
-            modelBuilder.startTypeConverterDef();
+            modelBuilder.startTypeMapperDef();
         }
     }
 
     @Override
-    public void exitTypeConvertor(BallerinaParser.TypeConvertorContext ctx) {
+    public void exitTypeMapper(BallerinaParser.TypeMapperContext ctx) {
         if (ctx.exception == null) {
-            // Create the return type of the type convertor
+            // Create the return type of the type mapper
             modelBuilder.createReturnTypes(getCurrentLocation(ctx));
             boolean isPublic = true;
             // Set the location info needed to generate the stack trace
@@ -397,29 +401,29 @@ public class BLangAntlr4Listener implements BallerinaListener {
             if (identifier != null) {
                 String fileName = identifier.getSymbol().getInputStream().getSourceName();
                 int lineNo = identifier.getSymbol().getLine();
-                NodeLocation typeconvertorLocation = new NodeLocation(fileName, lineNo);
-                modelBuilder.addTypeConverter(ctx.typeConvertorInput().typeConvertorType().getText()
-                        , ctx.typeConvertorType().getText(), identifier.getText(), typeconvertorLocation, isPublic);
+                NodeLocation typemapperLocation = new NodeLocation(fileName, lineNo);
+                modelBuilder.addTypeMapper(ctx.typeMapperInput().typeMapperType().getText()
+                        , ctx.typeMapperType().getText(), identifier.getText(), typemapperLocation, isPublic);
             }
         }
     }
 
     /**
-     * Enter a parse tree produced by {@link BallerinaParser#typeConvertorInput}.
+     * Enter a parse tree produced by {@link BallerinaParser#typeMapperInput}.
      *
      * @param ctx the parse tree
      */
     @Override
-    public void enterTypeConvertorInput(BallerinaParser.TypeConvertorInputContext ctx) {
+    public void enterTypeMapperInput(BallerinaParser.TypeMapperInputContext ctx) {
     }
 
     /**
-     * Exit a parse tree produced by {@link BallerinaParser#typeConvertorInput}.
+     * Exit a parse tree produced by {@link BallerinaParser#typeMapperInput}.
      *
      * @param ctx the parse tree
      */
     @Override
-    public void exitTypeConvertorInput(BallerinaParser.TypeConvertorInputContext ctx) {
+    public void exitTypeMapperInput(BallerinaParser.TypeMapperInputContext ctx) {
         if (ctx.exception != null) {
             return;
         }
@@ -428,14 +432,14 @@ public class BLangAntlr4Listener implements BallerinaListener {
     }
 
     @Override
-    public void enterTypeConvertorBody(BallerinaParser.TypeConvertorBodyContext ctx) {
+    public void enterTypeMapperBody(BallerinaParser.TypeMapperBodyContext ctx) {
         if (ctx.exception == null) {
             modelBuilder.startCallableUnitBody(getCurrentLocation(ctx));
         }
     }
 
     @Override
-    public void exitTypeConvertorBody(BallerinaParser.TypeConvertorBodyContext ctx) {
+    public void exitTypeMapperBody(BallerinaParser.TypeMapperBodyContext ctx) {
         if (ctx.exception == null) {
             modelBuilder.endCallableUnitBody();
         }
@@ -463,11 +467,35 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void enterWorkerDeclaration(BallerinaParser.WorkerDeclarationContext ctx) {
+        if (ctx.exception == null) {
+            isWorkerStarted = true;
+            modelBuilder.startWorkerUnit();
+            modelBuilder.startCallableUnitBody(getCurrentLocation(ctx));
+        }
     }
 
     @Override
     public void exitWorkerDeclaration(BallerinaParser.WorkerDeclarationContext ctx) {
+        if (ctx.exception == null && ctx.Identifier() != null) {
+            //modelBuilder.createSymbolName(ctx.Identifier().getText());
+            modelBuilder.endCallableUnitBody();
+            modelBuilder.createWorker(ctx.Identifier().getText(), getCurrentLocation(ctx));
+            isWorkerStarted = false;
+        }
+
     }
+
+//    @Override
+//    public void enterWorkerInputParameter(BallerinaParser.WorkerInputParameterContext ctx) {
+//
+//    }
+//
+//    @Override
+//    public void exitWorkerInputParameter(BallerinaParser.WorkerInputParameterContext ctx) {
+//        if (ctx.exception == null) {
+//            modelBuilder.createParam(ctx.Identifier().getText(), getCurrentLocation(ctx));
+//        }
+//    }
 
     @Override
     public void enterReturnParameters(BallerinaParser.ReturnParametersContext ctx) {
@@ -500,8 +528,12 @@ public class BLangAntlr4Listener implements BallerinaListener {
         if (ctx.exception != null) {
             return;
         }
-
-        modelBuilder.createNamedReturnParam(getCurrentLocation(ctx), ctx.Identifier().getText());
+        // If worker is started, then this is an input parameter definition
+        if (isWorkerStarted) {
+            modelBuilder.addParam(ctx.Identifier().getText(), getCurrentLocation(ctx));
+        } else {
+            modelBuilder.createNamedReturnParam(getCurrentLocation(ctx), ctx.Identifier().getText());
+        }
     }
 
     @Override
@@ -532,11 +564,11 @@ public class BLangAntlr4Listener implements BallerinaListener {
     }
 
     @Override
-    public void enterTypeConvertorType(BallerinaParser.TypeConvertorTypeContext ctx) {
+    public void enterTypeMapperType(BallerinaParser.TypeMapperTypeContext ctx) {
     }
 
     @Override
-    public void exitTypeConvertorType(BallerinaParser.TypeConvertorTypeContext ctx) {
+    public void exitTypeMapperType(BallerinaParser.TypeMapperTypeContext ctx) {
         if (ctx.exception != null) {
             return;
         }
@@ -942,29 +974,45 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void enterForkJoinStatement(BallerinaParser.ForkJoinStatementContext ctx) {
+        if (ctx.exception == null) {
+            modelBuilder.startForkJoinStmt(getCurrentLocation(ctx));
+        }
     }
 
     @Override
     public void exitForkJoinStatement(BallerinaParser.ForkJoinStatementContext ctx) {
+        if (ctx.exception == null) {
+            modelBuilder.endForkJoinStmt();
+        }
     }
 
     @Override
     public void enterJoinClause(BallerinaParser.JoinClauseContext ctx) {
+        if (ctx.exception == null) {
+            modelBuilder.startJoinClause(getCurrentLocation(ctx));
+        }
     }
 
     @Override
     public void exitJoinClause(BallerinaParser.JoinClauseContext ctx) {
+        if (ctx.exception == null) {
+            modelBuilder.endJoinClause(ctx.Identifier().getText(), getCurrentLocation(ctx));
+        }
     }
 
-    @Override
     public void enterAnyJoinCondition(BallerinaParser.AnyJoinConditionContext ctx) {
 
     }
 
     @Override
     public void exitAnyJoinCondition(BallerinaParser.AnyJoinConditionContext ctx) {
-
-    }
+        if (ctx.exception == null) {
+            modelBuilder.createAnyJoinCondition("any", ctx.IntegerLiteral().getText(), getCurrentLocation(ctx));
+            for (TerminalNode t : ctx.Identifier()) {
+                modelBuilder.createJoinWorkers(t.getText());
+            }
+        }
+   }
 
     @Override
     public void enterAllJoinCondition(BallerinaParser.AllJoinConditionContext ctx) {
@@ -973,15 +1021,27 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void exitAllJoinCondition(BallerinaParser.AllJoinConditionContext ctx) {
+        if (ctx.exception == null) {
+            modelBuilder.createAllJoinCondition("all");
+            for (TerminalNode t : ctx.Identifier()) {
+                modelBuilder.createJoinWorkers(t.getText());
+            }
+        }
 
     }
 
     @Override
     public void enterTimeoutClause(BallerinaParser.TimeoutClauseContext ctx) {
+        if (ctx.exception == null) {
+            modelBuilder.startTimeoutClause(getCurrentLocation(ctx));
+        }
     }
 
     @Override
     public void exitTimeoutClause(BallerinaParser.TimeoutClauseContext ctx) {
+        if (ctx.exception == null) {
+            modelBuilder.endTimeoutClause(ctx.Identifier().getText(), getCurrentLocation(ctx));
+        }
     }
 
     @Override
@@ -1046,6 +1106,10 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void exitTriggerWorker(BallerinaParser.TriggerWorkerContext ctx) {
+        if (ctx.exception == null) {
+            modelBuilder.createWorkerInvocationStmt(ctx.Identifier(0).getText(), ctx.Identifier(1).getText(),
+                    getCurrentLocation(ctx));
+        }
     }
 
     @Override
@@ -1054,6 +1118,10 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void exitWorkerReply(BallerinaParser.WorkerReplyContext ctx) {
+        if (ctx.exception == null) {
+            modelBuilder.createWorkerReplyStmt(ctx.Identifier(0).getText(), ctx.Identifier(1).getText(),
+                    getCurrentLocation(ctx));
+        }
     }
 
     @Override
