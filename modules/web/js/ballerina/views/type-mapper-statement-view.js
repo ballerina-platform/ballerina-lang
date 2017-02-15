@@ -161,17 +161,25 @@ define(['lodash', 'log','./ballerina-view','ballerina/ast/ballerina-ast-factory'
                     return BallerinaASTFactory.isStructFieldAccessExpression(child);
                 });
             }
+            if (sourceStructFieldAccessExpression) {
+                var sourceFieldExpression = _.find(sourceStructFieldAccessExpression.getChildren(), function (child) {
+                    return BallerinaASTFactory.isStructFieldAccessExpression(child);
+                });
 
-            var sourceFieldExpression = _.find(sourceStructFieldAccessExpression.getChildren(), function (child) {
-                return BallerinaASTFactory.isStructFieldAccessExpression(child);
-            });
+                var complexSourceProperties = this.getExpressionProperties(sourceFieldExpression, sourceStructSchema, []);
 
-            var complexSourceProperties = this.getExpressionProperties(sourceFieldExpression,sourceStructSchema,[]);
+                _.each(complexSourceProperties, function (property) {
+                    sourcePropertyNameArray.push(property.name);
+                    sourcePropertyTypeArray.push(property.type);
+                });
 
-            _.each(complexSourceProperties, function(property) {
-                sourcePropertyNameArray.push(property.name);
-                sourcePropertyTypeArray.push(property.type);
-            });
+            } else {
+                // the source could be just a variable.
+                var variableReference = _.find(rightOperandExpression.getChildren(), function (child) {
+                    return BallerinaASTFactory.isVariableReferenceExpression(child);
+                });
+                //TODO: find the source for the variable.
+            }
 
             var connectionSchema = {};
             connectionSchema["sourceStruct"] = sourceStructName;

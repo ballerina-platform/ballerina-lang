@@ -217,17 +217,14 @@ define(['lodash', 'log', './ballerina-view', './variables-view', './type-struct-
                         function (nodeBeingDragged) {
                             var functionSchema = self.getFunctionSchema(nodeBeingDragged, self.getDiagramRenderingContext());
                             var leftOperand = nodeBeingDragged.getChildren()[0];
-                            var leftExpString = '';
                             _.forEach(functionSchema.returnType, function (aReturnType) {
                                 var variableName = aReturnType.name + self.getUUID();
                                 leftExpString = ',' + variableName;
-                                var args = {leftExpression: variableName};
+                                var args = {variableReferenceName: variableName};
                                 self.getModel().getBlockStatement().addVariableDeclaration(variableName, aReturnType.type);
                                 var variableReferenceExpression = BallerinaASTFactory.createVariableReferenceExpression(args);
                                 leftOperand.addChild(variableReferenceExpression);
                             });
-                            leftExpString = leftExpString.substring(1);
-                            leftOperand.setLeftOperandExpressionString(leftExpString);
                             var rightOperand = nodeBeingDragged.getChildren()[1];
                             rightOperand.setRightOperandExpressionString('');
                             return _.findLastIndex(self.getModel().getBlockStatement().getChildren());
