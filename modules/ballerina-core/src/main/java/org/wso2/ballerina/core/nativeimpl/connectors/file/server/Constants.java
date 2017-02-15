@@ -22,9 +22,6 @@ package org.wso2.ballerina.core.nativeimpl.connectors.file.server;
  * Constants for File server connector.
  */
 public class Constants {
-    private Constants() {
-    }
-
     public static final String ANNOTATION_PROTOCOL = "protocol";
     public static final String ANNOTATION_NAME_SOURCE = "Source";
     public static final String PROTOCOL_FILE = "file";
