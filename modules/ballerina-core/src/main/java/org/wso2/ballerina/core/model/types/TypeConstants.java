@@ -39,6 +39,6 @@ public class TypeConstants {
     public static final String STRUCT_TNAME = "struct";
     public static final String EXCEPTION_TNAME = "exception";
     static final String ITERATOR_TNAME = "iterator";
-    static final String NATIVE_PACKAGE = "ballerina.lang.convertors";
+    static final String NATIVE_PACKAGE = "ballerina.lang.typemappers";
 }
 

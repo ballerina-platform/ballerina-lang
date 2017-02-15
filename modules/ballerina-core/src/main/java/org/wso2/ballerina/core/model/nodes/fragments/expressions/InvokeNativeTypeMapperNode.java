@@ -5,16 +5,16 @@ package org.wso2.ballerina.core.model.nodes.fragments.expressions;
 
 import org.wso2.ballerina.core.model.LinkedNodeVisitor;
 import org.wso2.ballerina.core.model.nodes.AbstractLinkedNode;
-import org.wso2.ballerina.core.nativeimpl.AbstractNativeTypeConvertor;
+import org.wso2.ballerina.core.nativeimpl.AbstractNativeTypeMapper;
 
 /**
  * Represents a node for invoking a native type mappers.
  */
 public class InvokeNativeTypeMapperNode extends AbstractLinkedNode {
 
-    private AbstractNativeTypeConvertor callableUnit;
+    private AbstractNativeTypeMapper callableUnit;
 
-    public InvokeNativeTypeMapperNode(AbstractNativeTypeConvertor callableUnit) {
+    public InvokeNativeTypeMapperNode(AbstractNativeTypeMapper callableUnit) {
         this.callableUnit = callableUnit;
     }
 
@@ -23,7 +23,7 @@ public class InvokeNativeTypeMapperNode extends AbstractLinkedNode {
         nodeVisitor.visit(this);
     }
 
-    public AbstractNativeTypeConvertor getCallableUnit() {
+    public AbstractNativeTypeMapper getCallableUnit() {
         return callableUnit;
     }
 }

@@ -31,17 +31,17 @@ import org.wso2.ballerina.core.utils.ParserUtils;
 import org.wso2.ballerina.lang.util.Functions;
 
 
-public class StructTypeConvertorTest {
+public class StructTypeMapperTest {
     private BallerinaFile bFile;
 
     @BeforeClass
     public void setup() {
-        bFile = ParserUtils.parseBalFile("lang/expressions/struct-type-convertor.bal");
+        bFile = ParserUtils.parseBalFile("lang/expressions/struct-type-mapper.bal");
     }
 
     @Test
-    public void testStructConvertor() {
-        BValue[] returns = Functions.invoke(bFile, "testStructConvertor");
+    public void testStructMapper() {
+        BValue[] returns = Functions.invoke(bFile, "testStructMapper");
         Assert.assertTrue(returns[0] instanceof BStruct);
         BStruct bStruct = (BStruct) returns[0];
         final String expectedName = "Jack";

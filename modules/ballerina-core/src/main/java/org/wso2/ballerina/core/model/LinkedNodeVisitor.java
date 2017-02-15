@@ -61,6 +61,7 @@ import org.wso2.ballerina.core.model.nodes.fragments.statements.ForkJoinStartNod
 import org.wso2.ballerina.core.model.nodes.fragments.statements.ReplyStmtEndNode;
 import org.wso2.ballerina.core.model.nodes.fragments.statements.ReturnStmtEndNode;
 import org.wso2.ballerina.core.model.nodes.fragments.statements.ThrowStmtEndNode;
+import org.wso2.ballerina.core.model.nodes.fragments.statements.TryCatchStmtEndNode;
 import org.wso2.ballerina.core.model.nodes.fragments.statements.VariableDefStmtEndNode;
 import org.wso2.ballerina.core.model.statements.ActionInvocationStmt;
 import org.wso2.ballerina.core.model.statements.AssignStmt;
@@ -167,6 +168,8 @@ public interface LinkedNodeVisitor extends NodeVisitor {
     void visit(ForkJoinStartNode forkJoinStartNode);
 
     void visit(ThrowStmtEndNode throwStmtEndNode);
+
+    void visit(TryCatchStmtEndNode tryCatchStmtEndNode);
 
     void visit(ReplyStmtEndNode replyStmtEndNode);
 

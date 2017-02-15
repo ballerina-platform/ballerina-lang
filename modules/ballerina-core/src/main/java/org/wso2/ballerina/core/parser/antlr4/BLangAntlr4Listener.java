@@ -363,36 +363,36 @@ public class BLangAntlr4Listener implements BallerinaListener {
     }
 
     @Override
-    public void enterTypeConvertorDefinition(BallerinaParser.TypeConvertorDefinitionContext ctx) {
+    public void enterTypeMapperDefinition(BallerinaParser.TypeMapperDefinitionContext ctx) {
 
     }
 
     @Override
-    public void exitTypeConvertorDefinition(BallerinaParser.TypeConvertorDefinitionContext ctx) {
+    public void exitTypeMapperDefinition(BallerinaParser.TypeMapperDefinitionContext ctx) {
 
     }
 
     @Override
-    public void enterNativeTypeConvertor(BallerinaParser.NativeTypeConvertorContext ctx) {
+    public void enterNativeTypeMapper(BallerinaParser.NativeTypeMapperContext ctx) {
 
     }
 
     @Override
-    public void exitNativeTypeConvertor(BallerinaParser.NativeTypeConvertorContext ctx) {
+    public void exitNativeTypeMapper(BallerinaParser.NativeTypeMapperContext ctx) {
 
     }
 
     @Override
-    public void enterTypeConvertor(BallerinaParser.TypeConvertorContext ctx) {
+    public void enterTypeMapper(BallerinaParser.TypeMapperContext ctx) {
         if (ctx.exception == null) {
-            modelBuilder.startTypeConverterDef();
+            modelBuilder.startTypeMapperDef();
         }
     }
 
     @Override
-    public void exitTypeConvertor(BallerinaParser.TypeConvertorContext ctx) {
+    public void exitTypeMapper(BallerinaParser.TypeMapperContext ctx) {
         if (ctx.exception == null) {
-            // Create the return type of the type convertor
+            // Create the return type of the type mapper
             modelBuilder.createReturnTypes(getCurrentLocation(ctx));
             boolean isPublic = true;
             // Set the location info needed to generate the stack trace
@@ -400,29 +400,29 @@ public class BLangAntlr4Listener implements BallerinaListener {
             if (identifier != null) {
                 String fileName = identifier.getSymbol().getInputStream().getSourceName();
                 int lineNo = identifier.getSymbol().getLine();
-                NodeLocation typeconvertorLocation = new NodeLocation(fileName, lineNo);
-                modelBuilder.addTypeConverter(ctx.typeConvertorInput().typeConvertorType().getText()
-                        , ctx.typeConvertorType().getText(), identifier.getText(), typeconvertorLocation, isPublic);
+                NodeLocation typemapperLocation = new NodeLocation(fileName, lineNo);
+                modelBuilder.addTypeMapper(ctx.typeMapperInput().typeMapperType().getText()
+                        , ctx.typeMapperType().getText(), identifier.getText(), typemapperLocation, isPublic);
             }
         }
     }
 
     /**
-     * Enter a parse tree produced by {@link BallerinaParser#typeConvertorInput}.
+     * Enter a parse tree produced by {@link BallerinaParser#typeMapperInput}.
      *
      * @param ctx the parse tree
      */
     @Override
-    public void enterTypeConvertorInput(BallerinaParser.TypeConvertorInputContext ctx) {
+    public void enterTypeMapperInput(BallerinaParser.TypeMapperInputContext ctx) {
     }
 
     /**
-     * Exit a parse tree produced by {@link BallerinaParser#typeConvertorInput}.
+     * Exit a parse tree produced by {@link BallerinaParser#typeMapperInput}.
      *
      * @param ctx the parse tree
      */
     @Override
-    public void exitTypeConvertorInput(BallerinaParser.TypeConvertorInputContext ctx) {
+    public void exitTypeMapperInput(BallerinaParser.TypeMapperInputContext ctx) {
         if (ctx.exception != null) {
             return;
         }
@@ -431,14 +431,14 @@ public class BLangAntlr4Listener implements BallerinaListener {
     }
 
     @Override
-    public void enterTypeConvertorBody(BallerinaParser.TypeConvertorBodyContext ctx) {
+    public void enterTypeMapperBody(BallerinaParser.TypeMapperBodyContext ctx) {
         if (ctx.exception == null) {
             modelBuilder.startCallableUnitBody(getCurrentLocation(ctx));
         }
     }
 
     @Override
-    public void exitTypeConvertorBody(BallerinaParser.TypeConvertorBodyContext ctx) {
+    public void exitTypeMapperBody(BallerinaParser.TypeMapperBodyContext ctx) {
         if (ctx.exception == null) {
             modelBuilder.endCallableUnitBody();
         }
@@ -563,11 +563,11 @@ public class BLangAntlr4Listener implements BallerinaListener {
     }
 
     @Override
-    public void enterTypeConvertorType(BallerinaParser.TypeConvertorTypeContext ctx) {
+    public void enterTypeMapperType(BallerinaParser.TypeMapperTypeContext ctx) {
     }
 
     @Override
-    public void exitTypeConvertorType(BallerinaParser.TypeConvertorTypeContext ctx) {
+    public void exitTypeMapperType(BallerinaParser.TypeMapperTypeContext ctx) {
         if (ctx.exception != null) {
             return;
         }

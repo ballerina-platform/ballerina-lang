@@ -24,7 +24,7 @@ import org.wso2.ballerina.core.interpreter.StackVarLocation;
 import org.wso2.ballerina.core.interpreter.StructVarLocation;
 import org.wso2.ballerina.core.interpreter.WorkerVarLocation;
 import org.wso2.ballerina.core.model.Annotation;
-import org.wso2.ballerina.core.model.BTypeConvertor;
+import org.wso2.ballerina.core.model.BTypeMapper;
 import org.wso2.ballerina.core.model.BallerinaAction;
 import org.wso2.ballerina.core.model.BallerinaConnectorDef;
 import org.wso2.ballerina.core.model.BallerinaFile;
@@ -114,7 +114,7 @@ public abstract class BLangExecutionVisitor implements LinkedNodeVisitor {
     }
 
     @Override
-    public void visit(BTypeConvertor typeConvertor) {
+    public void visit(BTypeMapper typeMapper) {
     }
 
     @Override

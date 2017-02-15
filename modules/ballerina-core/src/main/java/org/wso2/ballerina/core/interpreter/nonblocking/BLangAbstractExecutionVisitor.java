@@ -33,7 +33,6 @@ import org.wso2.ballerina.core.interpreter.ServiceVarLocation;
 import org.wso2.ballerina.core.interpreter.StackFrame;
 import org.wso2.ballerina.core.interpreter.StackVarLocation;
 import org.wso2.ballerina.core.interpreter.StructVarLocation;
-import org.wso2.ballerina.core.interpreter.TryCatchStackRef;
 import org.wso2.ballerina.core.interpreter.WorkerRunner;
 import org.wso2.ballerina.core.interpreter.WorkerVarLocation;
 import org.wso2.ballerina.core.model.Action;
@@ -46,7 +45,7 @@ import org.wso2.ballerina.core.model.ParameterDef;
 import org.wso2.ballerina.core.model.Resource;
 import org.wso2.ballerina.core.model.StructDef;
 import org.wso2.ballerina.core.model.SymbolName;
-import org.wso2.ballerina.core.model.TypeConvertor;
+import org.wso2.ballerina.core.model.TypeMapper;
 import org.wso2.ballerina.core.model.VariableDef;
 import org.wso2.ballerina.core.model.Worker;
 import org.wso2.ballerina.core.model.expressions.ActionInvocationExpr;
@@ -95,6 +94,7 @@ import org.wso2.ballerina.core.model.nodes.fragments.statements.ForkJoinStartNod
 import org.wso2.ballerina.core.model.nodes.fragments.statements.ReplyStmtEndNode;
 import org.wso2.ballerina.core.model.nodes.fragments.statements.ReturnStmtEndNode;
 import org.wso2.ballerina.core.model.nodes.fragments.statements.ThrowStmtEndNode;
+import org.wso2.ballerina.core.model.nodes.fragments.statements.TryCatchStmtEndNode;
 import org.wso2.ballerina.core.model.nodes.fragments.statements.VariableDefStmtEndNode;
 import org.wso2.ballerina.core.model.statements.ActionInvocationStmt;
 import org.wso2.ballerina.core.model.statements.AssignStmt;
@@ -854,6 +854,15 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
     }
 
     @Override
+    public void visit(TryCatchStmtEndNode tryCatchStmtEndNode) {
+        if (logger.isDebugEnabled()) {
+            logger.debug("Executing TryCatchStmt - EndNode");
+        }
+        next = tryCatchStmtEndNode.next;
+        tryCatchStackRefs.pop();
+    }
+
+    @Override
     public void visit(ReplyStmtEndNode replyStmtEndNode) {
         if (logger.isDebugEnabled()) {
             logger.debug("Executing ReplyStmt - EndNode");
@@ -1148,15 +1157,15 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
             BValueType result = (BValueType) getTempValue(typeCastExpression.getRExpr());
             setTempValue(typeCastExpression.getTempOffset(), typeCastExpression.getEvalFunc().apply(result));
         } else {
-            TypeConvertor typeConvertor = typeCastExpression.getCallableUnit();
+            TypeMapper typeMapper = typeCastExpression.getCallableUnit();
 
-            int sizeOfValueArray = typeConvertor.getStackFrameSize();
+            int sizeOfValueArray = typeMapper.getStackFrameSize();
             BValue[] localVals = new BValue[sizeOfValueArray];
 
             // Get values for all the function arguments
             int valueCounter = populateArgumentValues(typeCastExpression.getArgExprs(), localVals);
 
-            for (ParameterDef returnParam : typeConvertor.getReturnParameters()) {
+            for (ParameterDef returnParam : typeMapper.getReturnParameters()) {
                 // Check whether these are unnamed set of return types.
                 // If so break the loop. You can't have a mix of unnamed and named returns parameters.
                 if (returnParam.getName() == null) {
@@ -1172,8 +1181,8 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
 
             // Create a new stack frame with memory locations to hold parameters, local values, temp expression value,
             // return values and function invocation location;
-            CallableUnitInfo functionInfo = new CallableUnitInfo(typeConvertor.getTypeConverterName(),
-                    typeConvertor.getPackagePath(), typeCastExpression.getNodeLocation());
+            CallableUnitInfo functionInfo = new CallableUnitInfo(typeMapper.getTypeMapperName(),
+                    typeMapper.getPackagePath(), typeCastExpression.getNodeLocation());
 
             BValue[] tempValues = new BValue[typeCastExpression.getCallableUnit().getTempStackFrameSize() + 1];
             StackFrame stackFrame = new StackFrame(localVals, returnVals, tempValues, functionInfo);
@@ -1315,7 +1324,7 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
     @Override
     public void visit(InvokeNativeTypeMapperNode invokeNativeTypeMapperNode) {
         if (logger.isDebugEnabled()) {
-            logger.debug("Executing Native TypeConverter - " + invokeNativeTypeMapperNode.getCallableUnit()
+            logger.debug("Executing Native TypeMapperNode - " + invokeNativeTypeMapperNode.getCallableUnit()
                     .getName());
         }
         next = invokeNativeTypeMapperNode.next;

@@ -15,8 +15,9 @@
 * specific language governing permissions and limitations
 * under the License.
 */
-package org.wso2.ballerina.core.interpreter;
+package org.wso2.ballerina.core.interpreter.nonblocking;
 
+import org.wso2.ballerina.core.interpreter.StackFrame;
 import org.wso2.ballerina.core.model.statements.TryCatchStmt;
 
 /**
