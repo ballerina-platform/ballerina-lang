@@ -24,6 +24,9 @@ import com.intellij.lang.parameterInfo.ParameterInfoHandlerWithTabActionSupport;
 import com.intellij.lang.parameterInfo.ParameterInfoUIContext;
 import com.intellij.lang.parameterInfo.UpdateParameterInfoContext;
 import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiReference;
+import com.intellij.psi.ResolveResult;
+import com.intellij.psi.impl.source.tree.LeafPsiElement;
 import com.intellij.psi.tree.IElementType;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.util.ArrayUtil;
@@ -32,15 +35,18 @@ import org.ballerinalang.plugins.idea.BallerinaTypes;
 import org.ballerinalang.plugins.idea.psi.ArgumentListNode;
 import org.ballerinalang.plugins.idea.psi.CallableUnitNameNode;
 import org.ballerinalang.plugins.idea.psi.ExpressionListNode;
-import org.ballerinalang.plugins.idea.psi.ExpressionNode;
 import org.ballerinalang.plugins.idea.psi.FunctionInvocationStatementNode;
+import org.ballerinalang.plugins.idea.psi.FunctionNode;
+import org.ballerinalang.plugins.idea.psi.FunctionReference;
 import org.ballerinalang.plugins.idea.psi.ParameterListNode;
 import org.ballerinalang.plugins.idea.psi.ParameterNode;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 public class BallerinaParameterInfoHandler implements ParameterInfoHandlerWithTabActionSupport {
@@ -112,13 +118,42 @@ public class BallerinaParameterInfoHandler implements ParameterInfoHandlerWithTa
             FunctionInvocationStatementNode parent = PsiTreeUtil.getParentOfType(psiElement,
                     FunctionInvocationStatementNode.class);
             CallableUnitNameNode function = PsiTreeUtil.findChildOfType(parent, CallableUnitNameNode.class);
-            PsiElement resolvedElement = function.getNameIdentifier().getReference().resolve();
-            ParameterListNode parameterListNode = PsiTreeUtil.findChildOfType(resolvedElement,
-                    ParameterListNode.class);
-            context.setItemsToShow(new Object[]{parameterListNode});
-            context.showHint(parameterListNode, (parameterListNode).getTextRange().getStartOffset(), this);
+            PsiReference reference = function.getNameIdentifier().getReference();
+            if (reference != null) {
+                PsiElement resolvedElement = reference.resolve();
+                if (resolvedElement != null) {
+                    ParameterListNode parameterListNode =
+                            PsiTreeUtil.findChildOfType(resolvedElement, ParameterListNode.class);
+                    if (parameterListNode == null) {
+                        context.setItemsToShow(new Object[]{resolvedElement});
+                    } else {
+                        context.setItemsToShow(new Object[]{parameterListNode});
+                    }
+                    context.showHint(psiElement, (psiElement).getTextRange().getStartOffset(), this);
+                    return;
+                }
+
+            }
+            PsiReference[] references = function.getNameIdentifier().getReferences();
+            List<ParameterListNode> list = new ArrayList<>();
+            for (PsiReference psiReference : references) {
+                ResolveResult[] resolveResults = ((FunctionReference) psiReference).multiResolve(false);
+                if (resolveResults.length == 0) {
+                    continue;
+                }
+
+                for (ResolveResult resolveResult : resolveResults) {
+                    PsiElement parentElement = resolveResult.getElement().getParent();
+                    ParameterListNode parameterListNode = PsiTreeUtil.findChildOfType(parentElement,
+                            ParameterListNode.class);
+                    list.add(parameterListNode);
+                }
+            }
+            context.setItemsToShow(list.toArray(new ParameterListNode[list.size()]));
+            context.showHint(psiElement, (psiElement).getTextRange().getStartOffset(), this);
         }
     }
+
 
     @Nullable
     @Override
@@ -130,26 +165,36 @@ public class BallerinaParameterInfoHandler implements ParameterInfoHandlerWithTa
     @Override
     public void updateParameterInfo(@NotNull Object o, @NotNull UpdateParameterInfoContext context) {
         if (o instanceof ArgumentListNode) {
-            PsiElement psiElement = context.getFile().findElementAt(context.getOffset());
-            if (")".equals(psiElement.getText())) {
-                psiElement = context.getFile().findElementAt(context.getOffset() - 1);
-            }
-            ExpressionListNode parent = PsiTreeUtil.getParentOfType(psiElement, ExpressionListNode.class);
-            ExpressionNode[] children = PsiTreeUtil.getChildrenOfType(parent, ExpressionNode.class);
 
-            int index = 0;
-            if (children == null || children.length == 0) {
-                context.setCurrentParameter(index);
+            ArgumentListNode argumentListNode = ((ArgumentListNode) o);
+            ExpressionListNode expressionListNodes =
+                    PsiTreeUtil.getChildOfType(argumentListNode, ExpressionListNode.class);
+
+            if (expressionListNodes == null) {
+                context.setCurrentParameter(0);
                 return;
             }
 
-            for (ExpressionNode child : children) {
-                if (child.getTextOffset() <= context.getOffset() && child.getTextOffset() <= child.getTextOffset() +
-                        child.getTextLength()) {
+            PsiElement psiElement = context.getFile().findElementAt(context.getOffset());
+
+            PsiElement[] children = expressionListNodes.getChildren();
+            if (children.length == 0) {
+                context.setCurrentParameter(0);
+                return;
+            }
+
+            int index = 0;
+            for (PsiElement child : children) {
+                int childTextOffset = child.getTextOffset();
+                if (psiElement.getTextOffset() <= childTextOffset) {
+                    context.setCurrentParameter(index);
+                    return;
+                }
+                if (child instanceof LeafPsiElement) {
                     index++;
                 }
             }
-            context.setCurrentParameter(index - 1);
+            context.setCurrentParameter(index);
         } else {
             context.setCurrentParameter(0);
         }
@@ -199,6 +244,11 @@ public class BallerinaParameterInfoHandler implements ParameterInfoHandlerWithTa
                 }
             }
             context.setupUIComponentPresentation(builder.toString(), start, end, false, false, false,
+                    context.getDefaultParameterColor());
+        } else if (p instanceof FunctionNode) {
+            StringBuilder builder = new StringBuilder();
+            builder.append(CodeInsightBundle.message("parameter.info.no.parameters"));
+            context.setupUIComponentPresentation(builder.toString(), 0, 0, false, false, false,
                     context.getDefaultParameterColor());
         } else {
             context.setUIComponentEnabled(false);
