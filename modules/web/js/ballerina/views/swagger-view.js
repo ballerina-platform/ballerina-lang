@@ -81,10 +81,16 @@ define(['log', 'lodash', 'jquery', 'event_channel', 'yaml'],
                }, [{name: "expectedType", value: "ballerina"}]);
 
                if (!response.error && !response.errorMessage) {
-                   generatedSwagger = response.swaggerDefinition;
+                   if(response.swaggerDefinition){
+                       generatedSwagger = response.swaggerDefinition;
+                   } else {
+                       throw new Error("Swagger needs at least one service");
+                   }
                }
            }
-
+           if (!this._swaggerEditorWindow.setSwaggerEditorValue) {
+               throw new Error("Couldn't hookup swagger editor view. Please retry!");
+           }
            this._swaggerEditorWindow.setSwaggerEditorValue(YAML.safeDump(YAML.safeLoad(generatedSwagger)));
        };
 
