@@ -27,6 +27,7 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
     var TypeMapperRenderer = function (onConnectionCallback, onDisconnectCallback, typeConverterView) {
         this.references = [];
         this.viewId = typeConverterView._model.id;
+        this.jsTreePrefix = "jstree-container";
         this.viewIdSeperator = "___";
         this.sourceTargetSeperator = "_--_";
         this.idNameSeperator = "_-_-_-";
@@ -39,7 +40,6 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
         this.disconnectCallback = onDisconnectCallback;
         this.connectCallback = onConnectionCallback;
         var self = this;
-
 
         this.jsPlumbInstance = jsPlumb.getInstance({
             Connector: self.getConnectorConfig(self.midpoint),
@@ -82,11 +82,10 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
         });
 
         this.jsPlumbInstance.bind('connection', function (info, ev) {
-            self.dagrePosition(self.placeHolderName, self.jsPlumbInstance);
+            self.dagrePosition(self);
             self.processTypeMapperDropdown(info);
         });
     };
-
 
     TypeMapperRenderer.prototype.constructor = TypeMapperRenderer;
 
@@ -101,7 +100,7 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
         this.midpoint = this.midpoint - this.midpointVariance;
         this.jsPlumbInstance.importDefaults({ Connector : self.getConnectorConfig(self.midpoint)});
         this.jsPlumbInstance.detach(connection);
-        this.dagrePosition(this.placeHolderName, this.jsPlumbInstance);
+        this.dagrePosition(this);
         this.disconnectCallback(propertyConnection);
         this.enableParentsJsTree(connection.sourceId, this, this.jsPlumbInstance.getAllConnections(), true);
         this.enableParentsJsTree(connection.targetId, this, this.jsPlumbInstance.getAllConnections(), false);
@@ -215,7 +214,8 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
             var connection = info.connection;
             connection.getOverlay("typeMapperDropdown").show();
             var typeMapperId = '#typeMapperList' + this.viewIdSeperator + this.viewId;
-            var updatedTypeMapperId = "typeMapperList" + this.viewIdSeperator + connection.sourceId + this.sourceTargetSeperator + connection.targetId;
+            var updatedTypeMapperId = "typeMapperList" + this.viewIdSeperator + connection.sourceId
+                + this.sourceTargetSeperator + connection.targetId;
             var typeMappers = this.getExistingTypeMappers(this.typeConverterView, sourceType, targetType);
             $.each(typeMappers, function (i, item) {
                 $(typeMapperId).append($('<option>', {
@@ -285,7 +285,7 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
             }
         });
         $("#" + structId).remove();
-        this.dagrePosition(this.placeHolderName, this.jsPlumbInstance);
+        this.dagrePosition(this);
     };
 
     /**
@@ -316,7 +316,7 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
             anchor: ["Continuous", {faces: ["right","left"]}],
             source: sourceId,
             target: targetId});
-        this.dagrePosition(this.placeHolderName, this.jsPlumbInstance);
+        this.dagrePosition(this);
     };
 
     /**
@@ -349,9 +349,9 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
                 createCallback(element, self);
             });
             $("#" + jsTreeId).jstree('open_all');
-            self.dagrePosition(self.placeHolderName, self.jsPlumbInstance);
+            self.dagrePosition(self);
         }).on('after_open.jstree', function (event, data) {
-            self.dagrePosition(self.placeHolderName, self.jsPlumbInstance);
+            self.dagrePosition(self);
             var parentId = data.node.id;
             var sourceElements = $("#" + parentId).find('.jstree-anchor');
             _.forEach(sourceElements, function (element) {
@@ -359,7 +359,7 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
             });
             self.jsPlumbInstance.repaintEverything();
         }).on('after_close.jstree', function (event, data) {
-            self.dagrePosition(self.placeHolderName, self.jsPlumbInstance);
+            self.dagrePosition(self);
             self.jsPlumbInstance.repaintEverything();
         }).on('select_node.jstree', function (event, data) {
             data.instance.deselect_node(data.node);
@@ -432,7 +432,8 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
             'top': posX,
             'left': posY
         });
-        var jsTreeContainer = $('<div>').attr('id', 'jstree-container' + this.viewIdSeperator + struct.id).addClass('tree-container');
+        var jsTreeContainer = $('<div>').attr('id', 'jstree-container' + this.viewIdSeperator + struct.id)
+                                .addClass('tree-container');
         newStruct.append(jsTreeContainer);
         $("#" + this.placeHolderName).append(newStruct);
     };
@@ -498,7 +499,7 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
             self.addSource(property, self);
         });
 
-        self.dagrePosition(this.placeHolderName, this.jsPlumbInstance);
+        self.dagrePosition(this);
     };
 
     TypeMapperRenderer.prototype.makeFunctionAttribute = function (parentId, name, type, input) {
@@ -596,7 +597,7 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
                 return isValidTypes;
             },
             onDrop: function () {
-                self.dagrePosition(self.placeHolderName, self.jsPlumbInstance);
+                self.dagrePosition(self);
             }
         })
         ;
@@ -660,13 +661,12 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
      * @param {string} viewId type mapper view identifier
      * @param jsPlumbInstance jsPlumb instance of the type mapper to be repositioned
      */
-    TypeMapperRenderer.prototype.dagrePosition = function (viewId, jsPlumbInstance) {
+    TypeMapperRenderer.prototype.dagrePosition = function (self) {
         // construct dagre graph from this.jsPlumbInstance graph
         var graph = new dagre.graphlib.Graph();
-
         var alignment = 'LR';
 
-        if (jsPlumbInstance.getAllConnections() == 0) {
+        if (self.jsPlumbInstance.getAllConnections() == 0) {
             alignment = 'TD';
         }
 
@@ -675,11 +675,11 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
             return {};
         });
 
-        var nodes = $("#" + viewId + "> .struct, #" + viewId + "> .func");
+        var nodes = $("#" + self.placeHolderName + "> .struct, #" + self.placeHolderName + "> .func");
 
         if (nodes.length > 0) {
             var maxTypeHeight = 0;
-
+            var maxYPosition = 0;
 
             _.forEach(nodes, function (n) {
                 var nodeContent = $("#" + n.id);
@@ -689,24 +689,25 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
                 graph.setNode(n.id, {width: nodeContent.width(), height: nodeContent.height()});
             });
 
-            var edges = jsPlumbInstance.getAllConnections();
+            var edges = self.jsPlumbInstance.getAllConnections();
 
             _.forEach(edges, function (edge) {
-                //todo : refactor hardcoded values and separators
-                var source = edge.source.id.split("_-_-_-")[0];
-                var target = edge.target.id.split("_-_-_-")[0];
+                var source = edge.source.id.split(self.idNameSeperator)[0];
+                var target = edge.target.id.split(self.idNameSeperator)[0];
                 var sourceId;
                 var targetId;
 
                 //checks whether target and source is a generic type or a function
-                if (source.includes("jstree-container")) {
-                    sourceId = source.split("___")[1] + "___" + source.split("___")[2];
+                if (source.includes(self.jsTreePrefix)) {
+                    sourceId = source.split(self.viewIdSeperator)[1] + self.viewIdSeperator
+                                              + source.split(self.viewIdSeperator)[2];
                 } else {
                     sourceId = source;
                 }
 
-                if (target.includes("jstree-container")) {
-                    targetId = target.split("___")[1] + "___" + target.split("___")[2];
+                if (target.includes(self.jsTreePrefix)) {
+                    targetId = target.split(self.viewIdSeperator)[1]
+                                                + self.viewIdSeperator + target.split(self.viewIdSeperator)[2];
                 } else {
                     targetId = target;
                 }
@@ -715,8 +716,6 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
             });
             // calculate the layout (i.e. node positions)
             dagre.layout(graph);
-
-            var maxYPosition = 0;
 
             // Applying the calculated layout
             _.forEach(graph.nodes(), function (dagreNode) {
@@ -729,8 +728,8 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
                 }
             });
 
-            $("#" + viewId).height(maxTypeHeight + maxYPosition + 55);
-            jsPlumbInstance.repaintEverything();
+            $("#" + self.placeHolderName).height(maxTypeHeight + maxYPosition + 55);
+            self.jsPlumbInstance.repaintEverything();
         }
     };
 
