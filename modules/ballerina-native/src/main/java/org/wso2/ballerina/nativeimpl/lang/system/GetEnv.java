@@ -27,7 +27,7 @@ import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
 import org.wso2.ballerina.core.nativeimpl.annotations.ReturnType;
 
 /**
- * Native function ballerina.lang.system:getenv.
+ * Native function ballerina.lang.system:getEnv.
  *
  * @since 0.8.0
  */
