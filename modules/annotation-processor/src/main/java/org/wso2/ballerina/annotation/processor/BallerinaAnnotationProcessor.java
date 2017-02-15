@@ -43,7 +43,7 @@ import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
 
 /**
- * Read all class annotations of native functions, connectors, actions, type converters.
+ * Read all class annotations of native functions, connectors, actions, type mappers.
  * Process them and generate a service provider class that will register all the annotated 
  * classes as {@link Symbol}s to the global symbol table, via java SPI.
  */
@@ -114,7 +114,7 @@ public class BallerinaAnnotationProcessor extends AbstractProcessor {
                 classClassName);
         NativeBallerinaFileBuilder nativeBallerinaFileBuilder = new NativeBallerinaFileBuilder(targetDir);
         
-        // Process all native function, connectors, actions and type converters
+        // Process all native function, connectors, actions and type mappers
         processNativeFunctions(balFunctionElements, classBuilder, nativeBallerinaFileBuilder);
         processNativeConnectors(balConnectorElements, classBuilder, nativeBallerinaFileBuilder);
         processNativeActions(balActionElements, classBuilder, nativeBallerinaFileBuilder);
