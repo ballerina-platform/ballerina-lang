@@ -39,7 +39,7 @@ import java.util.List;
 @BallerinaFunction(
         packageName = "ballerina.lang.array",
         functionName = "sort",
-        args = {@Argument(name = "arr", type = TypeEnum.ARRAY, elementType = TypeEnum.INT)},
+        args = {@Argument(name = "intArray", type = TypeEnum.ARRAY, elementType = TypeEnum.INT)},
         returnType = {@ReturnType(type = TypeEnum.ARRAY, elementType = TypeEnum.INT)},
         isPublic = true
 )
