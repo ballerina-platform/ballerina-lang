@@ -230,7 +230,6 @@ public class ConstructProviderClassBuilder {
      * bal packages to the provider class.
      */
     private void writeBuiltInBalPackages() {
-        //FIXME #1843
         Path source = Paths.get(balSourceDir);
         File srcDir = new File(source.toUri());
         
@@ -333,9 +332,10 @@ public class ConstructProviderClassBuilder {
             // Generate the connector insertion string with the actions as 
             String nativeConnectorClassName = AbstractNativeConnector.class.getSimpleName();
             String symbolScopClass = SymbolScope.class.getName() + ".class";
-            String connectorAddStr = getConstructInsertStr(PACKAGE_SCOPE, DEFINE_METHOD, connectorPkgName, connectorName,
-                connectorName, symbolScopClass, PACKAGE_SCOPE, connectorClassName, balConnector.args(), null,
-                connectorVarName, strBuilder.toString(), nativeConnectorClassName, "nativeConnectorClass", null, null);
+            String connectorAddStr = getConstructInsertStr(PACKAGE_SCOPE, DEFINE_METHOD, connectorPkgName, 
+                connectorName, connectorName, symbolScopClass, PACKAGE_SCOPE, connectorClassName, balConnector.args(),
+                null, connectorVarName, strBuilder.toString(), nativeConnectorClassName, "nativeConnectorClass", null,
+                null);
             try {
                 sourceFileWriter.write(connectorAddStr);
             } catch (IOException e) {
