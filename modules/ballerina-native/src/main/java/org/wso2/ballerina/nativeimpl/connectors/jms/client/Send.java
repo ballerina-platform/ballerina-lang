@@ -164,8 +164,6 @@ public class Send extends AbstractJMSAction {
         propertyMap.put(JMSConstants.CONNECTION_FACTORY_TYPE_PARAM_NAME,
                         getArgument(context, 3).stringValue());
 
-
-
         //Setting optional parameters.
         if (properties.get(new BString(JMSConstants.CONNECTION_USERNAME)) != null) {
             propertyMap.put(JMSConstants.CONNECTION_USERNAME,
@@ -194,7 +192,7 @@ public class Send extends AbstractJMSAction {
                                      .send(message, null, propertyMap);
 
         } catch (ClientConnectorException e) {
-            throw new BallerinaException("Exception occured while sending message.", e, context);
+            throw new BallerinaException("Exception occurred while sending message.", e, context);
         }
 
         return null;

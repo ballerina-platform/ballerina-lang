@@ -37,7 +37,6 @@ import java.util.List;
  * {@code JMSMessageUtils}. Utils class for jms connector.
  */
 public class JMSMessageUtils {
-    private static final String OPERATION = "get json payload";
 
     /**
      * To convert a {@link BMessage} message into a {@link SerializableCarbonMessage}.
@@ -85,11 +84,11 @@ public class JMSMessageUtils {
             }
             return result.stringValue();
         } catch (JsonSyntaxException e) {
-            ErrorHandler.handleMalformedJson(OPERATION, e);
+            ErrorHandler.handleMalformedJson("get json payload", e);
         } catch (JsonParseException e) {
-            ErrorHandler.handleJsonException(OPERATION, e);
+            ErrorHandler.handleJsonException("get json payload", e);
         } catch (Throwable e) {
-            ErrorHandler.handleJsonException(OPERATION, e);
+            ErrorHandler.handleJsonException("get json payload", e);
         }
         return null;
     }
@@ -113,7 +112,7 @@ public class JMSMessageUtils {
             }
             return result.stringValue();
         } catch (Throwable e) {
-            ErrorHandler.handleJsonException(OPERATION, e);
+            ErrorHandler.handleJsonException("get json payload", e);
         }
         return null;
     }
