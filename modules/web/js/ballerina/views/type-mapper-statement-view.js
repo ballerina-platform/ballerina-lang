@@ -180,6 +180,7 @@ define(['lodash', 'log','./ballerina-view','ballerina/ast/ballerina-ast-factory'
             connectionSchema["targetStruct"] = targetStructName;
             connectionSchema["targetProperty"] = targetPropertyNameArray;
             connectionSchema["targetType"] = targetPropertyTypeArray;
+            connectionSchema["id"] = assignmentStatement.getID();
 
             return connectionSchema;
         };
