@@ -104,12 +104,4 @@ under the License.
             <class name="org.wso2.ballerina.core.interpreter.DebuggerTest"/>
         </classes>
     </test>
-
-    <!-- Debugger TestCases -->
-
-    <test name="ballerina-interpreter-test-suite" preserve-order="true" parallel="false">
-        <classes>
-            <class name="org.wso2.ballerina.core.interpreter.DebuggerTest"/>
-        </classes>
-    </test>
 </suite>
