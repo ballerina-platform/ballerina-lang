@@ -3,21 +3,21 @@ import ballerina.lang.message;
 import ballerina.net.ws;
 
 @BasePath("/ws-echo-server")
-@WebSocketUpgradePath("/")
+@ws:WebSocketUpgradePath("/")
 service testWs {
 
-    @OnOpen
+    @ws:OnOpen
     resource onOpen(message m) {
         system:println("New client connected to the server.");
     }
 
-    @OnTextMessage
+    @ws:OnTextMessage
     resource onTextMessage(message m) {
         ws:sendText(m, message:getStringPayload(m));
         system:println("client : " + message:getStringPayload(m));
     }
 
-    @OnClose
+    @ws:OnClose
     resource onClose(message m) {
         system:println("client left the server.");
     }

@@ -67,13 +67,13 @@ public class Constants {
 
     /* WebSocket Annotations */
     public static final String PROTOCOL_WEBSOCKET = "ws";
-    public static final String ANNOTATION_NAME_WEBSOCKET_UPGRADE_PATH = "WebSocketUpgradePath";
-    public static final String ANNOTATION_NAME_ON_OPEN = "OnOpen";
-    public static final String ANNOTATION_NAME_ON_TEXT_MESSAGE = "OnTextMessage";
-    public static final String ANNOTATION_NAME_ON_BINARY_MESSAGE = "OnBinaryMessage";
-    public static final String ANNOTATION_NAME_ON_PONG_MESSAGE = "OnPongMessage";
-    public static final String ANNOTATION_NAME_ON_CLOSE = "OnClose";
-    public static final String ANNOTATION_NAME_ON_ERROR = "OnError";
+    public static final String ANNOTATION_NAME_WEBSOCKET_UPGRADE_PATH = "ws:WebSocketUpgradePath";
+    public static final String ANNOTATION_NAME_ON_OPEN = "ws:OnOpen";
+    public static final String ANNOTATION_NAME_ON_TEXT_MESSAGE = "ws:OnTextMessage";
+    public static final String ANNOTATION_NAME_ON_BINARY_MESSAGE = "ws:OnBinaryMessage";
+    public static final String ANNOTATION_NAME_ON_PONG_MESSAGE = "ws:OnPongMessage";
+    public static final String ANNOTATION_NAME_ON_CLOSE = "ws:OnClose";
+    public static final String ANNOTATION_NAME_ON_ERROR = "ws:OnError";
 
 
     public static final String ANNOTATION_SOURCE_KEY_INTERFACE = "interface";
