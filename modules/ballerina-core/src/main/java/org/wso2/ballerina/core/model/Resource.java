@@ -63,7 +63,6 @@ public class Resource implements Node, SymbolScope, CallableUnit {
     private Worker[] workers;
     private BlockStmt resourceBody;
 
-    private Application application;
 
     // Scope related variables
     private SymbolScope enclosingScope;
@@ -101,15 +100,6 @@ public class Resource implements Node, SymbolScope, CallableUnit {
     }
 
     /**
-     * Get all Connections declared within the default Worker scope of the Resource.
-     *
-     * @return list of all the Connections belongs to the default Worker of the Resource
-     */
-    public ConnectorDcl[] getConnectorDcls() {
-        return null;
-    }
-
-    /**
      * Get all the Workers associated with a Resource.
      *
      * @return list of Workers
@@ -142,14 +132,6 @@ public class Resource implements Node, SymbolScope, CallableUnit {
 
     public void setStackFrameSize(int stackFrameSize) {
         this.stackFrameSize = stackFrameSize;
-    }
-
-    public Application getApplication() {
-        return application;
-    }
-
-    public void setApplication(Application application) {
-        this.application = application;
     }
 
 

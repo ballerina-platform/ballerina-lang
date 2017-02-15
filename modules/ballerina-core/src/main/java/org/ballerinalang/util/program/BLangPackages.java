@@ -33,27 +33,12 @@ import java.util.Arrays;
 import java.util.stream.Collectors;
 
 /**
+ * This class contains a set of static methods to operate on {@code BLangPackage} objects. This class contains methods
+ * to load packages or files from the given package repository.
+ *
  * @since 0.8.0
  */
 public class BLangPackages {
-
-    private static BLangPackage loadPackageInternal(PackageRepository.PackageSource pkgSource,
-                                                    BLangPackage.PackageBuilder packageBuilder,
-                                                    BLangProgram bLangProgram) {
-
-        Path packagePath = pkgSource.getPackagePath();
-        String pkgPathStr = getPackagePathFromPath(packagePath);
-        packageBuilder.setBallerinaFileList(pkgSource.getSourceFileStreamMap().entrySet()
-                .stream()
-                .map(entry -> BLangFiles.loadFile(entry.getKey(), packagePath, entry.getValue(), packageBuilder))
-                .peek(bFile -> validatePackagePathInFile(pkgPathStr, packagePath, bFile))
-                .collect(Collectors.toList()));
-
-        BLangPackage bLangPackage = packageBuilder.build();
-
-        // Resolve dependent packages of this package
-        return resolveDependencies(bLangPackage, bLangProgram);
-    }
 
     public static BLangPackage loadPackage(Path packagePath,
                                            PackageRepository packageRepo,
@@ -81,12 +66,55 @@ public class BLangPackages {
         return loadPackageInternal(pkgSource, packageBuilder, bLangProgram);
     }
 
+    public static Path getPathFromPackagePath(String packagePath) {
+        if (packagePath.equals(".")) {
+            return Paths.get(packagePath);
+        }
+
+        String[] dirs = packagePath.split("\\.");
+        return (dirs.length == 1) ? Paths.get(dirs[0]) :
+                Paths.get(dirs[0], Arrays.copyOfRange(dirs, 1, dirs.length));
+    }
+
+    public static String getPackagePathFromPath(Path path) {
+        if (path.getNameCount() == 1) {
+            return path.toString();
+        }
+
+        StringBuilder strBuilder = new StringBuilder();
+        for (int i = 0; i < path.getNameCount() - 1; i++) {
+            strBuilder.append(path.getName(i)).append(".");
+        }
+
+        strBuilder.append(path.getName(path.getNameCount() - 1));
+        return strBuilder.toString();
+    }
+
+    private static BLangPackage loadPackageInternal(PackageRepository.PackageSource pkgSource,
+                                                    BLangPackage.PackageBuilder packageBuilder,
+                                                    BLangProgram bLangProgram) {
+
+        Path packagePath = pkgSource.getPackagePath();
+        String pkgPathStr = getPackagePathFromPath(packagePath);
+        packageBuilder.setBallerinaFileList(pkgSource.getSourceFileStreamMap().entrySet()
+                .stream()
+                .map(entry -> BLangFiles.loadFile(entry.getKey(), packagePath, entry.getValue(), packageBuilder))
+                .peek(bFile -> validatePackagePathInFile(pkgPathStr, packagePath, bFile))
+                .collect(Collectors.toList()));
+
+        BLangPackage bLangPackage = packageBuilder.build();
+
+        // Resolve dependent packages of this package
+        return resolveDependencies(bLangPackage, bLangProgram);
+    }
+
     private static void validatePackagePathInFile(String pkgPathStr, Path packagePath, BallerinaFile bFile) {
         if (!pkgPathStr.equals(bFile.getPackagePath())) {
             String actualPkgPath = (bFile.getPackagePath() != null) ? bFile.getPackagePath() : "";
             String expectedPkg = (!pkgPathStr.equals(".")) ? pkgPathStr : "";
-            String filePath = packagePath.resolve(bFile.getFileName()).toString();
-            throw new BallerinaException(filePath + ": incorrect package" +
+            String filePath = (packagePath.toString().equals(".")) ? bFile.getFileName() :
+                    packagePath.resolve(bFile.getFileName()).toString();
+            throw new BallerinaException("incorrect package in '" + filePath + "'" +
                     ": expected '" + expectedPkg + "', found '" + actualPkgPath + "'");
         }
     }
@@ -108,7 +136,6 @@ public class BLangPackages {
 
             } else if (dependentPkg == null) {
 
-                // TODO Detect cyclic dependencies
                 // Remove redundant stuff using the Paths and Files API
                 // This builder or loader should throw an error if the package cannot be found.
                 // 1) If the parent package is loaded from the program repository (current directory), then follow this
@@ -132,29 +159,5 @@ public class BLangPackages {
         }
 
         return parentPackage;
-    }
-
-    public static Path getPathFromPackagePath(String packagePath) {
-        if (packagePath.equals(".")) {
-            return Paths.get(packagePath);
-        }
-
-        String[] dirs = packagePath.split("\\.");
-        return (dirs.length == 1) ? Paths.get(dirs[0]) :
-                Paths.get(dirs[0], Arrays.copyOfRange(dirs, 1, dirs.length));
-    }
-
-    public static String getPackagePathFromPath(Path path) {
-        if (path.getNameCount() == 1) {
-            return path.toString();
-        }
-
-        StringBuilder strBuilder = new StringBuilder();
-        for (int i = 0; i < path.getNameCount() - 1; i++) {
-            strBuilder.append(path.getName(i)).append(".");
-        }
-
-        strBuilder.append(path.getName(path.getNameCount() - 1));
-        return strBuilder.toString();
     }
 }

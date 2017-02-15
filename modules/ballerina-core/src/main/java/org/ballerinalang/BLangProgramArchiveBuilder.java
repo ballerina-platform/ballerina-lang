@@ -18,6 +18,7 @@
 package org.ballerinalang;
 
 import org.ballerinalang.util.program.BLangPackages;
+import org.ballerinalang.util.repository.BLangProgramArchive;
 import org.ballerinalang.util.repository.PackageRepository;
 import org.wso2.ballerina.core.model.BLangPackage;
 import org.wso2.ballerina.core.model.BLangProgram;
@@ -37,35 +38,48 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
+ * This class provides helper methods to create main and service program archives.
+ *
  * @since 0.8.0
  */
 public class BLangProgramArchiveBuilder {
 
-    private static final String BAL_INF_DIR_NAME = "BAL_INF";
-    private static final String BALLERINA_CONF = "ballerina.conf";
-    private static final String balVersionText = "ballerina-version: 0.8.0";
-    private static final String mainPackageLinePrefix = "main-function: ";
-
     public void build(BLangProgram bLangProgram) {
         String outFileName;
-        String entryPoint = bLangProgram.getEntryPoint();
+        String extension = bLangProgram.getProgramCategory().getExtension();
+
+        String entryPoint = bLangProgram.getEntryPoints()[0];
         if (entryPoint.endsWith(".bal")) {
-            outFileName = entryPoint.substring(0, entryPoint.length() - 4) + ".bpz";
+            outFileName = entryPoint.substring(0, entryPoint.length() - 4) + extension;
         } else {
             Path pkgPath = Paths.get(entryPoint);
-            outFileName = pkgPath.getName(pkgPath.getNameCount() - 1).toString() + ".bpz";
+            outFileName = pkgPath.getName(pkgPath.getNameCount() - 1).toString() + extension;
         }
 
         createArchive(bLangProgram, outFileName);
     }
 
     public void build(BLangProgram bLangProgram, String outFileName) {
+        String extension = bLangProgram.getProgramCategory().getExtension();
+
         if (outFileName == null || outFileName.isEmpty()) {
-            throw new IllegalStateException("output name cannot be empty");
+            throw new IllegalArgumentException("output file name cannot be empty");
         }
 
-        if (!outFileName.endsWith(".bpz")) {
-            outFileName += ".bpz";
+        if (bLangProgram.getProgramCategory() == BLangProgram.Category.MAIN_PROGRAM
+                && outFileName.endsWith(BLangProgram.Category.SERVICE_PROGRAM.getExtension())) {
+            throw new IllegalArgumentException("invalid output file name: expect a '" +
+                    BLangProgram.Category.MAIN_PROGRAM.getExtension() + "' file");
+        }
+
+        if (bLangProgram.getProgramCategory() == BLangProgram.Category.SERVICE_PROGRAM
+                && outFileName.endsWith(BLangProgram.Category.MAIN_PROGRAM.getExtension())) {
+            throw new IllegalArgumentException("invalid output file name: expect a '" +
+                    BLangProgram.Category.MAIN_PROGRAM.getExtension() + "' file");
+        }
+
+        if (!outFileName.endsWith(extension)) {
+            outFileName += extension;
         }
 
         createArchive(bLangProgram, outFileName);
@@ -78,42 +92,35 @@ public class BLangProgramArchiveBuilder {
         URI zipFileURI = URI.create("jar:file:" + Paths.get(outFileName).toUri().getPath());
         try (FileSystem zipFS = FileSystems.newFileSystem(zipFileURI, zipFSEnv)) {
             addProgramToArchive(bLangProgram, zipFS);
-            addBallerinaConfFile(zipFS, bLangProgram.getEntryPoint());
+            addBallerinaConfFile(zipFS, bLangProgram);
         } catch (IOException e) {
             // TODO Handler error
             e.printStackTrace();
         }
     }
 
+    private void addProgramToArchive(BLangProgram bLangProgram, FileSystem zipFS) throws IOException {
 
-    private void addProgramToArchive(BLangProgram bLangProgram,
-                                     FileSystem zipFS) throws IOException {
-        BLangPackage mainPkg = bLangProgram.getMainPackage();
-        if (mainPkg.getPackagePath().equals(".")) {
-            String fileName = bLangProgram.getEntryPoint();
-            PackageRepository.PackageSource packageSource = mainPkg.getPackageRepository().loadFile(Paths.get(fileName));
-            addPackageSourceToArchive(packageSource, Paths.get("."), zipFS);
-        }
-
-        addPackagesToArchive(bLangProgram.getPackages(), zipFS);
-    }
-
-    private void addPackagesToArchive(BLangPackage[] bLangPackages,
-                                      FileSystem zipFS) throws IOException {
-
-        for (BLangPackage bLangPackage : bLangPackages) {
+        for (BLangPackage bLangPackage : bLangProgram.getPackages()) {
             if (bLangPackage.getPackagePath().equals(".")) {
+                String fileName = bLangPackage.getBallerinaFiles()[0].getFileName();
+                PackageRepository.PackageSource packageSource =
+                        bLangPackage.getPackageRepository().loadFile(Paths.get(fileName));
+                addPackageSourceToArchive(packageSource, Paths.get("."), zipFS);
                 continue;
             }
 
             Path packagePath = BLangPackages.getPathFromPackagePath(bLangPackage.getPackagePath());
-            PackageRepository.PackageSource packageSource = bLangPackage.getPackageRepository().loadPackage(packagePath);
+            PackageRepository.PackageSource packageSource =
+                    bLangPackage.getPackageRepository().loadPackage(packagePath);
             addPackageSourceToArchive(packageSource, packagePath, zipFS);
         }
     }
 
-    private void addPackageSourceToArchive(PackageRepository.PackageSource packageSource, Path packagePath,
+    private void addPackageSourceToArchive(PackageRepository.PackageSource packageSource,
+                                           Path packagePath,
                                            FileSystem zipFS) throws IOException {
+
         for (Map.Entry<String, InputStream> mapEntry : packageSource.getSourceFileStreamMap().entrySet()) {
             Path root = zipFS.getPath("/");
             Path dest = zipFS.getPath(root.toString(),
@@ -132,12 +139,36 @@ public class BLangProgramArchiveBuilder {
         Files.copy(srcInputStream, destPath, StandardCopyOption.REPLACE_EXISTING);
     }
 
-    private void addBallerinaConfFile(FileSystem zipFS, String entryPoint) throws IOException {
-        final Path root = zipFS.getPath("/");
-        final Path dest = zipFS.getPath(root.toString(), BAL_INF_DIR_NAME, BALLERINA_CONF);
+    private void addBallerinaConfFile(FileSystem zipFS, BLangProgram bLangProgram) throws IOException {
+        final Path rootPath = zipFS.getPath("/");
+        final Path destPath = zipFS.getPath(rootPath.toString(), BLangProgramArchive.BAL_INF_DIR_NAME,
+                BLangProgramArchive.BALLERINA_CONF);
 
-        String balConfContent = balVersionText + "\n" + mainPackageLinePrefix + zipFS.getPath(entryPoint).toString() + "\n";
+        String entryPointStr;
+        String[] entryPoints = bLangProgram.getEntryPoints();
+        if (entryPoints.length == 1) {
+            entryPointStr = zipFS.getPath(entryPoints[0]).toString();
+        } else {
+            StringBuilder stringBuilder = new StringBuilder();
+            for (int i = 0; i < entryPoints.length - 1; i++) {
+                stringBuilder.append(zipFS.getPath(entryPoints[i]).toString()).append(",");
+            }
+
+            stringBuilder.append(zipFS.getPath(entryPoints[entryPoints.length - 1]).toString());
+            entryPointStr = stringBuilder.toString();
+        }
+
+        String balConfContent;
+        if (bLangProgram.getProgramCategory() == BLangProgram.Category.MAIN_PROGRAM) {
+            balConfContent = BLangProgramArchive.balVersionText + "\n" +
+                    BLangProgramArchive.mainPackageLinePrefix + ": " + entryPointStr + "\n";
+
+        } else {
+            balConfContent = BLangProgramArchive.balVersionText + "\n" +
+                    BLangProgramArchive.servicePackagePrefix + ": " + entryPointStr + "\n";
+        }
+
         InputStream stream = new ByteArrayInputStream(balConfContent.getBytes(StandardCharsets.UTF_8));
-        copyFileToZip(stream, dest);
+        copyFileToZip(stream, destPath);
     }
 }

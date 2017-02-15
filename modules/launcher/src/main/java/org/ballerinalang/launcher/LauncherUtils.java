@@ -73,7 +73,7 @@ public class LauncherUtils {
 
             GlobalScope globalScope = GlobalScope.getInstance();
             loadGlobalSymbols(globalScope);
-            BLangProgram bLangProgram = new BLangProgram(globalScope);
+            BLangProgram bLangProgram = new BLangProgram(globalScope, BLangProgram.Category.SERVICE_PROGRAM);
             BLangPackage bLangPackage = new BLangPackage(bLangProgram);
 
             BLangModelBuilder bLangModelBuilder = null;

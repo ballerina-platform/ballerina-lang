@@ -17,6 +17,9 @@
 */
 package org.ballerinalang.util.repository;
 
+import org.ballerinalang.util.program.BLangPrograms;
+import org.wso2.ballerina.core.model.BLangProgram;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
@@ -24,7 +27,6 @@ import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
-import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
@@ -35,52 +37,53 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.stream.Collectors;
-import java.util.zip.ZipFile;
 
 /**
+ * {@code BLangProgramArchive} reads package information from ballerina program archive files.
+ *
  * @since 0.8.0
  */
 public class BLangProgramArchive extends PackageRepository implements AutoCloseable {
+    public static final String BAL_INF_DIR_NAME = "BAL_INF";
+    public static final String BALLERINA_CONF = "ballerina.conf";
+    public static final String BALLERINA_CONF_FILE_PATH = "/" + BAL_INF_DIR_NAME + "/" + BALLERINA_CONF;
+    public static final String balVersionText = "ballerina-version: 0.8.0";
+    public static final String mainPackageLinePrefix = "main-function";
+    public static final String servicePackagePrefix = "services";
+
     private Path archivePath;
-    private ZipFile zipFile;
     private Map<String, List<Path>> packageFilesMap;
-    private Properties bConfProps;
     private FileSystem zipFS;
+    private String[] entryPoints;
+    private BLangProgram.Category programCategory;
 
     public BLangProgramArchive(Path archivePath) {
         this.archivePath = archivePath;
     }
 
-    public String getEntryPoint() {
-        return bConfProps.get("main-function").toString().trim();
+    public String[] getEntryPoints() {
+        return entryPoints;
     }
 
     public void loadArchive() throws IOException {
         try {
-            archivePath.toRealPath(LinkOption.NOFOLLOW_LINKS);
-
-            if (!Files.isReadable(archivePath)) {
-                // TODO Handle Error
-                throw new IllegalStateException("no read access provided for the archive ");
-            }
-
-            if (Files.isDirectory(archivePath, LinkOption.NOFOLLOW_LINKS)) {
-                // TODO Handle Error
-                throw new IllegalStateException("required ballerina program archive (.bpz) file");
-            }
-
             Map<String, String> zipFSEnv = new HashMap<>();
             zipFSEnv.put("create", "false");
-
             URI zipFileURI = URI.create("jar:file:" + archivePath.toUri().getPath());
             zipFS = FileSystems.newFileSystem(zipFileURI, zipFSEnv);
-            readZipFile();
 
+            if (archivePath.toString().endsWith(BLangProgram.Category.MAIN_PROGRAM.getExtension())) {
+                programCategory = BLangProgram.Category.MAIN_PROGRAM;
+            } else {
+                programCategory = BLangProgram.Category.SERVICE_PROGRAM;
+            }
 
-            // TODO Perform validations for various sutff
+            // Read ballerina.conf file and get all the entry points
+            // Also load all packages and the files in them.
+            processArchive();
         } catch (IOException e) {
-            // TODO Handle error
-            throw e;
+            throw new RuntimeException("error reading from file: " + archivePath +
+                    " reason: " + e.getMessage(), e);
         }
     }
 
@@ -90,7 +93,7 @@ public class BLangProgramArchive extends PackageRepository implements AutoClosea
         List<Path> pathList = packageFilesMap.get(zipPkgPath.toString());
         Map<String, InputStream> fileStreamMap;
         fileStreamMap = pathList.stream()
-                .filter(filePath -> filePath.toString().endsWith(".bal"))
+                .filter(filePath -> filePath.toString().endsWith(BLangPrograms.BSOURCE_FILE_EXT))
                 .collect(Collectors.toMap(filePath -> filePath.getFileName().toString(), this::getInputStream));
 
         return new PackageSource(packageDirPath, fileStreamMap, this);
@@ -107,56 +110,82 @@ public class BLangProgramArchive extends PackageRepository implements AutoClosea
         return new PackageSource(Paths.get("."), fileStreamMap, this);
     }
 
-    private InputStream getInputStream(Path path) {
-        try {
-            return Files.newInputStream(path);
-        } catch (IOException e) {
-            // TODO
-            throw new RuntimeException(e.getMessage(), e);
-        }
-    }
-
-    private void readZipFile() throws IOException {
-        final Path root = zipFS.getPath("/");
-        List<Path> filePathStrs = new ArrayList<>();
-
-        Files.walkFileTree(root, new SimpleFileVisitor<Path>() {
-            @Override
-            public FileVisitResult visitFile(Path filePath, BasicFileAttributes attrs) throws IOException {
-                System.out.printf("Extracting file %s\n", filePath);
-
-                if (filePath.toString().equals("/BAL_INF/ballerina.conf")) {
-                    readBallerinaConfEntry(filePath);
-                    return FileVisitResult.CONTINUE;
-                }
-
-                if (filePath.getFileName().toString().endsWith(".bal")) {
-                    filePathStrs.add(filePath);
-                }
-                return FileVisitResult.CONTINUE;
-            }
-        });
-
-        packageFilesMap = filePathStrs.stream()
-                .collect(Collectors.groupingBy(path -> path.getParent().toString()));
-    }
-
-    private void readBallerinaConfEntry(Path filePath) {
-        bConfProps = new Properties();
-        try {
-            bConfProps.load(Files.newInputStream(filePath));
-            // TODO throw an error if the main-function is not here..
-            System.out.println(bConfProps.get("main-function"));
-        } catch (IOException e) {
-            /// TODO
-            e.printStackTrace();
-        }
-    }
-
     @Override
     public void close() throws Exception {
         if (zipFS != null) {
             zipFS.close();
+        }
+    }
+
+    private InputStream getInputStream(Path path) {
+        try {
+            return Files.newInputStream(path);
+        } catch (IOException e) {
+            throw new RuntimeException("error reading from file: " + archivePath +
+                    " reason: " + e.getMessage(), e);
+        }
+    }
+
+    private void processArchive() throws IOException {
+        final Path rootPathInArchive = zipFS.getPath("/");
+        List<Path> filePathList = new ArrayList<>();
+
+        Files.walkFileTree(rootPathInArchive, new SimpleFileVisitor<Path>() {
+            @Override
+            public FileVisitResult visitFile(Path filePath, BasicFileAttributes attributes) throws IOException {
+                if (filePath.toString().equals(BALLERINA_CONF_FILE_PATH)) {
+                    readBallerinaConfEntry(filePath);
+                    return FileVisitResult.CONTINUE;
+                }
+
+                if (filePath.getFileName().toString().endsWith(BLangPrograms.BSOURCE_FILE_EXT)) {
+                    filePathList.add(filePath);
+                }
+
+                return FileVisitResult.CONTINUE;
+            }
+        });
+
+        if (filePathList.isEmpty()) {
+            throw new IllegalArgumentException("invalid program archive file: " + archivePath);
+        }
+
+        packageFilesMap = filePathList.stream()
+                .collect(Collectors.groupingBy(path -> path.getParent().toString()));
+    }
+
+    private void readBallerinaConfEntry(Path filePath) {
+        String errorMsg = "invalid program archive file: " + archivePath;
+
+        Properties bConfProps = new Properties();
+        try {
+            bConfProps.load(Files.newInputStream(filePath));
+        } catch (IOException e) {
+            throw new IllegalArgumentException(errorMsg, e);
+        }
+
+        // Check whether there exist entry point line..
+        Object entryPointLineObj;
+        if(programCategory == BLangProgram.Category.MAIN_PROGRAM) {
+            entryPointLineObj = bConfProps.get(mainPackageLinePrefix);
+        } else {
+            entryPointLineObj = bConfProps.get(servicePackagePrefix);
+        }
+
+        if (entryPointLineObj == null) {
+            throw new IllegalArgumentException(errorMsg);
+        }
+
+        String entryPointLine = (String) entryPointLineObj;
+        if (entryPointLine.isEmpty()) {
+            throw new IllegalArgumentException(errorMsg);
+        }
+
+        entryPoints = entryPointLine.trim().split("\\s*,\\s*");
+        for (String entryPoint : entryPoints) {
+            if (entryPoint.isEmpty()) {
+                throw new IllegalArgumentException(errorMsg);
+            }
         }
     }
 }

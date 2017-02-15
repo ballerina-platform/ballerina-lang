@@ -153,9 +153,14 @@ public class SemanticAnalyzer implements NodeVisitor {
     @Override
     public void visit(BLangProgram bLangProgram) {
         BLangPackage mainPkg = bLangProgram.getMainPackage();
-        mainPkg.accept(this);
-
-        // TODO Support services
+        if (bLangProgram.getProgramCategory() == BLangProgram.Category.MAIN_PROGRAM) {
+            mainPkg.accept(this);
+        } else {
+            BLangPackage[] servicePackages = bLangProgram.getServicePackages();
+            for(BLangPackage servicePkg: servicePackages) {
+                servicePkg.accept(this);
+            }
+        }
 
         int setSizeOfStaticMem = staticMemAddrOffset + 1;
         bLangProgram.setSizeOfStaticMem(setSizeOfStaticMem);
