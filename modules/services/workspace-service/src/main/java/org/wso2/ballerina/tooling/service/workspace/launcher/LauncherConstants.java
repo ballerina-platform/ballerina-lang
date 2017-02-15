@@ -20,10 +20,29 @@ public class LauncherConstants {
     public static final String RUN_SERVICE = "RUN_SERVICE";
     public static final String DEBUG_PROGRAM = "DEBUG_PROGRAM";
     public static final String DEBUG_SERVICE = "DEBUG_SERVICE";
-    public static final String STOP = "STOP";
+    public static final String TERMINATE = "TERMINATE";
     public static final String INVALID_CMD = "INVALID_CMD";
     public static final String MSG_INVALID = "Unsupported command";
 
 
     public static final String OUTPUT = "OUTPUT";
+    public static final String EXECUTION_STARTED = "EXECUTION_STARTED";
+    public static final String EXECUTION_STOPED = "EXECUTION_STOPED";
+    public static final String DEBUG = "DEBUG_PORT";
+    public static final String EXIT = "EXIT";
+    public static final String RUN_MESSAGE = "Running %s application." ;
+    public static final String END_MESSAGE = "Execution Ended.";
+    public static final String INVALID_BAL_PATH_MESSAGE = "BAL_HOME is not set unable to run application.";
+    public static final String SERVICE_MESSAGE = "Running %s service.";
+    public static final String EXECUTION_TERMINATED = "EXECUTION_TERMINATED" ;
+
+
+    public static enum ProgramType{
+        RUN, SERVICE
+    }
+
+    //message types
+    public static final String INFO = "INFO";
+    public static final String ERROR = "ERROR";
+    public static final String DATA = "DATA";
 }

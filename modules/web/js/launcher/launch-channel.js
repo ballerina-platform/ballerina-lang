@@ -19,22 +19,24 @@
 define(['lodash', 'event_channel', 'log'],
     function (_, EventChannel, log){
 
-        var Channel = function(args){
+        var LaunchChannel = function(args){
             if(_.isNil(args.endpoint)){
                 throw "Invalid Endpoint";
             }
-            _.assign(this, args);
+            _.assign(this, args);            
 
             // See http://tools.ietf.org/html/rfc6455#section-7.4.1
             this.ws_normal_code = 1000;
             this.ws_ssl_code = 1015;
+
+            this.connect();
         };
 
-        Channel.prototype = Object.create(EventChannel.prototype);
+        LaunchChannel.prototype = Object.create(EventChannel.prototype);
 
-        Channel.prototype.constructor = Channel;
+        LaunchChannel.prototype.constructor = LaunchChannel;
 
-        Channel.prototype.connect = function(){
+        LaunchChannel.prototype.connect = function(){
             var websocket = new WebSocket(this.endpoint);
             //bind functions
             websocket.onmessage = _.bindKey(this, 'parseMessage');
@@ -44,18 +46,18 @@ define(['lodash', 'event_channel', 'log'],
             this.websocket = websocket;
         }
 
-        Channel.prototype.parseMessage = function (strMessage) {            
+        LaunchChannel.prototype.parseMessage = function (strMessage) {            
             var message = JSON.parse(strMessage.data);
-            this.debugger.processMesssage(message);
+            this.launcher.processMesssage(message);
         };
 
-        Channel.prototype.sendMessage = function (message) {
-            this.websocket.send(JSON.stringify(message))
+        LaunchChannel.prototype.sendMessage = function (message) {            
+            this.websocket.send(JSON.stringify(message));
         };
 
-        Channel.prototype.onClose = function(event){
-            this.debugger.active = false;
-            this.debugger.trigger("session-terminated");
+        LaunchChannel.prototype.onClose = function(event){
+            this.launcher.active = false;
+            this.launcher.trigger("session-terminated");
             var reason;
             if (event.code == this.ws_normal_code){
                 reason = "Normal closure";
@@ -71,15 +73,15 @@ define(['lodash', 'event_channel', 'log'],
             }
         };
 
-        Channel.prototype.onError = function(event){
-            this.debugger.active = false;
-            this.debugger.trigger("session-error");
+        LaunchChannel.prototype.onError = function(event){
+            this.launcher.active = false;
+            this.launcher.trigger("session-error");
         };
 
-        Channel.prototype.onOpen = function(event){
-            this.debugger.active = true;
-            this.debugger.trigger("session-started");
+        LaunchChannel.prototype.onOpen = function(event){            
+            this.launcher.active = true;
+            this.trigger("connected");
         };        
 
-        return Channel;
+        return LaunchChannel;
     });

@@ -19,18 +19,7 @@ public class LaunchSession {
         return channel;
     }
 
-    private Process process;
-
-
     public void setChannel(Channel channel) {
         this.channel = channel;
-    }
-
-    public Process getProcess() {
-        return process;
-    }
-
-    public void setProcess(Process p) {
-        this.process = p;
     }
 }

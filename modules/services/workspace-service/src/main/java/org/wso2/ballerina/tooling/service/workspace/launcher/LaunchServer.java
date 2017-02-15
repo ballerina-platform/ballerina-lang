@@ -48,13 +48,12 @@ public class LaunchServer {
         int port = Integer.parseInt(LauncherConstants.LAUNCHER_PORT);
         EventLoopGroup bossGroup = new NioEventLoopGroup(1);
         EventLoopGroup workerGroup = new NioEventLoopGroup();
-        PrintStream out = System.out;
-        out.println(LauncherConstants.MESSAGE + port);
         try {
             ServerBootstrap b = new ServerBootstrap();
             b.group(bossGroup, workerGroup)
                     .channel(NioServerSocketChannel.class)
-                    .handler(new LoggingHandler(LogLevel.INFO))
+                    //todo enable log in debug mode
+                    //.handler(new LoggingHandler(LogLevel.INFO))
                     .childHandler(new LaunchServerInitializer());
             Channel ch = b.bind(port).sync().channel();
 

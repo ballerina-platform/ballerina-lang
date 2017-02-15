@@ -6,7 +6,7 @@
     left: 0;
     top: 0;
     background-color: #fff;
-    height: calc(100% - 80px);
+    height: calc(100%);
 }
 
 .tool-group{

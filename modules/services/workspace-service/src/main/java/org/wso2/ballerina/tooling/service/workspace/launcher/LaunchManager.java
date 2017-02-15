@@ -7,6 +7,7 @@ import org.wso2.ballerina.tooling.service.workspace.launcher.dto.CommandDTO;
 import org.wso2.ballerina.tooling.service.workspace.launcher.dto.MessageDTO;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.DatagramSocket;
@@ -19,6 +20,8 @@ public class LaunchManager {
     private LaunchServer launchServer;
 
     private LaunchSession launchSession;
+
+    private Process program = null;
 
     /**
      * Instantiates a new Debug manager.
@@ -50,43 +53,79 @@ public class LaunchManager {
         }
     }
 
-    public void runProgram(){
-        Process p = null;
-        try {
-            p = Runtime.getRuntime().exec("ping localhost");
-            launchSession.setProcess(p);
+    private void run(LauncherConstants.ProgramType type, String fileName, String filePath, boolean debug){
+        String command = "";
+        int port = -1;
 
-            BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
+        // kill a previously running program
+        stopProcess();
+
+        // send a message if ballerina home is not set
+        if(null == System.getProperty("ballerina.home") || System.getProperty("ballerina.home").isEmpty()){
+            pushMessageToClient(launchSession, LauncherConstants.ERROR, LauncherConstants.ERROR,
+                    LauncherConstants.INVALID_BAL_PATH_MESSAGE);
+            return;
+        }
+
+        // construct the command
+        command = System.getProperty("ballerina.home") + File.separator + "bin" + File.separator + "ballerina ";
+
+        if(type == LauncherConstants.ProgramType.RUN) {
+            command = command + " run ";
+        }else{
+            command = command + " service ";
+        }
+
+        command = command + filePath + File.separator + fileName;
+
+        if(debug){
+            port = getFreePort();
+            command = command + "  --ballerina.debug " + port;
+        }
+
+        try {
+            this.program = Runtime.getRuntime().exec(command);
+
+
+            BufferedReader reader = new BufferedReader(new InputStreamReader(this.program.getInputStream()));
+
+            if(type == LauncherConstants.ProgramType.RUN ){
+                pushMessageToClient(launchSession, LauncherConstants.EXECUTION_STARTED, LauncherConstants.INFO,
+                        String.format(LauncherConstants.RUN_MESSAGE , fileName));
+            } else {
+                pushMessageToClient(launchSession, LauncherConstants.EXECUTION_STARTED, LauncherConstants.INFO,
+                        String.format(LauncherConstants.SERVICE_MESSAGE , fileName));
+            }
+
+            if(debug){
+                MessageDTO debugMessage = new MessageDTO();
+                debugMessage.setCode(LauncherConstants.DEBUG);
+                debugMessage.setPort(port);
+                pushMessageToClient(launchSession, debugMessage);
+            }
 
             String line = "";
             while ((line = reader.readLine())!= null) {
-                MessageDTO m = new MessageDTO();
-                m.setCode(LauncherConstants.OUTPUT);
-                m.setMessage(line);
-                pushMessageToClient(launchSession,m);
+                pushMessageToClient(launchSession, LauncherConstants.OUTPUT, LauncherConstants.DATA, line);
             }
+
+            pushMessageToClient(launchSession, LauncherConstants.EXECUTION_STOPED , LauncherConstants.INFO,
+                    LauncherConstants.END_MESSAGE);
+
         } catch (IOException e) {
-            //if any exception destroy the process
-            p.destroy();
+            pushMessageToClient(launchSession, LauncherConstants.EXIT, LauncherConstants.ERROR, e.getMessage());
+            this.program.destroy();
         }
     }
 
-    public void runService(){
-
-    }
-
-    public void debugProgram(){
-
-    }
-
-    public void debugService(){
-
-    }
-
     public void stopProcess(){
-        Process p = this.launchSession.getProcess();
-        if(p.isAlive()){
-            p.destroy();
+        if(this.program != null && this.program.isAlive()){
+            this.program.destroyForcibly();
+            try {
+                this.program.waitFor();
+            } catch (InterruptedException e) {
+
+            }
         }
     }
 
@@ -148,19 +187,21 @@ public class LaunchManager {
         CommandDTO command = gson.fromJson(json, CommandDTO.class);
         switch (command.getCommand()) {
             case LauncherConstants.RUN_PROGRAM:
-                runProgram();
+                run(LauncherConstants.ProgramType.RUN, command.getFileName(), command.getFilePath(), false);
                 break;
             case LauncherConstants.RUN_SERVICE:
-                runService();
+                run(LauncherConstants.ProgramType.SERVICE, command.getFileName(), command.getFilePath(), false);
                 break;
             case LauncherConstants.DEBUG_PROGRAM:
-                debugProgram();
+                run(LauncherConstants.ProgramType.RUN, command.getFileName(), command.getFilePath(), true);
                 break;
             case LauncherConstants.DEBUG_SERVICE:
-                debugService();
+                run(LauncherConstants.ProgramType.SERVICE, command.getFileName(), command.getFilePath(), true);
                 break;
-            case LauncherConstants.STOP:
+            case LauncherConstants.TERMINATE:
                 stopProcess();
+                pushMessageToClient(launchSession, LauncherConstants.EXECUTION_TERMINATED , LauncherConstants.INFO,
+                        LauncherConstants.END_MESSAGE);
                 break;
             default:
                 MessageDTO message = new MessageDTO();
@@ -173,13 +214,21 @@ public class LaunchManager {
     /**
      * Push message to client.
      *
-     * @param debugSession the debug session
+     * @param session the debug session
      * @param status       the status
      */
-    public void pushMessageToClient(LaunchSession debugSession, MessageDTO status) {
+    public void pushMessageToClient(LaunchSession session, MessageDTO status) {
         Gson gson = new Gson();
         String json = gson.toJson(status);
-        debugSession.getChannel().write(new TextWebSocketFrame(json));
-        debugSession.getChannel().flush();
+        session.getChannel().write(new TextWebSocketFrame(json));
+        session.getChannel().flush();
+    }
+
+    public void pushMessageToClient(LaunchSession session, String code, String type, String text) {
+        MessageDTO message = new MessageDTO();
+        message.setCode(code);
+        message.setType(type);
+        message.setMessage(text);
+        pushMessageToClient(session, message);
     }
 }

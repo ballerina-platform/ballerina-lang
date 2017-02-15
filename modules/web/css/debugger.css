@@ -44,16 +44,20 @@
     margin-bottom: 10px;
 }
 
-.debugger-container .btn-group button{
+.btn-debug-action{
+    margin:0px !important;
     background-color: #333;
-    color: white;
+    color: white;   
+    font-size: 13px; 
 }
 
-.btn-debug-action , .btn-debug-activate{
+.btn-debug-activate{
     padding-top: 8px !important;
     padding-bottom: 8px !important;
-    border-bottom: 1px #232323 solid !important;
     margin:0px !important;
+    text-align: left !important;
+    background-color: #333;
+    color: white;    
 }
 
 .btn-debug-action{
@@ -91,8 +95,10 @@ table.debug-frames {
 }
 
 .debug-panel-header{
-    padding: 5px;
+    padding: 8px;
     background: #232323;
+    color: #FFF !important;
+    font-weight: bold;
 }
 
 .debug-panel-header a{
@@ -113,4 +119,40 @@ table.debug-frames {
 
 #debug-v-tree ul li{
     color: white;
+}
+
+#console-container {
+    color: #FFF !important;
+    background: #131313 !important;
+    
+}
+
+.launcher-container .btn-group button{
+    background-color: #333;
+    color: white;
+    width: 100%;
+}
+
+#console{
+    height: calc(100% - 25px );
+    padding: 5px 10px !important;
+    overflow: auto;
+    font-family: "Lucida Console", Monaco, monospace;
+}
+
+#console .INFO { color: #03a9f4 !important; }
+#console .ERROR { color: #f44336 !important; }
+
+.console-header{
+    font-weight: bolder !important;
+    background: #232323 !important;
+    padding: 5px 10px !important;
+    height: 25px;
+}
+
+.closeConsole{
+    color: #AAA;
+    font-size: 12px;
+    margin-top: 5px;
+    margin-left:10px;
 }

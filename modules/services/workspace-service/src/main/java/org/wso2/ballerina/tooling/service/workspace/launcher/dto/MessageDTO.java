@@ -29,6 +29,10 @@ public class MessageDTO {
 
     private String message;
 
+    private String type;
+
+    private int port;
+
     public String getCode() {
         return code;
     }
@@ -45,4 +49,19 @@ public class MessageDTO {
         this.message = message;
     }
 
+    public int getPort() {
+        return port;
+    }
+
+    public void setPort(int port) {
+        this.port = port;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
 }

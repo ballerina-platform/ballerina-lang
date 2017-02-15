@@ -21,42 +21,66 @@ define(['jquery', 'backbone', 'lodash', 'log', 'event_channel', './debug-manager
     var instance;
 
     var Tools = function(){
-        this._contentContainer = $('<div class="btn-group">' +
-            '<button type="button" class="btn btn-default btn-debug-activate col-xs-12" title="Start Debug ( Alt + C )">Remote Debug</button>' +
-            '<button type="button" class="btn btn-default btn-debug-action disabled" data-action="Stop"  title="Stop Debug ( Alt + P )"><i class="fw fw-stop" /></button>' +
-            '<button type="button" class="btn btn-default btn-debug-action disabled" data-action="Resume"  title="Resume ( Alt + R )"><i class="fw fw-start " /></button>' +
-            '<button type="button" class="btn btn-default btn-debug-action disabled" data-action="StepOver"  title="Step Over ( Alt + O )"><i class="fw fw-stepover " /></button>' +
-            '<button type="button" class="btn btn-default btn-debug-action disabled" data-action="StepIn"  title="Step In ( Alt + I )"><i class="fw fw-stepin " /></button>' +
-            '<button type="button" class="btn btn-default btn-debug-action disabled" data-action="StepOut"  title="Step Out ( Alt + U )"><i class="fw fw-stepout " /></button>' +
-            '</div>');
+        this.compiled = _.template('<% if (!active) { %>'
+            + '<div class="debug-panel-header">'
+            + '     <span class="tool-group-header-title">Debug As</span></span>' 
+            + '</div>' 
+            + '<div class="btn-group col-xs-12">' 
+            + '     <button type="button" class="btn btn-default text-left btn-debug-activate col-xs-12" id="debug_application" title="Start Debug">Application</button>' 
+            + '     <button type="button" class="btn btn-default text-left btn-debug-activate col-xs-12" id="debug_service" title="Start Debug">Service</button>' 
+            + '     <button type="button" class="btn btn-default text-left btn-debug-activate col-xs-12" id="remote_debug" title="Start Debug">Debug Remotely</button>' 
+            + '</div>'
+            + '<% } %>' 
+            + '<% if (active) { %>'
+            + '<div class="debug-panel-header">'
+            + '     <span class="tool-group-header-title">Debugger Active</span></span>' 
+            + '</div>'             
+            + '<div class="">'
+            + '<button type="button" class="btn btn-default btn-debug-action" data-action="Stop"  title="Stop Debug ( Alt + P )"><i class="fw fw-stop" /></button>' 
+            + '<button type="button" class="btn btn-default btn-debug-action" data-action="Resume"  title="Resume ( Alt + R )"><i class="fw fw-start " /></button>' 
+            + '<button type="button" class="btn btn-default btn-debug-action" data-action="StepOver"  title="Step Over ( Alt + O )"><i class="fw fw-stepover " /></button>' 
+            + '<button type="button" class="btn btn-default btn-debug-action" data-action="StepIn"  title="Step In ( Alt + I )"><i class="fw fw-stepin " /></button>' 
+            + '<button type="button" class="btn btn-default btn-debug-action" data-action="StepOut"  title="Step Out ( Alt + U )"><i class="fw fw-stepout " /></button>'
+            + '</div><% } %>');
 
         this.connectionDialog = $("#modalDebugConnection");
 
         $('.debug-connect-button').on("click", _.bindKey(this, 'connect'));  
         DebugManager.on("session-terminated", _.bindKey(this, 'connectionError'));
         DebugManager.on("session-started",_.bindKey(this, 'connectionStarted'));      
+        DebugManager.on("session-ended",_.bindKey(this, 'render'));
     };
 
     Tools.prototype = Object.create(EventChannel.prototype);
     Tools.prototype.constructor = Tools;
 
-    Tools.prototype.render = function (container) {
+    Tools.prototype.setArgs = function(args){
         var self = this;
+        this.container = args.container;
+        this.launchManager = args.launchManager;
+        this.application = args.application;
 
-        this._contentContainer.find('.btn-debug-action').on('click', _.bindKey(this, 'handleActions'));
+        this.container.on('click', '.btn-debug-action', _.bindKey(this, 'handleActions'));
 
-        this._contentContainer.find('.btn-debug-activate').on('click', function () {
+        this.container.on('click', '#debug_application', _.bindKey(this, 'debugApplication'));
+        this.container.on('click', '#debug_service', _.bindKey(this, 'debugService'));
+
+        this.container.on('click', '#remote_debug', function () {
             $('.debug-connection-group').removeClass("has-error");
             $('.debug-connection-error').addClass("hide");
             self.connectionDialog.modal('show');
-        });
+        });        
+    }
 
-        container.append(this._contentContainer);
+    Tools.prototype.render = function () {
+        var context = {};
+        context.active = DebugManager.active;
+        this.container.html(this.compiled(context));
     };
 
     Tools.prototype.handleActions = function(event){
-        if($(event.target).hasClass("disabled"))return;
-        var actionName = $(event.target).data('action');
+        console.log(event);
+        var actionName = $(event.currentTarget).data('action');
         switch(actionName){
             case 'Resume':
                 DebugManager.resume();
@@ -83,19 +107,29 @@ define(['jquery', 'backbone', 'lodash', 'log', 'event_channel', './debug-manager
     };
 
     Tools.prototype.connectionError = function(){
-        $('.btn-debug-activate').removeClass('disabled');        
         $('.debug-connection-group').addClass("has-error");
         $('.debug-connection-error').removeClass("hide");
-        $('.btn-debug-action').addClass('disabled');
+        this.render();
     };
 
     Tools.prototype.connectionStarted = function(){
-        $('.btn-debug-activate').addClass('disabled');
-        $('.btn-debug-action').removeClass('disabled');
+        this.render();
         this.connectionDialog.modal('hide');
         DebugManager.publishBreakPoints();
         DebugManager.startDebug();
-    };       
+    };
+
+    Tools.prototype.debugApplication = function(){
+        var activeTab = this.application.tabController.getActiveTab();
+        var file = activeTab.getFile();
+        this.launchManager.debugApplication(file);
+    };     
+
+    Tools.prototype.debugService = function(){
+        var activeTab = this.application.tabController.getActiveTab();
+        var file = activeTab.getFile();
+        this.launchManager.debugService(file);
+    }; 
 
     return (instance = (instance || new Tools() ));
 });

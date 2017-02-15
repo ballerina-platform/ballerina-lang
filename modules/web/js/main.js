@@ -17,9 +17,9 @@
  */
 define(['require', 'log', 'jquery', 'lodash', 'backbone', 'app/menu-bar/menu-bar', 'breadcrumbs', 'file_browser', 'tab/file-tab-list',
 
-    'command','workspace', 'debugger', 'debugger/debug-manager' , './launcher/launcher',/* void modules */ 'jquery_ui', 'bootstrap', 'theme_wso2'],
+    'command','workspace', 'debugger', 'debugger/debug-manager', './launcher/launch-manager' , './launcher/launcher', 'console' ,/* void modules */ 'jquery_ui', 'bootstrap', 'theme_wso2'],
 
-    function (require, log, $, _, Backbone, MenuBar, BreadcrumbController, FileBrowser, TabController, CommandManager, Workspace, Debugger, DebugManager, Launcher) {
+    function (require, log, $, _, Backbone, MenuBar, BreadcrumbController, FileBrowser, TabController, CommandManager, Workspace, Debugger, DebugManager, LaunchManager, Launcher, Console) {
 
     var Application = Backbone.View.extend(
     /** @lends Application.prototype */
@@ -69,17 +69,21 @@ define(['require', 'log', 'jquery', 'lodash', 'backbone', 'app/menu-bar/menu-bar
             _.set(workspaceExplorerOpts, 'application', this);
             this.workspaceExplorer = new Workspace.Explorer(workspaceExplorerOpts);
 
-            // init debugger
-            var debuggerOpts = _.get(this.config, "debugger");
-            _.set(debuggerOpts, 'application', this);            
-            this.debugger = new Debugger(debuggerOpts);       
-
-            var debuggerManager = DebugManager.init(debuggerOpts);
-
             //init launcher
             var launcherOpts = _.get(this.config, "launcher");
             _.set(launcherOpts, 'application', this);
             this.launcher = new Launcher(launcherOpts);
+
+            LaunchManager.init(launcherOpts);            
+
+            // init debugger
+
+            var debuggerOpts = _.get(this.config, "debugger");
+            _.set(debuggerOpts, 'application', this);
+            _.set(debuggerOpts, 'launchManager', LaunchManager);
+            this.debugger = new Debugger(debuggerOpts);       
+
+            DebugManager.init(debuggerOpts);
         },
 
         validateConfig: function(config){

@@ -26,7 +26,7 @@ button.close {
 
 .bottom-right-controls-container {
     position: absolute;
-    bottom: 80px;
+    bottom: 0px;
     right: 30px;
     z-index: 30;
     background: #333;
