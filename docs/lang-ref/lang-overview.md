@@ -30,6 +30,8 @@ For complete information, see [Packaging](packaging.md).
 
 ## Running a Ballerina program
 
+The following commands are used to run a Ballerina program/service in its packaged or unpackaged format:
+
 To execute `main()` from a `.bal` file or a package or archive file:
 
 ```
@@ -47,6 +49,10 @@ To run a collection of service archives from service root:
 ```
 ballerina run service [-sr serviceroot]
 ```
+
+If a Docker image is built at build time, the execution of that image is done using normal Docker commands. For details, see Ballerina Docker Architecture.
+
+TODO: add link to that doc once it's checked in.
 
 ## Dynamic configuration
 
