@@ -115,6 +115,17 @@ define(['lodash', './node'], function (_, ASTNode) {
     VariableDefinition.prototype.isPublic = function () {
         return this._isPublic;
     };
-    
+
+    VariableDefinition.prototype.initFromJson = function (jsonNode) {
+        var self = this;
+        var BallerinaASTFactory = this.getFactory();
+
+        _.each(jsonNode.children, function (childNode) {
+            var child = BallerinaASTFactory.createFromJson(childNode);
+            self.addChild(child);
+            child.initFromJson(childNode);
+        });
+    };
+
     return VariableDefinition;
 });

@@ -30,7 +30,7 @@ define(['require','lodash', 'log', 'event_channel', './abstract-expression-sourc
         };
 
         VariableReferenceExpressionVisitor.prototype.beginVisitVariableReferenceExpression = function(expression){
-            log.debug('Begin Visit Variable Reference Expression');
+           log.debug('Begin Visit Variable Reference Expression');
         };
 
         VariableReferenceExpressionVisitor.prototype.visitVariableReferenceExpression = function(expression){
@@ -38,9 +38,7 @@ define(['require','lodash', 'log', 'event_channel', './abstract-expression-sourc
         };
 
         VariableReferenceExpressionVisitor.prototype.endVisitVariableReferenceExpression = function(expression){
-            if (expression.getVariableReferenceName()) {
-                this.appendSource(' ' + expression.getVariableReferenceName());
-            }
+            this.appendSource(expression.getVariableReferenceName());
             this.getParent().appendSource(this.getGeneratedSource());
             log.debug('End Visit Variable Reference Expression');
         };

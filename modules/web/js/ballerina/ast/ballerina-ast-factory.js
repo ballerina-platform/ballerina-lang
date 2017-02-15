@@ -191,6 +191,15 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
         BallerinaASTFactory.createVariableDeclaration = function (args) {
             return new variableDeclaration(args);
         };
+
+        /**
+         * create VariableDefinition
+         * @param args
+         */
+        BallerinaASTFactory.createVariableDefinition = function (args) {
+            return new variableDefinition(args);
+        }; 
+        
         /**
          * create ConditionalStatement
          * @param args
@@ -1222,6 +1231,9 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
                         break;
                     case 'variable_declaration':
                         node = BallerinaASTFactory.createVariableDeclaration();
+                        break;
+                    case 'variable_definition':
+                        node = BallerinaASTFactory.createVariableDefinition();
                         break;
                     case 'argument_declaration':
                         node = BallerinaASTFactory.createResourceParameter();
