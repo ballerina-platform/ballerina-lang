@@ -63,7 +63,7 @@ define(['require', 'log', 'lodash', 'jquery', 'event_channel', 'ace/ace', '../ut
             var sourceViewBreakPoints = _.map(breakpoints, function(breakpoint) {
                 return breakpoint - 1;
             });
-            self._editor.getSession().setBreakpoints(breakpoints);
+            self._editor.getSession().setBreakpoints(sourceViewBreakPoints);
         });
         //bind auto complete to key press
         this._editor.commands.on("afterExec", function(e){

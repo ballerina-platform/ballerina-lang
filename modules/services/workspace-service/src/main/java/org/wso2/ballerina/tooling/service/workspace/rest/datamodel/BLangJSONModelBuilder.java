@@ -340,6 +340,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
                 JsonObject typeObj = new JsonObject();
                 typeObj.addProperty(BLangJSONModelConstants.DEFINITION_TYPE, BLangJSONModelConstants.RETURN_ARGUMENT);
                 typeObj.addProperty(BLangJSONModelConstants.PARAMETER_TYPE, parameterDef.getTypeName().toString());
+                this.addPosition(typeObj, parameterDef.getNodeLocation());
                 if (parameterDef.getName() != null) {
                     typeObj.addProperty(BLangJSONModelConstants.PARAMETER_NAME, parameterDef.getName().toString());
                 }
@@ -583,6 +584,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
             JsonObject thenBodyObj = new JsonObject();
             thenBodyObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE,
                     BLangJSONModelConstants.IF_STATEMENT_THEN_BODY);
+            this.addPosition(thenBodyObj, ifElseStmt.getThenBody().getNodeLocation());
             tempJsonArrayRef.push(new JsonArray());
             ifElseStmt.getThenBody().accept(this);
             thenBodyObj.add(BLangJSONModelConstants.CHILDREN, tempJsonArrayRef.peek());
@@ -603,6 +605,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         }
         if (ifElseStmt.getElseBody() != null) {
             tempJsonArrayRef.push(new JsonArray());
+            this.addPosition(ifElseStmtObj, ifElseStmt.getThenBody().getNodeLocation());
             ifElseStmt.getElseBody().accept(this);
             ifElseStmtObj.add(BLangJSONModelConstants.ELSE_STATEMENT, tempJsonArrayRef.peek());
             tempJsonArrayRef.pop();

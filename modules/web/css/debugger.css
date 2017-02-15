@@ -70,6 +70,10 @@
     color: #ff3333;
 }
 
+.statement-view-breakpoint-indicator{
+    display:none;
+}
+
 .debug .has-error .input-group-addon{
     color:black !important;
 }
@@ -113,4 +117,8 @@ table.debug-frames {
 
 #debug-v-tree ul li{
     color: white;
+}
+
+.highlight-statement{
+    fill: #b2d4ff;
 }

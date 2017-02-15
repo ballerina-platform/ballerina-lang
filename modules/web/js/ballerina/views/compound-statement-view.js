@@ -70,6 +70,7 @@ define(
             statementGroup.title = titleGroup;
             var titleRect = D3Utils.rect(bBox.x(), bBox.y(), bBox.w(), 25, 0, 0, statementGroup)
                                    .classed('statement-title-rect', true);
+            this._titleRect = titleRect;
             var titleText = D3Utils.textElement(bBox.x() + 20, bBox.y() + 12, titleViewOptions.text, statementGroup)
                                    .classed('statement-text', true);
             var titleTextWrapperPolyline = D3Utils.polyline(getTitlePolyLinePoints(bBox, titleViewOptions),
@@ -214,6 +215,15 @@ define(
         CompoundStatementView.prototype.getToolPalette = function () {
             return this.toolPalette;
         };
+
+        CompoundStatementView.prototype.showDebugHit = function () {
+            this._titleRect.classed('highlight-statement', true);
+        };
+
+        CompoundStatementView.prototype.hideDebugHit = function () {
+            this._titleRect.classed('highlight-statement', false);
+        };
+
 
         /**
          * Overrides the child remove callback from BallerinaStatementView.

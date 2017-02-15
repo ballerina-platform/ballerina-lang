@@ -133,8 +133,6 @@ define(['lodash', 'log','./statement', './else-statement', './else-if-statement'
             self._elseStatement.addChild(child);
             child.initFromJson(childNodeTemp);
         });
-        this.setFileName(jsonNode.file_name, {doSilently: true});
-        this.setLineNumber(jsonNode.line_number, {doSilently: true});
     };
 
     return IfElseStatement;

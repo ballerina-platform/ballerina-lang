@@ -107,8 +107,6 @@ define(['lodash', './expression'], function (_, Expression) {
         this.setPackageName(jsonNode.package_name, {doSilently: true});
         this.setFunctionName(jsonNode.function_name, {doSilently: true});
         this.setParams(this._generateArgsString(jsonNode),  {doSilently: true});
-        this.setFileName(jsonNode.file_name, {doSilently: true});
-        this.setLineNumber(jsonNode.line_number, {doSilently: true});
         this.setExpression(this.generateExpression());
     };
 

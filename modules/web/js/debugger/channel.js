@@ -67,7 +67,7 @@ define(['lodash', 'event_channel', 'log'],
             else{
                 reason = "Unknown reason :" + event.code;
             }
-            log.error(resson);
+            log.error(reason);
         };
 
         Channel.prototype.onError = function(event){

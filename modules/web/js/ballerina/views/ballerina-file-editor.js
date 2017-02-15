@@ -371,6 +371,12 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
 
             this.on('reset-breakpoints', function(newBreakpoints) {
                 self._sourceView.trigger('reset-breakpoints', newBreakpoints);
+                _.forEach(this._currentBreakpoints, function(breakpoint) {
+                    self._hideBreakpoint(breakpoint);
+                });
+                _.forEach(newBreakpoints, function(breakpoint) {
+                    self._showBreakpoint(breakpoint);
+                });
             });
 
             this._sourceView.on('add-breakpoint', function (row) {
@@ -844,7 +850,54 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
 
         BallerinaFileEditor.prototype.debugHit = function (position) {
             this._sourceView.debugHit(position);
+            this._debugHitDesignView(position);
         };
+
+        BallerinaFileEditor.prototype._debugHitDesignView = function(position) {
+            var modelMap = this.diagramRenderingContext.getViewModelMap();
+            // hide previous debug hits
+            _.each(this._currentDebugHits, function(aView) {
+                aView.hideDebugHit();
+            });
+            var currentDebugHits = [];
+            _.each(modelMap, function(aView) {
+                if(!_.isNil(aView.getModel)) {
+                    var lineNumber = aView.getModel().getLineNumber();
+                    if(lineNumber === position.lineNumber) {
+                        aView.showDebugHit();
+                        currentDebugHits.push(aView);
+                    }
+                }
+            });
+            this._currentDebugHits = currentDebugHits;
+        };
+
+        BallerinaFileEditor.prototype._showBreakpoint = function (newBreakpoint) {
+            var modelMap = this.diagramRenderingContext.getViewModelMap();
+            var self = this;
+            this._currentBreakpoints = this._currentBreakpoints || [];
+
+            _.each(modelMap, function(aView) {
+                if(!_.isNil(aView.getModel)) {
+                    var lineNumber = aView.getModel().getLineNumber();
+                    if(newBreakpoint === lineNumber && !_.isNil(aView.showDebugIndicator)) {
+                        aView.showDebugIndicator();
+                        self._currentBreakpoints.push(aView);
+                    }
+                }
+            });
+        };
+
+        BallerinaFileEditor.prototype._hideBreakpoint = function (breakpoint) {
+            var modelMap = this.diagramRenderingContext.getViewModelMap();
+            var self = this;
+            this._currentBreakpoints = this._currentBreakpoints || [];
+            _.each(this._currentBreakpoints, function(aView) {
+                aView.hideDebugIndicator();
+            });
+        };
+
+
 
         return BallerinaFileEditor;
     });

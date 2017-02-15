@@ -52,6 +52,7 @@ define(
             statementGroup.attr("id", "_" + this.getModel().id);
             var svgRect = D3Utils.rect(bBox.getLeft(), bBox.getTop(), bBox.w(), bBox.h(), 0, 0, statementGroup)
                                  .classed('statement-rect', true);
+            this._statementRect = svgRect;
             var svgText = D3Utils.textElement(bBox.getCenterX(), bBox.getCenterY(), "", statementGroup)
                                  .classed('statement-text', true);
             statementGroup.outerRectElement = svgRect;
@@ -148,6 +149,14 @@ define(
 
         SimpleStatementView.prototype.getViewOptions = function () {
             return this._viewOptions;
+        };
+
+        SimpleStatementView.prototype.showDebugHit = function () {
+            this._statementRect.classed('highlight-statement', true);
+        };
+
+        SimpleStatementView.prototype.hideDebugHit = function () {
+            this._statementRect.classed('highlight-statement', false);
         };
 
         return SimpleStatementView;

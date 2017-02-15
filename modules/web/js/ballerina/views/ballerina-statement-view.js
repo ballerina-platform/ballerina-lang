@@ -314,7 +314,8 @@ define(['require', 'lodash', 'log', './../visitors/statement-visitor', 'd3', 'd3
                     $(deleteButtonPaneGroup.node()).remove();
                     $(propertyButtonPaneGroup.node()).remove();
                     $(smallArrow.node()).remove();
-                    DebugManager.addBreakPoint(model.getLineNumber(), model.getFileName());
+                    var fileName = self.getDiagramRenderingContext().ballerinaFileEditor._file.getName();
+                    DebugManager.addBreakPoint(model.getLineNumber(), fileName);
                 });
 
             }.bind(statementGroup.node(), this));
@@ -364,7 +365,8 @@ define(['require', 'lodash', 'log', './../visitors/statement-visitor', 'd3', 'd3
 
         $(removeBreakpointButton.node()).click(function(event){
             event.stopPropagation();
-            DebugManager.removeBreakPoint(model.getLineNumber(), model.getFileName());
+            var fileName = self.getDiagramRenderingContext().ballerinaFileEditor._file.getName();
+            DebugManager.removeBreakPoint(model.getLineNumber(), fileName);
         });
 
         this._debugIndicator = removeBreakpointButton;
@@ -372,20 +374,13 @@ define(['require', 'lodash', 'log', './../visitors/statement-visitor', 'd3', 'd3
         this.getBoundingBox().on('top-edge-moved', function (dy) {
             removeBreakpointButton.attr('y', parseFloat(removeBreakpointButton.attr('y')) + dy);
         });
-        var breakPointChangeCallback = function() {
-           var hasBreakPoint = DebugManager.hasBreakPoint(model.getLineNumber(), model.getFileName());
-           hasBreakPoint ? self._showDebugIndicator() : self._hideDebugIndicator();
-        };
-        DebugManager.on('breakpoint-added', breakPointChangeCallback);
-        DebugManager.on('breakpoint-removed', breakPointChangeCallback);
-        breakPointChangeCallback();
     };
 
-    BallerinaStatementView.prototype._showDebugIndicator = function () {
+    BallerinaStatementView.prototype.showDebugIndicator = function () {
         $(this._debugIndicator.node()).show();
     };
 
-    BallerinaStatementView.prototype._hideDebugIndicator = function () {
+    BallerinaStatementView.prototype.hideDebugIndicator = function () {
         $(this._debugIndicator.node()).hide();
     };
 

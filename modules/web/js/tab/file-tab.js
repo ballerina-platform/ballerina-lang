@@ -113,8 +113,7 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace/f
                 var fileName = self._file.getName();
                 var fileBreakpoints = _.map(newBreakpoints, function(breakpoint) {
                     if(breakpoint.fileName === self._file.getName())  {
-                        // source view counts line numbers starting from 0 not one. subtracting 1 to handle that.
-                        return breakpoint.line - 1;
+                        return breakpoint.line;
                     }
                 });
                 fileEditor.trigger('reset-breakpoints', fileBreakpoints);
@@ -123,9 +122,9 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace/f
             DebugManager.on('breakpoint-removed', breakPointChangeCallback);
 
             DebugManager.on('debug-hit', function(message){
-                var position = message.position;
-                if(position.fileName == this._file.getName()){
-                    fileEditor.debugHit(position);
+                var location = message.location;
+                if(location.fileName == this._file.getName()){
+                    fileEditor.debugHit(location);
                 }
             }, this);
 

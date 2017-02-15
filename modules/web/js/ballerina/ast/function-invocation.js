@@ -40,8 +40,6 @@ define(['lodash', './statement'], function (_, Statement) {
             self.addChild(child);
             child.initFromJson(childNode);
         });
-        this.setFileName(jsonNode.file_name, {doSilently: true});
-        this.setLineNumber(jsonNode.line_number, {doSilently: true});
     };
 
     return FunctionInvocation;
