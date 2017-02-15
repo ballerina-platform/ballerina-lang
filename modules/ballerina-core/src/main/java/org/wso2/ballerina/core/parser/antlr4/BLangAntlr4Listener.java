@@ -457,7 +457,6 @@ public class BLangAntlr4Listener implements BallerinaListener {
             isPublic = true;
         }
 
-        createBasicLiteral(ctx.literalValue());
         modelBuilder.addConstantDef(getCurrentLocation(ctx), ctx.Identifier().getText(), isPublic);
     }
 
