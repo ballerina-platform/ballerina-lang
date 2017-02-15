@@ -15,6 +15,7 @@
  */
 package org.wso2.ballerina.core.nativeimpl.connectors;
 
+import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.model.Connector;
 import org.wso2.ballerina.core.model.NativeUnit;
 import org.wso2.ballerina.core.model.ParameterDef;
@@ -25,6 +26,7 @@ import org.wso2.ballerina.core.model.symbols.BLangSymbol;
 import org.wso2.ballerina.core.model.types.BType;
 import org.wso2.ballerina.core.model.types.SimpleTypeName;
 import org.wso2.ballerina.core.model.values.BValue;
+import org.wso2.ballerina.core.nativeimpl.NativeUnitProxy;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -37,10 +39,12 @@ import java.util.Map;
  * @since 0.8.0
  */
 public abstract class AbstractNativeConnector extends BType implements NativeUnit, Connector, BLangSymbol {
+    
     // BLangSymbol related attributes
     private List<ParameterDef> parameterDefs;
     private SimpleTypeName[] returnParamTypeNames;
     private SimpleTypeName[] argTypeNames;
+    private List<NativeUnitProxy> actions;
     
     // Scope related variables
     private Map<SymbolName, BLangSymbol> symbolMap;
@@ -49,6 +53,7 @@ public abstract class AbstractNativeConnector extends BType implements NativeUni
         super(enclosingScope);
         this.parameterDefs = new ArrayList<>();
         this.symbolMap = new HashMap<>();
+        this.actions = new ArrayList<NativeUnitProxy>();
     }
 
     public abstract boolean init(BValue[] bValueRefs);
@@ -164,7 +169,6 @@ public abstract class AbstractNativeConnector extends BType implements NativeUni
         return resolve(symbolMap, name);
     }
 
-
     // Methods in the BType interface
     @Override
     public <V extends BValue> V getDefaultValue() {
@@ -179,5 +183,28 @@ public abstract class AbstractNativeConnector extends BType implements NativeUni
      */
     public BLangSymbol resolveMembers(SymbolName name) {
         return symbolMap.get(name);
+    }
+    
+    /**
+     * Add an action to this connector.
+     * 
+     * @param actionName Symbol name of the action
+     * @param actionSymbol Symbol of the action
+     */
+    public void addAction(SymbolName actionName, BLangSymbol actionSymbol) {
+        if (!(actionSymbol instanceof NativeUnitProxy)) {
+            throw new BallerinaException("incompatible type for action '" + actionName.getName() + "'");
+        }
+        this.actions.add((NativeUnitProxy) actionSymbol);
+        define(actionName, actionSymbol);
+    }
+    
+    /**
+     * Get all actions associated with the connector
+     * 
+     * @return Actions associated with the connector
+     */
+    public NativeUnitProxy[] getActions() {
+        return actions.toArray(new NativeUnitProxy[actions.size()]);
     }
 }
