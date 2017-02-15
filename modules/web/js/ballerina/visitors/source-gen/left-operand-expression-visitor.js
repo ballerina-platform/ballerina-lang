@@ -37,7 +37,6 @@ define(['require','lodash', 'log', 'event_channel', './abstract-statement-source
     };
 
     LeftOperandExpressionVisitor.prototype.endVisitLeftOperandExpression = function(leftOperandExpression){
-        this.appendSource(" = ");
         this.getParent().appendSource(this.getGeneratedSource());
         log.debug('End Visit Left Operand Expression');
     };

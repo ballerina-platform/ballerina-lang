@@ -60,9 +60,6 @@ define(['lodash', 'jquery', './ballerina-view', 'log', 'typeMapper', './../ast/a
         };
 
         TypeMapperFunctionAssignmentView.prototype.getTypeMapperFunctionRenderer = function () {
-            if (!this._typeMapperRenderer){
-                this._typeMapperRenderer = new TypeMapper(this.getModel().getOnConnectInstance(), this.getModel().getOnDisconnectInstance(), this._parentView);
-            }
             return this._typeMapperRenderer;
         };
 

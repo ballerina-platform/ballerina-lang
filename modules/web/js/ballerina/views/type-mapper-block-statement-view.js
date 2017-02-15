@@ -15,9 +15,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log','./ballerina-view','./../ast/block-statement', 'typeMapper','./type-mapper-statement-view',
-    'ballerina/ast/ballerina-ast-factory', './type-mapper-function-assignment-view', './../ast/module'],
-    function (_, log, BallerinaView,BlockStatement, TypeMapperRenderer,TypeMapperStatement,BallerinaASTFactory, TypeMapperFunctionAssignmentView, AST) {
+define(['lodash', 'log', './ballerina-view', './../ast/block-statement', 'typeMapper', './type-mapper-statement-view',
+        'ballerina/ast/ballerina-ast-factory', './type-mapper-function-assignment-view', './../ast/module'],
+    function (_, log, BallerinaView, BlockStatement, TypeMapperRenderer, TypeMapperStatement, BallerinaASTFactory, TypeMapperFunctionAssignmentView, AST) {
 
         var TypeMapperBlockStatementView = function (args) {
             BallerinaView.call(this, args);
@@ -45,7 +45,7 @@ define(['lodash', 'log','./ballerina-view','./../ast/block-statement', 'typeMapp
 
             this._model.accept(this);
             this._model.on('child-added', function (child) {
-               this.visit(child)
+                this.visit(child)
             }, this)
 
         };
@@ -66,8 +66,8 @@ define(['lodash', 'log','./ballerina-view','./../ast/block-statement', 'typeMapp
          */
         TypeMapperBlockStatementView.prototype.visitStatement = function (statement) {
             var self = this;
-            if(BallerinaASTFactory.isAssignmentStatement(statement)){
-                if (self.isFunctionAssignmentStatement(statement)) {
+            if (BallerinaASTFactory.isAssignmentStatement(statement)) {
+                if (self.getFunctionInvocationStatement(statement)) {
                     var typeMapperFunctionDefinitionView = new TypeMapperFunctionAssignmentView({
                         model: statement,
                         parentView: this,
@@ -87,13 +87,15 @@ define(['lodash', 'log','./ballerina-view','./../ast/block-statement', 'typeMapp
             }
         };
 
-        TypeMapperBlockStatementView.prototype.isFunctionAssignmentStatement = function (statement) {
+        TypeMapperBlockStatementView.prototype.getFunctionInvocationStatement = function (statement) {
             if (statement instanceof AST.AssignmentStatement) { //use case for getter
                 var children = statement.getChildren();
                 var rightOperand = children[1];
-                return rightOperand.getChildren()[0] instanceof AST.FunctionInvocationExpression;
+                if (rightOperand.getChildren()[0] instanceof AST.FunctionInvocationExpression) {
+                    return rightOperand.getChildren()[0];
+                }
             }
-            return false;
+            return undefined;
         };
 
 
@@ -102,41 +104,46 @@ define(['lodash', 'log','./ballerina-view','./../ast/block-statement', 'typeMapp
          * @param connection object
          */
         TypeMapperBlockStatementView.prototype.onAttributesConnect = function (connection) {
+            if (BallerinaASTFactory.isResourceParameter(connection.sourceReference) && BallerinaASTFactory.isReturnType(connection.targetReference)) {
+                var isComplexMapping = connection.isComplexMapping;
+                var targetCastValue = "";
+                if(isComplexMapping){
+                    targetCastValue = connection.targetType;
+                }
 
-            var isComplexMapping = connection.isComplexMapping;
-            var targetCastValue = "";
-            if(isComplexMapping){
-                targetCastValue = connection.targetType;
-            }
-
-            var assignmentStatementNode = connection.targetReference.getParent().
+                var assignmentStatementNode = connection.targetReference.getParent().
                 returnConstructedAssignmentStatement("y","x",connection.sourceProperty,connection.targetProperty,isComplexMapping,targetCastValue);
-            var blockStatement = connection.targetReference.getParent().getBlockStatement();
+                var blockStatement = connection.targetReference.getParent().getBlockStatement();
 
-            var lastIndex = _.findLastIndex(blockStatement.getChildren());
-            blockStatement.addChild(assignmentStatementNode,lastIndex);
-//
-//            connection.targetReference.getParent().addAssignmentStatement(assignmentStatementNode);
-
-//            var assignmentStmt = BallerinaASTFactory.createAssignmentStatement();
-//            var leftOp = BallerinaASTFactory.createLeftOperandExpression();
-//            var leftOperandExpression = "x." + connection.targetProperty;
-//            leftOp.setLeftOperandExpressionString(leftOperandExpression);
-//            var rightOp = BallerinaASTFactory.createRightOperandExpression();
-//            var rightOperandExpression = "y." + connection.sourceProperty;
-//            if (connection.isComplexMapping) {
-//                rightOperandExpression = "(" + connection.complexMapperName + ":" + connection.targetType + ")" +
-//                    rightOperandExpression;
-//            }
-//            rightOp.setRightOperandExpressionString(rightOperandExpression);
-//            assignmentStmt.addChild(leftOp);
-//            assignmentStmt.addChild(rightOp);
-//
-//            var index = _.findLastIndex(connection.targetReference.getParent().getChildren(), function (child) {
-//                return BallerinaASTFactory.isVariableDeclaration(child);
-//            });
-//            connection.targetReference.getParent().addChild(assignmentStmt, index + 1);
-
+                var lastIndex = _.findLastIndex(blockStatement.getChildren());
+                blockStatement.addChild(assignmentStatementNode,lastIndex);
+            } else if (BallerinaASTFactory.isResourceParameter(connection.sourceReference) &&
+                BallerinaASTFactory.isAssignmentStatement(connection.targetReference)) {
+                var resourceParam = connection.sourceReference;
+                var assignmentStmt = connection.targetReference;
+                var functionInvocationExp = assignmentStmt.getChildren()[1].getChildren()[0];
+                var functionInvocationExpParams = functionInvocationExp.getParams();
+                var paramStr = resourceParam.identifier;
+                var structFieldAccess = BallerinaASTFactory.createStructFieldAccessExpression({isLHSExpr: false});
+                var variableRefExp = BallerinaASTFactory.createVariableReferenceExpression({variableReferenceName: resourceParam.identifier});
+                functionInvocationExp.addChild(variableRefExp);
+                functionInvocationExp.addChild(structFieldAccess);
+                var parentStructFieldExp = structFieldAccess;
+                _.forEach(connection.sourceProperty, function (sourceProperty) {
+                    structFieldAccess = BallerinaASTFactory.createStructFieldAccessExpression({isLHSExpr: false});
+                    variableRefExp = BallerinaASTFactory.createVariableReferenceExpression({variableReferenceName: sourceProperty});
+                    paramStr += "." + sourceProperty;
+                    parentStructFieldExp.addChild(variableRefExp);
+                    parentStructFieldExp.addChild(structFieldAccess);
+                    parentStructFieldExp = structFieldAccess;
+                });
+                if (functionInvocationExpParams && functionInvocationExpParams[0] !== '') {
+                    functionInvocationExpParams += "," + paramStr;
+                } else {
+                    functionInvocationExpParams = paramStr;
+                }
+                functionInvocationExp.setParams(functionInvocationExpParams);
+            }
         };
 
         /**
@@ -183,4 +190,4 @@ define(['lodash', 'log','./ballerina-view','./../ast/block-statement', 'typeMapp
         };
 
         return TypeMapperBlockStatementView;
-});
+    });
