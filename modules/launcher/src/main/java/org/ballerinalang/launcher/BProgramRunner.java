@@ -42,6 +42,7 @@ import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.nativeimpl.connectors.BallerinaConnectorManager;
 import org.wso2.ballerina.core.runtime.MessageProcessor;
 import org.wso2.ballerina.core.runtime.errors.handler.ErrorHandlerUtils;
+import org.wso2.carbon.messaging.exceptions.ServerConnectorException;
 
 import java.io.PrintStream;
 import java.nio.file.Path;
@@ -78,6 +79,14 @@ class BProgramRunner {
 
             outStream.println("ballerina: deploying service(s) in '" + servicePath + "'");
             new BLangProgramRunner().startServices(bLangProgram);
+        }
+
+        try {
+            BallerinaConnectorManager.getInstance().startPendingConnectors();
+        } catch (ServerConnectorException e) {
+            outStream.println("Exception occurred while starting server connectors");
+            //TODO: Do proper exception handling. Question is should we fail everything if one Connector
+            //TODO: fails or should we continue with success ones
         }
 
     }
