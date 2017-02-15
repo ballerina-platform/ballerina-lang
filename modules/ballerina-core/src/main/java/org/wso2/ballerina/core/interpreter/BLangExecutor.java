@@ -500,7 +500,11 @@ public class BLangExecutor implements NodeExecutor {
                     return null;
                 }
 
-            }).forEach((BMessage b) -> result.add(b));
+            }).forEach((BMessage b) -> {
+                if (b != null) {
+                    result.add(b);
+                }
+            });
         } catch (InterruptedException e) {
             return result;
         }
