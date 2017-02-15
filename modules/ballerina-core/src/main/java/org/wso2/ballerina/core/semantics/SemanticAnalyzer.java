@@ -321,8 +321,10 @@ public class SemanticAnalyzer implements NodeVisitor {
             parameterDef.accept(this);
         }
 
-        BlockStmt blockStmt = function.getCallableUnitBody();
-        blockStmt.accept(this);
+        if (!function.isNative()) {
+            BlockStmt blockStmt = function.getCallableUnitBody();
+            blockStmt.accept(this);
+        }
 
         // Here we need to calculate size of the BValue array which will be created in the stack frame
         // Values in the stack frame are stored in the following order.
@@ -370,10 +372,12 @@ public class SemanticAnalyzer implements NodeVisitor {
             parameterDef.accept(this);
         }
 
-        BlockStmt blockStmt = typeConvertor.getCallableUnitBody();
-        currentScope = blockStmt;
-        blockStmt.accept(this);
-        currentScope = blockStmt.getEnclosingScope();
+        if (!typeConvertor.isNative()) {
+            BlockStmt blockStmt = typeConvertor.getCallableUnitBody();
+            currentScope = blockStmt;
+            blockStmt.accept(this);
+            currentScope = blockStmt.getEnclosingScope();
+        }
 
         // Here we need to calculate size of the BValue array which will be created in the stack frame
         // Values in the stack frame are stored in the following order.
@@ -420,8 +424,10 @@ public class SemanticAnalyzer implements NodeVisitor {
             parameterDef.accept(this);
         }
 
-        BlockStmt blockStmt = action.getCallableUnitBody();
-        blockStmt.accept(this);
+        if (!action.isNative()) {
+            BlockStmt blockStmt = action.getCallableUnitBody();
+            blockStmt.accept(this);
+        }
 
         // Here we need to calculate size of the BValue array which will be created in the stack frame
         // Values in the stack frame are stored in the following order.
@@ -2001,11 +2007,20 @@ public class SemanticAnalyzer implements NodeVisitor {
                     function.getPackagePath(), paramTypes);
             function.setSymbolName(symbolName);
 
-            if (currentScope.resolve(symbolName) != null) {
-                throw new SemanticException(getNodeLocationStr(function.getNodeLocation()) +
-                        "redeclared symbol '" + function.getName() + "'");
+            BLangSymbol functionSymbol = currentScope.resolve(symbolName);
+            
+            if (function.isNative() && functionSymbol == null) {
+                throw new SemanticException(getNodeLocationStr(function.getNodeLocation()) + "undefined function '" + 
+                        function.getName() + "'");
             }
-            currentScope.define(symbolName, function);
+
+            if (!function.isNative()) {
+                if (functionSymbol != null) {
+                    throw new SemanticException(getNodeLocationStr(function.getNodeLocation()) + "redeclared symbol '" +
+                        function.getName() + "'");
+                }
+                currentScope.define(symbolName, function);
+            }
 
             // Resolve return parameters
             ParameterDef[] returnParameters = function.getReturnParameters();
@@ -2038,13 +2053,22 @@ public class SemanticAnalyzer implements NodeVisitor {
                     typeConvertor.getPackagePath(), paramTypes);
             typeConvertor.setSymbolName(symbolName);
 
-            if (currentScope.resolve(symbolName) != null) {
-                throw new SemanticException(typeConvertor.getNodeLocation().getFileName() + ":" +
-                        typeConvertor.getNodeLocation().getLineNumber() +
-                        ": redeclared symbol '" + typeConvertor.getName() + "'");
-            }
-            currentScope.define(symbolName, typeConvertor);
+            BLangSymbol typConvertorSymbol = currentScope.resolve(symbolName);
 
+            if (typeConvertor.isNative() && typConvertorSymbol == null) {
+                throw new SemanticException(getNodeLocationStr(typeConvertor.getNodeLocation()) + "undefined type " +
+                    "convertor '" + typeConvertor.getName() + "'");
+            }
+
+            if (!typeConvertor.isNative()) {
+                if (typConvertorSymbol != null) {
+                    throw new SemanticException(typeConvertor.getNodeLocation().getFileName() + ":" +
+                        typeConvertor.getNodeLocation().getLineNumber() + ": redeclared symbol '" +
+                        typeConvertor.getName() + "'");
+                }
+                currentScope.define(symbolName, typeConvertor);
+            }
+            
             // Resolve return parameters
             ParameterDef[] returnParameters = typeConvertor.getReturnParameters();
             BType[] returnTypes = new BType[returnParameters.length];
@@ -2064,11 +2088,20 @@ public class SemanticAnalyzer implements NodeVisitor {
 
             // Define ConnectorDef Symbol in the package scope..
             SymbolName connectorSymbolName = new SymbolName(connectorName);
-            if (currentScope.resolve(connectorSymbolName) != null) {
+            
+            BLangSymbol connectorSymbol = currentScope.resolve(connectorSymbolName);
+            if (connectorDef.isNative() && connectorSymbol == null) {
                 throw new SemanticException(getNodeLocationStr(connectorDef.getNodeLocation()) +
-                        "redeclared symbol '" + connectorDef.getName() + "'");
+                    "undefined connector '" + connectorDef.getName() + "'");
             }
-            currentScope.define(connectorSymbolName, connectorDef);
+
+            if (!connectorDef.isNative()) {
+                if (connectorSymbol != null) {
+                    throw new SemanticException(getNodeLocationStr(connectorDef.getNodeLocation()) +
+                        "redeclared symbol '" + connectorDef.getName() + "'");
+                }
+                currentScope.define(connectorSymbolName, connectorDef);
+            }
 
             // Create the '<init>' function and inject it to the connector;
             BlockStmt.BlockStmtBuilder blockStmtBuilder = new BlockStmt.BlockStmtBuilder(
@@ -2114,11 +2147,23 @@ public class SemanticAnalyzer implements NodeVisitor {
                 action.getPackagePath(), paramTypes);
         action.setSymbolName(symbolName);
 
-        if (currentScope.resolve(symbolName) != null) {
-            throw new SemanticException(getNodeLocationStr(action.getNodeLocation()) +
-                    "redeclared symbol '" + action.getName() + "'");
+        BLangSymbol actionSymbol = currentScope.resolve(symbolName);
+        
+        if (action.isNative()) {
+            AbstractNativeConnector connector = (AbstractNativeConnector) BTypes
+                .resolveType(new SimpleTypeName(connectorDef.getName()), currentScope, connectorDef.getNodeLocation());
+            actionSymbol = connector.resolve(symbolName);
+            if (actionSymbol == null) {
+                throw new SemanticException(getNodeLocationStr(connectorDef.getNodeLocation()) + "undefined action '" +
+                    action.getName() + "' in connector '" + connectorDef.getName() + "'");
+            }
+        } else {
+            if (actionSymbol != null) {
+                throw new SemanticException(
+                    getNodeLocationStr(action.getNodeLocation()) + "redeclared symbol '" + action.getName() + "'");
+            }
+            currentScope.define(symbolName, action);
         }
-        currentScope.define(symbolName, action);
 
         // Resolve return parameters
         ParameterDef[] returnParameters = action.getReturnParameters();
