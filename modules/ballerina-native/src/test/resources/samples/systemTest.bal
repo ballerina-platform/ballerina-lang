@@ -77,6 +77,15 @@ function testTimeFunctions() {
 
 }
 
+function testDateFunction() {
+
+    string shortDate;
+
+    shortDate = system:getDateFormat("yyyyMMdd");
+    system:log(3, shortDate);
+
+}
+
 function printNewline() {
     system:print("hello\n");
 }
