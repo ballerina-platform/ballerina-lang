@@ -90,8 +90,8 @@ public class FileServiceTest {
         } catch (BallerinaException ex) {
             Assert.assertEquals(ex.getCause().getMessage(),
                     "error in ballerina program: no resource found to handle the request to Service : "
-                            + "fileServiceWithoutResource : A Service of type 'file' has to have only one resource "
-                            + "associated to itself. Found 0 resources in Service: fileServiceWithoutResource",
+                            + "fileServiceWithoutResource : Resource with the annotation OnFile to handle the file "
+                            + "content is not found in file service fileServiceWithoutResource",
                     "Exception is not thrown when there is no resource found to handle the incoming message");
         }
     }
