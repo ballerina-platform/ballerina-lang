@@ -15,8 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['log', 'lodash', 'jquery', 'event_channel', 'yaml'],
-   function(log, _, $, EventChannel, YAML) {
+define(['log', 'lodash', 'jquery', 'event_channel', 'yaml', './../ast/ballerina-ast-deserializer'],
+   function(log, _, $, EventChannel, YAML, BallerinaASTDeserializer) {
 
        /**
         * @class SwaggerView
@@ -38,6 +38,7 @@ define(['log', 'lodash', 'jquery', 'event_channel', 'yaml'],
            this._container = _.get(args, 'container');
            this._content = _.get(args, 'content');
            this._backend = _.get(args, 'backend');
+           this.deserializer = BallerinaASTDeserializer;
        };
 
        var initSwaggerEditor = function(self, content){
@@ -115,7 +116,7 @@ define(['log', 'lodash', 'jquery', 'event_channel', 'yaml'],
 
                if (!response.error && !response.errorMessage) {
                    try {
-                       this._generatedNodeTree = JSON.parse(response.ballerinaDefinition);
+                       this._generatedNodeTree = this.deserializer.getASTModel(JSON.parse(response.ballerinaDefinition));
                    } catch (err) {
                        log.error("Invalid response received for swagger-to-ballerina conversion : '"
                                  + response.ballerinaDefinition + "'");
