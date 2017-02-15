@@ -36,8 +36,7 @@ public class BDataTable implements BRefType<Object> {
     private Map<String, Object> properties;
     private List<ColumnDefinition> columnDefs;
 
-    public BDataTable(DataIterator dataIterator, Map<String, Object> properties,
-            List<ColumnDefinition> columnDefs) {
+    public BDataTable(DataIterator dataIterator, Map<String, Object> properties, List<ColumnDefinition> columnDefs) {
         this.iterator = dataIterator;
         this.properties = properties;
         this.columnDefs = columnDefs;
@@ -177,6 +176,16 @@ public class BDataTable implements BRefType<Object> {
         return new BJSON("");
         //return new BJSON(new DataTableJSONDataSource(this));
     }
+
+    public BXML toXML(String rootWrapper, String rowWrapper) {
+        OMSourcedElementImpl omSourcedElement = new OMSourcedElementImpl();
+        omSourcedElement.init(new DataTableOMDataSource(this, rootWrapper, rowWrapper));
+        return new BXML(omSourcedElement);
+    }
+
+    public List<ColumnDefinition> getColumnDefs() {
+        return columnDefs;
+    }
     
     /**
      * This represents a column definition for a column in a datatable.
@@ -184,9 +193,7 @@ public class BDataTable implements BRefType<Object> {
     public static class ColumnDefinition {
         
         private String name;
-        
         private TypeEnum type;
-        
         private TypeEnum elementType;
         
         public ColumnDefinition(String name, TypeEnum type) {
@@ -210,15 +217,5 @@ public class BDataTable implements BRefType<Object> {
         public TypeEnum getElementType() {
             return elementType;
         }
-    }
-
-    public BXML toXML(String rootWrapper, String rowWrapper) {
-        OMSourcedElementImpl omSourcedElement = new OMSourcedElementImpl();
-        omSourcedElement.init(new DataTableOMDataSource(this, rootWrapper, rowWrapper));
-        return new BXML(omSourcedElement);
-    }
-
-    public List<ColumnDefinition> getColumnDefs() {
-        return columnDefs;
     }
 }

@@ -15,7 +15,6 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-
 package org.wso2.ballerina.nativeimpl.lang.datatable;
 
 import org.wso2.ballerina.core.interpreter.Context;
@@ -28,10 +27,12 @@ import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
 
 /**
  * Native function to clear connection resources in the datatable.
- * ballerina.lang.datatable:close(datatable)
+ * ballerina.lang.datatables:close(datatable)
+ *
+ * @since 0.8.0
  */
 @BallerinaFunction(
-        packageName = "ballerina.lang.datatable",
+        packageName = "ballerina.lang.datatables",
         functionName = "close",
         args = {@Argument(name = "dt", type = TypeEnum.DATATABLE)},
         isPublic = true

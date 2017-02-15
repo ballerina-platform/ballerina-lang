@@ -29,9 +29,7 @@ import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaAction;
 import org.wso2.ballerina.core.nativeimpl.annotations.ReturnType;
 import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeAction;
-import org.wso2.ballerina.core.nativeimpl.connectors.BalConnectorCallback;
 import org.wso2.ballerina.nativeimpl.connectors.data.sql.SQLConnector;
-import org.wso2.carbon.messaging.DefaultCarbonMessage;
 
 /**
  * {@code Update} is the Update action implementation of the SQL Connector.

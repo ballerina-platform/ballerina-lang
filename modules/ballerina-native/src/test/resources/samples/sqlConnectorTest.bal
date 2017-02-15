@@ -1,4 +1,4 @@
-import ballerina.lang.datatable;
+import ballerina.lang.datatables;
 import ballerina.data.sql;
 
 function testInsertTableData() (int) {
@@ -67,9 +67,10 @@ function testSelectData() (string) {
 
     string firstName;
     datatable dt = sql:ClientConnector.select(testDB, "SELECT  FirstName from Customers where registrationID = 1");
-    while (datatable:next(dt)) {
-        firstName = datatable:getString(dt, 1);
+    while (datatables:next(dt)) {
+        firstName = datatables:getString(dt, 1);
     }
+    datatables:close(dt);
     return firstName;
 }
 
@@ -82,9 +83,10 @@ function testCallProcedure() (string) {
 
     string firstName;
     datatable dt = sql:ClientConnector.select(testDB, "SELECT  FirstName from Customers where registrationID = 100");
-    while (datatable:next(dt)) {
-        firstName = datatable:getString(dt, 1);
+    while (datatables:next(dt)) {
+        firstName = datatables:getString(dt, 1);
     }
+    datatables:close(dt);
     return firstName;
 }
 
@@ -96,9 +98,10 @@ function testConnectorWithDataSource() (string) {
 
     string firstName;
     datatable dt = sql:ClientConnector.select(testDB, "SELECT  FirstName from Customers where registrationID = 1");
-    while (datatable:next(dt)) {
-        firstName = datatable:getString(dt, 1);
+    while (datatables:next(dt)) {
+        firstName = datatables:getString(dt, 1);
     }
+    datatables:close(dt);
     return firstName;
 }
 
@@ -116,9 +119,10 @@ function testConnectionPoolProperties() (string) {
 
     string firstName;
     datatable dt = sql:ClientConnector.select(testDB, "SELECT  FirstName from Customers where registrationID = 1");
-    while (datatable:next(dt)) {
-        firstName = datatable:getString(dt, 1);
+    while (datatables:next(dt)) {
+        firstName = datatables:getString(dt, 1);
     }
+    datatables:close(dt);
     return firstName;
 }
 

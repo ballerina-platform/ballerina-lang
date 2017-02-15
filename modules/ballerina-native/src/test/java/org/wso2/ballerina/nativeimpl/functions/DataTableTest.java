@@ -40,7 +40,7 @@ import org.wso2.ballerina.nativeimpl.util.SQLDBUtils;
 import java.io.File;
 
 /**
- * Test Native functions in ballerina.lang.datatable.
+ * Test Native functions in ballerina.lang.datatables.
  */
 public class DataTableTest {
 

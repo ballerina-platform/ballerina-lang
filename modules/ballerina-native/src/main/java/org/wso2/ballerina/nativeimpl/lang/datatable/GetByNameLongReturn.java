@@ -15,7 +15,6 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-
 package org.wso2.ballerina.nativeimpl.lang.datatable;
 
 import org.wso2.ballerina.core.interpreter.Context;
@@ -31,10 +30,12 @@ import java.util.Locale;
 
 /**
  * Native function to get some special type to ballerina supported types. Eg:- Blob, Clob, NClob, Date, Timestamp
- * ballerina.lang.datatable:getLong(datatable, string, string)
+ * ballerina.lang.datatables:getLong(datatable, string, string)
+ *
+ * @since 0.8.0
  */
 @BallerinaFunction(
-        packageName = "ballerina.lang.datatable",
+        packageName = "ballerina.lang.datatables",
         functionName = "getLong",
         args = {@Argument(name = "dt", type = TypeEnum.DATATABLE),
                 @Argument(name = "string", type = TypeEnum.STRING),

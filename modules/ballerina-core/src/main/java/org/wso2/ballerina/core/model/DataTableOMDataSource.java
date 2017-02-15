@@ -15,7 +15,6 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-
 package org.wso2.ballerina.core.model;
 
 import org.apache.axiom.om.ds.AbstractPushOMDataSource;
@@ -27,72 +26,73 @@ import javax.xml.stream.XMLStreamWriter;
 /**
  * This will provide custom OMDataSource implementation by wrapping BDataTable.
  * This will use to convert result set into XML stream.
+ *
+ * @since 0.8.0
  */
 public class DataTableOMDataSource extends AbstractPushOMDataSource {
 
     private static final String XSI_NAMESPACE = "http://www.w3.org/2001/XMLSchema-instance";
     private static final String XSI_PREFIX = "xsi";
+    private static final String ARRAY_ELEMENT_NAME = "element";
+    private static final String DEFAULT_ROOT_WRAPPER = "results";
+    private static final String DEFAULT_ROW_WRAPPER = "result";
 
-    private BDataTable dataframe;
+    private BDataTable dataTable;
     private String rootWrapper;
     private String rowWrapper;
 
-    public DataTableOMDataSource(BDataTable dataframe, String rootWrapper, String rowWrapper) {
-        this.dataframe = dataframe;
-        this.rootWrapper = rootWrapper;
-        this.rowWrapper = rowWrapper;
+    public DataTableOMDataSource(BDataTable dataTable, String rootWrapper, String rowWrapper) {
+        this.dataTable = dataTable;
+        this.rootWrapper = rootWrapper != null ? rootWrapper : DEFAULT_ROOT_WRAPPER;
+        this.rowWrapper = rowWrapper != null ? rowWrapper : DEFAULT_ROW_WRAPPER;
     }
 
     @Override
     public void serialize(XMLStreamWriter xmlStreamWriter) throws XMLStreamException {
-        xmlStreamWriter.writeStartElement(this.rootWrapper != null ? this.rootWrapper : "results");
-        while (dataframe.next()) {
-            xmlStreamWriter.writeStartElement(this.rowWrapper != null ? this.rowWrapper : "result");
-            for (BDataTable.ColumnDefinition col : dataframe.getColumnDefs()) {
+        xmlStreamWriter.writeStartElement(this.rootWrapper);
+        while (dataTable.next()) {
+            xmlStreamWriter.writeStartElement(this.rowWrapper);
+            for (BDataTable.ColumnDefinition col : dataTable.getColumnDefs()) {
                 xmlStreamWriter.writeStartElement(col.getName());
                 String value = null;
-                boolean processed = false;
                 switch (col.getType()) {
                 case BOOLEAN:
-                    value = String.valueOf(dataframe.getBoolean(col.getName()));
+                    value = String.valueOf(dataTable.getBoolean(col.getName()));
                     break;
                 case STRING:
-                    value = dataframe.getString(col.getName());
+                    value = dataTable.getString(col.getName());
                     break;
                 case INT:
-                    value = String.valueOf(dataframe.getInt(col.getName()));
+                    value = String.valueOf(dataTable.getInt(col.getName()));
                     break;
                 case LONG:
-                    value = String.valueOf(dataframe.getLong(col.getName()));
+                    value = String.valueOf(dataTable.getLong(col.getName()));
                     break;
                 case FLOAT:
-                    value = String.valueOf(dataframe.getFloat(col.getName()));
+                    value = String.valueOf(dataTable.getFloat(col.getName()));
                     break;
                 case DOUBLE:
-                    value = String.valueOf(dataframe.getDouble(col.getName()));
+                    value = String.valueOf(dataTable.getDouble(col.getName()));
                     break;
                 case ARRAY:
                     processArray(xmlStreamWriter, col);
-                    processed = true;
                     break;
                 default:
-                    value = dataframe.getObjectAsString(col.getName());
+                    value = dataTable.getObjectAsString(col.getName());
                     break;
                 }
-                if (!processed) {
-                    if (value == null) {
-                        xmlStreamWriter.writeNamespace(XSI_PREFIX, XSI_NAMESPACE);
-                        xmlStreamWriter.writeAttribute(XSI_PREFIX, XSI_NAMESPACE, "nil", "true");
-                    } else {
-                        xmlStreamWriter.writeCharacters(value);
-                    }
+                if (value == null) {
+                    xmlStreamWriter.writeNamespace(XSI_PREFIX, XSI_NAMESPACE);
+                    xmlStreamWriter.writeAttribute(XSI_PREFIX, XSI_NAMESPACE, "nil", "true");
+                } else {
+                    xmlStreamWriter.writeCharacters(value);
                 }
                 xmlStreamWriter.writeEndElement();
             }
             xmlStreamWriter.writeEndElement();
         }
         xmlStreamWriter.writeEndElement();
-        dataframe.close();
+        dataTable.close();
         xmlStreamWriter.flush();
     }
 
@@ -100,43 +100,57 @@ public class DataTableOMDataSource extends AbstractPushOMDataSource {
             throws XMLStreamException {
         switch (col.getElementType()) {
         case BOOLEAN:
-            boolean[] booleanArray = dataframe.getBooleanArray(col.getName());
+            boolean[] booleanArray = dataTable.getBooleanArray(col.getName());
             for (boolean b : booleanArray) {
+                xmlStreamWriter.writeStartElement(ARRAY_ELEMENT_NAME);
                 xmlStreamWriter.writeCharacters(String.valueOf(b));
+                xmlStreamWriter.writeEndElement();
             }
             break;
         case STRING:
-            String[] stringArray = dataframe.getStringArray(col.getName());
+            String[] stringArray = dataTable.getStringArray(col.getName());
             for (String s : stringArray) {
+                xmlStreamWriter.writeStartElement(ARRAY_ELEMENT_NAME);
                 xmlStreamWriter.writeCharacters(s);
+                xmlStreamWriter.writeEndElement();
             }
             break;
         case INT:
-            int[] intArray = dataframe.getIntArray(col.getName());
+            int[] intArray = dataTable.getIntArray(col.getName());
             for (int i : intArray) {
+                xmlStreamWriter.writeStartElement(ARRAY_ELEMENT_NAME);
                 xmlStreamWriter.writeStartElement(String.valueOf(i));
+                xmlStreamWriter.writeEndElement();
             }
             break;
         case LONG:
-            long[] longArray = dataframe.getLongArray(col.getName());
+            long[] longArray = dataTable.getLongArray(col.getName());
             for (long l : longArray) {
+                xmlStreamWriter.writeStartElement(ARRAY_ELEMENT_NAME);
                 xmlStreamWriter.writeCharacters(String.valueOf(l));
+                xmlStreamWriter.writeEndElement();
             }
             break;
         case FLOAT:
-            float[] floatArray = dataframe.getFloatArray(col.getName());
+            float[] floatArray = dataTable.getFloatArray(col.getName());
             for (float f : floatArray) {
+                xmlStreamWriter.writeStartElement(ARRAY_ELEMENT_NAME);
                 xmlStreamWriter.writeCharacters(String.valueOf(f));
+                xmlStreamWriter.writeEndElement();
             }
             break;
         case DOUBLE:
-            double[] doubleArray = dataframe.getDoubleArray(col.getName());
+            double[] doubleArray = dataTable.getDoubleArray(col.getName());
             for (double d : doubleArray) {
+                xmlStreamWriter.writeStartElement(ARRAY_ELEMENT_NAME);
                 xmlStreamWriter.writeCharacters(String.valueOf(d));
+                xmlStreamWriter.writeEndElement();
             }
             break;
         default:
-            xmlStreamWriter.writeCharacters(dataframe.getObjectAsString(col.getName()));
+            xmlStreamWriter.writeStartElement(ARRAY_ELEMENT_NAME);
+            xmlStreamWriter.writeCharacters(dataTable.getObjectAsString(col.getName()));
+            xmlStreamWriter.writeEndElement();
             break;
         }
     }

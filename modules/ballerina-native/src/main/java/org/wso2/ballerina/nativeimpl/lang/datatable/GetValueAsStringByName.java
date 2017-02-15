@@ -15,7 +15,6 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-
 package org.wso2.ballerina.nativeimpl.lang.datatable;
 
 import org.wso2.ballerina.core.interpreter.Context;
@@ -30,10 +29,12 @@ import org.wso2.ballerina.core.nativeimpl.annotations.ReturnType;
 
 /**
  * Native function to get any object in their native toString in a given a given column name.
- * ballerina.lang.datatable:getValueAsString(datatable, string)
+ * ballerina.lang.datatables:getValueAsString(datatable, string)
+ *
+ * @since 0.8.0
  */
 @BallerinaFunction(
-        packageName = "ballerina.lang.datatable",
+        packageName = "ballerina.lang.datatables",
         functionName = "getValueAsString",
         args = {@Argument(name = "dt", type = TypeEnum.DATATABLE),
                 @Argument(name = "name", type = TypeEnum.STRING)},

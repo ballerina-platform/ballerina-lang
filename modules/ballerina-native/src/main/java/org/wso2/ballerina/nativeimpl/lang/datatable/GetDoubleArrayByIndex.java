@@ -15,7 +15,6 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-
 package org.wso2.ballerina.nativeimpl.lang.datatable;
 
 import org.wso2.ballerina.core.interpreter.Context;
@@ -32,10 +31,12 @@ import org.wso2.ballerina.core.nativeimpl.annotations.ReturnType;
 
 /**
  * Native function to get double value array of a given column index.
- * ballerina.lang.datatable:getDoubleArray(datatable, int)
+ * ballerina.lang.datatables:getDoubleArray(datatable, int)
+ *
+ * @since 0.8.0
  */
 @BallerinaFunction(
-        packageName = "ballerina.lang.datatable",
+        packageName = "ballerina.lang.datatables",
         functionName = "getDoubleArray",
         args = {@Argument(name = "dt", type = TypeEnum.DATATABLE),
                 @Argument(name = "index", type = TypeEnum.INT)},

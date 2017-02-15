@@ -1,4 +1,4 @@
-import ballerina.lang.datatable;
+import ballerina.lang.datatables;
 import ballerina.data.sql;
 
 function getXXXByIndex()(int, long, float, double, boolean, string) {
@@ -14,15 +14,15 @@ function getXXXByIndex()(int, long, float, double, boolean, string) {
     string s;
 
     df = sql:ClientConnector.select(testDB, "SELECT int_type, long_type, float_type, double_type, boolean_type, string_type from DataTable LIMIT 1");
-    while (datatable:next(df)) {
-        i = datatable:getInt(df, 1);
-        l = datatable:getLong(df, 2);
-        f = datatable:getFloat(df, 3);
-        d = datatable:getDouble(df, 4);
-        b = datatable:getBoolean(df, 5);
-        s = datatable:getString(df, 6);
+    while (datatables:next(df)) {
+        i = datatables:getInt(df, 1);
+        l = datatables:getLong(df, 2);
+        f = datatables:getFloat(df, 3);
+        d = datatables:getDouble(df, 4);
+        b = datatables:getBoolean(df, 5);
+        s = datatables:getString(df, 6);
     }
-    datatable:close(df);
+    datatables:close(df);
     return i, l, f, d, b, s;
 }
 
@@ -40,15 +40,15 @@ function getXXXByName()(int, long, float, double, boolean, string) {
     string s;
 
     df = sql:ClientConnector.select(testDB, "SELECT int_type, long_type, float_type, double_type, boolean_type, string_type from DataTable LIMIT 1");
-    while (datatable:next(df)) {
-        i = datatable:getInt(df, "int_type");
-        l = datatable:getLong(df, "long_type");
-        f = datatable:getFloat(df, "float_type");
-        d = datatable:getDouble(df, "double_type");
-        b = datatable:getBoolean(df, "boolean_type");
-        s = datatable:getString(df, "string_type");
+    while (datatables:next(df)) {
+        i = datatables:getInt(df, "int_type");
+        l = datatables:getLong(df, "long_type");
+        f = datatables:getFloat(df, "float_type");
+        d = datatables:getDouble(df, "double_type");
+        b = datatables:getBoolean(df, "boolean_type");
+        s = datatables:getString(df, "string_type");
     }
-    datatable:close(df);
+    datatables:close(df);
     return i, l, f, d, b, s;
 }
 
@@ -60,7 +60,7 @@ function toJson()(json) {
     json result;
 
     df = sql:ClientConnector.select(testDB, "SELECT int_type, long_type, float_type, double_type, boolean_type, string_type from DataTable LIMIT 1");
-    result = datatable:toJson(df);
+    result = datatables:toJson(df);
     return result;
 }
 
@@ -72,7 +72,7 @@ function toXmlWithWrapper()(xml) {
     xml result;
 
     df = sql:ClientConnector.select(testDB, "SELECT int_type, long_type, float_type, double_type, boolean_type, string_type from DataTable LIMIT 1");
-    result = datatable:toXml(df, "types", "type");
+    result = datatables:toXml(df, "types", "type");
     return result;
 }
 
@@ -88,14 +88,14 @@ function getByName()(string, string, long, long, long) {
     long timestamp;
 
     df = sql:ClientConnector.select(testDB, "SELECT blob_type, clob_type, time_type, date_type, timestamp_type from ComplexTypes LIMIT 1");
-    while (datatable:next(df)) {
-        blob = datatable:getString(df, "blob_type", "blob");
-        clob = datatable:getString(df, "clob_type", "clob");
-        time = datatable:getLong(df, "time_type", "time");
-        date = datatable:getLong(df, "date_type", "date");
-        timestamp = datatable:getLong(df, "timestamp_type", "timestamp");
+    while (datatables:next(df)) {
+        blob = datatables:getString(df, "blob_type", "blob");
+        clob = datatables:getString(df, "clob_type", "clob");
+        time = datatables:getLong(df, "time_type", "time");
+        date = datatables:getLong(df, "date_type", "date");
+        timestamp = datatables:getLong(df, "timestamp_type", "timestamp");
     }
-    datatable:close(df);
+    datatables:close(df);
     return blob, clob, time, date, timestamp;
 }
 
@@ -113,14 +113,14 @@ function getByIndex()(string, string, long, long, long) {
     sql:ClientConnector.update(testDB, "Update ComplexTypes set clob_type = 'Test String' where row_id = 1");
 
     df = sql:ClientConnector.select(testDB, "SELECT blob_type, clob_type, time_type, date_type, timestamp_type from ComplexTypes LIMIT 1");
-    while (datatable:next(df)) {
-        blob = datatable:getString(df, 1, "blob");
-        clob = datatable:getString(df, 2, "clob");
-        time = datatable:getLong(df, 3, "time");
-        date = datatable:getLong(df, 4, "date");
-        timestamp = datatable:getLong(df, 5, "timestamp");
+    while (datatables:next(df)) {
+        blob = datatables:getString(df, 1, "blob");
+        clob = datatables:getString(df, 2, "clob");
+        time = datatables:getLong(df, 3, "time");
+        date = datatables:getLong(df, 4, "date");
+        timestamp = datatables:getLong(df, 5, "timestamp");
     }
-    datatable:close(df);
+    datatables:close(df);
     return blob, clob, time, date, timestamp;
 }
 
@@ -136,14 +136,14 @@ function getObjectAsStringByIndex()(string, string, string, string, string) {
     string timestamp;
 
     df = sql:ClientConnector.select(testDB, "SELECT blob_type, clob_type, time_type, date_type, timestamp_type from ComplexTypes LIMIT 1");
-    while (datatable:next(df)) {
-        blob = datatable:getValueAsString(df, 1);
-        clob = datatable:getValueAsString(df, 2);
-        time = datatable:getValueAsString(df, 3);
-        date = datatable:getValueAsString(df, 4);
-        timestamp = datatable:getValueAsString(df, 5);
+    while (datatables:next(df)) {
+        blob = datatables:getValueAsString(df, 1);
+        clob = datatables:getValueAsString(df, 2);
+        time = datatables:getValueAsString(df, 3);
+        date = datatables:getValueAsString(df, 4);
+        timestamp = datatables:getValueAsString(df, 5);
     }
-    datatable:close(df);
+    datatables:close(df);
     return blob, clob, time, date, timestamp;
 }
 
@@ -159,14 +159,14 @@ function getObjectAsStringByName()(string, string, string, string, string) {
     string timestamp;
 
     df = sql:ClientConnector.select(testDB, "SELECT blob_type, clob_type, time_type, date_type, timestamp_type from ComplexTypes LIMIT 1");
-    while (datatable:next(df)) {
-        blob = datatable:getValueAsString(df, "blob_type");
-        clob = datatable:getValueAsString(df, "clob_type");
-        time = datatable:getValueAsString(df, "time_type");
-        date = datatable:getValueAsString(df, "date_type");
-        timestamp = datatable:getValueAsString(df, "timestamp_type");
+    while (datatables:next(df)) {
+        blob = datatables:getValueAsString(df, "blob_type");
+        clob = datatables:getValueAsString(df, "clob_type");
+        time = datatables:getValueAsString(df, "time_type");
+        date = datatables:getValueAsString(df, "date_type");
+        timestamp = datatables:getValueAsString(df, "timestamp_type");
     }
-    datatable:close(df);
+    datatables:close(df);
     return blob, clob, time, date, timestamp;
 }
 
@@ -183,14 +183,14 @@ function getArrayByName()(int[], long[], double[], string[], boolean[]) {
     boolean[] boolean_arr;
 
     df = sql:ClientConnector.select(testDB, "SELECT int_array, long_array, double_array, boolean_array, string_array from ArrayTypes LIMIT 1");
-    while (datatable:next(df)) {
-        int_arr = datatable:getIntArray(df, "int_array");
-        long_arr = datatable:getLongArray(df, "long_array");
-        double_arr = datatable:getDoubleArray(df, "double_array");
-        boolean_arr = datatable:getBooleanArray(df, "boolean_array");
-        string_arr = datatable:getStringArray(df, "string_array");
+    while (datatables:next(df)) {
+        int_arr = datatables:getIntArray(df, "int_array");
+        long_arr = datatables:getLongArray(df, "long_array");
+        double_arr = datatables:getDoubleArray(df, "double_array");
+        boolean_arr = datatables:getBooleanArray(df, "boolean_array");
+        string_arr = datatables:getStringArray(df, "string_array");
     }
-    datatable:close(df);
+    datatables:close(df);
     return int_arr, long_arr, double_arr, string_arr, boolean_arr;
 }
 
@@ -206,14 +206,13 @@ function getArrayByIndex()(int[], long[], double[], string[], boolean[]) {
     boolean[] boolean_arr;
 
     df = sql:ClientConnector.select(testDB, "SELECT int_array, long_array, double_array, boolean_array, string_array from ArrayTypes LIMIT 1");
-    while (datatable:next(df)) {
-        int_arr = datatable:getIntArray(df, 1);
-        long_arr = datatable:getLongArray(df, 2);
-        double_arr = datatable:getDoubleArray(df, 3);
-        boolean_arr = datatable:getBooleanArray(df, 4);
-        string_arr = datatable:getStringArray(df, 5);
+    while (datatables:next(df)) {
+        int_arr = datatables:getIntArray(df, 1);
+        long_arr = datatables:getLongArray(df, 2);
+        double_arr = datatables:getDoubleArray(df, 3);
+        boolean_arr = datatables:getBooleanArray(df, 4);
+        string_arr = datatables:getStringArray(df, 5);
     }
-    datatable:close(df);
+    datatables:close(df);
     return int_arr, long_arr, double_arr, string_arr, boolean_arr;
 }
-

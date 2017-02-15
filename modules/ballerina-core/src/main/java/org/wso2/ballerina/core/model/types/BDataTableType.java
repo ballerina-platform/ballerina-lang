@@ -15,10 +15,8 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-
 package org.wso2.ballerina.core.model.types;
 
-import org.wso2.ballerina.core.model.EmptyDataIterator;
 import org.wso2.ballerina.core.model.SymbolScope;
 import org.wso2.ballerina.core.model.values.BDataTable;
 import org.wso2.ballerina.core.model.values.BValue;
@@ -45,6 +43,6 @@ public class BDataTableType extends BType {
     @SuppressWarnings("unchecked")
     @Override
     public <V extends BValue> V getDefaultValue() {
-        return (V) new BDataTable(new EmptyDataIterator(), new HashMap<>(0), new ArrayList<>(0));
+        return (V) new BDataTable(null, new HashMap<>(0), new ArrayList<>(0));
     }
 }

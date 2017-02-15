@@ -15,13 +15,17 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-
 package org.wso2.ballerina.core.model;
 
 import org.wso2.ballerina.core.model.values.BValue;
 
 /**
  *  This interface represents an data iterator operations.
+ *  Each data source need to implement their own implementation by implementing this interface.
+ *  Methods which belongs to DataIterator will expose through native functions in ballerina.lang.datatables package.
+ *  Known implementations: {@code SQLDataIterator}
+ *
+ *  @since 0.8.0
  */
 public interface DataIterator {
 
