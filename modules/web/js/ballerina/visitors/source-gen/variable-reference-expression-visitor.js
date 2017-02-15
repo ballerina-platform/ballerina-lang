@@ -38,7 +38,9 @@ define(['require','lodash', 'log', 'event_channel', './abstract-expression-sourc
         };
 
         VariableReferenceExpressionVisitor.prototype.endVisitVariableReferenceExpression = function(expression){
-            this.appendSource(expression.getVariableReferenceName());
+            if (expression.getVariableReferenceName()) {
+                this.appendSource(expression.getVariableReferenceName());
+            }
             this.getParent().appendSource(this.getGeneratedSource());
             log.debug('End Visit Variable Reference Expression');
         };
