@@ -4,9 +4,7 @@ Ballerina has variables of various types. The type system includes built-in prim
 
 The type system is illustrated in the following diagram:
 
-TODO: create new diagram without the red underlines
-
-![alt text](images/typesystem.png "Ballerina Type System")
+![alt text](../images/typesystem.png "Ballerina Type System")
 
 ## Declaring variables
 
@@ -32,7 +30,7 @@ A `TypeName` can also be one of the following built-in non-primitive types:
 * exception
 
 ## Constructed types (user-defined types)
-A `TypeName` can also be the name of a user defined type.
+A `TypeName` can also be the name of a user-defined type.
 
 ### Structured types (records)
 
@@ -60,21 +58,34 @@ TypeName~
 ```
 Iterator typed values are navigated through using an iterate statement.
 
-Iterators are currently only available for the built-in types xml and json. In the future we will allow developers to define their own iterators for their types.
+Iterators are currently only available for the built-in types `xml` and `json`. In the future we will allow developers to define their own iterators for their types.
 
 ## XML & JSON types
 
-Ballerina has built-in support for XML elements, XML documents, and JSON documents. `TypeName` can be any of the following:
+Ballerina has built-in support for XML elements, XML documents, and JSON values. `TypeName` can be any of the following:
 ```
 json[<json_schema_name>]
 xml[<{XSD_namespace_name}type_name>]
 xmlDocument[<{XSD_namespace_name}type_name>]
 ```
-A variable of type json can hold any JSON document. The optional qualification of the TypeName for a JSON document indicates the name of the JSON schema that the JSON value is assumed to conform to.
+A variable of type `json` can hold any JSON value. Optionaly, you can associate a JSON schema with the JSON value to require the value to conform to that schema, which is useful for type mapping. For example:
+```
+json[schema.json] jsdoc;
+```
 
-A variable of type xml can hold any XML element. The optional qualification of the TypeName for an XML document indicates the qualified type name of the XML Schema type that the XML element is assumed to conform to.
+You can use JSON literals to initialize JSON-typed variables. For example:
+```
+json address_json = `{"name" : "$name", "streetName" : "$street"}`;
+```
 
-A variable of type xmlDocument can hold any XML document, and the optional schema type is the type of the document element.
+A variable of type `xml` can hold any XML element. Optionally, you can associate an XML schema with the XML value to constrain the value space. The optional TypeName specifies the qualified type name of the XML schema type that the XML element is assumed to conform to.
+
+A variable of type `xmlDocument` can hold any XML document, and the optional schema type is the type of the document element.
+
+You can use XML literals to initialize XML-typed variables. For example:
+```
+xmlElement address_xml = `<address><name>$name</name></address>`;
+```
 
 ## Allocating variables
 
@@ -84,7 +95,7 @@ All non-primitive types, user-defined types, and array types have to be allocate
 ```
 new TypeName[(ValueList)]
 ```
-The optional ValueList can be used to give initial values for the fields of any record type. The order of values must correspond to the order of field declarations.
+The optional `ValueList` can be used to give initial values for the fields of any record type. The order of values must correspond to the order of field declarations.
 
 ## Default values for variables
 
@@ -117,7 +128,9 @@ The following lossless type coercions are pre-defined in Ballerina:
 * long -> double
 * float -> double
 
-In addition to these built in type coercions, Ballerina allows one to define arbitrary conversions from one non-primitive type to another non-primitive and have the language apply it automatically.
+In addition to these built in type coercions, Ballerina allows you to define arbitrary conversions from one non-primitive type to another non-primitive and have the language apply it automatically.
+
+TODO: change TypeConvertor to TypeMapper when the change is implemented
 
 A `TypeConvertor` is defined as follows:
 ```
