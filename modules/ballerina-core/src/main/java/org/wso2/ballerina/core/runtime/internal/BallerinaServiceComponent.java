@@ -177,13 +177,13 @@ public class BallerinaServiceComponent {
         } else if (Constants.RuntimeMode.RUN_FILE == ServiceContextHolder.getInstance().getRuntimeMode()) {
             BallerinaFile ballerinaFileToExecute = ServiceContextHolder.getInstance().getBallerinaFileToExecute();
             if (ballerinaFileToExecute != null) {
-                try {
-                    BalProgramExecutor.execute(ballerinaFileToExecute);
-                } catch (Throwable throwable) {
-                    log.error("Error: " + throwable.getMessage());
-                } finally {
-                    RuntimeUtils.shutdownRuntime();
-                }
+//                try {
+////                    BalProgramExecutor.execute(ballerinaFileToExecute);
+//                } catch (Throwable throwable) {
+//                    log.error("Error: " + throwable.getMessage());
+//                } finally {
+//                    RuntimeUtils.shutdownRuntime();
+//                }
             }
         } else if (Constants.RuntimeMode.SERVER == ServiceContextHolder.getInstance().getRuntimeMode()) {
             String host = "localhost";

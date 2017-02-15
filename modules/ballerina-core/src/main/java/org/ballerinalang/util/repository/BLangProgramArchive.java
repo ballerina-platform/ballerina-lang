@@ -18,6 +18,7 @@
 package org.ballerinalang.util.repository;
 
 import org.ballerinalang.util.program.BLangPrograms;
+import org.wso2.ballerina.core.model.BLangProgram;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -48,18 +49,16 @@ public class BLangProgramArchive extends PackageRepository implements AutoClosea
     public static final String BALLERINA_CONF_FILE_PATH = "/" + BAL_INF_DIR_NAME + "/" + BALLERINA_CONF;
     public static final String balVersionText = "ballerina-version: 0.8.0";
     public static final String mainPackageLinePrefix = "main-function";
+    public static final String servicePackagePrefix = "services";
 
     private Path archivePath;
     private Map<String, List<Path>> packageFilesMap;
     private FileSystem zipFS;
     private String[] entryPoints;
+    private BLangProgram.Category programCategory;
 
     public BLangProgramArchive(Path archivePath) {
         this.archivePath = archivePath;
-    }
-
-    public String getEntryPoint() {
-        return entryPoints[0];
     }
 
     public String[] getEntryPoints() {
@@ -72,6 +71,12 @@ public class BLangProgramArchive extends PackageRepository implements AutoClosea
             zipFSEnv.put("create", "false");
             URI zipFileURI = URI.create("jar:file:" + archivePath.toUri().getPath());
             zipFS = FileSystems.newFileSystem(zipFileURI, zipFSEnv);
+
+            if (archivePath.toString().endsWith(BLangProgram.Category.MAIN_PROGRAM.getExtension())) {
+                programCategory = BLangProgram.Category.MAIN_PROGRAM;
+            } else {
+                programCategory = BLangProgram.Category.SERVICE_PROGRAM;
+            }
 
             // Read ballerina.conf file and get all the entry points
             // Also load all packages and the files in them.
@@ -160,7 +165,13 @@ public class BLangProgramArchive extends PackageRepository implements AutoClosea
         }
 
         // Check whether there exist entry point line..
-        Object entryPointLineObj = bConfProps.get(mainPackageLinePrefix);
+        Object entryPointLineObj;
+        if(programCategory == BLangProgram.Category.MAIN_PROGRAM) {
+            entryPointLineObj = bConfProps.get(mainPackageLinePrefix);
+        } else {
+            entryPointLineObj = bConfProps.get(servicePackagePrefix);
+        }
+
         if (entryPointLineObj == null) {
             throw new IllegalArgumentException(errorMsg);
         }

@@ -40,7 +40,7 @@ public class BLangFiles {
                                          BLangPackage.PackageBuilder packageBuilder) {
 
         Path sourceFilePath;
-        if (packagePath == null) {
+        if (packagePath == null || packagePath.toString().equals(".")) {
             sourceFilePath = Paths.get(sourceFileName);
         } else {
             sourceFilePath = packagePath.resolve(sourceFileName);

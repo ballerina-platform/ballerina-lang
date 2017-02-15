@@ -112,8 +112,9 @@ public class BLangPackages {
         if (!pkgPathStr.equals(bFile.getPackagePath())) {
             String actualPkgPath = (bFile.getPackagePath() != null) ? bFile.getPackagePath() : "";
             String expectedPkg = (!pkgPathStr.equals(".")) ? pkgPathStr : "";
-            String filePath = packagePath.resolve(bFile.getFileName()).toString();
-            throw new BallerinaException(filePath + ": incorrect package" +
+            String filePath = (packagePath.toString().equals(".")) ? bFile.getFileName() :
+                    packagePath.resolve(bFile.getFileName()).toString();
+            throw new BallerinaException("incorrect package in '" + filePath + "'" +
                     ": expected '" + expectedPkg + "', found '" + actualPkgPath + "'");
         }
     }

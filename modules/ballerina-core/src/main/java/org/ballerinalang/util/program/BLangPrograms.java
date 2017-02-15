@@ -34,9 +34,6 @@ import java.nio.file.Path;
  * @since 0.8.0
  */
 public class BLangPrograms {
-
-    public static final String BPROGRAM_EXTENSION = ".bpz";
-    public static final String BSERVICE_EXTENSION = ".bsz";
     public static final String BSOURCE_FILE_EXT = ".bal";
 
     public static GlobalScope populateGlobalScope() {
@@ -59,24 +56,24 @@ public class BLangPrograms {
         }
 
         try {
-            programArchivePath = programArchivePath.toRealPath(LinkOption.NOFOLLOW_LINKS);
+            Path realProgArchivePath = programArchivePath.toRealPath(LinkOption.NOFOLLOW_LINKS);
 
-            if (!Files.isReadable(programArchivePath)) {
+            if (!Files.isReadable(realProgArchivePath)) {
                 throw new IllegalArgumentException("read access required: " + programArchivePath.toString());
             }
 
-            if (Files.isDirectory(programArchivePath, LinkOption.NOFOLLOW_LINKS)) {
+            if (Files.isDirectory(realProgArchivePath, LinkOption.NOFOLLOW_LINKS)) {
                 throw new IllegalStateException("invalid file: expected a " +
                         programCategory.getExtension() + " file");
             }
+
+            return realProgArchivePath;
         } catch (NoSuchFileException x) {
             throw new IllegalArgumentException("no such file: " + programArchivePath.toString());
         } catch (IOException e) {
             throw new RuntimeException("error reading from file: " + programArchivePath +
                     " reason: " + e.getMessage(), e);
         }
-
-        return programArchivePath;
     }
 
     public static Path validateAndResolveProgramDirPath(Path programDirPath) {
@@ -105,20 +102,20 @@ public class BLangPrograms {
         }
 
         try {
-            Path newSourcePath = programDirPath.resolve(sourcePath).toRealPath();
-            if (!newSourcePath.startsWith(programDirPath)) {
+            Path realSourcePath = programDirPath.resolve(sourcePath).toRealPath();
+            if (!realSourcePath.startsWith(programDirPath)) {
                 throw new IllegalArgumentException("given source package/file must be inside the program directory");
             }
 
-            if(Files.isDirectory(newSourcePath, LinkOption.NOFOLLOW_LINKS)) {
-                return newSourcePath;
+            if(Files.isDirectory(realSourcePath, LinkOption.NOFOLLOW_LINKS)) {
+                return realSourcePath;
             }
 
-            if(!newSourcePath.toString().endsWith(BLangPrograms.BSOURCE_FILE_EXT)) {
+            if(!realSourcePath.toString().endsWith(BLangPrograms.BSOURCE_FILE_EXT)) {
                 throw new IllegalArgumentException("invalid file: " + sourcePath);
             }
 
-            return newSourcePath;
+            return realSourcePath;
         } catch (NoSuchFileException x) {
             throw new IllegalArgumentException("no such file or directory: " + sourcePath);
         } catch (IOException e) {

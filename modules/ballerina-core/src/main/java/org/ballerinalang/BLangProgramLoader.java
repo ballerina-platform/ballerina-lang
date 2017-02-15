@@ -36,6 +36,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
+ *
+ *
  * @since 0.8.0
  */
 public class BLangProgramLoader {
@@ -49,6 +51,8 @@ public class BLangProgramLoader {
 
         // Creates program scope for this Ballerina program
         BLangProgram bLangProgram = new BLangProgram(globalScope, BLangProgram.Category.MAIN_PROGRAM);
+        bLangProgram.setProgramFilePath(sourcePath);
+
         BLangPackage[] bLangPackages = loadPackages(programDirPath, sourcePath, bLangProgram);
         BLangPackage mainPackage = bLangPackages[0];
 
@@ -66,37 +70,31 @@ public class BLangProgramLoader {
         return bLangProgram;
     }
 
-    public BLangProgram[] loadServices(Path programDirPath, Path[] servicePaths) {
+    public BLangProgram loadService(Path programDirPath, Path servicePath) {
         programDirPath = BLangPrograms.validateAndResolveProgramDirPath(programDirPath);
 
         // Get the global scope
         GlobalScope globalScope = BLangPrograms.populateGlobalScope();
 
-        BLangProgram[] bLangPrograms = new BLangProgram[servicePaths.length];
-        for (int i = 0; i < servicePaths.length; i++) {
-            Path servicePath = servicePaths[0];
+        // Creates program scope for this Ballerina program
+        BLangProgram bLangProgram = new BLangProgram(globalScope, BLangProgram.Category.SERVICE_PROGRAM);
+        bLangProgram.setProgramFilePath(servicePath);
 
-            // Creates program scope for this Ballerina program
-            BLangProgram bLangProgram = new BLangProgram(globalScope, BLangProgram.Category.SERVICE_PROGRAM);
-            BLangPackage[] servicePackages = loadPackages(programDirPath, servicePath, bLangProgram);
+        BLangPackage[] servicePackages = loadPackages(programDirPath, servicePath, bLangProgram);
 
-            // TODO Find cyclic dependencies
-
-            for (BLangPackage servicePkg : servicePackages) {
-                bLangProgram.addServicePackage(servicePkg);
-                bLangProgram.define(new SymbolName(servicePkg.getPackagePath()), servicePkg);
-            }
-
-            // Analyze the semantic properties of the Ballerina program
-            if (!disableSemanticAnalyzer) {
-                SemanticAnalyzer semanticAnalyzer = new SemanticAnalyzer(bLangProgram);
-                bLangProgram.accept(semanticAnalyzer);
-            }
-
-            bLangPrograms[i] = bLangProgram;
+        // TODO Find cyclic dependencies
+        for (BLangPackage servicePkg : servicePackages) {
+            bLangProgram.addServicePackage(servicePkg);
+            bLangProgram.define(new SymbolName(servicePkg.getPackagePath()), servicePkg);
         }
 
-        return bLangPrograms;
+        // Analyze the semantic properties of the Ballerina program
+        if (!disableSemanticAnalyzer) {
+            SemanticAnalyzer semanticAnalyzer = new SemanticAnalyzer(bLangProgram);
+            bLangProgram.accept(semanticAnalyzer);
+        }
+
+        return bLangProgram;
     }
 
     public BLangProgramLoader disableSemanticAnalyzer() {
@@ -145,7 +143,7 @@ public class BLangProgramLoader {
             String[] entryPoints = programArchive.getEntryPoints();
             if (entryPoints.length > 1 && bLangProgram.getProgramCategory() == BLangProgram.Category.MAIN_PROGRAM) {
                 throw new IllegalArgumentException("invalid program archive: " +
-                        archivePath + " : multiple entry points");
+                        bLangProgram.getProgramFilePath() + " : multiple entry points");
             }
 
             List<BLangPackage> bLangPackageList = new ArrayList<>();

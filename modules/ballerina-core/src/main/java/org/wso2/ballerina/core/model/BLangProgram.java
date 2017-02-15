@@ -17,6 +17,7 @@
 */
 package org.wso2.ballerina.core.model;
 
+import org.wso2.ballerina.core.interpreter.RuntimeEnvironment;
 import org.wso2.ballerina.core.model.symbols.BLangSymbol;
 
 import java.nio.file.Path;
@@ -26,6 +27,8 @@ import java.util.List;
 import java.util.Map;
 
 /**
+ * {@code BLangProgram} represents a Ballerina program.
+ *
  * @since 0.8.0
  */
 public class BLangProgram implements SymbolScope, Node {
@@ -40,12 +43,25 @@ public class BLangProgram implements SymbolScope, Node {
     private GlobalScope globalScope;
     private Map<SymbolName, BLangSymbol> symbolMap;
 
+    // Each program instance should have its own runtime environment
+    private RuntimeEnvironment runtimeEnv;
     private int sizeOfStaticMem;
+
+    // This is the actual path given by the user and this is used primarily for error reporting
+    private Path programFilePath;
 
     public BLangProgram(GlobalScope globalScope, Category programCategory) {
         this.globalScope = globalScope;
         this.programCategory = programCategory;
         symbolMap = new HashMap<>();
+    }
+
+    public Path getProgramFilePath() {
+        return programFilePath;
+    }
+
+    public void setProgramFilePath(Path programFilePath) {
+        this.programFilePath = programFilePath;
     }
 
     public Category getProgramCategory() {
@@ -77,7 +93,7 @@ public class BLangProgram implements SymbolScope, Node {
         return servicePackageList.toArray(new BLangPackage[0]);
     }
 
-    public String[] getEntryPoint() {
+    public String[] getEntryPoints() {
         return entryPoints.toArray(new String[0]);
     }
 
@@ -87,6 +103,14 @@ public class BLangProgram implements SymbolScope, Node {
 
     public BLangPackage[] getPackages() {
         return symbolMap.values().stream().map(symbol -> (BLangPackage) symbol).toArray(BLangPackage[]::new);
+    }
+
+    public RuntimeEnvironment getRuntimeEnvironment() {
+        return runtimeEnv;
+    }
+
+    public void setRuntimeEnvironment(RuntimeEnvironment runtimeEnv) {
+        this.runtimeEnv = runtimeEnv;
     }
 
     public int getSizeOfStaticMem() {
@@ -141,7 +165,7 @@ public class BLangProgram implements SymbolScope, Node {
      */
     public enum Category {
         SERVICE_PROGRAM("service", ".bsz"),
-        MAIN_PROGRAM("main", "bpz");
+        MAIN_PROGRAM("main", ".bpz");
 
         String name;
         String extension;
