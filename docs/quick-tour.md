@@ -48,7 +48,7 @@ Also notice in the lower right corner the Source View and Swagger View buttons.
    
 1. Click **Source View**. You'll see the source code editor that represents the sequence diagram as code in the Ballerina language. You can go back and forth between the visual editor and the source code and make your edits in either place. 
 
-1. Click **Swagger View**. This editor allows you to create Swagger definitions to create APIs.
+1. Click **Swagger View**. This editor allows you to write Swagger definitions to create services.
 
 1. Click **Design View** to return to the visual editor. 
 
