@@ -254,12 +254,12 @@ define(['lodash', './node', '../utils/common-utils'], function (_, ASTNode, Comm
         var variableReferenceExpression = _.find(leftOperandExpression.getChildren(), function (child) {
             return ballerinaASTFactory.isVariableReferenceExpression(child);
         });
+        variableReferenceExpression.setVariableReferenceName(identifier);
 
         var variableDefinition = _.find(variableReferenceExpression.getChildren(), function (child) {
             return ballerinaASTFactory.isVariableDefinition(child);
         });
 
-        variableDefinition.setName(identifier);
         variableDefinition.setTypeName(structName);
     };
 

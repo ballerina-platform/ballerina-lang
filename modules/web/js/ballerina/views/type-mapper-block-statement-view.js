@@ -146,10 +146,8 @@ define(['lodash', 'log','./ballerina-view','./../ast/block-statement', 'typeMapp
         TypeMapperBlockStatementView.prototype.onAttributesDisConnect = function (connection) {
 
             var blockStatement = connection.targetReference.getParent().getBlockStatement();
-
-
-//            connection.targetReference.getParent().removeAssignmentDefinition(connection.sourceProperty,
-//                connection.targetProperty);
+            var assignmentStatementId = connection.id;
+            blockStatement.removeChildById(assignmentStatementId);
         };
 
         /**
