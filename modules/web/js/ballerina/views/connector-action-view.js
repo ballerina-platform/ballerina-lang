@@ -847,21 +847,10 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                 this.setHeadingMinWidth(connectorDeclarationView.getBoundingBox().getRight());
             }
 
-            // Creating property pane
-            var editableProperty = {
-                    propertyType: "text",
-                    key: "ConnectorDeclaration",
-                    model: connectorDeclarationView._model,
-                    getterMethod: connectorDeclarationView._model.getConnectorExpression,
-                    setterMethod: connectorDeclarationView._model.setConnectorExpression
-            };
-            connectorDeclarationView.createPropertyPane({
-                model: connectorDeclarationView._model,
-                lifeLineGroup:connectorDeclarationView._rootGroup,
-                editableProperties: editableProperty
-            });
+            connectorDeclarationView.createPropertyPane();
 
             connectorDeclarationView.setParent(this);
+
             this._connectorWorkerViewList.push(connectorDeclarationView);
             this.getBoundingBox().on("height-changed", function (dh) {
                 this.getBoundingBox().h(this.getBoundingBox().h() + dh);
@@ -987,4 +976,3 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
 
         return ConnectorActionView;
     });
-

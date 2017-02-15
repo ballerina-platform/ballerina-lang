@@ -663,7 +663,7 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                     contentGroup.attr("display", "inline");
                     // resource content is expanded. Hence expand resource BBox
                     resourceBBox.h(resourceBBox.h() + self._minizedHeight);
-                    
+
                     // Changing icon if the collapse.
                     headingCollapseIcon.classed("headingExpandIcon", true);
                     headingCollapseIcon.classed("headingCollapsedIcon", false);
@@ -1004,20 +1004,7 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             connectorDeclarationView._rootGroup.attr('id', '_' +connectorDeclarationView._model.id);
 
             connectorDeclarationView.render();
-            // Creating Expression Editor
-            var editableProperty = {
-                    propertyType: "text",
-                key: "ConnectorDeclaration",
-                    model: connectorDeclarationView._model,
-                getterMethod: connectorDeclarationView._model.getConnectorExpression,
-                setterMethod: connectorDeclarationView._model.setConnectorExpression,
-                getDisplayTitle: connectorDeclarationView._model.getConnectorVariable
-            };
-            connectorDeclarationView.createPropertyPane({
-                model: connectorDeclarationView._model,
-                lifeLineGroup:connectorDeclarationView._rootGroup,
-                editableProperties: editableProperty
-            });
+            connectorDeclarationView.createPropertyPane();
 
             if (_.isNil(lastConnectorLifeLine)) {
                 // This is the first connector we are adding
@@ -1308,4 +1295,3 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
         return ResourceDefinitionView;
 
     });
-
