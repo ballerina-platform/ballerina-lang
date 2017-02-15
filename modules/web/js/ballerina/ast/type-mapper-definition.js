@@ -196,9 +196,7 @@ define(['lodash', './node', '../utils/common-utils'], function (_, ASTNode, Comm
         // Creating a new ResourceParameter.
         var newResourceParameter = this.getFactory().createResourceParameter();
         newResourceParameter.setIdentifier(identifier);
-        var newSimpleTypeName = this.getFactory().createSimpleTypeName();
-        newSimpleTypeName.setName(typeStructName);
-        newResourceParameter.addChild(newSimpleTypeName);
+        newResourceParameter.setType(typeStructName);
 
         var lastIndex = _.findLastIndex(this.getChildren());
         this.addChild(newResourceParameter, lastIndex - 1);
@@ -213,9 +211,7 @@ define(['lodash', './node', '../utils/common-utils'], function (_, ASTNode, Comm
 
         // Creating a new ResourceParameter.
         var newReturnType = this.getFactory().createReturnType();
-        var newSimpleTypeName = this.getFactory().createSimpleTypeName();
-        newSimpleTypeName.setName(typeStructName);
-        newReturnType.addChild(newSimpleTypeName);
+        newReturnType.setType(typeStructName);
 
         var lastIndex = _.findLastIndex(this.getChildren());
         this.addChild(newReturnType, lastIndex - 1);
@@ -302,19 +298,23 @@ define(['lodash', './node', '../utils/common-utils'], function (_, ASTNode, Comm
 
     /**
      * Constructs new assignment statement.
-     * @param {string} sourceIdentifier
-     * @param {string} targetIdentifier
-     * @param {string} sourceValue
-     * @param {string} targetValue
+     * @param sourceIdentifier
+     * @param targetIdentifier
+     * @param sourceValue
+     * @param targetValue
+     * @param isComplexMapping
+     * @param targetCastValue
      * @returns {AssignmentStatement}
      */
-    TypeMapperDefinition.prototype.returnConstructedAssignmentStatement = function (sourceIdentifier,targetIdentifier,sourceValue,targetValue) {
+    TypeMapperDefinition.prototype.returnConstructedAssignmentStatement = function (sourceIdentifier,targetIdentifier,sourceValue,targetValue,
+                                                                                    isComplexMapping,targetCastValue) {
 
         // Creating a new Assignment Statement.
         var self = this;
         var newAssignmentStatement = this.getFactory().createAssignmentStatement();
         var leftOperandExpression = this.getFactory().createLeftOperandExpression();
         var rightOperandExpression = this.getFactory().createRightOperandExpression();
+        var typeCastExpression = undefined;
 
         var sourceStructFieldAccessExpression = this.getFactory().createStructFieldAccessExpression();
         var sourceVariableReferenceExpressionForIdentifier = this.getFactory().createVariableReferenceExpression();
@@ -366,7 +366,15 @@ define(['lodash', './node', '../utils/common-utils'], function (_, ASTNode, Comm
 
         leftOperandExpression.addChild(targetStructFieldAccessExpression);
         newAssignmentStatement.addChild(leftOperandExpression);
-        rightOperandExpression.addChild(sourceStructFieldAccessExpression);
+
+        if(isComplexMapping){
+            typeCastExpression = this.getFactory().createTypeCastExpression();
+            typeCastExpression.setName(targetCastValue);
+            rightOperandExpression.addChild(typeCastExpression);
+            typeCastExpression.addChild(sourceStructFieldAccessExpression);
+        }else{
+            rightOperandExpression.addChild(sourceStructFieldAccessExpression);
+        }
         newAssignmentStatement.addChild(rightOperandExpression);
 
         return newAssignmentStatement;

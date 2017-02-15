@@ -258,18 +258,7 @@ define(['lodash', 'log','./ballerina-view', './variables-view', './type-struct-d
         TypeMapperDefinitionView.prototype.visitResourceParameter = function (resourceParameter) {
             log.debug("Visiting resource parameter");
             var self = this;
-            var sourceStructName = undefined;
-
-            var resourceParameter = _.find(this.getModel().getChildren(), function (child) {
-                return BallerinaASTFactory.isResourceParameter(child);
-            });
-
-            _.find(resourceParameter.getChildren(), function (child) {
-                if(BallerinaASTFactory.isSimpleTypeName(child)){
-                    sourceStructName = child.getName();
-                    return false;
-                }
-            });
+            var sourceStructName = resourceParameter.getType();
 
             self.getSourceInfo()["sourceStructName"] = sourceStructName;
             var predefinedStructs = self.getSourceInfo().predefinedStructs;
@@ -297,18 +286,7 @@ define(['lodash', 'log','./ballerina-view', './variables-view', './type-struct-d
         TypeMapperDefinitionView.prototype.visitReturnType = function (returnType) {
             log.debug("Visiting return type");
             var self = this;
-            var targetStructName = undefined;
-
-            var returnType = _.find(this.getModel().getChildren(), function (child) {
-                return BallerinaASTFactory.isReturnType(child);
-            });
-
-            _.find(returnType.getChildren(), function (child) {
-                if(BallerinaASTFactory.isSimpleTypeName(child)){
-                    targetStructName = child.getName();
-                    return false;
-                }
-            });
+            var targetStructName = returnType.getType();
 
             self.getTargetInfo()["targetStructName"] = targetStructName;
             var predefinedStructs = self.getTargetInfo().predefinedStructs;

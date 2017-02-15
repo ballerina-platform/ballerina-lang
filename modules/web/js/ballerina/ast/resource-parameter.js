@@ -68,40 +68,6 @@ define(['lodash', './argument'], function (_, Argument) {
     };
 
     /**
-     * Gets the value of symbol-name child
-     * @return {string} - String symbolName.
-     */
-    ResourceParameter.prototype.getSymbolName = function() {
-        var name = undefined;
-        var ballerinaASTFactory = this.getFactory();
-
-        _.forEach(this.getChildren(), function (child) {
-            if (ballerinaASTFactory.isSymbolName(child)) {
-                name = child.getName();
-                return false;
-            }
-        });
-        return name;
-    };
-
-    /**
-     * Gets the value of struct-type child
-     * @return {string} - String structType.
-     */
-    ResourceParameter.prototype.getStructType = function() {
-        var structType = undefined;
-        var ballerinaASTFactory = this.getFactory();
-
-        _.forEach(this.getChildren(), function (child) {
-            if (ballerinaASTFactory.isStructType(child)) {
-                structType = child.getTypeName();
-                return false;
-            }
-        });
-        return structType;
-    };
-
-    /**
      * Gets the supported annotations for a path param.
      * @return {string[]} - The supported annotations for a resource param.
      * @static
