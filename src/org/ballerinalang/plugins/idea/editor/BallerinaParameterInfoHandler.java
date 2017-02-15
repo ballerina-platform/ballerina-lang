@@ -115,45 +115,48 @@ public class BallerinaParameterInfoHandler implements ParameterInfoHandlerWithTa
     public void showParameterInfo(@NotNull Object element, @NotNull CreateParameterInfoContext context) {
         if (element instanceof ArgumentListNode) {
             PsiElement psiElement = (ArgumentListNode) element;
+
             FunctionInvocationStatementNode parent = PsiTreeUtil.getParentOfType(psiElement,
                     FunctionInvocationStatementNode.class);
-            CallableUnitNameNode function = PsiTreeUtil.findChildOfType(parent, CallableUnitNameNode.class);
-            PsiReference reference = function.getNameIdentifier().getReference();
-            if (reference != null) {
-                PsiElement resolvedElement = reference.resolve();
-                if (resolvedElement != null) {
-                    ParameterListNode parameterListNode =
-                            PsiTreeUtil.findChildOfType(resolvedElement, ParameterListNode.class);
-                    if (parameterListNode == null) {
-                        context.setItemsToShow(new Object[]{resolvedElement});
-                    } else {
-                        context.setItemsToShow(new Object[]{parameterListNode});
+
+            // Todo - Check support for connectors and actions after finalizing the Ballerina SDK
+            if (parent != null) {
+                CallableUnitNameNode function = PsiTreeUtil.findChildOfType(parent, CallableUnitNameNode.class);
+                PsiReference reference = function.getNameIdentifier().getReference();
+                if (reference != null) {
+                    PsiElement resolvedElement = reference.resolve();
+                    if (resolvedElement != null) {
+                        ParameterListNode parameterListNode =
+                                PsiTreeUtil.findChildOfType(resolvedElement, ParameterListNode.class);
+                        if (parameterListNode == null) {
+                            context.setItemsToShow(new Object[]{resolvedElement});
+                        } else {
+                            context.setItemsToShow(new Object[]{parameterListNode});
+                        }
+                        context.showHint(psiElement, (psiElement).getTextRange().getStartOffset(), this);
+                        return;
                     }
-                    context.showHint(psiElement, (psiElement).getTextRange().getStartOffset(), this);
-                    return;
                 }
+                PsiReference[] references = function.getNameIdentifier().getReferences();
+                List<ParameterListNode> list = new ArrayList<>();
+                for (PsiReference psiReference : references) {
+                    ResolveResult[] resolveResults = ((FunctionReference) psiReference).multiResolve(false);
+                    if (resolveResults.length == 0) {
+                        continue;
+                    }
 
-            }
-            PsiReference[] references = function.getNameIdentifier().getReferences();
-            List<ParameterListNode> list = new ArrayList<>();
-            for (PsiReference psiReference : references) {
-                ResolveResult[] resolveResults = ((FunctionReference) psiReference).multiResolve(false);
-                if (resolveResults.length == 0) {
-                    continue;
+                    for (ResolveResult resolveResult : resolveResults) {
+                        PsiElement parentElement = resolveResult.getElement().getParent();
+                        ParameterListNode parameterListNode = PsiTreeUtil.findChildOfType(parentElement,
+                                ParameterListNode.class);
+                        list.add(parameterListNode);
+                    }
                 }
-
-                for (ResolveResult resolveResult : resolveResults) {
-                    PsiElement parentElement = resolveResult.getElement().getParent();
-                    ParameterListNode parameterListNode = PsiTreeUtil.findChildOfType(parentElement,
-                            ParameterListNode.class);
-                    list.add(parameterListNode);
-                }
+                context.setItemsToShow(list.toArray(new ParameterListNode[list.size()]));
+                context.showHint(psiElement, (psiElement).getTextRange().getStartOffset(), this);
             }
-            context.setItemsToShow(list.toArray(new ParameterListNode[list.size()]));
-            context.showHint(psiElement, (psiElement).getTextRange().getStartOffset(), this);
         }
     }
-
 
     @Nullable
     @Override
