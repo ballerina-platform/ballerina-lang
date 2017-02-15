@@ -90,7 +90,7 @@ listenerConfigurations:
   host: "0.0.0.0"
   port: 9090
  -
-  id: "ballerina-https"
+  id: "https"
   host: "0.0.0.0"
   port: 9092
   scheme: https
