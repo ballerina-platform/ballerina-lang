@@ -29,6 +29,7 @@ import org.wso2.ballerina.core.model.BallerinaFunction;
 import org.wso2.ballerina.core.model.Package;
 import org.wso2.ballerina.core.model.ParameterDef;
 import org.wso2.ballerina.core.model.SymbolName;
+import org.wso2.ballerina.core.model.types.BType;
 import org.wso2.ballerina.docgen.docs.DocumentWriter;
 
 import java.io.File;
@@ -157,10 +158,21 @@ public class HtmlDocumentWriter implements DocumentWriter {
                     })
                     //this would bind a link to the custom types defined
                     .registerHelper("bindLink", (Helper<SymbolName>) (type, options) -> {
-                        if (type.getPkgPath() != null) {
-                            return "../html/" + type.getPkgPath() + ".html#" + type.getName();
+                        if ((type.getPkgPath() != null) && (!type.getPkgPath().isEmpty())) {
+                            return "../" + type.getPkgPath() + ".html#" + type.getName();
                         }
                         return "#" + type.getName();
+                    })
+                    // usage: {{typeTitle <BType>}}
+                    // eg: {{typeTitle type}}
+                    .registerHelper("typeTitle", (Helper<BType>) (type, options) -> {
+                        if (type == null) {
+                            return null;
+                        }
+                        if ((type.getPackagePath() != null) && (!type.getPackagePath().isEmpty())) {
+                            return new Handlebars.SafeString(" title=\"" + type + "\"");
+                        }
+                        return "";
                     });
             Template template = handlebars.compile(templateName);
 
