@@ -64,6 +64,8 @@ public class LaunchManager {
         if(null == System.getProperty("ballerina.home") || System.getProperty("ballerina.home").isEmpty()){
             pushMessageToClient(launchSession, LauncherConstants.ERROR, LauncherConstants.ERROR,
                     LauncherConstants.INVALID_BAL_PATH_MESSAGE);
+            pushMessageToClient(launchSession, LauncherConstants.ERROR, LauncherConstants.ERROR,
+                    LauncherConstants.SET_BAL_PATH_MESSAGE);
             return;
         }
 
