@@ -44,7 +44,7 @@ public class EnvironmentInitializer {
         // Initialize server connectors before starting the test cases
         BallerinaConnectorManager.getInstance().initialize(new MessageProcessor());
         BallerinaConnectorManager.getInstance().registerServerConnectorErrorHandler(new TestErrorHandler());
-        // Register HTTP Dispatchers
+        // Resister HTTP Dispatchers
         DispatcherRegistry.getInstance().registerServiceDispatcher(new HTTPServiceDispatcher());
         DispatcherRegistry.getInstance().registerResourceDispatcher(new HTTPResourceDispatcher());
 
