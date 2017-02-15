@@ -137,6 +137,13 @@ define(['lodash', './node', '../utils/common-utils'], function (_, ASTNode, Comm
             return ballerinaASTFactory.isResourceParameter(child)
         });
 
+        var blockStatement = self.getBlockStatement();
+        _.find(blockStatement.getChildren(), function (child) {
+            if(ballerinaASTFactory.isAssignmentStatement(child)){
+                child.remove();
+            }
+        });
+
         if (!_.isUndefined(previousInputType)) {
             this.removeChild(previousInputType);
         }
@@ -153,26 +160,15 @@ define(['lodash', './node', '../utils/common-utils'], function (_, ASTNode, Comm
             return ballerinaASTFactory.isReturnType(child)
         });
 
+        var blockStatement = self.getBlockStatement();
+        _.find(blockStatement.getChildren(), function (child) {
+            if(ballerinaASTFactory.isAssignmentStatement(child)){
+                child.remove();
+            }
+        });
+
         if (!_.isUndefined(previousOutputType)) {
             this.removeChild(previousOutputType);
-        }
-    };
-
-    /**
-     * removes the already selected child before adding a new child
-     * @param sourceProperty
-     * @param targetProperty
-     */
-    TypeMapperDefinition.prototype.removeAssignmentDefinition = function (sourceProperty, targetProperty) {
-        //TODO: Get rid of hardcoded x and y
-        var self = this;
-        var ballerinaASTFactory = this.getFactory();
-        var assignmentStatement = _.find(this.getChildren(), function (child) {
-            return ballerinaASTFactory.isAssignmentStatement(child) &&
-                (('x.' + targetProperty + ' = ' + 'y.' + sourceProperty) === child.getStatementString());
-        });
-        if (!_.isUndefined(assignmentStatement)) {
-            this.removeChild(assignmentStatement);
         }
     };
 
