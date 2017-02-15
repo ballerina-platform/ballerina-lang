@@ -54,13 +54,13 @@ public class AssignStmtNegativeTest {
     }
 
     @Test(expectedExceptions = {SemanticException.class},
-            expectedExceptionsMessageRegExp = "assign-count-mismatch-1.bal:6: assignment count mismatch: 2 = 3")
+            expectedExceptionsMessageRegExp = "assign-count-mismatch-1.bal:6: assignment count mismatch: 2 != 3")
     public void testAssignCountMismatch1() {
         ParserUtils.parseBalFile("lang/statements/assignment/assign-count-mismatch-1.bal");
     }
 
     @Test(expectedExceptions = {SemanticException.class},
-            expectedExceptionsMessageRegExp = "assign-count-mismatch-2.bal:7: assignment count mismatch: 4 = 3")
+            expectedExceptionsMessageRegExp = "assign-count-mismatch-2.bal:7: assignment count mismatch: 4 != 3")
     public void testAssignCountMismatch2() {
         ParserUtils.parseBalFile("lang/statements/assignment/assign-count-mismatch-2.bal");
     }

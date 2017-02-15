@@ -48,12 +48,17 @@ public class NodeLocation {
         }
 
         NodeLocation other = (NodeLocation) obj;
-        return this.fileName.equals(other.getFileName());
+        return (this.fileName.equals(other.getFileName()) && this.lineNumber == other.getLineNumber());
     }
 
     public int hashCode() {
-        int result = this.fileName.hashCode();
+        int result = this.fileName.hashCode() + lineNumber;
         result = 31 * result;
         return result;
+    }
+
+    @Override
+    public String toString() {
+        return fileName + ":" + lineNumber;
     }
 }
