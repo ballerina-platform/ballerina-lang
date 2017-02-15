@@ -311,9 +311,11 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
                 + connection.targetProperty[i] + this.nameTypeSeperator + connection.targetType[i];
         }
         targetId += anchorEnd;
-
         this.jsPlumbInstance.detach({source: sourceId, target: targetId});
-        this.jsPlumbInstance.connect({source: sourceId, target: targetId});
+        this.jsPlumbInstance.connect({
+            anchor: ["Continuous", {faces: ["right","left"]}],
+            source: sourceId,
+            target: targetId});
         this.dagrePosition(this.placeHolderName, this.jsPlumbInstance);
     };
 
