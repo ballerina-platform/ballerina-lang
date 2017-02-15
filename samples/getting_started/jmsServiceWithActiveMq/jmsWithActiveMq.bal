@@ -7,7 +7,7 @@ protocol = "jms", destination = "ballerinaqueue", connectionFactoryJNDIName = "Q
 factoryInitial = "org.apache.activemq.jndi.ActiveMQInitialContextFactory", providerUrl = "tcp://localhost:61616",
 connectionFactoryType = "queue")
 service jmsWSO2ActiveMqQueueService {
-    @OnMessage
+    @jms:OnMessage
     resource onMessage (message m) {
         string messageType;
         map dataMap = {};
@@ -25,7 +25,7 @@ protocol = "jms", destination = "ballerinatopic", connectionFactoryJNDIName = "T
 factoryInitial = "org.apache.activemq.jndi.ActiveMQInitialContextFactory", providerUrl = "tcp://localhost:61616",
 connectionFactoryType = "topic")
 service jmsWSO2ActiveMqTopicService {
-    @OnMessage
+    @jms:OnMessage
     resource onMessage (message m) {
         system:println("Received map message : " + message:getStringValue(m, "queue message count"));
     }

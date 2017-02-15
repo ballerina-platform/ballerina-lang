@@ -48,7 +48,8 @@ service jmsMBService {
 ```
 
 ###Step 3
-Add a resource with the annotation "OnMessage" to the JMS service. This is required as whenever a message comes from the jms provider to a specific JMS service, it will be delivered to this particular resource.
+Add a resource with the annotation "jms:OnMessage" to the JMS service. This is required as whenever a message comes from
+ the jms provider to a specific JMS service, it will be delivered to this particular resource.
 
 Example :
 
@@ -62,7 +63,7 @@ providerUrl = "jndi.properties",
 connectionFactoryType = "queue",
 sessionAcknowledgement = "CLIENT_ACKNOWLEDGE")
 service jmsService {
-    @OnMessage
+    @jms:OnMessage
     resource onMessage (message m) {
         // ProcessMessage
     }
@@ -82,7 +83,7 @@ providerUrl = "jndi.properties",
 connectionFactoryType = "queue",
 sessionAcknowledgement = "CLIENT_ACKNOWLEDGE")
 service jmsService {
-    @OnMessage
+    @jms:OnMessage
     resource onMessage (message m) {
         //Process the message
         jms:acknowledge(m, "SUCCESS");

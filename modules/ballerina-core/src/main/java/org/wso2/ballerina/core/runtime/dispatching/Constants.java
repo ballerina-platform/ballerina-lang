@@ -67,7 +67,7 @@ public class Constants {
     public static final String ANNOTATION_SOURCE_KEY_INTERFACE = "interface";
 
     /* JMS Specific annotations */
-    public static final String ANNOTATION_NAME_ONMESSAGE = "OnMessage";
+    public static final String ANNOTATION_NAME_JMS_ONMESSAGE = "jms:OnMessage";
     public static final String ANNOTATION_PROTOCOL = "protocol";
 
     // jms destination
