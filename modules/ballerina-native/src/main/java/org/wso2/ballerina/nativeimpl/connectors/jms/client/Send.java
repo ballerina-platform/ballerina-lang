@@ -30,7 +30,9 @@ import org.wso2.ballerina.core.model.values.BMessage;
 import org.wso2.ballerina.core.model.values.BString;
 import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
+import org.wso2.ballerina.core.nativeimpl.annotations.Attribute;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaAction;
+import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaAnnotation;
 import org.wso2.ballerina.core.nativeimpl.annotations.ReturnType;
 import org.wso2.ballerina.core.nativeimpl.connectors.BallerinaConnectorManager;
 import org.wso2.ballerina.nativeimpl.connectors.jms.utils.JMSConstants;
@@ -58,7 +60,22 @@ import java.util.Map;
                  @Argument(name = "message", type = TypeEnum.MESSAGE),
                  @Argument(name = "properties", type = TypeEnum.MAP) },
         returnType = {@ReturnType(type = TypeEnum.BOOLEAN)})
-
+@BallerinaAnnotation(annotationName = "Description", attributes = { @Attribute(name = "value",
+        value = "SEND action implementation of the JMS Connector") })
+@BallerinaAnnotation(annotationName = "Param", attributes = { @Attribute(name = "connector",
+        value = "Connector") })
+@BallerinaAnnotation(annotationName = "Param", attributes = { @Attribute(name = "connectionFactoryName",
+        value = "Connection Factory Name") })
+@BallerinaAnnotation(annotationName = "Param", attributes = { @Attribute(name = "destinationName",
+        value = "Destination Name") })
+@BallerinaAnnotation(annotationName = "Param", attributes = { @Attribute(name = "destinationType",
+        value = "Destination Type") })
+@BallerinaAnnotation(annotationName = "Param", attributes = { @Attribute(name = "msgType",
+        value = "Message Type") })
+@BallerinaAnnotation(annotationName = "Param", attributes = { @Attribute(name = "message",
+        value = "Message") })
+@BallerinaAnnotation(annotationName = "Param", attributes = { @Attribute(name = "properties",
+        value = "Properties") })
 public class Send extends AbstractJMSAction {
     private static final Logger log = LoggerFactory.getLogger(Send.class);
 

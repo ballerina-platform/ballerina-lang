@@ -22,6 +22,8 @@ import org.wso2.ballerina.core.model.SymbolScope;
 import org.wso2.ballerina.core.model.types.TypeEnum;
 import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
+import org.wso2.ballerina.core.nativeimpl.annotations.Attribute;
+import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaAnnotation;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaConnector;
 import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeConnector;
 
@@ -37,7 +39,8 @@ import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeConnector;
         name = "ballerina.net.connectors.jms",
         immediate = true,
         service = AbstractNativeConnector.class)
-
+@BallerinaAnnotation(annotationName = "Description", attributes = { @Attribute(name = "value",
+        value = "Native JMS Client Connector") })
 public class ClientConnector extends AbstractNativeConnector {
 
     public static final String CONNECTOR_NAME = "ClientConnector";
