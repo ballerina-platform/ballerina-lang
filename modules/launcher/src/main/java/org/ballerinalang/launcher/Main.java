@@ -383,14 +383,14 @@ public class Main {
                         new DefaultBallerinaDockerClient().createServiceImage("PKG1", null, balConfigFile,
                                 imageName, imageVersion);
                     } catch (Exception e) {
-                        outStream.println(" Error in service image creation");
+                        outStream.println(" Error in service image creation. " + e.getMessage());
                     }
                 } else if ("main".equals(type)) {
                     try {
                         new DefaultBallerinaDockerClient().createMainImage("PKG1", null, balConfigFile, 
                                 imageName, imageVersion);
                     } catch (Exception e) {
-                        outStream.println(" Error in main image creation");
+                        outStream.println(" Error in main image creation. " + e.getMessage());
                     }
                 }
 
