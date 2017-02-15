@@ -477,6 +477,18 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         Expression rExpr = varDefStmt.getRExpr();
         if (rExpr == null) {
+            if (BTypes.isValueType(varDef.getType())) {
+                //Value type has default value and cannot be null
+                return;
+            } else {
+                //initialised with BNull value when reference variable have no right expression
+                rExpr = new NullLiteral(varDefStmt.getNodeLocation());
+                varDefStmt.setRExpr(rExpr);
+            }
+        }
+
+        if (rExpr instanceof NullLiteral) {
+            checkTypeReferenced(varDef.getType(), varDef.getNodeLocation());
             return;
         }
 
@@ -496,10 +508,6 @@ public class SemanticAnalyzer implements NodeVisitor {
             return;
         }
 
-        if (rExpr instanceof NullLiteral) {
-            checkTypeReferenced(varDef.getType(), varDef.getNodeLocation());
-            return;
-        }
         if (rExpr instanceof FunctionInvocationExpr || rExpr instanceof ActionInvocationExpr) {
             rExpr.accept(this);
 

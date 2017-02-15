@@ -133,28 +133,28 @@ public class BNullValueTest {
 
     @Test(description = "Test accessing a element of null assigned struct",
           expectedExceptions = BallerinaException.class,
-          expectedExceptionsMessageRegExp = ".* variable p is null")
+          expectedExceptionsMessageRegExp = "null-value.bal:71: variable 'p' is null")
     public void testAccessingAElementOfNullStruct() {
         Functions.invoke(bFile, "accessElementOfNullStruct");
     }
 
     @Test(description = "Test setting a value to a element of null assigned struct",
           expectedExceptions = BallerinaException.class,
-          expectedExceptionsMessageRegExp = ".* variable p is null")
+          expectedExceptionsMessageRegExp = "null-value.bal:78: variable 'p' is null")
     public void testSettingAElementOfNullStruct() {
         Functions.invoke(bFile, "settingElementOfNullStruct");
     }
 
     @Test(description = "Test accessing a value of a struct element of null assigned struct",
           expectedExceptions = BallerinaException.class,
-          expectedExceptionsMessageRegExp = ".* variable family is null")
+          expectedExceptionsMessageRegExp = "null-value.bal:88: field 'family' is null")
     public void testAccessingAStructElementOfNullStruct() {
         Functions.invoke(bFile, "accessingStructElementOfNullStruct");
     }
 
     @Test(description = "Test setting a value to a element of struct of null assigned struct",
           expectedExceptions = BallerinaException.class,
-          expectedExceptionsMessageRegExp = ".* variable family is null")
+          expectedExceptionsMessageRegExp = "null-value.bal:97: field 'family' is null")
     public void testSettingAStructElementOfNullStruct() {
         Functions.invoke(bFile, "settingStructElementOfNullStruct");
     }
