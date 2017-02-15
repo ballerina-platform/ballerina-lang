@@ -440,7 +440,7 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
      * @param {object} function definition with parameters to be mapped
      * @param {object} reference AST model reference
      */
-    TypeMapperRenderer.prototype.addFunction = function (func, reference) {
+    TypeMapperRenderer.prototype.addFunction = function (func, reference, onFunctionRemove) {
         var id = func.name + this.viewIdSeperator + this.viewId;
         this.references.push({name: id, refObj: reference});
         var newFunc = $('<div>').attr('id', id).addClass('func');
@@ -466,8 +466,24 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
 
         $("#" + this.placeHolderName).append(newFunc);
 
-        $("#" + id + "-button").on("click", function (event) {
-                self.removeStruct(func.name);
+        //Remove button functionality
+        $("#" + id + "-button").on("click", function () {
+            var removedFunction = {name : func.name}
+            removedFunction.incomingConnections = [];
+            removedFunction.outgoingConnections = [];
+
+            _.forEach(self.jsPlumbInstance.getAllConnections(), function (connection) {
+                if(connection.target.id.includes(id)) {
+                    removedFunction.incomingConnections.push(
+                        self.getConnectionObject(connection.sourceId,connection.targetId));
+                } else if(connection.source.id.includes(id)) {
+                    removedFunction.outgoingConnections.push(
+                        self.getConnectionObject(connection.sourceId,connection.targetId));
+                }
+            });
+
+            self.removeStruct(func.name);
+            onFunctionRemove(removedFunction);
         });
 
         _.forEach(func.parameters, function (parameter) {
