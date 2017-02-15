@@ -832,7 +832,11 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
                     return null;
                 }
 
-            }).forEach((BMessage b) -> result.add(b));
+            }).forEach((BMessage b) -> {
+                if (b != null) {
+                    result.add(b);
+                }
+            });
         } catch (InterruptedException e) {
             return result;
         }
@@ -1687,15 +1691,5 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
 
     private String getNodeLocation(NodeLocation nodeLocation) {
         return nodeLocation != null ? nodeLocation.getFileName() + ":" + nodeLocation.getLineNumber() : "";
-    }
-
-    private static class ForkJoinInvocationStatus {
-        boolean timedOut = false;
-        List<BMessage> resultMsgs;
-
-        public ForkJoinInvocationStatus() {
-            this.timedOut = false;
-            this.resultMsgs = new ArrayList<>();
-        }
     }
 }
