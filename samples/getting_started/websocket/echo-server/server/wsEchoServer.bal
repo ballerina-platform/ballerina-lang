@@ -2,9 +2,9 @@ import ballerina.lang.system;
 import ballerina.lang.message;
 import ballerina.net.ws;
 
-@BasePath("echo")
+@BasePath("/ws-echo-server")
 @WebSocketUpgradePath("/")
-service echoServer {
+service testWs {
 
     @OnOpen
     resource onOpen(message m) {
@@ -13,7 +13,7 @@ service echoServer {
 
     @OnTextMessage
     resource onTextMessage(message m) {
-        ws:sendText(m, "you said " + message:getStringPayload(m));
+        ws:sendText(m, message:getStringPayload(m));
         system:println("client : " + message:getStringPayload(m));
     }
 

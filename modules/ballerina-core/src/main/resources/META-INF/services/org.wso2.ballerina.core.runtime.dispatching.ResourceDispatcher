@@ -1,1 +1,2 @@
 org.wso2.ballerina.core.runtime.dispatching.HTTPResourceDispatcher
+org.wso2.ballerina.core.runtime.dispatching.WebSocketResourceDispatcher

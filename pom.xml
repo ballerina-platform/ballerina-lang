@@ -479,7 +479,7 @@
         <commons.pool.version>1.5.6.wso2v1</commons.pool.version>
         <org.snakeyaml.version>1.16.0.wso2v1</org.snakeyaml.version>
         <jcommander.version>1.60</jcommander.version>
-        
+
         <native.constructs.provider.package>org.wso2.ballerina.nativeimpl</native.constructs.provider.package>
         <native.constructs.provider.class>BallerinaNativeConstructsProvider</native.constructs.provider.class>
         <mvn.processor.plugin.version>2.2.4</mvn.processor.plugin.version>

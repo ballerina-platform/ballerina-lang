@@ -38,15 +38,15 @@ import java.util.Map;
  */
 public class WebSocketServiceDispatcher implements ServiceDispatcher {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(WebSocketServiceDispatcher.class);
+    private static final Logger logger = LoggerFactory.getLogger(WebSocketServiceDispatcher.class);
     private Map<String, Service> services = new HashMap<>();
 
     @Override
     public Service findService(CarbonMessage cMsg, CarbonCallback callback, Context balContext) {
         String interfaceId = (String) cMsg.getProperty(org.wso2.carbon.messaging.Constants.LISTENER_INTERFACE_ID);
         if (interfaceId == null) {
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("Interface id not found on the message, hence using the default interface");
+            if (logger.isDebugEnabled()) {
+                logger.debug("Interface id not found on the message, hence using the default interface");
             }
         }
 
