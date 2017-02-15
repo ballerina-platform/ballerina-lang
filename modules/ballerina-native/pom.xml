@@ -56,8 +56,8 @@
             
             <!-- copy built-in ballerina sources to the jar -->
             <resource>
-                <directory>${project.build.directory}/ballerina</directory>
-                <targetPath>META-INF/natives/ballerina</targetPath>
+                <directory>${generated.ballerina.source.directory}</directory>
+                <targetPath>META-INF/natives</targetPath>
             </resource>
     	</resources>
         <plugins>
@@ -75,7 +75,7 @@
                         <configuration>
                             <mainClass>org.wso2.ballerina.annotation.processor.NativeValidator</mainClass>
                             <arguments>
-                                <argument>${project.build.directory}</argument>
+                                <argument>${generated.ballerina.source.directory}</argument>
                             </arguments>
                         </configuration>
                     </execution>
@@ -94,7 +94,8 @@
                     <options>
                         <packageName>${native.constructs.provider.package}</packageName>
                         <className>${native.constructs.provider.class}</className>
-                        <targetDir>${project.build.directory}</targetDir>
+                        <srcDir>${ballerina.source.directory}</srcDir>
+                        <targetDir>${generated.ballerina.source.directory}</targetDir>
                     </options>
                 </configuration>
                 <executions>
@@ -219,4 +220,12 @@
             </plugin>
         </plugins>
     </build>
+    
+    <properties>
+        <!-- Path to the ballerina source directory -->
+        <ballerina.source.directory>${project.build.directory}/../src/main/ballerina</ballerina.source.directory>
+        
+        <!-- Path to the generated natives ballerina files temp directory -->
+        <generated.ballerina.source.directory>${project.build.directory}/natives</generated.ballerina.source.directory>
+    </properties>
 </project>
