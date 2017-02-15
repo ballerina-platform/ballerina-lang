@@ -450,6 +450,7 @@ public class BLangExecutor implements NodeExecutor {
 
             controlStack.setValue(offsetJoin, bArray);
             forkJoinStmt.getTimeout().getTimeoutBlock().execute(this);
+            isForkJoinTimedOut = false;
 
         } else {
             // Assign values to join block message array
