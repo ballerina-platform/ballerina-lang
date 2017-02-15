@@ -34,6 +34,7 @@ import org.wso2.ballerina.core.nativeimpl.annotations.Attribute;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaAction;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaAnnotation;
 import org.wso2.ballerina.core.nativeimpl.annotations.ReturnType;
+import org.wso2.ballerina.core.nativeimpl.connectors.BalConnectorCallback;
 import org.wso2.ballerina.core.nativeimpl.connectors.BallerinaConnectorManager;
 import org.wso2.ballerina.nativeimpl.connectors.jms.utils.JMSConstants;
 import org.wso2.ballerina.nativeimpl.connectors.jms.utils.JMSMessageUtils;
@@ -198,4 +199,13 @@ public class Send extends AbstractJMSAction {
 
         return null;
     }
+
+    @Override public void execute(Context context, BalConnectorCallback connectorCallback) {
+        //Not needed for jms.
+    }
+
+    @Override public void validate(BalConnectorCallback connectorCallback) {
+        //Not needed for jms.
+    }
+
 }
