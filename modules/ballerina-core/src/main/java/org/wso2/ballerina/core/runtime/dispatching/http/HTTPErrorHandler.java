@@ -41,8 +41,8 @@ public class HTTPErrorHandler implements ServerConnectorErrorHandler {
     private static final Logger log = LoggerFactory.getLogger(HTTPErrorHandler.class);
 
     @Override
-    public void handleError(Throwable throwable, CarbonMessage cMsg, CarbonCallback callback) {
-        callback.done(createErrorMessage(throwable.getMessage(), 500));
+    public void handleError(Exception e, CarbonMessage carbonMessage, CarbonCallback callback) {
+        callback.done(createErrorMessage(e.getMessage(), 500));
     }
 
     @Override
@@ -60,7 +60,7 @@ public class HTTPErrorHandler implements ServerConnectorErrorHandler {
         // TODO: Set following according to the request
         Map<String, String> transportHeaders = new HashMap<>();
         transportHeaders.put(org.wso2.carbon.transport.http.netty.common.Constants.HTTP_CONNECTION,
-                             org.wso2.carbon.transport.http.netty.common.Constants.KEEP_ALIVE);
+                             org.wso2.carbon.transport.http.netty.common.Constants.CONNECTION_KEEP_ALIVE);
         transportHeaders.put(org.wso2.carbon.transport.http.netty.common.Constants.HTTP_CONTENT_TYPE,
                              org.wso2.carbon.transport.http.netty.common.Constants.TEXT_PLAIN);
         transportHeaders.put(org.wso2.carbon.transport.http.netty.common.Constants.HTTP_CONTENT_LENGTH,
