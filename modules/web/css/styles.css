@@ -918,6 +918,10 @@ button.variable-list {
     cursor: pointer;
 }
 
+.constants-action-wrapper{
+    display: none;
+}
+
 .constants-wrapper, .imports-wrapper {
     border: 1px solid #ddd;
     background-color: #fff;
