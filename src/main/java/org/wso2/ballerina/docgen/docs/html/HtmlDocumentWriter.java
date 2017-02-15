@@ -169,7 +169,7 @@ public class HtmlDocumentWriter implements DocumentWriter {
                         if (type == null) {
                             return null;
                         }
-                        if((type.getPackagePath() != null) && (!type.getPackagePath().isEmpty())) {
+                        if ((type.getPackagePath() != null) && (!type.getPackagePath().isEmpty())) {
                             return new Handlebars.SafeString(" title=\"" + type + "\"");
                         }
                         return "";
