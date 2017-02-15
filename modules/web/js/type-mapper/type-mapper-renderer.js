@@ -186,7 +186,7 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
      * @returns {Array}
      */
     TypeMapperRenderer.prototype.getPropertyNameStack = function (propertyId) {
-        var id = propertyId.replace("jstree-container" + this.viewIdSeperator, "");
+        var id = propertyId.replace(this.jsTreePrefix + this.viewIdSeperator, "");
         var parts = id.split(this.idNameSeperator);
         var propertyNames = [];
         var self = this;
@@ -293,11 +293,10 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
      * @param {object} connection connection object which specified source and target
      */
     TypeMapperRenderer.prototype.addConnection = function (connection) {
-        var jsTreeContainerPrefix = 'jstree-container';
         var anchorEnd = '_anchor';
-        var sourceId =  jsTreeContainerPrefix + this.viewIdSeperator +  connection.sourceStruct
+        var sourceId =  this.jsTreePrefix + this.viewIdSeperator +  connection.sourceStruct
             + this.viewIdSeperator + this.viewId;
-        var targetId =  jsTreeContainerPrefix + this.viewIdSeperator +  connection.targetStruct
+        var targetId =  this.jsTreePrefix + this.viewIdSeperator +  connection.targetStruct
             + this.viewIdSeperator + this.viewId;
 
         for (var i = 0; i < connection.sourceProperty.length; i++ ) {
@@ -328,7 +327,7 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
         var id = struct.name + this.viewIdSeperator + this.viewId;
         struct.id = id;
         this.makeStruct(struct, 50, 50, reference);
-        var jsTreeId = 'jstree-container' + this.viewIdSeperator + id;
+        var jsTreeId = this.jsTreePrefix + this.viewIdSeperator + id;
         this.addComplexProperty(jsTreeId, struct);
         this.processJSTree(jsTreeId, id, this.addSource)
     };
