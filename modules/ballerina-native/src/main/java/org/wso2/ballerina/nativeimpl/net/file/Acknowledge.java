@@ -27,6 +27,8 @@ import org.wso2.ballerina.core.model.values.BMessage;
 import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
 import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
+import org.wso2.ballerina.core.nativeimpl.annotations.Attribute;
+import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaAnnotation;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
 import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.StreamingCarbonMessage;
@@ -43,6 +45,10 @@ import org.wso2.carbon.messaging.StreamingCarbonMessage;
         args = {@Argument(name = "message", type = TypeEnum.MESSAGE)},
         isPublic = true
 )
+@BallerinaAnnotation(annotationName = "Description", attributes = { @Attribute(name = "value",
+        value = "This function acknowledges to the message sender that processing of the message has finished.") })
+@BallerinaAnnotation(annotationName = "Param", attributes = { @Attribute(name = "message",
+        value = "message") })
 public class Acknowledge extends AbstractNativeFunction {
 
     private static final Logger log = LoggerFactory.getLogger(Acknowledge.class);
