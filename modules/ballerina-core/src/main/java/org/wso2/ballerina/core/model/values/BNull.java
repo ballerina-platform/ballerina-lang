@@ -22,7 +22,7 @@ package org.wso2.ballerina.core.model.values;
  *
  * @since 0.8.0
  */
-public final class BNull implements BValue {
+public final class BNull implements BRefType<BNull> {
     private static final BNull bNull = new BNull();
 
     private BNull() {
@@ -34,6 +34,11 @@ public final class BNull implements BValue {
     }
 
     public static BNull instance() {
+        return bNull;
+    }
+
+    @Override
+    public BNull value() {
         return bNull;
     }
 }
