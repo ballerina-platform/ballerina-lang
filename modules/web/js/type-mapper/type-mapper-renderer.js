@@ -326,7 +326,7 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
     TypeMapperRenderer.prototype.addSourceStruct = function (struct, reference) {
         var id = struct.name + this.viewIdSeperator + this.viewId;
         struct.id = id;
-        this.makeStruct(struct, 50, 50, reference);
+        this.makeStruct(struct, 50, 50, reference, "source");
         var jsTreeId = this.jsTreePrefix + this.viewIdSeperator + id;
         this.addComplexProperty(jsTreeId, struct);
         this.processJSTree(jsTreeId, id, this.addSource)
@@ -405,7 +405,7 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
         struct.id = id;
         var placeHolderWidth = document.getElementById(this.placeHolderName).offsetWidth;
         var posY = placeHolderWidth - (placeHolderWidth / 3);
-        this.makeStruct(struct, 50, posY, reference);
+        this.makeStruct(struct, 50, posY, reference, "target");
         var jsTreeId = 'jstree-container' + this.viewIdSeperator + id;
         this.addComplexProperty(jsTreeId, struct);
         this.processJSTree(jsTreeId, id, this.addTarget);
@@ -418,9 +418,9 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
      * @param {int} posY Y position cordinate
      * @param {object} reference
      */
-    TypeMapperRenderer.prototype.makeStruct = function (struct, posX, posY, reference) {
+    TypeMapperRenderer.prototype.makeStruct = function (struct, posX, posY, reference, type) {
         this.references.push({name: struct.id, refObj: reference});
-        var newStruct = $('<div>').attr('id', struct.id).addClass('struct');
+        var newStruct = $('<div>').attr('id', struct.id).attr('type', type).addClass('struct');
         var structIcon = $('<i>').addClass('type-mapper-icon fw fw-struct fw-inverse');
         var structName = $('<div>');
 
@@ -432,7 +432,7 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
             'left': posY
         });
         var jsTreeContainer = $('<div>').attr('id', 'jstree-container' + this.viewIdSeperator + struct.id)
-                                .addClass('tree-container');
+                              .addClass('tree-container');
         newStruct.append(jsTreeContainer);
         $("#" + this.placeHolderName).append(newStruct);
     };
@@ -664,7 +664,11 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
         // construct dagre graph from this.jsPlumbInstance graph
         var graph = new dagre.graphlib.Graph();
         var alignment = 'LR';
-
+        var nodes = []
+        var sourceIndex;
+        var targetIndex;
+        var structs = $("#" + self.placeHolderName + "> .struct");
+        var funcs = $("#" + self.placeHolderName + "> .func");
         if (self.jsPlumbInstance.getAllConnections() == 0) {
             alignment = 'TD';
         }
@@ -674,7 +678,23 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
             return {};
         });
 
-        var nodes = $("#" + self.placeHolderName + "> .struct, #" + self.placeHolderName + "> .func");
+        if (structs.length > 1 && funcs.length > 0) {
+            if ($(structs[0]).attr("type") == "source") {
+                sourceIndex = 0;
+                targetIndex = 1;
+            } else {
+                sourceIndex = 1;
+                targetIndex = 0;
+            }
+
+            nodes.push(structs[sourceIndex]);
+            _.forEach(funcs, function (func) {
+                nodes.push(func);
+            });
+            nodes.push(structs[targetIndex]);
+        } else {
+            nodes = structs;
+        }
 
         if (nodes.length > 0) {
             var maxTypeHeight = 0;
