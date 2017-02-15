@@ -36,10 +36,14 @@ define(['lodash', './undoable-operation'],
         CustomUndoableOperation.prototype.constructor = CustomUndoableOperation;
 
         CustomUndoableOperation.prototype.undo = function(){
-            this._undoCallBack.call(this._callBackContext);
+           if(this.canUndo()){
+               this._undoCallBack.call(this._callBackContext);
+           }
         };
         CustomUndoableOperation.prototype.redo = function(){
-            this._redoCallBack.call(this._callBackContext);
+            if(this.canRedo()) {
+                this._redoCallBack.call(this._callBackContext);
+            }
         };
 
         return CustomUndoableOperation;

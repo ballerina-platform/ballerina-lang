@@ -26,7 +26,7 @@ import org.wso2.ballerina.core.interpreter.ServiceVarLocation;
 import org.wso2.ballerina.core.interpreter.StackVarLocation;
 import org.wso2.ballerina.core.interpreter.StructVarLocation;
 import org.wso2.ballerina.core.model.Annotation;
-import org.wso2.ballerina.core.model.BTypeConvertor;
+import org.wso2.ballerina.core.model.BTypeMapper;
 import org.wso2.ballerina.core.model.BallerinaAction;
 import org.wso2.ballerina.core.model.BallerinaConnectorDef;
 import org.wso2.ballerina.core.model.BallerinaFile;
@@ -349,7 +349,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
     }
 
     @Override
-    public void visit(BTypeConvertor typeConvertor) {
+    public void visit(BTypeMapper typeMapper) {
 
     }
 
@@ -948,6 +948,14 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         JsonObject refTypeInitExprObj = new JsonObject();
         refTypeInitExprObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE,
                 BLangJSONModelConstants.REFERENCE_TYPE_INIT_EXPR);
+        tempJsonArrayRef.push(new JsonArray());
+        if(refTypeInitExpr.getArgExprs() != null){
+            for(Expression expression : refTypeInitExpr.getArgExprs()) {
+                expression.accept(this);
+            }
+        }
+        refTypeInitExprObj.add(BLangJSONModelConstants.CHILDREN, tempJsonArrayRef.peek());
+        tempJsonArrayRef.pop();
         tempJsonArrayRef.peek().add(refTypeInitExprObj);
     }
 
@@ -1003,10 +1011,12 @@ public class BLangJSONModelBuilder implements NodeVisitor {
     public void visit(MapStructInitKeyValueExpr keyValueExpr) {
         JsonObject keyValueEprObj = new JsonObject();
         keyValueEprObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE, BLangJSONModelConstants.KEY_VALUE_EXPRESSION);
+        //adding key expression
         tempJsonArrayRef.push(new JsonArray());
-        JsonObject keyObject= new JsonObject();
-        keyObject.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE, BLangJSONModelConstants.QUOTED_LITERAL_STRING);
-        keyObject.addProperty(BLangJSONModelConstants.KEY_VALUE_EXPRESSION_KEY, keyValueExpr.getKey());
+        keyValueExpr.getKeyExpr().accept(this);
+        JsonArray keyObject = tempJsonArrayRef.pop();
+        //adding value expression
+        tempJsonArrayRef.push(new JsonArray());
         keyValueExpr.getValueExpr().accept(this);
         tempJsonArrayRef.peek().add(keyObject);
         keyValueEprObj.add(BLangJSONModelConstants.CHILDREN, tempJsonArrayRef.peek());

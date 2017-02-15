@@ -190,7 +190,7 @@ define(['jquery', 'lodash', 'backbone', 'log', 'dialogs', 'welcome-page', 'tab',
                 var fileEditor = activeTab.getBallerinaFileEditor();
                 if(!_.isUndefined(fileEditor)){
                     var undoManager = activeTab.getBallerinaFileEditor().getUndoManager();
-                    if (undoManager.hasUndo()) {
+                    if (undoManager.hasUndo() && undoManager.undoStackTop().canUndo()) {
                         undoMenuItem.enable();
                         undoMenuItem.addLabelSuffix(
                             undoManager.undoStackTop().getTitle());
@@ -198,7 +198,7 @@ define(['jquery', 'lodash', 'backbone', 'log', 'dialogs', 'welcome-page', 'tab',
                         undoMenuItem.disable();
                         undoMenuItem.clearLabelSuffix();
                     }
-                    if (undoManager.hasRedo()) {
+                    if (undoManager.hasRedo() && undoManager.redoStackTop().canRedo()) {
                         redoMenuItem.enable();
                         redoMenuItem.addLabelSuffix(
                             undoManager.redoStackTop().getTitle());
