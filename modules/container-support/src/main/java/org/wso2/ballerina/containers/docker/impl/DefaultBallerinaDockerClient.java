@@ -30,10 +30,10 @@ import org.apache.commons.lang.StringUtils;
 import org.wso2.ballerina.containers.Constants;
 import org.wso2.ballerina.containers.docker.BallerinaDockerClient;
 import org.wso2.ballerina.containers.docker.exception.BallerinaDockerClientException;
-import org.wso2.ballerina.containers.docker.utils.Utils;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -52,7 +52,7 @@ import java.util.concurrent.CountDownLatch;
 public class DefaultBallerinaDockerClient implements BallerinaDockerClient {
 
     private static final String PATH_FILES = "files";
-    private static final String PATH_DOCKER_IMAGE_ROOT = "docker/image";
+    private static final String PATH_DOCKER_IMAGE_ROOT = "/docker/image";
     private static final String PATH_DOCKERFILE_NAME = "Dockerfile";
     private static final String PATH_TEMP_DOCKERFILE_CONTEXT_PREFIX = "ballerina-docker-";
     private static final String PATH_BAL_FILE_EXT = ".bal";
@@ -259,9 +259,10 @@ public class DefaultBallerinaDockerClient implements BallerinaDockerClient {
         String tempDirName = PATH_TEMP_DOCKERFILE_CONTEXT_PREFIX + String.valueOf(Instant.now().getEpochSecond());
         Path tmpDir = Files.createTempDirectory(tempDirName);
         Files.createDirectory(Paths.get(tmpDir.toString() + File.separator + PATH_FILES));
-        Files.copy(
-                Paths.get(Utils.getResourceFile(PATH_DOCKER_IMAGE_ROOT + File.separator +
-                        PATH_DOCKERFILE_NAME).getAbsolutePath()),
+        InputStream in = getClass().getResourceAsStream(PATH_DOCKER_IMAGE_ROOT + File.separator +
+                PATH_DOCKERFILE_NAME);
+
+        Files.copy(in,
                 Paths.get(tmpDir.toString() + File.separator + PATH_DOCKERFILE_NAME),
                 StandardCopyOption.REPLACE_EXISTING);
 
