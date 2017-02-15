@@ -311,7 +311,7 @@ text-anchor: start;
     fill: url(#addBreakpointIcon);
 }
 .statement-view-breakpoint-indicator {
-    opacity: 0.3;
+    opacity: 0.8;
     fill: url(#debugIcon);
 }
 
