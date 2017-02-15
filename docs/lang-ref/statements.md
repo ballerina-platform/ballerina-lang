@@ -121,17 +121,19 @@ throw Expression;
 
 ## Return
 
-The syntax of a `return` statement is as follows:
+The Return statement evaluates the expression, stops the current function, and returns the result of the expression to the caller. The syntax of a `return` statement is as follows:
 ```
 return Expression*;
 ```
 
-#### Reply
+## Reply
 
-The syntax of a `reply` statement is as follows:
+The Reply statement sends the request message back to the client. The syntax of a `reply` statement is as follows:
 ```
 reply Message?;
 ```
+
+Note that when you use Reply, the request message with its original HTTP headers is sent back to the client. These headers typically have information that is useful in the client -> server direction but not in the server -> client direction. If you want to strip those headers before sending the message back to the client, you can use the `convertToResponse` function from the `ballerina.net.http` package.
 
 ## Comment
 
