@@ -127,6 +127,11 @@ define(['require', 'lodash', 'log', 'property_pane_utils', './ballerina-statemen
             });
 
             this._model.accept(this);
+
+            this._createDebugIndicator({
+                model: this._model,
+                statementGroup: ifElseGroup
+            });
         };
 
         IfElseStatementView.prototype.visitChildStatement = function (statement) {

@@ -1250,6 +1250,8 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
                         throw "Unknown node definition for " + jsonNode.type;
                 }
             }
+            node.setFileName(jsonNode.file_name, {doSilently: true});
+            node.setLineNumber(jsonNode.line_number, {doSilently: true});
             return node;
         };
 
