@@ -311,9 +311,11 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
                 + connection.targetProperty[i] + this.nameTypeSeperator + connection.targetType[i];
         }
         targetId += anchorEnd;
-
         this.jsPlumbInstance.detach({source: sourceId, target: targetId});
-        this.jsPlumbInstance.connect({source: sourceId, target: targetId});
+        this.jsPlumbInstance.connect({
+            anchor: ["Continuous", {faces: ["right","left"]}],
+            source: sourceId,
+            target: targetId});
         this.dagrePosition(this.placeHolderName, this.jsPlumbInstance);
     };
 
@@ -440,7 +442,7 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
      * @param {object} function definition with parameters to be mapped
      * @param {object} reference AST model reference
      */
-    TypeMapperRenderer.prototype.addFunction = function (func, reference) {
+    TypeMapperRenderer.prototype.addFunction = function (func, reference, onFunctionRemove) {
         var id = func.name + this.viewIdSeperator + this.viewId;
         this.references.push({name: id, refObj: reference});
         var newFunc = $('<div>').attr('id', id).addClass('func');
@@ -466,8 +468,24 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
 
         $("#" + this.placeHolderName).append(newFunc);
 
-        $("#" + id + "-button").on("click", function (event) {
-                self.removeStruct(func.name);
+        //Remove button functionality
+        $("#" + id + "-button").on("click", function () {
+            var removedFunction = {name : func.name}
+            removedFunction.incomingConnections = [];
+            removedFunction.outgoingConnections = [];
+
+            _.forEach(self.jsPlumbInstance.getAllConnections(), function (connection) {
+                if(connection.target.id.includes(id)) {
+                    removedFunction.incomingConnections.push(
+                        self.getConnectionObject(connection.sourceId,connection.targetId));
+                } else if(connection.source.id.includes(id)) {
+                    removedFunction.outgoingConnections.push(
+                        self.getConnectionObject(connection.sourceId,connection.targetId));
+                }
+            });
+
+            self.removeStruct(func.name);
+            onFunctionRemove(removedFunction);
         });
 
         _.forEach(func.parameters, function (parameter) {
@@ -566,6 +584,7 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
                     if (isValidTypes) {
                         connection.isComplexMapping = true;
                         connection.complexMapperName = compatibleTypeConverters[0];
+                        self.jsPlumbInstance.importDefaults({ Connector : self.getConnectorConfig(self.midpoint)});
                         self.onConnection(connection);
                         self.disableParentsJsTree(params.sourceId, self);
                         self.disableParentsJsTree(params.targetId, self);
