@@ -21,6 +21,7 @@ import org.ballerinalang.util.repository.PackageRepository;
 import org.wso2.ballerina.core.model.symbols.BLangSymbol;
 import org.wso2.ballerina.core.model.types.TypeLattice;
 import org.wso2.ballerina.core.model.types.TypeVertex;
+import org.wso2.ballerina.core.nativeimpl.NativePackageProxy;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -183,6 +184,10 @@ public class BLangPackage implements SymbolScope, BLangSymbol, Node {
         BLangSymbol pkgSymbol = getEnclosingScope().resolve(pkgSymbolName);
         if (pkgSymbol == null) {
             return null;
+        }
+        
+        if (pkgSymbol instanceof NativePackageProxy) {
+            pkgSymbol = ((NativePackageProxy) pkgSymbol).load();
         }
 
         return ((BLangPackage) pkgSymbol).resolveMembers(new SymbolName(name.getName()));

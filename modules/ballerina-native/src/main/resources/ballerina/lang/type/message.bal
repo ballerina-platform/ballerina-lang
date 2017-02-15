@@ -19,7 +19,3 @@ typeconvertor json2message (json payload) (message) {
     message:setJsonPayload (m, payload);
     return m;
 }
-
-function testFunctionInTypePkg() {
-    return;
-}

@@ -44,6 +44,7 @@ public class BuiltinPackageRepository extends PackageRepository {
     private Class<?> nativePackageProvider;
     private static final String BASE_PATH = "META-INF" + File.separator + "natives" + File.separator;
     private static final String BAL_FILE_EXT = ".bal";
+    private static final String NATIVE_BAL_FILE = "natives.bal";
     
     private String packageDirPath;
     
@@ -137,7 +138,8 @@ public class BuiltinPackageRepository extends PackageRepository {
             jarInputStream = new ZipInputStream(repoUrl.openStream());
             while((fileNameEntry = jarInputStream.getNextEntry()) != null) {
                 String filePath = fileNameEntry.getName();
-                if (filePath.startsWith(pkgRelPath) && filePath.endsWith(BAL_FILE_EXT)) {
+                if (filePath.startsWith(pkgRelPath) && filePath.endsWith(BAL_FILE_EXT) &&
+                    !filePath.endsWith(NATIVE_BAL_FILE)) {
                     // get only the file name 
                     String fileName = Paths.get(pkgRelPath).relativize(Paths.get(filePath)).toString();
                     fileNames.add(fileName);
