@@ -704,8 +704,6 @@ button.variable-list {
     padding-right: 3px;
 }
 
-
-
 .imports-wrapper div span {
     font-style: italic;
     cursor: default;
@@ -715,6 +713,7 @@ button.variable-list {
     float: left;
     margin: 1px 3px;
     border: 1px solid orange;
+    font-size: 12px;
 }
 
 .import-wrapper-heading input[type=text] {
@@ -726,6 +725,8 @@ button.variable-list {
     background-color: #fff !important;
     line-height: 18px;
     border: 1px solid #ccc;
+    font-size: 12px;
+    padding-left: 10px;
 }
 
 .service-annotation-wrapper-heading {
@@ -737,7 +738,7 @@ button.variable-list {
 }
 
 .service-annotation-wrapper-heading[disabled], .service-annotation-wrapper-heading[disabled] * {
-    background-color: #eeeeee;
+    background-color: #eee;
     opacity: 1;
     cursor: not-allowed;
 }
@@ -761,7 +762,6 @@ button.variable-list {
 .action-content-dropdown-wrapper ul {
     position: absolute;
     top: inherit;
-    /*margin-top: 0;*/
 }
 
 .service-annotation-details-wrapper {
@@ -825,7 +825,6 @@ button.variable-list {
 }
 
 .variables-content-wrapper {
-    /*margin-right: 20px;*/
     float: left;
 }
 
@@ -1026,13 +1025,15 @@ button.variable-list {
     background-color: #8e44ad;
     float: left;
     color: white;
-    padding: 0 8px;
+    padding: 2px 8px;
 }
 
 .constant-declaration-wrapper {
     float: left;
     margin: 2px 6px;
     border: 1px solid #8e44ad;
+    font-size: 12px;
+    height: 22px;
 }
 
 .constant-declaration-wrapper i:hover,
@@ -1044,7 +1045,7 @@ button.variable-list {
 .constant-declaration-field {
     background-color: #FFF;
     float: left;
-    padding: 0 8px;
+    padding: 1px 8px;
 }
 
 .constant-declaration-equals {
@@ -1426,12 +1427,14 @@ span.fw-stack.fw-lg {
 .import-declaration-type{
     float: left;
     background: orange;
-    width: 6px;
+    width: 3px;
     height: 21px;
     margin-right: 4px;
 }
 .import-package-name{
     float: left;
+    margin-top: 3px;
+    font-size: 12px;
 }
 
 .package-name-btn{

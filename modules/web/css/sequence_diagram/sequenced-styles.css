@@ -374,7 +374,6 @@ text-anchor: start;
 
 .connector-life-line text {
     cursor: pointer;
-    font-weight: 400;
 }
 
 .connector-life-line-top-polygon {
