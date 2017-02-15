@@ -203,6 +203,7 @@ $JAVACMD \
 	-Djava.util.logging.config.file="$BALLERINA_HOME/bre/conf/logging.properties" \
 	-Dtransports.netty.conf="$BALLERINA_HOME/bre/conf/netty-transports.yml" \
 	-Djava.io.tmpdir="$BALLERINA_HOME/tmp" \
+	-Denable.nonblocking=false \
 	-Djava.security.egd=file:/dev/./urandom \
 	-Dfile.encoding=UTF8 \
 	org.ballerinalang.launcher.Main "$@"

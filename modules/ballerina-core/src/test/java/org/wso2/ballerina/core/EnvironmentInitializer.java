@@ -31,6 +31,8 @@ import org.wso2.ballerina.core.runtime.dispatching.HTTPResourceDispatcher;
 import org.wso2.ballerina.core.runtime.dispatching.HTTPServiceDispatcher;
 import org.wso2.ballerina.core.runtime.dispatching.WebSocketResourceDispatcher;
 import org.wso2.ballerina.core.runtime.dispatching.WebSocketServiceDispatcher;
+import org.wso2.ballerina.core.runtime.dispatching.http.HTTPResourceDispatcher;
+import org.wso2.ballerina.core.runtime.dispatching.http.HTTPServiceDispatcher;
 import org.wso2.ballerina.core.runtime.internal.BuiltInNativeConstructLoader;
 import org.wso2.ballerina.core.runtime.internal.GlobalScopeHolder;
 import org.wso2.ballerina.core.runtime.registry.ApplicationRegistry;

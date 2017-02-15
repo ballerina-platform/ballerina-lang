@@ -158,15 +158,15 @@ public class StructTest {
     
     @Test(description = "Test accessing an undeclared struct",
             expectedExceptions = {SemanticException.class},
-            expectedExceptionsMessageRegExp = "undeclared-struct-access.bal:4: struct 'dpt1' not found.")
+            expectedExceptionsMessageRegExp = "undeclared-struct-access.bal:4: struct 'dpt1' not found")
     public void testUndeclaredStructAccess() {
         ParserUtils.parseBalFile("lang/structs/undeclared-struct-access.bal");
     }
     
     @Test(description = "Test accessing an undeclared field of a struct",
             expectedExceptions = {SemanticException.class},
-            expectedExceptionsMessageRegExp = "undeclared-attribute-access.bal:5: field 'id' not found in struct" +
-            " 'Department'.")
+            expectedExceptionsMessageRegExp = "undeclared-attribute-access.bal:5: unknown field 'id' in struct "
+                    + "'Department'")
     public void testUndeclaredFieldAccess() {
         ParserUtils.parseBalFile("lang/structs/undeclared-attribute-access.bal");
     }
@@ -188,8 +188,8 @@ public class StructTest {
     
     @Test(description = "Test initializing a struct with mismatching field type",
             expectedExceptions = {BallerinaException.class},
-            expectedExceptionsMessageRegExp = "invalid-type-attribute-init.bal:3: incompatible type: 'string' " +
-            "expected, found 'int'")
+            expectedExceptionsMessageRegExp = "invalid-type-attribute-init.bal:3: incompatible types: expected "
+                    + "'string', found 'int'")
     public void testMismatchingTypeFieldInit() {
         ParserUtils.parseBalFile("lang/structs/invalid-type-attribute-init.bal");
     }

@@ -23,6 +23,7 @@ import org.slf4j.LoggerFactory;
 import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.Connector;
+import org.wso2.ballerina.core.model.values.BException;
 import org.wso2.ballerina.core.model.values.BMessage;
 import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeAction;
@@ -119,20 +120,7 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
         try {
             BalConnectorCallback balConnectorCallback = new BalConnectorCallback(context);
             // Handle the message built scenario
-            if (message.isAlreadyRead()) {
-                MessageDataSource messageDataSource = message.getMessageDataSource();
-                if (messageDataSource != null) {
-                    messageDataSource.serializeData();
-                    message.setEndOfMsgAdded(true);
-                    message.getHeaders().remove(Constants.HTTP_CONTENT_LENGTH);
-                    message.getHeaders()
-                            .set(Constants.HTTP_CONTENT_LENGTH, String.valueOf(message.getFullMessageLength()));
-
-                } else {
-                    message.setEndOfMsgAdded(true);
-                    logger.debug("Sending an empty message");
-                }
-            }
+            handleIfMessageBuilt(message);
             org.wso2.carbon.messaging.ClientConnector clientConnector = BallerinaConnectorManager.getInstance().
                     getClientConnector(Constants.PROTOCOL_HTTP);
 
@@ -161,6 +149,24 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
         return null;
     }
 
+    void executeNonBlockingAction(Context context, CarbonMessage message, BalConnectorCallback balConnectorCallback)
+            throws ClientConnectorException {
+        // Handle the message built scenario
+        handleIfMessageBuilt(message);
+        org.wso2.carbon.messaging.ClientConnector clientConnector = BallerinaConnectorManager.getInstance().
+                getClientConnector(Constants.PROTOCOL_HTTP);
+
+        if (clientConnector == null) {
+            throw new BallerinaException("Http client connector is not available");
+        }
+        clientConnector.send(message, balConnectorCallback);
+    }
+
+    @Override
+    public void validate(BalConnectorCallback callback) {
+        handleTransportException(callback.getValueRef(), callback.getContext());
+    }
+
     private void handleTransportException(BValue valueRef) {
         if (valueRef instanceof BMessage) {
             BMessage bMsg = (BMessage) valueRef;
@@ -172,6 +178,51 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
             }
         } else {
             throw new BallerinaException("Invalid message received for the action invocation");
+        }
+    }
+
+    private void handleTransportException(BValue valueRef, Context context) {
+        if (valueRef instanceof BMessage) {
+            BMessage bMsg = (BMessage) valueRef;
+            if (bMsg.value() == null) {
+                String msg = "Received unknown message for the action invocation";
+                BException exception = new BException(msg, Constants.HTTP_CLIENT_EXCEPTION_CATEGORY);
+                context.getExecutor().handleBException(exception);
+            }
+            if (bMsg.value().getMessagingException() != null) {
+                String msg = bMsg.value().getMessagingException().getMessage();
+                BException exception = new BException(msg, Constants.HTTP_CLIENT_EXCEPTION_CATEGORY);
+                context.getExecutor().handleBException(exception);
+            }
+        } else {
+            String msg = "Invalid message received for the action invocation";
+            BException exception = new BException(msg, Constants.HTTP_CLIENT_EXCEPTION_CATEGORY);
+            context.getExecutor().handleBException(exception);
+        }
+    }
+
+    /**
+     * Handle If the given carbon message is already built.
+     *
+     * @param message Carbon message instance to process.
+     */
+    private void handleIfMessageBuilt(CarbonMessage message) {
+        // Handle the message built scenario
+        if (message.isAlreadyRead()) {
+            MessageDataSource messageDataSource = message.getMessageDataSource();
+            if (messageDataSource != null) {
+                messageDataSource.serializeData();
+                message.setEndOfMsgAdded(true);
+                message.getHeaders().remove(Constants.HTTP_CONTENT_LENGTH);
+                message.getHeaders()
+                        .set(Constants.HTTP_CONTENT_LENGTH, String.valueOf(message.getFullMessageLength()));
+
+            } else {
+                message.setEndOfMsgAdded(true);
+                if (logger.isDebugEnabled()) {
+                    logger.debug("Sending an empty message");
+                }
+            }
         }
     }
 }
