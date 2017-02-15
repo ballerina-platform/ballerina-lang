@@ -33,7 +33,7 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
         './binary-expression', './unary-expression', './connector-action', './struct-definition', './constant-definition',
         './variable-definition-statement', './type-struct-definition', './struct-type', './symbol-name', './struct-field-access-expression',
         './type-casting-expression', './worker-invoke', './reference-type-init-expression', './block-statement', './struct-field-access-expression',
-        './ref-type-init-expression', './variable-definition', './type-cast-expression', './array-init-expression', './worker-receive'],
+        './variable-definition', './type-cast-expression', './array-init-expression', './worker-receive'],
     function (_, ballerinaAstRoot, serviceDefinition, functionDefinition, connectorDefinition, resourceDefinition,
               workerDeclaration, statement, conditionalStatement, connectorDeclaration, expression, ifElseStatement,
               ifStatement, elseStatement, elseIfStatement, tryCatchStatement, tryStatement, catchStatement, replyStatement,
