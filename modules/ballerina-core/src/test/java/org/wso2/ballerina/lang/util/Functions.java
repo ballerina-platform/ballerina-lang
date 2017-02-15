@@ -32,6 +32,7 @@ import org.wso2.ballerina.core.model.expressions.VariableRefExpr;
 import org.wso2.ballerina.core.model.types.BType;
 import org.wso2.ballerina.core.model.types.BTypes;
 import org.wso2.ballerina.core.model.values.BBoolean;
+import org.wso2.ballerina.core.model.values.BDataTable;
 import org.wso2.ballerina.core.model.values.BDouble;
 import org.wso2.ballerina.core.model.values.BFloat;
 import org.wso2.ballerina.core.model.values.BInteger;
@@ -259,6 +260,8 @@ public class Functions {
             bType = BTypes.typeMessage;
         } else if (bValue instanceof BMap) {
             bType = BTypes.typeMap;
+        } else if (bValue instanceof BDataTable) {
+            bType = BTypes.typeDatatable;
         }
 
         return bType;

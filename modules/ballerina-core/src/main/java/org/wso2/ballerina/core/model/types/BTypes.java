@@ -95,7 +95,7 @@ public class BTypes {
         typeJSON = new BJSONType(JSON_TNAME, null, globalScope);
         typeMessage = new BMessageType(MESSAGE_TNAME, null, globalScope);
         typeMap = new BMapType(MAP_TNAME, null, globalScope);
-        typeDatatable = new BMapType(DATATABLE_TNAME, null, globalScope);
+        typeDatatable = new BDataTableType(DATATABLE_TNAME, null, globalScope);
         initialized = true;
     }
 
