@@ -15,6 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 define(['require', 'jquery', 'backbone', 'lodash', 'event_channel', './channel', './debug-point', 'mousetrap', 'log'],
     function (require, $, Backbone, _ ,EventChannel, Channel, DebugPoint, Mousetrap, log) {
 	var instance;
@@ -24,11 +25,11 @@ define(['require', 'jquery', 'backbone', 'lodash', 'event_channel', './channel',
     	this.debugPoints = [];
         this.enable = false;
         this.channel = undefined;
+        this.active = false;
 
     	this.on("breakpoint-added",_.bind(this.publishBreakPoints, this));
-        this.on("breakpoint-removed",_.bind(this.publishBreakPoints, this));        
+        this.on("breakpoint-removed",_.bind(this.publishBreakPoints, this));
 
-        Mousetrap.bind('alt+c', _.bindKey(this, 'showConnectionDialog'));
         Mousetrap.bind('alt+o', _.bindKey(this, 'stepOver'));
         Mousetrap.bind('alt+r', _.bindKey(this, 'resume'));
         Mousetrap.bind('alt+i', _.bindKey(this, 'stepIn'));
@@ -79,6 +80,10 @@ define(['require', 'jquery', 'backbone', 'lodash', 'event_channel', './channel',
         if(message.code == "DEBUG_HIT"){
             this.trigger("debug-hit", message);
         }
+        if(message.code == "EXIT"){
+            this.active = false;
+            this.trigger("session-ended");            
+        }
     };
 
     DebugManager.prototype.connect = function(url){        
@@ -88,8 +93,15 @@ define(['require', 'jquery', 'backbone', 'lodash', 'event_channel', './channel',
         }
     };
 
+    DebugManager.prototype.startDebugger = function(port){ 
+        var url =  "localhost:" + port;
+        this.connect(url);
+    };    
+
     DebugManager.prototype.init = function(options){
-        this.enable = true;              
+        this.enable = true;    
+        this.launchManager = options.launchManager;
+        this.launchManager.on("debug-active", _.bindKey(this, 'startDebugger'))
     }; 
 
     DebugManager.prototype.addBreakPoint = function(line, fileName){
@@ -128,6 +140,10 @@ define(['require', 'jquery', 'backbone', 'lodash', 'event_channel', './channel',
     DebugManager.prototype.getDebugPoints = function () {
         return this.debugPoints;
     };
+
+    DebugManager.prototype.createDebugPoint = function(line, fileName){
+        return new DebugPoint({ "fileName": fileName , "line": line});
+    };    
 
     return (instance = (instance || new DebugManager()));
 });

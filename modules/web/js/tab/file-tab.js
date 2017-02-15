@@ -122,9 +122,9 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace/f
             DebugManager.on('breakpoint-removed', breakPointChangeCallback);
 
             DebugManager.on('debug-hit', function(message){
-                var location = message.location;
-                if(location.fileName == this._file.getName()){
-                    fileEditor.debugHit(location);
+                var position = message.location;
+                if(position.fileName == this._file.getName()){
+                    fileEditor.debugHit(DebugManager.createDebugPoint(position.lineNumber, position.fileName));
                 }
             }, this);
 

@@ -97,6 +97,11 @@
                                 </a>
                             </li>
                             <li>
+                                <a href="#launcher" role="tab" data-toggle="tab" class="launcher-activate-btn">
+                                    <i class="fw fw-start fw-lg"></i>
+                                </a>
+                            </li>
+                            <li>
                                 <a href="#debugger" role="tab" data-toggle="tab" class="debugger-activate-btn">
                                     <i class="fw fw-bug fw-lg"></i>
                                 </a>
@@ -130,6 +135,11 @@
                         <!-- End: service tabs -->
                     </div>
                     <!-- End: service tabs wrapper row -->
+                    <div id="console-container" class="col-sm-12 hide">
+                        <div class="console-header">Console <a class="closeConsole"><i class="fw fw-cancel"></i></a></div>
+                        <div id="console">
+                        </div>
+                    </div>
                 </div>
                 <!-- End: service tabs wrapper container-->
             </div>
@@ -588,7 +598,8 @@
 			expression_editor_utils: "js/expression-editor/expression-editor-utils",
             constants: 'js/constants/constants',
             typeMapper: 'js/type-mapper/type-mapper-renderer',
-            environment_content: "js/ballerina/env/environment-content"
+            environment_content: "js/ballerina/env/environment-content",
+            console: "js/launcher/console"
         },
         shim: {
             "bootstrap": {"deps": ['jquery']},
@@ -691,6 +702,9 @@
                 },
                 parser:  {
                     endpoint: "http://localhost:8289/ballerina/model/content"
+                },
+                launcher: {
+                    endpoint: "ws://localhost:9092/launch"
                 }
             },
             alerts: {
@@ -920,6 +934,36 @@
                         other: {
                             key: "ctrl+shift+d",
                             label: "Ctrl+Shift+d"
+                        }
+                    }
+                }
+            },
+            launcher : {
+                container: ".sidebar-left",
+                activateBtn: '.launcher-activate-btn',
+                separator: '.sidebar-left-separator',
+                containerToAdjust: ".right-container",
+                leftOffset: 40,
+                separatorOffset: 5,
+                defaultWidth: 250,
+                resizeLimits:{
+                    minX: 200,
+                    maxX: 800
+                },
+                containerId: "launcher",
+                cssClass: {
+                    container: 'launcher-container tab-pane'
+                },
+                command: {
+                    id: "toggle-launcher",
+                    shortcuts: {
+                        mac: {
+                            key: "command+shift+r",
+                            label: "\u2318\u21E7r"
+                        },
+                        other: {
+                            key: "ctrl+shift+r",
+                            label: "Ctrl+Shift+r"
                         }
                     }
                 }

@@ -110,7 +110,7 @@
 }
 
 .text-editor {
-    height: calc(100% - 80px);
+    height: calc(100%);
 }
 
 .view-source-btn {
@@ -738,7 +738,7 @@ input#package-name-input {
 }
 
 .swaggerEditor {
-    height: 91%;
+    height: 100%;
     width: 100%;
 }
 
