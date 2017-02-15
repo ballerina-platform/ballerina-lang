@@ -30,7 +30,7 @@
                         {{#hasFunctions}}
                         <!-- Functions -->
                         <h2>Functions of {{fullyQualifiedName}} package</h2>
-                        {{#each privateFunctions}} {{currentObject this}}
+                        {{#each files}}{{#each functions}}{{currentObject this}}
                         <div style="padding-bottom: 30px;">
                             <h3 id="{{name}}">
                                 function {{name}}({{#each parameterDefs}}<a href="{{#bindLink type.symbolName}}{{/bindLink}}">{{type}}</a> {{name}}{{#unless @last}}, {{/unless}}{{/each}}) {{#if returnParameters}}({{#each returnParameters}}{{type}} {{name}}{{#unless @last}}, {{/unless}}{{/each}}){{/if}}
@@ -66,6 +66,7 @@
                             </p>
                             {{/if}}
                         </div>
+                        {{/each}}
                         {{/each}}
                         <p></p>
                         <br>{{/hasFunctions}} 
@@ -164,9 +165,9 @@
                         <li>
                             <span class="opener">Functions</span>
                             <ul>
-                                {{#each privateFunctions}}
+                                {{#each files}}{{#each functions}}
                                 <li><a href="#{{name}}">{{name}}({{#each parameterDefs}}{{type}} {{name}}{{#unless @last}}, {{/unless}}{{/each}}) {{#if returnParameters}}({{#each returnParameters}}{{type}} {{name}}{{#unless @last}}, {{/unless}}{{/each}}){{/if}}</a>
-                                </li>{{/each}}
+                                </li>{{/each}}{{/each}}
                             </ul>
                         </li>{{/hasFunctions}} {{#hasConnectors}}
                         <li>
