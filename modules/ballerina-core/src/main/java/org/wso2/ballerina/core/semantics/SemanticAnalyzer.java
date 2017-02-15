@@ -206,7 +206,19 @@ public class SemanticAnalyzer implements NodeVisitor {
         constDefRhsExpr.accept(this);
 
         if (constDefRhsExpr.getType() != bType) {
-            TypeCastExpression typeCastExpression = checkWideningPossible(bType, constDefRhsExpr);
+
+            TypeCastExpression typeCastExpression;
+
+            if (constDefRhsExpr instanceof TypeCastExpression) {
+                TypeCastExpression rhsExpr = (TypeCastExpression) constDefRhsExpr;
+                rhsExpr.setTargetType(bType);
+                rhsExpr.accept(this);
+                typeCastExpression = rhsExpr;
+            } else {
+                typeCastExpression = checkWideningPossible(bType, constDefRhsExpr);
+            }
+
+            //implicit casting
             if (typeCastExpression == null) {
                 throw new SemanticException(
                         getNodeLocationStr(constDef.getNodeLocation()) + "incompatible types: expected '" + bType

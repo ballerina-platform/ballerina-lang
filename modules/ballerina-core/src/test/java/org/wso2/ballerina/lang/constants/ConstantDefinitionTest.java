@@ -21,6 +21,7 @@ package org.wso2.ballerina.lang.constants;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.wso2.ballerina.core.exception.SemanticException;
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.values.BBoolean;
 import org.wso2.ballerina.core.model.values.BDouble;
@@ -76,6 +77,24 @@ public class ConstantDefinitionTest {
     }
 
     @Test
+    public void testImplCast() {
+        BValue[] returns = Functions.invoke(bFile, "testImplCast");
+        Assert.assertEquals(returns.length, 1);
+        BValue returnVal = returns[0];
+        Assert.assertEquals(returnVal.getClass(), BString.class);
+        Assert.assertEquals(returnVal.stringValue(), "10");
+    }
+
+    @Test
+    public void testExpCast() {
+        BValue[] returns = Functions.invoke(bFile, "testExpCast");
+        Assert.assertEquals(returns.length, 1);
+        BValue returnVal = returns[0];
+        Assert.assertEquals(returnVal.getClass(), BInteger.class);
+        Assert.assertEquals(((BInteger) returnVal).intValue(), 10);
+    }
+
+    @Test
     public void testDouble() {
         BValue[] returns = Functions.invoke(bFile, "testDouble");
         Assert.assertEquals(returns.length, 1);
@@ -83,4 +102,26 @@ public class ConstantDefinitionTest {
         Assert.assertEquals(returnVal.getClass(), BDouble.class);
         Assert.assertEquals(((BDouble) returnVal).doubleValue(), 6.923456);
     }
+
+    @Test(expectedExceptions = {SemanticException.class},
+          expectedExceptionsMessageRegExp = "redeclared-constant.bal:2: redeclared symbol 'a'")
+    public void testRedeclaredConstant() {
+        ParserUtils.parseBalFile("lang/constants/redeclared-constant.bal");
+    }
+
+    @Test(expectedExceptions = {SemanticException.class},
+          expectedExceptionsMessageRegExp = "template-expression-constant.bal:1: "
+                  + "xml/json template expression is not allowed here")
+    public void testTemplateExprConstant() {
+        ParserUtils.parseBalFile("lang/constants/template-expression-constant.bal");
+    }
+
+    @Test(expectedExceptions = {SemanticException.class},
+          expectedExceptionsMessageRegExp = "invalid-type-constant.bal:1: incompatible types: "
+                  + "expected 'int', found 'string'")
+    public void testInvalidTypeConstant() {
+        ParserUtils.parseBalFile("lang/constants/invalid-type-constant.bal");
+    }
+
+
 }

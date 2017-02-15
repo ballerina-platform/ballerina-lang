@@ -10,6 +10,10 @@ const boolean result = true && false;
 
 const double d = 5.123456d + 1.8d;
 
+const string implCast = 10;
+
+const int expCast = (int) "10";
+
 function testIntA() (int) {
     return a;
 }
@@ -28,6 +32,14 @@ function testResult() (boolean) {
 
 function testDouble() (double) {
     return d;
+}
+
+function testImplCast() (string) {
+    return  implCast;
+}
+
+function testExpCast() (int) {
+    return  expCast;
 }
 
 function foo(int a, int b) (int) {

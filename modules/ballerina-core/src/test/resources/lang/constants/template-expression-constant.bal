@@ -1,0 +1,1 @@
+const xml x = `<xml/>`;
