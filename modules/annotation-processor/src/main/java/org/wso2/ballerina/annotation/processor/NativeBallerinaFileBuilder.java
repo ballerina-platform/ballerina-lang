@@ -114,9 +114,9 @@ public class NativeBallerinaFileBuilder {
             func.setAnnotations(annotations);
             nativeBallerinaPackage.addNativeFunction(func);
         } else if (construct instanceof BallerinaTypeMapper) {
-            NativeBallerinaTypeMapper converter =
+            NativeBallerinaTypeMapper mapper =
                     new NativeBallerinaTypeMapper((BallerinaTypeMapper) construct);
-            nativeBallerinaPackage.addNativeTypeMapper(converter);
+            nativeBallerinaPackage.addNativeTypeMapper(mapper);
         }
     }
 
@@ -140,8 +140,8 @@ public class NativeBallerinaFileBuilder {
             nativeFunctions.add(func);
         }
 
-        public void addNativeTypeMapper(NativeBallerinaTypeMapper converter) {
-            nativeBallerinaTypeMappers.add(converter);
+        public void addNativeTypeMapper(NativeBallerinaTypeMapper mapper) {
+            nativeBallerinaTypeMappers.add(mapper);
         }
 
         public String getPackageName() {
@@ -197,14 +197,14 @@ public class NativeBallerinaFileBuilder {
     }
 
     /**
-     * Holds a native ballerina type converter.
+     * Holds a native ballerina type mapper.
      */
     static class NativeBallerinaTypeMapper {
         private BallerinaTypeMapper balTypeMapper;
         private List<Annotation> annotations;
 
-        public NativeBallerinaTypeMapper(BallerinaTypeMapper converter) {
-            this.balTypeMapper = converter;
+        public NativeBallerinaTypeMapper(BallerinaTypeMapper mapper) {
+            this.balTypeMapper = mapper;
             this.annotations = new ArrayList<>();
         }
 

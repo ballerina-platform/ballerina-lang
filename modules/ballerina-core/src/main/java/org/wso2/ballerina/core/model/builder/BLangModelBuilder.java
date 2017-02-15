@@ -787,7 +787,7 @@ public class BLangModelBuilder {
                 currentScope, location));
         bFileBuilder.addTypeMapper(sourceV, targetV, typeMapper, currentPackagePath);
 
-        // Define type converter is delayed due to missing type info of Parameters.
+        // Define type mapper is delayed due to missing type info of Parameters.
 
         currentScope = typeMapper.getEnclosingScope();
         currentCUBuilder = null;
