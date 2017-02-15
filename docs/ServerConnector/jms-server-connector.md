@@ -28,7 +28,7 @@ connectionUsername | The JMS connection username | no | - | -
 connectionPassword | The JMS connection password | no | - | -
 subscriptionDurable | Whether subscription is durable or not. | no | true, false | false
 durableSubscriberClientID | The ClientId parameter when using durable subscriptions. | Required if subscriptionDurable is specified as "true" | - | -
-durableSubscriberName | The name of the durable subscriber. | Required if  SubscriptionDurable is specified as "true". | - | -
+durableSubscriberName | The name of the durable subscriber. | Required if subscriptionDurable is specified as "true". | - | -
 retryInterval | The retry interval if the jms connection cannot be established at the beginning or if the jms connection is lost in the middle. (In milliseconds) | no | A valid long value. | 10000
 maxRetryCount | Maximum retry count, if the connection cannot be established, or if the jms connection is lost in the middle. | no | A valid integer value. | 5
 
@@ -68,7 +68,7 @@ service jmsService {
     }
 ```
 
-Now you will have a JMS service that can be deployed to the ballerina server. Following is the completed JMS sample.
+Now you will have a JMS service that can be deployed to the ballerina server. Following is a sample JMS Service.
 
 ```
 import ballerina.net.jms;
@@ -185,3 +185,6 @@ import ballerina.net.jms
 ---
 jms:rollback();
 ```
+
+
+**Note** - Before deploying the jms service it is required to copy the client-libs, provided by the JMS provider to `{Ballerina_HOME}/bre/lib` 
