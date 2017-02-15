@@ -417,10 +417,10 @@
         <carbon.kernel.package.import.version.range>[5.0.0, 6.0.0)</carbon.kernel.package.import.version.range>
         <carbon.kernel.pax.version>5.2.0-m2</carbon.kernel.pax.version>
 
-        <carbon.transport.version>4.2.0</carbon.transport.version>
+        <carbon.transport.version>4.2.1</carbon.transport.version>
         <carbon.transport.package.import.version.range>[4.0.0, 5.0.0)</carbon.transport.package.import.version.range>
 
-        <carbon.messaging.version>2.2.0</carbon.messaging.version>
+        <carbon.messaging.version>2.2.1</carbon.messaging.version>
         <carbon.messaging.package.import.version.range>[2.0.0, 3.0.0)</carbon.messaging.package.import.version.range>
 
         <carbon.deployment.version>5.0.0</carbon.deployment.version>
