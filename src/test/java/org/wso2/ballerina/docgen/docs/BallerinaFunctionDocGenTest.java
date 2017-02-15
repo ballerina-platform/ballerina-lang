@@ -26,7 +26,9 @@ import org.wso2.ballerina.core.model.Package;
 import org.wso2.ballerina.docgen.docs.utils.BallerinaDocGenTestUtils;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.Map;
 
 public class BallerinaFunctionDocGenTest {
@@ -70,16 +72,46 @@ public class BallerinaFunctionDocGenTest {
             BallerinaDocGenTestUtils.printDocMap(docsMap);
             
             Package doc = docsMap.get("a.b");
-            Collection<Function> functions = doc.getPrivateFunctions().values();
+            Collection<Function> functions = Arrays.asList(doc.getFiles().get(0).getFunctions());
             Assert.assertEquals(functions.size(), 2);
 
-            BallerinaFunction function = (BallerinaFunction) functions.iterator().next();
+            Iterator iterator = functions.iterator();
+            BallerinaFunction function = (BallerinaFunction) iterator.next();
             Assert.assertEquals(function.getParameterDefs().length, 1);
             Assert.assertEquals(function.getReturnParameters().length, 1);
 
-            BallerinaFunction function1 = (BallerinaFunction) functions.iterator().next();
-            Assert.assertEquals(function1.getParameterDefs().length, 1);
-            Assert.assertEquals(function1.getReturnParameters().length, 1);
+            BallerinaFunction function1 = (BallerinaFunction) iterator.next();
+            Assert.assertEquals(function1.getParameterDefs().length, 2);
+            Assert.assertEquals(function1.getReturnParameters().length, 0);
+        } catch (IOException e) {
+            Assert.fail();
+        } finally {
+            BallerinaDocGenTestUtils.cleanUp();
+        }
+    }
+
+    @Test(description = "Test a Bal file with functions that has same method signature and different arguments")
+    public void testBalWithSameFuncSignature() {
+        try {
+            Map<String, Package> docsMap =
+                    BallerinaDocGeneratorMain.generatePackageDocsFromBallerina(
+                            resources + "balFuncWithSameSignature.bal");
+            Assert.assertNotNull(docsMap);
+            Assert.assertEquals(docsMap.size(), 1);
+            BallerinaDocGenTestUtils.printDocMap(docsMap);
+
+            Package doc = docsMap.get("a.b");
+            Collection<Function> functions = Arrays.asList(doc.getFiles().get(0).getFunctions());
+            Assert.assertEquals(functions.size(), 2);
+
+            Iterator iterator = functions.iterator();
+            BallerinaFunction function = (BallerinaFunction) iterator.next();
+            Assert.assertEquals(function.getParameterDefs().length, 2);
+            Assert.assertEquals(function.getReturnParameters().length, 1);
+
+            BallerinaFunction function1 = (BallerinaFunction) iterator.next();
+            Assert.assertEquals(function1.getParameterDefs().length, 4);
+            Assert.assertEquals(function1.getReturnParameters().length, 2);
         } catch (IOException e) {
             Assert.fail();
         } finally {
