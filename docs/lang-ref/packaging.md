@@ -4,7 +4,7 @@ A Ballerina program consists of a number of Ballerina files, which may be in one
 
 The following sections describes how Ballerina packaging works to enable self-contained execution and how the runtime searches for and discovers imported packages.
 
-## Packages
+## Ballerina programs
 
 The source directory contains all the code that the developer writes and may have files in multiple packages (and therefore multiple directories). However, third-party dependencies (which are used via import statements) are discovered from a repository (see below) and are not physically located within the program source hierarchy. The directory structure will be as follows:
 
@@ -17,7 +17,7 @@ program-name/
 
 Such a program may have at most one `main()` function, which serves as the entry point for command-line execution, and zero or more services that are exposed as network entry points when the program is run as a service. 
 
-## Library
+## Ballerina libraries
 
 Collections of Ballerina code can be packaged as a library so that the resulting package can be shared. Such a library can contain code coming from one or more Ballerina packages.
 
@@ -42,7 +42,7 @@ Note that all packages will be inserted into the library with version 1.0.0 at t
 
 Note also that we will later add sub-commands like “list”, “delete”, “search” etc. to the repository command.
 
-## Repository
+## Ballerina repository
 
 The Ballerina repository is a collection of Ballerina libraries. 
 
@@ -72,26 +72,32 @@ repository-directory/
         .bal files in ...
 ```
 
-## Building packages
+## Building Ballerina programs
 
 While Ballerina programs can be executed directly from the program directory, if you want create a self-contained package containing all the program code and third-party dependencies, you need to build the program into a packaged format. When a program is packaged using the `ballerina build` command, the resulting archive will contain not just the Ballerina files that contain the main function and/or services, but also all the Ballerina packages that are imported by all the code needed to execute the main function and/or services. When `ballerina build` is used to create a library archive, it packages the library code into the archive.
 
 All shared Ballerina library archives will have the extension “.blz”. Use the following command to build the library archive:
 
 ```
-ballerina build lib [-o library-archive-name]
+ballerina build lib [-o library-archive-name] [DockerOptions]
 ```
 
 A Ballerina executable archive containing a `main()` that is to be executed is named with the extension “.bmz”. Use the following command to build an executable archive:
 
 ```
-ballerina build main main-package-name [-o filename]
+ballerina build main main-package-name [-o filename] \
+    [DockerOptions]
 ```
 
 A Ballerina service archive containing one or more services is named with the extension “.bsz”. Use the following command to build a service archive:
 
 ```
-ballerina build service [pkg1 pkg2 ..] [-o filename]
+ballerina build service [pkg1 pkg2 ..] [-o filename] \
+    [DockerOptions]
 ```
+
+In the above, `[DockerOptions]` refers to the options that instruct the build command to optionally create a Docker image for the `.bmz` or `.bsz` file. For details, see the *Ballerina Docker Architecture* document.
+
+TODO: link to this file once it's checked in.
 
 Note that Ballerina programs in the default package cannot be built, as these are meant primarily for simple demo type programs.
