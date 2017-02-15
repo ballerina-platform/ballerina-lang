@@ -32,7 +32,6 @@ import org.wso2.ballerina.core.interpreter.ServiceVarLocation;
 import org.wso2.ballerina.core.interpreter.StackFrame;
 import org.wso2.ballerina.core.interpreter.StackVarLocation;
 import org.wso2.ballerina.core.interpreter.StructVarLocation;
-import org.wso2.ballerina.core.interpreter.TryCatchStackRef;
 import org.wso2.ballerina.core.model.Action;
 import org.wso2.ballerina.core.model.BallerinaConnectorDef;
 import org.wso2.ballerina.core.model.Connector;
@@ -89,6 +88,7 @@ import org.wso2.ballerina.core.model.nodes.fragments.statements.AssignStmtEndNod
 import org.wso2.ballerina.core.model.nodes.fragments.statements.ReplyStmtEndNode;
 import org.wso2.ballerina.core.model.nodes.fragments.statements.ReturnStmtEndNode;
 import org.wso2.ballerina.core.model.nodes.fragments.statements.ThrowStmtEndNode;
+import org.wso2.ballerina.core.model.nodes.fragments.statements.TryCatchStmtEndNode;
 import org.wso2.ballerina.core.model.nodes.fragments.statements.VariableDefStmtEndNode;
 import org.wso2.ballerina.core.model.statements.ActionInvocationStmt;
 import org.wso2.ballerina.core.model.statements.AssignStmt;
@@ -577,6 +577,15 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
         BException exception = (BException) getTempValue(throwStmtEndNode.getStatement().getExpr());
         exception.value().setStackTrace(ErrorHandlerUtils.getMainFuncStackTrace(bContext, null));
         this.handleBException(exception);
+    }
+
+    @Override
+    public void visit(TryCatchStmtEndNode tryCatchStmtEndNode) {
+        if (logger.isDebugEnabled()) {
+            logger.debug("Executing TryCatchStmt - EndNode");
+        }
+        next = tryCatchStmtEndNode.next;
+        tryCatchStackRefs.pop();
     }
 
     @Override

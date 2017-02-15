@@ -103,6 +103,7 @@ import org.wso2.ballerina.core.model.nodes.fragments.statements.AssignStmtEndNod
 import org.wso2.ballerina.core.model.nodes.fragments.statements.ReplyStmtEndNode;
 import org.wso2.ballerina.core.model.nodes.fragments.statements.ReturnStmtEndNode;
 import org.wso2.ballerina.core.model.nodes.fragments.statements.ThrowStmtEndNode;
+import org.wso2.ballerina.core.model.nodes.fragments.statements.TryCatchStmtEndNode;
 import org.wso2.ballerina.core.model.nodes.fragments.statements.VariableDefStmtEndNode;
 import org.wso2.ballerina.core.model.statements.ActionInvocationStmt;
 import org.wso2.ballerina.core.model.statements.AssignStmt;
@@ -546,12 +547,15 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
 
     @Override
     public void visit(TryCatchStmt tryCatchStmt) {
+        TryCatchStmtEndNode endNode = new TryCatchStmtEndNode(tryCatchStmt);
         Statement tryBlock = tryCatchStmt.getTryBlock();
         Statement catchBlock = tryCatchStmt.getCatchBlock().getCatchBlockStmt();
         // Visit Try Catch block.
         tryBlock.setParent(tryCatchStmt);
         tryCatchStmt.setNext(tryBlock);
+        tryBlock.setNextSibling(endNode);
         tryBlock.accept(this);
+        endNode.setNext(findNext(tryCatchStmt));
 
         // Visit Catch Block.
         catchBlock.setParent(tryCatchStmt);
