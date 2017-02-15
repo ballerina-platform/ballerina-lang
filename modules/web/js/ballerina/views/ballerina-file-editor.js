@@ -430,44 +430,46 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
 
             var swaggerViewBtn = $(this._container).find(_.get(this._viewOptions, 'controls.view_swagger_btn'));
             swaggerViewBtn.click(function () {
-                var isSourceChanged = !self._sourceView.isClean(),
-                    savedWhileInSourceView = lastRenderedTimestamp < self._file.getLastPersisted();
-                if (isSourceChanged || savedWhileInSourceView || self._parseFailed) {
-                    var source = self._sourceView.getContent();
-                    var response = self.backend.parse(source);
-                    //if there are errors display the error.
-                    //@todo: proper error handling need to get the service specs
-                    if (response.error != undefined && response.error) {
-                        alerts.error('cannot switch to swagger view due to parse errors');
-                        return;
-                    } else if (!_.isUndefined(response.errorMessage)) {
-                        alerts.error("Unable to parse the source: " + response.errorMessage);
-                        return;
+                try {
+                    var isSourceChanged = !self._sourceView.isClean(),
+                        savedWhileInSourceView = lastRenderedTimestamp < self._file.getLastPersisted();
+                    if (isSourceChanged || savedWhileInSourceView || self._parseFailed) {
+                        var source = self._sourceView.getContent();
+                        var response = self.backend.parse(source);
+                        //if there are errors display the error.
+                        //@todo: proper error handling need to get the service specs
+                        if (response.error != undefined && response.error) {
+                            alerts.error('cannot switch to swagger view due to parse errors');
+                            return;
+                        } else if (!_.isUndefined(response.errorMessage)) {
+                            alerts.error("Unable to parse the source: " + response.errorMessage);
+                            return;
+                        }
+                        self._parseFailed = false;
+                        //if no errors display the design.
+                        //@todo
+                        var root = self.deserializer.getASTModel(response);
+                        self.setModel(root);
+                        self._sourceView.markClean();
+                        self._createConstantDefinitionsView(self._$canvasContainer);
+                        self.addCurrentPackageToToolPalette();
                     }
-                    self._parseFailed = false;
-                    //if no errors display the design.
-                    //@todo
-                    var root = self.deserializer.getASTModel(response);
-                    self.setModel(root);
-                    self._sourceView.markClean();
-                    self._createConstantDefinitionsView(self._$canvasContainer);
-                    self.addCurrentPackageToToolPalette();
+                    // Get the generated swagger and append it to the swagger view container's content
+                    var generatedSource = self.generateSource();
+                    self._swaggerView.setContent(generatedSource);
+                    self._swaggerView.setNodeTree(self.generateNodeTree());//setting fallback node tree
+                    self.toolPalette.hide();
+                    swaggerViewContainer.show();
+                    sourceViewContainer.hide();
+                    self._$designViewContainer.hide();
+                    designViewBtn.show();
+                    sourceViewBtn.show();
+                    swaggerViewBtn.hide();
+                    self.setActiveView('swagger');
+                    alerts.warn("This version only supports one service representation on swagger");
+                } catch (err) {
+                    alerts.error("Swagger Error: " + err.message);
                 }
-                self.toolPalette.hide();
-                var generatedSource = self.generateSource();
-
-                self.toolPalette.hide();
-                // Get the generated swagger and append it to the swagger view container's content
-                self._swaggerView.setContent(generatedSource);
-                self._swaggerView.setNodeTree(self.generateNodeTree());//setting fallback node tree
-
-                swaggerViewContainer.show();
-                sourceViewContainer.hide();
-                self._$designViewContainer.hide();
-                designViewBtn.show();
-                sourceViewBtn.show();
-                swaggerViewBtn.hide();
-                self.setActiveView('swagger');
             });
 
             var designViewBtn = $(this._container).find(_.get(this._viewOptions, 'controls.view_design_btn'));
