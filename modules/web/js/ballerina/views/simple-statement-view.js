@@ -156,7 +156,7 @@ define(
             this.getSvgRect().classed('highlight-statement', true);
         };
 
-        SimpleStatementView.prototype.hideDebugHit = function () {
+        SimpleStatementView.prototype.clearDebugHit = function () {
             this.getSvgRect().classed('highlight-statement', false);
         };
 

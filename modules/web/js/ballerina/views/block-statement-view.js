@@ -220,7 +220,7 @@ define(
             this._titleRect.classed('highlight-statement', true);
         };
 
-        BlockStatementView.prototype.hideDebugHit = function () {
+        BlockStatementView.prototype.clearDebugHit = function () {
             this._titleRect.classed('highlight-statement', false);
         };
 
