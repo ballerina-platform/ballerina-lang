@@ -123,7 +123,7 @@ define(['lodash', 'jquery', './ballerina-view', './../ast/worker-declaration', '
          * @param {BallerinaStatementView} statement
          */
         WorkerDeclarationView.prototype.visitStatement = function (statement) {
-            var args = {model: statement, container: this._container, viewOptions: {},
+            var args = {model: statement, container: this.getContentArea().node(), viewOptions: {},
                 toolPalette: this._toolPalette, messageManager: this._messageManager, parent: this};
             this._statementContainer.renderStatement(statement, args);
         };
@@ -145,7 +145,7 @@ define(['lodash', 'jquery', './ballerina-view', './../ast/worker-declaration', '
             if (BallerinaASTFactory.isStatement(child)) {
                 this.getStatementContainer().childStatementRemovedCallback(child);
             }
-            // Remove the connector/ worker from the diagram rendering context
+            // Remove the child from the diagram rendering context
             delete this.diagramRenderingContext.getViewModelMap()[child.id];
         };
 
