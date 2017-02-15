@@ -26,6 +26,7 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.wso2.ballerina.test.context.Constant;
 import org.wso2.ballerina.test.context.ServerInstance;
+import org.wso2.ballerina.test.util.TestConstant;
 import org.wso2.ballerina.test.util.http2.HTTP2Client;
 
 import java.io.File;
@@ -41,22 +42,17 @@ import java.util.List;
 public abstract class HTTP2IntegrationTestCase {
     private ServerInstance serverInstance;
     private static final Logger log = LoggerFactory.getLogger(HTTP2IntegrationTestCase.class);
-    //Default HTTP2 port of the server
-    public static final int HTTP2_PORT = 9092;
     public HTTP2Client http2Client = null;
     private static final String HTTP2_ENABLED_NETTY_CONF = "src" + File.separator + "test" + File.separator +
-            "resources" +
-            File
-            .separator + "http2" + File.separator + "conf" + File.separator + "netty-transports.yml";
+            "resources" + File.separator + "http2" + File.separator + "conf" + File.separator + "netty-transports.yml";
     private static final String SERVER_NETTY_CONF_PATH = File.separator + "bre" + File.separator + "conf" + File
-            .separator +
-            "netty-transports.yml";
+            .separator + "netty-transports.yml";
 
     @BeforeClass(alwaysRun = true)
     public void init() throws Exception {
         //path of the zip file distribution
         String serverZipPath = System.getProperty(Constant.SYSTEM_PROP_SERVER_ZIP);
-        serverInstance = new ServerInstance(serverZipPath, HTTP2_PORT) {
+        serverInstance = new ServerInstance(serverZipPath, TestConstant.HTTP2_TEST_PORT) {
             //config the service files need to be deployed
             @Override
             protected void configServer() throws IOException {
@@ -72,7 +68,7 @@ public abstract class HTTP2IntegrationTestCase {
         };
         try {
             serverInstance.start();
-            http2Client = new HTTP2Client(false, "localhost", HTTP2_PORT);
+            http2Client = new HTTP2Client(false, "localhost", TestConstant.HTTP2_TEST_PORT);
         } catch (Exception e) {
             log.error("Server failed to start. " + e.getMessage(), e);
             throw new RuntimeException("Server failed to start. " + e.getMessage(), e);
@@ -81,7 +77,6 @@ public abstract class HTTP2IntegrationTestCase {
 
     @AfterClass(alwaysRun = true)
     public void destroy() {
-
         if (serverInstance != null && serverInstance.isRunning()) {
             try {
                 serverInstance.stop();
@@ -107,7 +102,6 @@ public abstract class HTTP2IntegrationTestCase {
             throws IOException {
         Files.copy(source.toPath(), dest.toPath(), StandardCopyOption.REPLACE_EXISTING);
     }
-
 
     public String getServiceURLHttp(String servicePath) {
         return serverInstance.getServiceURLHttp(servicePath);
@@ -141,7 +135,6 @@ public abstract class HTTP2IntegrationTestCase {
                 }
             }
         }
-
         return list.toArray(new String[]{});
     }
 
@@ -152,7 +145,6 @@ public abstract class HTTP2IntegrationTestCase {
      * @return content
      */
     protected String getResponse(FullHttpResponse msg) {
-
         ByteBuf content = msg.content();
         if (content.isReadable()) {
             int contentLength = content.readableBytes();
@@ -162,5 +154,4 @@ public abstract class HTTP2IntegrationTestCase {
         }
         return null;
     }
-
 }
