@@ -42,7 +42,8 @@ public class FileServiceTest {
     private Application application;
     private final InputStream fileContent = new ByteArrayInputStream("test".getBytes(StandardCharsets.UTF_8));
 
-    @BeforeClass public void setup() {
+    @BeforeClass
+    public void setup() {
         application = EnvironmentInitializer.setup("lang/service/fileService.bal");
     }
 
@@ -70,7 +71,7 @@ public class FileServiceTest {
             cMsg.setProperty(Constants.TRANSPORT_PROPERTY_SERVICE_NAME, "abc");
             ServerConnectorMessageHandler.handleInbound(cMsg, new TestCallback());
             Assert.fail("Expectation is not thrown when a wrong service name is not provided in the file streaming "
-                     + "message");
+                    + "message");
         } catch (BallerinaException ex) {
             Assert.assertEquals(ex.getCause().getMessage(),
                     "error in ballerina program: no file service is " + "registered with the service name abc",
@@ -86,12 +87,13 @@ public class FileServiceTest {
             cMsg.setProperty(org.wso2.carbon.messaging.Constants.PROTOCOL, Constants.PROTOCOL_FILE);
             cMsg.setProperty(Constants.TRANSPORT_PROPERTY_SERVICE_NAME, "fileServiceWithoutResource");
             ServerConnectorMessageHandler.handleInbound(cMsg, new TestCallback());
-             Assert.fail("Expectation is not thrown when a request is send to a file service without any resources");
+            Assert.fail("Expectation is not thrown when a request is send to a file service without any resources");
         } catch (BallerinaException ex) {
             Assert.assertEquals(ex.getCause().getMessage(),
                     "error in ballerina program: no resource found to handle the request to Service : "
-                            + "fileServiceWithoutResource : Resource with the annotation OnFile to handle the file "
-                            + "content is not found in file service fileServiceWithoutResource",
+                            + "fileServiceWithoutResource : Resource with the annotation "
+                            + Constants.ANNOTATION_NAME_ON_FILE + " to handle the file content is not found" +
+                            " in file service fileServiceWithoutResource",
                     "Exception is not thrown when there is no resource found to handle the incoming message");
         }
     }
