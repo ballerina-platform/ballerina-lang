@@ -39,7 +39,7 @@ public class FunctionDefinitionNode extends IdentifierDefSubtree implements Scop
     public PsiElement resolve(PsiNamedElement element) {
         if (element.getParent() instanceof CallableUnitNameNode) {
             return SymtabUtils.resolve(this, BallerinaLanguage.INSTANCE, element,
-                    "//functionDefinition/Identifier");
+                    "//functionDefinition/function/Identifier");
         } else if (element.getParent() instanceof VariableReferenceNode) {
             PsiElement resolved = SymtabUtils.resolve(this, BallerinaLanguage.INSTANCE, element,
                     "//parameter/Identifier");
@@ -50,7 +50,7 @@ public class FunctionDefinitionNode extends IdentifierDefSubtree implements Scop
             return resolved;
         } else if (element.getParent() instanceof SimpleTypeNode) {
             return SymtabUtils.resolve(this, BallerinaLanguage.INSTANCE, element,
-                    "//connectorDefinition/Identifier");
+                    "//connectorDefinition/connector/Identifier");
         }
         return null;
     }

@@ -13,6 +13,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
+
 package org.ballerinalang.plugins.idea.psi;
 
 import com.intellij.lang.ASTNode;
@@ -41,10 +42,10 @@ public class ConnectorDefinitionNode extends IdentifierDefSubtree implements Sco
                     "//parameter/Identifier");
         } else if (element.getParent() instanceof CallableUnitNameNode) {
             return SymtabUtils.resolve(this, BallerinaLanguage.INSTANCE, element,
-                    "//functionDefinition/Identifier");
+                    "//functionDefinition/function/Identifier");
         } else if (element.getParent() instanceof SimpleTypeNode) {
             return SymtabUtils.resolve(this, BallerinaLanguage.INSTANCE, element,
-                    "//connectorDefinition/Identifier");
+                    "//connectorDefinition/connector/Identifier");
         }
         return null;
     }

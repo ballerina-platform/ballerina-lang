@@ -26,7 +26,6 @@ import org.antlr.jetbrains.adaptor.SymtabUtils;
 import org.antlr.jetbrains.adaptor.psi.ScopeNode;
 import org.ballerinalang.plugins.idea.BallerinaFileType;
 import org.ballerinalang.plugins.idea.BallerinaLanguage;
-import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -70,16 +69,16 @@ public class BallerinaFile extends PsiFileBase implements ScopeNode {
         //		                   " at "+Integer.toHexString(element.hashCode())+")");
         if (element.getParent() instanceof CallableUnitNameNode) {
             PsiElement resolved = SymtabUtils.resolve(this, BallerinaLanguage.INSTANCE, element,
-                    "//functionDefinition/Identifier");
+                    "//functionDefinition/function/Identifier");
             if (resolved == null) {
                 resolved = SymtabUtils.resolve(this, BallerinaLanguage.INSTANCE, element,
-                        "//connectorDefinition/Identifier");
+                        "//connectorDefinition/connector/Identifier");
             }
             return resolved;
         } else if (element.getParent() instanceof SimpleTypeNode) {
 
             PsiElement resolved =SymtabUtils.resolve(this, BallerinaLanguage.INSTANCE, element,
-                    "//connectorDefinition/Identifier");
+                    "//connectorDefinition/connector/Identifier");
             if (resolved == null) {
                 resolved = SymtabUtils.resolve(this, BallerinaLanguage.INSTANCE, element,
                         "//structDefinition/Identifier");

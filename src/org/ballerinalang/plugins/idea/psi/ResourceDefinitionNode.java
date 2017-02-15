@@ -42,7 +42,7 @@ public class ResourceDefinitionNode extends IdentifierDefSubtree implements Scop
                     "//parameter/Identifier");
         } else if (element.getParent() instanceof CallableUnitNameNode) {
             return SymtabUtils.resolve(this, BallerinaLanguage.INSTANCE, element,
-                    "//functionDefinition/Identifier");
+                    "//functionDefinition/function/Identifier");
         }
         return null;
     }

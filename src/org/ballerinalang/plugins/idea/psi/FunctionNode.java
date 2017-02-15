@@ -50,7 +50,7 @@ public class FunctionNode extends IdentifierDefSubtree implements ScopeNode {
             return resolved;
         } else if (element.getParent() instanceof SimpleTypeNode) {
             return SymtabUtils.resolve(this, BallerinaLanguage.INSTANCE, element,
-                    "//connectorDefinition/Identifier");
+                    "//connectorDefinition/connector/Identifier");
         }
         return null;
     }

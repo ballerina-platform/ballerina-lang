@@ -78,7 +78,7 @@ public class BallerinaPsiImplUtil {
 
         if (resolvedElement == null) {
             declarations = XPath.findAll(BallerinaLanguage.INSTANCE, element.getContainingFile(),
-                    "//connectorDefinition/Identifier");
+                    "//connectorDefinition/connector/Identifier");
             resolvedElement = Trees.toMap(declarations).get(id);
         }
         return resolvedElement;
@@ -164,7 +164,7 @@ public class BallerinaPsiImplUtil {
         //                PsiTreeUtil.findChildrenOfAnyType(file,
         //                        FunctionDefinitionNode.class);
         Collection<? extends PsiElement> all = XPath.findAll(BallerinaLanguage.INSTANCE, file,
-                "//functionDefinition/Identifier");
+                "//functionDefinition/function/Identifier");
 
         for (PsiElement psiElement : all) {
             if (!psiElement.getText().contains("IntellijIdeaRulezzz")) {
@@ -455,7 +455,7 @@ public class BallerinaPsiImplUtil {
             }
 
             List<PsiElement> allFunctionsInAPackage = getAllMatchingElementsFromPackage(((PsiDirectory) element1),
-                    "//functionDefinition/Identifier");
+                    "//functionDefinition/function/Identifier");
             for (PsiElement psiElement : allFunctionsInAPackage) {
                 if (element.getText().equals(psiElement.getText())) {
                     results.add(psiElement);
@@ -503,7 +503,7 @@ public class BallerinaPsiImplUtil {
             }
 
             List<PsiElement> allFunctionsInAPackage = getAllMatchingElementsFromPackage(((PsiDirectory) element1),
-                    "//connectorDefinition/Identifier");
+                    "//connectorDefinition/connector/Identifier");
             for (PsiElement psiElement : allFunctionsInAPackage) {
                 if (element.getText().equals(psiElement.getText())) {
                     results.add(psiElement);
@@ -683,7 +683,7 @@ public class BallerinaPsiImplUtil {
 
                     Collection<? extends PsiElement> functionDefinitions =
                             XPath.findAll(BallerinaLanguage.INSTANCE, resolveResult.getElement().getParent(),
-                                    "//functionDefinition");
+                                    "//functionDefinition//function");
                     for (PsiElement functionDefinition : functionDefinitions) {
 
                         PsiElement nameIdentifier = ((IdentifierDefSubtree) functionDefinition).getNameIdentifier();
