@@ -350,15 +350,15 @@ public class Main {
                     throw LauncherUtils.createUsageException("too many arguments");
                 }
                 Path currentDir = Paths.get(System.getProperty("user.dir"));
-                Path originalPath = Paths.get(serviceRootPath);
+                Path serviceRoot = Paths.get(serviceRootPath);
                 try {
-                    Path newPath = originalPath.toRealPath(LinkOption.NOFOLLOW_LINKS);
+                    Path serviceRootRealPath = serviceRoot.toRealPath(LinkOption.NOFOLLOW_LINKS);
                     Path[] paths =
-                        Files.list(newPath).filter(path -> !Files.isDirectory(path, LinkOption.NOFOLLOW_LINKS))
+                        Files.list(serviceRootRealPath)
+                            .filter(path -> !Files.isDirectory(path, LinkOption.NOFOLLOW_LINKS))
                             .filter(path -> path.getFileName().toString()
                                 .endsWith(BLangProgram.Category.SERVICE_PROGRAM.getExtension()))
-                            .map(path -> currentDir.relativize(path))
-                            .toArray(Path[]::new);
+                            .map(path -> currentDir.relativize(path)).toArray(Path[]::new);
                     BProgramRunner.runServices(paths);
                     return;
                 } catch (NoSuchFileException e) {
