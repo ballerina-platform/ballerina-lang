@@ -25,7 +25,7 @@ import org.wso2.ballerina.core.interpreter.StackVarLocation;
 import org.wso2.ballerina.core.interpreter.StructVarLocation;
 import org.wso2.ballerina.core.interpreter.nonblocking.ModeResolver;
 import org.wso2.ballerina.core.model.Annotation;
-import org.wso2.ballerina.core.model.BTypeConvertor;
+import org.wso2.ballerina.core.model.BTypeMapper;
 import org.wso2.ballerina.core.model.BallerinaAction;
 import org.wso2.ballerina.core.model.BallerinaConnectorDef;
 import org.wso2.ballerina.core.model.BallerinaFile;
@@ -119,7 +119,7 @@ import org.wso2.ballerina.core.model.statements.TryCatchStmt;
 import org.wso2.ballerina.core.model.statements.VariableDefStmt;
 import org.wso2.ballerina.core.model.statements.WhileStmt;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
-import org.wso2.ballerina.core.nativeimpl.AbstractNativeTypeConvertor;
+import org.wso2.ballerina.core.nativeimpl.AbstractNativeTypeMapper;
 import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeAction;
 import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeConnector;
 
@@ -257,7 +257,7 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
     }
 
     @Override
-    public void visit(BTypeConvertor typeConvertor) {
+    public void visit(BTypeMapper typeMapper) {
     }
 
     @Override
@@ -948,11 +948,11 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
                 castExpression.setGotoBranchID(branchID);
 
                 // Visiting Block Statement.
-                BTypeConvertor bTypeConvertor = (BTypeConvertor) castExpression.getCallableUnit();
-                if (!bTypeConvertor.isFlowBuilderVisited()) {
+                BTypeMapper bTypeMapper = (BTypeMapper) castExpression.getCallableUnit();
+                if (!bTypeMapper.isFlowBuilderVisited()) {
                     returningBlockStmtStack.push(blockStmt);
                     offSetCounterStack.push(new OffSetCounter());
-                    bTypeConvertor.setFlowBuilderVisited(true);
+                    bTypeMapper.setFlowBuilderVisited(true);
                     blockStmt.accept(this);
                     castExpression.getCallableUnit().setTempStackFrameSize(offSetCounterStack.pop().getCount());
                     returningBlockStmtStack.pop();
@@ -960,7 +960,7 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
             } else {
                 // Native functions.
                 InvokeNativeTypeMapperNode link = new InvokeNativeTypeMapperNode(
-                        (AbstractNativeTypeConvertor) castExpression.getCallableUnit());
+                        (AbstractNativeTypeMapper) castExpression.getCallableUnit());
                 callableUnitEndLink.setNativeInvocation(true);
                 endLink.setNext(link);
                 link.setParent(endLink);

@@ -27,11 +27,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * {@code BTypeConvertor} represents a  TypeConvertor in ballerina.
+ * {@code BTypeMapper} represents a  TypeMapper in ballerina.
  *
  * @since 0.8.0
  */
-public class BTypeConvertor implements TypeConvertor, SymbolScope, CompilationUnit {
+public class BTypeMapper implements TypeMapper, SymbolScope, CompilationUnit {
     private NodeLocation location;
 
     // BLangSymbol related attributes
@@ -45,7 +45,7 @@ public class BTypeConvertor implements TypeConvertor, SymbolScope, CompilationUn
     private BType[] parameterTypes;
     private ParameterDef[] returnParams;
     private BType[] returnParamTypes;
-    private BlockStmt typeConverterBody;
+    private BlockStmt typeMapperBody;
     private int stackFrameSize;
 
     // Scope related variables
@@ -56,7 +56,8 @@ public class BTypeConvertor implements TypeConvertor, SymbolScope, CompilationUn
     private int tempStackFrameSize;
     private boolean isFlowBuilderVisited;
 
-    private BTypeConvertor(SymbolScope enclosingScope) {
+
+    private BTypeMapper(SymbolScope enclosingScope) {
         this.enclosingScope = enclosingScope;
         this.symbolMap = new HashMap<>();
     }
@@ -67,7 +68,7 @@ public class BTypeConvertor implements TypeConvertor, SymbolScope, CompilationUn
     }
 
     /**
-     * Get all the Annotations associated with a BallerinatypeConverter
+     * Get all the Annotations associated with a BallerinatypeMapper
      *
      * @return list of Annotations
      */
@@ -76,7 +77,7 @@ public class BTypeConvertor implements TypeConvertor, SymbolScope, CompilationUn
     }
 
     /**
-     * Get list of Arguments associated with the typeConvertor definition
+     * Get list of Arguments associated with the typeMapper definition
      *
      * @return list of Arguments
      */
@@ -85,9 +86,9 @@ public class BTypeConvertor implements TypeConvertor, SymbolScope, CompilationUn
     }
 
     /**
-     * Get all the variableDcls declared in the scope of BallerinaTypeConvertor
+     * Get all the variableDcls declared in the scope of BallerinaTypeMapper
      *
-     * @return list of all BallerinaTypeConvertor scoped variableDcls
+     * @return list of all BallerinaTypeMapper scoped variableDcls
      */
     public VariableDef[] getVariableDefs() {
         return null;
@@ -98,7 +99,7 @@ public class BTypeConvertor implements TypeConvertor, SymbolScope, CompilationUn
     }
 
     @Override
-    public String getTypeConverterName() {
+    public String getTypeMapperName() {
         return null;
     }
 
@@ -126,7 +127,7 @@ public class BTypeConvertor implements TypeConvertor, SymbolScope, CompilationUn
 
     @Override
     public BlockStmt getCallableUnitBody() {
-        return this.typeConverterBody;
+        return this.typeMapperBody;
     }
 
     @Override
@@ -226,19 +227,19 @@ public class BTypeConvertor implements TypeConvertor, SymbolScope, CompilationUn
     }
 
     /**
-     * {@code BTypeConvertorBuilder} is responsible for building a {@cdoe BTypeConvertor} node.
+     * {@code BTypeMapperBuilder} is responsible for building a {@cdoe BTypeMapper} node.
      *
      * @since 0.8.0
      */
-    public static class BTypeConvertorBuilder extends CallableUnitBuilder {
-        private BTypeConvertor bTypeCon;
+    public static class BTypeMapperBuilder extends CallableUnitBuilder {
+        private BTypeMapper bTypeCon;
 
-        public BTypeConvertorBuilder(SymbolScope enclosingScope) {
-            bTypeCon = new BTypeConvertor(enclosingScope);
+        public BTypeMapperBuilder(SymbolScope enclosingScope) {
+            bTypeCon = new BTypeMapper(enclosingScope);
             currentScope = bTypeCon;
         }
 
-        public BTypeConvertor buildTypeConverter() {
+        public BTypeMapper buildTypeMapper() {
             bTypeCon.location = this.location;
             bTypeCon.name = this.name;
             bTypeCon.pkgPath = this.pkgPath;
@@ -246,7 +247,7 @@ public class BTypeConvertor implements TypeConvertor, SymbolScope, CompilationUn
             bTypeCon.annotations = this.annotationList.toArray(new Annotation[this.annotationList.size()]);
             bTypeCon.parameterDefs = this.parameterDefList.toArray(new ParameterDef[this.parameterDefList.size()]);
             bTypeCon.returnParams = this.returnParamList.toArray(new ParameterDef[this.returnParamList.size()]);
-            bTypeCon.typeConverterBody = this.body;
+            bTypeCon.typeMapperBody = this.body;
             return bTypeCon;
         }
     }

@@ -28,7 +28,7 @@ import org.wso2.ballerina.core.model.NodeVisitor;
 import org.wso2.ballerina.core.model.ParameterDef;
 import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.model.SymbolScope;
-import org.wso2.ballerina.core.model.TypeConvertor;
+import org.wso2.ballerina.core.model.TypeMapper;
 import org.wso2.ballerina.core.model.VariableDef;
 import org.wso2.ballerina.core.model.statements.BlockStmt;
 import org.wso2.ballerina.core.model.symbols.BLangSymbol;
@@ -41,9 +41,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * {@code {@link AbstractNativeTypeConvertor }} represents a Abstract implementation of Native Ballerina TypeConvertor.
+ * {@code {@link AbstractNativeTypeMapper }} represents a Abstract implementation of Native Ballerina TypeMapper.
  */
-public abstract class AbstractNativeTypeConvertor implements NativeUnit, TypeConvertor, BLangSymbol {
+public abstract class AbstractNativeTypeMapper implements NativeUnit, TypeMapper, BLangSymbol {
     /* Void RETURN */
     public static final BValue[] VOID_RETURN = new BValue[0];
 
@@ -65,7 +65,7 @@ public abstract class AbstractNativeTypeConvertor implements NativeUnit, TypeCon
     private SimpleTypeName[] argTypeNames;
     private int tempStackFrameSize;
 
-    public AbstractNativeTypeConvertor() {
+    public AbstractNativeTypeMapper() {
         parameterDefs = new ArrayList<>();
         returnParams = new ArrayList<>();
         annotations = new ArrayList<>();
@@ -73,7 +73,7 @@ public abstract class AbstractNativeTypeConvertor implements NativeUnit, TypeCon
     }
 
     @Override
-    public String getTypeConverterName() {
+    public String getTypeMapperName() {
         return symbolName.getName();
     }
 
@@ -92,9 +92,9 @@ public abstract class AbstractNativeTypeConvertor implements NativeUnit, TypeCon
     }
 
     /**
-     * Get all the variableDcls declared in the scope of BallerinaTypeConvertor
+     * Get all the variableDcls declared in the scope of BallerinaTypeMapper
      *
-     * @return list of all BallerinaTypeConvertor scoped variableDcls
+     * @return list of all BallerinaTypeMapper scoped variableDcls
      */
     public VariableDef[] getVariableDefs() {
         return new VariableDef[0];
@@ -123,10 +123,10 @@ public abstract class AbstractNativeTypeConvertor implements NativeUnit, TypeCon
     }
 
     /**
-     * Where Native TypeConvertor logic is implemented.
+     * Where Native TypeMapper logic is implemented.
      *
      * @param context Current Context instance
-     * @return Native typeConvertor return BValue array
+     * @return Native typeMapper return BValue array
      */
     public abstract BValue convert(Context context);
 
@@ -149,7 +149,7 @@ public abstract class AbstractNativeTypeConvertor implements NativeUnit, TypeCon
     }
 
 
-    public ConstDef[] getTypeConverterConstats() {
+    public ConstDef[] getTypeMapperConstats() {
         return constants.toArray(new ConstDef[constants.size()]);
     }
     
