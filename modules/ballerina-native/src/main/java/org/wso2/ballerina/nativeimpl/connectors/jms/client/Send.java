@@ -85,22 +85,18 @@ public class Send extends AbstractJMSAction {
 
         // Extracting Argument values
         BConnector bConnector = (BConnector) getArgument(context, 0);
-
         Connector connector = bConnector.value();
         if (!(connector instanceof ClientConnector)) {
             throw new BallerinaException("Need to use a JMSConnector as the first argument", context);
         }
-
         //Getting ballerina message and extract carbon message.
         BMessage bMessage = (BMessage) getArgument(context, 5);
         if (bMessage == null) {
             throw new BallerinaException("Ballerina message not found", context);
         }
         CarbonMessage message = bMessage.value();
-
         //Create property map to send to transport.
         Map<String, String> propertyMap = new HashMap<>();
-
         //Getting the map of properties.
         BMap properties = (BMap) getArgument(context, 6);
 
@@ -143,14 +139,12 @@ public class Send extends AbstractJMSAction {
             } else if (!(message instanceof MapCarbonMessage)) {
                 throw new BallerinaException(
                         "If the message type is MapMessage, either set MapData property or pass a received" +
-                        " jms map message",
-                        context);
+                        " jms map message", context);
             }
             propertyMap.put(JMSConstants.JMS_MESSAGE_TYPE, JMSConstants.MAP_MESSAGE_TYPE);
         } else {
             propertyMap.put(JMSConstants.JMS_MESSAGE_TYPE, JMSConstants.GENERIC_MESSAGE_TYPE);
         }
-
         //Getting necessary values from the connector instance.
         propertyMap.put(JMSConstants.NAMING_FACTORY_INITIAL_PARAM_NAME,
                         ((ClientConnector) connector).getInitialContextFactory());
@@ -163,7 +157,6 @@ public class Send extends AbstractJMSAction {
         propertyMap.put(JMSConstants.DESTINATION_PARAM_NAME, getArgument(context, 2).stringValue());
         propertyMap.put(JMSConstants.CONNECTION_FACTORY_TYPE_PARAM_NAME,
                         getArgument(context, 3).stringValue());
-
         //Setting optional parameters.
         if (properties.get(new BString(JMSConstants.CONNECTION_USERNAME)) != null) {
             propertyMap.put(JMSConstants.CONNECTION_USERNAME,
@@ -180,21 +173,17 @@ public class Send extends AbstractJMSAction {
         } else {
             propertyMap.put(JMSConstants.CACHE_LEVEL, Integer.toString(JMSConstants.CACHE_NONE));
         }
-
         try {
             if (log.isDebugEnabled()) {
                 log.debug("Sending " + messageType + " to " +
                           propertyMap.get(JMSConstants.DESTINATION_PARAM_NAME));
             }
-
             //Getting the sender instance and sending the message.
             BallerinaConnectorManager.getInstance().getClientConnector("jms")
                                      .send(message, null, propertyMap);
-
         } catch (ClientConnectorException e) {
             throw new BallerinaException("Exception occurred while sending message.", e, context);
         }
-
         return null;
     }
 
