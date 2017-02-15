@@ -77,6 +77,10 @@ define(['log', 'lodash', 'event_channel', './undoable-operation-factory'],
             this._undoStack.push(taskToRedo);
         };
 
+        UndoManager.prototype.getOperationFactory = function(){
+            return UndoableOperationFactory;
+        };
+
         UndoManager.prototype.onUndoableOperation = function(event){
             var undoableOperation = UndoableOperationFactory.getOperation(event);
             this._push(undoableOperation);

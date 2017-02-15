@@ -184,5 +184,24 @@ define(['lodash','d3', 'jquery', './ballerina-view', './../ast/connector-declara
             d3Element.attr("stroke-width", 0);
         };
 
+        ConnectorDeclarationView.prototype.createPropertyPane = function() {
+            var editableProperty = {
+                propertyType: "text",
+                key: "ConnectorDeclaration",
+                model: this._model,
+                getterMethod: this._model.getConnectorExpression,
+                setterMethod: this._model.setConnectorExpression,
+                getDisplayTitle: this._model.getConnectorVariable
+            };
+
+            var args = {
+                model: this._model,
+                lifeLineGroup:this._rootGroup,
+                editableProperties: editableProperty
+            };
+
+            LifeLine.prototype.createPropertyPane.call(this, args)
+        }
+
         return ConnectorDeclarationView;
     });

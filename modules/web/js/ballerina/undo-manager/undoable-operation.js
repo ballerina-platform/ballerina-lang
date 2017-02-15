@@ -27,10 +27,20 @@ define(['lodash', 'event_channel'],
          */
         var UndoableOperation = function(args){
             this.setTitle(_.get(args, 'title', undefined));
+            this.setEditor(_.get(args, 'editor', undefined));
+            this.setSkipInSourceView(_.get(args, 'skipInSourceView', false));
         };
 
         UndoableOperation.prototype = Object.create(EventChannel.prototype);
         UndoableOperation.prototype.constructor = UndoableOperation;
+
+        UndoableOperation.prototype.canUndo = function(){
+            return !(this.getEditor().isInSourceView() && this.skipInSourceView());
+        };
+
+        UndoableOperation.prototype.canRedo = function(){
+            return !(this.getEditor().isInSourceView() && this.skipInSourceView());
+        };
 
         UndoableOperation.prototype.getTitle = function(){
             return this._title;
@@ -38,6 +48,22 @@ define(['lodash', 'event_channel'],
 
         UndoableOperation.prototype.setTitle = function(title){
             this._title = title;
+        };
+
+        UndoableOperation.prototype.getEditor = function(){
+            return this._editor;
+        };
+
+        UndoableOperation.prototype.setEditor = function(editor){
+            this._editor = editor;
+        };
+
+        UndoableOperation.prototype.skipInSourceView = function(){
+            return this._skipInSourceView;
+        };
+
+        UndoableOperation.prototype.setSkipInSourceView = function(skipInSourceView){
+            this._skipInSourceView = skipInSourceView;
         };
 
         UndoableOperation.prototype.undo = function(){};
