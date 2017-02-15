@@ -18,8 +18,6 @@
 
 package org.wso2.ballerina.core.runtime.internal;
 
-import org.wso2.ballerina.core.model.BallerinaFile;
-import org.wso2.ballerina.core.runtime.Constants;
 import org.wso2.carbon.messaging.ServerConnectorErrorHandler;
 import org.wso2.carbon.messaging.TransportSender;
 
@@ -31,19 +29,13 @@ import java.util.Map;
  */
 public class ServiceContextHolder {
 
+    private static ServiceContextHolder instance = new ServiceContextHolder();
     private Map<String, TransportSender> transportSenders = new HashMap<>();
-
-    private Constants.RuntimeMode runtimeMode = Constants.RuntimeMode.ERROR;
-
     /* Protocol specific error handlers */
     private Map<String, ServerConnectorErrorHandler> errorHandlers = new HashMap<>();
 
-    private BallerinaFile ballerinaFile;
-
     private ServiceContextHolder() {
     }
-
-    private static ServiceContextHolder instance = new ServiceContextHolder();
 
     public static ServiceContextHolder getInstance() {
         return instance;
@@ -61,14 +53,6 @@ public class ServiceContextHolder {
         //TODO: need to write a logic to identify the correct sender
         Map.Entry<String, TransportSender> senderEntry = transportSenders.entrySet().iterator().next();
         return senderEntry.getValue();
-    }
-
-    public void setRuntimeMode(Constants.RuntimeMode runtimeMode) {
-        this.runtimeMode = runtimeMode;
-    }
-
-    public Constants.RuntimeMode getRuntimeMode() {
-        return runtimeMode;
     }
 
     /**
@@ -97,24 +81,6 @@ public class ServiceContextHolder {
      */
     public ServerConnectorErrorHandler getErrorHandler(String protocol) {
         return errorHandlers.get(protocol);
-    }
-
-    /**
-     * Get BallerinaFile to be executed in RUN_FILE mode.
-     *
-     * @return Ballerina Main function instance to be executed.
-     */
-    public BallerinaFile getBallerinaFileToExecute() {
-        return this.ballerinaFile;
-    }
-
-    /**
-     * Set BallerinaFile to be executed in RUN_FILE mode.
-     *
-     * @param ballerinaFile to be run.
-     */
-    public void setBallerinaFileToExecute(BallerinaFile ballerinaFile) {
-        this.ballerinaFile = ballerinaFile;
     }
 
 }

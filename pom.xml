@@ -275,6 +275,16 @@
                 <version>${netty.version}</version>
             </dependency>
             <dependency>
+                <groupId>io.netty</groupId>
+                <artifactId>netty-codec-http2</artifactId>
+                <version>${netty.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.netty</groupId>
+                <artifactId>netty-resolver</artifactId>
+                <version>${netty.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>commons-pool.wso2</groupId>
                 <artifactId>commons-pool</artifactId>
                 <version>${commons.pool.version}</version>
@@ -407,10 +417,10 @@
         <carbon.kernel.package.import.version.range>[5.0.0, 6.0.0)</carbon.kernel.package.import.version.range>
         <carbon.kernel.pax.version>5.2.0-m2</carbon.kernel.pax.version>
 
-        <carbon.transport.version>4.1.0</carbon.transport.version>
+        <carbon.transport.version>4.2.1</carbon.transport.version>
         <carbon.transport.package.import.version.range>[4.0.0, 5.0.0)</carbon.transport.package.import.version.range>
 
-        <carbon.messaging.version>2.1.0</carbon.messaging.version>
+        <carbon.messaging.version>2.2.1</carbon.messaging.version>
         <carbon.messaging.package.import.version.range>[2.0.0, 3.0.0)</carbon.messaging.package.import.version.range>
 
         <carbon.deployment.version>5.0.0</carbon.deployment.version>
@@ -455,7 +465,7 @@
         <mockito.version>1.9.0</mockito.version>
 
         <!-- netty version -->
-        <netty.version>4.0.30.Final</netty.version>
+        <netty.version>4.1.7.Final</netty.version>
 
         <commons.pool.version>1.5.6.wso2v1</commons.pool.version>
         <org.snakeyaml.version>1.16.0.wso2v1</org.snakeyaml.version>

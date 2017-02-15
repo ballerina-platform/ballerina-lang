@@ -28,6 +28,7 @@ import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeConnector;
 
 import static org.wso2.ballerina.core.model.types.TypeConstants.BOOLEAN_TNAME;
 import static org.wso2.ballerina.core.model.types.TypeConstants.DOUBLE_TNAME;
+import static org.wso2.ballerina.core.model.types.TypeConstants.EXCEPTION_TNAME;
 import static org.wso2.ballerina.core.model.types.TypeConstants.FLOAT_TNAME;
 import static org.wso2.ballerina.core.model.types.TypeConstants.INT_TNAME;
 import static org.wso2.ballerina.core.model.types.TypeConstants.JSON_TNAME;
@@ -56,6 +57,7 @@ public class BTypes {
     public static BType typeJSON;
     public static BType typeMessage;
     public static BType typeMap;
+    public static BType typeException;
 
     private static boolean initialized = false;
 
@@ -78,6 +80,7 @@ public class BTypes {
         globalScope.define(typeJSON.getSymbolName(), typeJSON);
         globalScope.define(typeMessage.getSymbolName(), typeMessage);
         globalScope.define(typeMap.getSymbolName(), typeMap);
+        globalScope.define(typeException.getSymbolName(), typeException);
 
         TypeLattice.loadImplicitCastLattice(globalScope);
         TypeLattice.loadExplicitCastLattice(globalScope);
@@ -96,6 +99,7 @@ public class BTypes {
         typeJSON = new BJSONType(JSON_TNAME, null, globalScope);
         typeMessage = new BMessageType(MESSAGE_TNAME, null, globalScope);
         typeMap = new BMapType(MAP_TNAME, null, globalScope);
+        typeException = new BExceptionType(EXCEPTION_TNAME, null, globalScope);
         initialized = true;
     }
 

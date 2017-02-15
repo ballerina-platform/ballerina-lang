@@ -22,6 +22,7 @@ import org.antlr.v4.runtime.CommonTokenStream;
 import org.wso2.ballerina.core.model.BLangPackage;
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.GlobalScope;
+import org.wso2.ballerina.core.model.builder.BLangExecutionFlowBuilder;
 import org.wso2.ballerina.core.model.builder.BLangModelBuilder;
 import org.wso2.ballerina.core.model.types.BTypes;
 import org.wso2.ballerina.core.parser.BallerinaLexer;
@@ -87,6 +88,8 @@ public class ParserUtils {
         // Analyze semantic properties of the source code
         SemanticAnalyzer semanticAnalyzer = new SemanticAnalyzer(bFile, bLangPackage);
         bFile.accept(semanticAnalyzer);
+        BLangExecutionFlowBuilder flowBuilder = new BLangExecutionFlowBuilder();
+        bFile.accept(flowBuilder);
 
         return bFile;
     }

@@ -19,7 +19,7 @@ package org.wso2.ballerina.core.interpreter;
 
 import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.model.Action;
-import org.wso2.ballerina.core.model.BTypeConvertor;
+import org.wso2.ballerina.core.model.BTypeMapper;
 import org.wso2.ballerina.core.model.BallerinaAction;
 import org.wso2.ballerina.core.model.BallerinaConnectorDef;
 import org.wso2.ballerina.core.model.BallerinaFunction;
@@ -29,8 +29,10 @@ import org.wso2.ballerina.core.model.NodeExecutor;
 import org.wso2.ballerina.core.model.ParameterDef;
 import org.wso2.ballerina.core.model.Resource;
 import org.wso2.ballerina.core.model.StructDef;
-import org.wso2.ballerina.core.model.TypeConvertor;
+import org.wso2.ballerina.core.model.SymbolName;
+import org.wso2.ballerina.core.model.TypeMapper;
 import org.wso2.ballerina.core.model.VariableDef;
+import org.wso2.ballerina.core.model.Worker;
 import org.wso2.ballerina.core.model.expressions.ActionInvocationExpr;
 import org.wso2.ballerina.core.model.expressions.ArrayInitExpr;
 import org.wso2.ballerina.core.model.expressions.ArrayMapAccessExpr;
@@ -57,13 +59,19 @@ import org.wso2.ballerina.core.model.expressions.VariableRefExpr;
 import org.wso2.ballerina.core.model.statements.ActionInvocationStmt;
 import org.wso2.ballerina.core.model.statements.AssignStmt;
 import org.wso2.ballerina.core.model.statements.BlockStmt;
+import org.wso2.ballerina.core.model.statements.BreakStmt;
+import org.wso2.ballerina.core.model.statements.ForkJoinStmt;
 import org.wso2.ballerina.core.model.statements.FunctionInvocationStmt;
 import org.wso2.ballerina.core.model.statements.IfElseStmt;
 import org.wso2.ballerina.core.model.statements.ReplyStmt;
 import org.wso2.ballerina.core.model.statements.ReturnStmt;
 import org.wso2.ballerina.core.model.statements.Statement;
+import org.wso2.ballerina.core.model.statements.ThrowStmt;
+import org.wso2.ballerina.core.model.statements.TryCatchStmt;
 import org.wso2.ballerina.core.model.statements.VariableDefStmt;
 import org.wso2.ballerina.core.model.statements.WhileStmt;
+import org.wso2.ballerina.core.model.statements.WorkerInvocationStmt;
+import org.wso2.ballerina.core.model.statements.WorkerReplyStmt;
 import org.wso2.ballerina.core.model.types.BMapType;
 import org.wso2.ballerina.core.model.types.BType;
 import org.wso2.ballerina.core.model.types.BTypes;
@@ -72,6 +80,7 @@ import org.wso2.ballerina.core.model.util.LangModelUtils;
 import org.wso2.ballerina.core.model.values.BArray;
 import org.wso2.ballerina.core.model.values.BBoolean;
 import org.wso2.ballerina.core.model.values.BConnector;
+import org.wso2.ballerina.core.model.values.BException;
 import org.wso2.ballerina.core.model.values.BInteger;
 import org.wso2.ballerina.core.model.values.BJSON;
 import org.wso2.ballerina.core.model.values.BMap;
@@ -83,9 +92,24 @@ import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.model.values.BValueType;
 import org.wso2.ballerina.core.model.values.BXML;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
-import org.wso2.ballerina.core.nativeimpl.AbstractNativeTypeConvertor;
+import org.wso2.ballerina.core.nativeimpl.AbstractNativeTypeMapper;
 import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeAction;
 import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeConnector;
+import org.wso2.ballerina.core.runtime.errors.handler.ErrorHandlerUtils;
+import org.wso2.ballerina.core.runtime.worker.WorkerCallback;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.CancellationException;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+
 
 /**
  * {@code BLangExecutor} executes a Ballerina application.
@@ -98,6 +122,9 @@ public class BLangExecutor implements NodeExecutor {
     private Context bContext;
     private ControlStack controlStack;
     private boolean returnedOrReplied;
+    private boolean isForkJoinTimedOut;
+    private boolean isBreakCalled;
+    private ExecutorService executor;
 
     public BLangExecutor(RuntimeEnvironment runtimeEnv, Context bContext) {
         this.runtimeEnv = runtimeEnv;
@@ -109,7 +136,7 @@ public class BLangExecutor implements NodeExecutor {
     public void visit(BlockStmt blockStmt) {
         Statement[] stmts = blockStmt.getStatements();
         for (Statement stmt : stmts) {
-            if (returnedOrReplied) {
+            if (returnedOrReplied || isBreakCalled) {
                 break;
             }
             stmt.execute(this);
@@ -206,10 +233,59 @@ public class BLangExecutor implements NodeExecutor {
         while (condition.booleanValue()) {
             // Interpret the statements in the while body.
             whileStmt.getBody().execute(this);
-
+            if (returnedOrReplied || isBreakCalled) {
+                break;
+            }
             // Now evaluate the condition again to decide whether to continue the loop or not.
             condition = (BBoolean) expr.execute(this);
         }
+        isBreakCalled = false;
+    }
+
+    @Override
+    public void visit(BreakStmt breakStmt) {
+        isBreakCalled = true;
+    }
+
+    @Override
+    public void visit(TryCatchStmt tryCatchStmt) {
+        // Note: This logic is based on Java exception and hence not recommended.
+        // This is added only to make it work with blocking executor. and will be removed in a future release.
+        StackFrame current = bContext.getControlStack().getCurrentFrame();
+        try {
+            tryCatchStmt.getTryBlock().execute(this);
+        } catch (BallerinaException be) {
+            BException exception;
+            if (be.getBException() != null) {
+                exception = be.getBException();
+            } else {
+                exception = new BException(be.getMessage());
+            }
+            exception.value().setStackTrace(ErrorHandlerUtils.getMainFuncStackTrace(bContext, null));
+            while (bContext.getControlStack().getCurrentFrame() != current) {
+                if (controlStack.getStack().size() > 0) {
+                    controlStack.popFrame();
+                } else {
+                    // Throw this to handle at root error handler.
+                    throw new BallerinaException(be);
+                }
+            }
+            MemoryLocation memoryLocation = tryCatchStmt.getCatchBlock().getParameterDef().getMemoryLocation();
+            if (memoryLocation instanceof StackVarLocation) {
+                int stackFrameOffset = ((StackVarLocation) memoryLocation).getStackFrameOffset();
+                controlStack.setValue(stackFrameOffset, exception);
+            }
+            tryCatchStmt.getCatchBlock().getCatchBlockStmt().execute(this);
+        }
+    }
+
+    @Override
+    public void visit(ThrowStmt throwStmt) {
+        // Note: This logic is based on Java exception and hence not recommended.
+        // This is added only to make it work with blocking executor. and will be removed in a future release.
+        BException exception = (BException) throwStmt.getExpr().execute(this);
+        exception.value().setStackTrace(ErrorHandlerUtils.getMainFuncStackTrace(bContext, null));
+        throw new BallerinaException(exception);
     }
 
     @Override
@@ -220,6 +296,87 @@ public class BLangExecutor implements NodeExecutor {
     @Override
     public void visit(ActionInvocationStmt actionIStmt) {
         actionIStmt.getActionInvocationExpr().executeMultiReturn(this);
+    }
+
+    @Override
+    public void visit(WorkerInvocationStmt workerInvocationStmt) {
+        // Create the Stack frame
+        Worker worker = workerInvocationStmt.getCallableUnit();
+
+        int sizeOfValueArray = worker.getStackFrameSize();
+        BValue[] localVals = new BValue[sizeOfValueArray];
+
+        // Evaluate the argument expression
+        BValue argValue = workerInvocationStmt.getInMsg().execute(this);
+
+        if (argValue instanceof BMessage) {
+            argValue = ((BMessage) argValue).clone();
+        }
+
+        // Setting argument value in the stack frame
+        localVals[0] = argValue;
+
+        // Get values for all the worker arguments
+        int valueCounter = 1;
+
+        for (ParameterDef returnParam : worker.getReturnParameters()) {
+            // Check whether these are unnamed set of return types.
+            // If so break the loop. You can't have a mix of unnamed and named returns parameters.
+            if (returnParam.getName() == null) {
+                break;
+            }
+
+            localVals[valueCounter] = returnParam.getType().getDefaultValue();
+            valueCounter++;
+        }
+
+
+        // Create an array in the stack frame to hold return values;
+        BValue[] returnVals = new BValue[1];
+
+        // Create a new stack frame with memory locations to hold parameters, local values, temp expression value,
+        // return values and worker invocation location;
+        CallableUnitInfo functionInfo = new CallableUnitInfo(worker.getName(), worker.getPackagePath(),
+                workerInvocationStmt.getNodeLocation());
+
+        StackFrame stackFrame = new StackFrame(localVals, returnVals, functionInfo);
+        Context workerContext = new Context();
+        workerContext.getControlStack().pushFrame(stackFrame);
+        WorkerCallback workerCallback = new WorkerCallback(workerContext);
+        workerContext.setBalCallback(workerCallback);
+        BLangExecutor workerExecutor = new BLangExecutor(runtimeEnv, workerContext);
+
+        executor = Executors.newSingleThreadExecutor();
+        WorkerRunner workerRunner = new WorkerRunner(workerExecutor, workerContext, worker);
+        Future<BMessage> future = executor.submit(workerRunner);
+        worker.setResultFuture(future);
+
+
+        //controlStack.popFrame();
+    }
+
+    @Override
+    public void visit(WorkerReplyStmt workerReplyStmt) {
+        Worker worker = workerReplyStmt.getWorker();
+        Future<BMessage> future = worker.getResultFuture();
+        try {
+            // TODO: Make this value configurable - need grammar level rethink
+            BMessage result = future.get(60, TimeUnit.SECONDS);
+            VariableRefExpr variableRefExpr = workerReplyStmt.getReceiveExpr();
+            assignValueToVarRefExpr(result, variableRefExpr);
+            executor.shutdown();
+            if (!executor.awaitTermination(10, TimeUnit.SECONDS)) {
+                executor.shutdownNow();
+            }
+        } catch (Exception e) {
+            // If there is an exception in the worker, set an empty value to the return variable
+            BMessage result = BTypes.typeMessage.getDefaultValue();
+            VariableRefExpr variableRefExpr = workerReplyStmt.getReceiveExpr();
+            assignValueToVarRefExpr(result, variableRefExpr);
+        } finally {
+            // Finally, try again to shutdown if not done already
+            executor.shutdownNow();
+        }
     }
 
     @Override
@@ -255,6 +412,161 @@ public class BLangExecutor implements NodeExecutor {
         BMessage bMessage = (BMessage) expr.execute(this);
         bContext.getBalCallback().done(bMessage.value());
         returnedOrReplied = true;
+    }
+
+    @Override
+    public void visit(ForkJoinStmt forkJoinStmt) {
+        VariableRefExpr expr = forkJoinStmt.getMessageReference();
+        BMessage inMsg = (BMessage) expr.execute(this);
+        List<WorkerRunner> workerRunnerList = new ArrayList<>();
+        List<BMessage> resultMsgs = new ArrayList<>();
+        int timeout = ((BInteger) forkJoinStmt.getTimeout().getTimeoutExpression().execute(this)).intValue();
+
+        Worker[] workers = forkJoinStmt.getWorkers();
+        Map<String, WorkerRunner> triggeredWorkers = new HashMap<>();
+        for (Worker worker : workers) {
+            int sizeOfValueArray = worker.getStackFrameSize();
+            BValue[] localVals = new BValue[sizeOfValueArray];
+
+            BValue argValue = inMsg.clone();
+            // Setting argument value in the stack frame
+            localVals[0] = argValue;
+
+            // Get values for all the worker arguments
+            int valueCounter = 1;
+
+            // Create default values for all declared local variables
+            for (ParameterDef variableDcl : worker.getParameterDefs()) {
+                localVals[valueCounter] = variableDcl.getType().getDefaultValue();
+                valueCounter++;
+            }
+
+            // Create an array in the stack frame to hold return values;
+            BValue[] returnVals = new BValue[1];
+
+            // Create a new stack frame with memory locations to hold parameters, local values, temp expression value,
+            // return values and worker invocation location;
+            SymbolName functionSymbolName = worker.getSymbolName();
+            CallableUnitInfo functionInfo = new CallableUnitInfo(functionSymbolName.getName(),
+                    functionSymbolName.getPkgPath(), worker.getNodeLocation());
+
+            StackFrame stackFrame = new StackFrame(localVals, returnVals, functionInfo);
+            Context workerContext = new Context();
+            workerContext.getControlStack().pushFrame(stackFrame);
+            WorkerCallback workerCallback = new WorkerCallback(workerContext);
+            workerContext.setBalCallback(workerCallback);
+            BLangExecutor workerExecutor = new BLangExecutor(runtimeEnv, workerContext);
+            WorkerRunner workerRunner = new WorkerRunner(workerExecutor, workerContext, worker);
+            workerRunnerList.add(workerRunner);
+            triggeredWorkers.put(worker.getName(), workerRunner);
+        }
+
+        if (forkJoinStmt.getJoin().getJoinType().equalsIgnoreCase("any")) {
+            String[] joinWorkerNames = forkJoinStmt.getJoin().getJoinWorkers();
+            if (joinWorkerNames.length == 0) {
+                // If there are no workers specified, wait for any of all the workers
+                BMessage res = invokeAnyWorker(workerRunnerList, timeout);
+                if (res != null) {
+                    resultMsgs.add(res);
+                }
+            } else {
+                List<WorkerRunner> workerRunnersSpecified = new ArrayList<>();
+                for (String workerName : joinWorkerNames) {
+                    workerRunnersSpecified.add(triggeredWorkers.get(workerName));
+                }
+                BMessage res = invokeAnyWorker(workerRunnersSpecified, timeout);
+                if (res != null) {
+                    resultMsgs.add(res);
+                }
+            }
+        } else {
+            String[] joinWorkerNames = forkJoinStmt.getJoin().getJoinWorkers();
+            if (joinWorkerNames.length == 0) {
+                // If there are no workers specified, wait for all of all the workers
+                resultMsgs.addAll(invokeAllWorkers(workerRunnerList, timeout));
+            } else {
+                List<WorkerRunner> workerRunnersSpecified = new ArrayList<>();
+                for (String workerName : joinWorkerNames) {
+                    workerRunnersSpecified.add(triggeredWorkers.get(workerName));
+                }
+                resultMsgs.addAll(invokeAllWorkers(workerRunnersSpecified, timeout));
+            }
+        }
+
+        if (isForkJoinTimedOut) {
+            // Execute the timeout block
+
+            // Creating a new array
+            BArray bArray = forkJoinStmt.getJoin().getJoinResult().getType().getDefaultValue();
+
+            for (int i = 0; i < resultMsgs.size(); i++) {
+                BValue value = resultMsgs.get(i);
+                bArray.add(i, value);
+            }
+
+            int offsetJoin = ((StackVarLocation) forkJoinStmt.getTimeout().getTimeoutResult().getMemoryLocation()).
+                    getStackFrameOffset();
+
+            controlStack.setValue(offsetJoin, bArray);
+            forkJoinStmt.getTimeout().getTimeoutBlock().execute(this);
+            isForkJoinTimedOut = false;
+
+        } else {
+            // Assign values to join block message array
+
+            // Creating a new array
+            BArray bArray = forkJoinStmt.getJoin().getJoinResult().getType().getDefaultValue();
+            for (int i = 0; i < resultMsgs.size(); i++) {
+                BValue value = resultMsgs.get(i);
+                bArray.add(i, value);
+            }
+
+            int offsetJoin = ((StackVarLocation) forkJoinStmt.getJoin().getJoinResult().getMemoryLocation()).
+                    getStackFrameOffset();
+            controlStack.setValue(offsetJoin, bArray);
+            forkJoinStmt.getJoin().getJoinBlock().execute(this);
+        }
+
+    }
+
+    private BMessage invokeAnyWorker(List<WorkerRunner> workerRunnerList, int timeout) {
+        ExecutorService anyExecutor = Executors.newWorkStealingPool();
+        BMessage result;
+        try {
+            result = anyExecutor.invokeAny(workerRunnerList, timeout, TimeUnit.SECONDS);
+        } catch (InterruptedException | ExecutionException e) {
+            return null;
+        } catch (TimeoutException e) {
+            isForkJoinTimedOut = true;
+            return null;
+        }
+        return result;
+    }
+
+    private List<BMessage> invokeAllWorkers(List<WorkerRunner> workerRunnerList, int timeout) {
+        ExecutorService allExecutor = Executors.newWorkStealingPool();
+        List<BMessage> result = new ArrayList<>();
+        try {
+            allExecutor.invokeAll(workerRunnerList, timeout, TimeUnit.SECONDS).stream().map(bMessageFuture -> {
+                try {
+                    return bMessageFuture.get();
+                } catch (CancellationException e) {
+                    // This means task has been timedout and cancelled by system.
+                    isForkJoinTimedOut = true;
+                    return null;
+                } catch (Exception e) {
+                    return null;
+                }
+
+            }).forEach((BMessage b) -> {
+                if (b != null) {
+                    result.add(b);
+                }
+            });
+        } catch (InterruptedException e) {
+            return result;
+        }
+        return result;
     }
 
     @Override
@@ -581,21 +893,21 @@ public class BLangExecutor implements NodeExecutor {
             BValueType result = (BValueType) typeCastExpression.getRExpr().execute(this);
             return typeCastExpression.getEvalFunc().apply(result);
         } else {
-            TypeConvertor typeConvertor = typeCastExpression.getCallableUnit();
+            TypeMapper typeMapper = typeCastExpression.getCallableUnit();
 
-            int sizeOfValueArray = typeConvertor.getStackFrameSize();
+            int sizeOfValueArray = typeMapper.getStackFrameSize();
             BValue[] localVals = new BValue[sizeOfValueArray];
 
             // Get values for all the function arguments
             int valueCounter = populateArgumentValues(typeCastExpression.getArgExprs(), localVals);
 
 //            // Create default values for all declared local variables
-//            for (VariableDef variableDef : typeConvertor.getVariableDefs()) {
+//            for (VariableDef variableDef : typeMapper.getVariableDefs()) {
 //                localVals[valueCounter] = variableDef.getType().getDefaultValue();
 //                valueCounter++;
 //            }
 
-            for (ParameterDef returnParam : typeConvertor.getReturnParameters()) {
+            for (ParameterDef returnParam : typeMapper.getReturnParameters()) {
                 // Check whether these are unnamed set of return types.
                 // If so break the loop. You can't have a mix of unnamed and named returns parameters.
                 if (returnParam.getName() == null) {
@@ -611,19 +923,19 @@ public class BLangExecutor implements NodeExecutor {
 
             // Create a new stack frame with memory locations to hold parameters, local values, temp expression value,
             // return values and function invocation location;
-            CallableUnitInfo functionInfo = new CallableUnitInfo(typeConvertor.getTypeConverterName(),
-                    typeConvertor.getPackagePath(), typeCastExpression.getNodeLocation());
+            CallableUnitInfo functionInfo = new CallableUnitInfo(typeMapper.getTypeMapperName(),
+                    typeMapper.getPackagePath(), typeCastExpression.getNodeLocation());
 
             StackFrame stackFrame = new StackFrame(localVals, returnVals, functionInfo);
             controlStack.pushFrame(stackFrame);
 
             // Check whether we are invoking a native function or not.
-            if (typeConvertor instanceof BTypeConvertor) {
-                BTypeConvertor bTypeConverter = (BTypeConvertor) typeConvertor;
-                bTypeConverter.getCallableUnitBody().execute(this);
+            if (typeMapper instanceof BTypeMapper) {
+                BTypeMapper bTypeMapper = (BTypeMapper) typeMapper;
+                bTypeMapper.getCallableUnitBody().execute(this);
             } else {
-                AbstractNativeTypeConvertor nativeTypeConverter = (AbstractNativeTypeConvertor) typeConvertor;
-                nativeTypeConverter.convertNative(bContext);
+                AbstractNativeTypeMapper nativeTypeMapper = (AbstractNativeTypeMapper) typeMapper;
+                nativeTypeMapper.convertNative(bContext);
             }
 
             controlStack.popFrame();
@@ -755,6 +1067,9 @@ public class BLangExecutor implements NodeExecutor {
 
             int connectorMemOffset = ((ConnectorVarLocation) memoryLocation).getConnectorMemAddrOffset();
             bConnector.setValue(connectorMemOffset, rValue);
+        } else if (memoryLocation instanceof WorkerVarLocation) {
+            int stackFrameOffset = ((WorkerVarLocation) memoryLocation).getworkerMemAddrOffset();
+            controlStack.setValue(stackFrameOffset, rValue);
         }
     }
 
@@ -797,6 +1112,12 @@ public class BLangExecutor implements NodeExecutor {
         Expression varRef = structFieldAccessExpr.getVarRef();
         BValue value = varRef.execute(this);
         return getFieldExprValue(structFieldAccessExpr, value);
+    }
+
+    @Override
+    public BValue visit(WorkerVarLocation workerVarLocation) {
+        int offset = workerVarLocation.getworkerMemAddrOffset();
+        return controlStack.getValue(offset);
     }
 
     /**

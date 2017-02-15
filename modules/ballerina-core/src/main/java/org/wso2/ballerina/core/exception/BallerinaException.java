@@ -18,6 +18,7 @@
 package org.wso2.ballerina.core.exception;
 
 import org.wso2.ballerina.core.interpreter.Context;
+import org.wso2.ballerina.core.model.values.BException;
 
 /**
  * This is the runtime exception occurs at executing ballerina code.
@@ -29,58 +30,65 @@ public class BallerinaException extends RuntimeException {
     private static final long serialVersionUID = 1L;
     private transient Context context;
 
-//    private String[] errorMessages = new String[0];
+    // TODO: Remove this once we remove Blocking executor.
+    private BException exception;
 
-    /**
-     * Constructs a new {@link BallerinaException}.*
-     */
-    public BallerinaException(String[] errorMessages) {
+    public BallerinaException() {
         super();
-        // TODO Need to find a better way to do this
-//        this.errorMessages = errorMessages;
     }
 
     /**
      * Constructs a new {@link BallerinaException} with the specified detail message.
      *
-     * @param message   Error Message
+     * @param message Error Message
      */
     public BallerinaException(String message) {
         super(message);
     }
 
     /**
+     * @param bException
+     */
+    public BallerinaException(BException bException) {
+        this.exception = bException;
+    }
+
+
+    /**
      * Constructs a new {@link BallerinaException} with ballerina context.
-     * 
-     * @param message   Error message
-     * @param context     Ballerina context
+     *
+     * @param message Error message
+     * @param context Ballerina context
      */
     public BallerinaException(String message, Context context) {
         super(message);
         this.context = context;
     }
-    
+
+
     /**
      * Constructs a new {@link BallerinaException} with the specified detail message and cause.
      *
-     * @param message   Error message
-     * @param cause     Cause
+     * @param message Error message
+     * @param cause   Cause
      */
     public BallerinaException(String message, Throwable cause) {
         super(message, cause);
     }
-    
+
+
     /**
      * Constructs a new {@link BallerinaException} with the specified detail message, cause and ballerina context.
      *
-     * @param message   Error message
-     * @param cause     Cause
-     * @param context   Ballerina context
+     * @param message Error message
+     * @param cause   Cause
+     * @param context Ballerina context
      */
     public BallerinaException(String message, Throwable cause, Context context) {
         super(message, cause);
         this.context = context;
     }
+
 
     /**
      * Constructs a new {@link BallerinaException} with the cause.
@@ -90,12 +98,16 @@ public class BallerinaException extends RuntimeException {
     public BallerinaException(Throwable cause) {
         super(cause);
     }
-    
+
     public BallerinaException(Context stack) {
         this.context = stack;
     }
 
     public Context getContext() {
         return this.context;
+    }
+
+    public BException getBException() {
+        return this.exception;
     }
 }

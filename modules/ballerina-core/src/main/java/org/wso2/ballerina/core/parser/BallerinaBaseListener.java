@@ -256,61 +256,61 @@ public class BallerinaBaseListener implements BallerinaListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterTypeConvertorDefinition(BallerinaParser.TypeConvertorDefinitionContext ctx) { }
+	@Override public void enterTypeMapperDefinition(BallerinaParser.TypeMapperDefinitionContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitTypeConvertorDefinition(BallerinaParser.TypeConvertorDefinitionContext ctx) { }
+	@Override public void exitTypeMapperDefinition(BallerinaParser.TypeMapperDefinitionContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterNativeTypeConvertor(BallerinaParser.NativeTypeConvertorContext ctx) { }
+	@Override public void enterNativeTypeMapper(BallerinaParser.NativeTypeMapperContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitNativeTypeConvertor(BallerinaParser.NativeTypeConvertorContext ctx) { }
+	@Override public void exitNativeTypeMapper(BallerinaParser.NativeTypeMapperContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterTypeConvertor(BallerinaParser.TypeConvertorContext ctx) { }
+	@Override public void enterTypeMapper(BallerinaParser.TypeMapperContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitTypeConvertor(BallerinaParser.TypeConvertorContext ctx) { }
+	@Override public void exitTypeMapper(BallerinaParser.TypeMapperContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterTypeConvertorInput(BallerinaParser.TypeConvertorInputContext ctx) { }
+	@Override public void enterTypeMapperInput(BallerinaParser.TypeMapperInputContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitTypeConvertorInput(BallerinaParser.TypeConvertorInputContext ctx) { }
+	@Override public void exitTypeMapperInput(BallerinaParser.TypeMapperInputContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterTypeConvertorBody(BallerinaParser.TypeConvertorBodyContext ctx) { }
+	@Override public void enterTypeMapperBody(BallerinaParser.TypeMapperBodyContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitTypeConvertorBody(BallerinaParser.TypeConvertorBodyContext ctx) { }
+	@Override public void exitTypeMapperBody(BallerinaParser.TypeMapperBodyContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -400,13 +400,13 @@ public class BallerinaBaseListener implements BallerinaListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterTypeConvertorType(BallerinaParser.TypeConvertorTypeContext ctx) { }
+	@Override public void enterTypeMapperType(BallerinaParser.TypeMapperTypeContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitTypeConvertorType(BallerinaParser.TypeConvertorTypeContext ctx) { }
+	@Override public void exitTypeMapperType(BallerinaParser.TypeMapperTypeContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -856,13 +856,25 @@ public class BallerinaBaseListener implements BallerinaListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterJoinConditions(BallerinaParser.JoinConditionsContext ctx) { }
+	@Override public void enterAnyJoinCondition(BallerinaParser.AnyJoinConditionContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitJoinConditions(BallerinaParser.JoinConditionsContext ctx) { }
+	@Override public void exitAnyJoinCondition(BallerinaParser.AnyJoinConditionContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterAllJoinCondition(BallerinaParser.AllJoinConditionContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitAllJoinCondition(BallerinaParser.AllJoinConditionContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

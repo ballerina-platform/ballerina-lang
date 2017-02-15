@@ -15,7 +15,9 @@
  */
 package org.wso2.ballerina.core.nativeimpl.connectors;
 
+
 import org.wso2.ballerina.core.exception.BallerinaException;
+import org.wso2.ballerina.core.exception.FlowBuilderException;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.Action;
 import org.wso2.ballerina.core.model.Annotation;
@@ -51,12 +53,14 @@ public abstract class AbstractNativeAction implements NativeUnit, Action {
     private List<ParameterDef> parameterDefs;
     private List<ParameterDef> returnParams;
     private int stackFrameSize;
-    
+
     private BType[] returnParamTypes;
     private BType[] parameterTypes;
     private SimpleTypeName[] returnParamTypeNames;
     private SimpleTypeName[] argTypeNames;
-    
+
+    private int tempStackFrameSize;
+
     public AbstractNativeAction() {
         parameterDefs = new ArrayList<>();
         returnParams = new ArrayList<>();
@@ -83,12 +87,22 @@ public abstract class AbstractNativeAction implements NativeUnit, Action {
 
     public abstract BValue execute(Context context);
 
-    // Methods in CallableUnit interface
+    /**
+     * Invoke Non Blocking Native Action.
+     *
+     * @param context           Ballerina context.
+     * @param connectorCallback Callback instance to notify completion of the action invocation.
+     */
+    public abstract void execute(Context context, BalConnectorCallback connectorCallback);
 
-    @Override
-    public void setSymbolName(SymbolName symbolName) {
-        this.symbolName = symbolName;
-    }
+    /**
+     * Validate Native Action invocation. This method will be invoked when callback.done().
+     *
+     * @param connectorCallback Connector Callback instance.
+     */
+    public abstract void validate(BalConnectorCallback connectorCallback);
+
+    // Methods in CallableUnit interface
 
     /**
      * Get all the Annotations associated with a BallerinaFunction.
@@ -141,6 +155,20 @@ public abstract class AbstractNativeAction implements NativeUnit, Action {
     }
 
     @Override
+    public int getTempStackFrameSize() {
+        return tempStackFrameSize;
+    }
+
+    @Override
+    public void setTempStackFrameSize(int stackFrameSize) {
+        if (this.tempStackFrameSize > 0 && stackFrameSize != this.tempStackFrameSize) {
+            throw new FlowBuilderException("Attempt to Overwrite tempValue Frame size. current :" +
+                    this.tempStackFrameSize + ", new :" + stackFrameSize);
+        }
+        this.tempStackFrameSize = stackFrameSize;
+    }
+
+    @Override
     public BType[] getReturnParamTypes() {
         return returnParamTypes;
     }
@@ -160,27 +188,37 @@ public abstract class AbstractNativeAction implements NativeUnit, Action {
         this.parameterTypes = parameterTypes;
     }
 
-    // Methods in Node interface
-
     @Override
     public void accept(NodeVisitor visitor) {
     }
+
+    // Methods in Node interface
 
     @Override
     public NodeLocation getNodeLocation() {
         return null;
     }
 
-    // Methods in BLangSymbol interface
-
     @Override
     public String getName() {
         return name;
     }
 
+    // Methods in BLangSymbol interface
+
+    @Override
+    public void setName(String name) {
+        this.name = name;
+    }
+
     @Override
     public String getPackagePath() {
         return pkgPath;
+    }
+
+    @Override
+    public void setPackagePath(String packagePath) {
+        this.pkgPath = packagePath;
     }
 
     @Override
@@ -198,40 +236,35 @@ public abstract class AbstractNativeAction implements NativeUnit, Action {
         return symbolName;
     }
 
+    // Methods in NativeCallableUnit interface
+
+    @Override
+    public void setSymbolName(SymbolName symbolName) {
+        this.symbolName = symbolName;
+    }
+
     @Override
     public SymbolScope getSymbolScope() {
         return null;
     }
-    
-    // Methods in NativeCallableUnit interface
-    
-    @Override
-    public void setReturnParamTypeNames(SimpleTypeName[] returnParamTypes) {
-        this.returnParamTypeNames = returnParamTypes;
-    }
-    
+
     @Override
     public void setArgTypeNames(SimpleTypeName[] argTypes) {
         this.argTypeNames = argTypes;
     }
-    
+
     @Override
     public SimpleTypeName[] getArgumentTypeNames() {
         return argTypeNames;
     }
-    
+
     @Override
     public SimpleTypeName[] getReturnParamTypeNames() {
         return returnParamTypeNames;
     }
-    
+
     @Override
-    public void setName(String name) {
-        this.name = name;
-    }
-    
-    @Override
-    public void setPackagePath(String packagePath) {
-        this.pkgPath = packagePath;
+    public void setReturnParamTypeNames(SimpleTypeName[] returnParamTypes) {
+        this.returnParamTypeNames = returnParamTypes;
     }
 }
