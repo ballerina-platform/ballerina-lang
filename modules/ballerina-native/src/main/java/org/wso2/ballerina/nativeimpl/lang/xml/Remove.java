@@ -40,7 +40,7 @@ import java.util.List;
 @BallerinaFunction(
         packageName = "ballerina.lang.xml",
         functionName = "remove",
-        args = {@Argument(name = "xml", type = TypeEnum.XML),
+        args = {@Argument(name = "e", type = TypeEnum.XML),
                 @Argument(name = "xPath", type = TypeEnum.STRING)},
         isPublic = true
 )

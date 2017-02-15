@@ -47,7 +47,7 @@ import java.util.List;
 @BallerinaFunction(
         packageName = "ballerina.lang.xml",
         functionName = "set",
-        args = {@Argument(name = "xml", type = TypeEnum.XML),
+        args = {@Argument(name = "e", type = TypeEnum.XML),
                 @Argument(name = "xPath", type = TypeEnum.STRING),
 //                @Argument(name = "nameSpaces", type = TypeEnum.MAP),
                 @Argument(name = "value", type = TypeEnum.STRING)},

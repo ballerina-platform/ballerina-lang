@@ -45,8 +45,7 @@ import org.wso2.carbon.messaging.exceptions.ClientConnectorException;
         actionName = "head",
         connectorName = ClientConnector.CONNECTOR_NAME,
         args = {
-                @Argument(name = "c",
-                        type = TypeEnum.CONNECTOR),
+                @Argument(name = "c", type = TypeEnum.CONNECTOR),
                 @Argument(name = "path", type = TypeEnum.STRING),
                 @Argument(name = "m", type = TypeEnum.MESSAGE)
         },

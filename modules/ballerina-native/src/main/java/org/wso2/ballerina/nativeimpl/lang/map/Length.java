@@ -35,7 +35,7 @@ import org.wso2.ballerina.core.nativeimpl.annotations.ReturnType;
 @BallerinaFunction(
         packageName = "ballerina.lang.map",
         functionName = "length",
-        args = {@Argument(name = "map", type = TypeEnum.MAP)},
+        args = {@Argument(name = "m", type = TypeEnum.MAP)},
         returnType = {@ReturnType(type = TypeEnum.INT)},
         isPublic = true
 )

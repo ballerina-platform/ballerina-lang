@@ -34,7 +34,7 @@ import org.wso2.ballerina.core.nativeimpl.annotations.ReturnType;
 @BallerinaFunction(
         packageName = "ballerina.lang.array",
         functionName = "length",
-        args = {@Argument(name = "arr", type = TypeEnum.ARRAY, elementType = TypeEnum.INT)},
+        args = {@Argument(name = "intArray", type = TypeEnum.ARRAY, elementType = TypeEnum.INT)},
         returnType = {@ReturnType(type = TypeEnum.INT)},
         isPublic = true
 )
