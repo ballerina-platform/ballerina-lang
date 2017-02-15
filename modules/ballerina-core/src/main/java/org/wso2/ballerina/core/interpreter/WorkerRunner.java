@@ -49,6 +49,7 @@ public class WorkerRunner implements Callable<BMessage> {
         this.worker = worker;
     }
 
+
     @Override
     public BMessage call() throws BallerinaException {
         try {

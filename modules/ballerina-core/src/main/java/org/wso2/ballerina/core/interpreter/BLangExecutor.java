@@ -535,7 +535,6 @@ public class BLangExecutor implements NodeExecutor {
         } catch (TimeoutException e) {
             isForkJoinTimedOut = true;
             return null;
-            // throw new BallerinaException("Fork-Join statement at " + position + " timed out", e);
         }
         return result;
     }
