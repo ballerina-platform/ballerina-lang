@@ -41,9 +41,9 @@ import org.wso2.ballerina.core.nativeimpl.annotations.ReturnType;
         isPublic = true
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = { @Attribute(name = "value",
-        value = "Native function ballerina.lang.array:copyOf(double[])") })
+        value = "Native function to copy an array") })
 @BallerinaAnnotation(annotationName = "Param", attributes = { @Attribute(name = "arr",
-value = "Array to copy") })
+value = "Array to be copied") })
 public class DoubleArrayCopyOf extends AbstractNativeFunction {
     @Override
     public BValue[] execute(Context context) {

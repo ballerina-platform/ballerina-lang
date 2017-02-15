@@ -44,6 +44,15 @@
             <fileMode>644</fileMode>
         </fileSet>
         <fileSet>
+            <directory>${project.build.directory}/ballerina-native-${ballerina.version}</directory>
+            <outputDirectory>src</outputDirectory>
+            <excludes>
+                <exclude>LICENSE*</exclude>
+                <exclude>README*</exclude>
+            </excludes>
+            <fileMode>444</fileMode>
+        </fileSet>
+        <fileSet>
             <directory>../../samples/getting_started</directory>
             <outputDirectory>samples</outputDirectory>
             <excludes>
@@ -59,14 +68,6 @@
                 <exclude>**/*.iml</exclude>
             </excludes>
             <fileMode>644</fileMode>
-        </fileSet>
-        <fileSet>
-            <directory>../../libsrc</directory>
-            <outputDirectory>src</outputDirectory>
-            <excludes>
-                <exclude>ballerina/lang/types/**</exclude>
-            </excludes>
-            <fileMode>444</fileMode>
         </fileSet>
     </fileSets>
 
