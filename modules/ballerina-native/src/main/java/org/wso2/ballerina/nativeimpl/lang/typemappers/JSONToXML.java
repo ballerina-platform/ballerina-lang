@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.ballerina.nativeimpl.lang.convertors;
+package org.wso2.ballerina.nativeimpl.lang.typemappers;
 
 import de.odysseus.staxon.json.JsonXMLConfig;
 import de.odysseus.staxon.json.JsonXMLConfigBuilder;
@@ -27,9 +27,9 @@ import org.wso2.ballerina.core.model.types.TypeEnum;
 import org.wso2.ballerina.core.model.values.BJSON;
 import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.model.values.BXML;
-import org.wso2.ballerina.core.nativeimpl.AbstractNativeTypeConvertor;
+import org.wso2.ballerina.core.nativeimpl.AbstractNativeTypeMapper;
 import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
-import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaTypeConvertor;
+import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaTypeMapper;
 import org.wso2.ballerina.core.nativeimpl.annotations.ReturnType;
 
 import java.io.ByteArrayInputStream;
@@ -46,15 +46,15 @@ import javax.xml.stream.XMLStreamException;
 /**
  * Convert JSON to XML
  */
-@BallerinaTypeConvertor(
-        packageName = "ballerina.lang.convertors",
-        typeConverterName = "jsonToxml",
+@BallerinaTypeMapper(
+        packageName = "ballerina.lang.typemappers",
+        typeMapperName = "jsonToxml",
         args = {@Argument(name = "json", type = TypeEnum.JSON)},
         returnType = {@ReturnType(type = TypeEnum.XML)},
         isPublic = true
 )
 
-public class JSONToXML extends AbstractNativeTypeConvertor {
+public class JSONToXML extends AbstractNativeTypeMapper {
 
     public BValue convert(Context ctx) {
         BJSON msg = (BJSON) getArgument(ctx, 0);

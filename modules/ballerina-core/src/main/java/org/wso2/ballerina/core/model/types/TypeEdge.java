@@ -17,7 +17,7 @@
  */
 package org.wso2.ballerina.core.model.types;
 
-import org.wso2.ballerina.core.model.TypeConvertor;
+import org.wso2.ballerina.core.model.TypeMapper;
 
 import java.util.function.Function;
 
@@ -28,21 +28,21 @@ import static org.wso2.ballerina.core.model.types.TypeConstants.NATIVE_PACKAGE;
  */
 public class TypeEdge {
     private TypeVertex source, target;
-    private Function typeConvertorFunction;
-    private TypeConvertor typeConvertor;
+    private Function typeMapperFunction;
+    private TypeMapper typeMapper;
     private String packageName;
 
-    public TypeEdge(TypeVertex source, TypeVertex target, Function typeConvertorFunction) {
+    public TypeEdge(TypeVertex source, TypeVertex target, Function typeMapperFunction) {
         this.source = source;
         this.target = target;
-        this.typeConvertorFunction = typeConvertorFunction;
+        this.typeMapperFunction = typeMapperFunction;
         this.packageName = NATIVE_PACKAGE;
     }
 
-    public TypeEdge(TypeVertex source, TypeVertex target, TypeConvertor typeConvertor, String packageName) {
+    public TypeEdge(TypeVertex source, TypeVertex target, TypeMapper typeMapper, String packageName) {
         this.source = source;
         this.target = target;
-        this.typeConvertor = typeConvertor;
+        this.typeMapper = typeMapper;
         this.packageName = packageName;
     }
 
@@ -62,16 +62,16 @@ public class TypeEdge {
         this.target = target;
     }
 
-    public Function getTypeConvertorFunction() {
-        return typeConvertorFunction;
+    public Function getTypeMapperFunction() {
+        return typeMapperFunction;
     }
 
-    public TypeConvertor getTypeConvertor() {
-        return typeConvertor;
+    public TypeMapper getTypeMapper() {
+        return typeMapper;
     }
 
-    public void setTypeConvertor(TypeConvertor typeConvertor) {
-        this.typeConvertor = typeConvertor;
+    public void setTypeMapper(TypeMapper typeMapper) {
+        this.typeMapper = typeMapper;
     }
 
     /**
@@ -98,14 +98,14 @@ public class TypeEdge {
         }
 
         TypeEdge e = (TypeEdge) other;
-        if (typeConvertorFunction != null) {
+        if (typeMapperFunction != null) {
             return e.source.equals(this.source) && e.target.equals(this.target)
                     && e.packageName.equals(this.packageName)
-                    && e.typeConvertorFunction.equals(this.typeConvertorFunction);
+                    && e.typeMapperFunction.equals(this.typeMapperFunction);
         } else {
             return e.source.equals(this.source) && e.target.equals(this.target)
                     && e.packageName.equals(this.packageName)
-                    && e.typeConvertor.equals(this.typeConvertor);
+                    && e.typeMapper.equals(this.typeMapper);
         }
     }
 
