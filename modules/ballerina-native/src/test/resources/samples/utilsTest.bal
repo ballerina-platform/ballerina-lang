@@ -17,7 +17,7 @@ function testHmacFromBase64(string base, string key, string algo)(string) {
   return util:getHmacFromBase64(base, util:base64encode(key), algo);
 }
 
-function testMessageDigest(string base, string algo)(string) {
+function testGetHash(string base, string algo)(string) {
   return util:getHash(base, algo);
 }
 

@@ -117,7 +117,7 @@ public class BallerinaUtilsTest {
     }
 
     @Test
-    public void testMessageDigest() {
+    public void testGetHash() {
         List<BValue[]> argsList = new ArrayList<>();
 
         argsList.add(new BValue[]{new BString("Ballerina HMAC BASE64 test"), new BString("SHA1")});
@@ -125,7 +125,7 @@ public class BallerinaUtilsTest {
         argsList.add(new BValue[]{new BString("Ballerina HMAC BASE64 test"), new BString("MD5")});
 
         for (BValue[] args : argsList) {
-            BValue[] returnVals = Functions.invoke(bFile, "testMessageDigest", args);
+            BValue[] returnVals = Functions.invoke(bFile, "testGetHash", args);
             Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                                "Invalid Return Values for");
         }

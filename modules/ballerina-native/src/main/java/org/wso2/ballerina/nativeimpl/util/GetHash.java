@@ -46,17 +46,14 @@ import java.security.NoSuchAlgorithmException;
         args = { @Argument(name = "baseString", type = TypeEnum.STRING),
                  @Argument(name = "algorithm", type = TypeEnum.STRING) },
         returnType = { @ReturnType(type = TypeEnum.STRING) },
-        isPublic = true) @Component(
-        name = "func.util_getHash",
-        immediate = true,
-        service = AbstractNativeFunction.class)
+        isPublic = true)
 
-public class DigestMessage extends AbstractNativeFunction {
+public class GetHash extends AbstractNativeFunction {
 
     /**
      * Hashes the string contents (assumed to be UTF-8) using the SHA-256 algorithm.
      */
-    private static final Logger log = LoggerFactory.getLogger(DigestMessage.class);
+    private static final Logger log = LoggerFactory.getLogger(GetHash.class);
 
     @Override public BValue[] execute(Context context) {
         String baseString = getArgument(context, 0).stringValue();

@@ -51,10 +51,7 @@ import javax.crypto.spec.SecretKeySpec;
                  @Argument(name = "keyString", type = TypeEnum.STRING),
                  @Argument(name = "algorithm", type = TypeEnum.STRING) },
         returnType = { @ReturnType(type = TypeEnum.STRING) },
-        isPublic = true) @Component(
-        name = "func.util_getHmacFromBase64",
-        immediate = true,
-        service = AbstractNativeFunction.class)
+        isPublic = true)
 
 public class GetHmacFromBase64 extends AbstractNativeFunction {
 

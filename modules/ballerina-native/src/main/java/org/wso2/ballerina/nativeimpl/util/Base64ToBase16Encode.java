@@ -44,16 +44,14 @@ import java.util.Base64;
         functionName = "base64ToBase16Encode",
         args = { @Argument(name = "string", type = TypeEnum.STRING)},
         returnType = { @ReturnType(type = TypeEnum.STRING) },
-        isPublic = true) @Component(
-        name = "func.util_base64ToBase16Encode",
-        immediate = true,
-        service = AbstractNativeFunction.class)
+        isPublic = true)
 
 public class Base64ToBase16Encode extends AbstractNativeFunction {
 
     private static final Logger log = LoggerFactory.getLogger(Base64ToBase16Encode.class);
 
-    @Override public BValue[] execute(Context context) {
+    @Override
+    public BValue[] execute(Context context) {
         String stringValue = getArgument(context, 0).stringValue();
 
         String result = "";
