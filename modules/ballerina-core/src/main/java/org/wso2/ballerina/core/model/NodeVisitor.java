@@ -57,12 +57,15 @@ import org.wso2.ballerina.core.model.invokers.MainInvoker;
 import org.wso2.ballerina.core.model.statements.ActionInvocationStmt;
 import org.wso2.ballerina.core.model.statements.AssignStmt;
 import org.wso2.ballerina.core.model.statements.BlockStmt;
+import org.wso2.ballerina.core.model.statements.BreakStmt;
 import org.wso2.ballerina.core.model.statements.CommentStmt;
 import org.wso2.ballerina.core.model.statements.ForkJoinStmt;
 import org.wso2.ballerina.core.model.statements.FunctionInvocationStmt;
 import org.wso2.ballerina.core.model.statements.IfElseStmt;
 import org.wso2.ballerina.core.model.statements.ReplyStmt;
 import org.wso2.ballerina.core.model.statements.ReturnStmt;
+import org.wso2.ballerina.core.model.statements.ThrowStmt;
+import org.wso2.ballerina.core.model.statements.TryCatchStmt;
 import org.wso2.ballerina.core.model.statements.VariableDefStmt;
 import org.wso2.ballerina.core.model.statements.WhileStmt;
 import org.wso2.ballerina.core.model.statements.WorkerInvocationStmt;
@@ -123,6 +126,12 @@ public interface NodeVisitor {
     void visit(ReturnStmt returnStmt);
 
     void visit(WhileStmt whileStmt);
+
+    void visit(BreakStmt breakStmt);
+
+    void visit(TryCatchStmt tryCatchStmt);
+
+    void visit(ThrowStmt throwStmt);
 
     void visit(FunctionInvocationStmt functionInvocationStmt);
 

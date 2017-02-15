@@ -23,9 +23,22 @@ under the License.
 
     <!-- Native Function Related Test Cases. -->
     <test name="ballerina-native-functions-unit-tests" preserve-order="true" parallel="false">
+        <parameter name="enableNonBlocking" value="false"/>
         <packages>
-            <package name="org.wso2.ballerina.nativeimpl.functions.*" />
+            <package name="org.wso2.ballerina.nativeimpl.functions.*"/>
         </packages>
+        <classes>
+            <class name="org.wso2.ballerina.nativeimpl.util.TestConfigurationUtil"/>
+        </classes>
+    </test>
+    <test name="ballerina-native-functions-unit-tests-non-blocking" preserve-order="true" parallel="false">
+        <parameter name="enableNonBlocking" value="true"/>
+        <packages>
+            <package name="org.wso2.ballerina.nativeimpl.functions.*"/>
+        </packages>
+        <classes>
+            <class name="org.wso2.ballerina.nativeimpl.util.TestConfigurationUtil"/>
+        </classes>
     </test>
 
     <!-- Native Connectors Related Test Cases -->
@@ -35,17 +48,43 @@ under the License.
         </packages>
     </test>
 
-    <!-- Native TypeMappers Related Test Cases -->
-    <test name="ballerina-native-type-mappers-unit-tests" preserve-order="true" parallel="false">
+    <!-- Native TypeConvertors Related Test Cases -->
+    <test name="ballerina-native-type-convertors-unit-tests" preserve-order="true" parallel="false">
+        <parameter name="enableNonBlocking" value="false"/>
         <packages>
             <package name="org.wso2.ballerina.nativeimpl.mappers"/>
         </packages>
+        <classes>
+            <class name="org.wso2.ballerina.nativeimpl.util.TestConfigurationUtil"/>
+        </classes>
+    </test>
+    <test name="ballerina-native-type-convertors-unit-tests-non-blocking" preserve-order="true" parallel="false">
+        <parameter name="enableNonBlocking" value="true"/>
+        <packages>
+            <package name="org.wso2.ballerina.nativeimpl.mappers"/>
+        </packages>
+        <classes>
+            <class name="org.wso2.ballerina.nativeimpl.util.TestConfigurationUtil"/>
+        </classes>
     </test>
 
     <!-- Worker Related Test Cases -->
     <test name="ballerina-core-worker-unit-tests" preserve-order="true" parallel="false">
+        <parameter name="enableNonBlocking" value="false"/>
         <packages>
             <package name="org.wso2.ballerina.core.lang.worker"/>
         </packages>
+        <classes>
+            <class name="org.wso2.ballerina.nativeimpl.util.TestConfigurationUtil"/>
+        </classes>
+    </test>
+    <test name="ballerina-core-worker-unit-tests-non-blocking" preserve-order="true" parallel="false">
+        <parameter name="enableNonBlocking" value="true"/>
+        <packages>
+            <package name="org.wso2.ballerina.core.lang.worker"/>
+        </packages>
+        <classes>
+            <class name="org.wso2.ballerina.nativeimpl.util.TestConfigurationUtil"/>
+        </classes>
     </test>
 </suite>

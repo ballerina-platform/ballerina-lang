@@ -17,19 +17,27 @@
  */
 package org.wso2.ballerina.core.interpreter;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.model.Worker;
 import org.wso2.ballerina.core.model.values.BMessage;
+import org.wso2.ballerina.core.runtime.errors.handler.ErrorHandlerUtils;
+import org.wso2.carbon.messaging.DefaultCarbonMessage;
 
+import java.io.PrintStream;
 import java.util.concurrent.Callable;
 
 /**
  * A {@code WorkerRunner} Callable class which is running in a separate worker thread when worker is invoked
  * <p>
  *
- *  @since 0.8.0
+ * @since 0.8.0
  */
 public class WorkerRunner implements Callable<BMessage> {
+
+    private static final Logger log = LoggerFactory.getLogger(WorkerRunner.class);
+    private static PrintStream outStream = System.err;
 
     private BLangExecutor executor;
     private Context bContext;
@@ -40,9 +48,20 @@ public class WorkerRunner implements Callable<BMessage> {
         this.bContext = bContext;
         this.worker = worker;
     }
+
+
     @Override
     public BMessage call() throws BallerinaException {
-        worker.getCallableUnitBody().execute(executor);
-        return (BMessage) bContext.getControlStack().getCurrentFrame().returnValues[0];
+        try {
+            worker.getCallableUnitBody().execute(executor);
+            return (BMessage) bContext.getControlStack().getCurrentFrame().returnValues[0];
+        } catch (RuntimeException throwable) {
+            String errorMsg = ErrorHandlerUtils.getErrorMessage(throwable);
+            String stacktrace = ErrorHandlerUtils.getServiceStackTrace(bContext, throwable);
+            String errorWithTrace = "exception in worker" + worker.getName() + " : " + errorMsg + "\n" + stacktrace;
+            log.error(errorWithTrace);
+            outStream.println(errorWithTrace);
+            return new BMessage(new DefaultCarbonMessage());
+        }
     }
 }

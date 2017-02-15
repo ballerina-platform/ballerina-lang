@@ -18,6 +18,7 @@
 
 package org.wso2.ballerina.core.model;
 
+import org.wso2.ballerina.core.exception.FlowBuilderException;
 import org.wso2.ballerina.core.model.builder.CallableUnitBuilder;
 import org.wso2.ballerina.core.model.statements.BlockStmt;
 import org.wso2.ballerina.core.model.symbols.BLangSymbol;
@@ -44,7 +45,7 @@ import java.util.concurrent.Future;
  *  @since 0.8.0
  */
 @SuppressWarnings("unused")
-public class Worker implements SymbolScope, CompilationUnit, CallableUnit  {
+public class Worker implements SymbolScope, CompilationUnit, CallableUnit {
 
     private Future<BMessage> resultFuture;
     private NodeLocation location;
@@ -63,10 +64,12 @@ public class Worker implements SymbolScope, CompilationUnit, CallableUnit  {
     private BType[] returnParamTypes;
     private BlockStmt workerBody;
     private int stackFrameSize;
+    private int tempStackFrameSize;
 
     // Scope related variables
     private SymbolScope enclosingScope;
     private Map<SymbolName, BLangSymbol> symbolMap;
+    private boolean isFlowBuilderVisited;
 
     public Worker(String name) {
         this.name = name;
@@ -77,7 +80,8 @@ public class Worker implements SymbolScope, CompilationUnit, CallableUnit  {
         this.symbolMap = new HashMap<>();
     }
 
-    public Worker(){}
+    public Worker() {
+    }
 
     @Override
     public void accept(NodeVisitor visitor) {
@@ -226,6 +230,20 @@ public class Worker implements SymbolScope, CompilationUnit, CallableUnit  {
         this.stackFrameSize = frameSize;
     }
 
+    @Override
+    public int getTempStackFrameSize() {
+        return this.tempStackFrameSize;
+    }
+
+    @Override
+    public void setTempStackFrameSize(int frameSize) {
+        if (this.tempStackFrameSize > 0 && stackFrameSize != this.tempStackFrameSize) {
+            throw new FlowBuilderException("Attempt to Overwrite tempValue Frame size. current :" +
+                    this.tempStackFrameSize + ", new :" + stackFrameSize);
+        }
+        this.tempStackFrameSize = stackFrameSize;
+    }
+
     /**
      * Returns the body of the callable unit as a {@code BlockStmt}.
      *
@@ -282,6 +300,14 @@ public class Worker implements SymbolScope, CompilationUnit, CallableUnit  {
 
     public void setResultFuture(Future<BMessage> resultFuture) {
         this.resultFuture = resultFuture;
+    }
+
+    public boolean isFlowBuilderVisited() {
+        return isFlowBuilderVisited;
+    }
+
+    public void setFlowBuilderVisited(boolean flowBuilderVisited) {
+        isFlowBuilderVisited = flowBuilderVisited;
     }
 
     /**

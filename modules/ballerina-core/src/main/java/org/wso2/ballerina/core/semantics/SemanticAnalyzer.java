@@ -93,6 +93,7 @@ import org.wso2.ballerina.core.model.invokers.MainInvoker;
 import org.wso2.ballerina.core.model.statements.ActionInvocationStmt;
 import org.wso2.ballerina.core.model.statements.AssignStmt;
 import org.wso2.ballerina.core.model.statements.BlockStmt;
+import org.wso2.ballerina.core.model.statements.BreakStmt;
 import org.wso2.ballerina.core.model.statements.CommentStmt;
 import org.wso2.ballerina.core.model.statements.ForkJoinStmt;
 import org.wso2.ballerina.core.model.statements.FunctionInvocationStmt;
@@ -100,6 +101,8 @@ import org.wso2.ballerina.core.model.statements.IfElseStmt;
 import org.wso2.ballerina.core.model.statements.ReplyStmt;
 import org.wso2.ballerina.core.model.statements.ReturnStmt;
 import org.wso2.ballerina.core.model.statements.Statement;
+import org.wso2.ballerina.core.model.statements.ThrowStmt;
+import org.wso2.ballerina.core.model.statements.TryCatchStmt;
 import org.wso2.ballerina.core.model.statements.VariableDefStmt;
 import org.wso2.ballerina.core.model.statements.WhileStmt;
 import org.wso2.ballerina.core.model.statements.WorkerInvocationStmt;
@@ -107,6 +110,7 @@ import org.wso2.ballerina.core.model.statements.WorkerReplyStmt;
 import org.wso2.ballerina.core.model.symbols.BLangSymbol;
 import org.wso2.ballerina.core.model.types.BArrayType;
 import org.wso2.ballerina.core.model.types.BConnectorType;
+import org.wso2.ballerina.core.model.types.BExceptionType;
 import org.wso2.ballerina.core.model.types.BJSONType;
 import org.wso2.ballerina.core.model.types.BMapType;
 import org.wso2.ballerina.core.model.types.BMessageType;
@@ -673,7 +677,8 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         for (int i = 0; i < blockStmt.getStatements().length; i++) {
             Statement stmt = blockStmt.getStatements()[i];
-            if (stmt instanceof ReturnStmt) {
+            if (stmt instanceof ReturnStmt || stmt instanceof ReplyStmt || stmt instanceof BreakStmt ||
+                    stmt instanceof ThrowStmt) {
                 int stmtLocation = i + 1;
                 if (blockStmt.getStatements().length > stmtLocation) {
                     BLangExceptionHelper.throwSemanticError(blockStmt.getStatements()[stmtLocation],
@@ -740,6 +745,38 @@ public class SemanticAnalyzer implements NodeVisitor {
         }
 
         blockStmt.accept(this);
+    }
+
+    @Override
+    public void visit(BreakStmt breakStmt) {
+
+    }
+
+    @Override
+    public void visit(TryCatchStmt tryCatchStmt) {
+        tryCatchStmt.getTryBlock().accept(this);
+        tryCatchStmt.getCatchBlock().getParameterDef().setMemoryLocation(new StackVarLocation(++stackFrameOffset));
+        tryCatchStmt.getCatchBlock().getParameterDef().accept(this);
+        tryCatchStmt.getCatchBlock().getCatchBlockStmt().accept(this);
+    }
+
+    @Override
+    public void visit(ThrowStmt throwStmt) {
+        throwStmt.getExpr().accept(this);
+        if (throwStmt.getExpr() instanceof VariableRefExpr) {
+            if (throwStmt.getExpr().getType() instanceof BExceptionType) {
+                return;
+            }
+        } else {
+            FunctionInvocationExpr funcIExpr = (FunctionInvocationExpr) throwStmt.getExpr();
+            if (!funcIExpr.isMultiReturnExpr() && funcIExpr.getTypes().length > 0
+                    && funcIExpr.getTypes()[0] instanceof BExceptionType) {
+                return;
+            }
+        }
+        throw new SemanticException(throwStmt.getNodeLocation().getFileName() + ":" +
+                throwStmt.getNodeLocation().getLineNumber() +
+                ": only a variable reference of type 'exception' is allowed in throw statement");
     }
 
     @Override
@@ -1305,7 +1342,8 @@ public class SemanticAnalyzer implements NodeVisitor {
         if (argExprs.length == 0) {
             refTypeInitExpr.setType(inheritedType);
 
-        } else if (inheritedType instanceof BJSONType || inheritedType instanceof BMessageType) {
+        } else if (inheritedType instanceof BJSONType || inheritedType instanceof BMessageType ||
+                inheritedType instanceof BExceptionType) {
             // If there are arguments, then only Structs and Map types are supported.
             BLangExceptionHelper.throwSemanticError(refTypeInitExpr, SemanticErrors.STRUCT_MAP_INIT_NOT_ALLOWED);
         }

@@ -1,5 +1,5 @@
 /*
-*  Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+*  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 *
 *  WSO2 Inc. licenses this file to you under the Apache License,
 *  Version 2.0 (the "License"); you may not use this file except
@@ -53,6 +53,7 @@ public class ForkJoinStmt extends AbstractStatement implements SymbolScope, Comp
     // Scope related variables
     private SymbolScope enclosingScope;
     private Map<SymbolName, BLangSymbol> symbolMap;
+    private int tempStackFrameSize;
 
     private ForkJoinStmt(NodeLocation nodeLocation, SymbolScope enclosingScope) {
         super(nodeLocation);
@@ -325,6 +326,17 @@ public class ForkJoinStmt extends AbstractStatement implements SymbolScope, Comp
     @Override
     public void setStackFrameSize(int frameSize) {
         this.stackFrameSize = frameSize;
+    }
+
+
+    @Override
+    public int getTempStackFrameSize() {
+        return tempStackFrameSize;
+    }
+
+    @Override
+    public void setTempStackFrameSize(int frameSize) {
+        this.tempStackFrameSize = frameSize;
     }
 
     /**

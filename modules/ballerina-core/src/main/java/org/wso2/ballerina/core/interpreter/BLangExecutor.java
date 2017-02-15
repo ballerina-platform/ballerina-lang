@@ -57,12 +57,15 @@ import org.wso2.ballerina.core.model.expressions.VariableRefExpr;
 import org.wso2.ballerina.core.model.statements.ActionInvocationStmt;
 import org.wso2.ballerina.core.model.statements.AssignStmt;
 import org.wso2.ballerina.core.model.statements.BlockStmt;
+import org.wso2.ballerina.core.model.statements.BreakStmt;
 import org.wso2.ballerina.core.model.statements.ForkJoinStmt;
 import org.wso2.ballerina.core.model.statements.FunctionInvocationStmt;
 import org.wso2.ballerina.core.model.statements.IfElseStmt;
 import org.wso2.ballerina.core.model.statements.ReplyStmt;
 import org.wso2.ballerina.core.model.statements.ReturnStmt;
 import org.wso2.ballerina.core.model.statements.Statement;
+import org.wso2.ballerina.core.model.statements.ThrowStmt;
+import org.wso2.ballerina.core.model.statements.TryCatchStmt;
 import org.wso2.ballerina.core.model.statements.VariableDefStmt;
 import org.wso2.ballerina.core.model.statements.WhileStmt;
 import org.wso2.ballerina.core.model.statements.WorkerInvocationStmt;
@@ -74,6 +77,7 @@ import org.wso2.ballerina.core.model.util.BValueUtils;
 import org.wso2.ballerina.core.model.values.BArray;
 import org.wso2.ballerina.core.model.values.BBoolean;
 import org.wso2.ballerina.core.model.values.BConnector;
+import org.wso2.ballerina.core.model.values.BException;
 import org.wso2.ballerina.core.model.values.BInteger;
 import org.wso2.ballerina.core.model.values.BJSON;
 import org.wso2.ballerina.core.model.values.BMap;
@@ -87,6 +91,7 @@ import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeTypeMapper;
 import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeAction;
 import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeConnector;
+import org.wso2.ballerina.core.runtime.errors.handler.ErrorHandlerUtils;
 import org.wso2.ballerina.core.runtime.worker.WorkerCallback;
 
 import java.util.ArrayList;
@@ -114,6 +119,7 @@ public class BLangExecutor implements NodeExecutor {
     private ControlStack controlStack;
     private boolean returnedOrReplied;
     private boolean isForkJoinTimedOut;
+    private boolean isBreakCalled;
     private ExecutorService executor;
 
     public BLangExecutor(RuntimeEnvironment runtimeEnv, Context bContext) {
@@ -126,7 +132,7 @@ public class BLangExecutor implements NodeExecutor {
     public void visit(BlockStmt blockStmt) {
         Statement[] stmts = blockStmt.getStatements();
         for (Statement stmt : stmts) {
-            if (returnedOrReplied) {
+            if (returnedOrReplied || isBreakCalled) {
                 break;
             }
             stmt.execute(this);
@@ -223,10 +229,59 @@ public class BLangExecutor implements NodeExecutor {
         while (condition.booleanValue()) {
             // Interpret the statements in the while body.
             whileStmt.getBody().execute(this);
-
+            if (returnedOrReplied || isBreakCalled) {
+                break;
+            }
             // Now evaluate the condition again to decide whether to continue the loop or not.
             condition = (BBoolean) expr.execute(this);
         }
+        isBreakCalled = false;
+    }
+
+    @Override
+    public void visit(BreakStmt breakStmt) {
+        isBreakCalled = true;
+    }
+
+    @Override
+    public void visit(TryCatchStmt tryCatchStmt) {
+        // Note: This logic is based on Java exception and hence not recommended.
+        // This is added only to make it work with blocking executor. and will be removed in a future release.
+        StackFrame current = bContext.getControlStack().getCurrentFrame();
+        try {
+            tryCatchStmt.getTryBlock().execute(this);
+        } catch (BallerinaException be) {
+            BException exception;
+            if (be.getBException() != null) {
+                exception = be.getBException();
+            } else {
+                exception = new BException(be.getMessage());
+            }
+            exception.value().setStackTrace(ErrorHandlerUtils.getMainFuncStackTrace(bContext, null));
+            while (bContext.getControlStack().getCurrentFrame() != current) {
+                if (controlStack.getStack().size() > 0) {
+                    controlStack.popFrame();
+                } else {
+                    // Throw this to handle at root error handler.
+                    throw new BallerinaException(be);
+                }
+            }
+            MemoryLocation memoryLocation = tryCatchStmt.getCatchBlock().getParameterDef().getMemoryLocation();
+            if (memoryLocation instanceof StackVarLocation) {
+                int stackFrameOffset = ((StackVarLocation) memoryLocation).getStackFrameOffset();
+                controlStack.setValue(stackFrameOffset, exception);
+            }
+            tryCatchStmt.getCatchBlock().getCatchBlockStmt().execute(this);
+        }
+    }
+
+    @Override
+    public void visit(ThrowStmt throwStmt) {
+        // Note: This logic is based on Java exception and hence not recommended.
+        // This is added only to make it work with blocking executor. and will be removed in a future release.
+        BException exception = (BException) throwStmt.getExpr().execute(this);
+        exception.value().setStackTrace(ErrorHandlerUtils.getMainFuncStackTrace(bContext, null));
+        throw new BallerinaException(exception);
     }
 
     @Override
@@ -480,7 +535,6 @@ public class BLangExecutor implements NodeExecutor {
         } catch (TimeoutException e) {
             isForkJoinTimedOut = true;
             return null;
-           // throw new BallerinaException("Fork-Join statement at " + position + " timed out", e);
         }
         return result;
     }
