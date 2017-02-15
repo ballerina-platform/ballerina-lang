@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, WSO2 Inc. (http://wso2.com) All Rights Reserved.
+ * Copyright (c) 2017, WSO2 Inc. (http://wso2.com) All Rights Reserved.
  * <p>
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -57,4 +57,5 @@ public class RefTypeInitExpr extends NaryExpression {
     public BValue execute(NodeExecutor executor) {
         return executor.visit(this);
     }
+
 }

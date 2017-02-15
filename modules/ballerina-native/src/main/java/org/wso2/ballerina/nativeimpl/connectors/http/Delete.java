@@ -24,17 +24,19 @@ import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.Connector;
 import org.wso2.ballerina.core.model.types.TypeEnum;
 import org.wso2.ballerina.core.model.values.BConnector;
+import org.wso2.ballerina.core.model.values.BException;
 import org.wso2.ballerina.core.model.values.BMessage;
 import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaAction;
 import org.wso2.ballerina.core.nativeimpl.annotations.ReturnType;
 import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeAction;
+import org.wso2.ballerina.core.nativeimpl.connectors.BalConnectorCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
+import org.wso2.carbon.messaging.exceptions.ClientConnectorException;
 
 /**
  * {@code Delete} is the DELETE action implementation of the HTTP Connector.
- *
  */
 @BallerinaAction(
         packageName = "ballerina.net.http",
@@ -60,26 +62,48 @@ public class Delete extends AbstractHTTPAction {
 
         logger.debug("Executing Native Action : Delete");
         try {
-            // Extract Argument values
-            BConnector bConnector = (BConnector) getArgument(context, 0);
-            String path = getArgument(context, 1).stringValue();
-            BMessage bMessage = (BMessage) getArgument(context, 2);
-
-            Connector connector = bConnector.value();
-            if (!(connector instanceof ClientConnector)) {
-                throw new BallerinaException("Need to use a ClientConnector as the first argument", context);
-            }
-            // Prepare the message
-            CarbonMessage cMsg = bMessage.value();
-            prepareRequest(connector, path, cMsg);
-            cMsg.setProperty(Constants.HTTP_METHOD,
-                             Constants.HTTP_METHOD_DELETE);
-
             // Execute the operation
-            return executeAction(context, cMsg);
+            return executeAction(context, createCarbonMsg(context));
         } catch (Throwable t) {
             throw new BallerinaException("Failed to invoke 'delete' action in " + ClientConnector.CONNECTOR_NAME
-                                         + ". " + t.getMessage(), context);
+                    + ". " + t.getMessage(), context);
         }
+    }
+
+    @Override
+    public void execute(Context context, BalConnectorCallback callback) {
+        if (logger.isDebugEnabled()) {
+            logger.debug("Executing Native Action (non-blocking): {}", this.getName());
+        }
+        try {
+            // Execute the operation
+            executeNonBlockingAction(context, createCarbonMsg(context), callback);
+        } catch (ClientConnectorException | RuntimeException e) {
+            String msg = "Failed to invoke 'delete' action in " + ClientConnector.CONNECTOR_NAME
+                    + ". " + e.getMessage();
+            BException exception = new BException(msg, Constants.HTTP_CLIENT_EXCEPTION_CATEGORY);
+            context.getExecutor().handleBException(exception);
+        } catch (Throwable t) {
+            // This is should be a JavaError. Need to handle this properly.
+            throw new BallerinaException("Failed to invoke 'delete' action in " + ClientConnector.CONNECTOR_NAME
+                    + ". " + t.getMessage(), context);
+        }
+    }
+
+    private CarbonMessage createCarbonMsg(Context context) {
+        // Extract Argument values
+        BConnector bConnector = (BConnector) getArgument(context, 0);
+        String path = getArgument(context, 1).stringValue();
+        BMessage bMessage = (BMessage) getArgument(context, 2);
+
+        Connector connector = bConnector.value();
+        if (!(connector instanceof ClientConnector)) {
+            throw new BallerinaException("Need to use a ClientConnector as the first argument", context);
+        }
+        // Prepare the message
+        CarbonMessage cMsg = bMessage.value();
+        prepareRequest(connector, path, cMsg);
+        cMsg.setProperty(Constants.HTTP_METHOD, Constants.HTTP_METHOD_DELETE);
+        return cMsg;
     }
 }

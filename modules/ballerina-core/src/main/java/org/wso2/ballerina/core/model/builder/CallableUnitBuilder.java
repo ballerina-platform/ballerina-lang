@@ -114,4 +114,8 @@ public class CallableUnitBuilder {
     public BTypeMapper buildTypeMapper() {
         return null;
     }
+
+    public Worker buildWorker() {
+        return null;
+    }
 }

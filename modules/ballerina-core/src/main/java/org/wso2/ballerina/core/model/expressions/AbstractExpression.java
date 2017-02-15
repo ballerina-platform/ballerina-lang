@@ -17,6 +17,8 @@
 */
 package org.wso2.ballerina.core.model.expressions;
 
+import org.wso2.ballerina.core.exception.FlowBuilderException;
+import org.wso2.ballerina.core.model.LinkedNode;
 import org.wso2.ballerina.core.model.NodeExecutor;
 import org.wso2.ballerina.core.model.NodeLocation;
 import org.wso2.ballerina.core.model.types.BType;
@@ -32,8 +34,15 @@ import org.wso2.ballerina.core.model.values.BValue;
 public abstract class AbstractExpression implements Expression {
     protected NodeLocation location;
     protected BType type;
+
+    public LinkedNode next;
+    private LinkedNode sibling, parent;
     protected boolean multipleReturnsAvailable;
     protected int offset;
+
+    // Non-Blocking Implementation related fields.
+    private int tempOffset;
+    private boolean isTempOffsetSet = false;
 
     public AbstractExpression(NodeLocation location) {
         this.location = location;
@@ -62,5 +71,59 @@ public abstract class AbstractExpression implements Expression {
     @Override
     public NodeLocation getNodeLocation() {
         return location;
+    }
+
+    @Override
+    public LinkedNode next() {
+        return next;
+    }
+
+    @Override
+    public void setNext(LinkedNode linkedNode) {
+        // Validation for incorrect Linking.
+        if (next != null && next != linkedNode && !next.getClass().equals(linkedNode.getClass())) {
+            throw new IllegalStateException(this.getClass() + " got different next." + next + " " + linkedNode);
+        }
+        this.next = linkedNode;
+    }
+
+    @Override
+    public LinkedNode getNextSibling() {
+        return sibling;
+    }
+
+    @Override
+    public void setNextSibling(LinkedNode linkedNode) {
+        this.sibling = linkedNode;
+    }
+
+    @Override
+    public LinkedNode getParent() {
+        return parent;
+    }
+
+    @Override
+    public void setParent(LinkedNode linkedNode) {
+        this.parent = linkedNode;
+    }
+
+    @Override
+    public int getTempOffset() {
+        return tempOffset;
+    }
+
+    @Override
+    public void setTempOffset(int index) {
+        if (isTempOffsetSet && index != tempOffset) {
+            throw new FlowBuilderException("Internal Error. Attempt to Overwrite tempOffset. current :" + tempOffset +
+                    ", new :" + index);
+        }
+        isTempOffsetSet = true;
+        this.tempOffset = index;
+    }
+
+    @Override
+    public boolean hasTemporaryValues() {
+        return isTempOffsetSet;
     }
 }
