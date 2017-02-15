@@ -707,7 +707,6 @@ button.variable-list {
 .imports-wrapper div span {
     font-style: italic;
     cursor: default;
-    color: #a7a7a7;
 }
 .import-declaration-wrapper{
     float: left;
@@ -918,7 +917,7 @@ button.variable-list {
     cursor: pointer;
 }
 
-.constants-action-wrapper{
+.constants-action-wrapper, .imports-action-wrapper{
     display: none;
 }
 
@@ -1002,6 +1001,9 @@ button.variable-list {
     border: 1px solid #ddd;
     border-left: none;
 }
+.import-pane-collapser-wrapper{
+    font-size: 12px;
+}
 
 .constant-pane-collapser-wrapper:hover {
     cursor: pointer;
@@ -1066,6 +1068,8 @@ button.variable-list {
 
 .constants-definition-wrapper {
     padding-bottom: 47px;
+    float: left;
+    width: 100%;
 }
 
 /** End of Constants view **/
