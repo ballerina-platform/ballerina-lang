@@ -27,6 +27,7 @@ import org.wso2.ballerina.core.model.Service;
 import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.nativeimpl.connectors.BallerinaConnectorManager;
 import org.wso2.ballerina.core.runtime.dispatching.uri.URIUtil;
+import org.wso2.ballerina.core.runtime.exceptions.ServiceNotFoundException;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.ServerConnector;
@@ -62,7 +63,7 @@ public class HTTPServiceDispatcher implements ServiceDispatcher {
 
             Map<String, Service> servicesOnInterface = services.get(interfaceId);
             if (servicesOnInterface == null) {
-                throw new BallerinaException("No services found for interface : " + interfaceId);
+                throw new ServiceNotFoundException("No services found for interface : " + interfaceId);
             }
 
             String uriStr = (String) cMsg.getProperty(org.wso2.carbon.messaging.Constants.TO);
@@ -86,7 +87,8 @@ public class HTTPServiceDispatcher implements ServiceDispatcher {
             }
 
             if (service == null) {
-                throw new BallerinaException("no service found to handle incoming request recieved to : " + uriStr);
+                throw new ServiceNotFoundException("no service found to handle incoming request received to : "
+                        + uriStr);
             }
 
             cMsg.setProperty(Constants.BASE_PATH, basePath);
@@ -95,7 +97,7 @@ public class HTTPServiceDispatcher implements ServiceDispatcher {
 
             return service;
         } catch (Throwable e) {
-            throw new BallerinaException(e.getMessage(), balContext);
+            throw new BallerinaException(e.getMessage(), e, balContext);
         }
     }
 
