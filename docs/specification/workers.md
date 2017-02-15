@@ -36,4 +36,8 @@ from the worker as follows:
 MessageName <- WorkerName;
 ```
 
+If the worker does not reply, then the above will wait until the named worker completes and return a null value for the message.
+
+If there is no wait for completion of a particular worker and if the enclosing entity finishes execution then all active workers are immediately killed prior to returning from the enclosing context.
+
 > NOTE: In version 0.8 only one interaction is allowed between the worker and its creator.

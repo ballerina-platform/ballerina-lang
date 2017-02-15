@@ -1,66 +1,109 @@
-# Types & Variables
+# Types, Variables & Constants
 
-Ballerina has variables of various types. The type system includes built-in primitive or value types, a
-collection of built-in structured types, and array, record, and iterator type constructors. All variables
-of primitive types are allocated on the stack, while all non-primitive types are allocated
-on a heap using `new`.
+The Ballerina type system has value types and reference types. Ballerina comes with a set of built-in reference types and array, struct or iterator type constructors to create new reference types.
 
 The type system is illustrated in the following:
 
 ![Ballerina Type System](images/typesystem.png)
 
-#### Declaring Variables
+The rest of this section explains the semantics of these types in detail.
+
+## Declaring & Initializing Variables
+
+Variables declarations are considered statements in the language and can be interspersed with other statements in any order.
 
 A `VariableDeclaration` has the following structure:
 
 ```
-TypeName VariableName;
+TypeName VariableName [ = Expression];
 ```
 
-A `TypeName` can be one of the following built-in *primitive types*:
+Variables can be initialized using the standard literal value syntax for that type of variable or using expressions consisting of literal values and any other variables that are in-scope and already initialized. See the 'Literal Values' subsection below for the syntax for literal values for value types, built-in reference types and user defined reference types.
+
+## Allocating & Deallocating Variables
+
+All value typed variables are allocated on the stack, while all reference typed variables are allocated on the heap. Value typed variables are deallocated when they go out of scope and all reference typed variables are garbage collected when they are no longer in use.
+
+As all reference typed variables are allocated on the heap, they must be explicitly allocated. This can be done by assigning them a literal value (see the 'Literal Values' subsection below) or by simply creating an empty value.
+
+## Scoping, Visibility, Shadowing and SSS
+
+Ballerina is a statically scoped language.
+
+## Value Types
+
+Ballerina includes the following value types:
 - boolean
 - int
-- long
 - float
-- double
 - string
 
-Primitive types do not have to be dynamically allocated as they are always allocated
-on the stack.
+The types 'int' and 'float' both support 64-bit IEEE754 arithmetic. The 'boolean' types has only two literal values: 'true' and 'false'. The 'string' type operates similar to value types in that assignment and comparison involve the value and not the pointer.
 
-A `TypeName` can also be one of the following built-in *non-primitive types*:
-- message
-- map
-- exception
+Value types can be initialized at declaration by assigning a value of that type.
 
-A `TypeName` can also be the name of a *user defined type*.
+Literal values for these types are written using standard formats for writing integral values and floating point values; the grammar has the exact specification.
 
-#### Constructed Types (User Defined Types)
+## User-Defined Reference Types
 
-##### Structured Types (Records)
+###  Structured Types (Records)
+
 User defined record types are defined using the `struct` keyword as follows:
 ```
-[public] struct TypeName {
-    TypeName VariableName;+
+struct TypeName {
+    TypeName FieldName;+
 }
 ```
-If a `struct` is marked `public`, it can be instantiated from another package.
+
+Variables of struct types can be initialized at declaration time or later using the following syntax:
+```
+StructVariableName = { FieldName : Expression, .. FieldName : Expression};
+```
+This results in a new instance of the struct being created with the named fields assigned the indicated values. If a field is not named then it has no value when the struct is created. Thus, structs with no values assigned can be created by assigning the value '{}'.
 
 ##### Arrays
+
 Arrays are defined using the array constructor `[]` as follows:
 ```
 TypeName[]
 ```
-All arrays are unbounded in length and support 0 based indexing.
+All arrays are unbounded in length and support 0 based indexing. Arrays may be sparse as well and they will grow to meet whatever size needed based on the index (subject to memory avaialability of course).
 
-##### Iterators
-Iterators are defined using the iterator constructor `~` as follows:
-```
-TypeName~
-```
-Iterator typed values are navigated through using an `iterate` statement.
+Array typed variables can
 
-Iterators are currently only available for the built-in types xml and json. In the future we will allow developers to define their own iterators for their types.
+## Built-In Reference Types
+
+Ballerina comes with a pre-defined set of reference types which are key to supporting the types of programs that Ballerina developers are expected to write. These are supported by a set of standard library functions found in the packages 'ballerina.lang.*'. This section defines each of these types and defines their usage.
+
+### Type: 'message'
+
+The 'message' type is an opaque type used to represent a request to a 'resource'. This approach is necessary to make the 'resource' programming model network protocol independent, even though a given 'resource' is always tied to a particular protocol as a 'service' can only be bound to a single network protocol at a time.
+
+Library functions for accessing information from this type are in the package 'ballerina.lang.message'.
+
+A variable of type 'message' can be initialized to hold an empty value as follows:
+
+'''
+message VarName = {};
+'''
+
+### Type: 'exception'
+
+The 'exception' type is used to hold an exception. An exception contains two properties: a type string and a message string. In addition, library functions can generate a stack trace of the source of the exception. Note that unlike other languages, Ballerina does not allow developers to define subtypes of the exception type and custom exceptions must be thrown by using customer type strings. As such exception type strings starting with "Ballerina:" are reserved for system use only.
+
+Library functions for accessing information from this type are in the package 'ballerina.lang.exception'.
+
+### Type: 'map'
+
+The 'map' type is a hash map from string to any type.
+
+Library functions for accessing information from this type are in the package 'ballerina.lang.map'.
+
+> NOTE: A future version of the language will likely introduce syntax to constrain the value space of a map to a particular type. The syntax under consideration for that is map<TypeName> VariableName. We are currently not considering expanding the key space beyond string.
+
+### Type: 'xml' & 'xmlDocument'
+
+********** NOT FINISHED ***********
 
 #### XML & JSON Types
 
@@ -112,6 +155,16 @@ json address_json = `{"name" : "$name", "streetName" : "$street"}`;
 map m = {"name" : "John", "age" : 34 };
 int[] data = [1, 2, 3, 6, 10];
 ```
+
+## Iterators
+Iterators are defined using the iterator constructor `~` as follows:
+```
+TypeName~
+```
+Iterator typed values are navigated through using an `iterate` statement.
+
+> NOTE: Iterators are still not fully consumated. Iterators are currently only available for the built-in types xml and json. In the future we will allow developers to define their own iterators for their types.
+
 
 #### Type Coercion and Conversion
 
