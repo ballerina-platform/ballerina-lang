@@ -172,6 +172,10 @@ public class SemanticAnalyzer implements NodeVisitor {
 
     @Override
     public void visit(BallerinaFile bFile) {
+        if (!bFile.getErrorMsgs().isEmpty()) {
+            throw new SemanticException(bFile.getErrorMsgs().get(0));
+        }
+
         for (CompilationUnit compilationUnit : bFile.getCompilationUnits()) {
             compilationUnit.accept(this);
         }
