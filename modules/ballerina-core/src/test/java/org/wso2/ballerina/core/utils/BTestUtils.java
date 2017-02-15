@@ -69,7 +69,7 @@ public class BTestUtils {
      * @param globalSymScope Global symbol scope which includes all the native functions and actions
      * @return BallerinaFile instance.
      */
-    public static BallerinaFile parseBalFile(String sourceFilePath, SymScope globalSymScope) {
+/*    public static BallerinaFile parseBalFile(String sourceFilePath, SymScope globalSymScope) {
 
         BallerinaParser ballerinaParser = getBallerinaParser(sourceFilePath);
 
@@ -99,7 +99,7 @@ public class BTestUtils {
 //        bFile.accept(semanticAnalyzer);
 
         return bFile;
-    }
+    }*/
 
     /**
      * Get Ballerina Parser instance for given Ballerina file.

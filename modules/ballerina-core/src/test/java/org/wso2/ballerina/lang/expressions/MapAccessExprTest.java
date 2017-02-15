@@ -22,7 +22,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.ballerina.core.exception.SemanticException;
 import org.wso2.ballerina.core.interpreter.SymScope;
-import org.wso2.ballerina.core.model.BallerinaFile;
+import org.wso2.ballerina.core.model.BLangProgram;
 import org.wso2.ballerina.core.model.values.BInteger;
 import org.wso2.ballerina.core.model.values.BMap;
 import org.wso2.ballerina.core.model.values.BString;
@@ -36,19 +36,19 @@ import org.ballerinalang.util.program.BLangFunctions;
  * @since 0.8.0
  */
 public class MapAccessExprTest {
-    private BallerinaFile bFile;
+    private BLangProgram bLangProgram;
 
     @BeforeClass
     public void setup() {
         // Linking Native functions.
         SymScope symScope = new SymScope(null);
-        bFile = BTestUtils.parseBalFile("lang/expressions/map-access-expr.bal", symScope);
+        bLangProgram = BTestUtils.parseBalFile("lang/expressions/map-access-expr.bal");
     }
 
     @Test(description = "Test map access expression")
     public void testMapAccessExpr() {
         BValue[] args = {new BInteger(100), new BInteger(5)};
-        BValue[] returns = BLangFunctions.invoke(bFile, "mapAccessTest", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "mapAccessTest", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
@@ -61,7 +61,7 @@ public class MapAccessExprTest {
     @Test(description = "Test map return value")
     public void testArrayReturnValueTest() {
         BValue[] args = {new BString("Chanaka"), new BString("Fernando")};
-        BValue[] returns = BLangFunctions.invoke(bFile, "mapReturnTest", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "mapReturnTest", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BMap.class);

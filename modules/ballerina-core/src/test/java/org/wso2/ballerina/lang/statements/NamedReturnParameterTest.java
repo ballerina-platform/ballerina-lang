@@ -20,7 +20,7 @@ package org.wso2.ballerina.lang.statements;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.wso2.ballerina.core.model.BallerinaFile;
+import org.wso2.ballerina.core.model.BLangProgram;
 import org.wso2.ballerina.core.model.values.BInteger;
 import org.wso2.ballerina.core.model.values.BString;
 import org.wso2.ballerina.core.model.values.BValue;
@@ -32,17 +32,17 @@ import org.ballerinalang.util.program.BLangFunctions;
  * return;
  */
 public class NamedReturnParameterTest {
-    private BallerinaFile bFile;
+    private BLangProgram bLangProgram;
 
     @BeforeClass
     public void setup() {
-        bFile = BTestUtils.parseBalFile("lang/statements/returnstmt/named-return-positive.bal");
+        bLangProgram = BTestUtils.parseBalFile("lang/statements/returnstmt/named-return-positive.bal");
     }
 
     @Test(description = "Test single named return parameter")
     public void testSingleNamedReturnParam() {
         BValue[] args = {new BInteger(10), new BString("test")};
-        BValue[] returns = BLangFunctions.invoke(bFile, "testSingleNamedReturnParam", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testSingleNamedReturnParam", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
@@ -53,7 +53,7 @@ public class NamedReturnParameterTest {
     @Test(description = "Test single named return parameter with zero return stmt arguments")
     public void testSingleNamedReturnParamDefaultValue() {
         BValue[] args = {new BInteger(10), new BString("test")};
-        BValue[] returns = BLangFunctions.invoke(bFile, "testSingleNamedReturnParamDefaultValue", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testSingleNamedReturnParamDefaultValue", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
@@ -64,7 +64,7 @@ public class NamedReturnParameterTest {
     @Test(description = "Test single named return parameter, zero return arguments")
     public void testSingleNamedReturnParamZeroReturnArgs() {
         BValue[] args = {new BInteger(10), new BString("test")};
-        BValue[] returns = BLangFunctions.invoke(bFile, "testSingleNamedReturnParamZeroReturnArgs", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testSingleNamedReturnParamZeroReturnArgs", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
@@ -75,7 +75,7 @@ public class NamedReturnParameterTest {
     @Test(description = "Test single named return parameter, zero return arguments and default values")
     public void testSingleNamedReturnParamDefaultValueZeroReturnArgs() {
         BValue[] args = {new BInteger(10), new BString("test")};
-        BValue[] returns = BLangFunctions.invoke(bFile, "testSingleNamedReturnParamDefaultValueZeroReturnArgs", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testSingleNamedReturnParamDefaultValueZeroReturnArgs", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
@@ -86,7 +86,7 @@ public class NamedReturnParameterTest {
     @Test(description = "Test two named return parameters")
     public void testTwoNamedReturnParam() {
         BValue[] args = {new BInteger(10), new BString("test")};
-        BValue[] returns = BLangFunctions.invoke(bFile, "testTwoNamedReturnParam", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testTwoNamedReturnParam", args);
 
         Assert.assertEquals(returns.length, 2);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
@@ -99,7 +99,7 @@ public class NamedReturnParameterTest {
     @Test(description = "Test two named return parameters with default valuse")
     public void testTwoNamedReturnParamDefaultValue() {
         BValue[] args = {};
-        BValue[] returns = BLangFunctions.invoke(bFile, "testTwoNamedReturnParamDefaultValue", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testTwoNamedReturnParamDefaultValue", args);
 
         Assert.assertEquals(returns.length, 2);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
@@ -112,7 +112,7 @@ public class NamedReturnParameterTest {
     @Test(description = "Test two named return parameters")
     public void testTwoNamedReturnParamZeroReturnArgs() {
         BValue[] args = {new BInteger(10), new BString("test")};
-        BValue[] returns = BLangFunctions.invoke(bFile, "testTwoNamedReturnParamZeroReturnArgs", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testTwoNamedReturnParamZeroReturnArgs", args);
 
         Assert.assertEquals(returns.length, 2);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
@@ -125,7 +125,7 @@ public class NamedReturnParameterTest {
     @Test(description = "Test two named return parameters")
     public void testTwoNamedReturnParamZeroReturnArgsDefaultValue() {
         BValue[] args = {};
-        BValue[] returns = BLangFunctions.invoke(bFile, "testTwoNamedReturnParamZeroReturnArgsDefaultValue", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testTwoNamedReturnParamZeroReturnArgsDefaultValue", args);
 
         Assert.assertEquals(returns.length, 2);
         Assert.assertSame(returns[0].getClass(), BInteger.class);

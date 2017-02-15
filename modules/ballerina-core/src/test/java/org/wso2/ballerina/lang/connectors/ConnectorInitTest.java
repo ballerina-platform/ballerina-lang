@@ -20,7 +20,7 @@ package org.wso2.ballerina.lang.connectors;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.wso2.ballerina.core.model.BallerinaFile;
+import org.wso2.ballerina.core.model.BLangProgram;
 import org.wso2.ballerina.core.model.values.BInteger;
 import org.wso2.ballerina.core.model.values.BString;
 import org.wso2.ballerina.core.model.values.BValue;
@@ -34,18 +34,18 @@ import org.ballerinalang.util.program.BLangFunctions;
  */
 public class ConnectorInitTest {
 
-    private BallerinaFile bFile;
+    private BLangProgram bLangProgram;
 
     @BeforeClass
     public void setup() {
-        bFile = BTestUtils.parseBalFile("lang/connectors/connector-init.bal");
+        bLangProgram = BTestUtils.parseBalFile("lang/connectors/init");
     }
 
     @Test(description = "Test Connector int functionality")
     public void testConnectorInit() {
         BValue[] args = {new BString("Apple"), new BInteger(13)};
 
-        BValue[] returns = BLangFunctions.invoke(bFile, "testConnectorInit", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testConnectorInit", args);
 
         Assert.assertEquals(returns.length, 2);
         Assert.assertSame(returns[0].getClass(), BInteger.class);

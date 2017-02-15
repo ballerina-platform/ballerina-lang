@@ -21,7 +21,7 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.ballerina.core.exception.SemanticException;
-import org.wso2.ballerina.core.model.BallerinaFile;
+import org.wso2.ballerina.core.model.BLangProgram;
 import org.wso2.ballerina.core.model.values.BDouble;
 import org.wso2.ballerina.core.model.values.BInteger;
 import org.wso2.ballerina.core.model.values.BValue;
@@ -34,17 +34,17 @@ import org.ballerinalang.util.program.BLangFunctions;
  * @since 0.8.0
  */
 public class WhileStmtTest {
-    private BallerinaFile bFile;
+    private BLangProgram bLangProgram;
 
     @BeforeClass
     public void setup() {
-        bFile = BTestUtils.parseBalFile("lang/statements/while-stmt.bal");
+        bLangProgram = BTestUtils.parseBalFile("lang/statements/while-stmt.bal");
     }
 
     @Test(description = "Test while loop with a condition which evaluates to true")
     public void testWhileStmtConditionTrue() {
         BValue[] args = {new BInteger(10), new BInteger(1)};
-        BValue[] returns = BLangFunctions.invoke(bFile, "testWhileStmt", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testWhileStmt", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
@@ -57,7 +57,7 @@ public class WhileStmtTest {
     @Test(description = "Test while loop with a condition which evaluates to false")
     public void testWhileStmtConditionFalse() {
         BValue[] args = {new BInteger(10), new BInteger(11)};
-        BValue[] returns = BLangFunctions.invoke(bFile, "testWhileStmt", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testWhileStmt", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
@@ -70,14 +70,14 @@ public class WhileStmtTest {
     @Test(description = "Check the scope managing in while block")
     public void testWhileBlockScopes() {
         BValue[] args = { new BInteger(1) };
-        BValue[] returns = BLangFunctions.invoke(bFile, "testWhileScope", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testWhileScope", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class, "Class type mismatched");
         BInteger actual = (BInteger) returns[0];
         Assert.assertEquals(actual.intValue(), 200, "mismatched output value");
 
         args = new BValue[] { new BInteger(2) };
-        returns = BLangFunctions.invoke(bFile, "testWhileScope", args);
+        returns = BLangFunctions.invoke(bLangProgram, "testWhileScope", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class, "Class type mismatched");
         actual = (BInteger) returns[0];
@@ -86,7 +86,7 @@ public class WhileStmtTest {
 
     @Test(description = "Check the scope managing in while block with ifelse")
     public void testWhileBlockScopesWithIf() {
-        BValue[] returns = BLangFunctions.invoke(bFile, "testWhileScopeWithIf");
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testWhileScopeWithIf");
         Assert.assertEquals(returns.length, 2);
         Assert.assertSame(returns[0].getClass(), BInteger.class, "Class type of return param1 mismatched");
         Assert.assertSame(returns[1].getClass(), BDouble.class, "Class type of return param2 mismatched");

@@ -20,7 +20,7 @@ package org.wso2.ballerina.lang.expressions;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.wso2.ballerina.core.model.BallerinaFile;
+import org.wso2.ballerina.core.model.BLangProgram;
 import org.wso2.ballerina.core.model.values.BInteger;
 import org.wso2.ballerina.core.model.values.BLong;
 import org.wso2.ballerina.core.model.values.BValue;
@@ -29,17 +29,17 @@ import org.ballerinalang.util.program.BLangFunctions;
 
 public class SimpleTypeCastExprTest {
 
-    private BallerinaFile bFile;
+    private BLangProgram bLangProgram;
 
     @BeforeClass
     public void setup() {
-        bFile = BTestUtils.parseBalFile("lang/expressions/simple-type-cast.bal");
+        bLangProgram = BTestUtils.parseBalFile("lang/expressions/simple-type-cast.bal");
     }
 
     @Test
     public void testIntToLong() {
         BValue[] args = {new BInteger(55555555)};
-        BValue[] returns = BLangFunctions.invoke(bFile, "inttolong", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "inttolong", args);
         Assert.assertTrue(returns[0] instanceof BLong);
         final String expected = "55555555";
         Assert.assertEquals(returns[0].stringValue(), expected);

@@ -20,7 +20,7 @@ package org.wso2.ballerina.lang.statements;
 import org.antlr.v4.runtime.misc.ParseCancellationException;
 import org.testng.Assert;
 import org.testng.annotations.Test;
-import org.wso2.ballerina.core.model.BallerinaFile;
+import org.wso2.ballerina.core.model.BLangProgram;
 import org.wso2.ballerina.core.model.statements.CommentStmt;
 import org.wso2.ballerina.core.model.statements.Statement;
 import org.wso2.ballerina.core.utils.BTestUtils;
@@ -39,8 +39,8 @@ public class CommentStmtTest {
 
     @Test(description = "Test the comment statement in the function body")
     public void testCommentInFunctionBody() {
-        BallerinaFile bFile = BTestUtils.parseBalFile("lang/statements/comment/comments-in-function-body.bal");
-        Statement[] statements = bFile.getFunctions()[0].getCallableUnitBody().getStatements();
+        BLangProgram bLangProgram = BTestUtils.parseBalFile("lang/statements/comment/comments-in-function-body.bal");
+        Statement[] statements = bLangProgram.getLibraryPackages()[0].getFunctions()[0].getCallableUnitBody().getStatements();
         Assert.assertNotNull(statements, "statements not found");
         Assert.assertEquals(statements.length, 4, "statement count mismatched");
         Assert.assertTrue(statements[0] instanceof CommentStmt, "1st statement is not a comment statement");

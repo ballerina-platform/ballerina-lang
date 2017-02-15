@@ -21,7 +21,7 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.ballerina.core.interpreter.SymScope;
-import org.wso2.ballerina.core.model.BallerinaFile;
+import org.wso2.ballerina.core.model.BLangProgram;
 import org.wso2.ballerina.core.model.values.BFloat;
 import org.wso2.ballerina.core.model.values.BInteger;
 import org.wso2.ballerina.core.model.values.BString;
@@ -35,19 +35,19 @@ import org.ballerinalang.util.program.BLangFunctions;
  * Test class for return statement.
  */
 public class ReturnStmtTest {
-    private BallerinaFile bFile;
+    private BLangProgram bLangProgram;
 
     @BeforeClass
     public void setup() {
         BuiltInNativeConstructLoader.loadConstructs();
         SymScope globalSymScope = GlobalScopeHolder.getInstance().getScope();
-        bFile = BTestUtils.parseBalFile("lang/statements/returnstmt/return-stmt-positive.bal", globalSymScope);
+        bLangProgram = BTestUtils.parseBalFile("lang/statements/returnstmt/return-stmt-positive.bal");
     }
 
     @Test(description = "Test void return")
     public void testReturn() {
         BValue[] args = {};
-        BValue[] returns = BLangFunctions.invoke(bFile, "testReturn", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testReturn", args);
 
         Assert.assertEquals(returns.length, 0);
     }
@@ -55,7 +55,7 @@ public class ReturnStmtTest {
     @Test(description = "Test void return")
     public void testReturnOneVarDcl() {
         BValue[] args = {};
-        BValue[] returns = BLangFunctions.invoke(bFile, "testReturnOneVarDcl", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testReturnOneVarDcl", args);
 
         Assert.assertEquals(returns.length, 0);
     }
@@ -63,7 +63,7 @@ public class ReturnStmtTest {
     @Test(description = "Test one return value")
     public void testReturnOneReturnArg() {
         BValue[] args = {};
-        BValue[] returns = BLangFunctions.invoke(bFile, "testReturnOneReturnArg", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testReturnOneReturnArg", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(5, ((BInteger) returns[0]).intValue());
@@ -72,7 +72,7 @@ public class ReturnStmtTest {
     @Test(description = "Test one parameter but void return")
     public void testReturnOneParam() {
         BValue[] args = {new BInteger(10)};
-        BValue[] returns = BLangFunctions.invoke(bFile, "testReturnOneParam", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testReturnOneParam", args);
 
         Assert.assertEquals(returns.length, 0);
     }
@@ -80,7 +80,7 @@ public class ReturnStmtTest {
     @Test(description = "Test one parameter and one return value")
     public void testReturnOneParamOneReturnArg() {
         BValue[] args = {new BInteger(10)};
-        BValue[] returns = BLangFunctions.invoke(bFile, "testReturnOneParamOneReturnArg", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testReturnOneParamOneReturnArg", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(10, ((BInteger) returns[0]).intValue());
@@ -89,7 +89,7 @@ public class ReturnStmtTest {
     @Test(description = "Test one parameter and one return value")
     public void testReturnOneParamOneVarDclOneReturnArg() {
         BValue[] args = {new BInteger(10)};
-        BValue[] returns = BLangFunctions.invoke(bFile, "testReturnOneParamOneVarDclOneReturnArg", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testReturnOneParamOneVarDclOneReturnArg", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(20, ((BInteger) returns[0]).intValue());
@@ -98,7 +98,7 @@ public class ReturnStmtTest {
     @Test(description = "Test two return values")
     public void testReturnTwoVarDclsTwoReturnArgs() {
         BValue[] args = {};
-        BValue[] returns = BLangFunctions.invoke(bFile, "testReturnTwoVarDclsTwoReturnArgs", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testReturnTwoVarDclsTwoReturnArgs", args);
 
         Assert.assertEquals(returns.length, 2);
         Assert.assertEquals(10, ((BInteger) returns[0]).intValue());
@@ -108,7 +108,7 @@ public class ReturnStmtTest {
     @Test(description = "Test three return values")
     public void testReturnThreeVarDclsThreeReturnArgs() {
         BValue[] args = {new BInteger(10), new BInteger(30)};
-        BValue[] returns = BLangFunctions.invoke(bFile, "testReturnThreeVarDclsThreeReturnArgs", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testReturnThreeVarDclsThreeReturnArgs", args);
 
         Assert.assertEquals(returns.length, 3);
         Assert.assertEquals(50, ((BInteger) returns[0]).intValue());
@@ -119,7 +119,7 @@ public class ReturnStmtTest {
     @Test(description = "Test one parameter and one return value")
     public void testSplitString() {
         BValue[] args = {};
-        BValue[] returns = BLangFunctions.invoke(bFile, "testSplitString", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testSplitString", args);
 
         Assert.assertEquals(returns.length, 3);
         Assert.assertEquals("section1", ((BString) returns[0]).stringValue());
@@ -130,7 +130,7 @@ public class ReturnStmtTest {
     @Test(description = "Test one parameter and one return value")
     public void testToUpperUtil() {
         BValue[] args = {new BString("section")};
-        BValue[] returns = BLangFunctions.invoke(bFile, "testToUpperUtil", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testToUpperUtil", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals("SECTION", ((BString) returns[0]).stringValue());
@@ -139,7 +139,7 @@ public class ReturnStmtTest {
     @Test(description = "Test one parameter and one return value")
     public void testToUpperUtilDouble() {
         BValue[] args = {new BString("name1"), new BString("name2")};
-        BValue[] returns = BLangFunctions.invoke(bFile, "testToUpperUtilDouble", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testToUpperUtilDouble", args);
 
         Assert.assertEquals(returns.length, 2);
         Assert.assertEquals("NAME1", ((BString) returns[0]).stringValue());
@@ -149,7 +149,7 @@ public class ReturnStmtTest {
     @Test(description = "Test one parameter and one return value")
     public void testToUpper() {
         BValue[] args = {new BString("section")};
-        BValue[] returns = BLangFunctions.invoke(bFile, "testToUpper", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testToUpper", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals("SECTION", ((BString) returns[0]).stringValue());
@@ -158,7 +158,7 @@ public class ReturnStmtTest {
     @Test(description = "Test one parameter and one return value")
     public void testToUpper1() {
         BValue[] args = {new BString("name1"), new BString("name2")};
-        BValue[] returns = BLangFunctions.invoke(bFile, "testToUpper1", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testToUpper1", args);
 
         Assert.assertEquals(returns.length, 2);
         Assert.assertEquals("SECTION", ((BString) returns[0]).stringValue());
@@ -168,7 +168,7 @@ public class ReturnStmtTest {
     @Test(description = "Test one parameter and one return value")
     public void testToUpper2() {
         BValue[] args = {new BString("name1"), new BString("name2")};
-        BValue[] returns = BLangFunctions.invoke(bFile, "testToUpper2", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testToUpper2", args);
 
         Assert.assertEquals(returns.length, 2);
         Assert.assertEquals("name1", ((BString) returns[0]).stringValue());
@@ -178,7 +178,7 @@ public class ReturnStmtTest {
     @Test(description = "Test one parameter and one return value")
     public void testToUpper3() {
         BValue[] args = {new BString("name1"), new BString("name2")};
-        BValue[] returns = BLangFunctions.invoke(bFile, "testToUpper3", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testToUpper3", args);
 
         Assert.assertEquals(returns.length, 2);
         Assert.assertEquals("SECTION", ((BString) returns[0]).stringValue());
@@ -188,7 +188,7 @@ public class ReturnStmtTest {
     @Test(description = "Test one parameter and one return value")
     public void testToUpper4() {
         BValue[] args = {new BString("name1"), new BString("name2")};
-        BValue[] returns = BLangFunctions.invoke(bFile, "testToUpper4", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testToUpper4", args);
 
         Assert.assertEquals(returns.length, 2);
         Assert.assertEquals("NAME1", ((BString) returns[0]).stringValue());
@@ -198,7 +198,7 @@ public class ReturnStmtTest {
     @Test(description = "Test return with three return arguments")
     public void testReturnWithThreeArguments() {
         BValue[] args = {};
-        BValue[] returns = BLangFunctions.invoke(bFile, "testReturnWithThreeArguments", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testReturnWithThreeArguments", args);
 
         Assert.assertEquals(returns.length, 3);
         Assert.assertEquals(10, ((BInteger) returns[0]).intValue());

@@ -21,6 +21,7 @@ package org.wso2.ballerina.core;
 import org.wso2.ballerina.core.interpreter.RuntimeEnvironment;
 import org.wso2.ballerina.core.interpreter.SymScope;
 import org.wso2.ballerina.core.model.Application;
+import org.wso2.ballerina.core.model.BLangProgram;
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.Package;
 import org.wso2.ballerina.core.model.Resource;
@@ -51,9 +52,8 @@ public class EnvironmentInitializer {
         // Load constructors
         BuiltInNativeConstructLoader.loadConstructs();
 
-        SymScope symScope = GlobalScopeHolder.getInstance().getScope();
-
-        BallerinaFile bFile = BTestUtils.parseBalFile(sourcePath, symScope);
+        BLangProgram bLangProgram = BTestUtils.parseBalFile(sourcePath);
+        BallerinaFile bFile = bLangProgram.getLibraryPackages()[0].getBallerinaFiles()[0];
         RuntimeEnvironment runtimeEnv = RuntimeEnvironment.get(bFile);
 
         Application app = new Application("default");

@@ -39,13 +39,13 @@ public class InvalidSyntaxParserTest {
     @Test(expectedExceptions = {ParseCancellationException.class},
             expectedExceptionsMessageRegExp = "SemicolonMissingService.bal:13:6: missing ';' before 'reply'")
     public void testParseSemicolonMissingSerivce() {
-        getParserForFile("samples/parser/invalidSyntax/SemicolonMissingService.bal").compilationUnit();
+        BTestUtils.parseBalFile("samples/parser/invalidSyntax/SemicolonMissingService.bal");
     }
 
     @Test(expectedExceptions = {ParseCancellationException.class},
             expectedExceptionsMessageRegExp = "SemicolonMissingMainFunc.bal:7:1: missing ';' before 'reply'")
     public void testParseSemicolonMissingMainFunc() {
-        getParserForFile("samples/parser/invalidSyntax/SemicolonMissingMainFunc.bal").compilationUnit();
+        BTestUtils.parseBalFile("samples/parser/invalidSyntax/SemicolonMissingMainFunc.bal");
     }
 
 
@@ -56,19 +56,19 @@ public class InvalidSyntaxParserTest {
     @Test(expectedExceptions = {ParseCancellationException.class},
             expectedExceptionsMessageRegExp = "IdentifierMissingService.bal:12:6: invalid identifier 'int'")
     public void testParseIdentifierMissingSerivce() {
-        getParserForFile("samples/parser/invalidSyntax/IdentifierMissingService.bal").compilationUnit();
+         BTestUtils.parseBalFile("samples/parser/invalidSyntax/IdentifierMissingService.bal");
     }
 
     @Test(expectedExceptions = {ParseCancellationException.class},
             expectedExceptionsMessageRegExp = "IdentifierMissingMainFunc.bal:5:1: invalid identifier 'b'")
     public void testParseIdentifierMissingMainFunc() {
-        getParserForFile("samples/parser/invalidSyntax/IdentifierMissingMainFunc.bal").compilationUnit();
+         BTestUtils.parseBalFile("samples/parser/invalidSyntax/IdentifierMissingMainFunc.bal");
     }
 
     @Test(expectedExceptions = {ParseCancellationException.class},
             expectedExceptionsMessageRegExp = "ReservedWordVariable.bal:5:1: invalid identifier 'string'")
     public void testReservedWordVariable() {
-        getParserForFile("samples/parser/invalidSyntax/ReservedWordVariable.bal").compilationUnit();
+        BTestUtils.parseBalFile("samples/parser/invalidSyntax/ReservedWordVariable.bal");
     }
 
 
@@ -79,13 +79,13 @@ public class InvalidSyntaxParserTest {
     @Test(expectedExceptions = {ParseCancellationException.class},
             expectedExceptionsMessageRegExp = "ServiceWithoutResourceName.bal:6:11: unwanted token '\\{'")
     public void testServiceWithoutResourceName() {
-        getParserForFile("samples/parser/invalidSyntax/ServiceWithoutResourceName.bal").compilationUnit();
+        BTestUtils.parseBalFile("samples/parser/invalidSyntax/ServiceWithoutResourceName.bal");
     }
 
     @Test(expectedExceptions = {ParseCancellationException.class},
             expectedExceptionsMessageRegExp = "MainFuncWithoutName.bal:3:9: unwanted token '\\{'")
     public void testParseMainFuncWithoutName() {
-        getParserForFile("samples/parser/invalidSyntax/MainFuncWithoutName.bal").compilationUnit();
+        BTestUtils.parseBalFile("samples/parser/invalidSyntax/MainFuncWithoutName.bal");
     }
 
 
@@ -97,34 +97,23 @@ public class InvalidSyntaxParserTest {
             expectedExceptionsMessageRegExp = "ServiceWithoutResourceParams.bal:6:17: mismatched input '\\{'. " +
                     "Expecting one of '\\('")
     public void testServiceWithoutResourceParams() {
-        getParserForFile("samples/parser/invalidSyntax/ServiceWithoutResourceParams.bal").compilationUnit();
+        BTestUtils.parseBalFile("samples/parser/invalidSyntax/ServiceWithoutResourceParams.bal");
     }
 
     @Test(expectedExceptions = {ParseCancellationException.class},
             expectedExceptionsMessageRegExp = "MainFuncWithoutParams.bal:3:14: mismatched input '\\{'. Expecting " +
                     "one of '\\('")
     public void testParseMainFuncWithoutParams() {
-        getParserForFile("samples/parser/invalidSyntax/MainFuncWithoutParams.bal").compilationUnit();
+        BTestUtils.parseBalFile("samples/parser/invalidSyntax/MainFuncWithoutParams.bal");
     }
-    
+
 //    @Test(expectedExceptions = {ParseCancellationException.class },
 //            expectedExceptionsMessageRegExp = "ResourceWithEmptyReply.bal:11:6: mismatched input ';'\\. " +
 //                    "Expecting one of \\{'\\{', '\\(', '[]', '[', '\\+', '-', '!', 'create', IntegerLiteral, " +
 //                    "FloatingPointLiteral, BooleanLiteral, QuotedStringLiteral, BacktickStringLiteral, " +
 //                    "NullLiteral, Identifier\\}")
 //    public void testResourceWithEmptyReply() {
-//        getParserForFile("samples/parser/invalidSyntax/ResourceWithEmptyReply.bal").compilationUnit();
+//        getParserForFile("samples/parser/invalidSyntax/ResourceWithEmptyReply.bal");
 //    }
 
-    private BallerinaParser getParserForFile(String path) {
-        BallerinaParser ballerinaParser = BTestUtils.getBallerinaParser(path);
-
-        // Create Ballerina model builder class
-        BLangModelBuilder modelBuilder = new BLangModelBuilder(null, "");
-        BLangAntlr4Listener langModelBuilder = new BLangAntlr4Listener(modelBuilder);
-
-        ballerinaParser.addParseListener(langModelBuilder);
-        ballerinaParser.setErrorHandler(new BallerinaParserErrorStrategy());
-        return ballerinaParser;
-    }
 }

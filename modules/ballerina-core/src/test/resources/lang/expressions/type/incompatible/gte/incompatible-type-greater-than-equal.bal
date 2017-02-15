@@ -1,4 +1,4 @@
-package lang.expressions;
+package lang.expressions.type.incompatible.gte;
 
 function checkGreaterThanEual() (boolean){
 	int a;

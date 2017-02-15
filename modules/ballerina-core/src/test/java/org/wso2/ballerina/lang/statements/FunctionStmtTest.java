@@ -20,7 +20,7 @@ package org.wso2.ballerina.lang.statements;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.ballerina.core.exception.SemanticException;
-import org.wso2.ballerina.core.model.BallerinaFile;
+import org.wso2.ballerina.core.model.BLangProgram;
 import org.wso2.ballerina.core.model.Function;
 import org.wso2.ballerina.core.utils.BTestUtils;
 import org.ballerinalang.util.program.BLangFunctions;
@@ -37,9 +37,9 @@ public class FunctionStmtTest {
 
     @BeforeClass
     public void setup() {
-        BallerinaFile bFile = BTestUtils.parseBalFile("lang/statements/function-stmt.bal");
-        testHelloWorldPublic = BLangFunctions.getFunction(bFile, funcPublic);
-        testHelloWorldPrivate = BLangFunctions.getFunction(bFile, funcPrivate);
+        BLangProgram bLangProgram = BTestUtils.parseBalFile("lang/statements/function-stmt.bal");
+        testHelloWorldPublic = BLangFunctions.getFunction(bLangProgram, funcPublic);
+        testHelloWorldPrivate = BLangFunctions.getFunction(bLangProgram, funcPrivate);
     }
 
 //    @Test(description = "Test function Modularity.")

@@ -29,12 +29,10 @@ import org.wso2.ballerina.core.utils.BTestUtils;
  * Test class for reply statement.
  */
 public class ReplyStmtTest {
-    private SymScope globalSymScope;
 
     @BeforeClass
     public void setup() {
         BuiltInNativeConstructLoader.loadConstructs();
-        globalSymScope = GlobalScopeHolder.getInstance().getScope();
     }
 
     /* Negative Tests */
@@ -44,7 +42,7 @@ public class ReplyStmtTest {
             expectedExceptionsMessageRegExp = "reply-from-function.bal:1: reply statement cannot be used in a " +
             "function definition")
     public void testReplyFromFunction() {
-        BTestUtils.parseBalFile("lang/statements/replyStmt/reply-from-function.bal", globalSymScope);
+        BTestUtils.parseBalFile("lang/statements/replyStmt/reply-from-function.bal");
     }
     
     @Test(description = "Test reply statement in a action",
@@ -52,6 +50,6 @@ public class ReplyStmtTest {
             expectedExceptionsMessageRegExp = "reply-from-action.bal:5: reply statement cannot be used in a action " +
             "definition")
     public void testReplyFromAction() {
-        BTestUtils.parseBalFile("lang/statements/replyStmt/reply-from-action.bal", globalSymScope);
+        BTestUtils.parseBalFile("lang/statements/replyStmt/reply-from-action.bal");
     }
 }

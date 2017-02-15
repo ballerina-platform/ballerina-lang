@@ -1,4 +1,4 @@
-package lang.expressions;
+package lang.expressions.type.unsupported.gt;
 
 function checkGreaterThanForUnsupportedType() (boolean){
 	json j1;

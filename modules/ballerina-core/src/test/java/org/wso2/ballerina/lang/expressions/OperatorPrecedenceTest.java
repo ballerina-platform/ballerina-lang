@@ -21,7 +21,7 @@ package org.wso2.ballerina.lang.expressions;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.wso2.ballerina.core.model.BallerinaFile;
+import org.wso2.ballerina.core.model.BLangProgram;
 import org.wso2.ballerina.core.model.values.BBoolean;
 import org.wso2.ballerina.core.model.values.BInteger;
 import org.wso2.ballerina.core.model.values.BValue;
@@ -29,11 +29,11 @@ import org.wso2.ballerina.core.utils.BTestUtils;
 import org.ballerinalang.util.program.BLangFunctions;
 
 public class OperatorPrecedenceTest {
-    private BallerinaFile bFile;
+    private BLangProgram bLangProgram;
 
     @BeforeClass
     public void setup() {
-        bFile = BTestUtils.parseBalFile("lang/expressions/operator-precedence.bal");
+        bLangProgram = BTestUtils.parseBalFile("lang/expressions/operator-precedence.bal");
     }
 
     @Test
@@ -51,7 +51,7 @@ public class OperatorPrecedenceTest {
         int expected = a - b + c;
         BValue[] args = { new BInteger(a), new BInteger(b), new BInteger(c) };
 
-        BValue[] returns = BLangFunctions.invoke(bFile, "addSubPrecedence", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "addSubPrecedence", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
         int actual = ((BInteger) returns[0]).intValue();
@@ -77,7 +77,7 @@ public class OperatorPrecedenceTest {
                 new BInteger(a), new BInteger(b), new BInteger(c), new BInteger(d), new BInteger(e), new BInteger(f)
         };
 
-        BValue[] returns = BLangFunctions.invoke(bFile, "addSubMultPrecedence", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "addSubMultPrecedence", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
         int actual = ((BInteger) returns[0]).intValue();
@@ -103,7 +103,7 @@ public class OperatorPrecedenceTest {
                 new BInteger(a), new BInteger(b), new BInteger(c), new BInteger(d), new BInteger(e), new BInteger(f)
         };
 
-        BValue[] returns = BLangFunctions.invoke(bFile, "multDivisionPrecedence", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "multDivisionPrecedence", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
         int actual = ((BInteger) returns[0]).intValue();
@@ -125,7 +125,7 @@ public class OperatorPrecedenceTest {
                 new BInteger(a), new BInteger(b), new BInteger(c), new BInteger(d), new BInteger(e), new BInteger(f)
         };
 
-        BValue[] returns = BLangFunctions.invoke(bFile, "addMultPrecedence", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "addMultPrecedence", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
         int actual = ((BInteger) returns[0]).intValue();
@@ -146,7 +146,7 @@ public class OperatorPrecedenceTest {
                 new BInteger(a), new BInteger(b), new BInteger(c), new BInteger(d), new BInteger(e), new BInteger(f)
         };
 
-        BValue[] returns = BLangFunctions.invoke(bFile, "addDivisionPrecedence", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "addDivisionPrecedence", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
         int actual = ((BInteger) returns[0]).intValue();
@@ -173,7 +173,7 @@ public class OperatorPrecedenceTest {
                 new BInteger(a), new BInteger(b), new BInteger(c), new BInteger(d), new BInteger(e), new BInteger(f)
         };
 
-        BValue[] returns = BLangFunctions.invoke(bFile, "comparatorPrecedence", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "comparatorPrecedence", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BBoolean.class);
         boolean actual = ((BBoolean) returns[0]).booleanValue();
@@ -192,7 +192,7 @@ public class OperatorPrecedenceTest {
 
         BValue[] args = {new BInteger(a), new BInteger(b), new BInteger(c), new BInteger(d)};
 
-        BValue[] returns = BLangFunctions.invoke(bFile, "intAdditionAndSubtractionPrecedence", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "intAdditionAndSubtractionPrecedence", args);
 
         int actualResult = ((BInteger) returns[0]).intValue();
 
@@ -215,7 +215,7 @@ public class OperatorPrecedenceTest {
         int expectedResult = x + y - z;
         BValue[] args = {new BInteger(a), new BInteger(b), new BInteger(c), new BInteger(d)};
 
-        BValue[] returns = BLangFunctions.invoke(bFile, "intMultiplicationPrecedence", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "intMultiplicationPrecedence", args);
 
         int actualResult = ((BInteger) returns[0]).intValue();
 
@@ -238,7 +238,7 @@ public class OperatorPrecedenceTest {
 
         BValue[] args = {new BInteger(a), new BInteger(b), new BInteger(c), new BInteger(d)};
 
-        BValue[] returns = BLangFunctions.invoke(bFile, "intDivisionPrecedence", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "intDivisionPrecedence", args);
 
         int actualResult = ((BInteger) returns[0]).intValue();
 
@@ -262,7 +262,7 @@ public class OperatorPrecedenceTest {
 
         BValue[] args = {new BInteger(a), new BInteger(b), new BInteger(c), new BInteger(d)};
 
-        BValue[] returns = BLangFunctions.invoke(bFile, "intMultiplicationAndDivisionPrecedence", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "intMultiplicationAndDivisionPrecedence", args);
 
         int actualResult = ((BInteger) returns[0]).intValue();
 

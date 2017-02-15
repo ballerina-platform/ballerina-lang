@@ -21,7 +21,7 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.ballerina.core.exception.BallerinaException;
-import org.wso2.ballerina.core.model.BallerinaFile;
+import org.wso2.ballerina.core.model.BLangProgram;
 import org.wso2.ballerina.core.model.values.BInteger;
 import org.wso2.ballerina.core.model.values.BLong;
 import org.wso2.ballerina.core.model.values.BString;
@@ -34,26 +34,26 @@ import org.ballerinalang.util.program.BLangFunctions;
  */
 public class FunctionOverloadTest {
 
-    private BallerinaFile bFile;
+    private BLangProgram bLangProgram;
     private String overloadingFunctionName = "testOverloading";
 
     @BeforeClass
     public void setup() {
-        bFile = BTestUtils.parseBalFile("lang/functions/function-overloading.bal");
+        bLangProgram = BTestUtils.parseBalFile("lang/functions/function-overloading.bal");
     }
 
     @Test(description = "Test function overloading which has different argument counts")
     public void testFunctionOverloadingDifferentArgCount() {
 
         // function testOverloading()
-        BValue[] returnsStep1 = BLangFunctions.invoke(bFile, overloadingFunctionName);
+        BValue[] returnsStep1 = BLangFunctions.invoke(bLangProgram, overloadingFunctionName);
 
         Assert.assertEquals(returnsStep1.length, 0);
 
         // function testOverloading(string a) (string)
         String a = "test";
         BValue[] argsStep2 = {new BString(a)};
-        BValue[] returnsStep2 = BLangFunctions.invoke(bFile, overloadingFunctionName, argsStep2);
+        BValue[] returnsStep2 = BLangFunctions.invoke(bLangProgram, overloadingFunctionName, argsStep2);
 
         Assert.assertEquals(returnsStep2.length, 1);
         Assert.assertSame(returnsStep2[0].getClass(), BString.class);
@@ -68,7 +68,7 @@ public class FunctionOverloadTest {
         String expectedResultStep3 = d + e;
 
         BValue[] argsStep3 = {new BString(d), new BInteger(e)};
-        BValue[] returnsStep3 = BLangFunctions.invoke(bFile, overloadingFunctionName, argsStep3);
+        BValue[] returnsStep3 = BLangFunctions.invoke(bLangProgram, overloadingFunctionName, argsStep3);
 
         Assert.assertEquals(returnsStep3.length, 1);
         Assert.assertSame(returnsStep3[0].getClass(), BString.class);
@@ -85,7 +85,7 @@ public class FunctionOverloadTest {
         // function testOverloading(string a) (string)
         String a = "test";
         BValue[] argsStep1 = {new BString(a)};
-        BValue[] returnsStep1 = BLangFunctions.invoke(bFile, overloadingFunctionName, argsStep1);
+        BValue[] returnsStep1 = BLangFunctions.invoke(bLangProgram, overloadingFunctionName, argsStep1);
 
         Assert.assertEquals(returnsStep1.length, 1);
         Assert.assertSame(returnsStep1[0].getClass(), BString.class);
@@ -96,7 +96,7 @@ public class FunctionOverloadTest {
         // function testOverloading(int a) (int)
         int b = 5;
         BValue[] argsStep2 = {new BInteger(b)};
-        BValue[] returnsStep2 = BLangFunctions.invoke(bFile, overloadingFunctionName, argsStep2);
+        BValue[] returnsStep2 = BLangFunctions.invoke(bLangProgram, overloadingFunctionName, argsStep2);
 
         Assert.assertEquals(returnsStep2.length, 1);
         Assert.assertSame(returnsStep2[0].getClass(), BInteger.class);
@@ -107,7 +107,7 @@ public class FunctionOverloadTest {
         // function testOverloading(long a)
         long c = 5L;
         BValue[] argsStep3 = {new BLong(c)};
-        BValue[] returnsStep3 = BLangFunctions.invoke(bFile, overloadingFunctionName, argsStep3);
+        BValue[] returnsStep3 = BLangFunctions.invoke(bLangProgram, overloadingFunctionName, argsStep3);
 
         Assert.assertEquals(returnsStep3.length, 0);
 
@@ -120,7 +120,7 @@ public class FunctionOverloadTest {
         String expectedResultStep4 = d + e;
 
         BValue[] argsStep4 = {new BString(d), new BInteger(e)};
-        BValue[] returnsStep4 = BLangFunctions.invoke(bFile, overloadingFunctionName, argsStep4);
+        BValue[] returnsStep4 = BLangFunctions.invoke(bLangProgram, overloadingFunctionName, argsStep4);
 
         Assert.assertEquals(returnsStep4.length, 1);
         Assert.assertSame(returnsStep4[0].getClass(), BString.class);
@@ -135,7 +135,7 @@ public class FunctionOverloadTest {
         int expectedResultStep5 = f + g;
 
         BValue[] argsStep5 = {new BInteger(f), new BInteger(g)};
-        BValue[] returnsStep5 = BLangFunctions.invoke(bFile, overloadingFunctionName, argsStep5);
+        BValue[] returnsStep5 = BLangFunctions.invoke(bLangProgram, overloadingFunctionName, argsStep5);
 
         Assert.assertEquals(returnsStep5.length, 1);
         Assert.assertSame(returnsStep5[0].getClass(), BInteger.class);

@@ -21,7 +21,7 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.ballerina.core.exception.SemanticException;
-import org.wso2.ballerina.core.model.BallerinaFile;
+import org.wso2.ballerina.core.model.BLangProgram;
 import org.wso2.ballerina.core.model.values.BBoolean;
 import org.wso2.ballerina.core.model.values.BDouble;
 import org.wso2.ballerina.core.model.values.BFloat;
@@ -38,16 +38,16 @@ import org.ballerinalang.util.program.BLangFunctions;
  */
 public class UnaryExprTest {
 
-    private BallerinaFile bFile;
+    private BLangProgram bLangProgram;
 
     @BeforeClass
     public void setup() {
-        bFile = BTestUtils.parseBalFile("lang/expressions/unary-expr.bal");
+        bLangProgram = BTestUtils.parseBalFile("lang/expressions/unary-expr.bal");
     }
 
     @Test(description = "Test unary negative expression")
     public void integerUnaryExprTest() {
-        BValue[] returns = BLangFunctions.invoke(bFile, "negativeIntTest");
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "negativeIntTest");
 
         Assert.assertEquals(returns.length, 2);
 
@@ -62,7 +62,7 @@ public class UnaryExprTest {
 
     @Test(description = "Test int positive unary expression")
     public void positiveIntegerUnaryExprTest() {
-        BValue[] returns = BLangFunctions.invoke(bFile, "positiveIntTest");
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "positiveIntTest");
 
         Assert.assertEquals(returns.length, 2);
 
@@ -78,7 +78,7 @@ public class UnaryExprTest {
     @Test(description = "Test long unary negative expression")
     public void longUnaryExprTest() {
         BValue[] args = {new BLong(5)};
-        BValue[] returns = BLangFunctions.invoke(bFile, "negativeLongTest", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "negativeLongTest", args);
 
         Assert.assertEquals(returns.length, 2);
 
@@ -94,7 +94,7 @@ public class UnaryExprTest {
     @Test(description = "Test long positive unary expression")
     public void positiveLongUnaryExprTest() {
         BValue[] args = {new BLong(5)};
-        BValue[] returns = BLangFunctions.invoke(bFile, "positiveLongTest", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "positiveLongTest", args);
 
         Assert.assertEquals(returns.length, 2);
 
@@ -109,7 +109,7 @@ public class UnaryExprTest {
 
     @Test(description = "Test float unary negative expression")
     public void floatUnaryExprTest() {
-        BValue[] returns = BLangFunctions.invoke(bFile, "negativeFloatTest");
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "negativeFloatTest");
 
         Assert.assertEquals(returns.length, 2);
 
@@ -124,7 +124,7 @@ public class UnaryExprTest {
 
     @Test(description = "Test float positive unary expression")
     public void positiveFloatUnaryExprTest() {
-        BValue[] returns = BLangFunctions.invoke(bFile, "positiveFloatTest");
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "positiveFloatTest");
 
         Assert.assertEquals(returns.length, 2);
 
@@ -140,7 +140,7 @@ public class UnaryExprTest {
     @Test(description = "Test long unary negative expression")
     public void doubleUnaryExprTest() {
         BValue[] args = {new BDouble(5.0)};
-        BValue[] returns = BLangFunctions.invoke(bFile, "negativeDoubleTest", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "negativeDoubleTest", args);
 
         Assert.assertEquals(returns.length, 2);
 
@@ -156,7 +156,7 @@ public class UnaryExprTest {
     @Test(description = "Test long positive unary expression")
     public void positiveDoubleUnaryExprTest() {
         BValue[] args = {new BDouble(5.0)};
-        BValue[] returns = BLangFunctions.invoke(bFile, "positiveDoubleTest", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "positiveDoubleTest", args);
 
         Assert.assertEquals(returns.length, 2);
 
@@ -171,7 +171,7 @@ public class UnaryExprTest {
 
     @Test(description = "Test unary boolean not expression")
     public void booleanUnaryExprTest() {
-        BValue[] returns = BLangFunctions.invoke(bFile, "booleanNotTest");
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "booleanNotTest");
 
         Assert.assertEquals(returns.length, 3);
 
@@ -190,7 +190,7 @@ public class UnaryExprTest {
 
     @Test(description = "Test unary boolean not expression in if else")
     public void unaryExprInIfConditionTest() {
-        BValue[] returns = BLangFunctions.invoke(bFile, "unaryExprInIfConditionTest");
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "unaryExprInIfConditionTest");
 
         Assert.assertEquals(returns.length, 1);
 
@@ -208,7 +208,7 @@ public class UnaryExprTest {
 
         BValue[] args = {new BInteger(a), new BInteger(b)};
 
-        BValue[] returns = BLangFunctions.invoke(bFile, "unaryNegationTest", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "unaryNegationTest", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class, "Invalid class type returned.");
@@ -227,7 +227,7 @@ public class UnaryExprTest {
 
         BValue[] args = {new BInteger(a)};
 
-        BValue[] returns = BLangFunctions.invoke(bFile, "unaryPositiveNegationTest", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "unaryPositiveNegationTest", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class, "Invalid class type returned.");

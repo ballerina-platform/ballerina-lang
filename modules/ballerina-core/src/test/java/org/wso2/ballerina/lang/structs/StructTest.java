@@ -22,7 +22,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.exception.SemanticException;
-import org.wso2.ballerina.core.model.BallerinaFile;
+import org.wso2.ballerina.core.model.BLangProgram;
 import org.wso2.ballerina.core.model.values.BInteger;
 import org.wso2.ballerina.core.model.values.BMap;
 import org.wso2.ballerina.core.model.values.BString;
@@ -35,16 +35,16 @@ import org.ballerinalang.util.program.BLangFunctions;
  */
 public class StructTest {
 
-    private BallerinaFile bFile;
+    private BLangProgram bLangProgram;
     
     @BeforeClass
     public void setup() {
-        bFile = BTestUtils.parseBalFile("lang/structs/struct.bal");
+        bLangProgram = BTestUtils.parseBalFile("lang/structs/struct.bal");
     }
     
     @Test(description = "Test Basic struct operations")
     public void testBasicStruct() {
-        BValue[] returns = BLangFunctions.invoke(bFile, "testCreateStruct");
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testCreateStruct");
 
         Assert.assertTrue(returns[0] instanceof BString);
         Assert.assertEquals(returns[0].stringValue(), "Jack");
@@ -60,14 +60,14 @@ public class StructTest {
 
     @Test(description = "Test using expressions as index for struct arrays")
     public void testExpressionAsIndex() {
-        BValue[] returns = BLangFunctions.invoke(bFile, "testExpressionAsIndex");
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testExpressionAsIndex");
         Assert.assertTrue(returns[0] instanceof BString);
         Assert.assertEquals(returns[0].stringValue(), "Jane");
     }
     
 /*    @Test(description = "Test struct operations inside a connector")
     public void testStructInConnector() {
-        BValue[] returns = Functions.invoke(bFile, "testAction1");
+        BValue[] returns = Functions.invoke(bLangProgram, "testAction1");
         Assert.assertEquals(returns.length, 1);
         Assert.assertTrue(returns[0] instanceof BString);
         Assert.assertEquals(returns[0].stringValue(), "Jack");
@@ -75,7 +75,7 @@ public class StructTest {
     
     @Test(description = "Test using structs inside structs")
     public void testStructOfStructs() {
-        BValue[] returns = BLangFunctions.invoke(bFile, "testStructOfStruct");
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testStructOfStruct");
 
         Assert.assertTrue(returns[0] instanceof BString);
         Assert.assertEquals(returns[0].stringValue(), "USA");
@@ -83,7 +83,7 @@ public class StructTest {
     
     @Test(description = "Test returning fields of a struct")
     public void testReturnStructAttributes() {
-        BValue[] returns = BLangFunctions.invoke(bFile, "testReturnStructAttributes");
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testReturnStructAttributes");
 
         Assert.assertTrue(returns[0] instanceof BString);
         Assert.assertEquals(returns[0].stringValue(), "emily");
@@ -91,7 +91,7 @@ public class StructTest {
     
     @Test(description = "Test using struct expression as a index in another struct expression")
     public void testStructExpressionAsIndex() {
-        BValue[] returns = BLangFunctions.invoke(bFile, "testStructExpressionAsIndex");
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testStructExpressionAsIndex");
         Assert.assertTrue(returns[0] instanceof BString);
         Assert.assertEquals(returns[0].stringValue(), "emily");
     }
@@ -104,35 +104,35 @@ public class StructTest {
             expectedExceptions = {BallerinaException.class},
             expectedExceptionsMessageRegExp = "field 'employees\\[0\\]' is null")
     public void testGetNonInitField() {
-        BLangFunctions.invoke(bFile, "testGetNonInitAttribute");
+        BLangFunctions.invoke(bLangProgram, "testGetNonInitAttribute");
     }
     
     @Test(description = "Test accessing an array field of a noninitialized struct",
             expectedExceptions = {BallerinaException.class},
             expectedExceptionsMessageRegExp = "array index out of range: Index: 0, Size: 0")
     public void testGetNonInitArrayField() {
-        BLangFunctions.invoke(bFile, "testGetNonInitArrayAttribute");
+        BLangFunctions.invoke(bLangProgram, "testGetNonInitArrayAttribute");
     }
     
     @Test(description = "Test accessing the field of a noninitialized struct",
             expectedExceptions = {BallerinaException.class},
             expectedExceptionsMessageRegExp = "field 'dpt' is null")
     public void testGetNonInitLastField() {
-        BLangFunctions.invoke(bFile, "testGetNonInitLastAttribute");
+        BLangFunctions.invoke(bLangProgram, "testGetNonInitLastAttribute");
     }
     
     @Test(description = "Test setting an field of a noninitialized child struct",
             expectedExceptions = {BallerinaException.class},
             expectedExceptionsMessageRegExp = "field 'family' is null")
     public void testSetNonInitField() {
-        BLangFunctions.invoke(bFile, "testSetFieldOfNonInitChildStruct");
+        BLangFunctions.invoke(bLangProgram, "testSetFieldOfNonInitChildStruct");
     }
     
     @Test(description = "Test setting the field of a noninitialized root struct",
             expectedExceptions = {BallerinaException.class},
             expectedExceptionsMessageRegExp = "field 'dpt' is null")
     public void testSetNonInitLastField() {
-        BLangFunctions.invoke(bFile, "testSetFieldOfNonInitStruct");
+        BLangFunctions.invoke(bLangProgram, "testSetFieldOfNonInitStruct");
     }
     
     @Test(description = "Test defining structs with duplicate name",

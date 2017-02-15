@@ -20,7 +20,7 @@ package org.wso2.ballerina.lang.statements;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.wso2.ballerina.core.model.BallerinaFile;
+import org.wso2.ballerina.core.model.BLangProgram;
 import org.wso2.ballerina.core.model.values.BDouble;
 import org.wso2.ballerina.core.model.values.BFloat;
 import org.wso2.ballerina.core.model.values.BInteger;
@@ -33,17 +33,17 @@ import org.ballerinalang.util.program.BLangFunctions;
  * Test assignment statement with implicit casting (widening)
  */
 public class AssignWithWideningTest {
-    private BallerinaFile bFile;
+    private BLangProgram bLangProgram;
 
     @BeforeClass
     public void setup() {
-        bFile = BTestUtils.parseBalFile("lang/statements/assignment/assign-with-implicit-cast.bal");
+        bLangProgram = BTestUtils.parseBalFile("lang/statements/assignment/assign-with-implicit-cast.bal");
     }
 
     @Test(description = "Test assignment of int to long")
     public void testAssignmentStatementIntToLong() {
         BValue[] args = {new BInteger(100)};
-        BValue[] returns = BLangFunctions.invoke(bFile, "testIntCastLongStmt", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testIntCastLongStmt", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BLong.class);
@@ -56,7 +56,7 @@ public class AssignWithWideningTest {
     @Test(description = "Test assignment of int to float")
     public void testAssignmentStatementIntToFloat() {
         BValue[] args = {new BInteger(100)};
-        BValue[] returns = BLangFunctions.invoke(bFile, "testIntCastFloatStmt", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testIntCastFloatStmt", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BFloat.class);
@@ -69,7 +69,7 @@ public class AssignWithWideningTest {
     @Test(description = "Test assignment of int to double")
     public void testAssignmentStatementIntToDouble() {
         BValue[] args = {new BInteger(100)};
-        BValue[] returns = BLangFunctions.invoke(bFile, "testIntCastDoubleStmt", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testIntCastDoubleStmt", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BDouble.class);
@@ -82,7 +82,7 @@ public class AssignWithWideningTest {
     @Test(description = "Test assignment of long to float")
     public void testAssignmentStatementLongToFloat() {
         BValue[] args = {new BLong(100L)};
-        BValue[] returns = BLangFunctions.invoke(bFile, "testLongCastFloatStmt", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testLongCastFloatStmt", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BFloat.class);
@@ -95,7 +95,7 @@ public class AssignWithWideningTest {
     @Test(description = "Test assignment of long to double")
     public void testAssignmentStatementLongToDouble() {
         BValue[] args = {new BLong(100L)};
-        BValue[] returns = BLangFunctions.invoke(bFile, "testLongCastDoubleStmt", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testLongCastDoubleStmt", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BDouble.class);
@@ -108,7 +108,7 @@ public class AssignWithWideningTest {
     @Test(description = "Test assignment of float to double")
     public void testAssignmentStatementFloatToDouble() {
         BValue[] args = {new BFloat(100f)};
-        BValue[] returns = BLangFunctions.invoke(bFile, "testFloatCastDoubleStmt", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testFloatCastDoubleStmt", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BDouble.class);
@@ -122,7 +122,7 @@ public class AssignWithWideningTest {
     @Test(description = "Test binary expression with int and long")
     public void testBinaryExpressionIntToLong() {
         BValue[] args = {new BInteger(100)};
-        BValue[] returns = BLangFunctions.invoke(bFile, "testBinaryExpressionIntAndLongStmt", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testBinaryExpressionIntAndLongStmt", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BLong.class);
@@ -135,7 +135,7 @@ public class AssignWithWideningTest {
     @Test(description = "Test binary expression with int and float")
     public void testBinaryExpressionIntToFloat() {
         BValue[] args = {new BInteger(100)};
-        BValue[] returns = BLangFunctions.invoke(bFile, "testBinaryExpressionIntAndFloatStmt", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testBinaryExpressionIntAndFloatStmt", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BFloat.class);
@@ -148,7 +148,7 @@ public class AssignWithWideningTest {
     @Test(description = "Test binary expression with int and double")
     public void testBinaryExpressionIntToDouble() {
         BValue[] args = {new BInteger(100)};
-        BValue[] returns = BLangFunctions.invoke(bFile, "testBinaryExpressionIntAndDoubleStmt", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testBinaryExpressionIntAndDoubleStmt", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BDouble.class);
@@ -161,7 +161,7 @@ public class AssignWithWideningTest {
     @Test(description = "Test binary expression with long and float")
     public void testBinaryExpressionLongToFloat() {
         BValue[] args = {new BLong(100L)};
-        BValue[] returns = BLangFunctions.invoke(bFile, "testBinaryExpressionLongAndFloatStmt", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testBinaryExpressionLongAndFloatStmt", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BFloat.class);
@@ -174,7 +174,7 @@ public class AssignWithWideningTest {
     @Test(description = "Test binary expression with long and double")
     public void testBinaryExpressionLongToDouble() {
         BValue[] args = {new BLong(100L)};
-        BValue[] returns = BLangFunctions.invoke(bFile, "testBinaryExpressionLongAndDoubleStmt", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testBinaryExpressionLongAndDoubleStmt", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BDouble.class);
@@ -187,7 +187,7 @@ public class AssignWithWideningTest {
     @Test(description = "Test binary expression with float and double")
     public void testBinaryExpressionFloatToDouble() {
         BValue[] args = {new BFloat(100f)};
-        BValue[] returns = BLangFunctions.invoke(bFile, "testBinaryExpressionFloatAndDoubleStmt", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testBinaryExpressionFloatAndDoubleStmt", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BDouble.class);

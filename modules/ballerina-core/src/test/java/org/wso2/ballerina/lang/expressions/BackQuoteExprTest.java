@@ -21,11 +21,9 @@ package org.wso2.ballerina.lang.expressions;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.wso2.ballerina.core.interpreter.SymScope;
-import org.wso2.ballerina.core.model.BallerinaFile;
+import org.wso2.ballerina.core.model.BLangProgram;
 import org.wso2.ballerina.core.model.values.BJSON;
 import org.wso2.ballerina.core.model.values.BValue;
-import org.wso2.ballerina.core.runtime.internal.GlobalScopeHolder;
 import org.wso2.ballerina.core.utils.BTestUtils;
 import org.ballerinalang.util.program.BLangFunctions;
 
@@ -34,18 +32,17 @@ import org.ballerinalang.util.program.BLangFunctions;
  */
 public class BackQuoteExprTest {
 
-    private BallerinaFile bFile;
+    private BLangProgram bLangProgram;
 
     @BeforeClass
     public void setup() {
-        SymScope symScope = GlobalScopeHolder.getInstance().getScope();
-        bFile = BTestUtils.parseBalFile("lang/expressions/back-quote-expr.bal", symScope);
+        bLangProgram = BTestUtils.parseBalFile("lang/expressions/back-quote-expr.bal");
     }
 
     @Test(description = "Test two int add expression")
     public void testIntAddExpr() {
 
-        BValue[] returns = BLangFunctions.invoke(bFile, "getProduct");
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "getProduct");
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BJSON.class);
         String actual = ((BJSON) returns[0]).getMessageAsString();

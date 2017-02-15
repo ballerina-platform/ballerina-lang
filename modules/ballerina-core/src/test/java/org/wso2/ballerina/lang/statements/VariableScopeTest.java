@@ -18,14 +18,14 @@
 
 package org.wso2.ballerina.lang.statements;
 
+import org.ballerinalang.util.program.BLangFunctions;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 import org.wso2.ballerina.core.exception.SemanticException;
-import org.wso2.ballerina.core.model.BallerinaFile;
+import org.wso2.ballerina.core.model.BLangProgram;
 import org.wso2.ballerina.core.model.values.BInteger;
 import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.utils.BTestUtils;
-import org.ballerinalang.util.program.BLangFunctions;
 
 public class VariableScopeTest {
 
@@ -56,20 +56,21 @@ public class VariableScopeTest {
     @Test
     public void testScopeValue() {
 
-        BallerinaFile balFile = BTestUtils.parseBalFile("lang/statements/variable-scope-value.bal");
-        scopeValue(balFile, "scopeIfValue", 5, 10, 20, 6);
-        scopeValue(balFile, "scopeIfValue", 13, 8, 7, 7);
-        scopeValue(balFile, "scopeIfValue", 25, 30, 8, 100000);
+        BLangProgram bLangProgram = BTestUtils.parseBalFile("lang/statements/variable-scope-value.bal");
 
-        scopeValue(balFile, "scopeWhileScope", 5, 10, 20, 5);
-        scopeValue(balFile, "scopeWhileScope", 13, 8, 7, 105);
-        scopeValue(balFile, "scopeWhileScope", 40, 30, 8, 205);
-        scopeValue(balFile, "scopeWhileScope", 40, 30, 50, 305);
+        scopeValue(bLangProgram, "scopeIfValue", 5, 10, 20, 6);
+        scopeValue(bLangProgram, "scopeIfValue", 13, 8, 7, 7);
+        scopeValue(bLangProgram, "scopeIfValue", 25, 30, 8, 100000);
+
+        scopeValue(bLangProgram, "scopeWhileScope", 5, 10, 20, 5);
+        scopeValue(bLangProgram, "scopeWhileScope", 13, 8, 7, 105);
+        scopeValue(bLangProgram, "scopeWhileScope", 40, 30, 8, 205);
+        scopeValue(bLangProgram, "scopeWhileScope", 40, 30, 50, 305);
     }
 
-    private void scopeValue(BallerinaFile balFile, String functionName, int a, int b, int c, int expected) {
+    private void scopeValue(BLangProgram bLangProgram, String functionName, int a, int b, int c, int expected) {
         BValue[] args = { new BInteger(a), new BInteger(b), new BInteger(c) };
-        BValue[] returns = BLangFunctions.invoke(balFile, functionName, args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, functionName, args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].getClass(), BInteger.class);

@@ -99,7 +99,7 @@ public class BLangFunctions {
         BValue[] argValues = new BValue[function.getStackFrameSize()];
 
         for(int i = 0; i < args.length; i++) {
-            argValues[i] = args[0];
+            argValues[i] = args[i];
         }
 
         BValue[] returnValues = new BValue[function.getReturnParameters().length];
@@ -225,12 +225,12 @@ public class BLangFunctions {
     /**
      * Util method to get Given function.
      *
-     * @param ballerinaFile Ballerina File instance.
+     * @param bLangProgram Ballerina program .
      * @param functionName  name of the function.
      * @return Function instance or null if function doesn't exist.
      */
-    public static Function getFunction(BallerinaFile ballerinaFile, String functionName) {
-        return getFunction(ballerinaFile.getFunctions(), functionName, null);
+    public static Function getFunction(BLangProgram bLangProgram, String functionName) {
+        return getFunction(bLangProgram.getLibraryPackages()[0].getFunctions(), functionName, null);
     }
 
     private static Function getFunction(Function[] functions, String funcName, BValue[] args) {

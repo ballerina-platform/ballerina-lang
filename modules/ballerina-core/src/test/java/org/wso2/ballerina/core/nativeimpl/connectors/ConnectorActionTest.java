@@ -22,7 +22,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.ballerina.core.exception.SemanticException;
 import org.wso2.ballerina.core.interpreter.SymScope;
-import org.wso2.ballerina.core.model.BallerinaFile;
+import org.wso2.ballerina.core.model.BLangProgram;
 import org.wso2.ballerina.core.model.values.BBoolean;
 import org.wso2.ballerina.core.model.values.BInteger;
 import org.wso2.ballerina.core.model.values.BString;
@@ -35,18 +35,16 @@ import org.ballerinalang.util.program.BLangFunctions;
  * Test class for Connector actions.
  */
 public class ConnectorActionTest {
-    private BallerinaFile bFile;
-    private SymScope symScope;
+    private BLangProgram bLangProgram;
 
     @BeforeClass()
     public void setup() {
-        symScope = GlobalScopeHolder.getInstance().getScope();
-        bFile = BTestUtils.parseBalFile("lang/connectors/connector-actions.bal");
+        bLangProgram = BTestUtils.parseBalFile("lang/connectors/connector-actions.bal");
     }
 
     @Test(description = "Test TestConnector action1")
     public void testConnectorAction1() {
-        BValue[] returns = BLangFunctions.invoke(bFile, "testAction1");
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testAction1");
 
         Assert.assertEquals(returns.length, 1);
 
@@ -57,14 +55,14 @@ public class ConnectorActionTest {
 
     @Test(description = "Test TestConnector action2")
     public void testConnectorAction2() {
-        BValue[] returns = BLangFunctions.invoke(bFile, "testAction2");
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testAction2");
 
         Assert.assertEquals(returns.length, 0);
     }
 
     @Test(description = "Test TestConnector action3")
     public void testConnectorAction3() {
-        BValue[] returns = BLangFunctions.invoke(bFile, "testAction3");
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testAction3");
 
         Assert.assertEquals(returns.length, 1);
 
@@ -75,7 +73,7 @@ public class ConnectorActionTest {
 
     @Test(description = "Test TestConnector action2 and action3")
     public void testConnectorAction2andAction3() {
-        BValue[] returns = BLangFunctions.invoke(bFile, "testAction2andAction3");
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testAction2andAction3");
 
         Assert.assertEquals(returns.length, 1);
 
@@ -88,7 +86,7 @@ public class ConnectorActionTest {
     public void testConnectorAction4() {
         String inputParam = "inputParam";
         BValue[] functionArgs = new BValue[] { new BString(inputParam) };
-        BValue[] returns = BLangFunctions.invoke(bFile, "testAction4", functionArgs);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testAction4", functionArgs);
 
         Assert.assertEquals(returns.length, 1);
 
@@ -107,7 +105,7 @@ public class ConnectorActionTest {
                 new BString(functionArg1), new BString(functionArg2), new BInteger(functionArg3),
                 new BString(functionArg4)
         };
-        BValue[] returns = BLangFunctions.invoke(bFile, "testAction5", functionArgs);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testAction5", functionArgs);
 
         Assert.assertEquals(returns.length, 3);
 
@@ -128,7 +126,7 @@ public class ConnectorActionTest {
     public void testEmptyParamConnector() {
         String input = "hello";
         BValue[] args = new BValue[] { new BString(input) };
-        BValue[] returns = BLangFunctions.invoke(bFile, "testEmptyParamAction", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testEmptyParamAction", args);
         Assert.assertEquals(returns.length, 1);
 
         BString returnStr = (BString) returns[0];
@@ -148,20 +146,20 @@ public class ConnectorActionTest {
             expectedExceptions = {SemanticException.class },
             expectedExceptionsMessageRegExp = "undefined-actions.bal:16: undefined action 'TestConnector.foo'")
     public void testUndefinedAction() {
-        BTestUtils.parseBalFile("lang/connectors/undefined-actions.bal", symScope);
+        BTestUtils.parseBalFile("lang/connectors/undefined-actions.bal");
     }
     
     @Test(description = "Test defining duplicate connector",
             expectedExceptions = {SemanticException.class },
             expectedExceptionsMessageRegExp = "duplicate-connector.bal:13: redeclared symbol 'TestConnector'")
     public void testDuplicateConnectorDef() {
-        BTestUtils.parseBalFile("lang/connectors/duplicate-connector.bal", symScope);
+        BTestUtils.parseBalFile("lang/connectors/duplicate-connector.bal");
     }
     
     @Test(description = "Test defining duplicate action",
             expectedExceptions = {SemanticException.class },
             expectedExceptionsMessageRegExp = "duplicate-action.bal:11: redeclared symbol 'foo'")
     public void testDuplicateAction() {
-        BTestUtils.parseBalFile("lang/connectors/duplicate-action.bal", symScope);
+        BTestUtils.parseBalFile("lang/connectors/duplicate-action.bal");
     }
 }

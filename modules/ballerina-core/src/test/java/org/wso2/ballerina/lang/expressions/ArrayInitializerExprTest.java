@@ -17,17 +17,17 @@
 */
 package org.wso2.ballerina.lang.expressions;
 
+import org.ballerinalang.util.program.BLangFunctions;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.ballerina.core.exception.SemanticException;
-import org.wso2.ballerina.core.model.BallerinaFile;
+import org.wso2.ballerina.core.model.BLangProgram;
 import org.wso2.ballerina.core.model.values.BArray;
 import org.wso2.ballerina.core.model.values.BInteger;
 import org.wso2.ballerina.core.model.values.BString;
 import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.utils.BTestUtils;
-import org.ballerinalang.util.program.BLangFunctions;
 
 /**
  * Test array initializer expression.
@@ -36,17 +36,17 @@ import org.ballerinalang.util.program.BLangFunctions;
  */
 public class ArrayInitializerExprTest {
 
-    private BallerinaFile bFile;
+    private BLangProgram bLangProgram;
 
     @BeforeClass
     public void setup() {
-        bFile = BTestUtils.parseBalFile("lang/expressions/array-initializer-expr.bal");
+        bLangProgram = BTestUtils.parseBalFile("lang/expressions/array-initializer-expr.bal");
     }
 
     @Test(description = "Test array initializer expression")
     public void testArrayInitExpr() {
         BValue[] args = {};
-        BValue[] returns = BLangFunctions.invoke(bFile, "arrayInitTest", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "arrayInitTest", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
@@ -59,7 +59,7 @@ public class ArrayInitializerExprTest {
     @Test(description = "Test array return value")
     public void testArrayReturnValueTest() {
         BValue[] args = {};
-        BValue[] returns = BLangFunctions.invoke(bFile, "arrayReturnTest", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "arrayReturnTest", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BArray.class);

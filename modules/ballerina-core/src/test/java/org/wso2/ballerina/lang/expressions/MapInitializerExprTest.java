@@ -20,7 +20,7 @@ package org.wso2.ballerina.lang.expressions;
 import org.testng.Assert;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
-import org.wso2.ballerina.core.model.BallerinaFile;
+import org.wso2.ballerina.core.model.BLangProgram;
 import org.wso2.ballerina.core.model.values.BMap;
 import org.wso2.ballerina.core.model.values.BString;
 import org.wso2.ballerina.core.model.values.BValue;
@@ -34,17 +34,17 @@ import org.ballerinalang.util.program.BLangFunctions;
  */
 public class MapInitializerExprTest {
 
-    private BallerinaFile bFile;
+    private BLangProgram bLangProgram;
 
     @BeforeTest
     public void setup() {
-        bFile = BTestUtils.parseBalFile("lang/expressions/map-initializer-expr.bal");
+        bLangProgram = BTestUtils.parseBalFile("lang/expressions/map-initializer-expr.bal");
     }
 
     @Test(description = "Test map initializer expression")
     public void testMapInitExpr() {
         BValue[] args = {};
-        BValue[] returns = BLangFunctions.invoke(bFile, "mapInitTest", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "mapInitTest", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BMap.class);

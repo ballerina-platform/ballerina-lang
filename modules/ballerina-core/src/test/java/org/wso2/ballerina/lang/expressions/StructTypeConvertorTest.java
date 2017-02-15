@@ -21,7 +21,7 @@ package org.wso2.ballerina.lang.expressions;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.wso2.ballerina.core.model.BallerinaFile;
+import org.wso2.ballerina.core.model.BLangProgram;
 import org.wso2.ballerina.core.model.values.BInteger;
 import org.wso2.ballerina.core.model.values.BMap;
 import org.wso2.ballerina.core.model.values.BString;
@@ -32,16 +32,16 @@ import org.ballerinalang.util.program.BLangFunctions;
 
 
 public class StructTypeConvertorTest {
-    private BallerinaFile bFile;
+    private BLangProgram bLangProgram;
 
     @BeforeClass
     public void setup() {
-        bFile = BTestUtils.parseBalFile("lang/expressions/struct-type-convertor.bal");
+        bLangProgram = BTestUtils.parseBalFile("lang/expressions/struct-type-convertor.bal");
     }
 
     @Test
     public void testStructConvertor() {
-        BValue[] returns = BLangFunctions.invoke(bFile, "testStructConvertor");
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testStructConvertor");
         Assert.assertTrue(returns[0] instanceof BStruct);
         BStruct bStruct = (BStruct) returns[0];
         final String expectedName = "Jack";

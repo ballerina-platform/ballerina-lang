@@ -22,7 +22,7 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.ballerina.core.exception.SemanticException;
-import org.wso2.ballerina.core.model.BallerinaFile;
+import org.wso2.ballerina.core.model.BLangProgram;
 import org.wso2.ballerina.core.model.values.BDouble;
 import org.wso2.ballerina.core.model.values.BFloat;
 import org.wso2.ballerina.core.model.values.BInteger;
@@ -36,17 +36,17 @@ import org.ballerinalang.util.program.BLangFunctions;
  */
 public class MultiplyExprTest {
 
-    private BallerinaFile bFile;
+    private BLangProgram bLangProgram;
 
     @BeforeClass
     public void setup() {
-        bFile = BTestUtils.parseBalFile("lang/expressions/mult-expr.bal");
+        bLangProgram = BTestUtils.parseBalFile("lang/expressions/mult-expr.bal");
     }
 
     @Test(description = "Test two int multiply expression")
     public void testIntMultiplyExpr() {
         BValue[] args = { new BInteger(100), new BInteger(50) };
-        BValue[] returns = BLangFunctions.invoke(bFile, "intMultiply", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "intMultiply", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
@@ -59,7 +59,7 @@ public class MultiplyExprTest {
 //    @Test(description = "Test two long multiply expression")
     public void testLongMultiplyExpr() {
         BValue[] args = { new BLong(10), new BLong(50) };
-        BValue[] returns = BLangFunctions.invoke(bFile, "longMultiply", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "longMultiply", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BLong.class);
@@ -72,7 +72,7 @@ public class MultiplyExprTest {
     @Test(description = "Test two float multiply expression")
     public void testFloatMultiplyExpr() {
         BValue[] args = { new BFloat(40.0f), new BFloat(40.0f) };
-        BValue[] returns = BLangFunctions.invoke(bFile, "floatMultiply", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "floatMultiply", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BFloat.class);
@@ -85,7 +85,7 @@ public class MultiplyExprTest {
 //    @Test(description = "Test two double multiply expression")
     public void testDoubleMultiplyExpr() {
         BValue[] args = { new BDouble(8), new BDouble(2) };
-        BValue[] returns = BLangFunctions.invoke(bFile, "doubleMultiply", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "doubleMultiply", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BDouble.class);

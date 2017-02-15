@@ -27,6 +27,7 @@ import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.interpreter.SymScope;
 import org.wso2.ballerina.core.model.Application;
+import org.wso2.ballerina.core.model.BLangProgram;
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.runtime.errors.handler.ErrorHandlerUtils;
 import org.wso2.ballerina.core.runtime.internal.GlobalScopeHolder;
@@ -48,8 +49,8 @@ public class RuntimeErrorsTest {
 
     @BeforeClass
     public void setup() {
-        SymScope symScope = GlobalScopeHolder.getInstance().getScope();
-        bFile = BTestUtils.parseBalFile("lang/errors/runtime-errors.bal", symScope);
+        BLangProgram bLangProgram = BTestUtils.parseBalFile("lang/errors/runtime-errors.bal");
+        bFile = bLangProgram.getLibraryPackages()[0].getBallerinaFiles()[0];
         application = EnvironmentInitializer.setup("lang/errors/undeclared-package-errors.bal");
     }
 

@@ -20,7 +20,7 @@ package org.wso2.ballerina.lang.statements;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.wso2.ballerina.core.model.BallerinaFile;
+import org.wso2.ballerina.core.model.BLangProgram;
 import org.wso2.ballerina.core.model.values.BInteger;
 import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.utils.BTestUtils;
@@ -33,18 +33,18 @@ import org.ballerinalang.util.program.BLangFunctions;
  */
 public class ReturnStmtInBranchTest {
 
-    private BallerinaFile bFile;
+    private BLangProgram bLangProgram;
 
     @BeforeClass
     public void setup() {
-        bFile = BTestUtils.parseBalFile("lang/statements/returnstmt/return-stmt-in-branches.bal");
+        bLangProgram = BTestUtils.parseBalFile("lang/statements/returnstmt/return-stmt-in-branches.bal");
     }
 
     @Test(description = "Test Return statements in branches")
     public void testReturnStmtInBranches1() {
         BValue[] args = {new BInteger(12), new BInteger(13)};
 
-        BValue[] returns = BLangFunctions.invoke(bFile, "returnStmtBranch1", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "returnStmtBranch1", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
@@ -56,7 +56,7 @@ public class ReturnStmtInBranchTest {
     public void testReturnStmtInBranches2() {
         BValue[] args = {new BInteger(9), new BInteger(10)};
 
-        BValue[] returns = BLangFunctions.invoke(bFile, "returnStmtBranch2", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "returnStmtBranch2", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
