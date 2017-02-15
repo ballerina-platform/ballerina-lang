@@ -355,13 +355,9 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
             var parentSVG = propertyButtonPaneGroup.node().ownerSVGElement;
 
             event.stopPropagation();
-
-
-
-
+            
             // Hiding property button pane.
             $(propertyButtonPaneGroup.node()).remove();
-            
             var propertyPaneWrapper = $("<div/>", {
                 class: viewOptions.propertyForm.wrapper.class,
                 css: {
