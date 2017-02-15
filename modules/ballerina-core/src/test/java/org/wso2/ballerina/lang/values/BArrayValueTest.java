@@ -17,41 +17,47 @@
 */
 package org.wso2.ballerina.lang.values;
 
+import org.ballerinalang.BLangProgramLoader;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.ballerina.core.exception.BallerinaException;
-import org.wso2.ballerina.core.model.BallerinaFile;
+import org.wso2.ballerina.core.model.BLangProgram;
 import org.wso2.ballerina.core.model.values.BArray;
 import org.wso2.ballerina.core.model.values.BFloat;
 import org.wso2.ballerina.core.model.values.BInteger;
 import org.wso2.ballerina.core.model.values.BString;
 import org.wso2.ballerina.core.model.values.BValue;
-import org.wso2.ballerina.core.utils.ParserUtils;
-import org.wso2.ballerina.lang.util.Functions;
+import org.ballerinalang.util.program.BLangFunctions;
+
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 /**
+ * This class contains methods to test the array implementation in Ballerina.
  *
+ * @since 0.8.0
  */
 public class BArrayValueTest {
-
-    private BallerinaFile bFile;
+    private BLangProgram bLangProgram;
 
     @BeforeClass
     public void setup() {
-        bFile = ParserUtils.parseBalFile("lang/values/array-value.bal");
+        Path programPath = Paths.get(this.getClass().getProtectionDomain().getCodeSource().getLocation().getPath());
+        bLangProgram = new BLangProgramLoader().loadLibrary(programPath,
+                Paths.get("lang/values/array-value.bal"));
     }
 
     @Test(description = "Test lazy array creation", expectedExceptions = {BallerinaException.class},
             expectedExceptionsMessageRegExp = "array index out of range: Index: 0, Size: 0")
     public void testLazyArrayCreation() {
-        Functions.invoke(bFile, "lazyInitThrowArrayIndexOutOfBound", new BValue[0]);
+        BLangFunctions.invoke(bLangProgram, "lazyInitThrowArrayIndexOutOfBound", new BValue[0]);
     }
 
     @Test(description = "Test lazy array initializer. Size should be zero")
     public void lazyInitSizeZero() {
         BValue[] args = {};
-        BValue[] returns = Functions.invoke(bFile, "lazyInitSizeZero", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "lazyInitSizeZero", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BArray.class);
@@ -62,7 +68,7 @@ public class BArrayValueTest {
 
     @Test(description = "Test add value operation on int array")
     public void addValueToIntegerArray() {
-        BValue[] returns = Functions.invoke(bFile, "addValueToIntArray");
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "addValueToIntArray");
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BArray.class);
@@ -92,7 +98,7 @@ public class BArrayValueTest {
 
     @Test(description = "Test add value operation on float array")
     public void addValueToFloatArray() {
-        BValue[] returns = Functions.invoke(bFile, "addValueToFloatArray");
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "addValueToFloatArray");
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BArray.class);

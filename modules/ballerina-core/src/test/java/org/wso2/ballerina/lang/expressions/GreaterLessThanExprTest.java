@@ -27,8 +27,8 @@ import org.wso2.ballerina.core.model.values.BBoolean;
 import org.wso2.ballerina.core.model.values.BFloat;
 import org.wso2.ballerina.core.model.values.BInteger;
 import org.wso2.ballerina.core.model.values.BValue;
-import org.wso2.ballerina.core.utils.ParserUtils;
-import org.wso2.ballerina.lang.util.Functions;
+import org.wso2.ballerina.core.utils.BTestUtils;
+import org.ballerinalang.util.program.BLangFunctions;
 
 /**
  * Greater than/ less than expression test..
@@ -39,13 +39,13 @@ public class GreaterLessThanExprTest {
 
     @BeforeClass
     public void setup() {
-        bFile = ParserUtils.parseBalFile("lang/expressions/greater-less-than-expr.bal");
+        bFile = BTestUtils.parseBalFile("lang/expressions/greater-less-than-expr.bal");
     }
 
     @Test(description = "Test int greater than, less than expression")
     public void testIntRangeExpr() {
         BValue[] args = {new BInteger(0)};
-        BValue[] returns = Functions.invoke(bFile, "testIntRanges", args);
+        BValue[] returns = BLangFunctions.invoke(bFile, "testIntRanges", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
@@ -55,14 +55,14 @@ public class GreaterLessThanExprTest {
         Assert.assertEquals(actual, expected);
 
         args = new BValue[]{new BInteger(50)};
-        returns = Functions.invoke(bFile, "testIntRanges", args);
+        returns = BLangFunctions.invoke(bFile, "testIntRanges", args);
 
         actual = ((BInteger) returns[0]).intValue();
         expected = 2;
         Assert.assertEquals(actual, expected);
 
         args = new BValue[]{new BInteger(200)};
-        returns = Functions.invoke(bFile, "testIntRanges", args);
+        returns = BLangFunctions.invoke(bFile, "testIntRanges", args);
 
         actual = ((BInteger) returns[0]).intValue();
         expected = 3;
@@ -72,7 +72,7 @@ public class GreaterLessThanExprTest {
     @Test(description = "Test float greater than, less than expression")
     public void testFloatRangeExpr() {
         BValue[] args = {new BFloat(-123.8f)};
-        BValue[] returns = Functions.invoke(bFile, "testFloatRanges", args);
+        BValue[] returns = BLangFunctions.invoke(bFile, "testFloatRanges", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
@@ -82,14 +82,14 @@ public class GreaterLessThanExprTest {
         Assert.assertEquals(actual, expected);
 
         args = new BValue[]{new BFloat(75.4f)};
-        returns = Functions.invoke(bFile, "testFloatRanges", args);
+        returns = BLangFunctions.invoke(bFile, "testFloatRanges", args);
 
         actual = ((BInteger) returns[0]).intValue();
         expected = 2;
         Assert.assertEquals(actual, expected);
 
         args = new BValue[]{new BFloat(321.45f)};
-        returns = Functions.invoke(bFile, "testFloatRanges", args);
+        returns = BLangFunctions.invoke(bFile, "testFloatRanges", args);
 
         actual = ((BInteger) returns[0]).intValue();
         expected = 3;
@@ -104,7 +104,7 @@ public class GreaterLessThanExprTest {
         boolean expectedResult = a > b;
 
         BValue[] args = {new BInteger(a), new BFloat(b)};
-        BValue[] returns = Functions.invoke(bFile, "testIntAndFloatCompare", args);
+        BValue[] returns = BLangFunctions.invoke(bFile, "testIntAndFloatCompare", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BBoolean.class);
@@ -123,7 +123,7 @@ public class GreaterLessThanExprTest {
             expectedExceptionsMessageRegExp = "incompatible-type-greater-than.bal:6: invalid operation: " +
                     "incompatible types 'int' and 'boolean'")
     public void testIncompatibleGreaterThan() {
-        ParserUtils.parseBalFile("lang/expressions/incompatible-type-greater-than.bal");
+        BTestUtils.parseBalFile("lang/expressions/incompatible-type-greater-than.bal");
     }
 
     @Test(description = "Test greater-than-equal check for two different types",
@@ -131,7 +131,7 @@ public class GreaterLessThanExprTest {
             expectedExceptionsMessageRegExp = "incompatible-type-greater-than-equal.bal:6: invalid operation: " +
                     "incompatible types 'int' and 'boolean'")
     public void testIncompatibleGreaterThanEqual() {
-        ParserUtils.parseBalFile("lang/expressions/incompatible-type-greater-than-equal.bal");
+        BTestUtils.parseBalFile("lang/expressions/incompatible-type-greater-than-equal.bal");
     }
 
     @Test(description = "Test less-than check for two different types",
@@ -139,7 +139,7 @@ public class GreaterLessThanExprTest {
             expectedExceptionsMessageRegExp = "incompatible-type-less-than.bal:6: invalid operation: " +
                     "incompatible types 'int' and 'boolean'")
     public void testIncompatibleLessThan() {
-        ParserUtils.parseBalFile("lang/expressions/incompatible-type-less-than.bal");
+        BTestUtils.parseBalFile("lang/expressions/incompatible-type-less-than.bal");
     }
 
     @Test(description = "Test less-than-equal check for two different types",
@@ -147,7 +147,7 @@ public class GreaterLessThanExprTest {
             expectedExceptionsMessageRegExp = "incompatible-type-less-than-equal.bal:6: invalid operation: " +
                     "incompatible types 'int' and 'boolean'")
     public void testIncompatibleLessThanEqual() {
-        ParserUtils.parseBalFile("lang/expressions/incompatible-type-less-than-equal.bal");
+        BTestUtils.parseBalFile("lang/expressions/incompatible-type-less-than-equal.bal");
     }
     
     @Test(description = "Test less-than check for unsupported types (json)",
@@ -155,7 +155,7 @@ public class GreaterLessThanExprTest {
             expectedExceptionsMessageRegExp = "unsupported-type-less-than.bal:9: invalid operation: " +
                     "operator < not defined on 'json'")
     public void testUnsupportedTypeLessThan() {
-        ParserUtils.parseBalFile("lang/expressions/unsupported-type-less-than.bal");
+        BTestUtils.parseBalFile("lang/expressions/unsupported-type-less-than.bal");
     }
     
     @Test(description = "Test greater-than check for unsupported types (json)",
@@ -163,7 +163,7 @@ public class GreaterLessThanExprTest {
             expectedExceptionsMessageRegExp = "unsupported-type-greater-than.bal:9: invalid operation: " +
                     "operator > not defined on 'json'")
     public void testUnsupportedTypeGreaterThan() {
-        ParserUtils.parseBalFile("lang/expressions/unsupported-type-greater-than.bal");
+        BTestUtils.parseBalFile("lang/expressions/unsupported-type-greater-than.bal");
     }
     
     @Test(description = "Test greater-than-equal check for unsupported types (json)",
@@ -171,7 +171,7 @@ public class GreaterLessThanExprTest {
             expectedExceptionsMessageRegExp = "unsupported-type-greater-than-equal.bal:9: invalid operation: " +
                     "operator >= not defined on 'json'")
     public void testUnsupportedTypeGreaterThanEqual() {
-        ParserUtils.parseBalFile("lang/expressions/unsupported-type-greater-than-equal.bal");
+        BTestUtils.parseBalFile("lang/expressions/unsupported-type-greater-than-equal.bal");
     }
     
     @Test(description = "Test less-than-equal check for unsupported types (json)",
@@ -179,6 +179,6 @@ public class GreaterLessThanExprTest {
             expectedExceptionsMessageRegExp = "unsupported-type-less-than-equal.bal:9: invalid operation: " +
                     "operator <= not defined on 'json'")
     public void testUnsupportedTypeLessThanEqual() {
-        ParserUtils.parseBalFile("lang/expressions/unsupported-type-less-than-equal.bal");
+        BTestUtils.parseBalFile("lang/expressions/unsupported-type-less-than-equal.bal");
     }
 }

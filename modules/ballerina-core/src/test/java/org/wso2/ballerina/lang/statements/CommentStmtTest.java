@@ -23,7 +23,7 @@ import org.testng.annotations.Test;
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.statements.CommentStmt;
 import org.wso2.ballerina.core.model.statements.Statement;
-import org.wso2.ballerina.core.utils.ParserUtils;
+import org.wso2.ballerina.core.utils.BTestUtils;
 
 /**
  * Test class to test the comment statement in ballerina.
@@ -39,7 +39,7 @@ public class CommentStmtTest {
 
     @Test(description = "Test the comment statement in the function body")
     public void testCommentInFunctionBody() {
-        BallerinaFile bFile = ParserUtils.parseBalFile("lang/statements/comment/comments-in-function-body.bal");
+        BallerinaFile bFile = BTestUtils.parseBalFile("lang/statements/comment/comments-in-function-body.bal");
         Statement[] statements = bFile.getFunctions()[0].getCallableUnitBody().getStatements();
         Assert.assertNotNull(statements, "statements not found");
         Assert.assertEquals(statements.length, 4, "statement count mismatched");
@@ -53,6 +53,6 @@ public class CommentStmtTest {
           expectedExceptions = { ParseCancellationException.class },
           expectedExceptionsMessageRegExp = "comment-in-invalid-location.bal:1:0: unwanted token '//invalid .*")
     public void testCommentInInvalidLocation() {
-        ParserUtils.parseBalFile("lang/statements/comment/comment-in-invalid-location.bal");
+        BTestUtils.parseBalFile("lang/statements/comment/comment-in-invalid-location.bal");
     }
 }

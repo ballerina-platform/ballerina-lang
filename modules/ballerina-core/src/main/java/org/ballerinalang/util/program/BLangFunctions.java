@@ -15,7 +15,7 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.wso2.ballerina.lang.util;
+package org.ballerinalang.util.program;
 
 import org.wso2.ballerina.core.interpreter.BLangExecutor;
 import org.wso2.ballerina.core.interpreter.CallableUnitInfo;
@@ -23,6 +23,7 @@ import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.interpreter.RuntimeEnvironment;
 import org.wso2.ballerina.core.interpreter.StackFrame;
 import org.wso2.ballerina.core.interpreter.StackVarLocation;
+import org.wso2.ballerina.core.model.BLangProgram;
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.Function;
 import org.wso2.ballerina.core.model.SymbolName;
@@ -42,34 +43,86 @@ import org.wso2.ballerina.core.model.values.BMessage;
 import org.wso2.ballerina.core.model.values.BString;
 import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.model.values.BXML;
-import org.wso2.ballerina.core.utils.ParserUtils;
 
 import java.util.Arrays;
 
 /**
- * This contains test utils related to Ballerina function invocations.
+ * This class contains helper methods to invoke Ballerina functions.
  *
  * @since 0.8.0
  */
-public class Functions {
+public class BLangFunctions {
 
-    private Functions() {
+    private BLangFunctions() {
     }
 
     /**
-     * Invokes a Ballerina function defined in the given source file.
+     * Invokes a Ballerina function defined in the given language model.
      *
-     * @param sourceFilePath Ballerina source file path relative to test resources dir. If not absolute path
-     * @param functionName   name of the function to be invoked
-     * @param args           function arguments
+     * @param bLangProgram        parsed, analyzed and linked object model
+     * @param functionName name of the function to be invoked
      * @return return values from the function
      */
-    public static BValue[] invoke(String sourceFilePath, String functionName, BValue[] args) {
-
-        // 1) Get the Ballerina language model from the source file.
-        BallerinaFile bFile = ParserUtils.parseBalFile(sourceFilePath);
-        return invoke(bFile, functionName, args, new Context());
+    public static BValue[] invoke(BLangProgram bLangProgram, String functionName) {
+        BValue[] args = {};
+        return invoke(bLangProgram, functionName, args, new Context());
     }
+
+    /**
+     * Invokes a Ballerina function defined in the given language model.
+     *
+     * @param bLangProgram        parsed, analyzed and linked object model
+     * @param functionName name of the function to be invoked
+     * @return return values from the function
+     */
+    public static BValue[] invoke(BLangProgram bLangProgram, String functionName, BValue[] args) {
+        return invoke(bLangProgram, functionName, args, new Context());
+    }
+
+    /**
+     * Invokes a Ballerina function defined in the given language model.
+     *
+     * @param bLangProgram parsed, analyzed and linked object model
+     * @param functionName name of the function to be invoked
+     * @return return values from the function
+     */
+    public static BValue[] invoke(BLangProgram bLangProgram, String functionName, BValue[] args, Context bContext) {
+        Function function = getFunction(bLangProgram.getLibraryPackages()[0].getFunctions(), functionName, args);
+        if (function == null) {
+            throw new RuntimeException("Function '" + functionName + "' is not defined");
+        }
+
+        if (function.getParameterDefs().length != args.length) {
+            throw new RuntimeException("Size of input argument array is not equal to size of function parameters");
+        }
+
+        BValue[] argValues = new BValue[function.getStackFrameSize()];
+
+        for(int i = 0; i < args.length; i++) {
+            argValues[i] = args[0];
+        }
+
+        BValue[] returnValues = new BValue[function.getReturnParameters().length];
+        CallableUnitInfo functionInfo = new CallableUnitInfo(function.getName(), function.getPackagePath(),
+                function.getNodeLocation());
+
+        StackFrame stackFrame = new StackFrame(argValues, returnValues, functionInfo);
+        bContext.getControlStack().pushFrame(stackFrame);
+
+        // Invoke main function
+        RuntimeEnvironment runtimeEnv = RuntimeEnvironment.get(bLangProgram);
+        BLangExecutor executor = new BLangExecutor(runtimeEnv, bContext);
+        function.getCallableUnitBody().execute(executor);
+
+        bContext.getControlStack().popFrame();
+        return returnValues;
+    }
+
+
+
+
+
+
 
     /**
      * Invokes a Ballerina function defined in the given language model.
@@ -208,7 +261,7 @@ public class Functions {
     /**
      * Compare argument types matches with the provided types.
      *
-     * @param argTypes List of {@link BType} that are accepted as arguments
+     * @param argTypes  List of {@link BType} that are accepted as arguments
      * @param argValues List of {@link BValue} that are provided as arguments
      * @return True if a matching type if found for each
      */

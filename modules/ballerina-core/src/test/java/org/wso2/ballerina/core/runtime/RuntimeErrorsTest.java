@@ -31,8 +31,8 @@ import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.runtime.errors.handler.ErrorHandlerUtils;
 import org.wso2.ballerina.core.runtime.internal.GlobalScopeHolder;
 import org.wso2.ballerina.core.utils.MessageUtils;
-import org.wso2.ballerina.core.utils.ParserUtils;
-import org.wso2.ballerina.lang.util.Functions;
+import org.wso2.ballerina.core.utils.BTestUtils;
+import org.ballerinalang.util.program.BLangFunctions;
 import org.wso2.ballerina.lang.util.Services;
 import org.wso2.carbon.messaging.CarbonMessage;
 
@@ -49,7 +49,7 @@ public class RuntimeErrorsTest {
     @BeforeClass
     public void setup() {
         SymScope symScope = GlobalScopeHolder.getInstance().getScope();
-        bFile = ParserUtils.parseBalFile("lang/errors/runtime-errors.bal", symScope);
+        bFile = BTestUtils.parseBalFile("lang/errors/runtime-errors.bal", symScope);
         application = EnvironmentInitializer.setup("lang/errors/undeclared-package-errors.bal");
     }
 
@@ -62,7 +62,7 @@ public class RuntimeErrorsTest {
                 "\t at test.lang:getFruit1(runtime-errors.bal:18)\n" +
                 "\t at test.lang:testStackTrace(runtime-errors.bal:15)\n";
         try {
-            Functions.invoke(bFile, "testStackTrace", bContext);
+            BLangFunctions.invoke(bFile, "testStackTrace", bContext);
         } catch (Exception e) {
             ex = e;
         } finally {
@@ -82,7 +82,7 @@ public class RuntimeErrorsTest {
         Context bContext = new Context();
         String expectedStackTrace = getStackOverflowTrace();
         try {
-            Functions.invoke(bFile, "testStackOverflow", bContext);
+            BLangFunctions.invoke(bFile, "testStackOverflow", bContext);
         } catch (Throwable e) {
             ex = e;
         } finally {
@@ -132,7 +132,7 @@ public class RuntimeErrorsTest {
         Context bContext = new Context();
 
         try {
-            Functions.invoke(bFile, "testTypeCastException", bContext);
+            BLangFunctions.invoke(bFile, "testTypeCastException", bContext);
         } catch (Exception e) {
             ex = e;
         } finally {

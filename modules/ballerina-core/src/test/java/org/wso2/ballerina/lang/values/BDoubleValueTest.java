@@ -17,14 +17,17 @@
 */
 package org.wso2.ballerina.lang.values;
 
+import org.ballerinalang.BLangProgramLoader;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.wso2.ballerina.core.model.BallerinaFile;
+import org.wso2.ballerina.core.model.BLangProgram;
 import org.wso2.ballerina.core.model.values.BDouble;
 import org.wso2.ballerina.core.model.values.BValue;
-import org.wso2.ballerina.core.utils.ParserUtils;
-import org.wso2.ballerina.lang.util.Functions;
+import org.ballerinalang.util.program.BLangFunctions;
+
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 /**
  * This test class will test the behaviour of double values with expressions.
@@ -32,22 +35,24 @@ import org.wso2.ballerina.lang.util.Functions;
  * Multiplication
  * Division
  * Subtraction
- *
+ * <p>
  * Defining a double value
  * double b;
  * b = 10.1d;
  */
 public class BDoubleValueTest {
-    private BallerinaFile bFile;
+    private BLangProgram bLangProgram;
 
     @BeforeClass(alwaysRun = true)
     public void setup() {
-        bFile = ParserUtils.parseBalFile("lang/values/double-value.bal");
+        Path programPath = Paths.get(this.getClass().getProtectionDomain().getCodeSource().getLocation().getPath());
+        bLangProgram = new BLangProgramLoader().loadLibrary(programPath,
+                Paths.get("lang/values/double-value.bal"));
     }
 
     @Test(description = "Test double value assignment")
     public void testDoubleValue() {
-        BValue[] returns = Functions.invoke(bFile, "testDoubleValue");
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testDoubleValue");
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BDouble.class);
         BDouble doubleValue = (BDouble) returns[0];
@@ -56,7 +61,7 @@ public class BDoubleValueTest {
 
     @Test(description = "Test negative double value assignment")
     public void testNegativeDoubleValue() {
-        BValue[] returns = Functions.invoke(bFile, "testNegativeDoubleValue");
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testNegativeDoubleValue");
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BDouble.class);
         BDouble doubleValue = (BDouble) returns[0];
@@ -65,7 +70,7 @@ public class BDoubleValueTest {
 
     @Test(description = "Test double value assignment from a value returned by function")
     public void testDoubleValueAssignmentByReturnValue() {
-        BValue[] returns = Functions.invoke(bFile, "testDoubleValueAssignmentByReturnValue");
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testDoubleValueAssignmentByReturnValue");
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BDouble.class);
         BDouble doubleValue = (BDouble) returns[0];
@@ -75,7 +80,7 @@ public class BDoubleValueTest {
     @Test(description = "Test double value assignment")
     public void testDoubleParameter() {
         BValue[] args = {new BDouble(3.3d)};
-        BValue[] returns = Functions.invoke(bFile, "testDoubleParameter", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testDoubleParameter", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BDouble.class);
         BDouble doubleValue = (BDouble) returns[0];
@@ -84,7 +89,7 @@ public class BDoubleValueTest {
 
     @Test(description = "Test double value Addition")
     public void testDoubleValueAddition() {
-        BValue[] returns = Functions.invoke(bFile, "testDoubleAddition");
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testDoubleAddition");
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BDouble.class);
         BDouble doubleValue = (BDouble) returns[0];
@@ -93,7 +98,7 @@ public class BDoubleValueTest {
 
     @Test(description = "Test double value Subtraction")
     public void testDoubleValueSubtraction() {
-        BValue[] returns = Functions.invoke(bFile, "testDoubleSubtraction");
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testDoubleSubtraction");
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BDouble.class);
         BDouble doubleValue = (BDouble) returns[0];
@@ -102,7 +107,7 @@ public class BDoubleValueTest {
 
     @Test(description = "Test double value Multiplication")
     public void testDoubleValueMultiplication() {
-        BValue[] returns = Functions.invoke(bFile, "testDoubleMultiplication");
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testDoubleMultiplication");
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BDouble.class);
         BDouble doubleValue = (BDouble) returns[0];
@@ -111,7 +116,7 @@ public class BDoubleValueTest {
 
     @Test(description = "Test double value Division")
     public void testDoubleValueDivision() {
-        BValue[] returns = Functions.invoke(bFile, "testDoubleDivision");
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testDoubleDivision");
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BDouble.class);
         BDouble doubleValue = (BDouble) returns[0];

@@ -24,7 +24,7 @@ import org.wso2.ballerina.core.model.builder.BLangModelBuilder;
 import org.wso2.ballerina.core.parser.BallerinaParser;
 import org.wso2.ballerina.core.parser.BallerinaParserErrorStrategy;
 import org.wso2.ballerina.core.parser.antlr4.BLangAntlr4Listener;
-import org.wso2.ballerina.core.utils.ParserUtils;
+import org.wso2.ballerina.core.utils.BTestUtils;
 
 /**
  * Syntax Errors test class for ballerina filers.
@@ -117,7 +117,7 @@ public class InvalidSyntaxParserTest {
 //    }
 
     private BallerinaParser getParserForFile(String path) {
-        BallerinaParser ballerinaParser = ParserUtils.getBallerinaParser(path);
+        BallerinaParser ballerinaParser = BTestUtils.getBallerinaParser(path);
 
         // Create Ballerina model builder class
         BLangModelBuilder modelBuilder = new BLangModelBuilder(null, "");

@@ -19,6 +19,7 @@ package org.wso2.ballerina.core.utils;
 
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
+import org.ballerinalang.BLangProgramLoader;
 import org.wso2.ballerina.core.interpreter.SymScope;
 import org.wso2.ballerina.core.model.BLangPackage;
 import org.wso2.ballerina.core.model.BLangProgram;
@@ -30,12 +31,12 @@ import org.wso2.ballerina.core.parser.BallerinaLexer;
 import org.wso2.ballerina.core.parser.BallerinaParser;
 import org.wso2.ballerina.core.parser.BallerinaParserErrorStrategy;
 import org.wso2.ballerina.core.parser.antlr4.BLangAntlr4Listener;
-import org.wso2.ballerina.core.semantics.SemanticAnalyzer;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.URL;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 
 /**
@@ -43,9 +44,9 @@ import java.nio.file.Paths;
  *
  * @since 0.8.0
  */
-public class ParserUtils {
+public class BTestUtils {
 
-    private ParserUtils() {
+    private BTestUtils() {
     }
 
     /**
@@ -54,8 +55,11 @@ public class ParserUtils {
      * @param sourceFilePath Path to Bal file.
      * @return BallerinaFile instance.
      */
-    public static BallerinaFile parseBalFile(String sourceFilePath) {
-        return parseBalFile(sourceFilePath, new SymScope(SymScope.Name.GLOBAL));
+    public static BLangProgram parseBalFile(String sourceFilePath) {
+
+        Path programPath = Paths.get(BTestUtils.class.getProtectionDomain().getCodeSource().getLocation().getPath());
+        return new BLangProgramLoader().loadLibrary(programPath,
+                Paths.get(sourceFilePath));
     }
 
     /**
@@ -72,7 +76,8 @@ public class ParserUtils {
         // Create Ballerina model builder class
         GlobalScope globalScope = GlobalScope.getInstance();
         BTypes.loadBuiltInTypes(globalScope);
-        BLangProgram bLangProgram = new BLangProgram(globalScope);
+        BLangProgram bLangProgram = new BLangProgram(globalScope, BLangProgram.Category.MAIN_PROGRAM);
+//        BLangPackage.PackageBuilder packageBuilder = new BLangPackage.PackageBuilder()
         BLangPackage bLangPackage = new BLangPackage(bLangProgram);
         BLangModelBuilder modelBuilder = null;
 
@@ -103,7 +108,7 @@ public class ParserUtils {
      * @return BallerinaParser instance.
      */
     public static BallerinaParser getBallerinaParser(String path) {
-        URL fileResource = ParserUtils.class.getClassLoader().getResource(path);
+        URL fileResource = BTestUtils.class.getClassLoader().getResource(path);
         if (fileResource == null) {
             throw new RuntimeException("Source file is not available: " + path);
         }

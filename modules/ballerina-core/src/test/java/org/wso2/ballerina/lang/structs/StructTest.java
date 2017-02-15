@@ -27,8 +27,8 @@ import org.wso2.ballerina.core.model.values.BInteger;
 import org.wso2.ballerina.core.model.values.BMap;
 import org.wso2.ballerina.core.model.values.BString;
 import org.wso2.ballerina.core.model.values.BValue;
-import org.wso2.ballerina.core.utils.ParserUtils;
-import org.wso2.ballerina.lang.util.Functions;
+import org.wso2.ballerina.core.utils.BTestUtils;
+import org.ballerinalang.util.program.BLangFunctions;
 
 /**
  * Test cases for user defined struct types in ballerina
@@ -39,12 +39,12 @@ public class StructTest {
     
     @BeforeClass
     public void setup() {
-        bFile = ParserUtils.parseBalFile("lang/structs/struct.bal");
+        bFile = BTestUtils.parseBalFile("lang/structs/struct.bal");
     }
     
     @Test(description = "Test Basic struct operations")
     public void testBasicStruct() {
-        BValue[] returns = Functions.invoke(bFile, "testCreateStruct");
+        BValue[] returns = BLangFunctions.invoke(bFile, "testCreateStruct");
 
         Assert.assertTrue(returns[0] instanceof BString);
         Assert.assertEquals(returns[0].stringValue(), "Jack");
@@ -60,7 +60,7 @@ public class StructTest {
 
     @Test(description = "Test using expressions as index for struct arrays")
     public void testExpressionAsIndex() {
-        BValue[] returns = Functions.invoke(bFile, "testExpressionAsIndex");
+        BValue[] returns = BLangFunctions.invoke(bFile, "testExpressionAsIndex");
         Assert.assertTrue(returns[0] instanceof BString);
         Assert.assertEquals(returns[0].stringValue(), "Jane");
     }
@@ -75,7 +75,7 @@ public class StructTest {
     
     @Test(description = "Test using structs inside structs")
     public void testStructOfStructs() {
-        BValue[] returns = Functions.invoke(bFile, "testStructOfStruct");
+        BValue[] returns = BLangFunctions.invoke(bFile, "testStructOfStruct");
 
         Assert.assertTrue(returns[0] instanceof BString);
         Assert.assertEquals(returns[0].stringValue(), "USA");
@@ -83,7 +83,7 @@ public class StructTest {
     
     @Test(description = "Test returning fields of a struct")
     public void testReturnStructAttributes() {
-        BValue[] returns = Functions.invoke(bFile, "testReturnStructAttributes");
+        BValue[] returns = BLangFunctions.invoke(bFile, "testReturnStructAttributes");
 
         Assert.assertTrue(returns[0] instanceof BString);
         Assert.assertEquals(returns[0].stringValue(), "emily");
@@ -91,7 +91,7 @@ public class StructTest {
     
     @Test(description = "Test using struct expression as a index in another struct expression")
     public void testStructExpressionAsIndex() {
-        BValue[] returns = Functions.invoke(bFile, "testStructExpressionAsIndex");
+        BValue[] returns = BLangFunctions.invoke(bFile, "testStructExpressionAsIndex");
         Assert.assertTrue(returns[0] instanceof BString);
         Assert.assertEquals(returns[0].stringValue(), "emily");
     }
@@ -104,63 +104,63 @@ public class StructTest {
             expectedExceptions = {BallerinaException.class},
             expectedExceptionsMessageRegExp = "field 'employees\\[0\\]' is null")
     public void testGetNonInitField() {
-        Functions.invoke(bFile, "testGetNonInitAttribute");
+        BLangFunctions.invoke(bFile, "testGetNonInitAttribute");
     }
     
     @Test(description = "Test accessing an array field of a noninitialized struct",
             expectedExceptions = {BallerinaException.class},
             expectedExceptionsMessageRegExp = "array index out of range: Index: 0, Size: 0")
     public void testGetNonInitArrayField() {
-        Functions.invoke(bFile, "testGetNonInitArrayAttribute");
+        BLangFunctions.invoke(bFile, "testGetNonInitArrayAttribute");
     }
     
     @Test(description = "Test accessing the field of a noninitialized struct",
             expectedExceptions = {BallerinaException.class},
             expectedExceptionsMessageRegExp = "field 'dpt' is null")
     public void testGetNonInitLastField() {
-        Functions.invoke(bFile, "testGetNonInitLastAttribute");
+        BLangFunctions.invoke(bFile, "testGetNonInitLastAttribute");
     }
     
     @Test(description = "Test setting an field of a noninitialized child struct",
             expectedExceptions = {BallerinaException.class},
             expectedExceptionsMessageRegExp = "field 'family' is null")
     public void testSetNonInitField() {
-        Functions.invoke(bFile, "testSetFieldOfNonInitChildStruct");
+        BLangFunctions.invoke(bFile, "testSetFieldOfNonInitChildStruct");
     }
     
     @Test(description = "Test setting the field of a noninitialized root struct",
             expectedExceptions = {BallerinaException.class},
             expectedExceptionsMessageRegExp = "field 'dpt' is null")
     public void testSetNonInitLastField() {
-        Functions.invoke(bFile, "testSetFieldOfNonInitStruct");
+        BLangFunctions.invoke(bFile, "testSetFieldOfNonInitStruct");
     }
     
     @Test(description = "Test defining structs with duplicate name",
             expectedExceptions = {BallerinaException.class},
             expectedExceptionsMessageRegExp = "duplicate-structs.bal:4: undefined type 'Person'")
     public void testDuplicateStructDefinitions() {
-        ParserUtils.parseBalFile("lang/structs/duplicate-structs.bal");
+        BTestUtils.parseBalFile("lang/structs/duplicate-structs.bal");
     }
     
     @Test(description = "Test defining structs with duplicate fields",
             expectedExceptions = {BallerinaException.class},
             expectedExceptionsMessageRegExp = "duplicate-fields.bal:5: undefined type 'Person'")
     public void testStructWithDuplicateFields() {
-        ParserUtils.parseBalFile("lang/structs/duplicate-fields.bal");
+        BTestUtils.parseBalFile("lang/structs/duplicate-fields.bal");
     }
     
     @Test(description = "Test initializing an undeclraed structs",
             expectedExceptions = {SemanticException.class},
             expectedExceptionsMessageRegExp = "undeclared-struct-init.bal:2: undefined type 'Department'")
     public void testUndeclaredStructInit() {
-        ParserUtils.parseBalFile("lang/structs/undeclared-struct-init.bal");
+        BTestUtils.parseBalFile("lang/structs/undeclared-struct-init.bal");
     }
     
     @Test(description = "Test accessing an undeclared struct",
             expectedExceptions = {SemanticException.class},
             expectedExceptionsMessageRegExp = "undeclared-struct-access.bal:4: struct 'dpt1' not found.")
     public void testUndeclaredStructAccess() {
-        ParserUtils.parseBalFile("lang/structs/undeclared-struct-access.bal");
+        BTestUtils.parseBalFile("lang/structs/undeclared-struct-access.bal");
     }
     
     @Test(description = "Test accessing an undeclared field of a struct",
@@ -168,14 +168,14 @@ public class StructTest {
             expectedExceptionsMessageRegExp = "undeclared-attribute-access.bal:5: field 'id' not found in struct" +
             " 'Department'.")
     public void testUndeclaredFieldAccess() {
-        ParserUtils.parseBalFile("lang/structs/undeclared-attribute-access.bal");
+        BTestUtils.parseBalFile("lang/structs/undeclared-attribute-access.bal");
     }
     
     @Test(description = "Test defining a struct constant",
             expectedExceptions = {SemanticException.class},
             expectedExceptionsMessageRegExp = "struct-constants.bal:3: invalid type 'Person'")
     public void testStructConstant() {
-        ParserUtils.parseBalFile("lang/structs/struct-constants.bal");
+        BTestUtils.parseBalFile("lang/structs/struct-constants.bal");
     }
     
     @Test(description = "Test initializing a struct with undeclared field",
@@ -183,7 +183,7 @@ public class StructTest {
             expectedExceptionsMessageRegExp = "undeclared-attribute-init.bal:3: unknown field 'age' in struct" +
             " 'Department'")
     public void testUndeclareFieldInit() {
-        ParserUtils.parseBalFile("lang/structs/undeclared-attribute-init.bal");
+        BTestUtils.parseBalFile("lang/structs/undeclared-attribute-init.bal");
     }
     
     @Test(description = "Test initializing a struct with mismatching field type",
@@ -191,7 +191,7 @@ public class StructTest {
             expectedExceptionsMessageRegExp = "invalid-type-attribute-init.bal:3: incompatible type: 'string' " +
             "expected, found 'int'")
     public void testMismatchingTypeFieldInit() {
-        ParserUtils.parseBalFile("lang/structs/invalid-type-attribute-init.bal");
+        BTestUtils.parseBalFile("lang/structs/invalid-type-attribute-init.bal");
     }
     
     @Test(description = "Test initializing a struct with invalid field name",
@@ -199,6 +199,6 @@ public class StructTest {
             expectedExceptionsMessageRegExp = "invalid-field-name-init.bal:3: invalid field name in struct " +
             "initializer")
     public void testInvalidFieldNameInit() {
-        ParserUtils.parseBalFile("lang/structs/invalid-field-name-init.bal");
+        BTestUtils.parseBalFile("lang/structs/invalid-field-name-init.bal");
     }
 }

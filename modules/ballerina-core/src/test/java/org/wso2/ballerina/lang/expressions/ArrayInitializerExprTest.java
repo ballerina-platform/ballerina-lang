@@ -26,8 +26,8 @@ import org.wso2.ballerina.core.model.values.BArray;
 import org.wso2.ballerina.core.model.values.BInteger;
 import org.wso2.ballerina.core.model.values.BString;
 import org.wso2.ballerina.core.model.values.BValue;
-import org.wso2.ballerina.core.utils.ParserUtils;
-import org.wso2.ballerina.lang.util.Functions;
+import org.wso2.ballerina.core.utils.BTestUtils;
+import org.ballerinalang.util.program.BLangFunctions;
 
 /**
  * Test array initializer expression.
@@ -40,13 +40,13 @@ public class ArrayInitializerExprTest {
 
     @BeforeClass
     public void setup() {
-        bFile = ParserUtils.parseBalFile("lang/expressions/array-initializer-expr.bal");
+        bFile = BTestUtils.parseBalFile("lang/expressions/array-initializer-expr.bal");
     }
 
     @Test(description = "Test array initializer expression")
     public void testArrayInitExpr() {
         BValue[] args = {};
-        BValue[] returns = Functions.invoke(bFile, "arrayInitTest", args);
+        BValue[] returns = BLangFunctions.invoke(bFile, "arrayInitTest", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
@@ -59,7 +59,7 @@ public class ArrayInitializerExprTest {
     @Test(description = "Test array return value")
     public void testArrayReturnValueTest() {
         BValue[] args = {};
-        BValue[] returns = Functions.invoke(bFile, "arrayReturnTest", args);
+        BValue[] returns = BLangFunctions.invoke(bFile, "arrayReturnTest", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BArray.class);
@@ -77,6 +77,6 @@ public class ArrayInitializerExprTest {
             expectedExceptionsMessageRegExp = "multi-type-array-initializer.bal:3: " +
                     "array initializer is not allowed here")
     public void testMultiTypeMapInit() {
-        ParserUtils.parseBalFile("lang/expressions/multi-type-array-initializer.bal");
+        BTestUtils.parseBalFile("lang/expressions/multi-type-array-initializer.bal");
     }
 }

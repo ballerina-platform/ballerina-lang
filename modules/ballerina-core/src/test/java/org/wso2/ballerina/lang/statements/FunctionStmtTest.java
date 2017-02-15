@@ -22,8 +22,8 @@ import org.testng.annotations.Test;
 import org.wso2.ballerina.core.exception.SemanticException;
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.Function;
-import org.wso2.ballerina.core.utils.ParserUtils;
-import org.wso2.ballerina.lang.util.Functions;
+import org.wso2.ballerina.core.utils.BTestUtils;
+import org.ballerinalang.util.program.BLangFunctions;
 
 /**
  * Validate Function statement.
@@ -37,9 +37,9 @@ public class FunctionStmtTest {
 
     @BeforeClass
     public void setup() {
-        BallerinaFile bFile = ParserUtils.parseBalFile("lang/statements/function-stmt.bal");
-        testHelloWorldPublic = Functions.getFunction(bFile, funcPublic);
-        testHelloWorldPrivate = Functions.getFunction(bFile, funcPrivate);
+        BallerinaFile bFile = BTestUtils.parseBalFile("lang/statements/function-stmt.bal");
+        testHelloWorldPublic = BLangFunctions.getFunction(bFile, funcPublic);
+        testHelloWorldPrivate = BLangFunctions.getFunction(bFile, funcPrivate);
     }
 
 //    @Test(description = "Test function Modularity.")
@@ -56,6 +56,6 @@ public class FunctionStmtTest {
             expectedExceptions = {SemanticException.class },
             expectedExceptionsMessageRegExp = "undefined-function-stmt.bal:2: undefined function 'foo'")
     public void testUndefinedFunction() {
-        ParserUtils.parseBalFile("lang/statements/undefined-function-stmt.bal");
+        BTestUtils.parseBalFile("lang/statements/undefined-function-stmt.bal");
     }
 }

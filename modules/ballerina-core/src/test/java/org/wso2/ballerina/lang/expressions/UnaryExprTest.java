@@ -28,8 +28,8 @@ import org.wso2.ballerina.core.model.values.BFloat;
 import org.wso2.ballerina.core.model.values.BInteger;
 import org.wso2.ballerina.core.model.values.BLong;
 import org.wso2.ballerina.core.model.values.BValue;
-import org.wso2.ballerina.core.utils.ParserUtils;
-import org.wso2.ballerina.lang.util.Functions;
+import org.wso2.ballerina.core.utils.BTestUtils;
+import org.ballerinalang.util.program.BLangFunctions;
 
 /**
  * Test Unary expression.
@@ -42,12 +42,12 @@ public class UnaryExprTest {
 
     @BeforeClass
     public void setup() {
-        bFile = ParserUtils.parseBalFile("lang/expressions/unary-expr.bal");
+        bFile = BTestUtils.parseBalFile("lang/expressions/unary-expr.bal");
     }
 
     @Test(description = "Test unary negative expression")
     public void integerUnaryExprTest() {
-        BValue[] returns = Functions.invoke(bFile, "negativeIntTest");
+        BValue[] returns = BLangFunctions.invoke(bFile, "negativeIntTest");
 
         Assert.assertEquals(returns.length, 2);
 
@@ -62,7 +62,7 @@ public class UnaryExprTest {
 
     @Test(description = "Test int positive unary expression")
     public void positiveIntegerUnaryExprTest() {
-        BValue[] returns = Functions.invoke(bFile, "positiveIntTest");
+        BValue[] returns = BLangFunctions.invoke(bFile, "positiveIntTest");
 
         Assert.assertEquals(returns.length, 2);
 
@@ -78,7 +78,7 @@ public class UnaryExprTest {
     @Test(description = "Test long unary negative expression")
     public void longUnaryExprTest() {
         BValue[] args = {new BLong(5)};
-        BValue[] returns = Functions.invoke(bFile, "negativeLongTest", args);
+        BValue[] returns = BLangFunctions.invoke(bFile, "negativeLongTest", args);
 
         Assert.assertEquals(returns.length, 2);
 
@@ -94,7 +94,7 @@ public class UnaryExprTest {
     @Test(description = "Test long positive unary expression")
     public void positiveLongUnaryExprTest() {
         BValue[] args = {new BLong(5)};
-        BValue[] returns = Functions.invoke(bFile, "positiveLongTest", args);
+        BValue[] returns = BLangFunctions.invoke(bFile, "positiveLongTest", args);
 
         Assert.assertEquals(returns.length, 2);
 
@@ -109,7 +109,7 @@ public class UnaryExprTest {
 
     @Test(description = "Test float unary negative expression")
     public void floatUnaryExprTest() {
-        BValue[] returns = Functions.invoke(bFile, "negativeFloatTest");
+        BValue[] returns = BLangFunctions.invoke(bFile, "negativeFloatTest");
 
         Assert.assertEquals(returns.length, 2);
 
@@ -124,7 +124,7 @@ public class UnaryExprTest {
 
     @Test(description = "Test float positive unary expression")
     public void positiveFloatUnaryExprTest() {
-        BValue[] returns = Functions.invoke(bFile, "positiveFloatTest");
+        BValue[] returns = BLangFunctions.invoke(bFile, "positiveFloatTest");
 
         Assert.assertEquals(returns.length, 2);
 
@@ -140,7 +140,7 @@ public class UnaryExprTest {
     @Test(description = "Test long unary negative expression")
     public void doubleUnaryExprTest() {
         BValue[] args = {new BDouble(5.0)};
-        BValue[] returns = Functions.invoke(bFile, "negativeDoubleTest", args);
+        BValue[] returns = BLangFunctions.invoke(bFile, "negativeDoubleTest", args);
 
         Assert.assertEquals(returns.length, 2);
 
@@ -156,7 +156,7 @@ public class UnaryExprTest {
     @Test(description = "Test long positive unary expression")
     public void positiveDoubleUnaryExprTest() {
         BValue[] args = {new BDouble(5.0)};
-        BValue[] returns = Functions.invoke(bFile, "positiveDoubleTest", args);
+        BValue[] returns = BLangFunctions.invoke(bFile, "positiveDoubleTest", args);
 
         Assert.assertEquals(returns.length, 2);
 
@@ -171,7 +171,7 @@ public class UnaryExprTest {
 
     @Test(description = "Test unary boolean not expression")
     public void booleanUnaryExprTest() {
-        BValue[] returns = Functions.invoke(bFile, "booleanNotTest");
+        BValue[] returns = BLangFunctions.invoke(bFile, "booleanNotTest");
 
         Assert.assertEquals(returns.length, 3);
 
@@ -190,7 +190,7 @@ public class UnaryExprTest {
 
     @Test(description = "Test unary boolean not expression in if else")
     public void unaryExprInIfConditionTest() {
-        BValue[] returns = Functions.invoke(bFile, "unaryExprInIfConditionTest");
+        BValue[] returns = BLangFunctions.invoke(bFile, "unaryExprInIfConditionTest");
 
         Assert.assertEquals(returns.length, 1);
 
@@ -208,7 +208,7 @@ public class UnaryExprTest {
 
         BValue[] args = {new BInteger(a), new BInteger(b)};
 
-        BValue[] returns = Functions.invoke(bFile, "unaryNegationTest", args);
+        BValue[] returns = BLangFunctions.invoke(bFile, "unaryNegationTest", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class, "Invalid class type returned.");
@@ -227,7 +227,7 @@ public class UnaryExprTest {
 
         BValue[] args = {new BInteger(a)};
 
-        BValue[] returns = Functions.invoke(bFile, "unaryPositiveNegationTest", args);
+        BValue[] returns = BLangFunctions.invoke(bFile, "unaryPositiveNegationTest", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class, "Invalid class type returned.");
@@ -245,7 +245,7 @@ public class UnaryExprTest {
             expectedExceptionsMessageRegExp = "unsupported-types-unary-positive.bal:5: invalid operation: " +
                     "operator \\+ not defined on 'json'")
     public void testUnaryPositiveForUnsupportedTypes() {
-        ParserUtils.parseBalFile("lang/expressions/unsupported-types-unary-positive.bal");
+        BTestUtils.parseBalFile("lang/expressions/unsupported-types-unary-positive.bal");
     }
 
     @Test(description = "Test unary negative for unsupported types (json)",
@@ -253,7 +253,7 @@ public class UnaryExprTest {
             expectedExceptionsMessageRegExp = "unsupported-types-unary-negative.bal:5: invalid operation: " +
                     "operator - not defined on 'json'")
     public void testUnaryNegativeForUnsupportedTypes() {
-        ParserUtils.parseBalFile("lang/expressions/unsupported-types-unary-negative.bal");
+        BTestUtils.parseBalFile("lang/expressions/unsupported-types-unary-negative.bal");
     }
 
     @Test(description = "Test unary not for unsupported types (json)",
@@ -261,6 +261,6 @@ public class UnaryExprTest {
             expectedExceptionsMessageRegExp = "unsupported-types-unary-not.bal:5: invalid operation: " +
                     "operator ! not defined on 'json'")
     public void testUnaryNotForUnsupportedTypes() {
-        ParserUtils.parseBalFile("lang/expressions/unsupported-types-unary-not.bal");
+        BTestUtils.parseBalFile("lang/expressions/unsupported-types-unary-not.bal");
     }
 }

@@ -27,8 +27,8 @@ import org.wso2.ballerina.core.model.values.BInteger;
 import org.wso2.ballerina.core.model.values.BMap;
 import org.wso2.ballerina.core.model.values.BString;
 import org.wso2.ballerina.core.model.values.BValue;
-import org.wso2.ballerina.core.utils.ParserUtils;
-import org.wso2.ballerina.lang.util.Functions;
+import org.wso2.ballerina.core.utils.BTestUtils;
+import org.ballerinalang.util.program.BLangFunctions;
 
 /**
  * Map access expression test.
@@ -42,13 +42,13 @@ public class MapAccessExprTest {
     public void setup() {
         // Linking Native functions.
         SymScope symScope = new SymScope(null);
-        bFile = ParserUtils.parseBalFile("lang/expressions/map-access-expr.bal", symScope);
+        bFile = BTestUtils.parseBalFile("lang/expressions/map-access-expr.bal", symScope);
     }
 
     @Test(description = "Test map access expression")
     public void testMapAccessExpr() {
         BValue[] args = {new BInteger(100), new BInteger(5)};
-        BValue[] returns = Functions.invoke(bFile, "mapAccessTest", args);
+        BValue[] returns = BLangFunctions.invoke(bFile, "mapAccessTest", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
@@ -61,7 +61,7 @@ public class MapAccessExprTest {
     @Test(description = "Test map return value")
     public void testArrayReturnValueTest() {
         BValue[] args = {new BString("Chanaka"), new BString("Fernando")};
-        BValue[] returns = Functions.invoke(bFile, "mapReturnTest", args);
+        BValue[] returns = BLangFunctions.invoke(bFile, "mapReturnTest", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BMap.class);
@@ -80,6 +80,6 @@ public class MapAccessExprTest {
             expectedExceptionsMessageRegExp = "incorrect-map-access.bal:4: non-string map index type 'int'",
     dependsOnMethods = {"testMapAccessExpr", "testArrayReturnValueTest"})
     public void testMapAccessWithIndex() {
-        ParserUtils.parseBalFile("lang/expressions/incorrect-map-access.bal");
+        BTestUtils.parseBalFile("lang/expressions/incorrect-map-access.bal");
     }
 }

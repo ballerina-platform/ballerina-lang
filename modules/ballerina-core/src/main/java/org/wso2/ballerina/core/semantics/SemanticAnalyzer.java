@@ -155,10 +155,16 @@ public class SemanticAnalyzer implements NodeVisitor {
         BLangPackage mainPkg = bLangProgram.getMainPackage();
         if (bLangProgram.getProgramCategory() == BLangProgram.Category.MAIN_PROGRAM) {
             mainPkg.accept(this);
-        } else {
+
+        } else if (bLangProgram.getProgramCategory() == BLangProgram.Category.SERVICE_PROGRAM) {
             BLangPackage[] servicePackages = bLangProgram.getServicePackages();
-            for(BLangPackage servicePkg: servicePackages) {
+            for (BLangPackage servicePkg : servicePackages) {
                 servicePkg.accept(this);
+            }
+        } else {
+            BLangPackage[] libraryPackages = bLangProgram.getLibraryPackages();
+            for (BLangPackage libraryPkg : libraryPackages) {
+                libraryPkg.accept(this);
             }
         }
 
@@ -2008,16 +2014,16 @@ public class SemanticAnalyzer implements NodeVisitor {
             function.setSymbolName(symbolName);
 
             BLangSymbol functionSymbol = currentScope.resolve(symbolName);
-            
+
             if (function.isNative() && functionSymbol == null) {
-                throw new SemanticException(getNodeLocationStr(function.getNodeLocation()) + "undefined function '" + 
+                throw new SemanticException(getNodeLocationStr(function.getNodeLocation()) + "undefined function '" +
                         function.getName() + "'");
             }
 
             if (!function.isNative()) {
                 if (functionSymbol != null) {
                     throw new SemanticException(getNodeLocationStr(function.getNodeLocation()) + "redeclared symbol '" +
-                        function.getName() + "'");
+                            function.getName() + "'");
                 }
                 currentScope.define(symbolName, function);
             }
@@ -2057,18 +2063,18 @@ public class SemanticAnalyzer implements NodeVisitor {
 
             if (typeConvertor.isNative() && typConvertorSymbol == null) {
                 throw new SemanticException(getNodeLocationStr(typeConvertor.getNodeLocation()) + "undefined type " +
-                    "convertor '" + typeConvertor.getName() + "'");
+                        "convertor '" + typeConvertor.getName() + "'");
             }
 
             if (!typeConvertor.isNative()) {
                 if (typConvertorSymbol != null) {
                     throw new SemanticException(typeConvertor.getNodeLocation().getFileName() + ":" +
-                        typeConvertor.getNodeLocation().getLineNumber() + ": redeclared symbol '" +
-                        typeConvertor.getName() + "'");
+                            typeConvertor.getNodeLocation().getLineNumber() + ": redeclared symbol '" +
+                            typeConvertor.getName() + "'");
                 }
                 currentScope.define(symbolName, typeConvertor);
             }
-            
+
             // Resolve return parameters
             ParameterDef[] returnParameters = typeConvertor.getReturnParameters();
             BType[] returnTypes = new BType[returnParameters.length];
@@ -2088,17 +2094,17 @@ public class SemanticAnalyzer implements NodeVisitor {
 
             // Define ConnectorDef Symbol in the package scope..
             SymbolName connectorSymbolName = new SymbolName(connectorName);
-            
+
             BLangSymbol connectorSymbol = currentScope.resolve(connectorSymbolName);
             if (connectorDef.isNative() && connectorSymbol == null) {
                 throw new SemanticException(getNodeLocationStr(connectorDef.getNodeLocation()) +
-                    "undefined connector '" + connectorDef.getName() + "'");
+                        "undefined connector '" + connectorDef.getName() + "'");
             }
 
             if (!connectorDef.isNative()) {
                 if (connectorSymbol != null) {
                     throw new SemanticException(getNodeLocationStr(connectorDef.getNodeLocation()) +
-                        "redeclared symbol '" + connectorDef.getName() + "'");
+                            "redeclared symbol '" + connectorDef.getName() + "'");
                 }
                 currentScope.define(connectorSymbolName, connectorDef);
             }
@@ -2148,19 +2154,19 @@ public class SemanticAnalyzer implements NodeVisitor {
         action.setSymbolName(symbolName);
 
         BLangSymbol actionSymbol = currentScope.resolve(symbolName);
-        
+
         if (action.isNative()) {
             AbstractNativeConnector connector = (AbstractNativeConnector) BTypes
-                .resolveType(new SimpleTypeName(connectorDef.getName()), currentScope, connectorDef.getNodeLocation());
+                    .resolveType(new SimpleTypeName(connectorDef.getName()), currentScope, connectorDef.getNodeLocation());
             actionSymbol = connector.resolve(symbolName);
             if (actionSymbol == null) {
                 throw new SemanticException(getNodeLocationStr(connectorDef.getNodeLocation()) + "undefined action '" +
-                    action.getName() + "' in connector '" + connectorDef.getName() + "'");
+                        action.getName() + "' in connector '" + connectorDef.getName() + "'");
             }
         } else {
             if (actionSymbol != null) {
                 throw new SemanticException(
-                    getNodeLocationStr(action.getNodeLocation()) + "redeclared symbol '" + action.getName() + "'");
+                        getNodeLocationStr(action.getNodeLocation()) + "redeclared symbol '" + action.getName() + "'");
             }
             currentScope.define(symbolName, action);
         }

@@ -33,7 +33,7 @@ import org.wso2.ballerina.core.runtime.internal.BuiltInNativeConstructLoader;
 import org.wso2.ballerina.core.runtime.internal.GlobalScopeHolder;
 import org.wso2.ballerina.core.runtime.registry.ApplicationRegistry;
 import org.wso2.ballerina.core.runtime.registry.DispatcherRegistry;
-import org.wso2.ballerina.core.utils.ParserUtils;
+import org.wso2.ballerina.core.utils.BTestUtils;
 
 /**
  * {@code EnvironmentInitializr} is responsible for initializing an environment for a particular ballerina file.
@@ -53,7 +53,7 @@ public class EnvironmentInitializer {
 
         SymScope symScope = GlobalScopeHolder.getInstance().getScope();
 
-        BallerinaFile bFile = ParserUtils.parseBalFile(sourcePath, symScope);
+        BallerinaFile bFile = BTestUtils.parseBalFile(sourcePath, symScope);
         RuntimeEnvironment runtimeEnv = RuntimeEnvironment.get(bFile);
 
         Application app = new Application("default");
@@ -70,7 +70,7 @@ public class EnvironmentInitializer {
 
         for (Service service : bFile.getServices()) {
             for (Resource resource : service.getResources()) {
-                resource.setApplication(app);
+//                resource.setApplication(app);
             }
         }
         ApplicationRegistry.getInstance().registerApplication(app);

@@ -29,15 +29,15 @@ import org.wso2.ballerina.core.model.values.BInteger;
 import org.wso2.ballerina.core.model.values.BLong;
 import org.wso2.ballerina.core.model.values.BString;
 import org.wso2.ballerina.core.model.values.BValue;
-import org.wso2.ballerina.core.utils.ParserUtils;
-import org.wso2.ballerina.lang.util.Functions;
+import org.wso2.ballerina.core.utils.BTestUtils;
+import org.ballerinalang.util.program.BLangFunctions;
 
 public class TypeCastExprTest {
     private BallerinaFile bFile;
 
     @BeforeClass
     public void setup() {
-        bFile = ParserUtils.parseBalFile("lang/expressions/type-conversion.bal");
+        bFile = BTestUtils.parseBalFile("lang/expressions/type-conversion.bal");
     }
 
 //    @Test
@@ -61,7 +61,7 @@ public class TypeCastExprTest {
     @Test
     public void testDoubleToFloat() {
         BValue[] args = {new BDouble(222222.44444d)};
-        BValue[] returns = Functions.invoke(bFile, "doubletofloat", args);
+        BValue[] returns = BLangFunctions.invoke(bFile, "doubletofloat", args);
         Assert.assertTrue(returns[0] instanceof BFloat);
         final String expected = "222222.44";
         Assert.assertEquals(returns[0].stringValue(), expected);
@@ -70,7 +70,7 @@ public class TypeCastExprTest {
     @Test
     public void testDoubleToLong() {
         BValue[] args = {new BDouble(222222.44444d)};
-        BValue[] returns = Functions.invoke(bFile, "doubletolong", args);
+        BValue[] returns = BLangFunctions.invoke(bFile, "doubletolong", args);
         Assert.assertTrue(returns[0] instanceof BLong);
         final String expected = "222222";
         Assert.assertEquals(returns[0].stringValue(), expected);
@@ -79,7 +79,7 @@ public class TypeCastExprTest {
     @Test
     public void testDoubleToInt() {
         BValue[] args = {new BDouble(21474836471.44444d)};
-        BValue[] returns = Functions.invoke(bFile, "doubletoint", args);
+        BValue[] returns = BLangFunctions.invoke(bFile, "doubletoint", args);
         Assert.assertTrue(returns[0] instanceof BInteger);
         final String expected = "2147483647";
         Assert.assertEquals(returns[0].stringValue(), expected);
@@ -88,7 +88,7 @@ public class TypeCastExprTest {
     @Test
     public void testFloatToLong() {
         BValue[] args = {new BFloat(222222.44444f)};
-        BValue[] returns = Functions.invoke(bFile, "floattolong", args);
+        BValue[] returns = BLangFunctions.invoke(bFile, "floattolong", args);
         Assert.assertTrue(returns[0] instanceof BLong);
         final String expected = "222222";
         Assert.assertEquals(returns[0].stringValue(), expected);
@@ -97,7 +97,7 @@ public class TypeCastExprTest {
     @Test
     public void testFloatToInt() {
         BValue[] args = {new BFloat(222222.44444f)};
-        BValue[] returns = Functions.invoke(bFile, "floattoint", args);
+        BValue[] returns = BLangFunctions.invoke(bFile, "floattoint", args);
         Assert.assertTrue(returns[0] instanceof BInteger);
         final String expected = "222222";
         Assert.assertEquals(returns[0].stringValue(), expected);
@@ -106,7 +106,7 @@ public class TypeCastExprTest {
     @Test
     public void testLongToInt() {
         BValue[] args = {new BLong(2147483647L)};
-        BValue[] returns = Functions.invoke(bFile, "longtoint", args);
+        BValue[] returns = BLangFunctions.invoke(bFile, "longtoint", args);
         Assert.assertTrue(returns[0] instanceof BInteger);
         final String expected = "2147483647";
         Assert.assertEquals(returns[0].stringValue(), expected);
@@ -115,7 +115,7 @@ public class TypeCastExprTest {
     @Test
     public void testIntToLong() {
         BValue[] args = {new BInteger(55555555)};
-        BValue[] returns = Functions.invoke(bFile, "inttolong", args);
+        BValue[] returns = BLangFunctions.invoke(bFile, "inttolong", args);
         Assert.assertTrue(returns[0] instanceof BLong);
         final String expected = "55555555";
         Assert.assertEquals(returns[0].stringValue(), expected);
@@ -124,7 +124,7 @@ public class TypeCastExprTest {
     @Test
     public void testIntToFloat() {
         BValue[] args = {new BInteger(55555555)};
-        BValue[] returns = Functions.invoke(bFile, "inttofloat", args);
+        BValue[] returns = BLangFunctions.invoke(bFile, "inttofloat", args);
         Assert.assertTrue(returns[0] instanceof BFloat);
         final String expected = "5.5555556E7";
         Assert.assertEquals(returns[0].stringValue(), expected);
@@ -133,7 +133,7 @@ public class TypeCastExprTest {
     @Test
     public void testIntToDouble() {
         BValue[] args = {new BInteger(55555555)};
-        BValue[] returns = Functions.invoke(bFile, "inttodouble", args);
+        BValue[] returns = BLangFunctions.invoke(bFile, "inttodouble", args);
         Assert.assertTrue(returns[0] instanceof BDouble);
         final String expected = "5.5555555E7";
         Assert.assertEquals(returns[0].stringValue(), expected);
@@ -142,7 +142,7 @@ public class TypeCastExprTest {
     @Test
     public void testLongToFloat() {
         BValue[] args = {new BLong(55555555L)};
-        BValue[] returns = Functions.invoke(bFile, "longtofloat", args);
+        BValue[] returns = BLangFunctions.invoke(bFile, "longtofloat", args);
         Assert.assertTrue(returns[0] instanceof BFloat);
         final String expected = "5.5555556E7";
         Assert.assertEquals(returns[0].stringValue(), expected);
@@ -151,7 +151,7 @@ public class TypeCastExprTest {
     @Test
     public void testLongToDouble() {
         BValue[] args = {new BLong(55555555L)};
-        BValue[] returns = Functions.invoke(bFile, "longtodouble", args);
+        BValue[] returns = BLangFunctions.invoke(bFile, "longtodouble", args);
         Assert.assertTrue(returns[0] instanceof BDouble);
         final String expected = "5.5555555E7";
         Assert.assertEquals(returns[0].stringValue(), expected);
@@ -160,7 +160,7 @@ public class TypeCastExprTest {
     @Test
     public void testFloatToDouble() {
         BValue[] args = {new BFloat(22222.333f)};
-        BValue[] returns = Functions.invoke(bFile, "floattodouble", args);
+        BValue[] returns = BLangFunctions.invoke(bFile, "floattodouble", args);
         Assert.assertTrue(returns[0] instanceof BDouble);
         final String expected = "22222.33203125";
         Assert.assertEquals(returns[0].stringValue(), expected);
@@ -169,7 +169,7 @@ public class TypeCastExprTest {
     @Test
     public void testStringToInt() {
         BValue[] args = {new BString("100")};
-        BValue[] returns = Functions.invoke(bFile, "stringtoint", args);
+        BValue[] returns = BLangFunctions.invoke(bFile, "stringtoint", args);
         Assert.assertTrue(returns[0] instanceof BInteger);
         final String expected = "100";
         Assert.assertEquals(returns[0].stringValue(), expected);
@@ -178,7 +178,7 @@ public class TypeCastExprTest {
     @Test
     public void testStringToLong() {
         BValue[] args = {new BString("214748364777")};
-        BValue[] returns = Functions.invoke(bFile, "stringtolong", args);
+        BValue[] returns = BLangFunctions.invoke(bFile, "stringtolong", args);
         Assert.assertTrue(returns[0] instanceof BLong);
         final String expected = "214748364777";
         Assert.assertEquals(returns[0].stringValue(), expected);
@@ -187,7 +187,7 @@ public class TypeCastExprTest {
     @Test
     public void testStringToFloat() {
         BValue[] args = {new BString("2222.333f")};
-        BValue[] returns = Functions.invoke(bFile, "stringtofloat", args);
+        BValue[] returns = BLangFunctions.invoke(bFile, "stringtofloat", args);
         Assert.assertTrue(returns[0] instanceof BFloat);
         final String expected = "2222.333";
         Assert.assertEquals(returns[0].stringValue(), expected);
@@ -196,7 +196,7 @@ public class TypeCastExprTest {
     @Test
     public void testStringToDouble() {
         BValue[] args = {new BString("4444.333d")};
-        BValue[] returns = Functions.invoke(bFile, "stringtodouble", args);
+        BValue[] returns = BLangFunctions.invoke(bFile, "stringtodouble", args);
         Assert.assertTrue(returns[0] instanceof BDouble);
         final String expected = "4444.333";
         Assert.assertEquals(returns[0].stringValue(), expected);
@@ -223,7 +223,7 @@ public class TypeCastExprTest {
     @Test
     public void testIntToString() {
         BValue[] args = {new BInteger(111)};
-        BValue[] returns = Functions.invoke(bFile, "inttostring", args);
+        BValue[] returns = BLangFunctions.invoke(bFile, "inttostring", args);
         Assert.assertTrue(returns[0] instanceof BString);
         final String expected = "111";
         Assert.assertEquals(returns[0].stringValue(), expected);
@@ -232,7 +232,7 @@ public class TypeCastExprTest {
     @Test
     public void testLongToString() {
         BValue[] args = {new BLong(214748364777L)};
-        BValue[] returns = Functions.invoke(bFile, "longtostring", args);
+        BValue[] returns = BLangFunctions.invoke(bFile, "longtostring", args);
         Assert.assertTrue(returns[0] instanceof BString);
         final String expected = "214748364777";
         Assert.assertEquals(returns[0].stringValue(), expected);
@@ -241,7 +241,7 @@ public class TypeCastExprTest {
     @Test
     public void testFloatToString() {
         BValue[] args = {new BFloat(111.333f)};
-        BValue[] returns = Functions.invoke(bFile, "floattostring", args);
+        BValue[] returns = BLangFunctions.invoke(bFile, "floattostring", args);
         Assert.assertTrue(returns[0] instanceof BString);
         final String expected = "111.333";
         Assert.assertEquals(returns[0].stringValue(), expected);
@@ -250,7 +250,7 @@ public class TypeCastExprTest {
     @Test
     public void testDoubleToString() {
         BValue[] args = {new BDouble(111.333d)};
-        BValue[] returns = Functions.invoke(bFile, "doubletostring", args);
+        BValue[] returns = BLangFunctions.invoke(bFile, "doubletostring", args);
         Assert.assertTrue(returns[0] instanceof BString);
         final String expected = "111.333";
         Assert.assertEquals(returns[0].stringValue(), expected);
@@ -259,7 +259,7 @@ public class TypeCastExprTest {
     @Test
     public void testBooleanToString() {
         BValue[] args = {new BBoolean(true)};
-        BValue[] returns = Functions.invoke(bFile, "booleantostring", args);
+        BValue[] returns = BLangFunctions.invoke(bFile, "booleantostring", args);
         Assert.assertTrue(returns[0] instanceof BString);
         final String expected = "true";
         Assert.assertEquals(returns[0].stringValue(), expected);
@@ -268,7 +268,7 @@ public class TypeCastExprTest {
     @Test
     public void testBooleanAppendToString() {
         BValue[] args = {new BBoolean(true)};
-        BValue[] returns = Functions.invoke(bFile, "booleanappendtostring", args);
+        BValue[] returns = BLangFunctions.invoke(bFile, "booleanappendtostring", args);
         Assert.assertTrue(returns[0] instanceof BString);
         final String expected = "true-append-true";
         Assert.assertEquals(returns[0].stringValue(), expected);
@@ -294,7 +294,7 @@ public class TypeCastExprTest {
 
     @Test
     public void testIntArrayToLongArray() {
-        BValue[] returns = Functions.invoke(bFile, "intarrtolongarr");
+        BValue[] returns = BLangFunctions.invoke(bFile, "intarrtolongarr");
         Assert.assertTrue(returns[0] instanceof BArray);
         BArray result = (BArray) returns[0];
         Assert.assertTrue(result.get(0) instanceof BLong);
@@ -307,7 +307,7 @@ public class TypeCastExprTest {
 
     @Test
     public void testFloatArrayToDoubleArray() {
-        BValue[] returns = Functions.invoke(bFile, "floatarrtodoublearr");
+        BValue[] returns = BLangFunctions.invoke(bFile, "floatarrtodoublearr");
         Assert.assertTrue(returns[0] instanceof BArray);
         BArray result = (BArray) returns[0];
         Assert.assertTrue(result.get(0) instanceof BDouble);

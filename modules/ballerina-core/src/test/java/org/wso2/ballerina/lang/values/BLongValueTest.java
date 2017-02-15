@@ -17,14 +17,17 @@
 */
 package org.wso2.ballerina.lang.values;
 
+import org.ballerinalang.BLangProgramLoader;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.wso2.ballerina.core.model.BallerinaFile;
+import org.wso2.ballerina.core.model.BLangProgram;
 import org.wso2.ballerina.core.model.values.BLong;
 import org.wso2.ballerina.core.model.values.BValue;
-import org.wso2.ballerina.core.utils.ParserUtils;
-import org.wso2.ballerina.lang.util.Functions;
+import org.ballerinalang.util.program.BLangFunctions;
+
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 /**
  * This test class will test the behaviour of long values with expressions.
@@ -38,16 +41,18 @@ import org.wso2.ballerina.lang.util.Functions;
  * b = 10.1L;
  */
 public class BLongValueTest {
-    private BallerinaFile bFile;
+    private BLangProgram bLangProgram;
 
-    @BeforeClass(alwaysRun = true)
+    @BeforeClass
     public void setup() {
-        bFile = ParserUtils.parseBalFile("lang/values/long-value.bal");
+        Path programPath = Paths.get(this.getClass().getProtectionDomain().getCodeSource().getLocation().getPath());
+        bLangProgram = new BLangProgramLoader().loadLibrary(programPath,
+                Paths.get("lang/values/long-value.bal"));
     }
 
     @Test(description = "Test long value assignment")
     public void testLongValue() {
-        BValue[] returns = Functions.invoke(bFile, "testLongValue");
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testLongValue");
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BLong.class);
         BLong longValue = (BLong) returns[0];
@@ -56,7 +61,7 @@ public class BLongValueTest {
 
     @Test(description = "Test negative long value assignment")
     public void testNegativeLongValue() {
-        BValue[] returns = Functions.invoke(bFile, "testNegativeLongValue");
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testNegativeLongValue");
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BLong.class);
         BLong longValue = (BLong) returns[0];
@@ -65,7 +70,7 @@ public class BLongValueTest {
 
     @Test(description = "Test long value assignment from a value returned by function")
     public void testLongValueAssignmentByReturnValue() {
-        BValue[] returns = Functions.invoke(bFile, "testLongValueAssignmentByReturnValue");
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testLongValueAssignmentByReturnValue");
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BLong.class);
         BLong longValue = (BLong) returns[0];
@@ -75,16 +80,23 @@ public class BLongValueTest {
     @Test(description = "Test long value assignment")
     public void testLongParameter() {
         BValue[] args = {new BLong(20)};
-        BValue[] returns = Functions.invoke(bFile, "testLongParameter", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testLongParameter", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BLong.class);
         BLong longValue = (BLong) returns[0];
         Assert.assertEquals(longValue.longValue(), 20L, "Invalid long value returned.");
     }
 
+    public static void main(String[] args) {
+        BLongValueTest cc = new BLongValueTest();
+        cc.setup();
+        cc.testLongParameter();
+        System.out.println("");
+    }
+
     @Test(description = "Test long value Addition")
     public void testLongValueAddition() {
-        BValue[] returns = Functions.invoke(bFile, "testLongAddition");
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testLongAddition");
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BLong.class);
         BLong longValue = (BLong) returns[0];
@@ -93,7 +105,7 @@ public class BLongValueTest {
 
     @Test(description = "Test long value Subtraction")
     public void testLongValueSubtraction() {
-        BValue[] returns = Functions.invoke(bFile, "testLongSubtraction");
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testLongSubtraction");
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BLong.class);
         BLong longValue = (BLong) returns[0];
@@ -102,7 +114,7 @@ public class BLongValueTest {
 
     @Test(description = "Test long value Multiplication")
     public void testLongValueMultiplication() {
-        BValue[] returns = Functions.invoke(bFile, "testLongMultiplication");
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testLongMultiplication");
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BLong.class);
         BLong longValue = (BLong) returns[0];
@@ -111,7 +123,7 @@ public class BLongValueTest {
 
     @Test(description = "Test long value Division")
     public void testLongValueDivision() {
-        BValue[] returns = Functions.invoke(bFile, "testLongDivision");
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testLongDivision");
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BLong.class);
         BLong longValue = (BLong) returns[0];

@@ -24,8 +24,8 @@ import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.values.BMap;
 import org.wso2.ballerina.core.model.values.BString;
 import org.wso2.ballerina.core.model.values.BValue;
-import org.wso2.ballerina.core.utils.ParserUtils;
-import org.wso2.ballerina.lang.util.Functions;
+import org.wso2.ballerina.core.utils.BTestUtils;
+import org.ballerinalang.util.program.BLangFunctions;
 
 /**
  * Test map initializer expression.
@@ -38,13 +38,13 @@ public class MapInitializerExprTest {
 
     @BeforeTest
     public void setup() {
-        bFile = ParserUtils.parseBalFile("lang/expressions/map-initializer-expr.bal");
+        bFile = BTestUtils.parseBalFile("lang/expressions/map-initializer-expr.bal");
     }
 
     @Test(description = "Test map initializer expression")
     public void testMapInitExpr() {
         BValue[] args = {};
-        BValue[] returns = Functions.invoke(bFile, "mapInitTest", args);
+        BValue[] returns = BLangFunctions.invoke(bFile, "mapInitTest", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BMap.class);
@@ -59,6 +59,6 @@ public class MapInitializerExprTest {
 
     @Test(description = "Test map initializing with different types")
     public void testMultiTypeMapInit() {
-        ParserUtils.parseBalFile("lang/expressions/multi-type-map-initializer.bal");
+        BTestUtils.parseBalFile("lang/expressions/multi-type-map-initializer.bal");
     }
 }

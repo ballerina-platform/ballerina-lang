@@ -24,8 +24,8 @@ import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.values.BJSON;
 import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.model.values.BXML;
-import org.wso2.ballerina.core.utils.ParserUtils;
-import org.wso2.ballerina.lang.util.Functions;
+import org.wso2.ballerina.core.utils.BTestUtils;
+import org.ballerinalang.util.program.BLangFunctions;
 
 public class TypeConvertorTest {
 
@@ -33,13 +33,13 @@ public class TypeConvertorTest {
 
     @BeforeClass
     public void setup() {
-        bFile = ParserUtils.parseBalFile("lang/expressions/ballerina-type-convertor.bal");
+        bFile = BTestUtils.parseBalFile("lang/expressions/ballerina-type-convertor.bal");
     }
 
     @Test
     public void testJSONToXML() {
         BValue[] args = {new BJSON("{\"name\":\"chanaka\"}")};
-        BValue[] returns = Functions.invoke(bFile, "testBalConvertor", args);
+        BValue[] returns = BLangFunctions.invoke(bFile, "testBalConvertor", args);
         Assert.assertTrue(returns[0] instanceof BXML);
         final String expected = "<name>chanaka</name>";
         Assert.assertEquals(returns[0].stringValue(), expected);

@@ -18,44 +18,49 @@
 
 package org.wso2.ballerina.lang.expressions;
 
+import org.ballerinalang.BLangProgramLoader;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.ballerina.core.exception.SemanticException;
-import org.wso2.ballerina.core.model.BallerinaFile;
+import org.wso2.ballerina.core.model.BLangProgram;
 import org.wso2.ballerina.core.model.values.BDouble;
 import org.wso2.ballerina.core.model.values.BFloat;
 import org.wso2.ballerina.core.model.values.BInteger;
 import org.wso2.ballerina.core.model.values.BLong;
 import org.wso2.ballerina.core.model.values.BString;
 import org.wso2.ballerina.core.model.values.BValue;
-import org.wso2.ballerina.core.utils.ParserUtils;
-import org.wso2.ballerina.lang.util.Functions;
+import org.wso2.ballerina.core.utils.BTestUtils;
+import org.ballerinalang.util.program.BLangFunctions;
+
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 /**
  * Primitive add expression test.
  */
 public class AddExprTest {
-
-    private BallerinaFile bFile;
+    private BLangProgram bLangProgram;
 
     @BeforeClass
     public void setup() {
-        bFile = ParserUtils.parseBalFile("lang/expressions/add-expr.bal");
+        Path programPath = Paths.get(this.getClass().getProtectionDomain().getCodeSource().getLocation().getPath());
+        bLangProgram = new BLangProgramLoader().loadLibrary(programPath,
+                Paths.get("lang/expressions/add-expr.bal"));
     }
 
     @Test(description = "Test two int add expression")
     public void testIntAddExpr() {
         BValue[] args = {new BInteger(100), new BInteger(200)};
 
-        BValue[] returns = Functions.invoke(bFile, "intAdd", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "intAdd", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
         int actual = ((BInteger) returns[0]).intValue();
         int expected = 300;
         Assert.assertEquals(actual, expected);
 
-        returns = Functions.invoke(bFile, "intSubtract", args);
+        returns = BLangFunctions.invoke(bLangProgram, "intSubtract", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
         actual = ((BInteger) returns[0]).intValue();
@@ -66,7 +71,7 @@ public class AddExprTest {
     @Test(description = "Test two long add expression")
     public void testLongAddExpr() {
         BValue[] args = {new BLong(100), new BLong(200)};
-        BValue[] returns = Functions.invoke(bFile, "longAdd", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "longAdd", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BLong.class);
@@ -80,14 +85,14 @@ public class AddExprTest {
     public void testFloatAddExpr() {
         BValue[] args = {new BFloat(100.0f), new BFloat(200.0f)};
 
-        BValue[] returns = Functions.invoke(bFile, "floatAdd", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "floatAdd", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BFloat.class);
         float actual = ((BFloat) returns[0]).floatValue();
         float expected = 300.0f;
         Assert.assertEquals(actual, expected);
 
-        returns = Functions.invoke(bFile, "floatSubtract", args);
+        returns = BLangFunctions.invoke(bLangProgram, "floatSubtract", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BFloat.class);
         actual = ((BFloat) returns[0]).floatValue();
@@ -98,7 +103,7 @@ public class AddExprTest {
     @Test(description = "Test two double add expression")
     public void testDoubleAddExpr() {
         BValue[] args = {new BDouble(100), new BDouble(200)};
-        BValue[] returns = Functions.invoke(bFile, "doubleAdd", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "doubleAdd", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BDouble.class);
@@ -111,7 +116,7 @@ public class AddExprTest {
     @Test(description = "Test two string add expression")
     public void testStringAddExpr() {
         BValue[] args = {new BString("WSO2"), new BString(" Inc.")};
-        BValue[] returns = Functions.invoke(bFile, "stringAdd", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "stringAdd", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BString.class);
@@ -130,7 +135,7 @@ public class AddExprTest {
 
         BValue[] args = {new BInteger(a), new BInteger(b)};
 
-        BValue[] returns = Functions.invoke(bFile, "intAdd", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "intAdd", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
         int actualResult = ((BInteger) returns[0]).intValue();
@@ -139,7 +144,7 @@ public class AddExprTest {
 
         // Subtract
         expectedResult = a - b;
-        returns = Functions.invoke(bFile, "intSubtract", args);
+        returns = BLangFunctions.invoke(bLangProgram, "intSubtract", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
         actualResult = ((BInteger) returns[0]).intValue();
@@ -155,7 +160,7 @@ public class AddExprTest {
 
         BValue[] args = {new BString(a), new BInteger(b)};
 
-        BValue[] returns = Functions.invoke(bFile, "stringAndIntAdd", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "stringAndIntAdd", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BString.class);
         String actualResult = ((BString) returns[0]).stringValue();
@@ -172,7 +177,7 @@ public class AddExprTest {
             expectedExceptionsMessageRegExp = "add-incompatible-types.bal:5: invalid operation: " +
                     "incompatible types 'int' and 'boolean'")
     public void testAddIncompatibleTypes() {
-        ParserUtils.parseBalFile("lang/expressions/add-incompatible-types.bal");
+        BTestUtils.parseBalFile("lang/expressions/add-incompatible-types.bal");
     }
 
     @Test(description = "Test adding values of unsupported types (json)",
@@ -180,6 +185,6 @@ public class AddExprTest {
             expectedExceptionsMessageRegExp = "add-unsupported-types.bal:10: invalid operation: " +
                     "operator \\+ not defined on 'json'")
     public void testAddUnsupportedTypes() {
-        ParserUtils.parseBalFile("lang/expressions/add-unsupported-types.bal");
+        BTestUtils.parseBalFile("lang/expressions/add-unsupported-types.bal");
     }
 }

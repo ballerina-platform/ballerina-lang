@@ -24,8 +24,8 @@ import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.values.BInteger;
 import org.wso2.ballerina.core.model.values.BString;
 import org.wso2.ballerina.core.model.values.BValue;
-import org.wso2.ballerina.core.utils.ParserUtils;
-import org.wso2.ballerina.lang.util.Functions;
+import org.wso2.ballerina.core.utils.BTestUtils;
+import org.ballerinalang.util.program.BLangFunctions;
 
 /**
  * Test the hidden <init> function invocation in connectors
@@ -38,14 +38,14 @@ public class ConnectorInitTest {
 
     @BeforeClass
     public void setup() {
-        bFile = ParserUtils.parseBalFile("lang/connectors/connector-init.bal");
+        bFile = BTestUtils.parseBalFile("lang/connectors/connector-init.bal");
     }
 
     @Test(description = "Test Connector int functionality")
     public void testConnectorInit() {
         BValue[] args = {new BString("Apple"), new BInteger(13)};
 
-        BValue[] returns = Functions.invoke(bFile, "testConnectorInit", args);
+        BValue[] returns = BLangFunctions.invoke(bFile, "testConnectorInit", args);
 
         Assert.assertEquals(returns.length, 2);
         Assert.assertSame(returns[0].getClass(), BInteger.class);

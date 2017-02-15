@@ -36,12 +36,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- *
- *
  * @since 0.8.0
  */
 public class BLangProgramLoader {
     private boolean disableSemanticAnalyzer = false;
+    private PackageRepository packageRepository = null;
 
     public BLangProgram loadMain(Path programDirPath, Path sourcePath) {
         programDirPath = BLangPrograms.validateAndResolveProgramDirPath(programDirPath);
@@ -97,12 +96,40 @@ public class BLangProgramLoader {
         return bLangProgram;
     }
 
+    public BLangProgram loadLibrary(Path programDirPath, Path sourcePath) {
+        programDirPath = BLangPrograms.validateAndResolveProgramDirPath(programDirPath);
+
+        // Get the global scope
+        GlobalScope globalScope = BLangPrograms.populateGlobalScope();
+
+        // Creates program scope for this Ballerina program
+        BLangProgram bLangProgram = new BLangProgram(globalScope, BLangProgram.Category.LIBRARY_PROGRAM);
+        bLangProgram.setProgramFilePath(sourcePath);
+
+        BLangPackage[] bLangPackages = loadPackages(programDirPath, sourcePath, bLangProgram);
+
+        // TODO Find cyclic dependencies
+        for (BLangPackage bLangPackage : bLangPackages) {
+            bLangProgram.addLibraryPackage(bLangPackage);
+            bLangProgram.define(new SymbolName(bLangPackage.getPackagePath()), bLangPackage);
+        }
+
+        // Analyze the semantic properties of the Ballerina program
+        if (!disableSemanticAnalyzer) {
+            SemanticAnalyzer semanticAnalyzer = new SemanticAnalyzer(bLangProgram);
+            bLangProgram.accept(semanticAnalyzer);
+        }
+
+        return bLangProgram;
+    }
+
     public BLangProgramLoader disableSemanticAnalyzer() {
         this.disableSemanticAnalyzer = true;
         return this;
     }
 
-    public BLangProgramLoader addPackageRepository() {
+    public BLangProgramLoader setPackageRepository(PackageRepository packageRepository) {
+        this.packageRepository = packageRepository;
         return this;
     }
 
