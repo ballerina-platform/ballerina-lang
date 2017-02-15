@@ -32,11 +32,16 @@ define(['lodash', './node'], function (_, ASTNode) {
         var self = this;
         var ballerinaASTFactory = this.getFactory();
         var leftExpression = type + ' ' + name;
-        var args = {leftExpression: leftExpression};
+        var args = {
+            leftExpression: leftExpression,
+            rightExpression: '',
+            variableReferenceName:  name,
+            typeName: type,
+            name: name
+        };
         var variableDefStmt = ballerinaASTFactory.createVariableDefinitionStatement(args);
         var leftStatement = ballerinaASTFactory.createLeftOperandExpression(args);
-        variableDefStmt.setRightExpression('');
-
+        leftStatement.setLeftOperandExpressionString('');
         var variableReferenceExpression = ballerinaASTFactory.createVariableReferenceExpression(args);
         var variableDefinition = ballerinaASTFactory.createVariableDefinition(args);
         variableReferenceExpression.addChild(variableDefinition);

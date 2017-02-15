@@ -209,7 +209,11 @@ define(['lodash', 'log', './ballerina-view', './variables-view', './type-struct-
                     // register this as a drop target and validate possible types of nodes to drop - second arg is a call back to validate
                     // tool view will use this to provide feedback on impossible drop zones
                     self.toolPalette.dragDropManager.setActivatedDropTarget(self.getModel().getBlockStatement(), function (nodeBeingDragged) {
-                            return nodeBeingDragged instanceof AST.AssignmentStatement;
+                            if(self.getTypeMapperRenderer()) {
+                                return nodeBeingDragged instanceof AST.AssignmentStatement;
+                            }else {
+                                return false;
+                            }
                         },
                         function (nodeBeingDragged) {
                             var functionSchema = self.getFunctionSchema(nodeBeingDragged, self.getDiagramRenderingContext());
@@ -225,6 +229,8 @@ define(['lodash', 'log', './ballerina-view', './variables-view', './type-struct-
                             });
                             leftExpString = leftExpString.substring(1);
                             leftOperand.setLeftOperandExpressionString(leftExpString);
+                            var rightOperand = nodeBeingDragged.getChildren()[1];
+                            rightOperand.setRightOperandExpressionString('');
                             return _.findLastIndex(self.getModel().getBlockStatement().getChildren());
                         });
 

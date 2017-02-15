@@ -137,11 +137,12 @@ define(['lodash', 'log', './ballerina-view', './../ast/block-statement', 'typeMa
                     parentStructFieldExp.addChild(structFieldAccess);
                     parentStructFieldExp = structFieldAccess;
                 });
-                if (functionInvocationExpParams && functionInvocationExpParams !== '') {
+                if (functionInvocationExpParams && functionInvocationExpParams[0] !== '') {
                     functionInvocationExpParams += "," + paramStr;
+                } else {
+                    functionInvocationExpParams = paramStr;
                 }
-                console.log(connection.sourceReference);
-                console.log(connection.targetReference);
+                functionInvocationExp.setParams(functionInvocationExpParams);
             }
         };
 

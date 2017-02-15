@@ -17,10 +17,10 @@
  */
 define(['lodash', 'log', 'event_channel', '../../ast/module', './function-invocation-visitor',
         './arithmetic-expression-visitor', './logical-expression-visitor', './struct-field-access-expression-visitor',
-        './variable-reference-expression-visitor','./ref-type-init-expression-visitor'],
+        './variable-reference-expression-visitor','./ref-type-init-expression-visitor', './function-invocation-expression-visitor'],
     function (_, log, EventChannel, AST, FunctionInvocationVisitor, ArithmeticExpressionVisitor,
               LogicalExpressionVisitor, StructFieldAccessExpressionVisitor, VariableReferenceExpressionVisitor,
-              RefTypeInitExpressionVisitor) {
+              RefTypeInitExpressionVisitor, FunctionInvocationExpressionVisitor) {
 
         var ExpressionViewFactory = function () {
         };
@@ -39,7 +39,7 @@ define(['lodash', 'log', 'event_channel', '../../ast/module', './function-invoca
                 return new VariableReferenceExpressionVisitor(_.get(args, "parent"));
             }else if (expression instanceof AST.RefTypeInitExpression) {
                 return new RefTypeInitExpressionVisitor(_.get(args, "parent"));
-            }
+            } 
         };
 
         return ExpressionViewFactory;

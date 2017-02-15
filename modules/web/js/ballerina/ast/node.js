@@ -84,10 +84,6 @@ define(['log', 'require', 'event_channel', 'lodash'], function(log, require, Eve
      * @fires  ASTNode#tree-modified
      */
     ASTNode.prototype.addChild = function (child, index, ignoreTreeModifiedEvent) {
-        console.log(index);
-        console.log(child);
-        console.log(this);
-        console.log('-------------');
         if (_.isUndefined(index)) {
             this.children.push(child);
         } else {
