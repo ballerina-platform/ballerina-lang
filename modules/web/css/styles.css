@@ -1063,8 +1063,8 @@ button.variable-list {
 .hoverable {
     opacity: 0.4;
     cursor: pointer;
-    height: 30px;
-    padding-top: 8px;
+    height: 25px;
+    padding-top: 6px;
 }
 
 .hoverable:hover {
@@ -1081,8 +1081,8 @@ button.variable-list {
 .name-span {
     display: table-cell;
     vertical-align: middle;
-    font-weight: 400;
-    font-size: 16px;
+    font-weight: 300;
+    font-size: 14px;
 }
 
 .canvas-operations-wrapper {
@@ -1105,9 +1105,9 @@ button.variable-list {
     -o-transform: scale(1, 2);
     transform: scale(1, 2);
     transform: scale(1, 2);
-    margin-top: 4px;
+    margin-top: 6px;
     color: #d8d8d8;
-    font-size: 17px;
+    font-size: 14px;
     font-weight: 300;
 }
 
@@ -1433,7 +1433,7 @@ span.fw-stack.fw-lg {
 }
 .import-package-name{
     float: left;
-    margin-top: 3px;
+    margin-top: 1px;
     font-size: 12px;
 }
 
@@ -1460,4 +1460,9 @@ span.fw-stack.fw-lg {
 .left-tool-bar .nav-tabs li.active a{
     background: #333 !important;
     border-left: 3px solid #f17b31 !important;
+}
+
+.panel-default .panel-title {
+    font-weight: 300;
+    font-size: 14px;
 }
