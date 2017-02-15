@@ -39,11 +39,15 @@ define(['lodash', './ast-manipulation-operation'],
         ASTNodeModifyOperation.prototype.constructor = ASTNodeModifyOperation;
 
         ASTNodeModifyOperation.prototype.redo = function(){
-            this._parentOfOriginNode.addChild(this._clonedOriginNode, this._originNodeIndex, true);
+            if(this.canRedo()) {
+                this._parentOfOriginNode.addChild(this._clonedOriginNode, this._originNodeIndex, true);
+            }
         };
 
         ASTNodeModifyOperation.prototype.undo = function(){
-            this._originNode.remove({ignoreTreeModifiedEvent:true});
+            if(this.canUndo()) {
+                this._originNode.remove({ignoreTreeModifiedEvent: true});
+            }
         };
 
         return ASTNodeModifyOperation;

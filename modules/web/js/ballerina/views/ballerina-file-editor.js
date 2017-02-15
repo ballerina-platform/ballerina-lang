@@ -114,6 +114,22 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                 }, this);
                 // make undo-manager capture all tree modifications after initial rendering
                 this._model.on('tree-modified', function(event){
+                    if(this.getUndoManager().hasUndo()){
+                        // clear undo stack from source view
+                        if(this.getUndoManager().getOperationFactory()
+                                .isSourceModifiedOperation(this.getUndoManager().undoStackTop())){
+                            this.getUndoManager().reset();
+                        }
+                    }
+                    if(this.getUndoManager().hasRedo()){
+                        // clear redo stack from source view
+                        if(this.getUndoManager().getOperationFactory()
+                                .isSourceModifiedOperation(this.getUndoManager().redoStackTop())){
+                            this.getUndoManager().reset();
+                        }
+                    }
+                    _.set(event, 'editor', this);
+                    _.set(event, 'skipInSourceView', true);
                     this.getUndoManager().onUndoableOperation(event);
                     this.trigger("content-modified");
                 }, this);
@@ -354,6 +370,7 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                 // Creating the constants view.
                 this._createConstantDefinitionsView(this._$canvasContainer);
                 this._model.accept(this);
+                this.getUndoManager().reset();
                 importDeclarations = this._model.getImportDeclarations();
             }
 
@@ -391,8 +408,24 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                 self.trigger('add-breakpoint', row);
             });
 
-            this._sourceView.on('modified', function () {
-                self._undoManager.reset();
+            this._sourceView.on('modified', function (changeEvent) {
+                if(self.getUndoManager().hasUndo()){
+                    // clear undo stack from design view
+                    if(!self.getUndoManager().getOperationFactory()
+                            .isSourceModifiedOperation(self.getUndoManager().undoStackTop())){
+                        self.getUndoManager().reset();
+                    }
+                }
+
+                if(self.getUndoManager().hasRedo()){
+                    // clear redo stack from design view
+                    if(!self.getUndoManager().getOperationFactory()
+                            .isSourceModifiedOperation(self.getUndoManager().redoStackTop())){
+                        self.getUndoManager().reset();
+                    }
+                }
+                _.set(changeEvent, 'editor', self);
+                self.getUndoManager().onUndoableOperation(changeEvent);
                 self.trigger('content-modified');
             });
 
@@ -517,8 +550,6 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                 designViewBtn.hide();
                 self.setActiveView('design');
                 if(isSourceChanged || isSwaggerChanged || savedWhileInSourceView){
-                    // reset undo manager for the design view
-                    self.getUndoManager().reset();
                     self.reDraw();
                 }
             });
