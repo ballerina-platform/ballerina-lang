@@ -20,11 +20,11 @@ define(['lodash', 'log', 'event_channel', '../ast/module', './try-catch-statemen
         './else-if-statement-view', './assignment-view', './function-invocation-view',
         './action-invocation-statement-view', './while-statement-view', './reply-statement-view',
         './logical-expression-view', './arithmetic-expression-view', './return-statement-view',
-        './variable-definition-statement-view', './worker-invoke-view'],
+        './variable-definition-statement-view', './worker-invoke-view', './worker-receive-view'],
     function (_, log, EventChannel, AST, TryCatchStatementView, TryStatementView, CatchStatementView,
               IfElseStatementView, IfStatementView, ElseStatementView, ElseIfStatementView, AssignmentStatementView,
               FunctionInvocationStatementView, ActionInvocationStatementView, WhileStatementView, ReplyStatementView,
-              LogicalExpressionView, ArithmeticExpressionView, ReturnStatement, VariableDefinitionStatementView, WorkerInvokeView) {
+              LogicalExpressionView, ArithmeticExpressionView, ReturnStatement, VariableDefinitionStatementView, WorkerInvokeView, WorkerReceiveView) {
 
         var StatementViewFactory = function () {
         };
@@ -87,6 +87,8 @@ define(['lodash', 'log', 'event_channel', '../ast/module', './try-catch-statemen
                 return new VariableDefinitionStatementView(args);
             } else if (statement instanceof AST.WorkerInvoke) {
                 return new WorkerInvokeView(args);
+            } else if (statement instanceof AST.WorkerReceive) {
+                return new WorkerReceiveView(args);
             }
         };
 

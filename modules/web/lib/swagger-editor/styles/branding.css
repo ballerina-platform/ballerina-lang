@@ -86,3 +86,11 @@
     font-weight: 900;
     src: local("Roboto Black"), local("Roboto-Black"), url(../../theme-wso2-2.0.0/fonts/Roboto/Roboto-Black.woff2) format("woff2"), url(../../theme-wso2-2.0.0/fonts/Roboto/Roboto-Black.woff) format("woff"), url(../../theme-wso2-2.0.0/fonts/Roboto/Roboto-Black.ttf) format("truetype"), url(../../theme-wso2-2.0.0/fonts/Roboto/Roboto-Black.eot), url(../../theme-wso2-2.0.0/fonts/Roboto/Roboto-Black.eot?#iefix) format("embedded-opentype"), url(../../theme-wso2-2.0.0/fonts/Roboto/Roboto-Black.svg#Roboto) format("svg");
     unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2212, U+2215, U+E0FF, U+EFFD, U+F000; }
+
+.menu-bar .dropdown button.dropdown-toggle {
+    font-weight: 300;
+}
+
+.menu-bar .dropdown a, .menu-bar .dropdown button {
+    font-weight: 300;
+}

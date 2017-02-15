@@ -116,7 +116,4 @@ public class SwaggerServiceMapper {
 
     }
 
-    /*public Service getServiceFromSwagger(Swagger swagger){
-
-    }*/
 }

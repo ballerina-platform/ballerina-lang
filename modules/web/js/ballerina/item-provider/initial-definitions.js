@@ -177,6 +177,14 @@ define(['log', 'jquery', './../ast/ballerina-ast-factory', './../tool-palette/to
             nodeFactoryMethod: BallerinaASTFactory.createWorkerInvokeStatement
         };
 
+        var createWorkerReceiverStatementTool = {
+            id: "WorkerReceive",
+            name: "Worker Receive",
+            icon: "images/tool-icons/return.svg",
+            title: "Worker Receive",
+            nodeFactoryMethod: BallerinaASTFactory.createWorkerReceiveStatement
+        };
+
         var statementToolDefArray = [createIfStatementTool, createAssignmentExpressionTool,
             createVariableDefinitionStatementTool,  createFunctionInvocationTool, createReturnStatementTool,
             createReplyStatementTool, createWhileStatementTool];

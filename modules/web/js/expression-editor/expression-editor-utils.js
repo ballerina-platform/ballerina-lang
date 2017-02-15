@@ -15,21 +15,41 @@
  */
 define(['require', 'lodash', 'jquery'], function (require, _, $) {
     var expressionEditorUtil = {};
-    expressionEditorUtil.createEditor = function (editorWrapper, wrapperClass, property) {
+    expressionEditorUtil.createEditor = function (editorWrapper, wrapperClass, property, callback) {
         var propertyWrapper = $("<div/>", {
             "class": wrapperClass
         }).appendTo(editorWrapper);
 
-        var widthMultiFactor = 8; // Factor used to calculate what should be the width of textbox according to the text.
         var propertyValue = _.isNil(property.getterMethod.call(property.model)) ? "" : property.getterMethod.call(property.model);
         var propertyInputValue = $("<input type='text' value=''>").appendTo(propertyWrapper);
+        var hiddenSpan = $('<span style="display: none"/>').appendTo(propertyWrapper);
+        hiddenSpan.css('white-space', 'pre');
+        hiddenSpan.css('padding-left', '15px');
         $(propertyInputValue).css('border', '1px solid');
-        $(propertyInputValue).css('text-align', 'center');
+        $(propertyInputValue).css('padding-left', '15px');
         $(propertyInputValue).focus();
         $(propertyInputValue).val(propertyValue);
-        $(propertyInputValue).css("width", ((propertyValue.length + 1) * widthMultiFactor) + "px");
-        $(propertyInputValue).on("paste keyup", function () {
-            $(this).css("width", (($(this).val().length + 1) * widthMultiFactor) + "px");
+
+        // returns the width in pixels needed to show a given text
+        // This adds the text to the hidden span and takes its width
+        // This is done so that we can measure the exact width needed for the input to show the text
+        function getNecessaryWidth(text) {
+            hiddenSpan.text(text + 'abc'); // Add 3 charactors so there is a buffer length
+            return hiddenSpan.outerWidth();
+        }
+
+        $(propertyInputValue).css("width", getNecessaryWidth(propertyValue));
+
+        $(propertyInputValue).on("paste keyup", function (e) {
+            var width = getNecessaryWidth($(this).val());
+            $(this).css("width", width);
+
+            if(e.keyCode==13){
+                // Enter pressed.
+                if(_.isFunction(callback)){
+                    callback();
+                }
+            }
         });
         $(propertyInputValue).on("change", function(){
             // Do not set the value to the model directly, instead fire the event.

@@ -33,7 +33,7 @@ define(['jquery', './modal-dialog'], function ($, ModalDialog) {
         }
 
         var saveBtn = $("<button type='button' class='btn btn-primary btn-file-dialog'>Save</button>");
-        var dontSaveBtn = $("<button type='button' class='btn btn-primary btn-file-dialog" +
+        var dontSaveBtn = $("<button type='button' class='btn btn-default btn-file-dialog" +
                             " close-file-confirm-dialog-btn'>Don't Save</button>");
         var cancelBtn = $("<button type='button' class='btn btn-default btn-file-dialog'" +
                           " data-dismiss='modal'>Cancel</button>");
@@ -41,7 +41,7 @@ define(['jquery', './modal-dialog'], function ($, ModalDialog) {
         this._dontSaveBtn = dontSaveBtn;
 
         this.getFooter().empty();
-        this.getFooter().append(dontSaveBtn, cancelBtn, saveBtn);
+        this.getFooter().append(dontSaveBtn, saveBtn, cancelBtn);
 
         this._initialized = true;
     }
@@ -51,11 +51,11 @@ define(['jquery', './modal-dialog'], function ($, ModalDialog) {
         this.init();
 
         var name = options.file.getName();
-        this.setTitle("'" + name + "' contains changes. Do you want to save them before closing?");
+        this.setTitle("Save Changes?");
 
         var body = this.getBody();
         body.empty();
-        body.append($('<p><br>Your changes will be lost if you close this file without saving.</p>'))
+        body.append($("<p><br>File '" + name + "' contains changes, do you want to save them before closing?  Your changes will be lost if you close this file without saving.</p>"))
 
         this._saveBtn.unbind('click');
         this._dontSaveBtn.unbind('click');
