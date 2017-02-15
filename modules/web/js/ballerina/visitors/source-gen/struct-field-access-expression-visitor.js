@@ -15,8 +15,10 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require','lodash', 'log', 'event_channel', './abstract-expression-source-gen-visitor','./expression-visitor-factory'],
-    function(require, _, log, EventChannel, AbstractExpressionSourceGenVisitor, ExpressionVisitorFactory) {
+define(['require','lodash', 'log', 'event_channel', './abstract-expression-source-gen-visitor', 
+        '../../ast/struct-field-access-expression', '../../ast/left-operand-expression'],
+    function(require, _, log, EventChannel, AbstractExpressionSourceGenVisitor, StructFieldAccessExpression,
+             LeftOperandExpression) {
 
         var SructFieldAccessExpressionVisitor = function(parent){
             AbstractExpressionSourceGenVisitor.call(this,parent);
@@ -26,10 +28,13 @@ define(['require','lodash', 'log', 'event_channel', './abstract-expression-sourc
         SructFieldAccessExpressionVisitor.prototype.constructor = SructFieldAccessExpressionVisitor;
 
         SructFieldAccessExpressionVisitor.prototype.canVisitStructFieldAccessExpression = function(expression){
-            return true;
+            return expression instanceof StructFieldAccessExpression && this._generatedSource === "";
         };
 
         SructFieldAccessExpressionVisitor.prototype.beginVisitStructFieldAccessExpression = function(expression){
+            if(expression.getParent() instanceof StructFieldAccessExpression){
+                this.appendSource('.');
+            }
             log.debug('Begin Visit Struct Field Access Expression');
         };
 

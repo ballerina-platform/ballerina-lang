@@ -61,8 +61,8 @@ define(['lodash', 'd3','log', './simple-statement-view', './../ast/action-invoca
             if(!_.isNil(this.getModel().getConnector())) {
                 var connector = this.getDiagramRenderingContext().getViewModelMap()[this.messageManager.getActivatedDropTarget().id];
                 actionInvocationModel.setConnector(this.messageManager.getActivatedDropTarget());
-                this.renderArrows(this.getDiagramRenderingContext());
                 this.renderDisplayText(this.getModel().getExpression());
+                this.renderArrows(this.getDiagramRenderingContext());
             }
         };
 
@@ -169,6 +169,9 @@ define(['lodash', 'd3','log', './simple-statement-view', './../ast/action-invoca
 
             if(!_.isUndefined(this.connector)) {
                 var parent = this.getStatementGroup();
+                var thisNodeGroup = this.getStatementGroup().node();
+                var thisNodeGroupParent = this.getParent()._contentGroup.node();
+
                 this._arrowGroup = D3Utils.group(parent).attr("transform", "translate(0,0)");
                 var width = this.getBoundingBox().w();
                 var height = this.getBoundingBox().h();
@@ -237,6 +240,8 @@ define(['lodash', 'd3','log', './simple-statement-view', './../ast/action-invoca
                 }, this);
 
                 this.processorConnectPoint.style("display", "none");
+
+                thisNodeGroupParent.appendChild(thisNodeGroup);
 
                 var self = this;
 
