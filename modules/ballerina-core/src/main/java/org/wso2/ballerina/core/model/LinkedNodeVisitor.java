@@ -212,4 +212,12 @@ public interface LinkedNodeVisitor extends NodeVisitor {
     void visit(TypeCastExpressionEndNode typeCastExpressionEndNode);
 
     void visit(UnaryExpressionEndNode unaryExpressionEndNode);
+
+
+    /**
+     * Execute a type mapper and retrieve the result mapped type.
+     *
+     * @param typeMapper The type mapper to execute.
+     */
+    void visit(TypeMapper typeMapper);
 }

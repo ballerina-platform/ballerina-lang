@@ -1,37 +1,39 @@
 package org.wso2.ballerina.lang.expressions;
 
+import org.ballerinalang.BLangProgramLoader;
+import org.ballerinalang.util.program.BLangFunctions;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.ballerina.core.exception.BallerinaException;
-import org.wso2.ballerina.core.interpreter.SymScope;
-import org.wso2.ballerina.core.model.BallerinaFile;
+import org.wso2.ballerina.core.model.BLangProgram;
 import org.wso2.ballerina.core.model.values.BDouble;
 import org.wso2.ballerina.core.model.values.BInteger;
 import org.wso2.ballerina.core.model.values.BString;
 import org.wso2.ballerina.core.model.values.BValue;
-import org.wso2.ballerina.core.utils.ParserUtils;
-import org.wso2.ballerina.lang.util.Functions;
+
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 /**
  * Test type casting of map elements.
  */
 public class MapTypeCastExprTest {
 
-    private BallerinaFile bFile;
+    private BLangProgram bLangProgram;
 
     @BeforeClass
     public void setup() {
-        // Linking Native functions.
-        SymScope symScope = new SymScope(null);
-        bFile = ParserUtils.parseBalFile("lang/expressions/map-type-cast-expr.bal", symScope);
+        Path programPath = Paths.get(this.getClass().getProtectionDomain().getCodeSource().getLocation().getPath());
+        bLangProgram = new BLangProgramLoader().loadLibrary(programPath,
+                Paths.get("lang/expressions/map-type-cast-expr.bal"));
     }
 
     @Test(description = "Test type cast native types inside a map")
     public void testMapNativeTypeCastExpr() {
         int input = 123456789;
         BValue[] args = {new BInteger(input)};
-        BValue[] returns = Functions.invoke(bFile, "mapPrimitiveCastTest", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "mapPrimitiveCastTest", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BDouble.class);
@@ -45,7 +47,7 @@ public class MapTypeCastExprTest {
         String name1 = "alex";
         String name2 = "kuru";
         BValue[] args = {new BString(name1), new BString(name2)};
-        BValue[] returns = Functions.invoke(bFile, "mapStructCastTest", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "mapStructCastTest", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BString.class);
@@ -59,7 +61,7 @@ public class MapTypeCastExprTest {
         int input = 123456789;
         String expectedResult = "output" + input;
         BValue[] args = {new BInteger(input)};
-        BValue[] returns = Functions.invoke(bFile, "mapCastWithExprTest", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "mapCastWithExprTest", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BString.class);
@@ -70,13 +72,15 @@ public class MapTypeCastExprTest {
 
     @Test(description = "Test type casting invalid types",
         expectedExceptions = {BallerinaException.class},
-        expectedExceptionsMessageRegExp = "Could not find any type mapper to cast Employee to  Person")
+        expectedExceptionsMessageRegExp = "incompatible types: 'Employee' cannot be cast to  'Person'")
     public void testIncorrectMapCastExpr() {
-        BallerinaFile invalidFile = ParserUtils.parseBalFile("lang/expressions/invalid-map-type-cast.bal");
+        Path programPath = Paths.get(this.getClass().getProtectionDomain().getCodeSource().getLocation().getPath());
+        BLangProgram program = new BLangProgramLoader().loadLibrary(programPath,
+                Paths.get("lang/expressions/invalid-map-type-cast.bal"));
         String name1 = "alex";
         String name2 = "kuru";
         BValue[] args = {new BString(name1), new BString(name2)};
-        Functions.invoke(invalidFile, "invalidMapStructCastTest", args);
+        BLangFunctions.invoke(program, "invalidMapStructCastTest", args);
     }
 
 }

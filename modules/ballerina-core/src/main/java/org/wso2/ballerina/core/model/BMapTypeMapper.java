@@ -109,8 +109,8 @@ public class BMapTypeMapper extends AbstractNativeTypeMapper {
             }
 
             if (result == null) {
-                throw new BallerinaException("Could not find any type mapper to cast " +
-                        sourceType.getSymbolName().getName() + " to  " + targetType.getSymbolName().getName());
+                throw new BallerinaException("incompatible types: '" + sourceType.getSymbolName().getName() +
+                        "' cannot be cast to  '" + targetType.getSymbolName().getName() + "'");
             }
         }
 
