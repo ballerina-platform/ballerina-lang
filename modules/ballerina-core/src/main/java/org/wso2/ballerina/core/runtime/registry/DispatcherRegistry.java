@@ -22,8 +22,6 @@ import org.wso2.ballerina.core.runtime.dispatching.HTTPResourceDispatcher;
 import org.wso2.ballerina.core.runtime.dispatching.HTTPServiceDispatcher;
 import org.wso2.ballerina.core.runtime.dispatching.ResourceDispatcher;
 import org.wso2.ballerina.core.runtime.dispatching.ServiceDispatcher;
-import org.wso2.ballerina.core.runtime.dispatching.WebSocketResourceDispatcher;
-import org.wso2.ballerina.core.runtime.dispatching.WebSocketServiceDispatcher;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -44,10 +42,6 @@ public class DispatcherRegistry {
         // Resister HTTP Dispatchers  TODO: Move this to a osgi service
         registerServiceDispatcher(new HTTPServiceDispatcher());
         registerResourceDispatcher(new HTTPResourceDispatcher());
-
-        // Register WebSocket Dispatchers
-        registerServiceDispatcher(new WebSocketServiceDispatcher());
-        registerResourceDispatcher(new WebSocketResourceDispatcher());
     }
 
     public static DispatcherRegistry getInstance() {
