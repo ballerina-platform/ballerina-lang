@@ -1,4 +1,9 @@
-# How to write a JMS Service ?
+#JMS Server Connector
+JMS Server connector can be used to listen to a topic/queue in a JNDI based JMS provider. High level view on how jms server connector works is given below,
+
+![JMS_Server_Connector](../images/jms_server_connector.png)
+
+## How to write a JMS Service ?
 ###Step 1
 Create a service with unique name.
 
@@ -85,7 +90,7 @@ service jmsService {
 }
 ```
 
-#Ballerina Native Functions
+##Ballerina Native Functions
 
 ####Package ballerina.lang.message
 
@@ -124,8 +129,59 @@ This function can be used to get the string value of specific map key in a map t
 2. Relevant map key value
 
 Example : 
+
+```
 import ballerina.lang.message
 ---
-string stringPayload;
-stringPayload = message:getStringValue(m, “count”);
+string stringValue;
+stringValue = message:getStringValue(m, “count”);
+```
 
+####Package ballerina.net.jms
+**jms:getMessageType**
+
+This function can be used get the jms message type of the relevant message. This function accepts relevant message as the argument. Return values will be “TextMessage”, “BytesMessage”, “MapMessage” or “ObjectMessage”.
+
+Example :
+```
+import ballerina.net.jms
+---
+
+string messageType;
+messageType = jms:getMessageType(m);
+```
+
+**jms:acknowledge**
+
+This function can be used acknowledge the message delivery or success, which particular useful in when using the client acknowledgement mode. This function accepts following two parameters,
+1. Ballerina message that need to acknowledged 
+2. Message delivery status - “SUCCESS” or  “ERROR”
+
+Example :
+```
+import ballerina.net.jms
+---
+jms:acknowledge(m, "SUCCESS");
+```
+
+**jms:commit**
+
+This function can be used to commit the jms session when using the session acknowledgement mode. This function accepts the only one parameter, which is the relevant message that the user wishes to acknowledge the session with.
+
+Example : 
+```
+import ballerina.net.jms
+---
+jms:commit();
+```
+
+**jms:rollback**
+
+This function can be used to commit the messages when using the session acknowledgement mode.This function accepts the only one parameters, which is the relevant Ballerina message that the user wishes to rollback the session with.
+
+Example :
+```
+import ballerina.net.jms
+---
+jms:rollback();
+```
