@@ -1,6 +1,6 @@
 # Functions
 
-A function is a single operation that is intended to be a unit of reusable functionality. Ballerina includes a set of native functions you can call, such as the `ConvertToResponse()` function you used in the [first tutorial](../tutorials/first-program.md), and you can define additional functions within your Ballerina programs.
+A function is a single operation that is intended to be a unit of reusable functionality. Ballerina includes a set of native library functions you can call, such as the `ConvertToResponse()` function you used in the [first tutorial](../tutorials/first-program.md), and you can define additional functions within your Ballerina programs. All library functions are found in `ballerina.*` packages under the `src` directory in your Ballerina distribution.  
 
 A function is defined as follows:
 ```
@@ -20,4 +20,4 @@ A function:
 * Can have any number of [workers](workers.md)
 * Can be a worker itself
 
-All functions are private to the package unless explicitly declared to be public with the public keyword. Functions may be invoked from a [resource](resources.md) or a function within the same package without importing. Functions marked public can be invoked from another package after importing the package.
+All functions are private to the package unless explicitly declared to be public with the `public` keyword. Functions may be invoked from a [resource](resources.md) or a function within the same package without importing. Functions marked public can be invoked from another package after importing the package.
