@@ -26,8 +26,10 @@ import org.wso2.ballerina.core.model.values.BDataTable;
 import org.wso2.ballerina.core.model.values.BInteger;
 import org.wso2.ballerina.core.model.values.BString;
 import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeAction;
+import org.wso2.ballerina.core.nativeimpl.connectors.BalConnectorCallback;
 import org.wso2.ballerina.nativeimpl.connectors.data.sql.SQLConnector;
 import org.wso2.ballerina.nativeimpl.connectors.data.sql.SQLDataIterator;
+import org.wso2.carbon.messaging.DefaultCarbonMessage;
 
 import java.math.BigDecimal;
 import java.sql.CallableStatement;
@@ -45,6 +47,16 @@ import java.util.HashMap;
  * {@code AbstractSQLAction} is the base class for all SQL Connector Action.
  */
 public abstract class AbstractSQLAction extends AbstractNativeAction {
+
+    @Override
+    public void execute(Context context, BalConnectorCallback connectorCallback) {
+        connectorCallback.done(new DefaultCarbonMessage());
+    }
+
+    @Override
+    public void validate(BalConnectorCallback connectorCallback) {
+        connectorCallback.done(new DefaultCarbonMessage());
+    }
 
     protected void executeQuery(Context context, SQLConnector connector, String query) {
         Connection conn = null;

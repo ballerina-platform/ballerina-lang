@@ -29,7 +29,9 @@ import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaAction;
 import org.wso2.ballerina.core.nativeimpl.annotations.ReturnType;
 import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeAction;
+import org.wso2.ballerina.core.nativeimpl.connectors.BalConnectorCallback;
 import org.wso2.ballerina.nativeimpl.connectors.data.sql.SQLConnector;
+import org.wso2.carbon.messaging.DefaultCarbonMessage;
 
 /**
  * {@code Call} is the Call action implementation of the SQL Connector.
@@ -38,7 +40,7 @@ import org.wso2.ballerina.nativeimpl.connectors.data.sql.SQLConnector;
         packageName = "ballerina.data.sql",
         actionName = "call",
         connectorName = SQLConnector.CONNECTOR_NAME,
-        args = {@Argument(name = "connector", type = TypeEnum.CONNECTOR),
+        args = {@Argument(name = "c", type = TypeEnum.CONNECTOR),
                 @Argument(name = "query", type = TypeEnum.STRING)},
         returnType = { @ReturnType(type = TypeEnum.DATATABLE) })
 @Component(
