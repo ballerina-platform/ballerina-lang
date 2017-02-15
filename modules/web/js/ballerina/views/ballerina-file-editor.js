@@ -106,7 +106,7 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
             if(this._parseFailed){
                 return;
             }
-            if ((!_.isNil(model) && model instanceof BallerinaASTRoot)) {
+            if ((!_.isUndefined(model) && !_.isNil(model) && model instanceof BallerinaASTRoot)) {
                 this._model = model;
                 //Registering event listeners
                 this._model.on('child-added', function(child){
@@ -173,10 +173,6 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
 
         BallerinaFileEditor.prototype.canVisitPackageDefinition = function (packageDefinition) {
             return false;
-        };
-
-        BallerinaFileEditor.prototype.visitPackageDefinition = function (packageDefinition) {
-            return true;
         };
 
         /**
@@ -454,21 +450,30 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                         self._createConstantDefinitionsView(self._$canvasContainer);
                         self.addCurrentPackageToToolPalette();
                     }
-                    // Get the generated swagger and append it to the swagger view container's content
+
+                    var treeModel = self.generateNodeTree();
+                    if (_.isUndefined(treeModel)) {
+                        alerts.error("Cannot switch to swagger due to parser error");
+                        return;
+                    }
+
                     var generatedSource = self.generateSource();
+
+                    // Get the generated swagger and append it to the swagger view container's content
                     self._swaggerView.setContent(generatedSource);
-                    self._swaggerView.setNodeTree(self.generateNodeTree());//setting fallback node tree
-                    self.toolPalette.hide();
+                    self._swaggerView.setNodeTree(treeModel);//setting fallback node tree
+
                     swaggerViewContainer.show();
                     sourceViewContainer.hide();
                     self._$designViewContainer.hide();
                     designViewBtn.show();
                     sourceViewBtn.show();
                     swaggerViewBtn.hide();
+                    self.toolPalette.hide();
                     self.setActiveView('swagger');
                     alerts.warn("This version only supports one service representation on swagger");
                 } catch (err) {
-                    alerts.error("Swagger Error: " + err.message);
+                    alerts.error(err.message);
                 }
             });
 
@@ -487,8 +492,7 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                     self._createConstantDefinitionsView(self._$canvasContainer);
                     self.addCurrentPackageToToolPalette();
                 } else if (isSwaggerChanged) {
-                    var astModal = self._swaggerView.getContent();
-                    self.setModel(self.deserializer.getASTModel(astModal));
+                    self.setModel(self._swaggerView.getContent());
                     // reset source editor delta stack
                 }
                 //canvas should be visible before you can call reDraw. drawing dependednt on attr:offsetWidth
@@ -809,6 +813,8 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
             this._createImportDeclarationPane(this._$canvasContainer);
             // Creating the constants view.
             this._createConstantDefinitionsView(this._$canvasContainer);
+
+            // this._createPackageDeclarationPane(this._$canvasContainer);
 
             // adding current package to the tool palette with functions, connectors, actions etc. of the current package
             this.addCurrentPackageToToolPalette();
