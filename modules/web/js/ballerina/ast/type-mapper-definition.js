@@ -365,6 +365,66 @@ define(['lodash', './node', '../utils/common-utils'], function (_, ASTNode, Comm
         return newAssignmentStatement;
     };
 
+
+    /**
+     * source -> function, target -> struct
+     * @param sourceVariableReferenceExpression
+     * @param targetIdentifier
+     * @param targetValue
+     * @param isComplexMapping
+     * @param targetCastValue
+     * @returns {*}
+     */
+    TypeMapperDefinition.prototype.getAssignmentStatementForFunctionReturnVariable = function (sourceVariableReferenceExpression,
+                                                                                               targetIdentifier,targetValue, isComplexMapping,targetCastValue) {
+
+        // Creating a new Assignment Statement.
+        var self = this;
+        var newAssignmentStatement = this.getFactory().createAssignmentStatement();
+        var leftOperandExpression = this.getFactory().createLeftOperandExpression();
+        var rightOperandExpression = this.getFactory().createRightOperandExpression();
+        var typeCastExpression = undefined;
+
+        var targetStructFieldAccessExpression = this.getFactory().createStructFieldAccessExpression();
+        var targetVariableReferenceExpressionForIdentifier = this.getFactory().createVariableReferenceExpression();
+        targetVariableReferenceExpressionForIdentifier.setVariableReferenceName(targetIdentifier);
+        var targetFieldExpression = this.getFactory().createStructFieldAccessExpression();
+        var tempRefOfFieldExpression;
+
+        _.forEach(targetValue, function (targetVal) {
+            var tempFieldExpression;
+            var tempVariableReferenceExpression = self.getFactory().createVariableReferenceExpression();
+            tempVariableReferenceExpression.setVariableReferenceName(targetVal);
+            if(_.head(targetValue) == targetVal){
+                targetFieldExpression.addChild(tempVariableReferenceExpression);
+                tempRefOfFieldExpression = targetFieldExpression
+            }else{
+                tempFieldExpression = self.getFactory().createStructFieldAccessExpression();
+                tempFieldExpression.addChild(tempVariableReferenceExpression);
+                tempRefOfFieldExpression.addChild(tempFieldExpression);
+                tempRefOfFieldExpression = tempFieldExpression;
+            }
+        });
+
+        targetStructFieldAccessExpression.addChild(targetVariableReferenceExpressionForIdentifier);
+        targetStructFieldAccessExpression.addChild(targetFieldExpression);
+
+        leftOperandExpression.addChild(targetStructFieldAccessExpression);
+        newAssignmentStatement.addChild(leftOperandExpression);
+
+        if(isComplexMapping){
+            typeCastExpression = this.getFactory().createTypeCastExpression();
+            typeCastExpression.setName(targetCastValue);
+            rightOperandExpression.addChild(typeCastExpression);
+            typeCastExpression.addChild(sourceVariableReferenceExpression);
+        }else{
+            rightOperandExpression.addChild(sourceVariableReferenceExpression);
+        }
+        newAssignmentStatement.addChild(rightOperandExpression);
+
+        return newAssignmentStatement;
+    };
+
     /**
      * Gets the reference of block statement child
      * @return {string} - String blockStatement.

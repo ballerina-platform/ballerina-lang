@@ -17,7 +17,8 @@
  */
 define(['lodash', 'log', './ballerina-view', './../ast/block-statement', 'typeMapper', './type-mapper-statement-view',
         'ballerina/ast/ballerina-ast-factory', './type-mapper-function-assignment-view', './../ast/module'],
-    function (_, log, BallerinaView, BlockStatement, TypeMapperRenderer, TypeMapperStatement, BallerinaASTFactory, TypeMapperFunctionAssignmentView, AST) {
+    function (_, log, BallerinaView, BlockStatement, TypeMapperRenderer, TypeMapperStatement, BallerinaASTFactory,
+              TypeMapperFunctionAssignmentView, AST) {
 
         var TypeMapperBlockStatementView = function (args) {
             BallerinaView.call(this, args);
@@ -104,24 +105,32 @@ define(['lodash', 'log', './ballerina-view', './../ast/block-statement', 'typeMa
          * @param connection object
          */
         TypeMapperBlockStatementView.prototype.onAttributesConnect = function (connection) {
-            if (BallerinaASTFactory.isResourceParameter(connection.sourceReference) && BallerinaASTFactory.isReturnType(connection.targetReference)) {
+            var sourceModel = connection.sourceReference;
+            var sourceFuncSchema;
+            var targetModel = connection.targetReference;
+            var targetFuncSchema;
+            if (connection.sourceReference.model) {
+                sourceModel = connection.sourceReference.model;
+                sourceFuncSchema = connection.sourceReference.functionSchema;
+            }
+            if (connection.targetReference.model) {
+                targetModel = connection.targetReference.model;
+                targetFuncSchema = connection.targetReference.functionSchema;
+            }
+            if (BallerinaASTFactory.isResourceParameter(sourceModel) && BallerinaASTFactory.isReturnType(targetModel)) {
                 var isComplexMapping = connection.isComplexMapping;
                 var targetCastValue = "";
-                if(isComplexMapping){
+                if (isComplexMapping) {
                     targetCastValue = connection.targetType;
                 }
-
-                var assignmentStatementNode = connection.targetReference.getParent().
-                returnConstructedAssignmentStatement("y","x",connection.sourceProperty,connection.targetProperty,isComplexMapping,targetCastValue);
-                var blockStatement = connection.targetReference.getParent().getBlockStatement();
-
+                var assignmentStatementNode = sourceModel.getParent().returnConstructedAssignmentStatement("y", "x", connection.sourceProperty, connection.targetProperty, isComplexMapping, targetCastValue);
+                var blockStatement = targetModel.getParent().getBlockStatement();
                 var lastIndex = _.findLastIndex(blockStatement.getChildren());
-                blockStatement.addChild(assignmentStatementNode,lastIndex);
-            } else if (BallerinaASTFactory.isResourceParameter(connection.sourceReference) &&
-                BallerinaASTFactory.isAssignmentStatement(connection.targetReference)) {
-                var resourceParam = connection.sourceReference;
-                var assignmentStmt = connection.targetReference;
-                var functionInvocationExp = assignmentStmt.getChildren()[1].getChildren()[0];
+                blockStatement.addChild(assignmentStatementNode, lastIndex);
+            } else if (BallerinaASTFactory.isResourceParameter(sourceModel) &&
+                BallerinaASTFactory.isAssignmentStatement(targetModel)) {
+                var resourceParam = sourceModel;
+                var functionInvocationExp = targetModel.getChildren()[1].getChildren()[0];
                 var functionInvocationExpParams = functionInvocationExp.getParams();
                 var paramStr = resourceParam.identifier;
                 var structFieldAccess = BallerinaASTFactory.createStructFieldAccessExpression({isLHSExpr: false});
@@ -143,6 +152,19 @@ define(['lodash', 'log', './ballerina-view', './../ast/block-statement', 'typeMa
                     functionInvocationExpParams = paramStr;
                 }
                 functionInvocationExp.setParams(functionInvocationExpParams);
+            } else if (BallerinaASTFactory.isAssignmentStatement(sourceModel)
+                && BallerinaASTFactory.isReturnType(targetModel)) {
+                var leftOperand = sourceModel.getChildren()[0];
+                var index = _.findIndex(sourceFuncSchema.returnType, function (param) {
+                    return param.name === connection.sourceProperty[0];
+                });
+                var sourceVariableRef = leftOperand.getChildren()[index];
+                var assignmentStatementNode = targetModel.getParent()
+                    .getAssignmentStatementForFunctionReturnVariable(sourceVariableRef, "x", connection.targetProperty,
+                        connection.isComplexMapping, connection.complexMapperName);
+                var blockStatement = targetModel.getParent().getBlockStatement();
+                var lastIndex = _.findLastIndex(blockStatement.getChildren());
+                blockStatement.addChild(assignmentStatementNode, lastIndex);
             }
         };
 
