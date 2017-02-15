@@ -1171,8 +1171,8 @@ public class BLangModelBuilder {
 
         SimpleTypeName exceptionType = typeNameStack.pop();
         if (!TypeConstants.EXCEPTION_TNAME.equals(exceptionType.getName())) {
-            String errMsg = getNodeLocationStr(location) +
-                    "only a reference of type 'exception' is allowed here";
+            String errMsg = BLangExceptionHelper.constructSemanticError(location,
+                    SemanticErrors.ONLY_EXCEPTION_TYPE_HERE);
             errorMsgs.add(errMsg);
         }
 
@@ -1202,8 +1202,7 @@ public class BLangModelBuilder {
             addToBlockStmt(throwStmt);
             return;
         }
-        String errMsg = getNodeLocationStr(location) +
-                "only a variable reference of type 'exception' is allowed here";
+        String errMsg = BLangExceptionHelper.constructSemanticError(location, SemanticErrors.ONLY_EXCEPTION_TYPE_HERE);
         errorMsgs.add(errMsg);
     }
 
