@@ -30,6 +30,8 @@ import org.wso2.ballerina.core.nativeimpl.NativePackageProxy;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.stream.Collectors;
 
 /**
@@ -39,10 +41,17 @@ import java.util.stream.Collectors;
  * @since 0.8.0
  */
 public class BLangPackages {
-
+    
     public static BLangPackage loadPackage(Path packagePath,
+            PackageRepository packageRepo,
+            BLangProgram bLangProgram) {
+        return loadPackage(packagePath, packageRepo, bLangProgram, new LinkedHashSet<>());
+    }
+
+    private static BLangPackage loadPackage(Path packagePath,
                                            PackageRepository packageRepo,
-                                           BLangProgram bLangProgram) {
+                                           BLangProgram bLangProgram,
+                                           LinkedHashSet<SymbolName> currentDepPath) {
 
         // Load package details (input streams of source files) from the given package repository
         PackageRepository.PackageSource pkgSource = packageRepo.loadPackage(packagePath);
@@ -54,7 +63,7 @@ public class BLangPackages {
         BLangPackage.PackageBuilder packageBuilder =
                 new BLangPackage.PackageBuilder(pkgPathStr, pkgSource.getPackageRepository(), bLangProgram);
 
-        return loadPackageInternal(pkgSource, packageBuilder, bLangProgram);
+        return loadPackageInternal(pkgSource, packageBuilder, bLangProgram, currentDepPath);
     }
 
     public static BLangPackage loadFile(Path filePath, PackageRepository packageRepo, BLangProgram bLangProgram) {
@@ -62,8 +71,9 @@ public class BLangPackages {
         BLangPackage.PackageBuilder packageBuilder =
                 new BLangPackage.PackageBuilder(".", pkgSource.getPackageRepository(), bLangProgram);
 
+        LinkedHashSet<SymbolName> currentDepPath = new LinkedHashSet<>();
         // Resolve dependent packages of this package
-        return loadPackageInternal(pkgSource, packageBuilder, bLangProgram);
+        return loadPackageInternal(pkgSource, packageBuilder, bLangProgram, currentDepPath);
     }
 
     public static Path getPathFromPackagePath(String packagePath) {
@@ -92,7 +102,8 @@ public class BLangPackages {
 
     private static BLangPackage loadPackageInternal(PackageRepository.PackageSource pkgSource,
                                                     BLangPackage.PackageBuilder packageBuilder,
-                                                    BLangProgram bLangProgram) {
+                                                    BLangProgram bLangProgram,
+                                                    LinkedHashSet<SymbolName> currentDepPath) {
 
         Path packagePath = pkgSource.getPackagePath();
         String pkgPathStr = getPackagePathFromPath(packagePath);
@@ -103,9 +114,18 @@ public class BLangPackages {
                 .collect(Collectors.toList()));
 
         BLangPackage bLangPackage = packageBuilder.build();
-
+        // Check for a dependency cycle
+        if (currentDepPath.contains(bLangPackage.getSymbolName())) {
+            throw new BallerinaException("dependency cycle detected: " + 
+                    generateDepCycleString(currentDepPath, bLangPackage));
+        }
+        // Mark the node in the current path
+        currentDepPath.add(bLangPackage.getSymbolName());
         // Resolve dependent packages of this package
-        return resolveDependencies(bLangPackage, bLangProgram);
+        BLangPackage result = resolveDependencies(bLangPackage, bLangProgram, currentDepPath);
+        // Remove the node marking from the current path
+        currentDepPath.remove(bLangPackage.getSymbolName());
+        return result;
     }
 
     private static void validatePackagePathInFile(String pkgPathStr, Path packagePath, BallerinaFile bFile) {
@@ -119,7 +139,8 @@ public class BLangPackages {
         }
     }
 
-    private static BLangPackage resolveDependencies(BLangPackage parentPackage, BLangProgram bLangProgram) {
+    private static BLangPackage resolveDependencies(BLangPackage parentPackage, BLangProgram bLangProgram,
+            LinkedHashSet<SymbolName> currentDepPath) {
         for (ImportPackage importPackage : parentPackage.getImportPackages()) {
 
             // Check whether this package is already resolved.
@@ -132,7 +153,7 @@ public class BLangPackages {
                         dependentPkg.getPackageRepository().loadPackage(packagePath);
 
                 BLangPackage.PackageBuilder packageBuilder = new BLangPackage.PackageBuilder(dependentPkg);
-                dependentPkg = loadPackageInternal(pkgSource, packageBuilder, bLangProgram);
+                dependentPkg = loadPackageInternal(pkgSource, packageBuilder, bLangProgram, currentDepPath);
 
             } else if (dependentPkg == null) {
 
@@ -149,7 +170,8 @@ public class BLangPackages {
                 //      i) Search the system repository
                 //      ii) Search the personal/user repository
                 // 4) None of the above applies if the package name starts with 'ballerina'
-                dependentPkg = loadPackage(packagePath, parentPackage.getPackageRepository(), bLangProgram);
+                dependentPkg = loadPackage(packagePath, parentPackage.getPackageRepository(), 
+                        bLangProgram, currentDepPath);
 
             }
 
@@ -160,4 +182,21 @@ public class BLangPackages {
 
         return parentPackage;
     }
+    
+    private static String generateDepCycleString(LinkedHashSet<SymbolName> currentPath, BLangPackage targetPack) {
+        StringBuilder builder = new StringBuilder();
+        Iterator<SymbolName> itr = currentPath.iterator();
+        // skip until the start of the cycle
+        while (!itr.next().equals(targetPack.getSymbolName()));
+        // add the first node
+        builder.append(targetPack.getSymbolName().toString());
+        while (itr.hasNext()) {
+            // add the nodes in the middle of the cycle
+            builder.append("->" + itr.next());
+        }
+        // add the last node
+        builder.append("->" + targetPack.getSymbolName().toString());
+        return builder.toString();
+    }
+    
 }

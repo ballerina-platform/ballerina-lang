@@ -115,6 +115,8 @@ public class BLangProgramArchive extends PackageRepository implements AutoClosea
         if (zipFS != null) {
             zipFS.close();
         }
+
+        zipFS = null;
     }
 
     private InputStream getInputStream(Path path) {
