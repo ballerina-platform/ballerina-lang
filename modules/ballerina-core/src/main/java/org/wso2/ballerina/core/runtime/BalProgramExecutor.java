@@ -18,6 +18,7 @@
 
 package org.wso2.ballerina.core.runtime;
 
+import org.wso2.ballerina.core.debugger.DebugManager;
 import org.wso2.ballerina.core.interpreter.BLangExecutor;
 import org.wso2.ballerina.core.interpreter.CallableUnitInfo;
 import org.wso2.ballerina.core.interpreter.Context;
@@ -26,6 +27,7 @@ import org.wso2.ballerina.core.interpreter.StackFrame;
 import org.wso2.ballerina.core.interpreter.StackVarLocation;
 import org.wso2.ballerina.core.interpreter.nonblocking.BLangNonBlockingExecutor;
 import org.wso2.ballerina.core.interpreter.nonblocking.ModeResolver;
+import org.wso2.ballerina.core.interpreter.nonblocking.debugger.BLangExecutionDebugger;
 import org.wso2.ballerina.core.model.Annotation;
 import org.wso2.ballerina.core.model.NodeLocation;
 import org.wso2.ballerina.core.model.ParameterDef;
@@ -110,9 +112,25 @@ public class BalProgramExecutor {
         StackFrame currentStackFrame = new StackFrame(argValues, new BValue[0], resourceInfo);
         balContext.getControlStack().pushFrame(currentStackFrame);
         if (ModeResolver.getInstance().isNonblockingEnabled()) {
-            BLangNonBlockingExecutor executor = new BLangNonBlockingExecutor(runtimeEnv, balContext);
-            balContext.setExecutor(executor);
-            executor.execute(new ResourceInvocationExpr(resource, exprs));
+            if (ModeResolver.getInstance().isDebugEnabled()) {
+                DebugManager debugManager = DebugManager.getInstance();
+                // Only start the debugger if there is an active client (debug session).
+                if (debugManager.isDebugSessionActive()) {
+                    BLangExecutionDebugger debugger = new BLangExecutionDebugger(runtimeEnv, balContext);
+                    debugManager.setDebugger(debugger);
+                    balContext.setExecutor(debugger);
+                    debugger.execute(new ResourceInvocationExpr(resource, exprs));
+                } else {
+                    // we do the normal flow
+                    BLangNonBlockingExecutor executor = new BLangNonBlockingExecutor(runtimeEnv, balContext);
+                    balContext.setExecutor(executor);
+                    executor.execute(new ResourceInvocationExpr(resource, exprs));
+                }
+            } else {
+                BLangNonBlockingExecutor executor = new BLangNonBlockingExecutor(runtimeEnv, balContext);
+                balContext.setExecutor(executor);
+                executor.execute(new ResourceInvocationExpr(resource, exprs));
+            }
         } else {
             BLangExecutor executor = new BLangExecutor(runtimeEnv, balContext);
             new ResourceInvocationExpr(resource, exprs).executeMultiReturn(executor);

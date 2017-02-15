@@ -17,7 +17,9 @@
 */
 package org.ballerinalang.launcher;
 
+import org.wso2.ballerina.core.debugger.DebugManager;
 import org.wso2.ballerina.core.interpreter.RuntimeEnvironment;
+import org.wso2.ballerina.core.interpreter.nonblocking.ModeResolver;
 import org.wso2.ballerina.core.model.Application;
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.Package;
@@ -95,6 +97,13 @@ class BServiceRunner {
                 for (Resource resource : service.getResources()) {
                     resource.setApplication(app);
                 }
+            }
+
+            //if remote debugging is enables we will start listening for debug connections.
+            if (ModeResolver.getInstance().isDebugEnabled()) {
+                DebugManager debugManager = DebugManager.getInstance();
+                // This will start the websocket server.
+                debugManager.init();
             }
 
             ApplicationRegistry.getInstance().updatePackage(aPackage);

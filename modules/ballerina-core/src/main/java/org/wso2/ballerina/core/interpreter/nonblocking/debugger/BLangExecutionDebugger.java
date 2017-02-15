@@ -242,7 +242,7 @@ public class BLangExecutionDebugger extends BLangAbstractExecutionVisitor {
             NodeLocation location = stackFrame.getNodeInfo().getNodeLocation();
             FrameInfo frameInfo = new FrameInfo(pck, functionName, location.getFileName(), location.getLineNumber());
             HashMap<SymbolName, AbstractMap.SimpleEntry<Integer, String>> variables = stackFrame.variables;
-            if (variables != null) {
+            if (null != variables) {
                 for (SymbolName name : variables.keySet()) {
                     AbstractMap.SimpleEntry<Integer, String> offSet = variables.get(name);
                     BValue value = null;
@@ -432,4 +432,7 @@ public class BLangExecutionDebugger extends BLangAbstractExecutionVisitor {
         }
     }
 
+    public void clearDebugPoints() {
+        positionHashMap.clear();
+    }
 }

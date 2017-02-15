@@ -19,6 +19,7 @@ package org.wso2.ballerina.core.interpreter.nonblocking;
 
 import org.wso2.ballerina.core.runtime.Constants;
 
+
 /**
  * Resolve which interpreter to run.
  */
@@ -27,11 +28,16 @@ public class ModeResolver {
 
     private static final ModeResolver instance = new ModeResolver();
     private boolean nonblockingEnabled = false;
+    private boolean debugEnabled = false;
 
     private ModeResolver() {
         String property = System.getProperty(Constants.SYS_PROP_ENABLE_NONBLOCKING);
         if (property != null && property.equalsIgnoreCase("true")) {
             nonblockingEnabled = true;
+        }
+        String debug = System.getProperty(Constants.SYSTEM_PROP_BAL_DEBUG);
+        if (debug != null && !debug.isEmpty()) {
+            debugEnabled = true;
         }
     }
 
@@ -47,4 +53,9 @@ public class ModeResolver {
         // Testing purpose only.
         this.nonblockingEnabled = enabled;
     }
+
+    public boolean isDebugEnabled() {
+        return this.debugEnabled;
+    }
+
 }
