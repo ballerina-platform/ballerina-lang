@@ -9,10 +9,6 @@ function testRandomString()(string) {
   return util:getRandomString();
 }
 
-function testHmac(string base, string key, string algo)(string) {
-  return util:getHmac(base, key, algo);
-}
-
 function testHmacFromBase64(string base, string key, string algo)(string) {
   return util:getHmacFromBase64(base, util:base64encode(key), algo);
 }

@@ -18,9 +18,6 @@
 
 package org.wso2.ballerina.nativeimpl.util;
 
-import org.osgi.service.component.annotations.Component;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.types.TypeEnum;
 import org.wso2.ballerina.core.model.values.BString;
@@ -46,9 +43,11 @@ import java.util.Base64;
         returnType = { @ReturnType(type = TypeEnum.STRING) },
         isPublic = true)
 
+/**
+ * This function converts a Base 64 encoded string to a Base16 encoded string.
+ */
 public class Base64ToBase16Encode extends AbstractNativeFunction {
 
-    private static final Logger log = LoggerFactory.getLogger(Base64ToBase16Encode.class);
 
     @Override
     public BValue[] execute(Context context) {

@@ -65,43 +65,7 @@ public class BallerinaUtilsTest {
     }
 
     @Test
-    public void testHmac() {
-        final String key = "abcdefghijk";
-        List<BValue[]> argsList = new ArrayList<>();
-
-        argsList.add(new BValue[]{new BString("Ballerina HMAC test"), new BString(key), new BString("SHA1")});
-        argsList.add(new BValue[]{new BString("Ballerina HMAC test"), new BString(key), new BString("SHA256")});
-        argsList.add(new BValue[]{new BString("Ballerina HMAC test"), new BString(key), new BString("MD5")});
-
-        for (BValue[] args : argsList) {
-            BValue[] returnVals = Functions.invoke(bFile, "testHmac", args);
-            Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
-                    "Invalid Return Values for");
-        }
-    }
-
-    @Test(expectedExceptions = BallerinaException.class)
-    public void testHmacNagativeInvalidAlgo() {
-        final String key = "abcdefghijk";
-        BValue[] returnVals = Functions.invoke(bFile, "testHmac",
-                new BValue[]{new BString("Ballerina HMAC test"), new BString(key), new BString("SHA124")});
-        Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
-                "Invalid Return Values for");
-
-    }
-
-    @Test(expectedExceptions = BallerinaException.class)
-    public void testHmacNagativeInvalidKey() {
-        final String key = "";
-        BValue[] returnVals = Functions.invoke(bFile, "testHmac",
-                new BValue[]{new BString("Ballerina HMAC test"), new BString(key), new BString("SHA1")});
-        Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
-                "Invalid Return Values for");
-
-    }
-
-    @Test
-    public void testHmacBase64() {
+    public void testHmacFromBase64() {
         final String key = "abcdefghijk";
         List<BValue[]> argsList = new ArrayList<>();
 
@@ -114,6 +78,26 @@ public class BallerinaUtilsTest {
             Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                                "Invalid Return Values for");
         }
+    }
+
+    @Test(expectedExceptions = BallerinaException.class)
+    public void testHmacFromBase64NagativeInvalidAlgo() {
+        final String key = "abcdefghijk";
+        BValue[] returnVals = Functions.invoke(bFile, "testHmacFromBase64",
+                           new BValue[]{new BString("Ballerina HMAC test"), new BString(key), new BString("SHA124")});
+        Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
+                           "Invalid Return Values for");
+
+    }
+
+    @Test(expectedExceptions = BallerinaException.class)
+    public void testHmacFromBase64NagativeInvalidKey() {
+        final String key = "";
+        BValue[] returnVals = Functions.invoke(bFile, "testHmacFromBase64",
+                            new BValue[]{new BString("Ballerina HMAC test"), new BString(key), new BString("SHA1")});
+        Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
+                           "Invalid Return Values for");
+
     }
 
     @Test
