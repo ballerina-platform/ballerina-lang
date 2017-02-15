@@ -232,16 +232,16 @@ public class IfElseStmtTest {
 
     @Test(description = "Test if statement with incompatible types",
             expectedExceptions = {SemanticException.class},
-            expectedExceptionsMessageRegExp = "if-stmnt-with-incompatible-types.bal:2: incompatible type: " +
-                    "'boolean' expected, found 'string'")
+            expectedExceptionsMessageRegExp = "if-stmnt-with-incompatible-types.bal:2: incompatible types: " +
+                    "expected 'boolean', found 'string'")
     public void testIfStmtWithIncompatibleTypes() {
         ParserUtils.parseBalFile("lang/statements/if-stmnt-with-incompatible-types.bal");
     }
 
     @Test(description = "Test else-if statement with incompatible types",
             expectedExceptions = {SemanticException.class},
-            expectedExceptionsMessageRegExp = "elseif-stmnt-with-incompatible-types.bal:2: incompatible type: " +
-                    "'boolean' expected, found 'string'")
+            expectedExceptionsMessageRegExp = "elseif-stmnt-with-incompatible-types.bal:2: incompatible types: " +
+                    "expected 'boolean', found 'string'")
     public void testElseIfStmtWithIncompatibleTypes() {
         ParserUtils.parseBalFile("lang/statements/elseif-stmnt-with-incompatible-types.bal");
     }
