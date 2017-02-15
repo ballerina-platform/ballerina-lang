@@ -78,6 +78,9 @@
         <codeInsight.lineMarkerProvider language="Ballerina"
                                         implementationClass="org.ballerinalang.plugins.idea.marker.BallerinaRecursiveCallMarkerProvider"/>
 
+        <codeInsight.parameterInfo language="Ballerina"
+                                   implementationClass="org.ballerinalang.plugins.idea.editor.BallerinaParameterInfoHandler"/>
+
         <!--find org.ballerinalang.plugins.idea.usage-->
         <lang.findUsagesProvider language="Ballerina"
                                  implementationClass="org.ballerinalang.plugins.idea.usage.BallerinaFindUsageProvider"/>
@@ -95,7 +98,8 @@
         <liveTemplateContext implementation="org.ballerinalang.plugins.idea.template.BallerinaEverywhereContextType"/>
         <liveTemplateContext implementation="org.ballerinalang.plugins.idea.template.BallerinaCodeContextType$File"/>
         <liveTemplateContext implementation="org.ballerinalang.plugins.idea.template.BallerinaCodeContextType$Service"/>
-        <liveTemplateContext implementation="org.ballerinalang.plugins.idea.template.BallerinaCodeContextType$Connector"/>
+        <liveTemplateContext
+                implementation="org.ballerinalang.plugins.idea.template.BallerinaCodeContextType$Connector"/>
 
         <!-- sdk -->
         <sdkType implementation="org.ballerinalang.plugins.idea.sdk.BallerinaSdkType"/>
