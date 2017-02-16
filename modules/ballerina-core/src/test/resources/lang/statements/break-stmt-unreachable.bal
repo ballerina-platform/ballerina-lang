@@ -8,13 +8,9 @@ function calculateExp1(int x, int y) (int) {
         } else if( y > 20){
             z = 1000;
             break;
+            int a = 10;
         }
         z = z + 10;
     }
-    break;
-    int a =10;
     return z;
 }
-
-
-
