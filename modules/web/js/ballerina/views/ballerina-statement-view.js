@@ -302,7 +302,7 @@ define(['require', 'lodash', 'log', './../visitors/statement-visitor', 'd3', 'd3
 
      BallerinaStatementView.prototype._createDebugIndicator = function (args) {
          var self = this;
-         var model = _.get(args, "model", {});
+         var model = this._model;
          var viewOptions = _.get(args, "viewOptions", {});
          var statementGroup = _.get(args, "statementGroup", null);
 
