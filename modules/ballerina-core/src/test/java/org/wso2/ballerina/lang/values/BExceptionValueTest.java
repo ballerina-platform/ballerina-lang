@@ -17,88 +17,37 @@
  */
 package org.wso2.ballerina.lang.values;
 
-//import org.antlr.v4.runtime.misc.ParseCancellationException;
-//import org.testng.annotations.Test;
-//import org.wso2.ballerina.core.exception.SemanticException;
-//import org.wso2.ballerina.core.model.BLangProgram;
-//import org.wso2.ballerina.core.model.values.BInteger;
-//import org.wso2.ballerina.core.model.values.BMap;
-//import org.wso2.ballerina.core.model.values.BString;
-//import org.wso2.ballerina.core.utils.BTestUtils;
-//
-//import java.util.HashMap;
-//import java.util.Map;
-//
-//import static org.testng.Assert.assertEquals;
+import org.testng.annotations.Test;
+import org.wso2.ballerina.core.exception.BallerinaException;
+import org.wso2.ballerina.core.exception.SemanticException;
+import org.wso2.ballerina.core.model.BLangProgram;
+import org.wso2.ballerina.core.utils.BTestUtils;
 
 /**
  * Test class for ballerina exception initialization..
  */
 public class BExceptionValueTest {
 
-//    private BLangProgram bLangProgram;
-//
-//    @Test
-//    public void testExceptionValueInit() {
-//        bLangProgram = BTestUtils.parseBalFile("lang/values/exception-value.bal");
-//    }
-//
-//    @Test(expectedExceptions = {ParseCancellationException.class})
-//    public void testInvalidExceptionValueInit() {
-//        BTestUtils.parseBalFile("lang/values/invalid-exception-init.bal");
-//    }
-//
-//    @Test(expectedExceptions = {ParseCancellationException.class})
-//    public void testInvalidExceptionValueInitTwo() {
-//        BTestUtils.parseBalFile("lang/values/invalid-exception-init2.bal");
-//    }
-//
-//    @Test(expectedExceptions = SemanticException.class,
-//            expectedExceptionsMessageRegExp = ".*'exception' cannot be cast to 'string'.*")
-//    public void testInvalidExceptionCast() {
-//        BTestUtils.parseBalFile("lang/values/invalid-exception-cast.bal");
-//    }
-//
-//    @Test
-//    public void testStandardJavaMap() {
-//        // Standard Map
-//        Map<String, Integer> map = new HashMap<String, Integer>();
-//        map.put("Chanaka", 1);
-//        map.put("Udaya", 2);
-//        map.put("Chanaka", 1);
-//        assertEquals((int) map.get("Chanaka"), 1);
-//
-//        for (int i = 0; i < 100; i++) {
-//            map.put(String.valueOf(i), i);
-//        }
-//        assertEquals(map.size(), 102);
-//        assertEquals((int) map.get("51"), 51);
-//
-//        map.remove("Chanaka");
-//        assertEquals(map.size(), 101);
-//
-//        map.remove("WSO2");
-//        assertEquals(map.size(), 101);
-//    }
-//
-//    @Test
-//    public void testBMap() {
-//
-//        BMap<BString, BInteger> map = new BMap<>();
-//        map.put(new BString("Chanaka"), new BInteger(1));
-//        map.put(new BString("Udaya"), new BInteger(2));
-//        map.put(new BString("Chanaka"), new BInteger(1));
-//        assertEquals(map.get(new BString("Chanaka")), new BInteger(1));
-//        for (int i = 0; i < 100; i++) {
-//            map.put(new BString(String.valueOf(i)), new BInteger(i));
-//        }
-//        assertEquals(map.size(), 102);
-//        assertEquals(map.get(new BString("51")), new BInteger(51));
-//
-//        map.remove(new BString("Chanaka"));
-//        assertEquals(map.size(), 101);
-//
-//        map.remove(new BString("Chanaka"));
-//        assertEquals(map.size(), 101);
-//    }
+    private BLangProgram bLangProgram;
+
+    @Test
+    public void testExceptionValueInit() {
+        bLangProgram = BTestUtils.parseBalFile("lang/values/exception-value.bal");
+    }
+
+    @Test(expectedExceptions = {BallerinaException.class})
+    public void testInvalidExceptionValueInit() {
+        BTestUtils.parseBalFile("lang/values/invalid-exception-init.bal");
+    }
+
+    @Test(expectedExceptions = {BallerinaException.class})
+    public void testInvalidExceptionValueInitTwo() {
+        BTestUtils.parseBalFile("lang/values/invalid-exception-init2.bal");
+    }
+
+    @Test(expectedExceptions = SemanticException.class,
+            expectedExceptionsMessageRegExp = ".*'exception' cannot be cast to 'string'.*")
+    public void testInvalidExceptionCast() {
+        BTestUtils.parseBalFile("lang/values/invalid-exception-cast.bal");
+    }
 }
