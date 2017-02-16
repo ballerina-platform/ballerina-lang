@@ -19,7 +19,7 @@ package org.wso2.ballerina.docgen.docs;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
-import org.wso2.ballerina.core.model.Package;
+import org.wso2.ballerina.core.model.BLangPackage;
 import org.wso2.ballerina.docgen.docs.html.HtmlDocumentWriter;
 import org.wso2.ballerina.docgen.docs.utils.BallerinaDocGenTestUtils;
 
@@ -55,7 +55,7 @@ public class HtmlDocumentWriterTest {
             deleteFile(indexOutputFilePath);
 
             // Generate HTML file
-            Map<String, Package> packageMap =
+            Map<String, BLangPackage> packageMap =
                     BallerinaDocGeneratorMain.generatePackageDocsFromBallerina(balPackagePath);
             HtmlDocumentWriter htmlDocumentWriter = new HtmlDocumentWriter();
             htmlDocumentWriter.write(packageMap.values());
@@ -87,7 +87,7 @@ public class HtmlDocumentWriterTest {
             // asserting function @return description
             Assert.assertTrue(content1.contains("<td>value</td><td><a href=\"#string\">string</a></td>"
                             + "<td>HTTP header value</td>"));
-
+            
             // asserting connector @description
             Assert.assertTrue(content1.contains("<p>Test connector</p>"));
             // asserting connector @param description
@@ -96,13 +96,14 @@ public class HtmlDocumentWriterTest {
             // asserting action @description
             Assert.assertTrue(content1.contains("<p>test connector action</p>"));
             // asserting action @param description
-            Assert.assertTrue(content1
-                    .contains("<td>t</td><td><a href=\"foo.bar.html#TestConnector\" " +
+            Assert.assertTrue(content1.contains("<td>t</td><td><a href=\"foo.bar.html#TestConnector\" " +
                             "title=\"foo.bar:TestConnector\">TestConnector</a></td><td>a string argument</td>"));
+            Assert.assertTrue(content1
+                    .contains("<td>msg</td><td><a href=\"#string\">string</a></td><td>a string message</td>"));
             // asserting action @return description
             Assert.assertTrue(content1
-                    .contains("<td><a href=\"#message\">message</a></td><td>response object</td>"));
-
+                    .contains("<td>response</td><td><a href=\"#message\">message</a></td><td>response object</td>"));
+            
             // Assert function and connector exclusion logic
             String content2 = new Scanner(htmlFile2).useDelimiter("\\Z").next();
             Assert.assertTrue(content2.contains("Functions"));
@@ -148,7 +149,7 @@ public class HtmlDocumentWriterTest {
             deleteFile(outputFilePath2);
 
             // Generate HTML file
-            Map<String, Package> packageMap =
+            Map<String, BLangPackage> packageMap =
                     BallerinaDocGeneratorMain.generatePackageDocsFromBallerina(balPackagePath, "foo.bar.xyz");
             HtmlDocumentWriter htmlDocumentWriter = new HtmlDocumentWriter();
             htmlDocumentWriter.write(packageMap.values());
@@ -169,7 +170,6 @@ public class HtmlDocumentWriterTest {
             deleteFile(indexOutputFilePath);
         }
     }
-
 
     private void deleteFile(String filePath) {
         File htmlFile = new File(filePath);

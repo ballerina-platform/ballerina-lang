@@ -29,8 +29,8 @@
                     <div class="content">
                         {{#hasFunctions}}
                         <!-- Functions -->
-                        <h2>Functions of {{fullyQualifiedName}} package</h2>
-                        {{#each files}}{{#each functions}}{{currentObject this}}
+                        <h2>Functions of {{packagePath}} package</h2>
+                        {{#each functions}} {{currentObject this}}
                         <div style="padding-bottom: 30px;">
                             <h3 id="{{name}}">
                                 function {{name}}({{#each parameterDefs}}<a href="{{#bindLink type.symbolName}}{{/bindLink}}"{{typeTitle type}}>{{type.name}}</a> {{name}}{{#unless @last}}, {{/unless}}{{/each}}) {{#if returnParameters}}({{#each returnParameters}}{{type.name}} {{name}}{{#unless @last}}, {{/unless}}{{/each}}){{/if}}
@@ -67,14 +67,12 @@
                             {{/if}}
                         </div>
                         {{/each}}
-                        {{/each}}
                         <p></p>
                         <br>{{/hasFunctions}} 
                         {{#hasConnectors}}
                         <!-- Connectors -->
-                        <h2>Connectors of {{fullyQualifiedName}} package</h2>
-                        {{#each files}}
-                            {{#each connectors}} {{currentObject this}}
+                        <h2>Connectors of {{packagePath}} package</h2>
+                        {{#each connectors}} {{currentObject this}}
                         <h3 id="{{name}}">
                             connector {{#with this}}{{this.name}} ({{#each parameterDefs}}<a href="{{#bindLink type.symbolName}}{{/bindLink}}"{{typeTitle type}}>{{type.name}}</a> {{name}}{{#unless @last}}, {{/unless}}{{/each}}){{/with}}
                         </h3>
@@ -122,12 +120,12 @@
                                 {{/each}}
                             </table>
                         </p>
-                        {{/if}} {{/each}} {{/each}} {{/each}}
+                        {{/if}} {{/each}} {{/each}}
                         <br>{{/hasConnectors}} 
                         {{#hasStructs}}
                         <!-- Structs -->
-                        {{#each files}} {{#each structDefs}}
-                        <h2>Structs of {{fullyQualifiedName}} package</h2>
+                        {{#each structDefs}}
+                        <h2>Structs of {{packagePath}} package</h2>
                         <h3 id="{{symbolName.name}}">
                             struct {{symbolName.name}}({{#each fields}}<a href="{{#bindLink type.symbolName}}{{/bindLink}}"{{typeTitle type}}>{{type.name}}</a> {{name}}{{#unless @last}},
                             {{/unless}}{{/each}} )
@@ -145,7 +143,7 @@
                                 {{/each}}
                             </table>
                         </p>
-                        {{/each}} {{/each}} {{/hasStructs}}
+                        {{/each}} {{/hasStructs}}
                     </div>
                 </section>
             </div>
@@ -165,31 +163,31 @@
                         <li>
                             <span class="opener">Functions</span>
                             <ul>
-                                {{#each files}}{{#each functions}}
+                            {{#each functions}}
                                 <li><a href="#{{name}}">{{name}}({{#each parameterDefs}}{{type.name}} {{name}}{{#unless @last}}, {{/unless}}{{/each}}) {{#if returnParameters}}({{#each returnParameters}}{{type.name}} {{name}}{{#unless @last}}, {{/unless}}{{/each}}){{/if}}</a>
-                                </li>{{/each}}{{/each}}
+                                </li>{{/each}}
                             </ul>
                         </li>{{/hasFunctions}} {{#hasConnectors}}
                         <li>
                             <span class="opener">Connectors</span>
                             <ul>
-                                {{#each files}}{{#each connectors}}
+                                {{#each connectors}}
                                 <li><a href="#{{this.name}} ">{{#with this}}{{this.name}} ({{#each parameterDefs}}{{type.name}} {{name}}{{#unless @last}}, {{/unless}}{{/each}}){{/with}}</a>
                                     <ul>
                                         {{#each actions}}
                                         <li><a href="#{{name}}{{../name}}">{{this.name}}({{#each parameterDefs}}{{type.name}} {{name}}{{#unless @last}}, {{/unless}}{{/each}})</a></li>
                                         {{/each}}
                                     </ul>
-                                </li>{{/each}}{{/each}}
+                                </li>{{/each}}
                             </ul>
                         </li>{{/hasConnectors}} {{#hasStructs}}
                         <li>
                             <span class="opener">Structs</span>
                             <ul>
-                                {{#each files}}{{#each structDefs}}
+                                {{#each structDefs}}
                                 <li>
                                     <a href="#{{symbolName.name}} ">{{symbolName.name}} ({{#each fields}}{{type.name}} {{name}}{{#unless @last}}, {{/unless}}{{/each}})</a>
-                                </li>{{/each}} {{/each}}
+                                </li>{{/each}}
                             </ul>
                         </li>{{/hasStructs}}
                     </ul>

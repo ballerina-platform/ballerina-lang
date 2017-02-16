@@ -17,7 +17,7 @@
  */
 package org.wso2.ballerina.docgen.docs;
 
-import org.wso2.ballerina.core.model.Package;
+import org.wso2.ballerina.core.model.BLangPackage;
 
 import java.util.Collection;
 
@@ -26,5 +26,5 @@ import java.util.Collection;
  */
 public interface DocumentWriter {
 
-    void write(Collection<Package> balPackage);
+    void write(Collection<BLangPackage> balPackage);
 }

@@ -1,5 +1,3 @@
-package a.b;
-
 import ballerina.lang.system;
 
 function main (string[] args) (int) {

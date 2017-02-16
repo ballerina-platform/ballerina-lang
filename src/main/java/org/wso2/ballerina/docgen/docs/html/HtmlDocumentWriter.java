@@ -22,14 +22,16 @@ import com.github.jknack.handlebars.Helper;
 import com.github.jknack.handlebars.Template;
 import com.github.jknack.handlebars.io.FileTemplateLoader;
 import com.github.jknack.handlebars.io.TemplateLoader;
+
 import org.wso2.ballerina.core.model.Annotation;
+import org.wso2.ballerina.core.model.BLangPackage;
 import org.wso2.ballerina.core.model.BallerinaAction;
 import org.wso2.ballerina.core.model.BallerinaConnectorDef;
 import org.wso2.ballerina.core.model.BallerinaFunction;
-import org.wso2.ballerina.core.model.Package;
 import org.wso2.ballerina.core.model.ParameterDef;
 import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.model.types.BType;
+import org.wso2.ballerina.docgen.docs.BallerinaDocConstants;
 import org.wso2.ballerina.docgen.docs.DocumentWriter;
 
 import java.io.File;
@@ -49,11 +51,6 @@ public class HtmlDocumentWriter implements DocumentWriter {
 
     private static PrintStream out = System.out;
 
-    public static final String PACKAGE_TEMPLATE_NAME_KEY = "package.template.name";
-    public static final String HTML_OUTPUT_PATH_KEY = "html.output.path";
-    public static final String TEMPLATES_FOLDER_PATH_KEY = "templates.folder.path";
-    public static final String INDEX_TEMPLATE_NAME_KEY = "index.template.name";
-
     private String templatesFolderPath;
     private String outputFilePath;
     private String packageTemplateName;
@@ -61,24 +58,26 @@ public class HtmlDocumentWriter implements DocumentWriter {
 
     public HtmlDocumentWriter() {
         String userDir = System.getProperty("user.dir");
-        this.outputFilePath = System.getProperty(HTML_OUTPUT_PATH_KEY,
-                userDir + File.separator + "api-docs" + File.separator + "html");
-        this.templatesFolderPath = System.getProperty(TEMPLATES_FOLDER_PATH_KEY,
-                userDir + File.separator + "templates" + File.separator + "html");
-        this.packageTemplateName = System.getProperty(PACKAGE_TEMPLATE_NAME_KEY, "package");
-        this.indexTemplateName = System.getProperty(INDEX_TEMPLATE_NAME_KEY, "index");
+        this.outputFilePath =
+                System.getProperty(BallerinaDocConstants.HTML_OUTPUT_PATH_KEY, userDir + File.separator + "api-docs"
+                        + File.separator + "html");
+        this.templatesFolderPath =
+                System.getProperty(BallerinaDocConstants.TEMPLATES_FOLDER_PATH_KEY, userDir + File.separator
+                        + "templates" + File.separator + "html");
+        this.packageTemplateName = System.getProperty(BallerinaDocConstants.PACKAGE_TEMPLATE_NAME_KEY, "package");
+        this.indexTemplateName = System.getProperty(BallerinaDocConstants.INDEX_TEMPLATE_NAME_KEY, "index");
     }
 
     @Override
-    public void write(Collection<Package> packages) {
+    public void write(Collection<BLangPackage> packages) {
         if (packages == null || packages.size() == 0) {
             out.println("No package definitions found!");
             return;
         }
 
         out.println("Generating HTML API documentation...");
-        for (Package balPackage : packages) {
-            String filePath = outputFilePath + File.separator + balPackage.getFullyQualifiedName() + HTML;
+        for (BLangPackage balPackage : packages) {
+            String filePath = outputFilePath + File.separator + balPackage.getPackagePath() + HTML;
             writeHtmlDocument(balPackage, packageTemplateName, filePath);
         }
         String filePath = outputFilePath + File.separator + INDEX_HTML;
@@ -99,23 +98,21 @@ public class HtmlDocumentWriter implements DocumentWriter {
             Handlebars handlebars = new Handlebars(templateLoader);
             DataHolder dataHolder = DataHolder.getInstance();
             handlebars
-                    .registerHelper("hasFunctions", (Helper<Package>) (balPackage, options) -> {
-                        // TODO temporary making this getPrivateFunctions since ballerina runtime has a bug
-                        if (balPackage.getPrivateFunctions().size() > 0) {
+                    .registerHelper("hasFunctions", (Helper<BLangPackage>) (balPackage, options) -> {
+                        if (balPackage.getFunctions().length > 0) {
                             return options.fn(balPackage);
                         }
                         return options.inverse(null);
                     })
-                    .registerHelper("hasConnectors", (Helper<Package>) (balPackage, options) -> {
-                        if ((balPackage.getFiles().stream().filter(p -> p.getConnectors().length > 0).count() > 0)) {
-                            return options.fn(this);
+                    .registerHelper("hasConnectors", (Helper<BLangPackage>) (balPackage, options) -> {
+                        if (balPackage.getConnectors().length > 0) {
+                            return options.fn(balPackage);
                         }
                         return options.inverse(null);
                     })
-                    .registerHelper("hasStructs", (Helper<Package>) (balPackage, options) -> {
-                        if ((balPackage.getFiles().stream().filter(
-                                p -> p.getStructDefs().length > 0).count() > 0)) {
-                            return options.fn(this);
+                    .registerHelper("hasStructs", (Helper<BLangPackage>) (balPackage, options) -> {
+                        if (balPackage.getStructDefs().length > 0) {
+                            return options.fn(balPackage);
                         }
                         return options.inverse(null);
                     })

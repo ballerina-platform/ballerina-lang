@@ -20,9 +20,9 @@ package org.wso2.ballerina.docgen.docs;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.wso2.ballerina.core.model.BLangPackage;
 import org.wso2.ballerina.core.model.BallerinaFunction;
 import org.wso2.ballerina.core.model.Function;
-import org.wso2.ballerina.core.model.Package;
 import org.wso2.ballerina.docgen.docs.utils.BallerinaDocGenTestUtils;
 
 import java.io.IOException;
@@ -42,14 +42,14 @@ public class BallerinaFunctionDocGenTest {
     @Test(description = "Test a Bal file with one Function")
     public void testABalWithOneFunction() {
         try {
-            Map<String, Package> docsMap =
+            Map<String, BLangPackage> docsMap =
                     BallerinaDocGeneratorMain.generatePackageDocsFromBallerina(resources + "helloWorld.bal");
             Assert.assertNotNull(docsMap);
             Assert.assertEquals(docsMap.size(), 1);
             BallerinaDocGenTestUtils.printDocMap(docsMap);
             
-            Package doc = docsMap.get("a.b");
-            Collection<Function> functions = doc.getPrivateFunctions().values();
+            BLangPackage doc = docsMap.get(".");
+            Collection<Function> functions = Arrays.asList(doc.getFunctions());
             Assert.assertEquals(functions.size(), 1);
 
             BallerinaFunction function = (BallerinaFunction) functions.iterator().next();
@@ -65,14 +65,14 @@ public class BallerinaFunctionDocGenTest {
     @Test(description = "Test a Bal file with multiple Functions")
     public void testABalWithMultipleFunctions() {
         try {
-            Map<String, Package> docsMap =
+            Map<String, BLangPackage> docsMap =
                     BallerinaDocGeneratorMain.generatePackageDocsFromBallerina(resources + "balWith2Functions.bal");
             Assert.assertNotNull(docsMap);
             Assert.assertEquals(docsMap.size(), 1);
             BallerinaDocGenTestUtils.printDocMap(docsMap);
             
-            Package doc = docsMap.get("a.b");
-            Collection<Function> functions = Arrays.asList(doc.getFiles().get(0).getFunctions());
+            BLangPackage doc = docsMap.get(".");
+            Collection<Function> functions = Arrays.asList(doc.getFunctions());
             Assert.assertEquals(functions.size(), 2);
 
             Iterator iterator = functions.iterator();
@@ -93,15 +93,15 @@ public class BallerinaFunctionDocGenTest {
     @Test(description = "Test a Bal file with functions that has same method signature and different arguments")
     public void testBalWithSameFuncSignature() {
         try {
-            Map<String, Package> docsMap =
+            Map<String, BLangPackage> docsMap =
                     BallerinaDocGeneratorMain.generatePackageDocsFromBallerina(
                             resources + "balFuncWithSameSignature.bal");
             Assert.assertNotNull(docsMap);
             Assert.assertEquals(docsMap.size(), 1);
             BallerinaDocGenTestUtils.printDocMap(docsMap);
 
-            Package doc = docsMap.get("a.b");
-            Collection<Function> functions = Arrays.asList(doc.getFiles().get(0).getFunctions());
+            BLangPackage doc = docsMap.get(".");
+            Collection<Function> functions = Arrays.asList(doc.getFunctions());
             Assert.assertEquals(functions.size(), 2);
 
             Iterator iterator = functions.iterator();
@@ -118,17 +118,4 @@ public class BallerinaFunctionDocGenTest {
             BallerinaDocGenTestUtils.cleanUp();
         }
     }
-    
-    // @Test(description = "Test a bal file with native functions")
-    // public void testABalWithNativeFunctions() {
-    //     try {
-    //         Map<String, Package> docsMap =
-    //            BallerinaDocGeneratorMain.generatePackageDocsFromBallerina(resources + "balWithNativeFunctions.bal");
-    //         Assert.assertNotNull(docsMap);
-    //         Assert.assertEquals(docsMap.size(), 1);
-    //         BallerinaDocGenTestUtils.printDocMap(docsMap);
-    //     } finally {
-    //         BallerinaDocGenTestUtils.cleanUp();
-    //     }
-    // }
 }

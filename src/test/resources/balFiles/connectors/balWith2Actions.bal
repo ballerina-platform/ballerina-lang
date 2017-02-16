@@ -1,5 +1,3 @@
-package a.b;
-
 @doc:Description("Test connector")
 @doc:Param("args: arguments")
 connector TestConnector(string consumerKey, string consumerSecret, string accessToken, string accessTokenSecret) {

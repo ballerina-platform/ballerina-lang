@@ -1,5 +1,3 @@
-package a.b;
-
 @doc:Description("HelloWorld connector")
 @doc:Param("args: arguments")
 connector HelloWorld(string consumerKey, string consumerSecret, string accessToken, string accessTokenSecret) {
