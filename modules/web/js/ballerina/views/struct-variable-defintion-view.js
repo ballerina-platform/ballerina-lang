@@ -118,6 +118,10 @@ define(['lodash', 'jquery', 'log', 'alerts', './ballerina-view', './../ast/varia
                 }
             });
 
+            $(typeDropdown).on("select2:open", function() {
+                $(".select2-search__field").attr("placeholder", "Search");
+            });
+
             $(typeDropdown).val(self.getModel().getType()).change();
 
             $(typeDropdown).on("select2:select", function() {

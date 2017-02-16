@@ -119,6 +119,10 @@ define(['lodash', 'log', 'd3', 'alerts', './ballerina-view', 'ballerina/ast/ball
                 }
             });
 
+            $(typeDropdown).on("select2:open", function() {
+                $(".select2-search__field").attr("placeholder", "Search");
+            });
+
             // Creating the identifier text box.
             var identifierTextBox = $("<input/>", {
                 type: "text",
