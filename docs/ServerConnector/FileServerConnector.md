@@ -156,7 +156,7 @@ Following table lists down which dependency-jars are required for which file-acc
 
 
 |  Dependency                | Required For                       |
- ----------------- | ---------------------------- | 
+ ----------------- | ----------------------------  
 | [Commons Compress][1] Version 1.9. | TAR, Bzip2            | 
 | [Commons Net][2] Version 3.3.           | FTP           | 
 | [Commons Httpclient][3] Version 3.1. Requires [Commons Codec][4] Version 1.2.           | HTTP, URI Utils| 
