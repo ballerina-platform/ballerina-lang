@@ -15,10 +15,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', 'd3', 'alerts', './ballerina-view', 'ballerina/ast/ballerina-ast-factory', './canvas',
-        '../utils/dropdown', './../ast/node', './struct-variable-defintion-view','select2'],
+define(['lodash', 'log', 'd3', 'alerts', './ballerina-view', 'ballerina/ast/ballerina-ast-factory', './canvas', './../ast/node', './struct-variable-defintion-view'],
     function (_, log, d3, Alerts, BallerinaView, BallerinaASTFactory,
-              Canvas, Dropdown, ASTNode, StructVariableDefinitionView, select2) {
+              Canvas, ASTNode, StructVariableDefinitionView) {
         var StructDefinitionView = function (args) {
             Canvas.call(this, args);
 
@@ -96,20 +95,33 @@ define(['lodash', 'log', 'd3', 'alerts', './ballerina-view', 'ballerina/ast/ball
                 class: "struct-content-operations-wrapper"
             }).appendTo(structContentWrapper);
 
-            /// Creating the type dropdown
-            var bTypes = self.getDiagramRenderingContext().getEnvironment().getTypes();
-            var typeDropdown = $("<select></select>");
-            _.forEach(bTypes, function (sType) {
-                typeDropdown.append($('<option>'+ sType +'</option>').attr('value', sType));
-            });
-            var typeDropdownWrapper = $('<div class="type-drop-wrapper struct-view"></div>');
-            typeDropdown.appendTo(typeDropdownWrapper);
-            typeDropdownWrapper.appendTo(structOperationsWrapper);
-            typeDropdown.select2({
-                tags: true
+            var typeDropdownWrapper = $('<div class="type-drop-wrapper struct-view"></div>')
+                .appendTo(structOperationsWrapper);
+
+            var typeDropdown = $("<select/>").appendTo(typeDropdownWrapper);
+
+            $(typeDropdown).select2({
+                tags: true,
+                selectOnClose: true,
+                data : self._getTypeDropdownValues(),
+                query: function (query) {
+                    var data = {results: []};
+                    if (!_.isNil(query.term)) {
+                        _.forEach(self._getTypeDropdownValues(), function (item) {
+                            if (item.text.toUpperCase().indexOf(query.term.toUpperCase()) >= 0) {
+                                data.results.push(item);
+                            }
+                        });
+                    } else {
+                        data.results = self._getTypeDropdownValues();
+                    }
+                    query.callback(data);
+                }
             });
 
-
+            $(typeDropdown).on("select2:open", function() {
+                $(".select2-search__field").attr("placeholder", "Search");
+            });
 
             // Creating the identifier text box.
             var identifierTextBox = $("<input/>", {
@@ -219,6 +231,22 @@ define(['lodash', 'log', 'd3', 'alerts', './ballerina-view', 'ballerina/ast/ball
                     variableDeclarationView.renderEditView();
                 });
             });
+        };
+
+        StructDefinitionView.prototype._getTypeDropdownValues = function () {
+            var dropdownData = [];
+            // Adding items to the type dropdown.
+            var bTypes = this.getDiagramRenderingContext().getEnvironment().getTypes();
+            _.forEach(bTypes, function (bType) {
+                dropdownData.push({id: bType, text: bType});
+            });
+
+            var structTypes = this.getDiagramRenderingContext().getPackagedScopedEnvironment().getCurrentPackage().getStructDefinitions();
+            _.forEach(structTypes, function (sType) {
+                dropdownData.push({id: sType.getStructName(), text: sType.getStructName()});
+            });
+
+            return dropdownData;
         };
 
         return StructDefinitionView;
