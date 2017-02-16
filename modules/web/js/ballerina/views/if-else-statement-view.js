@@ -115,8 +115,8 @@ define(['require', 'lodash', 'log', 'property_pane_utils', './compound-statement
             });
 
             this._createDebugIndicator({
-                model: this._model,
-                statementGroup: ifElseGroup
+                model: this.getModel(),
+                statementGroup: this.getStatementGroup()
             });
         };
 
