@@ -34,10 +34,20 @@ import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.StreamingCarbonMessage;
 
 /**
- * Function to get payload as String.
- * This function reads the {@link java.io.InputStream} of the incoming file,
- * converts it to a String, closes the stream and returns the String message.
- * ballerina.net.file:getStringPayload
+ * Function to acknowledge that file processing is done.
+ *
+ * This function sends an acknowledgement to the sender of the message,
+ * saying that the message processing is done.
+ *
+ * What happens under the hood:
+ * As the received {@link StreamingCarbonMessage} carries
+ * a reference to an {@link java.io.InputStream}, once acknowledged,
+ * the message sender will close the file input stream.
+ *
+ * This means, this function needs to be called after all the processing
+ * with the message has being done.
+ *
+ * ballerina.net.file:acknowledge
  */
 @BallerinaFunction(
         packageName = "ballerina.net.file",
