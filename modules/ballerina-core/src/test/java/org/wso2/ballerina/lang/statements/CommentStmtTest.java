@@ -28,11 +28,11 @@ import org.wso2.ballerina.core.utils.BTestUtils;
 /**
  * Test class to test the comment statement in ballerina.
  * function testCommentStmt() {
- *    //comment1
- *    int a = 10;
- *    //comment2
- *    int b = 20;
- *  }
+ * //comment1
+ * int a = 10;
+ * //comment2
+ * int b = 20;
+ * }
  */
 
 public class CommentStmtTest {
@@ -40,7 +40,8 @@ public class CommentStmtTest {
     @Test(description = "Test the comment statement in the function body")
     public void testCommentInFunctionBody() {
         BLangProgram bLangProgram = BTestUtils.parseBalFile("lang/statements/comment/comments-in-function-body.bal");
-        Statement[] statements = bLangProgram.getLibraryPackages()[0].getFunctions()[0].getCallableUnitBody().getStatements();
+        Statement[] statements = bLangProgram.getLibraryPackages()[0]
+                .getFunctions()[0].getCallableUnitBody().getStatements();
         Assert.assertNotNull(statements, "statements not found");
         Assert.assertEquals(statements.length, 4, "statement count mismatched");
         Assert.assertTrue(statements[0] instanceof CommentStmt, "1st statement is not a comment statement");
@@ -50,8 +51,8 @@ public class CommentStmtTest {
     }
 
     @Test(description = "Test the error message when a comment is not inside a function block",
-          expectedExceptions = { ParseCancellationException.class },
-          expectedExceptionsMessageRegExp = "comment-in-invalid-location.bal:1:0: unwanted token '//invalid .*")
+            expectedExceptions = {ParseCancellationException.class},
+            expectedExceptionsMessageRegExp = "comment-in-invalid-location.bal:1:0: unwanted token '//invalid .*")
     public void testCommentInInvalidLocation() {
         BTestUtils.parseBalFile("lang/statements/comment/comment-in-invalid-location.bal");
     }

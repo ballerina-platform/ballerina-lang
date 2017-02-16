@@ -18,6 +18,7 @@
 
 package org.wso2.ballerina.lang.expressions;
 
+import org.ballerinalang.util.program.BLangFunctions;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -26,7 +27,6 @@ import org.wso2.ballerina.core.model.values.BBoolean;
 import org.wso2.ballerina.core.model.values.BInteger;
 import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.utils.BTestUtils;
-import org.ballerinalang.util.program.BLangFunctions;
 
 public class OperatorPrecedenceTest {
     private BLangProgram bLangProgram;

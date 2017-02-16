@@ -89,7 +89,7 @@ public class LauncherUtils {
 //            balFile.accept(semanticAnalyzer);
 
             return balFile;
-        } catch (ParseCancellationException | SemanticException | LinkerException e) {
+        } catch (ParseCancellationException | SemanticException e) {
             throw createLauncherException(makeFirstLetterUpperCase(e.getMessage()));
         } catch (Throwable e) {
             throw createLauncherException(getFileName(sourceFilePath) + ": " +

@@ -20,10 +20,6 @@ package org.wso2.ballerina.core.parser.negative;
 
 import org.antlr.v4.runtime.misc.ParseCancellationException;
 import org.testng.annotations.Test;
-import org.wso2.ballerina.core.model.builder.BLangModelBuilder;
-import org.wso2.ballerina.core.parser.BallerinaParser;
-import org.wso2.ballerina.core.parser.BallerinaParserErrorStrategy;
-import org.wso2.ballerina.core.parser.antlr4.BLangAntlr4Listener;
 import org.wso2.ballerina.core.utils.BTestUtils;
 
 /**

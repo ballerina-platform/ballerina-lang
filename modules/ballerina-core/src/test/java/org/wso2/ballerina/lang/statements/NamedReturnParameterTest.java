@@ -17,6 +17,7 @@
 */
 package org.wso2.ballerina.lang.statements;
 
+import org.ballerinalang.util.program.BLangFunctions;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -25,7 +26,6 @@ import org.wso2.ballerina.core.model.values.BInteger;
 import org.wso2.ballerina.core.model.values.BString;
 import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.utils.BTestUtils;
-import org.ballerinalang.util.program.BLangFunctions;
 
 /**
  * Test class for named return statement.
@@ -75,7 +75,8 @@ public class NamedReturnParameterTest {
     @Test(description = "Test single named return parameter, zero return arguments and default values")
     public void testSingleNamedReturnParamDefaultValueZeroReturnArgs() {
         BValue[] args = {new BInteger(10), new BString("test")};
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testSingleNamedReturnParamDefaultValueZeroReturnArgs", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram,
+                "testSingleNamedReturnParamDefaultValueZeroReturnArgs", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
@@ -125,7 +126,8 @@ public class NamedReturnParameterTest {
     @Test(description = "Test two named return parameters")
     public void testTwoNamedReturnParamZeroReturnArgsDefaultValue() {
         BValue[] args = {};
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testTwoNamedReturnParamZeroReturnArgsDefaultValue", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram,
+                "testTwoNamedReturnParamZeroReturnArgsDefaultValue", args);
 
         Assert.assertEquals(returns.length, 2);
         Assert.assertSame(returns[0].getClass(), BInteger.class);

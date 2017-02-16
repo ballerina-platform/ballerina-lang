@@ -23,7 +23,6 @@ import org.wso2.ballerina.core.model.TypeConvertor;
 import org.wso2.ballerina.core.model.symbols.BLangSymbol;
 import org.wso2.ballerina.core.nativeimpl.convertors.NativeCastConvertor;
 
-
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;

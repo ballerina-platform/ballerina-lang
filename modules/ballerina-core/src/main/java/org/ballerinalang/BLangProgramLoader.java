@@ -131,7 +131,7 @@ public class BLangProgramLoader {
         return this;
     }
 
-    public BLangProgramLoader addErrorListener() {
+    public BLangProgramLoader addDiagnosticListener() {
         // TODO
         return this;
     }

@@ -18,13 +18,13 @@
 package org.wso2.ballerina.lang.values;
 
 import org.ballerinalang.BLangProgramLoader;
+import org.ballerinalang.util.program.BLangFunctions;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.ballerina.core.model.BLangProgram;
 import org.wso2.ballerina.core.model.values.BDouble;
 import org.wso2.ballerina.core.model.values.BValue;
-import org.ballerinalang.util.program.BLangFunctions;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;

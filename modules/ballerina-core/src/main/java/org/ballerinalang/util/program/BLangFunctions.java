@@ -59,7 +59,7 @@ public class BLangFunctions {
     /**
      * Invokes a Ballerina function defined in the given language model.
      *
-     * @param bLangProgram        parsed, analyzed and linked object model
+     * @param bLangProgram parsed, analyzed and linked object model
      * @param functionName name of the function to be invoked
      * @return return values from the function
      */
@@ -71,7 +71,7 @@ public class BLangFunctions {
     /**
      * Invokes a Ballerina function defined in the given language model.
      *
-     * @param bLangProgram        parsed, analyzed and linked object model
+     * @param bLangProgram parsed, analyzed and linked object model
      * @param functionName name of the function to be invoked
      * @return return values from the function
      */
@@ -98,7 +98,7 @@ public class BLangFunctions {
 
         BValue[] argValues = new BValue[function.getStackFrameSize()];
 
-        for(int i = 0; i < args.length; i++) {
+        for (int i = 0; i < args.length; i++) {
             argValues[i] = args[i];
         }
 
@@ -117,11 +117,6 @@ public class BLangFunctions {
         bContext.getControlStack().popFrame();
         return returnValues;
     }
-
-
-
-
-
 
 
     /**
@@ -226,7 +221,7 @@ public class BLangFunctions {
      * Util method to get Given function.
      *
      * @param bLangProgram Ballerina program .
-     * @param functionName  name of the function.
+     * @param functionName name of the function.
      * @return Function instance or null if function doesn't exist.
      */
     public static Function getFunction(BLangProgram bLangProgram, String functionName) {

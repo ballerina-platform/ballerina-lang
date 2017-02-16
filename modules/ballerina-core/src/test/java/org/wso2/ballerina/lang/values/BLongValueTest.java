@@ -18,13 +18,13 @@
 package org.wso2.ballerina.lang.values;
 
 import org.ballerinalang.BLangProgramLoader;
+import org.ballerinalang.util.program.BLangFunctions;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.ballerina.core.model.BLangProgram;
 import org.wso2.ballerina.core.model.values.BLong;
 import org.wso2.ballerina.core.model.values.BValue;
-import org.ballerinalang.util.program.BLangFunctions;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -85,13 +85,6 @@ public class BLongValueTest {
         Assert.assertSame(returns[0].getClass(), BLong.class);
         BLong longValue = (BLong) returns[0];
         Assert.assertEquals(longValue.longValue(), 20L, "Invalid long value returned.");
-    }
-
-    public static void main(String[] args) {
-        BLongValueTest cc = new BLongValueTest();
-        cc.setup();
-        cc.testLongParameter();
-        System.out.println("");
     }
 
     @Test(description = "Test long value Addition")

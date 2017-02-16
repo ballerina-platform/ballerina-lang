@@ -47,9 +47,9 @@ public class BLangProgramArchive extends PackageRepository implements AutoClosea
     public static final String BAL_INF_DIR_NAME = "BAL_INF";
     public static final String BALLERINA_CONF = "ballerina.conf";
     public static final String BALLERINA_CONF_FILE_PATH = "/" + BAL_INF_DIR_NAME + "/" + BALLERINA_CONF;
-    public static final String balVersionText = "ballerina-version: 0.8.0";
-    public static final String mainPackageLinePrefix = "main-function";
-    public static final String servicePackagePrefix = "services";
+    public static final String BAL_VERSION_TEXT = "ballerina-version: 0.8.0";
+    public static final String MAIN_PACKAGE_LINE_PREFIX = "main-function";
+    public static final String SERVICE_PACKAGE_PREFIX = "services";
 
     private Path archivePath;
     private Map<String, List<Path>> packageFilesMap;
@@ -168,10 +168,10 @@ public class BLangProgramArchive extends PackageRepository implements AutoClosea
 
         // Check whether there exist entry point line..
         Object entryPointLineObj;
-        if(programCategory == BLangProgram.Category.MAIN_PROGRAM) {
-            entryPointLineObj = bConfProps.get(mainPackageLinePrefix);
+        if (programCategory == BLangProgram.Category.MAIN_PROGRAM) {
+            entryPointLineObj = bConfProps.get(MAIN_PACKAGE_LINE_PREFIX);
         } else {
-            entryPointLineObj = bConfProps.get(servicePackagePrefix);
+            entryPointLineObj = bConfProps.get(SERVICE_PACKAGE_PREFIX);
         }
 
         if (entryPointLineObj == null) {

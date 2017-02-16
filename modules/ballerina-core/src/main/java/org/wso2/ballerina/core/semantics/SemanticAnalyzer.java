@@ -2157,7 +2157,8 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         if (action.isNative()) {
             AbstractNativeConnector connector = (AbstractNativeConnector) BTypes
-                    .resolveType(new SimpleTypeName(connectorDef.getName()), currentScope, connectorDef.getNodeLocation());
+                    .resolveType(new SimpleTypeName(connectorDef.getName()),
+                            currentScope, connectorDef.getNodeLocation());
             actionSymbol = connector.resolve(symbolName);
             if (actionSymbol == null) {
                 throw new SemanticException(getNodeLocationStr(connectorDef.getNodeLocation()) + "undefined action '" +
