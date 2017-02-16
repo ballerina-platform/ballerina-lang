@@ -319,7 +319,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
     Generate a ChannelId for WebSocket
      */
     protected String generateWebSocketChannelID() {
-        return ctx.channel().toString();
+        return ctx.channel().id().asLongText();
     }
 
 }
