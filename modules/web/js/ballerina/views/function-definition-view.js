@@ -174,14 +174,86 @@ define(['lodash', 'log', 'event_channel',  'alerts', './svg-canvas', './../ast/f
          * @param {WorkerDeclaration} workerDeclaration - The worker declaration model.
          */
         FunctionDefinitionView.prototype.visitWorkerDeclaration = function (workerDeclaration) {
-            var workerDeclarationOptions = {
-                model: workerDeclaration,
-                container: this._container
-            };
-            var workerDeclarationView = new WorkerDeclarationView(workerDeclarationOptions);
-            workerDeclarationView.setParent(this);
-            workerDeclarationView.render();
-            this._workerAndConnectorViews.push(workerDeclarationView);
+            var self = this;
+            var container = this._rootGroup.node();
+            // If the default worker, we skip
+            if (!workerDeclaration.isDefaultWorker()) {
+                var lastWorkerIndex = this.getLastWorkerLifeLineIndex();
+                var newWorkerPosition = lastWorkerIndex === -1 ? 0 : lastWorkerIndex + 1;
+                var centerPoint = undefined;
+                if (newWorkerPosition === 0) {
+                    centerPoint = this._defaultWorkerLifeLine.getTopCenter().clone().move(this._lifeLineCenterGap, 0);
+                } else {
+                    centerPoint = this._connectorWorkerViewList[lastWorkerIndex].getTopCenter()
+                        .clone().move(this._lifeLineCenterGap, 0)
+                }
+                var workerDeclarationOptions = {
+                    model: workerDeclaration,
+                    container: container,
+                    centerPoint: centerPoint,
+                    toolPalette: this.toolPalette,
+                    messageManager: this.messageManager,
+                    diagramRenderContext: this.getDiagramRenderingContext()
+                };
+                var workerDeclarationView = new WorkerDeclarationView(workerDeclarationOptions);
+                workerDeclarationView.setParent(this);
+                workerDeclarationView.render();
+
+                // Creating Expression Editor
+                var editableProperty = {
+                    propertyType: "text",
+                    key: "WorkerDeclaration",
+                    model: workerDeclarationView._model,
+                    getterMethod: workerDeclarationView._model.getWorkerDeclarationStatement,
+                    setterMethod: workerDeclarationView._model.setWorkerDeclarationStatement,
+                    getDisplayTitle: workerDeclarationView._model.getWorkerName
+                };
+                workerDeclarationView.createPropertyPane({
+                    model: workerDeclarationView._model,
+                    lifeLineGroup: workerDeclarationView._rootGroup,
+                    editableProperties: editableProperty
+                });
+
+                var statementContainer = workerDeclarationView.renderStatementContainer(this.diagramRenderingContext);
+                this.diagramRenderingContext.getViewModelMap()[workerDeclaration.id] = workerDeclarationView;
+                this.listenWorkerToHorizontalMargin(workerDeclarationView);
+
+                // Worker listen to its statement container
+                workerDeclarationView.listenTo(statementContainer.getBoundingBox(), 'bottom-edge-moved', function(dy) {
+                    var deltaMove = self.getDeltaMove(self.getDeepestChild(workerDeclarationView, dy), dy);
+                    // Bellow logic is for properly align all the workers and the connectors
+                    // Statement Container expands. we move the horizontal line
+                    workerDeclarationView.getBottomCenter().y(workerDeclarationView.getBottomCenter().y() + deltaMove);
+                    workerDeclarationView.getBoundingBox().h(workerDeclarationView.getBoundingBox().h() + deltaMove);
+                    workerDeclarationView.stopListening(self.getHorizontalMargin());
+                    self.getHorizontalMargin().setPosition(self.getHorizontalMargin().getPosition() + deltaMove);
+                    self.listenWorkerToHorizontalMargin(workerDeclarationView);
+                    // We need to change the height of the statement container, silently. This is because when this
+                    // particular event is triggered, bounding box of the statement container has already changed,
+                    // before hand we manipulate it with this logic
+                    var statementContainerNewH = workerDeclarationView.getBottomCenter().y() - workerDeclarationView.getTopCenter().y();
+                    // TODO: re consider stopListening of the following event of the statement container. This is because we silently change the heights
+                    self.getStatementContainer().stopListening(self.getStatementContainer().getBoundingBox(), 'height-changed');
+                    workerDeclarationView.getStatementContainer().changeHeightSilent(statementContainerNewH);
+                    // Re initialize the above disabled event
+                    // self.getStatementContainer().listenTo(self.getStatementContainer().getBoundingBox(), 'height-changed', function (offset) {
+                    //     self.getStatementContainer()._mainDropZone.attr('height', parseFloat(self.getStatementContainer()._mainDropZone.attr('height')) + offset);
+                    // });
+                });
+
+                // Set the workerLifeLineMargin to the right edge of the newly added worker
+                this.getWorkerLifeLineMargin().setPosition(workerDeclarationView.getBoundingBox().getRight());
+                if (lastWorkerIndex === this.getWorkerAndConnectorViews().length -1 &&
+                    workerDeclarationView.getBoundingBox().getRight() > this.getBoundingBox().getRight()) {
+                    // Worker is added as the last element for the ConnectorWorkerViewList.
+                    // Only Connectors are there at the moment
+                    this._parentView.getLifeLineMargin().setPosition(this._parentView.getLifeLineMargin().getPosition() + this._lifeLineCenterGap);
+                    this.setContentMinWidth(workerDeclarationView.getBoundingBox().getRight());
+                    this.setHeadingMinWidth(workerDeclarationView.getBoundingBox().getRight());
+                }
+
+                this.getWorkerAndConnectorViews().splice(newWorkerPosition, 0, workerDeclarationView);
+            }
         };
 
         /**
@@ -252,6 +324,11 @@ define(['lodash', 'log', 'event_channel',  'alerts', './svg-canvas', './../ast/f
 
             this._totalHeight = this.getHorizontalMargin().getPosition() + 85;
             this.setSVGHeight(this._totalHeight);
+
+            this.listenTo(this.getHorizontalMargin(), 'moved', function (dy) {
+                self._totalHeight = self.getHorizontalMargin().getPosition() + 85;
+                self.setSVGHeight(self._totalHeight);
+            });
             this.renderStatementContainer();
 
             // TODO: Refactor after Worker is enabled
@@ -280,36 +357,6 @@ define(['lodash', 'log', 'event_channel',  'alerts', './svg-canvas', './../ast/f
             var operationsPane = this.getOperationsPane();
 
             var operationButtons = [];
-
-            // Creating arguments icon.
-            var panelArgumentsIcon = $("<i/>", {
-                class: "fw fw-import pull-right right-icon-clickable hoverable",
-                title: "Arguments"
-            }).appendTo(operationsPane).tooltip();
-
-            $(panelArgumentsIcon).click(function (event) {
-                event.stopPropagation();
-            });
-
-            operationButtons.push(panelArgumentsIcon);
-
-            // Adding separator for arguments icon.
-            $("<span class='pull-right canvas-operations-separator'>|</span>").appendTo(operationsPane);
-
-            var argumentsProperties = {
-                model: this._model,
-                activatorElement: panelArgumentsIcon,
-                paneAppendElement: this.getChildContainer().node().ownerSVGElement.parentElement,
-                viewOptions: {
-                    position: {
-                        left: parseInt($(this.getChildContainer().node().ownerSVGElement.parentElement).width()),
-                        top: 0
-                    }
-                }
-            };
-
-            // Creating arguments pane.
-            ArgumentsView.createArgumentsPane(argumentsProperties, diagramRenderingContext);
 
             this.setSVGWidth(this._container.width());
 
@@ -343,6 +390,36 @@ define(['lodash', 'log', 'event_channel',  'alerts', './svg-canvas', './../ast/f
 
             // Creating return type pane.
             this._returnTypePaneView.createReturnTypePane(diagramRenderingContext);
+
+            // Creating arguments icon.
+            var panelArgumentsIcon = $("<i/>", {
+                class: "fw fw-import pull-right right-icon-clickable hoverable",
+                title: "Arguments"
+            }).appendTo(operationsPane).tooltip();
+
+            $(panelArgumentsIcon).click(function (event) {
+                event.stopPropagation();
+            });
+
+            operationButtons.push(panelArgumentsIcon);
+
+            // Adding separator for arguments icon.
+            $("<span class='pull-right canvas-operations-separator'>|</span>").appendTo(operationsPane);
+
+            var argumentsProperties = {
+                model: this._model,
+                activatorElement: panelArgumentsIcon,
+                paneAppendElement: this.getChildContainer().node().ownerSVGElement.parentElement,
+                viewOptions: {
+                    position: {
+                        left: parseInt($(this.getChildContainer().node().ownerSVGElement.parentElement).width()),
+                        top: 0
+                    }
+                }
+            };
+
+            // Creating arguments pane.
+            ArgumentsView.createArgumentsPane(argumentsProperties, diagramRenderingContext);
 
             // Closing the shown pane when another operation button is clicked.
             _.forEach(operationButtons, function (button) {
@@ -463,19 +540,7 @@ define(['lodash', 'log', 'event_channel',  'alerts', './svg-canvas', './../ast/f
             connectorDeclarationView.setParent(this);
             connectorDeclarationView.render();
 
-            // Creating property pane
-            var editableProperty = {
-                propertyType: "text",
-                key: "ConnectorDeclaration",
-                model: connectorDeclarationView._model,
-                getterMethod: connectorDeclarationView._model.getConnectorExpression,
-                setterMethod: connectorDeclarationView._model.setConnectorExpression
-            };
-            connectorDeclarationView.createPropertyPane({
-                model: connectorDeclarationView._model,
-                lifeLineGroup:connectorDeclarationView._rootGroup,
-                editableProperties: editableProperty
-            });
+            connectorDeclarationView.createPropertyPane();
 
             if (_.isNil(lastConnectorLifeLine)) {
                 // This is the first connector we are adding
@@ -496,13 +561,13 @@ define(['lodash', 'log', 'event_channel',  'alerts', './svg-canvas', './../ast/f
              then we need to expand this function definition's view. */
             if (connectorDeclarationView.getBoundingBox().getRight() > this.getBoundingBox().getRight()) {
                 this._parentView.getLifeLineMargin().setPosition(this._parentView.getLifeLineMargin().getPosition()
-                    + this._viewOptions.LifeLineCenterGap);
+                    + this._lifeLineCenterGap);
             }
 
             var connectorBBox = connectorDeclarationView.getBoundingBox();
             connectorDeclarationView.listenTo(connectorBBox, 'right-edge-moved', function (offset) {
                 if (connectorBBox.getRight() > self.getBoundingBox().getRight()) {
-                    self._parentView.getLifeLineMargin().setPosition(self._parentView.getLifeLineMargin().getPosition() + self._viewOptions.LifeLineCenterGap);
+                    self._parentView.getLifeLineMargin().setPosition(self._parentView.getLifeLineMargin().getPosition() + self._lifeLineCenterGap);
                 }
             }, connectorDeclarationView);
 
@@ -611,6 +676,79 @@ define(['lodash', 'log', 'event_channel',  'alerts', './svg-canvas', './../ast/f
                 return lifeLine instanceof ConnectorDeclarationView;
             });
             return index;
+        };
+
+        FunctionDefinitionView.prototype.getLastWorkerLifeLineIndex = function () {
+            var index = _.findLastIndex(this.getWorkerAndConnectorViews(), function (lifeLine) {
+                return lifeLine instanceof WorkerDeclarationView;
+            });
+            return index;
+        };
+
+        FunctionDefinitionView.prototype.listenWorkerToHorizontalMargin = function (workerDeclarationView) {
+            workerDeclarationView.listenTo(this.getHorizontalMargin(), 'moved', function (dy) {
+                workerDeclarationView.getBottomCenter().y(workerDeclarationView.getBottomCenter().y() + dy);
+                workerDeclarationView.getBoundingBox().h(workerDeclarationView.getBoundingBox().h() + dy);
+                // Silently increase the bounding box of the worker. Because this size change is due to the
+                // horizontal margin movement, in other sense, for balancing with the other connectors/ workers' height
+                // therefore we need to manually change the bbox height and the drop zone size of the statement container
+                workerDeclarationView.getStatementContainer().getBoundingBox().h(workerDeclarationView.getStatementContainer().getBoundingBox().h() + dy, true);
+                workerDeclarationView.getStatementContainer().changeDropZoneHeight(dy);
+            });
+        };
+
+        FunctionDefinitionView.prototype.getDeltaMove = function (deepestChild, dy) {
+            var deltaMove = 0;
+            if (dy > 0) {
+                deltaMove = dy;
+            } else {
+                if (_.isNil(deepestChild)) {
+                    deltaMove = dy;
+                } else {
+                    deltaMove = -(this.getHorizontalMargin().getPosition() -
+                    this.getDiagramRenderingContext().getViewOfModel(deepestChild).getBoundingBox().getBottom() - this._offsetLastStatementGap);
+                }
+            }
+            return deltaMove;
+        };
+
+        // TODO: Need to generalize this method, since functionDefinition, actionDefinition and resourceDefinition uses this
+        FunctionDefinitionView.prototype.getDeepestChild = function (currentWorker, dy) {
+            var self = this;
+            var lastChildArr = [];
+
+            this.getWorkerAndConnectorViews().forEach(function (worker) {
+                if (worker instanceof WorkerDeclarationView) {
+                    if (worker.getModel().id === currentWorker.getModel().id && dy < 0) {
+                        // TODO: Refactor logic
+                        // Child we are removing, have not removed from the view list yet
+                        lastChildArr.push(worker.getStatementContainer().getManagedStatements()[worker.getStatementContainer().getManagedStatements() - 2]);
+                    } else {
+                        lastChildArr.push(_.last(worker.getStatementContainer().getManagedStatements()));
+                    }
+                }
+            });
+
+            var sortedLastChildArr = _.sortBy(lastChildArr, function (child) {
+                var stmtView = _.isNil(child) ? undefined : self.getDiagramRenderingContext().getViewOfModel(child);
+                return _.isNil(stmtView) ? -1 : stmtView.getBoundingBox().getBottom();
+            });
+
+            var deepestChildStatement = _.last(sortedLastChildArr);
+            var defaultWorkerLastChild = _.last(this.getStatementContainer().getManagedStatements());
+
+            if (!_.isNil(deepestChildStatement) && _.isNil(defaultWorkerLastChild)) {
+                return deepestChildStatement;
+            } else if (!_.isNil(deepestChildStatement) && !_.isNil(defaultWorkerLastChild)) {
+                if (this.getDiagramRenderingContext().getViewOfModel(deepestChildStatement).getBoundingBox().getBottom()
+                    > this.getDiagramRenderingContext().getViewOfModel(defaultWorkerLastChild).getBoundingBox().getBottom()) {
+                    return deepestChildStatement;
+                } else {
+                    return defaultWorkerLastChild;
+                }
+            } else {
+                return defaultWorkerLastChild;
+            }
         };
 
         return FunctionDefinitionView;

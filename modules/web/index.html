@@ -39,6 +39,7 @@
     <link href="css/fileDialog.css" rel="stylesheet" type="text/css"/>
     <link href="lib/mCustomScrollbar_v3.1.5/css/jquery.mCustomScrollbar.css" rel="stylesheet" type="text/css"/>
     <link href="lib/context-menu_v2.4.2/jquery.contextMenu.min.css" rel="stylesheet" type="text/css"/>
+    <link href="lib/select2-4.0.3/dist/css/select2.min.css" rel="stylesheet" type="text/css"/>
 
     <link rel="stylesheet" type="text/css" href="css/sequence_diagram/sequenced-styles.css"/>
     <link rel="stylesheet" type="text/css" href="css/ballerina-file-editor.css"/>
@@ -96,6 +97,11 @@
                                 </a>
                             </li>
                             <li>
+                                <a href="#launcher" role="tab" data-toggle="tab" class="launcher-activate-btn">
+                                    <i class="fw fw-start fw-lg"></i>
+                                </a>
+                            </li>
+                            <li>
                                 <a href="#debugger" role="tab" data-toggle="tab" class="debugger-activate-btn">
                                     <i class="fw fw-bug fw-lg"></i>
                                 </a>
@@ -129,6 +135,11 @@
                         <!-- End: service tabs -->
                     </div>
                     <!-- End: service tabs wrapper row -->
+                    <div id="console-container" class="col-sm-12 hide">
+                        <div class="console-header">Console <a class="closeConsole"><i class="fw fw-cancel"></i></a></div>
+                        <div id="console">
+                        </div>
+                    </div>
                 </div>
                 <!-- End: service tabs wrapper container-->
             </div>
@@ -183,9 +194,6 @@
                         </div>
                     </div>
                 </div>
-                <div class="package-btn btn-icon" data-toggle="tooltip" title="Import Packages" data-placement="bottom">
-                    <img src="images/dgm-import.svg" class="import-img">
-                </div>
             </div>
             <!-- End: TopRight Controls Container  -->
             <!-- Start: BottomRight Controls Container -->
@@ -221,7 +229,7 @@
         <!-- Start: swagger view container -->
         <div class="swagger-view-container">
             <!-- Start: BottomRight Controls Container -->
-            <div class="swaggerEditor" data-editor-url="/lib/swagger-editor/#/">
+            <div class="swaggerEditor" data-editor-url="lib/swagger-editor/#/">
             </div>
             <!-- Start: BottomRight Controls Container -->
             <div class="bottom-right-controls-container">
@@ -567,6 +575,7 @@
             jsPlumb: "lib/jsPlumb-2.2.8/jsPlumb-2.2.8-min",
             yaml: "lib/js-yaml-v3.7.0/dist/js-yaml.min",
             typeahead: "lib/typeahead_v0.11.1/typeahead.bundle.min",
+            select2: "lib/select2-4.0.3/dist/js/select2.full.min",
             ///////////////////////
             // custom modules ////
             //////////////////////
@@ -589,11 +598,12 @@
 			expression_editor_utils: "js/expression-editor/expression-editor-utils",
             constants: 'js/constants/constants',
             typeMapper: 'js/type-mapper/type-mapper-renderer',
-            environment_content: "js/ballerina/env/environment-content"
+            environment_content: "js/ballerina/env/environment-content",
+            console: "js/launcher/console"
         },
         shim: {
             "bootstrap": {"deps": ['jquery']},
-            "theme_wso2": {"deps": ['jquery', 'bootstrap', 'html5_shiv', 'respond']},
+            "theme_wso2": {"deps": ['jquery', 'bootstrap', 'html5_shiv', 'respond', 'select2']},
             "jsPlumb": {
                 deps: ['jquery','jquery_ui'],
                 exports: 'jsPlumb'
@@ -692,6 +702,9 @@
                 },
                 parser:  {
                     endpoint: "http://localhost:8289/ballerina/model/content"
+                },
+                launcher: {
+                    endpoint: "ws://localhost:9092/launch"
                 }
             },
             alerts: {
@@ -830,7 +843,7 @@
                                 panel_delete_icon: 'fw fw-delete pull-right right-icon-clickable delete-icon hoverable',
                                 panel_annotation_icon: 'fw fw-annotation pull-right right-icon-clickable hoverable',
                                 panel_args_icon: 'fw fw-import pull-right right-icon-clickable hoverable',
-                                type_mapper_icon: 'fw fw-dgm-service fw-inverse',
+                                type_mapper_icon: 'fw fw-type-converter fw-inverse',
                                 type_struct_icon: 'fw fw-dgm-service fw-inverse',
                                 canvas_heading_new: 'canvas-heading-new'
                             },
@@ -921,6 +934,36 @@
                         other: {
                             key: "ctrl+shift+d",
                             label: "Ctrl+Shift+d"
+                        }
+                    }
+                }
+            },
+            launcher : {
+                container: ".sidebar-left",
+                activateBtn: '.launcher-activate-btn',
+                separator: '.sidebar-left-separator',
+                containerToAdjust: ".right-container",
+                leftOffset: 40,
+                separatorOffset: 5,
+                defaultWidth: 250,
+                resizeLimits:{
+                    minX: 200,
+                    maxX: 800
+                },
+                containerId: "launcher",
+                cssClass: {
+                    container: 'launcher-container tab-pane'
+                },
+                command: {
+                    id: "toggle-launcher",
+                    shortcuts: {
+                        mac: {
+                            key: "command+shift+r",
+                            label: "\u2318\u21E7r"
+                        },
+                        other: {
+                            key: "ctrl+shift+r",
+                            label: "Ctrl+Shift+r"
                         }
                     }
                 }

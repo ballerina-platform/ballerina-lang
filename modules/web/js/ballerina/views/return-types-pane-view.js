@@ -15,8 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', 'jquery', 'alerts', './return-type-view', './../ast/node'],
-    function (_, log, $, Alerts, ReturnTypeView, ASTNode) {
+define(['lodash', 'log', 'jquery', 'alerts', './return-type-view', './../ast/node','select2'],
+    function (_, log, $, Alerts, ReturnTypeView, ASTNode, select2) {
 
         /**
          * Creates the return types pane. This is not a ballerina view. This is simply a pane which is created
@@ -74,7 +74,10 @@ define(['lodash', 'log', 'jquery', 'alerts', './return-type-view', './../ast/nod
                 .appendTo(returnTypeWrapper);
 
             // Creating the return type dropdown.
-            var returnTypeDropdown = $("<select/>").appendTo(returnTypeWrapper);
+            var returnTypeDropdown = $("<select/>");
+            var typeDropdownWrapper = $('<div class="type-drop-wrapper"></div>');
+            returnTypeDropdown.appendTo(typeDropdownWrapper);
+            typeDropdownWrapper.appendTo(returnTypeWrapper);
 
             // Adding dropdown elements.
             _.forEach(this._supportedReturnTypes, function (type) {
@@ -83,7 +86,10 @@ define(['lodash', 'log', 'jquery', 'alerts', './return-type-view', './../ast/nod
                     $('<option></option>').val(type).html(type)
                 );
             });
-
+            returnTypeDropdown.select2({
+                tags: true,
+                selectOnClose: true
+            });
             // Return type name value text box.
             var returnTypeNameInput = $("<input/>", {
                 type: "text",

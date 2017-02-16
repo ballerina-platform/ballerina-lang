@@ -18,6 +18,8 @@
 define(['require', 'lodash', 'jquery', 'log', './ballerina-statement-view', './../ast/else-if-statement', 'd3utils', 'd3', './point'],
     function (require, _, $, log, BallerinaStatementView, ElseIfStatement, D3Utils, d3, Point) {
 
+        // TODO: 14/02/17 this class should extend from BlockStatementView class
+
         /**
          * The view to represent a Else-If statement which is an AST visitor.
          * @param {Object} args - Arguments for creating the view.
@@ -111,6 +113,13 @@ define(['require', 'lodash', 'jquery', 'log', './ballerina-statement-view', './.
 
         ElseIfStatementView.prototype.getViewOptions = function () {
             return this._viewOptions;
+        };
+
+        ElseIfStatementView.prototype.render = function (diagramRenderingContext) {
+            BlockStatementView.prototype.render.call(this, diagramRenderingContext);
+            this.listenTo(this._model, 'update-property-text', function(value, key){
+                this._model.setCondition(value);
+            });
         };
 
         return ElseIfStatementView;

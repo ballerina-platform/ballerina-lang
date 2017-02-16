@@ -15,19 +15,18 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['./action-definition-view', './ballerina-file-editor', './ballerina-view', './message-manager', './canvas',
+define(['./ballerina-file-editor', './ballerina-view', './message-manager', './canvas',
         './connector-declaration-view', './function-definition-view', './reply-statement-view',
         './resource-definition-view', './return-statement-view', './service-definition-view', './throw-statement-view',
         './while-statement-view', './worker-declaration-view', './source-view', './action-invocation-statement-view',
-        './service-preview-view', './simple-statement-view', './compound-statement-view', './backend'],
-    function (ActionDefinitionView, BallerinaFileEditor, BallerinaView, Canvas,MessageManager,
+        './service-preview-view', './simple-statement-view', './block-statement-view', './compound-statement-view', './backend'],
+    function (BallerinaFileEditor, BallerinaView, Canvas,MessageManager,
               ConnectorDeclarationView, FunctionDefinitionView, ReplyStatementView,
               ResourceDefinitionView, ReturnStatementView, ServiceDefinitionView, ThrowStatementView,
               WhileStatementView, WorkerDeclarationView, SourceView, ActionInvocationStatementView,
-              ServicePreviewView, SimpleStatementView, CompoundStatementView, Backend) {
+              ServicePreviewView, SimpleStatementView, BlockStatementView, CompoundStatementView, Backend) {
         return  {
             BallerinaView: BallerinaView,
-            ActionDefinitionView: ActionDefinitionView,
             BallerinaFileEditor: BallerinaFileEditor,
             MessageManager: MessageManager,
             Canvas: Canvas,
@@ -44,6 +43,7 @@ define(['./action-definition-view', './ballerina-file-editor', './ballerina-view
             ActionInvocationStatementView: ActionInvocationStatementView,
             ServicePreviewView: ServicePreviewView,
             SimpleStatementView: SimpleStatementView,
+            BlockStatementView: BlockStatementView,
             CompoundStatementView: CompoundStatementView,
             Backend : Backend
         }

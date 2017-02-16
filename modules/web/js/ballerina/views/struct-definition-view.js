@@ -15,10 +15,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', 'd3', 'alerts', './ballerina-view', 'ballerina/ast/ballerina-ast-factory', './canvas',
-        '../utils/dropdown', './../ast/node', './struct-variable-defintion-view'],
+define(['lodash', 'log', 'd3', 'alerts', './ballerina-view', 'ballerina/ast/ballerina-ast-factory', './canvas', './../ast/node', './struct-variable-defintion-view'],
     function (_, log, d3, Alerts, BallerinaView, BallerinaASTFactory,
-              Canvas, Dropdown, ASTNode, StructVariableDefinitionView) {
+              Canvas, ASTNode, StructVariableDefinitionView) {
         var StructDefinitionView = function (args) {
             Canvas.call(this, args);
 
@@ -65,25 +64,25 @@ define(['lodash', 'log', 'd3', 'alerts', './ballerina-view', 'ballerina/ast/ball
                 .on("change paste keyup", function () {
                     self.getModel().setStructName($(this).text());
                 }).on("click", function (event) {
-                event.stopPropagation();
-            }).keypress(function (e) {
-                var enteredKey = e.which || e.charCode || e.keyCode;
-                // Disabling enter key
-                if (enteredKey == 13) {
                     event.stopPropagation();
-                    return false;
-                }
+                }).keypress(function (e) {
+                    var enteredKey = e.which || e.charCode || e.keyCode;
+                    // Disabling enter key
+                    if (enteredKey == 13) {
+                        event.stopPropagation();
+                        return false;
+                    }
 
-                var newServiceName = $(this).val() + String.fromCharCode(enteredKey);
+                    var newServiceName = $(this).val() + String.fromCharCode(enteredKey);
 
-                try {
-                    self.getModel().setStructName(newServiceName);
-                } catch (error) {
-                    Alerts.error(error);
-                    event.stopPropagation();
-                    return false;
-                }
-            });
+                    try {
+                        self.getModel().setStructName(newServiceName);
+                    } catch (error) {
+                        Alerts.error(error);
+                        event.stopPropagation();
+                        return false;
+                    }
+                });
 
             var structContentWrapper = $("<div/>", {
                 id: this.getModel().getID(),
@@ -96,35 +95,33 @@ define(['lodash', 'log', 'd3', 'alerts', './ballerina-view', 'ballerina/ast/ball
                 class: "struct-content-operations-wrapper"
             }).appendTo(structContentWrapper);
 
-            var typeDropdown = new Dropdown({
-                class: {mainWrapper: "struct-type-dropdown-wrapper"},
-                emptyValue: "Type",
-                onDropdownOpen: function() {
-                    self.getBodyWrapper().css("height", $(self.getBodyWrapper()).height());
-                    self.getBodyWrapper().css("overflow-x", "visible");
-                    $(self.getBodyWrapper()).closest(".canvas-container").css("overflow", "visible");
+            var typeDropdownWrapper = $('<div class="type-drop-wrapper struct-view"></div>')
+                .appendTo(structOperationsWrapper);
 
-                    this.removeAllItems();
+            var typeDropdown = $("<select/>").appendTo(typeDropdownWrapper);
 
-                    // Adding items to the type dropdown.
-                    var bTypes = self.getDiagramRenderingContext().getEnvironment().getTypes();
-                    _.forEach(bTypes, function (bType) {
-                        typeDropdown.addItem({key: bType, value: bType});
-                    });
-
-                    var structTypes = self.getDiagramRenderingContext().getPackagedScopedEnvironment().getCurrentPackage().getStructDefinitions();
-                    _.forEach(structTypes, function (sType) {
-                        typeDropdown.addItem({key: sType.getStructName(), value: sType.getStructName()});
-                    });
-                },
-                onDropdownClosed: function() {
-                    self.getBodyWrapper().css("height", "");
-                    self.getBodyWrapper().css("overflow-x", "");
-                    $(self.getBodyWrapper()).closest(".canvas-container").css("overflow", "");
+            $(typeDropdown).select2({
+                tags: true,
+                selectOnClose: true,
+                data : self._getTypeDropdownValues(),
+                query: function (query) {
+                    var data = {results: []};
+                    if (!_.isNil(query.term)) {
+                        _.forEach(self._getTypeDropdownValues(), function (item) {
+                            if (item.text.toUpperCase().indexOf(query.term.toUpperCase()) >= 0) {
+                                data.results.push(item);
+                            }
+                        });
+                    } else {
+                        data.results = self._getTypeDropdownValues();
+                    }
+                    query.callback(data);
                 }
             });
 
-            typeDropdown.getElement().appendTo(structOperationsWrapper);
+            $(typeDropdown).on("select2:open", function() {
+                $(".select2-search__field").attr("placeholder", "Search");
+            });
 
             // Creating the identifier text box.
             var identifierTextBox = $("<input/>", {
@@ -166,7 +163,7 @@ define(['lodash', 'log', 'd3', 'alerts', './ballerina-view', 'ballerina/ast/ball
 
             $(addStructVariableButton).click(function () {
                 try {
-                    var bType = typeDropdown.getSelectedValue();
+                    var bType = typeDropdown.select2('data')[0].text;
                     var identifier = $(identifierTextBox).val().trim();
 
                     self.getModel().addVariableDeclaration(bType, identifier);
@@ -234,6 +231,22 @@ define(['lodash', 'log', 'd3', 'alerts', './ballerina-view', 'ballerina/ast/ball
                     variableDeclarationView.renderEditView();
                 });
             });
+        };
+
+        StructDefinitionView.prototype._getTypeDropdownValues = function () {
+            var dropdownData = [];
+            // Adding items to the type dropdown.
+            var bTypes = this.getDiagramRenderingContext().getEnvironment().getTypes();
+            _.forEach(bTypes, function (bType) {
+                dropdownData.push({id: bType, text: bType});
+            });
+
+            var structTypes = this.getDiagramRenderingContext().getPackagedScopedEnvironment().getCurrentPackage().getStructDefinitions();
+            _.forEach(structTypes, function (sType) {
+                dropdownData.push({id: sType.getStructName(), text: sType.getStructName()});
+            });
+
+            return dropdownData;
         };
 
         return StructDefinitionView;

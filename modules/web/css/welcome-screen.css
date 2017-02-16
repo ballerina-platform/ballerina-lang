@@ -95,7 +95,8 @@
     align-items: center;
     justify-content: center;
     width: 100%;
-    height: calc(100% - 80px);
+    height: 92%;
+    overflow-y: auto;
 }
 
 .initial-welcome-container {

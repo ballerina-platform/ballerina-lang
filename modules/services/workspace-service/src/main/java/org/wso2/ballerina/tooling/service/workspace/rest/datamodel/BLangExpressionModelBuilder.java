@@ -26,7 +26,7 @@ import org.wso2.ballerina.core.interpreter.ConstantLocation;
 import org.wso2.ballerina.core.interpreter.StackVarLocation;
 import org.wso2.ballerina.core.interpreter.ServiceVarLocation;
 import org.wso2.ballerina.core.model.Annotation;
-import org.wso2.ballerina.core.model.BTypeConvertor;
+import org.wso2.ballerina.core.model.BTypeMapper;
 import org.wso2.ballerina.core.model.BallerinaAction;
 import org.wso2.ballerina.core.model.BallerinaConnectorDef;
 import org.wso2.ballerina.core.model.BallerinaFile;
@@ -52,6 +52,12 @@ import org.wso2.ballerina.core.model.statements.ReturnStmt;
 import org.wso2.ballerina.core.model.statements.Statement;
 import org.wso2.ballerina.core.model.statements.VariableDefStmt;
 import org.wso2.ballerina.core.model.statements.WhileStmt;
+import org.wso2.ballerina.core.model.statements.BreakStmt;
+import org.wso2.ballerina.core.model.statements.TryCatchStmt;
+import org.wso2.ballerina.core.model.statements.WorkerInvocationStmt;
+import org.wso2.ballerina.core.model.statements.ThrowStmt;
+import org.wso2.ballerina.core.model.statements.WorkerReplyStmt;
+import org.wso2.ballerina.core.model.statements.ForkJoinStmt;
 import org.wso2.ballerina.core.model.types.BTypes;
 
 import java.util.Stack;
@@ -96,7 +102,7 @@ public class BLangExpressionModelBuilder implements NodeVisitor {
     }
 
     @Override
-    public void visit(BTypeConvertor typeConvertor) {
+    public void visit(BTypeMapper typeMapper) {
 
     }
 
@@ -217,6 +223,21 @@ public class BLangExpressionModelBuilder implements NodeVisitor {
     }
 
     @Override
+    public void visit(BreakStmt breakStmt) {
+
+    }
+
+    @Override
+    public void visit(TryCatchStmt tryCatchStmt) {
+
+    }
+
+    @Override
+    public void visit(ThrowStmt throwStmt) {
+
+    }
+
+    @Override
     public void visit(FunctionInvocationStmt functionInvocationStmt) {
         StringBuffer buffer = new StringBuffer();
         bufferStack.push(buffer);
@@ -234,6 +255,21 @@ public class BLangExpressionModelBuilder implements NodeVisitor {
         buffer.append(bufferStack.peek());
         bufferStack.pop();
         buffer.append(";");
+    }
+
+    @Override
+    public void visit(WorkerInvocationStmt workerInvocationStmt) {
+
+    }
+
+    @Override
+    public void visit(WorkerReplyStmt workerReplyStmt) {
+
+    }
+
+    @Override
+    public void visit(ForkJoinStmt forkJoinStmt) {
+
     }
 
     @Override
@@ -596,6 +632,11 @@ public class BLangExpressionModelBuilder implements NodeVisitor {
     @Override
     public void visit(StructVarLocation structVarLocation) {
         //TODO
+    }
+
+    @Override
+    public void visit(WorkerVarLocation workerVarLocation) {
+
     }
 
     @Override

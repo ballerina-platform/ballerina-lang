@@ -224,6 +224,16 @@ define(['lodash', 'log', './ast-visitor', '../ast/module'], function (_, log, AS
     StatementVisitor.prototype.endVisitWorkerInvoke = function (statement) {
     };
 
+    StatementVisitor.prototype.canVisitWorkerReceiver = function (statement) {
+        return false;
+    };
+    StatementVisitor.prototype.beginVisitWorkerReceiver = function (statement) {
+    };
+    StatementVisitor.prototype.visitWorkerReceiver = function (statement) {
+    };
+    StatementVisitor.prototype.endVisitWorkerReceiver = function (statement) {
+    };
+
     /**
      * @param node {ASTNode}
      */
@@ -268,6 +278,8 @@ define(['lodash', 'log', './ast-visitor', '../ast/module'], function (_, log, AS
             return this.visitVariableDefinitionStatement(node);
         }  else if (node instanceof AST.WorkerInvoke) {
             return this.visitWorkerInvoke(node);
+        }  else if (node instanceof AST.WorkerReceive) {
+            return this.visitWorkerReceiver(node);
         }
     };
 
@@ -315,6 +327,8 @@ define(['lodash', 'log', './ast-visitor', '../ast/module'], function (_, log, AS
             return this.canVisitVariableDefinitionStatement(node);
         }  else if (node instanceof AST.WorkerInvoke) {
             return this.canVisitWorkerInvoke(node);
+        }  else if (node instanceof AST.WorkerReceive) {
+            return this.canVisitWorkerReceiver(node);
         }
     };
 
@@ -362,6 +376,8 @@ define(['lodash', 'log', './ast-visitor', '../ast/module'], function (_, log, AS
             return this.beginVisitVariableDefinitionStatement(node);
         }  else if (node instanceof AST.WorkerInvoke) {
             return this.beginVisitWorkerInvoke(node);
+        }  else if (node instanceof AST.WorkerReceive) {
+            return this.beginVisitWorkerReceiver(node);
         }
     };
 
@@ -409,6 +425,8 @@ define(['lodash', 'log', './ast-visitor', '../ast/module'], function (_, log, AS
             return this.endVisitVariableDefinitionStatement(node);
         }  else if (node instanceof AST.WorkerInvoke) {
             return this.endVisitWorkerInvoke(node);
+        }  else if (node instanceof AST.WorkerReceive) {
+            return this.endVisitWorkerReceiver(node);
         }
     };
 

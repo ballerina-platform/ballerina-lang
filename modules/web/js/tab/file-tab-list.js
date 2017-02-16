@@ -113,13 +113,19 @@ define(['log', 'jquery', 'lodash', './tab-list', './file-tab',  'workspace/file'
               }
             }
 
-            if(!_.isFunction(this.activeTab.getFile)){
+            if(!_.isFunction(tab.getFile)){
                 remove();
                 return;
             }
 
-            var file = this.activeTab.getFile();
+            var file = tab.getFile();
             if(file.isPersisted() && !file.isDirty()){
+                // if file is not dirty no need to ask for confirmation
+                remove();
+                return;
+            }
+
+            if(!file.isPersisted() && _.isEmpty(file.getContent())){
                 // if file is not dirty no need to ask for confirmation
                 remove();
                 return;

@@ -15,8 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require', 'lodash', 'log', 'jquery', 'alerts', './variable-definition-view', './../ast/node'],
-    function (require, _, log, $, Alerts, VariableDefinitionView, ASTNode) {
+define(['require', 'lodash', 'log', 'jquery', 'alerts', './variable-definition-view', './../ast/node','select2'],
+    function (require, _, log, $, Alerts, VariableDefinitionView, ASTNode, select2) {
 
         /**
          * Creates a new instance for a constant definition pane view.
@@ -80,7 +80,10 @@ define(['require', 'lodash', 'log', 'jquery', 'alerts', './variable-definition-v
             var variableAddPane = $("<div class='action-content-wrapper-heading variable-add-action-wrapper'/>")
                 .appendTo(variablesActionWrapper);
 
-            var variableSelect = $("<select/>").appendTo(variableAddPane);
+            var variableSelect = $("<select/>");
+            var typeDropdownWrapper = $('<div class="type-drop-wrapper service"></div>');
+            variableSelect.appendTo(typeDropdownWrapper);
+            typeDropdownWrapper.appendTo(variableAddPane);
             var variableIdentifier = $("<input id='text' placeholder='Identifier'/>").appendTo(variableAddPane);
             var variableValueExpression = $("<input id='text' placeholder='Value'/>").appendTo(variableAddPane);
 
@@ -89,7 +92,10 @@ define(['require', 'lodash', 'log', 'jquery', 'alerts', './variable-definition-v
                 $("<option value=" + variableTypes[typeCount] + ">" + variableTypes[typeCount] + "</option>")
                     .appendTo($(variableSelect));
             }
-
+            variableSelect.select2({
+                tags: true,
+                selectOnClose: true
+            });
             // Add new variable upon enter key.
             $(variableIdentifier).on("change paste keydown", function (e) {
                 if (e.which == 13) {

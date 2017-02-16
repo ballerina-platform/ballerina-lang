@@ -56,6 +56,15 @@ define(['require', 'log', 'lodash', 'jquery', 'event_channel', 'ace/ace', '../ut
         });
         this._editor.setBehavioursEnabled(true);
         var self = this;
+
+        self.on('reset-breakpoints', function(breakpoints) {
+            breakpoints = breakpoints || [];
+            // ace editor breakpoints counts from 0;
+            var sourceViewBreakPoints = _.map(breakpoints, function(breakpoint) {
+                return breakpoint - 1;
+            });
+            self._editor.getSession().setBreakpoints(sourceViewBreakPoints);
+        });
         //bind auto complete to key press
         this._editor.commands.on("afterExec", function(e){
             if (e.command.name == "insertstring"&&/^[\w.]$/.test(e.args)) {
@@ -68,9 +77,17 @@ define(['require', 'log', 'lodash', 'jquery', 'event_channel', 'ace/ace', '../ut
         this._editor.setOptions({
             fontSize: _.get(this._options, 'font_size')
         });
-        this._editor.on("change", function() {
+        this._editor.on("change", function(event) {
             if(!self._inSilentMode){
-                self.trigger('modified');
+                var changeEvent = {
+                    type: "source-modified",
+                    title: "Modify source",
+                    data: {
+                        type: event.action,
+                        lines: event.lines
+                    }
+                };
+                self.trigger('modified', changeEvent);
             }
         });
 
@@ -171,13 +188,13 @@ define(['require', 'log', 'lodash', 'jquery', 'event_channel', 'ace/ace', '../ut
         var breakpoints = e.editor.session.getBreakpoints(row, 0);
         var row = e.getDocumentPosition().row;        
         if(_.isUndefined(breakpoints[row])){
-            this._markers[row] = this._editor.getSession().addMarker(new Range.Range(row, 0, row, 2000), "debug-point", "line", true);
+            //this._markers[row] = this._editor.getSession().addMarker(new Range.Range(row, 0, row, 2000), "debug-point", "line", true);
             e.editor.session.setBreakpoint(row);
             this.trigger('add-breakpoint', row + 1);
         }
         else{
             this._editor.getSession().removeMarker(this._markers[row]);
-            delete this._markers[row];
+            //delete this._markers[row];
             this.trigger('remove-breakpoint', row + 1);
             e.editor.session.clearBreakpoint(row);
         }
@@ -196,6 +213,14 @@ define(['require', 'log', 'lodash', 'jquery', 'event_channel', 'ace/ace', '../ut
 
     SourceView.prototype.isClean = function(){
        return this._editor.getSession().getUndoManager().isClean();
+    };
+
+    SourceView.prototype.undo = function(){
+       return this._editor.getSession().getUndoManager().undo();
+    };
+
+    SourceView.prototype.redo = function(){
+       return this._editor.getSession().getUndoManager().redo();
     };
 
     SourceView.prototype.markClean = function(){

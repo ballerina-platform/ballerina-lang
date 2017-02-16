@@ -15,8 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'jquery', 'log', './compound-statement-view', './../ast/while-statement', 'd3utils', 'd3'],
-    function (_, $, log, CompoundStatementView, WhileStatement, D3Utils, d3) {
+define(['lodash', 'log', './block-statement-view', './../ast/while-statement'],
+    function (_, log, BlockStatementView, WhileStatement) {
 
         /**
          * The view to represent a If statement which is an AST visitor.
@@ -27,14 +27,14 @@ define(['lodash', 'jquery', 'log', './compound-statement-view', './../ast/while-
          * @param {Object} [args.viewOptions={}] - Configuration values for the view.
          * @class WhileStatementView
          * @constructor
-         * @extends CompoundStatementView
+         * @extends BlockStatementView
          */
         var WhileStatementView = function (args) {
             _.set(args, "viewOptions.title.text", "While");
-            CompoundStatementView.call(this, args);
+            BlockStatementView.call(this, args);
         };
 
-        WhileStatementView.prototype = Object.create(CompoundStatementView.prototype);
+        WhileStatementView.prototype = Object.create(BlockStatementView.prototype);
         WhileStatementView.prototype.constructor = WhileStatementView;
 
         WhileStatementView.prototype.canVisitWhileStatement = function(){

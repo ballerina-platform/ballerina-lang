@@ -17,34 +17,31 @@
  */
 
 define(
-    ['require', 'lodash', 'log', './ballerina-statement-view', 'd3utils', 'd3', 'ballerina/ast/ballerina-ast-factory'],
-    function (require, _, log, BallerinaStatementView, D3Utils, d3, BallerinaASTFactory) {
+    ['require', 'lodash', 'log', './ballerina-statement-view', 'd3utils', 'd3', './point'],
+    function (require, _, log, BallerinaStatementView, D3Utils, d3, Point) {
 
         /**
-         * Compound statement.
+         * Super view class for all compound statements e.g. if-else, try-catch etc.
          * @param args {*} arguments for the creating view
          * @class CompoundStatementView
          * @constructor
+         * @extends BallerinaStatementView
          */
         var CompoundStatementView = function (args) {
             BallerinaStatementView.call(this, args);
 
-            var viewOptions = this.getViewOptions();
-            viewOptions.height = _.get(args, "viewOptions.height", 100);
-            viewOptions.width = _.get(args, "viewOptions.width", 140); // starting width
-            viewOptions.minWidth = _.get(args, "viewOptions.minWidth", 140); // minimum width
-            _.set(viewOptions, "title.text", _.get(args, "viewOptions.title.text", "Statement"));
-            _.set(viewOptions, "title.width", _.get(args, "viewOptions.title.width", 40));
-            _.set(viewOptions, "title.height", _.get(args, "viewOptions.title.height", 25));
-            _.set(viewOptions, "padding.left", _.get(args, "viewOptions.padding.left", 7));
-            _.set(viewOptions, "padding.right", _.get(args, "viewOptions.padding.right", 7));
-            _.set(viewOptions, "padding.top", _.get(args, "viewOptions.padding.top", viewOptions.title.height));
-            _.set(viewOptions, "padding.bottom", _.get(args, "viewOptions.padding.bottom", 10));
-            _.set(viewOptions, 'contentOffset', _.get(viewOptions, 'contentOffset', {top: 10, bottom: 10}));
+            /**
+             * Real width of the child statements of this compound statement.
+             * @type {number[]}
+             * @private
+             */
+            this._childrenViewsActualWidths = [];
 
-            this.getBoundingBox().fromTopCenter(
-                this.getTopCenter(), (viewOptions.padding.left + viewOptions.width + viewOptions.padding.right),
-                viewOptions.height);
+            var viewOptions = this.getViewOptions();
+            viewOptions.width = _.get(args, "viewOptions.width", 140);
+            viewOptions.height = _.get(args, "viewOptions.height", 0);
+
+            this.getBoundingBox().fromTopCenter(this.getTopCenter(), viewOptions.width, viewOptions.height);
         };
 
         CompoundStatementView.prototype = Object.create(BallerinaStatementView.prototype);
@@ -60,111 +57,108 @@ define(
             var statementGroup = D3Utils.group(d3.select(this.getContainer()));
             // "id" is prepend with a "_" to be compatible with HTML4
             statementGroup.attr("id", "_" + model.id);
-
-            var outerRect = D3Utils.rect(bBox.x(), bBox.y(), bBox.w(), bBox.h(), 0, 0, statementGroup)
-                                   .classed('background-empty-rect', true);
-            statementGroup.outerRect = outerRect;
-            // Creating title.
-            var titleViewOptions = this.getViewOptions().title;
-            var titleGroup = D3Utils.group(statementGroup);
-            statementGroup.title = titleGroup;
-            var titleRect = D3Utils.rect(bBox.x(), bBox.y(), bBox.w(), 25, 0, 0, statementGroup)
-                                   .classed('statement-title-rect', true);
-            var titleText = D3Utils.textElement(bBox.x() + 20, bBox.y() + 12, titleViewOptions.text, statementGroup)
-                                   .classed('statement-text', true);
-            var titleTextWrapperPolyline = D3Utils.polyline(getTitlePolyLinePoints(bBox, titleViewOptions),
-                                                            statementGroup)
-                                                  .classed('statement-title-polyline', true);
-            titleGroup.titleRect = titleRect;
-            titleGroup.titleText = titleText;
-            titleGroup.titleTextWrapperPolyline = titleTextWrapperPolyline;
             this.setStatementGroup(statementGroup);
 
-            // Registering event listeners.
-            bBox.on('moved', function (offset) {
-                outerRect.attr("x", parseFloat(outerRect.attr('x')) + offset.dx);
-                outerRect.attr("y", parseFloat(outerRect.attr('y')) + offset.dy);
-
-                titleRect.attr("x", parseFloat(titleRect.attr('x')) + offset.dx);
-                titleRect.attr("y", parseFloat(titleRect.attr('y')) + offset.dy);
-
-                titleText.attr("y", parseFloat(titleText.attr('y')) + offset.dy);
-                titleText.attr("x", parseFloat(titleText.attr('x')) + offset.dx);
-                titleTextWrapperPolyline.attr("points", getTitlePolyLinePoints(bBox, titleViewOptions));
-            });
-            bBox.on('width-changed', function (dw) {
-                outerRect.attr("width", bBox.w());
-                titleRect.attr("width", bBox.w());
-            });
-            bBox.on('height-changed', function (dh) {
-                outerRect.attr("height", bBox.h());
-            });
-
-            this.renderStatementContainer();
-        };
-
-        CompoundStatementView.prototype.renderStatementContainer = function () {
-            var viewOptions = this.getViewOptions();
-            var model = this.getModel();
-            var boundingBox = this.getBoundingBox();
-            var topCenter = this.getTopCenter();
-
-            // Creating view options for the new statement container.
-            var statementContainerOpts = {};
-            _.set(statementContainerOpts, 'model', model);
-            _.set(statementContainerOpts, 'topCenter', topCenter.clone().move(0, viewOptions.padding.top));
-            _.set(statementContainerOpts, 'bottomCenter', topCenter.clone().move(0, viewOptions.height));
-            _.set(statementContainerOpts, 'width', boundingBox.w());
-            _.set(statementContainerOpts, 'minWidth', statementContainerOpts.width);
-            _.set(statementContainerOpts, 'height', (boundingBox.h() - viewOptions.padding.top));
-            _.set(statementContainerOpts, 'minHeight', statementContainerOpts.height);
-            _.set(statementContainerOpts, 'padding.left', viewOptions.padding.left);
-            _.set(statementContainerOpts, 'padding.right', viewOptions.padding.right);
-            _.set(statementContainerOpts, 'offset', {top: viewOptions.title.height, bottom: 30});
-            _.set(statementContainerOpts, 'parent', this);
-            _.set(statementContainerOpts, 'container', this.getStatementGroup().node());
-            _.set(statementContainerOpts, 'toolPalette', this.getToolPalette());
-
-            // Creating new statement container.
-            var StatementContainer = require('./statement-container');
-            var statementContainer = new StatementContainer(statementContainerOpts);
-            this.setStatementContainer(statementContainer);
-
-            // Registering event handlers.
-            this.listenTo(statementContainer.getBoundingBox(), 'height-changed', function (dh) {
-                boundingBox.h(boundingBox.h() + dh);
-            });
-            boundingBox.on('top-edge-moved', function (dy) {
-                statementContainer.isOnWholeContainerMove = true;
-                statementContainer.getBoundingBox().y(statementContainer.getBoundingBox().y() + dy);
+            /* If the top-edge-moved event triggered we only need to move the first child statement view. Because other
+             child statements are listening to it's previous sibling and accordingly move. */
+            bBox.on('top-edge-moved', function (offset) {
+                var firstChildStatementView = this._childrenViewsList[0];
+                if (!_.isUndefined(firstChildStatementView)) {
+                    this._pendingContainerMove = true;
+                    firstChildStatementView.getBoundingBox().move(0, offset, false);
+                }
             }, this);
-            this.listenTo(statementContainer.getBoundingBox(), 'width-changed', function (dw) {
-                boundingBox.zoomWidth(Math.max((boundingBox.w() + dw), viewOptions.minWidth));
-            });
 
-            statementContainer.render(this.getDiagramRenderingContext());
-
-            /* Removing all the registered 'child-added' event listeners for this model. This is needed because we
-             are not un-registering registered event while the diagram element deletion. Due to that, sometimes we
-             are having two or more view elements listening to the 'child-added' event of same model. */
-            model.off('child-added');
-            model.on('child-added', function (child) {
-                this.visit(child);
-            }, this);
             model.accept(this);
         };
 
-        //TODO : rename as visitStatement to avoid conflicts with generic visit
-        CompoundStatementView.prototype.visit = function (statement) {
-            var args = {
-                model: statement,
+        /**
+         *
+         * @param childStatement
+         * @return {BlockStatementView}
+         */
+        CompoundStatementView.prototype.visitChildStatement = function (childStatement) {
+            var boundingBox = this.getBoundingBox();
+            var topCenter = this.getTopCenter();
+            var renderingContext = this.getDiagramRenderingContext();
+            /** @type {BlockStatementView[]} */
+            var childStatementViews = this.getChildrenViewsList();
+            var childrenViewsActualWidths = this._childrenViewsActualWidths;
+
+            // Creating child statement view.
+            var childStatementViewTopCenter;
+            if (_.isEmpty(childStatementViews)) {
+                childStatementViewTopCenter = new Point(topCenter.x(), topCenter.y());
+            } else {
+                childStatementViewTopCenter =
+                    new Point(topCenter.x(), _.last(childStatementViews).getBoundingBox().getBottom());
+            }
+            var childStatementViewArgs = {
+                model: childStatement,
                 container: this.getStatementGroup().node(),
                 viewOptions: {},
-                toolPalette: this.getToolPalette(),
+                parent: this,
+                topCenter: childStatementViewTopCenter,
                 messageManager: this.messageManager,
-                parent: this
+                toolPalette: this.getToolPalette()
             };
-            this.getStatementContainer().renderStatement(statement, args);
+            var StatementViewFactory = require('./statement-view-factory');
+            var statementViewFactory = new StatementViewFactory();
+            /** @type {BlockStatementView} */
+            var childStatementView = statementViewFactory.getStatementView(childStatementViewArgs);
+
+            // If there are previously added child statements, then get the last one.
+            var lastChildStatementView = _.last(childStatementViews);
+            if (!_.isUndefined(lastChildStatementView)) {
+                // When the last child statement's height change, adding child statement should move accordingly.
+                lastChildStatementView.getBoundingBox().on('bottom-edge-moved', function (offset) {
+                    childStatementView.getBoundingBox().move(0, offset, false);
+                });
+                this.stopListening(lastChildStatementView.getBoundingBox(), 'bottom-edge-moved');
+            }
+
+            // When child statement's height changes, height of the bounding box should change accordingly.
+            this.listenTo(childStatementView.getBoundingBox(), 'bottom-edge-moved', function (dy) {
+                if (!this._pendingContainerMove) {
+                    this.getBoundingBox().h(this.getBoundingBox().h() + dy);
+                } else {
+                    this._pendingContainerMove = false;
+                }
+            });
+            // When child statement's width changes, the width of the bounding box should change accordingly.
+            this.listenTo(childStatementView.getBoundingBox(), 'width-changed', function (dw) {
+                if (childStatementView._isResizingFromCompoundStatement === true) {
+                    return;
+                }
+
+                var childStatementViewIndex = _.findIndex(childStatementViews, childStatementView);
+                // Update the actual widths array with new width of this child statement.
+                childrenViewsActualWidths[childStatementViewIndex] =
+                    childrenViewsActualWidths[childStatementViewIndex] + dw;
+                var maxChildViewActualWidth = _.max(childrenViewsActualWidths);
+
+                _.forEach(childStatementViews, function (childStatementView) {
+                    childStatementView._isResizingFromCompoundStatement = true;
+                    childStatementView.getStatementContainer()._updateContainerWidth(maxChildViewActualWidth);
+                    childStatementView._isResizingFromCompoundStatement = false;
+                });
+                boundingBox.zoomWidth(maxChildViewActualWidth);
+            });
+
+            childStatementViews.push(childStatementView);
+            childrenViewsActualWidths.push(childStatementView.getBoundingBox().w());
+            renderingContext.getViewModelMap()[childStatement.id] = childStatementView;
+
+            childStatementView.render(renderingContext);
+
+            if (childStatementViews.length === 1) {
+                // This is the very first child statement.
+                boundingBox.h(childStatementView.getBoundingBox().h());
+            } else {
+                boundingBox.h(boundingBox.h() + childStatementView.getBoundingBox().h());
+            }
+
+            return childStatementView;
         };
 
         CompoundStatementView.prototype.setModel = function (model) {
@@ -215,30 +209,13 @@ define(
             return this.toolPalette;
         };
 
-        /**
-         * Overrides the child remove callback from BallerinaStatementView.
-         * @param child {ASTNode} removed child
-         */
-        CompoundStatementView.prototype.childRemovedCallback = function (child) {
-            if (BallerinaASTFactory.isStatement(child)) {
-                this.getStatementContainer().childStatementRemovedCallback(child);
-            }
+        CompoundStatementView.prototype.onBeforeModelRemove = function () {
+            _.forEach(this.getChildrenViewsList(), function (childStatementView) {
+                childStatementView.stopListening();
+            });
+            this.getStatementGroup().node().remove();
+            this.getBoundingBox().w(0).h(0);
         };
-
-        /**
-         * Returns the points for the title's poly line.
-         * @param boundingBox {BBox} bounding box
-         * @param titleViewOptions {{width: number, height: number}} title's view options
-         * @return {string} pints of thr poly line
-         */
-        function getTitlePolyLinePoints(boundingBox, titleViewOptions) {
-            var x = boundingBox.x(), y = boundingBox.y();
-            var titleWidth = titleViewOptions.width, titleHeight = titleViewOptions.height;
-            var offset = 10;
-            return "" + x + "," + (y + titleHeight) + " " +
-                   (x + titleWidth) + "," + (y + titleHeight) + " " +
-                   (x + titleWidth + offset) + "," + y;
-        }
 
         return CompoundStatementView;
     });

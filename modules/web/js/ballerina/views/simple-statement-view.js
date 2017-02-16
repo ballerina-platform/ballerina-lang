@@ -21,9 +21,11 @@ define(
     function (_, log, BallerinaStatementView, D3Utils, d3) {
 
         /**
-         * Simple statement.
+         * Super view class for all simple statements e.g. assignment, variable definition, functional invocation etc.
          * @param args {*} arguments for the creating view
+         * @class SimpleStatementView
          * @constructor
+         * @extends BallerinaStatementView
          */
         var SimpleStatementView = function (args) {
             BallerinaStatementView.call(this, args);
@@ -36,6 +38,8 @@ define(
             viewOptions.textPadding = _.get(args, "viewOptions.textPadding", {left: 5, right: 5, top: 0, bottom: 0});
 
             this.getBoundingBox().fromTopCenter(this.getTopCenter(), viewOptions.width, viewOptions.height);
+            this._svgRect = undefined;
+            this._svgText = undefined
         };
 
         SimpleStatementView.prototype = Object.create(BallerinaStatementView.prototype);
@@ -45,29 +49,29 @@ define(
         SimpleStatementView.prototype.render = function (renderingContext) {
             this.setDiagramRenderingContext(renderingContext);
             var bBox = this.getBoundingBox();
+            var self = this;
 
             // Creating statement group.
             var statementGroup = D3Utils.group(d3.select(this._container));
             // "id" is prepend with a "_" to be compatible with HTML4
             statementGroup.attr("id", "_" + this.getModel().id);
-            var svgRect = D3Utils.rect(bBox.getLeft(), bBox.getTop(), bBox.w(), bBox.h(), 0, 0, statementGroup)
+            this._svgRect = D3Utils.rect(bBox.getLeft(), bBox.getTop(), bBox.w(), bBox.h(), 0, 0, statementGroup)
                                  .classed('statement-rect', true);
-            var svgText = D3Utils.textElement(bBox.getCenterX(), bBox.getCenterY(), "", statementGroup)
+            this._svgText = D3Utils.textElement(bBox.getCenterX(), bBox.getCenterY(), "", statementGroup)
                                  .classed('statement-text', true);
-            statementGroup.outerRectElement = svgRect;
-            statementGroup.displayTextElement = svgText;
+            statementGroup.outerRectElement = this._svgRect;
+            statementGroup.displayTextElement = this._svgText;
             this.setStatementGroup(statementGroup);
 
             // Registering event listeners.
-            bBox.on('top-edge-moved', function (dy) {
-                svgRect.attr('y', parseFloat(svgRect.attr('y')) + dy);
-                svgText.attr('y', parseFloat(svgText.attr('y')) + dy);
+            this.listenTo(bBox, 'top-edge-moved', function (dy) {
+                self.onTopEdgeMovedTrigger(dy);
             });
             bBox.on('width-changed', function (dw) {
-                svgRect.attr('width', parseFloat(svgRect.attr('width')) + dw);
+                self._svgRect.attr('width', parseFloat(self._svgRect.attr('width')) + dw);
             });
             bBox.on('left-edge-moved', function (dx) {
-                svgRect.attr('x', parseFloat(svgRect.attr('x')) + dx);
+                self._svgRect.attr('x', parseFloat(self._svgRect.attr('x')) + dx);
             });
         };
 
@@ -148,6 +152,31 @@ define(
 
         SimpleStatementView.prototype.getViewOptions = function () {
             return this._viewOptions;
+        };
+
+        SimpleStatementView.prototype.showDebugHit = function () {
+            this.getSvgRect().classed('highlight-statement', true);
+        };
+
+        SimpleStatementView.prototype.clearDebugHit = function () {
+            this.getSvgRect().classed('highlight-statement', false);
+        };
+
+        /**
+         * When the top edge move event triggered
+         * @param {number} dy - delta y distance
+         */
+        SimpleStatementView.prototype.onTopEdgeMovedTrigger = function (dy) {
+            this._svgRect.attr('y', parseFloat(this._svgRect.attr('y')) + dy);
+            this._svgText.attr('y', parseFloat(this._svgText.attr('y')) + dy);
+        };
+
+        SimpleStatementView.prototype.getSvgRect = function () {
+            return this._svgRect;
+        };
+
+        SimpleStatementView.prototype.getSvgText = function () {
+            return this._svgText;
         };
 
         return SimpleStatementView;

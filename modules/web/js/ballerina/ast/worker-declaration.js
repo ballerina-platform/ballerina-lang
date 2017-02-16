@@ -22,6 +22,9 @@ define(['lodash', './node', '../utils/common-utils'], function (_, ASTNode, Comm
         this._reply = _.get(args, "replyStatement", null);
         this._childrenList = [];
         this._workerDeclarationStatement = _.get(args, 'declarationStatement', 'worker1(message m)');
+        this._invoker = undefined;
+        this._replyReceiver = undefined;
+        this._workerName = undefined;
 
         ASTNode.call(this, "WorkerDeclaration");
     };
@@ -49,6 +52,8 @@ define(['lodash', './node', '../utils/common-utils'], function (_, ASTNode, Comm
      */
     WorkerDeclaration.prototype.setWorkerDeclarationStatement = function (declarationStatement) {
         this._workerDeclarationStatement = declarationStatement;
+        var tokens = this._workerDeclarationStatement.split("(");
+        this.setWorkerName(tokens[0].trim());
     };
 
     /**
@@ -60,7 +65,11 @@ define(['lodash', './node', '../utils/common-utils'], function (_, ASTNode, Comm
     };
 
     WorkerDeclaration.prototype.getWorkerName = function () {
-        return "workerName";
+        return this._workerName;
+    };
+
+    WorkerDeclaration.prototype.setWorkerName = function (workerName) {
+        this._workerName = workerName;
     };
 
     /**
@@ -83,6 +92,38 @@ define(['lodash', './node', '../utils/common-utils'], function (_, ASTNode, Comm
         //         }]
         //     }]
         // });
+    };
+
+    /**
+     * Get the invoker statement
+     * @return {ASTNode} invoker statement
+     */
+    WorkerDeclaration.prototype.getInvoker = function () {
+        return this._invoker;
+    };
+
+    /**
+     * Set the invoker statement
+     * @param {ASTNode} invoker
+     */
+    WorkerDeclaration.prototype.setInvoker = function (invoker) {
+        this._invoker = invoker;
+    };
+
+    /**
+     * Get the invoker statement
+     * @return {ASTNode} reply receiver statement
+     */
+    WorkerDeclaration.prototype.getReplyReceiver = function () {
+        return this._replyReceiver;
+    };
+
+    /**
+     * Set the reply receiver statement
+     * @param {ASTNode} replyReceiver
+     */
+    WorkerDeclaration.prototype.setReplyReceiver = function (replyReceiver) {
+        this._replyReceiver = replyReceiver;
     };
 
     return WorkerDeclaration;

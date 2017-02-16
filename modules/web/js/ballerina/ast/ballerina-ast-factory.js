@@ -29,10 +29,11 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
         './action-invocation-statement', './arithmetic-expression', './logical-expression', './action-invocation-expression',
         './return-type', './type-name', './argument', './back-quote-expression', './basic-literal-expression',
         './left-operand-expression', './right-operand-expression', './instance-creation-expression', './then-body',
-        './if-condition', './array-map-access-expression', './map-init-expression', './key-value-expression',
+        './if-condition', './array-map-access-expression', './key-value-expression',
         './binary-expression', './unary-expression','./connector-action', './struct-definition', './constant-definition',
-        './variable-definition-statement','./type-struct-definition', './type-casting-expression', './worker-invoke',
-        './reference-type-init-expression', './array-init-expression'],
+        './variable-definition-statement','./type-casting-expression', './worker-invoke',
+        './reference-type-init-expression', './array-init-expression', './worker-receive','./struct-type','./struct-field-access-expression',
+        './block-statement','./type-cast-expression','./variable-definition'],
     function (_, ballerinaAstRoot, serviceDefinition, functionDefinition, connectorDefinition, resourceDefinition,
               workerDeclaration, statement, conditionalStatement, connectorDeclaration, expression, ifElseStatement,
               ifStatement, elseStatement, elseIfStatement, tryCatchStatement, tryStatement, catchStatement, replyStatement,
@@ -41,9 +42,10 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
               functionInvocationExpression, variableReferenceExpression, actionInvocationStatement, arithmeticExpression,
               logicalExpression, actionInvocationExpression, returnType, typeName, argument, backQuoteExpression,
               basicLiteralExpression, leftOperandExpression, rightOperandExpression, instanceCreationExpression,
-              thenBody, ifCondition, arrayMapAccessExpression, mapInitExpression, keyValueExpression, binaryExpression,
+              thenBody, ifCondition, arrayMapAccessExpression, keyValueExpression, binaryExpression,
               unaryExpression, connectorAction, structDefinition, constantDefinition, variableDefinitionStatement,
-              typeStructDefinition, typeCastingExpression, workerInvoke, referenceTypeInitExpression, arrayInitExpression) {
+              typeCastingExpression, workerInvoke, referenceTypeInitExpression, arrayInitExpression, workerReceive,structType,
+              structFieldAccessExpression,blockStatement,typeCastExpression,variableDefinition) {
 
 
         /**
@@ -139,15 +141,6 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
         };
 
         /**
-         * creates mapInitExpression
-         * @param {Object} args - object for mapInitExpression creation
-         * @returns {MapInitExpression}
-         */
-        BallerinaASTFactory.createMapInitExpression = function (args) {
-            return new mapInitExpression(args);
-        };
-
-        /**
          * creates keyValueExpression
          * @param {Object} args - object for keyValueExpression creation
          * @returns {KeyValueExpression}
@@ -193,21 +186,22 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
         };
 
         /**
-         * creates typeStructDefinition
-         * @param {Object} args - object for typeStructDefinition creation
-         * @returns {TypeStructDefinition}
-         */
-        BallerinaASTFactory.createTypeStructDefinition = function (args) {
-            return new typeStructDefinition(args);
-        };
-
-        /**
          * create VariableDeclaration
-         * @param args
+         * @param args - object for variableDeclaration creation
+         * @returns {VariableDeclaration}
          */
         BallerinaASTFactory.createVariableDeclaration = function (args) {
             return new variableDeclaration(args);
         };
+
+        /**
+         * create VariableDefinition
+         * @param args
+         */
+        BallerinaASTFactory.createVariableDefinition = function (args) {
+            return new variableDefinition(args);
+        };
+
         /**
          * create ConditionalStatement
          * @param args
@@ -287,10 +281,7 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
          * @param args
          */
         BallerinaASTFactory.createIfElseStatement = function (args) {
-            var ifElse = new ifElseStatement(args);
-            // TODO: Else statement should add through a button click. By default If else consists an if statement only
-            var elseStmt = ifElse.createElseStatement(args);
-            return ifElse;
+            return new ifElseStatement(args);
         };
 
         /**
@@ -422,11 +413,35 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
         };
 
         /**
+         * creates BlockStatement
+         * @param args
+         */
+        BallerinaASTFactory.createBlockStatement = function (args) {
+            return new blockStatement(args);
+        };
+
+        /**
          * creates ReturnStatement
          * @param args
          */
         BallerinaASTFactory.createReturnStatement = function (args) {
             return new returnStatement(args);
+        };
+
+         /**
+         * creates StructFieldAccessExpression
+         * @param args
+         */
+        BallerinaASTFactory.createStructFieldAccessExpression = function (args) {
+            return new structFieldAccessExpression(args);
+        };
+
+        /**
+         * creates TypeCastExpression
+         * @param args
+         */
+        BallerinaASTFactory.createTypeCastExpression = function (args) {
+            return new typeCastExpression(args);
         };
 
         /**
@@ -438,9 +453,17 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
         };
 
         /**
-        * creates WhileStatement
-        * @param args
-        */
+         * creates WorkerReceiveStatement
+         * @param args
+         */
+        BallerinaASTFactory.createWorkerReceiveStatement = function (args) {
+            return new workerReceive(args);
+        };
+
+        /**
+         * creates WhileStatement
+         * @param args
+         */
         BallerinaASTFactory.createWhileStatement = function (args) {
             return new whileStatement(args);
         };
@@ -472,12 +495,21 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
         };
 
         /**
-         * creates ResourceArgument
+         * creates ResourceParameter
          * @param args
-         * @returns {ResourceArgument}
+         * @returns {ResourceParameter}
          */
         BallerinaASTFactory.createResourceParameter = function (args) {
             return new resourceParameter(args);
+        };
+
+        /**
+         * creates StructType
+         * @param args
+         * @returns {StructType}
+         */
+        BallerinaASTFactory.createStructType = function (args) {
+            return new structType(args);
         };
 
         /**
@@ -656,12 +688,39 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
         };
 
         /**
+         * instanceof check for WorkerInvoke
+         * @param child - Object for instanceof check
+         * @returns {boolean} - true if same type, else false
+         */
+        BallerinaASTFactory.isWorkerInvokeStatement = function (child) {
+            return child instanceof workerInvoke;
+        };
+
+        /**
+         * instanceof check for WorkerReceive
+         * @param child - Object for instanceof check
+         * @returns {boolean} - true if same type, else false
+         */
+        BallerinaASTFactory.isWorkerReceiveStatement = function (child) {
+            return child instanceof workerReceive;
+        };
+
+        /**
          * instanceof check for Statement
          * @param child - Object for instanceof check
          * @returns {boolean} - true if same type, else false
          */
         BallerinaASTFactory.isStatement = function (child) {
             return child instanceof statement;
+        };
+
+        /**
+         * instanceof check for Block Statement
+         * @param child - Object for instanceof check
+         * @returns {boolean} - true if same type, else false
+         */
+        BallerinaASTFactory.isBlockStatement = function (child) {
+            return child instanceof blockStatement;
         };
 
         /**
@@ -697,7 +756,7 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
          * @returns {boolean} - true if same type, else false
          */
         BallerinaASTFactory.isStructDefinition = function (child) {
-          return child instanceof structDefinition;
+            return child instanceof structDefinition;
         };
 
         /**
@@ -710,15 +769,6 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
         };
 
         /**
-         * instanceof check for TypeStructDefinition
-         * @param {ASTNode} child - Object for instanceof check
-         * @returns {boolean} - true if same type, else false
-         */
-        BallerinaASTFactory.isTypeStructDefinition = function (child) {
-            return child instanceof typeStructDefinition;
-        };
-
-        /**
          * is VariableDeclaration
          * @param child - Object for instanceof check
          * @returns {boolean} - true if same type, else false
@@ -726,6 +776,16 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
         BallerinaASTFactory.isVariableDeclaration = function (child) {
             return child instanceof variableDeclaration;
         };
+
+        /**
+         * is StructType
+         * @param child - Object for instanceof check
+         * @returns {boolean} - true if same type, else false
+         */
+        BallerinaASTFactory.isStructType = function (child) {
+            return child instanceof structType;
+        };
+
         /**
          * is ConditionalStatement
          * @param child - Object for instanceof check
@@ -751,6 +811,33 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
          */
         BallerinaASTFactory.isExpression = function (child) {
             return child instanceof expression;
+        };
+
+        /**
+         * instanceof check for StructFieldAccessExpression
+         * @param child - Object for instanceof check
+         * @returns {boolean} - true if same type, else false
+         */
+        BallerinaASTFactory.isStructFieldAccessExpression = function (child) {
+            return child instanceof structFieldAccessExpression;
+        };
+
+        /**
+         * instanceof check for LeftOperandExpression
+         * @param child - Object for instanceof check
+         * @returns {boolean} - true if same type, else false
+         */
+        BallerinaASTFactory.isLeftOperandExpression = function (child) {
+            return child instanceof leftOperandExpression;
+        };
+
+        /**
+         * instanceof check for TypeCastExpression
+         * @param child - Object for instanceof check
+         * @returns {boolean} - true if same type, else false
+         */
+        BallerinaASTFactory.isTypeCastExpression = function (child) {
+            return child instanceof typeCastExpression;
         };
 
         /**
@@ -953,6 +1040,15 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
          */
         BallerinaASTFactory.isVariableReferenceExpression = function (child) {
             return child instanceof variableReferenceExpression;
+        };
+
+        /**
+         * instanceof check for VariableDefinition
+         * @param child
+         * @returns {boolean}
+         */
+        BallerinaASTFactory.isVariableDefinition = function (child) {
+            return child instanceof variableDefinition;
         };
 
         /**
@@ -1175,6 +1271,9 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
                     case 'division_expression':
                         node = BallerinaASTFactory.createBinaryExpression({"operator" : "/"});
                         break;
+                    case 'mod_expression' :
+                        node = BallerinaASTFactory.createBinaryExpression({"operator" : "%"});
+                        break;
                     case 'and_expression':
                         node = BallerinaASTFactory.createBinaryExpression({"operator" : "&&"});
                         break;
@@ -1214,9 +1313,6 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
                     case 'struct_definition':
                         node = BallerinaASTFactory.createStructDefinition();
                         break;
-                    case 'map_init_expression':
-                        node = BallerinaASTFactory.createMapInitExpression();
-                        break;
                     case 'key_value_expression':
                         node = BallerinaASTFactory.createKeyValueExpression();
                         break;
@@ -1233,6 +1329,7 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
                         throw "Unknown node definition for " + jsonNode.type;
                 }
             }
+            node.setLineNumber(jsonNode.line_number, {doSilently: true});
             return node;
         };
 

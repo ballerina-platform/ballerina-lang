@@ -169,6 +169,16 @@ define(['jquery', 'lodash', 'backbone', 'log', 'dialogs', 'welcome-page', 'tab',
             this._closeFileConfirmDialog.askConfirmation(options);
         };
 
+        this.openReplaceFileConfirmDialog = function(options) {
+            if(_.isNil(this._replaceFileConfirmDialog)){
+                this._replaceFileConfirmDialog = new Dialogs.ReplaceConfirmDialog();
+            }
+            // This dialog need to be re-rendered so that it comes on top of save file dialog.
+            this._replaceFileConfirmDialog.render();
+
+            this._replaceFileConfirmDialog.askConfirmation(options);
+        };
+
         this.goToWelcomePage = function goToWelcomePage() {
             this.workspaceManager.showWelcomePage(this.workspaceManager);
         };
@@ -183,7 +193,7 @@ define(['jquery', 'lodash', 'backbone', 'log', 'dialogs', 'welcome-page', 'tab',
                 var fileEditor = activeTab.getBallerinaFileEditor();
                 if(!_.isUndefined(fileEditor)){
                     var undoManager = activeTab.getBallerinaFileEditor().getUndoManager();
-                    if (undoManager.hasUndo()) {
+                    if (undoManager.hasUndo() && undoManager.undoStackTop().canUndo()) {
                         undoMenuItem.enable();
                         undoMenuItem.addLabelSuffix(
                             undoManager.undoStackTop().getTitle());
@@ -191,7 +201,7 @@ define(['jquery', 'lodash', 'backbone', 'log', 'dialogs', 'welcome-page', 'tab',
                         undoMenuItem.disable();
                         undoMenuItem.clearLabelSuffix();
                     }
-                    if (undoManager.hasRedo()) {
+                    if (undoManager.hasRedo() && undoManager.redoStackTop().canRedo()) {
                         redoMenuItem.enable();
                         redoMenuItem.addLabelSuffix(
                             undoManager.redoStackTop().getTitle());
@@ -335,6 +345,8 @@ define(['jquery', 'lodash', 'backbone', 'log', 'dialogs', 'welcome-page', 'tab',
         app.commandManager.registerHandler('show-folder-open-dialog', this.showFolderOpenDialog, this);
 
         app.commandManager.registerHandler('open-close-file-confirm-dialog', this.openCloseFileConfirmDialog, this);
+
+        app.commandManager.registerHandler('open-replace-file-confirm-dialog', this.openReplaceFileConfirmDialog, this);
 
         // Go to Welcome Page.
         app.commandManager.registerHandler('go-to-welcome-page', this.goToWelcomePage);

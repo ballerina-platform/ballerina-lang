@@ -300,6 +300,27 @@ text-anchor: start;
     fill: url(#deleteIcon);
 }
 
+.property-pane-action-button-breakpoint {
+    opacity: 0.3;
+    fill: url(#addBreakpointIcon);
+}
+
+.property-pane-action-button-breakpoint:hover {
+    cursor: pointer;
+    opacity: 1;
+    fill: url(#addBreakpointIcon);
+}
+.statement-view-breakpoint-indicator {
+    opacity: 0.8;
+    fill: url(#debugIcon);
+}
+
+.statement-view-breakpoint-indicator:hover {
+    cursor: pointer;
+    opacity: 1;
+    fill: url(#debugIcon);
+}
+
 .annotation-icon-background-circle {
     opacity: 0.4;
     cursor: pointer;
@@ -354,17 +375,18 @@ text-anchor: start;
 }
 .default-worker-life-line text{
     cursor: pointer;
-    font-weight: 400;
+    font-weight: 300;
+    font-size: 14px;
 }
 
 .default-worker-life-line rect{
-    stroke: #000000;
-    fill: #FFFFFF;
+    stroke: #000;
+    fill: #FFF;
     stroke-width: 2px;
 }
 
 .default-worker-life-line line{
-    stroke: #000000;
+    stroke: #000;
     stroke-width: 2px;
 }
 
@@ -374,7 +396,6 @@ text-anchor: start;
 
 .connector-life-line text {
     cursor: pointer;
-    font-weight: 400;
 }
 
 .connector-life-line-top-polygon {
@@ -421,7 +442,7 @@ text-anchor: start;
 .start-action text{
     fill: black;
     stroke-opacity: 0;
-    font-weight: 400;
+    font-weight: 300;
 }
 
 .statement-container .main-drop-zone{

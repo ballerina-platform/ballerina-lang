@@ -90,7 +90,7 @@ define(['log', 'jquery', './../ast/ballerina-ast-factory', './../tool-palette/to
             name: "Type Mapper",
             icon: "images/tool-icons/type-converter.svg",
             title: "Type Mapper",
-            nodeFactoryMethod: BallerinaASTFactory.createTypeMapperDefinition
+            nodeFactoryMethod: DefaultsAddedBallerinaASTFactory.createTypeMapperDefinition
         };
 
         var createWorkerDecTool = {
@@ -103,7 +103,7 @@ define(['log', 'jquery', './../ast/ballerina-ast-factory', './../tool-palette/to
 
         var mainToolDefArray = [createServiceDefTool, createResourceDefTool, createFunctionDefTool,
             createMainFunctionDefTool, createConnectorDefTool, createConnectorActionTool, createStructsDefTool,
-            createTypeMapperDefTool];
+            createTypeMapperDefTool, createWorkerDecTool];
 
         var elements = new ToolGroup({
             toolGroupName: "Elements",
@@ -126,6 +126,14 @@ define(['log', 'jquery', './../ast/ballerina-ast-factory', './../tool-palette/to
             icon: "images/tool-icons/dgm-while.svg",
             title: "While",
             nodeFactoryMethod: BallerinaASTFactory.createWhileStatement
+        };
+
+        var createTryCatchStatementTool = {
+            id: "try-catch",
+            name: "Try-Catch",
+            icon: "images/tool-icons/dgm-while.svg",
+            title: "Try-Catch",
+            nodeFactoryMethod: BallerinaASTFactory.createTryCatchStatement
         };
 
         var createAssignmentExpressionTool = {
@@ -172,14 +180,23 @@ define(['log', 'jquery', './../ast/ballerina-ast-factory', './../tool-palette/to
         var createWorkerInvocationStatementTool = {
             id: "WorkerInvoke",
             name: "Worker Invoke",
-            icon: "images/tool-icons/return.svg",
+            icon: "images/tool-icons/worker-invoke.svg",
             title: "Worker Invoke",
             nodeFactoryMethod: BallerinaASTFactory.createWorkerInvokeStatement
         };
 
+        var createWorkerReceiverStatementTool = {
+            id: "WorkerReceive",
+            name: "Worker Receive",
+            icon: "images/tool-icons/worker-receive.svg",
+            title: "Worker Receive",
+            nodeFactoryMethod: BallerinaASTFactory.createWorkerReceiveStatement
+        };
+
         var statementToolDefArray = [createIfStatementTool, createAssignmentExpressionTool,
             createVariableDefinitionStatementTool,  createFunctionInvocationTool, createReturnStatementTool,
-            createReplyStatementTool, createWhileStatementTool];
+            createReplyStatementTool, createWhileStatementTool, createTryCatchStatementTool, createWorkerInvocationStatementTool,
+            createWorkerReceiverStatementTool];
 
         // Create statements tool group
         var statements = new ToolGroup({

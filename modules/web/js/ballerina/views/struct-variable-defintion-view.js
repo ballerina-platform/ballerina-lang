@@ -15,8 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'jquery', 'log', 'alerts', './ballerina-view', './../ast/variable-declaration', '../utils/dropdown'],
-    function (_, $, log, Alerts, BallerinaView, VariableDeclaration, Dropdown) {
+define(['lodash', 'jquery', 'log', 'alerts', './ballerina-view', './../ast/variable-declaration'],
+    function (_, $, log, Alerts, BallerinaView, VariableDeclaration) {
 
         /**
          * Arguments for creating a constant definition view.
@@ -97,38 +97,36 @@ define(['lodash', 'jquery', 'log', 'alerts', './ballerina-view', './../ast/varia
                 click: function(e) {e.stopPropagation();}
             }).appendTo(this._typeWrapper);
 
-            var typeDropdown = new Dropdown({
-                class: {mainWrapper: "struct-variable-type-dropdown-wrapper"},
-                onSelectCallBackFunction: function(key, value) {
-                    self.getModel().setType(key)
-                },
-                onDropdownOpen: function() {
-                    self._parentView.getBodyWrapper().css("height", $(self._parentView.getBodyWrapper()).height());
-                    self._parentView.getBodyWrapper().css("overflow-x", "visible");
-                    $(self._parentView.getBodyWrapper()).closest(".canvas-container").css("overflow", "visible");
+            var typeDropdown = $("<select/>").appendTo(typeEditWrapper);
 
-                    this.removeAllItems();
-
-                    // Adding items to the type dropdown.
-                    var bTypes = self.getDiagramRenderingContext().getEnvironment().getTypes();
-                    _.forEach(bTypes, function (bType) {
-                        typeDropdown.addItem({key: bType, value: bType});
-                    });
-
-                    var structTypes = self.getDiagramRenderingContext().getPackagedScopedEnvironment().getCurrentPackage().getStructDefinitions();
-                    _.forEach(structTypes, function (sType) {
-                        typeDropdown.addItem({key: sType.getStructName(), value: sType.getStructName()});
-                    });
-                },
-                onDropdownClosed: function() {
-                    self._parentView.getBodyWrapper().css("height", "");
-                    self._parentView.getBodyWrapper().css("overflow-x", "");
-                    $(self._parentView.getBodyWrapper()).closest(".canvas-container").css("overflow", "");
+            $(typeDropdown).select2({
+                tags: true,
+                selectOnClose: true,
+                data : self._getTypeDropdownValues(),
+                query: function (query) {
+                    var data = {results: []};
+                    if (!_.isNil(query.term)) {
+                        _.forEach(self._getTypeDropdownValues(), function (item) {
+                            if (item.text.toUpperCase().indexOf(query.term.toUpperCase()) >= 0) {
+                                data.results.push(item);
+                            }
+                        });
+                    } else {
+                        data.results = self._getTypeDropdownValues();
+                    }
+                    query.callback(data);
                 }
             });
-            typeDropdown.getElement().appendTo(typeEditWrapper);
 
-            typeDropdown.setSelectedValue(this.getModel().getType());
+            $(typeDropdown).on("select2:open", function() {
+                $(".select2-search__field").attr("placeholder", "Search");
+            });
+
+            $(typeDropdown).val(self.getModel().getType()).change();
+
+            $(typeDropdown).on("select2:select", function() {
+                self.getModel().setType(typeDropdown.select2('data')[0].text);
+            });
 
             $(this._identifierWrapper).empty();
 
@@ -177,6 +175,22 @@ define(['lodash', 'jquery', 'log', 'alerts', './ballerina-view', './../ast/varia
 
         StructVariableDefinitionView.prototype.getWrapper = function() {
             return this._structVariableWrapper;
+        };
+
+        StructVariableDefinitionView.prototype._getTypeDropdownValues = function () {
+            var dropdownData = [];
+            // Adding items to the type dropdown.
+            var bTypes = this.getDiagramRenderingContext().getEnvironment().getTypes();
+            _.forEach(bTypes, function (bType) {
+                dropdownData.push({id: bType, text: bType});
+            });
+
+            var structTypes = this.getDiagramRenderingContext().getPackagedScopedEnvironment().getCurrentPackage().getStructDefinitions();
+            _.forEach(structTypes, function (sType) {
+                dropdownData.push({id: sType.getStructName(), text: sType.getStructName()});
+            });
+
+            return dropdownData;
         };
 
         return StructVariableDefinitionView;

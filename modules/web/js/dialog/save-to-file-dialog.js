@@ -169,9 +169,34 @@ define(['require', 'lodash', 'jquery', 'log', 'backbone', 'file_browser', 'boots
 
                     var callback = function(isSaved) {
                         self.trigger('save-completed', isSaved);
-                        saveConfigModal.modal('hide');
+                        if (isSaved) {
+                            saveConfigModal.modal('hide');
+                        }
+                    };
+
+                    var client = self.app.workspaceManager.getServiceClient();
+                    var path = _location + '/' + _configName;
+                    var existsResponse = client.exists(path);
+
+                    if(existsResponse.exists) {
+                        // File with this name already exists. Need confirmation from user to replace
+                        var replaceConfirmCb = function(confirmed) {
+                            if(confirmed) {
+                                saveConfiguration({location: location, configName:configName}, callback);
+                            } else {
+                                callback(false);
+                            }
+                        }
+
+                        var options = {
+                            path: path,
+                            handleConfirm: replaceConfirmCb,
+                        };
+
+                        self.app.commandManager.dispatch('open-replace-file-confirm-dialog', options);
+                    } else {
+                        saveConfiguration({location: location, configName:configName}, callback);
                     }
-                    saveConfiguration({location: location, configName:configName}, callback);
                 });
 
                 $(this.dialog_container).append(fileSave);

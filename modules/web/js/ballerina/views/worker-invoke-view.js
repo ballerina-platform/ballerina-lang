@@ -15,9 +15,16 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'd3','log', './simple-statement-view', './../ast/action-invocation-expression', './point', 'd3utils', './../ast/ballerina-ast-factory'],
-    function (_, d3, log, SimpleStatementView, ActionInvocationExpression, Point, D3Utils, BallerinaASTFactory) {
+define(['lodash', 'd3','log', './simple-statement-view', './../ast/action-invocation-expression', './point', 'd3utils', './../ast/ballerina-ast-factory', './message'],
+    function (_, d3, log, SimpleStatementView, ActionInvocationExpression, Point, D3Utils, BallerinaASTFactory, MessageView) {
 
+        /**
+         * Worker invoke statement view.
+         * @param args {*} constructor arguments
+         * @class WorkerInvoke
+         * @constructor
+         * @extends SimpleStatementView
+         */
         var WorkerInvoke = function (args) {
             SimpleStatementView.call(this, args);
             this._connectorView = {};
@@ -33,6 +40,8 @@ define(['lodash', 'd3','log', './simple-statement-view', './../ast/action-invoca
             this._forwardArrowHead = undefined;
             this._backArrowHead = undefined;
             this._arrowGroup = undefined;
+            this._startActionText = undefined;
+            this._startRect = undefined;
 
         };
 
@@ -42,7 +51,7 @@ define(['lodash', 'd3','log', './simple-statement-view', './../ast/action-invoca
 
         WorkerInvoke.prototype.init = function(){
             // TODO: Event name should modify in order to tally for both connector action and other dynamic arrow draws
-            this.getModel().on("drawConnectionForAction",this.renderWorkerStart, this);
+            this.getModel().on("drawConnectionForAction",this.renderWorkerReceiverArrows, this);
             Object.getPrototypeOf(this.constructor.prototype).init.call(this);
         };
         WorkerInvoke.prototype.setDiagramRenderingContext = function(context){
@@ -78,26 +87,7 @@ define(['lodash', 'd3','log', './simple-statement-view', './../ast/action-invoca
             // Calling super class's render function.
             (this.__proto__.__proto__).render.call(this, renderingContext);
             // Setting display text.
-            this.renderDisplayText(model.getMessage());
-
-            // var actionInvocationModel = model.getChildren()[1].getChildren()[0];
-            // var connectorModel = actionInvocationModel.getConnector();
-            // actionInvocationModel.accept(this);
-            // if (!_.isUndefined(connectorModel)) {
-            //     this.connector = this.getDiagramRenderingContext().getViewOfModel(connectorModel);
-            // }
-            // else {
-            //     var siblingConnectors = this._parent._model.children;
-            //     _.some(siblingConnectors, function (key, i) {
-            //         if (BallerinaASTFactory.isConnectorDeclaration(siblingConnectors[i])) {
-            //             var connectorReference = siblingConnectors[i];
-            //             actionInvocationModel._connector = connectorReference;
-            //             self.messageManager.setMessageSource(actionInvocationModel);
-            //             self.messageManager.updateActivatedTarget(connectorReference);
-            //             return true;
-            //         }
-            //     });
-            // }
+            this.renderDisplayText(model.getInvokeStatement());
 
             this.renderProcessorConnectPoint(renderingContext);
             this.renderArrows(renderingContext);
@@ -126,7 +116,8 @@ define(['lodash', 'd3','log', './simple-statement-view', './../ast/action-invoca
                 var y =  parseFloat(self.processorConnectPoint.attr('cy'));
                 var sourcePoint = self.toGlobalCoordinates(new Point(x, y));
 
-                self.messageManager.startDrawMessage(self.getModel(), sourcePoint);
+                self.messageManager.startDrawMessage(self, self.getModel(), sourcePoint,
+                    self.toGlobalCoordinates(new Point(x, y)));
                 self.messageManager.setTypeBeingDragged(true);
             });
             this.processorConnectPoint.on("mouseover", function () {
@@ -137,24 +128,20 @@ define(['lodash', 'd3','log', './simple-statement-view', './../ast/action-invoca
             });
             this.processorConnectPoint.on("mouseout", function () {
                 self.processorConnectPoint.style("fill-opacity", 0.01);
+                self.messageManager.setTypeBeingDragged(undefined);
             });
 
             this.getBoundingBox().on('top-edge-moved', function(dy){
                 self.processorConnectPoint.attr('cy',  parseFloat(self.processorConnectPoint.attr('cy')) + dy);
             });
+
+            this.listenTo(model, 'update-property-text', this.updateStatementText);
         };
 
         WorkerInvoke.prototype.renderArrows = function (context) {
             this.setDiagramRenderingContext(context);
-            // var actionInvocationModel = this._model.getChildren()[1].getChildren()[0];
-            // var connectorModel = actionInvocationModel.getConnector();
 
             var destination = this.getModel().getDestination();
-
-            // if(!_.isUndefined(connectorModel)) {
-            //     this.connector = this.getDiagramRenderingContext().getViewOfModel(connectorModel);
-            // }
-
             if(!_.isUndefined(destination)) {
                 var parent = this.getStatementGroup();
                 this._arrowGroup = D3Utils.group(parent).attr("transform", "translate(0,0)");
@@ -172,9 +159,6 @@ define(['lodash', 'd3','log', './simple-statement-view', './../ast/action-invoca
                 this._processorConnector = D3Utils.line(Math.round(startPoint.x()), Math.round(startPoint.y()), Math.round(connectorCenterPointX),
                     Math.round(startPoint.y()), this._arrowGroup).classed("action-line", true);
                 this._forwardArrowHead = D3Utils.inputTriangle(Math.round(connectorCenterPointX) - 5, Math.round(startPoint.y()), this._arrowGroup).classed("action-arrow", true);
-                // this._processorConnector2 = D3Utils.line(Math.round(startPoint.x()), Math.round(startPoint.y()) + 8, Math.round(connectorCenterPointX),
-                //     Math.round(startPoint.y()) + 8, this._arrowGroup).classed("action-dash-line", true);
-                // this._backArrowHead = D3Utils.outputTriangle(Math.round(startPoint.x()), Math.round(startPoint.y()) + 8, this._arrowGroup).classed("action-arrow", true);
 
                 this.getBoundingBox().on('moved', function (offset) {
                     var transformX = this._arrowGroup.node().transform.baseVal.consolidate().matrix.e;
@@ -188,42 +172,6 @@ define(['lodash', 'd3','log', './simple-statement-view', './../ast/action-invoca
                 arrowHeadEnd
                     .attr("fill-opacity", 0.01)
                     .style("fill", "#444");
-
-                this.arrowHeadEndPoint = arrowHeadEnd;
-
-                var self = this;
-
-                this.arrowHeadEndPoint.on("mousedown", function () {
-                    d3.event.preventDefault();
-                    d3.event.stopPropagation();
-
-                    var x =  parseFloat(self.arrowHeadEndPoint.attr('cx'));
-                    var y =  parseFloat(self.arrowHeadEndPoint.attr('cy'));
-                    var x1 =  parseFloat(self._processorConnector.attr('x1'));
-                    var y1 =  parseFloat(self._processorConnector.attr('y1'));
-
-                    var sourcePoint = self.toGlobalCoordinates(new Point(x, y));
-                    var connectorPoint = self.toGlobalCoordinates(new Point(x1, y1));
-
-                    self.messageManager.startDrawMessage(actionInvocationModel, sourcePoint, connectorPoint);
-                    self.messageManager.setTypeBeingDragged(true);
-
-                    self._forwardArrowHead.remove();
-                    self._processorConnector.remove();
-                    self._processorConnector2.remove();
-                    self._backArrowHead.remove();
-                    self.arrowHeadEndPoint.remove();
-                });
-
-                this.arrowHeadEndPoint.on("mouseover", function () {
-                    arrowHeadEnd
-                        .style("fill-opacity", 0.5)
-                        .style("cursor", 'url(images/BlackHandwriting.cur), pointer');
-                });
-
-                this.arrowHeadEndPoint.on("mouseout", function () {
-                    arrowHeadEnd.style("fill-opacity", 0.01);
-                });
             }
         };
 
@@ -266,12 +214,9 @@ define(['lodash', 'd3','log', './simple-statement-view', './../ast/action-invoca
         WorkerInvoke.prototype.onBeforeModelRemove = function () {
             this.stopListening(this.getBoundingBox());
             d3.select("#_" +this._model.id).remove();
-            this.getDiagramRenderingContext().getViewOfModel(this._model.getParent()).getStatementContainer()
-                .removeInnerDropZone(this._model);
             this.removeArrows();
             // resize the bounding box in order to the other objects to resize
-            var moveOffset = -this.getBoundingBox().h() - 30;
-            this.getBoundingBox().move(0, moveOffset);
+            this.getBoundingBox().h(0).w(0);
 
         };
 
@@ -281,32 +226,78 @@ define(['lodash', 'd3','log', './simple-statement-view', './../ast/action-invoca
             this.renderDisplayText(displayText);
         };
 
-        WorkerInvoke.prototype.renderWorkerStart = function (startPoint, container) {
+        WorkerInvoke.prototype.renderWorkerReceiverArrows = function (startPoint, container) {
             log.debug("Render the worker start");
-            var activatedWorkerTarget = this.getDiagramRenderingContext().getViewModelMap()[this.messageManager.getActivatedDropTarget().id];
+            var activatedWorkerTarget = this.messageManager.getActivatedDropTarget();
             if (BallerinaASTFactory.isWorkerDeclaration(activatedWorkerTarget)) {
                 this.getModel().setDestination(activatedWorkerTarget);
-                this.renderStartAction();
+                this.renderReceiverArrows();
+                this.messageManager.reset();
             }
         };
 
-        WorkerInvoke.prototype.renderStartAction = function () {
-
-            var prefs = this._viewOptions.startAction;
-            var group = D3utils.group(this._contentGroup).classed(prefs.cssClass, true);
-            var center = this._viewOptions.defaultWorker.center.clone()
-                .move(0, _.get(this._viewOptions, "startActionOffSet"));
-
-            var rect = D3utils.centeredRect(center, prefs.width, prefs.height, 0, 0, group);
-            var text = D3utils.centeredText(center, prefs.title, group);
-            var messageStart = this._clientLifeLine.getTopCenter().clone();
-            messageStart.y(center.y());
-            var messageEnd = messageStart.clone();
-            messageEnd.x(center.x() - prefs.width/2);
+        WorkerInvoke.prototype.renderReceiverArrows = function () {
+            var self = this;
+            var group = D3Utils.group(d3.select(this._container));
+            var destinationView = this.getDiagramRenderingContext().getViewOfModel(this.messageManager.getActivatedDropTarget());
+            var startX = this.getBoundingBox().getRight();
+            var startY = this.getBoundingBox().getTop() + this.getBoundingBox().h()/2;
+            var endX = destinationView.getBoundingBox().getCenterX();
+            var endY = startY;
+            var startRectHeight = 30;
+            var startRectWidth = 120;
+            var messageStart = new Point(startX, startY);
+            var messageEnd = new Point(endX - startRectWidth/2, endY);
             var messageView = new MessageView({container: group.node(), start: messageStart, end: messageEnd});
+
+            var newY = this.getBoundingBox().getBottom() + 30;
+            var destinationStatementContainer = destinationView.getStatementContainer();
+            // TODO: Use the getter method
+            this.getDiagramRenderingContext().getViewOfModel(destinationStatementContainer._managedStatements[0]).getBoundingBox().y(newY);
+            // Move the first inner drop zone down
+            // TODO: use the getter method
+            destinationStatementContainer._managedInnerDropzones[0].d3el.attr('y', newY - 30);
             messageView.render();
 
+            // Set the invoker for the destination model (worker)
+            destinationView.getModel().setInvoker(this.getModel());
+
+            // Draw the start rect on the worker
+            this._startRect = D3Utils.centeredRect(new Point(endX, endY), startRectWidth, startRectHeight, 0, 0, group)
+                .classed('statement-rect', true);
+            this._startActionText = D3Utils.centeredText(new Point(endX, endY), 'Start', group)
+                .classed('statement-text', true);
             this._startActionGroup = group;
+
+            // Triggers when we add a new element above the worker invoke
+            this.getBoundingBox().on('bottom-edge-moved', function (dy) {
+                // If the bounding box of the invoker moved, we move the start action, arrow and the top most connector
+                // Here we force fully move the top most statement of the destination
+                self._startRect.attr('y', parseFloat(self._startRect.attr('y')) + dy);
+                self._startActionText.attr('y', parseFloat(self._startActionText.attr('y')) + dy);
+                self.getDiagramRenderingContext().getViewOfModel(destinationStatementContainer._managedStatements[0]).getBoundingBox().move(0, dy);
+                destinationStatementContainer._managedInnerDropzones[0].d3el.attr('y',
+                    parseFloat(destinationStatementContainer._managedInnerDropzones[0].d3el.attr('y')) + dy);
+                messageView.move(0, dy);
+            });
+
+            // Triggers when we delete an element above the worker-invoke
+            this.getBoundingBox().on('top-edge-moved', function (dy) {
+                // If the bounding box of the invoker moved, we move the start action, arrow and the top most connector
+                // Here we force fully move the top most statement of the destination
+                self._startRect.attr('y', parseFloat(self._startRect.attr('y')) + dy);
+                self._startActionText.attr('y', parseFloat(self._startActionText.attr('y')) + dy);
+                self.getDiagramRenderingContext().getViewOfModel(destinationStatementContainer._managedStatements[0]).getBoundingBox().move(0, dy);
+                destinationStatementContainer._managedInnerDropzones[0].d3el.attr('y',
+                    parseFloat(destinationStatementContainer._managedInnerDropzones[0].d3el.attr('y')) + dy);
+                messageView.move(0, dy);
+            });
+        };
+
+        WorkerInvoke.prototype.updateStatementText = function (newStatementText, propertyKey) {
+            this._model.setInvokeStatement(newStatementText);
+            var displayText = this._model.getInvokeStatement();
+            this.renderDisplayText(displayText);
         };
 
         return WorkerInvoke;

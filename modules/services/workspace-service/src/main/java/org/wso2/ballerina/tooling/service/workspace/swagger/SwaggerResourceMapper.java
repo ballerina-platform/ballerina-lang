@@ -19,9 +19,11 @@ package org.wso2.ballerina.tooling.service.workspace.swagger;
 import io.swagger.models.Operation;
 import io.swagger.models.Path;
 import io.swagger.models.Response;
+import io.swagger.models.parameters.PathParameter;
 import org.wso2.ballerina.core.model.Annotation;
+import org.wso2.ballerina.core.model.ParameterDef;
 import org.wso2.ballerina.core.model.Resource;
-import org.wso2.ballerina.core.runtime.dispatching.Constants;
+import org.wso2.ballerina.core.runtime.dispatching.http.Constants;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -30,11 +32,12 @@ import java.util.concurrent.ConcurrentHashMap;
  * This class will do resource mapping from ballerina to swagger.
  */
 public class SwaggerResourceMapper {
-    private final static String HTTP_VERB_MATCHING_PATTERN = "(?i)|" + Constants.ANNOTATION_METHOD_GET + "|" +
+    public final static String HTTP_VERB_MATCHING_PATTERN = "(?i)|" + Constants.ANNOTATION_METHOD_GET + "|" +
             Constants.ANNOTATION_METHOD_PUT + "|" + Constants.ANNOTATION_METHOD_POST + "|" +
             Constants.ANNOTATION_METHOD_DELETE + "|" + Constants.ANNOTATION_METHOD_OPTIONS;
     private Resource resource;
     private Operation operation;
+
 
     /**
      * Get Swagger operation object associated with current resource
@@ -45,6 +48,7 @@ public class SwaggerResourceMapper {
         return operation;
     }
 
+
     /**
      * Set Swagger operation object associated with current resource
      *
@@ -53,6 +57,7 @@ public class SwaggerResourceMapper {
     public void setOperation(Operation operation) {
         this.operation = operation;
     }
+
 
     /**
      * Get Ballerina Resource object associated with current resource
@@ -63,6 +68,7 @@ public class SwaggerResourceMapper {
         return resource;
     }
 
+
     /**
      * Set Ballerina Resource object associated with current resource
      *
@@ -71,6 +77,7 @@ public class SwaggerResourceMapper {
     public void setResource(Resource resource) {
         this.resource = resource;
     }
+
 
     /**
      * This method will convert ballerina resource to swagger path objects.
@@ -116,6 +123,7 @@ public class SwaggerResourceMapper {
         return map;
     }
 
+
     /**
      * Converts operation into a resource.
      *
@@ -126,6 +134,7 @@ public class SwaggerResourceMapper {
         // TODO need to implement this
         throw new UnsupportedOperationException("Converting operations to resources is not implemented yet!");
     }
+
 
     /**
      * This method will convert ballerina @Resource to ballerina @OperationAdaptor
@@ -146,17 +155,15 @@ public class SwaggerResourceMapper {
             //Default path should be /
             String path = "/";
             op.setPath(path);
-            //TODO need fixing for complication failure
-//            Map<String, Annotation> annotationMap = resource.getAnnotationMap();
-//            if (annotationMap != null) {
-//                annotationMap.entrySet().stream().filter
-//                        (operationEntry -> operationEntry.getKey().matches(HTTP_VERB_MATCHING_PATTERN)).
-//                        forEach(operationEntry -> op.setHttpOperation(operationEntry.getKey()));
-//            }
-            Annotation[] annotations = resource.getAnnotations();
-            for (Annotation annotation : annotations) {
-                if (annotation.getName().matches(HTTP_VERB_MATCHING_PATTERN)) {
-                    op.setHttpOperation(annotation.getName());
+            for (ParameterDef parameterDef : resource.getParameterDefs()) {
+                PathParameter queryParameter = new PathParameter();
+                queryParameter.setName(parameterDef.getName());
+                String typeName = parameterDef.getTypeName().getName();
+                if (!typeName.equalsIgnoreCase("message")) {
+                    queryParameter.setType(typeName);
+                    queryParameter.setIn("path");
+                    queryParameter.required(true);
+                    op.getOperation().addParameter(queryParameter);
                 }
             }
             if (resourceAnnotations != null) {
@@ -168,6 +175,10 @@ public class SwaggerResourceMapper {
                         op.getOperation().produces(annotation.getValue());
                     } else if (annotation.getName().equalsIgnoreCase("Path")) {
                         op.setPath(annotation.getValue());
+                    } else if (annotation.getName().equalsIgnoreCase("Summary")) {
+                        op.getOperation().setSummary(annotation.getValue());
+                    } else if (annotation.getName().equalsIgnoreCase("Description")) {
+                        op.getOperation().setDescription(annotation.getValue());
                     } else if (annotation.getName().matches(HTTP_VERB_MATCHING_PATTERN)) {
                         op.setHttpOperation(annotation.getName());
                     }
@@ -179,6 +190,8 @@ public class SwaggerResourceMapper {
                     }
                 }*/
                 }
+                op.getOperation().setVendorExtension(SwaggerConverterUtils.RESOURCE_UUID_NAME,
+                        SwaggerConverterUtils.generateServiceUUID(op.getPath(), op.getHttpOperation()));
             }
         }
         return op;

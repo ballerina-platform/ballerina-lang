@@ -166,7 +166,7 @@ public class WorkspaceService {
 		try {
 			String location = "";
 			String configName = "";
-			String config;
+			String config = "";
 			Matcher locationMatcher = Pattern.compile("location=(.*?)&configName").matcher(payload);
 			while (locationMatcher.find()) {
 				location = locationMatcher.group(1);
@@ -175,7 +175,10 @@ public class WorkspaceService {
 			while (configNameMatcher.find()) {
 				configName = configNameMatcher.group(1);
 			}
-			config = payload.split("config=")[1];
+			String[] splitConfigContent = payload.split("config=");
+            if (splitConfigContent.length > 1){
+                config = splitConfigContent[1];
+            }
 			byte[] base64Config = Base64.getDecoder().decode(config);
 			byte[] base64ConfigName = Base64.getDecoder().decode(configName);
 			byte[] base64Location = Base64.getDecoder().decode(location);
@@ -195,33 +198,14 @@ public class WorkspaceService {
 	@Path("/read")
 	@Produces("application/json")
 	public Response read(String path) {
-		StringBuilder fileContentBuilder = new StringBuilder();
-		InputStream fileContent = null;
-		BufferedReader br = null;
-		try {
-			fileContent = new FileInputStream(path);
-			br = new BufferedReader(new InputStreamReader(fileContent));
-			String line = null;
-			while ((line = br.readLine()) != null) {
-				fileContentBuilder.append(line);
-			}
-			JsonObject content = new JsonObject();
-			content.addProperty(CONTENT, fileContentBuilder.toString());
-			br.close();
-			return Response.status(Response.Status.OK).entity(content).header("Access-Control-Allow-Origin", '*')
-					.type(MediaType.APPLICATION_JSON).build();
-
-		} catch (Throwable throwable) {
+        try {
+            return Response.status(Response.Status.OK)
+                    .entity(workspace.read(new String(path)))
+                    .header("Access-Control-Allow-Origin", '*').type(MediaType.APPLICATION_JSON).build();
+        } catch (Throwable throwable) {
             logger.error("/read service error", throwable.getMessage());
             return getErrorResponse(throwable);
-        } finally {
-			try {
-				fileContent.close();
-				br.close();
-			} catch (Throwable throwable) {
-                logger.error("/read service error", throwable.getMessage());
-            }
-		}
+        }
 	}
 
     @POST
