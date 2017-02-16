@@ -44,11 +44,12 @@ import org.wso2.ballerina.core.model.statements.BlockStmt;
 import org.wso2.ballerina.core.model.types.BTypes;
 import org.wso2.ballerina.core.model.types.SimpleTypeName;
 import org.wso2.ballerina.core.model.values.BMessage;
+import org.wso2.ballerina.core.model.Worker;
 import org.wso2.ballerina.core.parser.BallerinaLexer;
 import org.wso2.ballerina.core.parser.BallerinaParser;
 import org.wso2.ballerina.core.parser.BallerinaParserErrorStrategy;
 import org.wso2.ballerina.core.parser.antlr4.BLangAntlr4Listener;
-import org.wso2.ballerina.core.runtime.dispatching.Constants;
+import org.wso2.ballerina.core.runtime.dispatching.http.Constants;
 import org.wso2.ballerina.tooling.service.workspace.swagger.generators.BallerinaCodeGenerator;
 
 import java.io.File;
@@ -290,7 +291,9 @@ public class SwaggerConverterUtils {
                             mergeAnnotations(originalResource.getAnnotations(), resource.getAnnotations())) {
                         resourceBuilder.addAnnotation(annotation);
                     }
-                    originalResource.getWorkers().forEach(resourceBuilder::addWorker);
+                    for (Worker worker : originalResource.getWorkers()) {
+                        resourceBuilder.addWorker(worker);
+                    }
                     for (ParameterDef parameterDef : originalResource.getParameterDefs()) {
                         resourceBuilder.addParameter(parameterDef);
                     }

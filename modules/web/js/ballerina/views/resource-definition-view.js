@@ -859,6 +859,7 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             var statementContainerOpts = {};
             var self = this;
             _.set(statementContainerOpts, 'model', this._model);
+            _.set(statementContainerOpts, 'parent', this);
             _.set(statementContainerOpts, 'topCenter', this._defaultWorker.getTopCenter());
             _.set(statementContainerOpts, 'bottomCenter', this._defaultWorker.getBottomCenter());
             _.set(statementContainerOpts, 'width', this._defaultWorker.width());
