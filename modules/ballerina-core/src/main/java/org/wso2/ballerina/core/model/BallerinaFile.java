@@ -20,7 +20,6 @@ package org.wso2.ballerina.core.model;
 
 import org.wso2.ballerina.core.interpreter.SymScope;
 import org.wso2.ballerina.core.model.types.TypeLattice;
-import org.wso2.ballerina.core.model.types.TypeVertex;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -201,10 +200,9 @@ public class BallerinaFile implements Node {
             this.packageBuilder.addConst(constant);
         }
 
-        public void addTypeMapper(TypeVertex source, TypeVertex target,
-                                     TypeMapper typeMapper, String packageName) {
+        public void addTypeMapper(TypeMapper typeMapper) {
             this.compilationUnitList.add((BTypeMapper) typeMapper);
-            this.packageBuilder.addTypeConvertor(source, target, typeMapper, packageName);
+            this.packageBuilder.addTypeConvertor(typeMapper);
         }
 
         /**
