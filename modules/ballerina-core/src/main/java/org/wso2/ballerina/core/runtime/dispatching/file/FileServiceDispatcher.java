@@ -91,7 +91,7 @@ public class FileServiceDispatcher implements ServiceDispatcher {
                     servicesMap.put(serviceName, service);
                 } catch (ServerConnectorException e) {
                     throw new BallerinaException("Could not start File Server Connector for service: "
-                            + serviceName + ". Reason: " + e.getMessage());
+                            + serviceName, e);
                 }
                 return;
             }
@@ -107,7 +107,7 @@ public class FileServiceDispatcher implements ServiceDispatcher {
                 BallerinaConnectorManager.getInstance().getServerConnector(serviceName).stop();
             } catch (ServerConnectorException e) {
                 throw new BallerinaException("Could not stop file server connector for " +
-                        "service: " + serviceName + ". Reason: " + e.getMessage());
+                        "service: " + serviceName, e);
             }
         }
     }
