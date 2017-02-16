@@ -62,7 +62,6 @@ public class HTTP2Client {
     private HTTP2ResponseHandler responseHandler;
     private HttpScheme scheme;
     private AsciiString hostName;
-
     public HTTP2Client(boolean ssl, String host, int port) throws Exception {
         try {
             final SslContext sslCtx;
