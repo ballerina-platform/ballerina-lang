@@ -81,7 +81,7 @@ public class DataTableTest {
         Assert.assertEquals(returns[5].stringValue(), "Hello");
     }
 
-    //@Test(description = "Check toJson methods.")
+    @Test(description = "Check toJson methods.")
     public void testToJson() {
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "toJson");
 

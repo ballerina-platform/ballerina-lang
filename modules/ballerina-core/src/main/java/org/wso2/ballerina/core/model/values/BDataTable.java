@@ -19,6 +19,7 @@ package org.wso2.ballerina.core.model.values;
 
 import org.apache.axiom.om.impl.llom.OMSourcedElementImpl;
 import org.wso2.ballerina.core.model.DataIterator;
+import org.wso2.ballerina.core.model.DataTableJSONDataSource;
 import org.wso2.ballerina.core.model.DataTableOMDataSource;
 import org.wso2.ballerina.core.model.types.TypeEnum;
 
@@ -133,8 +134,7 @@ public class BDataTable implements BRefType<Object> {
     }
     
     public BJSON toJSON() {
-        return new BJSON("");
-        //return new BJSON(new DataTableJSONDataSource(this));
+        return new BJSON(new DataTableJSONDataSource(this));
     }
 
     public BXML toXML(String rootWrapper, String rowWrapper) {
