@@ -234,6 +234,10 @@ public class BLangJSONModelConstants {
 
     public static final String ARGUMENTS = "arguments";
 
+    public static final String FILE_NAME = "file_name";
+
+    public static final String LINE_NUMBER = "line_number";
+
     public static final String VARIABLE_DEF_OPTIONS = "variable_def_options";
 
     public static final String REFERENCE_TYPE_INIT_EXPR = "reference_type_init_expression";

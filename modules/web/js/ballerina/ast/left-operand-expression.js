@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', './statement'], function(_, Statement){
+define(['lodash', './statement'], function (_, Statement) {
 
     /**
      * Constructor for LeftOperandExpression
@@ -24,6 +24,7 @@ define(['lodash', './statement'], function(_, Statement){
      */
     var LeftOperandExpression = function (args) {
         Statement.call(this, 'LeftOperandExpression');
+        this._operand_type = _.get(args, "operandType", "");
         this._left_operand_expression_string = _.get(args, "variableReferenceName");
     };
 
@@ -35,15 +36,24 @@ define(['lodash', './statement'], function(_, Statement){
      * @returns {undefined|string}
      */
     LeftOperandExpression.prototype.getLeftOperandExpressionString = function () {
+        if (!_.isEmpty(this._operand_type)) {
+            return this._operand_type + " " + this._left_operand_expression_string;
+        }
         return this._left_operand_expression_string;
     };
 
     /**
      * Set Variable Reference Name
-     * @param {string} variableRefName
+     * @param {string} leftOperandExpStr left operand expression string
+     * @param {Object} options
      */
     LeftOperandExpression.prototype.setLeftOperandExpressionString = function (leftOperandExpStr, options) {
-        this.setAttribute('_left_operand_expression_string', leftOperandExpStr, options);
+        if (leftOperandExpStr.trim().split(" ").length > 1) {
+            this.setAttribute('_operand_type', leftOperandExpStr.trim().split(" ")[0], options);
+            this.setAttribute('_left_operand_expression_string', leftOperandExpStr.trim().split(" ")[1], options);
+        } else {
+            this.setAttribute('_left_operand_expression_string', leftOperandExpStr, options);
+        }
     };
 
     /**
@@ -56,7 +66,6 @@ define(['lodash', './statement'], function(_, Statement){
             var child = self.getFactory().createFromJson(childNode);
             self.addChild(child);
             child.initFromJson(childNode);
-            self.setLeftOperandExpressionString(child.getExpression(), {doSilently: true});
         });
     };
 

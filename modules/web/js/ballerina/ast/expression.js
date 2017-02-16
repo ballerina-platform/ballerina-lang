@@ -19,7 +19,7 @@ define(['lodash', './node'], function(_, ASTNode){
 
     var Expression = function(args) {
         ASTNode.call(this, 'Expression');
-        this._expression = _.get(args, 'expression', 'defaultExp');
+        this._expression = _.get(args, 'expression');
         this.type = "Expression";
     };
 

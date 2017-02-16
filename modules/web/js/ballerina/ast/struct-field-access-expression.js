@@ -32,7 +32,11 @@ define(['lodash', './expression'], function (_, Expression) {
     StructFieldAccessExpression.prototype.isLHSExpression = function () {
        return this._isLHSExpr;
     };
-
+    
+    /**
+     * initialize StructFieldAccessExpression from json object
+     * @param {Object} jsonNode to initialize from
+     */
     StructFieldAccessExpression.prototype.initFromJson = function (jsonNode) {
         var self = this;
 
