@@ -41,7 +41,7 @@ import org.wso2.carbon.messaging.StreamingCarbonMessage;
  *
  * What happens under the hood:
  * As the received {@link StreamingCarbonMessage} carries
- * a reference to an {@link java.io.InputStream}, once acknowledged,
+ * a reference to a file {@link java.io.InputStream}, once acknowledged,
  * the message sender will close the file input stream.
  *
  * This means, this function needs to be called after all the processing
