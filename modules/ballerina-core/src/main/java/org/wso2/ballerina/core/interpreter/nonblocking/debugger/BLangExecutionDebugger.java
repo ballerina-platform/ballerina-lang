@@ -53,6 +53,7 @@ import org.wso2.ballerina.core.model.statements.WhileStmt;
 import org.wso2.ballerina.core.model.statements.WorkerInvocationStmt;
 import org.wso2.ballerina.core.model.statements.WorkerReplyStmt;
 import org.wso2.ballerina.core.model.values.BConnector;
+import org.wso2.ballerina.core.model.values.BException;
 import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.runtime.Constants;
 
@@ -287,10 +288,29 @@ public class BLangExecutionDebugger extends BLangAbstractExecutionVisitor {
     public void continueExecution(LinkedNode linkedNode) {
         linkedNode.accept(this);
         while (next != null) {
-            if (next instanceof AbstractStatement && !(next instanceof BlockStmt)) {
-                tryNext((AbstractStatement) next);
-            } else {
-                next.accept(this);
+            try {
+                if (next instanceof AbstractStatement && !(next instanceof BlockStmt)) {
+                    tryNext((AbstractStatement) next);
+                } else {
+                    next.accept(this);
+                }
+            } catch (RuntimeException e) {
+                handleBException(new BException(e.getMessage()));
+            }
+        }
+    }
+
+    @Override
+    public void continueExecution() {
+        while (next != null) {
+            try {
+                if (next instanceof AbstractStatement && !(next instanceof BlockStmt)) {
+                    tryNext((AbstractStatement) next);
+                } else {
+                    next.accept(this);
+                }
+            } catch (RuntimeException e) {
+                handleBException(new BException(e.getMessage()));
             }
         }
     }

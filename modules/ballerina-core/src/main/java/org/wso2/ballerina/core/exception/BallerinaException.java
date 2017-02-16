@@ -55,6 +55,17 @@ public class BallerinaException extends RuntimeException {
         this.exception = bException;
     }
 
+    /**
+     * Create BallerinaException from bException.
+     *
+     * @param message    Error message.
+     * @param bException Ballerina Exception.
+     */
+    public BallerinaException(String message, BException bException) {
+        super(message);
+        this.exception = bException;
+    }
+
 
     /**
      * Constructs a new {@link BallerinaException} with ballerina context.
