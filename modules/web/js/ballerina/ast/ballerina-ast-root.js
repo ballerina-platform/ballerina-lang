@@ -19,11 +19,8 @@
 /**
  * Module for BallerinaASTRoot
  */
-define(['lodash', 'log', './node', './import-declaration', './assignment-statement', './connector-declaration',
-    './action-invocation-expression', './function-invocation',
-        './function-invocation-expression', './right-operand-expression'],
-    function (_, log, ASTNode, ImportDeclaration, AssignmentStatement, ConnectorDeclaration,
-              ActionInvocationExpression, FunctionInvocation, FunctionInvocationExpression, RightOperandExpression) {
+define(['lodash', 'log', './node', './import-declaration'],
+    function (_, log, ASTNode, ImportDeclaration) {
 
     /**
      * Constructs BallerinaASTRoot
