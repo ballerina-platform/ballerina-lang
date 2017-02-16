@@ -104,8 +104,8 @@ define(['lodash', 'd3','log', './simple-statement-view', './../ast/action-invoca
             var model = this.getModel();
             // Calling super class's render function.
             (this.__proto__.__proto__).render.call(this, renderingContext);
-            var actionInvocationExpression = this.getActionInvocationExpression();
-            var connectorModel = actionInvocationExpression.getConnector();
+            var actionInvocationExpressionModel = this.getActionInvocationExpressionModel();
+            var connectorModel = actionInvocationExpressionModel.getConnector();
             model.accept(this);
             if (!_.isUndefined(connectorModel)) {
                 this.connector = this.getDiagramRenderingContext().getViewOfModel(connectorModel);
@@ -115,10 +115,10 @@ define(['lodash', 'd3','log', './simple-statement-view', './../ast/action-invoca
                 _.some(siblingConnectors, function (key, i) {
                     if (BallerinaASTFactory.isConnectorDeclaration(siblingConnectors[i])) {
                         var connectorReference = siblingConnectors[i];
-                        var actionInvocationExpression = self.getActionInvocationExpression();
-                        actionInvocationExpression.setConnector(connectorReference);
+                        var actionInvocationExpressionModel = self.getActionInvocationExpressionModel();
+                        actionInvocationExpressionModel.setConnector(connectorReference);
                         self.messageManager.setMessageSource(model);
-                        self.updateActivatedTarget(connectorReference);
+                        self.updateActivatedTarget(connectorReference, actionInvocationExpressionModel);
                         return true;
                     }
                 });
@@ -174,8 +174,8 @@ define(['lodash', 'd3','log', './simple-statement-view', './../ast/action-invoca
 
         ActionInvocationStatementView.prototype.renderArrows = function (renderingContext) {
             this.setDiagramRenderingContext(renderingContext);
-            var actionInvocationExpression = this.getActionInvocationExpression();
-            var connectorModel = actionInvocationExpression.getConnector();
+            var actionInvocationExpressionModel = this.getActionInvocationExpressionModel();
+            var connectorModel = actionInvocationExpressionModel.getConnector();
 
             if(!_.isUndefined(connectorModel)) {
                 this.connector = this.getDiagramRenderingContext().getViewOfModel(connectorModel);
@@ -278,7 +278,7 @@ define(['lodash', 'd3','log', './simple-statement-view', './../ast/action-invoca
 
                     connectorModel.removeConnectorActionReference(self.getModel().id);
 
-                    self.messageManager.startDrawMessage(self, actionInvocationExpression, sourcePoint, connectorPoint);
+                    self.messageManager.startDrawMessage(self, actionInvocationExpressionModel, sourcePoint, connectorPoint);
                     self.messageManager.setTypeBeingDragged(true);
 
                     self.removeArrows();
@@ -356,14 +356,14 @@ define(['lodash', 'd3','log', './simple-statement-view', './../ast/action-invoca
         };
 
         ActionInvocationStatementView.prototype.updateStatementText = function (newStatementText, propertyKey) {
-            var displayText = this.getActionInvocationExpression().getExpression();
+            var displayText = this.getActionInvocationExpressionModel().getExpression();
             var siblingConnectors = this._parent._model.children;
             var connectorName = newStatementText.match(/\((.*)\)/)[1];
             var self = this;
 
             connectorName = connectorName.split(",")[0].trim();
 
-            this.getActionInvocationExpression().setExpression(newStatementText);
+            this.getActionInvocationExpressionModel().setExpression(newStatementText);
             this.renderDisplayText(newStatementText);
 
             self.removeArrows();
@@ -373,13 +373,13 @@ define(['lodash', 'd3','log', './simple-statement-view', './../ast/action-invoca
             _.some(siblingConnectors, function (key, i) {
                 if ( (BallerinaASTFactory.isConnectorDeclaration(siblingConnectors[i]))
                          && (siblingConnectors[i]._connectorVariable == connectorName) ) {
-                    self.getActionInvocationExpression().setConnector(siblingConnectors[i]);
+                    self.getActionInvocationExpressionModel().setConnector(siblingConnectors[i]);
                     self.renderArrows(self.getDiagramRenderingContext());
                }
             });
         };
 
-        ActionInvocationStatementView.prototype.getActionInvocationExpression = function () {
+        ActionInvocationStatementView.prototype.getActionInvocationExpressionModel = function () {
             if (BallerinaASTFactory.isActionInvocationStatement(this.getModel())) {
                 var actionExpression = this.getModel().getChildren()[0];
                 if(BallerinaASTFactory.isActionInvocationExpression(actionExpression)){
@@ -398,37 +398,24 @@ define(['lodash', 'd3','log', './simple-statement-view', './../ast/action-invoca
             }
         };
 
-        ActionInvocationStatementView.prototype.updateActivatedTarget = function (target, actionInvocationModel) {
-            if(actionInvocationModel) {
-                // TODO : Putting this if/else to fix a bug in arrow drawing. Need to revamp this completely.
-                if(_.size(this.getModel().getChildren()) > 0){
-                    actionInvocationModel = this.getModel().getChildren()[1].getChildren()[0];
-                }else{
-                    actionInvocationModel = this.getModel();
-                }
-            }
-            else {
-                actionInvocationModel = this.getModel();
-            }
-
+        ActionInvocationStatementView.prototype.updateActivatedTarget = function (target) {
+            var actionInvocationExpressionModel = this.getActionInvocationExpressionModel();
             if (!_.isUndefined(target)) {
-                actionInvocationModel.setConnector(target);
-                actionInvocationModel.setActionPackageName(target.getConnectorPkgName());
-                actionInvocationModel.setActionConnectorName(target.getConnectorName());
-                actionInvocationModel.setConnectorVariableReference(target.getConnectorVariable());
+                actionInvocationExpressionModel.setConnector(target);
+                actionInvocationExpressionModel.setActionPackageName(target.getConnectorPkgName());
+                actionInvocationExpressionModel.setActionConnectorName(target.getConnectorName());
             }
             else {
-                actionInvocationModel.setConnector(undefined);
-                actionInvocationModel.setActionPackageName(undefined);
-                actionInvocationModel.setActionConnectorName(undefined);
-                actionInvocationModel.setConnectorVariableReference(undefined);
+                actionInvocationExpressionModel.setConnector(undefined);
+                actionInvocationExpressionModel.setActionPackageName(undefined);
+                actionInvocationExpressionModel.setActionConnectorName(undefined);
             }
-            //set the right hand expression to set the statement string of the assignment-statement containing the
-            //action invocation expression. This is to keep action invocation statement UI and source-gen in sync
-            //when action invocation is configured
-            if (BallerinaASTFactory.isRightOperandExpression(rightOp = actionInvocationModel.getParent())){
-                rightOp.setRightOperandExpressionString(actionInvocationModel.getExpression());
-            }
+            // //set the right hand expression to set the statement string of the assignment-statement containing the
+            // //action invocation expression. This is to keep action invocation statement UI and source-gen in sync
+            // //when action invocation is configured
+            // if (BallerinaASTFactory.isRightOperandExpression(rightOp = actionInvocationModel.getParent())) {
+            //     rightOp.setRightOperandExpressionString(actionInvocationModel.getExpression());
+            // }
         };
 
         ActionInvocationStatementView.prototype.isAtValidDropTarget = function(){

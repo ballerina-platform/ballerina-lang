@@ -91,7 +91,7 @@ define(['lodash', 'log', 'event_channel', '../ast/module', './try-catch-statemen
                     }
                 });
                 if (_.isUndefined(variableStatement)) {
-                    variableStatement = VariableDefinitionStatementView(args);
+                    variableStatement = new VariableDefinitionStatementView(args);
                 }
                 return variableStatement;
             } else if (statement instanceof AST.WorkerInvoke) {
