@@ -58,7 +58,7 @@ import java.util.List;
  */
 public class LauncherUtils {
 
-    static BallerinaFile buildLangModel(Path sourceFilePath) {
+    public static BallerinaFile buildLangModel(Path sourceFilePath) {
         ANTLRInputStream antlrInputStream = getAntlrInputStream(sourceFilePath);
 
         try {
