@@ -79,10 +79,16 @@ public class BreakStmtTest {
         Assert.assertEquals(actual, expected);
     }
 
-    @Test(description = "Check not reachable statements.", expectedExceptions = SemanticException.class,
-    expectedExceptionsMessageRegExp = ".*break-stmt-negative.bal:15: unreachable statement.*")
+    @Test(description = "Check invalid break statement location.", expectedExceptions = SemanticException.class,
+    expectedExceptionsMessageRegExp = ".*break statement is not allowed here*")
     public void testNegative() {
         ParserUtils.parseBalFile("lang/statements/break-stmt-negative.bal");
+    }
+
+    @Test(description = "Check not reachable statements.", expectedExceptions = SemanticException.class,
+            expectedExceptionsMessageRegExp = ".*break-stmt-unreachable.bal:11.*.*unreachable statement*")
+    public void testNegativeUnreachable() {
+        ParserUtils.parseBalFile("lang/statements/break-stmt-unreachable.bal");
     }
 
 }
