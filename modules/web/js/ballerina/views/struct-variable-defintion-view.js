@@ -15,8 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'jquery', 'log', 'alerts', './ballerina-view', './../ast/variable-declaration', '../utils/dropdown'],
-    function (_, $, log, Alerts, BallerinaView, VariableDeclaration, Dropdown) {
+define(['lodash', 'jquery', 'log', 'alerts', './ballerina-view', './../ast/variable-declaration'],
+    function (_, $, log, Alerts, BallerinaView, VariableDeclaration) {
 
         /**
          * Arguments for creating a constant definition view.
@@ -97,36 +97,31 @@ define(['lodash', 'jquery', 'log', 'alerts', './ballerina-view', './../ast/varia
                 click: function(e) {e.stopPropagation();}
             }).appendTo(this._typeWrapper);
 
-            // Adding items to the type dropdown.
-            var typeDropdown = $("<select></select>");
-            var bTypes = self.getDiagramRenderingContext().getEnvironment().getTypes();
-            _.forEach(bTypes, function (bType) {
-                typeDropdown.append($('<option>'+ bType +'</option>').attr('value', bType));
-            });
+            var typeDropdown = $("<select/>").appendTo(typeEditWrapper);
 
-            var structTypes = self.getDiagramRenderingContext().getPackagedScopedEnvironment().getCurrentPackage().getStructDefinitions();
-            _.forEach(structTypes, function (sType) {
-                typeDropdown.append($('<option>'+  sType.getStructName() +'</option>').attr('value', sType.getStructName()));
-            });
-
-            //Initialize the select2 control
-            var typeDropdownWrapper = $('<div class="type-drop-wrapper struct-edit"></div>');
-            typeDropdown.appendTo(typeDropdownWrapper);
-            typeDropdownWrapper.appendTo(typeEditWrapper);
-            typeDropdown.select2({
+            $(typeDropdown).select2({
                 tags: true,
-                selectOnClose: true
+                selectOnClose: true,
+                data : self._getTypeDropdownValues(),
+                query: function (query) {
+                    var data = {results: []};
+                    if (!_.isNil(query.term)) {
+                        _.forEach(self._getTypeDropdownValues(), function (item) {
+                            if (item.text.toUpperCase().indexOf(query.term.toUpperCase()) >= 0) {
+                                data.results.push(item);
+                            }
+                        });
+                    } else {
+                        data.results = self._getTypeDropdownValues();
+                    }
+                    query.callback(data);
+                }
             });
 
-            //Set the select2 default value
-            $(typeDropdown).val(this.getModel().getType());
+            $(typeDropdown).val(self.getModel().getType()).change();
 
-            //Open the dropdown initially
-            typeDropdown.select2("open");
-
-            //Set the value of the type to selected value
-            typeDropdown.on("change", function (e) {
-                self.getModel().setType(e.currentTarget.value);
+            $(typeDropdown).on("select2:select", function() {
+                self.getModel().setType(typeDropdown.select2('data')[0].text);
             });
 
             $(this._identifierWrapper).empty();
@@ -176,6 +171,22 @@ define(['lodash', 'jquery', 'log', 'alerts', './ballerina-view', './../ast/varia
 
         StructVariableDefinitionView.prototype.getWrapper = function() {
             return this._structVariableWrapper;
+        };
+
+        StructVariableDefinitionView.prototype._getTypeDropdownValues = function () {
+            var dropdownData = [];
+            // Adding items to the type dropdown.
+            var bTypes = this.getDiagramRenderingContext().getEnvironment().getTypes();
+            _.forEach(bTypes, function (bType) {
+                dropdownData.push({id: bType, text: bType});
+            });
+
+            var structTypes = this.getDiagramRenderingContext().getPackagedScopedEnvironment().getCurrentPackage().getStructDefinitions();
+            _.forEach(structTypes, function (sType) {
+                dropdownData.push({id: sType.getStructName(), text: sType.getStructName()});
+            });
+
+            return dropdownData;
         };
 
         return StructVariableDefinitionView;
