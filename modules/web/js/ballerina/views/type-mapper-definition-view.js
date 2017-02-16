@@ -135,7 +135,7 @@ define(['lodash', 'log', './ballerina-view', './variables-view', './type-struct-
             this.loadSchemasToComboBox(currentContainer, "#" + sourceId, "#" + targetId, predefinedStructs);
 
             $(".type-mapper-combo").select2();
-            $("#"+targetId).on("select2:open", function (e) {
+            $("#"+targetId).on("select2:open", function () {
                 var predefinedStructs = self._package.getStructDefinitions();
                 if (predefinedStructs.length > 0) {
                     $("#"+targetId).empty().append('<option value="-1">--Select--</option>');
@@ -144,7 +144,7 @@ define(['lodash', 'log', './ballerina-view', './variables-view', './type-struct-
                 };
             });
 
-            $("#"+sourceId).on("select2:open", function (e) {
+            $("#"+sourceId).on("select2:open", function () {
                 var predefinedStructs = self._package.getStructDefinitions();
                 if (predefinedStructs.length > 0) {
                     $("#"+sourceId).empty().append('<option value="-1">--Select--</option>');
