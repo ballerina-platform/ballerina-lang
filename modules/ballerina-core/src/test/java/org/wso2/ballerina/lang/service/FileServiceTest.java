@@ -26,8 +26,8 @@ import org.wso2.ballerina.core.EnvironmentInitializer;
 import org.wso2.ballerina.core.TestCallback;
 import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.model.BLangProgram;
-import org.wso2.ballerina.core.nativeimpl.connectors.file.server.Constants;
 import org.wso2.ballerina.core.runtime.ServerConnectorMessageHandler;
+import org.wso2.ballerina.core.runtime.dispatching.file.Constants;
 import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.StreamingCarbonMessage;
 

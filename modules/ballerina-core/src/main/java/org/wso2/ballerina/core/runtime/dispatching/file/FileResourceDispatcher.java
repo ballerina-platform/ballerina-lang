@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.wso2.ballerina.core.nativeimpl.connectors.file.server;
+package org.wso2.ballerina.core.runtime.dispatching.file;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
