@@ -45,6 +45,8 @@ public class BuiltinPackageRepository extends PackageRepository {
     private static final String BASE_DIR = "META-INF" + File.separator + "natives" + File.separator;
     private static final String BAL_FILE_EXT = ".bal";
     private static final String NATIVE_BAL_FILE = "natives.bal";
+    private static final String FALSE = "false";
+    private boolean skipNatives = true;
 
     private String packageDirPath;
 
@@ -57,6 +59,10 @@ public class BuiltinPackageRepository extends PackageRepository {
      */
     @Override
     public PackageSource loadPackage(Path packageDirPath) {
+        if (FALSE.equals(System.getProperty("skipNatives"))) {
+            skipNatives = false;
+        }
+        
         this.packageDirPath = packageDirPath.toString();
         Map<String, InputStream> sourceFileStreamMap = new HashMap<String, InputStream>();
         ClassLoader classLoader = nativePackageProvider.getClassLoader();
@@ -105,6 +111,9 @@ public class BuiltinPackageRepository extends PackageRepository {
                 reader = new BufferedReader(new InputStreamReader(fileNamesStream));
                 String fileName;
                 while ((fileName = reader.readLine()) != null) {
+                    if (skipNatives && fileName.endsWith(NATIVE_BAL_FILE)) {
+                        continue;
+                    }
                     fileNames.add(fileName);
                 }
             }
@@ -137,8 +146,10 @@ public class BuiltinPackageRepository extends PackageRepository {
             jarInputStream = new ZipInputStream(repoUrl.openStream());
             while ((fileNameEntry = jarInputStream.getNextEntry()) != null) {
                 String filePath = fileNameEntry.getName();
-                if (filePath.startsWith(pkgRelPath) && filePath.endsWith(BAL_FILE_EXT) &&
-                        !filePath.endsWith(NATIVE_BAL_FILE)) {
+                if (filePath.startsWith(pkgRelPath) && filePath.endsWith(BAL_FILE_EXT)) {
+                    if (skipNatives && filePath.endsWith(NATIVE_BAL_FILE)) {
+                        continue;
+                    }
                     // get only the file name 
                     String fileName = Paths.get(pkgRelPath).relativize(Paths.get(filePath)).toString();
                     fileNames.add(fileName);
