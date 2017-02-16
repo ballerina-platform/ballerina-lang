@@ -22,7 +22,7 @@ import org.wso2.ballerina.annotation.processor.holders.ActionHolder;
 import org.wso2.ballerina.annotation.processor.holders.ConnectorHolder;
 import org.wso2.ballerina.annotation.processor.holders.FunctionHolder;
 import org.wso2.ballerina.annotation.processor.holders.PackageHolder;
-import org.wso2.ballerina.annotation.processor.holders.TypeConvertorHolder;
+import org.wso2.ballerina.annotation.processor.holders.TypeMapperHolder;
 import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.model.BLangPackage;
 import org.wso2.ballerina.core.model.GlobalScope;
@@ -38,7 +38,7 @@ import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaAction;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaConnector;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
-import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaTypeConvertor;
+import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaTypeMapper;
 import org.wso2.ballerina.core.nativeimpl.annotations.ReturnType;
 import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeConnector;
 
@@ -51,7 +51,6 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
 import javax.annotation.processing.Filer;
 import javax.tools.FileObject;
 import javax.tools.JavaFileObject;
@@ -104,7 +103,6 @@ public class ConstructProviderClassBuilder {
      * @param packageName Package name of the generated construct provider class
      * @param className Class name of the generated construct provider class
      * @param srcDir 
-     * @param targetDir
      */
     public ConstructProviderClassBuilder(Filer filer, String packageName, String className, String srcDir) {
         this.packageName = packageName;
@@ -202,7 +200,7 @@ public class ConstructProviderClassBuilder {
                 sourceFileWriter.write(pkgInsertionStr);
                 writeFunctions(pkgHolder.getFunctions());
                 writeConnectors(pkgHolder.getConnectors());
-                writeTypeConvertors(pkgHolder.getTypeConvertors());
+                writeTypeConvertors(pkgHolder.getTypeMapper());
                 String pkgInsertionEndStr = "\t" + PACKAGE_SCOPE + ".setPackageRepository(" + PACKAGE_REPO + ");\n" +
                         "\treturn nativePackage;\n\t}, " + GLOBAL_SCOPE + ")\n);\n\n";
                 sourceFileWriter.write(pkgInsertionEndStr);
@@ -289,16 +287,16 @@ public class ConstructProviderClassBuilder {
     /**
      * Write all the type convertors defining to the provider class.
      * 
-     * @param typeConvertors Type convertor holders array containing ballerina type convertor annotations
+     * @param typeMapperHolders Type convertor holders array containing ballerina type convertor annotations
      */
-    private void writeTypeConvertors(TypeConvertorHolder[] typeConvertors) {
-        for (TypeConvertorHolder typeConvertorHolder : typeConvertors) {
-            BallerinaTypeConvertor typeConvertor = typeConvertorHolder.getBalTypeConvertor();
-            String pkgName = typeConvertor.packageName();
-            String className = typeConvertorHolder.getClassName();
-            String typeConvertorQualifiedName = Utils.getTypeConverterQualifiedName(typeConvertor);
-            writeNativeConstruct(pkgName, typeConvertor.typeConverterName(), 
-                typeConvertorQualifiedName, className, typeConvertor.args(), typeConvertor.returnType());
+    private void writeTypeConvertors(TypeMapperHolder[] typeMapperHolders) {
+        for (TypeMapperHolder typeMapperHolder : typeMapperHolders) {
+            BallerinaTypeMapper typeMapper = typeMapperHolder.getBalTypeMapper();
+            String pkgName = typeMapper.packageName();
+            String className = typeMapperHolder.getClassName();
+            String typeConvertorQualifiedName = Utils.getTypeConverterQualifiedName(typeMapper);
+            writeNativeConstruct(pkgName, typeMapper.typeMapperName(),
+                typeConvertorQualifiedName, className, typeMapper.args(), typeMapper.returnType());
         }
     }
 

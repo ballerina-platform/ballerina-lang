@@ -35,7 +35,7 @@ import java.io.PrintStream;
 @BallerinaFunction(
         packageName = "ballerina.lang.system",
         functionName = "println",
-        args = {@Argument(name = "double", type = TypeEnum.DOUBLE)},
+        args = {@Argument(name = "d", type = TypeEnum.DOUBLE)},
         isPublic = true
 )
 public class PrintlnDouble extends AbstractNativeFunction {

@@ -39,7 +39,7 @@ import org.wso2.carbon.messaging.MessageUtil;
 @BallerinaFunction(
         packageName = "ballerina.lang.message",
         functionName = "setStringPayload",
-        args = {@Argument(name = "message", type = TypeEnum.MESSAGE),
+        args = {@Argument(name = "m", type = TypeEnum.MESSAGE),
                 @Argument(name = "payload", type = TypeEnum.STRING)},
         isPublic = true
 )

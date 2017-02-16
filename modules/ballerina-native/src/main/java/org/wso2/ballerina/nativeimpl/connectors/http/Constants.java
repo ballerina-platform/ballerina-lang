@@ -66,4 +66,6 @@ public class Constants {
 
 
     public static final String ANNOTATION_SOURCE_KEY_INTERFACE = "interface";
+
+    public static final String HTTP_CLIENT_EXCEPTION_CATEGORY = "http-client";
 }

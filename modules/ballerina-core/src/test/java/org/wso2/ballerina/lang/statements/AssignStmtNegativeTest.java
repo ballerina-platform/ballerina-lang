@@ -27,7 +27,7 @@ import org.wso2.ballerina.core.utils.BTestUtils;
 public class AssignStmtNegativeTest {
 
     @Test(expectedExceptions = {SemanticException.class},
-            expectedExceptionsMessageRegExp = "incompatible-type-assignment.bal:8: incompatible types: 'int' " +
+            expectedExceptionsMessageRegExp = "incompatible-type-assignment.bal:6: incompatible types: 'int' " +
                     "cannot be converted to 'boolean'")
     public void testIncompatibleTypeAssignment() {
         BTestUtils.parseBalFile("lang/statements/assignment/incompatible-type-assignment.bal");
@@ -54,13 +54,13 @@ public class AssignStmtNegativeTest {
     }
 
     @Test(expectedExceptions = {SemanticException.class},
-            expectedExceptionsMessageRegExp = "assign-count-mismatch-1.bal:6: assignment count mismatch: 2 = 3")
+            expectedExceptionsMessageRegExp = "assign-count-mismatch-1.bal:6: assignment count mismatch: 2 != 3")
     public void testAssignCountMismatch1() {
         BTestUtils.parseBalFile("lang/statements/assignment/assign-count-mismatch-1.bal");
     }
 
     @Test(expectedExceptions = {SemanticException.class},
-            expectedExceptionsMessageRegExp = "assign-count-mismatch-2.bal:7: assignment count mismatch: 4 = 3")
+            expectedExceptionsMessageRegExp = "assign-count-mismatch-2.bal:7: assignment count mismatch: 4 != 3")
     public void testAssignCountMismatch2() {
         BTestUtils.parseBalFile("lang/statements/assignment/assign-count-mismatch-2.bal");
     }

@@ -37,7 +37,7 @@ import java.util.Locale;
 @BallerinaFunction(
         packageName = "ballerina.lang.string",
         functionName = "toUpperCase",
-        args = {@Argument(name = "string", type = TypeEnum.STRING)},
+        args = {@Argument(name = "s", type = TypeEnum.STRING)},
         returnType = {@ReturnType(type = TypeEnum.STRING)},
         isPublic = true
 )

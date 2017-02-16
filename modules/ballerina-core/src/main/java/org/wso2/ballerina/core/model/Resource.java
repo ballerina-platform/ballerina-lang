@@ -18,14 +18,13 @@
 
 package org.wso2.ballerina.core.model;
 
+import org.wso2.ballerina.core.exception.FlowBuilderException;
 import org.wso2.ballerina.core.model.builder.CallableUnitBuilder;
 import org.wso2.ballerina.core.model.statements.BlockStmt;
 import org.wso2.ballerina.core.model.symbols.BLangSymbol;
 import org.wso2.ballerina.core.model.types.BType;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -55,7 +54,6 @@ public class Resource implements Node, SymbolScope, CallableUnit {
     protected SymbolName symbolName;
 
     // TODO Refactor
-    private List<Worker> workerList = new ArrayList<>();
     private int stackFrameSize;
     private Annotation[] annotations;
     private ParameterDef[] parameterDefs;
@@ -67,6 +65,7 @@ public class Resource implements Node, SymbolScope, CallableUnit {
     // Scope related variables
     private SymbolScope enclosingScope;
     private Map<SymbolName, BLangSymbol> symbolMap;
+    private int tempStackFrameSize;
 
     private Resource(SymbolScope enclosingScope) {
         this.enclosingScope = enclosingScope;
@@ -79,11 +78,12 @@ public class Resource implements Node, SymbolScope, CallableUnit {
      * @param name name of the annotation
      * @return Annotation
      */
-    public Annotation getAnnotation(String name) {
+    public Annotation getAnnotation(String packageName, String name) {
         /* ToDo : Annotations should be a map. */
 
+        String annotationFqn = packageName.concat(":").concat(name);
         for (Annotation annotation : annotations) {
-            if (annotation.getName().equals(name)) {
+            if (annotation.getName().equals(annotationFqn)) {
                 return annotation;
             }
         }
@@ -104,17 +104,8 @@ public class Resource implements Node, SymbolScope, CallableUnit {
      *
      * @return list of Workers
      */
-    public List<Worker> getWorkers() {
-        return workerList;
-    }
-
-    /**
-     * Add a {@code Worker} to the Resource.
-     *
-     * @param worker Worker to be added to the Resource
-     */
-    public void addWorker(Worker worker) {
-        workerList.add(worker);
+    public Worker[] getWorkers() {
+        return workers;
     }
 
     /**
@@ -134,6 +125,19 @@ public class Resource implements Node, SymbolScope, CallableUnit {
         this.stackFrameSize = stackFrameSize;
     }
 
+    @Override
+    public int getTempStackFrameSize() {
+        return tempStackFrameSize;
+    }
+
+    @Override
+    public void setTempStackFrameSize(int stackFrameSize) {
+        if (this.tempStackFrameSize > 0 && stackFrameSize != this.tempStackFrameSize) {
+            throw new FlowBuilderException("Attempt to Overwrite tempValue Frame size. current :" +
+                    this.tempStackFrameSize + ", new :" + stackFrameSize);
+        }
+        this.tempStackFrameSize = stackFrameSize;
+    }
 
     // Methods in CallableUnit interface
 

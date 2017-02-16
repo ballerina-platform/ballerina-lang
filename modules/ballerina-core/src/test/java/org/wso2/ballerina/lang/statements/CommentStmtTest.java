@@ -17,9 +17,9 @@
 */
 package org.wso2.ballerina.lang.statements;
 
-import org.antlr.v4.runtime.misc.ParseCancellationException;
 import org.testng.Assert;
 import org.testng.annotations.Test;
+import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.model.BLangProgram;
 import org.wso2.ballerina.core.model.statements.CommentStmt;
 import org.wso2.ballerina.core.model.statements.Statement;
@@ -51,7 +51,7 @@ public class CommentStmtTest {
     }
 
     @Test(description = "Test the error message when a comment is not inside a function block",
-            expectedExceptions = {ParseCancellationException.class},
+            expectedExceptions = {BallerinaException.class},
             expectedExceptionsMessageRegExp = "comment-in-invalid-location.bal:1:0: unwanted token '//invalid .*")
     public void testCommentInInvalidLocation() {
         BTestUtils.parseBalFile("lang/statements/comment/comment-in-invalid-location.bal");

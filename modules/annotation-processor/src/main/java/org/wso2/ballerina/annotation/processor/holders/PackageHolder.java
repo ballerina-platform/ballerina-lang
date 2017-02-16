@@ -30,14 +30,14 @@ public class PackageHolder {
     
     private String packageName;
     private List<FunctionHolder> nativeFunctions;
-    private List<TypeConvertorHolder> nativeTypeConverters;
+    private List<TypeMapperHolder> nativeTypeMapper;
     private Map<String, ConnectorHolder> connectors;
     
     public PackageHolder(String packageName) {
         this.packageName = packageName;
         this.connectors = new HashMap<String, ConnectorHolder>();
         this.nativeFunctions = new ArrayList<FunctionHolder>();
-        this.nativeTypeConverters = new ArrayList<TypeConvertorHolder>();
+        this.nativeTypeMapper = new ArrayList<TypeMapperHolder>();
     }
 
     public void addFunction(FunctionHolder function) {
@@ -48,8 +48,8 @@ public class PackageHolder {
         this.connectors.put(connectorName, connector);
     }
 
-    public void addTypeConvertor(TypeConvertorHolder typeConvertor) {
-        this.nativeTypeConverters.add(typeConvertor);
+    public void addTypeMapper(TypeMapperHolder typeConvertor) {
+        this.nativeTypeMapper.add(typeConvertor);
     }
     
     public FunctionHolder[] getFunctions() {
@@ -64,8 +64,8 @@ public class PackageHolder {
         return connectors.get(connectorName);
     }
     
-    public TypeConvertorHolder[] getTypeConvertors() {
-        return nativeTypeConverters.toArray(new TypeConvertorHolder[0]);
+    public TypeMapperHolder[] getTypeMapper() {
+        return nativeTypeMapper.toArray(new TypeMapperHolder[0]);
     }
 
     public String getPackageName() {
@@ -77,8 +77,8 @@ public class PackageHolder {
         return "package " + packageName + ";\n\n"
                 + nativeFunctions.stream().map(k -> k.toString()).collect(Collectors.joining("\n\n"))
                 + (nativeFunctions.size() > 0 ? "\n\n" : "")
-                + nativeTypeConverters.stream().map(k -> k.toString()).collect(Collectors.joining("\n\n"))
-                + (nativeTypeConverters.size() > 0 ? "\n\n" : "")
+                + nativeTypeMapper.stream().map(k -> k.toString()).collect(Collectors.joining("\n\n"))
+                + (nativeTypeMapper.size() > 0 ? "\n\n" : "")
                 + connectors.values().stream().map(k -> k.toString()).collect(Collectors.joining("\n\n"));
     }
 }

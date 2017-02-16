@@ -53,7 +53,7 @@
                     <exclude>ballerina/**</exclude>
                 </excludes>
             </resource>
-            
+
             <!-- copy built-in ballerina sources to the jar -->
             <resource>
                 <directory>${generated.ballerina.source.directory}</directory>

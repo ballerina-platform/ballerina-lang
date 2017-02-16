@@ -18,7 +18,7 @@
 package org.wso2.ballerina.core.model.builder;
 
 import org.wso2.ballerina.core.model.Annotation;
-import org.wso2.ballerina.core.model.BTypeConvertor;
+import org.wso2.ballerina.core.model.BTypeMapper;
 import org.wso2.ballerina.core.model.BallerinaAction;
 import org.wso2.ballerina.core.model.BallerinaFunction;
 import org.wso2.ballerina.core.model.NodeLocation;
@@ -112,7 +112,11 @@ public class CallableUnitBuilder {
         return null;
     }
 
-    public BTypeConvertor buildTypeConverter() {
+    public BTypeMapper buildTypeMapper() {
+        return null;
+    }
+
+    public Worker buildWorker() {
         return null;
     }
     
