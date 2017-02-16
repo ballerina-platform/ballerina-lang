@@ -22,6 +22,7 @@ import org.ballerinalang.BLangProgramRunner;
 import org.wso2.ballerina.core.model.BLangProgram;
 import org.wso2.ballerina.core.nativeimpl.connectors.BallerinaConnectorManager;
 import org.wso2.ballerina.core.runtime.MessageProcessor;
+import org.wso2.carbon.messaging.exceptions.ServerConnectorException;
 
 import java.io.PrintStream;
 import java.nio.file.Path;
@@ -60,7 +61,11 @@ class BProgramRunner {
             new BLangProgramRunner().startServices(bLangProgram);
         }
 
-
+        try {
+            BallerinaConnectorManager.getInstance().startPendingConnectors();
+        } catch (ServerConnectorException e) {
+            throw new RuntimeException("error starting server connectors: " + e.getMessage(), e);
+        }
 
     }
 }
