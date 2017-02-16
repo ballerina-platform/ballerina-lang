@@ -187,7 +187,8 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
 
         /**
          * create VariableDeclaration
-         * @param args
+         * @param args - object for variableDeclaration creation
+         * @returns {VariableDeclaration}
          */
         BallerinaASTFactory.createVariableDeclaration = function (args) {
             return new variableDeclaration(args);
