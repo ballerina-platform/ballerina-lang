@@ -261,7 +261,7 @@ public final class BJSON extends BallerinaMessageDataSource implements BRefType<
             clonedMessage.setValue(clonedContent);
 
         } catch (Throwable t) {
-            handleJsonException("failed to cloned json message: ", t);
+            handleJsonException("failed to clone the json message: ", t);
         }
         return clonedMessage;
     }
