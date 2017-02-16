@@ -32,6 +32,16 @@ define(['lodash', './expression'], function (_, Expression) {
     StructFieldAccessExpression.prototype.isLHSExpression = function () {
        return this._isLHSExpr;
     };
+
+    StructFieldAccessExpression.prototype.initFromJson = function (jsonNode) {
+        var self = this;
+
+        _.each(jsonNode.children, function (childNode) {
+            var child = self.getFactory().createFromJson(childNode);
+            self.addChild(child);
+            child.initFromJson(childNode);
+        });
+    };
     
     return StructFieldAccessExpression;
 });

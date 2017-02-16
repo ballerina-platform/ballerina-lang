@@ -178,28 +178,33 @@ define(['lodash', './statement', '../utils/common-utils', './variable-declaratio
 
     VariableDefinitionStatement.prototype.initFromJson = function (jsonNode) {
         var self = this;
-        var lhs = jsonNode.children[0];
-        var rhs = jsonNode.children[1];
+        // var lhs = jsonNode.children[0];
+        // var rhs = jsonNode.children[1];
 
-        if (!_.isNil(lhs.variable_def_options)) {
-            /**
-             * Sample1: message m = 'messageValue';
-             * Sample2: http:HTTPConnector connector = .....
-             *          <packageName>:<> <variable reference>
-             */
-            var expressionValue = (!_.isNil(lhs.variable_def_options.package_name) ?
-                lhs.variable_def_options.package_name + ":" : "")
-                + lhs.variable_def_options.type_name
-                + " " + lhs.variable_reference_name;
-            this.setLeftExpression(expressionValue);
-        }
-
-        if (!_.isNil(rhs)) {
-            var rightExpressionChild = self.getFactory().createFromJson(rhs);
-            self.addChild(rightExpressionChild);
-            rightExpressionChild.initFromJson(rhs);
-            this.setRightExpression(rightExpressionChild.getExpression());
-        }
+        // if (!_.isNil(lhs.variable_def_options)) {
+        //     /**
+        //      * Sample1: message m = 'messageValue';
+        //      * Sample2: http:HTTPConnector connector = .....
+        //      *          <packageName>:<> <variable reference>
+        //      */
+        //     var expressionValue = (!_.isNil(lhs.variable_def_options.package_name) ?
+        //         lhs.variable_def_options.package_name + ":" : "")
+        //         + lhs.variable_def_options.type_name
+        //         + " " + lhs.variable_reference_name;
+        //     this.setLeftExpression(expressionValue);
+        // }
+        //
+        // if (!_.isNil(rhs)) {
+        //     var rightExpressionChild = self.getFactory().createFromJson(rhs);
+        //     self.addChild(rightExpressionChild);
+        //     rightExpressionChild.initFromJson(rhs);
+        //     this.setRightExpression(rightExpressionChild.getExpression());
+        // }
+        _.each(jsonNode.children, function (childNode) {
+            var child = self.getFactory().createFromJson(childNode);
+            self.addChild(child);
+            child.initFromJson(childNode);
+        });
     };
 
     return VariableDefinitionStatement;

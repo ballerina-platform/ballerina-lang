@@ -59,19 +59,12 @@ define(['lodash', 'log', './statement'], function (_, log, Statement) {
      */
     ReturnStatement.prototype.initFromJson = function (jsonNode) {
         var self = this;
-        var expression = "";
 
-        for (var itr = 0; itr < jsonNode.children.length; itr++) {
-            var childJsonNode = jsonNode.children[itr];
-            var child = self.getFactory().createFromJson(childJsonNode);
-            child.initFromJson(childJsonNode);
-            expression += child.getExpression();
-
-            if (itr !== jsonNode.children.length - 1) {
-                expression += " , ";
-            }
-        }
-        this.setExpression(expression, {doSilently: true});
+        _.each(jsonNode.children, function (childNode) {
+            var child = self.getFactory().createFromJson(childNode);
+            self.addChild(child);
+            child.initFromJson(childNode);
+        });
     };
 
     return ReturnStatement;
