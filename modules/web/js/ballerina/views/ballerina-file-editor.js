@@ -694,12 +694,12 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
 
             var importDeclarationWrapper = $("<div class='imports-wrapper'/>").appendTo(this._importDeclarationMainWrapper);
 
-            var collapserWrapper = $("<div class='imports-pane-collapser-wrapper' data-placement='bottom' " +
-                " title='Close Import Pane' data-toggle='tooltip'/>")
-                .data("collapsed", "false")
-                .appendTo(importDeclarationWrapper).hide();
+            var collapserWrapper = $("<div class='import-pane-collapser-wrapper btn-icon' data-placement='bottom' " +
+                " title='Open Import Pane' data-toggle='tooltip'/>")
+                .data("collapsed", "true")
+                .appendTo(importDeclarationWrapper);
 
-            $("<i class='fw fw-left'></i>").appendTo(collapserWrapper);
+            $("<i class='fw fw-right'></i>").appendTo(collapserWrapper);
 
             var importDeclarationActionWrapper = $("<div class='imports-action-wrapper'/>").appendTo(importDeclarationWrapper);
 
@@ -725,7 +725,7 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                 "import-add-complete-action-wrapper' title='Import' data-placement='bottom' data-toggle='tooltip'/>")
                 .appendTo(importsAddPane);
             $("<span class='fw-stack fw-lg'><i class='fw fw-square fw-stack-2x'></i>" +
-                "<i class='fw fw-add fw-stack-1x fw-inverse'></i></span>").appendTo(importAddCompleteButtonPane);
+                "<i class='fw fw-check fw-stack-1x fw-inverse'></i></span>").appendTo(importAddCompleteButtonPane);
 
 
             // Add new constant activate button.
@@ -733,6 +733,7 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                 $(importsAddPane).show();
                 $(this).hide();
                 $(importValueText).focus();
+                self._importDeclarationButton.css("opacity", "1");
             });
 
             // Cancel adding a new constant.
@@ -807,6 +808,11 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                         //Clear the import value box
                         importValueText.val("");
                         self.visit(newImportDeclaration);
+                        collapserWrapper.empty();
+                        collapserWrapper.data("collapsed", "false");
+                        $("<i class='fw fw-left'></i>").appendTo(collapserWrapper);
+                        importDeclarationWrapper.show();
+                        self._importDeclarationMainWrapper.css("width", "92%");
 
                     } catch (error) {
                         alerts.error(error);
@@ -818,6 +824,24 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
             $(importValueText).on("change paste keydown", function (e) {
                 if (e.which == 13) {
                     importAddCompleteButtonPane.click();
+                }
+            });
+
+            // The click event for hiding and showing constants.
+            collapserWrapper.click(function () {
+                $(this).empty();
+                if ($(this).data("collapsed") === "false") {
+                    $(this).data("collapsed", "true").attr('data-original-title', "Open Import Pane").tooltip('hide');
+                    $("<i class='fw fw-right'></i>").appendTo(this);
+                    importDeclarationWrapper.find('.imports-content-wrapper').hide();
+                    importDeclarationActionWrapper.hide();
+                    self._constantsDefinitionsMainWrapper.css("width", "0%");
+                } else {
+                    $(this).data("collapsed", "false").attr('data-original-title', "Close Import Pane").tooltip('hide');
+                    $("<i class='fw fw-left'></i>").appendTo(this);
+                    importDeclarationActionWrapper.show();
+                    importDeclarationWrapper.find('.imports-content-wrapper').show();
+                    self._constantsDefinitionsMainWrapper.css("width", "92%");
                 }
             });
         };

@@ -113,7 +113,7 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
     };
 
     LifeLineView.prototype._updateBoundingBox = function () {
-        
+
     };
 
     LifeLineView.prototype.render = function () {
@@ -184,7 +184,7 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
 
     LifeLineView.prototype.renderTitle = function(){
         var self = this;
-        var titleText = ((this._viewOptions.title.length) > 14 ? (this._viewOptions.title.substring(0,14) + '..') : this._viewOptions.title);
+        var titleText = ((this._viewOptions.title.length) > 14 ? (this._viewOptions.title.substring(0,11) + '...') : this._viewOptions.title);
         this._topPolygonText = D3Utils.centeredText(this._topCenter,
             titleText, this._rootGroup)
             .classed(this._viewOptions.cssClass.title, true).classed("genericT", true);
@@ -442,8 +442,14 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
     LifeLineView.prototype.updateTitleText = function (updatedText) {
         if (!_.isUndefined(updatedText) && updatedText !== '') {
             this._editableProperties.setterMethod.call(this._editableProperties.model, updatedText);
-            this._topPolygonText.node().textContent = this._editableProperties.getDisplayTitle.call(this._editableProperties.model);
-            this._bottomPolygonText.node().textContent = this._editableProperties.getDisplayTitle.call(this._editableProperties.model);
+            var updatedText = this._editableProperties.getDisplayTitle.call(this._editableProperties.model);
+            if(!_.isNil(updatedText)) {
+                // truncate if larger than 14 chars
+                updatedText = updatedText.length > 14 ? updatedText.substring(0,11) + '...' : updatedText;
+            }
+
+            this._topPolygonText.node().textContent = updatedText;
+            this._bottomPolygonText.node().textContent = updatedText;
         }
     };
 
