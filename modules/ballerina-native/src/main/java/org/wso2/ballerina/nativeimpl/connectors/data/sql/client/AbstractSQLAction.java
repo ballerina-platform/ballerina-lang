@@ -123,7 +123,7 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
                 context.getControlStack().setReturnValue(1, generatedKeys.get(0)); //TODO:Set Array of Keys
             }
         } catch (SQLException e) {
-            throw new BallerinaException("execute update with generated keys failed: " + e.getCause().getMessage());
+            throw new BallerinaException("execute update with generated keys failed: " + e.getMessage());
         } finally {
             SQLUtils.cleanupConnection(rs, stmt, conn);
         }

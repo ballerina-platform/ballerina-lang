@@ -111,17 +111,17 @@ public class DataTableTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertTrue(returns[0] instanceof BXML);
         Assert.assertEquals(returns[0].stringValue(),
-                "<types><type><INT_TYPE>1</INT_TYPE><LONG_TYPE>9223372036854774807</LONG_TYPE>"
-                        + "<FLOAT_TYPE>123.34</FLOAT_TYPE><DOUBLE_TYPE>2.139095039E9</DOUBLE_TYPE>"
-                        + "<BOOLEAN_TYPE>true</BOOLEAN_TYPE><STRING_TYPE>Hello</STRING_TYPE>"
-                        + "<INT_ARRAY><element>1</element><element>2</element><element>3</element></INT_ARRAY>"
+                "<types><type><INT_TYPE>1</INT_TYPE><INT_ARRAY><element>1</element><element>2</element>"
+                        + "<element>3</element></INT_ARRAY><LONG_TYPE>9223372036854774807</LONG_TYPE>"
                         + "<LONG_ARRAY><element>100000000</element><element>200000000</element>"
-                        + "<element>300000000</element></LONG_ARRAY><FLOAT_ARRAY><element>245.23</element>"
-                        + "<element>5559.49</element><element>8796.123</element></FLOAT_ARRAY>"
-                        + "<DOUBLE_ARRAY><element>245.23</element><element>5559.49</element>"
-                        + "<element>8796.123</element></DOUBLE_ARRAY><BOOLEAN_ARRAY><element>true</element>"
-                        + "<element>false</element><element>true</element></BOOLEAN_ARRAY><STRING_ARRAY>"
-                        + "<element>Hello</element><element>Ballerina</element></STRING_ARRAY></type></types>");
+                        + "<element>300000000</element></LONG_ARRAY><FLOAT_TYPE>123.34</FLOAT_TYPE>"
+                        + "<FLOAT_ARRAY><element>245.23</element><element>5559.49</element>"
+                        + "<element>8796.123</element></FLOAT_ARRAY><DOUBLE_TYPE>2.139095039E9</DOUBLE_TYPE>"
+                        + "<BOOLEAN_TYPE>true</BOOLEAN_TYPE><STRING_TYPE>Hello</STRING_TYPE><DOUBLE_ARRAY>"
+                        + "<element>245.23</element><element>5559.49</element><element>8796.123</element>"
+                        + "</DOUBLE_ARRAY><BOOLEAN_ARRAY><element>true</element><element>false</element>"
+                        + "<element>true</element></BOOLEAN_ARRAY><STRING_ARRAY><element>Hello</element>"
+                        + "<element>Ballerina</element></STRING_ARRAY></type></types>");
     }
 
     @Test(description = "Check getByName methods for complex types.")
