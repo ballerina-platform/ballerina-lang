@@ -32,7 +32,7 @@ public class XMLUtils {
     public static String readFileToString(String path) {
         InputStream is = null;
         String fileAsString = null;
-        URL fileResource = ParserUtils.class.getClassLoader().getResource(path);
+        URL fileResource = BTestUtils.class.getClassLoader().getResource(path);
         try {
             is = new FileInputStream(fileResource.getFile());
             BufferedReader buf = new BufferedReader(new InputStreamReader(is));

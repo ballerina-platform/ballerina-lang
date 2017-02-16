@@ -18,7 +18,7 @@
 
 package org.wso2.ballerina.nativeimpl.lang.json;
 
-import com.google.gson.JsonElement;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.jayway.jsonpath.InvalidPathException;
 import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.JsonPathException;
@@ -40,7 +40,7 @@ import org.wso2.ballerina.nativeimpl.lang.utils.ErrorHandler;
 @BallerinaFunction(
         packageName = "ballerina.lang.json",
         functionName = "getJson",
-        args = {@Argument(name = "json", type = TypeEnum.JSON),
+        args = {@Argument(name = "j", type = TypeEnum.JSON),
                 @Argument(name = "jsonPath", type = TypeEnum.STRING)},
         returnType = {@ReturnType(type = TypeEnum.JSON)},
         isPublic = true
@@ -60,10 +60,10 @@ public class GetJSON extends AbstractJSONFunction {
 
             // Getting the value from JSON
             ReadContext jsonCtx = JsonPath.parse(json.value());
-            JsonElement element = jsonCtx.read(jsonPath);
+            JsonNode element = jsonCtx.read(jsonPath);
             if (element == null) {
                 throw new BallerinaException("No matching element found for jsonpath: " + jsonPath);
-            } else if (element.isJsonPrimitive()) {
+            } else if (element.isValueNode()) {
                 throw new BallerinaException("The element matching: " + jsonPath + " is a primitive, not a JSON.");
             } else {
                 // if the resulting value is a complex object, return is as a JSONType object

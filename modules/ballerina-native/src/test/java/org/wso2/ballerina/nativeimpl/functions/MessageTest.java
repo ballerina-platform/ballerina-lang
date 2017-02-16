@@ -17,20 +17,21 @@
 */
 package org.wso2.ballerina.nativeimpl.functions;
 
+import org.ballerinalang.util.program.BLangFunctions;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.ballerina.core.message.StringDataSource;
-import org.wso2.ballerina.core.model.BallerinaFile;
+import org.wso2.ballerina.core.model.BLangProgram;
 import org.wso2.ballerina.core.model.values.BJSON;
 import org.wso2.ballerina.core.model.values.BMessage;
 import org.wso2.ballerina.core.model.values.BString;
 import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.model.values.BXML;
-import org.wso2.ballerina.nativeimpl.util.Functions;
-import org.wso2.ballerina.nativeimpl.util.ParserUtils;
+import org.wso2.ballerina.nativeimpl.util.BTestUtils;
 import org.wso2.carbon.messaging.DefaultCarbonMessage;
 import org.wso2.carbon.messaging.Header;
+import org.wso2.carbon.messaging.MapCarbonMessage;
 import org.wso2.carbon.messaging.MessageDataSource;
 
 import java.util.List;
@@ -40,12 +41,12 @@ import java.util.List;
  */
 public class MessageTest {
 
-    private BallerinaFile bFile;
+    private BLangProgram bLangProgram;
     //private static final String s1 = "<persons><person><name>Jack</name><address>wso2</address></person></persons>";
 
     @BeforeClass
     public void setup() {
-        bFile = ParserUtils.parseBalFile("samples/messageTest.bal");
+        bLangProgram = BTestUtils.parseBalFile("samples/messageTest.bal");
     }
 
     @Test
@@ -54,7 +55,7 @@ public class MessageTest {
         final String payload = "{\"name\":\"Jack\",\"address\":\"WSO2\"}";
         carbonMsg.setStringMessageBody(payload);
         BValue[] args = { new BMessage(carbonMsg) };
-        BValue[] returns = Functions.invoke(bFile, "testGetJSONPayload", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testGetJSONPayload", args);
         Assert.assertEquals(returns[0].stringValue(), payload);
     }
 
@@ -63,7 +64,7 @@ public class MessageTest {
         DefaultCarbonMessage carbonMsg = new DefaultCarbonMessage();
         final String payload = "{\"name\":\"Jack\",\"address\":\"WSO2\"}";
         BValue[] args = { new BMessage(carbonMsg), new BJSON(payload) };
-        BValue[] returns = Functions.invoke(bFile, "testSetJSONPayload", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testSetJSONPayload", args);
         MessageDataSource newPayload = ((BMessage) returns[0]).getMessageDataSource();
         Assert.assertTrue(newPayload instanceof BJSON);
         String value = newPayload.getMessageAsString();
@@ -76,7 +77,7 @@ public class MessageTest {
         String name = "Content-Type";
         String value = "text/plain";
         BValue[] args = { new BMessage(carbonMsg), new BString(name), new BString(value) };
-        BValue[] returns = Functions.invoke(bFile, "testSetHeader", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testSetHeader", args);
         List<Header> headers = ((BMessage) returns[0]).getHeaders();
         Assert.assertEquals(headers.size(), 1, "Headers list can have only 1 header.");
         Assert.assertNotNull(headers.get(0));
@@ -89,7 +90,7 @@ public class MessageTest {
         DefaultCarbonMessage carbonMsg = new DefaultCarbonMessage();
         String xmlPayload = "<root><item>Text</item></root>";
         BValue[] args = { new BMessage(carbonMsg), new BXML(xmlPayload) };
-        BValue[] returns = Functions.invoke(bFile, "testSetXmlPayload", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testSetXmlPayload", args);
         BMessage bMessage = ((BMessage) returns[0]);
         MessageDataSource newPayload = ((BMessage) returns[0]).getMessageDataSource();
         Assert.assertEquals(newPayload.getMessageAsString(), xmlPayload, "XML payload not set properly");
@@ -106,7 +107,7 @@ public class MessageTest {
         String name = "MyNewHeader";
         String value = "NewValue";
         BValue[] args = { new BMessage(carbonMsg), new BString(name), new BString(value) };
-        BValue[] returns = Functions.invoke(bFile, "testAddHeader", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testAddHeader", args);
         List<Header> headers = ((BMessage) returns[0]).getHeaders();
         Assert.assertEquals(headers.size(), 1, "Headers list can have only 1 header.");
         Assert.assertNotNull(headers.get(0));
@@ -124,7 +125,7 @@ public class MessageTest {
         Assert.assertEquals(carbonMsg.getHeaders().size(), 2, "Header count mismatched.");
         Assert.assertEquals(carbonMsg.getHeader(name), value, "Header not found.");
         BValue[] args = { new BMessage(carbonMsg), new BString(name) };
-        BValue[] returns = Functions.invoke(bFile, "testRemoveHeader", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testRemoveHeader", args);
         BMessage bMessage = ((BMessage) returns[0]);
         List<Header> headers = bMessage.getHeaders();
         Assert.assertEquals(headers.size(), 1, "Headers list can have only one element");
@@ -141,7 +142,7 @@ public class MessageTest {
         carbonMsg.setHeader("Accept", "Application/json");
         // These headers are not getting set.
         BValue[] args = { new BMessage(carbonMsg), new BString(name) };
-        BValue[] returns = Functions.invoke(bFile, "testGetHeader", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testGetHeader", args);
         Assert.assertEquals(returns[0].stringValue(), value);
     }
 
@@ -151,7 +152,7 @@ public class MessageTest {
         final String payload = "Hello World...!!!";
         carbonMsg.setStringMessageBody(payload);
         BValue[] args = { new BMessage(carbonMsg) };
-        BValue[] returns = Functions.invoke(bFile, "testGetStringPayload", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testGetStringPayload", args);
         MessageDataSource newPayload = ((BMessage) returns[0]).getMessageDataSource();
         Assert.assertTrue(newPayload instanceof StringDataSource);
         String value = newPayload.getMessageAsString();
@@ -163,7 +164,7 @@ public class MessageTest {
         DefaultCarbonMessage carbonMsg = new DefaultCarbonMessage();
         final String payload = "Hello World...!!!";
         BValue[] args = { new BMessage(carbonMsg), new BString(payload) };
-        BValue[] returns = Functions.invoke(bFile, "testSetStringPayload", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testSetStringPayload", args);
         MessageDataSource newPayload = ((BMessage) returns[0]).getMessageDataSource();
         Assert.assertTrue(newPayload instanceof StringDataSource);
         String value = newPayload.getMessageAsString();
@@ -172,7 +173,7 @@ public class MessageTest {
 
     @Test
     public void testEmptyString() {
-        BValue[] returns = Functions.invoke(bFile, "testEmptyString");
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testEmptyString");
         Assert.assertEquals(returns.length, 1);
         String returnString = returns[0].stringValue();
         Assert.assertEquals(returnString, "");
@@ -185,11 +186,24 @@ public class MessageTest {
         DefaultCarbonMessage carbonMsg = new DefaultCarbonMessage();
         carbonMsg.setStringMessageBody(payload1);
         BValue[] args = {new BMessage(carbonMsg), new BString(payload2)};
-        FunctionInvocationExpr funcIExpr = FunctionUtils.createInvocationExpr(bFile, "testClone", args.length);
+        FunctionInvocationExpr funcIExpr = FunctionUtils.createInvocationExpr(bLangProgram, "testClone", args.length);
         Context bContext = FunctionUtils.createInvocationContext(args, 1);
         BLangInterpreter bLangInterpreter = new BLangInterpreter(bContext);
         funcIExpr.accept(bLangInterpreter);
         Assert.assertEquals(FunctionUtils.getReturnBValue(bContext).intValue(), 1);*/
+    }
+
+    @Test
+    public void testGetStringValue() {
+        MapCarbonMessage carbonMsg = new MapCarbonMessage();
+        final String propertyKey = "id";
+        final String propertyValue = "ballerina";
+        carbonMsg.setValue(propertyKey, propertyValue);
+        BValue[] args = { new BMessage(carbonMsg), new BString(propertyKey) };
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testGetStringValue", args);
+        Assert.assertEquals(returns.length, 1);
+        String returnString = returns[0].stringValue();
+        Assert.assertEquals(returnString, propertyValue);
     }
 
     // TODO : Add test cases fot other native functions.

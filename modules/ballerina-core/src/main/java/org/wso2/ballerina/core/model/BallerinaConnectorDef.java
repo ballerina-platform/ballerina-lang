@@ -47,7 +47,7 @@ public class BallerinaConnectorDef extends BType implements Connector, Compilati
 
     // BLangSymbol related attributes
     protected boolean isPublic;
-
+    protected boolean isNative;
     private Annotation[] annotations;
     private ParameterDef[] parameterDefs;
     private BallerinaAction[] actions;
@@ -144,7 +144,7 @@ public class BallerinaConnectorDef extends BType implements Connector, Compilati
 
     @Override
     public boolean isNative() {
-        return false;
+        return isNative;
     }
 
     @Override
@@ -209,6 +209,7 @@ public class BallerinaConnectorDef extends BType implements Connector, Compilati
             this.connectorDef.actions = this.actionList.toArray(new BallerinaAction[this.actionList.size()]);
             this.connectorDef.variableDefStmts = this.variableDefStmtList.toArray(
                     new VariableDefStmt[variableDefStmtList.size()]);
+            this.connectorDef.isNative = this.isNative;
             return connectorDef;
         }
     }

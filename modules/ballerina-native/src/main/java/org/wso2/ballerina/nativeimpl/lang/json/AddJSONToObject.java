@@ -18,7 +18,7 @@
 
 package org.wso2.ballerina.nativeimpl.lang.json;
 
-import com.google.gson.JsonElement;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.jayway.jsonpath.InvalidPathException;
 import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.JsonPathException;
@@ -41,7 +41,7 @@ import org.wso2.ballerina.nativeimpl.lang.utils.ErrorHandler;
 @BallerinaFunction(
         packageName = "ballerina.lang.json",
         functionName = "add",
-        args = {@Argument(name = "json", type = TypeEnum.JSON),
+        args = {@Argument(name = "j", type = TypeEnum.JSON),
                 @Argument(name = "jsonPath", type = TypeEnum.STRING),
                 @Argument(name = "key", type = TypeEnum.STRING),
                 @Argument(name = "value", type = TypeEnum.JSON)},
@@ -59,7 +59,7 @@ public class AddJSONToObject extends AbstractJSONFunction {
             BJSON json = (BJSON) getArgument(ctx, 0);
             jsonPath = getArgument(ctx, 1).stringValue();
             String key = getArgument(ctx, 2).stringValue();
-            JsonElement value = ((BJSON) getArgument(ctx, 3)).value();
+            JsonNode value = ((BJSON) getArgument(ctx, 3)).value();
 
             // Adding the value to JSON Object
             WriteContext jsonCtx = JsonPath.parse(json.value());

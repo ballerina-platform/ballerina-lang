@@ -34,7 +34,7 @@ import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
 @BallerinaFunction(
         packageName = "ballerina.lang.map",
         functionName = "remove",
-        args = {@Argument(name = "map", type = TypeEnum.MAP),
+        args = {@Argument(name = "m", type = TypeEnum.MAP),
                 @Argument(name = "key", type = TypeEnum.STRING)},
         isPublic = true
 )

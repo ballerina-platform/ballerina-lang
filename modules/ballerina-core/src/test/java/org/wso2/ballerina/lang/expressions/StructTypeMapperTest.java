@@ -18,30 +18,30 @@
 package org.wso2.ballerina.lang.expressions;
 
 
+import org.ballerinalang.util.program.BLangFunctions;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.wso2.ballerina.core.model.BallerinaFile;
+import org.wso2.ballerina.core.model.BLangProgram;
 import org.wso2.ballerina.core.model.values.BInteger;
 import org.wso2.ballerina.core.model.values.BMap;
 import org.wso2.ballerina.core.model.values.BString;
 import org.wso2.ballerina.core.model.values.BStruct;
 import org.wso2.ballerina.core.model.values.BValue;
-import org.wso2.ballerina.core.utils.ParserUtils;
-import org.wso2.ballerina.lang.util.Functions;
+import org.wso2.ballerina.core.utils.BTestUtils;
 
 
 public class StructTypeMapperTest {
-    private BallerinaFile bFile;
+    private BLangProgram bLangProgram;
 
     @BeforeClass
     public void setup() {
-        bFile = ParserUtils.parseBalFile("lang/expressions/struct-type-mapper.bal");
+        bLangProgram = BTestUtils.parseBalFile("lang/expressions/struct-type-mapper.bal");
     }
 
     @Test
     public void testStructMapper() {
-        BValue[] returns = Functions.invoke(bFile, "testStructMapper");
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testStructMapper");
         Assert.assertTrue(returns[0] instanceof BStruct);
         BStruct bStruct = (BStruct) returns[0];
         final String expectedName = "Jack";

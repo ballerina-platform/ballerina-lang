@@ -17,33 +17,33 @@
 */
 package org.wso2.ballerina.lang.statements;
 
+import org.ballerinalang.util.program.BLangFunctions;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.ballerina.core.exception.SemanticException;
-import org.wso2.ballerina.core.model.BallerinaFile;
+import org.wso2.ballerina.core.model.BLangProgram;
 import org.wso2.ballerina.core.model.values.BBoolean;
 import org.wso2.ballerina.core.model.values.BInteger;
 import org.wso2.ballerina.core.model.values.BValue;
-import org.wso2.ballerina.core.utils.ParserUtils;
-import org.wso2.ballerina.lang.util.Functions;
+import org.wso2.ballerina.core.utils.BTestUtils;
 
 /**
  * Test cases for testing TryCatchStmt and Throw Stmt.
  */
 public class TryCatchThrowStmtTest {
 
-    private BallerinaFile bFile;
+    private BLangProgram bLangProgram;
 
     @BeforeClass
     public void setup() {
-        bFile = ParserUtils.parseBalFile("lang/statements/tryCatchThrowStmts/testTryCatch.bal");
+        bLangProgram = BTestUtils.parseBalFile("lang/statements/tryCatchThrowStmts/testTryCatch.bal");
     }
 
     @Test(description = "Test try block execution.")
     public void testTryCatchStmt() {
         BValue[] args = {new BInteger(5)};
-        BValue[] returns = Functions.invoke(bFile, "testNestedTryCatch", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testNestedTryCatch", args);
 
         Assert.assertNotNull(returns);
         Assert.assertNotNull(returns[0]);
@@ -55,7 +55,7 @@ public class TryCatchThrowStmtTest {
     @Test(description = "Test catch block execution.")
     public void testTryCatchWithThrow() {
         BValue[] args = {new BInteger(15)};
-        BValue[] returns = Functions.invoke(bFile, "testNestedTryCatch", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testNestedTryCatch", args);
 
         Assert.assertNotNull(returns);
         Assert.assertNotNull(returns[0]);
@@ -67,7 +67,7 @@ public class TryCatchThrowStmtTest {
     @Test(description = "Test throw statement in a function.")
     public void testTryCatch() {
         BValue[] args = {new BInteger(15)};
-        BValue[] returns = Functions.invoke(bFile, "testFunctionThrow", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testFunctionThrow", args);
 
         Assert.assertNotNull(returns);
         Assert.assertNotNull(returns[0]);
@@ -78,19 +78,19 @@ public class TryCatchThrowStmtTest {
 
     @Test(expectedExceptions = SemanticException.class, expectedExceptionsMessageRegExp = ".*redeclared symbol 'e'.*")
     public void testDuplicateExceptionVariable() {
-        ParserUtils.parseBalFile("lang/statements/tryCatchThrowStmts/duplicate-var-try-catch.bal");
+        BTestUtils.parseBalFile("lang/statements/tryCatchThrowStmts/duplicate-var-try-catch.bal");
     }
 
     @Test(expectedExceptions = SemanticException.class, expectedExceptionsMessageRegExp = ".*type 'exception' is " +
             "allowed in throw statement*")
     public void testInvalidThrow() {
-        ParserUtils.parseBalFile("lang/statements/tryCatchThrowStmts/invalid-throw.bal");
+        BTestUtils.parseBalFile("lang/statements/tryCatchThrowStmts/invalid-throw.bal");
     }
 
     @Test(expectedExceptions = SemanticException.class, expectedExceptionsMessageRegExp = ".*type 'exception' is " +
             "allowed in throw statement.*")
     public void testInvalidFunctionThrow() {
-        ParserUtils.parseBalFile("lang/statements/tryCatchThrowStmts/invalid-function-throw.bal");
+        BTestUtils.parseBalFile("lang/statements/tryCatchThrowStmts/invalid-function-throw.bal");
     }
 
 }

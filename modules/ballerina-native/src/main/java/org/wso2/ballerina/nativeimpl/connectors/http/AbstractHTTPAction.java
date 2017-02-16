@@ -32,7 +32,6 @@ import org.wso2.ballerina.core.nativeimpl.connectors.BallerinaConnectorManager;
 import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.DefaultCarbonMessage;
 import org.wso2.carbon.messaging.Headers;
-import org.wso2.carbon.messaging.MessageDataSource;
 import org.wso2.carbon.messaging.exceptions.ClientConnectorException;
 
 import java.net.MalformedURLException;
@@ -119,8 +118,6 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
 
         try {
             BalConnectorCallback balConnectorCallback = new BalConnectorCallback(context);
-            // Handle the message built scenario
-            handleIfMessageBuilt(message);
             org.wso2.carbon.messaging.ClientConnector clientConnector = BallerinaConnectorManager.getInstance().
                     getClientConnector(Constants.PROTOCOL_HTTP);
 
@@ -130,6 +127,7 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
 
             clientConnector.send(message, balConnectorCallback);
 
+            // Wait till Response comes.
             while (!balConnectorCallback.isResponseArrived()) {
                 synchronized (context) {
                     if (!balConnectorCallback.isResponseArrived()) {
@@ -151,8 +149,6 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
 
     void executeNonBlockingAction(Context context, CarbonMessage message, BalConnectorCallback balConnectorCallback)
             throws ClientConnectorException {
-        // Handle the message built scenario
-        handleIfMessageBuilt(message);
         org.wso2.carbon.messaging.ClientConnector clientConnector = BallerinaConnectorManager.getInstance().
                 getClientConnector(Constants.PROTOCOL_HTTP);
 
@@ -164,65 +160,32 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
 
     @Override
     public void validate(BalConnectorCallback callback) {
-        handleTransportException(callback.getValueRef(), callback.getContext());
+        handleTransportException(callback.getValueRef());
+    }
+
+    @Override
+    public boolean isNonBlockingAction() {
+        return true;
     }
 
     private void handleTransportException(BValue valueRef) {
         if (valueRef instanceof BMessage) {
             BMessage bMsg = (BMessage) valueRef;
             if (bMsg.value() == null) {
-                throw new BallerinaException("Received unknown message for the action invocation");
-            }
-            if (bMsg.value().getMessagingException() != null) {
-                throw new BallerinaException(bMsg.value().getMessagingException().getMessage());
-            }
-        } else {
-            throw new BallerinaException("Invalid message received for the action invocation");
-        }
-    }
-
-    private void handleTransportException(BValue valueRef, Context context) {
-        if (valueRef instanceof BMessage) {
-            BMessage bMsg = (BMessage) valueRef;
-            if (bMsg.value() == null) {
                 String msg = "Received unknown message for the action invocation";
                 BException exception = new BException(msg, Constants.HTTP_CLIENT_EXCEPTION_CATEGORY);
-                context.getExecutor().handleBException(exception);
+                throw new BallerinaException(msg, exception);
             }
             if (bMsg.value().getMessagingException() != null) {
                 String msg = bMsg.value().getMessagingException().getMessage();
                 BException exception = new BException(msg, Constants.HTTP_CLIENT_EXCEPTION_CATEGORY);
-                context.getExecutor().handleBException(exception);
+                throw new BallerinaException(msg, exception);
             }
         } else {
             String msg = "Invalid message received for the action invocation";
             BException exception = new BException(msg, Constants.HTTP_CLIENT_EXCEPTION_CATEGORY);
-            context.getExecutor().handleBException(exception);
+            throw new BallerinaException(msg, exception);
         }
     }
 
-    /**
-     * Handle If the given carbon message is already built.
-     *
-     * @param message Carbon message instance to process.
-     */
-    private void handleIfMessageBuilt(CarbonMessage message) {
-        // Handle the message built scenario
-        if (message.isAlreadyRead()) {
-            MessageDataSource messageDataSource = message.getMessageDataSource();
-            if (messageDataSource != null) {
-                messageDataSource.serializeData();
-                message.setEndOfMsgAdded(true);
-                message.getHeaders().remove(Constants.HTTP_CONTENT_LENGTH);
-                message.getHeaders()
-                        .set(Constants.HTTP_CONTENT_LENGTH, String.valueOf(message.getFullMessageLength()));
-
-            } else {
-                message.setEndOfMsgAdded(true);
-                if (logger.isDebugEnabled()) {
-                    logger.debug("Sending an empty message");
-                }
-            }
-        }
-    }
 }

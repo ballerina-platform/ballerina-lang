@@ -93,14 +93,28 @@ public abstract class AbstractNativeAction implements NativeUnit, Action {
      * @param context           Ballerina context.
      * @param connectorCallback Callback instance to notify completion of the action invocation.
      */
-    public abstract void execute(Context context, BalConnectorCallback connectorCallback);
+    public void execute(Context context, BalConnectorCallback connectorCallback) {
+        throw new BallerinaException("not implemented native action");
+    }
 
     /**
      * Validate Native Action invocation. This method will be invoked when callback.done().
      *
      * @param connectorCallback Connector Callback instance.
      */
-    public abstract void validate(BalConnectorCallback connectorCallback);
+    public void validate(BalConnectorCallback connectorCallback) {
+    }
+
+    /**
+     * Declare implementation of Native action is support non-blocking behaviour.
+     *
+     * Default is false, Override to support non-blocking behaviour.
+     *
+     * @return true, if current is implementation supports non-blocking.
+     */
+    public boolean isNonBlockingAction() {
+        return false;
+    }
 
     // Methods in CallableUnit interface
 

@@ -19,6 +19,7 @@ package org.wso2.ballerina.core.interpreter;
 
 import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.model.Action;
+import org.wso2.ballerina.core.model.BMapTypeMapper;
 import org.wso2.ballerina.core.model.BTypeMapper;
 import org.wso2.ballerina.core.model.BallerinaAction;
 import org.wso2.ballerina.core.model.BallerinaConnectorDef;
@@ -70,6 +71,7 @@ import org.wso2.ballerina.core.model.statements.VariableDefStmt;
 import org.wso2.ballerina.core.model.statements.WhileStmt;
 import org.wso2.ballerina.core.model.statements.WorkerInvocationStmt;
 import org.wso2.ballerina.core.model.statements.WorkerReplyStmt;
+import org.wso2.ballerina.core.model.symbols.BLangSymbol;
 import org.wso2.ballerina.core.model.types.BMapType;
 import org.wso2.ballerina.core.model.types.BType;
 import org.wso2.ballerina.core.model.types.BTypes;
@@ -77,6 +79,7 @@ import org.wso2.ballerina.core.model.util.BValueUtils;
 import org.wso2.ballerina.core.model.values.BArray;
 import org.wso2.ballerina.core.model.values.BBoolean;
 import org.wso2.ballerina.core.model.values.BConnector;
+import org.wso2.ballerina.core.model.values.BDouble;
 import org.wso2.ballerina.core.model.values.BException;
 import org.wso2.ballerina.core.model.values.BInteger;
 import org.wso2.ballerina.core.model.values.BJSON;
@@ -872,6 +875,48 @@ public class BLangExecutor implements NodeExecutor {
             return typeCastExpression.getEvalFunc().apply(result);
         } else {
             TypeMapper typeMapper = typeCastExpression.getCallableUnit();
+            if (typeCastExpression.getCallableUnit() instanceof BMapTypeMapper) {
+
+                // Resolve variable location in the memory to identify the source type
+                int stackFrameOffset =
+                        ((StackVarLocation)
+                                ((VariableRefExpr)
+                                        ((ArrayMapAccessExpr)
+                                                typeCastExpression.getRExpr()
+                                        ).getRExpr()
+                                ).getVariableDef()
+                                .getMemoryLocation()
+                        ).getStackFrameOffset();
+
+
+
+                BMap map = ((BMap) controlStack.getCurrentFrame().values[stackFrameOffset]);
+
+                BValue firstVal = map.get(map.keySet().toArray()[0]);
+                BLangSymbol sourceType;
+
+                // Identify the source type of the map
+                if (firstVal instanceof BStruct) {
+                    sourceType = ((BStruct) firstVal).value();
+                } else if (firstVal instanceof BInteger) {
+                    sourceType = BTypes.typeInt;
+                } else if (firstVal instanceof BDouble) {
+                    sourceType = BTypes.typeDouble;
+                } else if (firstVal instanceof BBoolean) {
+                    sourceType = BTypes.typeBoolean;
+                } else if (firstVal instanceof BString) {
+                    sourceType = BTypes.typeString;
+                } else if (firstVal instanceof BXML) {
+                    sourceType = BTypes.typeXML;
+                }  else if (firstVal instanceof BJSON) {
+                    sourceType = BTypes.typeJSON;
+                } else {
+                    throw new BallerinaException("Could not identify the source type for type cast");
+                }
+
+                ((BMapTypeMapper) typeCastExpression.getCallableUnit()).setSourceType(sourceType);
+                ((BMapTypeMapper) typeCastExpression.getCallableUnit()).setNodeExecutor(this);
+            }
 
             int sizeOfValueArray = typeMapper.getStackFrameSize();
             BValue[] localVals = new BValue[sizeOfValueArray];
@@ -992,11 +1037,20 @@ public class BLangExecutor implements NodeExecutor {
     }
 
     private String evaluteBacktickString(BacktickExpr backtickExpr) {
-        String varString = "";
+        StringBuilder builder = new StringBuilder();
+        boolean isJson = backtickExpr.getType() == BTypes.typeJSON;
+        String strVal;
+        BValue bVal;
         for (Expression expression : backtickExpr.getArgExprs()) {
-            varString = varString + expression.execute(this).stringValue();
+            bVal = expression.execute(this);
+            strVal = bVal.stringValue();
+            if (isJson && bVal instanceof BString && expression instanceof ReferenceExpr) {
+                builder.append("\"" + strVal + "\"");
+            } else {
+                builder.append(strVal);
+            }
         }
-        return varString;
+        return builder.toString();
     }
 
     private void assignValueToArrayMapAccessExpr(BValue rValue, ArrayMapAccessExpr lExpr) {
@@ -1291,5 +1345,45 @@ public class BLangExecutor implements NodeExecutor {
         controlStack.pushFrame(stackFrame);
         initFunction.getCallableUnitBody().execute(this);
         controlStack.popFrame();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public BValue visit(TypeMapper typeMapper) {
+
+        int sizeOfValueArray = typeMapper.getStackFrameSize();
+        BValue[] localVals = new BValue[sizeOfValueArray];
+
+        BValue parameter = controlStack.getCurrentFrame().values[0];
+        localVals[0] = parameter;
+
+        // Create an array in the stack frame to hold return values;
+        BValue[] returnVals = new BValue[1];
+
+        // Create a new stack frame with memory locations to hold parameters, local values, temp expression value,
+        // return values and function invocation location;
+        CallableUnitInfo functionInfo = new CallableUnitInfo(typeMapper.getTypeMapperName(),
+                typeMapper.getPackagePath(), null);
+
+        StackFrame stackFrame = new StackFrame(localVals, returnVals, functionInfo);
+        controlStack.pushFrame(stackFrame);
+
+        // Check whether we are invoking a native function or not.
+        if (typeMapper instanceof BTypeMapper) {
+            BTypeMapper bTypeMapper = (BTypeMapper) typeMapper;
+            bTypeMapper.getCallableUnitBody().execute(this);
+        } else {
+            AbstractNativeTypeMapper nativeTypeMapper = (AbstractNativeTypeMapper) typeMapper;
+            nativeTypeMapper.convertNative(bContext);
+        }
+
+        controlStack.popFrame();
+
+        // Setting return values to function invocation expression
+        returnedOrReplied = false;
+        return returnVals[0];
+
     }
 }

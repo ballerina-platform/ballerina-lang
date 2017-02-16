@@ -34,7 +34,7 @@ import org.wso2.carbon.messaging.MessageDataSource;
 @BallerinaFunction(
         packageName = "ballerina.lang.message",
         functionName = "getXmlPayload",
-        args = {@Argument(name = "message", type = TypeEnum.MESSAGE)},
+        args = {@Argument(name = "m", type = TypeEnum.MESSAGE)},
         returnType = {@ReturnType(type = TypeEnum.XML)},
         isPublic = true
 )

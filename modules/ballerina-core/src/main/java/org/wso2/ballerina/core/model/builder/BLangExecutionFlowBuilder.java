@@ -26,6 +26,8 @@ import org.wso2.ballerina.core.interpreter.StructVarLocation;
 import org.wso2.ballerina.core.interpreter.WorkerVarLocation;
 import org.wso2.ballerina.core.interpreter.nonblocking.ModeResolver;
 import org.wso2.ballerina.core.model.Annotation;
+import org.wso2.ballerina.core.model.BLangPackage;
+import org.wso2.ballerina.core.model.BLangProgram;
 import org.wso2.ballerina.core.model.BTypeMapper;
 import org.wso2.ballerina.core.model.BallerinaAction;
 import org.wso2.ballerina.core.model.BallerinaConnectorDef;
@@ -197,20 +199,16 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
         nonblockingEnabled = ModeResolver.getInstance().isNonblockingEnabled();
     }
 
-    /**
-     * Parse given BallerinaFile.
-     *
-     * @param bFile BallerinaFile instance.
-     */
+    @Override
+    public void visit(BLangProgram bLangProgram) {
+    }
+
+    @Override
+    public void visit(BLangPackage bLangPackage) {
+    }
+
     @Override
     public void visit(BallerinaFile bFile) {
-        if (!nonblockingEnabled) {
-            return;
-        }
-        // Visit all services.
-        for (Service service : bFile.getServices()) {
-            service.accept(this);
-        }
     }
 
     @Override
@@ -228,6 +226,9 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
      */
     @Override
     public void visit(Service service) {
+        if (!nonblockingEnabled) {
+            return;
+        }
         // Visit all of resources in a service
         for (Resource resource : service.getResources()) {
             resource.accept(this);
@@ -260,6 +261,20 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
 
     @Override
     public void visit(BallerinaFunction function) {
+        if (!nonblockingEnabled || function.isFlowBuilderVisited()) {
+            return;
+        }
+        clearBranchingStacks();
+        BlockStmt blockStmt = function.getCallableUnitBody();
+        // This is a execution Start point. Hence link Block Statement with StartNode
+        blockStmt.setParent(new StartNode(StartNode.Originator.MAIN_FUNCTION));
+        // Visit Block Statement and ask it to handle its children.
+        returningBlockStmtStack.push(blockStmt);
+        offSetCounterStack.push(new OffSetCounter());
+        function.setFlowBuilderVisited(true);
+        blockStmt.accept(this);
+        function.setTempStackFrameSize(offSetCounterStack.pop().getCount());
+        returningBlockStmtStack.pop();
     }
 
     @Override
@@ -280,10 +295,6 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
 
     @Override
     public void visit(ParameterDef parameterDef) {
-    }
-
-    @Override
-    public void visit(ConnectorDcl connectorDcl) {
     }
 
     @Override

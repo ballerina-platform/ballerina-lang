@@ -18,6 +18,7 @@
 
 package org.wso2.ballerina.core.runtime;
 
+import org.wso2.ballerina.core.debugger.DebugManager;
 import org.wso2.ballerina.core.interpreter.BLangExecutor;
 import org.wso2.ballerina.core.interpreter.CallableUnitInfo;
 import org.wso2.ballerina.core.interpreter.Context;
@@ -26,6 +27,7 @@ import org.wso2.ballerina.core.interpreter.StackFrame;
 import org.wso2.ballerina.core.interpreter.StackVarLocation;
 import org.wso2.ballerina.core.interpreter.nonblocking.BLangNonBlockingExecutor;
 import org.wso2.ballerina.core.interpreter.nonblocking.ModeResolver;
+import org.wso2.ballerina.core.interpreter.nonblocking.debugger.BLangExecutionDebugger;
 import org.wso2.ballerina.core.model.Annotation;
 import org.wso2.ballerina.core.model.NodeLocation;
 import org.wso2.ballerina.core.model.ParameterDef;
@@ -52,7 +54,6 @@ import java.util.Map;
  * @since 0.8.0
  */
 public class BalProgramExecutor {
-
 
     public static void execute(CarbonMessage cMsg, CarbonCallback callback, Resource resource, Service service,
                                Context balContext) {
@@ -101,15 +102,36 @@ public class BalProgramExecutor {
         }
 
         // Create the interpreter and Execute
-        RuntimeEnvironment runtimeEnv = resource.getApplication().getRuntimeEnv();
+        RuntimeEnvironment runtimeEnv = service.getBLangProgram().getRuntimeEnvironment();
 
         SymbolName resourceSymbolName = resource.getSymbolName();
         CallableUnitInfo resourceInfo = new CallableUnitInfo(resourceSymbolName.getName(),
                 resourceSymbolName.getName(), resource.getNodeLocation());
 
-        StackFrame currentStackFrame = new StackFrame(argValues, new BValue[0], resourceInfo);
+        BValue[] cacheValues = new BValue[resource.getTempStackFrameSize()];
+
+        StackFrame currentStackFrame = new StackFrame(argValues, new BValue[0], cacheValues, resourceInfo);
         balContext.getControlStack().pushFrame(currentStackFrame);
-        if (ModeResolver.getInstance().isNonblockingEnabled()) {
+        if (ModeResolver.getInstance().isDebugEnabled()) {
+            DebugManager debugManager = DebugManager.getInstance();
+            // Only start the debugger if there is an active client (debug session).
+            if (debugManager.isDebugSessionActive()) {
+                BLangExecutionDebugger debugger = new BLangExecutionDebugger(runtimeEnv, balContext);
+                debugManager.setDebugger(debugger);
+                balContext.setExecutor(debugger);
+                debugger.execute(new ResourceInvocationExpr(resource, exprs));
+            } else {
+                // repeated code to make sure debugger have no impact in none debug mode.
+                if (ModeResolver.getInstance().isNonblockingEnabled()) {
+                    BLangNonBlockingExecutor executor = new BLangNonBlockingExecutor(runtimeEnv, balContext);
+                    balContext.setExecutor(executor);
+                    executor.execute(new ResourceInvocationExpr(resource, exprs));
+                } else {
+                    BLangExecutor executor = new BLangExecutor(runtimeEnv, balContext);
+                    new ResourceInvocationExpr(resource, exprs).executeMultiReturn(executor);
+                }
+            }
+        } else if (ModeResolver.getInstance().isNonblockingEnabled()) {
             BLangNonBlockingExecutor executor = new BLangNonBlockingExecutor(runtimeEnv, balContext);
             balContext.setExecutor(executor);
             executor.execute(new ResourceInvocationExpr(resource, exprs));
@@ -117,7 +139,6 @@ public class BalProgramExecutor {
             BLangExecutor executor = new BLangExecutor(runtimeEnv, balContext);
             new ResourceInvocationExpr(resource, exprs).executeMultiReturn(executor);
         }
-//        balContext.getControlStack().popFrame();
+        balContext.getControlStack().popFrame();
     }
-
 }

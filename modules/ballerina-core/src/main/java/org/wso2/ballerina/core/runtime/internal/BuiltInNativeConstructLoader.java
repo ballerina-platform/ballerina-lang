@@ -20,7 +20,7 @@ package org.wso2.ballerina.core.runtime.internal;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.ballerina.core.model.SymbolScope;
+import org.wso2.ballerina.core.model.GlobalScope;
 import org.wso2.ballerina.core.nativeimpl.NativeConstructLoader;
 
 import java.util.Iterator;
@@ -37,13 +37,13 @@ import java.util.ServiceLoader;
 public class BuiltInNativeConstructLoader {
 
     private static final Logger log = LoggerFactory.getLogger(BuiltInNativeConstructLoader.class);
-    
+
     /**
      * Load the native constructs to the provided symbol scope.
-     * 
+     *
      * @param globalScope   Symbol scope to load native constructs
      */
-    public static void loadConstructs(SymbolScope globalScope) {
+    public static void loadConstructs(GlobalScope globalScope) {
         Iterator<NativeConstructLoader> nativeConstructLoaders =
             ServiceLoader.load(NativeConstructLoader.class).iterator();
         while (nativeConstructLoaders.hasNext()) {
@@ -51,7 +51,7 @@ public class BuiltInNativeConstructLoader {
             constructLoader.load(globalScope);
         }
     }
-    
+
     public static void loadConstructs() {
     }
 }

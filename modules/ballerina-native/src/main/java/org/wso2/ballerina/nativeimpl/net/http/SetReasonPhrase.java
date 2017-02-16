@@ -33,7 +33,7 @@ import org.wso2.ballerina.nativeimpl.connectors.http.Constants;
 @BallerinaFunction(
         packageName = "ballerina.net.http",
         functionName = "setReasonPhrase",
-        args = {@Argument(name = "message", type = TypeEnum.MESSAGE),
+        args = {@Argument(name = "m", type = TypeEnum.MESSAGE),
                 @Argument(name = "reasonPhrase", type = TypeEnum.STRING)},
         isPublic = true
 )

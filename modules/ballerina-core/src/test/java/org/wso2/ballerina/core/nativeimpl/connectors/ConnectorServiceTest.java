@@ -25,7 +25,7 @@ import org.testng.annotations.Test;
 import org.wso2.ballerina.core.EnvironmentInitializer;
 import org.wso2.ballerina.core.interpreter.SymScope;
 import org.wso2.ballerina.core.message.StringDataSource;
-import org.wso2.ballerina.core.model.Application;
+import org.wso2.ballerina.core.model.BLangProgram;
 import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.runtime.internal.BuiltInNativeConstructLoader;
 import org.wso2.ballerina.core.runtime.internal.GlobalScopeHolder;
@@ -38,7 +38,7 @@ import org.wso2.carbon.messaging.CarbonMessage;
  */
 public class ConnectorServiceTest {
 
-    Application application;
+    BLangProgram bLangProgram;
 
     @BeforeClass()
     public void setup() {
@@ -46,7 +46,7 @@ public class ConnectorServiceTest {
         if (symScope.lookup(new SymbolName("ballerina.lang.message:setStringPayload_message_string")) == null) {
             BuiltInNativeConstructLoader.loadConstructs();
         }
-        application = EnvironmentInitializer.setup("lang/connectors/connector-in-service.bal");
+        bLangProgram = EnvironmentInitializer.setup("lang/connectors/connector-in-service.bal");
     }
 
     @Test(description = "Test action3Resource")
@@ -117,7 +117,7 @@ public class ConnectorServiceTest {
 
     @AfterClass
     public void tearDown() {
-        EnvironmentInitializer.cleanup(application);
+        EnvironmentInitializer.cleanup(bLangProgram);
     }
 
 }

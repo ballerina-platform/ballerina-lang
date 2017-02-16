@@ -19,12 +19,9 @@
 package org.wso2.ballerina.core.model;
 
 import org.wso2.ballerina.core.interpreter.SymScope;
-import org.wso2.ballerina.core.model.types.BTypes;
 import org.wso2.ballerina.core.model.types.TypeLattice;
-import org.wso2.ballerina.core.model.types.TypeVertex;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -41,62 +38,22 @@ import java.util.Map;
  * @since 0.8.0
  */
 public class BallerinaFile implements Node {
-
-    // Name of the main function
-    private static final String MAIN_FUNCTION_NAME = "main";
-
     private String pkgName = null;
-
-    // We need to keep a map of import packages.
-    // This is useful when analyzing import functions, actions and types.
-    private Map<String, ImportPackage> importPkgMap = new HashMap<>();
+    private String bFileName;
 
     private ImportPackage[] importPkgs;
-
     private CompilationUnit[] compilationUnits;
-
-    private Service[] services;
-    private BallerinaConnectorDef[] connectors;
-    private Function[] functions;
-    private TypeLattice typeLattice;
-    private Function mainFunction;
-    private ConstDef[] consts;
-    private StructDef[] structDefs;
-
-    private int sizeOfStaticMem;
-
-    private SymScope packageScope;
-
-    private List<String> errorMsgs = new ArrayList<>();
 
     private BallerinaFile(
             String pkgName,
-            Map<String, ImportPackage> importPkgMap,
+            String bFileName,
             ImportPackage[] importPkgs,
-            CompilationUnit[] compilationUnits,
-            Service[] services,
-            BallerinaConnectorDef[] connectors,
-            Function[] functions,
-            Function mainFunction,
-            ConstDef[] consts,
-            StructDef[] structDefs,
-            TypeLattice typeLattice,
-            List<String> errorMsgs) {
+            CompilationUnit[] compilationUnits) {
 
         this.pkgName = pkgName;
-        this.importPkgMap = importPkgMap;
+        this.bFileName = bFileName;
         this.importPkgs = importPkgs;
         this.compilationUnits = compilationUnits;
-        this.services = services;
-        this.connectors = connectors;
-        this.functions = functions;
-        this.mainFunction = mainFunction;
-        this.consts = consts;
-        this.structDefs = structDefs;
-        this.typeLattice = typeLattice;
-        this.errorMsgs = errorMsgs;
-
-        packageScope = new SymScope(SymScope.Name.PACKAGE);
     }
 
     /**
@@ -108,13 +65,17 @@ public class BallerinaFile implements Node {
         return pkgName;
     }
 
+    public String getFileName() {
+        return bFileName;
+    }
+
     /**
      * Get {@code Import} statements the file.
      *
      * @return list of imports
      */
     public Map<String, ImportPackage> getImportPackageMap() {
-        return importPkgMap;
+        return null;
     }
 
     public ImportPackage[] getImportPackages() {
@@ -126,7 +87,7 @@ public class BallerinaFile implements Node {
     }
 
     public ConstDef[] getConstants() {
-        return consts;
+        return null;
     }
 
     /**
@@ -135,7 +96,7 @@ public class BallerinaFile implements Node {
      * @return list of imports
      */
     public BallerinaConnectorDef[] getConnectors() {
-        return connectors;
+        return null;
     }
 
     /**
@@ -144,7 +105,7 @@ public class BallerinaFile implements Node {
      * @return list of Services
      */
     public Service[] getServices() {
-        return services;
+        return null;
     }
 
     /**
@@ -153,39 +114,33 @@ public class BallerinaFile implements Node {
      * @param services list of Services
      */
     public void setServices(Service[] services) {
-        this.services = services;
     }
 
     public Function[] getFunctions() {
-        return functions;
+        return null;
     }
 
     public TypeLattice getTypeLattice() {
-        return typeLattice;
+        return null;
     }
 
     public Function getMainFunction() {
-        return this.mainFunction;
+        return null;
     }
 
     public StructDef[] getStructDefs() {
-        return this.structDefs;
+        return null;
     }
 
     public SymScope getPackageScope() {
-        return packageScope;
+        return null;
     }
 
     public int getSizeOfStaticMem() {
-        return sizeOfStaticMem;
+        return 0;
     }
 
     public void setSizeOfStaticMem(int sizeOfStaticMem) {
-        this.sizeOfStaticMem = sizeOfStaticMem;
-    }
-
-    public List<String> getErrorMsgs() {
-        return errorMsgs;
     }
 
     @Override
@@ -204,27 +159,16 @@ public class BallerinaFile implements Node {
      * @since 0.8.0
      */
     public static class BFileBuilder {
-        private String pkgName;
+        private String pkgName = ".";
+        private String bFileName;
 
-        // We need to keep a map of import packages.
-        // This is useful when analyzing import functions, actions and types.
-        private Map<String, ImportPackage> importPkgMap = new HashMap<>();
+        private BLangPackage.PackageBuilder packageBuilder;
         private List<ImportPackage> importPkgList = new ArrayList<>();
-
         private List<CompilationUnit> compilationUnitList = new ArrayList<>();
-        private List<Service> serviceList = new ArrayList<>();
-        private List<BallerinaConnectorDef> connectorList = new ArrayList<>();
-        private List<Function> functionList = new ArrayList<>();
-        private Function mainFunction;
-        private TypeLattice typeLattice = new TypeLattice();
 
-        private List<ConstDef> constList = new ArrayList<>();
-
-        private List<StructDef> structDefList = new ArrayList<>();
-
-        private List<String> errorMsgs = new ArrayList<>();
-
-        public BFileBuilder() {
+        public BFileBuilder(String bFileName, BLangPackage.PackageBuilder packageBuilder) {
+            this.bFileName = bFileName;
+            this.packageBuilder = packageBuilder;
         }
 
         public void setPackagePath(String pkgName) {
@@ -232,48 +176,33 @@ public class BallerinaFile implements Node {
         }
 
         public void addFunction(BallerinaFunction function) {
-            if (function.getName().equals(MAIN_FUNCTION_NAME)) {
-
-                ParameterDef[] parameterDefs = function.getParameterDefs();
-                if (parameterDefs.length == 1 && parameterDefs[0].getType() == BTypes.getArrayType(BTypes.
-                        typeString.toString())) {
-                    mainFunction = function;
-                }
-            }
-
             this.compilationUnitList.add(function);
-            this.functionList.add(function);
+            this.packageBuilder.addFunction(function);
         }
 
         public void addService(Service service) {
             this.compilationUnitList.add(service);
-            this.serviceList.add(service);
+            this.packageBuilder.addService(service);
         }
 
         public void addConnector(BallerinaConnectorDef connector) {
             this.compilationUnitList.add(connector);
-            this.connectorList.add(connector);
+            this.packageBuilder.addConnector(connector);
         }
 
         public void addImportPackage(ImportPackage importPkg) {
             this.importPkgList.add(importPkg);
-        }
-
-        public void setImportPackageMap(Map<String, ImportPackage> importPkgMap) {
-            this.importPkgMap = importPkgMap;
+            this.packageBuilder.addImportPackage(importPkg);
         }
 
         public void addConst(ConstDef constant) {
             this.compilationUnitList.add((constant));
-            this.constList.add(constant);
+            this.packageBuilder.addConst(constant);
         }
 
-        public void addTypeMapper(TypeVertex source, TypeVertex target,
-                                     TypeMapper typeMapper, String packageName) {
+        public void addTypeMapper(TypeMapper typeMapper) {
             this.compilationUnitList.add((BTypeMapper) typeMapper);
-            typeLattice.addVertex(source, true);
-            typeLattice.addVertex(target, true);
-            typeLattice.addEdge(source, target, typeMapper, packageName);
+            this.packageBuilder.addTypeMapper(typeMapper);
         }
 
         /**
@@ -281,32 +210,15 @@ public class BallerinaFile implements Node {
          */
         public void addStruct(StructDef structDef) {
             this.compilationUnitList.add(structDef);
-            this.structDefList.add(structDef);
-        }
-
-        public void addErrorMsg(String errorMsg) {
-            this.errorMsgs.add(errorMsg);
-        }
-
-        public void setErrorMsgs(List<String> errorMsgs) {
-            this.errorMsgs = errorMsgs;
+            this.packageBuilder.addStruct(structDef);
         }
 
         public BallerinaFile build() {
             return new BallerinaFile(
                     pkgName,
-                    importPkgMap,
+                    bFileName,
                     importPkgList.toArray(new ImportPackage[importPkgList.size()]),
-                    compilationUnitList.toArray(new CompilationUnit[compilationUnitList.size()]),
-                    serviceList.toArray(new Service[serviceList.size()]),
-                    connectorList.toArray(new BallerinaConnectorDef[connectorList.size()]),
-                    functionList.toArray(new Function[functionList.size()]),
-                    mainFunction,
-                    constList.toArray(new ConstDef[constList.size()]),
-                    structDefList.toArray(new StructDef[structDefList.size()]),
-                    typeLattice,
-                    errorMsgs
-            );
+                    compilationUnitList.toArray(new CompilationUnit[compilationUnitList.size()]));
         }
     }
 }

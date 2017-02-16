@@ -17,11 +17,11 @@
 */
 package org.wso2.ballerina.core.model.builder;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.wso2.ballerina.core.exception.BLangExceptionHelper;
 import org.wso2.ballerina.core.exception.SemanticErrors;
+import org.wso2.ballerina.core.exception.SemanticException;
 import org.wso2.ballerina.core.model.Annotation;
+import org.wso2.ballerina.core.model.BLangPackage;
 import org.wso2.ballerina.core.model.BTypeMapper;
 import org.wso2.ballerina.core.model.BallerinaAction;
 import org.wso2.ballerina.core.model.BallerinaConnectorDef;
@@ -86,10 +86,8 @@ import org.wso2.ballerina.core.model.statements.WhileStmt;
 import org.wso2.ballerina.core.model.statements.WorkerInvocationStmt;
 import org.wso2.ballerina.core.model.statements.WorkerReplyStmt;
 import org.wso2.ballerina.core.model.symbols.BLangSymbol;
-import org.wso2.ballerina.core.model.types.BTypes;
 import org.wso2.ballerina.core.model.types.SimpleTypeName;
 import org.wso2.ballerina.core.model.types.TypeConstants;
-import org.wso2.ballerina.core.model.types.TypeVertex;
 import org.wso2.ballerina.core.model.values.BBoolean;
 import org.wso2.ballerina.core.model.values.BDouble;
 import org.wso2.ballerina.core.model.values.BFloat;
@@ -116,10 +114,8 @@ import java.util.regex.Pattern;
  * @since 0.8.0
  */
 public class BLangModelBuilder {
-    private static final Logger LOGGER = LoggerFactory.getLogger(BLangModelBuilder.class);
-
     private String currentPackagePath;
-    private BallerinaFile.BFileBuilder bFileBuilder = new BallerinaFile.BFileBuilder();
+    private BallerinaFile.BFileBuilder bFileBuilder;
 
     private SymbolScope currentScope;
 
@@ -166,12 +162,10 @@ public class BLangModelBuilder {
 
     private List<String> errorMsgs = new ArrayList<>();
 
-    public BLangModelBuilder() {
-    }
-
-    public BLangModelBuilder(SymbolScope packageScope) {
-        this.currentScope = packageScope;
-        this.packageScope = packageScope;
+    public BLangModelBuilder(BLangPackage.PackageBuilder packageBuilder, String bFileName) {
+        this.currentScope = packageBuilder.getCurrentScope();
+        this.packageScope = currentScope;
+        bFileBuilder = new BallerinaFile.BFileBuilder(bFileName, packageBuilder);
 
         // TODO Add a description why.
         startRefTypeInitExpr();
@@ -191,8 +185,10 @@ public class BLangModelBuilder {
                             .constructSemanticError(location, SemanticErrors.UNUSED_IMPORT_PACKAGE, importPkgErrStr));
                 });
 
-        bFileBuilder.setErrorMsgs(errorMsgs);
-        bFileBuilder.setImportPackageMap(importPkgMap);
+        if (errorMsgs.size() > 0) {
+            throw new SemanticException(errorMsgs.get(0));
+        }
+        
         return bFileBuilder.build();
     }
 
@@ -250,20 +246,9 @@ public class BLangModelBuilder {
 
     public void addConstantDef(NodeLocation location, String name, boolean isPublic) {
         SymbolName symbolName = new SymbolName(name);
-
-        // Check whether this constant is already defined.
-        if (currentScope.resolve(symbolName) != null) {
-            String errMsg = BLangExceptionHelper.constructSemanticError(location,
-                    SemanticErrors.REDECLARED_SYMBOL, name);
-            errorMsgs.add(errMsg);
-        }
-
         SimpleTypeName typeName = typeNameStack.pop();
         ConstDef constantDef = new ConstDef(location, name, typeName, currentPackagePath,
                 isPublic, symbolName, currentScope, exprStack.pop());
-
-        // Define the variableRef symbol in the current scope
-        currentScope.define(symbolName, constantDef);
 
         // Add constant definition to current file;
         bFileBuilder.addConst(constantDef);
@@ -329,16 +314,9 @@ public class BLangModelBuilder {
 
         // Define StructDef Symbol in the package scope..
         // TODO: add currentPackagePath when creating the SymbolName
-        SymbolName symbolName = new SymbolName(name);
+//        SymbolName symbolName = new SymbolName(name);
 
-        // Check whether this constant is already defined.
-        if (currentScope.resolve(symbolName) != null) {
-            String errMsg = BLangExceptionHelper.constructSemanticError(location,
-                    SemanticErrors.REDECLARED_SYMBOL, name);
-            errorMsgs.add(errMsg);
-        }
-
-        currentScope.define(symbolName, structDef);
+//        currentScope.define(symbolName, structDef);
         bFileBuilder.addStruct(structDef);
     }
 
@@ -414,7 +392,6 @@ public class BLangModelBuilder {
                     SemanticErrors.REDECLARED_SYMBOL, paramName);
             errorMsgs.add(errMsg);
         }
-
 
         SimpleTypeName typeName = typeNameStack.pop();
         ParameterDef paramDef = new ParameterDef(location, paramName, typeName, symbolName, currentScope);
@@ -689,9 +666,9 @@ public class BLangModelBuilder {
         exprStack.push(typeCastExpression);
     }
 
-    public void createArrayInitExpr(NodeLocation location) {
+    public void createArrayInitExpr(NodeLocation location, boolean argsAvailable) {
         List<Expression> argExprList;
-        if (!exprListStack.isEmpty()) {
+        if (argsAvailable) {
             argExprList = exprListStack.pop();
         } else {
             argExprList = new ArrayList<>(0);
@@ -783,11 +760,12 @@ public class BLangModelBuilder {
         annotationListStack.push(new ArrayList<>());
     }
 
-    public void addFunction(NodeLocation location, String name, boolean isPublic) {
+    public void addFunction(NodeLocation location, String name, boolean isPublic,  boolean isNative) {
         currentCUBuilder.setNodeLocation(location);
         currentCUBuilder.setName(name);
         currentCUBuilder.setPublic(isPublic);
-
+        currentCUBuilder.setNative(isNative);
+        
         List<Annotation> annotationList = annotationListStack.pop();
         annotationList.forEach(currentCUBuilder::addAnnotation);
 
@@ -806,18 +784,17 @@ public class BLangModelBuilder {
         annotationListStack.push(new ArrayList<>());
     }
 
-    public void addTypeMapper(String source, String target, String name, NodeLocation location, boolean isPublic) {
+    public void addTypeMapper(String source, String target, String name,
+            NodeLocation location, boolean isPublic, boolean isNative) {
         currentCUBuilder.setNodeLocation(location);
         currentCUBuilder.setName(name);
         //currentCUBuilder.setPkgPath(currentPackagePath);
         currentCUBuilder.setPublic(isPublic);
+        currentCUBuilder.setNative(isNative);
 
         BTypeMapper typeMapper = currentCUBuilder.buildTypeMapper();
-        TypeVertex sourceV = new TypeVertex(BTypes.resolveType(new SimpleTypeName(source),
-                currentScope, location));
-        TypeVertex targetV = new TypeVertex(BTypes.resolveType(new SimpleTypeName(target),
-                currentScope, location));
-        bFileBuilder.addTypeMapper(sourceV, targetV, typeMapper, currentPackagePath);
+
+        bFileBuilder.addTypeMapper(typeMapper);
 
         // Define type mapper is delayed due to missing type info of Parameters.
 
@@ -889,10 +866,11 @@ public class BLangModelBuilder {
         annotationListStack.push(new ArrayList<>());
     }
 
-    public void addAction(NodeLocation location, String name) {
+    public void addAction(NodeLocation location, String name, boolean isNative) {
         currentCUBuilder.setNodeLocation(location);
         currentCUBuilder.setName(name);
-
+        currentCUBuilder.setNative(isNative);
+        
         List<Annotation> annotationList = annotationListStack.pop();
         annotationList.forEach(currentCUBuilder::addAnnotation);
 
@@ -937,10 +915,11 @@ public class BLangModelBuilder {
         currentCUGroupBuilder = null;
     }
 
-    public void createConnector(NodeLocation location, String name) {
+    public void createConnector(NodeLocation location, String name, boolean isNative) {
         currentCUGroupBuilder.setNodeLocation(location);
         currentCUGroupBuilder.setName(name);
         currentCUGroupBuilder.setPkgPath(currentPackagePath);
+        currentCUGroupBuilder.setNative(isNative);
 
         List<Annotation> annotationList = annotationListStack.pop();
         annotationList.forEach(currentCUGroupBuilder::addAnnotation);
@@ -1570,6 +1549,4 @@ public class BLangModelBuilder {
             this.pkgName = pkgName;
         }
     }
-
-
 }

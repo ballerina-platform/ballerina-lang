@@ -17,27 +17,27 @@
  */
 package org.wso2.ballerina.core.lang.worker;
 
+import org.ballerinalang.util.program.BLangFunctions;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.wso2.ballerina.core.model.BallerinaFile;
+import org.wso2.ballerina.core.model.BLangProgram;
 import org.wso2.ballerina.core.model.values.BMessage;
 import org.wso2.ballerina.core.model.values.BValue;
-import org.wso2.ballerina.nativeimpl.util.Functions;
-import org.wso2.ballerina.nativeimpl.util.ParserUtils;
+import org.wso2.ballerina.nativeimpl.util.BTestUtils;
 
 public class WorkerInFunctionTest {
-    private BallerinaFile bFile;
+    private BLangProgram bLangProgram;
 
     @BeforeClass
     public void setup() {
-        bFile = ParserUtils.parseBalFile("samples/worker-declaration-stmt.bal");
+        bLangProgram = BTestUtils.parseBalFile("samples/worker-declaration-stmt.bal");
     }
 
     @Test(description = "Test worker declaration")
     public void testWorkerDeclaration() {
         BValue[] args = {new BMessage()};
-        BValue[] returns = Functions.invoke(bFile, "testworker", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testworker", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertTrue(returns[0] instanceof BMessage);
         final String expected = "{\"name\":\"chanaka\"}";

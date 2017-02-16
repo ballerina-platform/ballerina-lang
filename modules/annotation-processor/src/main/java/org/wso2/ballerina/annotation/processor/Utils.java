@@ -17,16 +17,22 @@
  */
 package org.wso2.ballerina.annotation.processor;
 
+import org.wso2.ballerina.annotation.processor.holders.AnnotationHolder;
 import org.wso2.ballerina.core.model.types.TypeEnum;
 import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
 import org.wso2.ballerina.core.nativeimpl.annotations.Attribute;
+import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaAction;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaAnnotation;
+import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
+import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaTypeMapper;
 import org.wso2.ballerina.core.nativeimpl.annotations.ReturnType;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+import javax.lang.model.element.Element;
+import javax.lang.model.element.TypeElement;
 
 /**
  * Utility class for annotation processor
@@ -64,7 +70,10 @@ public class Utils {
      * @param args return parameters
      * @param sb {@link StringBuilder} to append the return parameters
      */
-    public static void getReturnParams(ReturnType[] args, StringBuilder sb) {
+    public static void appendReturnParams(ReturnType[] args, StringBuilder sb) {
+        if (args.length == 0) {
+            return;
+        }
         sb.append(" (");
         for (int i = 1; i <= args.length; i++) {
             ReturnType arg = args[i - 1];
@@ -91,15 +100,15 @@ public class Utils {
     }
 
     /**
-     * Convert {@link BallerinaAnnotation} to {@link Annotation}
+     * Convert {@link BallerinaAnnotation} to {@link AnnotationHolder}
      * 
      * @param annotations array of {@link BallerinaAnnotation}
-     * @return list of {@link Annotation}
+     * @return list of {@link AnnotationHolder}
      */
-    public static List<Annotation> getAnnotations(BallerinaAnnotation[] annotations) {
-        List<Annotation> annotationList = new ArrayList<>();
+    public static List<AnnotationHolder> getAnnotations(BallerinaAnnotation[] annotations) {
+        List<AnnotationHolder> annotationList = new ArrayList<>();
         for (BallerinaAnnotation ballerinaAnnotation : annotations) {
-            annotationList.add(new Annotation(ballerinaAnnotation));
+            annotationList.add(new AnnotationHolder(ballerinaAnnotation));
         }
         return annotationList;
     }
@@ -108,9 +117,9 @@ public class Utils {
      * Appends annotations and builds a string representation using the default delimiter new line
      * 
      * @param sb {@link StringBuilder} to append to
-     * @param annotations list of {@link Annotation}
+     * @param annotations list of {@link AnnotationHolder}
      */
-    public static void appendAnnotationStrings(StringBuilder sb, List<Annotation> annotations) {
+    public static void appendAnnotationStrings(StringBuilder sb, List<AnnotationHolder> annotations) {
         appendAnnotationStrings(sb, annotations, "\n");
     }
 
@@ -118,20 +127,20 @@ public class Utils {
      * Appends annotations and builds a string representation using a given delimiter
      * 
      * @param sb {@link StringBuilder} to append to
-     * @param annotations list of {@link Annotation}
-     * @param delimiter delimiter to concatenate {@link Annotation} strings
+     * @param annotations list of {@link AnnotationHolder}
+     * @param delimiter delimiter to concatenate {@link AnnotationHolder} strings
      */
-    public static void appendAnnotationStrings(StringBuilder sb, List<Annotation> annotations, String delimiter) {
+    public static void appendAnnotationStrings(StringBuilder sb, List<AnnotationHolder> annotations, String delimiter) {
         sb.append(annotations.stream().map(p -> annotationToString(p)).collect(Collectors.joining(delimiter)));
     }
 
     /**
-     * Returns a string representation of an {@link Annotation}
+     * Returns a string representation of an {@link AnnotationHolder}
      * 
-     * @param annotation {@link Annotation}
-     * @return string representation of the given {@link Annotation}
+     * @param annotation {@link AnnotationHolder}
+     * @return string representation of the given {@link AnnotationHolder}
      */
-    public static String annotationToString(Annotation annotation) {
+    public static String annotationToString(AnnotationHolder annotation) {
         return Arrays.stream(DocAnnotations.values()).filter(e -> e.name().equals(annotation.getName())).findAny()
                 .map(p -> getDocAnnotation(annotation)).orElse(annotation.toString());
     }
@@ -139,12 +148,12 @@ public class Utils {
     /**
      * Generate string representation of documentation annotations
      * 
-     * @param annotation {@link Annotation}
+     * @param annotation {@link AnnotationHolder}
      * @return string representation of the given documentation annotation.
      */
-    private static String getDocAnnotation(Annotation annotation) {
+    private static String getDocAnnotation(AnnotationHolder annotation) {
         StringBuilder sb = new StringBuilder();
-        sb.append("@" + annotation.getName() + " (");
+        sb.append("@doc:" + annotation.getName() + " (");
         List<Attribute> attributes = annotation.getAttributes();
 
         sb.append(DocAnnotations.Description.name().equals(annotation.getName()) ? "\"" + attributes.get(0).value()
@@ -152,5 +161,83 @@ public class Utils {
                 .collect(Collectors.joining(",")));
         sb.append(")");
         return sb.toString();
+    }
+    
+    /**
+     * Get the qualified name of a ballerina native action.
+     * 
+     * @param balAction Ballerina action annotation
+     * @param connectorName Name of the connector this action belongs to
+     * @param connectorPkg Package of the connector this action belongs to
+     * 
+     * @return Qualified name of a ballerina native action
+     */
+    public static String getActionQualifiedName(BallerinaAction balAction, String connectorName, String connectorPkg) {
+        StringBuilder actionNameBuilder = new StringBuilder(balAction.connectorName() + "." + balAction.actionName());
+        Argument[] args = balAction.args();
+        for (Argument arg : args) {
+            if (arg.type() == TypeEnum.CONNECTOR) {
+                actionNameBuilder.append("." + connectorPkg + ":" + connectorName);
+            } else if (arg.type() == TypeEnum.ARRAY && arg.elementType() != TypeEnum.EMPTY) {
+                // if the argument is arrayType, then append the element type to the method signature
+                actionNameBuilder.append("." + arg.elementType().getName() + "[]");
+            } else {
+                actionNameBuilder.append("." + arg.type().getName());
+            }
+        }
+        return actionNameBuilder.toString();
+    }
+    
+    /**
+     * Get the fully qualified class name of a given element.
+     * 
+     * @param element Element to get the class name
+     * @return Fully qualified class name of a given element
+     */
+    public static String getClassName(Element element) {
+        return ((TypeElement) element).getQualifiedName().toString();
+    }
+    
+    /**
+     * Get the fully qualified name of the ballerina function.
+     * 
+     * @param balFunction Ballerina function annotation
+     * @return Fully qualified name
+     */
+    public static String getFunctionQualifiedName(BallerinaFunction balFunction) {
+        StringBuilder funcNameBuilder = new StringBuilder(balFunction.functionName());
+        Argument[] args = balFunction.args();
+        for (Argument arg : args) {
+            // if the argument is arrayType, then append the element type to the method signature 
+            if (arg.type() == TypeEnum.ARRAY && arg.elementType() != TypeEnum.EMPTY) {
+                funcNameBuilder.append("." + arg.elementType().getName() + "[]");
+            } else {
+                funcNameBuilder.append("." + arg.type().getName());
+            }
+        }
+        return funcNameBuilder.toString();
+    }
+    
+    /**
+     * Get the fully qualified name of the ballerina type convertor.
+     * 
+     * @param balTypeMapper Ballerina type convertor annotation.
+     * @return Fully qualified name
+     */
+    public static String getTypeConverterQualifiedName(BallerinaTypeMapper balTypeMapper) {
+        StringBuilder convertorNameBuilder = new StringBuilder();
+        Argument[] args = balTypeMapper.args();
+        ReturnType[] returnTypes = balTypeMapper.returnType();
+        
+        for (Argument arg : args) {
+            convertorNameBuilder.append(".").append(arg.type().getName());
+        }
+        
+        convertorNameBuilder.append("->");
+        
+        for (ReturnType returnType : returnTypes) {
+            convertorNameBuilder.append(".").append(returnType.type().getName());
+        }
+        return convertorNameBuilder.toString();
     }
 }

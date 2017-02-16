@@ -18,8 +18,7 @@
 
 package org.wso2.ballerina.nativeimpl.lang.json;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonPrimitive;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.jayway.jsonpath.InvalidPathException;
 import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.JsonPathException;
@@ -42,7 +41,7 @@ import org.wso2.ballerina.nativeimpl.lang.utils.ErrorHandler;
 @BallerinaFunction(
         packageName = "ballerina.lang.json",
         functionName = "getInt",
-        args = {@Argument(name = "json", type = TypeEnum.JSON),
+        args = {@Argument(name = "j", type = TypeEnum.JSON),
                 @Argument(name = "jsonPath", type = TypeEnum.STRING)},
         returnType = {@ReturnType(type = TypeEnum.INT)},
         isPublic = true
@@ -65,15 +64,12 @@ public class GetInt extends AbstractJSONFunction {
             Object elementObj = jsonCtx.read(jsonPath);
             if (elementObj == null) {
                 throw new BallerinaException("No matching element found for jsonpath: " + jsonPath);
-            } else if (elementObj instanceof JsonElement) {
-
-                JsonElement element = (JsonElement) elementObj;
-
-                if (element.isJsonPrimitive()) {
+            } else if (elementObj instanceof JsonNode) {
+                JsonNode element = (JsonNode) elementObj;
+                if (element.isValueNode()) {
                     // if the resulting value is a primitive, return the respective primitive value object
-                    JsonPrimitive value = element.getAsJsonPrimitive();
-                    if (value.isNumber()) {
-                        Number number = value.getAsNumber();
+                    if (element.isNumber()) {
+                        Number number = element.numberValue();
                     if (number instanceof Integer | number instanceof Long | number instanceof Short) {
                             result = new BInteger(number.intValue());
                         } else {

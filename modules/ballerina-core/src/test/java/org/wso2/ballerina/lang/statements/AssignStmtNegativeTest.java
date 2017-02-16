@@ -19,7 +19,7 @@ package org.wso2.ballerina.lang.statements;
 
 import org.testng.annotations.Test;
 import org.wso2.ballerina.core.exception.SemanticException;
-import org.wso2.ballerina.core.utils.ParserUtils;
+import org.wso2.ballerina.core.utils.BTestUtils;
 
 /**
  * Test class for assignment statement.
@@ -27,62 +27,62 @@ import org.wso2.ballerina.core.utils.ParserUtils;
 public class AssignStmtNegativeTest {
 
     @Test(expectedExceptions = {SemanticException.class},
-            expectedExceptionsMessageRegExp = "incompatible-type-assignment.bal:8: incompatible types: 'int' " +
+            expectedExceptionsMessageRegExp = "incompatible-type-assignment.bal:6: incompatible types: 'int' " +
                     "cannot be converted to 'boolean'")
     public void testIncompatibleTypeAssignment() {
-        ParserUtils.parseBalFile("lang/statements/assignment/incompatible-type-assignment.bal");
+        BTestUtils.parseBalFile("lang/statements/assignment/incompatible-type-assignment.bal");
     }
 
     @Test(expectedExceptions = {SemanticException.class},
             expectedExceptionsMessageRegExp = "repeated-var-multivalue-1.bal:6: 'a' is repeated on the " +
                     "left side of assignment")
     public void testRepeatedVariableInAssignment1() {
-        ParserUtils.parseBalFile("lang/statements/assignment/repeated-var-multivalue-1.bal");
+        BTestUtils.parseBalFile("lang/statements/assignment/repeated-var-multivalue-1.bal");
     }
 
     @Test(expectedExceptions = {SemanticException.class},
             expectedExceptionsMessageRegExp = "repeated-var-multivalue-2.bal:6: 'name' is repeated on the " +
                     "left side of assignment")
     public void testRepeatedVariableInAssignment2() {
-        ParserUtils.parseBalFile("lang/statements/assignment/repeated-var-multivalue-2.bal");
+        BTestUtils.parseBalFile("lang/statements/assignment/repeated-var-multivalue-2.bal");
     }
 
     @Test(expectedExceptions = {SemanticException.class},
             expectedExceptionsMessageRegExp = "const-assignment.bal:8: cannot assign a value to constant 'i'")
     public void testConstAssignment() {
-        ParserUtils.parseBalFile("lang/statements/assignment/const-assignment.bal");
+        BTestUtils.parseBalFile("lang/statements/assignment/const-assignment.bal");
     }
 
     @Test(expectedExceptions = {SemanticException.class},
             expectedExceptionsMessageRegExp = "assign-count-mismatch-1.bal:6: assignment count mismatch: 2 != 3")
     public void testAssignCountMismatch1() {
-        ParserUtils.parseBalFile("lang/statements/assignment/assign-count-mismatch-1.bal");
+        BTestUtils.parseBalFile("lang/statements/assignment/assign-count-mismatch-1.bal");
     }
 
     @Test(expectedExceptions = {SemanticException.class},
             expectedExceptionsMessageRegExp = "assign-count-mismatch-2.bal:7: assignment count mismatch: 4 != 3")
     public void testAssignCountMismatch2() {
-        ParserUtils.parseBalFile("lang/statements/assignment/assign-count-mismatch-2.bal");
+        BTestUtils.parseBalFile("lang/statements/assignment/assign-count-mismatch-2.bal");
     }
 
     @Test(expectedExceptions = {SemanticException.class},
             expectedExceptionsMessageRegExp = "assign-types-mismatch-1.bal:6: cannot assign string to " +
                     "'a' \\(type int\\) in multiple assignment")
     public void testAssignTypeMismatch1() {
-        ParserUtils.parseBalFile("lang/statements/assignment/assign-types-mismatch-1.bal");
+        BTestUtils.parseBalFile("lang/statements/assignment/assign-types-mismatch-1.bal");
     }
 
     @Test(expectedExceptions = {SemanticException.class},
             expectedExceptionsMessageRegExp = "assign-types-mismatch-2.bal:6: cannot assign string to " +
                     "'name' \\(type int\\) in multiple assignment")
     public void testAssignTypeMismatch2() {
-        ParserUtils.parseBalFile("lang/statements/assignment/assign-types-mismatch-2.bal");
+        BTestUtils.parseBalFile("lang/statements/assignment/assign-types-mismatch-2.bal");
     }
 
     @Test(expectedExceptions = {SemanticException.class},
             expectedExceptionsMessageRegExp = "backtick-assign-mismatch-1.bal:6: incompatible types: " +
                     "expected json or xml")
     public void testTemplateJSONAssignTypeMismatch() {
-        ParserUtils.parseBalFile("lang/statements/assignment/backtick-assign-mismatch-1.bal");
+        BTestUtils.parseBalFile("lang/statements/assignment/backtick-assign-mismatch-1.bal");
     }
 }

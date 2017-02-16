@@ -1,5 +1,3 @@
-package samples.nativeimpl;
-
 import ballerina.lang.system;
 
 function testPrintAndPrintlnString(string s1, string s2){

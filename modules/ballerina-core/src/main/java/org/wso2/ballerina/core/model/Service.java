@@ -59,6 +59,10 @@ public class Service implements CompilationUnit, SymbolScope, BLangSymbol {
     private SymbolScope enclosingScope;
     private Map<SymbolName, BLangSymbol> symbolMap;
 
+    // Here we need to link a service with it's program. We execute the matching resource
+    // when a request is made. At that point, we need to access runtime environment to execute the resource.
+    private BLangProgram bLangProgram;
+
     private Service(SymbolScope enclosingScope) {
         this.enclosingScope = enclosingScope;
         this.symbolMap = new HashMap<>();
@@ -102,6 +106,13 @@ public class Service implements CompilationUnit, SymbolScope, BLangSymbol {
         this.initFunction = initFunction;
     }
 
+    public BLangProgram getBLangProgram() {
+        return bLangProgram;
+    }
+
+    public void setBLangProgram(BLangProgram bLangProgram) {
+        this.bLangProgram = bLangProgram;
+    }
 
     // Methods in Node interface
 

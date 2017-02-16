@@ -17,6 +17,7 @@
 */
 package org.wso2.ballerina.core.interpreter;
 
+import org.ballerinalang.BLangProgramLoader;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -25,24 +26,22 @@ import org.wso2.ballerina.core.interpreter.nonblocking.ModeResolver;
 import org.wso2.ballerina.core.interpreter.nonblocking.debugger.BLangExecutionDebugger;
 import org.wso2.ballerina.core.interpreter.nonblocking.debugger.BreakPointInfo;
 import org.wso2.ballerina.core.interpreter.nonblocking.debugger.DebugSessionObserver;
-import org.wso2.ballerina.core.model.BallerinaFile;
+import org.wso2.ballerina.core.model.BLangProgram;
 import org.wso2.ballerina.core.model.BallerinaFunction;
 import org.wso2.ballerina.core.model.NodeLocation;
-import org.wso2.ballerina.core.model.ParameterDef;
-import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.model.builder.BLangExecutionFlowBuilder;
 import org.wso2.ballerina.core.model.expressions.Expression;
 import org.wso2.ballerina.core.model.expressions.FunctionInvocationExpr;
-import org.wso2.ballerina.core.model.expressions.VariableRefExpr;
 import org.wso2.ballerina.core.model.nodes.StartNode;
-import org.wso2.ballerina.core.model.types.BTypes;
 import org.wso2.ballerina.core.model.values.BArray;
 import org.wso2.ballerina.core.model.values.BString;
 import org.wso2.ballerina.core.model.values.BValue;
-import org.wso2.ballerina.core.utils.ParserUtils;
+import org.wso2.ballerina.core.utils.BTestUtils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 /**
  * Test Cases for {@link BLangExecutionDebugger}
@@ -175,13 +174,15 @@ public class DebuggerTest {
 
     static class DebugRunner {
 
-        BallerinaFile balFile;
+        BLangProgram bLangProgram;
         FunctionInvocationExpr funcIExpr;
         BLangExecutionDebugger debugger;
 
         void setup() {
             ModeResolver.getInstance().setNonblockingEnabled(true);
-            this.balFile = ParserUtils.parseBalFile("samples/debug/testDebug.bal");
+            String sourceFilePath = "samples/debug/testDebug.bal";
+            Path path = Paths.get(BTestUtils.class.getProtectionDomain().getCodeSource().getLocation().getPath());
+            bLangProgram = new BLangProgramLoader().loadMain(path, Paths.get(sourceFilePath));
             // Arguments for main function.
             BArray<BString> arrayArgs = new BArray<>(BString.class);
             arrayArgs.add(0, new BString("Hello"));
@@ -189,40 +190,31 @@ public class DebuggerTest {
 
 
             Context bContext = new Context();
-            SymbolName argsName;
-            BallerinaFunction mainFun = (BallerinaFunction) balFile.getMainFunction();
-            NodeLocation mainFuncLocation = mainFun.getNodeLocation();
-            ParameterDef[] parameterDefs = mainFun.getParameterDefs();
-            argsName = parameterDefs[0].getSymbolName();
+            BallerinaFunction mainFunction = bLangProgram.getMainFunction();
 
-            Expression[] exprs = new Expression[1];
-            VariableRefExpr variableRefExpr = new VariableRefExpr(mainFuncLocation, argsName);
-            variableRefExpr.setVariableDef(parameterDefs[0]);
-            StackVarLocation location = new StackVarLocation(0);
-            variableRefExpr.setMemoryLocation(location);
-            variableRefExpr.setType(BTypes.typeString);
-            exprs[0] = variableRefExpr;
+            mainFunction.accept(new BLangExecutionFlowBuilder());
 
-            BValue[] argValues = {arrayArgs};
+            BValue[] argValues = new BValue[mainFunction.getStackFrameSize()];
+            BValue[] cacheValues = new BValue[mainFunction.getTempStackFrameSize()];
 
-            // 3) Create a function invocation expression
-            funcIExpr = new FunctionInvocationExpr(mainFuncLocation, mainFun.getName(), null,
-                    mainFun.getPackagePath(), exprs);
-            funcIExpr.setOffset(1);
-            funcIExpr.setCallableUnit(mainFun);
-            funcIExpr.setParent(new StartNode(StartNode.Originator.MAIN_FUNCTION));
+            argValues[0] = arrayArgs;
+
+            CallableUnitInfo functionInfo = new CallableUnitInfo(mainFunction.getName(), mainFunction.getPackagePath(),
+                    mainFunction.getNodeLocation());
+
+            funcIExpr = new FunctionInvocationExpr(
+                    mainFunction.getNodeLocation(), mainFunction.getName(), null, null, new Expression[0]);
+            funcIExpr.setOffset(argValues.length);
+            funcIExpr.setCallableUnit(mainFunction);
+            // Flow Building.
             BLangExecutionFlowBuilder flowBuilder = new BLangExecutionFlowBuilder();
+            funcIExpr.setParent(new StartNode(StartNode.Originator.TEST));
             funcIExpr.accept(flowBuilder);
 
-            CallableUnitInfo functionInfo = new CallableUnitInfo(funcIExpr.getName(),
-                    funcIExpr.getPackagePath(), mainFuncLocation);
+            StackFrame stackFrame = new StackFrame(argValues, new BValue[0], cacheValues, functionInfo);
+            bContext.getControlStack().pushFrame(stackFrame);
 
-            BValue[] tempValues = new BValue[flowBuilder.getCurrentTempStackSize()];
-
-            StackFrame currentStackFrame = new StackFrame(argValues, new BValue[0], tempValues, functionInfo);
-            bContext.getControlStack().pushFrame(currentStackFrame);
-
-            RuntimeEnvironment runtimeEnv = RuntimeEnvironment.get(balFile);
+            RuntimeEnvironment runtimeEnv = RuntimeEnvironment.get(bLangProgram);
             debugger = new BLangExecutionDebugger(runtimeEnv, bContext);
         }
 

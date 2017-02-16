@@ -15,14 +15,15 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 package org.ballerinalang.launcher;
 
+import com.beust.jcommander.JCommander;
+
 /**
- * {@code BLauncherCmd} represents a Ballerina command.
+ * {@code BLauncherCmd} represents a Ballerina launcher command.
  *
  * @see Main.RunCmd
- * @see Main.ServiceCmd
+ * @see Main.BuildCmd
  * @since 0.8.0
  */
 public interface BLauncherCmd {
@@ -32,4 +33,8 @@ public interface BLauncherCmd {
     String getName();
 
     void printUsage(StringBuilder out);
+
+    void setParentCmdParser(JCommander parentCmdParser);
+
+    void setSelfCmdParser(JCommander selfCmdParser);
 }
