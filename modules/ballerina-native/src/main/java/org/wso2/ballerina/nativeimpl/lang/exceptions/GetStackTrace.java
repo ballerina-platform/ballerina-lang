@@ -35,7 +35,7 @@ import org.wso2.ballerina.core.nativeimpl.annotations.ReturnType;
 @BallerinaFunction(
         packageName = "ballerina.lang.exceptions",
         functionName = "getStackTrace",
-        args = {@Argument(name = "exception", type = TypeEnum.EXCEPTION)},
+        args = {@Argument(name = "e", type = TypeEnum.EXCEPTION)},
         returnType = {@ReturnType(type = TypeEnum.STRING)},
         isPublic = true
 )

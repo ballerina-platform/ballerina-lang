@@ -17,30 +17,30 @@
  */
 package org.wso2.ballerina.core.lang.worker;
 
+import org.ballerinalang.util.program.BLangFunctions;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.wso2.ballerina.core.model.BallerinaFile;
+import org.wso2.ballerina.core.model.BLangProgram;
 import org.wso2.ballerina.core.model.values.BArray;
 import org.wso2.ballerina.core.model.values.BMessage;
 import org.wso2.ballerina.core.model.values.BValue;
-import org.wso2.ballerina.nativeimpl.util.Functions;
-import org.wso2.ballerina.nativeimpl.util.ParserUtils;
+import org.wso2.ballerina.nativeimpl.util.BTestUtils;
 
 
 public class ForkJoinInFunctionTest {
-    private BallerinaFile bFile;
+    private BLangProgram bLangProgram;
 
     @BeforeClass
     public void setup() {
-        bFile = ParserUtils.parseBalFile("samples/fork-join-in-function.bal");
+        bLangProgram = BTestUtils.parseBalFile("samples/fork-join-in-function.bal");
     }
 
 
     @Test(description = "Test Fork Join All")
     public void testForkJoinAll() {
         BValue[] args = {new BMessage()};
-        BValue[] returns = Functions.invoke(bFile, "testForkJoinAll", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testForkJoinAll", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertTrue(returns[0] instanceof BArray);
         Assert.assertEquals(((BArray) returns[0]).size(), 2);
@@ -51,7 +51,7 @@ public class ForkJoinInFunctionTest {
     @Test(description = "Test Fork Join Any")
     public void testForkJoinAny() {
         BValue[] args = {new BMessage()};
-        BValue[] returns = Functions.invoke(bFile, "testForkJoinAny", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testForkJoinAny", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertTrue(returns[0] instanceof BArray);
         Assert.assertEquals(((BArray) returns[0]).size(), 1);
@@ -62,7 +62,7 @@ public class ForkJoinInFunctionTest {
     @Test(description = "Test Fork Join All of specific")
     public void testForkJoinAllOfSpecific() {
         BValue[] args = {new BMessage()};
-        BValue[] returns = Functions.invoke(bFile, "testForkJoinAllOfSpecific", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testForkJoinAllOfSpecific", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertTrue(returns[0] instanceof BArray);
         Assert.assertEquals(((BArray) returns[0]).size(), 2);
@@ -73,7 +73,7 @@ public class ForkJoinInFunctionTest {
     @Test(description = "Test Fork Join Any of specific")
     public void testForkJoinAnyOfSpecific() {
         BValue[] args = {new BMessage()};
-        BValue[] returns = Functions.invoke(bFile, "testForkJoinAnyOfSpecific", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testForkJoinAnyOfSpecific", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertTrue(returns[0] instanceof BArray);
         Assert.assertEquals(((BArray) returns[0]).size(), 1);
