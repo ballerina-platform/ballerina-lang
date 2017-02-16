@@ -61,7 +61,7 @@ define(['lodash', 'd3','log', './simple-statement-view', './../ast/action-invoca
         // TODO : Please revisit this method. Needs a refactor
         ActionInvocationStatementView.prototype.drawActionConnections = function(startPoint){
             // Action invocation model is the child of the right operand
-            var actionInvocationModel = this.getActionInvocationExpression();
+            var actionInvocationModel = this.getActionInvocationExpressionModel();
             if(this.isAtValidDropTarget()){
                 this.updateActivatedTarget(this.messageManager.getActivatedDropTarget(), actionInvocationModel);
             }
