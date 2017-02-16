@@ -67,7 +67,6 @@ public class EnvironmentInitializer {
                 });
             }
         }
-        DispatcherRegistry.getInstance().clearDispatchers();
     }
 
 }
