@@ -35,7 +35,7 @@ import org.wso2.ballerina.core.nativeimpl.annotations.ReturnType;
 @BallerinaFunction(
         packageName = "ballerina.lang.string",
         functionName = "equalsIgnoreCase",
-        args = {@Argument(name = "string", type = TypeEnum.STRING),
+        args = {@Argument(name = "mainString", type = TypeEnum.STRING),
                 @Argument(name = "anotherString", type = TypeEnum.STRING)},
         returnType = {@ReturnType(type = TypeEnum.BOOLEAN)},
         isPublic = true

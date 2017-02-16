@@ -30,7 +30,7 @@ import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
 @BallerinaFunction(
         packageName = "ballerina.lang.system",
         functionName = "print",
-        args = {@Argument(name = "boolean", type = TypeEnum.BOOLEAN)},
+        args = {@Argument(name = "b", type = TypeEnum.BOOLEAN)},
         isPublic = true
 )
 public class PrintBoolean extends AbstractNativeFunction {
