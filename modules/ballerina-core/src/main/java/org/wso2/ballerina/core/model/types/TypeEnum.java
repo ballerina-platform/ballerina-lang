@@ -36,6 +36,7 @@ public enum TypeEnum {
     ARRAY("array"),
     CONNECTOR("connector"),
     EXCEPTION("exception"),
+    DATATABLE("datatable"),
     EMPTY("");
 
     private String name;

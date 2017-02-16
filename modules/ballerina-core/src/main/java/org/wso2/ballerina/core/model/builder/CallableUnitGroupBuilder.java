@@ -47,6 +47,7 @@ public class CallableUnitGroupBuilder {
     protected String pkgPath;
     protected boolean isPublic;
     protected SymbolName symbolName;
+    protected boolean isNative;
 
     protected List<Annotation> annotationList = new ArrayList<>();
     protected List<ParameterDef> parameterDefList = new ArrayList<>();
@@ -100,5 +101,9 @@ public class CallableUnitGroupBuilder {
 
     public BallerinaConnectorDef buildConnector() {
         return null;
+    }
+
+    public void setNative(boolean isNative) {
+        this.isNative = isNative;
     }
 }

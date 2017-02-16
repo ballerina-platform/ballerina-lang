@@ -294,6 +294,19 @@
                 <artifactId>snakeyaml</artifactId>
                 <version>${org.snakeyaml.version}</version>
             </dependency>
+
+            <!-- Data Services dependencies -->
+            <dependency>
+                <groupId>com.zaxxer</groupId>
+                <artifactId>HikariCP</artifactId>
+                <version>${com.zaxxer.hikaricp.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.hsqldb</groupId>
+                <artifactId>hsqldb</artifactId>
+                <version>${hyperSQL.version}</version>
+                <scope>test</scope>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -417,7 +430,7 @@
         <carbon.kernel.package.import.version.range>[5.0.0, 6.0.0)</carbon.kernel.package.import.version.range>
         <carbon.kernel.pax.version>5.2.0-m2</carbon.kernel.pax.version>
 
-        <carbon.transport.version>4.2.1</carbon.transport.version>
+        <carbon.transport.version>4.2.2</carbon.transport.version>
         <carbon.transport.package.import.version.range>[4.0.0, 5.0.0)</carbon.transport.package.import.version.range>
 
         <carbon.messaging.version>2.2.1</carbon.messaging.version>
@@ -474,6 +487,11 @@
         <native.constructs.provider.package>org.wso2.ballerina.nativeimpl</native.constructs.provider.package>
         <native.constructs.provider.class>BallerinaNativeConstructsProvider</native.constructs.provider.class>
         <mvn.processor.plugin.version>2.2.4</mvn.processor.plugin.version>
+        <mvn.exec.plugin.version>1.1.1</mvn.exec.plugin.version>
+
+        <!--data services dependencies -->
+        <com.zaxxer.hikaricp.version>2.5.1</com.zaxxer.hikaricp.version>
+        <hyperSQL.version>2.3.4</hyperSQL.version>
     </properties>
 
     <modules>

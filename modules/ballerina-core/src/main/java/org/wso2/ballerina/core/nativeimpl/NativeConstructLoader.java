@@ -17,7 +17,7 @@
 
 package org.wso2.ballerina.core.nativeimpl;
 
-import org.wso2.ballerina.core.model.SymbolScope;
+import org.wso2.ballerina.core.model.GlobalScope;
 
 /**
  * Interface class to be extended by all native constructs tables. {@link NativeConstructLoader} contains 
@@ -28,8 +28,8 @@ public interface NativeConstructLoader {
     /**
      * Load constructs to the provided Symbol Scope.
      * 
-     * @param symbolScope  Symbol scope to load construct symbols
+     * @param globalScope  Symbol scope to load construct symbols
      */
-    public void load(SymbolScope symbolScope);
+    public void load(GlobalScope globalScope);
 
 }

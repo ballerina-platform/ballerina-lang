@@ -17,7 +17,7 @@ import org.wso2.ballerina.core.nativeimpl.annotations.ReturnType;
 @BallerinaFunction(
         packageName = "ballerina.lang.string",
         functionName = "subString",
-        args = {@Argument(name = "string", type = TypeEnum.STRING),
+        args = {@Argument(name = "mainString", type = TypeEnum.STRING),
                 @Argument(name = "from", type = TypeEnum.INT),
                 @Argument(name = "to", type = TypeEnum.INT)},
         returnType = {@ReturnType(type = TypeEnum.STRING)},

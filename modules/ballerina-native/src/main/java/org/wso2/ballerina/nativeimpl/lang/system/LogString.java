@@ -35,7 +35,7 @@ import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
         packageName = "ballerina.lang.system",
         functionName = "log",
         args = {@Argument(name = "logLevel", type = TypeEnum.INT),
-                @Argument(name = "string", type = TypeEnum.STRING)},
+                @Argument(name = "s", type = TypeEnum.STRING)},
         isPublic = true,
         consts = {
                 @BallerinaConstant(identifier = "LOG_LEVEL_TRACE", type = TypeEnum.INT, value = "1",

@@ -17,11 +17,12 @@
 */
 package org.wso2.ballerina.nativeimpl.functions;
 
+import org.ballerinalang.util.program.BLangFunctions;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.ballerina.core.exception.BallerinaException;
-import org.wso2.ballerina.core.model.BallerinaFile;
+import org.wso2.ballerina.core.model.BLangProgram;
 import org.wso2.ballerina.core.model.values.BBoolean;
 import org.wso2.ballerina.core.model.values.BDouble;
 import org.wso2.ballerina.core.model.values.BFloat;
@@ -30,8 +31,7 @@ import org.wso2.ballerina.core.model.values.BJSON;
 import org.wso2.ballerina.core.model.values.BString;
 import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.model.values.BValueType;
-import org.wso2.ballerina.nativeimpl.util.Functions;
-import org.wso2.ballerina.nativeimpl.util.ParserUtils;
+import org.wso2.ballerina.nativeimpl.util.BTestUtils;
 
 /**
  * Test Native functions in ballerina.lang.json.
@@ -39,7 +39,7 @@ import org.wso2.ballerina.nativeimpl.util.ParserUtils;
 @SuppressWarnings("javadoc")
 public class JSONTest {
 
-    private BallerinaFile bFile;
+    private BLangProgram bLangProgram;
     private static final String json1 = "{'name':{'fname':'Jack','lname':'Taylor'}, 'state':'CA', 'age':20}";
     private static final String json2 = "{'item':{'price':3.54, 'available':true}}";
     private static final String jsonStringArray = "{'users':['Jack', 'Peter']}";
@@ -51,7 +51,7 @@ public class JSONTest {
 
     @BeforeClass
     public void setup() {
-        bFile = ParserUtils.parseBalFile("samples/jsonTest.bal");
+        bLangProgram = BTestUtils.parseBalFile("samples/jsonTest.bal");
     }
 
     
@@ -62,7 +62,7 @@ public class JSONTest {
     @Test(description = "Get a string in a valid jsonpath")
     public void testGetString() {
         BValue[] args = {new BJSON(json1), new BString("$.name.fname")};
-        BValue[] returns = Functions.invoke(bFile, "getString", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "getString", args);
 
         Assert.assertEquals(returns[0].stringValue(), "Jack");
     }
@@ -70,7 +70,7 @@ public class JSONTest {
     @Test(description = "Get an integer in a valid jsonpath")
     public void testGetInt() {
         BValue[] args = {new BJSON(json1), new BString("$.age")};
-        BValue[] returns = Functions.invoke(bFile, "getInt", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "getInt", args);
 
         Assert.assertEquals(((BValueType) returns[0]).intValue(), 20);
     }
@@ -78,7 +78,7 @@ public class JSONTest {
     @Test(description = "Get a json element in a valid jsonpath")
     public void testGetJSON() {
         BValue[] args = {new BJSON(json1), new BString("$.name")};
-        BValue[] returns = Functions.invoke(bFile, "getJson", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "getJson", args);
 
         Assert.assertEquals(getJsonAsString(returns[0]), "{\"fname\":\"Jack\",\"lname\":\"Taylor\"}");
     }
@@ -86,7 +86,7 @@ public class JSONTest {
     @Test(description = "Get a float in a valid jsonpath")
     public void testGetFloat() {
         BValue[] args = {new BJSON(json2), new BString("$.item.price")};
-        BValue[] returns = Functions.invoke(bFile, "getFloat", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "getFloat", args);
 
         Assert.assertEquals(((BValueType) returns[0]).floatValue(), (float) 3.54);
     }
@@ -94,7 +94,7 @@ public class JSONTest {
     @Test(description = "Get a double in a valid jsonpath")
     public void testGetDouble() {
         BValue[] args = {new BJSON(json2), new BString("$.item.price")};
-        BValue[] returns = Functions.invoke(bFile, "getDouble", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "getDouble", args);
 
         Assert.assertEquals(((BValueType) returns[0]).doubleValue(), 3.54);
     }
@@ -102,7 +102,7 @@ public class JSONTest {
     @Test(description = "Get a float in a valid jsonpath")
     public void testGetBoolean() {
         BValue[] args = {new BJSON(json2), new BString("$.item.available")};
-        BValue[] returns = Functions.invoke(bFile, "getBoolean", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "getBoolean", args);
 
         Assert.assertEquals(((BValueType) returns[0]).booleanValue(), true);
     }
@@ -110,7 +110,7 @@ public class JSONTest {
     @Test(description = "Get json array length")
     public void testGetArrayLength() {
         BValue[] args = {new BJSON(jsonStringArray), new BString("$.users.length()")};
-        BValue[] returns = Functions.invoke(bFile, "getInt", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "getInt", args);
 
         final int expected = 2;
         Assert.assertEquals(((BValueType) returns[0]).intValue(), expected);
@@ -119,7 +119,7 @@ public class JSONTest {
     @Test(description = "Get json array min value")
     public void testGetArrayMin() {
         BValue[] args = {new BJSON(jsonIntArray), new BString("$.ages.min()")};
-        BValue[] returns = Functions.invoke(bFile, "getDouble", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "getDouble", args);
 
         final double expected = 25;
         Assert.assertEquals(((BValueType) returns[0]).doubleValue(), expected);
@@ -128,7 +128,7 @@ public class JSONTest {
     @Test(description = "Get json array max value")
     public void testGetArrayMax() {
         BValue[] args = {new BJSON(jsonIntArray), new BString("$.ages.max()")};
-        BValue[] returns = Functions.invoke(bFile, "getDouble", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "getDouble", args);
 
         final double expected = 28;
         Assert.assertEquals(((BValueType) returns[0]).doubleValue(), expected);
@@ -137,7 +137,7 @@ public class JSONTest {
     @Test(description = "Get json array average value")
     public void testGetArrayAvg() {
         BValue[] args = {new BJSON(jsonIntArray), new BString("$.ages.avg()")};
-        BValue[] returns = Functions.invoke(bFile, "getDouble", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "getDouble", args);
 
         final double expected = 26.5;
         Assert.assertEquals(((BValueType) returns[0]).doubleValue(), expected);
@@ -146,7 +146,7 @@ public class JSONTest {
     @Test(description = "Get json array standard deviation of population")
     public void testGetArrayStdDevP() {
         BValue[] args = {new BJSON(jsonIntArray), new BString("$.ages.stddev()")};
-        BValue[] returns = Functions.invoke(bFile, "getDouble", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "getDouble", args);
 
         final double expected = 1.5;
         Assert.assertEquals(((BValueType) returns[0]).doubleValue(), expected);
@@ -155,13 +155,13 @@ public class JSONTest {
     @Test(description = "Get a value of incorrect type", expectedExceptions = {BallerinaException.class})
     public void testGetValueOfIncorrectType() {
         BValue[] args = {new BJSON(json1), new BString("$.name")};
-        Functions.invoke(bFile, "getInt", args);
+        BLangFunctions.invoke(bLangProgram, "getInt", args);
     }
 
     @Test(description = "Get a value in a non-existing jsonpath", expectedExceptions = BallerinaException.class)
     public void testGetNonExistingValue() {
         BValue[] args = {new BJSON(json1), new BString("$.name.surname")};
-        BValue[] returns = Functions.invoke(bFile, "getString", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "getString", args);
 
         Assert.assertEquals(returns[0], null);
     }
@@ -169,7 +169,7 @@ public class JSONTest {
     @Test(description = "Get a value using a malformed jsonpath", expectedExceptions = {BallerinaException.class})
     public void testGetValueFromInvalidJsonpath() {
         BValue[] args = {new BJSON(json1), new BString("$/wrong/path.")};
-        Functions.invoke(bFile, "getString", args);
+        BLangFunctions.invoke(bLangProgram, "getString", args);
     }
 
 
@@ -181,7 +181,7 @@ public class JSONTest {
     public void testSetString() {
         final String val = "Paul";
         BValue[] args = {new BJSON(json1), new BString("$.name.fname"), new BString(val)};
-        BValue[] returns = Functions.invoke(bFile, "setString", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "setString", args);
 
         Assert.assertEquals(returns[0].stringValue(), val);
     }
@@ -190,7 +190,7 @@ public class JSONTest {
     public void testSetInteger() {
         final int val = 25;
         BValue[] args = {new BJSON(json1), new BString("$.age"), new BInteger(val)};
-        BValue[] returns = Functions.invoke(bFile, "setInt", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "setInt", args);
 
         Assert.assertEquals(((BValueType) returns[0]).intValue(), val);
     }
@@ -199,7 +199,7 @@ public class JSONTest {
     public void testSetDouble() {
         final double val = 4.78;
         BValue[] args = {new BJSON(json2), new BString("$.item.price"), new BDouble(val)};
-        BValue[] returns = Functions.invoke(bFile, "setDouble", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "setDouble", args);
 
         Assert.assertEquals(((BValueType) returns[0]).doubleValue(), val);
     }
@@ -208,7 +208,7 @@ public class JSONTest {
     public void testSetFloat() {
         final float val = (float) 4.78;
         BValue[] args = {new BJSON(json2), new BString("$.item.price"), new BFloat(val)};
-        BValue[] returns = Functions.invoke(bFile, "setFloat", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "setFloat", args);
 
         Assert.assertEquals(((BValueType) returns[0]).floatValue(), val);
     }
@@ -217,7 +217,7 @@ public class JSONTest {
     public void testSetBoolean() {
         final boolean val = false;
         BValue[] args = {new BJSON(json2), new BString("$.item.available"), new BBoolean(val)};
-        BValue[] returns = Functions.invoke(bFile, "setBoolean", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "setBoolean", args);
 
         Assert.assertEquals(((BValueType) returns[0]).booleanValue(), val);
     }
@@ -226,7 +226,7 @@ public class JSONTest {
     public void testSetJSON() {
         final String val = "{\"id\":\"item123\"}";
         BValue[] args = {new BJSON(json2), new BString("$.item.available"), new BJSON(val)};
-        BValue[] returns = Functions.invoke(bFile, "setJson", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "setJson", args);
 
         Assert.assertEquals(getJsonAsString(returns[0]), val);
     }
@@ -234,7 +234,7 @@ public class JSONTest {
     @Test(description = "Set a value to a non-existing jsonpath", expectedExceptions = BallerinaException.class)
     public void testSetNonExistingValue() {
         BValue[] args = {new BJSON(json1), new BString("$.name.surname"), new BString("Paul")};
-        BValue[] returns = Functions.invoke(bFile, "setString", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "setString", args);
 
         final String expected = "{\"name\":{\"fname\":\"Jack\",\"lname\":\"Taylor\"},\"state\":\"CA\",\"age\":20}";
         Assert.assertEquals(args[0].stringValue(), expected);
@@ -243,7 +243,7 @@ public class JSONTest {
     @Test(description = "Set a value using a malformed jsonpath", expectedExceptions = {BallerinaException.class})
     public void testSetValueToInvalidJsonpath() {
         BValue[] args = {new BJSON(json1), new BString("$/wrong/path.")};
-        Functions.invoke(bFile, "getString", args);
+        BLangFunctions.invoke(bLangProgram, "getString", args);
     }
 
     /*
@@ -254,7 +254,7 @@ public class JSONTest {
     public void testAddStringToObject() {
         BValue[] args = {new BJSON(json1), new BString("$.name"), new BString("nickName"),
                 new BString("Paul")};
-        BValue[] returns = Functions.invoke(bFile, "addStringToObject", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "addStringToObject", args);
 
         final String expected = "{\"name\":{\"fname\":\"Jack\",\"lname\":\"Taylor\",\"nickName\":\"Paul\"}," +
                 "\"state\":\"CA\",\"age\":20}";
@@ -265,7 +265,7 @@ public class JSONTest {
     public void testAddIntToObject() {
         BValue[] args = {new BJSON(json1), new BString("$"), new BString("zipCode"),
                 new BInteger(90001)};
-        BValue[] returns = Functions.invoke(bFile, "addIntToObject", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "addIntToObject", args);
 
         final String expected = "{\"name\":{\"fname\":\"Jack\",\"lname\":\"Taylor\"},\"state\":\"CA\",\"age\":20," +
                 "\"zipCode\":90001}";
@@ -276,7 +276,7 @@ public class JSONTest {
     public void testAddDoubleToObject() {
         BValue[] args = {new BJSON(json2), new BString("$.item"), new BString("discount"),
                 new BDouble(0.15)};
-        BValue[] returns = Functions.invoke(bFile, "addDoubleToObject", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "addDoubleToObject", args);
 
         final String expected = "{\"item\":{\"price\":3.54,\"available\":true,\"discount\":0.15}}";
         Assert.assertEquals(getJsonAsString(returns[0]), expected);
@@ -286,7 +286,7 @@ public class JSONTest {
     public void testAddFloatToObject() {
         BValue[] args = {new BJSON(json2), new BString("$.item"), new BString("discount"),
                 new BFloat((float) 0.15)};
-        BValue[] returns = Functions.invoke(bFile, "addFloatToObject", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "addFloatToObject", args);
 
         final String expected = "{\"item\":{\"price\":3.54,\"available\":true,\"discount\":0.15}}";
         Assert.assertEquals(getJsonAsString(returns[0]), expected);
@@ -296,7 +296,7 @@ public class JSONTest {
     public void testAddBooleanToObject() {
         BValue[] args = {new BJSON(json2), new BString("$.item"), new BString("vegi"),
                 new BBoolean(true)};
-        BValue[] returns = Functions.invoke(bFile, "addBooleanToObject", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "addBooleanToObject", args);
 
         final String expected = "{\"item\":{\"price\":3.54,\"available\":true,\"vegi\":true}}";
         Assert.assertEquals(getJsonAsString(returns[0]), expected);
@@ -306,7 +306,7 @@ public class JSONTest {
     public void testAddElementToObject() {
         BValue[] args = {new BJSON(json2), new BString("$.item"), new BString("expires"),
                 new BJSON("{\"year\":2020,\"month\":12}")};
-        BValue[] returns = Functions.invoke(bFile, "addElementToObject", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "addElementToObject", args);
 
         final String expected = "{\"item\":{\"price\":3.54,\"available\":true,\"expires\":{\"year\":2020,\"month\"" +
                 ":12}}}";
@@ -317,7 +317,7 @@ public class JSONTest {
     public void testAddToNonExistingObject() {
         BValue[] args = {new BJSON(json1), new BString("$.name.surname"), new BString("nickName"),
                 new BString("Paul")};
-        BValue[] returns = Functions.invoke(bFile, "addStringToObject", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "addStringToObject", args);
 
         final String expected = "{\"name\":{\"fname\":\"Jack\",\"lname\":\"Taylor\"},\"state\":\"CA\",\"age\":20}";
         Assert.assertEquals(getJsonAsString(returns[0]), expected);
@@ -328,7 +328,7 @@ public class JSONTest {
     public void testAddToInvalidJsonpathObject() {
         BValue[] args = {new BJSON(json1), new BString("$/wrong/path."), new BString("nickName"),
                 new BString("Paul")};
-        Functions.invoke(bFile, "addStringToObject", args);
+        BLangFunctions.invoke(bLangProgram, "addStringToObject", args);
     }
 
     /*
@@ -338,7 +338,7 @@ public class JSONTest {
     @Test(description = "Add a string to a valid json array")
     public void testAddStringToArray() {
         BValue[] args = {new BJSON(jsonStringArray), new BString("$.users"), new BString("Jos")};
-        BValue[] returns = Functions.invoke(bFile, "addStringToArray", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "addStringToArray", args);
 
         final String expected = "{\"users\":[\"Jack\",\"Peter\",\"Jos\"]}";
         Assert.assertEquals(getJsonAsString(returns[0]), expected);
@@ -347,7 +347,7 @@ public class JSONTest {
     @Test(description = "Add an integer to a valid json array")
     public void testAddIntToArray() {
         BValue[] args = {new BJSON(jsonIntArray), new BString("$.ages"), new BInteger(23)};
-        BValue[] returns = Functions.invoke(bFile, "addIntToArray", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "addIntToArray", args);
 
         final String expected = "{\"ages\":[25,28,23]}";
         Assert.assertEquals(getJsonAsString(returns[0]), expected);
@@ -357,7 +357,7 @@ public class JSONTest {
     public void testAddFloatToArray() {
         BValue[] args = {new BJSON(jsonFloatArray), new BString("$.prices"),
                 new BFloat((float) 5.96)};
-        BValue[] returns = Functions.invoke(bFile, "addFloatToArray", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "addFloatToArray", args);
 
         final String expected = "{\"prices\":[3.12,4.87,5.96]}";
         Assert.assertEquals(getJsonAsString(returns[0]), expected);
@@ -366,7 +366,7 @@ public class JSONTest {
     @Test(description = "Add a double to a valid json array")
     public void testAddDoubleToArray() {
         BValue[] args = {new BJSON(jsonFloatArray), new BString("$.prices"), new BDouble(5.96)};
-        BValue[] returns = Functions.invoke(bFile, "addDoubleToArray", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "addDoubleToArray", args);
 
         final String expected = "{\"prices\":[3.12,4.87,5.96]}";
         Assert.assertEquals(getJsonAsString(returns[0]), expected);
@@ -376,7 +376,7 @@ public class JSONTest {
     public void testAddBooleanToArray() {
         BValue[] args = {new BJSON(jsonBooleanArray), new BString("$.availability"),
                 new BBoolean(true)};
-        BValue[] returns = Functions.invoke(bFile, "addBooleanToArray", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "addBooleanToArray", args);
 
         final String expected = "{\"availability\":[true,false,true]}";
         Assert.assertEquals(getJsonAsString(returns[0]), expected);
@@ -386,7 +386,7 @@ public class JSONTest {
     public void testAddElementToArray() {
         BValue[] args = {new BJSON(jsonElementArray), new BString("$.persons"),
                 new BJSON("{'fname':'Jos','lname':'Allen'}")};
-        BValue[] returns = Functions.invoke(bFile, "addElementToArray", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "addElementToArray", args);
 
         final String expected = "{\"persons\":[{\"fname\":\"Jack\",\"lname\":\"Taylor\"},{\"fname\":\"Peter\"," +
                 "\"lname\":\"Roy\"},{\"fname\":\"Jos\",\"lname\":\"Allen\"}]}";
@@ -396,7 +396,7 @@ public class JSONTest {
     @Test(description = "Add a value to a non-existing array")
     public void testAddToNonExistingArray() {
         BValue[] args = {new BJSON(jsonStringArray), new BString("$.persons"), new BString("Jos")};
-        BValue[] returns = Functions.invoke(bFile, "addStringToArray", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "addStringToArray", args);
 
         final String expected = "{\"users\":[\"Jack\",\"Peter\"]}";
         Assert.assertEquals(getJsonAsString(returns[0]), expected);
@@ -406,7 +406,7 @@ public class JSONTest {
             expectedExceptions = {BallerinaException.class})
     public void testAddToInvalidJsonpathArray() {
         BValue[] args = {new BJSON(jsonIntArray), new BString("$/wrong/path."), new BInteger(23)};
-        Functions.invoke(bFile, "addIntToArray", args);
+        BLangFunctions.invoke(bLangProgram, "addIntToArray", args);
     }
 
 
@@ -417,7 +417,7 @@ public class JSONTest {
     @Test(description = "Remove an element in a valid jsonpath")
     public void testRemove() {
         BValue[] args = {new BJSON(json1), new BString("$.name")};
-        BValue[] returns = Functions.invoke(bFile, "remove", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "remove", args);
 
         final String expected = "{\"state\":\"CA\",\"age\":20}";
         Assert.assertEquals(getJsonAsString(returns[0]), expected);
@@ -426,7 +426,7 @@ public class JSONTest {
     @Test(description = "Remove an element in a non-existing jsonpath")
     public void testRemoveNonExistingElement() {
         BValue[] args = {new BJSON(json1), new BString("$.user")};
-        BValue[] returns = Functions.invoke(bFile, "remove", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "remove", args);
 
         final String expected = "{\"name\":{\"fname\":\"Jack\",\"lname\":\"Taylor\"},\"state\":\"CA\",\"age\":20}";
         Assert.assertEquals(getJsonAsString(returns[0]), expected);
@@ -436,7 +436,7 @@ public class JSONTest {
             expectedExceptions = {BallerinaException.class})
     public void testRemoveElementFromInvalidJsonpath() {
         BValue[] args = {new BJSON(json1), new BString("$/wrong/path.")};
-        Functions.invoke(bFile, "remove", args);
+        BLangFunctions.invoke(bLangProgram, "remove", args);
     }
 
 
@@ -447,7 +447,7 @@ public class JSONTest {
     @Test(description = "Rename an element in a valid jsonpath")
     public void testRename() {
         BValue[] args = {new BJSON(json1), new BString("$.name"), new BString("fname"), new BString("firstName")};
-        BValue[] returns = Functions.invoke(bFile, "rename", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "rename", args);
 
         final String expected = "Jack";
         Assert.assertEquals(returns[0].stringValue(), expected);
@@ -456,7 +456,7 @@ public class JSONTest {
     @Test(description = "Rename an element in a non-existing jsonpath", expectedExceptions = BallerinaException.class)
     public void testRenameNonExistingElement() {
         BValue[] args = {new BJSON(json1), new BString("$.user"), new BString("fname"), new BString("firstName")};
-        BValue[] returns = Functions.invoke(bFile, "rename", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "rename", args);
 
         final String expected = "{\"name\":{\"fname\":\"Jack\",\"lname\":\"Taylor\"},\"state\":\"CA\",\"age\":20}";
         Assert.assertEquals(args[0].stringValue(), expected);
@@ -466,7 +466,7 @@ public class JSONTest {
             expectedExceptions = {BallerinaException.class})
     public void testRenameElementFromInvalidJsonpath() {
         BValue[] args = {new BJSON(json1), new BString("$/wrong/path.")};
-        Functions.invoke(bFile, "remove", args);
+        BLangFunctions.invoke(bLangProgram, "remove", args);
     }
 
 
@@ -476,7 +476,7 @@ public class JSONTest {
     @Test(description = "Get string representation of json")
     public void testToString() {
         BValue[] args = {new BJSON(json1)};
-        BValue[] returns = Functions.invoke(bFile, "toString", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "toString", args);
 
         final String expected = "{\"name\":{\"fname\":\"Jack\",\"lname\":\"Taylor\"},\"state\":\"CA\",\"age\":20}";
         Assert.assertEquals(returns[0].stringValue(), expected);

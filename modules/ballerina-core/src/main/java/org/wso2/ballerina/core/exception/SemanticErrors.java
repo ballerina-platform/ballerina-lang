@@ -75,7 +75,9 @@ public enum SemanticErrors {
     CONNECTOR_INIT_NOT_ALLOWED_HERE("connector.init.not.allowed.here", "SEMANTIC_0050"),
     ONLY_COUNT_1_ALLOWED_THIS_VERSION("only.count.1.allowed.this.version", "SEMANTIC_0051"),
     ONLY_EXCEPTION_TYPE_HERE("only.exception.type.here", "SEMANTIC_0052"),
-    BREAK_STMT_NOT_ALLOWED_HERE("break.stmt.not.allowed.here", "SEMANTIC_0053");
+    BREAK_STMT_NOT_ALLOWED_HERE("break.stmt.not.allowed.here", "SEMANTIC_0053"),
+    UNDEFINED_TYPE_MAPPER("undefined.type.mapper", "SEMANTIC_0054"),
+    UNDEFINED_ACTION_IN_CONNECTOR("undefined.action.in.connector", "SEMANTIC_0055");
 
     private String errorMsgKey;
     private String errorCode;

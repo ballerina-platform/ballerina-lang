@@ -29,14 +29,14 @@ import java.util.Stack;
  * Class contains utility methods for ballerina server error handling.
  */
 public class ErrorHandlerUtils {
-    
+
     private static final int STACK_TRACE_LIMIT = 20;
 
     /**
      * Get the error message of a throwable.
      *
      * @param throwable Throwable
-     * @return          Error message
+     * @return Error message
      */
     public static String getErrorMessage(Throwable throwable) {
         String errorMsg;
@@ -61,12 +61,12 @@ public class ErrorHandlerUtils {
         if (context == null && throwable instanceof BallerinaException) {
             context = ((BallerinaException) throwable).getContext();
         }
-        
+
         // if the context is null, stack trace cannot be generated
         if (context == null) {
-            return "";
+            return throwable.getMessage();
         }
-        
+
         String stackTrace = getStackTrace(context, throwable, 1);
 
         // print the service info
@@ -75,7 +75,7 @@ public class ErrorHandlerUtils {
             String pkgName = (serviceInfo.getPackage() != null) ? serviceInfo.getPackage() + ":" : "";
             stackTrace = stackTrace + "\t at " + pkgName + serviceInfo.getName() + getNodeLocation(serviceInfo) + "\n";
         }
-        
+
         return stackTrace;
     }
 
@@ -87,16 +87,16 @@ public class ErrorHandlerUtils {
      */
     public static String getMainFuncStackTrace(Context context, Throwable throwable) {
         // Need to omit the main function invocation from the stack trace. Hence the starting index is 1
-        return getStackTrace(context, throwable, 1);
+        return getStackTrace(context, throwable, 0);
     }
-    
+
     /**
      * Get the stack trace from the context.
-     * 
-     * @param context           Ballerina context
-     * @param throwable         Throwable associated with the error occurred
-     * @param stackStartIndex   Start index of the stack to generate the stack trace
-     * @return                  Stack trace
+     *
+     * @param context         Ballerina context
+     * @param throwable       Throwable associated with the error occurred
+     * @param stackStartIndex Start index of the stack to generate the stack trace
+     * @return Stack trace
      */
     private static String getStackTrace(Context context, Throwable throwable, int stackStartIndex) {
         ControlStack controlStack = context.getControlStack();
@@ -109,8 +109,8 @@ public class ErrorHandlerUtils {
             for (int i = stack.size() - 1; i >= stackStartIndex; i--) {
                 CallableUnitInfo frameInfo = stack.get(i).getNodeInfo();
                 String pkgName = (frameInfo.getPackage() != null) ? frameInfo.getPackage() + ":" : "";
-                sb.append("\t at " + pkgName + frameInfo.getName() + getNodeLocation(frameInfo)
-                        + "\n");
+                sb.append("\t at ").append(pkgName).append(frameInfo.getName())
+                        .append(getNodeLocation(frameInfo)).append("\n");
             }
         }
         return sb.toString();
@@ -118,9 +118,9 @@ public class ErrorHandlerUtils {
 
     /**
      * Get the source location as string in the format of '(fileName:lineNumber)'.
-     * 
-     * @param nodeInfo  {@link CallableUnitInfo} to get the location
-     * @return          source location of this {@link CallableUnitInfo}
+     *
+     * @param nodeInfo {@link CallableUnitInfo} to get the location
+     * @return source location of this {@link CallableUnitInfo}
      */
     private static String getNodeLocation(CallableUnitInfo nodeInfo) {
         NodeLocation nodeLocation = nodeInfo.getNodeLocation();
@@ -132,10 +132,10 @@ public class ErrorHandlerUtils {
             return "";
         }
     }
-    
+
     /**
      * Populate the stack trace of a stack overflow error.
-     * 
+     *
      * @param sb    String buffer to populate the stack trace
      * @param stack Current stack
      */
