@@ -68,9 +68,17 @@ define(['require', 'log', 'lodash', 'jquery', 'event_channel', 'ace/ace', '../ut
         this._editor.setOptions({
             fontSize: _.get(this._options, 'font_size')
         });
-        this._editor.on("change", function() {
+        this._editor.on("change", function(event) {
             if(!self._inSilentMode){
-                self.trigger('modified');
+                var changeEvent = {
+                    type: "source-modified",
+                    title: "Modify source",
+                    data: {
+                        type: event.action,
+                        lines: event.lines
+                    }
+                };
+                self.trigger('modified', changeEvent);
             }
         });
 
@@ -196,6 +204,14 @@ define(['require', 'log', 'lodash', 'jquery', 'event_channel', 'ace/ace', '../ut
 
     SourceView.prototype.isClean = function(){
        return this._editor.getSession().getUndoManager().isClean();
+    };
+
+    SourceView.prototype.undo = function(){
+       return this._editor.getSession().getUndoManager().undo();
+    };
+
+    SourceView.prototype.redo = function(){
+       return this._editor.getSession().getUndoManager().redo();
     };
 
     SourceView.prototype.markClean = function(){

@@ -380,21 +380,8 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', 'alerts', './svg-canvas', '.
             _.set(connectorOpts, 'centerPoint', center);
             connectorDeclarationView = new ConnectorDeclarationView(connectorOpts);
             this.diagramRenderingContext.getViewModelMap()[connectorDeclaration.id] = connectorDeclarationView;
-            
-            // Creating property pane
-            var editableProperty = {
-                propertyType: "text",
-                key: "ConnectorDeclaration",
-                model: connectorDeclarationView._model,
-                getterMethod: connectorDeclarationView._model.getConnectorExpression,
-                setterMethod: connectorDeclarationView._model.setConnectorExpression
-            };
 
-            connectorDeclarationView.createPropertyPane({
-                model: connectorDeclarationView._model,
-                lifeLineGroup:connectorDeclarationView._rootGroup,
-                editableProperties: editableProperty
-            });
+            connectorDeclarationView.createPropertyPane();
 
             connectorDeclarationView.setParent(this);
 

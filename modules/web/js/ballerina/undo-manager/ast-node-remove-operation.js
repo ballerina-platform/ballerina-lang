@@ -36,10 +36,14 @@ define(['log', 'lodash', './ast-manipulation-operation'],
         ASTNodeRemoveOperation.prototype.constructor = ASTNodeRemoveOperation;
 
         ASTNodeRemoveOperation.prototype.undo = function(){
-            this._originNode.addChild(this._data.child, this._data.index, true);
+            if(this.canUndo()) {
+                this._originNode.addChild(this._data.child, this._data.index, true);
+            }
         };
         ASTNodeRemoveOperation.prototype.redo = function(){
-            this._data.child.remove({ignoreTreeModifiedEvent:true});
+            if(this.canRedo()) {
+                this._data.child.remove({ignoreTreeModifiedEvent: true});
+            }
         };
 
         return ASTNodeRemoveOperation;

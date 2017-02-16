@@ -33,6 +33,7 @@ define(['lodash', 'd3','log', './simple-statement-view', './../ast/action-invoca
             this._forwardArrowHead = undefined;
             this._backArrowHead = undefined;
             this._arrowGroup = undefined;
+            this._startActionText = undefined;
             this._startRect = undefined;
 
         };
@@ -262,6 +263,7 @@ define(['lodash', 'd3','log', './simple-statement-view', './../ast/action-invoca
         };
 
         WorkerInvoke.prototype.renderStartAction = function () {
+            var self = this;
             var group = D3Utils.group(d3.select(this._container));
             var destinationView = this.getDiagramRenderingContext().getViewOfModel(this.messageManager.getActivatedDropTarget());
             var startX = this.getBoundingBox().getRight();
@@ -283,12 +285,39 @@ define(['lodash', 'd3','log', './simple-statement-view', './../ast/action-invoca
             destinationStatementContainer._managedInnerDropzones[0].d3el.attr('y', newY - 30);
             messageView.render();
 
+            // Set the invoker for the destination model (worker)
+            destinationView.getModel().setInvoker(this.getModel());
+
             // Draw the start rect on the worker
             this._startRect = D3Utils.centeredRect(new Point(endX, endY), startRectWidth, startRectHeight, 0, 0, group)
                 .classed('statement-rect', true);
-            var text = D3Utils.centeredText(new Point(endX, endY), 'Start', group).classed('statement-text', true);;
-
+            this._startActionText = D3Utils.centeredText(new Point(endX, endY), 'Start', group)
+                .classed('statement-text', true);
             this._startActionGroup = group;
+
+            // Triggers when we add a new element above the worker invoke
+            this.getBoundingBox().on('bottom-edge-moved', function (dy) {
+                // If the bounding box of the invoker moved, we move the start action, arrow and the top most connector
+                // Here we force fully move the top most statement of the destination
+                self._startRect.attr('y', parseFloat(self._startRect.attr('y')) + dy);
+                self._startActionText.attr('y', parseFloat(self._startActionText.attr('y')) + dy);
+                self.getDiagramRenderingContext().getViewOfModel(destinationStatementContainer._managedStatements[0]).getBoundingBox().move(0, dy);
+                destinationStatementContainer._managedInnerDropzones[0].d3el.attr('y',
+                    parseFloat(destinationStatementContainer._managedInnerDropzones[0].d3el.attr('y')) + dy);
+                messageView.move(0, dy);
+            });
+
+            // Triggers when we delete an element above the worker-invoke
+            this.getBoundingBox().on('top-edge-moved', function (dy) {
+                // If the bounding box of the invoker moved, we move the start action, arrow and the top most connector
+                // Here we force fully move the top most statement of the destination
+                self._startRect.attr('y', parseFloat(self._startRect.attr('y')) + dy);
+                self._startActionText.attr('y', parseFloat(self._startActionText.attr('y')) + dy);
+                self.getDiagramRenderingContext().getViewOfModel(destinationStatementContainer._managedStatements[0]).getBoundingBox().move(0, dy);
+                destinationStatementContainer._managedInnerDropzones[0].d3el.attr('y',
+                    parseFloat(destinationStatementContainer._managedInnerDropzones[0].d3el.attr('y')) + dy);
+                messageView.move(0, dy);
+            });
         };
 
         return WorkerInvoke;

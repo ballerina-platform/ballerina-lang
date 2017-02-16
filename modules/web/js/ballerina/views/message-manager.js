@@ -192,7 +192,7 @@ define(['log', 'lodash','d3','./point', 'backbone','event_channel', 'ballerina/a
             tempLine.attr("y2", sourcePoint.y());
             var newPoints = "" +  (m[0] - 5) + "," + (sourcePoint.y() - 5) + " " + ( m[0]) + ","
                 + (sourcePoint.y()) + " " +  (m[0]- 5) + "," + ( sourcePoint.y() + 5);
-            arrowPoint.attr("points",newPoints);
+            arrowPoint.attr("points", newPoints);
         });
 
         container.on("mouseup", function () {
@@ -203,15 +203,16 @@ define(['log', 'lodash','d3','./point', 'backbone','event_channel', 'ballerina/a
             var startPoint = new Point(tempLine.attr("x1"),tempLine.attr("y1"));
             var endPoint = new Point(tempLine.attr("x2"),tempLine.attr("y2"));
 
-            if(self.isAtValidDropTarget()){
-                self.updateActivatedTarget(self.getActivatedDropTarget(), actionInvocationModel);
+            if(!self.isAtValidDropTarget()){
+                self.setActivatedDropTarget(actionInvocationModel.getConnector());
             }
 
-            tempLine.remove();
-            arrowPoint.remove();
+            self.updateActivatedTarget(self.getActivatedDropTarget(), actionInvocationModel);
             self.getMessageSource().getModel().trigger("drawConnectionForAction", startPoint, container);
             self.trigger('drop-target-changed', undefined);
             self.reset();
+            tempLine.remove();
+            arrowPoint.remove();
         });
     };
 
