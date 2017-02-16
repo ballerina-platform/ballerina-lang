@@ -207,7 +207,7 @@ public class ConstructProviderClassBuilder {
             
             // Write typeMappers to the global scope
             for (PackageHolder pkgHolder : nativePackages.values()) {
-                writeTypeConvertors(pkgHolder.getTypeMapper());
+                writeTypeMappers(pkgHolder.getTypeMapper());
             }
             
             writeBuiltInBalPackages();
@@ -293,7 +293,7 @@ public class ConstructProviderClassBuilder {
      * 
      * @param typeMapperHolders Type mapper holders array containing ballerina type mapper annotations
      */
-    private void writeTypeConvertors(TypeMapperHolder[] typeMapperHolders) {
+    private void writeTypeMappers(TypeMapperHolder[] typeMapperHolders) {
         for (TypeMapperHolder typeMapperHolder : typeMapperHolders) {
             BallerinaTypeMapper typeMapper = typeMapperHolder.getBalTypeMapper();
             String typeMapperPkgName = typeMapper.packageName();
