@@ -11,15 +11,16 @@ HTTP/2 server connector provides Ballerina programmers to expose their apis for 
 HTTP/2 client , server will upgrade the protocol to HTTP/2 and send response as below.
 
 
-**HTTP/1.1 101** Switching Protocols
-<br/>
-**Connection:** upgrade
-<br/>
-**upgrade:** h2c
-**<br/>
-HTTP/2.0** 200
-<br/>
-**http-to-http2-upgrade** true
+
+
+
+```
+HTTP/1.1 101 Switching Protocols
+Connection: upgrade
+Upgrade:h2c
+HTTP/2.0 200
+Http-to-http2-upgrade true
+```
 
 Then server will send the response to user request through HTTP/2 protocol.
 
@@ -28,14 +29,12 @@ Then server will send the response to user request through HTTP/2 protocol.
 You can design service same as HTTP Service and deploy in the ballerina server.
 Service will be served with both HTTP/1 and HTTP/2 clients after enabling HTTP/2 Support.
 
+```
 HTTP/1 > Ballerina > response with HTTP/1
-<br/>
 HTTP/2 > Ballerina > response with HTTP/2
-<br/>
 HTTPS  > Ballerina >  response with HTTP/1
-<br/>
 HTTPS/2 > Ballerina >  response with HTTP/2
-<br/>
+```
 
 
 ###HTTP/2 Multiplexing
@@ -53,18 +52,16 @@ HTTP/2 is disabled by default.In order to initiate HTTP/2  please follow given i
 
 Open  $BALLERINA_HOME/bre/conf/netty-transports.yml file and add following line to given interface id in listenerConfigurations section. You can set http2 enable in multiple interfaces as well.
 
-  _http2: true_
-  
+  ```
+     http2: true
+  ```
 Ex.
- 
-  _id: "default"
-  <br/>
-  host: "0.0.0.0"
-  <br/>
-  port: 9090
-  <br/>
-  http2: true
-  <br/>_
+```
+   id: "default"
+   host: "0.0.0.0"
+   port: 9090
+   http2: true
+```
 
 
 ###Step 2
@@ -73,14 +70,14 @@ HTTP/2 over TLS  requires the use of ALPN to negotiate the use of the h2 protoco
 For lack of support in the JDK we need to use the Jetty-ALPN  bootclasspath extension.
 
 You can download the jetty-alpn-agent from [3] and set the java agent in $BALLERINA_HOME/bin/ballerina file as bellow.
+```
+-javaagent:(path_to_jetty-alpn-agent.jar) \
+```
 
--javaagent:(path_to_jetty-alpn-agent.jar)
-<br/>
 ex.
-<br/>
+```
 -javaagent:"$BALLERINA_HOME/bre/lib/jetty-alpn-agent-2.0.6.jar" \
-</br>
-
+```
 **Note:** java-agent has all the class path extensions of diffrent jdk versions.But you can use the release of the Jetty-ALPN jar specific to the version of Java you are using and Xbootclasspath JVM option referencing the path to the Jetty alpn-boot jar.
 Please refer [4] for other ssl options.
 
