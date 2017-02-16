@@ -992,11 +992,20 @@ public class BLangExecutor implements NodeExecutor {
     }
 
     private String evaluteBacktickString(BacktickExpr backtickExpr) {
-        String varString = "";
+        StringBuilder builder = new StringBuilder();
+        boolean isJson = backtickExpr.getType() == BTypes.typeJSON;
+        String strVal;
+        BValue bVal;
         for (Expression expression : backtickExpr.getArgExprs()) {
-            varString = varString + expression.execute(this).stringValue();
+            bVal = expression.execute(this);
+            strVal = bVal.stringValue();
+            if (isJson && bVal instanceof BString && expression instanceof ReferenceExpr) {
+                builder.append("\"" + strVal + "\"");
+            } else {
+                builder.append(strVal);
+            }
         }
-        return varString;
+        return builder.toString();
     }
 
     private void assignValueToArrayMapAccessExpr(BValue rValue, ArrayMapAccessExpr lExpr) {

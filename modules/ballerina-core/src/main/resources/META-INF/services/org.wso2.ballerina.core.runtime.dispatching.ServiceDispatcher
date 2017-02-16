@@ -1,1 +1,3 @@
 org.wso2.ballerina.core.runtime.dispatching.http.HTTPServiceDispatcher
+org.wso2.ballerina.core.runtime.dispatching.websocket.WebSocketServiceDispatcher
+org.wso2.ballerina.core.runtime.dispatching.http.HTTPServiceDispatcher
