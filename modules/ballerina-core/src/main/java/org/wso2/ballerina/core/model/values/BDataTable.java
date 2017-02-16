@@ -68,28 +68,12 @@ public class BDataTable implements BRefType<Object> {
         return iterator.getString(columnName);
     }
 
-    public String[] getStringArray(int index) {
-        return iterator.getStringArray(index);
-    }
-
-    public String[] getStringArray(String columnName) {
-        return iterator.getStringArray(columnName);
-    }
-
     public long getLong(int index) {
         return iterator.getLong(index);
     }
 
     public long getLong(String columnName) {
         return iterator.getLong(columnName);
-    }
-
-    public long[] getLongArray(int index) {
-        return iterator.getLongArray(index);
-    }
-
-    public long[] getLongArray(String columnName) {
-        return iterator.getLongArray(columnName);
     }
 
     public int getInt(int index) {
@@ -100,28 +84,12 @@ public class BDataTable implements BRefType<Object> {
         return iterator.getInt(columnName);
     }
 
-    public int[] getIntArray(int index) {
-        return iterator.getIntArray(index);
-    }
-
-    public int[] getIntArray(String columnName) {
-        return iterator.getIntArray(columnName);
-    }
-
     public float getFloat(int index) {
         return iterator.getFloat(index);
     }
 
     public float getFloat(String columnName) {
         return iterator.getFloat(columnName);
-    }
-
-    public float[] getFloatArray(int index) {
-        return iterator.getFloatArray(index);
-    }
-
-    public float[] getFloatArray(String columnName) {
-        return iterator.getFloatArray(columnName);
     }
 
     public double getDouble(int index) {
@@ -132,28 +100,12 @@ public class BDataTable implements BRefType<Object> {
         return iterator.getDouble(columnName);
     }
 
-    public double[] getDoubleArray(int index) {
-        return iterator.getDoubleArray(index);
-    }
-
-    public double[] getDoubleArray(String columnName) {
-        return iterator.getDoubleArray(columnName);
-    }
-
     public boolean getBoolean(int index) {
         return iterator.getBoolean(index);
     }
 
     public boolean getBoolean(String columnName) {
         return iterator.getBoolean(columnName);
-    }
-
-    public boolean[] getBooleanArray(int index) {
-        return iterator.getBooleanArray(index);
-    }
-
-    public boolean[] getBooleanArray(String columnName) {
-        return iterator.getBooleanArray(columnName);
     }
 
     public BValue get(int index, String type) {
@@ -170,6 +122,14 @@ public class BDataTable implements BRefType<Object> {
 
     public String getObjectAsString(String columnName) {
         return iterator.getObjectAsString(columnName);
+    }
+
+    public Map<String, Object> getArray(int index) {
+        return iterator.getArray(index);
+    }
+
+    public Map<String, Object> getArray(String columnName) {
+        return iterator.getArray(columnName);
     }
     
     public BJSON toJSON() {
@@ -194,16 +154,10 @@ public class BDataTable implements BRefType<Object> {
         
         private String name;
         private TypeEnum type;
-        private TypeEnum elementType;
-        
+
         public ColumnDefinition(String name, TypeEnum type) {
-            this(name, type, null);
-        }
-        
-        public ColumnDefinition(String name, TypeEnum type, TypeEnum elementType) {
             this.name = name;
             this.type = type;
-            this.elementType = elementType;
         }
 
         public String getName() {
@@ -212,10 +166,6 @@ public class BDataTable implements BRefType<Object> {
 
         public TypeEnum getType() {
             return type;
-        }
-
-        public TypeEnum getElementType() {
-            return elementType;
         }
     }
 }

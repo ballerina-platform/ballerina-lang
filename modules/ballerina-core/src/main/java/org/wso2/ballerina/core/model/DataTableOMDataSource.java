@@ -20,6 +20,7 @@ package org.wso2.ballerina.core.model;
 import org.apache.axiom.om.ds.AbstractPushOMDataSource;
 import org.wso2.ballerina.core.model.values.BDataTable;
 
+import java.util.Map;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
@@ -52,6 +53,7 @@ public class DataTableOMDataSource extends AbstractPushOMDataSource {
         xmlStreamWriter.writeStartElement(this.rootWrapper);
         while (dataTable.next()) {
             xmlStreamWriter.writeStartElement(this.rowWrapper);
+            boolean isArray = false;
             for (BDataTable.ColumnDefinition col : dataTable.getColumnDefs()) {
                 xmlStreamWriter.writeStartElement(col.getName());
                 String value = null;
@@ -75,17 +77,20 @@ public class DataTableOMDataSource extends AbstractPushOMDataSource {
                     value = String.valueOf(dataTable.getDouble(col.getName()));
                     break;
                 case ARRAY:
+                    isArray = true;
                     processArray(xmlStreamWriter, col);
                     break;
                 default:
                     value = dataTable.getObjectAsString(col.getName());
                     break;
                 }
-                if (value == null) {
-                    xmlStreamWriter.writeNamespace(XSI_PREFIX, XSI_NAMESPACE);
-                    xmlStreamWriter.writeAttribute(XSI_PREFIX, XSI_NAMESPACE, "nil", "true");
-                } else {
-                    xmlStreamWriter.writeCharacters(value);
+                if (!isArray) {
+                    if (value == null) {
+                        xmlStreamWriter.writeNamespace(XSI_PREFIX, XSI_NAMESPACE);
+                        xmlStreamWriter.writeAttribute(XSI_PREFIX, XSI_NAMESPACE, "nil", "true");
+                    } else {
+                        xmlStreamWriter.writeCharacters(value);
+                    }
                 }
                 xmlStreamWriter.writeEndElement();
             }
@@ -98,60 +103,13 @@ public class DataTableOMDataSource extends AbstractPushOMDataSource {
 
     private void processArray(XMLStreamWriter xmlStreamWriter, BDataTable.ColumnDefinition col)
             throws XMLStreamException {
-        switch (col.getElementType()) {
-        case BOOLEAN:
-            boolean[] booleanArray = dataTable.getBooleanArray(col.getName());
-            for (boolean b : booleanArray) {
+        Map<String, Object> array = dataTable.getArray(col.getName());
+        if (array != null && !array.isEmpty()) {
+            for (Map.Entry<String, Object> values : array.entrySet()) {
                 xmlStreamWriter.writeStartElement(ARRAY_ELEMENT_NAME);
-                xmlStreamWriter.writeCharacters(String.valueOf(b));
+                xmlStreamWriter.writeCharacters(String.valueOf(values.getValue()));
                 xmlStreamWriter.writeEndElement();
             }
-            break;
-        case STRING:
-            String[] stringArray = dataTable.getStringArray(col.getName());
-            for (String s : stringArray) {
-                xmlStreamWriter.writeStartElement(ARRAY_ELEMENT_NAME);
-                xmlStreamWriter.writeCharacters(s);
-                xmlStreamWriter.writeEndElement();
-            }
-            break;
-        case INT:
-            int[] intArray = dataTable.getIntArray(col.getName());
-            for (int i : intArray) {
-                xmlStreamWriter.writeStartElement(ARRAY_ELEMENT_NAME);
-                xmlStreamWriter.writeStartElement(String.valueOf(i));
-                xmlStreamWriter.writeEndElement();
-            }
-            break;
-        case LONG:
-            long[] longArray = dataTable.getLongArray(col.getName());
-            for (long l : longArray) {
-                xmlStreamWriter.writeStartElement(ARRAY_ELEMENT_NAME);
-                xmlStreamWriter.writeCharacters(String.valueOf(l));
-                xmlStreamWriter.writeEndElement();
-            }
-            break;
-        case FLOAT:
-            float[] floatArray = dataTable.getFloatArray(col.getName());
-            for (float f : floatArray) {
-                xmlStreamWriter.writeStartElement(ARRAY_ELEMENT_NAME);
-                xmlStreamWriter.writeCharacters(String.valueOf(f));
-                xmlStreamWriter.writeEndElement();
-            }
-            break;
-        case DOUBLE:
-            double[] doubleArray = dataTable.getDoubleArray(col.getName());
-            for (double d : doubleArray) {
-                xmlStreamWriter.writeStartElement(ARRAY_ELEMENT_NAME);
-                xmlStreamWriter.writeCharacters(String.valueOf(d));
-                xmlStreamWriter.writeEndElement();
-            }
-            break;
-        default:
-            xmlStreamWriter.writeStartElement(ARRAY_ELEMENT_NAME);
-            xmlStreamWriter.writeCharacters(dataTable.getObjectAsString(col.getName()));
-            xmlStreamWriter.writeEndElement();
-            break;
         }
     }
 

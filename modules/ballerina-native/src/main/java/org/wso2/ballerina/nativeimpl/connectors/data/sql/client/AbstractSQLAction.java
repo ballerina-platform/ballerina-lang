@@ -28,6 +28,7 @@ import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeAction;
 import org.wso2.ballerina.core.nativeimpl.connectors.BalConnectorCallback;
 import org.wso2.ballerina.nativeimpl.connectors.data.sql.SQLConnector;
 import org.wso2.ballerina.nativeimpl.connectors.data.sql.SQLDataIterator;
+import org.wso2.ballerina.nativeimpl.connectors.data.sql.SQLUtils;
 import org.wso2.carbon.messaging.DefaultCarbonMessage;
 
 import java.math.BigDecimal;
@@ -71,7 +72,7 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
                     getColumnDefinitions(rs));
             context.getControlStack().setReturnValue(0, datatable);
         } catch (SQLException e) {
-            closeResources(rs, stmt, conn);
+            SQLUtils.cleanupConnection(rs, stmt, conn);
             throw new BallerinaException("execute query failed: " + e.getCause().getMessage(), e);
         }
     }
@@ -89,7 +90,7 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
         } catch (SQLException e) {
             throw new BallerinaException("execute update failed: " + e.getCause().getMessage(), e);
         } finally {
-            closeResources(rs, stmt, conn);
+            SQLUtils.cleanupConnection(rs, stmt, conn);
         }
     }
 
@@ -124,7 +125,7 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
         } catch (SQLException e) {
             throw new BallerinaException("execute update with generated keys failed: " + e.getCause().getMessage());
         } finally {
-            closeResources(rs, stmt, conn);
+            SQLUtils.cleanupConnection(rs, stmt, conn);
         }
     }
 
@@ -142,10 +143,10 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
                         getColumnDefinitions(rs));
                 context.getControlStack().setReturnValue(0, datatable);
             } else {
-                closeResources(null, stmt, conn);
+                SQLUtils.cleanupConnection(null, stmt, conn);
             }
         } catch (SQLException e) {
-            closeResources(rs, stmt, conn);
+            SQLUtils.cleanupConnection(rs, stmt, conn);
             throw new BallerinaException("execute stored procedure failed: " + e.getCause().getMessage(), e);
         }
     }
@@ -157,78 +158,10 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
         for (int i = 1; i <= cols; i++) {
             String colName = rsMetaData.getColumnName(i);
             int colType = rsMetaData.getColumnType(i);
-            TypeEnum mappedType = getColumnType(colType);
+            TypeEnum mappedType = SQLUtils.getColumnType(colType);
             columnDefs.add(new BDataTable.ColumnDefinition(colName, mappedType));
         }
         return columnDefs;
-    }
-
-    private TypeEnum getColumnType(int sqlType) {
-        switch (sqlType) {
-        case Types.ARRAY:
-            return TypeEnum.ARRAY;
-        case Types.CHAR:
-        case Types.VARCHAR:
-        case Types.LONGVARCHAR:
-        case Types.NCHAR:
-        case Types.NVARCHAR:
-        case Types.LONGNVARCHAR:
-        case Types.CLOB:
-        case Types.NCLOB:
-            return TypeEnum.STRING;
-        case Types.TINYINT:
-        case Types.SMALLINT:
-        case Types.INTEGER:
-            return TypeEnum.INT;
-        case Types.BIGINT:
-            return TypeEnum.LONG;
-        case Types.REAL:
-            return TypeEnum.FLOAT;
-        case Types.BIT:
-        case Types.BOOLEAN:
-            return TypeEnum.BOOLEAN;
-        case Types.NUMERIC:
-        case Types.DECIMAL:
-        case Types.FLOAT:
-        case Types.DOUBLE:
-            return TypeEnum.DOUBLE;
-        case Types.DATE:
-        case Types.TIME:
-        case Types.TIMESTAMP:
-        case Types.TIME_WITH_TIMEZONE:
-        case Types.TIMESTAMP_WITH_TIMEZONE:
-        case Types.BLOB:
-        case Types.BINARY:
-        case Types.VARBINARY:
-        case Types.LONGVARBINARY:
-            return TypeEnum.EMPTY;
-        default:
-            return TypeEnum.EMPTY;
-        }
-    }
-
-    private void closeResources(ResultSet rs, Statement stmt, Connection conn) {
-        try {
-            if (rs != null) {
-                rs.close();
-            }
-        } catch (SQLException ex) {
-            /* Do nothing here. */
-        }
-        try {
-            if (stmt != null) {
-                stmt.close();
-            }
-        } catch (SQLException ex) {
-            /* Do nothing here. */
-        }
-        try {
-            if (conn != null) {
-                conn.close();
-            }
-        } catch (SQLException ex) {
-            /* Do nothing here. */
-        }
     }
 
     private BArray<BString> getGeneratedKeys(ResultSet rs) throws SQLException {

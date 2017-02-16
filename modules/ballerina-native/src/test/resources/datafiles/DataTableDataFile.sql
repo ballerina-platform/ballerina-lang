@@ -41,3 +41,27 @@ INSERT INTO ArrayTypes (int_array, long_array, float_array, double_array, boolea
 VALUES ARRAY[1, 2, 3], ARRAY [100000000, 200000000, 300000000], ARRAY [245.23, 5559.49, 8796.123],
 ARRAY [245.23, 5559.49, 8796.123], ARRAY [TRUE, FALSE, TRUE], ARRAY ['Hello', 'Ballerina'];
 /
+
+CREATE TABLE IF NOT EXISTS MixTypes (
+  row_id INTEGER NOT NULL IDENTITY,
+  int_type INTEGER,
+  long_type BIGINT,
+  float_type FLOAT,
+  double_type DOUBLE,
+  boolean_type BOOLEAN,
+  string_type VARCHAR (50),
+  int_array INTEGER ARRAY,
+  long_array BIGINT ARRAY,
+  float_array FLOAT ARRAY,
+  double_array DOUBLE ARRAY,
+  boolean_array BOOLEAN ARRAY,
+  string_array VARCHAR (50
+) ARRAY,
+PRIMARY KEY (row_id
+)
+);
+/
+INSERT INTO MixTypes (int_type, long_type, float_type, double_type, boolean_type, string_type, int_array, long_array, float_array, double_array, boolean_array, string_array)
+VALUES 1, 9223372036854774807, 123.34, 2139095039, TRUE, 'Hello', ARRAY [1, 2, 3], ARRAY [100000000, 200000000, 300000000], ARRAY [245.23, 5559.49, 8796.123],
+  ARRAY [245.23, 5559.49, 8796.123], ARRAY [TRUE, FALSE, TRUE], ARRAY ['Hello', 'Ballerina'];
+/

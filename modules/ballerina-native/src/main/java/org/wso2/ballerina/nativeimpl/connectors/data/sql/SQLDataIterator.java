@@ -40,6 +40,8 @@ import java.sql.Statement;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.Base64;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * This iterator mainly wrap java.sql.ResultSet. This will provide datatable operations
@@ -61,7 +63,7 @@ public class SQLDataIterator implements DataIterator {
 
     @Override
     public void close() {
-        cleanupConnection(rs, stmt, conn);
+        SQLUtils.cleanupConnection(rs, stmt, conn);
     }
 
     @Override
@@ -90,42 +92,6 @@ public class SQLDataIterator implements DataIterator {
         }
     }
 
-    @Override
-    public String[] getStringArray(int columnIndex) {
-        String[] resultArray = null;
-        try {
-            Array array = rs.getArray(columnIndex);
-            if (!rs.wasNull()) {
-                Object[] objArray = (Object[]) array.getArray();
-                resultArray = new String[objArray.length];
-                for (int i = 0; i < objArray.length; i++) {
-                    resultArray[i] = (String) objArray[i];
-                }
-            }
-        } catch (SQLException e) {
-            throw new BallerinaException(e.getCause().getMessage(), e);
-        }
-        return resultArray;
-    }
-
-    @Override
-    public String[] getStringArray(String columnName) {
-        String[] resultArray = null;
-        try {
-            Array array = rs.getArray(columnName);
-            if (!rs.wasNull()) {
-                Object[] objArray = (Object[]) array.getArray();
-                resultArray = new String[objArray.length];
-                for (int i = 0; i < objArray.length; i++) {
-                    resultArray[i] = (String) objArray[i];
-                }
-            }
-        } catch (SQLException e) {
-            throw new BallerinaException(e.getCause().getMessage(), e);
-        }
-        return resultArray;
-    }
-
     public long getLong(int index) {
         try {
             return rs.getLong(index);
@@ -141,42 +107,6 @@ public class SQLDataIterator implements DataIterator {
         } catch (SQLException e) {
             throw new BallerinaException(e.getCause().getMessage(), e);
         }
-    }
-
-    @Override
-    public long[] getLongArray(int columnIndex) {
-        long[] resultArray = null;
-        try {
-            Array array = rs.getArray(columnIndex);
-            if (!rs.wasNull()) {
-                Object[] objArray = (Object[]) array.getArray();
-                resultArray = new long[objArray.length];
-                for (int i = 0; i < objArray.length; i++) {
-                    resultArray[i] = (long) objArray[i];
-                }
-            }
-        } catch (SQLException e) {
-            throw new BallerinaException(e.getCause().getMessage(), e);
-        }
-        return resultArray;
-    }
-
-    @Override
-    public long[] getLongArray(String columnName) {
-        long[] resultArray = null;
-        try {
-            Array array = rs.getArray(columnName);
-            if (!rs.wasNull()) {
-                Object[] objArray = (Object[]) array.getArray();
-                resultArray = new long[objArray.length];
-                for (int i = 0; i < objArray.length; i++) {
-                    resultArray[i] = (long) objArray[i];
-                }
-            }
-        } catch (SQLException e) {
-            throw new BallerinaException(e.getCause().getMessage(), e);
-        }
-        return resultArray;
     }
 
     public int getInt(int index) {
@@ -196,42 +126,6 @@ public class SQLDataIterator implements DataIterator {
         }
     }
 
-    @Override
-    public int[] getIntArray(int columnIndex) {
-        int[] resultArray = null;
-        try {
-            Array array = rs.getArray(columnIndex);
-            if (!rs.wasNull()) {
-                Object[] objArray = (Object[]) array.getArray();
-                resultArray = new int[objArray.length];
-                for (int i = 0; i < objArray.length; i++) {
-                    resultArray[i] = (int) objArray[i];
-                }
-            }
-        } catch (SQLException e) {
-            throw new BallerinaException(e.getCause().getMessage(), e);
-        }
-        return resultArray;
-    }
-
-    @Override
-    public int[] getIntArray(String columnName) {
-        int[] resultArray = null;
-        try {
-            Array array = rs.getArray(columnName);
-            if (!rs.wasNull()) {
-                Object[] objArray = (Object[]) array.getArray();
-                resultArray = new int[objArray.length];
-                for (int i = 0; i < objArray.length; i++) {
-                    resultArray[i] = (int) objArray[i];
-                }
-            }
-        } catch (SQLException e) {
-            throw new BallerinaException(e.getCause().getMessage(), e);
-        }
-        return resultArray;
-    }
-
     public float getFloat(int index) {
         try {
             return rs.getFloat(index);
@@ -247,42 +141,6 @@ public class SQLDataIterator implements DataIterator {
         } catch (SQLException e) {
             throw new BallerinaException(e.getCause().getMessage(), e);
         }
-    }
-
-    @Override
-    public float[] getFloatArray(int columnIndex) {
-        float[] resultArray = null;
-        try {
-            Array array = rs.getArray(columnIndex);
-            if (!rs.wasNull()) {
-                Object[] objArray = (Object[]) array.getArray();
-                resultArray = new float[objArray.length];
-                for (int i = 0; i < objArray.length; i++) {
-                    resultArray[i] = (float) objArray[i];
-                }
-            }
-        } catch (SQLException e) {
-            throw new BallerinaException(e.getCause().getMessage(), e);
-        }
-        return resultArray;
-    }
-
-    @Override
-    public float[] getFloatArray(String columnName) {
-        float[] resultArray = null;
-        try {
-            Array array = rs.getArray(columnName);
-            if (!rs.wasNull()) {
-                Object[] objArray = (Object[]) array.getArray();
-                resultArray = new float[objArray.length];
-                for (int i = 0; i < objArray.length; i++) {
-                    resultArray[i] = (float) objArray[i];
-                }
-            }
-        } catch (SQLException e) {
-            throw new BallerinaException(e.getCause().getMessage(), e);
-        }
-        return resultArray;
     }
 
     public double getDouble(int index) {
@@ -302,42 +160,6 @@ public class SQLDataIterator implements DataIterator {
         }
     }
 
-    @Override
-    public double[] getDoubleArray(int columnIndex) {
-        double[] resultArray = null;
-        try {
-            Array array = rs.getArray(columnIndex);
-            if (!rs.wasNull()) {
-                Object[] objArray = (Object[]) array.getArray();
-                resultArray = new double[objArray.length];
-                for (int i = 0; i < objArray.length; i++) {
-                    resultArray[i] = (double) objArray[i];
-                }
-            }
-        } catch (SQLException e) {
-            throw new BallerinaException(e.getCause().getMessage(), e);
-        }
-        return resultArray;
-    }
-
-    @Override
-    public double[] getDoubleArray(String columnName) {
-        double[] resultArray = null;
-        try {
-            Array array = rs.getArray(columnName);
-            if (!rs.wasNull()) {
-                Object[] objArray = (Object[]) array.getArray();
-                resultArray = new double[objArray.length];
-                for (int i = 0; i < objArray.length; i++) {
-                    resultArray[i] = (double) objArray[i];
-                }
-            }
-        } catch (SQLException e) {
-            throw new BallerinaException(e.getCause().getMessage(), e);
-        }
-        return resultArray;
-    }
-
     public boolean getBoolean(int index) {
         try {
             return rs.getBoolean(index);
@@ -353,42 +175,6 @@ public class SQLDataIterator implements DataIterator {
         } catch (SQLException e) {
             throw new BallerinaException(e.getCause().getMessage(), e);
         }
-    }
-
-    @Override
-    public boolean[] getBooleanArray(int columnIndex) {
-        boolean[] resultArray = null;
-        try {
-            Array array = rs.getArray(columnIndex);
-            if (!rs.wasNull()) {
-                Object[] objArray = (Object[]) array.getArray();
-                resultArray = new boolean[objArray.length];
-                for (int i = 0; i < objArray.length; i++) {
-                    resultArray[i] = (boolean) objArray[i];
-                }
-            }
-        } catch (SQLException e) {
-            throw new BallerinaException(e.getCause().getMessage(), e);
-        }
-        return resultArray;
-    }
-
-    @Override
-    public boolean[] getBooleanArray(String columnName) {
-        boolean[] resultArray = null;
-        try {
-            Array array = rs.getArray(columnName);
-            if (!rs.wasNull()) {
-                Object[] objArray = (Object[]) array.getArray();
-                resultArray = new boolean[objArray.length];
-                for (int i = 0; i < objArray.length; i++) {
-                    resultArray[i] = (boolean) objArray[i];
-                }
-            }
-        } catch (SQLException e) {
-            throw new BallerinaException(e.getCause().getMessage(), e);
-        }
-        return resultArray;
     }
 
     @Override
@@ -460,7 +246,7 @@ public class SQLDataIterator implements DataIterator {
                 return getBString(rs.getBinaryStream(columnIndex));
             }
         } catch (SQLException e) {
-            throw new BallerinaException("can not get the value of " + type + ": " + e.getCause().getMessage(), e);
+            throw new BallerinaException("failed to get the value of " + type + ": " + e.getCause().getMessage(), e);
         }
         return null;
     }
@@ -486,9 +272,43 @@ public class SQLDataIterator implements DataIterator {
                 return getBString(rs.getBinaryStream(columnName));
             }
         } catch (SQLException e) {
-            throw new BallerinaException("can not get the value of " + type + ": " + e.getCause().getMessage(), e);
+            throw new BallerinaException("failed to get the value of " + type + ": " + e.getCause().getMessage(), e);
         }
         return null;
+    }
+
+    @Override
+    public Map<String, Object> getArray(int columnIndex) {
+        Map<String, Object> resultMap = new HashMap<>();
+        try {
+            Array array = rs.getArray(columnIndex);
+            if (!rs.wasNull()) {
+                Object[] objArray = (Object[]) array.getArray();
+                for (int i = 0; i < objArray.length; i++) {
+                    resultMap.put(String.valueOf(i), objArray[i]);
+                }
+            }
+        } catch (SQLException e) {
+            throw new BallerinaException(e.getCause().getMessage(), e);
+        }
+        return resultMap;
+    }
+
+    @Override
+    public Map<String, Object> getArray(String columnName) {
+        Map<String, Object> resultMap = new HashMap<>();
+        try {
+            Array array = rs.getArray(columnName);
+            if (!rs.wasNull()) {
+                Object[] objArray = (Object[]) array.getArray();
+                for (int i = 0; i < objArray.length; i++) {
+                    resultMap.put(String.valueOf(i), objArray[i]);
+                }
+            }
+        } catch (SQLException e) {
+            throw new BallerinaException(e.getCause().getMessage(), e);
+        }
+        return resultMap;
     }
 
     private BValue getBString(Clob clob) throws SQLException {
@@ -502,7 +322,7 @@ public class SQLDataIterator implements DataIterator {
                 buffer.append(arr, 0, numCharsRead);
             }
         } catch (IOException e) {
-            throw new BallerinaException("can not read from clob type: " + e.getCause().getMessage(), e);
+            throw new BallerinaException("failed to read from clob type: " + e.getCause().getMessage(), e);
         }
         return new BString(buffer.toString());
     }
@@ -516,7 +336,11 @@ public class SQLDataIterator implements DataIterator {
     private BValue getBString(Blob blob) throws SQLException {
         // Directly allocating full length array for decode byte array since anyway we are building
         // new String in memory.
-        byte[] encode = getBase64Encode(new String(blob.getBytes(0L, (int) blob.length()), Charset.defaultCharset()));
+        // Position of the getBytes has to be 1 instead of 0.
+        // "pos - the ordinal position of the first byte in the BLOB value to be extracted;
+        // the first byte is at position 1"
+        // - https://docs.oracle.com/javase/7/docs/api/java/sql/Blob.html#getBytes(long,%20int)
+        byte[] encode = getBase64Encode(new String(blob.getBytes(1L, (int) blob.length()), Charset.defaultCharset()));
         return new BString(new String(encode, Charset.defaultCharset()));
     }
 
@@ -528,7 +352,7 @@ public class SQLDataIterator implements DataIterator {
                 sb.append(line);
             }
         } catch (IOException e) {
-            throw new BallerinaException("can not read binary as a String: " + e.getCause().getMessage(), e);
+            throw new BallerinaException("failed to read binary as a string: " + e.getCause().getMessage(), e);
         }
         return sb.toString();
     }
@@ -537,24 +361,4 @@ public class SQLDataIterator implements DataIterator {
         return Base64.getEncoder().encode(st.getBytes(Charset.defaultCharset()));
     }
 
-    private void cleanupConnection(ResultSet rs, Statement stmt, Connection conn) {
-        if (rs != null) {
-            try {
-                rs.close();
-            } catch (SQLException ignore) { /* ignore */ }
-        }
-        if (stmt != null) {
-            try {
-                stmt.close();
-            } catch (SQLException ignore) { /* ignore */ }
-        }
-        if (conn != null) {
-            try {
-                conn.close();
-            } catch (SQLException ignore) { /* ignore */ }
-        }
-        this.rs = null;
-        this.stmt = null;
-        this.conn = null;
-    }
 }

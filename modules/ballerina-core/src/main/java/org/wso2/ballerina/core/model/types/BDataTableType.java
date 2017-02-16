@@ -25,7 +25,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
- * {@code BDataTableType} represents a output data set of a SQL select query in Ballerina
+ * {@code BDataTableType} represents a output data set of a SQL select query in Ballerina.
  *
  * @since 0.8.0
  */

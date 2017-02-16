@@ -42,6 +42,7 @@ public class SQLDBUtils {
     /**
      * Crete HyperSQL DB with the given name and initialize with given SQL file.
      *
+     * @param dbDirectory Name of the DB directory.
      * @param dbName  Name of the DB instance.
      * @param sqlFile SQL statements for initialization.
      */

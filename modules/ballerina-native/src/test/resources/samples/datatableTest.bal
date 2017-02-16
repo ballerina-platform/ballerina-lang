@@ -75,6 +75,18 @@ function toXmlWithWrapper()(xml) {
     return result;
 }
 
+function toXmlComplex() (xml) {
+    map propertiesMap = {"jdbcUrl":"jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
+                         "username":"SA", "password":"", "maximumPoolSize":1};
+    sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
+    datatable df;
+    xml result;
+
+    df = sql:ClientConnector.select(testDB, "SELECT int_type, long_type, float_type, double_type, boolean_type, string_type, int_array, long_array, float_array, double_array, boolean_array, string_array from MixTypes LIMIT 1");
+    result = datatables:toXml(df, "types", "type");
+    return result;
+}
+
 function getByName()(string, string, long, long, long) {
     map propertiesMap = {"jdbcUrl" : "jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
                             "username":"SA", "password":"", "maximumPoolSize":1};
@@ -170,48 +182,38 @@ function getObjectAsStringByName()(string, string, string, string, string) {
 }
 
 
-function getArrayByName()(int[], long[], double[], string[], boolean[]) {
+function getArrayByName()(map int_arr, map long_arr, map double_arr, map string_arr, map boolean_arr) {
     map propertiesMap = {"jdbcUrl" : "jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
                             "username":"SA", "password":"", "maximumPoolSize":1};
     sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
     datatable df;
-    int[] int_arr;
-    long[] long_arr;
-    double[] double_arr;
-    string[] string_arr;
-    boolean[] boolean_arr;
 
     df = sql:ClientConnector.select(testDB, "SELECT int_array, long_array, double_array, boolean_array, string_array from ArrayTypes LIMIT 1");
     while (datatables:next(df)) {
-        int_arr = datatables:getIntArray(df, "int_array");
-        long_arr = datatables:getLongArray(df, "long_array");
-        double_arr = datatables:getDoubleArray(df, "double_array");
-        boolean_arr = datatables:getBooleanArray(df, "boolean_array");
-        string_arr = datatables:getStringArray(df, "string_array");
+        int_arr = datatables:getArray(df, "int_array");
+        long_arr = datatables:getArray(df, "long_array");
+        double_arr = datatables:getArray(df, "double_array");
+        boolean_arr = datatables:getArray(df, "boolean_array");
+        string_arr = datatables:getArray(df, "string_array");
     }
     datatables:close(df);
-    return int_arr, long_arr, double_arr, string_arr, boolean_arr;
+    return;
 }
 
-function getArrayByIndex()(int[], long[], double[], string[], boolean[]) {
+function getArrayByIndex()(map int_arr, map long_arr, map double_arr, map string_arr, map boolean_arr) {
     map propertiesMap = {"jdbcUrl" : "jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
                             "username":"SA", "password":"", "maximumPoolSize":1};
     sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
     datatable df;
-    int[] int_arr;
-    long[] long_arr;
-    double[] double_arr;
-    string[] string_arr;
-    boolean[] boolean_arr;
 
     df = sql:ClientConnector.select(testDB, "SELECT int_array, long_array, double_array, boolean_array, string_array from ArrayTypes LIMIT 1");
     while (datatables:next(df)) {
-        int_arr = datatables:getIntArray(df, 1);
-        long_arr = datatables:getLongArray(df, 2);
-        double_arr = datatables:getDoubleArray(df, 3);
-        boolean_arr = datatables:getBooleanArray(df, 4);
-        string_arr = datatables:getStringArray(df, 5);
+        int_arr = datatables:getArray(df, 1);
+        long_arr = datatables:getArray(df, 2);
+        double_arr = datatables:getArray(df, 3);
+        boolean_arr = datatables:getArray(df, 4);
+        string_arr = datatables:getArray(df, 5);
     }
     datatables:close(df);
-    return int_arr, long_arr, double_arr, string_arr, boolean_arr;
+    return;
 }
