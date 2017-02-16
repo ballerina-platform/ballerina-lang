@@ -13,7 +13,7 @@ worker WorkerName (message m) {
 
 ## Initiating the worker
 
-Workers initially come into existence when the enclosing entity-- a [resource](resource.md), [function](functions.md), or [action](actions.md)--becomes active. However, similar to a resource, the worker does not execute until it has been sent a message.
+Workers initially come into existence when the enclosing entity-- a [resource](resources.md), [function](functions.md), or [action](actions.md)--becomes active. However, similar to a resource, the worker does not execute until it has been sent a message.
 
 A worker is triggered when a message is sent to the worker as follows by the enclosing entity:
 ```
