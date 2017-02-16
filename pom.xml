@@ -68,6 +68,7 @@
 							<artifactSet>
 								<excludes>
 									<exclude>org.wso2.ballerina:ballerina-launcher</exclude>
+									<exclude>org.slf4j:*</exclude>									
 								</excludes>
 							</artifactSet>
 						</configuration>
