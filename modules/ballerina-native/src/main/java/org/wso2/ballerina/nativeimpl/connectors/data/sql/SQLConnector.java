@@ -224,8 +224,8 @@ public class SQLConnector extends AbstractNativeConnector {
         Set<BString> keySet = options.keySet();
         for (BString key : keySet) {
             String keyName = key.stringValue();
-            if (keyName.startsWith("dataSource.")) {
-                String keyValue = keyName.substring("dataSource.".length());
+            if (keyName.startsWith(Constants.PoolProperties.DATASOURCE)) {
+                String keyValue = keyName.substring(Constants.PoolProperties.DATASOURCE.length());
                 BValue value = options.get(key);
                 if (value instanceof BString) {
                     config.addDataSourceProperty(keyValue, value.stringValue());

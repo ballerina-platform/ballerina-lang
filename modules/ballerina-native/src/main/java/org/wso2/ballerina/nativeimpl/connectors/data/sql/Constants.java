@@ -51,5 +51,6 @@ public final class Constants {
         public static final String TRANSACTION_ISOLATION = "transactionIsolation";
         public static final String VALIDATION_TIMEOUT = "validationTimeout";
         public static final String LEAK_DETECTION_THRESHOLD = "leakDetectionThreshold";
+        public static final String DATASOURCE = "dataSource.";
     }
 }
