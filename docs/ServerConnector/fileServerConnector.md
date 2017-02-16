@@ -89,7 +89,7 @@ name, size, lastModifiedTimestamp</td>
 ```
 @Source (
   protocol = "file",
-  fileURI = "ftp://john:johnpwd@20.200.4.65/records/orders",
+  fileURI = "file:///home/user/orders",
   pollingInterval = "20000",
   fileSortAttribute = "Size",
   fileSortAscending = "false"
@@ -104,7 +104,7 @@ Add a resource under the File service as below:
 ```
 @Source (
     protocol = "file",
-    fileURI = "ftp://john:johnpwd@20.200.4.65/records/orders",
+    fileURI = "file:///home/user/orders",
     pollingInterval = "20000",
     fileSortAttribute = "size",
     fileSortAscending = "false"
@@ -129,7 +129,7 @@ import ballerina.net.file;
 
 @Source (
   protocol = "file",
-  fileURI = "ftp://john:johnpwd@20.200.4.65/records/orders",
+  fileURI = "file:///home/user/orders",
   pollingInterval = "20000",
   fileSortAttribute = "size",
   fileSortAscending = "false"
@@ -144,6 +144,23 @@ service orderProcessService {
 
 **Note:**
 Here, `file:acknowledge(m)` is a function which is exclusive for file processing. Refer following section for more information on the same function. 
+
+## Step 5: Adding Dependency Jars
+
+When the `fileURI` parameter refers to a location in the local file system, it is not required to add any additional jars for the file service to work.
+
+However, in other cases (for example, when the `fileURI` refers to a file or a folder, located remotely that needs to be accessed via FTP) it may be required to add specific jars to <Ballerina_home>/bre/lib folder. 
+
+Following table lists down which dependency-jars are required for which file-access protocol.
+
+
+
+|  Dependency                | Required For                       |
+ ----------------- | ---------------------------- | 
+| [Commons Compress][1] Version 1.9. | TAR, Bzip2            | 
+| [Commons Net][2] Version 3.3.           | FTP           | 
+| [Commons Httpclient][3] Version 3.1. Requires [Commons Codec][4] Version 1.2.           | HTTP, URI Utils| 
+| [JSch][5] Version 0.1.51.           |SFTP| 
 
 ## Native Ballerina Functions for File Processing
 
@@ -166,7 +183,7 @@ import ballerina.net.file;
 
 @Source (
   protocol = "file",
-  fileURI = "ftp://john:johnpwd@20.200.4.65/records/orders",
+  fileURI = "file:///home/user/orders",
   pollingInterval = "20000",
   fileSortAttribute = "size",
   fileSortAscending = "false"
@@ -195,4 +212,12 @@ Above line sends an acknowledgment to the sender of the message (this sender has
 
 Since this function makes the message sender to close the input stream; and delete the file, this function needs to be called only after message processing is done. 
 
-In case the service does not call the acknowledge function, the message sender will wait for 30 seconds (30 seconds is the default wait time. This value can be overridden by specifying a different value as the ‘acknowledgementTimeOut’ service parameter) and assume that the file was not processed. Furthermore, following the same assumption, the message sender will not delete the file. As a result of this, the file will remain at the same URI to which the service listens, so it will be attempted to be processed in the next polling cycle as well. 
+In case the service does not call the `acknowledge` function, the message sender will wait for 30 seconds (30 seconds is the default wait time. This value can be overridden by specifying a different value as the `acknowledgementTimeOut` service parameter) and assume that the file was not processed. Furthermore, following the same assumption, the message sender will not delete the file. As a result of this, the file will remain at the same URI to which the service listens, so it will be attempted to be processed in the next polling cycle as well. 
+
+
+
+[1]: http://commons.apache.org/compress/
+[2]: http://commons.apache.org/net/
+[3]: http://commons.apache.org/httpclient/
+[4]: http://commons.apache.org/proper/commons-codec/
+[5]: http://www.jcraft.com/jsch/
