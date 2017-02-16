@@ -18,6 +18,7 @@
 package org.ballerinalang;
 
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
+import org.wso2.ballerina.core.debugger.DebugManager;
 import org.wso2.ballerina.core.interpreter.BLangExecutor;
 import org.wso2.ballerina.core.interpreter.CallableUnitInfo;
 import org.wso2.ballerina.core.interpreter.Context;
@@ -25,6 +26,7 @@ import org.wso2.ballerina.core.interpreter.RuntimeEnvironment;
 import org.wso2.ballerina.core.interpreter.StackFrame;
 import org.wso2.ballerina.core.interpreter.nonblocking.BLangNonBlockingExecutor;
 import org.wso2.ballerina.core.interpreter.nonblocking.ModeResolver;
+import org.wso2.ballerina.core.interpreter.nonblocking.debugger.BLangExecutionDebugger;
 import org.wso2.ballerina.core.model.BLangPackage;
 import org.wso2.ballerina.core.model.BLangProgram;
 import org.wso2.ballerina.core.model.BallerinaFunction;
@@ -65,6 +67,11 @@ public class BLangProgramRunner {
         if (serviceCount == 0) {
             throw new RuntimeException("no service(s) found in '" + bLangProgram.getProgramFilePath() + "'");
         }
+        if (ModeResolver.getInstance().isDebugEnabled()) {
+            DebugManager debugManager = DebugManager.getInstance();
+            // This will start the websocket server.
+            debugManager.init();
+        }
 
         // Create a runtime environment for this Ballerina application
         RuntimeEnvironment runtimeEnv = RuntimeEnvironment.get(bLangProgram);
@@ -96,7 +103,17 @@ public class BLangProgramRunner {
 
             // Invoke main function
             RuntimeEnvironment runtimeEnv = RuntimeEnvironment.get(bLangProgram);
-            if (ModeResolver.getInstance().isNonblockingEnabled()) {
+            if (ModeResolver.getInstance().isDebugEnabled()) {
+                DebugManager debugManager = DebugManager.getInstance();
+                // This will start the websocket server.
+                debugManager.init();
+                debugManager.waitTillClientConnect();
+                BLangExecutionDebugger debugger = new BLangExecutionDebugger(runtimeEnv, bContext);
+                debugManager.setDebugger(debugger);
+                bContext.setExecutor(debugger);
+                debugger.continueExecution(mainFunction.getCallableUnitBody());
+                debugManager.holdON();
+            } else if (ModeResolver.getInstance().isNonblockingEnabled()) {
                 BLangNonBlockingExecutor executor = new BLangNonBlockingExecutor(runtimeEnv, bContext);
                 bContext.setExecutor(executor);
                 executor.continueExecution(mainFunction.getCallableUnitBody());
