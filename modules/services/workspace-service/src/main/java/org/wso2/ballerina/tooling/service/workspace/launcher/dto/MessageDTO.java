@@ -21,7 +21,6 @@ package org.wso2.ballerina.tooling.service.workspace.launcher.dto;
 /**
  * {@link MessageDTO} launch message sent to client.
  *
- * @since 0.8.0
  */
 public class MessageDTO {
 
