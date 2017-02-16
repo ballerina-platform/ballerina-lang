@@ -13,7 +13,7 @@ This sample will show you how easy it is to run Ballerina, send it a request, an
 At the command prompt, navigate to the `<ballerina_home>/bin` directory and enter the following line:
 
 ```
-ballerina run helloworld.bal
+ballerina run main helloworld.bal
 ```
 
 You will see the following response:
@@ -28,8 +28,7 @@ You just started Ballerina, ran the HelloWorld sample, and got a response within
 function main (string[] args) {
   system:println("Hello, World!");
 }
-```
-
+``` 
 Pretty simple and straightforward, right? Now, let's look at something a little more interesting: the editor.
 
 ## Run the editor
