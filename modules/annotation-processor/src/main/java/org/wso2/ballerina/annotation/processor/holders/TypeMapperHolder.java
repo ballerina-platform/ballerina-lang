@@ -49,7 +49,7 @@ public class TypeMapperHolder {
     public String toString() {
         StringBuilder sb = new StringBuilder();
         Utils.appendAnnotationStrings(sb, annotations);
-        sb.append("native typeconvertor ").append(typeMapper.typeMapperName());
+        sb.append("native typemapper ").append(typeMapper.typeMapperName());
         Utils.getInputParams(typeMapper.args(), sb);
         Utils.appendReturnParams(typeMapper.returnType(), sb);
         sb.append(";");
