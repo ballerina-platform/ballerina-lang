@@ -52,7 +52,8 @@ import javax.lang.model.element.TypeElement;
 @SupportedAnnotationTypes({ "org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction",
                             "org.wso2.ballerina.core.nativeimpl.annotations.BallerinaConnector",
                             "org.wso2.ballerina.core.nativeimpl.annotations.BallerinaAction",
-                            "org.wso2.ballerina.core.nativeimpl.annotations.BallerinaTypeConvertor"})
+                            "org.wso2.ballerina.core.nativeimpl.annotations.BallerinaTypeConvertor",
+                            })
 @SupportedSourceVersion(SourceVersion.RELEASE_8)
 @SupportedOptions({ "className", "packageName", "srcDir", "targetDir" })
 public class BallerinaAnnotationProcessor extends AbstractProcessor {
@@ -61,6 +62,7 @@ public class BallerinaAnnotationProcessor extends AbstractProcessor {
     private static final String PACKAGE_NAME = "packageName";
     private static final String SOURCE_DIR = "srcDir";
     private static final String TARGET_DIR = "targetDir";
+    private static final String IGNORE = "ignore";
     private Map<String, PackageHolder> nativePackages;
     
     public BallerinaAnnotationProcessor() throws IOException {
@@ -182,6 +184,17 @@ public class BallerinaAnnotationProcessor extends AbstractProcessor {
     private void processNativeConnectors(Set<Element> balConnectorElements) {
         for (Element element : balConnectorElements) {
             BallerinaConnector balConnector = element.getAnnotation(BallerinaConnector.class);
+            
+            /*
+             * For ballerina source modules without any native implementations, it is required to have a 
+             * dummy native impl annotation with a dummy annotation. This is a limitation in the annotation
+             * processor. Hence checking the dummy annotation here and ignore it.
+             * TODO: find a better approach to ignore annotations
+             */
+            if (IGNORE.equalsIgnoreCase(balConnector.connectorName())) {
+                continue;
+            }
+            
             String packageName = balConnector.packageName();
             String className = Utils.getClassName(element);
             ConnectorHolder connector = new ConnectorHolder(balConnector, className);
