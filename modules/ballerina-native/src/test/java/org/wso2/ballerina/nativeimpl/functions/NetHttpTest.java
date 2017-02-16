@@ -17,19 +17,19 @@
 */
 package org.wso2.ballerina.nativeimpl.functions;
 
+import org.ballerinalang.util.program.BLangFunctions;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.interpreter.Context;
-import org.wso2.ballerina.core.model.BallerinaFile;
+import org.wso2.ballerina.core.model.BLangProgram;
 import org.wso2.ballerina.core.model.values.BInteger;
 import org.wso2.ballerina.core.model.values.BMessage;
 import org.wso2.ballerina.core.model.values.BString;
 import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.nativeimpl.connectors.http.Constants;
-import org.wso2.ballerina.nativeimpl.util.Functions;
-import org.wso2.ballerina.nativeimpl.util.ParserUtils;
+import org.wso2.ballerina.nativeimpl.util.BTestUtils;
 import org.wso2.carbon.messaging.DefaultCarbonMessage;
 import org.wso2.carbon.messaging.Headers;
 
@@ -38,11 +38,11 @@ import org.wso2.carbon.messaging.Headers;
  */
 public class NetHttpTest {
 
-    private BallerinaFile bFile;
+    private BLangProgram bLangProgram;
 
     @BeforeClass
     public void setup() {
-        bFile = ParserUtils.parseBalFile("samples/netHttp.bal");
+        bLangProgram = BTestUtils.parseBalFile("samples/netHttp.bal");
     }
 
     @Test
@@ -53,7 +53,7 @@ public class NetHttpTest {
         msg.setValue(cMsg);
         Context ctx = new Context(cMsg);
         BValue[] inputArg = {msg};
-        BValue[] returnVals = Functions.invoke(bFile, "testGetMethod", inputArg, ctx);
+        BValue[] returnVals = BLangFunctions.invoke(bLangProgram, "testGetMethod", inputArg, ctx);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
         Assert.assertEquals(returnVals[0].stringValue(), Constants.HTTP_METHOD_GET, "Method didn't match.");
@@ -70,7 +70,7 @@ public class NetHttpTest {
         msg.setValue(cMsg);
         Context ctx = new Context(cMsg);
         BValue[] inputArg = {msg};
-        Functions.invoke(bFile, "testConvertToResponse", inputArg, ctx);
+        BLangFunctions.invoke(bLangProgram, "testConvertToResponse", inputArg, ctx);
         Assert.assertTrue(msg.value().getHeaders().contains("test"), "Can't find header test.");
     }
 
@@ -82,7 +82,7 @@ public class NetHttpTest {
         Context ctx = new Context(cMsg);
         int httpSC = 200;
         BValue[] inputArgs = { msg, new BInteger(httpSC) };
-        Functions.invoke(bFile, "testSetStatusCode", inputArgs, ctx);
+        BLangFunctions.invoke(bLangProgram, "testSetStatusCode", inputArgs, ctx);
         int sc = (int) msg.value().getProperty("HTTP_STATUS_CODE");
         Assert.assertEquals(sc, httpSC);
     }
@@ -95,7 +95,7 @@ public class NetHttpTest {
         msg.setValue(cMsg);
         Context ctx = new Context(cMsg);
         BValue[] inputArgs = { msg, new BString("hello") };
-        Functions.invoke(bFile, "testSetStatusCode", inputArgs, ctx);
+        BLangFunctions.invoke(bLangProgram, "testSetStatusCode", inputArgs, ctx);
     }
 
     @Test
@@ -106,7 +106,7 @@ public class NetHttpTest {
         Context ctx = new Context(cMsg);
         int length = 123;
         BValue[] inputArgs = { msg, new BInteger(length) };
-        Functions.invoke(bFile, "testSetContentLength", inputArgs, ctx);
+        BLangFunctions.invoke(bLangProgram, "testSetContentLength", inputArgs, ctx);
         String lenStr = msg.value().getHeader("Content-Length");
         Assert.assertEquals(Integer.parseInt(lenStr), length);
     }
@@ -120,7 +120,7 @@ public class NetHttpTest {
         msg.setValue(cMsg);
         Context ctx = new Context(cMsg);
         BValue[] inputArgs = { msg };
-        BValue[] returnVals = Functions.invoke(bFile, "testGetStatusCode", inputArgs, ctx);
+        BValue[] returnVals = BLangFunctions.invoke(bLangProgram, "testGetStatusCode", inputArgs, ctx);
         Assert.assertEquals(returnVals.length, 1);
         BInteger sc = (BInteger) returnVals[0];
         Assert.assertEquals(sc.intValue(), httpSC);
@@ -135,7 +135,7 @@ public class NetHttpTest {
         msg.setValue(cMsg);
         Context ctx = new Context(cMsg);
         BValue[] inputArgs = { msg };
-        BValue[] returnVals = Functions.invoke(bFile, "testGetContentLength", inputArgs, ctx);
+        BValue[] returnVals = BLangFunctions.invoke(bLangProgram, "testGetContentLength", inputArgs, ctx);
         Assert.assertEquals(returnVals.length, 1);
         BInteger sc = (BInteger) returnVals[0];
         Assert.assertEquals(sc.intValue(), cntLen);
@@ -150,7 +150,7 @@ public class NetHttpTest {
         msg.setValue(cMsg);
         Context ctx = new Context(cMsg);
         BValue[] inputArgs = { msg };
-        BValue[] returnVals = Functions.invoke(bFile, "testGetContentLength", inputArgs, ctx);
+        BValue[] returnVals = BLangFunctions.invoke(bLangProgram, "testGetContentLength", inputArgs, ctx);
     }
 
     @Test
@@ -161,7 +161,7 @@ public class NetHttpTest {
         Context ctx = new Context(cMsg);
         String hello = "hello";
         BValue[] inputArgs = { msg, new BString(hello) };
-        Functions.invoke(bFile, "testSetReasonPhrase", inputArgs, ctx);
+        BLangFunctions.invoke(bLangProgram, "testSetReasonPhrase", inputArgs, ctx);
         String reasonPhrase = (String) msg.value().getProperty("HTTP_REASON_PHRASE");
         Assert.assertEquals(reasonPhrase, hello);
     }

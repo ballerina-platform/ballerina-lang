@@ -17,46 +17,35 @@
 */
 package org.wso2.ballerina.nativeimpl.util;
 
-import org.antlr.v4.runtime.ANTLRInputStream;
-import org.antlr.v4.runtime.CommonTokenStream;
-import org.wso2.ballerina.core.model.BLangPackage;
+import org.ballerinalang.BLangProgramLoader;
 import org.wso2.ballerina.core.model.BLangProgram;
-import org.wso2.ballerina.core.model.BallerinaFile;
-import org.wso2.ballerina.core.model.GlobalScope;
-import org.wso2.ballerina.core.model.builder.BLangModelBuilder;
-import org.wso2.ballerina.core.model.types.BTypes;
-import org.wso2.ballerina.core.parser.BallerinaLexer;
-import org.wso2.ballerina.core.parser.BallerinaParser;
-import org.wso2.ballerina.core.parser.BallerinaParserErrorStrategy;
-import org.wso2.ballerina.core.parser.antlr4.BLangAntlr4Listener;
-import org.wso2.ballerina.core.semantics.SemanticAnalyzer;
-import org.wso2.ballerina.nativeimpl.BallerinaNativeConstructsProvider;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.net.URL;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 /**
  * Utility methods for Ballerina Parser.
  *
  * @since 0.8.0
  */
-public class ParserUtils {
+public class BTestUtils {
 
-    private ParserUtils() {
+    private BTestUtils() {
     }
 
     /**
      * Get parsed, analyzed and linked Ballerina object model.
      *
      * @param sourceFilePath Path to Bal file.
-     * @return BallerinaFile instance.
+     * @return BLangProgram instance.
      */
-    public static BallerinaFile parseBalFile(String sourceFilePath) {
-        GlobalScope globalScope = GlobalScope.getInstance();
-        return parseBalFile(sourceFilePath, globalScope);
+    public static BLangProgram parseBalFile(String sourceFilePath) {
+        Path programPath = Paths.get(BTestUtils.class.getProtectionDomain().
+                getCodeSource().getLocation().getPath());
+        return new BLangProgramLoader().loadLibrary(programPath,
+                Paths.get(sourceFilePath));
     }
+
 
     /**
      * Get parsed, analyzed and linked Ballerina object model.

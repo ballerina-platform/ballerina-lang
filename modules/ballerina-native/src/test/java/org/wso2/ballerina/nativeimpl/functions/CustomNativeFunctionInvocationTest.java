@@ -18,10 +18,11 @@
 package org.wso2.ballerina.nativeimpl.functions;
 
 import org.apache.log4j.Logger;
+import org.ballerinalang.util.program.BLangFunctions;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.wso2.ballerina.core.model.BallerinaFile;
+import org.wso2.ballerina.core.model.BLangProgram;
 import org.wso2.ballerina.core.model.GlobalScope;
 import org.wso2.ballerina.core.model.NativeUnit;
 import org.wso2.ballerina.core.model.SymbolName;
@@ -35,15 +36,14 @@ import org.wso2.ballerina.core.runtime.registry.PackageRegistry;
 import org.wso2.ballerina.nativeimpl.functions.impl.EchoStringNativeFunction;
 import org.wso2.ballerina.nativeimpl.functions.impl.IncorrectParamCountNativeFunction;
 import org.wso2.ballerina.nativeimpl.functions.impl.TestConstantsNativeFunction;
-import org.wso2.ballerina.nativeimpl.util.Functions;
-import org.wso2.ballerina.nativeimpl.util.ParserUtils;
+import org.wso2.ballerina.nativeimpl.util.BTestUtils;
 
 /**
  * Test Custom Native function Invocation.
  */
 public class CustomNativeFunctionInvocationTest {
 
-    private BallerinaFile bFile;
+    private BLangProgram bLangProgram;
     private GlobalScope globalScope = GlobalScope.getInstance();
 
     @BeforeClass
@@ -96,8 +96,8 @@ public class CustomNativeFunctionInvocationTest {
         final String funcName = "invokeNativeFunction";
         final String s1 = "Hello World...!!!";
         BValueType[] args = { new BString(s1) };
-        bFile = ParserUtils.parseBalFile("samples/customNative.bal", globalScope);
-        BValue[] returns = Functions.invoke(bFile, funcName, args);
+        bLangProgram = BTestUtils.parseBalFile("samples/customNative.bal", globalScope);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, funcName, args);
         Assert.assertEquals(returns[0].stringValue(), s1);
     }
 
@@ -107,8 +107,8 @@ public class CustomNativeFunctionInvocationTest {
         final String funcName = "incorrectParamCountFunction";
         final String s1 = "Hello World...!!!";
         BValueType[] args = { new BString(s1) };
-        bFile = ParserUtils.parseBalFile("samples/incorrectParamcustomNative.bal", globalScope);
-        BValue[] returns = Functions.invoke(bFile, funcName, args);
+        bLangProgram = BTestUtils.parseBalFile("samples/incorrectParamcustomNative.bal", globalScope);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, funcName, args);
     }
 
     //@Test

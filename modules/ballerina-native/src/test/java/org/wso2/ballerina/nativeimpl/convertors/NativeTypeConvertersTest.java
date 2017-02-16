@@ -17,29 +17,29 @@
  */
 package org.wso2.ballerina.nativeimpl.convertors;
 
+import org.ballerinalang.util.program.BLangFunctions;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.wso2.ballerina.core.model.BallerinaFile;
+import org.wso2.ballerina.core.model.BLangProgram;
 import org.wso2.ballerina.core.model.values.BJSON;
 import org.wso2.ballerina.core.model.values.BString;
 import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.model.values.BXML;
-import org.wso2.ballerina.nativeimpl.util.Functions;
-import org.wso2.ballerina.nativeimpl.util.ParserUtils;
+import org.wso2.ballerina.nativeimpl.util.BTestUtils;
 
 public class NativeTypeConvertersTest {
-    private BallerinaFile bFile;
+    private BLangProgram bLangProgram;
 
     @BeforeClass
     public void setup() {
-        bFile = ParserUtils.parseBalFile("samples/type-conversion.bal");
+        bLangProgram = BTestUtils.parseBalFile("samples/type-conversion.bal");
     }
 
     @Test
     public void testXMLToJSON() {
         BValue[] args = {new BXML("<name>chanaka</name>")};
-        BValue[] returns = Functions.invoke(bFile, "xmltojson", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "xmltojson", args);
         Assert.assertTrue(returns[0] instanceof BJSON);
         final String expected = "{\"name\":\"chanaka\"}";
         Assert.assertEquals(returns[0].stringValue(), expected);
@@ -48,7 +48,7 @@ public class NativeTypeConvertersTest {
     @Test
     public void testJSONToXML() {
         BValue[] args = {new BJSON("{\"name\":\"chanaka\"}")};
-        BValue[] returns = Functions.invoke(bFile, "jsontoxml", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "jsontoxml", args);
         Assert.assertTrue(returns[0] instanceof BXML);
         final String expected = "<name>chanaka</name>";
         Assert.assertEquals(returns[0].stringValue(), expected);
@@ -57,7 +57,7 @@ public class NativeTypeConvertersTest {
     @Test
     public void testStringToJSON() {
         BValue[] args = {new BString("{\"name\":\"chanaka\"}")};
-        BValue[] returns = Functions.invoke(bFile, "stringtojson", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "stringtojson", args);
         Assert.assertTrue(returns[0] instanceof BJSON);
         final String expected = "{\"name\":\"chanaka\"}";
         Assert.assertEquals(returns[0].stringValue(), expected);
@@ -66,7 +66,7 @@ public class NativeTypeConvertersTest {
     @Test
     public void testStringToXML() {
         BValue[] args = {new BString("<name>chanaka</name>")};
-        BValue[] returns = Functions.invoke(bFile, "stringtoxml", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "stringtoxml", args);
         Assert.assertTrue(returns[0] instanceof BXML);
         final String expected = "<name>chanaka</name>";
         Assert.assertEquals(returns[0].stringValue(), expected);
@@ -75,7 +75,7 @@ public class NativeTypeConvertersTest {
     @Test
     public void testXMLToString() {
         BValue[] args = {new BXML("<name>chanaka</name>")};
-        BValue[] returns = Functions.invoke(bFile, "xmltostring", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "xmltostring", args);
         Assert.assertTrue(returns[0] instanceof BString);
         final String expected = "<name>chanaka</name>";
         Assert.assertEquals(returns[0].stringValue(), expected);
@@ -84,7 +84,7 @@ public class NativeTypeConvertersTest {
     @Test
     public void testJSONToString() {
         BValue[] args = {new BJSON("{\"name\":\"chanaka\"}")};
-        BValue[] returns = Functions.invoke(bFile, "jsontostring", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "jsontostring", args);
         Assert.assertTrue(returns[0] instanceof BString);
         final String expected = "{\"name\":\"chanaka\"}";
         Assert.assertEquals(returns[0].stringValue(), expected);
