@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+ ~   Copyright (c) WSO2 Inc. (http://wso2.com) All Rights Reserved.
+ ~
+ ~   Licensed under the Apache License, Version 2.0 (the "License");
+ ~   you may not use this file except in compliance with the License.
+ ~   You may obtain a copy of the License at
+ ~
+ ~        http://www.apache.org/licenses/LICENSE-2.0
+ ~
+ ~   Unless required by applicable law or agreed to in writing, software
+ ~   distributed under the License is distributed on an "AS IS" BASIS,
+ ~   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ ~   See the License for the specific language governing permissions and
+ ~   limitations under the License.
+-->
+
+<svg version="1.1" id="iterate" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 viewBox="0 0 14 14" style="enable-background:new 0 0 14 14;" xml:space="preserve">
+<path d="M13.0194511,6.5325403c-0.2825146-0.3077559-0.5669699-0.6164832-0.7980299-0.9329772
+	c-0.0029125-1.0601573-0.0029125-2.4067128-0.0029125-3.5921085V1.0919524L6.9963593,1.091467L3.9935508,1.0924379
+	L3.9930654,1.6579522C3.9925799,2.3443363,3.9920945,3.2205193,3.9998612,3.7656462
+	C3.9954925,3.7772963,3.9765611,3.803509,3.9789882,3.803509L0,6.9883499l3.995007,3.2095976
+	c-0.0024271,0.6067753-0.0019417,1.7125616-0.0014563,2.4620504v0.2485352h8.2249584v-5.854166l0.9999647,1.2339382L14,7.6761904
+	C14,7.6761904,13.294199,6.8315592,13.0194511,6.5325403z M11.1933012,5.6558719
+	c-0.2223225,0.2781458-1.7436285,2.0004163-1.7436285,2.0004163l0.8232718,0.5572624c0,0,0.6621132-0.8082247,0.936861-1.1426792
+	v4.8279877H5.0066223c-0.0029125-0.4514408-0.0067959-1.3989801-0.0077667-1.6533403l3.9052048-3.2469749l-3.900836-3.2129953
+	C5.0007973,3.26178,5.0012827,2.7050033,5.0017681,2.1720121l0.0004854-0.0684443h6.2153187
+	c0,0.662113,0,2.48438-0.0029125,3.4989078L11.1933012,5.6558719z M1.6975139,6.9956312L4.473146,4.6471691l2.7552443,2.3547726
+	L4.4964461,9.3338995L1.6975139,6.9956312z"/>
+</svg>
