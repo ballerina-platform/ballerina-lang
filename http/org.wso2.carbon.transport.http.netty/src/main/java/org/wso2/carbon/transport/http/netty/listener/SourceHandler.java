@@ -86,18 +86,19 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
     }
 
     @Override
+    public void handlerAdded(ChannelHandlerContext ctx) throws Exception {
+        super.handlerAdded(ctx);
+        this.ctx = ctx;
+        this.targetChannelPool = connectionManager.getTargetChannelPool();
+    }
+
+    @Override
     public void channelActive(final ChannelHandlerContext ctx) throws Exception {
         // Start the server connection Timer
-
         if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
-
             HTTPTransportContextHolder.getInstance().getHandlerExecutor()
                     .executeAtSourceConnectionInitiation(Integer.toString(ctx.hashCode()));
         }
-
-        this.ctx = ctx;
-        this.targetChannelPool = connectionManager.getTargetChannelPool();
-
     }
 
     @SuppressWarnings("unchecked")
