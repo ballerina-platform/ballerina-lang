@@ -97,38 +97,37 @@ define(['lodash', 'jquery', 'log', 'alerts', './ballerina-view', './../ast/varia
                 click: function(e) {e.stopPropagation();}
             }).appendTo(this._typeWrapper);
 
-            var typeDropdown = new Dropdown({
-                class: {mainWrapper: "struct-variable-type-dropdown-wrapper"},
-                onSelectCallBackFunction: function(key, value) {
-                    self.getModel().setType(key)
-                },
-                onDropdownOpen: function() {
-                    self._parentView.getBodyWrapper().css("height", $(self._parentView.getBodyWrapper()).height());
-                    self._parentView.getBodyWrapper().css("overflow-x", "visible");
-                    $(self._parentView.getBodyWrapper()).closest(".canvas-container").css("overflow", "visible");
-
-                    this.removeAllItems();
-
-                    // Adding items to the type dropdown.
-                    var bTypes = self.getDiagramRenderingContext().getEnvironment().getTypes();
-                    _.forEach(bTypes, function (bType) {
-                        typeDropdown.addItem({key: bType, value: bType});
-                    });
-
-                    var structTypes = self.getDiagramRenderingContext().getPackagedScopedEnvironment().getCurrentPackage().getStructDefinitions();
-                    _.forEach(structTypes, function (sType) {
-                        typeDropdown.addItem({key: sType.getStructName(), value: sType.getStructName()});
-                    });
-                },
-                onDropdownClosed: function() {
-                    self._parentView.getBodyWrapper().css("height", "");
-                    self._parentView.getBodyWrapper().css("overflow-x", "");
-                    $(self._parentView.getBodyWrapper()).closest(".canvas-container").css("overflow", "");
-                }
+            // Adding items to the type dropdown.
+            var typeDropdown = $("<select></select>");
+            var bTypes = self.getDiagramRenderingContext().getEnvironment().getTypes();
+            _.forEach(bTypes, function (bType) {
+                typeDropdown.append($('<option>'+ bType +'</option>').attr('value', bType));
             });
-            typeDropdown.getElement().appendTo(typeEditWrapper);
 
-            typeDropdown.setSelectedValue(this.getModel().getType());
+            var structTypes = self.getDiagramRenderingContext().getPackagedScopedEnvironment().getCurrentPackage().getStructDefinitions();
+            _.forEach(structTypes, function (sType) {
+                typeDropdown.append($('<option>'+  sType.getStructName() +'</option>').attr('value', sType.getStructName()));
+            });
+
+            //Initialize the select2 control
+            var typeDropdownWrapper = $('<div class="type-drop-wrapper struct-edit"></div>');
+            typeDropdown.appendTo(typeDropdownWrapper);
+            typeDropdownWrapper.appendTo(typeEditWrapper);
+            typeDropdown.select2({
+                tags: true,
+                selectOnClose: true
+            });
+
+            //Set the select2 default value
+            $(typeDropdown).val(this.getModel().getType());
+
+            //Open the dropdown initially
+            typeDropdown.select2("open");
+
+            //Set the value of the type to selected value
+            typeDropdown.on("change", function (e) {
+                self.getModel().setType(e.currentTarget.value);
+            });
 
             $(this._identifierWrapper).empty();
 
