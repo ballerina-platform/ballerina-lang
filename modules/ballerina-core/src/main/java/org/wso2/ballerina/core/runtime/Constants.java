@@ -37,4 +37,7 @@ public class Constants {
     // logger names.
     public static final String BAL_LINKED_INTERPRETER_LOGGER = "BLinkedInterpreter";
 
+    // Name of the system property to hold the debug port
+    public static final String SYSTEM_PROP_BAL_DEBUG = "ballerina.debug";
+
 }
