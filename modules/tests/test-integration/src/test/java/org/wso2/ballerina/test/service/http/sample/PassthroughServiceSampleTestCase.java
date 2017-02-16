@@ -35,6 +35,8 @@ public class PassthroughServiceSampleTestCase extends IntegrationTestCase {
 
     @Test(description = "Test Passthrough sample test case invoking base path")
     public void testPassthroughServiceByBasePath() throws IOException {
+        logger.info("Running " + PassthroughServiceSampleTestCase.class.getSimpleName() +
+                ".testPassthroughServiceByBasePath()...");
         HttpResponse response = HttpClientRequest.doGet(getServiceURLHttp("passthrough"));
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
         Assert.assertEquals(response.getHeaders().get(TestConstant.HEADER_CONTENT_TYPE)
@@ -44,6 +46,8 @@ public class PassthroughServiceSampleTestCase extends IntegrationTestCase {
 
     @Test(description = "Test Passthrough sample test case")
     public void testPassthroughServiceByResourcePath() throws IOException {
+        logger.info("Running " + PassthroughServiceSampleTestCase.class.getSimpleName() +
+                ".testPassthroughServiceByResourcePath()...");
         HttpResponse response = HttpClientRequest.doGet(getServiceURLHttp("passthrough/resource"));
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
         Assert.assertEquals(response.getHeaders().get(TestConstant.HEADER_CONTENT_TYPE)

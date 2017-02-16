@@ -21,8 +21,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.IExecutionListener;
 import org.wso2.ballerina.test.context.Constant;
+import org.wso2.ballerina.test.context.DockerServerInstance;
+import org.wso2.ballerina.test.context.LocalServerInstance;
 import org.wso2.ballerina.test.context.Server;
-import org.wso2.ballerina.test.context.ServerInstance;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -44,25 +45,31 @@ public class TestExecutionListener implements IExecutionListener {
      */
     @Override
     public void onExecutionStart() {
-        //path of the zip file distribution
-        String serverZipPath = System.getProperty(Constant.SYSTEM_PROP_SERVER_ZIP);
-        newServer = new ServerInstance(serverZipPath) {
-            //config the service files need to be deployed
-            @Override
-            protected void configServer() {
-                //path of the sample bal file directory
-                String serviceSampleDir = this.getServerHome() + File.separator + Constant.SERVICE_SAMPLE_DIR;
-                //list of sample bal files to be deploy
-                String[] serviceFilesArr = listFiles(serviceSampleDir, new ArrayList<>());
-                setArguments(serviceFilesArr);
+        String currentProfile = System.getProperty("profile.name");
+        if (currentProfile == null || currentProfile.equals("")) {
+            //path of the zip file distribution
+            String serverZipPath = System.getProperty(Constant.SYSTEM_PROP_SERVER_ZIP);
+            newServer = new LocalServerInstance(serverZipPath) {
+                //config the service files need to be deployed
+                @Override
+                protected void configServer() {
+                    //path of the sample bal file directory
+                    String serviceSampleDir = this.getServerHome() + File.separator + Constant.SERVICE_SAMPLE_DIR;
+                    //list of sample bal files to be deploy
+                    String[] serviceFilesArr = listFiles(serviceSampleDir, new ArrayList<>());
+                    setArguments(serviceFilesArr);
+                }
+            };
+            try {
+                newServer.start();
+            } catch (Exception e) {
+                log.error("Server failed to start. " + e.getMessage(), e);
+                throw new RuntimeException("Server failed to start. " + e.getMessage(), e);
             }
-        };
-        try {
-            newServer.start();
-        } catch (Exception e) {
-            log.error("Server failed to start. " + e.getMessage(), e);
-            throw new RuntimeException("Server failed to start. " + e.getMessage(), e);
+        } else if (currentProfile.equals("integration")) {
+            newServer = new DockerServerInstance();
         }
+
     }
 
     /**

@@ -31,8 +31,6 @@ public class Constant {
     public static final String SERVER_PID_FILE_NAME = "ballerina.pid";
     //File extension the the ballerina service file
     public static final String SERVICE_FILE_EXTENSION = ".bal";
-    //Default HTTP port of the server
-    public static final int DEFAULT_HTTP_PORT = 9090;
     //Service samples file location
     public static final String SERVICE_SAMPLE_DIR = "samples";
 }

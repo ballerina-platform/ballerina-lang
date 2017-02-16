@@ -40,6 +40,7 @@ public class RoutingServiceSampleTestCase extends IntegrationTestCase {
 
     @Test(description = "Test Content base routing sample")
     public void testContentBaseRouting() throws IOException {
+        logger.info("Running " + RoutingServiceSampleTestCase.class.getSimpleName() + ".testContentBaseRouting()...");
         Map<String, String> headers = new HashMap<>();
         headers.put(TestConstant.HEADER_CONTENT_TYPE, TestConstant.CONTENT_TYPE_JSON);
         //sending nyse as name
@@ -61,6 +62,7 @@ public class RoutingServiceSampleTestCase extends IntegrationTestCase {
 
     @Test(description = "Test Header base routing sample")
     public void testHeaderBaseRouting() throws IOException {
+        logger.info("Running " + RoutingServiceSampleTestCase.class.getSimpleName() + ".testHeaderBaseRouting()...");
         Map<String, String> headers = new HashMap<>();
         headers.put(TestConstant.HEADER_CONTENT_TYPE, TestConstant.CONTENT_TYPE_JSON);
         //sending nyse as name header

@@ -34,8 +34,12 @@ import java.util.stream.Stream;
 /**
  * This class hold the server information and manage the a server instance.
  */
-public class ServerInstance implements Server {
-    private static final Logger log = LoggerFactory.getLogger(ServerInstance.class);
+public class LocalServerInstance implements Server {
+    private static final Logger log = LoggerFactory.getLogger(LocalServerInstance.class);
+
+    //Default HTTP port of the server
+    private static final int DEFAULT_HTTP_PORT = 9090;
+
     private String serverHome;
     private String serverDistribution;
     private String[] args;
@@ -44,7 +48,7 @@ public class ServerInstance implements Server {
     private ServerLogReader serverErrorLogReader;
     private boolean isServerRunning;
 
-    public ServerInstance(String serverDistributionPath) {
+    public LocalServerInstance(String serverDistributionPath) {
         this.serverDistribution = serverDistributionPath;
     }
 
@@ -55,13 +59,13 @@ public class ServerInstance implements Server {
      */
     @Override
     public void start() throws Exception {
-        Utils.checkPortAvailability(Constant.DEFAULT_HTTP_PORT);
+        Utils.checkPortAvailability(DEFAULT_HTTP_PORT);
         if (serverHome == null) {
             serverHome = setUpServerHome(serverDistribution);
             log.info("Server Home " + serverHome);
             configServer();
         }
-        if (args == null | args.length == 0) {
+        if (args == null || args.length == 0) {
             throw new IllegalArgumentException("No Argument provided for server startup.");
         }
         log.info("Starting server..");
@@ -70,8 +74,8 @@ public class ServerInstance implements Server {
         serverInfoLogReader.start();
         serverErrorLogReader = new ServerLogReader("errorStream", process.getErrorStream());
         serverErrorLogReader.start();
-        log.info("Waiting for port " + Constant.DEFAULT_HTTP_PORT + " to open");
-        Utils.waitForPort(Constant.DEFAULT_HTTP_PORT, 1000 * 60 * 2, false, "localhost");
+        log.info("Waiting for port " + DEFAULT_HTTP_PORT + " to open");
+        Utils.waitForPort(DEFAULT_HTTP_PORT, 1000 * 60 * 2, false, "localhost");
         log.info("Server Started Successfully.");
         isServerRunning = true;
     }
@@ -106,7 +110,7 @@ public class ServerInstance implements Server {
             serverErrorLogReader.stop();
             process = null;
             //wait until port to close
-            Utils.waitForPortToClosed(Constant.DEFAULT_HTTP_PORT, 30000);
+            Utils.waitForPortToClosed(DEFAULT_HTTP_PORT, 30000);
             log.info("Server Stopped Successfully");
         }
     }
@@ -162,11 +166,10 @@ public class ServerInstance implements Server {
     /**
      * Return the service URL.
      *
-     * @param servicePath - http url of the given service
      * @return
      */
-    public String getServiceURLHttp(String servicePath) {
-        return "http://localhost:" + Constant.DEFAULT_HTTP_PORT + "/" + servicePath;
+    public String getServerHttpUrl() {
+        return "http://localhost:" + DEFAULT_HTTP_PORT;
     }
 
     /**
@@ -193,16 +196,15 @@ public class ServerInstance implements Server {
         }
         String extractedCarbonDir =
                 serverZipFile.substring(serverZipFile.lastIndexOf(fileSeparator) + 1,
-                                        indexOfZip);
+                        indexOfZip);
         String extractDir = "ballerinatmp" + System.currentTimeMillis();
         String baseDir = (System.getProperty(Constant.SYSTEM_PROP_BASE_DIR, ".")) + File.separator + "target";
         log.info("Extracting ballerina zip file.. ");
 
         Utils.extractFile(serverZipFile, baseDir + File.separator + extractDir);
-        String serverExtractedPath = new File(baseDir).getAbsolutePath() + File.separator
-                                     + extractDir + File.separator +
-                                     extractedCarbonDir;
-        return serverExtractedPath;
+        return new File(baseDir).getAbsolutePath() + File.separator
+                + extractDir + File.separator +
+                extractedCarbonDir;
     }
 
     /**
@@ -246,10 +248,10 @@ public class ServerInstance implements Server {
             String[] lines = outPut.split("\r\n");
             for (String line : lines) {
                 String[] column = line.trim().split("\\s+");
-                if (column != null && column.length < 5) {
+                if (column.length < 5) {
                     continue;
                 }
-                if (column[1].contains(":" + Constant.DEFAULT_HTTP_PORT) && column[3].contains("LISTENING")) {
+                if (column[1].contains(":" + DEFAULT_HTTP_PORT) && column[3].contains("LISTENING")) {
                     log.info(line);
                     pid = column[4];
                     break;
