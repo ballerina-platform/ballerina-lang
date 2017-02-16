@@ -19,7 +19,6 @@
 package org.wso2.ballerina.test.service.file.sample;
 
 import org.testng.Assert;
-import org.testng.annotations.Test;
 import org.wso2.ballerina.test.context.Constant;
 
 import java.io.File;
@@ -31,7 +30,7 @@ import java.io.IOException;
  */
 public class OrderProcessingServiceSampleTestCase {
 
-    @Test(description = "Test whether files have been deleted after reading the content")
+//    @Test(description = "Test whether files have been deleted after reading the content")
     public void testFileDeletion() throws IOException, InterruptedException {
         // Wait till relevant contents are read and files are deleted.
         Thread.sleep(5000);
