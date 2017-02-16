@@ -26,6 +26,7 @@ import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.model.BLangProgram;
 import org.wso2.ballerina.core.model.values.BBoolean;
 import org.wso2.ballerina.core.model.values.BDouble;
@@ -242,31 +243,31 @@ public class SystemTest {
             System.setOut(new PrintStream(outContent));
             final String pathValue = System.getenv("PATH");
             BValueType[] args = {new BString("PATH")};
-            Functions.invoke(bFile, "getEnvVar", args);
+            BLangFunctions.invoke(bLangProgram, "getEnvVar", args);
             Assert.assertEquals(outContent.toString(), pathValue);
         } finally {
             System.setOut(original);
         }
     }
 
-    @Test(expectedExceptions = ArrayIndexOutOfBoundsException.class)
+    @Test(expectedExceptions = BallerinaException.class)
     public void testGetEnvNonExisting() throws IOException {
         try (ByteArrayOutputStream outContent = new ByteArrayOutputStream()) {
             System.setOut(new PrintStream(outContent));
             BValueType[] args = {new BString("PATH2")};
-            Functions.invoke(bFile, "getEnvVar", args);
+            BLangFunctions.invoke(bLangProgram, "getEnvVar", args);
             outContent.toString();
         } finally {
             System.setOut(original);
         }
     }
 
-    @Test(expectedExceptions = ArrayIndexOutOfBoundsException.class)
+    @Test(expectedExceptions = BallerinaException.class)
     public void testGetEnvEmptyKey() throws IOException {
         try (ByteArrayOutputStream outContent = new ByteArrayOutputStream()) {
             System.setOut(new PrintStream(outContent));
             BValueType[] args = {new BString("")};
-            Functions.invoke(bFile, "getEnvVar", args);
+            BLangFunctions.invoke(bLangProgram, "getEnvVar", args);
             outContent.toString();
         } finally {
             System.setOut(original);
