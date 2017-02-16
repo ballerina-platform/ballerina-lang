@@ -21,6 +21,7 @@ package org.wso2.ballerina.test.util;
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.broker.BrokerService;
 import org.wso2.ballerina.test.context.Constant;
+
 import javax.jms.ConnectionFactory;
 
 /**
@@ -28,9 +29,17 @@ import javax.jms.ConnectionFactory;
  */
 public class JMSBroker {
     private static ConnectionFactory connectionFactory = new ActiveMQConnectionFactory(Constant.ACTIVEMQ_PROVIDER_URL);
+    private static BrokerService broker;
+
+    static {
+        broker = new BrokerService();
+        broker.setPersistent(false);
+        broker.setUseJmx(true);
+    }
 
     /**
      * To get the connection factory of the particular jms provider.
+     *
      * @return Connection factory of the particular jms provider
      */
     public static ConnectionFactory getConnectionFactory() {
@@ -39,13 +48,13 @@ public class JMSBroker {
 
     /**
      * To start the broker.
+     *
      * @throws Exception Exception that can be thrown when adding the connector
      */
     public static void startBroker() throws Exception {
-        BrokerService broker = new BrokerService();
-        broker.setPersistent(false);
-        broker.setUseJmx(true);
-        broker.addConnector("tcp://localhost:61616");
-        broker.start();
+        if (!broker.isStarted()) {
+            broker.addConnector("tcp://localhost:61616");
+            broker.start();
+        }
     }
 }

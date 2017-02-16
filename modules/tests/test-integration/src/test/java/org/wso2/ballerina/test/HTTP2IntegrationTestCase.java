@@ -33,7 +33,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -59,7 +58,7 @@ public abstract class HTTP2IntegrationTestCase {
                 //path of the sample bal file directory
                 String serviceSampleDir = this.getServerHome() + File.separator + Constant.SERVICE_SAMPLE_DIR;
                 //list of sample bal files to be deploy
-                String[] serviceFilesArr = listFiles(serviceSampleDir, new ArrayList<>());
+                String[] serviceFilesArr = listSamples(serviceSampleDir);
                 setArguments(serviceFilesArr);
                 // copy http2 enabled netty-transports.yml file
                 copyFile(new File(HTTP2_ENABLED_NETTY_CONF), new File(this
@@ -153,5 +152,23 @@ public abstract class HTTP2IntegrationTestCase {
             return new String(arr, 0, contentLength, CharsetUtil.UTF_8);
         }
         return null;
+    }
+
+    /**
+     * List given samples ballerina services.
+     *
+     * @param sampleDir sample directory
+     * @return String array of file absolute paths
+     */
+    private static String[] listSamples(String sampleDir) {
+        String[] sampleFiles = {
+                sampleDir + File.separator + "echoService" + File.separator + "echoService.bal",
+                sampleDir + File.separator + "helloWorldService" + File.separator + "helloWorldService.bal",
+                sampleDir + File.separator + "passthroughService" + File.separator + "passthroughService.bal",
+                sampleDir + File.separator + "restfulService" + File.separator + "ecommerceService.bal",
+                sampleDir + File.separator + "routingServices" + File.separator + "routingServices.bal",
+                sampleDir + File.separator + "serviceChaining" + File.separator + "ATMLocatorService.bal"
+        };
+        return sampleFiles;
     }
 }
