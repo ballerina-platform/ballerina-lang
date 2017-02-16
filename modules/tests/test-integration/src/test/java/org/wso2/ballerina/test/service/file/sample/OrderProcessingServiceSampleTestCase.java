@@ -19,10 +19,8 @@
 package org.wso2.ballerina.test.service.file.sample;
 
 import org.testng.Assert;
-import org.testng.annotations.AfterClass;
 import org.testng.annotations.Test;
 import org.wso2.ballerina.test.context.Constant;
-import org.wso2.ballerina.test.util.FTPTestServer;
 
 import java.io.File;
 import java.io.IOException;
@@ -41,10 +39,5 @@ public class OrderProcessingServiceSampleTestCase {
         File folder = new File(classLoader.getResource(Constant.VFS_LOCATION + File.separator + "orders").getFile());
         File[] listOfFiles = folder.listFiles();
         Assert.assertEquals(0, listOfFiles.length, "Files are not deleted after content is read from the files");
-    }
-
-    @AfterClass
-    public void tearDown() {
-        FTPTestServer.getInstance().stop();
     }
 }

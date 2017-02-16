@@ -75,16 +75,9 @@ public class FTPTestServer {
         factory.setUserManager(userManager);
         factory.addListener("default", listenerFactory.createListener());
 
-        ftpServer = factory.createServer();
-        ftpServer.start();
-    }
-
-    /**
-     * To stop the FTP server.
-     */
-    public void stop() {
-        if (!ftpServer.isStopped()) {
-            ftpServer.stop();
+        if (ftpServer == null) {
+            ftpServer = factory.createServer();
+            ftpServer.start();
         }
     }
 }
