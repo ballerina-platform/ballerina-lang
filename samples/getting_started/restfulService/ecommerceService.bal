@@ -62,7 +62,7 @@ service Ecommerce {
 @http:BasePath("/productsservice")
 service productmgt {
 
-    map productsMap = populateSampleProducts(productsMap);
+    map productsMap = populateSampleProducts();
 
     @http:GET
     @http:Path ("/{id}")
@@ -92,7 +92,7 @@ service productmgt {
 }
 
 
-function populateSampleProducts(map productsMap) {
+function populateSampleProducts()(map productsMap) {
     productsMap = {};
     json prod_1 = `{"Product": {"ID": "123000", "Name": "ABC_1","Description": "Sample product."}}`;
     json prod_2 = `{"Product": {"ID": "123001", "Name": "ABC_2","Description": "Sample product."}}`;
@@ -102,6 +102,7 @@ function populateSampleProducts(map productsMap) {
     productsMap["123001"]= prod_2;
     productsMap["123002"]= prod_3;
     system:println("Sample products are added.");
+    return productsMap;
 
 }
 
