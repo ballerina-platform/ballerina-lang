@@ -62,18 +62,11 @@ service Ecommerce {
 @http:BasePath("/productsservice")
 service productmgt {
 
-    map productsMap = {};
-
-    boolean isInit;
+    map productsMap = populateSampleProducts(productsMap);
 
     @http:GET
     @http:Path ("/{id}")
     resource product (message m, @PathParam("id") string prodId) {
-        if (!isInit) {
-            isInit = true;
-            populateSampleProducts(productsMap);
-        }
-
         json payload = productsMap[prodId];
         // ToDo : Fix for non-existing products
 
@@ -100,6 +93,7 @@ service productmgt {
 
 
 function populateSampleProducts(map productsMap) {
+    productsMap = {};
     json prod_1 = `{"Product": {"ID": "123000", "Name": "ABC_1","Description": "Sample product."}}`;
     json prod_2 = `{"Product": {"ID": "123001", "Name": "ABC_2","Description": "Sample product."}}`;
     json prod_3 = `{"Product": {"ID": "123002", "Name": "ABC_3","Description": "Sample product."}}`;
