@@ -15,11 +15,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 package org.wso2.ballerina.nativeimpl.connectors.data.sql.client;
 
 import org.osgi.service.component.annotations.Component;
-import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.Connector;
 import org.wso2.ballerina.core.model.types.TypeEnum;
@@ -33,6 +31,8 @@ import org.wso2.ballerina.nativeimpl.connectors.data.sql.SQLConnector;
 
 /**
  * {@code Update} is the Update action implementation of the SQL Connector.
+ *
+ * @since 0.8.0
  */
 @BallerinaAction(
         packageName = "ballerina.data.sql",
@@ -51,11 +51,7 @@ public class Update extends AbstractSQLAction {
     public BValue execute(Context context) {
         BConnector bConnector = (BConnector) getArgument(context, 0);
         String query = getArgument(context, 1).stringValue();
-
         Connector connector = bConnector.value();
-        if (!(connector instanceof SQLConnector)) {
-            throw new BallerinaException("Need to use a SQL Connector as the first argument", context);
-        }
         executeUpdate(context, (SQLConnector) connector, query);
         return null;
     }

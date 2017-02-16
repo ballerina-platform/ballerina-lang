@@ -27,7 +27,6 @@ function getXXXByIndex()(int, long, float, double, boolean, string) {
 }
 
 function getXXXByName()(int, long, float, double, boolean, string) {
-
     map propertiesMap = {"jdbcUrl" : "jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
                             "username":"SA", "password":"", "maximumPoolSize":1};
     sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);

@@ -15,7 +15,6 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 package org.wso2.ballerina.nativeimpl.connectors.data.sql.client;
 
 import org.wso2.ballerina.core.exception.BallerinaException;
@@ -45,6 +44,8 @@ import java.util.HashMap;
 
 /**
  * {@code AbstractSQLAction} is the base class for all SQL Connector Action.
+ *
+ * @since 0.8.0
  */
 public abstract class AbstractSQLAction extends AbstractNativeAction {
 
@@ -64,18 +65,14 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
         ResultSet rs = null;
         try {
             conn = connector.getSQLConnection();
-            if (conn == null) {
-                throw new BallerinaException("error in connecting to the DB:connection pool is not initialized");
-            }
             stmt = conn.prepareStatement(query);
             rs = stmt.executeQuery();
-
-            BDataTable dataframe = new BDataTable(new SQLDataIterator(conn, stmt, rs), new HashMap<>(),
+            BDataTable datatable = new BDataTable(new SQLDataIterator(conn, stmt, rs), new HashMap<>(),
                     getColumnDefinitions(rs));
-            context.getControlStack().setReturnValue(0, dataframe);
+            context.getControlStack().setReturnValue(0, datatable);
         } catch (SQLException e) {
             closeResources(rs, stmt, conn);
-            throw new BallerinaException("Error in executing Query." + e.getMessage(), e);
+            throw new BallerinaException("execute query failed: " + e.getCause().getMessage(), e);
         }
     }
 
@@ -85,17 +82,12 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
         ResultSet rs = null;
         try {
             conn = connector.getSQLConnection();
-            if (conn == null) {
-                throw new BallerinaException("error in connecting to the DB:connection pool is not initialized");
-            }
-
             stmt = conn.prepareStatement(query);
-
             int count = stmt.executeUpdate();
             BInteger updatedCount = new BInteger(count);
             context.getControlStack().setReturnValue(0, updatedCount);
         } catch (SQLException e) {
-            throw new BallerinaException("Error in executing Update." + e.getMessage(), e);
+            throw new BallerinaException("execute update failed: " + e.getCause().getMessage(), e);
         } finally {
             closeResources(rs, stmt, conn);
         }
@@ -108,10 +100,6 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
         ResultSet rs = null;
         try {
             conn = connector.getSQLConnection();
-            if (conn == null) {
-                throw new BallerinaException("error in connecting to the DB:connection pool is not initialized");
-            }
-
             int keyColumnCount = 0;
             if (keyColumns != null) {
                 keyColumnCount = keyColumns.size();
@@ -125,21 +113,18 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
             } else {
                 stmt = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
             }
-
             int count = stmt.executeUpdate();
             BInteger updatedCount = new BInteger(count);
             context.getControlStack().setReturnValue(0, updatedCount);
-
             rs = stmt.getGeneratedKeys();
-
-            while (rs.next()) {
+            if (rs.next()) {
                 BArray<BString> generatedKeys = getGeneratedKeys(rs);
                 context.getControlStack().setReturnValue(1, generatedKeys.get(0)); //TODO:Set Array of Keys
             }
-            closeResources(rs, stmt, conn);
         } catch (SQLException e) {
+            throw new BallerinaException("execute update with generated keys failed: " + e.getCause().getMessage());
+        } finally {
             closeResources(rs, stmt, conn);
-            throw new BallerinaException("Error in executing Update." + e.getMessage());
         }
     }
 
@@ -149,23 +134,19 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
         ResultSet rs = null;
         try {
             conn = connector.getSQLConnection();
-            if (conn == null) {
-                throw new BallerinaException("error in connecting to the DB:connection pool is not initialized");
-            }
-
             stmt = conn.prepareCall(query);
             boolean hasResult = stmt.execute();
             if (hasResult) {
                 rs = stmt.getResultSet(); //TODO:How to return next result sets
-                BDataTable dataframe = new BDataTable(new SQLDataIterator(conn, stmt, rs), new HashMap<>(),
+                BDataTable datatable = new BDataTable(new SQLDataIterator(conn, stmt, rs), new HashMap<>(),
                         getColumnDefinitions(rs));
-                context.getControlStack().setReturnValue(0, dataframe);
+                context.getControlStack().setReturnValue(0, datatable);
             } else {
                 closeResources(null, stmt, conn);
             }
         } catch (SQLException e) {
             closeResources(rs, stmt, conn);
-            throw new BallerinaException("Error in executing Query." + e.getMessage(), e);
+            throw new BallerinaException("execute stored procedure failed: " + e.getCause().getMessage(), e);
         }
     }
 

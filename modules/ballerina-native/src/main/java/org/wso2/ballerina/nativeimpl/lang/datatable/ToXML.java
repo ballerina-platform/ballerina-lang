@@ -44,7 +44,7 @@ import org.wso2.ballerina.core.nativeimpl.annotations.ReturnType;
 public class ToXML extends AbstractNativeFunction {
 
     public BValue[] execute(Context ctx) {
-        BDataTable dataframe = (BDataTable) getArgument(ctx, 0);
+        BDataTable dataTable = (BDataTable) getArgument(ctx, 0);
         String rootWrapper = null;
         String rowWrapper = null;
         if (getArgument(ctx, 1) != null) {
@@ -53,6 +53,6 @@ public class ToXML extends AbstractNativeFunction {
         if (getArgument(ctx, 2) != null) {
             rowWrapper = getArgument(ctx, 2).stringValue();
         }
-        return getBValues(dataframe.toXML(rootWrapper, rowWrapper));
+        return getBValues(dataTable.toXML(rootWrapper, rowWrapper));
     }
 }

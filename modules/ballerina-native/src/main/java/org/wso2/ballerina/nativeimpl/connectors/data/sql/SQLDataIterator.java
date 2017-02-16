@@ -15,7 +15,6 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-
 package org.wso2.ballerina.nativeimpl.connectors.data.sql;
 
 import org.wso2.ballerina.core.exception.BallerinaException;

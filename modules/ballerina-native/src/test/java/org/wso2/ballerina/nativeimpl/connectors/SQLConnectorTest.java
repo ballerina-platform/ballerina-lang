@@ -15,7 +15,6 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 package org.wso2.ballerina.nativeimpl.connectors;
 
 import org.testng.Assert;
@@ -34,6 +33,8 @@ import java.io.File;
 
 /**
  * Test class for SQL Connector test.
+ *
+ * @since 0.8.0
  */
 public class SQLConnectorTest {
 
@@ -86,7 +87,6 @@ public class SQLConnectorTest {
     public void testSelectData() {
         BValue[] returns = Functions.invoke(bFile, "testSelectData");
         BString retValue = (BString) returns[0];
-
         final String expected = "Peter";
         Assert.assertEquals(retValue.stringValue(), expected);
     }
@@ -95,7 +95,6 @@ public class SQLConnectorTest {
     public void testCallProcedure() {
         BValue[] returns = Functions.invoke(bFile, "testCallProcedure");
         BString retValue = (BString) returns[0];
-
         final String expected = "James";
         Assert.assertEquals(retValue.stringValue(), expected);
     }
@@ -104,7 +103,6 @@ public class SQLConnectorTest {
     public void testConnectorWithDataSource() {
         BValue[] returns = Functions.invoke(bFile, "testConnectorWithDataSource");
         BString retValue = (BString) returns[0];
-
         final String expected = "Peter";
         Assert.assertEquals(retValue.stringValue(), expected);
     }
@@ -113,7 +111,6 @@ public class SQLConnectorTest {
     public void testConnectionPoolProperties() {
         BValue[] returns = Functions.invoke(bFile, "testConnectionPoolProperties");
         BString retValue = (BString) returns[0];
-
         final String expected = "Peter";
         Assert.assertEquals(retValue.stringValue(), expected);
     }

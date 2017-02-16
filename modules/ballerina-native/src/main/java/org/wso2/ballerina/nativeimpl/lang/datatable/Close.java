@@ -40,8 +40,8 @@ import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
 public class Close extends AbstractNativeFunction {
 
     public BValue[] execute(Context ctx) {
-        BDataTable dataframe = (BDataTable) getArgument(ctx, 0);
-        dataframe.close();
+        BDataTable dataTable = (BDataTable) getArgument(ctx, 0);
+        dataTable.close();
         return VOID_RETURN;
     }
 }

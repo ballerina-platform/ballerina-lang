@@ -45,8 +45,8 @@ import org.wso2.ballerina.core.nativeimpl.annotations.ReturnType;
 public class GetBooleanByIndex extends AbstractNativeFunction {
 
     public BValue[] execute(Context ctx) {
-        BDataTable dataframe = (BDataTable) getArgument(ctx, 0);
+        BDataTable dataTable = (BDataTable) getArgument(ctx, 0);
         int index = ((BInteger) getArgument(ctx, 1)).intValue();
-        return getBValues(new BBoolean(dataframe.getBoolean(index)));
+        return getBValues(new BBoolean(dataTable.getBoolean(index)));
     }
 }

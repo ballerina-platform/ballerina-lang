@@ -46,10 +46,10 @@ import org.wso2.ballerina.core.nativeimpl.annotations.ReturnType;
 public class GetBooleanArrayByIndex extends AbstractNativeFunction {
 
     public BValue[] execute(Context ctx) {
-        BDataTable dataframe = (BDataTable) getArgument(ctx, 0);
+        BDataTable dataTable = (BDataTable) getArgument(ctx, 0);
         int index = ((BInteger) getArgument(ctx, 1)).intValue();
         BArray<BBoolean> array = new BArray<>(BBoolean.class);
-        boolean[] booleanArray = dataframe.getBooleanArray(index);
+        boolean[] booleanArray = dataTable.getBooleanArray(index);
         for (int i = 0; i < booleanArray.length; i++) {
             array.add(i, new BBoolean(booleanArray[i]));
         }

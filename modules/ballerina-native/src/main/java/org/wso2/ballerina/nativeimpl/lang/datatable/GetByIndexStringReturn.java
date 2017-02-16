@@ -47,9 +47,9 @@ import java.util.Locale;
 public class GetByIndexStringReturn extends AbstractNativeFunction {
 
     public BValue[] execute(Context ctx) {
-        BDataTable dataframe = (BDataTable) getArgument(ctx, 0);
+        BDataTable dataTable = (BDataTable) getArgument(ctx, 0);
         int index = ((BInteger) getArgument(ctx, 1)).intValue();
         String type = (getArgument(ctx, 2)).stringValue();
-        return getBValues(dataframe.get(index, type.toLowerCase(Locale.ENGLISH)));
+        return getBValues(dataTable.get(index, type.toLowerCase(Locale.ENGLISH)));
     }
 }
