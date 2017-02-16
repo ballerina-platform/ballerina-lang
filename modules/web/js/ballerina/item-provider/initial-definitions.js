@@ -128,6 +128,14 @@ define(['log', 'jquery', './../ast/ballerina-ast-factory', './../tool-palette/to
             nodeFactoryMethod: BallerinaASTFactory.createWhileStatement
         };
 
+        var createTryCatchStatementTool = {
+            id: "try-catch",
+            name: "Try-Catch",
+            icon: "images/tool-icons/dgm-while.svg",
+            title: "Try-Catch",
+            nodeFactoryMethod: BallerinaASTFactory.createTryCatchStatement
+        };
+
         var createAssignmentExpressionTool = {
             id: "Assignment",
             name: "Assignment",
@@ -187,7 +195,7 @@ define(['log', 'jquery', './../ast/ballerina-ast-factory', './../tool-palette/to
 
         var statementToolDefArray = [createIfStatementTool, createAssignmentExpressionTool,
             createVariableDefinitionStatementTool,  createFunctionInvocationTool, createReturnStatementTool,
-            createReplyStatementTool, createWhileStatementTool, createWorkerInvocationStatementTool,
+            createReplyStatementTool, createWhileStatementTool, createTryCatchStatementTool, createWorkerInvocationStatementTool,
             createWorkerReceiverStatementTool];
 
         // Create statements tool group
