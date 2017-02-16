@@ -27,6 +27,7 @@ import org.wso2.ballerina.core.nativeimpl.NativeUnitProxy;
 import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeConnector;
 
 import static org.wso2.ballerina.core.model.types.TypeConstants.BOOLEAN_TNAME;
+import static org.wso2.ballerina.core.model.types.TypeConstants.DATATABLE_TNAME;
 import static org.wso2.ballerina.core.model.types.TypeConstants.DOUBLE_TNAME;
 import static org.wso2.ballerina.core.model.types.TypeConstants.EXCEPTION_TNAME;
 import static org.wso2.ballerina.core.model.types.TypeConstants.FLOAT_TNAME;
@@ -56,6 +57,7 @@ public class BTypes {
     public static BType typeMessage;
     public static BType typeMap;
     public static BType typeException;
+    public static BType typeDatatable;
 
     private static boolean initialized = false;
 
@@ -78,6 +80,7 @@ public class BTypes {
         globalScope.define(typeMessage.getSymbolName(), typeMessage);
         globalScope.define(typeMap.getSymbolName(), typeMap);
         globalScope.define(typeException.getSymbolName(), typeException);
+        globalScope.define(typeDatatable.getSymbolName(), typeDatatable);
 
         TypeLattice.loadImplicitCastLattice(globalScope);
         TypeLattice.loadExplicitCastLattice(globalScope);
@@ -96,6 +99,7 @@ public class BTypes {
         typeMessage = new BMessageType(MESSAGE_TNAME, null, globalScope);
         typeMap = new BMapType(MAP_TNAME, null, globalScope);
         typeException = new BExceptionType(EXCEPTION_TNAME, null, globalScope);
+        typeDatatable = new BDataTableType(DATATABLE_TNAME, null, globalScope);
         initialized = true;
     }
 

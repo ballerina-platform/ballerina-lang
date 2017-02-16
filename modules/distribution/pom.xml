@@ -167,6 +167,10 @@
             <groupId>org.wso2.staxon</groupId>
             <artifactId>staxon-core</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.zaxxer</groupId>
+            <artifactId>HikariCP</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
