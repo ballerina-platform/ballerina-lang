@@ -86,6 +86,16 @@ public class BLangJSONModelConstants {
 
     public static final String WORKER_DEFINITION = "worker";
 
+    public static final String WORKER_INVOCATION_STATEMENT = "worker_invocation_statement";
+
+    public static final String WORKER_REPLY_STATEMENT = "worker_reply_statement";
+
+    public static final String WORKER_NAME = "worker_name";
+
+    public static final String INVOKE_MESSAGE = "invoke_message";
+
+    public static final String REPLY_MESSAGE = "reply_message";
+
     public static final String PARAMETER_NAME = "parameter_name";
 
     public static final String PARAMETER_TYPE = "parameter_type";
