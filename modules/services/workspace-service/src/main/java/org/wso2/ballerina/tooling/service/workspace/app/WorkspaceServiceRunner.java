@@ -21,6 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerina.tooling.service.workspace.Constants;
 import org.wso2.ballerina.tooling.service.workspace.api.PackagesApi;
+import org.wso2.ballerina.tooling.service.workspace.launcher.LaunchManager;
 import org.wso2.ballerina.tooling.service.workspace.rest.FileServer;
 import org.wso2.ballerina.tooling.service.workspace.rest.WorkspaceService;
 import org.wso2.ballerina.tooling.service.workspace.rest.datamodel.BLangFileRestService;
@@ -94,6 +95,12 @@ public class WorkspaceServiceRunner {
         new MicroservicesRunner(port)
                 .deploy(fileServer)
                 .start();
+
+        //start the launcher service
+        //The launcherservice was implemented with netty since msf4j do not have websocket support yet.
+        LaunchManager launchManager = LaunchManager.getInstance();
+        launchManager.init();
+
         if (!isCloudMode) {
             logger.info("Ballerina Editor URL: http://localhost:" + port);
         }

@@ -84,7 +84,7 @@ div[class*="col-sm-"] {
 }
 
 .right-container{
-    height: 100%;
+    height: calc(100% - 80px);
     margin-left: 40px;
 }
 

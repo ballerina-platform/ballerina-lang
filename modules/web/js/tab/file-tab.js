@@ -108,10 +108,23 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace/f
                 DebugManager.removeBreakPoint(row, this._file.getName());
             }, this);
 
+            var breakPointChangeCallback = function() {
+                var newBreakpoints = DebugManager.getDebugPoints();
+                var fileName = self._file.getName();
+                var fileBreakpoints = _.map(newBreakpoints, function(breakpoint) {
+                    if(breakpoint.fileName === self._file.getName())  {
+                        return breakpoint.line;
+                    }
+                });
+                fileEditor.trigger('reset-breakpoints', fileBreakpoints);
+            };
+            DebugManager.on('breakpoint-added', breakPointChangeCallback);
+            DebugManager.on('breakpoint-removed', breakPointChangeCallback);
+
             DebugManager.on('debug-hit', function(message){
-                var position = message.position;
+                var position = message.location;
                 if(position.fileName == this._file.getName()){
-                    fileEditor.debugHit(position);
+                    fileEditor.debugHit(DebugManager.createDebugPoint(position.lineNumber, position.fileName));
                 }
             }, this);
 
