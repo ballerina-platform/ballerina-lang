@@ -660,33 +660,6 @@ public class ArrayTest {
         Assert.fail("Test should fail at this point.");
     }
 
-
-    @Test
-    public void testDoubleArraySort() {
-        BArray<BDouble> bDoubleBArray = new BArray<>(BDouble.class);
-        bDoubleBArray.add(0, new BDouble(20.0));
-        bDoubleBArray.add(1, new BDouble(11.0));
-        bDoubleBArray.add(2, new BDouble(12.0));
-        BValue[] args = {bDoubleBArray};
-        BValue[] returnVals = Functions.invoke(bFile, "testDoubleArraySort", args);
-        Assert.assertEquals(((BDouble) ((BArray) returnVals[0]).get(0)).doubleValue(), 11.0);
-        Assert.assertEquals(((BDouble) ((BArray) returnVals[0]).get(0)).doubleValue(), 12.0);
-        Assert.assertEquals(((BDouble) ((BArray) returnVals[0]).get(0)).doubleValue(), 20.0);
-    }
-
-    @Test
-    public void testIntArraySort() {
-        BArray<BInteger> bArray = new BArray<>(BInteger.class);
-        bArray.add(0, new BInteger(20));
-        bArray.add(1, new BInteger(11));
-        bArray.add(2, new BInteger(12));
-        BValue[] args = {bArray};
-        BValue[] returnVals = Functions.invoke(bFile, "testIntArraySort", args);
-        Assert.assertEquals(((BInteger) ((BArray) returnVals[0]).get(0)).intValue(), 11);
-        Assert.assertEquals(((BInteger) ((BArray) returnVals[0]).get(0)).intValue(), 12);
-        Assert.assertEquals(((BInteger) ((BArray) returnVals[0]).get(0)).intValue(), 20);
-    }
-
     @Test
     public void testStringArraySort() {
         final String v1 = "currency";
