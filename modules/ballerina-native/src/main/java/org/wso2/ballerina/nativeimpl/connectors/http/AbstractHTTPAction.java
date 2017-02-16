@@ -130,6 +130,7 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
 
             clientConnector.send(message, balConnectorCallback);
 
+            // Wait till Response comes.
             while (!balConnectorCallback.isResponseArrived()) {
                 synchronized (context) {
                     if (!balConnectorCallback.isResponseArrived()) {
@@ -164,40 +165,31 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
 
     @Override
     public void validate(BalConnectorCallback callback) {
-        handleTransportException(callback.getValueRef(), callback.getContext());
+        handleTransportException(callback.getValueRef());
+    }
+
+    @Override
+    public boolean isNonBlockingAction() {
+        return true;
     }
 
     private void handleTransportException(BValue valueRef) {
         if (valueRef instanceof BMessage) {
             BMessage bMsg = (BMessage) valueRef;
             if (bMsg.value() == null) {
-                throw new BallerinaException("Received unknown message for the action invocation");
-            }
-            if (bMsg.value().getMessagingException() != null) {
-                throw new BallerinaException(bMsg.value().getMessagingException().getMessage());
-            }
-        } else {
-            throw new BallerinaException("Invalid message received for the action invocation");
-        }
-    }
-
-    private void handleTransportException(BValue valueRef, Context context) {
-        if (valueRef instanceof BMessage) {
-            BMessage bMsg = (BMessage) valueRef;
-            if (bMsg.value() == null) {
                 String msg = "Received unknown message for the action invocation";
                 BException exception = new BException(msg, Constants.HTTP_CLIENT_EXCEPTION_CATEGORY);
-                context.getExecutor().handleBException(exception);
+                throw new BallerinaException(msg, exception);
             }
             if (bMsg.value().getMessagingException() != null) {
                 String msg = bMsg.value().getMessagingException().getMessage();
                 BException exception = new BException(msg, Constants.HTTP_CLIENT_EXCEPTION_CATEGORY);
-                context.getExecutor().handleBException(exception);
+                throw new BallerinaException(msg, exception);
             }
         } else {
             String msg = "Invalid message received for the action invocation";
             BException exception = new BException(msg, Constants.HTTP_CLIENT_EXCEPTION_CATEGORY);
-            context.getExecutor().handleBException(exception);
+            throw new BallerinaException(msg, exception);
         }
     }
 
