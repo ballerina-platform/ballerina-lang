@@ -67,8 +67,9 @@ define(['lodash', 'd3','log', './simple-statement-view', './../ast/action-invoca
         };
 
         ActionInvocationStatementView.prototype.setModel = function (model) {
+            //TODO : check where this is needed
             var actionInvocationModel = this.getModel();
-            if (!_.isNil(model) && model instanceof ActionInvocationExpression) {
+            if (!_.isNil(model) && BallerinaASTFactory.isActionInvocationStatement(model)) {
                 actionInvocationModel = model;
             } else {
                 log.error("Action statement definition is undefined or is of different type." + model);
@@ -122,18 +123,18 @@ define(['lodash', 'd3','log', './simple-statement-view', './../ast/action-invoca
             var editableProperty = {
                     propertyType: "text",
                     key: "Action Invocation",
-                    model: model,
+                    model: actionInvocationExpression,
                     getterMethod: actionInvocationExpression.getExpression,
                     setterMethod: actionInvocationExpression.setExpression
             };
 
             this._createPropertyPane({
-                model: model,
+                model: actionInvocationExpression,
                 statementGroup: this.getStatementGroup(),
                 editableProperties: editableProperty
             });
 
-            this.listenTo(model, 'update-property-text', this.updateStatementText);
+            this.listenTo(actionInvocationExpression, 'update-property-text', this.updateStatementText);
 
             // mouse events for 'processorConnectPoint'
             this.processorConnectPoint.on("mousedown", function () {
@@ -345,14 +346,14 @@ define(['lodash', 'd3','log', './simple-statement-view', './../ast/action-invoca
         };
 
         ActionInvocationStatementView.prototype.updateStatementText = function (newStatementText, propertyKey) {
-            var displayText = this._model.getExpression();
+            var displayText = this.getActionInvocationExpression().getExpression();
             var siblingConnectors = this._parent._model.children;
             var connectorName = newStatementText.match(/\((.*)\)/)[1];
             var self = this;
 
             connectorName = connectorName.split(",")[0].trim();
 
-            this._model.setExpression(newStatementText);
+            this.getActionInvocationExpression().setExpression(newStatementText);
             this.renderDisplayText(newStatementText);
 
             self.removeArrows();
@@ -360,8 +361,9 @@ define(['lodash', 'd3','log', './simple-statement-view', './../ast/action-invoca
             self.processorConnectEndPoint.remove();
 
             _.some(siblingConnectors, function (key, i) {
-                if ( (BallerinaASTFactory.isConnectorDeclaration(siblingConnectors[i])) && (siblingConnectors[i]._connectorVariable == connectorName) ) {
-                    self.getModel().setConnector(siblingConnectors[i]);
+                if ( (BallerinaASTFactory.isConnectorDeclaration(siblingConnectors[i]))
+                         && (siblingConnectors[i]._connectorVariable == connectorName) ) {
+                    self.getActionInvocationExpression().setConnector(siblingConnectors[i]);
                     self.renderArrows(self.getDiagramRenderingContext());
                }
             });

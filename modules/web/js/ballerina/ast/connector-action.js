@@ -431,8 +431,9 @@ define(['lodash', './node', 'log', '../utils/common-utils'], function(_, ASTNode
      * @return {ConnectorDeclaration}
      */
     ConnectorAction.prototype.getConnectorByName = function (connectorName) {
+        var self = this;
         var connectorReference = _.find(this.getChildren(), function (child) {
-            return (this.getFactory().isConnectorDeclaration(child) && (child.getConnectorVariable() === connectorName));
+            return (self.getFactory().isConnectorDeclaration(child) && (child.getConnectorVariable() === connectorName));
         });
 
         return !_.isNil(connectorReference) ? connectorReference : this.getParent(). getConnectorByName(connectorName);
