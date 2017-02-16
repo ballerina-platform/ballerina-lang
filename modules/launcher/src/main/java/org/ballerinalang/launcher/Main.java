@@ -17,6 +17,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.ServiceLoader;
 
+import static org.wso2.ballerina.core.runtime.Constants.SYSTEM_PROP_BAL_DEBUG;
+
 /**
  * This class executes a Ballerina program.
  *
@@ -226,6 +228,9 @@ public class Main {
         @Parameter(names = "--debug", hidden = true)
         private String debugPort;
 
+        @Parameter(names = "--ballerina.debug", hidden = true, description = "remote debugging port")
+        private String ballerinaDebugPort;
+
         public void execute() {
             if (argList == null || argList.size() == 0) {
                 throw LauncherUtils.createUsageException("no ballerina program given");
@@ -236,6 +241,10 @@ public class Main {
                 programArgs = argList.subList(1, argList.size());
             } else {
                 programArgs = new ArrayList<>(0);
+            }
+
+            if (null != ballerinaDebugPort) {
+                System.setProperty(SYSTEM_PROP_BAL_DEBUG, ballerinaDebugPort);
             }
 
             Path p = Paths.get(argList.get(0));
@@ -271,6 +280,9 @@ public class Main {
         @Parameter(names = {"--service-root", "-sr"}, description = "directory which contains ballerina services")
         private String serviceRootPath;
 
+        @Parameter(names = "--ballerina.debug", hidden = true, description = "remote debugging port")
+        private String ballerinaDebugPort;
+
         public void execute() {
             if (sourceFileList == null || sourceFileList.size() == 0) {
                 throw LauncherUtils.createUsageException("no ballerina programs given");
@@ -279,6 +291,10 @@ public class Main {
             Path[] paths = new Path[sourceFileList.size()];
             for (int i = 0; i < sourceFileList.size(); i++) {
                 paths[i] = Paths.get(sourceFileList.get(i)).toAbsolutePath();
+            }
+
+            if (null != ballerinaDebugPort) {
+                System.setProperty(SYSTEM_PROP_BAL_DEBUG, ballerinaDebugPort);
             }
 
             BServiceRunner.start(paths);

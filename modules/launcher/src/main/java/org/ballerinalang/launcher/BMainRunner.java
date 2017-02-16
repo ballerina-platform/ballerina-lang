@@ -17,6 +17,7 @@
 */
 package org.ballerinalang.launcher;
 
+import org.wso2.ballerina.core.debugger.DebugManager;
 import org.wso2.ballerina.core.interpreter.BLangExecutor;
 import org.wso2.ballerina.core.interpreter.CallableUnitInfo;
 import org.wso2.ballerina.core.interpreter.Context;
@@ -25,6 +26,7 @@ import org.wso2.ballerina.core.interpreter.StackFrame;
 import org.wso2.ballerina.core.interpreter.StackVarLocation;
 import org.wso2.ballerina.core.interpreter.nonblocking.BLangNonBlockingExecutor;
 import org.wso2.ballerina.core.interpreter.nonblocking.ModeResolver;
+import org.wso2.ballerina.core.interpreter.nonblocking.debugger.BLangExecutionDebugger;
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.BallerinaFunction;
 import org.wso2.ballerina.core.model.NodeLocation;
@@ -114,7 +116,18 @@ class BMainRunner {
             bContext.getControlStack().pushFrame(currentStackFrame);
 
             RuntimeEnvironment runtimeEnv = RuntimeEnvironment.get(balFile);
-            if (ModeResolver.getInstance().isNonblockingEnabled()) {
+            // we need to use nonblocking for debug anyway
+            if (ModeResolver.getInstance().isDebugEnabled()) {
+                DebugManager debugManager = DebugManager.getInstance();
+                // This will start the websocket server.
+                debugManager.init();
+                debugManager.waitTillClientConnect();
+                BLangExecutionDebugger debugger = new BLangExecutionDebugger(runtimeEnv, bContext);
+                debugManager.setDebugger(debugger);
+                bContext.setExecutor(debugger);
+                debugger.execute(funcIExpr);
+                debugManager.holdON();
+            } else if (ModeResolver.getInstance().isNonblockingEnabled()) {
                 BLangNonBlockingExecutor executor = new BLangNonBlockingExecutor(runtimeEnv, bContext);
                 bContext.setExecutor(executor);
                 executor.execute(funcIExpr);
