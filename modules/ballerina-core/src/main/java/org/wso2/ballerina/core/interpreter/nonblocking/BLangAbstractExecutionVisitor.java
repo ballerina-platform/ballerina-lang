@@ -1407,11 +1407,20 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
     }
 
     private String evaluteBacktickString(BacktickExpr backtickExpr) {
-        String varString = "";
+        StringBuilder builder = new StringBuilder();
+        boolean isJson = backtickExpr.getType() == BTypes.typeJSON;
+        String strVal;
+        BValue bVal;
         for (Expression expression : backtickExpr.getArgExprs()) {
-            varString = varString + getTempValue(expression).stringValue();
+            bVal = getTempValue(expression);
+            strVal = bVal.stringValue();
+            if (isJson && bVal instanceof BString && expression instanceof ReferenceExpr) {
+                builder.append("\"" + strVal + "\"");
+            } else {
+                builder.append(strVal);
+            }
         }
-        return varString;
+        return builder.toString();
     }
 
     private void assignValue(BValue rValue, Expression lExpr) {

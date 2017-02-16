@@ -19,7 +19,7 @@ package org.wso2.ballerina.lang.statements;
 
 import org.testng.annotations.Test;
 import org.wso2.ballerina.core.exception.SemanticException;
-import org.wso2.ballerina.core.utils.ParserUtils;
+import org.wso2.ballerina.core.utils.BTestUtils;
 
 /**
  * Test class for block statements.
@@ -28,34 +28,34 @@ public class BlockStmtTest {
 
     @Test(description = "Testing the valid block with return statement")
     public void testReturnStmtLocationValidity() {
-        ParserUtils.parseBalFile("lang/statements/block/valid-block-with-return.bal");
+        BTestUtils.parseBalFile("lang/statements/block/valid-block-with-return.bal");
     }
 
     @Test(description = "Testing the unreachable statement in function block",
           expectedExceptions = SemanticException.class,
           expectedExceptionsMessageRegExp = "function-unreachable-stmt1.bal:9: unreachable statement")
     public void testUnreachableStmtInFunction1() {
-        ParserUtils.parseBalFile("lang/statements/block/function-unreachable-stmt1.bal");
+        BTestUtils.parseBalFile("lang/statements/block/function-unreachable-stmt1.bal");
     }
 
     @Test(description = "Testing the unreachable statement in function block",
           expectedExceptions = SemanticException.class,
           expectedExceptionsMessageRegExp = "function-unreachable-stmt2.bal:11: unreachable statement")
     public void testUnreachableStmtInFunction2() {
-        ParserUtils.parseBalFile("lang/statements/block/function-unreachable-stmt2.bal");
+        BTestUtils.parseBalFile("lang/statements/block/function-unreachable-stmt2.bal");
     }
 
     @Test(description = "Testing the unreachable statement in if block",
           expectedExceptions = SemanticException.class,
           expectedExceptionsMessageRegExp = "ifblock-unreachable-stmt.bal:6: unreachable statement")
     public void testUnreachableStmtInIfBlock() {
-        ParserUtils.parseBalFile("lang/statements/block/ifblock-unreachable-stmt.bal");
+        BTestUtils.parseBalFile("lang/statements/block/ifblock-unreachable-stmt.bal");
     }
 
     @Test(description = "Testing the unreachable statement in while block",
           expectedExceptions = SemanticException.class,
           expectedExceptionsMessageRegExp = "whileblock-unreachable-stmt.bal:7: unreachable statement")
     public void testUnreachableStmtInWhileBlock() {
-        ParserUtils.parseBalFile("lang/statements/block/whileblock-unreachable-stmt.bal");
+        BTestUtils.parseBalFile("lang/statements/block/whileblock-unreachable-stmt.bal");
     }
 }

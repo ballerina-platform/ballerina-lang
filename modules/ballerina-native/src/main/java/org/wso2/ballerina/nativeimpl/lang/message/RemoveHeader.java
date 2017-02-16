@@ -35,7 +35,7 @@ import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
 @BallerinaFunction(
         packageName = "ballerina.lang.message",
         functionName = "removeHeader",
-        args = {@Argument(name = "message", type = TypeEnum.MESSAGE),
+        args = {@Argument(name = "m", type = TypeEnum.MESSAGE),
                 @Argument(name = "key", type = TypeEnum.STRING)},
         isPublic = true
 )

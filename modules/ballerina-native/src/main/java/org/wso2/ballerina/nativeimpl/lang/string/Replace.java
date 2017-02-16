@@ -35,7 +35,7 @@ import org.wso2.ballerina.core.nativeimpl.annotations.ReturnType;
 @BallerinaFunction(
         packageName = "ballerina.lang.string",
         functionName = "replace",
-        args = {@Argument(name = "string", type = TypeEnum.STRING),
+        args = {@Argument(name = "mainString", type = TypeEnum.STRING),
                 @Argument(name = "replacePattern", type = TypeEnum.STRING),
                 @Argument(name = "replaceWith", type = TypeEnum.STRING)},
         returnType = {@ReturnType(type = TypeEnum.STRING)},

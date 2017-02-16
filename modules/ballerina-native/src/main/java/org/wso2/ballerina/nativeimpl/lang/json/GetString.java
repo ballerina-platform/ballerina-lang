@@ -18,8 +18,7 @@
 
 package org.wso2.ballerina.nativeimpl.lang.json;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonPrimitive;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.jayway.jsonpath.InvalidPathException;
 import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.JsonPathException;
@@ -42,7 +41,7 @@ import org.wso2.ballerina.nativeimpl.lang.utils.ErrorHandler;
 @BallerinaFunction(
         packageName = "ballerina.lang.json",
             functionName = "getString",
-        args = {@Argument(name = "json", type = TypeEnum.JSON),
+        args = {@Argument(name = "j", type = TypeEnum.JSON),
                 @Argument(name = "jsonPath", type = TypeEnum.STRING)},
         returnType = {@ReturnType(type = TypeEnum.STRING)},
         isPublic = true
@@ -62,14 +61,13 @@ public class GetString extends AbstractJSONFunction {
 
             // Getting the value from JSON
             ReadContext jsonCtx = JsonPath.parse(json.value());
-            JsonElement element = jsonCtx.read(jsonPath);
+            JsonNode element = jsonCtx.read(jsonPath);
             if (element == null) {
                 throw new BallerinaException("No matching element found for jsonpath: " + jsonPath);
-            } else if (element.isJsonPrimitive()) {
+            } else if (element.isValueNode()) {
                 // if the resulting value is a primitive, return the respective primitive value object
-                JsonPrimitive value = element.getAsJsonPrimitive();
-                if (value.isString()) {
-                    result = new BString(value.getAsString());
+                if (element.isTextual()) {
+                    result = new BString(element.asText());
                 } else {
                     throw new BallerinaException("The element matching path: " + jsonPath + " is not a String.");
                 }

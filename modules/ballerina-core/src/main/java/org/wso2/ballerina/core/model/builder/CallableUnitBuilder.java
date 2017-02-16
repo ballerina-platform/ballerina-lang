@@ -48,6 +48,7 @@ public class CallableUnitBuilder {
     protected String pkgPath;
     protected boolean isPublic;
     protected SymbolName symbolName;
+    protected boolean isNative;
 
     protected List<Annotation> annotationList = new ArrayList<>();
     protected List<ParameterDef> parameterDefList = new ArrayList<>();
@@ -117,5 +118,9 @@ public class CallableUnitBuilder {
 
     public Worker buildWorker() {
         return null;
+    }
+    
+    public void setNative(boolean isNative) {
+        this.isNative = isNative;
     }
 }

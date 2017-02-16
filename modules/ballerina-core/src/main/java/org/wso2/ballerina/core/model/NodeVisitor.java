@@ -78,6 +78,10 @@ import org.wso2.ballerina.core.model.statements.WorkerReplyStmt;
  */
 public interface NodeVisitor {
 
+    void visit(BLangProgram bLangProgram);
+
+    void visit(BLangPackage bLangPackage);
+
     void visit(BallerinaFile bFile);
 
     void visit(ImportPackage importPkg);
@@ -102,10 +106,8 @@ public interface NodeVisitor {
 
     void visit(ParameterDef parameterDef);
 
-    void visit(ConnectorDcl connectorDcl);
-
     void visit(VariableDef variableDef);
-    
+
     void visit(StructDef structDef);
 
 
@@ -212,11 +214,11 @@ public interface NodeVisitor {
 
     void visit(ConstantLocation constantLocation);
 
+    void visit(StructVarLocation structVarLocation);
+
     void visit(ResourceInvocationExpr resourceIExpr);
 
     void visit(MainInvoker mainInvoker);
-
-    void visit(StructVarLocation structVarLocation);
 
     void visit(WorkerVarLocation workerVarLocation);
 }

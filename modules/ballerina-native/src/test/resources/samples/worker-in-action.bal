@@ -1,5 +1,3 @@
-package samples.connectors.test;
-
 import ballerina.lang.message;
 import ballerina.lang.system;
 

@@ -18,8 +18,6 @@
 
 package org.wso2.ballerina.nativeimpl.lang.message;
 
-import com.google.gson.JsonParseException;
-import com.google.gson.JsonSyntaxException;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.types.TypeEnum;
 import org.wso2.ballerina.core.model.values.BJSON;
@@ -38,7 +36,7 @@ import org.wso2.carbon.messaging.MessageDataSource;
 @BallerinaFunction(
         packageName = "ballerina.lang.message",
         functionName = "getJsonPayload",
-        args = {@Argument(name = "message", type = TypeEnum.MESSAGE)},
+        args = {@Argument(name = "m", type = TypeEnum.MESSAGE)},
         returnType = {@ReturnType(type = TypeEnum.JSON)},
         isPublic = true
 )
@@ -66,10 +64,6 @@ public class GetJsonPayload extends AbstractNativeFunction {
                 msg.setMessageDataSource(result);
                 msg.setAlreadyRead(true);
             }
-        } catch (JsonSyntaxException e) {
-            ErrorHandler.handleMalformedJson(OPERATION, e);
-        } catch (JsonParseException e) {
-            ErrorHandler.handleJsonException(OPERATION, e);
         } catch (Throwable e) {
             ErrorHandler.handleJsonException(OPERATION, e);
         }
