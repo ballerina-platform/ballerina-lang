@@ -15,14 +15,25 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', './statement'], function (_, log, Statement) {
+define(['lodash', 'log', './statement', './try-statement', './catch-statement'],
+       function (_, log, Statement, TryStatement, CatchStatement) {
 
     /**
      * Class for try-catch statement in ballerina.
      * @constructor
      */
-    var TryCatchStatement = function () {
+    var TryCatchStatement = function (args) {
         Statement.call(this);
+
+        var tryStatement = new TryStatement(args);
+        this.addChild(tryStatement);
+        this._tryStatement = tryStatement;
+
+        var catchStatement = new CatchStatement(args);
+        this._catchStatement = catchStatement;
+        this.addChild(catchStatement);
+
+
         this.type = "TryCatchStatement";
     };
 

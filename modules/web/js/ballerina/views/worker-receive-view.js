@@ -81,7 +81,7 @@ define(['lodash', 'd3','log', './simple-statement-view', './../ast/action-invoca
             // Calling super class's render function.
             (this.__proto__.__proto__).render.call(this, renderingContext);
             // Setting display text.
-            this.renderDisplayText(model.getMessage());
+            this.renderDisplayText(model.getReceiveStatement());
 
             this.renderProcessorConnectPoint(renderingContext);
             this.renderArrows(renderingContext);
@@ -128,6 +128,8 @@ define(['lodash', 'd3','log', './simple-statement-view', './../ast/action-invoca
             this.getBoundingBox().on('top-edge-moved', function(dy){
                 self.processorConnectPoint.attr('cy',  parseFloat(self.processorConnectPoint.attr('cy')) + dy);
             });
+
+            this.listenTo(model, 'update-property-text', this.updateStatementText);
         };
 
         WorkerReceive.prototype.renderArrows = function (context) {
@@ -377,6 +379,12 @@ define(['lodash', 'd3','log', './simple-statement-view', './../ast/action-invoca
                     this.onTopEdgeMovedTrigger(dy);
                 });
             };
+        };
+
+        WorkerReceive.prototype.updateStatementText = function (newStatementText, propertyKey) {
+            this._model.setReceiveStatement(newStatementText);
+            var displayText = this._model.getReceiveStatement();
+            this.renderDisplayText(displayText);
         };
 
         return WorkerReceive;
