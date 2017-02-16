@@ -22,7 +22,7 @@ function init(TwitterConnector t) throws exception {
 connector Twitter(string username, string password,
                 string clientKey, string clientSecret, string oAuthToken, map options) {
 
-    http:HttpConnector h = new http:HttpConnector("https://api.twitter.com", {"timeOut" : 300});
+    http:ClientConnector h = new http:ClientConnector("https://api.twitter.com", {"timeOut" : 300});
 
     boolean loggedIn; // default value get assigned
     action tweet(Twitter t, string tweet) throws exception {
@@ -37,7 +37,7 @@ connector Twitter(string username, string password,
         tweetMsg = new message;
         message:setPayload(tweetMsg, tweetJson);
         message:setHeader(tweetMsg, "Authorization", "Bearer " + t.oAuthToken);
-        http:HttpConnector.post(h, "/tweet", tweetMsg);
+        http:ClientConnector.post(h, "/tweet", tweetMsg);
     }
 
 }

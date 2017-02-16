@@ -79,4 +79,10 @@ public class StringDataSource extends BallerinaMessageDataSource {
     public String getMessageAsString() {
         return this.value;
     }
+
+    @Override
+    public BallerinaMessageDataSource clone() {
+        String clonedContent = this.getMessageAsString();
+        return new StringDataSource(clonedContent);
+    }
 }

@@ -98,8 +98,8 @@ public class WhileStmtTest {
 
     @Test(description = "Test while statement with incompatible types",
             expectedExceptions = {SemanticException.class},
-            expectedExceptionsMessageRegExp = "while-stmnt-with-incompatible-types.bal:2: incompatible type: " +
-                    "'boolean' expected, found 'string'", dependsOnMethods = {"testWhileStmtConditionFalse",
+            expectedExceptionsMessageRegExp = "while-stmnt-with-incompatible-types.bal:2: incompatible types: " +
+                    "expected 'boolean', found 'string'", dependsOnMethods = {"testWhileStmtConditionFalse",
             "testWhileStmtConditionTrue"})
     public void testMapAccessWithIndex() {
         ParserUtils.parseBalFile("lang/statements/while-stmnt-with-incompatible-types.bal");
