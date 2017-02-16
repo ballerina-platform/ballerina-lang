@@ -21,10 +21,11 @@ define(
     function (require, _, log, BallerinaStatementView, D3Utils, d3, BallerinaASTFactory) {
 
         /**
-         * Compound statement.
+         * Block statement i.e. while, if, else.
          * @param args {*} arguments for the creating view
          * @class BlockStatementView
          * @constructor
+         * @extends BallerinaStatementView
          */
         var BlockStatementView = function (args) {
             BallerinaStatementView.call(this, args);
@@ -170,7 +171,7 @@ define(
 
         BlockStatementView.prototype.setModel = function (model) {
             if (_.isNil(model)) {
-                var message = "Model of a compound statement cannot be null.";
+                var message = "Model of a block statement cannot be null.";
                 log.error(message);
                 throw new Error(message);
             } else {
@@ -184,7 +185,7 @@ define(
 
         BlockStatementView.prototype.setContainer = function (container) {
             if (_.isNil(container)) {
-                var message = "Container of a compound statement cannot be null.";
+                var message = "Container of a block statement cannot be null.";
                 log.error(message);
                 throw new Error(message);
             } else {

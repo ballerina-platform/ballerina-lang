@@ -166,7 +166,7 @@ public class WorkspaceService {
 		try {
 			String location = "";
 			String configName = "";
-			String config;
+			String config = "";
 			Matcher locationMatcher = Pattern.compile("location=(.*?)&configName").matcher(payload);
 			while (locationMatcher.find()) {
 				location = locationMatcher.group(1);
@@ -175,7 +175,10 @@ public class WorkspaceService {
 			while (configNameMatcher.find()) {
 				configName = configNameMatcher.group(1);
 			}
-			config = payload.split("config=")[1];
+			String[] splitConfigContent = payload.split("config=");
+            if (splitConfigContent.length > 1){
+                config = splitConfigContent[1];
+            }
 			byte[] base64Config = Base64.getDecoder().decode(config);
 			byte[] base64ConfigName = Base64.getDecoder().decode(configName);
 			byte[] base64Location = Base64.getDecoder().decode(location);

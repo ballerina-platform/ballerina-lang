@@ -551,10 +551,29 @@
 .type-drop-wrapper{
     float: left;
     margin: 0 5px 0 0;
+    position: relative;
 }
 
 .type-drop-wrapper.struct-view{
     margin: 11px 5px 0 5px;
+}
+
+.type-drop-wrapper.struct-view .select2.select2-container {
+    min-width: 160px;
+}
+
+.type-drop-wrapper.struct-view .select2.select2-container .select2-selection--single {
+    min-width: 160px;
+}
+
+.type-drop-wrapper.struct-edit .select2.select2-container {
+    min-width: 100px;
+    margin:0;
+}
+
+.type-drop-wrapper.struct-edit .select2.select2-container .select2-selection--single {
+    min-width: 100px;
+    margin: 0;
 }
 
 .type-drop-wrapper .select2.select2-container {

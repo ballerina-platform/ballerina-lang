@@ -355,10 +355,9 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
             var parentSVG = propertyButtonPaneGroup.node().ownerSVGElement;
 
             event.stopPropagation();
-
+            
             // Hiding property button pane.
             $(propertyButtonPaneGroup.node()).remove();
-
             var propertyPaneWrapper = $("<div/>", {
                 class: viewOptions.propertyForm.wrapper.class,
                 css: {
@@ -368,9 +367,6 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
                 click: function (event) {
                     event.stopPropagation();
                 }
-            }).offset({
-                top: self._topCenter.y() - (_.get(self._viewOptions, 'rect.height') / 2) - 1, // Get the pane to match connector's y.
-                left: self._topCenter.x() - (_.get(self._viewOptions, 'rect.width') / 2) - 1 // Get the pane to match connector's x
             }).appendTo(parentSVG.parentElement);
 
             // When the outside of the propertyPaneWrapper is clicked.
@@ -388,6 +384,25 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
             expressionEditor.createEditor(propertyPaneBody,
                 viewOptions.propertyForm.body.property.wrapper, self._editableProperties, closeAllPopUps);
 
+            //Calculating the position of the text box
+            var windowWidth = $('.svg-container').width();
+            var textBoxWidth = $('input', propertyPaneWrapper).width();
+            var textBoxHeight = $('input', propertyPaneWrapper).height();
+            var textBoxX = self._topCenter.x() - textBoxWidth/2;
+
+            //Check if the text box going outside of the window and set it's position correctly
+            if(windowWidth < self._topCenter.x() + textBoxWidth/2){
+                textBoxX = self._topCenter.x() - textBoxWidth + self._boundingBox._w/2 ;
+            }
+
+            //Set the position of the text box wrapper
+            propertyPaneWrapper.css({
+                top: self._topCenter.y() - (textBoxHeight / 2) - 1 + "px", // Get the pane to match connector's y.
+                left: textBoxX + "px" // Get the pane to match connector's x
+            });
+
+            //$('#edit-overlay').show();
+
             // Close the popups of property pane body.
             function closeAllPopUps() {
                 $(propertyPaneWrapper).remove();
@@ -395,6 +410,7 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
 
                 // Remove the small arrow.
                 $(smallArrow.node()).remove();
+                //$('#edit-overlay').hide();
 
                 $(this).unbind('click');
             }

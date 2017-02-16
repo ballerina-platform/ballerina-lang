@@ -324,6 +324,11 @@ define(['lodash', 'log', 'event_channel',  'alerts', './svg-canvas', './../ast/f
 
             this._totalHeight = this.getHorizontalMargin().getPosition() + 85;
             this.setSVGHeight(this._totalHeight);
+
+            this.listenTo(this.getHorizontalMargin(), 'moved', function (dy) {
+                self._totalHeight = self.getHorizontalMargin().getPosition() + 85;
+                self.setSVGHeight(self._totalHeight);
+            });
             this.renderStatementContainer();
 
             // TODO: Refactor after Worker is enabled
