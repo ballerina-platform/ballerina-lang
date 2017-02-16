@@ -5,7 +5,8 @@ import ballerina.net.file;
 @Source (
 protocol = "file",
 fileURI = "file:///home/user/orders",
-pollingInterval = "1000")
+pollingInterval = "1000"
+)
 service orderProcessService {
 
     resource processOrder(message m) {

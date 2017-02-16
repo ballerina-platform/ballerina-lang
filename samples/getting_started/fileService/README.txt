@@ -1,6 +1,9 @@
 Description
 ===========
-This sample will start a service called 'OrderProcessService'
+This sample demonstrates file processing capability of Ballerina.
+
+The sample will start a service called 'OrderProcessService' which will keep processing orders
+where each order is an actual file, placed in a specific folder.
 
 Scenario is as follows:
 - Assume that there exists a folder in the local file system called "orders"
