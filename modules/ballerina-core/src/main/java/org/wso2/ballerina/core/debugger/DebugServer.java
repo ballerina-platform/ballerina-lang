@@ -19,7 +19,6 @@
 package org.wso2.ballerina.core.debugger;
 
 
-import com.google.gson.Gson;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelInitializer;
@@ -30,7 +29,6 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpServerCodec;
-import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import org.wso2.ballerina.core.debugger.dto.MessageDTO;
 
 import java.io.PrintStream;
@@ -108,10 +106,10 @@ public class DebugServer {
      * @param status      
      */
     public void pushMessageToClient(DebugSession debugSession, MessageDTO status) {
-        Gson gson = new Gson();
-        String json = gson.toJson(status);
-        debugSession.getChannel().write(new TextWebSocketFrame(json));
-        debugSession.getChannel().flush();
+//        Gson gson = new Gson();
+//        String json = gson.toJson(status);
+//        debugSession.getChannel().write(new TextWebSocketFrame(json));
+//        debugSession.getChannel().flush();
     }
 
     private int getDebugPort() {

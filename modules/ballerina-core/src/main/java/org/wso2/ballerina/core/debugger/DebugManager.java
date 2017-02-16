@@ -18,18 +18,11 @@
 
 package org.wso2.ballerina.core.debugger;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import io.netty.channel.Channel;
-import org.wso2.ballerina.core.debugger.dto.CommandDTO;
 import org.wso2.ballerina.core.debugger.dto.MessageDTO;
 import org.wso2.ballerina.core.interpreter.nonblocking.debugger.BLangExecutionDebugger;
 import org.wso2.ballerina.core.interpreter.nonblocking.debugger.BreakPointInfo;
 import org.wso2.ballerina.core.model.NodeLocation;
-
 
 import java.util.ArrayList;
 import java.util.concurrent.Semaphore;
@@ -110,46 +103,47 @@ public class DebugManager {
      * @param json the json
      */
     public void processDebugCommand(String json) {
-        BLangExecutionDebugger debugger = debugSession.getDebugger();
-        Gson gson = new Gson();
-        CommandDTO command = gson.fromJson(json, CommandDTO.class);
-        switch (command.getCommand()) {
-            case DebugConstants.CMD_RESUME:
-                debugger.resume();
-                break;
-            case DebugConstants.CMD_STEP_OVER:
-                debugger.stepOver();
-                break;
-            case DebugConstants.CMD_STEP_IN:
-                debugger.stepIn();
-                break;
-            case DebugConstants.CMD_STEP_OUT:
-                debugger.stepOut();
-                break;
-            case DebugConstants.CMD_STOP:
-                debugger.clearDebugPoints();
-                debugger.resume();
-                break;
-            case DebugConstants.CMD_SET_POINTS:
-                // we expect { "command": "SET_POINTS", points: [{ "fileName": "sample.bal", "line" : 5 },{...},{...}]}
-                debugSession.setBreakPoints(getPoints(json));
-                sendAcknowledge(this.debugSession, "Debug points updated");
-                break;
-            case DebugConstants.CMD_START:
-                // Client needs to explicitly start the execution once connected.
-                // This will allow client to set the breakpoints before starting the execution.
-                if (this.waitingForClient) {
-                    executionSem.release();
-                    this.waitingForClient = false;
-                    sendAcknowledge(this.debugSession, "Debug started.");
-                }
-                break;
-            default:
-                MessageDTO message = new MessageDTO();
-                message.setCode(DebugConstants.CODE_INVALID);
-                message.setMessage(DebugConstants.MSG_INVALID);
-                debugServer.pushMessageToClient(debugSession, message);
-        }
+//        BLangExecutionDebugger debugger = debugSession.getDebugger();
+//        Gson gson = new Gson();
+//        CommandDTO command = gson.fromJson(json, CommandDTO.class);
+//        switch (command.getCommand()) {
+//            case DebugConstants.CMD_RESUME:
+//                debugger.resume();
+//                break;
+//            case DebugConstants.CMD_STEP_OVER:
+//                debugger.stepOver();
+//                break;
+//            case DebugConstants.CMD_STEP_IN:
+//                debugger.stepIn();
+//                break;
+//            case DebugConstants.CMD_STEP_OUT:
+//                debugger.stepOut();
+//                break;
+//            case DebugConstants.CMD_STOP:
+//                debugger.clearDebugPoints();
+//                debugger.resume();
+//                break;
+//            case DebugConstants.CMD_SET_POINTS:
+//                // we expect { "command": "SET_POINTS", points: [{ "fileName": "sample.bal", "line" : 5 },{...},
+// {...}]}
+//                debugSession.setBreakPoints(getPoints(json));
+//                sendAcknowledge(this.debugSession, "Debug points updated");
+//                break;
+//            case DebugConstants.CMD_START:
+//                // Client needs to explicitly start the execution once connected.
+//                // This will allow client to set the breakpoints before starting the execution.
+//                if (this.waitingForClient) {
+//                    executionSem.release();
+//                    this.waitingForClient = false;
+//                    sendAcknowledge(this.debugSession, "Debug started.");
+//                }
+//                break;
+//            default:
+//                MessageDTO message = new MessageDTO();
+//                message.setCode(DebugConstants.CODE_INVALID);
+//                message.setMessage(DebugConstants.MSG_INVALID);
+//                debugServer.pushMessageToClient(debugSession, message);
+//        }
     }
 
     /**
@@ -171,17 +165,18 @@ public class DebugManager {
      * @return ArrayList<NodeLocation>
      */
     private ArrayList<NodeLocation> getPoints(String json) {
-        ArrayList<NodeLocation> list = new ArrayList<NodeLocation>();
-        JsonParser parser = new JsonParser();
-        JsonElement jsonTree = parser.parse(json);
-        JsonObject command2 = jsonTree.getAsJsonObject();
-
-        JsonArray points = command2.get("points").getAsJsonArray();
-        for (int i = 0; i < points.size(); i++) {
-            JsonObject tmp = points.get(i).getAsJsonObject();
-            list.add(new NodeLocation(tmp.get("fileName").getAsString(), tmp.get("line").getAsInt()));
-        }
-        return list;
+//        ArrayList<NodeLocation> list = new ArrayList<NodeLocation>();
+//        JsonParser parser = new JsonParser();
+//        JsonElement jsonTree = parser.parse(json);
+//        JsonObject command2 = jsonTree.getAsJsonObject();
+//
+//        JsonArray points = command2.get("points").getAsJsonArray();
+//        for (int i = 0; i < points.size(); i++) {
+//            JsonObject tmp = points.get(i).getAsJsonObject();
+//            list.add(new NodeLocation(tmp.get("fileName").getAsString(), tmp.get("line").getAsInt()));
+//        }
+//        return list;
+        return null;
     }
 
     /**
