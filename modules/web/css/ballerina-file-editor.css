@@ -659,7 +659,7 @@ div.type-drop-wrapper.resource .select2.select2-container .select2-selection--si
 .struct-variable-definition-type {
     width: 200px;
     border-right: 1px solid #CCC;
-    padding: 10px 13px;
+    padding: 6px 13px;
 }
 
 .struct-variable-definition-identifier {
