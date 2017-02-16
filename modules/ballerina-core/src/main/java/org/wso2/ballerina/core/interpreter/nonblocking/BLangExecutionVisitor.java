@@ -86,6 +86,8 @@ public abstract class BLangExecutionVisitor implements LinkedNodeVisitor {
 
     public abstract void continueExecution(LinkedNode linkedNode);
 
+    public abstract void continueExecution();
+
     public void visit(BallerinaFile bFile) {
     }
 

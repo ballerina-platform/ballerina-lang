@@ -22,6 +22,8 @@ import org.wso2.ballerina.core.model.nodes.fragments.expressions.InvokeNativeAct
 import org.wso2.ballerina.core.model.values.BMessage;
 import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.runtime.DefaultBalCallback;
+import org.wso2.ballerina.core.runtime.threadpool.ResponseWorkerThread;
+import org.wso2.ballerina.core.runtime.threadpool.ThreadPoolFactory;
 import org.wso2.carbon.messaging.CarbonMessage;
 
 /**
@@ -64,7 +66,8 @@ public class BalConnectorCallback extends DefaultBalCallback {
         context.getControlStack().setReturnValue(0, valueRef);
         responseArrived = true;
         if (isNonBlockingExecutor()) {
-            actionNode.getCallableUnit().validate(this);
+            // spawn a new thread to continue execution.
+            ThreadPoolFactory.getInstance().getExecutor().execute(new ResponseWorkerThread(carbonMessage, this));
         } else {
             // Release Thread.
             synchronized (context) {
@@ -84,5 +87,9 @@ public class BalConnectorCallback extends DefaultBalCallback {
     public boolean isNonBlockingExecutor() {
         // If actionNode is not null, then this is non-blocking execution.
         return actionNode != null;
+    }
+
+    public InvokeNativeActionNode getActionNode() {
+        return actionNode;
     }
 }
