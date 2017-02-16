@@ -88,13 +88,13 @@ public class MapAccessExprTest {
           expectedExceptions = {BallerinaException.class },
           expectedExceptionsMessageRegExp = "map-access-expr.bal:25: variable 'testMap' is null")
     public void testAccessElementInNullMap() {
-        Functions.invoke(bFile, "nullMapElementAccessTest");
+        BLangFunctions.invoke(bLangProgram, "nullMapElementAccessTest");
     }
 
     @Test(description = "Test setting  element in null initialised map element",
           expectedExceptions = {BallerinaException.class },
           expectedExceptionsMessageRegExp = "map-access-expr.bal:31: variable 'testMap' is null")
     public void testSetElementInNullMap() {
-        Functions.invoke(bFile, "nullMapElementSetTest");
+        BLangFunctions.invoke(bLangProgram, "nullMapElementSetTest");
     }
 }
