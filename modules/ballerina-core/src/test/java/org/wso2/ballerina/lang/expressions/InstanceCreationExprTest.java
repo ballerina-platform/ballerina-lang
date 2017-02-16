@@ -17,7 +17,7 @@
  */
 package org.wso2.ballerina.lang.expressions;
 
-import org.wso2.ballerina.core.model.BallerinaFile;
+import org.wso2.ballerina.core.model.BLangProgram;
 
 /**
  * Instance creation expression test.
@@ -26,18 +26,18 @@ import org.wso2.ballerina.core.model.BallerinaFile;
  */
 public class InstanceCreationExprTest {
 
-    private BallerinaFile bFile;
+    private BLangProgram bLangProgram;
 
  /*   @BeforeClass
     public void setup() {
         SymScope symScope = new SymScope(null);
-        bFile = ParserUtils.parseBalFile("lang/expressions/instance-creation-expr.bal", symScope);
+        bLangProgram = ParserUtils.parseBalFile("lang/expressions/instance-creation-expr.bal", symScope);
     }
 
     @Test(description = "Test instance creation expression")
     public void testArrayAccessExpr() {
         BValue[] args = { new BString("Test Payload") };
-        BValue[] returns = Functions.invoke(bFile, "testMessagePayload", args);
+        BValue[] returns = Functions.invoke(bLangProgram, "testMessagePayload", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BMessage.class);

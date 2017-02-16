@@ -35,7 +35,7 @@ import static org.wso2.ballerina.nativeimpl.connectors.http.Constants.HTTP_METHO
 @BallerinaFunction(
         packageName = "ballerina.net.http",
         functionName = "getMethod",
-        args = {@Argument(name = "message", type = TypeEnum.MESSAGE)},
+        args = {@Argument(name = "m", type = TypeEnum.MESSAGE)},
         returnType = {@ReturnType(type = TypeEnum.STRING)},
         isPublic = true
 )

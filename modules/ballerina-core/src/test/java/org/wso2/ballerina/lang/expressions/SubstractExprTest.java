@@ -20,7 +20,7 @@ package org.wso2.ballerina.lang.expressions;
 
 import org.testng.annotations.Test;
 import org.wso2.ballerina.core.exception.SemanticException;
-import org.wso2.ballerina.core.utils.ParserUtils;
+import org.wso2.ballerina.core.utils.BTestUtils;
 
 /**
  * Primitive add expression test.
@@ -36,7 +36,7 @@ public class SubstractExprTest {
             expectedExceptionsMessageRegExp = "substract-incompatible-types.bal:5: invalid operation: " +
                     "incompatible types 'int' and 'string'")
     public void testAddIncompatibleTypes() {
-        ParserUtils.parseBalFile("lang/expressions/substract-incompatible-types.bal");
+        BTestUtils.parseBalFile("lang/expressions/substract-incompatible-types.bal");
     }
     
     @Test(description = "Test substracting values of unsupported types (json)",
@@ -44,6 +44,6 @@ public class SubstractExprTest {
             expectedExceptionsMessageRegExp = "substract-unsupported-types.bal:10: invalid operation: " +
                     "operator - not defined on 'json'")
     public void testSubtractUnsupportedTypes() {
-        ParserUtils.parseBalFile("lang/expressions/substract-unsupported-types.bal");
+        BTestUtils.parseBalFile("lang/expressions/substract-unsupported-types.bal");
     }
 }

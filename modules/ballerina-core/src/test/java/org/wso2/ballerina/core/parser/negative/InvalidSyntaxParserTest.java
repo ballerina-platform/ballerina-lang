@@ -18,13 +18,9 @@
 
 package org.wso2.ballerina.core.parser.negative;
 
-import org.antlr.v4.runtime.misc.ParseCancellationException;
 import org.testng.annotations.Test;
-import org.wso2.ballerina.core.model.builder.BLangModelBuilder;
-import org.wso2.ballerina.core.parser.BallerinaParser;
-import org.wso2.ballerina.core.parser.BallerinaParserErrorStrategy;
-import org.wso2.ballerina.core.parser.antlr4.BLangAntlr4Listener;
-import org.wso2.ballerina.core.utils.ParserUtils;
+import org.wso2.ballerina.core.exception.BallerinaException;
+import org.wso2.ballerina.core.utils.BTestUtils;
 
 /**
  * Syntax Errors test class for ballerina filers.
@@ -36,16 +32,16 @@ public class InvalidSyntaxParserTest {
      * Test missing expected syntax.
      */
 
-    @Test(expectedExceptions = {ParseCancellationException.class},
+    @Test(expectedExceptions = {BallerinaException.class},
             expectedExceptionsMessageRegExp = "SemicolonMissingService.bal:13:6: missing ';' before 'reply'")
     public void testParseSemicolonMissingSerivce() {
-        getParserForFile("samples/parser/invalidSyntax/SemicolonMissingService.bal").compilationUnit();
+        BTestUtils.parseBalFile("samples/parser/invalidSyntax/SemicolonMissingService.bal");
     }
 
-    @Test(expectedExceptions = {ParseCancellationException.class},
+    @Test(expectedExceptions = {BallerinaException.class},
             expectedExceptionsMessageRegExp = "SemicolonMissingMainFunc.bal:7:1: missing ';' before 'reply'")
     public void testParseSemicolonMissingMainFunc() {
-        getParserForFile("samples/parser/invalidSyntax/SemicolonMissingMainFunc.bal").compilationUnit();
+        BTestUtils.parseBalFile("samples/parser/invalidSyntax/SemicolonMissingMainFunc.bal");
     }
 
 
@@ -53,22 +49,22 @@ public class InvalidSyntaxParserTest {
      * Test invalid identifier. i.e: {@link org.antlr.v4.runtime.NoViableAltException}
      */
 
-    @Test(expectedExceptions = {ParseCancellationException.class},
+    @Test(expectedExceptions = {BallerinaException.class},
             expectedExceptionsMessageRegExp = "IdentifierMissingService.bal:12:6: invalid identifier 'int'")
     public void testParseIdentifierMissingSerivce() {
-        getParserForFile("samples/parser/invalidSyntax/IdentifierMissingService.bal").compilationUnit();
+         BTestUtils.parseBalFile("samples/parser/invalidSyntax/IdentifierMissingService.bal");
     }
 
-    @Test(expectedExceptions = {ParseCancellationException.class},
+    @Test(expectedExceptions = {BallerinaException.class},
             expectedExceptionsMessageRegExp = "IdentifierMissingMainFunc.bal:5:1: invalid identifier 'b'")
     public void testParseIdentifierMissingMainFunc() {
-        getParserForFile("samples/parser/invalidSyntax/IdentifierMissingMainFunc.bal").compilationUnit();
+         BTestUtils.parseBalFile("samples/parser/invalidSyntax/IdentifierMissingMainFunc.bal");
     }
 
-    @Test(expectedExceptions = {ParseCancellationException.class},
+    @Test(expectedExceptions = {BallerinaException.class},
             expectedExceptionsMessageRegExp = "ReservedWordVariable.bal:5:1: invalid identifier 'string'")
     public void testReservedWordVariable() {
-        getParserForFile("samples/parser/invalidSyntax/ReservedWordVariable.bal").compilationUnit();
+        BTestUtils.parseBalFile("samples/parser/invalidSyntax/ReservedWordVariable.bal");
     }
 
 
@@ -76,16 +72,16 @@ public class InvalidSyntaxParserTest {
      * Test unwanted token.
      */
 
-    @Test(expectedExceptions = {ParseCancellationException.class},
+    @Test(expectedExceptions = {BallerinaException.class},
             expectedExceptionsMessageRegExp = "ServiceWithoutResourceName.bal:6:11: unwanted token '\\{'")
     public void testServiceWithoutResourceName() {
-        getParserForFile("samples/parser/invalidSyntax/ServiceWithoutResourceName.bal").compilationUnit();
+        BTestUtils.parseBalFile("samples/parser/invalidSyntax/ServiceWithoutResourceName.bal");
     }
 
-    @Test(expectedExceptions = {ParseCancellationException.class},
+    @Test(expectedExceptions = {BallerinaException.class},
             expectedExceptionsMessageRegExp = "MainFuncWithoutName.bal:3:9: unwanted token '\\{'")
     public void testParseMainFuncWithoutName() {
-        getParserForFile("samples/parser/invalidSyntax/MainFuncWithoutName.bal").compilationUnit();
+        BTestUtils.parseBalFile("samples/parser/invalidSyntax/MainFuncWithoutName.bal");
     }
 
 
@@ -93,38 +89,27 @@ public class InvalidSyntaxParserTest {
      * Test mismatched input. i.e. {@link org.antlr.v4.runtime.InputMismatchException}
      */
 
-    @Test(expectedExceptions = {ParseCancellationException.class},
+    @Test(expectedExceptions = {BallerinaException.class},
             expectedExceptionsMessageRegExp = "ServiceWithoutResourceParams.bal:6:17: mismatched input '\\{'. " +
                     "Expecting one of '\\('")
     public void testServiceWithoutResourceParams() {
-        getParserForFile("samples/parser/invalidSyntax/ServiceWithoutResourceParams.bal").compilationUnit();
+        BTestUtils.parseBalFile("samples/parser/invalidSyntax/ServiceWithoutResourceParams.bal");
     }
 
-    @Test(expectedExceptions = {ParseCancellationException.class},
+    @Test(expectedExceptions = {BallerinaException.class},
             expectedExceptionsMessageRegExp = "MainFuncWithoutParams.bal:3:14: mismatched input '\\{'. Expecting " +
                     "one of '\\('")
     public void testParseMainFuncWithoutParams() {
-        getParserForFile("samples/parser/invalidSyntax/MainFuncWithoutParams.bal").compilationUnit();
+        BTestUtils.parseBalFile("samples/parser/invalidSyntax/MainFuncWithoutParams.bal");
     }
-    
-//    @Test(expectedExceptions = {ParseCancellationException.class },
+
+//    @Test(expectedExceptions = {BallerinaException.class },
 //            expectedExceptionsMessageRegExp = "ResourceWithEmptyReply.bal:11:6: mismatched input ';'\\. " +
 //                    "Expecting one of \\{'\\{', '\\(', '[]', '[', '\\+', '-', '!', 'create', IntegerLiteral, " +
 //                    "FloatingPointLiteral, BooleanLiteral, QuotedStringLiteral, BacktickStringLiteral, " +
 //                    "NullLiteral, Identifier\\}")
 //    public void testResourceWithEmptyReply() {
-//        getParserForFile("samples/parser/invalidSyntax/ResourceWithEmptyReply.bal").compilationUnit();
+//        getParserForFile("samples/parser/invalidSyntax/ResourceWithEmptyReply.bal");
 //    }
 
-    private BallerinaParser getParserForFile(String path) {
-        BallerinaParser ballerinaParser = ParserUtils.getBallerinaParser(path);
-
-        // Create Ballerina model builder class
-        BLangModelBuilder modelBuilder = new BLangModelBuilder();
-        BLangAntlr4Listener langModelBuilder = new BLangAntlr4Listener(modelBuilder);
-
-        ballerinaParser.addParseListener(langModelBuilder);
-        ballerinaParser.setErrorHandler(new BallerinaParserErrorStrategy());
-        return ballerinaParser;
-    }
 }

@@ -35,7 +35,7 @@ import org.wso2.ballerina.core.nativeimpl.annotations.ReturnType;
 @BallerinaFunction(
         packageName = "ballerina.lang.string",
         functionName = "contains",
-        args = {@Argument(name = "string", type = TypeEnum.STRING),
+        args = {@Argument(name = "mainString", type = TypeEnum.STRING),
                 @Argument(name = "subString", type = TypeEnum.STRING)},
         returnType = {@ReturnType(type = TypeEnum.BOOLEAN)},
         isPublic = true

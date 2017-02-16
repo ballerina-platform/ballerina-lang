@@ -1,5 +1,3 @@
-package samples.fork_join;
-
 import ballerina.lang.message;
 import ballerina.lang.system;
 

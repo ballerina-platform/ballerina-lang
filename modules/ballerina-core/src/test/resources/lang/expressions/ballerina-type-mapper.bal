@@ -1,6 +1,4 @@
-package test;
-
-typemapper jsonToXmlMapper(json input) (xml) {
+typemapper jsonToXmlConvertor(json input) (xml) {
     xml result;
     result = `<name>chanaka</name>`;
     return result;

@@ -19,7 +19,7 @@ package org.wso2.ballerina.core.nativeimpl.functions;
 
 import org.testng.annotations.Test;
 import org.wso2.ballerina.core.exception.SemanticException;
-import org.wso2.ballerina.core.utils.ParserUtils;
+import org.wso2.ballerina.core.utils.BTestUtils;
 
 /**
  * Test Custom function.
@@ -30,14 +30,14 @@ public class CustomFunctionTest {
             expectedExceptions = {SemanticException.class },
             expectedExceptionsMessageRegExp = "duplicate-function.bal:5: redeclared symbol 'foo'")
     public void testDuplicateFunction() {
-        ParserUtils.parseBalFile("lang/functions/duplicate-function.bal");
+        BTestUtils.parseBalFile("lang/functions/duplicate-function.bal");
     }
     
     @Test(description = "Test defining ballerina function with duplicate parameters",
             expectedExceptions = {SemanticException.class },
             expectedExceptionsMessageRegExp = "duplicate-parameters.bal:1: redeclared symbol 'param'")
     public void testDuplicateParameters() {
-        ParserUtils.parseBalFile("lang/functions/duplicate-parameters.bal");
+        BTestUtils.parseBalFile("lang/functions/duplicate-parameters.bal");
     }
 
 }

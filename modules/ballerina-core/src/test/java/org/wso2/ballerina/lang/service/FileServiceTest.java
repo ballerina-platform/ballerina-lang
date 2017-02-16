@@ -25,7 +25,7 @@ import org.testng.annotations.Test;
 import org.wso2.ballerina.core.EnvironmentInitializer;
 import org.wso2.ballerina.core.TestCallback;
 import org.wso2.ballerina.core.exception.BallerinaException;
-import org.wso2.ballerina.core.model.Application;
+import org.wso2.ballerina.core.model.BLangProgram;
 import org.wso2.ballerina.core.nativeimpl.connectors.file.server.Constants;
 import org.wso2.ballerina.core.runtime.ServerConnectorMessageHandler;
 import org.wso2.carbon.messaging.CarbonMessage;
@@ -35,11 +35,11 @@ import org.wso2.carbon.messaging.StreamingCarbonMessage;
  * Service dispatching test class for vfs.
  */
 public class FileServiceTest {
-    private Application application;
+    private BLangProgram bLangProgram;
 
     @BeforeClass
     public void setup() {
-        application = EnvironmentInitializer.setup("lang/service/serviceLevelVariable.bal");
+        bLangProgram = EnvironmentInitializer.setup("lang/service/serviceLevelVariable.bal");
     }
 
     @Test(description = "Test the exception when the service name is not provided with the file "
@@ -77,7 +77,7 @@ public class FileServiceTest {
 
     @AfterClass
     public void tearDown() {
-        EnvironmentInitializer.cleanup(application);
+        EnvironmentInitializer.cleanup(bLangProgram);
     }
 
 }

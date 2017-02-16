@@ -88,20 +88,20 @@ under the License.
         </classes>
     </test>
     <!-- Non Blocking Test Cases -->
-    <test name="ballerina-service-test-non-blocking">
-        <parameter name="enableNonBlocking" value="true" />
-        <classes>
-            <class name="org.wso2.ballerina.TestConfigurationUtil" />
-            <class name="org.wso2.ballerina.lang.service.ServiceVariableTest"/>
-            <class name="org.wso2.ballerina.lang.service.FileServiceTest" />
-        </classes>
-    </test>
+    <!--<test name="ballerina-service-test-non-blocking">-->
+        <!--<parameter name="enableNonBlocking" value="true" />-->
+        <!--<classes>-->
+            <!--<class name="org.wso2.ballerina.TestConfigurationUtil" />-->
+            <!--<class name="org.wso2.ballerina.lang.service.ServiceVariableTest"/>-->
+            <!--<class name="org.wso2.ballerina.lang.service.FileServiceTest" />-->
+        <!--</classes>-->
+    <!--</test>-->
 
     <!-- Debugger TestCases -->
 
-    <test name="ballerina-interpreter-test-suite" preserve-order="true" parallel="false">
-        <classes>
-            <class name="org.wso2.ballerina.core.interpreter.DebuggerTest"/>
-        </classes>
-    </test>
+    <!--<test name="ballerina-interpreter-test-suite" preserve-order="true" parallel="false">-->
+        <!--<classes>-->
+            <!--<class name="org.wso2.ballerina.core.interpreter.DebuggerTest"/>-->
+        <!--</classes>-->
+    <!--</test>-->
 </suite>

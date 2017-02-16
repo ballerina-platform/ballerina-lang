@@ -17,11 +17,12 @@
  */
 package org.wso2.ballerina.lang.expressions;
 
+import org.ballerinalang.util.program.BLangFunctions;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.ballerina.core.interpreter.SymScope;
-import org.wso2.ballerina.core.model.BallerinaFile;
+import org.wso2.ballerina.core.model.BLangProgram;
 import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.model.values.BInteger;
 import org.wso2.ballerina.core.model.values.BJSON;
@@ -30,14 +31,13 @@ import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.model.values.BXML;
 import org.wso2.ballerina.core.runtime.internal.BuiltInNativeConstructLoader;
 import org.wso2.ballerina.core.runtime.internal.GlobalScopeHolder;
-import org.wso2.ballerina.core.utils.ParserUtils;
-import org.wso2.ballerina.lang.util.Functions;
+import org.wso2.ballerina.core.utils.BTestUtils;
 
 /**
  * Test class to validate the backtick based inline xml and json definitions.
  */
 public class TemplateExpressionTest {
-    private BallerinaFile bFile;
+    private BLangProgram bLangProgram;
     @BeforeClass
     public void setup() {
         // Add Native functions.
@@ -45,13 +45,13 @@ public class TemplateExpressionTest {
         if (symScope.lookup(new SymbolName("ballerina.lang.system:print_string")) == null) {
             BuiltInNativeConstructLoader.loadConstructs();
         }
-        bFile = ParserUtils.parseBalFile("lang/expressions/template-expr.bal", symScope);
+        bLangProgram = BTestUtils.parseBalFile("lang/expressions/template-expr.bal");
     }
 
     @Test(description = "Test XML backtick expression definition")
     public void testBacktickXMLExpr() {
         BValue[] args = { new BString("WSO2")};
-        BValue[] returns = Functions.invoke(bFile, "backtickXMLTest", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "backtickXMLTest", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BXML.class);
         String expected = "<name>John</name>";
@@ -61,7 +61,7 @@ public class TemplateExpressionTest {
     @Test(description = "Test JSON backtick expression definition")
     public void testBacktickJSONExpr() {
         BValue[] args = { new BString("WSO2")};
-        BValue[] returns = Functions.invoke(bFile, "backtickJSONTest", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "backtickJSONTest", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BJSON.class);
         String expected = "{\"name\":\"John\"}";
@@ -71,7 +71,7 @@ public class TemplateExpressionTest {
     @Test(description = "Test JSON backtick expression with string variable reference")
     public void testBacktickJSONVariableAccessExpr() {
         BValue[] args = { new BString("WSO2")};
-        BValue[] returns = Functions.invoke(bFile, "backtickStringVariableAccessJSON", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "backtickStringVariableAccessJSON", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BJSON.class);
         String expected = "{\"name\":\"WSO2\"}";
@@ -81,7 +81,7 @@ public class TemplateExpressionTest {
     @Test(description = "Test XML backtick expression with variable reference")
     public void testBacktickXMLVariableAccessExpr() {
         BValue[] args = { new BString("WSO2")};
-        BValue[] returns = Functions.invoke(bFile, "backtickVariableAccessXML", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "backtickVariableAccessXML", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BXML.class);
         String expected = "<name>WSO2</name>";
@@ -91,7 +91,7 @@ public class TemplateExpressionTest {
     @Test(description = "Test JSON backtick expression with integer variable reference")
     public void testBacktickJSONIntegerVariableAccessExpr() {
         BValue[] args = { new BInteger(11)};
-        BValue[] returns = Functions.invoke(bFile, "backtickIntegerVariableAccessJSON", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "backtickIntegerVariableAccessJSON", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BJSON.class);
         String expected = "{\"age\":11}";
@@ -101,7 +101,7 @@ public class TemplateExpressionTest {
     @Test(description = "Test JSON backtick expression with embedding full JSON")
     public void testBacktickJSONFullReplacement() {
         BValue[] args = { new BInteger(11)};
-        BValue[] returns = Functions.invoke(bFile, "backticJSONEnrichFullJSON", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "backticJSONEnrichFullJSON", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BJSON.class);
         String expected =  "{\"name\":\"John\"}";
@@ -111,7 +111,7 @@ public class TemplateExpressionTest {
     @Test(description = "Test JSON backtick expression with multiple variables embedding full JSON")
     public void testBacktickMultipleVariablesFullJSONReplacement() {
         BValue[] args = { new BString("Chanaka"), new BString("Fernando")};
-        BValue[] returns = Functions.invoke(bFile, "backticJSONMultipleVariables", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "backticJSONMultipleVariables", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BJSON.class);
         String expected =  "{\"name\":{\"first_name\":\"Chanaka\",\"last_name\":\"Fernando\"}}";
@@ -121,7 +121,7 @@ public class TemplateExpressionTest {
     @Test(description = "Test JSON backtick expression with parts of json added into full JSON")
     public void testBacktickPartsJSON() {
         BValue[] args = { new BString("{\"name\":"), new BString("\"chanaka\"}")};
-        BValue[] returns = Functions.invoke(bFile, "backticJSONParts", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "backticJSONParts", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BJSON.class);
         String expected =  "{\"name\":\"chanaka\"}";
@@ -130,7 +130,7 @@ public class TemplateExpressionTest {
 
     @Test(description = "Test JSON backtick expression with int and string array variable reference")
     public void testBacktickJSONArrayVariableAccess() {
-        BValue[] returns = Functions.invoke(bFile, "backtickJSONArrayVariableAccess");
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "backtickJSONArrayVariableAccess");
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BJSON.class);
         String expected = "{\"strIndex0\":\"value0\",\"intIndex2\":2,\"strIndex2\":\"value2\"}";
@@ -139,7 +139,7 @@ public class TemplateExpressionTest {
 
     @Test(description = "Test XML backtick expression with int and string array variable reference")
     public void testBacktickXMLArrayVariableAccess() {
-        BValue[] returns = Functions.invoke(bFile, "backtickXMLArrayVariableAccess");
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "backtickXMLArrayVariableAccess");
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BXML.class);
         String expected = "<root><stringIndex1>value1</stringIndex1><intIndex1>1</intIndex1></root>";
@@ -148,7 +148,7 @@ public class TemplateExpressionTest {
 
     @Test(description = "Test JSON backtick expression with map variable reference")
     public void testBacktickJSONMapVariableAccess() {
-        BValue[] returns = Functions.invoke(bFile, "backtickJSONMapVariableAccess");
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "backtickJSONMapVariableAccess");
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BJSON.class);
         String expected = "{\"val1\":\"value0\",\"val2\":1}";
@@ -157,7 +157,7 @@ public class TemplateExpressionTest {
 
     @Test(description = "Test XML backtick expression with map variable reference")
     public void testBacktickXMLMapVariableAccess() {
-        BValue[] returns = Functions.invoke(bFile, "backtickXMLMapVariableAccess");
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "backtickXMLMapVariableAccess");
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BXML.class);
         String expected = "<root><stringIndex0>value0</stringIndex0><intIndex1>1</intIndex1></root>";
