@@ -22,6 +22,7 @@ import org.wso2.ballerina.core.interpreter.RuntimeEnvironment;
 import org.wso2.ballerina.core.model.LinkedNode;
 import org.wso2.ballerina.core.model.expressions.FunctionInvocationExpr;
 import org.wso2.ballerina.core.model.expressions.ResourceInvocationExpr;
+import org.wso2.ballerina.core.model.values.BException;
 
 /**
  * {@link BLangNonBlockingExecutor} is a non-blocking and self driven Ballerina Executor.
@@ -45,7 +46,21 @@ public class BLangNonBlockingExecutor extends BLangAbstractExecutionVisitor {
     public void continueExecution(LinkedNode linkedNode) {
         linkedNode.accept(this);
         while (next != null) {
-            next.accept(this);
+            try {
+                next.accept(this);
+            } catch (RuntimeException e) {
+                handleBException(new BException(e.getMessage()));
+            }
+        }
+    }
+
+    public void continueExecution() {
+        while (next != null) {
+            try {
+                next.accept(this);
+            } catch (RuntimeException e) {
+                handleBException(new BException(e.getMessage()));
+            }
         }
     }
 }

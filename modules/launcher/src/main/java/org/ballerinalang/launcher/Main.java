@@ -27,6 +27,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.ServiceLoader;
 
+import static org.wso2.ballerina.core.runtime.Constants.SYSTEM_PROP_BAL_DEBUG;
+
 /**
  * This class executes a Ballerina program.
  *
@@ -333,6 +335,9 @@ public class Main {
         @Parameter(names = "--debug", hidden = true)
         private String debugPort;
 
+        @Parameter(names = "--ballerina.debug", hidden = true, description = "remote debugging port")
+        private String ballerinaDebugPort;
+
         public void execute() {
             if (helpFlag) {
                 printCommandUsageInfo(parentCmdParser, "main");
@@ -350,6 +355,9 @@ public class Main {
                 programArgs = new ArrayList<>(0);
             }
 
+            if (null != ballerinaDebugPort) {
+                System.setProperty(SYSTEM_PROP_BAL_DEBUG, ballerinaDebugPort);
+            }
             Path sourcePath = Paths.get(argList.get(0));
             BProgramRunner.runMain(sourcePath, programArgs);
         }
@@ -396,6 +404,9 @@ public class Main {
         @Parameter(names = {"--service-root", "-sr"}, description = "directory which contains ballerina services")
         private String serviceRootPath;
 
+        @Parameter(names = "--ballerina.debug", hidden = true, description = "remote debugging port")
+        private String ballerinaDebugPort;
+
         public void execute() {
             if (helpFlag) {
                 printCommandUsageInfo(parentCmdParser, "service");
@@ -438,6 +449,9 @@ public class Main {
                 paths[i] = Paths.get(sourceFileList.get(i));
             }
 
+            if (null != ballerinaDebugPort) {
+                System.setProperty(SYSTEM_PROP_BAL_DEBUG, ballerinaDebugPort);
+            }
             BProgramRunner.runServices(paths);
         }
 

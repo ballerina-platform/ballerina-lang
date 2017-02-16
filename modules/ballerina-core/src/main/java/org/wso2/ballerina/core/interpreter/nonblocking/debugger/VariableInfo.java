@@ -76,4 +76,24 @@ public class VariableInfo {
     public String toString() {
         return "(" + scope + ") " + name + " = " + bValueSting + " {" + type + "}";
     }
+
+    public String getScope() {
+        return scope;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public BValue getbValue() {
+        return bValue;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public String getbValueSting() {
+        return bValueSting;
+    }
 }
