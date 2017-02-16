@@ -46,6 +46,17 @@
             <artifactId>testerina-core</artifactId>
             <version>${testerina.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.wso2.swagger.ballerina.tool</groupId>
+            <artifactId>swagger-command</artifactId>
+            <version>${tool.swagger.version}</version>
+            <classifier>jar-with-dependencies</classifier>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.ballerina.swagger.code.generator</groupId>
+            <artifactId>swagger2ballerina-connector</artifactId>
+            <version>${swagger.code.generator.version}</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -114,5 +125,7 @@
     <properties>
         <ballerina.distribution.version>0.8.0-SNAPSHOT</ballerina.distribution.version>
         <testerina.version>0.8.0-SNAPSHOT</testerina.version>
+        <tool.swagger.version>0.8.0-SNAPSHOT</tool.swagger.version>
+        <swagger.code.generator.version>0.8-SNAPSHOT</swagger.code.generator.version>
     </properties>
 </project>
