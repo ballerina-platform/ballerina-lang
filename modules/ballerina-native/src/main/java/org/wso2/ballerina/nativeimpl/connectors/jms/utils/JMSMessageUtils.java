@@ -16,8 +16,6 @@
 
 package org.wso2.ballerina.nativeimpl.connectors.jms.utils;
 
-import com.google.gson.JsonParseException;
-import com.google.gson.JsonSyntaxException;
 import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.model.util.MessageUtils;
 import org.wso2.ballerina.core.model.values.BJSON;
@@ -68,29 +66,20 @@ public class JMSMessageUtils {
 
     private static String getJsonPayload(BMessage message) {
         BJSON result;
-        try {
-            if (message.isAlreadyRead()) {
-                MessageDataSource payload = message.getMessageDataSource();
-                if (payload instanceof BJSON) {
-                    result = (BJSON) payload;
-                } else {
-                    // else, build the JSON from the string representation of the payload.
-                    result = new BJSON(message.getMessageDataSource().getMessageAsString());
-                }
+        if (message.isAlreadyRead()) {
+            MessageDataSource payload = message.getMessageDataSource();
+            if (payload instanceof BJSON) {
+                result = (BJSON) payload;
             } else {
-                result = new BJSON(message.value().getInputStream());
-                message.setMessageDataSource(result);
-                message.setAlreadyRead(true);
+                // else, build the JSON from the string representation of the payload.
+                result = new BJSON(message.getMessageDataSource().getMessageAsString());
             }
-            return result.stringValue();
-        } catch (JsonSyntaxException e) {
-            ErrorHandler.handleMalformedJson("get json payload", e);
-        } catch (JsonParseException e) {
-            ErrorHandler.handleJsonException("get json payload", e);
-        } catch (Throwable e) {
-            ErrorHandler.handleJsonException("get json payload", e);
+        } else {
+            result = new BJSON(message.value().getInputStream());
+            message.setMessageDataSource(result);
+            message.setAlreadyRead(true);
         }
-        return null;
+        return result.stringValue();
     }
 
     private static String getXmlPayload(BMessage message) {
