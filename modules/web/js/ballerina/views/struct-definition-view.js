@@ -65,25 +65,25 @@ define(['lodash', 'log', 'd3', 'alerts', './ballerina-view', 'ballerina/ast/ball
                 .on("change paste keyup", function () {
                     self.getModel().setStructName($(this).text());
                 }).on("click", function (event) {
-                event.stopPropagation();
-            }).keypress(function (e) {
-                var enteredKey = e.which || e.charCode || e.keyCode;
-                // Disabling enter key
-                if (enteredKey == 13) {
                     event.stopPropagation();
-                    return false;
-                }
+                }).keypress(function (e) {
+                    var enteredKey = e.which || e.charCode || e.keyCode;
+                    // Disabling enter key
+                    if (enteredKey == 13) {
+                        event.stopPropagation();
+                        return false;
+                    }
 
-                var newServiceName = $(this).val() + String.fromCharCode(enteredKey);
+                    var newServiceName = $(this).val() + String.fromCharCode(enteredKey);
 
-                try {
-                    self.getModel().setStructName(newServiceName);
-                } catch (error) {
-                    Alerts.error(error);
-                    event.stopPropagation();
-                    return false;
-                }
-            });
+                    try {
+                        self.getModel().setStructName(newServiceName);
+                    } catch (error) {
+                        Alerts.error(error);
+                        event.stopPropagation();
+                        return false;
+                    }
+                });
 
             var structContentWrapper = $("<div/>", {
                 id: this.getModel().getID(),
@@ -154,9 +154,9 @@ define(['lodash', 'log', 'd3', 'alerts', './ballerina-view', 'ballerina/ast/ball
                     var bType = typeDropdown.select2('data')[0].text;
                     var identifier = $(identifierTextBox).val().trim();
 
-                    self.getModel().addVariableDefinition(bType, identifier);
+                    self.getModel().addVariableDeclaration(bType, identifier);
 
-                    self._renderVariableDefinitions(structVariablesWrapper);
+                    self._renderVariableDeclarations(structVariablesWrapper);
 
                     $(identifierTextBox).val("");
                 } catch (e) {
@@ -172,7 +172,7 @@ define(['lodash', 'log', 'd3', 'alerts', './ballerina-view', 'ballerina/ast/ball
                 class: "struct-content-variables-wrapper"
             }).appendTo(structContentWrapper);
 
-            this._renderVariableDefinitions(structVariablesWrapper);
+            this._renderVariableDeclarations(structVariablesWrapper);
 
             $(structVariablesWrapper).click(function(e){
                 e.preventDefault();
@@ -183,46 +183,42 @@ define(['lodash', 'log', 'd3', 'alerts', './ballerina-view', 'ballerina/ast/ball
 
             // On window click.
             $(window).click(function (event) {
-                self._renderVariableDefinitions(structVariablesWrapper);
+                self._renderVariableDeclarations(structVariablesWrapper);
             });
         };
 
-        StructDefinitionView.prototype._renderVariableDefinitions = function (wrapper) {
+        StructDefinitionView.prototype._renderVariableDeclarations = function (wrapper) {
             $(wrapper).empty();
             var self = this;
 
-            _.forEach(this._model.getVariableDefinitions(), function(variableDefinition) {
+            _.forEach(this._model.getVariableDeclarations(), function(variableDeclaration) {
 
-                var variableDefinitionView = new StructVariableDefinitionView({
+                var variableDeclarationView = new StructVariableDefinitionView({
                     parent: self.getModel(),
-                    model: variableDefinition,
+                    model: variableDeclaration,
                     container: wrapper,
                     toolPalette: self.getToolPalette(),
                     messageManager: self.getMessageManager(),
                     parentView: self
                 });
 
-                self.getDiagramRenderingContext().getViewModelMap()[variableDefinition.id] = variableDefinitionView;
+                self.getDiagramRenderingContext().getViewModelMap()[variableDeclaration.id] = variableDeclarationView;
 
-                variableDefinitionView.render(self.getDiagramRenderingContext());
+                variableDeclarationView.render(self.getDiagramRenderingContext());
 
-                $(variableDefinitionView.getDeleteButton()).click(function () {
-                    self._renderVariableDefinitions(wrapper);
+                $(variableDeclarationView.getDeleteButton()).click(function () {
+                    self._renderVariableDeclarations(wrapper);
                 });
 
-                $(variableDefinitionView.getWrapper()).click({
-                    modelID: variableDefinition.getID()
+                $(variableDeclarationView.getWrapper()).click({
+                    modelID: variableDeclaration.getID()
                 }, function (event) {
-                    self._renderVariableDefinitions(wrapper);
-                    var variableDefinitionView = self.getDiagramRenderingContext()
+                    self._renderVariableDeclarations(wrapper);
+                    var variableDeclarationView = self.getDiagramRenderingContext()
                         .getViewModelMap()[event.data.modelID];
-                    variableDefinitionView.renderEditView();
+                    variableDeclarationView.renderEditView();
                 });
             });
-        };
-
-        StructDefinitionView.prototype.canVisitStructDefinition = function () {
-            return true;
         };
 
         return StructDefinitionView;
