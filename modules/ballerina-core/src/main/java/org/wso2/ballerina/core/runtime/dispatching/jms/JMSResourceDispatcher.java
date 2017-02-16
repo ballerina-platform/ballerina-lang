@@ -41,16 +41,16 @@ public class JMSResourceDispatcher implements ResourceDispatcher {
             log.debug("Starting to find resource in the jms service " + service.getSymbolName().toString() + " to "
                             + "deliver the message");
         }
-        for (Resource resource : service.getResources()) {
-            if (resource.getAnnotation(Constants.PROTOCOL_JMS, Constants.ANNOTATION_NAME_JMS_ONMESSAGE) != null) {
-                if (log.isDebugEnabled()) {
-                    log.debug("Found the relevant resource in the jms service " + service.getSymbolName().toString());
-                }
-                return resource;
-            }
+        Resource[] resources = service.getResources();
+        if (resources.length == 0) {
+            throw new BallerinaException("No resources found to handle the JMS message in " + service.getSymbolName()
+                    .toString(), balContext);
         }
-        throw new BallerinaException("Resource to handle the jms message is not found in jms service " + service
-                .getSymbolName().toString(), balContext);
+        if (resources.length > 1) {
+            throw new BallerinaException("More than one resources found in JMS service " + service.getSymbolName()
+                    .toString() + ".JMS Service should only have one resource", balContext);
+        }
+        return resources[0];
     }
 
     @Override

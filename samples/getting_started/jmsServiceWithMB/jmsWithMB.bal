@@ -7,7 +7,7 @@ protocol = "jms", destination = "ballerinaqueue", connectionFactoryJNDIName = "Q
 factoryInitial = "org.wso2.andes.jndi.PropertiesFileInitialContextFactory", providerUrl = "jndi.properties",
 connectionFactoryType = "queue")
 service jmsWSO2MBQueueService {
-    @jms:OnMessage
+
     resource onMessage (message m) {
         string messageType;
         map dataMap = {};
@@ -26,7 +26,7 @@ protocol = "jms", destination = "ballerinatopic", connectionFactoryJNDIName = "Q
 factoryInitial = "org.wso2.andes.jndi.PropertiesFileInitialContextFactory", providerUrl = "jndi.properties",
 connectionFactoryType = "topic")
 service jmsWSO2MBTopicService {
-    @jms:OnMessage
+
     resource onMessage (message m) {
         system:println("Received map message : " + message:getStringValue(m, "queue message count"));
     }
