@@ -44,7 +44,7 @@
             <fileMode>644</fileMode>
         </fileSet>
         <fileSet>
-            <directory>../../samples/getting_started</directory>
+            <directory>target/ballerina-samples-${project.version}</directory>
             <outputDirectory>samples</outputDirectory>
             <excludes>
                 <exclude>target/**</exclude>

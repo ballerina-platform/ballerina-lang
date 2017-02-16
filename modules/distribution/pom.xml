@@ -47,6 +47,11 @@
             <artifactId>ballerina-native</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.wso2.ballerina</groupId>
+            <artifactId>ballerina-samples</artifactId>
+            <type>zip</type>
+        </dependency>
+        <dependency>
             <groupId>org.wso2.orbit.org.antlr</groupId>
             <artifactId>antlr4-runtime</artifactId>
         </dependency>
@@ -171,6 +176,50 @@
 
     <build>
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <inherited>false</inherited>
+                <executions>
+                    <execution>
+                        <id>extract-samples</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>unpack</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>org.wso2.ballerina</groupId>
+                                    <artifactId>ballerina-samples</artifactId>
+                                    <version>${project.version}</version>
+                                    <type>zip</type>
+                                    <overWrite>true</overWrite>
+                                    <outputDirectory>target</outputDirectory>
+                                </artifactItem>
+                            </artifactItems>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>clean-extracted-samples</id>
+                        <phase>install</phase>
+                        <configuration>
+                            <tasks>
+                                <delete dir="target/ballerina-samples-${project.version}" />
+                            </tasks>
+                        </configuration>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>
