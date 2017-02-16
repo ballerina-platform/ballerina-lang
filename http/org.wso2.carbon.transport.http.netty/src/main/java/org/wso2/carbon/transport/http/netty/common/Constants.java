@@ -151,6 +151,8 @@ public final class Constants {
 
     public static final String HTTP_TRANSFER_ENCODING = "Transfer-Encoding";
 
+    public static final String HTTP_TRANSFER_ENCODING_IDENTITY = "identity";
+
     public static final String HTTP_CONNECTION = "Connection";
 
     public static final String CONNECTION_KEEP_ALIVE = "keep-alive";

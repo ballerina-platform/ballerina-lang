@@ -29,12 +29,18 @@ public class RequestDataHolder {
 
     private String acceptEncodingHeader;
     private String connectionHeader;
-    private String contentType;
+    private String contentTypeHeader;
+    private String transferEncodingHeader;
+    private String contentLengthHeader;
+    private String httpMethod;
 
     public RequestDataHolder(CarbonMessage requestMessage) {
         acceptEncodingHeader = requestMessage.getHeader(Constants.ACCEPT_ENCODING);
         connectionHeader = requestMessage.getHeader(Constants.HTTP_CONNECTION);
-        contentType = requestMessage.getHeader(Constants.HTTP_CONTENT_TYPE);
+        contentTypeHeader = requestMessage.getHeader(Constants.HTTP_CONTENT_TYPE);
+        transferEncodingHeader = requestMessage.getHeader(Constants.HTTP_TRANSFER_ENCODING);
+        contentLengthHeader = requestMessage.getHeader(Constants.HTTP_CONTENT_LENGTH);
+        httpMethod = (String) requestMessage.getProperty(Constants.HTTP_METHOD);
     }
 
     /**
@@ -60,7 +66,34 @@ public class RequestDataHolder {
      *
      * @return value of the Content-Type header
      */
-    public String getContentType() {
-        return contentType;
+    public String getContentTypeHeader() {
+        return contentTypeHeader;
+    }
+
+    /**
+     * Get the value of the Transfer-Encoding header
+     *
+     * @return  value of the Transfer-Encoding header
+     */
+    public String getTransferEncodingHeader() {
+        return transferEncodingHeader;
+    }
+
+    /**
+     * Get the value of the Content-Length header
+     *
+     * @return value of the Content-Length header
+     */
+    public String getContentLengthHeader() {
+        return contentLengthHeader;
+    }
+
+    /**
+     * Get the http method
+     *
+     * @return http method
+     */
+    public String getHttpMethod() {
+        return httpMethod;
     }
 }

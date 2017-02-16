@@ -167,6 +167,7 @@ public class ContentAwareMessageProcessorTestCase {
             CarbonMessageProcessor carbonMessageProcessor = new ResponseStreamingWithoutBufferingProcessor();
             TestUtil.updateMessageProcessor(carbonMessageProcessor, configuration);
             HttpURLConnection urlConn = TestUtil.request(baseURI, "/", HttpMethod.POST.name(), true);
+            urlConn.setChunkedStreamingMode(-1); // Enable Chunking
             TestUtil.writeContent(urlConn, requestValue);
             assertEquals(200, urlConn.getResponseCode());
             String content = TestUtil.getContent(urlConn);
