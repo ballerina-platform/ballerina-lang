@@ -211,6 +211,13 @@
                 <version>${commons.lang3.version}</version>
             </dependency>
 
+            <!--WebSocket Java Api-->
+            <dependency>
+                <groupId>javax.websocket</groupId>
+                <artifactId>javax.websocket-api</artifactId>
+                <version>${javax.websocket.version}</version>
+            </dependency>
+
             <!-- JSON dependencies -->
             <dependency>
                 <groupId>com.google.code.gson</groupId>
@@ -445,7 +452,9 @@
 
         <antlr4.runtime.version>4.5.1.wso2v1</antlr4.runtime.version>
         <commons.lang3.version>3.5</commons.lang3.version>
-        
+        <javax.websocket.version>1.1</javax.websocket.version>
+        <javax.websocket.version.range>[1.1, 1.2)</javax.websocket.version.range>
+
         <!-- json dependencies -->
         <jackson.version>2.8.6</jackson.version>
         <jayway.jsonpath.version>2.2.0</jayway.jsonpath.version>
@@ -482,7 +491,7 @@
         <commons.pool.version>1.5.6.wso2v1</commons.pool.version>
         <org.snakeyaml.version>1.16.0.wso2v1</org.snakeyaml.version>
         <jcommander.version>1.60</jcommander.version>
-        
+
         <native.constructs.provider.package>org.wso2.ballerina.nativeimpl</native.constructs.provider.package>
         <native.constructs.provider.class>BallerinaNativeConstructsProvider</native.constructs.provider.class>
         <mvn.processor.plugin.version>2.2.4</mvn.processor.plugin.version>
