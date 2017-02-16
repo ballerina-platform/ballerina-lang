@@ -57,6 +57,8 @@
             <outputDirectory>bre/lib</outputDirectory>
             <includes>
                 <include>org.ballerinalang.testerina:testerina-core:jar</include>
+                <include>org.wso2.swagger.ballerina.tool:swagger-command:jar</include>
+                <include>org.wso2.ballerina.swagger.code.generator:swagger2ballerina-connector:jar</include>
             </includes>
             <unpack>false</unpack>
         </dependencySet>
