@@ -218,13 +218,13 @@ public class ServerInstance implements Server {
         File commandDir = new File(serverHome);
         if (Utils.getOSName().toLowerCase().contains("windows")) {
             commandDir = new File(serverHome + File.separator + "bin");
-            cmdArray = new String[]{"cmd.exe", "/c", scriptName + ".bat"};
+            cmdArray = new String[]{"cmd.exe", "/c", scriptName + ".bat" , "run", "service"};
             String[] cmdArgs = Stream.concat(Arrays.stream(cmdArray), Arrays.stream(args))
                     .toArray(String[]::new);
             process = Runtime.getRuntime().exec(cmdArgs, null, commandDir);
 
         } else {
-            cmdArray = new String[]{"bash", "bin/" + scriptName, "service"};
+            cmdArray = new String[]{"bash", "bin/" + scriptName, "run", "service"};
             String[] cmdArgs = Stream.concat(Arrays.stream(cmdArray), Arrays.stream(args))
                     .toArray(String[]::new);
             process = Runtime.getRuntime().exec(cmdArgs, null, commandDir);
