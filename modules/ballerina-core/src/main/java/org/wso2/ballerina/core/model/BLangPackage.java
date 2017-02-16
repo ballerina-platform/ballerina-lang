@@ -302,7 +302,7 @@ public class BLangPackage implements SymbolScope, BLangSymbol, Node {
             this.constList.add(constant);
         }
 
-        public void addTypeConvertor(TypeMapper typeMapper) {
+        public void addTypeMapper(TypeMapper typeMapper) {
             this.compilationUnitList.add((BTypeMapper) typeMapper);
             typeMapperList.add(typeMapper);
         }

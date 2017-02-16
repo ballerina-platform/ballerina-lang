@@ -202,7 +202,7 @@ public class BallerinaFile implements Node {
 
         public void addTypeMapper(TypeMapper typeMapper) {
             this.compilationUnitList.add((BTypeMapper) typeMapper);
-            this.packageBuilder.addTypeConvertor(typeMapper);
+            this.packageBuilder.addTypeMapper(typeMapper);
         }
 
         /**
