@@ -19,7 +19,7 @@
 #
 # Environment Variable Prerequisites
 #
-#   BAL_HOME   Home of WSO2 Carbon installation. If not set I will  try
+#   BAL_EDITOR_HOME   Home of WSO2 Carbon installation. If not set I will  try
 #                   to figure it out.
 #
 #   JAVA_HOME       Must point at your Java Development Kit installation.
@@ -69,13 +69,13 @@ done
 # Get standard environment variables
 PRGDIR=`dirname "$PRG"`
 
-# Only set BAL_HOME if not already set
-[ -z "$BAL_HOME" ] && BAL_HOME=`cd "$PRGDIR/.." ; pwd`
+# Only set BAL_EDITOR_HOME if not already set
+[ -z "$BAL_EDITOR_HOME" ] && BAL_EDITOR_HOME=`cd "$PRGDIR/.." ; pwd`
 
 # For Cygwin, ensure paths are in UNIX format before anything is touched
 if $cygwin; then
   [ -n "$JAVA_HOME" ] && JAVA_HOME=`cygpath --unix "$JAVA_HOME"`
-  [ -n "$BAL_HOME" ] && BAL_HOME=`cygpath --unix "$BAL_HOME"`
+  [ -n "$BAL_EDITOR_HOME" ] && BAL_EDITOR_HOME=`cygpath --unix "$BAL_EDITOR_HOME"`
 fi
 
 # For OS400
@@ -93,8 +93,8 @@ fi
 
 # For Migwn, ensure paths are in UNIX format before anything is touched
 if $mingw ; then
-  [ -n "$BAL_HOME" ] &&
-    BAL_HOME="`(cd "$BAL_HOME"; pwd)`"
+  [ -n "$BAL_EDITOR_HOME" ] &&
+    BAL_EDITOR_HOME="`(cd "$BAL_EDITOR_HOME"; pwd)`"
   [ -n "$JAVA_HOME" ] &&
     JAVA_HOME="`(cd "$JAVA_HOME"; pwd)`"
   # TODO classpath?
@@ -168,7 +168,7 @@ fi
 # For Cygwin, switch paths to Windows format before running java
 if $cygwin; then
   JAVA_HOME=`cygpath --absolute --windows "$JAVA_HOME"`
-  BAL_HOME=`cygpath --absolute --windows "$BAL_HOME"`
+  BAL_EDITOR_HOME=`cygpath --absolute --windows "$BAL_EDITOR_HOME"`
   CLASSPATH=`cygpath --path --windows "$CLASSPATH"`
   JAVA_ENDORSED_DIRS=`cygpath --path --windows "$JAVA_ENDORSED_DIRS"`
   CARBON_CLASSPATH=`cygpath --path --windows "$CARBON_CLASSPATH"`
@@ -177,7 +177,7 @@ fi
 
 # ----- Execute The Requested Command -----------------------------------------
 
-cd "$BAL_HOME"
+cd "$BAL_EDITOR_HOME"
 
 START_EXIT_STATUS=121
 status=$START_EXIT_STATUS
@@ -189,12 +189,12 @@ status=$START_EXIT_STATUS
     $JAVACMD \
     -Xms256m -Xmx1024m \
     -XX:+HeapDumpOnOutOfMemoryError \
-    -XX:HeapDumpPath="$BAL_HOME/logs/heap-dump-tool.hprof" \
+    -XX:HeapDumpPath="$BAL_EDITOR_HOME/logs/heap-dump-tool.hprof" \
     $JAVA_OPTS \
     -classpath ./resources/editor/services/workspace-service-*.jar \
-    -Djava.io.tmpdir="$BAL_HOME/tmp" \
+    -Djava.io.tmpdir="$BAL_EDITOR_HOME/tmp" \
     -Djava.command="$JAVACMD" \
-    -Dballerina.home="$BAL_HOME" \
+    -Dballerina.home="$BALLERINA_HOME" \
     -Djava.security.egd=file:/dev/./urandom \
     -Dfile.encoding=UTF8 \
     -Deditor.port=9091 \

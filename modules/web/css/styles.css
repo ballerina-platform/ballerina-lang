@@ -1058,6 +1058,7 @@ button.variable-list {
     background-color: #FFF;
     float: left;
     padding: 1px 8px;
+    margin-top: 1px;
 }
 
 .constant-declaration-equals {

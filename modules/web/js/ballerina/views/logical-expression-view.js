@@ -110,6 +110,10 @@ define(['lodash', 'log', './ballerina-statement-view', './../ast/logical-express
                 editableProperties: editableProperties
             });
 
+            this._createDebugIndicator({
+                statementGroup: group
+            });
+
             return group;
         };
 

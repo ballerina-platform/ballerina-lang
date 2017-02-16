@@ -25,7 +25,9 @@ define(['require', 'lodash', 'log', './compound-statement-view', './../ast/tryca
          * @param {Object} args.container - The HTML container to which the view should be added to.
          * @param {Object} args.parent - Parent View (Resource, Worker, etc)
          * @param {Object} [args.viewOptions={}] - Configuration values for the view.
+         * @class TryCatchStatementView
          * @constructor
+         * @extends CompoundStatementView
          */
         var TryCatchStatementView = function (args) {
             CompoundStatementView.call(this, args);

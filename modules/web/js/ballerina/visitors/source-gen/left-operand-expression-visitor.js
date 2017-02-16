@@ -15,8 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require','lodash', 'log', 'event_channel', './abstract-statement-source-gen-visitor'],
-    function(require, _, log, EventChannel, AbstractStatementSourceGenVisitor) {
+define(['require','lodash', 'log', 'event_channel', './abstract-statement-source-gen-visitor','./expression-visitor-factory'],
+    function(require, _, log, EventChannel, AbstractStatementSourceGenVisitor,ExpressionVisitorFactory) {
 
     var LeftOperandExpressionVisitor = function(parent){
         AbstractStatementSourceGenVisitor.call(this,parent);
@@ -37,9 +37,15 @@ define(['require','lodash', 'log', 'event_channel', './abstract-statement-source
     };
 
     LeftOperandExpressionVisitor.prototype.endVisitLeftOperandExpression = function(leftOperandExpression){
-        this.appendSource(" = ");
         this.getParent().appendSource(this.getGeneratedSource());
         log.debug('End Visit Left Operand Expression');
+    };
+
+    LeftOperandExpressionVisitor.prototype.visitExpression = function (expression) {
+        var expressionVisitorFactory = new ExpressionVisitorFactory();
+        var expressionVisitor = expressionVisitorFactory.getExpressionView({model:expression, parent:this});
+        expression.accept(expressionVisitor);
+        log.debug('Visit Expression');
     };
 
     return LeftOperandExpressionVisitor;

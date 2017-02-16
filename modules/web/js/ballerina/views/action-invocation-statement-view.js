@@ -18,6 +18,13 @@
 define(['lodash', 'd3','log', './simple-statement-view', './../ast/action-invocation-expression', './point', 'd3utils', './../ast/ballerina-ast-factory'],
     function (_, d3, log, SimpleStatementView, ActionInvocationExpression, Point, D3Utils, BallerinaASTFactory) {
 
+        /**
+         * Action invocation statement view.
+         * @param args {*} constructor arguments
+         * @class ActionInvocationStatementView
+         * @constructor
+         * @extends SimpleStatementView
+         */
         var ActionInvocationStatementView = function (args) {
             SimpleStatementView.call(this, args);
             this._connectorView = {};
@@ -55,6 +62,9 @@ define(['lodash', 'd3','log', './simple-statement-view', './../ast/action-invoca
         ActionInvocationStatementView.prototype.drawActionConnections = function(startPoint){
             // Action invocation model is the child of the right operand
             var actionInvocationModel = this.getActionInvocationExpression();
+            if(this.isAtValidDropTarget()){
+                this.updateActivatedTarget(this.messageManager.getActivatedDropTarget(), actionInvocationModel);
+            }
             log.debug("Drawing connections for http connector actions");
 
             // TODO : Please alter this logic
@@ -107,8 +117,8 @@ define(['lodash', 'd3','log', './simple-statement-view', './../ast/action-invoca
                         var connectorReference = siblingConnectors[i];
                         var actionInvocationExpression = self.getActionInvocationExpression();
                         actionInvocationExpression.setConnector(connectorReference);
-                        self.messageManager.setMessageSource(actionInvocationExpression);
-                        self.messageManager.updateActivatedTarget(connectorReference);
+                        self.messageManager.setMessageSource(model);
+                        self.updateActivatedTarget(connectorReference);
                         return true;
                     }
                 });
@@ -386,6 +396,43 @@ define(['lodash', 'd3','log', './simple-statement-view', './../ast/action-invoca
                     return actionExpression;
                 }
             }
+        };
+
+        ActionInvocationStatementView.prototype.updateActivatedTarget = function (target, actionInvocationModel) {
+            if(actionInvocationModel) {
+                // TODO : Putting this if/else to fix a bug in arrow drawing. Need to revamp this completely.
+                if(_.size(this.getModel().getChildren()) > 0){
+                    actionInvocationModel = this.getModel().getChildren()[1].getChildren()[0];
+                }else{
+                    actionInvocationModel = this.getModel();
+                }
+            }
+            else {
+                actionInvocationModel = this.getModel();
+            }
+
+            if (!_.isUndefined(target)) {
+                actionInvocationModel.setConnector(target);
+                actionInvocationModel.setActionPackageName(target.getConnectorPkgName());
+                actionInvocationModel.setActionConnectorName(target.getConnectorName());
+                actionInvocationModel.setConnectorVariableReference(target.getConnectorVariable());
+            }
+            else {
+                actionInvocationModel.setConnector(undefined);
+                actionInvocationModel.setActionPackageName(undefined);
+                actionInvocationModel.setActionConnectorName(undefined);
+                actionInvocationModel.setConnectorVariableReference(undefined);
+            }
+            //set the right hand expression to set the statement string of the assignment-statement containing the
+            //action invocation expression. This is to keep action invocation statement UI and source-gen in sync
+            //when action invocation is configured
+            if (BallerinaASTFactory.isRightOperandExpression(rightOp = actionInvocationModel.getParent())){
+                rightOp.setRightOperandExpressionString(actionInvocationModel.getExpression());
+            }
+        };
+
+        ActionInvocationStatementView.prototype.isAtValidDropTarget = function(){
+            return BallerinaASTFactory.isConnectorDeclaration(this.messageManager.getActivatedDropTarget());
         };
 
         return ActionInvocationStatementView;

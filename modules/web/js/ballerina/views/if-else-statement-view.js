@@ -113,6 +113,10 @@ define(['require', 'lodash', 'log', 'property_pane_utils', './compound-statement
                 statementGroup: this.getStatementGroup(),
                 editableProperties: editableProperty
             });
+
+            this._createDebugIndicator({
+                statementGroup: this.getStatementGroup()
+            });
         };
 
         /**
