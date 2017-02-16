@@ -32,6 +32,7 @@ define(['lodash', 'log', './statement'], function (_, log, Statement) {
         this._connectorVariableReference = _.get(args, 'connectorVariableReference', undefined);
         this._arguments = _.get(args, "arguments", []);
         this._connector = _.get(args, 'connector');
+        this._fullPackageName = _.get(args, 'fullPackageName', '');
         //create the default expression for action invocation
         this.setExpression(this.generateExpression());
         this.type = "ActionInvocationExpression";
@@ -39,6 +40,23 @@ define(['lodash', 'log', './statement'], function (_, log, Statement) {
 
     ActionInvocationExpression.prototype = Object.create(Statement.prototype);
     ActionInvocationExpression.prototype.constructor = ActionInvocationExpression;
+
+    /**
+     * Set the full package name
+     * @param {String} fullPkgName full package name
+     * @param {Object} options
+     * */
+    ActionInvocationExpression.prototype.setFullPackageName = function (fullPkgName, options){
+        this.setAttribute('_fullPackageName', fullPkgName, options);
+    };
+
+    /**
+     * Get the full package name
+     * @return {String} full package name
+     * */
+    ActionInvocationExpression.prototype.getFullPackageName = function (){
+        return this._fullPackageName;
+    };
 
     /**
      * Set action name

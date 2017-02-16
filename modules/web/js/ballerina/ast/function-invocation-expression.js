@@ -28,6 +28,7 @@ define(['lodash', './expression'], function (_, Expression) {
         this._packageName = _.get(args, 'packageName', '');
         this._functionName = _.get(args, 'functionName', 'callFunction');
         this._params = _.get(args, 'params', []);
+        this._fullPackageName = _.get(args, 'fullPackageName', '');
 
         //create the default expression for action invocation
         this.setExpression(this.generateExpression());
@@ -42,6 +43,14 @@ define(['lodash', './expression'], function (_, Expression) {
 
     FunctionInvocationExpression.prototype.getFunctionName = function () {
         return this._functionName;
+    };
+
+    FunctionInvocationExpression.prototype.setFullPackageName = function (packageName, options) {
+        this.setAttribute('_fullPackageName', packageName, options);
+    };
+
+    FunctionInvocationExpression.prototype.getFullPackageName = function () {
+        return this._fullPackageName;
     };
 
     FunctionInvocationExpression.prototype.setPackageName = function (packageName, options) {

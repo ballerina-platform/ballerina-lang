@@ -172,7 +172,8 @@ define(['log', 'lodash', './../env/package', './../tool-palette/tool-palette', '
                 connector.nodeFactoryMethod = BallerinaASTFactory.createConnectorDeclaration;
                 connector.meta = {
                     connectorName: connector.getName(),
-                    connectorPackageName: packageName
+                    connectorPackageName: packageName,
+                    fullPackageName: package.getName()
                 };
                 //TODO : use a generic icon
                 connector.icon = "images/tool-icons/connector.svg";
@@ -198,7 +199,8 @@ define(['log', 'lodash', './../env/package', './../tool-palette/tool-palette', '
                     action.meta = {
                         action: action.getName(),
                         actionConnectorName: connector.getName(),
-                        actionPackageName: packageName
+                        actionPackageName: packageName,
+                        fullPackageName: package.getName()
                     };
                     action.icon = "images/tool-icons/action.svg";
                     action.title = action.getName();
@@ -243,7 +245,8 @@ define(['log', 'lodash', './../env/package', './../tool-palette/tool-palette', '
                     packageName: packageName,
                     params: getArgumentString(functionDef.getParameters()),
                     returnParams: getReturnParamString(functionDef.getReturnParams()),
-                    operandType: getReturnParamString(functionDef.getReturnParams())
+                    operandType: getReturnParamString(functionDef.getReturnParams()),
+                    fullPackageName: package.getName()
                 };
                 functionDef.icon = "images/tool-icons/function.svg";
                 functionDef.title = functionDef.getName();

@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', './statement'], function(_, Statement){
+define(['lodash', './statement'], function (_, Statement) {
 
     /**
      * Constructor for RightOperandExpression
@@ -25,6 +25,7 @@ define(['lodash', './statement'], function(_, Statement){
     var RightOperandExpression = function (args) {
         Statement.call(this, 'RightOperandExpression');
         this._right_operand_expression_string = undefined;
+        this._fullPackageName = _.get(args, 'fullPackageName', '');
     };
 
     RightOperandExpression.prototype = Object.create(Statement.prototype);
@@ -44,6 +45,23 @@ define(['lodash', './statement'], function(_, Statement){
      */
     RightOperandExpression.prototype.setRightOperandExpressionString = function (rightOperandExpStr, options) {
         this.setAttribute('_right_operand_expression_string', rightOperandExpStr, options);
+    };
+
+    /**
+     * Set the full package name.
+     * @param {String} fullPkgName full package name
+     * @param {Object} options
+     * */
+    RightOperandExpression.prototype.setFullPackageName = function (fullPkgName, options) {
+        this.setAttribute('_fullPackageName', fullPkgName, options);
+    };
+
+    /**
+     * Get full package name.
+     * @return {String} full package name
+     * */
+    RightOperandExpression.prototype.getFullPackageName = function () {
+        return this._fullPackageName;
     };
 
     /**

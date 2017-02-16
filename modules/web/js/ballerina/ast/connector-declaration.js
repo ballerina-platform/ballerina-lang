@@ -39,6 +39,7 @@ define(['lodash', './node', '../utils/common-utils'], function(_, ASTNode, Commo
         this._params = _.get(options, "params", '\"http://localhost:9090\"');
         this._arguments = _.get(options, "arguments", []);
         this._connectorActionsReference = _.get(options, "connectorActionsReference", []);
+        this._fullPackageName = _.get(options, 'fullPackageName', '');
     };
 
     ConnectorDeclaration.prototype = Object.create(ASTNode.prototype);
@@ -65,6 +66,9 @@ define(['lodash', './node', '../utils/common-utils'], function(_, ASTNode, Commo
     };
     ConnectorDeclaration.prototype.setConnectorPkgName = function (pkgName, options) {
         this.setAttribute('_connectorPkgName', pkgName, options);
+    };
+    ConnectorDeclaration.prototype.setFullPackageName = function(fullPkgName, options){
+        this.setAttribute('_fullPackageName', fullPkgName, options);
     };
     /**
      * Set parameters for the connector
@@ -144,6 +148,10 @@ define(['lodash', './node', '../utils/common-utils'], function(_, ASTNode, Commo
     
     ConnectorDeclaration.prototype.getConnectorPkgName = function () {
         return this._connectorPkgName;
+    };
+
+    ConnectorDeclaration.prototype.getFullPackageName = function () {
+        return this._fullPackageName;
     };
     /**
      * This will return connector expression

@@ -25,6 +25,7 @@ define(['lodash', './statement'], function (_, Statement) {
     var LeftOperandExpression = function (args) {
         Statement.call(this, 'LeftOperandExpression');
         this._operand_type = _.get(args, "operandType", "");
+        this._fullPackageName = _.get(args, "fullPackageName", "");
         this._left_operand_expression_string = _.get(args, "variableReferenceName", "var1");
     };
 
@@ -54,6 +55,23 @@ define(['lodash', './statement'], function (_, Statement) {
         } else {
             this.setAttribute('_left_operand_expression_string', leftOperandExpStr, options);
         }
+    };
+
+    /**
+     * Set full package name.
+     * @param {String} full package name
+     * @param {Object} options
+     * */
+    LeftOperandExpression.prototype.setFullPackageName = function(fullPkgName, options){
+        this.setAttribute('_fullPackageName', fullPkgName, options);
+    };
+
+    /**
+     * Get full package name.
+     * @return {String} full package name
+     * */
+    LeftOperandExpression.prototype.getFullPackageName = function(){
+        return this._fullPackageName;
     };
 
     /**
