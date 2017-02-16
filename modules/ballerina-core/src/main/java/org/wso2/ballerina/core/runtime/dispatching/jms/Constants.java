@@ -26,7 +26,6 @@ package org.wso2.ballerina.core.runtime.dispatching.jms;
 public class Constants {
 
     /* annotations */
-    public static final String ANNOTATION_NAME_JMS_ONMESSAGE = "OnMessage";
     public static final String ANNOTATION_PROTOCOL = "protocol";
     public static final String ANNOTATION_NAME_SOURCE = "Source";
 
