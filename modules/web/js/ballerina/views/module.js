@@ -19,12 +19,12 @@ define(['./ballerina-file-editor', './ballerina-view', './message-manager', './c
         './connector-declaration-view', './function-definition-view', './reply-statement-view',
         './resource-definition-view', './return-statement-view', './service-definition-view', './throw-statement-view',
         './while-statement-view', './worker-declaration-view', './source-view', './action-invocation-statement-view',
-        './service-preview-view', './simple-statement-view', './block-statement-view', './backend'],
+        './service-preview-view', './simple-statement-view', './block-statement-view', './compound-statement-view', './backend'],
     function (BallerinaFileEditor, BallerinaView, Canvas,MessageManager,
               ConnectorDeclarationView, FunctionDefinitionView, ReplyStatementView,
               ResourceDefinitionView, ReturnStatementView, ServiceDefinitionView, ThrowStatementView,
               WhileStatementView, WorkerDeclarationView, SourceView, ActionInvocationStatementView,
-              ServicePreviewView, SimpleStatementView, BlockStatementView, Backend) {
+              ServicePreviewView, SimpleStatementView, BlockStatementView, CompoundStatementView, Backend) {
         return  {
             BallerinaView: BallerinaView,
             BallerinaFileEditor: BallerinaFileEditor,
@@ -44,6 +44,7 @@ define(['./ballerina-file-editor', './ballerina-view', './message-manager', './c
             ServicePreviewView: ServicePreviewView,
             SimpleStatementView: SimpleStatementView,
             BlockStatementView: BlockStatementView,
+            CompoundStatementView: CompoundStatementView,
             Backend : Backend
         }
     });

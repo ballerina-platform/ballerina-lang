@@ -27,7 +27,7 @@ define(['lodash', './expression'], function (_, Expression) {
         Expression.call(this, 'FunctionInvocationExpression');
         this._packageName = _.get(args, 'packageName', '');
         this._functionName = _.get(args, 'functionName', 'callFunction');
-        this._params = _.get(args, 'params', []);
+        this._params = _.get(args, 'params', '');
         this._fullPackageName = _.get(args, 'fullPackageName', '');
 
         //create the default expression for action invocation

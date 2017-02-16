@@ -452,7 +452,6 @@ define(['lodash', 'log', './node', './import-declaration', './assignment-stateme
             || BallerinaASTFactory.isConnectorDefinition(node)
             || BallerinaASTFactory.isStructDefinition(node)
             || BallerinaASTFactory.isTypeMapperDefinition(node)
-            || BallerinaASTFactory.isTypeStructDefinition(node);
     };
 
     /**

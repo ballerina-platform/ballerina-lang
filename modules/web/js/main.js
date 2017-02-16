@@ -17,9 +17,9 @@
  */
 define(['require', 'log', 'jquery', 'lodash', 'backbone', 'app/menu-bar/menu-bar', 'breadcrumbs', 'file_browser', 'tab/file-tab-list',
 
-    'command','workspace', 'debugger', 'debugger/debug-manager' ,/* void modules */ 'jquery_ui', 'bootstrap', 'theme_wso2'],
+    'command','workspace', 'debugger', 'debugger/debug-manager', './launcher/launch-manager' , './launcher/launcher', 'console' ,/* void modules */ 'jquery_ui', 'bootstrap', 'theme_wso2'],
 
-    function (require, log, $, _, Backbone, MenuBar, BreadcrumbController, FileBrowser, TabController, CommandManager, Workspace, Debugger, DebugManager) {
+    function (require, log, $, _, Backbone, MenuBar, BreadcrumbController, FileBrowser, TabController, CommandManager, Workspace, Debugger, DebugManager, LaunchManager, Launcher, Console) {
 
     var Application = Backbone.View.extend(
     /** @lends Application.prototype */
@@ -69,12 +69,21 @@ define(['require', 'log', 'jquery', 'lodash', 'backbone', 'app/menu-bar/menu-bar
             _.set(workspaceExplorerOpts, 'application', this);
             this.workspaceExplorer = new Workspace.Explorer(workspaceExplorerOpts);
 
+            //init launcher
+            var launcherOpts = _.get(this.config, "launcher");
+            _.set(launcherOpts, 'application', this);
+            this.launcher = new Launcher(launcherOpts);
+
+            LaunchManager.init(launcherOpts);            
+
             // init debugger
+
             var debuggerOpts = _.get(this.config, "debugger");
-            _.set(debuggerOpts, 'application', this);            
+            _.set(debuggerOpts, 'application', this);
+            _.set(debuggerOpts, 'launchManager', LaunchManager);
             this.debugger = new Debugger(debuggerOpts);       
 
-            var debuggerManager = DebugManager.init(debuggerOpts);
+            DebugManager.init(debuggerOpts);
         },
 
         validateConfig: function(config){
@@ -110,6 +119,10 @@ define(['require', 'log', 'jquery', 'lodash', 'backbone', 'app/menu-bar/menu-bar
             log.debug("start: rendering debugger control");
             this.debugger.render();
             log.debug("end: rendering debugger control");
+
+            log.debug("start: rendering launcher control");
+            this.launcher.render();
+            log.debug("end: rendering launcher control");
 
             log.debug("start: rendering tab controller");
             this.tabController.render();

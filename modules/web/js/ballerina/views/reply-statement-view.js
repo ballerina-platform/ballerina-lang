@@ -92,6 +92,11 @@ define(['lodash', 'log', './simple-statement-view', './../ast/reply-statement', 
                 getterMethod: model.getReplyMessage,
                 setterMethod: model.setReplyMessage
             };
+
+            this._createDebugIndicator({
+                statementGroup: statementGroup
+            });
+
             this._createPropertyPane({
                                          model: model,
                                          statementGroup: statementGroup,

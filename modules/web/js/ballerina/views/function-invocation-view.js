@@ -81,6 +81,10 @@ define(['lodash', 'log', './simple-statement-view', './../ast/function-invocatio
             });
             this.listenTo(model, 'update-property-text', this.updateFunctionalExpression);
 
+            this._createDebugIndicator({
+                statementGroup: statementGroup
+            });
+
             log.debug("Rendering Function Invocation Statement finished.");
             return statementGroup;
         };

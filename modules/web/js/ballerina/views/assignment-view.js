@@ -80,6 +80,10 @@ define(['lodash', 'log', './simple-statement-view', './../ast/assignment', 'd3ut
                                      });
             this.listenTo(model, 'update-property-text', this.updateStatementText);
 
+            this._createDebugIndicator({
+                statementGroup: statementGroup
+            });
+
             return statementGroup;
         };
 

@@ -15,13 +15,13 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require', 'lodash', 'jquery', 'log', './block-statement-view'],
-    function (require, _, $, log, BlockStatementView) {
+define(['require', 'lodash', 'log', './block-statement-view', './../ast/else-statement'],
+    function (require, _, log, BlockStatementView, ElseStatement) {
 
         /**
          * The view to represent a Else statement which is an AST visitor.
          * @param {Object} args - Arguments for creating the view.
-         * @param {IfElseStatement} args.model - The Else statement model.
+         * @param {ElseStatement} args.model - The Else statement model.
          * @param {Object} args.container - The HTML container to which the view should be added to.
          * @param {Object} args.parent - Parent Statement View, which in this case the if-else statement
          * @param {Object} [args.viewOptions={}] - Configuration values for the view.
