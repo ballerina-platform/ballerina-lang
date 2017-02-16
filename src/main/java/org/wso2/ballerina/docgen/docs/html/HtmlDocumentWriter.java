@@ -155,6 +155,9 @@ public class HtmlDocumentWriter implements DocumentWriter {
                     })
                     //this would bind a link to the custom types defined
                     .registerHelper("bindLink", (Helper<SymbolName>) (type, options) -> {
+                        if (type == null) {
+                            return "";
+                        }
                         if ((type.getPkgPath() != null) && (!type.getPkgPath().isEmpty())) {
                             return type.getPkgPath() + ".html#" + type.getName();
                         }
