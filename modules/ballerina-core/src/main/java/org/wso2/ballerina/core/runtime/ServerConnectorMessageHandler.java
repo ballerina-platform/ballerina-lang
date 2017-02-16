@@ -23,7 +23,6 @@ import org.slf4j.LoggerFactory;
 import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.interpreter.nonblocking.BLangExecutionVisitor;
-import org.wso2.ballerina.core.interpreter.nonblocking.ModeResolver;
 import org.wso2.ballerina.core.model.Resource;
 import org.wso2.ballerina.core.model.Service;
 import org.wso2.ballerina.core.nativeimpl.connectors.BalConnectorCallback;
@@ -108,7 +107,7 @@ public class ServerConnectorMessageHandler {
         BalConnectorCallback connectorCallback = (BalConnectorCallback) callback;
         try {
             callback.done(cMsg);
-            if (ModeResolver.getInstance().isNonblockingEnabled()) {
+            if (connectorCallback.isNonBlockingExecutor()) {
                 // Continue Non-Blocking
                 BLangExecutionVisitor executor = connectorCallback.getContext().getExecutor();
                 executor.continueExecution(connectorCallback.getCurrentNode().next());
