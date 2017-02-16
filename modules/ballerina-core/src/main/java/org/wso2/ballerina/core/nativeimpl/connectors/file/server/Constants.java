@@ -24,7 +24,6 @@ package org.wso2.ballerina.core.nativeimpl.connectors.file.server;
 public class Constants {
     public static final String ANNOTATION_PROTOCOL = "protocol";
     public static final String ANNOTATION_NAME_SOURCE = "Source";
-    public static final String ANNOTATION_NAME_ON_FILE = "OnMessage";
     public static final String PROTOCOL_FILE = "file";
     public static final String TRANSPORT_PROPERTY_SERVICE_NAME = "TRANSPORT_FILE_SERVICE_NAME";
 }
