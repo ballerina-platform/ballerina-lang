@@ -236,6 +236,43 @@ public class SystemTest {
 
     }
 
+    @Test
+    public void testGetEnv() throws IOException {
+        try (ByteArrayOutputStream outContent = new ByteArrayOutputStream()) {
+            System.setOut(new PrintStream(outContent));
+            final String pathValue = System.getenv("PATH");
+            BValueType[] args = {new BString("PATH")};
+            Functions.invoke(bFile, "getEnvVar", args);
+            Assert.assertEquals(outContent.toString(), pathValue);
+        } finally {
+            System.setOut(original);
+        }
+    }
+
+    @Test(expectedExceptions = ArrayIndexOutOfBoundsException.class)
+    public void testGetEnvNonExisting() throws IOException {
+        try (ByteArrayOutputStream outContent = new ByteArrayOutputStream()) {
+            System.setOut(new PrintStream(outContent));
+            BValueType[] args = {new BString("PATH2")};
+            Functions.invoke(bFile, "getEnvVar", args);
+            outContent.toString();
+        } finally {
+            System.setOut(original);
+        }
+    }
+
+    @Test(expectedExceptions = ArrayIndexOutOfBoundsException.class)
+    public void testGetEnvEmptyKey() throws IOException {
+        try (ByteArrayOutputStream outContent = new ByteArrayOutputStream()) {
+            System.setOut(new PrintStream(outContent));
+            BValueType[] args = {new BString("")};
+            Functions.invoke(bFile, "getEnvVar", args);
+            outContent.toString();
+        } finally {
+            System.setOut(original);
+        }
+    }
+
     static class TestLogAppender extends AppenderSkeleton {
 
         List<LoggingEvent> events;

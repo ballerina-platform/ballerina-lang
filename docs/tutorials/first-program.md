@@ -7,7 +7,7 @@ Now that you’ve taken the [Quick Tour](../quick-tour.md), let's dig a little d
 In the [Quick Tour](../quick-tour.md), you learned how to start Ballerina and run a sample program from the `bin` directory with a single command:
 
 ```
-./ballerina run ../samples/helloWorld/helloWorld.bal
+./ballerina run main ../samples/helloWorld/helloWorld.bal
 ```
 
 After the HelloWorld program executed, Ballerina stopped. This approach is called **standalone mode**, and it's useful when you want to execute a program once and then stop as soon as it has finished its job. It runs the `main()` function of the program you specify and then exits. 
@@ -15,7 +15,7 @@ After the HelloWorld program executed, Ballerina stopped. This approach is calle
 You can also run Ballerina as a **server**, so that it can deploy a program as a service that waits for requests. To see how this works, let's go to the Ballerina `bin` directory, and then run Ballerina in server mode and deploy the HelloWorldService program:
 
 ```
-./ballerina service ../samples/helloWorldService/helloWorldService.bal
+./ballerina run service ../samples/helloWorldService/helloWorldService.bal
 ```
 
 In this case, Ballerina ran and deployed the HelloWorldService program as a service, which is waiting for a request. Let's send it one now. The Ballerina server is available at `localhost:9090`, and HelloWorldService is available at context `hello`. Open another command line and use the [curl](https://curl.haxx.se) client to call the service as follows:
@@ -85,14 +85,14 @@ This completes the sequence, so you are now ready to save and run your integrati
 ### Save the program
 
 1. Click the **File** menu and choose **Save As**. 
-1. Save it as `myEcho.bal` in your Ballerina `bin` directory. 
+1. Save it as `myEcho.bal` in your Ballerina `samples` directory. 
 
 ### Run the program
 
 1. At your command prompt, navigate to your Ballerina `bin` directory, and enter the command to run the Ballerina server and deploy your myEcho program:
 
   ```
-  ./ballerina service myEcho.bal
+  ./ballerina run service ../samples/myEcho.bal
   ```
 
 Your service is now deployed and running on the Ballerina server. 

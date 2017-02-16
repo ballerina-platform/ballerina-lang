@@ -13,7 +13,7 @@ This sample will show you how easy it is to run Ballerina, send it a request, an
 At the command prompt, navigate to the `<ballerina_home>/bin` directory and enter the following line:
 
 ```
-ballerina run helloworld.bal
+ballerina run main helloworld.bal
 ```
 
 You will see the following response:
@@ -28,8 +28,7 @@ You just started Ballerina, ran the HelloWorld sample, and got a response within
 function main (string[] args) {
   system:println("Hello, World!");
 }
-```
-
+``` 
 Pretty simple and straightforward, right? Now, let's look at something a little more interesting: the editor.
 
 ## Run the editor
@@ -48,7 +47,7 @@ Also notice in the lower right corner the Source View and Swagger View buttons.
    
 1. Click **Source View**. You'll see the source code editor that represents the sequence diagram as code in the Ballerina language. You can go back and forth between the visual editor and the source code and make your edits in either place. 
 
-1. Click **Swagger View**. This editor allows you to create Swagger definitions to create APIs.
+1. Click **Swagger View**. This editor allows you to write Swagger definitions to create services.
 
 1. Click **Design View** to return to the visual editor. 
 
