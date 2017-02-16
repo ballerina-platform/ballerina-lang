@@ -73,8 +73,6 @@
                         </goals>
                         <configuration>
                             <includeArtifactIds>ballerina-distribution</includeArtifactIds>
-                            <!--<includes>**/*</includes>-->
-                            <!--<excludes>**/*</excludes>-->
                             <outputDirectory>${project.build.directory}/extracted-distributions</outputDirectory>
                             <overWriteReleases>false</overWriteReleases>
                             <overWriteSnapshots>true</overWriteSnapshots>
