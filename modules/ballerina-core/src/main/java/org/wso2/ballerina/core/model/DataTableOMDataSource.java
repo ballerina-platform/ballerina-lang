@@ -53,8 +53,8 @@ public class DataTableOMDataSource extends AbstractPushOMDataSource {
         xmlStreamWriter.writeStartElement(this.rootWrapper);
         while (dataTable.next()) {
             xmlStreamWriter.writeStartElement(this.rowWrapper);
-            boolean isArray = false;
             for (BDataTable.ColumnDefinition col : dataTable.getColumnDefs()) {
+                boolean isArray = false;
                 xmlStreamWriter.writeStartElement(col.getName());
                 String value = null;
                 switch (col.getType()) {

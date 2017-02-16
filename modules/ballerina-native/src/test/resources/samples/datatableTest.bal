@@ -82,7 +82,7 @@ function toXmlComplex() (xml) {
     datatable df;
     xml result;
 
-    df = sql:ClientConnector.select(testDB, "SELECT int_type, long_type, float_type, double_type, boolean_type, string_type, int_array, long_array, float_array, double_array, boolean_array, string_array from MixTypes LIMIT 1");
+    df = sql:ClientConnector.select(testDB, "SELECT int_type, int_array, long_type, long_array, float_type, float_array, double_type, boolean_type, string_type, double_array, boolean_array, string_array from MixTypes LIMIT 1");
     result = datatables:toXml(df, "types", "type");
     return result;
 }

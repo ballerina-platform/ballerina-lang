@@ -78,7 +78,7 @@ public class SQLConnector extends AbstractNativeConnector {
            return  hikariDataSource.getConnection();
         } catch (SQLException e) {
             throw new BallerinaException(
-                    "error in get connection: " + SQLConnector.CONNECTOR_NAME + ": " + e.getCause().getMessage(), e);
+                    "error in get connection: " + SQLConnector.CONNECTOR_NAME + ": " + e.getMessage(), e);
         }
     }
 

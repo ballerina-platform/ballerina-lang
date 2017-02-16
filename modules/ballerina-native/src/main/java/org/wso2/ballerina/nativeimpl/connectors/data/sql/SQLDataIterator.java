@@ -64,6 +64,9 @@ public class SQLDataIterator implements DataIterator {
     @Override
     public void close() {
         SQLUtils.cleanupConnection(rs, stmt, conn);
+        rs = null;
+        stmt = null;
+        conn = null;
     }
 
     @Override
@@ -71,7 +74,7 @@ public class SQLDataIterator implements DataIterator {
         try {
             return rs.next();
         } catch (SQLException e) {
-            throw new BallerinaException(e.getCause().getMessage(), e);
+            throw new BallerinaException(e.getMessage(), e);
         }
     }
 
@@ -79,7 +82,7 @@ public class SQLDataIterator implements DataIterator {
         try {
             return rs.getString(index);
         } catch (SQLException e) {
-            throw new BallerinaException(e.getCause().getMessage(), e);
+            throw new BallerinaException(e.getMessage(), e);
         }
     }
 
@@ -88,7 +91,7 @@ public class SQLDataIterator implements DataIterator {
         try {
             return rs.getString(columnName);
         } catch (SQLException e) {
-            throw new BallerinaException(e.getCause().getMessage(), e);
+            throw new BallerinaException(e.getMessage(), e);
         }
     }
 
@@ -96,7 +99,7 @@ public class SQLDataIterator implements DataIterator {
         try {
             return rs.getLong(index);
         } catch (SQLException e) {
-            throw new BallerinaException(e.getCause().getMessage(), e);
+            throw new BallerinaException(e.getMessage(), e);
         }
     }
 
@@ -105,7 +108,7 @@ public class SQLDataIterator implements DataIterator {
         try {
             return rs.getLong(columnName);
         } catch (SQLException e) {
-            throw new BallerinaException(e.getCause().getMessage(), e);
+            throw new BallerinaException(e.getMessage(), e);
         }
     }
 
@@ -113,7 +116,7 @@ public class SQLDataIterator implements DataIterator {
         try {
             return rs.getInt(index);
         } catch (SQLException e) {
-            throw new BallerinaException(e.getCause().getMessage(), e);
+            throw new BallerinaException(e.getMessage(), e);
         }
     }
 
@@ -122,7 +125,7 @@ public class SQLDataIterator implements DataIterator {
         try {
             return rs.getInt(columnName);
         } catch (SQLException e) {
-            throw new BallerinaException(e.getCause().getMessage(), e);
+            throw new BallerinaException(e.getMessage(), e);
         }
     }
 
@@ -130,7 +133,7 @@ public class SQLDataIterator implements DataIterator {
         try {
             return rs.getFloat(index);
         } catch (SQLException e) {
-            throw new BallerinaException(e.getCause().getMessage(), e);
+            throw new BallerinaException(e.getMessage(), e);
         }
     }
 
@@ -139,7 +142,7 @@ public class SQLDataIterator implements DataIterator {
         try {
             return rs.getFloat(columnName);
         } catch (SQLException e) {
-            throw new BallerinaException(e.getCause().getMessage(), e);
+            throw new BallerinaException(e.getMessage(), e);
         }
     }
 
@@ -147,7 +150,7 @@ public class SQLDataIterator implements DataIterator {
         try {
             return rs.getDouble(index);
         } catch (SQLException e) {
-            throw new BallerinaException(e.getCause().getMessage(), e);
+            throw new BallerinaException(e.getMessage(), e);
         }
     }
 
@@ -156,7 +159,7 @@ public class SQLDataIterator implements DataIterator {
         try {
             return rs.getDouble(columnName);
         } catch (SQLException e) {
-            throw new BallerinaException(e.getCause().getMessage(), e);
+            throw new BallerinaException(e.getMessage(), e);
         }
     }
 
@@ -164,7 +167,7 @@ public class SQLDataIterator implements DataIterator {
         try {
             return rs.getBoolean(index);
         } catch (SQLException e) {
-            throw new BallerinaException(e.getCause().getMessage(), e);
+            throw new BallerinaException(e.getMessage(), e);
         }
     }
 
@@ -173,7 +176,7 @@ public class SQLDataIterator implements DataIterator {
         try {
             return rs.getBoolean(columnName);
         } catch (SQLException e) {
-            throw new BallerinaException(e.getCause().getMessage(), e);
+            throw new BallerinaException(e.getMessage(), e);
         }
     }
 
@@ -187,7 +190,7 @@ public class SQLDataIterator implements DataIterator {
                 return null;
             }
         } catch (SQLException e) {
-            throw new BallerinaException(e.getCause().getMessage(), e);
+            throw new BallerinaException(e.getMessage(), e);
         }
     }
 
@@ -221,7 +224,7 @@ public class SQLDataIterator implements DataIterator {
                 return null;
             }
         } catch (SQLException e) {
-            throw new BallerinaException(e.getCause().getMessage(), e);
+            throw new BallerinaException(e.getMessage(), e);
         }
     }
 
@@ -246,7 +249,7 @@ public class SQLDataIterator implements DataIterator {
                 return getBString(rs.getBinaryStream(columnIndex));
             }
         } catch (SQLException e) {
-            throw new BallerinaException("failed to get the value of " + type + ": " + e.getCause().getMessage(), e);
+            throw new BallerinaException("failed to get the value of " + type + ": " + e.getMessage(), e);
         }
         return null;
     }
@@ -272,7 +275,7 @@ public class SQLDataIterator implements DataIterator {
                 return getBString(rs.getBinaryStream(columnName));
             }
         } catch (SQLException e) {
-            throw new BallerinaException("failed to get the value of " + type + ": " + e.getCause().getMessage(), e);
+            throw new BallerinaException("failed to get the value of " + type + ": " + e.getMessage(), e);
         }
         return null;
     }
@@ -289,7 +292,7 @@ public class SQLDataIterator implements DataIterator {
                 }
             }
         } catch (SQLException e) {
-            throw new BallerinaException(e.getCause().getMessage(), e);
+            throw new BallerinaException(e.getMessage(), e);
         }
         return resultMap;
     }
@@ -306,7 +309,7 @@ public class SQLDataIterator implements DataIterator {
                 }
             }
         } catch (SQLException e) {
-            throw new BallerinaException(e.getCause().getMessage(), e);
+            throw new BallerinaException(e.getMessage(), e);
         }
         return resultMap;
     }
@@ -322,7 +325,7 @@ public class SQLDataIterator implements DataIterator {
                 buffer.append(arr, 0, numCharsRead);
             }
         } catch (IOException e) {
-            throw new BallerinaException("failed to read from clob type: " + e.getCause().getMessage(), e);
+            throw new BallerinaException("failed to read from clob type: " + e.getMessage(), e);
         }
         return new BString(buffer.toString());
     }
@@ -352,7 +355,7 @@ public class SQLDataIterator implements DataIterator {
                 sb.append(line);
             }
         } catch (IOException e) {
-            throw new BallerinaException("failed to read binary as a string: " + e.getCause().getMessage(), e);
+            throw new BallerinaException("failed to read binary as a string: " + e.getMessage(), e);
         }
         return sb.toString();
     }
@@ -360,5 +363,4 @@ public class SQLDataIterator implements DataIterator {
     private byte[] getBase64Encode(String st) {
         return Base64.getEncoder().encode(st.getBytes(Charset.defaultCharset()));
     }
-
 }

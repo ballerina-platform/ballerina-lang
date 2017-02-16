@@ -73,7 +73,7 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
             context.getControlStack().setReturnValue(0, datatable);
         } catch (SQLException e) {
             SQLUtils.cleanupConnection(rs, stmt, conn);
-            throw new BallerinaException("execute query failed: " + e.getCause().getMessage(), e);
+            throw new BallerinaException("execute query failed: " + e.getMessage(), e);
         }
     }
 
@@ -88,7 +88,7 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
             BInteger updatedCount = new BInteger(count);
             context.getControlStack().setReturnValue(0, updatedCount);
         } catch (SQLException e) {
-            throw new BallerinaException("execute update failed: " + e.getCause().getMessage(), e);
+            throw new BallerinaException("execute update failed: " + e.getMessage(), e);
         } finally {
             SQLUtils.cleanupConnection(rs, stmt, conn);
         }
@@ -147,7 +147,7 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
             }
         } catch (SQLException e) {
             SQLUtils.cleanupConnection(rs, stmt, conn);
-            throw new BallerinaException("execute stored procedure failed: " + e.getCause().getMessage(), e);
+            throw new BallerinaException("execute stored procedure failed: " + e.getMessage(), e);
         }
     }
 
