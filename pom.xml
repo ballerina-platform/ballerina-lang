@@ -49,6 +49,11 @@
             <version>${junit.version}</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.wso2.ballerina</groupId>
+            <artifactId>ballerina-launcher</artifactId>
+            <version>${ballerina.launcher.version}</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -95,5 +100,6 @@
         <commons.lang3.version>3.5</commons.lang3.version>
         <commons.io.version>2.5</commons.io.version>
         <jcommander.version>1.60</jcommander.version>
+        <ballerina.launcher.version>0.8.0-SNAPSHOT</ballerina.launcher.version>
     </properties>
 </project>
