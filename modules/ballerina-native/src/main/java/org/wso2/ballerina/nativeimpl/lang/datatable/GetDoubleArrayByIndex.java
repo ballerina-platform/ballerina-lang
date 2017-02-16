@@ -46,10 +46,10 @@ import org.wso2.ballerina.core.nativeimpl.annotations.ReturnType;
 public class GetDoubleArrayByIndex extends AbstractNativeFunction {
 
     public BValue[] execute(Context ctx) {
-        BDataTable dataframe = (BDataTable) getArgument(ctx, 0);
+        BDataTable dataTable = (BDataTable) getArgument(ctx, 0);
         int index = ((BInteger) getArgument(ctx, 1)).intValue();
         BArray<BDouble> array = new BArray<>(BDouble.class);
-        double[] doubleArray = dataframe.getDoubleArray(index);
+        double[] doubleArray = dataTable.getDoubleArray(index);
         for (int i = 0; i < doubleArray.length; i++) {
             array.add(i, new BDouble(doubleArray[i]));
         }

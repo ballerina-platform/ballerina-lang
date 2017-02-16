@@ -43,7 +43,7 @@ import org.wso2.ballerina.core.nativeimpl.annotations.ReturnType;
 public class Next extends AbstractNativeFunction {
 
     public BValue[] execute(Context ctx) {
-        BDataTable dataframe = (BDataTable) getArgument(ctx, 0);
-        return getBValues(new BBoolean(dataframe.next()));
+        BDataTable dataTable = (BDataTable) getArgument(ctx, 0);
+        return getBValues(new BBoolean(dataTable.next()));
     }
 }

@@ -42,8 +42,8 @@ import org.wso2.ballerina.core.nativeimpl.annotations.ReturnType;
 public class ToJSON extends AbstractNativeFunction {
 
     public BValue[] execute(Context ctx) {
-        BDataTable dataframe = (BDataTable) getArgument(ctx, 0);
-        return getBValues(dataframe.toJSON());
+        BDataTable dataTable = (BDataTable) getArgument(ctx, 0);
+        return getBValues(dataTable.toJSON());
     }
     
 }

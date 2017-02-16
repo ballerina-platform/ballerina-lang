@@ -44,8 +44,8 @@ import org.wso2.ballerina.core.nativeimpl.annotations.ReturnType;
 public class GetFloatByName extends AbstractNativeFunction {
 
     public BValue[] execute(Context ctx) {
-        BDataTable dataframe = (BDataTable) getArgument(ctx, 0);
+        BDataTable dataTable = (BDataTable) getArgument(ctx, 0);
         String columnName = (getArgument(ctx, 1)).stringValue();
-        return getBValues(new BFloat(dataframe.getFloat(columnName)));
+        return getBValues(new BFloat(dataTable.getFloat(columnName)));
     }
 }

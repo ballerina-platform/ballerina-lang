@@ -45,10 +45,10 @@ import org.wso2.ballerina.core.nativeimpl.annotations.ReturnType;
 public class GetIntArrayByName extends AbstractNativeFunction {
 
     public BValue[] execute(Context ctx) {
-        BDataTable dataframe = (BDataTable) getArgument(ctx, 0);
+        BDataTable dataTable = (BDataTable) getArgument(ctx, 0);
         String columnName = (getArgument(ctx, 1)).stringValue();
         BArray<BInteger> array = new BArray<>(BInteger.class);
-        int[] intArray = dataframe.getIntArray(columnName);
+        int[] intArray = dataTable.getIntArray(columnName);
         for (int i = 0; i < intArray.length; i++) {
             array.add(i, new BInteger(intArray[i]));
         }

@@ -40,6 +40,8 @@ import java.util.Set;
 
 /**
  * Native SQL Connector.
+ *
+ * @since 0.8.0
  */
 @BallerinaConnector(
         packageName = SQLConnector.CONNECTOR_PACKAGE,
@@ -62,10 +64,8 @@ public class SQLConnector extends AbstractNativeConnector {
 
     @Override
     public boolean init(BValue[] bValueRefs) {
-        if (bValueRefs != null && bValueRefs.length == 1) {
-            BMap options = (BMap) bValueRefs[0];
-            buildDataSource(options);
-        }
+        BMap options = (BMap) bValueRefs[0];
+        buildDataSource(options);
         return true;
     }
 
@@ -76,146 +76,144 @@ public class SQLConnector extends AbstractNativeConnector {
 
     public Connection getSQLConnection() {
         Connection conn = null;
-        if (hikariDataSource != null) {
-            try {
-                conn = hikariDataSource.getConnection();
-            } catch (SQLException e) {
-                throw new BallerinaException(
-                        "Error in creating Connection in " + SQLConnector.CONNECTOR_NAME + ". " + e.getMessage(), e);
-            }
+        try {
+            conn = hikariDataSource.getConnection();
+        } catch (SQLException e) {
+            throw new BallerinaException(
+                    "error in get connection: " + SQLConnector.CONNECTOR_NAME + ": " + e.getCause().getMessage(), e);
         }
         return conn;
     }
 
     private void buildDataSource(BMap options) {
         HikariConfig config = new HikariConfig();
-        BString key = new BString(Constants.DATA_SOURCE_CLASSNAME);
+        BString key = new BString(Constants.PoolProperties.DATA_SOURCE_CLASSNAME);
         BValue value = options.get(key);
         if (value != null) {
             config.setDataSourceClassName(value.stringValue());
             options.remove(key);
         }
-        key = new BString(Constants.JDBC_URL);
+        key = new BString(Constants.PoolProperties.JDBC_URL);
         value = options.get(key);
         if (value != null) {
             config.setJdbcUrl(value.stringValue());
             options.remove(key);
         }
-        key = new BString(Constants.USER_NAME);
+        key = new BString(Constants.PoolProperties.USER_NAME);
         value = options.get(key);
         if (value != null) {
             config.setUsername(value.stringValue());
             options.remove(key);
         }
-        key = new BString(Constants.PASSWORD);
+        key = new BString(Constants.PoolProperties.PASSWORD);
         value = options.get(key);
         if (value != null) {
             config.setPassword(value.stringValue());
             options.remove(key);
         }
-        key = new BString(Constants.AUTO_COMMIT);
+        key = new BString(Constants.PoolProperties.AUTO_COMMIT);
         value = options.get(key);
         if (value != null) {
             config.setAutoCommit(Boolean.parseBoolean(value.stringValue()));
             options.remove(key);
         }
-        key = new BString(Constants.CONNECTION_TIMEOUT);
+        key = new BString(Constants.PoolProperties.CONNECTION_TIMEOUT);
         value = options.get(key);
         if (value != null) {
             config.setConnectionTimeout(Long.parseLong(value.stringValue()));
             options.remove(key);
         }
-        key = new BString(Constants.IDLE_TIMEOUT);
+        key = new BString(Constants.PoolProperties.IDLE_TIMEOUT);
         value = options.get(key);
         if (value != null) {
             config.setIdleTimeout(Long.parseLong(value.stringValue()));
             options.remove(key);
         }
-        key = new BString(Constants.MAX_LIFETIME);
+        key = new BString(Constants.PoolProperties.MAX_LIFETIME);
         value = options.get(key);
         if (value != null) {
             config.setMaxLifetime(Long.parseLong(value.stringValue()));
             options.remove(key);
         }
-        key = new BString(Constants.CONNECTION_TEST_QUERY);
+        key = new BString(Constants.PoolProperties.CONNECTION_TEST_QUERY);
         value = options.get(key);
         if (value != null) {
             config.setConnectionTestQuery(value.stringValue());
             options.remove(key);
         }
-        key = new BString(Constants.MINIMUM_IDLE);
+        key = new BString(Constants.PoolProperties.MINIMUM_IDLE);
         value = options.get(key);
         if (value != null) {
             config.setMinimumIdle(Integer.parseInt(value.stringValue()));
             options.remove(key);
         }
-        key = new BString(Constants.MAXIMUM_POOL_SIZE);
+        key = new BString(Constants.PoolProperties.MAXIMUM_POOL_SIZE);
         value = options.get(key);
         if (value != null) {
             config.setMaximumPoolSize(Integer.parseInt(value.stringValue()));
             options.remove(key);
         }
-        key = new BString(Constants.POOOL_NAME);
+        key = new BString(Constants.PoolProperties.POOOL_NAME);
         value = options.get(key);
         if (value != null) {
             config.setPoolName(value.stringValue());
             options.remove(key);
         }
-        key = new BString(Constants.ISOLATE_INTERNAL_QUERIES);
+        key = new BString(Constants.PoolProperties.ISOLATE_INTERNAL_QUERIES);
         value = options.get(key);
         if (value != null) {
             config.setIsolateInternalQueries(Boolean.parseBoolean(value.stringValue()));
             options.remove(key);
         }
-        key = new BString(Constants.ALLOW_POOL_SUSPENSION);
+        key = new BString(Constants.PoolProperties.ALLOW_POOL_SUSPENSION);
         value = options.get(key);
         if (value != null) {
             config.setAllowPoolSuspension(Boolean.parseBoolean(value.stringValue()));
             options.remove(key);
         }
-        key = new BString(Constants.READ_ONLY);
+        key = new BString(Constants.PoolProperties.READ_ONLY);
         value = options.get(key);
         if (value != null) {
             config.setReadOnly(Boolean.parseBoolean(value.stringValue()));
             options.remove(key);
         }
-        key = new BString(Constants.REGISTER_MBEANS);
+        key = new BString(Constants.PoolProperties.REGISTER_MBEANS);
         value = options.get(key);
         if (value != null) {
             config.setRegisterMbeans(Boolean.parseBoolean(value.stringValue()));
             options.remove(key);
         }
-        key = new BString(Constants.CATALOG);
+        key = new BString(Constants.PoolProperties.CATALOG);
         value = options.get(key);
         if (value != null) {
             config.setCatalog(value.stringValue());
             options.remove(key);
         }
-        key = new BString(Constants.CONNECTION_INIT_SQL);
+        key = new BString(Constants.PoolProperties.CONNECTION_INIT_SQL);
         value = options.get(key);
         if (value != null) {
             config.setConnectionInitSql(value.stringValue());
             options.remove(key);
         }
-        key = new BString(Constants.DRIVER_CLASSNAME);
+        key = new BString(Constants.PoolProperties.DRIVER_CLASSNAME);
         value = options.get(key);
         if (value != null) {
             config.setDriverClassName(value.stringValue());
             options.remove(key);
         }
-        key = new BString(Constants.TRANSACTION_ISOLATION);
+        key = new BString(Constants.PoolProperties.TRANSACTION_ISOLATION);
         value = options.get(key);
         if (value != null) {
             config.setTransactionIsolation(value.stringValue());
             options.remove(key);
         }
-        key = new BString(Constants.VALIDATION_TIMEOUT);
+        key = new BString(Constants.PoolProperties.VALIDATION_TIMEOUT);
         value = options.get(key);
         if (value != null) {
             config.setValidationTimeout(Long.parseLong(value.stringValue()));
             options.remove(key);
         }
-        key = new BString(Constants.LEAK_DETECTION_THRESHOLD);
+        key = new BString(Constants.PoolProperties.LEAK_DETECTION_THRESHOLD);
         value = options.get(key);
         if (value != null) {
             config.setLeakDetectionThreshold(Long.parseLong(value.stringValue()));

@@ -45,8 +45,8 @@ import org.wso2.ballerina.core.nativeimpl.annotations.ReturnType;
 public class GetFloatByIndex extends AbstractNativeFunction {
 
     public BValue[] execute(Context ctx) {
-        BDataTable dataframe = (BDataTable) getArgument(ctx, 0);
+        BDataTable dataTable = (BDataTable) getArgument(ctx, 0);
         int index = ((BInteger) getArgument(ctx, 1)).intValue();
-        return getBValues(new BFloat(dataframe.getFloat(index)));
+        return getBValues(new BFloat(dataTable.getFloat(index)));
     }
 }

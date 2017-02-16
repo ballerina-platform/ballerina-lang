@@ -45,8 +45,8 @@ import org.wso2.ballerina.core.nativeimpl.annotations.ReturnType;
 public class GetLongByIndex extends AbstractNativeFunction {
 
     public BValue[] execute(Context ctx) {
-        BDataTable dataframe = (BDataTable) getArgument(ctx, 0);
+        BDataTable dataTable = (BDataTable) getArgument(ctx, 0);
         int index = ((BInteger) getArgument(ctx, 1)).intValue();
-        return getBValues(new BLong(dataframe.getLong(index)));
+        return getBValues(new BLong(dataTable.getLong(index)));
     }
 }
