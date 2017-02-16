@@ -17,6 +17,8 @@
 */
 package org.wso2.ballerina.core.interpreter;
 
+import org.wso2.ballerina.core.model.BLangPackage;
+import org.wso2.ballerina.core.model.BLangProgram;
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.ConstDef;
 import org.wso2.ballerina.core.model.Function;
@@ -37,6 +39,36 @@ public class RuntimeEnvironment {
 
     public StaticMemory getStaticMemory() {
         return staticMemory;
+    }
+
+    public static RuntimeEnvironment get(BLangProgram bLangProgram) {
+        StaticMemory staticMemory = new StaticMemory(bLangProgram.getSizeOfStaticMem());
+        RuntimeEnvironment runtimeEnvironment = new RuntimeEnvironment(staticMemory);
+
+        int staticMemOffset = 0;
+        for (BLangPackage bLangPackage : bLangProgram.getPackages()) {
+            for (ConstDef constant : bLangPackage.getConsts()) {
+                staticMemory.setValue(staticMemOffset, constant.getValue());
+                staticMemOffset++;
+            }
+        }
+
+        for (BLangPackage servicePackage : bLangProgram.getServicePackages()) {
+            for (Service service : servicePackage.getServices()) {
+                Function initFunction = service.getInitFunction();
+                CallableUnitInfo functionInfo = new CallableUnitInfo(initFunction.getName(),
+                        initFunction.getPackagePath(), initFunction.getNodeLocation());
+                StackFrame currentStackFrame = new StackFrame(new BValue[0], new BValue[0], functionInfo);
+
+                Context bContext = new Context();
+                bContext.getControlStack().pushFrame(currentStackFrame);
+
+                BLangExecutor bLangExecutor = new BLangExecutor(runtimeEnvironment, bContext);
+                initFunction.getCallableUnitBody().execute(bLangExecutor);
+            }
+        }
+
+        return runtimeEnvironment;
     }
 
     public static RuntimeEnvironment get(BallerinaFile bFile) {

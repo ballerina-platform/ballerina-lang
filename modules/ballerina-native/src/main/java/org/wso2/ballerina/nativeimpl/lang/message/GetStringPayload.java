@@ -39,7 +39,7 @@ import org.wso2.ballerina.core.nativeimpl.annotations.ReturnType;
 @BallerinaFunction(
         packageName = "ballerina.lang.message",
         functionName = "getStringPayload",
-        args = {@Argument(name = "message", type = TypeEnum.MESSAGE)},
+        args = {@Argument(name = "m", type = TypeEnum.MESSAGE)},
         returnType = {@ReturnType(type = TypeEnum.STRING)},
         isPublic = true
 )

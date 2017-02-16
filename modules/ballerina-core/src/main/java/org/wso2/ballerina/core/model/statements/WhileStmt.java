@@ -31,8 +31,7 @@ public class WhileStmt extends AbstractStatement {
     private Expression whileCondition;
     private BlockStmt whileBody;
 
-    // TODO Make this constructor private
-    public WhileStmt(NodeLocation location, Expression whileCondition, BlockStmt whileBody) {
+    private WhileStmt(NodeLocation location, Expression whileCondition, BlockStmt whileBody) {
         super(location);
         this.whileCondition = whileCondition;
         this.whileBody = whileBody;

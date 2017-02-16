@@ -44,7 +44,7 @@ import java.util.Map;
 @BallerinaFunction(
         packageName = "ballerina.net.uri",
         functionName = "getQueryParam",
-        args = {@Argument(name = "message", type = TypeEnum.MESSAGE),
+        args = {@Argument(name = "m", type = TypeEnum.MESSAGE),
                 @Argument(name = "key", type = TypeEnum.STRING)},
         returnType = {@ReturnType(type = TypeEnum.STRING)},
         isPublic = true

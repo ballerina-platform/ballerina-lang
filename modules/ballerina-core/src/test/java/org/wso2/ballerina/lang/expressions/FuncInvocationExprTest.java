@@ -18,14 +18,14 @@
 package org.wso2.ballerina.lang.expressions;
 
 
+import org.ballerinalang.util.program.BLangFunctions;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.wso2.ballerina.core.model.BallerinaFile;
+import org.wso2.ballerina.core.model.BLangProgram;
 import org.wso2.ballerina.core.model.values.BInteger;
 import org.wso2.ballerina.core.model.values.BValue;
-import org.wso2.ballerina.core.utils.ParserUtils;
-import org.wso2.ballerina.lang.util.Functions;
+import org.wso2.ballerina.core.utils.BTestUtils;
 
 /**
  * Local function invocation test.
@@ -34,17 +34,17 @@ import org.wso2.ballerina.lang.util.Functions;
  */
 public class FuncInvocationExprTest {
 
-    private BallerinaFile bFile;
+    private BLangProgram bLangProgram;
 
     @BeforeClass
     public void setup() {
-        bFile = ParserUtils.parseBalFile("lang/expressions/funcInvocation-expr.bal");
+        bLangProgram = BTestUtils.parseBalFile("lang/expressions/funcInvocation-expr.bal");
     }
 
     @Test(description = "Test local function invocation expression")
     public void testFuncInvocationExpr() {
         BValue[] args = {new BInteger(100), new BInteger(5), new BInteger(1)};
-        BValue[] returns = Functions.invoke(bFile, "testFuncInvocation", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testFuncInvocation", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
@@ -57,7 +57,7 @@ public class FuncInvocationExprTest {
     @Test(description = "Test recursive function invocation")
     public void testFuncInvocationExprRecursive() {
         BValue[] args = {new BInteger(7)};
-        BValue[] returns = Functions.invoke(bFile, "sum", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "sum", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
@@ -71,7 +71,7 @@ public class FuncInvocationExprTest {
     @Test(description = "Test local function invocation expression advanced")
     public void testFuncInvocationExprAdvanced() {
         BValue[] args = {new BInteger(100), new BInteger(5), new BInteger(1)};
-        BValue[] returns = Functions.invoke(bFile, "funcInvocationWithinFuncInvocation", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "funcInvocationWithinFuncInvocation", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);

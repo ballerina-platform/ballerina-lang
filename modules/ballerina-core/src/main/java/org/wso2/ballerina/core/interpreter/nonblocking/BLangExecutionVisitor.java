@@ -24,12 +24,13 @@ import org.wso2.ballerina.core.interpreter.StackVarLocation;
 import org.wso2.ballerina.core.interpreter.StructVarLocation;
 import org.wso2.ballerina.core.interpreter.WorkerVarLocation;
 import org.wso2.ballerina.core.model.Annotation;
+import org.wso2.ballerina.core.model.BLangPackage;
+import org.wso2.ballerina.core.model.BLangProgram;
 import org.wso2.ballerina.core.model.BTypeMapper;
 import org.wso2.ballerina.core.model.BallerinaAction;
 import org.wso2.ballerina.core.model.BallerinaConnectorDef;
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.BallerinaFunction;
-import org.wso2.ballerina.core.model.ConnectorDcl;
 import org.wso2.ballerina.core.model.ConstDef;
 import org.wso2.ballerina.core.model.ImportPackage;
 import org.wso2.ballerina.core.model.LinkedNode;
@@ -42,6 +43,7 @@ import org.wso2.ballerina.core.model.VariableDef;
 import org.wso2.ballerina.core.model.Worker;
 import org.wso2.ballerina.core.model.expressions.AddExpression;
 import org.wso2.ballerina.core.model.expressions.AndExpression;
+import org.wso2.ballerina.core.model.expressions.BinaryEqualityExpression;
 import org.wso2.ballerina.core.model.expressions.BinaryExpression;
 import org.wso2.ballerina.core.model.expressions.DivideExpr;
 import org.wso2.ballerina.core.model.expressions.EqualExpression;
@@ -85,6 +87,16 @@ public abstract class BLangExecutionVisitor implements LinkedNodeVisitor {
     public abstract void handleBException(BException exception);
 
     public abstract void continueExecution(LinkedNode linkedNode);
+
+    @Override
+    public void visit(BLangProgram bLangProgram) {
+
+    }
+
+    @Override
+    public void visit(BLangPackage bLangPackage) {
+
+    }
 
     public void visit(BallerinaFile bFile) {
     }
@@ -134,10 +146,6 @@ public abstract class BLangExecutionVisitor implements LinkedNodeVisitor {
     }
 
     @Override
-    public void visit(ConnectorDcl connectorDcl) {
-    }
-
-    @Override
     public void visit(VariableDef variableDef) {
     }
 
@@ -167,7 +175,7 @@ public abstract class BLangExecutionVisitor implements LinkedNodeVisitor {
 
     @Override
     public void visit(EqualExpression equalExpression) {
-        visitBinaryExpression(equalExpression);
+        visitBinaryEqualityExpression(equalExpression);
     }
 
     @Override
@@ -197,7 +205,7 @@ public abstract class BLangExecutionVisitor implements LinkedNodeVisitor {
 
     @Override
     public void visit(NotEqualExpression notEqualExpression) {
-        visitBinaryExpression(notEqualExpression);
+        visitBinaryEqualityExpression(notEqualExpression);
     }
 
     @Override
@@ -242,6 +250,14 @@ public abstract class BLangExecutionVisitor implements LinkedNodeVisitor {
     private void visitBinaryExpression(BinaryExpression expression) {
         try {
             this.visit(expression);
+        } catch (RuntimeException e) {
+            handleBException(new BException(e.getMessage()));
+        }
+    }
+
+    private void visitBinaryEqualityExpression(BinaryEqualityExpression binaryEqualityExpression) {
+        try {
+            this.visit(binaryEqualityExpression);
         } catch (RuntimeException e) {
             handleBException(new BException(e.getMessage()));
         }

@@ -55,7 +55,7 @@ import javax.xml.transform.stax.StAXSource;
 @BallerinaTypeMapper(
         packageName = "ballerina.lang.typemappers",
         typeMapperName = "xmlTojson",
-        args = {@Argument(name = "xml", type = TypeEnum.XML)},
+        args = {@Argument(name = "x", type = TypeEnum.XML)},
         returnType = {@ReturnType(type = TypeEnum.JSON)},
         isPublic = true
 )

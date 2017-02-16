@@ -16,7 +16,10 @@
  */
 package org.wso2.ballerina.core.nativeimpl;
 
+import org.wso2.ballerina.core.model.CompilationUnit;
 import org.wso2.ballerina.core.model.NativeUnit;
+import org.wso2.ballerina.core.model.NodeLocation;
+import org.wso2.ballerina.core.model.NodeVisitor;
 import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.model.SymbolScope;
 import org.wso2.ballerina.core.model.symbols.BLangSymbol;
@@ -28,7 +31,7 @@ import java.util.function.Supplier;
  *
  * @since 0.8.0
  */
-public class NativeUnitProxy implements BLangSymbol {
+public class NativeUnitProxy implements BLangSymbol, CompilationUnit {
     private Supplier<NativeUnit> nativeFunctionSupplier;
     private NativeUnit nativeUnit;
 
@@ -71,5 +74,15 @@ public class NativeUnitProxy implements BLangSymbol {
             nativeUnit = this.nativeFunctionSupplier.get();
         }
         return nativeUnit;
+    }
+
+    @Override
+    public void accept(NodeVisitor visitor) {
+        // do nothing
+    }
+
+    @Override
+    public NodeLocation getNodeLocation() {
+        return null;
     }
 }
