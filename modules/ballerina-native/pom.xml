@@ -77,7 +77,7 @@
                 <version>${mvn.exec.plugin.version}</version>
                 <executions>
                     <execution>
-                        <phase>test</phase>
+                        <phase>process-classes</phase>
                         <goals>
                             <goal>java</goal>
                         </goals>
