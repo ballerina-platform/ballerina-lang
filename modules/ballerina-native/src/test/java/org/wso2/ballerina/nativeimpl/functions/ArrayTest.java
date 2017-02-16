@@ -670,7 +670,7 @@ public class ArrayTest {
         bArray.add(1, new BString(v2));
         bArray.add(2, new BString(v3));
         BValue[] args = {bArray};
-        BValue[] returnVals = Functions.invoke(bFile, "testStringArraySort", args);
+        BValue[] returnVals = BLangFunctions.invoke(bLangProgram, "testStringArraySort", args);
         Assert.assertEquals((((BArray) returnVals[0]).get(0)).stringValue(), "country");
         Assert.assertEquals((((BArray) returnVals[0]).get(1)).stringValue(), "currency");
         Assert.assertEquals((((BArray) returnVals[0]).get(2)).stringValue(), "states");
