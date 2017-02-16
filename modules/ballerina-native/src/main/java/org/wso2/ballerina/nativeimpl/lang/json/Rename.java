@@ -37,7 +37,7 @@ import org.wso2.ballerina.nativeimpl.lang.utils.ErrorHandler;
 @BallerinaFunction(
         packageName = "ballerina.lang.json",
         functionName = "rename",
-        args = {@Argument(name = "json", type = TypeEnum.JSON),
+        args = {@Argument(name = "j", type = TypeEnum.JSON),
                 @Argument(name = "jsonPath", type = TypeEnum.STRING),
                 @Argument(name = "oldKey", type = TypeEnum.STRING),
                 @Argument(name = "newKey", type = TypeEnum.STRING)},

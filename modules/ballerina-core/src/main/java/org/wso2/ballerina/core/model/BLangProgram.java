@@ -38,6 +38,7 @@ public class BLangProgram implements SymbolScope, Node {
     private BLangPackage mainPackage;
     private List<String> entryPoints = new ArrayList<>();
     private List<BLangPackage> servicePackageList = new ArrayList<>();
+    private List<BLangPackage> libraryPackageList = new ArrayList<>();
 
     // Scope related variables
     private GlobalScope globalScope;
@@ -91,6 +92,14 @@ public class BLangProgram implements SymbolScope, Node {
 
     public BLangPackage[] getServicePackages() {
         return servicePackageList.toArray(new BLangPackage[0]);
+    }
+
+    public void addLibraryPackage(BLangPackage bLangPackage) {
+        libraryPackageList.add(bLangPackage);
+    }
+
+    public BLangPackage[] getLibraryPackages() {
+        return libraryPackageList.toArray(new BLangPackage[0]);
     }
 
     public String[] getEntryPoints() {
@@ -165,7 +174,8 @@ public class BLangProgram implements SymbolScope, Node {
      */
     public enum Category {
         SERVICE_PROGRAM("service", ".bsz"),
-        MAIN_PROGRAM("main", ".bpz");
+        MAIN_PROGRAM("main", ".bmz"),
+        LIBRARY_PROGRAM("library", ".blz");
 
         String name;
         String extension;

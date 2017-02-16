@@ -94,8 +94,8 @@ public class BLangProgramArchiveBuilder {
             addProgramToArchive(bLangProgram, zipFS);
             addBallerinaConfFile(zipFS, bLangProgram);
         } catch (IOException e) {
-            // TODO Handler error
-            e.printStackTrace();
+            throw new RuntimeException("error in creating program archive '" +
+                    bLangProgram.getProgramFilePath() + "': " + e.getMessage());
         }
     }
 
@@ -160,12 +160,12 @@ public class BLangProgramArchiveBuilder {
 
         String balConfContent;
         if (bLangProgram.getProgramCategory() == BLangProgram.Category.MAIN_PROGRAM) {
-            balConfContent = BLangProgramArchive.balVersionText + "\n" +
-                    BLangProgramArchive.mainPackageLinePrefix + ": " + entryPointStr + "\n";
+            balConfContent = BLangProgramArchive.BAL_VERSION_TEXT + "\n" +
+                    BLangProgramArchive.MAIN_PACKAGE_LINE_PREFIX + ": " + entryPointStr + "\n";
 
         } else {
-            balConfContent = BLangProgramArchive.balVersionText + "\n" +
-                    BLangProgramArchive.servicePackagePrefix + ": " + entryPointStr + "\n";
+            balConfContent = BLangProgramArchive.BAL_VERSION_TEXT + "\n" +
+                    BLangProgramArchive.SERVICE_PACKAGE_PREFIX + ": " + entryPointStr + "\n";
         }
 
         InputStream stream = new ByteArrayInputStream(balConfContent.getBytes(StandardCharsets.UTF_8));

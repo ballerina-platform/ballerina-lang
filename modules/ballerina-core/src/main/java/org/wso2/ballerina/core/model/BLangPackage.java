@@ -72,6 +72,7 @@ public class BLangPackage implements SymbolScope, BLangSymbol, Node {
         this.pkgPath = packagePath;
         this.pkgRepo = packageRepo;
         this.enclosingScope = programScope;
+        this.symbolName = new SymbolName(packagePath);
         symbolMap = new HashMap<>();
     }
 
@@ -297,11 +298,11 @@ public class BLangPackage implements SymbolScope, BLangSymbol, Node {
         }
 
         public void addTypeConvertor(TypeVertex source, TypeVertex target,
-                                     TypeConvertor typeConvertor, String packageName) {
-            this.compilationUnitList.add((BTypeConvertor) typeConvertor);
+                                     TypeMapper typeMapper, String packageName) {
+            this.compilationUnitList.add((BTypeMapper) typeMapper);
             typeLattice.addVertex(source, true);
             typeLattice.addVertex(target, true);
-            typeLattice.addEdge(source, target, typeConvertor, packageName);
+            typeLattice.addEdge(source, target, typeMapper, packageName);
         }
 
         public void addStruct(StructDef structDef) {

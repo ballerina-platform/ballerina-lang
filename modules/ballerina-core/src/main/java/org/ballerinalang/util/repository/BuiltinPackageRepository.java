@@ -36,22 +36,22 @@ import java.util.zip.ZipInputStream;
 
 /**
  * Represents a repository contains built in ballerina packages.
- * 
+ *
  * @since 0.8.0
  */
 public class BuiltinPackageRepository extends PackageRepository {
-    
+
     private Class<?> nativePackageProvider;
-    private static final String BASE_PATH = "META-INF" + File.separator + "natives" + File.separator;
+    private static final String BASE_DIR = "META-INF" + File.separator + "natives" + File.separator;
     private static final String BAL_FILE_EXT = ".bal";
     private static final String NATIVE_BAL_FILE = "natives.bal";
-    
+
     private String packageDirPath;
-    
+
     public BuiltinPackageRepository(Class providerClass) {
         this.nativePackageProvider = providerClass;
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -60,48 +60,47 @@ public class BuiltinPackageRepository extends PackageRepository {
         this.packageDirPath = packageDirPath.toString();
         Map<String, InputStream> sourceFileStreamMap = new HashMap<String, InputStream>();
         ClassLoader classLoader = nativePackageProvider.getClassLoader();
-        
+
         // Get the names of the source files in the package
-        List<String> fileNames =  getFileNames(classLoader);
-        
+        List<String> fileNames = getFileNames(classLoader);
+
         // Read all resources as input streams and create the package source 
         for (String fileName : fileNames) {
-            InputStream balSourceStream = classLoader.getResourceAsStream(BASE_PATH + packageDirPath.toString()
-                + File.separator + fileName);
+            InputStream balSourceStream = classLoader.getResourceAsStream(BASE_DIR + packageDirPath.toString()
+                    + File.separator + fileName);
             sourceFileStreamMap.put(fileName, balSourceStream);
         }
-        PackageSource builtInBalSource = new PackageSource(packageDirPath, sourceFileStreamMap, this);
-        return builtInBalSource;
+        return new PackageSource(packageDirPath, sourceFileStreamMap, this);
     }
-    
+
     /**
      * Get all the file names listed under the package.
-     * 
+     *
      * @param classLoader Class loader of the package provider class
-     * @param packageDirPath Directory path of the package
      * @return
      */
     private List<String> getFileNames(ClassLoader classLoader) {
         URL repoUrl = nativePackageProvider.getProtectionDomain().getCodeSource().getLocation();
-        String pkgRelPath = BASE_PATH + packageDirPath;
+        String pkgRelPath = BASE_DIR + packageDirPath;
         if (isJar(repoUrl)) {
             return getPackageNamesFromJar(repoUrl, pkgRelPath);
         } else {
             return getPackageNamesFromClassPath(pkgRelPath);
         }
     }
-    
+
     /**
      * Get package names from the class path.
-     * 
+     *
      * @param pkgRelPath Relative path of the from the class path
      * @return List of source files in the package
      */
     private List<String> getPackageNamesFromClassPath(String pkgRelPath) {
-        List<String> fileNames =  new ArrayList<String>();
+        List<String> fileNames = new ArrayList<String>();
         BufferedReader reader = null;
         try {
-            InputStream fileNamesStream = nativePackageProvider.getClassLoader().getResourceAsStream(pkgRelPath + File.separator);
+            InputStream fileNamesStream =
+                    nativePackageProvider.getClassLoader().getResourceAsStream(pkgRelPath + File.separator);
             if (fileNamesStream != null) {
                 reader = new BufferedReader(new InputStreamReader(fileNamesStream));
                 String fileName;
@@ -110,7 +109,7 @@ public class BuiltinPackageRepository extends PackageRepository {
                 }
             }
         } catch (Exception e) {
-            throw new BallerinaException("error while loading built-in package '" + packageDirPath + "'. " 
+            throw new BallerinaException("error while loading built-in package '" + packageDirPath + "'. "
                     + e.getMessage());
         } finally {
             if (reader != null) {
@@ -122,31 +121,31 @@ public class BuiltinPackageRepository extends PackageRepository {
         }
         return fileNames;
     }
-    
+
     /**
      * Get package names from the jar.
-     * 
-     * @param repoUrl URL of the repo source (url of the jar)
+     *
+     * @param repoUrl    URL of the repo source (url of the jar)
      * @param pkgRelPath Relative path of the from root of the jar
      * @return List of source files in the package
      */
     private List<String> getPackageNamesFromJar(URL repoUrl, String pkgRelPath) {
-        List<String> fileNames =  new ArrayList<String>();
+        List<String> fileNames = new ArrayList<String>();
         ZipInputStream jarInputStream = null;
         ZipEntry fileNameEntry;
         try {
             jarInputStream = new ZipInputStream(repoUrl.openStream());
-            while((fileNameEntry = jarInputStream.getNextEntry()) != null) {
+            while ((fileNameEntry = jarInputStream.getNextEntry()) != null) {
                 String filePath = fileNameEntry.getName();
                 if (filePath.startsWith(pkgRelPath) && filePath.endsWith(BAL_FILE_EXT) &&
-                    !filePath.endsWith(NATIVE_BAL_FILE)) {
+                        !filePath.endsWith(NATIVE_BAL_FILE)) {
                     // get only the file name 
                     String fileName = Paths.get(pkgRelPath).relativize(Paths.get(filePath)).toString();
                     fileNames.add(fileName);
                 }
             }
         } catch (Exception e) {
-            throw new BallerinaException("error while loading built-in package '" + packageDirPath + "'. " 
+            throw new BallerinaException("error while loading built-in package '" + packageDirPath + "'. "
                     + e.getMessage());
         } finally {
             if (jarInputStream != null) {
@@ -156,13 +155,13 @@ public class BuiltinPackageRepository extends PackageRepository {
                 }
             }
         }
-        
+
         return fileNames;
     }
-    
+
     /**
      * Check whether the given url represent a jar.
-     * 
+     *
      * @param url
      * @return
      */

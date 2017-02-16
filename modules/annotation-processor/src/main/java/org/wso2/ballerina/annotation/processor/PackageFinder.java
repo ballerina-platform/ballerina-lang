@@ -51,8 +51,7 @@ public class PackageFinder extends SimpleFileVisitor<Path>  {
 
     @Override
     public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-        String pkg = Constants.BAL_FILES_DIR + "." +
-            basePath.relativize(file.getParent()).toString().replace(File.separator, ".");
+        String pkg = basePath.relativize(file.getParent()).toString().replace(File.separator, ".");
         builtInPackages.add(pkg);
         return FileVisitResult.CONTINUE;
     }

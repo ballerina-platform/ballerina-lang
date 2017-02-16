@@ -107,11 +107,11 @@ public class BLangPrograms {
                 throw new IllegalArgumentException("given source package/file must be inside the program directory");
             }
 
-            if(Files.isDirectory(realSourcePath, LinkOption.NOFOLLOW_LINKS)) {
+            if (Files.isDirectory(realSourcePath, LinkOption.NOFOLLOW_LINKS)) {
                 return realSourcePath;
             }
 
-            if(!realSourcePath.toString().endsWith(BLangPrograms.BSOURCE_FILE_EXT)) {
+            if (!realSourcePath.toString().endsWith(BLangPrograms.BSOURCE_FILE_EXT)) {
                 throw new IllegalArgumentException("invalid file: " + sourcePath);
             }
 

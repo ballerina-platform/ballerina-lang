@@ -29,6 +29,8 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
+ * {@code PackageRepository} represents a repository of ballerina packages.
+ *
  * @since 0.8.0
  */
 public abstract class PackageRepository {
@@ -42,10 +44,11 @@ public abstract class PackageRepository {
         try {
             fileStreamMap = Files.list(baseDirPath.resolve(packageDirPath))
                     .filter(filePath -> filePath.toString().endsWith(".bal"))
-                    .collect(Collectors.toMap(filePath -> filePath.getFileName().toString(), this::getInputStream));
+                    .collect(Collectors.toMap(filePath -> filePath.getFileName().toString(),
+                            this::getInputStream));
         } catch (IOException e) {
-            // TODO Handle error
-            throw new IllegalStateException(e.getMessage(), e);
+            throw new RuntimeException("error reading from file: " + baseDirPath +
+                    " reason: " + e.getMessage(), e);
         }
 
         return new PackageSource(packageDirPath, fileStreamMap, this);
@@ -62,8 +65,8 @@ public abstract class PackageRepository {
         try {
             return Files.newInputStream(filePath, StandardOpenOption.READ, LinkOption.NOFOLLOW_LINKS);
         } catch (IOException e) {
-            // TODO Handle error
-            throw new IllegalStateException(e.getMessage(), e);
+            throw new RuntimeException("error reading from file: " + filePath +
+                    " reason: " + e.getMessage(), e);
         }
     }
 
@@ -83,6 +86,8 @@ public abstract class PackageRepository {
     }
 
     /**
+     * This class contains data that are required to load packages.
+     *
      * @since 0.8.0
      */
     public class PackageSource {

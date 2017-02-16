@@ -1,5 +1,3 @@
-package samples.structs.test;
-
 struct Department {
     string dptName;
     Person[] employees;

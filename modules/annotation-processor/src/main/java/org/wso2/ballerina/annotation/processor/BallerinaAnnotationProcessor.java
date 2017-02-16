@@ -21,19 +21,18 @@ import org.wso2.ballerina.annotation.processor.holders.ActionHolder;
 import org.wso2.ballerina.annotation.processor.holders.ConnectorHolder;
 import org.wso2.ballerina.annotation.processor.holders.FunctionHolder;
 import org.wso2.ballerina.annotation.processor.holders.PackageHolder;
-import org.wso2.ballerina.annotation.processor.holders.TypeConvertorHolder;
+import org.wso2.ballerina.annotation.processor.holders.TypeMapperHolder;
 import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaAction;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaAnnotation;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaConnector;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
-import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaTypeConvertor;
+import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaTypeMapper;
 
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.Filer;
 import javax.annotation.processing.RoundEnvironment;
@@ -45,21 +44,23 @@ import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
 
 /**
- * Read all class annotations of native functions, connectors, actions, type converters.
+ * Read all class annotations of native functions, connectors, actions, type mappers.
  * Process them and generate a service provider class that will register all the annotated 
- * classes as {@link Symbol}s to the global symbol table, via java SPI.
+ * classes as {@link org.wso2.ballerina.core.model.symbols.BLangSymbol}s to the global symbol table, via java SPI.
  */
 @SupportedAnnotationTypes({ "org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction",
                             "org.wso2.ballerina.core.nativeimpl.annotations.BallerinaConnector",
                             "org.wso2.ballerina.core.nativeimpl.annotations.BallerinaAction",
-                            "org.wso2.ballerina.core.nativeimpl.annotations.BallerinaTypeConvertor"})
+                            "org.wso2.ballerina.core.nativeimpl.annotations.BallerinaTypeMapper"})
 @SupportedSourceVersion(SourceVersion.RELEASE_8)
-@SupportedOptions({ "className", "packageName", "targetDir" })
+@SupportedOptions({ "className", "packageName", "srcDir", "targetDir" })
 public class BallerinaAnnotationProcessor extends AbstractProcessor {
 
     private static final String CLASS_NAME = "className";
     private static final String PACKAGE_NAME = "packageName";
+    private static final String SOURCE_DIR = "srcDir";
     private static final String TARGET_DIR = "targetDir";
+    private static final String IGNORE = "ignore";
     private Map<String, PackageHolder> nativePackages;
     
     public BallerinaAnnotationProcessor() throws IOException {
@@ -77,12 +78,12 @@ public class BallerinaAnnotationProcessor extends AbstractProcessor {
         Set<Element> balFunctionElements = (Set<Element>) roundEnv.getElementsAnnotatedWith(BallerinaFunction.class);
         Set<Element> balConnectorElements = (Set<Element>) roundEnv.getElementsAnnotatedWith(BallerinaConnector.class);
         Set<Element> balActionElements = (Set<Element>) roundEnv.getElementsAnnotatedWith(BallerinaAction.class);
-        Set<Element> balTypeConvertorElements =
-                (Set<Element>) roundEnv.getElementsAnnotatedWith(BallerinaTypeConvertor.class);
+        Set<Element> balTypeMapperElements =
+                (Set<Element>) roundEnv.getElementsAnnotatedWith(BallerinaTypeMapper.class);
         
         // If all annotations are empty, should not do anything. Continue to the next plugin phases.
         if (balFunctionElements.isEmpty() && balConnectorElements.isEmpty() && balActionElements.isEmpty()
-                    && balTypeConvertorElements.isEmpty()) {
+                    && balTypeMapperElements.isEmpty()) {
             return true;
         }
         
@@ -90,21 +91,21 @@ public class BallerinaAnnotationProcessor extends AbstractProcessor {
         processNativeFunctions(balFunctionElements);
         processNativeConnectors(balConnectorElements);
         processNativeActions(balActionElements);
-        processNativeTypeConvertors(balTypeConvertorElements);
+        processNativeTypeMappers(balTypeMapperElements);
         
         Map<String, String> options = processingEnv.getOptions();
         
-        String targetDir = options.get(TARGET_DIR);
-        if (targetDir == null) {
-            throw new BallerinaException("target directory to store the generated ballerina files, must be specified.");
+        String srcDir = options.get(SOURCE_DIR);
+        if (srcDir == null) {
+            throw new BallerinaException("source directory of ballerina files must be specified.");
         }
         
         // Generate the native ballerina files
-        generateNativeBalFiles(targetDir);
+        generateNativeBalFiles(options, srcDir);
         
         // Generate the construct provider class. This should be invoked after 
         // generating the native ballerina files
-        generateConstructProviderClass(options, targetDir);
+        generateConstructProviderClass(options, srcDir);
         
         return true;
     }
@@ -113,9 +114,9 @@ public class BallerinaAnnotationProcessor extends AbstractProcessor {
      * Generate the construct provider class.
      * 
      * @param options Annotation processor options
-     * @param targetDir 
+     * @param srcDir Path to the ballerina source directory
      */
-    private void generateConstructProviderClass(Map<String, String> options, String targetDir) {
+    private void generateConstructProviderClass(Map<String, String> options, String srcDir) {
         Filer filer = processingEnv.getFiler();
         
         String classClassName = options.get(CLASS_NAME);
@@ -129,18 +130,22 @@ public class BallerinaAnnotationProcessor extends AbstractProcessor {
         }
         
         ConstructProviderClassBuilder constructProviderClassBuilder =
-                new ConstructProviderClassBuilder(filer, packageName, classClassName, targetDir);
+                new ConstructProviderClassBuilder(filer, packageName, classClassName, srcDir);
         constructProviderClassBuilder.addNativePackages(nativePackages);
         constructProviderClassBuilder.build();
     }
     
     /**
-     * Generate the built-in ballerina files
+     * Generate the built-in ballerina files.
      * 
-     * @param targetDir target directory to generate the built-in ballerina files
+     * @param srcDir Path to the ballerina source directory
      */
-    private void generateNativeBalFiles(String targetDir) {
-        NativeBallerinaFileBuilder nativeBallerinaFileBuilder = new NativeBallerinaFileBuilder(targetDir);
+    private void generateNativeBalFiles(Map<String, String> options, String srcDir) {
+        String targetDir = options.get(TARGET_DIR);
+        if (targetDir == null) {
+            throw new BallerinaException("target directory to store the generated ballerina files, must be specified.");
+        }
+        NativeBallerinaFileBuilder nativeBallerinaFileBuilder = new NativeBallerinaFileBuilder(srcDir, targetDir);
         nativeBallerinaFileBuilder.addNativePackages(nativePackages);
         nativeBallerinaFileBuilder.build();
     }
@@ -177,6 +182,17 @@ public class BallerinaAnnotationProcessor extends AbstractProcessor {
     private void processNativeConnectors(Set<Element> balConnectorElements) {
         for (Element element : balConnectorElements) {
             BallerinaConnector balConnector = element.getAnnotation(BallerinaConnector.class);
+            
+            /*
+             * For ballerina source modules without any native implementations, it is required to have a 
+             * dummy native impl annotation with a dummy annotation. This is a limitation in the annotation
+             * processor. Hence checking the dummy annotation here and ignore it.
+             * TODO: find a better approach to ignore annotations
+             */
+            if (IGNORE.equalsIgnoreCase(balConnector.connectorName())) {
+                continue;
+            }
+            
             String packageName = balConnector.packageName();
             String className = Utils.getClassName(element);
             ConnectorHolder connector = new ConnectorHolder(balConnector, className);
@@ -202,20 +218,18 @@ public class BallerinaAnnotationProcessor extends AbstractProcessor {
     }
     
     /**
-     * Process all {@link BallerinaTypeConvertor} annotations and append constructs to the class builder.
+     * Process all {@link BallerinaTypeMapper} annotations and append constructs to the class builder.
      * 
-     * @param balTypeConvertorElements Elements annotated with {@link BallerinaTypeConvertor}
-     * @param classBuilder Builder to generate the source class
-     * @param nativeBallerinaFileBuilder Builder to generate the native ballerina files
+     * @param balTypeMapperElements Elements annotated with {@link BallerinaTypeMapper}
      */
-    private void processNativeTypeConvertors(Set<Element> balTypeConvertorElements) {
-        for (Element element : balTypeConvertorElements) {
-            BallerinaTypeConvertor balTypeConvertor = element.getAnnotation(BallerinaTypeConvertor.class);
+    private void processNativeTypeMappers(Set<Element> balTypeMapperElements) {
+        for (Element element : balTypeMapperElements) {
+            BallerinaTypeMapper balTypeMapper = element.getAnnotation(BallerinaTypeMapper.class);
             BallerinaAnnotation[] annot = getBallerinaAnnotations(element);
-            String packageName = balTypeConvertor.packageName();
+            String packageName = balTypeMapper.packageName();
             String className = Utils.getClassName(element);
-            TypeConvertorHolder typeConvertor = new TypeConvertorHolder(balTypeConvertor, className, annot);
-            getPackage(packageName).addTypeConvertor(typeConvertor);
+            TypeMapperHolder typeMapperHolder = new TypeMapperHolder(balTypeMapper, className, annot);
+            getPackage(packageName).addTypeMapper(typeMapperHolder);
         }
     }
     

@@ -19,6 +19,8 @@ package org.ballerinalang.util.program;
 
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
+import org.antlr.v4.runtime.misc.ParseCancellationException;
+import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.model.BLangPackage;
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.builder.BLangModelBuilder;
@@ -32,6 +34,9 @@ import java.io.InputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+/**
+ *
+ */
 public class BLangFiles {
 
     public static BallerinaFile loadFile(String sourceFileName,
@@ -51,7 +56,6 @@ public class BLangFiles {
 
             // Setting the name of the source file being parsed, to the ANTLR input stream.
             // This is required by the parser-error strategy.
-
             antlrInputStream.name = sourceFilePath.toString();
 
             BallerinaLexer ballerinaLexer = new BallerinaLexer(antlrInputStream);
@@ -67,17 +71,11 @@ public class BLangFiles {
             return bLangModelBuilder.build();
 
         } catch (IOException e) {
-            // TODO Handler Error
-            e.printStackTrace();
-            throw new IllegalStateException("TODO Handle Error");
+            throw new IllegalStateException("error in reading source file '" +
+                    sourceFilePath + "': " + e.getMessage());
 
-//        } catch (ParseCancellationException | SemanticException | LinkerException e) {
-//            throw createLauncherException(makeFirstLetterUpperCase(e.getMessage()));
-
-        } catch (Throwable e) {
-//            throw createLauncherException(sourceFilePath.toString() + ": " +
-//                    makeFirstLetterUpperCase(e.getMessage()));
-            throw e;
+        } catch (ParseCancellationException e) {
+            throw new BallerinaException(e.getMessage(), e);
         }
     }
 }

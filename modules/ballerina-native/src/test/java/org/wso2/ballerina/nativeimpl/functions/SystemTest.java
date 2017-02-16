@@ -21,11 +21,12 @@ import org.apache.log4j.AppenderSkeleton;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.log4j.spi.LoggingEvent;
+import org.ballerinalang.util.program.BLangFunctions;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.wso2.ballerina.core.model.BallerinaFile;
+import org.wso2.ballerina.core.model.BLangProgram;
 import org.wso2.ballerina.core.model.values.BBoolean;
 import org.wso2.ballerina.core.model.values.BDouble;
 import org.wso2.ballerina.core.model.values.BFloat;
@@ -33,8 +34,7 @@ import org.wso2.ballerina.core.model.values.BInteger;
 import org.wso2.ballerina.core.model.values.BLong;
 import org.wso2.ballerina.core.model.values.BString;
 import org.wso2.ballerina.core.model.values.BValueType;
-import org.wso2.ballerina.nativeimpl.util.Functions;
-import org.wso2.ballerina.nativeimpl.util.ParserUtils;
+import org.wso2.ballerina.nativeimpl.util.BTestUtils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -47,18 +47,23 @@ import java.util.List;
  */
 public class SystemTest {
 
-    private BallerinaFile bFile;
+    private BLangProgram bLangProgram;
     private final String printFuncName = "testPrintAndPrintln";
 
     private PrintStream original;
+    Logger rootLogger;
+    TestLogAppender testLogAppender;
 
-    @BeforeClass
+    @BeforeClass(alwaysRun = true)
     public void setup() {
+        rootLogger = Logger.getRootLogger();
         original = System.out;
-        bFile = ParserUtils.parseBalFile("samples/systemTest.bal");
+        bLangProgram = BTestUtils.parseBalFile("samples/systemTest.bal");
+        rootLogger.getLoggerRepository().getLogger("org.wso2.ballerina.nativeimpl.lang.system")
+                .setLevel(Level.ALL);
     }
 
-    @AfterClass
+    @AfterClass(alwaysRun = true)
     public void cleanup() throws IOException {
         System.setOut(original);
     }
@@ -73,7 +78,7 @@ public class SystemTest {
             final String expected = s1 + "\n" + s2;
 
             BValueType[] args = {new BString(s1), new BString(s2)};
-            Functions.invoke(bFile, printFuncName + "String", args);
+            BLangFunctions.invoke(bLangProgram, printFuncName + "String", args);
             Assert.assertEquals(outContent.toString().replace("\r", ""), expected);
         } finally {
             outContent.close();
@@ -91,7 +96,7 @@ public class SystemTest {
             final String expected = v1 + "\n" + v2;
 
             BValueType[] args = {new BLong(v1), new BLong(v2)};
-            Functions.invoke(bFile, printFuncName + "Long", args);
+            BLangFunctions.invoke(bLangProgram, printFuncName + "Long", args);
             Assert.assertEquals(outContent.toString().replace("\r", ""), expected);
         } finally {
             outContent.close();
@@ -109,7 +114,7 @@ public class SystemTest {
             final String expected = v1 + "\n" + v2;
 
             BValueType[] args = {new BInteger(v1), new BInteger(v2)};
-            Functions.invoke(bFile, printFuncName + "Int", args);
+            BLangFunctions.invoke(bLangProgram, printFuncName + "Int", args);
             Assert.assertEquals(outContent.toString().replace("\r", ""), expected);
         } finally {
             outContent.close();
@@ -127,7 +132,7 @@ public class SystemTest {
             final String expected = v1 + "\n" + v2;
 
             BValueType[] args = {new BFloat(v1), new BFloat(v2)};
-            Functions.invoke(bFile, printFuncName + "Float", args);
+            BLangFunctions.invoke(bLangProgram, printFuncName + "Float", args);
             Assert.assertEquals(outContent.toString().replace("\r", ""), expected);
         } finally {
             outContent.close();
@@ -145,7 +150,7 @@ public class SystemTest {
             final String expected = v1 + "\n" + v2;
 
             BValueType[] args = {new BDouble(v1), new BDouble(v2)};
-            Functions.invoke(bFile, printFuncName + "Double", args);
+            BLangFunctions.invoke(bLangProgram, printFuncName + "Double", args);
             Assert.assertEquals(outContent.toString().replace("\r", ""), expected);
         } finally {
             outContent.close();
@@ -163,7 +168,7 @@ public class SystemTest {
             final String expected = v1 + "\n" + v2;
 
             BValueType[] args = {new BBoolean(v1), new BBoolean(v2)};
-            Functions.invoke(bFile, printFuncName + "Boolean", args);
+            BLangFunctions.invoke(bLangProgram, printFuncName + "Boolean", args);
             Assert.assertEquals(outContent.toString().replace("\r", ""), expected);
         } finally {
             outContent.close();
@@ -173,13 +178,11 @@ public class SystemTest {
 
     @Test
     public void testLog() {
-        Logger rootLogger = Logger.getRootLogger();
-        TestLogAppender testLogAppender = new TestLogAppender();
+        testLogAppender = new TestLogAppender();
+        rootLogger.addAppender(testLogAppender);
         try {
-            rootLogger.setLevel(Level.ALL);
-            rootLogger.addAppender(testLogAppender);
             BValueType[] args = {new BLong(100), new BDouble(10.1)};
-            Functions.invoke(bFile, "testLog", args);
+            BLangFunctions.invoke(bLangProgram, "testLog", args);
             // We are not expecting boolean log in event list.
             Assert.assertEquals(testLogAppender.getEvents().size(), 5, "Logging events didn't match.");
             Assert.assertEquals(testLogAppender.events.get(0).getLevel(), Level.TRACE);
@@ -189,18 +192,15 @@ public class SystemTest {
             Assert.assertEquals(testLogAppender.events.get(4).getLevel(), Level.ERROR);
         } finally {
             rootLogger.removeAppender(testLogAppender);
-            rootLogger.setLevel(Level.INFO);
         }
     }
 
     @Test
     public void testFunctionTimes() {
-        Logger rootLogger = Logger.getRootLogger();
-        TestLogAppender testLogAppender = new TestLogAppender();
+        testLogAppender = new TestLogAppender();
+        rootLogger.addAppender(testLogAppender);
         try {
-            rootLogger.setLevel(Level.ALL);
-            rootLogger.addAppender(testLogAppender);
-            Functions.invoke(bFile, "testTimeFunctions");
+            BLangFunctions.invoke(bLangProgram, "testTimeFunctions");
             // We are not expecting boolean log in event list.
             Assert.assertEquals(testLogAppender.getEvents().size(), 3, "Time Logging events didn't match.");
             Assert.assertTrue(!((String) testLogAppender.events.get(0).getMessage()).endsWith("[INFO] 0"));
@@ -208,7 +208,6 @@ public class SystemTest {
             Assert.assertTrue(!((String) testLogAppender.events.get(2).getMessage()).endsWith("[INFO] 0"));
         } finally {
             rootLogger.removeAppender(testLogAppender);
-            rootLogger.setLevel(Level.INFO);
         }
 
     }
@@ -220,7 +219,7 @@ public class SystemTest {
         try {
             out = new java.io.ByteArrayOutputStream();
             System.setOut(new java.io.PrintStream(out));
-            Functions.invoke(bFile, "printNewline");
+            BLangFunctions.invoke(bLangProgram, "printNewline");
             String outPut = out.toString();
             Assert.assertNotNull(outPut, "string is not printed");
             //getting the last new line character
@@ -251,7 +250,9 @@ public class SystemTest {
 
         @Override
         protected void append(LoggingEvent loggingEvent) {
-            events.add(loggingEvent);
+            if (loggingEvent.getLoggerName().contains("ballerina")) {
+                events.add(loggingEvent);
+            }
         }
 
         @Override

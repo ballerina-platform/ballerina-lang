@@ -24,14 +24,13 @@ import org.wso2.ballerina.core.nativeimpl.annotations.Attribute;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaAction;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaAnnotation;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
-import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaTypeConvertor;
+import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaTypeMapper;
 import org.wso2.ballerina.core.nativeimpl.annotations.ReturnType;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
-
 import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
 
@@ -222,13 +221,13 @@ public class Utils {
     /**
      * Get the fully qualified name of the ballerina type convertor.
      * 
-     * @param balTypeConvertor Ballerina type convertor annotation.
+     * @param balTypeMapper Ballerina type convertor annotation.
      * @return Fully qualified name
      */
-    public static String getTypeConverterQualifiedName(BallerinaTypeConvertor balTypeConvertor) {
+    public static String getTypeConverterQualifiedName(BallerinaTypeMapper balTypeMapper) {
         StringBuilder convertorNameBuilder = new StringBuilder();
-        Argument[] args = balTypeConvertor.args();
-        ReturnType[] returnTypes = balTypeConvertor.returnType();
+        Argument[] args = balTypeMapper.args();
+        ReturnType[] returnTypes = balTypeMapper.returnType();
         
         for (Argument arg : args) {
             convertorNameBuilder.append(".").append(arg.type().getName());

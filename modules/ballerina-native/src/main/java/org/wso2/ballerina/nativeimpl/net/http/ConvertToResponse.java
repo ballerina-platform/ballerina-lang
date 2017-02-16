@@ -32,7 +32,7 @@ import org.wso2.carbon.messaging.Headers;
 @BallerinaFunction(
         packageName = "ballerina.net.http",
         functionName = "convertToResponse",
-        args = {@Argument(name = "message", type = TypeEnum.MESSAGE)},
+        args = {@Argument(name = "m", type = TypeEnum.MESSAGE)},
         isPublic = true
 )
 public class ConvertToResponse extends AbstractNativeFunction {

@@ -17,6 +17,7 @@
 */
 package org.ballerinalang;
 
+import org.ballerinalang.util.BLangDiagnosticListener;
 import org.ballerinalang.util.program.BLangPackages;
 import org.ballerinalang.util.program.BLangPrograms;
 import org.ballerinalang.util.repository.BLangProgramArchive;
@@ -36,12 +37,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- *
+ * {@code BLangProgramLoader} creates in-memory representations of a Ballerina program from the given
+ * list of files, packages or archives.
  *
  * @since 0.8.0
  */
 public class BLangProgramLoader {
     private boolean disableSemanticAnalyzer = false;
+    private PackageRepository packageRepository;
+    private BLangDiagnosticListener diagnosticListener;
 
     public BLangProgram loadMain(Path programDirPath, Path sourcePath) {
         programDirPath = BLangPrograms.validateAndResolveProgramDirPath(programDirPath);
@@ -56,7 +60,6 @@ public class BLangProgramLoader {
         BLangPackage[] bLangPackages = loadPackages(programDirPath, sourcePath, bLangProgram);
         BLangPackage mainPackage = bLangPackages[0];
 
-        // TODO Find cyclic dependencies
         bLangProgram.setMainPackage(mainPackage);
         bLangProgram.define(new SymbolName(mainPackage.getPackagePath()), mainPackage);
 
@@ -82,10 +85,36 @@ public class BLangProgramLoader {
 
         BLangPackage[] servicePackages = loadPackages(programDirPath, servicePath, bLangProgram);
 
-        // TODO Find cyclic dependencies
         for (BLangPackage servicePkg : servicePackages) {
             bLangProgram.addServicePackage(servicePkg);
             bLangProgram.define(new SymbolName(servicePkg.getPackagePath()), servicePkg);
+        }
+
+        // Analyze the semantic properties of the Ballerina program
+        if (!disableSemanticAnalyzer) {
+            SemanticAnalyzer semanticAnalyzer = new SemanticAnalyzer(bLangProgram);
+            bLangProgram.accept(semanticAnalyzer);
+        }
+
+        return bLangProgram;
+    }
+
+    public BLangProgram loadLibrary(Path programDirPath, Path sourcePath) {
+        programDirPath = BLangPrograms.validateAndResolveProgramDirPath(programDirPath);
+
+        // Get the global scope
+        GlobalScope globalScope = BLangPrograms.populateGlobalScope();
+
+        // Creates program scope for this Ballerina program
+        BLangProgram bLangProgram = new BLangProgram(globalScope, BLangProgram.Category.LIBRARY_PROGRAM);
+        bLangProgram.setProgramFilePath(sourcePath);
+
+        BLangPackage[] bLangPackages = loadPackages(programDirPath, sourcePath, bLangProgram);
+
+        // TODO Find cyclic dependencies
+        for (BLangPackage bLangPackage : bLangPackages) {
+            bLangProgram.addLibraryPackage(bLangPackage);
+            bLangProgram.define(new SymbolName(bLangPackage.getPackagePath()), bLangPackage);
         }
 
         // Analyze the semantic properties of the Ballerina program
@@ -102,12 +131,13 @@ public class BLangProgramLoader {
         return this;
     }
 
-    public BLangProgramLoader addPackageRepository() {
+    public BLangProgramLoader setPackageRepository(PackageRepository packageRepository) {
+        this.packageRepository = packageRepository;
         return this;
     }
 
-    public BLangProgramLoader addErrorListener() {
-        // TODO
+    public BLangProgramLoader addDiagnosticListener(BLangDiagnosticListener diagnosticListener) {
+        this.diagnosticListener = diagnosticListener;
         return this;
     }
 

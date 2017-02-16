@@ -17,6 +17,7 @@ import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.NoSuchFileException;
+import java.nio.file.NotDirectoryException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -344,8 +345,30 @@ public class Main {
 
         public void execute() {
             if (serviceRootPath != null && !serviceRootPath.isEmpty()) {
-                // TODO
-                throw LauncherUtils.createUsageException("service root argument is not yet implemented");
+                if (sourceFileList != null && sourceFileList.size() != 0) {
+                    throw LauncherUtils.createUsageException("too many arguments");
+                }
+
+                Path currentDir = Paths.get(System.getProperty("user.dir"));
+                Path serviceRoot = Paths.get(serviceRootPath);
+                try {
+                    Path serviceRootRealPath = serviceRoot.toRealPath(LinkOption.NOFOLLOW_LINKS);
+                    Path[] paths =
+                            Files.list(serviceRootRealPath)
+                                    .filter(path -> !Files.isDirectory(path, LinkOption.NOFOLLOW_LINKS))
+                                    .filter(path -> path.getFileName().toString()
+                                            .endsWith(BLangProgram.Category.SERVICE_PROGRAM.getExtension()))
+                                    .map(currentDir::relativize).toArray(Path[]::new);
+                    BProgramRunner.runServices(paths);
+                    return;
+                } catch (NoSuchFileException e) {
+                    throw new IllegalArgumentException("no such file or directory: " + serviceRootPath);
+                } catch (NotDirectoryException e) {
+                    throw new IllegalArgumentException("service root is not a directory: " + serviceRootPath);
+                } catch (IOException e) {
+                    throw new RuntimeException("error reading from file: " + serviceRootPath + " reason: " +
+                            e.getMessage(), e);
+                }
             }
 
             if (sourceFileList == null || sourceFileList.size() == 0) {

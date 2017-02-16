@@ -19,10 +19,9 @@ package org.wso2.ballerina.core.model.types;
 
 import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.model.SymbolScope;
-import org.wso2.ballerina.core.model.TypeConvertor;
+import org.wso2.ballerina.core.model.TypeMapper;
 import org.wso2.ballerina.core.model.symbols.BLangSymbol;
-import org.wso2.ballerina.core.nativeimpl.convertors.NativeCastConvertor;
-
+import org.wso2.ballerina.core.nativeimpl.typemappers.NativeCastMapper;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -72,21 +71,21 @@ public class TypeLattice {
         implicitCastLattice.addVertex(doubleV, false);
         implicitCastLattice.addVertex(stringV, false);
 
-        implicitCastLattice.addEdge(intV, longV, NativeCastConvertor.INT_TO_LONG_FUNC);
-        implicitCastLattice.addEdge(intV, floatV, NativeCastConvertor.INT_TO_FLOAT_FUNC);
-        implicitCastLattice.addEdge(intV, doubleV, NativeCastConvertor.INT_TO_DOUBLE_FUNC);
-        implicitCastLattice.addEdge(intV, stringV, NativeCastConvertor.INT_TO_STRING_FUNC);
+        implicitCastLattice.addEdge(intV, longV, NativeCastMapper.INT_TO_LONG_FUNC);
+        implicitCastLattice.addEdge(intV, floatV, NativeCastMapper.INT_TO_FLOAT_FUNC);
+        implicitCastLattice.addEdge(intV, doubleV, NativeCastMapper.INT_TO_DOUBLE_FUNC);
+        implicitCastLattice.addEdge(intV, stringV, NativeCastMapper.INT_TO_STRING_FUNC);
 
-        implicitCastLattice.addEdge(longV, floatV, NativeCastConvertor.LONG_TO_FLOAT_FUNC);
-        implicitCastLattice.addEdge(longV, doubleV, NativeCastConvertor.LONG_TO_DOUBLE_FUNC);
-        implicitCastLattice.addEdge(longV, stringV, NativeCastConvertor.LONG_TO_STRING_FUNC);
+        implicitCastLattice.addEdge(longV, floatV, NativeCastMapper.LONG_TO_FLOAT_FUNC);
+        implicitCastLattice.addEdge(longV, doubleV, NativeCastMapper.LONG_TO_DOUBLE_FUNC);
+        implicitCastLattice.addEdge(longV, stringV, NativeCastMapper.LONG_TO_STRING_FUNC);
 
-        implicitCastLattice.addEdge(floatV, doubleV, NativeCastConvertor.FLOAT_TO_DOUBLE_FUNC);
-        implicitCastLattice.addEdge(floatV, stringV, NativeCastConvertor.FLOAT_TO_STRING_FUNC);
+        implicitCastLattice.addEdge(floatV, doubleV, NativeCastMapper.FLOAT_TO_DOUBLE_FUNC);
+        implicitCastLattice.addEdge(floatV, stringV, NativeCastMapper.FLOAT_TO_STRING_FUNC);
 
-        implicitCastLattice.addEdge(doubleV, stringV, NativeCastConvertor.DOUBLE_TO_STRING_FUNC);
+        implicitCastLattice.addEdge(doubleV, stringV, NativeCastMapper.DOUBLE_TO_STRING_FUNC);
 
-        implicitCastLattice.addEdge(booleanV, stringV, NativeCastConvertor.BOOLEAN_TO_STRING_FUNC);
+        implicitCastLattice.addEdge(booleanV, stringV, NativeCastMapper.BOOLEAN_TO_STRING_FUNC);
     }
 
     public static void loadExplicitCastLattice(SymbolScope scope) {
@@ -110,38 +109,38 @@ public class TypeLattice {
         explicitCastLattice.addVertex(xmlV, false);
         explicitCastLattice.addVertex(jsonV, false);
 
-        explicitCastLattice.addEdge(intV, longV, NativeCastConvertor.INT_TO_LONG_FUNC);
-        explicitCastLattice.addEdge(intV, floatV, NativeCastConvertor.INT_TO_FLOAT_FUNC);
-        explicitCastLattice.addEdge(intV, doubleV, NativeCastConvertor.INT_TO_DOUBLE_FUNC);
-        explicitCastLattice.addEdge(intV, stringV, NativeCastConvertor.INT_TO_STRING_FUNC);
-        explicitCastLattice.addEdge(intV, intV, NativeCastConvertor.INT_TO_INT_FUNC);
+        explicitCastLattice.addEdge(intV, longV, NativeCastMapper.INT_TO_LONG_FUNC);
+        explicitCastLattice.addEdge(intV, floatV, NativeCastMapper.INT_TO_FLOAT_FUNC);
+        explicitCastLattice.addEdge(intV, doubleV, NativeCastMapper.INT_TO_DOUBLE_FUNC);
+        explicitCastLattice.addEdge(intV, stringV, NativeCastMapper.INT_TO_STRING_FUNC);
+        explicitCastLattice.addEdge(intV, intV, NativeCastMapper.INT_TO_INT_FUNC);
 
-        explicitCastLattice.addEdge(longV, intV, NativeCastConvertor.LONG_TO_INT_FUNC);
-        explicitCastLattice.addEdge(longV, floatV, NativeCastConvertor.LONG_TO_FLOAT_FUNC);
-        explicitCastLattice.addEdge(longV, doubleV, NativeCastConvertor.LONG_TO_DOUBLE_FUNC);
-        explicitCastLattice.addEdge(longV, stringV, NativeCastConvertor.LONG_TO_STRING_FUNC);
-        explicitCastLattice.addEdge(longV, longV, NativeCastConvertor.LONG_TO_LONG_FUNC);
+        explicitCastLattice.addEdge(longV, intV, NativeCastMapper.LONG_TO_INT_FUNC);
+        explicitCastLattice.addEdge(longV, floatV, NativeCastMapper.LONG_TO_FLOAT_FUNC);
+        explicitCastLattice.addEdge(longV, doubleV, NativeCastMapper.LONG_TO_DOUBLE_FUNC);
+        explicitCastLattice.addEdge(longV, stringV, NativeCastMapper.LONG_TO_STRING_FUNC);
+        explicitCastLattice.addEdge(longV, longV, NativeCastMapper.LONG_TO_LONG_FUNC);
 
-        explicitCastLattice.addEdge(doubleV, longV, NativeCastConvertor.DOUBLE_TO_LONG_FUNC);
-        explicitCastLattice.addEdge(doubleV, floatV, NativeCastConvertor.DOUBLE_TO_FLOAT_FUNC);
-        explicitCastLattice.addEdge(doubleV, doubleV, NativeCastConvertor.DOUBLE_TO_DOUBLE_FUNC);
-        explicitCastLattice.addEdge(doubleV, stringV, NativeCastConvertor.DOUBLE_TO_STRING_FUNC);
-        explicitCastLattice.addEdge(doubleV, intV, NativeCastConvertor.DOUBLE_TO_INT_FUNC);
+        explicitCastLattice.addEdge(doubleV, longV, NativeCastMapper.DOUBLE_TO_LONG_FUNC);
+        explicitCastLattice.addEdge(doubleV, floatV, NativeCastMapper.DOUBLE_TO_FLOAT_FUNC);
+        explicitCastLattice.addEdge(doubleV, doubleV, NativeCastMapper.DOUBLE_TO_DOUBLE_FUNC);
+        explicitCastLattice.addEdge(doubleV, stringV, NativeCastMapper.DOUBLE_TO_STRING_FUNC);
+        explicitCastLattice.addEdge(doubleV, intV, NativeCastMapper.DOUBLE_TO_INT_FUNC);
 
-        explicitCastLattice.addEdge(floatV, longV, NativeCastConvertor.FLOAT_TO_LONG_FUNC);
-        explicitCastLattice.addEdge(floatV, floatV, NativeCastConvertor.FLOAT_TO_FLOAT_FUNC);
-        explicitCastLattice.addEdge(floatV, doubleV, NativeCastConvertor.FLOAT_TO_DOUBLE_FUNC);
-        explicitCastLattice.addEdge(floatV, stringV, NativeCastConvertor.FLOAT_TO_STRING_FUNC);
-        explicitCastLattice.addEdge(floatV, intV, NativeCastConvertor.FLOAT_TO_INT_FUNC);
+        explicitCastLattice.addEdge(floatV, longV, NativeCastMapper.FLOAT_TO_LONG_FUNC);
+        explicitCastLattice.addEdge(floatV, floatV, NativeCastMapper.FLOAT_TO_FLOAT_FUNC);
+        explicitCastLattice.addEdge(floatV, doubleV, NativeCastMapper.FLOAT_TO_DOUBLE_FUNC);
+        explicitCastLattice.addEdge(floatV, stringV, NativeCastMapper.FLOAT_TO_STRING_FUNC);
+        explicitCastLattice.addEdge(floatV, intV, NativeCastMapper.FLOAT_TO_INT_FUNC);
 
-        explicitCastLattice.addEdge(stringV, longV, NativeCastConvertor.STRING_TO_LONG_FUNC);
-        explicitCastLattice.addEdge(stringV, floatV, NativeCastConvertor.STRING_TO_FLOAT_FUNC);
-        explicitCastLattice.addEdge(stringV, doubleV, NativeCastConvertor.STRING_TO_DOUBLE_FUNC);
-        explicitCastLattice.addEdge(stringV, stringV, NativeCastConvertor.STRING_TO_STRING_FUNC);
-        explicitCastLattice.addEdge(stringV, intV, NativeCastConvertor.STRING_TO_INT_FUNC);
+        explicitCastLattice.addEdge(stringV, longV, NativeCastMapper.STRING_TO_LONG_FUNC);
+        explicitCastLattice.addEdge(stringV, floatV, NativeCastMapper.STRING_TO_FLOAT_FUNC);
+        explicitCastLattice.addEdge(stringV, doubleV, NativeCastMapper.STRING_TO_DOUBLE_FUNC);
+        explicitCastLattice.addEdge(stringV, stringV, NativeCastMapper.STRING_TO_STRING_FUNC);
+        explicitCastLattice.addEdge(stringV, intV, NativeCastMapper.STRING_TO_INT_FUNC);
 
-        explicitCastLattice.addEdge(booleanV, stringV, NativeCastConvertor.BOOLEAN_TO_STRING_FUNC);
-        explicitCastLattice.addEdge(booleanV, booleanV, NativeCastConvertor.BOOLEAN_TO_BOOLEAN_FUNC);
+        explicitCastLattice.addEdge(booleanV, stringV, NativeCastMapper.BOOLEAN_TO_STRING_FUNC);
+        explicitCastLattice.addEdge(booleanV, booleanV, NativeCastMapper.BOOLEAN_TO_BOOLEAN_FUNC);
 
 //        explicitCastLattice.addEdge(jsonV, xmlV, new JSONToXML(), TypeConstants.NATIVE_PACKAGE);
 //        explicitCastLattice.addEdge(xmlV, jsonV, new XMLToJSON(), TypeConstants.NATIVE_PACKAGE);
@@ -158,13 +157,13 @@ public class TypeLattice {
      *
      * @param one           The first TypeVertex of the TypeEdge
      * @param two           The second TypeVertex of the TypeEdge
-     * @param typeConvertor The weight of the TypeEdge
+     * @param typeMapper The weight of the TypeEdge
      * @return true iff no TypeEdge already exists in the Graph
      */
-    public boolean addEdge(TypeVertex one, TypeVertex two, Function typeConvertor) {
+    public boolean addEdge(TypeVertex one, TypeVertex two, Function typeMapper) {
 
         //ensures the TypeEdge is not in the Graph
-        TypeEdge e = new TypeEdge(one, two, typeConvertor);
+        TypeEdge e = new TypeEdge(one, two, typeMapper);
         if (this.edges.containsKey(e.hashCode())) {
             return false;
         } else if (one.containsNeighbor(e) || two.containsNeighbor(e)) {
@@ -184,13 +183,13 @@ public class TypeLattice {
      *
      * @param one           The first TypeVertex of the TypeEdge
      * @param two           The second TypeVertex of the TypeEdge
-     * @param typeConvertor The weight of the TypeEdge
+     * @param typeMapper The weight of the TypeEdge
      * @return true iff no TypeEdge already exists in the Graph
      */
-    public boolean addEdge(TypeVertex one, TypeVertex two, TypeConvertor typeConvertor, String packageName) {
+    public boolean addEdge(TypeVertex one, TypeVertex two, TypeMapper typeMapper, String packageName) {
 
         //ensures the TypeEdge is not in the Graph
-        TypeEdge e = new TypeEdge(one, two, typeConvertor, packageName);
+        TypeEdge e = new TypeEdge(one, two, typeMapper, packageName);
         if (this.edges.containsKey(e.hashCode())) {
             return false;
         } else if (one.containsNeighbor(e) || two.containsNeighbor(e)) {
@@ -208,7 +207,7 @@ public class TypeLattice {
         // First check within the package
         result = this.edges.get((source.toString() + target.toString() + packageName).hashCode());
         if (result == null) {
-            // If not found, check in native type convertors
+            // If not found, check in native type typemappers
             packageName = TypeConstants.NATIVE_PACKAGE;
             result = this.edges.get((source.toString() + target.toString() + packageName).hashCode());
         }

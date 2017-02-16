@@ -20,6 +20,8 @@ package org.ballerinalang.util.repository;
 import java.nio.file.Path;
 
 /**
+ * This class loads ballerina packages and files from the file system.
+ *
  * @since 0.8.0
  */
 public class FileSystemPackageRepository extends PackageRepository {

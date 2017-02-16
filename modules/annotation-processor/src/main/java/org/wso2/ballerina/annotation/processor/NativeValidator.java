@@ -57,7 +57,6 @@ public class NativeValidator {
         loadConstructs(globalScope);
         
         // create program
-        Path programDirPath = Paths.get(targetDir, Constants.BAL_FILES_DIR);
         BLangProgram bLangProgram = new BLangProgram(globalScope, BLangProgram.Category.MAIN_PROGRAM);
         
         // process each package separately
@@ -89,8 +88,8 @@ public class NativeValidator {
     
     private static List<String> getBuiltInBalPackages(String targetDir) {
         List<String> builtInPackages  = new ArrayList<String>();
-        Path source = Paths.get(targetDir, Constants.BAL_FILES_DIR);
-        
+        Path source = Paths.get(targetDir);
+
         // Traverse through built-in ballerina files and identify the packages
         try {
             Files.walkFileTree(source, new PackageFinder(source, builtInPackages));
