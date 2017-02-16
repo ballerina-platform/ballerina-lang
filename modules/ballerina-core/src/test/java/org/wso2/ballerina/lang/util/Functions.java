@@ -23,12 +23,16 @@ import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.interpreter.RuntimeEnvironment;
 import org.wso2.ballerina.core.interpreter.StackFrame;
 import org.wso2.ballerina.core.interpreter.StackVarLocation;
+import org.wso2.ballerina.core.interpreter.nonblocking.BLangNonBlockingExecutor;
+import org.wso2.ballerina.core.interpreter.nonblocking.ModeResolver;
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.Function;
 import org.wso2.ballerina.core.model.SymbolName;
+import org.wso2.ballerina.core.model.builder.BLangExecutionFlowBuilder;
 import org.wso2.ballerina.core.model.expressions.Expression;
 import org.wso2.ballerina.core.model.expressions.FunctionInvocationExpr;
 import org.wso2.ballerina.core.model.expressions.VariableRefExpr;
+import org.wso2.ballerina.core.model.nodes.StartNode;
 import org.wso2.ballerina.core.model.types.BType;
 import org.wso2.ballerina.core.model.types.BTypes;
 import org.wso2.ballerina.core.model.values.BBoolean;
@@ -110,6 +114,11 @@ public class Functions {
                 function.getNodeLocation(), functionName, null, bFile.getPackagePath(), exprs);
         funcIExpr.setOffset(args.length);
         funcIExpr.setCallableUnit(function);
+        // Linking.
+        BLangExecutionFlowBuilder flowBuilder = new BLangExecutionFlowBuilder();
+        funcIExpr.setParent(new StartNode(StartNode.Originator.TEST));
+        funcIExpr.accept(flowBuilder);
+
 
         // 4) Prepare function arguments
         BValue[] functionArgs = args;
@@ -124,13 +133,26 @@ public class Functions {
         CallableUnitInfo functionInfo = new CallableUnitInfo(function.getName(), function.getPackagePath(),
                 function.getNodeLocation());
 
-        StackFrame currentStackFrame = new StackFrame(functionArgs, new BValue[0], functionInfo);
+        BValue[] tempValues = new BValue[flowBuilder.getCurrentTempStackSize()];
+
+        StackFrame currentStackFrame = new StackFrame(functionArgs, new BValue[0], tempValues, functionInfo);
         bContext.getControlStack().pushFrame(currentStackFrame);
 
         // 7) Invoke the function
-        BLangExecutor executor = new BLangExecutor(runtimeEnv, bContext);
-        return funcIExpr.executeMultiReturn(executor);
-
+        if (ModeResolver.getInstance().isNonblockingEnabled()) {
+            BLangNonBlockingExecutor executor = new BLangNonBlockingExecutor(runtimeEnv, bContext);
+            bContext.setExecutor(executor);
+            executor.execute(funcIExpr);
+            int length = funcIExpr.getCallableUnit().getReturnParameters().length;
+            BValue[] result = new BValue[length];
+            for (int i = 0; i < length; i++) {
+                result[i] = bContext.getControlStack().getCurrentFrame().tempValues[funcIExpr.getTempOffset() + i];
+            }
+            return result;
+        } else {
+            BLangExecutor executor = new BLangExecutor(runtimeEnv, bContext);
+            return funcIExpr.executeMultiReturn(executor);
+        }
     }
 
     /**
@@ -208,7 +230,7 @@ public class Functions {
     /**
      * Compare argument types matches with the provided types.
      *
-     * @param argTypes List of {@link BType} that are accepted as arguments
+     * @param argTypes  List of {@link BType} that are accepted as arguments
      * @param argValues List of {@link BValue} that are provided as arguments
      * @return True if a matching type if found for each
      */

@@ -18,6 +18,7 @@
 
 package org.wso2.ballerina.core.model;
 
+import org.wso2.ballerina.core.exception.FlowBuilderException;
 import org.wso2.ballerina.core.model.builder.CallableUnitBuilder;
 import org.wso2.ballerina.core.model.statements.BlockStmt;
 import org.wso2.ballerina.core.model.symbols.BLangSymbol;
@@ -64,6 +65,10 @@ public class BallerinaFunction implements Function, SymbolScope, CompilationUnit
     private SymbolScope enclosingScope;
     private Map<SymbolName, BLangSymbol> symbolMap;
 
+    // Linker related variables
+    private int tempStackFrameSize;
+    private boolean isFlowBuilderVisited;
+
     private BallerinaFunction(SymbolScope enclosingScope) {
         this.enclosingScope = enclosingScope;
         this.symbolMap = new HashMap<>();
@@ -75,6 +80,20 @@ public class BallerinaFunction implements Function, SymbolScope, CompilationUnit
 
     public void setStackFrameSize(int stackFrameSize) {
         this.stackFrameSize = stackFrameSize;
+    }
+
+    @Override
+    public int getTempStackFrameSize() {
+        return tempStackFrameSize;
+    }
+
+    @Override
+    public void setTempStackFrameSize(int stackFrameSize) {
+        if (this.tempStackFrameSize > 0 && stackFrameSize != this.tempStackFrameSize) {
+            throw new FlowBuilderException("Attempt to Overwrite tempValue Frame size. current :" +
+                    this.tempStackFrameSize + ", new :" + stackFrameSize);
+        }
+        this.tempStackFrameSize = stackFrameSize;
     }
 
     /**
@@ -228,6 +247,14 @@ public class BallerinaFunction implements Function, SymbolScope, CompilationUnit
     @Override
     public BLangSymbol resolve(SymbolName name) {
         return resolve(symbolMap, name);
+    }
+
+    public boolean isFlowBuilderVisited() {
+        return isFlowBuilderVisited;
+    }
+
+    public void setFlowBuilderVisited(boolean flowBuilderVisited) {
+        isFlowBuilderVisited = flowBuilderVisited;
     }
 
     /**

@@ -17,10 +17,12 @@
 */
 package org.wso2.ballerina.core.nativeimpl.exceptions;
 
+import org.wso2.ballerina.core.exception.BallerinaException;
+
 /**
  * Thrown when Given entry is not convertible.
  */
-public class MalformedEntryException extends Exception {
+public class MalformedEntryException extends BallerinaException {
 
     /**
      * Constructs a new exception with the specified detail message and

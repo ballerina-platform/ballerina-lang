@@ -17,7 +17,11 @@
 */
 package org.wso2.ballerina.core.interpreter;
 
+import org.wso2.ballerina.core.model.SymbolName;
 import org.wso2.ballerina.core.model.values.BValue;
+
+import java.util.AbstractMap;
+import java.util.HashMap;
 
 /**
  * {@code StackFrame} represents frame in a control stack.
@@ -29,6 +33,10 @@ public class StackFrame {
     public BValue[] values;
     public BValue[] returnValues;
     private CallableUnitInfo callableUnitInfo;
+    // Field for Non-Blocking Implementation.
+    public BValue[] tempValues;
+    // Use only in debugger. Added when variables are accessed.
+    public HashMap<SymbolName, AbstractMap.SimpleEntry<Integer, String>> variables;
 
     public StackFrame(BValue[] values, BValue[] returnValues) {
         this.values = values;
@@ -46,6 +54,14 @@ public class StackFrame {
         this.values = values;
         this.returnValues = returnValues;
         this.callableUnitInfo = callableUnitInfo;
+    }
+
+    public StackFrame(BValue[] values, BValue[] returnValues, BValue[] tempValues, CallableUnitInfo callableUnitInfo) {
+        this.values = values;
+        this.returnValues = returnValues;
+        this.tempValues = tempValues;
+        this.callableUnitInfo = callableUnitInfo;
+        variables = new HashMap<>();
     }
 
     /**

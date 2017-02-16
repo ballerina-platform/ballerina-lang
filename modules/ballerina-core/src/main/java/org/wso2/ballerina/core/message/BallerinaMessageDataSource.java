@@ -74,4 +74,8 @@ public class BallerinaMessageDataSource implements MessageDataSource {
     public String getMessageAsString() {
         return null;
     }
+
+    public BallerinaMessageDataSource clone() {
+        return null;
+    }
 }
