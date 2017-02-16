@@ -115,7 +115,7 @@ define(['lodash', 'd3','log', './simple-statement-view', './../ast/action-invoca
             }
 
             // Setting display text.
-            this.renderDisplayText(actionInvocationExpression.getExpression());
+            this.renderDisplayText(model.getStatementString());
             this.renderProcessorConnectPoint(renderingContext);
             this.renderArrows(renderingContext);
 
@@ -123,18 +123,18 @@ define(['lodash', 'd3','log', './simple-statement-view', './../ast/action-invoca
             var editableProperty = {
                     propertyType: "text",
                     key: "Action Invocation",
-                    model: actionInvocationExpression,
-                    getterMethod: actionInvocationExpression.getExpression,
-                    setterMethod: actionInvocationExpression.setExpression
+                    model: model,
+                    getterMethod: model.getStatementString,
+                    setterMethod: model.setStatementString
             };
 
             this._createPropertyPane({
-                model: actionInvocationExpression,
+                model: model,
                 statementGroup: this.getStatementGroup(),
                 editableProperties: editableProperty
             });
 
-            this.listenTo(actionInvocationExpression, 'update-property-text', this.updateStatementText);
+            this.listenTo(model, 'update-property-text', this.updateStatementText);
 
             // mouse events for 'processorConnectPoint'
             this.processorConnectPoint.on("mousedown", function () {
@@ -373,6 +373,11 @@ define(['lodash', 'd3','log', './simple-statement-view', './../ast/action-invoca
             if (BallerinaASTFactory.isActionInvocationStatement(this.getModel())) {
                 var actionExpression = this.getModel().getChildren()[0];
                 if(BallerinaASTFactory.isActionInvocationExpression(actionExpression)){
+                    return actionExpression;
+                }
+            } else if (BallerinaASTFactory.isAssignmentStatement(this.getModel())) {
+                var actionExpression = this.getModel().getChildren()[1].getChildren()[0];
+                if (BallerinaASTFactory.isActionInvocationExpression(actionExpression)) {
                     return actionExpression;
                 }
             }

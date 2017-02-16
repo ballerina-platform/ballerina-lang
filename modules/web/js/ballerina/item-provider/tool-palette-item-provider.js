@@ -206,9 +206,9 @@ define(['log', 'lodash', './../env/package', './../tool-palette/tool-palette', '
                     action.title = action.getName();
 
                     action.nodeFactoryMethod = DefaultsAddedBallerinaASTFactory.createAggregatedActionInvocationStatement;
-                    // if (action.getReturnParams().length > 0){
-                    //     action.nodeFactoryMethod = BallerinaASTFactory.createAggregatedActionInvocationAssignmentStatement;
-                    // }
+                    if (action.getReturnParams().length > 0){
+                        action.nodeFactoryMethod = BallerinaASTFactory.createAggregatedActionInvocationAssignmentStatement;
+                    }
 
                     action.id = connector.getName() + '-' + action.getName();
                     definitions.push(action);
@@ -225,9 +225,12 @@ define(['log', 'lodash', './../env/package', './../tool-palette/tool-palette', '
                     action.classNames = "tool-connector-action";
                     action.meta = {
                         action: action.getName(),
-                        actionConnectorName: connector.getName(),
+                        actionConnectorName: connector.getName()
                     };
-                    var actionNodeFactoryMethod = BallerinaASTFactory.createActionInvocationExpression;
+                    var actionNodeFactoryMethod = DefaultsAddedBallerinaASTFactory.createAggregatedActionInvocationStatement;
+                    if (action.getReturnParams().length > 0){
+                        actionNodeFactoryMethod = BallerinaASTFactory.createAggregatedActionInvocationAssignmentStatement;
+                    }
                     self.addToToolGroup(toolGroupID, action, actionNodeFactoryMethod, actionIcon);
                 });
 
@@ -285,7 +288,10 @@ define(['log', 'lodash', './../env/package', './../tool-palette/tool-palette', '
                     var actionIcon = "images/tool-icons/action.svg";
                     action.classNames = "tool-connector-action";
                     action.setId(action.getId());
-                    var actionNodeFactoryMethod = BallerinaASTFactory.createActionInvocationExpression;
+                    var actionNodeFactoryMethod = DefaultsAddedBallerinaASTFactory.createAggregatedActionInvocationStatement;
+                    if (action.getReturnParams().length > 0){
+                        actionNodeFactoryMethod = BallerinaASTFactory.createAggregatedActionInvocationAssignmentStatement;
+                    }
                     self.addToToolGroup(toolGroupID, action, actionNodeFactoryMethod, actionIcon);
 
                     action.on('name-modified', function (newName, oldName) {

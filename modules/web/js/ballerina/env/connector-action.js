@@ -108,5 +108,12 @@ define(['require', 'log', 'lodash', 'event_channel'],
             this.setParameters(jsonNode.parameters);
         };
 
+        ConnectorAction.prototype.initFromASTModel = function (connectorActionModel) {
+            this.setName(connectorActionModel.getActionName());
+            this.setId(connectorActionModel.getActionName());
+            this.setParameters(connectorActionModel.getArguments());
+            this.setReturnParams(connectorActionModel.getReturnTypes());
+        };
+
         return ConnectorAction;
     });

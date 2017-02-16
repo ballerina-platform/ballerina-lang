@@ -43,6 +43,26 @@ define(['lodash', 'log', './statement'], function (_, log, Statement) {
         });
     };
 
+    /**
+     * Get the statement string
+     * @return {string} statement string
+     */
+    ActionInvocationStatement.prototype.getStatementString = function () {
+        if (this.getChildren().length > 0) {
+            return this.getChildren()[0].getExpression();
+        }
+    };
+
+    /**
+     * Set the statement string
+     * @param {string} statementString
+     */
+    ActionInvocationStatement.prototype.setStatementString = function (statementString, options) {
+        if (this.getChildren().length > 0) {
+            this.getChildren()[0].setExpression(statementString);
+        }
+    };
+
     return ActionInvocationStatement;
 
 });

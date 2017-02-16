@@ -402,10 +402,10 @@ define(['lodash', 'log', './node', './callable-definition', '../utils/common-uti
             } else if (childNode.type === "variable_definition_statement" && !_.isNil(childNode.children[1]) && childNode.children[1].type === 'action_invocation_expression') {
                 child = self.BallerinaASTFactory.createActionInvocationExpression();
                 childNodeTemp = childNode;
-            } else if (childNode.type === "assignment_statement" && childNode.children[1].children[0].type === "action_invocation_expression") {
-                child = self.getFactory().createActionInvocationExpression();
-                childNodeTemp = {};
-                childNodeTemp.children = [childNode.children[0].children[0], childNode.children[1].children[0]];
+            // } else if (childNode.type === "assignment_statement" && childNode.children[1].children[0].type === "action_invocation_expression") {
+            //     child = self.getFactory().createActionInvocationExpression();
+            //     childNodeTemp = {};
+            //     childNodeTemp.children = [childNode.children[0].children[0], childNode.children[1].children[0]];
             // } else if (childNode.type === "action_invocation_statement") {
             //     child = self.getFactory().createActionInvocationExpression();
             //     childNodeTemp = {};

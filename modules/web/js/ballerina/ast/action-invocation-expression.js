@@ -171,8 +171,8 @@ define(['lodash', 'log', './expression'], function (_, log, Expression) {
         }
 
         var expression = this.getActionConnectorName() + '.' + this.getActionName() + '(' + argsString +  ')';
-        if(!_.isUndefined(this.getActionPackageName()) && !_.isNil(this.getActionPackageName()
-                && !_.isEqual(this.getActionPackageName(), 'Current Package'))){
+        if(!_.isUndefined(this.getActionPackageName()) && !_.isNil(this.getActionPackageName())
+                && !_.isEqual(this.getActionPackageName(), 'Current Package')){
             expression = this.getActionPackageName() + ":" + expression;
         }
         return expression;
