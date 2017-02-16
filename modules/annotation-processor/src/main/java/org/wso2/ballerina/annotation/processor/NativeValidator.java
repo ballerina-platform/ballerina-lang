@@ -48,6 +48,7 @@ public class NativeValidator {
      * @param args
      */
     public static void main(String[] args) {
+        
         // Get package list
         String targetDir = args[0];
         List<String> builtInPackages = getBuiltInBalPackages(targetDir);
@@ -58,6 +59,9 @@ public class NativeValidator {
         
         // create program
         BLangProgram bLangProgram = new BLangProgram(globalScope, BLangProgram.Category.MAIN_PROGRAM);
+        
+        // turn off skipping native function parsing
+        System.setProperty("skipNatives", "false");
         
         // process each package separately
         for (String builtInPkg : builtInPackages) {
