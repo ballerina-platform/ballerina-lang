@@ -48,9 +48,7 @@ public class HTTPServicesRegistry {
     private final Map<String, Map<String, Service>> servicesMap = new ConcurrentHashMap<>();
     private static final HTTPServicesRegistry servicesRegistry = new HTTPServicesRegistry();
 
-
     private HTTPServicesRegistry() {
-
     }
 
     public static HTTPServicesRegistry getInstance() {
@@ -80,7 +78,7 @@ public class HTTPServicesRegistry {
      */
     public void registerService(Service service) {
         if (serviceExists(service)) {
-            logger.info("Service already exists.");
+            logger.debug("Service already exists.");
             return;
         }
         String listenerInterface = Constants.DEFAULT_INTERFACE;
@@ -132,7 +130,6 @@ public class HTTPServicesRegistry {
                                  service.getSymbolName().getPkgPath() + ":" : "") +
                          service.getSymbolName().getName() +
                          " with context " +  basePath);
-
     }
 
     /**
@@ -201,11 +198,6 @@ public class HTTPServicesRegistry {
                 basePath = annotation.getValue();
             }
         }
-
         return servicesMap.containsKey(listenerInterface) && servicesMap.get(listenerInterface).containsKey(basePath);
     }
-
-
-
-
 }

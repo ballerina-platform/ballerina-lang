@@ -52,26 +52,22 @@ public class WebSocketResourceDispatcher implements ResourceDispatcher {
                 return getResource(service, Constants.ANNOTATION_NAME_ON_PONG_MESSAGE);
             } else if (cMsg instanceof StatusCarbonMessage) {
                 StatusCarbonMessage statusMessage = (StatusCarbonMessage) cMsg;
-
                 if (org.wso2.carbon.messaging.Constants.STATUS_CLOSE.equals(statusMessage.getStatus())) {
                     return getResource(service, Constants.ANNOTATION_NAME_ON_CLOSE);
                 } else if (org.wso2.carbon.messaging.Constants.STATUS_OPEN.equals(statusMessage.getStatus())) {
-                    String connection = (String) cMsg.getProperty(
-                            org.wso2.carbon.transport.http.netty.common.Constants.CONNECTION);
-                    String upgrade = (String) cMsg.getProperty(
-                            org.wso2.carbon.transport.http.netty.common.Constants.UPGRADE);
+                    String connection = (String) cMsg.getProperty(Constants.CONNECTION);
+                    String upgrade = (String) cMsg.getProperty(Constants.UPGRADE);
 
                     /* If the connection is WebSocket upgrade, this block will be executed */
                     if (connection != null && upgrade != null &&
-                            org.wso2.carbon.transport.http.netty.common.Constants.UPGRADE.equals(connection)
-                            && org.wso2.carbon.transport.http.netty.common.
-                            Constants.WEBSOCKET_UPGRADE.equals(upgrade)) {
+                            Constants.UPGRADE.equals(connection) && Constants.WEBSOCKET_UPGRADE.equals(upgrade)) {
                         return getResource(service, Constants.ANNOTATION_NAME_ON_OPEN);
                     }
                 }
             }
         } catch (Throwable e) {
-            throw new BallerinaException(e.getMessage(), balContext);
+            throw new BallerinaException("Error occurred in WebSocket resource dispatching : " + e.getMessage(),
+                                         balContext);
         }
         throw new BallerinaException("No matching Resource found for dispatching.");
     }

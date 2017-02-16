@@ -46,7 +46,7 @@ public class WebSocketServiceDispatcher extends HTTPServiceDispatcher {
     public Service findService(CarbonMessage cMsg, CarbonCallback callback, Context balContext) {
         String interfaceId = getInterface(cMsg);
 
-        String serviceUri = (String) cMsg.getProperty(org.wso2.carbon.messaging.Constants.TO);
+        String serviceUri = (String) cMsg.getProperty(Constants.TO);
         serviceUri = refactorUri(serviceUri);
         if (serviceUri == null) {
             throw new BallerinaException("No service found to dispatch");

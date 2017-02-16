@@ -105,7 +105,7 @@ public class HTTPServiceDispatcher implements ServiceDispatcher {
         String interfaceId = (String) cMsg.getProperty(org.wso2.carbon.messaging.Constants.LISTENER_INTERFACE_ID);
         if (interfaceId == null) {
             if (log.isDebugEnabled()) {
-                log.debug("interface id not found on the message, hence using the default interface");
+                log.debug("Interface id not found on the message, hence using the default interface");
             }
             interfaceId = Constants.DEFAULT_INTERFACE;
         }

@@ -29,7 +29,8 @@ import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
 import org.wso2.ballerina.core.nativeimpl.annotations.Attribute;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaAnnotation;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
-import org.wso2.carbon.transport.http.netty.common.Constants;
+import org.wso2.ballerina.core.runtime.dispatching.http.Constants;
+import org.wso2.carbon.messaging.CarbonMessage;
 
 import javax.websocket.Session;
 
@@ -60,8 +61,9 @@ public class PushText extends AbstractNativeFunction {
     @Override
     public BValue[] execute(Context context) {
         try {
-            if (context.getCarbonMessage().getProperty(Constants.CHANNEL_ID) != null) {
-                BMessage bMessage = (BMessage) getArgument(context, 0);
+            BMessage bMessage = (BMessage) getArgument(context, 0);
+            CarbonMessage carbonMessage = bMessage.value();
+            if (carbonMessage.getProperty(Constants.CHANNEL_ID) != null) {
                 Session session = (Session) bMessage.value().getProperty(Constants.WEBSOCKET_SESSION);
                 String text = getArgument(context, 1).stringValue();
                 session.getBasicRemote().sendText(text);

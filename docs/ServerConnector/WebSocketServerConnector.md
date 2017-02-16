@@ -99,11 +99,4 @@ the WebSocket message.
 
 
 Please refer the simple echo server example given in
-samples/websocket/echo-server/server/wsEchoServer.bal
-
-
-   
-
-
-
-
+samples/websocket/echo-server/server/websocketEchoServer.bal

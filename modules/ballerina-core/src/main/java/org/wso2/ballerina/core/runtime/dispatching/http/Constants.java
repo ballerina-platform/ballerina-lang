@@ -75,6 +75,11 @@ public class Constants {
     public static final String ANNOTATION_NAME_ON_CLOSE = "OnClose";
     public static final String ANNOTATION_NAME_ON_ERROR = "OnError";
 
+    public static final String CONNECTION = "Connection";
+    public static final String UPGRADE = "Upgrade";
+    public static final String WEBSOCKET_UPGRADE = "websocket";
+    public static final String CHANNEL_ID = "CHANNEL_ID";
+    public static final String WEBSOCKET_SESSION = "WEBSOCKET_SESSION";
 
     public static final String ANNOTATION_SOURCE_KEY_INTERFACE = "interface";
 }

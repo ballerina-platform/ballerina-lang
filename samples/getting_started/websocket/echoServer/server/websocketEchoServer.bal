@@ -4,7 +4,7 @@ import ballerina.net.ws;
 
 @http:BasePath("/ws-echo-server")
 @ws:WebSocketUpgradePath("/")
-service testWs {
+service websocketEchoServer {
 
     @ws:OnOpen
     resource onOpen(message m) {

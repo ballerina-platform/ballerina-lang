@@ -27,12 +27,6 @@ import org.wso2.ballerina.core.model.Resource;
 import org.wso2.ballerina.core.model.Service;
 import org.wso2.ballerina.core.nativeimpl.connectors.BallerinaConnectorManager;
 import org.wso2.ballerina.core.runtime.MessageProcessor;
-import org.wso2.ballerina.core.runtime.dispatching.HTTPResourceDispatcher;
-import org.wso2.ballerina.core.runtime.dispatching.HTTPServiceDispatcher;
-import org.wso2.ballerina.core.runtime.dispatching.WebSocketResourceDispatcher;
-import org.wso2.ballerina.core.runtime.dispatching.WebSocketServiceDispatcher;
-import org.wso2.ballerina.core.runtime.dispatching.http.HTTPResourceDispatcher;
-import org.wso2.ballerina.core.runtime.dispatching.http.HTTPServiceDispatcher;
 import org.wso2.ballerina.core.runtime.internal.BuiltInNativeConstructLoader;
 import org.wso2.ballerina.core.runtime.internal.GlobalScopeHolder;
 import org.wso2.ballerina.core.runtime.registry.ApplicationRegistry;
@@ -47,12 +41,6 @@ public class EnvironmentInitializer {
         // Initialize server connectors before starting the test cases
         BallerinaConnectorManager.getInstance().initialize(new MessageProcessor());
         BallerinaConnectorManager.getInstance().registerServerConnectorErrorHandler(new TestErrorHandler());
-        // Resister HTTP Dispatchers
-        DispatcherRegistry.getInstance().registerServiceDispatcher(new HTTPServiceDispatcher());
-        DispatcherRegistry.getInstance().registerResourceDispatcher(new HTTPResourceDispatcher());
-        //Register WebSocket Dispatcher
-        DispatcherRegistry.getInstance().registerServiceDispatcher(new WebSocketServiceDispatcher());
-        DispatcherRegistry.getInstance().registerResourceDispatcher(new WebSocketResourceDispatcher());
 
         // Load constructors
         BuiltInNativeConstructLoader.loadConstructs();
