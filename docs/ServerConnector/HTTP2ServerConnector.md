@@ -88,7 +88,7 @@ Please refer [4] for other ssl options.
 
 ##Test HTTP/2 Service
 
-You can use HTTP/2 client to test the HTTP/2 services. Simple Java client can be found in [1] and [2] contains few code
+You can use HTTP/2 client to test the HTTP/2 services. Simple Java client can be found in [1] and [2] contains code
 samples how to call HTTP samples using HTTP/2 Java client.
 
 [1] https://github.com/ballerinalang/ballerina/tree/master/modules/tests/test-integration/src/test/java/org/wso2/ballerina/test/util/http2
