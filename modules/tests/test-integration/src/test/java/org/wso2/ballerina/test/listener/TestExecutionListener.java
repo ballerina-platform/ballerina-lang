@@ -140,6 +140,4 @@ public class TestExecutionListener implements IExecutionListener {
         };
         return sampleFiles;
     }
-
-
 }
