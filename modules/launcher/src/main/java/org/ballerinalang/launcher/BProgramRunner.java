@@ -64,7 +64,7 @@ class BProgramRunner {
         try {
             BallerinaConnectorManager.getInstance().startPendingConnectors();
         } catch (ServerConnectorException e) {
-            throw new RuntimeException("error occurred while starting server connectors, " + e.getMessage(), e);
+            throw new RuntimeException("error starting server connectors: " + e.getMessage(), e);
         }
 
     }
