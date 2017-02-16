@@ -190,6 +190,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
             due to a protocol error.
              */
             ctx.channel().writeAndFlush(new CloseWebSocketFrame(1002, ""));
+
             ctx.close();
             throw new ProtocolException("Error occurred in HTTP to WebSocket Upgrade : " + e.getMessage());
         }
