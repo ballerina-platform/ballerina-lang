@@ -3,11 +3,11 @@ import ballerina.net.http;
 import ballerina.lang.system;
 import ballerina.lang.json;
 
-@BasePath ("/ABCBank")
+@http:BasePath ("/ABCBank")
 service ATMLocator {
 
-    @POST
-    @Path ("/locator")
+    @http:POST
+    @http:Path ("/locator")
     resource locator (message m) {
         http:ClientConnector branchLocatorService = create http:ClientConnector("http://localhost:9090/branchlocator");
         http:ClientConnector bankInfoService = create http:ClientConnector("http://localhost:9090/bankinfo");
@@ -41,10 +41,10 @@ service ATMLocator {
 }
 
 
-@BasePath("/branchlocator")
+@http:BasePath("/branchlocator")
 service Banklocator {
 
-    @POST
+    @http:POST
     resource product (message m) {
         message response = {};
 
@@ -63,11 +63,11 @@ service Banklocator {
 }
 
 
-@BasePath("/bankinfo")
+@http:BasePath("/bankinfo")
 
 service Bankinfo {
 
-    @POST
+    @http:POST
     resource product (message m) {
         message response = {};
 
