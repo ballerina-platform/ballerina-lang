@@ -1,6 +1,6 @@
 # Language Overview
 
-This page provides an overview of the Ballerina language and the main points you need to know about creating a Ballerina program. Be sure to read [Key Concepts](key-concepts.md) to familiarize yourself with Ballerina entities such as services.
+This page provides an overview of the Ballerina language and the main points you need to know about creating a Ballerina program. Be sure to read [Key Concepts](../key-concepts.md) to familiarize yourself with Ballerina entities such as services.
 
 ## Structure of a Ballerina program
 
