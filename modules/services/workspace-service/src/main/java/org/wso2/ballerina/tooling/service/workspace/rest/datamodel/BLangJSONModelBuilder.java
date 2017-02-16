@@ -349,7 +349,51 @@ public class BLangJSONModelBuilder implements NodeVisitor {
 
     @Override
     public void visit(BTypeMapper typeMapper) {
-
+        JsonObject jsonTypeMapper = new JsonObject();
+        jsonTypeMapper.addProperty(BLangJSONModelConstants.DEFINITION_TYPE, BLangJSONModelConstants.TYPE_MAPPER_DEFINITION);
+        jsonTypeMapper.addProperty(BLangJSONModelConstants.TYPE_MAPPER_NAME, typeMapper.getName());
+        this.tempJsonArrayRef.push(new JsonArray());
+        this.tempJsonArrayRef.push(new JsonArray());
+        if (typeMapper.getAnnotations() != null) {
+            for (Annotation annotation : typeMapper.getAnnotations()) {
+                annotation.accept(this);
+            }
+        }
+        jsonTypeMapper.add(BLangJSONModelConstants.ANNOTATION_DEFINITIONS, this.tempJsonArrayRef.peek());
+        this.tempJsonArrayRef.pop();
+        if (typeMapper.getVariableDefs() != null) {
+            for (VariableDef variableDef : typeMapper.getVariableDefs()) {
+                variableDef.accept(BLangJSONModelBuilder.this);
+            }
+        }
+        if (typeMapper.getParameterDefs() != null) {
+            for (ParameterDef parameterDef : typeMapper.getParameterDefs()) {
+                parameterDef.accept(this);
+            }
+        }
+        JsonObject returnTypeObj = new JsonObject();
+        returnTypeObj.addProperty(BLangJSONModelConstants.DEFINITION_TYPE, BLangJSONModelConstants.RETURN_TYPE);
+        JsonArray returnTypeArray = new JsonArray();
+        if (typeMapper.getReturnParameters() != null) {
+            for (ParameterDef parameterDef : typeMapper.getReturnParameters()) {
+                JsonObject paramObj = new JsonObject();
+                paramObj.addProperty(BLangJSONModelConstants.DEFINITION_TYPE, BLangJSONModelConstants.RETURN_TYPE);
+                paramObj.addProperty(BLangJSONModelConstants.PARAMETER_TYPE, parameterDef.getTypeName().getSymbolName().getName());
+                this.tempJsonArrayRef.push(new JsonArray());
+                if (parameterDef.getAnnotations() != null) {
+                    for (Annotation annotation : parameterDef.getAnnotations()) {
+                        annotation.accept(this);
+                    }
+                }
+                paramObj.add(BLangJSONModelConstants.CHILDREN, this.tempJsonArrayRef.peek());
+                this.tempJsonArrayRef.pop();
+                this.tempJsonArrayRef.peek().add(paramObj);
+            }
+        }
+        typeMapper.getCallableUnitBody().accept(this);
+        jsonTypeMapper.add(BLangJSONModelConstants.CHILDREN, tempJsonArrayRef.peek());
+        tempJsonArrayRef.pop();
+        tempJsonArrayRef.peek().add(jsonTypeMapper);
     }
 
     @Override
@@ -900,18 +944,22 @@ public class BLangJSONModelBuilder implements NodeVisitor {
     public void visit(VariableRefExpr variableRefExpr) {
         JsonObject variableRefObj = new JsonObject();
         variableRefObj.addProperty(BLangJSONModelConstants.VARIABLE_REFERENCE_TYPE,
-                BLangJSONModelConstants.VARIABLE_REFERENCE_NAME);
+                BLangJSONModelConstants.VARIABLE_REFERENCE_EXPRESSION);
         variableRefObj.addProperty(BLangJSONModelConstants.VARIABLE_REFERENCE_NAME,
                 variableRefExpr.getSymbolName().getName());
         if (variableRefExpr.getVariableDef() != null) {
             JsonObject variableDef= new JsonObject();
+            variableDef.addProperty(BLangJSONModelConstants.DEFINITION_TYPE, BLangJSONModelConstants.VARIABLE_DEFINITION);
             variableDef.addProperty(BLangJSONModelConstants.TYPE_NAME,
                     variableRefExpr.getVariableDef().getTypeName().getSymbolName().getName());
             variableDef.addProperty(BLangJSONModelConstants.PACKAGE_NAME,
                     variableRefExpr.getVariableDef().getTypeName().getPackageName());
-            variableRefObj.add(BLangJSONModelConstants.VARIABLE_DEF_OPTIONS, variableDef);
+            JsonArray varDefChildArray  = new JsonArray();
+            varDefChildArray.add(variableDef);
+            variableRefObj.add(BLangJSONModelConstants.CHILDREN, varDefChildArray);
         }
         tempJsonArrayRef.peek().add(variableRefObj);
+
     }
 
     @Override
@@ -1112,7 +1160,19 @@ public class BLangJSONModelBuilder implements NodeVisitor {
 
     @Override
     public void visit(StructFieldAccessExpr structFieldAccessExpr) {
-        // TODO
+        JsonObject structFieldAccessObj = new JsonObject();
+        structFieldAccessObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE,
+                BLangJSONModelConstants.STRUCT_FIELD_ACCESS_EXPRESSION);
+        tempJsonArrayRef.push(new JsonArray());
+        if(structFieldAccessExpr.getFieldExpr() != null){
+            structFieldAccessExpr.getFieldExpr().accept(this);
+        }
+        if(structFieldAccessExpr.getVarRef() != null){
+            structFieldAccessExpr.getVarRef().accept(this);
+        }
+        structFieldAccessObj.add(BLangJSONModelConstants.CHILDREN, tempJsonArrayRef.peek());
+        tempJsonArrayRef.pop();
+        tempJsonArrayRef.peek().add(structFieldAccessObj);
     }
 
     @Override
@@ -1136,16 +1196,29 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         JsonObject variableDefObj = new JsonObject();
         variableDefObj.addProperty(BLangJSONModelConstants.DEFINITION_TYPE, BLangJSONModelConstants.VARIABLE_DEFINITION_STATEMENT);
         tempJsonArrayRef.push(new JsonArray());
-        JsonObject childrenObj = new JsonObject();
+        JsonObject leftOpObj = new JsonObject();
+        leftOpObj.addProperty(BLangJSONModelConstants.DEFINITION_TYPE, BLangJSONModelConstants.LEFT_EXPRESSION);
 
         // Visit the left expression
         if (varDefStmt.getLExpr() != null) {
             varDefStmt.getLExpr().accept(this);
         }
+        leftOpObj.add(BLangJSONModelConstants.CHILDREN, tempJsonArrayRef.pop());
+
+        tempJsonArrayRef.push(new JsonArray());
+        JsonObject rightOpObj = new JsonObject();
+        rightOpObj.addProperty(BLangJSONModelConstants.DEFINITION_TYPE, BLangJSONModelConstants.RIGHT_EXPRESSION);
+
         // Visit the right expression
         if (varDefStmt.getRExpr() != null) {
             varDefStmt.getRExpr().accept(this);
         }
+        rightOpObj.add(BLangJSONModelConstants.CHILDREN, tempJsonArrayRef.pop());
+
+        tempJsonArrayRef.push(new JsonArray());
+        tempJsonArrayRef.peek().add(leftOpObj);
+        tempJsonArrayRef.peek().add(rightOpObj);
+
         variableDefObj.add(BLangJSONModelConstants.CHILDREN, tempJsonArrayRef.peek());
         tempJsonArrayRef.pop();
         tempJsonArrayRef.peek().add(variableDefObj);
