@@ -52,8 +52,7 @@ import javax.lang.model.element.TypeElement;
 @SupportedAnnotationTypes({ "org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction",
                             "org.wso2.ballerina.core.nativeimpl.annotations.BallerinaConnector",
                             "org.wso2.ballerina.core.nativeimpl.annotations.BallerinaAction",
-                            "org.wso2.ballerina.core.nativeimpl.annotations.BallerinaTypeConvertor",
-                            })
+                            "org.wso2.ballerina.core.nativeimpl.annotations.BallerinaTypeConvertor"})
 @SupportedSourceVersion(SourceVersion.RELEASE_8)
 @SupportedOptions({ "className", "packageName", "srcDir", "targetDir" })
 public class BallerinaAnnotationProcessor extends AbstractProcessor {
