@@ -155,6 +155,8 @@ public class SemanticAnalyzer implements NodeVisitor {
     private static final String patternString = "\\$\\{((\\w+)(\\[(\\d+|\\\"(\\w+)\\\")\\])?)\\}";
     private static final Pattern compiledPattern = Pattern.compile(patternString);
 
+    private int whileStmtCount = 0;
+
     // We need to keep a map of import packages.
     // This is useful when analyzing import functions, actions and types.
     private Map<String, ImportPackage> importPkgMap = new HashMap<>();
@@ -677,6 +679,10 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         for (int i = 0; i < blockStmt.getStatements().length; i++) {
             Statement stmt = blockStmt.getStatements()[i];
+            if (stmt instanceof BreakStmt && whileStmtCount < 1) {
+                BLangExceptionHelper.throwSemanticError(stmt,
+                        SemanticErrors.BREAK_STMT_NOT_ALLOWED_HERE);
+            }
             if (stmt instanceof ReturnStmt || stmt instanceof ReplyStmt || stmt instanceof BreakStmt ||
                     stmt instanceof ThrowStmt) {
                 int stmtLocation = i + 1;
@@ -730,6 +736,7 @@ public class SemanticAnalyzer implements NodeVisitor {
 
     @Override
     public void visit(WhileStmt whileStmt) {
+        whileStmtCount++;
         Expression expr = whileStmt.getCondition();
         visitSingleValueExpr(expr);
 
@@ -745,6 +752,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         }
 
         blockStmt.accept(this);
+        whileStmtCount--;
     }
 
     @Override

@@ -36,7 +36,6 @@ import org.wso2.ballerina.core.runtime.dispatching.http.HTTPServiceDispatcher;
 import org.wso2.ballerina.core.runtime.internal.BuiltInNativeConstructLoader;
 import org.wso2.ballerina.core.runtime.internal.GlobalScopeHolder;
 import org.wso2.ballerina.core.runtime.registry.ApplicationRegistry;
-import org.wso2.ballerina.core.runtime.registry.DispatcherRegistry;
 import org.wso2.ballerina.core.utils.ParserUtils;
 
 /**
@@ -86,7 +85,6 @@ public class EnvironmentInitializer {
 
     public static void cleanup(Application application) {
         ApplicationRegistry.getInstance().unregisterApplication(application);
-        DispatcherRegistry.getInstance().clearDispatchers();
     }
 
 }
