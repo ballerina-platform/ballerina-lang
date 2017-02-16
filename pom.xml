@@ -18,6 +18,11 @@
 
     <dependencies>
         <dependency>
+            <groupId>com.beust</groupId>
+            <artifactId>jcommander</artifactId>
+            <version>${jcommander.version}</version>
+        </dependency>
+        <dependency>
             <groupId>io.fabric8</groupId>
             <artifactId>docker-client</artifactId>
             <version>${docker.client.version}</version>
@@ -89,5 +94,6 @@
         <testng.version>6.9.4</testng.version>
         <commons.lang3.version>3.5</commons.lang3.version>
         <commons.io.version>2.5</commons.io.version>
+        <jcommander.version>1.60</jcommander.version>
     </properties>
 </project>
