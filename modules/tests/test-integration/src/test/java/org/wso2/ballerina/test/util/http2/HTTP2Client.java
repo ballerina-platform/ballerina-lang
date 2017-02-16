@@ -63,11 +63,8 @@ public class HTTP2Client {
     private HttpScheme scheme;
     private AsciiString hostName;
 
-
     public HTTP2Client(boolean ssl, String host, int port) throws Exception {
-
         try {
-
             final SslContext sslCtx;
             if (ssl) {
                 SslProvider provider = OpenSsl.isAlpnSupported() ? SslProvider.OPENSSL : SslProvider.JDK;
@@ -90,7 +87,6 @@ public class HTTP2Client {
             workerGroup = new NioEventLoopGroup();
             HTTP2ClientInitializer initializer = new HTTP2ClientInitializer(sslCtx, Integer.MAX_VALUE);
 
-
             // Configure the client.
             Bootstrap b = new Bootstrap();
             b.group(workerGroup);
@@ -110,17 +106,13 @@ public class HTTP2Client {
             responseHandler = initializer.responseHandler();
             scheme = ssl ? HttpScheme.HTTPS : HttpScheme.HTTP;
             hostName = new AsciiString(host + ':' + port);
-
-
         } catch (Exception ex) {
             log.error("Error while initializing http2 client " + ex);
             this.close();
         }
-
     }
 
     public int send(FullHttpRequest request) throws Exception {
-
         // Configure ssl.
         int currentStreamId = streamId.addAndGet(2);
         request.headers().add(HttpHeaderNames.HOST, hostName);
@@ -132,7 +124,6 @@ public class HTTP2Client {
     }
 
     public void close() {
-
         // Wait until the connection is closed.
         if (channel != null && channel.isActive()) {
             channel.close().syncUninterruptibly();
@@ -144,6 +135,5 @@ public class HTTP2Client {
 
     public FullHttpResponse getResponse(int streamId) {
         return responseHandler.getResponse(streamId);
-
     }
 }

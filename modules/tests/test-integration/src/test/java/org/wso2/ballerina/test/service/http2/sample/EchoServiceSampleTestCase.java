@@ -19,6 +19,7 @@ package org.wso2.ballerina.test.service.http2.sample;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.handler.codec.http.DefaultFullHttpRequest;
+import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,9 +45,12 @@ public class EchoServiceSampleTestCase extends HTTP2IntegrationTestCase {
         int p1 = buffer.writerIndex();
         request.headers().set(HttpHeaderNames.CONTENT_LENGTH, Integer.toString(p1 - p0));
         int send = http2Client.send(request);
-        String response = getResponse(http2Client.getResponse(send));
+        FullHttpResponse response = http2Client.getResponse(send);
         //request should be returned as response
-        Assert.assertEquals(response, requestMessage, "Message content mismatched");
+        Assert.assertEquals(response.getStatus().code(), 200, "Response code mismatched");
+        Assert.assertEquals(response.headers().get(TestConstant.HEADER_CONTENT_TYPE)
+                , TestConstant.CONTENT_TYPE_JSON, "Content-Type mismatched");
+        Assert.assertEquals(getResponse(response), requestMessage, "Message content mismatched");
     }
 
     @Test(description = "Test echo service sample test case")
@@ -60,8 +64,12 @@ public class EchoServiceSampleTestCase extends HTTP2IntegrationTestCase {
         int p1 = buffer.writerIndex();
         request.headers().set(HttpHeaderNames.CONTENT_LENGTH, Integer.toString(p1 - p0));
         int send = http2Client.send(request);
-        String response = getResponse(http2Client.getResponse(send));
-        log.info(response);
+        FullHttpResponse response = http2Client.getResponse(send);
+        //request should be returned as response
+        Assert.assertEquals(response.getStatus().code(), 200, "Response code mismatched");
+        Assert.assertEquals(response.headers().get(TestConstant.HEADER_CONTENT_TYPE)
+                , TestConstant.CONTENT_TYPE_JSON, "Content-Type mismatched");
+        Assert.assertEquals(getResponse(response),  requestMessage, "Message content mismatched");
     }
 
 
