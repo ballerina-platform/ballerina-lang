@@ -35,43 +35,6 @@ public class CompilationUnitReference extends BallerinaElementReference {
     @NotNull
     @Override
     public Object[] getVariants() {
-
-        PsiElement previousElement = getElement().getParent().getPrevSibling();
-
-
-        PsiElement previousSibling = getElement().getPrevSibling();
-
-        if (previousElement == null) {
-            // First element
-            if (previousSibling == null && getElement().getParent() instanceof PsiErrorElement) {
-                return new Object[]{"package", "import", " service ", " function ", " connector ", " struct ",
-                        "typeconverter", "const"};
-            }
-            if (getElement().getParent() instanceof SimpleTypeNode) {
-                return new Object[]{"int", "boolean", "string"};
-            }
-
-            while (previousSibling instanceof PsiWhiteSpace) {
-                if (previousSibling.getPrevSibling() != null) {
-                    previousSibling = previousSibling.getPrevSibling();
-                }
-            }
-            return new Object[0];
-        }
-
-        // Get non whitespace previous sibling
-        while (previousElement instanceof PsiWhiteSpace) {
-            previousElement = previousElement.getPrevSibling();
-        }
-
-        if (previousElement instanceof ImportDeclarationNode || previousElement instanceof PackageDeclarationNode) {
-
-            if (previousSibling == null) {
-                return new Object[]{"import", "service", "function", "connector", "struct", "typeconverter",
-                        "const"};
-            }
-            return new Object[0];
-        }
-        return new Object[]{"service", "function", "connector", "struct", "typeconverter", "const"};
+        return new Object[0];
     }
 }

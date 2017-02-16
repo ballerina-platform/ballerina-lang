@@ -22,13 +22,10 @@ import com.intellij.psi.PsiElementResolveResult;
 import com.intellij.psi.PsiReference;
 import com.intellij.psi.ResolveResult;
 import org.antlr.jetbrains.adaptor.psi.IdentifierDefSubtree;
-import org.apache.xerces.xs.datatypes.ObjectList;
 import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 
 public class StatementReference extends BallerinaElementReference {
@@ -49,20 +46,12 @@ public class StatementReference extends BallerinaElementReference {
     public Object[] getVariants() {
 
         List results = new ArrayList<>();
-
-        String[] simpleTypesArray = {"boolean", "int", "long", "float", "double", "string",
-                "message", "map", "exception"};
-        List<String> simpleTypesList = Arrays.asList(simpleTypesArray);
-
-        results.addAll(simpleTypesList);
-
         String text = getElement().getText();
 
         PsiElement prevSibling = getElement().getParent().getPrevSibling();
         if (prevSibling != null && prevSibling.getPrevSibling() != null) {
             text = prevSibling.getPrevSibling().getText();
         }
-
 
         if (text.endsWith(":")) {
             List<PsiElement> allImportedPackages = BallerinaPsiImplUtil.getAllImportedPackages(getElement());
@@ -85,18 +74,7 @@ public class StatementReference extends BallerinaElementReference {
                     }
                 }
             }
-        } else {
-            results.addAll(BallerinaPsiImplUtil.getAllImportedPackages(getElement()));
-            results.addAll(BallerinaPsiImplUtil.getAllFunctions(getElement()));
         }
-
-
-        PsiElement context = getElement().getContext();
-        if (context == null) {
-            context = getElement().getParent().getContext();
-        }
-        results.addAll(BallerinaPsiImplUtil.getAllVariablesInResolvableScope(context));
-
         return results.toArray();
     }
 
