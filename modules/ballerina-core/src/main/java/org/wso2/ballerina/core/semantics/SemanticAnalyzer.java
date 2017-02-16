@@ -2090,13 +2090,7 @@ public class SemanticAnalyzer implements NodeVisitor {
                         paramTypes[i] = exprs[i].getType();
                     }
 
-                    // If the package name is null, then the typemapper may be a native one
-                    // so setting the native package to resolve the typemapper
-                    String packageName = (typeCastExpression.getPackageName() == null) ?
-                            "ballerina.lang.typemappers" :
-                            null;
-
-                    SymbolName symbolName = LangModelUtils.getTypeMapperSymName(packageName,
+                    SymbolName symbolName = LangModelUtils.getTypeMapperSymName(pkgPath,
                             sourceType, targetType);
                     BLangSymbol typeMapperSymbol = currentScope.resolve(symbolName);
                     if (typeMapperSymbol == null) {
