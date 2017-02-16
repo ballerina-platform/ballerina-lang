@@ -99,6 +99,10 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
             HTTPTransportContextHolder.getInstance().getHandlerExecutor()
                     .executeAtSourceConnectionInitiation(Integer.toString(ctx.hashCode()));
         }
+        this.ctx = ctx;
+        if (this.targetChannelPool == null) {
+            this.targetChannelPool = connectionManager.getTargetChannelPool();
+        }
     }
 
     @SuppressWarnings("unchecked")
