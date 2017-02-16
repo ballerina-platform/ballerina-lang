@@ -200,10 +200,14 @@ public class ConstructProviderClassBuilder {
                 sourceFileWriter.write(pkgInsertionStr);
                 writeFunctions(pkgHolder.getFunctions());
                 writeConnectors(pkgHolder.getConnectors());
-                writeTypeConvertors(pkgHolder.getTypeMapper());
                 String pkgInsertionEndStr = "\t" + PACKAGE_SCOPE + ".setPackageRepository(" + PACKAGE_REPO + ");\n" +
                         "\treturn nativePackage;\n\t}, " + GLOBAL_SCOPE + ")\n);\n\n";
                 sourceFileWriter.write(pkgInsertionEndStr);
+            }
+            
+            // Write typeMappers to the global scope
+            for (PackageHolder pkgHolder : nativePackages.values()) {
+                writeTypeConvertors(pkgHolder.getTypeMapper());
             }
             
             writeBuiltInBalPackages();
@@ -285,18 +289,25 @@ public class ConstructProviderClassBuilder {
     }
     
     /**
-     * Write all the type convertors defining to the provider class.
+     * Write all the type mapper defining to the provider class.
      * 
-     * @param typeMapperHolders Type convertor holders array containing ballerina type convertor annotations
+     * @param typeMapperHolders Type mapper holders array containing ballerina type mapper annotations
      */
     private void writeTypeConvertors(TypeMapperHolder[] typeMapperHolders) {
         for (TypeMapperHolder typeMapperHolder : typeMapperHolders) {
             BallerinaTypeMapper typeMapper = typeMapperHolder.getBalTypeMapper();
-            String pkgName = typeMapper.packageName();
-            String className = typeMapperHolder.getClassName();
-            String typeConvertorQualifiedName = Utils.getTypeConverterQualifiedName(typeMapper);
-            writeNativeConstruct(pkgName, typeMapper.typeMapperName(),
-                typeConvertorQualifiedName, className, typeMapper.args(), typeMapper.returnType());
+            String typeMapperPkgName = typeMapper.packageName();
+            String typeMapperClassName = typeMapperHolder.getClassName();
+            String typeMapperQualifiedName = Utils.getTypeConverterQualifiedName(typeMapper);
+            String typeMapperAddStr = getConstructInsertStr(GLOBAL_SCOPE, DEFINE_METHOD, typeMapperPkgName, 
+                typeMapper.typeMapperName(), typeMapperQualifiedName, null, null, typeMapperClassName, 
+                typeMapper.args(), typeMapper.returnType(), "nativeTypeMapper", null, nativeUnitClass, 
+                "nativeTypeMapperClass", null, null);
+            try {
+                sourceFileWriter.write(typeMapperAddStr);
+            } catch (IOException e) {
+                throw new BallerinaException("failed to write to source file: " + e.getMessage());
+            }
         }
     }
 
