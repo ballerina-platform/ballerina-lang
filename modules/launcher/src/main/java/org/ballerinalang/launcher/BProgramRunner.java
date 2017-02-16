@@ -64,9 +64,7 @@ class BProgramRunner {
         try {
             BallerinaConnectorManager.getInstance().startPendingConnectors();
         } catch (ServerConnectorException e) {
-            outStream.println("Exception occurred while starting server connectors");
-            //TODO: Do proper exception handling. Question is should we fail everything if one Connector
-            //TODO: fails or should we continue with success ones
+            throw new RuntimeException("error occurred while starting server connectors, " + e.getMessage(), e);
         }
 
     }
