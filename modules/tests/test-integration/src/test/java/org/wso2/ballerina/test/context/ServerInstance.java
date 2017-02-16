@@ -69,7 +69,6 @@ public class ServerInstance implements Server {
         Utils.checkPortAvailability(httpServerPort);
         // Start the activemq embedded broker.
         JMSBroker.startBroker();
-        Utils.checkPortAvailability(Constant.DEFAULT_HTTP_PORT);
         if (serverHome == null) {
             serverHome = setUpServerHome(serverDistribution);
             log.info("Server Home " + serverHome);
