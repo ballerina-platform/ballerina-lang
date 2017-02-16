@@ -18,6 +18,9 @@
 
 package org.wso2.ballerina.nativeimpl.util;
 
+import org.osgi.service.component.annotations.Component;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.types.TypeEnum;
@@ -37,23 +40,32 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 
 /**
- * Native function ballerina.util:getHmacFromBase64.
+ * Native function ballerina.util:getHmac.
  *
  * @since 0.8.0
  */
 @BallerinaFunction(
         packageName = "ballerina.util",
-        functionName = "getHmacFromBase64",
-        args = { @Argument(name = "baseString", type = TypeEnum.STRING),
-                 @Argument(name = "keyString", type = TypeEnum.STRING),
-                 @Argument(name = "algorithm", type = TypeEnum.STRING) },
-        returnType = { @ReturnType(type = TypeEnum.STRING) },
-        isPublic = true)
+        functionName = "getHmac",
+        args = {
+                @Argument(name = "baseString", type = TypeEnum.STRING),
+                @Argument(name = "keyString", type = TypeEnum.STRING),
+                @Argument(name = "algorithm", type = TypeEnum.STRING)
+        },
+        returnType = {@ReturnType(type = TypeEnum.STRING)},
+        isPublic = true
+)
+@Component(
+        name = "func.util_getHmac",
+        immediate = true,
+        service = AbstractNativeFunction.class
+)
+public class GetHmac extends AbstractNativeFunction {
 
-public class GetHmacFromBase64 extends AbstractNativeFunction {
+    private static final Logger log = LoggerFactory.getLogger(GetHmac.class);
 
-
-    @Override public BValue[] execute(Context context) {
+    @Override
+    public BValue[] execute(Context context) {
         String baseString = getArgument(context, 0).stringValue();
         String keyString = getArgument(context, 1).stringValue();
         String algorithm = getArgument(context, 2).stringValue();
@@ -61,33 +73,29 @@ public class GetHmacFromBase64 extends AbstractNativeFunction {
 
         //todo document the supported algorithm
         switch (algorithm) {
-            case "SHA1":
-                hmacAlgorithm = "HmacSHA1";
-                break;
-            case "SHA256":
-                hmacAlgorithm = "HmacSHA256";
-                break;
-            case "MD5":
-                hmacAlgorithm = "HmacMD5";
-                break;
-            default:
-                throw new BallerinaException(
-                        "Unsupported algorithm " + algorithm + " for HMAC calculation");
+        case "SHA1":
+            hmacAlgorithm = "HmacSHA1";
+            break;
+        case "SHA256":
+            hmacAlgorithm = "HmacSHA256";
+            break;
+        case "MD5":
+            hmacAlgorithm = "HmacMD5";
+            break;
+        default:
+            throw new BallerinaException("Unsupported algorithm " + algorithm + " for HMAC calculation");
         }
 
         String result = "";
         try {
-            byte[] keyBytes =
-                    Base64.getDecoder().decode(keyString.getBytes(Charset.defaultCharset()));
+            byte[] keyBytes = keyString.getBytes(Charset.defaultCharset());
             SecretKey secretKey = new SecretKeySpec(keyBytes, hmacAlgorithm);
             Mac mac = Mac.getInstance(hmacAlgorithm);
             mac.init(secretKey);
             byte[] baseStringBytes = baseString.getBytes(Charset.defaultCharset());
-            result = new String(Base64.getEncoder().encode(mac.doFinal(baseStringBytes)),
-                                Charset.defaultCharset());
+            result = new String(Base64.getEncoder().encode(mac.doFinal(baseStringBytes)), Charset.defaultCharset());
         } catch (IllegalArgumentException | InvalidKeyException | NoSuchAlgorithmException e) {
-            throw new BallerinaException(
-                    "Error while calculating HMAC for " + hmacAlgorithm + ": " + e.getMessage(),
+            throw new BallerinaException("Error while calculating HMAC for " + hmacAlgorithm + ": " + e.getMessage(),
                     context);
         }
 
