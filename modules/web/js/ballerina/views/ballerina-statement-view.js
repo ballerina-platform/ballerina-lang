@@ -233,10 +233,7 @@ define(['require', 'lodash', 'log', './../visitors/statement-visitor', 'd3', 'd3
             // TODO: handle line number  is not defined for new nodes
             event.stopPropagation();
             // Hiding property button pane.
-            $(propertyPaneWrapper).remove();
-            $(deleteButtonPaneGroup.node()).remove();
-            $(propertyButtonPaneGroup.node()).remove();
-            $(smallArrow.node()).remove();
+            self.trigger('edit-mode-disabled');
             var fileName = self.getDiagramRenderingContext().ballerinaFileEditor._file.getName();
             DebugManager.addBreakPoint(self._model.getLineNumber(), fileName);
         });
@@ -281,9 +278,10 @@ define(['require', 'lodash', 'log', './../visitors/statement-visitor', 'd3', 'd3
 
         var self = this;
         $(statementGroup.node()).click(function (event) {
-            self.trigger('edit-mode-enabled');
             // make current active editors close
             $(window).click();
+
+            self.trigger('edit-mode-enabled');
             event.stopPropagation();
             $(window).click(function (event) {
                 self.trigger('edit-mode-disabled');
