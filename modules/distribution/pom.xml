@@ -167,6 +167,11 @@
             <groupId>org.wso2.staxon</groupId>
             <artifactId>staxon-core</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.wso2.ballerina</groupId>
+            <artifactId>container-support</artifactId>
+            <classifier>jar-with-dependencies</classifier>
+        </dependency>
     </dependencies>
 
     <build>

@@ -294,6 +294,12 @@
                 <artifactId>snakeyaml</artifactId>
                 <version>${org.snakeyaml.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.wso2.ballerina</groupId>
+                <artifactId>container-support</artifactId>
+                <classifier>jar-with-dependencies</classifier>
+                <version>${org.wso2.ballerina.container-support.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -470,7 +476,7 @@
         <commons.pool.version>1.5.6.wso2v1</commons.pool.version>
         <org.snakeyaml.version>1.16.0.wso2v1</org.snakeyaml.version>
         <jcommander.version>1.60</jcommander.version>
-        
+        <org.wso2.ballerina.container-support.version>0.8.0-SNAPSHOT</org.wso2.ballerina.container-support.version>
         <native.constructs.provider.package>org.wso2.ballerina.nativeimpl</native.constructs.provider.package>
         <native.constructs.provider.class>BallerinaNativeConstructsProvider</native.constructs.provider.class>
         <mvn.processor.plugin.version>2.2.4</mvn.processor.plugin.version>
@@ -486,6 +492,7 @@
         <module>modules/distribution</module>
         <!--<module>modules/tests</module>-->
         <module>modules/tests/test-integration</module>
+        <module>modules/container-support</module>
     </modules>
 
 </project>

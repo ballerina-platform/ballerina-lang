@@ -7,7 +7,15 @@ import com.beust.jcommander.ParameterDescription;
 import com.beust.jcommander.ParameterException;
 import com.beust.jcommander.Parameters;
 
+import org.ballerinalang.launcher.validator.ArchiveTypeValidator;
+import org.wso2.ballerina.containers.docker.impl.DefaultBallerinaDockerClient;
+
+import java.io.IOException;
 import java.io.PrintStream;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -302,15 +310,100 @@ public class Main {
      */
     @Parameters(commandNames = "build", commandDescription = "build Ballerina program with dependencies")
     private static class BuildCmd implements BLauncherCmd {
+        
+        private static final String DEFAULT_DOCKER_HOST = "localhost";
 
         @Parameter(arity = 1, description = "builds the given package with all the dependencies")
         private List<String> sourceFileList;
 
         @Parameter(names = "--debug", hidden = true)
         private String debugPort;
+        
+        @Parameter(names = "--type", arity = 1, description = "archive type (lib | main | service)", 
+                validateWith = ArchiveTypeValidator.class)
+        private String type;
+
+        @Parameter(names = "--docker", variableArity = true, description = "builds a docker image")
+        private List<String> isDocker;
+
+        private String dockerHost;
+
+        private String dockerImageName;
 
         public void execute() {
             outStream.println("ballerina: 'build' command is still being developed");
+            
+            if (sourceFileList == null || sourceFileList.size() == 0) {
+                throw LauncherUtils.createUsageException("no ballerina programs given");
+            }
+            String balConfigFile = null;
+            outStream.println("Bal file name: " + Paths.get(sourceFileList.get(0)).toAbsolutePath().toString());
+            try {
+                balConfigFile = new String(Files.readAllBytes(Paths.get(sourceFileList.get(0)).toAbsolutePath()));
+            } catch (IOException e1) {
+                // TODO Auto-generated catch block
+                outStream.println(" Error in service image creation");
+            }
+                        
+            outStream.println("Bal config file content ==>  " + balConfigFile);
+            
+            // validate and parse hostURL and image name
+            if (isDocker != null && isDocker.size() > 0) {
+
+                isDocker.forEach(item -> {
+                    if (isURL(item)) {
+                        dockerHost = item;
+                    } else {
+                        dockerImageName = item;
+                    }
+                });
+
+                if (dockerHost == null) {
+                    dockerHost = DEFAULT_DOCKER_HOST;
+                    outStream.println(
+                            "ballerina: docker host URL is not provided. Using default docker host 'localhost' ");
+                }
+
+                String imageName = dockerImageName.split(":")[0];
+                String imageVersion;
+                if (dockerImageName.contains(":")) {
+                    imageVersion = dockerImageName.split(":")[1];
+                } else {
+                    imageVersion = "latest";
+                }
+
+                outStream.println("image name [" + imageName + "]");
+                outStream.println("image version [" + imageVersion + "]");
+                
+                // TODO - packaging stuff
+
+                // Assumes single bal file
+                if ("service".equals(type)) {
+                    try {
+                        new DefaultBallerinaDockerClient().createServiceImage("PKG1", null, balConfigFile,
+                                imageName, imageVersion);
+                    } catch (Exception e) {
+                        outStream.println(" Error in service image creation. " + e.getMessage());
+                    }
+                } else if ("main".equals(type)) {
+                    try {
+                        new DefaultBallerinaDockerClient().createMainImage("PKG1", null, balConfigFile, 
+                                imageName, imageVersion);
+                    } catch (Exception e) {
+                        outStream.println(" Error in main image creation. " + e.getMessage());
+                    }
+                }
+
+            }
+        }
+
+        private boolean isURL(String url) {
+            try {
+                new URL(url).toURI();
+                return true;
+            } catch (URISyntaxException | MalformedURLException e) {
+                return false;
+            }
         }
 
         @Override
