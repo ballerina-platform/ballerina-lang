@@ -35,4 +35,8 @@ public class Constant {
     public static final int DEFAULT_HTTP_PORT = 9090;
     //Service samples file location
     public static final String SERVICE_SAMPLE_DIR = "samples";
+    // Common nets jar needed for ftp support
+    public static final String COMMON_NETS_JAR = "commons-net-3.6.jar";
+    // Vfs location in the local directory
+    public static final String VFS_LOCATION = "FTPLocation";
 }

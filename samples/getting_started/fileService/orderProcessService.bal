@@ -4,7 +4,7 @@ import ballerina.net.file;
 
 @Source (
 protocol = "file",
-fileURI = "file:///home/user/orders",
+fileURI = "ftp://username:password@localhost:2221/orders",
 pollingInterval = "1000")
 service orderProcessService {
 

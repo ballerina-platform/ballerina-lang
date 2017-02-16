@@ -19,6 +19,7 @@ package org.wso2.ballerina.test.context;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.ballerina.test.util.FTPTestServer;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -27,6 +28,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
@@ -55,6 +60,7 @@ public class ServerInstance implements Server {
      */
     @Override
     public void start() throws Exception {
+        FTPTestServer.getInstance().start();
         Utils.checkPortAvailability(Constant.DEFAULT_HTTP_PORT);
         if (serverHome == null) {
             serverHome = setUpServerHome(serverDistribution);
@@ -202,6 +208,14 @@ public class ServerInstance implements Server {
         String serverExtractedPath = new File(baseDir).getAbsolutePath() + File.separator
                                      + extractDir + File.separator +
                                      extractedCarbonDir;
+        /*
+         * Copying the common-nets jar to the bre/lib, in order to test the ftp based sample file service.
+         */
+        Path source = Paths.get(baseDir + File.separator + Constant.COMMON_NETS_JAR);
+        Path destination = Paths
+                .get(serverExtractedPath + File.separator + "bre" + File.separator + "lib" + File.separator
+                        + Constant.COMMON_NETS_JAR);
+        Files.copy(source, destination, StandardCopyOption.REPLACE_EXISTING);
         return serverExtractedPath;
     }
 
