@@ -44,7 +44,7 @@ define(['lodash', 'd3','log', './simple-statement-view', './../ast/action-invoca
 
         WorkerInvoke.prototype.init = function(){
             // TODO: Event name should modify in order to tally for both connector action and other dynamic arrow draws
-            this.getModel().on("drawConnectionForAction",this.renderWorkerStart, this);
+            this.getModel().on("drawConnectionForAction",this.renderWorkerReceiverArrows, this);
             Object.getPrototypeOf(this.constructor.prototype).init.call(this);
         };
         WorkerInvoke.prototype.setDiagramRenderingContext = function(context){
@@ -121,7 +121,7 @@ define(['lodash', 'd3','log', './simple-statement-view', './../ast/action-invoca
             });
             this.processorConnectPoint.on("mouseout", function () {
                 self.processorConnectPoint.style("fill-opacity", 0.01);
-                self.messageManager.setTypeBeingDragged(false);
+                self.messageManager.setTypeBeingDragged(undefined);
             });
 
             this.getBoundingBox().on('top-edge-moved', function(dy){
@@ -165,42 +165,6 @@ define(['lodash', 'd3','log', './simple-statement-view', './../ast/action-invoca
                 arrowHeadEnd
                     .attr("fill-opacity", 0.01)
                     .style("fill", "#444");
-
-                this.arrowHeadEndPoint = arrowHeadEnd;
-
-                var self = this;
-
-                this.arrowHeadEndPoint.on("mousedown", function () {
-                    d3.event.preventDefault();
-                    d3.event.stopPropagation();
-
-                    var x =  parseFloat(self.arrowHeadEndPoint.attr('cx'));
-                    var y =  parseFloat(self.arrowHeadEndPoint.attr('cy'));
-                    var x1 =  parseFloat(self._processorConnector.attr('x1'));
-                    var y1 =  parseFloat(self._processorConnector.attr('y1'));
-
-                    var sourcePoint = self.toGlobalCoordinates(new Point(x, y));
-                    var connectorPoint = self.toGlobalCoordinates(new Point(x1, y1));
-
-                    self.messageManager.startDrawMessage(actionInvocationModel, sourcePoint, connectorPoint);
-                    self.messageManager.setTypeBeingDragged(true);
-
-                    self._forwardArrowHead.remove();
-                    self._processorConnector.remove();
-                    self._processorConnector2.remove();
-                    self._backArrowHead.remove();
-                    self.arrowHeadEndPoint.remove();
-                });
-
-                this.arrowHeadEndPoint.on("mouseover", function () {
-                    arrowHeadEnd
-                        .style("fill-opacity", 0.5)
-                        .style("cursor", 'url(images/BlackHandwriting.cur), pointer');
-                });
-
-                this.arrowHeadEndPoint.on("mouseout", function () {
-                    arrowHeadEnd.style("fill-opacity", 0.01);
-                });
             }
         };
 
@@ -255,16 +219,17 @@ define(['lodash', 'd3','log', './simple-statement-view', './../ast/action-invoca
             this.renderDisplayText(displayText);
         };
 
-        WorkerInvoke.prototype.renderWorkerStart = function (startPoint, container) {
+        WorkerInvoke.prototype.renderWorkerReceiverArrows = function (startPoint, container) {
             log.debug("Render the worker start");
             var activatedWorkerTarget = this.messageManager.getActivatedDropTarget();
             if (BallerinaASTFactory.isWorkerDeclaration(activatedWorkerTarget)) {
                 this.getModel().setDestination(activatedWorkerTarget);
-                this.renderStartAction();
+                this.renderReceiverArrows();
+                this.messageManager.reset();
             }
         };
 
-        WorkerInvoke.prototype.renderStartAction = function () {
+        WorkerInvoke.prototype.renderReceiverArrows = function () {
             var self = this;
             var group = D3Utils.group(d3.select(this._container));
             var destinationView = this.getDiagramRenderingContext().getViewOfModel(this.messageManager.getActivatedDropTarget());
