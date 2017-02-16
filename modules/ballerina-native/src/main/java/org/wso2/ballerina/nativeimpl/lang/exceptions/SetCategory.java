@@ -33,7 +33,7 @@ import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
 @BallerinaFunction(
         packageName = "ballerina.lang.exceptions",
         functionName = "setCategory",
-        args = {@Argument(name = "exception", type = TypeEnum.EXCEPTION),
+        args = {@Argument(name = "e", type = TypeEnum.EXCEPTION),
                 @Argument(name = "category", type = TypeEnum.STRING)},
         isPublic = true
 )
