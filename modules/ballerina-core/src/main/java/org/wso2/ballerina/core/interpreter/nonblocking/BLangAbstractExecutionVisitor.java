@@ -515,8 +515,8 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
         CallableUnitInfo resourceInfo = new CallableUnitInfo(resource.getName(), resource.getPackagePath(),
                 resource.getNodeLocation());
 
-        BValue[] tempValues = new BValue[resource.getTempStackFrameSize() + 1];
-        StackFrame stackFrame = new StackFrame(valueParams, ret, tempValues, resourceInfo);
+        BValue[] cacheValues = new BValue[resource.getTempStackFrameSize() + 1];
+        StackFrame stackFrame = new StackFrame(valueParams, ret, cacheValues, resourceInfo);
         controlStack.pushFrame(stackFrame);
         next = resourceIExpr.getResource().getResourceBody();
     }
@@ -960,8 +960,8 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
         CallableUnitInfo actionInfo = new CallableUnitInfo(action.getName(), action.getPackagePath(),
                 actionIExpr.getNodeLocation());
 
-        BValue[] tempValues = new BValue[actionIExpr.getCallableUnit().getTempStackFrameSize() + 1];
-        StackFrame stackFrame = new StackFrame(localVals, returnVals, tempValues, actionInfo);
+        BValue[] cacheValues = new BValue[actionIExpr.getCallableUnit().getTempStackFrameSize() + 1];
+        StackFrame stackFrame = new StackFrame(localVals, returnVals, cacheValues, actionInfo);
         controlStack.pushFrame(stackFrame);
         if (actionIExpr.hasGotoBranchID()) {
             branchIDStack.push(actionIExpr.getGotoBranchID());
@@ -1096,8 +1096,8 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
         CallableUnitInfo functionInfo = new CallableUnitInfo(function.getName(), function.getPackagePath(),
                 funcIExpr.getNodeLocation());
 
-        BValue[] tempValues = new BValue[funcIExpr.getCallableUnit().getTempStackFrameSize() + 1];
-        StackFrame stackFrame = new StackFrame(localVals, returnVals, tempValues, functionInfo);
+        BValue[] cacheValue = new BValue[funcIExpr.getCallableUnit().getTempStackFrameSize() + 1];
+        StackFrame stackFrame = new StackFrame(localVals, returnVals, cacheValue, functionInfo);
         controlStack.pushFrame(stackFrame);
         if (funcIExpr.hasGotoBranchID()) {
             branchIDStack.push(funcIExpr.getGotoBranchID());
@@ -1187,8 +1187,8 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
             CallableUnitInfo functionInfo = new CallableUnitInfo(typeMapper.getTypeMapperName(),
                     typeMapper.getPackagePath(), typeCastExpression.getNodeLocation());
 
-            BValue[] tempValues = new BValue[typeCastExpression.getCallableUnit().getTempStackFrameSize() + 1];
-            StackFrame stackFrame = new StackFrame(localVals, returnVals, tempValues, functionInfo);
+            BValue[] cacheValue = new BValue[typeCastExpression.getCallableUnit().getTempStackFrameSize() + 1];
+            StackFrame stackFrame = new StackFrame(localVals, returnVals, cacheValue, functionInfo);
             controlStack.pushFrame(stackFrame);
             if (typeCastExpression.hasGotoBranchID()) {
                 branchIDStack.push(typeCastExpression.getGotoBranchID());
@@ -1295,8 +1295,8 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
             CallableUnitInfo functionInfo = new CallableUnitInfo(initFunction.getName(), initFunction.getPackagePath(),
                     initFunction.getNodeLocation());
 
-            BValue[] tempValues = new BValue[initFunction.getTempStackFrameSize() + 1];
-            StackFrame stackFrame = new StackFrame(localVals, returnVals, tempValues, functionInfo);
+            BValue[] cacheValue = new BValue[initFunction.getTempStackFrameSize() + 1];
+            StackFrame stackFrame = new StackFrame(localVals, returnVals, cacheValue, functionInfo);
             controlStack.pushFrame(stackFrame);
             if (connectorInitExprEndNode.hasGotoBranchID()) {
                 branchIDStack.push(connectorInitExprEndNode.getGotoBranchID());

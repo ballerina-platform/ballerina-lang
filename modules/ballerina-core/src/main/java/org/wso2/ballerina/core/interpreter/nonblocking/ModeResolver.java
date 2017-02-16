@@ -26,7 +26,7 @@ public class ModeResolver {
 
 
     private static final ModeResolver instance = new ModeResolver();
-    private boolean nonblockingEnabled = false;
+    private boolean nonblockingEnabled = true;
 
     private ModeResolver() {
         String property = System.getProperty(Constants.SYS_PROP_ENABLE_NONBLOCKING);
