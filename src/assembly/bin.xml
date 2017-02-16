@@ -25,7 +25,15 @@
 
     <fileSets>
         <fileSet>
-            <directory>${project.build.directory}/extracted-distributions/ballerina-${ballerina.distribution.version}</directory>
+            <directory>
+                ${project.build.directory}/extracted-distributions/ballerina-${ballerina.distribution.version}
+            </directory>
+            <outputDirectory>.</outputDirectory>
+        </fileSet>
+        <fileSet>
+            <directory>
+                ${project.build.directory}/extracted-distributions/ballerina-editor-${ballerina.editor.distribution.version}
+            </directory>
             <outputDirectory>.</outputDirectory>
         </fileSet>
     </fileSets>
