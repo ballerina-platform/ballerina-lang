@@ -15,7 +15,6 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-
 package org.wso2.ballerina.nativeimpl.functions;
 
 import org.testng.Assert;
@@ -41,6 +40,8 @@ import java.io.File;
 
 /**
  * Test Native functions in ballerina.lang.datatables.
+ *
+ * @since 0.8.0
  */
 public class DataTableTest {
 
@@ -185,7 +186,6 @@ public class DataTableTest {
         Assert.assertEquals(stringArray.get(0).stringValue(), "Hello");
         Assert.assertEquals(stringArray.get(1).stringValue(), "Ballerina");
 
-
         Assert.assertTrue(returns[4] instanceof BArray);
         BArray<BBoolean> booleanArray = (BArray<BBoolean>) returns[4];
         Assert.assertTrue(booleanArray.get(0) instanceof BBoolean);
@@ -225,7 +225,6 @@ public class DataTableTest {
         Assert.assertTrue(stringArray.get(0) instanceof BString);
         Assert.assertEquals(stringArray.get(0).stringValue(), "Hello");
         Assert.assertEquals(stringArray.get(1).stringValue(), "Ballerina");
-
 
         Assert.assertTrue(returns[4] instanceof BArray);
         BArray<BBoolean> booleanArray = (BArray<BBoolean>) returns[4];

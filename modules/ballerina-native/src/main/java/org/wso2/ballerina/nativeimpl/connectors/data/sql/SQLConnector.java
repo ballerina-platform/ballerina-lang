@@ -15,7 +15,6 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 package org.wso2.ballerina.nativeimpl.connectors.data.sql;
 
 import com.zaxxer.hikari.HikariConfig;
@@ -75,14 +74,12 @@ public class SQLConnector extends AbstractNativeConnector {
     }
 
     public Connection getSQLConnection() {
-        Connection conn = null;
         try {
-            conn = hikariDataSource.getConnection();
+           return  hikariDataSource.getConnection();
         } catch (SQLException e) {
             throw new BallerinaException(
                     "error in get connection: " + SQLConnector.CONNECTOR_NAME + ": " + e.getCause().getMessage(), e);
         }
-        return conn;
     }
 
     private void buildDataSource(BMap options) {
@@ -242,5 +239,4 @@ public class SQLConnector extends AbstractNativeConnector {
             }
         }
     }
-
 }

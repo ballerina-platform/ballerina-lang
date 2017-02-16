@@ -15,7 +15,6 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 package org.wso2.ballerina.nativeimpl.util;
 
 import java.io.BufferedReader;
@@ -33,6 +32,8 @@ import java.sql.Statement;
 
 /**
  * Util class for SQL DB Tests.
+ *
+ * @since 0.8.0
  */
 public class SQLDBUtils {
 
@@ -125,7 +126,6 @@ public class SQLDBUtils {
         } catch (IOException e) {
             // Ignore here
         }
-
         return fileAsString;
     }
 }

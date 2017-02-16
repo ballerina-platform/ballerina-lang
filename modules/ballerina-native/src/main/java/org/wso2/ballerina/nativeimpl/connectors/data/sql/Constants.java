@@ -15,7 +15,6 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 package org.wso2.ballerina.nativeimpl.connectors.data.sql;
 
 /**
@@ -29,6 +28,7 @@ public final class Constants {
      * Constants for HikariCP pool configurations.
      */
     public static final class PoolProperties {
+
         public static final String DATA_SOURCE_CLASSNAME = "dataSourceClassName";
         public static final String JDBC_URL = "jdbcUrl";
         public static final String USER_NAME = "username";
