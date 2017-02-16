@@ -68,6 +68,10 @@
             </excludes>
             <fileMode>444</fileMode>
         </fileSet>
+        <fileSet>
+            <directory>${project.build.directory}/extracted-dependencies/ballerina-native-${ballerina.version}-jar/META-INF/natives</directory>
+            <outputDirectory>src</outputDirectory>
+        </fileSet>
     </fileSets>
 
     <files>

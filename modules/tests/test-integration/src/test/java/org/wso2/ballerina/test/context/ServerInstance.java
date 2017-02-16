@@ -48,9 +48,15 @@ public class ServerInstance implements Server {
     private ServerLogReader serverInfoLogReader;
     private ServerLogReader serverErrorLogReader;
     private boolean isServerRunning;
+    private int httpServerPort = Constant.DEFAULT_HTTP_PORT;
 
     public ServerInstance(String serverDistributionPath) {
         this.serverDistribution = serverDistributionPath;
+    }
+
+    public ServerInstance(String serverDistributionPath, int serverHttpPort) {
+        this.serverDistribution = serverDistributionPath;
+        this.httpServerPort = serverHttpPort;
     }
 
     /**
@@ -60,8 +66,8 @@ public class ServerInstance implements Server {
      */
     @Override
     public void start() throws Exception {
+        Utils.checkPortAvailability(httpServerPort);
         FTPTestServer.getInstance().start();
-        Utils.checkPortAvailability(Constant.DEFAULT_HTTP_PORT);
         if (serverHome == null) {
             serverHome = setUpServerHome(serverDistribution);
             log.info("Server Home " + serverHome);
@@ -76,8 +82,8 @@ public class ServerInstance implements Server {
         serverInfoLogReader.start();
         serverErrorLogReader = new ServerLogReader("errorStream", process.getErrorStream());
         serverErrorLogReader.start();
-        log.info("Waiting for port " + Constant.DEFAULT_HTTP_PORT + " to open");
-        Utils.waitForPort(Constant.DEFAULT_HTTP_PORT, 1000 * 60 * 2, false, "localhost");
+        log.info("Waiting for port " + httpServerPort + " to open");
+        Utils.waitForPort(httpServerPort, 1000 * 60 * 2, false, "localhost");
         log.info("Server Started Successfully.");
         isServerRunning = true;
     }
@@ -112,7 +118,7 @@ public class ServerInstance implements Server {
             serverErrorLogReader.stop();
             process = null;
             //wait until port to close
-            Utils.waitForPortToClosed(Constant.DEFAULT_HTTP_PORT, 30000);
+            Utils.waitForPortToClosed(httpServerPort, 30000);
             log.info("Server Stopped Successfully");
         }
     }
@@ -153,7 +159,7 @@ public class ServerInstance implements Server {
      * to change the server configuration if required. This method can be overriding when initialising
      * the object of this class.
      */
-    protected void configServer() {
+    protected void configServer() throws Exception {
     }
 
     /**
@@ -172,7 +178,7 @@ public class ServerInstance implements Server {
      * @return
      */
     public String getServiceURLHttp(String servicePath) {
-        return "http://localhost:" + Constant.DEFAULT_HTTP_PORT + "/" + servicePath;
+        return "http://localhost:" + httpServerPort + "/" + servicePath;
     }
 
     /**
@@ -263,7 +269,7 @@ public class ServerInstance implements Server {
                 if (column != null && column.length < 5) {
                     continue;
                 }
-                if (column[1].contains(":" + Constant.DEFAULT_HTTP_PORT) && column[3].contains("LISTENING")) {
+                if (column[1].contains(":" + httpServerPort) && column[3].contains("LISTENING")) {
                     log.info(line);
                     pid = column[4];
                     break;
