@@ -1,5 +1,3 @@
-package a.b;
-
 @doc:Description("Adds two given values and returns answer")
 @doc:Param("value1: double input value")
 @doc:Param("value2: double input value")

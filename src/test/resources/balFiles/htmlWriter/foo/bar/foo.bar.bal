@@ -39,9 +39,8 @@ connector TestConnector(string consumerKey, string consumerSecret, string access
     @doc:Param("t: a string argument")
     @doc:Param("msg: a string message")
     @doc:Return("response2: response object")
-    action testAction2(TestConnector t, string msg) (message response2) {
+    action testAction2(TestConnector t, string msg) (message response) {
         message request;
-        message response;
         return response;
     }
 }

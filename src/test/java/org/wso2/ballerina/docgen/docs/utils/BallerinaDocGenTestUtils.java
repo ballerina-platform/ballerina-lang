@@ -17,7 +17,7 @@
  */
 package org.wso2.ballerina.docgen.docs.utils;
 
-import org.wso2.ballerina.core.model.Package;
+import org.wso2.ballerina.core.model.BLangPackage;
 import org.wso2.ballerina.docgen.docs.BallerinaDocDataHolder;
 
 import java.io.PrintStream;
@@ -29,14 +29,14 @@ public class BallerinaDocGenTestUtils {
 
     private static final PrintStream out = System.out;
     
-    public static void printDocMap(Map<String, Package> docsMap) {
-        for (Entry<String, Package> entry : docsMap.entrySet()) {
+    public static void printDocMap(Map<String, BLangPackage> docsMap) {
+        for (Entry<String, BLangPackage> entry : docsMap.entrySet()) {
             out.println(entry.getValue().toString());
         }
     }
     
     public static void cleanUp() {
-        BallerinaDocDataHolder.getInstance().setPackageMap(new HashMap<String, Package>());
+        BallerinaDocDataHolder.getInstance().setPackageMap(new HashMap<String, BLangPackage>());
     }
 
 }

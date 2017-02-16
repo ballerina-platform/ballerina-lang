@@ -1,5 +1,3 @@
-package a.b;
-
 @doc:Description("test method")
 @doc:Param("args: a string argument")
 @doc:Return("response: an integer")

@@ -19,8 +19,7 @@ package org.wso2.ballerina.docgen.docs;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
-import org.wso2.ballerina.core.model.BallerinaFile;
-import org.wso2.ballerina.core.model.Package;
+import org.wso2.ballerina.core.model.BLangPackage;
 import org.wso2.ballerina.core.model.StructDef;
 import org.wso2.ballerina.docgen.docs.utils.BallerinaDocGenTestUtils;
 
@@ -37,16 +36,14 @@ public class BallerinaStructDocGenTest {
     @Test(description = "Test a Bal file with structs")
     public void testStruct() {
         try {
-            Map<String, Package> docsMap =
+            Map<String, BLangPackage> docsMap =
                     BallerinaDocGeneratorMain.generatePackageDocsFromBallerina(resources + "balWithStruct.bal");
             Assert.assertNotNull(docsMap);
             Assert.assertEquals(docsMap.size(), 1);
 
-            Package balPackage = docsMap.get("a.b");
+            BLangPackage balPackage = docsMap.get(".");
             List<StructDef> structs = new ArrayList<>();
-            for (BallerinaFile balFile : balPackage.getFiles()) {
-                structs.addAll(Arrays.asList(balFile.getStructDefs()));
-            }
+            structs.addAll(Arrays.asList(balPackage.getStructDefs()));
 
             Assert.assertEquals(structs.size(), 1);
             StructDef struct = (StructDef) structs.iterator().next();
