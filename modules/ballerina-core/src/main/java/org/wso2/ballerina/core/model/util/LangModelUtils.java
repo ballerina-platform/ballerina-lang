@@ -44,22 +44,8 @@ public class LangModelUtils {
         return new SymbolName(sBuilder.toString(), pkgPath);
     }
 
-    public static SymbolName getTypeMapperSymName(String pkgName, ParameterDef[] parameterDefs,
-                                                     ParameterDef[] returnParams) {
-        StringBuilder stringBuilder = new StringBuilder(pkgName + ":");
-        for (ParameterDef param : parameterDefs) {
-            stringBuilder.append(".").append(param.getType());
-        }
-        stringBuilder.append("->");
-        for (ParameterDef param : returnParams) {
-            stringBuilder.append("_").append(param.getType());
-        }
-        return new SymbolName(stringBuilder.toString());
-    }
-
-    public static SymbolName getTypeMapperSymNameWithoutPackage(BType source,
-                                                                   BType target) {
-        return new SymbolName("." + source + "->" + "." + target, "ballerina.lang.typemappers");
+    public static SymbolName getTypeMapperSymName(String pkgName, BType source, BType target) {
+        return new SymbolName("." + source + "->" + "." + target, pkgName);
     }
 
     public static SymbolName getConnectorSymName(String identifier, String pkgPath) {

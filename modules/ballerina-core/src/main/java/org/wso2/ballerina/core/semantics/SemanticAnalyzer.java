@@ -43,6 +43,7 @@ import org.wso2.ballerina.core.model.ConstDef;
 import org.wso2.ballerina.core.model.Function;
 import org.wso2.ballerina.core.model.ImportPackage;
 import org.wso2.ballerina.core.model.NativeUnit;
+import org.wso2.ballerina.core.model.NodeLocation;
 import org.wso2.ballerina.core.model.NodeVisitor;
 import org.wso2.ballerina.core.model.Operator;
 import org.wso2.ballerina.core.model.ParameterDef;
@@ -122,6 +123,7 @@ import org.wso2.ballerina.core.model.types.SimpleTypeName;
 import org.wso2.ballerina.core.model.types.TypeConstants;
 import org.wso2.ballerina.core.model.types.TypeEdge;
 import org.wso2.ballerina.core.model.types.TypeLattice;
+import org.wso2.ballerina.core.model.types.TypeVertex;
 import org.wso2.ballerina.core.model.util.LangModelUtils;
 import org.wso2.ballerina.core.model.values.BInteger;
 import org.wso2.ballerina.core.model.values.BString;
@@ -203,7 +205,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         defineConnectors(bLangPackage.getConnectors());
         resolveStructFieldTypes(bLangPackage.getStructDefs());
         defineFunctions(bLangPackage.getFunctions());
-        defineTypeMappers(packageTypeLattice);
+        defineTypeMappers(bLangPackage.getTypeMappers());
         defineServices(bLangPackage.getServices());
 
         for (CompilationUnit compilationUnit : bLangPackage.getCompilationUnits()) {
@@ -2088,8 +2090,8 @@ public class SemanticAnalyzer implements NodeVisitor {
                         paramTypes[i] = exprs[i].getType();
                     }
 
-                    SymbolName symbolName = LangModelUtils.getTypeMapperSymNameWithoutPackage
-                            (sourceType, targetType);
+                    SymbolName symbolName = LangModelUtils.getTypeMapperSymName(pkgPath,
+                            sourceType, targetType);
                     BLangSymbol typeMapperSymbol = currentScope.resolve(symbolName);
                     if (typeMapperSymbol == null) {
                         BLangExceptionHelper.throwSemanticError(typeCastExpression,
@@ -2216,49 +2218,45 @@ public class SemanticAnalyzer implements NodeVisitor {
         }
     }
 
-    private void defineTypeMappers(TypeLattice typeLattice) {
-        for (TypeEdge typeEdge : typeLattice.getEdges()) {
-            TypeMapper typeMapper = typeEdge.getTypeMapper();
-            // Resolve input parameters
-            ParameterDef[] paramDefArray = typeMapper.getParameterDefs();
-            BType[] paramTypes = new BType[paramDefArray.length];
-            for (int i = 0; i < paramDefArray.length; i++) {
-                ParameterDef paramDef = paramDefArray[i];
-                BType bType = BTypes.resolveType(paramDef.getTypeName(), currentScope, paramDef.getNodeLocation());
-                paramDef.setType(bType);
-                paramTypes[i] = bType;
-            }
+    private void defineTypeMappers(TypeMapper[] typeMappers) {
+        for (TypeMapper typeMapper : typeMappers) {
+            NodeLocation location = typeMapper.getNodeLocation();
 
-            typeMapper.setParameterTypes(paramTypes);
-            SymbolName symbolName = LangModelUtils.getSymNameWithParams(typeMapper.getName(),
-                    typeMapper.getPackagePath(), paramTypes);
+            // Resolve input parameters
+            SimpleTypeName sourceType = typeMapper.getParameterDefs()[0].getTypeName();
+            BType sourceBType = BTypes.resolveType(sourceType, currentScope, location);
+            typeMapper.setParameterTypes(new BType[] { sourceBType });
+
+            // Resolve return parameters
+            SimpleTypeName targetType = typeMapper.getReturnParameters()[0].getTypeName();
+            BType targetBType = BTypes.resolveType(targetType, currentScope, location);
+
+            TypeVertex sourceV = new TypeVertex(sourceBType);
+            TypeVertex targetV = new TypeVertex(targetBType);
+            typeMapper.setReturnParamTypes(new BType[] { targetBType });
+
+            packageTypeLattice.addVertex(sourceV, true);
+            packageTypeLattice.addVertex(targetV, true);
+            packageTypeLattice.addEdge(sourceV, targetV, typeMapper, typeMapper.getPackagePath());
+
+            SymbolName symbolName = LangModelUtils
+                    .getTypeMapperSymName(typeMapper.getPackagePath(), sourceBType, targetBType);
             typeMapper.setSymbolName(symbolName);
 
             BLangSymbol typConvertorSymbol = currentScope.resolve(symbolName);
 
             if (typeMapper.isNative() && typConvertorSymbol == null) {
-                BLangExceptionHelper.throwSemanticError(typeMapper,
-                        SemanticErrors.UNDEFINED_TYPE_MAPPER, typeMapper.getName());
+                BLangExceptionHelper
+                        .throwSemanticError(typeMapper, SemanticErrors.UNDEFINED_TYPE_MAPPER, typeMapper.getName());
             }
 
             if (!typeMapper.isNative()) {
                 if (typConvertorSymbol != null) {
-                    BLangExceptionHelper.throwSemanticError(typeMapper,
-                            SemanticErrors.REDECLARED_SYMBOL, typeMapper.getName());
+                    BLangExceptionHelper
+                            .throwSemanticError(typeMapper, SemanticErrors.REDECLARED_SYMBOL, typeMapper.getName());
                 }
                 currentScope.define(symbolName, typeMapper);
             }
-
-            // Resolve return parameters
-            ParameterDef[] returnParameters = typeMapper.getReturnParameters();
-            BType[] returnTypes = new BType[returnParameters.length];
-            for (int i = 0; i < returnParameters.length; i++) {
-                ParameterDef paramDef = returnParameters[i];
-                BType bType = BTypes.resolveType(paramDef.getTypeName(), currentScope, paramDef.getNodeLocation());
-                paramDef.setType(bType);
-                returnTypes[i] = bType;
-            }
-            typeMapper.setReturnParamTypes(returnTypes);
         }
     }
 
