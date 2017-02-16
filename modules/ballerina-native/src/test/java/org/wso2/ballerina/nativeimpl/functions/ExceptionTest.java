@@ -55,7 +55,7 @@ public class ExceptionTest {
         BValue[] returns = Functions.invoke(bFile, "calculateLoanPayment", args);
         Assert.assertNotNull(returns[0]);
         Assert.assertEquals(returns[0].stringValue(),
-                "Error ..! You should be under 50 years old to apply loan.");
+                "Error ..! age should be under 50");
     }
 
     @Test(description = "test set, setCause, getStackTrace native functions.")
@@ -65,9 +65,9 @@ public class ExceptionTest {
         BValue[] returns = Functions.invoke(bFile, "calculateLoanPayment", args);
         Assert.assertNotNull(returns[0]);
         Assert.assertTrue(returns[0].stringValue().contains(
-                "exception age-error: You are too young to apply a loan."));
+                "exception age-error: age Error"));
         Assert.assertTrue(returns[0].stringValue().contains(
-                "caused by: exception low-age: You should be over 18 years old to apply loan."));
+                "caused by: exception low-age: age should be over 18"));
     }
 
     @Test(description = "testing divide by zero")
