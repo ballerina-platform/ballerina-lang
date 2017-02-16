@@ -130,6 +130,7 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
 
             clientConnector.send(message, balConnectorCallback);
 
+            // Wait till Response comes.
             while (!balConnectorCallback.isResponseArrived()) {
                 synchronized (context) {
                     if (!balConnectorCallback.isResponseArrived()) {
@@ -165,6 +166,11 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
     @Override
     public void validate(BalConnectorCallback callback) {
         handleTransportException(callback.getValueRef(), callback.getContext());
+    }
+
+    @Override
+    public boolean isNonBlockingAction() {
+        return true;
     }
 
     private void handleTransportException(BValue valueRef) {

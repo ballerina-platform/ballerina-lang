@@ -63,10 +63,10 @@ public class BalConnectorCallback extends DefaultBalCallback {
         //context.getControlStack().setValue(4, valueRef);
         context.getControlStack().setReturnValue(0, valueRef);
         responseArrived = true;
-        // If Executor is not null, then this is non-blocking execution.
-        if (actionNode != null) {
+        if (isNonBlockingExecutor()) {
             actionNode.getCallableUnit().validate(this);
         } else {
+            // Release Thread.
             synchronized (context) {
                 context.notifyAll();
             }
@@ -79,5 +79,10 @@ public class BalConnectorCallback extends DefaultBalCallback {
 
     public LinkedNode getCurrentNode() {
         return this.actionNode;
+    }
+
+    public boolean isNonBlockingExecutor() {
+        // If actionNode is not null, then this is non-blocking execution.
+        return actionNode != null;
     }
 }
