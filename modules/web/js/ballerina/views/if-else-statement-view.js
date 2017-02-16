@@ -114,64 +114,9 @@ define(['require', 'lodash', 'log', 'property_pane_utils', './compound-statement
                 editableProperties: editableProperty
             });
 
-            // If the top-edge-moved event triggered we only move the First child statement (If Statement).
-            // Because other child statements are listening to it's previous sibling and accordingly move
-            this.getBoundingBox().on('top-edge-moved', function (offset) {
-                self._pendingContainerMove = true;
-                self._childrenViewsList[0].getBoundingBox().move(0, offset, false);
-            });
-
-            this._model.accept(this);
-
             this._createDebugIndicator({
-                statementGroup: ifElseGroup
+                statementGroup: this.getStatementGroup()
             });
-        };
-
-        IfElseStatementView.prototype.visitChildStatement = function (statement) {
-            var StatementViewFactory = require('./statement-view-factory');
-            var statementViewFactory = new StatementViewFactory();
-            var topCenter;
-            if (_.isEmpty(this._childrenViewsList)) {
-                topCenter = new Point(this.getTopCenter().x(), this.getTopCenter().y());
-            } else {
-                var childX = this.getTopCenter().x();
-                var childY = _.last(this._childrenViewsList).getBoundingBox().getBottom();
-                topCenter = new Point(childX, childY);
-            }
-            var args = {model: statement, container: this._statementGroup.node(), viewOptions: {},
-                parent:this, topCenter: topCenter, messageManager: this.messageManager, toolPalette: this.toolPalette};
-            var statementView = statementViewFactory.getStatementView(args);
-            this._diagramRenderingContext.getViewModelMap()[statement.id] = statementView;
-            var lastChildView = _.last(this._childrenViewsList);
-            if (!_.isUndefined(lastChildView)) {
-                lastChildView.getBoundingBox().on('bottom-edge-moved', function (offset) {
-                    statementView.getBoundingBox().move(0, offset, false);
-                });
-                this.stopListening(lastChildView.getBoundingBox(), 'bottom-edge-moved');
-            }
-            this._childrenViewsList.push(statementView);
-            statementView.render(this._diagramRenderingContext);
-            this.resizeOnChildRendered(statementView.getBoundingBox());
-            this.listenTo(statementView.getBoundingBox(), 'bottom-edge-moved', function(dy){
-                if(!this._pendingContainerMove){
-                    this.getBoundingBox().h(this.getBoundingBox().h() + dy);
-                } else {
-                    this._pendingContainerMove = false;
-                }
-            });
-            this.listenTo(statementView.getBoundingBox(), 'width-changed', function (dw) {
-                var widestChildStatementView = _.maxBy(this.getChildrenViewsList(), function (statementView) {
-                    return statementView.getBoundingBox().w();
-                }.bind(this));
-                this.getBoundingBox().zoomWidth(widestChildStatementView.getBoundingBox().w());
-            });
-        };
-
-        IfElseStatementView.prototype.resizeOnChildRendered = function (childBBox) {
-            var newWidth = childBBox.x();
-            var newHeight = this.getBoundingBox().h() + childBBox.h();
-            this.getBoundingBox().x(childBBox.x()).w(childBBox.w()).h(newHeight);
         };
 
         /**
