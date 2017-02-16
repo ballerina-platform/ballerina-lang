@@ -88,5 +88,39 @@ define(['lodash', './ballerina-ast-factory'], function (_, BallerinaASTFactory) 
         return variableDefinitionStatement;
     };
 
+    /**
+     * creates typeMapperDefinition with default statement
+     * @param {Object} args - object for typeMapperDefinition creation
+     * @returns {TypeMapperDefinition}
+     */
+    DefaultsAddedBallerinaASTFactory.createTypeMapperDefinition = function (args) {
+        var typeMapperDefinition = BallerinaASTFactory.createTypeMapperDefinition(args);
+        var blockStatement = BallerinaASTFactory.createBlockStatement(args);
+        var returnStatement = BallerinaASTFactory.createReturnStatement(args);
+        var variableDefinitionStatement = BallerinaASTFactory.createVariableDefinitionStatement(args);
+        var leftOperandExpression = BallerinaASTFactory.createLeftOperandExpression(args);
+        var rightOperandExpression = BallerinaASTFactory.createRightOperandExpression(args);
+        var referenceTypeInitiExpression = BallerinaASTFactory.createReferenceTypeInitExpression(args);
+
+        var variableReferenceExpression = BallerinaASTFactory.createVariableReferenceExpression(args);
+        var variableDefinition = BallerinaASTFactory.createVariableDefinition(args);
+        variableReferenceExpression.addChild(variableDefinition);
+        leftOperandExpression.addChild(variableReferenceExpression);
+
+        rightOperandExpression.addChild(referenceTypeInitiExpression);
+
+        var returnStatementVariableReferenceExpression = BallerinaASTFactory.createVariableReferenceExpression(args);
+        returnStatement.addChild(returnStatementVariableReferenceExpression);
+
+        variableDefinitionStatement.addChild(leftOperandExpression);
+        variableDefinitionStatement.addChild(rightOperandExpression);
+
+        blockStatement.addChild(variableDefinitionStatement);
+        blockStatement.addChild(returnStatement);
+        typeMapperDefinition.addChild(blockStatement);
+        return typeMapperDefinition;
+    };
+
+
     return DefaultsAddedBallerinaASTFactory;
 });

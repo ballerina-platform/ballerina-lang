@@ -56,39 +56,6 @@ define(['log', 'lodash','d3','./point', 'backbone','event_channel', 'ballerina/a
         return this.activatedDropTarget;
     };
 
-    MessageManager.prototype.updateActivatedTarget = function (target, actionInvocationModel) {
-        if(actionInvocationModel) {
-            // TODO : Putting this if/else to fix a bug in arrow drawing. Need to revamp this completely.
-            if(_.size(this.getMessageSource().getModel().getChildren()) > 0){
-                actionInvocationModel = this.getMessageSource().getModel().getChildren()[1].getChildren()[0];
-            }else{
-                actionInvocationModel = this.getMessageSource().getModel();
-            }
-        }
-        else {
-            actionInvocationModel = this.getMessageSource();
-        }
-
-        if (!_.isUndefined(target)) {
-            actionInvocationModel.setConnector(target);
-            actionInvocationModel.setActionPackageName(target.getConnectorPkgName());
-            actionInvocationModel.setActionConnectorName(target.getConnectorName());
-            actionInvocationModel.setConnectorVariableReference(target.getConnectorVariable());
-        }
-        else {
-            actionInvocationModel.setConnector(undefined);
-            actionInvocationModel.setActionPackageName(undefined);
-            actionInvocationModel.setActionConnectorName(undefined);
-            actionInvocationModel.setConnectorVariableReference(undefined);
-        }
-        //set the right hand expression to set the statement string of the assignment-statement containing the
-        //action invocation expression. This is to keep action invocation statement UI and source-gen in sync
-        //when action invocation is configured
-        if (BallerinaASTFactory.isRightOperandExpression(rightOp = actionInvocationModel.getParent())){
-            rightOp.setRightOperandExpressionString(actionInvocationModel.getExpression());
-        }
-    };
-
     MessageManager.prototype.setValidateCallBack = function (callBackMethod) {
         if (!_.isUndefined(callBackMethod)) {
             this.validateCallBack = callBackMethod;
@@ -140,10 +107,6 @@ define(['log', 'lodash','d3','./point', 'backbone','event_channel', 'ballerina/a
 
     MessageManager.prototype.isOnDrag = function () {
         return !_.isNil(this.typeBeingDragged);
-    };
-
-    MessageManager.prototype.isAtValidDropTarget = function(){
-        return BallerinaASTFactory.isConnectorDeclaration(this.getActivatedDropTarget());
     };
 
     MessageManager.prototype.reset = function(){
@@ -200,20 +163,14 @@ define(['log', 'lodash','d3','./point', 'backbone','event_channel', 'ballerina/a
             // unbind current listeners
             container.on("mousemove", null);
             container.on("mouseup", null);
-
             var startPoint = new Point(tempLine.attr("x1"),tempLine.attr("y1"));
             var endPoint = new Point(tempLine.attr("x2"),tempLine.attr("y2"));
 
-            if(!self.isAtValidDropTarget()){
-                self.setActivatedDropTarget(actionInvocationModel.getConnector());
-            }
-
-            self.updateActivatedTarget(self.getActivatedDropTarget(), actionInvocationModel);
+            tempLine.remove();
+            arrowPoint.remove();
             self.getMessageSource().getModel().trigger("drawConnectionForAction", startPoint, container);
             self.trigger('drop-target-changed', undefined);
             self.reset();
-            tempLine.remove();
-            arrowPoint.remove();
         });
     };
 
