@@ -137,13 +137,26 @@ define(['require', 'jquery', 'backbone', 'lodash', 'event_channel', './channel',
         return this.enable;
     };
 
-    DebugManager.prototype.getDebugPoints = function () {
-        return this.debugPoints;
+    DebugManager.prototype.getDebugPoints = function (fileName) {
+        var breakpoints = _.map(this.debugPoints, function(breakpoint) {
+            if(breakpoint.fileName === fileName)  {
+                return breakpoint.line;
+            }
+        });
+        return breakpoints;
     };
+
+    DebugManager.prototype.removeAllBreakpoints = function(fileName) {
+        _.remove(this.debugPoints, function(item) {
+            return item.fileName == fileName;
+        });
+        log.debug('removed all debugpoints for fileName', fileName);
+        this.publishBreakPoints();
+    }
 
     DebugManager.prototype.createDebugPoint = function(line, fileName){
         return new DebugPoint({ "fileName": fileName , "line": line});
-    };    
+    };
 
     return (instance = (instance || new DebugManager()));
 });
