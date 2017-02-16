@@ -270,10 +270,7 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
          * @param args
          */
         BallerinaASTFactory.createIfElseStatement = function (args) {
-            var ifElse = new ifElseStatement(args);
-            // TODO: Else statement should add through a button click. By default If else consists an if statement only
-            var elseStmt = ifElse.createElseStatement(args);
-            return ifElse;
+            return new ifElseStatement(args);
         };
 
         /**

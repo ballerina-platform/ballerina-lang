@@ -15,8 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require', 'lodash', 'jquery', 'log', './block-statement-view'],
-    function (require, _, $, log, BlockStatementView) {
+define(['require', 'lodash', 'log', './block-statement-view', './../ast/if-statement'],
+    function (require, _, log, BlockStatementView, IfStatement) {
 
         /**
          * The view to represent a If statement which is an AST visitor.

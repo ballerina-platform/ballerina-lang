@@ -59,10 +59,10 @@ define(['require', 'lodash', 'jquery', 'log', 'd3utils', 'd3', 'alerts', './poin
             var constantsWrapper = $("<div class='constants-wrapper'/>").appendTo(this._constantsDefinitionsMainWrapper);
 
             var collapserWrapper = $("<div class='constant-pane-collapser-wrapper' data-placement='bottom' " +
-                " title='Close Constant Pane' data-toggle='tooltip'/>")
-                .data("collapsed", "false")
+                " title='Open Constant Pane' data-toggle='tooltip'/>")
+                .data("collapsed", "true")
                 .appendTo(constantsWrapper);
-            $("<i class='fw fw-left'></i>").appendTo(collapserWrapper);
+            $("<i class='fw fw-right'></i>").appendTo(collapserWrapper);
 
             var constantsActionWrapper = $("<div class='constants-action-wrapper'/>").appendTo(constantsWrapper);
 
@@ -192,21 +192,14 @@ define(['require', 'lodash', 'jquery', 'log', 'd3utils', 'd3', 'alerts', './poin
                     $(this).data("collapsed", "true").attr('data-original-title', "Open Constant Pane").tooltip('hide');
                     $("<i class='fw fw-right'></i>").appendTo(this);
                     constantsWrapper.find('.constants-content-wrapper').hide();
+                    constantsActionWrapper.hide();
                     self._constantsDefinitionsMainWrapper.css("width", "0%");
                 } else {
                     $(this).data("collapsed", "false").attr('data-original-title', "Close Constant Pane").tooltip('hide');
                     $("<i class='fw fw-left'></i>").appendTo(this);
+                    constantsActionWrapper.show();
                     constantsWrapper.find('.constants-content-wrapper').show();
                     self._constantsDefinitionsMainWrapper.css("width", "92%");
-                }
-            });
-
-            // When the variable button is clicked we show and hide the variable pane.
-            $(this._constantDefinitionsButton).click(function () {
-                if (addConstantButton.is(":visible")) {
-                    addConstantButton.trigger("click");
-                } else {
-                    constantAddCancelButtonPane.trigger("click");
                 }
             });
 
@@ -225,12 +218,6 @@ define(['require', 'lodash', 'jquery', 'log', 'd3utils', 'd3', 'alerts', './poin
         ConstantDefinitionPaneView.prototype._renderConstantDefinitions = function(wrapper, collapserWrapper) {
             $(wrapper).empty();
             var self = this;
-
-            if (this._model.getConstantDefinitions().length == 0) {
-                collapserWrapper.hide();
-            } else {
-                collapserWrapper.show();
-            }
 
             _.forEach(this._model.getConstantDefinitions(), function(constantDefinition) {
 
