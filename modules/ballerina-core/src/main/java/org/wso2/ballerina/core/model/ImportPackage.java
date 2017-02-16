@@ -39,6 +39,7 @@ public class ImportPackage implements Node {
     private String path;
     private String name;
     private String asName;
+    private SymbolName symbolName;
 
     private boolean isUsed;
 
@@ -51,8 +52,9 @@ public class ImportPackage implements Node {
         }
 
         this.path = path;
+        this.symbolName = new SymbolName(this.path);
     }
-    
+
     public ImportPackage(NodeLocation location, String path) {
         this(path);
         this.location = location;
@@ -63,6 +65,8 @@ public class ImportPackage implements Node {
         this.path = path;
         this.name = asName;
         this.asName = asName;
+
+        this.symbolName = new SymbolName(this.path);
     }
 
     /**
@@ -87,6 +91,10 @@ public class ImportPackage implements Node {
         return path;
     }
 
+    public SymbolName getSymbolName() {
+        return symbolName;
+    }
+
     public boolean isUsed() {
         return isUsed;
     }
@@ -101,7 +109,7 @@ public class ImportPackage implements Node {
         }
 
         ImportPackage other = (ImportPackage) obj;
-        return this.name.equals(other.name) && this.path.equals(other.path);
+        return this.path.equals(other.path);
     }
 
     @Override

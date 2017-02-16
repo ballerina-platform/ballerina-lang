@@ -34,7 +34,7 @@ import java.io.PrintStream;
 @BallerinaFunction(
         packageName = "ballerina.lang.system",
         functionName = "println",
-        args = {@Argument(name = "string", type = TypeEnum.STRING)},
+        args = {@Argument(name = "s", type = TypeEnum.STRING)},
         isPublic = true
 )
 public class PrintlnString extends AbstractNativeFunction {

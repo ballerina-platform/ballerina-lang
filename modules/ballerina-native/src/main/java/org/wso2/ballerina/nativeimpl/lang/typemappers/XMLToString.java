@@ -33,7 +33,7 @@ import org.wso2.ballerina.core.nativeimpl.annotations.ReturnType;
 @BallerinaTypeMapper(
         packageName = "ballerina.lang.typemappers",
         typeMapperName = "xmlToString",
-        args = {@Argument(name = "value", type = TypeEnum.XML)},
+        args = {@Argument(name = "x", type = TypeEnum.XML)},
         returnType = {@ReturnType(type = TypeEnum.STRING)},
         isPublic = true
 )

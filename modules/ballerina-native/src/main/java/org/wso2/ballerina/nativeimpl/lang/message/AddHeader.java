@@ -35,7 +35,7 @@ import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
 @BallerinaFunction(
         packageName = "ballerina.lang.message",
         functionName = "addHeader",
-        args = {@Argument(name = "message", type = TypeEnum.MESSAGE),
+        args = {@Argument(name = "m", type = TypeEnum.MESSAGE),
                 @Argument(name = "key", type = TypeEnum.STRING),
                 @Argument(name = "value", type = TypeEnum.STRING)},
         isPublic = true

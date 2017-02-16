@@ -34,7 +34,7 @@ import org.wso2.ballerina.core.nativeimpl.annotations.ReturnType;
 @BallerinaFunction(
         packageName = "ballerina.lang.array",
         functionName = "copyOf",
-        args = {@Argument(name = "arr", type = TypeEnum.ARRAY, elementType = TypeEnum.STRING)},
+        args = {@Argument(name = "stringArray", type = TypeEnum.ARRAY, elementType = TypeEnum.STRING)},
         returnType = {@ReturnType(type = TypeEnum.ARRAY, elementType = TypeEnum.STRING)},
         isPublic = true
 )

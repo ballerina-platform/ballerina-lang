@@ -18,28 +18,28 @@
 
 package org.wso2.ballerina.lang.expressions;
 
+import org.ballerinalang.util.program.BLangFunctions;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.wso2.ballerina.core.model.BallerinaFile;
+import org.wso2.ballerina.core.model.BLangProgram;
 import org.wso2.ballerina.core.model.values.BDouble;
 import org.wso2.ballerina.core.model.values.BFloat;
 import org.wso2.ballerina.core.model.values.BInteger;
 import org.wso2.ballerina.core.model.values.BLong;
 import org.wso2.ballerina.core.model.values.BValue;
-import org.wso2.ballerina.core.utils.ParserUtils;
-import org.wso2.ballerina.lang.util.Functions;
+import org.wso2.ballerina.core.utils.BTestUtils;
 
 /**
  * Primitive mod expression test.
  */
 public class ModExpressionTest {
 
-    private BallerinaFile bFile;
+    private BLangProgram bLangProgram;
 
     @BeforeClass
     public void setup() {
-        bFile = ParserUtils.parseBalFile("lang/expressions/mod-expr.bal");
+        bLangProgram = BTestUtils.parseBalFile("lang/expressions/mod-expr.bal");
     }
 
     @Test(description = "Test two int mod expression")
@@ -76,7 +76,7 @@ public class ModExpressionTest {
 
     private void intMod(int val1, int val2, int expected) {
         BValue[] args = { new BInteger(val1), new BInteger(val2) };
-        BValue[] returns = Functions.invoke(bFile, "intMod", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "intMod", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
@@ -87,7 +87,7 @@ public class ModExpressionTest {
 
     private void longMod(long val1, long val2, long expected) {
         BValue[] args = { new BLong(val1), new BLong(val2) };
-        BValue[] returns = Functions.invoke(bFile, "longMod", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "longMod", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BLong.class);
@@ -98,7 +98,7 @@ public class ModExpressionTest {
 
     private void floatMod(float val1, float val2, float expected) {
         BValue[] args = { new BFloat(val1), new BFloat(val2) };
-        BValue[] returns = Functions.invoke(bFile, "floatMod", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "floatMod", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BFloat.class);
@@ -109,7 +109,7 @@ public class ModExpressionTest {
 
     private void doubleMod(double val1, double val2, double expected) {
         BValue[] args = { new BDouble(val1), new BDouble(val2) };
-        BValue[] returns = Functions.invoke(bFile, "doubleMod", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "doubleMod", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BDouble.class);
