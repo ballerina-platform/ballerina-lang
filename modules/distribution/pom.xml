@@ -27,10 +27,10 @@
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
-    <artifactId>ballerina-distribution</artifactId>
+    <artifactId>ballerina-editor-distribution</artifactId>
     <packaging>pom</packaging>
-    <name>WSO2 Ballerina - Distribution</name>
-    <description>WSO2 Ballerina - Distribution</description>
+    <name>Ballerina Editor - Distribution</name>
+    <description>Ballerina Editor - Distribution</description>
     <url>http://wso2.org</url>
 
     <dependencies>
@@ -181,7 +181,7 @@
                             <descriptors>
                                 <descriptor>${basedir}/src/assembly/bin.xml</descriptor>
                             </descriptors>
-                            <finalName>ballerina-${project.version}</finalName>
+                            <finalName>ballerina-editor-${project.version}</finalName>
                             <appendAssemblyId>false</appendAssemblyId>
                         </configuration>
                     </execution>
