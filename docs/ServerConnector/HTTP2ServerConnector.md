@@ -22,19 +22,10 @@ Then server will send the response to user request .
 You can design service same as HTTP Service and deploy in the ballerina server.
 Service will be served with both HTTP/1 and HTTP/2 clients after enabling HTTP/2 Support.
 
-_____________                  _____________
-|           |                 |             |
-|           |                 |             |
-|  HTTP/1   |_______________\ |             |
-|  Client   |               / |             |
-|___________|                 |   Server    |
-                              |   /echo     |
-_____________                 |             |
-|           |                 |             |
-|  HTTP/2   |________________\|             |
-|  Client   |                /|             |
-|           |                 |             |               |
-|___________|                 |_____________|
+HTTP/1 > Ballerina > response with HTTP/1
+HTTP/2 > Ballerina > response with HTTP/2
+HTTPS  > Ballerina >  response with HTTP/1
+HTTPS/2 > Ballerina >  response with HTTP/2
 
 ###HTTP/2 Multiplexing
 HTTP/2 Multiplexing provides users to send multiple requests with same TCP connection using multiple streams.
@@ -78,11 +69,12 @@ You can use HTTP/2 client to test the HTTP/2 services. Simple Java client can be
 samples how to call HTTP samples using HTTP/2 Java client.
 
 
-[1] https://github.com/ballerinalang/ballerina/tree/master/modules/tests/test-integration/src/test/java/org/wso2
-/ballerina/test/util/http2
-[2] https://github.com/ballerinalang/ballerina/tree/master/modules/tests/test-integration/src/test/java/org/wso2
-/ballerina/test/service/http2/sample
+[1] https://github.com/ballerinalang/ballerina/tree/master/modules/tests/test-integration/src/test/java/org/wso2/ballerina/test/util/http2
+<br/>
+[2] https://github.com/ballerinalang/ballerina/tree/master/modules/tests/test-integration/src/test/java/org/wso2/ballerina/test/service/http2/sample
+<br/>
 [3] https://mvnrepository.com/artifact/org.mortbay.jetty.alpn/jetty-alpn-agent/2.0.6
+<br/>
 [4] http://netty.io/wiki/requirements-for-4.x.html
 
 
