@@ -74,7 +74,8 @@ public enum SemanticErrors {
     TEMPLATE_EXPRESSION_NOT_ALLOWED_HERE("template.expression.not.allowed.here", "SEMANTIC_0049"),
     CONNECTOR_INIT_NOT_ALLOWED_HERE("connector.init.not.allowed.here", "SEMANTIC_0050"),
     ONLY_COUNT_1_ALLOWED_THIS_VERSION("only.count.1.allowed.this.version", "SEMANTIC_0051"),
-    ONLY_EXCEPTION_TYPE_HERE("only.exception.type.here", "SEMANTIC_0052");
+    ONLY_EXCEPTION_TYPE_HERE("only.exception.type.here", "SEMANTIC_0052"),
+    BREAK_STMT_NOT_ALLOWED_HERE("break.stmt.not.allowed.here", "SEMANTIC_0053");
 
     private String errorMsgKey;
     private String errorCode;
