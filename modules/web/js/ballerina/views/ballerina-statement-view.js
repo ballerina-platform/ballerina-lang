@@ -300,6 +300,10 @@ define(['require', 'lodash', 'log', './../visitors/statement-visitor', 'd3', 'd3
         });
     };
 
+
+     /**
+     * create view to indicate a debug point in view.  call showDebugIndicator/hideDebugIndicator to toggle this indicator
+     */
      BallerinaStatementView.prototype._createDebugIndicator = function (args) {
          var self = this;
          var model = this._model;
