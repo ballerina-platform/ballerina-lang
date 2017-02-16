@@ -41,12 +41,14 @@ public class WebSocketSessionImpl extends WebSocketSessionAdapter {
     private final ChannelHandlerContext ctx;
     private final boolean isSecure;
     private final String requestedUri;
+    private final String sessionId;
 
     public WebSocketSessionImpl(ChannelHandlerContext ctx, boolean isSecure,
-                                String requestedUri) {
+                                String requestedUri, String sessionId) {
         this.ctx = ctx;
         this.isSecure = isSecure;
         this.requestedUri = requestedUri;
+        this.sessionId = sessionId;
     }
 
     @Override
@@ -57,7 +59,7 @@ public class WebSocketSessionImpl extends WebSocketSessionAdapter {
 
     @Override
     public String getId() {
-        return ctx.channel().toString();
+        return sessionId;
     }
 
     @Override
