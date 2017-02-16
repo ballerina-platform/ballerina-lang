@@ -84,7 +84,16 @@ define(['lodash', 'log', 'event_channel', '../ast/module', './try-catch-statemen
                 }
                 return assignmentStatement;
             } else if (statement instanceof AST.VariableDefinitionStatement) {
-                return new VariableDefinitionStatementView(args);
+                var variableStatement = undefined;
+                _.each(statement.getChildren(), function (statementChild) {
+                    if(AST.BallerinaASTFactory.isActionInvocationExpression(statementChild)) {
+                        variableStatement = new ActionInvocationStatementView(args);
+                    }
+                });
+                if (_.isUndefined(variableStatement)) {
+                    variableStatement = VariableDefinitionStatementView(args);
+                }
+                return variableStatement;
             } else if (statement instanceof AST.WorkerInvoke) {
                 return new WorkerInvokeView(args);
             } else if (statement instanceof AST.WorkerReceive) {

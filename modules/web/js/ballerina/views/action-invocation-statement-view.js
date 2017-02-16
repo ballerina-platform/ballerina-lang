@@ -380,6 +380,11 @@ define(['lodash', 'd3','log', './simple-statement-view', './../ast/action-invoca
                 if (BallerinaASTFactory.isActionInvocationExpression(actionExpression)) {
                     return actionExpression;
                 }
+            } else if (BallerinaASTFactory.isVariableDefinitionStatement(this.getModel())) {
+                var actionExpression = this.getModel().getChildren()[0];
+                if (BallerinaASTFactory.isActionInvocationExpression(actionExpression)) {
+                    return actionExpression;
+                }
             }
         };
 
