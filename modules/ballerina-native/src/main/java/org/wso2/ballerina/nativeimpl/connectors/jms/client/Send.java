@@ -53,7 +53,7 @@ import java.util.Map;
         packageName = "ballerina.net.jms",
         actionName = "send",
         connectorName = ClientConnector.CONNECTOR_NAME,
-        args = { @Argument(name = "connector", type = TypeEnum.CONNECTOR),
+        args = { @Argument(name = "jmsClientConnector", type = TypeEnum.CONNECTOR),
                  @Argument(name = "connectionFactoryName", type = TypeEnum.STRING),
                  @Argument(name = "destinationName", type = TypeEnum.STRING),
                  @Argument(name = "destinationType", type = TypeEnum.STRING),

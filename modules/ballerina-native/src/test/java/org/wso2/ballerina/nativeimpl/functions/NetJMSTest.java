@@ -18,17 +18,18 @@
 
 package org.wso2.ballerina.nativeimpl.functions;
 
+import org.ballerinalang.util.program.BLangFunctions;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.ballerina.core.interpreter.Context;
+import org.wso2.ballerina.core.model.BLangProgram;
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.values.BMessage;
 import org.wso2.ballerina.core.model.values.BString;
 import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.nativeimpl.connectors.jms.utils.JMSConstants;
-import org.wso2.ballerina.nativeimpl.util.Functions;
-import org.wso2.ballerina.nativeimpl.util.ParserUtils;
+import org.wso2.ballerina.nativeimpl.util.BTestUtils;
 import org.wso2.ballerina.nativeimpl.util.TestCallback;
 import org.wso2.carbon.messaging.DefaultCarbonMessage;
 
@@ -36,11 +37,12 @@ import org.wso2.carbon.messaging.DefaultCarbonMessage;
  * Test cases for ballerina.net.jms native functions.
  */
 public class NetJMSTest {
+    private BLangProgram bLangProgram;
     private BallerinaFile bFile;
 
     @BeforeClass
     public void setup() {
-        bFile = ParserUtils.parseBalFile("samples/netJMS.bal");
+        bLangProgram = BTestUtils.parseBalFile("samples/netJMS.bal");
     }
 
     @Test
@@ -51,7 +53,7 @@ public class NetJMSTest {
         msg.setValue(cMsg);
         Context ctx = new Context(cMsg);
         BValue[] inputArgs = { msg };
-        BValue[] returnVals = Functions.invoke(bFile, "testGetMessageType", inputArgs, ctx);
+        BValue[] returnVals = BLangFunctions.invoke(bLangProgram, "testGetMessageType", inputArgs, ctx);
         Assert.assertEquals(returnVals.length, 1);
         BString sc = (BString) returnVals[0];
         Assert.assertEquals(sc.stringValue(), JMSConstants.TEXT_MESSAGE_TYPE);
@@ -60,7 +62,7 @@ public class NetJMSTest {
         msg.setValue(cMsg);
         ctx = new Context(cMsg);
         BValue[] inputArgs1 = { msg };
-        returnVals = Functions.invoke(bFile, "testGetMessageType", inputArgs1, ctx);
+        returnVals = BLangFunctions.invoke(bLangProgram, "testGetMessageType", inputArgs1, ctx);
         Assert.assertEquals(returnVals.length, 1);
         sc = (BString) returnVals[0];
         Assert.assertEquals(sc.stringValue(), JMSConstants.MAP_MESSAGE_TYPE);
@@ -74,11 +76,11 @@ public class NetJMSTest {
         Context ctx = new Context(cMsg);
         ctx.setBalCallback(new TestCallback());
         BValue[] inputArgs = { msg, new BString("SUCCESS") };
-        Functions.invoke(bFile, "testAcknowledge", inputArgs, ctx);
+        BLangFunctions.invoke(bLangProgram, "testAcknowledge", inputArgs, ctx);
         String sc = (String) msg.value().getProperty(JMSConstants.JMS_MESSAGE_DELIVERY_STATUS);
         Assert.assertEquals(sc, JMSConstants.JMS_MESSAGE_DELIVERY_SUCCESS);
         BValue[] inputArgs1 = { msg, new BString("ERROR") };
-        Functions.invoke(bFile, "testAcknowledge", inputArgs1, ctx);
+        BLangFunctions.invoke(bLangProgram, "testAcknowledge", inputArgs1, ctx);
         sc = (String) msg.value().getProperty(JMSConstants.JMS_MESSAGE_DELIVERY_STATUS);
         Assert.assertEquals(sc, JMSConstants.JMS_MESSAGE_DELIVERY_ERROR);
     }
@@ -91,7 +93,7 @@ public class NetJMSTest {
         Context ctx = new Context(cMsg);
         ctx.setBalCallback(new TestCallback());
         BValue[] inputArgs = { msg };
-        Functions.invoke(bFile, "testCommit", inputArgs, ctx);
+        BLangFunctions.invoke(bLangProgram, "testCommit", inputArgs, ctx);
         String sc = (String) msg.value().getProperty(JMSConstants.JMS_MESSAGE_DELIVERY_STATUS);
         Assert.assertEquals(sc, JMSConstants.JMS_MESSAGE_DELIVERY_SUCCESS);
     }
@@ -104,7 +106,7 @@ public class NetJMSTest {
         Context ctx = new Context(cMsg);
         ctx.setBalCallback(new TestCallback());
         BValue[] inputArgs = { msg };
-        Functions.invoke(bFile, "testRollback", inputArgs, ctx);
+        BLangFunctions.invoke(bLangProgram, "testRollback", inputArgs, ctx);
         String sc = (String) msg.value().getProperty(JMSConstants.JMS_MESSAGE_DELIVERY_STATUS);
         Assert.assertEquals(sc, JMSConstants.JMS_MESSAGE_DELIVERY_ERROR);
     }

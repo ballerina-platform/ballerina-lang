@@ -200,7 +200,7 @@ public class MessageTest {
         final String propertyValue = "ballerina";
         carbonMsg.setValue(propertyKey, propertyValue);
         BValue[] args = { new BMessage(carbonMsg), new BString(propertyKey) };
-        BValue[] returns = Functions.invoke(bFile, "testGetStringValue", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testGetStringValue", args);
         Assert.assertEquals(returns.length, 1);
         String returnString = returns[0].stringValue();
         Assert.assertEquals(returnString, propertyValue);

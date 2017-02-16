@@ -24,7 +24,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.ballerina.core.EnvironmentInitializer;
 import org.wso2.ballerina.core.exception.BallerinaException;
-import org.wso2.ballerina.core.model.Application;
+import org.wso2.ballerina.core.model.BLangProgram;
 import org.wso2.ballerina.core.runtime.ServerConnectorMessageHandler;
 import org.wso2.ballerina.core.runtime.dispatching.jms.Constants;
 import org.wso2.carbon.messaging.CarbonMessage;
@@ -34,11 +34,11 @@ import org.wso2.carbon.messaging.TextCarbonMessage;
  * Testing the JMS Service Dispatcher.
  */
 public class JMSServiceTest {
-    private Application application;
+    private BLangProgram bLangProgram;
 
     @BeforeClass
     public void setup() {
-        application = EnvironmentInitializer.setup("lang/service/serviceLevelVariable.bal");
+        bLangProgram = EnvironmentInitializer.setup("lang/service/serviceLevelVariable.bal");
     }
 
     @Test(description = "Test for exceptions when a jms message does not have a service id")
@@ -73,6 +73,6 @@ public class JMSServiceTest {
 
     @AfterClass
     public void tearDown() {
-        EnvironmentInitializer.cleanup(application);
+        EnvironmentInitializer.cleanup(bLangProgram);
     }
 }

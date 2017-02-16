@@ -18,26 +18,26 @@
 
 package org.wso2.ballerina.nativeimpl.connectors;
 
+import org.ballerinalang.util.program.BLangFunctions;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.interpreter.SymScope;
 import org.wso2.ballerina.core.interpreter.nonblocking.ModeResolver;
-import org.wso2.ballerina.core.model.BallerinaFile;
+import org.wso2.ballerina.core.model.BLangProgram;
 import org.wso2.ballerina.core.runtime.internal.BuiltInNativeConstructLoader;
-import org.wso2.ballerina.nativeimpl.util.Functions;
-import org.wso2.ballerina.nativeimpl.util.ParserUtils;
+import org.wso2.ballerina.nativeimpl.util.BTestUtils;
 
 
 public class JMSClientTest {
-    private BallerinaFile bFile;
     private SymScope globalScope;
+    private BLangProgram bLangProgram;
     private boolean isNonBlockingEnabled;
 
     @BeforeClass
     public void setup() {
-        bFile = ParserUtils.parseBalFile("samples/jmsClientConnectorTest.bal");
+        bLangProgram = BTestUtils.parseBalFile("samples/jmsClientConnectorTest.bal");
         globalScope = new SymScope(SymScope.Name.GLOBAL);
         BuiltInNativeConstructLoader.loadConstructs();
         isNonBlockingEnabled = ModeResolver.getInstance().isNonblockingEnabled();
@@ -48,14 +48,14 @@ public class JMSClientTest {
             expectedExceptions = { BallerinaException.class },
             expectedExceptionsMessageRegExp = ".*Connector parameters not defined correctly..*")
     public void testJMSClientConnectorWithoutValidInitialContextFactory() throws BallerinaException {
-        Functions.invoke(bFile, "jmsClientConnectorTest");
+        BLangFunctions.invoke(bLangProgram, "jmsClientConnectorTest");
     }
 
     @Test(description = "Test for jms client connector without valid message",
             expectedExceptions = { BallerinaException.class },
             expectedExceptionsMessageRegExp = ".*If the message type is TextMessage, a string payload must be set.*")
     public void testJMSClientConnectorWithoutValidMessage() throws BallerinaException {
-        Functions.invoke(bFile, "jmsSendNoMessageTest");
+        BLangFunctions.invoke(bLangProgram, "jmsSendNoMessageTest");
     }
 
     @Test(description = "Test for jms client connector map message without data",
@@ -64,7 +64,7 @@ public class JMSClientTest {
                     ".*If the message type is MapMessage, either set MapData property or pass a " +
                     "received jms map message*")
     public void testJMSClientConnectorMapMessageWithoutData() throws BallerinaException {
-        Functions.invoke(bFile, "jmsSendMapMessageWithoutData");
+        BLangFunctions.invoke(bLangProgram, "jmsSendMapMessageWithoutData");
     }
 
     @AfterClass
