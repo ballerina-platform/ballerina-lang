@@ -21,9 +21,9 @@ package org.wso2.ballerina.nativeimpl.lang.json;
 
 import com.jayway.jsonpath.Configuration;
 import com.jayway.jsonpath.Option;
-import com.jayway.jsonpath.spi.json.GsonJsonProvider;
+import com.jayway.jsonpath.spi.json.JacksonJsonNodeJsonProvider;
 import com.jayway.jsonpath.spi.json.JsonProvider;
-import com.jayway.jsonpath.spi.mapper.GsonMappingProvider;
+import com.jayway.jsonpath.spi.mapper.JacksonMappingProvider;
 import com.jayway.jsonpath.spi.mapper.MappingProvider;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
 
@@ -40,16 +40,16 @@ public abstract class AbstractJSONFunction extends AbstractNativeFunction {
      */
     public AbstractJSONFunction() {
         super();
-        // Configure jayway jsonpath with gson provider
-        Configuration.setDefaults(new GsonDefaultConfiguration());
+        // Configure jayway jsonpath with Jackson provider
+        Configuration.setDefaults(new JacksonDefaultConfiguration());
     }
 
     /**
-     * Set GSON provider as the default configuration for Jayway.
+     * Set Jackson provider as the default configuration for Jayway.
      */
-    private static class GsonDefaultConfiguration implements Configuration.Defaults {
-        private final JsonProvider jsonProvider = new GsonJsonProvider();
-        private final MappingProvider mappingProvider = new GsonMappingProvider();
+    private static class JacksonDefaultConfiguration implements Configuration.Defaults {
+        private final JsonProvider jsonProvider = new JacksonJsonNodeJsonProvider();
+        private final MappingProvider mappingProvider = new JacksonMappingProvider();
 
         @Override
         public JsonProvider jsonProvider() {
