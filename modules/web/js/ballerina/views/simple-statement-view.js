@@ -152,6 +152,14 @@ define(
             return this._viewOptions;
         };
 
+        SimpleStatementView.prototype.showDebugHit = function () {
+            this.getSvgRect().classed('highlight-statement', true);
+        };
+
+        SimpleStatementView.prototype.clearDebugHit = function () {
+            this.getSvgRect().classed('highlight-statement', false);
+        };
+
         /**
          * When the top edge move event triggered
          * @param {number} dy - delta y distance

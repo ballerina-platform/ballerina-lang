@@ -99,6 +99,10 @@
     opacity: 0.8;
 }
 
+.btn-icon i{
+    opacity: 0.5;
+}
+
 .btn-icon:hover {
     opacity: 1;
     cursor: pointer;
@@ -110,7 +114,7 @@
 }
 
 .text-editor {
-    height: calc(100% - 80px);
+    height: calc(100%);
 }
 
 .view-source-btn {
@@ -551,10 +555,29 @@
 .type-drop-wrapper{
     float: left;
     margin: 0 5px 0 0;
+    position: relative;
 }
 
 .type-drop-wrapper.struct-view{
     margin: 11px 5px 0 5px;
+}
+
+.type-drop-wrapper.struct-view .select2.select2-container {
+    min-width: 160px;
+}
+
+.type-drop-wrapper.struct-view .select2.select2-container .select2-selection--single {
+    min-width: 160px;
+}
+
+.type-drop-wrapper.struct-edit .select2.select2-container {
+    min-width: 100px;
+    margin:0;
+}
+
+.type-drop-wrapper.struct-edit .select2.select2-container .select2-selection--single {
+    min-width: 100px;
+    margin: 0;
 }
 
 .type-drop-wrapper .select2.select2-container {
@@ -724,8 +747,10 @@ input#package-name-input {
 }
 
 .package-definition-wrapper, .package-imports-wrapper {
-    height: 50px;
+    min-height: 57px;
     clear: both;
+    float: left;
+    width: 100%;
 }
 
 .tooltip-inner {
@@ -738,7 +763,7 @@ input#package-name-input {
 }
 
 .swaggerEditor {
-    height: 91%;
+    height: 100%;
     width: 100%;
 }
 

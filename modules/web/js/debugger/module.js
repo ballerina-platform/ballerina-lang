@@ -41,6 +41,7 @@ define(['jquery', 'backbone', 'lodash', 'log','./variable-tree', './debug-manage
             }
 
             this.application = _.get(config, 'application');
+            this.launchManager = _.get(config, 'launchManager');
             this._options = config;
             this.debuggerServiceUrl = _.get(this._options, 'application.config.services.debugger.endpoint');
             this._lastWidth = undefined;
@@ -130,7 +131,10 @@ define(['jquery', 'backbone', 'lodash', 'log','./variable-tree', './debug-manage
             debuggerContainer.attr('id', _.get(this._options, ('containerId')));
             this._$parent_el.append(debuggerContainer);
 
-            Tools.render(debuggerContainer.find('.debug-tools-container'));
+            Tools.setArgs({ container : debuggerContainer.find('.debug-tools-container') , 
+                            launchManager: this.launchManager,
+                            application: this.application });
+            Tools.render();
             
             Frames.setContainer(debuggerContainer.find('.debug-frams-container'));
             VariableTree.setContainer(debuggerContainer.find('.debug-variables-container'));

@@ -21,10 +21,11 @@ define(
     function (require, _, log, BallerinaStatementView, D3Utils, d3, BallerinaASTFactory) {
 
         /**
-         * Compound statement.
+         * Block statement i.e. while, if, else.
          * @param args {*} arguments for the creating view
          * @class BlockStatementView
          * @constructor
+         * @extends BallerinaStatementView
          */
         var BlockStatementView = function (args) {
             BallerinaStatementView.call(this, args);
@@ -70,6 +71,7 @@ define(
             statementGroup.title = titleGroup;
             var titleRect = D3Utils.rect(bBox.x(), bBox.y(), bBox.w(), 25, 0, 0, statementGroup)
                                    .classed('statement-title-rect', true);
+            this._titleRect = titleRect;
             var titleText = D3Utils.textElement(bBox.x() + 20, bBox.y() + 12, titleViewOptions.text, statementGroup)
                                    .classed('statement-text', true);
             var titleTextWrapperPolyline = D3Utils.polyline(getTitlePolyLinePoints(bBox, titleViewOptions),
@@ -169,7 +171,7 @@ define(
 
         BlockStatementView.prototype.setModel = function (model) {
             if (_.isNil(model)) {
-                var message = "Model of a compound statement cannot be null.";
+                var message = "Model of a block statement cannot be null.";
                 log.error(message);
                 throw new Error(message);
             } else {
@@ -183,7 +185,7 @@ define(
 
         BlockStatementView.prototype.setContainer = function (container) {
             if (_.isNil(container)) {
-                var message = "Container of a compound statement cannot be null.";
+                var message = "Container of a block statement cannot be null.";
                 log.error(message);
                 throw new Error(message);
             } else {
@@ -214,6 +216,15 @@ define(
         BlockStatementView.prototype.getToolPalette = function () {
             return this.toolPalette;
         };
+
+        BlockStatementView.prototype.showDebugHit = function () {
+            this._titleRect.classed('highlight-statement', true);
+        };
+
+        BlockStatementView.prototype.clearDebugHit = function () {
+            this._titleRect.classed('highlight-statement', false);
+        };
+
 
         /**
          * Overrides the child remove callback from BallerinaStatementView.
