@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', './node'], function (_, ASTNode) {
+define(['lodash','log', './node'], function (_, log, ASTNode) {
 
     var VariableDefinition = function (args) {
         ASTNode.call(this, 'VariableDefinition');
@@ -115,6 +115,26 @@ define(['lodash', './node'], function (_, ASTNode) {
     VariableDefinition.prototype.isPublic = function () {
         return this._isPublic;
     };
-    
+
+    /**
+     * Gets the variable definition as a string.
+     * @return {string} - Variable definition as string.
+     */
+    VariableDefinition.prototype.getVariableDefinitionAsString = function() {
+        return this._typeName + " " + this._name + ";";
+    };
+
+    VariableDefinition.prototype.initFromJson = function (jsonNode) {
+        var self = this;
+        this.setName(jsonNode.variable_name, {doSilently: true});
+        this.setTypeName(jsonNode.variable_type, {doSilently: true});
+
+        _.each(jsonNode.children, function (childNode) {
+            var child = self.BallerinaASTFactory.createFromJson(childNode);
+            self.addChild(child);
+            child.initFromJson(childNode);
+        });
+    };
+
     return VariableDefinition;
 });

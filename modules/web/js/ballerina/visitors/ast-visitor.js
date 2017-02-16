@@ -64,8 +64,6 @@ define(['lodash', 'log', 'event_channel', './../ast/module'], function(_, log, E
             return this.canVisitStructDefinition(node);
         } else if(node instanceof AST.TypeMapperDefinition){
             return this.canVisitTypeMapperDefinition(node);
-        } else if(node instanceof AST.TypeStructDefinition){
-            return this.canVisitTypeStructDefinition(node);
         } else if(node instanceof AST.ResourceParameter){
             return this.canVisitResourceParameter(node);
         } else if(node instanceof AST.ReturnType){
@@ -117,10 +115,6 @@ define(['lodash', 'log', 'event_channel', './../ast/module'], function(_, log, E
             return this.beginVisitStructDefinition(node);
         } else if(node instanceof AST.TypeMapperDefinition){
             return this.beginVisitTypeMapperDefinition(node);
-        } else if(node instanceof AST.TypeStructDefinition){
-            return this.beginVisitTypeStructDefinition(node);
-        } else if(node instanceof AST.TypeStructDefinition){
-            return this.beginVisitTypeStructDefinition(node);
         } else if(node instanceof AST.ResourceParameter){
             return this.beginVisitResourceParameter(node);
         } else if(node instanceof AST.ReturnType){
@@ -172,8 +166,6 @@ define(['lodash', 'log', 'event_channel', './../ast/module'], function(_, log, E
             return this.visitStructDefinition(node);
         } else if(node instanceof AST.TypeMapperDefinition){
             return this.visitTypeMapperDefinition(node);
-        } else if(node instanceof AST.TypeStructDefinition){
-            return this.visitTypeStructDefinition(node);
         } else if(node instanceof AST.ResourceParameter){
             return this.visitResourceParameter(node);
         } else if(node instanceof AST.ReturnType){
@@ -226,8 +218,6 @@ define(['lodash', 'log', 'event_channel', './../ast/module'], function(_, log, E
             return this.endVisitStructDefinition(node);
         } else if(node instanceof AST.TypeMapperDefinition){
             return this.endVisitTypeMapperDefinition(node);
-        } else if(node instanceof AST.TypeStructDefinition){
-            return this.endVisitTypeStructDefinition(node);
         } else if(node instanceof AST.ResourceParameter){
             return this.endVisitResourceParameter(node);
         } else if(node instanceof AST.ReturnType){
@@ -318,16 +308,6 @@ define(['lodash', 'log', 'event_channel', './../ast/module'], function(_, log, E
     ASTVisitor.prototype.visitTypeMapperDefinition = function(typeMapperDefinition){
     };
     ASTVisitor.prototype.endVisitTypeMapperDefinition = function(typeMapperDefinition){
-    };
-    
-    ASTVisitor.prototype.canVisitTypeStructDefinition = function(typeStructDefinition){
-        return false;
-    };
-    ASTVisitor.prototype.beginVisitTypeStructDefinition = function(typeStructDefinition){
-    };
-    ASTVisitor.prototype.visitTypeStructDefinition = function(typeStructDefinition){
-    };
-    ASTVisitor.prototype.endVisitTypeStructDefinition = function(typeStructDefinition){
     };
 
     ASTVisitor.prototype.canVisitResourceParameter = function(resourceParameter){

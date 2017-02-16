@@ -15,8 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', 'event_channel', './abstract-source-gen-visitor', './variable-declaration-visitor'],
-    function (_, log, EventChannel, AbstractSourceGenVisitor, VariableDeclarationVisitor) {
+define(['lodash', 'log', 'event_channel', './abstract-source-gen-visitor', './variable-definition-visitor'],
+    function (_, log, EventChannel, AbstractSourceGenVisitor, VariableDefinitionVisitor) {
 
         /**
          * @param parent
@@ -35,8 +35,8 @@ define(['lodash', 'log', 'event_channel', './abstract-source-gen-visitor', './va
 
         StructDefinitionVisitor.prototype.beginVisitStructDefinition = function (structDefinition) {
             var constructedSourceSegment = 'struct ' + structDefinition.getStructName() + "{ \n";
-            _.forEach(structDefinition.getVariableDeclarations(), function (variable) {
-                constructedSourceSegment = constructedSourceSegment + variable.getVariableDeclarationAsString() + "\n";
+            _.forEach(structDefinition.getVariableDefinitions(), function (variable) {
+                constructedSourceSegment = constructedSourceSegment + variable.getVariableDefinitionAsString() + "\n";
             });
             this.appendSource(constructedSourceSegment);
             log.debug('Begin Visit FunctionDefinition');

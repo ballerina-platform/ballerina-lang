@@ -31,9 +31,9 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
         './left-operand-expression', './right-operand-expression', './instance-creation-expression', './then-body',
         './if-condition', './array-map-access-expression','./key-value-expression',
         './binary-expression', './unary-expression', './connector-action', './struct-definition', './constant-definition',
-        './variable-definition-statement', './type-struct-definition', './struct-type', './symbol-name', './struct-field-access-expression',
-        './type-casting-expression', './worker-invoke', './reference-type-init-expression', './block-statement', './struct-field-access-expression',
-        './ref-type-init-expression', './variable-definition', './type-cast-expression', './array-init-expression', './worker-receive'],
+        './variable-definition-statement','./struct-type', './symbol-name', './struct-field-access-expression',
+        './type-casting-expression', './worker-invoke', './reference-type-init-expression', './block-statement',
+        './variable-definition', './type-cast-expression', './array-init-expression', './worker-receive'],
     function (_, ballerinaAstRoot, serviceDefinition, functionDefinition, connectorDefinition, resourceDefinition,
               workerDeclaration, statement, conditionalStatement, connectorDeclaration, expression, ifElseStatement,
               ifStatement, elseStatement, elseIfStatement, tryCatchStatement, tryStatement, catchStatement, replyStatement,
@@ -43,9 +43,9 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
               logicalExpression, actionInvocationExpression, returnType, typeName, argument, backQuoteExpression,
               basicLiteralExpression, leftOperandExpression, rightOperandExpression, instanceCreationExpression,
               thenBody, ifCondition, arrayMapAccessExpression, keyValueExpression, binaryExpression,
-              unaryExpression, connectorAction, structDefinition, constantDefinition, variableDefinitionStatement, typeStructDefinition,
+              unaryExpression, connectorAction, structDefinition, constantDefinition, variableDefinitionStatement,
               structType, symbolName, structFieldAccessExpression, typeCastingExpression, workerInvoke, referenceTypeInitExpression,
-              blockStatement, structFieldAccessExpression, referenceTypeInitExpression, variableDefinition, typeCastExpression,
+              blockStatement, variableDefinition, typeCastExpression,
               arrayInitExpression, workerReceive) {
 
 
@@ -176,21 +176,21 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
         };
 
         /**
-         * creates typeStructDefinition
-         * @param {Object} args - object for typeStructDefinition creation
-         * @returns {TypeStructDefinition}
-         */
-        BallerinaASTFactory.createTypeStructDefinition = function (args) {
-            return new typeStructDefinition(args);
-        };
-
-        /**
          * create VariableDeclaration
          * @param args
          */
         BallerinaASTFactory.createVariableDeclaration = function (args) {
             return new variableDeclaration(args);
         };
+
+        /**
+         * create VariableDefinition
+         * @param args
+         */
+        BallerinaASTFactory.createVariableDefinition = function (args) {
+            return new variableDefinition(args);
+        }; 
+        
         /**
          * create ConditionalStatement
          * @param args
@@ -778,15 +778,6 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
         };
 
         /**
-         * instanceof check for TypeStructDefinition
-         * @param {ASTNode} child - Object for instanceof check
-         * @returns {boolean} - true if same type, else false
-         */
-        BallerinaASTFactory.isTypeStructDefinition = function (child) {
-            return child instanceof typeStructDefinition;
-        };
-
-        /**
          * is VariableDeclaration
          * @param child - Object for instanceof check
          * @returns {boolean} - true if same type, else false
@@ -1222,6 +1213,9 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
                         break;
                     case 'variable_declaration':
                         node = BallerinaASTFactory.createVariableDeclaration();
+                        break;
+                    case 'variable_definition':
+                        node = BallerinaASTFactory.createVariableDefinition();
                         break;
                     case 'argument_declaration':
                         node = BallerinaASTFactory.createResourceParameter();

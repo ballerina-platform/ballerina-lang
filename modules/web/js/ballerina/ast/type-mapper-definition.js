@@ -137,6 +137,13 @@ define(['lodash', './node', '../utils/common-utils'], function (_, ASTNode, Comm
             return ballerinaASTFactory.isResourceParameter(child)
         });
 
+        var blockStatement = self.getBlockStatement();
+        _.find(blockStatement.getChildren(), function (child) {
+            if(ballerinaASTFactory.isAssignmentStatement(child)){
+                child.remove();
+            }
+        });
+
         if (!_.isUndefined(previousInputType)) {
             this.removeChild(previousInputType);
         }
@@ -153,26 +160,15 @@ define(['lodash', './node', '../utils/common-utils'], function (_, ASTNode, Comm
             return ballerinaASTFactory.isReturnType(child)
         });
 
+        var blockStatement = self.getBlockStatement();
+        _.find(blockStatement.getChildren(), function (child) {
+            if(ballerinaASTFactory.isAssignmentStatement(child)){
+                child.remove();
+            }
+        });
+
         if (!_.isUndefined(previousOutputType)) {
             this.removeChild(previousOutputType);
-        }
-    };
-
-    /**
-     * removes the already selected child before adding a new child
-     * @param sourceProperty
-     * @param targetProperty
-     */
-    TypeMapperDefinition.prototype.removeAssignmentDefinition = function (sourceProperty, targetProperty) {
-        //TODO: Get rid of hardcoded x and y
-        var self = this;
-        var ballerinaASTFactory = this.getFactory();
-        var assignmentStatement = _.find(this.getChildren(), function (child) {
-            return ballerinaASTFactory.isAssignmentStatement(child) &&
-                (('x.' + targetProperty + ' = ' + 'y.' + sourceProperty) === child.getStatementString());
-        });
-        if (!_.isUndefined(assignmentStatement)) {
-            this.removeChild(assignmentStatement);
         }
     };
 
@@ -254,12 +250,12 @@ define(['lodash', './node', '../utils/common-utils'], function (_, ASTNode, Comm
         var variableReferenceExpression = _.find(leftOperandExpression.getChildren(), function (child) {
             return ballerinaASTFactory.isVariableReferenceExpression(child);
         });
+        variableReferenceExpression.setVariableReferenceName(identifier);
 
         var variableDefinition = _.find(variableReferenceExpression.getChildren(), function (child) {
             return ballerinaASTFactory.isVariableDefinition(child);
         });
 
-        variableDefinition.setName(identifier);
         variableDefinition.setTypeName(structName);
     };
 
@@ -365,6 +361,66 @@ define(['lodash', './node', '../utils/common-utils'], function (_, ASTNode, Comm
         return newAssignmentStatement;
     };
 
+
+    /**
+     * source -> function, target -> struct
+     * @param sourceVariableReferenceExpression
+     * @param targetIdentifier
+     * @param targetValue
+     * @param isComplexMapping
+     * @param targetCastValue
+     * @returns {*}
+     */
+    TypeMapperDefinition.prototype.getAssignmentStatementForFunctionReturnVariable = function (sourceVariableReferenceExpression,
+                                                                                               targetIdentifier,targetValue, isComplexMapping,targetCastValue) {
+
+        // Creating a new Assignment Statement.
+        var self = this;
+        var newAssignmentStatement = this.getFactory().createAssignmentStatement();
+        var leftOperandExpression = this.getFactory().createLeftOperandExpression();
+        var rightOperandExpression = this.getFactory().createRightOperandExpression();
+        var typeCastExpression = undefined;
+
+        var targetStructFieldAccessExpression = this.getFactory().createStructFieldAccessExpression();
+        var targetVariableReferenceExpressionForIdentifier = this.getFactory().createVariableReferenceExpression();
+        targetVariableReferenceExpressionForIdentifier.setVariableReferenceName(targetIdentifier);
+        var targetFieldExpression = this.getFactory().createStructFieldAccessExpression();
+        var tempRefOfFieldExpression;
+
+        _.forEach(targetValue, function (targetVal) {
+            var tempFieldExpression;
+            var tempVariableReferenceExpression = self.getFactory().createVariableReferenceExpression();
+            tempVariableReferenceExpression.setVariableReferenceName(targetVal);
+            if(_.head(targetValue) == targetVal){
+                targetFieldExpression.addChild(tempVariableReferenceExpression);
+                tempRefOfFieldExpression = targetFieldExpression
+            }else{
+                tempFieldExpression = self.getFactory().createStructFieldAccessExpression();
+                tempFieldExpression.addChild(tempVariableReferenceExpression);
+                tempRefOfFieldExpression.addChild(tempFieldExpression);
+                tempRefOfFieldExpression = tempFieldExpression;
+            }
+        });
+
+        targetStructFieldAccessExpression.addChild(targetVariableReferenceExpressionForIdentifier);
+        targetStructFieldAccessExpression.addChild(targetFieldExpression);
+
+        leftOperandExpression.addChild(targetStructFieldAccessExpression);
+        newAssignmentStatement.addChild(leftOperandExpression);
+
+        if(isComplexMapping){
+            typeCastExpression = this.getFactory().createTypeCastExpression();
+            typeCastExpression.setName(targetCastValue);
+            rightOperandExpression.addChild(typeCastExpression);
+            typeCastExpression.addChild(sourceVariableReferenceExpression);
+        }else{
+            rightOperandExpression.addChild(sourceVariableReferenceExpression);
+        }
+        newAssignmentStatement.addChild(rightOperandExpression);
+
+        return newAssignmentStatement;
+    };
+
     /**
      * Gets the reference of block statement child
      * @return {string} - String blockStatement.
@@ -399,6 +455,22 @@ define(['lodash', './node', '../utils/common-utils'], function (_, ASTNode, Comm
                     getter: this.getTypeMapperName
                 }]
             }]
+        });
+    };
+
+    /**
+     * Initialize TypeMapperDefinition from json object
+     * @param {Object} jsonNode - JSON object for initialization.
+     * @param {string} jsonNode.type_mapper_name - Name of the type mapper definition.
+     */
+    TypeMapperDefinition.prototype.initFromJson = function (jsonNode) {
+        var self = this;
+        this.setTypeMapperName(jsonNode.type_mapper_name, {doSilently: true});
+
+        _.each(jsonNode.children, function (childNode) {
+            var child = self.BallerinaASTFactory.createFromJson(childNode);
+            self.addChild(child);
+            child.initFromJson(childNode);
         });
     };
 

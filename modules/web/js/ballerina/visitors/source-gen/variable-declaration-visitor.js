@@ -44,7 +44,5 @@ define(['require','lodash', 'log', 'event_channel', './abstract-source-gen-visit
             log.debug('End Visit Variable Declaration');
         };
         
-        
-
         return VariableDeclarationVisitor;
     });

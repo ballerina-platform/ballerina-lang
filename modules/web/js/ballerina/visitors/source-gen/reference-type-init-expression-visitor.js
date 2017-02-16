@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -25,20 +25,20 @@ define(['require','lodash', 'log', 'event_channel', './abstract-expression-sourc
         RefTypeInitExpressionVisitor.prototype = Object.create(AbstractExpressionSourceGenVisitor.prototype);
         RefTypeInitExpressionVisitor.prototype.constructor = RefTypeInitExpressionVisitor;
 
-        RefTypeInitExpressionVisitor.prototype.canVisitRefTypeInitExpression = function(expression){
+        RefTypeInitExpressionVisitor.prototype.canVisitReferenceTypeInitExpression = function(expression){
             return true;
         };
 
-        RefTypeInitExpressionVisitor.prototype.beginVisitRefTypeInitExpression = function(expression){
+        RefTypeInitExpressionVisitor.prototype.beginVisitReferenceTypeInitExpression = function(expression){
             this.appendSource("{}");
             log.debug('Begin Visit Ref Type Init Expression');
         };
 
-        RefTypeInitExpressionVisitor.prototype.visitRefTypeInitExpression = function(expression){
+        RefTypeInitExpressionVisitor.prototype.visitReferenceTypeInitExpression = function(expression){
             log.debug('Visit Ref Type Init  Expression');
         };
 
-        RefTypeInitExpressionVisitor.prototype.endVisitRefTypeInitExpression = function(expression){
+        RefTypeInitExpressionVisitor.prototype.endVisitReferenceTypeInitExpression = function(expression){
             this.getParent().appendSource(this.getGeneratedSource());
             log.debug('End Visit Ref Type Init  Expression');
         };

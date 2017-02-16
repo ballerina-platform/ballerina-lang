@@ -125,6 +125,12 @@ define(['log', 'jquery', 'lodash', './tab-list', './file-tab',  'workspace/file'
                 return;
             }
 
+            if(!file.isPersisted() && _.isEmpty(file.getContent())){
+                // if file is not dirty no need to ask for confirmation
+                remove();
+                return;
+            }
+
             var handleConfirm = function(shouldSave) {
                 if(shouldSave) {
                     var done = function(saved) {
