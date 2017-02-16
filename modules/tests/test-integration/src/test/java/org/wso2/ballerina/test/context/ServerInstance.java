@@ -19,6 +19,8 @@ package org.wso2.ballerina.test.context;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.ballerina.test.util.FTPTestServer;
+import org.wso2.ballerina.test.util.JMSBroker;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -27,6 +29,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
@@ -43,9 +49,15 @@ public class ServerInstance implements Server {
     private ServerLogReader serverInfoLogReader;
     private ServerLogReader serverErrorLogReader;
     private boolean isServerRunning;
+    private int httpServerPort = Constant.DEFAULT_HTTP_PORT;
 
     public ServerInstance(String serverDistributionPath) {
         this.serverDistribution = serverDistributionPath;
+    }
+
+    public ServerInstance(String serverDistributionPath, int serverHttpPort) {
+        this.serverDistribution = serverDistributionPath;
+        this.httpServerPort = serverHttpPort;
     }
 
     /**
@@ -55,7 +67,10 @@ public class ServerInstance implements Server {
      */
     @Override
     public void start() throws Exception {
-        Utils.checkPortAvailability(Constant.DEFAULT_HTTP_PORT);
+        Utils.checkPortAvailability(httpServerPort);
+        // Start the activemq embedded broker.
+        JMSBroker.startBroker();
+        FTPTestServer.getInstance().start();
         if (serverHome == null) {
             serverHome = setUpServerHome(serverDistribution);
             log.info("Server Home " + serverHome);
@@ -70,8 +85,8 @@ public class ServerInstance implements Server {
         serverInfoLogReader.start();
         serverErrorLogReader = new ServerLogReader("errorStream", process.getErrorStream());
         serverErrorLogReader.start();
-        log.info("Waiting for port " + Constant.DEFAULT_HTTP_PORT + " to open");
-        Utils.waitForPort(Constant.DEFAULT_HTTP_PORT, 1000 * 60 * 2, false, "localhost");
+        log.info("Waiting for port " + httpServerPort + " to open");
+        Utils.waitForPort(httpServerPort, 1000 * 60 * 2, false, "localhost");
         log.info("Server Started Successfully.");
         isServerRunning = true;
     }
@@ -106,7 +121,7 @@ public class ServerInstance implements Server {
             serverErrorLogReader.stop();
             process = null;
             //wait until port to close
-            Utils.waitForPortToClosed(Constant.DEFAULT_HTTP_PORT, 30000);
+            Utils.waitForPortToClosed(httpServerPort, 30000);
             log.info("Server Stopped Successfully");
         }
     }
@@ -147,7 +162,7 @@ public class ServerInstance implements Server {
      * to change the server configuration if required. This method can be overriding when initialising
      * the object of this class.
      */
-    protected void configServer() {
+    protected void configServer() throws Exception {
     }
 
     /**
@@ -166,7 +181,7 @@ public class ServerInstance implements Server {
      * @return
      */
     public String getServiceURLHttp(String servicePath) {
-        return "http://localhost:" + Constant.DEFAULT_HTTP_PORT + "/" + servicePath;
+        return "http://localhost:" + httpServerPort + "/" + servicePath;
     }
 
     /**
@@ -202,6 +217,22 @@ public class ServerInstance implements Server {
         String serverExtractedPath = new File(baseDir).getAbsolutePath() + File.separator
                                      + extractDir + File.separator +
                                      extractedCarbonDir;
+
+        /*
+         * Copying the activemq-all jar to the bre/lib, in order to test the activemq based sample jms service.
+         */
+        Path source = Paths.get(baseDir + File.separator + Constant.ACTIVEMQ_ALL_JAR);
+        Path destination = Paths
+                .get(serverExtractedPath + File.separator + "bre" + File.separator + "lib" + File.separator
+                        + Constant.ACTIVEMQ_ALL_JAR);
+        Files.copy(source, destination, StandardCopyOption.REPLACE_EXISTING);
+        /*
+         * Copying the common-nets jar to the bre/lib, in order to test the ftp based sample file service.
+         */
+        source = Paths.get(baseDir + File.separator + Constant.COMMON_NETS_JAR);
+        destination = Paths.get(serverExtractedPath + File.separator + "bre" + File.separator
+                + "lib" + File.separator + Constant.COMMON_NETS_JAR);
+        Files.copy(source, destination, StandardCopyOption.REPLACE_EXISTING);
         return serverExtractedPath;
     }
 
@@ -218,13 +249,13 @@ public class ServerInstance implements Server {
         File commandDir = new File(serverHome);
         if (Utils.getOSName().toLowerCase().contains("windows")) {
             commandDir = new File(serverHome + File.separator + "bin");
-            cmdArray = new String[]{"cmd.exe", "/c", scriptName + ".bat"};
+            cmdArray = new String[]{"cmd.exe", "/c", scriptName + ".bat" , "run", "service"};
             String[] cmdArgs = Stream.concat(Arrays.stream(cmdArray), Arrays.stream(args))
                     .toArray(String[]::new);
             process = Runtime.getRuntime().exec(cmdArgs, null, commandDir);
 
         } else {
-            cmdArray = new String[]{"bash", "bin/" + scriptName, "service"};
+            cmdArray = new String[]{"bash", "bin/" + scriptName, "run", "service"};
             String[] cmdArgs = Stream.concat(Arrays.stream(cmdArray), Arrays.stream(args))
                     .toArray(String[]::new);
             process = Runtime.getRuntime().exec(cmdArgs, null, commandDir);
@@ -249,7 +280,7 @@ public class ServerInstance implements Server {
                 if (column != null && column.length < 5) {
                     continue;
                 }
-                if (column[1].contains(":" + Constant.DEFAULT_HTTP_PORT) && column[3].contains("LISTENING")) {
+                if (column[1].contains(":" + httpServerPort) && column[3].contains("LISTENING")) {
                     log.info(line);
                     pid = column[4];
                     break;

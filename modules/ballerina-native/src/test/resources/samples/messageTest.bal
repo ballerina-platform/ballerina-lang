@@ -72,3 +72,7 @@ function testClone(message msg, string payload2) (int) {
     }
     return state;
 }
+
+function testGetStringValue(message msg, string s) (string){
+    return message:getStringValue(msg, s);
+}

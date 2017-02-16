@@ -18,6 +18,6 @@ IMPORTANT: This access token can be used to make API requests on your own accoun
 
 How to run this sample
 ======================
-bin$ ./ballerina run ../samples/tweetOpenPR/tweetOpenPR.bal <consumerKey> <consumerSecret> <accessToken> <accessTokenSecret> [<repo-name>]
+bin$ ./ballerina run main ../samples/tweetOpenPR/tweetOpenPR.bal <consumerKey> <consumerSecret> <accessToken> <accessTokenSecret> [<repo-name>]
 
 Here the repo-name is optional, if it is not specified, wso2-synapse will be the default repo-name.

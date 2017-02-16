@@ -37,10 +37,10 @@ import java.util.ServiceLoader;
 public class BuiltInNativeConstructLoader {
 
     private static final Logger log = LoggerFactory.getLogger(BuiltInNativeConstructLoader.class);
-    
+
     /**
      * Load the native constructs to the provided symbol scope.
-     * 
+     *
      * @param globalScope   Symbol scope to load native constructs
      */
     public static void loadConstructs(GlobalScope globalScope) {
@@ -51,7 +51,7 @@ public class BuiltInNativeConstructLoader {
             constructLoader.load(globalScope);
         }
     }
-    
+
     public static void loadConstructs() {
     }
 }
