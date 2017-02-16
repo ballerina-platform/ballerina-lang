@@ -30,6 +30,13 @@ define(
         var CompoundStatementView = function (args) {
             BallerinaStatementView.call(this, args);
 
+            /**
+             * Real width of the child statements of this compound statement.
+             * @type {number[]}
+             * @private
+             */
+            this._childrenViewsActualWidths = [];
+
             var viewOptions = this.getViewOptions();
             viewOptions.width = _.get(args, "viewOptions.width", 140);
             viewOptions.height = _.get(args, "viewOptions.height", 0);
@@ -74,7 +81,9 @@ define(
             var boundingBox = this.getBoundingBox();
             var topCenter = this.getTopCenter();
             var renderingContext = this.getDiagramRenderingContext();
+            /** @type {BlockStatementView[]} */
             var childStatementViews = this.getChildrenViewsList();
+            var childrenViewsActualWidths = this._childrenViewsActualWidths;
 
             // Creating child statement view.
             var childStatementViewTopCenter;
@@ -95,7 +104,7 @@ define(
             };
             var StatementViewFactory = require('./statement-view-factory');
             var statementViewFactory = new StatementViewFactory();
-            /** @type BlockStatementView */
+            /** @type {BlockStatementView} */
             var childStatementView = statementViewFactory.getStatementView(childStatementViewArgs);
 
             // If there are previously added child statements, then get the last one.
@@ -108,17 +117,7 @@ define(
                 this.stopListening(lastChildStatementView.getBoundingBox(), 'bottom-edge-moved');
             }
 
-            childStatementViews.push(childStatementView);
-            renderingContext.getViewModelMap()[childStatement.id] = childStatementView;
-
-            childStatementView.render(renderingContext);
-
-            var childStatementViewBBox = childStatementView.getBoundingBox();
-            boundingBox.x(Math.min(boundingBox.x(), childStatementViewBBox.x()))
-                       .w(Math.max(boundingBox.w(), childStatementViewBBox.w()))
-                       .h(boundingBox.h() + childStatementViewBBox.h());
-
-            // When adding child statement's height changes, height of the bounding box should change accordingly.
+            // When child statement's height changes, height of the bounding box should change accordingly.
             this.listenTo(childStatementView.getBoundingBox(), 'bottom-edge-moved', function (dy) {
                 if (!this._pendingContainerMove) {
                     this.getBoundingBox().h(this.getBoundingBox().h() + dy);
@@ -126,12 +125,38 @@ define(
                     this._pendingContainerMove = false;
                 }
             });
+            // When child statement's width changes, the width of the bounding box should change accordingly.
             this.listenTo(childStatementView.getBoundingBox(), 'width-changed', function (dw) {
-                var widestChildStatementView = _.maxBy(this.getChildrenViewsList(), function (statementView) {
-                    return statementView.getStatementContainer().getBoundingBox().w();
-                }.bind(this));
-                this.getBoundingBox().zoomWidth(widestChildStatementView.getBoundingBox().w());
+                if (childStatementView._isResizingFromCompoundStatement === true) {
+                    return;
+                }
+
+                var childStatementViewIndex = _.findIndex(childStatementViews, childStatementView);
+                // Update the actual widths array with new width of this child statement.
+                childrenViewsActualWidths[childStatementViewIndex] =
+                    childrenViewsActualWidths[childStatementViewIndex] + dw;
+                var maxChildViewActualWidth = _.max(childrenViewsActualWidths);
+
+                _.forEach(childStatementViews, function (childStatementView) {
+                    childStatementView._isResizingFromCompoundStatement = true;
+                    childStatementView.getStatementContainer()._updateContainerWidth(maxChildViewActualWidth);
+                    childStatementView._isResizingFromCompoundStatement = false;
+                });
+                boundingBox.zoomWidth(maxChildViewActualWidth);
             });
+
+            childStatementViews.push(childStatementView);
+            childrenViewsActualWidths.push(childStatementView.getBoundingBox().w());
+            renderingContext.getViewModelMap()[childStatement.id] = childStatementView;
+
+            childStatementView.render(renderingContext);
+
+            if (childStatementViews.length === 1) {
+                // This is the very first child statement.
+                boundingBox.h(childStatementView.getBoundingBox().h());
+            } else {
+                boundingBox.h(boundingBox.h() + childStatementView.getBoundingBox().h());
+            }
 
             return childStatementView;
         };
