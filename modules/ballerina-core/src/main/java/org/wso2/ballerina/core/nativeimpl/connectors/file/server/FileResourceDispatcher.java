@@ -41,17 +41,13 @@ public class FileResourceDispatcher implements ResourceDispatcher {
             log.debug("Starting to find resource in the file service " + service.getSymbolName().toString() + " to "
                     + "deliver the message");
         }
-        for (Resource resource : service.getResources()) {
-            if (resource.getAnnotation(Constants.PROTOCOL_FILE, Constants.ANNOTATION_NAME_ON_FILE) != null) {
-                if (log.isDebugEnabled()) {
-                    log.debug("Found the relevant resource in the file service " + service.getSymbolName().toString());
-                }
-                return resource;
-            }
+        Resource[] resources = service.getResources();
+        if (resources.length != 1) {
+            throw new BallerinaException("A Service of type '" + Constants.PROTOCOL_FILE
+                    + "' has to have only one resource associated to itself. " + "Found " + resources.length
+                    + " resources in Service: " + service.getSymbolName().getName());
         }
-        throw new BallerinaException("Resource with the annotation " + Constants.ANNOTATION_NAME_ON_FILE
-                + " to handle the file content is not found in file service " + service.getSymbolName().toString(),
-                balContext);
+        return resources[0];
     }
 
     @Override

@@ -31,42 +31,37 @@ import org.wso2.ballerina.core.runtime.ServerConnectorMessageHandler;
 import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.StreamingCarbonMessage;
 
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
-
 /**
- * Service/Resource dispatching test class for vfs.
+ * Service dispatching test class for vfs.
  */
 public class FileServiceTest {
     private Application application;
-    private final InputStream fileContent = new ByteArrayInputStream("test".getBytes(StandardCharsets.UTF_8));
 
     @BeforeClass
     public void setup() {
-        application = EnvironmentInitializer.setup("lang/service/fileService.bal");
+        application = EnvironmentInitializer.setup("lang/service/serviceLevelVariable.bal");
     }
 
     @Test(description = "Test the exception when the service name is not provided with the file "
             + "streaming message")
     public void testServiceAvailabilityWithoutServiceName() {
         try {
-            CarbonMessage cMsg = new StreamingCarbonMessage(fileContent);
+            CarbonMessage cMsg = new StreamingCarbonMessage(null);
             cMsg.setProperty(org.wso2.carbon.messaging.Constants.PROTOCOL, Constants.PROTOCOL_FILE);
             ServerConnectorMessageHandler.handleInbound(cMsg, new TestCallback());
             Assert.fail("Expectation is not thrown when the service name is not provided in the file streaming "
                     + "message");
         } catch (BallerinaException ex) {
             Assert.assertEquals(ex.getCause().getMessage(),
-                    "error in ballerina program: service name is not found " + "with the file input stream.",
-                    "Expected error message is not received");
+                    "org.wso2.ballerina.core.exception.BallerinaException: error in ballerina program: service name "
+                        + "is not found " + "with the file input stream.", "Expected error message is not received");
         }
     }
 
     @Test(description = "Test the exception when the wrong service name is provided")
     public void testServiceAvailabilityWithWrongServiceName() {
         try {
-            CarbonMessage cMsg = new StreamingCarbonMessage(fileContent);
+            CarbonMessage cMsg = new StreamingCarbonMessage(null);
             cMsg.setProperty(org.wso2.carbon.messaging.Constants.PROTOCOL, Constants.PROTOCOL_FILE);
             cMsg.setProperty(Constants.TRANSPORT_PROPERTY_SERVICE_NAME, "abc");
             ServerConnectorMessageHandler.handleInbound(cMsg, new TestCallback());
@@ -74,37 +69,10 @@ public class FileServiceTest {
                     + "message");
         } catch (BallerinaException ex) {
             Assert.assertEquals(ex.getCause().getMessage(),
-                    "error in ballerina program: no file service is " + "registered with the service name abc",
-                    "Exception is not thrown when the service is not found " + "to serve the request");
+                    "org.wso2.ballerina.core.exception.BallerinaException: error in ballerina program: no file "
+                            + "service is " + "registered with the service name abc", "Exception is not thrown when "
+                            + "the service is not found to serve the request");
         }
-    }
-
-    @Test(description = "Test the exception when a streaming message is received to a file service which does not "
-            + "have any resources.")
-    public void testResourceAvailabilityWithCorrectServiceName() {
-        try {
-            CarbonMessage cMsg = new StreamingCarbonMessage(fileContent);
-            cMsg.setProperty(org.wso2.carbon.messaging.Constants.PROTOCOL, Constants.PROTOCOL_FILE);
-            cMsg.setProperty(Constants.TRANSPORT_PROPERTY_SERVICE_NAME, "fileServiceWithoutResource");
-            ServerConnectorMessageHandler.handleInbound(cMsg, new TestCallback());
-            Assert.fail("Expectation is not thrown when a request is send to a file service without any resources");
-        } catch (BallerinaException ex) {
-            Assert.assertEquals(ex.getCause().getMessage(),
-                    "error in ballerina program: no resource found to handle the request to Service : "
-                            + "fileServiceWithoutResource : Resource with the annotation "
-                            + Constants.ANNOTATION_NAME_ON_FILE + " to handle the file content is not found" +
-                            " in file service fileServiceWithoutResource",
-                    "Exception is not thrown when there is no resource found to handle the incoming message");
-        }
-    }
-
-    @Test(description = "Test whether the message delivery succeeds when there is a correct file service with a "
-            + "resource")
-    public void testServiceWithAResource() throws BallerinaException {
-        CarbonMessage cMsg = new StreamingCarbonMessage(fileContent);
-        cMsg.setProperty(org.wso2.carbon.messaging.Constants.PROTOCOL, Constants.PROTOCOL_FILE);
-        cMsg.setProperty(Constants.TRANSPORT_PROPERTY_SERVICE_NAME, "fileServiceWithResource");
-        ServerConnectorMessageHandler.handleInbound(cMsg, new TestCallback());
     }
 
     @AfterClass
