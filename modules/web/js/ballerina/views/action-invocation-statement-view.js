@@ -18,6 +18,13 @@
 define(['lodash', 'd3','log', './simple-statement-view', './../ast/action-invocation-expression', './point', 'd3utils', './../ast/ballerina-ast-factory'],
     function (_, d3, log, SimpleStatementView, ActionInvocationExpression, Point, D3Utils, BallerinaASTFactory) {
 
+        /**
+         * Action invocation statement view.
+         * @param args {*} constructor arguments
+         * @class ActionInvocationStatementView
+         * @constructor
+         * @extends SimpleStatementView
+         */
         var ActionInvocationStatementView = function (args) {
             SimpleStatementView.call(this, args);
             this._connectorView = {};

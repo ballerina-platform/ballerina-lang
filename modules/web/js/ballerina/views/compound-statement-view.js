@@ -21,7 +21,7 @@ define(
     function (require, _, log, BallerinaStatementView, D3Utils, d3, Point) {
 
         /**
-         * Compound statement.
+         * Super view class for all compound statements e.g. if-else, try-catch etc.
          * @param args {*} arguments for the creating view
          * @class CompoundStatementView
          * @constructor

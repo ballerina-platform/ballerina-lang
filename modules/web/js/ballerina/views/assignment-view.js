@@ -24,7 +24,9 @@ define(['lodash', 'log', './simple-statement-view', './../ast/assignment', 'd3ut
          * @param {Assignment} args.model - The assignment statement model.
          * @param {Object} args.container - The HTML container to which the view should be added to.
          * @param {Object} [args.viewOptions={}] - Configuration values for the view.
+         * @class AssignmentStatementView
          * @constructor
+         * @extends SimpleStatementView
          */
         var AssignmentStatementView = function (args) {
             SimpleStatementView.call(this, args);

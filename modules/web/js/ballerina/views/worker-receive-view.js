@@ -18,6 +18,13 @@
 define(['lodash', 'd3','log', './simple-statement-view', './../ast/action-invocation-expression', './point', 'd3utils', './../ast/ballerina-ast-factory', './message'],
     function (_, d3, log, SimpleStatementView, ActionInvocationExpression, Point, D3Utils, BallerinaASTFactory, MessageView) {
 
+        /**
+         * Worker receive statement view.
+         * @param args {*} constructor arguments
+         * @class WorkerReceive
+         * @constructor
+         * @extends SimpleStatementView
+         */
         var WorkerReceive = function (args) {
             SimpleStatementView.call(this, args);
             this._connectorView = {};
