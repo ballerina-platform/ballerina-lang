@@ -100,6 +100,10 @@ public class ApplicationRegistry {
         return applications.get(appName);
     }
 
+    public Application[] getApplications() {
+        return applications.values().toArray(new Application[applications.size()]);
+    }
+
 //    public Application getDefaultApplication() {
 //        return applications.get(DEFAULT_APPLICATION);
 //    }
