@@ -22,8 +22,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.interpreter.Context;
+import org.wso2.ballerina.core.interpreter.nonblocking.BLangExecutionVisitor;
+import org.wso2.ballerina.core.interpreter.nonblocking.ModeResolver;
 import org.wso2.ballerina.core.model.Resource;
 import org.wso2.ballerina.core.model.Service;
+import org.wso2.ballerina.core.nativeimpl.connectors.BalConnectorCallback;
 import org.wso2.ballerina.core.nativeimpl.connectors.BallerinaConnectorManager;
 import org.wso2.ballerina.core.runtime.dispatching.ResourceDispatcher;
 import org.wso2.ballerina.core.runtime.dispatching.ServiceDispatcher;
@@ -51,7 +54,7 @@ public class ServerConnectorMessageHandler {
     public static void handleInbound(CarbonMessage cMsg, CarbonCallback callback) {
         // Create the Ballerina Context
         Context balContext = new Context(cMsg);
-        
+        balContext.setServerConnectorProtocol(cMsg.getProperty("PROTOCOL"));
         try {
             String protocol = (String) cMsg.getProperty(org.wso2.carbon.messaging.Constants.PROTOCOL);
             if (protocol == null) {
@@ -85,11 +88,11 @@ public class ServerConnectorMessageHandler {
                 resource = resourceDispatcher.findResource(service, cMsg, callback, balContext);
             } catch (BallerinaException ex) {
                 throw new BallerinaException("no resource found to handle the request to Service : " +
-                                             service.getSymbolName().getName() + " : " + ex.getMessage());
+                        service.getSymbolName().getName() + " : " + ex.getMessage());
             }
             if (resource == null) {
                 throw new BallerinaException("no resource found to handle the request to Service : " +
-                                             service.getSymbolName().getName());
+                        service.getSymbolName().getName());
                 // Finer details of the errors are thrown from the dispatcher itself, Ideally we shouldn't get here.
             }
 
@@ -97,20 +100,26 @@ public class ServerConnectorMessageHandler {
             BalProgramExecutor.execute(cMsg, callback, resource, service, balContext);
 
         } catch (Throwable throwable) {
-            handleError(cMsg, callback, balContext, throwable);
+            handleErrorInboundPath(cMsg, callback, balContext, throwable);
         }
     }
 
     public static void handleOutbound(CarbonMessage cMsg, CarbonCallback callback) {
+        BalConnectorCallback connectorCallback = (BalConnectorCallback) callback;
         try {
             callback.done(cMsg);
+            if (ModeResolver.getInstance().isNonblockingEnabled()) {
+                // Continue Non-Blocking
+                BLangExecutionVisitor executor = connectorCallback.getContext().getExecutor();
+                executor.continueExecution(connectorCallback.getCurrentNode().next());
+            }
         } catch (Throwable throwable) {
-            handleError(cMsg, callback, null, throwable);
+            handleErrorFromOutbound(cMsg, connectorCallback.getContext(), throwable);
         }
     }
 
-    private static void handleError(CarbonMessage cMsg, CarbonCallback callback, Context balContext, 
-            Throwable throwable) {
+    public static void handleErrorInboundPath(CarbonMessage cMsg, CarbonCallback callback, Context balContext,
+                                              Throwable throwable) {
         String errorMsg = ErrorHandlerUtils.getErrorMessage(throwable);
         String stacktrace = ErrorHandlerUtils.getServiceStackTrace(balContext, throwable);
         String errorWithTrace = errorMsg + "\n" + stacktrace;
@@ -129,6 +138,26 @@ public class ServerConnectorMessageHandler {
             throw new BallerinaException("Cannot handle error using the error handler for : " + protocol, e);
         }
 
+    }
+
+    public static void handleErrorFromOutbound(CarbonMessage cMsg, Context balContext, Throwable throwable) {
+        String errorMsg = ErrorHandlerUtils.getErrorMessage(throwable);
+        String stacktrace = ErrorHandlerUtils.getServiceStackTrace(balContext, throwable);
+        String errorWithTrace = errorMsg + "\n" + stacktrace;
+        log.error(errorWithTrace);
+        outStream.println(errorWithTrace);
+
+        Object protocol = balContext.getServerConnectorProtocol();
+        Optional<ServerConnectorErrorHandler> optionalErrorHandler =
+                BallerinaConnectorManager.getInstance().getServerConnectorErrorHandler((String) protocol);
+        try {
+            optionalErrorHandler
+                    .orElseGet(DefaultServerConnectorErrorHandler::getInstance)
+                    .handleError(new BallerinaException(errorMsg, throwable.getCause(), balContext), cMsg,
+                            balContext.getBalCallback());
+        } catch (Exception e) {
+            throw new BallerinaException("Cannot handle error using the error handler for : " + protocol, e);
+        }
     }
 
 }

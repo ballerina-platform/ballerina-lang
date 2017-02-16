@@ -51,14 +51,19 @@ public class SystemTest {
     private final String printFuncName = "testPrintAndPrintln";
 
     private PrintStream original;
+    Logger rootLogger;
+    TestLogAppender testLogAppender;
 
-    @BeforeClass
+    @BeforeClass(alwaysRun = true)
     public void setup() {
+        rootLogger = Logger.getRootLogger();
         original = System.out;
         bFile = ParserUtils.parseBalFile("samples/systemTest.bal");
+        rootLogger.getLoggerRepository().getLogger("org.wso2.ballerina.nativeimpl.lang.system")
+                .setLevel(Level.ALL);
     }
 
-    @AfterClass
+    @AfterClass(alwaysRun = true)
     public void cleanup() throws IOException {
         System.setOut(original);
     }
@@ -173,11 +178,9 @@ public class SystemTest {
 
     @Test
     public void testLog() {
-        Logger rootLogger = Logger.getRootLogger();
-        TestLogAppender testLogAppender = new TestLogAppender();
+        testLogAppender = new TestLogAppender();
+        rootLogger.addAppender(testLogAppender);
         try {
-            rootLogger.setLevel(Level.ALL);
-            rootLogger.addAppender(testLogAppender);
             BValueType[] args = {new BLong(100), new BDouble(10.1)};
             Functions.invoke(bFile, "testLog", args);
             // We are not expecting boolean log in event list.
@@ -189,17 +192,14 @@ public class SystemTest {
             Assert.assertEquals(testLogAppender.events.get(4).getLevel(), Level.ERROR);
         } finally {
             rootLogger.removeAppender(testLogAppender);
-            rootLogger.setLevel(Level.INFO);
         }
     }
 
     @Test
     public void testFunctionTimes() {
-        Logger rootLogger = Logger.getRootLogger();
-        TestLogAppender testLogAppender = new TestLogAppender();
+        testLogAppender = new TestLogAppender();
+        rootLogger.addAppender(testLogAppender);
         try {
-            rootLogger.setLevel(Level.ALL);
-            rootLogger.addAppender(testLogAppender);
             Functions.invoke(bFile, "testTimeFunctions");
             // We are not expecting boolean log in event list.
             Assert.assertEquals(testLogAppender.getEvents().size(), 3, "Time Logging events didn't match.");
@@ -208,7 +208,6 @@ public class SystemTest {
             Assert.assertTrue(!((String) testLogAppender.events.get(2).getMessage()).endsWith("[INFO] 0"));
         } finally {
             rootLogger.removeAppender(testLogAppender);
-            rootLogger.setLevel(Level.INFO);
         }
 
     }
@@ -251,7 +250,9 @@ public class SystemTest {
 
         @Override
         protected void append(LoggingEvent loggingEvent) {
-            events.add(loggingEvent);
+            if (loggingEvent.getLoggerName().contains("ballerina")) {
+                events.add(loggingEvent);
+            }
         }
 
         @Override

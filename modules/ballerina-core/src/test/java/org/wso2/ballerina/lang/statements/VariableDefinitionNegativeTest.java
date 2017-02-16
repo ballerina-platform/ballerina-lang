@@ -39,7 +39,7 @@ public class VariableDefinitionNegativeTest {
     }
     
     @Test(expectedExceptions = {SemanticException.class },
-            expectedExceptionsMessageRegExp = "undeclared-variables.bal:2: : undefined symbol 'a'")
+            expectedExceptionsMessageRegExp = "undeclared-variables.bal:2: undefined symbol 'a'")
     public void testUndeclaredVariables() {
         ParserUtils.parseBalFile("lang/statements/undeclared-variables.bal");
     }
