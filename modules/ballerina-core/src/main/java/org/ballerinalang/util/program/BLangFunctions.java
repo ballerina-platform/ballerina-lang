@@ -22,14 +22,8 @@ import org.wso2.ballerina.core.interpreter.CallableUnitInfo;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.interpreter.RuntimeEnvironment;
 import org.wso2.ballerina.core.interpreter.StackFrame;
-import org.wso2.ballerina.core.interpreter.StackVarLocation;
 import org.wso2.ballerina.core.model.BLangProgram;
-import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.Function;
-import org.wso2.ballerina.core.model.SymbolName;
-import org.wso2.ballerina.core.model.expressions.Expression;
-import org.wso2.ballerina.core.model.expressions.FunctionInvocationExpr;
-import org.wso2.ballerina.core.model.expressions.VariableRefExpr;
 import org.wso2.ballerina.core.model.types.BType;
 import org.wso2.ballerina.core.model.types.BTypes;
 import org.wso2.ballerina.core.model.values.BBoolean;
@@ -43,8 +37,6 @@ import org.wso2.ballerina.core.model.values.BMessage;
 import org.wso2.ballerina.core.model.values.BString;
 import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.model.values.BXML;
-
-import java.util.Arrays;
 
 /**
  * This class contains helper methods to invoke Ballerina functions.
@@ -116,105 +108,6 @@ public class BLangFunctions {
 
         bContext.getControlStack().popFrame();
         return returnValues;
-    }
-
-
-    /**
-     * Invokes a Ballerina function defined in the given language model.
-     *
-     * @param bFile        parsed, analyzed and linked object model
-     * @param functionName name of the function to be invoked
-     * @param args         function arguments
-     * @return return values from the function
-     */
-    public static BValue[] invoke(BallerinaFile bFile, String functionName, BValue[] args, Context bContext) {
-
-        // 1) Check whether the given function is defined in the source file.
-        Function function = getFunction(bFile.getFunctions(), functionName, args);
-        if (function == null) {
-            throw new RuntimeException("Function '" + functionName + "' is not defined");
-        }
-
-        if (function.getParameterDefs().length != args.length) {
-            throw new RuntimeException("Size of input argument array is not equal to size of function parameters");
-        }
-
-        // 2) Create variable reference expressions for each argument value;
-        Expression[] exprs = new Expression[args.length];
-        for (int i = 0; i < args.length; i++) {
-            VariableRefExpr variableRefExpr = new VariableRefExpr(function.getNodeLocation(),
-                    new SymbolName("arg" + i));
-
-            variableRefExpr.setVariableDef(function.getParameterDefs()[i]);
-            StackVarLocation location = new StackVarLocation(i);
-            variableRefExpr.setMemoryLocation(location);
-            // TODO Set the type
-//            variableRefExpr.setType();
-            exprs[i] = variableRefExpr;
-        }
-
-        // 3) Create a function invocation expression
-        FunctionInvocationExpr funcIExpr = new FunctionInvocationExpr(
-                function.getNodeLocation(), functionName, null, bFile.getPackagePath(), exprs);
-        funcIExpr.setOffset(args.length);
-        funcIExpr.setCallableUnit(function);
-
-        // 4) Prepare function arguments
-        BValue[] functionArgs = args;
-        if (function.getReturnParameters().length != 0) {
-            functionArgs = Arrays.copyOf(args, args.length + function.getReturnParameters().length);
-        }
-
-        // 5) Create the RuntimeEnvironment
-        RuntimeEnvironment runtimeEnv = RuntimeEnvironment.get(bFile);
-
-        // 6) Create the control stack and the stack frame to invoke the functions
-        CallableUnitInfo functionInfo = new CallableUnitInfo(function.getName(), function.getPackagePath(),
-                function.getNodeLocation());
-
-        StackFrame currentStackFrame = new StackFrame(functionArgs, new BValue[0], functionInfo);
-        bContext.getControlStack().pushFrame(currentStackFrame);
-
-        // 7) Invoke the function
-        BLangExecutor executor = new BLangExecutor(runtimeEnv, bContext);
-        return funcIExpr.executeMultiReturn(executor);
-
-    }
-
-    /**
-     * Invokes a Ballerina function defined in the given language model.
-     *
-     * @param bFile        parsed, analyzed and linked object model
-     * @param functionName name of the function to be invoked
-     * @return return values from the function
-     */
-    public static BValue[] invoke(BallerinaFile bFile, String functionName) {
-        BValue[] args = {};
-        return invoke(bFile, functionName, args, new Context());
-    }
-
-    /**
-     * Invokes a Ballerina function defined in the given language model.
-     *
-     * @param bFile        parsed, analyzed and linked object model
-     * @param functionName name of the function to be invoked
-     * @return return values from the function
-     */
-    public static BValue[] invoke(BallerinaFile bFile, String functionName, BValue[] args) {
-        return invoke(bFile, functionName, args, new Context());
-    }
-
-    /**
-     * Invokes a Ballerina function defined in the given language model, given the ballerina context.
-     *
-     * @param bFile        Parsed, analyzed and linked object model
-     * @param functionName Name of the function to be invoked
-     * @param bContext     Ballerina Context
-     * @return return values from the function
-     */
-    public static BValue[] invoke(BallerinaFile bFile, String functionName, Context bContext) {
-        BValue[] args = {};
-        return invoke(bFile, functionName, args, bContext);
     }
 
     /**
