@@ -110,13 +110,9 @@ public class HTTPServicesRegistry {
                 throw new BallerinaException(
                         "ServerConnector interface not registered for : " + listenerInterface);
             }
-            try {
-
-                connector.start(Collections.emptyMap());
-            } catch (ServerConnectorException e) {
-                throw new BallerinaException("Cannot start the connector for the interface : " +
-                                                     listenerInterface, e);
-            }
+            // Delay the startup until all services are deployed
+            BallerinaConnectorManager.getInstance().addStartupDelayedServerConnector(connector,
+                                                                                     Collections.emptyMap());
         }
         if (servicesOnInterface.containsKey(basePath)) {
             throw new BallerinaException(
