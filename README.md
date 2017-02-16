@@ -1,2 +1,2 @@
 # distribution
-Ballerina Distribution
+Ballerina Composer Distribution
