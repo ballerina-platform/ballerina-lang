@@ -25,7 +25,6 @@
 
     <fileSets>
         <fileSet>
-            <!--<directory>${project.build.directory}/alternateLocation/ballarina-${ballerina.distribution.version}</directory>-->
             <directory>${project.build.directory}/extracted-distributions/ballerina-${ballerina.distribution.version}</directory>
             <outputDirectory>.</outputDirectory>
         </fileSet>
@@ -34,18 +33,6 @@
     <files>
         <file>
             <source>ballerina-home/bin/version.txt</source>
-            <outputDirectory>bin/</outputDirectory>
-            <filtered>true</filtered>
-            <fileMode>644</fileMode>
-        </file>
-        <file>
-            <source>ballerina-home/bin/ballerina</source>
-            <outputDirectory>bin/</outputDirectory>
-            <filtered>true</filtered>
-            <fileMode>755</fileMode>
-        </file>
-        <file>
-            <source>ballerina-home/bin/ballerina.bat</source>
             <outputDirectory>bin/</outputDirectory>
             <filtered>true</filtered>
             <fileMode>644</fileMode>
