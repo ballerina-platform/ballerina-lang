@@ -165,6 +165,7 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
     protected LinkedNode next;
     private ExecutorService executor;
     private ForkJoinInvocationStatus forkJoinInvocationStatus;
+    private boolean completed;
 
     public BLangAbstractExecutionVisitor(RuntimeEnvironment runtimeEnv, Context bContext) {
         this.runtimeEnv = runtimeEnv;
@@ -626,6 +627,7 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
         if (logger.isDebugEnabled()) {
             logger.debug("Executing EndNode");
         }
+        completed = true;
         next = null;
     }
 
@@ -634,6 +636,7 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
         if (logger.isDebugEnabled()) {
             logger.debug("Executing ExitNode");
         }
+        completed = true;
         next = null;
         Runtime.getRuntime().exit(0);
     }
@@ -1307,9 +1310,20 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
         if (logger.isDebugEnabled()) {
             logger.debug("Executing Native Action - " + invokeNativeActionNode.getCallableUnit().getName());
         }
-        BalConnectorCallback connectorCallback = new BalConnectorCallback(bContext, invokeNativeActionNode);
-        invokeNativeActionNode.getCallableUnit().execute(bContext, connectorCallback);
-        next = null;
+        try {
+            if (invokeNativeActionNode.getCallableUnit().isNonBlockingAction()) {
+                BalConnectorCallback connectorCallback = new BalConnectorCallback(bContext, invokeNativeActionNode);
+                invokeNativeActionNode.getCallableUnit().execute(bContext, connectorCallback);
+                // Release current thread.
+                next = null;
+            } else {
+                invokeNativeActionNode.getCallableUnit().execute(bContext);
+                next = invokeNativeActionNode.next;
+            }
+        } catch (RuntimeException e) {
+            BException bException = new BException(e.getMessage());
+            handleBException(bException);
+        }
     }
 
     @Override
@@ -1709,5 +1723,14 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
 
     private String getNodeLocation(NodeLocation nodeLocation) {
         return nodeLocation != null ? nodeLocation.getFileName() + ":" + nodeLocation.getLineNumber() : "";
+    }
+
+    /**
+     * Indicate whether execution is completed or not.
+     *
+     * @return true, if execution is completed.
+     */
+    public boolean isExecutionCompleted() {
+        return completed;
     }
 }
