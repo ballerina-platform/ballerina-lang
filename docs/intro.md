@@ -10,11 +10,12 @@ Ballerina is:
 
 * **Beautiful**. Ballerina's visual editor allows you to easily draw your integration scenario and all the components that need to interact by dragging and dropping elements onto a canvas. As you create the diagram, the integration code is written for you, and at any time you can switch to the Source view to see and modify the code. The Ballerina language syntax was modeled after the best practices of popular languages, so it's intuitive and easy to work with.   
 
-#### You can create your integration in Design view:
+**You can create your integration in Design view:**
 
 ![alt text](images/EchoDesign.png "Design view")
 
-#### And go to Source view to edit the code that's generated:
+
+**And go to Source view to edit the code that's generated:**
 
 ![alt text](images/EchoSource.png "Source view")
 
