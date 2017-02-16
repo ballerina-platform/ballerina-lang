@@ -32,7 +32,6 @@ import org.wso2.ballerina.core.nativeimpl.connectors.BallerinaConnectorManager;
 import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.DefaultCarbonMessage;
 import org.wso2.carbon.messaging.Headers;
-import org.wso2.carbon.messaging.MessageDataSource;
 import org.wso2.carbon.messaging.exceptions.ClientConnectorException;
 
 import java.net.MalformedURLException;
@@ -119,8 +118,6 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
 
         try {
             BalConnectorCallback balConnectorCallback = new BalConnectorCallback(context);
-            // Handle the message built scenario
-            handleIfMessageBuilt(message);
             org.wso2.carbon.messaging.ClientConnector clientConnector = BallerinaConnectorManager.getInstance().
                     getClientConnector(Constants.PROTOCOL_HTTP);
 
@@ -151,8 +148,6 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
 
     void executeNonBlockingAction(Context context, CarbonMessage message, BalConnectorCallback balConnectorCallback)
             throws ClientConnectorException {
-        // Handle the message built scenario
-        handleIfMessageBuilt(message);
         org.wso2.carbon.messaging.ClientConnector clientConnector = BallerinaConnectorManager.getInstance().
                 getClientConnector(Constants.PROTOCOL_HTTP);
 
@@ -201,28 +196,4 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
         }
     }
 
-    /**
-     * Handle If the given carbon message is already built.
-     *
-     * @param message Carbon message instance to process.
-     */
-    private void handleIfMessageBuilt(CarbonMessage message) {
-        // Handle the message built scenario
-        if (message.isAlreadyRead()) {
-            MessageDataSource messageDataSource = message.getMessageDataSource();
-            if (messageDataSource != null) {
-                messageDataSource.serializeData();
-                message.setEndOfMsgAdded(true);
-                message.getHeaders().remove(Constants.HTTP_CONTENT_LENGTH);
-                message.getHeaders()
-                        .set(Constants.HTTP_CONTENT_LENGTH, String.valueOf(message.getFullMessageLength()));
-
-            } else {
-                message.setEndOfMsgAdded(true);
-                if (logger.isDebugEnabled()) {
-                    logger.debug("Sending an empty message");
-                }
-            }
-        }
-    }
 }
