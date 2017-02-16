@@ -215,12 +215,8 @@ define(['lodash', 'log', './ballerina-view', './variables-view', './type-struct-
                             var functionSchema = self.getFunctionSchema(nodeBeingDragged, self.getDiagramRenderingContext());
                             var leftOperand = nodeBeingDragged.getChildren()[0];
                             _.forEach(functionSchema.returnType, function (aReturnType) {
-                                var variableName = aReturnType.name + self.getUUID();
-                                leftExpString = ',' + variableName;
-                                var args = {variableReferenceName: variableName};
-                                self.getModel().getBlockStatement().addVariableDeclaration(variableName, aReturnType.type);
-                                var variableReferenceExpression = BallerinaASTFactory.createVariableReferenceExpression(args);
-                                leftOperand.addChild(variableReferenceExpression);
+                                var structFieldAccessExp = BallerinaASTFactory.createStructFieldAccessExpression();
+                                leftOperand.addChild(structFieldAccessExp);
                             });
                             var rightOperand = nodeBeingDragged.getChildren()[1];
                             rightOperand.setRightOperandExpressionString('');
