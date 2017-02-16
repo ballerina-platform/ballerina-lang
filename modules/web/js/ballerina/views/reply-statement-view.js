@@ -24,7 +24,9 @@ define(['lodash', 'log', './simple-statement-view', './../ast/reply-statement', 
          * @param {ReplyStatement} args.model - The reply statement model.
          * @param {Object} args.container - The HTML container to which the view should be added to.
          * @param {Object} [args.viewOptions={}] - Configuration values for the view.
+         * @class ReplyStatementView
          * @constructor
+         * @extends SimpleStatementView
          */
         var ReplyStatementView = function (args) {
             SimpleStatementView.call(this, args);
