@@ -19,18 +19,14 @@
 package org.wso2.ballerina.core;
 
 import org.wso2.ballerina.core.interpreter.RuntimeEnvironment;
-import org.wso2.ballerina.core.model.Application;
+import org.wso2.ballerina.core.model.BLangPackage;
 import org.wso2.ballerina.core.model.BLangProgram;
-import org.wso2.ballerina.core.model.BallerinaFile;
-import org.wso2.ballerina.core.model.Package;
-import org.wso2.ballerina.core.model.Resource;
 import org.wso2.ballerina.core.model.Service;
 import org.wso2.ballerina.core.nativeimpl.connectors.BallerinaConnectorManager;
 import org.wso2.ballerina.core.runtime.MessageProcessor;
 import org.wso2.ballerina.core.runtime.dispatching.HTTPResourceDispatcher;
 import org.wso2.ballerina.core.runtime.dispatching.HTTPServiceDispatcher;
 import org.wso2.ballerina.core.runtime.internal.BuiltInNativeConstructLoader;
-import org.wso2.ballerina.core.runtime.registry.ApplicationRegistry;
 import org.wso2.ballerina.core.runtime.registry.DispatcherRegistry;
 import org.wso2.ballerina.core.utils.BTestUtils;
 
@@ -39,7 +35,7 @@ import org.wso2.ballerina.core.utils.BTestUtils;
  */
 public class EnvironmentInitializer {
 
-    public static Application setup(String sourcePath) {
+    public static BLangProgram setup(String sourcePath) {
         // Initialize server connectors before starting the test cases
         BallerinaConnectorManager.getInstance().initialize(new MessageProcessor());
         BallerinaConnectorManager.getInstance().registerServerConnectorErrorHandler(new TestErrorHandler());
@@ -51,32 +47,30 @@ public class EnvironmentInitializer {
         BuiltInNativeConstructLoader.loadConstructs();
 
         BLangProgram bLangProgram = BTestUtils.parseBalFile(sourcePath);
-        BallerinaFile bFile = bLangProgram.getLibraryPackages()[0].getBallerinaFiles()[0];
-        RuntimeEnvironment runtimeEnv = RuntimeEnvironment.get(bFile);
 
-        Application app = new Application("default");
-        app.setRuntimeEnv(runtimeEnv);
-
-        Package aPackage;
-        if (bFile.getPackagePath() != null) {
-            aPackage = new Package(bFile.getPackagePath());
-        } else {
-            aPackage = new Package("default");
-        }
-        aPackage.addFiles(bFile);
-        app.addPackage(aPackage);
-
-        for (Service service : bFile.getServices()) {
-            for (Resource resource : service.getResources()) {
-//                resource.setApplication(app);
+        for (BLangPackage servicePackage : bLangProgram.getPackages()) {
+            for (Service service : servicePackage.getServices()) {
+                service.setBLangProgram(bLangProgram);
+                DispatcherRegistry.getInstance().getServiceDispatchers().forEach((protocol, dispatcher) ->
+                        dispatcher.serviceRegistered(service));
             }
         }
-        ApplicationRegistry.getInstance().registerApplication(app);
-        return app;
+
+        RuntimeEnvironment runtimeEnv = RuntimeEnvironment.get(bLangProgram);
+        bLangProgram.setRuntimeEnvironment(runtimeEnv);
+
+        return bLangProgram;
     }
 
-    public static void cleanup(Application application) {
-        ApplicationRegistry.getInstance().unregisterApplication(application);
+    public static void cleanup(BLangProgram bLangProgram) {
+
+        for (BLangPackage bLangPackage : bLangProgram.getPackages()) {
+            for (Service service : bLangPackage.getServices()) {
+                DispatcherRegistry.getInstance().getServiceDispatchers().forEach((protocol, dispatcher) -> {
+                    dispatcher.serviceUnregistered(service);
+                });
+            }
+        }
         DispatcherRegistry.getInstance().clearDispatchers();
     }
 

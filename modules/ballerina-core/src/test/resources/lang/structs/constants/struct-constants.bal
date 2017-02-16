@@ -1,4 +1,4 @@
-package lang.structs;
+package lang.structs.constants;
 
 const Person p = 10;
 

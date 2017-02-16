@@ -27,7 +27,7 @@ import org.wso2.ballerina.core.utils.BTestUtils;
 public class AssignStmtNegativeTest {
 
     @Test(expectedExceptions = {SemanticException.class},
-            expectedExceptionsMessageRegExp = "incompatible-type-assignment.bal:8: incompatible types: 'int' " +
+            expectedExceptionsMessageRegExp = "incompatible-type-assignment.bal:6: incompatible types: 'int' " +
                     "cannot be converted to 'boolean'")
     public void testIncompatibleTypeAssignment() {
         BTestUtils.parseBalFile("lang/statements/assignment/incompatible-type-assignment.bal");

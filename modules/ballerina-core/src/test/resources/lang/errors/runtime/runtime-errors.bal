@@ -1,4 +1,4 @@
-package test.lang;
+package lang.errors.runtime;
 
 function arrayIndexOutOfBoundTest() {
     string name;

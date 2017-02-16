@@ -1,4 +1,4 @@
-package lang.expressions;
+package lang.expressions.type.incompatible.eq;
 
 function checkEqulalityOfTwoTypes() (boolean){
 	int a;

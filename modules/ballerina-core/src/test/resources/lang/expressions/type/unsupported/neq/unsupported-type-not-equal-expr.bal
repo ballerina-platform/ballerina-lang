@@ -1,4 +1,4 @@
-package lang.expressions;
+package lang.expressions.type.unsupported.neq;
 
 function checkEqulalityOfUnsupportedType() (boolean){
 	json j1;
@@ -6,5 +6,5 @@ function checkEqulalityOfUnsupportedType() (boolean){
 	j1 = `{"name":"Jack"}`;
 	j2 = `{"state":"CA"}`;
 	
-	return j1 == j2;
+	return j1 != j2;
 }

@@ -24,6 +24,7 @@ import org.wso2.ballerina.core.interpreter.RuntimeEnvironment;
 import org.wso2.ballerina.core.interpreter.StackFrame;
 import org.wso2.ballerina.core.model.BLangProgram;
 import org.wso2.ballerina.core.model.Function;
+import org.wso2.ballerina.core.model.ParameterDef;
 import org.wso2.ballerina.core.model.types.BType;
 import org.wso2.ballerina.core.model.types.BTypes;
 import org.wso2.ballerina.core.model.values.BBoolean;
@@ -90,8 +91,19 @@ public class BLangFunctions {
 
         BValue[] argValues = new BValue[function.getStackFrameSize()];
 
+        int stackIndex = 0;
         for (int i = 0; i < args.length; i++) {
             argValues[i] = args[i];
+            stackIndex++;
+        }
+
+        for (ParameterDef returnParam : function.getReturnParameters()) {
+            if (returnParam.getName() == null) {
+                break;
+            }
+
+            argValues[stackIndex] = returnParam.getType().getDefaultValue();
+            stackIndex++;
         }
 
         BValue[] returnValues = new BValue[function.getReturnParameters().length];

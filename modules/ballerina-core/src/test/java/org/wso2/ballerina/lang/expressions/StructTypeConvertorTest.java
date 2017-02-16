@@ -18,43 +18,43 @@
 package org.wso2.ballerina.lang.expressions;
 
 
-import org.ballerinalang.util.program.BLangFunctions;
-import org.testng.Assert;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Test;
-import org.wso2.ballerina.core.model.BLangProgram;
-import org.wso2.ballerina.core.model.values.BInteger;
-import org.wso2.ballerina.core.model.values.BMap;
-import org.wso2.ballerina.core.model.values.BString;
-import org.wso2.ballerina.core.model.values.BStruct;
-import org.wso2.ballerina.core.model.values.BValue;
-import org.wso2.ballerina.core.utils.BTestUtils;
+//import org.ballerinalang.util.program.BLangFunctions;
+//import org.testng.Assert;
+//import org.testng.annotations.BeforeClass;
+//import org.testng.annotations.Test;
+//import org.wso2.ballerina.core.model.BLangProgram;
+//import org.wso2.ballerina.core.model.values.BInteger;
+//import org.wso2.ballerina.core.model.values.BMap;
+//import org.wso2.ballerina.core.model.values.BString;
+//import org.wso2.ballerina.core.model.values.BStruct;
+//import org.wso2.ballerina.core.model.values.BValue;
+//import org.wso2.ballerina.core.utils.BTestUtils;
 
 
 public class StructTypeConvertorTest {
-    private BLangProgram bLangProgram;
+    //private BLangProgram bLangProgram;
 
-    @BeforeClass
-    public void setup() {
-        bLangProgram = BTestUtils.parseBalFile("lang/expressions/struct-type-convertor.bal");
-    }
-
-    @Test
-    public void testStructConvertor() {
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testStructConvertor");
-        Assert.assertTrue(returns[0] instanceof BStruct);
-        BStruct bStruct = (BStruct) returns[0];
-        final String expectedName = "Jack";
-        Assert.assertEquals(bStruct.getValue(0).stringValue(), expectedName);
-        Assert.assertTrue(bStruct.getValue(1) instanceof BMap);
-        final BMap<BString, BValue> resultMap = (BMap<BString, BValue>) bStruct.getValue(1);
-        Assert.assertEquals(resultMap.get(new BString("country")).stringValue(), "USA");
-        Assert.assertEquals(resultMap.get(new BString("state")).stringValue(), "CA");
-        Assert.assertTrue(bStruct.getValue(2) instanceof BInteger);
-        final String expectedAge = "25";
-        Assert.assertEquals(bStruct.getValue(2).stringValue(), expectedAge);
-
-    }
+//    @BeforeClass
+//    public void setup() {
+//        bLangProgram = BTestUtils.parseBalFile("lang/expressions/struct-type-convertor.bal");
+//    }
+//
+//    @Test
+//    public void testStructConvertor() {
+//        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testStructConvertor");
+//        Assert.assertTrue(returns[0] instanceof BStruct);
+//        BStruct bStruct = (BStruct) returns[0];
+//        final String expectedName = "Jack";
+//        Assert.assertEquals(bStruct.getValue(0).stringValue(), expectedName);
+//        Assert.assertTrue(bStruct.getValue(1) instanceof BMap);
+//        final BMap<BString, BValue> resultMap = (BMap<BString, BValue>) bStruct.getValue(1);
+//        Assert.assertEquals(resultMap.get(new BString("country")).stringValue(), "USA");
+//        Assert.assertEquals(resultMap.get(new BString("state")).stringValue(), "CA");
+//        Assert.assertTrue(bStruct.getValue(2) instanceof BInteger);
+//        final String expectedAge = "25";
+//        Assert.assertEquals(bStruct.getValue(2).stringValue(), expectedAge);
+//
+//    }
 
 
 }

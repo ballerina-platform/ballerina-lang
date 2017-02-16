@@ -136,15 +136,15 @@ public class StructTest {
     }
     
     @Test(description = "Test defining structs with duplicate name",
-            expectedExceptions = {BallerinaException.class},
-            expectedExceptionsMessageRegExp = "duplicate-structs.bal:4: undefined type 'Person'")
+            expectedExceptions = {SemanticException.class},
+            expectedExceptionsMessageRegExp = "duplicate-structs.bal:7: redeclared symbol 'Department'")
     public void testDuplicateStructDefinitions() {
         BTestUtils.parseBalFile("lang/structs/duplicate-structs.bal");
     }
     
     @Test(description = "Test defining structs with duplicate fields",
-            expectedExceptions = {BallerinaException.class},
-            expectedExceptionsMessageRegExp = "duplicate-fields.bal:5: undefined type 'Person'")
+            expectedExceptions = {SemanticException.class},
+            expectedExceptionsMessageRegExp = "duplicate-fields.bal:4: redeclared symbol 'id'")
     public void testStructWithDuplicateFields() {
         BTestUtils.parseBalFile("lang/structs/duplicate-fields.bal");
     }
@@ -173,9 +173,9 @@ public class StructTest {
     
     @Test(description = "Test defining a struct constant",
             expectedExceptions = {SemanticException.class},
-            expectedExceptionsMessageRegExp = "struct-constants.bal:3: invalid type 'Person'")
+            expectedExceptionsMessageRegExp = "lang/structs/constants/struct-constants.bal:3: invalid type 'Person'")
     public void testStructConstant() {
-        BTestUtils.parseBalFile("lang/structs/struct-constants.bal");
+        BTestUtils.parseBalFile("lang/structs/constants");
     }
     
     @Test(description = "Test initializing a struct with undeclared field",
