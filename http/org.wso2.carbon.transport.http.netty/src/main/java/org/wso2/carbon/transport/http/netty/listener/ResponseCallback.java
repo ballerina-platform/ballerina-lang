@@ -29,7 +29,6 @@ import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.DefaultCarbonMessage;
-import org.wso2.carbon.messaging.MessageDataSource;
 import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.common.Util;
 import org.wso2.carbon.transport.http.netty.internal.HTTPTransportContextHolder;
@@ -56,7 +55,9 @@ public class ResponseCallback implements CarbonCallback {
 
         boolean connectionCloseAfterResponse = shouldConnectionClose(cMsg);
 
-        handleResponsesWithoutContentLength(cMsg);
+        Util.prepareBuiltMessageForTransfer(cMsg);
+        Util.setupTransferEncodingForResponse(cMsg, requestDataHolder);
+
         if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
             HTTPTransportContextHolder.getInstance().getHandlerExecutor().executeAtSourceResponseReceiving(cMsg);
         }
@@ -134,21 +135,4 @@ public class ResponseCallback implements CarbonCallback {
         return false;
     }
 
-    private void handleResponsesWithoutContentLength(CarbonMessage cMsg) {
-        if (cMsg.isAlreadyRead()) {
-            MessageDataSource messageDataSource = cMsg.getMessageDataSource();
-            if (messageDataSource != null) {
-                messageDataSource.serializeData();
-                cMsg.setEndOfMsgAdded(true);
-                cMsg.getHeaders().remove(Constants.HTTP_CONTENT_LENGTH);
-            } else {
-                logger.error("Message is already built but cannot find the MessageDataSource");
-            }
-        }
-        if (cMsg.getHeader(Constants.HTTP_TRANSFER_ENCODING) == null
-                && cMsg.getHeader(Constants.HTTP_CONTENT_LENGTH) == null) {
-            cMsg.setHeader(Constants.HTTP_CONTENT_LENGTH, String.valueOf(cMsg.getFullMessageLength()));
-
-        }
-    }
 }

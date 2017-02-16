@@ -31,6 +31,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.carbon.transport.http.netty.config.RequestSizeValidationConfiguration;
+import org.wso2.carbon.transport.http.netty.internal.HTTPTransportContextHolder;
 import org.wso2.carbon.transport.http.netty.listener.CustomHttpObjectAggregator;
 import org.wso2.carbon.transport.http.netty.listener.CustomHttpRequestDecoder;
 import org.wso2.carbon.transport.http.netty.listener.SourceHandler;
@@ -93,6 +94,15 @@ public class HTTPProtocolNegotiationHandler extends ApplicationProtocolNegotiati
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
         if (ctx != null && ctx.channel().isActive()) {
             ctx.writeAndFlush(Unpooled.EMPTY_BUFFER).addListener(ChannelFutureListener.CLOSE);
+        }
+    }
+
+    @Override
+    public void channelActive(final ChannelHandlerContext ctx) throws Exception {
+        // Start the server connection Timer
+        if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
+            HTTPTransportContextHolder.getInstance().getHandlerExecutor()
+                    .executeAtSourceConnectionInitiation(Integer.toString(ctx.hashCode()));
         }
     }
 }
