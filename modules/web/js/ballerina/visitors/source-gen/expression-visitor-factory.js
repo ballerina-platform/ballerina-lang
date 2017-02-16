@@ -16,9 +16,11 @@
  * under the License.
  */
 define(['lodash', 'log', 'event_channel', '../../ast/module', './function-invocation-visitor',
-        './arithmetic-expression-visitor', './logical-expression-visitor'],
+        './arithmetic-expression-visitor', './logical-expression-visitor', './struct-field-access-expression-visitor',
+        './variable-reference-expression-visitor','./reference-type-init-expression-visitor'],
     function (_, log, EventChannel, AST, FunctionInvocationVisitor, ArithmeticExpressionVisitor,
-              LogicalExpressionVisitor) {
+              LogicalExpressionVisitor, StructFieldAccessExpressionVisitor, VariableReferenceExpressionVisitor,
+              ReferenceTypeInitExpressionVisitor) {
 
         var ExpressionViewFactory = function () {
         };
@@ -31,6 +33,12 @@ define(['lodash', 'log', 'event_channel', '../../ast/module', './function-invoca
                 return new ArithmeticExpressionVisitor(_.get(args, "parent"));
             } else if (expression instanceof AST.LogicalExpression) {
                 return new LogicalExpressionVisitor(_.get(args, "parent"));
+            } else if (expression instanceof AST.StructFieldAccessExpression) {
+                return new StructFieldAccessExpressionVisitor(_.get(args, "parent"));
+            }else if (expression instanceof AST.VariableReferenceExpression) {
+                return new VariableReferenceExpressionVisitor(_.get(args, "parent"));
+            }else if (expression instanceof AST.ReferenceTypeInitExpression) {
+                return new ReferenceTypeInitExpressionVisitor(_.get(args, "parent"));
             }
         };
 

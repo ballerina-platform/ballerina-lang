@@ -23,7 +23,7 @@ import io.swagger.models.parameters.PathParameter;
 import org.wso2.ballerina.core.model.Annotation;
 import org.wso2.ballerina.core.model.ParameterDef;
 import org.wso2.ballerina.core.model.Resource;
-import org.wso2.ballerina.core.runtime.dispatching.Constants;
+import org.wso2.ballerina.core.runtime.dispatching.http.Constants;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;

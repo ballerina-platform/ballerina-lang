@@ -2,7 +2,8 @@
     color:#446191;
 }
 .btn-remove {
-    color:#738ebc;
+    color:#3d3d3d;
+    float:right;
 }
 .selector {
     margin: auto;
@@ -32,13 +33,13 @@
     color: #3d3d3d;
 }
 
-.struct-name {
+.type-mapper-icon {
     padding: 10px;
 }
+
 .struct {
-    cursor: move;
     border: 1px solid gray;
-    width: 200px;
+    width: 400px;
     height: auto;
     background: #3d3d3d;
     color: #ffffff;
@@ -47,11 +48,70 @@
 .property {
     padding: 5;
     font-size: 16px;
-    border: 1px solid #D8D8D8;
     background-color: #ffffff;
-    cursor: pointer;
+    color: black;
 }
 
 svg.plumbConnect path {
     stroke:#3d3d3d;
+}
+
+.jstree-default .jstree-last {
+    background: #ffffff;
+}
+
+.typeMapperList {
+    display: none;
+}
+
+.tree-container{
+    background: #ffffff;
+}
+
+.jstree-default .jstree-hovered {
+    color : #000000;
+}
+
+.jstree-default .jstree-clicked {
+    background : #ffffff;
+    color: #000000;
+}
+
+.func {
+    border: 1px solid gray;
+    width: 400px;
+    height: auto;
+    background: #3d3d3d;
+    color: #ffffff;
+    position: absolute;
+}
+
+.func-property {
+    padding: 5;
+    font-size: 16px;
+    background-color: #ffffff;
+    border: 2px;
+    color: black;
+}
+
+.func-in-property {
+    padding: 5;
+    font-size: 16px;
+    background-color: #ffffff;
+    border: 2px;
+    color: black;
+    cursor: pointer;
+}
+
+.func-out-property {
+    padding: 5;
+    font-size: 16px;
+    background-color: #d9d9d9;
+    border: 2px;
+    color: black;
+    cursor: pointer;
+}
+
+.jstree-themeicon {
+    display:none !important;
 }

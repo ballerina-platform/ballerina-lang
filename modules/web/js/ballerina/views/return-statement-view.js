@@ -24,7 +24,9 @@ define(['lodash', 'log', './../ast/return-statement', './simple-statement-view',
          * @param {ReturnStatement} args.model - The return statement model.
          * @param {Object} args.container - The HTML container to which the view should be added to.
          * @param {Object} [args.viewOptions={}] - Configuration values for the view.
+         * @class ReturnStatementView
          * @constructor
+         * @extends SimpleStatementView
          */
         var ReturnStatementView = function (args) {
             SimpleStatementView.call(this, args);
@@ -74,6 +76,11 @@ define(['lodash', 'log', './../ast/return-statement', './simple-statement-view',
                 getterMethod: model.getExpression,
                 setterMethod: model.setExpression
             };
+
+            this._createDebugIndicator({
+                statementGroup: statementGroup
+            });
+
             this._createPropertyPane({
                                          model: model,
                                          statementGroup: statementGroup,

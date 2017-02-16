@@ -15,8 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require','lodash', 'log', 'event_channel', './abstract-statement-source-gen-visitor', '../../ast/assignment-statement'],
-    function(require, _, log, EventChannel, AbstractStatementSourceGenVisitor, AssignmentStatement) {
+define(['require','lodash', 'log', 'event_channel', './abstract-statement-source-gen-visitor', '../../ast/worker-receive'],
+    function(require, _, log, EventChannel, AbstractStatementSourceGenVisitor, WorkerReceive) {
 
         var WorkerReceiveVisitor = function(parent){
             AbstractStatementSourceGenVisitor.call(this,parent);
@@ -25,31 +25,18 @@ define(['require','lodash', 'log', 'event_channel', './abstract-statement-source
         WorkerReceiveVisitor.prototype = Object.create(AbstractStatementSourceGenVisitor.prototype);
         WorkerReceiveVisitor.prototype.constructor = WorkerReceiveVisitor;
 
-        WorkerReceiveVisitor.prototype.canVisitAssignmentStatement = function(assignmentStatement){
-            return WorkerReceiveVisitor instanceof AssignmentStatement;
+        WorkerReceiveVisitor.prototype.canVisitWorkerReceiver = function(workerReceive){
+            return workerReceive instanceof WorkerReceive;
         };
 
-        WorkerReceiveVisitor.prototype.beginVisitAssignmentStatement = function(assignmentStatement){
-            log.debug('Begin Visit Assignment Statement');
+        WorkerReceiveVisitor.prototype.beginVisitWorkerReceiver = function(workerReceive){
+            this.appendSource(workerReceive.getReceiveStatement());
+            log.debug('Begin Visit Worker Receive Statement');
         };
 
-        WorkerReceiveVisitor.prototype.visitLeftOperandExpression = function(expression){
-            var StatementVisitorFactory = require('./statement-visitor-factory');
-            var statementVisitorFactory = new StatementVisitorFactory();
-            var statementVisitor = statementVisitorFactory.getStatementVisitor(expression, this);
-            expression.accept(statementVisitor);
-        };
-
-        WorkerReceiveVisitor.prototype.visitRightOperandExpression = function(expression){
-            var StatementVisitorFactory = require('./statement-visitor-factory');
-            var statementVisitorFactory = new StatementVisitorFactory();
-            var statementVisitor = statementVisitorFactory.getStatementVisitor(expression, this);
-            expression.accept(statementVisitor);
-        };
-
-        WorkerReceiveVisitor.prototype.endVisitAssignmentStatement = function(assignmentStatement){
+        WorkerReceiveVisitor.prototype.endVisitWorkerReceiver = function(workerReceive){
             this.getParent().appendSource(this.getGeneratedSource() + ";\n");
-            log.debug('End Visit Assignment Statement');
+            log.debug('End Visit Worker Receive Statement');
         };
 
         return WorkerReceiveVisitor;

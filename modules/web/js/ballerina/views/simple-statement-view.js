@@ -21,9 +21,11 @@ define(
     function (_, log, BallerinaStatementView, D3Utils, d3) {
 
         /**
-         * Simple statement.
+         * Super view class for all simple statements e.g. assignment, variable definition, functional invocation etc.
          * @param args {*} arguments for the creating view
+         * @class SimpleStatementView
          * @constructor
+         * @extends BallerinaStatementView
          */
         var SimpleStatementView = function (args) {
             BallerinaStatementView.call(this, args);
@@ -150,6 +152,14 @@ define(
 
         SimpleStatementView.prototype.getViewOptions = function () {
             return this._viewOptions;
+        };
+
+        SimpleStatementView.prototype.showDebugHit = function () {
+            this.getSvgRect().classed('highlight-statement', true);
+        };
+
+        SimpleStatementView.prototype.clearDebugHit = function () {
+            this.getSvgRect().classed('highlight-statement', false);
         };
 
         /**
