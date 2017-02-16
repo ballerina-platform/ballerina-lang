@@ -1,5 +1,3 @@
-package samples.connectors.test;
-
 import ballerina.net.jms;
 import ballerina.lang.message;
 
