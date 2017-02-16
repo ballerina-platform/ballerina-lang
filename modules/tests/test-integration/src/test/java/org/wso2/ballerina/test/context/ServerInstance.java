@@ -19,7 +19,6 @@ package org.wso2.ballerina.test.context;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.ballerina.test.util.FTPTestServer;
 import org.wso2.ballerina.test.util.JMSBroker;
 
 import java.io.BufferedReader;
@@ -70,7 +69,6 @@ public class ServerInstance implements Server {
         Utils.checkPortAvailability(httpServerPort);
         // Start the activemq embedded broker.
         JMSBroker.startBroker();
-        FTPTestServer.getInstance().start();
         if (serverHome == null) {
             serverHome = setUpServerHome(serverDistribution);
             log.info("Server Home " + serverHome);
@@ -249,13 +247,13 @@ public class ServerInstance implements Server {
         File commandDir = new File(serverHome);
         if (Utils.getOSName().toLowerCase().contains("windows")) {
             commandDir = new File(serverHome + File.separator + "bin");
-            cmdArray = new String[]{"cmd.exe", "/c", scriptName + ".bat"};
+            cmdArray = new String[]{"cmd.exe", "/c", scriptName + ".bat" , "run", "service"};
             String[] cmdArgs = Stream.concat(Arrays.stream(cmdArray), Arrays.stream(args))
                     .toArray(String[]::new);
             process = Runtime.getRuntime().exec(cmdArgs, null, commandDir);
 
         } else {
-            cmdArray = new String[]{"bash", "bin/" + scriptName, "service"};
+            cmdArray = new String[]{"bash", "bin/" + scriptName, "run", "service"};
             String[] cmdArgs = Stream.concat(Arrays.stream(cmdArray), Arrays.stream(args))
                     .toArray(String[]::new);
             process = Runtime.getRuntime().exec(cmdArgs, null, commandDir);

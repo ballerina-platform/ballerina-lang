@@ -33,7 +33,7 @@ public class NativeTypeMappersTest {
 
     @BeforeClass
     public void setup() {
-        bLangProgram = BTestUtils.parseBalFile("samples/type-conversion.bal");
+        bLangProgram = BTestUtils.parseBalFile("samples/typeMapperTest.bal");
     }
 
     @Test

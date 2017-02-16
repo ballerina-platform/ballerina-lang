@@ -41,4 +41,20 @@ public class FrameInfo {
     public VariableInfo[] getVariableInfo() {
         return variableInfos.toArray(new VariableInfo[variableInfos.size()]);
     }
+
+    public String getPackageName() {
+        return packageName;
+    }
+
+    public String getFrameName() {
+        return frameName;
+    }
+
+    public String getFileName() {
+        return fileName;
+    }
+
+    public int getLineID() {
+        return lineID;
+    }
 }

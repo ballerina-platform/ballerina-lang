@@ -53,7 +53,7 @@ public class LauncherUtils {
         errorMessages.forEach(outStream::println);
     }
 
-    static String makeFirstLetterUpperCase(String s) {
+    static String makeFirstLetterLowerCase(String s) {
         if (s == null) {
             return null;
         }
@@ -90,7 +90,7 @@ public class LauncherUtils {
             pid = builder.toString();
         } catch (Throwable e) {
             throw createLauncherException("error: fail to write ballerina.pid file: " +
-                    makeFirstLetterUpperCase(e.getMessage()));
+                    makeFirstLetterLowerCase(e.getMessage()));
         }
 
         if (pid.length() != 0) {
@@ -100,7 +100,7 @@ public class LauncherUtils {
                 writer.write(pid);
             } catch (IOException e) {
                 throw createLauncherException("error: fail to write ballerina.pid file: " +
-                        makeFirstLetterUpperCase(e.getMessage()));
+                        makeFirstLetterLowerCase(e.getMessage()));
             }
         }
     }

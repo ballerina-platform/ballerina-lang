@@ -20,7 +20,6 @@ package org.wso2.ballerina.core.model;
 import org.ballerinalang.util.repository.PackageRepository;
 import org.wso2.ballerina.core.model.symbols.BLangSymbol;
 import org.wso2.ballerina.core.model.types.TypeLattice;
-import org.wso2.ballerina.core.model.types.TypeVertex;
 import org.wso2.ballerina.core.nativeimpl.NativePackageProxy;
 
 import java.util.ArrayList;
@@ -47,6 +46,7 @@ public class BLangPackage implements SymbolScope, BLangSymbol, Node {
     protected ConstDef[] consts;
     protected StructDef[] structDefs;
     protected Function mainFunction;
+    protected TypeMapper[] typeMappers;
 
     protected List<BLangPackage> dependentPkgs = new ArrayList<>();
 
@@ -157,6 +157,10 @@ public class BLangPackage implements SymbolScope, BLangSymbol, Node {
         this.isNative = isNative;
     }
 
+    public TypeMapper[] getTypeMappers() {
+        return typeMappers;
+    }
+
     // Methods in the SymbolScope interface
 
     @Override
@@ -258,6 +262,7 @@ public class BLangPackage implements SymbolScope, BLangSymbol, Node {
         private List<ConstDef> constList = new ArrayList<>();
         private List<StructDef> structDefList = new ArrayList<>();
         private TypeLattice typeLattice = new TypeLattice();
+        private List<TypeMapper> typeMapperList = new ArrayList<>();
 
         private List<BallerinaFile> ballerinaFileList = new ArrayList<>();
 
@@ -297,12 +302,9 @@ public class BLangPackage implements SymbolScope, BLangSymbol, Node {
             this.constList.add(constant);
         }
 
-        public void addTypeConvertor(TypeVertex source, TypeVertex target,
-                                     TypeMapper typeMapper, String packageName) {
+        public void addTypeMapper(TypeMapper typeMapper) {
             this.compilationUnitList.add((BTypeMapper) typeMapper);
-            typeLattice.addVertex(source, true);
-            typeLattice.addVertex(target, true);
-            typeLattice.addEdge(source, target, typeMapper, packageName);
+            typeMapperList.add(typeMapper);
         }
 
         public void addStruct(StructDef structDef) {
@@ -328,6 +330,7 @@ public class BLangPackage implements SymbolScope, BLangSymbol, Node {
             bLangPackage.importPackages = this.importPkgMap.values().toArray(new ImportPackage[0]);
             bLangPackage.typeLattice = this.typeLattice;
             bLangPackage.ballerinaFiles = ballerinaFileList.toArray(new BallerinaFile[0]);
+            bLangPackage.typeMappers = this.typeMapperList.toArray(new TypeMapper[0]);
             return bLangPackage;
         }
     }

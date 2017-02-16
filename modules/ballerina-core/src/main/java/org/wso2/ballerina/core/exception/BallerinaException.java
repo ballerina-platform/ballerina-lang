@@ -47,9 +47,22 @@ public class BallerinaException extends RuntimeException {
     }
 
     /**
-     * @param bException
+     * Create BallerinaException from bException.
+     *
+     * @param bException Ballerina Exception.
      */
     public BallerinaException(BException bException) {
+        this.exception = bException;
+    }
+
+    /**
+     * Create BallerinaException from bException.
+     *
+     * @param message    Error message.
+     * @param bException Ballerina Exception.
+     */
+    public BallerinaException(String message, BException bException) {
+        super(message);
         this.exception = bException;
     }
 
