@@ -27,6 +27,7 @@
             <package name="org.wso2.ballerina.test.service.http.sample"/>
             <package name="org.wso2.ballerina.test.service.http2.sample"/>
             <package name="org.wso2.ballerina.test.service.jms.sample" />
+            <package name="org.wso2.ballerina.test.service.file.sample" />
         </packages>
     </test>
 </suite>

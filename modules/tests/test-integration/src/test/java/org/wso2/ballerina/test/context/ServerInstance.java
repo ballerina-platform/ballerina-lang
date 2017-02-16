@@ -19,6 +19,7 @@ package org.wso2.ballerina.test.context;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.ballerina.test.util.FTPTestServer;
 import org.wso2.ballerina.test.util.JMSBroker;
 
 import java.io.BufferedReader;
@@ -69,6 +70,7 @@ public class ServerInstance implements Server {
         Utils.checkPortAvailability(httpServerPort);
         // Start the activemq embedded broker.
         JMSBroker.startBroker();
+        FTPTestServer.getInstance().start();
         if (serverHome == null) {
             serverHome = setUpServerHome(serverDistribution);
             log.info("Server Home " + serverHome);
@@ -223,6 +225,13 @@ public class ServerInstance implements Server {
         Path destination = Paths
                 .get(serverExtractedPath + File.separator + "bre" + File.separator + "lib" + File.separator
                         + Constant.ACTIVEMQ_ALL_JAR);
+        Files.copy(source, destination, StandardCopyOption.REPLACE_EXISTING);
+        /*
+         * Copying the common-nets jar to the bre/lib, in order to test the ftp based sample file service.
+         */
+        source = Paths.get(baseDir + File.separator + Constant.COMMON_NETS_JAR);
+        destination = Paths.get(serverExtractedPath + File.separator + "bre" + File.separator
+                + "lib" + File.separator + Constant.COMMON_NETS_JAR);
         Files.copy(source, destination, StandardCopyOption.REPLACE_EXISTING);
         return serverExtractedPath;
     }

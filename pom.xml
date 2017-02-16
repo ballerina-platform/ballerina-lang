@@ -330,6 +330,24 @@
                 <version>${activemq.broker.vesion}</version>
                 <scope>test</scope>
             </dependency>
+
+            <!--file server connector dependencies-->
+            <dependency>
+                <groupId>org.apache.commons.wso2</groupId>
+                <artifactId>commons-vfs2</artifactId>
+                <version>${commons-vfs2.wso2.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon.transport</groupId>
+                <artifactId>org.wso2.carbon.transport.file</artifactId>
+                <version>${carbon.transport.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.ftpserver</groupId>
+                <artifactId>ftpserver-core</artifactId>
+                <version>${ftp-server-core.version}</version>
+                <scope>test</scope>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -519,6 +537,11 @@
         <!--data services dependencies -->
         <com.zaxxer.hikaricp.version>2.5.1</com.zaxxer.hikaricp.version>
         <hyperSQL.version>2.3.4</hyperSQL.version>
+
+        <!--file server connector dependencies-->
+        <commons-vfs2.wso2.version>2.0-wso2v15</commons-vfs2.wso2.version>
+        <commons-net.version>3.6</commons-net.version>
+        <ftp-server-core.version>1.0.6</ftp-server-core.version>
     </properties>
 
     <modules>
