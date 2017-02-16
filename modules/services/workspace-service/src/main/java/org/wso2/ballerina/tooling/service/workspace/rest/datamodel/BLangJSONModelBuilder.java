@@ -1000,17 +1000,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
 
     @Override
     public void visit(MapInitExpr mapInitExpr) {
-        JsonObject mapInitExprObj = new JsonObject();
-        mapInitExprObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE, BLangJSONModelConstants.MAP_INIT_EXPRESSION);
-        tempJsonArrayRef.push(new JsonArray());
-        if(mapInitExpr.getArgExprs() != null) {
-            for(Expression expression : mapInitExpr.getArgExprs()) {
-                expression.accept(this);
-            }
-        }
-        mapInitExprObj.add(BLangJSONModelConstants.CHILDREN, tempJsonArrayRef.peek());
-        tempJsonArrayRef.pop();
-        tempJsonArrayRef.peek().add(mapInitExprObj);
+        //TODO MapInitExpr should be removed from core/model. We can remove this method when it is done
     }
 
     @Override
