@@ -56,7 +56,7 @@ import org.wso2.carbon.messaging.StreamingCarbonMessage;
         isPublic = true
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = { @Attribute(name = "value",
-        value = "This function acknowledges to the message sender that processing of the message has finished.") })
+        value = "This function acknowledges to the message sender that processing of the file has finished.") })
 @BallerinaAnnotation(annotationName = "Param", attributes = { @Attribute(name = "message",
         value = "message") })
 public class Acknowledge extends AbstractNativeFunction {
@@ -85,8 +85,7 @@ public class Acknowledge extends AbstractNativeFunction {
             }
         } catch (Throwable e) {
             throw new BallerinaException("Error while acknowledging file" +
-                    (cMsg == null ? ". " : ": " + cMsg.getHeader(FILE_NAME))
-                    + " . Reason : " + e.getMessage());
+                    (cMsg == null ? ". " : ": " + cMsg.getHeader(FILE_NAME)), e);
         }
         return VOID_RETURN;
     }
