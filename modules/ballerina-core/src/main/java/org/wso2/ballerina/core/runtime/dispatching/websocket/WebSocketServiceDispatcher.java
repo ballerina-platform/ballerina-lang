@@ -17,7 +17,7 @@
  *
  */
 
-package org.wso2.ballerina.core.runtime.dispatching;
+package org.wso2.ballerina.core.runtime.dispatching.websocket;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,45 +25,51 @@ import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.Annotation;
 import org.wso2.ballerina.core.model.Service;
+import org.wso2.ballerina.core.runtime.dispatching.http.Constants;
+import org.wso2.ballerina.core.runtime.dispatching.http.HTTPServiceDispatcher;
+import org.wso2.ballerina.core.runtime.dispatching.http.HTTPServicesRegistry;
+import org.wso2.ballerina.core.runtime.dispatching.uri.URIUtil;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
 
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Service Dispatcher for WebSocket Endpoint.
  *
  * @since 0.8.0
  */
-public class WebSocketServiceDispatcher implements ServiceDispatcher {
+public class WebSocketServiceDispatcher extends HTTPServiceDispatcher {
 
     private static final Logger logger = LoggerFactory.getLogger(WebSocketServiceDispatcher.class);
-    private Map<String, Service> services = new HashMap<>();
 
     @Override
     public Service findService(CarbonMessage cMsg, CarbonCallback callback, Context balContext) {
-        String interfaceId = (String) cMsg.getProperty(org.wso2.carbon.messaging.Constants.LISTENER_INTERFACE_ID);
-        if (interfaceId == null) {
-            if (logger.isDebugEnabled()) {
-                logger.debug("Interface id not found on the message, hence using the default interface");
-            }
-        }
+        String interfaceId = getInterface(cMsg);
 
         String serviceUri = (String) cMsg.getProperty(org.wso2.carbon.messaging.Constants.TO);
+        serviceUri = refactorUri(serviceUri);
         if (serviceUri == null) {
             throw new BallerinaException("No service found to dispatch");
         }
-
-        serviceUri = refactorUri(serviceUri);
-
-        Service service = services.get(serviceUri);
+        String basePath = URIUtil.getFirstPathSegment(serviceUri);
+        Service service = HTTPServicesRegistry.getInstance().
+                getService(interfaceId, Constants.DEFAULT_BASE_PATH + basePath);
 
         if (service == null) {
             throw new BallerinaException("No service found to handle message for " + serviceUri);
         }
 
-        return service;
+
+        String webSocketUpgradePath = findWebSocketUpgradePath(service);
+        if (webSocketUpgradePath == null) {
+            throw new BallerinaException("No service found to handle message for " + serviceUri);
+        }
+
+        if (webSocketUpgradePath.equals(serviceUri)) {
+            return service;
+        }
+
+        throw new BallerinaException("No service found to handle message for " + serviceUri);
     }
 
     @Override
@@ -71,30 +77,23 @@ public class WebSocketServiceDispatcher implements ServiceDispatcher {
         return Constants.PROTOCOL_WEBSOCKET;
     }
 
+
     @Override
     public void serviceRegistered(Service service) {
-        String websocketUri = findWebSocketPath(service);
-        if (websocketUri != null) {
-            services.put(websocketUri, service);
+        if (findWebSocketUpgradePath(service) != null) {
+            super.serviceRegistered(service);
         }
     }
 
-    @Override
-    public void serviceUnregistered(Service service) {
-        String websocketUri = findWebSocketPath(service);
-        if (websocketUri != null) {
-            services.remove(websocketUri);
-        }
-    }
-
-    private String findWebSocketPath(Service service) {
+    private String findWebSocketUpgradePath(Service service) {
         Annotation websocketUpgradePathAnnotation = null;
         Annotation basePathAnnotation = null;
         Annotation[] annotations = service.getAnnotations();
         for (Annotation annotation: annotations) {
-            if (annotation.getName().equals(Constants.ANNOTATION_NAME_BASE_PATH)) {
+            if (annotation.getName().equals(Constants.PROTOCOL_HTTP + ":" + Constants.ANNOTATION_NAME_BASE_PATH)) {
                 basePathAnnotation = annotation;
-            } else if (annotation.getName().equals(Constants.ANNOTATION_NAME_WEBSOCKET_UPGRADE_PATH)) {
+            } else if (annotation.getName().equals(
+                    Constants.PROTOCOL_WEBSOCKET + ":" + Constants.ANNOTATION_NAME_WEBSOCKET_UPGRADE_PATH)) {
                 websocketUpgradePathAnnotation = annotation;
             }
         }
@@ -106,7 +105,7 @@ public class WebSocketServiceDispatcher implements ServiceDispatcher {
             String basePath = refactorUri(basePathAnnotation.getValue());
             String websocketUpgradePath = refactorUri(websocketUpgradePathAnnotation.getValue());
 
-            return basePath.concat(websocketUpgradePath);
+            return refactorUri(basePath.concat(websocketUpgradePath));
         }
 
         return null;

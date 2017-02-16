@@ -1,8 +1,12 @@
 #How to write a WebSocket Server Connector
 
 ##WebSocket?
-WebSocket is a HTTP based protocol which uses HTTP connection to upgrade the connection to WebSocket connection. 
-For that “Connection” and “Upgrade” header is used in the HTTP header.
+WebSocket is a protocol which provides full-duplex, persistent communication channels over a single TCP connection.
+Once a WebSocket connection is established the connection stays open until the client or server decides to 
+close this connection. This connection is also initialized by the client. 
+For that WebSocket protocol uses HTTP request to upgrade the connection from HTTP to WebSocket using two 
+HTTP headers, “Connection” and “Upgrade”.
+
 <br>
 
 _eg: <br>
@@ -11,7 +15,6 @@ Origin: http://example.com<br>
 Connection: Upgrade<br>
 Host: websocket.example.com<br>
 Upgrade: websocket<br>_
-
 
 This indicate server that the client needs to establish a websocket connection. If the server supports websocket then it send the response agreeing to establish connection using the “Upgrade” header.
 <br>
@@ -30,7 +33,7 @@ So Ballerina uses the same HTTP base path + WebSocket
 Upgrade path to upgrade the existing connection to a WebSocket 
 connection. 
 
-##How to define a WebSocket Service
+##How to define a WebSocket Service in Ballerina
 WebSocket Service is defined in the same service 
 base path of a rest service since this is a upgrade 
 from the rest service.
@@ -40,7 +43,7 @@ Add a base path and WebSocketUpgradePath to the service.
 
 Eg :
 ```ballerina
-@Basepath(“/test”)
+@http:Basepath(“/test”)
 @ws:WebSocketUpgradePath(“/websocket”)
 service myService {
 }
@@ -69,7 +72,7 @@ When client connection is closed due to some reason this resource will be called
 ```ballerina
 import ballerina.lang.message;
 
-@BasePath ("/chat")
+@http:BasePath ("/test")
 @ws:WebSocketUpgradePath("/websocket")
 service helloWorld {
     @ws:OnOpen

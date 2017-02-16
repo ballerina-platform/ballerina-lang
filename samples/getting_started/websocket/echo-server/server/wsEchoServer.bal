@@ -2,7 +2,7 @@ import ballerina.lang.system;
 import ballerina.lang.message;
 import ballerina.net.ws;
 
-@BasePath("/ws-echo-server")
+@http:BasePath("/ws-echo-server")
 @ws:WebSocketUpgradePath("/")
 service testWs {
 
@@ -13,7 +13,7 @@ service testWs {
 
     @ws:OnTextMessage
     resource onTextMessage(message m) {
-        ws:sendText(m, message:getStringPayload(m));
+        ws:pushText(m, message:getStringPayload(m));
         system:println("client : " + message:getStringPayload(m));
     }
 

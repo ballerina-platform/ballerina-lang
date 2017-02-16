@@ -22,13 +22,13 @@ package org.wso2.ballerina.nativeimpl.net.ws;
 import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.model.types.TypeEnum;
+import org.wso2.ballerina.core.model.values.BMessage;
 import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
 import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
 import org.wso2.ballerina.core.nativeimpl.annotations.Attribute;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaAnnotation;
 import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
-import org.wso2.carbon.connector.framework.WebSocketSessionManager;
 import org.wso2.carbon.transport.http.netty.common.Constants;
 
 import javax.websocket.Session;
@@ -41,7 +41,7 @@ import javax.websocket.Session;
 
 @BallerinaFunction(
         packageName = "ballerina.net.ws",
-        functionName = "sendText",
+        functionName = "pushText",
         args = {
                 @Argument(name = "message", type = TypeEnum.MESSAGE),
                 @Argument(name = "text", type = TypeEnum.STRING)
@@ -49,23 +49,20 @@ import javax.websocket.Session;
         isPublic = true
 )
 @BallerinaAnnotation(annotationName = "Description",
-                     attributes = { @Attribute(name = "value", value = "Send text to the same client " +
-                             "who sent the message") })
+                     attributes = { @Attribute(name = "value", value = "This pushes text from server to the the same " +
+                             "client who sent the message.") })
 @BallerinaAnnotation(annotationName = "Param",
                      attributes = { @Attribute(name = "message", value = "message") })
 @BallerinaAnnotation(annotationName = "Param",
                      attributes = { @Attribute(name = "text", value = "Text which should be sent") })
-public class SendText extends AbstractNativeFunction {
+public class PushText extends AbstractNativeFunction {
 
     @Override
     public BValue[] execute(Context context) {
-        Session session = null;
         try {
             if (context.getCarbonMessage().getProperty(Constants.CHANNEL_ID) != null) {
-                String sessionId = (String) context.getCarbonMessage().getProperty(Constants.CHANNEL_ID);
-                String uri = (String) context.getCarbonMessage().getProperty(Constants.TO);
-                WebSocketSessionManager webSocketSessionManager = WebSocketSessionManager.getInstance();
-                session = webSocketSessionManager.getSession(uri, sessionId);
+                BMessage bMessage = (BMessage) getArgument(context, 0);
+                Session session = (Session) bMessage.value().getProperty(Constants.WEBSOCKET_SESSION);
                 String text = getArgument(context, 1).stringValue();
                 session.getBasicRemote().sendText(text);
             }
