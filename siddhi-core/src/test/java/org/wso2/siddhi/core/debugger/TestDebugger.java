@@ -86,8 +86,8 @@ public class TestDebugger {
             @Override
             public void debugEvent(ComplexEvent event, String queryName, SiddhiDebugger.QueryTerminal queryTerminal,
                                    SiddhiDebugger debugger) {
-                System.out.println("Query: " + queryName + ":" + queryTerminal);
-                System.out.println(event);
+                log.info("Query: " + queryName + ":" + queryTerminal);
+                log.info(event);
 
                 int count = debugEventCount.addAndGet(getCount(event));
                 if (count == 1) {
@@ -152,8 +152,8 @@ public class TestDebugger {
             @Override
             public void debugEvent(ComplexEvent event, String queryName, SiddhiDebugger.QueryTerminal queryTerminal,
                                    SiddhiDebugger debugger) {
-                System.out.println("Query: " + queryName + ":" + queryTerminal);
-                System.out.println(event);
+                log.info("Query: " + queryName + ":" + queryTerminal);
+                log.info(event);
 
                 int count = debugEventCount.addAndGet(getCount(event));
                 if (count == 1) {
@@ -219,8 +219,8 @@ public class TestDebugger {
             @Override
             public void debugEvent(ComplexEvent event, String queryName, SiddhiDebugger.QueryTerminal queryTerminal,
                                    SiddhiDebugger debugger) {
-                System.out.println("Query: " + queryName + "\t" + System.currentTimeMillis());
-                System.out.println(event);
+                log.info("Query: " + queryName + "\t" + System.currentTimeMillis());
+                log.info(event);
 
                 int count = debugEventCount.addAndGet(getCount(event));
                 if (count == 1) {
@@ -287,7 +287,7 @@ public class TestDebugger {
             @Override
             public void debugEvent(ComplexEvent event, String queryName, SiddhiDebugger.QueryTerminal queryTerminal,
                                    SiddhiDebugger debugger) {
-                System.out.println(event);
+                log.info(event);
 
                 int count = debugEventCount.addAndGet(getCount(event));
 
@@ -346,8 +346,8 @@ public class TestDebugger {
             @Override
             public void debugEvent(ComplexEvent event, String queryName, SiddhiDebugger.QueryTerminal queryTerminal,
                                    SiddhiDebugger debugger) {
-                System.out.println("Query: " + queryName + ":" + queryTerminal);
-                System.out.println(event);
+                log.info("Query: " + queryName + ":" + queryTerminal);
+                log.info(event);
 
                 int count = debugEventCount.addAndGet(getCount(event));
                 if (count == 1) {
@@ -408,8 +408,8 @@ public class TestDebugger {
             @Override
             public void debugEvent(ComplexEvent event, String queryName, SiddhiDebugger.QueryTerminal queryTerminal,
                                    SiddhiDebugger debugger) {
-                System.out.println("Query: " + queryName + ":" + queryTerminal);
-                System.out.println(event);
+                log.info("Query: " + queryName + ":" + queryTerminal);
+                log.info(event);
 
                 int count = debugEventCount.addAndGet(getCount(event));
                 if (count == 1) {
@@ -472,8 +472,8 @@ public class TestDebugger {
             @Override
             public void debugEvent(ComplexEvent event, String queryName, SiddhiDebugger.QueryTerminal queryTerminal,
                                    SiddhiDebugger debugger) {
-                System.out.println("Query: " + queryName + "\t" + System.currentTimeMillis());
-                System.out.println(event);
+                log.info("Query: " + queryName + "\t" + System.currentTimeMillis());
+                log.info(event);
 
                 int count = debugEventCount.addAndGet(getCount(event));
                 if (count == 1) {
@@ -538,7 +538,7 @@ public class TestDebugger {
             @Override
             public void debugEvent(ComplexEvent event, String queryName, SiddhiDebugger.QueryTerminal queryTerminal,
                                    SiddhiDebugger debugger) {
-                System.out.println(event);
+                log.info(event);
 
                 int count = debugEventCount.addAndGet(getCount(event));
                 Assert.assertEquals("Only one event can be emitted from the window", 1, getCount(event));
@@ -597,14 +597,14 @@ public class TestDebugger {
             @Override
             public void debugEvent(ComplexEvent event, String queryName, SiddhiDebugger.QueryTerminal queryTerminal,
                                    SiddhiDebugger debugger) {
-                System.out.println("Query: " + queryName + ":" + queryTerminal);
-                System.out.println(event);
+                log.info("Query: " + queryName + ":" + queryTerminal);
+                log.info(event);
 
                 int count = debugEventCount.addAndGet(getCount(event));
                 if (count == 2) {
                     Map<String, Object> queryState = debugger.getQueryState(queryName);
-                    System.out.println(queryState);
-                    System.out.println(queryState.values().toArray()[0]);
+                    log.info(queryState);
+                    log.info(queryState.values().toArray()[0]);
                     StreamEvent streamEvent = null;
 
                     // Order of the query state items is unpredictable
@@ -667,8 +667,8 @@ public class TestDebugger {
             @Override
             public void debugEvent(ComplexEvent event, String queryName, SiddhiDebugger.QueryTerminal queryTerminal,
                                    SiddhiDebugger debugger) {
-                System.out.println("Query: " + queryName + ":" + queryTerminal);
-                System.out.println(event);
+                log.info("Query: " + queryName + ":" + queryTerminal);
+                log.info(event);
 
                 int count = debugEventCount.addAndGet(getCount(event));
                 if ((count - 1) / 4 == 0) {
@@ -740,8 +740,8 @@ public class TestDebugger {
             @Override
             public void debugEvent(ComplexEvent event, String queryName, SiddhiDebugger.QueryTerminal queryTerminal,
                                    SiddhiDebugger debugger) {
-                System.out.println("Query: " + queryName + ":" + queryTerminal);
-                System.out.println(event);
+                log.info("Query: " + queryName + ":" + queryTerminal);
+                log.info(event);
 
                 int count = debugEventCount.addAndGet(getCount(event));
 
@@ -819,8 +819,8 @@ public class TestDebugger {
             @Override
             public void debugEvent(ComplexEvent event, String queryName, SiddhiDebugger.QueryTerminal queryTerminal,
                                    SiddhiDebugger debugger) {
-                System.out.println("Query: " + queryName + ":" + queryTerminal);
-                System.out.println(event);
+                log.info("Query: " + queryName + ":" + queryTerminal);
+                log.info(event);
                 debugEventCount.addAndGet(getCount(event));
                 if ("query1IN".equals(queryName)) {
                     try {
