@@ -37,7 +37,6 @@ import org.wso2.carbon.transport.http.netty.config.TransportProperty;
 import org.wso2.carbon.transport.http.netty.config.TransportsConfiguration;
 import org.wso2.carbon.transport.http.netty.internal.HTTPTransportContextHolder;
 
-import java.io.PrintStream;
 import java.net.InetSocketAddress;
 import java.util.HashMap;
 import java.util.Map;
@@ -61,8 +60,6 @@ public class ServerConnectorController {
     private TransportsConfiguration transportsConfiguration;
 
     private boolean initialized = false;
-
-    private static PrintStream outStream = System.out;
 
     public ServerConnectorController(TransportsConfiguration transportsConfiguration) {
         this.transportsConfiguration = transportsConfiguration;
@@ -194,7 +191,6 @@ public class ServerConnectorController {
                 String msg = "Started listener " +
                              listenerConfiguration.getScheme() + "-" + listenerConfiguration.getPort();
 
-                outStream.println(msg);
                 log.info(msg);
 
                 if (listenerConfiguration.getSslConfig() == null) {
