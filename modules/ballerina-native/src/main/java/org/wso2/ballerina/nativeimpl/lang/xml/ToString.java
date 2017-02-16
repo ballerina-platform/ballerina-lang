@@ -37,7 +37,7 @@ import org.wso2.ballerina.nativeimpl.lang.utils.ErrorHandler;
 @BallerinaFunction(
         packageName = "ballerina.lang.xml",
         functionName = "toString",
-        args = {@Argument(name = "xml", type = TypeEnum.XML)},
+        args = {@Argument(name = "x", type = TypeEnum.XML)},
         returnType = {@ReturnType(type = TypeEnum.STRING)},
         isPublic = true
 )

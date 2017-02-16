@@ -17,16 +17,16 @@
  */
 package org.wso2.ballerina.nativeimpl.connectors;
 
+import org.ballerinalang.util.program.BLangFunctions;
 import org.testng.Assert;
 import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.wso2.ballerina.core.model.BallerinaFile;
+import org.wso2.ballerina.core.model.BLangProgram;
 import org.wso2.ballerina.core.model.values.BInteger;
 import org.wso2.ballerina.core.model.values.BString;
 import org.wso2.ballerina.core.model.values.BValue;
-import org.wso2.ballerina.nativeimpl.util.Functions;
-import org.wso2.ballerina.nativeimpl.util.ParserUtils;
+import org.wso2.ballerina.nativeimpl.util.BTestUtils;
 import org.wso2.ballerina.nativeimpl.util.SQLDBUtils;
 
 import java.io.File;
@@ -38,54 +38,54 @@ import java.io.File;
  */
 public class SQLConnectorTest {
 
-    private BallerinaFile bFile;
+    BLangProgram bLangProgram;
     private static final String DB_NAME = "TEST_SQL_CONNECTOR";
 
     @BeforeClass()
     public void setup() {
-        bFile = ParserUtils.parseBalFile("samples/sqlConnectorTest.bal");
+        bLangProgram = BTestUtils.parseBalFile("samples/sqlConnectorTest.bal");
         SQLDBUtils.deleteFiles(new File(SQLDBUtils.DB_DIRECTORY), DB_NAME);
         SQLDBUtils.initDatabase(SQLDBUtils.DB_DIRECTORY, DB_NAME, "datafiles/SQLConnectorDataFile.sql");
     }
 
     @Test
     public void testInsertTableData() {
-        BValue[] returns = Functions.invoke(bFile, "testInsertTableData");
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testInsertTableData");
         BInteger retValue = (BInteger) returns[0];
         Assert.assertEquals(retValue.intValue(), 1);
     }
 
     @Test
     public void testCreateTable() {
-        BValue[] returns = Functions.invoke(bFile, "testCreateTable");
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testCreateTable");
         BInteger retValue = (BInteger) returns[0];
         Assert.assertEquals(retValue.intValue(), 0);
     }
 
     @Test
     public void testUpdateTableData() {
-        BValue[] returns = Functions.invoke(bFile, "testUpdateTableData");
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testUpdateTableData");
         BInteger retValue = (BInteger) returns[0];
         Assert.assertEquals(retValue.intValue(), 1);
     }
 
     @Test
     public void testGeneratedKeyOnInsert() {
-        BValue[] returns = Functions.invoke(bFile, "testGeneratedKeyOnInsert");
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testGeneratedKeyOnInsert");
         BString retValue = (BString) returns[0];
         Assert.assertTrue(retValue.intValue() > 0);
     }
 
     @Test
     public void testGeneratedKeyWithColumn() {
-        BValue[] returns = Functions.invoke(bFile, "testGeneratedKeyWithColumn");
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testGeneratedKeyWithColumn");
         BString retValue = (BString) returns[0];
         Assert.assertTrue(retValue.intValue() > 0);
     }
 
     @Test
     public void testSelectData() {
-        BValue[] returns = Functions.invoke(bFile, "testSelectData");
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testSelectData");
         BString retValue = (BString) returns[0];
         final String expected = "Peter";
         Assert.assertEquals(retValue.stringValue(), expected);
@@ -93,7 +93,7 @@ public class SQLConnectorTest {
 
     @Test
     public void testCallProcedure() {
-        BValue[] returns = Functions.invoke(bFile, "testCallProcedure");
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testCallProcedure");
         BString retValue = (BString) returns[0];
         final String expected = "James";
         Assert.assertEquals(retValue.stringValue(), expected);
@@ -101,7 +101,7 @@ public class SQLConnectorTest {
 
     @Test
     public void testConnectorWithDataSource() {
-        BValue[] returns = Functions.invoke(bFile, "testConnectorWithDataSource");
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testConnectorWithDataSource");
         BString retValue = (BString) returns[0];
         final String expected = "Peter";
         Assert.assertEquals(retValue.stringValue(), expected);
@@ -109,7 +109,7 @@ public class SQLConnectorTest {
 
     @Test
     public void testConnectionPoolProperties() {
-        BValue[] returns = Functions.invoke(bFile, "testConnectionPoolProperties");
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testConnectionPoolProperties");
         BString retValue = (BString) returns[0];
         final String expected = "Peter";
         Assert.assertEquals(retValue.stringValue(), expected);

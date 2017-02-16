@@ -31,7 +31,7 @@ import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
 @BallerinaFunction(
         packageName = "ballerina.lang.system",
         functionName = "print",
-        args = {@Argument(name = "int", type = TypeEnum.INT)},
+        args = {@Argument(name = "i", type = TypeEnum.INT)},
         isPublic = true
 )
 public class PrintInt extends AbstractNativeFunction {

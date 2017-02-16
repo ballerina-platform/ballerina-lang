@@ -17,11 +17,12 @@
  */
 package org.wso2.ballerina.nativeimpl.functions;
 
+import org.ballerinalang.util.program.BLangFunctions;
 import org.testng.Assert;
 import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.wso2.ballerina.core.model.BallerinaFile;
+import org.wso2.ballerina.core.model.BLangProgram;
 import org.wso2.ballerina.core.model.values.BBoolean;
 import org.wso2.ballerina.core.model.values.BDouble;
 import org.wso2.ballerina.core.model.values.BFloat;
@@ -32,8 +33,7 @@ import org.wso2.ballerina.core.model.values.BMap;
 import org.wso2.ballerina.core.model.values.BString;
 import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.model.values.BXML;
-import org.wso2.ballerina.nativeimpl.util.Functions;
-import org.wso2.ballerina.nativeimpl.util.ParserUtils;
+import org.wso2.ballerina.nativeimpl.util.BTestUtils;
 import org.wso2.ballerina.nativeimpl.util.SQLDBUtils;
 
 import java.io.File;
@@ -45,19 +45,19 @@ import java.io.File;
  */
 public class DataTableTest {
 
-    private BallerinaFile bFile;
+    BLangProgram bLangProgram;
     private static final String DB_NAME = "TEST_DATA_TABLE_DB";
 
     @BeforeClass
     public void setup() {
-        bFile = ParserUtils.parseBalFile("samples/datatableTest.bal");
+        bLangProgram = BTestUtils.parseBalFile("samples/datatableTest.bal");
         SQLDBUtils.deleteFiles(new File(SQLDBUtils.DB_DIRECTORY), DB_NAME);
         SQLDBUtils.initDatabase(SQLDBUtils.DB_DIRECTORY, DB_NAME, "datafiles/DataTableDataFile.sql");
     }
 
     @Test(description = "Check getByIndex methods for primitive types.")
     public void testGetXXXByIndex() {
-        BValue[] returns = Functions.invoke(bFile, "getXXXByIndex");
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "getXXXByIndex");
 
         Assert.assertEquals(returns.length, 6);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
@@ -70,7 +70,7 @@ public class DataTableTest {
 
     @Test(description = "Check getByName methods for primitive types.")
     public void testGetXXXByName() {
-        BValue[] returns = Functions.invoke(bFile, "getXXXByName");
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "getXXXByName");
 
         Assert.assertEquals(returns.length, 6);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
@@ -83,7 +83,7 @@ public class DataTableTest {
 
     //@Test(description = "Check toJson methods.")
     public void testToJson() {
-        BValue[] returns = Functions.invoke(bFile, "toJson");
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "toJson");
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertTrue(returns[0] instanceof BJSON);
@@ -94,7 +94,7 @@ public class DataTableTest {
 
     @Test(description = "Check toXml methods with wrapper element.")
     public void testToXmlWithWrapper() {
-        BValue[] returns = Functions.invoke(bFile, "toXmlWithWrapper");
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "toXmlWithWrapper");
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertTrue(returns[0] instanceof BXML);
@@ -106,7 +106,7 @@ public class DataTableTest {
 
     @Test(description = "Check toXml methods with complex element.")
     public void testToXmlComplex() {
-        BValue[] returns = Functions.invoke(bFile, "toXmlComplex");
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "toXmlComplex");
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertTrue(returns[0] instanceof BXML);
@@ -126,7 +126,7 @@ public class DataTableTest {
 
     @Test(description = "Check getByName methods for complex types.")
     public void testGetByName() {
-        BValue[] returns = Functions.invoke(bFile, "getByName");
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "getByName");
 
         Assert.assertEquals(returns.length, 5);
         // Create text file with some content. Generate Hex value of that. Insert to database.
@@ -140,7 +140,7 @@ public class DataTableTest {
 
     @Test(description = "Check getByName methods for complex types.")
     public void testGetByIndex() {
-        BValue[] returns = Functions.invoke(bFile, "getByIndex");
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "getByIndex");
 
         Assert.assertEquals(returns.length, 5);
         Assert.assertEquals((returns[0]).stringValue(), "d3NvMiBiYWxsZXJpbmEgYmxvYiB0ZXN0Lg==");
@@ -152,7 +152,7 @@ public class DataTableTest {
 
     @Test(description = "Check getObjectAsStringByName methods for complex types.")
     public void testGetObjectAsStringByName() {
-        BValue[] returns = Functions.invoke(bFile, "getObjectAsStringByName");
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "getObjectAsStringByName");
 
         Assert.assertEquals(returns.length, 5);
         Assert.assertEquals((returns[0]).stringValue(), "d3NvMiBiYWxsZXJpbmEgYmxvYiB0ZXN0Lg==");
@@ -164,7 +164,7 @@ public class DataTableTest {
 
     @Test(description = "Check getObjectAsStringByIndex methods for complex types.")
     public void testGetObjectAsStringByIndex() {
-        BValue[] returns = Functions.invoke(bFile, "getObjectAsStringByIndex");
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "getObjectAsStringByIndex");
 
         Assert.assertEquals(returns.length, 5);
         Assert.assertEquals((returns[0]).stringValue(), "d3NvMiBiYWxsZXJpbmEgYmxvYiB0ZXN0Lg==");
@@ -177,7 +177,7 @@ public class DataTableTest {
     @SuppressWarnings("unchecked")
     @Test(description = "Check getXXXArray methods for complex types.")
     public void testGetArrayByName() {
-        BValue[] returns = Functions.invoke(bFile, "getArrayByName");
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "getArrayByName");
         Assert.assertEquals(returns.length, 5);
         Assert.assertTrue(returns[0] instanceof BMap);
         BMap<BString, BInteger> intArray = (BMap) returns[0];
@@ -217,7 +217,7 @@ public class DataTableTest {
     @SuppressWarnings("unchecked")
     @Test(description = "Check getXXXArray methods for complex types.")
     public void testGetArrayByIndex() {
-        BValue[] returns = Functions.invoke(bFile, "getArrayByIndex");
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "getArrayByIndex");
         Assert.assertEquals(returns.length, 5);
         Assert.assertTrue(returns[0] instanceof BMap);
         BMap<BString, BInteger> intArray = (BMap) returns[0];
