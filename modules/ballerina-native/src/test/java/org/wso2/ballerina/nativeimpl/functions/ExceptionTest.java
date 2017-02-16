@@ -17,33 +17,33 @@
 */
 package org.wso2.ballerina.nativeimpl.functions;
 
+import org.ballerinalang.util.program.BLangFunctions;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.wso2.ballerina.core.model.BallerinaFile;
+import org.wso2.ballerina.core.model.BLangProgram;
 import org.wso2.ballerina.core.model.values.BInteger;
 import org.wso2.ballerina.core.model.values.BString;
 import org.wso2.ballerina.core.model.values.BValue;
-import org.wso2.ballerina.nativeimpl.util.Functions;
-import org.wso2.ballerina.nativeimpl.util.ParserUtils;
+import org.wso2.ballerina.nativeimpl.util.BTestUtils;
 
 /**
  * Test cases for ballerina.lang.exception
  */
 public class ExceptionTest {
 
-    BallerinaFile bFile;
+    BLangProgram bLangProgram;
 
     @BeforeClass
     public void setup() {
-        bFile = ParserUtils.parseBalFile("samples/exceptionTest.bal");
+        bLangProgram = BTestUtils.parseBalFile("samples/exceptionTest.bal");
     }
 
     @Test(description = "test functionality.")
     public void testFunctionality() {
         BValue[] args = {new BString("John"), new BInteger(45),
                 new BInteger(1000), new BInteger(10)};
-        BValue[] returns = Functions.invoke(bFile, "calculateLoanPayment", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "calculateLoanPayment", args);
         Assert.assertNotNull(returns[0]);
         Assert.assertEquals(returns[0].stringValue(), "Your monthly payment is 100.0");
     }
@@ -52,29 +52,29 @@ public class ExceptionTest {
     public void testExceptionGetAndSetFunctions() {
         BValue[] args = {new BString("Steve"), new BInteger(60),
                 new BInteger(1000), new BInteger(10)};
-        BValue[] returns = Functions.invoke(bFile, "calculateLoanPayment", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "calculateLoanPayment", args);
         Assert.assertNotNull(returns[0]);
         Assert.assertEquals(returns[0].stringValue(),
-                "Error ..! You should be under 50 years old to apply loan.");
+                "Error ..! age should be under 50");
     }
 
     @Test(description = "test set, setCause, getStackTrace native functions.")
     public void testExceptionCauseAndStackTrace() {
         BValue[] args = {new BString("Bob"), new BInteger(11),
                 new BInteger(1000), new BInteger(10)};
-        BValue[] returns = Functions.invoke(bFile, "calculateLoanPayment", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "calculateLoanPayment", args);
         Assert.assertNotNull(returns[0]);
         Assert.assertTrue(returns[0].stringValue().contains(
-                "exception age-error: You are too young to apply a loan."));
+                "exception age-error: age Error"));
         Assert.assertTrue(returns[0].stringValue().contains(
-                "caused by: exception low-age: You should be over 18 years old to apply loan."));
+                "caused by: exception low-age: age should be over 18"));
     }
 
     @Test(description = "testing divide by zero")
     public void testFailures() {
         BValue[] args = {new BString("Bob"), new BInteger(25),
                 new BInteger(1000), new BInteger(0)};
-        BValue[] returns = Functions.invoke(bFile, "calculateLoanPayment", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "calculateLoanPayment", args);
         Assert.assertNotNull(returns[0]);
         Assert.assertTrue(returns[0].stringValue().contains("/ by zero"));
 

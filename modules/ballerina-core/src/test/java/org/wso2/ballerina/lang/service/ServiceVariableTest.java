@@ -23,7 +23,7 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.ballerina.core.EnvironmentInitializer;
-import org.wso2.ballerina.core.model.Application;
+import org.wso2.ballerina.core.model.BLangProgram;
 import org.wso2.ballerina.core.utils.MessageUtils;
 import org.wso2.ballerina.lang.util.Services;
 import org.wso2.carbon.messaging.CarbonMessage;
@@ -33,11 +33,11 @@ import org.wso2.carbon.messaging.CarbonMessage;
  */
 public class ServiceVariableTest {
 
-    Application application;
+    BLangProgram bLangProgram;
 
     @BeforeClass
     public void setup() {
-        application = EnvironmentInitializer.setup("lang/service/serviceLevelVariable.bal");
+        bLangProgram = EnvironmentInitializer.setup("lang/service/serviceLevelVariable.bal");
     }
 
     @Test
@@ -49,6 +49,6 @@ public class ServiceVariableTest {
 
     @AfterClass
     public void tearDown() {
-        EnvironmentInitializer.cleanup(application);
+        EnvironmentInitializer.cleanup(bLangProgram);
     }
 }

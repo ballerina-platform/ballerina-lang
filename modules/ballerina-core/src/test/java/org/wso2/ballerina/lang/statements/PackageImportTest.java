@@ -19,7 +19,8 @@
 package org.wso2.ballerina.lang.statements;
 
 import org.testng.annotations.Test;
-import org.wso2.ballerina.core.utils.ParserUtils;
+import org.wso2.ballerina.core.exception.SemanticException;
+import org.wso2.ballerina.core.utils.BTestUtils;
 
 /**
  * Tests covering package imports.
@@ -30,9 +31,9 @@ public class PackageImportTest {
      * Negative tests
      */
     
-    @Test(expectedExceptions = {RuntimeException.class },
+    @Test(expectedExceptions = {SemanticException.class },
             expectedExceptionsMessageRegExp = "duplicate-import.bal:4: redeclared import package name 'system'")
-    public void testRedeclaredPackageImports() {
-        ParserUtils.parseBalFile("lang/statements/duplicate-import.bal");
+    public void testDuplicatePackageImports() {
+        BTestUtils.parseBalFile("lang/statements/duplicate-import.bal");
     }
 }

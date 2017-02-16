@@ -17,17 +17,17 @@
 */
 package org.wso2.ballerina.lang.expressions;
 
+import org.ballerinalang.util.program.BLangFunctions;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.exception.SemanticException;
-import org.wso2.ballerina.core.model.BallerinaFile;
+import org.wso2.ballerina.core.model.BLangProgram;
 import org.wso2.ballerina.core.model.values.BArray;
 import org.wso2.ballerina.core.model.values.BInteger;
 import org.wso2.ballerina.core.model.values.BValue;
-import org.wso2.ballerina.core.utils.ParserUtils;
-import org.wso2.ballerina.lang.util.Functions;
+import org.wso2.ballerina.core.utils.BTestUtils;
 
 /**
  * Array access expression test.
@@ -36,17 +36,17 @@ import org.wso2.ballerina.lang.util.Functions;
  */
 public class ArrayAccessExprTest {
 
-    private BallerinaFile bFile;
+    private BLangProgram bLangProgram;
 
     @BeforeClass
     public void setup() {
-        bFile = ParserUtils.parseBalFile("lang/expressions/array-access-expr.bal");
+        bLangProgram = BTestUtils.parseBalFile("lang/expressions/array-access-expr.bal");
     }
 
     @Test(description = "Test array access expression")
     public void testArrayAccessExpr() {
         BValue[] args = {new BInteger(100), new BInteger(5)};
-        BValue[] returns = Functions.invoke(bFile, "arrayAccessTest", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "arrayAccessTest", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
@@ -59,7 +59,7 @@ public class ArrayAccessExprTest {
     @Test(description = "Test array return value")
     public void testArrayReturnValue() {
         BValue[] args = {new BInteger(100), new BInteger(5)};
-        BValue[] returns = Functions.invoke(bFile, "arrayReturnTest", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "arrayReturnTest", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BArray.class);
@@ -79,7 +79,7 @@ public class ArrayAccessExprTest {
         arrayValue.add(1, new BInteger(1));
 
         BValue[] args = {arrayValue};
-        BValue[] returns = Functions.invoke(bFile, "arrayArgTest", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "arrayArgTest", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
@@ -93,14 +93,14 @@ public class ArrayAccessExprTest {
             expectedExceptions = { BallerinaException.class },
             expectedExceptionsMessageRegExp = "array index out of range: Index: 5, Size: 2")
     public void testArrayIndexOutOfBoundError() {
-        Functions.invoke(bFile, "arrayIndexOutOfBoundTest");
+        BLangFunctions.invoke(bLangProgram, "arrayIndexOutOfBoundTest");
     }
     
     @Test(description = "Test array access with a key",
             expectedExceptions = {SemanticException.class },
             expectedExceptionsMessageRegExp = "incorrect-array-access.bal:4: non-integer array index type 'string'")
     public void testArrayAccessWithKey() {
-        ParserUtils.parseBalFile("lang/expressions/incorrect-array-access.bal");
+        BTestUtils.parseBalFile("lang/expressions/incorrect-array-access.bal");
     }
     
     @Test(description = "Test access a primitive as an array",
@@ -108,14 +108,14 @@ public class ArrayAccessExprTest {
             expectedExceptionsMessageRegExp = "access-primitive-as-array.bal:3: invalid operation: " +
                     "type 'string' does not support indexing")
     public void testAccessPrimitiveAsArray() {
-        ParserUtils.parseBalFile("lang/expressions/access-primitive-as-array.bal");
+        BTestUtils.parseBalFile("lang/expressions/access-primitive-as-array.bal");
     }
     
     @Test(description = "Test access an non-initialized array", 
             expectedExceptions = BallerinaException.class,
             expectedExceptionsMessageRegExp = "array-access-expr.bal:36: variable 'fruits' is null")
     public void testNonInitArrayAccess() {
-        Functions.invoke(bFile, "testNonInitArrayAccess");
+        BLangFunctions.invoke(bLangProgram, "testNonInitArrayAccess");
         Assert.fail("Test should fail at this point.");
     }
 }

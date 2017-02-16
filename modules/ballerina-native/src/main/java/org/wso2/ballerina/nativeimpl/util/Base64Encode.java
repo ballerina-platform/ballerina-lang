@@ -39,7 +39,7 @@ import java.util.Base64;
 @BallerinaFunction(
         packageName = "ballerina.util",
         functionName = "base64encode",
-        args = {@Argument(name = "string", type = TypeEnum.STRING)},
+        args = {@Argument(name = "s", type = TypeEnum.STRING)},
         returnType = {@ReturnType(type = TypeEnum.STRING)},
         isPublic = true
 )

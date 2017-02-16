@@ -24,12 +24,13 @@ import org.wso2.ballerina.core.interpreter.StackVarLocation;
 import org.wso2.ballerina.core.interpreter.StructVarLocation;
 import org.wso2.ballerina.core.interpreter.WorkerVarLocation;
 import org.wso2.ballerina.core.model.Annotation;
+import org.wso2.ballerina.core.model.BLangPackage;
+import org.wso2.ballerina.core.model.BLangProgram;
 import org.wso2.ballerina.core.model.BTypeMapper;
 import org.wso2.ballerina.core.model.BallerinaAction;
 import org.wso2.ballerina.core.model.BallerinaConnectorDef;
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.BallerinaFunction;
-import org.wso2.ballerina.core.model.ConnectorDcl;
 import org.wso2.ballerina.core.model.ConstDef;
 import org.wso2.ballerina.core.model.ImportPackage;
 import org.wso2.ballerina.core.model.LinkedNode;
@@ -87,6 +88,16 @@ public abstract class BLangExecutionVisitor implements LinkedNodeVisitor {
 
     public abstract void continueExecution(LinkedNode linkedNode);
 
+    @Override
+    public void visit(BLangProgram bLangProgram) {
+
+    }
+
+    @Override
+    public void visit(BLangPackage bLangPackage) {
+
+    }
+
     public void visit(BallerinaFile bFile) {
     }
 
@@ -132,10 +143,6 @@ public abstract class BLangExecutionVisitor implements LinkedNodeVisitor {
 
     @Override
     public void visit(ParameterDef parameterDef) {
-    }
-
-    @Override
-    public void visit(ConnectorDcl connectorDcl) {
     }
 
     @Override

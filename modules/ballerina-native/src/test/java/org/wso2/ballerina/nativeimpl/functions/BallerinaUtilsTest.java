@@ -17,15 +17,15 @@
 */
 package org.wso2.ballerina.nativeimpl.functions;
 
+import org.ballerinalang.util.program.BLangFunctions;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.ballerina.core.exception.BallerinaException;
-import org.wso2.ballerina.core.model.BallerinaFile;
+import org.wso2.ballerina.core.model.BLangProgram;
 import org.wso2.ballerina.core.model.values.BString;
 import org.wso2.ballerina.core.model.values.BValue;
-import org.wso2.ballerina.nativeimpl.util.Functions;
-import org.wso2.ballerina.nativeimpl.util.ParserUtils;
+import org.wso2.ballerina.nativeimpl.util.BTestUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,11 +35,11 @@ import java.util.List;
  */
 public class BallerinaUtilsTest {
 
-    private BallerinaFile bFile;
+    private BLangProgram bLangProgram;
 
     @BeforeClass
     public void setup() {
-        bFile = ParserUtils.parseBalFile("samples/utilsTest.bal");
+        bLangProgram = BTestUtils.parseBalFile("samples/utilsTest.bal");
     }
 
     @Test
@@ -50,7 +50,7 @@ public class BallerinaUtilsTest {
                 "バレリーナ日本語", "Ballerina 的中文翻译", "Traducción al español de  la bailarina"};
 
         for (String s : stringsToTest) {
-            BValue[] returnVals = Functions.invoke(bFile, "testEncodeDecode", new BValue[]{new BString(s)});
+            BValue[] returnVals = BLangFunctions.invoke(bLangProgram, "testEncodeDecode", new BValue[]{new BString(s)});
             Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                     "Invalid Return Values for :" + s);
             Assert.assertEquals(returnVals[0].stringValue(), s, "Original and Return value didn't match");
@@ -59,7 +59,7 @@ public class BallerinaUtilsTest {
 
     @Test
     public void testRandomString() {
-        BValue[] returnVals = Functions.invoke(bFile, "testRandomString");
+        BValue[] returnVals = BLangFunctions.invoke(bLangProgram, "testRandomString");
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values for");
     }
@@ -74,7 +74,7 @@ public class BallerinaUtilsTest {
         argsList.add(new BValue[]{new BString("Ballerina HMAC test"), new BString(key), new BString("MD5")});
 
         for (BValue[] args : argsList) {
-            BValue[] returnVals = Functions.invoke(bFile, "testHmac", args);
+            BValue[] returnVals = BLangFunctions.invoke(bLangProgram, "testHmac", args);
             Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                     "Invalid Return Values for");
         }
@@ -83,7 +83,7 @@ public class BallerinaUtilsTest {
     @Test(expectedExceptions = BallerinaException.class)
     public void testHmacNagativeInvalidAlgo() {
         final String key = "abcdefghijk";
-        BValue[] returnVals = Functions.invoke(bFile, "testHmac",
+        BValue[] returnVals = BLangFunctions.invoke(bLangProgram, "testHmac",
                 new BValue[]{new BString("Ballerina HMAC test"), new BString(key), new BString("SHA124")});
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values for");
@@ -93,7 +93,7 @@ public class BallerinaUtilsTest {
     @Test(expectedExceptions = BallerinaException.class)
     public void testHmacNagativeInvalidKey() {
         final String key = "";
-        BValue[] returnVals = Functions.invoke(bFile, "testHmac",
+        BValue[] returnVals = BLangFunctions.invoke(bLangProgram, "testHmac",
                 new BValue[]{new BString("Ballerina HMAC test"), new BString(key), new BString("SHA1")});
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values for");

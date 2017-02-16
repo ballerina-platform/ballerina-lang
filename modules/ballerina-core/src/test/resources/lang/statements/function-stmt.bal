@@ -1,5 +1,3 @@
-package lang.statements.func;
-
 function testHelloWorldPublic() {
     testFunction();
 }
