@@ -25,7 +25,6 @@ import org.wso2.ballerina.test.context.Server;
 import org.wso2.ballerina.test.context.ServerInstance;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -53,7 +52,7 @@ public class TestExecutionListener implements IExecutionListener {
                 //path of the sample bal file directory
                 String serviceSampleDir = this.getServerHome() + File.separator + Constant.SERVICE_SAMPLE_DIR;
                 //list of sample bal files to be deploy
-                String[] serviceFilesArr = listFiles(serviceSampleDir, new ArrayList<>());
+                String[] serviceFilesArr = listSamples(serviceSampleDir);
                 setArguments(serviceFilesArr);
             }
         };
@@ -122,5 +121,23 @@ public class TestExecutionListener implements IExecutionListener {
             }
         }
         return list.toArray(new String[]{});
+    }
+
+    /**
+     * List given samples ballerina services.
+     *
+     * @param sampleDir sample directory
+     * @return String array of file absolute paths
+     */
+    private static String[] listSamples(String sampleDir) {
+        String[] sampleFiles = {
+                sampleDir + File.separator + "echoService" + File.separator + "echoService.bal",
+                sampleDir + File.separator + "helloWorldService" + File.separator + "helloWorldService.bal",
+                sampleDir + File.separator + "passthroughService" + File.separator + "passthroughService.bal",
+                sampleDir + File.separator + "restfulService" + File.separator + "ecommerceService.bal",
+                sampleDir + File.separator + "routingServices" + File.separator + "routingServices.bal",
+                sampleDir + File.separator + "serviceChaining" + File.separator + "ATMLocatorService.bal"
+        };
+        return sampleFiles;
     }
 }

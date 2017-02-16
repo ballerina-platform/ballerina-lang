@@ -103,9 +103,6 @@ public class BLangPrograms {
 
         try {
             Path realSourcePath = programDirPath.resolve(sourcePath).toRealPath();
-            if (!realSourcePath.startsWith(programDirPath)) {
-                throw new IllegalArgumentException("given source package/file must be inside the program directory");
-            }
 
             if (Files.isDirectory(realSourcePath, LinkOption.NOFOLLOW_LINKS)) {
                 return realSourcePath;
