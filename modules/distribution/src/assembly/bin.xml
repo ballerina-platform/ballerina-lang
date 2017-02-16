@@ -132,6 +132,8 @@
                 <include>org.wso2.staxon:staxon-core</include>
                 <include>org.apache.commons:commons-lang3</include>
                 <include>javax.websocket:javax.websocket-api</include>
+                <include>org.wso2.carbon:org.wso2.carbon.core:jar</include>
+                <include>com.zaxxer:HikariCP</include>
             </includes>
         </dependencySet>
     </dependencySets>

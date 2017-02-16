@@ -343,13 +343,13 @@ public class SemanticAnalyzer implements NodeVisitor {
         }
 
         if (!function.isNative()) {
-            BlockStmt blockStmt = function.getCallableUnitBody();
-            blockStmt.accept(this);
-
             for (Worker worker : function.getWorkers()) {
                 worker.accept(this);
                 addWorkerSymbol(worker);
             }
+
+            BlockStmt blockStmt = function.getCallableUnitBody();
+            blockStmt.accept(this);
         }
         // Here we need to calculate size of the BValue array which will be created in the stack frame
         // Values in the stack frame are stored in the following order.
@@ -449,13 +449,13 @@ public class SemanticAnalyzer implements NodeVisitor {
         }
 
         if (!action.isNative()) {
-            BlockStmt blockStmt = action.getCallableUnitBody();
-            blockStmt.accept(this);
-
             for (Worker worker : action.getWorkers()) {
                 worker.accept(this);
                 addWorkerSymbol(worker);
             }
+
+            BlockStmt blockStmt = action.getCallableUnitBody();
+            blockStmt.accept(this);
         }
 
         // Here we need to calculate size of the BValue array which will be created in the stack frame

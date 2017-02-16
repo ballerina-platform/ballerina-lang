@@ -171,6 +171,10 @@
             <groupId>javax.websocket</groupId>
             <artifactId>javax.websocket-api</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.zaxxer</groupId>
+            <artifactId>HikariCP</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
