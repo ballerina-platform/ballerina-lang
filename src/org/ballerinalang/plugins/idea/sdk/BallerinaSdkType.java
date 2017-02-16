@@ -48,7 +48,7 @@ public class BallerinaSdkType extends SdkType {
     @NotNull
     @Override
     public Icon getIcon() {
-        return BallerinaIcons.FILE;
+        return BallerinaIcons.ICON;
     }
 
     @NotNull

@@ -51,6 +51,6 @@ public class BallerinaFileType extends LanguageFileType {
     @Nullable
     @Override
     public Icon getIcon() {
-        return BallerinaIcons.FILE;
+        return BallerinaIcons.ICON;
     }
 }
