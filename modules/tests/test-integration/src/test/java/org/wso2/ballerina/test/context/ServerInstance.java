@@ -19,7 +19,6 @@ package org.wso2.ballerina.test.context;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.ballerina.test.util.FTPTestServer;
 import org.wso2.ballerina.test.util.JMSBroker;
 
 import java.io.BufferedReader;
@@ -70,7 +69,6 @@ public class ServerInstance implements Server {
         Utils.checkPortAvailability(httpServerPort);
         // Start the activemq embedded broker.
         JMSBroker.startBroker();
-        FTPTestServer.getInstance().start();
         if (serverHome == null) {
             serverHome = setUpServerHome(serverDistribution);
             log.info("Server Home " + serverHome);
