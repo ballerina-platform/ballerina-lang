@@ -34,10 +34,20 @@ import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.StreamingCarbonMessage;
 
 /**
- * Function to get payload as String.
- * This function reads the {@link java.io.InputStream} of the incoming file,
- * converts it to a String, closes the stream and returns the String message.
- * ballerina.net.file:getStringPayload
+ * Function to acknowledge that file processing is done.
+ *
+ * This function sends an acknowledgement to the sender of the message,
+ * saying that the message processing is done.
+ *
+ * What happens under the hood:
+ * As the received {@link StreamingCarbonMessage} carries
+ * a reference to a file {@link java.io.InputStream}, once acknowledged,
+ * the message sender will close the file input stream.
+ *
+ * This means, this function needs to be called after all the processing
+ * with the message has being done.
+ *
+ * ballerina.net.file:acknowledge
  */
 @BallerinaFunction(
         packageName = "ballerina.net.file",
@@ -46,7 +56,7 @@ import org.wso2.carbon.messaging.StreamingCarbonMessage;
         isPublic = true
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = { @Attribute(name = "value",
-        value = "This function acknowledges to the message sender that processing of the message has finished.") })
+        value = "This function acknowledges to the message sender that processing of the file has finished.") })
 @BallerinaAnnotation(annotationName = "Param", attributes = { @Attribute(name = "message",
         value = "message") })
 public class Acknowledge extends AbstractNativeFunction {
@@ -75,8 +85,7 @@ public class Acknowledge extends AbstractNativeFunction {
             }
         } catch (Throwable e) {
             throw new BallerinaException("Error while acknowledging file" +
-                    (cMsg == null ? ". " : ": " + cMsg.getHeader(FILE_NAME))
-                    + " . Reason : " + e.getMessage());
+                    (cMsg == null ? ". " : ": " + cMsg.getHeader(FILE_NAME)), e);
         }
         return VOID_RETURN;
     }
