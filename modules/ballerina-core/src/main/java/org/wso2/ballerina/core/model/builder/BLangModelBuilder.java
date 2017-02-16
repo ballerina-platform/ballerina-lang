@@ -87,10 +87,8 @@ import org.wso2.ballerina.core.model.statements.WhileStmt;
 import org.wso2.ballerina.core.model.statements.WorkerInvocationStmt;
 import org.wso2.ballerina.core.model.statements.WorkerReplyStmt;
 import org.wso2.ballerina.core.model.symbols.BLangSymbol;
-import org.wso2.ballerina.core.model.types.BTypes;
 import org.wso2.ballerina.core.model.types.SimpleTypeName;
 import org.wso2.ballerina.core.model.types.TypeConstants;
-import org.wso2.ballerina.core.model.types.TypeVertex;
 import org.wso2.ballerina.core.model.util.LangModelUtils;
 import org.wso2.ballerina.core.model.values.BBoolean;
 import org.wso2.ballerina.core.model.values.BDouble;
@@ -168,6 +166,7 @@ public class BLangModelBuilder {
 
     public BLangModelBuilder(BLangPackage.PackageBuilder packageBuilder, String bFileName) {
         this.currentScope = packageBuilder.getCurrentScope();
+        this.packageScope = currentScope;
         bFileBuilder = new BallerinaFile.BFileBuilder(bFileName, packageBuilder);
 
         // TODO Add a description why.
@@ -803,11 +802,8 @@ public class BLangModelBuilder {
         currentCUBuilder.setNative(isNative);
 
         BTypeMapper typeMapper = currentCUBuilder.buildTypeMapper();
-        TypeVertex sourceV = new TypeVertex(BTypes.resolveType(new SimpleTypeName(source),
-                currentScope, location));
-        TypeVertex targetV = new TypeVertex(BTypes.resolveType(new SimpleTypeName(target),
-                currentScope, location));
-        bFileBuilder.addTypeMapper(sourceV, targetV, typeMapper, currentPackagePath);
+
+        bFileBuilder.addTypeMapper(typeMapper);
 
         // Define type mapper is delayed due to missing type info of Parameters.
 

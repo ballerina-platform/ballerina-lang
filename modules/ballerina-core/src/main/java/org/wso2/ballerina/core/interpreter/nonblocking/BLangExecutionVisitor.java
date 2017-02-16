@@ -88,6 +88,8 @@ public abstract class BLangExecutionVisitor implements LinkedNodeVisitor {
 
     public abstract void continueExecution(LinkedNode linkedNode);
 
+    public abstract void continueExecution();
+
     @Override
     public void visit(BLangProgram bLangProgram) {
 

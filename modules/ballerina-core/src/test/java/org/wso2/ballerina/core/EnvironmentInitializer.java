@@ -22,6 +22,7 @@ import org.wso2.ballerina.core.interpreter.RuntimeEnvironment;
 import org.wso2.ballerina.core.model.BLangPackage;
 import org.wso2.ballerina.core.model.BLangProgram;
 import org.wso2.ballerina.core.model.Service;
+import org.wso2.ballerina.core.model.builder.BLangExecutionFlowBuilder;
 import org.wso2.ballerina.core.nativeimpl.connectors.BallerinaConnectorManager;
 import org.wso2.ballerina.core.runtime.MessageProcessor;
 import org.wso2.ballerina.core.runtime.internal.BuiltInNativeConstructLoader;
@@ -37,18 +38,19 @@ public class EnvironmentInitializer {
         // Initialize server connectors before starting the test cases
         BallerinaConnectorManager.getInstance().initialize(new MessageProcessor());
         BallerinaConnectorManager.getInstance().registerServerConnectorErrorHandler(new TestErrorHandler());
-        // Resister HTTP Dispatchers
 
         // Load constructors
         BuiltInNativeConstructLoader.loadConstructs();
 
         BLangProgram bLangProgram = BTestUtils.parseBalFile(sourcePath);
 
+        BLangExecutionFlowBuilder flowBuilder = new BLangExecutionFlowBuilder();
         for (BLangPackage servicePackage : bLangProgram.getPackages()) {
             for (Service service : servicePackage.getServices()) {
                 service.setBLangProgram(bLangProgram);
                 DispatcherRegistry.getInstance().getServiceDispatchers().forEach((protocol, dispatcher) ->
                         dispatcher.serviceRegistered(service));
+                service.accept(flowBuilder);
             }
         }
 
@@ -67,7 +69,6 @@ public class EnvironmentInitializer {
                 });
             }
         }
-        DispatcherRegistry.getInstance().clearDispatchers();
     }
 
 }

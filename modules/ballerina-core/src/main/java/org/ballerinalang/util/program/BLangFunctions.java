@@ -22,12 +22,22 @@ import org.wso2.ballerina.core.interpreter.CallableUnitInfo;
 import org.wso2.ballerina.core.interpreter.Context;
 import org.wso2.ballerina.core.interpreter.RuntimeEnvironment;
 import org.wso2.ballerina.core.interpreter.StackFrame;
+import org.wso2.ballerina.core.interpreter.StackVarLocation;
+import org.wso2.ballerina.core.interpreter.nonblocking.BLangNonBlockingExecutor;
+import org.wso2.ballerina.core.interpreter.nonblocking.ModeResolver;
 import org.wso2.ballerina.core.model.BLangProgram;
 import org.wso2.ballerina.core.model.Function;
 import org.wso2.ballerina.core.model.ParameterDef;
+import org.wso2.ballerina.core.model.SymbolName;
+import org.wso2.ballerina.core.model.builder.BLangExecutionFlowBuilder;
+import org.wso2.ballerina.core.model.expressions.Expression;
+import org.wso2.ballerina.core.model.expressions.FunctionInvocationExpr;
+import org.wso2.ballerina.core.model.expressions.VariableRefExpr;
+import org.wso2.ballerina.core.model.nodes.StartNode;
 import org.wso2.ballerina.core.model.types.BType;
 import org.wso2.ballerina.core.model.types.BTypes;
 import org.wso2.ballerina.core.model.values.BBoolean;
+import org.wso2.ballerina.core.model.values.BDataTable;
 import org.wso2.ballerina.core.model.values.BDouble;
 import org.wso2.ballerina.core.model.values.BFloat;
 import org.wso2.ballerina.core.model.values.BInteger;
@@ -109,17 +119,52 @@ public class BLangFunctions {
         BValue[] returnValues = new BValue[function.getReturnParameters().length];
         CallableUnitInfo functionInfo = new CallableUnitInfo(function.getName(), function.getPackagePath(),
                 function.getNodeLocation());
-
-        StackFrame stackFrame = new StackFrame(argValues, returnValues, functionInfo);
-        bContext.getControlStack().pushFrame(stackFrame);
-
-        // Invoke main function
         RuntimeEnvironment runtimeEnv = RuntimeEnvironment.get(bLangProgram);
-        BLangExecutor executor = new BLangExecutor(runtimeEnv, bContext);
-        function.getCallableUnitBody().execute(executor);
 
-        bContext.getControlStack().popFrame();
-        return returnValues;
+        if (ModeResolver.getInstance().isNonblockingEnabled()) {
+            // TODO: Fix this properly.
+            Expression[] exprs = new Expression[args.length];
+            for (int i = 0; i < args.length; i++) {
+                VariableRefExpr variableRefExpr = new VariableRefExpr(function.getNodeLocation(),
+                        new SymbolName("arg" + i));
+
+                variableRefExpr.setVariableDef(function.getParameterDefs()[i]);
+                StackVarLocation location = new StackVarLocation(i);
+                variableRefExpr.setMemoryLocation(location);
+                exprs[i] = variableRefExpr;
+            }
+
+            // 3) Create a function invocation expression
+            FunctionInvocationExpr funcIExpr = new FunctionInvocationExpr(
+                    function.getNodeLocation(), functionName, null, null, exprs);
+            funcIExpr.setOffset(args.length);
+            funcIExpr.setCallableUnit(function);
+            // Linking.
+            BLangExecutionFlowBuilder flowBuilder = new BLangExecutionFlowBuilder();
+            funcIExpr.setParent(new StartNode(StartNode.Originator.TEST));
+            funcIExpr.accept(flowBuilder);
+            BValue[] cacheValues = new BValue[100];
+            StackFrame stackFrame = new StackFrame(argValues, new BValue[0], cacheValues, functionInfo);
+            bContext.getControlStack().pushFrame(stackFrame);
+
+            // Invoke main function
+            BLangNonBlockingExecutor nonBlockingExecutor = new BLangNonBlockingExecutor(runtimeEnv, bContext);
+            nonBlockingExecutor.execute(funcIExpr);
+            int length = funcIExpr.getCallableUnit().getReturnParameters().length;
+            BValue[] result = new BValue[length];
+            for (int i = 0; i < length; i++) {
+                result[i] = bContext.getControlStack().getCurrentFrame().tempValues[funcIExpr.getTempOffset() + i];
+            }
+            return result;
+        } else {
+            StackFrame stackFrame = new StackFrame(argValues, returnValues, functionInfo);
+            bContext.getControlStack().pushFrame(stackFrame);
+
+            // Invoke main function
+            BLangExecutor executor = new BLangExecutor(runtimeEnv, bContext);
+            function.getCallableUnitBody().execute(executor);
+            return returnValues;
+        }
     }
 
     /**
@@ -212,6 +257,8 @@ public class BLangFunctions {
             bType = BTypes.typeMessage;
         } else if (bValue instanceof BMap) {
             bType = BTypes.typeMap;
+        } else if (bValue instanceof BDataTable) {
+            bType = BTypes.typeDatatable;
         }
 
         return bType;

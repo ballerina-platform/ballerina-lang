@@ -28,6 +28,9 @@ import org.wso2.carbon.messaging.ServerConnector;
 import org.wso2.carbon.messaging.ServerConnectorErrorHandler;
 import org.wso2.carbon.messaging.exceptions.ServerConnectorException;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.ServiceLoader;
 
@@ -41,6 +44,9 @@ public class BallerinaConnectorManager {
     private static BallerinaConnectorManager instance = new BallerinaConnectorManager();
 
     private boolean connectorsInitialized = false;
+    
+    /* ServerConnectors which startup is delayed at the service deployment time */
+    private List<StartupDelayedServerConnectorHolder> startupDelayedServerConnectors = new ArrayList<>();
 
     private BallerinaConnectorManager() {
     }
@@ -145,6 +151,27 @@ public class BallerinaConnectorManager {
         connectorManager.initializeClientConnectors(messageProcessor);
     }
 
+    /**
+     * Add a ServerConnector which startup is delayed at the service deployment time
+     *
+     * @param serverConnector ServerConnector
+     * @param parameters      parameter map required to start the ServerConnector
+     */
+    public void addStartupDelayedServerConnector(ServerConnector serverConnector, Map<String, String> parameters) {
+        startupDelayedServerConnectors.add(new StartupDelayedServerConnectorHolder(serverConnector, parameters));
+    }
+
+    /**
+     * Start all the ServerConnectors which startup is delayed at the service deployment time
+     *
+     * @throws ServerConnectorException if exception occurs while starting at least one connector
+     */
+    public void startPendingConnectors() throws ServerConnectorException {
+        for (StartupDelayedServerConnectorHolder connectorHolder: startupDelayedServerConnectors) {
+            connectorHolder.getServerConnector().start(connectorHolder.getParameters());
+        }
+    }
+
     private void loadDispatchers() {
         ServiceLoader<ResourceDispatcher> resourceDispatcherServiceLoader =
                 ServiceLoader.load(ResourceDispatcher.class);
@@ -154,6 +181,28 @@ public class BallerinaConnectorManager {
         ServiceLoader<ServiceDispatcher> serviceDispatcherServiceLoader = ServiceLoader.load(ServiceDispatcher.class);
         serviceDispatcherServiceLoader.forEach(serviceDispatcher ->
                 DispatcherRegistry.getInstance().registerServiceDispatcher(serviceDispatcher));
+    }
+
+    /**
+     * DataHolder for store startup delayed ServerConnectors
+     * TODO: We may get rid of this later with a messaging api change
+     */
+    private class StartupDelayedServerConnectorHolder {
+        Map<String, String> parameters;
+        ServerConnector serverConnector;
+
+        private StartupDelayedServerConnectorHolder(ServerConnector serverConnector, Map<String, String> parameters) {
+            this.parameters = parameters;
+            this.serverConnector = serverConnector;
+        }
+
+        private Map<String, String> getParameters() {
+            return parameters;
+        }
+
+        private ServerConnector getServerConnector() {
+            return serverConnector;
+        }
     }
 
 }
