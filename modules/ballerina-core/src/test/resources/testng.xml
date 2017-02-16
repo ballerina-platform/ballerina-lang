@@ -86,9 +86,8 @@ under the License.
             <class name="org.wso2.ballerina.TestConfigurationUtil" />
             <class name="org.wso2.ballerina.lang.service.ServiceVariableTest"/>
             <class name="org.wso2.ballerina.lang.service.JMSServiceTest" />
-        </classes>
             <class name="org.wso2.ballerina.lang.service.FileServiceTest" />
-        </classes>N
+        </classes>
     </test>
     <!-- Non Blocking Test Cases -->
     <!--<test name="ballerina-service-test-non-blocking">-->

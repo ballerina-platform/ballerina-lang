@@ -19,8 +19,8 @@ package org.wso2.ballerina.test.context;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.ballerina.test.util.JMSBroker;
 import org.wso2.ballerina.test.util.FTPTestServer;
+import org.wso2.ballerina.test.util.JMSBroker;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -229,10 +229,9 @@ public class ServerInstance implements Server {
         /*
          * Copying the common-nets jar to the bre/lib, in order to test the ftp based sample file service.
          */
-        Path source = Paths.get(baseDir + File.separator + Constant.COMMON_NETS_JAR);
-        Path destination = Paths
-                .get(serverExtractedPath + File.separator + "bre" + File.separator + "lib" + File.separator
-                        + Constant.COMMON_NETS_JAR);
+        source = Paths.get(baseDir + File.separator + Constant.COMMON_NETS_JAR);
+        destination = Paths.get(serverExtractedPath + File.separator + "bre" + File.separator
+                + "lib" + File.separator + Constant.COMMON_NETS_JAR);
         Files.copy(source, destination, StandardCopyOption.REPLACE_EXISTING);
         return serverExtractedPath;
     }
