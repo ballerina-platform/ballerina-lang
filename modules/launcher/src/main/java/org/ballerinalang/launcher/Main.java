@@ -55,7 +55,7 @@ public class Main {
             if (msg == null) {
                 outStream.println("ballerina: unexpected error occurred");
             } else {
-                outStream.println("ballerina: " + LauncherUtils.makeFirstLetterUpperCase(msg));
+                outStream.println("ballerina: " + LauncherUtils.makeFirstLetterLowerCase(msg));
             }
             Runtime.getRuntime().exit(1);
         }
@@ -149,7 +149,7 @@ public class Main {
 
             } else {
                 // Make the first character of the error message lower case
-                throw LauncherUtils.createUsageException(LauncherUtils.makeFirstLetterUpperCase(msg));
+                throw LauncherUtils.createUsageException(LauncherUtils.makeFirstLetterLowerCase(msg));
             }
         }
     }
@@ -212,7 +212,7 @@ public class Main {
         int longestNameLen = 0;
         for (JCommander commander : cmdParser.getCommands().values()) {
             BLauncherCmd cmd = (BLauncherCmd) commander.getObjects().get(0);
-            if (cmd.getName().equals("main") || cmd.getName().equals("help")) {
+            if (cmd.getName().equals("default-cmd") || cmd.getName().equals("help")) {
                 continue;
             }
 
@@ -224,7 +224,7 @@ public class Main {
 
         for (JCommander commander : cmdParser.getCommands().values()) {
             BLauncherCmd cmd = (BLauncherCmd) commander.getObjects().get(0);
-            if (cmd.getName().equals("main") || cmd.getName().equals("help")) {
+            if (cmd.getName().equals("default-cmd") || cmd.getName().equals("help")) {
                 continue;
             }
 
@@ -249,9 +249,9 @@ public class Main {
         bLauncherCmd.printUsage(out);
         out.append("\n");
 
-        if (cmdParser.getCommands().values().size() != 0) {
+        if (jCommander.getCommands().values().size() != 0) {
             out.append("Available Commands:\n");
-            printCommandList(cmdParser, out);
+            printCommandList(jCommander, out);
             out.append("\n");
         }
 
@@ -356,12 +356,12 @@ public class Main {
 
         @Override
         public String getName() {
-            return "run";
+            return "main";
         }
 
         @Override
         public void printUsage(StringBuilder out) {
-            out.append("ballerina run <filename>\n");
+            out.append("  ballerina run main  <filename | packagename | archive>\n");
         }
 
         @Override
@@ -448,7 +448,7 @@ public class Main {
 
         @Override
         public void printUsage(StringBuilder out) {
-            out.append("ballerina service <filename>... [flags]\n");
+            out.append("  ballerina run service  <filename | packagename | archive>...\n");
         }
 
         @Override
@@ -466,7 +466,7 @@ public class Main {
      *
      * @since 0.8.0
      */
-    @Parameters(commandNames = "build", commandDescription = "build Ballerina program with dependencies")
+    @Parameters(commandNames = "build", commandDescription = "create Ballerina program archives")
     private static class BuildCmd implements BLauncherCmd {
 
         private JCommander parentCmdParser;
@@ -483,7 +483,7 @@ public class Main {
 
         public void execute() {
             if (helpFlag) {
-                printCommandUsageInfo(parentCmdParser, "run");
+                printCommandUsageInfo(parentCmdParser, "build");
                 return;
             }
 
@@ -524,7 +524,7 @@ public class Main {
      *
      * @since 0.8.0
      */
-    @Parameters(commandNames = "main", commandDescription = "build main program ")
+    @Parameters(commandNames = "main", commandDescription = "create main program archive")
     private static class BuildMainCmd implements BLauncherCmd {
 
         private JCommander parentCmdParser;
@@ -584,12 +584,12 @@ public class Main {
 
         @Override
         public String getName() {
-            return "add";
+            return "main";
         }
 
         @Override
         public void printUsage(StringBuilder out) {
-            out.append("ballerina add <package>...\n");
+            out.append("  ballerina build main  <packagename> [-o filename]\n");
         }
 
         @Override
@@ -607,7 +607,7 @@ public class Main {
      *
      * @since 0.8.0
      */
-    @Parameters(commandNames = "service", commandDescription = "build service program ")
+    @Parameters(commandNames = "service", commandDescription = "create service program archive")
     private static class BuildServiceCmd implements BLauncherCmd {
 
         private JCommander parentCmdParser;
@@ -667,12 +667,12 @@ public class Main {
 
         @Override
         public String getName() {
-            return "add";
+            return "service";
         }
 
         @Override
         public void printUsage(StringBuilder out) {
-            out.append("ballerina add <package>...\n");
+            out.append("  ballerina build service <packagename>... [-o filename]\n");
         }
 
         @Override
@@ -759,7 +759,7 @@ public class Main {
 
         @Override
         public String getName() {
-            return "main";
+            return "default-cmd";
         }
 
         @Override
