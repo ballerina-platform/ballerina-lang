@@ -43,10 +43,10 @@ import org.wso2.carbon.messaging.exceptions.ClientConnectorException;
         actionName = "put",
         connectorName = ClientConnector.CONNECTOR_NAME,
         args = {
-                @Argument(name = "connector",
+                @Argument(name = "c",
                         type = TypeEnum.CONNECTOR),
                 @Argument(name = "path", type = TypeEnum.STRING),
-                @Argument(name = "message", type = TypeEnum.MESSAGE)
+                @Argument(name = "m", type = TypeEnum.MESSAGE)
         },
         returnType = {@ReturnType(type = TypeEnum.MESSAGE)})
 @Component(

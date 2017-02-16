@@ -237,6 +237,20 @@ public final class BJSON extends BallerinaMessageDataSource implements BRefType<
         }
     }
 
+    @Override
+    public BallerinaMessageDataSource clone() {
+        BJSON clonedMessage = new BJSON("{}");
+        try {
+            String elementString = this.getMessageAsString();
+            JsonNode clonedContent = OBJECT_MAPPER.readTree(elementString);
+            clonedMessage.setValue(clonedContent);
+
+        } catch (Throwable t) {
+            handleJsonException("failed to clone the json message: ", t);
+        }
+        return clonedMessage;
+    }
+
     /**
      * This represents a JSON data source implementation, which should be used for custom JSON
      * streaming implementations.
@@ -250,19 +264,5 @@ public final class BJSON extends BallerinaMessageDataSource implements BRefType<
          */
         void serialize(JsonGenerator gen) throws IOException;
 
-    }
-
-    @Override
-    public BallerinaMessageDataSource clone() {
-        BJSON clonedMessage = new BJSON("{}");
-        try {
-            String elementString = this.getMessageAsString();
-            JsonNode clonedContent = OBJECT_MAPPER.readTree(elementString);
-            clonedMessage.setValue(clonedContent);
-
-        } catch (Throwable t) {
-            handleJsonException("failed to clone the json message: ", t);
-        }
-        return clonedMessage;
     }
 }

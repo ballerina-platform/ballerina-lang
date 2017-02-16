@@ -17,12 +17,13 @@
  */
 package org.wso2.ballerina.nativeimpl.functions;
 
+import org.ballerinalang.util.program.BLangFunctions;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.interpreter.SymScope;
-import org.wso2.ballerina.core.model.BallerinaFile;
+import org.wso2.ballerina.core.model.BLangProgram;
 import org.wso2.ballerina.core.model.values.BBoolean;
 import org.wso2.ballerina.core.model.values.BDouble;
 import org.wso2.ballerina.core.model.values.BFloat;
@@ -33,27 +34,26 @@ import org.wso2.ballerina.core.model.values.BString;
 import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.model.values.BXML;
 import org.wso2.ballerina.core.runtime.internal.GlobalScopeHolder;
-import org.wso2.ballerina.nativeimpl.util.Functions;
-import org.wso2.ballerina.nativeimpl.util.ParserUtils;
+import org.wso2.ballerina.nativeimpl.util.BTestUtils;
 
 /**
  * Test Native functions in ballerina.lang.string.
  */
 public class StringTest {
-    private BallerinaFile bFile;
+    private BLangProgram bLangProgram;
     private static final String s1 = "WSO2 Inc.";
 
     @BeforeClass
     public void setup() {
         // Add Native functions.
         SymScope symScope = GlobalScopeHolder.getInstance().getScope();
-        bFile = ParserUtils.parseBalFile("samples/stringTest.bal");
+        bLangProgram = BTestUtils.parseBalFile("samples/stringTest.bal");
     }
 
     @Test
     public void testBooleanValueOf() {
         BValue[] args = {new BBoolean(true)};
-        BValue[] returns = Functions.invoke(bFile, "booleanValueOf", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "booleanValueOf", args);
 
         Assert.assertTrue(returns[0] instanceof BString);
 
@@ -64,7 +64,7 @@ public class StringTest {
     @Test
     public void testContains() {
         BValue[] args = {new BString(s1), new BString("WSO2")};
-        BValue[] returns = Functions.invoke(bFile, "contains", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "contains", args);
 
         Assert.assertTrue(returns[0] instanceof BBoolean);
 
@@ -75,7 +75,7 @@ public class StringTest {
     @Test
     public void testDoubleValueOf() {
         BValue[] args = {new BDouble(1.345)};
-        BValue[] returns = Functions.invoke(bFile, "doubleValueOf", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "doubleValueOf", args);
 
         Assert.assertTrue(returns[0] instanceof BString);
 
@@ -86,7 +86,7 @@ public class StringTest {
     @Test
     public void testEqualsIgnoreCase() {
         BValue[] args = {new BString("WSO2"), new BString("wso2")};
-        BValue[] returns = Functions.invoke(bFile, "equalsIgnoreCase", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "equalsIgnoreCase", args);
 
         Assert.assertTrue(returns[0] instanceof BBoolean);
 
@@ -97,7 +97,7 @@ public class StringTest {
     @Test
     public void testFloatValueOf() {
         BValue[] args = {new BFloat(1.345f)};
-        BValue[] returns = Functions.invoke(bFile, "floatValueOf", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "floatValueOf", args);
 
         Assert.assertTrue(returns[0] instanceof BString);
 
@@ -108,7 +108,7 @@ public class StringTest {
     @Test
     public void testHasPrefix() {
         BValue[] args = {new BString("Expendables"), new BString("Ex")};
-        BValue[] returns = Functions.invoke(bFile, "hasPrefix", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "hasPrefix", args);
 
         Assert.assertTrue(returns[0] instanceof BBoolean);
 
@@ -119,7 +119,7 @@ public class StringTest {
     @Test
     public void testHasSuffix() {
         BValue[] args = {new BString("One Two"), new BString("Two")};
-        BValue[] returns = Functions.invoke(bFile, "hasSuffix", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "hasSuffix", args);
 
         Assert.assertTrue(returns[0] instanceof BBoolean);
 
@@ -130,7 +130,7 @@ public class StringTest {
     @Test
     public void testIndexOf() {
         BValue[] args = {new BString("Lion in the town"), new BString("in")};
-        BValue[] returns = Functions.invoke(bFile, "indexOf", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "indexOf", args);
 
         Assert.assertTrue(returns[0] instanceof BInteger);
 
@@ -141,7 +141,7 @@ public class StringTest {
     @Test
     public void testIntValueOf() {
         BValue[] args = {new BInteger(25)};
-        BValue[] returns = Functions.invoke(bFile, "intValueOf", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "intValueOf", args);
 
         Assert.assertTrue(returns[0] instanceof BString);
 
@@ -152,7 +152,7 @@ public class StringTest {
     @Test
     public void testJsonValueOf() {
         BValue[] args = {new BJSON("{\"name\":\"chanaka\"}")};
-        BValue[] returns = Functions.invoke(bFile, "jsonValueOf", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "jsonValueOf", args);
 
         Assert.assertTrue(returns[0] instanceof BString);
 
@@ -163,7 +163,7 @@ public class StringTest {
     @Test
     public void testLastIndexOf() {
         BValue[] args = {new BString("test x value x is x 18"), new BString("x")};
-        BValue[] returns = Functions.invoke(bFile, "lastIndexOf", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "lastIndexOf", args);
 
         Assert.assertTrue(returns[0] instanceof BInteger);
 
@@ -174,7 +174,7 @@ public class StringTest {
     @Test
     public void testLength() {
         BValue[] args = {new BString("Bandwagon")};
-        BValue[] returns = Functions.invoke(bFile, "length", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "length", args);
 
         Assert.assertTrue(returns[0] instanceof BInteger);
 
@@ -185,7 +185,7 @@ public class StringTest {
     @Test
     public void testLongValueOf() {
         BValue[] args = {new BLong(655555L)};
-        BValue[] returns = Functions.invoke(bFile, "longValueOf", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "longValueOf", args);
 
         Assert.assertTrue(returns[0] instanceof BString);
 
@@ -196,7 +196,7 @@ public class StringTest {
     @Test
     public void testReplace() {
         BValue[] args = {new BString("Best Company is Google"), new BString("Google"), new BString("WSO2")};
-        BValue[] returns = Functions.invoke(bFile, "replace", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "replace", args);
 
         Assert.assertTrue(returns[0] instanceof BString);
 
@@ -207,7 +207,7 @@ public class StringTest {
     @Test
     public void testReplaceAll() {
         BValue[] args = {new BString("abc is not abc as abc anymore"), new BString("abc"), new BString("xyz")};
-        BValue[] returns = Functions.invoke(bFile, "replaceAll", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "replaceAll", args);
 
         Assert.assertTrue(returns[0] instanceof BString);
 
@@ -218,7 +218,7 @@ public class StringTest {
     @Test
     public void testReplaceFirst() {
         BValue[] args = {new BString("abc is not abc as abc anymore"), new BString("abc"), new BString("xyz")};
-        BValue[] returns = Functions.invoke(bFile, "replaceFirst", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "replaceFirst", args);
 
         Assert.assertTrue(returns[0] instanceof BString);
 
@@ -229,7 +229,7 @@ public class StringTest {
     @Test
     public void testStringValueOf() {
         BValue[] args = {new BString("This is a String")};
-        BValue[] returns = Functions.invoke(bFile, "stringValueOf", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "stringValueOf", args);
 
         Assert.assertTrue(returns[0] instanceof BString);
 
@@ -240,7 +240,7 @@ public class StringTest {
     @Test
     public void testSubString() {
         BValue[] args = {new BString("testValues"), new BInteger(0), new BInteger(9)};
-        BValue[] returns = Functions.invoke(bFile, "subString", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "subString", args);
 
         Assert.assertTrue(returns[0] instanceof BString);
 
@@ -251,7 +251,7 @@ public class StringTest {
     @Test
     public void testToLowerCase() {
         BValue[] args = {new BString("COMPANY")};
-        BValue[] returns = Functions.invoke(bFile, "toLowerCase", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "toLowerCase", args);
 
         Assert.assertTrue(returns[0] instanceof BString);
 
@@ -262,7 +262,7 @@ public class StringTest {
     @Test
     public void testToUpperCase() {
         BValue[] args = {new BString("company")};
-        BValue[] returns = Functions.invoke(bFile, "toUpperCase", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "toUpperCase", args);
 
         Assert.assertTrue(returns[0] instanceof BString);
 
@@ -273,7 +273,7 @@ public class StringTest {
     @Test
     public void testTrim() {
         BValue[] args = {new BString(" This is a String ")};
-        BValue[] returns = Functions.invoke(bFile, "trim", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "trim", args);
 
         Assert.assertTrue(returns[0] instanceof BString);
 
@@ -284,7 +284,7 @@ public class StringTest {
     @Test
     public void testUnescape() {
         BValue[] args = {new BString("This \\is an escaped \\String")};
-        BValue[] returns = Functions.invoke(bFile, "unescape", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "unescape", args);
 
         Assert.assertTrue(returns[0] instanceof BString);
 
@@ -295,7 +295,7 @@ public class StringTest {
     @Test
     public void testXmlValueOf() {
         BValue[] args = {new BXML("<test>name</test>")};
-        BValue[] returns = Functions.invoke(bFile, "xmlValueOf", args);
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "xmlValueOf", args);
 
         Assert.assertTrue(returns[0] instanceof BString);
 
@@ -306,7 +306,7 @@ public class StringTest {
     @Test(expectedExceptions = {BallerinaException.class})
     public void testXmlValueOfNegative() {
         BValue[] args = {new BXML("<test>name<test>")};
-        Functions.invoke(bFile, "xmlValueOf", args);
+        BLangFunctions.invoke(bLangProgram, "xmlValueOf", args);
     }
 
 }

@@ -1,5 +1,3 @@
-package lang.statements;
-
 const int b = 10;
 const float b = 10;
 

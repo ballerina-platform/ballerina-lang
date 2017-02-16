@@ -17,31 +17,31 @@
  */
 package org.wso2.ballerina.lang.expressions;
 
-import org.testng.Assert;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Test;
-import org.wso2.ballerina.core.model.BallerinaFile;
-import org.wso2.ballerina.core.model.values.BJSON;
-import org.wso2.ballerina.core.model.values.BValue;
-import org.wso2.ballerina.core.model.values.BXML;
-import org.wso2.ballerina.core.utils.ParserUtils;
-import org.wso2.ballerina.lang.util.Functions;
+//import org.ballerinalang.util.program.BLangFunctions;
+//import org.testng.Assert;
+//import org.testng.annotations.BeforeClass;
+//import org.testng.annotations.Test;
+//import org.wso2.ballerina.core.model.BLangProgram;
+//import org.wso2.ballerina.core.model.values.BJSON;
+//import org.wso2.ballerina.core.model.values.BValue;
+//import org.wso2.ballerina.core.model.values.BXML;
+//import org.wso2.ballerina.core.utils.BTestUtils;
 
 public class TypeMapperTest {
 
-    private BallerinaFile bFile;
-
-    @BeforeClass
-    public void setup() {
-        bFile = ParserUtils.parseBalFile("lang/expressions/ballerina-type-mapper.bal");
-    }
-
-    @Test
-    public void testJSONToXML() {
-        BValue[] args = {new BJSON("{\"name\":\"chanaka\"}")};
-        BValue[] returns = Functions.invoke(bFile, "testBalMapper", args);
-        Assert.assertTrue(returns[0] instanceof BXML);
-        final String expected = "<name>chanaka</name>";
-        Assert.assertEquals(returns[0].stringValue(), expected);
-    }
+//    private BLangProgram bLangProgram;
+//
+//    @BeforeClass
+//    public void setup() {
+//        bLangProgram = BTestUtils.parseBalFile("lang/expressions/ballerina-type-convertor.bal");
+//    }
+//
+//    @Test
+//    public void testJSONToXML() {
+//        BValue[] args = { new BJSON("{\"name\":\"chanaka\"}") };
+//        BValue[] returns = Functions.invoke(bFile, "testBalMapper", args);
+//        Assert.assertTrue(returns[0] instanceof BXML);
+//        final String expected = "<name>chanaka</name>";
+//        Assert.assertEquals(returns[0].stringValue(), expected);
+//    }
 }

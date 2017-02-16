@@ -17,26 +17,26 @@
  */
 package org.wso2.ballerina.core.lang.worker;
 
+import org.ballerinalang.util.program.BLangFunctions;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.wso2.ballerina.core.model.BallerinaFile;
+import org.wso2.ballerina.core.model.BLangProgram;
 import org.wso2.ballerina.core.model.values.BMessage;
 import org.wso2.ballerina.core.model.values.BValue;
-import org.wso2.ballerina.nativeimpl.util.Functions;
-import org.wso2.ballerina.nativeimpl.util.ParserUtils;
+import org.wso2.ballerina.nativeimpl.util.BTestUtils;
 
 public class WorkerInActionTest {
-    private BallerinaFile bFile;
+    private BLangProgram bLangProgram;
 
     @BeforeClass()
     public void setup() {
-        bFile = ParserUtils.parseBalFile("samples/worker-in-action.bal");
+        bLangProgram = BTestUtils.parseBalFile("samples/worker-in-action.bal");
     }
 
     @Test(description = "Test TestConnector action1")
     public void testConnectorAction1() {
-        BValue[] returns = Functions.invoke(bFile, "testAction1");
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testAction1");
         Assert.assertEquals(returns.length, 1);
         Assert.assertTrue(returns[0] instanceof BMessage);
     }

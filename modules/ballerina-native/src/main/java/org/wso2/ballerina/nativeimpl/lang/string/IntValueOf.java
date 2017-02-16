@@ -36,7 +36,7 @@ import org.wso2.ballerina.core.nativeimpl.annotations.ReturnType;
 @BallerinaFunction(
         packageName = "ballerina.lang.string",
         functionName = "valueOf",
-        args = {@Argument(name = "int", type = TypeEnum.INT)},
+        args = {@Argument(name = "i", type = TypeEnum.INT)},
         returnType = {@ReturnType(type = TypeEnum.STRING)},
         isPublic = true
 )

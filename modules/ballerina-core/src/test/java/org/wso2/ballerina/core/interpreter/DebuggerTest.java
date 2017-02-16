@@ -25,7 +25,7 @@ import org.wso2.ballerina.core.interpreter.nonblocking.ModeResolver;
 import org.wso2.ballerina.core.interpreter.nonblocking.debugger.BLangExecutionDebugger;
 import org.wso2.ballerina.core.interpreter.nonblocking.debugger.BreakPointInfo;
 import org.wso2.ballerina.core.interpreter.nonblocking.debugger.DebugSessionObserver;
-import org.wso2.ballerina.core.model.BallerinaFile;
+import org.wso2.ballerina.core.model.BLangProgram;
 import org.wso2.ballerina.core.model.BallerinaFunction;
 import org.wso2.ballerina.core.model.NodeLocation;
 import org.wso2.ballerina.core.model.ParameterDef;
@@ -39,7 +39,7 @@ import org.wso2.ballerina.core.model.types.BTypes;
 import org.wso2.ballerina.core.model.values.BArray;
 import org.wso2.ballerina.core.model.values.BString;
 import org.wso2.ballerina.core.model.values.BValue;
-import org.wso2.ballerina.core.utils.ParserUtils;
+import org.wso2.ballerina.core.utils.BTestUtils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
@@ -175,13 +175,13 @@ public class DebuggerTest {
 
     static class DebugRunner {
 
-        BallerinaFile balFile;
+        BLangProgram bLangProgram;
         FunctionInvocationExpr funcIExpr;
         BLangExecutionDebugger debugger;
 
         void setup() {
             ModeResolver.getInstance().setNonblockingEnabled(true);
-            this.balFile = ParserUtils.parseBalFile("samples/debug/testDebug.bal");
+            this.bLangProgram = BTestUtils.parseBalFile("samples/debug/testDebug.bal");
             // Arguments for main function.
             BArray<BString> arrayArgs = new BArray<>(BString.class);
             arrayArgs.add(0, new BString("Hello"));
@@ -190,7 +190,7 @@ public class DebuggerTest {
 
             Context bContext = new Context();
             SymbolName argsName;
-            BallerinaFunction mainFun = (BallerinaFunction) balFile.getMainFunction();
+            BallerinaFunction mainFun = (BallerinaFunction) bLangProgram.getMainFunction();
             NodeLocation mainFuncLocation = mainFun.getNodeLocation();
             ParameterDef[] parameterDefs = mainFun.getParameterDefs();
             argsName = parameterDefs[0].getSymbolName();
@@ -222,7 +222,7 @@ public class DebuggerTest {
             StackFrame currentStackFrame = new StackFrame(argValues, new BValue[0], tempValues, functionInfo);
             bContext.getControlStack().pushFrame(currentStackFrame);
 
-            RuntimeEnvironment runtimeEnv = RuntimeEnvironment.get(balFile);
+            RuntimeEnvironment runtimeEnv = RuntimeEnvironment.get(bLangProgram);
             debugger = new BLangExecutionDebugger(runtimeEnv, bContext);
         }
 
