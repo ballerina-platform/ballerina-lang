@@ -17,6 +17,7 @@
 */
 package org.ballerinalang;
 
+import org.ballerinalang.util.BLangDiagnosticListener;
 import org.ballerinalang.util.program.BLangPackages;
 import org.ballerinalang.util.program.BLangPrograms;
 import org.ballerinalang.util.repository.BLangProgramArchive;
@@ -36,11 +37,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * {@code BLangProgramLoader} creates in-memory representations of a Ballerina program from the given
+ * list of files, packages or archives.
+ *
  * @since 0.8.0
  */
 public class BLangProgramLoader {
     private boolean disableSemanticAnalyzer = false;
-    private PackageRepository packageRepository = null;
+    private PackageRepository packageRepository;
+    private BLangDiagnosticListener diagnosticListener;
 
     public BLangProgram loadMain(Path programDirPath, Path sourcePath) {
         programDirPath = BLangPrograms.validateAndResolveProgramDirPath(programDirPath);
@@ -131,8 +136,8 @@ public class BLangProgramLoader {
         return this;
     }
 
-    public BLangProgramLoader addDiagnosticListener() {
-        // TODO
+    public BLangProgramLoader addDiagnosticListener(BLangDiagnosticListener diagnosticListener) {
+        this.diagnosticListener = diagnosticListener;
         return this;
     }
 
