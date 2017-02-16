@@ -18,21 +18,21 @@ package org.wso2.ballerina.nativeimpl.connectors;
 
 import org.testng.annotations.BeforeClass;
 import org.wso2.ballerina.core.interpreter.SymScope;
-import org.wso2.ballerina.core.model.BallerinaFile;
+import org.wso2.ballerina.core.model.BLangProgram;
 import org.wso2.ballerina.nativeimpl.lang.system.PrintlnString;
-import org.wso2.ballerina.nativeimpl.util.ParserUtils;
+import org.wso2.ballerina.nativeimpl.util.BTestUtils;
 
 /**
  * Test class for Native Action test.
  */
 public class NativeActionTest {
 
-    private BallerinaFile bFile;
+    private BLangProgram bLangProgram;
     private SymScope globalScope;
 
     @BeforeClass
     public void setup() {
-        bFile = ParserUtils.parseBalFile("samples/PassthroughService.bal");
+        bLangProgram = BTestUtils.parseBalFile("samples/PassthroughService.bal");
 
         globalScope = new SymScope(SymScope.Name.GLOBAL);
 

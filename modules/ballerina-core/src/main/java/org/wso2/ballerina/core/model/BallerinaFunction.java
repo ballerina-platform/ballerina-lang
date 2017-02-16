@@ -51,6 +51,7 @@ public class BallerinaFunction implements Function, SymbolScope, CompilationUnit
     protected String pkgPath;
     protected boolean isPublic;
     protected SymbolName symbolName;
+    protected boolean isNative;
 
     private Annotation[] annotations;
     private ParameterDef[] parameterDefs;
@@ -213,7 +214,7 @@ public class BallerinaFunction implements Function, SymbolScope, CompilationUnit
 
     @Override
     public boolean isNative() {
-        return false;
+        return isNative;
     }
 
     @Override
@@ -281,6 +282,7 @@ public class BallerinaFunction implements Function, SymbolScope, CompilationUnit
             bFunc.returnParameters = this.returnParamList.toArray(new ParameterDef[this.returnParamList.size()]);
             bFunc.workers = this.workerList.toArray(new Worker[this.workerList.size()]);
             bFunc.functionBody = this.body;
+            bFunc.isNative = this.isNative;
             return bFunc;
         }
     }

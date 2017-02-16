@@ -38,7 +38,7 @@ import java.util.Set;
 @BallerinaFunction(
         packageName = "ballerina.lang.map",
         functionName = "keys",
-        args = {@Argument(name = "map", type = TypeEnum.MAP)},
+        args = {@Argument(name = "m", type = TypeEnum.MAP)},
         returnType = {@ReturnType(type = TypeEnum.ARRAY, elementType = TypeEnum.STRING)},
         isPublic = true
 )

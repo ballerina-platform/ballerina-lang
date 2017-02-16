@@ -33,7 +33,7 @@ import org.wso2.ballerina.core.nativeimpl.annotations.ReturnType;
 @BallerinaTypeMapper(
         packageName = "ballerina.lang.typemappers",
         typeMapperName = "jsonToString",
-        args = {@Argument(name = "value", type = TypeEnum.JSON)},
+        args = {@Argument(name = "j", type = TypeEnum.JSON)},
         returnType = {@ReturnType(type = TypeEnum.STRING)},
         isPublic = true
 )

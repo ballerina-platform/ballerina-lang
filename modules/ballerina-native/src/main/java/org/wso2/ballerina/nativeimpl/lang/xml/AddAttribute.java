@@ -46,7 +46,7 @@ import java.util.List;
 @BallerinaFunction(
         packageName = "ballerina.lang.xml",
         functionName = "addAttribute",
-        args = {@Argument(name = "xml", type = TypeEnum.XML),
+        args = {@Argument(name = "x", type = TypeEnum.XML),
                 @Argument(name = "xPath", type = TypeEnum.STRING),
                 @Argument(name = "name", type = TypeEnum.STRING),
                 @Argument(name = "value", type = TypeEnum.STRING)},

@@ -493,6 +493,7 @@
 
         <activemq.broker.vesion>5.14.3</activemq.broker.vesion>
         <javax.jms.version>2.0.1</javax.jms.version>
+        <mvn.exec.plugin.version>1.1.1</mvn.exec.plugin.version>
     </properties>
 
     <modules>

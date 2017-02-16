@@ -28,6 +28,7 @@ import org.wso2.ballerina.core.parser.BallerinaListener;
 import org.wso2.ballerina.core.parser.BallerinaParser;
 import org.wso2.ballerina.core.parser.BallerinaParser.AnnotationContext;
 
+import java.nio.file.Path;
 import java.util.List;
 
 /**
@@ -37,19 +38,20 @@ import java.util.List;
  * @since 0.8.0
  */
 public class BLangAntlr4Listener implements BallerinaListener {
-
+    private String fileName;
+    private String packageDirPath;
     private static final String PUBLIC = "public";
     private BLangModelBuilder modelBuilder;
     private String currentPkgName;
 
     // Types related attributes
     private String typeName;
-//    private String schemaID;
+    // private String schemaID;
 
     private boolean isSimpleType;
-//    private boolean isSchemaIDType;
-//    private boolean isFullSchemaType;
-//    private boolean isSchemaURLType;
+    // private boolean isSchemaIDType;
+    // private boolean isFullSchemaType;
+    // private boolean isSchemaURLType;
 
     private boolean isArrayType;
 
@@ -59,6 +61,17 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     public BLangAntlr4Listener(BLangModelBuilder modelBuilder) {
         this.modelBuilder = modelBuilder;
+    }
+
+    public BLangAntlr4Listener(BLangModelBuilder modelBuilder, Path sourceFilePath) {
+        this.modelBuilder = modelBuilder;
+        this.fileName = sourceFilePath.getFileName().toString();
+
+        if (sourceFilePath.getNameCount() >= 2) {
+            this.packageDirPath = sourceFilePath.subpath(0, sourceFilePath.getNameCount() - 1).toString();
+        } else {
+            this.packageDirPath = null;
+        }
     }
 
     @Override
@@ -174,12 +187,30 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void enterNativeFunction(BallerinaParser.NativeFunctionContext ctx) {
-
+        if (ctx.exception != null) {
+            return;
+        }
+        modelBuilder.startFunctionDef();
     }
 
     @Override
     public void exitNativeFunction(BallerinaParser.NativeFunctionContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+        
+        List<AnnotationContext> annotations = ctx.annotation();
+        if (annotations != null) {
+            // Set the location info needed to generate the stack trace
+            TerminalNode identifier = ctx.Identifier(0);
+            if (identifier != null) {
+                String fileName = identifier.getSymbol().getInputStream().getSourceName();
+                int lineNo = identifier.getSymbol().getLine();
+                NodeLocation functionLocation = new NodeLocation(fileName, lineNo);
 
+                modelBuilder.addFunction(functionLocation, identifier.getText(), true, true);
+            }
+        }
     }
 
     @Override
@@ -209,7 +240,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
                         int lineNo = identifier.getSymbol().getLine();
                         NodeLocation functionLocation = new NodeLocation(fileName, lineNo);
 
-                        modelBuilder.addFunction(functionLocation, identifier.getText(), isPublic);
+                        modelBuilder.addFunction(functionLocation, identifier.getText(), isPublic, false);
                     }
                 }
             }
@@ -242,12 +273,25 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void enterNativeConnector(BallerinaParser.NativeConnectorContext ctx) {
-
+        if (ctx.exception != null) {
+            return;
+        }
+        modelBuilder.startConnectorDef(getCurrentLocation(ctx));
     }
 
     @Override
     public void exitNativeConnector(BallerinaParser.NativeConnectorContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+        TerminalNode identifier = ctx.Identifier();
+        if (identifier != null) {
+            String fileName = identifier.getSymbol().getInputStream().getSourceName();
+            int lineNo = identifier.getSymbol().getLine();
+            NodeLocation connectorLocation = new NodeLocation(fileName, lineNo);
 
+            modelBuilder.createConnector(connectorLocation, identifier.getText(), true);
+        }
     }
 
     @Override
@@ -278,7 +322,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
                 int lineNo = identifier.getSymbol().getLine();
                 NodeLocation connectorLocation = new NodeLocation(fileName, lineNo);
 
-                modelBuilder.createConnector(connectorLocation, identifier.getText());
+                modelBuilder.createConnector(connectorLocation, identifier.getText(), false);
             }
         }
     }
@@ -296,12 +340,26 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void enterNativeAction(BallerinaParser.NativeActionContext ctx) {
-
+        if (ctx.exception != null) {
+            return;
+        }
+        modelBuilder.startActionDef();
     }
 
     @Override
     public void exitNativeAction(BallerinaParser.NativeActionContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+        // Set the location info needed to generate the stack trace
+        TerminalNode identifier = ctx.Identifier(0);
+        if (identifier != null) {
+            String fileName = identifier.getSymbol().getInputStream().getSourceName();
+            int lineNo = identifier.getSymbol().getLine();
+            NodeLocation actionLocation = new NodeLocation(fileName, lineNo);
 
+            modelBuilder.addAction(actionLocation, identifier.getText(), true);
+        }
     }
 
     @Override
@@ -321,7 +379,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
                 int lineNo = identifier.getSymbol().getLine();
                 NodeLocation actionLocation = new NodeLocation(fileName, lineNo);
 
-                modelBuilder.addAction(actionLocation, identifier.getText());
+                modelBuilder.addAction(actionLocation, identifier.getText(), false);
             }
         }
     }
@@ -374,12 +432,29 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void enterNativeTypeMapper(BallerinaParser.NativeTypeMapperContext ctx) {
-
+        if (ctx.exception != null) {
+            return;
+        }
+        modelBuilder.startTypeMapperDef();
     }
 
     @Override
     public void exitNativeTypeMapper(BallerinaParser.NativeTypeMapperContext ctx) {
-
+        if (ctx.exception != null) {
+            return;
+        }
+        // Create the return type of the type convertor
+        modelBuilder.createReturnTypes(getCurrentLocation(ctx));
+        boolean isPublic = true;
+        // Set the location info needed to generate the stack trace
+        TerminalNode identifier = ctx.Identifier();
+        if (identifier != null) {
+            String fileName = identifier.getSymbol().getInputStream().getSourceName();
+            int lineNo = identifier.getSymbol().getLine();
+            NodeLocation typeconvertorLocation = new NodeLocation(fileName, lineNo);
+            modelBuilder.addTypeMapper(ctx.typeMapperInput().typeMapperType().getText(),
+                ctx.typeMapperType().getText(), identifier.getText(), typeconvertorLocation, isPublic, true);
+        }
     }
 
     @Override
@@ -400,9 +475,9 @@ public class BLangAntlr4Listener implements BallerinaListener {
             if (identifier != null) {
                 String fileName = identifier.getSymbol().getInputStream().getSourceName();
                 int lineNo = identifier.getSymbol().getLine();
-                NodeLocation typemapperLocation = new NodeLocation(fileName, lineNo);
-                modelBuilder.addTypeMapper(ctx.typeMapperInput().typeMapperType().getText()
-                        , ctx.typeMapperType().getText(), identifier.getText(), typemapperLocation, isPublic);
+                NodeLocation typeconvertorLocation = new NodeLocation(fileName, lineNo);
+                modelBuilder.addTypeMapper(ctx.typeMapperInput().typeMapperType().getText(),
+                    ctx.typeMapperType().getText(), identifier.getText(), typeconvertorLocation, isPublic, false);
             }
         }
     }
@@ -1402,7 +1477,12 @@ public class BLangAntlr4Listener implements BallerinaListener {
             return;
         }
 
-        modelBuilder.createArrayInitExpr(getCurrentLocation(ctx));
+        boolean argsAvailable = false;
+        if (ctx.expressionList() != null) {
+            argsAvailable = true;
+        }
+
+        modelBuilder.createArrayInitExpr(getCurrentLocation(ctx), argsAvailable);
     }
 
     @Override

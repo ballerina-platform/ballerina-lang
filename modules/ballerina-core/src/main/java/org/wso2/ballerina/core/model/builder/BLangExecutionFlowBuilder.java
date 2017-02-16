@@ -26,6 +26,8 @@ import org.wso2.ballerina.core.interpreter.StructVarLocation;
 import org.wso2.ballerina.core.interpreter.WorkerVarLocation;
 import org.wso2.ballerina.core.interpreter.nonblocking.ModeResolver;
 import org.wso2.ballerina.core.model.Annotation;
+import org.wso2.ballerina.core.model.BLangPackage;
+import org.wso2.ballerina.core.model.BLangProgram;
 import org.wso2.ballerina.core.model.BTypeMapper;
 import org.wso2.ballerina.core.model.BallerinaAction;
 import org.wso2.ballerina.core.model.BallerinaConnectorDef;
@@ -197,6 +199,16 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
         nonblockingEnabled = ModeResolver.getInstance().isNonblockingEnabled();
     }
 
+    @Override
+    public void visit(BLangProgram bLangProgram) {
+
+    }
+
+    @Override
+    public void visit(BLangPackage bLangPackage) {
+
+    }
+
     /**
      * Parse given BallerinaFile.
      *
@@ -280,10 +292,6 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
 
     @Override
     public void visit(ParameterDef parameterDef) {
-    }
-
-    @Override
-    public void visit(ConnectorDcl connectorDcl) {
     }
 
     @Override
