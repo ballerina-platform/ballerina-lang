@@ -29,9 +29,11 @@ import org.wso2.ballerina.core.model.values.BValue;
 class BLongType extends BType {
 
     /**
-     * Create a {@code BLongType} which represents the boolean type.
+     * Creates an instance of {@code BLongType}.
      *
      * @param typeName string name of the type
+     * @param pkgPath package path
+     * @param symbolScope scope of the symbol
      */
     BLongType(String typeName, String pkgPath, SymbolScope symbolScope) {
         super(typeName, pkgPath, symbolScope, BLong.class);

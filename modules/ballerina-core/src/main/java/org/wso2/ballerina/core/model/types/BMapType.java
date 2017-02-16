@@ -18,12 +18,13 @@
 package org.wso2.ballerina.core.model.types;
 
 import org.wso2.ballerina.core.model.SymbolScope;
+import org.wso2.ballerina.core.model.annotations.BallerinaPrimitive;
 import org.wso2.ballerina.core.model.values.BMap;
 import org.wso2.ballerina.core.model.values.BString;
 import org.wso2.ballerina.core.model.values.BValue;
 
 /**
- * {@code BMapType} represents a type of a map in Ballerina.
+ * {@code BMapType} represents a map that maps keys to values in Ballerina.
  * <p>
  * Maps are defined using the map keyword as follows:
  * map mapName
@@ -32,12 +33,20 @@ import org.wso2.ballerina.core.model.values.BValue;
  *
  * @since 0.8.0
  */
+@BallerinaPrimitive(type = "map",
+        description = "Represents a map that maps keys to values in Ballerina. " +
+                "Maps are defined using map keyword as follows: map mapName. " +
+                "All maps are unbounded in length and support key based indexing.",
+        defaultValue = "{}",
+        usage = "map [variable] = {[key-1]: [value-1], [key-2]: [value-2], ..., [key-n]: [value-n]}")
 public class BMapType extends BType {
 
     /**
-     * Create a type from the given name.
+     * Creates an instance of {@code BMapType}.
      *
      * @param typeName string name of the type
+     * @param pkgPath package path
+     * @param symbolScope scope of the symbol
      */
     BMapType(String typeName, String pkgPath, SymbolScope symbolScope) {
         super(typeName, pkgPath, symbolScope, BMap.class);

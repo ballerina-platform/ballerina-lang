@@ -18,6 +18,7 @@
 package org.wso2.ballerina.core.model.types;
 
 import org.wso2.ballerina.core.model.SymbolScope;
+import org.wso2.ballerina.core.model.annotations.BallerinaPrimitive;
 import org.wso2.ballerina.core.model.values.BJSON;
 import org.wso2.ballerina.core.model.values.BValue;
 
@@ -26,12 +27,18 @@ import org.wso2.ballerina.core.model.values.BValue;
  *
  * @since 0.8.0
  */
+@BallerinaPrimitive(type = "json",
+        description = "Represents a JSON document.",
+        defaultValue = "{}",
+        usage = "json [variable] = `[json-document]`")
 public class BJSONType extends BType {
 
     /**
-     * Create a {@code BJSONType} which represents the boolean type.
+     * Creates an instance of {@code BJSONType}.
      *
      * @param typeName string name of the type
+     * @param pkgPath package path
+     * @param symbolScope scope of the symbol
      */
     BJSONType(String typeName, String pkgPath, SymbolScope symbolScope) {
         super(typeName, pkgPath, symbolScope, BJSON.class);

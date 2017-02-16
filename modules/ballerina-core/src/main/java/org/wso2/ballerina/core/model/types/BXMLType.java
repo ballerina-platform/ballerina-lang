@@ -18,20 +18,27 @@
 package org.wso2.ballerina.core.model.types;
 
 import org.wso2.ballerina.core.model.SymbolScope;
+import org.wso2.ballerina.core.model.annotations.BallerinaPrimitive;
 import org.wso2.ballerina.core.model.values.BValue;
 import org.wso2.ballerina.core.model.values.BXML;
 
 /**
- * {@code BXMLType} represents an XML Element.
+ * {@code BXMLType} represents an XML document.
  *
  * @since 0.8.0
  */
+@BallerinaPrimitive(type = "xml",
+        description = "Represents an XML document.",
+        defaultValue = "[blank]",
+        usage = "xml [variable] = [xml document];")
 public class BXMLType extends BType {
 
     /**
-     * Create a {@code BXMLType} which represents the boolean type.
+     * Creates an instance of {@code BXMLType}.
      *
      * @param typeName string name of the type
+     * @param pkgPath package path
+     * @param symbolScope scope of the symbol
      */
     BXMLType(String typeName, String pkgPath, SymbolScope symbolScope) {
         super(typeName, pkgPath, symbolScope, BXML.class);

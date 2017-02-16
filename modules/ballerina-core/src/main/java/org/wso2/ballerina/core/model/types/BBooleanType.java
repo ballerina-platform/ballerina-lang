@@ -18,6 +18,7 @@
 package org.wso2.ballerina.core.model.types;
 
 import org.wso2.ballerina.core.model.SymbolScope;
+import org.wso2.ballerina.core.model.annotations.BallerinaPrimitive;
 import org.wso2.ballerina.core.model.values.BBoolean;
 import org.wso2.ballerina.core.model.values.BValue;
 
@@ -26,12 +27,18 @@ import org.wso2.ballerina.core.model.values.BValue;
  *
  * @since 0.8.0
  */
+@BallerinaPrimitive(type = "boolean",
+        description = "Represents boolean type in Ballerina.",
+        defaultValue = "false",
+        usage = "boolean [variable] = [value];")
 class BBooleanType extends BType {
 
     /**
-     * Create a {@code BBooleanType} which represents the boolean type.
+     * Creates an instance of {@code BBooleanType}.
      *
      * @param typeName string name of the type
+     * @param pkgPath package path
+     * @param symbolScope scope of the symbol
      */
     BBooleanType(String typeName, String pkgPath, SymbolScope symbolScope) {
         super(typeName, pkgPath, symbolScope, BBoolean.class);

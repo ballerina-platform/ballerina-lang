@@ -18,6 +18,7 @@
 package org.wso2.ballerina.core.model.types;
 
 import org.wso2.ballerina.core.model.SymbolScope;
+import org.wso2.ballerina.core.model.annotations.BallerinaPrimitive;
 import org.wso2.ballerina.core.model.values.BConnector;
 import org.wso2.ballerina.core.model.values.BValue;
 
@@ -26,12 +27,21 @@ import org.wso2.ballerina.core.model.values.BValue;
  *
  * @since 0.8.0
  */
+@BallerinaPrimitive(type = "connector",
+        description = "Represents a connector in Ballerina.",
+        defaultValue = "",
+        usage = "[annotation] connector [identifier] ([parameterList]) {\n" +
+                "    [statements]\n" +
+                "    [actions]\n" +
+                "}")
 public class BConnectorType extends BType {
 
     /**
-     * Create a {@code BConnectorType} which represents the boolean type.
+     * Creates an instance of {@code BConnectorType}.
      *
      * @param typeName string name of the type
+     * @param pkgPath package path
+     * @param symbolScope scope of the symbol
      */
     public BConnectorType(String typeName, String pkgPath, SymbolScope symbolScope) {
         super(typeName, pkgPath, symbolScope, BConnector.class);
