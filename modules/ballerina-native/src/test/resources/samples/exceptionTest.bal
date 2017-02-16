@@ -14,7 +14,7 @@ function calculateLoanPayment(string name, int age, int amount, int months)(stri
                 return "Error ..! " + exceptions:getMessage(e);
             }
             exception newE = {};
-            exceptions:set(newE, "You are too young to apply a loan.", ageError);
+            exceptions:set(newE, "age Error", ageError);
             exceptions:setCause(newE, e);
             throw newE;
         }
@@ -31,12 +31,12 @@ function calculateLoanPayment(string name, int age, int amount, int months)(stri
 function validateAge(int age){
     if(age > 50 ){
         exception overAge = {};
-        exceptions:setMessage(overAge, "You should be under 50 years old to apply loan.");
+        exceptions:setMessage(overAge, "age should be under 50");
         exceptions:setCategory(overAge, ageError);
         throw overAge;
     } else if ( age < 18) {
         exception underAge = {};
-        exceptions:set(underAge, "You should be over 18 years old to apply loan.", lowAgeError);
+        exceptions:set(underAge, "age should be over 18", lowAgeError);
         throw underAge;
     }
 }
