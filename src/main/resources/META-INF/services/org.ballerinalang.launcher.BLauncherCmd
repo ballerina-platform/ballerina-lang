@@ -1,1 +1,1 @@
-org.ballerinalang.containers.docker.DockerCmd
+org.ballerinalang.containers.docker.cmd.DockerCmd
