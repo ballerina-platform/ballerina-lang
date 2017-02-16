@@ -1,4 +1,5 @@
 org.wso2.ballerina.core.runtime.dispatching.http.HTTPResourceDispatcher
 org.wso2.ballerina.core.runtime.dispatching.websocket.WebSocketResourceDispatcher
 org.wso2.ballerina.core.runtime.dispatching.http.HTTPResourceDispatcher
+org.wso2.ballerina.core.runtime.dispatching.jms.JMSResourceDispatcher
 org.wso2.ballerina.core.nativeimpl.connectors.file.server.FileResourceDispatcher

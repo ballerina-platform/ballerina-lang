@@ -18,4 +18,4 @@ IMPORTANT: This access token can be used to make API requests on your own accoun
 
 How to run this sample
 ======================
-bin$ ./ballerina run ../samples/tweetMediumFeed/tweetMediumFeed.bal <consumerKey> <consumerSecret> <accessToken> <accessTokenSecret>
+bin$ ./ballerina run main ../samples/tweetMediumFeed/tweetMediumFeed.bal <consumerKey> <consumerSecret> <accessToken> <accessTokenSecret>

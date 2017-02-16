@@ -85,6 +85,8 @@ under the License.
         <classes>
             <class name="org.wso2.ballerina.TestConfigurationUtil" />
             <class name="org.wso2.ballerina.lang.service.ServiceVariableTest"/>
+            <class name="org.wso2.ballerina.lang.service.JMSServiceTest" />
+        </classes>
             <class name="org.wso2.ballerina.lang.service.FileServiceTest" />
         </classes>N
     </test>
@@ -94,7 +96,6 @@ under the License.
         <!--<classes>-->
             <!--<class name="org.wso2.ballerina.TestConfigurationUtil" />-->
             <!--<class name="org.wso2.ballerina.lang.service.ServiceVariableTest"/>-->
-            <!--<class name="org.wso2.ballerina.lang.service.FileServiceTest" />-->
         <!--</classes>-->
     <!--</test>-->
 

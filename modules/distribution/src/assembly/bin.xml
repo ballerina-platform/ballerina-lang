@@ -107,6 +107,7 @@
                 <include>org.wso2.carbon.transport:org.wso2.carbon.transport.http.netty</include>
                 <include>org.wso2.carbon.transport:org.wso2.carbon.transport.file</include>
                 <include>org.wso2.carbon.transport:org.wso2.carbon.connector.framework</include>
+                <include>org.wso2.carbon.transport:org.wso2.carbon.transport.jms</include>
                 <include>org.wso2.carbon.messaging:org.wso2.carbon.messaging</include>
                 <include>org.apache.commons.wso2:commons-vfs2</include>
                 <include>org.wso2.orbit.net.sf.saxon:Saxon-HE</include>
@@ -140,6 +141,7 @@
                 <include>javax.websocket:javax.websocket-api</include>
                 <include>org.wso2.carbon:org.wso2.carbon.core:jar</include>
                 <include>com.zaxxer:HikariCP</include>
+                <include>javax.jms:javax.jms-api</include>
             </includes>
         </dependencySet>
     </dependencySets>
