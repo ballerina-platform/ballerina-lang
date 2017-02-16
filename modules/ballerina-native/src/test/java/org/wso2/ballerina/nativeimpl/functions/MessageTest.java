@@ -31,6 +31,7 @@ import org.wso2.ballerina.core.model.values.BXML;
 import org.wso2.ballerina.nativeimpl.util.BTestUtils;
 import org.wso2.carbon.messaging.DefaultCarbonMessage;
 import org.wso2.carbon.messaging.Header;
+import org.wso2.carbon.messaging.MapCarbonMessage;
 import org.wso2.carbon.messaging.MessageDataSource;
 
 import java.util.List;
@@ -190,6 +191,19 @@ public class MessageTest {
         BLangInterpreter bLangInterpreter = new BLangInterpreter(bContext);
         funcIExpr.accept(bLangInterpreter);
         Assert.assertEquals(FunctionUtils.getReturnBValue(bContext).intValue(), 1);*/
+    }
+
+    @Test
+    public void testGetStringValue() {
+        MapCarbonMessage carbonMsg = new MapCarbonMessage();
+        final String propertyKey = "id";
+        final String propertyValue = "ballerina";
+        carbonMsg.setValue(propertyKey, propertyValue);
+        BValue[] args = { new BMessage(carbonMsg), new BString(propertyKey) };
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testGetStringValue", args);
+        Assert.assertEquals(returns.length, 1);
+        String returnString = returns[0].stringValue();
+        Assert.assertEquals(returnString, propertyValue);
     }
 
     // TODO : Add test cases fot other native functions.

@@ -37,7 +37,6 @@ public class EnvironmentInitializer {
         // Initialize server connectors before starting the test cases
         BallerinaConnectorManager.getInstance().initialize(new MessageProcessor());
         BallerinaConnectorManager.getInstance().registerServerConnectorErrorHandler(new TestErrorHandler());
-        // Resister HTTP Dispatchers
 
         // Load constructors
         BuiltInNativeConstructLoader.loadConstructs();
@@ -67,7 +66,6 @@ public class EnvironmentInitializer {
                 });
             }
         }
-        DispatcherRegistry.getInstance().clearDispatchers();
     }
 
 }
