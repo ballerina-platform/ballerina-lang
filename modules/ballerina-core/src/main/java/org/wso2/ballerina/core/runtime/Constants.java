@@ -23,24 +23,7 @@ package org.wso2.ballerina.core.runtime;
  */
 public class Constants {
 
-    // Name of the System property which contains the ballerina file path to be executed
-    public static final String SYSTEM_PROP_RUN_FILE = "run-file";
-
-    public static final String SYSTEM_PROP_RUN_MODE = "run-mode";
-
-    public static final String SYSTEM_PROP_BASE_DIR = "base-dir";
-
-    public static final String SYSTEM_PROP_RUN_MODE_SERVER = "server";
-    public static final String SYSTEM_PROP_RUN_MODE_RUN = "run";
-
-    // Name of the system property to hold the input arguments
-    public static final String SYSTEM_PROP_BAL_ARGS = "bargs";
-
-    // Name of the directory where Bal files are stored.
-    public static final String SYSTEM_PROP_DIR = "bal-dir";
-
-    // Name of the main function
-    public static final String MAIN_FUNCTION_NAME = "main";
+    public static final String SYS_PROP_ENABLE_NONBLOCKING = "enable.nonblocking";
 
     // Intermediate headers added to the ballerina message
     public static final String INTERMEDIATE_HEADERS = "INTERMEDIATE_HEADERS";
@@ -51,17 +34,7 @@ public class Constants {
     // Ballerina version system property name
     public static final String BALLERINA_VERSION = "ballerina.version";
 
-
-    /**
-     * Runtime modes of Ballerina engine.
-     */
-    public enum RuntimeMode {
-        // Run File Mode.
-        RUN_FILE,
-        // Run Ballerina Server Mode.
-        SERVER,
-        // Represents ERROR Condition.
-        ERROR
-    }
+    // logger names.
+    public static final String BAL_LINKED_INTERPRETER_LOGGER = "BLinkedInterpreter";
 
 }

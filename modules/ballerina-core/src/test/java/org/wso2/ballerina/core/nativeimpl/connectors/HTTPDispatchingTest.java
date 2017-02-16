@@ -19,8 +19,8 @@ package org.wso2.ballerina.core.nativeimpl.connectors;
 
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.wso2.ballerina.core.runtime.dispatching.HTTPResourceDispatcher;
-import org.wso2.ballerina.core.runtime.dispatching.HTTPServiceDispatcher;
+import org.wso2.ballerina.core.runtime.dispatching.http.HTTPResourceDispatcher;
+import org.wso2.ballerina.core.runtime.dispatching.http.HTTPServiceDispatcher;
 import org.wso2.ballerina.core.runtime.registry.DispatcherRegistry;
 
 

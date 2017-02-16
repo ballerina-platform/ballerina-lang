@@ -17,6 +17,7 @@
 */
 package org.wso2.ballerina.core.interpreter;
 
+import org.wso2.ballerina.core.interpreter.nonblocking.BLangExecutionVisitor;
 import org.wso2.ballerina.core.model.ExecutableExpr;
 import org.wso2.ballerina.core.model.Node;
 import org.wso2.ballerina.core.model.NodeExecutor;
@@ -29,11 +30,10 @@ import org.wso2.ballerina.core.model.values.BValue;
  *
  * @since 0.8.0
  */
-public class MemoryLocation implements Node, ExecutableExpr {
+public class MemoryLocation implements Node, ExecutableExpr, ExecutableMemLocation {
 
     @Override
     public void accept(NodeVisitor visitor) {
-
     }
 
     @Override
@@ -46,4 +46,8 @@ public class MemoryLocation implements Node, ExecutableExpr {
         return null;
     }
 
+    @Override
+    public BValue access(BLangExecutionVisitor visitor) {
+        return null;
+    }
 }

@@ -89,7 +89,6 @@ public class NativeBallerinaFileBuilder {
         }
     }
 
-    
     /**
      * Visits ballerina package folders and files and copy them to target directory.
      */

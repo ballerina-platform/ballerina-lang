@@ -26,7 +26,7 @@ import org.wso2.ballerina.core.EnvironmentInitializer;
 import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.message.StringDataSource;
 import org.wso2.ballerina.core.model.BLangProgram;
-import org.wso2.ballerina.core.runtime.dispatching.HTTPResourceDispatcher;
+import org.wso2.ballerina.core.runtime.dispatching.http.HTTPResourceDispatcher;
 import org.wso2.ballerina.core.runtime.registry.DispatcherRegistry;
 import org.wso2.ballerina.core.utils.MessageUtils;
 import org.wso2.ballerina.lang.util.Services;

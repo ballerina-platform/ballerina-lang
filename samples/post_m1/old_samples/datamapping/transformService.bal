@@ -13,7 +13,7 @@ service transformService {
 	    json<Person> in;
 	    json<Driver> out;
 	    in = m:getPayload(m);
-	    //here type converter kicks in
+	    //here type mapper kicks in
 	    out  = (json<Driver>)in;
 	    m:setPayload(out);
 	    reply m;
