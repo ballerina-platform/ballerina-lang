@@ -16,10 +16,10 @@
  * under the License.
  */
 define(['lodash', 'log','./ballerina-view', './variables-view', './type-struct-definition-view',
-        'ballerina/ast/ballerina-ast-factory', './svg-canvas','typeMapper','./input-struct-view','./output-struct-view','./type-mapper-statement-view',
-        './type-mapper-block-statement-view','constants', './../ast/module'],
-    function (_, log,BallerinaView, VariablesView, TypeStructDefinition, BallerinaASTFactory, SVGCanvas,
-              TypeMapper,InputStructView,OutputStructView,TypeMapperStatement,TypeMapperBlockStatement,Constants, AST) {
+        'ballerina/ast/ballerina-ast-factory', './svg-canvas','typeMapper','./input-struct-view','./output-struct-view',
+        './type-mapper-statement-view', './type-mapper-block-statement-view','constants', './../ast/module', 'select2'],
+    function (_, log,BallerinaView, VariablesView, TypeStructDefinition, BallerinaASTFactory, SVGCanvas, TypeMapper,
+                InputStructView,OutputStructView,TypeMapperStatement,TypeMapperBlockStatement,Constants, AST, select2) {
         var TypeMapperDefinitionView = function (args) {
             SVGCanvas.call(this, args);
 
@@ -116,13 +116,13 @@ define(['lodash', 'log','./ballerina-view', './variables-view', './type-struct-d
             var selectorContainer = $('<div class="selector">' +
                 '<div class="source-view">' +
                 '<span>Source :</span>' +
-                '<select id="' + sourceId + '">' +
+                '<select id="' + sourceId + '" class="type-mapper-combo">' +
                 '<option value="-1">--Select--</option>' +
                 '</select>' +
                 '</div>' +
                 '<div class="target-view">' +
                 '<span>Target :</span>' +
-                '<select id="' + targetId + '">' +
+                '<select id="' + targetId + '" class="type-mapper-combo">' +
                 '<option value="-1">--Select--</option>' +
                 '</select>' +
                 '</div>' +
@@ -134,27 +134,23 @@ define(['lodash', 'log','./ballerina-view', './variables-view', './type-struct-d
             currentContainer.find('svg').remove();
 
             this.loadSchemasToComboBox(currentContainer, "#" + sourceId,"#"+targetId, predefinedStructs);
-
-            $("#"+targetId).on({
-                click: function() {
-                    var predefinedStructs = self._package.getStructDefinitions();
-                    if (predefinedStructs.length > 0) {
-                        $("#"+targetId).empty().append('<option value="-1">--Select--</option>');
-                        self.getTargetInfo()["predefinedStructs"] = predefinedStructs;
-                        self.loadSchemaToComboBox(currentContainer,"#"+targetId, predefinedStructs);
-                    }
-                }
+            $(".type-mapper-combo").select2();
+            $("#"+targetId).on("select2:open", function (e) {
+                var predefinedStructs = self._package.getStructDefinitions();
+                if (predefinedStructs.length > 0) {
+                    $("#"+targetId).empty().append('<option value="-1">--Select--</option>');
+                    self.getTargetInfo()["predefinedStructs"] = predefinedStructs;
+                    self.loadSchemaToComboBox(currentContainer,"#"+targetId, predefinedStructs);
+                };
             });
 
-            $("#"+sourceId).on({
-                click: function() {
-                    var predefinedStructs = self._package.getStructDefinitions();
-                    if (predefinedStructs.length > 0) {
-                        $("#"+sourceId).empty().append('<option value="-1">--Select--</option>');
-                        self.getSourceInfo()["predefinedStructs"] = predefinedStructs;
-                        self.loadSchemaToComboBox(currentContainer, "#" + sourceId, predefinedStructs);
-                    }
-                }
+            $("#"+sourceId).on("select2:open", function (e) {
+                var predefinedStructs = self._package.getStructDefinitions();
+                if (predefinedStructs.length > 0) {
+                    $("#"+sourceId).empty().append('<option value="-1">--Select--</option>');
+                    self.getSourceInfo()["predefinedStructs"] = predefinedStructs;
+                    self.loadSchemaToComboBox(currentContainer, "#" + sourceId, predefinedStructs);
+                };
             });
 
             $(currentContainer).find("#" + sourceId).change(function () {
