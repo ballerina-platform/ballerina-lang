@@ -25,6 +25,7 @@
     <test name="ballerina-sample-tests" preserve-order="true" parallel="false">
         <packages>
             <package name="org.wso2.ballerina.test.service.http.sample"/>
+            <package name="org.wso2.ballerina.test.service.http2.sample"/>
         </packages>
     </test>
 </suite>
