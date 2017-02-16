@@ -76,7 +76,6 @@ define(['lodash', 'log', './../ast/return-statement', './simple-statement-view',
             };
 
             this._createDebugIndicator({
-                model: this._model,
                 statementGroup: statementGroup
             });
 

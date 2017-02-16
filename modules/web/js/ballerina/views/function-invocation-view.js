@@ -82,7 +82,6 @@ define(['lodash', 'log', './simple-statement-view', './../ast/function-invocatio
             this.listenTo(model, 'update-property-text', this.updateFunctionalExpression);
 
             this._createDebugIndicator({
-                model: this._model,
                 statementGroup: statementGroup
             });
 
