@@ -98,7 +98,8 @@ define(['require', 'log', 'jquery', 'backbone', './tool-group-view', './tool-gro
 
             // Drawing tool groups that are added on the fly
             this._itemProvider.getDynamicToolGroups().forEach(function (group) {
-                self.addVerticallyFormattedToolGroup({group: group});
+                var view = self.addVerticallyFormattedToolGroup({group: group});
+                self._itemProvider.saveImportToolGroupView(group.attributes.toolGroupName, view)
             });
 
             $(this._$parent_el).mCustomScrollbar({
@@ -181,7 +182,11 @@ define(['require', 'log', 'jquery', 'backbone', './tool-group-view', './tool-gro
             _.set(toolGroupOptions, 'toolPalette', this);
             _.set(toolGroupOptions, 'model', args.group);
             var groupView = new ToolGroupView(toolGroupOptions);
-            var group = groupView.render(this.$el.find('.tool-import-wrapper'), _.isEqual('vertical', args.group.get('toolOrder')));
+
+            var parent = this.$el.find('.tool-import-wrapper');
+            var isVertical = _.isEqual('vertical', args.group.get('toolOrder'));
+            var addToTop = _.isNil(args.options) ? false: args.options.addToTop;
+            var group = groupView.render(parent, isVertical, addToTop);
             this.$el.addClass('non-user-selectable');
             return groupView;
         },

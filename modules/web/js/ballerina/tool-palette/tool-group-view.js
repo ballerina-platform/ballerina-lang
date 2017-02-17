@@ -26,10 +26,16 @@ define(['require', 'log', 'jquery', 'd3', 'backbone', './tool-view'], function (
             _.extend(this, _.pick(options, ["toolPalette"]));
         },
 
-        render: function (parent, toolOrderVertical) {
+        render: function (parent, toolOrderVertical, addToTop) {
             var self = this;
             var groupDiv = $('<div></div>');
-            parent.append(groupDiv);
+
+            if(addToTop) {
+                parent.prepend(groupDiv);
+            } else {
+                parent.append(groupDiv);
+            }
+
             groupDiv.attr('id', "tool-group-" + this.model.attributes.toolGroupID);
             groupDiv.attr('class', "tool-group");
 

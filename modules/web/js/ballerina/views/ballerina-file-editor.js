@@ -535,7 +535,6 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                     // reset source editor delta stack
                     self._sourceView.markClean();
                     self._createConstantDefinitionsView(self._$canvasContainer);
-                    self.addCurrentPackageToToolPalette();
                 } else if (isSwaggerChanged) {
                     self.setModel(self._swaggerView.getContent());
                     // reset source editor delta stack
@@ -550,7 +549,9 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                 designViewBtn.hide();
                 self.setActiveView('design');
                 if(isSourceChanged || isSwaggerChanged || savedWhileInSourceView){
+                    self._environment.resetCurrentPackage();
                     self.reDraw();
+                    self.rerenderCurrentPackageTool();
                 }
             });
 
@@ -577,7 +578,7 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
          * @returns {Object}
          */
         BallerinaFileEditor.prototype.generateCurrentPackage = function () {
-            var symbolTableGenVisitor = new SymbolTableGenVisitor(this._package, this._model);
+            var symbolTableGenVisitor = new SymbolTableGenVisitor(this._environment.getCurrentPackage(), this._model);
             this._model.accept(symbolTableGenVisitor);
             return symbolTableGenVisitor.getPackage();
         };
@@ -589,6 +590,18 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
         BallerinaFileEditor.prototype.addCurrentPackageToToolPalette = function () {
             this.toolPalette.getItemProvider().addImport(this.generateCurrentPackage(), 0);
         };
+
+    BallerinaFileEditor.prototype.rerenderCurrentPackageTool = function () {
+        var currentPackage = this.generateCurrentPackage();
+        var provider = this.toolPalette.getItemProvider();
+
+        // Remove current package tool group from pallete and re add it.
+        provider.removeImportToolGroup(currentPackage.getName());
+        var options = {
+            addToTop: true
+        }
+        provider.addImportToolGroup(currentPackage, options);
+    };
 
     BallerinaFileEditor.prototype.initDropTarget = function() {
         var self = this,
@@ -883,14 +896,12 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
 
             // this._createPackageDeclarationPane(this._$canvasContainer);
 
-            // adding current package to the tool palette with functions, connectors, actions etc. of the current package
-            this.addCurrentPackageToToolPalette();
             this._model.accept(this);
 
             // adding declared import packages to tool palette
             _.forEach(this._model.getImportDeclarations(), function (importDeclaration) {
                 var package = BallerinaEnvironment.searchPackage(importDeclaration.getPackageName());
-                self.toolPalette.getItemProvider().addImport(package[0]);
+                self.toolPalette.getItemProvider().addImportToolGroup(package[0]);
             });
 
             this.initDropTarget();
