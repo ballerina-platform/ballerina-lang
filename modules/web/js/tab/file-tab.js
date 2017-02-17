@@ -113,7 +113,7 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace/f
                 var fileName = self._file.getName();
                 var fileBreakpoints = _.map(newBreakpoints, function(breakpoint) {
                     if(breakpoint.fileName === self._file.getName())  {
-                        return breakpoint.line;
+                        return breakpoint.lineNumber;
                     }
                 });
                 fileEditor.trigger('reset-breakpoints', fileBreakpoints);
