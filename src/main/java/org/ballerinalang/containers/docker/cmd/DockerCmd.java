@@ -1,5 +1,6 @@
 package org.ballerinalang.containers.docker.cmd;
 
+import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
 import org.apache.commons.io.FilenameUtils;
@@ -188,6 +189,16 @@ public class DockerCmd implements BLauncherCmd {
     public void printUsage(StringBuilder out) {
         out.append("ballerina docker <package-file-path> [--tag | -t <image-name>] [--host | -H <docker-hostURL>] " +
                 "--help | -h\n");
+    }
+
+    @Override
+    public void setParentCmdParser(JCommander arg0) {
+                
+    }
+
+    @Override
+    public void setSelfCmdParser(JCommander arg0) {
+        
     }
 
 }
