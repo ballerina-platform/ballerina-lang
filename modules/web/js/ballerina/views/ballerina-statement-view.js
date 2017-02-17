@@ -203,6 +203,7 @@ define(['require', 'lodash', 'log', './../visitors/statement-visitor', 'd3', 'd3
         toggleBreakpointButtonRect.classed(viewOptions.actionButton.breakpointActiveClass, hasActiveBreakPoint);
 
         // 175 is the width set in css
+        var editPaneLocation = this._getEditPaneLocation();
         var propertyPaneWrapper = $("<div/>", {
             class: viewOptions.propertyForm.wrapper.class,
             css: {
@@ -213,8 +214,8 @@ define(['require', 'lodash', 'log', './../visitors/statement-visitor', 'd3', 'd3
                 event.stopPropagation();
             }
         }).offset({
-            top: (statementBoundingBox.y() - 1), // Adding the textbox bit bigger than the statement box.
-            left: (statementBoundingBox.x() - 1)
+            top: editPaneLocation.y(), // Adding the textbox bit bigger than the statement box.
+            left: editPaneLocation.x()
         }).appendTo(propertyButtonPaneGroup.node().ownerSVGElement.parentElement);
 
 
@@ -260,6 +261,11 @@ define(['require', 'lodash', 'log', './../visitors/statement-visitor', 'd3', 'd3
             this._isEditControlsActive = false;
         })
 
+    };
+
+    BallerinaStatementView.prototype._getEditPaneLocation = function () {
+        var statementBoundingBox = this.getBoundingBox();
+        return new Point((statementBoundingBox.x() - 1), (statementBoundingBox.y() - 1));
     };
 
     BallerinaStatementView.prototype._createPropertyPane = function (args) {
@@ -313,7 +319,8 @@ define(['require', 'lodash', 'log', './../visitors/statement-visitor', 'd3', 'd3
 
 
      /**
-     * create view to indicate a debug point in view.  call showDebugIndicator/hideDebugIndicator to toggle this indicator
+      * create view to indicate a debug point in view.  call showDebugIndicator/hideDebugIndicator to toggle this
+      * indicator
      */
      BallerinaStatementView.prototype._createDebugIndicator = function (args) {
          var self = this;
