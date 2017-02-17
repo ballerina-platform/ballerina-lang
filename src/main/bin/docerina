@@ -22,9 +22,13 @@ script_path="$( cd -P "$( dirname "$SOURCE" )" && pwd )/`dirname $0`"
 lib_path=${script_path}/../lib/
 html_output_path=${script_path}/../api-docs/html
 templates_folder_path=${script_path}/../templates/html
+log4j_conf_file_path=${script_path}/../conf/log4j2.xml
+docerina_logs_folder_path=${script_path}/../logs
 class_path=`echo ${lib_path}/*.jar | tr ' ' ':'`
-properties="-Dhtml.output.path=${html_output_path}
-            -Dtemplates.folder.path=${templates_folder_path}"
+properties="-Dhtml.output.path=${html_output_path} \
+            -Dtemplates.folder.path=${templates_folder_path} \
+            -Dlog4j.configurationFile=${log4j_conf_file_path} \
+            -Ddocerina.logs.folder.path=${docerina_logs_folder_path}"
 
 # Uncomment below line to enable remote debugging
 #debug="-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005"
