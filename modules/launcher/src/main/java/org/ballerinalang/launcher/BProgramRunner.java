@@ -37,7 +37,7 @@ import java.util.List;
  */
 class BProgramRunner {
     private static Path programDirPath = Paths.get(System.getProperty("user.dir"));
-    private static PrintStream outStream = System.err;
+    private static PrintStream outStream = System.out;
 
     static void runMain(Path sourceFilePath, List<String> args) {
         BLangProgram bLangProgram = new BLangProgramLoader()
