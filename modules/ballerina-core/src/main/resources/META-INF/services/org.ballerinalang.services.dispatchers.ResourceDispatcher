@@ -1,0 +1,5 @@
+org.ballerinalang.services.dispatchers.http.HTTPResourceDispatcher
+org.ballerinalang.services.dispatchers.websocket.WebSocketResourceDispatcher
+org.ballerinalang.services.dispatchers.http.HTTPResourceDispatcher
+org.ballerinalang.services.dispatchers.jms.JMSResourceDispatcher
+org.ballerinalang.services.dispatchers.file.FileResourceDispatcher

@@ -1,0 +1,25 @@
+site_name: Ballerina Documentation
+repo_url: https://github.com/ballerinalang/ballerina
+site_description: Documentation for the Ballerina Programming Language
+site_author: WSO2, Inc.
+copyright: 2017 WSO2, Inc.
+pages:
+- Home: 'index.md'
+- What is Ballerina?: 'intro.md'
+- Quick Tour: 'quick-tour.md'
+- Tutorials: 'tutorials/index.md'
+    - Writing your First Program: 'tutorials/first-program.md'
+- Key Concepts: 'key-concepts.md'
+- Samples: 'samples.md'
+- Language Reference: 'model-ref/index.md'
+    - Language Overview: 'model-ref/model-overview.md'
+    - Packaging: 'model-ref/packaging.md'
+    - Services: 'model-ref/services.md'
+    - Resources: 'model-ref/resources.md'
+    - Functions: 'model-ref/functions.md'
+    - Connectors: 'model-ref/connectors.md'
+    - Actions: 'model-ref/actions.md'
+    - Workers: 'model-ref/workers.md'
+    - Types and Variables: 'model-ref/types-variables.md'
+    - Statements: 'model-ref/statements.md'
+theme: readthedocs

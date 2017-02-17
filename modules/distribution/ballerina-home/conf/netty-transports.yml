@@ -18,133 +18,31 @@ transportProperties:
   name: "latency.metrics.enabled"
   value: true
  -
-  name: "request.size.validation"
-  value: false
- -
-  name: "request.size.validation.maximum.value" #in bytes
-  value: 2048
- -
-  name: "request.size.validation.reject.status.code"
-  value: 401
- -
-  name: "request.size.validation.reject.message"
-  value: "Message is too big, hence cannot proceed"
- -
-  name: "request.size.validation.reject.message.content.type"
-  value: "plain/text"
- -
-  name: "header.size.validation"
-  value: false
- -
-  name: "header.validation.maximum.request.line" #in bytes
-  value: 2048
- -
-  name: "header.validation.maximum.size" #in bytes
-  value: 2048
- -
-  name: "header.validation.maximum.chunk.size" #in bytes, refere http://netty.io/4.0/api/io/netty/handler/codec/http/HttpRequestDecoder.html
-  value: 2048
- -
-  name: "header.validation.reject.status.code"
-  value: 401
- -
-  name: "header.validation.reject.message"
-  value: "Message's header size is too big, hence cannot proceed"
- -
-  name: "header.validation.reject.message.content.type"
-  value: "plain/text"
- -
-  name: "server.bootstrap.boss.group.size"
-  value: 4
- -
-  name: "server.bootstrap.worker.group.size"
-  value: 8
- -
-  name: "server.bootstrap.nodelay"
-  value: true
- -
-  name: "server.bootstrap.keepalive"
-  value: true
- -
-  name: "server.bootstrap.sendbuffersize"
-  value: 1048576
- -
-  name: "server.bootstrap.recievebuffersize"
-  value: 1048576
- -
-  name: "server.bootstrap.connect.timeout"
-  value: 15000
- -
-  name: "server.bootstrap.socket.reuse"
-  value: false
- -
   name: "server.bootstrap.socket.timeout"
-  value: 15
+  value: 60
  -
-  name: "server.bootstrap.socket.backlog"
-  value: 100
+  name: "client.bootstrap.socket.timeout"
+  value: 60
 
 listenerConfigurations:
  -
   id: "default"
   host: "0.0.0.0"
   port: 9090
+ -
+  id: "https"
+  host: "0.0.0.0"
+  port: 9092
+  scheme: https
+  keyStoreFile: "${ballerina.home}/bre/security/wso2carbon.jks"
+  keyStorePass: wso2carbon
+  certPass: wso2carbon
 
 senderConfigurations:
  -
   id: "http-sender"
-  parameters:
-    -
-     name: "connection.pool.count"
-     value: 0
-    -
-     name: "client.bootstrap.nodelay"
-     value: true
-    -
-     name: "client.bootstrap.keepalive"
-     value: true
-    -
-     name: "client.bootstrap.sendbuffersize"
-     value: 1048576
-    -
-     name: "client.bootstrap.recievebuffersize"
-     value: 1048576
-    -
-     name: "client.bootstrap.connect.timeout"
-     value: 15000
-    -
-     name: "client.bootstrap.socket.reuse"
-     value: false
-    -
-     name: "client.bootstrap.socket.timeout"
-     value: 15
  -
   id: "https-sender"
   scheme: "https"
   trustStoreFile: "${ballerina.home}/bre/security/client-truststore.jks"
   trustStorePass: "wso2carbon"
-  parameters:
-    -
-     name: "connection.pool.count"
-     value: 0
-    -
-     name: "client.bootstrap.nodelay"
-     value: true
-    -
-     name: "client.bootstrap.keepalive"
-     value: true
-    -
-     name: "client.bootstrap.sendbuffersize"
-     value: 1048576
-    -
-     name: "client.bootstrap.recievebuffersize"
-     value: 1048576
-    -
-     name: "client.bootstrap.connect.timeout"
-     value: 15000
-    -
-     name: "client.bootstrap.socket.reuse"
-     value: false
-    -
-     name: "client.bootstrap.socket.timeout"
-     value: 15

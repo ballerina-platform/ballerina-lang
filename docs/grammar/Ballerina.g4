@@ -11,7 +11,7 @@ compilationUnit
     |   functionDefinition
     |   connectorDefinition
     |   structDefinition
-    |   typeConvertorDefinition
+    |   typeMapperDefinition
     |   constantDefinition
     )+
         EOF
@@ -97,25 +97,25 @@ structDefinitionBody
     :   '{' (typeName Identifier ';')* '}'
     ;
 
-typeConvertorDefinition
-    :   nativeTypeConvertor
-    |   typeConvertor
+typeMapperDefinition
+    :   nativeTypeMapper
+    |   typeMapper
     ;
 
-nativeTypeConvertor
-    :   'native' 'typeconvertor' Identifier '(' typeConvertorInput ')' '('typeConvertorType')' ';'
+nativeTypeMapper
+    :   'native' 'typemapper' Identifier '(' typeMapperInput ')' '('typeMapperType')' ';'
     ;
 
-typeConvertor
-    :   'typeconvertor' Identifier '(' typeConvertorInput ')' '('typeConvertorType')' typeConvertorBody
+typeMapper
+    :   'typemapper' Identifier '(' typeMapperInput ')' '('typeMapperType')' typeMapperBody
     ;
 
-typeConvertorInput
-    :   typeConvertorType Identifier
+typeMapperInput
+    :   typeMapperType Identifier
     ;
 
 // cannot have conector declaration, need to validate at semantic analyzing
-typeConvertorBody
+typeMapperBody
     :   '{' statement* '}'
     ;
 
@@ -149,7 +149,7 @@ qualifiedTypeName
     :   packageName ':' unqualifiedTypeName
     ;
 
-typeConvertorType
+typeMapperType
     :   simpleType
     |   withFullSchemaType
     |   withSchemaIdType
@@ -399,7 +399,7 @@ actionInvocationStatement
 
 variableReference
     :   Identifier                                  # simpleVariableIdentifier// simple identifier
-    |   Identifier '['expression']'                 # mapArrayVariableIdentifier// array and map reference
+    |   Identifier '['expression']'                 # mapArrayVariableIdentifier// arrays and map reference
     |   variableReference ('.' variableReference)+  # structFieldIdentifier// struct field reference
     ;
 
@@ -448,7 +448,7 @@ expression
     |   expression '&&' expression                      # binaryAndExpression
     |   expression '||' expression                      # binaryOrExpression
     |   '[]'                                            # arrayInitExpression
-    |   '[' expressionList ']'                          # arrayInitExpression // couldn't match empty array with:  '[' expressionList? ']' hence writing in two branches
+    |   '[' expressionList ']'                          # arrayInitExpression // couldn't match empty arrays with:  '[' expressionList? ']' hence writing in two branches
     |   '{' mapStructInitKeyValueList? '}'              # refTypeInitExpression
     |   'create' typeName argumentList                  # connectorInitExpression
     ;
