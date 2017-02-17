@@ -68,6 +68,7 @@
 .btn-debug-action:hover , .btn-debug-activate:hover{
     background: #232323 !important;
     transition: all 250ms ease 0s;
+    color: #fff;
 }
 
 .debug-error{
@@ -91,7 +92,7 @@ table.debug-frames {
     color:white;
     border-top: none; 
     border-bottom: 1px #232323 solid !important;
-    border-top: 0px !important;
+    border-top: 0 !important;
 }
 
 .debug-frames td a{
@@ -100,7 +101,6 @@ table.debug-frames {
 
 .debug-panel-header{
     padding: 8px;
-    background: #232323;
     color: #FFF !important;
     font-weight: bold;
 }
@@ -139,6 +139,8 @@ table.debug-frames {
     background-color: #333;
     color: white;
     width: 100%;
+    padding-left: 30px;
+    font-weight: 300;
 }
 
 #console{
@@ -163,4 +165,18 @@ table.debug-frames {
     font-size: 12px;
     margin-top: 5px;
     margin-left:10px;
+}
+.btn-debug-activate {
+    padding-left: 30px;
+}
+
+div > .col-xs-12 {
+    padding:0;
+    margin: 0;
+}
+.btn-group > .btn, .btn-group-vertical > .btn {
+    position: relative;
+    float: left;
+    padding-left: 30px;
+    font-weight: 300;
 }
