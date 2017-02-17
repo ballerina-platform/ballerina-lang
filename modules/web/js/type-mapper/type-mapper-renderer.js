@@ -457,6 +457,10 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
      * @param {object} reference AST model reference
      */
     TypeMapperRenderer.prototype.addFunction = function (func, reference, onFunctionRemove) {
+        var funcText = func.name;
+        //Allow multiple functions to drag and drop without conflicting
+        func.name = func.name + new Date().getTime();
+
         var id = func.name + this.viewIdSeperator + this.viewId;
         this.references.push({name: id, refObj: reference});
         var newFunc = $('<div>').attr('id', id).addClass('func');
@@ -469,7 +473,7 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
         var del =  $('<i>').addClass('fw fw-delete fw-stack-1x fw-inverse');
 
         funcName.append(funcIcon);
-        funcName.append($('<span>').text(func.name));
+        funcName.append($('<span>').text(funcText));
         closeButton.append(square);
         closeButton.append(del);
         funcName.append(closeButton);
