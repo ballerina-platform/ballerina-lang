@@ -23,19 +23,21 @@ import com.beust.jcommander.Parameters;
 import io.swagger.codegen.CodegenConstants;
 import org.ballerinalang.launcher.BLauncherCmd;
 import org.ballerinalang.launcher.LauncherUtils;
-import org.wso2.ballerina.swagger.code.generator.cmd.Generate;
 
+import java.io.PrintStream;
 import java.util.List;
 
 /**
  * Class to implement "swagger" command for ballerina.
- * Ex: ballerina swagger <action> <swagger specification> -p<package name> -d<output directory name>
+ * Ex: ballerina swagger <connector | skeleton | mock> <swaggerFile> -p<package name> -d<output directory name>
  */
 @Parameters(commandNames = "swagger", commandDescription = "Generate connector/service using swagger definition")
 public class SwaggerCmd implements BLauncherCmd {
     private final String CONNECTOR = "connector";
     private final String SKELETON = "skeleton";
     private final String MOCK = "mock";
+
+    private static final PrintStream outStream = System.err;
 
     @Parameter(arity = 1, description = "<action> <swagger specification>. action : connector|skeleton|mock")
     private List<String> argList;
@@ -47,8 +49,16 @@ public class SwaggerCmd implements BLauncherCmd {
     @Parameter(names = {"-p", "--package"}, description = CodegenConstants.API_PACKAGE_DESC)
     private String apiPackage;
 
+    @Parameter(names = { "-h", "--help" }, hidden = true)
+    private boolean helpFlag;
+
     @Override
     public void execute() {
+        if (helpFlag) {
+            printCommandUsageInfo();
+            return;
+        }
+
         if (argList == null || argList.size() < 2) {
             throw LauncherUtils.createUsageException("Swagger action and a swagger file should be provided. " +
                     "Ex: ballerina swagger connector swagger_file");
@@ -90,8 +100,23 @@ public class SwaggerCmd implements BLauncherCmd {
 
     @Override
     public void printUsage(StringBuilder stringBuilder) {
-        stringBuilder.append(" ballerina swagger <connector | skeleton | mock> <swaggerFile> -p<package name> " +
-                "-d<output directory name>");
+        stringBuilder.append("  ballerina swagger <connector | skeleton | mock> <swaggerFile> -p<package name> " +
+                "-d<output directory name>\n");
+        stringBuilder.append("\tconnector : generates a ballerina connector\n");
+        stringBuilder.append("\tskeleton  : generates a ballerina service skeleton\n");
+        stringBuilder.append("\tmock      : generates a ballerina mock service with sample responses\n");
+    }
+    private  void printCommandUsageInfo() {
+        StringBuilder out = new StringBuilder();
+        out.append("Ballerina swagger generator tool can generate ballerina connector, service skeleton and mock " +
+                "service for a given swagger definition.\n");
+        out.append("\n");
+        out.append("* Find more information at http://ballerinalang.org\n");
+        out.append("\n");
+        out.append("Usage:\n");
+        printUsage(out);
+
+        outStream.println(out.toString());
     }
 
     @Override

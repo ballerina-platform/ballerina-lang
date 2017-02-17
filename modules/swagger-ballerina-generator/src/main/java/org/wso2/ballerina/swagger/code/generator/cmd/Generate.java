@@ -48,10 +48,6 @@ public class Generate implements Runnable {
             description = "client language to generate (maybe class name in classpath, required)")
     private String lang;
 
-    //@Option(name = {"-o", "--output"}, title = "output directory",
-      //      description = "where to write the generated files (current dir by default)")
-    //private String output = "";
-
     @Option(name = {"-d", "--directory"}, title = "output directory",
             description = "where to write the generated files (current dir by default)")
     private String output = "";
@@ -82,9 +78,6 @@ public class Generate implements Runnable {
     @Option(name = {"-s", "--skip-overwrite"}, title = "skip overwrite", description = "specifies if the existing files should be " +
             "overwritten during the generation.")
     private Boolean skipOverwrite;
-
-    //@Option(name = {"--api-package"}, title = "api package", description = CodegenConstants.API_PACKAGE_DESC)
-    //private String apiPackage;
 
     @Option(name = {"-p", "packageName"}, title = "api package", description = CodegenConstants.API_PACKAGE_DESC)
     private String apiPackage;
