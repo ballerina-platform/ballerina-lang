@@ -1,4 +1,4 @@
-package org.ballerinalang.test;
+package ballerina.test;
 
 import ballerina.lang.exceptions;
 
@@ -6,7 +6,8 @@ const string assertTrueErrorCategory = "assert-true";
 const string assertFalseErrorCategory = "assert-false";
 const string assertEqualsErrorCategory = "assert-equals";
 
-
+const string arraysNotEqualMessage = "Arrays are not equal";
+const string arrayLengthsMismatchMessage = " (Array lengths are not the same)";
 
 function createBallerinaException (string message, string category) (exception) {
     // Creates a BallerinaException with custom message and category.
@@ -190,10 +191,10 @@ function assertEquals(string[] actual, string[] expected, string message) {
     // @param message the assertion error message
     //
     if (message == "") {
-        message = "Arrays are not equal";
+        message = arraysNotEqualMessage;
     }
     if (array:length(actual) != array:length(expected)) {
-        throw createBallerinaException(message + " (Array lengths are not the same)", assertEqualsErrorCategory);
+        throw createBallerinaException(message + arrayLengthsMismatchMessage, assertEqualsErrorCategory);
     } else {
         if (array:length(expected) > 0) {
             int i = 0;
@@ -201,7 +202,7 @@ function assertEquals(string[] actual, string[] expected, string message) {
                 try {
                     assertEquals(actual[i], expected[i]);
                 } catch (exception e) {
-                    if (exceptions:getCategory(e) == "assert-equals") {
+                    if (exceptions:getCategory(e) == assertEqualsErrorCategory) {
                         throw createBallerinaException(
                                                       message + ". " + exceptions:getMessage(e) + " (at index " + i + ") " ,
                                                       assertEqualsErrorCategory);
@@ -232,10 +233,10 @@ function assertEquals(int[] actual, int[] expected, string message) {
     // @param message the assertion error message
     //
     if (message == "") {
-        message = "Arrays are not equal";
+        message = arraysNotEqualMessage;
     }
     if (array:length(actual) != array:length(expected)) {
-        throw createBallerinaException(message + " (Array lengths are not the same)", assertEqualsErrorCategory);
+        throw createBallerinaException(message + arrayLengthsMismatchMessage, assertEqualsErrorCategory);
     } else {
         if (array:length(expected) > 0) {
             int i = 0;
@@ -243,7 +244,7 @@ function assertEquals(int[] actual, int[] expected, string message) {
                 try {
                     assertEquals(actual[i], expected[i]);
                 } catch (exception e) {
-                    if (exceptions:getCategory(e) == "assert-equals") {
+                    if (exceptions:getCategory(e) == assertEqualsErrorCategory) {
                         throw createBallerinaException(
                                                       message + ". " + exceptions:getMessage(e) + " (at index " + i + ") " ,
                                                       assertEqualsErrorCategory);
@@ -274,10 +275,10 @@ function assertEquals(double[] actual, double[] expected, string message) {
     // @param message the assertion error message
     //
     if (message == "") {
-        message = "Arrays are not equal";
+        message = arraysNotEqualMessage;
     }
     if (array:length(actual) != array:length(expected)) {
-        throw createBallerinaException(message + " (Array lengths are not the same)", assertEqualsErrorCategory);
+        throw createBallerinaException(message + arrayLengthsMismatchMessage, assertEqualsErrorCategory);
     } else {
         if (array:length(expected) > 0) {
             int i = 0;
@@ -285,7 +286,7 @@ function assertEquals(double[] actual, double[] expected, string message) {
                 try {
                     assertEquals(actual[i], expected[i]);
                 } catch (exception e) {
-                    if (exceptions:getCategory(e) == "assert-equals") {
+                    if (exceptions:getCategory(e) == assertEqualsErrorCategory) {
                         throw createBallerinaException(
                                                       message + ". " + exceptions:getMessage(e) + " (at index " + i + ") " ,
                                                       assertEqualsErrorCategory);
@@ -316,11 +317,11 @@ function assertEquals(boolean[] actual, boolean[] expected, string message) {
     // @param message the assertion error message
     //
     if (message == "") {
-        message = "Arrays are not equal";
+        message = arraysNotEqualMessage;
     }
     // undefined function 'array:length' (no length function for boolean array in ballerinalang)
     if (array:length(actual) != array:length(expected)) {
-        throw createBallerinaException(message + " (Array lengths are not the same)", assertEqualsErrorCategory);
+        throw createBallerinaException(message + arrayLengthsMismatchMessage, assertEqualsErrorCategory);
     } else {
         if (array:length(expected) > 0) {
             int i = 0;
@@ -328,7 +329,7 @@ function assertEquals(boolean[] actual, boolean[] expected, string message) {
                 try {
                     assertEquals(actual[i], expected[i]);
                 } catch (exception e) {
-                    if (exceptions:getCategory(e) == "assert-equals") {
+                    if (exceptions:getCategory(e) == assertEqualsErrorCategory) {
                         throw createBallerinaException(
                                                       message + ". " + exceptions:getMessage(e) + " (at index " + i + ") " ,
                                                       assertEqualsErrorCategory);
