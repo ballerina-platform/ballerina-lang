@@ -1317,7 +1317,7 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
                         node = BallerinaASTFactory.createKeyValueExpression();
                         break;
                     case 'type_casting_expression':
-                        node = BallerinaASTFactory.createTypeCastingExpression();
+                        node = BallerinaASTFactory.createTypeCastExpression();
                         break;
                     case 'type_mapper_definition':
                         node = BallerinaASTFactory.createTypeMapperDefinition();
