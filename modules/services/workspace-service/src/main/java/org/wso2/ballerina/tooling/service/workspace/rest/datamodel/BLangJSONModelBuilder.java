@@ -1013,17 +1013,13 @@ public class BLangJSONModelBuilder implements NodeVisitor {
     public void visit(TypeCastExpression typeCastExpression) {
         JsonObject typeCastEprObj = new JsonObject();
         this.addPosition(typeCastEprObj, typeCastExpression.getNodeLocation());
-        typeCastEprObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE,
-                BLangJSONModelConstants.TYPE_CASTING_EXPRESSION);
+        typeCastEprObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE, BLangJSONModelConstants.TYPE_CASTING_EXPRESSION);
+        typeCastEprObj.addProperty(BLangJSONModelConstants.TARGET_TYPE, typeCastExpression.getTypeName().toString());
 
-        JsonObject targetTypeObj = new JsonObject();
-        targetTypeObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE, BLangJSONModelConstants.TYPE_NAME);
-        targetTypeObj.addProperty(BLangJSONModelConstants.TARGET_TYPE, typeCastExpression.getTargetType().toString());
         tempJsonArrayRef.push(new JsonArray());
         if(typeCastExpression.getArgExprs() != null) {
             typeCastExpression.getArgExprs()[0].accept(this);
         }
-        tempJsonArrayRef.peek().add(targetTypeObj);
         typeCastEprObj.add(BLangJSONModelConstants.CHILDREN,tempJsonArrayRef.peek());
         tempJsonArrayRef.pop();
         tempJsonArrayRef.peek().add(typeCastEprObj);
