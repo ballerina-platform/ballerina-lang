@@ -32,10 +32,10 @@ define(['lodash', './node', 'log', '../utils/common-utils'],
 
         // Adding available annotations and their default values.
         if (_.isNil(_.find(this._annotations, function (annotation) {
-                return annotation.key == "BasePath";
+                return annotation.key == "http:BasePath";
             }))) {
             this._annotations.push({
-                key: "BasePath",
+                key: "http:BasePath",
                 value: ""
             });
         }

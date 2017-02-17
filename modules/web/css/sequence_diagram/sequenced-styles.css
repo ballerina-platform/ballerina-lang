@@ -310,6 +310,11 @@ text-anchor: start;
     opacity: 1;
     fill: url(#addBreakpointIcon);
 }
+.property-pane-action-button-breakpoint.active:hover {
+    cursor: pointer;
+    opacity: 1;
+    fill: url(#debugRemoveIcon);
+}
 .statement-view-breakpoint-indicator {
     opacity: 0.8;
     fill: url(#debugIcon);
@@ -318,7 +323,7 @@ text-anchor: start;
 .statement-view-breakpoint-indicator:hover {
     cursor: pointer;
     opacity: 1;
-    fill: url(#debugIcon);
+    fill: url(#debugRemoveIcon);
 }
 
 .annotation-icon-background-circle {

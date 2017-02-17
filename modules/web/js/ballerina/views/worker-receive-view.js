@@ -218,13 +218,10 @@ define(['lodash', 'd3','log', './simple-statement-view', './../ast/action-invoca
         WorkerReceive.prototype.onBeforeModelRemove = function () {
             this.stopListening(this.getBoundingBox());
             d3.select("#_" +this._model.id).remove();
-            this.getDiagramRenderingContext().getViewOfModel(this._model.getParent()).getStatementContainer()
-                .removeInnerDropZone(this._model);
             this.removeArrows();
             // resize the bounding box in order to the other objects to resize
             var moveOffset = -this.getBoundingBox().h() - 30;
             this.getBoundingBox().move(0, moveOffset);
-
         };
 
         WorkerReceive.prototype.updateStatementText = function (newStatementText, propertyKey) {
@@ -244,7 +241,7 @@ define(['lodash', 'd3','log', './simple-statement-view', './../ast/action-invoca
         };
 
         WorkerReceive.prototype.renderReceiveArrows = function () {
-            var group = D3Utils.group(d3.select(this._container));
+            this._arrowGroup = D3Utils.group(d3.select(this._container));
             var destinationView = this.getDiagramRenderingContext().getViewOfModel(this.getModel().getDestination());
             var destinationStatementContainer = destinationView.getStatementContainer();
             var startX = destinationView.getBoundingBox().getLeft();
@@ -279,7 +276,7 @@ define(['lodash', 'd3','log', './simple-statement-view', './../ast/action-invoca
                 endY = startY;
                 var messageStart = new Point(startX, startY);
                 var messageEnd = new Point(endX, endY);
-                this._messageView = new MessageView({container: group.node(), start: messageStart, end: messageEnd, isInputArrow: false});
+                this._messageView = new MessageView({container: this._arrowGroup.node(), start: messageStart, end: messageEnd, isInputArrow: false});
                 this._messageView.render();
 
                 // Set the reply receiver for the destination

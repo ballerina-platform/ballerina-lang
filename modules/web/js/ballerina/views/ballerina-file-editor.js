@@ -315,7 +315,7 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                 .append($('<div></div>').addClass(_.get(viewOptions, 'cssClass.canvas_top_control_packages_import')))
                 .append($('<div></div>').addClass(_.get(viewOptions, 'cssClass.canvas_top_control_constants_define')));
             canvasContainer.append(canvasTopControlsContainer);
-            
+
             this._$designViewContainer.append(canvasContainer);
             this._$canvasContainer = canvasContainer;
             // check whether container element exists in dom
@@ -538,7 +538,6 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                     // reset source editor delta stack
                     self._sourceView.markClean();
                     self._createConstantDefinitionsView(self._$canvasContainer);
-                    self.addCurrentPackageToToolPalette();
                 } else if (isSwaggerChanged) {
                     self.setModel(self._swaggerView.getContent());
                     // reset source editor delta stack
@@ -553,7 +552,9 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                 designViewBtn.hide();
                 self.setActiveView('design');
                 if(isSourceChanged || isSwaggerChanged || savedWhileInSourceView){
+                    self._environment.resetCurrentPackage();
                     self.reDraw();
+                    self.rerenderCurrentPackageTool();
                 }
             });
 
@@ -580,7 +581,7 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
          * @returns {Object}
          */
         BallerinaFileEditor.prototype.generateCurrentPackage = function () {
-            var symbolTableGenVisitor = new SymbolTableGenVisitor(this._package, this._model);
+            var symbolTableGenVisitor = new SymbolTableGenVisitor(this._environment.getCurrentPackage(), this._model);
             this._model.accept(symbolTableGenVisitor);
             return symbolTableGenVisitor.getPackage();
         };
@@ -592,6 +593,19 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
         BallerinaFileEditor.prototype.addCurrentPackageToToolPalette = function () {
             this.toolPalette.getItemProvider().addImport(this.generateCurrentPackage(), 0);
         };
+
+    BallerinaFileEditor.prototype.rerenderCurrentPackageTool = function () {
+        var currentPackage = this.generateCurrentPackage();
+        var provider = this.toolPalette.getItemProvider();
+
+        // Remove current package tool group from pallete and re add it.
+        provider.removeImportToolGroup(currentPackage.getName());
+        var options = {
+            addToTop: true,
+            collapsed: false
+        }
+        provider.addImportToolGroup(currentPackage, options);
+    };
 
     BallerinaFileEditor.prototype.initDropTarget = function() {
         var self = this,
@@ -667,7 +681,7 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                root = this.deserializer.getASTModel(response);
            } else {
                root = BallerinaASTFactory.createBallerinaAstRoot();
-        
+
                //package definition
                var packageDefinition = BallerinaASTFactory.createPackageDefinition();
                packageDefinition.setPackageName("");
@@ -676,7 +690,7 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
            }
            return root;
         };
-       
+
         /**
          * Creating the package view of a ballerina-file-editor.
          * @param canvasContainer - The canvas container.
@@ -886,14 +900,12 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
 
             // this._createPackageDeclarationPane(this._$canvasContainer);
 
-            // adding current package to the tool palette with functions, connectors, actions etc. of the current package
-            this.addCurrentPackageToToolPalette();
             this._model.accept(this);
 
             // adding declared import packages to tool palette
             _.forEach(this._model.getImportDeclarations(), function (importDeclaration) {
                 var package = BallerinaEnvironment.searchPackage(importDeclaration.getPackageName());
-                self.toolPalette.getItemProvider().addImport(package[0]);
+                self.toolPalette.getItemProvider().addImportToolGroup(package[0]);
             });
 
             this.initDropTarget();
@@ -909,7 +921,7 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
         };
 
         BallerinaFileEditor.prototype._createConstantDefinitionsView = function(canvasContainer) {
-            
+
             var costantDefinitionWrapper = _.get(this._viewOptions, 'cssClass.canvas_top_control_constants_define');
             var constantsWrapper = canvasContainer.find('.' +costantDefinitionWrapper);
 
@@ -945,7 +957,7 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
             _.each(modelMap, function(aView) {
                 if(!_.isNil(aView.getModel)) {
                     var lineNumber = aView.getModel().getLineNumber();
-                    if(lineNumber === position.line) {
+                    if(lineNumber === position.line && !_.isNil(aView.showDebugHit)) {
                         aView.showDebugHit();
                         self._currentDebugHit = aView;
                     }

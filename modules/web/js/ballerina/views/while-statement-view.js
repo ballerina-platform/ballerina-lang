@@ -15,8 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', './block-statement-view', './../ast/while-statement'],
-    function (_, log, BlockStatementView, WhileStatement) {
+define(['lodash', 'log', './block-statement-view', './../ast/while-statement', 'd3'],
+    function (_, log, BlockStatementView, WhileStatement, d3) {
 
         /**
          * The view to represent a If statement which is an AST visitor.

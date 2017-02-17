@@ -23,6 +23,7 @@ import org.ballerinalang.composer.service.workspace.swagger.SwaggerServiceMapper
 import org.ballerinalang.composer.service.workspace.swagger.api.NotFoundException;
 import org.ballerinalang.composer.service.workspace.swagger.model.Service;
 import org.ballerinalang.model.BallerinaFile;
+import org.ballerinalang.model.CompilationUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -61,17 +62,17 @@ public class ServicesApiServiceImpl {
     @Consumes({"application/json"})
     @Produces({"application/json"})
     @io.swagger.annotations.ApiOperation(value =
-                                                 "Convert swagger to ballerina service definitions",
-                                         notes = "This operation can be used to convert service definitions between " +
-                                                 "ballerina and swagger ",
-                                         response = void.class, tags = {"swagger",})
+            "Convert swagger to ballerina service definitions",
+            notes = "This operation can be used to convert service definitions between " +
+                    "ballerina and swagger ",
+            response = void.class, tags = {"swagger",})
     @io.swagger.annotations.ApiResponses(value = {
             @io.swagger.annotations.ApiResponse(code = 200,
-                                                message =
-                                                        "Created.  Successful response with the newly created API as " +
-                                                                "entity in the body. " +
-                                                                "Location header contains URL of newly created API. ",
-                                                response = void.class)})
+                    message =
+                            "Created.  Successful response with the newly created API as " +
+                                    "entity in the body. " +
+                                    "Location header contains URL of newly created API. ",
+                    response = void.class)})
     public Response servicesConvertSwaggerPost(@ApiParam(value = "Type to be convert", required = true)
                                                @QueryParam("expectedType") String expectedType
             , @ApiParam(value = "Service definition to be convert ", required = true) Service serviceDefinition)
@@ -104,9 +105,9 @@ public class ServicesApiServiceImpl {
     @Consumes({"application/json"})
     @Produces({"application/json"})
     @io.swagger.annotations.ApiOperation(value = "Convert swagger to ballerina service definitions",
-                                         notes = "This operation can be used to convert service definitions between " +
-                                                 "ballerina and swagger ",
-                                         response = void.class, tags = {"swagger",})
+            notes = "This operation can be used to convert service definitions between " +
+                    "ballerina and swagger ",
+            response = void.class, tags = {"swagger",})
     @io.swagger.annotations.ApiResponses(value = {
             @io.swagger.annotations.ApiResponse(code = 200, message = "Created.  " +
                     "Successful response with ballerina JSON representation. " +
@@ -201,19 +202,27 @@ public class ServicesApiServiceImpl {
         //TODO this logic need to be reviewed and fix issues. This is temporary commit to test swagger UI flow
         org.ballerinalang.model.Service swaggerService = SwaggerConverterUtils.
                 getServiceFromSwaggerDefinition(swaggerDefinition);
-        org.ballerinalang.model.Service ballerinaService = ballerinaFile.getServices()[0];
+        org.ballerinalang.model.Service ballerinaService = SwaggerConverterUtils.
+                getServicesFromBallerinaDefinition(ballerinaDefinition)[0];
         String serviceName = swaggerService.getSymbolName().getName();
-        for (org.ballerinalang.model.Service currentService : ballerinaFile.getServices()) {
+        /*for (org.ballerinalang.model.Service currentService : ballerinaFile.getServices()) {
             if (currentService.getSymbolName().getName().equalsIgnoreCase(serviceName)) {
                 ballerinaService = currentService;
             }
-        }
+        }*/
         //Compare ballerina service and swagger service and then substitute values. Then we should get ballerina
         //JSON representation and send back to client.
         //for the moment we directly add swagger service to ballerina service.
+        //Replace first service of the ballerina file.
+        for (int i = 0; i < ballerinaFile.getCompilationUnits().length; i++) {
+            CompilationUnit compilationUnit = ballerinaFile.getCompilationUnits()[i];
+            if (compilationUnit instanceof org.ballerinalang.model.Service) {
+                ballerinaFile.getCompilationUnits()[i] = SwaggerConverterUtils.
+                        mergeBallerinaService(ballerinaService, swaggerService);
+                break;
+            }
 
-        ballerinaFile.getServices()[0] = SwaggerConverterUtils.
-                mergeBallerinaService(ballerinaService, swaggerService);
+        }
         //Now we have to convert ballerina file to JSON object model composer require.
         JsonObject response = new JsonObject();
         BLangJSONModelBuilder jsonModelBuilder = new BLangJSONModelBuilder(response);
