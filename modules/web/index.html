@@ -598,6 +598,8 @@
             constants: 'js/constants/constants',
             typeMapper: 'js/type-mapper/type-mapper-renderer',
             environment_content: "js/ballerina/env/environment-content",
+            bal_utils: "js/ballerina/utils",
+            bal_configs: "js/ballerina/configs",
             console: "js/launcher/console"
         },
         shim: {
@@ -701,6 +703,9 @@
                 },
                 parser:  {
                     endpoint: "http://localhost:8289/ballerina/model/content"
+                },
+                validator:  {
+                    endpoint: "http://localhost:8289/ballerina/validate"
                 },
                 launcher: {
                     endpoint: "ws://localhost:9092/launch"

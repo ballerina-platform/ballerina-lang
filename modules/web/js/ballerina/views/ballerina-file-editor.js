@@ -48,18 +48,14 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                 throw "Ballerina AST Root is undefined or is of different type." + this._model;
             }
 
-           if (!_.has(args, 'viewOptions.backend')){
-               log.error("Backend is not defined.");
-               // not throwing an exception for now since we need to work without a backend.
-           }
-
            if (!_.has(args, 'backendEndpointsOptions')){
                log.error("Backend endpoints options not defined.");
                // not throwing an exception for now since we need to work without a backend.
            }
-           this.backend = new Backend(_.get(args, 'viewOptions.backend', {}));
+           this.parserBackend = new Backend({url: _.get(args, 'backendEndpointsOptions.parser.endpoint', {})});
+           this.validatorBackend = new Backend({url: _.get(args, 'backendEndpointsOptions.validator.endpoint', {})});
            this._isInSourceView = false;
-           this._isInSwaggerView = false;
+           this._isvInSwaggerView = false;
            this._constantDefinitionsPane = undefined;
            this.deserializer = BallerinaASTDeserializer;
            this.init();
@@ -476,19 +472,16 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                         savedWhileInSourceView = lastRenderedTimestamp < self._file.getLastPersisted();
                     if (isSourceChanged || savedWhileInSourceView || self._parseFailed) {
                         var source = self._sourceView.getContent();
-                        var response = self.backend.parse(source);
-                        //if there are errors display the error.
-                        //@todo: proper error handling need to get the service specs
-                        if (response.error != undefined && response.error) {
-                            alerts.error('cannot switch to swagger view due to parse errors');
-                            return;
-                        } else if (!_.isUndefined(response.errorMessage)) {
-                            alerts.error("Unable to parse the source: " + response.errorMessage);
-                            return;
+                        if(!_.isEmpty(source.trim())){
+                            var validateResponse = self.validatorBackend.parse(source.trim());
+                            if (validateResponse.errors != undefined && !_.isEmpty(validateResponse.errors)) {
+                                alerts.error('cannot switch to swagger view due to syntax errors');
+                                return;
+                            }
                         }
                         self._parseFailed = false;
                         //if no errors display the design.
-                        //@todo
+                        var response = self.parserBackend.parse(source);
                         var root = self.deserializer.getASTModel(response);
                         self.setModel(root);
                         self._sourceView.markClean();
@@ -530,7 +523,17 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                 var isSwaggerChanged = self.isInSwaggerView();
                 if (isSourceChanged || savedWhileInSourceView || self._parseFailed) {
                     var source = self._sourceView.getContent();
-                    var root = self.generateNodeTree();
+                    if(!_.isEmpty(source.trim())){
+                        var validateResponse = self.validatorBackend.parse(source.trim());
+                        if (validateResponse.errors != undefined && !_.isEmpty(validateResponse.errors)) {
+                            alerts.error('cannot switch to design view due to syntax errors');
+                            return;
+                        }
+                    }
+                    self._parseFailed = false;
+                    //if no errors display the design.
+                    var response = self.parserBackend.parse(source);
+                    var root = self.deserializer.getASTModel(response);
                     self.setModel(root);
                     // reset source editor delta stack
                     self._sourceView.markClean();
@@ -648,7 +651,7 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
             var root;
             var source = this._sourceView.getContent();
             if (!_.isEmpty(source.trim())) {
-               var response = this.backend.parse(source);
+               var response = this.parserBackend.parse(source);
                //if there are errors display the error.
                //@todo: proper error handling need to get the service specs
                if (response.error != undefined && response.error) {
