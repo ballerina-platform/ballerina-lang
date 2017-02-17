@@ -15,40 +15,34 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.testerina.nativeimpl.mock;
+package org.ballerinalang.testerina.natives.mock;
 
+import org.ballerinalang.bre.Context;
+import org.ballerinalang.model.BLangPackage;
+import org.ballerinalang.model.BLangProgram;
+import org.ballerinalang.model.BallerinaConnectorDef;
+import org.ballerinalang.model.Connector;
+import org.ballerinalang.model.ParameterDef;
+import org.ballerinalang.model.Service;
+import org.ballerinalang.model.expressions.BasicLiteral;
+import org.ballerinalang.model.expressions.ConnectorInitExpr;
+import org.ballerinalang.model.expressions.Expression;
+import org.ballerinalang.model.statements.VariableDefStmt;
+import org.ballerinalang.model.types.BType;
+import org.ballerinalang.model.types.TypeEnum;
+import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.natives.AbstractNativeFunction;
+import org.ballerinalang.natives.annotations.Argument;
+import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.testerina.core.TesterinaRegistry;
+import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.ballerina.core.exception.BallerinaException;
-import org.wso2.ballerina.core.interpreter.Context;
-import org.wso2.ballerina.core.interpreter.RuntimeEnvironment;
-import org.wso2.ballerina.core.model.Application;
-import org.wso2.ballerina.core.model.BallerinaConnectorDef;
-import org.wso2.ballerina.core.model.BallerinaFile;
-import org.wso2.ballerina.core.model.Connector;
-import org.wso2.ballerina.core.model.Package;
-import org.wso2.ballerina.core.model.ParameterDef;
-import org.wso2.ballerina.core.model.Service;
-import org.wso2.ballerina.core.model.expressions.BasicLiteral;
-import org.wso2.ballerina.core.model.expressions.ConnectorInitExpr;
-import org.wso2.ballerina.core.model.expressions.Expression;
-import org.wso2.ballerina.core.model.statements.VariableDefStmt;
-import org.wso2.ballerina.core.model.types.BType;
-import org.wso2.ballerina.core.model.types.TypeEnum;
-import org.wso2.ballerina.core.model.values.BValue;
-import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
-import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
-import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
-import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeConnector;
-import org.wso2.ballerina.core.runtime.registry.ApplicationRegistry;
 
 import java.lang.reflect.Field;
 import java.security.PrivilegedAction;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.LinkedList;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Queue;
 import java.util.Set;
@@ -92,13 +86,11 @@ public class SetValue extends AbstractNativeFunction {
         //first element is the service name, in-betweens are connectors and the last element is a primitive
         MockConnectorPath mockCnctrPath = parseMockConnectorPath(ctx);
 
-        Collection<Application> applications = getAllApplications();
-
         //Locate the relevant Application, Package, and the Service
-        ServiceMetadata serviceMetadata = getMatchingServiceMetadata(mockCnctrPath.serviceName, applications);
+        Service service = getMatchingService(mockCnctrPath.serviceName);
 
         //traverse through the connectors and get the last connector instance
-        VariableDefStmt[] variableDefStmts = serviceMetadata.service.getVariableDefStmts();
+        VariableDefStmt[] variableDefStmts = service.getVariableDefStmts();
         if (mockCnctrPath.connectorNames.size() < 1) {
             throw new BallerinaException(
                     "Connectors entered for the service " + mockCnctrPath.serviceName + " is empty." + ". Syntax: "
@@ -142,50 +134,46 @@ public class SetValue extends AbstractNativeFunction {
                     mockCnctrPath.mockValue);
         }
 
-        if (variableDefStmt.getVariableDef().getType() instanceof AbstractNativeConnector) {
-            BallerinaFile ballerinaFile = TesterinaRegistry.getInstance().resolve(serviceMetadata.service);
-            RuntimeEnvironment reinitRuntimeEnvironment = RuntimeEnvironment.get(ballerinaFile);
-            serviceMetadata.application.setRuntimeEnv(reinitRuntimeEnvironment);
-        }
+        //        if (variableDefStmt.getVariableDef().getType() instanceof AbstractNativeConnector) {
+        //            BLangProgram bLangProgram = service.getBLangProgram();
+        //            RuntimeEnvironment reinitRuntimeEnvironment = RuntimeEnvironment.get(bLangProgram);
+        //            serviceMetadata.application.setRuntimeEnv(reinitRuntimeEnvironment);
+        //        }
 
         return VOID_RETURN;
     }
 
-    private ServiceMetadata getMatchingServiceMetadata(String serviceName, Collection<Application> applications) {
-        ServiceMetadata.ServiceMetadataBuilder builder = new ServiceMetadata.ServiceMetadataBuilder();
-        Optional<Application> theApp = applications.stream().filter(app -> {
-            Optional<Package> pkg = app.getPackages().values().stream().filter(p -> {
-                Optional<Service> service = p.getServices().stream().filter(s -> s.getName().equals(serviceName))
-                        .findAny();
-
-                service.ifPresent(builder::setService);
-                return service.isPresent();
-            }).findAny();
-
-            return pkg.isPresent();
-        }).findAny();
-
-        theApp.ifPresent(builder::setApplication);
+    private Service getMatchingService(String serviceName) {
+        Optional<Service> matchingService = Optional.empty();
+        for (BLangProgram bLangProgram : TesterinaRegistry.getInstance().getBLangPrograms()) {
+            // 1) First, we get the Service for the given serviceName from the original BLangProgram
+            matchingService = Arrays.stream(bLangProgram.getServicePackages()).map(BLangPackage::getServices)
+                    .flatMap(Arrays::stream).filter(s -> s.getName().equals(serviceName)).findAny();
+        }
 
         // fail further processing if we can't find the application/service
-        if (!theApp.isPresent()) {
+        if (!matchingService.isPresent()) {
             // Added for user convenience. Since we are stopping further progression of the program,
             // perf overhead is ignored.
-            Set<String> servicesSet = applications.stream().map(app -> app.getPackages().values())
-                    .flatMap(Collection::stream).map(Package::getServices).flatMap(Collection::stream)
-                    .map(Service::getName).collect(Collectors.toSet());
+            Set<String> servicesSet = TesterinaRegistry.getInstance().getBLangPrograms().stream()
+                    .map(BLangProgram::getServicePackages).flatMap(Arrays::stream).map(BLangPackage::getServices)
+                    .flatMap(Arrays::stream).map(Service::getName).collect(Collectors.toSet());
 
             throw new BallerinaException(MSG_PREFIX + "No matching service for the name '" + serviceName + "' found. "
                     + "Did you mean to include one of these services? " + servicesSet);
         }
 
-        return builder.build();
+        return matchingService.get();
     }
+
+/*
+    */
 
     /**
      * Get rid of this method once {@code ApplicationRegistry.getAllApplications}
      * method is available.
-     */
+     *//*
+
     private Collection<Application> getAllApplications() {
         try {
             Field field = ApplicationRegistry.class.getDeclaredField("applications");
@@ -200,6 +188,7 @@ public class SetValue extends AbstractNativeFunction {
         }
     }
 
+*/
     private void validateArgsExprsArray(int indexOfMockField, Expression[] argExprs, VariableDefStmt finalVarDefStmt)
             throws BallerinaException {
         if (argExprs.length > indexOfMockField) {
@@ -376,38 +365,4 @@ public class SetValue extends AbstractNativeFunction {
         }
     }
 
-    /**
-     * This wraps a service and its corresponding application.
-     *
-     */
-    protected static class ServiceMetadata {
-        Application application;
-        Service service;
-
-        private ServiceMetadata(Service service, Application application) {
-            this.service = service;
-            this.application = application;
-        }
-
-        //builder pattern was used because of findbugs false positive: UWF_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR
-        static class ServiceMetadataBuilder {
-
-            Application application;
-            Service service;
-
-            public ServiceMetadata build() {
-                return new ServiceMetadata(service, application);
-            }
-
-            public void setApplication(Application application) {
-                this.application = application;
-            }
-
-            public void setService(Service service) {
-                this.service = service;
-            }
-
-        }
-
-    }
 }

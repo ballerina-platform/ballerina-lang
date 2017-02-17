@@ -15,30 +15,26 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.testerina.nativeimpl.test;
+package org.ballerinalang.testerina.natives.test;
 
+import org.ballerinalang.bre.Context;
+import org.ballerinalang.model.Annotation;
+import org.ballerinalang.model.BLangPackage;
+import org.ballerinalang.model.BLangProgram;
+import org.ballerinalang.model.Service;
+import org.ballerinalang.model.types.TypeEnum;
+import org.ballerinalang.model.values.BString;
+import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.natives.AbstractNativeFunction;
+import org.ballerinalang.natives.annotations.Argument;
+import org.ballerinalang.natives.annotations.BallerinaFunction;
+import org.ballerinalang.natives.annotations.ReturnType;
+import org.ballerinalang.natives.connectors.BallerinaConnectorManager;
+import org.ballerinalang.services.dispatchers.DispatcherRegistry;
+import org.ballerinalang.services.dispatchers.ServiceDispatcher;
+import org.ballerinalang.services.dispatchers.http.Constants;
 import org.ballerinalang.testerina.core.TesterinaRegistry;
-import org.wso2.ballerina.core.exception.BallerinaException;
-import org.wso2.ballerina.core.interpreter.Context;
-import org.wso2.ballerina.core.interpreter.RuntimeEnvironment;
-import org.wso2.ballerina.core.model.Annotation;
-import org.wso2.ballerina.core.model.Application;
-import org.wso2.ballerina.core.model.BallerinaFile;
-import org.wso2.ballerina.core.model.Package;
-import org.wso2.ballerina.core.model.Resource;
-import org.wso2.ballerina.core.model.Service;
-import org.wso2.ballerina.core.model.types.TypeEnum;
-import org.wso2.ballerina.core.model.values.BString;
-import org.wso2.ballerina.core.model.values.BValue;
-import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
-import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
-import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
-import org.wso2.ballerina.core.nativeimpl.annotations.ReturnType;
-import org.wso2.ballerina.core.nativeimpl.connectors.BallerinaConnectorManager;
-import org.wso2.ballerina.core.runtime.dispatching.Constants;
-import org.wso2.ballerina.core.runtime.dispatching.ServiceDispatcher;
-import org.wso2.ballerina.core.runtime.registry.ApplicationRegistry;
-import org.wso2.ballerina.core.runtime.registry.DispatcherRegistry;
+import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.carbon.messaging.ServerConnector;
 import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.carbon.transport.http.netty.listener.HTTPServerConnector;
@@ -48,6 +44,7 @@ import java.net.URL;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * Native function ballerina.lang.test:startServer.
@@ -79,29 +76,22 @@ public class StartService extends AbstractNativeFunction {
      */
     @Override
     public BValue[] execute(Context ctx) {
-        String serviceName = getArgument(ctx, 0).stringValue();     //todo only one service for now
+        String serviceName = getArgument(ctx, 0).stringValue();
 
-        Application app = ApplicationRegistry.getInstance().getApplication("default");
         Optional<Service> matchingService = Optional.empty();
-        for (BallerinaFile aBallerinaFile : TesterinaRegistry.getInstance().getOriginalBallerinaFiles()) {
-            Service[] services = aBallerinaFile.getServices();
-
-            // 1) First, we get the Service for the given serviceName from the original BallerinaFile
-            matchingService = Arrays.stream(services).filter(s -> s.getName().equals(serviceName)).findAny();
-            if (matchingService.isPresent()) {
-                // 2) if matching service is found, we append that to the list of services in the derivativeBFile.
-                BallerinaFile derivativeBallerinaFile = TesterinaRegistry.getInstance()
-                        .getDerivativeBallerinaFile(aBallerinaFile); //the actual bfile registered in AppRegistry
-                startService(app, matchingService.get(), derivativeBallerinaFile);
-            }
+        for (BLangProgram bLangProgram : TesterinaRegistry.getInstance().getBLangPrograms()) {
+            // 1) First, we get the Service for the given serviceName from the original BLangProgram
+            matchingService = Arrays.stream(bLangProgram.getServicePackages()).map(BLangPackage::getServices)
+                    .flatMap(Arrays::stream).filter(s -> s.getName().equals(serviceName)).findAny();
+            matchingService.ifPresent(service -> startService(bLangProgram, service));
         }
 
-        // 5) fail if no matching service for the given 'serviceName' argument is found.
+        // 3) fail if no matching service for the given 'serviceName' argument is found.
         if (!matchingService.isPresent()) {
-            StringBuilder listOfServices = new StringBuilder();
-            Arrays.stream(TesterinaRegistry.getInstance().getOriginalBallerinaFiles()).map(BallerinaFile::getServices)
-                    .flatMap(Arrays::stream)
-                    .forEachOrdered(service -> listOfServices.append(service.getSymbolName().getName()).append(", "));
+            String listOfServices = TesterinaRegistry.getInstance().getBLangPrograms().stream()
+                    .map(BLangProgram::getServicePackages).flatMap(Arrays::stream).map(BLangPackage::getServices)
+                    .flatMap(Arrays::stream).map(service -> service.getSymbolName().getName())
+                    .collect(Collectors.joining(", "));
             throw new BallerinaException(MSG_PREFIX + "No service with the name " + serviceName + " found. "
                     + "Did you mean to start one of these services? " + listOfServices);
         }
@@ -111,27 +101,9 @@ public class StartService extends AbstractNativeFunction {
         return getBValues(str);
     }
 
-    private void startService(Application app, Service matchingService, BallerinaFile derivativeBallerinaFile) {
-
-        Service[] registeredServices = derivativeBallerinaFile.getServices();
-        registeredServices = Arrays.copyOf(registeredServices, registeredServices.length + 1);
-        registeredServices[registeredServices.length - 1] = matchingService;
-        derivativeBallerinaFile.setServices(registeredServices);
-
-        // 3) re-generate the runtime environment for the modified bfile
-        RuntimeEnvironment runtimeEnvironment = RuntimeEnvironment.get(derivativeBallerinaFile);
-        app.setRuntimeEnv(runtimeEnvironment);
-        // as done in org.ballerinalang.testerina.core.TestRunner
-        for (Resource resource : matchingService.getResources()) {
-            //resource.setApplication(app); //todo fix with new blang-prog-scope
-        }
-
-        Package aPackage = app.getPackage("default");
-        aPackage.getServices().add(matchingService);
-
-        // 4) inform the service dispatchers
-        //ApplicationRegistry.getInstance().updatePackage(aPackage);
+    private void startService(BLangProgram bLangProgram, Service matchingService) {
         for (ServiceDispatcher serviceDispatcher : DispatcherRegistry.getInstance().getServiceDispatchers().values()) {
+            matchingService.setBLangProgram(bLangProgram);
             serviceDispatcher.serviceRegistered(matchingService);
         }
     }
@@ -139,7 +111,6 @@ public class StartService extends AbstractNativeFunction {
     private String getServiceURL(Service service) {
         try {
             String listenerInterface = Constants.DEFAULT_INTERFACE;
-            String serviceURL;
             String basePath = service.getSymbolName().getName();
             for (Annotation annotation : service.getAnnotations()) {
                 if (annotation.getName().equals(Constants.ANNOTATION_NAME_BASE_PATH)) {

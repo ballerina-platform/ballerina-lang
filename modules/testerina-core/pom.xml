@@ -52,11 +52,12 @@
                 <version>${mvn.processor.plugin.version}</version>
                 <configuration>
                     <processors>
-                        <processor>org.wso2.ballerina.annotation.processor.BallerinaAnnotationProcessor</processor>
+                        <processor>org.ballerinalang.natives.annotation.processor.BallerinaAnnotationProcessor</processor>
                     </processors>
                     <options>
                         <packageName>${native.constructs.provider.package}</packageName>
                         <className>${native.constructs.provider.class}</className>
+                        <srcDir>${ballerina.source.directory}</srcDir>
                         <targetDir>${project.build.directory}</targetDir>
                     </options>
                 </configuration>
@@ -74,10 +75,11 @@
     </build>
 
     <properties>
-        <native.constructs.provider.package>org.ballerinalang.testerina.nativeimpl</native.constructs.provider.package>
+        <native.constructs.provider.package>org.ballerinalang.testerina.natives</native.constructs.provider.package>
         <native.constructs.provider.class>MockerinaNativeConstructsProvider</native.constructs.provider.class>
         <mvn.processor.plugin.version>2.2.4</mvn.processor.plugin.version>
 
+        <ballerina.source.directory>${project.basedir}/src/main/ballerina</ballerina.source.directory>
         <antlr4.runtime.version>4.5.1.wso2v1</antlr4.runtime.version>
     </properties>
 </project>

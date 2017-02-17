@@ -17,41 +17,32 @@
 */
 package org.ballerinalang.testerina.core;
 
-import org.wso2.ballerina.core.model.BallerinaFile;
-import org.wso2.ballerina.core.model.Service;
+import org.ballerinalang.model.BLangProgram;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
 /**
- * Keep a registry of {@code {@link BallerinaFile}} instances.
+ * Keep a registry of {@code {@link BLangProgram}} instances.
  * This is required to modify the runtime behavior.
  */
 public class TesterinaRegistry {
-    private static Map<BallerinaFile, BallerinaFile> bFiles = new HashMap<>();
+    private static List<BLangProgram> bLangPrograms = new ArrayList<>();
     private static final TesterinaRegistry instance = new TesterinaRegistry();
 
     public static TesterinaRegistry getInstance() {
         return instance;
     }
 
-    public void addBallerinaFile(BallerinaFile originalBFile, BallerinaFile derivativeBFile) {
-        bFiles.put(originalBFile, derivativeBFile);
+    public Collection<BLangProgram> getBLangPrograms() {
+        return Collections.unmodifiableCollection(bLangPrograms);
     }
 
-    public BallerinaFile[] getOriginalBallerinaFiles() {
-        return bFiles.keySet().toArray(new BallerinaFile[bFiles.size()]);
+    public void addBLangProgram(BLangProgram bLangProgram) {
+        bLangPrograms.add(bLangProgram);
     }
 
-    public BallerinaFile getDerivativeBallerinaFile(BallerinaFile bFile) {
-        return bFiles.get(bFile);
-    }
-
-    public BallerinaFile resolve(Service service) {
-        return bFiles.keySet().stream().filter(ballerinaFile ->
-                Arrays.stream(ballerinaFile.getServices()).anyMatch(s -> s.equals(service)))
-                .findAny().orElse(null);
-    }
 
  }
