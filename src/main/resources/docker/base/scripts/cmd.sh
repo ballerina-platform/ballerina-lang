@@ -15,9 +15,9 @@ function collectArgs() {
 collectArgs
 
 if [ ! -z "$SVC_MODE" ] && [ "$SVC_MODE" = "true" ]; then
-  cmd="ballerina service"
+  cmd="ballerina run service"
 else
-  cmd="ballerina run"
+  cmd="ballerina run main"
 fi
 
 echo "Running: ${cmd} ${arg_str}"
