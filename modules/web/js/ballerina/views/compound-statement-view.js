@@ -217,5 +217,13 @@ define(
             this.getBoundingBox().w(0).h(0);
         };
 
+        CompoundStatementView.prototype.showDebugHit = function () {
+            this.getStatementGroup().classed('highlight-statement', true);
+        };
+
+        CompoundStatementView.prototype.clearDebugHit = function () {
+            $(this.getStatementGroup().node()).find('.statement-title-rect').classed('highlight-statement', false);
+        };
+
         return CompoundStatementView;
     });
