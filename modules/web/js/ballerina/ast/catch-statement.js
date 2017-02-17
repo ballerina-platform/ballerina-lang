@@ -25,7 +25,7 @@ define(['lodash', 'log', './conditional-statement', './argument'], function (_, 
      */
     var CatchStatement = function (args) {
         ConditionalStatement.call(this);
-        this._parameter = new Argument(_.get(args, "parameter", {type: "exception", identifier: "e"}));
+        this._parameter = _.get(args, "parameter", "exception e");
 
         this.type = "CatchStatement";
     };
@@ -34,7 +34,7 @@ define(['lodash', 'log', './conditional-statement', './argument'], function (_, 
     CatchStatement.prototype.constructor = CatchStatement;
 
     CatchStatement.prototype.setParameter = function (parameter, options) {
-        if (!_.isNil(parameter) && (parameter instanceof Argument)) {
+        if (!_.isNil(parameter)) {
             this.setAttribute('_parameter', parameter, options);
         }
     };
