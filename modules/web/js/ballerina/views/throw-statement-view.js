@@ -15,8 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', './ballerina-view', './../ast/throw-statement', 'd3utils'],
-    function (_, log, BallerinaView, ThrowStatement, D3Utils) {
+define(['lodash', 'log', './simple-statement-view', './ballerina-view', './../ast/throw-statement', 'd3utils'],
+    function (_, log, SimpleStatementView, BallerinaView, ThrowStatement, D3Utils) {
 
         /**
          * The view to represent a throw statement which is an AST visitor.
@@ -27,7 +27,7 @@ define(['lodash', 'log', './ballerina-view', './../ast/throw-statement', 'd3util
          * @constructor
          */
         var ThrowStatementView = function (args) {
-            BallerinaView.call(this, args);
+            SimpleStatementView.call(this, args);
 
             if (_.isNil(this._model) || !(this._model instanceof ThrowStatement)) {
                 log.error("Throw statement definition is undefined or is of different type." + this._model);
@@ -41,7 +41,7 @@ define(['lodash', 'log', './ballerina-view', './../ast/throw-statement', 'd3util
 
         };
 
-        ThrowStatementView.prototype = Object.create(BallerinaView.prototype);
+        ThrowStatementView.prototype = Object.create(SimpleStatementView.prototype);
         ThrowStatementView.prototype.constructor = ThrowStatementView;
 
         ThrowStatementView.prototype.setModel = function (model) {
@@ -86,6 +86,48 @@ define(['lodash', 'log', './ballerina-view', './../ast/throw-statement', 'd3util
             var group = D3Utils.group(this._container);
             log.debug("Rendering the throw Statement.");
             return group;
+        };
+
+        /**
+         * Renders the view for assignment statement.
+         * @returns {group} - The SVG group which holds the elements of the assignment statement.
+         */
+        ThrowStatementView.prototype.render = function (diagramRenderingContext) {
+            // Calling super class's render function.
+            (this.__proto__.__proto__).render.call(this, diagramRenderingContext);
+            // Update model.
+            var model = this.getModel();
+            model.accept(this);
+            // Setting display text.
+            this.renderDisplayText(model.getStatementString());
+
+            var statementGroup = this.getStatementGroup();
+            // Creating property pane.
+            var editableProperty = {
+                propertyType: "text",
+                key: "Assignment",
+                model: model,
+                getterMethod: model.getStatementString,
+                setterMethod: model.setStatementString
+            };
+            this._createPropertyPane({
+                model: model,
+                statementGroup: statementGroup,
+                editableProperties: editableProperty
+            });
+            this.listenTo(model, 'update-property-text', this.updateStatementText);
+
+            this._createDebugIndicator({
+                statementGroup: statementGroup
+            });
+
+            return statementGroup;
+        };
+
+        ThrowStatementView.prototype.updateStatementText = function (newStatementText, propertyKey) {
+            this._model.setStatementString(newStatementText);
+            var displayText = this._model.getStatementString();
+            this.renderDisplayText(displayText);
         };
 
         return ThrowStatementView;

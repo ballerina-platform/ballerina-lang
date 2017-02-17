@@ -43,5 +43,14 @@ define(['lodash', 'log', './conditional-statement', './argument'], function (_, 
         return this._parameter;
     };
 
+    CatchStatement.prototype.initFromJson = function (jsonNode) {
+        var self = this;
+        _.each(jsonNode.children, function (childNode) {
+            var child = self.getFactory().createFromJson(childNode);
+            child.initFromJson(childNode);
+            self.addChild(child);
+        });
+    };
+
     return CatchStatement;
 });
