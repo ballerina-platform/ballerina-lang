@@ -184,6 +184,16 @@ define(['lodash', 'log', './ast-visitor', '../ast/module'], function (_, log, AS
     StatementVisitor.prototype.endVisitWhileStatement = function (statement) {
     };
 
+    StatementVisitor.prototype.canVisitBreakStatement = function (statement) {
+        return false;
+    };
+    StatementVisitor.prototype.beginVisitBreakStatement = function (statement) {
+    };
+    StatementVisitor.prototype.visitBreakStatement= function (statement) {
+    };
+    StatementVisitor.prototype.endVisitBreakStatement = function (statement) {
+    };
+
     StatementVisitor.prototype.canVisitLeftOperandExpression = function (statement) {
         return false;
     };
@@ -240,6 +250,8 @@ define(['lodash', 'log', './ast-visitor', '../ast/module'], function (_, log, AS
     StatementVisitor.prototype.visitStatement = function (node) {
         if (node instanceof AST.WhileStatement) {
             return this.visitWhileStatement(node);
+        } else if (node instanceof AST.BreakStatement) {
+            return this.visitBreakStatement(node);
         } else if (node instanceof AST.IfElseStatement) {
             return this.visitIfElseStatement(node);
         } else if (node instanceof AST.IfStatement) {
@@ -289,6 +301,8 @@ define(['lodash', 'log', './ast-visitor', '../ast/module'], function (_, log, AS
     StatementVisitor.prototype.canVisitStatement = function (node) {
         if (node instanceof AST.WhileStatement) {
             return this.canVisitWhileStatement(node);
+        } else if (node instanceof AST.BreakStatement) {
+            return this.canVisitBreakStatement(node);
         } else if (node instanceof AST.IfElseStatement) {
             return this.canVisitIfElseStatement(node);
         } else if (node instanceof AST.IfStatement) {
@@ -338,6 +352,8 @@ define(['lodash', 'log', './ast-visitor', '../ast/module'], function (_, log, AS
     StatementVisitor.prototype.beginVisitStatement = function (node) {
         if (node instanceof AST.WhileStatement) {
             this.beginVisitWhileStatement(node);
+        } else if (node instanceof AST.BreakStatement) {
+            return this.beginVisitBreakStatement(node);
         } else if (node instanceof AST.IfElseStatement) {
             return this.beginVisitIfElseStatement(node);
         } else if (node instanceof AST.IfStatement) {
@@ -387,6 +403,8 @@ define(['lodash', 'log', './ast-visitor', '../ast/module'], function (_, log, AS
     StatementVisitor.prototype.endVisitStatement = function (node) {
         if (node instanceof AST.WhileStatement) {
             return this.endVisitWhileStatement(node);
+        } else if (node instanceof AST.BreakStatement) {
+            return this.endVisitBreakStatement(node);
         } else if (node instanceof AST.IfElseStatement) {
             return this.endVisitIfElseStatement(node);
         } else if (node instanceof AST.IfStatement) {

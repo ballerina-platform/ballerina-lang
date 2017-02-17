@@ -202,32 +202,34 @@ define(['require', 'lodash', 'log', './../visitors/statement-visitor', 'd3', 'd3
         var hasActiveBreakPoint = DebugManager.hasBreakPoint(lineNumber, fileName);
         toggleBreakpointButtonRect.classed(viewOptions.actionButton.breakpointActiveClass, hasActiveBreakPoint);
 
-        // 175 is the width set in css
-        var editPaneLocation = this._getEditPaneLocation();
-        var propertyPaneWrapper = $("<div/>", {
-            class: viewOptions.propertyForm.wrapper.class,
-            css: {
-                "width": (statementBoundingBox.w() + 1), // Making the text box bit bigger than the statement box
-                "height": 32 // Height for the expression editor box.
-            },
-            click: function (event) {
-                event.stopPropagation();
-            }
-        }).offset({
-            top: editPaneLocation.y(), // Adding the textbox bit bigger than the statement box.
-            left: editPaneLocation.x()
-        }).appendTo(propertyButtonPaneGroup.node().ownerSVGElement.parentElement);
+        if (_.size(editableProperties) > 0) {
+            // 175 is the width set in css
+            var editPaneLocation = this._getEditPaneLocation();
+            var propertyPaneWrapper = $("<div/>", {
+                class: viewOptions.propertyForm.wrapper.class,
+                css: {
+                    "width": (statementBoundingBox.w() + 1), // Making the text box bit bigger than the statement box
+                    "height": 32 // Height for the expression editor box.
+                },
+                click: function (event) {
+                    event.stopPropagation();
+                }
+            }).offset({
+                top: editPaneLocation.y(), // Adding the textbox bit bigger than the statement box.
+                left: editPaneLocation.x()
+            }).appendTo(propertyButtonPaneGroup.node().ownerSVGElement.parentElement);
 
 
-        // Div which contains the form for the properties.
-        var propertyPaneBody = $("<div/>", {
-            "class": viewOptions.propertyForm.body.class
-        }).appendTo(propertyPaneWrapper);
+            // Div which contains the form for the properties.
+            var propertyPaneBody = $("<div/>", {
+                "class": viewOptions.propertyForm.body.class
+            }).appendTo(propertyPaneWrapper);
 
-        expressionEditor.createEditor(propertyPaneBody, viewOptions.propertyForm.body.property.wrapper,
-            editableProperties, function(){
-                self.trigger('edit-mode-disabled');
-            });
+            expressionEditor.createEditor(propertyPaneBody, viewOptions.propertyForm.body.property.wrapper,
+                editableProperties, function () {
+                    self.trigger('edit-mode-disabled');
+                });
+        }
 
         $(deleteButtonRect.node()).click(function(event){
             event.stopPropagation();

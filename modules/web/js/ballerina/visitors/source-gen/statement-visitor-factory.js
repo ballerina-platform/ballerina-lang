@@ -15,32 +15,24 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', 'event_channel', '../../ast/module',
-'./try-catch-statement-visitor',
-'./try-statement-visitor',
-'./catch-statement-visitor',
-'./if-else-statement-visitor',
-'./if-statement-visitor',
-'./else-statement-visitor',
-'./else-if-statement-visitor',
-'./while-statement-visitor',
-'./assignment-statement-visitor',
-'./action-invocation-statement-visitor',
-'./reply-statement-visitor',
-'./logical-expression-visitor',
-'./arithmetic-expression-visitor',
-'./return-statement-visitor',
-'./function-invocation-visitor',
-'./function-invocation-expression-visitor',
-'./assignment-visitor',
-'./left-operand-expression-visitor',
-'./right-operand-expression-visitor',
-'./variable-definition-statement-visitor', './worker-invoke-visitor', './worker-receive-visitor'],
-function (_, log, EventChannel, AST,
-TryCatchStatementVisitor, TryStatementVisitor, CatchStatementVisitor, IfElseStatementVisitor, IfStatementVisitor,
-ElseStatementVisitor, ElseIfStatementVisitor, WhileStatementVisitor, AssignmentStatementVisitor, ActionInvocationStatementVisitor,
-ReplyStatementVisitor,LogicalExpressionVisitor, ArithmeticExpression, ReturnStatementVisitor, FunctionInvocationVisitor, FunctionInvocationExpressionVisitor, AssignmentVisitor,
-LeftOperandExpressionVisitor, RightOperandExpressionVisitor, VariableDefinitionStatement, WorkerInvoke, WorkerReceive) {
+define(['lodash', 'log', 'event_channel', '../../ast/module', './try-catch-statement-visitor',
+        './try-statement-visitor', './catch-statement-visitor', './if-else-statement-visitor', './if-statement-visitor',
+        './else-statement-visitor', './else-if-statement-visitor', './while-statement-visitor',
+        './assignment-statement-visitor', './action-invocation-statement-visitor', './reply-statement-visitor',
+        './logical-expression-visitor', './arithmetic-expression-visitor', './return-statement-visitor',
+        './function-invocation-visitor', './function-invocation-expression-visitor', './assignment-visitor',
+        './left-operand-expression-visitor', './right-operand-expression-visitor',
+        './variable-definition-statement-visitor', './worker-invoke-visitor', './worker-receive-visitor',
+        './break-statement-visitor'],
+function (_, log, EventChannel, AST, TryCatchStatementVisitor,
+          TryStatementVisitor, CatchStatementVisitor, IfElseStatementVisitor, IfStatementVisitor,
+          ElseStatementVisitor, ElseIfStatementVisitor, WhileStatementVisitor,
+          AssignmentStatementVisitor, ActionInvocationStatementVisitor, ReplyStatementVisitor,
+          LogicalExpressionVisitor, ArithmeticExpression, ReturnStatementVisitor,
+          FunctionInvocationVisitor, FunctionInvocationExpressionVisitor, AssignmentVisitor,
+          LeftOperandExpressionVisitor, RightOperandExpressionVisitor,
+          VariableDefinitionStatement, WorkerInvoke, WorkerReceive,
+          BreakStatementVisitor) {
 
     var StatementVisitorFactor = function () {
     };
@@ -88,6 +80,8 @@ LeftOperandExpressionVisitor, RightOperandExpressionVisitor, VariableDefinitionS
             return new WorkerReceive(parent);
         } else if (statement instanceof AST.ActionInvocationStatement) {
             return new ActionInvocationStatementVisitor(parent);
+        } else if (statement instanceof AST.BreakStatement) {
+            return new BreakStatementVisitor(parent);
         }
     };
 
