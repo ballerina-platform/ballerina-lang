@@ -14,7 +14,7 @@
 ~   limitations under the License.
 -->
 
-<html lang="en" class="webkit chrome mac js gr__localhost">
+<html lang="en" class="webkit chrome mac js gr__localhost" xmlns="http://www.w3.org/1999/html">
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -59,8 +59,7 @@
     <div id="header-container" class="container-fluid">
         <div class="pull-left brand">
             <a href="#">
-                <img src="lib/theme-wso2-2.0.0/images/logo-inverse.svg" alt="wso2" title="wso2" class="logo">
-                <span>Ballerina Editor </span>
+                <span>Ballerina</span> <span class="orange">Composer </span>
             </a>
         </div>
         <div id="menu-bar-container" class="menu-bar">
@@ -97,6 +96,11 @@
                                 </a>
                             </li>
                             <li>
+                                <a href="#launcher" role="tab" data-toggle="tab" class="launcher-activate-btn">
+                                    <i class="fw fw-start fw-lg"></i>
+                                </a>
+                            </li>
+                            <li>
                                 <a href="#debugger" role="tab" data-toggle="tab" class="debugger-activate-btn">
                                     <i class="fw fw-bug fw-lg"></i>
                                 </a>
@@ -130,6 +134,11 @@
                         <!-- End: service tabs -->
                     </div>
                     <!-- End: service tabs wrapper row -->
+                    <div id="console-container" class="col-sm-12 hide">
+                        <div class="console-header">Console <a class="closeConsole"><i class="fw fw-cancel"></i></a></div>
+                        <div id="console">
+                        </div>
+                    </div>
                 </div>
                 <!-- End: service tabs wrapper container-->
             </div>
@@ -143,7 +152,7 @@
 <!-- Start: footer -->
 <footer class="footer">
     <div id="footer-container" class="container-fluid">
-        <p>WSO2 Ballerina Editor v0.8 | ©
+        <p>Ballerina Composer v0.8 | ©
             <script>document.write(new Date().getFullYear());</script>
             <a href="http://wso2.com/" target="_blank"><i class="icon fw fw-wso2"></i> Inc</a>.
         </p>
@@ -588,11 +597,12 @@
 			expression_editor_utils: "js/expression-editor/expression-editor-utils",
             constants: 'js/constants/constants',
             typeMapper: 'js/type-mapper/type-mapper-renderer',
-            environment_content: "js/ballerina/env/environment-content"
+            environment_content: "js/ballerina/env/environment-content",
+            console: "js/launcher/console"
         },
         shim: {
             "bootstrap": {"deps": ['jquery']},
-            "theme_wso2": {"deps": ['jquery', 'bootstrap', 'html5_shiv', 'respond']},
+            "theme_wso2": {"deps": ['jquery', 'bootstrap', 'html5_shiv', 'respond', 'select2']},
             "jsPlumb": {
                 deps: ['jquery','jquery_ui'],
                 exports: 'jsPlumb'
@@ -691,6 +701,9 @@
                 },
                 parser:  {
                     endpoint: "http://localhost:8289/ballerina/model/content"
+                },
+                launcher: {
+                    endpoint: "ws://localhost:9092/launch"
                 }
             },
             alerts: {
@@ -829,7 +842,7 @@
                                 panel_delete_icon: 'fw fw-delete pull-right right-icon-clickable delete-icon hoverable',
                                 panel_annotation_icon: 'fw fw-annotation pull-right right-icon-clickable hoverable',
                                 panel_args_icon: 'fw fw-import pull-right right-icon-clickable hoverable',
-                                type_mapper_icon: 'fw fw-dgm-service fw-inverse',
+                                type_mapper_icon: 'fw fw-type-converter fw-inverse',
                                 type_struct_icon: 'fw fw-dgm-service fw-inverse',
                                 canvas_heading_new: 'canvas-heading-new'
                             },
@@ -920,6 +933,36 @@
                         other: {
                             key: "ctrl+shift+d",
                             label: "Ctrl+Shift+d"
+                        }
+                    }
+                }
+            },
+            launcher : {
+                container: ".sidebar-left",
+                activateBtn: '.launcher-activate-btn',
+                separator: '.sidebar-left-separator',
+                containerToAdjust: ".right-container",
+                leftOffset: 40,
+                separatorOffset: 5,
+                defaultWidth: 250,
+                resizeLimits:{
+                    minX: 200,
+                    maxX: 800
+                },
+                containerId: "launcher",
+                cssClass: {
+                    container: 'launcher-container tab-pane'
+                },
+                command: {
+                    id: "toggle-launcher",
+                    shortcuts: {
+                        mac: {
+                            key: "command+shift+r",
+                            label: "\u2318\u21E7r"
+                        },
+                        other: {
+                            key: "ctrl+shift+r",
+                            label: "Ctrl+Shift+r"
                         }
                     }
                 }

@@ -67,10 +67,10 @@
 }
 
 .panel-icon, .service-icon, .connector-icon, .function-icon {
-    padding: 5px;
+    padding: 6px 5px 5px;
     background-color: #333;
-    font-size: 20px;
-    width: 32px;
+    font-size: 16px;
+    width: 27px;
     text-align: center;
 }
 
@@ -88,7 +88,7 @@
 
 .tab-pane .panel {
     background: none;
-    width: 96%
+    width: 98.6%;
 }
 
 .headingRect:hover {
@@ -97,6 +97,10 @@
 
 .btn-icon {
     opacity: 0.8;
+}
+
+.btn-icon i{
+    opacity: 0.5;
 }
 
 .btn-icon:hover {
@@ -110,7 +114,7 @@
 }
 
 .text-editor {
-    height: calc(100% - 80px);
+    height: calc(100%);
 }
 
 .view-source-btn {
@@ -532,14 +536,13 @@
 }
 
 .struct-content-operations-wrapper {
-    height: 50px;
     background-color: #3d3d3d;
-    padding-right: 6px;
+    padding: 10px;
+    float: left;
 }
 
 .struct-identifier-text-input {
     float: left;
-    margin-top: 12px;
     width: 185px;
     padding-left: 8px;
     padding-right: 8px;
@@ -551,10 +554,27 @@
 .type-drop-wrapper{
     float: left;
     margin: 0 5px 0 0;
+    position: relative;
 }
 
-.type-drop-wrapper.struct-view{
-    margin: 11px 5px 0 5px;
+.type-drop-wrapper.struct-view .select2.select2-container {
+    min-width: 193px;
+}
+
+.type-drop-wrapper.struct-view .select2.select2-container .select2-selection--single {
+    min-width: 160px;
+    height: 24px;
+}
+
+.type-drop-wrapper.struct-edit .select2.select2-container {
+    min-width: 168px;
+    margin:0;
+    border: 1px solid #CCC;
+}
+
+.type-drop-wrapper.struct-edit .select2.select2-container .select2-selection--single {
+    min-width: 168px;
+    margin: 0;
 }
 
 .type-drop-wrapper .select2.select2-container {
@@ -565,11 +585,12 @@
 .type-drop-wrapper .select2.select2-container .select2-selection--single {
     min-width: 110px;
     border-radius: 0;
-    height: 24px;
+    height: 22px;
+    border: 0;
 }
 
 .type-drop-wrapper .select2.select2-container .select2-selection--single .select2-selection__rendered {
-    line-height: 24px;
+    line-height: 22px;
 }
 .type-drop-wrapper .select2-container--default .select2-selection--single .select2-selection__arrow{
     height:20px;
@@ -603,7 +624,6 @@ div.type-drop-wrapper.resource .select2.select2-container .select2-selection--si
     font-size: 9px;
     cursor: pointer;
     opacity: 0.4;
-    padding-top: 12px;
 }
 
 .add-struct-variable-button:hover {
@@ -624,31 +644,42 @@ div.type-drop-wrapper.resource .select2.select2-container .select2-selection--si
     opacity: 1;
 }
 
+.struct-variable-definition-wrapper:hover {
+    font-weight: 400;
+}
+
+.struct-variable-definition-wrapper:nth-child(1){
+    clear: both;
+}
+
 .struct-variable-definition-wrapper {
     border: 1px solid #CCC;
     background: #FFF;
     margin-top: 2px;
     cursor: pointer;
-    height: 41px;
+    float: left;
+    width: 433px;
+    margin-right: 100px;
 }
 
 .struct-variable-definition-type {
     width: 200px;
     border-right: 1px solid #CCC;
-    padding: 10px 13px;
+    padding: 5px 13px;
 }
 
 .struct-variable-definition-identifier {
-    padding: 10px 13px;
+    padding: 5px 13px 0 13px;
     min-width: 160px;
+
 }
 
 .struct-variable-definition-wrapper i {
-    line-height: 14px;
-    padding: 13px;
+    padding: 10px 17px;
     opacity: 0.4;
     cursor: pointer;
     float: right;
+    font-size: 9px;
 }
 
 .struct-variable-definition-wrapper i:hover {
@@ -677,6 +708,7 @@ div.type-drop-wrapper.resource .select2.select2-container .select2-selection--si
     width: 162px;
     padding-left: 8px;
     padding-right: 8px;
+    border: 1px solid #ccc;
 }
 
 .struct-variable-type-dropdown-wrapper button {
@@ -697,10 +729,9 @@ div.type-drop-wrapper.resource .select2.select2-container .select2-selection--si
 /** End of Struct view CSS **/
 
 span.package-pane {
-    padding: 2px;
-    margin-left: 0px;
+    padding: 3px;
+    margin-left: 0;
     background-color: #ddd;
-    border: 1px solid #bfbfbf;
     display: none;
     color: #333;
     float: left;
@@ -713,10 +744,10 @@ span.package-pane {
 }
 
 input#package-name-input {
-    padding-left: 7px;
     margin-left: 2px;
-    border: 1px solid #ccc;
+    border: 0 solid #ccc;
     line-height: 18px;
+    padding: 2px 10px;
 }
 
 .package-name-btn span {
@@ -724,8 +755,10 @@ input#package-name-input {
 }
 
 .package-definition-wrapper, .package-imports-wrapper {
-    height: 50px;
+    min-height: 57px;
     clear: both;
+    float: left;
+    width: 89%;
 }
 
 .tooltip-inner {
@@ -738,11 +771,32 @@ input#package-name-input {
 }
 
 .swaggerEditor {
-    height: 91%;
+    height: 100%;
     width: 100%;
 }
 
 .swaggerEditor .se-iframe {
     border: 0;
     background: #4a4a4a;
+}
+
+.select2-container--open .select2-dropdown--below {
+    border-radius: 0 !important;
+    border: 0;
+    background: #f1f1f1;
+}
+.select2-container--default .select2-search--dropdown .select2-search__field {
+    border: 1px solid #d4d4d4;
+    height: 24px;
+}
+.select2-results__option {
+    padding: 4px 10px;
+    user-select: none;
+    -webkit-user-select: none;
+    font-weight: 300;
+    font-size: 14px;
+}
+.select2-container--default .select2-results__option--highlighted[aria-selected] {
+    background-color: #333333;
+    color: #f17b31;
 }

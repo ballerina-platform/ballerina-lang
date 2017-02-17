@@ -63,6 +63,7 @@ public class SwaggerConverterUtils {
      * Maximum loop count when creating temp directories.
      */
     private static final int TEMP_DIR_ATTEMPTS = 10000;
+    public static final String RESOURCE_UUID_NAME = "x-UniqueKey";
 
     /**
      * This method will extract service definitions from ballerina source
@@ -78,6 +79,7 @@ public class SwaggerConverterUtils {
 
     /**
      * Generate ballerina fine from the String definition
+     *
      * @param ballerinaDefinition
      * @return
      * @throws IOException
@@ -129,9 +131,9 @@ public class SwaggerConverterUtils {
             resources1 = mapSwaggerPathsToResources(ops);
         }
         List<Annotation> serviceAnnotationArrayList = new ArrayList<Annotation>();
-        serviceAnnotationArrayList.add(new Annotation(null, new SymbolName(Constants.BASE_PATH),
+        serviceAnnotationArrayList.add(new Annotation(null, new SymbolName("BasePath"),
                 swagger.getBasePath(), null));
-        serviceAnnotationArrayList.add(new Annotation(null, new SymbolName(Constants.HOST),
+        serviceAnnotationArrayList.add(new Annotation(null, new SymbolName("Host"),
                 swagger.getHost(), null));
         serviceAnnotationArrayList.add(new Annotation(null, new SymbolName("Info"),
                 Json.pretty(swagger.getInfo()).toString(), null));
@@ -214,6 +216,15 @@ public class SwaggerConverterUtils {
             //annotation map and array. But there is no way to update array other than
             //constructor method.
             resourceBuilder.setName(entry.nickname);
+            resourceBuilder.setName((String) entry.vendorExtensions.get(RESOURCE_UUID_NAME));
+            //Following code block will generate message input parameter definition for newly created
+            //resource as -->	resource TestPost(message m) {
+            //This logic can be improved to pass user defined types.
+            ParameterDef parameterDef = new ParameterDef(
+                    new NodeLocation("<unknown>"), "m", new SimpleTypeName("message"), new SymbolName("m"),
+                    resourceBuilder.buildResource());
+            //Then add created parameter.
+            resourceBuilder.addParameter(parameterDef);
             Resource resourceToBeAdd = resourceBuilder.buildResource();
             resourceList.add(resourceToBeAdd);
         }
@@ -221,7 +232,6 @@ public class SwaggerConverterUtils {
     }
 
     /**
-     *
      * @param pathMap
      * @return
      */
@@ -263,7 +273,7 @@ public class SwaggerConverterUtils {
         for (Resource resource : swaggerService.getResources()) {
             boolean isExistingResource = false;
             for (Resource originalResource : ballerinaService.getResources()) {
-                if (isResourceMatch(resource, originalResource)) {
+                if (isResourceUUIDMatch(resource, originalResource)) {
                     isExistingResource = true;
                     //Here is a resource math. Do assignments
                     //merge annotations
@@ -277,7 +287,9 @@ public class SwaggerConverterUtils {
                             mergeAnnotations(originalResource.getAnnotations(), resource.getAnnotations())) {
                         resourceBuilder.addAnnotation(annotation);
                     }
-                    originalResource.getWorkers().forEach(resourceBuilder::addWorker);
+                    for (Worker worker : originalResource.getWorkers()) {
+                        resourceBuilder.addWorker(worker);
+                    }
                     for (ParameterDef parameterDef : originalResource.getParameterDefs()) {
                         resourceBuilder.addParameter(parameterDef);
                     }
@@ -293,11 +305,21 @@ public class SwaggerConverterUtils {
             }
         }
         ballerinaService.setResources(mergeResources(resourceList, ballerinaService.getResources()));
-        return ballerinaService;
+        //Following have to do because we cannot assign service name directly when builder pattern used.
+        Service.ServiceBuilder serviceBuilder = new Service.ServiceBuilder(ballerinaService.getEnclosingScope());
+        serviceBuilder.setName(swaggerService.getName());
+        for (Annotation annotation : ballerinaService.getAnnotations()) {
+            serviceBuilder.addAnnotation(annotation);
+        }
+        for (Resource resource : ballerinaService.getResources()) {
+            serviceBuilder.addResource(resource);
+        }
+        return serviceBuilder.buildService();
     }
 
     /**
      * This method will merge annotations from two different services or resources.
+     *
      * @param annotations
      * @param annotationsToMerge
      * @return
@@ -325,6 +347,7 @@ public class SwaggerConverterUtils {
 
     /**
      * Clone annotations array
+     *
      * @param annotations
      * @return
      */
@@ -335,6 +358,7 @@ public class SwaggerConverterUtils {
     /**
      * Check both resources are represent same resource path and http verb.
      * Within a service resource should have unique resource path and HTTP verb combination.
+     * TODO Review and remove. This method can replace with isResourceUUIDMatch method.
      *
      * @param swaggerResource
      * @param ballerinaResource
@@ -345,13 +369,111 @@ public class SwaggerConverterUtils {
         String verb = "";
         for (Annotation annotation : ballerinaResource.getAnnotations()) {
             if (annotation.getName().equalsIgnoreCase("Path")) {
-                path = path.startsWith("/") && path.length() > 1 ? path.substring(1) : path;
+                //path = annotation.getValue();
+                path = annotation.getValue().startsWith("/") && annotation.getValue().length() > 1 ?
+                        annotation.getValue().substring(1) : path;
             } else if (annotation.getName().matches(SwaggerResourceMapper.HTTP_VERB_MATCHING_PATTERN)) {
                 verb = annotation.getName();
             }
         }
         String resourceKey = path + verb;
+        String swaggerPath = "Root";
+        String swaggerVerb = "";
+        for (Annotation annotation : swaggerResource.getAnnotations()) {
+            if (annotation.getName().equalsIgnoreCase("Path")) {
+                swaggerPath = annotation.getValue().startsWith("/") && annotation.getValue().length() > 1 ?
+                        annotation.getValue().substring(1) : swaggerPath;
+            } else if (annotation.getName().matches(SwaggerResourceMapper.HTTP_VERB_MATCHING_PATTERN)) {
+                swaggerVerb = annotation.getName();
+            }
+        }
+
+        String tmpPath = path;
+        tmpPath = tmpPath.replaceAll("\\{", "");
+        tmpPath = tmpPath.replaceAll("\\}", "");
+        String[] parts = (tmpPath + "/" + verb).split("/");
+        StringBuilder builder = new StringBuilder();
+        if ("/".equals(tmpPath)) {
+            // must be root tmpPath
+            builder.append("root");
+        }
+        for (String part : parts) {
+            if (part.length() > 0) {
+                if (builder.toString().length() == 0) {
+                    part = Character.toLowerCase(part.charAt(0)) + part.substring(1);
+                } else {
+                    part = capitalize(part);
+                }
+                builder.append(part);
+            }
+        }
+        resourceKey = builder.toString().replaceAll("[^a-zA-Z0-9_]", "");
+        String swaggerResourceKey = swaggerPath + swaggerVerb;
+        //return swaggerResourceKey.equalsIgnoreCase(resourceKey);
         return swaggerResource.getSymbolName().getName().equalsIgnoreCase(resourceKey);
+    }
+
+    /**
+     * Check if 2 resources are having same UUID.
+     *
+     * @param swaggerResource
+     * @param ballerinaResource
+     * @return
+     */
+    public static boolean isResourceUUIDMatch(Resource swaggerResource, Resource ballerinaResource) {
+        String path = "/";
+        String verb = "";
+        for (Annotation annotation : ballerinaResource.getAnnotations()) {
+            if (annotation.getName().equalsIgnoreCase("Path")) {
+                path = annotation.getValue();
+            } else if (annotation.getName().matches(SwaggerResourceMapper.HTTP_VERB_MATCHING_PATTERN)) {
+                verb = annotation.getName();
+            }
+        }
+        return swaggerResource.getName().equalsIgnoreCase(generateServiceUUID(path, verb));
+    }
+
+    //UUID fix
+
+    /**
+     * This will generate UUID specific to given resource.
+     *
+     * @param path
+     * @param verb
+     * @return
+     */
+    public static String generateServiceUUID(String path, String verb) {
+        String tmpPath = path;
+        tmpPath = tmpPath.replaceAll("\\{", "");
+        tmpPath = tmpPath.replaceAll("\\}", "");
+        String[] parts = (tmpPath + "/" + verb).split("/");
+        StringBuilder builder = new StringBuilder();
+        if ("/".equals(tmpPath)) {
+            // must be root tmpPath
+            builder.append("root");
+        }
+        for (String part : parts) {
+            if (part.length() > 0) {
+                if (builder.toString().length() == 0) {
+                    part = Character.toLowerCase(part.charAt(0)) + part.substring(1);
+                } else {
+                    part = capitalize(part);
+                }
+                builder.append(part);
+            }
+        }
+        return builder.toString().replaceAll("[^a-zA-Z0-9_]", "");
+    }
+
+    public static String capitalize(String str) {
+        int strLen;
+        if (str != null && (strLen = str.length()) != 0) {
+            char firstChar = str.charAt(0);
+            return Character.isTitleCase(firstChar) ? str : (new StringBuilder(strLen)).
+                    append(Character.toTitleCase(firstChar)).append(str.substring(1)).toString();
+        } else {
+            return str;
+        }
     }
 
     /**

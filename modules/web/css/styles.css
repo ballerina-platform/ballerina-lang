@@ -704,17 +704,15 @@ button.variable-list {
     padding-right: 3px;
 }
 
-
-
 .imports-wrapper div span {
     font-style: italic;
     cursor: default;
-    color: #a7a7a7;
 }
 .import-declaration-wrapper{
     float: left;
     margin: 1px 3px;
     border: 1px solid orange;
+    font-size: 12px;
 }
 
 .import-wrapper-heading input[type=text] {
@@ -725,7 +723,11 @@ button.variable-list {
     width: 88%;
     background-color: #fff !important;
     line-height: 18px;
-    border: 1px solid #ccc;
+    border: 0 solid #ccc;
+    font-size: 14px;
+    padding: 2px 10px;
+    color: #333;
+    font-style: normal;
 }
 
 .service-annotation-wrapper-heading {
@@ -737,7 +739,7 @@ button.variable-list {
 }
 
 .service-annotation-wrapper-heading[disabled], .service-annotation-wrapper-heading[disabled] * {
-    background-color: #eeeeee;
+    background-color: #eee;
     opacity: 1;
     cursor: not-allowed;
 }
@@ -761,7 +763,6 @@ button.variable-list {
 .action-content-dropdown-wrapper ul {
     position: absolute;
     top: inherit;
-    /*margin-top: 0;*/
 }
 
 .service-annotation-details-wrapper {
@@ -825,7 +826,6 @@ button.variable-list {
 }
 
 .variables-content-wrapper {
-    /*margin-right: 20px;*/
     float: left;
 }
 
@@ -917,6 +917,10 @@ button.variable-list {
     cursor: pointer;
 }
 
+.constants-action-wrapper, .imports-action-wrapper{
+    display: none;
+}
+
 .constants-wrapper, .imports-wrapper {
     border: 1px solid #ddd;
     background-color: #fff;
@@ -997,6 +1001,9 @@ button.variable-list {
     border: 1px solid #ddd;
     border-left: none;
 }
+.import-pane-collapser-wrapper{
+    font-size: 12px;
+}
 
 .constant-pane-collapser-wrapper:hover {
     cursor: pointer;
@@ -1013,7 +1020,7 @@ button.variable-list {
 }
 
 .constant-declaration-wrapper i, .import-declaration-wrapper i {
-    padding: 5px 6px;
+    padding:6px;
     font-size: 8px;
     background-color: #fff;
     color: #8e44ad;
@@ -1022,17 +1029,23 @@ button.variable-list {
     opacity: 0.5;
 }
 
+.import-declaration-wrapper i{
+    color: #ffa500;
+}
+
 .constant-declaration-type {
     background-color: #8e44ad;
     float: left;
     color: white;
-    padding: 0 8px;
+    padding: 2px 8px;
 }
 
 .constant-declaration-wrapper {
     float: left;
     margin: 2px 6px;
     border: 1px solid #8e44ad;
+    font-size: 12px;
+    height: 22px;
 }
 
 .constant-declaration-wrapper i:hover,
@@ -1044,7 +1057,8 @@ button.variable-list {
 .constant-declaration-field {
     background-color: #FFF;
     float: left;
-    padding: 0 8px;
+    padding: 1px 8px;
+    margin-top: 1px;
 }
 
 .constant-declaration-equals {
@@ -1055,6 +1069,8 @@ button.variable-list {
 
 .constants-definition-wrapper {
     padding-bottom: 47px;
+    float: left;
+    width: 89%;
 }
 
 /** End of Constants view **/
@@ -1062,8 +1078,8 @@ button.variable-list {
 .hoverable {
     opacity: 0.4;
     cursor: pointer;
-    height: 30px;
-    padding-top: 8px;
+    height: 27px;
+    padding-top: 6px;
 }
 
 .hoverable:hover {
@@ -1080,8 +1096,8 @@ button.variable-list {
 .name-span {
     display: table-cell;
     vertical-align: middle;
-    font-weight: 400;
-    font-size: 16px;
+    font-weight: 300;
+    font-size: 14px;
 }
 
 .canvas-operations-wrapper {
@@ -1104,9 +1120,9 @@ button.variable-list {
     -o-transform: scale(1, 2);
     transform: scale(1, 2);
     transform: scale(1, 2);
-    margin-top: 4px;
+    margin-top: 6px;
     color: #d8d8d8;
-    font-size: 17px;
+    font-size: 14px;
     font-weight: 300;
 }
 
@@ -1338,18 +1354,19 @@ button.variable-list {
 }
 
 footer {
-    min-height: 30px;
+    min-height: 25px;
     line-height: 0;
 }
 
 footer > .container p, footer > .container-fluid p {
     line-height: 0;
-    font-size: 13px;
+    font-size: 12px;
     margin: 0;
 }
 
 header .brand span {
     font-size: 15px;
+    font-weight: 400;
 }
 
 a {
@@ -1426,12 +1443,14 @@ span.fw-stack.fw-lg {
 .import-declaration-type{
     float: left;
     background: orange;
-    width: 6px;
+    width: 3px;
     height: 21px;
     margin-right: 4px;
 }
 .import-package-name{
     float: left;
+    margin-top: 3px;
+    font-size: 12px;
 }
 
 .package-name-btn{
@@ -1458,3 +1477,9 @@ span.fw-stack.fw-lg {
     background: #333 !important;
     border-left: 3px solid #f17b31 !important;
 }
+
+.panel-default .panel-title {
+    font-weight: 300;
+    font-size: 14px;
+}
+.orange{ color: #f17b31;}

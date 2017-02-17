@@ -26,13 +26,13 @@ button.close {
 
 .bottom-right-controls-container {
     position: absolute;
-    bottom: 80px;
+    bottom: 0px;
     right: 30px;
     z-index: 30;
     background: #333;
     color: #fff;
     padding: 0;
-    border-radius: 2px 0 0 0;
+    border-radius: 2px 2px 0 0;
     line-height: 30px
 }
 

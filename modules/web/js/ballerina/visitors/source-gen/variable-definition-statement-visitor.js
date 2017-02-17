@@ -30,7 +30,7 @@ define(['require','lodash', 'log', 'event_channel', './abstract-statement-source
         };
 
         VariableDefinitionStatementVisitor.prototype.beginVisitVariableDefinitionStatement = function(variableDefinitionStatement){
-            var constructedSource = variableDefinitionStatement.getVariableDefinitionStatementString();
+            var constructedSource = variableDefinitionStatement.getStatementString();
             this.appendSource(constructedSource);
             log.debug('Begin Visit Variable Definition Statement');
         };
@@ -39,6 +39,5 @@ define(['require','lodash', 'log', 'event_channel', './abstract-statement-source
             this.getParent().appendSource(this.getGeneratedSource() + ";\n");
             log.debug('End Visit Variable Definition Statement');
         };
-
         return VariableDefinitionStatementVisitor;
     });

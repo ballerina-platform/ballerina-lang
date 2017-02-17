@@ -19,6 +19,7 @@ package org.wso2.ballerina.tooling.service.workspace.swagger;
 import io.swagger.models.Operation;
 import io.swagger.models.Path;
 import io.swagger.models.Response;
+import io.swagger.models.parameters.PathParameter;
 import org.ballerinalang.model.Annotation;
 import org.ballerinalang.model.Resource;
 import org.ballerinalang.services.dispatchers.http.Constants;
@@ -153,6 +154,17 @@ public class SwaggerResourceMapper {
             //Default path should be /
             String path = "/";
             op.setPath(path);
+            for (ParameterDef parameterDef : resource.getParameterDefs()) {
+                PathParameter queryParameter = new PathParameter();
+                queryParameter.setName(parameterDef.getName());
+                String typeName = parameterDef.getTypeName().getName();
+                if (!typeName.equalsIgnoreCase("message")) {
+                    queryParameter.setType(typeName);
+                    queryParameter.setIn("path");
+                    queryParameter.required(true);
+                    op.getOperation().addParameter(queryParameter);
+                }
+            }
             if (resourceAnnotations != null) {
                 //TODO add all supported annotation mapping after annotation model finalized.
                 for (Annotation annotation : resourceAnnotations) {
@@ -162,9 +174,9 @@ public class SwaggerResourceMapper {
                         op.getOperation().produces(annotation.getValue());
                     } else if (annotation.getName().equalsIgnoreCase("Path")) {
                         op.setPath(annotation.getValue());
-                    } else if (annotation.getName().equalsIgnoreCase("summary")) {
+                    } else if (annotation.getName().equalsIgnoreCase("Summary")) {
                         op.getOperation().setSummary(annotation.getValue());
-                    } else if (annotation.getName().equalsIgnoreCase("description")) {
+                    } else if (annotation.getName().equalsIgnoreCase("Description")) {
                         op.getOperation().setDescription(annotation.getValue());
                     } else if (annotation.getName().matches(HTTP_VERB_MATCHING_PATTERN)) {
                         op.setHttpOperation(annotation.getName());
@@ -177,6 +189,8 @@ public class SwaggerResourceMapper {
                     }
                 }*/
                 }
+                op.getOperation().setVendorExtension(SwaggerConverterUtils.RESOURCE_UUID_NAME,
+                        SwaggerConverterUtils.generateServiceUUID(op.getPath(), op.getHttpOperation()));
             }
         }
         return op;

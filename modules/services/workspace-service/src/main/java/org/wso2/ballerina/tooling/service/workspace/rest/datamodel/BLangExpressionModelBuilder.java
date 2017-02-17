@@ -245,6 +245,21 @@ public class BLangExpressionModelBuilder implements NodeVisitor {
     }
 
     @Override
+    public void visit(BreakStmt breakStmt) {
+
+    }
+
+    @Override
+    public void visit(TryCatchStmt tryCatchStmt) {
+
+    }
+
+    @Override
+    public void visit(ThrowStmt throwStmt) {
+
+    }
+
+    @Override
     public void visit(FunctionInvocationStmt functionInvocationStmt) {
         StringBuffer buffer = new StringBuffer();
         bufferStack.push(buffer);
@@ -262,6 +277,21 @@ public class BLangExpressionModelBuilder implements NodeVisitor {
         buffer.append(bufferStack.peek());
         bufferStack.pop();
         buffer.append(";");
+    }
+
+    @Override
+    public void visit(WorkerInvocationStmt workerInvocationStmt) {
+
+    }
+
+    @Override
+    public void visit(WorkerReplyStmt workerReplyStmt) {
+
+    }
+
+    @Override
+    public void visit(ForkJoinStmt forkJoinStmt) {
+
     }
 
     @Override
@@ -624,6 +654,11 @@ public class BLangExpressionModelBuilder implements NodeVisitor {
     @Override
     public void visit(StructVarLocation structVarLocation) {
         //TODO
+    }
+
+    @Override
+    public void visit(WorkerVarLocation workerVarLocation) {
+
     }
 
     @Override

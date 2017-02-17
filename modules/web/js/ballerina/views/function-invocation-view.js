@@ -24,7 +24,9 @@ define(['lodash', 'log', './simple-statement-view', './../ast/function-invocatio
          * @param {FunctionInvocation} args.model - The function invocation statement model.
          * @param {Object} args.container - The HTML container to which the view should be added to.
          * @param {Object} [args.viewOptions={}] - Configuration values for the view.
+         * @class FunctionInvocationStatementView
          * @constructor
+         * @extends SimpleStatementView
          */
         var FunctionInvocationStatementView = function (args) {
             SimpleStatementView.call(this, args);
@@ -80,6 +82,10 @@ define(['lodash', 'log', './simple-statement-view', './../ast/function-invocatio
                 editableProperties: editableProperty
             });
             this.listenTo(model, 'update-property-text', this.updateFunctionalExpression);
+
+            this._createDebugIndicator({
+                statementGroup: statementGroup
+            });
 
             log.debug("Rendering Function Invocation Statement finished.");
             return statementGroup;

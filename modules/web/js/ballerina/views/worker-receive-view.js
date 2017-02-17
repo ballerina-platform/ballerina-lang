@@ -18,6 +18,13 @@
 define(['lodash', 'd3','log', './simple-statement-view', './../ast/action-invocation-expression', './point', 'd3utils', './../ast/ballerina-ast-factory', './message'],
     function (_, d3, log, SimpleStatementView, ActionInvocationExpression, Point, D3Utils, BallerinaASTFactory, MessageView) {
 
+        /**
+         * Worker receive statement view.
+         * @param args {*} constructor arguments
+         * @class WorkerReceive
+         * @constructor
+         * @extends SimpleStatementView
+         */
         var WorkerReceive = function (args) {
             SimpleStatementView.call(this, args);
             this._connectorView = {};
@@ -45,7 +52,7 @@ define(['lodash', 'd3','log', './simple-statement-view', './../ast/action-invoca
 
         WorkerReceive.prototype.init = function(){
             // TODO: Event name should modify in order to tally for both connector action and other dynamic arrow draws
-            this.getModel().on("drawConnectionForAction",this.renderWorkerStart, this);
+            this.getModel().on("drawConnectionForAction",this.renderWorkerReceive, this);
             Object.getPrototypeOf(this.constructor.prototype).init.call(this);
         };
         WorkerReceive.prototype.setDiagramRenderingContext = function(context){
@@ -81,10 +88,13 @@ define(['lodash', 'd3','log', './simple-statement-view', './../ast/action-invoca
             // Calling super class's render function.
             (this.__proto__.__proto__).render.call(this, renderingContext);
             // Setting display text.
-            this.renderDisplayText(model.getMessage());
+            this.renderDisplayText(model.getReceiveStatement());
 
             this.renderProcessorConnectPoint(renderingContext);
-            this.renderArrows(renderingContext);
+
+            if (!_.isNil(this.getModel().getDestination())) {
+                this.renderReceiveArrows();
+            }
 
             // Creating property pane
             var editableProperty = {
@@ -128,6 +138,8 @@ define(['lodash', 'd3','log', './simple-statement-view', './../ast/action-invoca
             this.getBoundingBox().on('top-edge-moved', function(dy){
                 self.processorConnectPoint.attr('cy',  parseFloat(self.processorConnectPoint.attr('cy')) + dy);
             });
+
+            this.listenTo(model, 'update-property-text', this.updateStatementText);
         };
 
         WorkerReceive.prototype.renderArrows = function (context) {
@@ -164,42 +176,6 @@ define(['lodash', 'd3','log', './simple-statement-view', './../ast/action-invoca
                 arrowHeadEnd
                     .attr("fill-opacity", 0.01)
                     .style("fill", "#444");
-
-                this.arrowHeadEndPoint = arrowHeadEnd;
-
-                var self = this;
-
-                this.arrowHeadEndPoint.on("mousedown", function () {
-                    d3.event.preventDefault();
-                    d3.event.stopPropagation();
-
-                    var x =  parseFloat(self.arrowHeadEndPoint.attr('cx'));
-                    var y =  parseFloat(self.arrowHeadEndPoint.attr('cy'));
-                    var x1 =  parseFloat(self._processorConnector.attr('x1'));
-                    var y1 =  parseFloat(self._processorConnector.attr('y1'));
-
-                    var sourcePoint = self.toGlobalCoordinates(new Point(x, y));
-                    var connectorPoint = self.toGlobalCoordinates(new Point(x1, y1));
-
-                    self.messageManager.startDrawMessage(actionInvocationModel, sourcePoint, connectorPoint);
-                    self.messageManager.setTypeBeingDragged(true);
-
-                    self._forwardArrowHead.remove();
-                    self._processorConnector.remove();
-                    self._processorConnector2.remove();
-                    self._backArrowHead.remove();
-                    self.arrowHeadEndPoint.remove();
-                });
-
-                this.arrowHeadEndPoint.on("mouseover", function () {
-                    arrowHeadEnd
-                        .style("fill-opacity", 0.5)
-                        .style("cursor", 'url(images/BlackHandwriting.cur), pointer');
-                });
-
-                this.arrowHeadEndPoint.on("mouseout", function () {
-                    arrowHeadEnd.style("fill-opacity", 0.01);
-                });
             }
         };
 
@@ -257,18 +233,19 @@ define(['lodash', 'd3','log', './simple-statement-view', './../ast/action-invoca
             this.renderDisplayText(displayText);
         };
 
-        WorkerReceive.prototype.renderWorkerStart = function (startPoint, container) {
+        WorkerReceive.prototype.renderWorkerReceive = function (startPoint, container) {
             log.debug("Render the worker start");
             var activatedWorkerTarget = this.messageManager.getActivatedDropTarget();
             if (BallerinaASTFactory.isWorkerDeclaration(activatedWorkerTarget)) {
                 this.getModel().setDestination(activatedWorkerTarget);
-                this.renderStartAction();
+                this.renderReceiveArrows();
+                this.messageManager.reset();
             }
         };
 
-        WorkerReceive.prototype.renderStartAction = function () {
+        WorkerReceive.prototype.renderReceiveArrows = function () {
             var group = D3Utils.group(d3.select(this._container));
-            var destinationView = this.getDiagramRenderingContext().getViewOfModel(this.messageManager.getActivatedDropTarget());
+            var destinationView = this.getDiagramRenderingContext().getViewOfModel(this.getModel().getDestination());
             var destinationStatementContainer = destinationView.getStatementContainer();
             var startX = destinationView.getBoundingBox().getLeft();
             var endX = this.getBoundingBox().getRight();
@@ -377,6 +354,12 @@ define(['lodash', 'd3','log', './simple-statement-view', './../ast/action-invoca
                     this.onTopEdgeMovedTrigger(dy);
                 });
             };
+        };
+
+        WorkerReceive.prototype.updateStatementText = function (newStatementText, propertyKey) {
+            this._model.setReceiveStatement(newStatementText);
+            var displayText = this._model.getReceiveStatement();
+            this.renderDisplayText(displayText);
         };
 
         return WorkerReceive;

@@ -20,8 +20,10 @@
  * Module to provide items(tool groups, tools) for a given tool palette.
  */
 define(['log', 'lodash', './../env/package', './../tool-palette/tool-palette', './../tool-palette/tool-group',
-        './../env/environment', './initial-definitions', 'event_channel', './../ast/ballerina-ast-factory'],
-    function (log, _, Package, ToolPalette, ToolGroup, Environment, InitialTools, EventChannel, BallerinaASTFactory) {
+        './../env/environment', './initial-definitions', 'event_channel', './../ast/ballerina-ast-factory',
+        './../ast/defaults-added-ballerina-ast-factory'],
+    function (log, _, Package, ToolPalette, ToolGroup, Environment, InitialTools, EventChannel, BallerinaASTFactory,
+              DefaultsAddedBallerinaASTFactory) {
 
         /**
          * constructs ToolPaletteItemProvider
@@ -66,7 +68,10 @@ define(['log', 'lodash', './../env/package', './../tool-palette/tool-palette', '
             this._toolGroups = _.merge(this._initialToolGroups, this._dynamicToolGroups);
 
             // Adding default packages
-            _.forEach(self._defaultImportedPackages, function (packageToImport) {
+            var sortedPackages = _.sortBy(self._defaultImportedPackages, [function (package) {
+                return package.getName();
+            }]);
+            _.forEach(sortedPackages, function (packageToImport) {
                 self.addImport(packageToImport);
             });
         };
@@ -154,7 +159,17 @@ define(['log', 'lodash', './../env/package', './../tool-palette/tool-palette', '
         ToolPaletteItemProvider.prototype.getToolGroup = function (package) {
             var definitions = [];
             var self = this;
-            _.each(package.getConnectors(), function (connector) {
+
+            // Sort the connector package by name
+            var connectorsOrdered = _.sortBy(package.getConnectors(), [function (connectorPackage) {
+                return connectorPackage.getName();
+            }]);
+
+            var functionsOrdered = _.sortBy(package.getFunctionDefinitions(), [function (functionDef) {
+                return functionDef.getName()
+            }]);
+
+            _.each(connectorsOrdered, function (connector) {
                 var packageName = _.last(_.split(package.getName(), '.'));
                 connector.nodeFactoryMethod = BallerinaASTFactory.createConnectorDeclaration;
                 connector.meta = {
@@ -173,7 +188,10 @@ define(['log', 'lodash', './../env/package', './../tool-palette/tool-palette', '
                     self.updateToolItem(toolGroupID, connector, newName);
                 });
 
-                _.each(connector.getActions(), function (action, index, collection) {
+                var actionsOrdered = _.sortBy(connector.getActions(), [function (action) {
+                    return action.getName();
+                }]);
+                _.each(actionsOrdered, function (action, index, collection) {
                     /* We need to add a special class to actions to indent them in tool palette. */
                     action.classNames = "tool-connector-action";
                     if ((index + 1 ) == collection.length) {
@@ -186,7 +204,12 @@ define(['log', 'lodash', './../env/package', './../tool-palette/tool-palette', '
                     };
                     action.icon = "images/tool-icons/action.svg";
                     action.title = action.getName();
-                    action.nodeFactoryMethod = BallerinaASTFactory.createActionInvocationExpression;
+
+                    action.nodeFactoryMethod = DefaultsAddedBallerinaASTFactory.createAggregatedActionInvocationStatement;
+                    if (action.getReturnParams().length > 0){
+                        action.nodeFactoryMethod = DefaultsAddedBallerinaASTFactory.createAggregatedActionInvocationAssignmentStatement;
+                    }
+
                     action.id = connector.getName() + '-' + action.getName();
                     definitions.push(action);
 
@@ -202,9 +225,12 @@ define(['log', 'lodash', './../env/package', './../tool-palette/tool-palette', '
                     action.classNames = "tool-connector-action";
                     action.meta = {
                         action: action.getName(),
-                        actionConnectorName: connector.getName(),
+                        actionConnectorName: connector.getName()
                     };
-                    var actionNodeFactoryMethod = BallerinaASTFactory.createActionInvocationExpression;
+                    var actionNodeFactoryMethod = DefaultsAddedBallerinaASTFactory.createAggregatedActionInvocationStatement;
+                    if (action.getReturnParams().length > 0){
+                        actionNodeFactoryMethod = DefaultsAddedBallerinaASTFactory.createAggregatedActionInvocationAssignmentStatement;
+                    }
                     self.addToToolGroup(toolGroupID, action, actionNodeFactoryMethod, actionIcon);
                 });
 
@@ -215,7 +241,7 @@ define(['log', 'lodash', './../env/package', './../tool-palette/tool-palette', '
                 });
             });
 
-            _.each(package.getFunctionDefinitions(), function (functionDef) {
+            _.each(functionsOrdered, function (functionDef) {
                 var packageName = _.last(_.split(package.getName(), '.'));
                 if (functionDef.getReturnParams().length > 0){
                     functionDef.nodeFactoryMethod = BallerinaASTFactory.createAggregatedFunctionInvocationExpression;
@@ -224,7 +250,10 @@ define(['log', 'lodash', './../env/package', './../tool-palette/tool-palette', '
                 }
                 functionDef.meta = {
                     functionName: functionDef.getName(),
-                    packageName: packageName
+                    packageName: packageName,
+                    params: getArgumentString(functionDef.getParameters()),
+                    returnParams: getReturnParamString(functionDef.getReturnParams()),
+                    operandType: getReturnParamString(functionDef.getReturnParams())
                 };
                 functionDef.icon = "images/tool-icons/function.svg";
                 functionDef.title = functionDef.getName();
@@ -259,7 +288,10 @@ define(['log', 'lodash', './../env/package', './../tool-palette/tool-palette', '
                     var actionIcon = "images/tool-icons/action.svg";
                     action.classNames = "tool-connector-action";
                     action.setId(action.getId());
-                    var actionNodeFactoryMethod = BallerinaASTFactory.createActionInvocationExpression;
+                    var actionNodeFactoryMethod = DefaultsAddedBallerinaASTFactory.createAggregatedActionInvocationStatement;
+                    if (action.getReturnParams().length > 0){
+                        actionNodeFactoryMethod = DefaultsAddedBallerinaASTFactory.createAggregatedActionInvocationAssignmentStatement;
+                    }
                     self.addToToolGroup(toolGroupID, action, actionNodeFactoryMethod, actionIcon);
 
                     action.on('name-modified', function (newName, oldName) {
@@ -337,6 +369,43 @@ define(['log', 'lodash', './../env/package', './../tool-palette/tool-palette', '
          */
         ToolPaletteItemProvider.prototype.updateToolItem = function (toolGroupID, toolItem, newValue) {
             this._toolPalette.updateToolPaletteItem(toolGroupID, toolItem, newValue);
+        };
+
+        ToolPaletteItemProvider.prototype.getNewImportPosition = function (newImportName) {
+            var packageNames = [];
+            packageNames = packageNames.concat(_.map(this._defaultImportedPackages, '_name'));
+            for(var key in this._importedPackagesViews) {
+                packageNames.push(key);
+            }
+            packageNames = _.sortBy(packageNames);
+            return packageNames[_.sortedIndex(packageNames, newImportName)];
+        };
+
+        /**
+         * Generate argument string from the argument array.
+         * @param {Object} args argument array
+         * @return {String} argument string
+         * */
+        var getArgumentString = function(args){
+            var argString = "";
+            for (var itr = 0; itr < args.length; itr++) {
+                argString += args[itr].name;
+                if (args.length !== 1 && (args.length-1) !== itr) {
+                    argString += ",";
+                }
+            }
+            return argString;
+        };
+
+        /**
+         * Generate return parameter string.
+         * @param {Object} args return parameter array.
+         * @return {String} return argument string
+         * */
+        var getReturnParamString = function(args){
+            if(!_.isNil(args) && args.length !== 0) {
+                return args[0].type;
+            }
         };
 
         return ToolPaletteItemProvider;

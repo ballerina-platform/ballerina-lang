@@ -324,6 +324,11 @@ define(['lodash', 'log', 'event_channel',  'alerts', './svg-canvas', './../ast/f
 
             this._totalHeight = this.getHorizontalMargin().getPosition() + 85;
             this.setSVGHeight(this._totalHeight);
+
+            this.listenTo(this.getHorizontalMargin(), 'moved', function (dy) {
+                self._totalHeight = self.getHorizontalMargin().getPosition() + 85;
+                self.setSVGHeight(self._totalHeight);
+            });
             this.renderStatementContainer();
 
             // TODO: Refactor after Worker is enabled
@@ -352,36 +357,6 @@ define(['lodash', 'log', 'event_channel',  'alerts', './svg-canvas', './../ast/f
             var operationsPane = this.getOperationsPane();
 
             var operationButtons = [];
-
-            // Creating arguments icon.
-            var panelArgumentsIcon = $("<i/>", {
-                class: "fw fw-import pull-right right-icon-clickable hoverable",
-                title: "Arguments"
-            }).appendTo(operationsPane).tooltip();
-
-            $(panelArgumentsIcon).click(function (event) {
-                event.stopPropagation();
-            });
-
-            operationButtons.push(panelArgumentsIcon);
-
-            // Adding separator for arguments icon.
-            $("<span class='pull-right canvas-operations-separator'>|</span>").appendTo(operationsPane);
-
-            var argumentsProperties = {
-                model: this._model,
-                activatorElement: panelArgumentsIcon,
-                paneAppendElement: this.getChildContainer().node().ownerSVGElement.parentElement,
-                viewOptions: {
-                    position: {
-                        left: parseInt($(this.getChildContainer().node().ownerSVGElement.parentElement).width()),
-                        top: 0
-                    }
-                }
-            };
-
-            // Creating arguments pane.
-            ArgumentsView.createArgumentsPane(argumentsProperties, diagramRenderingContext);
 
             this.setSVGWidth(this._container.width());
 
@@ -415,6 +390,36 @@ define(['lodash', 'log', 'event_channel',  'alerts', './svg-canvas', './../ast/f
 
             // Creating return type pane.
             this._returnTypePaneView.createReturnTypePane(diagramRenderingContext);
+
+            // Creating arguments icon.
+            var panelArgumentsIcon = $("<i/>", {
+                class: "fw fw-import pull-right right-icon-clickable hoverable",
+                title: "Arguments"
+            }).appendTo(operationsPane).tooltip();
+
+            $(panelArgumentsIcon).click(function (event) {
+                event.stopPropagation();
+            });
+
+            operationButtons.push(panelArgumentsIcon);
+
+            // Adding separator for arguments icon.
+            $("<span class='pull-right canvas-operations-separator'>|</span>").appendTo(operationsPane);
+
+            var argumentsProperties = {
+                model: this._model,
+                activatorElement: panelArgumentsIcon,
+                paneAppendElement: this.getChildContainer().node().ownerSVGElement.parentElement,
+                viewOptions: {
+                    position: {
+                        left: parseInt($(this.getChildContainer().node().ownerSVGElement.parentElement).width()),
+                        top: 0
+                    }
+                }
+            };
+
+            // Creating arguments pane.
+            ArgumentsView.createArgumentsPane(argumentsProperties, diagramRenderingContext);
 
             // Closing the shown pane when another operation button is clicked.
             _.forEach(operationButtons, function (button) {
@@ -535,19 +540,7 @@ define(['lodash', 'log', 'event_channel',  'alerts', './svg-canvas', './../ast/f
             connectorDeclarationView.setParent(this);
             connectorDeclarationView.render();
 
-            // Creating property pane
-            var editableProperty = {
-                propertyType: "text",
-                key: "ConnectorDeclaration",
-                model: connectorDeclarationView._model,
-                getterMethod: connectorDeclarationView._model.getConnectorExpression,
-                setterMethod: connectorDeclarationView._model.setConnectorExpression
-            };
-            connectorDeclarationView.createPropertyPane({
-                model: connectorDeclarationView._model,
-                lifeLineGroup:connectorDeclarationView._rootGroup,
-                editableProperties: editableProperty
-            });
+            connectorDeclarationView.createPropertyPane();
 
             if (_.isNil(lastConnectorLifeLine)) {
                 // This is the first connector we are adding
