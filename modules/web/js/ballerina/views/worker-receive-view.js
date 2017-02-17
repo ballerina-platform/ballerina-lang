@@ -52,7 +52,7 @@ define(['lodash', 'd3','log', './simple-statement-view', './../ast/action-invoca
 
         WorkerReceive.prototype.init = function(){
             // TODO: Event name should modify in order to tally for both connector action and other dynamic arrow draws
-            this.getModel().on("drawConnectionForAction",this.renderWorkerStart, this);
+            this.getModel().on("drawConnectionForAction",this.renderWorkerReceive, this);
             Object.getPrototypeOf(this.constructor.prototype).init.call(this);
         };
         WorkerReceive.prototype.setDiagramRenderingContext = function(context){
@@ -91,7 +91,10 @@ define(['lodash', 'd3','log', './simple-statement-view', './../ast/action-invoca
             this.renderDisplayText(model.getReceiveStatement());
 
             this.renderProcessorConnectPoint(renderingContext);
-            this.renderArrows(renderingContext);
+
+            if (!_.isNil(this.getModel().getDestination())) {
+                this.renderReceiveArrows();
+            }
 
             // Creating property pane
             var editableProperty = {
@@ -230,19 +233,19 @@ define(['lodash', 'd3','log', './simple-statement-view', './../ast/action-invoca
             this.renderDisplayText(displayText);
         };
 
-        WorkerReceive.prototype.renderWorkerStart = function (startPoint, container) {
+        WorkerReceive.prototype.renderWorkerReceive = function (startPoint, container) {
             log.debug("Render the worker start");
             var activatedWorkerTarget = this.messageManager.getActivatedDropTarget();
             if (BallerinaASTFactory.isWorkerDeclaration(activatedWorkerTarget)) {
                 this.getModel().setDestination(activatedWorkerTarget);
-                this.renderStartAction();
+                this.renderReceiveArrows();
                 this.messageManager.reset();
             }
         };
 
-        WorkerReceive.prototype.renderStartAction = function () {
+        WorkerReceive.prototype.renderReceiveArrows = function () {
             var group = D3Utils.group(d3.select(this._container));
-            var destinationView = this.getDiagramRenderingContext().getViewOfModel(this.messageManager.getActivatedDropTarget());
+            var destinationView = this.getDiagramRenderingContext().getViewOfModel(this.getModel().getDestination());
             var destinationStatementContainer = destinationView.getStatementContainer();
             var startX = destinationView.getBoundingBox().getLeft();
             var endX = this.getBoundingBox().getRight();

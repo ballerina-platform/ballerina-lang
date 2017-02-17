@@ -69,7 +69,12 @@ define(['lodash', './statement'], function (_, Statement) {
      * @param jsonNode
      */
     WorkerInvoker.prototype.initFromJson = function (jsonNode) {
-        this.setExpression('a = b', {doSilently: true});
+        var workerName = jsonNode.worker_name;
+        var self = this;
+        var workerInstance = _.find(this.getParent().getChildren(), function (child) {
+            return self.getFactory().isWorkerDeclaration(child) && !child.isDefaultWorker() && child.getWorkerName() === workerName;
+        });
+        this.setDestination(workerInstance);
     };
 
     return WorkerInvoker;

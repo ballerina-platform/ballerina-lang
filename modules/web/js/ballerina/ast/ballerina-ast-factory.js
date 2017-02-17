@@ -1325,6 +1325,15 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
                     case 'array_init_expression':
                         node = BallerinaASTFactory.createArrayInitExpression();
                         break;
+                    case 'worker':
+                        node = BallerinaASTFactory.createWorkerDeclaration();
+                        break;
+                    case 'worker_invocation_statement':
+                        node = BallerinaASTFactory.createWorkerInvokeStatement();
+                        break;
+                    case 'worker_reply_statement':
+                        node = BallerinaASTFactory.createWorkerReceiveStatement();
+                        break;
                     default:
                         throw "Unknown node definition for " + jsonNode.type;
                 }
