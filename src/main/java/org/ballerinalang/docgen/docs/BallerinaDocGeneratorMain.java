@@ -18,12 +18,15 @@
 
 package org.ballerinalang.docgen.docs;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.ballerinalang.BLangProgramLoader;
 import org.ballerinalang.docgen.docs.html.HtmlDocumentWriter;
 import org.ballerinalang.model.BLangPackage;
 import org.ballerinalang.model.BLangProgram;
 import org.ballerinalang.util.program.BLangPrograms;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.FileVisitResult;
@@ -41,7 +44,26 @@ import java.util.Map;
  */
 public class BallerinaDocGeneratorMain {
 
+    private static final Logger log = LogManager.getLogger(BallerinaDocGeneratorMain.class);
+    private static final String LOG4J_CONFIGURATION_FILE = "log4j.configurationFile";
+    private static final String DOCERINA_LOGS_FOLDER_PATH = "docerina.logs.folder.path";
+    private static final String USER_DIR = "user.dir";
     private static final PrintStream out = System.out;
+
+    static {
+        String userDir = System.getProperty(USER_DIR);
+        String log4jConfFilePath = System.getProperty(LOG4J_CONFIGURATION_FILE);
+        String docerinaLogsFolderPath = System.getProperty(DOCERINA_LOGS_FOLDER_PATH);
+
+        if (log4jConfFilePath == null || log4jConfFilePath.isEmpty()) {
+            log4jConfFilePath = userDir + File.separator + "conf" + File.separator + "log4j2.xml";
+            System.setProperty(LOG4J_CONFIGURATION_FILE, log4jConfFilePath);
+        }
+        if (docerinaLogsFolderPath == null || log4jConfFilePath.isEmpty()) {
+            docerinaLogsFolderPath = userDir + File.separator + "logs";
+            System.setProperty(DOCERINA_LOGS_FOLDER_PATH, docerinaLogsFolderPath);
+        }
+    }
 
     public static void main(String[] args) {
 
@@ -50,13 +72,13 @@ public class BallerinaDocGeneratorMain {
                     + System.lineSeparator() + System.lineSeparator() +
                     "* Find more information at http://ballerinalang.org"
                     + System.lineSeparator() + System.lineSeparator() +
-                        "Usage: "
+                    "Usage: "
                     + System.lineSeparator() +
-                        "  docerina [ballerina-package-path] [package-filter]"
+                    "  docerina [ballerina-package-path] [package-filter]"
                     + System.lineSeparator() + System.lineSeparator() +
-                        "  - ballerina-package-path: absolute file path of the ballerina source package"
+                    "  - ballerina-package-path: absolute file path of the ballerina source package"
                     + System.lineSeparator() +
-                        "  - package-filter [optional]: package name for filtering api documentation");
+                    "  - package-filter [optional]: package name for filtering api documentation");
             return;
         }
 
@@ -65,8 +87,9 @@ public class BallerinaDocGeneratorMain {
                     generatePackageDocsFromBallerina(args[0], (args.length == 2) ? args[1] : null);
             HtmlDocumentWriter htmlDocumentWriter = new HtmlDocumentWriter();
             htmlDocumentWriter.write(docsMap.values());
-        } catch (IOException e) {
-            out.println("Docerina: Could not read ballerina file(s): " + e.getMessage());
+        } catch (Exception e) {
+            out.println("Docerina: API documentation generation failed: " + e.getMessage());
+            log.error("API documentation generation failed", e);
         }
     }
 
@@ -83,7 +106,7 @@ public class BallerinaDocGeneratorMain {
     /**
      * Generates {@link Package} objects for each Ballerina package from the given ballerina files.
      *
-     * @param packagePath should point either to a ballerina file or a folder with ballerina files.
+     * @param packagePath   should point either to a ballerina file or a folder with ballerina files.
      * @param packageFilter the name of the package or pattern to be excluded
      * @return a map of {@link Package} objects. Key - Ballerina package name Value - {@link Package}
      */
@@ -121,7 +144,7 @@ public class BallerinaDocGeneratorMain {
 
         return dataHolder.getPackageMap();
     }
-    
+
     /**
      * Visits sub folders of a ballerina package.
      */

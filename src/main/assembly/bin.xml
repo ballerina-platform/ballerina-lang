@@ -40,12 +40,27 @@
             <fileMode>0600</fileMode>
         </fileSet>
         <fileSet>
+            <directory>${project.basedir}/conf/</directory>
+            <includes>
+                <include>*/**</include>
+            </includes>
+            <outputDirectory>/conf</outputDirectory>
+            <fileMode>0600</fileMode>
+        </fileSet>
+        <fileSet>
             <directory>${project.basedir}/templates/</directory>
             <includes>
                 <include>*/*</include>
             </includes>
             <outputDirectory>/templates</outputDirectory>
             <fileMode>0600</fileMode>
+        </fileSet>
+        <fileSet>
+            <directory>.</directory>
+            <outputDirectory>logs</outputDirectory>
+            <excludes>
+                <exclude>*/**</exclude>
+            </excludes>
         </fileSet>
         <fileSet>
             <directory>${project.basedir}</directory>
