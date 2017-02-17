@@ -30,7 +30,7 @@ define(['require','lodash', 'log', 'event_channel', './abstract-statement-source
         };
 
         VariableDefinitionStatementVisitor.prototype.beginVisitVariableDefinitionStatement = function(variableDefinitionStatement){
-           log.debug('Begin Visit Variable Definition Statement');
+            log.debug('Begin Visit Variable Definition Statement');
         };
 
         VariableDefinitionStatementVisitor.prototype.endVisitVariableDefinitionStatement = function(variableDefinitionStatement){

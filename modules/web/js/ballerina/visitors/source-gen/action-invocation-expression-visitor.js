@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -15,29 +15,36 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require','lodash', 'log', 'event_channel', './abstract-statement-source-gen-visitor', '../../ast/action-invocation-expression'],
-    function(require, _, log, EventChannel, AbstractStatementSourceGenVisitor, ActionInvocation) {
+define(['require','lodash', 'log', 'event_channel', './abstract-statement-source-gen-visitor'],
+    function(require, _, log, EventChannel, AbstractStatementSourceGenVisitor) {
 
-        var ActionInvocationStatementVisitor = function(parent){
+        /**
+         * Constructor for Function invocation expression visitor
+         * @param {ASTNode} parent - parent node
+         * @constructor
+         */
+        var ActionInvocationExpressionVisitor = function(parent){
             AbstractStatementSourceGenVisitor.call(this,parent);
         };
 
-        ActionInvocationStatementVisitor.prototype = Object.create(AbstractStatementSourceGenVisitor.prototype);
-        ActionInvocationStatementVisitor.prototype.constructor = ActionInvocationStatementVisitor;
+        ActionInvocationExpressionVisitor.prototype = Object.create(AbstractStatementSourceGenVisitor.prototype);
+        ActionInvocationExpressionVisitor.prototype.constructor = ActionInvocationExpressionVisitor;
 
-        ActionInvocationStatementVisitor.prototype.canVisitActionInvocationExpression = function(actionInvocationExpression){
+        ActionInvocationExpressionVisitor.prototype.canVisitActionInvocationExpression = function(){
             return true;
         };
 
-        ActionInvocationStatementVisitor.prototype.beginVisitActionInvocationExpression = function(actionInvocationExpression){
-            this.appendSource(actionInvocationExpression.getExpression());
-            log.debug('Begin Visit action invocation expression');
+        ActionInvocationExpressionVisitor.prototype.beginVisitActionInvocationExpression = function(actionInvocation){
         };
 
-        ActionInvocationStatementVisitor.prototype.endVisitActionInvocationExpression = function(action){
-            this.getParent().appendSource(this.getGeneratedSource() + ";");
-            log.debug('End Visit action Invocation Expression');
+        ActionInvocationExpressionVisitor.prototype.visitActionInvocationExpression = function(actionInvocation){
+            var source = actionInvocation.getExpression();
+            this.appendSource(source);
         };
 
-        return ActionInvocationStatementVisitor;
+        ActionInvocationExpressionVisitor.prototype.endVisitActionInvocationExpression = function(){
+            this.getParent().appendSource(this.getGeneratedSource());
+        };
+
+        return FunctionInvocationExpressionVisitor;
     });
