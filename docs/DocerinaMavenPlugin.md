@@ -44,7 +44,7 @@ Supported list of configuration parameters are listed below;
  MANDATORY property.
  Example: `<templatesDir>/home/docerina/templates/html</templatesDir>`
 
- * `sourceDir`: Points to the location of the Ballerina source file/directory.
+* `sourceDir`: Points to the location of the Ballerina source file/directory.
 
  MANDATORY property.
  Example: `<templatesDir>/home/docerina/ballerina/src</templatesDir>`
