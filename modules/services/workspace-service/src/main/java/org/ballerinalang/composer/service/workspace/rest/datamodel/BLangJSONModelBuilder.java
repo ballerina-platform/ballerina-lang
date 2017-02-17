@@ -653,7 +653,10 @@ public class BLangJSONModelBuilder implements NodeVisitor {
 
     @Override
     public void visit(BreakStmt breakStmt) {
-
+        JsonObject breakObject = new JsonObject();
+        breakObject.addProperty(BLangJSONModelConstants.DEFINITION_TYPE, BLangJSONModelConstants.BREAK_STATEMENT);
+        this.addPosition(breakObject, breakStmt.getNodeLocation());
+        tempJsonArrayRef.peek().add(breakObject);
     }
 
     @Override
