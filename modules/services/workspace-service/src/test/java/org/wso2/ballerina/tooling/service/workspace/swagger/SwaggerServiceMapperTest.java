@@ -16,14 +16,17 @@ import io.swagger.models.properties.RefProperty;
 import io.swagger.models.properties.StringProperty;
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
+import org.ballerinalang.model.BLangPackage;
+import org.ballerinalang.model.CompilationUnit;
+import org.ballerinalang.model.GlobalScope;
 import org.junit.Assert;
 import org.junit.Test;
-import org.wso2.ballerina.core.model.BallerinaFile;
-import org.wso2.ballerina.core.model.Service;
-import org.wso2.ballerina.core.model.builder.BLangModelBuilder;
-import org.wso2.ballerina.core.parser.BallerinaLexer;
-import org.wso2.ballerina.core.parser.BallerinaParser;
-import org.wso2.ballerina.core.parser.antlr4.BLangAntlr4Listener;
+import org.ballerinalang.model.BallerinaFile;
+import org.ballerinalang.model.Service;
+import org.ballerinalang.model.builder.BLangModelBuilder;
+import org.ballerinalang.util.parser.BallerinaLexer;
+import org.ballerinalang.util.parser.BallerinaParser;
+import org.ballerinalang.util.parser.antlr4.BLangAntlr4Listener;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -57,19 +60,26 @@ public class SwaggerServiceMapperTest {
         BallerinaLexer ballerinaLexer = new BallerinaLexer(antlrInputStream);
         CommonTokenStream ballerinaToken = new CommonTokenStream(ballerinaLexer);
         BallerinaParser ballerinaParser = new BallerinaParser(ballerinaToken);
-        BLangModelBuilder modelBuilder = new BLangModelBuilder();
+
+        BLangPackage bLangPackage = new BLangPackage(GlobalScope.getInstance());
+        BLangPackage.PackageBuilder packageBuilder = new BLangPackage.PackageBuilder(bLangPackage);
+        BLangModelBuilder modelBuilder = new BLangModelBuilder(packageBuilder, "");
+
         BLangAntlr4Listener langModelBuilder = new BLangAntlr4Listener(modelBuilder);
         ballerinaParser.addParseListener(langModelBuilder);
         ballerinaParser.compilationUnit();
         BallerinaFile bFile = modelBuilder.build();
-        Service[] services = bFile.getServices();
+        CompilationUnit[] compilationUnits = bFile.getCompilationUnits();
         Swagger swaggerDefinition = new Swagger();
-        if (services.length > 0) {
-            //TODO this need to improve iterate through multiple services and generate single swagger file.
-            SwaggerServiceMapper swaggerServiceMapper = new SwaggerServiceMapper();
-            //TODO mapper type need to set according to expected type.
-            //swaggerServiceMapper.setObjectMapper(io.swagger.util.Yaml.mapper());
-            swaggerDefinition = swaggerServiceMapper.convertServiceToSwagger(services[0]);
+        for(CompilationUnit compilationUnit:compilationUnits){
+            if(compilationUnit instanceof Service){
+                //TODO this need to improve iterate through multiple services and generate single swagger file.
+                SwaggerServiceMapper swaggerServiceMapper = new SwaggerServiceMapper();
+                //TODO mapper type need to set according to expected type.
+                //swaggerServiceMapper.setObjectMapper(io.swagger.util.Yaml.mapper());
+                swaggerDefinition = swaggerServiceMapper.convertServiceToSwagger((Service)compilationUnit);
+                break;
+            }
         }
         //TODO add complete logic to test all attributes present in swagger object
         Assert.assertEquals(swaggerDefinition.getBasePath().toString(), "/echo");

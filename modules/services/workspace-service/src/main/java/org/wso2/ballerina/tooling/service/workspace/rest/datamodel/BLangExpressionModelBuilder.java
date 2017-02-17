@@ -18,47 +18,80 @@
 
 package org.wso2.ballerina.tooling.service.workspace.rest.datamodel;
 
-import org.wso2.ballerina.core.interpreter.*;
-import org.wso2.ballerina.core.model.*;
-import org.wso2.ballerina.core.model.expressions.*;
-import org.wso2.ballerina.core.interpreter.ConnectorVarLocation;
-import org.wso2.ballerina.core.interpreter.ConstantLocation;
-import org.wso2.ballerina.core.interpreter.StackVarLocation;
-import org.wso2.ballerina.core.interpreter.ServiceVarLocation;
-import org.wso2.ballerina.core.model.Annotation;
-import org.wso2.ballerina.core.model.BTypeMapper;
-import org.wso2.ballerina.core.model.BallerinaAction;
-import org.wso2.ballerina.core.model.BallerinaConnectorDef;
-import org.wso2.ballerina.core.model.BallerinaFile;
-import org.wso2.ballerina.core.model.BallerinaFunction;
-import org.wso2.ballerina.core.model.ConnectorDcl;
-import org.wso2.ballerina.core.model.ConstDef;
-import org.wso2.ballerina.core.model.ImportPackage;
-import org.wso2.ballerina.core.model.NodeVisitor;
-import org.wso2.ballerina.core.model.ParameterDef;
-import org.wso2.ballerina.core.model.Resource;
-import org.wso2.ballerina.core.model.Service;
-import org.wso2.ballerina.core.model.VariableDef;
-import org.wso2.ballerina.core.model.Worker;
-import org.wso2.ballerina.core.model.invokers.MainInvoker;
-import org.wso2.ballerina.core.model.statements.ActionInvocationStmt;
-import org.wso2.ballerina.core.model.statements.AssignStmt;
-import org.wso2.ballerina.core.model.statements.BlockStmt;
-import org.wso2.ballerina.core.model.statements.CommentStmt;
-import org.wso2.ballerina.core.model.statements.FunctionInvocationStmt;
-import org.wso2.ballerina.core.model.statements.IfElseStmt;
-import org.wso2.ballerina.core.model.statements.ReplyStmt;
-import org.wso2.ballerina.core.model.statements.ReturnStmt;
-import org.wso2.ballerina.core.model.statements.Statement;
-import org.wso2.ballerina.core.model.statements.VariableDefStmt;
-import org.wso2.ballerina.core.model.statements.WhileStmt;
-import org.wso2.ballerina.core.model.statements.BreakStmt;
-import org.wso2.ballerina.core.model.statements.TryCatchStmt;
-import org.wso2.ballerina.core.model.statements.WorkerInvocationStmt;
-import org.wso2.ballerina.core.model.statements.ThrowStmt;
-import org.wso2.ballerina.core.model.statements.WorkerReplyStmt;
-import org.wso2.ballerina.core.model.statements.ForkJoinStmt;
-import org.wso2.ballerina.core.model.types.BTypes;
+import org.ballerinalang.bre.ConnectorVarLocation;
+import org.ballerinalang.bre.ConstantLocation;
+import org.ballerinalang.bre.ServiceVarLocation;
+import org.ballerinalang.bre.StackVarLocation;
+import org.ballerinalang.bre.StructVarLocation;
+import org.ballerinalang.bre.WorkerVarLocation;
+import org.ballerinalang.model.Annotation;
+import org.ballerinalang.model.BLangPackage;
+import org.ballerinalang.model.BLangProgram;
+import org.ballerinalang.model.BTypeMapper;
+import org.ballerinalang.model.BallerinaAction;
+import org.ballerinalang.model.BallerinaConnectorDef;
+import org.ballerinalang.model.BallerinaFile;
+import org.ballerinalang.model.BallerinaFunction;
+import org.ballerinalang.model.ConnectorDcl;
+import org.ballerinalang.model.ConstDef;
+import org.ballerinalang.model.ImportPackage;
+import org.ballerinalang.model.NodeVisitor;
+import org.ballerinalang.model.ParameterDef;
+import org.ballerinalang.model.Resource;
+import org.ballerinalang.model.Service;
+import org.ballerinalang.model.StructDef;
+import org.ballerinalang.model.VariableDef;
+import org.ballerinalang.model.Worker;
+import org.ballerinalang.model.expressions.ActionInvocationExpr;
+import org.ballerinalang.model.expressions.AddExpression;
+import org.ballerinalang.model.expressions.AndExpression;
+import org.ballerinalang.model.expressions.ArrayInitExpr;
+import org.ballerinalang.model.expressions.ArrayMapAccessExpr;
+import org.ballerinalang.model.expressions.BacktickExpr;
+import org.ballerinalang.model.expressions.BasicLiteral;
+import org.ballerinalang.model.expressions.ConnectorInitExpr;
+import org.ballerinalang.model.expressions.DivideExpr;
+import org.ballerinalang.model.expressions.EqualExpression;
+import org.ballerinalang.model.expressions.Expression;
+import org.ballerinalang.model.expressions.FunctionInvocationExpr;
+import org.ballerinalang.model.expressions.GreaterEqualExpression;
+import org.ballerinalang.model.expressions.GreaterThanExpression;
+import org.ballerinalang.model.expressions.InstanceCreationExpr;
+import org.ballerinalang.model.expressions.LessEqualExpression;
+import org.ballerinalang.model.expressions.LessThanExpression;
+import org.ballerinalang.model.expressions.MapInitExpr;
+import org.ballerinalang.model.expressions.MapStructInitKeyValueExpr;
+import org.ballerinalang.model.expressions.ModExpression;
+import org.ballerinalang.model.expressions.MultExpression;
+import org.ballerinalang.model.expressions.NotEqualExpression;
+import org.ballerinalang.model.expressions.OrExpression;
+import org.ballerinalang.model.expressions.RefTypeInitExpr;
+import org.ballerinalang.model.expressions.ResourceInvocationExpr;
+import org.ballerinalang.model.expressions.StructFieldAccessExpr;
+import org.ballerinalang.model.expressions.StructInitExpr;
+import org.ballerinalang.model.expressions.SubtractExpression;
+import org.ballerinalang.model.expressions.TypeCastExpression;
+import org.ballerinalang.model.expressions.UnaryExpression;
+import org.ballerinalang.model.expressions.VariableRefExpr;
+import org.ballerinalang.model.invokers.MainInvoker;
+import org.ballerinalang.model.statements.ActionInvocationStmt;
+import org.ballerinalang.model.statements.AssignStmt;
+import org.ballerinalang.model.statements.BlockStmt;
+import org.ballerinalang.model.statements.BreakStmt;
+import org.ballerinalang.model.statements.CommentStmt;
+import org.ballerinalang.model.statements.ForkJoinStmt;
+import org.ballerinalang.model.statements.FunctionInvocationStmt;
+import org.ballerinalang.model.statements.IfElseStmt;
+import org.ballerinalang.model.statements.ReplyStmt;
+import org.ballerinalang.model.statements.ReturnStmt;
+import org.ballerinalang.model.statements.Statement;
+import org.ballerinalang.model.statements.ThrowStmt;
+import org.ballerinalang.model.statements.TryCatchStmt;
+import org.ballerinalang.model.statements.VariableDefStmt;
+import org.ballerinalang.model.statements.WhileStmt;
+import org.ballerinalang.model.statements.WorkerInvocationStmt;
+import org.ballerinalang.model.statements.WorkerReplyStmt;
+import org.ballerinalang.model.types.BTypes;
 
 import java.util.Stack;
 
@@ -76,6 +109,14 @@ public class BLangExpressionModelBuilder implements NodeVisitor {
     }
 
     public BLangExpressionModelBuilder() {}
+
+    @Override public void visit(BLangProgram bLangProgram) {
+
+    }
+
+    @Override public void visit(BLangPackage bLangPackage) {
+
+    }
 
     @Override
     public void visit(BallerinaFile bFile) {
@@ -122,27 +163,27 @@ public class BLangExpressionModelBuilder implements NodeVisitor {
     public void visit(ParameterDef parameterDef) {
     }
 
-    @Override
-    public void visit(ConnectorDcl connectorDcl) {
-        StringBuffer buffer = new StringBuffer();
-        bufferStack.push(buffer);
-        buffer.append(connectorDcl.getConnectorName()).append(SPACE_CHAR)
-                .append(connectorDcl.getVarName().getName()).append(SPACE_CHAR).append("=")
-                .append(SPACE_CHAR).append("new").append(SPACE_CHAR)
-                .append(connectorDcl.getConnectorName()).append("(");
-        boolean isFirstItr = true;
-        for (Expression expr : connectorDcl.getArgExprs()) {
-            if (!isFirstItr) {
-                buffer.append(",");
-            } else {
-                isFirstItr = false;
-            }
-            expr.accept(this);
-            buffer.append(bufferStack.peek());
-            bufferStack.pop();
-        }
-        buffer.append(SPACE_CHAR).append(");");
-    }
+//    @Override
+//    public void visit(ConnectorDcl connectorDcl) {
+//        StringBuffer buffer = new StringBuffer();
+//        bufferStack.push(buffer);
+//        buffer.append(connectorDcl.getConnectorName()).append(SPACE_CHAR)
+//                .append(connectorDcl.getVarName().getName()).append(SPACE_CHAR).append("=")
+//                .append(SPACE_CHAR).append("new").append(SPACE_CHAR)
+//                .append(connectorDcl.getConnectorName()).append("(");
+//        boolean isFirstItr = true;
+//        for (Expression expr : connectorDcl.getArgExprs()) {
+//            if (!isFirstItr) {
+//                buffer.append(",");
+//            } else {
+//                isFirstItr = false;
+//            }
+//            expr.accept(this);
+//            buffer.append(bufferStack.peek());
+//            bufferStack.pop();
+//        }
+//        buffer.append(SPACE_CHAR).append(");");
+//    }
 
     @Override
     public void visit(VariableDef variableDef) {

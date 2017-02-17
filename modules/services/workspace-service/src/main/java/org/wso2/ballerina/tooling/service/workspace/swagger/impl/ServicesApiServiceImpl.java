@@ -19,7 +19,7 @@ import com.google.gson.JsonObject;
 import io.swagger.annotations.ApiParam;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.ballerina.core.model.BallerinaFile;
+import org.ballerinalang.model.BallerinaFile;
 import org.wso2.ballerina.tooling.service.workspace.rest.datamodel.BLangJSONModelBuilder;
 import org.wso2.ballerina.tooling.service.workspace.swagger.SwaggerConverterUtils;
 import org.wso2.ballerina.tooling.service.workspace.swagger.SwaggerServiceMapper;
@@ -172,7 +172,7 @@ public class ServicesApiServiceImpl {
      */
     private String generateSwaggerDataModel(String ballerinaDefinition) throws IOException {
         //TODO improve code to avoid additional object creation.
-        org.wso2.ballerina.core.model.Service[] services = SwaggerConverterUtils.
+        org.ballerinalang.model.Service[] services = SwaggerConverterUtils.
                 getServicesFromBallerinaDefinition(ballerinaDefinition);
         String swaggerDefinition = "";
         if (services.length > 0) {
@@ -200,11 +200,11 @@ public class ServicesApiServiceImpl {
         BallerinaFile ballerinaFile = SwaggerConverterUtils.getBFileFromBallerinaDefinition(ballerinaDefinition);
         //Always assume we have only one resource in bfile.
         //TODO this logic need to be reviewed and fix issues. This is temporary commit to test swagger UI flow
-        org.wso2.ballerina.core.model.Service swaggerService = SwaggerConverterUtils.
+        org.ballerinalang.model.Service swaggerService = SwaggerConverterUtils.
                 getServiceFromSwaggerDefinition(swaggerDefinition);
-        org.wso2.ballerina.core.model.Service ballerinaService = ballerinaFile.getServices()[0];
+        org.ballerinalang.model.Service ballerinaService = ballerinaFile.getServices()[0];
         String serviceName = swaggerService.getSymbolName().getName();
-        for (org.wso2.ballerina.core.model.Service currentService : ballerinaFile.getServices()) {
+        for (org.ballerinalang.model.Service currentService : ballerinaFile.getServices()) {
             if (currentService.getSymbolName().getName().equalsIgnoreCase(serviceName)) {
                 ballerinaService = currentService;
             }

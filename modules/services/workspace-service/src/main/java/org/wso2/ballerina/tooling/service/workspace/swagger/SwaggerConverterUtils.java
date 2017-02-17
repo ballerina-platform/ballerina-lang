@@ -29,23 +29,23 @@ import io.swagger.parser.Swagger20Parser;
 import io.swagger.util.Json;
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
-import org.wso2.ballerina.core.model.GlobalScope;
-import org.wso2.ballerina.core.model.NodeLocation;
-import org.wso2.ballerina.core.model.Resource;
-import org.wso2.ballerina.core.model.Annotation;
-import org.wso2.ballerina.core.model.Service;
-import org.wso2.ballerina.core.model.BLangPackage;
-import org.wso2.ballerina.core.model.SymbolName;
-import org.wso2.ballerina.core.model.builder.BLangModelBuilder;
-import org.wso2.ballerina.core.model.BallerinaFile;
-import org.wso2.ballerina.core.model.ParameterDef;
-import org.wso2.ballerina.core.model.types.BTypes;
-import org.wso2.ballerina.core.model.types.SimpleTypeName;
-import org.wso2.ballerina.core.model.Worker;
-import org.wso2.ballerina.core.parser.BallerinaLexer;
-import org.wso2.ballerina.core.parser.BallerinaParser;
-import org.wso2.ballerina.core.parser.BallerinaParserErrorStrategy;
-import org.wso2.ballerina.core.parser.antlr4.BLangAntlr4Listener;
+import org.ballerinalang.model.GlobalScope;
+import org.ballerinalang.model.NodeLocation;
+import org.ballerinalang.model.Resource;
+import org.ballerinalang.model.Annotation;
+import org.ballerinalang.model.Service;
+import org.ballerinalang.model.BLangPackage;
+import org.ballerinalang.model.SymbolName;
+import org.ballerinalang.model.Worker;
+import org.ballerinalang.model.builder.BLangModelBuilder;
+import org.ballerinalang.model.BallerinaFile;
+import org.ballerinalang.model.ParameterDef;
+import org.ballerinalang.model.types.BTypes;
+import org.ballerinalang.model.types.SimpleTypeName;
+import org.ballerinalang.util.parser.BallerinaLexer;
+import org.ballerinalang.util.parser.BallerinaParser;
+import org.ballerinalang.util.parser.BallerinaParserErrorStrategy;
+import org.ballerinalang.util.parser.antlr4.BLangAntlr4Listener;
 import org.wso2.ballerina.tooling.service.workspace.swagger.generators.BallerinaCodeGenerator;
 
 import java.io.File;
@@ -96,7 +96,8 @@ public class SwaggerConverterUtils {
         GlobalScope globalScope = GlobalScope.getInstance();
         BTypes.loadBuiltInTypes(globalScope);
         BLangPackage bLangPackage = new BLangPackage(globalScope);
-        BLangModelBuilder bLangModelBuilder = new BLangModelBuilder(bLangPackage);
+        BLangPackage.PackageBuilder packageBuilder = new BLangPackage.PackageBuilder(bLangPackage);
+        BLangModelBuilder bLangModelBuilder = new BLangModelBuilder(packageBuilder, "");
         BLangAntlr4Listener ballerinaBaseListener = new BLangAntlr4Listener(bLangModelBuilder);
         ballerinaParser.addParseListener(ballerinaBaseListener);
         ballerinaParser.compilationUnit();
@@ -223,7 +224,7 @@ public class SwaggerConverterUtils {
             //resource as -->	resource TestPost(message m) {
             //This logic can be improved to pass user defined types.
             ParameterDef parameterDef = new ParameterDef(
-                    new NodeLocation("<unknown>"), "m", new SimpleTypeName("message"), new SymbolName("m"),
+                    new NodeLocation("<unknown>",0), "m", new SimpleTypeName("message"), new SymbolName("m"),
                     resourceBuilder.buildResource());
             //Then add created parameter.
             resourceBuilder.addParameter(parameterDef);

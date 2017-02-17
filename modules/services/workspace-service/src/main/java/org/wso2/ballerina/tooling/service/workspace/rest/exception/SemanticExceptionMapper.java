@@ -21,7 +21,7 @@ package org.wso2.ballerina.tooling.service.workspace.rest.exception;
 import com.google.gson.JsonObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.ballerina.core.exception.SemanticException;
+import org.ballerinalang.util.exceptions.SemanticException;
 
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;

@@ -23,9 +23,9 @@ import io.swagger.models.Swagger;
 import io.swagger.util.Json;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.ballerina.core.model.Annotation;
-import org.wso2.ballerina.core.model.Resource;
-import org.wso2.ballerina.core.model.Service;
+import org.ballerinalang.model.Annotation;
+import org.ballerinalang.model.Resource;
+import org.ballerinalang.model.Service;
 
 /**
  * SwaggerServiceMapper provides functionality for reading and writing Swagger, either to and from ballerina service, or
