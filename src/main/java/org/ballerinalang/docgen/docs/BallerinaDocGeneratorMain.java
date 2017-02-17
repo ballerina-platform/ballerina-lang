@@ -46,7 +46,17 @@ public class BallerinaDocGeneratorMain {
     public static void main(String[] args) {
 
         if ((args == null) || (args.length < 1 || args.length > 2)) {
-            out.println("Usage: docerina [ballerina-package-path] [package-filter]");
+            out.println("Docerina is the API documentation generator tool of the Ballerina language."
+                    + System.lineSeparator() + System.lineSeparator() +
+                    "* Find more information at http://ballerinalang.org"
+                    + System.lineSeparator() + System.lineSeparator() +
+                        "Usage: "
+                    + System.lineSeparator() +
+                        "  docerina [ballerina-package-path] [package-filter]"
+                    + System.lineSeparator() + System.lineSeparator() +
+                        "  - ballerina-package-path: absolute file path of the ballerina source package"
+                    + System.lineSeparator() +
+                        "  - package-filter [optional]: package name for filtering api documentation");
             return;
         }
 

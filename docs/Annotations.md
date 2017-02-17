@@ -25,7 +25,7 @@ The following annotations are available in Ballerina for documenting APIs:
 Following is a sample function with documentation annotations:
 
 ````
-@doc:Description(value = "Add HTTP header to the message")
+@doc:Description("Add HTTP header to the message")
 @doc:Param("m: Incoming message")
 @doc:Param("key: HTTP header key")
 @doc:Param("value: HTTP header value")
