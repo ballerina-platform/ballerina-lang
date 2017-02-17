@@ -39,4 +39,5 @@ public class Constants {
     public static final int DEFAULT_WORKSPACE_PORT = 8289;
 
 
+    public static final String SYS_BAL_COMPOSER_HOME = "bal.composer.home";
 }
