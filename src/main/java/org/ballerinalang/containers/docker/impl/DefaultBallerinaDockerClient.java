@@ -258,7 +258,16 @@ public class DefaultBallerinaDockerClient implements BallerinaDockerClient {
         FileUtils.deleteDirectory(tmpDir.toFile());
     }
 
-    private Path prepTempDockerfileContext() throws IOException {
+    private Path prepTempDockerfileContext() throws IOException, BallerinaDockerClientException {
+        // TODO: Until the tmp.dir modification is removed from ballerina-launcher
+        String tmpDirLocation = System.getProperty("java.io.tmpdir");
+        if (tmpDirLocation != null) {
+            File tmpDirFile = new File(tmpDirLocation);
+            if (!tmpDirFile.exists() && !tmpDirFile.mkdirs()) {
+                throw new BallerinaDockerClientException("Couldn't create temporary directory: " + tmpDirLocation);
+            }
+        }
+
         String tempDirName = PATH_TEMP_DOCKERFILE_CONTEXT_PREFIX + String.valueOf(Instant.now().getEpochSecond());
         Path tmpDir = Files.createTempDirectory(tempDirName);
         Files.createDirectory(Paths.get(tmpDir.toString() + File.separator + PATH_FILES));
