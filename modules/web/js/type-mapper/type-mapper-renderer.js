@@ -504,6 +504,12 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
                 }
             });
 
+            for (var i = 0; i < self.references.length; i++) {
+                if (self.references[i].name == id) {
+                    removedFunction.reference = self.references[i].refObj;
+                }
+            }
+
             self.removeStruct(func.name);
             onFunctionRemove(removedFunction);
         });
