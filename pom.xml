@@ -10,7 +10,7 @@
 
     <groupId>org.ballerinalang</groupId>
     <artifactId>ballerina-container-support</artifactId>
-    <version>0.8.0-ALPHA</version>
+    <version>0.8.0-SNAPSHOT</version>
     <name>Ballerina - Containerization Support</name>
     <packaging>jar</packaging>
 
@@ -173,8 +173,4 @@
         <jacoco.version>0.7.5.201505241946</jacoco.version>
         <surefireArgLine>-Dfile.encoding=UTF-8</surefireArgLine>
     </properties>
-
-  <scm>
-    <tag>v0.8.0-ALPHA</tag>
-  </scm>
 </project>
