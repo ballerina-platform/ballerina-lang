@@ -112,6 +112,19 @@ define(['lodash', './node', 'log', '../utils/common-utils'], function(_, ASTNode
     };
 
     /**
+     * Override the super call to addChild
+     * @param child
+     * @param index
+     */
+    ConnectorDefinition.prototype.addChild = function (child, index) {
+        if (this.BallerinaASTFactory.isConnectorDeclaration(child)) {
+            Object.getPrototypeOf(this.constructor.prototype).addChild.call(this, child, 0);
+        } else {
+            Object.getPrototypeOf(this.constructor.prototype).addChild.call(this, child, index);
+        }
+    };
+
+    /**
      * Set the connector annotations
      * @param {string[]} annotations - Connector Annotations
      */
