@@ -1,6 +1,6 @@
 package samples.fork_join;
 
-import ballerina.lang.message;
+import ballerina.lang.messages;
 import ballerina.lang.system;
 import ballerina.net.http;
 
@@ -26,10 +26,10 @@ service AirfareProviderService {
                 string query;
                 message response;
 
-                payload = message:getXmlPayload(m);
-                from = xml:get(payload, "reservationInfo/from");
-                to = xml:get(payload, "reservationInfo/to");
-                date = xml:get(payload, "reservationInfo/date");
+                payload = messages:getXmlPayload(m);
+                from = xmlutils:get(payload, "reservationInfo/from");
+                to = xmlutils:get(payload, "reservationInfo/to");
+                date = xmlutils:get(payload, "reservationInfo/date");
                 query = "?departure_city=" + from + "&destination_city=" + to + "&date=" + date;
                 response = http:ClientConnector.sendGet (abcAirlineEP, query, m);
                 reply response;
@@ -43,19 +43,19 @@ service AirfareProviderService {
                 string query;
                 message response;
 
-                payload = message:getXmlPayload(m);
-                from = xml:get(payload, "reservationInfo/from");
-                to = xml:get(payload, "reservationInfo/to");
-                date = xml:get(payload, "reservationInfo/date");
+                payload = messages:getXmlPayload(m);
+                from = xmlutils:get(payload, "reservationInfo/from");
+                to = xmlutils:get(payload, "reservationInfo/to");
+                date = xmlutils:get(payload, "reservationInfo/date");
                 query = "?From=" + from + "&To=" + to + "&Date=" + date;
                 response = http:ClientConnector.sendGet (xyzAirlineEP, query, m);
                 reply response;
             }
         } join (all) (message[] airfareResponses) {
             airfareAggregatedResponse = `<airfareRes></airfareRes>`;
-            xml:set(airfareAggregatedResponse, "/airfareRes", null, airfareResponses[0]);
-            xml:set(airfareAggregatedResponse, "/airfareRes", null, airfareResponses[1]);
-            system:logDebug(xml:toString(airfareAggregatedResponse));
+            xmlutils:set(airfareAggregatedResponse, "/airfareRes", null, airfareResponses[0]);
+            xmlutils:set(airfareAggregatedResponse, "/airfareRes", null, airfareResponses[1]);
+            system:logDebug(xmlutils:toString(airfareAggregatedResponse));
             reply airfareAggregatedResponse;
         }
    }

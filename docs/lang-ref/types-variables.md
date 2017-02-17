@@ -151,7 +151,7 @@ That is, the registered type mapper is invoked by indicating the type cast as ab
 
 In addition to the built-in value type coercions, Ballerina also ships with a few pre-defined type mappers to make development easier. The following predefined type mappers are declared in the Ballerina package `ballerina.lang.typemappers`:
 
-* string/xml/json to message: creates a new message with the given string/xml/json as its payload
+* string/xml/json to messages: creates a new message with the given string/xml/json as its payload
 * down conversions for numeral types: int -> boolean (0 is false), long -> int/boolean, float -> int/boolean, double -> float/long/int/boolean,
 
 Note that these must be triggered by indicating a type cast to the desired type.

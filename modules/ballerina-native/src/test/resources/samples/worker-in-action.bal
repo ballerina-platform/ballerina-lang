@@ -1,6 +1,4 @@
-package samples.connectors.test;
-
-import ballerina.lang.message;
+import ballerina.lang.messages;
 import ballerina.lang.system;
 
 connector TestConnector(string param1, string param2, int param3) {
@@ -16,7 +14,7 @@ connector TestConnector(string param1, string param2, int param3) {
             json j;
 
             j = `{"name":"chanaka"}`;
-            message:setJsonPayload(m, j);
+            messages:setJsonPayload(m, j);
             sumD = 123d;
             amount = 222d;
             quantity = 12;

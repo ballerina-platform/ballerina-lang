@@ -1,5 +1,3 @@
-package samples.nativeimpl;
-
 import ballerina.lang.system;
 
 function testPrintAndPrintlnString(string s1, string s2){
@@ -88,4 +86,9 @@ function testDateFunction() {
 
 function printNewline() {
     system:print("hello\n");
+}
+
+function getEnvVar(string varName) {
+    string pathValue = system:getEnv(varName);
+    system:print(pathValue);
 }

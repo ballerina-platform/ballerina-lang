@@ -47,10 +47,10 @@ import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.ops4j.pax.exam.CoreOptions.maven;
-import static org.wso2.ballerina.core.nativeimpl.connectors.http.Constants.HTTP_METHOD;
-import static org.wso2.ballerina.core.nativeimpl.connectors.http.Constants.PROTOCOL;
-import static org.wso2.ballerina.core.nativeimpl.connectors.http.Constants.PROTOCOL_HTTP;
-import static org.wso2.ballerina.core.nativeimpl.connectors.http.Constants.SUB_PATH;
+import static org.ballerinalang.natives.connectors.http.Constants.HTTP_METHOD;
+import static org.ballerinalang.natives.connectors.http.Constants.PROTOCOL;
+import static org.ballerinalang.natives.connectors.http.Constants.PROTOCOL_HTTP;
+import static org.ballerinalang.natives.connectors.http.Constants.SUB_PATH;
 import static org.wso2.carbon.container.options.CarbonDistributionOption.copyDropinsBundle;
 import static org.wso2.carbon.container.options.CarbonDistributionOption.copyFile;
 

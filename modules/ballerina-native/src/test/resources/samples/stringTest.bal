@@ -1,93 +1,93 @@
-import ballerina.lang.string;
+import ballerina.lang.strings;
 
 function contains(string source, string substring) (boolean) {
-    return string:contains(source, substring);
+    return strings:contains(source, substring);
 }
 
 function equalsIgnoreCase(string s1, string s2) (boolean) {
-    return string:equalsIgnoreCase(s1, s2);
+    return strings:equalsIgnoreCase(s1, s2);
 }
 
 function hasPrefix(string s, string prefix) (boolean) {
-    return string:hasPrefix(s, prefix);
+    return strings:hasPrefix(s, prefix);
 }
 
 function hasSuffix(string s, string suffix) (boolean) {
-    return string:hasSuffix(s, suffix);
+    return strings:hasSuffix(s, suffix);
 }
 
 function indexOf(string s, string str) (int) {
-    return string:indexOf(s, str);
+    return strings:indexOf(s, str);
 }
 
 function lastIndexOf(string s, string str) (int) {
-    return string:lastIndexOf(s, str);
+    return strings:lastIndexOf(s, str);
 }
 
 function replace(string s, string source, string target) (string) {
-    return string:replace(s, source, target);
+    return strings:replace(s, source, target);
 }
 
 function replaceAll(string s, string source, string target) (string) {
-    return string:replaceAll(s, source, target);
+    return strings:replaceAll(s, source, target);
 }
 
 function replaceFirst(string s, string source, string target) (string) {
-    return string:replaceFirst(s, source, target);
+    return strings:replaceFirst(s, source, target);
 }
 
 function subString(string s, int from, int to) (string) {
-    return string:subString(s, from, to);
+    return strings:subString(s, from, to);
 }
 
 function toLowerCase(string s) (string) {
-    return string:toLowerCase(s);
+    return strings:toLowerCase(s);
 }
 
 function toUpperCase(string s) (string) {
-    return string:toUpperCase(s);
+    return strings:toUpperCase(s);
 }
 
 function trim(string s) (string) {
-    return string:trim(s);
+    return strings:trim(s);
 }
 
 function intValueOf(int i) (string) {
-    return string:valueOf(i);
+    return strings:valueOf(i);
 }
 
 function longValueOf(long l) (string) {
-    return string:valueOf(l);
+    return strings:valueOf(l);
 }
 
 function floatValueOf(float f) (string) {
-    return string:valueOf(f);
+    return strings:valueOf(f);
 }
 
 function doubleValueOf(double d) (string) {
-    return string:valueOf(d);
+    return strings:valueOf(d);
 }
 
 function booleanValueOf(boolean b) (string) {
-    return string:valueOf(b);
+    return strings:valueOf(b);
 }
 
 function stringValueOf(string s) (string) {
-    return string:valueOf(s);
+    return strings:valueOf(s);
 }
 
 function xmlValueOf(xml x) (string) {
-    return string:valueOf(x);
+    return strings:valueOf(x);
 }
 
 function jsonValueOf(json j) (string) {
-    return string:valueOf(j);
+    return strings:valueOf(j);
 }
 
 function length(string j) (int) {
-    return string:length(j);
+    return strings:length(j);
 }
 
 function unescape(string j) (string) {
-    return string:unescape(j);
+    return strings:unescape(j);
 }

@@ -25,28 +25,28 @@ under the License.
     <test name="ballerina-lang-test-suite" preserve-order="true" parallel="false">
         <parameter name="enableNonBlocking" value="false"  />
         <packages>
-            <package name="org.wso2.ballerina.lang.values"/>
-            <package name="org.wso2.ballerina.lang.expressions"/>
-            <package name="org.wso2.ballerina.lang.statements"/>
-            <package name="org.wso2.ballerina.lang.structs"/>
-            <package name="org.wso2.ballerina.lang.connectors"/>
+            <package name="org.ballerinalang.model.values"/>
+            <package name="org.ballerinalang.model.expressions"/>
+            <package name="org.ballerinalang.model.statements"/>
+            <package name="org.ballerinalang.model.structs"/>
+            <package name="org.ballerinalang.model.connectors"/>
         </packages>
         <classes>
-            <class name="org.wso2.ballerina.TestConfigurationUtil" />
+            <class name="org.ballerinalang.TestConfigurationUtil" />
         </classes>
     </test>
     <!-- Ballerina Test Cases - Non Blocking. -->
     <test name="ballerina-lang-test-suite-non-blocking" preserve-order="true" parallel="false">
         <parameter name="enableNonBlocking" value="true" />
         <packages>
-            <package name="org.wso2.ballerina.lang.values"/>
-            <package name="org.wso2.ballerina.lang.expressions"/>
-            <package name="org.wso2.ballerina.lang.statements"/>
-            <package name="org.wso2.ballerina.lang.structs"/>
-            <package name="org.wso2.ballerina.lang.connectors"/>
+            <package name="org.ballerinalang.model.values"/>
+            <package name="org.ballerinalang.model.expressions"/>
+            <package name="org.ballerinalang.model.statements"/>
+            <package name="org.ballerinalang.model.structs"/>
+            <package name="org.ballerinalang.model.connectors"/>
         </packages>
         <classes>
-            <class name="org.wso2.ballerina.TestConfigurationUtil" />
+            <class name="org.ballerinalang.TestConfigurationUtil" />
         </classes>
     </test>
 
@@ -54,7 +54,7 @@ under the License.
     <test name="ballerina-parser-unit-tests" preserve-order="true" parallel="false">
         <classes>
             <!-- Negative Test cases -->
-            <class name="org.wso2.ballerina.core.parser.negative.InvalidSyntaxParserTest"/>
+            <class name="org.ballerinalang.core.parser.negative.InvalidSyntaxParserTest"/>
         </classes>
     </test>
 
@@ -62,20 +62,20 @@ under the License.
     <test name="ballerina-native-functions-unit-tests" preserve-order="true" parallel="false">
         <parameter name="enableNonBlocking" value="false" />
         <packages>
-            <package name="org.wso2.ballerina.core.nativeimpl.functions"/>
+            <package name="org.ballerinalang.core.nativeimpl.functions"/>
         </packages>
         <classes>
-            <class name="org.wso2.ballerina.TestConfigurationUtil" />
+            <class name="org.ballerinalang.TestConfigurationUtil" />
         </classes>
     </test>
     <!-- Native Function Related Test Cases. -->
     <test name="ballerina-native-functions-unit-tests-non-blocking" preserve-order="true" parallel="false">
         <parameter name="enableNonBlocking" value="true" />
         <packages>
-            <package name="org.wso2.ballerina.core.nativeimpl.functions"/>
+            <package name="org.ballerinalang.core.nativeimpl.functions"/>
         </packages>
         <classes>
-            <class name="org.wso2.ballerina.TestConfigurationUtil" />
+            <class name="org.ballerinalang.TestConfigurationUtil" />
         </classes>
     </test>
 
@@ -83,16 +83,19 @@ under the License.
     <test name="ballerina-service-test">
         <parameter name="enableNonBlocking" value="false" />
         <classes>
-            <class name="org.wso2.ballerina.TestConfigurationUtil" />
-            <class name="org.wso2.ballerina.lang.service.ServiceVariableTest"/>
+            <class name="org.ballerinalang.TestConfigurationUtil" />
+            <class name="org.ballerinalang.service.ServiceVariableTest"/>
+            <class name="org.ballerinalang.service.JMSServiceTest" />
+            <class name="org.ballerinalang.service.FileServiceTest" />
         </classes>
     </test>
     <!-- Non Blocking Test Cases -->
     <test name="ballerina-service-test-non-blocking">
         <parameter name="enableNonBlocking" value="true" />
         <classes>
-            <class name="org.wso2.ballerina.TestConfigurationUtil" />
-            <class name="org.wso2.ballerina.lang.service.ServiceVariableTest"/>
+            <class name="org.ballerinalang.TestConfigurationUtil" />
+            <class name="org.ballerinalang.service.ServiceVariableTest"/>
+            <class name="org.ballerinalang.service.JMSServiceTest" />
         </classes>
     </test>
 
@@ -100,7 +103,7 @@ under the License.
 
     <test name="ballerina-interpreter-test-suite" preserve-order="true" parallel="false">
         <classes>
-            <class name="org.wso2.ballerina.core.interpreter.DebuggerTest"/>
+            <class name="org.ballerinalang.core.interpreter.DebuggerTest"/>
         </classes>
     </test>
 </suite>

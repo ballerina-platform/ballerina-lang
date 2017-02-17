@@ -21,20 +21,20 @@ package org.wso2.ballerina.test.connector.http;
 import org.osgi.service.component.annotations.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.ballerina.core.interpreter.Context;
-import org.wso2.ballerina.core.model.Connector;
-import org.wso2.ballerina.core.model.types.TypeEnum;
-import org.wso2.ballerina.core.model.values.BConnector;
-import org.wso2.ballerina.core.model.values.BMessage;
-import org.wso2.ballerina.core.model.values.BString;
-import org.wso2.ballerina.core.model.values.BValue;
-import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
-import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaAction;
-import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeAction;
+import org.ballerinalang.core.interpreter.Context;
+import org.ballerinalang.core.model.Connector;
+import org.ballerinalang.core.model.types.TypeEnum;
+import org.ballerinalang.model.values.BConnector;
+import org.ballerinalang.model.values.BMessage;
+import org.ballerinalang.model.values.BString;
+import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.natives.annotations.Argument;
+import org.ballerinalang.natives.annotations.BallerinaAction;
+import org.ballerinalang.natives.connectors.AbstractNativeAction;
 import org.wso2.carbon.messaging.CarbonMessage;
 
-import static org.wso2.ballerina.core.nativeimpl.connectors.http.Constants.HTTP_METHOD;
-import static org.wso2.ballerina.core.nativeimpl.connectors.http.Constants.HTTP_METHOD_DELETE;
+import static org.ballerinalang.natives.connectors.http.Constants.HTTP_METHOD;
+import static org.ballerinalang.natives.connectors.http.Constants.HTTP_METHOD_DELETE;
 
 /**
  * {@code DummyDelete} is the DELETE action implementation of the HTTP Connector

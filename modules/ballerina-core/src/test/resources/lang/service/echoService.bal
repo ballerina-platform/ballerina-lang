@@ -1,5 +1,5 @@
 import ballerina.net.http;
-import ballerina.lang.message;
+import ballerina.lang.messages;
 
 @http:BasePath ("/echo")
 service echo {
@@ -15,7 +15,7 @@ service echo {
     @http:POST
     @http:Path ("/setString")
     resource setString (message m) {
-        serviceLevelStr = message:getStringPayload(m);
+        serviceLevelStr = messages:getStringPayload(m);
         http:convertToResponse(m);
         reply m;
     }
@@ -24,7 +24,7 @@ service echo {
     @http:Path ("/getString")
     resource getString (message m) {
         message response = {};
-        message:setStringPayload(response, serviceLevelStr);
+        messages:setStringPayload(response, serviceLevelStr);
         reply response;
     }
 }
