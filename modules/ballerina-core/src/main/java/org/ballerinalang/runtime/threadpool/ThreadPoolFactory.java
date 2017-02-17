@@ -30,7 +30,11 @@ public class ThreadPoolFactory {
 
     private static ThreadPoolFactory instance = new ThreadPoolFactory();
 
-    //TODO: Make this configurable
+    //TODO: Make the thread count configurable.
+    // Ideally number of threads need to be calculated and spawned intelligently
+    // based on the environment and runtime status (CPU Usage, memory, etc).
+    // A configuration parameter which is user configurable is also required.
+    // Issue#1929
     private ExecutorService executorService =  Executors.newFixedThreadPool(500);
 
     private ThreadPoolFactory(){};
