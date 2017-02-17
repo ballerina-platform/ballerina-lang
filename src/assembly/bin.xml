@@ -32,7 +32,7 @@
         </fileSet>
         <fileSet>
             <directory>
-                ${project.build.directory}/extracted-distributions/ballerina-editor-${ballerina.editor.distribution.version}
+                ${project.build.directory}/extracted-distributions/ballerina-composer-${ballerina.composer.distribution.version}
             </directory>
             <outputDirectory>.</outputDirectory>
         </fileSet>
