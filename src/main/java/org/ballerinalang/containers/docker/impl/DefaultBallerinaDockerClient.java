@@ -26,6 +26,7 @@ import io.fabric8.docker.client.DockerClientException;
 import io.fabric8.docker.dsl.EventListener;
 import io.fabric8.docker.dsl.OutputHandle;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.containers.Constants;
 import org.ballerinalang.containers.docker.BallerinaDockerClient;
@@ -142,13 +143,23 @@ public class DefaultBallerinaDockerClient implements BallerinaDockerClient {
                                           boolean isService, String imageName, String imageVersion)
             throws BallerinaDockerClientException, IOException, InterruptedException {
 
-        if (bPackagePaths == null) {
-            throw new BallerinaDockerClientException("Invalid Ballerina package");
+        if (bPackagePaths == null || bPackagePaths.size() == 0) {
+            throw new BallerinaDockerClientException("Invalid Ballerina package(s)");
         }
 
         for (Path bPackage : bPackagePaths) {
             if (!Files.exists(bPackage)) {
                 throw new BallerinaDockerClientException("Cannot find Ballerina Package file: " + bPackage.toString());
+            }
+
+            if (isService && !FilenameUtils.getExtension(bPackage.toString()).equalsIgnoreCase("bsz")) {
+                throw new BallerinaDockerClientException("Invalid Ballerina package archive. " +
+                        "Service packages should be of \"bsz\" type.");
+            }
+
+            if (!isService && !FilenameUtils.getExtension(bPackage.toString()).equalsIgnoreCase("bmz")) {
+                throw new BallerinaDockerClientException("Invalid Ballerina package archive. " +
+                        "Main packages should be of \"bmz\" type.");
             }
         }
 

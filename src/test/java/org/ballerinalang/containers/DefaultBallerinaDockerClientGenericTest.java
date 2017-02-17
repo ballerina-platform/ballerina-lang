@@ -27,6 +27,8 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -88,6 +90,38 @@ public class DefaultBallerinaDockerClientGenericTest {
         String imageName = "nonexistentimage2";
         String result = dockerClient.getImage(imageName, null);
         Assert.assertTrue(result == null, "Docker image find");
+    }
+
+    @Test(expectedExceptions = {BallerinaDockerClientException.class})
+    public void testFailedImageCreationNullPackageName()
+            throws IOException, InterruptedException, BallerinaDockerClientException {
+        List<Path> packagePaths = TestUtils.getTestServiceAsPathList();
+
+        dockerClient.createServiceImage(null, null, packagePaths, null, null);
+    }
+
+    @Test(expectedExceptions = {BallerinaDockerClientException.class})
+    public void testFailedImageCreationNullPackagePaths()
+            throws IOException, InterruptedException, BallerinaDockerClientException {
+        String serviceName = "TestService1";
+        dockerClient.createServiceImage(serviceName, null, new ArrayList<>(), null, null);
+    }
+
+    @Test(expectedExceptions = {BallerinaDockerClientException.class})
+    public void testFailedImageCreationNonExistentPackagePaths()
+            throws IOException, InterruptedException, BallerinaDockerClientException {
+        String serviceName = "TestService1";
+        List<Path> packagePaths = new ArrayList<>();
+        packagePaths.add(Paths.get("/non/existent/path/package.bsz"));
+        dockerClient.createServiceImage(serviceName, null, packagePaths, null, null);
+    }
+
+    @Test(expectedExceptions = {BallerinaDockerClientException.class})
+    public void testFailedImageCreationNullVersionWithImageName()
+            throws IOException, InterruptedException, BallerinaDockerClientException {
+        String serviceName = "TestService1";
+        List<Path> packagePaths = TestUtils.getTestServiceAsPathList();
+        dockerClient.createServiceImage(serviceName, null, packagePaths, "customImage", null);
     }
 
     //    @Test

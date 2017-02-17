@@ -60,10 +60,15 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
-                    <argLine>-Dfile.encoding=UTF-8</argLine>
+                    <forkCount>1</forkCount>
+                    <reuseForks>true</reuseForks>
+                    <argLine>${surefireArgLine}</argLine>
                     <suiteXmlFiles>
                         <suiteXmlFile>src/test/resources/testng.xml</suiteXmlFile>
                     </suiteXmlFiles>
+                    <systemPropertyVariables>
+                        <jacoco-agent.destfile>target/jacoco.exec</jacoco-agent.destfile>
+                    </systemPropertyVariables>
                 </configuration>
             </plugin>
             <plugin>
@@ -119,51 +124,41 @@
                 </configuration>
             </plugin>
             <plugin>
-                    <groupId>org.jacoco</groupId>
-                    <artifactId>jacoco-maven-plugin</artifactId>
-                    <version>${jacoco.version}</version>
-                    <executions>
-                        <execution>
-                            <id>default-instrument</id>
-                            <goals>
-                                <goal>instrument</goal>
-                            </goals>
-                        </execution>
-                        <execution>
-                            <id>default-restore-instrumented-classes</id>
-                            <goals>
-                                <goal>restore-instrumented-classes</goal>
-                            </goals>
-                        </execution>
-                        <execution>
-                            <id>default-report</id>
-                            <phase>prepare-package</phase>
-                            <goals>
-                                <goal>report</goal>
-                            </goals>
-                        </execution>
-                        <execution>
-                            <id>default-check</id>
-                            <goals>
-                                <goal>check</goal>
-                            </goals>
-                            <configuration>
-                                <rules>
-                                </rules>
-                            </configuration>
-                        </execution>
-                    </executions>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>${jacoco.version}</version>
+                <executions>
+                    <execution>
+                        <id>default-instrument</id>
+                        <goals>
+                            <goal>instrument</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>default-restore-instrumented-classes</id>
+                        <goals>
+                            <goal>restore-instrumented-classes</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>default-report</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>default-check</id>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                        <configuration>
+                            <rules>
+                            </rules>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
-            <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-surefire-plugin</artifactId>
-                    <version>${maven.surefire.plugin.version}</version>
-                    <configuration>
-                        <systemPropertyVariables>
-                            <jacoco-agent.destfile>target/jacoco.exec</jacoco-agent.destfile>
-                        </systemPropertyVariables>
-                    </configuration>
-                </plugin>
         </plugins>
     </build>
 
@@ -178,7 +173,6 @@
         <jcommander.version>1.60</jcommander.version>
         <ballerina.launcher.version>0.8.0-ALPHA</ballerina.launcher.version>
         <jacoco.version>0.7.5.201505241946</jacoco.version>
-	<maven.surefire.plugin.version>2.18.1</maven.surefire.plugin.version>
-
+        <surefireArgLine>-Dfile.encoding=UTF-8</surefireArgLine>
     </properties>
 </project>
