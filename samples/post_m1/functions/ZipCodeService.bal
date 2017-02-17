@@ -1,6 +1,6 @@
 package samples.functions;
 
-import ballerina.lang.message;
+import ballerina.lang.messages;
 
 
 // Importing the package with functions
@@ -23,12 +23,12 @@ service PassthroughService {
 
         if (isValid) {
             successMessage = `{"Successful" : "ValidZipCode"}`;
-            message:setJsonPayload(m, successMessage);
-            message:setHeader(response, "Status", string:valueOf(200));
+            messages:setJsonPayload(m, successMessage);
+            messages:setHeader(response, "Status", strings:valueOf(200));
         } else {
             failedMessage = `{"Failed" : "Invalid ZipCode"}`;
-            message:setJsonPayload(m, failedMessage);
-            message:setHeader(response, "Status", string:valueOf(500));
+            messages:setJsonPayload(m, failedMessage);
+            messages:setHeader(response, "Status", strings:valueOf(500));
         }
 
         reply m;

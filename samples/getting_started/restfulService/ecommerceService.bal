@@ -1,8 +1,8 @@
-import ballerina.lang.message;
+import ballerina.lang.messages;
 import ballerina.net.http;
 import ballerina.lang.system;
-import ballerina.lang.string;
-import ballerina.lang.json;
+import ballerina.lang.strings;
+import ballerina.lang.jsonutils;
 
 @http:BasePath ("/ecommerceservice")
 service Ecommerce {
@@ -71,21 +71,21 @@ service productmgt {
         // ToDo : Fix for non-existing products
 
         message response = {};
-        message:setJsonPayload(response, payload);
+        messages:setJsonPayload(response, payload);
         reply response;
     }
 
     @http:POST
     @http:Path ("/")
     resource product (message m) {
-        json jsonReq = message:getJsonPayload(m);
+        json jsonReq = messages:getJsonPayload(m);
 
-        string productId = json:getString(jsonReq, "$.Product.ID");
+        string productId = jsonutils:getString(jsonReq, "$.Product.ID");
         productsMap[productId] = jsonReq;
 
         json payload = `{"Status":"Product is successfully added."}`;
         message response = {};
-        message:setJsonPayload(response, payload);
+        messages:setJsonPayload(response, payload);
         reply response;
     }
 
@@ -116,14 +116,14 @@ service OrderMgtService {
 
         string httpMethod = http:getMethod(m);
 
-        if ( string:equalsIgnoreCase(httpMethod, "GET") ) {
+        if ( strings:equalsIgnoreCase(httpMethod, "GET") ) {
             payload = `{"Order": {"ID": "111999", "Name": "ABC123","Description": "Sample order."}}`;
         } else {
             payload = `{"Status":"Order is successfully added."}`;
         }
 
         message response = {};
-        message:setJsonPayload(response, payload);
+        messages:setJsonPayload(response, payload);
         reply response;
     }
 }
@@ -138,14 +138,14 @@ service CustomerMgtService {
 
         string httpMethod = http:getMethod(m);
 
-        if ( string:equalsIgnoreCase(httpMethod, "GET") ) {
+        if ( strings:equalsIgnoreCase(httpMethod, "GET") ) {
              payload = `{"Customer": {"ID": "987654", "Name": "ABC PQR","Description": "Sample Customer."}}`;
         } else {
             payload = `{"Status":"Customer is successfully added."}`;
         }
 
         message response = {};
-        message:setJsonPayload(response, payload);
+        messages:setJsonPayload(response, payload);
         reply response;
     }
 }

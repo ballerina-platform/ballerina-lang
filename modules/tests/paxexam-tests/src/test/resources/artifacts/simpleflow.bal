@@ -1,8 +1,8 @@
 package samples.message.passthrough;
 
-import ballerina.lang.message;
+import ballerina.lang.messages;
 import ballerina.lang.system;
-import ballerina.lang.string;
+import ballerina.lang.strings;
 import ballerina.net.http as http;
 
 
@@ -20,10 +20,10 @@ service PassthroughService {
             no1 = 20;
             no2 = 10;
             answer = no1 + no2;
-            answerStr = string:valueOf(answer);
+            answerStr = strings:valueOf(answer);
             payload = "Answer for 10 + 20 is " + answerStr;
             system:println("Set new string payload");
-            message:setStringPayload(m, payload);
+            messages:setStringPayload(m, payload);
             system:println(payload);
             http:convertToResponse(m);
             reply m;

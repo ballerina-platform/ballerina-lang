@@ -10,6 +10,6 @@ service HelloService {
   @POST
   @Path ("/tweet")
   resource tweet (message m) {
-      twitter:TwitterConnector.tweet(t, message:getPayload(m));
+      twitter:TwitterConnector.tweet(t, messages:getPayload(m));
   }
 }
