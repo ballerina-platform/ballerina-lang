@@ -41,12 +41,5 @@ define(['require','lodash', 'log', 'event_channel', './abstract-statement-source
         log.debug('End Visit Left Operand Expression');
     };
 
-    LeftOperandExpressionVisitor.prototype.visitExpression = function (expression) {
-        var expressionVisitorFactory = new ExpressionVisitorFactory();
-        var expressionVisitor = expressionVisitorFactory.getExpressionView({model:expression, parent:this});
-        expression.accept(expressionVisitor);
-        log.debug('Visit Expression');
-    };
-
     return LeftOperandExpressionVisitor;
 });
