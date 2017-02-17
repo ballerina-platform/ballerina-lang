@@ -21,7 +21,6 @@ import org.ballerinalang.containers.docker.BallerinaDockerClient;
 import org.ballerinalang.containers.docker.exception.BallerinaDockerClientException;
 import org.ballerinalang.containers.docker.impl.DefaultBallerinaDockerClient;
 import org.ballerinalang.containers.docker.utils.TestUtils;
-import org.ballerinalang.containers.docker.utils.Utils;
 import org.testng.Assert;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
@@ -29,7 +28,6 @@ import org.testng.annotations.Test;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -52,12 +50,13 @@ public class DefaultBallerinaDockerClientPackageBasedTest {
 
         String serviceName = "TestService1";
         String imageName = serviceName.toLowerCase();
-        Path ballerinaPackage = Paths.get(Utils.getResourceFile("ballerina/TestService.bal").getPath());
+        List<Path> packagePaths = TestUtils.getTestServiceAsPathList();
 
-        String result = dockerClient.createServiceImage(serviceName, null, ballerinaPackage, null, null);
+        String result = dockerClient.createServiceImage(serviceName, null, packagePaths, null, null);
         createdImages.add(imageName);
 
-        Assert.assertTrue((result != null) && (result.equals(imageName)), "Docker image creation failed.");
+        Assert.assertTrue((result != null) && (result.equals(imageName
+                + ":" + Constants.IMAGE_VERSION_LATEST)), "Docker image creation failed.");
     }
 
     @Test
@@ -66,12 +65,13 @@ public class DefaultBallerinaDockerClientPackageBasedTest {
 
         String serviceName = "TestFunction1";
         String imageName = serviceName.toLowerCase();
-        Path ballerinaPackage = Paths.get(Utils.getResourceFile("ballerina/TestFunction.bal").getPath());
+        List<Path> packagePaths = TestUtils.getTestFunctionAsPathList();
 
-        String result = dockerClient.createMainImage(serviceName, null, ballerinaPackage, null, null);
+        String result = dockerClient.createMainImage(serviceName, null, packagePaths, null, null);
         createdImages.add(imageName);
 
-        Assert.assertTrue((result != null) && (result.equals(imageName)), "Docker image creation failed.");
+        Assert.assertTrue((result != null) && (result.equals(imageName
+                + ":" + Constants.IMAGE_VERSION_LATEST)), "Docker image creation failed.");
     }
 
     @AfterMethod

@@ -27,8 +27,6 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -51,8 +49,7 @@ public class DefaultBallerinaDockerClientSingleFileTest {
 
         String serviceName = "TestService1";
         String imageName = serviceName.toLowerCase();
-        String ballerinaConfig = new String(Files.readAllBytes(Paths.get(Thread.currentThread().getContextClassLoader().
-                getResource("ballerina/TestService.bal").getPath())));
+        String ballerinaConfig = TestUtils.getTestServiceAsString();
 
         String result = dockerClient.createServiceImage(serviceName, null, ballerinaConfig, null, null);
         createdImages.add(imageName);
@@ -68,8 +65,7 @@ public class DefaultBallerinaDockerClientSingleFileTest {
 
         String serviceName = "TestFunction1";
         String imageName = serviceName.toLowerCase();
-        String ballerinaConfig = new String(Files.readAllBytes(Paths.get(Thread.currentThread().getContextClassLoader().
-                getResource("ballerina/TestFunction.bal").getPath())));
+        String ballerinaConfig = TestUtils.getTestFunctionAsString();
 
         String result = dockerClient.createMainImage(serviceName, null, ballerinaConfig, null, null);
         createdImages.add(imageName);

@@ -41,7 +41,6 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.CountDownLatch;
@@ -63,14 +62,14 @@ public class DefaultBallerinaDockerClient implements BallerinaDockerClient {
     private final CountDownLatch buildDone = new CountDownLatch(1);
     // Cannot depend on buildErrors because Fabric8 seems to be randomly adding "Failed:" errors even
     // when the build completed successfully.
-    private final List<String> buildErrors = new ArrayList<>();
+//    private final List<String> buildErrors = new ArrayList<>();
 
     @Override
-    public String createServiceImage(String packageName, String dockerEnv, Path bPackagePath,
+    public String createServiceImage(String packageName, String dockerEnv, List<Path> bPackagePaths,
                                      String imageName, String imageVersion)
             throws BallerinaDockerClientException, IOException, InterruptedException {
 
-        return createImageFromPackage(packageName, dockerEnv, bPackagePath, true, imageName, imageVersion);
+        return createImageFromPackage(packageName, dockerEnv, bPackagePaths, true, imageName, imageVersion);
     }
 
     @Override
@@ -83,11 +82,11 @@ public class DefaultBallerinaDockerClient implements BallerinaDockerClient {
     }
 
     @Override
-    public String createMainImage(String packageName, String dockerEnv, Path bPackagePath,
+    public String createMainImage(String packageName, String dockerEnv, List<Path> bPackagePaths,
                                   String imageName, String imageVersion)
             throws BallerinaDockerClientException, IOException, InterruptedException {
 
-        return createImageFromPackage(packageName, dockerEnv, bPackagePath, false, imageName, imageVersion);
+        return createImageFromPackage(packageName, dockerEnv, bPackagePaths, false, imageName, imageVersion);
     }
 
     @Override
@@ -139,16 +138,18 @@ public class DefaultBallerinaDockerClient implements BallerinaDockerClient {
         return null;
     }
 
-    private String createImageFromPackage(String packageName, String dockerEnv, Path bPackagePath, boolean isService,
-                                          String imageName, String imageVersion)
+    private String createImageFromPackage(String packageName, String dockerEnv, List<Path> bPackagePaths,
+                                          boolean isService, String imageName, String imageVersion)
             throws BallerinaDockerClientException, IOException, InterruptedException {
 
-        if (bPackagePath == null) {
+        if (bPackagePaths == null) {
             throw new BallerinaDockerClientException("Invalid Ballerina package");
         }
 
-        if (!Files.exists(bPackagePath)) {
-            throw new BallerinaDockerClientException("Cannot find Ballerina Package file: " + bPackagePath.toString());
+        for (Path bPackage : bPackagePaths) {
+            if (!Files.exists(bPackage)) {
+                throw new BallerinaDockerClientException("Cannot find Ballerina Package file: " + bPackage.toString());
+            }
         }
 
         imageName = getImageName(packageName, imageName, imageVersion);
@@ -156,12 +157,14 @@ public class DefaultBallerinaDockerClient implements BallerinaDockerClient {
         // 1. Create a tmp docker context
         Path tmpDir = prepTempDockerfileContext();
 
-        // 2. Copy Ballerina package
-        Files.copy(
-                bPackagePath,
-                Paths.get(tmpDir.toString() + File.separator + PATH_FILES + File.separator
-                        + bPackagePath.toFile().getName()),
-                StandardCopyOption.REPLACE_EXISTING);
+        // 2. Copy Ballerina packages
+        for (Path bPackage : bPackagePaths) {
+            Files.copy(
+                    bPackage,
+                    Paths.get(tmpDir.toString() + File.separator + PATH_FILES + File.separator
+                            + bPackage.toFile().getName()),
+                    StandardCopyOption.REPLACE_EXISTING);
+        }
 
         // 3. Create a docker image from the temp context
         String buildArgs = "{\"" + ENV_SVC_MODE + "\":\"" + String.valueOf(isService) + "\"}";
@@ -280,7 +283,7 @@ public class DefaultBallerinaDockerClient implements BallerinaDockerClient {
                 .alwaysRemovingIntermediate()
                 .withBuildArgs(buildArgs)
                 .usingListener(new DockerBuilderEventListener())
-                .writingOutput(System.out)
+                .writingOutput(System.out) // TODO: remove before release
                 .fromFolder(tmpDir.toString());
 
         buildDone.await();
@@ -299,7 +302,7 @@ public class DefaultBallerinaDockerClient implements BallerinaDockerClient {
 
         @Override
         public void onError(String errorEvent) {
-            buildErrors.add(errorEvent);
+//            buildErrors.add(errorEvent);
             buildDone.countDown();
         }
 

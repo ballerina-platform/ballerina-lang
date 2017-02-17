@@ -27,8 +27,6 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -49,8 +47,7 @@ public class DefaultBallerinaDockerClientGenericTest {
     public void testSuccessfulDeleteImage() throws IOException, InterruptedException, BallerinaDockerClientException {
         String serviceName = "TestFunction2";
         String imageName = serviceName.toLowerCase();
-        String ballerinaConfig = new String(Files.readAllBytes(Paths.get(Thread.currentThread().getContextClassLoader().
-                getResource("ballerina/TestFunction.bal").getPath())));
+        String ballerinaConfig = TestUtils.getTestFunctionAsString();
 
         String result = dockerClient.createMainImage(serviceName, null, ballerinaConfig, null, null);
         Assert.assertTrue(
@@ -65,8 +62,7 @@ public class DefaultBallerinaDockerClientGenericTest {
     public void testSuccessfulImageExists() throws IOException, InterruptedException, BallerinaDockerClientException {
         String serviceName = "TestFunction3";
         String imageName = serviceName.toLowerCase();
-        String ballerinaConfig = new String(Files.readAllBytes(Paths.get(Thread.currentThread().getContextClassLoader().
-                getResource("ballerina/TestFunction.bal").getPath())));
+        String ballerinaConfig = TestUtils.getTestFunctionAsString();
 
         String result = dockerClient.createMainImage(serviceName, null, ballerinaConfig, null, null);
         Assert.assertTrue(
