@@ -22,16 +22,18 @@ package org.wso2.ballerina.tooling.service.workspace.rest.datamodel;
 import com.google.gson.JsonObject;
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
+import org.apache.commons.lang3.StringUtils;
+import org.ballerinalang.composer.service.workspace.rest.datamodel.BLangJSONModelBuilder;
 import org.ballerinalang.composer.service.workspace.rest.datamodel.BallerinaEditorParserErrorStrategy;
-import org.wso2.ballerina.core.model.BLangPackage;
-import org.wso2.ballerina.core.model.BallerinaFile;
-import org.wso2.ballerina.core.model.GlobalScope;
-import org.wso2.ballerina.core.model.builder.BLangModelBuilder;
-import org.wso2.ballerina.core.model.types.BTypes;
-import org.wso2.ballerina.core.parser.BallerinaLexer;
-import org.wso2.ballerina.core.parser.BallerinaParser;
-import org.wso2.ballerina.core.parser.antlr4.BLangAntlr4Listener;
-import org.wso2.ballerina.core.runtime.internal.BuiltInNativeConstructLoader;
+import org.ballerinalang.model.BLangPackage;
+import org.ballerinalang.model.BallerinaFile;
+import org.ballerinalang.model.GlobalScope;
+import org.ballerinalang.model.builder.BLangModelBuilder;
+import org.ballerinalang.model.types.BTypes;
+import org.ballerinalang.util.parser.BallerinaLexer;
+import org.ballerinalang.util.parser.BallerinaParser;
+import org.ballerinalang.util.parser.antlr4.BLangAntlr4Listener;
+import org.ballerinalang.natives.BuiltInNativeConstructLoader;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -56,7 +58,9 @@ public class BallerinaEditorParserErrorStrategyTest {
             BTypes.loadBuiltInTypes(globalScope);
             BLangPackage bLangPackage = new BLangPackage(globalScope);
 
-            BLangModelBuilder bLangModelBuilder = new BLangModelBuilder(bLangPackage);
+            BLangPackage.PackageBuilder packageBuilder = new BLangPackage.PackageBuilder(bLangPackage);
+            BLangModelBuilder bLangModelBuilder = new BLangModelBuilder(packageBuilder, StringUtils.EMPTY);
+
             BLangAntlr4Listener ballerinaBaseListener = new BLangAntlr4Listener(bLangModelBuilder);
             ballerinaParser.addParseListener(ballerinaBaseListener);
             ballerinaParser.compilationUnit();

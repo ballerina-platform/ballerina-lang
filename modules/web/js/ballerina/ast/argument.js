@@ -22,8 +22,9 @@ define(['lodash', 'log', './node'], function (_, log, ASTNode) {
      * @param {Object} [args] - The arguments to create the Argument.
      * @param {string} [args.type=undefined] - Type of the argument.
      * @param {string} [args.identifier=undefined] - Identifier of the argument.
+     * @class Argument
      * @constructor
-     * @augments ASTNode
+     * @extends ASTNode
      */
     var Argument = function (args) {
         ASTNode.call(this, "Argument");
@@ -87,6 +88,10 @@ define(['lodash', 'log', './node'], function (_, log, ASTNode) {
     Argument.prototype.initFromJson = function (jsonNode) {
         this.setType(jsonNode.parameter_type, {doSilently: true});
         this.setIdentifier(jsonNode.parameter_name, {doSilently: true});
+    };
+
+    Argument.prototype.toString = function () {
+        return this.getArgumentAsString();
     };
 
     return Argument;
