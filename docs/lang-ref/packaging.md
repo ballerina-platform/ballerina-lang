@@ -102,7 +102,7 @@ A Ballerina service archive containing one or more services is named with the ex
 ballerina build service <pkg1> [<pkg2> <pkg3> ...] [-o filename]
 ```
 
-If you want to build an archive and run it in a Docker image, you can use the following command:
+After you have built an archive, if you want to run it in a Docker image, you can use the following command:
 
 ```
 ballerina docker <package-file-path> --tag | -t <image-name> --host | -h <hostURL>
