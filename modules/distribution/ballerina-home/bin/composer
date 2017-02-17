@@ -19,7 +19,7 @@
 #
 # Environment Variable Prerequisites
 #
-#   BAL_COMPOSER_HOME   Home of WSO2 Carbon installation. If not set I will  try
+#   BAL_COMPOSER_HOME   Home of Ballerina composer installation. If not set I will  try
 #                   to figure it out.
 #
 #   JAVA_HOME       Must point at your Java Development Kit installation.
@@ -195,6 +195,7 @@ status=$START_EXIT_STATUS
     -Djava.io.tmpdir="$BAL_COMPOSER_HOME/tmp" \
     -Djava.command="$JAVACMD" \
     -Dballerina.home="$BALLERINA_HOME" \
+    -Dbal.composer.home="$BAL_COMPOSER_HOME" \
     -Djava.security.egd=file:/dev/./urandom \
     -Dfile.encoding=UTF8 \
     -Dcomposer.port=9091 \

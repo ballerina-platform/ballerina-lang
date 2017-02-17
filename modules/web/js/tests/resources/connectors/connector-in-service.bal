@@ -1,7 +1,7 @@
 package samples.connectors.test;
 
-import ballerina.lang.message;
-import ballerina.lang.string;
+import ballerina.lang.messages;
+import ballerina.lang.strings;
 
 const string myConst = "MyParam1";
 
@@ -63,7 +63,7 @@ service actionInvokeService {
 
         actionResponse = TestConnector.action3(testConnector);
         message response = {};
-        message:setStringPayload(response, actionResponse);
+        messages:setStringPayload(response, actionResponse);
         reply response;
     }
 
@@ -76,7 +76,7 @@ service actionInvokeService {
 
         actionResponse = TestConnector.action1(testConnector);
         message response = {};
-        message:setStringPayload(response, string:valueOf(actionResponse));
+        messages:setStringPayload(response, strings:valueOf(actionResponse));
         reply response;
     }
 
@@ -97,7 +97,7 @@ service actionInvokeService {
 
         actionResponse = TestConnector.action5(testConnector, myConst);
         message response = {};
-        message:setStringPayload(response, actionResponse);
+        messages:setStringPayload(response, actionResponse);
         reply response;
     }
 
@@ -109,7 +109,7 @@ service actionInvokeService {
 
         actionResponse = TestConnector.action6(testConnector, "Hello", "World");
         message response = {};
-        message:setStringPayload(response, actionResponse);
+        messages:setStringPayload(response, actionResponse);
         reply response;
     }
 }
