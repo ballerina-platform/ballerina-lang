@@ -33,7 +33,7 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
         './binary-expression', './unary-expression','./connector-action', './struct-definition', './constant-definition',
         './variable-definition-statement','./type-casting-expression', './worker-invoke',
         './reference-type-init-expression', './array-init-expression', './worker-receive','./struct-type','./struct-field-access-expression',
-        './block-statement','./type-cast-expression','./variable-definition', './break-statement'],
+        './block-statement','./type-cast-expression','./variable-definition', './break-statement', './throw-statement'],
     function (_, ballerinaAstRoot, serviceDefinition, functionDefinition, connectorDefinition, resourceDefinition,
               workerDeclaration, statement, conditionalStatement, connectorDeclaration, expression, ifElseStatement,
               ifStatement, elseStatement, elseIfStatement, tryCatchStatement, tryStatement, catchStatement, replyStatement,
@@ -45,7 +45,8 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
               thenBody, ifCondition, arrayMapAccessExpression, keyValueExpression, binaryExpression,
               unaryExpression, connectorAction, structDefinition, constantDefinition, variableDefinitionStatement,
               typeCastingExpression, workerInvoke, referenceTypeInitExpression, arrayInitExpression, workerReceive,structType,
-              structFieldAccessExpression,blockStatement,typeCastExpression,variableDefinition, breakStatement) {
+              structFieldAccessExpression,blockStatement,typeCastExpression,variableDefinition, breakStatement, throwStatement) {
+
 
 
         /**
@@ -633,6 +634,15 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
         };
 
         /**
+         * creates ThrowStatement
+         * @param {Object} args - Arguments for creating a new throw statement.
+         * @returns {ThrowStatement}
+         */
+        BallerinaASTFactory.createThrowStatement = function (args) {
+          return new throwStatement(args);
+        };
+
+        /**
          * instanceof check for BallerinaAstRoot
          * @param {Object} child
          * @returns {boolean}
@@ -1137,6 +1147,15 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
             return child instanceof variableDefinitionStatement;
         };
 
+        /**
+         * instanceof check for throwStatement
+         * @param {ASTNode} child - The ast node
+         * @returns {boolean} - true if same type, else false
+         */
+        BallerinaASTFactory.isThrowStatement = function (child) {
+            return child instanceof throwStatement;
+        };
+
         BallerinaASTFactory.createFromJson = function (jsonNode) {
             var node;
             var nodeType = jsonNode.type;
@@ -1325,6 +1344,15 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
                         break;
                     case 'worker_reply_statement':
                         node = BallerinaASTFactory.createWorkerReceiveStatement();
+                        break;
+                    case 'try_catch_statement':
+                        node = BallerinaASTFactory.createTryCatchStatement();
+                        break;
+                    case 'try_block':
+                        node = BallerinaASTFactory.createTryStatement();
+                        break;
+                    case 'catch_block':
+                        node = BallerinaASTFactory.createCatchStatement();
                         break;
                     default:
                         throw "Unknown node definition for " + jsonNode.type;
