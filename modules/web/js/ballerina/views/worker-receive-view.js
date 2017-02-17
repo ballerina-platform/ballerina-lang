@@ -293,26 +293,37 @@ define(['lodash', 'd3','log', './simple-statement-view', './../ast/action-invoca
             WorkerReceive.prototype.onTopEdgeMovedTrigger = function (dy) {
                 var self = this;
 
-                if (dy > 0) {
-                    // Moving the statement down
-                    self._messageView.move(0, dy);
+                if (_.isNil(self._messageView)) {
+                    // We haven't drawn an arrow yet.
                     self.getSvgRect().attr('y', parseFloat(self.getSvgRect().attr('y')) + dy);
                     self.getSvgText().attr('y', parseFloat(self.getSvgText().attr('y')) + dy);
-                    self._destinationReplyStatementView.onMoveInitiatedByReplyReceiver(dy);
-                } else if (dy < 0) {
-                    // Moving the statement up
-                    self.stopListening(self.getBoundingBox(), 'top-edge-moved');
-                    if (self._destinationReplyStatementView.canMoveUp(dy)) {
-                        self._messageView.move(0, dy);
+                } else {
+                    // There is already drawn arrow between the receiver and the reply statement
+                    if (dy > 0) {
+                        // Moving the statement down
+                        if (!_.isNil(self._messageView)) {
+                            self._messageView.move(0, dy);
+                        } else {
+                            debugger;
+                        }
                         self.getSvgRect().attr('y', parseFloat(self.getSvgRect().attr('y')) + dy);
                         self.getSvgText().attr('y', parseFloat(self.getSvgText().attr('y')) + dy);
                         self._destinationReplyStatementView.onMoveInitiatedByReplyReceiver(dy);
-                    } else {
-                        self.getBoundingBox().move(0, -dy);
+                    } else if (dy < 0) {
+                        // Moving the statement up
+                        self.stopListening(self.getBoundingBox(), 'top-edge-moved');
+                        if (self._destinationReplyStatementView.canMoveUp(dy)) {
+                            self._messageView.move(0, dy);
+                            self.getSvgRect().attr('y', parseFloat(self.getSvgRect().attr('y')) + dy);
+                            self.getSvgText().attr('y', parseFloat(self.getSvgText().attr('y')) + dy);
+                            self._destinationReplyStatementView.onMoveInitiatedByReplyReceiver(dy);
+                        } else {
+                            self.getBoundingBox().move(0, -dy);
+                        }
+                        self.listenTo(self.getBoundingBox(), 'top-edge-moved', function (dy) {
+                            self.onTopEdgeMovedTrigger(dy);
+                        });
                     }
-                    self.listenTo(self.getBoundingBox(), 'top-edge-moved', function (dy) {
-                        self.onTopEdgeMovedTrigger(dy);
-                    });
                 }
             };
 
