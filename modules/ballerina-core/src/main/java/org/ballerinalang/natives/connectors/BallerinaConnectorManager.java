@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.ServiceLoader;
+import java.util.stream.Collectors;
 
 /**
  * {@code BallerinaConnectorManager} is responsible for managing all the server connectors with ballerina runtime.
@@ -166,10 +167,14 @@ public class BallerinaConnectorManager {
      *
      * @throws ServerConnectorException if exception occurs while starting at least one connector
      */
-    public void startPendingConnectors() throws ServerConnectorException {
+    public List<ServerConnector> startPendingConnectors() throws ServerConnectorException {
         for (StartupDelayedServerConnectorHolder connectorHolder: startupDelayedServerConnectors) {
             connectorHolder.getServerConnector().start(connectorHolder.getParameters());
         }
+        return startupDelayedServerConnectors
+                .stream()
+                .map(StartupDelayedServerConnectorHolder::getServerConnector)
+                .collect(Collectors.toList());
     }
 
     private void loadDispatchers() {
