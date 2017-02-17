@@ -41,9 +41,9 @@
             <type>zip</type>
         </dependency>
         <dependency>
-            <groupId>org.wso2.ballerina.editor</groupId>
-            <artifactId>ballerina-editor-distribution</artifactId>
-            <version>${ballerina.editor.distribution.version}</version>
+            <groupId>org.ballerinalang.composer</groupId>
+            <artifactId>ballerina-composer-distribution</artifactId>
+            <version>${ballerina.composer.distribution.version}</version>
             <type>zip</type>
         </dependency>
         <dependency>
@@ -84,7 +84,7 @@
                         </goals>
                         <configuration>
                             <includeArtifactIds>
-                                ballerina-distribution,ballerina-editor-distribution
+                                ballerina-distribution,ballerina-composer-distribution
                             </includeArtifactIds>
                             <outputDirectory>${project.build.directory}/extracted-distributions</outputDirectory>
                             <overWriteReleases>false</overWriteReleases>
@@ -134,7 +134,7 @@
 
     <properties>
         <ballerina.distribution.version>0.8.0-SNAPSHOT</ballerina.distribution.version>
-        <ballerina.editor.distribution.version>0.8.0-SNAPSHOT</ballerina.editor.distribution.version>
+        <ballerina.composer.distribution.version>0.8-SNAPSHOT</ballerina.composer.distribution.version>
         <testerina.version>0.8.0-SNAPSHOT</testerina.version>
         <tool.swagger.version>0.8.0-SNAPSHOT</tool.swagger.version>
         <swagger.code.generator.version>0.8-SNAPSHOT</swagger.code.generator.version>
