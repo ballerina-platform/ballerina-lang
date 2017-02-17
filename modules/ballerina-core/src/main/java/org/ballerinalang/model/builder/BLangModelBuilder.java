@@ -462,7 +462,7 @@ public class BLangModelBuilder {
      * <p/>
      * There are three types of variables references as per the grammar file.
      * 1) Simple variable references. a, b, index etc
-     * 2) Map or array access a[1], m["key"]
+     * 2) Map or arrays access a[1], m["key"]
      * 3) Struct field access  Person.name
      */
     public void createVarRefExpr(NodeLocation location, String varName) {
@@ -682,7 +682,7 @@ public class BLangModelBuilder {
     }
 
     public void createMapStructInitKeyValue(NodeLocation location) {
-        // TODO Validate key/value expressions. e.g. key can't be an array init expression.
+        // TODO Validate key/value expressions. e.g. key can't be an arrays init expression.
         Expression valueExpr = exprStack.pop();
         Expression keyExpr = exprStack.pop();
 

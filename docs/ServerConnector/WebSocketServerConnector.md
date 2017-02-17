@@ -70,7 +70,7 @@ When client connection is closed due to some reason this resource will be called
 
 ####Example
 ```ballerina
-import ballerina.lang.message;
+import ballerina.lang.messages;
 
 @http:BasePath ("/test")
 @ws:WebSocketUpgradePath("/websocket")

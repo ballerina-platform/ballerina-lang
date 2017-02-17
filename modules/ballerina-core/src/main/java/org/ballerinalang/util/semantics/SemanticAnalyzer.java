@@ -353,7 +353,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             BlockStmt blockStmt = function.getCallableUnitBody();
             blockStmt.accept(this);
         }
-        // Here we need to calculate size of the BValue array which will be created in the stack frame
+        // Here we need to calculate size of the BValue arrays which will be created in the stack frame
         // Values in the stack frame are stored in the following order.
         // -- Parameter values --
         // -- Local var values --
@@ -406,7 +406,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             currentScope = blockStmt.getEnclosingScope();
         }
 
-        // Here we need to calculate size of the BValue array which will be created in the stack frame
+        // Here we need to calculate size of the BValue arrays which will be created in the stack frame
         // Values in the stack frame are stored in the following order.
         // -- Parameter values --
         // -- Local var values --
@@ -460,7 +460,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             blockStmt.accept(this);
         }
 
-        // Here we need to calculate size of the BValue array which will be created in the stack frame
+        // Here we need to calculate size of the BValue arrays which will be created in the stack frame
         // Values in the stack frame are stored in the following order.
         // -- Parameter values --
         // -- Local var values --
@@ -506,7 +506,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         BlockStmt blockStmt = worker.getCallableUnitBody();
         blockStmt.accept(this);
 
-        // Here we need to calculate size of the BValue array which will be created in the stack frame
+        // Here we need to calculate size of the BValue arrays which will be created in the stack frame
         // Values in the stack frame are stored in the following order.
         // -- Parameter values --
         // -- Local var values --
@@ -1357,7 +1357,7 @@ public class SemanticAnalyzer implements NodeVisitor {
 
     @Override
     public void visit(ArrayMapAccessExpr arrayMapAccessExpr) {
-        // Here we assume that rExpr of array access expression is always a variable reference expression.
+        // Here we assume that rExpr of arrays access expression is always a variable reference expression.
         // This according to the grammar
         VariableRefExpr arrayMapVarRefExpr = (VariableRefExpr) arrayMapAccessExpr.getRExpr();
         arrayMapVarRefExpr.accept(this);
@@ -1682,7 +1682,7 @@ public class SemanticAnalyzer implements NodeVisitor {
     private void handleArrayType(ArrayMapAccessExpr arrayMapAccessExpr) {
         VariableRefExpr arrayMapVarRefExpr = (VariableRefExpr) arrayMapAccessExpr.getRExpr();
 
-        // Handle the array type
+        // Handle the arrays type
         if (arrayMapVarRefExpr.getType() instanceof BArrayType) {
 
             // Check the type of the index expression
@@ -1693,7 +1693,7 @@ public class SemanticAnalyzer implements NodeVisitor {
                         indexExpr.getType());
             }
 
-            // Set type of the array access expression
+            // Set type of the arrays access expression
             BType typeOfArray = ((BArrayType) arrayMapVarRefExpr.getType()).getElementType();
             arrayMapAccessExpr.setType(typeOfArray);
 
@@ -2028,9 +2028,9 @@ public class SemanticAnalyzer implements NodeVisitor {
         
 
         /* Get the actual var representation of this field, and semantically analyze. This will check for semantic
-         * errors of array/map accesses, used in this struct field.
+         * errors of arrays/map accesses, used in this struct field.
          * eg: in dpt.employee[2].name , below will check for semantics of 'employee[2]',
-         * treating them as individual array/map variables.
+         * treating them as individual arrays/map variables.
          */
         if (varRefExpr instanceof ArrayMapAccessExpr) {
             Expression rExpr = ((ArrayMapAccessExpr) varRefExpr).getRExpr();

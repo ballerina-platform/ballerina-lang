@@ -39,9 +39,9 @@ public interface CallableUnitInvocationExpr<T extends CallableUnit> extends Exec
     String getPackagePath();
 
     /**
-     * Returns an array of arguments of this callable unit invocation expression.
+     * Returns an arrays of arguments of this callable unit invocation expression.
      *
-     * @return the array of arguments
+     * @return the arrays of arguments
      */
     Expression[] getArgExprs();
 
@@ -60,16 +60,16 @@ public interface CallableUnitInvocationExpr<T extends CallableUnit> extends Exec
     void setCallableUnit(T callableUnit);
 
     /**
-     * Returns an array of argument types of this callable unit invocation expression.
+     * Returns an arrays of argument types of this callable unit invocation expression.
      *
-     * @return an array of argument types
+     * @return an arrays of argument types
      */
     BType[] getTypes();
 
     /**
-     * Sets an array of argument types.
+     * Sets an arrays of argument types.
      *
-     * @param types array of argument types
+     * @param types arrays of argument types
      */
     void setTypes(BType[] types);
 

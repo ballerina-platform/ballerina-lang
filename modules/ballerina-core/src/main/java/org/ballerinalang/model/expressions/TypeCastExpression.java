@@ -127,9 +127,9 @@ public class TypeCastExpression extends AbstractExpression implements CallableUn
     }
 
     /**
-     * Returns an array of arguments of this callable unit invocation expression
+     * Returns an arrays of arguments of this callable unit invocation expression
      *
-     * @return the array of arguments
+     * @return the arrays of arguments
      */
     @Override
     public Expression[] getArgExprs() {
@@ -159,9 +159,9 @@ public class TypeCastExpression extends AbstractExpression implements CallableUn
     }
 
     /**
-     * Returns an array of argument types of this callable unit invocation expression
+     * Returns an arrays of argument types of this callable unit invocation expression
      *
-     * @return an array of argument types
+     * @return an arrays of argument types
      */
     @Override
     public BType[] getTypes() {
@@ -169,9 +169,9 @@ public class TypeCastExpression extends AbstractExpression implements CallableUn
     }
 
     /**
-     * Sets an array of argument types
+     * Sets an arrays of argument types
      *
-     * @param types array of argument types
+     * @param types arrays of argument types
      */
     @Override
     public void setTypes(BType[] types) {

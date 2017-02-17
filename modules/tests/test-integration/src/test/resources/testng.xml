@@ -24,10 +24,10 @@
 
     <test name="ballerina-sample-tests" preserve-order="true" parallel="false">
         <packages>
-            <package name="org.wso2.ballerina.test.service.http.sample"/>
-            <package name="org.wso2.ballerina.test.service.http2.sample"/>
-            <package name="org.wso2.ballerina.test.service.jms.sample" />
-            <package name="org.wso2.ballerina.test.service.file.sample" />
+            <package name="org.ballerinalang.test.service.http.sample"/>
+            <package name="org.ballerinalang.test.service.http2.sample"/>
+            <package name="org.ballerinalang.test.service.jms.sample" />
+            <package name="org.ballerinalang.test.service.file.sample" />
         </packages>
     </test>
 </suite>

@@ -23,7 +23,7 @@ import org.ballerinalang.model.NodeVisitor;
 import org.ballerinalang.model.values.BValue;
 
 /**
- * {@code ArrayInitExpr} represents an array initializer expression.
+ * {@code ArrayInitExpr} represents an arrays initializer expression.
  * <p>
  * e.g.  int[] a;
  * a = [1, 2, 3, 4, 5, 6, 7, 8, 9]

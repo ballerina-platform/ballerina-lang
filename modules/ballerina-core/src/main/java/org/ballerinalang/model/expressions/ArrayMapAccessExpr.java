@@ -24,7 +24,7 @@ import org.ballerinalang.model.SymbolName;
 import org.ballerinalang.model.values.BValue;
 
 /**
- * {@code ArrayMapAccessExpr} represents an array access operation.
+ * {@code ArrayMapAccessExpr} represents an arrays access operation.
  * <p>
  * e.g. x[0] = 5;
  * y = x[0]
@@ -82,7 +82,7 @@ public class ArrayMapAccessExpr extends UnaryExpression implements ReferenceExpr
     }
 
     /**
-     * {@code ArrayMapAccessExprBuilder} represents an array access expression builder.
+     * {@code ArrayMapAccessExprBuilder} represents an arrays access expression builder.
      *
      * @since 0.8.0
      */

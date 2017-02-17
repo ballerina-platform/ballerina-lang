@@ -69,9 +69,9 @@ public class WorkerInvocationStmt extends AbstractStatement implements CallableU
     }
 
     /**
-     * Returns an array of arguments of this callable unit invocation expression.
+     * Returns an arrays of arguments of this callable unit invocation expression.
      *
-     * @return the array of arguments
+     * @return the arrays of arguments
      */
     @Override
     public Expression[] getArgExprs() {

@@ -79,7 +79,7 @@ public class Service implements CompilationUnit, SymbolScope, BLangSymbol {
     /**
      * Get all the Resources associated to a Service.
      *
-     * @return array of Resources belongs to a Service
+     * @return arrays of Resources belongs to a Service
      */
     public Resource[] getResources() {
         return resources;

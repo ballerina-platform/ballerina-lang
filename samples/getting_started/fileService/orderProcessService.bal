@@ -1,4 +1,4 @@
-import ballerina.lang.message;
+import ballerina.lang.messages;
 import ballerina.lang.system;
 import ballerina.net.file;
 
@@ -10,7 +10,7 @@ pollingInterval = "1000"
 service orderProcessService {
 
     resource processOrder(message m) {
-        system:println(message:getStringPayload(m));
+        system:println(messages:getStringPayload(m));
         file:acknowledge(m);
     }
 }

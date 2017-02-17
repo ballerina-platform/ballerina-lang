@@ -1,6 +1,6 @@
 package samples.message.passthrough;
 
-import ballerina.lang.message;
+import ballerina.lang.messages;
 import ballerina.net.http as http;
 
 

@@ -92,9 +92,9 @@ service jmsService {
 
 ##Ballerina Native Functions
 
-####Package ballerina.lang.message
+####Package ballerina.lang.messages
 
-**message:getHeader**  
+**messages:getHeader**
 
 This function can be used to get the value of the particular jms header.
 This function accepts following two parameters.    
@@ -104,25 +104,25 @@ This function accepts following two parameters.
 Example :
  
 ```
-import ballerina.lang.message
+import ballerina.lang.messages
 ---
 string jmsMessageId;
-jmsMessageId = message:getHeader(m, "JMS_MESSAGE_ID");
+jmsMessageId = messages:getHeader(m, "JMS_MESSAGE_ID");
 ```
 
-**message:getStringPayload**
+**messages:getStringPayload**
 
 This function can be used to get the string payload of the jms text message or bytes message. This function accepts relevant ballerina message as the parameter. It will return the relevant string payload of the relevant message
 
 Example :
 ```
-import ballerina.lang.message
+import ballerina.lang.messages
 ---
 string stringPayload;
-stringPayload = message:getStringPayload(m);
+stringPayload = messages:getStringPayload(m);
 ```
 
-**message:getStringValue**
+**messages:getStringValue**
 
 This function can be used to get the string value of specific map key in a map type message. This function accepts following two parameters.
 1. Relevant ballerina message to get the string value from
@@ -131,10 +131,10 @@ This function can be used to get the string value of specific map key in a map t
 Example : 
 
 ```
-import ballerina.lang.message
+import ballerina.lang.messages
 ---
 string stringValue;
-stringValue = message:getStringValue(m, “count”);
+stringValue = messages:getStringValue(m, “count”);
 ```
 
 ####Package ballerina.net.jms

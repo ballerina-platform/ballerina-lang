@@ -23,15 +23,15 @@ import java.lang.reflect.Array;
 import java.util.Arrays;
 
 /**
- * {@code BArray} represents an array in Ballerina.
+ * {@code BArray} represents an arrays in Ballerina.
  *
- * @param <V> Ballerina value stored in this array value
+ * @param <V> Ballerina value stored in this arrays value
  * @since 0.8.0
  */
 public final class BArray<V extends BValue> implements BRefType {
 
     /**
-     * The maximum size of array to allocate.
+     * The maximum size of arrays to allocate.
      * <p>
      * This is same as Java
      */
@@ -101,7 +101,7 @@ public final class BArray<V extends BValue> implements BRefType {
 
     private void rangeCheck(int index) {
         if (index >= size) {
-            throw new BallerinaException("array index out of range: " + outOfBoundsMsg(index));
+            throw new BallerinaException("arrays index out of range: " + outOfBoundsMsg(index));
         }
     }
 
@@ -119,7 +119,7 @@ public final class BArray<V extends BValue> implements BRefType {
 
     private void grow(int capacityRequired, int bucketIndex) {
         if (capacityRequired > MAX_ARRAY_SIZE) {
-            throw new BallerinaException("Requested array size " + capacityRequired +
+            throw new BallerinaException("Requested arrays size " + capacityRequired +
                     " exceeds limit: " + MAX_ARRAY_SIZE);
         }
 

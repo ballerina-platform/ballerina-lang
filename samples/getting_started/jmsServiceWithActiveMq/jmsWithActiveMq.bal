@@ -1,5 +1,5 @@
 import ballerina.net.jms;
-import ballerina.lang.message;
+import ballerina.lang.messages;
 import ballerina.lang.system;
 
 @Source (
@@ -13,7 +13,7 @@ service jmsWSO2ActiveMqQueueService {
         map dataMap = {};
         messageType = jms:getMessageType(m);
     	system:println(messageType);
-        system:println(message:getStringValue(m, "queue message count"));
+        system:println(messages:getStringValue(m, "queue message count"));
         jms:ClientConnector jmsEP = create jms:ClientConnector("org.apache.activemq.jndi.ActiveMQInitialContextFactory", "tcp://localhost:61616");
         jms:ClientConnector.send(jmsEP, "TopicConnectionFactory", "ballerinatopic", "topic", messageType, m, dataMap);
     }
@@ -27,6 +27,6 @@ connectionFactoryType = "topic")
 service jmsWSO2ActiveMqTopicService {
 
     resource onMessage (message m) {
-        system:println("Received map message : " + message:getStringValue(m, "queue message count"));
+        system:println("Received map message : " + messages:getStringValue(m, "queue message count"));
     }
 }

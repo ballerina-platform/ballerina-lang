@@ -38,7 +38,7 @@ import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.DefaultCarbonMessage;
 
 /**
- * Test cases for ballerina.model.array.
+ * Test cases for ballerina.model.arrays.
  */
 public class ArrayTest {
 
@@ -168,7 +168,7 @@ public class ArrayTest {
         BValue[] returnVals = BLangFunctions.invoke(bLangProgram, "testDoubleArrayCopy", args);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
-        Assert.assertNotEquals(((BArray) returnVals[0]).size(), bArray.size(), "Found Same size array.");
+        Assert.assertNotEquals(((BArray) returnVals[0]).size(), bArray.size(), "Found Same size arrays.");
         Assert.assertNotEquals(((BDouble) ((BArray) returnVals[0]).get(0)).doubleValue(), v1, "Found same value");
         Assert.assertNotEquals(((BDouble) ((BArray) returnVals[0]).get(1)).doubleValue(), v2, "Found same value");
     }
@@ -184,7 +184,7 @@ public class ArrayTest {
         BValue[] returnVals = BLangFunctions.invoke(bLangProgram, "testFloatArrayCopy", args);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
-        Assert.assertNotEquals(((BArray) returnVals[0]).size(), bArray.size(), "Found Same size array.");
+        Assert.assertNotEquals(((BArray) returnVals[0]).size(), bArray.size(), "Found Same size arrays.");
         Assert.assertNotEquals(((BFloat) ((BArray) returnVals[0]).get(0)).floatValue(), v1, "Found same value");
         Assert.assertNotEquals(((BFloat) ((BArray) returnVals[0]).get(1)).floatValue(), v2, "Found same value");
     }
@@ -200,7 +200,7 @@ public class ArrayTest {
         BValue[] returnVals = BLangFunctions.invoke(bLangProgram, "testIntArrayCopy", args);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
-        Assert.assertNotEquals(((BArray) returnVals[0]).size(), bArray.size(), "Found Same size array.");
+        Assert.assertNotEquals(((BArray) returnVals[0]).size(), bArray.size(), "Found Same size arrays.");
         Assert.assertNotEquals(((BInteger) ((BArray) returnVals[0]).get(0)).intValue(), v1, "Found same value");
         Assert.assertNotEquals(((BInteger) ((BArray) returnVals[0]).get(1)).intValue(), v2, "Found same value");
     }
@@ -216,7 +216,7 @@ public class ArrayTest {
         BValue[] returnVals = BLangFunctions.invoke(bLangProgram, "testLongArrayCopy", args);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
-        Assert.assertNotEquals(((BArray) returnVals[0]).size(), bArray.size(), "Found Same size array.");
+        Assert.assertNotEquals(((BArray) returnVals[0]).size(), bArray.size(), "Found Same size arrays.");
         Assert.assertNotEquals(((BLong) ((BArray) returnVals[0]).get(0)).longValue(), v1, "Found same value");
         Assert.assertNotEquals(((BLong) ((BArray) returnVals[0]).get(1)).longValue(), v2, "Found same value");
     }
@@ -232,7 +232,7 @@ public class ArrayTest {
         BValue[] returnVals = BLangFunctions.invoke(bLangProgram, "testStringArrayCopy", args);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
-        Assert.assertNotEquals(((BArray) returnVals[0]).size(), bArray.size(), "Found Same size array.");
+        Assert.assertNotEquals(((BArray) returnVals[0]).size(), bArray.size(), "Found Same size arrays.");
         Assert.assertNotEquals(((BArray) returnVals[0]).get(0).stringValue(), v1, "Found same value");
         Assert.assertNotEquals(((BArray) returnVals[0]).get(1).stringValue(), v2, "Found same value");
     }
@@ -248,7 +248,7 @@ public class ArrayTest {
         BValue[] returnVals = BLangFunctions.invoke(bLangProgram, "testXMLArrayCopy", args);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
-        Assert.assertNotEquals(((BArray) returnVals[0]).size(), bArray.size(), "Found Same size array.");
+        Assert.assertNotEquals(((BArray) returnVals[0]).size(), bArray.size(), "Found Same size arrays.");
         Assert.assertNotEquals(((BArray) returnVals[0]).get(0).stringValue(), v1, "Found same value");
         Assert.assertNotEquals(((BArray) returnVals[0]).get(1).stringValue(), v2, "Found same value");
     }
@@ -264,7 +264,7 @@ public class ArrayTest {
         BValue[] returnVals = BLangFunctions.invoke(bLangProgram, "testJSONArrayCopy", args);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
-        Assert.assertNotEquals(((BArray) returnVals[0]).size(), bArray.size(), "Found Same size array.");
+        Assert.assertNotEquals(((BArray) returnVals[0]).size(), bArray.size(), "Found Same size arrays.");
         Assert.assertNotEquals(((BArray) returnVals[0]).get(0).stringValue(), v1, "Found same value");
         Assert.assertNotEquals(((BArray) returnVals[0]).get(1).stringValue(), v2, "Found same value");
     }
@@ -280,7 +280,7 @@ public class ArrayTest {
         BValue[] returnVals = BLangFunctions.invoke(bLangProgram, "testMessageArrayCopy", args);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
-        Assert.assertNotEquals(((BArray) returnVals[0]).size(), bArray.size(), "Found Same size array.");
+        Assert.assertNotEquals(((BArray) returnVals[0]).size(), bArray.size(), "Found Same size arrays.");
     }
 
 
@@ -299,7 +299,7 @@ public class ArrayTest {
         BValue[] returnVals = BLangFunctions.invoke(bLangProgram, "testDoubleArrayCopyRange", args);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
-        Assert.assertNotEquals(((BArray) returnVals[0]).size(), bArray.size(), "Found Same size array.");
+        Assert.assertNotEquals(((BArray) returnVals[0]).size(), bArray.size(), "Found Same size arrays.");
         Assert.assertEquals(((BArray) returnVals[0]).size(), 2, "Incorrect Array size.");
         Assert.assertEquals(((BDouble) ((BArray) returnVals[0]).get(0)).doubleValue(), v2, "Value didn't match");
         Assert.assertEquals(((BDouble) ((BArray) returnVals[0]).get(1)).doubleValue(), v3, "Value didn't match");
@@ -348,7 +348,7 @@ public class ArrayTest {
         BValue[] returnVals = BLangFunctions.invoke(bLangProgram, "testFloatArrayCopyRange", args);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
-        Assert.assertNotEquals(((BArray) returnVals[0]).size(), bArray.size(), "Found Same size array.");
+        Assert.assertNotEquals(((BArray) returnVals[0]).size(), bArray.size(), "Found Same size arrays.");
         Assert.assertEquals(((BArray) returnVals[0]).size(), 2, "Incorrect Array size.");
         Assert.assertEquals(((BFloat) ((BArray) returnVals[0]).get(0)).floatValue(), v2, "Value didn't match");
         Assert.assertEquals(((BFloat) ((BArray) returnVals[0]).get(1)).floatValue(), v3, "Value didn't match");
@@ -395,7 +395,7 @@ public class ArrayTest {
         BValue[] returnVals = BLangFunctions.invoke(bLangProgram, "testIntArrayCopyRange", args);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
-        Assert.assertNotEquals(((BArray) returnVals[0]).size(), bArray.size(), "Found Same size array.");
+        Assert.assertNotEquals(((BArray) returnVals[0]).size(), bArray.size(), "Found Same size arrays.");
         Assert.assertEquals(((BArray) returnVals[0]).size(), 2, "Incorrect Array size.");
         Assert.assertEquals(((BInteger) ((BArray) returnVals[0]).get(0)).intValue(), v2, "Value didn't match");
         Assert.assertEquals(((BInteger) ((BArray) returnVals[0]).get(1)).intValue(), v3, "Value didn't match");
@@ -442,7 +442,7 @@ public class ArrayTest {
         BValue[] returnVals = BLangFunctions.invoke(bLangProgram, "testLongArrayCopyRange", args);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
-        Assert.assertNotEquals(((BArray) returnVals[0]).size(), bArray.size(), "Found Same size array.");
+        Assert.assertNotEquals(((BArray) returnVals[0]).size(), bArray.size(), "Found Same size arrays.");
         Assert.assertEquals(((BArray) returnVals[0]).size(), 2, "Incorrect Array size.");
         Assert.assertEquals(((BLong) ((BArray) returnVals[0]).get(0)).longValue(), v2, "Value didn't match");
         Assert.assertEquals(((BLong) ((BArray) returnVals[0]).get(1)).longValue(), v3, "Value didn't match");
@@ -489,7 +489,7 @@ public class ArrayTest {
         BValue[] returnVals = BLangFunctions.invoke(bLangProgram, "testStringArrayCopyRange", args);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
-        Assert.assertNotEquals(((BArray) returnVals[0]).size(), bArray.size(), "Found Same size array.");
+        Assert.assertNotEquals(((BArray) returnVals[0]).size(), bArray.size(), "Found Same size arrays.");
         Assert.assertEquals(((BArray) returnVals[0]).size(), 2, "Incorrect Array size.");
         Assert.assertEquals(((BArray) returnVals[0]).get(0).stringValue(), v2, "Value didn't match");
         Assert.assertEquals(((BArray) returnVals[0]).get(1).stringValue(), v3, "Value didn't match");
@@ -536,7 +536,7 @@ public class ArrayTest {
         BValue[] returnVals = BLangFunctions.invoke(bLangProgram, "testXMLArrayCopyRange", args);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
-        Assert.assertNotEquals(((BArray) returnVals[0]).size(), bArray.size(), "Found Same size array.");
+        Assert.assertNotEquals(((BArray) returnVals[0]).size(), bArray.size(), "Found Same size arrays.");
         Assert.assertEquals(((BArray) returnVals[0]).size(), 2, "Incorrect Array size.");
         Assert.assertNotEquals(((BArray) returnVals[0]).get(0).stringValue(), v1, "Found same value");
         Assert.assertNotEquals(((BArray) returnVals[0]).get(1).stringValue(), v2, "Found same value");
@@ -583,7 +583,7 @@ public class ArrayTest {
         BValue[] returnVals = BLangFunctions.invoke(bLangProgram, "testJSONArrayCopyRange", args);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
-        Assert.assertNotEquals(((BArray) returnVals[0]).size(), bArray.size(), "Found Same size array.");
+        Assert.assertNotEquals(((BArray) returnVals[0]).size(), bArray.size(), "Found Same size arrays.");
         Assert.assertEquals(((BArray) returnVals[0]).size(), 2, "Incorrect Array size.");
         Assert.assertNotEquals(((BArray) returnVals[0]).get(0).stringValue(), v1, "Found same value");
         Assert.assertNotEquals(((BArray) returnVals[0]).get(1).stringValue(), v2, "Found same value");
@@ -630,7 +630,7 @@ public class ArrayTest {
         BValue[] returnVals = BLangFunctions.invoke(bLangProgram, "testMessageArrayCopyRange", args);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
-        Assert.assertNotEquals(((BArray) returnVals[0]).size(), bArray.size(), "Found Same size array.");
+        Assert.assertNotEquals(((BArray) returnVals[0]).size(), bArray.size(), "Found Same size arrays.");
         Assert.assertEquals(((BArray) returnVals[0]).size(), 2, "Incorrect Array size.");
     }
 

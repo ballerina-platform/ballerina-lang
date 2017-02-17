@@ -1,21 +1,21 @@
 package ballerina.lang.type;
 
-import ballerina.lang.message;
+import ballerina.lang.messages;
 
 typemapper string2message (string payload) (message) {
     message m = {};
-    message:setStringPayload (m, payload);
+    messages:setStringPayload (m, payload);
     return m;
 }
 
 typemapper xml2message (xml payload) (message) {
     message m = {};
-    message:setXmlPayload (m, payload);
+    messages:setXmlPayload (m, payload);
     return m;
 }
 
 typemapper json2message (json payload) (message) {
     message m = {};
-    message:setJsonPayload (m, payload);
+    messages:setJsonPayload (m, payload);
     return m;
 }

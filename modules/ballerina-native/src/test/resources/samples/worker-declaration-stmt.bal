@@ -1,5 +1,5 @@
 import ballerina.lang.system;
-import ballerina.lang.message;
+import ballerina.lang.messages;
 
 function testworker(message msg)(message) {
   worker sampleWorker (message m)  {
@@ -9,7 +9,7 @@ function testworker(message msg)(message) {
     double a;
     json j;
     j = `{"name":"chanaka"}`;
-    message:setJsonPayload(m, j);
+    messages:setJsonPayload(m, j);
     sumD = 123d;
     amount = 222d;
     quantity = 12;
@@ -26,7 +26,7 @@ function testworker(message msg)(message) {
   msg -> sampleWorker;
   system:println("After worker");
   result <- sampleWorker;
-  string s = message:getStringPayload(result);
+  string s = messages:getStringPayload(result);
   system:println(s);
   return result;
 

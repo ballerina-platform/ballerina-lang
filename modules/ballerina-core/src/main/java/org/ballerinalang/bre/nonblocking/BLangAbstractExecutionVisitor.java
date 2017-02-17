@@ -326,7 +326,7 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
         }
 
 
-        // Create an array in the stack frame to hold return values;
+        // Create an arrays in the stack frame to hold return values;
         BValue[] returnVals = new BValue[1];
 
         // Create a new stack frame with memory locations to hold parameters, local values, temp expression value,
@@ -718,7 +718,7 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
                 valueCounter++;
             }
 
-            // Create an array in the stack frame to hold return values;
+            // Create an arrays in the stack frame to hold return values;
             BValue[] returnVals = new BValue[1];
 
             // Create a new stack frame with memory locations to hold parameters, local values, temp expression value,
@@ -774,7 +774,7 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
         if (forkJoinInvocationStatus.timedOut) {
             // Execute the timeout block
 
-            // Creating a new array
+            // Creating a new arrays
             BArray bArray = forkJoinStmt.getJoin().getJoinResult().getType().getDefaultValue();
 
             for (int i = 0; i < forkJoinInvocationStatus.resultMsgs.size(); i++) {
@@ -788,9 +788,9 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
             controlStack.setValue(offsetJoin, bArray);
             next = forkJoinStmt.getTimeout().getTimeoutBlock();
         } else {
-            // Assign values to join block message array
+            // Assign values to join block message arrays
 
-            // Creating a new array
+            // Creating a new arrays
             BArray bArray = forkJoinStmt.getJoin().getJoinResult().getType().getDefaultValue();
             for (int i = 0; i < forkJoinInvocationStatus.resultMsgs.size(); i++) {
                 BValue value = forkJoinInvocationStatus.resultMsgs.get(i);
@@ -952,7 +952,7 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
             valueCounter++;
         }
 
-        // Create an array in the stack frame to hold return values;
+        // Create an arrays in the stack frame to hold return values;
         BValue[] returnVals = new BValue[action.getReturnParamTypes().length];
 
         // Create a new stack frame with memory locations to hold parameters, local values, temp expression values and
@@ -976,7 +976,7 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
         next = arrayInitExprEndNode.next;
         Expression[] argExprs = arrayInitExprEndNode.getExpression().getArgExprs();
 
-        // Creating a new array
+        // Creating a new arrays
         BArray bArray = arrayInitExprEndNode.getExpression().getType().getDefaultValue();
 
         for (int i = 0; i < argExprs.length; i++) {
@@ -1088,7 +1088,7 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
             valueCounter++;
         }
 
-        // Create an array in the stack frame to hold return values;
+        // Create an arrays in the stack frame to hold return values;
         BValue[] returnVals = new BValue[function.getReturnParamTypes().length];
 
         // Create a new stack frame with memory locations to hold parameters, local values, temp expression value,
@@ -1179,7 +1179,7 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
                 valueCounter++;
             }
 
-            // Create an array in the stack frame to hold return values;
+            // Create an arrays in the stack frame to hold return values;
             BValue[] returnVals = new BValue[1];
 
             // Create a new stack frame with memory locations to hold parameters, local values, temp expression value,
@@ -1287,7 +1287,7 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
             BValue[] localVals = new BValue[1];
             localVals[0] = bConnector;
 
-            // Create an array in the stack frame to hold return values;
+            // Create an arrays in the stack frame to hold return values;
             BValue[] returnVals = new BValue[0];
 
             // Create a new stack frame with memory locations to hold parameters, local values, temp expression value,
@@ -1353,7 +1353,7 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
         next = mapInitExprEndNode.next;
         Expression[] argExprs = mapInitExprEndNode.getExpression().getArgExprs();
 
-        // Creating a new array
+        // Creating a new arrays
         BMap bMap = mapInitExprEndNode.getExpression().getType().getDefaultValue();
 
         for (int i = 0; i < argExprs.length; i++) {
@@ -1508,7 +1508,7 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
      * @param currentVal Value of the expression evaluated so far.
      */
     private void setFieldValue(BValue rValue, StructFieldAccessExpr expr, BValue currentVal) {
-        // currentVal is a BStruct or array/map of BStruct. hence get the element value of it.
+        // currentVal is a BStruct or arrays/map of BStruct. hence get the element value of it.
         BStruct currentStructVal = (BStruct) getUnitValue(currentVal, expr);
 
         StructFieldAccessExpr fieldExpr = expr.getFieldExpr();
@@ -1544,8 +1544,8 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
      * @return Memory location of the expression
      */
     private MemoryLocation getMemoryLocation(Expression expression) {
-        // If the expression is an array-map expression, then get the location of the variable-reference-expression
-        // of the array-map-access-expression.
+        // If the expression is an arrays-map expression, then get the location of the variable-reference-expression
+        // of the arrays-map-access-expression.
         if (expression instanceof ArrayMapAccessExpr) {
             return getMemoryLocation(((ArrayMapAccessExpr) expression).getRExpr());
         }
@@ -1566,11 +1566,11 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
      * i.e: Value represented by a field-access-expression can be one of:
      * <ul>
      * <li>A variable</li>
-     * <li>An element of an array/map variable.</li>
+     * <li>An element of an arrays/map variable.</li>
      * </ul>
      * But the value get after evaluating the field-access-expression (<b>lExprValue</b>) contains the whole
-     * variable. This methods set the unit value (either the complete array/map or the referenced element of an
-     * array/map), using the index expression of the 'fieldExpr'.
+     * variable. This methods set the unit value (either the complete arrays/map or the referenced element of an
+     * arrays/map), using the index expression of the 'fieldExpr'.
      *
      * @param rValue         Value to be set
      * @param lExprValue     Value of the field access expression evaluated so far. This is always of struct
@@ -1585,7 +1585,7 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
         if (fieldExpr.getVarRef() instanceof ArrayMapAccessExpr) {
             indexExpr = ((ArrayMapAccessExpr) fieldExpr.getVarRef()).getIndexExpr();
         } else {
-            // If the lExprValue value is not a struct array/map, then set the value to the struct
+            // If the lExprValue value is not a struct arrays/map, then set the value to the struct
             lExprValue.setValue(memoryLocation, rValue);
             return;
         }
@@ -1593,10 +1593,10 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
         // Evaluate the index expression and get the value.
         BValue indexValue = getTempValue(indexExpr);
 
-        // Get the array/map value from the mermory location
+        // Get the arrays/map value from the mermory location
         BValue arrayMapValue = lExprValue.getValue(memoryLocation);
 
-        // Set the value to array/map's index location
+        // Set the value to arrays/map's index location
         if (fieldExpr.getRefVarType() instanceof BMapType) {
             ((BMap) arrayMapValue).put(indexValue, rValue);
         } else {
@@ -1612,7 +1612,7 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
      * @return Value of the expression after evaluating the current field.
      */
     private BValue getFieldExprValue(StructFieldAccessExpr expr, BValue currentVal) {
-        // currentVal is a BStruct or array/map of BStruct. hence get the element value of it.
+        // currentVal is a BStruct or arrays/map of BStruct. hence get the element value of it.
         BStruct currentStructVal = (BStruct) getUnitValue(currentVal, expr);
 
         StructFieldAccessExpr fieldExpr = expr.getFieldExpr();
@@ -1624,7 +1624,7 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
                 throw new BallerinaException("cannot access field '" + fieldExpr.getSymbolName().getName() +
                         "' of non-initialized variable '" + fieldExpr.getParent().getSymbolName().getName() + "'.");
             }
-            // Value stored in the struct can be also an array. Hence if its an arrray access,
+            // Value stored in the struct can be also an arrays. Hence if its an arrray access,
             // get the aray element value
             return getUnitValue(currentStructVal.getValue(fieldLocation), fieldExpr);
         }
@@ -1645,10 +1645,10 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
      * i.e: Value represented by a field-access-expression can be one of:
      * <ul>
      * <li>A variable</li>
-     * <li>An element of an array/map variable.</li>
+     * <li>An element of an arrays/map variable.</li>
      * </ul>
      * But the value stored in memory (<b>currentVal</b>) contains the entire variable. This methods
-     * retrieves the unit value (either the complete array/map or the referenced element of an array/map),
+     * retrieves the unit value (either the complete arrays/map or the referenced element of an arrays/map),
      * using the index expression of the 'fieldExpr'.
      *
      * @param currentVal Value of the field expression evaluated so far
@@ -1665,7 +1665,7 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
             return currentVal;
         }
 
-        // If the lExprValue value is not a struct array/map, then the unit value is same as the struct
+        // If the lExprValue value is not a struct arrays/map, then the unit value is same as the struct
         Expression indexExpr;
         if (currentVarRefExpr instanceof ArrayMapAccessExpr) {
             indexExpr = ((ArrayMapAccessExpr) currentVarRefExpr).getIndexExpr();
@@ -1677,7 +1677,7 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
         BValue indexValue = getTempValue(indexExpr);
 
         BValue unitVal;
-        // Get the value from array/map's index location
+        // Get the value from arrays/map's index location
         if (fieldExpr.getRefVarType() instanceof BMapType) {
             unitVal = ((BMap) currentVal).get(indexValue);
         } else {

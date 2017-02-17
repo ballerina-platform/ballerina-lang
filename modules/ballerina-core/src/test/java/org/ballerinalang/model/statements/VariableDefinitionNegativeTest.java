@@ -56,7 +56,7 @@ public class VariableDefinitionNegativeTest {
         BTestUtils.parseBalFile("lang/statements/duplicate-constant-variables.bal");
     }
     
-    @Test(description = "Test defining a constant from an array type",
+    @Test(description = "Test defining a constant from an arrays type",
             expectedExceptions = {SemanticException.class},
             expectedExceptionsMessageRegExp = "array-type-constants.bal:1: invalid type 'int\\[\\]'")
     public void testArrayTypeConstant() {

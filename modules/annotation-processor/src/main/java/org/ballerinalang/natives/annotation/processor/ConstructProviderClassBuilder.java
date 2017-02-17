@@ -275,7 +275,7 @@ public class ConstructProviderClassBuilder {
     /**
      * Write all the function defining to the provider class.
      * 
-     * @param functions Function holders array containing ballerina function annotations
+     * @param functions Function holders arrays containing ballerina function annotations
      */
     private void writeFunctions(FunctionHolder[] functions) {
         for (FunctionHolder functionHolder : functions) {
@@ -291,7 +291,7 @@ public class ConstructProviderClassBuilder {
     /**
      * Write all the type mapper defining to the provider class.
      * 
-     * @param typeMapperHolders Type mapper holders array containing ballerina type mapper annotations
+     * @param typeMapperHolders Type mapper holders arrays containing ballerina type mapper annotations
      */
     private void writeTypeMappers(TypeMapperHolder[] typeMapperHolders) {
         for (TypeMapperHolder typeMapperHolder : typeMapperHolders) {
@@ -314,7 +314,7 @@ public class ConstructProviderClassBuilder {
     /**
      * Write all the type connectors defining to the provider class.
      * 
-     * @param connectors Connector holders array containing ballerina connector annotations
+     * @param connectors Connector holders arrays containing ballerina connector annotations
      */
     public void writeConnectors(ConnectorHolder[] connectors) {
         String connectorVarName = "nativeConnector";
@@ -422,10 +422,10 @@ public class ConstructProviderClassBuilder {
     
     
     /**
-     * Get the return types array construction string.
+     * Get the return types arrays construction string.
      * 
      * @param returnTypes Array of return types
-     * @return Return types array construction string
+     * @return Return types arrays construction string
      */
     private String getReturnTypes(ReturnType[] returnTypes) {
         String simpleTypeNameClass = SimpleTypeName.class.getSimpleName();
@@ -435,7 +435,7 @@ public class ConstructProviderClassBuilder {
             for (ReturnType returnType : returnTypes) {
                 String bType;
                 boolean isArray = false;
-                // For non-array types.
+                // For non-arrays types.
                 if (!returnType.type().equals(TypeEnum.ARRAY)) {
                     bType = returnType.type().getName();
                 } else {
@@ -454,12 +454,12 @@ public class ConstructProviderClassBuilder {
     }
     
     /**
-     * Get the argument types array construction string.
+     * Get the argument types arrays construction string.
      * 
      * @param arguments Array of arguments
      * @param enclosingScopePkg 
      * @param enclosingScopeName 
-     * @return Argument types array construction string
+     * @return Argument types arrays construction string
      */
     private String getArgTypes(Argument[] arguments, String enclosingScopeName, String enclosingScopePkg) {
         String simpleTypeNameClass = SimpleTypeName.class.getSimpleName();
@@ -469,7 +469,7 @@ public class ConstructProviderClassBuilder {
             for (Argument argType : arguments) {
                 TypeEnum bType;
                 boolean isArray = false;
-                // For non-array types.
+                // For non-arrays types.
                 if (!argType.type().equals(TypeEnum.ARRAY)) {
                     bType = argType.type();
                 } else {

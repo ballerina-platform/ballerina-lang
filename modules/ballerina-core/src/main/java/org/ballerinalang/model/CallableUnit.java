@@ -39,30 +39,30 @@ public interface CallableUnit extends BLangSymbol, Node {
     void setSymbolName(SymbolName symbolName);
 
     /**
-     * Returns an array of annotations attached this callable unit.
+     * Returns an arrays of annotations attached this callable unit.
      *
-     * @return an array of annotations
+     * @return an arrays of annotations
      */
     Annotation[] getAnnotations();
 
     /**
-     * Returns an array of parameters of this callable unit.
+     * Returns an arrays of parameters of this callable unit.
      *
-     * @return an array of parameters
+     * @return an arrays of parameters
      */
     ParameterDef[] getParameterDefs();
 
     /**
-     * Returns an array of variable declarations of this callable unit.
+     * Returns an arrays of variable declarations of this callable unit.
      *
-     * @return an array of variable declarations
+     * @return an arrays of variable declarations
      */
     VariableDef[] getVariableDefs();
 
     /**
-     * Returns an array of return parameters (values) of this callable unit.
+     * Returns an arrays of return parameters (values) of this callable unit.
      *
-     * @return an array of return parameters
+     * @return an arrays of return parameters
      */
     ParameterDef[] getReturnParameters();
 
@@ -109,9 +109,9 @@ public interface CallableUnit extends BLangSymbol, Node {
     BType[] getReturnParamTypes();
 
     /**
-     * Sets a {@code BType} array containing the types of return parameters of this callable unit.
+     * Sets a {@code BType} arrays containing the types of return parameters of this callable unit.
      *
-     * @param returnParamTypes array of the return parameters
+     * @param returnParamTypes arrays of the return parameters
      */
     void setReturnParamTypes(BType[] returnParamTypes);
 
@@ -123,9 +123,9 @@ public interface CallableUnit extends BLangSymbol, Node {
     BType[] getArgumentTypes();
 
     /**
-     * Sets a {@code BType} array containing the types of input parameters of this callable unit.
+     * Sets a {@code BType} arrays containing the types of input parameters of this callable unit.
      *
-     * @param parameterTypes array of the input parameters
+     * @param parameterTypes arrays of the input parameters
      */
     void setParameterTypes(BType[] parameterTypes);
 }

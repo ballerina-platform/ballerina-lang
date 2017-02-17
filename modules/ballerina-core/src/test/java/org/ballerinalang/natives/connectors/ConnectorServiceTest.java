@@ -43,7 +43,7 @@ public class ConnectorServiceTest {
     @BeforeClass()
     public void setup() {
         SymScope symScope = GlobalScopeHolder.getInstance().getScope();
-        if (symScope.lookup(new SymbolName("ballerina.model.message:setStringPayload_message_string")) == null) {
+        if (symScope.lookup(new SymbolName("ballerina.model.messages:setStringPayload_message_string")) == null) {
             BuiltInNativeConstructLoader.loadConstructs();
         }
         bLangProgram = EnvironmentInitializer.setup("lang/connectors/connector-in-service.bal");

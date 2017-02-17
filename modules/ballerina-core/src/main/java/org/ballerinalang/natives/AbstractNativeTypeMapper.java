@@ -126,7 +126,7 @@ public abstract class AbstractNativeTypeMapper implements NativeUnit, TypeMapper
      * Where Native TypeMapper logic is implemented.
      *
      * @param context Current Context instance
-     * @return Native typeMapper return BValue array
+     * @return Native typeMapper return BValue arrays
      */
     public abstract BValue convert(Context context);
 
@@ -139,7 +139,7 @@ public abstract class AbstractNativeTypeMapper implements NativeUnit, TypeMapper
     }
 
     /**
-     * Util method to construct BValue array.
+     * Util method to construct BValue arrays.
      *
      * @param values
      * @return BValue

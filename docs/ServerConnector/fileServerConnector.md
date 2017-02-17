@@ -120,10 +120,10 @@ In general, a service may have multiple resources. However, a service of type Fi
 
 ### Step 4: Adding File-processing Logic
 
-Within the `resource` block, specify file processing logic. In the example given below, Ballerina functions (`system:println`, `message:getStringPayload(m)` and `file:acknowledge(m)`) have being used to process the file.
+Within the `resource` block, specify file processing logic. In the example given below, Ballerina functions (`system:println`, `messages:getStringPayload(m)` and `file:acknowledge(m)`) have being used to process the file.
 
 ```
-import ballerina.lang.message;
+import ballerina.lang.messages;
 import ballerina.lang.system;
 import ballerina.net.file;
 
@@ -136,7 +136,7 @@ import ballerina.net.file;
   )
 service orderProcessService {
     resource processOrder (message m) {
-        system:println(message:getStringPayload(m));
+        system:println(messages:getStringPayload(m));
         file:acknowledge(m);
     }
 }
@@ -177,7 +177,7 @@ Acknowledge function sends an acknowledgement to the sender of the message, sayi
 It is important to note that this function **must** be called after the service has finished consuming the message (that is the file). See below for an example.
 
 ```
-import ballerina.lang.message;
+import ballerina.lang.messages;
 import ballerina.lang.system;
 import ballerina.net.file;
 
@@ -190,7 +190,7 @@ import ballerina.net.file;
   )
 service orderProcessService {
     resource processOrder (message m) {
-        system:println(message:getStringPayload(m));
+        system:println(messages:getStringPayload(m));
         file:acknowledge(m);
     }
 }
@@ -200,7 +200,7 @@ In the above example, once a file is found at the given URI,  orderProcessServic
 
 The service will then execute the statements given within the resource block. 
 
-```system:println(message:getStringPayload(m));```
+```system:println(messages:getStringPayload(m));```
 
 
 Above line will read the file content as a String and then print it on the console.

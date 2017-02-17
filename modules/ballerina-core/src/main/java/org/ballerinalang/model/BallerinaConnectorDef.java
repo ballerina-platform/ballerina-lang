@@ -80,7 +80,7 @@ public class BallerinaConnectorDef extends BType implements Connector, Compilati
     /**
      * Get all the Actions can be performed in the Connector.
      *
-     * @return array of all Actions
+     * @return arrays of all Actions
      */
     public BallerinaAction[] getActions() {
         return actions;

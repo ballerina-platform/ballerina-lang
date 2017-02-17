@@ -30,7 +30,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
- * Test array initializer expression.
+ * Test arrays initializer expression.
  *
  * @since 0.8.0
  */
@@ -43,7 +43,7 @@ public class ArrayInitializerExprTest {
         bLangProgram = BTestUtils.parseBalFile("lang/expressions/array-initializer-expr.bal");
     }
 
-    @Test(description = "Test array initializer expression")
+    @Test(description = "Test arrays initializer expression")
     public void testArrayInitExpr() {
         BValue[] args = {};
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "arrayInitTest", args);
@@ -56,7 +56,7 @@ public class ArrayInitializerExprTest {
         Assert.assertEquals(actual, expected);
     }
 
-    @Test(description = "Test array return value")
+    @Test(description = "Test arrays return value")
     public void testArrayReturnValueTest() {
         BValue[] args = {};
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "arrayReturnTest", args);
@@ -72,7 +72,7 @@ public class ArrayInitializerExprTest {
         Assert.assertEquals(arrayValue.get(5).stringValue(), "Croc");
     }
     
-    @Test(description = "Test array initializing with different types",
+    @Test(description = "Test arrays initializing with different types",
             expectedExceptions = {SemanticException.class },
             expectedExceptionsMessageRegExp = "multi-type-array-initializer.bal:3: " +
                     "array initializer is not allowed here")

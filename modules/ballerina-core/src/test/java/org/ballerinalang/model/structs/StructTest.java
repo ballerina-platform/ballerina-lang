@@ -107,9 +107,9 @@ public class StructTest {
         BLangFunctions.invoke(bLangProgram, "testGetNonInitAttribute");
     }
     
-    @Test(description = "Test accessing an array field of a noninitialized struct",
+    @Test(description = "Test accessing an arrays field of a noninitialized struct",
             expectedExceptions = {BallerinaException.class},
-            expectedExceptionsMessageRegExp = "array index out of range: Index: 0, Size: 0")
+            expectedExceptionsMessageRegExp = "arrays index out of range: Index: 0, Size: 0")
     public void testGetNonInitArrayField() {
         BLangFunctions.invoke(bLangProgram, "testGetNonInitArrayAttribute");
     }

@@ -102,7 +102,7 @@ public class Utils {
     /**
      * Convert {@link BallerinaAnnotation} to {@link AnnotationHolder}
      * 
-     * @param annotations array of {@link BallerinaAnnotation}
+     * @param annotations arrays of {@link BallerinaAnnotation}
      * @return list of {@link AnnotationHolder}
      */
     public static List<AnnotationHolder> getAnnotations(BallerinaAnnotation[] annotations) {

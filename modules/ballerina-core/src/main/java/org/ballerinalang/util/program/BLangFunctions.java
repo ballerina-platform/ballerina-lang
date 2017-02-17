@@ -96,7 +96,7 @@ public class BLangFunctions {
         }
 
         if (function.getParameterDefs().length != args.length) {
-            throw new RuntimeException("Size of input argument array is not equal to size of function parameters");
+            throw new RuntimeException("Size of input argument arrays is not equal to size of function parameters");
         }
 
         BValue[] argValues = new BValue[function.getStackFrameSize()];

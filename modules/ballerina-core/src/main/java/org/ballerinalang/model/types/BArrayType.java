@@ -22,9 +22,9 @@ import org.ballerinalang.model.values.BArray;
 import org.ballerinalang.model.values.BValue;
 
 /**
- * {@code BArrayType} represents a type of an array in Ballerina.
+ * {@code BArrayType} represents a type of an arrays in Ballerina.
  * <p>
- * Arrays are defined using the array constructor [] as follows:
+ * Arrays are defined using the arrays constructor [] as follows:
  * TypeName[]
  * <p>
  * All arrays are unbounded in length and support 0 based indexing.

@@ -158,7 +158,7 @@ public final class BMessage implements BRefType<CarbonMessage> {
      * Get header values for the given header name.
      *
      * @param headerName header name
-     * @return String array that contains all header values
+     * @return String arrays that contains all header values
      */
     public String[] getHeaders(String headerName) {
         List<String> allHeaderValues = value.getHeaders().getAllBy(headerName);

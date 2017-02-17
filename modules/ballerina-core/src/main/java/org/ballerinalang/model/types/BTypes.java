@@ -109,13 +109,13 @@ public class BTypes {
             return bType;
         }
 
-        // Now check whether this is an array type
+        // Now check whether this is an arrays type
         if (typeName.isArrayType()) {
             bType = (BType) symbolScope.resolve(new SymbolName(typeName.getName(), typeName.getPackagePath()));
         }
 
-        // If bType is not null, then element type of this array type is available.
-        // We should define the array type here.
+        // If bType is not null, then element type of this arrays type is available.
+        // We should define the arrays type here.
         if (bType != null) {
             BArrayType bArrayType = new BArrayType(typeName.getSymbolName().toString(),
                     bType, typeName.getPackagePath(), bType.getSymbolScope());

@@ -1,5 +1,5 @@
 import ballerina.lang.system;
-import ballerina.lang.message;
+import ballerina.lang.messages;
 import ballerina.net.ws;
 
 @http:BasePath("/ws-echo-server")
@@ -13,8 +13,8 @@ service websocketEchoServer {
 
     @ws:OnTextMessage
     resource onTextMessage(message m) {
-        ws:pushText(m, message:getStringPayload(m));
-        system:println("client : " + message:getStringPayload(m));
+        ws:pushText(m, messages:getStringPayload(m));
+        system:println("client : " + messages:getStringPayload(m));
     }
 
     @ws:OnClose

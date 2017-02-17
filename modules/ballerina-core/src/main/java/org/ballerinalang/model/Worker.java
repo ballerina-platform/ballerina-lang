@@ -170,9 +170,9 @@ public class Worker implements SymbolScope, CompilationUnit, CallableUnit {
     }
 
     /**
-     * Returns an array of annotations attached this callable unit.
+     * Returns an arrays of annotations attached this callable unit.
      *
-     * @return an array of annotations
+     * @return an arrays of annotations
      */
     @Override
     public Annotation[] getAnnotations() {
@@ -180,9 +180,9 @@ public class Worker implements SymbolScope, CompilationUnit, CallableUnit {
     }
 
     /**
-     * Returns an array of parameters of this callable unit.
+     * Returns an arrays of parameters of this callable unit.
      *
-     * @return an array of parameters
+     * @return an arrays of parameters
      */
     @Override
     public ParameterDef[] getParameterDefs() {
@@ -190,9 +190,9 @@ public class Worker implements SymbolScope, CompilationUnit, CallableUnit {
     }
 
     /**
-     * Returns an array of variable declarations of this callable unit.
+     * Returns an arrays of variable declarations of this callable unit.
      *
-     * @return an array of variable declarations
+     * @return an arrays of variable declarations
      */
     @Override
     public VariableDef[] getVariableDefs() {
@@ -200,9 +200,9 @@ public class Worker implements SymbolScope, CompilationUnit, CallableUnit {
     }
 
     /**
-     * Returns an array of return parameters (values) of this callable unit.
+     * Returns an arrays of return parameters (values) of this callable unit.
      *
-     * @return an array of return parameters
+     * @return an arrays of return parameters
      */
     @Override
     public ParameterDef[] getReturnParameters() {
@@ -265,9 +265,9 @@ public class Worker implements SymbolScope, CompilationUnit, CallableUnit {
     }
 
     /**
-     * Sets a {@code BType} array containing the types of return parameters of this callable unit.
+     * Sets a {@code BType} arrays containing the types of return parameters of this callable unit.
      *
-     * @param returnParamTypes array of the return parameters
+     * @param returnParamTypes arrays of the return parameters
      */
     @Override
     public void setReturnParamTypes(BType[] returnParamTypes) {
@@ -285,9 +285,9 @@ public class Worker implements SymbolScope, CompilationUnit, CallableUnit {
     }
 
     /**
-     * Sets a {@code BType} array containing the types of input parameters of this callable unit.
+     * Sets a {@code BType} arrays containing the types of input parameters of this callable unit.
      *
-     * @param parameterTypes array of the input parameters
+     * @param parameterTypes arrays of the input parameters
      */
     @Override
     public void setParameterTypes(BType[] parameterTypes) {

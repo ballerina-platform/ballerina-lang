@@ -33,7 +33,7 @@ public enum TypeEnum {
     XML("xml"),
     JSON("json"),
     MAP("map"),
-    ARRAY("array"),
+    ARRAY("arrays"),
     CONNECTOR("connector"),
     EXCEPTION("exception"),
     DATATABLE("datatable"),

@@ -100,7 +100,7 @@ public abstract class AbstractNativeFunction implements NativeUnit, Function {
      * Where Native Function logic is implemented.
      *
      * @param context Current Context instance
-     * @return Native function return BValue array
+     * @return Native function return BValue arrays
      */
     public abstract BValue[] execute(Context context);
 
@@ -134,7 +134,7 @@ public abstract class AbstractNativeFunction implements NativeUnit, Function {
     }
 
     /**
-     * Util method to construct BValue array.
+     * Util method to construct BValue arrays.
      *
      * @param values
      * @return BValue

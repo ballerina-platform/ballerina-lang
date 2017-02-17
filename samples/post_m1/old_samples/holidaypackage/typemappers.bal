@@ -5,8 +5,8 @@ typemapper mapRequestToHotelRequest (xmlElement<t1> in) (xmlElement<t2>) {
   xmlElement<smalladdr> addr;
   xmlElement out;
 
-  name = xml:get(in, "/name", nil);
-  addr = mapAddress (xml:get (in, "/address", nil));
+  name = xmlutils:get(in, "/name", nil);
+  addr = mapAddress (xmlutils:get (in, "/address", nil));
   out =
     `<Hotels>
        <name>$name</name>
@@ -17,9 +17,9 @@ typemapper mapRequestToHotelRequest (xmlElement<t1> in) (xmlElement<t2>) {
 
 typemapper mapAddress (xmlElement<bigaddr> in) (xmlElement<smalladdr>) {
   string addrstring;
-  addrstring = xml:get(in, "/address/number", nil) + " " +
-                          xml:get(in, "/address/street", nil) + ", " +
-                          xml:get(in, "/address/city", nil);
+  addrstring = xmlutils:get(in, "/address/number", nil) + " " +
+                          xmlutils:get(in, "/address/street", nil) + ", " +
+                          xmlutils:get(in, "/address/city", nil);
   return `<address>$addrstring</address>`;
 }
 
@@ -28,8 +28,8 @@ typemapper requestToCarRequest (xmlElement<t1> in) (xmlElement<t2>) {
   xmlElement<smallDetails> details;
   xmlElement out;
 
-  category = xml:get(in, "/category", nil);
-  details = mapDetails (xml:get (in, "/details", nil));
+  category = xmlutils:get(in, "/category", nil);
+  details = mapDetails (xmlutils:get (in, "/details", nil));
   out =
     `<Cars>
        <category>$category</category>
@@ -40,8 +40,8 @@ typemapper requestToCarRequest (xmlElement<t1> in) (xmlElement<t2>) {
 
 typemapper mapDetails (xmlElement<bigDetails> in) (xmlElement<smallDetails>) {
   string details;
-  details = xml:get(in, "/order/capacity", nil) + " " +
-                          xml:get(in, "/order/pickup", nil) + ", " +
-                          xml:get(in, "/order/destination", nil);
+  details = xmlutils:get(in, "/order/capacity", nil) + " " +
+                          xmlutils:get(in, "/order/pickup", nil) + ", " +
+                          xmlutils:get(in, "/order/destination", nil);
   return `<address>$details</address>`;
 }

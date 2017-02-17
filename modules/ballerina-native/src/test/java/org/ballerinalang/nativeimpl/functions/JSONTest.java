@@ -107,7 +107,7 @@ public class JSONTest {
         Assert.assertEquals(((BValueType) returns[0]).booleanValue(), true);
     }
 
-    @Test(description = "Get json array length")
+    @Test(description = "Get json arrays length")
     public void testGetArrayLength() {
         BValue[] args = {new BJSON(jsonStringArray), new BString("$.users.length()")};
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "getInt", args);
@@ -116,7 +116,7 @@ public class JSONTest {
         Assert.assertEquals(((BValueType) returns[0]).intValue(), expected);
     }
 
-    @Test(description = "Get json array min value")
+    @Test(description = "Get json arrays min value")
     public void testGetArrayMin() {
         BValue[] args = {new BJSON(jsonIntArray), new BString("$.ages.min()")};
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "getDouble", args);
@@ -125,7 +125,7 @@ public class JSONTest {
         Assert.assertEquals(((BValueType) returns[0]).doubleValue(), expected);
     }
 
-    @Test(description = "Get json array max value")
+    @Test(description = "Get json arrays max value")
     public void testGetArrayMax() {
         BValue[] args = {new BJSON(jsonIntArray), new BString("$.ages.max()")};
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "getDouble", args);
@@ -134,7 +134,7 @@ public class JSONTest {
         Assert.assertEquals(((BValueType) returns[0]).doubleValue(), expected);
     }
 
-    @Test(description = "Get json array average value")
+    @Test(description = "Get json arrays average value")
     public void testGetArrayAvg() {
         BValue[] args = {new BJSON(jsonIntArray), new BString("$.ages.avg()")};
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "getDouble", args);
@@ -143,7 +143,7 @@ public class JSONTest {
         Assert.assertEquals(((BValueType) returns[0]).doubleValue(), expected);
     }
 
-    @Test(description = "Get json array standard deviation of population")
+    @Test(description = "Get json arrays standard deviation of population")
     public void testGetArrayStdDevP() {
         BValue[] args = {new BJSON(jsonIntArray), new BString("$.ages.stddev()")};
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "getDouble", args);
@@ -332,10 +332,10 @@ public class JSONTest {
     }
 
     /*
-     * Test Add-to-array Functions
+     * Test Add-to-arrays Functions
      */
 
-    @Test(description = "Add a string to a valid json array")
+    @Test(description = "Add a string to a valid json arrays")
     public void testAddStringToArray() {
         BValue[] args = {new BJSON(jsonStringArray), new BString("$.users"), new BString("Jos")};
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "addStringToArray", args);
@@ -344,7 +344,7 @@ public class JSONTest {
         Assert.assertEquals(getJsonAsString(returns[0]), expected);
     }
 
-    @Test(description = "Add an integer to a valid json array")
+    @Test(description = "Add an integer to a valid json arrays")
     public void testAddIntToArray() {
         BValue[] args = {new BJSON(jsonIntArray), new BString("$.ages"), new BInteger(23)};
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "addIntToArray", args);
@@ -353,7 +353,7 @@ public class JSONTest {
         Assert.assertEquals(getJsonAsString(returns[0]), expected);
     }
 
-    @Test(description = "Add a float to a valid json array")
+    @Test(description = "Add a float to a valid json arrays")
     public void testAddFloatToArray() {
         BValue[] args = {new BJSON(jsonFloatArray), new BString("$.prices"),
                 new BFloat((float) 5.96)};
@@ -363,7 +363,7 @@ public class JSONTest {
         Assert.assertEquals(getJsonAsString(returns[0]), expected);
     }
 
-    @Test(description = "Add a double to a valid json array")
+    @Test(description = "Add a double to a valid json arrays")
     public void testAddDoubleToArray() {
         BValue[] args = {new BJSON(jsonFloatArray), new BString("$.prices"), new BDouble(5.96)};
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "addDoubleToArray", args);
@@ -372,7 +372,7 @@ public class JSONTest {
         Assert.assertEquals(getJsonAsString(returns[0]), expected);
     }
 
-    @Test(description = "Add a boolean to a valid json array")
+    @Test(description = "Add a boolean to a valid json arrays")
     public void testAddBooleanToArray() {
         BValue[] args = {new BJSON(jsonBooleanArray), new BString("$.availability"),
                 new BBoolean(true)};
@@ -382,7 +382,7 @@ public class JSONTest {
         Assert.assertEquals(getJsonAsString(returns[0]), expected);
     }
 
-    @Test(description = "Add an element to a valid json array")
+    @Test(description = "Add an element to a valid json arrays")
     public void testAddElementToArray() {
         BValue[] args = {new BJSON(jsonElementArray), new BString("$.persons"),
                 new BJSON("{'fname':'Jos','lname':'Allen'}")};
@@ -393,7 +393,7 @@ public class JSONTest {
         Assert.assertEquals(getJsonAsString(returns[0]), expected);
     }
 
-    @Test(description = "Add a value to a non-existing array")
+    @Test(description = "Add a value to a non-existing arrays")
     public void testAddToNonExistingArray() {
         BValue[] args = {new BJSON(jsonStringArray), new BString("$.persons"), new BString("Jos")};
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "addStringToArray", args);
@@ -402,7 +402,7 @@ public class JSONTest {
         Assert.assertEquals(getJsonAsString(returns[0]), expected);
     }
 
-    @Test(description = "Add a value to array, using a malformed jsonpath",
+    @Test(description = "Add a value to arrays, using a malformed jsonpath",
             expectedExceptions = {BallerinaException.class})
     public void testAddToInvalidJsonpathArray() {
         BValue[] args = {new BJSON(jsonIntArray), new BString("$/wrong/path."), new BInteger(23)};

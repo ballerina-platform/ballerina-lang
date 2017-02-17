@@ -163,7 +163,7 @@ import java.util.Stack;
  *
  * TempOffset
  * - Each expression has a tempOffset, which maps to a location in a current stack frame, to store its value.
- * - TempOffset is calculated per Statements. The size of the tempOffset array in the stack frame will be
+ * - TempOffset is calculated per Statements. The size of the tempOffset arrays in the stack frame will be
  * max(current stack frame's statements temp values.)
  *
  * Nodes

@@ -128,7 +128,7 @@ public class TemplateExpressionTest {
 //        Assert.assertEquals(returns[0].stringValue(), expected);
 //    }
 
-    @Test(description = "Test JSON backtick expression with int and string array variable reference")
+    @Test(description = "Test JSON backtick expression with int and string arrays variable reference")
     public void testBacktickJSONArrayVariableAccess() {
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "backtickJSONArrayVariableAccess");
         Assert.assertEquals(returns.length, 1);
@@ -137,7 +137,7 @@ public class TemplateExpressionTest {
         Assert.assertEquals(returns[0].stringValue(), expected);
     }
 
-    @Test(description = "Test XML backtick expression with int and string array variable reference")
+    @Test(description = "Test XML backtick expression with int and string arrays variable reference")
     public void testBacktickXMLArrayVariableAccess() {
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "backtickXMLArrayVariableAccess");
         Assert.assertEquals(returns.length, 1);

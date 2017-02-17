@@ -43,7 +43,7 @@ public class ArrayAccessExprTest {
         bLangProgram = BTestUtils.parseBalFile("lang/expressions/array-access-expr.bal");
     }
 
-    @Test(description = "Test array access expression")
+    @Test(description = "Test arrays access expression")
     public void testArrayAccessExpr() {
         BValue[] args = {new BInteger(100), new BInteger(5)};
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "arrayAccessTest", args);
@@ -56,7 +56,7 @@ public class ArrayAccessExprTest {
         Assert.assertEquals(actual, expected);
     }
 
-    @Test(description = "Test array return value")
+    @Test(description = "Test arrays return value")
     public void testArrayReturnValue() {
         BValue[] args = {new BInteger(100), new BInteger(5)};
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "arrayReturnTest", args);
@@ -72,7 +72,7 @@ public class ArrayAccessExprTest {
         Assert.assertEquals(arrayValue.get(105).intValue(), 105);
     }
 
-    @Test(description = "Test array arg value")
+    @Test(description = "Test arrays arg value")
     public void testArrayArgValue() {
         BArray<BInteger> arrayValue = new BArray<>(BInteger.class);
         arrayValue.add(0, new BInteger(10));
@@ -89,29 +89,35 @@ public class ArrayAccessExprTest {
         Assert.assertEquals(actual, expected);
     }
     
-    @Test(description = "Test accessing an out of bound array-index",
+    @Test(description = "Test accessing an out of bound arrays-index",
             expectedExceptions = { BallerinaException.class },
-            expectedExceptionsMessageRegExp = "array index out of range: Index: 5, Size: 2")
+            expectedExceptionsMessageRegExp = "arrays index out of range: Index: 5, Size: 2")
     public void testArrayIndexOutOfBoundError() {
         BLangFunctions.invoke(bLangProgram, "arrayIndexOutOfBoundTest");
     }
     
-    @Test(description = "Test array access with a key",
+    @Test(description = "Test arrays access with a key",
             expectedExceptions = {SemanticException.class },
             expectedExceptionsMessageRegExp = "incorrect-array-access.bal:4: non-integer array index type 'string'")
     public void testArrayAccessWithKey() {
         BTestUtils.parseBalFile("lang/expressions/incorrect-array-access.bal");
     }
     
-    @Test(description = "Test access a primitive as an array",
+    @Test(description = "Test access a primitive as an arrays",
             expectedExceptions = {SemanticException.class },
             expectedExceptionsMessageRegExp = "access-primitive-as-array.bal:3: invalid operation: " +
                     "type 'string' does not support indexing")
     public void testAccessPrimitiveAsArray() {
         BTestUtils.parseBalFile("lang/expressions/access-primitive-as-array.bal");
     }
+
+
+    public static void main(String[] args) {
+        ArrayAccessExprTest test = new ArrayAccessExprTest();
+        test.testAccessPrimitiveAsArray();
+    }
     
-    @Test(description = "Test access an non-initialized array", 
+    @Test(description = "Test access an non-initialized arrays",
             expectedExceptions = BallerinaException.class,
             expectedExceptionsMessageRegExp = "variable 'fruits' is null")
     public void testNonInitArrayAccess() {

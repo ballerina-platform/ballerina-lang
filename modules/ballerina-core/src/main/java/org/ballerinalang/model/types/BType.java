@@ -26,7 +26,7 @@ import org.ballerinalang.model.values.BValue;
  * {@code BType} represents a type in Ballerina.
  * <p>
  * Ballerina has variables of various types. The type system includes built-in primitive or value types,
- * a collection of built-in structured types, and array, record and iterator type constructors.
+ * a collection of built-in structured types, and arrays, record and iterator type constructors.
  * All variables of primitive types are allocated on the stack while all non-primitive types are
  * allocated on a heap using new.
  *

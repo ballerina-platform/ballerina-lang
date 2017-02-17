@@ -1,5 +1,5 @@
 import ballerina.net.jms;
-import ballerina.lang.message;
+import ballerina.lang.messages;
 import ballerina.lang.system;
 
 @Source (
@@ -12,7 +12,7 @@ service jmsWSO2MBQueueService {
         string messageType;
         map dataMap = {};
         messageType = jms:getMessageType(m);
-        system:println(message:getStringValue(m, "queue message count"));
+        system:println(messages:getStringValue(m, "queue message count"));
     	system:println(messageType);
         jms:ClientConnector jmsEP = create jms:ClientConnector("org.wso2.andes.jndi.PropertiesFileInitialContextFactory", "jndi.properties");
         jms:ClientConnector.send(jmsEP, "QpidConnectionFactory", "ballerinatopic", "topic", messageType, m, dataMap);
@@ -28,6 +28,6 @@ connectionFactoryType = "topic")
 service jmsWSO2MBTopicService {
 
     resource onMessage (message m) {
-        system:println("Received map message : " + message:getStringValue(m, "queue message count"));
+        system:println("Received map message : " + messages:getStringValue(m, "queue message count"));
     }
 }

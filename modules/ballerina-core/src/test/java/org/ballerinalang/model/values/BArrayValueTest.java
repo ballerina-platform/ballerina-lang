@@ -29,7 +29,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 /**
- * This class contains methods to test the array implementation in Ballerina.
+ * This class contains methods to test the arrays implementation in Ballerina.
  *
  * @since 0.8.0
  */
@@ -43,13 +43,13 @@ public class BArrayValueTest {
                 Paths.get("lang/values/array-value.bal"));
     }
 
-    @Test(description = "Test lazy array creation", expectedExceptions = {BallerinaException.class},
-            expectedExceptionsMessageRegExp = "array index out of range: Index: 0, Size: 0")
+    @Test(description = "Test lazy arrays creation", expectedExceptions = {BallerinaException.class},
+            expectedExceptionsMessageRegExp = "arrays index out of range: Index: 0, Size: 0")
     public void testLazyArrayCreation() {
         BLangFunctions.invoke(bLangProgram, "lazyInitThrowArrayIndexOutOfBound", new BValue[0]);
     }
 
-    @Test(description = "Test lazy array initializer. Size should be zero")
+    @Test(description = "Test lazy arrays initializer. Size should be zero")
     public void lazyInitSizeZero() {
         BValue[] args = {};
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "lazyInitSizeZero", args);
@@ -61,7 +61,7 @@ public class BArrayValueTest {
         Assert.assertEquals(arrayValue.size(), 0);
     }
 
-    @Test(description = "Test add value operation on int array")
+    @Test(description = "Test add value operation on int arrays")
     public void addValueToIntegerArray() {
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "addValueToIntArray");
 
@@ -69,7 +69,7 @@ public class BArrayValueTest {
         Assert.assertSame(returns[0].getClass(), BArray.class);
 
         BArray<BInteger> arrayValue = (BArray<BInteger>) returns[0];
-        Assert.assertEquals(arrayValue.size(), 200, "Invalid array size.");
+        Assert.assertEquals(arrayValue.size(), 200, "Invalid arrays size.");
 
         Assert.assertSame(arrayValue.get(0).getClass(), BInteger.class, "Invalid class type returned.");
         Assert.assertEquals(arrayValue.get(0).intValue(), (-10), "Invalid value returned.");
@@ -91,7 +91,7 @@ public class BArrayValueTest {
 
     }
 
-    @Test(description = "Test add value operation on float array")
+    @Test(description = "Test add value operation on float arrays")
     public void addValueToFloatArray() {
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "addValueToFloatArray");
 
@@ -99,7 +99,7 @@ public class BArrayValueTest {
         Assert.assertSame(returns[0].getClass(), BArray.class);
 
         BArray<BFloat> arrayValue = (BArray<BFloat>) returns[0];
-        Assert.assertEquals(arrayValue.size(), 200, "Invalid array size.");
+        Assert.assertEquals(arrayValue.size(), 200, "Invalid arrays size.");
 
         Assert.assertSame(arrayValue.get(0).getClass(), BFloat.class, "Invalid class type returned.");
         Assert.assertEquals(arrayValue.get(0).floatValue(), new Float(-10.0), "Invalid value returned.");

@@ -111,7 +111,7 @@ public abstract class HTTP2IntegrationTestCase {
      *
      * @param path of the directory
      * @param list collection of files found
-     * @return String array of file absolute paths
+     * @return String arrays of file absolute paths
      */
     private static String[] listFiles(String path, List<String> list) {
         File folder = new File(path);
@@ -158,7 +158,7 @@ public abstract class HTTP2IntegrationTestCase {
      * List given samples ballerina services.
      *
      * @param sampleDir sample directory
-     * @return String array of file absolute paths
+     * @return String arrays of file absolute paths
      */
     private static String[] listSamples(String sampleDir) {
         String[] sampleFiles = {

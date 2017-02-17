@@ -48,7 +48,7 @@ ConnectionCacheLevel | int | Caching level required when sending messages. | 0 -
 Example :-
 ```
 message queueMessage;
-message:setStringPayload(queueMessage, "Hello from Ballerina");
+messages:setStringPayload(queueMessage, "Hello from Ballerina");
 jms:ClientConnector.send(jmsConnector, "QueueConnectionFactory", "MyQueue", "TextMessage",  queueMessage);
 ```
 
@@ -57,7 +57,7 @@ Given below is a sample Ballerina function depicting the creation of a JMS clien
 function send() {
 jms:ClientConnector jmsConnector = new jms:ClientConnector("org.wso2.andes.jndi.PropertiesFileInitialContextFactory", "jndi.properties");
 message queueMessage;
-message:setStringPayload(queueMessage, "Hello from ballerina");
+messages:setStringPayload(queueMessage, "Hello from ballerina");
 jms:ClientConnector.send(jmsConnector, "QueueConnectionFactory", "MyQueue", "TextMessage", queueMessage);
 }
 

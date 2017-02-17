@@ -1,40 +1,40 @@
-import ballerina.lang.xml;
+import ballerina.lang.xmlutils;
 
 function getString(xml msg, string xPath) (string) {
-    return xml:getString(msg, xPath);
+    return xmlutils:getString(msg, xPath);
 }
 
 function getXML(xml msg, string xPath) (xml) {
-    return xml:getXml(msg, xPath);
+    return xmlutils:getXml(msg, xPath);
 }
 
 function setString(xml msg, string xPath, string value) (xml) {
-    xml:set(msg, xPath, value);
+    xmlutils:set(msg, xPath, value);
     return msg;
 }
 
 function setXML(xml msg, string xPath, xml value) (xml) {
-    xml:set(msg, xPath, value);
+    xmlutils:set(msg, xPath, value);
     return msg;
 }
 
 function addElement(xml msg, string xPath, xml value) (xml) {
-    xml:addElement(msg, xPath, value);
+    xmlutils:addElement(msg, xPath, value);
     return msg;
 }
 
 function addAttribute(xml msg, string xPath, string name, string value) (xml) {
-    xml:addAttribute(msg, xPath, name, value);
+    xmlutils:addAttribute(msg, xPath, name, value);
     return msg;
 }
 
 function remove(xml msg, string xPath) (xml) {
-    xml:remove(msg, xPath);
+    xmlutils:remove(msg, xPath);
     return msg;
 }
 
 function toString(xml msg) (string) {
-    return xml:toString(msg);
+    return xmlutils:toString(msg);
 }
 
 
@@ -46,7 +46,7 @@ function xmlSetString1()(xml) {
                  <doctorName></doctorName>
                  <appointmentDate></appointmentDate>
          </CheckAvailability>`;
-     xml:set(payload, "/CheckAvailability/doctorName", doctorName);
+     xmlutils:set(payload, "/CheckAvailability/doctorName", doctorName);
      return payload;
  }
 
@@ -58,6 +58,6 @@ function xmlSetString1()(xml) {
                  <doctorName>NValue</doctorName>
                  <appointmentDate></appointmentDate>
          </CheckAvailability>`;
-     xml:set(payload, "/CheckAvailability/doctorName/text()", doctorName);
+     xmlutils:set(payload, "/CheckAvailability/doctorName/text()", doctorName);
      return payload;
  }

@@ -315,7 +315,7 @@ public class SQLDataIterator implements DataIterator {
     }
 
     private BValue getBString(Clob clob) throws SQLException {
-        // Directly allocating full length array for decode byte array since anyway we are building
+        // Directly allocating full length arrays for decode byte arrays since anyway we are building
         // new String in memory.
         char[] arr = new char[8 * 1024];
         StringBuilder buffer = new StringBuilder();
@@ -337,7 +337,7 @@ public class SQLDataIterator implements DataIterator {
     }
 
     private BValue getBString(Blob blob) throws SQLException {
-        // Directly allocating full length array for decode byte array since anyway we are building
+        // Directly allocating full length arrays for decode byte arrays since anyway we are building
         // new String in memory.
         // Position of the getBytes has to be 1 instead of 0.
         // "pos - the ordinal position of the first byte in the BLOB value to be extracted;

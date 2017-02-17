@@ -26,6 +26,6 @@ import org.ballerinalang.model.types.TypeEnum;
 public @interface ReturnType {
     TypeEnum type();
 
-    // elementType specially used with Arrays to specify the type of array.
+    // elementType specially used with Arrays to specify the type of arrays.
     TypeEnum elementType() default TypeEnum.EMPTY;
 }

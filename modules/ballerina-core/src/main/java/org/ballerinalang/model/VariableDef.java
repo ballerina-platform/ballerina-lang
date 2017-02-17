@@ -27,7 +27,7 @@ import org.ballerinalang.model.types.SimpleTypeName;
  * {@code VariableDef} represent a Variable definition.
  * <p>
  * Ballerina has variables of various types. The type system includes built-in primitives,
- * a collection of built-in structured types and array and record type constructors.
+ * a collection of built-in structured types and arrays and record type constructors.
  *
  * @since 0.8.0
  */
