@@ -17,7 +17,6 @@
 */
 package org.ballerinalang.test.context;
 
-import org.ballerinalang.test.util.JMSBroker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,10 +27,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
@@ -67,8 +62,6 @@ public class ServerInstance implements Server {
     @Override
     public void start() throws Exception {
         Utils.checkPortAvailability(httpServerPort);
-        // Start the activemq embedded broker.
-        JMSBroker.startBroker();
         if (serverHome == null) {
             serverHome = setUpServerHome(serverDistribution);
             log.info("Server Home " + serverHome);
@@ -215,29 +208,6 @@ public class ServerInstance implements Server {
         String serverExtractedPath = new File(baseDir).getAbsolutePath() + File.separator
                                      + extractDir + File.separator +
                                      extractedCarbonDir;
-
-        /*
-         * Copying the activemq-all jar to the bre/lib, in order to test the activemq based sample jms service.
-         */
-        Path source = Paths.get(baseDir + File.separator + Constant.ACTIVEMQ_ALL_JAR);
-        Path destination = Paths
-                .get(serverExtractedPath + File.separator + "bre" + File.separator + "lib" + File.separator
-                        + Constant.ACTIVEMQ_ALL_JAR);
-        /*
-         * Copying the jms sample to samples directory for integration testing.
-         */
-        Files.copy(source, destination, StandardCopyOption.REPLACE_EXISTING);
-        source = Paths.get(baseDir + File.separator + Constant.OTHER_SAMPLES + File.separator + "jmsWithActiveMq.bal");
-        destination = Paths
-                .get(serverExtractedPath + File.separator + "samples" + File.separator + "jmsWithActiveMq.bal");
-        Files.copy(source, destination, StandardCopyOption.REPLACE_EXISTING);
-        /*
-         * Copying the common-nets jar to the bre/lib, in order to test the ftp based sample file service.
-         */
-        source = Paths.get(baseDir + File.separator + Constant.COMMON_NETS_JAR);
-        destination = Paths.get(serverExtractedPath + File.separator + "bre" + File.separator
-                + "lib" + File.separator + Constant.COMMON_NETS_JAR);
-        Files.copy(source, destination, StandardCopyOption.REPLACE_EXISTING);
         return serverExtractedPath;
     }
 
