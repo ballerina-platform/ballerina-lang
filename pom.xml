@@ -20,14 +20,14 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <parent>
-    <groupId>org.wso2.ballerina</groupId>
-    <artifactId>ballerina</artifactId>
-    <version>0.8.0-SNAPSHOT</version>
+        <groupId>org.wso2.ballerina</groupId>
+        <artifactId>ballerina</artifactId>
+        <version>0.8.0-SNAPSHOT</version>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
-    <groupId>org.wso2.swagger.ballerina.tool</groupId>
-    <artifactId>swagger-ballerina-tool</artifactId>
+    <groupId>org.wso2.ballerina.swagger</groupId>
+    <artifactId>swagger-ballerina-parent</artifactId>
     <packaging>pom</packaging>
     <version>0.8.0-SNAPSHOT</version>
     <name>WSO2 Swagger Ballerina Tooling- Parent</name>
@@ -36,25 +36,9 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>org.wso2.carbon</groupId>
-                <artifactId>org.wso2.carbon.core</artifactId>
-                <version>${carbon.kernel.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.wso2.ballerina</groupId>
-                <artifactId>ballerina-core</artifactId>
-                <version>${ballerina.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>org.wso2.ballerina</groupId>
                 <artifactId>ballerina-launcher</artifactId>
                 <version>${ballerina.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.wso2.ballerina</groupId>
-                <artifactId>ballerina-core-feature</artifactId>
-                <version>${ballerina.version}</version>
-                <type>zip</type>
             </dependency>
             <dependency>
                 <groupId>org.testng</groupId>
@@ -62,13 +46,46 @@
                 <version>${testng.version}</version>
                 <scope>test</scope>
             </dependency>
+            <dependency>
+                <groupId>org.apache.maven</groupId>
+                <artifactId>maven-plugin-api</artifactId>
+                <version>2.0</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.ballerina.swagger</groupId>
+                <artifactId>swagger-ballerina-generator</artifactId>
+                <version>0.8.0-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.maven.plugin-tools</groupId>
+                <artifactId>maven-plugin-annotations</artifactId>
+                <version>3.4</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>io.swagger</groupId>
+                <artifactId>swagger-codegen</artifactId>
+                <version>2.2.1</version>
+            </dependency>
+            <dependency>
+                <groupId>io.airlift</groupId>
+                <artifactId>airline</artifactId>
+                <version>0.7</version>
+            </dependency>
+            <dependency>
+                <groupId>com.googlecode.lambdaj</groupId>
+                <artifactId>lambdaj</artifactId>
+                <version>2.3.3</version>
+            </dependency>
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-simple</artifactId>
+                <version>${slf4j-version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
     <build>
-        <plugins>
-        </plugins>
-
         <pluginManagement>
             <plugins>
                 <plugin>
@@ -101,7 +118,7 @@
                             <id>validate</id>
                             <phase>validate</phase>
                             <configuration>
-		          <skip>true</skip>
+                                <skip>true</skip>
                                 <configLocation>
                                     https://raw.githubusercontent.com/wso2/code-quality-tools/master/checkstyle/checkstyle.xml
                                 </configLocation>
@@ -138,7 +155,6 @@
         <com.fasterxml.jackson.datatype.version>2.4.1</com.fasterxml.jackson.datatype.version>
         <com.fasterxml.jackson.version>2.7.4</com.fasterxml.jackson.version>
         <swagger-parser-version>1.0.25</swagger-parser-version>
-        <!--<swagger-parser-version>1.0.26-SNAPSHOT</swagger-parser-version>-->
         <testng.version>6.9.4</testng.version>
         <scala-version>2.11.1</scala-version>
         <felix-version>2.3.4</felix-version>
@@ -161,7 +177,7 @@
     <modules>
         <!--<module>modules/swagger-ballerina-convertor</module>-->
         <module>modules/swagger-connector-generator</module>
-        <module>modules/swagger-command</module>
+        <!--<module>modules/swagger-command</module>-->
     </modules>
 
 </project>
