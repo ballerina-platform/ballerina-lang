@@ -15,8 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require', 'lodash', 'log', './ballerina-statement-view', './../ast/trycatch-statement', 'd3utils', 'd3'],
-    function (require, _, log, BallerinaStatementView, TryCatchStatement, D3Utils, d3) {
+define(['require', 'lodash', 'log', './compound-statement-view', './../ast/trycatch-statement'],
+    function (require, _, log, CompoundStatementView, TryCatchStatement) {
 
         /**
          * The view to represent a Try Catch statement which is an AST visitor.
@@ -25,10 +25,12 @@ define(['require', 'lodash', 'log', './ballerina-statement-view', './../ast/tryc
          * @param {Object} args.container - The HTML container to which the view should be added to.
          * @param {Object} args.parent - Parent View (Resource, Worker, etc)
          * @param {Object} [args.viewOptions={}] - Configuration values for the view.
+         * @class TryCatchStatementView
          * @constructor
+         * @extends CompoundStatementView
          */
         var TryCatchStatementView = function (args) {
-            BallerinaStatementView.call(this, args);
+            CompoundStatementView.call(this, args);
 
             this._tryBlockView = undefined;
             this._catchBlockView = undefined;
@@ -44,7 +46,7 @@ define(['require', 'lodash', 'log', './ballerina-statement-view', './../ast/tryc
             }
         };
 
-        TryCatchStatementView.prototype = Object.create(BallerinaStatementView.prototype);
+        TryCatchStatementView.prototype = Object.create(CompoundStatementView.prototype);
         TryCatchStatementView.prototype.constructor = TryCatchStatementView;
 
         TryCatchStatementView.prototype.canVisitStatement = function(){
@@ -56,12 +58,7 @@ define(['require', 'lodash', 'log', './ballerina-statement-view', './../ast/tryc
          * @param {TryStatement} statement
          */
         TryCatchStatementView.prototype.visitTryStatement = function(statement){
-            var StatementViewFactory = require('./statement-view-factory');
-            var statementViewFactory = new StatementViewFactory();
-            var args = {model: statement, container: this.getStatementGroup(), viewOptions: undefined, parent: this};
-            var statementView = statementViewFactory.getStatementView(args);
-            this._tryBlockView = statementView;
-            statementView.render();
+            this._tryBlockView = this.visitChildStatement(statement);
         };
 
         /**
@@ -69,22 +66,7 @@ define(['require', 'lodash', 'log', './ballerina-statement-view', './../ast/tryc
          * @param {CatchStatement} statement
          */
         TryCatchStatementView.prototype.visitCatchStatement = function(statement){
-            var StatementViewFactory = require('./statement-view-factory');
-            var statementViewFactory = new StatementViewFactory();
-            var args = {model: statement, container: this.getStatementGroup(), viewOptions: undefined, parent: this};
-            var statementView = statementViewFactory.getStatementView(args);
-            this._catchBlockView = statementView;
-            statementView.render();
-        };
-
-        /**
-         * Render the svg group to draw the try and the catch statements
-         */
-        TryCatchStatementView.prototype.render = function () {
-            var tryCatchGroup = D3Utils.group(d3.select(this._container));
-            tryCatchGroup.attr("id","_" +this._model.id);
-            this.setStatementGroup(tryCatchGroup);
-            this._model.accept(this);
+            this._catchBlockView = this.visitChildStatement(statement);
         };
 
         /**
@@ -93,51 +75,11 @@ define(['require', 'lodash', 'log', './ballerina-statement-view', './../ast/tryc
          */
         TryCatchStatementView.prototype.setModel = function (model) {
             if (!_.isNil(model) && model instanceof TryCatchStatement) {
-                this._model = model;
+                (this.__proto__.__proto__).setModel(model);
             } else {
                 log.error("Try Catch statement definition is undefined or is of different type." + model);
                 throw "Try Catch statement definition is undefined or is of different type." + model;
             }
-        };
-
-        /**
-         * Set the container to draw the try catch group
-         * @param container
-         */
-        TryCatchStatementView.prototype.setContainer = function (container) {
-            if (!_.isNil(container)) {
-                this._container = container;
-            } else {
-                log.error("Container for Try Catch statement is undefined." + container);
-                throw "Container for Try Catch statement is undefined." + container;
-            }
-        };
-
-        TryCatchStatementView.prototype.setViewOptions = function (viewOptions) {
-            this._viewOptions = viewOptions;
-        };
-
-        /**
-         * @returns {_model}
-         */
-        TryCatchStatementView.prototype.getModel = function () {
-            return this._model;
-        };
-
-        TryCatchStatementView.prototype.getContainer = function () {
-            return this._container;
-        };
-
-        TryCatchStatementView.prototype.getViewOptions = function () {
-            return this._viewOptions;
-        };
-
-        TryCatchStatementView.prototype.setTryBlockView = function (tryBlockView) {
-            this._tryBlockView = tryBlockView;
-        };
-
-        TryCatchStatementView.prototype.setCatchBlockView = function (catchBlockView) {
-            this._catchBlockView = catchBlockView;
         };
 
         TryCatchStatementView.prototype.getTryBlockView = function () {

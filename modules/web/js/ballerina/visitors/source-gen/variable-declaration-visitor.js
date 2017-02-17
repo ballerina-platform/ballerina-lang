@@ -43,6 +43,6 @@ define(['require','lodash', 'log', 'event_channel', './abstract-source-gen-visit
             this.getParent().appendSource(this.getGeneratedSource());
             log.debug('End Visit Variable Declaration');
         };
-
+        
         return VariableDeclarationVisitor;
     });

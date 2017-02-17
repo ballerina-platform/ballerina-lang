@@ -76,6 +76,8 @@ div[class*="col-sm-"] {
     padding: 0;
     min-width: 40px;
     position: fixed;
+    font-size: 12px;
+    text-align: center;
 }
 .sidebar-left{
     height: 100%;
@@ -84,7 +86,7 @@ div[class*="col-sm-"] {
 }
 
 .right-container{
-    height: 100%;
+    height: calc(100% - 80px);
     margin-left: 40px;
 }
 

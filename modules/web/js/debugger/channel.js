@@ -54,11 +54,13 @@ define(['lodash', 'event_channel', 'log'],
         };
 
         Channel.prototype.onClose = function(event){
+            this.debugger.active = false;
             this.debugger.trigger("session-terminated");
             var reason;
             if (event.code == this.ws_normal_code){
                 reason = "Normal closure";
                 this.trigger("session-ended");
+                this.debugger.active = false;
                 return;
             }
             else if(event.code == this.ws_ssl_code){
@@ -67,14 +69,16 @@ define(['lodash', 'event_channel', 'log'],
             else{
                 reason = "Unknown reason :" + event.code;
             }
-            log.error(resson);
+            log.error(reason);
         };
 
         Channel.prototype.onError = function(event){
+            this.debugger.active = false;
             this.debugger.trigger("session-error");
         };
 
         Channel.prototype.onOpen = function(event){
+            this.debugger.active = true;
             this.debugger.trigger("session-started");
         };        
 

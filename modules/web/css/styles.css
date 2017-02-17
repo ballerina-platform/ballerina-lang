@@ -707,7 +707,6 @@ button.variable-list {
 .imports-wrapper div span {
     font-style: italic;
     cursor: default;
-    color: #a7a7a7;
 }
 .import-declaration-wrapper{
     float: left;
@@ -918,6 +917,10 @@ button.variable-list {
     cursor: pointer;
 }
 
+.constants-action-wrapper, .imports-action-wrapper{
+    display: none;
+}
+
 .constants-wrapper, .imports-wrapper {
     border: 1px solid #ddd;
     background-color: #fff;
@@ -998,6 +1001,9 @@ button.variable-list {
     border: 1px solid #ddd;
     border-left: none;
 }
+.import-pane-collapser-wrapper{
+    font-size: 12px;
+}
 
 .constant-pane-collapser-wrapper:hover {
     cursor: pointer;
@@ -1052,6 +1058,7 @@ button.variable-list {
     background-color: #FFF;
     float: left;
     padding: 1px 8px;
+    margin-top: 1px;
 }
 
 .constant-declaration-equals {
@@ -1062,6 +1069,8 @@ button.variable-list {
 
 .constants-definition-wrapper {
     padding-bottom: 47px;
+    float: left;
+    width: 89%;
 }
 
 /** End of Constants view **/
@@ -1345,18 +1354,19 @@ button.variable-list {
 }
 
 footer {
-    min-height: 30px;
+    min-height: 25px;
     line-height: 0;
 }
 
 footer > .container p, footer > .container-fluid p {
     line-height: 0;
-    font-size: 13px;
+    font-size: 12px;
     margin: 0;
 }
 
 header .brand span {
     font-size: 15px;
+    font-weight: 400;
 }
 
 a {
@@ -1472,3 +1482,4 @@ span.fw-stack.fw-lg {
     font-weight: 300;
     font-size: 14px;
 }
+.orange{ color: #f17b31;}

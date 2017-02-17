@@ -26,6 +26,7 @@ define(['lodash', './statement'], function (_, Statement) {
         this._source = _.get(args, 'source');
         this._destination = _.get(args, 'destination');
         this._message = _.get(args, 'message', 'm');
+        this._invokeStatement = _.get(args, 'invokeStatement', 'messageName -> workerName');
     };
 
     WorkerInvoker.prototype = Object.create(Statement.prototype);
@@ -55,12 +56,12 @@ define(['lodash', './statement'], function (_, Statement) {
         return this._message;
     };
 
-    WorkerInvoker.prototype.setInvokeStatement = function (message) {
-
+    WorkerInvoker.prototype.setInvokeStatement = function (invokeStatement) {
+        this._invokeStatement = invokeStatement;
     };
 
     WorkerInvoker.prototype.getInvokeStatement = function () {
-        return "message -> worker"
+        return this._invokeStatement;
     };
 
     /**
@@ -68,7 +69,12 @@ define(['lodash', './statement'], function (_, Statement) {
      * @param jsonNode
      */
     WorkerInvoker.prototype.initFromJson = function (jsonNode) {
-        this.setExpression('a = b', {doSilently: true});
+        var workerName = jsonNode.worker_name;
+        var self = this;
+        var workerInstance = _.find(this.getParent().getChildren(), function (child) {
+            return self.getFactory().isWorkerDeclaration(child) && !child.isDefaultWorker() && child.getWorkerName() === workerName;
+        });
+        this.setDestination(workerInstance);
     };
 
     return WorkerInvoker;

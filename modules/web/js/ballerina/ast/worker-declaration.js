@@ -24,6 +24,8 @@ define(['lodash', './node', '../utils/common-utils'], function (_, ASTNode, Comm
         this._workerDeclarationStatement = _.get(args, 'declarationStatement', 'worker1(message m)');
         this._invoker = undefined;
         this._replyReceiver = undefined;
+        this._workerName = undefined;
+        this._argumentsList = [];
 
         ASTNode.call(this, "WorkerDeclaration");
     };
@@ -51,6 +53,8 @@ define(['lodash', './node', '../utils/common-utils'], function (_, ASTNode, Comm
      */
     WorkerDeclaration.prototype.setWorkerDeclarationStatement = function (declarationStatement) {
         this._workerDeclarationStatement = declarationStatement;
+        var tokens = this._workerDeclarationStatement.split("(");
+        this.setWorkerName(tokens[0].trim());
     };
 
     /**
@@ -62,7 +66,11 @@ define(['lodash', './node', '../utils/common-utils'], function (_, ASTNode, Comm
     };
 
     WorkerDeclaration.prototype.getWorkerName = function () {
-        return "workerName";
+        return this._workerName;
+    };
+
+    WorkerDeclaration.prototype.setWorkerName = function (workerName) {
+        this._workerName = workerName;
     };
 
     /**
@@ -117,6 +125,42 @@ define(['lodash', './node', '../utils/common-utils'], function (_, ASTNode, Comm
      */
     WorkerDeclaration.prototype.setReplyReceiver = function (replyReceiver) {
         this._replyReceiver = replyReceiver;
+    };
+    
+    WorkerDeclaration.prototype.addArgument = function (paramType, paramName) {
+        this.getArgumentsList().push({
+            parameter_type: paramName,
+            parameter_name: paramType
+        });
+    };
+
+    WorkerDeclaration.prototype.getArgumentsList = function () {
+        return this._argumentsList;
+    };
+    WorkerDeclaration.prototype.initFromJson = function (jsonNode) {
+        var self = this;
+        var BallerinaASTFactory = this.getFactory();
+        this.setWorkerName(jsonNode.worker_name);
+        var args = jsonNode.argument_declaration;
+
+        _.forEach(args, function(argument) {
+            self.addArgument(argument.parameter_type, argument.parameter_name);
+        });
+
+        // TODO: check whether return types are allowed
+        _.each(jsonNode.children, function (childNode) {
+            var child = undefined;
+            var childNodeTemp = undefined;
+            if (childNode.type === "variable_definition_statement" && !_.isNil(childNode.children[1]) && childNode.children[1].type === 'connector_init_expr') {
+                child = BallerinaASTFactory.createConnectorDeclaration();
+                childNodeTemp = childNode;
+            } else {
+                child = BallerinaASTFactory.createFromJson(childNode);
+                childNodeTemp = childNode;
+            }
+            self.addChild(child);
+            child.initFromJson(childNodeTemp);
+        });
     };
 
     return WorkerDeclaration;
