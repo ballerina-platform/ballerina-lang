@@ -150,7 +150,6 @@ define(['require', 'jquery', 'backbone', 'lodash', 'event_channel', './channel',
         _.remove(this.debugPoints, function(item) {
             return item.fileName == fileName;
         });
-        debugger;
         log.debug('removed all debugpoints for fileName', fileName);
         this.publishBreakPoints();
     }
