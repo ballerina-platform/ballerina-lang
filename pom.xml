@@ -46,6 +46,12 @@
             <artifactId>testng</artifactId>
             <version>${testng.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.jacoco</groupId>
+            <artifactId>org.jacoco.agent</artifactId>
+            <classifier>runtime</classifier>
+            <version>${jacoco.version}</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -112,6 +118,52 @@
                     </transformers>
                 </configuration>
             </plugin>
+            <plugin>
+                    <groupId>org.jacoco</groupId>
+                    <artifactId>jacoco-maven-plugin</artifactId>
+                    <version>${jacoco.version}</version>
+                    <executions>
+                        <execution>
+                            <id>default-instrument</id>
+                            <goals>
+                                <goal>instrument</goal>
+                            </goals>
+                        </execution>
+                        <execution>
+                            <id>default-restore-instrumented-classes</id>
+                            <goals>
+                                <goal>restore-instrumented-classes</goal>
+                            </goals>
+                        </execution>
+                        <execution>
+                            <id>default-report</id>
+                            <phase>prepare-package</phase>
+                            <goals>
+                                <goal>report</goal>
+                            </goals>
+                        </execution>
+                        <execution>
+                            <id>default-check</id>
+                            <goals>
+                                <goal>check</goal>
+                            </goals>
+                            <configuration>
+                                <rules>
+                                </rules>
+                            </configuration>
+                        </execution>
+                    </executions>
+            </plugin>
+            <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <version>${maven.surefire.plugin.version}</version>
+                    <configuration>
+                        <systemPropertyVariables>
+                            <jacoco-agent.destfile>target/jacoco.exec</jacoco-agent.destfile>
+                        </systemPropertyVariables>
+                    </configuration>
+                </plugin>
         </plugins>
     </build>
 
@@ -124,6 +176,9 @@
         <commons.lang3.version>3.5</commons.lang3.version>
         <commons.io.version>2.5</commons.io.version>
         <jcommander.version>1.60</jcommander.version>
-        <ballerina.launcher.version>0.8.0-SNAPSHOT</ballerina.launcher.version>
+        <ballerina.launcher.version>0.8.0-ALPHA</ballerina.launcher.version>
+        <jacoco.version>0.7.5.201505241946</jacoco.version>
+	<maven.surefire.plugin.version>2.18.1</maven.surefire.plugin.version>
+
     </properties>
 </project>
