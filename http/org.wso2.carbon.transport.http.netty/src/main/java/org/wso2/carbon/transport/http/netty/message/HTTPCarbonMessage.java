@@ -21,7 +21,6 @@ package org.wso2.carbon.transport.http.netty.message;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.handler.codec.http.DefaultHttpContent;
-import io.netty.handler.codec.http.DefaultLastHttpContent;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.LastHttpContent;
 import org.slf4j.Logger;
@@ -50,8 +49,6 @@ public class HTTPCarbonMessage extends CarbonMessage {
     private BlockingQueue<HttpContent> outContentQueue = new LinkedBlockingQueue<>();
     private BlockingQueue<HttpContent> garbageCollected = new LinkedBlockingQueue<>();
 
-    // Variable to keep the status on whether the last content was added during the clone
-    private boolean isEndMarked = false;
 
     public void addHttpContent(HttpContent httpContent) {
         try {
@@ -94,6 +91,12 @@ public class HTTPCarbonMessage extends CarbonMessage {
         while (!isEndOfMessageProcessed) {
             try {
                 HttpContent httpContent = httpContentQueue.take();
+                // This check is to make sure we add the last http content after getClone and avoid adding
+                // empty content to bytebuf list again and again
+                if (httpContent instanceof EmptyLastHttpContent) {
+                    break;
+                }
+
                 if (httpContent instanceof LastHttpContent) {
                     isEndOfMessageProcessed = true;
                 }
@@ -107,7 +110,6 @@ public class HTTPCarbonMessage extends CarbonMessage {
 
         return byteBufferList;
     }
-
 
     @Override
     public InputStream getInputStream() {
@@ -179,14 +181,11 @@ public class HTTPCarbonMessage extends CarbonMessage {
 
     @Override
     public void markMessageEnd() {
-        if (!isEndMarked) {
             if (isAlreadyRead()) {
-                outContentQueue.add(new DefaultLastHttpContent());
+                outContentQueue.add(new EmptyLastHttpContent());
             } else {
-                httpContentQueue.add(new DefaultLastHttpContent());
+                httpContentQueue.add(new EmptyLastHttpContent());
             }
-            isEndMarked = true;
-        }
     }
 
     @Override
