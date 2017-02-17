@@ -37,6 +37,8 @@ import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.nativeimpl.lang.utils.ErrorHandler;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
+import org.ballerinalang.natives.annotations.Attribute;
+import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.util.exceptions.BallerinaException;
@@ -52,6 +54,14 @@ import org.ballerinalang.util.exceptions.BallerinaException;
         returnType = {@ReturnType(type = TypeEnum.XML)},
         isPublic = true
 )
+@BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
+        value = "Evaluates the XPath on an XML object and returns the matching XML object.") })
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "xml",
+        value = "An XML object") })
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "xPath",
+        value = "An XPath") })
+@BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "xml",
+        value = "Matching XML object") })
 public class GetXML extends AbstractNativeFunction {
     
     private static final String OPERATION = "get element from xml";

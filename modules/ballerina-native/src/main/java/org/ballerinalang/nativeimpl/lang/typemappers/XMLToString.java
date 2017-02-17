@@ -37,7 +37,6 @@ import org.ballerinalang.natives.annotations.ReturnType;
         returnType = {@ReturnType(type = TypeEnum.STRING)},
         isPublic = true
 )
-
 public class XMLToString extends AbstractNativeTypeMapper {
 
     public BValue convert(Context ctx) {

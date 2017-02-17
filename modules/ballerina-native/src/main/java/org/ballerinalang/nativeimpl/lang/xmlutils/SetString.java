@@ -31,6 +31,8 @@ import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.nativeimpl.lang.utils.ErrorHandler;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
+import org.ballerinalang.natives.annotations.Attribute;
+import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.jaxen.JaxenException;
 import org.jaxen.XPathSyntaxException;
@@ -53,6 +55,17 @@ import java.util.List;
                 @Argument(name = "value", type = TypeEnum.STRING)},
         isPublic = true
 )
+@BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
+        value = "Sets the string value of an element that matches the given XPath. "
+                + "If the XPath matches an existing element, that element's value will be updated."
+                + " If the XPath does not match an existing element,"
+                + " a new element will be added to match the XPath.") })
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "xml",
+        value = "An XML object") })
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "xPath",
+        value = "An XPath") })
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "value",
+        value = "A string value") })
 public class SetString extends AbstractNativeFunction {
     
     private static final String OPERATION = "set string in xml";

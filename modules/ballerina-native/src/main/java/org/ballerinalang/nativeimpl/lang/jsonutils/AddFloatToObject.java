@@ -30,6 +30,8 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueType;
 import org.ballerinalang.nativeimpl.lang.utils.ErrorHandler;
 import org.ballerinalang.natives.annotations.Argument;
+import org.ballerinalang.natives.annotations.Attribute;
+import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 
 /**
@@ -46,6 +48,17 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
                 @Argument(name = "value", type = TypeEnum.FLOAT)},
         isPublic = true
 )
+@BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
+        value = "Inserts a named element to a JSON object. "
+                + "This function will add a new float element with the given name (key)") })
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "json",
+        value = "A JSON object") })
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "jsonPath",
+        value = "The path of the JSON element") })
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "key",
+
+        value = "The name of the element to be added") })
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "value", value = "A float value") })
 public class AddFloatToObject extends AbstractJSONFunction {
 
     private static final String OPERATION = "add float to json object";

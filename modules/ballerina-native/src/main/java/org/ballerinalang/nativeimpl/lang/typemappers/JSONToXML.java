@@ -52,7 +52,6 @@ import javax.xml.stream.XMLStreamException;
         returnType = {@ReturnType(type = TypeEnum.XML)},
         isPublic = true
 )
-
 public class JSONToXML extends AbstractNativeTypeMapper {
 
     private static final String XML_ROOT = "jsonObject";

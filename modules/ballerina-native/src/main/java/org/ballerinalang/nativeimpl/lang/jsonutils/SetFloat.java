@@ -30,6 +30,8 @@ import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.lang.utils.ErrorHandler;
 import org.ballerinalang.natives.annotations.Argument;
+import org.ballerinalang.natives.annotations.Attribute;
+import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 
 /**
@@ -44,6 +46,15 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
                 @Argument(name = "value", type = TypeEnum.FLOAT)},
         isPublic = true
 )
+@BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
+        value = "Sets the float value of the element that matches the given JSONPath."
+                + " If the JSONPath doesn't match any element, this operation will have no effect.") })
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "json",
+        value = "A JSON object") })
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "jsonPath",
+        value = "The path of the JSON element") })
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "value",
+        value = "A float value") })
 public class SetFloat extends AbstractJSONFunction {
 
     private static final String OPERATION = "set float in json";

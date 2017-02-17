@@ -30,6 +30,8 @@ import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.lang.utils.ErrorHandler;
 import org.ballerinalang.natives.annotations.Argument;
+import org.ballerinalang.natives.annotations.Attribute;
+import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 
 /**
@@ -44,6 +46,15 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
                 @Argument(name = "value", type = TypeEnum.BOOLEAN)},
         isPublic = true
 )
+@BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
+        value = "Inserts a Boolean to a JSON array. This function will add a new Boolean element to the end of "
+                + "the JSON array identified by the given JSONPath.") })
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "json",
+        value = "A JSON array object") })
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "jsonPath",
+        value = "The path of the JSON element") })
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "value",
+        value = "A Boolean value") })
 public class AddBooleanToArray extends AbstractJSONFunction {
 
     private static final String OPERATION = "add boolean to json arrays";
