@@ -138,7 +138,7 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
                         logger.debug("Waiting for a response");
                         context.wait(SENDER_TIMEOUT);
                         if (System.currentTimeMillis() >= (startTime + SENDER_TIMEOUT)) {
-                            throw new RuntimeException("Response was not received within sender timeout of " +
+                            throw new RuntimeException("response was not received within sender timeout of " +
                                                        SENDER_TIMEOUT / 1000 + " seconds");
                         }
                     }
