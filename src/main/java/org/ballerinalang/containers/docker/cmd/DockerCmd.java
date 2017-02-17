@@ -71,7 +71,7 @@ public class DockerCmd implements BLauncherCmd {
             printCommandUsageInfo();
             return;
         }
-
+        
         if (packagePathNames == null || packagePathNames.size() == 0) {
             throw LauncherUtils.createUsageException("no ballerina package is provided\n");
         }
@@ -192,10 +192,13 @@ public class DockerCmd implements BLauncherCmd {
     }
 
     @Override
-    public void setParentCmdParser(JCommander parentCmdParser) {
+    public void setParentCmdParser(JCommander arg0) {
+                
     }
 
     @Override
-    public void setSelfCmdParser(JCommander selfCmdParser) {
+    public void setSelfCmdParser(JCommander arg0) {
+        
     }
+
 }
