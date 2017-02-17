@@ -10,5 +10,5 @@ Examples:
     ballerinaserver.bat passthrough.bal echo.bal
     
 Available Options:
-    -version     Print Ballerina Composer version.
+    -version     Print Ballerina Tools version.
     -help        Print this help message.

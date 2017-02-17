@@ -16,5 +16,5 @@ Available Commands
     restart     Restart Ballerina Server which is running in the background.
 
 Available Options:
-    -version     Print Ballerina Composer version.
+    -version     Print Ballerina Tools version.
     -help        Print this help message.

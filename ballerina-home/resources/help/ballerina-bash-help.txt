@@ -11,5 +11,5 @@ Examples:
     ballerina multiplier.bal 5 10
 
 Available Options are:
-    -version     Print Ballerina Composer version.
+    -version     Print Ballerina Tools version.
     -help        Print this help message.

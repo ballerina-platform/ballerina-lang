@@ -1,2 +1,2 @@
 # distribution
-Ballerina Composer Distribution
+Ballerina Tools Distribution

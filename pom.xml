@@ -26,12 +26,12 @@
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
-    <groupId>org.ballerinalang.composer</groupId>
-    <artifactId>ballerina-composer</artifactId>
+    <groupId>org.ballerinalang.tools</groupId>
+    <artifactId>ballerina-tools-distribution</artifactId>
     <packaging>pom</packaging>
     <version>0.8.0-SNAPSHOT</version>
-    <name>Ballerina - Composer</name>
-    <description>Ballerina - Composer</description>
+    <name>Ballerina - Tools</name>
+    <description>Ballerina - Tools</description>
 
     <dependencies>
         <dependency>
@@ -108,7 +108,7 @@
                             <descriptors>
                                 <descriptor>${basedir}/src/assembly/bin.xml</descriptor>
                             </descriptors>
-                            <finalName>ballerina-composer-${project.version}</finalName>
+                            <finalName>ballerina-tools-${project.version}</finalName>
                             <appendAssemblyId>false</appendAssemblyId>
                         </configuration>
                     </execution>

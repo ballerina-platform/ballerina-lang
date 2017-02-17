@@ -1,1 +1,1 @@
-Ballerina Composer version: ${project.version}
+Ballerina Tools version: ${project.version}
