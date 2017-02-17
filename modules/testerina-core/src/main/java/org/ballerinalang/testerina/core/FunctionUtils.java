@@ -15,14 +15,14 @@
 * specific language governing permissions and limitations
 * under the License.
 */
-package org.ballerinalang.testerina.core.langutils;
+package org.ballerinalang.testerina.core;
 
-import org.wso2.ballerina.core.interpreter.SymScope;
-import org.wso2.ballerina.core.model.Symbol;
-import org.wso2.ballerina.core.model.SymbolName;
-import org.wso2.ballerina.core.model.util.LangModelUtils;
-import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
-import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaFunction;
+import org.ballerinalang.bre.SymScope;
+import org.ballerinalang.model.Symbol;
+import org.ballerinalang.model.SymbolName;
+import org.ballerinalang.model.util.LangModelUtils;
+import org.ballerinalang.natives.AbstractNativeFunction;
+import org.ballerinalang.natives.annotations.BallerinaFunction;
 
 /**
  * Utility functions for Function Invocations.
