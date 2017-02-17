@@ -684,21 +684,6 @@ public class BLangJSONModelBuilder implements NodeVisitor {
 
     @Override
     public void visit(WorkerInvocationStmt workerInvocationStmt) {
-
-    }
-
-    @Override
-    public void visit(WorkerReplyStmt workerReplyStmt) {
-
-    }
-
-    @Override
-    public void visit(ForkJoinStmt forkJoinStmt) {
-
-    }
-
-    @Override
-    public void visit(WorkerInvocationStmt workerInvocationStmt) {
         JsonObject workerInvokeStmtObj = new JsonObject();
         workerInvokeStmtObj.addProperty(BLangJSONModelConstants.STATEMENT_TYPE, BLangJSONModelConstants.WORKER_INVOCATION_STATEMENT);
         workerInvokeStmtObj.addProperty(BLangJSONModelConstants.WORKER_NAME, workerInvocationStmt.getCallableUnitName());

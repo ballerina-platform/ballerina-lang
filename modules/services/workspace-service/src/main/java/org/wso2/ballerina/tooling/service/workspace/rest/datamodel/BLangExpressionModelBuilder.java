@@ -22,7 +22,11 @@ import org.ballerinalang.bre.ConnectorVarLocation;
 import org.ballerinalang.bre.ConstantLocation;
 import org.ballerinalang.bre.ServiceVarLocation;
 import org.ballerinalang.bre.StackVarLocation;
+import org.ballerinalang.bre.StructVarLocation;
+import org.ballerinalang.bre.WorkerVarLocation;
 import org.ballerinalang.model.Annotation;
+import org.ballerinalang.model.BLangPackage;
+import org.ballerinalang.model.BLangProgram;
 import org.ballerinalang.model.BTypeMapper;
 import org.ballerinalang.model.BallerinaAction;
 import org.ballerinalang.model.BallerinaConnectorDef;
@@ -48,6 +52,7 @@ import org.ballerinalang.model.expressions.BasicLiteral;
 import org.ballerinalang.model.expressions.ConnectorInitExpr;
 import org.ballerinalang.model.expressions.DivideExpr;
 import org.ballerinalang.model.expressions.EqualExpression;
+import org.ballerinalang.model.expressions.Expression;
 import org.ballerinalang.model.expressions.FunctionInvocationExpr;
 import org.ballerinalang.model.expressions.GreaterEqualExpression;
 import org.ballerinalang.model.expressions.GreaterThanExpression;
@@ -72,14 +77,20 @@ import org.ballerinalang.model.invokers.MainInvoker;
 import org.ballerinalang.model.statements.ActionInvocationStmt;
 import org.ballerinalang.model.statements.AssignStmt;
 import org.ballerinalang.model.statements.BlockStmt;
+import org.ballerinalang.model.statements.BreakStmt;
 import org.ballerinalang.model.statements.CommentStmt;
+import org.ballerinalang.model.statements.ForkJoinStmt;
 import org.ballerinalang.model.statements.FunctionInvocationStmt;
 import org.ballerinalang.model.statements.IfElseStmt;
 import org.ballerinalang.model.statements.ReplyStmt;
 import org.ballerinalang.model.statements.ReturnStmt;
 import org.ballerinalang.model.statements.Statement;
+import org.ballerinalang.model.statements.ThrowStmt;
+import org.ballerinalang.model.statements.TryCatchStmt;
 import org.ballerinalang.model.statements.VariableDefStmt;
 import org.ballerinalang.model.statements.WhileStmt;
+import org.ballerinalang.model.statements.WorkerInvocationStmt;
+import org.ballerinalang.model.statements.WorkerReplyStmt;
 import org.ballerinalang.model.types.BTypes;
 
 import java.util.Stack;
@@ -98,6 +109,14 @@ public class BLangExpressionModelBuilder implements NodeVisitor {
     }
 
     public BLangExpressionModelBuilder() {}
+
+    @Override public void visit(BLangProgram bLangProgram) {
+
+    }
+
+    @Override public void visit(BLangPackage bLangPackage) {
+
+    }
 
     @Override
     public void visit(BallerinaFile bFile) {
