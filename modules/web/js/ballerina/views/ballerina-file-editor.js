@@ -394,6 +394,16 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
             _.set(sourceViewOpts, 'debugger', this._debugger);
             this._sourceView = new SourceView(sourceViewOpts);
 
+            this.on('reset-breakpoints', function(newBreakpoints) {
+                self._sourceView.trigger('reset-breakpoints', newBreakpoints);
+                _.forEach(this._currentBreakpoints, function(breakpoint) {
+                    self._hideBreakpoint(breakpoint);
+                });
+                _.forEach(newBreakpoints, function(breakpoint) {
+                    self._showBreakpoint(breakpoint);
+                });
+            });
+
             this._sourceView.on('add-breakpoint', function (row) {
                 self.trigger('add-breakpoint', row);
             });
@@ -426,6 +436,8 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
             this._sourceView.on('dispatch-command', function (id) {
                 self.trigger('dispatch-command', id);
             });
+
+            this._debugger.on("resume-execution", _.bind(this._clearExistingDebugHit, this));
 
             this._sourceView.render();
 
@@ -917,7 +929,59 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
 
         BallerinaFileEditor.prototype.debugHit = function (position) {
             this._sourceView.debugHit(position);
+            this._debugHitDesignView(position);
         };
+
+        BallerinaFileEditor.prototype._debugHitDesignView = function(position) {
+            var self = this;
+            var modelMap = this.diagramRenderingContext.getViewModelMap();
+            // hide previous debug hit
+            if(this._currentDebugHit) {
+                this._currentDebugHit.clearDebugHit();
+            }
+            _.each(modelMap, function(aView) {
+                if(!_.isNil(aView.getModel)) {
+                    var lineNumber = aView.getModel().getLineNumber();
+                    if(lineNumber === position.line) {
+                        aView.showDebugHit();
+                        self._currentDebugHit = aView;
+                    }
+                }
+            });
+        };
+
+        BallerinaFileEditor.prototype._clearExistingDebugHit = function(position) {
+            if(this._currentDebugHit) {
+                this._currentDebugHit.clearDebugHit();
+            }
+        };
+
+        BallerinaFileEditor.prototype._showBreakpoint = function (newBreakpoint) {
+            var modelMap = this.diagramRenderingContext.getViewModelMap();
+            var self = this;
+            this._currentBreakpoints = this._currentBreakpoints || [];
+
+            _.each(modelMap, function(aView) {
+                if(!_.isNil(aView.getModel)) {
+                    var lineNumber = aView.getModel().getLineNumber();
+                    if(newBreakpoint === lineNumber && !_.isNil(aView.showDebugIndicator)) {
+                        aView.showDebugIndicator();
+                        self._currentBreakpoints.push(aView);
+                    }
+                }
+            });
+        };
+
+        BallerinaFileEditor.prototype._hideBreakpoint = function (breakpoint) {
+            var modelMap = this.diagramRenderingContext.getViewModelMap();
+            var self = this;
+            this._currentBreakpoints = this._currentBreakpoints || [];
+            _.each(this._currentBreakpoints, function(aView) {
+                aView.hideDebugIndicator();
+            });
+        };
+
+
 
         return BallerinaFileEditor;
     });
