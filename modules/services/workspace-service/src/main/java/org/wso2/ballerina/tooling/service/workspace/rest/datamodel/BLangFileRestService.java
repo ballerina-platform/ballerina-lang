@@ -110,8 +110,8 @@ public class BLangFileRestService {
         GlobalScope globalScope = GlobalScope.getInstance();
         BTypes.loadBuiltInTypes(globalScope);
         BLangPackage bLangPackage = new BLangPackage(globalScope);
-
-        BLangModelBuilder bLangModelBuilder = new BLangModelBuilder(bLangPackage);
+        BLangPackage.PackageBuilder packageBuilder = new BLangPackage.PackageBuilder(bLangPackage);
+        BLangModelBuilder bLangModelBuilder = new BLangModelBuilder(packageBuilder, "");
         BLangAntlr4Listener ballerinaBaseListener = new BLangAntlr4Listener(bLangModelBuilder);
         ballerinaParser.addParseListener(ballerinaBaseListener);
         ballerinaParser.compilationUnit();

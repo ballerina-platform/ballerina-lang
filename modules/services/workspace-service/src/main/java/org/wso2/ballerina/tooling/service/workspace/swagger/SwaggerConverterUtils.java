@@ -46,7 +46,6 @@ import org.ballerinalang.util.parser.BallerinaLexer;
 import org.ballerinalang.util.parser.BallerinaParser;
 import org.ballerinalang.util.parser.BallerinaParserErrorStrategy;
 import org.ballerinalang.util.parser.antlr4.BLangAntlr4Listener;
-import org.ballerinalang.services.dispatchers.http.Constants;
 import org.wso2.ballerina.tooling.service.workspace.swagger.generators.BallerinaCodeGenerator;
 
 import java.io.File;
@@ -97,7 +96,8 @@ public class SwaggerConverterUtils {
         GlobalScope globalScope = GlobalScope.getInstance();
         BTypes.loadBuiltInTypes(globalScope);
         BLangPackage bLangPackage = new BLangPackage(globalScope);
-        BLangModelBuilder bLangModelBuilder = new BLangModelBuilder(bLangPackage);
+        BLangPackage.PackageBuilder packageBuilder = new BLangPackage.PackageBuilder(bLangPackage);
+        BLangModelBuilder bLangModelBuilder = new BLangModelBuilder(packageBuilder, "");
         BLangAntlr4Listener ballerinaBaseListener = new BLangAntlr4Listener(bLangModelBuilder);
         ballerinaParser.addParseListener(ballerinaBaseListener);
         ballerinaParser.compilationUnit();
@@ -224,7 +224,7 @@ public class SwaggerConverterUtils {
             //resource as -->	resource TestPost(message m) {
             //This logic can be improved to pass user defined types.
             ParameterDef parameterDef = new ParameterDef(
-                    new NodeLocation("<unknown>"), "m", new SimpleTypeName("message"), new SymbolName("m"),
+                    new NodeLocation("<unknown>",0), "m", new SimpleTypeName("message"), new SymbolName("m"),
                     resourceBuilder.buildResource());
             //Then add created parameter.
             resourceBuilder.addParameter(parameterDef);
