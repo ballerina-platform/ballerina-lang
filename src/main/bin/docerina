@@ -29,4 +29,4 @@ properties="-Dhtml.output.path=${html_output_path}
 # Uncomment below line to enable remote debugging
 #debug="-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005"
 
-java -cp "${class_path}" ${properties} ${debug} org.wso2.ballerina.docgen.docs.BallerinaDocGeneratorMain $*
+java -cp "${class_path}" ${properties} ${debug} org.ballerinalang.docgen.docs.BallerinaDocGeneratorMain $*

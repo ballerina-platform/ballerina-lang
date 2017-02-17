@@ -16,9 +16,9 @@
  * under the License.
  */
 
-package org.wso2.ballerina.docgen.docs;
+package org.ballerinalang.docgen.docs;
 
-import org.wso2.ballerina.core.model.BLangPackage;
+import org.ballerinalang.model.BLangPackage;
 
 import java.util.HashMap;
 import java.util.Map;

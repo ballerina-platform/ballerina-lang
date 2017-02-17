@@ -15,7 +15,7 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.wso2.ballerina.docgen.docs.html;
+package org.ballerinalang.docgen.docs.html;
 
 import com.github.jknack.handlebars.Handlebars;
 import com.github.jknack.handlebars.Helper;
@@ -23,16 +23,16 @@ import com.github.jknack.handlebars.Template;
 import com.github.jknack.handlebars.io.FileTemplateLoader;
 import com.github.jknack.handlebars.io.TemplateLoader;
 
-import org.wso2.ballerina.core.model.Annotation;
-import org.wso2.ballerina.core.model.BLangPackage;
-import org.wso2.ballerina.core.model.BallerinaAction;
-import org.wso2.ballerina.core.model.BallerinaConnectorDef;
-import org.wso2.ballerina.core.model.BallerinaFunction;
-import org.wso2.ballerina.core.model.ParameterDef;
-import org.wso2.ballerina.core.model.SymbolName;
-import org.wso2.ballerina.core.model.types.BType;
-import org.wso2.ballerina.docgen.docs.BallerinaDocConstants;
-import org.wso2.ballerina.docgen.docs.DocumentWriter;
+import org.ballerinalang.docgen.docs.BallerinaDocConstants;
+import org.ballerinalang.docgen.docs.DocumentWriter;
+import org.ballerinalang.model.Annotation;
+import org.ballerinalang.model.BLangPackage;
+import org.ballerinalang.model.BallerinaAction;
+import org.ballerinalang.model.BallerinaConnectorDef;
+import org.ballerinalang.model.BallerinaFunction;
+import org.ballerinalang.model.ParameterDef;
+import org.ballerinalang.model.SymbolName;
+import org.ballerinalang.model.types.BType;
 
 import java.io.File;
 import java.io.IOException;
