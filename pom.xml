@@ -176,7 +176,7 @@
 
     <modules>
         <!--<module>modules/swagger-ballerina-convertor</module>-->
-        <module>modules/swagger-connector-generator</module>
+        <module>modules/swagger-ballerina-generator</module>
         <!--<module>modules/swagger-command</module>-->
     </modules>
 
