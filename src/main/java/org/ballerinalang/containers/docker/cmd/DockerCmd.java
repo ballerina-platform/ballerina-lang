@@ -1,9 +1,7 @@
 package org.ballerinalang.containers.docker.cmd;
 
-import java.io.IOException;
-import java.nio.file.Paths;
-import java.util.List;
-
+import com.beust.jcommander.Parameter;
+import com.beust.jcommander.Parameters;
 import org.apache.commons.io.FilenameUtils;
 import org.ballerinalang.containers.docker.cmd.validator.DockerHostValidator;
 import org.ballerinalang.containers.docker.exception.BallerinaDockerClientException;
@@ -11,8 +9,10 @@ import org.ballerinalang.containers.docker.impl.DefaultBallerinaDockerClient;
 import org.ballerinalang.launcher.BLauncherCmd;
 import org.ballerinalang.launcher.LauncherUtils;
 
-import com.beust.jcommander.Parameter;
-import com.beust.jcommander.Parameters;
+import java.io.IOException;
+import java.io.PrintStream;
+import java.nio.file.Paths;
+import java.util.List;
 
 /**
  * Ballerina Command to support Docker based packaging Ballerina packages.
@@ -21,20 +21,19 @@ import com.beust.jcommander.Parameters;
 public class DockerCmd implements BLauncherCmd {
 
     private static final String DEFAULT_DOCKER_IMAGE_VERSION = "latest";
-
     private static final String BALLERINA_MAIN_PACKAGE_EXTENTION = "bmz";
-
     private static final String BALLERINA_SERVICE_PACKAGE_EXTENTION = "bsz";
-
     private static final String DEFAULT_DOCKER_HOST = "localhost";
+
+    private static PrintStream outStream = System.err;
 
     @Parameter(arity = 1, description = "builds the given package with all the dependencies")
     private List<String> packagePath;
 
-    @Parameter(names = { "--tag", "-t" })
+    @Parameter(names = {"--tag", "-t"})
     private String dockerImageName;
 
-    @Parameter(names = { "--host", "-h" }, validateWith = DockerHostValidator.class)
+    @Parameter(names = {"--host", "-h"}, validateWith = DockerHostValidator.class)
     private String dockerHost;
 
     @Override
@@ -45,7 +44,7 @@ public class DockerCmd implements BLauncherCmd {
 
         if (dockerHost == null) {
             dockerHost = DEFAULT_DOCKER_HOST;
-            System.out.println("\nballerina: docker host URL is not provided. Using default docker host 'localhost'");
+            outStream.println("\nballerina: docker host URL is not provided. Using default docker host 'localhost'");
         }
 
         // extract the package name and extension
@@ -55,7 +54,7 @@ public class DockerCmd implements BLauncherCmd {
 
         if (dockerImageName == null) {
             dockerImageName = packageName;
-            System.out.println("ballerina: docker tag is not provided. Using " + packageName + ":"
+            outStream.println("ballerina: docker tag is not provided. Using " + packageName + ":"
                     + DEFAULT_DOCKER_IMAGE_VERSION + " as the tag");
         }
 
@@ -68,36 +67,38 @@ public class DockerCmd implements BLauncherCmd {
         }
 
         switch (packageExtention) {
-        case BALLERINA_SERVICE_PACKAGE_EXTENTION:
-            System.out.println("provided service package -- TODO remove this msg");
-            try {
-                new DefaultBallerinaDockerClient().createServiceImage("pkg1", null, Paths.get(packageCompletePath),
-                        imageName, imageVersion);
-            } catch (BallerinaDockerClientException | IOException | InterruptedException e) {
-                System.out.println("Error : " + e.getMessage());
-            }
-            break;
+            case BALLERINA_SERVICE_PACKAGE_EXTENTION:
+                outStream.println("provided service package -- TODO remove this msg");
+                try {
+                    new DefaultBallerinaDockerClient().createServiceImage("pkg1", null, Paths.get(packageCompletePath),
+                            imageName, imageVersion);
+                } catch (BallerinaDockerClientException | IOException | InterruptedException e) {
+                    outStream.println("Error : " + e.getMessage());
+                }
+                break;
 
-        case BALLERINA_MAIN_PACKAGE_EXTENTION:
-            System.out.println("provided main package -- TODO remove this msg");
-            try {
-                new DefaultBallerinaDockerClient().createMainImage("pkg1", null, Paths.get(packageCompletePath),
-                        imageName, imageVersion);
-            } catch (BallerinaDockerClientException | IOException | InterruptedException e) {
-                System.out.println("Error : " + e.getMessage());
-            }
-            break;
+            case BALLERINA_MAIN_PACKAGE_EXTENTION:
+                outStream.println("provided main package -- TODO remove this msg");
+                try {
+                    new DefaultBallerinaDockerClient().createMainImage("pkg1", null, Paths.get(packageCompletePath),
+                            imageName, imageVersion);
+                } catch (BallerinaDockerClientException | IOException | InterruptedException e) {
+                    outStream.println("Error : " + e.getMessage());
+                }
+                break;
 
-        default:
-            throw LauncherUtils.createUsageException("Invalid package extention\n");
+            default:
+                throw LauncherUtils.createUsageException("Invalid package extention\n");
         }
 
         String dockerHostString = "";  // TODO
-        System.out.println(
-                "\nYou can run the docker image as follows => docker run --name <container-name> -d " + imageName + ":" + imageVersion + "\n");
-        System.out.println("Find the docker container IP using      => docker inspect <container-name> | grep IPAddress");
-        System.out.println("Ballerina service will be running in http://<container-ip>:9090 \n");
-        
+        outStream.println(
+                "\nYou can run the docker image as follows => docker run --name <container-name> -d " +
+                        imageName + ":" + imageVersion + "\n");
+        outStream.println("Find the docker container IP using      " +
+                "=> docker inspect <container-name> | grep IPAddress");
+        outStream.println("Ballerina service will be running in http://<container-ip>:9090 \n");
+
         // TODO for main, run will be [docker run --name saj6 -it helloworld]
 
     }
