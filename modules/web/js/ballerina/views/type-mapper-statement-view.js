@@ -106,19 +106,7 @@ define(['lodash', 'log','./ballerina-view','ballerina/ast/ballerina-ast-factory'
             return this._typeMapperRenderer;
         };
 
-        /**
-         * returns the constructed connection schema to be drawn
-         * @returns {object}
-         */
-        TypeMapperStatementView.prototype.getConnectionSchema = function (assignmentStatement) {
-            var self = this;
-            if (BallerinaASTFactory.isResourceParameter(self.getSourceInfo().sourceStruct)
-                && BallerinaASTFactory.isReturnType(self.getTargetInfo().targetStruct)){
-                return self.getConnectionSchemaForSourceTargetStruct(assignmentStatement);
-            } 
-        };
-
-        TypeMapperStatementView.prototype.getConnectionSchemaForSourceTargetStruct = function(assignmentStatement){
+        TypeMapperStatementView.prototype.getConnectionSchema = function(assignmentStatement){
             var self = this;
             var sourceStructSchema = self.getSourceInfo().sourceStruct;
             var sourceStructName = self.getSourceInfo().sourceStructName;
@@ -172,7 +160,7 @@ define(['lodash', 'log','./ballerina-view','ballerina/ast/ballerina-ast-factory'
                 return BallerinaASTFactory.isStructFieldAccessExpression(child);
             });
 
-            var complexSourceProperties = this.getExpressionProperties(sourceFieldExpression, sourceStructSchema, []);
+            var complexSourceProperties = self.getParentView().getExpressionProperties(sourceFieldExpression, sourceStructSchema, []);
 
             _.each(complexSourceProperties, function (property) {
                 sourcePropertyNameArray.push(property.name);
