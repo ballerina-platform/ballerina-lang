@@ -316,7 +316,7 @@ public class SwaggerConverterUtils {
         ballerinaService.setResources(mergeResources(resourceList, ballerinaService.getResources()));
         //Following have to do because we cannot assign service name directly when builder pattern used.
         Service.ServiceBuilder serviceBuilder = new Service.ServiceBuilder(ballerinaService.getEnclosingScope());
-        serviceBuilder.setName(swaggerService.getName());
+        serviceBuilder.setName(ballerinaService.getName());
         for (Annotation annotation : ballerinaService.getAnnotations()) {
             serviceBuilder.addAnnotation(annotation);
         }
