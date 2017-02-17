@@ -52,6 +52,8 @@ define(['lodash', 'log', 'event_channel', './../ast/module'], function(_, log, E
             return this.canVisitAssignment(node);
         } else if( node instanceof AST.FunctionInvocationExpression){
             return this.canVisitFuncInvocationExpression(node);
+        } else if(node instanceof AST.ActionInvocationExpression){
+            return this.canVisitActionInvocationExpression(node);
         } else if( node instanceof AST.Expression){
             return this.canVisitExpression(node);
         } else if(node instanceof AST.VariableDeclaration){
@@ -103,6 +105,8 @@ define(['lodash', 'log', 'event_channel', './../ast/module'], function(_, log, E
             return this.beginVisitAssignment(node);
         } else if(node instanceof AST.FunctionInvocationExpression){
             return this.beginVisitFuncInvocationExpression(node);
+        } else if(node instanceof AST.ActionInvocationExpression){
+            return this.beginVisitActionInvocationExpression(node);
         } else if (node instanceof AST.Expression) {
             return this.beginVisitExpression(node);
         } else if(node instanceof AST.VariableDeclaration){
@@ -154,6 +158,8 @@ define(['lodash', 'log', 'event_channel', './../ast/module'], function(_, log, E
             return this.visitAssignment(node);
         } else if(node instanceof  AST.FunctionInvocationExpression){
             return this.visitFuncInvocationExpression(node);
+        } else if(node instanceof AST.ActionInvocationExpression){
+            return this.visitActionInvocationExpression(node);
         } else if(node instanceof AST.Expression){
             return this.visitExpression(node);
         } else if(node instanceof AST.VariableDeclaration){
@@ -204,8 +210,10 @@ define(['lodash', 'log', 'event_channel', './../ast/module'], function(_, log, E
             return this.endVisitConnectorDeclaration(node);
         } else if( node instanceof AST.Assignment){
             return this.endVisitAssignment(node);
-        } else if(node instanceof AST.FunctionInvocationExpression){
+        } else if(node instanceof AST.FunctionInvocationExpression) {
             return this.endVisitFuncInvocationExpression(node);
+        } else if(node instanceof AST.ActionInvocationExpression){
+                return this.endVisitActionInvocationExpression(node);
         } else if(node instanceof AST.Expression){
             return this.endVisitExpression(node);
         } else if(node instanceof AST.VariableDeclaration){
@@ -408,6 +416,16 @@ define(['lodash', 'log', 'event_channel', './../ast/module'], function(_, log, E
     ASTVisitor.prototype.visitConnectorAction = function(connectorAction){
     };
     ASTVisitor.prototype.endVisitConnectorAction = function(connectorAction){
+    };
+
+    ASTVisitor.prototype.canVisitActionInvocationExpression = function(){
+        return true;
+    };
+    ASTVisitor.prototype.beginVisitActionInvocationExpression = function(expression){
+    };
+    ASTVisitor.prototype.visitActionInvocationExpression = function(expression){
+    };
+    ASTVisitor.prototype.endVisitActionInvocationExpression = function(expression){
     };
 
     /**
