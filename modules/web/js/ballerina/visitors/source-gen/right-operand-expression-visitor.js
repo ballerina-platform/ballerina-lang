@@ -15,41 +15,55 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require','lodash', 'log', 'event_channel', './abstract-statement-source-gen-visitor', '../../ast/module'],
-    function(require, _, log, EventChannel, AbstractStatementSourceGenVisitor, AST) {
+define(['require', 'lodash', 'log', 'event_channel', './abstract-statement-source-gen-visitor', '../../ast/module',
+        './expression-visitor-factory', './function-invocation-expression-visitor'],
+    function (require, _, log, EventChannel, AbstractStatementSourceGenVisitor, AST, ExpressionVisitorFactory, FunctionInvocationExpressionVisitor) {
 
-    var RightOperandExpressionVisitor = function(parent){
-        AbstractStatementSourceGenVisitor.call(this,parent);
-    };
+        var RightOperandExpressionVisitor = function (parent) {
+            AbstractStatementSourceGenVisitor.call(this, parent);
+        };
 
-    RightOperandExpressionVisitor.prototype = Object.create(AbstractStatementSourceGenVisitor.prototype);
-    RightOperandExpressionVisitor.prototype.constructor = RightOperandExpressionVisitor;
+        RightOperandExpressionVisitor.prototype = Object.create(AbstractStatementSourceGenVisitor.prototype);
+        RightOperandExpressionVisitor.prototype.constructor = RightOperandExpressionVisitor;
 
-    RightOperandExpressionVisitor.prototype.canVisitRightOperandExpression = function(rightOperandExpression){
-        return true;
-    };
+        RightOperandExpressionVisitor.prototype.canVisitRightOperandExpression = function (rightOperandExpression) {
+            return true;
+        };
 
-    RightOperandExpressionVisitor.prototype.beginVisitRightOperandExpression = function(rightOperandExpression){
-        //FIXME: Need to refactor this if logic
-        if (!_.isUndefined(rightOperandExpression.getRightOperandExpressionString()) &&
-            (!_.isUndefined(rightOperandExpression.getChildren()) &&
-            !AST.BallerinaASTFactory.isFunctionInvocationStatement(rightOperandExpression.getChildren()[0]))) {
-            this.appendSource(rightOperandExpression.getRightOperandExpressionString());
-        }
-        log.debug('Begin Visit Right Operand Expression');
-    };
+        RightOperandExpressionVisitor.prototype.beginVisitRightOperandExpression = function (rightOperandExpression) {
+            //FIXME: Need to refactor this if logic
+            this.appendSource(" = ");
+            if (!_.isUndefined(rightOperandExpression.getRightOperandExpressionString()) &&
+                (!_.isUndefined(rightOperandExpression.getChildren()) && !AST.BallerinaASTFactory.isFunctionInvocationStatement(rightOperandExpression.getChildren()[0]))) {
+                this.appendSource(rightOperandExpression.getRightOperandExpressionString());
+            }
+            log.debug('Begin Visit Right Operand Expression');
+        };
 
-    RightOperandExpressionVisitor.prototype.endVisitRightOperandExpression = function(rightOperandExpression){
-        this.getParent().appendSource(this.getGeneratedSource());
-        log.debug('End Visit Right Operand Expression');
-    };
+        RightOperandExpressionVisitor.prototype.endVisitRightOperandExpression = function (rightOperandExpression) {
+            this.getParent().appendSource(this.getGeneratedSource());
+            log.debug('End Visit Right Operand Expression');
+        };
 
-    RightOperandExpressionVisitor.prototype.visitFuncInvocationStatement = function(statement){
-        var StatementVisitorFactory = require('./statement-visitor-factory');
-        var statementVisitorFactory = new StatementVisitorFactory();
-        var statementVisitor = statementVisitorFactory.getStatementVisitor(statement, this);
-        statement.accept(statementVisitor);
-    };
+        RightOperandExpressionVisitor.prototype.visitFuncInvocationStatement = function (statement) {
+            var StatementVisitorFactory = require('./statement-visitor-factory');
+            var statementVisitorFactory = new StatementVisitorFactory();
+            var statementVisitor = statementVisitorFactory.getStatementVisitor(statement, this);
+            statement.accept(statementVisitor);
+        };
 
-    return RightOperandExpressionVisitor;
-});
+        RightOperandExpressionVisitor.prototype.visitExpression = function (expression) {
+            var expressionVisitorFactory = new ExpressionVisitorFactory();
+            var expressionVisitor = expressionVisitorFactory.getExpressionView({model: expression, parent: this});
+            expression.accept(expressionVisitor);
+            log.debug('Visit Expression');
+        };
+
+        RightOperandExpressionVisitor.prototype.visitFuncInvocationExpression = function (functionInvocation) {
+            var args = {model: functionInvocation, parent: this};
+            functionInvocation.accept(new FunctionInvocationExpressionVisitor(_.get(args, "parent")));
+            log.debug('Visit Function Invocation expression');
+        };
+
+        return RightOperandExpressionVisitor;
+    });

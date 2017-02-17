@@ -21,7 +21,7 @@ define(
     function (require, _, log, BallerinaStatementView, D3Utils, d3, BallerinaASTFactory) {
 
         /**
-         * Block statement i.e. while, if, else.
+         * Super view class for all block statements e.g. while, if, else etc.
          * @param args {*} arguments for the creating view
          * @class BlockStatementView
          * @constructor

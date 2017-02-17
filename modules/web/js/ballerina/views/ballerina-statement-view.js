@@ -233,10 +233,7 @@ define(['require', 'lodash', 'log', './../visitors/statement-visitor', 'd3', 'd3
             // TODO: handle line number  is not defined for new nodes
             event.stopPropagation();
             // Hiding property button pane.
-            $(propertyPaneWrapper).remove();
-            $(deleteButtonPaneGroup.node()).remove();
-            $(propertyButtonPaneGroup.node()).remove();
-            $(smallArrow.node()).remove();
+            self.trigger('edit-mode-disabled');
             var fileName = self.getDiagramRenderingContext().ballerinaFileEditor._file.getName();
             DebugManager.addBreakPoint(self._model.getLineNumber(), fileName);
         });
@@ -281,9 +278,10 @@ define(['require', 'lodash', 'log', './../visitors/statement-visitor', 'd3', 'd3
 
         var self = this;
         $(statementGroup.node()).click(function (event) {
-            self.trigger('edit-mode-enabled');
             // make current active editors close
             $(window).click();
+
+            self.trigger('edit-mode-enabled');
             event.stopPropagation();
             $(window).click(function (event) {
                 self.trigger('edit-mode-disabled');
@@ -300,9 +298,13 @@ define(['require', 'lodash', 'log', './../visitors/statement-visitor', 'd3', 'd3
         });
     };
 
+
+     /**
+     * create view to indicate a debug point in view.  call showDebugIndicator/hideDebugIndicator to toggle this indicator
+     */
      BallerinaStatementView.prototype._createDebugIndicator = function (args) {
          var self = this;
-         var model = _.get(args, "model", {});
+         var model = this._model;
          var viewOptions = _.get(args, "viewOptions", {});
          var statementGroup = _.get(args, "statementGroup", null);
 

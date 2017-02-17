@@ -21,9 +21,11 @@ define(
     function (_, log, BallerinaStatementView, D3Utils, d3) {
 
         /**
-         * Simple statement.
+         * Super view class for all simple statements e.g. assignment, variable definition, functional invocation etc.
          * @param args {*} arguments for the creating view
+         * @class SimpleStatementView
          * @constructor
+         * @extends BallerinaStatementView
          */
         var SimpleStatementView = function (args) {
             BallerinaStatementView.call(this, args);
