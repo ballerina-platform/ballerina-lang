@@ -33,7 +33,7 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
         './binary-expression', './unary-expression','./connector-action', './struct-definition', './constant-definition',
         './variable-definition-statement','./type-casting-expression', './worker-invoke',
         './reference-type-init-expression', './array-init-expression', './worker-receive','./struct-type','./struct-field-access-expression',
-        './block-statement','./type-cast-expression','./variable-definition'],
+        './block-statement','./type-cast-expression','./variable-definition', './break-statement'],
     function (_, ballerinaAstRoot, serviceDefinition, functionDefinition, connectorDefinition, resourceDefinition,
               workerDeclaration, statement, conditionalStatement, connectorDeclaration, expression, ifElseStatement,
               ifStatement, elseStatement, elseIfStatement, tryCatchStatement, tryStatement, catchStatement, replyStatement,
@@ -45,7 +45,7 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
               thenBody, ifCondition, arrayMapAccessExpression, keyValueExpression, binaryExpression,
               unaryExpression, connectorAction, structDefinition, constantDefinition, variableDefinitionStatement,
               typeCastingExpression, workerInvoke, referenceTypeInitExpression, arrayInitExpression, workerReceive,structType,
-              structFieldAccessExpression,blockStatement,typeCastExpression,variableDefinition) {
+              structFieldAccessExpression,blockStatement,typeCastExpression,variableDefinition, breakStatement) {
 
 
         /**
@@ -449,6 +449,13 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
          */
         BallerinaASTFactory.createWhileStatement = function (args) {
             return new whileStatement(args);
+        };
+
+        /**
+         * creates BreakStatement
+         */
+        BallerinaASTFactory.createBreakStatement = function () {
+            return new breakStatement();
         };
 
         /**
@@ -1213,6 +1220,9 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
                         break;
                     case 'while_statement' :
                         node = BallerinaASTFactory.createWhileStatement();
+                        break;
+                    case 'break_statement' :
+                        node = BallerinaASTFactory.createBreakStatement();
                         break;
                     case 'basic_literal_expression' :
                         node = BallerinaASTFactory.createBasicLiteralExpression();

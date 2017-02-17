@@ -183,14 +183,6 @@ define(['lodash', 'log', './node', './import-declaration'],
     };
 
     /**
-     * Getter function for FunctionDefinition
-     * @returns {Array}
-     */
-    BallerinaASTRoot.prototype.getFunctionDefinitions = function () {
-        return this.functionDefinitions;
-    };
-
-    /**
      * This is the root element of ballerina ast - so cannot be a child of anyone.
      * @param node
      * @return {boolean}
@@ -438,6 +430,15 @@ define(['lodash', 'log', './node', './import-declaration'],
      */
     BallerinaASTRoot.prototype.canBeParentOf = function (node) {
         var BallerinaASTFactory = this.getFactory();
+
+        var existingMainFunction = _.find(this.getFunctionDefinitions(), function(functionDef){
+            return functionDef.isMainFunction();
+        });
+
+        if (!_.isNil(existingMainFunction) && BallerinaASTFactory.isFunctionDefinition(node) && node.isMainFunction()) {
+            return false;
+        }
+        
         return BallerinaASTFactory.isServiceDefinition(node)
             || BallerinaASTFactory.isFunctionDefinition(node)
             || BallerinaASTFactory.isConnectorDefinition(node)

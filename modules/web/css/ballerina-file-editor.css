@@ -567,23 +567,24 @@
 }
 
 .type-drop-wrapper.struct-edit .select2.select2-container {
-    min-width: 168px;
+    min-width: 166px;
     margin:0;
     border: 1px solid #CCC;
 }
 
 .type-drop-wrapper.struct-edit .select2.select2-container .select2-selection--single {
-    min-width: 168px;
+    min-width: 166px;
     margin: 0;
 }
 
 .type-drop-wrapper .select2.select2-container {
-    min-width: 110px;
+    min-width: 127px;
     border-radius: 0;
+    margin-right: -5px;
 }
 
 .type-drop-wrapper .select2.select2-container .select2-selection--single {
-    min-width: 110px;
+    min-width: 127px;
     border-radius: 0;
     height: 22px;
     border: 0;

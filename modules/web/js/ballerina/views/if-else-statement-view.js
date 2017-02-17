@@ -15,8 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['d3', 'require', 'lodash', 'log', 'property_pane_utils', './compound-statement-view', './../ast/if-else-statement', './../ast/if-statement'],
-    function (d3, require, _, log, PropertyPaneUtils, CompoundStatementView, IfElseStatement, IfStatement) {
+define(['require', 'lodash', 'log', 'property_pane_utils', './compound-statement-view', './../ast/if-else-statement', './../ast/if-statement'],
+    function (require, _, log, PropertyPaneUtils, CompoundStatementView, IfElseStatement, IfStatement) {
 
         /**
          * The view to represent a If Else statement which is an AST visitor.
@@ -148,16 +148,8 @@ define(['d3', 'require', 'lodash', 'log', 'property_pane_utils', './compound-sta
             return this._elseIfViews[this._elseIfViews.length - 1];
         };
 
-        /**
-         * Remove statement view callback
-         * @param {ASTNode} parent - Parent model
-         * @param {ASTNode} child - child model
-         */
         IfElseStatementView.prototype.onBeforeModelRemove = function () {
-            d3.select("#_" +this.getModel().getID()).remove();
-            // resize the bounding box in order to the other objects to resize
-            var gap = this.getParent().getStatementContainer().getInnerDropZoneHeight();
-            this.getBoundingBox().move(0, -this.getBoundingBox().h() - gap).w(0);
+            this.removeAllChildStatements();
         };
 
         return IfElseStatementView;
