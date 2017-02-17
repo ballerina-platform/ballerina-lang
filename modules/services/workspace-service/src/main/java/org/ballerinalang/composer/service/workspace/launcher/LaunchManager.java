@@ -21,6 +21,8 @@ import io.netty.channel.Channel;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import org.ballerinalang.composer.service.workspace.launcher.dto.CommandDTO;
 import org.ballerinalang.composer.service.workspace.launcher.dto.MessageDTO;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -33,6 +35,8 @@ import java.net.ServerSocket;
  * Launch Manager which manage launch requests from the clients.
  */
 public class LaunchManager {
+
+    private static final Logger logger = LoggerFactory.getLogger(LaunchManager.class);
 
     private static LaunchManager launchManagerInstance;
 
@@ -150,7 +154,7 @@ public class LaunchManager {
             pushMessageToClient(launchSession, LauncherConstants.EXECUTION_STOPED , LauncherConstants.INFO,
                     LauncherConstants.END_MESSAGE);
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error("Error while sending output stream to client.",e);
         }
     }
 
@@ -162,7 +166,7 @@ public class LaunchManager {
                 pushMessageToClient(launchSession, LauncherConstants.OUTPUT, LauncherConstants.ERROR, line);
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error("Error while sending error stream to client.",e);
         }
     }
 
