@@ -24,7 +24,7 @@ define(['log', 'lodash', 'require'],
          */
         var DebugPoint = function (args) {
             this.fileName = _.get(args, 'fileName', '');
-            this.line = _.get(args, 'line', 0);
+            this.lineNumber = _.get(args, 'lineNumber', 0);
         };
 
         return DebugPoint;
