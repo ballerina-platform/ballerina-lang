@@ -134,5 +134,22 @@ define(['lodash', './ballerina-ast-factory'], function (_, BallerinaASTFactory) 
         return actionInStmt;
     };
 
+    /**
+     * Create the particular assignment statement for the action invocation
+     * @param args
+     * @returns {AssignmentStatement}
+     */
+    DefaultsAddedBallerinaASTFactory.createAggregatedActionInvocationAssignmentStatement = function(args) {
+        var assignmentStmt = BallerinaASTFactory.createAssignmentStatement(args);
+        var leftOp = BallerinaASTFactory.createLeftOperandExpression(args);
+        var rightOp = BallerinaASTFactory.createRightOperandExpression(args);
+        var actionInExp = BallerinaASTFactory.createActionInvocationExpression(args);
+        rightOp.addChild(actionInExp);
+        rightOp.setRightOperandExpressionString(actionInExp.getExpression());
+        assignmentStmt.addChild(leftOp);
+        assignmentStmt.addChild(rightOp);
+        return assignmentStmt;
+    };
+
     return DefaultsAddedBallerinaASTFactory;
 });

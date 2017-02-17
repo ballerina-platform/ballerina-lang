@@ -243,23 +243,6 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
             return new connectorAction(args);
         };
 
-        /**
-         * Create the particular assignment statement for the action invocation
-         * @param args
-         * @returns {AssignmentStatement}
-         */
-        BallerinaASTFactory.createAggregatedActionInvocationAssignmentStatement = function(args) {
-            var assignmentStmt = BallerinaASTFactory.createAssignmentStatement(args);
-            var leftOp = BallerinaASTFactory.createLeftOperandExpression(args);
-            var rightOp = BallerinaASTFactory.createRightOperandExpression(args);
-            var actionInExp = BallerinaASTFactory.createActionInvocationExpression(args);
-            rightOp.addChild(actionInExp);
-            rightOp.setRightOperandExpressionString(actionInExp.getExpression());
-            assignmentStmt.addChild(leftOp);
-            assignmentStmt.addChild(rightOp);
-            return assignmentStmt;
-        };
-
         /* Create the particular assignment statement for the function invocation
          * @param args
          * @returns {AssignmentStatement}

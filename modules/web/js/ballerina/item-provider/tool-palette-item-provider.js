@@ -207,7 +207,7 @@ define(['log', 'lodash', './../env/package', './../tool-palette/tool-palette', '
 
                     action.nodeFactoryMethod = DefaultsAddedBallerinaASTFactory.createAggregatedActionInvocationStatement;
                     if (action.getReturnParams().length > 0){
-                        action.nodeFactoryMethod = BallerinaASTFactory.createAggregatedActionInvocationAssignmentStatement;
+                        action.nodeFactoryMethod = DefaultsAddedBallerinaASTFactory.createAggregatedActionInvocationAssignmentStatement;
                     }
 
                     action.id = connector.getName() + '-' + action.getName();
@@ -229,7 +229,7 @@ define(['log', 'lodash', './../env/package', './../tool-palette/tool-palette', '
                     };
                     var actionNodeFactoryMethod = DefaultsAddedBallerinaASTFactory.createAggregatedActionInvocationStatement;
                     if (action.getReturnParams().length > 0){
-                        actionNodeFactoryMethod = BallerinaASTFactory.createAggregatedActionInvocationAssignmentStatement;
+                        actionNodeFactoryMethod = DefaultsAddedBallerinaASTFactory.createAggregatedActionInvocationAssignmentStatement;
                     }
                     self.addToToolGroup(toolGroupID, action, actionNodeFactoryMethod, actionIcon);
                 });
@@ -290,7 +290,7 @@ define(['log', 'lodash', './../env/package', './../tool-palette/tool-palette', '
                     action.setId(action.getId());
                     var actionNodeFactoryMethod = DefaultsAddedBallerinaASTFactory.createAggregatedActionInvocationStatement;
                     if (action.getReturnParams().length > 0){
-                        actionNodeFactoryMethod = BallerinaASTFactory.createAggregatedActionInvocationAssignmentStatement;
+                        actionNodeFactoryMethod = DefaultsAddedBallerinaASTFactory.createAggregatedActionInvocationAssignmentStatement;
                     }
                     self.addToToolGroup(toolGroupID, action, actionNodeFactoryMethod, actionIcon);
 
