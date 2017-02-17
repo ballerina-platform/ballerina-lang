@@ -44,7 +44,7 @@ define(['lodash', 'log', './node', './import-declaration'],
             // Add new imports on new child added to the canvas.
             var addImportOnTreeChange = function (fullPackageName) {
                 if (!self.isExistingPackage(fullPackageName)) {
-                    var importDeclaration = new ImportDeclaration();
+                    var importDeclaration = self.getFactory().createImportDeclaration();
                     importDeclaration.setPackageName(fullPackageName);
                     self.addImport(importDeclaration);
                 }
@@ -52,12 +52,8 @@ define(['lodash', 'log', './node', './import-declaration'],
 
             if (e.type === "child-added") {
                 if (self.getFactory().isAssignmentStatement(e.data.child)) {
-                    var rightOperandExpression = _.find(e.data.child.children, function (child) {
-                        return self.getFactory().isRightOperandExpression(child);
-                    });
-                    if (rightOperandExpression &&
-                        rightOperandExpression._fullPackageName) {
-                        addImportOnTreeChange(rightOperandExpression.getFullPackageName());
+                    if (e.data.child._fullPackageName) {
+                        addImportOnTreeChange(e.data.child.getFullPackageName());
                     }
                 } else if (self.getFactory().isConnectorDeclaration(e.data.child)) {
                     if (e.data.child._fullPackageName) {
