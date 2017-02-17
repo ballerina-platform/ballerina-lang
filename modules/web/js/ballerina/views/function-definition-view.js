@@ -149,10 +149,6 @@ define(['lodash', 'log', 'event_channel',  'alerts', './svg-canvas', './../ast/f
             return this._childContainer ;
         };
 
-        FunctionDefinitionView.prototype.canVisitWorkerDeclaration = function () {
-            return true;
-        };
-
         FunctionDefinitionView.prototype.canVisitFunctionDefinition = function () {
             return true;
         };
@@ -319,8 +315,17 @@ define(['lodash', 'log', 'event_channel',  'alerts', './svg-canvas', './../ast/f
             this._defaultWorkerLifeLine.render();
 
             // Set the workerLifeLineMargin to the end of the default worker
-            this.getWorkerLifeLineMargin().setPosition(this._defaultWorkerLifeLine.getBoundingBox().getRight());
             this.getHorizontalMargin().setPosition(this._defaultWorkerLifeLine.getBoundingBox().getBottom());
+
+            this.listenTo(this.getHorizontalMargin(), 'moved', function (dy) {
+                self._defaultWorkerLifeLine.getBottomCenter().y(self._defaultWorkerLifeLine.getBottomCenter().y() + dy);
+                // Silently increase the bounding box of the worker. Because this size change is due to the
+                // horizontal margin movement, in other sense, for balancing with the other connectors/ workers' height
+                // therefore we need to manually change the bbox height and the drop zone size of the statement container
+                self.getStatementContainer().getBoundingBox().h(self.getStatementContainer().getBoundingBox().h() + dy, true);
+                self.getStatementContainer().changeDropZoneHeight(dy);
+                self.getBoundingBox().h(this.getBoundingBox().h() + dy);
+            });
 
             this._totalHeight = this.getHorizontalMargin().getPosition() + 85;
             this.setSVGHeight(this._totalHeight);
@@ -507,10 +512,6 @@ define(['lodash', 'log', 'event_channel',  'alerts', './svg-canvas', './../ast/f
             var args = {model: statement, container: this._rootGroup.node(), viewOptions: {},
                 toolPalette: this.toolPalette, messageManager: this.messageManager, parent: this};
             this._statementContainer.renderStatement(statement, args);
-        };
-
-        FunctionDefinitionView.prototype.canVisitConnectorDeclaration = function (connectorDeclaration) {
-            return true;
         };
 
         /**

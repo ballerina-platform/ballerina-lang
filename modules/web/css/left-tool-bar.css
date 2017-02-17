@@ -4,6 +4,7 @@
 
 .left-tool-bar .nav-tabs > li{
     float: none;
+    width: 42px;
 }
 .left-tool-bar .nav-tabs li.active a{
     border: none;

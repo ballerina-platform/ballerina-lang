@@ -3,10 +3,10 @@ swagger: '2.0'
 # Prolog
 ######################################################
 info:
-  version: "0.8.0"
-  title: "Ballerina Editor API"
+  version: "0.8"
+  title: "Ballerina Composer API"
   description: |
-    This specifies a **RESTful API** which act as the backend of Ballerina editor.
+    This specifies a **RESTful API** which act as the backend of Ballerina Composer.
   contact:
     name: "WSO2"
     url: "http://ballerina.io"
