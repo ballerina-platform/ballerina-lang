@@ -24,6 +24,7 @@ import org.ballerinalang.model.symbols.BLangSymbol;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.util.exceptions.FlowBuilderException;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -271,6 +272,11 @@ public class Resource implements Node, SymbolScope, CallableUnit {
     @Override
     public BLangSymbol resolve(SymbolName name) {
         return resolve(symbolMap, name);
+    }
+
+    @Override
+    public Map<SymbolName, BLangSymbol> getSymbolMap() {
+        return Collections.unmodifiableMap(this.symbolMap);
     }
 
     /**

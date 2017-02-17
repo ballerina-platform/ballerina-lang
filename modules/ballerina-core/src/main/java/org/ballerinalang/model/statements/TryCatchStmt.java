@@ -25,6 +25,7 @@ import org.ballerinalang.model.SymbolName;
 import org.ballerinalang.model.SymbolScope;
 import org.ballerinalang.model.symbols.BLangSymbol;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -103,6 +104,11 @@ public class TryCatchStmt extends AbstractStatement {
         @Override
         public BLangSymbol resolve(SymbolName name) {
             return resolve(symbolMap, name);
+        }
+
+        @Override
+        public Map<SymbolName, BLangSymbol> getSymbolMap() {
+            return Collections.unmodifiableMap(this.symbolMap);
         }
 
         public BlockStmt getCatchBlockStmt() {
