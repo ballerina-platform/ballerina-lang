@@ -21,8 +21,10 @@
 
 
 .left-tool-bar .nav-tabs li a{
-    padding: 11px;
+    padding-top: 11px;
     border: none;
+    width: 40px;
+    height: 36px;
 }
 
 .left-tool-bar .nav-tabs > li.active i {
