@@ -63,7 +63,11 @@ define(['lodash', './node'], function (_, ASTNode) {
      * @param jsonNode
      */
     PackageDefinition.prototype.initFromJson = function (jsonNode) {
-        this.setPackageName(jsonNode.package_name, {doSilently: true});
+        //TODO : avoid check for . (current package)
+        if (!_.isEqual(jsonNode.package_name, '.')) {
+            this.setPackageName(jsonNode.package_name, {doSilently: true});
+        }
+
     };
 
     return PackageDefinition;
