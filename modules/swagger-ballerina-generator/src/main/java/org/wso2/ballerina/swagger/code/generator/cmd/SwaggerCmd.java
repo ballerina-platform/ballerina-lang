@@ -17,6 +17,7 @@
 */
 package org.wso2.ballerina.swagger.code.generator.cmd;
 
+import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
 import io.swagger.codegen.CodegenConstants;
@@ -89,11 +90,16 @@ public class SwaggerCmd implements BLauncherCmd {
 
     @Override
     public void printUsage(StringBuilder stringBuilder) {
-        stringBuilder.append("This is Swagger generator command");
-        stringBuilder.append("\n");
-        stringBuilder.append("Usage:\n");
-        stringBuilder.append("ballerina swagger <action> <swaggerFile> -p<package name> -d<output directory name>");
-        stringBuilder.append("\n");
-        stringBuilder.append("\n");
+        stringBuilder.append(" ballerina swagger <connector | skeleton | mock> <swaggerFile> -p<package name> " +
+                "-d<output directory name>");
+    }
+
+    @Override
+    public void setParentCmdParser(JCommander parentCmdParser) {
+    }
+
+    @Override
+    public void setSelfCmdParser(JCommander selfCmdParser) {
+
     }
 }
