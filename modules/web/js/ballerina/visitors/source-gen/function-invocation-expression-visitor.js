@@ -31,22 +31,28 @@ define(['require','lodash', 'log', 'event_channel', './abstract-statement-source
         FunctionInvocationExpressionVisitor.prototype.constructor = FunctionInvocationExpression;
 
         FunctionInvocationExpressionVisitor.prototype.canVisitFuncInvocationExpression = function(functionInvocation){
-            return true;
+            //This visitor has already visited the indended function invocation expression
+            // , and hence no need to visit again.
+            return !this.getGeneratedSource();
         };
 
         FunctionInvocationExpressionVisitor.prototype.beginVisitFuncInvocationExpression = function(functionInvocation){
             var source = functionInvocation.getFunctionalExpression();
+            source = source.substring(0, source.length - 1);
             this.appendSource(source);
-            log.debug('Begin Visit Function Invocation expression');
+            log.debug('Begin Visit Function Invocation expression - ' + functionInvocation.getFunctionalExpression());
         };
 
         FunctionInvocationExpressionVisitor.prototype.visitFuncInvocationExpression = function(functionInvocation){
+            var args = {model: functionInvocation, parent: this};
+            functionInvocation.accept(new FunctionInvocationExpressionVisitor(_.get(args, "parent")));
             log.debug('Visit Function Invocation expression');
         };
 
         FunctionInvocationExpressionVisitor.prototype.endVisitFuncInvocationExpression = function(functionInvocation){
+            this.appendSource(')');
             this.getParent().appendSource(this.getGeneratedSource());
-            log.debug('End Visit Function Invocation expression');
+            log.debug('End Visit Function Invocation expression - ' + functionInvocation.getFunctionalExpression());
         };
 
         return FunctionInvocationExpressionVisitor;
