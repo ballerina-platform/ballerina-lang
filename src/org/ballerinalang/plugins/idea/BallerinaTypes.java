@@ -60,7 +60,7 @@ public class BallerinaTypes {
     public static RuleIElementType JOIN_CLAUS = ruleIElementTypes.get(BallerinaParser.RULE_joinClause);
     public static RuleIElementType TIMEOUT_CLAUSE = ruleIElementTypes.get(BallerinaParser.RULE_timeoutClause);
     public static RuleIElementType TRY_CATCH_STATEMENT = ruleIElementTypes.get(BallerinaParser.RULE_tryCatchStatement);
-    public static RuleIElementType TYPE_CONVERTER_BODY = ruleIElementTypes.get(BallerinaParser.RULE_typeConvertorBody);
+    public static RuleIElementType TYPE_MAPPER_BODY = ruleIElementTypes.get(BallerinaParser.RULE_typeMapperBody);
     public static RuleIElementType WORKER_DECLARATION = ruleIElementTypes.get(BallerinaParser.RULE_workerDeclaration);
 
     public static RuleIElementType ARGUMENT_LIST = ruleIElementTypes.get(BallerinaParser.RULE_argumentList);
@@ -72,10 +72,8 @@ public class BallerinaTypes {
     public static RuleIElementType ANNOTATION = ruleIElementTypes.get(BallerinaParser.RULE_annotation);
     public static RuleIElementType EXPRESSION = ruleIElementTypes.get(BallerinaParser.RULE_expression);
     public static RuleIElementType RETURN_PARAMETERS = ruleIElementTypes.get(BallerinaParser.RULE_returnParameters);
-    public static RuleIElementType TYPE_CONVERTER_INPUT =
-            ruleIElementTypes.get(BallerinaParser.RULE_typeConvertorInput);
-    public static RuleIElementType TYPE_CONVERTER_TYPE =
-            ruleIElementTypes.get(BallerinaParser.RULE_typeConvertorType);
+    public static RuleIElementType TYPE_MAPPER_INPUT = ruleIElementTypes.get(BallerinaParser.RULE_typeMapperInput);
+    public static RuleIElementType TYPE_MAPPER_TYPE = ruleIElementTypes.get(BallerinaParser.RULE_typeMapperType);
 
     // Keywords
     public static TokenIElementType ALL = tokenIElementTypes.get(BallerinaLexer.ALL);
@@ -104,7 +102,7 @@ public class BallerinaTypes {
     public static TokenIElementType THROWS = tokenIElementTypes.get(BallerinaLexer.THROWS);
     public static TokenIElementType TIMEOUT = tokenIElementTypes.get(BallerinaLexer.TIMEOUT);
     public static TokenIElementType TRY = tokenIElementTypes.get(BallerinaLexer.TRY);
-    public static TokenIElementType TYPECONVERTOR = tokenIElementTypes.get(BallerinaLexer.TYPECONVERTOR);
+    public static TokenIElementType TYPEMAPPER = tokenIElementTypes.get(BallerinaLexer.TYPEMAPPER);
     public static TokenIElementType WHILE = tokenIElementTypes.get(BallerinaLexer.WHILE);
     public static TokenIElementType WORKER = tokenIElementTypes.get(BallerinaLexer.WORKER);
 
