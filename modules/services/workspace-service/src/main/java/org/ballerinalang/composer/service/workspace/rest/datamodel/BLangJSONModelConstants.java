@@ -145,6 +145,8 @@ public class BLangJSONModelConstants {
     public static final String REPLY_STATEMENT = "reply_statement";
 
     public static final String RETURN_STATEMENT = "return_statement";
+    
+    public static final String BREAK_STATEMENT = "break_statement";
 
     public static final String FUNCTION_INVOCATION_EXPRESSION = "function_invocation_expression";
 

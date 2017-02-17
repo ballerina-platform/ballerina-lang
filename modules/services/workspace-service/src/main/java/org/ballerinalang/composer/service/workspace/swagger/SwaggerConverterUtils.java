@@ -33,6 +33,7 @@ import org.ballerinalang.composer.service.workspace.swagger.generators.Ballerina
 import org.ballerinalang.model.Annotation;
 import org.ballerinalang.model.BLangPackage;
 import org.ballerinalang.model.BallerinaFile;
+import org.ballerinalang.model.CompilationUnit;
 import org.ballerinalang.model.GlobalScope;
 import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.ParameterDef;
@@ -76,7 +77,12 @@ public class SwaggerConverterUtils {
      */
     public static Service[] getServicesFromBallerinaDefinition(String ballerinaDefinition) throws IOException {
         BallerinaFile bFile = getBFileFromBallerinaDefinition(ballerinaDefinition);
-        return bFile.getServices();
+        List<Service> services = new ArrayList<Service>();
+        for(CompilationUnit compilationUnit: bFile.getCompilationUnits()){
+            Service service = compilationUnit instanceof Service ? ((Service) compilationUnit) : null;
+            services.add(service);
+        }
+        return services.toArray(new Service[services.size()]);
     }
 
     /**
@@ -310,7 +316,7 @@ public class SwaggerConverterUtils {
         ballerinaService.setResources(mergeResources(resourceList, ballerinaService.getResources()));
         //Following have to do because we cannot assign service name directly when builder pattern used.
         Service.ServiceBuilder serviceBuilder = new Service.ServiceBuilder(ballerinaService.getEnclosingScope());
-        serviceBuilder.setName(swaggerService.getName());
+        serviceBuilder.setName(ballerinaService.getName());
         for (Annotation annotation : ballerinaService.getAnnotations()) {
             serviceBuilder.addAnnotation(annotation);
         }

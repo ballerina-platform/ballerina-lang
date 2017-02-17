@@ -15,8 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require', 'lodash', 'log', './compound-statement-view', './../ast/trycatch-statement'],
-    function (require, _, log, CompoundStatementView, TryCatchStatement) {
+define(['require', 'lodash', 'log', './compound-statement-view', './../ast/trycatch-statement', './../ast/catch-statement', './point'],
+    function (require, _, log, CompoundStatementView, TryCatchStatement, CatchStatement, Point) {
 
         /**
          * The view to represent a Try Catch statement which is an AST visitor.
@@ -69,6 +69,34 @@ define(['require', 'lodash', 'log', './compound-statement-view', './../ast/tryca
             this._catchBlockView = this.visitChildStatement(statement);
         };
 
+        TryCatchStatementView.prototype.render = function (diagramRenderingContext) {
+            // Calling super render.
+            (this.__proto__.__proto__).render.call(this, diagramRenderingContext);
+
+            // Creating property pane
+            var model = this.getModel();
+            var editableProperty = {};
+            _.forEach(model.getChildren(), function (childStatement, index) {
+                if (childStatement instanceof CatchStatement) {
+                    editableProperty = {
+                        propertyType: "text",
+                        key: "Catch parameter",
+                        model: childStatement,
+                        getterMethod: childStatement.getParameter
+                    };
+                    return false;
+                }
+            });
+            this._createPropertyPane({
+                                         model: model,
+                                         statementGroup: this.getStatementGroup(),
+                                         editableProperties: editableProperty
+                                     });
+            this._createDebugIndicator({
+                                           statementGroup: this.getStatementGroup()
+                                       });
+        };
+
         /**
          * Set the TryCatchStatement model
          * @param {TryCatchStatement} model
@@ -88,6 +116,15 @@ define(['require', 'lodash', 'log', './compound-statement-view', './../ast/tryca
 
         TryCatchStatementView.prototype.getCatchBlockView = function () {
             return this._catchBlockView;
+        };
+
+        TryCatchStatementView.prototype.onBeforeModelRemove = function () {
+            this.removeAllChildStatements();
+        };
+
+        TryCatchStatementView.prototype._getEditPaneLocation = function () {
+            var statementBoundingBox = this.getCatchBlockView().getBoundingBox();
+            return new Point((statementBoundingBox.x()), (statementBoundingBox.y() - 1));
         };
 
         return TryCatchStatementView;
