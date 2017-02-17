@@ -223,6 +223,13 @@ public class ServerInstance implements Server {
         Path destination = Paths
                 .get(serverExtractedPath + File.separator + "bre" + File.separator + "lib" + File.separator
                         + Constant.ACTIVEMQ_ALL_JAR);
+        /*
+         * Copying the jms sample to samples directory for integration testing.
+         */
+        Files.copy(source, destination, StandardCopyOption.REPLACE_EXISTING);
+        source = Paths.get(baseDir + File.separator + Constant.OTHER_SAMPLES + File.separator + "jmsWithActiveMq.bal");
+        destination = Paths
+                .get(serverExtractedPath + File.separator + "samples" + File.separator + "jmsWithActiveMq.bal");
         Files.copy(source, destination, StandardCopyOption.REPLACE_EXISTING);
         /*
          * Copying the common-nets jar to the bre/lib, in order to test the ftp based sample file service.

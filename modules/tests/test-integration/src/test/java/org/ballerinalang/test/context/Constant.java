@@ -42,4 +42,6 @@ public class Constant {
     public static final String COMMON_NETS_JAR = "commons-net-3.6.jar";
     // Vfs location in the local directory
     public static final String VFS_LOCATION = "FTPLocation";
+
+    public static final String OTHER_SAMPLES = "other_samples";
 }
