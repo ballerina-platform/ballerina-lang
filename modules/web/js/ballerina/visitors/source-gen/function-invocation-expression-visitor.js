@@ -69,17 +69,17 @@ define(['require', 'lodash', 'log', 'event_channel', './abstract-statement-sourc
         };
 
         FunctionInvocationExpressionVisitor.prototype.visitExpression = function (expression) {
-            var ExpressionVisitorFactory = require('./expression-visitor-factory');
-            var expressionVisitorFactory = new ExpressionVisitorFactory();
-            var expressionVisitor = expressionVisitorFactory.getExpressionView({model: expression, parent: this});
-            expression.accept(expressionVisitor);
             var parent = expression.getParent();
             var index = _.findIndex(parent.getChildren(), function (aExp) {
                 return aExp === expression;
             });
-            if (index !== parent.getChildren().length - 1) {
+            if (index !== 0) {
                 this.appendSource(',');
             }
+            var ExpressionVisitorFactory = require('./expression-visitor-factory');
+            var expressionVisitorFactory = new ExpressionVisitorFactory();
+            var expressionVisitor = expressionVisitorFactory.getExpressionView({model: expression, parent: this});
+            expression.accept(expressionVisitor);
             log.debug('Visit Struct Field Access Expression');
         };
 
