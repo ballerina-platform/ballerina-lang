@@ -57,7 +57,7 @@ define(['lodash', './node', 'log', '../utils/common-utils'], function(_, ASTNode
         var self = this;
 
         _.forEach(this.getChildren(), function (child) {
-            if (self.getFactory().isResourceParameter(child)) {
+            if (self.getFactory().isArgument(child) && !self.getFactory().isReturnType(child)) {
                 actionArgs.push(child);
             }
         });

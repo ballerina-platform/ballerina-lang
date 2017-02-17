@@ -142,6 +142,19 @@ define(['jquery', 'lodash', 'backbone', 'log', 'dialogs', 'welcome-page', 'tab',
 
         };
 
+        this.openSettingsDialog = function openSettingsDialog(options){
+            /*var settingsModal = $(_.get(app, 'config.settings_dialog.selector'));
+            settingsModal.modal('show');*/
+            if(_.isNil(this._openFileDialog)){
+                var opts = _.cloneDeep(_.get(app.config, 'settings_dialog'));
+                _.set(opts, "application", app);
+                this._openSettingsDialog = new Dialogs.SettingsDialog(opts);
+            }
+            this._openSettingsDialog.render();
+            this._openSettingsDialog.show();
+
+        };
+
         this.showFolderOpenDialog = function() {
             if(_.isNil(this._folderOpenDialog)){
                 var opts = _.cloneDeep(_.get(app.config, 'open_folder_dialog'));
@@ -341,6 +354,9 @@ define(['jquery', 'lodash', 'backbone', 'log', 'dialogs', 'welcome-page', 'tab',
 
         // Open file open dialog
         app.commandManager.registerHandler('open-file-open-dialog', this.openFileOpenDialog, this);
+
+        // Open settings dialog
+        app.commandManager.registerHandler('open-settings-dialog', this.openSettingsDialog, this);
 
         app.commandManager.registerHandler('show-folder-open-dialog', this.showFolderOpenDialog, this);
 
