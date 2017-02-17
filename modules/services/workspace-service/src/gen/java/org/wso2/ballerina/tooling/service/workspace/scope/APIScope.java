@@ -15,9 +15,9 @@
  */
 package org.wso2.ballerina.tooling.service.workspace.scope;
 
-import org.wso2.ballerina.core.model.SymbolName;
-import org.wso2.ballerina.core.model.SymbolScope;
-import org.wso2.ballerina.core.model.symbols.BLangSymbol;
+import org.ballerinalang.model.SymbolName;
+import org.ballerinalang.model.SymbolScope;
+import org.ballerinalang.model.symbols.BLangSymbol;
 
 import java.util.HashMap;
 import java.util.Map;

@@ -18,14 +18,14 @@ package org.wso2.ballerina.tooling.service.workspace.rest;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.ballerina.core.model.SymbolName;
-import org.wso2.ballerina.core.model.symbols.BLangSymbol;
-import org.wso2.ballerina.core.model.types.SimpleTypeName;
-import org.wso2.ballerina.core.nativeimpl.AbstractNativeFunction;
-import org.wso2.ballerina.core.nativeimpl.NativeUnitProxy;
-import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeAction;
-import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeConnector;
-import org.wso2.ballerina.core.runtime.internal.BuiltInNativeConstructLoader;
+import org.ballerinalang.model.SymbolName;
+import org.ballerinalang.model.symbols.BLangSymbol;
+import org.ballerinalang.model.types.SimpleTypeName;
+import org.ballerinalang.natives.AbstractNativeFunction;
+import org.ballerinalang.natives.NativeUnitProxy;
+import org.ballerinalang.natives.connectors.AbstractNativeAction;
+import org.ballerinalang.natives.connectors.AbstractNativeConnector;
+import org.ballerinalang.natives.BuiltInNativeConstructLoader;
 import org.wso2.ballerina.tooling.service.workspace.api.NotFoundException;
 import org.wso2.ballerina.tooling.service.workspace.api.PackagesApiService;
 import org.wso2.ballerina.tooling.service.workspace.model.Action;
@@ -173,7 +173,7 @@ public class PackagesApiServiceImpl extends PackagesApiService {
         }
     }
 
-    private void addAnnotations(List<Annotation> annotations, org.wso2.ballerina.core.model.Annotation[] annotationsFromModel) {
+    private void addAnnotations(List<Annotation> annotations, org.ballerinalang.model.Annotation[] annotationsFromModel) {
         for (int i = 0; i < annotationsFromModel.length; i++) {
             annotations.add(createNewAnnotation(annotationsFromModel[i].getName(), annotationsFromModel[i].getValue()));
         }

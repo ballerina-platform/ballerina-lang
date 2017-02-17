@@ -20,10 +20,10 @@ import io.swagger.models.Operation;
 import io.swagger.models.Path;
 import io.swagger.models.Response;
 import io.swagger.models.parameters.PathParameter;
-import org.wso2.ballerina.core.model.Annotation;
-import org.wso2.ballerina.core.model.ParameterDef;
-import org.wso2.ballerina.core.model.Resource;
-import org.wso2.ballerina.core.runtime.dispatching.http.Constants;
+import org.ballerinalang.model.Annotation;
+import org.ballerinalang.model.ParameterDef;
+import org.ballerinalang.model.Resource;
+import org.ballerinalang.services.dispatchers.http.Constants;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
