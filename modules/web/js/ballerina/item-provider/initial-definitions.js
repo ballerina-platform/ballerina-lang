@@ -131,7 +131,7 @@ define(['log', 'jquery', './../ast/ballerina-ast-factory', './../tool-palette/to
         var createTryCatchStatementTool = {
             id: "try-catch",
             name: "Try-Catch",
-            icon: "images/tool-icons/dgm-while.svg",
+            icon: "images/tool-icons/try-catch.svg",
             title: "Try-Catch",
             nodeFactoryMethod: BallerinaASTFactory.createTryCatchStatement
         };
