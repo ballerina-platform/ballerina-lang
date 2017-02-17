@@ -37,7 +37,7 @@ import java.nio.file.Paths;
 /**
  * Workspace Service Entry point.
  *
- * @since 0.8.0
+ * @since 0.8
  */
 public class WorkspaceServiceRunner {
 
@@ -88,7 +88,7 @@ public class WorkspaceServiceRunner {
 
         int port = Integer.getInteger(Constants.SYS_FILE_WEB_PORT, Constants.DEFAULT_FILE_WEB_PORT);
         String contextRoot = Paths.get(balHome, Constants.FILE_CONTEXT_RESOURCE, Constants
-                .FILE_CONTEXT_RESOURCE_EDITOR, Constants.FILE_CONTEXT_RESOURCE_EDITOR_WEB)
+                .FILE_CONTEXT_RESOURCE_COMPOSER, Constants.FILE_CONTEXT_RESOURCE_COMPOSER_WEB)
                 .toString();
         FileServer fileServer = new FileServer();
         fileServer.setContextRoot(contextRoot);
@@ -102,7 +102,7 @@ public class WorkspaceServiceRunner {
         launchManager.init();
 
         if (!isCloudMode) {
-            logger.info("Ballerina Editor URL: http://localhost:" + port);
+            logger.info("Ballerina Composer URL: http://localhost:" + port);
         }
     }
 }

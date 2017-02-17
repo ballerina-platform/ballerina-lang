@@ -41,7 +41,7 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
             this._canvasList = _.get(args, 'canvasList', []);
             this._debugger = _.get(args, 'debugger');
             this._file = _.get(args, 'file');
-            this._id = _.get(args, "id", "Ballerina File Editor");
+            this._id = _.get(args, "id", "Ballerina Composer");
 
             if (!this._parseFailed && (_.isNil(this._model) || !(this._model instanceof BallerinaASTRoot))) {
                 log.error("Ballerina AST Root is undefined or is of different type." + this._model);
@@ -320,7 +320,7 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
             this._$canvasContainer = canvasContainer;
             // check whether container element exists in dom
             if (!container.length > 0) {
-                errMsg = 'unable to find container for file editor with selector: ' + _.get(viewOptions, 'design_view.container');
+                errMsg = 'unable to find container for file composer with selector: ' + _.get(viewOptions, 'design_view.container');
                 log.error(errMsg);
                 throw errMsg;
             }
@@ -876,7 +876,7 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
             this._$canvasContainer = canvasContainer;
             // check whether container element exists in dom
             if (!container.length > 0) {
-                errMsg = 'unable to find container for file editor with selector: ' + _.get(this._viewOptions, 'design_view.container');
+                errMsg = 'unable to find container for file composer with selector: ' + _.get(this._viewOptions, 'design_view.container');
                 log.error(errMsg);
                 throw errMsg;
             }

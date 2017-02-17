@@ -25,10 +25,10 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>org.wso2.ballerina.editor</groupId>
+    <groupId>org.ballerinalang.composer</groupId>
     <artifactId>workspace-service</artifactId>
-    <version>0.8.0-SNAPSHOT</version>
-    <name>WSO2 Ballerina - Tooling - Workspace Service</name>
+    <version>0.8-SNAPSHOT</version>
+    <name>Ballerina Composer - Workspace Service</name>
 
     <repositories>
         <!-- WSO2 released artifact repository -->

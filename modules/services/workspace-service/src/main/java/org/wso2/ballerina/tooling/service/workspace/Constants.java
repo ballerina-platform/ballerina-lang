@@ -27,11 +27,11 @@ public class Constants {
     public static final String CLOUD_MODE_INDICATOR_ARG_DESC = "Enable Cloud Mode.";
 
     public static final String FILE_CONTEXT_RESOURCE = "resources";
-    public static final String FILE_CONTEXT_RESOURCE_EDITOR = "editor";
-    public static final String FILE_CONTEXT_RESOURCE_EDITOR_WEB = "web";
+    public static final String FILE_CONTEXT_RESOURCE_COMPOSER = "composer";
+    public static final String FILE_CONTEXT_RESOURCE_COMPOSER_WEB = "web";
 
     public static final String SYS_BAL_HOME = "ballerina.home";
-    public static final String SYS_FILE_WEB_PORT = "editor.port";
+    public static final String SYS_FILE_WEB_PORT = "composer.port";
     public static final String SYS_WORKSPACE_ENABLE_CLOUD = "enableCloud";
     public static final String SYS_WORKSPACE_PORT = "workspace.port";
 

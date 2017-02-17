@@ -111,7 +111,7 @@ public class ServicesApiServiceImpl {
     @io.swagger.annotations.ApiResponses(value = {
             @io.swagger.annotations.ApiResponse(code = 200, message = "Created.  " +
                     "Successful response with ballerina JSON representation. " +
-                    "This should directly use from editor to build models. ", response = void.class)})
+                    "This should directly use from composer to build models. ", response = void.class)})
     public Response servicesConvertBallerinaPost(@ApiParam(value = "Type to be convert", required = true)
                                                  @QueryParam("expectedType") String expectedType
             , @ApiParam(value = "Service definition to be convert ", required = true) Service serviceDefinition)
@@ -215,7 +215,7 @@ public class ServicesApiServiceImpl {
 
         ballerinaFile.getServices()[0] = SwaggerConverterUtils.
                 mergeBallerinaService(ballerinaService, swaggerService);
-        //Now we have to convert ballerina file to JSON object model editor require.
+        //Now we have to convert ballerina file to JSON object model composer require.
         JsonObject response = new JsonObject();
         BLangJSONModelBuilder jsonModelBuilder = new BLangJSONModelBuilder(response);
         ballerinaFile.accept(jsonModelBuilder);
