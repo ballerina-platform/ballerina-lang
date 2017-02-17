@@ -102,26 +102,17 @@ public class ServerConnectorMessageHandler {
     }
 
     public static void handleOutbound(CarbonMessage cMsg, CarbonCallback callback) {
-//        BalConnectorCallback connectorCallback = (BalConnectorCallback) callback;
-//        try {
-            callback.done(cMsg);
-//            if (connectorCallback.isNonBlockingExecutor()) {
-//                // Continue Non-Blocking
-//                BLangExecutionVisitor executor = connectorCallback.getContext().getExecutor();
-//                executor.continueExecution(connectorCallback.getCurrentNode().next());
-//            }
-//        } catch (Throwable throwable) {
-//            handleErrorFromOutbound(cMsg, connectorCallback.getContext(), throwable);
-//        }
+        callback.done(cMsg);
     }
 
     public static void handleErrorInboundPath(CarbonMessage cMsg, CarbonCallback callback, Context balContext,
                                               Throwable throwable) {
         String errorMsg = ErrorHandlerUtils.getErrorMessage(throwable);
-        String stacktrace = ErrorHandlerUtils.getServiceStackTrace(balContext, throwable);
-        String errorWithTrace = errorMsg + "\n" + stacktrace;
-        log.error(errorWithTrace);
-        outStream.println(errorWithTrace);
+        // We may no longer require this logic, because executor it self handles errors.
+//        String stacktrace = ErrorHandlerUtils.getServiceStackTrace(balContext, throwable);
+//        String errorWithTrace = errorMsg + "\n" + stacktrace;
+        log.error(errorMsg);
+        outStream.println(errorMsg);
 
         Object protocol = cMsg.getProperty("PROTOCOL");
         Optional<ServerConnectorErrorHandler> optionalErrorHandler =
@@ -135,26 +126,6 @@ public class ServerConnectorMessageHandler {
             throw new BallerinaException("Cannot handle error using the error handler for : " + protocol, e);
         }
 
-    }
-
-    public static void handleErrorFromOutbound(Context balContext, Throwable throwable) {
-        String errorMsg = ErrorHandlerUtils.getErrorMessage(throwable);
-        String stacktrace = ErrorHandlerUtils.getServiceStackTrace(balContext, throwable);
-        String errorWithTrace = errorMsg + "\n" + stacktrace;
-        log.error(errorWithTrace);
-        outStream.println(errorWithTrace);
-
-        Object protocol = balContext.getServerConnectorProtocol();
-        Optional<ServerConnectorErrorHandler> optionalErrorHandler =
-                BallerinaConnectorManager.getInstance().getServerConnectorErrorHandler((String) protocol);
-        try {
-            optionalErrorHandler
-                    .orElseGet(DefaultServerConnectorErrorHandler::getInstance)
-                    .handleError(new BallerinaException(errorMsg, throwable.getCause(), balContext), null,
-                            balContext.getBalCallback());
-        } catch (Exception e) {
-            throw new BallerinaException("Cannot handle error using the error handler for : " + protocol, e);
-        }
     }
 
 }

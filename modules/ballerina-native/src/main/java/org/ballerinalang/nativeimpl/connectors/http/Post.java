@@ -84,6 +84,18 @@ public class Post extends AbstractHTTPAction {
     }
 
     @Override
+    public void validate(BalConnectorCallback callback) {
+        try {
+            handleTransportException(callback.getValueRef());
+        } catch (BallerinaException e) {
+            String msg = "Failed to invoke 'post' action in " + ClientConnector.CONNECTOR_NAME
+                    + ". " + e.getMessage();
+            BException bException = new BException(msg, this.getName());
+            throw new BallerinaException(msg, bException);
+        }
+    }
+
+    @Override
     public void execute(Context context, BalConnectorCallback callback) {
         if (logger.isDebugEnabled()) {
             logger.debug("Executing Native Action (non-blocking): {}", this.getName());

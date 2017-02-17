@@ -99,7 +99,19 @@ public class Patch extends AbstractHTTPAction {
             context.getExecutor().handleBException(exception);
         } catch (Throwable t) {
             throw new BallerinaException("Failed to invoke 'patch' action in " + ClientConnector.CONNECTOR_NAME
-                                         + ". " + t.getMessage(), context);
+                    + ". " + t.getMessage(), context);
+        }
+    }
+
+    @Override
+    public void validate(BalConnectorCallback callback) {
+        try {
+            handleTransportException(callback.getValueRef());
+        } catch (BallerinaException e) {
+            String msg = "Failed to invoke 'patch' action in " + ClientConnector.CONNECTOR_NAME
+                    + ". " + e.getMessage();
+            BException bException = new BException(msg, this.getName());
+            throw new BallerinaException(msg, bException);
         }
     }
 

@@ -58,11 +58,11 @@ public class GetStackTrace extends AbstractNativeFunction {
             exceptionDef = exceptionDef.getCause();
             count++;
             if (count > 10 && exceptionDef != null) {
-                stackTraceBuilder.append("\tmore ...");
+                stackTraceBuilder.append("\n\tmore ...");
                 break;
             }
             if (exceptionDef != null) {
-                stackTraceBuilder.append("caused by: ");
+                stackTraceBuilder.append("\ncaused by: ");
             }
         }
         return new BValue[]{new BString(stackTraceBuilder.toString())};

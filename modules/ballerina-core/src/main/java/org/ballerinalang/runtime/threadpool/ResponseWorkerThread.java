@@ -18,10 +18,12 @@
 
 package org.ballerinalang.runtime.threadpool;
 
+import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.nonblocking.BLangExecutionVisitor;
+import org.ballerinalang.model.Node;
 import org.ballerinalang.model.values.BException;
 import org.ballerinalang.natives.connectors.BalConnectorCallback;
-import org.ballerinalang.runtime.ServerConnectorMessageHandler;
+import org.ballerinalang.services.ErrorHandlerUtils;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
@@ -42,30 +44,31 @@ public class ResponseWorkerThread extends WorkerThread {
         BalConnectorCallback connectorCallback = (BalConnectorCallback) this.callback;
         BLangExecutionVisitor executor = connectorCallback.getContext().getExecutor();
         try {
-            BException exception = null;
             try {
                 connectorCallback.getActionNode().getCallableUnit().validate(connectorCallback);
-            } catch (BallerinaException e) {
-                // Preserve original exception.
-                if (e.getBException() != null) {
-                    exception = e.getBException();
-                } else {
-                    exception = new BException(e.getMessage());
-                }
+                executor.startExecution(connectorCallback.getCurrentNode().next());
             } catch (RuntimeException e) {
-                exception = new BException(e.getMessage());
-            }
-
-            if (exception != null) {
-                // Pass this to catch statement.
-                executor.handleBException(exception);
+                BException bException;
+                if (e instanceof BallerinaException && ((BallerinaException) e).getBException() != null) {
+                    bException = ((BallerinaException) e).getBException();
+                } else {
+                    bException = new BException(e.getMessage());
+                }
+                executor.handleBException(bException);
                 executor.continueExecution();
-            } else {
-                executor.continueExecution(connectorCallback.getCurrentNode().next());
             }
         } catch (Throwable unhandled) {
             // Root level Error handler. we have to notify server connector.
-            ServerConnectorMessageHandler.handleErrorFromOutbound(connectorCallback.getContext(), unhandled);
+            Context bContext = connectorCallback.getContext();
+            Node lastActive = executor.getLastActiveNode();
+            if (executor.isResourceInvocation()) {
+                ErrorHandlerUtils.handleResourceInvocationError(bContext, lastActive, null, unhandled);
+            } else if (executor.isTestFunctionInvocation()) {
+                ErrorHandlerUtils.handleTestFuncInvocationError(bContext, lastActive, null, unhandled);
+                throw unhandled;
+            } else {
+                ErrorHandlerUtils.handleMainFuncInvocationError(bContext, lastActive, null, unhandled);
+            }
         }
     }
 }

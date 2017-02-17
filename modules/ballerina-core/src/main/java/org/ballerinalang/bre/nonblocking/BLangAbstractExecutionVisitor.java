@@ -36,6 +36,7 @@ import org.ballerinalang.model.BallerinaConnectorDef;
 import org.ballerinalang.model.Connector;
 import org.ballerinalang.model.Function;
 import org.ballerinalang.model.LinkedNode;
+import org.ballerinalang.model.Node;
 import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.ParameterDef;
 import org.ballerinalang.model.Resource;
@@ -157,12 +158,12 @@ import java.util.concurrent.TimeoutException;
 public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisitor {
 
     private static final Logger logger = LoggerFactory.getLogger(Constants.BAL_LINKED_INTERPRETER_LOGGER);
-    protected Stack<Integer> branchIDStack;
     private RuntimeEnvironment runtimeEnv;
-    private Context bContext;
-    private ControlStack controlStack;
+    protected Context bContext;
+    protected ControlStack controlStack;
     private Stack<TryCatchStackRef> tryCatchStackRefs;
     protected LinkedNode next;
+    private Node lastActive;
     private ExecutorService executor;
     private ForkJoinInvocationStatus forkJoinInvocationStatus;
     private boolean completed;
@@ -171,7 +172,6 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
         this.runtimeEnv = runtimeEnv;
         this.bContext = bContext;
         this.controlStack = bContext.getControlStack();
-        this.branchIDStack = new Stack<>();
         this.tryCatchStackRefs = new Stack<>();
     }
 
@@ -179,6 +179,7 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
 
     @Override
     public void visit(ActionInvocationStmt actionIStmt) {
+        lastActive = actionIStmt;
         if (logger.isDebugEnabled()) {
             logger.debug("Executing ActionInvocationStmt {}-{}", getNodeLocation(actionIStmt.getNodeLocation()),
                     actionIStmt.getActionInvocationExpr().getCallableUnit().getName());
@@ -189,6 +190,7 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
 
     @Override
     public void visit(AssignStmt assignStmt) {
+        lastActive = assignStmt;
         if (logger.isDebugEnabled()) {
             logger.debug("Executing AssignStmt {}", getNodeLocation(assignStmt.getNodeLocation()));
         }
@@ -206,6 +208,7 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
 
     @Override
     public void visit(BreakStmt breakStmt) {
+        lastActive = breakStmt;
         if (logger.isDebugEnabled()) {
             logger.debug("Executing BreakStmt {}", getNodeLocation(breakStmt.getNodeLocation()));
         }
@@ -224,6 +227,7 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
 
     @Override
     public void visit(ForkJoinStmt forkJoinStmt) {
+        lastActive = forkJoinStmt;
         if (logger.isDebugEnabled()) {
             logger.debug("Executing forkJoinStmt {}", getNodeLocation(forkJoinStmt.getNodeLocation()));
         }
@@ -232,6 +236,7 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
 
     @Override
     public void visit(FunctionInvocationStmt funcIStmt) {
+        lastActive = funcIStmt;
         if (logger.isDebugEnabled()) {
             logger.debug("Executing FunctionInvocationStmt {}-{}", getNodeLocation(funcIStmt.getNodeLocation()),
                     funcIStmt.getFunctionInvocationExpr().getCallableUnit().getName());
@@ -241,6 +246,7 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
 
     @Override
     public void visit(IfElseStmt ifElseStmt) {
+        lastActive = ifElseStmt;
         if (logger.isDebugEnabled()) {
             logger.debug("Executing IfElseStmt {}", getNodeLocation(ifElseStmt.getNodeLocation()));
         }
@@ -249,6 +255,7 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
 
     @Override
     public void visit(ReplyStmt replyStmt) {
+        lastActive = replyStmt;
         if (logger.isDebugEnabled()) {
             logger.debug("Executing ReplyStmt {}", getNodeLocation(replyStmt.getNodeLocation()));
         }
@@ -257,6 +264,7 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
 
     @Override
     public void visit(ReturnStmt returnStmt) {
+        lastActive = returnStmt;
         if (logger.isDebugEnabled()) {
             logger.debug("Executing ReturnStmt {}", getNodeLocation(returnStmt.getNodeLocation()));
         }
@@ -265,6 +273,7 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
 
     @Override
     public void visit(ThrowStmt throwStmt) {
+        lastActive = throwStmt;
         if (logger.isDebugEnabled()) {
             logger.debug("Executing ThrowStmt {}", getNodeLocation(throwStmt.getNodeLocation()));
         }
@@ -273,6 +282,7 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
 
     @Override
     public void visit(TryCatchStmt tryCatchStmt) {
+        lastActive = tryCatchStmt;
         if (logger.isDebugEnabled()) {
             logger.debug("Executing TryCatchStmt {}", getNodeLocation(tryCatchStmt.getNodeLocation()));
         }
@@ -283,6 +293,7 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
 
     @Override
     public void visit(VariableDefStmt variableDefStmt) {
+        lastActive = variableDefStmt;
         if (logger.isDebugEnabled()) {
             logger.debug("Executing VariableDefStmt {}", getNodeLocation(variableDefStmt.getNodeLocation()));
         }
@@ -291,10 +302,10 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
 
     @Override
     public void visit(WorkerInvocationStmt workerInvocationStmt) {
+        lastActive = workerInvocationStmt;
         if (logger.isDebugEnabled()) {
             logger.debug("Executing WorkerInvocationStmt {}", getNodeLocation(workerInvocationStmt.getNodeLocation()));
         }
-        next = workerInvocationStmt.next;
         // Create the Stack frame
         Worker worker = workerInvocationStmt.getCallableUnit();
 
@@ -345,14 +356,15 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
         WorkerRunner workerRunner = new WorkerRunner(workerExecutor, workerContext, worker);
         Future<BMessage> future = executor.submit(workerRunner);
         worker.setResultFuture(future);
+        next = workerInvocationStmt.next;
     }
 
     @Override
     public void visit(WorkerReplyStmt workerReplyStmt) {
+        lastActive = workerReplyStmt;
         if (logger.isDebugEnabled()) {
             logger.debug("Executing WorkerReplyStmt {}", getNodeLocation(workerReplyStmt.getNodeLocation()));
         }
-        next = workerReplyStmt.next;
         Worker worker = workerReplyStmt.getWorker();
         Future<BMessage> future = worker.getResultFuture();
         try {
@@ -372,10 +384,12 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
             // Finally, try again to shutdown if not done already
             executor.shutdownNow();
         }
+        next = workerReplyStmt.next;
     }
 
     @Override
     public void visit(WhileStmt whileStmt) {
+        lastActive = whileStmt;
         if (logger.isDebugEnabled()) {
             logger.debug("Executing WhileStmt {}", getNodeLocation(whileStmt.getNodeLocation()));
         }
@@ -490,32 +504,18 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
         if (logger.isDebugEnabled()) {
             logger.debug("Executing ResourceInvocationExpr {}", getNodeLocation(resourceIExpr.getNodeLocation()));
         }
-
+        this.resourceInvocation = true;
         Resource resource = resourceIExpr.getResource();
+        ControlStack controlStack = bContext.getControlStack();
         BValue[] valueParams = new BValue[resource.getStackFrameSize()];
-        BMessage messageValue = new BMessage(bContext.getCarbonMessage());
 
-        valueParams[0] = messageValue;
-        int i = 0;
-        for (Expression arg : resourceIExpr.getArgExprs()) {
-            // Evaluate the argument expression
-            VariableRefExpr variableRefExpr = (VariableRefExpr) arg;
-            MemoryLocation memoryLocation = variableRefExpr.getVariableDef().getMemoryLocation();
-            BValue argValue = memoryLocation.access(this);
-            BType argType = arg.getType();
-            if (BTypes.isValueType(argType)) {
-                argValue = BValueUtils.clone(argType, argValue);
-            }
-            // Setting argument value in the stack frame
-            valueParams[i] = argValue;
+        int valueCounter = populateArgumentValues(resourceIExpr.getArgExprs(), valueParams);
 
-            i++;
-        }
         BValue[] ret = new BValue[1];
         CallableUnitInfo resourceInfo = new CallableUnitInfo(resource.getName(), resource.getPackagePath(),
                 resource.getNodeLocation());
 
-        BValue[] cacheValues = new BValue[resource.getTempStackFrameSize() + 1];
+        BValue[] cacheValues = new BValue[resource.getTempStackFrameSize()];
         StackFrame stackFrame = new StackFrame(valueParams, ret, cacheValues, resourceInfo);
         controlStack.pushFrame(stackFrame);
         next = resourceIExpr.getResource().getResourceBody();
@@ -606,7 +606,8 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
         // Fist the get the BConnector object. In an action invocation first argument is always the connector
         BConnector bConnector = (BConnector) controlStack.getValue(0);
         if (bConnector == null) {
-            throw new BallerinaException("Connector argument value is null");
+            handleBException(new BException("Connector argument value is null"));
+            return null;
         }
 
         // Now get the connector variable value from the memory block allocated to the BConnector instance.
@@ -638,12 +639,12 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
         }
         completed = true;
         next = null;
-        Runtime.getRuntime().exit(0);
+//        Runtime.getRuntime().exit(0);
     }
 
     @Override
     public void visit(GotoNode gotoNode) {
-        Integer pop = branchIDStack.pop();
+        Integer pop = controlStack.getCurrentFrame().returningBranchID;
         if (logger.isDebugEnabled()) {
             logger.debug("Executing GotoNode branch:{}", pop);
         }
@@ -673,7 +674,6 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
                     assignStmt.getLExprs().length,
                     assignStmt.getRExpr().getType() != null ? assignStmt.getRExpr().getType().toString() : null);
         }
-        next = assignStmtEndNode.next;
         Expression rExpr = assignStmt.getRExpr();
         Expression[] lExprs = assignStmt.getLExprs();
         if (rExpr instanceof FunctionInvocationExpr || rExpr instanceof ActionInvocationExpr) {
@@ -687,6 +687,7 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
             BValue rValue = getTempValue(rExpr);
             assignValue(rValue, lExpr);
         }
+        next = assignStmtEndNode.next;
     }
 
     @Override
@@ -815,7 +816,6 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
         } catch (TimeoutException e) {
             forkJoinInvocationStatus.timedOut = true;
             return null;
-            // throw new BallerinaException("Fork-Join statement at " + position + " timed out", e);
         }
         return result;
     }
@@ -852,7 +852,7 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
             logger.debug("Executing ThrowStmt - EndNode");
         }
         BException exception = (BException) getTempValue(throwStmtEndNode.getStatement().getExpr());
-        exception.value().setStackTrace(ErrorHandlerUtils.getMainFuncStackTrace(bContext, null));
+        exception.value().setStackTrace(ErrorHandlerUtils.getStackTrace(bContext, lastActive));
         this.handleBException(exception);
     }
 
@@ -861,8 +861,8 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
         if (logger.isDebugEnabled()) {
             logger.debug("Executing TryCatchStmt - EndNode");
         }
-        next = tryCatchStmtEndNode.next;
         tryCatchStackRefs.pop();
+        next = tryCatchStmtEndNode.next;
     }
 
     @Override
@@ -870,10 +870,10 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
         if (logger.isDebugEnabled()) {
             logger.debug("Executing ReplyStmt - EndNode");
         }
-        next = replyStmtEndNode.next;
         Expression expr = replyStmtEndNode.getStatement().getReplyExpr();
         BMessage bMessage = (BMessage) getTempValue(expr);
         bContext.getBalCallback().done(bMessage.value());
+        next = replyStmtEndNode.next;
     }
 
     @Override
@@ -881,7 +881,6 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
         if (logger.isDebugEnabled()) {
             logger.debug("Executing ReturnStmt - EndNode");
         }
-        next = returnStmtEndNode.next;
         ReturnStmt returnStmt = returnStmtEndNode.getStatement();
         Expression[] exprs = returnStmt.getExprs();
 
@@ -892,6 +891,7 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
                 for (int i = 0; i < funcIExpr.getTypes().length; i++) {
                     controlStack.setReturnValue(i, getTempValue(funcIExpr.getTempOffset() + i));
                 }
+                next = returnStmtEndNode.next;
                 return;
             }
         }
@@ -900,6 +900,7 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
             BValue returnVal = getTempValue(expr);
             controlStack.setReturnValue(i, returnVal);
         }
+        next = returnStmtEndNode.next;
     }
 
     @Override
@@ -910,7 +911,6 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
                     varDefStmt.getLExpr().getType().toString(),
                     varDefStmt.getRExpr() != null ? varDefStmt.getLExpr().getType().toString() : null);
         }
-        next = variableDefStmtEndNode.next;
         BValue rValue;
         Expression lExpr = varDefStmt.getLExpr();
         Expression rExpr = varDefStmt.getRExpr();
@@ -925,6 +925,7 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
             rValue = getTempValue(rExpr);
         }
         assignValue(rValue, lExpr);
+        next = variableDefStmtEndNode.next;
     }
 
     @Override
@@ -933,7 +934,6 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
         if (logger.isDebugEnabled()) {
             logger.debug("Executing ActionInvocationExpr StartNode " + actionIExpr.getCallableUnit().getName());
         }
-        next = actionInvocationExprStartNode.next;
         // Create the Stack frame
         Action action = actionIExpr.getCallableUnit();
         BValue[] localVals = new BValue[action.getStackFrameSize()];
@@ -960,12 +960,13 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
         CallableUnitInfo actionInfo = new CallableUnitInfo(action.getName(), action.getPackagePath(),
                 actionIExpr.getNodeLocation());
 
-        BValue[] cacheValues = new BValue[actionIExpr.getCallableUnit().getTempStackFrameSize() + 1];
+        BValue[] cacheValues = new BValue[actionIExpr.getCallableUnit().getTempStackFrameSize()];
         StackFrame stackFrame = new StackFrame(localVals, returnVals, cacheValues, actionInfo);
         controlStack.pushFrame(stackFrame);
         if (actionIExpr.hasGotoBranchID()) {
-            branchIDStack.push(actionIExpr.getGotoBranchID());
+            controlStack.getCurrentFrame().returningBranchID = actionIExpr.getGotoBranchID();
         }
+        next = actionInvocationExprStartNode.next;
     }
 
     @Override
@@ -973,7 +974,6 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
         if (logger.isDebugEnabled()) {
             logger.debug("Executing ArrayInitExpr - EndNode");
         }
-        next = arrayInitExprEndNode.next;
         Expression[] argExprs = arrayInitExprEndNode.getExpression().getArgExprs();
 
         // Creating a new arrays
@@ -985,6 +985,7 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
             bArray.add(i, value);
         }
         setTempValue(arrayInitExprEndNode.getExpression().getTempOffset(), bArray);
+        next = arrayInitExprEndNode.next;
     }
 
     @Override
@@ -992,14 +993,14 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
         if (logger.isDebugEnabled()) {
             logger.debug("Executing ArrayMapAccessExpr - EndNode");
         }
-        next = arrayMapAccessExprEndNode.next;
         ArrayMapAccessExpr arrayMapAccessExpr = arrayMapAccessExprEndNode.getExpression();
         if (!arrayMapAccessExpr.isLHSExpr()) {
             VariableRefExpr arrayVarRefExpr = (VariableRefExpr) arrayMapAccessExpr.getRExpr();
             BValue collectionValue = getTempValue(arrayVarRefExpr);
 
             if (collectionValue == null) {
-                throw new BallerinaException("variable '" + arrayVarRefExpr.getVarName() + "' is null");
+                handleBException(new BException("variable '" + arrayVarRefExpr.getVarName() + "' is null"));
+                return;
             }
 
             Expression indexExpr = arrayMapAccessExpr.getIndexExpr();
@@ -1020,12 +1021,14 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
                 if (indexValue instanceof BString) {
                     result = ((BMap) collectionValue).get(indexValue);
                 } else {
-                    throw new IllegalStateException("Index of a map should be string type");
+                    handleBException(new BException("Index of a map should be string type"));
+                    return;
                 }
             }
             setTempValue(arrayMapAccessExpr.getTempOffset(), result);
         }
         // Else Nothing to do. (Assignment Statement will handle rest.
+        next = arrayMapAccessExprEndNode.next;
     }
 
     @Override
@@ -1033,13 +1036,13 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
         if (logger.isDebugEnabled()) {
             logger.debug("Executing BacktickExpr - EndNode");
         }
-        next = backtickExprEndNode.next;
         String evaluatedString = evaluteBacktickString(backtickExprEndNode.getExpression());
         if (backtickExprEndNode.getExpression().getType() == BTypes.typeJSON) {
             setTempValue(backtickExprEndNode.getExpression().getTempOffset(), new BJSON(evaluatedString));
         } else {
             setTempValue(backtickExprEndNode.getExpression().getTempOffset(), new BXML(evaluatedString));
         }
+        next = backtickExprEndNode.next;
     }
 
     @Override
@@ -1067,7 +1070,6 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
         if (logger.isDebugEnabled()) {
             logger.debug("Executing FunctionInvocationExpr StartNode - {}", funcIExpr.getCallableUnit().getName());
         }
-        next = functionInvocationExprStartNode.next;
         // Create the Stack frame
         Function function = funcIExpr.getCallableUnit();
 
@@ -1096,12 +1098,13 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
         CallableUnitInfo functionInfo = new CallableUnitInfo(function.getName(), function.getPackagePath(),
                 funcIExpr.getNodeLocation());
 
-        BValue[] cacheValue = new BValue[funcIExpr.getCallableUnit().getTempStackFrameSize() + 1];
+        BValue[] cacheValue = new BValue[funcIExpr.getCallableUnit().getTempStackFrameSize()];
         StackFrame stackFrame = new StackFrame(localVals, returnVals, cacheValue, functionInfo);
         controlStack.pushFrame(stackFrame);
         if (funcIExpr.hasGotoBranchID()) {
-            branchIDStack.push(funcIExpr.getGotoBranchID());
+            controlStack.getCurrentFrame().returningBranchID = funcIExpr.getGotoBranchID();
         }
+        next = functionInvocationExprStartNode.next;
     }
 
     @Override
@@ -1109,11 +1112,11 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
         if (logger.isDebugEnabled()) {
             logger.debug("Executing StructFieldAccess - EndNode");
         }
-        next = structFieldAccessExprEndNode.next;
         StructFieldAccessExpr structFieldAccessExpr = structFieldAccessExprEndNode.getExpression();
         Expression varRef = structFieldAccessExpr.getVarRef();
         BValue value = getTempValue(varRef);
         setTempValue(structFieldAccessExpr.getTempOffset(), getFieldExprValue(structFieldAccessExpr, value));
+        next = structFieldAccessExprEndNode.next;
     }
 
     @Override
@@ -1121,7 +1124,6 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
         if (logger.isDebugEnabled()) {
             logger.debug("Executing StructInitExpr - EndNode");
         }
-        next = structInitExprEndNode.next;
         StructInitExpr structInitExpr = structInitExprEndNode.getExpression();
         StructDef structDef = (StructDef) structInitExpr.getType();
         BValue[] structMemBlock;
@@ -1145,6 +1147,7 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
             structMemBlock[structVarLoc.getStructMemAddrOffset()] = getTempValue(expr.getValueExpr());
         }
         setTempValue(structInitExpr.getTempOffset(), new BStruct(structDef, structMemBlock));
+        next = structInitExprEndNode.next;
     }
 
     @Override
@@ -1154,7 +1157,6 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
             logger.debug("Executing TypeCastExpression - EndNode {}->{}, source-{}", typeCastExpression.getType(),
                     typeCastExpression.getTargetType(), typeCastExpression.getRExpr() != null);
         }
-        next = typeCastExpressionEndNode.next;
         // Check for native type casting
         if (typeCastExpression.getEvalFunc() != null) {
             BValueType result = (BValueType) getTempValue(typeCastExpression.getRExpr());
@@ -1187,13 +1189,14 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
             CallableUnitInfo functionInfo = new CallableUnitInfo(typeMapper.getTypeMapperName(),
                     typeMapper.getPackagePath(), typeCastExpression.getNodeLocation());
 
-            BValue[] cacheValue = new BValue[typeCastExpression.getCallableUnit().getTempStackFrameSize() + 1];
+            BValue[] cacheValue = new BValue[typeCastExpression.getCallableUnit().getTempStackFrameSize()];
             StackFrame stackFrame = new StackFrame(localVals, returnVals, cacheValue, functionInfo);
             controlStack.pushFrame(stackFrame);
             if (typeCastExpression.hasGotoBranchID()) {
-                branchIDStack.push(typeCastExpression.getGotoBranchID());
+                controlStack.getCurrentFrame().returningBranchID = typeCastExpression.getGotoBranchID();
             }
         }
+        next = typeCastExpressionEndNode.next;
     }
 
     @Override
@@ -1201,11 +1204,11 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
         if (logger.isDebugEnabled()) {
             logger.debug("Executing UnaryExpressionEnd[Link]");
         }
-        next = unaryExpressionEndNode.next;
         UnaryExpression unaryExpr = unaryExpressionEndNode.getExpression();
         BValueType rValue = (BValueType) getTempValue(unaryExpr.getRExpr());
         BValue result = unaryExpr.getEvalFunc().apply(null, rValue);
         setTempValue(unaryExpr.getTempOffset(), result);
+        next = unaryExpressionEndNode.next;
     }
 
     @Override
@@ -1214,9 +1217,9 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
         if (logger.isDebugEnabled()) {
             logger.debug("Executing RefTypeInitExpr - EndNode");
         }
-        next = refTypeInitExprEndNode.next;
         BType bType = refTypeInitExpr.getType();
         setTempValue(refTypeInitExpr.getTempOffset(), bType.getDefaultValue());
+        next = refTypeInitExprEndNode.next;
     }
 
     @Override
@@ -1239,7 +1242,6 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
         if (logger.isDebugEnabled()) {
             logger.debug("Executing ConnectorInitExpr - EndNode");
         }
-        next = connectorInitExprEndNode.next;
         ConnectorInitExpr connectorInitExpr = connectorInitExprEndNode.getExpression();
         BConnector bConnector;
         BValue[] connectorMemBlock;
@@ -1257,18 +1259,6 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
             nativeConnector.init(connectorMemBlock);
             bConnector = new BConnector(nativeConnector, connectorMemBlock);
 
-//            //TODO Fix Issue#320
-//            NativeUnit nativeUnit = ((NativeUnitProxy) connector).load();
-//            AbstractNativeConnector nativeConnector = (AbstractNativeConnector) ((NativeUnitProxy) connector).load();
-//            Expression[] argExpressions = connectorDcl.getArgExprs();
-//            connectorMemBlock = new BValue[argExpressions.length];
-//
-//            for (int j = 0; j < argExpressions.length; j++) {
-//                connectorMemBlock[j] = argExpressions[j].execute(this);
-//            }
-//
-//            nativeConnector.init(connectorMemBlock);
-//            connector = nativeConnector;
             setTempValue(connectorInitExpr.getTempOffset(), bConnector);
         } else {
             BallerinaConnectorDef connectorDef = (BallerinaConnectorDef) connector;
@@ -1295,14 +1285,14 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
             CallableUnitInfo functionInfo = new CallableUnitInfo(initFunction.getName(), initFunction.getPackagePath(),
                     initFunction.getNodeLocation());
 
-            BValue[] cacheValue = new BValue[initFunction.getTempStackFrameSize() + 1];
+            BValue[] cacheValue = new BValue[initFunction.getTempStackFrameSize()];
             StackFrame stackFrame = new StackFrame(localVals, returnVals, cacheValue, functionInfo);
             controlStack.pushFrame(stackFrame);
             if (connectorInitExprEndNode.hasGotoBranchID()) {
-                branchIDStack.push(connectorInitExprEndNode.getGotoBranchID());
+                controlStack.getCurrentFrame().returningBranchID = connectorInitExprEndNode.getGotoBranchID();
             }
         }
-
+        next = connectorInitExprEndNode.next;
     }
 
     @Override
@@ -1321,7 +1311,7 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
                 next = invokeNativeActionNode.next;
             }
         } catch (RuntimeException e) {
-            BException bException = new BException(e.getMessage());
+            BException bException = new BException(e.getMessage(), invokeNativeActionNode.getCallableUnit().getName());
             handleBException(bException);
         }
     }
@@ -1331,8 +1321,14 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
         if (logger.isDebugEnabled()) {
             logger.debug("Executing Native Function - " + invokeNativeFunctionNode.getCallableUnit().getName());
         }
-        next = invokeNativeFunctionNode.next;
-        invokeNativeFunctionNode.getCallableUnit().executeNative(bContext);
+        try {
+            invokeNativeFunctionNode.getCallableUnit().executeNative(bContext);
+            next = invokeNativeFunctionNode.next;
+        } catch (RuntimeException e) {
+            BException bException = new BException(e.getMessage(),
+                    invokeNativeFunctionNode.getCallableUnit().getName());
+            handleBException(bException);
+        }
     }
 
     @Override
@@ -1341,8 +1337,14 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
             logger.debug("Executing Native TypeMapperNode - " + invokeNativeTypeMapperNode.getCallableUnit()
                     .getName());
         }
-        next = invokeNativeTypeMapperNode.next;
-        invokeNativeTypeMapperNode.getCallableUnit().convertNative(bContext);
+        try {
+            invokeNativeTypeMapperNode.getCallableUnit().convertNative(bContext);
+            next = invokeNativeTypeMapperNode.next;
+        } catch (RuntimeException e) {
+            BException bException = new BException(e.getMessage(),
+                    invokeNativeTypeMapperNode.getCallableUnit().getName());
+            handleBException(bException);
+        }
     }
 
     @Override
@@ -1350,7 +1352,6 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
         if (logger.isDebugEnabled()) {
             logger.debug("Executing MapInitExprEndNode - EndNode");
         }
-        next = mapInitExprEndNode.next;
         Expression[] argExprs = mapInitExprEndNode.getExpression().getArgExprs();
 
         // Creating a new arrays
@@ -1363,6 +1364,7 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
             bMap.put(keyVal, value);
         }
         setTempValue(mapInitExprEndNode.getExpression().getTempOffset(), bMap);
+        next = mapInitExprEndNode.next;
     }
 
     /**
@@ -1371,11 +1373,22 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
      * @param bException
      */
     public void handleBException(BException bException) {
+        String stackTrace = ErrorHandlerUtils.getStackTrace(bContext, lastActive);
         // SaveStack current StackTrace.
-        bException.value().setStackTrace(ErrorHandlerUtils.getMainFuncStackTrace(bContext, null));
+        bException.value().setStackTrace(stackTrace);
         if (tryCatchStackRefs.size() == 0) {
             // There is no tryCatch block to handle this exception. Pass this to handle at root.
-            throw new BallerinaException(bException.value().getMessage().stringValue());
+            if (resourceInvocation) {
+                ErrorHandlerUtils.handleResourceInvocationError(bContext, lastActive, bException, null);
+                next = null;
+                return;
+            } else if (testFunctionInvocation) {
+                ErrorHandlerUtils.handleTestFuncInvocationError(bContext, lastActive, bException, null);
+                throw new BallerinaException(bException.value().getMessage().stringValue());
+            } else {
+                ErrorHandlerUtils.handleMainFuncInvocationError(bContext, lastActive, bException, null);
+                return;
+            }
         }
         TryCatchStackRef ref = tryCatchStackRefs.pop();
         // unwind stack till we found the current frame.
@@ -1394,6 +1407,10 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
         }
         // Execute Catch block.
         next = ref.getCatchBlock().getCatchBlockStmt();
+    }
+
+    public Node getLastActiveNode() {
+        return lastActive;
     }
 
     // Private methods
@@ -1477,7 +1494,8 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
             // Fist the get the BConnector object. In an action invocation first argument is always the connector
             BConnector bConnector = (BConnector) controlStack.getValue(0);
             if (bConnector == null) {
-                throw new BallerinaException("Connector argument value is null");
+                handleBException(new BException("Connector argument value is null"));
+                return;
             }
 
             int connectorMemOffset = ((ConnectorVarLocation) memoryLocation).getConnectorMemAddrOffset();
@@ -1516,8 +1534,9 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
 
         if (fieldExpr.getFieldExpr() == null) {
             if (currentStructVal.value() == null) {
-                throw new BallerinaException("cannot set field '" + fieldExpr.getSymbolName().getName() +
-                        "' of non-initialized variable '" + fieldExpr.getParent().getSymbolName().getName() + "'.");
+                handleBException(new BException("cannot set field '" + fieldExpr.getSymbolName().getName() +
+                        "' of non-initialized variable '" + fieldExpr.getParent().getSymbolName().getName() + "'."));
+                return;
             }
             setUnitValue(rValue, currentStructVal, fieldLocation, fieldExpr);
             return;
@@ -1527,8 +1546,9 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
         // and its field are both struct types.
 
         if (currentStructVal.value() == null) {
-            throw new BallerinaException("cannot set field '" + fieldExpr.getSymbolName().getName() +
-                    "' of non-initialized variable '" + fieldExpr.getParent().getSymbolName().getName() + "'.");
+            handleBException(new BException("cannot set field '" + fieldExpr.getSymbolName().getName() +
+                    "' of non-initialized variable '" + fieldExpr.getParent().getSymbolName().getName() + "'."));
+            return;
         }
 
         // get the unit value of the struct field,
@@ -1621,8 +1641,9 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
         // If this is the last field, return the value from memory location
         if (fieldExpr.getFieldExpr() == null) {
             if (currentStructVal.value() == null) {
-                throw new BallerinaException("cannot access field '" + fieldExpr.getSymbolName().getName() +
-                        "' of non-initialized variable '" + fieldExpr.getParent().getSymbolName().getName() + "'.");
+                handleBException(new BException("cannot access field '" + fieldExpr.getSymbolName().getName() +
+                        "' of non-initialized variable '" + fieldExpr.getParent().getSymbolName().getName() + "'."));
+                return null;
             }
             // Value stored in the struct can be also an arrays. Hence if its an arrray access,
             // get the aray element value
@@ -1630,8 +1651,9 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
         }
 
         if (currentStructVal.value() == null) {
-            throw new BallerinaException("cannot access field '" + fieldExpr.getSymbolName().getName() +
-                    "' of non-initialized variable '" + fieldExpr.getParent().getSymbolName().getName() + "'.");
+            handleBException(new BException("cannot access field '" + fieldExpr.getSymbolName().getName() +
+                    "' of non-initialized variable '" + fieldExpr.getParent().getSymbolName().getName() + "'."));
+            return null;
         }
         BValue value = currentStructVal.getValue(fieldLocation);
 
@@ -1658,7 +1680,8 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
     private BValue getUnitValue(BValue currentVal, StructFieldAccessExpr fieldExpr) {
         ReferenceExpr currentVarRefExpr = fieldExpr.getVarRef();
         if (currentVal == null) {
-            throw new BallerinaException("field '" + currentVarRefExpr.getVarName() + "' is null");
+            handleBException(new BException("field '" + currentVarRefExpr.getVarName() + "' is null"));
+            return null;
         }
 
         if (!(currentVal instanceof BArray || currentVal instanceof BMap<?, ?>)) {
@@ -1685,8 +1708,9 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
         }
 
         if (unitVal == null) {
-            throw new BallerinaException("field '" + currentVarRefExpr.getSymbolName().getName() + "[" +
-                    indexValue.stringValue() + "]' is null");
+            handleBException(new BException("field '" + currentVarRefExpr.getSymbolName().getName() + "[" +
+                    indexValue.stringValue() + "]' is null"));
+            return null;
         }
 
         return unitVal;
