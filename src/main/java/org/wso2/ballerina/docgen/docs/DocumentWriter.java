@@ -17,7 +17,7 @@
  */
 package org.wso2.ballerina.docgen.docs;
 
-import org.wso2.ballerina.core.model.BLangPackage;
+import org.ballerinalang.model.BLangPackage;
 
 import java.util.Collection;
 

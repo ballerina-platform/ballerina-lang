@@ -17,12 +17,12 @@
  */
 package org.wso2.ballerina.docgen.docs;
 
+import org.ballerinalang.model.BLangPackage;
+import org.ballerinalang.model.BallerinaFunction;
+import org.ballerinalang.model.Function;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.wso2.ballerina.core.model.BLangPackage;
-import org.wso2.ballerina.core.model.BallerinaFunction;
-import org.wso2.ballerina.core.model.Function;
 import org.wso2.ballerina.docgen.docs.utils.BallerinaDocGenTestUtils;
 
 import java.io.IOException;

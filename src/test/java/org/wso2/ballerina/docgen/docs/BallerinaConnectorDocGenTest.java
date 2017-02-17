@@ -17,11 +17,11 @@
  */
 package org.wso2.ballerina.docgen.docs;
 
+import org.ballerinalang.model.BLangPackage;
+import org.ballerinalang.model.BallerinaAction;
+import org.ballerinalang.model.BallerinaConnectorDef;
 import org.testng.Assert;
 import org.testng.annotations.Test;
-import org.wso2.ballerina.core.model.BLangPackage;
-import org.wso2.ballerina.core.model.BallerinaAction;
-import org.wso2.ballerina.core.model.BallerinaConnectorDef;
 import org.wso2.ballerina.docgen.docs.utils.BallerinaDocGenTestUtils;
 
 import java.io.IOException;

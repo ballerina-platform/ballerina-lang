@@ -18,9 +18,9 @@
 
 package org.wso2.ballerina.docgen.docs.utils;
 
-import org.wso2.ballerina.core.model.types.BArrayType;
-import org.wso2.ballerina.core.model.types.BType;
-import org.wso2.ballerina.core.model.types.TypeEnum;
+import org.ballerinalang.model.types.BArrayType;
+import org.ballerinalang.model.types.BType;
+import org.ballerinalang.model.types.TypeEnum;
 import java.io.PrintStream;
 
 /**
