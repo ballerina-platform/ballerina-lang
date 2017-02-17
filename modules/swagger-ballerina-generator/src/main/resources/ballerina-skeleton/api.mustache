@@ -1,0 +1,25 @@
+import ballerina.lang.messages;
+
+@http:BasePath("{{contextPath}}")
+service {{classname}} {
+
+{{#operations}}
+    {{#operation}}
+    @http:{{httpMethod}}
+    @http:Path("{{path}}")
+    resource {{nickname}} (message m) {
+        //stub code - fill as necessary
+        message response = {};
+        json payload;
+
+        messages:setHeader(response, "Server", "Powered by Ballerina");
+        payload = `{"success":"true"}`;
+        messages:setJsonPayload(response, payload);
+
+        reply response;
+    }
+    {{/operation}}
+
+{{/operations}}
+
+}
