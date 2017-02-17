@@ -94,76 +94,76 @@ public class PackagesApiServiceImpl extends PackagesApiService {
     private Map<String, ModelPackage> getAllPackages() {
         Map<String, ModelPackage> packages = new HashMap<>();
 
-        for (BLangSymbol symbol : apiScope.getImmutableSimbolMap()) {
+//        for (BLangSymbol symbol : apiScope.getImmutableSimbolMap()) {
 //            SymbolName key = entry.getKey();
 //            BLangSymbol symbol = entry.getValue();
-            if (((NativeUnitProxy) symbol).load() instanceof AbstractNativeFunction) {
-                AbstractNativeFunction abstractNativeFunction = (AbstractNativeFunction) ((NativeUnitProxy) symbol).load();
-                if (packages.containsKey(abstractNativeFunction.getPackagePath())) {
-                    ModelPackage modelPackage = packages.get(abstractNativeFunction.getPackagePath());
-                    List<Parameter> parameters = new ArrayList<>();
-                    addParameters(parameters, abstractNativeFunction.getArgumentTypeNames());
-
-                    List<Parameter> returnParameters = new ArrayList<>();
-                    addParameters(returnParameters, abstractNativeFunction.getReturnParamTypeNames());
-
-                    List<Annotation> annotations = new ArrayList<>();
-                    addAnnotations(annotations, abstractNativeFunction.getAnnotations());
-
-                    modelPackage.addFunctionsItem(createNewFunction(abstractNativeFunction.getName(),
-                            annotations, parameters, returnParameters));
-                } else {
-                    ModelPackage modelPackage = new ModelPackage();
-                    modelPackage.setName(abstractNativeFunction.getPackagePath());
-                    List<Parameter> parameters = new ArrayList<>();
-                    addParameters(parameters, abstractNativeFunction.getArgumentTypeNames());
-
-                    List<Parameter> returnParameters = new ArrayList<>();
-                    addParameters(returnParameters, abstractNativeFunction.getReturnParamTypeNames());
-
-                    List<Annotation> annotations = new ArrayList<>();
-                    addAnnotations(annotations, abstractNativeFunction.getAnnotations());
-
-                    modelPackage.addFunctionsItem(createNewFunction(abstractNativeFunction.getName(),
-                            annotations, parameters, returnParameters));
-                    packages.put(abstractNativeFunction.getPackagePath(), modelPackage);
-                }
-            } else if (((NativeUnitProxy) symbol).load() instanceof AbstractNativeConnector) {
-                AbstractNativeConnector abstractNativeConnector = (AbstractNativeConnector) ((NativeUnitProxy) symbol).load();
-                if (packages.containsKey(abstractNativeConnector.getPackagePath())) {
-                    ModelPackage modelPackage = packages.get(abstractNativeConnector.getPackagePath());
-                    List<Parameter> parameters = new ArrayList<>();
-                    addParameters(parameters, abstractNativeConnector.getArgumentTypeNames());
-
-                    List<Parameter> returnParameters = new ArrayList<>();
-                    addParameters(returnParameters, abstractNativeConnector.getReturnParamTypeNames());
-
-                    List<Annotation> annotations = new ArrayList<>();
-                    List<Action> actions = new ArrayList<>();
-                    addActions(actions, abstractNativeConnector);
-
-                    modelPackage.addConnectorsItem(createNewConnector(abstractNativeConnector.getName(),
-                            annotations, actions, parameters, returnParameters));
-                } else {
-                    ModelPackage modelPackage = new ModelPackage();
-                    modelPackage.setName(abstractNativeConnector.getPackagePath());
-
-                    List<Parameter> parameters = new ArrayList<>();
-                    addParameters(parameters, abstractNativeConnector.getArgumentTypeNames());
-
-                    List<Parameter> returnParameters = new ArrayList<>();
-                    addParameters(returnParameters, abstractNativeConnector.getReturnParamTypeNames());
-
-                    List<Annotation> annotations = new ArrayList<>();
-                    List<Action> actions = new ArrayList<>();
-                    addActions(actions, abstractNativeConnector);
-
-                    modelPackage.addConnectorsItem(createNewConnector(abstractNativeConnector.getName(),
-                            annotations, actions, parameters, returnParameters));
-                    packages.put(abstractNativeConnector.getPackagePath(), modelPackage);
-                }
-            }
-        }
+//            if (((NativeUnitProxy) symbol).load() instanceof AbstractNativeFunction) {
+//                AbstractNativeFunction abstractNativeFunction = (AbstractNativeFunction) ((NativeUnitProxy) symbol).load();
+//                if (packages.containsKey(abstractNativeFunction.getPackagePath())) {
+//                    ModelPackage modelPackage = packages.get(abstractNativeFunction.getPackagePath());
+//                    List<Parameter> parameters = new ArrayList<>();
+//                    addParameters(parameters, abstractNativeFunction.getArgumentTypeNames());
+//
+//                    List<Parameter> returnParameters = new ArrayList<>();
+//                    addParameters(returnParameters, abstractNativeFunction.getReturnParamTypeNames());
+//
+//                    List<Annotation> annotations = new ArrayList<>();
+//                    addAnnotations(annotations, abstractNativeFunction.getAnnotations());
+//
+//                    modelPackage.addFunctionsItem(createNewFunction(abstractNativeFunction.getName(),
+//                            annotations, parameters, returnParameters));
+//                } else {
+//                    ModelPackage modelPackage = new ModelPackage();
+//                    modelPackage.setName(abstractNativeFunction.getPackagePath());
+//                    List<Parameter> parameters = new ArrayList<>();
+//                    addParameters(parameters, abstractNativeFunction.getArgumentTypeNames());
+//
+//                    List<Parameter> returnParameters = new ArrayList<>();
+//                    addParameters(returnParameters, abstractNativeFunction.getReturnParamTypeNames());
+//
+//                    List<Annotation> annotations = new ArrayList<>();
+//                    addAnnotations(annotations, abstractNativeFunction.getAnnotations());
+//
+//                    modelPackage.addFunctionsItem(createNewFunction(abstractNativeFunction.getName(),
+//                            annotations, parameters, returnParameters));
+//                    packages.put(abstractNativeFunction.getPackagePath(), modelPackage);
+//                }
+//            } else if (((NativeUnitProxy) symbol).load() instanceof AbstractNativeConnector) {
+//                AbstractNativeConnector abstractNativeConnector = (AbstractNativeConnector) ((NativeUnitProxy) symbol).load();
+//                if (packages.containsKey(abstractNativeConnector.getPackagePath())) {
+//                    ModelPackage modelPackage = packages.get(abstractNativeConnector.getPackagePath());
+//                    List<Parameter> parameters = new ArrayList<>();
+//                    addParameters(parameters, abstractNativeConnector.getArgumentTypeNames());
+//
+//                    List<Parameter> returnParameters = new ArrayList<>();
+//                    addParameters(returnParameters, abstractNativeConnector.getReturnParamTypeNames());
+//
+//                    List<Annotation> annotations = new ArrayList<>();
+//                    List<Action> actions = new ArrayList<>();
+//                    addActions(actions, abstractNativeConnector);
+//
+//                    modelPackage.addConnectorsItem(createNewConnector(abstractNativeConnector.getName(),
+//                            annotations, actions, parameters, returnParameters));
+//                } else {
+//                    ModelPackage modelPackage = new ModelPackage();
+//                    modelPackage.setName(abstractNativeConnector.getPackagePath());
+//
+//                    List<Parameter> parameters = new ArrayList<>();
+//                    addParameters(parameters, abstractNativeConnector.getArgumentTypeNames());
+//
+//                    List<Parameter> returnParameters = new ArrayList<>();
+//                    addParameters(returnParameters, abstractNativeConnector.getReturnParamTypeNames());
+//
+//                    List<Annotation> annotations = new ArrayList<>();
+//                    List<Action> actions = new ArrayList<>();
+//                    addActions(actions, abstractNativeConnector);
+//
+//                    modelPackage.addConnectorsItem(createNewConnector(abstractNativeConnector.getName(),
+//                            annotations, actions, parameters, returnParameters));
+//                    packages.put(abstractNativeConnector.getPackagePath(), modelPackage);
+//                }
+//            }
+//        }
         return packages;
     }
 
