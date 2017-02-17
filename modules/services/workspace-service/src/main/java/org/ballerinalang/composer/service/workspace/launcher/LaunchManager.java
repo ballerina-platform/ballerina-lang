@@ -92,9 +92,9 @@ public class LaunchManager {
         command = System.getProperty("ballerina.home") + File.separator + "bin" + File.separator + "ballerina ";
 
         if(type == LauncherConstants.ProgramType.RUN) {
-            command = command + " run ";
+            command = command + " run main ";
         }else{
-            command = command + " service ";
+            command = command + " run service ";
         }
 
         command = command + filePath + File.separator + fileName;
@@ -123,12 +123,16 @@ public class LaunchManager {
             }
 
             // start a new thread to stream command output.
-            Runnable run = new Runnable() {
+            Runnable output = new Runnable() {
                 public void run() {
                     LaunchManager.this.streamOutput();
                 }
             };
-            (new Thread(run)).start();
+            (new Thread(output)).start();
+            Runnable error = new Runnable() {
+                public void run() { LaunchManager.this.streamError();  }
+            };
+            (new Thread(error)).start();
 
         } catch (IOException e) {
             pushMessageToClient(launchSession, LauncherConstants.EXIT, LauncherConstants.ERROR, e.getMessage());
@@ -150,10 +154,29 @@ public class LaunchManager {
         }
     }
 
+    public void streamError() {
+        BufferedReader reader = new BufferedReader(new InputStreamReader(this.program.getErrorStream()));
+        String line = "";
+        try {
+            while ((line = reader.readLine())!= null) {
+                pushMessageToClient(launchSession, LauncherConstants.OUTPUT, LauncherConstants.ERROR, line);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     public void stopProcess() {
         int pid = -1;
         if (this.program != null && this.program.isAlive()) {
-            //todo shutdown implementation
+            this.program.destroyForcibly();
+            try {
+                this.program.waitFor();
+            } catch (InterruptedException e) {
+                //do nothing.
+            }
+            pushMessageToClient(launchSession, LauncherConstants.EXECUTION_TERMINATED , LauncherConstants.INFO,
+                    LauncherConstants.TERMINATE_MESSAGE);
         }
     }
 
@@ -228,8 +251,6 @@ public class LaunchManager {
                 break;
             case LauncherConstants.TERMINATE:
                 stopProcess();
-                pushMessageToClient(launchSession, LauncherConstants.EXECUTION_TERMINATED , LauncherConstants.INFO,
-                        LauncherConstants.TERMINATE_MESSAGE);
                 break;
             default:
                 MessageDTO message = new MessageDTO();
