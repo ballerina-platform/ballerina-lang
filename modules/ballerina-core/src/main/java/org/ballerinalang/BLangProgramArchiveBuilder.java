@@ -103,9 +103,8 @@ public class BLangProgramArchiveBuilder {
 
         for (BLangPackage bLangPackage : bLangProgram.getPackages()) {
             if (bLangPackage.getPackagePath().equals(".")) {
-                String fileName = bLangPackage.getBallerinaFiles()[0].getFileName();
                 PackageRepository.PackageSource packageSource =
-                        bLangPackage.getPackageRepository().loadFile(Paths.get(fileName));
+                        bLangPackage.getPackageRepository().loadFile(bLangProgram.getProgramFilePath());
                 addPackageSourceToArchive(packageSource, Paths.get("."), zipFS);
                 continue;
             }
