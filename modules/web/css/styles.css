@@ -1070,7 +1070,7 @@ button.variable-list {
 .constants-definition-wrapper {
     padding-bottom: 47px;
     float: left;
-    width: 100%;
+    width: 89%;
 }
 
 /** End of Constants view **/
@@ -1354,18 +1354,19 @@ button.variable-list {
 }
 
 footer {
-    min-height: 30px;
+    min-height: 25px;
     line-height: 0;
 }
 
 footer > .container p, footer > .container-fluid p {
     line-height: 0;
-    font-size: 13px;
+    font-size: 12px;
     margin: 0;
 }
 
 header .brand span {
     font-size: 15px;
+    font-weight: 400;
 }
 
 a {
@@ -1481,3 +1482,4 @@ span.fw-stack.fw-lg {
     font-weight: 300;
     font-size: 14px;
 }
+.orange{ color: #f17b31;}

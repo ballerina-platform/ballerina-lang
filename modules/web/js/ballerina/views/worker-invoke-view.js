@@ -18,6 +18,13 @@
 define(['lodash', 'd3','log', './simple-statement-view', './../ast/action-invocation-expression', './point', 'd3utils', './../ast/ballerina-ast-factory', './message'],
     function (_, d3, log, SimpleStatementView, ActionInvocationExpression, Point, D3Utils, BallerinaASTFactory, MessageView) {
 
+        /**
+         * Worker invoke statement view.
+         * @param args {*} constructor arguments
+         * @class WorkerInvoke
+         * @constructor
+         * @extends SimpleStatementView
+         */
         var WorkerInvoke = function (args) {
             SimpleStatementView.call(this, args);
             this._connectorView = {};
@@ -83,7 +90,9 @@ define(['lodash', 'd3','log', './simple-statement-view', './../ast/action-invoca
             this.renderDisplayText(model.getInvokeStatement());
 
             this.renderProcessorConnectPoint(renderingContext);
-            this.renderArrows(renderingContext);
+            if (!_.isNil(this.getModel().getDestination())) {
+                this.renderInvokeArrows();
+            }
 
             // Creating property pane
             var editableProperty = {
@@ -121,7 +130,7 @@ define(['lodash', 'd3','log', './simple-statement-view', './../ast/action-invoca
             });
             this.processorConnectPoint.on("mouseout", function () {
                 self.processorConnectPoint.style("fill-opacity", 0.01);
-                self.messageManager.setTypeBeingDragged(false);
+                self.messageManager.setTypeBeingDragged(undefined);
             });
 
             this.getBoundingBox().on('top-edge-moved', function(dy){
@@ -165,42 +174,6 @@ define(['lodash', 'd3','log', './simple-statement-view', './../ast/action-invoca
                 arrowHeadEnd
                     .attr("fill-opacity", 0.01)
                     .style("fill", "#444");
-
-                this.arrowHeadEndPoint = arrowHeadEnd;
-
-                var self = this;
-
-                this.arrowHeadEndPoint.on("mousedown", function () {
-                    d3.event.preventDefault();
-                    d3.event.stopPropagation();
-
-                    var x =  parseFloat(self.arrowHeadEndPoint.attr('cx'));
-                    var y =  parseFloat(self.arrowHeadEndPoint.attr('cy'));
-                    var x1 =  parseFloat(self._processorConnector.attr('x1'));
-                    var y1 =  parseFloat(self._processorConnector.attr('y1'));
-
-                    var sourcePoint = self.toGlobalCoordinates(new Point(x, y));
-                    var connectorPoint = self.toGlobalCoordinates(new Point(x1, y1));
-
-                    self.messageManager.startDrawMessage(actionInvocationModel, sourcePoint, connectorPoint);
-                    self.messageManager.setTypeBeingDragged(true);
-
-                    self._forwardArrowHead.remove();
-                    self._processorConnector.remove();
-                    self._processorConnector2.remove();
-                    self._backArrowHead.remove();
-                    self.arrowHeadEndPoint.remove();
-                });
-
-                this.arrowHeadEndPoint.on("mouseover", function () {
-                    arrowHeadEnd
-                        .style("fill-opacity", 0.5)
-                        .style("cursor", 'url(images/BlackHandwriting.cur), pointer');
-                });
-
-                this.arrowHeadEndPoint.on("mouseout", function () {
-                    arrowHeadEnd.style("fill-opacity", 0.01);
-                });
             }
         };
 
@@ -260,14 +233,15 @@ define(['lodash', 'd3','log', './simple-statement-view', './../ast/action-invoca
             var activatedWorkerTarget = this.messageManager.getActivatedDropTarget();
             if (BallerinaASTFactory.isWorkerDeclaration(activatedWorkerTarget)) {
                 this.getModel().setDestination(activatedWorkerTarget);
-                this.renderStartAction();
+                this.renderInvokeArrows();
+                this.messageManager.reset();
             }
         };
 
-        WorkerInvoke.prototype.renderStartAction = function () {
+        WorkerInvoke.prototype.renderInvokeArrows = function () {
             var self = this;
             var group = D3Utils.group(d3.select(this._container));
-            var destinationView = this.getDiagramRenderingContext().getViewOfModel(this.messageManager.getActivatedDropTarget());
+            var destinationView = this.getDiagramRenderingContext().getViewOfModel(this.getModel().getDestination());
             var startX = this.getBoundingBox().getRight();
             var startY = this.getBoundingBox().getTop() + this.getBoundingBox().h()/2;
             var endX = destinationView.getBoundingBox().getCenterX();

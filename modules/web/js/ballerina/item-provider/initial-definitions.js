@@ -90,7 +90,7 @@ define(['log', 'jquery', './../ast/ballerina-ast-factory', './../tool-palette/to
             name: "Type Mapper",
             icon: "images/tool-icons/type-converter.svg",
             title: "Type Mapper",
-            nodeFactoryMethod: BallerinaASTFactory.createTypeMapperDefinition
+            nodeFactoryMethod: DefaultsAddedBallerinaASTFactory.createTypeMapperDefinition
         };
 
         var createWorkerDecTool = {
@@ -131,7 +131,7 @@ define(['log', 'jquery', './../ast/ballerina-ast-factory', './../tool-palette/to
         var createTryCatchStatementTool = {
             id: "try-catch",
             name: "Try-Catch",
-            icon: "images/tool-icons/dgm-while.svg",
+            icon: "images/tool-icons/try-catch.svg",
             title: "Try-Catch",
             nodeFactoryMethod: BallerinaASTFactory.createTryCatchStatement
         };

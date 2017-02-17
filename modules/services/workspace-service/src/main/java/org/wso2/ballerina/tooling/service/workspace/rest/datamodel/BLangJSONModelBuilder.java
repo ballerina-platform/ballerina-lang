@@ -292,6 +292,11 @@ public class BLangJSONModelBuilder implements NodeVisitor {
                 variableDef.accept(BLangJSONModelBuilder.this);
             }
         }
+        if (resource.getWorkers() != null) {
+            for (Worker worker : resource.getWorkers()) {
+                worker.accept(this);
+            }
+        }
         if(resource.getResourceBody() != null) {
             resource.getResourceBody().accept(this);
         }
@@ -417,8 +422,28 @@ public class BLangJSONModelBuilder implements NodeVisitor {
     public void visit(Worker worker) {
         JsonObject jsonWorker = new JsonObject();
         jsonWorker.addProperty(BLangJSONModelConstants.DEFINITION_TYPE, BLangJSONModelConstants.WORKER_DEFINITION);
+        jsonWorker.addProperty(BLangJSONModelConstants.WORKER_NAME, worker.getName());
         this.addPosition(jsonWorker, worker.getNodeLocation());
         tempJsonArrayRef.push(new JsonArray());
+        tempJsonArrayRef.push(new JsonArray());
+        tempJsonArrayRef.push(new JsonArray());
+        if (worker.getParameterDefs() != null) {
+            for (ParameterDef parameterDef : worker.getParameterDefs()) {
+                parameterDef.accept(this);
+            }
+        }
+        jsonWorker.add(BLangJSONModelConstants.PARAMETER_DEFINITION, this.tempJsonArrayRef.peek());
+        tempJsonArrayRef.pop();
+        if (worker.getReturnParameters() != null) {
+            for (ParameterDef parameterDef : worker.getReturnParameters()) {
+                parameterDef.accept(this);
+            }
+        }
+        jsonWorker.add(BLangJSONModelConstants.RETURN_TYPE, this.tempJsonArrayRef.peek());
+        tempJsonArrayRef.pop();
+        if(worker.getCallableUnitBody() != null) {
+            worker.getCallableUnitBody().accept(this);
+        }
         jsonWorker.add(BLangJSONModelConstants.CHILDREN, tempJsonArrayRef.peek());
         tempJsonArrayRef.pop();
         tempJsonArrayRef.peek().add(jsonWorker);
@@ -648,12 +673,30 @@ public class BLangJSONModelBuilder implements NodeVisitor {
 
     @Override
     public void visit(WorkerInvocationStmt workerInvocationStmt) {
-
+        JsonObject workerInvokeStmtObj = new JsonObject();
+        workerInvokeStmtObj.addProperty(BLangJSONModelConstants.STATEMENT_TYPE, BLangJSONModelConstants.WORKER_INVOCATION_STATEMENT);
+        workerInvokeStmtObj.addProperty(BLangJSONModelConstants.WORKER_NAME, workerInvocationStmt.getCallableUnitName());
+        tempJsonArrayRef.push(new JsonArray());
+        if (workerInvocationStmt.getInMsg() != null) {
+            workerInvocationStmt.getInMsg().accept(this);
+        }
+        workerInvokeStmtObj.add(BLangJSONModelConstants.INVOKE_MESSAGE, tempJsonArrayRef.peek());
+        tempJsonArrayRef.pop();
+        tempJsonArrayRef.peek().add(workerInvokeStmtObj);
     }
 
     @Override
     public void visit(WorkerReplyStmt workerReplyStmt) {
-
+        JsonObject workerReplyStmtObj = new JsonObject();
+        workerReplyStmtObj.addProperty(BLangJSONModelConstants.STATEMENT_TYPE, BLangJSONModelConstants.WORKER_REPLY_STATEMENT);
+        workerReplyStmtObj.addProperty(BLangJSONModelConstants.WORKER_NAME, workerReplyStmt.getWorkerName());
+        tempJsonArrayRef.push(new JsonArray());
+        if (workerReplyStmt.getReceiveExpr() != null) {
+            workerReplyStmt.getReceiveExpr().accept(this);
+        }
+        workerReplyStmtObj.add(BLangJSONModelConstants.REPLY_MESSAGE, tempJsonArrayRef.peek());
+        tempJsonArrayRef.pop();
+        tempJsonArrayRef.peek().add(workerReplyStmtObj);
     }
 
     @Override
@@ -1043,18 +1086,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
 
     @Override
     public void visit(MapInitExpr mapInitExpr) {
-        JsonObject mapInitExprObj = new JsonObject();
-        this.addPosition(mapInitExprObj, mapInitExpr.getNodeLocation());
-        mapInitExprObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE, BLangJSONModelConstants.MAP_INIT_EXPRESSION);
-        tempJsonArrayRef.push(new JsonArray());
-        if(mapInitExpr.getArgExprs() != null) {
-            for(Expression expression : mapInitExpr.getArgExprs()) {
-                expression.accept(this);
-            }
-        }
-        mapInitExprObj.add(BLangJSONModelConstants.CHILDREN, tempJsonArrayRef.peek());
-        tempJsonArrayRef.pop();
-        tempJsonArrayRef.peek().add(mapInitExprObj);
+        //TODO MapInitExpr should be removed from core/model. We can remove this method when it is done
     }
 
     @Override

@@ -64,25 +64,25 @@ define(['lodash', 'log', 'd3', 'alerts', './ballerina-view', 'ballerina/ast/ball
                 .on("change paste keyup", function () {
                     self.getModel().setStructName($(this).text());
                 }).on("click", function (event) {
-                event.stopPropagation();
-            }).keypress(function (e) {
-                var enteredKey = e.which || e.charCode || e.keyCode;
-                // Disabling enter key
-                if (enteredKey == 13) {
                     event.stopPropagation();
-                    return false;
-                }
+                }).keypress(function (e) {
+                    var enteredKey = e.which || e.charCode || e.keyCode;
+                    // Disabling enter key
+                    if (enteredKey == 13) {
+                        event.stopPropagation();
+                        return false;
+                    }
 
-                var newServiceName = $(this).val() + String.fromCharCode(enteredKey);
+                    var newServiceName = $(this).val() + String.fromCharCode(enteredKey);
 
-                try {
-                    self.getModel().setStructName(newServiceName);
-                } catch (error) {
-                    Alerts.error(error);
-                    event.stopPropagation();
-                    return false;
-                }
-            });
+                    try {
+                        self.getModel().setStructName(newServiceName);
+                    } catch (error) {
+                        Alerts.error(error);
+                        event.stopPropagation();
+                        return false;
+                    }
+                });
 
             var structContentWrapper = $("<div/>", {
                 id: this.getModel().getID(),
