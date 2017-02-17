@@ -130,7 +130,7 @@ define(['lodash','log', './node'], function (_, log, ASTNode) {
         this.setTypeName(jsonNode.variable_type, {doSilently: true});
 
         _.each(jsonNode.children, function (childNode) {
-            var child = self.BallerinaASTFactory.createFromJson(childNode);
+            var child = self.getFactory().createFromJson(childNode);
             self.addChild(child);
             child.initFromJson(childNode);
         });

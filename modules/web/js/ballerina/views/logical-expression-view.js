@@ -111,7 +111,6 @@ define(['lodash', 'log', './ballerina-statement-view', './../ast/logical-express
             });
 
             this._createDebugIndicator({
-                model: this._model,
                 statementGroup: group
             });
 

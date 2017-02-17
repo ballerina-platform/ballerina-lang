@@ -42,7 +42,6 @@ define(['lodash', './expression'], function (_, Expression) {
             child.initFromJson(childNode);
             generateExpression +=child.getExpression() + ",";
         });
-        this.setExpression("{" + (generateExpression.substring(0, generateExpression.length-1)) + "}",{doSilently: true});
     };
 
     ReferenceTypeInitExpression.prototype.generateExpression = function () {

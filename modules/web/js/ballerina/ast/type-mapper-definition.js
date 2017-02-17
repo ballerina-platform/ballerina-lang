@@ -20,6 +20,7 @@ define(['lodash', './node', '../utils/common-utils'], function (_, ASTNode, Comm
     var TypeMapperDefinition = function (args) {
         this._typeMapperName = _.get(args, 'typeMapperName');
         ASTNode.call(this, 'TypeMapperDefinition');
+        this.BallerinaASTFactory = this.getFactory();
     };
 
     TypeMapperDefinition.prototype = Object.create(ASTNode.prototype);

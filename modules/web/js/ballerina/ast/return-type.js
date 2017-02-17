@@ -33,14 +33,8 @@ define(['lodash', 'log','./argument'], function (_, log,Argument) {
      * @param jsonNode
      */
     ReturnType.prototype.initFromJson = function (jsonNode) {
-        var self = this;
-        var BallerinaASTFactory = this.getFactory();
-
-        _.each(jsonNode.children, function (childNode) {
-            var child = BallerinaASTFactory.createFromJson(childNode);
-            self.addChild(child);
-            child.initFromJson(childNode);
-        });
+        this.annotate = jsonNode.annotate;
+        Object.getPrototypeOf(this.constructor.prototype).initFromJson.call(this, jsonNode, 0);
     };
 
     return ReturnType;
