@@ -16,13 +16,13 @@
  * under the License.
  */
 
-package org.wso2.ballerina.docgen.docs;
+package org.ballerinalang.docgen.docs;
 
 import org.ballerinalang.BLangProgramLoader;
+import org.ballerinalang.docgen.docs.html.HtmlDocumentWriter;
 import org.ballerinalang.model.BLangPackage;
 import org.ballerinalang.model.BLangProgram;
 import org.ballerinalang.util.program.BLangPrograms;
-import org.wso2.ballerina.docgen.docs.html.HtmlDocumentWriter;
 
 import java.io.IOException;
 import java.io.PrintStream;

@@ -15,10 +15,10 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.wso2.ballerina.docgen.docs.utils;
+package org.ballerinalang.docgen.docs.utils;
 
+import org.ballerinalang.docgen.docs.BallerinaDocDataHolder;
 import org.ballerinalang.model.BLangPackage;
-import org.wso2.ballerina.docgen.docs.BallerinaDocDataHolder;
 
 import java.io.PrintStream;
 import java.util.HashMap;

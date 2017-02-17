@@ -16,14 +16,14 @@
  * under the License.
  */
 
-package org.wso2.ballerina.docgen.cmd;
+package org.ballerinalang.docgen.cmd;
 
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
 
+import org.ballerinalang.docgen.docs.BallerinaDocGeneratorMain;
 import org.ballerinalang.launcher.BLauncherCmd;
-import org.wso2.ballerina.docgen.docs.BallerinaDocGeneratorMain;
 
 import java.io.PrintStream;
 import java.util.List;

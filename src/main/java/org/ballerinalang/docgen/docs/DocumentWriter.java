@@ -15,7 +15,7 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.wso2.ballerina.docgen.docs;
+package org.ballerinalang.docgen.docs;
 
 import org.ballerinalang.model.BLangPackage;
 

@@ -15,14 +15,14 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.wso2.ballerina.docgen.docs;
+package org.ballerinalang.docgen.docs;
 
+import org.ballerinalang.docgen.docs.utils.BallerinaDocGenTestUtils;
 import org.ballerinalang.model.BLangPackage;
 import org.ballerinalang.model.BallerinaAction;
 import org.ballerinalang.model.BallerinaConnectorDef;
 import org.testng.Assert;
 import org.testng.annotations.Test;
-import org.wso2.ballerina.docgen.docs.utils.BallerinaDocGenTestUtils;
 
 import java.io.IOException;
 import java.util.ArrayList;

@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.wso2.ballerina.docgen.docs;
+package org.ballerinalang.docgen.docs;
 
 /**
  * Constants used in docerina.
