@@ -250,12 +250,12 @@ literalValue
  //============================================================================================================
  // ANNOTATION
 
- annotation
-     :   '@' annotationName ( '(' ( elementValuePairs | elementValue )? ')' )?
-     ;
+annotation
+    :    annotationName ( '(' ( elementValuePairs | elementValue )? ')' )?
+    ;
 
 annotationName
-    :    (packageName ':')? Identifier
+    :    '@' (packageName ':')? Identifier
     ;
 
  elementValuePairs
