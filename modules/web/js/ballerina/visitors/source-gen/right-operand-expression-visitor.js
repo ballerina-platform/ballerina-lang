@@ -52,13 +52,6 @@ define(['require', 'lodash', 'log', 'event_channel', './abstract-statement-sourc
             statement.accept(statementVisitor);
         };
 
-        RightOperandExpressionVisitor.prototype.visitExpression = function (expression) {
-            var expressionVisitorFactory = new ExpressionVisitorFactory();
-            var expressionVisitor = expressionVisitorFactory.getExpressionView({model: expression, parent: this});
-            expression.accept(expressionVisitor);
-            log.debug('Visit Expression');
-        };
-
         RightOperandExpressionVisitor.prototype.visitFuncInvocationExpression = function (functionInvocation) {
             var args = {model: functionInvocation, parent: this};
             functionInvocation.accept(new FunctionInvocationExpressionVisitor(_.get(args, "parent")));

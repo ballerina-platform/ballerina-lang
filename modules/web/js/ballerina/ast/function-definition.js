@@ -74,7 +74,7 @@ define(['lodash', 'log', './node', './callable-definition', '../utils/common-uti
         var self = this;
 
         _.forEach(this.getChildren(), function (child) {
-            if (self.BallerinaASTFactory.isArgument(child)) {
+            if (self.BallerinaASTFactory.isResourceParameter(child)) {
                 functionArgs.push(child);
             }
         });
