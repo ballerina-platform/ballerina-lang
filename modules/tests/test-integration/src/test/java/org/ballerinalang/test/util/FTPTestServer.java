@@ -28,9 +28,10 @@ import org.apache.ftpserver.usermanager.PropertiesUserManagerFactory;
 import org.apache.ftpserver.usermanager.impl.BaseUser;
 import org.apache.ftpserver.usermanager.impl.WritePermission;
 import org.ballerinalang.test.context.Constant;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -39,22 +40,10 @@ import java.util.List;
  */
 public class FTPTestServer {
     private static FTPTestServer instance = new FTPTestServer();
+    private Logger logger = LoggerFactory.getLogger(FTPTestServer.class);
     private FtpServer ftpServer;
 
-    /**
-     * To get the instance of FTPTestServer.
-     * @return instance of the FTPTestServer
-     */
-    public static FTPTestServer getInstance() {
-        return instance;
-    }
-
-    /**
-     * To start the FTP server.
-     * @throws FtpException FTP Exception
-     * @throws IOException IO Exception
-     */
-    public void start() throws FtpException, IOException {
+    private FTPTestServer() {
         PropertiesUserManagerFactory userManagerFactory = new PropertiesUserManagerFactory();
         UserManager userManager = userManagerFactory.createUserManager();
         BaseUser user = new BaseUser();
@@ -66,7 +55,11 @@ public class FTPTestServer {
         authorities.add(new WritePermission());
         user.setAuthorities(authorities);
         user.setHomeDirectory(fileURI);
-        userManager.save(user);
+        try {
+            userManager.save(user);
+        } catch (FtpException e) {
+            logger.error("Exception occured while saving the user.", e);
+        }
 
         ListenerFactory listenerFactory = new ListenerFactory();
         listenerFactory.setPort(2221);
@@ -74,10 +67,33 @@ public class FTPTestServer {
         FtpServerFactory factory = new FtpServerFactory();
         factory.setUserManager(userManager);
         factory.addListener("default", listenerFactory.createListener());
+        ftpServer = factory.createServer();
+    }
 
-        if (ftpServer == null) {
-            ftpServer = factory.createServer();
-            ftpServer.start();
+    /**
+     * To get the instance of FTPTestServer.
+     *
+     * @return instance of the FTPTestServer
+     */
+    public static FTPTestServer getInstance() {
+        return instance;
+    }
+
+    /**
+     * To start the FTP server.
+     *
+     * @throws FtpException FTP Exception
+     */
+    public void start() throws FtpException {
+        ftpServer.start();
+    }
+
+    /**
+     * Tos top the FTP server
+     */
+    public void stop() {
+        if (!ftpServer.isStopped()) {
+            ftpServer.stop();
         }
     }
 }

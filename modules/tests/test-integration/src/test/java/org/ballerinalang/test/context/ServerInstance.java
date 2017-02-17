@@ -17,6 +17,8 @@
 */
 package org.ballerinalang.test.context;
 
+import org.ballerinalang.test.util.FTPTestServer;
+import org.ballerinalang.test.util.JMSTestBroker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,6 +29,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
@@ -44,23 +50,39 @@ public class ServerInstance implements Server {
     private ServerLogReader serverErrorLogReader;
     private boolean isServerRunning;
     private int httpServerPort = Constant.DEFAULT_HTTP_PORT;
+    private boolean deployJMSSamples;
+    private boolean deployFTPSamples;
 
     public ServerInstance(String serverDistributionPath) {
         this.serverDistribution = serverDistributionPath;
+        deployJMSSamples = false;
+        deployFTPSamples = false;
+    }
+
+    public ServerInstance(String serverDistributionPath, boolean deployJMSSamples, boolean deployFTPSamples) {
+        this.serverDistribution = serverDistributionPath;
+        this.deployJMSSamples = deployJMSSamples;
+        this.deployFTPSamples = deployFTPSamples;
     }
 
     public ServerInstance(String serverDistributionPath, int serverHttpPort) {
-        this.serverDistribution = serverDistributionPath;
+        this(serverDistributionPath);
         this.httpServerPort = serverHttpPort;
     }
 
     /**
      * Start a server instance y extracting a server zip distribution.
      *
-     * @throws Exception
+     * @throws Exception Exception
      */
     @Override
     public void start() throws Exception {
+        if (deployJMSSamples) {
+            JMSTestBroker.getInstance().startBroker();
+        }
+        if (deployFTPSamples) {
+            FTPTestServer.getInstance().start();
+        }
         Utils.checkPortAvailability(httpServerPort);
         if (serverHome == null) {
             serverHome = setUpServerHome(serverDistribution);
@@ -88,7 +110,7 @@ public class ServerInstance implements Server {
      * @throws InterruptedException
      */
     @Override
-    public void stop() throws InterruptedException {
+    public void stop() throws Exception {
         log.info("Stopping server..");
         if (process != null) {
             String pid;
@@ -114,6 +136,12 @@ public class ServerInstance implements Server {
             //wait until port to close
             Utils.waitForPortToClosed(httpServerPort, 30000);
             log.info("Server Stopped Successfully");
+            if (deployJMSSamples) {
+                JMSTestBroker.getInstance().stopBroker();
+            }
+            if (deployFTPSamples) {
+                FTPTestServer.getInstance().stop();
+            }
         }
     }
 
@@ -184,8 +212,7 @@ public class ServerInstance implements Server {
      * @return - carbonHome - carbon home
      * @throws IOException - If pack extraction fails
      */
-    private String setUpServerHome(String serverZipFile)
-            throws IOException {
+    private String setUpServerHome(String serverZipFile) throws IOException {
         if (process != null) { // An instance of the server is running
             return serverHome;
         }
@@ -197,18 +224,68 @@ public class ServerInstance implements Server {
         if (fileSeparator.equals("\\")) {
             serverZipFile = serverZipFile.replace("/", "\\");
         }
-        String extractedCarbonDir =
-                serverZipFile.substring(serverZipFile.lastIndexOf(fileSeparator) + 1,
-                                        indexOfZip);
+        String extractedCarbonDir = serverZipFile.substring(serverZipFile.lastIndexOf(fileSeparator) + 1, indexOfZip);
         String extractDir = "ballerinatmp" + System.currentTimeMillis();
         String baseDir = (System.getProperty(Constant.SYSTEM_PROP_BASE_DIR, ".")) + File.separator + "target";
         log.info("Extracting ballerina zip file.. ");
 
         Utils.extractFile(serverZipFile, baseDir + File.separator + extractDir);
-        String serverExtractedPath = new File(baseDir).getAbsolutePath() + File.separator
-                                     + extractDir + File.separator +
-                                     extractedCarbonDir;
+        String serverExtractedPath =
+                new File(baseDir).getAbsolutePath() + File.separator + extractDir + File.separator + extractedCarbonDir;
+        copyFiles(baseDir, serverExtractedPath);
         return serverExtractedPath;
+    }
+
+    /**
+     * Copy jars and files to the test distribution, that is needed for the testing
+     *
+     * @param baseDir             Target directory of test integration
+     * @param serverExtractedPath Server extracted path for integration testing
+     * @throws IOException IO exception
+     */
+    private void copyFiles(String baseDir, String serverExtractedPath) throws IOException {
+        if (!deployJMSSamples && !deployFTPSamples) {
+            return;
+        }
+        if (deployJMSSamples) {
+         /*
+         * Copying the activemq-all jar to the bre/lib, in order to test the activemq based sample jms service.
+         */
+            Path source = Paths.get(baseDir + File.separator + Constant.ACTIVEMQ_ALL_JAR);
+            Path destination = Paths
+                    .get(serverExtractedPath + File.separator + "bre" + File.separator + "lib" + File.separator
+                            + Constant.ACTIVEMQ_ALL_JAR);
+            Files.copy(source, destination, StandardCopyOption.REPLACE_EXISTING);
+
+        /*
+         * Copying the jms sample to samples directory for integration testing.
+         */
+            source = Paths
+                    .get(baseDir + File.separator + Constant.OTHER_SAMPLES + File.separator + "jmsWithActiveMq.bal");
+            destination = Paths
+                    .get(serverExtractedPath + File.separator + "samples" + File.separator + "jmsWithActiveMq.bal");
+            Files.copy(source, destination, StandardCopyOption.REPLACE_EXISTING);
+        }
+
+        if (deployFTPSamples) {
+         /*
+         * Copying the file sample to samples directory for integration testing.
+         */
+            Path source = Paths.get(baseDir + File.separator + Constant.OTHER_SAMPLES + File.separator
+                    + "orderProcessService.bal");
+            Path destination = Paths
+                    .get(serverExtractedPath + File.separator + "samples" + File.separator + "orderProcessService.bal");
+            Files.copy(source, destination, StandardCopyOption.REPLACE_EXISTING);
+
+        /*
+         * Copying the common-nets jar to the bre/lib, in order to test the ftp based sample file service.
+         */
+            source = Paths.get(baseDir + File.separator + Constant.COMMON_NETS_JAR);
+            destination = Paths
+                    .get(serverExtractedPath + File.separator + "bre" + File.separator + "lib" + File.separator
+                            + Constant.COMMON_NETS_JAR);
+            Files.copy(source, destination, StandardCopyOption.REPLACE_EXISTING);
+        }
     }
 
     /**
@@ -224,15 +301,13 @@ public class ServerInstance implements Server {
         File commandDir = new File(serverHome);
         if (Utils.getOSName().toLowerCase().contains("windows")) {
             commandDir = new File(serverHome + File.separator + "bin");
-            cmdArray = new String[]{"cmd.exe", "/c", scriptName + ".bat" , "run", "service"};
-            String[] cmdArgs = Stream.concat(Arrays.stream(cmdArray), Arrays.stream(args))
-                    .toArray(String[]::new);
+            cmdArray = new String[] { "cmd.exe", "/c", scriptName + ".bat", "run", "service" };
+            String[] cmdArgs = Stream.concat(Arrays.stream(cmdArray), Arrays.stream(args)).toArray(String[]::new);
             process = Runtime.getRuntime().exec(cmdArgs, null, commandDir);
 
         } else {
-            cmdArray = new String[]{"bash", "bin/" + scriptName, "run", "service"};
-            String[] cmdArgs = Stream.concat(Arrays.stream(cmdArray), Arrays.stream(args))
-                    .toArray(String[]::new);
+            cmdArray = new String[] { "bash", "bin/" + scriptName, "run", "service" };
+            String[] cmdArgs = Stream.concat(Arrays.stream(cmdArray), Arrays.stream(args)).toArray(String[]::new);
             process = Runtime.getRuntime().exec(cmdArgs, null, commandDir);
         }
     }

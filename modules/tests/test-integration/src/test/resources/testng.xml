@@ -27,6 +27,7 @@
             <package name="org.ballerinalang.test.service.http.sample"/>
             <package name="org.ballerinalang.test.service.jms.sample" />
             <package name="org.ballerinalang.test.service.http2.sample" />
+            <package name="org.ballerinalang.test.service.file.sample" />
         </packages>
     </test>
 </suite>

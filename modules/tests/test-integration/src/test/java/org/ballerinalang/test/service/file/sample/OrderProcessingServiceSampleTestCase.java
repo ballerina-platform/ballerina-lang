@@ -20,6 +20,8 @@ package org.ballerinalang.test.service.file.sample;
 
 import org.ballerinalang.test.context.Constant;
 import org.testng.Assert;
+import org.testng.annotations.BeforeSuite;
+import org.testng.annotations.Test;
 
 import java.io.File;
 import java.io.IOException;
@@ -29,14 +31,18 @@ import java.io.IOException;
  * ballerina_home/samples/fileService/orderProcessService.bal.
  */
 public class OrderProcessingServiceSampleTestCase {
+    @BeforeSuite
+    public void setup() {
 
-//    @Test(description = "Test whether files have been deleted after reading the content")
+    }
+
+    @Test(description = "Test whether files have been deleted after reading the content")
     public void testFileDeletion() throws IOException, InterruptedException {
         // Wait till relevant contents are read and files are deleted.
         Thread.sleep(5000);
         ClassLoader classLoader = getClass().getClassLoader();
         File folder = new File(classLoader.getResource(Constant.VFS_LOCATION + File.separator + "orders").getFile());
         File[] listOfFiles = folder.listFiles();
-        Assert.assertEquals(0, listOfFiles.length, "Files are not deleted after content is read from the files");
+        Assert.assertEquals(listOfFiles.length, 0, "Files are not deleted after content is read from the files");
     }
 }

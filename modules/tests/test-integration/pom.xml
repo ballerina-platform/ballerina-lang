@@ -128,6 +128,12 @@
                                         <include>jmsWithActiveMq.bal</include>
                                     </includes>
                                 </resource>
+                                <resource>
+                                    <directory>../../../samples/other_samples/fileService</directory>
+                                    <includes>
+                                        <include>orderProcessService.bal</include>
+                                    </includes>
+                                </resource>
                             </resources>
                         </configuration>
                     </execution>
