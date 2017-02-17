@@ -30,17 +30,17 @@ define(['lodash', 'log', 'event_channel', './abstract-statement-source-gen-visit
 
     ThrowStatementVisitor.prototype.beginVisitThrowStatement = function(throwStatement){
         this.appendSource('throw ');
-        log.debug('Begin Visit Reply Statement Definition');
+        log.debug('Begin Visit Throw Statement Definition');
     };
 
     ThrowStatementVisitor.prototype.visitThrowStatement = function(throwStatement){
-        log.debug('Visit Reply Statement Definition');
+        log.debug('Visit Throw Statement Definition');
     };
 
     ThrowStatementVisitor.prototype.endVisitThrowStatement = function(throwStatement){
         this.appendSource(throwStatement.getThrowExpression() + ";\n");
         this.getParent().appendSource(this.getGeneratedSource());
-        log.debug('End Visit Reply Statement Definition');
+        log.debug('End Visit Throw Statement Definition');
     };
 
     return ThrowStatementVisitor;
