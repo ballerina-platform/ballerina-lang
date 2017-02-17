@@ -19,6 +19,8 @@
 package org.ballerinalang.util.debugger;
 
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelInitializer;
@@ -29,6 +31,7 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpServerCodec;
+import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import org.ballerinalang.util.debugger.dto.MessageDTO;
 
 import java.io.PrintStream;
@@ -106,10 +109,15 @@ public class DebugServer {
      * @param status      
      */
     public void pushMessageToClient(DebugSession debugSession, MessageDTO status) {
-//        Gson gson = new Gson();
-//        String json = gson.toJson(status);
-//        debugSession.getChannel().write(new TextWebSocketFrame(json));
-//        debugSession.getChannel().flush();
+        ObjectMapper mapper = new ObjectMapper();
+        String json = null;
+        try {
+            json = mapper.writeValueAsString(status);
+        } catch (JsonProcessingException e) {
+            json = DebugConstants.ERROR_JSON;
+        }
+        debugSession.getChannel().write(new TextWebSocketFrame(json));
+        debugSession.getChannel().flush();
     }
 
     private int getDebugPort() {
