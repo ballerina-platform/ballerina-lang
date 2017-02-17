@@ -69,14 +69,14 @@ public class JMSServiceDispatcher implements ServiceDispatcher {
     public void serviceRegistered(Service service) {
         for (Annotation annotation : service.getAnnotations()) {
             Map elementPairs = annotation.getElementPairs();
-            if (!annotation.getName().equals(Constants.ANNOTATION_NAME_SOURCE)) {
+            if (!Constants.ANNOTATION_NAME_SOURCE.equals(annotation.getName())) {
                 continue;
             }
             if (annotation.getElementPairs().size() == 0) {
                 continue;
             }
-            if (!annotation.getValueOfElementPair(new SymbolName(Constants.ANNOTATION_PROTOCOL))
-                    .equals(Constants.PROTOCOL_JMS)) {
+            if (!Constants.PROTOCOL_JMS.
+                    equals(annotation.getValueOfElementPair(new SymbolName(Constants.ANNOTATION_PROTOCOL)))) {
                 continue;
             }
             Set<Map.Entry<SymbolName, String>> annotationSet = elementPairs.entrySet();
