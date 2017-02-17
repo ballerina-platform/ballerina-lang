@@ -543,7 +543,7 @@
 
 .struct-identifier-text-input {
     float: left;
-    width: 185px;
+    width: 190px;
     padding-left: 8px;
     padding-right: 8px;
     margin-right: 5px;
@@ -558,22 +558,23 @@
 }
 
 .type-drop-wrapper.struct-view .select2.select2-container {
-    min-width: 193px;
+    min-width: 192px;
 }
 
 .type-drop-wrapper.struct-view .select2.select2-container .select2-selection--single {
-    min-width: 160px;
+    min-width: 192px;
     height: 24px;
+    border-right: 1px solid #333;
 }
 
 .type-drop-wrapper.struct-edit .select2.select2-container {
-    min-width: 166px;
-    margin:0;
+    min-width: 170px;
+    margin: -3px 0 0 0;
     border: 1px solid #CCC;
 }
 
 .type-drop-wrapper.struct-edit .select2.select2-container .select2-selection--single {
-    min-width: 166px;
+    min-width: 164px;
     margin: 0;
 }
 
@@ -601,11 +602,15 @@ div.type-drop-wrapper.service{
 }
 
 div.type-drop-wrapper.service .select2.select2-container .select2-selection--single {
-    height: 20px;
+    height: 22px;
+    border: 1px solid #dfdfdf;
+    padding-bottom: 3px;
+    margin-right: 3px;
 }
 
 div.type-drop-wrapper.service .select2.select2-container .select2-selection--single .select2-selection__rendered{
     line-height: 20px;
+    margin-right: 3px;
 }
 
 div.type-drop-wrapper.resource{
@@ -651,6 +656,7 @@ div.type-drop-wrapper.resource .select2.select2-container .select2-selection--si
 
 .struct-variable-definition-wrapper:nth-child(1){
     clear: both;
+    margin-top: 46px;
 }
 
 .struct-variable-definition-wrapper {
@@ -658,9 +664,9 @@ div.type-drop-wrapper.resource .select2.select2-container .select2-selection--si
     background: #FFF;
     margin-top: 2px;
     cursor: pointer;
-    float: left;
     width: 433px;
-    margin-right: 100px;
+    height: 31px;
+    display: block;
 }
 
 .struct-variable-definition-type {
@@ -676,7 +682,7 @@ div.type-drop-wrapper.resource .select2.select2-container .select2-selection--si
 }
 
 .struct-variable-definition-wrapper i {
-    padding: 10px 17px;
+    padding: 10px 15px 0 0;
     opacity: 0.4;
     cursor: pointer;
     float: right;
@@ -706,10 +712,11 @@ div.type-drop-wrapper.resource .select2.select2-container .select2-selection--si
 }
 
 .struct-variable-identifier-text-input {
-    width: 162px;
+    width: 177px;
     padding-left: 8px;
     padding-right: 8px;
     border: 1px solid #ccc;
+    margin-top: -2px;
 }
 
 .struct-variable-type-dropdown-wrapper button {
