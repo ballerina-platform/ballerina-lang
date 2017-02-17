@@ -103,6 +103,7 @@ define(['log', 'jquery', 'lodash', './tab-list', './file-tab',  'workspace/file'
                   _.remove(self._workingFileSet, function(fileID){
                       return _.isEqual(fileID, tab.getFile().id);
                   });
+                  tab.trigger('tab-removed');
                   self.getBrowserStorage().destroy(tab.getFile());
                   self.getBrowserStorage().put('workingFileSet', self._workingFileSet);
                   // open welcome page upon last tab close
@@ -111,6 +112,7 @@ define(['log', 'jquery', 'lodash', './tab-list', './file-tab',  'workspace/file'
                       commandManager.dispatch("go-to-welcome-page");
                   }
               }
+
             }
 
             if(!_.isFunction(tab.getFile)){

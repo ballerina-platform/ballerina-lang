@@ -37,7 +37,7 @@ define(['lodash', 'require', 'log', './node', '../utils/common-utils'],
             }))) {
             this._annotations.push({
                 key: "Method",
-                value: "GET"
+                value: "http:GET"
             });
         }
 
@@ -46,6 +46,24 @@ define(['lodash', 'require', 'log', './node', '../utils/common-utils'],
             }))) {
             this._annotations.push({
                 key: "Path",
+                value: ""
+            });
+        }
+
+        if (_.isNil(_.find(this._annotations, function (annotation) {
+                return annotation.key == "Consumes";
+            }))) {
+            this._annotations.push({
+                key: "Consumes",
+                value: ""
+            });
+        }
+
+        if (_.isNil(_.find(this._annotations, function (annotation) {
+                return annotation.key == "Produces";
+            }))) {
+            this._annotations.push({
+                key: "Produces",
                 value: ""
             });
         }

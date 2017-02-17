@@ -344,7 +344,9 @@ public class SwaggerConverterUtils {
             Map<String, Annotation> annotationMap = new ConcurrentHashMap<>();
             for (Annotation originalAnnotation : annotations) {
                 //Add original annotations
-                annotationMap.put(originalAnnotation.getName(), originalAnnotation);
+                if(!originalAnnotation.getName().matches(SwaggerResourceMapper.HTTP_VERB_MATCHING_PATTERN)){
+                    annotationMap.put(originalAnnotation.getName(), originalAnnotation);
+                }
             }
             for (Annotation annotationToMerge : annotationsToMerge) {
                 //merge annotations

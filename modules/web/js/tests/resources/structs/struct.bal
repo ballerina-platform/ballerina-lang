@@ -1,5 +1,3 @@
-package samples.structs.test;
-
 struct Department {
     string dptName;
     Person[] employees;
@@ -85,7 +83,6 @@ function testExpressionAsIndex() (string) {
     family.children = ["Emma", "Rose", "Jane"];
     return family.children[a * b - 8];
 }
-
 
 function testStructExpressionAsIndex() (string) {
     string country;
