@@ -28,7 +28,11 @@
 
 .tool-group-header-title:hover{
     cursor: pointer;
-    color: black;
+    color: #757575;
+}
+
+.tool-group-header-collapse .tool-group-header-title:hover{
+    color: #000;
 }
 
 .tool-group-header-collapse-icon{
