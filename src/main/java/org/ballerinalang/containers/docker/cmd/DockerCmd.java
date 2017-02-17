@@ -4,6 +4,7 @@ import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
 import org.apache.commons.io.FilenameUtils;
+import org.ballerinalang.containers.docker.BallerinaDockerClient;
 import org.ballerinalang.containers.docker.cmd.validator.DockerHostValidator;
 import org.ballerinalang.containers.docker.exception.BallerinaDockerClientException;
 import org.ballerinalang.containers.docker.impl.DefaultBallerinaDockerClient;
@@ -17,6 +18,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * Ballerina Command to support Docker based packaging Ballerina packages.
@@ -25,8 +27,8 @@ import java.util.List;
 public class DockerCmd implements BLauncherCmd {
 
     private static final String DEFAULT_DOCKER_IMAGE_VERSION = "latest";
-    private static final String BALLERINA_MAIN_PACKAGE_EXTENTION = "bmz";
-    private static final String BALLERINA_SERVICE_PACKAGE_EXTENTION = "bsz";
+    private static final String BALLERINA_MAIN_PACKAGE_EXTENSION = "bmz";
+    private static final String BALLERINA_SERVICE_PACKAGE_EXTENSION = "bsz";
     private static final String DEFAULT_DOCKER_HOST = "localhost";
 
     private static PrintStream outStream = System.err;
@@ -35,10 +37,11 @@ public class DockerCmd implements BLauncherCmd {
     @Parameter(arity = 1, description = "builds the given package with all the dependencies")
     private List<String> packagePathNames;
 
-    @Parameter(names = { "--tag", "-t" }, description = " Docker image name. <image-name>:version")
+    @Parameter(names = {"--tag", "-t"}, description = " Docker image name. <image-name>:version")
     private String dockerImageName;
 
-    @Parameter(names = {"--host", "-H"}, validateWith = DockerHostValidator.class, description = " Docker Host. http://127.0.0.1:2375 ")
+    @Parameter(names = {"--host", "-H"}, validateWith = DockerHostValidator.class,
+            description = " Docker Host. http://127.0.0.1:2375 ")
     private String dockerHost;
 
     @Parameter(names = {"--help", "-h"}, hidden = true)
@@ -76,96 +79,102 @@ public class DockerCmd implements BLauncherCmd {
         // extract the package name and extension
         String packageCompletePath = packagePathNames.get(0);
         String packageName = FilenameUtils.getBaseName(packageCompletePath);
-        String packageExtention = FilenameUtils.getExtension(packageCompletePath);
-        List<Path> packagePaths = new ArrayList<Path>();
+        String packageExtension = FilenameUtils.getExtension(packageCompletePath);
+        List<Path> packagePaths = new ArrayList<>();
         packagePaths.add(Paths.get(packageCompletePath));
-
-        if (dockerImageName == null) {
-            dockerImageName = packageName;
-        }
-
-        String imageName = dockerImageName.split(":")[0];
+        String imageName;
         String imageVersion;
-        if (dockerImageName.contains(":")) {
-            imageVersion = dockerImageName.split(":")[1];
+
+        if (dockerImageName != null) {
+            dockerImageName = dockerImageName.toLowerCase(Locale.getDefault());
+            if (dockerImageName.contains(":")) {
+                String[] imageNameParts = dockerImageName.split(":");
+                imageName = imageNameParts[0];
+                imageVersion = imageNameParts[1];
+            } else {
+                imageName = dockerImageName;
+                imageVersion = DEFAULT_DOCKER_IMAGE_VERSION;
+            }
         } else {
+            imageName = packageName;
             imageVersion = DEFAULT_DOCKER_IMAGE_VERSION;
         }
-        String dockerHostToPrint = dockerHost != null ? dockerHost : DEFAULT_DOCKER_HOST;
-        String choice = confirm(imageName, imageVersion, dockerHostToPrint);
 
-        if (choice.equals("N")) {
-            outStream.println("Exiting..\n");
+        if (!canProceed(imageName, imageVersion)) {
+            outStream.println("ballerina: aborting..\n");
             return;
         }
 
-        switch (packageExtention) {
-        case BALLERINA_SERVICE_PACKAGE_EXTENTION:
-            outStream.println("provided service package -- TODO remove this msg");
-            try {
-                new DefaultBallerinaDockerClient().createServiceImage("pkg1", dockerHost,
-                        packagePaths, imageName, imageVersion);
-                printServiceImageSuccessMessage(imageName.toLowerCase(), imageVersion);
-            } catch (BallerinaDockerClientException | IOException | InterruptedException e) {
-                outStream.println("Error : " + e.getMessage());
-                return;
-            }
-            break;
+        BallerinaDockerClient dockerClient = new DefaultBallerinaDockerClient();
 
-        case BALLERINA_MAIN_PACKAGE_EXTENTION:
-            outStream.println("provided main package -- TODO remove this msg");
-            try {
-                new DefaultBallerinaDockerClient().createMainImage("pkg1", dockerHost, packagePaths,
-                        imageName, imageVersion);
-                printMainImageSuccessMessage(imageName.toLowerCase(), imageVersion);
-            } catch (BallerinaDockerClientException | IOException | InterruptedException e) {
-                outStream.println("Error : " + e.getMessage());
-                return;
-            }
-            break;
-
-        default:
-            throw LauncherUtils.createUsageException("Invalid package extention\n");
-        }
-
-    }
-
-    private String confirm(String imageName, String imageVersion, String dockerHostToPrint) {
-        Console c = System.console();
-        String choice = c.readLine("\n Building docker image [" + imageName.toLowerCase() + ":" + imageVersion + "] "
-                + " in docker host [" + dockerHostToPrint + "]. Confirm ? (Y/N) : ");
-
-        boolean noMatch;
-        do {
-
-            if (choice.equals("Y") || choice.equals("N")) {
-                noMatch = false;
-            } else {
-                noMatch = true;
-            }
-
-            if (noMatch) {
-                choice = c.readLine(" Please enter Y or N : ");
-            } else {
+        switch (packageExtension) {
+            case BALLERINA_SERVICE_PACKAGE_EXTENSION:
+                try {
+                    String createdImageName = dockerClient.createServiceImage(packageName, dockerHost,
+                            packagePaths, imageName, imageVersion);
+                    if (createdImageName != null) {
+                        printServiceImageSuccessMessage(createdImageName);
+                    } else {
+                        throw LauncherUtils.createUsageException("Docker image build failed for image "
+                                + imageName + ":" + imageVersion + ".");
+                    }
+                } catch (BallerinaDockerClientException | IOException | InterruptedException e) {
+                    throw LauncherUtils.createUsageException(e.getMessage());
+                }
                 break;
-            }
-        } while (noMatch);
-        return choice;
+
+            case BALLERINA_MAIN_PACKAGE_EXTENSION:
+                try {
+                    String createdImageName = dockerClient.createMainImage(packageName, dockerHost, packagePaths,
+                            imageName, imageVersion);
+                    if (createdImageName != null) {
+                        printMainImageSuccessMessage(createdImageName);
+                    } else {
+                        throw LauncherUtils.createUsageException("Docker image build failed for image "
+                                + imageName + ":" + imageVersion + ".");
+                    }
+                } catch (BallerinaDockerClientException | IOException | InterruptedException e) {
+                    throw LauncherUtils.createUsageException(e.getMessage());
+                }
+                break;
+
+            default:
+                throw LauncherUtils.createUsageException("invalid package extension\n");
+        }
     }
 
-    private void printServiceImageSuccessMessage(String imageName, String imageVersion) {
+    private boolean canProceed(String imageName, String imageVersion) {
+        Console c = System.console();
+        String choice;
+        String dockerHostToPrint = (dockerHost != null) ? dockerHost : DEFAULT_DOCKER_HOST;
+
+        do {
+            choice = c.readLine("ballerina: build docker image [" + imageName + ":" + imageVersion
+                    + "] in docker host [" + dockerHostToPrint + "]? (y/n): ");
+
+            if (choice.equalsIgnoreCase("y")) {
+                return true;
+            }
+
+            if (choice.equalsIgnoreCase("n")) {
+                return false;
+            }
+
+        } while (true);
+    }
+
+    private void printServiceImageSuccessMessage(String imageName) {
         outStream.println("\nYou can run the docker image as follows => docker run --name <container-name> -d "
-                + imageName.toLowerCase() + ":" + imageVersion + "\n");
+                + imageName + "\n");
         outStream.println(
                 "Find the docker container IP using      " + "=> docker inspect <container-name> | grep IPAddress");
         outStream.println("Ballerina service will be running in http://<container-ip>:9090 \n");
         outStream.println("Sample request would be [curl -X GET http://<container-ip>:9090/hello ]\n");
-
     }
 
-    private void printMainImageSuccessMessage(String imageName, String imageVersion) {
+    private void printMainImageSuccessMessage(String imageName) {
         outStream.println("\nYou can run the docker image as follows => docker run --name <container-name> -it "
-                + imageName.toLowerCase() + ":" + imageVersion + "\n");
+                + imageName + "\n");
     }
 
     @Override
@@ -175,7 +184,8 @@ public class DockerCmd implements BLauncherCmd {
 
     @Override
     public void printUsage(StringBuilder out) {
-        out.append("ballerina docker <package-file-path> [--tag | -t <image-name>] [--host | -h <docker-hostURL>]\n");
+        out.append("ballerina docker <package-file-path> [--tag | -t <image-name>] [--host | -H <docker-hostURL>] " +
+                "--help | -h\n");
     }
 
     @Override
