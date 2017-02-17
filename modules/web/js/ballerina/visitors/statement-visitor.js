@@ -244,6 +244,16 @@ define(['lodash', 'log', './ast-visitor', '../ast/module'], function (_, log, AS
     StatementVisitor.prototype.endVisitWorkerReceiver = function (statement) {
     };
 
+    StatementVisitor.prototype.canVisitThrowStatement = function (statement) {
+        return false;
+    };
+    StatementVisitor.prototype.beginVisitThrowStatement = function (statement) {
+    };
+    StatementVisitor.prototype.visitThrowStatement = function (statement) {
+    };
+    StatementVisitor.prototype.endVisitThrowStatement = function (statement) {
+    };
+
     /**
      * @param node {ASTNode}
      */
@@ -292,6 +302,8 @@ define(['lodash', 'log', './ast-visitor', '../ast/module'], function (_, log, AS
             return this.visitWorkerInvoke(node);
         }  else if (node instanceof AST.WorkerReceive) {
             return this.visitWorkerReceiver(node);
+        }  else if (node instanceof AST.ThrowStatement) {
+            return this.visitThrowStatement(node);
         }
     };
 
@@ -343,6 +355,8 @@ define(['lodash', 'log', './ast-visitor', '../ast/module'], function (_, log, AS
             return this.canVisitWorkerInvoke(node);
         }  else if (node instanceof AST.WorkerReceive) {
             return this.canVisitWorkerReceiver(node);
+        }  else if (node instanceof AST.ThrowStatement) {
+            return this.canVisitThrowStatement(node);
         }
     };
 
@@ -394,6 +408,8 @@ define(['lodash', 'log', './ast-visitor', '../ast/module'], function (_, log, AS
             return this.beginVisitWorkerInvoke(node);
         }  else if (node instanceof AST.WorkerReceive) {
             return this.beginVisitWorkerReceiver(node);
+        }  else if (node instanceof AST.ThrowStatement) {
+            return this.beginVisitThrowStatement(node);
         }
     };
 
@@ -445,6 +461,8 @@ define(['lodash', 'log', './ast-visitor', '../ast/module'], function (_, log, AS
             return this.endVisitWorkerInvoke(node);
         }  else if (node instanceof AST.WorkerReceive) {
             return this.endVisitWorkerReceiver(node);
+        }  else if (node instanceof AST.ThrowStatement) {
+            return this.endVisitThrowStatement(node);
         }
     };
 

@@ -44,12 +44,12 @@ public class WorkspaceServiceRunner {
     private static final Logger logger = LoggerFactory.getLogger(WorkspaceServiceRunner.class);
 
     public static void main(String[] args) {
-        String balHome = System.getProperty(Constants.SYS_BAL_HOME);
+        String balHome = System.getProperty(Constants.SYS_BAL_COMPOSER_HOME);
         if (balHome == null) {
-            balHome = System.getenv(Constants.SYS_BAL_HOME);
+            balHome = System.getenv(Constants.SYS_BAL_COMPOSER_HOME);
         }
         if (balHome == null) {
-            logger.error("BALLERINA_HOME is not set. Please set ballerina.home system variable.");
+            logger.error("BAL_COMPOSER_HOME is not set. Please set ballerina.home system variable.");
             return;
         }
 

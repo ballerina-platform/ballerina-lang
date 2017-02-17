@@ -65,29 +65,36 @@ div[class*="col-sm-"] {
     margin-right: 0;
 }
 .left-container{
-    height: calc(100% - 100px);
+    height: calc(100% - 103px);
     padding: 0;
     /*Adjust when implementing file explorer*/
     min-width: 40px;
     position: fixed;
+    z-index: 2;
 }
 .left-tool-bar{
     height: calc(100% - 100px);
     padding: 0;
-    min-width: 40px;
+    width: 40px;
     position: fixed;
     font-size: 12px;
     text-align: center;
+    z-index: 2;
+    background: #232323;
 }
 .sidebar-left{
     height: 100%;
     width: 100%;
-    margin-left: 40px;
+    padding-left: 40px;
+    overflow: hidden;
 }
 
 .right-container{
-    height: calc(100% - 80px);
-    margin-left: 40px;
+    height: calc(100% - 103px);
+    position: fixed;
+    padding-left: 40px;
+    width: 100%;
+    z-index: 1;
 }
 
 /*//////////////////////////////////////////////////*/
@@ -224,8 +231,17 @@ div[class*="col-sm-"] {
 
 /*//////////////////////////////////////////////////*/
 /** Resource level tabs related styles | Start -> **/
+
+#service-tabs-wrapper,
+#service-tabs-wrapper > .row,
+#service-tabs-wrapper > .row > #tabs-container,
+#service-tabs-wrapper > .row > #tabs-container > #tab-content-wrapper > .tab-content.tab-content-default,
+#service-tabs-wrapper > .row > #tabs-container > #tab-content-wrapper > .tab-content.tab-content-default > .tab-pane {
+    height: 100%;
+}
+
 .tab-pane  {
-    padding-bottom: 130px;
+    /*padding-bottom: 130px;*/
 }
 
 #tab-container > ul{

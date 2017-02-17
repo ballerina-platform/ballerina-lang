@@ -256,5 +256,11 @@ public class BLangJSONModelConstants {
 
     public static final String EXPRESSION_OPERATOR = "operator";
 
+    public static final String TRY_CATCH_STATEMENT = "try_catch_statement";
+
+    public static final String TRY_BLOCK = "try_block";
+
+    public static final String CATCH_BLOCK = "catch_block";
+
     public static final String STRUCT_FIELD_ACCESS_EXPRESSION = "struct_field_access_expression";
 }
