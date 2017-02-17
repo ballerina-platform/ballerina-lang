@@ -14,7 +14,7 @@
 
 /*TODO remove this when feature is done*/
 .left-tool-bar .debugger-activate-btn, .left-tool-bar .debugger-activate-btn i{
-    display: none;
+    /*display: none;*/
 }
 
 .ace_gutter-cell.ace_breakpoint{ 
@@ -33,10 +33,10 @@
 }
 
 .debug-point-hit {
-    background: rgba(0, 47, 124, 0.3);
+    background: rgba(0, 161, 255, 0.4);
     position: absolute;
     width: 100% !important;
-    left: 0 !important;    
+    left: 0 !important;
 }
 
 .debug-connect-button {
@@ -44,21 +44,25 @@
     margin-bottom: 10px;
 }
 
-.debugger-container .btn-group button{
+.btn-debug-action{
+    margin:0px !important;
     background-color: #333;
-    color: white;
+    color: white;   
+    font-size: 13px; 
 }
 
-.btn-debug-action , .btn-debug-activate{
+.btn-debug-activate{
     padding-top: 8px !important;
     padding-bottom: 8px !important;
-    border-bottom: 1px #232323 solid !important;
     margin:0px !important;
+    text-align: left !important;
+    background-color: #333;
+    color: white;    
 }
 
-.debug-center-btn{
-    border-left: 1px #232323 solid !important;
-    border-right: 1px #232323 solid !important;
+.btn-debug-action{
+    width: 20% !important;
+    padding:11px !important;
 }
 
 .btn-debug-action:hover , .btn-debug-activate:hover{
@@ -68,6 +72,10 @@
 
 .debug-error{
     color: #ff3333;
+}
+
+.statement-view-breakpoint-indicator{
+    display:none;
 }
 
 .debug .has-error .input-group-addon{
@@ -91,8 +99,10 @@ table.debug-frames {
 }
 
 .debug-panel-header{
-    padding: 5px;
+    padding: 8px;
     background: #232323;
+    color: #FFF !important;
+    font-weight: bold;
 }
 
 .debug-panel-header a{
@@ -113,4 +123,44 @@ table.debug-frames {
 
 #debug-v-tree ul li{
     color: white;
+}
+
+.highlight-statement{
+    fill: #b2d4ff;
+}
+  
+#console-container {
+    color: #FFF !important;
+    background: #131313 !important;
+    
+}
+
+.launcher-container .btn-group button{
+    background-color: #333;
+    color: white;
+    width: 100%;
+}
+
+#console{
+    height: calc(100% - 25px );
+    padding: 5px 10px !important;
+    overflow: auto;
+    font-family: "Lucida Console", Monaco, monospace;
+}
+
+#console .INFO { color: #03a9f4 !important; }
+#console .ERROR { color: #f44336 !important; }
+
+.console-header{
+    font-weight: bolder !important;
+    background: #232323 !important;
+    padding: 5px 10px !important;
+    height: 25px;
+}
+
+.closeConsole{
+    color: #AAA;
+    font-size: 12px;
+    margin-top: 5px;
+    margin-left:10px;
 }

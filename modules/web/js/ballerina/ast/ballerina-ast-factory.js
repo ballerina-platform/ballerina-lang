@@ -1319,6 +1319,15 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
                     case 'type_casting_expression':
                         node = BallerinaASTFactory.createTypeCastingExpression();
                         break;
+                    case 'type_mapper_definition':
+                        node = BallerinaASTFactory.createTypeMapperDefinition();
+                        break;
+                    case 'struct_field_access_expression':
+                        node = BallerinaASTFactory.createStructFieldAccessExpression();
+                        break;
+                    case 'block_statement':
+                        node = BallerinaASTFactory.createBlockStatement();
+                        break;
                     case 'reference_type_init_expression':
                         node = BallerinaASTFactory.createReferenceTypeInitExpression();
                         break;
@@ -1329,6 +1338,7 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
                         throw "Unknown node definition for " + jsonNode.type;
                 }
             }
+            node.setLineNumber(jsonNode.line_number, {doSilently: true});
             return node;
         };
 

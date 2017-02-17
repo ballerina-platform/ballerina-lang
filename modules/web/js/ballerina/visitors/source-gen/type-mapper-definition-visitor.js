@@ -45,7 +45,7 @@ define(['lodash', 'log', 'event_channel', './abstract-source-gen-visitor', './st
              * that particular source generation has to be constructed here
              */
 
-            var constructedSourceSegment = 'typeconvertor ' + typeMapperDefinition.getTypeMapperName() +
+            var constructedSourceSegment = 'typemapper ' + typeMapperDefinition.getTypeMapperName() +
                 ' (' + typeMapperDefinition.getInputParamAndIdentifier() + ' )(' + typeMapperDefinition.getReturnType() +
                 ' ) {';
             this.appendSource(constructedSourceSegment);

@@ -52,8 +52,14 @@ define(['lodash', './expression'], function (_, Expression) {
      * @param {string} [jsonNode.variable_reference_name] - Symbol name of the VariableReferenceExpression
      */
     VariableReferenceExpression.prototype.initFromJson = function (jsonNode) {
+        var self = this;
         this.setVariableReferenceName(jsonNode.variable_reference_name, {doSilently: true});
-        this.setExpression(this.generateExpression(), {doSilently: true});
+
+        _.each(jsonNode.children, function (childNode) {
+            var child = self.getFactory().createFromJson(childNode);
+            self.addChild(child);
+            child.initFromJson(childNode);
+        });
     };
 
     VariableReferenceExpression.prototype.generateExpression = function () {
