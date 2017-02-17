@@ -209,12 +209,14 @@ define(
             return this.toolPalette;
         };
 
-        CompoundStatementView.prototype.onBeforeModelRemove = function () {
+        CompoundStatementView.prototype.removeAllChildStatements = function () {
             _.forEach(this.getChildrenViewsList(), function (childStatementView) {
                 childStatementView.stopListening();
             });
             this.getStatementGroup().node().remove();
-            this.getBoundingBox().w(0).h(0);
+            // resize the bounding box in order to the other objects to resize
+            var gap = this.getParent().getStatementContainer().getInnerDropZoneHeight();
+            this.getBoundingBox().move(0, -this.getBoundingBox().h() - gap).w(0);
         };
 
         CompoundStatementView.prototype.showDebugHit = function () {
