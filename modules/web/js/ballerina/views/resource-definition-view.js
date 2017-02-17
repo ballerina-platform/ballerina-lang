@@ -364,7 +364,7 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                     this.setHeadingMinWidth(workerDeclarationView.getBoundingBox().getRight());
                 }
 
-                if (newWorkerPosition === 0) {
+                if (_.isEqual(newWorkerPosition, 0)) {
                     workerDeclarationView.listenTo(this.getDefaultWorker().getBoundingBox(), 'right-edge-moved', function (dx) {
                         workerDeclarationView.getBoundingBox().move(dx, 0);
                     });

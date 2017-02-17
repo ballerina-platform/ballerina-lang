@@ -190,10 +190,10 @@ define(
          * @param {ASTNode} child - child model
          */
         SimpleStatementView.prototype.onBeforeModelRemove = function () {
-            d3.select("#_" +this.getModel().id).remove();
+            d3.select("#_" +this.getModel().getID()).remove();
             // resize the bounding box in order to the other objects to resize
             var gap = this.getParent().getStatementContainer().getInnerDropZoneHeight();
-            this.getBoundingBox().move(0, -this.getBoundingBox().h() - 30).w(0);
+            this.getBoundingBox().move(0, -this.getBoundingBox().h() - gap).w(0);
         };
 
         return SimpleStatementView;

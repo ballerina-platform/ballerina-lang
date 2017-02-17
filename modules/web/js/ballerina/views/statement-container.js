@@ -151,7 +151,6 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
                 _.set(dropZoneOptions, 'topCenter', newDropZoneTopCenter);
                 var innerDropZone = this._createNextInnerDropZone(dropZoneOptions, _.findIndex(this._managedStatements, ['id', nextStatement.id]));
                 innerDropZone.listenTo(statementView.getBoundingBox(), 'bottom-edge-moved', innerDropZone.onLastStatementBottomEdgeMoved);
-                innerDropZone.listenTo(statementView.getBoundingBox(), 'bottom-edge-moved', innerDropZone.onLastStatementBottomEdgeMoved);
 
                 // reset index of activatedInnerDropZone after handling inner drop
                 this._selectedInnerDropZoneIndex = -1;
@@ -258,7 +257,7 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
         // When the bounding box moved, we move the statement view as well
         statementView.listenTo(statementView.getBoundingBox(), 'right-edge-moved', function (dx) {
             var statementViewIndex = _.findIndex(self.getManagedStatements(), function (stmt) {
-                return stmt.id === statement.id;
+                return _.isEqual(stmt.id, statement.id);
             });
             self._managedInnerDropzones[statementViewIndex].onLastStatementMovedHorizontally(dx);
         });

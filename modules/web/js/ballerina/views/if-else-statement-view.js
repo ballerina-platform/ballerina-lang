@@ -154,10 +154,10 @@ define(['d3', 'require', 'lodash', 'log', 'property_pane_utils', './compound-sta
          * @param {ASTNode} child - child model
          */
         IfElseStatementView.prototype.onBeforeModelRemove = function () {
-            d3.select("#_" +this.getModel().id).remove();
+            d3.select("#_" +this.getModel().getID()).remove();
             // resize the bounding box in order to the other objects to resize
             var gap = this.getParent().getStatementContainer().getInnerDropZoneHeight();
-            this.getBoundingBox().move(0, -this.getBoundingBox().h() - 30).w(0);
+            this.getBoundingBox().move(0, -this.getBoundingBox().h() - gap).w(0);
         };
 
         return IfElseStatementView;
