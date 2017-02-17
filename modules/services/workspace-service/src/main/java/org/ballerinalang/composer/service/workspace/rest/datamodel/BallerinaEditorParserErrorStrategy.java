@@ -15,15 +15,12 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.wso2.ballerina.tooling.service.workspace.rest.datamodel;
+package org.ballerinalang.composer.service.workspace.rest.datamodel;
 
 import org.antlr.v4.runtime.DefaultErrorStrategy;
-import org.antlr.v4.runtime.FailedPredicateException;
 import org.antlr.v4.runtime.InputMismatchException;
 import org.antlr.v4.runtime.NoViableAltException;
 import org.antlr.v4.runtime.Parser;
-import org.antlr.v4.runtime.ParserRuleContext;
-import org.antlr.v4.runtime.RecognitionException;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.misc.IntervalSet;
 

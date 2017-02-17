@@ -15,7 +15,7 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.wso2.ballerina.tooling.service.workspace.rest.datamodel;
+package org.ballerinalang.composer.service.workspace.rest.datamodel;
 
 import com.google.gson.JsonObject;
 
