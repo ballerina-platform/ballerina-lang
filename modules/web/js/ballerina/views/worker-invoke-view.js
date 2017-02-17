@@ -18,6 +18,13 @@
 define(['lodash', 'd3','log', './simple-statement-view', './../ast/action-invocation-expression', './point', 'd3utils', './../ast/ballerina-ast-factory', './message'],
     function (_, d3, log, SimpleStatementView, ActionInvocationExpression, Point, D3Utils, BallerinaASTFactory, MessageView) {
 
+        /**
+         * Worker invoke statement view.
+         * @param args {*} constructor arguments
+         * @class WorkerInvoke
+         * @constructor
+         * @extends SimpleStatementView
+         */
         var WorkerInvoke = function (args) {
             SimpleStatementView.call(this, args);
             this._connectorView = {};
@@ -44,7 +51,7 @@ define(['lodash', 'd3','log', './simple-statement-view', './../ast/action-invoca
 
         WorkerInvoke.prototype.init = function(){
             // TODO: Event name should modify in order to tally for both connector action and other dynamic arrow draws
-            this.getModel().on("drawConnectionForAction",this.renderWorkerReceiverArrows, this);
+            this.getModel().on("drawConnectionForAction",this.renderWorkerStart, this);
             Object.getPrototypeOf(this.constructor.prototype).init.call(this);
         };
         WorkerInvoke.prototype.setDiagramRenderingContext = function(context){
@@ -83,7 +90,9 @@ define(['lodash', 'd3','log', './simple-statement-view', './../ast/action-invoca
             this.renderDisplayText(model.getInvokeStatement());
 
             this.renderProcessorConnectPoint(renderingContext);
-            this.renderArrows(renderingContext);
+            if (!_.isNil(this.getModel().getDestination())) {
+                this.renderInvokeArrows();
+            }
 
             // Creating property pane
             var editableProperty = {
@@ -219,20 +228,20 @@ define(['lodash', 'd3','log', './simple-statement-view', './../ast/action-invoca
             this.renderDisplayText(displayText);
         };
 
-        WorkerInvoke.prototype.renderWorkerReceiverArrows = function (startPoint, container) {
+        WorkerInvoke.prototype.renderWorkerStart = function (startPoint, container) {
             log.debug("Render the worker start");
             var activatedWorkerTarget = this.messageManager.getActivatedDropTarget();
             if (BallerinaASTFactory.isWorkerDeclaration(activatedWorkerTarget)) {
                 this.getModel().setDestination(activatedWorkerTarget);
-                this.renderReceiverArrows();
+                this.renderInvokeArrows();
                 this.messageManager.reset();
             }
         };
 
-        WorkerInvoke.prototype.renderReceiverArrows = function () {
+        WorkerInvoke.prototype.renderInvokeArrows = function () {
             var self = this;
             var group = D3Utils.group(d3.select(this._container));
-            var destinationView = this.getDiagramRenderingContext().getViewOfModel(this.messageManager.getActivatedDropTarget());
+            var destinationView = this.getDiagramRenderingContext().getViewOfModel(this.getModel().getDestination());
             var startX = this.getBoundingBox().getRight();
             var startY = this.getBoundingBox().getTop() + this.getBoundingBox().h()/2;
             var endX = destinationView.getBoundingBox().getCenterX();

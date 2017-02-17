@@ -62,7 +62,7 @@ define(['lodash', 'log', './simple-statement-view', './../ast/variable-definitio
             (this.__proto__.__proto__).render.call(this, renderingContext);
             // Setting display text.
             var model = this.getModel();
-            this.renderDisplayText(model.getVariableDefinitionStatementString())
+            this.renderDisplayText(model.getStatementString());
 
             model.accept(this);
 
@@ -72,8 +72,8 @@ define(['lodash', 'log', './simple-statement-view', './../ast/variable-definitio
                 propertyType: "text",
                 key: "VariableDefinition",
                 model: model,
-                getterMethod: model.getVariableDefinitionStatementString,
-                setterMethod: model.setVariableDefinitionStatementString
+                getterMethod: model.getStatementString,
+                setterMethod: model.setStatementString
             };
             editableProperties.push(editableProperty);
             this._createPropertyPane({
@@ -88,8 +88,8 @@ define(['lodash', 'log', './simple-statement-view', './../ast/variable-definitio
             if (!_.isUndefined(updatedText) && updatedText !== '') {
                 // Updating variable definition statement model.
                 var model = this.getModel();
-                model.setVariableDefinitionStatementString(updatedText);
-                this.renderDisplayText(model.getVariableDefinitionStatementString());// Set display text.
+                model.setStatementString(updatedText);
+                this.renderDisplayText(model.getStatementString());// Set display text.
             }
         };
 
