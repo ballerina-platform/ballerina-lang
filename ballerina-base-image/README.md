@@ -1,6 +1,6 @@
 # Ballerina Base Docker Image
 
-This Dockerfile can be used to create a Ballerina base Docker distribution that should be used for subsequent Docker image build processes of Ballerina Services and Functions. 
+This Dockerfile can be used to create a Ballerina base Docker distribution that can be used to package Ballerina archives as distributable Docker images.
 
 ```bash
 # Copy the Ballerina distribution 

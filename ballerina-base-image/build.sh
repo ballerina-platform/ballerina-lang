@@ -40,7 +40,7 @@ if [ -z "$bal_version" ]; then
     bal_version="latest"
 fi
 
-image_name="${org_name}ballerina:${bal_version}"
+image_name="${org_name}ballerina-pkg:${bal_version}"
 
 if [ ! -e $bal_dist_file ]; then
   echo "Cannot find Ballerina distribution ${bal_dist_file}. Aborting..."
