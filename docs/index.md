@@ -1,4 +1,4 @@
-# Welcome to the Ballerina documentation!
+# Welcome to Ballerina!
 
 Ballerina is the premier programming language designed for integration. It allows you to connect apps and services to handle all types of integration scenarios, such as collecting top tweets from a specific location and adding them to a Google spreadsheet, generating emails with real-time quotes pulled from a stock quote service, transforming and routing data based on advanced logic, and much more. 
 
