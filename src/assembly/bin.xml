@@ -17,8 +17,8 @@
   -->
 <assembly>
     <includeBaseDirectory>true</includeBaseDirectory>
-    <baseDirectory>ballerina-composer-${project.version}</baseDirectory>
-    <id>Ballerina Composer</id>
+    <baseDirectory>ballerina-tools-${project.version}</baseDirectory>
+    <id>Ballerina Tools</id>
     <formats>
         <format>zip</format>
     </formats>
