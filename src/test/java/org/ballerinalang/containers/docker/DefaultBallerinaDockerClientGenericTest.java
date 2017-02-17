@@ -15,9 +15,9 @@
  *
  */
 
-package org.ballerinalang.containers;
+package org.ballerinalang.containers.docker;
 
-import org.ballerinalang.containers.docker.BallerinaDockerClient;
+import org.ballerinalang.containers.Constants;
 import org.ballerinalang.containers.docker.exception.BallerinaDockerClientException;
 import org.ballerinalang.containers.docker.impl.DefaultBallerinaDockerClient;
 import org.ballerinalang.containers.docker.utils.TestUtils;
@@ -122,6 +122,21 @@ public class DefaultBallerinaDockerClientGenericTest {
         String serviceName = "TestService1";
         List<Path> packagePaths = TestUtils.getTestServiceAsPathList();
         dockerClient.createServiceImage(serviceName, null, packagePaths, "customImage", null);
+    }
+
+    @Test
+    public void testSuccessfulImageCreateWithCustomImageName()
+            throws IOException, InterruptedException, BallerinaDockerClientException {
+        String serviceName = "TestService1";
+        String imageName = "customimagename";
+        String imageVersion = "0.0.1";
+        List<Path> packagePaths = TestUtils.getTestServiceAsPathList();
+
+        String result = dockerClient.createServiceImage(serviceName, null, packagePaths, imageName, imageVersion);
+        createdImages.add(imageName + ":" + imageVersion);
+
+        Assert.assertTrue((result != null) && (result.equals(imageName
+                + ":" + imageVersion)), "Docker image creation failed.");
     }
 
     //    @Test

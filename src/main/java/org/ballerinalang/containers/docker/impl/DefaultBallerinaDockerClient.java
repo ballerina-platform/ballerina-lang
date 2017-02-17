@@ -303,7 +303,6 @@ public class DefaultBallerinaDockerClient implements BallerinaDockerClient {
                 .alwaysRemovingIntermediate()
                 .withBuildArgs(buildArgs)
                 .usingListener(new DockerBuilderEventListener())
-                .writingOutput(System.out) // TODO: remove before release
                 .fromFolder(tmpDir.toString());
 
         buildDone.await();
