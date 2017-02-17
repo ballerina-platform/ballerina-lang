@@ -28,6 +28,8 @@ define(['require', 'log', 'lodash', 'event_channel'],
             this._name = _.get(args, 'name', '');
             this._id = _.get(args, 'id', '');
             this.action = _.get(args, 'action', '');
+            this._parameters = _.get(args, 'parameters', []);
+            this._returnParams = _.get(args, 'returnParams', []);
         };
 
         ConnectorAction.prototype = Object.create(EventChannel.prototype);
@@ -67,9 +69,50 @@ define(['require', 'log', 'lodash', 'event_channel'],
             return this.action;
         };
 
+        /**
+         * sets the parameters
+         * @param [object] parameters
+         */
+        ConnectorAction.prototype.setParameters = function (parameters) {
+            this._parameters = parameters;
+        };
+
+        /**
+         * returns the parameters
+         * @returns [object]
+         */
+        ConnectorAction.prototype.getParameters = function () {
+            return this._parameters;
+        };
+
+        /**
+         * sets the returnParams
+         * @param [object] returnParams
+         */
+        ConnectorAction.prototype.setReturnParams = function (returnParams) {
+            this._returnParams = returnParams;
+        };
+
+        /**
+         * returns the returnParams
+         * @returns [object]
+         */
+        ConnectorAction.prototype.getReturnParams = function () {
+            return this._returnParams;
+        };
+
         ConnectorAction.prototype.initFromJson = function (jsonNode) {
             this.setName(jsonNode.name);
             this.setAction(jsonNode.name);
+            this.setReturnParams(jsonNode.returnParams);
+            this.setParameters(jsonNode.parameters);
+        };
+
+        ConnectorAction.prototype.initFromASTModel = function (connectorActionModel) {
+            this.setName(connectorActionModel.getActionName());
+            this.setId(connectorActionModel.getActionName());
+            this.setParameters(connectorActionModel.getArguments());
+            this.setReturnParams(connectorActionModel.getReturnTypes());
         };
 
         return ConnectorAction;

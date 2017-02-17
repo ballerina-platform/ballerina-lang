@@ -80,7 +80,7 @@ define(['lodash', './statement', '../utils/common-utils', './variable-declaratio
      * Get the variable definition statement string
      * @return {string} - Variable definition expression string
      */
-    VariableDefinitionStatement.prototype.getVariableDefinitionStatementString = function () {
+    VariableDefinitionStatement.prototype.getStatementString = function () {
         var variableDefinitionStatementString;
         if(_.isNil(this._rightExpression) || _.isEmpty(this._rightExpression)){
             variableDefinitionStatementString = this._leftExpression;
@@ -135,8 +135,7 @@ define(['lodash', './statement', '../utils/common-utils', './variable-declaratio
      * Set the variable definition expression string
      * @param {string} variableDefinitionStatementString - variable definition expression string
      */
-    VariableDefinitionStatement.prototype.setVariableDefinitionStatementString =
-                                                                        function (variableDefinitionStatementString) {
+    VariableDefinitionStatement.prototype.setStatementString = function (variableDefinitionStatementString) {
         var tokens = variableDefinitionStatementString.split("=");
         this.setLeftExpression(!_.isNil(tokens[0]) ? tokens[0].trim() : "");
         this.setRightExpression(!_.isNil(tokens[1]) ? tokens[1].trim() : "");

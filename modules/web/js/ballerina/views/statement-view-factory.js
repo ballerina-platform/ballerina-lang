@@ -51,7 +51,7 @@ define(['lodash', 'log', 'event_channel', '../ast/module', './try-catch-statemen
                 return new FunctionInvocationStatementView(args);
             } else if (statement instanceof AST.WhileStatement) {
                 return new WhileStatementView(args);
-            } else if (statement instanceof AST.ActionInvocationExpression) {
+            } else if (statement instanceof AST.ActionInvocationStatement) {
                 return new ActionInvocationStatementView(args);
             } else if (statement instanceof AST.ReplyStatement) {
                 return new ReplyStatementView(args);
@@ -84,7 +84,16 @@ define(['lodash', 'log', 'event_channel', '../ast/module', './try-catch-statemen
                 }
                 return assignmentStatement;
             } else if (statement instanceof AST.VariableDefinitionStatement) {
-                return new VariableDefinitionStatementView(args);
+                var variableStatement = undefined;
+                _.each(statement.getChildren(), function (statementChild) {
+                    if(AST.BallerinaASTFactory.isActionInvocationExpression(statementChild)) {
+                        variableStatement = new ActionInvocationStatementView(args);
+                    }
+                });
+                if (_.isUndefined(variableStatement)) {
+                    variableStatement = new VariableDefinitionStatementView(args);
+                }
+                return variableStatement;
             } else if (statement instanceof AST.WorkerInvoke) {
                 return new WorkerInvokeView(args);
             } else if (statement instanceof AST.WorkerReceive) {
