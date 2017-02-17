@@ -83,7 +83,8 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
 
         this.jsPlumbInstance.bind('connection', function (info, ev) {
             self.dagrePosition(self);
-            self.processTypeMapperDropdown(info);
+            //TODO: for multiple type mappers
+            // self.processTypeMapperDropdown(info);
         });
     };
 
