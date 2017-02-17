@@ -58,7 +58,7 @@ public class Service implements CompilationUnit, SymbolScope, BLangSymbol {
 
     // Scope related variables
     private SymbolScope enclosingScope;
-    protected Map<SymbolName, BLangSymbol> symbolMap;
+    private Map<SymbolName, BLangSymbol> symbolMap;
 
     // Here we need to link a service with it's program. We execute the matching resource
     // when a request is made. At that point, we need to access runtime environment to execute the resource.

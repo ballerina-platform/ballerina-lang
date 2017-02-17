@@ -69,7 +69,7 @@ public class Worker implements SymbolScope, CompilationUnit, CallableUnit {
 
     // Scope related variables
     private SymbolScope enclosingScope;
-    protected Map<SymbolName, BLangSymbol> symbolMap;
+    private Map<SymbolName, BLangSymbol> symbolMap;
     private boolean isFlowBuilderVisited;
 
     public Worker(String name) {

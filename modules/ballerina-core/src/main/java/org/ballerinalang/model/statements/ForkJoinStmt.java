@@ -53,7 +53,7 @@ public class ForkJoinStmt extends AbstractStatement implements SymbolScope, Comp
     private VariableRefExpr messageReference;
     // Scope related variables
     private SymbolScope enclosingScope;
-    protected Map<SymbolName, BLangSymbol> symbolMap;
+    private Map<SymbolName, BLangSymbol> symbolMap;
     private int tempStackFrameSize;
 
     private ForkJoinStmt(NodeLocation nodeLocation, SymbolScope enclosingScope) {
@@ -75,7 +75,7 @@ public class ForkJoinStmt extends AbstractStatement implements SymbolScope, Comp
         private NodeLocation nodeLocation;
         // Scope related variables
         private SymbolScope enclosingScope;
-        protected Map<SymbolName, BLangSymbol> symbolMap;
+        private Map<SymbolName, BLangSymbol> symbolMap;
 
         public Join (NodeLocation nodeLocation, SymbolScope enclosingScope) {
             this.enclosingScope = enclosingScope;
@@ -148,7 +148,7 @@ public class ForkJoinStmt extends AbstractStatement implements SymbolScope, Comp
 
         // Scope related variables
         private SymbolScope enclosingScope;
-        protected Map<SymbolName, BLangSymbol> symbolMap;
+        private Map<SymbolName, BLangSymbol> symbolMap;
 
         private Timeout(NodeLocation nodeLocation, SymbolScope symbolScope) {
             this.enclosingScope = symbolScope;

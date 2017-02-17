@@ -47,7 +47,7 @@ public abstract class AbstractNativeConnector extends BType implements NativeUni
     private List<NativeUnitProxy> actions;
     
     // Scope related variables
-    protected Map<SymbolName, BLangSymbol> symbolMap;
+    private Map<SymbolName, BLangSymbol> symbolMap;
     
     public AbstractNativeConnector(SymbolScope enclosingScope) {
         super(enclosingScope);

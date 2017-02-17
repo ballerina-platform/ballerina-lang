@@ -43,7 +43,7 @@ public class BLangProgram implements SymbolScope, Node {
 
     // Scope related variables
     private GlobalScope globalScope;
-    protected Map<SymbolName, BLangSymbol> symbolMap;
+    private Map<SymbolName, BLangSymbol> symbolMap;
 
     // Each program instance should have its own runtime environment
     private RuntimeEnvironment runtimeEnv;

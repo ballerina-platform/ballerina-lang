@@ -65,7 +65,7 @@ public class BallerinaAction implements Action, SymbolScope, Node {
 
     // Scope related variables
     private SymbolScope enclosingScope;
-    protected Map<SymbolName, BLangSymbol> symbolMap;
+    private Map<SymbolName, BLangSymbol> symbolMap;
 
     // Linker related variables
     private int tempStackFrameSize;

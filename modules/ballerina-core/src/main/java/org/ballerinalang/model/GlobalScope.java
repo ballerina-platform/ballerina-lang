@@ -28,7 +28,7 @@ import java.util.Map;
  * @since 0.8.0
  */
 public class GlobalScope implements SymbolScope {
-    protected Map<SymbolName, BLangSymbol> symbolMap;
+    private Map<SymbolName, BLangSymbol> symbolMap;
 
     private static GlobalScope instance = new GlobalScope();
 

@@ -70,7 +70,7 @@ public class TryCatchStmt extends AbstractStatement {
 
         private final SymbolScope enclosingScope;
         private ParameterDef parameterDef;
-        protected Map<SymbolName, BLangSymbol> symbolMap;
+        private Map<SymbolName, BLangSymbol> symbolMap;
         private BlockStmt catchBlock;
 
         public CatchBlock(SymbolScope enclosingScope) {

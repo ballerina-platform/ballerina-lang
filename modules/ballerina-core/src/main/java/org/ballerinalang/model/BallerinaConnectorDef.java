@@ -58,7 +58,7 @@ public class BallerinaConnectorDef extends BType implements Connector, Compilati
     private BallerinaFunction initFunction;
 
     // Scope related variables
-    protected Map<SymbolName, BLangSymbol> symbolMap;
+    private Map<SymbolName, BLangSymbol> symbolMap;
 
     private BallerinaConnectorDef(SymbolScope enclosingScope) {
         super(enclosingScope);

@@ -65,7 +65,7 @@ public class Resource implements Node, SymbolScope, CallableUnit {
 
     // Scope related variables
     private SymbolScope enclosingScope;
-    protected Map<SymbolName, BLangSymbol> symbolMap;
+    private Map<SymbolName, BLangSymbol> symbolMap;
     private int tempStackFrameSize;
 
     private Resource(SymbolScope enclosingScope) {

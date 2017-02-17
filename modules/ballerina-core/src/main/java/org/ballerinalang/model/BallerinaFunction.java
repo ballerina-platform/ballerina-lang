@@ -65,7 +65,7 @@ public class BallerinaFunction implements Function, SymbolScope, CompilationUnit
 
     // Scope related variables
     private SymbolScope enclosingScope;
-    protected Map<SymbolName, BLangSymbol> symbolMap;
+    private Map<SymbolName, BLangSymbol> symbolMap;
 
     // Linker related variables
     private int tempStackFrameSize;

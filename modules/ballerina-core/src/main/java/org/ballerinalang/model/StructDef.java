@@ -40,7 +40,7 @@ public class StructDef extends BType implements CompilationUnit, SymbolScope {
     private int structMemorySize;
 
     private SymbolName symbolName;
-    protected Map<SymbolName, BLangSymbol> symbolMap;
+    private Map<SymbolName, BLangSymbol> symbolMap;
 
     public StructDef(SymbolScope enclosingScope) {
         super(null, null, enclosingScope, BStruct.class);

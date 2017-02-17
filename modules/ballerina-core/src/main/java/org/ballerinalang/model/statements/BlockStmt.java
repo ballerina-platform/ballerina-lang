@@ -42,7 +42,7 @@ public class BlockStmt extends AbstractStatement implements SymbolScope {
 
     // Scope related variables
     private SymbolScope enclosingScope;
-    protected Map<SymbolName, BLangSymbol> symbolMap;
+    private Map<SymbolName, BLangSymbol> symbolMap;
 
     private BlockStmt(NodeLocation location, SymbolScope enclosingScope) {
         super(location);
