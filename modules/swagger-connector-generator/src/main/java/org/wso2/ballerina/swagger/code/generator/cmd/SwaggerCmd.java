@@ -1,4 +1,4 @@
-package org.ballerinalang.swagger.cmd;
+package org.wso2.ballerina.swagger.code.generator.cmd;
 
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
@@ -26,7 +26,7 @@ public class SwaggerCmd implements BLauncherCmd {
             description = "where to write the generated files (current dir by default)")
     private String output = "";
 
-    @Parameter(names = {"-p", "packageName"}, description = CodegenConstants.API_PACKAGE_DESC)
+    @Parameter(names = {"-p", "--package"}, description = CodegenConstants.API_PACKAGE_DESC)
     private String apiPackage;
 
     @Override
