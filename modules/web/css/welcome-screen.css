@@ -63,6 +63,7 @@
     background-color: #FFFFFF;
     cursor: pointer;
     overflow: hidden;
+    border: 1px solid #ccc;
 }
 
 .preview-img {
@@ -105,6 +106,7 @@
     position: relative;
     top: 10%;
     margin: 0 auto;
+    margin-bottom: 30px;
 }
 
 .heading-welcome-container {

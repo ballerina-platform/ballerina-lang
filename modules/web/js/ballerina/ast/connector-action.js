@@ -57,7 +57,7 @@ define(['lodash', './node', 'log', '../utils/common-utils'], function(_, ASTNode
         var self = this;
 
         _.forEach(this.getChildren(), function (child) {
-            if (self.getFactory().isArgument(child)) {
+            if (self.getFactory().isArgument(child) && !self.getFactory().isReturnType(child)) {
                 actionArgs.push(child);
             }
         });
@@ -146,7 +146,7 @@ define(['lodash', './node', 'log', '../utils/common-utils'], function(_, ASTNode
             returnTypes.push(returnTypeChild.getArgumentAsString())
         });
 
-        return _.join(returnTypes, ", ");
+        return _.join(returnTypes, " , ");
     };
 
     /**
@@ -300,10 +300,9 @@ define(['lodash', './node', 'log', '../utils/common-utils'], function(_, ASTNode
             argsAsString += argument.type + " ";
             argsAsString += argument.identifier;
             if (args.length - 1 != index) {
-                argsAsString += ", ";
+                argsAsString += " , ";
             }
         });
-
         return argsAsString;
     };
 

@@ -20,11 +20,12 @@ define(['lodash', 'log', 'event_channel', '../ast/module', './try-catch-statemen
         './else-if-statement-view', './assignment-view', './function-invocation-view',
         './action-invocation-statement-view', './while-statement-view', './reply-statement-view',
         './logical-expression-view', './arithmetic-expression-view', './return-statement-view',
-        './variable-definition-statement-view', './worker-invoke-view', './worker-receive-view'],
+        './variable-definition-statement-view', './worker-invoke-view', './worker-receive-view', './break-statement-view'],
     function (_, log, EventChannel, AST, TryCatchStatementView, TryStatementView, CatchStatementView,
               IfElseStatementView, IfStatementView, ElseStatementView, ElseIfStatementView, AssignmentStatementView,
               FunctionInvocationStatementView, ActionInvocationStatementView, WhileStatementView, ReplyStatementView,
-              LogicalExpressionView, ArithmeticExpressionView, ReturnStatement, VariableDefinitionStatementView, WorkerInvokeView, WorkerReceiveView) {
+              LogicalExpressionView, ArithmeticExpressionView, ReturnStatement, VariableDefinitionStatementView,
+              WorkerInvokeView, WorkerReceiveView, BreakStatementView) {
 
         var StatementViewFactory = function () {
         };
@@ -61,6 +62,8 @@ define(['lodash', 'log', 'event_channel', '../ast/module', './try-catch-statemen
                 return new ArithmeticExpressionView(args);
             } else if (statement instanceof AST.ReturnStatement) {
                 return new ReturnStatement(args);
+            } else if (statement instanceof AST.BreakStatement) {
+                return new BreakStatementView(args);
             } else if (statement instanceof AST.AssignmentStatement){
                 // TODO : This logic needs to be refactored.
                 var children  = _.get(statement, "children");

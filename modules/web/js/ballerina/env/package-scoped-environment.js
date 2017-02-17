@@ -32,6 +32,10 @@ define(['lodash', './package', './environment'], function(_, Package, Environmen
       return this._currentPackage;
     };
 
+    PackageScopedEnvironment.prototype.resetCurrentPackage = function () {
+        this._currentPackage = new Package({name:'Current Package'});
+    };
+
     /**
      * @return {[Package]}
      */

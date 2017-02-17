@@ -720,7 +720,7 @@ button.variable-list {
 }
 
 #import-package-text{
-    width: 88%;
+    width: 90%;
     background-color: #fff !important;
     line-height: 18px;
     border: 0 solid #ccc;
@@ -979,6 +979,7 @@ button.variable-list {
     height: 22px;
     position: static;
     float: right;
+    margin-right: -3px;
 }
 
 .constant-wrapper {
@@ -1042,7 +1043,7 @@ button.variable-list {
 
 .constant-declaration-wrapper {
     float: left;
-    margin: 2px 6px;
+    margin: 2px;
     border: 1px solid #8e44ad;
     font-size: 12px;
     height: 22px;

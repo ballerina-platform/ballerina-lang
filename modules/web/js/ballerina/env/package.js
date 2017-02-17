@@ -422,7 +422,16 @@ define(['log', 'lodash', 'require', 'event_channel', './../ast/service-definitio
                 }
             }
             this._structDefinitions = this._structDefinitions || [];
-            this._structDefinitions = _.concat(this._structDefinitions , structDefinitions);
+            // Join all struct definitions to one array(concat). Reversing the struct definitions so that the last
+            // modified elements comes first(reverse). Then remove the duplicates using struct name(uniqBy).
+            // Then reverse it back(reverse).
+            this._structDefinitions = _.reverse(
+                _.uniqBy(
+                    _.reverse(
+                        _.concat(this._structDefinitions, structDefinitions)), function (structDefinition) {
+                        return structDefinition.getStructName();
+                    })
+            );
             /**
              * Fired when new struct defs are added to the package.
              * @event Package#struct-defs-added

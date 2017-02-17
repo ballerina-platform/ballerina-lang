@@ -202,7 +202,7 @@ define(['require', 'log', 'lodash', 'jquery', 'event_channel', 'ace/ace', '../ut
     };
 
     SourceView.prototype.debugHit = function(position){
-        this.debugPointMarker = this._editor.getSession().addMarker(new Range.Range(position.line - 1, 0, position.line - 1, 2000), "debug-point-hit", "line", true);
+        this.debugPointMarker = this._editor.getSession().addMarker(new Range.Range(position.lineNumber - 1, 0, position.lineNumber - 1, 2000), "debug-point-hit", "line", true);
     }
 
     SourceView.prototype.clearExistingDebugHit = function(position){
