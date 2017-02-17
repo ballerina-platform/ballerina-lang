@@ -22,11 +22,7 @@ Note: Terminals of the language (keywords) are lowercase, whereas non-terminals 
 
 Each of the Ballerina elements such as services and connectors are described in detail in their own pages in this guide.
 
-## Packaging
-
-A Ballerina program consists of a number of Ballerina files, which may be in one or more packages. Ballerina uses a modular approach for managing names and organizing code into files. In summary, Ballerina entities (functions, services, etc.) all have globally unique qualified names consisting of their package name and the entity name. 
-
-For complete information, see [Packaging](packaging.md).
+A Ballerina program can consist of a number of Ballerina files, which may be in one or more packages. Ballerina uses a modular approach for managing names and organizing code into files. In summary, Ballerina entities (functions, services, etc.) all have globally unique qualified names consisting of their package name and the entity name. For complete information, see [Packaging](packaging.md).
 
 ## Running a Ballerina program
 
@@ -68,10 +64,11 @@ Ballerina instead allows the developer (either visually or textually) to mark an
 
 ## Expressions
 Similar to languages such as Java, Go, etc, Ballerina supports the following expressions: 
-* mathamtical expressions `(x + y, x/y, etc.)`
-* function calls `(foo(a,b))`
-* action calls `(tweet(twitterActor, "hello"))`
-* complex expressions `(foo(a,bar(c,d)))`
+
+* Mathematical expressions `(x + y, x/y, etc.)`
+* Function calls `(foo(a,b))`
+* Action calls `(tweet(twitterActor, "hello"))`
+* Complex expressions `(foo(a,bar(c,d)))`
 
 ## Testing your code
 

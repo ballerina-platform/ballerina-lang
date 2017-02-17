@@ -1,6 +1,6 @@
 # Quick Tour
 
-Now that you know [a little bit about Ballerina](intro.md), let's take it for a spin! 
+Now that you know [a little bit about Ballerina](index.md), let's take it for a spin! 
 
 ## Install Ballerina
 
@@ -37,7 +37,7 @@ Pretty simple and straightforward, right? Now, let's look at something a little 
 
 1. Access the editor from the following URL in your browser: http://localhost:9091
 
-   The welcome page of the Ballerina editor appears. Let's open a sample and take a look around. 
+    The welcome page of the Ballerina editor appears. Let's open a sample and take a look around. 
 
 1. Click **echoService**.
 
