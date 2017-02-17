@@ -108,15 +108,14 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace/f
                 DebugManager.removeBreakPoint(row, this._file.getName());
             }, this);
 
+            this.on('tab-removed', function() {
+                this.removeAllBreakpoints();
+            });
+
             var breakPointChangeCallback = function() {
-                var newBreakpoints = DebugManager.getDebugPoints();
                 var fileName = self._file.getName();
-                var fileBreakpoints = _.map(newBreakpoints, function(breakpoint) {
-                    if(breakpoint.fileName === self._file.getName())  {
-                        return breakpoint.lineNumber;
-                    }
-                });
-                fileEditor.trigger('reset-breakpoints', fileBreakpoints);
+                var newBreakpoints = DebugManager.getDebugPoints(fileName);
+                fileEditor.trigger('reset-breakpoints', newBreakpoints);
             };
             DebugManager.on('breakpoint-added', breakPointChangeCallback);
             DebugManager.on('breakpoint-removed', breakPointChangeCallback);
@@ -181,6 +180,10 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace/f
         getBallerinaFileEditor: function () {
             return this._fileEditor;
         },
+
+        removeAllBreakpoints: function() {
+            DebugManager.removeAllBreakpoints(this._file.getName());
+        }
 
     });
 
