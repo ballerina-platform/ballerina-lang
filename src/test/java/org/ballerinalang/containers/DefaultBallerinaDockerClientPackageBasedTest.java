@@ -74,6 +74,22 @@ public class DefaultBallerinaDockerClientPackageBasedTest {
                 + ":" + Constants.IMAGE_VERSION_LATEST)), "Docker image creation failed.");
     }
 
+    @Test(expectedExceptions = {BallerinaDockerClientException.class})
+    public void testFailedImageCreationWrongArchiveForMain()
+            throws IOException, InterruptedException, BallerinaDockerClientException {
+        String serviceName = "TestService1";
+        List<Path> packagePaths = TestUtils.getTestServiceAsPathList();
+        dockerClient.createMainImage(serviceName, null, packagePaths, null, null);
+    }
+
+    @Test(expectedExceptions = {BallerinaDockerClientException.class})
+    public void testFailedImageCreationWrongArchiveForService()
+            throws IOException, InterruptedException, BallerinaDockerClientException {
+        String serviceName = "TestFunction1";
+        List<Path> packagePaths = TestUtils.getTestFunctionAsPathList();
+        dockerClient.createServiceImage(serviceName, null, packagePaths, null, null);
+    }
+
     @AfterMethod
     public void tearDown() {
         for (String imageName : createdImages) {

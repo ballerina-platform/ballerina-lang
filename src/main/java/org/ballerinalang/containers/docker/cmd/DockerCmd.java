@@ -192,12 +192,12 @@ public class DockerCmd implements BLauncherCmd {
     }
 
     @Override
-    public void setParentCmdParser(JCommander arg0) {
+    public void setParentCmdParser(JCommander parentCmdParser) {
                 
     }
 
     @Override
-    public void setSelfCmdParser(JCommander arg0) {
+    public void setSelfCmdParser(JCommander selfCmdParser) {
         
     }
 
