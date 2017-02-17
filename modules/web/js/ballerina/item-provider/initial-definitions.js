@@ -128,6 +128,14 @@ define(['log', 'jquery', './../ast/ballerina-ast-factory', './../tool-palette/to
             nodeFactoryMethod: BallerinaASTFactory.createWhileStatement
         };
 
+        var createBreakStatementTool = {
+            id: "break",
+            name: "Break",
+            icon: "images/tool-icons/dgm-while.svg",
+            title: "Break",
+            nodeFactoryMethod: BallerinaASTFactory.createBreakStatement
+        };
+
         var createTryCatchStatementTool = {
             id: "try-catch",
             name: "Try-Catch",
@@ -195,8 +203,8 @@ define(['log', 'jquery', './../ast/ballerina-ast-factory', './../tool-palette/to
 
         var statementToolDefArray = [createIfStatementTool, createAssignmentExpressionTool,
             createVariableDefinitionStatementTool,  createFunctionInvocationTool, createReturnStatementTool,
-            createReplyStatementTool, createWhileStatementTool, createTryCatchStatementTool, createWorkerInvocationStatementTool,
-            createWorkerReceiverStatementTool];
+            createReplyStatementTool, createWhileStatementTool, createBreakStatementTool, createTryCatchStatementTool,
+            createWorkerInvocationStatementTool, createWorkerReceiverStatementTool];
 
         // Create statements tool group
         var statements = new ToolGroup({

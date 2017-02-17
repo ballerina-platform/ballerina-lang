@@ -1,4 +1,4 @@
-package org.wso2.ballerina.sample;
+package org.ballerinalang.sample;
 
 import ballerina.lang.json;
 import ballerina.lang.message;

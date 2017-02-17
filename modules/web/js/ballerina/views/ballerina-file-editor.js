@@ -41,25 +41,21 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
             this._canvasList = _.get(args, 'canvasList', []);
             this._debugger = _.get(args, 'debugger');
             this._file = _.get(args, 'file');
-            this._id = _.get(args, "id", "Ballerina File Editor");
+            this._id = _.get(args, "id", "Ballerina Composer");
 
             if (!this._parseFailed && (_.isNil(this._model) || !(this._model instanceof BallerinaASTRoot))) {
                 log.error("Ballerina AST Root is undefined or is of different type." + this._model);
                 throw "Ballerina AST Root is undefined or is of different type." + this._model;
             }
 
-           if (!_.has(args, 'viewOptions.backend')){
-               log.error("Backend is not defined.");
-               // not throwing an exception for now since we need to work without a backend.
-           }
-
            if (!_.has(args, 'backendEndpointsOptions')){
                log.error("Backend endpoints options not defined.");
                // not throwing an exception for now since we need to work without a backend.
            }
-           this.backend = new Backend(_.get(args, 'viewOptions.backend', {}));
+           this.parserBackend = new Backend({url: _.get(args, 'backendEndpointsOptions.parser.endpoint', {})});
+           this.validatorBackend = new Backend({url: _.get(args, 'backendEndpointsOptions.validator.endpoint', {})});
            this._isInSourceView = false;
-           this._isInSwaggerView = false;
+           this._isvInSwaggerView = false;
            this._constantDefinitionsPane = undefined;
            this.deserializer = BallerinaASTDeserializer;
            this.init();
@@ -319,12 +315,12 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                 .append($('<div></div>').addClass(_.get(viewOptions, 'cssClass.canvas_top_control_packages_import')))
                 .append($('<div></div>').addClass(_.get(viewOptions, 'cssClass.canvas_top_control_constants_define')));
             canvasContainer.append(canvasTopControlsContainer);
-            
+
             this._$designViewContainer.append(canvasContainer);
             this._$canvasContainer = canvasContainer;
             // check whether container element exists in dom
             if (!container.length > 0) {
-                errMsg = 'unable to find container for file editor with selector: ' + _.get(viewOptions, 'design_view.container');
+                errMsg = 'unable to find container for file composer with selector: ' + _.get(viewOptions, 'design_view.container');
                 log.error(errMsg);
                 throw errMsg;
             }
@@ -476,19 +472,16 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                         savedWhileInSourceView = lastRenderedTimestamp < self._file.getLastPersisted();
                     if (isSourceChanged || savedWhileInSourceView || self._parseFailed) {
                         var source = self._sourceView.getContent();
-                        var response = self.backend.parse(source);
-                        //if there are errors display the error.
-                        //@todo: proper error handling need to get the service specs
-                        if (response.error != undefined && response.error) {
-                            alerts.error('cannot switch to swagger view due to parse errors');
-                            return;
-                        } else if (!_.isUndefined(response.errorMessage)) {
-                            alerts.error("Unable to parse the source: " + response.errorMessage);
-                            return;
+                        if(!_.isEmpty(source.trim())){
+                            var validateResponse = self.validatorBackend.parse(source.trim());
+                            if (validateResponse.errors != undefined && !_.isEmpty(validateResponse.errors)) {
+                                alerts.error('cannot switch to swagger view due to syntax errors');
+                                return;
+                            }
                         }
                         self._parseFailed = false;
                         //if no errors display the design.
-                        //@todo
+                        var response = self.parserBackend.parse(source);
                         var root = self.deserializer.getASTModel(response);
                         self.setModel(root);
                         self._sourceView.markClean();
@@ -530,12 +523,21 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                 var isSwaggerChanged = self.isInSwaggerView();
                 if (isSourceChanged || savedWhileInSourceView || self._parseFailed) {
                     var source = self._sourceView.getContent();
-                    var root = self.generateNodeTree();
+                    if(!_.isEmpty(source.trim())){
+                        var validateResponse = self.validatorBackend.parse(source.trim());
+                        if (validateResponse.errors != undefined && !_.isEmpty(validateResponse.errors)) {
+                            alerts.error('cannot switch to design view due to syntax errors');
+                            return;
+                        }
+                    }
+                    self._parseFailed = false;
+                    //if no errors display the design.
+                    var response = self.parserBackend.parse(source);
+                    var root = self.deserializer.getASTModel(response);
                     self.setModel(root);
                     // reset source editor delta stack
                     self._sourceView.markClean();
                     self._createConstantDefinitionsView(self._$canvasContainer);
-                    self.addCurrentPackageToToolPalette();
                 } else if (isSwaggerChanged) {
                     self.setModel(self._swaggerView.getContent());
                     // reset source editor delta stack
@@ -550,7 +552,9 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                 designViewBtn.hide();
                 self.setActiveView('design');
                 if(isSourceChanged || isSwaggerChanged || savedWhileInSourceView){
+                    self._environment.resetCurrentPackage();
                     self.reDraw();
+                    self.rerenderCurrentPackageTool();
                 }
             });
 
@@ -577,7 +581,7 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
          * @returns {Object}
          */
         BallerinaFileEditor.prototype.generateCurrentPackage = function () {
-            var symbolTableGenVisitor = new SymbolTableGenVisitor(this._package, this._model);
+            var symbolTableGenVisitor = new SymbolTableGenVisitor(this._environment.getCurrentPackage(), this._model);
             this._model.accept(symbolTableGenVisitor);
             return symbolTableGenVisitor.getPackage();
         };
@@ -589,6 +593,19 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
         BallerinaFileEditor.prototype.addCurrentPackageToToolPalette = function () {
             this.toolPalette.getItemProvider().addImport(this.generateCurrentPackage(), 0);
         };
+
+    BallerinaFileEditor.prototype.rerenderCurrentPackageTool = function () {
+        var currentPackage = this.generateCurrentPackage();
+        var provider = this.toolPalette.getItemProvider();
+
+        // Remove current package tool group from pallete and re add it.
+        provider.removeImportToolGroup(currentPackage.getName());
+        var options = {
+            addToTop: true,
+            collapsed: false
+        }
+        provider.addImportToolGroup(currentPackage, options);
+    };
 
     BallerinaFileEditor.prototype.initDropTarget = function() {
         var self = this,
@@ -648,7 +665,7 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
             var root;
             var source = this._sourceView.getContent();
             if (!_.isEmpty(source.trim())) {
-               var response = this.backend.parse(source);
+               var response = this.parserBackend.parse(source);
                //if there are errors display the error.
                //@todo: proper error handling need to get the service specs
                if (response.error != undefined && response.error) {
@@ -664,7 +681,7 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                root = this.deserializer.getASTModel(response);
            } else {
                root = BallerinaASTFactory.createBallerinaAstRoot();
-        
+
                //package definition
                var packageDefinition = BallerinaASTFactory.createPackageDefinition();
                packageDefinition.setPackageName("");
@@ -673,7 +690,7 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
            }
            return root;
         };
-       
+
         /**
          * Creating the package view of a ballerina-file-editor.
          * @param canvasContainer - The canvas container.
@@ -873,7 +890,7 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
             this._$canvasContainer = canvasContainer;
             // check whether container element exists in dom
             if (!container.length > 0) {
-                errMsg = 'unable to find container for file editor with selector: ' + _.get(this._viewOptions, 'design_view.container');
+                errMsg = 'unable to find container for file composer with selector: ' + _.get(this._viewOptions, 'design_view.container');
                 log.error(errMsg);
                 throw errMsg;
             }
@@ -883,14 +900,12 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
 
             // this._createPackageDeclarationPane(this._$canvasContainer);
 
-            // adding current package to the tool palette with functions, connectors, actions etc. of the current package
-            this.addCurrentPackageToToolPalette();
             this._model.accept(this);
 
             // adding declared import packages to tool palette
             _.forEach(this._model.getImportDeclarations(), function (importDeclaration) {
                 var package = BallerinaEnvironment.searchPackage(importDeclaration.getPackageName());
-                self.toolPalette.getItemProvider().addImport(package[0]);
+                self.toolPalette.getItemProvider().addImportToolGroup(package[0]);
             });
 
             this.initDropTarget();
@@ -906,7 +921,7 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
         };
 
         BallerinaFileEditor.prototype._createConstantDefinitionsView = function(canvasContainer) {
-            
+
             var costantDefinitionWrapper = _.get(this._viewOptions, 'cssClass.canvas_top_control_constants_define');
             var constantsWrapper = canvasContainer.find('.' +costantDefinitionWrapper);
 
@@ -942,7 +957,7 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
             _.each(modelMap, function(aView) {
                 if(!_.isNil(aView.getModel)) {
                     var lineNumber = aView.getModel().getLineNumber();
-                    if(lineNumber === position.line) {
+                    if(lineNumber === position.line && !_.isNil(aView.showDebugHit)) {
                         aView.showDebugHit();
                         self._currentDebugHit = aView;
                     }

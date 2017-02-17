@@ -148,5 +148,9 @@ define(['require', 'lodash', 'log', 'property_pane_utils', './compound-statement
             return this._elseIfViews[this._elseIfViews.length - 1];
         };
 
+        IfElseStatementView.prototype.onBeforeModelRemove = function () {
+            this.removeAllChildStatements();
+        };
+
         return IfElseStatementView;
     });
