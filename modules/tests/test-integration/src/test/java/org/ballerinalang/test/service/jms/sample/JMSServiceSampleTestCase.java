@@ -104,12 +104,12 @@ public class JMSServiceSampleTestCase extends IntegrationTestCase {
     private void receiveMessagesFromTopic(String topicName) throws JMSException, InterruptedException {
         ConnectionFactory connectionFactory = JMSTestBroker.getInstance().getConnectionFactory();
 
-        TopicConnection queueConn = (TopicConnection) connectionFactory.createConnection();
-        queueConn.start();
-        TopicSession queueSession = queueConn.createTopicSession(false, Session.AUTO_ACKNOWLEDGE);
-        Topic destination = queueSession.createTopic(topicName);
-        TopicSubscriber queueReceiver = queueSession.createSubscriber(destination);
-        queueReceiver.setMessageListener(new MessageListener() {
+        TopicConnection topicConnection = (TopicConnection) connectionFactory.createConnection();
+        topicConnection.start();
+        TopicSession topicSession = topicConnection.createTopicSession(false, Session.AUTO_ACKNOWLEDGE);
+        Topic destination = topicSession.createTopic(topicName);
+        TopicSubscriber topicSubscriber = topicSession.createSubscriber(destination);
+        topicSubscriber.setMessageListener(new MessageListener() {
             @Override
             public void onMessage(Message message) {
                 if (message instanceof MapMessage) {
