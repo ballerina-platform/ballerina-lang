@@ -1,5 +1,6 @@
 package org.ballerinalang.containers.docker.cmd;
 
+import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
 import org.apache.commons.io.FilenameUtils;
@@ -17,7 +18,7 @@ import java.util.List;
 /**
  * Ballerina Command to support Docker based packaging Ballerina packages.
  */
-@Parameters(commandNames = "docker", commandDescription = "Dockerize Ballerina program")
+@Parameters(commandNames = "docker", commandDescription = "Dockerize Ballerina programs")
 public class DockerCmd implements BLauncherCmd {
 
     private static final String DEFAULT_DOCKER_IMAGE_VERSION = "latest";
@@ -26,6 +27,7 @@ public class DockerCmd implements BLauncherCmd {
     private static final String DEFAULT_DOCKER_HOST = "localhost";
 
     private static PrintStream outStream = System.err;
+    private JCommander parentCmdParser = null;
 
     @Parameter(arity = 1, description = "builds the given package with all the dependencies")
     private List<String> packagePath;
@@ -33,11 +35,18 @@ public class DockerCmd implements BLauncherCmd {
     @Parameter(names = {"--tag", "-t"})
     private String dockerImageName;
 
-    @Parameter(names = {"--host", "-h"}, validateWith = DockerHostValidator.class)
+    @Parameter(names = {"--host", "-H"}, validateWith = DockerHostValidator.class)
     private String dockerHost;
+
+    @Parameter(names = {"--help", "-h"}, hidden = true)
+    private boolean helpFlag;
 
     @Override
     public void execute() {
+            if (helpFlag) {
+                LauncherUtils.printCommandUsageInfo(parentCmdParser, "service", outStream);
+                return;
+            }
         if (packagePath == null || packagePath.size() == 0) {
             throw LauncherUtils.createUsageException("no ballerina package is provided\n");
         }
@@ -111,5 +120,15 @@ public class DockerCmd implements BLauncherCmd {
     @Override
     public void printUsage(StringBuilder out) {
         out.append("ballerina docker <package-file-path> [--tag | -t <image-name>] [--host | -h <hostURL>]\n");
+    }
+
+    @Override
+    public void setParentCmdParser(JCommander parentCmdParser) {
+        this.parentCmdParser = parentCmdParser;
+    }
+
+    @Override
+    public void setSelfCmdParser(JCommander selfCmdParser) {
+
     }
 }

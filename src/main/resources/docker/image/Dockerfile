@@ -1,4 +1,4 @@
-FROM ballerina:latest
+FROM ballerina-pkg:latest
 MAINTAINER dev@wso2.org
 
 ARG SVC_MODE=false
