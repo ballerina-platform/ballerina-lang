@@ -97,7 +97,7 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
     TypeMapperRenderer.prototype.disconnect = function (connection) {
         var self = this;
         var propertyConnection = this.getConnectionObject(connection.getParameter("id"),
-                                                            connection.sourceId, connection.targetId);
+            connection.sourceId, connection.targetId);
         this.midpoint = this.midpoint - this.midpointVariance;
         this.jsPlumbInstance.importDefaults({Connector: self.getConnectorConfig(self.midpoint)});
         this.jsPlumbInstance.detach(connection);
@@ -285,7 +285,7 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
         if ($("#" + structId).attr('class').includes("struct")) {
             lookupClass=  "jstree-anchor";
             structConns = $('div[id^="' +  this.jsTreePrefix + this.viewIdSeperator + structId + '"]')
-                                                        .find('.' + lookupClass);
+                .find('.' + lookupClass);
         } else {
             structConns = $('div[id^="' + structId + '"]');
         }
@@ -312,8 +312,8 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
             + this.viewIdSeperator + this.viewId;
 
         for (var i = 0; i < connection.sourceProperty.length; i++ ) {
-                sourceId += this.idNameSeperator
-                    + connection.sourceProperty[i] + this.nameTypeSeperator + connection.sourceType[i];
+            sourceId += this.idNameSeperator
+                + connection.sourceProperty[i] + this.nameTypeSeperator + connection.sourceType[i];
         }
         sourceId += anchorEnd;
 
@@ -446,7 +446,7 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
             'left': posY
         });
         var jsTreeContainer = $('<div>').attr('id', 'jstree-container' + this.viewIdSeperator + struct.id)
-                              .addClass('tree-container');
+            .addClass('tree-container');
         newStruct.append(jsTreeContainer);
         $("#" + this.placeHolderName).append(newStruct);
     };

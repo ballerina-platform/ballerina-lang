@@ -142,7 +142,6 @@ define(['lodash', 'log', './ballerina-view', './variables-view', './type-struct-
                     self.getTargetInfo()["predefinedStructs"] = predefinedStructs;
                     self.loadSchemaToComboBox(currentContainer, "#" + targetId, predefinedStructs);
                 }
-                ;
             });
 
             $("#" + sourceId).on("select2:open", function () {
@@ -152,7 +151,6 @@ define(['lodash', 'log', './ballerina-view', './variables-view', './type-struct-
                     self.getSourceInfo()["predefinedStructs"] = predefinedStructs;
                     self.loadSchemaToComboBox(currentContainer, "#" + sourceId, predefinedStructs);
                 }
-                ;
             });
 
             $(currentContainer).find("#" + sourceId).change(function () {
@@ -249,10 +247,6 @@ define(['lodash', 'log', './ballerina-view', './variables-view', './type-struct-
                 }
                 event.stopPropagation();
             });
-        };
-
-        TypeMapperDefinitionView.prototype.getUUID = function () {
-            return (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1);
         };
 
 
