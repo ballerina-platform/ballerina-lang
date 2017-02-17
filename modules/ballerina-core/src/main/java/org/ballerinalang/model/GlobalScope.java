@@ -19,7 +19,10 @@ package org.ballerinalang.model;
 
 import org.ballerinalang.model.symbols.BLangSymbol;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -37,6 +40,14 @@ public class GlobalScope implements SymbolScope {
 
     public static GlobalScope getInstance() {
         return instance;
+    }
+
+    /**
+     * Get unmodifiable symbol list.
+     * @return symbols
+     * */
+    public List<BLangSymbol> getSymbols() {
+        return Collections.unmodifiableList(new ArrayList<>(symbolMap.values()));
     }
 
     @Override

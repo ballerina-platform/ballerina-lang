@@ -23,6 +23,7 @@ import org.ballerinalang.natives.NativePackageProxy;
 import org.ballerinalang.util.repository.PackageRepository;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -161,6 +162,13 @@ public class BLangPackage implements SymbolScope, BLangSymbol, Node {
         return typeMappers;
     }
 
+    /**
+     * Get a unmodifiable list of symbols
+     * @return symbols
+     * */
+    public List<BLangSymbol> getSymbols() {
+        return Collections.unmodifiableList(new ArrayList<>(symbolMap.values()));
+    }
     // Methods in the SymbolScope interface
 
     @Override
