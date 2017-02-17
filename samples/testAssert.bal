@@ -1,10 +1,10 @@
 import ballerina.lang.system;
-import ballerina.lang.array;
+import ballerina.lang.arrays;
 import ballerina.lang.exceptions;
 
 const string assertEqualsErrorCategory = "assert-equals";
 
-function main (string[] args) {
+function testMain () {
     string[] stringArr1 = ["a", "b", "c"];
     string[] stringArr2 = ["a", "b", "d"];
     string[] stringArr3 = ["a", "b"];
@@ -43,12 +43,12 @@ function assertEquals(string[] actual, string[] expected, string message) {
     if (message == "") {
         message = "Arrays are not equal";
     }
-    if (array:length(actual) != array:length(expected)) {
+    if (arrays:length(actual) != arrays:length(expected)) {
         throw createBallerinaException(message + " (Array lengths are not the same)", assertEqualsErrorCategory);
     } else {
-        if (array:length(expected) > 0) {
+        if (arrays:length(expected) > 0) {
             int i = 0;
-            while (i < array:length(expected)) {
+            while (i < arrays:length(expected)) {
                 try {
                     assertEquals(actual[i], expected[i]);
                 } catch (exception e) {

@@ -1,5 +1,6 @@
-import ballerina.lang.message;
+import ballerina.lang.messages as message;
 import ballerina.lang.mock;
+import ballerina.lang.test;
 import ballerina.net.http;
 import ballerina.lang.system;
 
@@ -8,39 +9,38 @@ function testMain () {
     message request = {};
     string responseString;
 
-    string myURL = mock:startService("helloWorld");
-    string mockURL = mock:startService("mockService");
+    string myURL = test:startService("helloWorld");
+    string mockURL = test:startService("mockService");
     mock:setValue("helloWorld.testConnector.param1", "new parameter2");
     mock:setValue("helloWorld.testConnector.terminalCon.param1", mockURL);
 
-    http:HTTPConnector varEP = create http:HTTPConnector(myURL);
+    http:ClientConnector varEP = create http:ClientConnector(myURL);
     message:setStringPayload(request, mockURL);
-    response = http:HTTPConnector.get(varEP, "/", request);
+    response = http:ClientConnector.get(varEP, "/", request);
     responseString = message:getStringPayload(response);
     system:println("hello response: " + responseString);
 
 }
 
 connector TestConnector(string param1, string param2, int param3) {
-    http:HTTPConnector terminalCon = create http:HTTPConnector("http://localhost:8080/original");
+    http:ClientConnector terminalCon = create http:ClientConnector("http://localhost:8080/original");
 
     action action1(TestConnector testConnector) (string){
         message req = {};
         message:setStringPayload(req, param1);
         system:println("param1 " + param1);
-        message response = http:HTTPConnector.get(terminalCon, "/", req);
+        message response = http:ClientConnector.get(terminalCon, "/", req);
         system:println("response " + message:getStringPayload(response));
         return message:getStringPayload(response);
-    //return param1;
     }
 }
 
 
-@BasePath ("/hello")
+@http:BasePath ("/hello")
 service helloWorld {
     TestConnector testConnector = create TestConnector("MyParam1", "MyParam2", 5);
 
-    @GET
+    @http:GET
     resource sayHello(message m) {
         string action1;
         message beRep = {};
@@ -54,9 +54,9 @@ service helloWorld {
     }
 }
 
-@BasePath ("/mock")
+@http:BasePath ("/mock")
 service mockService {
-    @GET
+    @http:GET
     resource mockResource(message m) {
         message resp = {};
         message:setStringPayload(resp, "You invoked mockService!");
