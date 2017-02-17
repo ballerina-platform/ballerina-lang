@@ -364,6 +364,16 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                     this.setHeadingMinWidth(workerDeclarationView.getBoundingBox().getRight());
                 }
 
+                if (newWorkerPosition === 0) {
+                    workerDeclarationView.listenTo(this.getDefaultWorker().getBoundingBox(), 'right-edge-moved', function (dx) {
+                        workerDeclarationView.getBoundingBox().move(dx, 0);
+                    });
+                }
+
+                statementContainer.listenTo(workerDeclarationView.getBoundingBox(), 'right-edge-moved', function (dx) {
+                    statementContainer.getBoundingBox().move(dx, 0);
+                });
+
                 this._connectorWorkerViewList.splice(newWorkerPosition, 0, workerDeclarationView);
             }
         };

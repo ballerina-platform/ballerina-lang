@@ -73,6 +73,11 @@ define(
             bBox.on('left-edge-moved', function (dx) {
                 self._svgRect.attr('x', parseFloat(self._svgRect.attr('x')) + dx);
             });
+
+            // TODO: Re write this logic
+            bBox.on('center-x-moved', function (dx) {
+                self._svgText.attr('x', parseFloat(self._svgText.attr('x')) + dx);
+            });
         };
 
         /**
@@ -177,6 +182,18 @@ define(
 
         SimpleStatementView.prototype.getSvgText = function () {
             return this._svgText;
+        };
+
+        /**
+         * Remove statement view callback
+         * @param {ASTNode} parent - Parent model
+         * @param {ASTNode} child - child model
+         */
+        SimpleStatementView.prototype.onBeforeModelRemove = function () {
+            d3.select("#_" +this.getModel().id).remove();
+            // resize the bounding box in order to the other objects to resize
+            var gap = this.getParent().getStatementContainer().getInnerDropZoneHeight();
+            this.getBoundingBox().move(0, -this.getBoundingBox().h() - 30).w(0);
         };
 
         return SimpleStatementView;
