@@ -22,3 +22,7 @@ target
 
 # mac
 .DS_Store
+
+# Compiled artifacts
+dependency-reduced-pom.xml
+velocity.log*
