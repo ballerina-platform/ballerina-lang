@@ -17,25 +17,25 @@
  */
 package org.ballerinalang.testerina.core.entity;
 
-import org.wso2.ballerina.core.model.BallerinaFile;
-import org.wso2.ballerina.core.model.Function;
+import org.ballerinalang.model.BLangPackage;
+import org.ballerinalang.model.BLangProgram;
+import org.ballerinalang.model.Function;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Locale;
 
 /**
- * TesterinaFile entity class
+ * TesterinaContext entity class
  */
-public class TesterinaFile {
+public class TesterinaContext {
 
     private ArrayList<TesterinaFunction> testFunctions = new ArrayList<>();
     private ArrayList<TesterinaFunction> beforeTestFunctions = new ArrayList<>();
     private ArrayList<TesterinaFunction> afterTestFunctions = new ArrayList<>();
-    private BallerinaFile bFile;
 
-    public TesterinaFile(BallerinaFile bFile) {
-        this.bFile = bFile;
-        extractTestFunctions(bFile);
+    public TesterinaContext(BLangProgram[] bLangPrograms) {
+        Arrays.stream(bLangPrograms).forEach(this::extractTestFunctions);
     }
 
     /**
@@ -66,37 +66,30 @@ public class TesterinaFile {
     }
 
     /**
-     * Getter method for 'bFile'. Returns the BallerinaFile object.
-     *
-     * @return BallerinaFile
-     */
-    public BallerinaFile getBFile() {
-        return this.bFile;
-    }
-
-    /**
      * Get the list of 'test/beforeTest' functions, parsed from the *.bal file
      *
-     * @param bFile Path to Bal file.
+     * @param bLangProgram {@link BLangProgram}.
      */
-    private void extractTestFunctions(BallerinaFile bFile) {
-        Function[] functions = bFile.getFunctions();
-        for (Function function : functions) {
+    private void extractTestFunctions(BLangProgram bLangProgram) {
+        Arrays.stream(bLangProgram.getPackages()).map(BLangPackage::getFunctions).flatMap(Arrays::stream)
+                .forEachOrdered(f -> addTestFunctions(bLangProgram, f));
+    }
+
+    private void addTestFunctions(BLangProgram bLangProgram, Function function) {
             String nameUpperCase = function.getName().toUpperCase(Locale.ENGLISH);
             if (nameUpperCase.startsWith(TesterinaFunction.PREFIX_TEST)) {
-                TesterinaFunction tFunction = new TesterinaFunction(function.getName(), TesterinaFunction.Type.TEST,
-                        function, this);
+                TesterinaFunction tFunction = new TesterinaFunction(bLangProgram, function,
+                        TesterinaFunction.Type.TEST);
                 this.testFunctions.add(tFunction);
             } else if (nameUpperCase.startsWith(TesterinaFunction.PREFIX_BEFORETEST)) {
-                TesterinaFunction tFunction = new TesterinaFunction(function.getName(),
-                        TesterinaFunction.Type.BEFORE_TEST, function, this);
+                TesterinaFunction tFunction = new TesterinaFunction(bLangProgram, function,
+                        TesterinaFunction.Type.BEFORE_TEST);
                 this.beforeTestFunctions.add(tFunction);
             } else if (nameUpperCase.startsWith(TesterinaFunction.PREFIX_AFTERTEST)) {
-                TesterinaFunction tFunction = new TesterinaFunction(function.getName(),
-                        TesterinaFunction.Type.AFTER_TEST, function, this);
+                TesterinaFunction tFunction = new TesterinaFunction(bLangProgram, function,
+                        TesterinaFunction.Type.AFTER_TEST);
                 this.afterTestFunctions.add(tFunction);
             }
-        }
     }
 
 }
