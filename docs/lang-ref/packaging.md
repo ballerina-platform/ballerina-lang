@@ -21,7 +21,7 @@ The StockQuoteService entity's fully qualified name would be: `myProgram.service
 
 If a package is not specified, the symbol will be in the default (unnamed) package. 
 
-The `<program-name>` directory contains all the code that the developer writes and may have files in multiple packages (and therefore multiple directories) as in the example above. However, third-party dependencies (which are used via import statements) are discovered from a [repository](#ballerina-repository) and are not physically located within the program source hierarchy. 
+The `<program-name>` directory contains all the code that the developer writes and may have files in multiple packages (and therefore multiple directories) as in the example above. However, third-party dependencies (which are used via import statements) are discovered from a [repository](#the-ballerina-repository) and are not physically located within the program source hierarchy. 
 
 Each Ballerina program can have at most one `main()` function, which serves as the entry point for command-line execution, and zero or more services that are exposed as network entry points when the program is run as a service. Therefore, when organizing your files under a `<program-name>` directory, be sure that there is no more than one file containing the `main()` function. 
 
