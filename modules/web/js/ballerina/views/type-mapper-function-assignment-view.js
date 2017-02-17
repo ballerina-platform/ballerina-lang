@@ -152,11 +152,15 @@ define(['lodash', 'jquery', './ballerina-view', 'log', 'typeMapper', './../ast/a
                 return aPackage.getFunctionDefinitionByName(funcName);
             });
             var functionDef = functionPackage.getFunctionDefinitionByName(funcName);
+            var mergedParams = [];
+            mergedParams = mergedParams.concat(functionDef.getReturnParams());
+            mergedParams = mergedParams.concat(functionDef.getParameters());
+            var uniqueParams = this.getUniqueParams(mergedParams);
             if (functionDef) {
                 schema = {};
                 schema['name'] = funcName;
-                schema['returnType'] = functionDef.getReturnParams();
-                schema['parameters'] = this.getUniqueParams(functionDef.getParameters());
+                schema['returnType'] = uniqueParams.slice(0, functionDef.getReturnParams().length);
+                schema['parameters'] = uniqueParams.slice(functionDef.getReturnParams().length,uniqueParams.length);
             }
             return schema;
         };
@@ -167,17 +171,18 @@ define(['lodash', 'jquery', './ballerina-view', 'log', 'typeMapper', './../ast/a
             var uniqueParamIds = [];
             _.forEach(params, function (param) {
                 var matchedParam = _.find(uniqueParams, function (uniqueParam) {
-                    return uniqueParam === param;
+                    return uniqueParam.name == param.name && uniqueParam.type == param.type;
                 });
                 if (!matchedParam) {
                     uniqueParams.push(param);
                     uniqueParamIds.push({name: param.name, id: 0});
                 } else {
-                    var uniqueParamId = _.find(uniqueParamId, function (paramId) {
-                        return paramId.name === param.name;
+                    var uniqueParamId = _.find(uniqueParamIds, function (paramId) {
+                        return paramId.name == param.name;
                     });
-                    var newId = uniqueParamId.id++;
-                    uniqueParams.push(param.name + newId);
+                    var newId = uniqueParamId.id + 1;
+                    param.name = param.name + newId;
+                    uniqueParams.push(param);
                     uniqueParamId.id = newId;
                 }
             });

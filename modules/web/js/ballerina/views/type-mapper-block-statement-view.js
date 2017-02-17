@@ -178,8 +178,9 @@ define(['lodash', 'log', './ballerina-view', './../ast/block-statement', 'typeMa
                 var paramStr = resourceParam.identifier;
                 var structFieldAccess = BallerinaASTFactory.createStructFieldAccessExpression({isLHSExpr: false});
                 var variableRefExp = BallerinaASTFactory.createVariableReferenceExpression({variableReferenceName: resourceParam.identifier});
-                functionInvocationExp.addChild(variableRefExp);
-                functionInvocationExp.addChild(structFieldAccess);
+                var index = _.findIndex(targetFuncSchema.parameters, function (param) {
+                    return param.name === connection.targetProperty[0];
+                });
                 var parentStructFieldExp = structFieldAccess;
                 _.forEach(connection.sourceProperty, function (sourceProperty) {
                     structFieldAccess = BallerinaASTFactory.createStructFieldAccessExpression({isLHSExpr: false});
@@ -194,6 +195,9 @@ define(['lodash', 'log', './ballerina-view', './../ast/block-statement', 'typeMa
                 } else {
                     functionInvocationExpParams = paramStr;
                 }
+                functionInvocationExp.removeChild(functionInvocationExp.getChildren()[index], true);
+                functionInvocationExp.addChild(variableRefExp, index);
+                functionInvocationExp.addChild(structFieldAccess);
                 functionInvocationExp.setParams(functionInvocationExpParams);
             } else if (BallerinaASTFactory.isAssignmentStatement(sourceModel)
                 && BallerinaASTFactory.isReturnType(targetModel)) {
@@ -204,6 +208,16 @@ define(['lodash', 'log', './ballerina-view', './../ast/block-statement', 'typeMa
                 });
                 leftOperand.removeChild(leftOperand.getChildren()[index], true);
                 leftOperand.addChild(structFieldAccessExp, index);
+            } else if (BallerinaASTFactory.isAssignmentStatement(sourceModel)
+                && BallerinaASTFactory.isAssignmentStatement(targetModel)) {
+                var functionInvocation = sourceModel.getChildren()[1].getChildren()[0];
+                sourceModel.remove();
+                var targetFunctionInvocation = targetModel.getChildren()[1].getChildren()[0];
+                var index = _.findIndex(targetFuncSchema.parameters, function (param) {
+                    return param.name === connection.targetProperty[0];
+                });
+                targetFunctionInvocation.removeChild(targetFunctionInvocation.getChildren()[index]);
+                targetFunctionInvocation.addChild(functionInvocation, index);
             }
         };
 
