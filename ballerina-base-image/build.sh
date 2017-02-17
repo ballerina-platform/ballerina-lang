@@ -11,7 +11,7 @@ function showUsageAndExit() {
 
     exit
 }
-while getopts :d:o:v: FLAG; do
+while getopts :d:o:v:h FLAG; do
   case $FLAG in
     d)
       bal_dist_file=$OPTARG
@@ -21,6 +21,9 @@ while getopts :d:o:v: FLAG; do
       ;;
     o)
       org_name=$OPTARG
+      ;;
+    h)
+      showUsageAndExit
       ;;
     \?)
       showUsageAndExit

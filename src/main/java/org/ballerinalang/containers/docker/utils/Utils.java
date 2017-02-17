@@ -34,5 +34,4 @@ public class Utils {
             throw new FileNotFoundException("Couldn't find file in resources: " + resourceName);
         }
     }
-
 }
