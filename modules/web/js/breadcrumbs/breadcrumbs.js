@@ -52,7 +52,7 @@ define(['require', 'log', 'jquery', 'lodash', 'backbone', /* void modules */ 'jq
                     if(_.isFunction(activeTab.getFile)){
                         this.setPath(activeTab.getFile().getPath(), activeTab.getFile().getName());
                     } else {
-                        this.setPath("Ballerina Editor", activeTab.getTitle());
+                        this.setPath("Ballerina Composer", activeTab.getTitle());
                     }
                 });
 

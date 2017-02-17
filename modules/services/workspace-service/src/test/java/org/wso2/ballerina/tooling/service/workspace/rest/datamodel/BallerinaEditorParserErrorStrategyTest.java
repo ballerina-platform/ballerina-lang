@@ -22,6 +22,7 @@ package org.wso2.ballerina.tooling.service.workspace.rest.datamodel;
 import com.google.gson.JsonObject;
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
+import org.ballerinalang.composer.service.workspace.rest.datamodel.BallerinaEditorParserErrorStrategy;
 import org.wso2.ballerina.core.model.BLangPackage;
 import org.wso2.ballerina.core.model.BallerinaFile;
 import org.wso2.ballerina.core.model.GlobalScope;

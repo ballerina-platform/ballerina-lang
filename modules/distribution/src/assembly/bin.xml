@@ -17,8 +17,8 @@
   -->
 <assembly>
     <includeBaseDirectory>true</includeBaseDirectory>
-    <baseDirectory>ballerina-editor-${project.version}</baseDirectory>
-    <id>Ballerina Editor Distribution</id>
+    <baseDirectory>ballerina-composer-${project.version}</baseDirectory>
+    <id>Ballerina Composer Distribution</id>
     <formats>
         <format>zip</format>
     </formats>
@@ -47,7 +47,7 @@
             <directory>ballerina-home/bin</directory>
             <outputDirectory>bin</outputDirectory>
             <includes>
-                <include>**/editor</include>
+                <include>**/composer</include>
             </includes>
             <fileMode>755</fileMode>
         </fileSet>
@@ -55,7 +55,7 @@
             <directory>ballerina-home/bin</directory>
             <outputDirectory>bin</outputDirectory>
             <includes>
-                <include>**/editor.bat</include>
+                <include>**/composer.bat</include>
             </includes>
             <fileMode>644</fileMode>
         </fileSet>
@@ -69,7 +69,7 @@
         </fileSet>
         <fileSet>
             <directory>../web</directory>
-            <outputDirectory>resources/editor/web</outputDirectory>
+            <outputDirectory>resources/composer/web</outputDirectory>
             <excludes>
                 <exclude>target/**</exclude>
                 <exclude>**/*.ipr</exclude>
@@ -81,7 +81,7 @@
         </fileSet>
         <fileSet>
             <directory>../services/workspace-service/target/</directory>
-            <outputDirectory>resources/editor/services</outputDirectory>
+            <outputDirectory>resources/composer/services</outputDirectory>
             <includes>
                 <include>workspace-service*.jar</include>
             </includes>
@@ -89,7 +89,7 @@
         </fileSet>
         <fileSet>
             <directory>../services/workspace-service/src/main/resources/</directory>
-            <outputDirectory>resources/editor/services</outputDirectory>
+            <outputDirectory>resources/composer/services</outputDirectory>
             <includes>
                 <include>netty-transports.yml</include>
             </includes>
