@@ -23,7 +23,7 @@ define(['lodash', './expression'], function (_, Expression) {
      * @constructor
      */
     var VariableReferenceExpression = function (args) {
-        this._variableReferenceName = _.get(args, 'variableReferenceName');
+        this._variableReferenceName = _.get(args, 'variableReferenceName','newVariableReferenceName');
         Expression.call(this, 'VariableReferenceExpression');
     };
 
