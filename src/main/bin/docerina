@@ -21,7 +21,6 @@
 script_path="$( cd -P "$( dirname "$SOURCE" )" && pwd )/`dirname $0`"
 lib_path=${script_path}/../lib/
 html_output_path=${script_path}/../api-docs/html
-templates_folder_path=${script_path}/../templates/html
 log4j_conf_file_path=${script_path}/../conf/log4j2.xml
 docerina_logs_folder_path=${script_path}/../logs
 class_path=`echo ${lib_path}/*.jar | tr ' ' ':'`

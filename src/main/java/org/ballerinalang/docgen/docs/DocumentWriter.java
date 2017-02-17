@@ -19,6 +19,7 @@ package org.ballerinalang.docgen.docs;
 
 import org.ballerinalang.model.BLangPackage;
 
+import java.io.IOException;
 import java.util.Collection;
 
 /**
@@ -26,5 +27,5 @@ import java.util.Collection;
  */
 public interface DocumentWriter {
 
-    void write(Collection<BLangPackage> balPackage);
+    void write(Collection<BLangPackage> balPackage) throws IOException;
 }

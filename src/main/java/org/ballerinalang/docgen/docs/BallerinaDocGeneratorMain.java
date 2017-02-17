@@ -18,15 +18,14 @@
 
 package org.ballerinalang.docgen.docs;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.ballerinalang.BLangProgramLoader;
 import org.ballerinalang.docgen.docs.html.HtmlDocumentWriter;
 import org.ballerinalang.model.BLangPackage;
 import org.ballerinalang.model.BLangProgram;
 import org.ballerinalang.util.program.BLangPrograms;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.FileVisitResult;
@@ -44,26 +43,8 @@ import java.util.Map;
  */
 public class BallerinaDocGeneratorMain {
 
-    private static final Logger log = LogManager.getLogger(BallerinaDocGeneratorMain.class);
-    private static final String LOG4J_CONFIGURATION_FILE = "log4j.configurationFile";
-    private static final String DOCERINA_LOGS_FOLDER_PATH = "docerina.logs.folder.path";
-    private static final String USER_DIR = "user.dir";
+    private static final Logger log = LoggerFactory.getLogger(BallerinaDocGeneratorMain.class);
     private static final PrintStream out = System.out;
-
-    static {
-        String userDir = System.getProperty(USER_DIR);
-        String log4jConfFilePath = System.getProperty(LOG4J_CONFIGURATION_FILE);
-        String docerinaLogsFolderPath = System.getProperty(DOCERINA_LOGS_FOLDER_PATH);
-
-        if (log4jConfFilePath == null || log4jConfFilePath.isEmpty()) {
-            log4jConfFilePath = userDir + File.separator + "conf" + File.separator + "log4j2.xml";
-            System.setProperty(LOG4J_CONFIGURATION_FILE, log4jConfFilePath);
-        }
-        if (docerinaLogsFolderPath == null || log4jConfFilePath.isEmpty()) {
-            docerinaLogsFolderPath = userDir + File.separator + "logs";
-            System.setProperty(DOCERINA_LOGS_FOLDER_PATH, docerinaLogsFolderPath);
-        }
-    }
 
     public static void main(String[] args) {
 
@@ -114,7 +95,7 @@ public class BallerinaDocGeneratorMain {
             throws IOException {
 
         Path pkgPath = Paths.get(packagePath);
-        List<Path> packagePaths = new ArrayList<>();
+        final List<Path> packagePaths = new ArrayList<>();
         if (Files.isDirectory(pkgPath)) {
             BallerinaSubPackageVisitor subPackageVisitor = new BallerinaSubPackageVisitor(pkgPath, packagePaths);
             Files.walkFileTree(pkgPath, subPackageVisitor);

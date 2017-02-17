@@ -24,7 +24,10 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.PrintStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Map;
 import java.util.Scanner;
 
@@ -36,24 +39,22 @@ public class HtmlDocumentWriterTest {
     private static PrintStream out = System.out;
 
     @Test(description = "HTML generation test")
-    public void testHtmlGeneration() {
+    public void testHtmlGeneration() throws Exception {
 
         String userDir = System.getProperty("user.dir");
         String balPackagePath = userDir + File.separator + "src" + File.separator + "test" + File.separator
                 + "resources" + File.separator + "balFiles" + File.separator + "htmlWriter";
-        String outputPath =  userDir + File.separator + "api-docs" + File.separator + "html";
+        String outputPath =  userDir + File.separator + "target" + File.separator +
+                "api-docs1" + File.separator + "html";
         String outputFilePath1 = outputPath + File.separator + "foo.bar.html";
         String outputFilePath2 = outputPath + File.separator + "foo.bar.xyz.html";
         String outputFilePath3 = outputPath + File.separator + "foo.bar.xyz.str.html";
         String indexOutputFilePath = outputPath + File.separator + "index.html";
 
-        try {
-            // Delete if file already exists
-            deleteFile(outputFilePath1);
-            deleteFile(outputFilePath2);
-            deleteFile(outputFilePath3);
-            deleteFile(indexOutputFilePath);
+        createOutputDirectory(outputPath);
+        System.setProperty("html.output.path", outputPath);
 
+        try {
             // Generate HTML file
             Map<String, BLangPackage> packageMap =
                     BallerinaDocGeneratorMain.generatePackageDocsFromBallerina(balPackagePath);
@@ -121,32 +122,27 @@ public class HtmlDocumentWriterTest {
             String content4 = new Scanner(indexHtmlFile).useDelimiter("\\Z").next();
             Assert.assertTrue(content4.contains("foo.bar"));
             Assert.assertTrue(content4.contains("foo.bar.xyz"));
-        } catch (Exception e) {
-            Assert.fail(e.getMessage());
         } finally {
             BallerinaDocGenTestUtils.cleanUp();
-            deleteFile(outputFilePath1);
-            deleteFile(outputFilePath2);
-            deleteFile(outputFilePath3);
-            deleteFile(indexOutputFilePath);
+            deleteDirectory(outputPath);
         }
     }
 
     @Test(description = "HTML generation package exclusion test")
-    public void testPackageExclusion() {
+    public void testPackageExclusion() throws Exception {
 
         String userDir = System.getProperty("user.dir");
         String balPackagePath = userDir + File.separator + "src" + File.separator + "test" + File.separator
                 + "resources" + File.separator + "balFiles" + File.separator + "htmlWriter";
-        String outputPath =  userDir + File.separator + "api-docs" + File.separator + "html";
+        String outputPath =  userDir + File.separator + "target" + File.separator +
+                "api-docs2" + File.separator + "html";
         String outputFilePath1 = outputPath + File.separator + "foo.bar.html";
         String outputFilePath2 = outputPath + File.separator + "foo.bar.xyz.html";
         String indexOutputFilePath = outputPath + File.separator + "index.html";
 
         try {
-            // Delete if file already exists
-            deleteFile(outputFilePath1);
-            deleteFile(outputFilePath2);
+            createOutputDirectory(outputPath);
+            System.setProperty("html.output.path", outputPath);
 
             // Generate HTML file
             Map<String, BLangPackage> packageMap =
@@ -161,21 +157,26 @@ public class HtmlDocumentWriterTest {
             Assert.assertFalse(htmlFile2.exists());
             File indexHtmlFile = new File(indexOutputFilePath);
             Assert.assertTrue(indexHtmlFile.exists());
-        } catch (Exception e) {
-            Assert.fail(e.getMessage());
         } finally {
             BallerinaDocGenTestUtils.cleanUp();
-            deleteFile(outputFilePath1);
-            deleteFile(outputFilePath2);
-            deleteFile(indexOutputFilePath);
+            deleteDirectory(outputPath);
         }
     }
 
-    private void deleteFile(String filePath) {
-        File htmlFile = new File(filePath);
-        if (htmlFile.exists()) {
-            out.println("Deleting file: " + htmlFile.getAbsolutePath());
-            htmlFile.delete();
+    private void createOutputDirectory(String outputPath) throws IOException {
+        // Delete output path if already exists
+        deleteDirectory(outputPath);
+        Files.createDirectories(Paths.get(outputPath));
+    }
+
+    void deleteDirectory(String path) {
+        File file = new File(path);
+        File[] contents = file.listFiles();
+        if (contents != null) {
+            for (File f : contents) {
+                deleteDirectory(f.getPath());
+            }
         }
+        file.delete();
     }
 }
