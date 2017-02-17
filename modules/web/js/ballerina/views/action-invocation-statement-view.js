@@ -58,32 +58,15 @@ define(['lodash', 'd3','log', './simple-statement-view', './../ast/action-invoca
             return this._diagramRenderingContext;
         };
 
-        // TODO : Please revisit this method. Needs a refactor
         ActionInvocationStatementView.prototype.drawActionConnections = function(startPoint){
-            // Action invocation model is the child of the right operand
             var actionInvocationModel = this.getActionInvocationExpressionModel();
             if(this.isAtValidDropTarget()){
                 this.updateActivatedTarget(this.messageManager.getActivatedDropTarget(), actionInvocationModel);
             }
-            log.debug("Drawing connections for http connector actions");
 
-            // TODO : Please alter this logic
             if(!_.isNil(actionInvocationModel.getConnector())) {
-                var connector = this.getDiagramRenderingContext().getViewModelMap()[this.messageManager.getActivatedDropTarget().id];
-                actionInvocationModel.setConnector(this.messageManager.getActivatedDropTarget());
-                this.renderDisplayText(actionInvocationModel.getExpression());
+                this.renderDisplayText(this.getModel().getStatementString());
                 this.renderArrows(this.getDiagramRenderingContext());
-            }
-        };
-
-        ActionInvocationStatementView.prototype.setModel = function (model) {
-            //TODO : check where this is needed
-            var actionInvocationModel = this.getModel();
-            if (!_.isNil(model) && BallerinaASTFactory.isActionInvocationStatement(model)) {
-                actionInvocationModel = model;
-            } else {
-                log.error("Action statement definition is undefined or is of different type." + model);
-                throw "Action statement definition is undefined or is of different type." + model;
             }
         };
 
@@ -356,14 +339,14 @@ define(['lodash', 'd3','log', './simple-statement-view', './../ast/action-invoca
         };
 
         ActionInvocationStatementView.prototype.updateStatementText = function (newStatementText, propertyKey) {
-            var displayText = this.getActionInvocationExpressionModel().getExpression();
+            var displayText = this.getModel().getStatementString();
             var siblingConnectors = this._parent._model.children;
             var connectorName = newStatementText.match(/\((.*)\)/)[1];
             var self = this;
 
             connectorName = connectorName.split(",")[0].trim();
 
-            this.getActionInvocationExpressionModel().setExpression(newStatementText);
+            this.getModel().setStatementString(newStatementText);
             this.renderDisplayText(newStatementText);
 
             self.removeArrows();
@@ -402,20 +385,22 @@ define(['lodash', 'd3','log', './simple-statement-view', './../ast/action-invoca
             var actionInvocationExpressionModel = this.getActionInvocationExpressionModel();
             if (!_.isUndefined(target)) {
                 actionInvocationExpressionModel.setConnector(target);
-                actionInvocationExpressionModel.setActionPackageName(target.getConnectorPkgName());
-                actionInvocationExpressionModel.setActionConnectorName(target.getConnectorName());
-            }
-            else {
+            } else {
                 actionInvocationExpressionModel.setConnector(undefined);
-                actionInvocationExpressionModel.setActionPackageName(undefined);
-                actionInvocationExpressionModel.setActionConnectorName(undefined);
             }
-            // //set the right hand expression to set the statement string of the assignment-statement containing the
-            // //action invocation expression. This is to keep action invocation statement UI and source-gen in sync
-            // //when action invocation is configured
-            // if (BallerinaASTFactory.isRightOperandExpression(rightOp = actionInvocationModel.getParent())) {
-            //     rightOp.setRightOperandExpressionString(actionInvocationModel.getExpression());
-            // }
+            this.updateStatementString();
+        };
+
+        ActionInvocationStatementView.prototype.updateStatementString = function () {
+            var actionInvocationExpressionModel = this.getActionInvocationExpressionModel();
+            if (BallerinaASTFactory.isAssignmentStatement(this.getModel())) {
+                var rightOperandExp = this.getModel().getChildren()[1];
+                if (!_.isUndefined(rightOperandExp) && BallerinaASTFactory.isRightOperandExpression(rightOperandExp)) {
+                    rightOperandExp.setRightOperandExpressionString(actionInvocationExpressionModel.getExpression());
+                }
+            } else if (BallerinaASTFactory.isVariableDefinitionStatement(this.getModel())) {
+                this.getModel().setRightExpression(actionInvocationExpressionModel.getExpression());
+            }
         };
 
         ActionInvocationStatementView.prototype.isAtValidDropTarget = function(){
