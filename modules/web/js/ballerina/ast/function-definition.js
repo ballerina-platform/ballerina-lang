@@ -443,6 +443,10 @@ define(['lodash', 'log', './node', './callable-definition', '../utils/common-uti
         return connectorReference;
     };
 
+    FunctionDefinition.prototype.isMainFunction = function () {
+        return _.isEqual(this.getFunctionName(), "main");
+    };
+
     return FunctionDefinition;
 
 });
