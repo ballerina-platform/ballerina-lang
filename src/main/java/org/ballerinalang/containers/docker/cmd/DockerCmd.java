@@ -144,12 +144,13 @@ public class DockerCmd implements BLauncherCmd {
     }
 
     private boolean canProceed(String imageName, String imageVersion) {
-        Console c = System.console();
+        Console console = System.console();
         String choice;
         String dockerHostToPrint = (dockerHost != null) ? dockerHost : DEFAULT_DOCKER_HOST;
 
+        int attempts = 3;
         do {
-            choice = c.readLine("ballerina: build docker image [" + imageName + ":" + imageVersion
+            choice = console.readLine("ballerina: build docker image [" + imageName + ":" + imageVersion
                     + "] in docker host [" + dockerHostToPrint + "]? (y/n): ");
 
             if (choice.equalsIgnoreCase("y")) {
@@ -160,7 +161,9 @@ public class DockerCmd implements BLauncherCmd {
                 return false;
             }
 
-        } while (true);
+        } while (--attempts > 0);
+
+        return false;
     }
 
     private void printServiceImageSuccessMessage(String imageName) {
