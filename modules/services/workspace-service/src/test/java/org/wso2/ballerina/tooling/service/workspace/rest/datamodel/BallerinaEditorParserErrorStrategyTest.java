@@ -22,6 +22,7 @@ package org.wso2.ballerina.tooling.service.workspace.rest.datamodel;
 import com.google.gson.JsonObject;
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
+import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.composer.service.workspace.rest.datamodel.BLangJSONModelBuilder;
 import org.ballerinalang.composer.service.workspace.rest.datamodel.BallerinaEditorParserErrorStrategy;
 import org.ballerinalang.model.BLangPackage;
@@ -58,7 +59,7 @@ public class BallerinaEditorParserErrorStrategyTest {
             BLangPackage bLangPackage = new BLangPackage(globalScope);
 
             BLangPackage.PackageBuilder packageBuilder = new BLangPackage.PackageBuilder(bLangPackage);
-            BLangModelBuilder bLangModelBuilder = new BLangModelBuilder(packageBuilder, "");
+            BLangModelBuilder bLangModelBuilder = new BLangModelBuilder(packageBuilder, StringUtils.EMPTY);
 
             BLangAntlr4Listener ballerinaBaseListener = new BLangAntlr4Listener(bLangModelBuilder);
             ballerinaParser.addParseListener(ballerinaBaseListener);
