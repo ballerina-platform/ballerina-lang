@@ -62,6 +62,11 @@
             <artifactId>swagger2ballerina-connector</artifactId>
             <version>${swagger.code.generator.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-container-support</artifactId>
+            <version>${ballerina.container.version}</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -133,5 +138,6 @@
         <testerina.version>0.8.0-SNAPSHOT</testerina.version>
         <tool.swagger.version>0.8.0-SNAPSHOT</tool.swagger.version>
         <swagger.code.generator.version>0.8-SNAPSHOT</swagger.code.generator.version>
+        <ballerina.container.version>0.8.0-SNAPSHOT</ballerina.container.version>
     </properties>
 </project>
