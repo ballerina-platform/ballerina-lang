@@ -84,13 +84,8 @@ define(['lodash', './statement', '../utils/common-utils', './variable-declaratio
         var variableDefinitionStatementString;
         if(_.isNil(this._rightExpression) || _.isEmpty(this._rightExpression)){
             variableDefinitionStatementString = this._leftExpression;
-        }else{
-            // getting the variable type by manipulating strings.
-            if (this._leftExpression.split(" ")[0] === "string") {
-                variableDefinitionStatementString = this._leftExpression + " = \"" + this._rightExpression + "\"";
-            }else{
-                variableDefinitionStatementString = this._leftExpression + " = " + this._rightExpression;
-            }
+        }else {
+            variableDefinitionStatementString = this._leftExpression + " = " + this._rightExpression;
         }
         return variableDefinitionStatementString;
     };

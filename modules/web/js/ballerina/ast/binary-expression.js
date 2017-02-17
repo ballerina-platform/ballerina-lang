@@ -49,16 +49,11 @@ define(['lodash', './expression'], function (_, Expression) {
         var self = this;
         var expString = "";
 
-        for (var itr = 0; itr < jsonNode.children.length; itr++) {
-            var childJsonNode = jsonNode.children[itr];
-            var child = self.getFactory().createFromJson(childJsonNode);
-            child.initFromJson(childJsonNode);
-            expString += child.getExpression();
-
-            if (itr !== jsonNode.children.length - 1) {
-                expString += " " + this.getOperator() + " ";
-            }
-        }
+        var leftExpression = self.getFactory().createFromJson(jsonNode.children[0]);
+        var rightExpression = self.getFactory().createFromJson(jsonNode.children[1]);
+        leftExpression.initFromJson(jsonNode.children[0]);
+        rightExpression.initFromJson(jsonNode.children[1]);
+        expString = leftExpression.getExpression() + this.getOperator() + rightExpression.getExpression();
         return expString;
     };
 
