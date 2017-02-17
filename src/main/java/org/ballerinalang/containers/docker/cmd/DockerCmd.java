@@ -74,7 +74,7 @@ public class DockerCmd implements BLauncherCmd {
 
         // temporary fix until https://github.com/ballerinalang/ballerina/issues/1937 gets fixed.
         Path path = Paths.get(System.getProperty("java.io.tmpdir"));
-        if(!Files.exists(path)) {
+        if (!Files.exists(path)) {
             System.setProperty("java.io.tmpdir", "/tmp");
         }
         
