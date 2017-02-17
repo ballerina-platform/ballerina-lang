@@ -30,8 +30,6 @@ define(['require','lodash', 'log', 'event_channel', './abstract-statement-source
         };
 
         VariableDefinitionStatementVisitor.prototype.beginVisitVariableDefinitionStatement = function(variableDefinitionStatement){
-            var constructedSource = variableDefinitionStatement.getStatementString();
-            this.appendSource(constructedSource);
             log.debug('Begin Visit Variable Definition Statement');
         };
 
@@ -39,5 +37,20 @@ define(['require','lodash', 'log', 'event_channel', './abstract-statement-source
             this.getParent().appendSource(this.getGeneratedSource() + ";\n");
             log.debug('End Visit Variable Definition Statement');
         };
+
+        VariableDefinitionStatementVisitor.prototype.visitLeftOperandExpression = function(expression){
+            var StatementVisitorFactory = require('./statement-visitor-factory');
+            var statementVisitorFactory = new StatementVisitorFactory();
+            var statementVisitor = statementVisitorFactory.getStatementVisitor(expression, this);
+            expression.accept(statementVisitor);
+        };
+
+        VariableDefinitionStatementVisitor.prototype.visitRightOperandExpression = function(expression){
+            var StatementVisitorFactory = require('./statement-visitor-factory');
+            var statementVisitorFactory = new StatementVisitorFactory();
+            var statementVisitor = statementVisitorFactory.getStatementVisitor(expression, this);
+            expression.accept(statementVisitor);
+        };
+
         return VariableDefinitionStatementVisitor;
     });
