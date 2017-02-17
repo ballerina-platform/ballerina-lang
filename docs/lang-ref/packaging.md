@@ -87,25 +87,23 @@ All shared Ballerina library archives will have the extension “.blz”. Use th
 TODO: don't you need to specify the packages after the lib argument? Also, this command isn't recognized in Alpha.
 
 ```
-ballerina build lib [-o <library-archive-name>] [DockerOptions]
+ballerina build lib [-o <library-archive-name>]
 ```
 
 A Ballerina executable archive containing a `main()` function is named with the extension “.bmz”. Use the following command to build an executable archive:
 
 ```
-ballerina build main <main-package-name> [-o filename] \
-    [DockerOptions]
+ballerina build main <main-package-name> [-o filename] 
 ```
 
 A Ballerina service archive containing one or more services is named with the extension “.bsz”. Use the following command to build a service archive:
 
 ```
-ballerina build service <pkg1> [<pkg2> <pkg3> ...] [-o filename] \
-    [DockerOptions]
+ballerina build service <pkg1> [<pkg2> <pkg3> ...] [-o filename]
 ```
 
-In the above, `[DockerOptions]` refers to the options that instruct the build command to optionally create a Docker image for the `.bmz` or `.bsz` file. 
+If you want to build an archive and run it in a Docker image, you can use the following command:
 
-TODO: add info on Docker options.
-
-Note that Ballerina programs in the default package cannot be built, as these are meant primarily for simple demo type programs.
+```
+ballerina docker <package-file-path> --tag | -t <image-name> --host | -h <hostURL>
+```
