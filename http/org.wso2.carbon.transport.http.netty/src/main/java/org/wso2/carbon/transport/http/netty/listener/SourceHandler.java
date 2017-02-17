@@ -86,18 +86,23 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
     }
 
     @Override
+    public void handlerAdded(ChannelHandlerContext ctx) throws Exception {
+        super.handlerAdded(ctx);
+        this.ctx = ctx;
+        this.targetChannelPool = connectionManager.getTargetChannelPool();
+    }
+
+    @Override
     public void channelActive(final ChannelHandlerContext ctx) throws Exception {
         // Start the server connection Timer
-
         if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
-
             HTTPTransportContextHolder.getInstance().getHandlerExecutor()
                     .executeAtSourceConnectionInitiation(Integer.toString(ctx.hashCode()));
         }
-
         this.ctx = ctx;
-        this.targetChannelPool = connectionManager.getTargetChannelPool();
-
+        if (this.targetChannelPool == null) {
+            this.targetChannelPool = connectionManager.getTargetChannelPool();
+        }
     }
 
     @SuppressWarnings("unchecked")
@@ -190,6 +195,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
             due to a protocol error.
              */
             ctx.channel().writeAndFlush(new CloseWebSocketFrame(1002, ""));
+
             ctx.close();
             throw new ProtocolException("Error occurred in HTTP to WebSocket Upgrade : " + e.getMessage());
         }
@@ -319,7 +325,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
     Generate a ChannelId for WebSocket
      */
     protected String generateWebSocketChannelID() {
-        return ctx.channel().toString();
+        return ctx.channel().id().asLongText();
     }
 
 }

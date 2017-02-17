@@ -149,13 +149,11 @@ public class WebSocketSourceHandler extends SourceHandler {
      */
     private void sendOnOpenMessage(ChannelHandlerContext ctx, boolean isSecured, String uri) {
         cMsg = new StatusCarbonMessage(org.wso2.carbon.messaging.Constants.STATUS_OPEN, 0, null);
+        Session session = new WebSocketSessionImpl(ctx, isSecured, uri, channelId);
+        WebSocketSessionManager.getInstance().add(uri, session);
         setupCarbonMessage(ctx);
-        Session session = new WebSocketSessionImpl(ctx, isSecured, uri);
-        cMsg.setProperty(Constants.WEBSOCKET_SESSION, session);
-        cMsg.setProperty(Constants.CHANNEL_ID, channelId);
         cMsg.setProperty(Constants.CONNECTION, Constants.UPGRADE);
         cMsg.setProperty(Constants.UPGRADE, Constants.WEBSOCKET_UPGRADE);
-        WebSocketSessionManager.getInstance().add(uri, session);
         publishToMessageProcessor(cMsg);
     }
 
