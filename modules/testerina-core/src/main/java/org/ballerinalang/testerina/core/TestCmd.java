@@ -43,14 +43,14 @@ public class TestCmd implements BLauncherCmd {
     @Parameter(arity = 1, description = "arguments")
     private List<String> sourceFileList;
 
-    @Parameter(arity = 1, description = "arguments")
-    private List<String> argList;
-
     @Parameter(names = { "--help", "-h" }, hidden = true)
     private boolean helpFlag;
 
     @Parameter(names = "--debug", hidden = true)
     private String debugPort;
+
+    @Parameter(names = {"--service-root", "-sr"}, description = "directory which contains ballerina services")
+    private String serviceRootPath;
 
     @Parameter(names = "--ballerina.debug", hidden = true, description = "remote debugging port")
     private String ballerinaDebugPort;
