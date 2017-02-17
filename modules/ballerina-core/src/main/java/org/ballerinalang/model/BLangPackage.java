@@ -53,7 +53,7 @@ public class BLangPackage implements SymbolScope, BLangSymbol, Node {
 
     // Scope related variables
     private SymbolScope enclosingScope;
-    private Map<SymbolName, BLangSymbol> symbolMap = new HashMap<>();
+    protected Map<SymbolName, BLangSymbol> symbolMap = new HashMap<>();
 
     private boolean symbolsDefined = false;
     private PackageRepository pkgRepo;
