@@ -181,16 +181,18 @@ define(['lodash', 'log', 'event_channel',  'alerts', './svg-canvas', './../ast/f
                 if (newWorkerPosition === 0) {
                     centerPoint = this._defaultWorkerLifeLine.getTopCenter().clone().move(this._lifeLineCenterGap, 0);
                 } else {
-                    centerPoint = this._connectorWorkerViewList[lastWorkerIndex].getTopCenter()
+                    centerPoint = this._workerAndConnectorViews[lastWorkerIndex].getTopCenter()
                         .clone().move(this._lifeLineCenterGap, 0)
                 }
+                var lineHeight = this.getDefaultWorker().getBottomCenter().y() - centerPoint.y();
                 var workerDeclarationOptions = {
                     model: workerDeclaration,
                     container: container,
                     centerPoint: centerPoint,
                     toolPalette: this.toolPalette,
                     messageManager: this.messageManager,
-                    diagramRenderContext: this.getDiagramRenderingContext()
+                    diagramRenderContext: this.getDiagramRenderingContext(),
+                    line: {height: lineHeight}
                 };
                 var workerDeclarationView = new WorkerDeclarationView(workerDeclarationOptions);
                 workerDeclarationView.setParent(this);
