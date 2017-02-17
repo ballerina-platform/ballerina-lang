@@ -131,7 +131,7 @@ define(['log', 'jquery', './../ast/ballerina-ast-factory', './../tool-palette/to
         var createBreakStatementTool = {
             id: "break",
             name: "Break",
-            icon: "images/tool-icons/dgm-while.svg",
+            icon: "images/tool-icons/break.svg",
             title: "Break",
             nodeFactoryMethod: BallerinaASTFactory.createBreakStatement
         };
