@@ -4,14 +4,18 @@ Container support for Ballerina provides the implementation for the following fu
 
 1. Package Ballerina programs with Docker using `ballerina docker` command.
 
-## Building
+## Building From Source
+> Docker is required to build and enable Ballerina Container Support. To install Docker, follow the instructions on the [Docker Engine Installation Guide](https://docs.docker.com/engine/installation/).
+
+> The base Ballerina Docker image has to be built before building on running Ballerina Container Support. To do this follow the instructions in the [Ballerina Base Image README](ballerina-base-image/README.md) and build `ballerina-pkg:latest` Docker image.
+
 Navigate to the source root and execute the following command.
 
 ```bash
 mvn clean install
 ```
 
-This will a fat JAR file with the dependencies included, inside the `target` folder.
+This will create a fat JAR file with the dependencies included, inside the `target` folder.
 
 ## Usage
 Add the `ballerina-container-support-<VERSION>.jar` file to `bre/lib/` folder in the Ballerina distribution.
