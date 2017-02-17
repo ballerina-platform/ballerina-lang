@@ -48,6 +48,9 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
 
     private static final String BALLERINA_USER_AGENT;
 
+    /* Application level timeout */
+    private static final long SENDER_TIMEOUT = 180000; // TODO: Make this configurable with endpoint timeout impl
+
     static {
         String version = System.getProperty(BALLERINA_VERSION);
         if (version != null) {
@@ -127,12 +130,17 @@ public abstract class AbstractHTTPAction extends AbstractNativeAction {
 
             clientConnector.send(message, balConnectorCallback);
 
-            // Wait till Response comes.
+            // Wait till Response comes
+            long startTime = System.currentTimeMillis();
             while (!balConnectorCallback.isResponseArrived()) {
                 synchronized (context) {
                     if (!balConnectorCallback.isResponseArrived()) {
                         logger.debug("Waiting for a response");
-                        context.wait();
+                        context.wait(SENDER_TIMEOUT);
+                        if (System.currentTimeMillis() >= (startTime + SENDER_TIMEOUT)) {
+                            throw new RuntimeException("Response was not received within sender timeout of " +
+                                                       SENDER_TIMEOUT / 1000 + " seconds");
+                        }
                     }
                 }
             }
