@@ -553,8 +553,8 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                 self.setActiveView('design');
                 if(isSourceChanged || isSwaggerChanged || savedWhileInSourceView){
                     self._environment.resetCurrentPackage();
-                    self.reDraw();
                     self.rerenderCurrentPackageTool();
+                    self.reDraw();
                 }
             });
 
