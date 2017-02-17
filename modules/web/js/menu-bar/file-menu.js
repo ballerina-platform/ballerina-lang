@@ -115,7 +115,7 @@ define(([],function (){
                 id: "settings",
                 label: "Settings",
                 command: {
-                    id: "open-setting-dialog",
+                    id: "open-settings-dialog",
                     shortcuts: {
                         mac: {
                             key: "command+alt+s",

@@ -388,6 +388,7 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
             _.set(sourceViewOpts, 'container', aceEditorContainer.get(0));
             _.set(sourceViewOpts, 'content', "");
             _.set(sourceViewOpts, 'debugger', this._debugger);
+            _.set(sourceViewOpts, 'storage', this._file._storage);
             this._sourceView = new SourceView(sourceViewOpts);
 
             this.on('reset-breakpoints', function(newBreakpoints) {
