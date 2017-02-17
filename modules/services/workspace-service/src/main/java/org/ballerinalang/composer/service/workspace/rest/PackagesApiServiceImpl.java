@@ -28,22 +28,12 @@ import org.ballerinalang.model.GlobalScope;
 import org.ballerinalang.natives.NativePackageProxy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.ballerinalang.model.SymbolName;
-import org.ballerinalang.model.symbols.BLangSymbol;
 import org.ballerinalang.model.types.SimpleTypeName;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.NativeUnitProxy;
 import org.ballerinalang.natives.connectors.AbstractNativeAction;
 import org.ballerinalang.natives.connectors.AbstractNativeConnector;
 import org.ballerinalang.natives.BuiltInNativeConstructLoader;
-import org.wso2.ballerina.tooling.service.workspace.api.NotFoundException;
-import org.wso2.ballerina.tooling.service.workspace.api.PackagesApiService;
-import org.wso2.ballerina.tooling.service.workspace.model.Action;
-import org.wso2.ballerina.tooling.service.workspace.model.Annotation;
-import org.wso2.ballerina.tooling.service.workspace.model.Connector;
-import org.wso2.ballerina.tooling.service.workspace.model.Function;
-import org.wso2.ballerina.tooling.service.workspace.model.ModelPackage;
-import org.wso2.ballerina.tooling.service.workspace.model.Parameter;
 
 import javax.ws.rs.core.Response;
 import java.util.ArrayList;
@@ -116,10 +106,9 @@ public class PackagesApiServiceImpl extends PackagesApiService {
                         extractFunction(packages, nativeUnitProxy);
                     } else if (nativeUnitProxy.load() instanceof AbstractNativeConnector) {
                         extractConnector(packages, nativeUnitProxy);
-    }
-
+                    }
                 });
-        }
+            }
         });
         return packages;
     }
@@ -139,10 +128,7 @@ public class PackagesApiServiceImpl extends PackagesApiService {
             List<Parameter> returnParameters = new ArrayList<>();
             addParameters(returnParameters, abstractNativeConnector.getReturnParamTypeNames());
 
-        AbstractNativeAction executeAction = getAction(execute, connector);
-        List<Parameter> parameters = new ArrayList<>();
-        addParameters(parameters, executeAction.getArgumentTypeNames());
-        List<Annotation> annotations = new ArrayList<>();
+            List<Annotation> annotations = new ArrayList<>();
             List<Action> actions = new ArrayList<>();
             addActions(actions, abstractNativeConnector.getActions());
 
