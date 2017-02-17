@@ -44,6 +44,7 @@ import org.wso2.ballerina.core.model.expressions.MapStructInitKeyValueExpr;
 import org.wso2.ballerina.core.model.expressions.ModExpression;
 import org.wso2.ballerina.core.model.expressions.MultExpression;
 import org.wso2.ballerina.core.model.expressions.NotEqualExpression;
+import org.wso2.ballerina.core.model.expressions.NullLiteral;
 import org.wso2.ballerina.core.model.expressions.OrExpression;
 import org.wso2.ballerina.core.model.expressions.RefTypeInitExpr;
 import org.wso2.ballerina.core.model.expressions.ResourceInvocationExpr;
@@ -152,6 +153,8 @@ public interface NodeVisitor {
     void visit(AndExpression andExpression);
 
     void visit(BasicLiteral basicLiteral);
+    
+    void visit(NullLiteral nullLiteral);
 
     void visit(DivideExpr divideExpr);
 

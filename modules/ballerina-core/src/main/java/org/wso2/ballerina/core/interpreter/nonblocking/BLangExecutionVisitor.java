@@ -43,6 +43,7 @@ import org.wso2.ballerina.core.model.VariableDef;
 import org.wso2.ballerina.core.model.Worker;
 import org.wso2.ballerina.core.model.expressions.AddExpression;
 import org.wso2.ballerina.core.model.expressions.AndExpression;
+import org.wso2.ballerina.core.model.expressions.BinaryEqualityExpression;
 import org.wso2.ballerina.core.model.expressions.BinaryExpression;
 import org.wso2.ballerina.core.model.expressions.DivideExpr;
 import org.wso2.ballerina.core.model.expressions.EqualExpression;
@@ -176,7 +177,7 @@ public abstract class BLangExecutionVisitor implements LinkedNodeVisitor {
 
     @Override
     public void visit(EqualExpression equalExpression) {
-        visitBinaryExpression(equalExpression);
+        visitBinaryEqualityExpression(equalExpression);
     }
 
     @Override
@@ -206,7 +207,7 @@ public abstract class BLangExecutionVisitor implements LinkedNodeVisitor {
 
     @Override
     public void visit(NotEqualExpression notEqualExpression) {
-        visitBinaryExpression(notEqualExpression);
+        visitBinaryEqualityExpression(notEqualExpression);
     }
 
     @Override
@@ -251,6 +252,14 @@ public abstract class BLangExecutionVisitor implements LinkedNodeVisitor {
     private void visitBinaryExpression(BinaryExpression expression) {
         try {
             this.visit(expression);
+        } catch (RuntimeException e) {
+            handleBException(new BException(e.getMessage()));
+        }
+    }
+
+    private void visitBinaryEqualityExpression(BinaryEqualityExpression binaryEqualityExpression) {
+        try {
+            this.visit(binaryEqualityExpression);
         } catch (RuntimeException e) {
             handleBException(new BException(e.getMessage()));
         }

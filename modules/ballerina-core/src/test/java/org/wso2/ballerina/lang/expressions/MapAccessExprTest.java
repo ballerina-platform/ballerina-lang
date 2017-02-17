@@ -21,6 +21,7 @@ import org.ballerinalang.util.program.BLangFunctions;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.wso2.ballerina.core.exception.BallerinaException;
 import org.wso2.ballerina.core.exception.SemanticException;
 import org.wso2.ballerina.core.interpreter.SymScope;
 import org.wso2.ballerina.core.model.BLangProgram;
@@ -81,5 +82,19 @@ public class MapAccessExprTest {
     dependsOnMethods = {"testMapAccessExpr", "testArrayReturnValueTest"})
     public void testMapAccessWithIndex() {
         BTestUtils.parseBalFile("lang/expressions/incorrect-map-access.bal");
+    }
+
+    @Test(description = "Test accessing null initialised map element",
+          expectedExceptions = {BallerinaException.class },
+          expectedExceptionsMessageRegExp = "map-access-expr.bal:25: variable 'testMap' is null")
+    public void testAccessElementInNullMap() {
+        BLangFunctions.invoke(bLangProgram, "nullMapElementAccessTest");
+    }
+
+    @Test(description = "Test setting  element in null initialised map element",
+          expectedExceptions = {BallerinaException.class },
+          expectedExceptionsMessageRegExp = "map-access-expr.bal:31: variable 'testMap' is null")
+    public void testSetElementInNullMap() {
+        BLangFunctions.invoke(bLangProgram, "nullMapElementSetTest");
     }
 }

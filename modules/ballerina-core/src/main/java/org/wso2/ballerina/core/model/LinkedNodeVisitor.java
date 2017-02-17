@@ -22,6 +22,7 @@ import org.wso2.ballerina.core.model.expressions.ArrayInitExpr;
 import org.wso2.ballerina.core.model.expressions.ArrayMapAccessExpr;
 import org.wso2.ballerina.core.model.expressions.BacktickExpr;
 import org.wso2.ballerina.core.model.expressions.BasicLiteral;
+import org.wso2.ballerina.core.model.expressions.BinaryEqualityExpression;
 import org.wso2.ballerina.core.model.expressions.BinaryExpression;
 import org.wso2.ballerina.core.model.expressions.ConnectorInitExpr;
 import org.wso2.ballerina.core.model.expressions.FunctionInvocationExpr;
@@ -43,6 +44,7 @@ import org.wso2.ballerina.core.model.nodes.fragments.expressions.ActionInvocatio
 import org.wso2.ballerina.core.model.nodes.fragments.expressions.ArrayInitExprEndNode;
 import org.wso2.ballerina.core.model.nodes.fragments.expressions.ArrayMapAccessExprEndNode;
 import org.wso2.ballerina.core.model.nodes.fragments.expressions.BacktickExprEndNode;
+import org.wso2.ballerina.core.model.nodes.fragments.expressions.BinaryEqualityExpressionEndNode;
 import org.wso2.ballerina.core.model.nodes.fragments.expressions.BinaryExpressionEndNode;
 import org.wso2.ballerina.core.model.nodes.fragments.expressions.CallableUnitEndNode;
 import org.wso2.ballerina.core.model.nodes.fragments.expressions.ConnectorInitExprEndNode;
@@ -127,6 +129,8 @@ public interface LinkedNodeVisitor extends NodeVisitor {
 
     void visit(BinaryExpression expression);
 
+    void visit(BinaryEqualityExpression binaryEqualityExpression);
+
     void visit(ConnectorInitExpr connectorInitExpr);
 
     void visit(FunctionInvocationExpr functionInvocationExpr);
@@ -188,6 +192,8 @@ public interface LinkedNodeVisitor extends NodeVisitor {
     void visit(BacktickExprEndNode backtickExprEndNode);
 
     void visit(BinaryExpressionEndNode binaryExpressionEndNode);
+
+    void visit(BinaryEqualityExpressionEndNode binaryEqualityExpressionEndNode);
 
     void visit(CallableUnitEndNode callableUnitEndNode);
 

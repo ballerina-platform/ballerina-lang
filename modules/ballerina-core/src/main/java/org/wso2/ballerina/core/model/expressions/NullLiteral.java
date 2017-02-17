@@ -19,32 +19,31 @@ package org.wso2.ballerina.core.model.expressions;
 
 import org.wso2.ballerina.core.model.NodeExecutor;
 import org.wso2.ballerina.core.model.NodeLocation;
-import org.wso2.ballerina.core.model.Operator;
+import org.wso2.ballerina.core.model.NodeVisitor;
+import org.wso2.ballerina.core.model.types.BTypes;
+import org.wso2.ballerina.core.model.values.BNull;
 import org.wso2.ballerina.core.model.values.BValue;
-import org.wso2.ballerina.core.model.values.BValueType;
-
-import java.util.function.BiFunction;
 
 /**
- * {@code BinaryEqualityExpression} represents a equality expression in Ballerina.
- *
- * @see EqualExpression
- * @see NotEqualExpression
+ * {@code NullLiteral} represents a null literal in Ballerina.
+ * <p>
  * @since 0.8.0
  */
-public class BinaryEqualityExpression extends BinaryExpression {
-    protected BiFunction<BValue, BValue, BValueType> evalFuncRef;
+public class NullLiteral extends AbstractExpression {
+    private static final BValue bValue = BNull.instance();
 
-    public BinaryEqualityExpression(NodeLocation location, Expression lExpr, Operator op, Expression rExpr) {
-        super(location, lExpr, op, rExpr);
+    public NullLiteral(NodeLocation location) {
+        super(location);
+        setType(BTypes.typeReference);
     }
 
-    public void setRefTypeEvalFunction(BiFunction<BValue, BValue, BValueType> evalFuncRef) {
-        this.evalFuncRef = evalFuncRef;
+    public BValue getBValue() {
+        return bValue;
     }
 
-    public BiFunction<BValue, BValue, BValueType> getRefTypeEvalFunction() {
-        return evalFuncRef;
+    @Override
+    public void accept(NodeVisitor visitor) {
+        visitor.visit(this);
     }
 
     public BValue execute(NodeExecutor executor) {

@@ -60,6 +60,7 @@ import org.wso2.ballerina.core.model.expressions.MapStructInitKeyValueExpr;
 import org.wso2.ballerina.core.model.expressions.ModExpression;
 import org.wso2.ballerina.core.model.expressions.MultExpression;
 import org.wso2.ballerina.core.model.expressions.NotEqualExpression;
+import org.wso2.ballerina.core.model.expressions.NullLiteral;
 import org.wso2.ballerina.core.model.expressions.OrExpression;
 import org.wso2.ballerina.core.model.expressions.RefTypeInitExpr;
 import org.wso2.ballerina.core.model.expressions.ReferenceExpr;
@@ -88,6 +89,7 @@ import org.wso2.ballerina.core.model.statements.WorkerReplyStmt;
 import org.wso2.ballerina.core.model.symbols.BLangSymbol;
 import org.wso2.ballerina.core.model.types.SimpleTypeName;
 import org.wso2.ballerina.core.model.types.TypeConstants;
+import org.wso2.ballerina.core.model.util.LangModelUtils;
 import org.wso2.ballerina.core.model.values.BBoolean;
 import org.wso2.ballerina.core.model.values.BDouble;
 import org.wso2.ballerina.core.model.values.BFloat;
@@ -493,6 +495,13 @@ public class BLangModelBuilder {
 
         Expression lExpr = exprStack.pop();
         checkArgExprValidity(location, lExpr);
+
+        // if one of expression is null, only equal and not equal operators are allowed for null values
+        if ((rExpr instanceof NullLiteral || lExpr instanceof NullLiteral) && !(opStr.equals("==") || opStr
+                .equals("!="))) {
+            errorMsgs.add(LangModelUtils.getNodeLocationStr(location) + "null not allowed with the operator '" + opStr
+                    + "'");
+        }
 
         BinaryExpression expr;
         switch (opStr) {
@@ -1385,9 +1394,9 @@ public class BLangModelBuilder {
         createLiteral(location, new SimpleTypeName(TypeConstants.BOOLEAN_TNAME), bValue);
     }
 
-    public void createNullLiteral(String value, NodeLocation location) {
-        throw new RuntimeException("null values are not yet supported in Ballerina in " + location.getFileName()
-                + ":" + location.getLineNumber());
+    public void createNullLiteral(NodeLocation location) {
+        NullLiteral nullLiteral = new NullLiteral(location);
+        exprStack.push(nullLiteral);
     }
 
 
