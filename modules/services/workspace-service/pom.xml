@@ -192,7 +192,7 @@
     </build>
 
     <properties>
-        <microservice.mainClass>org.wso2.ballerina.tooling.service.workspace.app.WorkspaceServiceRunner</microservice.mainClass>
+        <microservice.mainClass>org.ballerinalang.composer.service.workspace.app.WorkspaceServiceRunner</microservice.mainClass>
         <!-- dependency versions -->
         <guice.version>4.1.0</guice.version>
         <commons-cli.version>1.3.1</commons-cli.version>

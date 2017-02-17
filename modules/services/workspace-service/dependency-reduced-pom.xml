@@ -9,7 +9,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.ballerinalang.composer</groupId>
   <artifactId>workspace-service</artifactId>
-  <name>Ballerina - Tooling - Workspace Service</name>
+  <name>Ballerina Composer - Workspace Service</name>
   <version>0.8-SNAPSHOT</version>
   <build>
     <plugins>
@@ -76,7 +76,7 @@
     </dependency>
   </dependencies>
   <properties>
-    <microservice.mainClass>org.wso2.ballerina.tooling.service.workspace.app.WorkspaceServiceRunner</microservice.mainClass>
+    <microservice.mainClass>org.ballerinalang.composer.service.workspace.app.WorkspaceServiceRunner</microservice.mainClass>
     <junit.version>4.12</junit.version>
     <guice.version>4.1.0</guice.version>
     <antlr4.runtime.version>4.5.1.wso2v1</antlr4.runtime.version>
@@ -87,7 +87,7 @@
     <gson.version>2.7</gson.version>
     <swagger-parser-version>1.0.25</swagger-parser-version>
     <com.fasterxml.jackson.datatype.version>2.4.1</com.fasterxml.jackson.datatype.version>
-    <ballerina.version>0.8-SNAPSHOT</ballerina.version>
+    <ballerina.version>0.8.0-SNAPSHOT</ballerina.version>
     <servlet-api-version>2.5</servlet-api-version>
     <slf4j-log4j.version>1.7.5</slf4j-log4j.version>
     <testng.version>6.9.4</testng.version>
