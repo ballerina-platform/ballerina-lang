@@ -13,7 +13,9 @@ import org.ballerinalang.launcher.LauncherUtils;
 import java.io.Console;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -28,10 +30,10 @@ public class DockerCmd implements BLauncherCmd {
     private static final String DEFAULT_DOCKER_HOST = "localhost";
 
     private static PrintStream outStream = System.err;
-    private JCommander parentCmdParser = null;
+//    private JCommander parentCmdParser = null;
 
     @Parameter(arity = 1, description = "builds the given package with all the dependencies")
-    private List<String> packagePath;
+    private List<String> packagePathNames;
 
     @Parameter(names = { "--tag", "-t" }, description = " Docker image name. <image-name>:version")
     private String dockerImageName;
@@ -42,20 +44,41 @@ public class DockerCmd implements BLauncherCmd {
     @Parameter(names = {"--help", "-h"}, hidden = true)
     private boolean helpFlag;
 
+    /**
+     * Temporary usage printer
+     */
+    private static void printCommandUsageInfo() {
+        outStream.println("Dockerize Ballerina programs");
+        outStream.println();
+        outStream.println("Usage:");
+        outStream.println();
+        outStream.println("ballerina docker <package-file-path> [--tag | -t <image-name>] [--host | -H <hostURL>] " +
+                "--help | -h");
+        outStream.println();
+        outStream.println("Flags:");
+        outStream.println("\t--tag, -t");
+        outStream.println("\t--host, -H");
+        outStream.println("\t--help, -h");
+        outStream.println();
+    }
+
     @Override
     public void execute() {
-            if (helpFlag) {
-                LauncherUtils.printCommandUsageInfo(parentCmdParser, "service", outStream);
-                return;
-            }
-        if (packagePath == null || packagePath.size() == 0) {
+        if (helpFlag) {
+            printCommandUsageInfo();
+            return;
+        }
+
+        if (packagePathNames == null || packagePathNames.size() == 0) {
             throw LauncherUtils.createUsageException("no ballerina package is provided\n");
         }
 
         // extract the package name and extension
-        String packageCompletePath = packagePath.get(0);
+        String packageCompletePath = packagePathNames.get(0);
         String packageName = FilenameUtils.getBaseName(packageCompletePath);
         String packageExtention = FilenameUtils.getExtension(packageCompletePath);
+        List<Path> packagePaths = new ArrayList<Path>();
+        packagePaths.add(Paths.get(packageCompletePath));
 
         if (dockerImageName == null) {
             dockerImageName = packageName;
@@ -81,7 +104,7 @@ public class DockerCmd implements BLauncherCmd {
             outStream.println("provided service package -- TODO remove this msg");
             try {
                 new DefaultBallerinaDockerClient().createServiceImage("pkg1", dockerHost,
-                        Paths.get(packageCompletePath), imageName, imageVersion);
+                        packagePaths, imageName, imageVersion);
                 printServiceImageSuccessMessage(imageName.toLowerCase(), imageVersion);
             } catch (BallerinaDockerClientException | IOException | InterruptedException e) {
                 outStream.println("Error : " + e.getMessage());
@@ -92,7 +115,7 @@ public class DockerCmd implements BLauncherCmd {
         case BALLERINA_MAIN_PACKAGE_EXTENTION:
             outStream.println("provided main package -- TODO remove this msg");
             try {
-                new DefaultBallerinaDockerClient().createMainImage("pkg1", dockerHost, Paths.get(packageCompletePath),
+                new DefaultBallerinaDockerClient().createMainImage("pkg1", dockerHost, packagePaths,
                         imageName, imageVersion);
                 printMainImageSuccessMessage(imageName.toLowerCase(), imageVersion);
             } catch (BallerinaDockerClientException | IOException | InterruptedException e) {
@@ -157,11 +180,9 @@ public class DockerCmd implements BLauncherCmd {
 
     @Override
     public void setParentCmdParser(JCommander parentCmdParser) {
-        this.parentCmdParser = parentCmdParser;
     }
 
     @Override
     public void setSelfCmdParser(JCommander selfCmdParser) {
-
     }
 }

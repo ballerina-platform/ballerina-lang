@@ -5,8 +5,8 @@ function showUsageAndExit() {
     echo
     echo "USAGE: ./build.sh -d <ballerina-distribution> -v <image-version> -o <organization-name>"
     echo
-    echo "Ex: Create a Ballerina Docker image tagged \"ballerina:latest\" with Ballerina 0.8.0-SNAPSHOT distribution."
-    echo "    ./build.sh ballerina-0.8.0-SNAPSHOT.zip"
+    echo "Ex: Create a Ballerina Docker image tagged \"ballerina-pkg:latest\" with Ballerina 0.8.0-ALPHA distribution."
+    echo "    ./build.sh -d ballerina-0.8.0-ALPHA.zip"
     echo
 
     exit
@@ -17,7 +17,7 @@ while getopts :d:o:v: FLAG; do
       bal_dist_file=$OPTARG
       ;;
     v)
-      bal_version=$OPTARG
+      image_version=$OPTARG
       ;;
     o)
       org_name=$OPTARG
@@ -36,11 +36,11 @@ if [ ! -z "$org_name" ] && [ "$org_name" != */ ]; then
   org_name="${org_name}/"
 fi
 
-if [ -z "$bal_version" ]; then
-    bal_version="latest"
+if [ -z "$image_version" ]; then
+    image_version="latest"
 fi
 
-image_name="${org_name}ballerina-pkg:${bal_version}"
+image_name="${org_name}ballerina-pkg:${image_version}"
 
 if [ ! -e $bal_dist_file ]; then
   echo "Cannot find Ballerina distribution ${bal_dist_file}. Aborting..."

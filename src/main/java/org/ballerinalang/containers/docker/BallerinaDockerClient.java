@@ -21,6 +21,7 @@ import org.ballerinalang.containers.docker.exception.BallerinaDockerClientExcept
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.List;
 
 /**
  * Provide support for Docker image creation and Container manipulation for Ballerina.
@@ -32,7 +33,7 @@ public interface BallerinaDockerClient {
      *
      * @param packageName
      * @param dockerEnv
-     * @param bPackagePath
+     * @param bPackagePaths
      * @param imageName
      * @param imageVersion
      * @return
@@ -40,7 +41,7 @@ public interface BallerinaDockerClient {
      * @throws IOException
      * @throws InterruptedException
      */
-    public String createServiceImage(String packageName, String dockerEnv, Path bPackagePath,
+    public String createServiceImage(String packageName, String dockerEnv, List<Path> bPackagePaths,
                                      String imageName, String imageVersion)
             throws BallerinaDockerClientException, IOException, InterruptedException;
 
@@ -66,7 +67,7 @@ public interface BallerinaDockerClient {
      *
      * @param packageName
      * @param dockerEnv
-     * @param bPackagePath
+     * @param bPackagePaths
      * @param imageName
      * @param imageVersion
      * @return
@@ -74,7 +75,7 @@ public interface BallerinaDockerClient {
      * @throws IOException
      * @throws InterruptedException
      */
-    public String createMainImage(String packageName, String dockerEnv, Path bPackagePath,
+    public String createMainImage(String packageName, String dockerEnv, List<Path> bPackagePaths,
                                   String imageName, String imageVersion)
             throws BallerinaDockerClientException, IOException, InterruptedException;
 

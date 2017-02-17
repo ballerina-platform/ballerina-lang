@@ -21,6 +21,12 @@ import io.fabric8.docker.api.model.ImageDelete;
 import io.fabric8.docker.client.DockerClient;
 import org.ballerinalang.containers.Constants;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -39,5 +45,29 @@ public class TestUtils {
             imageDelete.getDeleted();
             imageDelete.getUntagged();
         }
+    }
+
+    public static List<Path> getTestServiceAsPathList() throws FileNotFoundException {
+        Path ballerinaPackage = Paths.get(Utils.getResourceFile("ballerina/TestService.bsz").getPath());
+        List<Path> packagePaths = new ArrayList<>();
+        packagePaths.add(ballerinaPackage);
+        return packagePaths;
+    }
+
+    public static List<Path> getTestFunctionAsPathList() throws FileNotFoundException {
+        Path ballerinaPackage = Paths.get(Utils.getResourceFile("ballerina/TestFunction.bmz").getPath());
+        List<Path> packagePaths = new ArrayList<>();
+        packagePaths.add(ballerinaPackage);
+        return packagePaths;
+    }
+
+    public static String getTestServiceAsString() throws IOException {
+        return new String(Files.readAllBytes(Paths.get(Thread.currentThread().getContextClassLoader().
+                getResource("ballerina/TestService.bal").getPath())));
+    }
+
+    public static String getTestFunctionAsString() throws IOException {
+        return new String(Files.readAllBytes(Paths.get(Thread.currentThread().getContextClassLoader().
+                getResource("ballerina/TestFunction.bal").getPath())));
     }
 }
