@@ -135,7 +135,7 @@ define(['lodash', 'log', './ballerina-view', './variables-view', './type-struct-
             this.loadSchemasToComboBox(currentContainer, "#" + sourceId, "#" + targetId, predefinedStructs);
 
             $(".type-mapper-combo").select2();
-            $("#" + targetId).on("select2:open", function (e) {
+            $("#" + targetId).on("select2:open", function () {
                 var predefinedStructs = self._package.getStructDefinitions();
                 if (predefinedStructs.length > 0) {
                     $("#" + targetId).empty().append('<option value="-1">--Select--</option>');
@@ -145,7 +145,7 @@ define(['lodash', 'log', './ballerina-view', './variables-view', './type-struct-
                 ;
             });
 
-            $("#" + sourceId).on("select2:open", function (e) {
+            $("#" + sourceId).on("select2:open", function () {
                 var predefinedStructs = self._package.getStructDefinitions();
                 if (predefinedStructs.length > 0) {
                     $("#" + sourceId).empty().append('<option value="-1">--Select--</option>');
@@ -277,25 +277,29 @@ define(['lodash', 'log', './ballerina-view', './variables-view', './type-struct-
             return schema;
         };
 
-        TypeMapperDefinitionView.prototype.loadSchemasToComboBox = function (parentId, sourceComboboxId, targetComboboxId, schemaArray) {
+        TypeMapperDefinitionView.prototype.loadSchemasToComboBox = function (parentId, sourceComboboxId,
+                                                                             targetComboboxId, schemaArray) {
             for (var i = 0; i < schemaArray.length; i++) {
-                $(parentId).find(sourceComboboxId).append('<option value="' + i + '">' + schemaArray[i].getStructName() + '</option>');
-                $(parentId).find(targetComboboxId).append('<option value="' + i + '">' + schemaArray[i].getStructName() + '</option>');
+                $(parentId).find(sourceComboboxId).append('<option value="' + schemaArray[i].getStructName() + '">'
+                                                                        + schemaArray[i].getStructName() + '</option>');
+                $(parentId).find(targetComboboxId).append('<option value="' + schemaArray[i].getStructName() + '">'
+                                                                        + schemaArray[i].getStructName() + '</option>');
             }
         };
 
         TypeMapperDefinitionView.prototype.loadSchemaToComboBox = function (parentId, comboBoxId, schemaArray) {
             for (var i = 0; i < schemaArray.length; i++) {
-                $(parentId).find(comboBoxId).append('<option value="' + i + '">' + schemaArray[i].getStructName() + '</option>');
+                $(parentId).find(comboBoxId).append('<option value="' + schemaArray[i].getStructName() + '">'
+                                                                        + schemaArray[i].getStructName() + '</option>');
             }
         };
 
         TypeMapperDefinitionView.prototype.setSourceSchemaNameToComboBox = function (sourceComboboxId, sourceName) {
-            $(sourceComboboxId + " option:contains(" + sourceName + ")").attr('selected', 'selected');
+            $(sourceComboboxId).val(sourceName).trigger('change.select2');
         };
 
         TypeMapperDefinitionView.prototype.setTargetSchemaNameToComboBox = function (targetComboboxId, targetName) {
-            $(targetComboboxId + " option:contains(" + targetName + ")").attr('selected', 'selected');
+            $(targetComboboxId).val(targetName).trigger('change.select2');
         };
 
         /**
