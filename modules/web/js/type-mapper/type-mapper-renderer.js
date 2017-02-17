@@ -83,7 +83,8 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
 
         this.jsPlumbInstance.bind('connection', function (info, ev) {
             self.dagrePosition(self);
-            self.processTypeMapperDropdown(info);
+            //TODO: for multiple type mappers
+            // self.processTypeMapperDropdown(info);
         });
     };
 
@@ -322,7 +323,6 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
                 + connection.targetProperty[i] + this.nameTypeSeperator + connection.targetType[i];
         }
         targetId += anchorEnd;
-        this.jsPlumbInstance.detach({source: sourceId, target: targetId});
         this.jsPlumbInstance.connect({
             anchor: ["Continuous", {faces: ["right","left"]}],
             source: sourceId,
@@ -605,6 +605,7 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
                     self.midpoint = self.midpoint + self.midpointVariance;
                     self.jsPlumbInstance.importDefaults({Connector: self.getConnectorConfig(self.midpoint)});
                     self.onConnection(connection);
+                    return false;
                     // self.disableParentsJsTree(params.sourceId, self);
                     // self.disableParentsJsTree(params.targetId, self);
                 } else {

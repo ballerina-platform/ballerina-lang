@@ -100,7 +100,7 @@ define(['lodash', './node', '../utils/common-utils'], function (_, ASTNode, Comm
      * @return {string} - Return type.
      */
     TypeMapperDefinition.prototype.getReturnType = function () {
-        var returnType = '';
+        var returnType = 'ReturnType';
         var ballerinaASTFactory = this.getFactory();
 
         _.forEach(this.getChildren(), function (child) {
@@ -116,7 +116,7 @@ define(['lodash', './node', '../utils/common-utils'], function (_, ASTNode, Comm
      * @returns {String} argument
      */
     TypeMapperDefinition.prototype.getInputParamAndIdentifier = function () {
-        var inputParamAndIdentifier = '';
+        var inputParamAndIdentifier = 'InputType inputIdentifier';
         var ballerinaASTFactory = this.getFactory();
 
         _.forEach(this.getChildren(), function (child) {

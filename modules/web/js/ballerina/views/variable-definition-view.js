@@ -54,19 +54,19 @@ define(['lodash', 'jquery', 'log', 'alerts', './ballerina-view'],
                 class: "variable-type variable-type-message"
             }).keyup(function() {
                 try {
-                    self.getModel().setVariableDefinitionStatementString($(this).text().trim() + " " + $(variableDefintionStatementWrapper).text().trim());
+                    self.getModel().setStatementString($(this).text().trim() + " " + $(variableDefintionStatementWrapper).text().trim());
                 } catch (error) {
                     Alerts.error(error);
                 }
             }).appendTo(variableDefinitionWrapper);
 
             var variableDefintionStatementWrapper = $("<span/>", {
-                text: this.getModel().getVariableDefinitionStatementString().replace(this.getModel().getBType().trim(), "").trim(),
+                text: this.getModel().getStatementString().replace(this.getModel().getBType().trim(), "").trim(),
                 "contenteditable": true,
                 class: "variable-identifier variable-identifier-message"
             }).keyup(function() {
                 try {
-                    self.getModel().setVariableDefinitionStatementString($(variableDefinitionTypeWrapper).text().trim() + " " + $(this).text().trim());
+                    self.getModel().setStatementString($(variableDefinitionTypeWrapper).text().trim() + " " + $(this).text().trim());
                 } catch (error) {
                     Alerts.error(error);
                 }

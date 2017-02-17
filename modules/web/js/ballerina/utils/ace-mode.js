@@ -16,12 +16,13 @@
  * under the License.
  */
 define('ace/mode/ballerina',
-    ["require", "exports", "module", "ace/lib/oop", "ace/mode/javascript", "ace/mode/text_highlight_rules", "ace/worker/worker_client"],
+    ["require", "exports", "module", "jquery", "ace/lib/oop", "ace/mode/javascript", "ace/mode/text_highlight_rules", "ace/worker/worker_client"],
     function (require, exports, module) {
 
         var oop = require("ace/lib/oop");
         var JavaScriptMode = require("ace/mode/javascript").Mode;
         var TextHighlightRules = require("ace/mode/text_highlight_rules").TextHighlightRules;
+        var WorkerClient = require("ace/worker/worker_client").WorkerClient;
 
         var BallerinaHighlightRules = function () {
 
@@ -58,6 +59,25 @@ define('ace/mode/ballerina',
         var BallerinaMode = function () {
             JavaScriptMode.call(this);
             this.HighlightRules = BallerinaHighlightRules;
+
+            this.createWorker = function(session) {
+                var worker = new WorkerClient(["ace", "bal_utils", "bal_configs"], "bal_utils/ace-worker", "WorkerModule");
+                worker.attachToDocument(session.getDocument());
+
+                worker.on("lint", function(results) {
+                    results.data.forEach(function(syntaxError){
+                        // ace's rows start from zero, but parser begins from 1
+                        syntaxError.row = syntaxError.row - 1;
+                    });
+                    session.setAnnotations(results.data);
+                });
+
+                worker.on("terminate", function() {
+                    session.clearAnnotations();
+                });
+
+                return worker;
+            };
         };
 
         // inherit from javascript mode

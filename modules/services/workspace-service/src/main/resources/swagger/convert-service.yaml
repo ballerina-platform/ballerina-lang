@@ -1,9 +1,9 @@
 swagger: '2.0'
 info:
-  version: "0.8.0"
+  version: "0.8"
   title: "Ballerina Swagger convert API"
   description: |
-    This specifies a **RESTful API** for WSO2 **Ballerina Editor** .
+    This specifies a **RESTful API** for WSO2 **Ballerina Composer** .
   contact:
     name: "WSO2"
     url: "http://wso2.com/"
@@ -74,7 +74,7 @@ paths:
         200:
           description: |
            Created.
-            Successful response with ballerina JSON representation. This should directly use from editor to build models.
+            Successful response with ballerina JSON representation. This should directly use from composer to build models.
           headers:
             Location:
               description: |
