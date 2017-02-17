@@ -72,7 +72,9 @@ define(['lodash', 'log', './ballerina-view', './../ast/block-statement', 'typeMa
                     var typeMapperFunctionDefinitionView = new TypeMapperFunctionAssignmentView({
                         model: statement,
                         parentView: this,
-                        typeMapperRenderer: this._parentView.getTypeMapperRenderer()
+                        typeMapperRenderer: this._parentView.getTypeMapperRenderer(),
+                        sourceInfo: self.getSourceInfo(),
+                        targetInfo: self.getTargetInfo()
                     });
                     typeMapperFunctionDefinitionView.render(this._diagramRenderingContext);
                 } else {
@@ -97,6 +99,47 @@ define(['lodash', 'log', './ballerina-view', './../ast/block-statement', 'typeMa
                 }
             }
             return undefined;
+        };
+
+        /**
+         * returns the values of children
+         * @returns {object}
+         */
+        TypeMapperBlockStatementView.prototype.getExpressionProperties = function (fieldExpression, structSchema, propertyArray) {
+
+            var self = this;
+            var tempType = "";
+            var tempAttr = {};
+
+            var variableRefExpression = _.find(fieldExpression.getChildren(), function (child) {
+                return BallerinaASTFactory.isVariableReferenceExpression(child);
+            });
+
+            tempAttr[STRUCT_DEFINITION_ATTRIBUTES_ARRAY_PROPERTY_NAME] = variableRefExpression.getVariableReferenceName();
+
+            _.each(structSchema.getAttributesArray().properties, function (property) {
+                if (property.name == variableRefExpression.getVariableReferenceName()) {
+                    tempType = property.type;
+                    return false;
+                }
+            });
+
+            tempAttr[STRUCT_DEFINITION_ATTRIBUTES_ARRAY_PROPERTY_TYPE] = tempType;
+
+            propertyArray.push(tempAttr);
+
+            var innerFieldExpression = _.find(fieldExpression.getChildren(), function (child) {
+                return BallerinaASTFactory.isStructFieldAccessExpression(child);
+            });
+
+            if (!_.isUndefined(innerFieldExpression)) {
+                var availableDefinedStructs = self.getSourceInfo().predefinedStructs;
+                var innerStruct = _.find(availableDefinedStructs, function (struct) {
+                    return struct.getStructName() == tempType
+                });
+                self.getExpressionProperties(innerFieldExpression, innerStruct, propertyArray);
+            }
+            return propertyArray;
         };
 
 
@@ -155,16 +198,12 @@ define(['lodash', 'log', './ballerina-view', './../ast/block-statement', 'typeMa
             } else if (BallerinaASTFactory.isAssignmentStatement(sourceModel)
                 && BallerinaASTFactory.isReturnType(targetModel)) {
                 var leftOperand = sourceModel.getChildren()[0];
+                var structFieldAccessExp = targetModel.getParent().getStructFieldAccessExpression('x', connection.targetProperty);
                 var index = _.findIndex(sourceFuncSchema.returnType, function (param) {
                     return param.name === connection.sourceProperty[0];
                 });
-                var sourceVariableRef = leftOperand.getChildren()[index];
-                var assignmentStatementNode = targetModel.getParent()
-                    .getAssignmentStatementForFunctionReturnVariable(sourceVariableRef, "x", connection.targetProperty,
-                        connection.isComplexMapping, connection.complexMapperName);
-                var blockStatement = targetModel.getParent().getBlockStatement();
-                var lastIndex = _.findLastIndex(blockStatement.getChildren());
-                blockStatement.addChild(assignmentStatementNode, lastIndex);
+                leftOperand.removeChild(leftOperand.getChildren()[index], true);
+                leftOperand.addChild(structFieldAccessExp, index);
             }
         };
 
@@ -173,7 +212,6 @@ define(['lodash', 'log', './ballerina-view', './../ast/block-statement', 'typeMa
          * @param connection object
          */
         TypeMapperBlockStatementView.prototype.onAttributesDisConnect = function (connection) {
-
             var blockStatement = connection.targetReference.getParent().getBlockStatement();
             var assignmentStatementId = connection.id;
             blockStatement.removeChildById(assignmentStatementId);

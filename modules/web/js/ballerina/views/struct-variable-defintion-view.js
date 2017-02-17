@@ -15,8 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'jquery', 'log', 'alerts', './ballerina-view', './../ast/variable-definition', '../utils/dropdown'],
-    function (_, $, log, Alerts, BallerinaView, VariableDefinition, Dropdown) {
+define(['lodash', 'jquery', 'log', 'alerts', './ballerina-view', './../ast/variable-declaration', '../utils/dropdown'],
+    function (_, $, log, Alerts, BallerinaView, VariableDeclaration, Dropdown) {
 
         /**
          * Arguments for creating a constant definition view.
@@ -52,14 +52,14 @@ define(['lodash', 'jquery', 'log', 'alerts', './ballerina-view', './../ast/varia
             this._structVariableWrapper = structVariableDefinitionWrapper.get(0);
 
             var structVariableDefinitionTypeWrapper = $("<div/>", {
-                text: this.getModel().getTypeName(),
+                text: this.getModel().getType(),
                 class: "struct-variable-definition-type pull-left"
             }).appendTo(structVariableDefinitionWrapper);
 
             this._typeWrapper = structVariableDefinitionTypeWrapper.get(0);
 
             var structVariableDefinitionIdentifierWrapper = $("<div/>", {
-                text: this.getModel().getName(),
+                text: this.getModel().getIdentifier(),
                 class: "struct-variable-definition-identifier pull-left"
             }).appendTo(structVariableDefinitionWrapper);
 
@@ -80,7 +80,7 @@ define(['lodash', 'jquery', 'log', 'alerts', './ballerina-view', './../ast/varia
             // Removes the value of the argument in the model and rebind the arguments to the arguments view.
             $(deleteButton).click(function () {
                 $(structVariableDefinitionWrapper).remove();
-                self.getParent().removeVariableDefinition(self.getModel().getID());
+                self.getParent().removeVariableDeclaration(self.getModel().getID());
             });
         };
 
@@ -97,38 +97,37 @@ define(['lodash', 'jquery', 'log', 'alerts', './ballerina-view', './../ast/varia
                 click: function(e) {e.stopPropagation();}
             }).appendTo(this._typeWrapper);
 
-            var typeDropdown = new Dropdown({
-                class: {mainWrapper: "struct-variable-type-dropdown-wrapper"},
-                onSelectCallBackFunction: function(key, value) {
-                    self.getModel().setTypeName(key)
-                },
-                onDropdownOpen: function() {
-                    self._parentView.getBodyWrapper().css("height", $(self._parentView.getBodyWrapper()).height());
-                    self._parentView.getBodyWrapper().css("overflow-x", "visible");
-                    $(self._parentView.getBodyWrapper()).closest(".canvas-container").css("overflow", "visible");
-
-                    this.removeAllItems();
-
-                    // Adding items to the type dropdown.
-                    var bTypes = self.getDiagramRenderingContext().getEnvironment().getTypes();
-                    _.forEach(bTypes, function (bType) {
-                        typeDropdown.addItem({key: bType, value: bType});
-                    });
-
-                    var structTypes = self.getDiagramRenderingContext().getPackagedScopedEnvironment().getCurrentPackage().getStructDefinitions();
-                    _.forEach(structTypes, function (sType) {
-                        typeDropdown.addItem({key: sType.getStructName(), value: sType.getStructName()});
-                    });
-                },
-                onDropdownClosed: function() {
-                    self._parentView.getBodyWrapper().css("height", "");
-                    self._parentView.getBodyWrapper().css("overflow-x", "");
-                    $(self._parentView.getBodyWrapper()).closest(".canvas-container").css("overflow", "");
-                }
+            // Adding items to the type dropdown.
+            var typeDropdown = $("<select></select>");
+            var bTypes = self.getDiagramRenderingContext().getEnvironment().getTypes();
+            _.forEach(bTypes, function (bType) {
+                typeDropdown.append($('<option>'+ bType +'</option>').attr('value', bType));
             });
-            typeDropdown.getElement().appendTo(typeEditWrapper);
 
-            typeDropdown.setSelectedValue(this.getModel().getType());
+            var structTypes = self.getDiagramRenderingContext().getPackagedScopedEnvironment().getCurrentPackage().getStructDefinitions();
+            _.forEach(structTypes, function (sType) {
+                typeDropdown.append($('<option>'+  sType.getStructName() +'</option>').attr('value', sType.getStructName()));
+            });
+
+            //Initialize the select2 control
+            var typeDropdownWrapper = $('<div class="type-drop-wrapper struct-edit"></div>');
+            typeDropdown.appendTo(typeDropdownWrapper);
+            typeDropdownWrapper.appendTo(typeEditWrapper);
+            typeDropdown.select2({
+                tags: true,
+                selectOnClose: true
+            });
+
+            //Set the select2 default value
+            $(typeDropdown).val(this.getModel().getType());
+
+            //Open the dropdown initially
+            typeDropdown.select2("open");
+
+            //Set the value of the type to selected value
+            typeDropdown.on("change", function (e) {
+                self.getModel().setType(e.currentTarget.value);
+            });
 
             $(this._identifierWrapper).empty();
 
@@ -140,7 +139,7 @@ define(['lodash', 'jquery', 'log', 'alerts', './ballerina-view', './../ast/varia
             var identifierTextBox = $("<input/>", {
                 type: "text",
                 class: "struct-variable-identifier-text-input",
-                val: this.getModel().getName()
+                val: this.getModel().getIdentifier()
             }).keypress(function (e) {
                 var enteredKey = e.which || e.charCode || e.keyCode;
                 // Disabling enter key
@@ -152,7 +151,7 @@ define(['lodash', 'jquery', 'log', 'alerts', './ballerina-view', './../ast/varia
                 var newIdentifier = $(this).val() + String.fromCharCode(enteredKey);
 
                 try {
-                    self.getModel().setName(newIdentifier);
+                    self.getModel().setIdentifier(newIdentifier);
                 } catch (error) {
                     Alerts.error(error);
                     event.stopPropagation();
@@ -166,7 +165,7 @@ define(['lodash', 'jquery', 'log', 'alerts', './ballerina-view', './../ast/varia
                     typeDropdown.dropdownButton.trigger("click");
                 }
             }).keyup(function(){
-                self.getModel().setName($(this).val());
+                self.getModel().setIdentifier($(this).val());
             }).appendTo($(identifierEditWrapper));
 
         };
