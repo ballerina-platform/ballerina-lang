@@ -502,25 +502,25 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         this.tempJsonArrayRef.peek().add(paramObj);
     }
 
-    @Override
-    public void visit(ConnectorDcl connectorDcl) {
-        JsonObject connectObj = new JsonObject();
-        connectObj.addProperty(BLangJSONModelConstants.DEFINITION_TYPE,
-                BLangJSONModelConstants.CONNECTOR_DECLARATION);
-        connectObj.addProperty(BLangJSONModelConstants.CONNECTOR_DCL_NAME, connectorDcl.getConnectorName().getName());
-        connectObj.addProperty(BLangJSONModelConstants.CONNECTOR_DCL_PKG_NAME, connectorDcl.getConnectorName().getPkgPath());
-        connectObj.addProperty(BLangJSONModelConstants.CONNECTOR_DCL_VARIABLE, connectorDcl.getVarName().getName());
-        this.addPosition(connectObj, connectorDcl.getNodeLocation());
-        this.tempJsonArrayRef.push(new JsonArray());
-        if (connectorDcl.getArgExprs() != null) {
-            for (Expression expression : connectorDcl.getArgExprs()) {
-                expression.accept(this);
-            }
-        }
-        connectObj.add(BLangJSONModelConstants.CHILDREN, this.tempJsonArrayRef.peek());
-        this.tempJsonArrayRef.pop();
-        this.tempJsonArrayRef.peek().add(connectObj);
-    }
+//    @Override
+//    public void visit(ConnectorDcl connectorDcl) {
+//        JsonObject connectObj = new JsonObject();
+//        connectObj.addProperty(BLangJSONModelConstants.DEFINITION_TYPE,
+//                BLangJSONModelConstants.CONNECTOR_DECLARATION);
+//        connectObj.addProperty(BLangJSONModelConstants.CONNECTOR_DCL_NAME, connectorDcl.getConnectorName().getName());
+//        connectObj.addProperty(BLangJSONModelConstants.CONNECTOR_DCL_PKG_NAME, connectorDcl.getConnectorName().getPkgPath());
+//        connectObj.addProperty(BLangJSONModelConstants.CONNECTOR_DCL_VARIABLE, connectorDcl.getVarName().getName());
+//        this.addPosition(connectObj, connectorDcl.getNodeLocation());
+//        this.tempJsonArrayRef.push(new JsonArray());
+//        if (connectorDcl.getArgExprs() != null) {
+//            for (Expression expression : connectorDcl.getArgExprs()) {
+//                expression.accept(this);
+//            }
+//        }
+//        connectObj.add(BLangJSONModelConstants.CHILDREN, this.tempJsonArrayRef.peek());
+//        this.tempJsonArrayRef.pop();
+//        this.tempJsonArrayRef.peek().add(connectObj);
+//    }
 
     @Override
     public void visit(VariableDef variableDef) {
