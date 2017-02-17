@@ -97,7 +97,11 @@ define(['lodash', 'jquery', 'log', 'alerts', './ballerina-view', './../ast/varia
                 click: function(e) {e.stopPropagation();}
             }).appendTo(this._typeWrapper);
 
-            var typeDropdown = $("<select/>").appendTo(typeEditWrapper);
+            //Initialize the select2 control
+            var typeDropdownWrapper = $('<div class="type-drop-wrapper struct-edit"></div>')
+                .appendTo(typeEditWrapper);
+
+            var typeDropdown = $("<select/>").appendTo(typeDropdownWrapper);
 
             $(typeDropdown).select2({
                 tags: true,

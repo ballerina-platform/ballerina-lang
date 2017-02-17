@@ -361,6 +361,11 @@ public class BLangJSONModelBuilder implements NodeVisitor {
                 returnTypeArray.add(typeObj);
             }
         }
+        if (function.getWorkers() != null) {
+            for (Worker worker : function.getWorkers()) {
+                worker.accept(this);
+            }
+        }
         returnTypeObj.add(BLangJSONModelConstants.CHILDREN, returnTypeArray);
         tempJsonArrayRef.peek().add(returnTypeObj);
         function.getCallableUnitBody().accept(this);
@@ -422,6 +427,11 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         returnTypeObj.add(BLangJSONModelConstants.CHILDREN, returnTypeArray);
         tempJsonArrayRef.peek().add(returnTypeObj);
 
+        if (action.getWorkers() != null) {
+            for (Worker worker : action.getWorkers()) {
+                worker.accept(this);
+            }
+        }
         action.getCallableUnitBody().accept(this);
         jsonAction.add(BLangJSONModelConstants.CHILDREN, tempJsonArrayRef.peek());
         tempJsonArrayRef.pop();

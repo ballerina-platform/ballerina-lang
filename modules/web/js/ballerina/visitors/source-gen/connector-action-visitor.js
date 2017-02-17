@@ -16,9 +16,9 @@
  * under the License.
  */
 define(['lodash', 'log', 'event_channel', './abstract-source-gen-visitor', './statement-visitor-factory',
-        './connector-declaration-visitor', './variable-declaration-visitor'],
+        './connector-declaration-visitor', './variable-declaration-visitor', './worker-declaration-visitor'],
     function(_, log, EventChannel, AbstractSourceGenVisitor, StatementVisitorFactory, ConnectorDeclarationVisitor,
-             VariableDeclarationVisitor) {
+             VariableDeclarationVisitor, WorkerDeclarationVisitor) {
 
         /**
          * @param {ASTVisitor} parent - Parent AST Visitor
@@ -97,6 +97,15 @@ define(['lodash', 'log', 'event_channel', './abstract-source-gen-visitor', './st
         ConnectorActionVisitor.prototype.visitVariableDeclaration = function(variableDeclaration){
             var variableDeclarationVisitor = new VariableDeclarationVisitor(this);
             variableDeclaration.accept(variableDeclarationVisitor);
+        };
+
+        /**
+         * Visit Worker Declaration
+         * @param workerDeclaration
+         */
+        ConnectorActionVisitor.prototype.visitWorkerDeclaration = function(workerDeclaration){
+            var workerDeclarationVisitor = new WorkerDeclarationVisitor(this);
+            workerDeclaration.accept(workerDeclarationVisitor);
         };
 
         return ConnectorActionVisitor;
