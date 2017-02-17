@@ -16,6 +16,7 @@
 
 package org.wso2.ballerina.tooling.service.workspace.rest;
 
+import org.ballerinalang.model.GlobalScope;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.ballerinalang.model.SymbolName;
@@ -61,7 +62,7 @@ public class PackagesApiServiceImpl extends PackagesApiService {
 
     public PackagesApiServiceImpl() {
         this.apiScope = new APIScope();
-        BuiltInNativeConstructLoader.loadConstructs(this.apiScope);
+        BuiltInNativeConstructLoader.loadConstructs(GlobalScope.getInstance());
     }
 
     @Override
