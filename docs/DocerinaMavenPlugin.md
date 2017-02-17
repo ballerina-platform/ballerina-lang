@@ -54,3 +54,74 @@ Supported list of configuration parameters are listed below;
  OPTIONAL property.
  DEFAULT value is the ${project.build.directory} which is the target directory.
  Example: `<outputDir>/home/docerina/output</outputDir>`.
+
+ ## Usage Example
+
+ Docerina is capable of generating HTML based API documentation and this plugin allows you to use Docerina in your 
+ Ballerina projects.
+
+ For the API documentation to render properly, Docerina provides some resources, namely templates and assets. You need 
+ these in your build directory and output directory respectively. You can use maven resource plugin and maven 
+ dependency plugin in order to accomplish the documentation generation task. Following is an extract from a sample 
+ pom.xml.
+
+ 		<build>
+	        <resources>
+	            ..
+	            <resource>
+	                <directory>${project.build.directory}/docerina-${ballerina.version}/api-docs/html/assets</directory>
+	                <targetPath>${docerina.output.directory}/assets</targetPath>
+	            </resource>
+	    	</resources>
+	    	<plugins>
+    			...
+	    		<plugin>
+	                <groupId>org.apache.maven.plugins</groupId>
+	                <artifactId>maven-dependency-plugin</artifactId>
+	                <inherited>false</inherited>
+	                <executions>
+	                    <execution>
+	                        <id>unpack-docerina</id>
+	                        <phase>package</phase>
+	                        <goals>
+	                            <goal>unpack</goal>
+	                        </goals>
+	                        <configuration>
+	                            <artifactItems>
+	                                <artifactItem>
+	                                    <groupId>org.ballerinalang</groupId>
+	                                    <artifactId>docerina</artifactId>
+	                                    <version>${ballerina.version}</version>
+	                                    <type>zip</type>
+	                                    <overWrite>true</overWrite>
+	                                    <outputDirectory>target</outputDirectory>
+	                                </artifactItem>
+	                            </artifactItems>
+	                        </configuration>
+	                    </execution>
+	                </executions>
+	            </plugin>
+	            <plugin>
+	                <groupId>org.ballerinalang</groupId>
+	                <artifactId>docerina-maven-plugin</artifactId>
+	                <version>${docerina.maven.plugin.version}</version>
+	                <executions>
+	                    <execution>
+	                        <phase>package</phase>
+	                        <goals>
+	                            <goal>docerina</goal>
+	                        </goals>
+	                        <configuration>
+	                            <templatesDir>${project.build.directory}/docerina-${ballerina.version}/templates/html</templatesDir>
+	                            <outputDir>${docerina.output.directory}</outputDir>
+	                            <sourceDir>${project.build.directory}/../src/main/ballerina</sourceDir>
+	                        </configuration>
+	                    </execution>
+	                </executions>
+	            </plugin>
+        	</plugins>
+        </build>
+        <properties>
+	        <!-- Path to the output directory which contains the API documentation -->
+	        <docerina.output.directory>${project.build.directory}</docerina.output.directory>
+    	</properties>
