@@ -35,6 +35,7 @@ import org.ballerinalang.model.symbols.BLangSymbol;
 import org.ballerinalang.model.types.BType;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -52,7 +53,7 @@ public class ForkJoinStmt extends AbstractStatement implements SymbolScope, Comp
     private VariableRefExpr messageReference;
     // Scope related variables
     private SymbolScope enclosingScope;
-    private Map<SymbolName, BLangSymbol> symbolMap;
+    protected Map<SymbolName, BLangSymbol> symbolMap;
     private int tempStackFrameSize;
 
     private ForkJoinStmt(NodeLocation nodeLocation, SymbolScope enclosingScope) {
@@ -74,7 +75,7 @@ public class ForkJoinStmt extends AbstractStatement implements SymbolScope, Comp
         private NodeLocation nodeLocation;
         // Scope related variables
         private SymbolScope enclosingScope;
-        private Map<SymbolName, BLangSymbol> symbolMap;
+        protected Map<SymbolName, BLangSymbol> symbolMap;
 
         public Join (NodeLocation nodeLocation, SymbolScope enclosingScope) {
             this.enclosingScope = enclosingScope;
@@ -128,6 +129,11 @@ public class ForkJoinStmt extends AbstractStatement implements SymbolScope, Comp
         public BLangSymbol resolve(SymbolName name) {
             return resolve(symbolMap, name);
         }
+
+        @Override
+        public Map<SymbolName, BLangSymbol> getSymbolMap() {
+            return Collections.unmodifiableMap(this.symbolMap);
+        }
     }
 
     /**
@@ -142,7 +148,7 @@ public class ForkJoinStmt extends AbstractStatement implements SymbolScope, Comp
 
         // Scope related variables
         private SymbolScope enclosingScope;
-        private Map<SymbolName, BLangSymbol> symbolMap;
+        protected Map<SymbolName, BLangSymbol> symbolMap;
 
         private Timeout(NodeLocation nodeLocation, SymbolScope symbolScope) {
             this.enclosingScope = symbolScope;
@@ -189,6 +195,11 @@ public class ForkJoinStmt extends AbstractStatement implements SymbolScope, Comp
         @Override
         public BLangSymbol resolve(SymbolName name) {
             return resolve(symbolMap, name);
+        }
+
+        @Override
+        public Map<SymbolName, BLangSymbol> getSymbolMap() {
+            return Collections.unmodifiableMap(this.symbolMap);
         }
     }
 
@@ -409,6 +420,11 @@ public class ForkJoinStmt extends AbstractStatement implements SymbolScope, Comp
     @Override
     public BLangSymbol resolve(SymbolName name) {
         return resolve(symbolMap, name);
+    }
+
+    @Override
+    public Map<SymbolName, BLangSymbol> getSymbolMap() {
+        return Collections.unmodifiableMap(this.symbolMap);
     }
 
 

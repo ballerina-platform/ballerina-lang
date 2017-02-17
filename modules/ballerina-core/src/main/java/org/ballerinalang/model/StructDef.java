@@ -24,6 +24,7 @@ import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -39,7 +40,7 @@ public class StructDef extends BType implements CompilationUnit, SymbolScope {
     private int structMemorySize;
 
     private SymbolName symbolName;
-    private Map<SymbolName, BLangSymbol> symbolMap;
+    protected Map<SymbolName, BLangSymbol> symbolMap;
 
     public StructDef(SymbolScope enclosingScope) {
         super(null, null, enclosingScope, BStruct.class);
@@ -117,6 +118,11 @@ public class StructDef extends BType implements CompilationUnit, SymbolScope {
     @Override
     public BLangSymbol resolve(SymbolName name) {
         return resolve(symbolMap, name);
+    }
+
+    @Override
+    public Map<SymbolName, BLangSymbol> getSymbolMap() {
+        return Collections.unmodifiableMap(this.symbolMap);
     }
 
     public BLangSymbol resolveMembers(SymbolName name) {

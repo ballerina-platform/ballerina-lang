@@ -22,6 +22,7 @@ import org.ballerinalang.model.builder.CallableUnitGroupBuilder;
 import org.ballerinalang.model.statements.VariableDefStmt;
 import org.ballerinalang.model.symbols.BLangSymbol;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -57,7 +58,7 @@ public class Service implements CompilationUnit, SymbolScope, BLangSymbol {
 
     // Scope related variables
     private SymbolScope enclosingScope;
-    private Map<SymbolName, BLangSymbol> symbolMap;
+    protected Map<SymbolName, BLangSymbol> symbolMap;
 
     // Here we need to link a service with it's program. We execute the matching resource
     // when a request is made. At that point, we need to access runtime environment to execute the resource.
@@ -180,6 +181,11 @@ public class Service implements CompilationUnit, SymbolScope, BLangSymbol {
     @Override
     public BLangSymbol resolve(SymbolName name) {
         return resolve(symbolMap, name);
+    }
+
+    @Override
+    public Map<SymbolName, BLangSymbol> getSymbolMap() {
+        return Collections.unmodifiableMap(this.symbolMap);
     }
 
     /**

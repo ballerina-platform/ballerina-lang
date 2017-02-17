@@ -162,13 +162,6 @@ public class BLangPackage implements SymbolScope, BLangSymbol, Node {
         return typeMappers;
     }
 
-    /**
-     * Get a unmodifiable list of symbols
-     * @return symbols
-     * */
-    public List<BLangSymbol> getSymbols() {
-        return Collections.unmodifiableList(new ArrayList<>(symbolMap.values()));
-    }
     // Methods in the SymbolScope interface
 
     @Override
@@ -204,6 +197,11 @@ public class BLangPackage implements SymbolScope, BLangSymbol, Node {
         }
 
         return ((BLangPackage) pkgSymbol).resolveMembers(new SymbolName(name.getName()));
+    }
+
+    @Override
+    public Map<SymbolName, BLangSymbol> getSymbolMap() {
+        return Collections.unmodifiableMap(this.symbolMap);
     }
 
     public BLangSymbol resolveMembers(SymbolName name) {

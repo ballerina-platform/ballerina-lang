@@ -19,10 +19,8 @@ package org.ballerinalang.model;
 
 import org.ballerinalang.model.symbols.BLangSymbol;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -30,7 +28,7 @@ import java.util.Map;
  * @since 0.8.0
  */
 public class GlobalScope implements SymbolScope {
-    private Map<SymbolName, BLangSymbol> symbolMap;
+    protected Map<SymbolName, BLangSymbol> symbolMap;
 
     private static GlobalScope instance = new GlobalScope();
 
@@ -40,14 +38,6 @@ public class GlobalScope implements SymbolScope {
 
     public static GlobalScope getInstance() {
         return instance;
-    }
-
-    /**
-     * Get unmodifiable symbol list.
-     * @return symbols
-     * */
-    public List<BLangSymbol> getSymbols() {
-        return Collections.unmodifiableList(new ArrayList<>(symbolMap.values()));
     }
 
     @Override
@@ -68,5 +58,10 @@ public class GlobalScope implements SymbolScope {
     @Override
     public BLangSymbol resolve(SymbolName name) {
         return resolve(symbolMap, name);
+    }
+
+    @Override
+    public Map<SymbolName, BLangSymbol> getSymbolMap() {
+        return Collections.unmodifiableMap(this.symbolMap);
     }
 }

@@ -24,6 +24,7 @@ import org.ballerinalang.model.symbols.BLangSymbol;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.util.exceptions.FlowBuilderException;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -64,7 +65,7 @@ public class BallerinaAction implements Action, SymbolScope, Node {
 
     // Scope related variables
     private SymbolScope enclosingScope;
-    private Map<SymbolName, BLangSymbol> symbolMap;
+    protected Map<SymbolName, BLangSymbol> symbolMap;
 
     // Linker related variables
     private int tempStackFrameSize;
@@ -228,6 +229,11 @@ public class BallerinaAction implements Action, SymbolScope, Node {
     @Override
     public BLangSymbol resolve(SymbolName name) {
         return resolve(symbolMap, name);
+    }
+
+    @Override
+    public Map<SymbolName, BLangSymbol> getSymbolMap() {
+        return Collections.unmodifiableMap(this.symbolMap);
     }
 
     public boolean isFlowBuilderVisited() {

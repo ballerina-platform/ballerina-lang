@@ -26,6 +26,7 @@ import org.ballerinalang.model.nodes.GotoNode;
 import org.ballerinalang.model.symbols.BLangSymbol;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -41,7 +42,7 @@ public class BlockStmt extends AbstractStatement implements SymbolScope {
 
     // Scope related variables
     private SymbolScope enclosingScope;
-    private Map<SymbolName, BLangSymbol> symbolMap;
+    protected Map<SymbolName, BLangSymbol> symbolMap;
 
     private BlockStmt(NodeLocation location, SymbolScope enclosingScope) {
         super(location);
@@ -81,6 +82,11 @@ public class BlockStmt extends AbstractStatement implements SymbolScope {
     @Override
     public BLangSymbol resolve(SymbolName name) {
         return resolve(symbolMap, name);
+    }
+
+    @Override
+    public Map<SymbolName, BLangSymbol> getSymbolMap() {
+        return Collections.unmodifiableMap(this.symbolMap);
     }
 
     public GotoNode getGotoNode() {
