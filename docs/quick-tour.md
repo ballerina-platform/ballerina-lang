@@ -1,6 +1,6 @@
 # Quick Tour
 
-Now that you know [a little bit about Ballerina](intro.md), let's take it for a spin! 
+Now that you know [a little bit about Ballerina](index.md), let's take it for a spin! 
 
 ## Install Ballerina
 
