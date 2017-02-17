@@ -25,7 +25,7 @@
   <packaging>pom</packaging>
 
   <name>Ballerina Maven Plugins - Parent Pom</name>
-  <url>http://wso2.org</url>
+  <url>http://ballerinalang.org</url>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
