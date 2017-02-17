@@ -27,6 +27,13 @@
   <name>Ballerina Maven Plugins - Parent Pom</name>
   <url>http://ballerinalang.org</url>
 
+  <scm>
+    <url>https://github.com/ballerinalang/plugin-maven.git</url>
+    <developerConnection>scm:git:https://github.com/ballerinalang/plugin-maven.git</developerConnection>
+    <connection>scm:git:https://github.com/ballerinalang/plugin-maven.git</connection>
+    <tag>HEAD</tag>
+  </scm>
+
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <docerina.version>0.8.0-SNAPSHOT</docerina.version>
