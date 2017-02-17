@@ -18,12 +18,12 @@ import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.junit.Assert;
 import org.junit.Test;
-import org.wso2.ballerina.core.model.BallerinaFile;
-import org.wso2.ballerina.core.model.Service;
-import org.wso2.ballerina.core.model.builder.BLangModelBuilder;
-import org.wso2.ballerina.core.parser.BallerinaLexer;
-import org.wso2.ballerina.core.parser.BallerinaParser;
-import org.wso2.ballerina.core.parser.antlr4.BLangAntlr4Listener;
+import org.ballerinalang.model.BallerinaFile;
+import org.ballerinalang.model.Service;
+import org.ballerinalang.model.builder.BLangModelBuilder;
+import org.ballerinalang.util.parser.BallerinaLexer;
+import org.ballerinalang.util.parser.BallerinaParser;
+import org.ballerinalang.util.parser.antlr4.BLangAntlr4Listener;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;

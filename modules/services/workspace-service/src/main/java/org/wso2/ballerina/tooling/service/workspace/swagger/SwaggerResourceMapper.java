@@ -19,9 +19,9 @@ package org.wso2.ballerina.tooling.service.workspace.swagger;
 import io.swagger.models.Operation;
 import io.swagger.models.Path;
 import io.swagger.models.Response;
-import org.wso2.ballerina.core.model.Annotation;
-import org.wso2.ballerina.core.model.Resource;
-import org.wso2.ballerina.core.runtime.dispatching.Constants;
+import org.ballerinalang.model.Annotation;
+import org.ballerinalang.model.Resource;
+import org.ballerinalang.services.dispatchers.http.Constants;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
