@@ -278,23 +278,23 @@ define(['lodash', 'log', './ballerina-view', './variables-view', './type-struct-
 
         TypeMapperDefinitionView.prototype.loadSchemasToComboBox = function (parentId, sourceComboboxId, targetComboboxId, schemaArray) {
             for (var i = 0; i < schemaArray.length; i++) {
-                $(parentId).find(sourceComboboxId).append('<option value="' + i + '">' + schemaArray[i].getStructName() + '</option>');
-                $(parentId).find(targetComboboxId).append('<option value="' + i + '">' + schemaArray[i].getStructName() + '</option>');
+                $(parentId).find(sourceComboboxId).append('<option value="' + schemaArray[i].getStructName() + '">' + schemaArray[i].getStructName() + '</option>');
+                $(parentId).find(targetComboboxId).append('<option value="' + schemaArray[i].getStructName() + '">' + schemaArray[i].getStructName() + '</option>');
             }
         };
 
         TypeMapperDefinitionView.prototype.loadSchemaToComboBox = function (parentId, comboBoxId,schemaArray) {
             for (var i = 0; i < schemaArray.length; i++) {
-                $(parentId).find(comboBoxId).append('<option value="' + i + '">' + schemaArray[i].getStructName() + '</option>');
+                $(parentId).find(comboBoxId).append('<option value="' + schemaArray[i].getStructName() + '">' + schemaArray[i].getStructName() + '</option>');
             }
         };
 
         TypeMapperDefinitionView.prototype.setSourceSchemaNameToComboBox = function (sourceComboboxId,sourceName) {
-            $(sourceComboboxId+" option:contains(" + sourceName + ")").attr('selected', 'selected');
+           $(sourceComboboxId).val(sourceName).trigger('change.select2');
         };
 
         TypeMapperDefinitionView.prototype.setTargetSchemaNameToComboBox = function (targetComboboxId, targetName) {
-            $(targetComboboxId + " option:contains(" + targetName + ")").attr('selected', 'selected');
+            $(targetComboboxId).val(targetName).trigger('change.select2');;
         };
 
         /**
