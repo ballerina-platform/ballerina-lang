@@ -163,27 +163,27 @@ public class BLangExpressionModelBuilder implements NodeVisitor {
     public void visit(ParameterDef parameterDef) {
     }
 
-    @Override
-    public void visit(ConnectorDcl connectorDcl) {
-        StringBuffer buffer = new StringBuffer();
-        bufferStack.push(buffer);
-        buffer.append(connectorDcl.getConnectorName()).append(SPACE_CHAR)
-                .append(connectorDcl.getVarName().getName()).append(SPACE_CHAR).append("=")
-                .append(SPACE_CHAR).append("new").append(SPACE_CHAR)
-                .append(connectorDcl.getConnectorName()).append("(");
-        boolean isFirstItr = true;
-        for (Expression expr : connectorDcl.getArgExprs()) {
-            if (!isFirstItr) {
-                buffer.append(",");
-            } else {
-                isFirstItr = false;
-            }
-            expr.accept(this);
-            buffer.append(bufferStack.peek());
-            bufferStack.pop();
-        }
-        buffer.append(SPACE_CHAR).append(");");
-    }
+//    @Override
+//    public void visit(ConnectorDcl connectorDcl) {
+//        StringBuffer buffer = new StringBuffer();
+//        bufferStack.push(buffer);
+//        buffer.append(connectorDcl.getConnectorName()).append(SPACE_CHAR)
+//                .append(connectorDcl.getVarName().getName()).append(SPACE_CHAR).append("=")
+//                .append(SPACE_CHAR).append("new").append(SPACE_CHAR)
+//                .append(connectorDcl.getConnectorName()).append("(");
+//        boolean isFirstItr = true;
+//        for (Expression expr : connectorDcl.getArgExprs()) {
+//            if (!isFirstItr) {
+//                buffer.append(",");
+//            } else {
+//                isFirstItr = false;
+//            }
+//            expr.accept(this);
+//            buffer.append(bufferStack.peek());
+//            bufferStack.pop();
+//        }
+//        buffer.append(SPACE_CHAR).append(");");
+//    }
 
     @Override
     public void visit(VariableDef variableDef) {

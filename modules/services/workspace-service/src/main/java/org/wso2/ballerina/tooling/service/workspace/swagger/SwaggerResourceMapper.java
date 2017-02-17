@@ -21,6 +21,7 @@ import io.swagger.models.Path;
 import io.swagger.models.Response;
 import io.swagger.models.parameters.PathParameter;
 import org.ballerinalang.model.Annotation;
+import org.ballerinalang.model.ParameterDef;
 import org.ballerinalang.model.Resource;
 import org.ballerinalang.services.dispatchers.http.Constants;
 
