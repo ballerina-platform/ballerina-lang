@@ -192,9 +192,15 @@ define(['require', 'lodash', 'log', './../visitors/statement-visitor', 'd3', 'd3
             .classed(viewOptions.actionButton.class, true).classed(viewOptions.actionButton.deleteClass, true);
 
         // Creating the add breakpoint action button.
-        var addBreakpointButtonRect = D3Utils.rect(centerPointX + viewOptions.actionButton.width - (propertyButtonPaneRectWidth / 2), centerPointY + 3,
+        var toggleBreakpointButtonRect = D3Utils.rect(centerPointX + viewOptions.actionButton.width - (propertyButtonPaneRectWidth / 2), centerPointY + 3,
             propertyButtonPaneRectWidth / 2, viewOptions.actionButton.height, 0, 0, deleteButtonPaneGroup)
             .classed(viewOptions.actionButton.class, true).classed(viewOptions.actionButton.breakpointClass, true);
+
+        // show a remove breakpoint icon if there is a breakpoint already
+        var fileName = self.getDiagramRenderingContext().ballerinaFileEditor._file.getName();
+        var lineNumber = self._model.getLineNumber();
+        var hasActiveBreakPoint = DebugManager.hasBreakPoint(lineNumber, fileName);
+        toggleBreakpointButtonRect.classed(viewOptions.actionButton.breakpointActiveClass, hasActiveBreakPoint);
 
         // 175 is the width set in css
         var propertyPaneWrapper = $("<div/>", {
@@ -229,13 +235,19 @@ define(['require', 'lodash', 'log', './../visitors/statement-visitor', 'd3', 'd3
             $(statementGroup).remove();
         });
 
-        $(addBreakpointButtonRect.node()).click(function(event){
+        $(toggleBreakpointButtonRect.node()).click(function(event){
             // TODO: handle line number  is not defined for new nodes
             event.stopPropagation();
             // Hiding property button pane.
             self.trigger('edit-mode-disabled');
             var fileName = self.getDiagramRenderingContext().ballerinaFileEditor._file.getName();
-            DebugManager.addBreakPoint(self._model.getLineNumber(), fileName);
+            var lineNumber = self._model.getLineNumber();
+            if(DebugManager.hasBreakPoint(lineNumber, fileName)) {
+                DebugManager.removeBreakPoint(lineNumber, fileName);
+            } else {
+                DebugManager.addBreakPoint(lineNumber, fileName);
+            }
+            $(this).toggleClass('active');
         });
 
         this._isEditControlsActive = true;
@@ -262,6 +274,7 @@ define(['require', 'lodash', 'log', './../visitors/statement-visitor', 'd3', 'd3
         viewOptions.actionButton.disableClass = _.get(args, "viewOptions.actionButton.disableClass", "property-pane-action-button-disable");
         viewOptions.actionButton.deleteClass = _.get(args, "viewOptions.actionButton.deleteClass", "property-pane-action-button-delete");
         viewOptions.actionButton.breakpointClass = _.get(args, "viewOptions.actionButton.breakpointClass", "property-pane-action-button-breakpoint");
+        viewOptions.actionButton.breakpointActiveClass = _.get(args, "viewOptions.actionButton.breakpointActiveClass", "active");
 
         viewOptions.actionButton.width = _.get(args, "viewOptions.action.button.width", 22);
         viewOptions.actionButton.height = _.get(args, "viewOptions.action.button.height", 22);
@@ -329,6 +342,18 @@ define(['require', 'lodash', 'log', './../visitors/statement-visitor', 'd3', 'd3
              .attr("y", (viewOptions.breakpointIndicator.height / 2) - (14 / 2))
              .attr("width", "14")
              .attr("height", "14");
+
+          var removeBreakpoint = svgDefinitions.append("pattern")
+              .attr("id", "debugRemoveIcon")
+              .attr("width", "100%")
+              .attr("height", "100%");
+
+          removeBreakpoint.append("image")
+              .attr("xlink:href", "images/debug-point-remove.svg")
+              .attr("x", (viewOptions.breakpointIndicator.width) - (36 / 2))
+              .attr("y", (viewOptions.breakpointIndicator.height / 2) - (14 / 2))
+              .attr("width", "14")
+              .attr("height", "14");
 
          var statementBoundingBox = this.getBoundingBox();
          var pointX = statementBoundingBox.x() + statementBoundingBox.w() - viewOptions.breakpointIndicator.width +
