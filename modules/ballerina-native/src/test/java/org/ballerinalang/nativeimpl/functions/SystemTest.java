@@ -220,7 +220,7 @@ public class SystemTest {
         try {
             rootLogger.setLevel(Level.ALL);
             rootLogger.addAppender(testLogAppender);
-            Functions.invoke(bFile, "testDateFunction");
+            BLangFunctions.invoke(bLangProgram, "testDateFunction");
             // We are not expecting boolean log in event list.
             Assert.assertEquals(testLogAppender.getEvents().size(), 1, "Date Logging event didn't match.");
             Assert.assertTrue(!((String) testLogAppender.events.get(0).getMessage()).endsWith("[INFO] 0"));

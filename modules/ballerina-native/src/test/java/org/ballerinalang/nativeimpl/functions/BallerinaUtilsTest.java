@@ -110,14 +110,14 @@ public class BallerinaUtilsTest {
         argsList.add(new BValue[]{new BString("Ballerina HMAC BASE64 test"), new BString(key), new BString("MD5")});
 
         for (BValue[] args : argsList) {
-            BValue[] returnVals = Functions.invoke(bFile, "testHmacFromBase64", args);
+            BValue[] returnVals = BLangFunctions.invoke(bLangProgram, "testHmacFromBase64", args);
             Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                                "Invalid Return Values for");
         }
     }
 
     @Test
-    public void testGetHash() {
+    public void testMessageDigest() {
         List<BValue[]> argsList = new ArrayList<>();
 
         argsList.add(new BValue[]{new BString("Ballerina HMAC BASE64 test"), new BString("SHA1")});
@@ -125,7 +125,7 @@ public class BallerinaUtilsTest {
         argsList.add(new BValue[]{new BString("Ballerina HMAC BASE64 test"), new BString("MD5")});
 
         for (BValue[] args : argsList) {
-            BValue[] returnVals = Functions.invoke(bFile, "testGetHash", args);
+            BValue[] returnVals = BLangFunctions.invoke(bLangProgram, "testMessageDigest", args);
             Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                                "Invalid Return Values for");
         }
@@ -134,7 +134,7 @@ public class BallerinaUtilsTest {
     @Test
     public void testBase64toBase16Encode() {
         BValue[] args = new BValue[]{new BString("Ballerina HMAC BASE64 test")};
-        BValue[] returnVals = Functions.invoke(bFile, "testBase64ToBase16Encode", args);
+        BValue[] returnVals = BLangFunctions.invoke(bLangProgram, "testBase64ToBase16Encode", args);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                            "Invalid Return Values for");
     }
