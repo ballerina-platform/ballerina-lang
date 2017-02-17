@@ -162,14 +162,18 @@ public class BallerinaConnectorManager {
     }
 
     /**
-     * Start all the ServerConnectors which startup is delayed at the service deployment time
+     * Start all the ServerConnectors which startup is delayed at the service deployment time.
      *
-     * @throws ServerConnectorException if exception occurs while starting at least one connector
+     * @return the list of started server connectors.
+     * @throws ServerConnectorException if exception occurs while starting at least one connector.
      */
-    public void startPendingConnectors() throws ServerConnectorException {
+    public List<ServerConnector> startPendingConnectors() throws ServerConnectorException {
+        List<ServerConnector> startedConnectors = new ArrayList<>();
         for (StartupDelayedServerConnectorHolder connectorHolder: startupDelayedServerConnectors) {
             connectorHolder.getServerConnector().start(connectorHolder.getParameters());
+            startedConnectors.add(connectorHolder.getServerConnector());
         }
+        return startedConnectors;
     }
 
     private void loadDispatchers() {
