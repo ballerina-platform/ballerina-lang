@@ -13,7 +13,6 @@ import org.ballerinalang.launcher.LauncherUtils;
 import java.io.Console;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -70,12 +69,6 @@ public class DockerCmd implements BLauncherCmd {
         if (helpFlag) {
             printCommandUsageInfo();
             return;
-        }
-
-        // temporary fix until https://github.com/ballerinalang/ballerina/issues/1937 gets fixed.
-        Path path = Paths.get(System.getProperty("java.io.tmpdir"));
-        if (!Files.exists(path)) {
-            System.setProperty("java.io.tmpdir", "/tmp");
         }
         
         if (packagePathNames == null || packagePathNames.size() == 0) {
