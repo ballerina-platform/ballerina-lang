@@ -17,17 +17,17 @@
 */
 package org.ballerinalang;
 
+import org.ballerinalang.model.BLangPackage;
+import org.ballerinalang.model.BLangProgram;
+import org.ballerinalang.model.GlobalScope;
+import org.ballerinalang.model.SymbolName;
 import org.ballerinalang.util.BLangDiagnosticListener;
 import org.ballerinalang.util.program.BLangPackages;
 import org.ballerinalang.util.program.BLangPrograms;
 import org.ballerinalang.util.repository.BLangProgramArchive;
 import org.ballerinalang.util.repository.FileSystemPackageRepository;
 import org.ballerinalang.util.repository.PackageRepository;
-import org.wso2.ballerina.core.model.BLangPackage;
-import org.wso2.ballerina.core.model.BLangProgram;
-import org.wso2.ballerina.core.model.GlobalScope;
-import org.wso2.ballerina.core.model.SymbolName;
-import org.wso2.ballerina.core.semantics.SemanticAnalyzer;
+import org.ballerinalang.util.semantics.SemanticAnalyzer;
 
 import java.nio.file.Files;
 import java.nio.file.LinkOption;

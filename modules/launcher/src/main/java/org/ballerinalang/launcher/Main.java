@@ -8,9 +8,9 @@ import com.beust.jcommander.ParameterException;
 import com.beust.jcommander.Parameters;
 import org.ballerinalang.BLangProgramArchiveBuilder;
 import org.ballerinalang.BLangProgramLoader;
+import org.ballerinalang.model.BLangProgram;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.util.program.BLangPrograms;
-import org.wso2.ballerina.core.model.BLangProgram;
 
 import java.io.IOException;
 import java.io.PrintStream;
@@ -27,7 +27,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.ServiceLoader;
 
-import static org.wso2.ballerina.core.runtime.Constants.SYSTEM_PROP_BAL_DEBUG;
+import static org.ballerinalang.runtime.Constants.SYSTEM_PROP_BAL_DEBUG;
 
 /**
  * This class executes a Ballerina program.

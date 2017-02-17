@@ -82,7 +82,7 @@
                             <goal>java</goal>
                         </goals>
                         <configuration>
-                            <mainClass>org.wso2.ballerina.annotation.processor.NativeValidator</mainClass>
+                            <mainClass>org.ballerinalang.natives.annotation.processor.NativeValidator</mainClass>
                             <arguments>
                                 <argument>${generated.ballerina.source.directory}</argument>
                             </arguments>
@@ -98,7 +98,7 @@
                 <version>${mvn.processor.plugin.version}</version>
                 <configuration>
                     <processors>
-                        <processor>org.wso2.ballerina.annotation.processor.BallerinaAnnotationProcessor</processor>
+                        <processor>org.ballerinalang.natives.annotation.processor.BallerinaAnnotationProcessor</processor>
                     </processors>
                     <options>
                         <packageName>${native.constructs.provider.package}</packageName>

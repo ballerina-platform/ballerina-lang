@@ -17,11 +17,11 @@
 */
 package org.ballerinalang;
 
+import org.ballerinalang.model.BLangPackage;
+import org.ballerinalang.model.BLangProgram;
 import org.ballerinalang.util.program.BLangPackages;
 import org.ballerinalang.util.repository.BLangProgramArchive;
 import org.ballerinalang.util.repository.PackageRepository;
-import org.wso2.ballerina.core.model.BLangPackage;
-import org.wso2.ballerina.core.model.BLangProgram;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
