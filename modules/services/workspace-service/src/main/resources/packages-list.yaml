@@ -28,7 +28,7 @@ host: apis.ballerina.io
 
 # The base path of the API.
 # Will be prefixed to all paths.
-basePath: /ballerina/composer
+basePath: /ballerina/editor
 
 # The following media types can be passed as input in message bodies of the API.
 # The actual media type must be specified in the Content-Type header field of the request.

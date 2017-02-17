@@ -18,14 +18,9 @@ package org.ballerinalang.composer.service.workspace.rest;
 
 import com.google.gson.JsonObject;
 import com.google.inject.Inject;
-
+import org.ballerinalang.composer.service.workspace.Workspace;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.ballerinalang.composer.service.workspace.Workspace;
-
-import javax.ws.rs.*;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 
 import java.io.FileNotFoundException;
 import java.nio.file.AccessDeniedException;
@@ -39,6 +34,14 @@ import java.nio.file.ReadOnlyFileSystemException;
 import java.util.Base64;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import javax.ws.rs.FormParam;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 /**
  * Micro-service for exposing the workspace.

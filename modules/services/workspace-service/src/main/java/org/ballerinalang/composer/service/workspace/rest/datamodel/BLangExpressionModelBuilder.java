@@ -32,7 +32,6 @@ import org.ballerinalang.model.BallerinaAction;
 import org.ballerinalang.model.BallerinaConnectorDef;
 import org.ballerinalang.model.BallerinaFile;
 import org.ballerinalang.model.BallerinaFunction;
-import org.ballerinalang.model.ConnectorDcl;
 import org.ballerinalang.model.ConstDef;
 import org.ballerinalang.model.ImportPackage;
 import org.ballerinalang.model.NodeVisitor;

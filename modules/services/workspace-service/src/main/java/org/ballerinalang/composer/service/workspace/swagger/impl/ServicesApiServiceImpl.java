@@ -17,15 +17,16 @@ package org.ballerinalang.composer.service.workspace.swagger.impl;
 
 import com.google.gson.JsonObject;
 import io.swagger.annotations.ApiParam;
-import org.ballerinalang.composer.service.workspace.swagger.SwaggerConverterUtils;
-import org.ballerinalang.composer.service.workspace.swagger.model.Service;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.ballerinalang.model.BallerinaFile;
 import org.ballerinalang.composer.service.workspace.rest.datamodel.BLangJSONModelBuilder;
+import org.ballerinalang.composer.service.workspace.swagger.SwaggerConverterUtils;
 import org.ballerinalang.composer.service.workspace.swagger.SwaggerServiceMapper;
 import org.ballerinalang.composer.service.workspace.swagger.api.NotFoundException;
+import org.ballerinalang.composer.service.workspace.swagger.model.Service;
+import org.ballerinalang.model.BallerinaFile;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.OPTIONS;
 import javax.ws.rs.POST;
@@ -34,7 +35,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.io.IOException;
 
 @Path("/service/swagger")
 @Consumes({"application/json"})

@@ -16,8 +16,8 @@
 
 package org.ballerinalang.composer.service.workspace;
 
-import org.ballerinalang.composer.service.workspace.rest.PackagesApiServiceImpl;
 import org.ballerinalang.composer.service.workspace.api.PackagesApiService;
+import org.ballerinalang.composer.service.workspace.rest.PackagesApiServiceImpl;
 
 public class PackagesApiServiceFactory {
 

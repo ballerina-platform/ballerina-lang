@@ -17,19 +17,19 @@ package org.ballerinalang.composer.service.workspace.app;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import org.ballerinalang.composer.service.workspace.rest.FileServer;
-import org.ballerinalang.composer.service.workspace.rest.WorkspaceService;
-import org.ballerinalang.composer.service.workspace.rest.datamodel.BLangFileRestService;
-import org.ballerinalang.composer.service.workspace.rest.exception.FileNotFoundExceptionMapper;
-import org.ballerinalang.composer.service.workspace.rest.exception.ParseCancellationExceptionMapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.ballerinalang.composer.service.workspace.Constants;
 import org.ballerinalang.composer.service.workspace.api.PackagesApi;
 import org.ballerinalang.composer.service.workspace.launcher.LaunchManager;
+import org.ballerinalang.composer.service.workspace.rest.FileServer;
+import org.ballerinalang.composer.service.workspace.rest.WorkspaceService;
+import org.ballerinalang.composer.service.workspace.rest.datamodel.BLangFileRestService;
 import org.ballerinalang.composer.service.workspace.rest.exception.DefaultExceptionMapper;
+import org.ballerinalang.composer.service.workspace.rest.exception.FileNotFoundExceptionMapper;
+import org.ballerinalang.composer.service.workspace.rest.exception.ParseCancellationExceptionMapper;
 import org.ballerinalang.composer.service.workspace.rest.exception.SemanticExceptionMapper;
 import org.ballerinalang.composer.service.workspace.swagger.factories.ServicesApiServiceFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.msf4j.MicroservicesRunner;
 
 import java.nio.file.Paths;

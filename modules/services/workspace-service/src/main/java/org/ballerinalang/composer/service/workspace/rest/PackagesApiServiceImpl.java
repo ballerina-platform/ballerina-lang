@@ -16,17 +16,6 @@
 
 package org.ballerinalang.composer.service.workspace.rest;
 
-import org.ballerinalang.model.GlobalScope;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.ballerinalang.model.SymbolName;
-import org.ballerinalang.model.symbols.BLangSymbol;
-import org.ballerinalang.model.types.SimpleTypeName;
-import org.ballerinalang.natives.AbstractNativeFunction;
-import org.ballerinalang.natives.NativeUnitProxy;
-import org.ballerinalang.natives.connectors.AbstractNativeAction;
-import org.ballerinalang.natives.connectors.AbstractNativeConnector;
-import org.ballerinalang.natives.BuiltInNativeConstructLoader;
 import org.ballerinalang.composer.service.workspace.api.NotFoundException;
 import org.ballerinalang.composer.service.workspace.api.PackagesApiService;
 import org.ballerinalang.composer.service.workspace.model.Action;
@@ -35,12 +24,24 @@ import org.ballerinalang.composer.service.workspace.model.Connector;
 import org.ballerinalang.composer.service.workspace.model.Function;
 import org.ballerinalang.composer.service.workspace.model.ModelPackage;
 import org.ballerinalang.composer.service.workspace.model.Parameter;
+import org.ballerinalang.composer.service.workspace.scope.APIScope;
+import org.ballerinalang.model.GlobalScope;
+import org.ballerinalang.model.SymbolName;
+import org.ballerinalang.model.symbols.BLangSymbol;
+import org.ballerinalang.model.types.SimpleTypeName;
+import org.ballerinalang.natives.AbstractNativeFunction;
+import org.ballerinalang.natives.BuiltInNativeConstructLoader;
+import org.ballerinalang.natives.NativeUnitProxy;
+import org.ballerinalang.natives.connectors.AbstractNativeAction;
+import org.ballerinalang.natives.connectors.AbstractNativeConnector;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import javax.ws.rs.core.Response;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import javax.ws.rs.core.Response;
 
 /**
  * This is the service implementation class for Packages list related operations
