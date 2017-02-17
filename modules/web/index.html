@@ -588,7 +588,9 @@
 			expression_editor_utils: "js/expression-editor/expression-editor-utils",
             constants: 'js/constants/constants',
             typeMapper: 'js/type-mapper/type-mapper-renderer',
-            environment_content: "js/ballerina/env/environment-content"
+            environment_content: "js/ballerina/env/environment-content",
+            bal_utils: "js/ballerina/utils",
+            bal_configs: "js/ballerina/configs"
         },
         shim: {
             "bootstrap": {"deps": ['jquery']},
@@ -691,6 +693,9 @@
                 },
                 parser:  {
                     endpoint: "http://localhost:8289/ballerina/model/content"
+                },
+                validator:  {
+                    endpoint: "http://localhost:8289/ballerina/validate"
                 }
             },
             alerts: {
