@@ -61,6 +61,7 @@ import org.wso2.ballerina.core.model.expressions.ModExpression;
 import org.wso2.ballerina.core.model.expressions.MultExpression;
 import org.wso2.ballerina.core.model.expressions.NotEqualExpression;
 import org.wso2.ballerina.core.model.expressions.OrExpression;
+import org.wso2.ballerina.core.model.expressions.PowExpression;
 import org.wso2.ballerina.core.model.expressions.RefTypeInitExpr;
 import org.wso2.ballerina.core.model.expressions.ReferenceExpr;
 import org.wso2.ballerina.core.model.expressions.StructFieldAccessExpr;
@@ -537,6 +538,10 @@ public class BLangModelBuilder {
 
             case "%":
                 expr = new ModExpression(location, lExpr, rExpr);
+                break;
+
+            case "^":
+                expr = new PowExpression(location, lExpr, rExpr);
                 break;
 
             case "&&":
