@@ -25,7 +25,7 @@ define(['lodash', 'log', 'event_channel', '../../ast/module',
 './else-if-statement-visitor',
 './while-statement-visitor',
 './assignment-statement-visitor',
-'./action-invocation-expression-visitor',
+'./action-invocation-statement-visitor',
 './reply-statement-visitor',
 './logical-expression-visitor',
 './arithmetic-expression-visitor',
@@ -38,7 +38,7 @@ define(['lodash', 'log', 'event_channel', '../../ast/module',
 './variable-definition-statement-visitor', './worker-invoke-visitor', './worker-receive-visitor'],
 function (_, log, EventChannel, AST,
 TryCatchStatementVisitor, TryStatementVisitor, CatchStatementVisitor, IfElseStatementVisitor, IfStatementVisitor,
-ElseStatementVisitor, ElseIfStatementVisitor, WhileStatementVisitor, AssignmentStatementVisitor, ActionInvocationExpressionVisitor,
+ElseStatementVisitor, ElseIfStatementVisitor, WhileStatementVisitor, AssignmentStatementVisitor, ActionInvocationStatementVisitor,
 ReplyStatementVisitor,LogicalExpressionVisitor, ArithmeticExpression, ReturnStatementVisitor, FunctionInvocationVisitor, FunctionInvocationExpressionVisitor, AssignmentVisitor,
 LeftOperandExpressionVisitor, RightOperandExpressionVisitor, VariableDefinitionStatement, WorkerInvoke, WorkerReceive) {
 
@@ -86,8 +86,8 @@ LeftOperandExpressionVisitor, RightOperandExpressionVisitor, VariableDefinitionS
             return new WorkerInvoke(parent);
         }  else if (statement instanceof AST.WorkerReceive) {
             return new WorkerReceive(parent);
-        } else if (statement instanceof AST.ActionInvocationExpression) {
-            return new ActionInvocationExpressionVisitor(parent);
+        } else if (statement instanceof AST.ActionInvocationStatement) {
+            return new ActionInvocationStatementVisitor(parent);
         }
     };
 

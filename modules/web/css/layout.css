@@ -76,6 +76,8 @@ div[class*="col-sm-"] {
     padding: 0;
     min-width: 40px;
     position: fixed;
+    font-size: 12px;
+    text-align: center;
 }
 .sidebar-left{
     height: 100%;

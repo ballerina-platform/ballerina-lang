@@ -25,10 +25,10 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>org.wso2.ballerina.editor</groupId>
+    <groupId>org.ballerinalang.composer</groupId>
     <artifactId>workspace-service</artifactId>
-    <version>0.8.0-SNAPSHOT</version>
-    <name>WSO2 Ballerina - Tooling - Workspace Service</name>
+    <version>0.8-SNAPSHOT</version>
+    <name>Ballerina Composer - Workspace Service</name>
 
     <repositories>
         <!-- WSO2 released artifact repository -->
@@ -165,7 +165,19 @@
             <artifactId>swagger-codegen</artifactId>
             <version>2.2.1</version>
         </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>2.4.5</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-annotations -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-annotations</artifactId>
+            <version>2.4.5</version>
+        </dependency>
     </dependencies>
+
 
     <build>
         <plugins>
@@ -192,7 +204,7 @@
     </build>
 
     <properties>
-        <microservice.mainClass>org.wso2.ballerina.tooling.service.workspace.app.WorkspaceServiceRunner</microservice.mainClass>
+        <microservice.mainClass>org.ballerinalang.composer.service.workspace.app.WorkspaceServiceRunner</microservice.mainClass>
         <!-- dependency versions -->
         <guice.version>4.1.0</guice.version>
         <commons-cli.version>1.3.1</commons-cli.version>

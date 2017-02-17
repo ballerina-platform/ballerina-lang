@@ -1,5 +1,5 @@
-UI Tests for Ballerina Editor
-=============================
+UI Tests for Ballerina Composer
+===============================
 
 To run tests:
 

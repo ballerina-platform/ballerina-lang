@@ -33,7 +33,8 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace/f
             }
             //TODO convert Backend to a singleton
             this.app = options.application;
-            this.backend = new Backend({"url" : this.app.config.services.parser.endpoint});
+            this.parseBackend = new Backend({"url" : this.app.config.services.parser.endpoint});
+            this.validateBackend = new Backend({"url" : this.app.config.services.validator.endpoint});
             this.deserializer = BallerinaASTDeserializer;
         },
 
@@ -49,17 +50,16 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace/f
             Tab.prototype.render.call(this);
             // if file already has content
             if(!_.isNil(this._file.getContent()) && !_.isEmpty(this._file.getContent().trim())){
-                var response = this.backend.parse(this._file.getContent());
-                if (response.error != undefined && response.error) {
-                    this.renderBallerinaEditor(this._astRoot, true);
-                    return;
-                } else if (!_.isUndefined(response.errorMessage)) {
-                    this.renderBallerinaEditor(this._astRoot, true);
-                    alerts.error("Unable to parse the source: " + response.errorMessage);
-                    return;
+                if(!_.isEmpty(this._file.getContent().trim())){
+                    var validateResponse = this.validateBackend.parse(this._file.getContent());
+                    if (validateResponse.errors != undefined && !_.isEmpty(validateResponse.errors)) {
+                        this.renderBallerinaEditor(this._astRoot, true);
+                        return;
+                    }
                 }
+                var parseResponse = this.parseBackend.parse(this._file.getContent());
                 //if no errors display the design.
-                var root = this.deserializer.getASTModel(response);
+                var root = this.deserializer.getASTModel(parseResponse);
                 this.renderBallerinaEditor(root);
             } else if(!_.isNil(this._astRoot)) {
                 this.renderBallerinaEditor(this._astRoot, false);

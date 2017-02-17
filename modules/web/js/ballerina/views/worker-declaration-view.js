@@ -76,6 +76,10 @@ define(['lodash', 'jquery', './ballerina-view', './../ast/worker-declaration', '
             this._model.on('before-remove', this.onBeforeModelRemove, this);
         };
 
+        WorkerDeclarationView.prototype.render = function (diagramRenderingContext) {
+            Object.getPrototypeOf(this.constructor.prototype).render.call(this, diagramRenderingContext);
+        };
+
         WorkerDeclarationView.prototype.setModel = function (model) {
             if (!_.isNil(model)) {
                 this._model = model;
@@ -116,6 +120,7 @@ define(['lodash', 'jquery', './ballerina-view', './../ast/worker-declaration', '
             _.set(statementContainerOpts, 'offset', _.get(args, 'offset', {top: 100, bottom: 100}));
             this._statementContainer = new StatementContainer(statementContainerOpts);
             this._statementContainer.render(this.diagramRenderingContext);
+            this.getModel().accept(this);
             return this._statementContainer;
         };
 
@@ -126,6 +131,10 @@ define(['lodash', 'jquery', './ballerina-view', './../ast/worker-declaration', '
             var args = {model: statement, container: this.getContentArea().node(), viewOptions: {},
                 toolPalette: this._toolPalette, messageManager: this._messageManager, parent: this};
             this._statementContainer.renderStatement(statement, args);
+            var self =this;
+            this.getDiagramRenderingContext().getViewOfModel(statement).listenTo(this.getBoundingBox(), 'right-edge-moved', function (dx) {
+                self.getDiagramRenderingContext().getViewOfModel(statement).getBoundingBox().move(dx, 0);
+            });
         };
 
         /**
@@ -147,6 +156,10 @@ define(['lodash', 'jquery', './ballerina-view', './../ast/worker-declaration', '
             }
             // Remove the child from the diagram rendering context
             delete this.diagramRenderingContext.getViewModelMap()[child.id];
+        };
+
+        WorkerDeclarationView.prototype.canVisitWorkerDeclaration = function (worker) {
+            return true;
         };
 
         return WorkerDeclarationView;

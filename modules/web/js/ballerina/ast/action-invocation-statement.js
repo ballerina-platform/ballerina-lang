@@ -23,51 +23,44 @@ define(['lodash', 'log', './statement'], function (_, log, Statement) {
      * @constructor
      */
     var ActionInvocationStatement = function (args) {
-        Statement.call(this, args);
-        this._connector = _.get(args, 'connector');
-        this._action = _.get(args, 'action');
-        this._message =  _.get(args, 'message') || [];
-        this._path = _.get(args, 'path');
+        Statement.call(this);
         this.type = "ActionInvocationStatement";
     };
 
     ActionInvocationStatement.prototype = Object.create(Statement.prototype);
     ActionInvocationStatement.prototype.constructor = ActionInvocationStatement;
 
-    ActionInvocationStatement.prototype.setConnector = function(connector, options){
-        if(!_.isNil(connector)){
-            this.setAttribute('_connector', connector, options);
+    /**
+     * initialize ActionInvocationStatement from json object
+     * @param {Object} jsonNode to initialize from
+     */
+    ActionInvocationStatement.prototype.initFromJson = function (jsonNode) {
+        var self = this;
+        _.each(jsonNode.children, function (childNode) {
+            var child = self.getFactory().createFromJson(childNode);
+            self.addChild(child);
+            child.initFromJson(childNode);
+        });
+    };
+
+    /**
+     * Get the statement string
+     * @return {string} statement string
+     */
+    ActionInvocationStatement.prototype.getStatementString = function () {
+        if (this.getChildren().length > 0) {
+            return this.getChildren()[0].getExpression();
         }
     };
 
-    ActionInvocationStatement.prototype.getConnector = function(){
-        return this._connector;
-    };
-
-    ActionInvocationStatement.prototype.setAction = function(action, options){
-        if(!_.isNil(action)){
-            this.setAttribute('_action', action, options);
+    /**
+     * Set the statement string
+     * @param {string} statementString
+     */
+    ActionInvocationStatement.prototype.setStatementString = function (statementString, options) {
+        if (this.getChildren().length > 0) {
+            this.getChildren()[0].setExpression(statementString);
         }
-    };
-
-    ActionInvocationStatement.prototype.getAction = function(){
-        return this._action;
-    };
-
-    ActionInvocationStatement.prototype.getMessage = function () {
-        return this._message;
-    };
-
-    ActionInvocationStatement.prototype.setMessage = function (message, options) {
-        this.setAttribute('_message', message, options);
-    };
-
-    ActionInvocationStatement.prototype.getPath = function () {
-        return this._path;
-    };
-
-    ActionInvocationStatement.prototype.setPath = function (path, options) {
-        this.setAttribute('_path', path, options);
     };
 
     return ActionInvocationStatement;

@@ -1,4 +1,4 @@
-******Ballerina Editor Test Automation******
+******Ballerina Composer Test Automation******
 
 **Steps:**
 

@@ -20,20 +20,318 @@ define(['require', 'jquery', 'lodash'], function (require, $, _) {
      * Get the packages from the package list api.
      * */
     environment_content.getPackages = function () {
-        var data = {};
-        $.ajax({
-            type: "GET",
-            url: requirejs.s.contexts._.config.package_listing,
-            contentType: "application/json; charset=utf-8",
-            async: false,
-            dataType: "json",
-            success: function (response) {
-                data = response;
-            },
-            error: function (xhr, textStatus, errorThrown) {
-                data = {"error": true, "message": "Unable to retrieve packages."};
+        //$.ajax({
+        //    type: "GET",
+        //    url: requirejs.s.contexts._.config.package_listing,
+        //    contentType: "application/json; charset=utf-8",
+        //    async: false,
+        //    dataType: "json",
+        //    success: function (response) {
+        //        data = response;
+        //    },
+        //    error: function (xhr, textStatus, errorThrown) {
+        //        data = {"error": true, "message": "Unable to retrieve packages."};
+        //    }
+        //});
+        var data = [
+            {
+                "name": "ballerina.net.http",
+                "connectors": [
+                    {
+                        "name": "ClientConnector",
+                        "annotations": [],
+                        "returnParameters": [],
+                        "parameters": [
+                            {
+                                "name": "string",
+                                "type": "string"
+                            }
+                        ],
+                        "actions": [
+                            {
+                                "name": "execute",
+                                "annotations": [],
+                                "parameters": [
+                                    {
+                                        "name": "ClientConnector",
+                                        "type": "ClientConnector"
+                                    },
+                                    {
+                                        "name": "string",
+                                        "type": "string"
+                                    },
+                                    {
+                                        "name": "string",
+                                        "type": "string"
+                                    },
+                                    {
+                                        "name": "message",
+                                        "type": "message"
+                                    }
+                                ],
+                                "returnParams": [
+                                    {
+                                        "name": "message",
+                                        "type": "message"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "head",
+                                "annotations": [],
+                                "parameters": [
+                                    {
+                                        "name": "ClientConnector",
+                                        "type": "ClientConnector"
+                                    },
+                                    {
+                                        "name": "string",
+                                        "type": "string"
+                                    },
+                                    {
+                                        "name": "message",
+                                        "type": "message"
+                                    }
+                                ],
+                                "returnParams": [
+                                    {
+                                        "name": "message",
+                                        "type": "message"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "delete",
+                                "annotations": [],
+                                "parameters": [
+                                    {
+                                        "name": "ClientConnector",
+                                        "type": "ClientConnector"
+                                    },
+                                    {
+                                        "name": "string",
+                                        "type": "string"
+                                    },
+                                    {
+                                        "name": "message",
+                                        "type": "message"
+                                    }
+                                ],
+                                "returnParams": [
+                                    {
+                                        "name": "message",
+                                        "type": "message"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "put",
+                                "annotations": [],
+                                "parameters": [
+                                    {
+                                        "name": "ClientConnector",
+                                        "type": "ClientConnector"
+                                    },
+                                    {
+                                        "name": "string",
+                                        "type": "string"
+                                    },
+                                    {
+                                        "name": "message",
+                                        "type": "message"
+                                    }
+                                ],
+                                "returnParams": [
+                                    {
+                                        "name": "message",
+                                        "type": "message"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "post",
+                                "annotations": [],
+                                "parameters": [
+                                    {
+                                        "name": "ClientConnector",
+                                        "type": "ClientConnector"
+                                    },
+                                    {
+                                        "name": "string",
+                                        "type": "string"
+                                    },
+                                    {
+                                        "name": "message",
+                                        "type": "message"
+                                    }
+                                ],
+                                "returnParams": [
+                                    {
+                                        "name": "message",
+                                        "type": "message"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "patch",
+                                "annotations": [],
+                                "parameters": [
+                                    {
+                                        "name": "ClientConnector",
+                                        "type": "ClientConnector"
+                                    },
+                                    {
+                                        "name": "string",
+                                        "type": "string"
+                                    },
+                                    {
+                                        "name": "message",
+                                        "type": "message"
+                                    }
+                                ],
+                                "returnParams": [
+                                    {
+                                        "name": "message",
+                                        "type": "message"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "get",
+                                "annotations": [],
+                                "parameters": [
+                                    {
+                                        "name": "ClientConnector",
+                                        "type": "ClientConnector"
+                                    },
+                                    {
+                                        "name": "string",
+                                        "type": "string"
+                                    },
+                                    {
+                                        "name": "message",
+                                        "type": "message"
+                                    }
+                                ],
+                                "returnParams": [
+                                    {
+                                        "name": "message",
+                                        "type": "message"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ],
+                "functions": [
+                    {
+                        "name": "getStatusCode",
+                        "annotations": [],
+                        "parameters": [
+                            {
+                                "name": "message",
+                                "type": "message"
+                            }
+                        ],
+                        "returnParams": [
+                            {
+                                "name": "int",
+                                "type": "int"
+                            }
+                        ]
+                    },
+                    {
+                        "name": "setContentLength",
+                        "annotations": [],
+                        "parameters": [
+                            {
+                                "name": "message",
+                                "type": "message"
+                            },
+                            {
+                                "name": "int",
+                                "type": "int"
+                            }
+                        ],
+                        "returnParams": []
+                    },
+                    {
+                        "name": "getMethod",
+                        "annotations": [],
+                        "parameters": [
+                            {
+                                "name": "message",
+                                "type": "message"
+                            }
+                        ],
+                        "returnParams": [
+                            {
+                                "name": "string",
+                                "type": "string"
+                            }
+                        ]
+                    },
+                    {
+                        "name": "setReasonPhrase",
+                        "annotations": [],
+                        "parameters": [
+                            {
+                                "name": "message",
+                                "type": "message"
+                            },
+                            {
+                                "name": "string",
+                                "type": "string"
+                            }
+                        ],
+                        "returnParams": []
+                    },
+                    {
+                        "name": "setStatusCode",
+                        "annotations": [],
+                        "parameters": [
+                            {
+                                "name": "message",
+                                "type": "message"
+                            },
+                            {
+                                "name": "int",
+                                "type": "int"
+                            }
+                        ],
+                        "returnParams": []
+                    },
+                    {
+                        "name": "getContentLength",
+                        "annotations": [],
+                        "parameters": [
+                            {
+                                "name": "message",
+                                "type": "message"
+                            }
+                        ],
+                        "returnParams": [
+                            {
+                                "name": "int",
+                                "type": "int"
+                            }
+                        ]
+                    },
+                    {
+                        "name": "convertToResponse",
+                        "annotations": [],
+                        "parameters": [
+                            {
+                                "name": "message",
+                                "type": "message"
+                            }
+                        ],
+                        "returnParams": []
+                    }
+                ],
+                "structs": []
             }
-        });
+        ];
         return data;
     };
     return environment_content;
