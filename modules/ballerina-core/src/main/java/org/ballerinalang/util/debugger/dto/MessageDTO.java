@@ -35,7 +35,7 @@ public class MessageDTO {
 
     private String message;
 
-    private NodeLocation location;
+    private BreakPointDTO location;
 
     private List<FrameDTO> frames = new ArrayList<FrameDTO>();
 
@@ -55,11 +55,15 @@ public class MessageDTO {
         this.message = message;
     }
 
-    public NodeLocation getLocation() {
+    public BreakPointDTO getLocation() {
         return location;
     }
 
     public void setLocation(NodeLocation location) {
+        this.location = new BreakPointDTO(location.getFileName(), location.getLineNumber());
+    }
+
+    public void setLocation(BreakPointDTO location) {
         this.location = location;
     }
 
@@ -68,6 +72,10 @@ public class MessageDTO {
             frames.add(new FrameDTO(frame));
         }
         duplicateMainFix();
+    }
+
+    public List<FrameDTO> getFrames() {
+        return frames;
     }
 
     /**

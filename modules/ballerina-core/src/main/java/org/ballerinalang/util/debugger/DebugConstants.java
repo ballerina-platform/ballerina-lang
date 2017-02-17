@@ -29,7 +29,7 @@ public class DebugConstants {
     //default debugger port where websocket server will listen
     static final String DEFAULT_DEBUG_PORT = "5006";
 
-    //debugger websocket path.
+    //debugger web-socket path.
     static final String DEBUG_WEBSOCKET_PATH = "/debug";
 
     // commands sent by client
@@ -58,4 +58,5 @@ public class DebugConstants {
 
     //startup message.
     public static final String DEBUG_MESSAGE = "Ballerina remote debugger is activated on port : ";
+    public static final String ERROR_JSON = "{ \"error\": true }";
 }

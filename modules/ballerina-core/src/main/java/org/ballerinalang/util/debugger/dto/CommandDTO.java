@@ -18,6 +18,10 @@
 
 package org.ballerinalang.util.debugger.dto;
 
+import org.ballerinalang.model.NodeLocation;
+
+import java.util.ArrayList;
+
 /**
  * DTO class representing commands send to debugger from the client.
  *
@@ -27,9 +31,7 @@ public class CommandDTO {
 
     private String command;
 
-    public CommandDTO(String command) {
-        this.command = command;
-    }
+    private ArrayList<BreakPointDTO> points;
 
     public String getCommand() {
         return command;
@@ -37,5 +39,26 @@ public class CommandDTO {
 
     public void setCommand(String command) {
         this.command = command;
+    }
+
+    public ArrayList<BreakPointDTO> getPoints() {
+        return points;
+    }
+
+    public void setPoints(ArrayList<BreakPointDTO> points) {
+        this.points = points;
+    }
+
+
+    /**
+     * This method is there to decouple core and editor data transfer.
+     * @return
+     */
+    public ArrayList<NodeLocation> getBreakPoints() {
+        ArrayList<NodeLocation> breakPoints = new ArrayList<NodeLocation>();
+        for (BreakPointDTO bp: points) {
+            breakPoints.add(new NodeLocation(bp.getFileName(), bp.getLineNumber()));
+        }
+        return breakPoints;
     }
 }
