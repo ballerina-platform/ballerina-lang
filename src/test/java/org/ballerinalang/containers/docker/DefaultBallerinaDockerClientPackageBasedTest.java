@@ -15,9 +15,9 @@
  *
  */
 
-package org.ballerinalang.containers;
+package org.ballerinalang.containers.docker;
 
-import org.ballerinalang.containers.docker.BallerinaDockerClient;
+import org.ballerinalang.containers.Constants;
 import org.ballerinalang.containers.docker.exception.BallerinaDockerClientException;
 import org.ballerinalang.containers.docker.impl.DefaultBallerinaDockerClient;
 import org.ballerinalang.containers.docker.utils.TestUtils;

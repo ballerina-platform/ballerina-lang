@@ -18,9 +18,11 @@
 <suite name="container-support-test-suite">
     <test name="docker-support-test-suite" preserve-order="true">
         <classes>
-            <class name="org.ballerinalang.containers.DefaultBallerinaDockerClientGenericTest"/>
-            <class name="org.ballerinalang.containers.DefaultBallerinaDockerClientSingleFileTest"/>
-            <class name="org.ballerinalang.containers.DefaultBallerinaDockerClientPackageBasedTest"/>
+            <class name="org.ballerinalang.containers.docker.DefaultBallerinaDockerClientGenericTest"/>
+            <class name="org.ballerinalang.containers.docker.DefaultBallerinaDockerClientSingleFileTest"/>
+            <class name="org.ballerinalang.containers.docker.DefaultBallerinaDockerClientPackageBasedTest"/>
+            <class name="org.ballerinalang.containers.docker.cmd.validator.DockerHostValidatorTest"/>
+            <class name="org.ballerinalang.containers.docker.cmd.DockerCmdTest" />
         </classes>
     </test>
 </suite>

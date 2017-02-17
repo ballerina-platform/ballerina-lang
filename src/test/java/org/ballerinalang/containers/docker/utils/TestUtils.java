@@ -34,9 +34,11 @@ import java.util.List;
  */
 public class TestUtils {
     public static void deleteDockerImage(String imageName) {
+        if (!imageName.contains(":")) {
+            imageName += ":" + Constants.IMAGE_VERSION_LATEST;
+        }
         DockerClient client = new io.fabric8.docker.client.DefaultDockerClient();
-        List<ImageDelete> imageDeleteList = client.image().withName(imageName + ":" +
-                Constants.IMAGE_VERSION_LATEST)
+        List<ImageDelete> imageDeleteList = client.image().withName(imageName)
                 .delete()
                 .force()
                 .andPrune(false);
