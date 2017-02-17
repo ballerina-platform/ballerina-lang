@@ -1,6 +1,6 @@
-import ballerina.lang.message;
+import ballerina.lang.messages;
 import ballerina.lang.system;
-import ballerina.lang.json;
+import ballerina.lang.jsonutils;
 
 @http:BasePath ("/ecommerceservice")
 service Ecommerce {
@@ -11,13 +11,13 @@ service Ecommerce {
         json responseJson;
         message response = {};
 
-        orderId = message:getHeader(m, "X-ORDER-ID");
+        orderId = messages:getHeader(m, "X-ORDER-ID");
         system:println("Order ID " + orderId);
         system:println("Product ID " + prdID);
         system:println("Reg ID " + rID);
         responseJson = `{"X-ORDER-ID":${orderId}, "ProductID":${prdID}, "RegID":${rID}}`;
-        system:println(json:toString(responseJson));
-        message:setJsonPayload(response, responseJson);
+        system:println(jsonutils:toString(responseJson));
+        messages:setJsonPayload(response, responseJson);
         reply response;
     }
 
@@ -29,8 +29,8 @@ service Ecommerce {
         system:println("Product ID " + prdID);
         system:println("Reg ID " + rID);
         responseJson = `{"Template":"T2", "ProductID":${prdID}, "RegID":${rID}}`;
-        system:println(json:toString(responseJson));
-        message:setJsonPayload(response, responseJson);
+        system:println(jsonutils:toString(responseJson));
+        messages:setJsonPayload(response, responseJson);
         reply response;
     }
 
@@ -42,8 +42,8 @@ service Ecommerce {
         system:println("Product ID " + prdID);
         system:println("Reg ID " + rID);
         responseJson = `{"Template":"T3", "ProductID":${prdID}, "RegID":${rID}}`;
-        system:println(json:toString(responseJson));
-        message:setJsonPayload(response, responseJson);
+        system:println(jsonutils:toString(responseJson));
+        messages:setJsonPayload(response, responseJson);
         reply response;
     }
 
@@ -55,8 +55,8 @@ service Ecommerce {
         system:println("Product ID " + prdID);
         system:println("Reg ID " + rID);
         responseJson = `{"Template":"T4", "ProductID":${prdID}, "RegID":${rID}}`;
-        system:println(json:toString(responseJson));
-        message:setJsonPayload(response, responseJson);
+        system:println(jsonutils:toString(responseJson));
+        messages:setJsonPayload(response, responseJson);
         reply response;
     }
 
@@ -68,8 +68,8 @@ service Ecommerce {
         system:println("Product ID " + prdID);
         system:println("Reg ID " + rID);
         responseJson = `{"Template":"T5", "ProductID":${prdID}, "RegID":${rID}}`;
-        system:println(json:toString(responseJson));
-        message:setJsonPayload(response, responseJson);
+        system:println(jsonutils:toString(responseJson));
+        messages:setJsonPayload(response, responseJson);
         reply response;
     }
 }

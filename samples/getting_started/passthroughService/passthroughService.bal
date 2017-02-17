@@ -1,4 +1,4 @@
-import ballerina.lang.message;
+import ballerina.lang.messages;
 import ballerina.net.http;
 
 @http:BasePath ("/passthrough")
@@ -19,7 +19,7 @@ service nyseStockQuote {
     resource stocks (message m) {
         json payload = `{"exchange":"nyse", "name":"IBM", "value":"127.50"}`;
         message response = {};
-        message:setJsonPayload(response, payload);
+        messages:setJsonPayload(response, payload);
         reply response;
     }
 }

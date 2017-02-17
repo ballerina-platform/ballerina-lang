@@ -50,7 +50,7 @@
         <Logger name="AUDIT_LOG" level="info" additivity="false">
             <AppenderRef ref="AUDIT_LOGFILE"/>
         </Logger>
-        <Logger name="org.wso2.ballerina.core" level="info" additivity="false">
+        <Logger name="org.ballerinalang.core" level="info" additivity="false">
             <AppenderRef ref="CONSOLE"/>
             <AppenderRef ref="SERVER_LOGFILE"/>
             <!-- Change bellow log level to include Ballerina logs. -->

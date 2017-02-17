@@ -65,7 +65,7 @@
             org.wso2.carbon.kernel.transports.*;version="${carbon.kernel.package.import.version.range}",
             org.wso2.carbon.kernel.deployment.*;version="${carbon.kernel.package.import.version.range}",
             org.wso2.carbon.kernel.startupresolver.*;version="${carbon.kernel.package.import.version.range}",
-            org.wso2.ballerina.core.*;version="${ballerina.package.export.version}",
+            org.ballerinalang.core.*;version="${ballerina.package.export.version}",
             org.slf4j.*;version="${slf4j.logging.package.import.version.range}",
             org.wso2.carbon.messaging.*;version="${carbon.messaging.package.import.version.range}"
         </import.package>

@@ -1,18 +1,18 @@
-import ballerina.lang.map;
-import ballerina.lang.array;
+import ballerina.lang.maps;
+import ballerina.lang.arrays;
 
 function testLength(map data)(int){
 string[] str;
 str = ["ss"];
-    return map:length(data);
+    return maps:length(data);
 }
 
 function testGetKeys(map data)(string[]){
-    return map:keys(data);
+    return maps:keys(data);
 }
 
 function testRemove(map data, string key){
-    map:remove(data, key);
+    maps:remove(data, key);
 }
 
 function testDefinition()(boolean, string){
@@ -41,7 +41,7 @@ function testDefinition()(boolean, string){
 
     keys = testGetKeys(dataMap);
 
-    if(array:length(keys) !=3){
+    if(arrays:length(keys) !=3){
         success = false;
         message = "keys operation failed.";
     }
@@ -50,7 +50,7 @@ function testDefinition()(boolean, string){
 
     keys = testGetKeys(dataMap);
 
-    if(array:length(keys) != 2){
+    if(arrays:length(keys) != 2){
         success = false;
         message = "remove operation failed.";
     }

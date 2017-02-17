@@ -43,7 +43,7 @@
         <Logger name="AUDIT_LOG" level="info" additivity="false">
             <AppenderRef ref="AUDIT_LOGFILE"/>
         </Logger>
-        <!--<Logger name="org.wso2.ballerina.core" level="info">-->
+        <!--<Logger name="org.ballerinalang.core" level="info">-->
             <!--<AppenderRef ref="CARBON_CONSOLE"/>-->
         <!--</Logger>-->
     </Loggers>

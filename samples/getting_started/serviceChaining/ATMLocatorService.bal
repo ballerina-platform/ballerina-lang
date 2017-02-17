@@ -1,7 +1,7 @@
-import ballerina.lang.message;
+import ballerina.lang.messages;
 import ballerina.net.http;
 import ballerina.lang.system;
-import ballerina.lang.json;
+import ballerina.lang.jsonutils;
 
 @http:BasePath ("/ABCBank")
 service ATMLocator {
@@ -14,25 +14,25 @@ service ATMLocator {
 
         message backendServiceReq = {};
 
-        json jsonLocatorReq = message:getJsonPayload(m);
+        json jsonLocatorReq = messages:getJsonPayload(m);
 
-        string zipCode = json:getString(jsonLocatorReq, "$.ATMLocator.ZipCode");
+        string zipCode = jsonutils:getString(jsonLocatorReq, "$.ATMLocator.ZipCode");
         system:println("Zip Code " + zipCode);
 
         json branchLocatorReq = `{"BranchLocator": {"ZipCode":""}}`;
-        json:set(branchLocatorReq, "$.BranchLocator.ZipCode", zipCode);
-        message:setJsonPayload(backendServiceReq, branchLocatorReq);
+        jsonutils:set(branchLocatorReq, "$.BranchLocator.ZipCode", zipCode);
+        messages:setJsonPayload(backendServiceReq, branchLocatorReq);
 
         message response = http:ClientConnector.post(branchLocatorService, "", backendServiceReq);
 
-        json branchLocatorRes = message:getJsonPayload(response);
+        json branchLocatorRes = messages:getJsonPayload(response);
 
-        string branchCode = json:getString(branchLocatorRes, "$.ABCBank.BranchCode");
+        string branchCode = jsonutils:getString(branchLocatorRes, "$.ABCBank.BranchCode");
         system:println("Branch Code " + branchCode);
 
         json bankInfoReq = `{"BranchInfo": {"BranchCode":""}}`;
-        json:set(bankInfoReq, "$.BranchInfo.BranchCode", branchCode);
-        message:setJsonPayload(backendServiceReq, bankInfoReq);
+        jsonutils:set(bankInfoReq, "$.BranchInfo.BranchCode", branchCode);
+        messages:setJsonPayload(backendServiceReq, bankInfoReq);
 
         response = http:ClientConnector.post(bankInfoService, "", backendServiceReq);
 
@@ -48,8 +48,8 @@ service Banklocator {
     resource product (message m) {
         message response = {};
 
-        json jsonRequest = message:getJsonPayload(m);
-        string zipCode = json:getString(jsonRequest, "$.BranchLocator.ZipCode");
+        json jsonRequest = messages:getJsonPayload(m);
+        string zipCode = jsonutils:getString(jsonRequest, "$.BranchLocator.ZipCode");
 
         json payload = {};
         if (zipCode == "95999") {
@@ -57,7 +57,7 @@ service Banklocator {
         } else {
             payload = `{"ABCBank": {"BranchCode":"-1"}}`;
         }
-        message:setJsonPayload(response, payload);
+        messages:setJsonPayload(response, payload);
         reply response;
     }
 }
@@ -71,8 +71,8 @@ service Bankinfo {
     resource product (message m) {
         message response = {};
 
-        json jsonRequest = message:getJsonPayload(m);
-        string branchCode = json:getString(jsonRequest, "$.BranchInfo.BranchCode");
+        json jsonRequest = messages:getJsonPayload(m);
+        string branchCode = jsonutils:getString(jsonRequest, "$.BranchInfo.BranchCode");
 
         json payload = {};
         if (branchCode == "123") {
@@ -81,7 +81,7 @@ service Bankinfo {
             payload = `{"ABC Bank": {"error": "No branches found."}}`;
         }
 
-        message:setJsonPayload(response, payload);
+        messages:setJsonPayload(response, payload);
         reply response;
     }
 }

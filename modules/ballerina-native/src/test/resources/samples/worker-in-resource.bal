@@ -1,4 +1,4 @@
-import ballerina.lang.message;
+import ballerina.lang.messages;
 import ballerina.lang.system;
 
 // Global constants are visible to worker
@@ -12,7 +12,7 @@ service passthrough {
       worker sampleWorker (message msg)  {
 	json j;
 	j = `{"name":"chanaka"}`;
-	message:setJsonPayload(msg, j);
+	messages:setJsonPayload(msg, j);
 	system:println("constant value is " + index);
 	reply msg;
       }
@@ -20,7 +20,7 @@ service passthrough {
 	m -> sampleWorker;
 	system:println("After worker");
 	result <- sampleWorker;
-	string s = message:getStringPayload(result);
+	string s = messages:getStringPayload(result);
 	system:println(s);
       	reply result;
     }

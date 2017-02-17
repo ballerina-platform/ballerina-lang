@@ -90,3 +90,14 @@ function backtickXMLMapVariableAccess()(xml) {
     msg = `<root><stringIndex0>${myMap["stirngVal"]}</stringIndex0><intIndex1>${myMap["intVal"]}</intIndex1></root>`;
     return msg;
 }
+
+function backtickJSONBooleanIntegerValuesAsStrings()(json) {
+    json msg;
+    string[] intStrArray;
+    string[] boolStrArray;
+
+    intStrArray = ["0", "1"];
+    boolStrArray = ["true", "false"];
+    msg = `{"intStrIndex0":${intStrArray[0]},"intStrIndex1":${intStrArray[1]},"boolStrIndex0":${boolStrArray[0]}, "boolStrIndex1":${boolStrArray[1]}}`;
+    return msg;
+}

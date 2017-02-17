@@ -1,6 +1,6 @@
 import ballerina.net.http;
-import ballerina.lang.json;
-import ballerina.lang.message;
+import ballerina.lang.jsonutils;
+import ballerina.lang.messages;
 
 @http:BasePath ("/cbr")
 service contentBasedRouting {
@@ -13,8 +13,8 @@ service contentBasedRouting {
 
         string nyseString = "nyse";
 
-        json jsonMsg = message:getJsonPayload(m);
-        string nameString = json:getString(jsonMsg, "$.name");
+        json jsonMsg = messages:getJsonPayload(m);
+        string nameString = jsonutils:getString(jsonMsg, "$.name");
 
         message response = {};
 
@@ -39,7 +39,7 @@ service headerBasedRouting {
 
         string nyseString = "nyse";
 
-        string nameString = message:getHeader(m, "name");
+        string nameString = messages:getHeader(m, "name");
 
         message response = {};
 
@@ -62,7 +62,7 @@ service nyseStockQuote {
         message response = {};
 
         json payload = `{"exchange":"nyse", "name":"IBM", "value":"127.50"}`;
-        message:setJsonPayload(response, payload);
+        messages:setJsonPayload(response, payload);
 
         reply response;
     }
@@ -77,7 +77,7 @@ service nasdaqStocksQuote {
         message response = {};
 
         json payload = `{"exchange":"nasdaq", "name":"IBM", "value":"127.50"}`;
-        message:setJsonPayload(response, payload);
+        messages:setJsonPayload(response, payload);
 
         reply response;
     }
