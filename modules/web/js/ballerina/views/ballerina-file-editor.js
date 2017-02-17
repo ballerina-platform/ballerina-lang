@@ -319,7 +319,7 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                 .append($('<div></div>').addClass(_.get(viewOptions, 'cssClass.canvas_top_control_packages_import')))
                 .append($('<div></div>').addClass(_.get(viewOptions, 'cssClass.canvas_top_control_constants_define')));
             canvasContainer.append(canvasTopControlsContainer);
-            
+
             this._$designViewContainer.append(canvasContainer);
             this._$canvasContainer = canvasContainer;
             // check whether container element exists in dom
@@ -598,7 +598,8 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
         // Remove current package tool group from pallete and re add it.
         provider.removeImportToolGroup(currentPackage.getName());
         var options = {
-            addToTop: true
+            addToTop: true,
+            collapsed: false
         }
         provider.addImportToolGroup(currentPackage, options);
     };
@@ -677,7 +678,7 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                root = this.deserializer.getASTModel(response);
            } else {
                root = BallerinaASTFactory.createBallerinaAstRoot();
-        
+
                //package definition
                var packageDefinition = BallerinaASTFactory.createPackageDefinition();
                packageDefinition.setPackageName("");
@@ -686,7 +687,7 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
            }
            return root;
         };
-       
+
         /**
          * Creating the package view of a ballerina-file-editor.
          * @param canvasContainer - The canvas container.
@@ -917,7 +918,7 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
         };
 
         BallerinaFileEditor.prototype._createConstantDefinitionsView = function(canvasContainer) {
-            
+
             var costantDefinitionWrapper = _.get(this._viewOptions, 'cssClass.canvas_top_control_constants_define');
             var constantsWrapper = canvasContainer.find('.' +costantDefinitionWrapper);
 

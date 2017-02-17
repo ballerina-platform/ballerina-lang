@@ -26,7 +26,7 @@ define(['require', 'log', 'jquery', 'd3', 'backbone', './tool-view'], function (
             _.extend(this, _.pick(options, ["toolPalette"]));
         },
 
-        render: function (parent, toolOrderVertical, addToTop) {
+        render: function (parent, toolOrderVertical, addToTop, collapsed) {
             var self = this;
             var groupDiv = $('<div></div>');
 
@@ -57,8 +57,7 @@ define(['require', 'log', 'jquery', 'd3', 'backbone', './tool-view'], function (
             groupBodyDiv.attr('class', "tool-group-body");
             this._$toolGroupBody = groupBodyDiv;
 
-            if(toolOrderVertical) {
-                // show vertical tool groups in collapsed state by default
+            if(collapsed) {
                 groupBodyDiv.hide();
                 groupHeaderDiv.addClass('tool-group-header-collapse');
                 groupCollapseIcon.removeClass('fw-up');

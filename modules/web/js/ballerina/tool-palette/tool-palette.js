@@ -185,8 +185,15 @@ define(['require', 'log', 'jquery', 'backbone', './tool-group-view', './tool-gro
 
             var parent = this.$el.find('.tool-import-wrapper');
             var isVertical = _.isEqual('vertical', args.group.get('toolOrder'));
-            var addToTop = _.isNil(args.options) ? false: args.options.addToTop;
-            var group = groupView.render(parent, isVertical, addToTop);
+
+            var addToTop = false;
+            var collapsed = true; // collapse by default
+            if(!_.isNil(args.options)){
+                addToTop = _.isNil(args.options.addToTop) ? false : args.options.addToTop;
+                collapsed = _.isNil(args.options.collapsed) ? true : args.options.collapsed;
+            }
+
+            var group = groupView.render(parent, isVertical, addToTop, collapsed);
             this.$el.addClass('non-user-selectable');
             return groupView;
         },
