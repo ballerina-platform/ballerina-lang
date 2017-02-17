@@ -69,17 +69,28 @@
                         <goals>
                             <goal>shade</goal>
                         </goals>
-                        <configuration>
-                            <artifactSet>
-                                <excludes>
-                                    <exclude>org.wso2.ballerina:ballerina-launcher</exclude>
-                                    <exclude>org.slf4j:*</exclude>
-                                </excludes>
-                            </artifactSet>
-                        </configuration>
                     </execution>
                 </executions>
                 <configuration>
+                    <artifactSet>
+                        <includes>
+                            <include>io.fabric8:docker*</include>
+                            <include>commons-io:commons-io</include>
+                            <include>commons-codec:commons-codec</include>
+                            <include>javax.validation:validation-api</include>
+                            <include>com.squareup.okhttp3:okhttp</include>
+                            <include>com.squareup.okhttp3:logging-interceptor</include>
+                            <include>com.squareup.okio:okio</include>
+                            <include>org.apache.commons:commons-compress</include>
+                            <include>com.github.jnr:jnr-unixsocket</include>
+                            <include>com.github.jnr:jnr-ffi</include>
+                            <include>com.github.jnr:jffi</include>
+                            <include>com.github.jnr:jnr-constants</include>
+                            <include>com.github.jnr:jnr-enxio</include>
+                            <include>com.github.jnr:jnr-posix</include>
+                            <include>org.ow2.asm:asm</include>
+                        </includes>
+                    </artifactSet>
                     <filters>
                         <filter>
                             <artifact>*:*</artifact>
