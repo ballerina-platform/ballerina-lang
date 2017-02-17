@@ -9,6 +9,7 @@ import org.ballerinalang.containers.docker.BallerinaDockerClient;
 import org.ballerinalang.containers.docker.cmd.validator.DockerHostValidator;
 import org.ballerinalang.containers.docker.exception.BallerinaDockerClientException;
 import org.ballerinalang.containers.docker.impl.DefaultBallerinaDockerClient;
+import org.ballerinalang.containers.docker.utils.Utils;
 import org.ballerinalang.launcher.BLauncherCmd;
 import org.ballerinalang.launcher.LauncherUtils;
 
@@ -48,6 +49,9 @@ public class DockerCmd implements BLauncherCmd {
     @Parameter(names = {"--help", "-h"}, hidden = true)
     private boolean helpFlag;
 
+    @Parameter(names = {"--yes", "-y"}, hidden = true)
+    private boolean assumeYes;
+
     /**
      * Temporary usage printer
      */
@@ -57,11 +61,12 @@ public class DockerCmd implements BLauncherCmd {
         outStream.println("Usage:");
         outStream.println();
         outStream.println("ballerina docker <package-file-path> [--tag | -t <image-name>] [--host | -H <hostURL>] " +
-                "--help | -h");
+                "--help | -h --yes | -y");
         outStream.println();
         outStream.println("Flags:");
         outStream.println("\t--tag, -t");
         outStream.println("\t--host, -H");
+        outStream.println("\t--yes, -y");
         outStream.println("\t--help, -h");
         outStream.println();
     }
@@ -101,10 +106,12 @@ public class DockerCmd implements BLauncherCmd {
         String imageName = imageNameParts[0];
         String imageVersion = imageNameParts[1];
 
-        if (!canProceed(imageName, imageVersion)) {
+        if (!assumeYes && !canProceed(imageName, imageVersion)) {
             outStream.println("ballerina: aborting..\n");
             return;
         }
+
+        outStream.println("Building Docker image " + imageName + ":" + imageVersion + "...");
 
         dockerClient = new DefaultBallerinaDockerClient();
 
@@ -168,21 +175,23 @@ public class DockerCmd implements BLauncherCmd {
     }
 
     private void printServiceImageSuccessMessage(String imageName) {
+        String containerName = Utils.generateContainerName();
         outStream.println("\nballerina: docker image " + imageName + " successfully built.");
         outStream.println("\nUse the following command to start a container.");
-        outStream.println("\tdocker run --name <container-name> -d " + imageName);
+        outStream.println("\tdocker run --name " + containerName + " -d " + imageName);
         outStream.println();
         outStream.println("Find the docker container IP using the following command");
-        outStream.println("\tdocker inspect <container-name> | grep IPAddress");
+        outStream.println("\tdocker inspect " + containerName + " | grep IPAddress");
         outStream.println();
         outStream.println("Ballerina service will be running in http://<container-ip>:9090");
         outStream.println("Make requests using the format [curl -X GET http://<container-ip>:9090/<service-name>]");
     }
 
     private void printMainImageSuccessMessage(String imageName) {
+        String containerName = Utils.generateContainerName();
         outStream.println("\nballerina: docker image " + imageName + " successfully built.");
         outStream.println("\nUse the following command to start a container.");
-        outStream.println("\tdocker run --name <container-name> -it " + imageName);
+        outStream.println("\tdocker run --name " + containerName + " -it " + imageName);
         outStream.println();
     }
 
@@ -194,7 +203,7 @@ public class DockerCmd implements BLauncherCmd {
     @Override
     public void printUsage(StringBuilder out) {
         out.append("ballerina docker <package-file-path> [--tag | -t <image-name>] [--host | -H <docker-hostURL>] " +
-                "--help | -h\n");
+                "--help | -h --yes | -y\n");
     }
 
     @Override
