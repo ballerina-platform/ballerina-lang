@@ -17,10 +17,10 @@
 */
 package org.ballerinalang.util.program;
 
-import org.wso2.ballerina.core.model.BLangProgram;
-import org.wso2.ballerina.core.model.GlobalScope;
-import org.wso2.ballerina.core.model.types.BTypes;
-import org.wso2.ballerina.core.runtime.internal.BuiltInNativeConstructLoader;
+import org.ballerinalang.model.BLangProgram;
+import org.ballerinalang.model.GlobalScope;
+import org.ballerinalang.model.types.BTypes;
+import org.ballerinalang.natives.BuiltInNativeConstructLoader;
 
 import java.io.IOException;
 import java.nio.file.Files;

@@ -19,7 +19,7 @@
 
 <suite name="Ballerina-Test-Suite">
     <listeners>
-        <listener class-name="org.wso2.ballerina.test.listener.TestExecutionListener"/>
+        <listener class-name="org.ballerinalang.test.listener.TestExecutionListener"/>
     </listeners>
 
     <test name="ballerina-sample-tests" preserve-order="true" parallel="false">

@@ -19,10 +19,10 @@ package org.ballerinalang.launcher;
 
 import org.ballerinalang.BLangProgramLoader;
 import org.ballerinalang.BLangProgramRunner;
-import org.wso2.ballerina.core.model.BLangProgram;
-import org.wso2.ballerina.core.nativeimpl.connectors.BallerinaConnectorManager;
-import org.wso2.ballerina.core.runtime.MessageProcessor;
 import org.wso2.carbon.messaging.ServerConnector;
+import org.ballerinalang.model.BLangProgram;
+import org.ballerinalang.natives.connectors.BallerinaConnectorManager;
+import org.ballerinalang.services.MessageProcessor;
 import org.wso2.carbon.messaging.exceptions.ServerConnectorException;
 
 import java.io.PrintStream;

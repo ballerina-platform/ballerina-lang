@@ -17,26 +17,26 @@
 */
 package org.ballerinalang;
 
+import org.ballerinalang.bre.BLangExecutor;
+import org.ballerinalang.bre.CallableUnitInfo;
+import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.RuntimeEnvironment;
+import org.ballerinalang.bre.StackFrame;
+import org.ballerinalang.bre.nonblocking.BLangNonBlockingExecutor;
+import org.ballerinalang.bre.nonblocking.ModeResolver;
+import org.ballerinalang.bre.nonblocking.debugger.BLangExecutionDebugger;
+import org.ballerinalang.model.BLangPackage;
+import org.ballerinalang.model.BLangProgram;
+import org.ballerinalang.model.BallerinaFunction;
+import org.ballerinalang.model.Service;
+import org.ballerinalang.model.builder.BLangExecutionFlowBuilder;
+import org.ballerinalang.model.values.BArray;
+import org.ballerinalang.model.values.BString;
+import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.services.ErrorHandlerUtils;
+import org.ballerinalang.services.dispatchers.DispatcherRegistry;
+import org.ballerinalang.util.debugger.DebugManager;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
-import org.wso2.ballerina.core.debugger.DebugManager;
-import org.wso2.ballerina.core.interpreter.BLangExecutor;
-import org.wso2.ballerina.core.interpreter.CallableUnitInfo;
-import org.wso2.ballerina.core.interpreter.Context;
-import org.wso2.ballerina.core.interpreter.RuntimeEnvironment;
-import org.wso2.ballerina.core.interpreter.StackFrame;
-import org.wso2.ballerina.core.interpreter.nonblocking.BLangNonBlockingExecutor;
-import org.wso2.ballerina.core.interpreter.nonblocking.ModeResolver;
-import org.wso2.ballerina.core.interpreter.nonblocking.debugger.BLangExecutionDebugger;
-import org.wso2.ballerina.core.model.BLangPackage;
-import org.wso2.ballerina.core.model.BLangProgram;
-import org.wso2.ballerina.core.model.BallerinaFunction;
-import org.wso2.ballerina.core.model.Service;
-import org.wso2.ballerina.core.model.builder.BLangExecutionFlowBuilder;
-import org.wso2.ballerina.core.model.values.BArray;
-import org.wso2.ballerina.core.model.values.BString;
-import org.wso2.ballerina.core.model.values.BValue;
-import org.wso2.ballerina.core.runtime.errors.handler.ErrorHandlerUtils;
-import org.wso2.ballerina.core.runtime.registry.DispatcherRegistry;
 
 /**
  * {@code BLangProgramRunner} runs main and service programs.

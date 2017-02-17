@@ -17,7 +17,7 @@
 */
 package org.ballerinalang.util.repository;
 
-import org.wso2.ballerina.core.exception.BallerinaException;
+import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.io.BufferedReader;
 import java.io.File;

@@ -17,8 +17,8 @@
 */
 package org.ballerinalang.util.repository;
 
+import org.ballerinalang.model.BLangProgram;
 import org.ballerinalang.util.program.BLangPrograms;
-import org.wso2.ballerina.core.model.BLangProgram;
 
 import java.io.IOException;
 import java.io.InputStream;

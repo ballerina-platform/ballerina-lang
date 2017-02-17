@@ -20,12 +20,12 @@ package org.wso2.ballerina.test.connector.http;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.ballerina.core.interpreter.Context;
-import org.wso2.ballerina.core.model.Connector;
-import org.wso2.ballerina.core.model.values.BValue;
-import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeAction;
-import org.wso2.ballerina.core.nativeimpl.connectors.BalConnectorCallback;
-import org.wso2.ballerina.core.nativeimpl.connectors.http.Constants;
+import org.ballerinalang.core.interpreter.Context;
+import org.ballerinalang.core.model.Connector;
+import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.natives.connectors.AbstractNativeAction;
+import org.ballerinalang.natives.connectors.BalConnectorCallback;
+import org.ballerinalang.natives.connectors.http.Constants;
 import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.MessageDataSource;
 

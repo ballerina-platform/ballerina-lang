@@ -18,14 +18,14 @@
 
 package org.ballerinalang.util.program;
 
+import org.ballerinalang.model.BLangPackage;
+import org.ballerinalang.model.BLangProgram;
+import org.ballerinalang.model.BallerinaFile;
+import org.ballerinalang.model.ImportPackage;
+import org.ballerinalang.model.SymbolName;
+import org.ballerinalang.natives.NativePackageProxy;
+import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.repository.PackageRepository;
-import org.wso2.ballerina.core.exception.BallerinaException;
-import org.wso2.ballerina.core.model.BLangPackage;
-import org.wso2.ballerina.core.model.BLangProgram;
-import org.wso2.ballerina.core.model.BallerinaFile;
-import org.wso2.ballerina.core.model.ImportPackage;
-import org.wso2.ballerina.core.model.SymbolName;
-import org.wso2.ballerina.core.nativeimpl.NativePackageProxy;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;

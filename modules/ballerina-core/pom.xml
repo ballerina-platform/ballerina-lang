@@ -225,47 +225,47 @@
                         <packageBranchRate>50</packageBranchRate>
                         <regexes>
                             <regex>
-                                <pattern>org.wso2.ballerina.core.exception.*</pattern>
+                                <pattern>org.ballerinalang.core.exception.*</pattern>
                                 <branchRate>50</branchRate>
                                 <lineRate>50</lineRate>
                             </regex>
                             <regex>
-                                <pattern>org.wso2.ballerina.core.interpreter.*</pattern>
+                                <pattern>org.ballerinalang.core.interpreter.*</pattern>
                                 <branchRate>50</branchRate>
                                 <lineRate>50</lineRate>
                             </regex>
                             <regex>
-                                <pattern>org.wso2.ballerina.core.message.*</pattern>
+                                <pattern>org.ballerinalang.runtime.message.*</pattern>
                                 <branchRate>50</branchRate>
                                 <lineRate>50</lineRate>
                             </regex>
                             <regex>
-                                <pattern>org.wso2.ballerina.core.model.*</pattern>
+                                <pattern>org.ballerinalang.core.model.*</pattern>
                                 <branchRate>50</branchRate>
                                 <lineRate>50</lineRate>
                             </regex>
                             <regex>
-                                <pattern>org.wso2.ballerina.core.nativeimpl.*</pattern>
+                                <pattern>org.ballerinalang.core.nativeimpl.*</pattern>
                                 <branchRate>50</branchRate>
                                 <lineRate>50</lineRate>
                             </regex>
                             <regex>
-                                <pattern>org.wso2.ballerina.core.parser.antlr4.BLangAntlr4Listener</pattern>
+                                <pattern>org.ballerinalang.util.parser.antlr4.BLangAntlr4Listener</pattern>
                                 <branchRate>50</branchRate>
                                 <lineRate>50</lineRate>
                             </regex>
                             <regex>
-                                <pattern>org.wso2.ballerina.core.runtime.*</pattern>
+                                <pattern>org.ballerinalang.runtime.*</pattern>
                                 <branchRate>50</branchRate>
                                 <lineRate>50</lineRate>
                             </regex>
                             <regex>
-                                <pattern>org.wso2.ballerina.core.semantics.*</pattern>
+                                <pattern>org.ballerinalang.core.semantics.*</pattern>
                                 <branchRate>50</branchRate>
                                 <lineRate>50</lineRate>
                             </regex>
                             <regex>
-                                <pattern>org.wso2.ballerina.core.utils.*</pattern>
+                                <pattern>org.ballerinalang.core.utils.*</pattern>
                                 <branchRate>50</branchRate>
                                 <lineRate>50</lineRate>
                             </regex>
