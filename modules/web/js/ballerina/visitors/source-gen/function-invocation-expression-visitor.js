@@ -49,6 +49,13 @@ define(['require', 'lodash', 'log', 'event_channel', './abstract-statement-sourc
         };
 
         FunctionInvocationExpressionVisitor.prototype.visitFuncInvocationExpression = function (functionInvocation) {
+            var parent = functionInvocation.getParent();
+            var index = _.findIndex(parent.getChildren(), function (aExp) {
+                return aExp === functionInvocation;
+            });
+            if (index !== 0) {
+                this.appendSource(',');
+            }
             var args = {model: functionInvocation, parent: this};
             functionInvocation.accept(new FunctionInvocationExpressionVisitor(_.get(args, "parent")));
             log.debug('Visit Function Invocation expression');
