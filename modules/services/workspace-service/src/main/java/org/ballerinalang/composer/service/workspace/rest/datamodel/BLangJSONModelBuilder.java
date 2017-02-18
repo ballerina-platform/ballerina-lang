@@ -1269,7 +1269,19 @@ public class BLangJSONModelBuilder implements NodeVisitor {
 
     @Override
     public void visit(StructFieldAccessExpr structFieldAccessExpr) {
-        // TODO
+        JsonObject structFieldAccessObj = new JsonObject();
+        structFieldAccessObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE,
+                BLangJSONModelConstants.STRUCT_FIELD_ACCESS_EXPRESSION);
+        tempJsonArrayRef.push(new JsonArray());
+        if (structFieldAccessExpr.getVarRef() != null) {
+            structFieldAccessExpr.getVarRef().accept(this);
+        }
+        if (structFieldAccessExpr.getFieldExpr() != null) {
+            structFieldAccessExpr.getFieldExpr().accept(this);
+        }
+        structFieldAccessObj.add(BLangJSONModelConstants.CHILDREN, tempJsonArrayRef.peek());
+        tempJsonArrayRef.pop();
+        tempJsonArrayRef.peek().add(structFieldAccessObj);
     }
 
     @Override
