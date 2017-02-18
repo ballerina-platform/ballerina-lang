@@ -20,6 +20,7 @@ import io.swagger.models.Operation;
 import io.swagger.models.Path;
 import io.swagger.models.Response;
 import io.swagger.models.parameters.PathParameter;
+import io.swagger.models.parameters.QueryParameter;
 import org.ballerinalang.model.Annotation;
 import org.ballerinalang.model.ParameterDef;
 import org.ballerinalang.model.Resource;
@@ -164,14 +165,25 @@ public class SwaggerResourceMapper {
             String path = "/";
             op.setPath(path);
             for (ParameterDef parameterDef : resource.getParameterDefs()) {
-                PathParameter queryParameter = new PathParameter();
-                queryParameter.setName(parameterDef.getName());
                 String typeName = parameterDef.getTypeName().getName();
-                if (!typeName.equalsIgnoreCase("message")) {
-                    queryParameter.setType(typeName);
-                    queryParameter.setIn("path");
-                    queryParameter.required(true);
-                    op.getOperation().addParameter(queryParameter);
+                if (!typeName.equalsIgnoreCase("message") && parameterDef.getAnnotations()!=null) {
+                    //Add query parameter
+                    if(parameterDef.getAnnotations().get(0).getName().equalsIgnoreCase("http:QueryParam")){
+                        QueryParameter queryParameter = new QueryParameter();
+                        queryParameter.setType(typeName);
+                        queryParameter.setIn("query");
+                        queryParameter.setName(parameterDef.getName());
+                        queryParameter.required(true);
+                        op.getOperation().addParameter(queryParameter);
+                    }
+                    if(parameterDef.getAnnotations().get(0).getName().equalsIgnoreCase("http:PathParam")){
+                        PathParameter pathParameter = new PathParameter();
+                        pathParameter.setType(typeName);
+                        pathParameter.setName(parameterDef.getName());
+                        pathParameter.setIn("path");
+                        pathParameter.required(true);
+                        op.getOperation().addParameter(pathParameter);
+                    }
                 }
             }
             if (resourceAnnotations != null) {
