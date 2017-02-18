@@ -40,6 +40,13 @@ public interface NativeUnit {
     SimpleTypeName[] getArgumentTypeNames();
 
     /**
+     * Get the names of the input arguments.
+     *
+     * @return Names of the input arguments.
+     */
+    String[] getArgumentNames();
+
+    /**
      * Set the types of the return parameters of this callable unit.
      *
      * @param returnParamTypes  Types of the return parameters of this callable unit
@@ -52,6 +59,13 @@ public interface NativeUnit {
      * @param argTypes  Types of the input arguments of this callable unit
      */
     void setArgTypeNames(SimpleTypeName[] argTypes);
+
+    /**
+     * Set the names of the input arguments of this callable unit.
+     *
+     * @param argNames Names of the input arguments of this callable unit
+     */
+    void setArgNames(String[] argNames);
 
     /**
      * Set the name of this callable unit.
