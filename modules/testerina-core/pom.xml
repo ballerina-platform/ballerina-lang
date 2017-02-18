@@ -56,9 +56,9 @@
         <resources>
             <resource>
                 <directory>src/main/resources</directory>
-                <!--<excludes>-->
-                    <!--<exclude>ballerina/**</exclude>-->
-                <!--</excludes>-->
+                <excludes>
+                    <exclude>ballerina/**</exclude>
+                </excludes>
             </resource>
 
             <!-- copy built-in ballerina sources to the jar -->
@@ -69,6 +69,32 @@
         </resources>
 
         <plugins>
+            <!-- For creating the ballerina structure from connector structure -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>${mvn.resource.plugins.version}</version>
+                <executions>
+                    <execution>
+                        <id>copy-resources</id>
+
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${generated.ballerina.source.directory}</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>src/main/ballerina</directory>
+                                    <filtering>true</filtering>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
             <!-- For ballerina annotation processing -->
             <plugin>
                 <groupId>org.bsc.maven</groupId>
@@ -103,18 +129,14 @@
                 <version>${mvn.exec.plugin.version}</version>
                 <executions>
                     <execution>
-                        <phase>process-classes</phase>
+                        <phase>test</phase>
                         <goals>
                             <goal>java</goal>
                         </goals>
                         <configuration>
-                            <mainClass>
-                                org.ballerinalang.natives.annotation.processor.NativeValidator
-                            </mainClass>
+                            <mainClass>org.ballerinalang.natives.annotation.processor.NativeValidator</mainClass>
                             <arguments>
-                                <argument>
-                                    ${generated.ballerina.source.directory}
-                                </argument>
+                                <argument>${generated.ballerina.source.directory}</argument>
                             </arguments>
                         </configuration>
                     </execution>
@@ -125,15 +147,19 @@
     </build>
 
     <properties>
+        <checkstyle.skip>true</checkstyle.skip>
         <native.constructs.provider.package>org.ballerinalang.testerina.natives</native.constructs.provider.package>
         <native.constructs.provider.class>MockerinaNativeConstructsProvider</native.constructs.provider.class>
         <mvn.processor.plugin.version>2.2.4</mvn.processor.plugin.version>
         <mvn.exec.plugin.version>1.1.1</mvn.exec.plugin.version>
+        <mvn.resource.plugins.version>3.0.2</mvn.resource.plugins.version>
+
+        <!-- Path to the ballerina source directory -->
+        <ballerina.source.directory>${project.build.directory}/../src/main/ballerina</ballerina.source.directory>
 
         <!-- Path to the generated natives ballerina files temp directory -->
         <generated.ballerina.source.directory>${project.build.directory}/natives</generated.ballerina.source.directory>
 
-        <ballerina.source.directory>${project.basedir}/src/main/resources/META-INF/natives</ballerina.source.directory>
         <antlr4.runtime.version>4.5.1.wso2v1</antlr4.runtime.version>
     </properties>
 </project>
