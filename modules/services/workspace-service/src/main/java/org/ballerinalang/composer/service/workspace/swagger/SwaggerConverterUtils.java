@@ -69,6 +69,7 @@ public class SwaggerConverterUtils {
     private static final int TEMP_DIR_ATTEMPTS = 10000;
     public static final String RESOURCE_UUID_NAME = "x-UniqueResourceKey";
     public static final String VARIABLE_UUID_NAME = "x-UniqueVariableKey";
+
     /**
      * This method will extract service definitions from ballerina source
      *
@@ -201,26 +202,33 @@ public class SwaggerConverterUtils {
             resourceBuilder.setName(operationId);
             if (entry.hasConsumes) {
                 resourceBuilder.addAnnotation(
-                        new Annotation(null, new SymbolName("http:Consumes"), entry.consumes.toString(), null));
+                        new Annotation(null, new SymbolName("http:Consumes"),
+                                entry.consumes.get(0).get("mediaType").toString(), null));
             }
             if (entry.hasProduces) {
                 resourceBuilder.addAnnotation(
-                        new Annotation(null, new SymbolName("http:Produces"), entry.produces.toString(), null));
+                        new Annotation(null, new SymbolName("http:Produces"),
+                                entry.produces.get(0).get("mediaType"), null));
             }
             if (entry.summary != null) {
                 resourceBuilder.addAnnotation(
-                        new Annotation(null, new SymbolName("http:Summary"), entry.summary.toString(), null));
+                        new Annotation(null, new SymbolName("http:Summary"),
+                                entry.summary.toString(), null));
             }
             if (entry.notes != null) {
                 resourceBuilder.addAnnotation(
-                        new Annotation(null, new SymbolName("http:Description"), entry.notes.toString(), null));
+                        new Annotation(null, new SymbolName("http:Description"),
+                                entry.notes.toString(), null));
             }
             if (entry.path != null && entry.path.length() > 0) {
                 resourceBuilder
-                        .addAnnotation(new Annotation(null, new SymbolName("http:Path"), entry.path.toString(), null));
+                        .addAnnotation(new Annotation(null, new SymbolName("http:Path"),
+                                entry.path.toString(), null));
             }
+
             if (entry.httpMethod != null && entry.httpMethod.length() > 0) {
-                resourceBuilder.addAnnotation(new Annotation(null, new SymbolName("http:"+httpMethod), "", null));
+                resourceBuilder.addAnnotation(new Annotation(null, new SymbolName("http:" + httpMethod),
+                        "", null));
             }
             //handle parameters
             if (entry.getHasQueryParams()) {
@@ -228,7 +236,7 @@ public class SwaggerConverterUtils {
                     //TODO compare and merge if existing parameter edited.
                     ParameterDef parameterDef = new ParameterDef(
                             new NodeLocation("<unknown>", 0), codegenParameter.paramName,
-                            new SimpleTypeName(codegenParameter.baseType), new SymbolName("m"),
+                            new SimpleTypeName(codegenParameter.dataType), new SymbolName("m"),
                             resourceBuilder.buildResource());
                     Annotation annotation = new Annotation(null, new SymbolName("http:QueryParam"),
                             codegenParameter.baseName, null);
@@ -241,7 +249,7 @@ public class SwaggerConverterUtils {
                     //TODO compare and merge if existing parameter edited.
                     ParameterDef parameterDef = new ParameterDef(
                             new NodeLocation("<unknown>", 0), codegenParameter.paramName,
-                            new SimpleTypeName(codegenParameter.baseType), new SymbolName("m"),
+                            new SimpleTypeName(codegenParameter.dataType), new SymbolName("m"),
                             resourceBuilder.buildResource());
                     Annotation annotation = new Annotation(null, new SymbolName("http:PathParam"),
                             codegenParameter.baseName, null);
@@ -259,7 +267,8 @@ public class SwaggerConverterUtils {
             //resource as -->	resource TestPost(message m) {
             //This logic can be improved to pass user defined types.
             ParameterDef parameterDef = new ParameterDef(
-                    new NodeLocation("<unknown>", 0), "m", new SimpleTypeName("message"), new SymbolName("m"),
+                    new NodeLocation("<unknown>", 0), "m", new SimpleTypeName("message"),
+                    new SymbolName("m"),
                     resourceBuilder.buildResource());
             //Then add created parameter.
             resourceBuilder.addParameter(parameterDef);
