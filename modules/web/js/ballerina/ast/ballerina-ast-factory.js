@@ -1354,6 +1354,9 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
                     case 'throw_statement':
                         node = BallerinaASTFactory.createThrowStatement();
                         break;
+                    case 'struct_field_access_expression':
+                        node = BallerinaASTFactory.createStructFieldAccessExpression();
+                        break;
                     default:
                         throw "Unknown node definition for " + jsonNode.type;
                 }
