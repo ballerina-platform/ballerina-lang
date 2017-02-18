@@ -344,11 +344,6 @@ define(['lodash', 'log', 'event_channel',  'alerts', './svg-canvas', './../ast/f
             this.setSVGHeight(this._totalHeight);
             this.renderStatementContainer();
 
-            // TODO: Refactor after Worker is enabled
-            this.getHorizontalMargin().listenTo(this.getStatementContainer().getBoundingBox(), 'bottom-edge-moved', function (dy) {
-               self.getHorizontalMargin().setPosition(self.getHorizontalMargin().getPosition() + dy);
-            });
-
             // TODO: change this accordingly, after the worker declaration introduced
             this.getWorkerLifeLineMargin().listenTo(this.getStatementContainer().getBoundingBox(), 'right-edge-moved', function (dx) {
                 self.getWorkerLifeLineMargin().setPosition(self.getWorkerLifeLineMargin().getPosition() + dx);
@@ -520,6 +515,8 @@ define(['lodash', 'log', 'event_channel',  'alerts', './svg-canvas', './../ast/f
                 // TODO: re consider stopListening of the following event of the statement container. This is because we silently change the heights
                 self.getStatementContainer().stopListening(self.getStatementContainer().getBoundingBox(), 'height-changed');
                 self.getStatementContainer().changeHeightSilent(statementContainerNewH);
+                self._totalHeight = this.getHorizontalMargin().getPosition() + 85;
+                self.setSVGHeight(this._totalHeight);
                 // Re initialize the above disabled event
                 // self.getStatementContainer().listenTo(self.getStatementContainer().getBoundingBox(), 'height-changed', function (offset) {
                 //     self.getStatementContainer()._mainDropZone.attr('height', parseFloat(self.getStatementContainer()._mainDropZone.attr('height')) + offset);
@@ -531,9 +528,8 @@ define(['lodash', 'log', 'event_channel',  'alerts', './svg-canvas', './../ast/f
                     // therefore we need to manually change the bbox height and the drop zone size of the statement container
                     self.getStatementContainer().getBoundingBox().h(self.getStatementContainer().getBoundingBox().h() + dy, true);
                     self.getStatementContainer().changeDropZoneHeight(dy);
-                    // self.getBoundingBox().h(self.getBoundingBox().h() + dy);
-                    self._totalHeight = this.getHorizontalMargin().getPosition() + 85;
-                    self.setSVGHeight(this._totalHeight);
+                    self._totalHeight = self.getHorizontalMargin().getPosition() + 85;
+                    self.setSVGHeight(self._totalHeight);
                 });
             }, this);
 
