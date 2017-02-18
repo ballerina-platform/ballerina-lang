@@ -291,29 +291,34 @@ define(['lodash', 'log', 'event_channel',  'alerts', './svg-canvas', './../ast/f
             hadingBox.addClass(canvas_heading_new);
             setTimeout(function(){hadingBox.removeClass(canvas_heading_new)}, new_drop_timeout);
 
-            $(this.getTitle()).text(this.getModel().getFunctionName())
-                .on("change paste keyup", function () {
-                    self.getModel().setFunctionName($(this).text());
-                }).on("click", function (event) {
-                event.stopPropagation();
-            }).keypress(function (e) {
-                var enteredKey = e.which || e.charCode || e.keyCode;
-                // Disabling enter key
-                if (enteredKey == 13) {
+            if (!this.getModel().isMainFunction()) {
+                $(this.getTitle()).text(this.getModel().getFunctionName())
+                    .on("change paste keyup", function () {
+                        self.getModel().setFunctionName($(this).text());
+                    }).on("click", function (event) {
                     event.stopPropagation();
-                    return false;
-                }
+                }).keypress(function (e) {
+                    var enteredKey = e.which || e.charCode || e.keyCode;
+                    // Disabling enter key
+                    if (enteredKey == 13) {
+                        event.stopPropagation();
+                        return false;
+                    }
 
-                var newServiceName = $(this).text() + String.fromCharCode(enteredKey);
+                    var newServiceName = $(this).text() + String.fromCharCode(enteredKey);
 
-                try {
-                    self.getModel().setFunctionName(newServiceName);
-                } catch (error) {
-                    Alerts.error(error);
-                    event.stopPropagation();
-                    return false;
-                }
-            });
+                    try {
+                        self.getModel().setFunctionName(newServiceName);
+                    } catch (error) {
+                        Alerts.error(error);
+                        event.stopPropagation();
+                        return false;
+                    }
+                });
+            } else {
+                // Making the main function title non editable.
+                $(this.getTitle()).removeAttr("contenteditable");
+            }
 
             // Creating default worker
             var defaultWorkerOpts = {};
@@ -373,36 +378,39 @@ define(['lodash', 'log', 'event_channel',  'alerts', './svg-canvas', './../ast/f
 
             this.setSVGWidth(this._container.width());
 
-            // Creating return type icon.
-            var panelReturnTypeIcon = $("<i/>", {
-                class: "fw fw-export pull-right right-icon-clickable hoverable",
-                title: "Return Types"
-            }).appendTo(operationsPane).tooltip();
+            if (!this.getModel().isMainFunction()) {
+                // Creating return type icon.
+                var panelReturnTypeIcon = $("<i/>", {
+                    class: "fw fw-export pull-right right-icon-clickable hoverable",
+                    title: "Return Types"
+                }).appendTo(operationsPane).tooltip();
 
-            $(panelReturnTypeIcon).click(function (event) {
-                event.stopPropagation();
-            });
+                $(panelReturnTypeIcon).click(function (event) {
+                    event.stopPropagation();
+                });
 
-            operationButtons.push(panelReturnTypeIcon);
+                operationButtons.push(panelReturnTypeIcon);
 
-            // Adding separator for return type icon.
-            $("<span class='pull-right canvas-operations-separator'>|</span>").appendTo(operationsPane);
+                // Adding separator for return type icon.
+                $("<span class='pull-right canvas-operations-separator'>|</span>").appendTo(operationsPane);
 
-            var returnTypeProperties = {
-                model: this._model,
-                activatorElement: panelReturnTypeIcon,
-                paneAppendElement: this.getChildContainer().node().ownerSVGElement.parentElement,
-                viewOptions: {
-                    position: new Point(parseInt($(this.getChildContainer().node().ownerSVGElement.parentElement).width()),
-                        0)
-                },
-                view: this
-            };
+                var returnTypeProperties = {
+                    model: this._model,
+                    activatorElement: panelReturnTypeIcon,
+                    paneAppendElement: this.getChildContainer().node().ownerSVGElement.parentElement,
+                    viewOptions: {
+                        position: new Point(parseInt($(this.getChildContainer().node().ownerSVGElement.parentElement).width()),
+                            0)
+                    },
+                    view: this
+                };
 
-            this._returnTypePaneView = new ReturnTypePaneView(returnTypeProperties);
+                this._returnTypePaneView = new ReturnTypePaneView(returnTypeProperties);
 
-            // Creating return type pane.
-            this._returnTypePaneView.createReturnTypePane(diagramRenderingContext);
+                // Creating return type pane.
+                this._returnTypePaneView.createReturnTypePane(diagramRenderingContext);
+
+            }
 
             // Creating arguments icon.
             var panelArgumentsIcon = $("<i/>", {
@@ -428,7 +436,8 @@ define(['lodash', 'log', 'event_channel',  'alerts', './svg-canvas', './../ast/f
                         left: parseInt($(this.getChildContainer().node().ownerSVGElement.parentElement).width()),
                         top: 0
                     }
-                }
+                },
+                disableEditing: this.getModel().isMainFunction()
             };
 
             // Creating arguments pane.
