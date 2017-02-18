@@ -39,8 +39,9 @@ public class SwaggerResourceMapper {
             HTTP_PACKAGE_PREFIX + Constants.ANNOTATION_METHOD_PUT + "|" +
             HTTP_PACKAGE_PREFIX + Constants.ANNOTATION_METHOD_POST + "|" +
             HTTP_PACKAGE_PREFIX + Constants.ANNOTATION_METHOD_DELETE + "|" +
-            HTTP_PACKAGE_PREFIX + Constants.ANNOTATION_METHOD_OPTIONS +
-            HTTP_PACKAGE_PREFIX + Constants.ANNOTATION_METHOD_PATCH + "http:HEAD";
+            HTTP_PACKAGE_PREFIX + Constants.ANNOTATION_METHOD_OPTIONS + "|" +
+            HTTP_PACKAGE_PREFIX + Constants.ANNOTATION_METHOD_PATCH + "|" +
+            "http:HEAD";
     private Resource resource;
     private Operation operation;
 
@@ -160,6 +161,8 @@ public class SwaggerResourceMapper {
                         QueryParameter queryParameter = new QueryParameter();
                         queryParameter.setType(typeName);
                         queryParameter.setIn("query");
+                        queryParameter.setVendorExtension(SwaggerConverterUtils.VARIABLE_UUID_NAME,
+                                parameterDef.getName());
                         queryParameter.setName(parameterDef.getName());
                         queryParameter.required(true);
                         op.getOperation().addParameter(queryParameter);
@@ -169,6 +172,8 @@ public class SwaggerResourceMapper {
                         pathParameter.setType(typeName);
                         pathParameter.setName(parameterDef.getName());
                         pathParameter.setIn("path");
+                        pathParameter.setVendorExtension(SwaggerConverterUtils.VARIABLE_UUID_NAME,
+                                parameterDef.getName());
                         pathParameter.required(true);
                         op.getOperation().addParameter(pathParameter);
                     }

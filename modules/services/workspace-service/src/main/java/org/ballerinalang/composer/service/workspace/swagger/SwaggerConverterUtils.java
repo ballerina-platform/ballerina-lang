@@ -67,8 +67,8 @@ public class SwaggerConverterUtils {
      * Maximum loop count when creating temp directories.
      */
     private static final int TEMP_DIR_ATTEMPTS = 10000;
-    public static final String RESOURCE_UUID_NAME = "x-UniqueKey";
-
+    public static final String RESOURCE_UUID_NAME = "x-UniqueResourceKey";
+    public static final String VARIABLE_UUID_NAME = "x-UniqueVariableKey";
     /**
      * This method will extract service definitions from ballerina source
      *
@@ -225,6 +225,7 @@ public class SwaggerConverterUtils {
             //handle parameters
             if (entry.getHasQueryParams()) {
                 for (CodegenParameter codegenParameter : entry.queryParams) {
+                    //TODO compare and merge if existing parameter edited.
                     ParameterDef parameterDef = new ParameterDef(
                             new NodeLocation("<unknown>", 0), codegenParameter.paramName,
                             new SimpleTypeName(codegenParameter.baseType), new SymbolName("m"),
@@ -237,6 +238,7 @@ public class SwaggerConverterUtils {
             }
             if (entry.getHasPathParams()) {
                 for (CodegenParameter codegenParameter : entry.pathParams) {
+                    //TODO compare and merge if existing parameter edited.
                     ParameterDef parameterDef = new ParameterDef(
                             new NodeLocation("<unknown>", 0), codegenParameter.paramName,
                             new SimpleTypeName(codegenParameter.baseType), new SymbolName("m"),
@@ -326,7 +328,8 @@ public class SwaggerConverterUtils {
                     for (Worker worker : originalResource.getWorkers()) {
                         resourceBuilder.addWorker(worker);
                     }
-                    for (ParameterDef parameterDef : originalResource.getParameterDefs()) {
+                    //TODO Add swagger parameters defs and ballerina both. This need to perform as merge.
+                    for (ParameterDef parameterDef : resource.getParameterDefs()) {
                         resourceBuilder.addParameter(parameterDef);
                     }
                     for (ParameterDef parameterDef : originalResource.getReturnParameters()) {
