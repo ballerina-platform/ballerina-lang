@@ -21,22 +21,31 @@
         <dependency>
             <groupId>org.wso2.ballerina</groupId>
             <artifactId>ballerina-core</artifactId>
+            <version>${ballerina.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.ballerina</groupId>
+            <artifactId>ballerina-native</artifactId>
+            <version>${ballerina.version}</version>
         </dependency>
         <dependency>
             <groupId>org.wso2.ballerina</groupId>
             <artifactId>annotation-processor</artifactId>
+            <version>${ballerina.version}</version>
         </dependency>
 
         <!-- Dependencies for ballerina command: test -->
         <dependency>
             <groupId>org.wso2.ballerina</groupId>
             <artifactId>ballerina-launcher</artifactId>
+            <version>${ballerina.version}</version>
         </dependency>
         <dependency>
             <groupId>com.beust</groupId>
             <artifactId>jcommander</artifactId>
             <version>${com.beust.jcommander.version}</version>
         </dependency>
+
         <dependency>
             <groupId>org.wso2.orbit.org.antlr</groupId>
             <artifactId>antlr4-runtime</artifactId>
@@ -52,12 +61,13 @@
                 <!--</excludes>-->
             </resource>
 
-            <!-- copy testerina bal sources to the jar -->
+            <!-- copy built-in ballerina sources to the jar -->
             <resource>
                 <directory>${generated.ballerina.source.directory}</directory>
                 <targetPath>META-INF/natives</targetPath>
             </resource>
         </resources>
+
         <plugins>
             <!-- For ballerina annotation processing -->
             <plugin>
@@ -85,6 +95,32 @@
                     </execution>
                 </executions>
             </plugin>
+
+            <!-- For ballerina natives processing/validation -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>${mvn.exec.plugin.version}</version>
+                <executions>
+                    <execution>
+                        <phase>process-classes</phase>
+                        <goals>
+                            <goal>java</goal>
+                        </goals>
+                        <configuration>
+                            <mainClass>
+                                org.ballerinalang.natives.annotation.processor.NativeValidator
+                            </mainClass>
+                            <arguments>
+                                <argument>
+                                    ${generated.ballerina.source.directory}
+                                </argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
         </plugins>
     </build>
 
@@ -92,8 +128,12 @@
         <native.constructs.provider.package>org.ballerinalang.testerina.natives</native.constructs.provider.package>
         <native.constructs.provider.class>MockerinaNativeConstructsProvider</native.constructs.provider.class>
         <mvn.processor.plugin.version>2.2.4</mvn.processor.plugin.version>
+        <mvn.exec.plugin.version>1.1.1</mvn.exec.plugin.version>
 
-        <ballerina.source.directory>${project.basedir}/src/main/ballerina</ballerina.source.directory>
+        <!-- Path to the generated natives ballerina files temp directory -->
+        <generated.ballerina.source.directory>${project.build.directory}/natives</generated.ballerina.source.directory>
+
+        <!--<ballerina.source.directory>${project.basedir}/src/main/ballerina</ballerina.source.directory>-->
         <antlr4.runtime.version>4.5.1.wso2v1</antlr4.runtime.version>
     </properties>
 </project>
