@@ -72,6 +72,9 @@ define('ace/mode/ballerina',
                             syntaxError.row = syntaxError.row - 1;
                         });
                         session.setAnnotations(results.data);
+                    } else {
+                        // no new errors or something wrong with validator. clear up current errors
+                        session.clearAnnotations();
                     }
                 });
 
