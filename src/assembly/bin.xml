@@ -54,6 +54,7 @@
                 <include>org.ballerinalang.testerina:testerina-core:jar</include>
                 <include>org.wso2.ballerina.swagger:swagger-ballerina-generator:jar</include>
                 <include>org.ballerinalang:ballerina-container-support:jar</include>
+                <include>org.ballerinalang:docerina:jar</include>
             </includes>
             <unpack>false</unpack>
         </dependencySet>

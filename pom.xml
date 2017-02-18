@@ -61,6 +61,11 @@
             <artifactId>ballerina-container-support</artifactId>
             <version>${ballerina.container.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>docerina</artifactId>
+            <version>${docerina.version}</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -127,10 +132,11 @@
     </build>
 
     <properties>
-        <ballerina.distribution.version>0.8.0-SNAPSHOT</ballerina.distribution.version>
+        <ballerina.distribution.version>0.8.0-ALPHA</ballerina.distribution.version>
         <ballerina.composer.distribution.version>0.8-SNAPSHOT</ballerina.composer.distribution.version>
         <testerina.version>0.8.0-SNAPSHOT</testerina.version>
         <tool.swagger.version>0.8.0-SNAPSHOT</tool.swagger.version>
-        <ballerina.container.version>0.8.0-SNAPSHOT</ballerina.container.version>
+        <ballerina.container.version>0.8.0-ALPHA</ballerina.container.version>
+        <docerina.version>0.8.0-SNAPSHOT</docerina.version>
     </properties>
 </project>
