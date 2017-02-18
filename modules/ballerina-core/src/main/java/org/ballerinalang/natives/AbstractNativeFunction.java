@@ -67,6 +67,7 @@ public abstract class AbstractNativeFunction implements NativeUnit, Function {
     private BType[] parameterTypes;
     private SimpleTypeName[] returnParamTypeNames;
     private SimpleTypeName[] argTypeNames;
+    private String[] argNames;
     private int tempStackFrameSize;
 
     /**
@@ -295,8 +296,18 @@ public abstract class AbstractNativeFunction implements NativeUnit, Function {
     }
 
     @Override
+    public void setArgNames(String[] argNames) {
+        this.argNames = argNames;
+    }
+
+    @Override
     public SimpleTypeName[] getArgumentTypeNames() {
         return argTypeNames;
+    }
+
+    @Override
+    public String[] getArgumentNames() {
+        return argNames;
     }
 
     @Override

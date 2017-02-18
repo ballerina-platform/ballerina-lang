@@ -31,12 +31,12 @@ import java.util.List;
  * @since 0.8.0
  */
 class CallableUnitInvocationExprBuilder {
-    private NodeLocation location;
-    private String name;
-    private String pkgName;
-    private String pkgPath;
-    private String connectorName;
-    private List<Expression> expressionList = new ArrayList<>();
+    protected NodeLocation location;
+    protected String name;
+    protected String pkgName;
+    protected String pkgPath;
+    protected String connectorName;
+    protected List<Expression> expressionList = new ArrayList<>();
 
     void setNodeLocation(NodeLocation location) {
         this.location = location;
