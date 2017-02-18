@@ -38,10 +38,6 @@ define(
         TryStatementView.prototype = Object.create(BlockStatementView.prototype);
         TryStatementView.prototype.constructor = TryStatementView;
 
-        TryStatementView.prototype.canVisitStatement = function(){
-            return true;
-        };
-
         TryStatementView.prototype.canVisitTryStatement = function(){
             return true;
         };

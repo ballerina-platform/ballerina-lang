@@ -49,7 +49,7 @@ define(['require', 'lodash', 'log', './compound-statement-view', './../ast/tryca
         TryCatchStatementView.prototype = Object.create(CompoundStatementView.prototype);
         TryCatchStatementView.prototype.constructor = TryCatchStatementView;
 
-        TryCatchStatementView.prototype.canVisitStatement = function(){
+        TryCatchStatementView.prototype.canVisitTryCatchStatement = function(){
             return true;
         };
 
