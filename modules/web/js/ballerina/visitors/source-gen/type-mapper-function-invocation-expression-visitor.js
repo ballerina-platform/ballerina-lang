@@ -34,7 +34,7 @@ define(['require', 'lodash', 'log', 'event_channel', './abstract-statement-sourc
         TypeMapperFunctionInvocationExpressionVisitor.prototype.canVisitFuncInvocationExpression = function (functionInvocation) {
             //This visitor has already visited the indended function invocation expression
             // , and hence no need to visit again.
-            return !this.getGeneratedSource();
+            return true && this._generatedSource === "";
         };
 
         TypeMapperFunctionInvocationExpressionVisitor.prototype.canVisitExpression = function (expression) {
@@ -42,9 +42,7 @@ define(['require', 'lodash', 'log', 'event_channel', './abstract-statement-sourc
         };
 
         TypeMapperFunctionInvocationExpressionVisitor.prototype.beginVisitFuncInvocationExpression = function (functionInvocation) {
-            var source = functionInvocation.getFunctionalExpression();
-            source = source.substring(0, source.length - 1);
-            this.appendSource(source);
+            this.appendSource(functionInvocation.getFunctionName() + '(');
             log.debug('Begin Visit Type Mapper Function Invocation expression - ' + functionInvocation.getFunctionalExpression());
         };
 
