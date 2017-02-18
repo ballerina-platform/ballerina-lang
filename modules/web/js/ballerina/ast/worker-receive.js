@@ -66,6 +66,8 @@ define(['lodash', './statement'], function (_, Statement) {
 
     WorkerReceiver.prototype.canBeAChildOf = function(node){
         return this.getFactory().isResourceDefinition(node)
+            || this.getFactory().isFunctionDefinition(node)
+            || this.getFactory().isConnectorAction(node)
             || (this.getFactory().isStatement(node) && !node._isChildOfWorker);
     };
 
