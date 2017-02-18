@@ -20,7 +20,6 @@ define(['lodash', './node', '../utils/common-utils'], function (_, ASTNode, Comm
     var TypeMapperDefinition = function (args) {
         this._typeMapperName = _.get(args, 'typeMapperName');
         ASTNode.call(this, 'TypeMapperDefinition');
-        this.BallerinaASTFactory = this.getFactory();
     };
 
     TypeMapperDefinition.prototype = Object.create(ASTNode.prototype);
@@ -439,11 +438,12 @@ define(['lodash', './node', '../utils/common-utils'], function (_, ASTNode, Comm
      * @param {string} jsonNode.type_mapper_name - Name of the type mapper definition.
      */
     TypeMapperDefinition.prototype.initFromJson = function (jsonNode) {
+        var ballerinaASTFactory = this.getFactory();
         var self = this;
         this.setTypeMapperName(jsonNode.type_mapper_name, {doSilently: true});
 
         _.each(jsonNode.children, function (childNode) {
-            var child = self.BallerinaASTFactory.createFromJson(childNode);
+            var child = ballerinaASTFactory.createFromJson(childNode);
             self.addChild(child);
             child.initFromJson(childNode);
         });
