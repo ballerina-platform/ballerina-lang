@@ -17,7 +17,6 @@
  */
 package org.wso2.carbon.transport.http.netty.sender;
 
-import io.netty.channel.Channel;
 import io.netty.handler.codec.http.HttpRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,7 +28,6 @@ import org.wso2.carbon.messaging.exceptions.ClientConnectorException;
 import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.common.HttpRoute;
 import org.wso2.carbon.transport.http.netty.common.Util;
-import org.wso2.carbon.transport.http.netty.common.ssl.SSLConfig;
 import org.wso2.carbon.transport.http.netty.config.ConfigurationBuilder;
 import org.wso2.carbon.transport.http.netty.config.SenderConfiguration;
 import org.wso2.carbon.transport.http.netty.config.TransportProperty;
@@ -56,7 +54,7 @@ public class HTTPClientConnector implements ClientConnector {
 
     private static final Logger log = LoggerFactory.getLogger(HTTPClientConnector.class);
     private ConnectionManager connectionManager;
-    private Map<String, SenderConfiguration> senderConfigurationMap;
+    private Map<String, SenderConfiguration> senderConfigurations;
 
     public HTTPClientConnector() {
         TransportsConfiguration transportsConfiguration = ConfigurationBuilder.getInstance().getConfiguration();
@@ -73,7 +71,7 @@ public class HTTPClientConnector implements ClientConnector {
             log.error("Please specify at least one sender configuration");
             return;
         }
-        senderConfigurationMap = senderConfiguration.stream().collect(Collectors
+        senderConfigurations = senderConfiguration.stream().collect(Collectors
                 .toMap(senderConf -> senderConf.getScheme().toLowerCase(Locale.getDefault()), config -> config));
 
         Map<String, Object> transportProperties = new HashMap<>();
@@ -89,65 +87,64 @@ public class HTTPClientConnector implements ClientConnector {
     }
 
     @Override
-    public boolean send(CarbonMessage msg, CarbonCallback callback) throws ClientConnectorException {
-        return invokeSend(msg, callback);
-    }
-
-
-    @Override
     public boolean send(CarbonMessage msg, CarbonCallback callback, Map<String, String> parameters)
             throws ClientConnectorException {
-        return invokeSend(msg, callback);
+        return send(msg, callback);
     }
 
-    private boolean invokeSend(CarbonMessage msg, CarbonCallback callback) throws ClientConnectorException {
+    @Override
+    public boolean send(CarbonMessage msg, CarbonCallback callback) throws ClientConnectorException {
+
         String protocol = (String) msg.getProperty(Constants.PROTOCOL);
-        SenderConfiguration defaultSenderConfiguration = senderConfigurationMap
-                .get(protocol.toLowerCase(Locale.getDefault()));
+        SenderConfiguration senderConfiguration = senderConfigurations.get(protocol.toLowerCase(Locale.getDefault()));
 
         Util.prepareBuiltMessageForTransfer(msg);
         Util.setupTransferEncodingForRequest(msg);
 
         final HttpRequest httpRequest = Util.createHttpRequest(msg);
 
-        if (msg.getProperty(Constants.HOST) == null) {
-            log.debug("Cannot find property HOST hence using default as " + "localhost"
-                    + " Please specify remote host as 'HOST' in carbon message property ");
-            msg.setProperty(Constants.HOST, "localhost");
+        // Fetch Host
+        String host;
+        Object hostProperty = msg.getProperty(Constants.HOST);
+        if (hostProperty != null && hostProperty instanceof String) {
+            host = (String) hostProperty;
+        } else {
+            host = Constants.LOCALHOST;
+            msg.setProperty(Constants.HOST, Constants.LOCALHOST);
+            log.debug("Cannot find property HOST of type string, hence using localhost as the host");
         }
-        if (msg.getProperty(Constants.PORT) == null) {
-            SSLConfig sslConfig = defaultSenderConfiguration.getSslConfig();
-            int port = 80;
-            if (sslConfig != null) {
-                port = 443;
-            }
-            log.debug("Cannot find property PORT hence using default as " + port
-                    + " Please specify remote host as 'PORT' in carbon message property ");
+
+        // Fetch Port
+        int port;
+        Object intProperty = msg.getProperty(Constants.PORT);
+        if (intProperty != null && intProperty instanceof Integer) {
+            port = (int) intProperty;
+        } else {
+            port = senderConfiguration.getSslConfig() != null ?
+                   Constants.DEFAULT_HTTPS_PORT : Constants.DEFAULT_HTTP_PORT;
             msg.setProperty(Constants.PORT, port);
+            log.debug("Cannot find property PORT of type integer, hence using " + port);
         }
 
-        final HttpRoute route = new HttpRoute((String) msg.getProperty(Constants.HOST),
-                (Integer) msg.getProperty(Constants.PORT));
+        final HttpRoute route = new HttpRoute(host, port);
 
-        SourceHandler srcHandler = (SourceHandler) msg.getProperty(Constants.SRC_HNDLR);
+        SourceHandler srcHandler = (SourceHandler) msg.getProperty(Constants.SRC_HANDLER);
         if (srcHandler == null) {
-            log.debug("Cannot find property SRC_HNDLR hence Sender uses as standalone.If you need to use sender with"
-                    + "listener side please copy property SRC_HNDLR from incoming message");
+            log.debug("SRC_HANDLER property not found in the message." +
+                      " Message is not originated from the HTTP Server connector");
         }
 
-        Channel outboundChannel = null;
         try {
-            TargetChannel targetChannel = connectionManager
-                    .getTargetChannel(route, srcHandler, defaultSenderConfiguration, httpRequest, msg, callback);
+            TargetChannel targetChannel = connectionManager.
+                    getTargetChannel(route, srcHandler, senderConfiguration, httpRequest, msg, callback);
             if (targetChannel != null) {
-                outboundChannel = targetChannel.getChannel();
-                targetChannel.getTargetHandler().setCallback(callback);
-                targetChannel.getTargetHandler().setIncomingMsg(msg);
-                targetChannel.getTargetHandler().setTargetChannel(targetChannel);
-                targetChannel.getTargetHandler().setConnectionManager(connectionManager);
-                boolean written = ChannelUtils.writeContent(outboundChannel, httpRequest, msg);
-                if (written) {
-                    targetChannel.setRequestWritten(true);
+                TargetHandler targetHandler = targetChannel.getTargetHandler();
+                targetHandler.setCallback(callback);
+                targetHandler.setIncomingMsg(msg);
+                targetHandler.setConnectionManager(connectionManager);
+                targetHandler.setTargetChannel(targetChannel);
+                if (ChannelUtils.writeContent(targetChannel.getChannel(), httpRequest, msg)) {
+                    targetChannel.setRequestWritten(true); // If request written
                 }
             }
         } catch (Exception failedCause) {
@@ -160,7 +157,7 @@ public class HTTPClientConnector implements ClientConnector {
     @Override
     public String getProtocol() {
         //hardcoded because there is always one sender with set of configurations
-        return "http";
+        return Constants.PROTOCOL_NAME;
     }
 
     public void setMessageProcessor(CarbonMessageProcessor carbonMessageProcessor) {
