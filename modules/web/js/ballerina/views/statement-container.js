@@ -322,6 +322,9 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
         boundingBox.on('center-moved', function (offset) {
             self._topCenter.move(offset.dx, 0);
         }, this);
+        boundingBox.on('top-edge-moved', function (dy) {
+            self._topCenter.move(0, dy);
+        }, this);
         var dropZoneOptions = {
             dropZone: this._mainDropZone,
             hoverClass: _.get(this._viewOptions, 'cssClass.mainDropZoneHover')
