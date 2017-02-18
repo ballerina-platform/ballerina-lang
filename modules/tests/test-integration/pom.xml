@@ -129,9 +129,9 @@
                                     </includes>
                                 </resource>
                                 <resource>
-                                    <directory>../../../samples/other_samples/fileService</directory>
+                                    <directory>../../../samples/other_samples/fileServiceWithActiveMq</directory>
                                     <includes>
-                                        <include>orderProcessService.bal</include>
+                                        <include>testFileService.bal</include>
                                     </includes>
                                 </resource>
                             </resources>

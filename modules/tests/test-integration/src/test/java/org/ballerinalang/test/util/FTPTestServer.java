@@ -50,7 +50,7 @@ public class FTPTestServer {
         user.setName("username");
         user.setPassword("password");
         ClassLoader classLoader = getClass().getClassLoader();
-        String fileURI = new File(classLoader.getResource(Constant.VFS_LOCATION).getFile()).getAbsolutePath();
+        String fileURI = new File(classLoader.getResource(Constant.FTP_LOCATION).getFile()).getAbsolutePath();
         List<Authority> authorities = new ArrayList<Authority>();
         authorities.add(new WritePermission());
         user.setAuthorities(authorities);
