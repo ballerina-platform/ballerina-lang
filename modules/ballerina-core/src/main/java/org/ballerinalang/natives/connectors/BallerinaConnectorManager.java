@@ -173,6 +173,7 @@ public class BallerinaConnectorManager {
             connectorHolder.getServerConnector().start(connectorHolder.getParameters());
             startedConnectors.add(connectorHolder.getServerConnector());
         }
+        startupDelayedServerConnectors.clear();
         return startedConnectors;
     }
 
