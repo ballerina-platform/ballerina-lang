@@ -43,11 +43,10 @@ define(['lodash', 'log', './ballerina-view', './../ast/block-statement', 'typeMa
          */
         TypeMapperBlockStatementView.prototype.render = function (diagramRenderingContext) {
             this._diagramRenderingContext = diagramRenderingContext;
-
             this._model.accept(this);
             this._model.on('child-added', function (child) {
                 this.visit(child)
-            }, this)
+            }, this);
 
         };
 
@@ -191,11 +190,12 @@ define(['lodash', 'log', './ballerina-view', './../ast/block-statement', 'typeMa
                     parentStructFieldExp = structFieldAccess;
                 });
                 if (functionInvocationExp.getChildren().length > index) {
+                    functionInvocationExp.getChildren()[index].remove();
                     functionInvocationExp.addChild(root, index);
                 } else {
                     functionInvocationExp.addChild(root);
                 }
-                
+
             } else if (BallerinaASTFactory.isAssignmentStatement(sourceModel)
                 && BallerinaASTFactory.isReturnType(targetModel)) {
                 var leftOperand = sourceModel.getChildren()[0];
@@ -215,6 +215,7 @@ define(['lodash', 'log', './ballerina-view', './../ast/block-statement', 'typeMa
                     return param.name === connection.targetProperty[0];
                 });
                 if (targetFunctionInvocation.getChildren().length > index) {
+                    targetFunctionInvocation.getChildren()[index].remove();
                     targetFunctionInvocation.addChild(functionInvocation, index);
                 } else {
                     targetFunctionInvocation.addChild(functionInvocation);
@@ -227,9 +228,83 @@ define(['lodash', 'log', './ballerina-view', './../ast/block-statement', 'typeMa
          * @param connection object
          */
         TypeMapperBlockStatementView.prototype.onAttributesDisConnect = function (connection) {
-            var blockStatement = connection.targetReference.getParent().getBlockStatement();
-            var assignmentStatementId = connection.id;
-            blockStatement.removeChildById(assignmentStatementId);
+            var sourceModel = connection.sourceReference;
+            var sourceFuncSchema;
+            var targetModel = connection.targetReference;
+            var targetFuncSchema;
+            if (connection.sourceReference.model) {
+                sourceModel = connection.sourceReference.model;
+                sourceFuncSchema = connection.sourceReference.functionSchema;
+            }
+            if (connection.targetReference.model) {
+                targetModel = connection.targetReference.model;
+                targetFuncSchema = connection.targetReference.functionSchema;
+            }
+            if (BallerinaASTFactory.isReturnType(targetModel)
+                && BallerinaASTFactory.isResourceParameter(sourceModel)) {
+                var blockStatement = connection.targetReference.getParent().getBlockStatement();
+                var assignmentStatementId = connection.id;
+                blockStatement.removeChildById(assignmentStatementId);
+            } else if (BallerinaASTFactory.isAssignmentStatement(targetModel)
+                && BallerinaASTFactory.isResourceParameter(sourceModel)) {
+                //Struct -> function
+                var resourceParam = sourceModel;
+                var functionInvocationExp = targetModel.getChildren()[1].getChildren()[0];
+                var index = _.findIndex(targetFuncSchema.parameters, function (param) {
+                    return param.name === connection.targetProperty[0];
+                });
+                var structInput = functionInvocationExp.getChildren()[index];
+                structInput.remove();
+                var variableRefExp = BallerinaASTFactory.createVariableReferenceExpression();
+                variableRefExp.setVariableReferenceName('');
+                functionInvocationExp.addChild(variableRefExp, index);
+            } else if (BallerinaASTFactory.isAssignmentStatement(sourceModel)
+                && BallerinaASTFactory.isReturnType(targetModel)) {
+                //function -> struct
+                //TODO: fix for multiple returns
+                var leftOperand = sourceModel.getChildren()[0];
+                leftOperand.getChildren()[0].remove();
+                var structFieldAccessExp = BallerinaASTFactory.createStructFieldAccessExpression();
+                leftOperand.addChild(structFieldAccessExp, 0);
+            } else if (BallerinaASTFactory.isAssignmentStatement(sourceModel)
+                && BallerinaASTFactory.isAssignmentStatement(targetModel)) {
+                var sourceFunctionInvocation = sourceModel.getChildren()[1].getChildren()[0];
+                sourceFunctionInvocation.remove();
+                var targetFunctionInvocation = targetModel.getChildren()[1].getChildren()[0];
+                var index = _.findIndex(targetFuncSchema.parameters, function (param) {
+                    return param.name === connection.targetProperty[0];
+                });
+                var variableRefExp = BallerinaASTFactory.createVariableReferenceExpression();
+                variableRefExp.setVariableReferenceName('');
+                if (targetFunctionInvocation.getChildren().length > index) {
+                    targetFunctionInvocation.getChildren()[index].remove();
+                    targetFunctionInvocation.addChild(variableRefExp, index);
+                } else {
+                    targetFunctionInvocation.addChild(variableRefExp);
+                }
+                var assmtModel = BallerinaASTFactory.createAssignmentStatement();
+                var leftOperand = BallerinaASTFactory.createLeftOperandExpression();
+                leftOperand.setLeftOperandExpressionString('');
+                leftOperand.setLeftOperandType('');
+                assmtModel.addChild(leftOperand);
+                var rightOperand = BallerinaASTFactory.createRightOperandExpression();
+                rightOperand.setRightOperandExpressionString('');
+                rightOperand.addChild(sourceFunctionInvocation);
+                assmtModel.addChild(rightOperand);
+                _.forEach(sourceFuncSchema.returnType, function (aReturnType) {
+                    var structFieldAccessExp = BallerinaASTFactory.createStructFieldAccessExpression();
+                    leftOperand.addChild(structFieldAccessExp);
+                });
+                var node = targetFunctionInvocation.getParent();
+                var blockStatement;
+                while (node && !blockStatement) {
+                    if (BallerinaASTFactory.isBlockStatement(node)) {
+                        blockStatement = node;
+                    }
+                    node = node.getParent();
+                }
+                blockStatement.addChild(assmtModel, _.findLastIndex(blockStatement.getChildren()), undefined, false);
+            }
         };
 
         /**
