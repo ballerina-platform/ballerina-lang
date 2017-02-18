@@ -191,7 +191,6 @@ define(['lodash', 'jquery', './ballerina-view', 'log', 'typeMapper', './../ast/a
                     connection["targetId"] = targetFunction.getID();
                     connection["sourceFunction"] = true;
                     connection["targetFunction"] = true;
-                    console.log(connection);
                     self.getTypeMapperFunctionRenderer().addConnection(connection);
                     self.handleFunctionInvocation(functionParam, self, diagramRenderingContext);
                 } else if (BallerinaASTFactory.isStructFieldAccessExpression(functionParam)) {
