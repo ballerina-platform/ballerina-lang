@@ -29,6 +29,8 @@ A sample pom.xml file configuration of the docerina Maven goal is shown below.
                         <configuration>
                             <outputDir>${output.dir}</outputDir>
                             <sourceDir>${generated.ballerina.source.directory}</sourceDir>
+                            <packageFilter>org.ballerinalang.xyz</packageFilter>
+                            <debugDocerina>false</debugDocerina>
                         </configuration>
                     </execution>
                 </executions>
@@ -38,44 +40,26 @@ A sample pom.xml file configuration of the docerina Maven goal is shown below.
 	  
 Supported list of configuration parameters are listed below;
 
-* `sourceDir`: Points to the location of the Ballerina source file/directory.
+* `sourceDir`: Comma separated list of the paths to the directories where Ballerina source files reside or 
+paths to Ballerina files which does not belong to a package.
 
  MANDATORY property.
- Example: `<templatesDir>/home/docerina/ballerina/src</templatesDir>`
+ Example: `<sourceDir>/home/docerina/abc/src,/home/docerina/xyz/src</sourceDir>`
  
 * `outputDir`: Points to the location where the generated API docs will be stored. 
 
  OPTIONAL property.
  DEFAULT value is the ${project.build.directory} which is the target directory.
- Example: `<outputDir>/home/docerina/output</outputDir>`.
+ Example: `<outputDir>/home/docerina/output</outputDir>`
 
-## Usage Example
+* `packageFilter`: Comma separated list of package names to be filtered from the documentation.
 
- Docerina is capable of generating HTML based API documentation and this plugin allows you to use Docerina in your 
- Ballerina projects.
+ OPTIONAL property.
+ DEFAULT value is none.
+ Example: `<packageFilter>org.ballerinalang.abc.a,org.ballerinalang.xyz.x</packageFilter>`
 
- Following is an extract from a sample pom.xml.
+* `debugDocerina`: Enable debug level logs.
 
- 		<build>
-	    	<plugins>
-    			...
-    			<plugin>
-	                <groupId>org.ballerinalang</groupId>
-	                <artifactId>docerina-maven-plugin</artifactId>
-	                <version>${docerina.maven.plugin.version}</version>
-	                <executions>
-	                    <execution>
-	                        <phase>package</phase>
-	                        <goals>
-	                            <goal>docerina</goal>
-	                        </goals>
-	                        <configuration>
-	                            <outputDir>${project.build.directory}/docs</outputDir>
-	                            <sourceDir>${project.build.directory}/../src/main/ballerina</sourceDir>
-	                        </configuration>
-	                    </execution>
-	                </executions>
-	            </plugin>
-	        	...
-        	</plugins>
-        </build>
+ OPTIONAL property.
+ DEFAULT value is false.
+ Example: `<debugDocerina>true</debugDocerina>`
