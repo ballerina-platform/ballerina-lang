@@ -213,6 +213,24 @@ public class SystemTest {
 
     }
 
+    @Test
+    public void testFunctionDate() {
+        Logger rootLogger = Logger.getRootLogger();
+        TestLogAppender testLogAppender = new TestLogAppender();
+        try {
+            rootLogger.setLevel(Level.ALL);
+            rootLogger.addAppender(testLogAppender);
+            BLangFunctions.invoke(bLangProgram, "testDateFunction");
+            // We are not expecting boolean log in event list.
+            Assert.assertEquals(testLogAppender.getEvents().size(), 1, "Date Logging event didn't match.");
+            Assert.assertTrue(!((String) testLogAppender.events.get(0).getMessage()).endsWith("[INFO] 0"));
+        } finally {
+            rootLogger.removeAppender(testLogAppender);
+            rootLogger.setLevel(Level.INFO);
+        }
+
+    }
+
     @Test(description = "Test new line character in string")
     public void testNewlineCharacter() {
         java.io.ByteArrayOutputStream out = null;
