@@ -38,10 +38,6 @@ define(
         CatchStatementView.prototype = Object.create(BlockStatementView.prototype);
         CatchStatementView.prototype.constructor = CatchStatementView;
 
-        CatchStatementView.prototype.canVisitStatement = function(){
-            return true;
-        };
-
         CatchStatementView.prototype.canVisitCatchStatement = function(){
             return true;
         };
