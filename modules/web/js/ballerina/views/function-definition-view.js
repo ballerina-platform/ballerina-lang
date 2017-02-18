@@ -276,7 +276,11 @@ define(['lodash', 'log', 'event_channel',  'alerts', './svg-canvas', './../ast/f
             this.drawAccordionCanvas(this._viewOptions, this.getModel().getID(), this.getModel().type.toLowerCase(), this.getModel().getFunctionName());
 
             // Setting the styles for the canvas icon.
-            this.getPanelIcon().addClass(_.get(this._viewOptions, "cssClass.function_icon", ""));
+            if (!this.getModel().isMainFunction()) {
+                this.getPanelIcon().addClass(_.get(this._viewOptions, "cssClass.function_icon", ""));
+            } else {
+                this.getPanelIcon().addClass(_.get(this._viewOptions, "cssClass.main_function_icon", ""));
+            }
 
             var currentContainer = $('#' + this.getModel().getID());
             this._container = currentContainer;
