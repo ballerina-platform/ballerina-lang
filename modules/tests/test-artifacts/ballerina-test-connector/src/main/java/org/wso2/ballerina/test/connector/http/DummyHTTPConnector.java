@@ -22,12 +22,12 @@ import org.osgi.framework.Bundle;
 import org.osgi.framework.ServiceFactory;
 import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.component.annotations.Component;
-import org.wso2.ballerina.core.model.types.TypeEnum;
-import org.wso2.ballerina.core.model.values.BInteger;
-import org.wso2.ballerina.core.model.values.BValue;
-import org.wso2.ballerina.core.nativeimpl.annotations.Argument;
-import org.wso2.ballerina.core.nativeimpl.annotations.BallerinaConnector;
-import org.wso2.ballerina.core.nativeimpl.connectors.AbstractNativeConnector;
+import org.ballerinalang.core.model.types.TypeEnum;
+import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.natives.annotations.Argument;
+import org.ballerinalang.natives.annotations.BallerinaConnector;
+import org.ballerinalang.natives.connectors.AbstractNativeConnector;
 
 /**
  * Native HTTP Connector.
