@@ -35,7 +35,7 @@ Follow below steps to setup a Docerina development environment:
   
   ```
   cd ..
-  git clone https://github.com/wso2/docerina.git
+  git clone https://github.com/ballerinalang/docerina.git
   ```
 
 - Build Docerina and copy the Docerina JAR file to the Ballerina distribution lib folder:
