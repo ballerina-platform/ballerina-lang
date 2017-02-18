@@ -206,7 +206,7 @@ define(['log', 'jquery', './../ast/ballerina-ast-factory', './../tool-palette/to
             name: "Throw",
             icon: "images/tool-icons/reply.svg",
             title: "Throw",
-            nodeFactoryMethod: BallerinaASTFactory.createThrowStatement
+            nodeFactoryMethod: DefaultsAddedBallerinaASTFactory.createThrowStatement
         };
 
         var statementToolDefArray = [createIfStatementTool, createAssignmentExpressionTool,

@@ -710,7 +710,17 @@ public class BLangJSONModelBuilder implements NodeVisitor {
 
     @Override
     public void visit(ThrowStmt throwStmt) {
-
+        JsonObject throwStmtObj = new JsonObject();
+        throwStmtObj.addProperty(BLangJSONModelConstants.STATEMENT_TYPE,
+                BLangJSONModelConstants.THROW_STATEMENT);
+        this.addPosition(throwStmtObj, throwStmt.getNodeLocation());
+        tempJsonArrayRef.push(new JsonArray());
+        if (throwStmt.getExpr() != null) {
+            throwStmt.getExpr().accept(this);
+        }
+        throwStmtObj.add(BLangJSONModelConstants.CHILDREN, tempJsonArrayRef.peek());
+        tempJsonArrayRef.pop();
+        tempJsonArrayRef.peek().add(throwStmtObj);
     }
 
     @Override
