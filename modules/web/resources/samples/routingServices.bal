@@ -1,83 +1,83 @@
 import ballerina.net.http;
-import ballerina.lang.json;
-import ballerina.lang.message;
+import ballerina.lang.jsonutils;
+import ballerina.lang.messages;
 
-@BasePath ("/cbr")
+@http:BasePath ("/cbr")
 service contentBasedRouting {
 
-    @POST
+    @http:POST
     resource cbrResource (message m) {
 
-        http:HTTPConnector nyseEP = create http:HTTPConnector("http://localhost:9090/nyseStocks");
-        http:HTTPConnector nasdaqEP = create http:HTTPConnector("http://localhost:9090/nasdaqStocks");
+        http:ClientConnector nyseEP = create http:ClientConnector("http://localhost:9090/nyseStocks");
+        http:ClientConnector nasdaqEP = create http:ClientConnector("http://localhost:9090/nasdaqStocks");
 
-        string nyseString = "nyse";
+        string nyseString = "nyset";
 
-        json jsonMsg = message:getJsonPayload(m);
-        string nameString = json:getString(jsonMsg, "$.name");
+        json jsonMsg = messages:getJsonPayload(m);
+        string nameString = jsonutils:getString(jsonMsg, "$.name");
 
         message response = {};
 
         if (nameString == nyseString) {
-            response = http:HTTPConnector.post(nyseEP, "/", m);
+            response = http:ClientConnector.post(nyseEP, "/", m);
         } else {
-            response = http:HTTPConnector.post(nasdaqEP, "/", m);
+            response = http:ClientConnector.post(nasdaqEP, "/", m);
         }
 
         reply response;
     }
 }
 
-@BasePath ("/hbr")
+@http:BasePath ("/hbr")
 service headerBasedRouting {
 
-    @GET
+    @http:GET
     resource cbrResource (message m) {
 
-        http:HTTPConnector nyseEP = create http:HTTPConnector("http://localhost:9090/nyseStocks");
-        http:HTTPConnector nasdaqEP = create http:HTTPConnector("http://localhost:9090/nasdaqStocks");
+        http:ClientConnector nyseEP = create http:ClientConnector("http://localhost:9090/nyseStocks");
+        http:ClientConnector nasdaqEP = create http:ClientConnector("http://localhost:9090/nasdaqStocks");
 
         string nyseString = "nyse";
 
-        string nameString = message:getHeader(m, "name");
+        string nameString = messages:getHeader(m, "name");
 
         message response = {};
 
         if (nameString == nyseString) {
-            response = http:HTTPConnector.post(nyseEP, "/", m);
+            response = http:ClientConnector.post(nyseEP, "/", m);
         } else {
-            response = http:HTTPConnector.post(nasdaqEP, "/", m);
+            response = http:ClientConnector.post(nasdaqEP, "/", m);
         }
 
         reply response;
     }
 }
 
-@BasePath("/nyseStocks")
+@http:BasePath("/nyseStocks")
 service nyseStockQuote {
 
-    @POST
+    @http:POST
     resource stocks (message m) {
 
         message response = {};
 
         json payload = `{"exchange":"nyse", "name":"IBM", "value":"127.50"}`;
-        message:setJsonPayload(response, payload);
+        messages:setJsonPayload(response, payload);
 
         reply response;
     }
 }
 
-@BasePath("/nasdaqStocks")
+@http:BasePath("/nasdaqStocks")
 service nasdaqStocksQuote {
 
-    @POST
+    @http:POST
     resource stocks (message m) {
 
         message response = {};
 
         json payload = `{"exchange":"nasdaq", "name":"IBM", "value":"127.50"}`;
-        message:setJsonPayload(response, payload);
+        messages:setJsonPayload(response, payload);
 
         reply response;
     }
