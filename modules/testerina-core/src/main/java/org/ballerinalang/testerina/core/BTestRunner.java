@@ -61,15 +61,6 @@ public class BTestRunner {
             throw new BallerinaException("no service(s) found in '" + bLangProgram.getProgramFilePath() + "'");
         }
 
-        //todo move this to startservice
-        //        for (BLangPackage servicePackage : servicePackages) {
-        //            for (Service service : servicePackage.getServices()) {
-        //                service.setBLangProgram(bLangProgram);
-        //                DispatcherRegistry.getInstance().getServiceDispatchers().forEach((protocol, dispatcher) ->
-        //                        dispatcher.serviceRegistered(service));
-        //            }
-        //        }
-
         // Create a runtime environment for this Ballerina application
         RuntimeEnvironment runtimeEnv = RuntimeEnvironment.get(bLangProgram);
         bLangProgram.setRuntimeEnvironment(runtimeEnv);

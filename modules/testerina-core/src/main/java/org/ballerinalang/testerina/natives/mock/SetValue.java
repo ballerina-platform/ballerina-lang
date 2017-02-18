@@ -35,6 +35,7 @@ import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.testerina.core.TesterinaRegistry;
+import org.ballerinalang.testerina.core.TesterinaUtils;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -81,6 +82,11 @@ public class SetValue extends AbstractNativeFunction {
         //once found, get the primitive that has the name of last element in the path array
         //change that primitive type's value to the `value` user entered.
         //then return
+
+        if (!TesterinaUtils.isMockEnabled()) {
+            throw new BallerinaException(
+                    MSG_PREFIX + "'--mock' parameter or the 'ballerina.mock' system property is not found. ");
+        }
 
         //1) split the mockConnectorPath string by dots
         //first element is the service name, in-betweens are connectors and the last element is a primitive

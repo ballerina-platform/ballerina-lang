@@ -40,8 +40,14 @@ public class TestCmd implements BLauncherCmd {
 
     private JCommander parentCmdParser;
 
+    @Parameter(names = "--mock", hidden = true, description = "Is mock enabled")
+    private boolean mock = true;
+
     @Parameter(arity = 1, description = "arguments")
     private List<String> sourceFileList;
+
+    @Parameter(names = {"--service-root", "-sr"}, description = "directory which contains ballerina services")
+    private String serviceRootPath;
 
     @Parameter(names = { "--help", "-h" }, hidden = true)
     private boolean helpFlag;
@@ -49,11 +55,9 @@ public class TestCmd implements BLauncherCmd {
     @Parameter(names = "--debug", hidden = true)
     private String debugPort;
 
-    @Parameter(names = {"--service-root", "-sr"}, description = "directory which contains ballerina services")
-    private String serviceRootPath;
-
     @Parameter(names = "--ballerina.debug", hidden = true, description = "remote debugging port")
     private String ballerinaDebugPort;
+    private JCommander selfCmdParser;
 
     public void execute() {
         if (helpFlag) {
@@ -63,6 +67,10 @@ public class TestCmd implements BLauncherCmd {
 
         if (sourceFileList == null || sourceFileList.size() == 0) {
             throw LauncherUtils.createUsageException("no ballerina program or folder given to run tests");
+        }
+
+        if (mock) {
+            TesterinaUtils.setMockEnabled(mock);
         }
 
         Path[] paths = sourceFileList.stream().map(Paths::get).toArray(Path[]::new);
@@ -172,6 +180,6 @@ public class TestCmd implements BLauncherCmd {
 
     @Override
     public void setSelfCmdParser(JCommander selfCmdParser) {
-        //empty
+        this.selfCmdParser = selfCmdParser;
     }
 }
