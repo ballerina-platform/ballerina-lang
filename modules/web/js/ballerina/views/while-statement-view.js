@@ -32,6 +32,7 @@ define(['lodash', 'log', './block-statement-view', './../ast/while-statement', '
         var WhileStatementView = function (args) {
             _.set(args, "viewOptions.title.text", "While");
             BlockStatementView.call(this, args);
+            this.getModel()._isChildOfWorker = args.isChildOfWorker;
         };
 
         WhileStatementView.prototype = Object.create(BlockStatementView.prototype);

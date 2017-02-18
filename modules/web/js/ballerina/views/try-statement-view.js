@@ -33,6 +33,7 @@ define(
         var TryStatementView = function (args) {
             _.set(args, "viewOptions.title.text", "Try");
             BlockStatementView.call(this, args);
+            this.getModel()._isChildOfWorker = args.isChildOfWorker;
         };
 
         TryStatementView.prototype = Object.create(BlockStatementView.prototype);
