@@ -56,6 +56,50 @@ Similar to languages such as Java, Go, etc, Ballerina supports the following exp
 * Action calls `(tweet(twitterActor, "hello"))`
 * Complex expressions `(foo(a,bar(c,d)))`
 
+## Reserved names
+
+When naming your Ballerina elements (services, resources, actions, etc.) and packages, do not use the following terms for the name, as these terms are key words or otherwise reserved in Ballerina:
+
+action
+all
+any
+as
+boolean
+break
+catch
+connector
+const
+datatable
+double
+else
+exception
+false
+fork
+function
+if
+import
+int 
+json
+map
+message
+native
+null
+package
+reply
+resource
+return
+service
+string
+struct
+throws
+timeout
+true
+try
+typemapper
+while
+worker
+xml
+
 ## Documenting your code
 
 As you develop new connectors, actions, and functions that you want to share with others, it's important to add documentation that describes each entity and how it's used. Ballerina provides a documentation framework called Docerina that generates API documentation from your annotations in your Ballerina files. You can check it out at https://github.com/ballerinalang/docerina. 
