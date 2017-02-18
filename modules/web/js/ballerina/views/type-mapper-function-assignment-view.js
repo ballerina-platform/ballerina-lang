@@ -113,7 +113,7 @@ define(['lodash', 'jquery', './ballerina-view', 'log', 'typeMapper', './../ast/a
                     renderingContext: diagramRenderingContext,
                     functionSchema: schema,
                     functionInvocationExpression: functionExp
-                },  self.onFunctionDelete);
+                }, self.onFunctionDelete);
                 _.forEach(functionExp.getChildren(), function (child) {
                     if (BallerinaASTFactory.isFunctionInvocationExpression(child)) {
                         var assmtModel = BallerinaASTFactory.createAssignmentStatement();
@@ -125,6 +125,8 @@ define(['lodash', 'jquery', './ballerina-view', 'log', 'typeMapper', './../ast/a
                         rightOperand.setRightOperandExpressionString('');
                         rightOperand.addChild(child);
                         assmtModel.addChild(rightOperand);
+                        // need to do this, as this was added as child to assignment node.
+                        child.setParent(functionExp, {doSilently:true});
                         self.addFunction(child, diagramRenderingContext, self, assmtModel);
                     }
                 });
@@ -194,6 +196,7 @@ define(['lodash', 'jquery', './ballerina-view', 'log', 'typeMapper', './../ast/a
                     connection["targetId"] = targetFunction.getID();
                     connection["sourceFunction"] = true;
                     connection["targetFunction"] = true;
+                    console.log(connection);
                     self.getTypeMapperFunctionRenderer().addConnection(connection);
                     self.handleFunctionInvocation(functionParam, self, diagramRenderingContext);
                 } else if (BallerinaASTFactory.isStructFieldAccessExpression(functionParam)) {
@@ -328,11 +331,6 @@ define(['lodash', 'jquery', './ballerina-view', 'log', 'typeMapper', './../ast/a
                 });
                 leftOperandExpression.setLeftOperandExpressionString('');
                 leftOperandExpression.setLeftOperandType('');
-                _.forEach(childSchema.parameters, function (params) {
-                    var variableRefExp = BallerinaASTFactory.createVariableReferenceExpression();
-                    variableRefExp.setVariableReferenceName('');
-                    leftOperandExpression.addChild(variableRefExp);
-                });
                 rightOperandExpression.addChild(innerFunctionInvocationExpression);
                 rightOperandExpression.setRightOperandExpressionString('');
                 rightOperandExpression.getChildren()[0].setParams('');
