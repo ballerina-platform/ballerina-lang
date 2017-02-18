@@ -12,4 +12,4 @@ To test a file written in Ballerina language use the test command as follows.
 
 ```./ballerina test <test_bal_file>```
 
-Your test file should contain ```_test.bal``` prefix.
+Your test file should contain ```_test.bal``` suffix.
