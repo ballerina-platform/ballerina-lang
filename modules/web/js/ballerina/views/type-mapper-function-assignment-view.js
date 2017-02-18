@@ -106,9 +106,11 @@ define(['lodash', 'jquery', './ballerina-view', 'log', 'typeMapper', './../ast/a
         TypeMapperFunctionAssignmentView.prototype.addFunction = function (functionExp, diagramRenderingContext, self, assignmentModel) {
             var schema = self.getFunctionSchema(functionExp, diagramRenderingContext);
             if (schema) {
+                //todo remove adding diagramRenderingContext to below object .. get it from renderer
                 self.getTypeMapperFunctionRenderer().addFunction(schema, {
                     model: assignmentModel,
                     currentView: this,
+                    renderingContext: diagramRenderingContext,
                     functionSchema: schema,
                     functionInvocationExpression: functionExp
                 },  self.onFunctionDelete);
@@ -294,7 +296,7 @@ define(['lodash', 'jquery', './ballerina-view', 'log', 'typeMapper', './../ast/a
          */
         TypeMapperFunctionAssignmentView.prototype.onFunctionDelete = function (connection) {
             var functionReferenceObj = connection.reference.model;
-            var functionInvocationExpression = connection.reference.functionExp;
+            var functionInvocationExpression = connection.reference.functionInvocationExpression;
             var parentOfFunctionInvocationExpression = functionInvocationExpression.getParent();
             var blockStatement = functionReferenceObj.getParent();
             var renderingConext = connection.reference.renderingContext;
