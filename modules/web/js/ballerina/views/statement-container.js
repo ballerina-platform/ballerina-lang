@@ -98,6 +98,11 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
         var topCenter, statementView, newDropZoneTopCenter,  dropZoneOptions = {width: 120, height: this._gap};
         var self = this;
 
+        if(statement.parent && !_.isUndefined(statement.parent._isChildOfWorker)
+            && statement.parent._isChildOfWorker){
+            args.isChildOfWorker = true;
+        }
+
         if (!_.isEmpty(this._managedStatements)) {
             // We have previously added statements, and adding a new one to them.
             var hasPendingInnerDropRender = _.gte(this._selectedInnerDropZoneIndex, 0);

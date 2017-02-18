@@ -34,6 +34,7 @@ define(['require', 'lodash', 'log', './compound-statement-view', './../ast/tryca
 
             this._tryBlockView = undefined;
             this._catchBlockView = undefined;
+            this.getModel()._isChildOfWorker = args.isChildOfWorker;
 
             if (_.isNil(this._model) || !(this._model instanceof TryCatchStatement)) {
                 log.error("Try Catch statement definition is undefined or is of different type." + this._model);

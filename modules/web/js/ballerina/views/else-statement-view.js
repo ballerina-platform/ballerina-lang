@@ -32,6 +32,7 @@ define(['require', 'lodash', 'log', './block-statement-view', './../ast/else-sta
         var ElseStatementView = function (args) {
             _.set(args, "viewOptions.title.text", "Else");
             BlockStatementView.call(this, args);
+            this.getModel()._isChildOfWorker = args.isChildOfWorker;
         };
 
         ElseStatementView.prototype = Object.create(BlockStatementView.prototype);

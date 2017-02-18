@@ -31,6 +31,7 @@ define(['require', 'lodash', 'jquery', 'log', './ballerina-statement-view', './.
          */
         var ElseIfStatementView = function (args) {
             BallerinaStatementView.call(this, args);
+            this.getModel()._isChildOfWorker = args.isChildOfWorker;
             _.set(this._viewOptions, 'width', _.get(this._viewOptions, 'width', 120));
             _.set(this._viewOptions, 'height', _.get(this._viewOptions, 'height', 60));
             // Initialize the bounding box
