@@ -30,7 +30,7 @@ import java.util.List;
 /**
  *
  */
-public class BallerinaEditorParserErrorStrategy extends DefaultErrorStrategy {
+public class BallerinaComposerErrorStrategy extends DefaultErrorStrategy {
 
     public static final String EOF = "'<EOF>'";
 
@@ -44,7 +44,7 @@ public class BallerinaEditorParserErrorStrategy extends DefaultErrorStrategy {
 
     List<SyntaxError> errorTokens = new ArrayList<SyntaxError>();
 
-    public BallerinaEditorParserErrorStrategy() {
+    public BallerinaComposerErrorStrategy() {
     }
 
     @Override
@@ -81,7 +81,9 @@ public class BallerinaEditorParserErrorStrategy extends DefaultErrorStrategy {
         int line = getMissingSymbol(parser).getLine();
         int position = getMissingSymbol(parser).getCharPositionInLine();
         String msg = getSourceLocation(parser, line, position) + "invalid identifier " + getTokenErrorDisplay(token);
-        errorTokens.add(createError(line, position, msg));
+        if(!EOF.equals(getTokenErrorDisplay(token))){
+            errorTokens.add(createError(line, position, msg));
+        }
     }
 
     @Override
@@ -90,7 +92,9 @@ public class BallerinaEditorParserErrorStrategy extends DefaultErrorStrategy {
         int line = getMissingSymbol(parser).getLine();
         int position = getMissingSymbol(parser).getCharPositionInLine();
         String msg = getSourceLocation(parser, line, position) + "unwanted token " + getTokenErrorDisplay(token);
-        errorTokens.add(createError(line, position, msg));
+        if(!EOF.equals(getTokenErrorDisplay(token))){
+            errorTokens.add(createError(line, position, msg));
+        }
     }
 
 
