@@ -108,8 +108,9 @@ define(['lodash', 'jquery', './ballerina-view', 'log', 'typeMapper', './../ast/a
             if (schema) {
                 self.getTypeMapperFunctionRenderer().addFunction(schema, {
                     model: assignmentModel,
-                    functionSchema: schema
-                });
+                    functionSchema: schema,
+                    functionInvocationExpression: functionExp
+                },  self.onFunctionDelete);
                 _.forEach(functionExp.getChildren(), function (child) {
                     if (BallerinaASTFactory.isFunctionInvocationExpression(child)) {
                         var assmtModel = BallerinaASTFactory.createAssignmentStatement();
@@ -292,39 +293,32 @@ define(['lodash', 'jquery', './ballerina-view', 'log', 'typeMapper', './../ast/a
          * @param connection object
          */
         TypeMapperFunctionAssignmentView.prototype.onFunctionDelete = function (connection) {
-
             var functionReferenceObj = connection.reference.model;
             var functionInvocationExpression = connection.reference.functionInvocationExpression;
             var assignmentStatementId = functionReferenceObj.getID();
             var parentOfFunctionInvocationExpression = functionInvocationExpression.getParent();
             var blockStatement = functionReferenceObj.getParent();
-
             var innerFunctionInvocationExpression = _.find(functionInvocationExpression.getChildren(), function (child) {
-                if(BallerinaASTFactory.isFunctionInvocationExpression(child)){
+                if (BallerinaASTFactory.isFunctionInvocationExpression(child)) {
                     return child;
                 }
             });
-
-            if(!BallerinaASTFactory.isFunctionInvocationExpression(parentOfFunctionInvocationExpression)){
+            if (!BallerinaASTFactory.isFunctionInvocationExpression(parentOfFunctionInvocationExpression)) {
                 blockStatement.removeChildById(assignmentStatementId);
-
-            }else{
+            } else {
                 functionInvocationExpression.remove();
             }
-
-            if(!_.isUndefined(innerFunctionInvocationExpression)){
+            if (!_.isUndefined(innerFunctionInvocationExpression)) {
                 var childRightOperandExpression = _.find(functionReferenceObj.getChildren(), function (child) {
-                    if(BallerinaASTFactory.isRightOperandExpression(child)){
+                    if (BallerinaASTFactory.isRightOperandExpression(child)) {
                         return child;
                     }
                 });
-
                 var tempFunctionInvocationExpression = _.find(childRightOperandExpression.getChildren(), function (child) {
-                    if(BallerinaASTFactory.isFunctionInvocationExpression(child)){
+                    if (BallerinaASTFactory.isFunctionInvocationExpression(child)) {
                         return child;
                     }
                 });
-
                 childRightOperandExpression.removeChildById(tempFunctionInvocationExpression.getID());
                 childRightOperandExpression.addChild(innerFunctionInvocationExpression);
                 blockStatement.addChild(functionReferenceObj);

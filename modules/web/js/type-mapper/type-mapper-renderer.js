@@ -331,7 +331,7 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
             targetId += this.idNameSeperator
                 + connection.targetProperty[i] + this.nameTypeSeperator + connection.targetType[i];
         }
-        targetId += anchorEnd;
+
         if (!connection.targetFunction) {
             targetId += anchorEnd;
         }
@@ -619,7 +619,6 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
                     self.midpoint = self.midpoint + self.midpointVariance;
                     self.jsPlumbInstance.importDefaults({Connector: self.getConnectorConfig(self.midpoint)});
                     self.onConnection(connection);
-                    return false;
                     // self.disableParentsJsTree(params.sourceId, self);
                     // self.disableParentsJsTree(params.targetId, self);
                 } else {
@@ -631,7 +630,6 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
                         connection.complexMapperName = compatibleTypeConverters[0];
                         self.jsPlumbInstance.importDefaults({Connector: self.getConnectorConfig(self.midpoint)});
                         self.onConnection(connection);
-                        return false;
                         // self.disableParentsJsTree(params.sourceId, self);
                         // self.disableParentsJsTree(params.targetId, self);
                     } else {
