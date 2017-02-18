@@ -20,11 +20,12 @@ package org.ballerinalang.docgen.docs.html;
 import com.github.jknack.handlebars.Handlebars;
 import com.github.jknack.handlebars.Helper;
 import com.github.jknack.handlebars.Template;
-import com.github.jknack.handlebars.io.FileTemplateLoader;
+import com.github.jknack.handlebars.io.ClassPathTemplateLoader;
 import com.github.jknack.handlebars.io.TemplateLoader;
 
 import org.ballerinalang.docgen.docs.BallerinaDocConstants;
 import org.ballerinalang.docgen.docs.DocumentWriter;
+import org.ballerinalang.docgen.docs.utils.ResourceUtils;
 import org.ballerinalang.model.Annotation;
 import org.ballerinalang.model.BLangPackage;
 import org.ballerinalang.model.BallerinaAction;
@@ -38,6 +39,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.io.PrintWriter;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Collection;
 
 /**
@@ -61,27 +64,30 @@ public class HtmlDocumentWriter implements DocumentWriter {
         this.outputFilePath =
                 System.getProperty(BallerinaDocConstants.HTML_OUTPUT_PATH_KEY, userDir + File.separator + "api-docs"
                         + File.separator + "html");
-        this.templatesFolderPath =
-                System.getProperty(BallerinaDocConstants.TEMPLATES_FOLDER_PATH_KEY, userDir + File.separator
-                        + "templates" + File.separator + "html");
+        this.templatesFolderPath = File.separator + "docerina-templates" + File.separator + "html";
         this.packageTemplateName = System.getProperty(BallerinaDocConstants.PACKAGE_TEMPLATE_NAME_KEY, "package");
         this.indexTemplateName = System.getProperty(BallerinaDocConstants.INDEX_TEMPLATE_NAME_KEY, "index");
     }
 
     @Override
-    public void write(Collection<BLangPackage> packages) {
+    public void write(Collection<BLangPackage> packages) throws IOException {
         if (packages == null || packages.size() == 0) {
             out.println("No package definitions found!");
             return;
         }
 
         out.println("Generating HTML API documentation...");
+        Files.createDirectories(Paths.get(outputFilePath));
+
         for (BLangPackage balPackage : packages) {
             String filePath = outputFilePath + File.separator + balPackage.getPackagePath() + HTML;
             writeHtmlDocument(balPackage, packageTemplateName, filePath);
         }
         String filePath = outputFilePath + File.separator + INDEX_HTML;
         writeHtmlDocument(packages, indexTemplateName, filePath);
+
+        out.println("Copying HTML theme...");
+        ResourceUtils.copyResources("docerina-theme", outputFilePath);
     }
 
     /**
@@ -94,7 +100,7 @@ public class HtmlDocumentWriter implements DocumentWriter {
     private void writeHtmlDocument(Object object, String templateName, String absoluteFilePath) {
         PrintWriter writer = null;
         try {
-            TemplateLoader templateLoader = new FileTemplateLoader(templatesFolderPath);
+            TemplateLoader templateLoader = new ClassPathTemplateLoader(templatesFolderPath);
             Handlebars handlebars = new Handlebars(templateLoader);
             DataHolder dataHolder = DataHolder.getInstance();
             handlebars
