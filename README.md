@@ -1,10 +1,19 @@
 # Docerina
 
-Docerina is the API documentation generator tool of the Ballerina language. 
+Docerina is the API documentation generator tool of the Ballerina language. It currently supports generating API 
+documentation in HTML format and it can be extended to support additional output formats as required.
 
-## How to run
 
-Follow below steps to generate Ballerina API documentation using Docerina:
+## Generating Ballerina API Documentation
+
+Docerina is distributed with [Ballerina Tools Distribution](https://github.com/ballerinalang/tools-distribution) and 
+[Docerina Maven Plugin](https://github.com/ballerinalang/plugin-maven/tree/master/docerina-maven-plugin). Instructions
+ for generating Ballerina API documentation can be found in above links.
+ 
+ 
+## Setting up a Docerina Development Environment
+
+Follow below steps to setup a Docerina development environment:
 
 - Clone the Ballerina Git repository:
   
@@ -29,7 +38,7 @@ Follow below steps to generate Ballerina API documentation using Docerina:
   git clone https://github.com/wso2/docerina.git
   ```
 
-- Build Docerina and copy the Docerina JAR file to Ballerina distribution lib folder:
+- Build Docerina and copy the Docerina JAR file to the Ballerina distribution lib folder:
   
   ```
   cd docerina
@@ -43,4 +52,11 @@ Follow below steps to generate Ballerina API documentation using Docerina:
   ```
   cd [ballerina-home]/bin
   ./ballerina doc [ballerina-package-path] # absolute file path of the ballerina source package
+  ```
+  
+- Execute the below command to attach a remote debugging session to debug Docerina:
+
+  ```
+  cd [ballerina-home]/bin
+    ./ballerina --debug 5005 doc [ballerina-package-path] # absolute file path of the ballerina source package
   ```
