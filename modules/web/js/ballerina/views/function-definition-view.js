@@ -52,6 +52,7 @@ define(['lodash', 'log', 'event_channel',  'alerts', './svg-canvas', './../ast/f
             // Set the initial height control margin
             this._horizontalMargin = new Axis(0, true);
             this._lifeLineCenterGap = 180;
+            this._offsetLastStatementGap = 100;
 
             if (_.isNil(this._model) || !(this._model instanceof FunctionDefinition)) {
                 log.error("Function definition is undefined or is of different type." + this._model);
@@ -180,16 +181,18 @@ define(['lodash', 'log', 'event_channel',  'alerts', './svg-canvas', './../ast/f
                 if (newWorkerPosition === 0) {
                     centerPoint = this._defaultWorkerLifeLine.getTopCenter().clone().move(this._lifeLineCenterGap, 0);
                 } else {
-                    centerPoint = this._connectorWorkerViewList[lastWorkerIndex].getTopCenter()
+                    centerPoint = this._workerAndConnectorViews[lastWorkerIndex].getTopCenter()
                         .clone().move(this._lifeLineCenterGap, 0)
                 }
+                var lineHeight = this.getDefaultWorker().getBottomCenter().y() - centerPoint.y();
                 var workerDeclarationOptions = {
                     model: workerDeclaration,
                     container: container,
                     centerPoint: centerPoint,
                     toolPalette: this.toolPalette,
                     messageManager: this.messageManager,
-                    diagramRenderContext: this.getDiagramRenderingContext()
+                    diagramRenderContext: this.getDiagramRenderingContext(),
+                    line: {height: lineHeight}
                 };
                 var workerDeclarationView = new WorkerDeclarationView(workerDeclarationOptions);
                 workerDeclarationView.setParent(this);
@@ -247,6 +250,16 @@ define(['lodash', 'log', 'event_channel',  'alerts', './svg-canvas', './../ast/f
                     this.setContentMinWidth(workerDeclarationView.getBoundingBox().getRight());
                     this.setHeadingMinWidth(workerDeclarationView.getBoundingBox().getRight());
                 }
+
+                if (_.isEqual(newWorkerPosition, 0)) {
+                    workerDeclarationView.listenTo(this.getDefaultWorker().getBoundingBox(), 'right-edge-moved', function (dx) {
+                        workerDeclarationView.getBoundingBox().move(dx, 0);
+                    });
+                }
+
+                statementContainer.listenTo(workerDeclarationView.getBoundingBox(), 'right-edge-moved', function (dx) {
+                    statementContainer.getBoundingBox().move(dx, 0);
+                });
 
                 this.getWorkerAndConnectorViews().splice(newWorkerPosition, 0, workerDeclarationView);
             }
