@@ -60,14 +60,25 @@ define(['require', 'jquery', 'backbone', './tool'], function (require, $, Backbo
          * @param {Object} tool - tool to be updated
          * @param {Object} newValue - new value to update the tool with
          */
-        updateTool: function (tool, newValue) {
+        updateTool: function (tool, attribute, newValue) {
             var selectedTool = _.find(this.tools, function (toolItem) {
                 return _.isEqual(toolItem.get('id'), tool.getId());
             });
             if (!_.isNil(newValue)) {
-                selectedTool.setId(newValue);
-                selectedTool.setName(newValue);
-                selectedTool.setTitle(newValue);
+                switch (attribute) {
+                  case 'name':
+                    selectedTool.setName(newValue);
+                    selectedTool.setId(newValue);
+                    break;
+
+                  case 'params':
+                    selectedTool.setParams(newValue);
+                    selectedTool.attributes.meta.params = newValue;
+                    break;
+
+                  default:
+
+                }
             }
         },
 
