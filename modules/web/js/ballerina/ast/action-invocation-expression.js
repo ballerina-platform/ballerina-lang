@@ -173,7 +173,13 @@ define(['lodash', 'log', './expression'], function (_, log, Expression) {
         var arguments = this.getArguments();
 
         for (var itr = 0; itr < arguments.length; itr++) {
-            argsString += arguments[itr].getParameterAsString();
+
+            // TODO: we need to refactor this along with the action invocation argument types as well
+            if (this.getFactory().isExpression(arguments[itr])) {
+                argsString += arguments[itr].getExpression();
+            } else if (this.getFactory().isResourceParameter(arguments[itr])) {
+                argsString += arguments[itr].getParameterAsString();
+            }
 
             if (itr !== arguments.length - 1) {
                 argsString += ' , ';
