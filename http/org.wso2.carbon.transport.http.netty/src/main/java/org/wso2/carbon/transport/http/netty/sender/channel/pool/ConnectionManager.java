@@ -170,24 +170,25 @@ public class ConnectionManager {
             }
         } else if (poolManagementPolicy == PoolManagementPolicy.PER_SERVER_CHANNEL_ENDPOINT_CONNECTION_CACHING) {
             // manage connections according to per inbound channel caching method
-            if (!isRouteExists(httpRoute, sourceHandler)) {
-                executorService.
-                        execute(new ClientRequestWorker(httpRoute, sourceHandler, senderConfiguration, httpRequest,
-                                carbonMessage, carbonCallback, PoolManagementPolicy.
-                                PER_SERVER_CHANNEL_ENDPOINT_CONNECTION_CACHING, null, this, group, cl));
-            } else {
-                targetChannel = sourceHandler.getChannel(httpRoute);
-                Channel tempc = targetChannel.getChannel();
-                if (!tempc.isActive()) {
-                    executorService.
-                            execute(new ClientRequestWorker(httpRoute, sourceHandler, senderConfiguration,
-
-                                    httpRequest, carbonMessage,
-
-                                    carbonCallback, PoolManagementPolicy.
-                                    PER_SERVER_CHANNEL_ENDPOINT_CONNECTION_CACHING, null, this, group, cl));
-                    targetChannel = null;
-                    sourceHandler.removeChannelFuture(httpRoute);
+            synchronized (sourceHandler) {
+                if (!sourceHandler.isChannelFutureExists(httpRoute)) {
+                    executorService.execute(
+                            new ClientRequestWorker(httpRoute, sourceHandler, senderConfiguration, httpRequest,
+                                                    carbonMessage, carbonCallback,
+                                                    PoolManagementPolicy.PER_SERVER_CHANNEL_ENDPOINT_CONNECTION_CACHING,
+                                                    null, this, group, cl));
+                } else {
+                    targetChannel = sourceHandler.getChannelFuture(httpRoute);
+                    Channel channel = targetChannel.getChannel();
+                    if (!channel.isActive()) {
+                        targetChannel = null;
+                        executorService.execute(
+                                new ClientRequestWorker(httpRoute, sourceHandler, senderConfiguration, httpRequest,
+                                                        carbonMessage, carbonCallback,
+                                                        PoolManagementPolicy.
+                                                                PER_SERVER_CHANNEL_ENDPOINT_CONNECTION_CACHING,
+                                                        null, this, group, cl));
+                    }
                 }
             }
         } else if (poolManagementPolicy == PoolManagementPolicy.DEFAULT_POOLING) {
@@ -213,7 +214,10 @@ public class ConnectionManager {
 
     //Add connection to Pool back
     public void returnChannel(TargetChannel targetChannel) throws Exception {
-        if (poolManagementPolicy == PoolManagementPolicy.GLOBAL_ENDPOINT_CONNECTION_CACHING) {
+        if (poolManagementPolicy == PoolManagementPolicy.PER_SERVER_CHANNEL_ENDPOINT_CONNECTION_CACHING) {
+            SourceHandler sourceHandler = targetChannel.getCorrelatedSource();
+            sourceHandler.addTargetChannel(targetChannel.getHttpRoute(), targetChannel);
+        } else if (poolManagementPolicy == PoolManagementPolicy.GLOBAL_ENDPOINT_CONNECTION_CACHING) {
             Map<String, GenericObjectPool> objectPoolMap = targetChannel.getCorrelatedSource().getTargetChannelPool();
             GenericObjectPool pool = objectPoolMap.get(targetChannel.getHttpRoute().toString());
             try {
@@ -239,10 +243,6 @@ public class ConnectionManager {
                 throw new Exception(msg, e);
             }
         }
-    }
-
-    private boolean isRouteExists(HttpRoute httpRoute, SourceHandler srcHandler) {
-        return srcHandler.getChannel(httpRoute) != null;
     }
 
     /**
