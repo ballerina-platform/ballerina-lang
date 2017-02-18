@@ -296,7 +296,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
 
         HttpRequest httpRequest = (HttpRequest) httpMessage;
         cMsg.setProperty(Constants.CHNL_HNDLR_CTX, this.ctx);
-        cMsg.setProperty(Constants.SRC_HNDLR, this);
+        cMsg.setProperty(Constants.SRC_HANDLER, this);
         cMsg.setProperty(Constants.HTTP_VERSION, httpRequest.getProtocolVersion().text());
         cMsg.setProperty(Constants.HTTP_METHOD, httpRequest.getMethod().name());
         cMsg.setProperty(org.wso2.carbon.messaging.Constants.LISTENER_PORT,
