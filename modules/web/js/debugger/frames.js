@@ -23,7 +23,7 @@ define(['jquery', 'backbone', 'lodash', 'log', 'event_channel', './debug-manager
     var Frames = function (){
 
         var template = 
-        '<div class="debug-panel-header">'+
+        '<div class="debug-panel-header debug-frame-header">'+
         '   <a class="tool-group-header-title">Frames</a></span>'+
         '</div>'+
         '<div class="panel-group" id="frameAccordion">'+
@@ -91,14 +91,50 @@ define(['jquery', 'backbone', 'lodash', 'log', 'event_channel', './debug-manager
             if (_.isEqual(obj.frameName,other.frameName) && _.isEqual(obj.packageName,other.packageName))
                 return true;
         });
-        //reverse order
-        message.frames = _.reverse(message.frames);
+        
+        message.frames = this.process(message.frames);
 
         var html = this.compiled(message);
         this.container.html(html);
 
         //render variables tree
         $(".debug-v-tree").jstree(this.js_tree_options);
+    };
+
+    Frames.prototype.process = function(frames){
+        //reverse order
+        frames = _.reverse(frames);
+
+        _.map(frames, function(frame){
+            _.map(frame.variables, function(item){
+                switch (item.type) {
+                  case 'BBoolean':
+                    item.type = "boolean";
+                    break;
+                  case 'BInteger':
+                    item.type = "int";
+                    break;
+                  case 'BFloat':
+                    item.type = "float";
+                    break;
+                  case 'BLong':
+                    item.type = "long";
+                    break;
+                  case 'BDouble':
+                    item.type = "double";
+                    break;                    
+                  case 'BString': 
+                    item.type = "string";              
+                    break;
+                  default:
+                    
+                }
+                return item;
+            });
+            return frame;
+        });
+
+        return frames;
     };
 
 
