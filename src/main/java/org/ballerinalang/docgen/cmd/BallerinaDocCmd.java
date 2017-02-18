@@ -22,6 +22,7 @@ import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
 
+import org.ballerinalang.docgen.docs.BallerinaDocConstants;
 import org.ballerinalang.docgen.docs.BallerinaDocGenerator;
 import org.ballerinalang.launcher.BLauncherCmd;
 
@@ -46,6 +47,10 @@ public class BallerinaDocCmd implements BLauncherCmd {
     @Parameter(names = { "--exclude", "-e" },
             description = "comma separated list of package names to be filtered from the documentation", hidden = false)
     private String packageFilter;
+    
+    @Parameter(names = { "--verbose", "-v" },
+            description = "enable debug level logs", hidden = false)
+    private boolean debugEnabled;
 
     @Override
     public void execute() {
@@ -54,6 +59,10 @@ public class BallerinaDocCmd implements BLauncherCmd {
             printUsage(sb);
             out.println(sb);
             return;
+        }
+
+        if (debugEnabled) {
+            System.setProperty(BallerinaDocConstants.ENABLE_DEBUG_LOGS, "true");
         }
 
         BallerinaDocGenerator.generateApiDocsWithFilter(outputDir, packageFilter,

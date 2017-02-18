@@ -18,6 +18,7 @@
 
 package org.ballerinalang.docgen.docs.utils;
 
+import org.ballerinalang.docgen.docs.BallerinaDocConstants;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.TypeEnum;
@@ -44,6 +45,8 @@ import java.util.Map;
  */
 public class BallerinaDocUtils {
 
+    private static final boolean debugEnabled = "true".equals(System.getProperty(
+            BallerinaDocConstants.ENABLE_DEBUG_LOGS));
     private static final PrintStream out = System.out;
 
     /**
@@ -96,6 +99,10 @@ public class BallerinaDocUtils {
         Files.walkFileTree(source, new RecursiveFileVisitor(source, target));
     }
     
+    public static boolean isDebugEnabled() {
+        return debugEnabled;
+    }
+
     /**
      * Visits a folder recursively and copy folders and files to a target directory.
      */
@@ -124,7 +131,9 @@ public class BallerinaDocUtils {
         @Override
         public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
             Files.copy(file, target.resolve(source.relativize(file).toString()), StandardCopyOption.REPLACE_EXISTING);
-            out.println("File copied: " + file.toString());
+            if (BallerinaDocUtils.isDebugEnabled()) {
+                out.println("File copied: " + file.toString());
+            }
             return FileVisitResult.CONTINUE;
         }
     }
