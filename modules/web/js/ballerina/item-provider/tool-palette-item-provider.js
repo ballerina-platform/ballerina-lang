@@ -346,6 +346,9 @@ define(['log', 'lodash', './../env/package', './../tool-palette/tool-palette', '
 
                 connector.on('name-modified', function (newName, oldName) {
                     self.updateToolItem(toolGroupID, connector, 'name', newName, 'connectorName');
+                    _.forEach(connector.getActions(), function (action) {
+                        self.updateToolItem(toolGroupID, action, '', newName, 'actionConnectorName');
+                    });
                 });
 
                 connector.on('param-added', function (newName, oldName) {
@@ -361,10 +364,17 @@ define(['log', 'lodash', './../env/package', './../tool-palette/tool-palette', '
                     if (action.getReturnParams().length > 0){
                         actionNodeFactoryMethod = DefaultsAddedBallerinaASTFactory.createAggregatedActionInvocationAssignmentStatement;
                     }
+
+                    // Setting the meta attributes to be passed as the action arguments
+                    action.meta = {
+                        action: action.getName(),
+                        arguments: action.getParameters(),
+                        actionConnectorName: this.getName()
+                    };
                     self.addToToolGroup(toolGroupID, action, actionNodeFactoryMethod, actionIcon);
 
                     action.on('name-modified', function (newName, oldName) {
-                        self.updateToolItem(toolGroupID, action, 'name', newName);
+                        self.updateToolItem(toolGroupID, action, 'name', newName, 'action');
                     });
 
                 });
