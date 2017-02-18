@@ -44,7 +44,8 @@ define(['lodash', 'log', './node', './import-declaration'],
             // Add new imports on new child added to the canvas.
             // Ignore if already added or if it is a current package
             var addImportOnTreeChange = function (fullPackageName) {
-                if (!self.isExistingPackage(fullPackageName) && !_.isEqual(fullPackageName, "Current Package")) {
+                if (!self.isExistingPackage(fullPackageName)
+                    && !_.isEqual(fullPackageName, "Current Package")) {
                     var importDeclaration = self.getFactory().createImportDeclaration();
                     importDeclaration.setPackageName(fullPackageName);
                     self.addImport(importDeclaration);
