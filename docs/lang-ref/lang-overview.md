@@ -79,3 +79,47 @@ ballerina test <ballerina_file>
 
 ```
 TODO: is there more to say here about Testerina?
+
+## Reserved names
+
+When naming your Ballerina elements (services, resources, actions, etc.) and packages, do not use the following terms for the name, as these terms are key words or otherwise reserved in Ballerina:
+
+action
+all
+any
+as
+boolean
+break
+catch
+connector
+const
+datatable
+double
+else
+exception
+false
+fork
+function
+if
+import
+int 
+json
+map
+message
+native
+null
+package
+reply
+resource
+return
+service
+string
+struct
+throws
+timeout
+true
+try
+typemapper
+while
+worker
+xml
