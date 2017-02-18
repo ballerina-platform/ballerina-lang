@@ -136,9 +136,7 @@ public class BallerinaSkeletonCodeGenerator extends DefaultCodegen implements Co
          * entire object tree available.  If the input file has a suffix of `.mustache
          * it will be processed by the template engine.  Otherwise, it will be copied
          */
-        //supportingFiles.add(new SupportingFile("model.mustache", apiPath, "types.bal"));
         supportingFiles.add(new SupportingFile("json-model.mustache", apiPath, "types.json"));
-        writeOptional(outputFolder, new SupportingFile("README.mustache", apiPath, "README.md"));
         writeOptional(outputFolder, new SupportingFile("json-model.mustache", apiPath, "types.json"));
     }
 
