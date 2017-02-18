@@ -69,6 +69,16 @@ define(['lodash', 'log', 'event_channel', './abstract-source-gen-visitor', './st
             statement.accept(statementVisitor);
         };
 
+        /**
+         * visits commentStatement
+         * @param {Object} statement - comment statement
+         */
+        FunctionDefinitionVisitor.prototype.visitCommentStatement = function (statement) {
+            var statementVisitorFactory = new StatementVisitorFactory();
+            var statementVisitor = statementVisitorFactory.getStatementVisitor(statement, this);
+            statement.accept(statementVisitor);
+        };
+
         FunctionDefinitionVisitor.prototype.visitConnectorDeclaration = function(connectorDeclaration){
             var connectorDeclarationVisitor = new ConnectorDeclarationVisitor(this);
             connectorDeclaration.accept(connectorDeclarationVisitor);
