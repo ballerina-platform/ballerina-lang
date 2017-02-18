@@ -475,14 +475,18 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                         var source = self._sourceView.getContent();
                         if(!_.isEmpty(source.trim())){
                             var validateResponse = self.validatorBackend.parse(source.trim());
-                            if (validateResponse.errors != undefined && !_.isEmpty(validateResponse.errors)) {
-                                alerts.error('cannot switch to swagger view due to syntax errors');
+                            if (validateResponse.error && !_.isEmpty(validateResponse.message)) {
+                                alerts.error('cannot switch to swagger view due to syntax errors : ' + validateResponse.message);
                                 return;
                             }
                         }
                         self._parseFailed = false;
                         //if no errors display the design.
                         var response = self.parserBackend.parse(source);
+                        if (response.error && !_.isEmpty(response.message)) {
+                            alerts.error('Cannot switch to swagger view due to syntax errors : ' + response.message);
+                            return;
+                        }
                         var root = self.deserializer.getASTModel(response);
                         self.setModel(root);
                         self._sourceView.markClean();
@@ -526,14 +530,18 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                     var source = self._sourceView.getContent();
                     if(!_.isEmpty(source.trim())){
                         var validateResponse = self.validatorBackend.parse(source.trim());
-                        if (validateResponse.errors != undefined && !_.isEmpty(validateResponse.errors)) {
-                            alerts.error('cannot switch to design view due to syntax errors');
+                        if (validateResponse.errors && !_.isEmpty(validateResponse.message)) {
+                            alerts.error('cannot switch to design view due to syntax errors : ' + validateResponse.message);
                             return;
                         }
                     }
                     self._parseFailed = false;
                     //if no errors display the design.
                     var response = self.parserBackend.parse(source);
+                    if (response.error && !_.isEmpty(response.message)) {
+                        alerts.error('Cannot switch to design view due to syntax errors : ' + response.message);
+                        return;
+                    }
                     var root = self.deserializer.getASTModel(response);
                     self.setModel(root);
                     // reset source editor delta stack
