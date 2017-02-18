@@ -286,6 +286,14 @@ define(['lodash', 'd3','log', './simple-statement-view', './../ast/action-invoca
                 self._messageView.move(0, dy);
             });
 
+            // Listen to the destination's before-remove event and remove arrow and start box.
+            this.getModel().getDestination().on('before-remove', function(){
+                self._messageView.removeArrow();
+                self._startRect.node().remove();
+                self._startActionText.node().remove();
+                self._startActionGroup.remove();
+            });
+
             this.listenTo(destinationView.getStatementContainer().getBoundingBox(), 'center-x-moved', function (dx) {
                 this._messageView.getEnd().move(dx, 0);
                 self._startRect.attr('x', parseFloat(self._startRect.attr('x')) + dx);
