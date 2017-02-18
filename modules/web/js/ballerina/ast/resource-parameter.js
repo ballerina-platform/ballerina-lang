@@ -73,7 +73,7 @@ define(['lodash', './argument'], function (_, Argument) {
      * @static
      */
     ResourceParameter.getSupportedAnnotations = function() {
-        return ["@PathParam", "@QueryParam"/*, "@HeaderParam", "@FormParam", "@Body"*/];
+        return ["@http:PathParam", "@http:QueryParam"/*, "@HeaderParam", "@FormParam", "@Body"*/];
     };
 
     /**
