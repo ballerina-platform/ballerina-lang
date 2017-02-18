@@ -103,11 +103,11 @@ typeMapperDefinition
     ;
 
 nativeTypeMapper
-    :   'native' 'typemapper' Identifier '(' typeMapperInput ')' '('typeMapperType')' ';'
+    :   annotation* 'native' 'typemapper' Identifier '(' typeMapperInput ')' '('typeMapperType')' ';'
     ;
 
 typeMapper
-    :   'typemapper' Identifier '(' typeMapperInput ')' '('typeMapperType')' typeMapperBody
+    :   annotation* 'typemapper' Identifier '(' typeMapperInput ')' '('typeMapperType')' typeMapperBody
     ;
 
 typeMapperInput
