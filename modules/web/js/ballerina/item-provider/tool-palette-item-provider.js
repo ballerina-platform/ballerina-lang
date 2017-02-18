@@ -269,7 +269,7 @@ define(['log', 'lodash', './../env/package', './../tool-palette/tool-palette', '
 
                 connector.on('connector-action-removed', function (action) {
                     var toolGroupID = package.getName() + "-tool-group";
-                    var toolId = action.getActionName();
+                    var toolId = connector.getName() + '-' + action.getActionName();
                     self._toolPalette.removeToolFromGroup(toolGroupID, toolId);
                 });
             });
@@ -336,7 +336,7 @@ define(['log', 'lodash', './../env/package', './../tool-palette/tool-palette', '
 
                 connector.on('connector-action-removed', function (action) {
                     var toolGroupID = package.getName() + "-tool-group";
-                    var toolId = action.getActionName();
+                    var toolId = connector.getName() + '-' + action.getActionName();
                     self._toolPalette.removeToolFromGroup(toolGroupID, toolId);
                 });
 
@@ -373,6 +373,15 @@ define(['log', 'lodash', './../env/package', './../tool-palette/tool-palette', '
                 var toolGroupID = package.getName() + "-tool-group";
                 var toolId = connectorDef.getConnectorName();
                 self._toolPalette.removeToolFromGroup(toolGroupID, toolId);
+
+                // remove connector action definitions inside this connector
+                var actions = connectorDef.getConnectorActionDefinitions();
+
+                _.forEach(actions, function(action){
+                    var toolGroupID = package.getName() + "-tool-group";
+                    var toolId = connectorDef.getConnectorName() + '-' + action.getActionName();
+                    self._toolPalette.removeToolFromGroup(toolGroupID, toolId);
+                });
             });
 
             return group;
