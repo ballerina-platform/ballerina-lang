@@ -87,6 +87,9 @@ define(['lodash', 'd3','log', './simple-statement-view', './../ast/action-invoca
             var model = this.getModel();
             // Calling super class's render function.
             (this.__proto__.__proto__).render.call(this, renderingContext);
+            // Disable the event registered at the super class for the top-edge-moved, since we override the event action
+            // TODO: we need to properly handle this at the super class level
+            this.stopListening(this.getBoundingBox(), 'top-edge-moved');
             var actionInvocationExpressionModel = this.getActionInvocationExpressionModel();
             var connectorModel = actionInvocationExpressionModel.getConnector();
             model.accept(this);
@@ -125,6 +128,10 @@ define(['lodash', 'd3','log', './simple-statement-view', './../ast/action-invoca
                 model: model,
                 statementGroup: this.getStatementGroup(),
                 editableProperties: editableProperty
+            });
+
+            this._createDebugIndicator({
+                statementGroup: this.getStatementGroup()
             });
 
             this.listenTo(model, 'update-property-text', this.updateStatementText);
@@ -190,7 +197,9 @@ define(['lodash', 'd3','log', './simple-statement-view', './../ast/action-invoca
 
                 this.renderProcessorConnectEndPoint(renderingContext);
 
-                this.getBoundingBox().on('top-edge-moved', function (offset) {
+                this.listenTo(this.getBoundingBox(), 'top-edge-moved', function (offset) {
+                    this.getSvgRect().attr('y', parseFloat(this.getSvgRect().attr('y')) + offset);
+                    this.getSvgText().attr('y', parseFloat(this.getSvgText().attr('y')) + offset);
                     var currentY1ProcessorConnector = this._processorConnector.attr('y1');
                     var currentY1ProcessorConnector2 = this._processorConnector2.attr('y1');
                     var currentY2ProcessorConnector = this._processorConnector.attr('y2');
@@ -357,6 +366,9 @@ define(['lodash', 'd3','log', './simple-statement-view', './../ast/action-invoca
                 if ( (BallerinaASTFactory.isConnectorDeclaration(siblingConnectors[i]))
                          && (siblingConnectors[i]._connectorVariable == connectorName) ) {
                     self.getActionInvocationExpressionModel().setConnector(siblingConnectors[i]);
+                    // Stop listening to the top edge moved event. Since this is re initialized at the render arrows
+                    self.stopListening(self.getBoundingBox(), 'top-edge-moved');
+                    // TODO: refactor this
                     self.renderArrows(self.getDiagramRenderingContext());
                }
             });

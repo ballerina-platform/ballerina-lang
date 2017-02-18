@@ -60,7 +60,11 @@ define(['lodash', 'log', 'event_channel', './abstract-source-gen-visitor', './st
                     _.forEach(methods, function(method){
                         var cleanedMethod = method.trim();
                         if (!_.isEmpty(cleanedMethod)) {
-                            constructedPathAnnotation += "@" + cleanedMethod + " \n";
+                            if (_.includes(cleanedMethod, "http:")) {
+                                constructedPathAnnotation += "@" + cleanedMethod + " \n";
+                            } else {
+                                constructedPathAnnotation += "@http:" + cleanedMethod + " \n";
+                            }
                         }
                     });
                 }

@@ -25,12 +25,14 @@ define(['require', 'lodash', 'jquery', 'ballerina/ast/ballerina-ast-factory'],
          * @param {ServiceDefinition} args.model - The service definition model.
          * @param {Object} args.paneAppendElement - The element to which the pane should be appended to.
          * @param {Object} [args.viewOptions={}] - Configuration values for the view.
+         * @param {boolean} [args.disableEditing] - Disable editing the pane.
          */
         var createArgumentsPane = function (args, diagramRenderingContext) {
             var activatorElement = _.get(args, "activatorElement");
             var model = _.get(args, "model");
             var paneElement = _.get(args, "paneAppendElement");
             var viewOptions = _.get(args, "viewOptions");
+            var disableEditing = _.get(args, "disableEditing");
 
             var argumentsEditorWrapper = $("<div/>", {
                 class: "main-action-wrapper arguments-main-action-wrapper"
@@ -45,6 +47,11 @@ define(['require', 'lodash', 'jquery', 'ballerina/ast/ballerina-ast-factory'],
             var headerWrapper = $("<div/>", {
                 class: "action-content-wrapper-heading arguments-wrapper-heading"
             }).appendTo(argumentsEditorWrapper);
+
+            // Hiding the editing wrapper if editing disabled.
+            if (disableEditing) {
+                headerWrapper.hide();
+            }
 
             // Creating arguments dropdown.
             var argumentTypeDropDown = $("<select/>").appendTo(headerWrapper);
@@ -94,7 +101,8 @@ define(['require', 'lodash', 'jquery', 'ballerina/ast/ballerina-ast-factory'],
                     argumentIdentifierInput.val("");
 
                     // Recreating the arguments details view.
-                    _createCurrentArgumentsView(model, argumentsContentWrapper, argumentTypeDropDown, headerWrapper);
+                    _createCurrentArgumentsView(model, argumentsContentWrapper, argumentTypeDropDown, headerWrapper,
+                        disableEditing);
                 }
             });
 
@@ -111,7 +119,8 @@ define(['require', 'lodash', 'jquery', 'ballerina/ast/ballerina-ast-factory'],
             }).appendTo(argumentsEditorWrapper);
 
             // Creating the arguments details view.
-            _createCurrentArgumentsView(model, argumentsContentWrapper, argumentTypeDropDown, headerWrapper);
+            _createCurrentArgumentsView(model, argumentsContentWrapper, argumentTypeDropDown, headerWrapper,
+                disableEditing);
 
             // Showing and hiding the arguments pane upon arguments button/activator is clicked.
             $(activatorElement).click({
@@ -151,9 +160,10 @@ define(['require', 'lodash', 'jquery', 'ballerina/ast/ballerina-ast-factory'],
          * @param wrapper - The wrapper element which these details should be appended to.
          * @param argumentsTypeDropDown - The dropdown which has the available arguments.
          * @param headerWrapper - Wrapper which container the arguments editor.
+         * @param {boolean} disableEditing - Disable editing.
          * @private
          */
-        function _createCurrentArgumentsView(model, wrapper, argumentsTypeDropDown, headerWrapper) {
+        function _createCurrentArgumentsView(model, wrapper, argumentsTypeDropDown, headerWrapper, disableEditing) {
             // Clearing all the element in the wrapper as we are rerendering the arguments view.
             wrapper.empty();
 
@@ -179,11 +189,16 @@ define(['require', 'lodash', 'jquery', 'ballerina/ast/ballerina-ast-factory'],
 
                 deleteIcon.appendTo(argumentWrapper);
 
+                // Hiding the delete icon if editing is disabled.
+                if (disableEditing) {
+                    deleteIcon.hide();
+                }
+
                 // Removes the value of the argument in the model and rebind the arguments to the arguments view.
                 deleteIcon.click(function () {
                     $(argumentWrapper).remove();
                     model.removeArgument(argument.identifier);
-                    _createCurrentArgumentsView(model, wrapper, argumentsTypeDropDown, headerWrapper);
+                    _createCurrentArgumentsView(model, wrapper, argumentsTypeDropDown, headerWrapper, disableEditing);
                 });
 
                 // Not add a thematic break.
@@ -191,55 +206,57 @@ define(['require', 'lodash', 'jquery', 'ballerina/ast/ballerina-ast-factory'],
                     $("<hr/>").appendTo(wrapper);
                 }
 
-                // When an arguments detail is clicked.
-                argumentWrapper.click({
-                    clickedArgumentValueWrapper: argumentIdentifierWrapper,
-                    deleteIcon: deleteIcon,
-                    argument: argument
-                }, function (event) {
-                    var clickedArgumentValueWrapper = event.data.clickedArgumentValueWrapper;
-                    var argument = event.data.argument;
-                    var deleteIcon = event.data.deleteIcon;
+                if (!disableEditing) {
+                    // When an arguments detail is clicked.
+                    argumentWrapper.click({
+                        clickedArgumentValueWrapper: argumentIdentifierWrapper,
+                        deleteIcon: deleteIcon,
+                        argument: argument
+                    }, function (event) {
+                        var clickedArgumentValueWrapper = event.data.clickedArgumentValueWrapper;
+                        var argument = event.data.argument;
+                        var deleteIcon = event.data.deleteIcon;
 
-                    // Empty the content inside the arguments value and type wrapper.
-                    clickedArgumentValueWrapper.empty();
+                        // Empty the content inside the arguments value and type wrapper.
+                        clickedArgumentValueWrapper.empty();
 
-                    // Changing the background
-                    $(event.currentTarget).css("background-color", "#f5f5f5");
+                        // Changing the background
+                        $(event.currentTarget).css("background-color", "#f5f5f5");
 
-                    // Creating the text area for the identifier of the argument.
-                    var argumentValueTextbox = $("<input/>", {
-                        val: argument.identifier
-                    }).appendTo(clickedArgumentValueWrapper);
+                        // Creating the text area for the identifier of the argument.
+                        var argumentValueTextbox = $("<input/>", {
+                            val: argument.identifier
+                        }).appendTo(clickedArgumentValueWrapper);
 
-                    argumentValueTextbox.click(function (event) {
-                        event.stopPropagation();
+                        argumentValueTextbox.click(function (event) {
+                            event.stopPropagation();
+                        });
+
+                        // Gets the user input and set it as the argument identifier.
+                        argumentValueTextbox.on("change keyup input", function (e) {
+                            argument.setIdentifier(e.target.value);
+                        });
+
+                        // Adding in-line display block to override the hovering css.
+                        deleteIcon.show();
+
+                        // Resetting of other arguments wrapper which has been used for editing.
+                        argumentWrapper.siblings().each(function () {
+
+                            // Removing the text box of other arguments and use simple text.
+                            var argumentIdentifierDiv = $(this).children().eq(1);
+                            if (argumentIdentifierDiv.find("input").length > 0) {
+                                // Reverting the background color of other argument editors.
+                                $(this).removeAttr("style");
+
+                                var argumentIdentifier = ": " + argumentIdentifierDiv.find("input").val();
+                                argumentIdentifierDiv.empty().text(argumentIdentifier);
+
+                                deleteIcon.removeAttr("style");
+                            }
+                        });
                     });
-
-                    // Gets the user input and set it as the argument identifier.
-                    argumentValueTextbox.on("change keyup input", function (e) {
-                        argument.setIdentifier(e.target.value);
-                    });
-
-                    // Adding in-line display block to override the hovering css.
-                    deleteIcon.show();
-
-                    // Resetting of other arguments wrapper which has been used for editing.
-                    argumentWrapper.siblings().each(function () {
-
-                        // Removing the text box of other arguments and use simple text.
-                        var argumentIdentifierDiv = $(this).children().eq(1);
-                        if (argumentIdentifierDiv.find("input").length > 0) {
-                            // Reverting the background color of other argument editors.
-                            $(this).removeAttr("style");
-
-                            var argumentIdentifier = ": " + argumentIdentifierDiv.find("input").val();
-                            argumentIdentifierDiv.empty().text(argumentIdentifier);
-
-                            deleteIcon.removeAttr("style");
-                        }
-                    });
-                });
+                }
             });
         }
 

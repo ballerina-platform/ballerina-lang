@@ -81,6 +81,9 @@ define(['lodash', 'log', './simple-statement-view', './../ast/variable-definitio
                 statementGroup:this.getStatementGroup(),
                 editableProperties: editableProperty
             });
+            this._createDebugIndicator({
+                statementGroup: this.getStatementGroup()
+            });
             this.listenTo(model, 'update-property-text', this.updateStatementText);
         };
 

@@ -15,79 +15,38 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require', 'lodash', 'log', 'event_channel', './abstract-statement-source-gen-visitor', '../../ast/function-invocation-expression',
-        '../../ast/struct-field-access-expression'],
-    function (require, _, log, EventChannel, AbstractStatementSourceGenVisitor, FunctionInvocationExpression, StructFieldAccessExpression) {
+define(['require','lodash', 'log', 'event_channel', './abstract-statement-source-gen-visitor', '../../ast/function-invocation-expression'],
+    function(require, _, log, EventChannel, AbstractStatementSourceGenVisitor, FunctionInvocationExpression) {
 
         /**
          * Constructor for Function invocation expression visitor
          * @param {ASTNode} parent - parent node
          * @constructor
          */
-        var FunctionInvocationExpressionVisitor = function (parent) {
-            AbstractStatementSourceGenVisitor.call(this, parent);
+        var FunctionInvocationExpressionVisitor = function(parent){
+            AbstractStatementSourceGenVisitor.call(this,parent);
         };
 
         FunctionInvocationExpressionVisitor.prototype = Object.create(AbstractStatementSourceGenVisitor.prototype);
         FunctionInvocationExpressionVisitor.prototype.constructor = FunctionInvocationExpression;
 
-        FunctionInvocationExpressionVisitor.prototype.canVisitFuncInvocationExpression = function (functionInvocation) {
-            //This visitor has already visited the indended function invocation expression
-            // , and hence no need to visit again.
-            return !this.getGeneratedSource();
+        FunctionInvocationExpressionVisitor.prototype.canVisitFuncInvocationExpression = function(functionInvocation){
+            return true;
         };
 
-        FunctionInvocationExpressionVisitor.prototype.canVisitExpression = function (expression) {
-            return !this.getGeneratedSource();
-        };
-
-        FunctionInvocationExpressionVisitor.prototype.beginVisitFuncInvocationExpression = function (functionInvocation) {
+        FunctionInvocationExpressionVisitor.prototype.beginVisitFuncInvocationExpression = function(functionInvocation){
             var source = functionInvocation.getFunctionalExpression();
-            source = source.substring(0, source.length - 1);
             this.appendSource(source);
-            log.debug('Begin Visit Function Invocation expression - ' + functionInvocation.getFunctionalExpression());
+            log.debug('Begin Visit Function Invocation expression');
         };
 
-        FunctionInvocationExpressionVisitor.prototype.visitFuncInvocationExpression = function (functionInvocation) {
-            var parent = functionInvocation.getParent();
-            var index = _.findIndex(parent.getChildren(), function (aExp) {
-                return aExp === functionInvocation;
-            });
-            if (index !== 0) {
-                this.appendSource(',');
-            }
-            var args = {model: functionInvocation, parent: this};
-            functionInvocation.accept(new FunctionInvocationExpressionVisitor(_.get(args, "parent")));
+        FunctionInvocationExpressionVisitor.prototype.visitFuncInvocationExpression = function(functionInvocation){
             log.debug('Visit Function Invocation expression');
         };
 
-        FunctionInvocationExpressionVisitor.prototype.endVisitFuncInvocationExpression = function (functionInvocation) {
-            this.appendSource(')');
+        FunctionInvocationExpressionVisitor.prototype.endVisitFuncInvocationExpression = function(functionInvocation){
             this.getParent().appendSource(this.getGeneratedSource());
-            log.debug('End Visit Function Invocation expression - ' + functionInvocation.getFunctionalExpression());
-        };
-
-        FunctionInvocationExpressionVisitor.prototype.beginVisitExpression = function (expression) {
-            log.debug('Begin visit expression ');
-        };
-
-        FunctionInvocationExpressionVisitor.prototype.endVisitExpression = function (expression) {
-            log.debug('End visit  expression');
-        };
-
-        FunctionInvocationExpressionVisitor.prototype.visitExpression = function (expression) {
-            var parent = expression.getParent();
-            var index = _.findIndex(parent.getChildren(), function (aExp) {
-                return aExp === expression;
-            });
-            if (index !== 0) {
-                this.appendSource(',');
-            }
-            var ExpressionVisitorFactory = require('./expression-visitor-factory');
-            var expressionVisitorFactory = new ExpressionVisitorFactory();
-            var expressionVisitor = expressionVisitorFactory.getExpressionView({model: expression, parent: this});
-            expression.accept(expressionVisitor);
-            log.debug('Visit Struct Field Access Expression');
+            log.debug('End Visit Function Invocation expression');
         };
 
         return FunctionInvocationExpressionVisitor;

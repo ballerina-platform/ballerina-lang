@@ -24,7 +24,7 @@ import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.composer.service.workspace.rest.datamodel.BLangJSONModelBuilder;
-import org.ballerinalang.composer.service.workspace.rest.datamodel.BallerinaEditorParserErrorStrategy;
+import org.ballerinalang.composer.service.workspace.rest.datamodel.BallerinaComposerErrorStrategy;
 import org.ballerinalang.model.BLangPackage;
 import org.ballerinalang.model.BallerinaFile;
 import org.ballerinalang.model.GlobalScope;
@@ -51,7 +51,7 @@ public class BallerinaEditorParserErrorStrategyTest {
             CommonTokenStream ballerinaToken = new CommonTokenStream(ballerinaLexer);
 
             BallerinaParser ballerinaParser = new BallerinaParser(ballerinaToken);
-            BallerinaEditorParserErrorStrategy errorStrategy = new BallerinaEditorParserErrorStrategy();
+            BallerinaComposerErrorStrategy errorStrategy = new BallerinaComposerErrorStrategy();
             ballerinaParser.setErrorHandler(errorStrategy);
 
             GlobalScope globalScope = GlobalScope.getInstance();

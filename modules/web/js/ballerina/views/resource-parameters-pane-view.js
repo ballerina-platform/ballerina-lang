@@ -79,13 +79,13 @@ define(['lodash', 'log', 'jquery', 'alerts', './resource-parameter-view', './../
             // Annotation value text box.
             var annotationValue = $("<input/>", {
                 type: "text",
-                text: annotationTypeDropdown.val() === "@PathParam" ? "/" : "",
+                text: annotationTypeDropdown.val() === "@http:PathParam" ? "/" : "",
                 "placeholder": "orderID"
             }).appendTo(annotationWrapper);
 
             // Setting a default value for @PathParam.
             $(annotationTypeDropdown).change(function () {
-                if ($(this).val() === "@PathParam" && $(annotationValue).val() === "") {
+                if ($(this).val() === "@http:PathParam" && $(annotationValue).val() === "") {
                     $(annotationValue).val("/");
                 } else if ($(annotationValue).val() === "/") {
                     $(annotationValue).val("");
