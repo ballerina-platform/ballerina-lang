@@ -1,4 +1,4 @@
-# Writing your First Program
+# Write your First Program
 
 Now that you’ve taken the [Quick Tour](../quick-tour.md), let's dig a little deeper write your first Ballerina integration program. This tutorial will teach you how to run Ballerina in standalone and server mode, use the editor to build your integration, understand the key concepts, and get familiar with the Ballerina language.
 
