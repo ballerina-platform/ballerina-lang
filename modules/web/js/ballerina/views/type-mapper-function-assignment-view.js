@@ -84,64 +84,149 @@ define(['lodash', 'jquery', './ballerina-view', 'log', 'typeMapper', './../ast/a
          */
         TypeMapperFunctionAssignmentView.prototype.render = function (diagramRenderingContext) {
             var self = this;
-            var functionExp = self.getFunctionInvocationExpression(this.getModel());
+            var functionExp = self.getFunctionInvocationExpression(self.getModel());
+            self.addFunction(functionExp, diagramRenderingContext, self, self.getModel());
+            var schema = self.getFunctionSchema(functionExp, diagramRenderingContext);
+            //Handling left hand side
+            var leftOperandChildren = self.getModel().getChildren()[0].getChildren();
+            var functionReturnIndex = 0;
+            _.forEach(leftOperandChildren, function (functionReturn) {
+                if (BallerinaASTFactory.isStructFieldAccessExpression(functionReturn)) {
+                    self.handleStructFieldAccssExp(functionReturn, self, schema, functionExp, functionReturnIndex);
+                } else if (BallerinaASTFactory.isVariableReferenceExpression(functionReturn)) {
+                    //TODO handle variable assignment
+                }
+                functionReturnIndex++;
+            });
+            //Right handside iteration
+            self.handleFunctionInvocation(functionExp, self, diagramRenderingContext);
+
+        };
+
+        TypeMapperFunctionAssignmentView.prototype.addFunction = function (functionExp, diagramRenderingContext, self, assignmentModel) {
             var schema = self.getFunctionSchema(functionExp, diagramRenderingContext);
             if (schema) {
-
-                var rightOperandExpression = _.find(self.getModel().getChildren(), function (child) {
-                    if(BallerinaASTFactory.isRightOperandExpression(child)){
-                        return child;
-                    }
-                });
-
-                var functionInvocationExpression = _.find(rightOperandExpression.getChildren(), function (child) {
-                    if(BallerinaASTFactory.isFunctionInvocationExpression(child)){
-                        return child;
-                    }
-                });
-                this.getTypeMapperFunctionRenderer().addFunction(schema, {
-                    model: this.getModel(),
+                self.getTypeMapperFunctionRenderer().addFunction(schema, {
+                    model: assignmentModel,
                     functionSchema: schema,
-                    functionInvocationExpression:functionInvocationExpression
-                },self.onFunctionDelete);
-                //Handling left hand side
-                var functionReturns = self.getModel().getChildren()[0].getChildren();
-                var functionReturnIndex = 0;
-                _.forEach(functionReturns, function (functionReturn) {
-                    if (BallerinaASTFactory.isStructFieldAccessExpression(functionReturn)) {
-                        if (functionReturn.getChildren().length > 0) {
-                            var targetStructSchema = self.getTargetInfo().targetStruct;
-                            var targetPropertyNames = [];
-                            var targetPropertyTypes = [];
-                            var fieldExpression = _.find(functionReturn.getChildren(), function (child) {
-                                return BallerinaASTFactory.isStructFieldAccessExpression(child);
-                            });
-                            var complexTargetProperties = self.getParentView().getExpressionProperties(fieldExpression, targetStructSchema, []);
-                            _.each(complexTargetProperties, function (property) {
-                                targetPropertyNames.push(property.name);
-                                targetPropertyTypes.push(property.type);
-                            });
-                            var sourcePropertyNames = [];
-                            sourcePropertyNames.push(schema.returnType[functionReturnIndex].name);
-                            var sourcePropertyTypes = [];
-                            sourcePropertyTypes.push(schema.returnType[functionReturnIndex].type);
-                            var connection = {};
-                            connection["targetStruct"] = self.getTargetInfo().targetStructName;
-                            connection["targetProperty"] = targetPropertyNames;
-                            connection["targetType"] = targetPropertyTypes;
-                            connection["sourceStruct"] = schema.name;
-                            connection["sourceProperty"] = sourcePropertyNames;
-                            connection["sourceType"] = sourcePropertyTypes;
-                            connection["id"] = self.getModel().getID();
-                            this.getTypeMapperRenderer().addConnection(connection);
-                        }
-                    } else if (BallerinaASTFactory.isVariableReferenceExpression(functionReturn)){
-                        //TODO handle variable assignment
+                    functionInvocationExpression: functionExp
+                },  self.onFunctionDelete);
+                _.forEach(functionExp.getChildren(), function (child) {
+                    if (BallerinaASTFactory.isFunctionInvocationExpression(child)) {
+                        var assmtModel = BallerinaASTFactory.createAssignmentStatement();
+                        var leftOperand = BallerinaASTFactory.createLeftOperandExpression();
+                        leftOperand.setLeftOperandExpressionString('');
+                        leftOperand.setLeftOperandType('');
+                        assmtModel.addChild(leftOperand);
+                        var rightOperand = BallerinaASTFactory.createRightOperandExpression();
+                        rightOperand.setRightOperandExpressionString('');
+                        rightOperand.addChild(child);
+                        assmtModel.addChild(rightOperand);
+                        self.addFunction(child, diagramRenderingContext, self, assmtModel);
                     }
-                })
+                });
             } else {
                 alerts.error("No function exists in name : " + functionExp.getFunctionName());
             }
+        };
+
+        TypeMapperFunctionAssignmentView.prototype.handleStructFieldAccssExp = function (functionReturn, self, schema, functionExp, functionReturnIndex) {
+            if (functionReturn.getChildren().length > 0) {
+                var targetStructSchema = self.getTargetInfo().targetStruct;
+                var targetPropertyNames = [];
+                var targetPropertyTypes = [];
+                var fieldExpression = _.find(functionReturn.getChildren(), function (child) {
+                    return BallerinaASTFactory.isStructFieldAccessExpression(child);
+                });
+                var complexTargetProperties = self.getParentView().getExpressionProperties(fieldExpression, targetStructSchema, []);
+                _.each(complexTargetProperties, function (property) {
+                    targetPropertyNames.push(property.name);
+                    targetPropertyTypes.push(property.type);
+                });
+                var sourcePropertyNames = [];
+                sourcePropertyNames.push(schema.returnType[functionReturnIndex].name);
+                var sourcePropertyTypes = [];
+                sourcePropertyTypes.push(schema.returnType[functionReturnIndex].type);
+                var connection = {};
+                connection["targetStruct"] = self.getTargetInfo().targetStructName;
+                connection["targetProperty"] = targetPropertyNames;
+                connection["targetType"] = targetPropertyTypes;
+                connection["sourceStruct"] = schema.name;
+                connection["sourceProperty"] = sourcePropertyNames;
+                connection["sourceType"] = sourcePropertyTypes;
+                connection["id"] = functionExp.getID();
+                connection["sourceId"] = functionExp.getID();
+                connection["sourceFunction"] = true;
+                connection["targetFunction"] = false;
+                self.getTypeMapperFunctionRenderer().addConnection(connection);
+            }
+        };
+
+        TypeMapperFunctionAssignmentView.prototype.handleFunctionInvocation = function (functionExp, self, diagramRenderingContext) {
+            var index = 0;
+            _.forEach(functionExp.getChildren(), function (functionParam) {
+                if (BallerinaASTFactory.isFunctionInvocationExpression(functionParam)) {
+                    //function -> function
+                    var sourceFunction = functionParam;
+                    var targetFunction = functionExp;
+                    var sourceSchema = self.getFunctionSchema(sourceFunction, diagramRenderingContext);
+                    var targetSchema = self.getFunctionSchema(targetFunction, diagramRenderingContext);
+                    var sourcePropertyTypes = [],
+                        sourcePropertyNames = [],
+                        targetPropertyTypes = [],
+                        targetPropertyNames = [];
+                    sourcePropertyNames.push(sourceSchema.returnType[0].name);
+                    sourcePropertyTypes.push(sourceSchema.returnType[0].type);
+                    targetPropertyNames.push(targetSchema.parameters[index].name);
+                    targetPropertyTypes.push(targetSchema.parameters[index].type);
+                    var connection = {};
+                    connection["targetStruct"] = targetSchema.name;
+                    connection["targetProperty"] = targetPropertyNames;
+                    connection["targetType"] = targetPropertyTypes;
+                    connection["sourceStruct"] = sourceSchema.name;
+                    connection["sourceProperty"] = sourcePropertyNames;
+                    connection["sourceType"] = sourcePropertyTypes;
+                    connection["id"] = sourceFunction.getID();
+                    connection["sourceId"] = sourceFunction.getID();
+                    connection["targetId"] = targetFunction.getID();
+                    connection["sourceFunction"] = true;
+                    connection["targetFunction"] = true;
+                    self.getTypeMapperFunctionRenderer().addConnection(connection);
+                    self.handleFunctionInvocation(functionParam, self, diagramRenderingContext);
+                } else if (BallerinaASTFactory.isStructFieldAccessExpression(functionParam)) {
+                    //struct -> function
+                    var sourceStructSchema = self.getSourceInfo().sourceStruct;
+                    var targetSchema = self.getFunctionSchema(functionExp, diagramRenderingContext);
+                    var targetPropertyNames = [];
+                    var targetPropertyTypes = [];
+                    var sourcePropertyNames = [];
+                    var sourcePropertyTypes = [];
+
+                    var fieldExpression = _.find(functionParam.getChildren(), function (child) {
+                        return BallerinaASTFactory.isStructFieldAccessExpression(child);
+                    });
+                    var complexTargetProperties = self.getParentView().getExpressionProperties(fieldExpression, sourceStructSchema, []);
+                    _.each(complexTargetProperties, function (property) {
+                        sourcePropertyNames.push(property.name);
+                        sourcePropertyTypes.push(property.type);
+                    });
+                    targetPropertyNames.push(targetSchema.parameters[index].name);
+                    targetPropertyTypes.push(targetSchema.parameters[index].type);
+                    var connection = {};
+                    connection["targetStruct"] = targetSchema.name;
+                    connection["targetProperty"] = targetPropertyNames;
+                    connection["targetType"] = targetPropertyTypes;
+                    connection["sourceStruct"] = self.getSourceInfo().sourceStructName;
+                    connection["sourceProperty"] = sourcePropertyNames;
+                    connection["sourceType"] = sourcePropertyTypes;
+                    connection["id"] = functionExp.getID();
+                    connection["targetId"] = functionExp.getID();
+                    connection["sourceFunction"] = false;
+                    connection["targetFunction"] = true;
+                    self.getTypeMapperFunctionRenderer().addConnection(connection);
+                }
+                index = index + 1;
+            })
         };
 
         TypeMapperFunctionAssignmentView.prototype.getFunctionInvocationExpression = function (assignmentStatement) {
@@ -173,7 +258,7 @@ define(['lodash', 'jquery', './ballerina-view', 'log', 'typeMapper', './../ast/a
                 schema = {};
                 schema['name'] = funcName;
                 schema['returnType'] = uniqueParams.slice(0, functionDef.getReturnParams().length);
-                schema['parameters'] = uniqueParams.slice(functionDef.getReturnParams().length,uniqueParams.length);
+                schema['parameters'] = uniqueParams.slice(functionDef.getReturnParams().length, uniqueParams.length);
             }
             return schema;
         };
@@ -207,39 +292,32 @@ define(['lodash', 'jquery', './ballerina-view', 'log', 'typeMapper', './../ast/a
          * @param connection object
          */
         TypeMapperFunctionAssignmentView.prototype.onFunctionDelete = function (connection) {
-
             var functionReferenceObj = connection.reference.model;
             var functionInvocationExpression = connection.reference.functionInvocationExpression;
             var assignmentStatementId = functionReferenceObj.getID();
             var parentOfFunctionInvocationExpression = functionInvocationExpression.getParent();
             var blockStatement = functionReferenceObj.getParent();
-
             var innerFunctionInvocationExpression = _.find(functionInvocationExpression.getChildren(), function (child) {
-                if(BallerinaASTFactory.isFunctionInvocationExpression(child)){
+                if (BallerinaASTFactory.isFunctionInvocationExpression(child)) {
                     return child;
                 }
             });
-
-            if(!BallerinaASTFactory.isFunctionInvocationExpression(parentOfFunctionInvocationExpression)){
+            if (!BallerinaASTFactory.isFunctionInvocationExpression(parentOfFunctionInvocationExpression)) {
                 blockStatement.removeChildById(assignmentStatementId);
-
-            }else{
+            } else {
                 functionInvocationExpression.remove();
             }
-
-            if(!_.isUndefined(innerFunctionInvocationExpression)){
+            if (!_.isUndefined(innerFunctionInvocationExpression)) {
                 var childRightOperandExpression = _.find(functionReferenceObj.getChildren(), function (child) {
-                    if(BallerinaASTFactory.isRightOperandExpression(child)){
+                    if (BallerinaASTFactory.isRightOperandExpression(child)) {
                         return child;
                     }
                 });
-
                 var tempFunctionInvocationExpression = _.find(childRightOperandExpression.getChildren(), function (child) {
-                    if(BallerinaASTFactory.isFunctionInvocationExpression(child)){
+                    if (BallerinaASTFactory.isFunctionInvocationExpression(child)) {
                         return child;
                     }
                 });
-
                 childRightOperandExpression.removeChildById(tempFunctionInvocationExpression.getID());
                 childRightOperandExpression.addChild(innerFunctionInvocationExpression);
                 blockStatement.addChild(functionReferenceObj);

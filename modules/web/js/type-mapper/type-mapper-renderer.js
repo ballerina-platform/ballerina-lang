@@ -130,7 +130,7 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
         }
 
         return {
-            id : id,
+            id: id,
             sourceStruct: this.getStructName(sourceName),
             sourceProperty: this.getPropertyNameStack(sourceId),
             sourceType: this.getPropertyType(sourceId),
@@ -284,8 +284,8 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
         var lookupClass = "property";
 
         if ($("#" + structId).attr('class').includes("struct")) {
-            lookupClass=  "jstree-anchor";
-            structConns = $('div[id^="' +  this.jsTreePrefix + this.viewIdSeperator + structId + '"]')
+            lookupClass = "jstree-anchor";
+            structConns = $('div[id^="' + this.jsTreePrefix + this.viewIdSeperator + structId + '"]')
                 .find('.' + lookupClass);
         } else {
             structConns = $('div[id^="' + structId + '"]');
@@ -312,22 +312,35 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
         var targetId =  this.jsTreePrefix + this.viewIdSeperator +  connection.targetStruct
             + this.viewIdSeperator + this.viewId;
 
-        for (var i = 0; i < connection.sourceProperty.length; i++ ) {
+        if (connection.sourceFunction) {
+            sourceId = connection.sourceStruct + connection.sourceId + this.viewIdSeperator + this.viewId;
+        }
+        if (connection.targetFunction) {
+            targetId = connection.targetStruct + connection.targetId + this.viewIdSeperator + this.viewId;
+        }
+
+        for (var i = 0; i < connection.sourceProperty.length; i++) {
             sourceId += this.idNameSeperator
                 + connection.sourceProperty[i] + this.nameTypeSeperator + connection.sourceType[i];
         }
-        sourceId += anchorEnd;
+        if (!connection.sourceFunction) {
+            sourceId += anchorEnd;
+        }
 
-        for (var i = 0; i < connection.targetProperty.length; i++ ) {
+        for (var i = 0; i < connection.targetProperty.length; i++) {
             targetId += this.idNameSeperator
                 + connection.targetProperty[i] + this.nameTypeSeperator + connection.targetType[i];
         }
-        targetId += anchorEnd;
+
+        if (!connection.targetFunction) {
+            targetId += anchorEnd;
+        }
+
         this.jsPlumbInstance.connect({
-            anchor: ["Continuous", {faces: ["right","left"]}],
+            anchor: ["Continuous", {faces: ["right", "left"]}],
             source: sourceId,
             target: targetId,
-            parameters : {id : connection.id}
+            parameters: {id: connection.id}
         });
         this.dagrePosition(this);
     };
@@ -459,7 +472,8 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
     TypeMapperRenderer.prototype.addFunction = function (func, reference, onFunctionRemove) {
         var funcText = func.name;
         //Allow multiple functions to drag and drop without conflicting
-        func.name = func.name + new Date().getTime();
+        var functionInvocationModelId = reference.model.getChildren()[1].getChildren()[0].getID();
+        func.name = func.name + functionInvocationModelId;
 
         var id = func.name + this.viewIdSeperator + this.viewId;
         this.references.push({name: id, refObj: reference});
@@ -467,10 +481,10 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
         var self = this;
         var funcName = $('<div>');
         var funcIcon = $('<i>').addClass('type-mapper-icon fw fw-function fw-inverse');
-        var closeButton = $('<span>').attr('id', id+"-button").addClass('fw-stack fw-lg btn btn-remove');
+        var closeButton = $('<span>').attr('id', id + "-button").addClass('fw-stack fw-lg btn btn-remove');
 
-        var square =  $('<i>').addClass('fw fw-square fw-stack-1x');
-        var del =  $('<i>').addClass('fw fw-delete fw-stack-1x fw-inverse');
+        var square = $('<i>').addClass('fw fw-square fw-stack-1x');
+        var del = $('<i>').addClass('fw fw-delete fw-stack-1x fw-inverse');
 
         funcName.append(funcIcon);
         funcName.append($('<span>').text(funcText));
@@ -488,16 +502,16 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
 
         //Remove button functionality
         $("#" + id + "-button").on("click", function () {
-            var removedFunction = {name : func.name}
+            var removedFunction = {name: func.name}
             removedFunction.incomingConnections = [];
             removedFunction.outgoingConnections = [];
 
             _.forEach(self.jsPlumbInstance.getAllConnections(), function (connection) {
-                if(connection.target.id.includes(id)) {
+                if (connection.target.id.includes(id)) {
                     removedFunction.incomingConnections.push(
                         self.getConnectionObject(connection.getParameter("id"),
                             connection.sourceId, connection.targetId));
-                } else if(connection.source.id.includes(id)) {
+                } else if (connection.source.id.includes(id)) {
                     removedFunction.outgoingConnections.push(
                         self.getConnectionObject(connection.getParameter("id"),
                             connection.sourceId, connection.targetId));
@@ -572,7 +586,7 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
         var connectionConfig = {
             anchor: ["Continuous", {faces: ["right"]}]
         };
-        if (maxConnections){
+        if (maxConnections) {
             connectionConfig.maxConnections = 1;
         }
         self.jsPlumbInstance.makeSource(element, connectionConfig);
@@ -625,7 +639,7 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
                     if (isValidTypes) {
                         connection.isComplexMapping = true;
                         connection.complexMapperName = compatibleTypeConverters[0];
-                        self.jsPlumbInstance.importDefaults({ Connector : self.getConnectorConfig(self.midpoint)});
+                        self.jsPlumbInstance.importDefaults({Connector: self.getConnectorConfig(self.midpoint)});
                         self.onConnection(connection);
                         return self.hasFunction(connection, self);
                         // self.disableParentsJsTree(params.sourceId, self);
@@ -785,7 +799,7 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
 
             // Applying the calculated layout
             _.forEach(graph.nodes(), function (dagreNode) {
-                var node = $("#" +  dagreNode);
+                var node = $("#" + dagreNode);
                 node.css("left", graph.node(dagreNode).x + "px");
                 node.css("top", graph.node(dagreNode).y + "px");
                 // }
