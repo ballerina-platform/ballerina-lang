@@ -384,6 +384,15 @@ define(['require', 'lodash', 'log', './../visitors/statement-visitor', 'd3', 'd3
          this.getBoundingBox().on('top-edge-moved', function (dy) {
              removeBreakpointButton.attr('y', parseFloat(removeBreakpointButton.attr('y')) + dy);
          });
+
+         // resume state on rerendering
+         var file = self.getDiagramRenderingContext().ballerinaFileEditor._file.getName();
+         var hasBreakPoint = DebugManager.hasBreakPoint(model.getLineNumber(), file);
+         if(hasBreakPoint) {
+            this.showDebugIndicator();
+         } else {
+            this.hideDebugIndicator();
+         }
      };
 
      BallerinaStatementView.prototype.showDebugIndicator = function () {

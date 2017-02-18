@@ -98,21 +98,14 @@ define(['lodash', './ballerina-ast-factory'], function (_, BallerinaASTFactory) 
         var blockStatement = BallerinaASTFactory.createBlockStatement(args);
         var returnStatement = BallerinaASTFactory.createReturnStatement(args);
         var variableDefinitionStatement = BallerinaASTFactory.createVariableDefinitionStatement(args);
-        var leftOperandExpression = BallerinaASTFactory.createLeftOperandExpression(args);
         var rightOperandExpression = BallerinaASTFactory.createRightOperandExpression(args);
         var referenceTypeInitiExpression = BallerinaASTFactory.createReferenceTypeInitExpression(args);
-
-        var variableReferenceExpression = BallerinaASTFactory.createVariableReferenceExpression(args);
-        var variableDefinition = BallerinaASTFactory.createVariableDefinition(args);
-        variableReferenceExpression.addChild(variableDefinition);
-        leftOperandExpression.addChild(variableReferenceExpression);
 
         rightOperandExpression.addChild(referenceTypeInitiExpression);
 
         var returnStatementVariableReferenceExpression = BallerinaASTFactory.createVariableReferenceExpression(args);
         returnStatement.addChild(returnStatementVariableReferenceExpression);
 
-        variableDefinitionStatement.addChild(leftOperandExpression);
         variableDefinitionStatement.addChild(rightOperandExpression);
 
         blockStatement.addChild(variableDefinitionStatement);
@@ -162,6 +155,17 @@ define(['lodash', './ballerina-ast-factory'], function (_, BallerinaASTFactory) 
         var catchStatement = BallerinaASTFactory.createCatchStatement(args);
         tryCatchStatement.addChild(catchStatement);
         return tryCatchStatement;
+    };
+
+    /**
+     * creates ThrowStatement
+     * @param {Object} args - Arguments for creating a new throw statement.
+     * @returns {ThrowStatement}
+     */
+    DefaultsAddedBallerinaASTFactory.createThrowStatement = function (args) {
+        var throwStatement = BallerinaASTFactory.createThrowStatement(args);
+        throwStatement.addChild(BallerinaASTFactory.createVariableReferenceExpression({variableReferenceName:"e"}));
+        return throwStatement;
     };
 
     return DefaultsAddedBallerinaASTFactory;

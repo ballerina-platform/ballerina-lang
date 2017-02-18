@@ -30,7 +30,9 @@ import java.util.List;
 /**
  *
  */
-public class BallerinaEditorParserErrorStrategy extends DefaultErrorStrategy {
+public class BallerinaComposerErrorStrategy extends DefaultErrorStrategy {
+
+    public static final String EOF = "'<EOF>'";
 
     public List<SyntaxError> getErrorTokens() {
         return errorTokens;
@@ -42,7 +44,7 @@ public class BallerinaEditorParserErrorStrategy extends DefaultErrorStrategy {
 
     List<SyntaxError> errorTokens = new ArrayList<SyntaxError>();
 
-    public BallerinaEditorParserErrorStrategy() {
+    public BallerinaComposerErrorStrategy() {
     }
 
     @Override
@@ -54,7 +56,10 @@ public class BallerinaEditorParserErrorStrategy extends DefaultErrorStrategy {
         String expectedToken = e.getExpectedTokens().toString(parser.getVocabulary());
         String msg = getSourceLocation(parser, line, position) + "mismatched input " + mismatchedToken +
                 ". Expecting one of " + expectedToken;
-        errorTokens.add(createError(line, position, msg));
+        // FixMe: This need to be handled by grammar itself
+        if(!EOF.equals(mismatchedToken)){
+            errorTokens.add(createError(line, position, msg));
+        }
     }
 
     @Override
@@ -76,7 +81,9 @@ public class BallerinaEditorParserErrorStrategy extends DefaultErrorStrategy {
         int line = getMissingSymbol(parser).getLine();
         int position = getMissingSymbol(parser).getCharPositionInLine();
         String msg = getSourceLocation(parser, line, position) + "invalid identifier " + getTokenErrorDisplay(token);
-        errorTokens.add(createError(line, position, msg));
+        if(!EOF.equals(getTokenErrorDisplay(token))){
+            errorTokens.add(createError(line, position, msg));
+        }
     }
 
     @Override
@@ -85,7 +92,9 @@ public class BallerinaEditorParserErrorStrategy extends DefaultErrorStrategy {
         int line = getMissingSymbol(parser).getLine();
         int position = getMissingSymbol(parser).getCharPositionInLine();
         String msg = getSourceLocation(parser, line, position) + "unwanted token " + getTokenErrorDisplay(token);
-        errorTokens.add(createError(line, position, msg));
+        if(!EOF.equals(getTokenErrorDisplay(token))){
+            errorTokens.add(createError(line, position, msg));
+        }
     }
 
 

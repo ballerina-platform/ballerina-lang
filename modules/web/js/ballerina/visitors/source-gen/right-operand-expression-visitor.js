@@ -33,8 +33,7 @@ define(['require', 'lodash', 'log', 'event_channel', './abstract-statement-sourc
         RightOperandExpressionVisitor.prototype.beginVisitRightOperandExpression = function (rightOperandExpression) {
             //FIXME: Need to refactor this if logic
             this.appendSource(" = ");
-            if (!_.isUndefined(rightOperandExpression.getRightOperandExpressionString()) &&
-                (!_.isUndefined(rightOperandExpression.getChildren()) && !AST.BallerinaASTFactory.isFunctionInvocationStatement(rightOperandExpression.getChildren()[0]))) {
+            if (!_.isUndefined(rightOperandExpression.getRightOperandExpressionString())) {
                 this.appendSource(rightOperandExpression.getRightOperandExpressionString());
             }
             log.debug('Begin Visit Right Operand Expression');
@@ -43,26 +42,6 @@ define(['require', 'lodash', 'log', 'event_channel', './abstract-statement-sourc
         RightOperandExpressionVisitor.prototype.endVisitRightOperandExpression = function (rightOperandExpression) {
             this.getParent().appendSource(this.getGeneratedSource());
             log.debug('End Visit Right Operand Expression');
-        };
-
-        RightOperandExpressionVisitor.prototype.visitFuncInvocationStatement = function (statement) {
-            var StatementVisitorFactory = require('./statement-visitor-factory');
-            var statementVisitorFactory = new StatementVisitorFactory();
-            var statementVisitor = statementVisitorFactory.getStatementVisitor(statement, this);
-            statement.accept(statementVisitor);
-        };
-
-        RightOperandExpressionVisitor.prototype.visitExpression = function (expression) {
-            var expressionVisitorFactory = new ExpressionVisitorFactory();
-            var expressionVisitor = expressionVisitorFactory.getExpressionView({model: expression, parent: this});
-            expression.accept(expressionVisitor);
-            log.debug('Visit Expression');
-        };
-
-        RightOperandExpressionVisitor.prototype.visitFuncInvocationExpression = function (functionInvocation) {
-            var args = {model: functionInvocation, parent: this};
-            functionInvocation.accept(new FunctionInvocationExpressionVisitor(_.get(args, "parent")));
-            log.debug('Visit Function Invocation expression');
         };
 
         return RightOperandExpressionVisitor;

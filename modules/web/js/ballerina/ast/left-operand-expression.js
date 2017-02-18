@@ -36,9 +36,6 @@ define(['lodash', './statement'], function (_, Statement) {
      * @returns {undefined|string}
      */
     LeftOperandExpression.prototype.getLeftOperandExpressionString = function () {
-        if (!_.isEmpty(this._operand_type)) {
-            return this._operand_type + " " + this._left_operand_expression_string;
-        }
         return this._left_operand_expression_string;
     };
 
@@ -48,12 +45,24 @@ define(['lodash', './statement'], function (_, Statement) {
      * @param {Object} options
      */
     LeftOperandExpression.prototype.setLeftOperandExpressionString = function (leftOperandExpStr, options) {
-        if (leftOperandExpStr.trim().split(" ").length > 1) {
-            this.setAttribute('_operand_type', leftOperandExpStr.trim().split(" ")[0], options);
-            this.setAttribute('_left_operand_expression_string', leftOperandExpStr.trim().split(" ")[1], options);
-        } else {
-            this.setAttribute('_left_operand_expression_string', leftOperandExpStr, options);
-        }
+        this.setAttribute('_left_operand_expression_string', leftOperandExpStr, options);
+    };
+
+    /**
+     * Get operand type
+     * @return {String} operand type
+     * */
+    LeftOperandExpression.prototype.getOperandType = function () {
+        return this._operand_type;
+    };
+
+    /**
+     * Set operandType
+     * @param {String} operandType
+     * @param {Object} options
+     * */
+    LeftOperandExpression.prototype.setOperandType = function (operandType, options) {
+        this.setAttribute('_operand_type', operandType, options);
     };
 
     LeftOperandExpression.prototype.setLeftOperandType = function (operandType, options) {

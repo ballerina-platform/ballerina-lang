@@ -16,9 +16,9 @@
  * under the License.
  */
 
-define(['log', 'jquery', 'backbone', 'lodash', 'context_menu', 'mcustom_scroller', './launch-manager'],
+define(['log', 'jquery', 'backbone', 'lodash', 'context_menu', 'mcustom_scroller', './launch-manager', 'alerts'],
 
-    function (log, $, Backbone, _, ContextMenu, mcustomScroller, LaunchManager) {
+    function (log, $, Backbone, _, ContextMenu, mcustomScroller, LaunchManager, alerts) {
 
     var Launcher = Backbone.View.extend({
 
@@ -84,14 +84,38 @@ define(['log', 'jquery', 'backbone', 'lodash', 'context_menu', 'mcustom_scroller
 
         runService: function(){
         	var activeTab = this.application.tabController.getActiveTab();
-        	var file = activeTab.getFile();
-       		LaunchManager.runService(file);
+        	if(this.isReadyToRun(activeTab)) {
+        	    var file = activeTab.getFile();
+       		    LaunchManager.runService(file);
+        	} else {
+                alerts.error("Save file before running service");
+        	}
         },
 
         runApplication: function(){
         	var activeTab = this.application.tabController.getActiveTab();
-        	var file = activeTab.getFile();
-       		LaunchManager.runApplication(file);
+
+        	// only file tabs can run application
+        	if(this.isReadyToRun(activeTab)) {
+        	    var file = activeTab.getFile();
+        	    LaunchManager.runApplication(file);
+        	} else {
+        	    alerts.error("Save file before running application");
+        	}
+        },
+
+        isReadyToRun: function(tab) {
+            if (!typeof tab.getFile === "function") {
+                return false;
+            }
+
+            var file = tab.getFile();
+            // file is not saved give an error and avoid running
+            if(file.isDirty()) {
+                return false;
+            }
+
+            return true;
         },
 
         stopProgram: function(){

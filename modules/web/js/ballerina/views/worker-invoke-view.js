@@ -108,6 +108,11 @@ define(['lodash', 'd3','log', './simple-statement-view', './../ast/action-invoca
                 statementGroup: this.getStatementGroup(),
                 editableProperties: editableProperty
             });
+
+            this._createDebugIndicator({
+                statementGroup: this.getStatementGroup()
+            });
+
             this.listenTo(model, 'update-property-text', this.updateStatementText);
 
             // mouse events for 'processorConnectPoint'
@@ -153,6 +158,7 @@ define(['lodash', 'd3','log', './simple-statement-view', './../ast/action-invoca
                 var y = this.getBoundingBox().getTop();
                 var sourcePointX = x + width;
                 var sourcePointY = y + height / 2;
+                var destinationView = this.getDiagramRenderingContext().getViewOfModel(destination);
 
                 var startPoint = new Point(sourcePointX, sourcePointY);
                 var connectorCenterPointX = this.connector.getMiddleLineCenter().x();
@@ -174,6 +180,8 @@ define(['lodash', 'd3','log', './simple-statement-view', './../ast/action-invoca
                 arrowHeadEnd
                     .attr("fill-opacity", 0.01)
                     .style("fill", "#444");
+
+
             }
         };
 
@@ -281,6 +289,20 @@ define(['lodash', 'd3','log', './simple-statement-view', './../ast/action-invoca
                 destinationStatementContainer._managedInnerDropzones[0].d3el.attr('y',
                     parseFloat(destinationStatementContainer._managedInnerDropzones[0].d3el.attr('y')) + dy);
                 self._messageView.move(0, dy);
+            });
+
+            // Listen to the destination's before-remove event and remove arrow and start box.
+            this.getModel().getDestination().on('before-remove', function(){
+                self._messageView.removeArrow();
+                self._startRect.node().remove();
+                self._startActionText.node().remove();
+                self._startActionGroup.remove();
+            });
+
+            this.listenTo(destinationView.getStatementContainer().getBoundingBox(), 'center-x-moved', function (dx) {
+                this._messageView.getEnd().move(dx, 0);
+                self._startRect.attr('x', parseFloat(self._startRect.attr('x')) + dx);
+                self._startActionText.attr('x', parseFloat(self._startActionText.attr('x')) + dx);
             });
         };
 

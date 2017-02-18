@@ -48,7 +48,6 @@ function testNestedThrow(int a)(int){
 }
 
 function testValid (){
-    // this is valid
     exception e;
     try{
         int a = 10;

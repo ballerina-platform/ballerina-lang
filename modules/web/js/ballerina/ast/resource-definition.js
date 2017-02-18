@@ -45,7 +45,7 @@ define(['lodash', 'require', 'log', './node', '../utils/common-utils'],
                 return annotation.key == "Path";
             }))) {
             this._annotations.push({
-                key: "Path",
+                key: "http:Path",
                 value: ""
             });
         }
