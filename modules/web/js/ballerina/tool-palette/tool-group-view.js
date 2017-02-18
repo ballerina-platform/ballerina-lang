@@ -70,11 +70,28 @@ define(['require', 'log', 'jquery', 'd3', 'backbone', './tool-view'], function (
             var tools = [];
             var toolDocumentMap = {};
             if (toolOrderVertical) {
+                // Check whether parameter type string available
+                var isStringParamExist = function (parameters) {
+                    return _.find(parameters, function (param) {
+                        return param.type == "string";
+                    }) ? true : false;
+                };
+
+                // Replace the existing tool with tool which has string params.
+                var replaceGivenToolWithExistingTool = function (replacement) {
+                    var index = _.findIndex(tools, function (tool) {
+                        return tool.id == replacement.id;
+                    });
+                    tools[index] = replacement;
+                };
+
                 _.forEach(this.model.tools, function (tool) {
                     var id = "/" + tool.id + "/";
                     if (!toolDocumentMap[id]) {
                         toolDocumentMap[id] = id;
                         tools.push(tool);
+                    } else if (toolDocumentMap[id] && isStringParamExist(tool.attributes._parameters)) {
+                        replaceGivenToolWithExistingTool(tool);
                     }
                 });
             } else {
