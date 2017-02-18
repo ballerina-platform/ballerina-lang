@@ -101,7 +101,9 @@ define(['lodash', 'jquery', './ballerina-view', 'log', 'typeMapper', './../ast/a
                 });
                 this.getTypeMapperFunctionRenderer().addFunction(schema, {
                     model: this.getModel(),
+                    currentView: this,
                     functionSchema: schema,
+                    renderingContext: diagramRenderingContext,
                     functionInvocationExpression:functionInvocationExpression
                 },self.onFunctionDelete);
                 //Handling left hand side
@@ -210,9 +212,10 @@ define(['lodash', 'jquery', './ballerina-view', 'log', 'typeMapper', './../ast/a
 
             var functionReferenceObj = connection.reference.model;
             var functionInvocationExpression = connection.reference.functionInvocationExpression;
-            var assignmentStatementId = functionReferenceObj.getID();
             var parentOfFunctionInvocationExpression = functionInvocationExpression.getParent();
             var blockStatement = functionReferenceObj.getParent();
+            var renderingConext = connection.reference.renderingContext;
+            var currentView = connection.reference.currentView;
 
             var innerFunctionInvocationExpression = _.find(functionInvocationExpression.getChildren(), function (child) {
                 if(BallerinaASTFactory.isFunctionInvocationExpression(child)){
@@ -221,28 +224,38 @@ define(['lodash', 'jquery', './ballerina-view', 'log', 'typeMapper', './../ast/a
             });
 
             if(!BallerinaASTFactory.isFunctionInvocationExpression(parentOfFunctionInvocationExpression)){
-                blockStatement.removeChildById(assignmentStatementId);
+                blockStatement.removeChildById(parentOfFunctionInvocationExpression.getParent().getID());
 
             }else{
                 functionInvocationExpression.remove();
             }
 
             if(!_.isUndefined(innerFunctionInvocationExpression)){
-                var childRightOperandExpression = _.find(functionReferenceObj.getChildren(), function (child) {
-                    if(BallerinaASTFactory.isRightOperandExpression(child)){
-                        return child;
-                    }
-                });
 
-                var tempFunctionInvocationExpression = _.find(childRightOperandExpression.getChildren(), function (child) {
-                    if(BallerinaASTFactory.isFunctionInvocationExpression(child)){
-                        return child;
-                    }
-                });
+                var childSchema = currentView.getFunctionSchema(innerFunctionInvocationExpression,renderingConext);
+                var assignmentStaetment = BallerinaASTFactory.createAssignmentStatement();
+                var leftOperandExpression = BallerinaASTFactory.createLeftOperandExpression();
+                var rightOperandExpression = BallerinaASTFactory.createRightOperandExpression();
+                assignmentStaetment.addChild(leftOperandExpression);
+                assignmentStaetment.addChild(rightOperandExpression);
 
-                childRightOperandExpression.removeChildById(tempFunctionInvocationExpression.getID());
-                childRightOperandExpression.addChild(innerFunctionInvocationExpression);
-                blockStatement.addChild(functionReferenceObj);
+                _.forEach(childSchema.returnType, function (aReturnType) {
+                    var structFieldAccessExp = BallerinaASTFactory.createStructFieldAccessExpression();
+                    leftOperandExpression.addChild(structFieldAccessExp);
+                });
+                leftOperandExpression.setLeftOperandExpressionString('');
+                leftOperandExpression.setLeftOperandType('');
+                _.forEach(childSchema.parameters, function (params) {
+                    var variableRefExp = BallerinaASTFactory.createVariableReferenceExpression();
+                    variableRefExp.setVariableReferenceName('');
+                    leftOperandExpression.addChild(variableRefExp);
+                });
+                rightOperandExpression.addChild(innerFunctionInvocationExpression);
+                rightOperandExpression.setRightOperandExpressionString('');
+                rightOperandExpression.getChildren()[0].setParams('');
+
+                var lastIndex = _.findLastIndex(blockStatement.getChildren());
+                blockStatement.addChild(assignmentStaetment,lastIndex,undefined,false);
             }
         };
         return TypeMapperFunctionAssignmentView;
