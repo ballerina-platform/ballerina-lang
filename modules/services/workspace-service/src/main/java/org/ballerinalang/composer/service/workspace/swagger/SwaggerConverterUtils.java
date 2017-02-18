@@ -220,7 +220,7 @@ public class SwaggerConverterUtils {
                         .addAnnotation(new Annotation(null, new SymbolName("http:Path"), entry.path.toString(), null));
             }
             if (entry.httpMethod != null && entry.httpMethod.length() > 0) {
-                resourceBuilder.addAnnotation(new Annotation(null, new SymbolName(httpMethod), "", null));
+                resourceBuilder.addAnnotation(new Annotation(null, new SymbolName("http:"+httpMethod), "", null));
             }
             //handle parameters
             if (entry.getHasQueryParams()) {
