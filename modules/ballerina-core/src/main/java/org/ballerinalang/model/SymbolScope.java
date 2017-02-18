@@ -36,6 +36,8 @@ public interface SymbolScope {
 
     BLangSymbol resolve(SymbolName name);
 
+    Map<SymbolName, BLangSymbol> getSymbolMap();
+
     default BLangSymbol resolve(Map<SymbolName, BLangSymbol> symbolMap, SymbolName name) {
         BLangSymbol symbol = symbolMap.get(name);
         if (symbol == null && getEnclosingScope() != null) {

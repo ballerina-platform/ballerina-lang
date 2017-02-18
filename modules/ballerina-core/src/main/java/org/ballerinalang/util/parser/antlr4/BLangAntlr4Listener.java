@@ -38,26 +38,26 @@ import java.util.List;
  * @since 0.8.0
  */
 public class BLangAntlr4Listener implements BallerinaListener {
-    private String fileName;
-    private String packageDirPath;
-    private static final String PUBLIC = "public";
-    private BLangModelBuilder modelBuilder;
-    private String currentPkgName;
+    protected String fileName;
+    protected String packageDirPath;
+    protected static final String PUBLIC = "public";
+    protected BLangModelBuilder modelBuilder;
+    protected String currentPkgName;
 
     // Types related attributes
-    private String typeName;
+    protected String typeName;
     // private String schemaID;
 
-    private boolean isSimpleType;
+    protected boolean isSimpleType;
     // private boolean isSchemaIDType;
     // private boolean isFullSchemaType;
     // private boolean isSchemaURLType;
 
-    private boolean isArrayType;
+    protected boolean isArrayType;
 
     // Variable to keep whether worker creation has been started. This is used at BLangAntlr4Listener class
     // to create parameter when there is a named parameter
-    private boolean isWorkerStarted = false;
+    protected boolean isWorkerStarted = false;
 
     public BLangAntlr4Listener(BLangModelBuilder modelBuilder) {
         this.modelBuilder = modelBuilder;
@@ -1624,14 +1624,14 @@ public class BLangAntlr4Listener implements BallerinaListener {
     public void exitEveryRule(ParserRuleContext parserRuleContext) {
     }
 
-    private void createBinaryExpr(ParserRuleContext ctx) {
+    protected void createBinaryExpr(ParserRuleContext ctx) {
         if (ctx.exception == null && ctx.getChild(1) != null) {
             String opStr = ctx.getChild(1).getText();
             modelBuilder.createBinaryExpr(getCurrentLocation(ctx), opStr);
         }
     }
 
-    private void createBasicLiteral(BallerinaParser.LiteralValueContext ctx) {
+    protected void createBasicLiteral(BallerinaParser.LiteralValueContext ctx) {
         if (ctx.exception == null) {
             TerminalNode terminalNode = ctx.IntegerLiteral();
             if (terminalNode != null) {
@@ -1675,19 +1675,19 @@ public class BLangAntlr4Listener implements BallerinaListener {
         }
     }
 
-    private NodeLocation getCurrentLocation(ParserRuleContext ctx) {
+    protected NodeLocation getCurrentLocation(ParserRuleContext ctx) {
         String fileName = ctx.getStart().getInputStream().getSourceName();
         int lineNo = ctx.getStart().getLine();
         return new NodeLocation(fileName, lineNo);
     }
 
-    private NodeLocation getCurrentLocation(TerminalNode node) {
+    protected NodeLocation getCurrentLocation(TerminalNode node) {
         String fileName = node.getSymbol().getInputStream().getSourceName();
         int lineNo = node.getSymbol().getLine();
         return new NodeLocation(fileName, lineNo);
     }
 
-    private int getNoOfArgumentsInList(ParserRuleContext ctx) {
+    protected int getNoOfArgumentsInList(ParserRuleContext ctx) {
         // Here is the production for the argument list
         // argumentList
         //    :   '(' expressionList ')'

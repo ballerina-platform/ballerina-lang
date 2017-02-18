@@ -138,7 +138,7 @@ public class BalProgramExecutor {
         } else {
             BLangExecutor executor = new BLangExecutor(runtimeEnv, balContext);
             new ResourceInvocationExpr(resource, exprs).executeMultiReturn(executor);
+            balContext.getControlStack().popFrame();
         }
-        balContext.getControlStack().popFrame();
     }
 }

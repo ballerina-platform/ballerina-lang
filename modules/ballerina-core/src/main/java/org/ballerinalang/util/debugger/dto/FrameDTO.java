@@ -33,6 +33,10 @@ public class FrameDTO {
     private int lineID;
     private List<VariableDTO> variables = new ArrayList<VariableDTO>();
 
+    public FrameDTO(){
+
+    }
+
     public FrameDTO(String packageName, String frameName, String fileName, int lineID) {
         this.packageName = packageName;
         this.frameName = frameName;

@@ -24,6 +24,7 @@ import org.ballerinalang.model.symbols.BLangSymbol;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.values.BValue;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -178,6 +179,11 @@ public class BallerinaConnectorDef extends BType implements Connector, Compilati
     @Override
     public BLangSymbol resolve(SymbolName name) {
         return resolve(symbolMap, name);
+    }
+
+    @Override
+    public Map<SymbolName, BLangSymbol> getSymbolMap() {
+        return Collections.unmodifiableMap(this.symbolMap);
     }
 
     public BLangSymbol resolveMembers(SymbolName name) {
