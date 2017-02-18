@@ -22,31 +22,7 @@ Note: Terminals of the language (keywords) are lowercase, whereas non-terminals 
 
 Each of the Ballerina entities such as services and connectors are described in detail in their own pages in this guide.
 
-A Ballerina program can consist of a number of Ballerina files, which may be in one or more packages. Ballerina uses a modular approach for managing names and organizing code into files. In summary, Ballerina entities (functions, services, etc.) all have globally unique qualified names consisting of their package name and the entity name. For complete information, see [Packaging](packaging.md).
-
-## Running a Ballerina program
-
-The `ballerina` command runs a Ballerina program/service in its packaged or unpackaged format. (If you are using UNIX/Linux, type `./ballerina` instead of `ballerina`.)
-
-To execute `main()` from a `.bal` file or a package or archive file:
-
-```
-ballerina run main (filename | packagename | mainarchive)
-```
-
-To run named services:
-
-```
-ballerina run service (filename | packagename | servicearchive)+ 
-```
-
-To run a collection of service archives from service root:
-
-```
-ballerina run service [-sr serviceroot]
-```
-
-You can also create a Docker image of a package and run it in the container. For details, see [Packaging](packaging.md). 
+A Ballerina program can consist of a number of Ballerina files, which may be in one or more packages. Ballerina uses a modular approach for managing names and organizing code into files. In summary, Ballerina entities (functions, services, etc.) all have globally unique qualified names consisting of their package name and the entity name. For complete information, see [Packaging and Running Programs](packaging.md).
 
 ## Expressions
 Similar to languages such as Java, Go, etc, Ballerina supports the following expressions: 
@@ -110,6 +86,5 @@ When you write your code in Ballerina Composer, the syntax is checked for you as
 
 ```
 ballerina test <ballerina_file>
-
 ```
 Ballerina provides a testing framework called Testerina that you can use for your programs. You can check it out at https://github.com/ballerinalang/testerina. 
