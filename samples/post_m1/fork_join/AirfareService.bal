@@ -1,6 +1,6 @@
 package samples.fork_join;
 
-import ballerina.lang.message;
+import ballerina.lang.messages;
 import ballerina.lang.system;
 import ballerina.net.http;
 
@@ -8,8 +8,8 @@ import ballerina.net.http;
 @Service(description = "Airfare service")
 service AirfareProviderService {
 
-    http:HttpConnector abcAirlineEP = new http:HttpConnector("http://localhost:8080/ABCAirline");
-    http:HttpConnector xyzAirlineEP = new http:HttpConnector("http://localhost:8080/XYZAirline");
+    http:ClientConnector abcAirlineEP = new http:ClientConnector("http://localhost:8080/ABCAirline");
+    http:ClientConnector xyzAirlineEP = new http:ClientConnector("http://localhost:8080/XYZAirline");
 
     xml airfareAggregatedResponse;
 
@@ -26,12 +26,12 @@ service AirfareProviderService {
                 string query;
                 message response;
 
-                payload = message:getXmlPayload(m);
-                from = xml:get(payload, "reservationInfo/from");
-                to = xml:get(payload, "reservationInfo/to");
-                date = xml:get(payload, "reservationInfo/date");
+                payload = messages:getXmlPayload(m);
+                from = xmlutils:get(payload, "reservationInfo/from");
+                to = xmlutils:get(payload, "reservationInfo/to");
+                date = xmlutils:get(payload, "reservationInfo/date");
                 query = "?departure_city=" + from + "&destination_city=" + to + "&date=" + date;
-                response = http:HttpConnector.sendGet (abcAirlineEP, query, m);
+                response = http:ClientConnector.sendGet (abcAirlineEP, query, m);
                 reply response;
             }
 
@@ -43,19 +43,19 @@ service AirfareProviderService {
                 string query;
                 message response;
 
-                payload = message:getXmlPayload(m);
-                from = xml:get(payload, "reservationInfo/from");
-                to = xml:get(payload, "reservationInfo/to");
-                date = xml:get(payload, "reservationInfo/date");
+                payload = messages:getXmlPayload(m);
+                from = xmlutils:get(payload, "reservationInfo/from");
+                to = xmlutils:get(payload, "reservationInfo/to");
+                date = xmlutils:get(payload, "reservationInfo/date");
                 query = "?From=" + from + "&To=" + to + "&Date=" + date;
-                response = http:HttpConnector.sendGet (xyzAirlineEP, query, m);
+                response = http:ClientConnector.sendGet (xyzAirlineEP, query, m);
                 reply response;
             }
         } join (all) (message[] airfareResponses) {
             airfareAggregatedResponse = `<airfareRes></airfareRes>`;
-            xml:set(airfareAggregatedResponse, "/airfareRes", null, airfareResponses[0]);
-            xml:set(airfareAggregatedResponse, "/airfareRes", null, airfareResponses[1]);
-            system:logDebug(xml:toString(airfareAggregatedResponse));
+            xmlutils:set(airfareAggregatedResponse, "/airfareRes", null, airfareResponses[0]);
+            xmlutils:set(airfareAggregatedResponse, "/airfareRes", null, airfareResponses[1]);
+            system:logDebug(xmlutils:toString(airfareAggregatedResponse));
             reply airfareAggregatedResponse;
         }
    }

@@ -19,4 +19,8 @@
     <Match>
         <Package name="org.wso2.ballerina.nativeimpl"/>
     </Match>
+    <Match>
+        <Class name="org.ballerinalang.nativeimpl.connectors.data.sql.client.AbstractSQLAction"/>
+        <Bug pattern="SQL_PREPARED_STATEMENT_GENERATED_FROM_NONCONSTANT_STRING" />
+    </Match>
 </FindBugsFilter>

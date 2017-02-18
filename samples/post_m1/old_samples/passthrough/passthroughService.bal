@@ -1,8 +1,8 @@
 package samples.passthrough;
 
-import ballerina.lang.message;
+import ballerina.lang.messages;
 import ballerina.net.http;
-import ballerina.lang.json;
+import ballerina.lang.jsonutils;
 
 
 @BasePath ("/stock")
@@ -10,7 +10,7 @@ import ballerina.lang.json;
 @Service(title = "NYSEService", description = "NYSE service")
 service PassthroughService {
 
-  http:HttpConnector nyseEP = new http:HttpConnector("http://localhost:8080/exchange/nyse/", {"timeOut" : 30000});
+  http:ClientConnector nyseEP = new http:ClientConnector("http://localhost:8080/exchange/nyse/", {"timeOut" : 30000});
 
   @GET
   @PUT

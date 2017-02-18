@@ -19,12 +19,12 @@
 
 <suite name="Ballerina-Test-Suite">
     <listeners>
-        <listener class-name="org.wso2.ballerina.test.listener.TestExecutionListener"/>
+        <listener class-name="org.ballerinalang.test.listener.TestExecutionListener"/>
     </listeners>
 
     <test name="ballerina-sample-tests" preserve-order="true" parallel="false">
         <packages>
-            <package name="org.wso2.ballerina.test.service.http.sample"/>
+            <package name="org.ballerinalang.test.service.http.sample"/>
         </packages>
     </test>
 </suite>

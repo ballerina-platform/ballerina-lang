@@ -1,6 +1,6 @@
-import ballerina.lang.json;
-import ballerina.lang.message;
-import ballerina.lang.string;
+import ballerina.lang.jsonutils;
+import ballerina.lang.messages;
+import ballerina.lang.strings;
 import ballerina.lang.system;
 import ballerina.net.http;
 import ballerina.net.uri;
@@ -8,7 +8,7 @@ import ballerina.util;
 
 connector Twitter (string consumerKey, string consumerSecret, string accessToken, string accessTokenSecret) {
 
-    http:HTTPConnector tweeterEP = create http:HTTPConnector("https://api.twitter.com");
+    http:ClientConnector tweeterEP = create http:ClientConnector("https://api.twitter.com");
 
     action tweet(Twitter t, string msg) (message) {
 
@@ -17,9 +17,9 @@ connector Twitter (string consumerKey, string consumerSecret, string accessToken
         string oauthHeader = constructOAuthHeader(consumerKey, consumerSecret, accessToken, accessTokenSecret, msg);
         string tweetPath = "/1.1/statuses/update.json?status="+uri:encode(msg);
 
-        message:setHeader(request, "Authorization", oauthHeader);
+        messages:setHeader(request, "Authorization", oauthHeader);
 
-        message response = http:HTTPConnector.post(tweeterEP, tweetPath, request);
+        message response = http:ClientConnector.post(tweeterEP, tweetPath, request);
 
         return response;
     }
@@ -30,7 +30,7 @@ connector Twitter (string consumerKey, string consumerSecret, string accessToken
 function constructOAuthHeader(string consumerKey, string consumerSecret,
                 string accessToken, string accessTokenSecret, string tweetMessage) (string) {
 
-    string timeStamp = string:valueOf(system:epochTime());
+    string timeStamp = strings:valueOf(system:epochTime());
     string nonceString =  util:getRandomString();
     string paramStr = "oauth_consumer_key=" + consumerKey + "&oauth_nonce=" + nonceString + "&oauth_signature_method=HMAC-SHA1&oauth_timestamp="+timeStamp+"&oauth_token="+accessToken+"&oauth_version=1.0&status="+uri:encode(tweetMessage);
     string baseString = "POST&" + uri:encode("https://api.twitter.com/1.1/statuses/update.json") + "&" + uri:encode(paramStr);
@@ -39,7 +39,7 @@ function constructOAuthHeader(string consumerKey, string consumerSecret,
     string oauthHeader = "OAuth oauth_consumer_key=\"" + consumerKey + "\",oauth_signature_method=\"HMAC-SHA1\",oauth_timestamp=\"" + timeStamp +
                                       "\",oauth_nonce=\"" + nonceString + "\",oauth_version=\"1.0\",oauth_signature=\"" + uri:encode(signature) + "\",oauth_token=\"" + uri:encode(accessToken) + "\"";
 
-    return string:unescape(oauthHeader);
+    return strings:unescape(oauthHeader);
 }
 
 function main (string[] args) {
@@ -48,6 +48,6 @@ function main (string[] args) {
 
     message tweetResponse = Twitter.tweet(twitterConnector, args[4]);
 
-    json tweetJSONResponse = message:getJsonPayload(tweetResponse);
-    system:println(json:toString(tweetJSONResponse));
+    json tweetJSONResponse = messages:getJsonPayload(tweetResponse);
+    system:println(jsonutils:toString(tweetJSONResponse));
 }

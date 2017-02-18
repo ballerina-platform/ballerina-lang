@@ -1,7 +1,7 @@
-import ballerina.lang.array;
-import ballerina.lang.json;
-import ballerina.lang.message;
-import ballerina.lang.string;
+import ballerina.lang.arrays;
+import ballerina.lang.jsonutils;
+import ballerina.lang.messages;
+import ballerina.lang.strings;
 import ballerina.lang.system;
 import ballerina.net.http;
 import ballerina.net.uri;
@@ -9,10 +9,10 @@ import ballerina.util;
 
 function main (string[] args) {
 
-    http:HTTPConnector gitHubEP = create http:HTTPConnector("https://api.github.com");
-    http:HTTPConnector tweeterEP = create http:HTTPConnector("https://api.twitter.com");
+    http:ClientConnector gitHubEP = create http:ClientConnector("https://api.github.com");
+    http:ClientConnector tweeterEP = create http:ClientConnector("https://api.twitter.com");
 
-    int argumentLength = array:length(args);
+    int argumentLength = arrays:length(args);
 
     if (argumentLength < 4) {
 
@@ -37,18 +37,18 @@ function main (string[] args) {
 
         message request = {};
 
-        message gitHubResponse = http:HTTPConnector.get(gitHubEP, repoPRpath, request);
+        message gitHubResponse = http:ClientConnector.get(gitHubEP, repoPRpath, request);
 
-        json gitHubJsonResponse = message:getJsonPayload(gitHubResponse);
-        int noOfPRs = json:getInt(gitHubJsonResponse, "$.length()");
-        string noOfPRstr = string:valueOf(noOfPRs);
+        json gitHubJsonResponse = messages:getJsonPayload(gitHubResponse);
+        int noOfPRs = jsonutils:getInt(gitHubJsonResponse, "$.length()");
+        string noOfPRstr = strings:valueOf(noOfPRs);
         string textMsg = "Number of pending pull requests in " + repo + " is "+ noOfPRstr;
         string oauthHeader = constructOAuthHeader(consumerKey, consumerSecret, accessToken, accessTokenSecret, textMsg);
 
-        message:setHeader(request, "Authorization", oauthHeader);
+        messages:setHeader(request, "Authorization", oauthHeader);
         string tweetPath = "/1.1/statuses/update.json?status="+uri:encode(textMsg);
 
-        message response = http:HTTPConnector.post(tweeterEP, tweetPath, request);
+        message response = http:ClientConnector.post(tweeterEP, tweetPath, request);
 
         system:println("Successfully tweeted: '" + textMsg + "'");
     }
@@ -58,7 +58,7 @@ function main (string[] args) {
 function constructOAuthHeader(string consumerKey, string consumerSecret,
                 string accessToken, string accessTokenSecret, string tweetMessage) (string) {
 
-    string timeStamp = string:valueOf(system:epochTime());
+    string timeStamp = strings:valueOf(system:epochTime());
     string nonceString =  util:getRandomString();
     string paramStr = "oauth_consumer_key=" + consumerKey + "&oauth_nonce=" + nonceString + "&oauth_signature_method=HMAC-SHA1&oauth_timestamp="+timeStamp+"&oauth_token="+accessToken+"&oauth_version=1.0&status="+uri:encode(tweetMessage);
     string baseString = "POST&" + uri:encode("https://api.twitter.com/1.1/statuses/update.json") + "&" + uri:encode(paramStr);
@@ -67,5 +67,5 @@ function constructOAuthHeader(string consumerKey, string consumerSecret,
     string oauthHeader = "OAuth oauth_consumer_key=\"" + consumerKey + "\",oauth_signature_method=\"HMAC-SHA1\",oauth_timestamp=\"" + timeStamp +
                                       "\",oauth_nonce=\"" + nonceString + "\",oauth_version=\"1.0\",oauth_signature=\"" + uri:encode(signature) + "\",oauth_token=\"" + uri:encode(accessToken) + "\"";
 
-    return string:unescape(oauthHeader);
+    return strings:unescape(oauthHeader);
 }

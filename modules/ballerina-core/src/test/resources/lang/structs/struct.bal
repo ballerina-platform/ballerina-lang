@@ -1,5 +1,3 @@
-package samples.structs.test;
-
 struct Department {
     string dptName;
     Person[] employees;
@@ -85,28 +83,6 @@ function testExpressionAsIndex() (string) {
     family.children = ["Emma", "Rose", "Jane"];
     return family.children[a * b - 8];
 }
-
-
-//    connector TestConnector(string name, map address, int age) {
-//
-//        Person person;
-//
-//        action action1(TestConnector testConnector) (Person){
-//            person = new Person;
-//            person.name = name;
-//            person.adrs = address;
-//            person.age = age;
-//            return person;
-//        }
-//    }
-
-//function testAction1() (string) {
-//    test:TestConnector testConnector = new test:TestConnector("Jack", {"country":"USA","state":"CA"}, 30);
-//    Person person;
-//
-//    person = test:TestConnector.action1(testConnector);
-//    return person.name;
-//}
 
 function testStructExpressionAsIndex() (string) {
     string country;

@@ -16,4 +16,4 @@ IMPORTANT: This access token can be used to make API requests on your own accoun
 
 How to run this sample
 ======================
-bin$ ./ballerina run ../samples/twitterConnector/twitterConnector.bal <consumerKey> <consumerSecret> <accessToken> <accessTokenSecret> <message>
+bin$ ./ballerina run main ../samples/twitterConnector/twitterConnector.bal <consumerKey> <consumerSecret> <accessToken> <accessTokenSecret> <message>

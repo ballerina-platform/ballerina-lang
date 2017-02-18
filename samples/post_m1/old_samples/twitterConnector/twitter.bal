@@ -14,15 +14,15 @@ function init(TwitterConnector t) throws exception {
     }
 
     loginMessage = new message;
-    message:setPayload(loginMessage, loginReq);
+    messages:setPayload(loginMessage, loginReq);
     response = http:post(twitterEP, "/token", loginMessage);
-    t.oAuthToken = json:get(message:getPayload(response), "$.oAuthToken");
+    t.oAuthToken = jsonutils:get(messages:getPayload(response), "$.oAuthToken");
 }
 
 connector Twitter(string username, string password,
                 string clientKey, string clientSecret, string oAuthToken, map options) {
 
-    http:HttpConnector h = new http:HttpConnector("https://api.twitter.com", {"timeOut" : 300});
+    http:ClientConnector h = new http:ClientConnector("https://api.twitter.com", {"timeOut" : 300});
 
     boolean loggedIn; // default value get assigned
     action tweet(Twitter t, string tweet) throws exception {
@@ -35,9 +35,9 @@ connector Twitter(string username, string password,
         }
         tweetJson = `{"message" : "$tweet"}`;
         tweetMsg = new message;
-        message:setPayload(tweetMsg, tweetJson);
-        message:setHeader(tweetMsg, "Authorization", "Bearer " + t.oAuthToken);
-        http:HttpConnector.post(h, "/tweet", tweetMsg);
+        messages:setPayload(tweetMsg, tweetJson);
+        messages:setHeader(tweetMsg, "Authorization", "Bearer " + t.oAuthToken);
+        http:ClientConnector.post(h, "/tweet", tweetMsg);
     }
 
 }

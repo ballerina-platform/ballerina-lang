@@ -1,8 +1,8 @@
 package samples.holidaypackage;
 
 import ballerina.net.http;
-import ballerina.lang.json;
-import ballerina.lang.message;
+import ballerina.lang.jsonutils;
+import ballerina.lang.messages;
 import ballerina.lang.system.log;
 
 @BasePath ("/holiday")
@@ -10,9 +10,9 @@ import ballerina.lang.system.log;
 @Service (tags = {"Holiday_details", "Holiday_packages"}, description = "Travelpedia flight, hotel and car rental services")
 service HolidayPackageService {
 
-  http:HttpConnector airlineEP = new http:HttpConnector("http://localhost:8080/airline/", {"timeOut" : 30000});
-  http:HttpConnector carRentalEP = new http:HttpConnector("http://localhost:8080/carrental/", {"timeOut" : 30000});
-  http:HttpConnector hotelEP = new http:HttpConnector("http://localhost:8080/hotel/", {"timeOut" : 30000});
+  http:ClientConnector airlineEP = new http:ClientConnector("http://localhost:8080/airline/", {"timeOut" : 30000});
+  http:ClientConnector carRentalEP = new http:ClientConnector("http://localhost:8080/carrental/", {"timeOut" : 30000});
+  http:ClientConnector hotelEP = new http:ClientConnector("http://localhost:8080/hotel/", {"timeOut" : 30000});
 
   @GET
   @Path ("/flights?depart={dateDepart}&return={dateReturn}&from={from}&to={to}")
@@ -23,8 +23,8 @@ service HolidayPackageService {
           response = http:sendPost(airlineEP, m);
       } catch (exception e) {
           errorMsg = `{"error" : "Error while getting flight details."}`;
-          message:setPayload(response, errorMsg);
-          message:setHeader(response, "Status", 500);
+          messages:setPayload(response, errorMsg);
+          messages:setHeader(response, "Status", 500);
       }
       reply response;
   }
@@ -37,14 +37,14 @@ service HolidayPackageService {
       xmlElement<{"http://example.com/xsd/HolidayPackage"}HotelRequest> hotelRequest;
       json errorMsg;
       try {
-          request = message:getPayload(m);
+          request = messages:getPayload(m);
           hotelRequest = request;
-          message:setPayload(m, hotelRequest);
+          messages:setPayload(m, hotelRequest);
           response = http:sendPost(hotelEP, m);
       } catch (exception e) {
           errorMsg = `{"error" : "Error while getting hotel details."}`;
-          message:setPayload(response, errorMsg);
-          message:setHeader(response, "Status", 500);
+          messages:setPayload(response, errorMsg);
+          messages:setHeader(response, "Status", 500);
       }
       reply response;
   }
@@ -57,14 +57,14 @@ service HolidayPackageService {
       xmlElement<{"http://example.com/xsd/HolidayPackage"}CarRequest> carrequestXML;
       json errorMsg;
       try {
-          requestXML = message:getPayload(m);
+          requestXML = messages:getPayload(m);
           carrequestXML = requestXML;
-          message:setPayload(m, carrequestXML);
+          messages:setPayload(m, carrequestXML);
           response = http:sendPost(carRentalEP, m);
       } catch (exception e) {
           errorMsg = `{"error" : "Error while getting car rental details."}`;
-          message:setPayload(response, errorMsg);
-          message:setHeader(response, "Status", 500);
+          messages:setPayload(response, errorMsg);
+          messages:setHeader(response, "Status", 500);
       }
       reply response;
   }

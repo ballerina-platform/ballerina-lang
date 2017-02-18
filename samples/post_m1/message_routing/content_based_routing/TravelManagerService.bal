@@ -1,8 +1,8 @@
 package samples.message_routing.content_based_routing;
 
-import ballerina.lang.message;
+import ballerina.lang.messages;
 import ballerina.net.http;
-import ballerina.lang.json;
+import ballerina.lang.jsonutils;
 
 
 @BasePath ("/travelmgr")
@@ -10,8 +10,8 @@ import ballerina.lang.json;
 @Service(description = "Service to do content based routing of request between Hotel and Car-rental services")
 service TravelManagerService {
 
-    http:HttpConnector hotelEP = new http:HttpConnector("http://localhost:9090/hotel", {"timeOut" : 30000});
-    http:HttpConnector carRentalEP = new http:HttpConnector("http://localhost:9090/carrental", {"timeOut" : 60000});
+    http:ClientConnector hotelEP = new http:ClientConnector("http://localhost:9090/hotel", {"timeOut" : 30000});
+    http:ClientConnector carRentalEP = new http:ClientConnector("http://localhost:9090/carrental", {"timeOut" : 60000});
 
     @POST
     @Path ("/reservation")
@@ -19,17 +19,17 @@ service TravelManagerService {
         message response;
         json jsonMsg;
         json errorMsg;
-        jsonMsg = message:getJsonPayload(m);
+        jsonMsg = messages:getJsonPayload(m);
         try {
-          if (json:get(jsonMsg, "$.TravelpediaReservation.reservationType") == "CAR-RENTAL") {
-              response = http:HttpConnector.sendPost(hotelEP, m);
+          if (jsonutils:get(jsonMsg, "$.TravelpediaReservation.reservationType") == "CAR-RENTAL") {
+              response = http:ClientConnector.sendPost(hotelEP, m);
           } else {
-              response = http:HttpConnector.sendPost(carRentalEP, m);
+              response = http:ClientConnector.sendPost(carRentalEP, m);
           }
         } catch (exception e) {
             errorMsg = `{"error" : "Error while sending to backend"}`;
-            message:setJsonPayload(response, errorMsg);
-            message:setHeader(response, "Status", string:valueOf(500));
+            messages:setJsonPayload(response, errorMsg);
+            messages:setHeader(response, "Status", strings:valueOf(500));
         }
         reply response;
     }
