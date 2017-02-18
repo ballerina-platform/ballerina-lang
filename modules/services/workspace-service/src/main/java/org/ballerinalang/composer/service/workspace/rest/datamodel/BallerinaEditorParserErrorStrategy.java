@@ -32,6 +32,8 @@ import java.util.List;
  */
 public class BallerinaEditorParserErrorStrategy extends DefaultErrorStrategy {
 
+    public static final String EOF = "'<EOF>'";
+
     public List<SyntaxError> getErrorTokens() {
         return errorTokens;
     }
@@ -54,7 +56,10 @@ public class BallerinaEditorParserErrorStrategy extends DefaultErrorStrategy {
         String expectedToken = e.getExpectedTokens().toString(parser.getVocabulary());
         String msg = getSourceLocation(parser, line, position) + "mismatched input " + mismatchedToken +
                 ". Expecting one of " + expectedToken;
-        errorTokens.add(createError(line, position, msg));
+        // FixMe: This need to be handled by grammar itself
+        if(!EOF.equals(mismatchedToken)){
+            errorTokens.add(createError(line, position, msg));
+        }
     }
 
     @Override
