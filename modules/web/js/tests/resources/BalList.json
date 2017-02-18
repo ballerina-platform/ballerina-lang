@@ -1,6 +1,7 @@
 {
     "sources":{
         "source":[
+            "connectors/connector-actions.bal",
             "connectors/duplicate-action.bal",
             "connectors/duplicate-connector.bal",
             "connectors/undefined-actions.bal",
