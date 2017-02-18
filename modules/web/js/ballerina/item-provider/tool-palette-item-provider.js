@@ -276,6 +276,11 @@ define(['log', 'lodash', './../env/package', './../tool-palette/tool-palette', '
             });
 
             _.each(functionsOrdered, function (functionDef) {
+                if(functionDef.getName() === "main") {
+                    //do not add main function to tool palette
+                    return;
+                }
+
                 var packageName = _.last(_.split(package.getName(), '.'));
                 if (functionDef.getReturnParams().length > 0){
                     functionDef.nodeFactoryMethod = BallerinaASTFactory.createAggregatedFunctionInvocationExpression;
@@ -344,10 +349,16 @@ define(['log', 'lodash', './../env/package', './../tool-palette/tool-palette', '
             }, this);
 
             package.on('function-defs-added', function (functionDef) {
+                if(functionDef.getName() === "main") {
+                    //do not add main function to tool palette
+                    return;
+                }
+
                 var nodeFactoryMethod = BallerinaASTFactory.createAggregatedFunctionInvocationStatement;
                 if (functionDef.getReturnParams().length > 0){
                     nodeFactoryMethod = BallerinaASTFactory.createAggregatedFunctionInvocationExpression;
                 }
+
                 // since functions are added to the current package, function name does not need
                 // packageName:functionName format
                 functionDef.meta = {
