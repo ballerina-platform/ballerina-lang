@@ -31,12 +31,6 @@ import org.ballerinalang.docgen.docs.BallerinaDocGeneratorMain;
 @Mojo(name = "docerina", defaultPhase = LifecyclePhase.PROCESS_SOURCES)
 public class DocerinaMojo extends AbstractMojo {
     /**
-     * Location of the templates directory.
-     */
-    @Parameter(property = "templatesDir", required = true)
-    private String templatesDir;
-
-    /**
      * Location of the output directory.
      */
     @Parameter(defaultValue = "${project.build.directory}", property = "outputDir", required = false)
@@ -49,7 +43,6 @@ public class DocerinaMojo extends AbstractMojo {
     private String sourceDir;
 
     public void execute() throws MojoExecutionException {
-        System.setProperty(BallerinaDocConstants.TEMPLATES_FOLDER_PATH_KEY, templatesDir);
         System.setProperty(BallerinaDocConstants.HTML_OUTPUT_PATH_KEY, outputDir);
 
         BallerinaDocGeneratorMain.main(new String[] { sourceDir });
