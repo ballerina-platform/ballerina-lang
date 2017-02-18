@@ -65,6 +65,7 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace/f
                 this.renderBallerinaEditor(this._astRoot, false);
                 var updatedContent = this.getBallerinaFileEditor().generateSource();
                 this._file.setContent(updatedContent);
+                this._file.setDirty(true);
                 this._file.save();
             } else {
                 this.renderBallerinaEditor(this.createEmptyBallerinaRoot(), false);
