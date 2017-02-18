@@ -73,14 +73,14 @@ define(['require', 'log', 'jquery', 'd3', 'backbone', './tool-view'], function (
                 // Check whether parameter type string available
                 var isStringParamExist = function (parameters) {
                     return _.find(parameters, function (param) {
-                        return param.type == "string";
+                        return _.isEqual(param.type,"string");
                     }) ? true : false;
                 };
 
                 // Replace the existing tool with tool which has string params.
                 var replaceGivenToolWithExistingTool = function (replacement) {
                     var index = _.findIndex(tools, function (tool) {
-                        return tool.id == replacement.id;
+                        return _.isEqual(tool.id, replacement.id);
                     });
                     tools[index] = replacement;
                 };
