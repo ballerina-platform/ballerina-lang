@@ -80,7 +80,7 @@ public class HtmlDocumentWriter implements DocumentWriter {
         Files.createDirectories(Paths.get(outputFilePath));
 
         for (BLangPackage balPackage : packages) {
-            String filePath = outputFilePath + File.separator + balPackage.getPackagePath() + HTML;
+            String filePath = outputFilePath + File.separator + refinePackagePath(balPackage) + HTML;
             writeHtmlDocument(balPackage, packageTemplateName, filePath);
         }
         String filePath = outputFilePath + File.separator + INDEX_HTML;
@@ -144,7 +144,7 @@ public class HtmlDocumentWriter implements DocumentWriter {
                                     }
                                 }
                                 return "";
-                    })
+                            })
                     // usage: {{oneValueAnnotation "<annotationName>"}}
                     // eg: {{oneValueAnnotation "description"}} - this would retrieve the description annotation of the
                     // currentObject
@@ -179,6 +179,12 @@ public class HtmlDocumentWriter implements DocumentWriter {
                             return new Handlebars.SafeString(" title=\"" + type + "\"");
                         }
                         return "";
+                    })
+                    .registerHelper("refinePackagePath", (Helper<BLangPackage>) (bLangPackage, options) -> {
+                        if (bLangPackage == null) {
+                            return null;
+                        }
+                        return refinePackagePath(bLangPackage);
                     });
             Template template = handlebars.compile(templateName);
 
@@ -193,6 +199,24 @@ public class HtmlDocumentWriter implements DocumentWriter {
                 writer.close();
             }
         }
+    }
+
+    /**
+     * Returns ballerina file name if package name is set to "." otherwise
+     * returns package path.
+     *
+     * @param bLangPackage ballerina package object
+     * @return
+     */
+    private String refinePackagePath(BLangPackage bLangPackage) {
+        if (bLangPackage == null) {
+            return "";
+        }
+        if (bLangPackage.getName().equals(".") && (bLangPackage.getBallerinaFiles() != null) &&
+                (bLangPackage.getBallerinaFiles().length > 0)) {
+            return bLangPackage.getBallerinaFiles()[0].getFileName();
+        }
+        return bLangPackage.getPackagePath();
     }
 
     private Annotation[] getAnnotations(DataHolder dataHolder) {

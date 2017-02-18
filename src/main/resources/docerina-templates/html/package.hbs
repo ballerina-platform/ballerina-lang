@@ -28,7 +28,7 @@
                     <div class="content">
                         {{#hasFunctions}}
                         <!-- Functions -->
-                        <h2>Functions of {{packagePath}} package</h2>
+                        <h2>Functions of {{refinePackagePath this}} package</h2>
                         {{#each functions}} {{currentObject this}}
                         <div style="padding-bottom: 30px;">
                             <h3 id="{{name}}">
@@ -70,7 +70,7 @@
                         <br>{{/hasFunctions}} 
                         {{#hasConnectors}}
                         <!-- Connectors -->
-                        <h2>Connectors of {{packagePath}} package</h2>
+                        <h2>Connectors of {{refinePackagePath this}} package</h2>
                         {{#each connectors}} {{currentObject this}}
                         <h3 id="{{name}}">
                             connector {{#with this}}{{this.name}} ({{#each parameterDefs}}<a href="{{#bindLink type.symbolName}}{{/bindLink}}"{{typeTitle type}}>{{type.name}}</a> {{name}}{{#unless @last}}, {{/unless}}{{/each}}){{/with}}
@@ -124,7 +124,7 @@
                         {{#hasStructs}}
                         <!-- Structs -->
                         {{#each structDefs}}
-                        <h2>Structs of {{packagePath}} package</h2>
+                        <h2>Structs of {{refinePackagePath this}} package</h2>
                         <h3 id="{{symbolName.name}}">
                             struct {{symbolName.name}}({{#each fields}}<a href="{{#bindLink type.symbolName}}{{/bindLink}}"{{typeTitle type}}>{{type.name}}</a> {{name}}{{#unless @last}},
                             {{/unless}}{{/each}} )
