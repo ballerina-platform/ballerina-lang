@@ -32,9 +32,14 @@ import java.util.concurrent.ConcurrentHashMap;
  * This class will do resource mapping from ballerina to swagger.
  */
 public class SwaggerResourceMapper {
-    public final static String HTTP_VERB_MATCHING_PATTERN = "(?i)|" + Constants.ANNOTATION_METHOD_GET + "|" +
-            Constants.ANNOTATION_METHOD_PUT + "|" + Constants.ANNOTATION_METHOD_POST + "|" +
-            Constants.ANNOTATION_METHOD_DELETE + "|" + Constants.ANNOTATION_METHOD_OPTIONS;
+    public final static String HTTP_PACKAGE_PREFIX = "http:";
+    public final static String HTTP_VERB_MATCHING_PATTERN = "(?i)|" +
+            HTTP_PACKAGE_PREFIX + Constants.ANNOTATION_METHOD_GET + "|" +
+            HTTP_PACKAGE_PREFIX + Constants.ANNOTATION_METHOD_PUT + "|" +
+            HTTP_PACKAGE_PREFIX + Constants.ANNOTATION_METHOD_POST + "|" +
+            HTTP_PACKAGE_PREFIX + Constants.ANNOTATION_METHOD_DELETE + "|" +
+            HTTP_PACKAGE_PREFIX + Constants.ANNOTATION_METHOD_OPTIONS +
+            HTTP_PACKAGE_PREFIX + Constants.ANNOTATION_METHOD_PATCH + "http:HEAD";
     private Resource resource;
     private Operation operation;
 
@@ -98,23 +103,26 @@ public class SwaggerResourceMapper {
             String httpOperation = operationAdaptor.getHttpOperation();
             Operation operation = operationAdaptor.getOperation();
             switch (httpOperation) {
-                case Constants.ANNOTATION_METHOD_GET:
+                case HTTP_PACKAGE_PREFIX + Constants.ANNOTATION_METHOD_GET:
                     path.get(operation);
                     break;
-                case Constants.ANNOTATION_METHOD_PUT:
+                case HTTP_PACKAGE_PREFIX + Constants.ANNOTATION_METHOD_PUT:
                     path.put(operation);
                     break;
-                case Constants.ANNOTATION_METHOD_POST:
+                case HTTP_PACKAGE_PREFIX + Constants.ANNOTATION_METHOD_POST:
                     path.post(operation);
                     break;
-                case Constants.ANNOTATION_METHOD_DELETE:
+                case HTTP_PACKAGE_PREFIX + Constants.ANNOTATION_METHOD_DELETE:
                     path.delete(operation);
                     break;
-                case Constants.ANNOTATION_METHOD_OPTIONS:
+                case HTTP_PACKAGE_PREFIX + Constants.ANNOTATION_METHOD_OPTIONS:
                     path.options(operation);
                     break;
-                case Constants.ANNOTATION_METHOD_PATCH:
+                case HTTP_PACKAGE_PREFIX + Constants.ANNOTATION_METHOD_PATCH:
                     path.patch(operation);
+                    break;
+                case "http:HEAD":
+                    path.head(operation);
                     break;
                 default:
                     break;
