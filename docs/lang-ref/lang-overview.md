@@ -26,7 +26,7 @@ A Ballerina program can consist of a number of Ballerina files, which may be in 
 
 ## Running a Ballerina program
 
-The following commands are used to run a Ballerina program/service in its packaged or unpackaged format:
+The `ballerina` command runs a Ballerina program/service in its packaged or unpackaged format. If you are using UNIX/Linux, type `./ballerina` instead of `ballerina`.
 
 To execute `main()` from a `.bal` file or a package or archive file:
 
@@ -46,17 +46,17 @@ To run a collection of service archives from service root:
 ballerina run service [-sr serviceroot]
 ```
 
-If a Docker image is built at build time, the execution of that image is done using normal Docker commands. For details, see Ballerina Docker Architecture.
-
-TODO: add link to that doc once it's checked in.
+You can also create a Docker image of a package and run it in the container. For details, see [Packaging](packaging.md). 
 
 ## Dynamic configuration
 
 Several Ballerina constructs such as connectors and resources have configurable parameters. Examples include the URI of an HTTP endpoint and timeout values. These values MAY be set explicitly within the program using annotations, but such values can be overridden from outside the program by applying appropriate property values. These values may be set via environment variables or other deployment management approaches.
 
-TODO: provide more info when it becomes available
+TODO: Is this enabed in 0.8? Provide more info when it becomes available
 
 ## Disabling a construct
+
+TODO: Is this enabled in 0.8?
 
 In traditional programming languages, developers use commenting as a technique to disable a block of code from executing. In Ballerina, we do not allow comments arbitrarily - we only allow comments as statements.
 
@@ -72,4 +72,10 @@ Similar to languages such as Java, Go, etc, Ballerina supports the following exp
 
 ## Testing your code
 
-TODO
+When you write your code in Ballerina Composer, the syntax is checked for you as you write it. You can also manually test a Ballerina file using the following command:
+
+```
+ballerina test <ballerina_file>
+
+```
+TODO: is there more to say here about Testerina?
