@@ -57,7 +57,6 @@ public class TestCmd implements BLauncherCmd {
 
     @Parameter(names = "--ballerina.debug", hidden = true, description = "remote debugging port")
     private String ballerinaDebugPort;
-    private JCommander selfCmdParser;
 
     public void execute() {
         if (helpFlag) {
@@ -180,6 +179,5 @@ public class TestCmd implements BLauncherCmd {
 
     @Override
     public void setSelfCmdParser(JCommander selfCmdParser) {
-        this.selfCmdParser = selfCmdParser;
     }
 }
