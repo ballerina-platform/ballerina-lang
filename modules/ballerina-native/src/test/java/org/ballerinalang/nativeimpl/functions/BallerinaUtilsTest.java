@@ -100,4 +100,43 @@ public class BallerinaUtilsTest {
 
     }
 
+    @Test
+    public void testHmacBase64() {
+        final String key = "abcdefghijk";
+        List<BValue[]> argsList = new ArrayList<>();
+
+        argsList.add(new BValue[]{new BString("Ballerina HMAC BASE64 test"), new BString(key), new BString("SHA1")});
+        argsList.add(new BValue[]{new BString("Ballerina HMAC BASE64 test"), new BString(key), new BString("SHA256")});
+        argsList.add(new BValue[]{new BString("Ballerina HMAC BASE64 test"), new BString(key), new BString("MD5")});
+
+        for (BValue[] args : argsList) {
+            BValue[] returnVals = BLangFunctions.invoke(bLangProgram, "testHmacFromBase64", args);
+            Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
+                               "Invalid Return Values for");
+        }
+    }
+
+    @Test
+    public void testMessageDigest() {
+        List<BValue[]> argsList = new ArrayList<>();
+
+        argsList.add(new BValue[]{new BString("Ballerina HMAC BASE64 test"), new BString("SHA1")});
+        argsList.add(new BValue[]{new BString("Ballerina HMAC BASE64 test"), new BString("SHA256")});
+        argsList.add(new BValue[]{new BString("Ballerina HMAC BASE64 test"), new BString("MD5")});
+
+        for (BValue[] args : argsList) {
+            BValue[] returnVals = BLangFunctions.invoke(bLangProgram, "testMessageDigest", args);
+            Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
+                               "Invalid Return Values for");
+        }
+    }
+
+    @Test
+    public void testBase64toBase16Encode() {
+        BValue[] args = new BValue[]{new BString("Ballerina HMAC BASE64 test")};
+        BValue[] returnVals = BLangFunctions.invoke(bLangProgram, "testBase64ToBase16Encode", args);
+        Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
+                           "Invalid Return Values for");
+    }
+
 }
