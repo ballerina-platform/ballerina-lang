@@ -20,6 +20,7 @@ import io.swagger.codegen.ClientOptInput;
 import io.swagger.codegen.ClientOpts;
 import io.swagger.codegen.CodegenConfig;
 import io.swagger.codegen.CodegenOperation;
+import io.swagger.codegen.CodegenParameter;
 import io.swagger.codegen.DefaultGenerator;
 import io.swagger.models.HttpMethod;
 import io.swagger.models.Operation;
@@ -220,6 +221,34 @@ public class SwaggerConverterUtils {
             }
             if (entry.httpMethod != null && entry.httpMethod.length() > 0) {
                 resourceBuilder.addAnnotation(new Annotation(null, new SymbolName(httpMethod), "", null));
+            }
+            if(entry.hasParams){
+                //handle parameters
+                if(entry.getHasQueryParams()){
+                    for(CodegenParameter codegenParameter:entry.queryParams){
+                        ParameterDef parameterDef = new ParameterDef(
+                                new NodeLocation("<unknown>",0), codegenParameter.paramName,
+                                new SimpleTypeName(codegenParameter.baseType), new SymbolName("m"),
+                                resourceBuilder.buildResource());
+                        Annotation annotation = new Annotation(null, new SymbolName("QueryParam"),
+                                codegenParameter.baseName, null);
+                        parameterDef.addAnnotation(annotation);
+                        resourceBuilder.addParameter(parameterDef);
+                    }
+                }
+                if(entry.getHasPathParams()){
+                    for(CodegenParameter codegenParameter:entry.pathParams){
+                        ParameterDef parameterDef = new ParameterDef(
+                                new NodeLocation("<unknown>",0), codegenParameter.paramName,
+                                new SimpleTypeName(codegenParameter.baseType), new SymbolName("m"),
+                                resourceBuilder.buildResource());
+                        Annotation annotation = new Annotation(null, new SymbolName("PathParam"),
+                                codegenParameter.baseName, null);
+                        parameterDef.addAnnotation(annotation);
+                        resourceBuilder.addParameter(parameterDef);
+                    }
+
+                }
             }
             //This resource initiation was required because resource do have both
             //annotation map and array. But there is no way to update array other than
