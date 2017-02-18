@@ -15,8 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['jquery', 'backbone', 'lodash', 'log', 'event_channel', './debug-manager', './variable-tree'], 
-    function ($, Backbone, _, log, EventChannel, DebugManager, VariableTree ) {
+define(['jquery', 'backbone', 'lodash', 'log', 'event_channel', './debug-manager'], 
+    function ($, Backbone, _, log, EventChannel, DebugManager) {
 
     var instance;
 
