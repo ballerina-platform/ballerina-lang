@@ -32,6 +32,9 @@ var getFileContentBackend = "http://localhost:8289/service/workspace";
                 expectedSource = expectedSource.replace(/\s/g, '');
                 generatedSource = generatedSource.replace(/(\r\n|\n|\r)/gm,"");
                 generatedSource = generatedSource.replace(/\s/g, '');
+                if(generatedSource!=expectedSource){
+                    log.error('error');
+                }
                 expect(generatedSource).to.equal(expectedSource);
             });
         });

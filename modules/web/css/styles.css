@@ -7,7 +7,7 @@ body {
 }
 
 .right-container {
-    background-color: #232323;
+    /*background-color: #232323;*/
 }
 
 #main-navbar {
@@ -845,11 +845,10 @@ button.variable-list {
 
 .variable-add-action-wrapper {
     display: none;
-    width: 520px;
+    width: 517px;
     background-color: #efefef;
     height: 30px;
-    padding: 3px 8px;
-    margin-bottom: 4px;
+    padding: 3px;
 }
 
 .variable-add-action-wrapper input {
@@ -857,6 +856,7 @@ button.variable-list {
     margin-left: 4px;
     height: 22px;
     padding-left: 5px;
+    border: 1px solid #dfdfdf;
 }
 
 .variable-add-complete-action-wrapper {
@@ -1352,11 +1352,6 @@ button.variable-list {
 #breadcrumb-container > ol > li.breadcrumb-item.active {
     color: white;
     cursor: pointer;
-}
-
-footer {
-    min-height: 25px;
-    line-height: 0;
 }
 
 footer > .container p, footer > .container-fluid p {
