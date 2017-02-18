@@ -54,7 +54,7 @@ define(['lodash', 'require', 'log', './node', '../utils/common-utils'],
                 return annotation.key == "Consumes";
             }))) {
             this._annotations.push({
-                key: "Consumes",
+                key: "http:Consumes",
                 value: ""
             });
         }
@@ -63,7 +63,7 @@ define(['lodash', 'require', 'log', './node', '../utils/common-utils'],
                 return annotation.key == "Produces";
             }))) {
             this._annotations.push({
-                key: "Produces",
+                key: "http:Produces",
                 value: ""
             });
         }
