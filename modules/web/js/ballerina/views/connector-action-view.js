@@ -957,13 +957,15 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                     centerPoint = this._connectorWorkerViewList[lastWorkerIndex].getTopCenter()
                         .clone().move(this._viewOptions.LifeLineCenterGap, 0)
                 }
+                var lineHeight = this.getDefaultWorker().getBottomCenter().y() - centerPoint.y();
                 var workerDeclarationOptions = {
                     model: workerDeclaration,
                     container: container,
                     centerPoint: centerPoint,
                     toolPalette: this.toolPalette,
                     messageManager: this.messageManager,
-                    diagramRenderContext: this.getDiagramRenderingContext()
+                    diagramRenderContext: this.getDiagramRenderingContext(),
+                    line: {height: lineHeight}
                 };
                 var workerDeclarationView = new WorkerDeclarationView(workerDeclarationOptions);
                 workerDeclarationView.setParent(this);

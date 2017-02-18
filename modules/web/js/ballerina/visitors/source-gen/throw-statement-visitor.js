@@ -38,7 +38,7 @@ define(['lodash', 'log', 'event_channel', './abstract-statement-source-gen-visit
     };
 
     ThrowStatementVisitor.prototype.endVisitThrowStatement = function(throwStatement){
-        this.appendSource(throwStatement.getThrowExpression() + ";\n");
+        this.appendSource(throwStatement.getChildren()[0].getExpression() + ";\n");
         this.getParent().appendSource(this.getGeneratedSource());
         log.debug('End Visit Throw Statement Definition');
     };

@@ -110,6 +110,11 @@ define(['lodash', 'd3','log', './simple-statement-view', './../ast/action-invoca
                 statementGroup: this.getStatementGroup(),
                 editableProperties: editableProperty
             });
+
+            this._createDebugIndicator({
+                statementGroup: this.getStatementGroup()
+            });
+
             this.listenTo(model, 'update-property-text', this.updateStatementText);
 
             // mouse events for 'processorConnectPoint'
@@ -248,6 +253,7 @@ define(['lodash', 'd3','log', './simple-statement-view', './../ast/action-invoca
             var endX = this.getBoundingBox().getRight();
             var endY = 0;
             var startY = 0;
+            var self = this;
 
             // Get the reply statement of the destination worker
             var destinationReplyStatement = _.find(destinationStatementContainer._managedStatements, function (node) {
@@ -281,6 +287,10 @@ define(['lodash', 'd3','log', './simple-statement-view', './../ast/action-invoca
 
                 // Set the reply receiver for the destination
                 destinationView.getModel().setReplyReceiver(this.getModel());
+
+                this.listenTo(destinationView.getStatementContainer().getBoundingBox(), 'center-x-moved', function (dx) {
+                    this._messageView.getStart().move(dx, 0);
+                });
             }
 
             /**

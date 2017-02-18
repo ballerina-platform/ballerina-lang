@@ -227,3 +227,7 @@ div > .col-xs-12 {
 #frameAccordion .panel-title{
     border: 0px;
 }
+
+.debug-frame-header {
+    height:36px;
+}

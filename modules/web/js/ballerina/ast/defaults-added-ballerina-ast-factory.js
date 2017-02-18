@@ -164,5 +164,16 @@ define(['lodash', './ballerina-ast-factory'], function (_, BallerinaASTFactory) 
         return tryCatchStatement;
     };
 
+    /**
+     * creates ThrowStatement
+     * @param {Object} args - Arguments for creating a new throw statement.
+     * @returns {ThrowStatement}
+     */
+    DefaultsAddedBallerinaASTFactory.createThrowStatement = function (args) {
+        var throwStatement = BallerinaASTFactory.createThrowStatement(args);
+        throwStatement.addChild(BallerinaASTFactory.createVariableReferenceExpression({variableReferenceName:"e"}));
+        return throwStatement;
+    };
+
     return DefaultsAddedBallerinaASTFactory;
 });

@@ -224,6 +224,8 @@ public class BLangJSONModelConstants {
     
     public static final String STRUCT_DEFINITION = "struct_definition";
     
+    public static final String STRUCT_FIELD_ACCESS_EXPRESSION = "struct_field_access_expression";
+    
     public static final String STRUCT_NAME = "struct_name";
 
     public static final String KEY_VALUE_EXPRESSION_KEY = "key_value_key";
@@ -257,4 +259,6 @@ public class BLangJSONModelConstants {
     public static final String TRY_BLOCK = "try_block";
 
     public static final String CATCH_BLOCK = "catch_block";
+
+    public static final String THROW_STATEMENT = "throw_statement";
 }

@@ -34,6 +34,24 @@ define(['lodash', './expression'], function (_, Expression) {
     };
 
     /**
+     * A StructFieldAccessExpression can have either 1 or 2 child/children. First one being a
+     * {@link VariableReferenceExpression} and the 2nd being {@link StructFieldAccessExpression} or another expression
+     * such as {@link FunctionInvocationExpression}. Hence if 2nd child exists, we call getExpression() on that child.
+     * @return {string}
+     */
+    StructFieldAccessExpression.prototype.getExpression = function () {
+        var variableReferenceExpression = "";
+          if (_.isEqual(_.size(this.getChildren()), 2)) {
+              variableReferenceExpression = this.getChildren()[0].generateExpression();
+              var structFieldAccessExpression = this.getChildren()[1].getExpression();
+              return variableReferenceExpression + "." + structFieldAccessExpression;
+          } else if (_.isEqual(_.size(this.getChildren()), 1)) {
+              variableReferenceExpression = this.getChildren()[0].generateExpression();
+              return variableReferenceExpression;
+          }
+    };
+
+    /**
      * initialize StructFieldAccessExpression from json object
      * @param {Object} jsonNode to initialize from
      */

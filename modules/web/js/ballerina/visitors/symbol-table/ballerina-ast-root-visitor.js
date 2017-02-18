@@ -127,8 +127,8 @@ define(['lodash', 'log', 'event_channel', './abstract-symbol-table-gen-visitor',
                         var attributeName = modifiedData.data.attributeName;
                         var newValue = modifiedData.data.newValue;
                         var oldValue = modifiedData.data.oldValue;
-                        if (BallerinaASTFactory.isConnectorDefinition(modifiedData.origin) && _.isEqual(attributeName, 'connector_name')) {
-                            self.updateConnectorActionDefinition(child.getParent().getName(), oldValue, newValue);
+                        if (BallerinaASTFactory.isConnectorAction(modifiedData.origin) && _.isEqual(attributeName, 'action_name')) {
+                            self.updateConnectorActionDefinition(child.getParent().getConnectorName(), oldValue, newValue);
                         }
                     });
 
@@ -213,7 +213,7 @@ define(['lodash', 'log', 'event_channel', './abstract-symbol-table-gen-visitor',
          * @param {Object} newValue - new value
          */
         BallerinaASTRootVisitor.prototype.updateConnectorActionDefinition = function (connector, oldValue, newValue) {
-          var connectorActionDefinition = this.getPackage().getConnectorByName(connector).getActionByName(oldValue);
+            var connectorActionDefinition = this.getPackage().getConnectorByName(connector).getActionByName(oldValue);
             connectorActionDefinition.setName(newValue);
             connectorActionDefinition.setId(newValue);
         };
