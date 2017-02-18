@@ -76,7 +76,7 @@ public class BallerinaDocCmd implements BLauncherCmd {
 
     @Override
     public void printUsage(StringBuilder stringBuilder) {
-        stringBuilder.append("ballerina doc <sourcepath>... [-o outputdir -e excludedpackages]\n");
+        stringBuilder.append("ballerina doc <sourcepath>... [-o outputdir -e excludedpackages -v]\n");
         stringBuilder
                 .append("\n\tsourcepath:\n\tEither the paths to the directories where Ballerina source files reside or "
                         + "a path to a Ballerina file which does not belong to a package");
