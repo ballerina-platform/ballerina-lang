@@ -39,6 +39,7 @@ define(['require', 'log', 'lodash', 'jquery', 'event_channel', 'ace/ace', '../ut
         this._markers = {};
         this._gutter = 25;
         this._fomatter = require('ballerina').utils.AceFormatter;
+        this._storage = _.get(args, 'storage');
     };
 
     SourceView.prototype = Object.create(EventChannel.prototype);
@@ -50,7 +51,13 @@ define(['require', 'log', 'lodash', 'jquery', 'event_channel', 'ace/ace', '../ut
         this._editor.getSession().setMode(_.get(this._options, 'mode'));
         //Avoiding ace warning
         this._editor.$blockScrolling = Infinity;
-        this._editor.setTheme(_.get(this._options, 'theme'));
+        var editorTheme = (this._storage.get("pref:sourceViewTheme") != null) ? this._storage.get("pref:sourceViewTheme")
+            : _.get(this._options, 'theme');
+        var editorFontSize = (this._storage.get("pref:sourceViewFontSize") != null) ? this._storage.get("pref:sourceViewFontSize")
+            : _.get(this._options, 'font_size');
+
+        this._editor.setTheme(editorTheme);
+        this._editor.setFontSize(editorFontSize);
         this._editor.setOptions({
             enableBasicAutocompletion:true
         });
@@ -74,9 +81,6 @@ define(['require', 'log', 'lodash', 'jquery', 'event_channel', 'ace/ace', '../ut
 
         this._editor.getSession().setValue(this._content);
         this._editor.renderer.setScrollMargin(_.get(this._options, 'scroll_margin'), _.get(this._options, 'scroll_margin'));
-        this._editor.setOptions({
-            fontSize: _.get(this._options, 'font_size')
-        });
         this._editor.on("change", function(event) {
             if(!self._inSilentMode){
                 var changeEvent = {
@@ -202,7 +206,7 @@ define(['require', 'log', 'lodash', 'jquery', 'event_channel', 'ace/ace', '../ut
     };
 
     SourceView.prototype.debugHit = function(position){
-        this.debugPointMarker = this._editor.getSession().addMarker(new Range.Range(position.line - 1, 0, position.line - 1, 2000), "debug-point-hit", "line", true);
+        this.debugPointMarker = this._editor.getSession().addMarker(new Range.Range(position.lineNumber - 1, 0, position.lineNumber - 1, 2000), "debug-point-hit", "line", true);
     }
 
     SourceView.prototype.clearExistingDebugHit = function(position){

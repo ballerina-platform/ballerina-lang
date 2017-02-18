@@ -17,9 +17,9 @@
  */
 
 define(['./save-to-file-dialog', './open-file-dialog', './new-item-dialog', './delete-item-dialog',
-        './folder-open-dialog', './close-confirm-dialog', './replace-confirm-dialog'],
+        './folder-open-dialog', './close-confirm-dialog', './replace-confirm-dialog', './settings-dialog'],
     function (SaveToFileDialog, OpenFileDialog, NewItemDialog, DeleteItemDialog,
-              FolderOpenDialog, CloseConfirmDialog, ReplaceConfirmDialog) {
+              FolderOpenDialog, CloseConfirmDialog, ReplaceConfirmDialog, SettingsDialog) {
     return {
         save_to_file_dialog: SaveToFileDialog,
         FolderOpenDialog: FolderOpenDialog,
@@ -28,5 +28,6 @@ define(['./save-to-file-dialog', './open-file-dialog', './new-item-dialog', './d
         open_file_dialog: OpenFileDialog,
         CloseConfirmDialog: CloseConfirmDialog,
         ReplaceConfirmDialog: ReplaceConfirmDialog,
+        SettingsDialog: SettingsDialog
     };
 });

@@ -209,6 +209,7 @@ define(['lodash', 'log', './ballerina-view', './../ast/block-statement', 'typeMa
                 && BallerinaASTFactory.isAssignmentStatement(targetModel)) {
                 var functionInvocation = sourceModel.getChildren()[1].getChildren()[0];
                 sourceModel.remove();
+//                sourceModel.setParent(undefined);
                 var targetFunctionInvocation = targetModel.getChildren()[1].getChildren()[0];
                 var index = _.findIndex(targetFuncSchema.parameters, function (param) {
                     return param.name === connection.targetProperty[0];

@@ -32,10 +32,10 @@ define(['lodash', './node', 'log', '../utils/common-utils'],
 
         // Adding available annotations and their default values.
         if (_.isNil(_.find(this._annotations, function (annotation) {
-                return annotation.key == "BasePath";
+                return annotation.key == "http:BasePath";
             }))) {
             this._annotations.push({
-                key: "BasePath",
+                key: "http:BasePath",
                 value: ""
             });
         }
@@ -237,17 +237,6 @@ define(['lodash', './node', 'log', '../utils/common-utils'],
             if (childNode.type === "variable_definition_statement" && !_.isNil(childNode.children[1]) && childNode.children[1].type === 'connector_init_expr') {
                 child = self.BallerinaASTFactory.createConnectorDeclaration();
                 childNodeTemp = childNode;
-            } else if (childNode.type === "variable_definition_statement" && !_.isNil(childNode.children[1]) && childNode.children[1].type === 'action_invocation_expression') {
-                child = self.BallerinaASTFactory.createActionInvocationExpression();
-                childNodeTemp = childNode;
-            } else if (childNode.type === "assignment_statement" && childNode.children[1].children[0].type === "action_invocation_expression") {
-                child = self.getFactory().createActionInvocationExpression();
-                childNodeTemp = {};
-                childNodeTemp.children = [childNode.children[0].children[0], childNode.children[1].children[0]];
-            } else if (childNode.type === "action_invocation_statement") {
-                child = self.getFactory().createActionInvocationExpression();
-                childNodeTemp = {};
-                childNodeTemp.children = [undefined, childNode.children[0]];
             } else {
                 child = self.BallerinaASTFactory.createFromJson(childNode);
                 childNodeTemp = childNode;

@@ -7,10 +7,10 @@
     <relativePath>../pom.xml/pom.xml</relativePath>
   </parent>
   <modelVersion>4.0.0</modelVersion>
-  <groupId>org.wso2.ballerina.editor</groupId>
+  <groupId>org.ballerinalang.composer</groupId>
   <artifactId>workspace-service</artifactId>
-  <name>WSO2 Ballerina - Tooling - Workspace Service</name>
-  <version>0.8.0-SNAPSHOT</version>
+  <name>Ballerina Composer - Workspace Service</name>
+  <version>0.8-SNAPSHOT</version>
   <build>
     <plugins>
       <plugin>
@@ -76,7 +76,7 @@
     </dependency>
   </dependencies>
   <properties>
-    <microservice.mainClass>org.wso2.ballerina.tooling.service.workspace.app.WorkspaceServiceRunner</microservice.mainClass>
+    <microservice.mainClass>org.ballerinalang.composer.service.workspace.app.WorkspaceServiceRunner</microservice.mainClass>
     <junit.version>4.12</junit.version>
     <guice.version>4.1.0</guice.version>
     <antlr4.runtime.version>4.5.1.wso2v1</antlr4.runtime.version>

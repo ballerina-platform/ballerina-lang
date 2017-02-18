@@ -149,10 +149,6 @@ define(['lodash', 'log', 'event_channel',  'alerts', './svg-canvas', './../ast/f
             return this._childContainer ;
         };
 
-        FunctionDefinitionView.prototype.canVisitWorkerDeclaration = function () {
-            return true;
-        };
-
         FunctionDefinitionView.prototype.canVisitFunctionDefinition = function () {
             return true;
         };
@@ -214,7 +210,7 @@ define(['lodash', 'log', 'event_channel',  'alerts', './svg-canvas', './../ast/f
                     editableProperties: editableProperty
                 });
 
-                var statementContainer = workerDeclarationView.renderStatementContainer(this.diagramRenderingContext);
+                var statementContainer = workerDeclarationView.renderStatementContainer({offset: {top: 40, bottom: 50}});
                 this.diagramRenderingContext.getViewModelMap()[workerDeclaration.id] = workerDeclarationView;
                 this.listenWorkerToHorizontalMargin(workerDeclarationView);
 
@@ -319,16 +315,20 @@ define(['lodash', 'log', 'event_channel',  'alerts', './svg-canvas', './../ast/f
             this._defaultWorkerLifeLine.render();
 
             // Set the workerLifeLineMargin to the end of the default worker
-            this.getWorkerLifeLineMargin().setPosition(this._defaultWorkerLifeLine.getBoundingBox().getRight());
             this.getHorizontalMargin().setPosition(this._defaultWorkerLifeLine.getBoundingBox().getBottom());
+            this.listenTo(this.getHorizontalMargin(), 'moved', function (dy) {
+                self._defaultWorkerLifeLine.getBottomCenter().y(self._defaultWorkerLifeLine.getBottomCenter().y() + dy);
+                // Silently increase the bounding box of the worker. Because this size change is due to the
+                // horizontal margin movement, in other sense, for balancing with the other connectors/ workers' height
+                // therefore we need to manually change the bbox height and the drop zone size of the statement container
+                self.getStatementContainer().getBoundingBox().h(self.getStatementContainer().getBoundingBox().h() + dy, true);
+                self.getStatementContainer().changeDropZoneHeight(dy);
+                self._totalHeight = this.getHorizontalMargin().getPosition() + 85;
+                self.setSVGHeight(this._totalHeight);
+            });
 
             this._totalHeight = this.getHorizontalMargin().getPosition() + 85;
             this.setSVGHeight(this._totalHeight);
-
-            this.listenTo(this.getHorizontalMargin(), 'moved', function (dy) {
-                self._totalHeight = self.getHorizontalMargin().getPosition() + 85;
-                self.setSVGHeight(self._totalHeight);
-            });
             this.renderStatementContainer();
 
             // TODO: Refactor after Worker is enabled
@@ -489,7 +489,46 @@ define(['lodash', 'log', 'event_channel',  'alerts', './svg-canvas', './../ast/f
             _.set(statementContainerOpts, 'toolPalette', this.toolPalette);
             _.set(statementContainerOpts, 'offset', {top: 40, bottom: 40});
             this._statementContainer = new StatementContainer(statementContainerOpts);
-            this.listenTo(this._statementContainer.getBoundingBox(), 'bottom-edge-moved', this.defaultWorkerHeightChanged);
+            var self = this;
+
+            this.listenTo(this._statementContainer.getBoundingBox(), 'bottom-edge-moved', function(dy){
+
+                var deltaMove = this.getDeltaMove(this.getDeepestChild(this, dy), dy);
+                // Statement Container expands. we move the horizontal line
+                self._defaultWorkerLifeLine.getBottomCenter().y(self._defaultWorkerLifeLine.getBottomCenter().y() + deltaMove);
+                // self._defaultWorker.getBoundingBox().h(self._defaultWorker.getBoundingBox().h() + dy);
+                self.stopListening(self.getHorizontalMargin());
+                self.getHorizontalMargin().setPosition(self.getHorizontalMargin().getPosition() + deltaMove);
+                self.getBoundingBox().h(this.getBoundingBox().h() + deltaMove);
+                // We need to change the height of the statement container, silently. This is because when this
+                // particular event is triggered, bounding box of the statement container has already changed,
+                // before hand we manipulate it with this logic
+                var statementContainerNewH = self._defaultWorkerLifeLine.getBottomCenter().y() - self._defaultWorkerLifeLine.getTopCenter().y();
+                // TODO: re consider stopListening of the following event of the statement container. This is because we silently change the heights
+                self.getStatementContainer().stopListening(self.getStatementContainer().getBoundingBox(), 'height-changed');
+                self.getStatementContainer().changeHeightSilent(statementContainerNewH);
+                // Re initialize the above disabled event
+                // self.getStatementContainer().listenTo(self.getStatementContainer().getBoundingBox(), 'height-changed', function (offset) {
+                //     self.getStatementContainer()._mainDropZone.attr('height', parseFloat(self.getStatementContainer()._mainDropZone.attr('height')) + offset);
+                // });
+                self.listenTo(self.getHorizontalMargin(), 'moved', function (dy) {
+                    self._defaultWorkerLifeLine.getBottomCenter().y(self._defaultWorkerLifeLine.getBottomCenter().y() + dy);
+                    // Silently increase the bounding box of the worker. Because this size change is due to the
+                    // horizontal margin movement, in other sense, for balancing with the other connectors/ workers' height
+                    // therefore we need to manually change the bbox height and the drop zone size of the statement container
+                    self.getStatementContainer().getBoundingBox().h(self.getStatementContainer().getBoundingBox().h() + dy, true);
+                    self.getStatementContainer().changeDropZoneHeight(dy);
+                    // self.getBoundingBox().h(self.getBoundingBox().h() + dy);
+                    self._totalHeight = this.getHorizontalMargin().getPosition() + 85;
+                    self.setSVGHeight(this._totalHeight);
+                });
+            }, this);
+
+            /* When the width of the statement container's bounding box changes, width of this resource definition's
+             bounding box should also change.*/
+            this._statementContainer.getBoundingBox().on('right-edge-moved', function (dw) {
+                this._defaultWorkerLifeLine.getBoundingBox().zoomWidth(this._statementContainer.getBoundingBox().w());
+            }, this);
             this._statementContainer.render(this.diagramRenderingContext);
         };
 
@@ -507,10 +546,6 @@ define(['lodash', 'log', 'event_channel',  'alerts', './svg-canvas', './../ast/f
             var args = {model: statement, container: this._rootGroup.node(), viewOptions: {},
                 toolPalette: this.toolPalette, messageManager: this.messageManager, parent: this};
             this._statementContainer.renderStatement(statement, args);
-        };
-
-        FunctionDefinitionView.prototype.canVisitConnectorDeclaration = function (connectorDeclaration) {
-            return true;
         };
 
         /**

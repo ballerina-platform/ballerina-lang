@@ -112,6 +112,19 @@ define(['lodash', './node', 'log', '../utils/common-utils'], function(_, ASTNode
     };
 
     /**
+     * Override the super call to addChild
+     * @param child
+     * @param index
+     */
+    ConnectorDefinition.prototype.addChild = function (child, index) {
+        if (this.BallerinaASTFactory.isConnectorDeclaration(child)) {
+            Object.getPrototypeOf(this.constructor.prototype).addChild.call(this, child, 0);
+        } else {
+            Object.getPrototypeOf(this.constructor.prototype).addChild.call(this, child, index);
+        }
+    };
+
+    /**
      * Set the connector annotations
      * @param {string[]} annotations - Connector Annotations
      */
@@ -269,17 +282,6 @@ define(['lodash', './node', 'log', '../utils/common-utils'], function(_, ASTNode
             if (childNode.type === "variable_definition_statement" && !_.isNil(childNode.children[1]) && childNode.children[1].type === 'connector_init_expr') {
                 child = self.BallerinaASTFactory.createConnectorDeclaration();
                 childNodeTemp = childNode;
-            } else if (childNode.type === "variable_definition_statement" && !_.isNil(childNode.children[1]) && childNode.children[1].type === 'action_invocation_expression') {
-                child = self.BallerinaASTFactory.createActionInvocationExpression();
-                childNodeTemp = childNode;
-            } else if (childNode.type === "assignment_statement" && childNode.children[1].children[0].type === "action_invocation_expression") {
-                child = self.getFactory().createActionInvocationExpression();
-                childNodeTemp = {};
-                childNodeTemp.children = [childNode.children[0].children[0], childNode.children[1].children[0]];
-            } else if (childNode.type === "action_invocation_statement") {
-                child = self.getFactory().createActionInvocationExpression();
-                childNodeTemp = {};
-                childNodeTemp.children = [undefined, childNode.children[0]];
             } else {
                 child = self.BallerinaASTFactory.createFromJson(childNode);
                 childNodeTemp = childNode;

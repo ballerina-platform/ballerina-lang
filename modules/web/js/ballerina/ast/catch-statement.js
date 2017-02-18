@@ -15,31 +15,41 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', './conditional-statement'], function (_, log, ConditionalStatement) {
+define(['lodash', 'log', './conditional-statement', './argument'], function (_, log, ConditionalStatement, Argument) {
 
     /**
      * Class for catch statement in ballerina.
+     * @class CatchStatement
      * @constructor
+     * @extends ConditionalStatement
      */
-    var CatchStatement = function (exceptionType) {
-        if(!_.isNil(exceptionType)){
-            this._exceptionType = exceptionType;
-        }
+    var CatchStatement = function (args) {
         ConditionalStatement.call(this);
+        this._parameter = _.get(args, "parameter", "exception e");
+
         this.type = "CatchStatement";
     };
 
     CatchStatement.prototype = Object.create(ConditionalStatement.prototype);
     CatchStatement.prototype.constructor = CatchStatement;
 
-    CatchStatement.prototype.setExceptionType = function(exceptionType, options){
-        if(!_.isNil(exceptionType)){
-            this.setAttribute('_exceptionType', exceptionType, options);
+    CatchStatement.prototype.setParameter = function (parameter, options) {
+        if (!_.isNil(parameter)) {
+            this.setAttribute('_parameter', parameter, options);
         }
     };
 
-    CatchStatement.prototype.getExceptionType = function(){
-        return this._exceptionType;
+    CatchStatement.prototype.getParameter = function () {
+        return this._parameter;
+    };
+
+    CatchStatement.prototype.initFromJson = function (jsonNode) {
+        var self = this;
+        _.each(jsonNode.children, function (childNode) {
+            var child = self.getFactory().createFromJson(childNode);
+            child.initFromJson(childNode);
+            self.addChild(child);
+        });
     };
 
     return CatchStatement;

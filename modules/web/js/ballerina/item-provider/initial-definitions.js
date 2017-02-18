@@ -128,12 +128,20 @@ define(['log', 'jquery', './../ast/ballerina-ast-factory', './../tool-palette/to
             nodeFactoryMethod: BallerinaASTFactory.createWhileStatement
         };
 
+        var createBreakStatementTool = {
+            id: "break",
+            name: "Break",
+            icon: "images/tool-icons/break.svg",
+            title: "Break",
+            nodeFactoryMethod: BallerinaASTFactory.createBreakStatement
+        };
+
         var createTryCatchStatementTool = {
             id: "try-catch",
             name: "Try-Catch",
-            icon: "images/tool-icons/dgm-while.svg",
+            icon: "images/tool-icons/try-catch.svg",
             title: "Try-Catch",
-            nodeFactoryMethod: BallerinaASTFactory.createTryCatchStatement
+            nodeFactoryMethod: DefaultsAddedBallerinaASTFactory.createTryCatchStatement
         };
 
         var createAssignmentExpressionTool = {
@@ -193,10 +201,18 @@ define(['log', 'jquery', './../ast/ballerina-ast-factory', './../tool-palette/to
             nodeFactoryMethod: BallerinaASTFactory.createWorkerReceiveStatement
         };
 
+        var createThrowStatementTool = {
+            id: "Throw",
+            name: "Throw",
+            icon: "images/tool-icons/reply.svg",
+            title: "Throw",
+            nodeFactoryMethod: BallerinaASTFactory.createThrowStatement
+        };
+
         var statementToolDefArray = [createIfStatementTool, createAssignmentExpressionTool,
             createVariableDefinitionStatementTool,  createFunctionInvocationTool, createReturnStatementTool,
-            createReplyStatementTool, createWhileStatementTool, createTryCatchStatementTool, createWorkerInvocationStatementTool,
-            createWorkerReceiverStatementTool];
+            createReplyStatementTool, createWhileStatementTool, createBreakStatementTool, createTryCatchStatementTool, createThrowStatementTool,
+            createWorkerInvocationStatementTool, createWorkerReceiverStatementTool];
 
         // Create statements tool group
         var statements = new ToolGroup({

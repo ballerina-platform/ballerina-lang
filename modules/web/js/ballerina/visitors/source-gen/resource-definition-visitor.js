@@ -49,8 +49,8 @@ define(['lodash', 'log', 'event_channel', './abstract-source-gen-visitor', './st
                 if (annotation.key.indexOf(":") === -1) {
                     constructedPathAnnotation = '@' + annotation.key + '("' + annotation.value + '")\n';
                 } else {
-                    constructedPathAnnotation = '@' + annotation.key.split(":")[0] + '(' +
-                        annotation.key.split(":")[1] + ' = "' + annotation.value + '")\n';
+                    constructedPathAnnotation = '@' + annotation.key.split(":")[0] + ':' +
+                        annotation.key.split(":")[1] + '("' + annotation.value + '")\n';
                 }
 
                 // Separately handling the HTTP method annotations.

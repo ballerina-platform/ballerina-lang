@@ -286,5 +286,49 @@ define(['lodash', 'jquery', './ballerina-view', 'log', 'typeMapper', './../ast/a
             });
             return uniqueParams;
         };
+
+        /**
+         * Receives the callBack on function delete
+         * @param connection object
+         */
+        TypeMapperFunctionAssignmentView.prototype.onFunctionDelete = function (connection) {
+
+            var functionReferenceObj = connection.reference.model;
+            var functionInvocationExpression = connection.reference.functionInvocationExpression;
+            var assignmentStatementId = functionReferenceObj.getID();
+            var parentOfFunctionInvocationExpression = functionInvocationExpression.getParent();
+            var blockStatement = functionReferenceObj.getParent();
+
+            var innerFunctionInvocationExpression = _.find(functionInvocationExpression.getChildren(), function (child) {
+                if(BallerinaASTFactory.isFunctionInvocationExpression(child)){
+                    return child;
+                }
+            });
+
+            if(!BallerinaASTFactory.isFunctionInvocationExpression(parentOfFunctionInvocationExpression)){
+                blockStatement.removeChildById(assignmentStatementId);
+
+            }else{
+                functionInvocationExpression.remove();
+            }
+
+            if(!_.isUndefined(innerFunctionInvocationExpression)){
+                var childRightOperandExpression = _.find(functionReferenceObj.getChildren(), function (child) {
+                    if(BallerinaASTFactory.isRightOperandExpression(child)){
+                        return child;
+                    }
+                });
+
+                var tempFunctionInvocationExpression = _.find(childRightOperandExpression.getChildren(), function (child) {
+                    if(BallerinaASTFactory.isFunctionInvocationExpression(child)){
+                        return child;
+                    }
+                });
+
+                childRightOperandExpression.removeChildById(tempFunctionInvocationExpression.getID());
+                childRightOperandExpression.addChild(innerFunctionInvocationExpression);
+                blockStatement.addChild(functionReferenceObj);
+            }
+        };
         return TypeMapperFunctionAssignmentView;
     });

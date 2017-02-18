@@ -52,7 +52,7 @@ define(['lodash', 'd3','log', './simple-statement-view', './../ast/action-invoca
 
         WorkerReceive.prototype.init = function(){
             // TODO: Event name should modify in order to tally for both connector action and other dynamic arrow draws
-            this.getModel().on("drawConnectionForAction",this.renderWorkerStart, this);
+            this.getModel().on("drawConnectionForAction",this.renderWorkerReceive, this);
             Object.getPrototypeOf(this.constructor.prototype).init.call(this);
         };
         WorkerReceive.prototype.setDiagramRenderingContext = function(context){
@@ -91,7 +91,10 @@ define(['lodash', 'd3','log', './simple-statement-view', './../ast/action-invoca
             this.renderDisplayText(model.getReceiveStatement());
 
             this.renderProcessorConnectPoint(renderingContext);
-            this.renderArrows(renderingContext);
+
+            if (!_.isNil(this.getModel().getDestination())) {
+                this.renderReceiveArrows();
+            }
 
             // Creating property pane
             var editableProperty = {
@@ -215,13 +218,10 @@ define(['lodash', 'd3','log', './simple-statement-view', './../ast/action-invoca
         WorkerReceive.prototype.onBeforeModelRemove = function () {
             this.stopListening(this.getBoundingBox());
             d3.select("#_" +this._model.id).remove();
-            this.getDiagramRenderingContext().getViewOfModel(this._model.getParent()).getStatementContainer()
-                .removeInnerDropZone(this._model);
             this.removeArrows();
             // resize the bounding box in order to the other objects to resize
             var moveOffset = -this.getBoundingBox().h() - 30;
             this.getBoundingBox().move(0, moveOffset);
-
         };
 
         WorkerReceive.prototype.updateStatementText = function (newStatementText, propertyKey) {
@@ -230,19 +230,19 @@ define(['lodash', 'd3','log', './simple-statement-view', './../ast/action-invoca
             this.renderDisplayText(displayText);
         };
 
-        WorkerReceive.prototype.renderWorkerStart = function (startPoint, container) {
+        WorkerReceive.prototype.renderWorkerReceive = function (startPoint, container) {
             log.debug("Render the worker start");
             var activatedWorkerTarget = this.messageManager.getActivatedDropTarget();
             if (BallerinaASTFactory.isWorkerDeclaration(activatedWorkerTarget)) {
                 this.getModel().setDestination(activatedWorkerTarget);
-                this.renderStartAction();
+                this.renderReceiveArrows();
                 this.messageManager.reset();
             }
         };
 
-        WorkerReceive.prototype.renderStartAction = function () {
-            var group = D3Utils.group(d3.select(this._container));
-            var destinationView = this.getDiagramRenderingContext().getViewOfModel(this.messageManager.getActivatedDropTarget());
+        WorkerReceive.prototype.renderReceiveArrows = function () {
+            this._arrowGroup = D3Utils.group(d3.select(this._container));
+            var destinationView = this.getDiagramRenderingContext().getViewOfModel(this.getModel().getDestination());
             var destinationStatementContainer = destinationView.getStatementContainer();
             var startX = destinationView.getBoundingBox().getLeft();
             var endX = this.getBoundingBox().getRight();
@@ -276,7 +276,7 @@ define(['lodash', 'd3','log', './simple-statement-view', './../ast/action-invoca
                 endY = startY;
                 var messageStart = new Point(startX, startY);
                 var messageEnd = new Point(endX, endY);
-                this._messageView = new MessageView({container: group.node(), start: messageStart, end: messageEnd, isInputArrow: false});
+                this._messageView = new MessageView({container: this._arrowGroup.node(), start: messageStart, end: messageEnd, isInputArrow: false});
                 this._messageView.render();
 
                 // Set the reply receiver for the destination
@@ -290,26 +290,37 @@ define(['lodash', 'd3','log', './simple-statement-view', './../ast/action-invoca
             WorkerReceive.prototype.onTopEdgeMovedTrigger = function (dy) {
                 var self = this;
 
-                if (dy > 0) {
-                    // Moving the statement down
-                    self._messageView.move(0, dy);
+                if (_.isNil(self._messageView)) {
+                    // We haven't drawn an arrow yet.
                     self.getSvgRect().attr('y', parseFloat(self.getSvgRect().attr('y')) + dy);
                     self.getSvgText().attr('y', parseFloat(self.getSvgText().attr('y')) + dy);
-                    self._destinationReplyStatementView.onMoveInitiatedByReplyReceiver(dy);
-                } else if (dy < 0) {
-                    // Moving the statement up
-                    self.stopListening(self.getBoundingBox(), 'top-edge-moved');
-                    if (self._destinationReplyStatementView.canMoveUp(dy)) {
-                        self._messageView.move(0, dy);
+                } else {
+                    // There is already drawn arrow between the receiver and the reply statement
+                    if (dy > 0) {
+                        // Moving the statement down
+                        if (!_.isNil(self._messageView)) {
+                            self._messageView.move(0, dy);
+                        } else {
+                            debugger;
+                        }
                         self.getSvgRect().attr('y', parseFloat(self.getSvgRect().attr('y')) + dy);
                         self.getSvgText().attr('y', parseFloat(self.getSvgText().attr('y')) + dy);
                         self._destinationReplyStatementView.onMoveInitiatedByReplyReceiver(dy);
-                    } else {
-                        self.getBoundingBox().move(0, -dy);
+                    } else if (dy < 0) {
+                        // Moving the statement up
+                        self.stopListening(self.getBoundingBox(), 'top-edge-moved');
+                        if (self._destinationReplyStatementView.canMoveUp(dy)) {
+                            self._messageView.move(0, dy);
+                            self.getSvgRect().attr('y', parseFloat(self.getSvgRect().attr('y')) + dy);
+                            self.getSvgText().attr('y', parseFloat(self.getSvgText().attr('y')) + dy);
+                            self._destinationReplyStatementView.onMoveInitiatedByReplyReceiver(dy);
+                        } else {
+                            self.getBoundingBox().move(0, -dy);
+                        }
+                        self.listenTo(self.getBoundingBox(), 'top-edge-moved', function (dy) {
+                            self.onTopEdgeMovedTrigger(dy);
+                        });
                     }
-                    self.listenTo(self.getBoundingBox(), 'top-edge-moved', function (dy) {
-                        self.onTopEdgeMovedTrigger(dy);
-                    });
                 }
             };
 

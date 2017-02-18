@@ -59,5 +59,14 @@ define(
             }
         };
 
+        CatchStatementView.prototype.render = function (diagramRenderingContext) {
+            // Calling super render.
+            (this.__proto__.__proto__).render.call(this, diagramRenderingContext);
+
+            this.listenTo(this._model, 'update-property-text', function(value, key){
+                this._model.setParameter(value);
+            });
+        };
+
         return CatchStatementView;
     });

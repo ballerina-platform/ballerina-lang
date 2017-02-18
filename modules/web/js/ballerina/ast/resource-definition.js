@@ -37,7 +37,7 @@ define(['lodash', 'require', 'log', './node', '../utils/common-utils'],
             }))) {
             this._annotations.push({
                 key: "Method",
-                value: "GET"
+                value: "http:GET"
             });
         }
 
@@ -46,6 +46,24 @@ define(['lodash', 'require', 'log', './node', '../utils/common-utils'],
             }))) {
             this._annotations.push({
                 key: "Path",
+                value: ""
+            });
+        }
+
+        if (_.isNil(_.find(this._annotations, function (annotation) {
+                return annotation.key == "Consumes";
+            }))) {
+            this._annotations.push({
+                key: "Consumes",
+                value: ""
+            });
+        }
+
+        if (_.isNil(_.find(this._annotations, function (annotation) {
+                return annotation.key == "Produces";
+            }))) {
+            this._annotations.push({
+                key: "Produces",
                 value: ""
             });
         }
@@ -289,8 +307,8 @@ define(['lodash', 'require', 'log', './node', '../utils/common-utils'],
 
         // Check if a annotation of type http method is received from the service.
         var existingMethodAnnotationFromService = _.find(jsonNode.annotations, function (annotation) {
-            return annotation.annotation_name === "POST" || annotation.annotation_name === "GET" ||
-                annotation.annotation_name === "PUT" || annotation.annotation_name === "DELETE"
+            return annotation.annotation_name === "http:POST" || annotation.annotation_name === "http:GET" ||
+                annotation.annotation_name === "http:PUT" || annotation.annotation_name === "http:DELETE"
         });
 
         // Get the method annotation of the model.
@@ -304,8 +322,8 @@ define(['lodash', 'require', 'log', './node', '../utils/common-utils'],
             existingMethodAnnotationInModel.value = "";
             _.forEach(jsonNode.annotations, function (annotation) {
                 // Updating the new http method value.
-                if (annotation.annotation_name === "POST" || annotation.annotation_name === "GET" ||
-                    annotation.annotation_name === "PUT" || annotation.annotation_name === "DELETE") {
+                if (annotation.annotation_name === "http:POST" || annotation.annotation_name === "http:GET" ||
+                    annotation.annotation_name === "http:PUT" || annotation.annotation_name === "http:DELETE") {
                     if (_.isEmpty(existingMethodAnnotationInModel.value)) {
                         existingMethodAnnotationInModel.value = annotation.annotation_name;
                     } else {
@@ -319,8 +337,8 @@ define(['lodash', 'require', 'log', './node', '../utils/common-utils'],
         // Updating the annotations of the model according to the annotations received from the service that are not
         // related to http methods.
         _.forEach(jsonNode.annotations, function(annotationFromService){
-           if (!(annotationFromService.annotation_name === "POST" || annotationFromService.annotation_name === "GET" ||
-               annotationFromService.annotation_name === "PUT" || annotationFromService.annotation_name === "DELETE")) {
+           if (!(annotationFromService.annotation_name === "http:POST" || annotationFromService.annotation_name === "http:GET" ||
+               annotationFromService.annotation_name === "http:PUT" || annotationFromService.annotation_name === "http:DELETE")) {
                var existingAnnotation = _.find(self._annotations, function (annotationInModel) {
                    return annotationInModel.key === annotationFromService.annotation_name
                });
@@ -341,17 +359,6 @@ define(['lodash', 'require', 'log', './node', '../utils/common-utils'],
             if (childNode.type === "variable_definition_statement" && !_.isNil(childNode.children[1]) && childNode.children[1].type === 'connector_init_expr') {
                 child = self.BallerinaASTFactory.createConnectorDeclaration();
                 childNodeTemp = childNode;
-            } else if (childNode.type === "variable_definition_statement" && !_.isNil(childNode.children[1]) && childNode.children[1].type === 'action_invocation_expression') {
-                child = self.BallerinaASTFactory.createActionInvocationExpression();
-                childNodeTemp = childNode;
-            } else if (childNode.type === "assignment_statement" && childNode.children[1].children[0].type === "action_invocation_expression") {
-                child = self.getFactory().createActionInvocationExpression();
-                childNodeTemp = {};
-                childNodeTemp.children = [childNode.children[0].children[0], childNode.children[1].children[0]];
-            } else if (childNode.type === "action_invocation_statement") {
-                child = self.getFactory().createActionInvocationExpression();
-                childNodeTemp = {};
-                childNodeTemp.children = [undefined, childNode.children[0]];
             } else {
                 child = self.BallerinaASTFactory.createFromJson(childNode);
                 childNodeTemp = childNode;

@@ -20,7 +20,7 @@ define(['require', 'jquery', 'lodash'], function (require, $, _) {
      * Get the packages from the package list api.
      * */
     environment_content.getPackages = function () {
-        var data = {};
+        var data = [];
         $.ajax({
             type: "GET",
             url: requirejs.s.contexts._.config.package_listing,

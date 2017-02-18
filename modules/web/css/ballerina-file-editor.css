@@ -536,15 +536,14 @@
 }
 
 .struct-content-operations-wrapper {
-    height: 50px;
     background-color: #3d3d3d;
-    padding-right: 6px;
+    padding: 10px;
+    float: left;
 }
 
 .struct-identifier-text-input {
     float: left;
-    margin-top: 12px;
-    width: 185px;
+    width: 190px;
     padding-left: 8px;
     padding-right: 8px;
     margin-right: 5px;
@@ -558,42 +557,42 @@
     position: relative;
 }
 
-.type-drop-wrapper.struct-view{
-    margin: 11px 5px 0 5px;
-}
-
 .type-drop-wrapper.struct-view .select2.select2-container {
-    min-width: 160px;
+    min-width: 192px;
 }
 
 .type-drop-wrapper.struct-view .select2.select2-container .select2-selection--single {
-    min-width: 160px;
+    min-width: 192px;
+    height: 24px;
+    border-right: 1px solid #333;
 }
 
 .type-drop-wrapper.struct-edit .select2.select2-container {
-    min-width: 100px;
-    margin:0;
+    min-width: 170px;
+    margin: -3px 0 0 0;
+    border: 1px solid #CCC;
 }
 
 .type-drop-wrapper.struct-edit .select2.select2-container .select2-selection--single {
-    min-width: 100px;
+    min-width: 164px;
     margin: 0;
 }
 
 .type-drop-wrapper .select2.select2-container {
-    min-width: 110px;
+    min-width: 127px;
     border-radius: 0;
+    margin-right: -5px;
 }
 
 .type-drop-wrapper .select2.select2-container .select2-selection--single {
-    min-width: 110px;
+    min-width: 127px;
     border-radius: 0;
     height: 22px;
     border: 0;
 }
 
 .type-drop-wrapper .select2.select2-container .select2-selection--single .select2-selection__rendered {
-    line-height: 21px;
+    line-height: 22px;
 }
 .type-drop-wrapper .select2-container--default .select2-selection--single .select2-selection__arrow{
     height:20px;
@@ -603,11 +602,15 @@ div.type-drop-wrapper.service{
 }
 
 div.type-drop-wrapper.service .select2.select2-container .select2-selection--single {
-    height: 20px;
+    height: 22px;
+    border: 1px solid #dfdfdf;
+    padding-bottom: 3px;
+    margin-right: 3px;
 }
 
 div.type-drop-wrapper.service .select2.select2-container .select2-selection--single .select2-selection__rendered{
     line-height: 20px;
+    margin-right: 3px;
 }
 
 div.type-drop-wrapper.resource{
@@ -627,7 +630,6 @@ div.type-drop-wrapper.resource .select2.select2-container .select2-selection--si
     font-size: 9px;
     cursor: pointer;
     opacity: 0.4;
-    padding-top: 12px;
 }
 
 .add-struct-variable-button:hover {
@@ -648,31 +650,43 @@ div.type-drop-wrapper.resource .select2.select2-container .select2-selection--si
     opacity: 1;
 }
 
+.struct-variable-definition-wrapper:hover {
+    font-weight: 400;
+}
+
+.struct-variable-definition-wrapper:nth-child(1){
+    clear: both;
+    margin-top: 46px;
+}
+
 .struct-variable-definition-wrapper {
     border: 1px solid #CCC;
     background: #FFF;
     margin-top: 2px;
     cursor: pointer;
-    height: 41px;
+    width: 433px;
+    height: 31px;
+    display: block;
 }
 
 .struct-variable-definition-type {
     width: 200px;
     border-right: 1px solid #CCC;
-    padding: 6px 13px;
+    padding: 5px 13px;
 }
 
 .struct-variable-definition-identifier {
-    padding: 10px 13px;
+    padding: 5px 13px 0 13px;
     min-width: 160px;
+
 }
 
 .struct-variable-definition-wrapper i {
-    line-height: 14px;
-    padding: 13px;
+    padding: 10px 15px 0 0;
     opacity: 0.4;
     cursor: pointer;
     float: right;
+    font-size: 9px;
 }
 
 .struct-variable-definition-wrapper i:hover {
@@ -698,9 +712,11 @@ div.type-drop-wrapper.resource .select2.select2-container .select2-selection--si
 }
 
 .struct-variable-identifier-text-input {
-    width: 162px;
+    width: 177px;
     padding-left: 8px;
     padding-right: 8px;
+    border: 1px solid #ccc;
+    margin-top: -2px;
 }
 
 .struct-variable-type-dropdown-wrapper button {
@@ -737,7 +753,7 @@ span.package-pane {
 
 input#package-name-input {
     margin-left: 2px;
-    border: 0px solid #ccc;
+    border: 0 solid #ccc;
     line-height: 18px;
     padding: 2px 10px;
 }
@@ -750,7 +766,7 @@ input#package-name-input {
     min-height: 57px;
     clear: both;
     float: left;
-    width: 100%;
+    width: 89%;
 }
 
 .tooltip-inner {
@@ -770,4 +786,25 @@ input#package-name-input {
 .swaggerEditor .se-iframe {
     border: 0;
     background: #4a4a4a;
+}
+
+.select2-container--open .select2-dropdown--below {
+    border-radius: 0 !important;
+    border: 0;
+    background: #f1f1f1;
+}
+.select2-container--default .select2-search--dropdown .select2-search__field {
+    border: 1px solid #d4d4d4;
+    height: 24px;
+}
+.select2-results__option {
+    padding: 4px 10px;
+    user-select: none;
+    -webkit-user-select: none;
+    font-weight: 300;
+    font-size: 14px;
+}
+.select2-container--default .select2-results__option--highlighted[aria-selected] {
+    background-color: #333333;
+    color: #f17b31;
 }
