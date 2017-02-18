@@ -16,7 +16,7 @@
  * under the License.
  */
 
-define(['jquery', 'backbone', 'lodash', 'log', 'event_channel', './debug-manager'], function ($, Backbone, _, log, EventChannel, DebugManager) {
+define(['jquery', 'backbone', 'lodash', 'log', 'event_channel', './debug-manager', 'alerts'], function ($, Backbone, _, log, EventChannel, DebugManager, alerts) {
 
     var instance;
 
@@ -120,15 +120,37 @@ define(['jquery', 'backbone', 'lodash', 'log', 'event_channel', './debug-manager
 
     Tools.prototype.debugApplication = function(){
         var activeTab = this.application.tabController.getActiveTab();
-        var file = activeTab.getFile();
-        this.launchManager.debugApplication(file);
+        if(this.isReadyToRun(activeTab)) {
+            var file = activeTab.getFile();
+            this.launchManager.debugApplication(file);
+        } else {
+            alerts.error("Save file before start debugging application");
+        }
     };     
 
     Tools.prototype.debugService = function(){
         var activeTab = this.application.tabController.getActiveTab();
-        var file = activeTab.getFile();
-        this.launchManager.debugService(file);
-    }; 
+        if(this.isReadyToRun(activeTab)) {
+            var file = activeTab.getFile();
+            this.launchManager.debugService(file);
+            alerts.error("Save file before start debugging service");
+        }
+    };
+
+    Tools.prototype.isReadyToRun = function(tab) {
+       if (!typeof tab.getFile === "function") {
+           return false;
+       }
+
+       var file = tab.getFile();
+       // file is not saved give an error and avoid running
+       if(file.isDirty()) {
+           return false;
+       }
+
+       return true;
+
+    }
 
     return (instance = (instance || new Tools() ));
 });
