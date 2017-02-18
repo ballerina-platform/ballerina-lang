@@ -18,13 +18,14 @@
 
 package org.ballerinalang.util.debugger;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.netty.channel.Channel;
 import org.ballerinalang.bre.nonblocking.debugger.BLangExecutionDebugger;
 import org.ballerinalang.bre.nonblocking.debugger.BreakPointInfo;
-import org.ballerinalang.model.NodeLocation;
+import org.ballerinalang.util.debugger.dto.CommandDTO;
 import org.ballerinalang.util.debugger.dto.MessageDTO;
 
-import java.util.ArrayList;
+import java.io.IOException;
 import java.util.concurrent.Semaphore;
 
 import static java.lang.Thread.sleep;
@@ -103,47 +104,53 @@ public class DebugManager {
      * @param json the json
      */
     public void processDebugCommand(String json) {
-//        BLangExecutionDebugger debugger = debugSession.getDebugger();
-//        Gson gson = new Gson();
-//        CommandDTO command = gson.fromJson(json, CommandDTO.class);
-//        switch (command.getCommand()) {
-//            case DebugConstants.CMD_RESUME:
-//                debugger.resume();
-//                break;
-//            case DebugConstants.CMD_STEP_OVER:
-//                debugger.stepOver();
-//                break;
-//            case DebugConstants.CMD_STEP_IN:
-//                debugger.stepIn();
-//                break;
-//            case DebugConstants.CMD_STEP_OUT:
-//                debugger.stepOut();
-//                break;
-//            case DebugConstants.CMD_STOP:
-//                debugger.clearDebugPoints();
-//                debugger.resume();
-//                break;
-//            case DebugConstants.CMD_SET_POINTS:
-//                // we expect { "command": "SET_POINTS", points: [{ "fileName": "sample.bal", "line" : 5 },{...},
-// {...}]}
-//                debugSession.setBreakPoints(getPoints(json));
-//                sendAcknowledge(this.debugSession, "Debug points updated");
-//                break;
-//            case DebugConstants.CMD_START:
-//                // Client needs to explicitly start the execution once connected.
-//                // This will allow client to set the breakpoints before starting the execution.
-//                if (this.waitingForClient) {
-//                    executionSem.release();
-//                    this.waitingForClient = false;
-//                    sendAcknowledge(this.debugSession, "Debug started.");
-//                }
-//                break;
-//            default:
-//                MessageDTO message = new MessageDTO();
-//                message.setCode(DebugConstants.CODE_INVALID);
-//                message.setMessage(DebugConstants.MSG_INVALID);
-//                debugServer.pushMessageToClient(debugSession, message);
-//        }
+        BLangExecutionDebugger debugger = debugSession.getDebugger();
+        ObjectMapper mapper = new ObjectMapper();
+        CommandDTO command = null;
+        try {
+            command = mapper.readValue(json, CommandDTO.class);
+        } catch (IOException e) {
+            // Set the command to invalid so an invalid message will be passed from -
+            // default block
+            command.setCommand("invalid");
+        }
+        switch (command.getCommand()) {
+            case DebugConstants.CMD_RESUME:
+                debugger.resume();
+                break;
+            case DebugConstants.CMD_STEP_OVER:
+                debugger.stepOver();
+                break;
+            case DebugConstants.CMD_STEP_IN:
+                debugger.stepIn();
+                break;
+            case DebugConstants.CMD_STEP_OUT:
+                debugger.stepOut();
+                break;
+            case DebugConstants.CMD_STOP:
+                debugger.clearDebugPoints();
+                debugger.resume();
+                break;
+            case DebugConstants.CMD_SET_POINTS:
+                // we expect { "command": "SET_POINTS", points: [{ "fileName": "sample.bal", "lineNumber" : 5 },{...}]}
+                debugSession.setBreakPoints(command.getBreakPoints());
+                sendAcknowledge(this.debugSession, "Debug points updated");
+                break;
+            case DebugConstants.CMD_START:
+                // Client needs to explicitly start the execution once connected.
+                // This will allow client to set the breakpoints before starting the execution.
+                if (this.waitingForClient) {
+                    executionSem.release();
+                    this.waitingForClient = false;
+                    sendAcknowledge(this.debugSession, "Debug started.");
+                }
+                break;
+            default:
+                MessageDTO message = new MessageDTO();
+                message.setCode(DebugConstants.CODE_INVALID);
+                message.setMessage(DebugConstants.MSG_INVALID);
+                debugServer.pushMessageToClient(debugSession, message);
+        }
     }
 
     /**
@@ -155,28 +162,6 @@ public class DebugManager {
         //@todo need to handle multiple connections
         this.debugSession = new DebugSession(channel);
         sendAcknowledge(this.debugSession, "Channel registered.");
-    }
-
-    /**
-     * Utility function to extract the points from set points command json
-     * @todo: need to rewrite with proper gson decoding.
-     *
-     * @param json
-     * @return ArrayList<NodeLocation>
-     */
-    private ArrayList<NodeLocation> getPoints(String json) {
-//        ArrayList<NodeLocation> list = new ArrayList<NodeLocation>();
-//        JsonParser parser = new JsonParser();
-//        JsonElement jsonTree = parser.parse(json);
-//        JsonObject command2 = jsonTree.getAsJsonObject();
-//
-//        JsonArray points = command2.get("points").getAsJsonArray();
-//        for (int i = 0; i < points.size(); i++) {
-//            JsonObject tmp = points.get(i).getAsJsonObject();
-//            list.add(new NodeLocation(tmp.get("fileName").getAsString(), tmp.get("line").getAsInt()));
-//        }
-//        return list;
-        return null;
     }
 
     /**

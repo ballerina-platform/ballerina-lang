@@ -28,6 +28,7 @@ import org.ballerinalang.natives.NativeUnitProxy;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -173,7 +174,12 @@ public abstract class AbstractNativeConnector extends BType implements NativeUni
     public <V extends BValue> V getDefaultValue() {
         return null;
     }
-    
+
+    @Override
+    public Map<SymbolName, BLangSymbol> getSymbolMap() {
+        return Collections.unmodifiableMap(this.symbolMap);
+    }
+
     /**
      * Resolve a symbol in the current scope only. SymbolName will not be resolved in the enclosing scopes.
      * 
