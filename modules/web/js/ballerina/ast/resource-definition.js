@@ -308,7 +308,9 @@ define(['lodash', 'require', 'log', './node', '../utils/common-utils'],
         // Check if a annotation of type http method is received from the service.
         var existingMethodAnnotationFromService = _.find(jsonNode.annotations, function (annotation) {
             return annotation.annotation_name === "http:POST" || annotation.annotation_name === "http:GET" ||
-                annotation.annotation_name === "http:PUT" || annotation.annotation_name === "http:DELETE"
+                annotation.annotation_name === "http:PUT" || annotation.annotation_name === "http:DELETE" ||
+                annotation.annotation_name === "http:HEAD" || annotation.annotation_name === "http:PATCH" ||
+                annotation.annotation_name === "http:OPTIONS"
         });
 
         // Get the method annotation of the model.
@@ -323,7 +325,9 @@ define(['lodash', 'require', 'log', './node', '../utils/common-utils'],
             _.forEach(jsonNode.annotations, function (annotation) {
                 // Updating the new http method value.
                 if (annotation.annotation_name === "http:POST" || annotation.annotation_name === "http:GET" ||
-                    annotation.annotation_name === "http:PUT" || annotation.annotation_name === "http:DELETE") {
+                    annotation.annotation_name === "http:PUT" || annotation.annotation_name === "http:DELETE" ||
+                    annotation.annotation_name === "http:HEAD" || annotation.annotation_name === "http:PATCH" ||
+                    annotation.annotation_name === "http:OPTIONS") {
                     if (_.isEmpty(existingMethodAnnotationInModel.value)) {
                         existingMethodAnnotationInModel.value = annotation.annotation_name;
                     } else {
@@ -338,7 +342,9 @@ define(['lodash', 'require', 'log', './node', '../utils/common-utils'],
         // related to http methods.
         _.forEach(jsonNode.annotations, function(annotationFromService){
            if (!(annotationFromService.annotation_name === "http:POST" || annotationFromService.annotation_name === "http:GET" ||
-               annotationFromService.annotation_name === "http:PUT" || annotationFromService.annotation_name === "http:DELETE")) {
+               annotationFromService.annotation_name === "http:PUT" || annotationFromService.annotation_name === "http:DELETE" ||
+               annotationFromService.annotation_name === "http:HEAD" || annotationFromService.annotation_name === "http:PATCH" ||
+               annotationFromService.annotation_name === "http:OPTIONS")) {
                var existingAnnotation = _.find(self._annotations, function (annotationInModel) {
                    return annotationInModel.key === annotationFromService.annotation_name
                });
