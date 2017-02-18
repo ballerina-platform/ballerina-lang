@@ -134,18 +134,6 @@ public class SwaggerResourceMapper {
 
 
     /**
-     * Converts operation into a resource.
-     *
-     * @param pathMap
-     * @return resources
-     */
-    protected Resource[] convertOperationsToResources(Map<String, Path> pathMap) {
-        // TODO need to implement this
-        throw new UnsupportedOperationException("Converting operations to resources is not implemented yet!");
-    }
-
-
-    /**
      * This method will convert ballerina @Resource to ballerina @OperationAdaptor
      *
      * @param resource @Resource array to be convert.
@@ -189,15 +177,15 @@ public class SwaggerResourceMapper {
             if (resourceAnnotations != null) {
                 //TODO add all supported annotation mapping after annotation model finalized.
                 for (Annotation annotation : resourceAnnotations) {
-                    if (annotation.getName().equalsIgnoreCase("Consumes")) {
+                    if (annotation.getName().equalsIgnoreCase("http:Consumes")) {
                         op.getOperation().consumes(annotation.getValue());
-                    } else if (annotation.getName().equalsIgnoreCase("Produces")) {
+                    } else if (annotation.getName().equalsIgnoreCase("http:Produces")) {
                         op.getOperation().produces(annotation.getValue());
-                    } else if (annotation.getName().equalsIgnoreCase("Path")) {
+                    } else if (annotation.getName().equalsIgnoreCase("http:Path")) {
                         op.setPath(annotation.getValue());
-                    } else if (annotation.getName().equalsIgnoreCase("Summary")) {
+                    } else if (annotation.getName().equalsIgnoreCase("http:Summary")) {
                         op.getOperation().setSummary(annotation.getValue());
-                    } else if (annotation.getName().equalsIgnoreCase("Description")) {
+                    } else if (annotation.getName().equalsIgnoreCase("http:Description")) {
                         op.getOperation().setDescription(annotation.getValue());
                     } else if (annotation.getName().matches(HTTP_VERB_MATCHING_PATTERN)) {
                         op.setHttpOperation(annotation.getName());

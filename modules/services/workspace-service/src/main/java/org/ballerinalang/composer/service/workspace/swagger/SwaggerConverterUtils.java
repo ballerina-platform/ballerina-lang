@@ -141,11 +141,11 @@ public class SwaggerConverterUtils {
             resources1 = mapSwaggerPathsToResources(ops);
         }
         List<Annotation> serviceAnnotationArrayList = new ArrayList<Annotation>();
-        serviceAnnotationArrayList.add(new Annotation(null, new SymbolName("BasePath"),
+        serviceAnnotationArrayList.add(new Annotation(null, new SymbolName("http:BasePath"),
                 swagger.getBasePath(), null));
-        serviceAnnotationArrayList.add(new Annotation(null, new SymbolName("Host"),
+        serviceAnnotationArrayList.add(new Annotation(null, new SymbolName("http:Host"),
                 swagger.getHost(), null));
-        serviceAnnotationArrayList.add(new Annotation(null, new SymbolName("Info"),
+        serviceAnnotationArrayList.add(new Annotation(null, new SymbolName("http:Info"),
                 Json.pretty(swagger.getInfo()).toString(), null));
         service.setAnnotations(serviceAnnotationArrayList.toArray(
                 new Annotation[serviceAnnotationArrayList.size()]));
@@ -201,23 +201,23 @@ public class SwaggerConverterUtils {
             resourceBuilder.setName(operationId);
             if (entry.hasConsumes) {
                 resourceBuilder.addAnnotation(
-                        new Annotation(null, new SymbolName("Consumes"), entry.consumes.toString(), null));
+                        new Annotation(null, new SymbolName("http:Consumes"), entry.consumes.toString(), null));
             }
             if (entry.hasProduces) {
                 resourceBuilder.addAnnotation(
-                        new Annotation(null, new SymbolName("Produces"), entry.produces.toString(), null));
+                        new Annotation(null, new SymbolName("http:Produces"), entry.produces.toString(), null));
             }
             if (entry.summary != null) {
                 resourceBuilder.addAnnotation(
-                        new Annotation(null, new SymbolName("Summary"), entry.summary.toString(), null));
+                        new Annotation(null, new SymbolName("http:Summary"), entry.summary.toString(), null));
             }
             if (entry.notes != null) {
                 resourceBuilder.addAnnotation(
-                        new Annotation(null, new SymbolName("Description"), entry.notes.toString(), null));
+                        new Annotation(null, new SymbolName("http:Description"), entry.notes.toString(), null));
             }
             if (entry.path != null && entry.path.length() > 0) {
                 resourceBuilder
-                        .addAnnotation(new Annotation(null, new SymbolName("Path"), entry.path.toString(), null));
+                        .addAnnotation(new Annotation(null, new SymbolName("http:Path"), entry.path.toString(), null));
             }
             if (entry.httpMethod != null && entry.httpMethod.length() > 0) {
                 resourceBuilder.addAnnotation(new Annotation(null, new SymbolName(httpMethod), "", null));
@@ -462,7 +462,7 @@ public class SwaggerConverterUtils {
         String path = "/";
         String verb = "";
         for (Annotation annotation : ballerinaResource.getAnnotations()) {
-            if (annotation.getName().equalsIgnoreCase("Path")) {
+            if (annotation.getName().equalsIgnoreCase("http:Path")) {
                 path = annotation.getValue();
             } else if (annotation.getName().matches(SwaggerResourceMapper.HTTP_VERB_MATCHING_PATTERN)) {
                 verb = annotation.getName();
