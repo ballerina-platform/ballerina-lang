@@ -114,53 +114,53 @@ import java.util.regex.Pattern;
  * @since 0.8.0
  */
 public class BLangModelBuilder {
-    private String currentPackagePath;
-    private BallerinaFile.BFileBuilder bFileBuilder;
+    protected String currentPackagePath;
+    protected BallerinaFile.BFileBuilder bFileBuilder;
 
-    private SymbolScope currentScope;
+    protected SymbolScope currentScope;
 
     // Builds connectors and services.
-    private CallableUnitGroupBuilder currentCUGroupBuilder;
+    protected CallableUnitGroupBuilder currentCUGroupBuilder;
 
     // Builds functions, actions and resources.
-    private CallableUnitBuilder currentCUBuilder;
+    protected CallableUnitBuilder currentCUBuilder;
 
     // Keep the parent CUBuilder for worker
-    private CallableUnitBuilder parentCUBuilder;
+    protected CallableUnitBuilder parentCUBuilder;
     
     // Builds user defined structs.
-    private StructDef.StructBuilder currentStructBuilder;
+    protected StructDef.StructBuilder currentStructBuilder;
 
-    private Stack<Annotation.AnnotationBuilder> annotationBuilderStack = new Stack<>();
-    private Stack<BlockStmt.BlockStmtBuilder> blockStmtBuilderStack = new Stack<>();
-    private Stack<IfElseStmt.IfElseStmtBuilder> ifElseStmtBuilderStack = new Stack<>();
+    protected Stack<Annotation.AnnotationBuilder> annotationBuilderStack = new Stack<>();
+    protected Stack<BlockStmt.BlockStmtBuilder> blockStmtBuilderStack = new Stack<>();
+    protected Stack<IfElseStmt.IfElseStmtBuilder> ifElseStmtBuilderStack = new Stack<>();
 
-    private Stack<TryCatchStmt.TryCatchStmtBuilder> tryCatchStmtBuilderStack = new Stack<>();
+    protected Stack<TryCatchStmt.TryCatchStmtBuilder> tryCatchStmtBuilderStack = new Stack<>();
 
-    private Stack<ForkJoinStmt.ForkJoinStmtBuilder> forkJoinStmtBuilderStack = new Stack<>();
-    private Stack<List<Worker>> workerStack = new Stack<>();
+    protected Stack<ForkJoinStmt.ForkJoinStmtBuilder> forkJoinStmtBuilderStack = new Stack<>();
+    protected Stack<List<Worker>> workerStack = new Stack<>();
 
-    private Stack<SimpleTypeName> typeNameStack = new Stack<>();
-    private Stack<CallableUnitName> callableUnitNameStack = new Stack<>();
-    private Stack<Expression> exprStack = new Stack<>();
+    protected Stack<SimpleTypeName> typeNameStack = new Stack<>();
+    protected Stack<CallableUnitName> callableUnitNameStack = new Stack<>();
+    protected Stack<Expression> exprStack = new Stack<>();
 
     // Holds ExpressionLists required for return statements, function/action invocations and connector declarations
-    private Stack<List<Expression>> exprListStack = new Stack<>();
-    private Stack<List<Annotation>> annotationListStack = new Stack<>();
-    private Stack<MapStructInitKeyValueExpr> mapStructInitKVStack = new Stack<>();
-    private Stack<List<MapStructInitKeyValueExpr>> mapStructInitKVListStack = new Stack<>();
+    protected Stack<List<Expression>> exprListStack = new Stack<>();
+    protected Stack<List<Annotation>> annotationListStack = new Stack<>();
+    protected Stack<MapStructInitKeyValueExpr> mapStructInitKVStack = new Stack<>();
+    protected Stack<List<MapStructInitKeyValueExpr>> mapStructInitKVListStack = new Stack<>();
 
     // This variable keeps the package scope so that workers (and any global things) can be added to package scope
-    private SymbolScope packageScope = null;
+    protected SymbolScope packageScope = null;
 
     // This variable keeps the fork-join scope when adding workers and resolve back to current scope once done
-    private SymbolScope forkJoinScope = null;
+    protected SymbolScope forkJoinScope = null;
 
     // We need to keep a map of import packages.
     // This is useful when analyzing import functions, actions and types.
-    private Map<String, ImportPackage> importPkgMap = new HashMap<>();
+    protected Map<String, ImportPackage> importPkgMap = new HashMap<>();
 
-    private List<String> errorMsgs = new ArrayList<>();
+    protected List<String> errorMsgs = new ArrayList<>();
 
     public BLangModelBuilder(BLangPackage.PackageBuilder packageBuilder, String bFileName) {
         this.currentScope = packageBuilder.getCurrentScope();
@@ -1481,15 +1481,15 @@ public class BLangModelBuilder {
         exprStack.push(parentExpr);
     }
 
-    private void startRefTypeInitExpr() {
+    protected void startRefTypeInitExpr() {
         mapStructInitKVListStack.push(new ArrayList<>());
     }
 
-    private ImportPackage getImportPackage(String pkgName) {
+    protected ImportPackage getImportPackage(String pkgName) {
         return (pkgName != null) ? importPkgMap.get(pkgName) : null;
     }
 
-    private void checkForUndefinedPackagePath(NodeLocation location,
+    protected void checkForUndefinedPackagePath(NodeLocation location,
                                               String pkgName,
                                               ImportPackage importPackage,
                                               Supplier<String> symbolNameSupplier) {
@@ -1500,13 +1500,13 @@ public class BLangModelBuilder {
         }
     }
 
-    private void checkArgExprValidity(NodeLocation location, List<Expression> argExprList) {
+    protected void checkArgExprValidity(NodeLocation location, List<Expression> argExprList) {
         for (Expression argExpr : argExprList) {
             checkArgExprValidity(location, argExpr);
         }
     }
 
-    private void checkArgExprValidity(NodeLocation location, Expression argExpr) {
+    protected void checkArgExprValidity(NodeLocation location, Expression argExpr) {
         String errMsg = null;
         if (argExpr instanceof BacktickExpr) {
             errMsg = BLangExceptionHelper.constructSemanticError(location,
@@ -1538,7 +1538,7 @@ public class BLangModelBuilder {
     /**
      * This class represents CallableUnitName used in function and action invocation expressions.
      */
-    private static class CallableUnitName {
+    protected static class CallableUnitName {
         String pkgName;
 
         // This used in function/action invocation expressions
