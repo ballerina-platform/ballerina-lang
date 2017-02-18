@@ -29,15 +29,15 @@ function main (string[] args) {
   system:println("Hello, World!");
 }
 ``` 
-Pretty simple and straightforward, right? Now, let's look at something a little more interesting: the editor.
+Pretty simple and straightforward, right? Now, let's look at something a little more interesting: the Composer.
 
-## Run the editor
+## Run the Composer
 
-1. In the `bin` directory, type `sh editor` at the command prompt (omit `sh` if you are running on Windows).
+1. In the `bin` directory, type `sh composer` at the command prompt (omit `sh` if you are running on Windows).
 
-1. Access the editor from the following URL in your browser: http://localhost:9091
+1. Access the Composer from the following URL in your browser: http://localhost:9091
 
-    The welcome page of the Ballerina editor appears. Let's open a sample and take a look around. 
+    The welcome page of Ballerina Composer appears. Let's open a sample and take a look around. 
 
 1. Click **echoService**.
 
