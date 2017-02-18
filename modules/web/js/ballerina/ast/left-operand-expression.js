@@ -24,6 +24,7 @@ define(['lodash', './statement'], function (_, Statement) {
      */
     var LeftOperandExpression = function (args) {
         Statement.call(this, 'LeftOperandExpression');
+        this._operand_type = _.get(args, "operandType", "");
         this._left_operand_expression_string = _.get(args, "variableReferenceName", "var1");
     };
 
@@ -45,6 +46,23 @@ define(['lodash', './statement'], function (_, Statement) {
      */
     LeftOperandExpression.prototype.setLeftOperandExpressionString = function (leftOperandExpStr, options) {
         this.setAttribute('_left_operand_expression_string', leftOperandExpStr, options);
+    };
+
+    /**
+     * Get operand type
+     * @return {String} operand type
+     * */
+    LeftOperandExpression.prototype.getOperandType = function () {
+        return this._operand_type;
+    };
+
+    /**
+     * Set operandType
+     * @param {String} operandType
+     * @param {Object} options
+     * */
+    LeftOperandExpression.prototype.setOperandType = function (operandType, options) {
+        this.setAttribute('_operand_type', operandType, options);
     };
 
     /**
