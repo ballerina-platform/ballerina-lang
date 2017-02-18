@@ -28,6 +28,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.transport.http.netty.common.Constants;
+import org.wso2.carbon.transport.http.netty.listener.ServerBootstrapConfiguration;
 import org.wso2.carbon.transport.http.netty.sender.channel.BootstrapConfiguration;
 
 import java.io.IOException;
@@ -54,7 +55,19 @@ public class HTTPCarbonMessage extends CarbonMessage {
 
     // Variable to keep the status on whether the last content was added during the clone
     private boolean isEndMarked = false;
-    private int soTimeOut = BootstrapConfiguration.getInstance().getSocketTimeout();
+    private int soTimeOut = 60;
+
+    public HTTPCarbonMessage() {
+        BootstrapConfiguration clientBootstrapConfig = BootstrapConfiguration.getInstance();
+        if (clientBootstrapConfig != null) {
+            soTimeOut = clientBootstrapConfig.getSocketTimeout();
+            return;
+        }
+        ServerBootstrapConfiguration serverBootstrapConfiguration = ServerBootstrapConfiguration.getInstance();
+        if (serverBootstrapConfiguration != null) {
+            soTimeOut = serverBootstrapConfiguration.getSoTimeOut();
+        }
+    }
 
     public void addHttpContent(HttpContent httpContent) {
         try {
