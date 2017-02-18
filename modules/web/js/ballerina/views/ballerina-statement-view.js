@@ -388,7 +388,11 @@ define(['require', 'lodash', 'log', './../visitors/statement-visitor', 'd3', 'd3
          // resume state on rerendering
          var file = self.getDiagramRenderingContext().ballerinaFileEditor._file.getName();
          var hasBreakPoint = DebugManager.hasBreakPoint(model.getLineNumber(), file);
-         hasBreakPoint ? this.showDebugIndicator() : this.hideDebugIndicator();
+         if(hasBreakPoint) {
+            this.showDebugIndicator();
+         } else {
+            this.hideDebugIndicator();
+         }
      };
 
      BallerinaStatementView.prototype.showDebugIndicator = function () {
