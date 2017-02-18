@@ -81,7 +81,12 @@ define(['lodash', 'log', 'event_channel', '../ast/module', './try-catch-statemen
                 });
                 if (_.isUndefined(assignmentStatement)) {
                     _.set(args, 'model', statement);
-                    _.get(args, 'model').setStatementString(children[0].getLeftOperandExpressionString()+ " = "
+                    //If Operand type exist for the statement add it to the left operand expression.
+                    var leftOperandExpression = children[0].getOperandType() ?
+                        children[0].getOperandType() + " " + children[0].getLeftOperandExpressionString() :
+                        children[0].getLeftOperandExpressionString();
+
+                    _.get(args, 'model').setStatementString(leftOperandExpression + " = "
                         + children[1].getRightOperandExpressionString());
                     assignmentStatement = new AssignmentStatementView(args);
                 }

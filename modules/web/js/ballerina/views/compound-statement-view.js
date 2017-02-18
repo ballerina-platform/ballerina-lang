@@ -100,7 +100,8 @@ define(
                 parent: this,
                 topCenter: childStatementViewTopCenter,
                 messageManager: this.messageManager,
-                toolPalette: this.getToolPalette()
+                toolPalette: this.getToolPalette(),
+                isChildOfWorker: childStatement.parent._isChildOfWorker
             };
             var StatementViewFactory = require('./statement-view-factory');
             var statementViewFactory = new StatementViewFactory();

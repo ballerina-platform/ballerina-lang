@@ -443,8 +443,14 @@ define(['lodash', 'log', './node', './callable-definition', '../utils/common-uti
         return connectorReference;
     };
 
+    /**
+     * Checks if the current method a main method.
+     * @return {boolean} - true if main method, else false.
+     */
     FunctionDefinition.prototype.isMainFunction = function () {
-        return _.isEqual(this.getFunctionName(), "main");
+        return _.isEqual(this.getFunctionName(), "main")
+            && _.isEqual(_.size(this.getArguments()), 1)
+            && _.isEqual(this.getArguments()[0].getType().trim(), "string[]");
     };
 
     return FunctionDefinition;

@@ -16,7 +16,7 @@
  * under the License.
  */
 
-define(['jquery', 'backbone', 'lodash', 'log','./variable-tree', './debug-manager', './tools', './frames'], function ($, Backbone, _, log, VariableTree, DebugManager, Tools, Frames) {
+define(['jquery', 'backbone', 'lodash', 'log', './debug-manager', './tools', './frames'], function ($, Backbone, _, log, DebugManager, Tools, Frames) {
     var Debugger = Backbone.View.extend({
         initialize: function(config) {
             var errMsg;
@@ -137,7 +137,6 @@ define(['jquery', 'backbone', 'lodash', 'log','./variable-tree', './debug-manage
             Tools.render();
             
             Frames.setContainer(debuggerContainer.find('.debug-frams-container'));
-            VariableTree.setContainer(debuggerContainer.find('.debug-variables-container'));
 
             this._debuggerContainer = debuggerContainer;
             debuggerContainer.mCustomScrollbar({

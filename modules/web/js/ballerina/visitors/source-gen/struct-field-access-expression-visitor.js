@@ -15,44 +15,32 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require','lodash', 'log', 'event_channel', './abstract-expression-source-gen-visitor', 
-        '../../ast/struct-field-access-expression', '../../ast/left-operand-expression'],
-    function(require, _, log, EventChannel, AbstractExpressionSourceGenVisitor, StructFieldAccessExpression,
-             LeftOperandExpression) {
+define(['require', 'lodash', 'log', 'event_channel', './abstract-expression-source-gen-visitor'],
+    function (require, _, log, EventChannel, AbstractExpressionSourceGenVisitor) {
 
-        var SructFieldAccessExpressionVisitor = function(parent){
-            AbstractExpressionSourceGenVisitor.call(this,parent);
+        var SructFieldAccessExpressionVisitor = function (parent) {
+            AbstractExpressionSourceGenVisitor.call(this, parent);
         };
 
         SructFieldAccessExpressionVisitor.prototype = Object.create(AbstractExpressionSourceGenVisitor.prototype);
         SructFieldAccessExpressionVisitor.prototype.constructor = SructFieldAccessExpressionVisitor;
 
-        SructFieldAccessExpressionVisitor.prototype.canVisitStructFieldAccessExpression = function(expression){
-            return expression instanceof StructFieldAccessExpression && this._generatedSource === "";
+        SructFieldAccessExpressionVisitor.prototype.canVisitStructFieldAccessExpression = function (structFieldAccessExpression) {
+            return true;
         };
 
-        SructFieldAccessExpressionVisitor.prototype.beginVisitStructFieldAccessExpression = function(expression){
-            if(expression.getParent() instanceof StructFieldAccessExpression){
-                this.appendSource('.');
-            }
+        SructFieldAccessExpressionVisitor.prototype.beginVisitStructFieldAccessExpression = function (structFieldAccessExpression) {
+            this.appendSource(structFieldAccessExpression.getExpression());
             log.debug('Begin Visit Struct Field Access Expression');
         };
 
-        SructFieldAccessExpressionVisitor.prototype.visitStructFieldAccessExpression = function(expression){
+        SructFieldAccessExpressionVisitor.prototype.visitStructFieldAccessExpression = function (structFieldAccessExpression) {
             log.debug('Visit Struct Field Access Expression');
         };
 
-        SructFieldAccessExpressionVisitor.prototype.endVisitStructFieldAccessExpression = function(expression){
+        SructFieldAccessExpressionVisitor.prototype.endVisitStructFieldAccessExpression = function (structFieldAccessExpression) {
             this.getParent().appendSource(this.getGeneratedSource());
             log.debug('End Visit Struct Field Access Expression');
-        };
-
-        SructFieldAccessExpressionVisitor.prototype.visitExpression = function (expression) {
-            var ExpressionVisitorFactory = require('./expression-visitor-factory');
-            var expressionVisitorFactory = new ExpressionVisitorFactory();
-            var expressionVisitor = expressionVisitorFactory.getExpressionView({model:expression, parent:this});
-            expression.accept(expressionVisitor);
-            log.debug('Visit Expression');
         };
 
         return SructFieldAccessExpressionVisitor;

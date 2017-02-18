@@ -24,7 +24,6 @@ define(['lodash', 'log', './statement'], function (_, log, Statement) {
      */
     var ThrowStatement = function (args) {
         Statement.call(this, 'ThrowStatement');
-        this._expression = _.get(args, 'expression', 'e');
         this.type = "ThrowStatement";
     };
 
@@ -39,8 +38,12 @@ define(['lodash', 'log', './statement'], function (_, log, Statement) {
         }
     };
 
-    ThrowStatement.prototype.getExpression = function () {
-        return this._expression;
+    /**
+     * Set the throw statement string
+     * @param {string} throwString
+     */
+    ThrowStatement.prototype.setStatementString = function (statementString, options) {
+        this.getChildren()[0].setExpression(statementString.split('throw ')[1]);
     };
 
     /**
@@ -48,7 +51,7 @@ define(['lodash', 'log', './statement'], function (_, log, Statement) {
      * @return {string} throw statement string
      */
     ThrowStatement.prototype.getStatementString = function () {
-        return 'throw ' + this.getExpression();
+        return 'throw ' + this.getChildren()[0].getExpression();
     };
 
     /**
@@ -57,7 +60,6 @@ define(['lodash', 'log', './statement'], function (_, log, Statement) {
      */
     ThrowStatement.prototype.initFromJson = function (jsonNode) {
         var self = this;
-        //this.setExpression(jsonNode, {doSilently: true});
         _.each(jsonNode.children, function (childNode) {
             var child = self.getFactory().createFromJson(childNode);
             self.addChild(child);

@@ -43,7 +43,7 @@ public class SwaggerServiceMapperTest {
                 "@BasePath (\"/echo\")\n" +
                 "service echo {\n" +
                 "\n" +
-                "    @POST\n" +
+                "    @http:POST\n" +
                 "    resource echo (message m) {\n" +
                 "        http:convertToResponse(m);\n" +
                 "        reply m;\n" +
