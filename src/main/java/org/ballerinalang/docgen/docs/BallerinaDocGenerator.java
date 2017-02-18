@@ -140,7 +140,12 @@ public class BallerinaDocGenerator {
     }
 
     private static void writeHtmlDocs(String output, Map<String, BLangPackage> docsMap) throws IOException {
-        HtmlDocumentWriter htmlDocumentWriter = new HtmlDocumentWriter(output);
+        HtmlDocumentWriter htmlDocumentWriter;
+        if (output == null) {
+            htmlDocumentWriter = new HtmlDocumentWriter();
+        } else {
+            htmlDocumentWriter = new HtmlDocumentWriter(output);
+        }
         htmlDocumentWriter.write(docsMap.values());
     }
     

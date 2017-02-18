@@ -31,23 +31,33 @@ import java.util.List;
 /**
  * doc command for ballerina which generates documentation for Ballerina packages
  */
-@Parameters(commandNames = "doc", commandDescription = "generates documentation for Ballerina packages")
+@Parameters(commandNames = "doc", commandDescription = "generates API documentation for Ballerina packages")
 public class BallerinaDocCmd implements BLauncherCmd {
     private final PrintStream out = System.out;
 
-    @Parameter(arity = 1, description = "a valid path which points either to a Ballerina file or a folder with "
-            + "Ballerina files")
+    @Parameter(arity = 1, description = "either the path to the directories where Ballerina source files reside or a "
+            + "path to a Ballerina file which does not belong to a package")
     private List<String> argList;
+    
+    @Parameter(names = { "--output", "-o" },
+            description = "path to the output directory where the API documentation will be written to", hidden = false)
+    private String outputDir;
+    
+    @Parameter(names = { "--exclude", "-e" },
+            description = "comma separated list of package names to be filtered from the documentation", hidden = false)
+    private String packageFilter;
 
     @Override
     public void execute() {
         if (argList == null || argList.size() == 0) {
-            // throw Utils.createUsageException("No valid Ballerina file given");
-            out.println("No valid Ballerina file given");
+            StringBuilder sb = new StringBuilder("Docerina: No valid Ballerina source given.\n");
+            printUsage(sb);
+            out.println(sb);
             return;
         }
 
-        BallerinaDocGenerator.generateApiDocs(argList.get(0), argList.get(1));
+        BallerinaDocGenerator.generateApiDocsWithFilter(outputDir, packageFilter,
+                argList.toArray(new String[argList.size()]));
     }
 
     @Override
@@ -57,10 +67,10 @@ public class BallerinaDocCmd implements BLauncherCmd {
 
     @Override
     public void printUsage(StringBuilder stringBuilder) {
-        stringBuilder.append("ballerina doc <path-to-ballerina-files>\n");
+        stringBuilder.append("ballerina doc <sourcepath>... [-o outputdir -e excludedpackages]\n");
         stringBuilder
-                .append("\npath-to-ballerina-files:\n A valid path which points either to a Ballerina file or a folder"
-                        + " with Ballerina files");
+                .append("\n\tsourcepath:\n\tEither the paths to the directories where Ballerina source files reside or "
+                        + "a path to a Ballerina file which does not belong to a package");
         stringBuilder.append("\n");
     }
 
