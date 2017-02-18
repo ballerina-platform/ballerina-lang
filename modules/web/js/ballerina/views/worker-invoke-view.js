@@ -108,6 +108,11 @@ define(['lodash', 'd3','log', './simple-statement-view', './../ast/action-invoca
                 statementGroup: this.getStatementGroup(),
                 editableProperties: editableProperty
             });
+
+            this._createDebugIndicator({
+                statementGroup: this.getStatementGroup()
+            });
+
             this.listenTo(model, 'update-property-text', this.updateStatementText);
 
             // mouse events for 'processorConnectPoint'
