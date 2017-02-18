@@ -65,6 +65,15 @@ define(['lodash','require', 'backbone'], function (_, require, Backbone) {
         setTitle: function (title) {
             this.set('title', title);
             this.trigger('title-modified', title);
+        },
+
+        /**
+         * sets params
+         * @param {string} title
+         */
+        setParams: function (params) {
+            this.set('params', params);
+            this.trigger('params-modified', params);
         }
 
     });
