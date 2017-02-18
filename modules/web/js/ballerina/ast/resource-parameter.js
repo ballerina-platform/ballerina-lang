@@ -81,9 +81,15 @@ define(['lodash', './argument'], function (_, Argument) {
      * @param jsonNode
      */
     ResourceParameter.prototype.initFromJson = function (jsonNode) {
-        // TODO : Fix
-        this.annotate = jsonNode.annotate;
-        Object.getPrototypeOf(this.constructor.prototype).initFromJson.call(this, jsonNode, 0);
+        this.setType(jsonNode.parameter_type, {doSilently: true});
+        this.setIdentifier(jsonNode.parameter_name, {doSilently: true});
+
+        // As of now we only support one annotation.
+        if (_.isEqual(_.size(jsonNode.children), 1) && _.isEqual(jsonNode.children[0].type, "annotation")) {
+            var annotationJson = jsonNode.children[0];
+            this.setAnnotationType("@" + annotationJson.annotation_name, {doSilently: true});
+            this.setAnnotationText(annotationJson.annotation_value, {doSilently: true});
+        }
     };
 
     return ResourceParameter;
