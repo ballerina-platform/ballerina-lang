@@ -75,6 +75,9 @@
     float: left;
     margin-left: 10px;
     margin-top: 2px;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    width: 140px;
 }
 
 .tool-container-vertical-icon {
