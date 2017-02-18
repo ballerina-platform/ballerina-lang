@@ -1190,10 +1190,7 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
                         node = BallerinaASTFactory.createConnectorDeclaration();
                         break;
                     case 'variable_definition':
-                        // This is the case where struct defines variables inside.
-                        // TODO: Instead of using the createVariableDeclaration we need to refactor this for createVariableDefinition
-                        // simply renaming would work.
-                        node = BallerinaASTFactory.createVariableDeclaration();
+                        node = BallerinaASTFactory.createVariableDefinition();
                         break;
                     case 'variable_definition_statement':
                         node = BallerinaASTFactory.createVariableDefinitionStatement();

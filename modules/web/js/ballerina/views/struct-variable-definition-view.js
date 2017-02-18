@@ -15,8 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'jquery', 'log', 'alerts', './ballerina-view', './../ast/variable-declaration'],
-    function (_, $, log, Alerts, BallerinaView, VariableDeclaration) {
+define(['lodash', 'jquery', 'log', 'alerts', './ballerina-view'],
+    function (_, $, log, Alerts, BallerinaView) {
 
         /**
          * Arguments for creating a constant definition view.
@@ -52,14 +52,14 @@ define(['lodash', 'jquery', 'log', 'alerts', './ballerina-view', './../ast/varia
             this._structVariableWrapper = structVariableDefinitionWrapper.get(0);
 
             var structVariableDefinitionTypeWrapper = $("<div/>", {
-                text: this.getModel().getType(),
+                text: this.getModel().getTypeName(),
                 class: "struct-variable-definition-type pull-left"
             }).appendTo(structVariableDefinitionWrapper);
 
             this._typeWrapper = structVariableDefinitionTypeWrapper.get(0);
 
             var structVariableDefinitionIdentifierWrapper = $("<div/>", {
-                text: this.getModel().getIdentifier(),
+                text: this.getModel().getName(),
                 class: "struct-variable-definition-identifier pull-left"
             }).appendTo(structVariableDefinitionWrapper);
 
@@ -80,7 +80,7 @@ define(['lodash', 'jquery', 'log', 'alerts', './ballerina-view', './../ast/varia
             // Removes the value of the argument in the model and rebind the arguments to the arguments view.
             $(deleteButton).click(function () {
                 $(structVariableDefinitionWrapper).remove();
-                self.getParent().removeVariableDeclaration(self.getModel().getID());
+                self.getParent().removeVariableDefinition(self.getModel().getID());
             });
         };
 
@@ -126,10 +126,10 @@ define(['lodash', 'jquery', 'log', 'alerts', './ballerina-view', './../ast/varia
                 $(".select2-search__field").attr("placeholder", "Search");
             });
 
-            $(typeDropdown).val(self.getModel().getType()).change();
+            $(typeDropdown).val(self.getModel().getTypeName()).change();
 
             $(typeDropdown).on("select2:select", function() {
-                self.getModel().setType(typeDropdown.select2('data')[0].text);
+                self.getModel().setTypeName(typeDropdown.select2('data')[0].text);
             });
 
             $(this._identifierWrapper).empty();
@@ -142,7 +142,7 @@ define(['lodash', 'jquery', 'log', 'alerts', './ballerina-view', './../ast/varia
             var identifierTextBox = $("<input/>", {
                 type: "text",
                 class: "struct-variable-identifier-text-input",
-                val: this.getModel().getIdentifier()
+                val: this.getModel().getName()
             }).keypress(function (e) {
                 var enteredKey = e.which || e.charCode || e.keyCode;
                 // Disabling enter key
@@ -154,7 +154,7 @@ define(['lodash', 'jquery', 'log', 'alerts', './ballerina-view', './../ast/varia
                 var newIdentifier = $(this).val() + String.fromCharCode(enteredKey);
 
                 try {
-                    self.getModel().setIdentifier(newIdentifier);
+                    self.getModel().setName(newIdentifier);
                 } catch (error) {
                     Alerts.error(error);
                     event.stopPropagation();
@@ -168,7 +168,7 @@ define(['lodash', 'jquery', 'log', 'alerts', './ballerina-view', './../ast/varia
                     typeDropdown.dropdownButton.trigger("click");
                 }
             }).keyup(function(){
-                self.getModel().setIdentifier($(this).val());
+                self.getModel().setName($(this).val());
             }).appendTo($(identifierEditWrapper));
 
         };
