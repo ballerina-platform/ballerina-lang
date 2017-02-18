@@ -331,11 +331,6 @@ define(['lodash', 'jquery', './ballerina-view', 'log', 'typeMapper', './../ast/a
                 });
                 leftOperandExpression.setLeftOperandExpressionString('');
                 leftOperandExpression.setLeftOperandType('');
-                _.forEach(childSchema.parameters, function (params) {
-                    var variableRefExp = BallerinaASTFactory.createVariableReferenceExpression();
-                    variableRefExp.setVariableReferenceName('');
-                    rightOperandExpression.addChild(variableRefExp);
-                });
                 rightOperandExpression.addChild(innerFunctionInvocationExpression);
                 rightOperandExpression.setRightOperandExpressionString('');
                 rightOperandExpression.getChildren()[0].setParams('');
