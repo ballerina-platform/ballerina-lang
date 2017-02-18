@@ -589,6 +589,16 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
     };
 
     /**
+     * Specifies connection has a function
+     * @param {object} connection
+     * @returns {boolean} has a connection or not
+     */
+    TypeMapperRenderer.prototype.hasFunction = function(connection, self) {
+        return  $("#" + connection.sourceStruct + self.viewIdSeperator + self.viewId).attr('class').includes("func")
+            || $("#" + connection.targetStruct + self.viewIdSeperator + self.viewId).attr('class').includes("func");
+    }
+
+    /**
      * Make target property
      * @param element
      * @param self
@@ -605,7 +615,7 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
                     self.midpoint = self.midpoint + self.midpointVariance;
                     self.jsPlumbInstance.importDefaults({Connector: self.getConnectorConfig(self.midpoint)});
                     self.onConnection(connection);
-                    return false;
+                    return self.hasFunction(connection, self);
                     // self.disableParentsJsTree(params.sourceId, self);
                     // self.disableParentsJsTree(params.targetId, self);
                 } else {
@@ -617,7 +627,7 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
                         connection.complexMapperName = compatibleTypeConverters[0];
                         self.jsPlumbInstance.importDefaults({ Connector : self.getConnectorConfig(self.midpoint)});
                         self.onConnection(connection);
-                        return false;
+                        return self.hasFunction(connection, self);
                         // self.disableParentsJsTree(params.sourceId, self);
                         // self.disableParentsJsTree(params.targetId, self);
                     } else {
