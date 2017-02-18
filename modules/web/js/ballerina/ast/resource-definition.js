@@ -54,7 +54,7 @@ define(['lodash', 'require', 'log', './node', '../utils/common-utils'],
                 return annotation.key == "Consumes";
             }))) {
             this._annotations.push({
-                key: "Consumes",
+                key: "http:Consumes",
                 value: ""
             });
         }
@@ -63,7 +63,7 @@ define(['lodash', 'require', 'log', './node', '../utils/common-utils'],
                 return annotation.key == "Produces";
             }))) {
             this._annotations.push({
-                key: "Produces",
+                key: "http:Produces",
                 value: ""
             });
         }
@@ -274,6 +274,20 @@ define(['lodash', 'require', 'log', './node', '../utils/common-utils'],
         });
         return _.sortBy(connectorDeclaration, [function (connectorDeclaration) {
             return connectorDeclaration.getConnectorVariable();
+        }]);
+    };
+
+    ResourceDefinition.prototype.getWorkerDeclarations = function () {
+        var workerDeclarations = [];
+        var self = this;
+
+        _.forEach(this.getChildren(), function (child) {
+            if (self.getFactory().isWorkerDeclaration(child)) {
+                workerDeclarations.push(child);
+            }
+        });
+        return _.sortBy(workerDeclarations, [function (workerDeclaration) {
+            return workerDeclaration.getWorkerName();
         }]);
     };
 

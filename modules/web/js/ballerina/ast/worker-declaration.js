@@ -21,7 +21,7 @@ define(['lodash', './node', '../utils/common-utils'], function (_, ASTNode, Comm
         this._isDefaultWorker = _.get(args, "isDefaultWorker", false);
         this._reply = _.get(args, "replyStatement", null);
         this._childrenList = [];
-        this._workerDeclarationStatement = _.get(args, 'declarationStatement', 'worker1(message m)');
+        this._workerDeclarationStatement = _.get(args, 'declarationStatement');
         this._invoker = undefined;
         this._replyReceiver = undefined;
         this._workerName = undefined;
@@ -71,28 +71,6 @@ define(['lodash', './node', '../utils/common-utils'], function (_, ASTNode, Comm
 
     WorkerDeclaration.prototype.setWorkerName = function (workerName) {
         this._workerName = workerName;
-    };
-
-    /**
-     * @inheritDoc
-     * @override
-     */
-    WorkerDeclaration.prototype.generateUniqueIdentifiers = function () {
-        // TODO : Implement
-        // CommonUtils.generateUniqueIdentifier({
-        //     node: this,
-        //     attributes: [{
-        //         defaultValue: "newAction",
-        //         setter: this.setActionName,
-        //         getter: this.getActionName,
-        //         parents: [{
-        //             // ballerina-ast-node
-        //             node: this.parent,
-        //             getChildrenFunc: this.parent.getConnectorActionDefinitions,
-        //             getter: this.getActionName
-        //         }]
-        //     }]
-        // });
     };
 
     /**
@@ -161,6 +139,29 @@ define(['lodash', './node', '../utils/common-utils'], function (_, ASTNode, Comm
             self.addChild(child);
             child.initFromJson(childNodeTemp);
         });
+    };
+
+    /**
+     * @inheritDoc
+     * @override
+     */
+    WorkerDeclaration.prototype.generateUniqueIdentifiers = function () {
+        CommonUtils.generateUniqueIdentifier({
+            node: this,
+            attributes: [{
+                defaultValue: "newWorker",
+                setter: this.setWorkerDeclarationStatement,
+                getter: this.getWorkerDeclarationStatement,
+                parents: [{
+                    // function-def/connector-action/resource
+                    node: this.parent,
+                    getChildrenFunc: this.parent.getWorkerDeclarations,
+                    getter: this.getWorkerName
+                }]
+            }]
+        });
+
+        this.setWorkerDeclarationStatement(this.getWorkerDeclarationStatement() + "(message m)") ;
     };
 
     return WorkerDeclaration;
