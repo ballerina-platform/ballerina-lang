@@ -26,7 +26,6 @@
 
   <modelVersion>4.0.0</modelVersion>
   <artifactId>docerina-maven-plugin</artifactId>
-  <version>0.8.0-SNAPSHOT</version>
   <packaging>maven-plugin</packaging>
 
   <name>Docerina Maven Plugin</name>
