@@ -176,8 +176,8 @@ define(['lodash', 'jquery', './ballerina-view', 'log', 'typeMapper', './../ast/a
                         targetPropertyNames = [];
                     sourcePropertyNames.push(sourceSchema.returnType[0].name);
                     sourcePropertyTypes.push(sourceSchema.returnType[0].type);
-                    targetPropertyNames.push(sourceSchema.parameters[index].name);
-                    targetPropertyTypes.push(sourceSchema.parameters[index].type);
+                    targetPropertyNames.push(targetSchema.parameters[index].name);
+                    targetPropertyTypes.push(targetSchema.parameters[index].type);
                     var connection = {};
                     connection["targetStruct"] = targetSchema.name;
                     connection["targetProperty"] = targetPropertyNames;
