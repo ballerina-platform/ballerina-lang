@@ -4,19 +4,19 @@
 
 The following annotations are available in Ballerina for documenting APIs:
 
-- @Description: 
+- @doc:Description: 
 
     Use description annotation for explaining the purpose of functions, connectors, connector actions and structs.
        
-- @Param:
+- @doc:Param:
 
     Use param annotation for explaining parameters.
     
-- @Return:
+- @doc:Return:
 
     Use return annotation for explaining return parameters.
 
-- @Field:
+- @doc:Field:
 
     Use field annotation for explaining fields of structs.
      
