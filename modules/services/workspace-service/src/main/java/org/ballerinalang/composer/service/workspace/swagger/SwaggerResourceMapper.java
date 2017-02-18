@@ -32,6 +32,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * This class will do resource mapping from ballerina to swagger.
  */
 public class SwaggerResourceMapper {
+    public final static String HTTP_PACKAGE_PREFIX = "http:";
     public final static String HTTP_VERB_MATCHING_PATTERN = "(?i)|" + "http:"+ Constants.ANNOTATION_METHOD_GET + "|" +
             "http:"+ Constants.ANNOTATION_METHOD_PUT + "|" + "http:"+ Constants.ANNOTATION_METHOD_POST + "|" +
             "http:"+ Constants.ANNOTATION_METHOD_DELETE + "|" + "http:"+ Constants.ANNOTATION_METHOD_OPTIONS+
@@ -99,22 +100,22 @@ public class SwaggerResourceMapper {
             String httpOperation = operationAdaptor.getHttpOperation();
             Operation operation = operationAdaptor.getOperation();
             switch (httpOperation) {
-                case "http:"+Constants.ANNOTATION_METHOD_GET:
+                case HTTP_PACKAGE_PREFIX+Constants.ANNOTATION_METHOD_GET:
                     path.get(operation);
                     break;
-                case "http:"+Constants.ANNOTATION_METHOD_PUT:
+                case "HTTP_PACKAGE_PREFIX"+Constants.ANNOTATION_METHOD_PUT:
                     path.put(operation);
                     break;
-                case "http:"+Constants.ANNOTATION_METHOD_POST:
+                case "HTTP_PACKAGE_PREFIX"+Constants.ANNOTATION_METHOD_POST:
                     path.post(operation);
                     break;
-                case "http:"+Constants.ANNOTATION_METHOD_DELETE:
+                case HTTP_PACKAGE_PREFIX+Constants.ANNOTATION_METHOD_DELETE:
                     path.delete(operation);
                     break;
-                case "http:"+Constants.ANNOTATION_METHOD_OPTIONS:
+                case HTTP_PACKAGE_PREFIX+Constants.ANNOTATION_METHOD_OPTIONS:
                     path.options(operation);
                     break;
-                case "http:"+Constants.ANNOTATION_METHOD_PATCH:
+                case HTTP_PACKAGE_PREFIX+Constants.ANNOTATION_METHOD_PATCH:
                     path.patch(operation);
                     break;
                 case "http:HEAD":
