@@ -15,6 +15,7 @@
             "expressions/divide-incompatible-types.bal",
             "expressions/divide-unsupported-types.bal",
             "expressions/empty-array-init.bal",
+            "expressions/multi-type-map-initializer.bal",
             "expressions/type/incompatible/eq/incompatible-type-equal-expr.bal",
             "expressions/type/incompatible/gt/incompatible-type-greater-than.bal",
             "expressions/type/incompatible/gte/incompatible-type-greater-than-equal.bal",
@@ -71,7 +72,11 @@
             "statements/variable-scope-value.bal",
             "statements/variable-while-scope.bal",
             "statements/while-stmnt-with-incompatible-types.bal",
-            "structs/constants/struct-constants.bal"
+            "statements/block/function-unreachable-stmt2.bal",
+            "statements/block/ifblock-unreachable-stmt.bal",
+            "statements/tryCatchThrowStmts/duplicate-var-try-catch.bal",
+            "structs/constants/struct-constants.bal",
+            "BalSource/function.bal"
         ]
     }
 }
