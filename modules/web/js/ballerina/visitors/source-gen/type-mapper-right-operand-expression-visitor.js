@@ -32,12 +32,7 @@ define(['require', 'lodash', 'log', 'event_channel', './abstract-statement-sourc
         };
 
         TypeMapperRightOperandExpressionVisitor.prototype.beginVisitRightOperandExpression = function (rightOperandExpression) {
-            //FIXME: Need to refactor this if logic
             this.appendSource(" = ");
-            if (!_.isUndefined(rightOperandExpression.getRightOperandExpressionString()) &&
-                (!_.isUndefined(rightOperandExpression.getChildren()) && !AST.BallerinaASTFactory.isFunctionInvocationStatement(rightOperandExpression.getChildren()[0]))) {
-                this.appendSource(rightOperandExpression.getRightOperandExpressionString());
-            }
             log.debug('Begin Visit Type Mapper Right Operand Expression');
         };
 
