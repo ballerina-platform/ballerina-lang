@@ -243,20 +243,7 @@ define(['lodash', './node', '../utils/common-utils'], function (_, ASTNode, Comm
             return ballerinaASTFactory.isVariableDefinitionStatement(child);
         });
 
-        var leftOperandExpression = _.find(variableDefStatement.getChildren(), function (child) {
-            return ballerinaASTFactory.isLeftOperandExpression(child);
-        });
-
-        var variableReferenceExpression = _.find(leftOperandExpression.getChildren(), function (child) {
-            return ballerinaASTFactory.isVariableReferenceExpression(child);
-        });
-        variableReferenceExpression.setVariableReferenceName(identifier);
-
-        var variableDefinition = _.find(variableReferenceExpression.getChildren(), function (child) {
-            return ballerinaASTFactory.isVariableDefinition(child);
-        });
-
-        variableDefinition.setTypeName(structName);
+        variableDefStatement.setLeftExpression(structName + " " + identifier);
     };
 
     /**
