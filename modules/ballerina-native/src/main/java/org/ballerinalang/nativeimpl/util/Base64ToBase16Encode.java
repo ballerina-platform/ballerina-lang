@@ -40,7 +40,7 @@ import java.util.Base64;
 @BallerinaFunction(
         packageName = "ballerina.util",
         functionName = "base64ToBase16Encode",
-        args = { @Argument(name = "string", type = TypeEnum.STRING)},
+        args = { @Argument(name = "baseString", type = TypeEnum.STRING)},
         returnType = { @ReturnType(type = TypeEnum.STRING) },
         isPublic = true)
 
@@ -54,7 +54,7 @@ public class Base64ToBase16Encode extends AbstractNativeFunction {
     public BValue[] execute(Context context) {
         String stringValue = getArgument(context, 0).stringValue();
 
-        String result = "";
+        String result;
         byte[] keyBytes = Base64.getDecoder().decode(stringValue.getBytes(Charset.defaultCharset()));
 
         final char[] hexArray = "0123456789ABCDEF".toCharArray();
