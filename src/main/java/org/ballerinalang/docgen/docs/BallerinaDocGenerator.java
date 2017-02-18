@@ -136,7 +136,6 @@ public class BallerinaDocGenerator {
             return Arrays.asList(packageFilter.split(",")).stream()
                     .filter(e -> packageName.startsWith(e.replace(".*", ""))).findAny().isPresent();
         }
-
         return false;
     }
 
