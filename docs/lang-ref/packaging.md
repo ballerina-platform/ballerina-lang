@@ -102,8 +102,46 @@ A Ballerina service archive containing one or more services is named with the ex
 ballerina build service <pkg1> [<pkg2> <pkg3> ...] [-o filename]
 ```
 
-After you have built an archive, if you want to run it in a Docker image, you can use the following command:
+## Creating a Docker image of the archive
+After you have built an archive, you can create a Docker image of it and run it in the container. 
+
+To create a Docker image from a Ballerina package, you run `ballerina docker` and provide the package name as an argument:
+
+```bash
+$ ./ballerina docker helloWorld.bmz
+ballerina: build docker image [helloworld:latest] in docker host [localhost]? (y/n): y
+
+ballerina: docker image helloworld:latest successfully built.
+
+Use the following command to start a container.
+        docker run --name determined_aluminum -it helloworld:latest
 
 ```
-ballerina docker <package-file-path> --tag | -t <image-name> --host | -h <hostURL>
+
+You can additionally provide a customized image name:
+
+```bash
+./ballerina docker helloWorld.bmz -t myhelloworld:0.1
+ballerina: build docker image [myhelloworld:0.1] in docker host [localhost]? (y/n): y
+
+ballerina: docker image myhelloworld:0.1 successfully built.
+
+Use the following command to start a container.
+        docker run --name burning_aids -it myhelloworld:0.1
+
 ```
+
+If you want to use a remote Docker daemon, you can specify it using the -H flag so the Docker image is created at the remote end:
+
+```bash
+./ballerina docker helloWorld.bmz -H http://127.0.0.1:2375
+ballerina: build docker image [myhelloworld:0.1] in docker host [http://127.0.0.1:2375]? (y/n): y
+
+ballerina: docker image helloworld:latest successfully built.
+
+Use the following command to start a container.
+        docker run --name future_aquarium -it helloworld:latest
+```
+
+For more information on the usage of this command, type `ballerina docker --help`.
+        
