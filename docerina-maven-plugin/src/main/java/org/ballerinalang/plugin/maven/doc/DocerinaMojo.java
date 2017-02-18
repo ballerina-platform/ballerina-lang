@@ -23,7 +23,7 @@ import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.ballerinalang.docgen.docs.BallerinaDocConstants;
-import org.ballerinalang.docgen.docs.BallerinaDocGeneratorMain;
+import org.ballerinalang.docgen.docs.BallerinaDocGenerator;
 
 /**
  * Generates Ballerina API docs for a given ballerina package.
@@ -31,20 +31,33 @@ import org.ballerinalang.docgen.docs.BallerinaDocGeneratorMain;
 @Mojo(name = "docerina", defaultPhase = LifecyclePhase.PROCESS_SOURCES)
 public class DocerinaMojo extends AbstractMojo {
     /**
-     * Location of the output directory.
+     * Location of the output directory
      */
     @Parameter(defaultValue = "${project.build.directory}", property = "outputDir", required = false)
     private String outputDir;
 
     /**
-     * Location of the ballerina source folder
+     * Comma separated list of the ballerina sources
      */
     @Parameter(property = "sourceDir", required = true)
     private String sourceDir;
+    
+    /**
+     * Comma separated list of packages to be excluded
+     */
+    @Parameter(property = "packageFilter", required = false)
+    private String packageFilter;
+    
+    /**
+     * enable debug level logs
+     */
+    @Parameter(property = "debugDocerina", required = false)
+    private boolean debugDocerina;
 
     public void execute() throws MojoExecutionException {
-        System.setProperty(BallerinaDocConstants.HTML_OUTPUT_PATH_KEY, outputDir);
-
-        BallerinaDocGeneratorMain.main(new String[] { sourceDir });
+        if (debugDocerina) {
+            System.setProperty(BallerinaDocConstants.ENABLE_DEBUG_LOGS, "true");
+        }
+        BallerinaDocGenerator.generateApiDocsWithFilter(outputDir, packageFilter, sourceDir.split(","));
     }
 }
