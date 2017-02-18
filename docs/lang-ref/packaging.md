@@ -17,9 +17,11 @@ myProgram
   services
     foo.bal
 ```
-The StockQuoteService entity's fully qualified name would be: `myProgram.service.StockQuoteService` 
+The StockQuoteService entity's fully qualified name would be: `myProgram.services.StockQuoteService` 
 
-If a package is not specified, the symbol will be in the default (unnamed) package. 
+When you create a Ballerina program in the Composer, you can declare the program's package in the Package box in the upper left corner of the canvas. Or you can simply type `package <package-name>;` in the Source view. When you declare a package in the program file, be sure to save the file in the correct directory hierarchy to match that package. If a package is not specified, the program will be in the default (unnamed) package. 
+
+To import a package into your program, you can use the Import Packages button in the upper right corner of the canvas, or simply type `import <package-name>;` in the Source view. 
 
 The `<program-name>` directory contains all the code that the developer writes and may have files in multiple packages (and therefore multiple directories) as in the example above. However, third-party dependencies (which are used via import statements) are discovered from a [repository](#the-ballerina-repository) and are not physically located within the program source hierarchy. 
 
@@ -144,4 +146,3 @@ Use the following command to start a container.
 ```
 
 For more information on the usage of this command, type `ballerina docker --help`.
-        
