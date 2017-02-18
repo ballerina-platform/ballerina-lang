@@ -10,33 +10,28 @@ const string assertEqualsErrorCategory = "assert-equals";
 const string arraysNotEqualMessage = "Arrays are not equal";
 const string arrayLengthsMismatchMessage = " (Array lengths are not the same)";
 
+@doc:Description("Creates a BallerinaException with custom message and category")
+@doc:Param("message: Custom message for the ballerina exception")
+@doc:Param("category: Exception category")
 function createBallerinaException (string message, string category) (exception) {
-    // Creates a BallerinaException with custom message and category.
-    // @param message custom message for the ballerina exception
-    // @param category exception category
-    // @return exception
     exception e = {};
     exceptions:setMessage(e, message);
     exceptions:setCategory(e, category);
     return e;
 }
 
+@doc:Description("Asserts whether the given condition is true.
+                  If it is not, a BallerinaException is thrown with the given message")
+@doc:Param("condition: Boolean condition to evaluate")
 function assertTrue(boolean condition) {
-    // Asserts whether the given condition is true.
-    // If it is not, a BallerinaException is thrown with
-    // the given message.
-    // @param condition the boolean condition to evaluate
-    //
     assertTrue(condition, "");
 }
 
+@doc:Description("Asserts whether the given condition is true.
+                  If it is not, a BallerinaException is thrown with the given message")
+@doc:Param("condition: Boolean condition to evaluate")
+@doc:Param("message: Assertion error message")
 function assertTrue(boolean condition, string message) {
-    // Asserts whether the given condition is true.
-    // If it is not, a BallerinaException is thrown with
-    // the given message.
-    // @param condition the boolean condition to evaluate
-    // @param message the assertion error message
-    //
     if (!condition) {
         if (message == "") {
             message = "Assert Failed";
@@ -45,22 +40,18 @@ function assertTrue(boolean condition, string message) {
     }
 }
 
+@doc:Description("Asserts whether the given condition is false.
+                  If it is not, a BallerinaException is thrown with the given message")
+@doc:Param("condition: Boolean condition to evaluate")
 function assertFalse(boolean condition) {
-    // Asserts whether the given condition is false.
-    // If it is not, a BallerinaException is thrown with
-    // the given message.
-    // @param condition the boolean condition to evaluate
-    //
     assertFalse(condition, "");
 }
 
+@doc:Description("Asserts whether the given condition is false.
+                  If it is not, a BallerinaException is thrown with the given message")
+@doc:Param("condition: Boolean condition to evaluate")
+@doc:Param("message: Assertion error message")
 function assertFalse(boolean condition, string message) {
-    // Asserts whether the given condition is false.
-    // If it is not, a BallerinaException is thrown with
-    // the given message.
-    // @param condition the boolean condition to evaluate
-    // @param message the assertion error message
-    //
     if (condition) {
         if (message == "") {
             message = "Assert Failed";
@@ -69,24 +60,20 @@ function assertFalse(boolean condition, string message) {
     }
 }
 
+@doc:Description("Asserts whether the given string values are equal.
+                  If it is not, a BallerinaException is thrown with the given message.")
+@doc:Param("actual: Actual string value")
+@doc:Param("expected: Expected string value")
 function assertEquals(string actual, string expected) {
-    // Asserts whether the given string values are equal.
-    // If it is not, a BallerinaException is thrown with
-    // the given message.
-    // @param actual the actual string value
-    // @param expected the expected string value
-    //
     assertEquals(actual, expected, "");
 }
 
+@doc:Description("Asserts whether the given string values are equal.
+                  If it is not, a BallerinaException is thrown with the given message.")
+@doc:Param("actual: Actual string value")
+@doc:Param("expected: Expected string value")
+@doc:Param("message: Assertion error message")
 function assertEquals(string actual, string expected, string message) {
-    // Asserts whether the given string values are equal.
-    // If it is not, a BallerinaException is thrown with
-    // the given message.
-    // @param actual the actual string value
-    // @param expected the expected string value
-    // @param message the assertion error message
-    //
     if (actual != expected) {
         if (message == "") {
             message = "String not equal: expected: " + expected + " and actual: "+ actual;
@@ -95,24 +82,20 @@ function assertEquals(string actual, string expected, string message) {
     }
 }
 
+@doc:Description("Asserts whether the given integer values are equal.
+                  If it is not, a BallerinaException is thrown with the given message.")
+@doc:Param("actual: Actual integer value")
+@doc:Param("expected: Expected integer value")
 function assertEquals(int actual, int expected) {
-    // Asserts whether the given integer values are equal.
-    // If it is not, a BallerinaException is thrown with
-    // the given message.
-    // @param actual the actual integer value
-    // @param expected the expected integer value
-    //
     assertEquals(actual, expected, "");
 }
 
+@doc:Description("Asserts whether the given integer values are equal.
+                  If it is not, a BallerinaException is thrown with the given message.")
+@doc:Param("actual: Actual integer value")
+@doc:Param("expected: Expected integer value")
+@doc:Param("message: Assertion error message")
 function assertEquals(int actual, int expected, string message) {
-    // Asserts whether the given integer values are equal.
-    // If it is not, a BallerinaException is thrown with
-    // the given message.
-    // @param actual the actual integer value
-    // @param expected the expected integer value
-    // @param message the assertion error message
-    //
     if (actual != expected) {
         if (message == "") {
             message = "Integer not equal: expected: " + expected + " and actual: "+ actual;
@@ -121,24 +104,20 @@ function assertEquals(int actual, int expected, string message) {
     }
 }
 
+@doc:Description("Asserts whether the given boolean values are equal.
+                  If it is not, a BallerinaException is thrown with the given message.")
+@doc:Param("actual: Actual boolean value")
+@doc:Param("expected: Expected boolean value")
 function assertEquals(boolean actual, boolean expected) {
-    // Asserts whether the given boolean values are equal.
-    // If it is not, a BallerinaException is thrown with
-    // the given message.
-    // @param actual the actual boolean value
-    // @param expected the expected boolean value
-    //
     assertEquals(actual, expected, "");
 }
 
+@doc:Description("Asserts whether the given boolean values are equal.
+                  If it is not, a BallerinaException is thrown with the given message.")
+@doc:Param("actual: Actual boolean value")
+@doc:Param("expected: Expected boolean value")
+@doc:Param("message: Assertion error message")
 function assertEquals(boolean actual, boolean expected, string message) {
-    // Asserts whether the given boolean values are equal.
-    // If it is not, a BallerinaException is thrown with
-    // the given message.
-    // @param actual the actual boolean value
-    // @param expected the expected boolean value
-    // @param message the assertion error message
-    //
     if (actual != expected) {
         if (message == "") {
             message = "Boolean not equal: expected: " + expected + " and actual: "+ actual;
@@ -147,24 +126,22 @@ function assertEquals(boolean actual, boolean expected, string message) {
     }
 }
 
+@doc:Description("Asserts whether the given string arrays are equal.
+                  If it is not, a BallerinaException is thrown with the given message
+                  including differed string values and array index.")
+@doc:Param("actual: Actual string array")
+@doc:Param("expected: Expected string array")
 function assertEquals(string[] actual, string[] expected) {
-    // Asserts whether the given string arrays are equal.
-    // If it is not, a BallerinaException is thrown with
-    // the given message including differed string values and array index.
-    // @param actual the actual string array
-    // @param expected the expected string array
-    //
     assertEquals(actual, expected, "");
 }
 
+@doc:Description("Asserts whether the given string arrays are equal.
+                  If it is not, a BallerinaException is thrown with the given message
+                  including differed string values and array index.")
+@doc:Param("actual: Actual string array")
+@doc:Param("expected: Expected string array")
+@doc:Param("message: Assertion error message")
 function assertEquals(string[] actual, string[] expected, string message) {
-    // Asserts whether the given string arrays are equal.
-    // If it is not, a BallerinaException is thrown with
-    // the given message including differed string values and array index.
-    // @param actual the actual string array
-    // @param expected the expected string array
-    // @param message the assertion error message
-    //
     if (message == "") {
         message = arraysNotEqualMessage;
     }
@@ -189,24 +166,22 @@ function assertEquals(string[] actual, string[] expected, string message) {
     }
 }
 
+@doc:Description("Asserts whether the given integer arrays are equal.
+                  If it is not, a BallerinaException is thrown with the given message
+                  including differed integer values and array index.")
+@doc:Param("actual: Actual integer array")
+@doc:Param("expected: Expected integer array")
 function assertEquals(int[] actual, int[] expected) {
-    // Asserts whether the given integer arrays are equal.
-    // If it is not, a BallerinaException is thrown with
-    // the given message including differed integer values and array index.
-    // @param actual the actual integer array
-    // @param expected the expected integer array
-    //
     assertEquals(actual, expected, "");
 }
 
+@doc:Description("Asserts whether the given integer arrays are equal.
+                  If it is not, a BallerinaException is thrown with the given message
+                  including differed integer values and array index.")
+@doc:Param("actual: Actual integer array")
+@doc:Param("expected: Expected integer array")
+@doc:Param("message: Assertion error message")
 function assertEquals(int[] actual, int[] expected, string message) {
-    // Asserts whether the given integer arrays are equal.
-    // If it is not, a BallerinaException is thrown with
-    // the given message including differed integer values and array index.
-    // @param actual the actual integer array
-    // @param expected the expected integer array
-    // @param message the assertion error message
-    //
     if (message == "") {
         message = arraysNotEqualMessage;
     }
