@@ -219,6 +219,7 @@ define(['log', 'lodash', './../env/package', './../tool-palette/tool-palette', '
                 }]);
                 _.each(actionsOrdered, function (action, index, collection) {
                     /* We need to add a special class to actions to indent them in tool palette. */
+                    action.setId(connector.getName() + "-" + action.getName());
                     action.classNames = "tool-connector-action";
                     if ((index + 1 ) == collection.length) {
                         action.classNames = "tool-connector-action tool-connector-last-action";
