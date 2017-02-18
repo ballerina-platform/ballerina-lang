@@ -18,6 +18,7 @@
 package org.ballerinalang.testerina.natives.mock;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.RuntimeEnvironment;
 import org.ballerinalang.model.BLangPackage;
 import org.ballerinalang.model.BLangProgram;
 import org.ballerinalang.model.BallerinaConnectorDef;
@@ -34,14 +35,14 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
+import org.ballerinalang.natives.connectors.AbstractNativeConnector;
 import org.ballerinalang.testerina.core.TesterinaRegistry;
 import org.ballerinalang.testerina.core.TesterinaUtils;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.lang.reflect.Field;
-import java.security.PrivilegedAction;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.Optional;
@@ -51,8 +52,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import static java.security.AccessController.doPrivileged;
-
 /**
  * Native function ballerina.lang.mock:setValue.
  * This can be used to modify a global connector instance's arguments.
@@ -60,7 +59,7 @@ import static java.security.AccessController.doPrivileged;
  *
  * @since 0.8.0
  */
-@BallerinaFunction(packageName = "ballerina.lang.mock", functionName = "setValue", args = {
+@BallerinaFunction(packageName = "ballerina.mock", functionName = "setValue", args = {
         @Argument(name = "mockConnectorPath", type = TypeEnum.STRING),
         @Argument(name = "value", type = TypeEnum.STRING) }, isPublic = true)
 public class SetValue extends AbstractNativeFunction {
@@ -132,19 +131,41 @@ public class SetValue extends AbstractNativeFunction {
                 }
             }
         }
-        //fall back to index based argument update
+
+        if (!isMockValueSet && variableDefStmt.getVariableDef().getType() instanceof AbstractNativeConnector) {
+            try {
+                // TODO Temporary fix until we have a ballerina release with the fix at
+                // https://github.com/ballerinalang/ballerina/pull/1962.
+                String[] argumentNames = TesterinaUtils
+                        .invokeMethod(variableDefStmt.getVariableDef().getType(), "getArgumentNames", String[].class);
+                //String[] argumentNames = ((AbstractNativeConnector) variableDefStmt.getVariableDef().getType())
+                //        .getArgumentNames();
+                int index = 0;
+                for (; index < argumentNames.length; index++) {
+                    if (mockCnctrPath.terminalVarName.equalsIgnoreCase(argumentNames[index])) {
+                        validateArgsExprsArray(index, argExprs, variableDefStmt);
+                        setProperty(argExprs[index], mockCnctrPath.terminalVarName, mockCnctrPath.mockValue);
+                        isMockValueSet = true;
+                        break;
+                    }
+                }
+            } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+                //ignore - we are safe
+            }
+        }
+
+        //fall back to index based argument update based on the variable name.
         if (!isMockValueSet) {
             validateArgsExprsArray(mockCnctrPath.indexOfMockField, argExprs, variableDefStmt);
-
             setProperty(argExprs[mockCnctrPath.indexOfMockField], mockCnctrPath.terminalVarName,
                     mockCnctrPath.mockValue);
         }
 
-        //        if (variableDefStmt.getVariableDef().getType() instanceof AbstractNativeConnector) {
-        //            BLangProgram bLangProgram = service.getBLangProgram();
-        //            RuntimeEnvironment reinitRuntimeEnvironment = RuntimeEnvironment.get(bLangProgram);
-        //            serviceMetadata.application.setRuntimeEnv(reinitRuntimeEnvironment);
-        //        }
+        if (variableDefStmt.getVariableDef().getType() instanceof AbstractNativeConnector) {
+            BLangProgram bLangProgram = service.getBLangProgram();
+            RuntimeEnvironment reinitRuntimeEnvironment = RuntimeEnvironment.get(bLangProgram);
+            bLangProgram.setRuntimeEnvironment(reinitRuntimeEnvironment);
+        }
 
         return VOID_RETURN;
     }
@@ -172,29 +193,6 @@ public class SetValue extends AbstractNativeFunction {
         return matchingService.get();
     }
 
-/*
-    */
-
-    /**
-     * Get rid of this method once {@code ApplicationRegistry.getAllApplications}
-     * method is available.
-     *//*
-
-    private Collection<Application> getAllApplications() {
-        try {
-            Field field = ApplicationRegistry.class.getDeclaredField("applications");
-            doPrivileged((PrivilegedAction<Object>) () -> {
-                field.setAccessible(true);
-                return null;
-            });
-
-            return ((Map<String, Application>) field.get(ApplicationRegistry.getInstance())).values();
-        } catch (NoSuchFieldException | IllegalAccessException e) {
-            throw new BallerinaException("Error while getting the list of all applications - " + e.getMessage());
-        }
-    }
-
-*/
     private void validateArgsExprsArray(int indexOfMockField, Expression[] argExprs, VariableDefStmt finalVarDefStmt)
             throws BallerinaException {
         if (argExprs.length > indexOfMockField) {
@@ -267,33 +265,15 @@ public class SetValue extends AbstractNativeFunction {
         return getLastConnector(variableDefStmt, connectorNames);
     }
 
-    /*
-    private <T> T getField(Object instance, String fieldName, Class<T> fieldType) throws NoSuchFieldException {
-        try {
-            Field field = instance.getClass().getDeclaredField(fieldName);
-            doPrivileged((PrivilegedAction<Object>) () -> {
-                field.setAccessible(true);
-                return null;
-            });
-
-            if (fieldType.isAssignableFrom(field.getType())) {
-                return (T) field.get(instance);
-            }
-        } catch (IllegalAccessException e) {
-            //ignore - not thrown since #isAssignableFrom is checked
-        }
-        throw new BallerinaException("Error while modifying native connector with the mock value.");
-    }*/
-
     private void setProperty(Expression argExpr, String terminalVarName, String mockValue) {
         if (argExpr instanceof BasicLiteral) {
             BValue bValue = ((BasicLiteral) argExpr).getBValue();
             try {
-                setProperty(bValue, terminalVarName, mockValue);
+                TesterinaUtils.setProperty(bValue, terminalVarName, mockValue);
             } catch (IllegalAccessException | NoSuchFieldException e) {
                 //retrying with the default name
                 try {
-                    setProperty(bValue, FIELD_NAME_VALUE, mockValue);
+                    TesterinaUtils.setProperty(bValue, FIELD_NAME_VALUE, mockValue);
                 } catch (IllegalAccessException | NoSuchFieldException e1) {
                     throw new BallerinaException(
                             "Error while updating the field " + terminalVarName + " to " + mockValue);
@@ -304,49 +284,6 @@ public class SetValue extends AbstractNativeFunction {
                     + " is not a basic literal type");
             // todo handle expression types other than basic literal
         }
-    }
-
-    private <T> void setProperty(T instance, String fieldName, String value)
-            throws IllegalAccessException, NoSuchFieldException {
-        Field field = instance.getClass().getDeclaredField(fieldName);
-        doPrivileged((PrivilegedAction<Object>) () -> {
-            field.setAccessible(true);
-            return null;
-        });
-
-        if (field.getType() == Character.TYPE) {
-            field.set(instance, value.charAt(0));
-            return;
-        }
-        if (field.getType() == Short.TYPE) {
-            field.set(instance, Short.parseShort(value));
-            return;
-        }
-        if (field.getType() == Integer.TYPE) {
-            field.set(instance, Integer.parseInt(value));
-            return;
-        }
-        if (field.getType() == Long.TYPE) {
-            field.set(instance, Long.parseLong(value));
-            return;
-        }
-        if (field.getType() == Double.TYPE) {
-            field.set(instance, Double.parseDouble(value));
-            return;
-        }
-        if (field.getType() == Float.TYPE) {
-            field.set(instance, Float.parseFloat(value));
-            return;
-        }
-        if (field.getType() == Byte.TYPE) {
-            field.set(instance, Byte.parseByte(value));
-            return;
-        }
-        if (field.getType() == Boolean.TYPE) {
-            field.set(instance, Boolean.parseBoolean(value));
-            return;
-        }
-        field.set(instance, value);
     }
 
     /**
@@ -368,6 +305,11 @@ public class SetValue extends AbstractNativeFunction {
             this.terminalVarName = terminalVarName;
             this.mockValue = mockValue;
             this.indexOfMockField = indexOfMockField;
+        }
+
+        @Override
+        public String toString() {
+            return originalString;
         }
     }
 

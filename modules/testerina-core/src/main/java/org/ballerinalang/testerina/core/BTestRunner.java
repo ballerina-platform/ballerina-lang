@@ -19,12 +19,14 @@ package org.ballerinalang.testerina.core;
 
 import org.ballerinalang.BLangProgramLoader;
 import org.ballerinalang.bre.RuntimeEnvironment;
+import org.ballerinalang.bre.nonblocking.ModeResolver;
 import org.ballerinalang.model.BLangPackage;
 import org.ballerinalang.model.BLangProgram;
 import org.ballerinalang.natives.connectors.BallerinaConnectorManager;
 import org.ballerinalang.services.MessageProcessor;
 import org.ballerinalang.testerina.core.entity.TesterinaContext;
 import org.ballerinalang.testerina.core.entity.TesterinaFunction;
+import org.ballerinalang.util.debugger.DebugManager;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.io.PrintStream;
@@ -47,7 +49,18 @@ public class BTestRunner {
 
         BLangProgram[] bLangPrograms = Arrays.stream(sourceFilePaths).map(BTestRunner::buildTestModel)
                 .toArray(BLangProgram[]::new);
-        Arrays.stream(bLangPrograms).forEachOrdered(p -> TesterinaRegistry.getInstance().addBLangProgram(p));
+        Arrays.stream(bLangPrograms).forEachOrdered(bLangProgram -> {
+            TesterinaRegistry.getInstance().addBLangProgram(bLangProgram);
+            // Create a runtime environment for this Ballerina application
+            RuntimeEnvironment runtimeEnv = RuntimeEnvironment.get(bLangProgram);
+            bLangProgram.setRuntimeEnvironment(runtimeEnv);
+        });
+
+        if (ModeResolver.getInstance().isDebugEnabled()) {
+            DebugManager debugManager = DebugManager.getInstance();
+            // This will start the websocket server.
+            debugManager.init();
+        }
 
         executeTestFunctions(bLangPrograms);
 

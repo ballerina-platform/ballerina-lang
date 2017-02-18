@@ -22,6 +22,7 @@ import org.ballerinalang.model.Annotation;
 import org.ballerinalang.model.BLangPackage;
 import org.ballerinalang.model.BLangProgram;
 import org.ballerinalang.model.Service;
+import org.ballerinalang.model.builder.BLangExecutionFlowBuilder;
 import org.ballerinalang.model.types.TypeEnum;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
@@ -31,18 +32,21 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.natives.connectors.BallerinaConnectorManager;
 import org.ballerinalang.services.dispatchers.DispatcherRegistry;
-import org.ballerinalang.services.dispatchers.ServiceDispatcher;
 import org.ballerinalang.services.dispatchers.http.Constants;
 import org.ballerinalang.testerina.core.TesterinaRegistry;
+import org.ballerinalang.testerina.core.TesterinaUtils;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.carbon.messaging.ServerConnector;
+import org.wso2.carbon.messaging.exceptions.ServerConnectorException;
 import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.carbon.transport.http.netty.listener.HTTPServerConnector;
 
+import java.io.PrintStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Path;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -51,14 +55,14 @@ import java.util.stream.Collectors;
  *
  * @since 0.8.0
  */
-@BallerinaFunction(
-        packageName = "ballerina.lang.test",
+@BallerinaFunction(packageName = "ballerina.test",
         functionName = "startService", args = {
         @Argument(name = "serviceName", type = TypeEnum.STRING) }, returnType = {
         @ReturnType(type = TypeEnum.STRING) }, isPublic = true)
 public class StartService extends AbstractNativeFunction {
 
     private static final String MSG_PREFIX = "test:startService: ";
+    private static PrintStream outStream = System.err;
 
     static String getFileName(Path sourceFilePath) {
         Path fileNamePath = sourceFilePath.getFileName();
@@ -102,9 +106,36 @@ public class StartService extends AbstractNativeFunction {
     }
 
     private void startService(BLangProgram bLangProgram, Service matchingService) {
-        for (ServiceDispatcher serviceDispatcher : DispatcherRegistry.getInstance().getServiceDispatchers().values()) {
-            matchingService.setBLangProgram(bLangProgram);
-            serviceDispatcher.serviceRegistered(matchingService);
+        BLangExecutionFlowBuilder flowBuilder = new BLangExecutionFlowBuilder();
+        matchingService.setBLangProgram(bLangProgram);
+        DispatcherRegistry.getInstance().getServiceDispatchers().values()
+                .forEach(dispatcher -> dispatcher.serviceRegistered(matchingService));
+        // Build Flow for Non-Blocking execution.
+        matchingService.accept(flowBuilder);
+
+        try {
+            List<ServerConnector> startedConnectors = BallerinaConnectorManager.getInstance().startPendingConnectors();
+            clearPendingConnectors();
+            startedConnectors.forEach(
+                    serverConnector -> outStream.println("ballerina: started server connector " + serverConnector));
+        } catch (ServerConnectorException e) {
+            throw new RuntimeException("error starting server connectors: " + e.getMessage(), e);
+        }
+
+    }
+
+    /**
+     * Temporary fix until we have a ballerina release with this fix
+     * https://github.com/ballerinalang/ballerina/pull/1962
+     *
+     */
+    private void clearPendingConnectors() {
+        try {
+            List startupDelayedServerConnectors = TesterinaUtils
+                    .getField(BallerinaConnectorManager.getInstance(), "startupDelayedServerConnectors", List.class);
+            startupDelayedServerConnectors.clear();
+        } catch (NoSuchFieldException e) {
+            //ignore
         }
     }
 
@@ -113,7 +144,7 @@ public class StartService extends AbstractNativeFunction {
             String listenerInterface = Constants.DEFAULT_INTERFACE;
             String basePath = service.getSymbolName().getName();
             for (Annotation annotation : service.getAnnotations()) {
-                if (annotation.getName().equals(Constants.ANNOTATION_NAME_BASE_PATH)) {
+                if (annotation.getName().equals(Constants.PROTOCOL_HTTP + ":" + Constants.ANNOTATION_NAME_BASE_PATH)) {
                     basePath = annotation.getValue();
                     break;
                 }
