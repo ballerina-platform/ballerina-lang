@@ -20,6 +20,7 @@ package org.ballerinalang.docgen.docs.utils;
 import org.ballerinalang.docgen.docs.BallerinaDocDataHolder;
 import org.ballerinalang.model.BLangPackage;
 
+import java.io.File;
 import java.io.PrintStream;
 import java.util.HashMap;
 import java.util.Map;
@@ -39,4 +40,14 @@ public class BallerinaDocGenTestUtils {
         BallerinaDocDataHolder.getInstance().setPackageMap(new HashMap<String, BLangPackage>());
     }
 
+    public static void deleteDirectory(String path) {
+        File file = new File(path);
+        File[] contents = file.listFiles();
+        if (contents != null) {
+            for (File f : contents) {
+                deleteDirectory(f.getPath());
+            }
+        }
+        file.delete();
+    }
 }

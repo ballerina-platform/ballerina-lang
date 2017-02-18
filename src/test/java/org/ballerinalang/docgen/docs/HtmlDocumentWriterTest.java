@@ -45,7 +45,7 @@ public class HtmlDocumentWriterTest {
         String balPackagePath = userDir + File.separator + "src" + File.separator + "test" + File.separator
                 + "resources" + File.separator + "balFiles" + File.separator + "htmlWriter";
         String outputPath =  userDir + File.separator + "target" + File.separator +
-                "api-docs1" + File.separator + "html";
+                "api-docs1";
         String outputFilePath1 = outputPath + File.separator + "foo.bar.html";
         String outputFilePath2 = outputPath + File.separator + "foo.bar.xyz.html";
         String outputFilePath3 = outputPath + File.separator + "foo.bar.xyz.str.html";
@@ -124,7 +124,7 @@ public class HtmlDocumentWriterTest {
             Assert.assertTrue(content4.contains("foo.bar.xyz"));
         } finally {
             BallerinaDocGenTestUtils.cleanUp();
-            deleteDirectory(outputPath);
+            BallerinaDocGenTestUtils.deleteDirectory(outputPath);
         }
     }
 
@@ -135,7 +135,7 @@ public class HtmlDocumentWriterTest {
         String balPackagePath = userDir + File.separator + "src" + File.separator + "test" + File.separator
                 + "resources" + File.separator + "balFiles" + File.separator + "htmlWriter";
         String outputPath =  userDir + File.separator + "target" + File.separator +
-                "api-docs2" + File.separator + "html";
+                "api-docs2";
         String outputFilePath1 = outputPath + File.separator + "foo.bar.html";
         String outputFilePath2 = outputPath + File.separator + "foo.bar.xyz.html";
         String indexOutputFilePath = outputPath + File.separator + "index.html";
@@ -159,24 +159,13 @@ public class HtmlDocumentWriterTest {
             Assert.assertTrue(indexHtmlFile.exists());
         } finally {
             BallerinaDocGenTestUtils.cleanUp();
-            deleteDirectory(outputPath);
+            BallerinaDocGenTestUtils.deleteDirectory(outputPath);
         }
     }
 
     private void createOutputDirectory(String outputPath) throws IOException {
         // Delete output path if already exists
-        deleteDirectory(outputPath);
+        BallerinaDocGenTestUtils.deleteDirectory(outputPath);
         Files.createDirectories(Paths.get(outputPath));
-    }
-
-    void deleteDirectory(String path) {
-        File file = new File(path);
-        File[] contents = file.listFiles();
-        if (contents != null) {
-            for (File f : contents) {
-                deleteDirectory(f.getPath());
-            }
-        }
-        file.delete();
     }
 }
