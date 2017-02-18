@@ -22,23 +22,53 @@ define(['jquery', 'backbone', 'lodash', 'log', 'event_channel', './debug-manager
 
     var Frames = function (){
 
-        this.compiled = _.template(
-                '<div class="debug-panel-header">'
-              + '   <a class="tool-group-header-title">Frames</a><span class="collapse-icon fw fw-up"></span>'
-              + '</div>'
-              + '<table class="table table-condensed table-hover debug-frames">'
-              + '<% _.forEach(frames, function(frame) { %>'
-              + '<tr>'
-              + '   <td>'
-              + '       <a><%- frame.frameName %>'
-              + '           <span class="debug-frame-pkg-name">'
-              + '           <i class="fw fw-package"></i> <%- frame.packageName %>'
-              + '           </span>'
-              + '       <a>'
-              + '   </td>'
-              + '</tr>'
-              + '<% }); %>'
-              + '</table>');
+        var template = 
+        '<div class="debug-panel-header">'+
+        '   <a class="tool-group-header-title">Frames</a></span>'+
+        '</div>'+
+        '<div class="panel-group" id="frameAccordion">'+
+        '<% _.forEach(frames, function(frame, index) { %>'+       
+        '    <div class="panel panel-default">'+
+        '      <div class="panel-heading">'+
+        '        <h4 class="panel-title">'+
+        '          <a data-toggle="collapse" data-parent="#frameAccordion" href="#<%- frame.frameName %>"><%- frame.frameName %>'+
+        '           <span class="debug-frame-pkg-name">'+
+        '           <i class="fw fw-package"></i> <%- frame.packageName %>'+
+        '           </span>'+
+        '          </a>'+
+        '        </h4>'+
+        '      </div>'+
+        '      <div id="<%- frame.frameName %>" class="panel-collapse collapse <% if(index == 0){%>in<% } %>">'+
+        '        <div class="panel-body">'+
+        '        <div class="debug-v-tree">'+
+        '          <ul>'+
+        '          <% _.forEach(frame.variables, function(v) { %>'+
+        '          <li>'+
+        '          <strong><%- v.name %></strong> = <%- v.value %> (<%- v.type %>)'+
+        '          <ul>'+
+        '            <li>type : <%- v.type %></li>'+
+        '            <li>scope : <%- v.scope %></li>'+
+        '          </ul>'+
+        '          </li>'+
+        '          <% }); %>'+
+        '          </ul>'+
+        '        </div>'+        
+        '        </div>'+
+        '      </div>'+
+        '    </div>'+
+        '<% }); %>'+
+        '</div>';
+  
+
+        this.compiled = _.template(template);
+
+        this.js_tree_options = {
+            "core": {
+                "themes":{
+                    "icons":false
+                }
+            }
+        };
 
         DebugManager.on('debug-hit', _.bindKey(this,'render'));
         DebugManager.on('resume-execution', _.bindKey(this,'clear'));
@@ -53,7 +83,6 @@ define(['jquery', 'backbone', 'lodash', 'log', 'event_channel', './debug-manager
 
     Frames.prototype.clear =function(message){
         this.container.empty();
-        VariableTree.clear();
     };
 
     Frames.prototype.render = function (message) {
@@ -69,7 +98,7 @@ define(['jquery', 'backbone', 'lodash', 'log', 'event_channel', './debug-manager
         this.container.html(html);
 
         //render variables tree
-        VariableTree.render(message.frames[0]);
+        $(".debug-v-tree").jstree(this.js_tree_options);
     };
 
 
