@@ -135,24 +135,22 @@ define(['lodash', 'log', './ballerina-view', './variables-view', './type-struct-
             this.loadSchemasToComboBox(currentContainer, "#" + sourceId, "#" + targetId, predefinedStructs);
 
             $(".type-mapper-combo").select2();
-            $("#" + targetId).on("select2:open", function (e) {
+            $("#" + targetId).on("select2:open", function () {
                 var predefinedStructs = self._package.getStructDefinitions();
                 if (predefinedStructs.length > 0) {
                     $("#" + targetId).empty().append('<option value="-1">--Select--</option>');
                     self.getTargetInfo()["predefinedStructs"] = predefinedStructs;
                     self.loadSchemaToComboBox(currentContainer, "#" + targetId, predefinedStructs);
                 }
-                ;
             });
 
-            $("#" + sourceId).on("select2:open", function (e) {
+            $("#" + sourceId).on("select2:open", function () {
                 var predefinedStructs = self._package.getStructDefinitions();
                 if (predefinedStructs.length > 0) {
                     $("#" + sourceId).empty().append('<option value="-1">--Select--</option>');
                     self.getSourceInfo()["predefinedStructs"] = predefinedStructs;
                     self.loadSchemaToComboBox(currentContainer, "#" + sourceId, predefinedStructs);
                 }
-                ;
             });
 
             $(currentContainer).find("#" + sourceId).change(function () {
@@ -220,6 +218,11 @@ define(['lodash', 'log', './ballerina-view', './variables-view', './type-struct-
                             leftOperand.setLeftOperandExpressionString('');
                             leftOperand.setLeftOperandType('');
                             var rightOperand = nodeBeingDragged.getChildren()[1];
+                            _.forEach(functionSchema.parameters, function (params) {
+                                var variableRefExp = BallerinaASTFactory.createVariableReferenceExpression();
+                                variableRefExp.setVariableReferenceName('');
+                                leftOperand.addChild(variableRefExp);
+                            });
                             rightOperand.setRightOperandExpressionString('');
                             rightOperand.getChildren()[0].setParams('');
                             return _.findLastIndex(self.getModel().getBlockStatement().getChildren());
@@ -244,10 +247,6 @@ define(['lodash', 'log', './ballerina-view', './variables-view', './type-struct-
                 }
                 event.stopPropagation();
             });
-        };
-
-        TypeMapperDefinitionView.prototype.getUUID = function () {
-            return (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1);
         };
 
 
@@ -277,25 +276,29 @@ define(['lodash', 'log', './ballerina-view', './variables-view', './type-struct-
             return schema;
         };
 
-        TypeMapperDefinitionView.prototype.loadSchemasToComboBox = function (parentId, sourceComboboxId, targetComboboxId, schemaArray) {
+        TypeMapperDefinitionView.prototype.loadSchemasToComboBox = function (parentId, sourceComboboxId,
+                                                                             targetComboboxId, schemaArray) {
             for (var i = 0; i < schemaArray.length; i++) {
-                $(parentId).find(sourceComboboxId).append('<option value="' + i + '">' + schemaArray[i].getStructName() + '</option>');
-                $(parentId).find(targetComboboxId).append('<option value="' + i + '">' + schemaArray[i].getStructName() + '</option>');
+                $(parentId).find(sourceComboboxId).append('<option value="' + schemaArray[i].getStructName() + '">'
+                                                                        + schemaArray[i].getStructName() + '</option>');
+                $(parentId).find(targetComboboxId).append('<option value="' + schemaArray[i].getStructName() + '">'
+                                                                        + schemaArray[i].getStructName() + '</option>');
             }
         };
 
         TypeMapperDefinitionView.prototype.loadSchemaToComboBox = function (parentId, comboBoxId, schemaArray) {
             for (var i = 0; i < schemaArray.length; i++) {
-                $(parentId).find(comboBoxId).append('<option value="' + i + '">' + schemaArray[i].getStructName() + '</option>');
+                $(parentId).find(comboBoxId).append('<option value="' + schemaArray[i].getStructName() + '">'
+                                                                        + schemaArray[i].getStructName() + '</option>');
             }
         };
 
         TypeMapperDefinitionView.prototype.setSourceSchemaNameToComboBox = function (sourceComboboxId, sourceName) {
-            $(sourceComboboxId + " option:contains(" + sourceName + ")").attr('selected', 'selected');
+            $(sourceComboboxId).val(sourceName).trigger('change.select2');
         };
 
         TypeMapperDefinitionView.prototype.setTargetSchemaNameToComboBox = function (targetComboboxId, targetName) {
-            $(targetComboboxId + " option:contains(" + targetName + ")").attr('selected', 'selected');
+            $(targetComboboxId).val(targetName).trigger('change.select2');
         };
 
         /**

@@ -120,8 +120,7 @@ define(['lodash', 'log', 'event_channel', './abstract-symbol-table-gen-visitor',
             _.each(connectorDefinition.getChildren(), function (child) {
                 if (BallerinaASTFactory.isConnectorAction(child)) {
                     var connectorAction = BallerinaEnvFactory.createConnectorAction();
-                    connectorAction.setName(child.getActionName());
-                    connectorAction.setId(child.getActionName());
+                    connectorAction.initFromASTModel(child);
                     connector.addAction(connectorAction);
 
                     child.on('tree-modified', function (modifiedData) {
@@ -138,8 +137,7 @@ define(['lodash', 'log', 'event_channel', './abstract-symbol-table-gen-visitor',
             connectorDefinition.on('child-added', function (child) {
                 if (BallerinaASTFactory.isConnectorAction(child)) {
                     var connectorAction = BallerinaEnvFactory.createConnectorAction();
-                    connectorAction.setName(child.getActionName());
-                    connectorAction.setId(child.getActionName());
+                    connectorAction.initFromASTModel(child);
                     connector.addAction(connectorAction);
 
                     child.on('tree-modified', function (modifiedData) {

@@ -87,10 +87,23 @@ define(['lodash', 'jquery', './ballerina-view', 'log', 'typeMapper', './../ast/a
             var functionExp = self.getFunctionInvocationExpression(this.getModel());
             var schema = self.getFunctionSchema(functionExp, diagramRenderingContext);
             if (schema) {
+
+                var rightOperandExpression = _.find(self.getModel().getChildren(), function (child) {
+                    if(BallerinaASTFactory.isRightOperandExpression(child)){
+                        return child;
+                    }
+                });
+
+                var functionInvocationExpression = _.find(rightOperandExpression.getChildren(), function (child) {
+                    if(BallerinaASTFactory.isFunctionInvocationExpression(child)){
+                        return child;
+                    }
+                });
                 this.getTypeMapperFunctionRenderer().addFunction(schema, {
                     model: this.getModel(),
-                    functionSchema: schema
-                });
+                    functionSchema: schema,
+                    functionInvocationExpression:functionInvocationExpression
+                },self.onFunctionDelete);
                 //Handling left hand side
                 var functionReturns = self.getModel().getChildren()[0].getChildren();
                 var functionReturnIndex = 0;
@@ -152,11 +165,15 @@ define(['lodash', 'jquery', './ballerina-view', 'log', 'typeMapper', './../ast/a
                 return aPackage.getFunctionDefinitionByName(funcName);
             });
             var functionDef = functionPackage.getFunctionDefinitionByName(funcName);
+            var mergedParams = [];
+            mergedParams = mergedParams.concat(functionDef.getReturnParams());
+            mergedParams = mergedParams.concat(functionDef.getParameters());
+            var uniqueParams = this.getUniqueParams(mergedParams);
             if (functionDef) {
                 schema = {};
                 schema['name'] = funcName;
-                schema['returnType'] = functionDef.getReturnParams();
-                schema['parameters'] = this.getUniqueParams(functionDef.getParameters());
+                schema['returnType'] = uniqueParams.slice(0, functionDef.getReturnParams().length);
+                schema['parameters'] = uniqueParams.slice(functionDef.getReturnParams().length,uniqueParams.length);
             }
             return schema;
         };
@@ -167,21 +184,66 @@ define(['lodash', 'jquery', './ballerina-view', 'log', 'typeMapper', './../ast/a
             var uniqueParamIds = [];
             _.forEach(params, function (param) {
                 var matchedParam = _.find(uniqueParams, function (uniqueParam) {
-                    return uniqueParam === param;
+                    return uniqueParam.name == param.name && uniqueParam.type == param.type;
                 });
                 if (!matchedParam) {
                     uniqueParams.push(param);
                     uniqueParamIds.push({name: param.name, id: 0});
                 } else {
-                    var uniqueParamId = _.find(uniqueParamId, function (paramId) {
-                        return paramId.name === param.name;
+                    var uniqueParamId = _.find(uniqueParamIds, function (paramId) {
+                        return paramId.name == param.name;
                     });
-                    var newId = uniqueParamId.id++;
-                    uniqueParams.push(param.name + newId);
+                    var newId = uniqueParamId.id + 1;
+                    param.name = param.name + newId;
+                    uniqueParams.push(param);
                     uniqueParamId.id = newId;
                 }
             });
             return uniqueParams;
+        };
+
+        /**
+         * Receives the callBack on function delete
+         * @param connection object
+         */
+        TypeMapperFunctionAssignmentView.prototype.onFunctionDelete = function (connection) {
+
+            var functionReferenceObj = connection.reference.model;
+            var functionInvocationExpression = connection.reference.functionInvocationExpression;
+            var assignmentStatementId = functionReferenceObj.getID();
+            var parentOfFunctionInvocationExpression = functionInvocationExpression.getParent();
+            var blockStatement = functionReferenceObj.getParent();
+
+            var innerFunctionInvocationExpression = _.find(functionInvocationExpression.getChildren(), function (child) {
+                if(BallerinaASTFactory.isFunctionInvocationExpression(child)){
+                    return child;
+                }
+            });
+
+            if(!BallerinaASTFactory.isFunctionInvocationExpression(parentOfFunctionInvocationExpression)){
+                blockStatement.removeChildById(assignmentStatementId);
+
+            }else{
+                functionInvocationExpression.remove();
+            }
+
+            if(!_.isUndefined(innerFunctionInvocationExpression)){
+                var childRightOperandExpression = _.find(functionReferenceObj.getChildren(), function (child) {
+                    if(BallerinaASTFactory.isRightOperandExpression(child)){
+                        return child;
+                    }
+                });
+
+                var tempFunctionInvocationExpression = _.find(childRightOperandExpression.getChildren(), function (child) {
+                    if(BallerinaASTFactory.isFunctionInvocationExpression(child)){
+                        return child;
+                    }
+                });
+
+                childRightOperandExpression.removeChildById(tempFunctionInvocationExpression.getID());
+                childRightOperandExpression.addChild(innerFunctionInvocationExpression);
+                blockStatement.addChild(functionReferenceObj);
+            }
         };
         return TypeMapperFunctionAssignmentView;
     });

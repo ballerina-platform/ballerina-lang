@@ -23,6 +23,7 @@ define(['lodash', './statement'], function (_, Statement) {
     var AssignmentStatement = function (args) {
         Statement.call(this, 'AssignmentStatement');
         this._variableAccessor = _.get(args, 'accessor', 'var1');
+        this._fullPackageName = _.get(args, 'fullPackageName', '');
     };
 
     AssignmentStatement.prototype = Object.create(Statement.prototype);
@@ -71,6 +72,23 @@ define(['lodash', './statement'], function (_, Statement) {
         var rightOperand = statementString.substring(equalIndex + 1);
         this.getChildren()[0].setLeftOperandExpressionString(_.isNil(leftOperand) ? "leftExpression" : leftOperand, options);
         this.getChildren()[1].setRightOperandExpressionString(_.isNil(rightOperand) ? "rightExpression" : rightOperand, options);
+    };
+
+    /**
+     * Set the full package name.
+     * @param {String} fullPkgName full package name
+     * @param {Object} options
+     * */
+    AssignmentStatement.prototype.setFullPackageName = function (fullPkgName, options) {
+        this.setAttribute('_fullPackageName', fullPkgName, options);
+    };
+
+    /**
+     * Get full package name.
+     * @return {String} full package name
+     * */
+    AssignmentStatement.prototype.getFullPackageName = function () {
+        return this._fullPackageName;
     };
 
     return AssignmentStatement;

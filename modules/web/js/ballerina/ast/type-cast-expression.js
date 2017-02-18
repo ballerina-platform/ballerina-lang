@@ -92,6 +92,17 @@ define(['lodash', './expression'], function (_, Expression) {
     TypeCastExpression.prototype.getPkgPath = function () {
         return this._pkgPath;
     };
+
+    TypeCastExpression.prototype.initFromJson = function (jsonNode) {
+        var self = this;
+        this.setName(jsonNode.target_type, {doSilently: true});
+
+        _.each(jsonNode.children, function (childNode) {
+            var child = self.getFactory().createFromJson(childNode);
+            self.addChild(child);
+            child.initFromJson(childNode);
+        });
+    };
     
     return TypeCastExpression;
 });

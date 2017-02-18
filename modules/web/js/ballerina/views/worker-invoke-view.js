@@ -42,7 +42,7 @@ define(['lodash', 'd3','log', './simple-statement-view', './../ast/action-invoca
             this._arrowGroup = undefined;
             this._startActionText = undefined;
             this._startRect = undefined;
-
+            this._messageView = undefined;
         };
 
         WorkerInvoke.prototype = Object.create(SimpleStatementView.prototype);
@@ -51,7 +51,7 @@ define(['lodash', 'd3','log', './simple-statement-view', './../ast/action-invoca
 
         WorkerInvoke.prototype.init = function(){
             // TODO: Event name should modify in order to tally for both connector action and other dynamic arrow draws
-            this.getModel().on("drawConnectionForAction",this.renderWorkerReceiverArrows, this);
+            this.getModel().on("drawConnectionForAction",this.renderWorkerStart, this);
             Object.getPrototypeOf(this.constructor.prototype).init.call(this);
         };
         WorkerInvoke.prototype.setDiagramRenderingContext = function(context){
@@ -90,7 +90,9 @@ define(['lodash', 'd3','log', './simple-statement-view', './../ast/action-invoca
             this.renderDisplayText(model.getInvokeStatement());
 
             this.renderProcessorConnectPoint(renderingContext);
-            this.renderArrows(renderingContext);
+            if (!_.isNil(this.getModel().getDestination())) {
+                this.renderInvokeArrows();
+            }
 
             // Creating property pane
             var editableProperty = {
@@ -208,38 +210,26 @@ define(['lodash', 'd3','log', './simple-statement-view', './../ast/action-invoca
             return new Point(pt.x, pt.y);
         };
 
-        /**
-         * Remove statement view callback
-         */
-        WorkerInvoke.prototype.onBeforeModelRemove = function () {
-            this.stopListening(this.getBoundingBox());
-            d3.select("#_" +this._model.id).remove();
-            this.removeArrows();
-            // resize the bounding box in order to the other objects to resize
-            this.getBoundingBox().h(0).w(0);
-
-        };
-
         WorkerInvoke.prototype.updateStatementText = function (newStatementText, propertyKey) {
             this._model.setStatementString(newStatementText);
             var displayText = this._model.getStatementString();
             this.renderDisplayText(displayText);
         };
 
-        WorkerInvoke.prototype.renderWorkerReceiverArrows = function (startPoint, container) {
+        WorkerInvoke.prototype.renderWorkerStart = function (startPoint, container) {
             log.debug("Render the worker start");
             var activatedWorkerTarget = this.messageManager.getActivatedDropTarget();
             if (BallerinaASTFactory.isWorkerDeclaration(activatedWorkerTarget)) {
                 this.getModel().setDestination(activatedWorkerTarget);
-                this.renderReceiverArrows();
+                this.renderInvokeArrows();
                 this.messageManager.reset();
             }
         };
 
-        WorkerInvoke.prototype.renderReceiverArrows = function () {
+        WorkerInvoke.prototype.renderInvokeArrows = function () {
             var self = this;
             var group = D3Utils.group(d3.select(this._container));
-            var destinationView = this.getDiagramRenderingContext().getViewOfModel(this.messageManager.getActivatedDropTarget());
+            var destinationView = this.getDiagramRenderingContext().getViewOfModel(this.getModel().getDestination());
             var startX = this.getBoundingBox().getRight();
             var startY = this.getBoundingBox().getTop() + this.getBoundingBox().h()/2;
             var endX = destinationView.getBoundingBox().getCenterX();
@@ -248,7 +238,7 @@ define(['lodash', 'd3','log', './simple-statement-view', './../ast/action-invoca
             var startRectWidth = 120;
             var messageStart = new Point(startX, startY);
             var messageEnd = new Point(endX - startRectWidth/2, endY);
-            var messageView = new MessageView({container: group.node(), start: messageStart, end: messageEnd});
+            this._messageView = new MessageView({container: group.node(), start: messageStart, end: messageEnd});
 
             var newY = this.getBoundingBox().getBottom() + 30;
             var destinationStatementContainer = destinationView.getStatementContainer();
@@ -257,7 +247,7 @@ define(['lodash', 'd3','log', './simple-statement-view', './../ast/action-invoca
             // Move the first inner drop zone down
             // TODO: use the getter method
             destinationStatementContainer._managedInnerDropzones[0].d3el.attr('y', newY - 30);
-            messageView.render();
+            this._messageView.render();
 
             // Set the invoker for the destination model (worker)
             destinationView.getModel().setInvoker(this.getModel());
@@ -278,7 +268,7 @@ define(['lodash', 'd3','log', './simple-statement-view', './../ast/action-invoca
                 self.getDiagramRenderingContext().getViewOfModel(destinationStatementContainer._managedStatements[0]).getBoundingBox().move(0, dy);
                 destinationStatementContainer._managedInnerDropzones[0].d3el.attr('y',
                     parseFloat(destinationStatementContainer._managedInnerDropzones[0].d3el.attr('y')) + dy);
-                messageView.move(0, dy);
+                self._messageView.move(0, dy);
             });
 
             // Triggers when we delete an element above the worker-invoke
@@ -290,7 +280,7 @@ define(['lodash', 'd3','log', './simple-statement-view', './../ast/action-invoca
                 self.getDiagramRenderingContext().getViewOfModel(destinationStatementContainer._managedStatements[0]).getBoundingBox().move(0, dy);
                 destinationStatementContainer._managedInnerDropzones[0].d3el.attr('y',
                     parseFloat(destinationStatementContainer._managedInnerDropzones[0].d3el.attr('y')) + dy);
-                messageView.move(0, dy);
+                self._messageView.move(0, dy);
             });
         };
 
@@ -298,6 +288,19 @@ define(['lodash', 'd3','log', './simple-statement-view', './../ast/action-invoca
             this._model.setInvokeStatement(newStatementText);
             var displayText = this._model.getInvokeStatement();
             this.renderDisplayText(displayText);
+        };
+
+        /**
+         * Remove statement view callback
+         */
+        WorkerInvoke.prototype.onBeforeModelRemove = function () {
+            d3.select("#_" +this.getModel().getID()).remove();
+            this._startRect.node().remove();
+            this._startActionText.node().remove();
+            // resize the bounding box in order to the other objects to resize
+            var gap = this.getParent().getStatementContainer().getInnerDropZoneHeight();
+            this.getBoundingBox().move(0, -this.getBoundingBox().h() - gap).w(0);
+            this._messageView.removeArrow();
         };
 
         return WorkerInvoke;

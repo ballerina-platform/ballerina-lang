@@ -14,13 +14,13 @@
 ~   limitations under the License.
 -->
 
-<html lang="en" class="webkit chrome mac js gr__localhost">
+<html lang="en" class="webkit chrome mac js gr__localhost" xmlns="http://www.w3.org/1999/html">
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>Ballerina Editor</title>
+    <title>Ballerina Composer</title>
 
     <!-- Favion -->
     <link href="images/favicon.png" rel="icon" type="image/png" sizes="16x16" />
@@ -59,8 +59,7 @@
     <div id="header-container" class="container-fluid">
         <div class="pull-left brand">
             <a href="#">
-                <img src="lib/theme-wso2-2.0.0/images/logo-inverse.svg" alt="wso2" title="wso2" class="logo">
-                <span>Ballerina Editor </span>
+                <span>Ballerina</span> <span class="orange">Composer </span>
             </a>
         </div>
         <div id="menu-bar-container" class="menu-bar">
@@ -126,7 +125,7 @@
                             <div id="tabs-container" class="col-sm-12">
                                 <div class="tab-headers tab-headers-bar">
                                 </div>
-                                <div  id="tab-content-wrapper" class="grid-background" style="height: 100%;">
+                                <div  id="tab-content-wrapper" class="grid-background" style="height: calc(100% - 20px);">
                                     <div class="tab-content tab-content-default "></div>
                                     <div class="notification-container" id="notification-container"></div>
                                 </div>
@@ -153,7 +152,7 @@
 <!-- Start: footer -->
 <footer class="footer">
     <div id="footer-container" class="container-fluid">
-        <p>WSO2 Ballerina Editor v0.8 | ©
+        <p>Ballerina Composer v0.8 | ©
             <script>document.write(new Date().getFullYear());</script>
             <a href="http://wso2.com/" target="_blank"><i class="icon fw fw-wso2"></i> Inc</a>.
         </p>
@@ -407,10 +406,11 @@
         <div class="modal-content clearfix">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><i class="fw fw-cancel  about-dialog-close"></i></button>
-                <h3 class="modal-title" id="aboutModalLabel">Welcome to Ballerina Editor</h3>
+                <h3 class="modal-title" id="aboutModalLabel">Welcome to Ballerina Composer</h3>
             </div>
             <div class="modal-body add-margin-top-2x add-margin-bottom-2x">
-                <p>See <a target="_blank" href="https://github.com/wso2/ballerina">here</a> for documentation and reporting issues.</p>
+                <p>See <a target="_blank" href="https://github.com/ballerinalang/ballerina/blob/master/docs/SyntaxSummary.md">here</a>
+                    for documentation and <a target="_blank" href="https://github.com/ballerinalang/editor/issues">here</a> for reporting issues.</p>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -434,8 +434,8 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-            </div>
-        </div>
+              </div>
+      </div>
     </div>
 </div>
 <!--End: About Modal-->
@@ -542,6 +542,87 @@
 </div>
 <!--End: Open Folder Modal-->
 
+<!--Start: Settings Modal-->
+<div class="modal fade" id="modalSettings" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content clearfix">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><i class="fw fw-cancel  about-dialog-close"></i></button>
+                <h3 class="modal-title" id="aboutSettingsLabel">Ballerina Editor - Settings</h3>
+            </div>
+            <div class="modal-body add-margin-top-2x add-margin-bottom-2x">
+                <form>
+                    <h3>Source View</h3>
+                    <hr />
+                    <div class="form-group">
+                        <label for="sourceViewTheme">Theme</label>
+                        <select class="form-control" id="sourceViewTheme">
+                            <optgroup label="Bright">
+                                <option value="ace/theme/chrome">Chrome</option>
+                                <option value="ace/theme/clouds">Clouds</option>
+                                <option value="ace/theme/crimson_editor">Crimson Editor</option>
+                                <option value="ace/theme/dawn">Dawn</option>
+                                <option value="ace/theme/dreamweaver">Dreamweaver</option>
+                                <option value="ace/theme/eclipse">Eclipse</option>
+                                <option value="ace/theme/github">GitHub</option>
+                                <option value="ace/theme/iplastic">IPlastic</option>
+                                <option value="ace/theme/solarized_light">Solarized Light</option>
+                                <option value="ace/theme/textmate">TextMate</option>
+                                <option value="ace/theme/tomorrow">Tomorrow</option>
+                                <option value="ace/theme/xcode">XCode</option>
+                                <option value="ace/theme/kuroir">Kuroir</option>
+                                <option value="ace/theme/katzenmilch">KatzenMilch</option>
+                                <option value="ace/theme/sqlserver">SQL Server</option>
+                            </optgroup>
+                            <optgroup label="Dark">
+                                <option value="ace/theme/ambiance">Ambiance</option>
+                                <option value="ace/theme/ballerina">Ballerina(Default)</option>
+                                <option value="ace/theme/chaos">Chaos</option>
+                                <option value="ace/theme/clouds_midnight">Clouds Midnight</option>
+                                <option value="ace/theme/cobalt">Cobalt</option>
+                                <option value="ace/theme/gruvbox">Gruvbox</option>
+                                <option value="ace/theme/idle_fingers">idle Fingers</option>
+                                <option value="ace/theme/kr_theme">krTheme</option>
+                                <option value="ace/theme/merbivore">Merbivore</option>
+                                <option value="ace/theme/merbivore_soft">Merbivore Soft</option>
+                                <option value="ace/theme/mono_industrial">Mono Industrial</option>
+                                <option value="ace/theme/monokai">Monokai</option>
+                                <option value="ace/theme/pastel_on_dark">Pastel on dark</option>
+                                <option value="ace/theme/solarized_dark">Solarized Dark</option>
+                                <option value="ace/theme/terminal">Terminal</option>
+                                <option value="ace/theme/tomorrow_night">Tomorrow Night</option>
+                                <option value="ace/theme/tomorrow_night_blue">Tomorrow Night Blue</option>
+                                <option value="ace/theme/tomorrow_night_bright">Tomorrow Night Bright</option>
+                                <option value="ace/theme/tomorrow_night_eighties">Tomorrow Night 80s</option>
+                                <option value="ace/theme/twilight">Twilight</option>
+                                <option value="ace/theme/vibrant_ink">Vibrant Ink</option>
+                            </optgroup>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="sourceViewFontSize">Font Size</label>
+                        <select class="form-control" id="sourceViewFontSize">
+                            <option value="10px">10px</option>
+                            <option value="11px">11px</option>
+                            <option value="12px" selected="selected">12px</option>
+                            <option value="13px">13px</option>
+                            <option value="14px">14px</option>
+                            <option value="16px">16px</option>
+                            <option value="18px">18px</option>
+                            <option value="20px">20px</option>
+                            <option value="24px">24px</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal" id="saveSettingsButton">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!--End: About Modal-->
+
 <script src="lib/requirejs-2.3.2/require.js"></script>
 <script type="text/javascript">
     requirejs.config({
@@ -599,6 +680,8 @@
             constants: 'js/constants/constants',
             typeMapper: 'js/type-mapper/type-mapper-renderer',
             environment_content: "js/ballerina/env/environment-content",
+            bal_utils: "js/ballerina/utils",
+            bal_configs: "js/ballerina/configs",
             console: "js/launcher/console"
         },
         shim: {
@@ -703,6 +786,9 @@
                 parser:  {
                     endpoint: "http://localhost:8289/ballerina/model/content"
                 },
+                validator:  {
+                    endpoint: "http://localhost:8289/ballerina/validate"
+                },
                 launcher: {
                     endpoint: "ws://localhost:9092/launch"
                 }
@@ -800,8 +886,8 @@
                             source_view: {
                                 // relative selector within container for a tab
                                 container: '.source-view-container',
-                                theme: 'ace/theme/tomorrow_night',
-                                font_size: '12pt',
+                                theme: 'ace/theme/twilight',
+                                font_size: '10pt',
                                 scroll_margin: '20',
                                 mode: 'ace/mode/ballerina'
                             },
@@ -881,7 +967,7 @@
                 },
                 leftOffset: 40,
                 separatorOffset: 5,
-                defaultWidth: 250,
+                defaultWidth: 290,
                 resizeLimits:{
                     minX: 200,
                     maxX: 800
@@ -900,6 +986,9 @@
             },
             about_dialog:{
                 selector: "#modalAbout"
+            },settings_dialog:{
+                selector: "#modalSettings",
+                submit_button: "#saveSettingsButton"
             },
             open_folder_dialog:{
                 modal_selector: "#open-folder-modal",
@@ -915,7 +1004,7 @@
                 containerToAdjust: ".right-container",
                 leftOffset: 40,
                 separatorOffset: 5,
-                defaultWidth: 250,
+                defaultWidth: 290,
                 resizeLimits:{
                     minX: 200,
                     maxX: 800
@@ -945,7 +1034,7 @@
                 containerToAdjust: ".right-container",
                 leftOffset: 40,
                 separatorOffset: 5,
-                defaultWidth: 250,
+                defaultWidth: 290,
                 resizeLimits:{
                     minX: 200,
                     maxX: 800

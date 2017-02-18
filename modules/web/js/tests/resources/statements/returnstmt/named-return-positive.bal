@@ -6,7 +6,7 @@ function testSingleNamedReturnParam(int a, string b) (int x) {
 }
 
 function testSingleNamedReturnParamDefaultValue(int a, string b) (int x) {
-    return x;
+    return;
 }
 
 function testSingleNamedReturnParamZeroReturnArgs(int a, string b) (int x) {

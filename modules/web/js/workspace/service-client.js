@@ -47,7 +47,7 @@ define(['log', 'lodash', 'jquery', 'event_channel', './file'],
         };
 
         /**
-         * validate source
+         * parser source
          * @param ServiceClient
          */
         ServiceClient.prototype.parse = function (source) {
@@ -57,6 +57,32 @@ define(['log', 'lodash', 'jquery', 'event_channel', './file'],
                 type: "POST",
                 context: this,
                 url: _.get(this.application, 'config.services.parser.endpoint'),
+                data: JSON.stringify(content),
+                contentType: "application/json; charset=utf-8",
+                async: false,
+                dataType: "json",
+                success: function (response) {
+                    data = response;
+                },
+                error: function(xhr, textStatus, errorThrown){
+                    data = getErrorFromResponse(xhr, textStatus, errorThrown);
+                    log.error(data.message);
+                }
+            });
+            return data;
+        };
+
+        /**
+         * validate source
+         * @param String source
+         */
+        ServiceClient.prototype.validate = function (source) {
+            var content = { "content": source };
+            var data = {};
+            $.ajax({
+                type: "POST",
+                context: this,
+                url: _.get(this.application, 'config.services.validator.endpoint'),
                 data: JSON.stringify(content),
                 contentType: "application/json; charset=utf-8",
                 async: false,

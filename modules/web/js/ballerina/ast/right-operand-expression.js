@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', './statement'], function(_, Statement){
+define(['lodash', './statement'], function (_, Statement) {
 
     /**
      * Constructor for RightOperandExpression
@@ -44,14 +44,6 @@ define(['lodash', './statement'], function(_, Statement){
      */
     RightOperandExpression.prototype.setRightOperandExpressionString = function (rightOperandExpStr, options) {
         this.setAttribute('_right_operand_expression_string', rightOperandExpStr, options);
-    };
-
-    /**
-     * Override the removeChild function
-     * @param {ASTNode} child - child node
-     */
-    RightOperandExpression.prototype.removeChild = function (child) {
-        this.getParent().removeChild(this);
     };
 
     /**

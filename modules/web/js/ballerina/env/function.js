@@ -83,25 +83,25 @@ define(['log', 'lodash', 'event_channel'],
          * returns the parameters
          * @returns [object]
          */
-         Function.prototype.getParameters = function () {
-             return this._parameters;
-         };
+        Function.prototype.getParameters = function () {
+            return this._parameters;
+        };
 
-         /**
-          * sets the returnParams
-          * @param [object] returnParams
-          */
-          Function.prototype.setReturnParams = function (returnParams) {
-              this._returnParams = returnParams;
-          };
+        /**
+         * sets the returnParams
+         * @param [object] returnParams
+         */
+        Function.prototype.setReturnParams = function (returnParams) {
+            this._returnParams = returnParams;
+        };
 
-          /**
-           * returns the returnParams
-           * @returns [object]
-           */
-           Function.prototype.getReturnParams = function () {
-               return this._returnParams;
-           };
+        /**
+         * returns the returnParams
+         * @returns [object]
+         */
+        Function.prototype.getReturnParams = function () {
+            return this._returnParams;
+        };
 
         /**
          * sets values from a json object

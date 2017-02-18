@@ -20,11 +20,12 @@ define(['lodash', 'log', 'event_channel', '../ast/module', './try-catch-statemen
         './else-if-statement-view', './assignment-view', './function-invocation-view',
         './action-invocation-statement-view', './while-statement-view', './reply-statement-view',
         './logical-expression-view', './arithmetic-expression-view', './return-statement-view',
-        './variable-definition-statement-view', './worker-invoke-view', './worker-receive-view'],
+        './variable-definition-statement-view', './worker-invoke-view', './worker-receive-view', './break-statement-view', './throw-statement-view'],
     function (_, log, EventChannel, AST, TryCatchStatementView, TryStatementView, CatchStatementView,
               IfElseStatementView, IfStatementView, ElseStatementView, ElseIfStatementView, AssignmentStatementView,
               FunctionInvocationStatementView, ActionInvocationStatementView, WhileStatementView, ReplyStatementView,
-              LogicalExpressionView, ArithmeticExpressionView, ReturnStatement, VariableDefinitionStatementView, WorkerInvokeView, WorkerReceiveView) {
+              LogicalExpressionView, ArithmeticExpressionView, ReturnStatement, VariableDefinitionStatementView,
+              WorkerInvokeView, WorkerReceiveView, BreakStatementView, ThrowStatementView) {
 
         var StatementViewFactory = function () {
         };
@@ -51,7 +52,7 @@ define(['lodash', 'log', 'event_channel', '../ast/module', './try-catch-statemen
                 return new FunctionInvocationStatementView(args);
             } else if (statement instanceof AST.WhileStatement) {
                 return new WhileStatementView(args);
-            } else if (statement instanceof AST.ActionInvocationExpression) {
+            } else if (statement instanceof AST.ActionInvocationStatement) {
                 return new ActionInvocationStatementView(args);
             } else if (statement instanceof AST.ReplyStatement) {
                 return new ReplyStatementView(args);
@@ -61,6 +62,8 @@ define(['lodash', 'log', 'event_channel', '../ast/module', './try-catch-statemen
                 return new ArithmeticExpressionView(args);
             } else if (statement instanceof AST.ReturnStatement) {
                 return new ReturnStatement(args);
+            } else if (statement instanceof AST.BreakStatement) {
+                return new BreakStatementView(args);
             } else if (statement instanceof AST.AssignmentStatement){
                 // TODO : This logic needs to be refactored.
                 var children  = _.get(statement, "children");
@@ -84,11 +87,22 @@ define(['lodash', 'log', 'event_channel', '../ast/module', './try-catch-statemen
                 }
                 return assignmentStatement;
             } else if (statement instanceof AST.VariableDefinitionStatement) {
-                return new VariableDefinitionStatementView(args);
+                var variableStatement = undefined;
+                _.each(statement.getChildren(), function (statementChild) {
+                    if(AST.BallerinaASTFactory.isActionInvocationExpression(statementChild)) {
+                        variableStatement = new ActionInvocationStatementView(args);
+                    }
+                });
+                if (_.isUndefined(variableStatement)) {
+                    variableStatement = new VariableDefinitionStatementView(args);
+                }
+                return variableStatement;
             } else if (statement instanceof AST.WorkerInvoke) {
                 return new WorkerInvokeView(args);
             } else if (statement instanceof AST.WorkerReceive) {
                 return new WorkerReceiveView(args);
+            } else if (statement instanceof AST.ThrowStatement) {
+                return new ThrowStatementView(args);
             }
         };
 

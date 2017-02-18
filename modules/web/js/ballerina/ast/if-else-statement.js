@@ -100,13 +100,6 @@ define(['lodash', 'log','./statement', './else-statement', './else-if-statement'
                     if (childNode.type === "variable_definition_statement" && !_.isNil(childNode.children[1]) && childNode.children[1].type === 'connector_init_expr') {
                         child = self.getFactory().createConnectorDeclaration();
                         childNodeTemp = childNode;
-                    } else if (childNode.type === "variable_definition_statement" && !_.isNil(childNode.children[1]) && childNode.children[1].type === 'action_invocation_expression') {
-                        child = self.getFactory().createActionInvocationExpression();
-                        childNodeTemp = childNode;
-                    } else if (childNode.type === "assignment_statement" && childNode.children[1].children[0].type === "action_invocation_expression") {
-                        child = self.getFactory().createActionInvocationExpression();
-                        childNodeTemp = {};
-                        childNodeTemp.children = [childNode.children[0].children[0], childNode.children[1].children[0]];
                     } else {
                         child = self.getFactory().createFromJson(childNode);
                         childNodeTemp = childNode;
@@ -124,13 +117,6 @@ define(['lodash', 'log','./statement', './else-statement', './else-if-statement'
             if (childNode.type === "variable_definition_statement" && !_.isNil(childNode.children[1]) && childNode.children[1].type === 'connector_init_expr') {
                 child = self.getFactory().createConnectorDeclaration();
                 childNodeTemp = childNode;
-            } else if (childNode.type === "variable_definition_statement" && !_.isNil(childNode.children[1]) && childNode.children[1].type === 'action_invocation_expression') {
-                child = self.getFactory().createActionInvocationExpression();
-                childNodeTemp = childNode;
-            } else if (childNode.type === "assignment_statement" && childNode.children[1].children[0].type === "action_invocation_expression") {
-                child = self.getFactory().createActionInvocationExpression();
-                childNodeTemp = {};
-                childNodeTemp.children = [childNode.children[0].children[0], childNode.children[1].children[0]];
             } else {
                 child = self.getFactory().createFromJson(childNode);
                 childNodeTemp = childNode;

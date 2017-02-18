@@ -20,8 +20,10 @@
  * Module to provide items(tool groups, tools) for a given tool palette.
  */
 define(['log', 'lodash', './../env/package', './../tool-palette/tool-palette', './../tool-palette/tool-group',
-        './../env/environment', './initial-definitions', 'event_channel', './../ast/ballerina-ast-factory'],
-    function (log, _, Package, ToolPalette, ToolGroup, Environment, InitialTools, EventChannel, BallerinaASTFactory) {
+        './../env/environment', './initial-definitions', 'event_channel', './../ast/ballerina-ast-factory',
+        './../ast/defaults-added-ballerina-ast-factory'],
+    function (log, _, Package, ToolPalette, ToolGroup, Environment, InitialTools, EventChannel, BallerinaASTFactory,
+              DefaultsAddedBallerinaASTFactory) {
 
         /**
          * constructs ToolPaletteItemProvider
@@ -119,13 +121,19 @@ define(['log', 'lodash', './../env/package', './../tool-palette/tool-palette', '
          * Adds a tool group view to the tool palette for a given package
          * @param package - package to be added
          */
-        ToolPaletteItemProvider.prototype.addImportToolGroup = function (package) {
+        ToolPaletteItemProvider.prototype.addImportToolGroup = function (package, options) {
             if (package instanceof Package) {
                 var isADefaultPackage = _.includes(this._defaultImportedPackages, package);
                 if (!isADefaultPackage) { // Removing existing package
                     // Re-adding the package
                     var group = this.getToolGroup(package);
-                    var groupView = this._toolPalette.addVerticallyFormattedToolGroup({group: group});
+
+                    // Need to remove any old group models added for this package and add the new one
+                    _.remove(this._toolGroups, function(group){
+                        return group.get('toolGroupName') === package.getName()
+                    });
+                    this._toolGroups.push(group);
+                    var groupView = this._toolPalette.addVerticallyFormattedToolGroup({group: group, options: options});
                     this._importedPackagesViews[package.getName()] = groupView;
                 }
             }
@@ -136,10 +144,29 @@ define(['log', 'lodash', './../env/package', './../tool-palette/tool-palette', '
          * @param packageName - name of the package to be removed
          */
         ToolPaletteItemProvider.prototype.removeImportToolGroup = function (packageName) {
+            var defaultPackageIndex = _.findIndex(this._defaultImportedPackages, function(p) {
+                return p.getName() === packageName;
+            });
+
+            if(defaultPackageIndex !== -1) {
+                // The package is a default package.
+                // Default packages should not be removed from the view.
+                return;
+            }
+
             var removingView = this._importedPackagesViews[packageName];
             if(!_.isNil(removingView)){
                 removingView.remove();
             }
+        };
+
+        /**
+         * Keeps the tool palette view keyed by its package name
+         * @param packageName - name of the package to be saved
+         * @param view - Backbone view of the package in the tool palette
+         */
+        ToolPaletteItemProvider.prototype.saveImportToolGroupView = function (packageName, view) {
+            this._importedPackagesViews[packageName] = view;
         };
 
         /**
@@ -172,7 +199,8 @@ define(['log', 'lodash', './../env/package', './../tool-palette/tool-palette', '
                 connector.nodeFactoryMethod = BallerinaASTFactory.createConnectorDeclaration;
                 connector.meta = {
                     connectorName: connector.getName(),
-                    connectorPackageName: packageName
+                    connectorPackageName: packageName,
+                    fullPackageName: package.getName()
                 };
                 //TODO : use a generic icon
                 connector.icon = "images/tool-icons/connector.svg";
@@ -198,11 +226,17 @@ define(['log', 'lodash', './../env/package', './../tool-palette/tool-palette', '
                     action.meta = {
                         action: action.getName(),
                         actionConnectorName: connector.getName(),
-                        actionPackageName: packageName
+                        actionPackageName: packageName,
+                        fullPackageName: package.getName()
                     };
                     action.icon = "images/tool-icons/action.svg";
                     action.title = action.getName();
-                    action.nodeFactoryMethod = BallerinaASTFactory.createActionInvocationExpression;
+
+                    action.nodeFactoryMethod = DefaultsAddedBallerinaASTFactory.createAggregatedActionInvocationStatement;
+                    if (action.getReturnParams().length > 0){
+                        action.nodeFactoryMethod = DefaultsAddedBallerinaASTFactory.createAggregatedActionInvocationAssignmentStatement;
+                    }
+
                     action.id = connector.getName() + '-' + action.getName();
                     definitions.push(action);
 
@@ -218,9 +252,12 @@ define(['log', 'lodash', './../env/package', './../tool-palette/tool-palette', '
                     action.classNames = "tool-connector-action";
                     action.meta = {
                         action: action.getName(),
-                        actionConnectorName: connector.getName(),
+                        actionConnectorName: connector.getName()
                     };
-                    var actionNodeFactoryMethod = BallerinaASTFactory.createActionInvocationExpression;
+                    var actionNodeFactoryMethod = DefaultsAddedBallerinaASTFactory.createAggregatedActionInvocationStatement;
+                    if (action.getReturnParams().length > 0){
+                        actionNodeFactoryMethod = DefaultsAddedBallerinaASTFactory.createAggregatedActionInvocationAssignmentStatement;
+                    }
                     self.addToToolGroup(toolGroupID, action, actionNodeFactoryMethod, actionIcon);
                 });
 
@@ -243,7 +280,8 @@ define(['log', 'lodash', './../env/package', './../tool-palette/tool-palette', '
                     packageName: packageName,
                     params: getArgumentString(functionDef.getParameters()),
                     returnParams: getReturnParamString(functionDef.getReturnParams()),
-                    operandType: getReturnParamString(functionDef.getReturnParams())
+                    operandType: getReturnParamString(functionDef.getReturnParams()),
+                    fullPackageName: package.getName()
                 };
                 functionDef.icon = "images/tool-icons/function.svg";
                 functionDef.title = functionDef.getName();
@@ -278,7 +316,10 @@ define(['log', 'lodash', './../env/package', './../tool-palette/tool-palette', '
                     var actionIcon = "images/tool-icons/action.svg";
                     action.classNames = "tool-connector-action";
                     action.setId(action.getId());
-                    var actionNodeFactoryMethod = BallerinaASTFactory.createActionInvocationExpression;
+                    var actionNodeFactoryMethod = DefaultsAddedBallerinaASTFactory.createAggregatedActionInvocationStatement;
+                    if (action.getReturnParams().length > 0){
+                        actionNodeFactoryMethod = DefaultsAddedBallerinaASTFactory.createAggregatedActionInvocationAssignmentStatement;
+                    }
                     self.addToToolGroup(toolGroupID, action, actionNodeFactoryMethod, actionIcon);
 
                     action.on('name-modified', function (newName, oldName) {

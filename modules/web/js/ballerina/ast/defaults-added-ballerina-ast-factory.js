@@ -122,5 +122,47 @@ define(['lodash', './ballerina-ast-factory'], function (_, BallerinaASTFactory) 
     };
 
 
+    /**
+     * Create the action invocation statement for action invocation
+     * @param args
+     * @returns {ActionInvocationStatement}
+     */
+    DefaultsAddedBallerinaASTFactory.createAggregatedActionInvocationStatement = function(args) {
+        var actionInStmt = BallerinaASTFactory.createActionInvocationStatement(args);
+        var actionInExp = BallerinaASTFactory.createActionInvocationExpression(args);
+        actionInStmt.addChild(actionInExp);
+        return actionInStmt;
+    };
+
+    /**
+     * Create the particular assignment statement for the action invocation
+     * @param args
+     * @returns {AssignmentStatement}
+     */
+    DefaultsAddedBallerinaASTFactory.createAggregatedActionInvocationAssignmentStatement = function(args) {
+        var assignmentStmt = BallerinaASTFactory.createAssignmentStatement(args);
+        var leftOp = BallerinaASTFactory.createLeftOperandExpression(args);
+        var rightOp = BallerinaASTFactory.createRightOperandExpression(args);
+        var actionInExp = BallerinaASTFactory.createActionInvocationExpression(args);
+        rightOp.addChild(actionInExp);
+        rightOp.setRightOperandExpressionString(actionInExp.getExpression());
+        assignmentStmt.addChild(leftOp);
+        assignmentStmt.addChild(rightOp);
+        return assignmentStmt;
+    };
+
+    /**
+     * creates TryCatchStatement
+     * @param args
+     */
+    DefaultsAddedBallerinaASTFactory.createTryCatchStatement = function (args) {
+        var tryCatchStatement = BallerinaASTFactory.createTryCatchStatement(args);
+        var tryStatement = BallerinaASTFactory.createTryStatement(args);
+        tryCatchStatement.addChild(tryStatement);
+        var catchStatement = BallerinaASTFactory.createCatchStatement(args);
+        tryCatchStatement.addChild(catchStatement);
+        return tryCatchStatement;
+    };
+
     return DefaultsAddedBallerinaASTFactory;
 });

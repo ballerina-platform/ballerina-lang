@@ -6,3 +6,4 @@ function floatMultiply(float a, float b) (float) {
     return a * b;
 }
 
+

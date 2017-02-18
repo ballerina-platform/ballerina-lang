@@ -19,7 +19,8 @@
 /**
  * Module for BallerinaASTRoot
  */
-define(['lodash', 'log', './node', './import-declaration'], function (_, log, ASTNode, ImportDeclaration) {
+define(['lodash', 'log', './node', './import-declaration'],
+    function (_, log, ASTNode, ImportDeclaration) {
 
     /**
      * Constructs BallerinaASTRoot
@@ -37,6 +38,42 @@ define(['lodash', 'log', './node', './import-declaration'], function (_, log, AS
         this.typeDefinitions = _.get(args, 'typeDefinitions', []);
         this.typeMapperDefinitions = _.get(args, 'typeMapperDefinitions', []);
         ASTNode.call(this, "BallerinaASTRoot");
+        var self = this;
+        // Listener to tree modified event.
+        this.on('tree-modified', function (e) {
+            // Add new imports on new child added to the canvas.
+            var addImportOnTreeChange = function (fullPackageName) {
+                if (!self.isExistingPackage(fullPackageName)) {
+                    var importDeclaration = self.getFactory().createImportDeclaration();
+                    importDeclaration.setPackageName(fullPackageName);
+                    self.addImport(importDeclaration);
+                }
+            };
+
+            if (e.type === "child-added") {
+                if (self.getFactory().isAssignmentStatement(e.data.child)) {
+                    if (e.data.child._fullPackageName) {
+                        addImportOnTreeChange(e.data.child.getFullPackageName());
+                    }
+                } else if (self.getFactory().isConnectorDeclaration(e.data.child)) {
+                    if (e.data.child._fullPackageName) {
+                        addImportOnTreeChange(e.data.child.getFullPackageName());
+                    }
+                } else if (self.getFactory().isActionInvocationExpression(e.data.child)) {
+                    if (e.data.child._fullPackageName) {
+                        addImportOnTreeChange(e.data.child.getFullPackageName());
+                    }
+                } else if (self.getFactory().isFunctionInvocationStatement(e.data.child)) {
+                    var functionInvocationExpression = _.find(e.data.child.children, function (child) {
+                        return self.getFactory().isFunctionInvocationExpression(child);
+                    });
+                    if (functionInvocationExpression &&
+                        functionInvocationExpression._fullPackageName) {
+                        addImportOnTreeChange(functionInvocationExpression.getFullPackageName());
+                    }
+                }
+            }
+        });
     };
 
     BallerinaASTRoot.prototype = Object.create(ASTNode.prototype);
@@ -146,14 +183,6 @@ define(['lodash', 'log', './node', './import-declaration'], function (_, log, AS
     };
 
     /**
-     * Getter function for FunctionDefinition
-     * @returns {Array}
-     */
-    BallerinaASTRoot.prototype.getFunctionDefinitions = function () {
-        return this.functionDefinitions;
-    };
-
-    /**
      * This is the root element of ballerina ast - so cannot be a child of anyone.
      * @param node
      * @return {boolean}
@@ -196,12 +225,8 @@ define(['lodash', 'log', './node', './import-declaration'], function (_, log, AS
      * @param {ImportDeclaration} importDeclaration - New import declaration.
      */
     BallerinaASTRoot.prototype.addImport = function (importDeclaration) {
-        var existingImport = _.find(this.getImportDeclarations(), function(child){
-            return _.isEqual(child.getPackageName(), importDeclaration.getPackageName());
-         });
-
-        if (!_.isNil(existingImport)) {
-            var errorString = "Package \"" + existingImport.getPackageName() + "\" is already imported.";
+        if (this.isExistingPackage(importDeclaration.getPackageName())) {
+            var errorString = "Package \"" + importDeclaration.getPackageName() + "\" is already imported.";
             log.error(errorString);
             throw errorString;
         }
@@ -405,6 +430,15 @@ define(['lodash', 'log', './node', './import-declaration'], function (_, log, AS
      */
     BallerinaASTRoot.prototype.canBeParentOf = function (node) {
         var BallerinaASTFactory = this.getFactory();
+
+        var existingMainFunction = _.find(this.getFunctionDefinitions(), function(functionDef){
+            return functionDef.isMainFunction();
+        });
+
+        if (!_.isNil(existingMainFunction) && BallerinaASTFactory.isFunctionDefinition(node) && node.isMainFunction()) {
+            return false;
+        }
+        
         return BallerinaASTFactory.isServiceDefinition(node)
             || BallerinaASTFactory.isFunctionDefinition(node)
             || BallerinaASTFactory.isConnectorDefinition(node)
@@ -414,6 +448,16 @@ define(['lodash', 'log', './node', './import-declaration'], function (_, log, AS
             || BallerinaASTFactory.isTypeMapperDefinition(node)
     };
 
+    /**
+     * Check whether package name is existing one or not.
+     * @param {String} packageName
+     * @return {Boolean} if exist returns true if doesn't return false
+     * */
+    BallerinaASTRoot.prototype.isExistingPackage = function (packageName) {
+        return _.find(this.getImportDeclarations(), function (child) {
+            return _.isEqual(child.getPackageName(), packageName);
+        }) ? true : false;
+    };
 
     return BallerinaASTRoot;
 });

@@ -101,6 +101,13 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
     };
 
     /**
+     * Remove the root arrow group
+     */
+    MessageView.prototype.removeArrow = function () {
+        this._rootGroup.node().remove();
+    };
+
+    /**
      * Move the message
      * @param {number} dx - delta x distance
      * @param {number} dy - delta y distance
