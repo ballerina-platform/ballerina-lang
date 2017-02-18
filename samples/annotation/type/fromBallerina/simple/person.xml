@@ -1,0 +1,14 @@
+<Person>
+    <userID>100</userID>
+    <name>string</name>
+    <birthday>string</birthday>
+    <address>
+        <addressLine>string</addressLine>
+        <city>string</city>
+        <state>string</state>
+        <country>string</country>
+        <zipcode>100</zipcode>
+    </address>
+    <!--Zero or more repetitions:-->
+    <email>string</email>
+</Person>
