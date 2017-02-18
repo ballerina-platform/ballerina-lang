@@ -42,8 +42,9 @@ public abstract class AbstractNativeConnector extends BType implements NativeUni
     
     // BLangSymbol related attributes
     private List<ParameterDef> parameterDefs;
-    private SimpleTypeName[] returnParamTypeNames;
+    private String[] argNames;
     private SimpleTypeName[] argTypeNames;
+    private SimpleTypeName[] returnParamTypeNames;
     private List<NativeUnitProxy> actions;
     
     // Scope related variables
@@ -116,12 +117,20 @@ public abstract class AbstractNativeConnector extends BType implements NativeUni
     public void setArgTypeNames(SimpleTypeName[] argTypes) {
         this.argTypeNames = argTypes;
     }
-    
+
+    public void setArgNames(String[] argNames) {
+        this.argNames = argNames;
+    }
+
     @Override
     public SimpleTypeName[] getArgumentTypeNames() {
         return argTypeNames;
     }
-    
+
+    public String[] getArgumentNames() {
+        return argNames;
+    }
+
     @Override
     public SimpleTypeName[] getReturnParamTypeNames() {
         return returnParamTypeNames;
