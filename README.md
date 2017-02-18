@@ -14,16 +14,18 @@ The conceptual model of Ballerina is that of a sequence diagram. Each participan
 
 Ballerina is not designed to be a general purpose language. Instead you should use Ballerina if you need to integrate a collection of network connected systems such as HTTP endpoints, Web APIs, JMS services, and databases. The result of the integration can either be just that - the integration that runs once or repeatedly on a schedule, or a reusable HTTP service that others can run.
 
-## Documents
-[Introduction to Ballerina](docs/index.md)
+## Getting started
 
+You can download the Ballerina distribution, try samples, and read the documentation at http://ballerinalang.org.
 
-## Build from the source
+## Building from the source
 
-- Get a clone or download source from [github](https://github.com/wso2/ballerina)
-- Run the Maven command ``mvn clean install`` from the root directory
-- Extract the ballerina distribution created at ballerina/modules/distribution/target/ballerina-0.8.0-SNAPSHOT.zip in to your local directory
+If you want to build Ballerina from the source code:
+
+1. Get a clone or download the source from this repository (https://github.com/wso2/ballerina).
+1. Run the Maven command ``mvn clean install`` from the root directory.
+1. Extract the Ballerina distribution created at `ballerina/modules/distribution/target/ballerina-0.8.0-SNAPSHOT.zip` to your local directory.
 
 ## Running samples
 
-[Getting started samples](samples/getting_started)
+The website http://ballerinalang.org has several samples you can try out right there in the page. Or go to the [Samples](samples/getting_started) in Github to view all the Ballerina samples. These samples are also available in the `<ballerina_home>/samples` directory in your Ballerina distribution. 
