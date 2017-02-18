@@ -103,6 +103,9 @@ define(['lodash', 'log', './ballerina-statement-view', './../ast/arithmetic-expr
                 statementGroup:group,
                 editableProperties: editableProperties
             });
+            this._createDebugIndicator({
+                statementGroup: this.getStatementGroup()
+            });
             return group;
         };
 

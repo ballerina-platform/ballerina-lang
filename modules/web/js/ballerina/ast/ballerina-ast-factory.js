@@ -1351,6 +1351,9 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
                     case 'catch_block':
                         node = BallerinaASTFactory.createCatchStatement();
                         break;
+                    case 'throw_statement':
+                        node = BallerinaASTFactory.createThrowStatement();
+                        break;
                     default:
                         throw "Unknown node definition for " + jsonNode.type;
                 }

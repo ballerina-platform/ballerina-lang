@@ -237,9 +237,8 @@ define(['log', 'lodash', './../env/package', './../tool-palette/tool-palette', '
                         action.nodeFactoryMethod = DefaultsAddedBallerinaASTFactory.createAggregatedActionInvocationAssignmentStatement;
                     }
 
-                    action.id = connector.getName() + '-' + action.getName();
+                    action.id = action.getId();
                     definitions.push(action);
-
                     var toolGroupID = package.getName() + "-tool-group";
                     // registering connector action name-modified event
                     action.on('name-modified', function(newName, oldName){
@@ -250,10 +249,17 @@ define(['log', 'lodash', './../env/package', './../tool-palette/tool-palette', '
                     var actionIcon = "images/tool-icons/action.svg";
                     var toolGroupID = package.getName() + "-tool-group";
                     action.classNames = "tool-connector-action";
+
                     action.meta = {
                         action: action.getName(),
                         actionConnectorName: connector.getName()
                     };
+
+                    // registering connector action name-modified event
+                    action.on('name-modified', function(newName, oldName){
+                        self.updateToolItem(toolGroupID, action, newName);
+                    });
+
                     var actionNodeFactoryMethod = DefaultsAddedBallerinaASTFactory.createAggregatedActionInvocationStatement;
                     if (action.getReturnParams().length > 0){
                         actionNodeFactoryMethod = DefaultsAddedBallerinaASTFactory.createAggregatedActionInvocationAssignmentStatement;
@@ -263,7 +269,7 @@ define(['log', 'lodash', './../env/package', './../tool-palette/tool-palette', '
 
                 connector.on('connector-action-removed', function (action) {
                     var toolGroupID = package.getName() + "-tool-group";
-                    var toolId = action.getActionName();
+                    var toolId = connector.getName() + '-' + action.getActionName();
                     self._toolPalette.removeToolFromGroup(toolGroupID, toolId);
                 });
             });
@@ -330,7 +336,7 @@ define(['log', 'lodash', './../env/package', './../tool-palette/tool-palette', '
 
                 connector.on('connector-action-removed', function (action) {
                     var toolGroupID = package.getName() + "-tool-group";
-                    var toolId = action.getActionName();
+                    var toolId = connector.getName() + '-' + action.getActionName();
                     self._toolPalette.removeToolFromGroup(toolGroupID, toolId);
                 });
 
@@ -367,6 +373,15 @@ define(['log', 'lodash', './../env/package', './../tool-palette/tool-palette', '
                 var toolGroupID = package.getName() + "-tool-group";
                 var toolId = connectorDef.getConnectorName();
                 self._toolPalette.removeToolFromGroup(toolGroupID, toolId);
+
+                // remove connector action definitions inside this connector
+                var actions = connectorDef.getConnectorActionDefinitions();
+
+                _.forEach(actions, function(action){
+                    var toolGroupID = package.getName() + "-tool-group";
+                    var toolId = connectorDef.getConnectorName() + '-' + action.getActionName();
+                    self._toolPalette.removeToolFromGroup(toolGroupID, toolId);
+                });
             });
 
             return group;
@@ -383,7 +398,7 @@ define(['log', 'lodash', './../env/package', './../tool-palette/tool-palette', '
             tool.nodeFactoryMethod = nodeFactoryMethod;
             tool.icon = icon;
             tool.title = toolItem.getName();
-            tool.id = toolItem.getName();
+            tool.id = toolItem.getId();
             tool.classNames = toolItem.classNames;
             tool.meta = toolItem.meta;
             this._toolPalette.addNewToolToGroup(toolGroupID, tool);

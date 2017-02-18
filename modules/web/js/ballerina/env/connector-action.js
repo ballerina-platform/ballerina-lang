@@ -110,7 +110,7 @@ define(['require', 'log', 'lodash', 'event_channel'],
 
         ConnectorAction.prototype.initFromASTModel = function (connectorActionModel) {
             this.setName(connectorActionModel.getActionName());
-            this.setId(connectorActionModel.getActionName());
+            this.setId(connectorActionModel.getParent().getConnectorName() + '-' + connectorActionModel.getActionName());
             this.setParameters(connectorActionModel.getArguments());
             this.setReturnParams(connectorActionModel.getReturnTypes());
         };
