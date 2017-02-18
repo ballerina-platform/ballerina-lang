@@ -104,6 +104,8 @@ public class BallerinaDocGeneratorMain {
         }
 
         BallerinaDocDataHolder dataHolder = BallerinaDocDataHolder.getInstance();
+        // This is necessary to be true in order to Ballerina to work properly
+        System.setProperty("skipNatives", "true");
 
         for (Path path : packagePaths) {
             BLangProgram bLangProgram = new BLangProgramLoader().loadLibrary(pkgPath, path);
