@@ -107,7 +107,7 @@ After you have built an archive, you can create a Docker image of it and run it 
 
 To create a Docker image from a Ballerina package, you run `ballerina docker` and provide the package name as an argument:
 
-```bash
+```
 $ ./ballerina docker helloWorld.bmz
 ballerina: build docker image [helloworld:latest] in docker host [localhost]? (y/n): y
 
@@ -120,7 +120,7 @@ Use the following command to start a container.
 
 You can additionally provide a customized image name:
 
-```bash
+```
 ./ballerina docker helloWorld.bmz -t myhelloworld:0.1
 ballerina: build docker image [myhelloworld:0.1] in docker host [localhost]? (y/n): y
 
@@ -133,7 +133,7 @@ Use the following command to start a container.
 
 If you want to use a remote Docker daemon, you can specify it using the -H flag so the Docker image is created at the remote end:
 
-```bash
+```
 ./ballerina docker helloWorld.bmz -H http://127.0.0.1:2375
 ballerina: build docker image [myhelloworld:0.1] in docker host [http://127.0.0.1:2375]? (y/n): y
 
