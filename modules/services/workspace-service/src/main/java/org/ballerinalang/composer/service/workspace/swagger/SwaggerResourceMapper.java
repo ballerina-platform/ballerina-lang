@@ -32,9 +32,10 @@ import java.util.concurrent.ConcurrentHashMap;
  * This class will do resource mapping from ballerina to swagger.
  */
 public class SwaggerResourceMapper {
-    public final static String HTTP_VERB_MATCHING_PATTERN = "(?i)|" + Constants.ANNOTATION_METHOD_GET + "|" +
-            Constants.ANNOTATION_METHOD_PUT + "|" + Constants.ANNOTATION_METHOD_POST + "|" +
-            Constants.ANNOTATION_METHOD_DELETE + "|" + Constants.ANNOTATION_METHOD_OPTIONS;
+    public final static String HTTP_VERB_MATCHING_PATTERN = "(?i)|" + "http:"+ Constants.ANNOTATION_METHOD_GET + "|" +
+            "http:"+ Constants.ANNOTATION_METHOD_PUT + "|" + "http:"+ Constants.ANNOTATION_METHOD_POST + "|" +
+            "http:"+ Constants.ANNOTATION_METHOD_DELETE + "|" + "http:"+ Constants.ANNOTATION_METHOD_OPTIONS+
+            "http:"+ Constants.ANNOTATION_METHOD_PATCH + "http:HEAD";
     private Resource resource;
     private Operation operation;
 
@@ -98,23 +99,26 @@ public class SwaggerResourceMapper {
             String httpOperation = operationAdaptor.getHttpOperation();
             Operation operation = operationAdaptor.getOperation();
             switch (httpOperation) {
-                case Constants.ANNOTATION_METHOD_GET:
+                case "http:"+Constants.ANNOTATION_METHOD_GET:
                     path.get(operation);
                     break;
-                case Constants.ANNOTATION_METHOD_PUT:
+                case "http:"+Constants.ANNOTATION_METHOD_PUT:
                     path.put(operation);
                     break;
-                case Constants.ANNOTATION_METHOD_POST:
+                case "http:"+Constants.ANNOTATION_METHOD_POST:
                     path.post(operation);
                     break;
-                case Constants.ANNOTATION_METHOD_DELETE:
+                case "http:"+Constants.ANNOTATION_METHOD_DELETE:
                     path.delete(operation);
                     break;
-                case Constants.ANNOTATION_METHOD_OPTIONS:
+                case "http:"+Constants.ANNOTATION_METHOD_OPTIONS:
                     path.options(operation);
                     break;
-                case Constants.ANNOTATION_METHOD_PATCH:
+                case "http:"+Constants.ANNOTATION_METHOD_PATCH:
                     path.patch(operation);
+                    break;
+                case "http:HEAD":
+                    path.head(operation);
                     break;
                 default:
                     break;
