@@ -81,11 +81,13 @@ public class HtmlDocumentWriter implements DocumentWriter {
     @Override
     public void write(Collection<BLangPackage> packages) throws IOException {
         if (packages == null || packages.size() == 0) {
-            out.println("No package definitions found!");
+            out.println("Docerina: No package definitions found!");
             return;
         }
 
-        out.println("Generating HTML API documentation...");
+        if (BallerinaDocUtils.isDebugEnabled()) {
+            out.println("Generating HTML API documentation...");
+        }
         Files.createDirectories(Paths.get(outputFilePath));
 
         for (BLangPackage balPackage : packages) {
@@ -95,7 +97,9 @@ public class HtmlDocumentWriter implements DocumentWriter {
         String filePath = outputFilePath + File.separator + INDEX_HTML;
         writeHtmlDocument(packages, indexTemplateName, filePath);
 
-        out.println("Copying HTML theme...");
+        if (BallerinaDocUtils.isDebugEnabled()) {
+            out.println("Copying HTML theme...");
+        }
         BallerinaDocUtils.copyResources("docerina-theme", outputFilePath);
     }
 

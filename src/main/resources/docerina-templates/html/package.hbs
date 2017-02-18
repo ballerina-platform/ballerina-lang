@@ -123,8 +123,8 @@
                         <br>{{/hasConnectors}} 
                         {{#hasStructs}}
                         <!-- Structs -->
-                        {{#each structDefs}}
                         <h2>Structs of {{refinePackagePath this}} package</h2>
+                        {{#each structDefs}}
                         <h3 id="{{symbolName.name}}">
                             struct {{symbolName.name}}({{#each fields}}<a href="{{#bindLink type.symbolName}}{{/bindLink}}"{{typeTitle type}}>{{type.name}}</a> {{name}}{{#unless @last}},
                             {{/unless}}{{/each}} )

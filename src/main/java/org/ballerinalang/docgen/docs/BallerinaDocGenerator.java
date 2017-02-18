@@ -20,6 +20,7 @@ package org.ballerinalang.docgen.docs;
 
 import org.ballerinalang.BLangProgramLoader;
 import org.ballerinalang.docgen.docs.html.HtmlDocumentWriter;
+import org.ballerinalang.docgen.docs.utils.BallerinaDocUtils;
 import org.ballerinalang.model.BLangPackage;
 import org.ballerinalang.model.BLangProgram;
 import org.ballerinalang.util.program.BLangPrograms;
@@ -120,7 +121,9 @@ public class BallerinaDocGenerator {
                 for (BLangPackage bLangPackage : bLangProgram.getLibraryPackages()) {
                     String packageName = bLangPackage.getPackagePath();
                     if (isFilteredPackage(packageName, packageFilter)) {
-                        out.println("Package " + packageName + " excluded");
+                        if (BallerinaDocUtils.isDebugEnabled()) {
+                            out.println("Package " + packageName + " excluded");
+                        }
                         continue;
                     }
 
@@ -140,7 +143,12 @@ public class BallerinaDocGenerator {
     }
 
     private static void writeHtmlDocs(String output, Map<String, BLangPackage> docsMap) throws IOException {
-        HtmlDocumentWriter htmlDocumentWriter = new HtmlDocumentWriter(output);
+        HtmlDocumentWriter htmlDocumentWriter;
+        if (output == null) {
+            htmlDocumentWriter = new HtmlDocumentWriter();
+        } else {
+            htmlDocumentWriter = new HtmlDocumentWriter(output);
+        }
         htmlDocumentWriter.write(docsMap.values());
     }
     
