@@ -865,7 +865,6 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
         };
 
         BallerinaFileEditor.prototype.reDraw = function (args) {
-            console.log('redrawing................')
             var self = this;
             var viewOptions = this._viewOptions;
             if (!_.has(this._viewOptions, 'design_view.container')) {
