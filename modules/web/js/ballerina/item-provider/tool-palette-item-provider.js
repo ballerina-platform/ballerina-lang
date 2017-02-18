@@ -216,12 +216,12 @@ define(['log', 'lodash', './../env/package', './../tool-palette/tool-palette', '
                 var toolGroupID = package.getName() + "-tool-group";
                 // registering connector name-modified event
                 connector.on('name-modified', function(newName, oldName){
-                    self.updateToolItem(toolGroupID, connector, 'name', newName);
+                    self.updateToolItem(toolGroupID, connector, 'name', newName, 'connectorName');
                 });
 
                 connector.on('param-added', function (newName, oldName) {
                     var paramString = getParamString();
-                    self.updateToolItem(toolGroupID, connector, 'params', paramString);
+                    self.updateToolItem(toolGroupID, connector, 'params', paramString, 'params');
                 });
 
                 var actionsOrdered = _.sortBy(connector.getActions(), [function (action) {
@@ -313,7 +313,7 @@ define(['log', 'lodash', './../env/package', './../tool-palette/tool-palette', '
                 var toolGroupID = package.getName() + "-tool-group";
                 // registering function name-modified event
                 functionDef.on('name-modified', function(newName, oldName){
-                    self.updateToolItem(toolGroupID, functionDef, 'name', newName);
+                    self.updateToolItem(toolGroupID, functionDef, 'name', newName, 'functionName');
                 });
             });
 
@@ -345,12 +345,12 @@ define(['log', 'lodash', './../env/package', './../tool-palette/tool-palette', '
                 this.addToToolGroup(toolGroupID, connector, nodeFactoryMethod, icon);
 
                 connector.on('name-modified', function (newName, oldName) {
-                    self.updateToolItem(toolGroupID, connector, 'name', newName);
+                    self.updateToolItem(toolGroupID, connector, 'name', newName, 'connectorName');
                 });
 
                 connector.on('param-added', function (newName, oldName) {
                     var paramString = getParamString();
-                    self.updateToolItem(toolGroupID, connector, 'params', paramString);
+                    self.updateToolItem(toolGroupID, connector, 'params', paramString, 'params');
                 });
 
                 connector.on('connector-action-added', function (action) {
@@ -398,7 +398,7 @@ define(['log', 'lodash', './../env/package', './../tool-palette/tool-palette', '
                 this.addToToolGroup(toolGroupID, functionDef, nodeFactoryMethod, icon);
 
                 functionDef.on('name-modified', function(newName, oldName){
-                    self.updateToolItem(toolGroupID, functionDef, 'name', newName);
+                    self.updateToolItem(toolGroupID, functionDef, 'name', newName, 'functionName');
                 });
             }, this);
 
@@ -451,8 +451,8 @@ define(['log', 'lodash', './../env/package', './../tool-palette/tool-palette', '
          * @param {Object} toolItem - tool object
          * @param {Object} newValue - new value for the tool
          */
-        ToolPaletteItemProvider.prototype.updateToolItem = function (toolGroupID, toolItem, attribute, newValue) {
-            this._toolPalette.updateToolPaletteItem(toolGroupID, toolItem, attribute, newValue);
+        ToolPaletteItemProvider.prototype.updateToolItem = function (toolGroupID, toolItem, attribute, newValue, metaAttr) {
+            this._toolPalette.updateToolPaletteItem(toolGroupID, toolItem, attribute, newValue, metaAttr);
         };
 
         ToolPaletteItemProvider.prototype.getNewImportPosition = function (newImportName) {

@@ -238,7 +238,7 @@ define(['require', 'log', 'jquery', 'backbone', './tool-group-view', './tool-gro
          * @param {Object} toolItem - tool object
          * @param {Object} newValue - new value for the tool
          */
-        updateToolPaletteItem: function (toolGroupID, toolItem, attribute, newValue) {
+        updateToolPaletteItem: function (toolGroupID, toolItem, attribute, newValue, metaAttr) {
             var error,
                 toolGroup = _.find(this._itemProvider.getToolGroups(), function (group) {
                     return _.isEqual(group.get('toolGroupID'), toolGroupID);
@@ -249,7 +249,7 @@ define(['require', 'log', 'jquery', 'backbone', './tool-group-view', './tool-gro
                 return;
             }
             if (!_.isNil(toolItem)) {
-                toolGroup.updateTool(toolItem, attribute, newValue);
+                toolGroup.updateTool(toolItem, attribute, newValue, metaAttr);
             }
         }
     });
