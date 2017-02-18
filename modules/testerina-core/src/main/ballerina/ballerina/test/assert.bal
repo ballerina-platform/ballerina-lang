@@ -1,6 +1,7 @@
 package ballerina.test;
 
 import ballerina.lang.exceptions;
+import ballerina.lang.arrays as array;
 
 const string assertTrueErrorCategory = "assert-true";
 const string assertFalseErrorCategory = "assert-false";
