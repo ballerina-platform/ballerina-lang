@@ -51,4 +51,4 @@ Also notice in the lower right corner the Source View and Swagger View buttons.
 
 1. Click **Design View** to return to the visual editor. 
 
-Now that you've had a look around, it's time to take the leap into [creating your first Ballerina program](tutorials/first-program.md).
+Now that you've had a look around, it's time to take the leap into [writing your first Ballerina program](tutorials/first-program.md).
