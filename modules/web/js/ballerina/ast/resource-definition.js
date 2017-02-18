@@ -277,6 +277,20 @@ define(['lodash', 'require', 'log', './node', '../utils/common-utils'],
         }]);
     };
 
+    ResourceDefinition.prototype.getWorkerDeclarations = function () {
+        var workerDeclarations = [];
+        var self = this;
+
+        _.forEach(this.getChildren(), function (child) {
+            if (self.getFactory().isWorkerDeclaration(child)) {
+                workerDeclarations.push(child);
+            }
+        });
+        return _.sortBy(workerDeclarations, [function (workerDeclaration) {
+            return workerDeclaration.getWorkerName();
+        }]);
+    };
+
     /**
      * Validates possible immediate child types.
      * @override
