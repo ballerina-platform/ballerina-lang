@@ -131,9 +131,9 @@
         <mvn.exec.plugin.version>1.1.1</mvn.exec.plugin.version>
 
         <!-- Path to the generated natives ballerina files temp directory -->
-        <generated.ballerina.source.directory>${project.build.directory}/src/main/resources/META-INF/natives</generated.ballerina.source.directory>
+        <generated.ballerina.source.directory>${project.build.directory}/natives</generated.ballerina.source.directory>
 
-        <ballerina.source.directory>${project.basedir}/src/main/ballerina</ballerina.source.directory>
+        <ballerina.source.directory>${project.basedir}/src/main/resources/META-INF/natives</ballerina.source.directory>
         <antlr4.runtime.version>4.5.1.wso2v1</antlr4.runtime.version>
     </properties>
 </project>
