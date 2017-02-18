@@ -303,7 +303,7 @@ define(['lodash', 'log', './ballerina-view', './../ast/block-statement', 'typeMa
                     }
                     node = node.getParent();
                 }
-                blockStatement.addChild(assmtModel, _.findLastIndex(blockStatement.getChildren()));
+                blockStatement.addChild(assmtModel, _.findLastIndex(blockStatement.getChildren()), undefined, false);
             }
         };
 
