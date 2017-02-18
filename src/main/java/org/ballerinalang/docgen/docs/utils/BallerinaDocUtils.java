@@ -22,7 +22,21 @@ import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.TypeEnum;
 
+import java.io.IOException;
 import java.io.PrintStream;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.nio.file.FileAlreadyExistsException;
+import java.nio.file.FileSystemNotFoundException;
+import java.nio.file.FileSystems;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Util methods used for doc generation.
@@ -50,5 +64,67 @@ public class BallerinaDocUtils {
             return t.getElementType().toString() + "[]";
         }
         return type.toString();
+    }
+    
+    /**
+     * Find a given resource and copy its content recursively to a given target path.
+     * @param resource name of the resource
+     * @param targetPath target directory path as a string.
+     * @throws IOException Failure to load the resources.
+     */
+    public static void copyResources(String resource, String targetPath) throws IOException {
+        URI uri = null;
+        try {
+            // load the resource from the Class path
+            uri = BallerinaDocUtils.class.getClassLoader().getResource(resource).toURI();
+        } catch (URISyntaxException e) {
+            throw new IOException("Failed to load resources: " + e.getMessage(), e);
+        }
+
+        Path source;
+        try {
+            source = Paths.get(uri);
+        } catch (FileSystemNotFoundException e) {
+            // this means the resource is in a jar file, hence we have to create a new File system for the jar
+            Map<String, String> env = new HashMap<>();
+            env.put("create", "true");
+            FileSystems.newFileSystem(uri, env);
+            source = Paths.get(uri);
+        }
+        Path target = Paths.get(targetPath, resource);
+        Files.walkFileTree(source, new RecursiveFileVisitor(source, target));
+    }
+    
+    /**
+     * Visits a folder recursively and copy folders and files to a target directory.
+     */
+    static class RecursiveFileVisitor extends SimpleFileVisitor<Path> {
+        Path source;
+        Path target;
+
+        public RecursiveFileVisitor(Path aSource, Path aTarget) {
+            this.source = aSource;
+            this.target = aTarget;
+        }
+
+        @Override
+        public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
+            Path targetdir = target.resolve(source.relativize(dir).toString());
+            try {
+                Files.copy(dir, targetdir);
+            } catch (FileAlreadyExistsException e) {
+                if (!Files.isDirectory(targetdir)) {
+                    throw e;
+                }
+            }
+            return FileVisitResult.CONTINUE;
+        }
+
+        @Override
+        public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+            Files.copy(file, target.resolve(source.relativize(file).toString()));
+            out.println("Copied: " + file.toString());
+            return FileVisitResult.CONTINUE;
+        }
     }
 }

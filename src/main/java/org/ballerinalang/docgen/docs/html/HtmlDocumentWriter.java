@@ -25,7 +25,7 @@ import com.github.jknack.handlebars.io.TemplateLoader;
 
 import org.ballerinalang.docgen.docs.BallerinaDocConstants;
 import org.ballerinalang.docgen.docs.DocumentWriter;
-import org.ballerinalang.docgen.docs.utils.ResourceUtils;
+import org.ballerinalang.docgen.docs.utils.BallerinaDocUtils;
 import org.ballerinalang.model.Annotation;
 import org.ballerinalang.model.BLangPackage;
 import org.ballerinalang.model.BallerinaAction;
@@ -87,7 +87,7 @@ public class HtmlDocumentWriter implements DocumentWriter {
         writeHtmlDocument(packages, indexTemplateName, filePath);
 
         out.println("Copying HTML theme...");
-        ResourceUtils.copyResources("docerina-theme", outputFilePath);
+        BallerinaDocUtils.copyResources("docerina-theme", outputFilePath);
     }
 
     /**
