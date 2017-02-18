@@ -12,11 +12,14 @@ Follow below steps to generate Ballerina API documentation using Docerina:
   git clone https://github.com/ballerinalang/ballerina
   ```
   
-- Build Ballerina:
+- Build Ballerina and extract the distribution:
  
   ```
   cd ballerina
   mvn clean install
+  cd modules/distribution/target/
+  unzip ballerina-<version>.zip
+  cd ballerina-<version> # Refer this as [ballerina-home]
   ```
 
 - Clone the Docerina Git repository:
@@ -26,19 +29,18 @@ Follow below steps to generate Ballerina API documentation using Docerina:
   git clone https://github.com/wso2/docerina.git
   ```
 
-- Build and extract the Docerina distribution:
+- Build Docerina and copy the Docerina JAR file to Ballerina distribution lib folder:
   
   ```
   cd docerina
   mvn clean install
   cd target
-  unzip docerina-<version>.zip
+  cp docerina-<version>.jar [ballerina-home]/bre/lib/
   ```
 
-- Navigate to the Docerina bin directory and execute the below command 
-to generate API documentation for Ballerina source code:
+- Navigate to Ballerina bin directory and execute the bellow command to generate API documentation:
   
   ```
-  cd docerina-<version>/bin
-  ./docerina [ballerina-package-path] # absolute file path of the ballerina source package
+  cd [ballerina-home]/bin
+  ./ballerina doc [ballerina-package-path] # absolute file path of the ballerina source package
   ```
