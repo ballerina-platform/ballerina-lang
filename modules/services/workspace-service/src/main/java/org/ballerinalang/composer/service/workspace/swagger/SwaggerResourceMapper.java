@@ -168,7 +168,7 @@ public class SwaggerResourceMapper {
                 String typeName = parameterDef.getTypeName().getName();
                 if (!typeName.equalsIgnoreCase("message") && parameterDef.getAnnotations()!=null) {
                     //Add query parameter
-                    if(parameterDef.getAnnotations().get(0).getName().equalsIgnoreCase("QueryParam")){
+                    if(parameterDef.getAnnotations().get(0).getName().equalsIgnoreCase("http:QueryParam")){
                         QueryParameter queryParameter = new QueryParameter();
                         queryParameter.setType(typeName);
                         queryParameter.setIn("query");
@@ -176,7 +176,7 @@ public class SwaggerResourceMapper {
                         queryParameter.required(true);
                         op.getOperation().addParameter(queryParameter);
                     }
-                    if(parameterDef.getAnnotations().get(0).getName().equalsIgnoreCase("PathParam")){
+                    if(parameterDef.getAnnotations().get(0).getName().equalsIgnoreCase("http:PathParam")){
                         PathParameter pathParameter = new PathParameter();
                         pathParameter.setType(typeName);
                         pathParameter.setName(parameterDef.getName());

@@ -79,7 +79,7 @@ public class SwaggerConverterUtils {
     public static Service[] getServicesFromBallerinaDefinition(String ballerinaDefinition) throws IOException {
         BallerinaFile bFile = getBFileFromBallerinaDefinition(ballerinaDefinition);
         List<Service> services = new ArrayList<Service>();
-        for(CompilationUnit compilationUnit: bFile.getCompilationUnits()){
+        for (CompilationUnit compilationUnit : bFile.getCompilationUnits()) {
             Service service = compilationUnit instanceof Service ? ((Service) compilationUnit) : null;
             services.add(service);
         }
@@ -222,33 +222,31 @@ public class SwaggerConverterUtils {
             if (entry.httpMethod != null && entry.httpMethod.length() > 0) {
                 resourceBuilder.addAnnotation(new Annotation(null, new SymbolName(httpMethod), "", null));
             }
-            if(entry.hasParams){
-                //handle parameters
-                if(entry.getHasQueryParams()){
-                    for(CodegenParameter codegenParameter:entry.queryParams){
-                        ParameterDef parameterDef = new ParameterDef(
-                                new NodeLocation("<unknown>",0), codegenParameter.paramName,
-                                new SimpleTypeName(codegenParameter.baseType), new SymbolName("m"),
-                                resourceBuilder.buildResource());
-                        Annotation annotation = new Annotation(null, new SymbolName("QueryParam"),
-                                codegenParameter.baseName, null);
-                        parameterDef.addAnnotation(annotation);
-                        resourceBuilder.addParameter(parameterDef);
-                    }
+            //handle parameters
+            if (entry.getHasQueryParams()) {
+                for (CodegenParameter codegenParameter : entry.queryParams) {
+                    ParameterDef parameterDef = new ParameterDef(
+                            new NodeLocation("<unknown>", 0), codegenParameter.paramName,
+                            new SimpleTypeName(codegenParameter.baseType), new SymbolName("m"),
+                            resourceBuilder.buildResource());
+                    Annotation annotation = new Annotation(null, new SymbolName("http:QueryParam"),
+                            codegenParameter.baseName, null);
+                    parameterDef.addAnnotation(annotation);
+                    resourceBuilder.addParameter(parameterDef);
                 }
-                if(entry.getHasPathParams()){
-                    for(CodegenParameter codegenParameter:entry.pathParams){
-                        ParameterDef parameterDef = new ParameterDef(
-                                new NodeLocation("<unknown>",0), codegenParameter.paramName,
-                                new SimpleTypeName(codegenParameter.baseType), new SymbolName("m"),
-                                resourceBuilder.buildResource());
-                        Annotation annotation = new Annotation(null, new SymbolName("PathParam"),
-                                codegenParameter.baseName, null);
-                        parameterDef.addAnnotation(annotation);
-                        resourceBuilder.addParameter(parameterDef);
-                    }
+            }
+            if (entry.getHasPathParams()) {
+                for (CodegenParameter codegenParameter : entry.pathParams) {
+                    ParameterDef parameterDef = new ParameterDef(
+                            new NodeLocation("<unknown>", 0), codegenParameter.paramName,
+                            new SimpleTypeName(codegenParameter.baseType), new SymbolName("m"),
+                            resourceBuilder.buildResource());
+                    Annotation annotation = new Annotation(null, new SymbolName("http:PathParam"),
+                            codegenParameter.baseName, null);
+                    parameterDef.addAnnotation(annotation);
+                    resourceBuilder.addParameter(parameterDef);
+                }
 
-                }
             }
             //This resource initiation was required because resource do have both
             //annotation map and array. But there is no way to update array other than
@@ -259,7 +257,7 @@ public class SwaggerConverterUtils {
             //resource as -->	resource TestPost(message m) {
             //This logic can be improved to pass user defined types.
             ParameterDef parameterDef = new ParameterDef(
-                    new NodeLocation("<unknown>",0), "m", new SimpleTypeName("message"), new SymbolName("m"),
+                    new NodeLocation("<unknown>", 0), "m", new SimpleTypeName("message"), new SymbolName("m"),
                     resourceBuilder.buildResource());
             //Then add created parameter.
             resourceBuilder.addParameter(parameterDef);
@@ -373,7 +371,7 @@ public class SwaggerConverterUtils {
             Map<String, Annotation> annotationMap = new ConcurrentHashMap<>();
             for (Annotation originalAnnotation : annotations) {
                 //Add original annotations
-                if(!originalAnnotation.getName().matches(SwaggerResourceMapper.HTTP_VERB_MATCHING_PATTERN)){
+                if (!originalAnnotation.getName().matches(SwaggerResourceMapper.HTTP_VERB_MATCHING_PATTERN)) {
                     annotationMap.put(originalAnnotation.getName(), originalAnnotation);
                 }
             }
