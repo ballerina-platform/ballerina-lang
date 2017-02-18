@@ -22,7 +22,7 @@ import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
 
-import org.ballerinalang.docgen.docs.BallerinaDocGeneratorMain;
+import org.ballerinalang.docgen.docs.BallerinaDocGenerator;
 import org.ballerinalang.launcher.BLauncherCmd;
 
 import java.io.PrintStream;
@@ -47,7 +47,7 @@ public class BallerinaDocCmd implements BLauncherCmd {
             return;
         }
 
-        BallerinaDocGeneratorMain.main(new String[] { argList.get(0) });
+        BallerinaDocGenerator.generateApiDocs(argList.get(0), argList.get(1));
     }
 
     @Override

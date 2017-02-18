@@ -57,7 +57,7 @@ public class HtmlDocumentWriterTest {
         try {
             // Generate HTML file
             Map<String, BLangPackage> packageMap =
-                    BallerinaDocGeneratorMain.generatePackageDocsFromBallerina(balPackagePath);
+                    BallerinaDocGenerator.generatePackageDocsFromBallerina(balPackagePath);
             HtmlDocumentWriter htmlDocumentWriter = new HtmlDocumentWriter();
             htmlDocumentWriter.write(packageMap.values());
 
@@ -146,7 +146,7 @@ public class HtmlDocumentWriterTest {
 
             // Generate HTML file
             Map<String, BLangPackage> packageMap =
-                    BallerinaDocGeneratorMain.generatePackageDocsFromBallerina(balPackagePath, "foo.bar.xyz");
+                    BallerinaDocGenerator.generatePackageDocsFromBallerina(balPackagePath, "foo.bar.xyz");
             HtmlDocumentWriter htmlDocumentWriter = new HtmlDocumentWriter();
             htmlDocumentWriter.write(packageMap.values());
 

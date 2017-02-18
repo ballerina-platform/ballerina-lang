@@ -35,42 +35,47 @@ import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
 /**
  * Main class to generate a ballerina documentation
  */
-public class BallerinaDocGeneratorMain {
+public class BallerinaDocGenerator {
 
-    private static final Logger log = LoggerFactory.getLogger(BallerinaDocGeneratorMain.class);
+    private static final Logger log = LoggerFactory.getLogger(BallerinaDocGenerator.class);
     private static final PrintStream out = System.out;
 
-    public static void main(String[] args) {
-
-        if ((args == null) || (args.length < 1 || args.length > 2)) {
-            out.println("Docerina is the API documentation generator tool of the Ballerina language."
-                    + System.lineSeparator() + System.lineSeparator() +
-                    "* Find more information at http://ballerinalang.org"
-                    + System.lineSeparator() + System.lineSeparator() +
-                    "Usage: "
-                    + System.lineSeparator() +
-                    "  docerina [ballerina-package-path] [package-filter]"
-                    + System.lineSeparator() + System.lineSeparator() +
-                    "  - ballerina-package-path: absolute file path of the ballerina source package"
-                    + System.lineSeparator() +
-                    "  - package-filter [optional]: package name for filtering api documentation");
-            return;
-        }
-
-        try {
-            Map<String, BLangPackage> docsMap =
-                    generatePackageDocsFromBallerina(args[0], (args.length == 2) ? args[1] : null);
-            HtmlDocumentWriter htmlDocumentWriter = new HtmlDocumentWriter();
-            htmlDocumentWriter.write(docsMap.values());
-        } catch (Exception e) {
-            out.println("Docerina: API documentation generation failed: " + e.getMessage());
-            log.error("API documentation generation failed", e);
+    /**
+     * API to generate Ballerina API documentation.
+     * 
+     * @param output path to the output directory where the API documentation will be written to.
+     * @param sources either the path to the directories where Ballerina source files reside or a path to a Ballerina
+     *            file which does not belong to a package.
+     */
+    public static void generateApiDocs(String output, String... sources) {
+        generateApiDocsWithFilter(output, null, sources);
+    }
+    
+    /**
+     * API to generate Ballerina API documentation.
+     * 
+     * @param output path to the output directory where the API documentation will be written to.
+     * @param packageFilter comma separated list of package names to be filtered from the documentation.
+     * @param sources either the path to the directories where Ballerina source files reside or a path to a Ballerina
+     *            file which does not belong to a package.
+     */
+    public static void generateApiDocsWithFilter(String output, String packageFilter, String... sources) {
+        for (String source : sources) {
+            try {
+                Map<String, BLangPackage> docsMap = generatePackageDocsFromBallerina(source, packageFilter);
+                writeHtmlDocs(output, docsMap);
+            } catch (Exception e) {
+                out.println(String.format("Docerina: API documentation generation failed for %s: %s", source,
+                        e.getMessage()));
+                log.error(String.format("API documentation generation failed for %s", source), e);
+            }
         }
     }
 
@@ -80,19 +85,19 @@ public class BallerinaDocGeneratorMain {
      * @param packagePath should point either to a ballerina file or a folder with ballerina files.
      * @return a map of {@link Package} objects. Key - Ballerina package name Value - {@link Package}
      */
-    public static Map<String, BLangPackage> generatePackageDocsFromBallerina(String packagePath) throws IOException {
+    protected static Map<String, BLangPackage> generatePackageDocsFromBallerina(String packagePath) throws IOException {
         return generatePackageDocsFromBallerina(packagePath, null);
     }
 
     /**
      * Generates {@link Package} objects for each Ballerina package from the given ballerina files.
      *
-     * @param packagePath   should point either to a ballerina file or a folder with ballerina files.
-     * @param packageFilter the name of the package or pattern to be excluded
+     * @param packagePath should point either to a ballerina file or a folder with ballerina files.
+     * @param packageFilter comma separated list of package names/patterns to be filtered from the documentation.
      * @return a map of {@link Package} objects. Key - Ballerina package name Value - {@link Package}
      */
-    public static Map<String, BLangPackage> generatePackageDocsFromBallerina(String packagePath, String packageFilter)
-            throws IOException {
+    protected static Map<String, BLangPackage> generatePackageDocsFromBallerina(String packagePath, 
+            String packageFilter) throws IOException {
 
         Path pkgPath = Paths.get(packagePath);
         final List<Path> packagePaths = new ArrayList<>();
@@ -114,8 +119,7 @@ public class BallerinaDocGeneratorMain {
             } else {
                 for (BLangPackage bLangPackage : bLangProgram.getLibraryPackages()) {
                     String packageName = bLangPackage.getPackagePath();
-                    if ((packageFilter != null) && (packageFilter.trim().length() > 0)
-                            && (packageName.startsWith(packageFilter.replace(".*", "")))) {
+                    if (isFilteredPackage(packageName, packageFilter)) {
                         out.println("Package " + packageName + " excluded");
                         continue;
                     }
@@ -124,10 +128,23 @@ public class BallerinaDocGeneratorMain {
                 }
             }
         }
-
         return dataHolder.getPackageMap();
     }
 
+    private static boolean isFilteredPackage(String packageName, String packageFilter) {
+        if ((packageFilter != null) && (packageFilter.trim().length() > 0)) {
+            return Arrays.asList(packageFilter.split(",")).stream()
+                    .filter(e -> packageName.startsWith(e.replace(".*", ""))).findAny().isPresent();
+        }
+
+        return false;
+    }
+
+    private static void writeHtmlDocs(String output, Map<String, BLangPackage> docsMap) throws IOException {
+        HtmlDocumentWriter htmlDocumentWriter = new HtmlDocumentWriter(output);
+        htmlDocumentWriter.write(docsMap.values());
+    }
+    
     /**
      * Visits sub folders of a ballerina package.
      */

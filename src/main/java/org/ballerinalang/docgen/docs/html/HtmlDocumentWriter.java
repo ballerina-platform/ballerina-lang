@@ -64,6 +64,15 @@ public class HtmlDocumentWriter implements DocumentWriter {
         this.outputFilePath =
                 System.getProperty(BallerinaDocConstants.HTML_OUTPUT_PATH_KEY, userDir + File.separator + "api-docs"
                         + File.separator + "html");
+        init();
+    }
+    
+    public HtmlDocumentWriter(String outputDir) {
+        this.outputFilePath = outputDir;
+        init();
+    }
+
+    private void init() {
         this.templatesFolderPath = File.separator + "docerina-templates" + File.separator + "html";
         this.packageTemplateName = System.getProperty(BallerinaDocConstants.PACKAGE_TEMPLATE_NAME_KEY, "package");
         this.indexTemplateName = System.getProperty(BallerinaDocConstants.INDEX_TEMPLATE_NAME_KEY, "index");
