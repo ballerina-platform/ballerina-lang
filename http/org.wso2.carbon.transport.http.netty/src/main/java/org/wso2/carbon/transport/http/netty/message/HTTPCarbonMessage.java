@@ -28,6 +28,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.transport.http.netty.common.Constants;
+import org.wso2.carbon.transport.http.netty.sender.channel.BootstrapConfiguration;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -36,6 +37,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.InflaterInputStream;
 
@@ -52,6 +54,7 @@ public class HTTPCarbonMessage extends CarbonMessage {
 
     // Variable to keep the status on whether the last content was added during the clone
     private boolean isEndMarked = false;
+    private int soTimeOut = BootstrapConfiguration.getInstance().getSocketTimeout();
 
     public void addHttpContent(HttpContent httpContent) {
         try {
@@ -63,7 +66,7 @@ public class HTTPCarbonMessage extends CarbonMessage {
 
     public HttpContent getHttpContent() {
         try {
-            return httpContentQueue.take();
+            return httpContentQueue.poll(soTimeOut, TimeUnit.SECONDS);
         } catch (InterruptedException e) {
             LOG.error("Error while retrieving http content from queue.", e);
             return null;
@@ -73,7 +76,7 @@ public class HTTPCarbonMessage extends CarbonMessage {
     @Override
     public ByteBuffer getMessageBody() {
         try {
-            HttpContent httpContent = httpContentQueue.take();
+            HttpContent httpContent = httpContentQueue.poll(soTimeOut, TimeUnit.SECONDS);
             if (httpContent instanceof LastHttpContent) {
                 super.setEndOfMsgAdded(true);
             }
@@ -93,7 +96,7 @@ public class HTTPCarbonMessage extends CarbonMessage {
         boolean isEndOfMessageProcessed = false;
         while (!isEndOfMessageProcessed) {
             try {
-                HttpContent httpContent = httpContentQueue.take();
+                HttpContent httpContent = httpContentQueue.poll(soTimeOut, TimeUnit.SECONDS);
                 if (httpContent instanceof LastHttpContent) {
                     isEndOfMessageProcessed = true;
                 }
@@ -143,7 +146,7 @@ public class HTTPCarbonMessage extends CarbonMessage {
         boolean isEndOfMessageProcessed = false;
         while (!isEndOfMessageProcessed) {
             try {
-                HttpContent httpContent = httpContentQueue.take();
+                HttpContent httpContent = httpContentQueue.poll(soTimeOut, TimeUnit.SECONDS);
                 if ((httpContent instanceof LastHttpContent) || (isEndOfMsgAdded() && httpContentQueue.isEmpty())) {
                     isEndOfMessageProcessed = true;
                 }
