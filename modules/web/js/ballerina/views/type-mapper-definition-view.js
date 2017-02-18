@@ -218,10 +218,11 @@ define(['lodash', 'log', './ballerina-view', './variables-view', './type-struct-
                             leftOperand.setLeftOperandExpressionString('');
                             leftOperand.setLeftOperandType('');
                             var rightOperand = nodeBeingDragged.getChildren()[1];
+                            var functionInvocation = rightOperand.getChildren()[0];
                             _.forEach(functionSchema.parameters, function (params) {
                                 var variableRefExp = BallerinaASTFactory.createVariableReferenceExpression();
                                 variableRefExp.setVariableReferenceName('');
-                                leftOperand.addChild(variableRefExp);
+                                functionInvocation.addChild(variableRefExp);
                             });
                             rightOperand.setRightOperandExpressionString('');
                             rightOperand.getChildren()[0].setParams('');

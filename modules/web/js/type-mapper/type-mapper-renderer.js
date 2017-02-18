@@ -104,8 +104,8 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
         this.jsPlumbInstance.detach(connection);
         this.dagrePosition(this);
         this.disconnectCallback(propertyConnection);
-        this.enableParentsJsTree(connection.sourceId, this, this.jsPlumbInstance.getAllConnections(), true);
-        this.enableParentsJsTree(connection.targetId, this, this.jsPlumbInstance.getAllConnections(), false);
+        // this.enableParentsJsTree(connection.sourceId, this, this.jsPlumbInstance.getAllConnections(), true);
+        // this.enableParentsJsTree(connection.targetId, this, this.jsPlumbInstance.getAllConnections(), false);
     };
 
     /**
