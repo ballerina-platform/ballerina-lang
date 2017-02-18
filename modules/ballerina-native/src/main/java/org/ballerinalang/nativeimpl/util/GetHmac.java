@@ -28,8 +28,6 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.osgi.service.component.annotations.Component;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.nio.charset.Charset;
 import java.security.InvalidKeyException;
@@ -62,8 +60,6 @@ import javax.crypto.spec.SecretKeySpec;
 )
 public class GetHmac extends AbstractNativeFunction {
 
-    private static final Logger log = LoggerFactory.getLogger(GetHmac.class);
-
     @Override
     public BValue[] execute(Context context) {
         String baseString = getArgument(context, 0).stringValue();
@@ -86,7 +82,7 @@ public class GetHmac extends AbstractNativeFunction {
             throw new BallerinaException("Unsupported algorithm " + algorithm + " for HMAC calculation");
         }
 
-        String result = "";
+        String result;
         try {
             byte[] keyBytes = keyString.getBytes(Charset.defaultCharset());
             SecretKey secretKey = new SecretKeySpec(keyBytes, hmacAlgorithm);
