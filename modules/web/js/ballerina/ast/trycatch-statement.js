@@ -24,16 +24,6 @@ define(['lodash', 'log', './statement', './try-statement', './catch-statement'],
      */
     var TryCatchStatement = function (args) {
         Statement.call(this);
-
-        var tryStatement = new TryStatement(args);
-        this.addChild(tryStatement);
-        this._tryStatement = tryStatement;
-
-        var catchStatement = new CatchStatement(args);
-        this._catchStatement = catchStatement;
-        this.addChild(catchStatement);
-
-
         this.type = "TryCatchStatement";
     };
 
@@ -57,6 +47,16 @@ define(['lodash', 'log', './statement', './try-statement', './catch-statement'],
     */
     TryCatchStatement.prototype.getExceptionType = function() {
         return this._exceptionType;
+    };
+
+
+    TryCatchStatement.prototype.initFromJson = function (jsonNode) {
+        var self = this;
+        _.each(jsonNode.children, function (childNode) {
+            var child = self.getFactory().createFromJson(childNode);
+            child.initFromJson(childNode);
+            self.addChild(child);
+        });
     };
 
     return TryCatchStatement;

@@ -251,4 +251,10 @@ public class BLangJSONModelConstants {
     public static final String REFERENCE_TYPE_INIT_EXPR = "reference_type_init_expression";
 
     public static final String EXPRESSION_OPERATOR = "operator";
+
+    public static final String TRY_CATCH_STATEMENT = "try_catch_statement";
+
+    public static final String TRY_BLOCK = "try_block";
+
+    public static final String CATCH_BLOCK = "catch_block";
 }

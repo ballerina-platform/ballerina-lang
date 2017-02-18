@@ -16,7 +16,7 @@
  * under the License.
  */
 
-define(['jquery', 'backbone', 'lodash', 'log','./variable-tree', './debug-manager', './tools', './frames'], function ($, Backbone, _, log, VariableTree, DebugManager, Tools, Frames) {
+define(['jquery', 'backbone', 'lodash', 'log', './debug-manager', './tools', './frames'], function ($, Backbone, _, log, DebugManager, Tools, Frames) {
     var Debugger = Backbone.View.extend({
         initialize: function(config) {
             var errMsg;
@@ -59,7 +59,7 @@ define(['jquery', 'backbone', 'lodash', 'log','./variable-tree', './debug-manage
         toggleDebugger: function () {
             if(this.isActive()){
                 this._$parent_el.parent().width('0px');
-                this._containerToAdjust.css('margin-left', _.get(this._options, 'leftOffset'));
+                this._containerToAdjust.css('padding-left', _.get(this._options, 'leftOffset'));
                 this._verticalSeparator.css('left', _.get(this._options, 'leftOffset') - _.get(this._options, 'separatorOffset'));
                 this._activateBtn.parent('li').removeClass('active');
 
@@ -67,8 +67,8 @@ define(['jquery', 'backbone', 'lodash', 'log','./variable-tree', './debug-manage
                 this._activateBtn.tab('show');
                 var width = this._lastWidth || _.get(this._options, 'defaultWidth');
                 this._$parent_el.parent().width(width);
-                this._containerToAdjust.css('margin-left', width + _.get(this._options, 'leftOffset'));
-                this._verticalSeparator.css('left',  width + _.get(this._options, 'leftOffset') - _.get(this._options, 'separatorOffset'));
+                this._containerToAdjust.css('padding-left', width);
+                this._verticalSeparator.css('left',  width - _.get(this._options, 'separatorOffset'));
             }
         },
 
@@ -82,7 +82,7 @@ define(['jquery', 'backbone', 'lodash', 'log','./variable-tree', './debug-manage
                 self._isActive = true;
                 var width = self._lastWidth || _.get(self._options, 'defaultWidth');
                 self._$parent_el.parent().width(width);
-                self._containerToAdjust.css('margin-left', width + _.get(self._options, 'leftOffset'));
+                self._containerToAdjust.css('padding-left', width + _.get(self._options, 'leftOffset'));
                 self._verticalSeparator.css('left',  width + _.get(self._options, 'leftOffset') - _.get(self._options, 'separatorOffset'));
             });
 
@@ -105,11 +105,11 @@ define(['jquery', 'backbone', 'lodash', 'log','./variable-tree', './debug-manage
             this._verticalSeparator.on('drag', function(event){
                 if( event.originalEvent.clientX >= _.get(self._options, 'resizeLimits.minX')
                     && event.originalEvent.clientX <= _.get(self._options, 'resizeLimits.maxX')){
-                    self._verticalSeparator.css('left', event.originalEvent.clientX - _.get(self._options, 'separatorOffset'));
+                    self._verticalSeparator.css('left', event.originalEvent.clientX);
                     self._verticalSeparator.css('cursor', 'ew-resize');
-                    var newWidth = event.originalEvent.clientX -  _.get(self._options, 'leftOffset');
+                    var newWidth = event.originalEvent.clientX;
                     self._$parent_el.parent().width(newWidth);
-                    self._containerToAdjust.css('margin-left', event.originalEvent.clientX);
+                    self._containerToAdjust.css('padding-left', event.originalEvent.clientX);
                     self._lastWidth = newWidth;
                     self._isActive = true;
                 }
@@ -137,7 +137,6 @@ define(['jquery', 'backbone', 'lodash', 'log','./variable-tree', './debug-manage
             Tools.render();
             
             Frames.setContainer(debuggerContainer.find('.debug-frams-container'));
-            VariableTree.setContainer(debuggerContainer.find('.debug-variables-container'));
 
             this._debuggerContainer = debuggerContainer;
             debuggerContainer.mCustomScrollbar({

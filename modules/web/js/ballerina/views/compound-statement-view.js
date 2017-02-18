@@ -220,11 +220,11 @@ define(
         };
 
         CompoundStatementView.prototype.showDebugHit = function () {
-            this.getStatementGroup().classed('highlight-statement', true);
+            this.getChildrenViewsList()[0]._titleRect.classed('highlight-statement', true)
         };
 
         CompoundStatementView.prototype.clearDebugHit = function () {
-            $(this.getStatementGroup().node()).find('.statement-title-rect').classed('highlight-statement', false);
+            this.getChildrenViewsList()[0]._titleRect.classed('highlight-statement', false)
         };
 
         return CompoundStatementView;

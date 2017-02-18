@@ -7,7 +7,7 @@ body {
 }
 
 .right-container {
-    background-color: #232323;
+    /*background-color: #232323;*/
 }
 
 #main-navbar {
@@ -1352,11 +1352,6 @@ button.variable-list {
 #breadcrumb-container > ol > li.breadcrumb-item.active {
     color: white;
     cursor: pointer;
-}
-
-footer {
-    min-height: 25px;
-    line-height: 0;
 }
 
 footer > .container p, footer > .container-fluid p {
