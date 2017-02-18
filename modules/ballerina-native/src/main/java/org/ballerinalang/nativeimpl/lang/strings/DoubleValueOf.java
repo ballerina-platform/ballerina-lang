@@ -44,7 +44,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
         value = "Returns a string representation of a double argument") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "double",
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "d",
         value = "A double argument") })
 @BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "string",
         value = "String representation of the specified double argument") })

@@ -38,7 +38,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
         value = "Prints a double value to the STDOUT") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "double",
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "d",
         value = "Double value to be printed") })
 public class PrintDouble extends AbstractNativeFunction {
 

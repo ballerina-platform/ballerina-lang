@@ -44,7 +44,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
         value = "Returns a string representation of a long argument") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "long",
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "l",
         value = "A long argument") })
 @BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "string",
         value = "String representation of the specified long argument") })

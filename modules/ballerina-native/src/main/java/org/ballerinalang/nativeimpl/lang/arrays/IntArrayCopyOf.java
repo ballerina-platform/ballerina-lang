@@ -42,7 +42,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
         value = "Copies the specified integer array") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "arr",
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "intArray",
         value = "The array to be copied") })
 @BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "int[]",
         value = "A copy of the specified array") })

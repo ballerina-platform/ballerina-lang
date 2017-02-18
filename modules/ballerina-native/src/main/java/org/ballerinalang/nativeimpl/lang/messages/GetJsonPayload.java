@@ -44,7 +44,7 @@ import org.wso2.carbon.messaging.MessageDataSource;
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
         value = "Gets the message payload in JSON format") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "message",
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "m",
         value = "The message object") })
 @BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "json",
         value = "The JSON reresentation of the message payload") })

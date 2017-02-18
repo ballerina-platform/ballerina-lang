@@ -39,7 +39,7 @@ import org.wso2.carbon.messaging.Headers;
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
         value = "Converts the message into an HTTP response") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "message",
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "m",
         value = "A message object") })
 public class ConvertToResponse extends AbstractNativeFunction {
     public BValue[] execute(Context ctx) {

@@ -43,7 +43,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
         value = "Returns a trimmed string by omitting the leading and trailing whitespaces of the original string") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "string",
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "s",
         value = "The original string argument") })
 @BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "string",
         value = "The derived string") })

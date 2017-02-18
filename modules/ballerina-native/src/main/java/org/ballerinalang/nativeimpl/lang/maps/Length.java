@@ -43,7 +43,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
         value = "Returns the length of the specified map") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "map",
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "m",
         value = "The map object") })
 @BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "int",
         value = "The number of elements in the map object") })

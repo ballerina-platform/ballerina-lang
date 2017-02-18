@@ -57,11 +57,11 @@ import javax.crypto.spec.SecretKeySpec;
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
         value = "Returns a hash of a given string using the key provided ") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "baseString",
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "null",
         value = "The string to be hashed") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "keyString",
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "baseString",
         value = "The key string ") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "algorithm",
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "keyString",
         value = "The hashing algorithm to be used") })
 @BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "string",
         value = "The hashed string") })

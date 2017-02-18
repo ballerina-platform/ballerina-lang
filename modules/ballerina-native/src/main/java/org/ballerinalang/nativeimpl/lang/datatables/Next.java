@@ -44,7 +44,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
         value = "Checks for a new row in the given datatable. If a new row is found, moves the cursor to it.") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "datatable",
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "dt",
         value = "The datatable object") })
 @BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "boolean",
         value = "True if there is a new row; false otherwise") })

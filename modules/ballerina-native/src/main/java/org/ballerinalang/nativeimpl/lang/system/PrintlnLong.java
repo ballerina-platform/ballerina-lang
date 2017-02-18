@@ -42,7 +42,7 @@ import java.io.PrintStream;
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
         value = "Prints a long value to the STDOUT in a new line") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "long",
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "l",
         value = "Long value to be printed") })
 public class PrintlnLong extends AbstractNativeFunction {
 

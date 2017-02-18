@@ -47,9 +47,9 @@ import org.ballerinalang.natives.annotations.ReturnType;
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
         value = "Retrieves the string value of the designated column in the current row."
                 + " The value of type blob and binary columns will return as a Base64Encoded string.") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "datatable",
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "dt",
         value = "The datatable object") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "columnIndex",
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "index",
         value = "The column index position of the result. The first column is 1, the second is 2, etc. ") })
 @BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "string",
         value = "The column value as a string") })

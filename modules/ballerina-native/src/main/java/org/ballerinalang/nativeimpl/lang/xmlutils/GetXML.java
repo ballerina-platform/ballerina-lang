@@ -56,7 +56,7 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
         value = "Evaluates the XPath on an XML object and returns the matching XML object.") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "xml",
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "x",
         value = "An XML object") })
 @BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "xPath",
         value = "An XPath") })

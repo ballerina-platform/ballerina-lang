@@ -42,7 +42,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
         value = "Copies the specified XML array") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "arr",
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "xmlArray",
         value = "The XML array to be copied") })
 @BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "xml[]",
         value = "A copy of the specified array") })

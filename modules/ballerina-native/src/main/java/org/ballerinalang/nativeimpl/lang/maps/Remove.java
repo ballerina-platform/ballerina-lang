@@ -42,7 +42,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
         value = "Removes the specified element from the map") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "map",
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "m",
         value = "The map object") })
 @BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "key",
         value = "The key to be removed") })

@@ -47,7 +47,7 @@ import java.util.Base64;
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
         value = "Encodes the specified string into a string using the Base64 scheme") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "string",
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "s",
         value = "The input string to be decoded") })
 @BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "string",
         value = "The decoded string") })

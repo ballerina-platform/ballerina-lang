@@ -45,7 +45,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
         value = "Returns a string representation of an XML argument") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "xml",
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "e",
         value = "The XML object argument") })
 @BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "string",
         value = "String representation of the specified XML object") })

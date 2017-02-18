@@ -45,7 +45,7 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
         value = "Copies the specified range of the specified integer array ") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "arr",
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "intArray",
         value = "The integer array from which the range will be copied") })
 @BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "from",
         value = "The initial index of the range") })

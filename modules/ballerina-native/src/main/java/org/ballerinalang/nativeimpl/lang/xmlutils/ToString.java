@@ -45,7 +45,7 @@ import org.slf4j.LoggerFactory;
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
         value = "Converts an XML object to a string representation.") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "xml",
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "x",
         value = "An XML object") })
 @BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "string",
         value = "String value of the converted XML") })

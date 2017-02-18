@@ -56,13 +56,13 @@ import java.util.Locale;
         returnType = {@ReturnType(type = TypeEnum.MESSAGE)})
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
         value = "Invokes an HTTP call with the specified HTTP verb.") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "connector",
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "c",
         value = "A connector object") })
 @BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "httpVerb",
         value = "HTTP verb value") })
 @BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "path",
         value = "Resource path ") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "message",
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "m",
         value = "A message object") })
 @BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "message",
         value = "The response message object") })

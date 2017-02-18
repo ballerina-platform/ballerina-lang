@@ -45,7 +45,7 @@ import org.slf4j.LoggerFactory;
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
         value = "Sets the value of a transport header") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "message",
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "m",
         value = "The message object") })
 @BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "key",
         value = "The header name") })

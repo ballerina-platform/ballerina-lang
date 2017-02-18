@@ -44,7 +44,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
         value = "Returns the first index of the first occurence of the substring within the specified string") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "string",
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "mainString",
         value = "The original string argument") })
 @BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "subString",
         value = "The substring to search for") })

@@ -42,7 +42,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
         value = "Returns the length of the specified integer array") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "arr",
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "intArray",
         value = "The integer array") })
 @BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "int",
         value = "The length of the specified array") })

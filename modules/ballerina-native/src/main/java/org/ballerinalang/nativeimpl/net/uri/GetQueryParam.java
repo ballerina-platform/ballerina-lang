@@ -53,7 +53,7 @@ import java.util.Map;
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
         value = "Gets a query parameter value for a given key") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "message",
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "m",
         value = "The message object ") })
 @BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "key",
         value = "The key of the query param to get from the message") })

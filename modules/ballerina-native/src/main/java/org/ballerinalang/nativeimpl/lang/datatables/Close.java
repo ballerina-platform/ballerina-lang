@@ -41,7 +41,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
         value = "Releases the database connection.") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "datatable",
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "dt",
         value = "The datatable object") })
 public class Close extends AbstractNativeFunction {
 

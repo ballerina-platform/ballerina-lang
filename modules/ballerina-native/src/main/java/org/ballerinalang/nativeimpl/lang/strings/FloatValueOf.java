@@ -44,7 +44,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
         value = "Returns a string representation of a float argument") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "float",
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "f",
         value = "A float argument") })
 @BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "string",
         value = "String representation of the specified float argument") })

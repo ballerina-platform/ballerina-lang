@@ -54,9 +54,9 @@ import java.util.Map;
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
         value = "Retrieves arrays values of a given column name.") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "datatable",
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "dt",
         value = "The datatable object") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "columnName",
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "name",
         value = "") })
 @BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "map)",
         value = "The column value as map") })

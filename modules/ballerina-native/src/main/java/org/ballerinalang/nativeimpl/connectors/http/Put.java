@@ -53,11 +53,11 @@ import org.wso2.carbon.messaging.exceptions.ClientConnectorException;
         returnType = {@ReturnType(type = TypeEnum.MESSAGE)})
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
         value = "The PUT action implementation of the HTTP Connector.") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "connector",
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "c",
         value = "A connector object") })
 @BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "path",
         value = "Resource path ") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "message",
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "m",
         value = "A message object") })
 @BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "message",
         value = "The response message object") })

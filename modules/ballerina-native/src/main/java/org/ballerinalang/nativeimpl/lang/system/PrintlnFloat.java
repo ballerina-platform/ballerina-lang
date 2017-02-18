@@ -42,7 +42,7 @@ import java.io.PrintStream;
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
         value = "Prints a float value to the STDOUT in a new line") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "float",
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "f",
         value = "Float value to be printed") })
 public class PrintlnFloat extends AbstractNativeFunction {
 

@@ -45,7 +45,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
         value = "Returns a string representation of a JSON argument") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "json",
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "value",
         value = "A JSON argument") })
 @BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "string",
         value = "String representation of the specified JSON argument") })

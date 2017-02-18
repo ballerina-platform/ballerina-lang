@@ -42,7 +42,7 @@ import org.wso2.carbon.messaging.MessageDataSource;
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
         value = "Gets the message payload in XML format") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "message",
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "m",
         value = "The message object") })
 @BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "xml",
         value = "The XML representation of the message payload") })

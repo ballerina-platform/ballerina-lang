@@ -38,7 +38,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
         value = "Prints a string value to the STDOUT") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "string",
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "s",
         value = "String value to be printed") })
 public class PrintString extends AbstractNativeFunction {
 

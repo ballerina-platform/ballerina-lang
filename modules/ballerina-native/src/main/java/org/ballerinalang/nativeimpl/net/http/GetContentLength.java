@@ -44,7 +44,7 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
         value = "Gets the Content-Length header from the message") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "message",
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "m",
         value = "A message object") })
 @BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "int",
         value = "length of the message") })

@@ -45,7 +45,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
         value = "Replaces the replacePattern string with the replaceWith string and returns the result") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "string",
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "mainString",
         value = "The original string argument") })
 @BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "replacePattern",
         value = "The pattern to search for ") })

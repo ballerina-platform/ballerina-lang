@@ -44,7 +44,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
         value = "Returns a Boolean value indicating whether a string contains the specified substring") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "string",
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "mainString",
         value = "The original string argument") })
 @BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "subString",
         value = "The substring to be compared") })

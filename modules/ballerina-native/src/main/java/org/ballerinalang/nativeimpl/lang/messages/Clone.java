@@ -44,7 +44,7 @@ import org.slf4j.LoggerFactory;
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
         value = "Clones and creates a new instance of a message object") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "message",
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "m",
         value = "The message object") })
 @BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "message",
         value = "The new instance of the message object ") })

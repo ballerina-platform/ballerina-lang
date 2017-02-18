@@ -49,9 +49,9 @@ import java.util.Locale;
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
         value = "Retrieves the long value of the designated column in the "
                 + "current row for the given column type: date, time, or timestamp") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "datatable",
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "dt",
         value = "The datatable object") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "columnIndex",
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "index",
         value = "The column index position of the result. The first column is 1, the second is 2, etc. ") })
 @BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "type",
         value = "Database table column type. Supported values are date, time, timestamp") })

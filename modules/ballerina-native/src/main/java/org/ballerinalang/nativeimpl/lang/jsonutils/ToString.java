@@ -44,7 +44,7 @@ import org.slf4j.LoggerFactory;
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
         value = "Converts a JSON object to a string representation") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "json",
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "j",
         value = "A JSON object") })
 @BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "string",
         value = "String value of the converted JSON") })

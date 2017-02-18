@@ -41,7 +41,7 @@ import java.io.PrintStream;
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
         value = "Prints a Boolean value to the STDOUT in a new line") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "boolean",
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "b",
         value = "Boolean value to be printed") })
 public class PrintlnBoolean extends AbstractNativeFunction {
 

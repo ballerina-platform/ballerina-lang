@@ -44,7 +44,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
         value = "Returns a Boolean value indicating whether the string ends with specified suffix") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "string",
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "mainString",
         value = "The original string argument") })
 @BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "suffix",
         value = "The suffix to be compared") })

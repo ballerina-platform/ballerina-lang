@@ -51,14 +51,15 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
         value = "Inserts a named element to a JSON object. "
                 + "This function will add a new float element with the given name (key)") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "json",
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "j",
         value = "A JSON object") })
 @BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "jsonPath",
         value = "The path of the JSON element") })
 @BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "key",
 
         value = "The name of the element to be added") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "value", value = "A float value") })
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "value",
+        value = "A float value") })
 public class AddFloatToObject extends AbstractJSONFunction {
 
     private static final String OPERATION = "add float to json object";

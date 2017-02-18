@@ -42,7 +42,7 @@ import java.io.PrintStream;
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
         value = "Prints a double value to the STDOUT in a new line") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "double",
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "d",
         value = "Double value to be printed") })
 public class PrintlnDouble extends AbstractNativeFunction {
 

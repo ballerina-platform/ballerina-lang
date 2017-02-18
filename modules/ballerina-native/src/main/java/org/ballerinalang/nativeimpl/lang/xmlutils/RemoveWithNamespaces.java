@@ -50,7 +50,7 @@ import java.util.List;
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
         value = "Removes the element(s) that match the given XPath. Namespaces are supported.") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "xml",
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "x",
         value = "An XML object") })
 @BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "xPath",
         value = "An XPath") })

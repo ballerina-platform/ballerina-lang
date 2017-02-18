@@ -40,7 +40,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
         value = "Sets cause of the specified exception") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "exception",
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "e",
         value = "The exception object") })
 @BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "cause",
         value = "The exception cause to be added") })

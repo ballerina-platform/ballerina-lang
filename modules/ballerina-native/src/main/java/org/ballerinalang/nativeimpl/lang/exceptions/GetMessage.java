@@ -42,7 +42,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
         value = "Set message to an exception.") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "exception",
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "e",
         value = "The exception object") })
 @BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "string)",
         value = "The exception message") })

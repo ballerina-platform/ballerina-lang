@@ -27,7 +27,7 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
         value = "Returns a new string that is the substring of the specified string") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "string",
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "mainString",
         value = "The original string argument") })
 @BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "from",
         value = "The starting index") })

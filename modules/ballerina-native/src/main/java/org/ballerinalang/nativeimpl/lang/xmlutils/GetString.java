@@ -53,7 +53,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
         value = "Evaluates the XPath on an XML object and returns the matching string value.") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "xml",
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "x",
         value = "An XML object") })
 @BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "xPath",
         value = "An XPath") })

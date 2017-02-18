@@ -38,7 +38,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
         value = "Prints an integer value to the STDOUT") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "int",
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "i",
         value = "Integer value to be printed") })
 public class PrintInt extends AbstractNativeFunction {
 

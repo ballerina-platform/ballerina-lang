@@ -48,9 +48,9 @@ import java.util.Locale;
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
         value = "Retrieves the base64encoded string value of the designated column in "
                 + "the current row for the given column type: blob, clob, nclob, or binary") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "datatable",
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "dt",
         value = "The datatable object") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "columnName",
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "string",
         value = "The column name of the output result.") })
 @BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "type",
         value = "Database table column type. Supported values are blob, clob, nclob, binary.") })

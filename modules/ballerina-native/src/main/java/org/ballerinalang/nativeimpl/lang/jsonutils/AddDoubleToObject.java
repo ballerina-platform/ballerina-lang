@@ -53,7 +53,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
                 + " This function will add a new double element with the given name (key)"
                 + " to the location identified by the given JSONPath. If an element with the same name already exists,"
                 + " it will update the value of the existing element.") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "json",
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "j",
         value = "A JSON object") })
 @BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "jsonPath",
         value = "The path of the JSON element") })

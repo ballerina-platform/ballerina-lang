@@ -38,7 +38,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
         value = "Prints a long value to the STDOUT") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "long",
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "l",
         value = "Long value to be printed") })
 public class PrintLong extends AbstractNativeFunction {
 

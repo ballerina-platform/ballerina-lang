@@ -50,7 +50,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
         value = "Inserts an integer element to a JSON array. "
                 + "This function will add a new integer element to the end of the JSON array "
                 + "identified by the given JSONPath.") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "json",
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "j",
         value = "A JSON array object") })
 @BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "jsonPath",
         value = "The path of the JSON element") })

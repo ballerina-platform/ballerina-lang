@@ -61,7 +61,7 @@ import java.util.List;
                 + " If the XPath matches the text value of an existing element,"
                 + " or if the XPath does not match an existing element, this operation will have no effect."
                 + " Namespaces are supported.") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "xml",
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "x",
         value = "An XML object") })
 @BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "xPath",
         value = "An XPath") })

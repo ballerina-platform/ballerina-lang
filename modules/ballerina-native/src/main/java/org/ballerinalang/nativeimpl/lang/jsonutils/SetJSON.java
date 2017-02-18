@@ -49,7 +49,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
         value = "Sets the JSON value of the element that matches the given JSONPath."
                 + " If the JSONPath doesn't match any element, this operation will have no effect.") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "json",
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "j",
         value = "A JSON object") })
 @BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "jsonPath",
         value = "The path of the JSON element") })

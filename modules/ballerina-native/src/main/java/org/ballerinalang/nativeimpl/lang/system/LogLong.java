@@ -57,7 +57,7 @@ import org.slf4j.LoggerFactory;
         value = "Logs a long value") })
 @BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "logLevel",
         value = "Log level: 1 - Trace, 2 - Debug, 3 - Info, 4 - Warn, 5 - Error") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "long",
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "l",
         value = "Long value to be logged") })
 public class LogLong extends AbstractNativeFunction {
 

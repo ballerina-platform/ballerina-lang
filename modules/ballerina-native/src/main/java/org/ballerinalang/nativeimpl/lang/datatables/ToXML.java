@@ -46,7 +46,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
         value = "Outputs the dataset in XML format as a stream. This function will add 'results'"
                 + " and 'result' if the root wrapper and row wrapper elements are not provided. ") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "datatable",
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "dt",
         value = "The datatable object") })
 @BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "rootWrapper",
         value = "The root wrapper element") })

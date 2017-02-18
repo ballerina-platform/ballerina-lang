@@ -41,7 +41,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
         value = "Sets a custom HTTP Reason phrase") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "message",
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "m",
         value = "A message object") })
 @BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "reasonPhrase",
         value = "Reason phrase value") })

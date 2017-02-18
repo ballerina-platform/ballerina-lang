@@ -43,7 +43,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
         value = "Outputs the dataset in JSON format as a stream.") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "datatable",
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "dt",
         value = "The datatable object") })
 @BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "json",
         value = "The resulting dataset in JSON format") })

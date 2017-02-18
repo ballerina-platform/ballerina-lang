@@ -44,7 +44,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
         value = "Returns a string representation of a Boolean argument") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "boolean",
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "b",
         value = "A Boolean argument") })
 @BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "string",
         value = "String representation of the specified Boolean argument") })

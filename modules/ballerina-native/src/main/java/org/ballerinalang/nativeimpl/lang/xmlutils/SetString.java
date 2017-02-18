@@ -60,11 +60,11 @@ import java.util.List;
                 + "If the XPath matches an existing element, that element's value will be updated."
                 + " If the XPath does not match an existing element,"
                 + " a new element will be added to match the XPath.") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "xml",
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "x",
         value = "An XML object") })
 @BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "xPath",
         value = "An XPath") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "value",
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "nameSpaces",
         value = "A string value") })
 public class SetString extends AbstractNativeFunction {
     

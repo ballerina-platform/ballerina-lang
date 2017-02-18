@@ -38,7 +38,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
         value = "Prints a float value to the STDOUT") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "float",
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "f",
         value = "Float value to be printed") })
 public class PrintFloat extends AbstractNativeFunction {
 

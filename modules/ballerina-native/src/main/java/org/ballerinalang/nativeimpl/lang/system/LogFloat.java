@@ -57,7 +57,7 @@ import org.slf4j.LoggerFactory;
         value = "Logs a float value") })
 @BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "logLevel",
         value = "Log level: 1 - Trace, 2 - Debug, 3 - Info, 4 - Warn, 5 - Error") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "float",
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "f",
         value = "Float value to be logged") })
 public class LogFloat extends AbstractNativeFunction {
 

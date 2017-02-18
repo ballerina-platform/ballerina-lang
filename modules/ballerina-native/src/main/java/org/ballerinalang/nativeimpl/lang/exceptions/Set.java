@@ -41,7 +41,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
         value = "Set the message and the category.") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "exception",
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "e",
         value = "The exception object") })
 @BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "message",
         value = "The exception message to be added") })

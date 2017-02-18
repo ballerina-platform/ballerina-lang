@@ -41,7 +41,7 @@ import java.io.PrintStream;
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
         value = "Prints a string value to the STDOUT in a new line") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "string",
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "s",
         value = "String value to be printed") })
 public class PrintlnString extends AbstractNativeFunction {
 
