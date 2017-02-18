@@ -49,7 +49,7 @@ Supported list of configuration parameters are listed below;
  DEFAULT value is the ${project.build.directory} which is the target directory.
  Example: `<outputDir>/home/docerina/output</outputDir>`.
 
- ## Usage Example
+## Usage Example
 
  Docerina is capable of generating HTML based API documentation and this plugin allows you to use Docerina in your 
  Ballerina projects.
