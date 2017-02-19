@@ -261,13 +261,12 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
         channelFutureMap.put(route.toString(), targetChannel);
     }
 
-    public void removeChannelFuture(HttpRoute route) {
-        log.debug("Removing channel future from map");
-        channelFutureMap.remove(route.toString());
+    public TargetChannel getChannelFuture(HttpRoute route) {
+        return channelFutureMap.remove(route.toString());
     }
 
-    public TargetChannel getChannel(HttpRoute route) {
-        return channelFutureMap.get(route.toString());
+    public boolean isChannelFutureExists(HttpRoute route) {
+        return (channelFutureMap.get(route.toString()) != null);
     }
 
     public Map<String, GenericObjectPool> getTargetChannelPool() {

@@ -21,13 +21,13 @@ package org.wso2.carbon.transport.http.netty.message;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.handler.codec.http.DefaultHttpContent;
-import io.netty.handler.codec.http.DefaultLastHttpContent;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.LastHttpContent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.transport.http.netty.common.Constants;
+import org.wso2.carbon.transport.http.netty.listener.ServerBootstrapConfiguration;
 import org.wso2.carbon.transport.http.netty.sender.channel.BootstrapConfiguration;
 
 import java.io.IOException;
@@ -54,7 +54,19 @@ public class HTTPCarbonMessage extends CarbonMessage {
 
     // Variable to keep the status on whether the last content was added during the clone
     private boolean isEndMarked = false;
-    private int soTimeOut = BootstrapConfiguration.getInstance().getSocketTimeout();
+    private int soTimeOut = 60;
+
+    public HTTPCarbonMessage() {
+        BootstrapConfiguration clientBootstrapConfig = BootstrapConfiguration.getInstance();
+        if (clientBootstrapConfig != null) {
+            soTimeOut = clientBootstrapConfig.getSocketTimeout();
+            return;
+        }
+        ServerBootstrapConfiguration serverBootstrapConfiguration = ServerBootstrapConfiguration.getInstance();
+        if (serverBootstrapConfiguration != null) {
+            soTimeOut = serverBootstrapConfiguration.getSoTimeOut();
+        }
+    }
 
     public void addHttpContent(HttpContent httpContent) {
         try {
@@ -97,6 +109,12 @@ public class HTTPCarbonMessage extends CarbonMessage {
         while (!isEndOfMessageProcessed) {
             try {
                 HttpContent httpContent = httpContentQueue.poll(soTimeOut, TimeUnit.SECONDS);
+                // This check is to make sure we add the last http content after getClone and avoid adding
+                // empty content to bytebuf list again and again
+                if (httpContent instanceof EmptyLastHttpContent) {
+                    break;
+                }
+
                 if (httpContent instanceof LastHttpContent) {
                     isEndOfMessageProcessed = true;
                 }
@@ -110,7 +128,6 @@ public class HTTPCarbonMessage extends CarbonMessage {
 
         return byteBufferList;
     }
-
 
     @Override
     public InputStream getInputStream() {
@@ -181,14 +198,11 @@ public class HTTPCarbonMessage extends CarbonMessage {
     }
 
     public void markMessageEnd() {
-        if (!isEndMarked) {
             if (isAlreadyRead()) {
-                outContentQueue.add(new DefaultLastHttpContent());
+                outContentQueue.add(new EmptyLastHttpContent());
             } else {
-                httpContentQueue.add(new DefaultLastHttpContent());
+                httpContentQueue.add(new EmptyLastHttpContent());
             }
-            isEndMarked = true;
-        }
     }
 
     @Override
