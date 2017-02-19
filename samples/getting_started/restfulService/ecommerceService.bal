@@ -10,7 +10,7 @@ service Ecommerce {
     @http:GET
     @http:Path ("/products/{productId}")
     resource productsInfo(message m, 
-    @http:PathParam("productId")string prodId) {
+    @http:PathParam("productId") string prodId) {
         string reqPath = "/productsservice/" + prodId;
         message response = http:ClientConnector.get(productsService, reqPath, m);
         reply response;
@@ -69,7 +69,7 @@ service productmgt {
     @http:GET
     @http:Path ("/{id}")
     resource product(message m, 
-    @PathParam("id")string prodId) {
+    @PathParam("id") string prodId) {
         json payload = productsMap[prodId];
         message response = {};
         messages:setJsonPayload(response, payload);
