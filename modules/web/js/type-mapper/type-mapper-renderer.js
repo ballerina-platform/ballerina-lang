@@ -39,6 +39,8 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
         this.midpointVariance = 0.02;
         this.disconnectCallback = onDisconnectCallback;
         this.connectCallback = onConnectionCallback;
+        this.connectionPool = [];
+        this.existingJsTrees = [];
         var self = this;
 
         this.jsPlumbInstance = jsPlumb.getInstance({
@@ -311,38 +313,56 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
             + this.viewIdSeperator + this.viewId;
         var targetId =  this.jsTreePrefix + this.viewIdSeperator +  connection.targetStruct
             + this.viewIdSeperator + this.viewId;
+        var isSourceExists;
+        var isTargetExists;
 
         if (connection.sourceFunction) {
             sourceId = connection.sourceStruct + connection.sourceId + this.viewIdSeperator + this.viewId;
+            isSourceExists = true;
+        } else {
+            isSourceExists =_.includes(this.existingJsTrees,  connection.sourceStruct + this.viewIdSeperator + this.viewId)
         }
         if (connection.targetFunction) {
             targetId = connection.targetStruct + connection.targetId + this.viewIdSeperator + this.viewId;
+            isTargetExists = true;
+        } else {
+            isTargetExists = _.includes(this.existingJsTrees, connection.targetStruct+ this.viewIdSeperator + this.viewId)
         }
 
-        for (var i = 0; i < connection.sourceProperty.length; i++) {
-            sourceId += this.idNameSeperator
-                + connection.sourceProperty[i] + this.nameTypeSeperator + connection.sourceType[i];
-        }
-        if (!connection.sourceFunction) {
-            sourceId += anchorEnd;
-        }
+        if (isSourceExists && isTargetExists) {
+            for (var i = 0; i < connection.sourceProperty.length; i++) {
+                sourceId += this.idNameSeperator
+                    + connection.sourceProperty[i] + this.nameTypeSeperator + connection.sourceType[i];
+            }
+            if (!connection.sourceFunction) {
+                sourceId += anchorEnd;
+            }
 
-        for (var i = 0; i < connection.targetProperty.length; i++) {
-            targetId += this.idNameSeperator
-                + connection.targetProperty[i] + this.nameTypeSeperator + connection.targetType[i];
-        }
+            for (var i = 0; i < connection.targetProperty.length; i++) {
+                targetId += this.idNameSeperator
+                    + connection.targetProperty[i] + this.nameTypeSeperator + connection.targetType[i];
+            }
 
-        if (!connection.targetFunction) {
-            targetId += anchorEnd;
-        }
+            if (!connection.targetFunction) {
+                targetId += anchorEnd;
+            }
 
-        this.jsPlumbInstance.connect({
-            anchor: ["Continuous", {faces: ["right", "left"]}],
-            source: sourceId,
-            target: targetId,
-            parameters: {id: connection.id}
-        });
-        this.dagrePosition(this);
+            this.jsPlumbInstance.connect({
+                anchor: ["Continuous", {faces: ["right", "left"]}],
+                source: sourceId,
+                target: targetId,
+                parameters: {id: connection.id}
+            });
+            this.dagrePosition(this);
+
+        } else {
+            this.connectionPool.push({
+                connection : connection,
+                isSourceExists : isSourceExists,
+                isTargetExists : isTargetExists,
+                connected : false
+            });
+        }
     };
 
     /**
@@ -375,7 +395,19 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
                 createCallback(element, self);
             });
             $("#" + jsTreeId).jstree('open_all');
+            self.existingJsTrees.push(structId);
             self.dagrePosition(self);
+            _.forEach(self.connectionPool, function (conPoolObj) {
+                if (!conPoolObj.connected && structId == conPoolObj.connection.sourceStruct + self.viewIdSeperator + self.viewId ) {
+                    conPoolObj.isSourceExists = true;
+                } else if (!conPoolObj.connected && structId == conPoolObj.connection.targetStruct + self.viewIdSeperator + self.viewId ) {
+                    conPoolObj.isTargetExists = true;
+                }
+                if (!conPoolObj.connected && conPoolObj.isSourceExists && conPoolObj.isTargetExists) {
+                    self.addConnection(conPoolObj.connection);
+                    conPoolObj.connected = true;
+                }
+            });
         }).on('after_open.jstree', function (event, data) {
             self.dagrePosition(self);
             var parentId = data.node.id;
