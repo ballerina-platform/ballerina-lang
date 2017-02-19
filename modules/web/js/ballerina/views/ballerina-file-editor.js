@@ -104,6 +104,7 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
             }
             if ((!_.isUndefined(model) && !_.isNil(model) && model instanceof BallerinaASTRoot)) {
                 this._model = model;
+                var self = this;
                 //Registering event listeners
                 this._model.on('child-added', function(child){
                     this.visit(child);
@@ -123,6 +124,12 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                                 .isSourceModifiedOperation(this.getUndoManager().redoStackTop())){
                             this.getUndoManager().reset();
                         }
+                    }
+                    // If we have added a new action/function invocation statement the particular import has to be added
+                    // to the imports view
+                    if (event.title === 'add import') {
+                        var childModel = event.data.child;
+                        self.visit(childModel);
                     }
                     _.set(event, 'editor', this);
                     _.set(event, 'skipInSourceView', true);
