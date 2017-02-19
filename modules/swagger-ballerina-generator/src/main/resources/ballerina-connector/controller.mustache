@@ -1,27 +1,24 @@
-package {{apiPackage}};
-
 import ballerina.lang.messages;
-import ballerina.lang.string;
 import ballerina.lang.system;
 import ballerina.net.http;
-import ballerina.net.uri;
-import ballerina.util;
+import ballerina.lang.jsonutils;
+import ballerina.lang.exceptions;
+import ballerina.lang.arrays;
 
-connector {{classname}} () {
-
-http:ClientConnector baseEP = new http:ClientConnector("{{basePath}}");
-
+connector {{classname}} (string text) {
 {{#operations}}
 {{#operation}}
-action {{nickname}} ({{classname}} t, string msg) (message) {
-        message request = {};
-        message response;
-        messages:setHeader(request, "User-Agent", "Ballerina-1.0");
-        messages:setStringPayload(request, msg);
-        response = http:HTTPConnector.{{httpMethod}}(baseEP, {{path}} , request);
-        return response;		
+action {{nickname}} (string msg, string auth) (message) {
+http:ClientConnector rmEP = create http:ClientConnector("{{basePath}}");
+message request = {};
+message requestH;
+message response;
+string jiraPath;
+jiraPath = "/issue/" + issueID;
+requestH = authHeader(request, auth);
+response = http:ClientConnector.{{httpMethod}}(rmEP, {{path}}, requestH);
+return response;
 }
-
 {{/operation}}
 {{/operations}}
 }
