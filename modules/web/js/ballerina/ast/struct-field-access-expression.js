@@ -32,7 +32,7 @@ define(['lodash', './expression'], function (_, Expression) {
     StructFieldAccessExpression.prototype.isLHSExpression = function () {
        return this._isLHSExpr;
     };
-    
+
     /**
      * A StructFieldAccessExpression can have either 1 or 2 child/children. First one being a
      * {@link VariableReferenceExpression} and the 2nd being {@link StructFieldAccessExpression} or another expression

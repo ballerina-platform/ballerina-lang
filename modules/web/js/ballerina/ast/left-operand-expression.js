@@ -25,7 +25,7 @@ define(['lodash', './statement'], function (_, Statement) {
     var LeftOperandExpression = function (args) {
         Statement.call(this, 'LeftOperandExpression');
         this._operand_type = _.get(args, "operandType", "");
-        this._left_operand_expression_string = _.get(args, "variableReferenceName");
+        this._left_operand_expression_string = _.get(args, "variableReferenceName", "var1");
     };
 
     LeftOperandExpression.prototype = Object.create(Statement.prototype);
@@ -75,11 +75,22 @@ define(['lodash', './statement'], function (_, Statement) {
      */
     LeftOperandExpression.prototype.initFromJson = function (jsonNode) {
         var self = this;
-        _.each(jsonNode.children, function (childNode) {
-            var child = self.getFactory().createFromJson(childNode);
-            self.addChild(child);
-            child.initFromJson(childNode);
-        });
+        var expression = "";
+        for (var itr = 0; itr < jsonNode.children.length; itr++) {
+            var childJsonNode = jsonNode.children[itr];
+            if (childJsonNode.type === 'variable_reference_name') {
+                expression += childJsonNode.variable_reference_name;
+            } else {
+                var child = self.getFactory().createFromJson(childJsonNode);
+                self.addChild(child);
+                child.initFromJson(childJsonNode);
+                expression += child.getExpression();
+            }
+            if (itr !== jsonNode.children.length - 1) {
+                expression += " , ";
+            }
+        }
+        this.setLeftOperandExpressionString(expression, {doSilently: true});
     };
 
     return LeftOperandExpression;

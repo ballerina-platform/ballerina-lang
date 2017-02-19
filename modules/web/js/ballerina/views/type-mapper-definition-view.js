@@ -310,6 +310,23 @@ define(['lodash', 'log', './ballerina-view', './variables-view', './type-struct-
             var self = this;
             var sourceStructName = resourceParameter.getType();
 
+            var parent = resourceParameter.getParent();
+            var blockStatement = _.find(parent.getChildren(), function (child) {
+                return BallerinaASTFactory.isBlockStatement(child);
+            });
+
+            var variableDefStatement = _.find(blockStatement.getChildren(), function (child) {
+                return BallerinaASTFactory.isVariableDefinitionStatement(child);
+            });
+
+            if(_.isUndefined(variableDefStatement)){
+                variableDefStatement = _.find(parent.getChildren(), function (child) {
+                    return BallerinaASTFactory.isVariableDefinitionStatement(child);
+                });
+                parent.removeChild(variableDefStatement);
+                blockStatement.addChild(variableDefStatement,0)
+            }
+
             if (!self.getBlockStatementView()) {
                 self.setBlockStatementView(new TypeMapperBlockStatement({
                     model: null, parentView: this, sourceInfo: self.getSourceInfo(), targetInfo: self.getTargetInfo()

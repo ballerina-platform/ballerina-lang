@@ -589,15 +589,9 @@ public class BLangJSONModelBuilder implements NodeVisitor {
     @Override
     public void visit(BlockStmt blockStmt) {
         if (blockStmt.getStatements() != null) {
-            JsonObject blockStmtObj = new JsonObject();
-            blockStmtObj.addProperty(BLangJSONModelConstants.DEFINITION_TYPE, BLangJSONModelConstants.BLOCK_STATEMENT);
-            tempJsonArrayRef.push(new JsonArray());
-            for (Statement statement : blockStmt.getStatements()) {
+           for (Statement statement : blockStmt.getStatements()) {
                 statement.accept(this);
             }
-            blockStmtObj.add(BLangJSONModelConstants.CHILDREN, tempJsonArrayRef.peek());
-            tempJsonArrayRef.pop();
-            tempJsonArrayRef.peek().add(blockStmtObj);
         }
     }
 
@@ -1109,21 +1103,16 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         JsonObject variableRefObj = new JsonObject();
         this.addPosition(variableRefObj, variableRefExpr.getNodeLocation());
         variableRefObj.addProperty(BLangJSONModelConstants.VARIABLE_REFERENCE_TYPE,
-                BLangJSONModelConstants.VARIABLE_REFERENCE_EXPRESSION);
+                BLangJSONModelConstants.VARIABLE_REFERENCE_NAME);
         variableRefObj.addProperty(BLangJSONModelConstants.VARIABLE_REFERENCE_NAME,
                 variableRefExpr.getSymbolName().getName());
         if (variableRefExpr.getVariableDef() != null) {
             JsonObject variableDef= new JsonObject();
-            variableDef.addProperty(BLangJSONModelConstants.DEFINITION_TYPE, BLangJSONModelConstants.VARIABLE_DEFINITION);
-            variableDef.addProperty(BLangJSONModelConstants.VARIABLE_TYPE,
+            variableDef.addProperty(BLangJSONModelConstants.TYPE_NAME,
                     variableRefExpr.getVariableDef().getTypeName().getSymbolName().getName());
-            variableDef.addProperty(BLangJSONModelConstants.VARIABLE_NAME,
-                    variableRefExpr.getVariableDef().getName());
             variableDef.addProperty(BLangJSONModelConstants.PACKAGE_NAME,
                     variableRefExpr.getVariableDef().getTypeName().getPackageName());
-            JsonArray varDefChildArray  = new JsonArray();
-            varDefChildArray.add(variableDef);
-            variableRefObj.add(BLangJSONModelConstants.CHILDREN, varDefChildArray);
+            variableRefObj.add(BLangJSONModelConstants.VARIABLE_DEF_OPTIONS, variableDef);
         }
         tempJsonArrayRef.peek().add(variableRefObj);
 
@@ -1359,29 +1348,16 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         this.addPosition(variableDefObj, varDefStmt.getNodeLocation());
         variableDefObj.addProperty(BLangJSONModelConstants.DEFINITION_TYPE, BLangJSONModelConstants.VARIABLE_DEFINITION_STATEMENT);
         tempJsonArrayRef.push(new JsonArray());
-        JsonObject leftOpObj = new JsonObject();
-        leftOpObj.addProperty(BLangJSONModelConstants.DEFINITION_TYPE, BLangJSONModelConstants.LEFT_EXPRESSION);
+        JsonObject childrenObj = new JsonObject();
 
         // Visit the left expression
         if (varDefStmt.getLExpr() != null) {
             varDefStmt.getLExpr().accept(this);
         }
-        leftOpObj.add(BLangJSONModelConstants.CHILDREN, tempJsonArrayRef.pop());
-
-        tempJsonArrayRef.push(new JsonArray());
-        JsonObject rightOpObj = new JsonObject();
-        rightOpObj.addProperty(BLangJSONModelConstants.DEFINITION_TYPE, BLangJSONModelConstants.RIGHT_EXPRESSION);
-
         // Visit the right expression
         if (varDefStmt.getRExpr() != null) {
             varDefStmt.getRExpr().accept(this);
         }
-        rightOpObj.add(BLangJSONModelConstants.CHILDREN, tempJsonArrayRef.pop());
-
-        tempJsonArrayRef.push(new JsonArray());
-        tempJsonArrayRef.peek().add(leftOpObj);
-        tempJsonArrayRef.peek().add(rightOpObj);
-
         variableDefObj.add(BLangJSONModelConstants.CHILDREN, tempJsonArrayRef.peek());
         tempJsonArrayRef.pop();
         tempJsonArrayRef.peek().add(variableDefObj);
