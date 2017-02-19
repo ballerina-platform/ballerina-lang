@@ -21,7 +21,6 @@ package org.wso2.carbon.transport.http.netty.message;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.handler.codec.http.DefaultHttpContent;
-import io.netty.handler.codec.http.DefaultLastHttpContent;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.LastHttpContent;
 import org.slf4j.Logger;
@@ -110,6 +109,12 @@ public class HTTPCarbonMessage extends CarbonMessage {
         while (!isEndOfMessageProcessed) {
             try {
                 HttpContent httpContent = httpContentQueue.poll(soTimeOut, TimeUnit.SECONDS);
+                // This check is to make sure we add the last http content after getClone and avoid adding
+                // empty content to bytebuf list again and again
+                if (httpContent instanceof EmptyLastHttpContent) {
+                    break;
+                }
+
                 if (httpContent instanceof LastHttpContent) {
                     isEndOfMessageProcessed = true;
                 }
@@ -123,7 +128,6 @@ public class HTTPCarbonMessage extends CarbonMessage {
 
         return byteBufferList;
     }
-
 
     @Override
     public InputStream getInputStream() {
@@ -194,14 +198,11 @@ public class HTTPCarbonMessage extends CarbonMessage {
     }
 
     public void markMessageEnd() {
-        if (!isEndMarked) {
             if (isAlreadyRead()) {
-                outContentQueue.add(new DefaultLastHttpContent());
+                outContentQueue.add(new EmptyLastHttpContent());
             } else {
-                httpContentQueue.add(new DefaultLastHttpContent());
+                httpContentQueue.add(new EmptyLastHttpContent());
             }
-            isEndMarked = true;
-        }
     }
 
     @Override
