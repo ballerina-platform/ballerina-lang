@@ -118,4 +118,28 @@ public class BallerinaFunctionDocGenTest {
             BallerinaDocGenTestUtils.cleanUp();
         }
     }
+    
+    @Test(description = "Test a Bal file with a native function")
+    public void testABalWithNativeFunction() {
+        try {
+            Map<String, BLangPackage> docsMap =
+                    BallerinaDocGenerator.generatePackageDocsFromBallerina(resources + "natives.bal", "", true);
+            Assert.assertNotNull(docsMap);
+            Assert.assertEquals(docsMap.size(), 1);
+            BallerinaDocGenTestUtils.printDocMap(docsMap);
+
+            BLangPackage doc = docsMap.get(".");
+            Collection<Function> functions = Arrays.asList(doc.getFunctions());
+            Assert.assertEquals(functions.size(), 1);
+
+            BallerinaFunction function = (BallerinaFunction) functions.iterator().next();
+            Assert.assertEquals(function.getParameterDefs().length, 1);
+            Assert.assertEquals(function.getReturnParameters().length, 1);
+            Assert.assertEquals(function.getAnnotations().length, 2);
+        } catch (IOException e) {
+            Assert.fail();
+        } finally {
+            BallerinaDocGenTestUtils.cleanUp();
+        }
+    }
 }
