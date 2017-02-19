@@ -149,7 +149,7 @@
                             {{#each typeMappers}} {{currentObject this}}
                                 <h3 id="{{name}}">
                                     typemapper {{name}}({{#each parameterDefs}}<a href="{{#bindLink type.symbolName}}{{/bindLink}}"{{typeTitle type}}>{{typeName}}</a> {{name}}{{#unless @last}},
-                                {{/unless}}{{/each}} )
+                                {{/unless}}{{/each}}) {{#if returnParameters}}({{#each returnParameters}}{{typeName}} {{name}}{{#unless @last}}, {{/unless}}{{/each}}){{/if}}
                                 </h3>
                                 <p>{{oneValueAnnotation "doc:description"}}</p>
                                 <p>
@@ -174,7 +174,7 @@
                                         </tr>
                                         {{#each returnParameters}}
                                             <tr>
-                                                <td>{{name}}</td><td><a href="{{#bindLink type.symbolName}}{{/bindLink}}"{{typeTitle type}}>{{typeName}}</a></td><td>{{#each parameterDefs}}{{paramAnnotation this "doc:return"}}{{/each}}</td>
+                                                <td>{{name}}</td><td><a href="{{#bindLink type.symbolName}}{{/bindLink}}"{{typeTitle type}}>{{typeName}}</a></td><td>{{paramAnnotation this "doc:return"}}</td>
                                             </tr>
                                         {{/each}}
                                     </table>
@@ -229,11 +229,11 @@
                             </ul>
                         </li>{{/hasStructs}} {{#hasTypeMappers}}
                         <li>
-                            <span class="opener">Structs</span>
+                            <span class="opener">TypeMappers</span>
                             <ul>
                                 {{#each typeMappers}}
                                     <li>
-                                        <a href="#{{name}} ">{{name}} ({{#each parameterDefs}}{{typeName}} {{name}}{{#unless @last}}, {{/unless}}{{/each}})</a>
+                                        <a href="#{{name}} ">{{name}} ({{#each parameterDefs}}{{typeName}} {{name}}{{#unless @last}}, {{/unless}}{{/each}}) {{#if returnParameters}}({{#each returnParameters}}{{typeName}} {{name}}{{#unless @last}}, {{/unless}}{{/each}}){{/if}}</a>
                                     </li>{{/each}}
                             </ul>
                         </li>

@@ -152,18 +152,12 @@ public class HtmlDocumentWriter implements DocumentWriter {
                             "paramAnnotation",
                             (Helper<ParameterDef>) (param, options) -> {
                                 String annotationName = options.param(0);
-                                if (annotationName == null || param.getName() == null) {
+                                if (annotationName == null) {
                                     return "";
                                 }
-                                String subName = param.getName();
-                                Annotation[] annotations;
-                                if (param.getAnnotations() != null) {
-                                    annotations = new Annotation[param.getAnnotations().size()];
-                                    param.getAnnotations().toArray(annotations);
-                                } else {
-                                    annotations = getAnnotations(dataHolder);
-                                }
-                                for (Annotation annotation : annotations) {
+                                String subName = param.getName() == null ? param.getTypeName().getName() : 
+                                    param.getName();
+                                for (Annotation annotation : getAnnotations(dataHolder)) {
                                     if (annotationName.equalsIgnoreCase(annotation.getName())
                                             && annotation.getValue().startsWith(subName + ":")) {
                                         return annotation.getValue().split(subName + ":")[1].trim();
