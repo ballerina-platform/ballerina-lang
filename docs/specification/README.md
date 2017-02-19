@@ -23,7 +23,7 @@ Chanaka Fernando <<chanakaf@wso2.com>>
 - [Expressions](expressions.md)
 - [Annotations](annotations.md)
 - [Documentation & Comments](docsandcomments.md)
-- [Other Stuff](rest.md)
+- [Concepts Under Consideration](futures.md)
 
 ## Status of This Specification
 
