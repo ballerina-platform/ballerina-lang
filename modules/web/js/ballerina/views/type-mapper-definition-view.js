@@ -324,6 +324,15 @@ define(['lodash', 'log', './ballerina-view', './variables-view', './type-struct-
                 variableDefStatement = _.find(parent.getChildren(), function (child) {
                     return BallerinaASTFactory.isVariableDefinitionStatement(child);
                 });
+
+                var refTypeInitiExpression = _.find(variableDefStatement.getChildren(), function (child) {
+                    return BallerinaASTFactory.isReferenceTypeInitiExpression(child);
+                });
+                variableDefStatement.removeChild(refTypeInitiExpression);
+                var rightOperandExpression = BallerinaASTFactory.createRightOperandExpression();
+                rightOperandExpression.addChild(refTypeInitiExpression);
+                variableDefStatement.addChild(rightOperandExpression);
+
                 parent.removeChild(variableDefStatement);
                 blockStatement.addChild(variableDefStatement,0)
             }

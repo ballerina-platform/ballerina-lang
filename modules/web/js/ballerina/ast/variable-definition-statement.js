@@ -53,14 +53,6 @@ define(['lodash', './statement', '../utils/common-utils', './variable-declaratio
     };
 
     /**
-     * Override the removeChild function
-     * @param {ASTNode} child - child node
-     */
-    VariableDefinitionStatement.prototype.removeChild = function (child) {
-        this.getParent().removeChild(this);
-    };
-
-    /**
      * Get the left expression
      * @return {string} _leftExpression - Left expression
      */

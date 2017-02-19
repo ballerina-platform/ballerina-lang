@@ -787,6 +787,17 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
         };
 
         /**
+         * is ReferenceTypeInitExpression
+         * @param child - Object for instanceof check
+         * @returns {boolean} - true if same type, else false
+         */
+        BallerinaASTFactory.isReferenceTypeInitiExpression = function (child) {
+            return child instanceof referenceTypeInitExpression;
+        };
+
+
+
+        /**
          * is StructType
          * @param child - Object for instanceof check
          * @returns {boolean} - true if same type, else false
