@@ -220,7 +220,12 @@ public class SQLConnector extends AbstractNativeConnector {
             setDataSourceProperties(options, config);
             hikariDataSource = new HikariDataSource(config);
         } catch (Throwable t) {
-            throw new BallerinaException("error in sql connector configuration: " + t.getCause().getMessage());
+            String errorMessage = "error in sql connector configuration";
+            if (t.getCause() != null) {
+                throw new BallerinaException(errorMessage + ": " + t.getCause().getMessage());
+            } else {
+                throw new BallerinaException(errorMessage);
+            }
         }
     }
 
