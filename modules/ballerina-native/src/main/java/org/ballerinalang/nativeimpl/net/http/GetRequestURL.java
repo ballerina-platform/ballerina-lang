@@ -21,6 +21,7 @@ package org.ballerinalang.nativeimpl.net.http;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeEnum;
+import org.ballerinalang.model.values.BMessage;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
@@ -51,8 +52,10 @@ import static org.ballerinalang.nativeimpl.connectors.http.Constants.REQUEST_URL
 public class GetRequestURL extends AbstractNativeFunction {
     String requestURL = "";
     public BValue[] execute(Context ctx) {
-        if (ctx.getCarbonMessage().getProperty(REQUEST_URL) != null) {
-            requestURL = ctx.getCarbonMessage().getProperty(REQUEST_URL).toString();
+        BMessage bMsg = (BMessage) getArgument(ctx, 0);
+        Object requestURLPropertyObject = bMsg.value().getProperty(REQUEST_URL);
+        if (requestURLPropertyObject != null) {
+            requestURL = requestURLPropertyObject.toString();
         }
         return getBValues(new BString(requestURL));
     }
