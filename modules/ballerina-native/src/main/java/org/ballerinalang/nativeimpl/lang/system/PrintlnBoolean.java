@@ -22,6 +22,8 @@ import org.ballerinalang.model.types.TypeEnum;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
+import org.ballerinalang.natives.annotations.Attribute;
+import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 
 import java.io.PrintStream;
@@ -37,6 +39,10 @@ import java.io.PrintStream;
         args = {@Argument(name = "b", type = TypeEnum.BOOLEAN)},
         isPublic = true
 )
+@BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
+        value = "Prints a Boolean value to the STDOUT in a new line") })
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "b",
+        value = "Boolean value to be printed") })
 public class PrintlnBoolean extends AbstractNativeFunction {
 
     public BValue[] execute(Context ctx) {

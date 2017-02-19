@@ -30,6 +30,8 @@ import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.lang.utils.ErrorHandler;
 import org.ballerinalang.natives.annotations.Argument;
+import org.ballerinalang.natives.annotations.Attribute;
+import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.util.exceptions.BallerinaException;
@@ -45,6 +47,14 @@ import org.ballerinalang.util.exceptions.BallerinaException;
         returnType = {@ReturnType(type = TypeEnum.JSON)},
         isPublic = true
 )
+@BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
+        value = "Evaluates the JSONPath on a JSON object and returns the matching JSON.") })
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "j",
+        value = "A JSON object") })
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "jsonPath",
+        value = "The path of the JSON element") })
+@BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "json",
+        value = "The JSON element on the specified path") })
 public class GetJSON extends AbstractJSONFunction {
     
     private static final String OPERATION = "get json from json";

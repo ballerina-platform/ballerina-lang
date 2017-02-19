@@ -30,6 +30,8 @@ import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.lang.utils.ErrorHandler;
 import org.ballerinalang.natives.annotations.Argument;
+import org.ballerinalang.natives.annotations.Attribute;
+import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 
 /**
@@ -44,6 +46,16 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
                 @Argument(name = "value", type = TypeEnum.JSON)},
         isPublic = true
 )
+@BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
+        value = "Inserts a JSON element to a JSON array. "
+                + "This function will add a new JSON element to the end of "
+                + "the JSON array identified by the given JSONPath.") })
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "j",
+        value = "A JSON array object") })
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "jsonPath",
+        value = "The path of the JSON element") })
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "value",
+        value = "The JSON element to be added") })
 public class AddJSONToArray extends AbstractJSONFunction {
 
     private static final String OPERATION = "add element to json arrays";
