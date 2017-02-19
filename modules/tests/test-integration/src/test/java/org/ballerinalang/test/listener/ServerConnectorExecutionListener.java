@@ -20,6 +20,8 @@ package org.ballerinalang.test.listener;
 import org.ballerinalang.test.context.Constant;
 import org.ballerinalang.test.context.Server;
 import org.ballerinalang.test.context.ServerInstance;
+import org.ballerinalang.test.util.FTPTestServer;
+import org.ballerinalang.test.util.JMSTestBroker;
 import org.ballerinalang.test.util.TestConstant;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,7 +30,11 @@ import org.testng.IExecutionListener;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.Arrays;
+import java.util.stream.Stream;
 
 /**
  * TestNg listener to start and stop a server before all server connector classes are executed for integration test.
@@ -58,9 +64,13 @@ public class ServerConnectorExecutionListener implements IExecutionListener {
                 setArguments(serviceFilesArr);
                 // copy http2 enabled netty-transports.yml file
                 copyFile(new File(HTTP2_ENABLED_NETTY_CONF), new File(this.getServerHome() + SERVER_NETTY_CONF_PATH));
+                String baseDir = (System.getProperty(Constant.SYSTEM_PROP_BASE_DIR, ".")) + File.separator + "target";
+                copyFiles(baseDir, this.getServerHome());
             }
         };
         try {
+            JMSTestBroker.getInstance().startBroker();
+            FTPTestServer.getInstance().start();
             connectorServer.start();
         } catch (Exception e) {
             log.error("Server failed to start. " + e.getMessage(), e);
@@ -73,6 +83,8 @@ public class ServerConnectorExecutionListener implements IExecutionListener {
         if (connectorServer != null && connectorServer.isRunning()) {
             try {
                 connectorServer.stop();
+                JMSTestBroker.getInstance().stopBroker();
+                FTPTestServer.getInstance().stop();
             } catch (Exception e) {
                 log.error("Server failed to stop. " + e.getMessage(), e);
                 throw new RuntimeException("Server failed to stop. " + e.getMessage(), e);
@@ -103,6 +115,50 @@ public class ServerConnectorExecutionListener implements IExecutionListener {
             throws IOException {
         Files.copy(source.toPath(), dest.toPath(), StandardCopyOption.REPLACE_EXISTING);
     }
+    /**
+     * Copy jars and files to the test distribution, that is needed for the testing
+     *
+     * @param baseDir             Target directory of test integration
+     * @param serverExtractedPath Server extracted path for integration testing
+     * @throws IOException IO exception
+     */
+    private void copyFiles(String baseDir, String serverExtractedPath) throws IOException {
+         /*
+         * Copying the activemq-all jar to the bre/lib, in order to test the activemq based sample jms service.
+         */
+            Path source = Paths.get(baseDir + File.separator + Constant.ACTIVEMQ_ALL_JAR);
+            Path destination = Paths
+                    .get(serverExtractedPath + File.separator + "bre" + File.separator + "lib" + File.separator
+                            + Constant.ACTIVEMQ_ALL_JAR);
+            Files.copy(source, destination, StandardCopyOption.REPLACE_EXISTING);
+
+        /*
+         * Copying the jms sample to samples directory for integration testing.
+         */
+            source = Paths
+                    .get(baseDir + File.separator + Constant.OTHER_SAMPLES + File.separator + "jmsWithActiveMq.bal");
+            destination = Paths
+                    .get(serverExtractedPath + File.separator + "samples" + File.separator + "jmsWithActiveMq.bal");
+            Files.copy(source, destination, StandardCopyOption.REPLACE_EXISTING);
+
+         /*
+         * Copying the file sample to samples directory for integration testing.
+         */
+            source = Paths.get(baseDir + File.separator + Constant.OTHER_SAMPLES + File.separator
+                    + "testFileService.bal");
+            destination = Paths
+                    .get(serverExtractedPath + File.separator + "samples" + File.separator + "testFileService.bal");
+            Files.copy(source, destination, StandardCopyOption.REPLACE_EXISTING);
+
+        /*
+         * Copying the common-nets jar to the bre/lib, in order to test the ftp based sample file service.
+         */
+            source = Paths.get(baseDir + File.separator + Constant.COMMON_NETS_JAR);
+            destination = Paths
+                    .get(serverExtractedPath + File.separator + "bre" + File.separator + "lib" + File.separator
+                            + Constant.COMMON_NETS_JAR);
+            Files.copy(source, destination, StandardCopyOption.REPLACE_EXISTING);
+    }
 
     /**
      * List given samples ballerina services.
@@ -112,7 +168,12 @@ public class ServerConnectorExecutionListener implements IExecutionListener {
      */
     protected static String[] listSamples(String sampleDir) {
         String[] sampleFiles = TestExecutionListener.listSamples(sampleDir);
-        //TODO Add custom samples here
-        return sampleFiles;
+        String[] jmsAndFileSampleFiles = {
+                sampleDir + File.separator + "jmsWithActiveMq.bal",
+                sampleDir + File.separator + "testFileService.bal"
+        };
+        String[] allSamples = Stream.concat(Arrays.stream(sampleFiles), Arrays.stream(jmsAndFileSampleFiles))
+                .toArray(String[]::new);
+        return allSamples;
     }
 }

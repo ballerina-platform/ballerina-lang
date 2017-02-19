@@ -45,7 +45,7 @@ public class TestExecutionListener implements IExecutionListener {
     public void onExecutionStart() {
         //path of the zip file distribution
         String serverZipPath = System.getProperty(Constant.SYSTEM_PROP_SERVER_ZIP);
-        newServer = new ServerInstance(serverZipPath, true, true) {
+        newServer = new ServerInstance(serverZipPath) {
             //config the service files need to be deployed
             @Override
             protected void configServer() {
@@ -136,9 +136,7 @@ public class TestExecutionListener implements IExecutionListener {
                 sampleDir + File.separator + "passthroughService" + File.separator + "passthroughService.bal",
                 sampleDir + File.separator + "restfulService" + File.separator + "ecommerceService.bal",
                 sampleDir + File.separator + "routingServices" + File.separator + "routingServices.bal",
-                sampleDir + File.separator + "serviceChaining" + File.separator + "ATMLocatorService.bal",
-                sampleDir + File.separator + "jmsWithActiveMq.bal",
-                sampleDir + File.separator + "testFileService.bal"
+                sampleDir + File.separator + "serviceChaining" + File.separator + "ATMLocatorService.bal"
         };
         return sampleFiles;
     }
