@@ -1,6 +1,6 @@
 #File Server Connector
 
-The File Server Connector is used to process files in the specified source directory. Note that files cannot remain in the source directory after processing or they will be processed again. Due to this reason, after processing a file, it will be deleted.
+The File Server connector is used to process files in the specified source directory. Note that files cannot remain in the source directory after processing or they will be processed again. Due to this reason, after processing a file, it will be deleted.
 
 ## How to define a file service
 
