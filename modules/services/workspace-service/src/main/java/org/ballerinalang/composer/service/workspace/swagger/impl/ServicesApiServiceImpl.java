@@ -75,8 +75,7 @@ public class ServicesApiServiceImpl {
                     response = void.class)})
     public Response servicesConvertSwaggerPost(@ApiParam(value = "Type to be convert", required = true)
                                                @QueryParam("expectedType") String expectedType
-            , @ApiParam(value = "Service definition to be convert ", required = true) Service serviceDefinition)
-            throws NotFoundException {
+            , @ApiParam(value = "Service definition to be convert ", required = true) Service serviceDefinition) {
         try {
             //If ballerina definition is not null then only should process
             String ballerinaDefinition = serviceDefinition.getBallerinaDefinition();
@@ -86,7 +85,8 @@ public class ServicesApiServiceImpl {
                 //In this case both swagger and ballerina should not be null.
                 //If no ballerina present then generate complete new ballerina source from available swagger.
                 serviceDefinition.
-                        setBallerinaDefinition(generateBallerinaDataModel(swaggerDefinition, ballerinaDefinition));
+                        setBallerinaDefinition(SwaggerConverterUtils.
+                                generateBallerinaDataModel(swaggerDefinition, ballerinaDefinition));
             }
             return Response.ok().entity(serviceDefinition).header("Access-Control-Allow-Origin", '*').build();
         } catch (IOException ex) {
@@ -114,23 +114,23 @@ public class ServicesApiServiceImpl {
                     "This should directly use from composer to build models. ", response = void.class)})
     public Response servicesConvertBallerinaPost(@ApiParam(value = "Type to be convert", required = true)
                                                  @QueryParam("expectedType") String expectedType
-            , @ApiParam(value = "Service definition to be convert ", required = true) Service serviceDefinition)
-            throws NotFoundException {
+            , @ApiParam(value = "Service definition to be convert ", required = true) Service serviceDefinition) {
         String ballerinaDefinition = serviceDefinition.getBallerinaDefinition();
         if (expectedType.equalsIgnoreCase("ballerina")) {
             try {
                 //Take ballerina source and generate swagger and add it to service definition.
                 if (ballerinaDefinition != null && !ballerinaDefinition.isEmpty()) {
-                    String response = generateSwaggerDataModel(ballerinaDefinition);
+                    String response = SwaggerConverterUtils.generateSwaggerDataModel(ballerinaDefinition);
                     serviceDefinition.setSwaggerDefinition(response);
                 } else {
                     return Response.noContent().entity("Please provide valid ballerina source").build();
                     //ballerina source cannot be null or empty.
                 }
-            } catch (IOException e) {
-                logger.error("Error while processing service definition at converter service" + e.getMessage());
+            } catch (Throwable throwable) {
+                logger.error("Error while processing service definition at converter service" +
+                        throwable.getMessage());
                 JsonObject entity = new JsonObject();
-                entity.addProperty("Error", e.toString());
+                entity.addProperty("Error", throwable.toString());
                 return Response.status(Response.Status.BAD_REQUEST).entity(entity)
                         .header("Access-Control-Allow-Origin", '*')
                         .type(MediaType.APPLICATION_JSON).build();
@@ -161,74 +161,5 @@ public class ServicesApiServiceImpl {
                 .header(CONTENT_TYPE_NAME, CONTENT_TYPE_VALUE)
                 .build();
     }
-
-    /**
-     * This method will convert ballerina definition to swagger string. Since swagger is subset of ballerina definition
-     * we can implement converter logic without data loss.
-     *
-     * @param ballerinaDefinition String ballerina config to be processed as ballerina service definition
-     * @return swagger data model generated from ballerina definition
-     * @throws IOException when input process error occur.
-     */
-    private String generateSwaggerDataModel(String ballerinaDefinition) throws IOException {
-        //TODO improve code to avoid additional object creation.
-        org.ballerinalang.model.Service[] services = SwaggerConverterUtils.
-                getServicesFromBallerinaDefinition(ballerinaDefinition);
-        String swaggerDefinition = "";
-        if (services.length > 0) {
-            //TODO this need to improve iterate through multiple services and generate single swagger file.
-            SwaggerServiceMapper swaggerServiceMapper = new SwaggerServiceMapper();
-            //TODO mapper type need to set according to expected type.
-            //swaggerServiceMapper.setObjectMapper(io.swagger.util.Yaml.mapper());
-            swaggerDefinition = swaggerServiceMapper.
-                    generateSwaggerString(swaggerServiceMapper.convertServiceToSwagger(services[0]));
-        }
-        return swaggerDefinition;
-    }
-
-    /**
-     * This method will generate ballerina string from swagger definition. Since ballerina service definition is super
-     * set of swagger definition we will take both swagger and ballerina definition and merge swagger changes to
-     * ballerina definition selectively to prevent data loss
-     *
-     * @param swaggerDefinition   @String swagger definition to be processed as swagger
-     * @param ballerinaDefinition @String ballerina definition to be process as ballerina definition
-     * @return @String representation of converted ballerina source
-     * @throws IOException when error occur while processing input swagger and ballerina definitions.
-     */
-    private String generateBallerinaDataModel(String swaggerDefinition, String ballerinaDefinition) throws IOException {
-        BallerinaFile ballerinaFile = SwaggerConverterUtils.getBFileFromBallerinaDefinition(ballerinaDefinition);
-        //Always assume we have only one resource in bfile.
-        //TODO this logic need to be reviewed and fix issues. This is temporary commit to test swagger UI flow
-        org.ballerinalang.model.Service swaggerService = SwaggerConverterUtils.
-                getServiceFromSwaggerDefinition(swaggerDefinition);
-        org.ballerinalang.model.Service ballerinaService = SwaggerConverterUtils.
-                getServicesFromBallerinaDefinition(ballerinaDefinition)[0];
-        String serviceName = swaggerService.getSymbolName().getName();
-        /*for (org.ballerinalang.model.Service currentService : ballerinaFile.getServices()) {
-            if (currentService.getSymbolName().getName().equalsIgnoreCase(serviceName)) {
-                ballerinaService = currentService;
-            }
-        }*/
-        //Compare ballerina service and swagger service and then substitute values. Then we should get ballerina
-        //JSON representation and send back to client.
-        //for the moment we directly add swagger service to ballerina service.
-        //Replace first service of the ballerina file.
-        for (int i = 0; i < ballerinaFile.getCompilationUnits().length; i++) {
-            CompilationUnit compilationUnit = ballerinaFile.getCompilationUnits()[i];
-            if (compilationUnit instanceof org.ballerinalang.model.Service) {
-                ballerinaFile.getCompilationUnits()[i] = SwaggerConverterUtils.
-                        mergeBallerinaService(ballerinaService, swaggerService);
-                break;
-            }
-
-        }
-        //Now we have to convert ballerina file to JSON object model composer require.
-        JsonObject response = new JsonObject();
-        BLangJSONModelBuilder jsonModelBuilder = new BLangJSONModelBuilder(response);
-        ballerinaFile.accept(jsonModelBuilder);
-        return response.toString();
-    }
-
 }
 
