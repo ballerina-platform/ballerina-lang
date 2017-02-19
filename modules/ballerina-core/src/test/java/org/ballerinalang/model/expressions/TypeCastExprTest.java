@@ -69,7 +69,7 @@ public class TypeCastExprTest {
         BValue[] args = {new BInteger(55555555)};
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "inttofloat", args);
         Assert.assertTrue(returns[0] instanceof BFloat);
-        final String expected = "5.5555556E7";
+        final String expected = "5.5555555E7";
         Assert.assertEquals(returns[0].stringValue(), expected);
     }
 

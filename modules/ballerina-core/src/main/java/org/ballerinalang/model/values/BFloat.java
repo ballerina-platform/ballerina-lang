@@ -47,7 +47,7 @@ public final class BFloat extends BValueType {
 
     @Override
     public double doubleValue() {
-        return (double) this.value;
+        return this.value;
     }
 
     @Override

@@ -96,75 +96,77 @@ public class SQLDataIterator implements DataIterator {
         }
     }
 
-//    public long getLong(int index) {
-//        try {
-//            return rs.getLong(index);
-//        } catch (SQLException e) {
-//            throw new BallerinaException(e.getMessage(), e);
-//        }
-//    }
+    @Override
+    public long getLong(int index) {
+        try {
+            return rs.getLong(index);
+        } catch (SQLException e) {
+            throw new BallerinaException(e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public long getLong(String columnName) {
+        try {
+            return rs.getLong(columnName);
+        } catch (SQLException e) {
+            throw new BallerinaException(e.getMessage(), e);
+        }
+    }
 
 //    @Override
-//    public long getLong(String columnName) {
+//    public int getInt(int index) {
 //        try {
-//            return rs.getLong(columnName);
-//        } catch (SQLException e) {
-//            throw new BallerinaException(e.getMessage(), e);
-//        }
-//    }
-
-    @Override
-    public int getInt(int index) {
-        try {
-            return rs.getInt(index);
-        } catch (SQLException e) {
-            throw new BallerinaException(e.getMessage(), e);
-        }
-    }
-
-    @Override
-    public int getInt(String columnName) {
-        try {
-            return rs.getInt(columnName);
-        } catch (SQLException e) {
-            throw new BallerinaException(e.getMessage(), e);
-        }
-    }
-
-    @Override
-    public float getFloat(int index) {
-        try {
-            return rs.getFloat(index);
-        } catch (SQLException e) {
-            throw new BallerinaException(e.getMessage(), e);
-        }
-    }
-
-    @Override
-    public float getFloat(String columnName) {
-        try {
-            return rs.getFloat(columnName);
-        } catch (SQLException e) {
-            throw new BallerinaException(e.getMessage(), e);
-        }
-    }
-
-//    public double getDouble(int index) {
-//        try {
-//            return rs.getDouble(index);
+//            return rs.getInt(index);
 //        } catch (SQLException e) {
 //            throw new BallerinaException(e.getMessage(), e);
 //        }
 //    }
 //
 //    @Override
-//    public double getDouble(String columnName) {
+//    public int getInt(String columnName) {
 //        try {
-//            return rs.getDouble(columnName);
+//            return rs.getInt(columnName);
 //        } catch (SQLException e) {
 //            throw new BallerinaException(e.getMessage(), e);
 //        }
 //    }
+
+//    @Override
+//    public float getFloat(int index) {
+//        try {
+//            return rs.getFloat(index);
+//        } catch (SQLException e) {
+//            throw new BallerinaException(e.getMessage(), e);
+//        }
+//    }
+//
+//    @Override
+//    public float getFloat(String columnName) {
+//        try {
+//            return rs.getFloat(columnName);
+//        } catch (SQLException e) {
+//            throw new BallerinaException(e.getMessage(), e);
+//        }
+//    }
+
+    @Override
+    public double getDouble(int index) {
+        try {
+            return rs.getDouble(index);
+        } catch (SQLException e) {
+            throw new BallerinaException(e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public double getDouble(String columnName) {
+        try {
+            return rs.getDouble(columnName);
+        } catch (SQLException e) {
+            throw new BallerinaException(e.getMessage(), e);
+        }
+    }
 
     @Override
     public boolean getBoolean(int index) {

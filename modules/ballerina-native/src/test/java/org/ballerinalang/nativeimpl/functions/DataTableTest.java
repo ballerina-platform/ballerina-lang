@@ -19,11 +19,9 @@ package org.ballerinalang.nativeimpl.functions;
 
 import org.ballerinalang.model.BLangProgram;
 import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BDouble;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BJSON;
-import org.ballerinalang.model.values.BLong;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
@@ -61,9 +59,9 @@ public class DataTableTest {
 
         Assert.assertEquals(returns.length, 6);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
-        Assert.assertEquals(((BLong) returns[1]).longValue(), 9223372036854774807L);
+        Assert.assertEquals(((BInteger) returns[1]).longValue(), 9223372036854774807L);
         Assert.assertEquals(((BFloat) returns[2]).floatValue(), 123.34f);
-        Assert.assertEquals(((BDouble) returns[3]).doubleValue(), 2139095039D);
+        Assert.assertEquals(((BFloat) returns[3]).doubleValue(), 2139095039D);
         Assert.assertEquals(((BBoolean) returns[4]).booleanValue(), true);
         Assert.assertEquals(returns[5].stringValue(), "Hello");
     }
@@ -74,9 +72,9 @@ public class DataTableTest {
 
         Assert.assertEquals(returns.length, 6);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
-        Assert.assertEquals(((BLong) returns[1]).longValue(), 9223372036854774807L);
+        Assert.assertEquals(((BInteger) returns[1]).longValue(), 9223372036854774807L);
         Assert.assertEquals(((BFloat) returns[2]).floatValue(), 123.34f);
-        Assert.assertEquals(((BDouble) returns[3]).doubleValue(), 2139095039D);
+        Assert.assertEquals(((BFloat) returns[3]).doubleValue(), 2139095039D);
         Assert.assertEquals(((BBoolean) returns[4]).booleanValue(), true);
         Assert.assertEquals(returns[5].stringValue(), "Hello");
     }
@@ -133,9 +131,9 @@ public class DataTableTest {
         // Implementation will return base64encoded value of that text content. Verify that value.
         Assert.assertEquals((returns[0]).stringValue(), "d3NvMiBiYWxsZXJpbmEgYmxvYiB0ZXN0Lg==");
         Assert.assertEquals((returns[1]).stringValue(), "very long text");
-        Assert.assertEquals(((BLong) returns[2]).longValue(), 21945000);
-        Assert.assertEquals(((BLong) returns[3]).longValue(), 1486060200000L);
-        Assert.assertEquals(((BLong) returns[4]).longValue(), 1486102980000L);
+        Assert.assertEquals(((BInteger) returns[2]).longValue(), 21945000);
+        Assert.assertEquals(((BInteger) returns[3]).longValue(), 1486060200000L);
+        Assert.assertEquals(((BInteger) returns[4]).longValue(), 1486102980000L);
     }
 
     @Test(description = "Check getByName methods for complex types.")
@@ -145,9 +143,9 @@ public class DataTableTest {
         Assert.assertEquals(returns.length, 5);
         Assert.assertEquals((returns[0]).stringValue(), "d3NvMiBiYWxsZXJpbmEgYmxvYiB0ZXN0Lg==");
         Assert.assertEquals((returns[1]).stringValue(), "very long text");
-        Assert.assertEquals(((BLong) returns[2]).longValue(), 21945000);
-        Assert.assertEquals(((BLong) returns[3]).longValue(), 1486060200000L);
-        Assert.assertEquals(((BLong) returns[4]).longValue(), 1486102980000L);
+        Assert.assertEquals(((BInteger) returns[2]).longValue(), 21945000);
+        Assert.assertEquals(((BInteger) returns[3]).longValue(), 1486060200000L);
+        Assert.assertEquals(((BInteger) returns[4]).longValue(), 1486102980000L);
     }
 
     @Test(description = "Check getObjectAsStringByName methods for complex types.")
@@ -187,15 +185,15 @@ public class DataTableTest {
         Assert.assertEquals(intArray.get(new BString("2")).intValue(), 3);
 
         Assert.assertTrue(returns[1] instanceof BMap);
-        BMap<BString, BLong> longArray = (BMap) returns[1];
-        Assert.assertTrue(longArray.get(new BString("0")) instanceof BLong);
+        BMap<BString, BInteger> longArray = (BMap) returns[1];
+        Assert.assertTrue(longArray.get(new BString("0")) instanceof BInteger);
         Assert.assertEquals(longArray.get(new BString("0")).longValue(), 100000000);
         Assert.assertEquals(longArray.get(new BString("1")).longValue(), 200000000);
         Assert.assertEquals(longArray.get(new BString("2")).longValue(), 300000000);
 
         Assert.assertTrue(returns[2] instanceof BMap);
-        BMap<BString, BDouble> doubleArray = (BMap) returns[2];
-        Assert.assertTrue(doubleArray.get(new BString("0")) instanceof BDouble);
+        BMap<BString, BFloat> doubleArray = (BMap) returns[2];
+        Assert.assertTrue(doubleArray.get(new BString("0")) instanceof BFloat);
         Assert.assertEquals(doubleArray.get(new BString("0")).doubleValue(), 245.23);
         Assert.assertEquals(doubleArray.get(new BString("1")).doubleValue(), 5559.49);
         Assert.assertEquals(doubleArray.get(new BString("2")).doubleValue(), 8796.123);
@@ -227,15 +225,15 @@ public class DataTableTest {
         Assert.assertEquals(intArray.get(new BString("2")).intValue(), 3);
 
         Assert.assertTrue(returns[1] instanceof BMap);
-        BMap<BString, BLong> longArray = (BMap) returns[1];
-        Assert.assertTrue(longArray.get(new BString("0")) instanceof BLong);
+        BMap<BString, BInteger> longArray = (BMap) returns[1];
+        Assert.assertTrue(longArray.get(new BString("0")) instanceof BInteger);
         Assert.assertEquals(longArray.get(new BString("0")).longValue(), 100000000);
         Assert.assertEquals(longArray.get(new BString("1")).longValue(), 200000000);
         Assert.assertEquals(longArray.get(new BString("2")).longValue(), 300000000);
 
         Assert.assertTrue(returns[2] instanceof BMap);
-        BMap<BString, BDouble> doubleArray = (BMap) returns[2];
-        Assert.assertTrue(doubleArray.get(new BString("0")) instanceof BDouble);
+        BMap<BString, BFloat> doubleArray = (BMap) returns[2];
+        Assert.assertTrue(doubleArray.get(new BString("0")) instanceof BFloat);
         Assert.assertEquals(doubleArray.get(new BString("0")).doubleValue(), 245.23);
         Assert.assertEquals(doubleArray.get(new BString("1")).doubleValue(), 5559.49);
         Assert.assertEquals(doubleArray.get(new BString("2")).doubleValue(), 8796.123);

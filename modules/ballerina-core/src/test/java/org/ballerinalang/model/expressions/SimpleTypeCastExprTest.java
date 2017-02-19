@@ -25,6 +25,7 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.program.BLangFunctions;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
 
 public class SimpleTypeCastExprTest {
 
@@ -35,13 +36,12 @@ public class SimpleTypeCastExprTest {
         bLangProgram = BTestUtils.parseBalFile("lang/expressions/simple-type-cast.bal");
     }
 
-    //@TODO fix casting issue
-    //@Test
-    public void testIntToLong() {
+    @Test
+    public void testIntToFloat() {
         BValue[] args = {new BInteger(55555555)};
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "inttofloat", args);
         Assert.assertTrue(returns[0] instanceof BFloat);
-        final String expected = "55555555";
+        final String expected = "5.5555555E7";
         Assert.assertEquals(returns[0].stringValue(), expected);
     }
 }

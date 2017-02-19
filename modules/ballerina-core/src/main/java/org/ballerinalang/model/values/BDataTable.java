@@ -69,37 +69,37 @@ public class BDataTable implements BRefType<Object> {
         return iterator.getString(columnName);
     }
 
-//    public long getLong(int index) {
-//        return iterator.getLong(index);
-//    }
-
-//    public long getLong(String columnName) {
-//        return iterator.getLong(columnName);
-//    }
-
-    public int getInt(int index) {
-        return iterator.getInt(index);
+    public long getLong(int index) {
+        return iterator.getLong(index);
     }
 
-    public int getInt(String columnName) {
-        return iterator.getInt(columnName);
+    public long getLong(String columnName) {
+        return iterator.getLong(columnName);
     }
 
-    public float getFloat(int index) {
-        return iterator.getFloat(index);
-    }
-
-    public float getFloat(String columnName) {
-        return iterator.getFloat(columnName);
-    }
-
-//    public double getDouble(int index) {
-//        return iterator.getDouble(index);
+//    public int getInt(int index) {
+//        return iterator.getInt(index);
 //    }
 
-//    public double getDouble(String columnName) {
-//        return iterator.getDouble(columnName);
+//    public int getInt(String columnName) {
+//        return iterator.getInt(columnName);
 //    }
+
+//    public float getFloat(int index) {
+//        return iterator.getFloat(index);
+//    }
+
+//    public float getFloat(String columnName) {
+//        return iterator.getFloat(columnName);
+//    }
+
+    public double getDouble(int index) {
+        return iterator.getDouble(index);
+    }
+
+    public double getDouble(String columnName) {
+        return iterator.getDouble(columnName);
+    }
 
     public boolean getBoolean(int index) {
         return iterator.getBoolean(index);

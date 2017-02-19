@@ -1354,7 +1354,7 @@ public class BLangModelBuilder {
     // Literal Values
 
     public void createIntegerLiteral(String value, NodeLocation location) {
-        BValueType bValue = new BInteger(Integer.parseInt(value));
+        BValueType bValue = new BInteger(Long.parseLong(value));
         createLiteral(location, new SimpleTypeName(TypeConstants.INT_TNAME), bValue);
     }
 
@@ -1364,7 +1364,7 @@ public class BLangModelBuilder {
     }*/
 
     public void createFloatLiteral(String value, NodeLocation location) {
-        BValueType bValue = new BFloat(Float.parseFloat(value));
+        BValueType bValue = new BFloat(Double.parseDouble(value));
         createLiteral(location, new SimpleTypeName(TypeConstants.FLOAT_TNAME), bValue);
     }
 

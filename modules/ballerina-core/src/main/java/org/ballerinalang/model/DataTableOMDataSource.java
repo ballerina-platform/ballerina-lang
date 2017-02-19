@@ -65,13 +65,13 @@ public class DataTableOMDataSource extends AbstractPushOMDataSource {
                     value = dataTable.getString(col.getName());
                     break;
                 case INT:
-                    value = String.valueOf(dataTable.getInt(col.getName()));
+                    value = String.valueOf(dataTable.getLong(col.getName()));
                     break;
                 /*case LONG:
                     value = String.valueOf(dataTable.getLong(col.getName()));
                     break;*/
                 case FLOAT:
-                    value = String.valueOf(dataTable.getFloat(col.getName()));
+                    value = String.valueOf(dataTable.getDouble(col.getName()));
                     break;
                 /*case DOUBLE:
                     value = String.valueOf(dataTable.getDouble(col.getName()));

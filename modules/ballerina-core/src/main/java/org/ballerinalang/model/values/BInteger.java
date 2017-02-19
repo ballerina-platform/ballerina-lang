@@ -37,7 +37,7 @@ public final class BInteger extends BValueType {
 
     @Override
     public long longValue() {
-        return (long) this.value;
+        return this.value;
     }
 
     @Override
