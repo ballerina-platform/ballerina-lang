@@ -1,4 +1,4 @@
-xmldocument# Types, Variables & Constants
+# Types, Variables & Constants
 
 The Ballerina type system has value types and reference types. Ballerina comes with a set of built-in reference types and array, struct or iterator type constructors to create new reference types.
 
