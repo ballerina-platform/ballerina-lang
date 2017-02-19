@@ -28,6 +28,7 @@ import org.ballerinalang.natives.NativeUnitProxy;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -41,8 +42,9 @@ public abstract class AbstractNativeConnector extends BType implements NativeUni
     
     // BLangSymbol related attributes
     private List<ParameterDef> parameterDefs;
-    private SimpleTypeName[] returnParamTypeNames;
+    private String[] argNames;
     private SimpleTypeName[] argTypeNames;
+    private SimpleTypeName[] returnParamTypeNames;
     private List<NativeUnitProxy> actions;
     
     // Scope related variables
@@ -115,12 +117,20 @@ public abstract class AbstractNativeConnector extends BType implements NativeUni
     public void setArgTypeNames(SimpleTypeName[] argTypes) {
         this.argTypeNames = argTypes;
     }
-    
+
+    public void setArgNames(String[] argNames) {
+        this.argNames = argNames;
+    }
+
     @Override
     public SimpleTypeName[] getArgumentTypeNames() {
         return argTypeNames;
     }
-    
+
+    public String[] getArgumentNames() {
+        return argNames;
+    }
+
     @Override
     public SimpleTypeName[] getReturnParamTypeNames() {
         return returnParamTypeNames;
@@ -173,7 +183,12 @@ public abstract class AbstractNativeConnector extends BType implements NativeUni
     public <V extends BValue> V getDefaultValue() {
         return null;
     }
-    
+
+    @Override
+    public Map<SymbolName, BLangSymbol> getSymbolMap() {
+        return Collections.unmodifiableMap(this.symbolMap);
+    }
+
     /**
      * Resolve a symbol in the current scope only. SymbolName will not be resolved in the enclosing scopes.
      * 

@@ -1,16 +1,27 @@
 # Quick Tour
 
-Now that you know [a little bit about Ballerina](intro.md), let's take it for a spin! 
+Now that you know [a little bit about Ballerina](index.md), let's take it for a spin! 
 
 ## Install Ballerina
 
-Download Ballerina from http://www.ballerinalang.org and unzip it on your computer. 
+1. Download Ballerina from http://www.ballerinalang.org and unzip it on your computer. 
+1. Add the Ballerina `/bin` directory to your $PATH environment variable so that you can run the Ballerina commands from anywhere. 
 
 ## Run HelloWorld
 
-This sample will show you how easy it is to run Ballerina, send it a request, and get a response. The HelloWorld sample doesn't take any specific input, so simply running it will cause it to print "Hello, World!" at the command line.
+The HelloWorld sample will show you how easy it is to run Ballerina, send it a request, and get a response. 
 
-At the command prompt, navigate to the `<ballerina_home>/bin` directory and enter the following line:
+Let's take a look at what the sample looks like in the Ballerina programming language:
+
+```
+function main (string[] args) {
+  system:println("Hello, World!");
+}
+``` 
+
+The HelloWorld sample doesn't take any specific input, so simply running it will cause it to print "Hello, World!" at the command line.
+
+At the command prompt, navigate to the `<ballerina_home>/samples/helloWorld` directory and enter the following line (type `./ballerina` instead of `ballerina` on UNIX/Linux):
 
 ```
 ballerina run main helloworld.bal
@@ -22,22 +33,17 @@ You will see the following response:
 Hello, World!
 ```
 
-You just started Ballerina, ran the HelloWorld sample, and got a response within seconds. Let's take a look at what the sample looks like in the Ballerina programming language:
+You just started Ballerina, ran the HelloWorld sample, and got a response within seconds. 
 
-```
-function main (string[] args) {
-  system:println("Hello, World!");
-}
-``` 
-Pretty simple and straightforward, right? Now, let's look at something a little more interesting: the editor.
+Pretty simple and straightforward, right? Now, let's look at something a little more interesting: the Composer.
 
-## Run the editor
+## Run the Composer
 
-1. In the `bin` directory, type `sh editor` at the command prompt (omit `sh` if you are running on Windows).
+1. At the command prompt, type `composer` on Windows or `./composer` on UNIX/Linux.
 
-1. Access the editor from the following URL in your browser: http://localhost:9091
+1. Access the Composer from the following URL in your browser: http://localhost:9091
 
-   The welcome page of the Ballerina editor appears. Let's open a sample and take a look around. 
+    The welcome page of Ballerina Composer appears. Let's open a sample and take a look around. 
 
 1. Click **echoService**.
 
@@ -51,4 +57,4 @@ Also notice in the lower right corner the Source View and Swagger View buttons.
 
 1. Click **Design View** to return to the visual editor. 
 
-Now that you've had a look around, it's time to take the leap into [creating your first Ballerina program](tutorials/first-program.md).
+Now that you've had a look around, it's time to take the leap and [write your first Ballerina program](tutorials/first-program.md).

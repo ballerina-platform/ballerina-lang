@@ -25,7 +25,7 @@ under the License.
     <test name="ballerina-native-functions-unit-tests" preserve-order="true" parallel="false">
         <parameter name="enableNonBlocking" value="false"/>
         <packages>
-            <package name="org.wso2.ballerina.nativeimpl.functions.*"/>
+            <package name="org.ballerinalang.nativeimpl.functions.*"/>
         </packages>
         <classes>
             <class name="org.ballerinalang.nativeimpl.util.TestConfigurationUtil"/>
@@ -34,7 +34,7 @@ under the License.
     <test name="ballerina-native-functions-unit-tests-non-blocking" preserve-order="true" parallel="false">
         <parameter name="enableNonBlocking" value="true"/>
         <packages>
-            <package name="org.wso2.ballerina.nativeimpl.functions.*"/>
+            <package name="org.ballerinalang.nativeimpl.functions.*"/>
         </packages>
         <classes>
             <class name="org.ballerinalang.nativeimpl.util.TestConfigurationUtil"/>
@@ -44,7 +44,7 @@ under the License.
     <!-- Native Connectors Related Test Cases -->
     <test name="ballerina-native-connectors-unit-tests" preserve-order="true" parallel="false">
         <packages>
-            <package name="org.wso2.ballerina.nativeimpl.connectors"/>
+            <package name="org.ballerinalang.nativeimpl.connectors"/>
         </packages>
     </test>
 
@@ -52,7 +52,7 @@ under the License.
     <test name="ballerina-native-type-convertors-unit-tests" preserve-order="true" parallel="false">
         <parameter name="enableNonBlocking" value="false"/>
         <packages>
-            <package name="org.wso2.ballerina.nativeimpl.mappers"/>
+            <package name="org.ballerinalang.nativeimpl.typemappers"/>
         </packages>
         <classes>
             <class name="org.ballerinalang.nativeimpl.util.TestConfigurationUtil"/>
@@ -61,7 +61,7 @@ under the License.
     <test name="ballerina-native-type-convertors-unit-tests-non-blocking" preserve-order="true" parallel="false">
         <parameter name="enableNonBlocking" value="true"/>
         <packages>
-            <package name="org.wso2.ballerina.nativeimpl.mappers"/>
+            <package name="org.ballerinalang.nativeimpl.typemappers"/>
         </packages>
         <classes>
             <class name="org.ballerinalang.nativeimpl.util.TestConfigurationUtil"/>

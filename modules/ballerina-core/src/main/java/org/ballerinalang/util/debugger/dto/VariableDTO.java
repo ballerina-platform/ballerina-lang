@@ -30,6 +30,9 @@ public class VariableDTO {
     private String scope, name;
     private String type, value;
 
+    public VariableDTO() {
+    }
+
     public VariableDTO(VariableInfo vinfo) {
         this.scope = vinfo.getScope();
         this.name = vinfo.getName();

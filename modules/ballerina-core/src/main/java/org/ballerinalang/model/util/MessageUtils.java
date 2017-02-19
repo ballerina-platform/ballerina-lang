@@ -54,7 +54,6 @@ public class MessageUtils {
                 bis.close();
                 bos.close();
             } catch (IOException ignored) {
-                //ignored
             }
         }
         return result;
