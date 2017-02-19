@@ -124,9 +124,7 @@
                 <include>org.apache.james:apache-mime4j-core</include>
                 <include>com.beust:jcommander</include>
                 <include>org.slf4j:slf4j-api</include>
-                <include>org.apache.logging.log4j:log4j-slf4j-impl</include>
-                <include>org.apache.logging.log4j:log4j-core</include>
-                <include>org.apache.logging.log4j:log4j-api</include>
+                <include>org.slf4j:slf4j-nop</include>
                 <include>io.netty:netty-common</include>
                 <include>io.netty:netty-buffer</include>
                 <include>io.netty:netty-transport</include>
