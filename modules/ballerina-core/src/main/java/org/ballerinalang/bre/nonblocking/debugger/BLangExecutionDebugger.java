@@ -428,6 +428,19 @@ public class BLangExecutionDebugger extends BLangAbstractExecutionVisitor {
     }
 
     @Override
+    public void visit(ResourceInvocationExpr resourceIExpr) {
+        super.visit(resourceIExpr);
+        if (resourceIExpr.getResource().getParameterDefs() != null) {
+            int i = 0;
+            for (ParameterDef parameter : resourceIExpr.getResource().getParameterDefs()) {
+                bContext.getControlStack().getCurrentFrame().variables.put(
+                        parameter.getSymbolName(), new AbstractMap.SimpleEntry<>(i, "Arg"));
+                i++;
+            }
+        }
+    }
+
+    @Override
     public void visit(ActionInvocationExprStartNode startNode) {
         super.visit(startNode);
         if (startNode.getExpression().getCallableUnit() != null) {

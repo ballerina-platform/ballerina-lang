@@ -23,6 +23,8 @@ import org.ballerinalang.model.values.BDataTable;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
+import org.ballerinalang.natives.annotations.Attribute;
+import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
@@ -43,6 +45,17 @@ import java.util.Locale;
         returnType = {@ReturnType(type = TypeEnum.STRING)},
         isPublic = true
 )
+@BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
+        value = "Retrieves the base64encoded string value of the designated column in "
+                + "the current row for the given column type: blob, clob, nclob, or binary") })
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "dt",
+        value = "The datatable object") })
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "string",
+        value = "The column name of the output result.") })
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "type",
+        value = "Database table column type. Supported values are blob, clob, nclob, binary.") })
+@BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "string",
+        value = "The column value as a string") })
 public class GetByNameStringReturn extends AbstractNativeFunction {
 
     public BValue[] execute(Context ctx) {

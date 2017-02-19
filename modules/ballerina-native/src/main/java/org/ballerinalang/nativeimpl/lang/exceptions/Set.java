@@ -24,6 +24,8 @@ import org.ballerinalang.model.values.BException;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
+import org.ballerinalang.natives.annotations.Attribute;
+import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 
 /**
@@ -37,6 +39,14 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
                 @Argument(name = "category", type = TypeEnum.STRING)},
         isPublic = true
 )
+@BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
+        value = "Set the message and the category.") })
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "e",
+        value = "The exception object") })
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "message",
+        value = "The exception message to be added") })
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "category",
+        value = "The exception category to be added") })
 public class Set extends AbstractNativeFunction {
     @Override
     public BValue[] execute(Context context) {

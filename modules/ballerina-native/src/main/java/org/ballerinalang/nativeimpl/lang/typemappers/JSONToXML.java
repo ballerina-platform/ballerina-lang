@@ -28,6 +28,8 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.natives.AbstractNativeTypeMapper;
 import org.ballerinalang.natives.annotations.Argument;
+import org.ballerinalang.natives.annotations.Attribute;
+import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaTypeMapper;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.util.exceptions.BallerinaException;
@@ -52,9 +54,16 @@ import javax.xml.stream.XMLStreamException;
         returnType = {@ReturnType(type = TypeEnum.XML)},
         isPublic = true
 )
-
+@BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
+        value = "Converts JSON to XML") })
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "j",
+        value = "JSON value to be converted") })
+@BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "xml",
+        value = "XML representation of the given JSON") })
 public class JSONToXML extends AbstractNativeTypeMapper {
 
+    private static final String XML_ROOT = "jsonObject";
+    
     public BValue convert(Context ctx) {
         BJSON msg = (BJSON) getArgument(ctx, 0);
         BXML result = convertJSONString(msg.stringValue());;
@@ -64,7 +73,7 @@ public class JSONToXML extends AbstractNativeTypeMapper {
     private BXML convertJSONString(String message) {
         InputStream input = new ByteArrayInputStream(message.getBytes(StandardCharsets.UTF_8));
         ByteArrayOutputStream output = new ByteArrayOutputStream();
-        JsonXMLConfig config = new JsonXMLConfigBuilder().multiplePI(false).build();
+        JsonXMLConfig config = new JsonXMLConfigBuilder().multiplePI(false).virtualRoot(XML_ROOT).build();
         BXML result = null;
 
         XMLEventReader reader = null;
