@@ -1,5 +1,7 @@
 # Types and Variables
 
+TODO: review this page and update with latest features
+
 Ballerina has variables of various types. The type system includes built-in primitive or value types, a collection of built-in structured types, and array, record, and iterator type constructors. All variables of primitive types are allocated on the stack, while all non-primitive types are allocated on a heap using `new`.
 
 The type system is illustrated in the following diagram:

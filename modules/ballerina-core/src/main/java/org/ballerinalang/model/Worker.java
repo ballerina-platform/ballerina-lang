@@ -25,6 +25,7 @@ import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.values.BMessage;
 import org.ballerinalang.util.exceptions.FlowBuilderException;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Future;
@@ -167,6 +168,11 @@ public class Worker implements SymbolScope, CompilationUnit, CallableUnit {
     @Override
     public BLangSymbol resolve(SymbolName name) {
         return resolve(symbolMap, name);
+    }
+
+    @Override
+    public Map<SymbolName, BLangSymbol> getSymbolMap() {
+        return Collections.unmodifiableMap(this.symbolMap);
     }
 
     /**
