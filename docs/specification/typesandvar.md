@@ -1,4 +1,4 @@
-# Types, Variables & Constants
+xmldocument# Types, Variables & Constants
 
 The Ballerina type system has value types and reference types. Ballerina comes with a set of built-in reference types and array, struct or iterator type constructors to create new reference types.
 
@@ -116,9 +116,9 @@ Library functions for accessing information from this type are in the package `b
 
 > NOTE: A future version of the language will likely introduce syntax to constrain the value space of a map to a particular type. The syntax under consideration for that is map<TypeName> VariableName. We are currently not considering expanding the key space beyond string.
 
-### Type: `xml` & `xmlDocument`
+### Type: `xml` & `xmldocument`
 
-The `xml` type is used to represent an XML element and `xmlDocument` is used to represent a full XML document. Ballerina also understands XML Schema and allows one to declare that an element or document must conform to a particular schema.
+The `xml` type is used to represent an XML element and `xmldocument` is used to represent a full XML document. Ballerina also understands XML Schema and allows one to declare that an element or document must conform to a particular schema.
 
 XML element variables are declared in either of the following ways:
 ```
@@ -128,10 +128,10 @@ xml<{SchemaNamespaceName}SchemaTypeOrElementName> VariableName;
 
 The first is a variable which may hold any XML element. The second is a variable whose value is an element which is of the indicated XML Schema type (if the name is that of an XML Schema Complex Type) or the element has the name and content model defined by the indicated XML Element declaration (if the name is that of an XML Schema Element declaration). Note that 'SchemaNamespaceName' may be empty, which means the type name is unqualified.
 
-Similarly, the `xmlDocument` type is used to represent a complete XML Document. Variables are declared as follows:
+Similarly, the `xmldocument` type is used to represent a complete XML Document. Variables are declared as follows:
 ```
-xmlDocument VariableName;
-xmlDocument<{SchemaNamespaceName}DocumentElementTypeOrElementName> VariableName;
+xmldocument VariableName;
+xmldocument<{SchemaNamespaceName}DocumentElementTypeOrElementName> VariableName;
 ```
 
 The first is a variable which may hold any XML document. The second is a variable who's value is an XML document whose document element conforms to the indicated XML Schema type or XML Element declaration, similar to the element case above.
@@ -140,12 +140,12 @@ Ballerina will not always perform runtime schema validation as that will inhibit
 
 > NOTE: The Ballerina runtime implementation in version 0.8 does not currently support the scheme constraining mechanism explained above.
 
-Literal XML values can be assigned to `xml` and `xmlDocument` typed variables as follows:
+Literal XML values can be assigned to `xml` and `xmldocument` typed variables as follows:
 
 ```
 xml VariableName = `<xml-element-name [namespace declarations] [attributes]>element-content</xml-element-name>`;
 ```
-The same syntax is used to assign a literal value to a variable of type `xmlDocument`.
+The same syntax is used to assign a literal value to a variable of type `xmldocument`.
 
 Within the literal XML expression (enclosed within back quote characters), other in-scope variables can be referred to use the syntax `${VariableName}` and that will be replaced by the value of the variable.
 
