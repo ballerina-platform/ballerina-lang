@@ -16,7 +16,7 @@
  *  under the License.
  */
 
-package org.wso2.ballerina.test.connector.http;
+package org.ballerinalang.test.connector.http;
 
 import org.osgi.service.component.annotations.Component;
 import org.slf4j.Logger;
@@ -33,41 +33,44 @@ import org.ballerinalang.natives.annotations.BallerinaAction;
 import org.ballerinalang.natives.connectors.AbstractNativeAction;
 import org.wso2.carbon.messaging.CarbonMessage;
 
+import java.util.Locale;
+
 import static org.ballerinalang.natives.connectors.http.Constants.HTTP_METHOD;
-import static org.ballerinalang.natives.connectors.http.Constants.HTTP_METHOD_POST;
 
 /**
- * {@code DummyPost} is the POST action implementation of the HTTP Connector
+ * {@code DummyExecute} action can be used to invoke execute a http call with any httpVerb
  *
  */
 @BallerinaAction(
         packageName = "ballerina.net.http",
-        actionName = "post",
+        actionName = "execute",
         connectorName = DummyHTTPConnector.CONNECTOR_NAME,
         args = {
                 @Argument(name = "connector",
                         type = TypeEnum.CONNECTOR),
+                @Argument(name = "httpVerb", type = TypeEnum.STRING),
                 @Argument(name = "path", type = TypeEnum.STRING),
                 @Argument(name = "message", type = TypeEnum.MESSAGE)
         },
         returnType = {TypeEnum.MESSAGE})
 @Component(
-        name = "action.net.http.dummy_post",
+        name = "action.net.http.dummy_execute",
         immediate = true,
         service = AbstractNativeAction.class)
-public class DummyPost extends AbstractHTTPAction {
+public class DummyExecute extends AbstractHTTPAction {
 
-    private static final Logger logger = LoggerFactory.getLogger(DummyPost.class);
+    private static final Logger logger = LoggerFactory.getLogger(DummyExecute.class);
 
     @Override
     public BValue execute(Context context) {
 
-        logger.debug("Executing Native Action : DummyPost");
+        logger.debug("Executing Native Action : DummyExecute");
 
         // Extract Argument values
         BConnector connectorValue = (BConnector) getArgument(context, 0);
-        String path = getArgument(context, 1).stringValue();
-        BMessage messageValue = (BMessage) getArgument(context, 2);
+        String httpVerb = getArgument(context, 1).stringValue();
+        String path = getArgument(context, 2).stringValue();
+        BMessage messageValue = (BMessage) getArgument(context, 3);
 
         Connector connector = connectorValue.value();
         if (!(connector instanceof DummyHTTPConnector)) {
@@ -78,10 +81,14 @@ public class DummyPost extends AbstractHTTPAction {
         // Prepare the message
         CarbonMessage cMsg = messageValue.value();
         prepareRequest(connector, path, cMsg);
-        cMsg.setProperty(HTTP_METHOD, HTTP_METHOD_POST);
+
+        if (httpVerb == null || "".equals(httpVerb)) { // If the verb is not specified, use the verb in incoming message
+            httpVerb = (String) cMsg.getProperty(HTTP_METHOD);
+        }
+        cMsg.setProperty(HTTP_METHOD, httpVerb.trim().toUpperCase(Locale.getDefault()));
 
         // DummyExecute the operation
-        messageValue.setBuiltPayload(new BString("DummyPost method invoked."));
+        messageValue.setBuiltPayload(new BString("Default method invoked."));
         messageValue.setAlreadyRead(true);
 
         return messageValue;

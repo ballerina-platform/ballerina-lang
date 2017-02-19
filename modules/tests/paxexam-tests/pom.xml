@@ -20,7 +20,7 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <groupId>org.wso2.ballerina</groupId>
+        <groupId>org.ballerinalang</groupId>
         <artifactId>tests</artifactId>
         <version>0.8.0-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
@@ -74,7 +74,7 @@
             <version>${carbon.kernel.pax.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.wso2.ballerina</groupId>
+            <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-test-distribution</artifactId>
             <version>${ballerina.version}</version>
             <type>zip</type>
@@ -107,7 +107,7 @@
                                 </org.ops4j.pax.url.mvn.localRepository>
                                 <jacoco-agent.destfile>${project.build.directory}/jacoco.exec</jacoco-agent.destfile>
                                 <org.wso2.carbon.test.default.distribution>
-                                    org.wso2.ballerina:ballerina-test-distribution
+                                    org.ballerinalang:ballerina-test-distribution
                                 </org.wso2.carbon.test.default.distribution>
                                 <org.ops4j.pax.logging.DefaultServiceLog.level>
                                     ERROR

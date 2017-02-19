@@ -16,7 +16,7 @@
  *  under the License.
  */
 
-package org.wso2.ballerina.test.connector.http;
+package org.ballerinalang.test.connector.http;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
