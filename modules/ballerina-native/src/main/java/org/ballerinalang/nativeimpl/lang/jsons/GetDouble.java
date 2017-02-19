@@ -16,7 +16,7 @@
  * under the License.
  **/
 
-package org.ballerinalang.nativeimpl.lang.jsonutils;
+package org.ballerinalang.nativeimpl.lang.jsons;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.jayway.jsonpath.InvalidPathException;
