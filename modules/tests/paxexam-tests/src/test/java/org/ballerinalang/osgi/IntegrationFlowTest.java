@@ -16,7 +16,7 @@
  *  under the License.
  */
 
-package org.wso2.ballerina.osgi;
+package org.ballerinalang.osgi;
 
 import org.ops4j.pax.exam.Configuration;
 import org.ops4j.pax.exam.ExamFactory;

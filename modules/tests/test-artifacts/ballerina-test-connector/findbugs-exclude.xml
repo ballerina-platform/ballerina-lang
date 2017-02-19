@@ -20,7 +20,7 @@
         <Package name="org.ballerinalang.model.values"/>
     </Match>
     <Match>
-        <Package name="org.wso2.ballerina.interpreter"/>
+        <Package name="org.ballerinalang.interpreter"/>
     </Match>
     <Match>
         <Package name="org.ballerinalang.model.statements"/>
@@ -41,6 +41,6 @@
         <Package name="org.ballerinalang.core.parser"/>
     </Match>
     <Match>
-        <Package name="org.wso2.ballerina.test.connectors"/>
+        <Package name="org.ballerinalang.test.connectors"/>
     </Match>
 </FindBugsFilter>
