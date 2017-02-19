@@ -143,7 +143,7 @@ service orderProcessService {
 ```
 
 **Note:**
-Here, `file:acknowledge(m)` is a function that is exclusive for file processing. See [Acknowledge](#Acknowledge) below for details. 
+Here, `file:acknowledge(m)` is a function that is exclusive for file processing. See the function description below for details. 
 
 ## Step 5: Add dependency jars
 
