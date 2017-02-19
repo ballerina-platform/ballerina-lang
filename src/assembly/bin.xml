@@ -26,15 +26,21 @@
     <fileSets>
         <fileSet>
             <directory>
-                ${project.build.directory}/extracted-distributions/ballerina-${ballerina.distribution.version}
+                ${project.build.directory}/extracted-distributions/ballerina-distribution-${ballerina.distribution.version}-zip/ballerina-${ballerina.distribution.version}
             </directory>
             <outputDirectory>.</outputDirectory>
         </fileSet>
         <fileSet>
             <directory>
-                ${project.build.directory}/extracted-distributions/ballerina-composer-${ballerina.composer.distribution.version}
+                ${project.build.directory}/extracted-distributions/ballerina-composer-distribution-${ballerina.composer.distribution.version}-zip/ballerina-composer-${ballerina.composer.distribution.version}
             </directory>
             <outputDirectory>.</outputDirectory>
+        </fileSet>
+        <fileSet>
+            <directory>
+                ${project.build.directory}/extracted-distributions/testerina-core-${testerina.version}-jar//META-INF/natives
+            </directory>
+            <outputDirectory>src</outputDirectory>
         </fileSet>
     </fileSets>
 
