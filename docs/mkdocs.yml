@@ -8,6 +8,7 @@ pages:
 - Quick Tour: 'quick-tour.md'
 - Write your First Program: 'tutorials/first-program.md'
 - Key Concepts: 'key-concepts.md'
+- Tools: 'tools.md'
 - Samples: 'samples.md'
 - Language Reference: 'model-ref/index.md'
     - Overview: 'lang-ref/lang-overview.md'
