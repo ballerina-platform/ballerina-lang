@@ -69,8 +69,6 @@ public class SwaggerConverterUtils {
      * Maximum loop count when creating temp directories.
      */
     private static final int TEMP_DIR_ATTEMPTS = 10000;
-    public static final String RESOURCE_UUID_NAME = "x-UniqueResourceKey";
-    public static final String VARIABLE_UUID_NAME = "x-UniqueVariableKey";
 
     /**
      * This method will extract service definitions from ballerina source
@@ -266,7 +264,8 @@ public class SwaggerConverterUtils {
             //annotation map and array. But there is no way to update array other than
             //constructor method.
             resourceBuilder.setName(entry.nickname);
-            resourceBuilder.setName((String) entry.vendorExtensions.get(RESOURCE_UUID_NAME));
+            resourceBuilder.setName((String) entry.vendorExtensions.
+                    get(SwaggerBallerinaConstants.RESOURCE_UUID_NAME));
             //Following code block will generate message input parameter definition for newly created
             //resource as -->	resource TestPost(message m) {
             //This logic can be improved to pass user defined types.
@@ -387,7 +386,7 @@ public class SwaggerConverterUtils {
             Map<String, Annotation> annotationMap = new ConcurrentHashMap<>();
             for (Annotation originalAnnotation : annotations) {
                 //Add original annotations
-                if (!originalAnnotation.getName().matches(SwaggerResourceMapper.HTTP_VERB_MATCHING_PATTERN)) {
+                if (!originalAnnotation.getName().matches(SwaggerBallerinaConstants.HTTP_VERB_MATCHING_PATTERN)) {
                     annotationMap.put(originalAnnotation.getName(), originalAnnotation);
                 }
             }
@@ -422,7 +421,7 @@ public class SwaggerConverterUtils {
         for (Annotation annotation : ballerinaResource.getAnnotations()) {
             if (annotation.getName().equalsIgnoreCase("http:Path")) {
                 path = annotation.getValue();
-            } else if (annotation.getName().matches(SwaggerResourceMapper.HTTP_VERB_MATCHING_PATTERN)) {
+            } else if (annotation.getName().matches(SwaggerBallerinaConstants.HTTP_VERB_MATCHING_PATTERN)) {
                 verb = annotation.getName();
             }
         }
