@@ -36,7 +36,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
         packageName = "ballerina.lang.system",
         functionName = "log",
         args = {@Argument(name = "logLevel", type = TypeEnum.INT),
-                @Argument(name = "double", type = TypeEnum.DOUBLE)},
+                @Argument(name = "d", type = TypeEnum.DOUBLE)},
         isPublic = true,
         consts = {
                 @BallerinaConstant(identifier = "LOG_LEVEL_TRACE", type = TypeEnum.INT, value = "1",
