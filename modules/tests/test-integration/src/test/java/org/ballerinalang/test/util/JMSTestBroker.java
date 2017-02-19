@@ -27,14 +27,26 @@ import javax.jms.ConnectionFactory;
 /**
  * JMS Provider for the test case.
  */
-public class JMSBroker {
-    private static ConnectionFactory connectionFactory = new ActiveMQConnectionFactory(Constant.ACTIVEMQ_PROVIDER_URL);
-    private static BrokerService broker;
+public class JMSTestBroker {
+    private ConnectionFactory connectionFactory = new ActiveMQConnectionFactory(Constant.ACTIVEMQ_PROVIDER_URL);
+    private BrokerService broker;
+    private static JMSTestBroker instance = new JMSTestBroker();
 
-    static {
+    /**
+     * Creates a JMS Broker.
+     */
+    private JMSTestBroker() {
         broker = new BrokerService();
         broker.setPersistent(false);
         broker.setUseJmx(true);
+    }
+
+    /**
+     * To get the instance of the JMS Broker.
+     * @return instance of the JMS Broker
+     */
+    public static JMSTestBroker getInstance() {
+        return instance;
     }
 
     /**
@@ -42,7 +54,7 @@ public class JMSBroker {
      *
      * @return Connection factory of the particular jms provider
      */
-    public static ConnectionFactory getConnectionFactory() {
+    public ConnectionFactory getConnectionFactory() {
         return connectionFactory;
     }
 
@@ -51,10 +63,21 @@ public class JMSBroker {
      *
      * @throws Exception Exception that can be thrown when adding the connector
      */
-    public static void startBroker() throws Exception {
+    public void startBroker() throws Exception {
         if (!broker.isStarted()) {
             broker.addConnector("tcp://localhost:61616");
             broker.start();
+        }
+    }
+
+    /**
+     * To stop the JMS broker
+     *
+     * @throws Exception Exception that can be thrown when stopping the broker
+     */
+    public void stopBroker() throws Exception {
+        if (broker.isStarted() && !broker.isStopped()) {
+            broker.stop();
         }
     }
 }

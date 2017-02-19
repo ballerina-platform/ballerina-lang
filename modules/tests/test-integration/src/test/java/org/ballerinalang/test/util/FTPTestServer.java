@@ -28,9 +28,10 @@ import org.apache.ftpserver.usermanager.PropertiesUserManagerFactory;
 import org.apache.ftpserver.usermanager.impl.BaseUser;
 import org.apache.ftpserver.usermanager.impl.WritePermission;
 import org.ballerinalang.test.context.Constant;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -39,10 +40,39 @@ import java.util.List;
  */
 public class FTPTestServer {
     private static FTPTestServer instance = new FTPTestServer();
+    private Logger logger = LoggerFactory.getLogger(FTPTestServer.class);
     private FtpServer ftpServer;
+
+    private FTPTestServer() {
+        PropertiesUserManagerFactory userManagerFactory = new PropertiesUserManagerFactory();
+        UserManager userManager = userManagerFactory.createUserManager();
+        BaseUser user = new BaseUser();
+        user.setName("username");
+        user.setPassword("password");
+        ClassLoader classLoader = getClass().getClassLoader();
+        String fileURI = new File(classLoader.getResource(Constant.FTP_LOCATION).getFile()).getAbsolutePath();
+        List<Authority> authorities = new ArrayList<Authority>();
+        authorities.add(new WritePermission());
+        user.setAuthorities(authorities);
+        user.setHomeDirectory(fileURI);
+        try {
+            userManager.save(user);
+        } catch (FtpException e) {
+            logger.error("Exception occured while saving the user.", e);
+        }
+
+        ListenerFactory listenerFactory = new ListenerFactory();
+        listenerFactory.setPort(2221);
+
+        FtpServerFactory factory = new FtpServerFactory();
+        factory.setUserManager(userManager);
+        factory.addListener("default", listenerFactory.createListener());
+        ftpServer = factory.createServer();
+    }
 
     /**
      * To get the instance of FTPTestServer.
+     *
      * @return instance of the FTPTestServer
      */
     public static FTPTestServer getInstance() {
@@ -51,33 +81,19 @@ public class FTPTestServer {
 
     /**
      * To start the FTP server.
+     *
      * @throws FtpException FTP Exception
-     * @throws IOException IO Exception
      */
-    public void start() throws FtpException, IOException {
-        PropertiesUserManagerFactory userManagerFactory = new PropertiesUserManagerFactory();
-        UserManager userManager = userManagerFactory.createUserManager();
-        BaseUser user = new BaseUser();
-        user.setName("username");
-        user.setPassword("password");
-        ClassLoader classLoader = getClass().getClassLoader();
-        String fileURI = new File(classLoader.getResource(Constant.VFS_LOCATION).getFile()).getAbsolutePath();
-        List<Authority> authorities = new ArrayList<Authority>();
-        authorities.add(new WritePermission());
-        user.setAuthorities(authorities);
-        user.setHomeDirectory(fileURI);
-        userManager.save(user);
+    public void start() throws FtpException {
+        ftpServer.start();
+    }
 
-        ListenerFactory listenerFactory = new ListenerFactory();
-        listenerFactory.setPort(2221);
-
-        FtpServerFactory factory = new FtpServerFactory();
-        factory.setUserManager(userManager);
-        factory.addListener("default", listenerFactory.createListener());
-
-        if (ftpServer == null) {
-            ftpServer = factory.createServer();
-            ftpServer.start();
+    /**
+     * Tos top the FTP server
+     */
+    public void stop() {
+        if (!ftpServer.isStopped()) {
+            ftpServer.stop();
         }
     }
 }
