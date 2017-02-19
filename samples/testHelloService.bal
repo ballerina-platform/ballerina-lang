@@ -1,6 +1,6 @@
 import ballerina.lang.messages as message;
-import ballerina.lang.mock;
-import ballerina.lang.test;
+import ballerina.mock;
+import ballerina.test;
 import ballerina.net.http;
 import ballerina.lang.system;
 
