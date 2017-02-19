@@ -104,11 +104,9 @@ message VarName = {};
 
 ### Type: `exception`
 
-The `exception` type, like `message`, is an opaque type used to hold an exception. A collection of library functions can use to set and get properties of exceptions, including stack traces. Note that unlike other languages, Ballerina does not allow developers to define subtypes of the exception type and custom exceptions must be thrown by using customer type strings. As such exception type strings starting with "Ballerina:" are reserved for system use only.
+The `exception` type, like `message`, is an opaque type used to hold an exception.
 
-Library functions for accessing information from this type are in the package `ballerina.lang.exceptions`.
-
-> NOTE: There will be more capabilities brought to exceptions in future.
+See [Exception Handling](exceptions.md) for more information on exception handling and the `exception` type.
 
 ### Type: `map`
 
