@@ -33,6 +33,7 @@ ConnectionFactoryName | string | The JNDI name of the connection factory. | -
 DestinationName | string | The JNDI name of the destination. | The JNDI name of the destination.
 DestinationType | string | The type of the destinaiton. | queue/topic. If not given taken as queue.
 PropertyMap | map | A map of ballerina optional properties. | A valid ballerina map.
+MessageType | string | The message type needed to be sent | TextMessage<br>BytesMessage<br>ObjectMessage<br>MapMessage
 Message | message | The message conaining the payload to be sent. | A Ballerina message.
 
 Optional parameters that can be defined in propertyMap:
@@ -47,18 +48,20 @@ ConnectionCacheLevel | int | Caching level required when sending messages. | 0 -
 
 Example :-
 ```
-message queueMessage;
-messages:setStringPayload(queueMessage, "Hello from Ballerina");
-jms:ClientConnector.send(jmsConnector, "QueueConnectionFactory", "MyQueue", "TextMessage",  queueMessage);
+message queueMessage = {};
+map dataMap;
+dataMap = {};
+messages:setStringPayload(queueMessage, "Hello from ballerina");
+jms:JMSConnector.send(jmsEP, "QueueConnectionFactory", "MyQueue", "queue", "TextMessage", queueMessage, dataMap);
 ```
 
 Given below is a sample Ballerina function depicting the creation of a JMS client connector.
 ```
-function send() {
-jms:ClientConnector jmsConnector = new jms:ClientConnector("org.wso2.andes.jndi.PropertiesFileInitialContextFactory", "jndi.properties");
-message queueMessage;
-messages:setStringPayload(queueMessage, "Hello from ballerina");
-jms:ClientConnector.send(jmsConnector, "QueueConnectionFactory", "MyQueue", "TextMessage", queueMessage);
-}
-
+jms:JMSConnector jmsEP = create jms:JMSConnector("org.wso2.andes.jndi.PropertiesFileInitialContextFactory", "jndi.properties");
+message queueMessage = {};
+map dataMap;
+dataMap = { "country" : "US", "currency" : "Dollar" , "states" : "50"};
+map propertyMap;
+propertyMap = { "MapData" : dataMap};
+jms:JMSConnector.send(jmsEP, "QueueConnectionFactory", "MyQueue", "queue", "MapMessage", queueMessage, propertyMap);
 ```
