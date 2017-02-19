@@ -315,6 +315,7 @@ define(['lodash', 'jquery', './ballerina-view', 'log', 'typeMapper', './../ast/a
 
             }else{
                 functionInvocationExpression.remove();
+                parentOfFunctionInvocationExpression.addChild(BallerinaASTFactory.createVariableReferenceExpression());
             }
             if(!_.isUndefined(innerFunctionInvocationExpression)){
 
