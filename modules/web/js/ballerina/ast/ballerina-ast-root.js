@@ -42,8 +42,10 @@ define(['lodash', 'log', './node', './import-declaration'],
         // Listener to tree modified event.
         this.on('tree-modified', function (e) {
             // Add new imports on new child added to the canvas.
+            // Ignore if already added or if it is a current package
             var addImportOnTreeChange = function (fullPackageName) {
-                if (!self.isExistingPackage(fullPackageName)) {
+                if (!self.isExistingPackage(fullPackageName)
+                    && !_.isEqual(fullPackageName, "Current Package")) {
                     var importDeclaration = self.getFactory().createImportDeclaration();
                     importDeclaration.setPackageName(fullPackageName);
                     self.addImport(importDeclaration);

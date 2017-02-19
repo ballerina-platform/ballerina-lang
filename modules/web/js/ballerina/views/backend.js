@@ -49,6 +49,9 @@ define(['log', 'lodash', 'jquery', 'event_channel'],
             dataType: "json",
             success: function (response) {
                 data = response;
+                if (data.errorMessage) {
+                    data = {"error":true, "message":data.errorMessage};
+                }
             },
             error: function(xhr, textStatus, errorThrown){
                 data = {"error":true, "message":"Unable to render design view due to parser errors."};

@@ -67,7 +67,8 @@ public class SwaggerConverterUtils {
      * Maximum loop count when creating temp directories.
      */
     private static final int TEMP_DIR_ATTEMPTS = 10000;
-    public static final String RESOURCE_UUID_NAME = "x-UniqueKey";
+    public static final String RESOURCE_UUID_NAME = "x-UniqueResourceKey";
+    public static final String VARIABLE_UUID_NAME = "x-UniqueVariableKey";
 
     /**
      * This method will extract service definitions from ballerina source
@@ -81,7 +82,9 @@ public class SwaggerConverterUtils {
         List<Service> services = new ArrayList<Service>();
         for (CompilationUnit compilationUnit : bFile.getCompilationUnits()) {
             Service service = compilationUnit instanceof Service ? ((Service) compilationUnit) : null;
-            services.add(service);
+            if (service != null) {
+                services.add(service);
+            }
         }
         return services.toArray(new Service[services.size()]);
     }
@@ -141,11 +144,11 @@ public class SwaggerConverterUtils {
             resources1 = mapSwaggerPathsToResources(ops);
         }
         List<Annotation> serviceAnnotationArrayList = new ArrayList<Annotation>();
-        serviceAnnotationArrayList.add(new Annotation(null, new SymbolName("BasePath"),
+        serviceAnnotationArrayList.add(new Annotation(null, new SymbolName("http:BasePath"),
                 swagger.getBasePath(), null));
-        serviceAnnotationArrayList.add(new Annotation(null, new SymbolName("Host"),
+        serviceAnnotationArrayList.add(new Annotation(null, new SymbolName("http:Host"),
                 swagger.getHost(), null));
-        serviceAnnotationArrayList.add(new Annotation(null, new SymbolName("Info"),
+        serviceAnnotationArrayList.add(new Annotation(null, new SymbolName("http:Info"),
                 Json.pretty(swagger.getInfo()).toString(), null));
         service.setAnnotations(serviceAnnotationArrayList.toArray(
                 new Annotation[serviceAnnotationArrayList.size()]));
@@ -201,33 +204,41 @@ public class SwaggerConverterUtils {
             resourceBuilder.setName(operationId);
             if (entry.hasConsumes) {
                 resourceBuilder.addAnnotation(
-                        new Annotation(null, new SymbolName("Consumes"), entry.consumes.toString(), null));
+                        new Annotation(null, new SymbolName("http:Consumes"),
+                                entry.consumes.get(0).get("mediaType").toString(), null));
             }
             if (entry.hasProduces) {
                 resourceBuilder.addAnnotation(
-                        new Annotation(null, new SymbolName("Produces"), entry.produces.toString(), null));
+                        new Annotation(null, new SymbolName("http:Produces"),
+                                entry.produces.get(0).get("mediaType"), null));
             }
             if (entry.summary != null) {
                 resourceBuilder.addAnnotation(
-                        new Annotation(null, new SymbolName("Summary"), entry.summary.toString(), null));
+                        new Annotation(null, new SymbolName("http:Summary"),
+                                entry.summary.toString(), null));
             }
             if (entry.notes != null) {
                 resourceBuilder.addAnnotation(
-                        new Annotation(null, new SymbolName("Description"), entry.notes.toString(), null));
+                        new Annotation(null, new SymbolName("http:Description"),
+                                entry.notes.toString(), null));
             }
             if (entry.path != null && entry.path.length() > 0) {
                 resourceBuilder
-                        .addAnnotation(new Annotation(null, new SymbolName("Path"), entry.path.toString(), null));
+                        .addAnnotation(new Annotation(null, new SymbolName("http:Path"),
+                                entry.path.toString(), null));
             }
+
             if (entry.httpMethod != null && entry.httpMethod.length() > 0) {
-                resourceBuilder.addAnnotation(new Annotation(null, new SymbolName(httpMethod), "", null));
+                resourceBuilder.addAnnotation(new Annotation(null, new SymbolName("http:" + httpMethod),
+                        "", null));
             }
             //handle parameters
             if (entry.getHasQueryParams()) {
                 for (CodegenParameter codegenParameter : entry.queryParams) {
+                    //TODO compare and merge if existing parameter edited.
                     ParameterDef parameterDef = new ParameterDef(
                             new NodeLocation("<unknown>", 0), codegenParameter.paramName,
-                            new SimpleTypeName(codegenParameter.baseType), new SymbolName("m"),
+                            new SimpleTypeName(codegenParameter.dataType), new SymbolName("m"),
                             resourceBuilder.buildResource());
                     Annotation annotation = new Annotation(null, new SymbolName("http:QueryParam"),
                             codegenParameter.baseName, null);
@@ -237,9 +248,10 @@ public class SwaggerConverterUtils {
             }
             if (entry.getHasPathParams()) {
                 for (CodegenParameter codegenParameter : entry.pathParams) {
+                    //TODO compare and merge if existing parameter edited.
                     ParameterDef parameterDef = new ParameterDef(
                             new NodeLocation("<unknown>", 0), codegenParameter.paramName,
-                            new SimpleTypeName(codegenParameter.baseType), new SymbolName("m"),
+                            new SimpleTypeName(codegenParameter.dataType), new SymbolName("m"),
                             resourceBuilder.buildResource());
                     Annotation annotation = new Annotation(null, new SymbolName("http:PathParam"),
                             codegenParameter.baseName, null);
@@ -257,7 +269,8 @@ public class SwaggerConverterUtils {
             //resource as -->	resource TestPost(message m) {
             //This logic can be improved to pass user defined types.
             ParameterDef parameterDef = new ParameterDef(
-                    new NodeLocation("<unknown>", 0), "m", new SimpleTypeName("message"), new SymbolName("m"),
+                    new NodeLocation("<unknown>", 0), "m", new SimpleTypeName("message"),
+                    new SymbolName("m"),
                     resourceBuilder.buildResource());
             //Then add created parameter.
             resourceBuilder.addParameter(parameterDef);
@@ -326,7 +339,8 @@ public class SwaggerConverterUtils {
                     for (Worker worker : originalResource.getWorkers()) {
                         resourceBuilder.addWorker(worker);
                     }
-                    for (ParameterDef parameterDef : originalResource.getParameterDefs()) {
+                    //TODO Add swagger parameters defs and ballerina both. This need to perform as merge.
+                    for (ParameterDef parameterDef : resource.getParameterDefs()) {
                         resourceBuilder.addParameter(parameterDef);
                     }
                     for (ParameterDef parameterDef : originalResource.getReturnParameters()) {
@@ -462,7 +476,7 @@ public class SwaggerConverterUtils {
         String path = "/";
         String verb = "";
         for (Annotation annotation : ballerinaResource.getAnnotations()) {
-            if (annotation.getName().equalsIgnoreCase("Path")) {
+            if (annotation.getName().equalsIgnoreCase("http:Path")) {
                 path = annotation.getValue();
             } else if (annotation.getName().matches(SwaggerResourceMapper.HTTP_VERB_MATCHING_PATTERN)) {
                 verb = annotation.getName();

@@ -11,6 +11,10 @@
     /*display: none;*/
 }
 
+.ace_gutter-cell{
+    cursor: pointer;
+}
+
 .ace_gutter-cell.ace_breakpoint{ 
     background: rgba(255, 181, 163, 0.2);
     background-image: url(../images/debug-point.svg);

@@ -37,10 +37,10 @@ public class DefaultExceptionMapper implements ExceptionMapper<Exception> {
      */
     @Override
     public Response toResponse(Exception exception) {
-        logger.error("error: failed to generate JSON data model for ballerina file", exception.getMessage());
+        logger.error("Error in BLang parser rest service for composer", exception.getMessage());
         JsonObject entity = new JsonObject();
-        entity.addProperty("Error", "Error Generating JSON Model");
-        return Response.status(Response.Status.BAD_REQUEST)
+        entity.addProperty("errorMessage", "Error in BLang parser rest service for composer: " + exception.getMessage());
+        return Response.status(Response.Status.OK)
                 .entity(entity)
                 .header("Access-Control-Allow-Origin", '*')
                 .type(MediaType.APPLICATION_JSON)

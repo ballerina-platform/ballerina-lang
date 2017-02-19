@@ -39,8 +39,9 @@ public class SwaggerResourceMapper {
             HTTP_PACKAGE_PREFIX + Constants.ANNOTATION_METHOD_PUT + "|" +
             HTTP_PACKAGE_PREFIX + Constants.ANNOTATION_METHOD_POST + "|" +
             HTTP_PACKAGE_PREFIX + Constants.ANNOTATION_METHOD_DELETE + "|" +
-            HTTP_PACKAGE_PREFIX + Constants.ANNOTATION_METHOD_OPTIONS +
-            HTTP_PACKAGE_PREFIX + Constants.ANNOTATION_METHOD_PATCH + "http:HEAD";
+            HTTP_PACKAGE_PREFIX + Constants.ANNOTATION_METHOD_OPTIONS + "|" +
+            HTTP_PACKAGE_PREFIX + Constants.ANNOTATION_METHOD_PATCH + "|" +
+            "http:HEAD";
     private Resource resource;
     private Operation operation;
 
@@ -134,18 +135,6 @@ public class SwaggerResourceMapper {
 
 
     /**
-     * Converts operation into a resource.
-     *
-     * @param pathMap
-     * @return resources
-     */
-    protected Resource[] convertOperationsToResources(Map<String, Path> pathMap) {
-        // TODO need to implement this
-        throw new UnsupportedOperationException("Converting operations to resources is not implemented yet!");
-    }
-
-
-    /**
      * This method will convert ballerina @Resource to ballerina @OperationAdaptor
      *
      * @param resource @Resource array to be convert.
@@ -172,6 +161,8 @@ public class SwaggerResourceMapper {
                         QueryParameter queryParameter = new QueryParameter();
                         queryParameter.setType(typeName);
                         queryParameter.setIn("query");
+                        queryParameter.setVendorExtension(SwaggerConverterUtils.VARIABLE_UUID_NAME,
+                                parameterDef.getName());
                         queryParameter.setName(parameterDef.getName());
                         queryParameter.required(true);
                         op.getOperation().addParameter(queryParameter);
@@ -181,6 +172,8 @@ public class SwaggerResourceMapper {
                         pathParameter.setType(typeName);
                         pathParameter.setName(parameterDef.getName());
                         pathParameter.setIn("path");
+                        pathParameter.setVendorExtension(SwaggerConverterUtils.VARIABLE_UUID_NAME,
+                                parameterDef.getName());
                         pathParameter.required(true);
                         op.getOperation().addParameter(pathParameter);
                     }
@@ -189,15 +182,15 @@ public class SwaggerResourceMapper {
             if (resourceAnnotations != null) {
                 //TODO add all supported annotation mapping after annotation model finalized.
                 for (Annotation annotation : resourceAnnotations) {
-                    if (annotation.getName().equalsIgnoreCase("Consumes")) {
+                    if (annotation.getName().equalsIgnoreCase("http:Consumes")) {
                         op.getOperation().consumes(annotation.getValue());
-                    } else if (annotation.getName().equalsIgnoreCase("Produces")) {
+                    } else if (annotation.getName().equalsIgnoreCase("http:Produces")) {
                         op.getOperation().produces(annotation.getValue());
-                    } else if (annotation.getName().equalsIgnoreCase("Path")) {
+                    } else if (annotation.getName().equalsIgnoreCase("http:Path")) {
                         op.setPath(annotation.getValue());
-                    } else if (annotation.getName().equalsIgnoreCase("Summary")) {
+                    } else if (annotation.getName().equalsIgnoreCase("http:Summary")) {
                         op.getOperation().setSummary(annotation.getValue());
-                    } else if (annotation.getName().equalsIgnoreCase("Description")) {
+                    } else if (annotation.getName().equalsIgnoreCase("http:Description")) {
                         op.getOperation().setDescription(annotation.getValue());
                     } else if (annotation.getName().matches(HTTP_VERB_MATCHING_PATTERN)) {
                         op.setHttpOperation(annotation.getName());
