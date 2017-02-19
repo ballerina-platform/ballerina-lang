@@ -306,7 +306,8 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                     toolPalette: this.toolPalette,
                     messageManager: this.messageManager,
                     diagramRenderContext: this.getDiagramRenderingContext(),
-                    line: {height: lineHeight}
+                    line: {height: lineHeight},
+                    title: workerDeclaration.getWorkerName()
                 };
                 var workerDeclarationView = new WorkerDeclarationView(workerDeclarationOptions);
                 workerDeclarationView.setParent(this);
