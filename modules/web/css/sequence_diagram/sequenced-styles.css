@@ -547,3 +547,9 @@ text-anchor: start;
     stroke: #000;
     fill: #000;
 }
+
+.worker-lifeline-grayed {
+    fill: #e2e2e2;
+    stroke: #000000;
+    stroke-width: 2px;
+}

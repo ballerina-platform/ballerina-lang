@@ -78,6 +78,8 @@ define(['lodash', 'jquery', './ballerina-view', './../ast/worker-declaration', '
 
         WorkerDeclarationView.prototype.render = function (diagramRenderingContext) {
             Object.getPrototypeOf(this.constructor.prototype).render.call(this, diagramRenderingContext);
+            this._topPolygon.classed("worker-lifeline-grayed", true);
+            this._bottomPolygon.classed("worker-lifeline-grayed", true);
         };
 
         WorkerDeclarationView.prototype.setModel = function (model) {
