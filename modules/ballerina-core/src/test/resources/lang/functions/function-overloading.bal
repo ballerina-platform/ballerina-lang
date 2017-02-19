@@ -10,7 +10,7 @@ function testOverloading(int a) (int) {
     return a;
 }
 
-function testOverloading(long a) {
+function testOverloading(float a) {
     string dummy = "dummy";
 }
 

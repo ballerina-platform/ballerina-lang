@@ -62,6 +62,6 @@ public final class BFloat extends BValueType {
 
     @Override
     public boolean equals(Object obj) {
-        return ((BFloat) obj).floatValue() == value;
+        return ((BFloat) obj).doubleValue() == value;
     }
 }

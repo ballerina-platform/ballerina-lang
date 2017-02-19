@@ -21,7 +21,6 @@ package org.ballerinalang.model.expressions;
 import org.ballerinalang.core.utils.BTestUtils;
 import org.ballerinalang.model.BLangProgram;
 import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BDouble;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
@@ -129,15 +128,15 @@ public class NotEqualExprTest {
         Assert.assertEquals(actual, expected);
     }
 
-    @Test(description = "Test Float and Double equal expression")
+    @Test(description = "Test Float and Integer equal expression")
     public void testFloatAndDoubleEqualExpr() {
-        float a = 20.2f;
-        double b = 20.2d;
+        float a = 20f;
+        int b = 20;
 
         // Should be false since float is a approximation, not an exact number
         boolean expectedResult = (a == b);
 
-        BValue[] args = {new BFloat(a), new BDouble(b)};
+        BValue[] args = {new BFloat(a), new BInteger(b)};
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "checkFloatAndDoubleEquality", args);
 
 

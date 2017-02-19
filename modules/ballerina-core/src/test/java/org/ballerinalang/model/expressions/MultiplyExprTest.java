@@ -20,10 +20,8 @@ package org.ballerinalang.model.expressions;
 
 import org.ballerinalang.core.utils.BTestUtils;
 import org.ballerinalang.model.BLangProgram;
-import org.ballerinalang.model.values.BDouble;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BLong;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.exceptions.SemanticException;
 import org.ballerinalang.util.program.BLangFunctions;
@@ -56,19 +54,6 @@ public class MultiplyExprTest {
         Assert.assertEquals(actual, expected);
     }
 
-//    @Test(description = "Test two long multiply expression")
-    public void testLongMultiplyExpr() {
-        BValue[] args = { new BLong(10), new BLong(50) };
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "longMultiply", args);
-
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BLong.class);
-
-        long actual = ((BLong) returns[0]).longValue();
-        long expected = 500;
-        Assert.assertEquals(actual, expected);
-    }
-
     @Test(description = "Test two float multiply expression")
     public void testFloatMultiplyExpr() {
         BValue[] args = { new BFloat(40.0f), new BFloat(40.0f) };
@@ -79,19 +64,6 @@ public class MultiplyExprTest {
 
         float actual = ((BFloat) returns[0]).floatValue();
         float expected = 1600.0f;
-        Assert.assertEquals(actual, expected);
-    }
-
-//    @Test(description = "Test two double multiply expression")
-    public void testDoubleMultiplyExpr() {
-        BValue[] args = { new BDouble(8), new BDouble(2) };
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "doubleMultiply", args);
-
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BDouble.class);
-
-        double actual = ((BDouble) returns[0]).doubleValue();
-        double expected = 16;
         Assert.assertEquals(actual, expected);
     }
     

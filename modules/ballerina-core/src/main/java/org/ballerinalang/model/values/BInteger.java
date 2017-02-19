@@ -62,6 +62,6 @@ public final class BInteger extends BValueType {
 
     @Override
     public boolean equals(Object obj) {
-        return ((BInteger) obj).intValue() == value;
+        return ((BInteger) obj).longValue() == value;
     }
 }
