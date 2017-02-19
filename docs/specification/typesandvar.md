@@ -40,6 +40,8 @@ Ballerina includes the following value types:
 
 The types `int` and `float` both support 64-bit IEEE754 arithmetic. The `boolean` type has only two values: `true` and `false`. The `string` type operates similar to value types in that assignment and comparison involve the full value and not the pointer.
 
+> NOTE: Earlier versions of the language (while it was under development) we had additional types such as long and double. Those have been removed but there are some remnants in the implementation. The only valid value types are those listed above and the implementation will be cleaned up shortly.
+
 Value types can be initialized at declaration by assigning a value of that type. If they are not initialized they have the following default values: int: 0, float: 0.0, string: "" (empty string, not null) and boolean: false.
 
 > NOTE: We are considering making the default value of a string to be null.
