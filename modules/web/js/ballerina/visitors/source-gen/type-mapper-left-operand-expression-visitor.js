@@ -30,9 +30,6 @@ define(['require', 'lodash', 'log', 'event_channel', './abstract-statement-sourc
         };
 
         TypeMapperLeftOperandExpressionVisitor.prototype.beginVisitLeftOperandExpression = function (leftOperandExpression) {
-            if (!_.isUndefined(leftOperandExpression.getLeftOperandExpressionString())) {
-                this.appendSource(leftOperandExpression.getLeftOperandExpressionString());
-            }
             log.debug('Begin Visit Type Mapper Left Operand Expression');
         };
 

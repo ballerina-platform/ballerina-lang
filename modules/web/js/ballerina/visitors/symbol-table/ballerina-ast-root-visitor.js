@@ -43,7 +43,7 @@ define(['lodash', 'log', 'event_channel', './abstract-symbol-table-gen-visitor',
                 }
             }, this);
         };
-        
+
         BallerinaASTRootVisitor.prototype.canVisitBallerinaASTRoot = function (serviceDefinition) {
             return true;
         };
@@ -111,8 +111,8 @@ define(['lodash', 'log', 'event_channel', './abstract-symbol-table-gen-visitor',
                 var attributeName = modifiedData.data.attributeName;
                 var newValue = modifiedData.data.newValue;
                 var oldValue = modifiedData.data.oldValue;
-                if (BallerinaASTFactory.isConnectorDefinition(modifiedData.origin) && _.isEqual(attributeName, 'connector_name')) {
-                    self.updateConnectorDefinition(oldValue, newValue);
+                if (BallerinaASTFactory.isConnectorDefinition(modifiedData.origin)) {
+                    self.updateConnectorDefinition(connector, modifiedData);
                 }
             });
 
@@ -132,6 +132,8 @@ define(['lodash', 'log', 'event_channel', './abstract-symbol-table-gen-visitor',
                         }
                     });
 
+                } else if (BallerinaASTFactory.isResourceParameter(child)){
+                    connector.addParam(child);
                 }
             });
             connectorDefinition.on('child-added', function (child) {
@@ -200,10 +202,25 @@ define(['lodash', 'log', 'event_channel', './abstract-symbol-table-gen-visitor',
          * @param {Object} oldValue - old value
          * @param {Object} newValue - new value
          */
-        BallerinaASTRootVisitor.prototype.updateConnectorDefinition = function (oldValue, newValue) {
-            var connectorDefinition = this.getPackage().getConnectorByName(oldValue);
-            connectorDefinition.setName(newValue);
-            connectorDefinition.setId(newValue);
+        BallerinaASTRootVisitor.prototype.updateConnectorDefinition = function (connectorDefinition, modifiedData) {
+            if(modifiedData.type === 'child-added') {
+                // child_added sends different format of data
+                if(BallerinaASTFactory.isArgument(modifiedData.data.child)) {
+                    connectorDefinition.addParam(modifiedData.data.child);
+                    return;
+                }
+            }
+
+            var attributeName = modifiedData.data.attributeName;
+            var newValue = modifiedData.data.newValue;
+            var oldValue = modifiedData.data.oldValue;
+            switch (attributeName) {
+                case 'connector_name':
+                    connectorDefinition.setName(newValue);
+                    connectorDefinition.setId(newValue);
+                    break;
+
+            }
         };
 
         /**
