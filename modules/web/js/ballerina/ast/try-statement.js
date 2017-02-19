@@ -33,8 +33,8 @@ define(['lodash', 'log', './statement'], function (_, log, Statement) {
         var self = this;
         _.each(jsonNode.children, function (childNode) {
             var child = self.getFactory().createFromJson(childNode);
-            child.initFromJson(childNode);
             self.addChild(child);
+            child.initFromJson(childNode);
         });
     };
 
