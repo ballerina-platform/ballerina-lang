@@ -66,12 +66,16 @@ public class TransportsConfiguration {
     private Set<SenderConfiguration> senderConfigurations;
 
     public Set<ListenerConfiguration> getListenerConfigurations() {
+        if (listenerConfigurations == null) {
+            return Collections.<ListenerConfiguration>emptySet();
+        }
+
         return Collections.unmodifiableSet(listenerConfigurations);
     }
 
     public Set<SenderConfiguration> getSenderConfigurations() {
         if (senderConfigurations == null) {
-            return Collections.EMPTY_SET;
+            return Collections.<SenderConfiguration>emptySet();
         }
         return Collections.unmodifiableSet(senderConfigurations);
     }
