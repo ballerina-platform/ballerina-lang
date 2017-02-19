@@ -48,6 +48,12 @@
             </directory>
             <outputDirectory>docs/api</outputDirectory>
         </fileSet>
+        <fileSet>
+            <directory>
+                ${project.build.directory}/extracted-distributions/connectors-${ballerina.connectors.version}-jar//META-INF/natives
+            </directory>
+            <outputDirectory>src</outputDirectory>
+        </fileSet>
     </fileSets>
 
     <files>
@@ -67,6 +73,7 @@
                 <include>org.wso2.ballerina.swagger:swagger-ballerina-generator:jar</include>
                 <include>org.ballerinalang:ballerina-container-support:jar</include>
                 <include>org.ballerinalang:docerina:jar</include>
+                <include>org.ballerinalang.connectors:connectors:jar</include>
             </includes>
             <unpack>false</unpack>
         </dependencySet>

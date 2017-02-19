@@ -66,6 +66,11 @@
             <artifactId>docerina</artifactId>
             <version>${docerina.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.ballerinalang.connectors</groupId>
+            <artifactId>connectors</artifactId>
+            <version>${ballerina.connectors.version}</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -83,7 +88,7 @@
                         </goals>
                         <configuration>
                             <includeArtifactIds>
-                                ballerina-distribution,ballerina-composer-distribution,testerina-core
+                                ballerina-distribution,ballerina-composer-distribution,testerina-core,connectors
                             </includeArtifactIds>
                             <outputDirectory>${project.build.directory}/extracted-distributions</outputDirectory>
                             <overWriteReleases>false</overWriteReleases>
@@ -156,5 +161,6 @@
         <ballerina.container.version>0.8.0-SNAPSHOT</ballerina.container.version>
         <docerina.version>0.8.0-SNAPSHOT</docerina.version>
         <docerina.maven.plugin.version>0.8.0-SNAPSHOT</docerina.maven.plugin.version>
+        <ballerina.connectors.version>0.8.0-SNAPSHOT</ballerina.connectors.version>
     </properties>
 </project>
