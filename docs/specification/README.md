@@ -21,8 +21,8 @@ Chanaka Fernando <<chanakaf@wso2.com>>
 - [Exception Handling](exceptions.md)
 - [Statements](statements.md)
 - [Expressions](expressions.md)
-- [Documentation & Comments](docsandcomments.md)
 - [Annotations](annotations.md)
+- [Documentation & Comments](docsandcomments.md)
 - [Other Stuff](rest.md)
 
 ## Status of This Specification
