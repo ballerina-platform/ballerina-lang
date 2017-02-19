@@ -53,7 +53,8 @@ public final class BStruct implements BRefType<StructDef> {
      * @return          Value stored in the given memory location of this struct.
      */
     public BValue getValue(int offset) {
-        return structMemBlock[offset];
+        BValue bValue = structMemBlock[offset];
+        return bValue == null ? BNull.instance() : bValue;
     }
 
     /**

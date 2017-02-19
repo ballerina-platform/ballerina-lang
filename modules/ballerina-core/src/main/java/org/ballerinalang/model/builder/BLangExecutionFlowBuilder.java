@@ -52,6 +52,7 @@ import org.ballerinalang.model.expressions.ArrayInitExpr;
 import org.ballerinalang.model.expressions.ArrayMapAccessExpr;
 import org.ballerinalang.model.expressions.BacktickExpr;
 import org.ballerinalang.model.expressions.BasicLiteral;
+import org.ballerinalang.model.expressions.BinaryEqualityExpression;
 import org.ballerinalang.model.expressions.BinaryExpression;
 import org.ballerinalang.model.expressions.ConnectorInitExpr;
 import org.ballerinalang.model.expressions.DivideExpr;
@@ -68,6 +69,7 @@ import org.ballerinalang.model.expressions.MapStructInitKeyValueExpr;
 import org.ballerinalang.model.expressions.ModExpression;
 import org.ballerinalang.model.expressions.MultExpression;
 import org.ballerinalang.model.expressions.NotEqualExpression;
+import org.ballerinalang.model.expressions.NullLiteral;
 import org.ballerinalang.model.expressions.OrExpression;
 import org.ballerinalang.model.expressions.RefTypeInitExpr;
 import org.ballerinalang.model.expressions.ReferenceExpr;
@@ -88,6 +90,7 @@ import org.ballerinalang.model.nodes.fragments.expressions.ActionInvocationExprS
 import org.ballerinalang.model.nodes.fragments.expressions.ArrayInitExprEndNode;
 import org.ballerinalang.model.nodes.fragments.expressions.ArrayMapAccessExprEndNode;
 import org.ballerinalang.model.nodes.fragments.expressions.BacktickExprEndNode;
+import org.ballerinalang.model.nodes.fragments.expressions.BinaryEqualityExpressionEndNode;
 import org.ballerinalang.model.nodes.fragments.expressions.BinaryExpressionEndNode;
 import org.ballerinalang.model.nodes.fragments.expressions.CallableUnitEndNode;
 import org.ballerinalang.model.nodes.fragments.expressions.ConnectorInitExprEndNode;
@@ -654,6 +657,12 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
     }
 
     @Override
+    public void visit(NullLiteral nullLiteral) {
+        calculateTempOffSet(nullLiteral);
+        nullLiteral.setNext(findNext(nullLiteral));
+    }
+
+    @Override
     public void visit(DivideExpr divideExpr) {
         handelBinaryExpression(divideExpr);
     }
@@ -665,7 +674,7 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
 
     @Override
     public void visit(EqualExpression equalExpression) {
-        handelBinaryExpression(equalExpression);
+        handelBinaryEqualityExpression(equalExpression);
     }
 
     @Override
@@ -913,7 +922,7 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
 
     @Override
     public void visit(NotEqualExpression notEqualExpression) {
-        handelBinaryExpression(notEqualExpression);
+        handelBinaryEqualityExpression(notEqualExpression);
     }
 
     @Override
@@ -1419,6 +1428,24 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
         rExp.setParent(binaryExpression);
         lExp.setParent(binaryExpression);
         endNode.setParent(binaryExpression);
+        rExp.setNextSibling(lExp);
+        lExp.setNextSibling(endNode);
+        rExp.accept(this);
+        lExp.accept(this);
+        endNode.setNext(findNext(endNode));
+    }
+
+    private void handelBinaryEqualityExpression(BinaryEqualityExpression binaryEqualityExpression) {
+        // Handle this as non-blocking manner.
+        // Flow: BinaryExpr -> RHSExpr -> LHSExpr -> BinaryExpressionEndNode -> BinaryExpression.nextSibling -> ...
+        calculateTempOffSet(binaryEqualityExpression);
+        BinaryEqualityExpressionEndNode endNode = new BinaryEqualityExpressionEndNode(binaryEqualityExpression);
+        Expression rExp = binaryEqualityExpression.getRExpr();
+        Expression lExp = binaryEqualityExpression.getLExpr();
+        binaryEqualityExpression.setNext(rExp);
+        rExp.setParent(binaryEqualityExpression);
+        lExp.setParent(binaryEqualityExpression);
+        endNode.setParent(binaryEqualityExpression);
         rExp.setNextSibling(lExp);
         lExp.setNextSibling(endNode);
         rExp.accept(this);
