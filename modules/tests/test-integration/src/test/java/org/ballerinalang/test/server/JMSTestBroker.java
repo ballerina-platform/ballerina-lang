@@ -16,18 +16,19 @@
 *  under the License.
 */
 
-package org.ballerinalang.test.util;
+package org.ballerinalang.test.server;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.broker.BrokerService;
 import org.ballerinalang.test.context.Constant;
+import org.ballerinalang.test.context.Server;
 
 import javax.jms.ConnectionFactory;
 
 /**
  * JMS Provider for the test case.
  */
-public class JMSTestBroker {
+public class JMSTestBroker implements Server {
     private ConnectionFactory connectionFactory = new ActiveMQConnectionFactory(Constant.ACTIVEMQ_PROVIDER_URL);
     private BrokerService broker;
     private static JMSTestBroker instance = new JMSTestBroker();
@@ -58,26 +59,31 @@ public class JMSTestBroker {
         return connectionFactory;
     }
 
-    /**
-     * To start the broker.
-     *
-     * @throws Exception Exception that can be thrown when adding the connector
-     */
-    public void startBroker() throws Exception {
+    @Override
+    public void start() throws Exception {
         if (!broker.isStarted()) {
             broker.addConnector("tcp://localhost:61616");
             broker.start();
         }
+
     }
 
-    /**
-     * To stop the JMS broker
-     *
-     * @throws Exception Exception that can be thrown when stopping the broker
-     */
-    public void stopBroker() throws Exception {
+    @Override
+    public void stop() throws Exception {
         if (broker.isStarted() && !broker.isStopped()) {
             broker.stop();
         }
+    }
+
+    @Override
+    public void restart() throws Exception {
+        if (broker.isStarted() && broker.isRestartAllowed()) {
+            broker.requestRestart();
+        }
+    }
+
+    @Override
+    public boolean isRunning() {
+        return broker.isStarted() && !broker.isStopped();
     }
 }

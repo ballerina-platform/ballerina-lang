@@ -19,7 +19,7 @@
 package org.ballerinalang.test.service.jms.sample;
 
 import org.ballerinalang.test.IntegrationTestCase;
-import org.ballerinalang.test.util.JMSTestBroker;
+import org.ballerinalang.test.server.JMSTestBroker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.Assert;

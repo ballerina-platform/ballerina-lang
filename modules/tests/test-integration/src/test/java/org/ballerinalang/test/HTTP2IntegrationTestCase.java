@@ -22,7 +22,6 @@ import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.util.CharsetUtil;
 import org.ballerinalang.test.context.ServerInstance;
 import org.ballerinalang.test.listener.ServerConnectorExecutionListener;
-import org.ballerinalang.test.util.TestConstant;
 import org.ballerinalang.test.util.http2.HTTP2Client;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,7 +41,7 @@ public abstract class HTTP2IntegrationTestCase {
         // assigning the running server instance started by ServerConnectorExecutionListener
         serverInstance = (ServerInstance) ServerConnectorExecutionListener.getServerInstance();
         try {
-            http2Client = new HTTP2Client(false, "localhost", TestConstant.SERVER_CONNECTOR_TEST_PORT);
+            http2Client = new HTTP2Client(false, "localhost", ServerConnectorExecutionListener.HTTP_PORT);
         } catch (Exception e) {
             log.error("Server failed to start. " + e.getMessage(), e);
             throw new RuntimeException("Server failed to start. " + e.getMessage(), e);

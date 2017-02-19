@@ -16,7 +16,7 @@
 *  under the License.
 */
 
-package org.ballerinalang.test.util;
+package org.ballerinalang.test.server;
 
 import org.apache.ftpserver.FtpServer;
 import org.apache.ftpserver.FtpServerFactory;
@@ -28,6 +28,7 @@ import org.apache.ftpserver.usermanager.PropertiesUserManagerFactory;
 import org.apache.ftpserver.usermanager.impl.BaseUser;
 import org.apache.ftpserver.usermanager.impl.WritePermission;
 import org.ballerinalang.test.context.Constant;
+import org.ballerinalang.test.context.Server;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,7 +39,7 @@ import java.util.List;
 /**
  * FTP embedded server, that is used for the purpose of testing teh file server connector related scenarios.
  */
-public class FTPTestServer {
+public class FTPTestServer implements Server {
     private static FTPTestServer instance = new FTPTestServer();
     private Logger logger = LoggerFactory.getLogger(FTPTestServer.class);
     private FtpServer ftpServer;
@@ -84,16 +85,28 @@ public class FTPTestServer {
      *
      * @throws FtpException FTP Exception
      */
+    @Override
     public void start() throws FtpException {
         ftpServer.start();
     }
 
     /**
-     * Tos top the FTP server
+     * To stop the FTP server
      */
+    @Override
     public void stop() {
         if (!ftpServer.isStopped()) {
             ftpServer.stop();
         }
+    }
+
+    @Override
+    public void restart() throws Exception {
+        ftpServer.start();
+    }
+
+    @Override
+    public boolean isRunning() {
+        return !ftpServer.isStopped() && !ftpServer.isSuspended();
     }
 }

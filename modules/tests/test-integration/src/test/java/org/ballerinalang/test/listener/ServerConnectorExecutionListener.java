@@ -20,9 +20,8 @@ package org.ballerinalang.test.listener;
 import org.ballerinalang.test.context.Constant;
 import org.ballerinalang.test.context.Server;
 import org.ballerinalang.test.context.ServerInstance;
-import org.ballerinalang.test.util.FTPTestServer;
-import org.ballerinalang.test.util.JMSTestBroker;
-import org.ballerinalang.test.util.TestConstant;
+import org.ballerinalang.test.server.FTPTestServer;
+import org.ballerinalang.test.server.JMSTestBroker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.IExecutionListener;
@@ -48,12 +47,14 @@ public class ServerConnectorExecutionListener implements IExecutionListener {
             "resources" + File.separator + "http2" + File.separator + "conf" + File.separator + "netty-transports.yml";
     private static final String SERVER_NETTY_CONF_PATH = File.separator + "bre" + File.separator + "conf" + File
             .separator + "netty-transports.yml";
+    //Default HTTP2 port of the server
+    public static final int HTTP_PORT = 9092;
 
     @Override
     public void onExecutionStart() {
         //path of the zip file distribution
         String serverZipPath = System.getProperty(Constant.SYSTEM_PROP_SERVER_ZIP);
-        connectorServer = new ServerInstance(serverZipPath, TestConstant.SERVER_CONNECTOR_TEST_PORT) {
+        connectorServer = new ServerInstance(serverZipPath, HTTP_PORT) {
             //config the service files need to be deployed
             @Override
             protected void configServer() throws IOException {
@@ -69,7 +70,7 @@ public class ServerConnectorExecutionListener implements IExecutionListener {
             }
         };
         try {
-            JMSTestBroker.getInstance().startBroker();
+            JMSTestBroker.getInstance().start();
             FTPTestServer.getInstance().start();
             connectorServer.start();
         } catch (Exception e) {
@@ -83,7 +84,7 @@ public class ServerConnectorExecutionListener implements IExecutionListener {
         if (connectorServer != null && connectorServer.isRunning()) {
             try {
                 connectorServer.stop();
-                JMSTestBroker.getInstance().stopBroker();
+                JMSTestBroker.getInstance().stop();
                 FTPTestServer.getInstance().stop();
             } catch (Exception e) {
                 log.error("Server failed to stop. " + e.getMessage(), e);
