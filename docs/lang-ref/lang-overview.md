@@ -75,6 +75,7 @@ typemapper
 while
 worker
 xml
+xmldocument
 
 ## Development tools
 
