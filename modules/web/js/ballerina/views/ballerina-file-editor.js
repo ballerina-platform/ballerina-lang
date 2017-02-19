@@ -475,8 +475,9 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                         var source = self._sourceView.getContent();
                         if(!_.isEmpty(source.trim())){
                             var validateResponse = self.validatorBackend.parse(source.trim());
-                            if (validateResponse.error && !_.isEmpty(validateResponse.message)) {
-                                alerts.error('Cannot switch to Swagger view due to syntax errors : ' + validateResponse.message);
+                            if (validateResponse.errors && !_.isEmpty(validateResponse.errors)) {
+                                // no need to show error as annotations are already displayed for each line
+                                alerts.error('Cannot switch to Swagger view due to syntax errors');
                                 return;
                             }
                         }
@@ -539,8 +540,9 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                     var source = self._sourceView.getContent();
                     if(!_.isEmpty(source.trim())){
                         var validateResponse = self.validatorBackend.parse(source.trim());
-                        if (validateResponse.errors && !_.isEmpty(validateResponse.message)) {
-                            alerts.error('cannot switch to design view due to syntax errors : ' + validateResponse.message);
+                        if (validateResponse.errors && !_.isEmpty(validateResponse.errors)) {
+                            // no need to show error as annotations are already displayed for each line
+                            alerts.error('cannot switch to design view due to syntax errors');
                             return;
                         }
                     }
