@@ -48,6 +48,7 @@ import org.ballerinalang.model.Service;
 import org.ballerinalang.model.SymbolName;
 import org.ballerinalang.model.Worker;
 import org.ballerinalang.model.builder.BLangModelBuilder;
+import org.ballerinalang.model.statements.VariableDefStmt;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.SimpleTypeName;
 import org.ballerinalang.util.parser.BallerinaLexer;
@@ -367,6 +368,9 @@ public class SwaggerConverterUtils {
         }
         for (Resource resource : ballerinaService.getResources()) {
             serviceBuilder.addResource(resource);
+        }
+        for (VariableDefStmt variableDefStmt : ballerinaService.getVariableDefStmts()) {
+            serviceBuilder.addVariableDef(variableDefStmt);
         }
         return serviceBuilder.buildService();
     }
