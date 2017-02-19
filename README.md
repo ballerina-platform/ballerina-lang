@@ -20,13 +20,14 @@ $ ballerina help doc
 generates API documentation for Ballerina packages
 
 Usage:
-ballerina doc <sourcepath>... [-o outputdir -e excludedpackages -v]
+ballerina doc <sourcepath>... [-o outputdir -e excludedpackages -v -n]
 
   sourcepath:
   Either the paths to the directories where Ballerina source files reside or a path to a Ballerina file which does not belong to a package
 
 Flags:
   --output, -o     path to the output directory where the API documentation will be written to
+  --native, -n     treat the source as native ballerina code
   --exclude, -e    comma separated list of package names to be filtered from the documentation
   --verbose, -v    enable debug level logs
 ```
@@ -49,6 +50,11 @@ $ ballerina doc ../../../connectors/twitter/src/ ../../../connectors/soap/src/ t
 ```sh
 $ ballerina doc ../../../connectors/twitter/src/ ../../../connectors/soap/src/ test.bal  -o docs -v
 ```
+**Example 5:** Generate the API documentation for native Ballerina source directories.
+```sh
+$ ballerina doc ../../../connectors/twitter/src/ ../../../connectors/soap/src/ -n
+```
+
 # Using the Docerina Maven Plugin
 
 The Docerina Maven plugin is used to generate Ballerina API documentation at the build time of a Ballerina Package.
@@ -82,6 +88,7 @@ A sample pom.xml file configuration of the docerina Maven goal is shown below.
                             <sourceDir>${generated.ballerina.source.directory}</sourceDir>
                             <packageFilter>org.ballerinalang.xyz</packageFilter>
                             <debugDocerina>false</debugDocerina>
+                            <nativeCode>false</nativeCode>
                         </configuration>
                     </execution>
                 </executions>
@@ -114,7 +121,12 @@ paths to Ballerina files which does not belong to a package.
  OPTIONAL property.
  DEFAULT value is false.
  Example: `<debugDocerina>true</debugDocerina>`
- 
+
+* `nativeCode`: Treat the source as native ballerina code.
+
+ OPTIONAL property.
+ DEFAULT value is false.
+ Example: `<nativeCode>true</nativeCode>`
  
 ## Setting up a Docerina Development Environment
 

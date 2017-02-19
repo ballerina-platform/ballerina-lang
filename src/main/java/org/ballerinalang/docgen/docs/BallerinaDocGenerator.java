@@ -52,11 +52,24 @@ public class BallerinaDocGenerator {
      * API to generate Ballerina API documentation.
      * 
      * @param output path to the output directory where the API documentation will be written to.
+     * @param packageFilter comma separated list of package names to be filtered from the documentation.
      * @param sources either the path to the directories where Ballerina source files reside or a path to a Ballerina
      *            file which does not belong to a package.
      */
-    public static void generateApiDocs(String output, String... sources) {
-        generateApiDocsWithFilter(output, null, sources);
+    public static void generateApiDocsWithFilter(String output, String packageFilter, String... sources) {
+        generateApiDocs(output, packageFilter, false, sources);
+    }
+    
+    /**
+     * API to generate Ballerina API documentation for Native Source.
+     * 
+     * @param output path to the output directory where the API documentation will be written to.
+     * @param packageFilter comma separated list of package names to be filtered from the documentation.
+     * @param sources either the path to the directories where Ballerina source files reside or a path to a Ballerina
+     *            file which does not belong to a package.
+     */
+    public static void generateNativeApiDocs(String output, String packageFilter, String... sources) {
+        generateApiDocs(output, packageFilter, true, sources);
     }
     
     /**
@@ -64,14 +77,21 @@ public class BallerinaDocGenerator {
      * 
      * @param output path to the output directory where the API documentation will be written to.
      * @param packageFilter comma separated list of package names to be filtered from the documentation.
+     * @param isNative whether the given packages are native or not.
      * @param sources either the path to the directories where Ballerina source files reside or a path to a Ballerina
      *            file which does not belong to a package.
      */
-    public static void generateApiDocsWithFilter(String output, String packageFilter, String... sources) {
+    public static void generateApiDocs(String output, String packageFilter, boolean isNative, String... sources) {
+        HtmlDocumentWriter htmlDocumentWriter;
+        if (output == null) {
+            htmlDocumentWriter = new HtmlDocumentWriter();
+        } else {
+            htmlDocumentWriter = new HtmlDocumentWriter(output);
+        }
         for (String source : sources) {
             try {
-                Map<String, BLangPackage> docsMap = generatePackageDocsFromBallerina(source, packageFilter);
-                writeHtmlDocs(output, docsMap);
+                Map<String, BLangPackage> docsMap = generatePackageDocsFromBallerina(source, packageFilter, isNative);
+                htmlDocumentWriter.write(docsMap.values());
             } catch (Exception e) {
                 out.println(String.format("Docerina: API documentation generation failed for %s: %s", source,
                         e.getMessage()));
@@ -99,7 +119,19 @@ public class BallerinaDocGenerator {
      */
     protected static Map<String, BLangPackage> generatePackageDocsFromBallerina(String packagePath, 
             String packageFilter) throws IOException {
-
+        return generatePackageDocsFromBallerina(packagePath, packageFilter, false);
+    }
+    
+    /**
+     * Generates {@link Package} objects for each Ballerina package from the given ballerina files.
+     *
+     * @param packagePath should point either to a ballerina file or a folder with ballerina files.
+     * @param packageFilter comma separated list of package names/patterns to be filtered from the documentation.
+     * @param isNative whether the given packages are native or not.
+     * @return a map of {@link Package} objects. Key - Ballerina package name Value - {@link Package}
+     */
+    protected static Map<String, BLangPackage> generatePackageDocsFromBallerina(String packagePath, 
+            String packageFilter, boolean isNative) throws IOException {
         Path pkgPath = Paths.get(packagePath);
         final List<Path> packagePaths = new ArrayList<>();
         if (Files.isDirectory(pkgPath)) {
@@ -110,11 +142,18 @@ public class BallerinaDocGenerator {
         }
 
         BallerinaDocDataHolder dataHolder = BallerinaDocDataHolder.getInstance();
-        // This is necessary to be true in order to Ballerina to work properly
-        System.setProperty("skipNatives", "true");
+        if (!isNative) {
+            // This is necessary to be true in order to Ballerina to work properly
+            System.setProperty("skipNatives", "true");
+        }
 
         for (Path path : packagePaths) {
-            BLangProgram bLangProgram = new BLangProgramLoader().loadLibrary(pkgPath, path);
+            BLangProgram bLangProgram;
+            if (isNative) {
+                bLangProgram = new BLangProgramLoader().disableSemanticAnalyzer().loadLibrary(pkgPath, path);
+            } else {
+                bLangProgram = new BLangProgramLoader().loadLibrary(pkgPath, path);
+            }
             if (bLangProgram == null) {
                 out.println(String.format("Docerina: Invalid Ballerina Package: %s", packagePath));
             } else {
@@ -142,16 +181,6 @@ public class BallerinaDocGenerator {
         return false;
     }
 
-    private static void writeHtmlDocs(String output, Map<String, BLangPackage> docsMap) throws IOException {
-        HtmlDocumentWriter htmlDocumentWriter;
-        if (output == null) {
-            htmlDocumentWriter = new HtmlDocumentWriter();
-        } else {
-            htmlDocumentWriter = new HtmlDocumentWriter(output);
-        }
-        htmlDocumentWriter.write(docsMap.values());
-    }
-    
     /**
      * Visits sub folders of a ballerina package.
      */

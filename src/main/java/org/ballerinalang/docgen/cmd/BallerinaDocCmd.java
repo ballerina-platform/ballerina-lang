@@ -48,6 +48,10 @@ public class BallerinaDocCmd implements BLauncherCmd {
             description = "comma separated list of package names to be filtered from the documentation", hidden = false)
     private String packageFilter;
     
+    @Parameter(names = { "--native", "-n" },
+            description = "treat the source as native ballerina code", hidden = false)
+    private boolean nativeSource;
+    
     @Parameter(names = { "--verbose", "-v" },
             description = "enable debug level logs", hidden = false)
     private boolean debugEnabled;
@@ -65,8 +69,8 @@ public class BallerinaDocCmd implements BLauncherCmd {
             System.setProperty(BallerinaDocConstants.ENABLE_DEBUG_LOGS, "true");
         }
 
-        BallerinaDocGenerator.generateApiDocsWithFilter(outputDir, packageFilter,
-                argList.toArray(new String[argList.size()]));
+        String[] sources = argList.toArray(new String[argList.size()]);
+        BallerinaDocGenerator.generateApiDocs(outputDir, packageFilter, nativeSource, sources);
     }
 
     @Override
@@ -76,7 +80,7 @@ public class BallerinaDocCmd implements BLauncherCmd {
 
     @Override
     public void printUsage(StringBuilder stringBuilder) {
-        stringBuilder.append("ballerina doc <sourcepath>... [-o outputdir -e excludedpackages -v]\n");
+        stringBuilder.append("ballerina doc <sourcepath>... [-o outputdir -e excludedpackages -v -n]\n");
         stringBuilder
                 .append("\n\tsourcepath:\n\tEither the paths to the directories where Ballerina source files reside or "
                         + "a path to a Ballerina file which does not belong to a package");
