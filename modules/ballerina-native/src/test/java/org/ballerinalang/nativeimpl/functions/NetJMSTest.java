@@ -71,6 +71,7 @@ public class NetJMSTest {
     @Test
     public void testAcknowledge() {
         DefaultCarbonMessage cMsg = new DefaultCarbonMessage();
+        cMsg.setProperty(JMSConstants.JMS_SESSION_ACKNOWLEDGEMENT_MODE, JMSConstants.CLIENT_ACKNOWLEDGEMENT_MODE);
         BMessage msg = new BMessage();
         msg.setValue(cMsg);
         Context ctx = new Context(cMsg);
@@ -88,6 +89,7 @@ public class NetJMSTest {
     @Test
     public void testCommit() {
         DefaultCarbonMessage cMsg = new DefaultCarbonMessage();
+        cMsg.setProperty(JMSConstants.JMS_SESSION_ACKNOWLEDGEMENT_MODE, JMSConstants.SESSION_TRANSACTED_MODE);
         BMessage msg = new BMessage();
         msg.setValue(cMsg);
         Context ctx = new Context(cMsg);
@@ -101,6 +103,7 @@ public class NetJMSTest {
     @Test
     public void testRollback() {
         DefaultCarbonMessage cMsg = new DefaultCarbonMessage();
+        cMsg.setProperty(JMSConstants.JMS_SESSION_ACKNOWLEDGEMENT_MODE, JMSConstants.SESSION_TRANSACTED_MODE);
         BMessage msg = new BMessage();
         msg.setValue(cMsg);
         Context ctx = new Context(cMsg);
