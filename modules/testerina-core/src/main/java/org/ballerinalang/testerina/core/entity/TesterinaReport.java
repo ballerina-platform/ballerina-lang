@@ -55,16 +55,18 @@ public class TesterinaReport {
                 }
             }
             outStream.println(newLine + "Result: " + newLine + " Tests Run: " + functionResults.size() + ", Passed: "
-                    + passedFunctionCount + ", Failed: " + failedFunctionCount);
+                    + passedFunctionCount + ", Failed: " + failedFunctionCount + newLine);
             printTestDetails();
         }
     }
 
     public static void printTestDetails(){
-        outStream.println( newLine + "Failed Tests");
-        for (TesterinaFunctionResult failedResult : failedFunctionResults) {
-            outStream.println(failedResult.getTestFunctionName() + ": "+ failedResult.getAssertFailureMessage());
+        if (!failedFunctionResults.isEmpty()) {
+            outStream.println("Failed Tests:");
+            for (TesterinaFunctionResult failedResult : failedFunctionResults) {
+                outStream.println(" " + failedResult.getTestFunctionName() + ": "+ failedResult.getAssertFailureMessage());
+            }
+            outStream.println(newLine);
         }
-        outStream.println(newLine);
     }
 }

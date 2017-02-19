@@ -1,24 +1,78 @@
 # Testerina
 
-Testerina is the test framework built for the Ballerina language.
+Testerina is the test framework built for the Ballerina language.  
+This will be a part of ```ballerina-tools-0.8.0.zip``` distribution [1].
 
-## How to run
+Testerina implements ```ballerina test``` command.  
 
-This will be a part of Ballerina distribution.  
-For the time being, you can copy the built ```testerina-core-0.8.0-SNAPSHOT.jar```  
-file to ```<ballerina_home>/bre/lib``` and test.  
+To test a file written in Ballerina language use the test command as follows.  
+```./ballerina test <package_name>```
 
-To test a file written in Ballerina language, go to the parent folder and use the test command as follows.
+Your test file should contain ```_test.bal``` suffix.
 
-```./ballerina test <package name>```
+Once you run the tests using ballerina ```test``` command,  
+Testerina will print a summary of test results on console.
 
-Test files containing ```_test.bal``` suffix in the file name, will be selected and inside the ```*_test.bal``` file,
-functions which has the suffix ```test``` will be invoked. 
-Within the ```test*``` function you can use the following built in assert functions to assert your actual response with
-the expected value. 
+#### Testerina supports following assert functionality.  
 
-```assertEquals(actual, expected, message)```
+ - assertTrue (boolean)
+ - assertFalse (boolean)
+ - assertEquals (string, int, float, boolean, string[], int[], float[])
 
-```assertTrue(booleanCondtion, message)```
+### Writing ballerina tests
 
-```assertFalse(booleanCondtion, message)```
+- Test functions should contain the prefix ```test```.
+- Each test function may contain one or more asserts.
+- Once package may contain more than one *._test.bal files.
+
+#### Tutorial
+
+1 Download ```ballerina-tools-0.8.0.zip``` distribution and unzip.  
+2 Unzip and go to ```ballerina-tools-0.8.0```.  
+3 Create a directory ```mySample```.  
+4 Create the following two files inside this directory.  
+
+e.g.: sample.bal
+```
+package mySample;
+
+import ballerina.lang.system;
+ 
+function main (string[] args) {
+    int i = intAdd(1, 2);
+    system:println("Result: " + i);
+}
+ 
+function intAdd(int a, int b) (int) {
+    return a + b;
+}
+
+```  
+e.g.: sample_test.bal
+```
+package mySample;
+ 
+import ballerina.test;
+ 
+function testInt() {	
+    int answer = 0;
+    answer = intAdd(1, 2);
+    test:assertEquals(answer, 3, "IntAdd function failed");
+	
+}
+```
+Note the package hierarchy in above files.   
+ 
+5 Run tests using following command.  
+```> ./bin/ballerina test mySample/```
+
+### Running Samples
+
+#### Running mock sample
+- Download ```ballerina-tools-0.8.0.zip``` distribution and unzip.  
+- Copy ```samples/mock directory``` to ```ballerina-tools-0.8.0```.  
+- Run tests as follows.  
+```> ./bin/ballerina test mock/```
+
+### Reference:  
+[1] https://github.com/ballerinalang/distribution
