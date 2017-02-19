@@ -86,10 +86,8 @@ import org.ballerinalang.model.symbols.BLangSymbol;
 import org.ballerinalang.model.types.SimpleTypeName;
 import org.ballerinalang.model.types.TypeConstants;
 import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BDouble;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BLong;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValueType;
 import org.ballerinalang.util.exceptions.BLangExceptionHelper;
@@ -1360,20 +1358,20 @@ public class BLangModelBuilder {
         createLiteral(location, new SimpleTypeName(TypeConstants.INT_TNAME), bValue);
     }
 
-    public void createLongLiteral(String value, NodeLocation location) {
+    /*public void createLongLiteral(String value, NodeLocation location) {
         BValueType bValue = new BLong(Long.parseLong(value));
         createLiteral(location, new SimpleTypeName(TypeConstants.LONG_TNAME), bValue);
-    }
+    }*/
 
     public void createFloatLiteral(String value, NodeLocation location) {
         BValueType bValue = new BFloat(Float.parseFloat(value));
         createLiteral(location, new SimpleTypeName(TypeConstants.FLOAT_TNAME), bValue);
     }
 
-    public void createDoubleLiteral(String value, NodeLocation location) {
+    /*public void createDoubleLiteral(String value, NodeLocation location) {
         BValueType bValue = new BDouble(Double.parseDouble(value));
         createLiteral(location, new SimpleTypeName(TypeConstants.DOUBLE_TNAME), bValue);
-    }
+    }*/
 
     public void createStringLiteral(String value, NodeLocation location) {
         BValueType bValue = new BString(value);

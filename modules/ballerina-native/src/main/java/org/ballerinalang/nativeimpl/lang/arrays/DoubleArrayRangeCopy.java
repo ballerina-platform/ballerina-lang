@@ -19,29 +19,25 @@
 package org.ballerinalang.nativeimpl.lang.arrays;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.model.types.TypeEnum;
 import org.ballerinalang.model.values.BArray;
 import org.ballerinalang.model.values.BDouble;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 /**
  * Native function ballerina.model.arrays:copyOfRange(double[], int, int).
  */
-@BallerinaFunction(
-        packageName = "ballerina.lang.arrays",
-        functionName = "copyOfRange",
-        args = {@Argument(name = "doubleArray", type = TypeEnum.ARRAY, elementType = TypeEnum.DOUBLE),
-                @Argument(name = "from", type = TypeEnum.INT),
-                @Argument(name = "to", type = TypeEnum.INT)},
-        returnType = {@ReturnType(type = TypeEnum.ARRAY, elementType = TypeEnum.DOUBLE)},
-        isPublic = true
-)
+//@BallerinaFunction(
+//        packageName = "ballerina.lang.arrays",
+//        functionName = "copyOfRange",
+//        args = {@Argument(name = "doubleArray", type = TypeEnum.ARRAY, elementType = TypeEnum.DOUBLE),
+//                @Argument(name = "from", type = TypeEnum.INT),
+//                @Argument(name = "to", type = TypeEnum.INT)},
+//        returnType = {@ReturnType(type = TypeEnum.ARRAY, elementType = TypeEnum.DOUBLE)},
+//        isPublic = true
+//)
 public class DoubleArrayRangeCopy extends AbstractNativeFunction {
     @Override
     public BValue[] execute(Context context) {

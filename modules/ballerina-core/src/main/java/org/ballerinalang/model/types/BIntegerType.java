@@ -22,7 +22,7 @@ import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
 
 /**
- * {@code BIntegerType} represents an integer which is a 32-bit signed number.
+ * {@code BIntegerType} represents an integer which is a 64-bit signed number.
  *
  * @since 0.8.0
  */

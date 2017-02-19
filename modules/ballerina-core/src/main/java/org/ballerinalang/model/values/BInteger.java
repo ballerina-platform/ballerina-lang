@@ -24,15 +24,15 @@ package org.ballerinalang.model.values;
  */
 public final class BInteger extends BValueType {
 
-    private int value;
+    private long value;
 
-    public BInteger(int value) {
+    public BInteger(long value) {
         this.value = value;
     }
 
     @Override
     public int intValue() {
-        return this.value;
+        return (int) this.value;
     }
 
     @Override
@@ -57,7 +57,7 @@ public final class BInteger extends BValueType {
 
     @Override
     public String stringValue() {
-        return Integer.toString(value);
+        return Long.toString(value);
     }
 
     @Override

@@ -19,11 +19,8 @@
 package org.ballerinalang.nativeimpl.lang.system;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.model.types.TypeEnum;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
 
 import java.io.PrintStream;
 
@@ -32,12 +29,12 @@ import java.io.PrintStream;
  *
  * @since 0.8.0
  */
-@BallerinaFunction(
-        packageName = "ballerina.lang.system",
-        functionName = "println",
-        args = {@Argument(name = "d", type = TypeEnum.DOUBLE)},
-        isPublic = true
-)
+//@BallerinaFunction(
+//        packageName = "ballerina.lang.system",
+//        functionName = "println",
+//        args = {@Argument(name = "d", type = TypeEnum.DOUBLE)},
+//        isPublic = true
+//)
 public class PrintlnDouble extends AbstractNativeFunction {
 
     public BValue[] execute(Context ctx) {

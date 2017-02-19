@@ -24,28 +24,25 @@ import com.jayway.jsonpath.JsonPathException;
 import com.jayway.jsonpath.PathNotFoundException;
 import com.jayway.jsonpath.WriteContext;
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.model.types.TypeEnum;
 import org.ballerinalang.model.values.BDouble;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.lang.utils.ErrorHandler;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
 
 /**
  * Insert a named element to a JSON Object. This method will add a new double element with
  * the given name, to the location identified by the given jsonpath. If an element with 
  * the same 'name' already exists, then it will update value of the existing element.
  */
-@BallerinaFunction(
-        packageName = "ballerina.lang.jsonutils",
-        functionName = "add",
-        args = {@Argument(name = "j", type = TypeEnum.JSON),
-                @Argument(name = "jsonPath", type = TypeEnum.STRING),
-                @Argument(name = "key", type = TypeEnum.STRING),
-                @Argument(name = "value", type = TypeEnum.DOUBLE)},
-        isPublic = true
-)
+//@BallerinaFunction(
+//        packageName = "ballerina.lang.jsonutils",
+//        functionName = "add",
+//        args = {@Argument(name = "j", type = TypeEnum.JSON),
+//                @Argument(name = "jsonPath", type = TypeEnum.STRING),
+//                @Argument(name = "key", type = TypeEnum.STRING),
+//                @Argument(name = "value", type = TypeEnum.DOUBLE)},
+//        isPublic = true
+//)
 public class AddDoubleToObject extends AbstractJSONFunction {
 
     private static final String OPERATION = "add double to json object";

@@ -19,27 +19,23 @@
 package org.ballerinalang.nativeimpl.lang.strings;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.model.types.TypeEnum;
 import org.ballerinalang.model.values.BLong;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
  * Native function ballerina.model.strings:valueOf.
  *
  * @since 0.8.0
  */
-@BallerinaFunction(
-        packageName = "ballerina.lang.strings",
-        functionName = "valueOf",
-        args = {@Argument(name = "l", type = TypeEnum.LONG)},
-        returnType = {@ReturnType(type = TypeEnum.STRING)},
-        isPublic = true
-)
+//@BallerinaFunction(
+//        packageName = "ballerina.lang.strings",
+//        functionName = "valueOf",
+//        args = {@Argument(name = "l", type = TypeEnum.LONG)},
+//        returnType = {@ReturnType(type = TypeEnum.STRING)},
+//        isPublic = true
+//)
 public class LongValueOf extends AbstractNativeFunction {
 
     @Override

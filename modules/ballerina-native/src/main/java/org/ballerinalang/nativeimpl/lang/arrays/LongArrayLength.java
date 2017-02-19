@@ -19,25 +19,21 @@
 package org.ballerinalang.nativeimpl.lang.arrays;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.model.types.TypeEnum;
 import org.ballerinalang.model.values.BArray;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
  * Native function ballerina.model.arrays:length(long[]).
  */
-@BallerinaFunction(
-        packageName = "ballerina.lang.arrays",
-        functionName = "length",
-        args = {@Argument(name = "longArray", type = TypeEnum.ARRAY, elementType = TypeEnum.LONG)},
-        returnType = {@ReturnType(type = TypeEnum.INT)},
-        isPublic = true
-)
+//@BallerinaFunction(
+//        packageName = "ballerina.lang.arrays",
+//        functionName = "length",
+//        args = {@Argument(name = "longArray", type = TypeEnum.ARRAY, elementType = TypeEnum.LONG)},
+//        returnType = {@ReturnType(type = TypeEnum.INT)},
+//        isPublic = true
+//)
 public class LongArrayLength extends AbstractNativeFunction {
     @Override
     public BValue[] execute(Context context) {

@@ -19,21 +19,18 @@
 package org.ballerinalang.nativeimpl.lang.system;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.model.types.TypeEnum;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
 
 /**
  * Native function ballerina.model.system:print.
  */
-@BallerinaFunction(
-        packageName = "ballerina.lang.system",
-        functionName = "print",
-        args = {@Argument(name = "d", type = TypeEnum.DOUBLE)},
-        isPublic = true
-)
+//@BallerinaFunction(
+//        packageName = "ballerina.lang.system",
+//        functionName = "print",
+//        args = {@Argument(name = "d", type = TypeEnum.DOUBLE)},
+//        isPublic = true
+//)
 public class PrintDouble extends AbstractNativeFunction {
 
     public BValue[] execute(Context ctx) {

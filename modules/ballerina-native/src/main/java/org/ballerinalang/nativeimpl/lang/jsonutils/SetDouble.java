@@ -24,26 +24,23 @@ import com.jayway.jsonpath.JsonPathException;
 import com.jayway.jsonpath.PathNotFoundException;
 import com.jayway.jsonpath.WriteContext;
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.model.types.TypeEnum;
 import org.ballerinalang.model.values.BDouble;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.lang.utils.ErrorHandler;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
 
 /**
  * Set the double value of a element that matches the given jsonpath.
  * If the jsonpath doesn't match any element, then this operation would have no effect.
  */
-@BallerinaFunction(
-        packageName = "ballerina.lang.jsonutils",
-        functionName = "set",
-        args = {@Argument(name = "j", type = TypeEnum.JSON),
-                @Argument(name = "jsonPath", type = TypeEnum.STRING),
-                @Argument(name = "value", type = TypeEnum.DOUBLE)},
-        isPublic = true
-)
+//@BallerinaFunction(
+//        packageName = "ballerina.lang.jsonutils",
+//        functionName = "set",
+//        args = {@Argument(name = "j", type = TypeEnum.JSON),
+//                @Argument(name = "jsonPath", type = TypeEnum.STRING),
+//                @Argument(name = "value", type = TypeEnum.DOUBLE)},
+//        isPublic = true
+//)
 public class SetDouble extends AbstractJSONFunction {
 
     private static final String OPERATION = "set double in json";

@@ -20,32 +20,36 @@ package org.ballerinalang.nativeimpl.lang.datatables;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeEnum;
 import org.ballerinalang.model.values.BDataTable;
-import org.ballerinalang.model.values.BDouble;
+import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
+import java.util.Locale;
+
 /**
- * Native function to get double value of a given column name.
- * ballerina.model.datatables:getDouble(datatable, string)
+ * Native function to get some special type to ballerina supported types. Eg:- Blob, Clob, NClob, Date, Timestamp
+ * ballerina.model.datatables:getInt(datatable, int, string)
  *
  * @since 0.8.0
  */
 @BallerinaFunction(
         packageName = "ballerina.lang.datatables",
-        functionName = "getDouble",
+        functionName = "getInt",
         args = {@Argument(name = "dt", type = TypeEnum.DATATABLE),
-                @Argument(name = "name", type = TypeEnum.STRING)},
-        returnType = {@ReturnType(type = TypeEnum.DOUBLE)},
+                @Argument(name = "index", type = TypeEnum.INT),
+                @Argument(name = "type", type = TypeEnum.STRING)},
+        returnType = {@ReturnType(type = TypeEnum.INT)},
         isPublic = true
 )
-public class GetDoubleByName extends AbstractNativeFunction {
+public class GetByIndexIntReturn extends AbstractNativeFunction {
 
     public BValue[] execute(Context ctx) {
         BDataTable dataTable = (BDataTable) getArgument(ctx, 0);
-        String columnName = (getArgument(ctx, 1)).stringValue();
-        return getBValues(new BDouble(dataTable.getDouble(columnName)));
+        int index = ((BInteger) getArgument(ctx, 1)).intValue();
+        String type = (getArgument(ctx, 2)).stringValue();
+        return getBValues(dataTable.get(index, type.toLowerCase(Locale.ENGLISH)));
     }
 }

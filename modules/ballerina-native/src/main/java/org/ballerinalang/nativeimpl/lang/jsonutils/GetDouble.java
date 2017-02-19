@@ -25,27 +25,23 @@ import com.jayway.jsonpath.JsonPathException;
 import com.jayway.jsonpath.PathNotFoundException;
 import com.jayway.jsonpath.ReadContext;
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.model.types.TypeEnum;
 import org.ballerinalang.model.values.BDouble;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.lang.utils.ErrorHandler;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 /**
  * Evaluate jsonpath on a JSON object and returns the integer value.
  */
-@BallerinaFunction(
-        packageName = "ballerina.lang.jsonutils",
-        functionName = "getDouble",
-        args = {@Argument(name = "j", type = TypeEnum.JSON),
-                @Argument(name = "jsonPath", type = TypeEnum.STRING)},
-        returnType = {@ReturnType(type = TypeEnum.DOUBLE)},
-        isPublic = true
-)
+//@BallerinaFunction(
+//        packageName = "ballerina.lang.jsonutils",
+//        functionName = "getDouble",
+//        args = {@Argument(name = "j", type = TypeEnum.JSON),
+//                @Argument(name = "jsonPath", type = TypeEnum.STRING)},
+//        returnType = {@ReturnType(type = TypeEnum.DOUBLE)},
+//        isPublic = true
+//)
 public class GetDouble extends AbstractJSONFunction {
     
     private static final String OPERATION = "get double from json";

@@ -30,20 +30,20 @@ import java.util.Locale;
 
 /**
  * Native function to get some special type to ballerina supported types. Eg:- Blob, Clob, NClob, Date, Timestamp
- * ballerina.model.datatables:getLong(datatable, string, string)
+ * ballerina.model.datatables:getInt(datatable, string, string)
  *
  * @since 0.8.0
  */
 @BallerinaFunction(
         packageName = "ballerina.lang.datatables",
-        functionName = "getLong",
+        functionName = "getInt",
         args = {@Argument(name = "dt", type = TypeEnum.DATATABLE),
                 @Argument(name = "string", type = TypeEnum.STRING),
                 @Argument(name = "type", type = TypeEnum.STRING)},
-        returnType = {@ReturnType(type = TypeEnum.LONG)},
+        returnType = {@ReturnType(type = TypeEnum.INT)},
         isPublic = true
 )
-public class GetByNameLongReturn extends AbstractNativeFunction {
+public class GetByNameIntReturn extends AbstractNativeFunction {
 
     public BValue[] execute(Context ctx) {
         BDataTable dataTable = (BDataTable) getArgument(ctx, 0);
