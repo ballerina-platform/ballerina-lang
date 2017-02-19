@@ -78,7 +78,7 @@ name, size, lastModifiedTimestamp</td>
     <td>fileSortAscending</td>
     <td>A boolean parameter which indicates whether to sort files in ascending order. If set to "true", files will be sorted in ascending order. If set to “false”, files will be sorted in descending order.</td>
     <td>No</td>
-    <td>True or false</td>
+    <td>true or false</td>
     <td>true</td>
   </tr>
 </table>
@@ -212,7 +212,7 @@ Above line sends an acknowledgment to the sender of the message (this sender has
 
 Since this function makes the message sender to close the input stream; and delete the file, this function needs to be called only after message processing is done. 
 
-In case the service does not call the `acknowledge` function, the message sender will wait for 30 seconds (30 seconds is the default wait time. This value can be overridden by specifying a different value as the `acknowledgementTimeOut` service parameter) and assume that the file was not processed. Furthermore, following the same assumption, the message sender will not delete the file. As a result of this, the file will remain at the same URI to which the service listens, so it will be attempted to be processed in the next polling cycle as well. 
+In case the service does not call the `acknowledge` function, the message sender will wait for 30 seconds (30 seconds is the default wait time. This value can be overridden by specifying a different value as the `acknowledgementTimeOut` service parameter) and will delete the file. 
 
 
 
