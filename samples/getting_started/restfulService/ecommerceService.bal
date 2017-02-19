@@ -2,8 +2,8 @@ import ballerina.lang.messages;
 import ballerina.net.http;
 import ballerina.lang.system;
 import ballerina.lang.strings;
-import ballerina.lang.jsonutils;
-@http:BasePath("/ecommerceservice")
+import ballerina.lang.jsons;
+@http:BasePath ("/ecommerceservice")
 service Ecommerce {
     http:ClientConnector productsService = create http:ClientConnector("http://localhost:9090");
     
@@ -81,7 +81,7 @@ service productmgt {
     @http:Path ("/")
     resource product (message m) {
         json jsonReq = messages:getJsonPayload(m);
-        string productId = jsonutils:getString(jsonReq, "$.Product.ID");
+        string productId = jsons:getString(jsonReq, "$.Product.ID");
         productsMap[productId] = jsonReq;
         json payload = `{"Status":"Product is successfully added."}`;
         message response = {};

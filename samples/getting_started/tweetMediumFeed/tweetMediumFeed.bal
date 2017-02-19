@@ -2,7 +2,7 @@ import ballerina.lang.arrays;
 import ballerina.lang.messages;
 import ballerina.lang.strings;
 import ballerina.lang.system;
-import ballerina.lang.xmlutils;
+import ballerina.lang.xmls;
 import ballerina.net.http;
 import ballerina.net.uri;
 import ballerina.util;
@@ -23,7 +23,7 @@ function main(string[] args) {
         message request = {};
         message mediumResponse = http:ClientConnector.get(mediumEP, "/feed/@wso2", request);
         xml feedXML = messages:getXmlPayload(mediumResponse);
-        string title = xmlutils:getString(feedXML, "/rss/channel/item[1]/title/text()");
+        string title = xmls:getString(feedXML, "/rss/channel/item[1]/title/text()");
         string oauthHeader = constructOAuthHeader(consumerKey, consumerSecret, accessToken, accessTokenSecret, title);
         messages:setHeader(request, "Authorization", oauthHeader);
         string tweetPath = "/1.1/statuses/update.json?status=" + uri:encode(title);
