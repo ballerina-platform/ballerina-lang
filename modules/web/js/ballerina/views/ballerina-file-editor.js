@@ -476,7 +476,7 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                         if(!_.isEmpty(source.trim())){
                             var validateResponse = self.validatorBackend.parse(source.trim());
                             if (validateResponse.error && !_.isEmpty(validateResponse.message)) {
-                                alerts.error('cannot switch to swagger view due to syntax errors : ' + validateResponse.message);
+                                alerts.error('Cannot switch to Swagger view due to syntax errors : ' + validateResponse.message);
                                 return;
                             }
                         }
@@ -484,7 +484,7 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                         //if no errors display the design.
                         var response = self.parserBackend.parse(source);
                         if (response.error && !_.isEmpty(response.message)) {
-                            alerts.error('Cannot switch to swagger view due to syntax errors : ' + response.message);
+                            alerts.error('Cannot switch to Swagger view due to syntax errors : ' + response.message);
                             return;
                         }
                         var root = self.deserializer.getASTModel(response);
@@ -496,7 +496,16 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
 
                     var treeModel = self.generateNodeTree();
                     if (_.isUndefined(treeModel)) {
-                        alerts.error("Cannot switch to swagger due to parser error");
+                        alerts.error("Cannot switch to Swagger due to parser error");
+                        return;
+                    }
+
+                    var serviceDef = _.find(treeModel.getChildren(), function (child) {
+                        return BallerinaASTFactory.isServiceDefinition(child);
+                    });
+
+                    if (_.isUndefined(serviceDef)) {
+                        alerts.warn("Provide at least one service to generate Swagger definition");
                         return;
                     }
 
@@ -514,7 +523,7 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                     swaggerViewBtn.hide();
                     self.toolPalette.hide();
                     self.setActiveView('swagger');
-                    alerts.warn("This version only supports one service representation on swagger");
+                    alerts.warn("This version only supports one service representation on Swagger");
                 } catch (err) {
                     alerts.error(err.message);
                 }
@@ -689,13 +698,8 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                //@todo
                root = this.deserializer.getASTModel(response);
            } else {
-               root = BallerinaASTFactory.createBallerinaAstRoot();
-
-               //package definition
-               var packageDefinition = BallerinaASTFactory.createPackageDefinition();
-               packageDefinition.setPackageName("");
-               root.addChild(packageDefinition);
-               root.setPackageDefinition(packageDefinition);
+                //if source is empty get the current model. i.e. when in design view. TODO : refactor this behaviour
+               root = this.getModel();
            }
            return root;
         };
