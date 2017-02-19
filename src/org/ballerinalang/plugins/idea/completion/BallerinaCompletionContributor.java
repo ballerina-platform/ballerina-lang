@@ -77,7 +77,7 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
     // Simple types
     private static final LookupElementBuilder BOOLEAN;
     private static final LookupElementBuilder INT;
-    private static final LookupElementBuilder DOUBLE;
+    private static final LookupElementBuilder FLOAT;
     private static final LookupElementBuilder STRING;
 
     // Reference types
@@ -100,7 +100,7 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
 
         BOOLEAN = createSimpleTypeLookupElement("boolean", true, AddSpaceInsertHandler.INSTANCE);
         INT = createSimpleTypeLookupElement("int", true, AddSpaceInsertHandler.INSTANCE);
-        DOUBLE = createSimpleTypeLookupElement("double", true, AddSpaceInsertHandler.INSTANCE);
+        FLOAT = createSimpleTypeLookupElement("float", true, AddSpaceInsertHandler.INSTANCE);
         STRING = createSimpleTypeLookupElement("string", true, AddSpaceInsertHandler.INSTANCE);
 
         MESSAGE = createReferenceTypeLookupElement("message", true, AddSpaceInsertHandler.INSTANCE);
@@ -690,7 +690,7 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
     private void addValueTypes(CompletionResultSet resultSet, int priority) {
         resultSet.addElement(PrioritizedLookupElement.withPriority(BOOLEAN, priority));
         resultSet.addElement(PrioritizedLookupElement.withPriority(INT, priority));
-        resultSet.addElement(PrioritizedLookupElement.withPriority(DOUBLE, priority));
+        resultSet.addElement(PrioritizedLookupElement.withPriority(FLOAT, priority));
         resultSet.addElement(PrioritizedLookupElement.withPriority(STRING, priority));
     }
 
