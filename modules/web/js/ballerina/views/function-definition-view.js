@@ -192,7 +192,8 @@ define(['lodash', 'log', 'event_channel',  'alerts', './svg-canvas', './../ast/f
                     toolPalette: this.toolPalette,
                     messageManager: this.messageManager,
                     diagramRenderContext: this.getDiagramRenderingContext(),
-                    line: {height: lineHeight}
+                    line: {height: lineHeight},
+                    title: workerDeclaration.getWorkerName()
                 };
                 var workerDeclarationView = new WorkerDeclarationView(workerDeclarationOptions);
                 workerDeclarationView.setParent(this);
