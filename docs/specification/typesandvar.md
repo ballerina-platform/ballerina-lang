@@ -61,7 +61,7 @@ StructVariableName = { FieldName : Expression, .. FieldName : Expression};
 ```
 This results in a new instance of the struct being created with the named fields assigned the indicated values. If a field is not named then it has no value when the struct is created. Thus, structs with no values assigned can be created by assigning the value '{}'.
 
-##### Arrays
+### Arrays
 
 Arrays are defined using the array constructor `[]` as follows:
 ```
@@ -103,9 +103,29 @@ Library functions for accessing information from this type are in the package 'b
 
 ### Type: 'xml' & 'xmlDocument'
 
-********** NOT FINISHED ***********
+The 'xml' type is used to represent an XML element and 'xmlDocument' is used to represent a full XML document. Ballerina also understands XML Schema and allows one to declare that an element or document must conform to a particular schema.
 
-#### XML & JSON Types
+XML element variables are declared in either of the following ways:
+```
+xml VariableName;
+xml<{SchemaNamespaceName}SchemaTypeOrElementName> VariableName;
+```
+
+The first is a variable which may hold any XML element. The second is a variable whose value is be an element which is of the indicated XML Schema type (if the name is that of an XML Schema Complex Type) or the element has the name and content model defined by the indicated XML Element declaration (if the name is that of an XML Schema Element declaration). Note that 'SchemaNamespaceName' may be empty, which means the type name is unqualified.
+
+Similarly, the 'xmlDocument' type is used to represent a complete XML Document. Variables are declared as follows:
+```
+xmlDocument VariableName;
+xmlDocument<{SchemaNamespaceName}DocumentElementTypeOrElementName> VariableName;
+```
+
+The first is a variable which may hold any XML document. The second is a variable who's value is an XML document whose document element conforms to the indicated XML Schema type or XML Element declaration, similar to the element case above.
+
+WRITE: XML LITERAL VALUE
+
+Ballerina will not always perform runtime schema validation as that will inhibit performance - instead a library function will allow that to be done on demand. For better performance a Ballerina implementation is expected to stream the contents of XML documents and only load into memory what is needed based on how the element or document is used in the program. Library functions for manipulating XML documents and elements are in the package 'ballerina.lang.xml'.
+
+## Type: 'json'
 
 Ballerina has built-in support for XML elements, XML documents, and JSON documents. TypeName
 can be any of the following:
@@ -117,24 +137,7 @@ A variable of type `json` can hold any JSON document. The optional qualification
 for a JSON document indicates the name of the JSON schema that the JSON value is assumed to
 conform to.
 
-A variable of type `xml` can hold any XML element. The optional qualification of the TypeName
-for an XML document indicates the qualified type name of the XML Schema type that the XML
-element is assumed to conform to.
-
-A variable of type `xmlDocument` can hold any XML document, and the optional schema type is the type of the document element.
-
-#### Allocating Variables
-
-Primitive types do not have to be dynamically allocated as they are always allocated
-on the stack.
-
-All non-primitive types, user-defined types, and array types have to be
-allocated on the heap using `new` as follows:
-```
-new TypeName[(ValueList)]
-```
-The optional ValueList can be used to give initial values for the fields of any record type. The order
-of values must correspond to the order of field declarations.
+### Type: 'datatable'
 
 #### Default Values for Variables
 
@@ -166,7 +169,7 @@ Iterator typed values are navigated through using an `iterate` statement.
 > NOTE: Iterators are still not fully consumated. Iterators are currently only available for the built-in types xml and json. In the future we will allow developers to define their own iterators for their types.
 
 
-#### Type Coercion and Conversion
+## Type Coercion and Conversion
 
 The built-in `float` and `double` follow the standard IEEE 754 specifications. The `int` and `long` types follow
 the standard 32- and 64-bit integer arithmetic, respectively.
@@ -200,7 +203,7 @@ That is, the registered type convertor is invoked by indicating the type cast as
 the compiler can auto-detect the right convertor to apply, we have chosen to force the user to
 request the appropriate convertor by applying a cast.
 
-##### Built in Type Convertors
+### Built in Type Convertors
 
 In addition to the built-in value type coercions, Ballerina also ships with a few pre-defined type
 convertors to make development easier. The following predefined type convertors are declared in
