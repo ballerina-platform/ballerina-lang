@@ -21,6 +21,7 @@ import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
 import io.swagger.codegen.CodegenConstants;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.ballerinalang.launcher.BLauncherCmd;
 import org.ballerinalang.launcher.LauncherUtils;
 
@@ -64,28 +65,31 @@ public class SwaggerCmd implements BLauncherCmd {
                     "Ex: ballerina swagger connector swagger_file");
         }
         String action = argList.get(0);
-        Generate generate = new Generate();
+//        Generate generate = new Generate();
         switch (action) {
             case CONNECTOR:
-                generate.setSpec(argList.get(1));   //set swagger specification
-                generate.setLang("ballerina-connector");
-                generate.setOutput(output);
-                generate.setApiPackage(apiPackage);
-                generate.run();
+                generateFromSwagger("ballerina-connector");
+//                generate.setSpec(argList.get(1));   //set swagger specification
+//                generate.setLang("ballerina-connector");
+//                generate.setOutput(output);
+//                generate.setApiPackage(apiPackage);
+//                generate.run();
                 break;
             case SKELETON:
-                generate.setSpec(argList.get(1));   //set swagger specification
-                generate.setLang("ballerina-skeleton");
-                generate.setOutput(output);
-                generate.setApiPackage(apiPackage);
-                generate.run();
+                generateFromSwagger("ballerina-skeleton");
+//                generate.setSpec(argList.get(1));   //set swagger specification
+//                generate.setLang("ballerina-skeleton");
+//                generate.setOutput(output);
+//                generate.setApiPackage(apiPackage);
+//                generate.run();
                 break;
             case MOCK:
-                generate.setSpec(argList.get(1));   //set swagger specification
-                generate.setLang("ballerina-mock-service");
-                generate.setOutput(output);
-                generate.setApiPackage(apiPackage);
-                generate.run();
+                generateFromSwagger("ballerina-mock-service");
+//                generate.setSpec(argList.get(1));   //set swagger specification
+//                generate.setLang("ballerina-mock-service");
+//                generate.setOutput(output);
+//                generate.setApiPackage(apiPackage);
+//                generate.run();
                 break;
             default:
                 throw LauncherUtils.createUsageException("Only following actions(connector, skeleton, mock) are " +
@@ -106,7 +110,7 @@ public class SwaggerCmd implements BLauncherCmd {
         stringBuilder.append("\tskeleton  : generates a ballerina service skeleton\n");
         stringBuilder.append("\tmock      : generates a ballerina mock service with sample responses\n");
     }
-    private  void printCommandUsageInfo() {
+    private void printCommandUsageInfo() {
         StringBuilder out = new StringBuilder();
         out.append("Ballerina swagger generator tool can generate ballerina connector, service skeleton and mock " +
                 "service for a given swagger definition.\n");
@@ -117,6 +121,25 @@ public class SwaggerCmd implements BLauncherCmd {
         printUsage(out);
 
         outStream.println(out.toString());
+    }
+
+    private void generateFromSwagger(String targetLanguage){
+        Generate generate = new Generate();
+        generate.setSpec(argList.get(1));   //set swagger specification
+        generate.setLang(targetLanguage);
+        generate.setOutput(output);
+        generate.setApiPackage(apiPackage);
+        try {
+            generate.run();
+        } catch (Exception e) {
+            String causeMessage = "";
+            Throwable rootCause = ExceptionUtils.getRootCause(e);
+            if(rootCause != null){
+                causeMessage = rootCause.getMessage();
+            }
+            throw LauncherUtils.createUsageException("Error occurred when generating " + targetLanguage + " for " +
+                    "swagger file at " + argList.get(1) + ". " + e.getMessage() + ". " + causeMessage);
+        }
     }
 
     @Override
