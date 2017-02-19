@@ -95,14 +95,15 @@ define(['lodash', 'log', 'event_channel', './abstract-symbol-table-gen-visitor',
             var self = this;
             functionDefinition.on('tree-modified', function (modifiedData) {
                 var attributeName = modifiedData.data.attributeName;
+                var oldValue = modifiedData.data.oldValue;
                 var newValue = modifiedData.data.newValue;
                 if (BallerinaASTFactory.isFunctionDefinition(modifiedData.origin)) {
                     if (!_.isEqual(attributeName, '_functionName')) {
                         newValue = undefined;
                     }
-                    self.updateFunctionDefinition(modifiedData.origin, newValue, modifiedData.data.child);
+                    self.updateFunctionDefinition(modifiedData.origin, oldValue, newValue, modifiedData.data.child);
                 } else if (BallerinaASTFactory.isReturnType(modifiedData.origin)){
-                    self.updateFunctionDefinition(modifiedData.origin.getParent(), newValue, modifiedData.origin);
+                    self.updateFunctionDefinition(modifiedData.origin.getParent(), oldValue, newValue, modifiedData.origin);
                 }
             });
         };
@@ -218,10 +219,11 @@ define(['lodash', 'log', 'event_channel', './abstract-symbol-table-gen-visitor',
          * @param {Object} newValue - new value
          * @param {Object} child - child which is getting modified
          */
-        BallerinaASTRootVisitor.prototype.updateFunctionDefinition = function (functionDefinition, newValue, child) {
+        BallerinaASTRootVisitor.prototype.updateFunctionDefinition = function (functionDefinition, oldValue, newValue, child) {
             var funcName = functionDefinition.getFunctionName();
             var functionDef = this.getPackage().getFunctionDefinitionByName(funcName);
             if (newValue) {
+                functionDef = this.getPackage().getFunctionDefinitionByName(oldValue);
                 functionDef.setName(newValue);
                 functionDef.setId(newValue);
             }
