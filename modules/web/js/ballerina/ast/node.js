@@ -179,12 +179,14 @@ define(['log', 'require', 'event_channel', 'lodash'], function(log, require, Eve
             visitor.beginVisit(this);
             var self = this;
             _.forEach(this.children, function (child) {
-                // visit current child
-                visitor.visit(child);
-                self.trigger("child-visited", child);
-                // forward visitor down the hierarchy to visit children of current child
-                // if visitor doesn't support visiting children of current child, it will break
-                child.accept(visitor);
+                if(child){
+                    // visit current child
+                    visitor.visit(child);
+                    self.trigger("child-visited", child);
+                    // forward visitor down the hierarchy to visit children of current child
+                    // if visitor doesn't support visiting children of current child, it will break
+                    child.accept(visitor);
+                }
             });
             visitor.endVisit(this);
         }
