@@ -55,6 +55,8 @@ import javax.xml.stream.XMLStreamException;
 
 public class JSONToXML extends AbstractNativeTypeMapper {
 
+    private static final String XML_ROOT = "jsonObject";
+    
     public BValue convert(Context ctx) {
         BJSON msg = (BJSON) getArgument(ctx, 0);
         BXML result = convertJSONString(msg.stringValue());;
@@ -64,7 +66,7 @@ public class JSONToXML extends AbstractNativeTypeMapper {
     private BXML convertJSONString(String message) {
         InputStream input = new ByteArrayInputStream(message.getBytes(StandardCharsets.UTF_8));
         ByteArrayOutputStream output = new ByteArrayOutputStream();
-        JsonXMLConfig config = new JsonXMLConfigBuilder().multiplePI(false).build();
+        JsonXMLConfig config = new JsonXMLConfigBuilder().multiplePI(false).virtualRoot(XML_ROOT).build();
         BXML result = null;
 
         XMLEventReader reader = null;
