@@ -210,10 +210,24 @@ public class BNullValueTest {
         BLangFunctions.invoke(bLangProgram, "accessElementInNullArray");
     }
 
+    @Test(description = "Test setting element of null array",
+          expectedExceptions = BallerinaException.class,
+          expectedExceptionsMessageRegExp = "null-value.bal:112: variable 'nullArray' is null")
+    public void testSetElementInNullArray() {
+        BLangFunctions.invoke(bLangProgram, "setElementInNullArray");
+    }
+
     @Test(description = "Test accessing element of null map",
           expectedExceptions = BallerinaException.class,
           expectedExceptionsMessageRegExp = "null-value.bal:107: variable 'nullMap' is null")
     public void testAccessingElementInNullMap() {
         BLangFunctions.invoke(bLangProgram, "accessElementInNullMap");
+    }
+
+    @Test(description = "Test setting element of null map",
+          expectedExceptions = BallerinaException.class,
+          expectedExceptionsMessageRegExp = "null-value.bal:117: variable 'nullMap' is null")
+    public void testSetElementInNullMap() {
+        BLangFunctions.invoke(bLangProgram, "setElementInNullMap");
     }
 }

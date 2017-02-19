@@ -1038,7 +1038,13 @@ public class BLangExecutor implements NodeExecutor {
     private void assignValueToArrayMapAccessExpr(BValue rValue, ArrayMapAccessExpr lExpr) {
         ArrayMapAccessExpr accessExpr = lExpr;
         if (!(accessExpr.getType() == BTypes.typeMap)) {
-            BArray arrayVal = (BArray) accessExpr.getRExpr().execute(this);
+            BValue bValue = accessExpr.getRExpr().execute(this);
+            if (bValue == BNull.instance()) {
+                throw new BallerinaException(
+                        LangModelUtils.getNodeLocationStr(accessExpr.getNodeLocation()) + "variable '" + accessExpr
+                                .getSymbolName() + "' is null");
+            }
+            BArray arrayVal = (BArray) bValue;
             BInteger indexVal = (BInteger) accessExpr.getIndexExpr().execute(this);
             arrayVal.add(indexVal.intValue(), rValue);
 

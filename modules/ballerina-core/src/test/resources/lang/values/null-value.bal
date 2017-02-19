@@ -107,6 +107,16 @@ function accessElementInNullMap() {
     string name = nullMap["name"];
 }
 
+function setElementInNullArray() {
+    string[] nullArray;
+    nullArray[2] = "hello";
+}
+
+function setElementInNullMap() {
+    map  nullMap;
+    nullMap["name"] = "hello";
+}
+
 function callFunctionWithNULLValue1()(xml){
     xml x = null;
     xml y = testSignature(x);

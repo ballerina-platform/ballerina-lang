@@ -1498,7 +1498,13 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
     private void assignValueToArrayMapAccessExpr(BValue rValue, ArrayMapAccessExpr lExpr) {
         ArrayMapAccessExpr accessExpr = lExpr;
         if (!(accessExpr.getType() == BTypes.typeMap)) {
-            BArray arrayVal = (BArray) getTempValue(accessExpr.getRExpr());
+            BValue bValue = getTempValue(accessExpr.getRExpr());
+            if (bValue == BNull.instance()) {
+                throw new BallerinaException(
+                        LangModelUtils.getNodeLocationStr(accessExpr.getNodeLocation()) + "variable '" + accessExpr
+                                .getSymbolName() + "' is null");
+            }
+            BArray arrayVal = (BArray) bValue;
             BInteger indexVal = (BInteger) getTempValue(accessExpr.getIndexExpr());
             arrayVal.add(indexVal.intValue(), rValue);
 
