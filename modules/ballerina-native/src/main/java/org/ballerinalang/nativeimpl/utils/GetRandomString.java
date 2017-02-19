@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -16,53 +16,46 @@
  * under the License.
  */
 
-package org.ballerinalang.nativeimpl.util;
+package org.ballerinalang.nativeimpl.utils;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeEnum;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
-import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.Attribute;
 import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.osgi.service.component.annotations.Component;
 
-import java.nio.charset.Charset;
-import java.util.Base64;
+import java.util.UUID;
 
 /**
- * Native function ballerina.util:base64decode.
+ * Native function ballerina.utils:getRandomString.
  *
  * @since 0.8.0
  */
 @BallerinaFunction(
-        packageName = "ballerina.util",
-        functionName = "base64decode",
-        args = {@Argument(name = "s", type = TypeEnum.STRING)},
+        packageName = "ballerina.utils",
+        functionName = "getRandomString",
         returnType = {@ReturnType(type = TypeEnum.STRING)},
         isPublic = true
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
-        value = "Decodes a Base64 encoded string to a new string") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "s",
-        value = "The input string to be decoded") })
+        value = "Returns a random UUID string") })
 @BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "string",
-        value = "The decoded string") })
+        value = "The random string") })
 @Component(
-        name = "func.util_base64decode",
+        name = "func.util_getRandomString",
         immediate = true,
         service = AbstractNativeFunction.class
 )
-public class Base64Decode extends AbstractNativeFunction {
+public class GetRandomString extends AbstractNativeFunction {
 
     @Override
     public BValue[] execute(Context context) {
-        String str = getArgument(context, 0).stringValue();
-        byte[] decode = Base64.getDecoder().decode(str.getBytes(Charset.defaultCharset()));
-
-        return getBValues(new BString(new String(decode, Charset.defaultCharset())));
+        String randomString = UUID.randomUUID().toString().replaceAll("-", "");
+        return getBValues(new BString(randomString));
     }
 }
