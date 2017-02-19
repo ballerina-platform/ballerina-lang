@@ -102,6 +102,28 @@ function assertEquals(int actual, int expected, string message) {
     }
 }
 
+@doc:Description("Asserts whether the given float values are equal.
+                  If it is not, a BallerinaException is thrown with the given message.")
+@doc:Param("actual: Actual float value")
+@doc:Param("expected: Expected float value")
+function assertEquals(float actual, float expected) {
+    assertEquals(actual, expected, "");
+}
+
+@doc:Description("Asserts whether the given float values are equal.
+                  If it is not, a BallerinaException is thrown with the given message.")
+@doc:Param("actual: Actual float value")
+@doc:Param("expected: Expected float value")
+@doc:Param("message: Assertion error message")
+function assertEquals(float actual, float expected, string message) {
+    if (actual != expected) {
+        if (message == "") {
+            message = "Float not equal: expected: " + expected + " and actual: "+ actual;
+        }
+        throw createBallerinaException(message, assertFailureErrorCategory);
+    }
+}
+
 @doc:Description("Asserts whether the given boolean values are equal.
                   If it is not, a BallerinaException is thrown with the given message.")
 @doc:Param("actual: Actual boolean value")
@@ -140,6 +162,46 @@ function assertEquals(string[] actual, string[] expected) {
 @doc:Param("expected: Expected string array")
 @doc:Param("message: Assertion error message")
 function assertEquals(string[] actual, string[] expected, string message) {
+    if (message == "") {
+        message = arraysNotEqualMessage;
+    }
+    if (array:length(actual) != array:length(expected)) {
+        throw createBallerinaException(message + arrayLengthsMismatchMessage, assertFailureErrorCategory);
+    } else {
+        if (array:length(expected) > 0) {
+            int i = 0;
+            while (i < array:length(expected)) {
+                try {
+                    assertEquals(actual[i], expected[i]);
+                } catch (exception e) {
+                    if (exceptions:getCategory(e) == assertFailureErrorCategory) {
+                        throw createBallerinaException(
+                                                message + ". " + exceptions:getMessage(e) + " (at index " + i + ") " ,
+                                                assertFailureErrorCategory);
+                    }
+                }
+                i = i + 1;
+            }
+        }
+    }
+}
+
+@doc:Description("Asserts whether the given float arrays are equal.
+                  If it is not, a BallerinaException is thrown with the given message
+                  including differed float values and array index.")
+@doc:Param("actual: Actual float array")
+@doc:Param("expected: Expected float array")
+function assertEquals(float[] actual, float[] expected) {
+    assertEquals(actual, expected, "");
+}
+
+@doc:Description("Asserts whether the given float arrays are equal.
+                  If it is not, a BallerinaException is thrown with the given message
+                  including differed float values and array index.")
+@doc:Param("actual: Actual float array")
+@doc:Param("expected: Expected float array")
+@doc:Param("message: Assertion error message")
+function assertEquals(float[] actual, float[] expected, string message) {
     if (message == "") {
         message = arraysNotEqualMessage;
     }
