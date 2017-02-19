@@ -177,9 +177,6 @@ public class BLangFileRestService {
         BLangAntlr4Listener ballerinaBaseListener = new BLangAntlr4Listener(bLangModelBuilder);
         ballerinaParser.addParseListener(ballerinaBaseListener);
         ballerinaParser.compilationUnit();
-        BallerinaFile bFile = bLangModelBuilder.build();
-
-        BuiltInNativeConstructLoader.loadConstructs(globalScope);
 
         JsonArray errors = new JsonArray();
 

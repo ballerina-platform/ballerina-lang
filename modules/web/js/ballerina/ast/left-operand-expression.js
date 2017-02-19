@@ -65,6 +65,10 @@ define(['lodash', './statement'], function (_, Statement) {
         this.setAttribute('_operand_type', operandType, options);
     };
 
+    LeftOperandExpression.prototype.setLeftOperandType = function (operandType, options) {
+        this.setAttribute('_operand_type', operandType.trim(), options);
+    };
+
     /**
      * setting parameters from json
      * @param jsonNode

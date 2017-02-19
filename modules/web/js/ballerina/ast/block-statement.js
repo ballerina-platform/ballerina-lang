@@ -60,10 +60,36 @@ define(['lodash', './node'], function (_, ASTNode) {
     BlockStatement.prototype.initFromJson = function (jsonNode) {
         var self = this;
         _.each(jsonNode.children, function (childNode) {
-            var child = self.BallerinaASTFactory.createFromJson(childNode);
+            var child = self.getFactory().createFromJson(childNode);
             self.addChild(child);
             child.initFromJson(childNode);
         });
+    };
+
+    /**
+     * Override the super call to addChild
+     * @param {ASTNode} child
+     * @param {number} index
+     */
+    BlockStatement.prototype.addChild = function (child, index,isModified,willVisit) {
+        var self = this;
+
+        if(self.getFactory().isAssignmentStatement(child)){
+            index = _.findLastIndex(self.getChildren());
+        }
+        if (!_.isUndefined(willVisit) && willVisit != true){
+
+            if (_.isUndefined(index)) {
+                self.children.push(child);
+            } else {
+                self.children.splice(index, 0, child);
+            }
+            //setting the parent node - doing silently avoid subsequent change events
+            child.setParent(self, {doSilently:true});
+            child.generateUniqueIdentifiers();
+        }else{
+            Object.getPrototypeOf(this.constructor.prototype).addChild.call(this, child,index);
+        }
     };
 
     return BlockStatement;

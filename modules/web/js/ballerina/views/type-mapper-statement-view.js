@@ -106,12 +106,7 @@ define(['lodash', 'log','./ballerina-view','ballerina/ast/ballerina-ast-factory'
             return this._typeMapperRenderer;
         };
 
-        /**
-         * returns the constructed connection schema to be drawn
-         * @returns {object}
-         */
-        TypeMapperStatementView.prototype.getConnectionSchema = function (assignmentStatement) {
-
+        TypeMapperStatementView.prototype.getConnectionSchema = function(assignmentStatement){
             var self = this;
             var sourceStructSchema = self.getSourceInfo().sourceStruct;
             var sourceStructName = self.getSourceInfo().sourceStructName;
@@ -135,7 +130,7 @@ define(['lodash', 'log','./ballerina-view','ballerina/ast/ballerina-ast-factory'
                 return BallerinaASTFactory.isStructFieldAccessExpression(child);
             });
 
-            var complexTargetProperties = this.getExpressionProperties(targetFieldExpression,targetStructSchema,[]);
+            var complexTargetProperties = this.getParentView().getExpressionProperties(targetFieldExpression,targetStructSchema,[]);
 
             _.each(complexTargetProperties, function(property) {
                 targetPropertyNameArray.push(property.name);
@@ -161,25 +156,16 @@ define(['lodash', 'log','./ballerina-view','ballerina/ast/ballerina-ast-factory'
                     return BallerinaASTFactory.isStructFieldAccessExpression(child);
                 });
             }
-            if (sourceStructFieldAccessExpression) {
-                var sourceFieldExpression = _.find(sourceStructFieldAccessExpression.getChildren(), function (child) {
-                    return BallerinaASTFactory.isStructFieldAccessExpression(child);
-                });
+            var sourceFieldExpression = _.find(sourceStructFieldAccessExpression.getChildren(), function (child) {
+                return BallerinaASTFactory.isStructFieldAccessExpression(child);
+            });
 
-                var complexSourceProperties = this.getExpressionProperties(sourceFieldExpression, sourceStructSchema, []);
+            var complexSourceProperties = self.getParentView().getExpressionProperties(sourceFieldExpression, sourceStructSchema, []);
 
-                _.each(complexSourceProperties, function (property) {
-                    sourcePropertyNameArray.push(property.name);
-                    sourcePropertyTypeArray.push(property.type);
-                });
-
-            } else {
-                // the source could be just a variable.
-                var variableReference = _.find(rightOperandExpression.getChildren(), function (child) {
-                    return BallerinaASTFactory.isVariableReferenceExpression(child);
-                });
-                //TODO: find the source for the variable.
-            }
+            _.each(complexSourceProperties, function (property) {
+                sourcePropertyNameArray.push(property.name);
+                sourcePropertyTypeArray.push(property.type);
+            });
 
             var connectionSchema = {};
             connectionSchema["sourceStruct"] = sourceStructName;
@@ -191,7 +177,7 @@ define(['lodash', 'log','./ballerina-view','ballerina/ast/ballerina-ast-factory'
             connectionSchema["id"] = assignmentStatement.getID();
 
             return connectionSchema;
-        };
+        }
 
         /**
          * returns the parent view
@@ -231,47 +217,6 @@ define(['lodash', 'log','./ballerina-view','ballerina/ast/ballerina-ast-factory'
          */
         TypeMapperStatementView.prototype.getTypeMapperRenderer = function () {
             return this._typeMapperRenderer;
-        };
-
-        /**
-         * returns the values of children
-         * @returns {object}
-         */
-        TypeMapperStatementView.prototype.getExpressionProperties = function (fieldExpression,structSchema,propertyArray) {
-
-            var self = this;
-            var tempType = "";
-            var tempAttr = {};
-
-            var variableRefExpression = _.find(fieldExpression.getChildren(), function (child) {
-                return BallerinaASTFactory.isVariableReferenceExpression(child);
-            });
-
-            tempAttr[STRUCT_DEFINITION_ATTRIBUTES_ARRAY_PROPERTY_NAME] = variableRefExpression.getVariableReferenceName();
-
-            _.each(structSchema.getAttributesArray().properties, function(property) {
-                if(property.name == variableRefExpression.getVariableReferenceName()){
-                    tempType = property.type;
-                    return false;
-                }
-            });
-
-            tempAttr[STRUCT_DEFINITION_ATTRIBUTES_ARRAY_PROPERTY_TYPE] = tempType;
-
-            propertyArray.push(tempAttr);
-
-            var innerFieldExpression = _.find(fieldExpression.getChildren(), function (child) {
-                return BallerinaASTFactory.isStructFieldAccessExpression(child);
-            });
-
-            if(!_.isUndefined(innerFieldExpression)) {
-                var availableDefinedStructs = self.getSourceInfo().predefinedStructs;
-                var innerStruct = _.find(availableDefinedStructs, function (struct) {
-                    return struct.getStructName() == tempType
-                });
-                self.getExpressionProperties(innerFieldExpression,innerStruct,propertyArray);
-            }
-            return propertyArray;
         };
 
         return TypeMapperStatementView;

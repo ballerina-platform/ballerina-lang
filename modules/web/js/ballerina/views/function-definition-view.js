@@ -571,6 +571,13 @@ define(['lodash', 'log', 'event_channel',  'alerts', './svg-canvas', './../ast/f
         };
 
         /**
+         * This function will skip comment views rendering
+         * @param commentStatement
+         */
+        FunctionDefinitionView.prototype.visitCommentStatement = function (commentStatement) {
+        };
+
+        /**
          * Calls the render method for a connector declaration.
          * @param connectorDeclaration
          */

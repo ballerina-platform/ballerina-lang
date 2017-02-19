@@ -29,7 +29,7 @@ define('ace/mode/ballerina',
             var keywordMapper = this.createKeywordMapper({
                 "ballerina-keyword-control": "if|else|iterator|try|catch|fork|join|while|throw|throws|return|break|timeout",
                 "ballerina-keyword-other": "import|version|public",
-                "ballerina-keyword-primitive-type": "boolean|int|long|float|double|string",
+                "ballerina-keyword-primitive-type": "boolean|int|long|float|string",
                 "ballerina-keyword-non-primitive-type": "message|map|exception|json|xml|xmlDocument",
                 "ballerina-keyword-definition": "package|type|typeconvertor|connector|function|resource|service|worker|struct",
                 "ballerina-keyword-language": "const|true|false|reply|create"
@@ -72,6 +72,9 @@ define('ace/mode/ballerina',
                             syntaxError.row = syntaxError.row - 1;
                         });
                         session.setAnnotations(results.data);
+                    } else {
+                        // no new errors or something wrong with validator. clear up current errors
+                        session.clearAnnotations();
                     }
                 });
 

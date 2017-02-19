@@ -17,10 +17,10 @@
  */
 define(['lodash', 'log', 'event_channel', '../../ast/module', './function-invocation-visitor',
         './arithmetic-expression-visitor', './logical-expression-visitor', './struct-field-access-expression-visitor',
-        './variable-reference-expression-visitor','./reference-type-init-expression-visitor'],
+        './variable-reference-expression-visitor','./reference-type-init-expression-visitor','./type-cast-expression-visitor'],
     function (_, log, EventChannel, AST, FunctionInvocationVisitor, ArithmeticExpressionVisitor,
               LogicalExpressionVisitor, StructFieldAccessExpressionVisitor, VariableReferenceExpressionVisitor,
-              ReferenceTypeInitExpressionVisitor) {
+              ReferenceTypeInitExpressionVisitor, TypeCastExpressionVisitor) {
 
         var ExpressionViewFactory = function () {
         };
@@ -35,10 +35,12 @@ define(['lodash', 'log', 'event_channel', '../../ast/module', './function-invoca
                 return new LogicalExpressionVisitor(_.get(args, "parent"));
             } else if (expression instanceof AST.StructFieldAccessExpression) {
                 return new StructFieldAccessExpressionVisitor(_.get(args, "parent"));
-            }else if (expression instanceof AST.VariableReferenceExpression) {
+            } else if (expression instanceof AST.VariableReferenceExpression) {
                 return new VariableReferenceExpressionVisitor(_.get(args, "parent"));
-            }else if (expression instanceof AST.ReferenceTypeInitExpression) {
+            } else if (expression instanceof AST.ReferenceTypeInitExpression) {
                 return new ReferenceTypeInitExpressionVisitor(_.get(args, "parent"));
+            } else if (expression instanceof AST.TypeCastExpression) {
+                return new TypeCastExpressionVisitor(_.get(args, "parent"));
             }
         };
 

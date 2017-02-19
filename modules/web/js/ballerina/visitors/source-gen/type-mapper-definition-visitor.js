@@ -16,8 +16,8 @@
  * under the License.
  */
 define(['lodash', 'log', 'event_channel', './abstract-source-gen-visitor', './statement-visitor-factory',
-        './block-statement-visitor'],
-    function(_, log, EventChannel, AbstractSourceGenVisitor, StatementVisitorFactory, BlockStatementVisitor) {
+        './type-mapper-block-statement-visitor'],
+    function(_, log, EventChannel, AbstractSourceGenVisitor, StatementVisitorFactory, TypeMapperBlockStatementVisitor) {
 
         /**
          * @param parent
@@ -45,7 +45,7 @@ define(['lodash', 'log', 'event_channel', './abstract-source-gen-visitor', './st
              * that particular source generation has to be constructed here
              */
 
-            var constructedSourceSegment = 'typeconvertor ' + typeMapperDefinition.getTypeMapperName() +
+            var constructedSourceSegment = 'typemapper ' + typeMapperDefinition.getTypeMapperName() +
                 ' (' + typeMapperDefinition.getInputParamAndIdentifier() + ' )(' + typeMapperDefinition.getReturnType() +
                 ' ) {';
             this.appendSource(constructedSourceSegment);
@@ -63,7 +63,7 @@ define(['lodash', 'log', 'event_channel', './abstract-source-gen-visitor', './st
         };
 
        TypeMapperDefinitionVisitor.prototype.visitBlockStatement = function (blockStatement) {
-           var blockStatementVisitor = new BlockStatementVisitor(this);
+           var blockStatementVisitor = new TypeMapperBlockStatementVisitor(this);
            blockStatement.accept(blockStatementVisitor);
        };
 

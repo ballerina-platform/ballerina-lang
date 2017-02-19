@@ -204,7 +204,7 @@ define(['log', 'jquery', './../ast/ballerina-ast-factory', './../tool-palette/to
         var createThrowStatementTool = {
             id: "Throw",
             name: "Throw",
-            icon: "images/tool-icons/reply.svg",
+            icon: "images/tool-icons/throw.svg",
             title: "Throw",
             nodeFactoryMethod: DefaultsAddedBallerinaASTFactory.createThrowStatement
         };
