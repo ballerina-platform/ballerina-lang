@@ -22,9 +22,6 @@ import javax.swing.Icon;
 
 public class BallerinaIcons {
 
-    public static final Icon FILE = IconLoader.findIcon("/icons/flag.png");
-    public static final Icon MODULE = IconLoader.findIcon("/icons/flag.png");
-    public static final Icon FUNCTION = IconLoader.findIcon("/icons/function.png");
-    public static final Icon BALLERINA = IconLoader.findIcon("/icons/ballerina.png");
+    public static final Icon ICON = IconLoader.findIcon("/icons/ballerina.png");
 
 }

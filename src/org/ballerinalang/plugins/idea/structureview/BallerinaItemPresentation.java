@@ -35,7 +35,7 @@ public class BallerinaItemPresentation implements ItemPresentation {
     @Nullable
     @Override
     public Icon getIcon(boolean unused) {
-        return BallerinaIcons.FUNCTION;
+        return BallerinaIcons.ICON;
     }
 
     @Nullable
