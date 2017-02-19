@@ -150,35 +150,35 @@ public class BallerinaBaseVisitor<T> extends AbstractParseTreeVisitor<T> impleme
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitTypeConvertorDefinition(BallerinaParser.TypeConvertorDefinitionContext ctx) { return visitChildren(ctx); }
+	@Override public T visitTypeMapperDefinition(BallerinaParser.TypeMapperDefinitionContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitNativeTypeConvertor(BallerinaParser.NativeTypeConvertorContext ctx) { return visitChildren(ctx); }
+	@Override public T visitNativeTypeMapper(BallerinaParser.NativeTypeMapperContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitTypeConvertor(BallerinaParser.TypeConvertorContext ctx) { return visitChildren(ctx); }
+	@Override public T visitTypeMapper(BallerinaParser.TypeMapperContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitTypeConvertorInput(BallerinaParser.TypeConvertorInputContext ctx) { return visitChildren(ctx); }
+	@Override public T visitTypeMapperInput(BallerinaParser.TypeMapperInputContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitTypeConvertorBody(BallerinaParser.TypeConvertorBodyContext ctx) { return visitChildren(ctx); }
+	@Override public T visitTypeMapperBody(BallerinaParser.TypeMapperBodyContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -234,7 +234,7 @@ public class BallerinaBaseVisitor<T> extends AbstractParseTreeVisitor<T> impleme
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitTypeConvertorType(BallerinaParser.TypeConvertorTypeContext ctx) { return visitChildren(ctx); }
+	@Override public T visitTypeMapperType(BallerinaParser.TypeMapperTypeContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *

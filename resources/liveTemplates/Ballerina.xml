@@ -118,8 +118,8 @@
         </context>
     </template>
 
-    <template name="typ" value="typeconvertor $NAME$ ($INPUT$) ($TYPE$) {&#10;    $END$&#10;}"
-              description="Typeconverter Template" toReformat="false"
+    <template name="tm" value="typemapper $NAME$ ($INPUT$) ($TYPE$) {&#10;    $END$&#10;}"
+              description="Typemapper Template" toReformat="false"
               toShortenFQNames="false">
         <variable name="NAME" expression="" defaultValue="" alwaysStopAt="true"/>
         <variable name="INPUT" expression="" defaultValue="" alwaysStopAt="true"/>

@@ -89,7 +89,7 @@ public class BallerinaBlock extends AbstractBlock {
                     if (parentElementType == IF_ELSE_STATEMENT || parentElementType == ITERATE_STATEMENT
                             || parentElementType == WHILE_STATEMENT || parentElementType == JOIN_CLAUS
                             || parentElementType == TIMEOUT_CLAUSE || parentElementType == TRY_CATCH_STATEMENT
-                            || parentElementType == TYPE_CONVERTER_BODY || parentElementType == WORKER_DECLARATION) {
+                            || parentElementType == TYPE_MAPPER_BODY || parentElementType == WORKER_DECLARATION) {
                         indent = Indent.getSpaceIndent(4);
                     }
                 } else if (childElementType == COMMENT_STATEMENT) {
@@ -99,7 +99,7 @@ public class BallerinaBlock extends AbstractBlock {
                             || parentElementType == IF_ELSE_STATEMENT || parentElementType == ITERATE_STATEMENT
                             || parentElementType == WHILE_STATEMENT || parentElementType == JOIN_CLAUS
                             || parentElementType == TIMEOUT_CLAUSE || parentElementType == TRY_CATCH_STATEMENT
-                            || parentElementType == TYPE_CONVERTER_BODY || parentElementType == WORKER_DECLARATION) {
+                            || parentElementType == TYPE_MAPPER_BODY || parentElementType == WORKER_DECLARATION) {
                         indent = Indent.getSpaceIndent(4);
                     }
                 }

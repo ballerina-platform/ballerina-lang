@@ -60,8 +60,8 @@
         <langCodeStyleSettingsProvider
                 implementation="org.ballerinalang.plugins.idea.formatter.settings.BallerinaLanguageCodeStyleSettingsProvider"/>
 
-        <enterHandlerDelegate
-                implementation="org.ballerinalang.plugins.idea.formatter.BallerinaEnterBetweenBracesHandler"/>
+        <quoteHandler fileType="Ballerina file"
+                      className="org.ballerinalang.plugins.idea.codeinsight.editoractions.BallerinaQuoteHandler"/>
 
         <!--structure view-->
         <lang.psiStructureViewFactory language="Ballerina"
@@ -81,7 +81,7 @@
         <codeInsight.lineMarkerProvider language="Ballerina"
                                         implementationClass="org.ballerinalang.plugins.idea.marker.BallerinaRecursiveCallMarkerProvider"/>
 
-        <!--find org.ballerinalang.plugins.idea.usage-->
+        <!--find usage-->
         <lang.findUsagesProvider language="Ballerina"
                                  implementationClass="org.ballerinalang.plugins.idea.usage.BallerinaFindUsageProvider"/>
 
@@ -98,7 +98,8 @@
         <liveTemplateContext implementation="org.ballerinalang.plugins.idea.template.BallerinaEverywhereContextType"/>
         <liveTemplateContext implementation="org.ballerinalang.plugins.idea.template.BallerinaCodeContextType$File"/>
         <liveTemplateContext implementation="org.ballerinalang.plugins.idea.template.BallerinaCodeContextType$Service"/>
-        <liveTemplateContext implementation="org.ballerinalang.plugins.idea.template.BallerinaCodeContextType$Connector"/>
+        <liveTemplateContext
+                implementation="org.ballerinalang.plugins.idea.template.BallerinaCodeContextType$Connector"/>
 
         <!-- sdk -->
         <sdkType implementation="org.ballerinalang.plugins.idea.sdk.BallerinaSdkType"/>
