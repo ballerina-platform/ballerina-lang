@@ -34,6 +34,8 @@ public class TesterinaContext {
     private ArrayList<TesterinaFunction> beforeTestFunctions = new ArrayList<>();
     private ArrayList<TesterinaFunction> afterTestFunctions = new ArrayList<>();
 
+    public static final String ASSERTION_EXCEPTION_CATEGORY = "assert-failure";
+
     public TesterinaContext(BLangProgram[] bLangPrograms) {
         Arrays.stream(bLangPrograms).forEach(this::extractTestFunctions);
     }

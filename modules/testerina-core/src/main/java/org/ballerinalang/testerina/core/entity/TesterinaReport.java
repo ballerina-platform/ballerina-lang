@@ -33,7 +33,7 @@ public class TesterinaReport {
         return functionResults;
     }
 
-    private void printTestSummary(){
+    public static void printTestSummary(){
         int passedFunctionCount = 0 ;
         int failedFunctionCount = 0 ;
         String newLine = System.getProperty("line.separator");
