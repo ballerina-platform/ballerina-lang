@@ -70,7 +70,6 @@ public class BTestRunner {
 
         executeTestFunctions(bLangPrograms);
         tReport.printTestSummary();
-
         Runtime.getRuntime().exit(0);
     }
 
@@ -103,7 +102,7 @@ public class BTestRunner {
                 tFunction.invoke();
             } catch (BallerinaException e) {
                 outStream.println(
-                        "Error while running the before test function: '" + tFunction.getName() + "'. Error : " +
+                        "Error while running the before test function: '" + tFunction.getName() + "'. **** ERROR : " +
                                 e.getBException().value().getMessage().stringValue());
             }
         }
@@ -121,7 +120,7 @@ public class BTestRunner {
                 isTestPassed = false;
                 testMessage = e.getBException().value().getMessage().stringValue();
                 outStream.println(
-                        "Error while running the function: '" + tFunction.getName() + "'. Error : " +
+                        "Error while running the function: '" + tFunction.getName() + "'. **** ERROR : " +
                                 e.getBException().value().getMessage().stringValue());
 
             }
@@ -138,7 +137,7 @@ public class BTestRunner {
                 tFunction.invoke();
             } catch (BallerinaException e) {
                 outStream.println(
-                        "Error while running the after test function: '" + tFunction.getName() + "'. Error : " +
+                        "Error while running the after test function: '" + tFunction.getName() + "'. **** ERROR : " +
                                 e.getBException().value().getMessage().stringValue());
             }
         }
@@ -146,50 +145,4 @@ public class BTestRunner {
 
     }
 
-    /*
-    private static void executeTestFunctions(BallerinaFile bFile) {
-        TesterinaContext tFile = new TesterinaContext(bFile);
-        ArrayList<TesterinaFunction> testFunctions = tFile.getTestFunctions();
-        ArrayList<TesterinaFunction> beforeTestFunctions = tFile.getBeforeTestFunctions();
-        ArrayList<TesterinaFunction> afterTestFunctions = tFile.getAfterTestFunctions();
-
-        if (testFunctions.isEmpty()) {
-            throw new BallerinaException("No test functions found in the provided ballerina files.");
-        }
-
-        //before test
-        for (TesterinaFunction tFunction : beforeTestFunctions) {
-            try {
-                tFunction.invoke();
-            } catch (BallerinaException e) {
-                outStream.println(
-                        "Error while running the before test function: '" + tFunction.getName() + "'. Error : " + e
-                                .getMessage());
-            }
-        }
-
-        //test
-        for (TesterinaFunction tFunction : testFunctions) {
-            try {
-                outStream.println("Started running test '" + tFunction.getName() + "'...");
-                tFunction.invoke();
-                outStream.println("Finished running test '" + tFunction.getName() + "'.");
-            } catch (BallerinaException e) {
-                outStream.println(
-                        "Error while running the function: '" + tFunction.getName() + "'. Error : " + e.getMessage());
-            }
-        }
-
-        //after test
-        for (TesterinaFunction tFunction : afterTestFunctions) {
-            try {
-                tFunction.invoke();
-            } catch (BallerinaException e) {
-                outStream.println(
-                        "Error while running the after test function: '" + tFunction.getName() + "'. Error : " + e
-                                .getMessage());
-            }
-        }
-    }
-*/
 }
