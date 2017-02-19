@@ -704,19 +704,15 @@ public class SemanticAnalyzer implements NodeVisitor {
     public void visit(BlockStmt blockStmt) {
         openScope(blockStmt);
 
-        for (int i = 0; i < blockStmt.getStatements().length; i++) {
-            Statement stmt = blockStmt.getStatements()[i];
+        for (int stmtIndex = 0; stmtIndex < blockStmt.getStatements().length; stmtIndex++) {
+            Statement stmt = blockStmt.getStatements()[stmtIndex];
             if (stmt instanceof BreakStmt && whileStmtCount < 1) {
                 BLangExceptionHelper.throwSemanticError(stmt,
                         SemanticErrors.BREAK_STMT_NOT_ALLOWED_HERE);
             }
-            if (stmt instanceof ReturnStmt || stmt instanceof ReplyStmt || stmt instanceof BreakStmt ||
-                    stmt instanceof ThrowStmt) {
-                int stmtLocation = i + 1;
-                if (blockStmt.getStatements().length > stmtLocation) {
-                    BLangExceptionHelper.throwSemanticError(blockStmt.getStatements()[stmtLocation],
-                            SemanticErrors.UNREACHABLE_STATEMENT);
-                }
+            if (stmt instanceof ReturnStmt || stmt instanceof ReplyStmt || stmt instanceof BreakStmt
+                    || stmt instanceof ThrowStmt) {
+                checkUnreachableStmt(blockStmt.getStatements(), ++stmtIndex);
             }
             stmt.accept(this);
         }
@@ -2431,6 +2427,17 @@ public class SemanticAnalyzer implements NodeVisitor {
                 BType fieldType = BTypes.resolveType(variableDef.getTypeName(), currentScope,
                         variableDef.getNodeLocation());
                 variableDef.setType(fieldType);
+            }
+        }
+    }
+
+    private void checkUnreachableStmt(Statement[] stmts, int stmtIndex) {
+        if (stmts.length > stmtIndex) {
+            //skip comment statement.
+            if (stmts[stmtIndex] instanceof CommentStmt) {
+                checkUnreachableStmt(stmts, ++stmtIndex);
+            } else {
+                BLangExceptionHelper.throwSemanticError(stmts[stmtIndex], SemanticErrors.UNREACHABLE_STATEMENT);
             }
         }
     }
