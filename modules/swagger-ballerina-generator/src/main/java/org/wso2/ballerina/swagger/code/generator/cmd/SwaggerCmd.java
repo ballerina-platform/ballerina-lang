@@ -65,31 +65,15 @@ public class SwaggerCmd implements BLauncherCmd {
                     "Ex: ballerina swagger connector swagger_file");
         }
         String action = argList.get(0);
-//        Generate generate = new Generate();
         switch (action) {
             case CONNECTOR:
                 generateFromSwagger("ballerina-connector");
-//                generate.setSpec(argList.get(1));   //set swagger specification
-//                generate.setLang("ballerina-connector");
-//                generate.setOutput(output);
-//                generate.setApiPackage(apiPackage);
-//                generate.run();
                 break;
             case SKELETON:
                 generateFromSwagger("ballerina-skeleton");
-//                generate.setSpec(argList.get(1));   //set swagger specification
-//                generate.setLang("ballerina-skeleton");
-//                generate.setOutput(output);
-//                generate.setApiPackage(apiPackage);
-//                generate.run();
                 break;
             case MOCK:
                 generateFromSwagger("ballerina-mock-service");
-//                generate.setSpec(argList.get(1));   //set swagger specification
-//                generate.setLang("ballerina-mock-service");
-//                generate.setOutput(output);
-//                generate.setApiPackage(apiPackage);
-//                generate.run();
                 break;
             default:
                 throw LauncherUtils.createUsageException("Only following actions(connector, skeleton, mock) are " +
