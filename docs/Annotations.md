@@ -30,7 +30,7 @@ Following is a sample function with documentation annotations:
 @doc:Param("key: HTTP header key")
 @doc:Param("value: HTTP header value")
 @doc:Return("result: Result of the execution")
-public function addHeader (message m, string key, string value) (bool result) {
+function addHeader (message m, string key, string value) (boolean result) {
     system:println("invoked");
     return true;
 }
