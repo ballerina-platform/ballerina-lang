@@ -1,4 +1,4 @@
-import ballerina.lang.jsonutils;
+import ballerina.lang.jsons;
 import ballerina.lang.messages;
 import ballerina.lang.strings;
 import ballerina.lang.system;
@@ -49,5 +49,5 @@ function main (string[] args) {
     message tweetResponse = Twitter.tweet(twitterConnector, args[4]);
 
     json tweetJSONResponse = messages:getJsonPayload(tweetResponse);
-    system:println(jsonutils:toString(tweetJSONResponse));
+    system:println(jsons:toString(tweetJSONResponse));
 }

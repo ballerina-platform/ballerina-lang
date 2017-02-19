@@ -16,7 +16,7 @@ function init(TwitterConnector t) throws exception {
     loginMessage = new message;
     messages:setPayload(loginMessage, loginReq);
     response = http:post(twitterEP, "/token", loginMessage);
-    t.oAuthToken = jsonutils:get(messages:getPayload(response), "$.oAuthToken");
+    t.oAuthToken = jsons:get(messages:getPayload(response), "$.oAuthToken");
 }
 
 connector Twitter(string username, string password,
