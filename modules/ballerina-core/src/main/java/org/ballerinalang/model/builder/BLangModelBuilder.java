@@ -86,7 +86,6 @@ import org.ballerinalang.model.statements.WorkerReplyStmt;
 import org.ballerinalang.model.symbols.BLangSymbol;
 import org.ballerinalang.model.types.SimpleTypeName;
 import org.ballerinalang.model.types.TypeConstants;
-import org.ballerinalang.model.util.LangModelUtils;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BDouble;
 import org.ballerinalang.model.values.BFloat;
@@ -499,8 +498,8 @@ public class BLangModelBuilder {
         // if one of expression is null, only equal and not equal operators are allowed for null values
         if ((rExpr instanceof NullLiteral || lExpr instanceof NullLiteral) && !(opStr.equals("==") || opStr
                 .equals("!="))) {
-            errorMsgs.add(LangModelUtils.getNodeLocationStr(location) + "null not allowed with the operator '" + opStr
-                    + "'");
+            errorMsgs.add(BLangExceptionHelper
+                    .constructSemanticError(location, SemanticErrors.NULL_NOT_ALLOWED_HERE_WITH_OPERATOR) + opStr);
         }
 
         BinaryExpression expr;

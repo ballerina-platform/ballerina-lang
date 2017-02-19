@@ -198,7 +198,7 @@ public class BNullValueTest {
 
     @Test(description = "Test not supported operator with null",
           expectedExceptions = SemanticException.class,
-          expectedExceptionsMessageRegExp = "grater-than-null.bal:3: null not allowed with the operator '>'")
+          expectedExceptionsMessageRegExp = "grater-than-null.bal:3: null not allowed here with the operator >")
     public void testBinaryOperatorValidityWithNull() {
         new BLangProgramLoader().loadLibrary(programPath, Paths.get("lang/values/grater-than-null.bal"));
     }
