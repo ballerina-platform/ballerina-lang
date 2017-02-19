@@ -292,17 +292,16 @@ public class Util {
 
         sslConfig.setTrustStore(trustStore).setTrustStorePass(trustStorePass);
         sslConfig.setClientMode(true);
-        for (Parameter parameter : parametersList) {
-            if (parameter.getName()
-                    .equals(Constants.CLIENT_SUPPORT_CIPHERS)) {
-                sslConfig.setCipherSuites(parameter.getValue());
-
-            } else if (parameter.getName()
-                    .equals(Constants.CLIENT_SUPPORT_HTTPS_PROTOCOLS)) {
-                sslConfig.setEnableProtocols(parameter.getValue());
-            } else if (parameter.getName()
-                    .equals(Constants.CLIENT_ENABLE_SESSION_CREATION)) {
-                sslConfig.setEnableSessionCreation(Boolean.parseBoolean(parameter.getValue()));
+        if (parametersList != null) {
+            for (Parameter parameter : parametersList) {
+                String paramName = parameter.getName();
+                if (Constants.CLIENT_SUPPORT_CIPHERS.equals(paramName)) {
+                    sslConfig.setCipherSuites(parameter.getValue());
+                } else if (Constants.CLIENT_SUPPORT_HTTPS_PROTOCOLS.equals(paramName)) {
+                    sslConfig.setEnableProtocols(parameter.getValue());
+                } else if (Constants.CLIENT_ENABLE_SESSION_CREATION.equals(paramName)) {
+                    sslConfig.setEnableSessionCreation(Boolean.parseBoolean(parameter.getValue()));
+                }
             }
         }
         return sslConfig;
