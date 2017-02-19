@@ -120,7 +120,7 @@ public class BTestRunner {
             } catch (BallerinaException e) {
                 outStream.println(
                         "Error while running the after test function: '" + tFunction.getName() + "'. Error : " + e
-                                .getLocalizedMessage());
+                                .getMessage());
             }
         }
     }
