@@ -10,10 +10,6 @@ function testOverloading(int a) (int) {
     return a;
 }
 
-function testOverloading(long a) {
-    string dummy = "dummy";
-}
-
 function testOverloading(string a, int b) (string) {
     return a + b;
 }
