@@ -419,14 +419,14 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
                 event.stopPropagation();
                 model.remove();
 
-                _.each(model._connectorActionsReference, function(actionInvocationModel){
+                _.each(model._connectorActionsReference, function(actionInvocationView){
                     //Remove connected arrows
-                    d3.select(actionInvocationModel._arrowGroup.node()).remove();
+                    d3.select(actionInvocationView._arrowGroup.node()).remove();
                     //Enable arrow redraw point on action invocation
-                    d3.select(actionInvocationModel.processorConnectPoint.node()).style("display", "block");
+                    d3.select(actionInvocationView.processorConnectPoint.node()).style("display", "block");
                     //Remove message target from action invocation
-                    actionInvocationModel.messageManager.setMessageSource(actionInvocationModel._model.children[1].children[0]);
-                    actionInvocationModel.messageManager.updateActivatedTarget();
+                    actionInvocationView.messageManager.setMessageSource(actionInvocationView.getActionInvocationExpressionModel());
+                    actionInvocationView.updateActivatedTarget();
                 });
 
                 // Hiding property button pane.
