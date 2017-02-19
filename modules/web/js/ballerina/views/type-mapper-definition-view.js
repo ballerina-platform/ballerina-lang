@@ -203,13 +203,24 @@ define(['lodash', 'log', './ballerina-view', './variables-view', './type-struct-
                     // tool view will use this to provide feedback on impossible drop zones
                     self.toolPalette.dragDropManager.setActivatedDropTarget(self.getModel().getBlockStatement(), function (nodeBeingDragged) {
                             if (self.getTypeMapperRenderer()) {
-                                return nodeBeingDragged instanceof AST.AssignmentStatement || nodeBeingDragged instanceof AST.FunctionInvocation;
+                                if (BallerinaASTFactory.isAssignmentStatement(nodeBeingDragged)) {
+                                    var children = nodeBeingDragged.getChildren();
+                                    var functionInvocationExp = children[1].getChildren()[0];
+                                    var functionSchema = self.getFunctionSchema(functionInvocationExp, self.getDiagramRenderingContext());
+                                    return functionSchema.returnType.length > 0 && functionSchema.parameters.length > 0
+                                } else if (BallerinaASTFactory.isFunctionInvocationStatement(nodeBeingDragged)) {
+                                    var functionInvocationExp = nodeBeingDragged.getChildren()[0];
+                                    var functionSchema = self.getFunctionSchema(functionInvocationExp, self.getDiagramRenderingContext());
+                                    return functionSchema.returnType.length > 0 && functionSchema.parameters.length > 0
+                                } else {
+                                    return false;
+                                }
                             } else {
                                 return false;
                             }
                         },
                         function (nodeBeingDragged) {
-                            if(BallerinaASTFactory.isAssignmentStatement(nodeBeingDragged)) {
+                            if (BallerinaASTFactory.isAssignmentStatement(nodeBeingDragged)) {
                                 var children = nodeBeingDragged.getChildren();
                                 var functionInvocationExp = children[1].getChildren()[0];
                                 var functionSchema = self.getFunctionSchema(functionInvocationExp, self.getDiagramRenderingContext());
@@ -229,7 +240,7 @@ define(['lodash', 'log', './ballerina-view', './variables-view', './type-struct-
                                 rightOperand.setRightOperandExpressionString('');
                                 rightOperand.getChildren()[0].setParams('');
                                 return _.findLastIndex(self.getModel().getBlockStatement().getChildren());
-                            } else if(BallerinaASTFactory.isFunctionInvocationStatement(nodeBeingDragged)){
+                            } else if (BallerinaASTFactory.isFunctionInvocationStatement(nodeBeingDragged)) {
                                 var functionInvocationExp = nodeBeingDragged.getChildren()[0];
                                 var functionSchema = self.getFunctionSchema(functionInvocationExp, self.getDiagramRenderingContext());
                                 _.forEach(functionSchema.parameters, function (params) {
@@ -290,16 +301,16 @@ define(['lodash', 'log', './ballerina-view', './variables-view', './type-struct-
                                                                              targetComboboxId, schemaArray) {
             for (var i = 0; i < schemaArray.length; i++) {
                 $(parentId).find(sourceComboboxId).append('<option value="' + schemaArray[i].getStructName() + '">'
-                                                                        + schemaArray[i].getStructName() + '</option>');
+                    + schemaArray[i].getStructName() + '</option>');
                 $(parentId).find(targetComboboxId).append('<option value="' + schemaArray[i].getStructName() + '">'
-                                                                        + schemaArray[i].getStructName() + '</option>');
+                    + schemaArray[i].getStructName() + '</option>');
             }
         };
 
         TypeMapperDefinitionView.prototype.loadSchemaToComboBox = function (parentId, comboBoxId, schemaArray) {
             for (var i = 0; i < schemaArray.length; i++) {
                 $(parentId).find(comboBoxId).append('<option value="' + schemaArray[i].getStructName() + '">'
-                                                                        + schemaArray[i].getStructName() + '</option>');
+                    + schemaArray[i].getStructName() + '</option>');
             }
         };
 
@@ -329,7 +340,7 @@ define(['lodash', 'log', './ballerina-view', './variables-view', './type-struct-
                 return BallerinaASTFactory.isVariableDefinitionStatement(child);
             });
 
-            if(_.isUndefined(variableDefStatement)){
+            if (_.isUndefined(variableDefStatement)) {
                 variableDefStatement = _.find(parent.getChildren(), function (child) {
                     return BallerinaASTFactory.isVariableDefinitionStatement(child);
                 });
@@ -343,7 +354,7 @@ define(['lodash', 'log', './ballerina-view', './variables-view', './type-struct-
                 variableDefStatement.addChild(rightOperandExpression);
 
                 parent.removeChild(variableDefStatement);
-                blockStatement.addChild(variableDefStatement,0)
+                blockStatement.addChild(variableDefStatement, 0)
             }
 
             if (!self.getBlockStatementView()) {
