@@ -22,8 +22,20 @@ import java.io.PrintStream;
 import java.util.ArrayList;
 
 public class TesterinaReport {
+    public static void main(String[] args){
+            printTestSummary();
+    }
+
     private static ArrayList<TesterinaFunctionResult> functionResults = new ArrayList<TesterinaFunctionResult>();
+    private static ArrayList<TesterinaFunctionResult> passedFunctionResults = new ArrayList<TesterinaFunctionResult>();
+    private static ArrayList<TesterinaFunctionResult> failedFunctionResults = new ArrayList<TesterinaFunctionResult>();
+
+
     private static PrintStream outStream = System.err;
+
+    static int passedFunctionCount;
+    static int failedFunctionCount;
+    static String newLine = System.getProperty("line.separator");
 
     public void addFunctionResult(TesterinaFunctionResult functionResult){
         functionResults.add(functionResult);
@@ -34,18 +46,37 @@ public class TesterinaReport {
     }
 
     public static void printTestSummary(){
-        int passedFunctionCount = 0 ;
-        int failedFunctionCount = 0 ;
-        String newLine = System.getProperty("line.separator");
-        for (TesterinaFunctionResult result: functionResults) {
-            if(result.isTestFunctionPassed()){
-                passedFunctionCount ++;
+        if(!functionResults.isEmpty()) {
+            passedFunctionCount = 0;
+            failedFunctionCount = 0;
+            passedFunctionResults.clear();
+            failedFunctionResults.clear();
+            for (TesterinaFunctionResult result : functionResults) {
+                if (result.isTestFunctionPassed()) {
+                    passedFunctionCount++;
+                    passedFunctionResults.add(result);
+                } else {
+                    failedFunctionCount++;
+                    failedFunctionResults.add(result);
+                }
             }
-            else{
-                failedFunctionCount ++;
-            }
+            outStream.println("Result : " + newLine + "Test Run : " + functionResults.size() + ", Test Passed: "
+                    + passedFunctionCount + ", Test Failures: " + failedFunctionCount);
+            printTestSummeryDetails();
         }
-        outStream.println("Result : " + newLine + "Test Run : " + functionResults.size() + ", Test Passed: " +
-                passedFunctionCount + ", Test Failures: " + failedFunctionCount);
+    }
+
+    public static void printTestSummeryDetails(){
+        outStream.format( newLine + "%s%32s%16s", "| Function", " | Test Status", " | Test Message");
+        outStream.format( newLine + "%s","-------------------------------------------------------------");
+
+        for (TesterinaFunctionResult passedresult : passedFunctionResults) {
+            outStream.format( newLine +"%s%32s%16s", "| "+ passedresult.getTestFunctionName(), "| "+passedresult.isTestFunctionPassed(), "| "+
+                    passedresult.getAssertFailureMessage());
+        }
+        for (TesterinaFunctionResult failedResult : failedFunctionResults) {
+            outStream.format( newLine +"%s%32s%16s", "| "+ failedResult.getTestFunctionName(), "| "+failedResult.isTestFunctionPassed(), "| "+
+                    failedResult.getAssertFailureMessage());
+        }
     }
 }
