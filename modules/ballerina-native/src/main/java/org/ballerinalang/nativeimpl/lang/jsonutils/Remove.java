@@ -29,6 +29,8 @@ import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.lang.utils.ErrorHandler;
 import org.ballerinalang.natives.annotations.Argument;
+import org.ballerinalang.natives.annotations.Attribute;
+import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 
 /**
@@ -41,6 +43,12 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
                 @Argument(name = "jsonPath", type = TypeEnum.STRING)},
         isPublic = true
 )
+@BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
+        value = "Removes each element that matches the given JSONPath.") })
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "j",
+        value = "A JSON object") })
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "jsonPath",
+        value = "The path of the JSON element") })
 public class Remove extends AbstractJSONFunction {
 
     private static final String OPERATION = "remove element from json";

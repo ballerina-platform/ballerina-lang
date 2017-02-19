@@ -26,6 +26,8 @@ import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.nativeimpl.lang.utils.ErrorHandler;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
+import org.ballerinalang.natives.annotations.Attribute;
+import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.slf4j.Logger;
@@ -41,6 +43,12 @@ import org.slf4j.LoggerFactory;
         returnType = {@ReturnType(type = TypeEnum.STRING)},
         isPublic = true
 )
+@BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
+        value = "Converts an XML object to a string representation.") })
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "x",
+        value = "An XML object") })
+@BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "string",
+        value = "String value of the converted XML") })
 public class ToString extends AbstractNativeFunction {
 
     private static final Logger log = LoggerFactory.getLogger(ToString.class);

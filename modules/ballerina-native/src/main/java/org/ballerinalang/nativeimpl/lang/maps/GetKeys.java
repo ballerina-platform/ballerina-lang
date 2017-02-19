@@ -26,6 +26,8 @@ import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
+import org.ballerinalang.natives.annotations.Attribute;
+import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
@@ -42,6 +44,12 @@ import java.util.Set;
         returnType = {@ReturnType(type = TypeEnum.ARRAY, elementType = TypeEnum.STRING)},
         isPublic = true
 )
+@BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
+        value = "Returns an array of keys contained in the specified map") })
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "m",
+        value = "The map object") })
+@BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "string[]",
+        value = "A string array of keys contained in the specified map ") })
 public class GetKeys extends AbstractNativeFunction {
 
     public BValue[] execute(Context ctx) {

@@ -24,7 +24,9 @@ import org.ballerinalang.model.values.BException;
 import org.ballerinalang.model.values.BMessage;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
+import org.ballerinalang.natives.annotations.Attribute;
 import org.ballerinalang.natives.annotations.BallerinaAction;
+import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.natives.connectors.AbstractNativeAction;
 import org.ballerinalang.natives.connectors.BalConnectorCallback;
@@ -49,6 +51,16 @@ import org.wso2.carbon.messaging.exceptions.ClientConnectorException;
                 @Argument(name = "m", type = TypeEnum.MESSAGE)
         },
         returnType = {@ReturnType(type = TypeEnum.MESSAGE)})
+@BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
+        value = "The POST action implementation of the HTTP Connector.") })
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "c",
+        value = "A connector object") })
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "path",
+        value = "Resource path ") })
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "m",
+        value = "A message object") })
+@BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "message",
+        value = "The response message object") })
 @Component(
         name = "action.net.http.post",
         immediate = true,
