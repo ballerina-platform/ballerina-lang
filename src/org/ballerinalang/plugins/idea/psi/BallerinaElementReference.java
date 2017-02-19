@@ -109,6 +109,7 @@ public abstract class BallerinaElementReference extends PsiReferenceBase<Identif
         }
         if (isDefinitionNode(definitionElement)) {
 
+            // Todo - check offset as well to identify the locations of the variable declaration and usages
             // Check the scope of the variable
             if (definitionElement instanceof ParameterNode) {
                 // If the common context is file, that means the myElement is not in the scope where the

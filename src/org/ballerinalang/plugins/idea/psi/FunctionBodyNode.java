@@ -24,7 +24,6 @@ import org.antlr.jetbrains.adaptor.SymtabUtils;
 import org.antlr.jetbrains.adaptor.psi.ANTLRPsiNode;
 import org.antlr.jetbrains.adaptor.psi.ScopeNode;
 import org.ballerinalang.plugins.idea.BallerinaLanguage;
-import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -48,8 +47,6 @@ public class FunctionBodyNode extends ANTLRPsiNode implements ScopeNode {
         } else if (element.getParent() instanceof VariableReferenceNode) {
             return SymtabUtils.resolve(this, BallerinaLanguage.INSTANCE, element,
                     "//variableDefinitionStatement/Identifier");
-        } else if (element.getParent() instanceof PackageNameNode) {
-            return BallerinaPsiImplUtil.findPackageNameReference(element);
         } else if (element.getParent() instanceof SimpleTypeNode) {
             return SymtabUtils.resolve(this, BallerinaLanguage.INSTANCE, element,
                     "//connectorDefinition/Identifier");
