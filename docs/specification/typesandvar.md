@@ -152,7 +152,7 @@ Within the literal XML expression (enclosed within back quote characters), other
 > NOTE: There is currently no way to insert the XML Declaration or any processing instructions or DTD nodes or comment nodes etc. to the document literally.
 
 
-Library functions for manipulating XML documents and elements are in the package `ballerina.lang.xmlutils`.
+Library functions for manipulating XML documents and elements are in the package `ballerina.lang.xmls`.
 
 ### Type: `json`
 
@@ -180,7 +180,7 @@ Within the literal JSON expression (enclosed within back quote characters), othe
 
 > NOTE: We are considering allowing the value of a property to be an expression.
 
-Library functions for manipulating XML documents and elements are in the package `ballerina.lang.jsonutils`.
+Library functions for manipulating XML documents and elements are in the package `ballerina.lang.jsons`.
 
 > NOTE: We are considering a deeper marriage of JSON types and structs. This is because a JSON document with its properties can be viewed as being analogous to a struct with fields. Some of the deeper integration we are considering is the ability to use dot notation (similar to the syntax for accessing fields of a struct) to navigate through a JSON document, instead of the current approach of using a library function.
 
@@ -188,7 +188,7 @@ Library functions for manipulating XML documents and elements are in the package
 
 The `datatable` type is used to hold tabular data, such as those returned from an SQL database query and provides cursor based access to the data. As of version 0.8, values of this type can only be created as the return value of certain actions of the SQL data connector (see the `ballerina.data.sql` package).
 
-Navigating a `datatable` requires one to use the library functions in the package `ballerina.lang.datatableutils`. More information is available in the documentation for that package.
+Navigating a `datatable` requires one to use the library functions in the package `ballerina.lang.datatables`. More information is available in the documentation for that package.
 
 > NOTE: This section needs more elaboration.
 
