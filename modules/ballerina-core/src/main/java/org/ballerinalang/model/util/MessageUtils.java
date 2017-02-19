@@ -39,24 +39,15 @@ public class MessageUtils {
     public static String getStringFromInputStream(InputStream in) {
         BufferedInputStream bis = new BufferedInputStream(in);
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        String result;
         try {
-            int data = bis.read();
-            while (data != -1) {
-                bos.write((byte) data);
-                data = bis.read();
+            int data;
+            while ((data = bis.read()) != -1) {
+                bos.write(data);
             }
-            result = bos.toString();
         } catch (IOException ioe) {
             throw new BallerinaException("Error occurred when reading input stream", ioe);
-        } finally {
-            try {
-                bis.close();
-                bos.close();
-            } catch (IOException ignored) {
-            }
         }
-        return result;
+        return bos.toString();
     }
 
     /**
