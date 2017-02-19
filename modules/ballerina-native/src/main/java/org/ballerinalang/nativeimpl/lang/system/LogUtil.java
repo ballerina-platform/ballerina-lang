@@ -18,7 +18,11 @@
 
 package org.ballerinalang.nativeimpl.lang.system;
 
+import org.ballerinalang.bre.Context;
 import org.slf4j.Logger;
+
+import static org.ballerinalang.runtime.BalProgramExecutor.BALLERINA_LOGGER;
+import static org.ballerinalang.runtime.Constants.BALLERINA_SOURCE_FILE_LOCATION;
 
 /**
  * A class to hold log related util methods.
@@ -28,48 +32,53 @@ public class LogUtil {
     /**
      * Log given value in specified log level using provided logger instance.
      *
-     * @param logger   Log instance
+     * @param ctx      ballerina context
      * @param logLevel log level whether debug, info etc
      * @param value    String value that need to log
      */
-    public static void log(Logger logger, int logLevel, String value) {
+    public static void log(Context ctx, int logLevel, String value) {
+
+        Object location = ctx.getProperty(BALLERINA_SOURCE_FILE_LOCATION);
+        if (location != null && location instanceof String) {
+            value = location + " - " + value;
+        }
         switch (logLevel) {
         case 1:
-            logTrace(logger, value);
+            logTrace(BALLERINA_LOGGER, value);
             break;
         case 2:
-            logDebug(logger, value);
+            logDebug(BALLERINA_LOGGER, value);
             break;
         case 3:
-            logInfo(logger, value);
+            logInfo(BALLERINA_LOGGER, value);
             break;
         case 4:
-            logWarn(logger, value);
+            logWarn(BALLERINA_LOGGER, value);
             break;
         case 5:
-            logError(logger, value);
+            logError(BALLERINA_LOGGER, value);
             break;
         default:
         }
     }
 
     private static void logTrace(Logger logger, String s) {
-        logger.trace("[TRACE] " + s);
+        logger.trace("TRACE " + s);
     }
 
     private static void logDebug(Logger logger, String s) {
-        logger.debug("[DEBUG] " + s);
+        logger.debug("DEBUG " + s);
     }
 
     private static void logInfo(Logger logger, String s) {
-        logger.info("[INFO] " + s);
+        logger.info("INFO " + s);
     }
 
     private static void logWarn(Logger logger, String s) {
-        logger.warn("[WARN] " + s);
+        logger.warn("WARN " + s);
     }
 
     private static void logError(Logger logger, String s) {
-        logger.error("[ERROR] " + s);
+        logger.error("ERROR " + s);
     }
 }

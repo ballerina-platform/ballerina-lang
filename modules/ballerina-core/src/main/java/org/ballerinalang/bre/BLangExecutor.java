@@ -106,6 +106,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import static org.ballerinalang.runtime.Constants.BALLERINA_SOURCE_FILE_LOCATION;
 
 /**
  * {@code BLangExecutor} executes a Ballerina application.
@@ -604,6 +605,7 @@ public class BLangExecutor implements NodeExecutor {
             BallerinaFunction bFunction = (BallerinaFunction) function;
             bFunction.getCallableUnitBody().execute(this);
         } else {
+            bContext.setProperty(BALLERINA_SOURCE_FILE_LOCATION, funcIExpr.getNodeLocation().toString());
             AbstractNativeFunction nativeFunction = (AbstractNativeFunction) function;
             nativeFunction.executeNative(bContext);
         }
