@@ -4,22 +4,26 @@ The Ballerina Composer provides a flexible and powerful browser-based tool for c
 
 **You can create your integration in Design view:**
 
-![alt text](./EchoDesign.png?raw=true "Design view")
+![alt text](./DesignView.png?raw=true "Design view")
 
 
 **And go to Source view to edit the code that's generated:**
 
-![alt text](./EchoSource.png?raw=true "Source view")
+![alt text](./SourceView.png?raw=true "Source view")
+
+**You can also go to Swagger view to edit the Swagger definition that's generated:**
+
+![alt text](./SwaggerView.png?raw=true "Source view")
 
 ## Running the Composer
 
 The Composer is included in the full distribution of Ballerina, which you can download from www.ballerinalang.org. After you unzip it, navigate to its `bin` directory in the command line, and enter the following command:
 
 ```
-ballerina composer
+composer
 ```
 
-(On UNIX/Linux, enter `./ballerina composer` instead.)
+(On UNIX/Linux, enter `./composer` instead.)
 
 The command line will display the URL you can use to access the Composer in your browser. 
 
