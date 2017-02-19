@@ -34,7 +34,7 @@ HTTPS/2 > Ballerina >  response with HTTP/2
 ### HTTP/2 Multiplexing
 HTTP/2 Multiplexing allows users to send multiple requests with the same TCP connection using multiple streams. One stream will have the request-response model.
 
-An example HTTP/2 Java client can be found at [1] and test samples at [2]. The test code uses the same HTTPClient 
+Ballerina provides an example [HTTP/2 Java client][3] and [test samples][4]. The test code uses the same HTTPClient 
 connection to send multiple requests.
 
 ## Enable the HTTP/2 transport
@@ -61,7 +61,7 @@ For example:
 
 HTTP/2 over TLS requires the use of ALPN to negotiate the use of the h2 protocol. Java does not currently support ALPN, which will be supported in the next Java version. For lack of support in the JDK we need to use the Jetty-ALPN  bootclasspath extension.
 
-You can download the jetty-alpn-agent from [3] and set the Java agent in the `$BALLERINA_HOME/bin/ballerina` file as follows:
+You can download the [jetty-alpn-agent][1] and set the Java agent in the `$BALLERINA_HOME/bin/ballerina` file as follows:
 
 ```
 -javaagent:(path_to_jetty-alpn-agent.jar) \
@@ -72,17 +72,16 @@ For example:
 ```
 -javaagent:"$BALLERINA_HOME/bre/lib/jetty-alpn-agent-2.0.6.jar" \
 ```
->NOTE: The java-agent has all the class path extensions of diffrent JDK versions. But you can use the release of the Jetty-ALPN JAR specific to the version of Java you are using and Xbootclasspath the JVM option referencing the path to the Jetty alpn-boot JAR. See [4] for other ssl options.
+>NOTE: The java-agent has all the class path extensions of different JDK versions. But you can use the release of the Jetty-ALPN JAR specific to the version of Java you are using and Xbootclasspath the JVM option referencing the path to the Jetty alpn-boot JAR. See the [Netty documentation][2] for other SSL options.
 
-[1] https://mvnrepository.com/artifact/org.mortbay.jetty.alpn/jetty-alpn-agent/2.0.6
+[1]: https://mvnrepository.com/artifact/org.mortbay.jetty.alpn/jetty-alpn-agent/2.0.6
 
-[2] http://netty.io/wiki/requirements-for-4.x.html
+[2]: http://netty.io/wiki/requirements-for-4.x.html
 
 ## Test the HTTP/2 service
 
-You can use an HTTP/2 client to test the HTTP/2 services. See [1] and [2] for code
-samples showing how to call HTTP samples using an HTTP/2 Java client.
+You can use an HTTP/2 client to test the HTTP/2 services. See the example [HTTP/2 Java client][3] and [test samples][4] to see how to call HTTP samples using an HTTP/2 Java client.
 
-[1] https://github.com/ballerinalang/ballerina/tree/master/modules/tests/test-integration/src/test/java/org/wso2/ballerina/test/util/http2
+[3]: https://github.com/ballerinalang/ballerina/tree/master/modules/tests/test-integration/src/test/java/org/wso2/ballerina/test/util/http2
 
-[2] https://github.com/ballerinalang/ballerina/tree/master/modules/tests/test-integration/src/test/java/org/wso2/ballerina/test/service/http2/sample
+[4]: https://github.com/ballerinalang/ballerina/tree/master/modules/tests/test-integration/src/test/java/org/wso2/ballerina/test/service/http2/sample
