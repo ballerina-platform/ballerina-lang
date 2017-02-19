@@ -120,7 +120,7 @@ typeMapperBody
     ;
 
 constantDefinition
-    :   'const' typeName Identifier '=' literalValue ';'
+    :   'const' typeName Identifier '=' expression ';'
     ;
 
 // cannot have conector declaration, need to validate at semantic analyzing

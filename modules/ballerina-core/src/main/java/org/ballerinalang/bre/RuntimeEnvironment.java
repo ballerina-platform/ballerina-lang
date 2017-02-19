@@ -48,6 +48,13 @@ public class RuntimeEnvironment {
         int staticMemOffset = 0;
         for (BLangPackage bLangPackage : bLangProgram.getPackages()) {
             for (ConstDef constant : bLangPackage.getConsts()) {
+                //todo improve this logic by introducing a const init function
+                StackFrame currentStackFrame = new StackFrame(new BValue[0], new BValue[0]);
+                Context bContext = new Context();
+                bContext.getControlStack().pushFrame(currentStackFrame);
+                BLangExecutor bLangExecutor = new BLangExecutor(runtimeEnvironment, bContext);
+                BValue value = constant.getRhsExpr().execute(bLangExecutor);
+                constant.setValue(value);
                 staticMemory.setValue(staticMemOffset, constant.getValue());
                 staticMemOffset++;
             }

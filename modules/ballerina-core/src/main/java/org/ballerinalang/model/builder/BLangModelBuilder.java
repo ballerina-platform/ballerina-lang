@@ -251,8 +251,13 @@ public class BLangModelBuilder {
     public void addConstantDef(NodeLocation location, String name, boolean isPublic) {
         SymbolName symbolName = new SymbolName(name);
         SimpleTypeName typeName = typeNameStack.pop();
+
+        Expression constRhsExpr = exprStack.pop();
+
+        checkArgExprValidity(location, constRhsExpr);
+
         ConstDef constantDef = new ConstDef(location, name, typeName, currentPackagePath,
-                isPublic, symbolName, currentScope, exprStack.pop());
+                isPublic, symbolName, currentScope, constRhsExpr);
 
         // Add constant definition to current file;
         bFileBuilder.addConst(constantDef);

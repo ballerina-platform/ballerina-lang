@@ -238,8 +238,32 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         // TODO Figure out how to evaluate constant values properly
         // TODO This should be done properly in the RuntimeEnvironment
-        BasicLiteral basicLiteral = (BasicLiteral) constDef.getRhsExpr();
-        constDef.setValue(basicLiteral.getBValue());
+
+        Expression constDefRhsExpr = constDef.getRhsExpr();
+
+        constDefRhsExpr.accept(this);
+
+        if (constDefRhsExpr.getType() != bType) {
+
+            TypeCastExpression typeCastExpression;
+
+            if (constDefRhsExpr instanceof TypeCastExpression) {
+                TypeCastExpression rhsExpr = (TypeCastExpression) constDefRhsExpr;
+                rhsExpr.setTargetType(bType);
+                rhsExpr.accept(this);
+                typeCastExpression = rhsExpr;
+            } else {
+                //check for possible implicit casting
+                typeCastExpression = checkWideningPossible(bType, constDefRhsExpr);
+            }
+
+            if (typeCastExpression == null) {
+                BLangExceptionHelper.throwSemanticError(constDef, SemanticErrors.INCOMPATIBLE_TYPES, bType,
+                        constDefRhsExpr.getType());
+            } else {
+                constDef.setRhsExpr(typeCastExpression);
+            }
+        }
     }
 
     @Override
