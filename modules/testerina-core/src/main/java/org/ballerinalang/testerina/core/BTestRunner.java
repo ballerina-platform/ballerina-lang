@@ -26,6 +26,8 @@ import org.ballerinalang.natives.connectors.BallerinaConnectorManager;
 import org.ballerinalang.services.MessageProcessor;
 import org.ballerinalang.testerina.core.entity.TesterinaContext;
 import org.ballerinalang.testerina.core.entity.TesterinaFunction;
+import org.ballerinalang.testerina.core.entity.TesterinaFunctionResult;
+import org.ballerinalang.testerina.core.entity.TesterinaReport;
 import org.ballerinalang.util.debugger.DebugManager;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
@@ -42,8 +44,10 @@ public class BTestRunner {
 
     private static Path programDirPath = Paths.get(System.getProperty("user.dir"));
     private static PrintStream outStream = System.err;
+    private static TesterinaReport tReport = new TesterinaReport();
 
     public static void runTest(Path[] sourceFilePaths) {
+
         BallerinaConnectorManager.getInstance().initialize(new MessageProcessor());
         BallerinaConnectorManager.getInstance().initializeClientConnectors(new MessageProcessor());
 
@@ -62,7 +66,10 @@ public class BTestRunner {
             debugManager.init();
         }
 
+        //this.tReport = new
+
         executeTestFunctions(bLangPrograms);
+        tReport.printTestSummary();
 
         Runtime.getRuntime().exit(0);
     }
@@ -103,14 +110,27 @@ public class BTestRunner {
 
         //test
         for (TesterinaFunction tFunction : testFunctions) {
+            boolean isTestPassed = true;
+            String testMessage = "Test Passed";
             try {
                 outStream.println("Started running test '" + tFunction.getName() + "'...");
                 tFunction.invoke();
                 outStream.println("Finished running test '" + tFunction.getName() + "'.");
-            } catch (BallerinaException e) { //TODO catch BallerinaAssertionException and throw it in assert functions, and catch it here. create a result object to store the result.
+            } catch (BallerinaException e) {
+                //TODO catch BallerinaAssertionException and throw it in assert functions, and catch it here. create a result object to store the result.
+                //if(e.getBException().value().getCategory().toString().equals(TesterinaContext.ASSERTION_EXCEPTION_CATEGORY)){
+                //}
+                isTestPassed = false;
+                testMessage = e.getBException().value().getMessage().toString();
                 outStream.println(
-                        "Error while running the function: '" + tFunction.getName() + "'. Error : " + e.getBException().value().getMessage().stringValue());
+                        "Error while running the function: '" + tFunction.getName() + "'. Error : " +
+                                e.getBException().value().getMessage().stringValue());
+
             }
+            // if there are no exception thrown, test is passed
+            TesterinaFunctionResult functionResult = new TesterinaFunctionResult(tFunction.getName(),
+                    isTestPassed, testMessage);
+            tReport.addFunctionResult(functionResult);
         }
 
         //after test
@@ -123,6 +143,8 @@ public class BTestRunner {
                                 .getMessage());
             }
         }
+
+
     }
 
     /*
