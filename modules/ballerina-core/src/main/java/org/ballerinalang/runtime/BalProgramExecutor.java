@@ -43,10 +43,14 @@ import org.ballerinalang.model.values.BMessage;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.debugger.DebugManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
 
 import java.util.Map;
+
+import static org.ballerinalang.runtime.Constants.BALLERINA_LOGGER_NAME;
 
 /**
  * {@code BalProgramExecutor} is responsible for executing a BallerinaProgram.
@@ -54,6 +58,8 @@ import java.util.Map;
  * @since 0.8.0
  */
 public class BalProgramExecutor {
+
+    public static final Logger BALLERINA_LOGGER = LoggerFactory.getLogger(BALLERINA_LOGGER_NAME);
 
     public static void execute(CarbonMessage cMsg, CarbonCallback callback, Resource resource, Service service,
                                Context balContext) {

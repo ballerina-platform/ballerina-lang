@@ -28,11 +28,9 @@ import org.ballerinalang.natives.annotations.Attribute;
 import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaConstant;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
- * Native function ballerina.model.system:log.
+ * Native function ballerina.lang.system:log.
  */
 @BallerinaFunction(
         packageName = "ballerina.lang.system",
@@ -61,11 +59,9 @@ import org.slf4j.LoggerFactory;
         value = "Float value to be logged") })
 public class LogFloat extends AbstractNativeFunction {
 
-    private static final Logger logger = LoggerFactory.getLogger(LogFloat.class);
-
     public BValue[] execute(Context ctx) {
         // TODO : Improve this with trace log.
-        LogUtil.log(logger, ((BInteger) getArgument(ctx, 0)).intValue(), getArgument(ctx, 1).stringValue());
+        LogUtil.log(ctx, ((BInteger) getArgument(ctx, 0)).intValue(), getArgument(ctx, 1).stringValue());
         return VOID_RETURN;
     }
 }
