@@ -107,9 +107,9 @@ public class BTestRunner {
                 outStream.println("Started running test '" + tFunction.getName() + "'...");
                 tFunction.invoke();
                 outStream.println("Finished running test '" + tFunction.getName() + "'.");
-            } catch (BallerinaException e) {
+            } catch (BallerinaException e) { //TODO catch BallerinaAssertionException and throw it in assert functions, and catch it here. create a result object to store the result.
                 outStream.println(
-                        "Error while running the function: '" + tFunction.getName() + "'. Error : " + e.getMessage());
+                        "Error while running the function: '" + tFunction.getName() + "'. Error : " + e.getBException().value().getMessage().stringValue());
             }
         }
 
