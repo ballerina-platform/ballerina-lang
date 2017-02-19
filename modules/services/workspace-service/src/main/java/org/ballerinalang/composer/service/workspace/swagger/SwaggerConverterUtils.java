@@ -82,7 +82,9 @@ public class SwaggerConverterUtils {
         List<Service> services = new ArrayList<Service>();
         for (CompilationUnit compilationUnit : bFile.getCompilationUnits()) {
             Service service = compilationUnit instanceof Service ? ((Service) compilationUnit) : null;
-            services.add(service);
+            if (service != null) {
+                services.add(service);
+            }
         }
         return services.toArray(new Service[services.size()]);
     }
