@@ -28,8 +28,8 @@ define(['lodash', 'log', './node'], function (_, log, ASTNode) {
      */
     var Argument = function (args) {
         ASTNode.call(this, "Argument");
-        this.type = _.get(args, "type");
-        this.identifier = _.get(args, "identifier");
+        this.type = _.get(args, "type","ArgumentType");
+        this.identifier = _.get(args, "identifier","ArgumentIdentifier");
 
         // Validating the argument.
         if (!_.isUndefined(this.identifier) && !ASTNode.isValidIdentifier(this.identifier)) {

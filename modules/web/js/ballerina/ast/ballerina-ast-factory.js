@@ -787,6 +787,17 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
         };
 
         /**
+         * is ReferenceTypeInitExpression
+         * @param child - Object for instanceof check
+         * @returns {boolean} - true if same type, else false
+         */
+        BallerinaASTFactory.isReferenceTypeInitiExpression = function (child) {
+            return child instanceof referenceTypeInitExpression;
+        };
+
+
+
+        /**
          * is StructType
          * @param child - Object for instanceof check
          * @returns {boolean} - true if same type, else false
@@ -1340,7 +1351,16 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
                         node = BallerinaASTFactory.createKeyValueExpression();
                         break;
                     case 'type_casting_expression':
-                        node = BallerinaASTFactory.createTypeCastingExpression();
+                        node = BallerinaASTFactory.createTypeCastExpression();
+                        break;
+                    case 'type_mapper_definition':
+                        node = BallerinaASTFactory.createTypeMapperDefinition();
+                        break;
+                    case 'struct_field_access_expression':
+                        node = BallerinaASTFactory.createStructFieldAccessExpression();
+                        break;
+                    case 'block_statement':
+                        node = BallerinaASTFactory.createBlockStatement();
                         break;
                     case 'reference_type_init_expression':
                         node = BallerinaASTFactory.createReferenceTypeInitExpression();
@@ -1371,9 +1391,6 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
                         break;
                     case 'throw_statement':
                         node = BallerinaASTFactory.createThrowStatement();
-                        break;
-                    case 'struct_field_access_expression':
-                        node = BallerinaASTFactory.createStructFieldAccessExpression();
                         break;
                     case 'comment_statement':
                         node = BallerinaASTFactory.createCommentStatement();

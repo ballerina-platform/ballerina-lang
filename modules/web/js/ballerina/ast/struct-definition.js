@@ -143,8 +143,8 @@ define(['lodash', 'log', './node', 'constants', '../utils/common-utils'],
             attributesArray[STRUCT_DEFINITION_ATTRIBUTES_ARRAY_PROPERTIES]= [];
             _.each(this.getVariableDefinitions(), function(variableDefinition) {
                 var tempAttr = {};
-                tempAttr[STRUCT_DEFINITION_ATTRIBUTES_ARRAY_PROPERTY_NAME] = variableDefinition._identifier;
-                tempAttr[STRUCT_DEFINITION_ATTRIBUTES_ARRAY_PROPERTY_TYPE] = variableDefinition._type;
+                tempAttr[STRUCT_DEFINITION_ATTRIBUTES_ARRAY_PROPERTY_NAME] = variableDefinition.getName();
+                tempAttr[STRUCT_DEFINITION_ATTRIBUTES_ARRAY_PROPERTY_TYPE] = variableDefinition.getTypeName();
                 attributesArray[STRUCT_DEFINITION_ATTRIBUTES_ARRAY_PROPERTIES].push(tempAttr);
             });
             return attributesArray;

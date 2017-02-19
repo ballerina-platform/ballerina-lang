@@ -30,9 +30,13 @@ public class BLangJSONModelConstants {
 
     public static final String FUNCTION_DEFINITION = "function_definition";
 
+    public static final String TYPE_MAPPER_DEFINITION = "type_mapper_definition";
+
     public static final String ACTION_DEFINITION = "action";
 
     public static final String FUNCTIONS_NAME = "function_name";
+
+    public static final String TYPE_MAPPER_NAME = "type_mapper_name";
 
     public static final String IS_PUBLIC_FUNCTION = "is_public_function";
 
@@ -78,9 +82,9 @@ public class BLangJSONModelConstants {
 
     public static final String VARIABLE_DEFINITION_STATEMENT = "variable_definition_statement";
 
-    public static final String LEFT_EXPRESSION = "left_expression";
+    public static final String LEFT_EXPRESSION = "left_operand_expression";
 
-    public static final String RIGHT_EXPRESSION = "right_expression";
+    public static final String RIGHT_EXPRESSION = "right_operand_expression";
 
     public static final String RESOURCE_NAME = "resource_name";
 

@@ -53,6 +53,16 @@ define(['lodash', 'log', './ast-visitor', '../ast/module'], function (_, log, AS
     };
     ExpressionVisitor.prototype.endVisitReferenceTypeInitExpression = function (expression) {
     };
+
+    ExpressionVisitor.prototype.canVisitTypeCastExpression = function (expression) {
+        return false;
+    };
+    ExpressionVisitor.prototype.beginVisitTypeCastExpression = function (expression) {
+    };
+    ExpressionVisitor.prototype.visitTypeCastExpression= function (expression) {
+    };
+    ExpressionVisitor.prototype.endVisitTypeCastExpression = function (expression) {
+    };
     
     /**
      * @param node {ASTNode}
@@ -64,6 +74,8 @@ define(['lodash', 'log', './ast-visitor', '../ast/module'], function (_, log, AS
             return this.visitVariableReferenceExpression(node);
         } else if (node instanceof AST.ReferenceTypeInitExpression) {
             return this.visitReferenceTypeInitExpression(node);
+        } else if (node instanceof AST.TypeCastExpression) {
+            return this.visitTypeCastExpression(node);
         }
     };
 
@@ -77,6 +89,8 @@ define(['lodash', 'log', './ast-visitor', '../ast/module'], function (_, log, AS
             return this.canVisitVariableReferenceExpression(node);
         } else if (node instanceof AST.ReferenceTypeInitExpression) {
             return this.canVisitReferenceTypeInitExpression(node);
+        } else if (node instanceof AST.TypeCastExpression) {
+            return this.canVisitTypeCastExpression(node);
         }
     };
 
@@ -90,6 +104,8 @@ define(['lodash', 'log', './ast-visitor', '../ast/module'], function (_, log, AS
             this.beginVisitVariableReferenceExpression(node);
         } else if (node instanceof AST.ReferenceTypeInitExpression) {
             this.beginVisitReferenceTypeInitExpression(node);
+        } else if (node instanceof AST.TypeCastExpression) {
+            this.beginVisitTypeCastExpression(node);
         }
     };
 
@@ -103,6 +119,8 @@ define(['lodash', 'log', './ast-visitor', '../ast/module'], function (_, log, AS
             return this.endVisitVariableReferenceExpression(node);
         } else if (node instanceof AST.ReferenceTypeInitExpression) {
             return this.endVisitReferenceTypeInitExpression(node);
+        } else if (node instanceof AST.TypeCastExpression) {
+            return this.endVisitTypeCastExpression(node);
         }
     };
 

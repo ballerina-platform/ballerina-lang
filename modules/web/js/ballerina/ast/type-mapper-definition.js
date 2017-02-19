@@ -99,7 +99,7 @@ define(['lodash', './node', '../utils/common-utils'], function (_, ASTNode, Comm
      * @return {string} - Return type.
      */
     TypeMapperDefinition.prototype.getReturnType = function () {
-        var returnType = '';
+        var returnType = 'ReturnType';
         var ballerinaASTFactory = this.getFactory();
 
         _.forEach(this.getChildren(), function (child) {
@@ -115,12 +115,12 @@ define(['lodash', './node', '../utils/common-utils'], function (_, ASTNode, Comm
      * @returns {String} argument
      */
     TypeMapperDefinition.prototype.getInputParamAndIdentifier = function () {
-        var inputParamAndIdentifier = '';
+        var inputParamAndIdentifier = 'InputType inputIdentifier';
         var ballerinaASTFactory = this.getFactory();
 
         _.forEach(this.getChildren(), function (child) {
             if (ballerinaASTFactory.isResourceParameter(child)) {
-                inputParamAndIdentifier =  child.getArgumentAsString();
+                inputParamAndIdentifier = child.getArgumentAsString();
             }
         });
         return inputParamAndIdentifier;
@@ -139,7 +139,7 @@ define(['lodash', './node', '../utils/common-utils'], function (_, ASTNode, Comm
 
         var blockStatement = self.getBlockStatement();
         _.find(blockStatement.getChildren(), function (child) {
-            if(ballerinaASTFactory.isAssignmentStatement(child)){
+            if (ballerinaASTFactory.isAssignmentStatement(child)) {
                 child.remove();
             }
         });
@@ -162,7 +162,7 @@ define(['lodash', './node', '../utils/common-utils'], function (_, ASTNode, Comm
 
         var blockStatement = self.getBlockStatement();
         _.find(blockStatement.getChildren(), function (child) {
-            if(ballerinaASTFactory.isAssignmentStatement(child)){
+            if (ballerinaASTFactory.isAssignmentStatement(child)) {
                 child.remove();
             }
         });
@@ -230,7 +230,7 @@ define(['lodash', './node', '../utils/common-utils'], function (_, ASTNode, Comm
      * fill return statement.
      * @param {string} identifier
      */
-    TypeMapperDefinition.prototype.fillVariableDefStatement = function (structName,identifier) {
+    TypeMapperDefinition.prototype.fillVariableDefStatement = function (structName, identifier) {
 
         var self = this;
         var ballerinaASTFactory = this.getFactory();
@@ -243,20 +243,7 @@ define(['lodash', './node', '../utils/common-utils'], function (_, ASTNode, Comm
             return ballerinaASTFactory.isVariableDefinitionStatement(child);
         });
 
-        var leftOperandExpression = _.find(variableDefStatement.getChildren(), function (child) {
-            return ballerinaASTFactory.isLeftOperandExpression(child);
-        });
-
-        var variableReferenceExpression = _.find(leftOperandExpression.getChildren(), function (child) {
-            return ballerinaASTFactory.isVariableReferenceExpression(child);
-        });
-        variableReferenceExpression.setVariableReferenceName(identifier);
-
-        var variableDefinition = _.find(variableReferenceExpression.getChildren(), function (child) {
-            return ballerinaASTFactory.isVariableDefinition(child);
-        });
-
-        variableDefinition.setTypeName(structName);
+        variableDefStatement.setLeftExpression(structName + " " + identifier);
     };
 
     /**
@@ -268,9 +255,9 @@ define(['lodash', './node', '../utils/common-utils'], function (_, ASTNode, Comm
 
         // Creating a new ResourceParameter.
         var newReturnType = this.getFactory().createReturnType();
-        var newStructType =this.getFactory().createStructType();
+        var newStructType = this.getFactory().createStructType();
         newStructType.setTypeName(typeStructName);
-        var newSymbolName =this.getFactory().createSymbolName();
+        var newSymbolName = this.getFactory().createSymbolName();
         newSymbolName.setName(identifier);
         newReturnType.addChild(newStructType);
         newReturnType.addChild(newSymbolName);
@@ -287,8 +274,8 @@ define(['lodash', './node', '../utils/common-utils'], function (_, ASTNode, Comm
      * @param targetCastValue
      * @returns {AssignmentStatement}
      */
-    TypeMapperDefinition.prototype.returnConstructedAssignmentStatement = function (sourceIdentifier,targetIdentifier,sourceValue,targetValue,
-                                                                                    isComplexMapping,targetCastValue) {
+    TypeMapperDefinition.prototype.returnConstructedAssignmentStatement = function (sourceIdentifier, targetIdentifier, sourceValue, targetValue,
+                                                                                    isComplexMapping, targetCastValue) {
 
         // Creating a new Assignment Statement.
         var self = this;
@@ -307,10 +294,10 @@ define(['lodash', './node', '../utils/common-utils'], function (_, ASTNode, Comm
             var tempFieldExpression;
             var tempVariableReferenceExpression = self.getFactory().createVariableReferenceExpression();
             tempVariableReferenceExpression.setVariableReferenceName(sourceVal);
-            if(_.head(sourceValue) == sourceVal){
+            if (_.head(sourceValue) == sourceVal) {
                 sourceFieldExpression.addChild(tempVariableReferenceExpression);
                 tempRefOfFieldExpression = sourceFieldExpression
-            }else{
+            } else {
                 tempFieldExpression = self.getFactory().createStructFieldAccessExpression();
                 tempFieldExpression.addChild(tempVariableReferenceExpression);
                 tempRefOfFieldExpression.addChild(tempFieldExpression);
@@ -331,10 +318,10 @@ define(['lodash', './node', '../utils/common-utils'], function (_, ASTNode, Comm
             var tempFieldExpression;
             var tempVariableReferenceExpression = self.getFactory().createVariableReferenceExpression();
             tempVariableReferenceExpression.setVariableReferenceName(targetVal);
-            if(_.head(targetValue) == targetVal){
+            if (_.head(targetValue) == targetVal) {
                 targetFieldExpression.addChild(tempVariableReferenceExpression);
                 tempRefOfFieldExpression = targetFieldExpression
-            }else{
+            } else {
                 tempFieldExpression = self.getFactory().createStructFieldAccessExpression();
                 tempFieldExpression.addChild(tempVariableReferenceExpression);
                 tempRefOfFieldExpression.addChild(tempFieldExpression);
@@ -348,12 +335,12 @@ define(['lodash', './node', '../utils/common-utils'], function (_, ASTNode, Comm
         leftOperandExpression.addChild(targetStructFieldAccessExpression);
         newAssignmentStatement.addChild(leftOperandExpression);
 
-        if(isComplexMapping){
+        if (isComplexMapping) {
             typeCastExpression = this.getFactory().createTypeCastExpression();
             typeCastExpression.setName(targetCastValue);
             rightOperandExpression.addChild(typeCastExpression);
             typeCastExpression.addChild(sourceStructFieldAccessExpression);
-        }else{
+        } else {
             rightOperandExpression.addChild(sourceStructFieldAccessExpression);
         }
         newAssignmentStatement.addChild(rightOperandExpression);
@@ -363,69 +350,43 @@ define(['lodash', './node', '../utils/common-utils'], function (_, ASTNode, Comm
 
 
     /**
-     * source -> function, target -> struct
-     * @param sourceVariableReferenceExpression
-     * @param targetIdentifier
-     * @param targetValue
-     * @param isComplexMapping
-     * @param targetCastValue
+     * 
+     * @param identifier
+     * @param properties
      * @returns {*}
      */
-    TypeMapperDefinition.prototype.getAssignmentStatementForFunctionReturnVariable = function (sourceVariableReferenceExpression,
-                                                                                               targetIdentifier,targetValue, isComplexMapping,targetCastValue) {
-
-        // Creating a new Assignment Statement.
+    TypeMapperDefinition.prototype.getStructFieldAccessExpression = function (identifier, properties) {
         var self = this;
-        var newAssignmentStatement = this.getFactory().createAssignmentStatement();
-        var leftOperandExpression = this.getFactory().createLeftOperandExpression();
-        var rightOperandExpression = this.getFactory().createRightOperandExpression();
-        var typeCastExpression = undefined;
-
-        var targetStructFieldAccessExpression = this.getFactory().createStructFieldAccessExpression();
-        var targetVariableReferenceExpressionForIdentifier = this.getFactory().createVariableReferenceExpression();
-        targetVariableReferenceExpressionForIdentifier.setVariableReferenceName(targetIdentifier);
+        var structFieldAccessExpression = this.getFactory().createStructFieldAccessExpression();
+        var variableReferenceExpression = this.getFactory().createVariableReferenceExpression();
+        variableReferenceExpression.setVariableReferenceName(identifier);
         var targetFieldExpression = this.getFactory().createStructFieldAccessExpression();
         var tempRefOfFieldExpression;
 
-        _.forEach(targetValue, function (targetVal) {
+        _.forEach(properties, function (property) {
             var tempFieldExpression;
             var tempVariableReferenceExpression = self.getFactory().createVariableReferenceExpression();
-            tempVariableReferenceExpression.setVariableReferenceName(targetVal);
-            if(_.head(targetValue) == targetVal){
+            tempVariableReferenceExpression.setVariableReferenceName(property);
+            if (_.head(properties) == property) {
                 targetFieldExpression.addChild(tempVariableReferenceExpression);
                 tempRefOfFieldExpression = targetFieldExpression
-            }else{
+            } else {
                 tempFieldExpression = self.getFactory().createStructFieldAccessExpression();
                 tempFieldExpression.addChild(tempVariableReferenceExpression);
                 tempRefOfFieldExpression.addChild(tempFieldExpression);
                 tempRefOfFieldExpression = tempFieldExpression;
             }
         });
-
-        targetStructFieldAccessExpression.addChild(targetVariableReferenceExpressionForIdentifier);
-        targetStructFieldAccessExpression.addChild(targetFieldExpression);
-
-        leftOperandExpression.addChild(targetStructFieldAccessExpression);
-        newAssignmentStatement.addChild(leftOperandExpression);
-
-        if(isComplexMapping){
-            typeCastExpression = this.getFactory().createTypeCastExpression();
-            typeCastExpression.setName(targetCastValue);
-            rightOperandExpression.addChild(typeCastExpression);
-            typeCastExpression.addChild(sourceVariableReferenceExpression);
-        }else{
-            rightOperandExpression.addChild(sourceVariableReferenceExpression);
-        }
-        newAssignmentStatement.addChild(rightOperandExpression);
-
-        return newAssignmentStatement;
+        structFieldAccessExpression.addChild(variableReferenceExpression);
+        structFieldAccessExpression.addChild(targetFieldExpression);
+        return structFieldAccessExpression;
     };
 
     /**
      * Gets the reference of block statement child
      * @return {string} - String blockStatement.
      */
-    TypeMapperDefinition.prototype.getBlockStatement = function() {
+    TypeMapperDefinition.prototype.getBlockStatement = function () {
         var blockStatement = undefined;
         var ballerinaASTFactory = this.getFactory();
 
@@ -464,15 +425,49 @@ define(['lodash', './node', '../utils/common-utils'], function (_, ASTNode, Comm
      * @param {string} jsonNode.type_mapper_name - Name of the type mapper definition.
      */
     TypeMapperDefinition.prototype.initFromJson = function (jsonNode) {
+        var ballerinaASTFactory = this.getFactory();
         var self = this;
         this.setTypeMapperName(jsonNode.type_mapper_name, {doSilently: true});
-
+        var returnNode = undefined;
         _.each(jsonNode.children, function (childNode) {
-            var child = self.BallerinaASTFactory.createFromJson(childNode);
-            self.addChild(child);
-            child.initFromJson(childNode);
+            if(childNode.type === 'return_type'){
+                returnNode = childNode;
+            }else{
+                var child = ballerinaASTFactory.createFromJson(childNode);
+                self.addChild(child);
+                child.initFromJson(childNode);
+            }
         });
+        var blockStatementNode = ballerinaASTFactory.createBlockStatement();
+        var childrenArray = self.getChildren();
+        _.forEach(childrenArray, function (child) {
+            if (!(ballerinaASTFactory.isArgument(child) || ballerinaASTFactory.isVariableDefinitionStatement(child))) {
+                blockStatementNode.addChild(child);
+            }
+        });
+
+
+        _.forEach(blockStatementNode.getChildren(), function (childNode) {
+            _.remove(self.getChildren(), function(child){
+                return _.isEqual(childNode.getID(), child.getID());
+            });
+        });
+
+        var returnASTNode = ballerinaASTFactory.createReturnType();
+        returnASTNode.setType(returnNode.parameter_type);
+        
+        self.addChild(returnASTNode);
+
+        // _.forEach(self.getChildren(), function (outerChild) {
+        //     _.forEach(blockStatementNode.getChildren(), function (child) {
+        //         if(outerChild.getID() == child.getID()){
+        //             self.removeChild(outerChild);
+        //         }
+        //     });
+        // });
+        self.addChild(blockStatementNode);
     };
+
 
     return TypeMapperDefinition;
 });
