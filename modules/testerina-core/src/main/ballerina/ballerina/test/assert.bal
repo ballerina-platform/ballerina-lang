@@ -3,9 +3,7 @@ package ballerina.test;
 import ballerina.lang.exceptions;
 import ballerina.lang.arrays as array;
 
-const string assertTrueErrorCategory = "assert-true";
-const string assertFalseErrorCategory = "assert-false";
-const string assertEqualsErrorCategory = "assert-equals";
+const string assertFailureErrorCategory = "assert-failure";
 
 const string arraysNotEqualMessage = "Arrays are not equal";
 const string arrayLengthsMismatchMessage = " (Array lengths are not the same)";
@@ -36,7 +34,7 @@ function assertTrue(boolean condition, string message) {
         if (message == "") {
             message = "Assert Failed";
         }
-        throw createBallerinaException(message, assertTrueErrorCategory);
+        throw createBallerinaException(message, assertFailureErrorCategory);
     }
 }
 
@@ -56,7 +54,7 @@ function assertFalse(boolean condition, string message) {
         if (message == "") {
             message = "Assert Failed";
         }
-        throw createBallerinaException(message, assertFalseErrorCategory);
+        throw createBallerinaException(message, assertFailureErrorCategory);
     }
 }
 
@@ -78,7 +76,7 @@ function assertEquals(string actual, string expected, string message) {
         if (message == "") {
             message = "String not equal: expected: " + expected + " and actual: "+ actual;
         }
-        throw createBallerinaException(message, assertEqualsErrorCategory);
+        throw createBallerinaException(message, assertFailureErrorCategory);
     }
 }
 
@@ -100,7 +98,7 @@ function assertEquals(int actual, int expected, string message) {
         if (message == "") {
             message = "Integer not equal: expected: " + expected + " and actual: "+ actual;
         }
-        throw createBallerinaException(message, assertEqualsErrorCategory);
+        throw createBallerinaException(message, assertFailureErrorCategory);
     }
 }
 
@@ -122,7 +120,7 @@ function assertEquals(boolean actual, boolean expected, string message) {
         if (message == "") {
             message = "Boolean not equal: expected: " + expected + " and actual: "+ actual;
         }
-        throw createBallerinaException(message, assertEqualsErrorCategory);
+        throw createBallerinaException(message, assertFailureErrorCategory);
     }
 }
 
@@ -146,7 +144,7 @@ function assertEquals(string[] actual, string[] expected, string message) {
         message = arraysNotEqualMessage;
     }
     if (array:length(actual) != array:length(expected)) {
-        throw createBallerinaException(message + arrayLengthsMismatchMessage, assertEqualsErrorCategory);
+        throw createBallerinaException(message + arrayLengthsMismatchMessage, assertFailureErrorCategory);
     } else {
         if (array:length(expected) > 0) {
             int i = 0;
@@ -154,10 +152,10 @@ function assertEquals(string[] actual, string[] expected, string message) {
                 try {
                     assertEquals(actual[i], expected[i]);
                 } catch (exception e) {
-                    if (exceptions:getCategory(e) == assertEqualsErrorCategory) {
+                    if (exceptions:getCategory(e) == assertFailureErrorCategory) {
                         throw createBallerinaException(
-                                                      message + ". " + exceptions:getMessage(e) + " (at index " + i + ") " ,
-                                                      assertEqualsErrorCategory);
+                                                message + ". " + exceptions:getMessage(e) + " (at index " + i + ") " ,
+                                                assertFailureErrorCategory);
                     }
                 }
                 i = i + 1;
@@ -186,7 +184,7 @@ function assertEquals(int[] actual, int[] expected, string message) {
         message = arraysNotEqualMessage;
     }
     if (array:length(actual) != array:length(expected)) {
-        throw createBallerinaException(message + arrayLengthsMismatchMessage, assertEqualsErrorCategory);
+        throw createBallerinaException(message + arrayLengthsMismatchMessage, assertFailureErrorCategory);
     } else {
         if (array:length(expected) > 0) {
             int i = 0;
@@ -194,10 +192,10 @@ function assertEquals(int[] actual, int[] expected, string message) {
                 try {
                     assertEquals(actual[i], expected[i]);
                 } catch (exception e) {
-                    if (exceptions:getCategory(e) == assertEqualsErrorCategory) {
+                    if (exceptions:getCategory(e) == assertFailureErrorCategory) {
                         throw createBallerinaException(
-                                                      message + ". " + exceptions:getMessage(e) + " (at index " + i + ") " ,
-                                                      assertEqualsErrorCategory);
+                                                message + ". " + exceptions:getMessage(e) + " (at index " + i + ") " ,
+                                                assertFailureErrorCategory);
                     }
                 }
                 i = i + 1;
