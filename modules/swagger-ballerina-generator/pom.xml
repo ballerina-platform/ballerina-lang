@@ -91,19 +91,30 @@
                                 ${java.io.tmpdir}/dependency-reduced-pom.xml
                             </dependencyReducedPomLocation>
                             <artifactSet>
-                                <includes>
-                                    <include>io.swagger:swagger-codegen</include>
-                                    <include>com.googlecode.lambdaj:lambdaj</include>
-                                    <include>io.swagger:*</include>
-                                    <include>com.google.guava:guava</include>
-                                    <include>com.fasterxml.jackson.core:*</include>
-                                    <include>com.fasterxml.jackson.dataformat:jackson-dataformat-yaml</include>
-                                    <include>com.fasterxml.jackson.datatype:jackson-datatype-joda</include>
-                                    <include>com.github.fge:*</include>
-                                    <include>com.samskivert:jmustache</include>
-                                    <include>joda-time:joda-time</include>
-                                    <include>commons-io:commons-io</include>
-                                </includes>
+                                <excludes>
+                                    <exclude>org.wso2.orbit.org.antlr:antlr4-runtime</exclude>
+                                    <exclude>org.apache.james:apache-mime4j-core</exclude>
+                                    <exclude>org.apache.ws.commons.axiom:axiom-api</exclude>
+                                    <exclude>org.apache.ws.commons.axiom:axiom-impl</exclude>
+                                    <exclude>org.wso2.ballerina:*</exclude>
+                                    <exclude>commons-logging:commons-logging</exclude>
+                                    <exclude>org.apache.commons:commons-lang3</exclude>
+                                    <exclude>commons-pool.wso2:commons-pool</exclude>
+                                    <exclude>org.apache.geronimo.specs:geronimo-activation_1.1_spec</exclude>
+                                    <exclude>org.apache.geronimo.specs:geronimo-stax-api_1.0_spec</exclude>
+                                    <exclude>com.fasterxml.jackson.core:*</exclude>
+                                    <exclude>javax.websocket:javax.websocket-api</exclude>
+                                    <exclude>jaxen:jaxen</exclude>
+                                    <exclude>com.beust:jcommander</exclude>
+                                    <exclude>com.jayway.jsonpath:json-path</exclude>
+                                    <exclude>io.netty:*</exclude>
+                                    <exclude>org.wso2.carbon:*</exclude>
+                                    <exclude>org.wso2.orbit.net.sf.saxon:Saxon-HE</exclude>
+                                    <exclude>org.slf4j:*</exclude>
+                                    <exclude>org.wso2.orbit.org.yaml:snakeyaml</exclude>
+                                    <exclude>org.wso2.staxon:staxon-core</exclude>
+                                    <exclude>org.wso2.orbit.org.apache.tapestry:tapestry-json</exclude>
+                                </excludes>
                             </artifactSet>
                             <filters>
                             <filter>
