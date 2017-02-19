@@ -320,13 +320,15 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
             sourceId = connection.sourceStruct + connection.sourceId + this.viewIdSeperator + this.viewId;
             isSourceExists = true;
         } else {
-            isSourceExists =_.includes(this.existingJsTrees,  connection.sourceStruct + this.viewIdSeperator + this.viewId)
+            isSourceExists = _.includes(this.existingJsTrees,
+                                        connection.sourceStruct + this.viewIdSeperator + this.viewId)
         }
         if (connection.targetFunction) {
             targetId = connection.targetStruct + connection.targetId + this.viewIdSeperator + this.viewId;
             isTargetExists = true;
         } else {
-            isTargetExists = _.includes(this.existingJsTrees, connection.targetStruct+ this.viewIdSeperator + this.viewId)
+            isTargetExists = _.includes(this.existingJsTrees,
+                                        connection.targetStruct+ this.viewIdSeperator + this.viewId)
         }
 
         if (isSourceExists && isTargetExists) {
@@ -398,9 +400,11 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
             self.existingJsTrees.push(structId);
             self.dagrePosition(self);
             _.forEach(self.connectionPool, function (conPoolObj) {
-                if (!conPoolObj.connected && structId == conPoolObj.connection.sourceStruct + self.viewIdSeperator + self.viewId ) {
+                if (!conPoolObj.connected && structId ==
+                    conPoolObj.connection.sourceStruct + self.viewIdSeperator + self.viewId ) {
                     conPoolObj.isSourceExists = true;
-                } else if (!conPoolObj.connected && structId == conPoolObj.connection.targetStruct + self.viewIdSeperator + self.viewId ) {
+                } else if (!conPoolObj.connected && structId ==
+                    conPoolObj.connection.targetStruct + self.viewIdSeperator + self.viewId ) {
                     conPoolObj.isTargetExists = true;
                 }
                 if (!conPoolObj.connected && conPoolObj.isSourceExists && conPoolObj.isTargetExists) {
