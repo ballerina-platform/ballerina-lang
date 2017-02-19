@@ -41,7 +41,7 @@ public class LaunchManager {
 
     private LaunchSession launchSession;
 
-    private Process program = null;
+    private Command command;
 
     /**
      * Instantiates a new Debug manager.
@@ -74,9 +74,8 @@ public class LaunchManager {
     }
 
     private void run(Command command){
-        // kill a previously running program
-        stopProcess();
-
+        Process program = null;
+        this.command = command;
         // send a message if ballerina home is not set
         if(null == System.getProperty("ballerina.home") || System.getProperty("ballerina.home").isEmpty()){
             pushMessageToClient(launchSession, LauncherConstants.ERROR, LauncherConstants.ERROR,
@@ -87,7 +86,9 @@ public class LaunchManager {
         }
 
         try {
-            this.program = Runtime.getRuntime().exec(command.toString());
+            program = Runtime.getRuntime().exec(command.toString());
+            command.setProgram(program);
+
 
             if(command.getType() == LauncherConstants.ProgramType.RUN ){
                 pushMessageToClient(launchSession, LauncherConstants.EXECUTION_STARTED, LauncherConstants.INFO,
@@ -118,12 +119,12 @@ public class LaunchManager {
 
         } catch (IOException e) {
             pushMessageToClient(launchSession, LauncherConstants.EXIT, LauncherConstants.ERROR, e.getMessage());
-            this.program.destroy();
+            program.destroy();
         }
     }
 
     public void streamOutput() {
-        BufferedReader reader = new BufferedReader(new InputStreamReader(this.program.getInputStream()));
+        BufferedReader reader = new BufferedReader(new InputStreamReader(this.command.getProgram().getInputStream()));
         String line = "";
         try {
             while ((line = reader.readLine())!= null) {
@@ -137,11 +138,13 @@ public class LaunchManager {
     }
 
     public void streamError() {
-        BufferedReader reader = new BufferedReader(new InputStreamReader(this.program.getErrorStream()));
+        BufferedReader reader = new BufferedReader(new InputStreamReader(this.command.getProgram().getErrorStream()));
         String line = "";
         try {
             while ((line = reader.readLine())!= null) {
-                pushMessageToClient(launchSession, LauncherConstants.OUTPUT, LauncherConstants.ERROR, line);
+                if(this.command.isErrorOutputEnabled()){
+                    pushMessageToClient(launchSession, LauncherConstants.OUTPUT, LauncherConstants.ERROR, line);
+                }
             }
         } catch (IOException e) {
             logger.error("Error while sending error stream to client.",e);
@@ -150,13 +153,11 @@ public class LaunchManager {
 
     public void stopProcess() {
         int pid = -1;
-        if (this.program != null && this.program.isAlive()) {
-            this.program.destroyForcibly();
-            try {
-                this.program.waitFor();
-            } catch (InterruptedException e) {
-                //do nothing.
-            }
+        if (this.command != null && this.command.getProgram().isAlive()) {
+            Terminator terminator = new Terminator(this.command);
+            //shutdown error streaming to prevent kill message displaying to user.
+            this.command.setErrorOutputEnabled(false);
+            terminator.terminate();
             pushMessageToClient(launchSession, LauncherConstants.EXECUTION_TERMINATED , LauncherConstants.INFO,
                     LauncherConstants.TERMINATE_MESSAGE);
         }
