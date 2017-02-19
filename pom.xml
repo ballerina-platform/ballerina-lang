@@ -35,13 +35,13 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.wso2.ballerina</groupId>
+            <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-distribution</artifactId>
             <version>${ballerina.distribution.version}</version>
             <type>zip</type>
         </dependency>
         <dependency>
-            <groupId>org.ballerinalang.composer</groupId>
+            <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-composer-distribution</artifactId>
             <version>${ballerina.composer.distribution.version}</version>
             <type>zip</type>
@@ -66,6 +66,11 @@
             <artifactId>docerina</artifactId>
             <version>${docerina.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.ballerinalang.connectors</groupId>
+            <artifactId>connectors</artifactId>
+            <version>${ballerina.connectors.version}</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -83,17 +88,34 @@
                         </goals>
                         <configuration>
                             <includeArtifactIds>
-                                ballerina-distribution,ballerina-composer-distribution
+                                ballerina-distribution,ballerina-composer-distribution,testerina-core,connectors
                             </includeArtifactIds>
                             <outputDirectory>${project.build.directory}/extracted-distributions</outputDirectory>
                             <overWriteReleases>false</overWriteReleases>
                             <overWriteSnapshots>true</overWriteSnapshots>
-                            <useSubDirectoryPerArtifact>false</useSubDirectoryPerArtifact>
+                            <useSubDirectoryPerArtifact>true</useSubDirectoryPerArtifact>
                         </configuration>
                     </execution>
                 </executions>
             </plugin>
-
+            <plugin>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>docerina-maven-plugin</artifactId>
+                <version>${docerina.maven.plugin.version}</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>docerina</goal>
+                        </goals>
+                        <configuration>
+                            <outputDir>${project.build.directory}/api-docs</outputDir>
+                            <sourceDir>${project.build.directory}/extracted-distributions/ballerina-distribution-${ballerina.distribution.version}-zip/ballerina-${ballerina.distribution.version}/src</sourceDir>
+                            <nativeCode>true</nativeCode>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>
@@ -132,11 +154,13 @@
     </build>
 
     <properties>
-        <ballerina.distribution.version>0.8.0-ALPHA</ballerina.distribution.version>
-        <ballerina.composer.distribution.version>0.8-SNAPSHOT</ballerina.composer.distribution.version>
+        <ballerina.distribution.version>0.8.0-SNAPSHOT</ballerina.distribution.version>
+        <ballerina.composer.distribution.version>0.8.0-SNAPSHOT</ballerina.composer.distribution.version>
         <testerina.version>0.8.0-SNAPSHOT</testerina.version>
         <tool.swagger.version>0.8.0-SNAPSHOT</tool.swagger.version>
-        <ballerina.container.version>0.8.0-ALPHA</ballerina.container.version>
+        <ballerina.container.version>0.8.0-SNAPSHOT</ballerina.container.version>
         <docerina.version>0.8.0-SNAPSHOT</docerina.version>
+        <docerina.maven.plugin.version>0.8.0-SNAPSHOT</docerina.maven.plugin.version>
+        <ballerina.connectors.version>0.8.0-SNAPSHOT</ballerina.connectors.version>
     </properties>
 </project>
