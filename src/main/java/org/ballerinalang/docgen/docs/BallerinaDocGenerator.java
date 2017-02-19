@@ -72,11 +72,26 @@ public class BallerinaDocGenerator {
         generateApiDocs(output, packageFilter, true, sources);
     }
     
-    private static void generateApiDocs(String output, String packageFilter, boolean isNative, String... sources) {
+    /**
+     * API to generate Ballerina API documentation.
+     * 
+     * @param output path to the output directory where the API documentation will be written to.
+     * @param packageFilter comma separated list of package names to be filtered from the documentation.
+     * @param isNative whether the given packages are native or not.
+     * @param sources either the path to the directories where Ballerina source files reside or a path to a Ballerina
+     *            file which does not belong to a package.
+     */
+    public static void generateApiDocs(String output, String packageFilter, boolean isNative, String... sources) {
+        HtmlDocumentWriter htmlDocumentWriter;
+        if (output == null) {
+            htmlDocumentWriter = new HtmlDocumentWriter();
+        } else {
+            htmlDocumentWriter = new HtmlDocumentWriter(output);
+        }
         for (String source : sources) {
             try {
                 Map<String, BLangPackage> docsMap = generatePackageDocsFromBallerina(source, packageFilter, isNative);
-                writeHtmlDocs(output, docsMap);
+                htmlDocumentWriter.write(docsMap.values());
             } catch (Exception e) {
                 out.println(String.format("Docerina: API documentation generation failed for %s: %s", source,
                         e.getMessage()));
@@ -166,16 +181,6 @@ public class BallerinaDocGenerator {
         return false;
     }
 
-    private static void writeHtmlDocs(String output, Map<String, BLangPackage> docsMap) throws IOException {
-        HtmlDocumentWriter htmlDocumentWriter;
-        if (output == null) {
-            htmlDocumentWriter = new HtmlDocumentWriter();
-        } else {
-            htmlDocumentWriter = new HtmlDocumentWriter(output);
-        }
-        htmlDocumentWriter.write(docsMap.values());
-    }
-    
     /**
      * Visits sub folders of a ballerina package.
      */
