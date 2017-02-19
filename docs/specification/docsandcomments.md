@@ -4,14 +4,14 @@ Many programming languages treat documentation as an after thought with some lan
 
 Ballerina has a structured approach for both documentation and random comments which are not related to documenting per se but simply commenting about the logic of the program.
 
-## Documenting with annotations
+## Documenting with Annotations
 
-> NOTE: To be written to explain docerina architecture.
+Ballerina uses annotations for documentation. It comes with a set of standard annotations which must be used to document all the Ballerina constructs. These annotations and then processed by the `docerina` tool to create structured documents that describes the Ballerina code in a standardized way.
+
+> NOTE: To be written to explain docerina architecture. See docerina architecture document in the meantime.
 
 ## Commenting Code
 
-Any statement that starts with the characters `//` is a comment.
+Comments are quite different in Ballerina in comparison to other languages. Ballerina allows one to insert comments any place where statements are valid.  Any statement that starts with the characters `//` is considered a comment until the end of the line. Note that Ballerina does not have any provision for placing comments outside of its main constructs.
 
-
-Comments are quite different in Ballerina in comparison to other languages. Comments are only allowed as a statement - i.e., only inside a resource, action, or function.
-Ballerina has designed structured mechanisms via annotations to document all Ballerina outer level constructs (services, resources, etc.), and comments only play the role of providing a comment about the logic of a resource, action, or function.
+> NOTE: We are considering a multi-line comment block mechanism (using the widely used /* .. */ approach) as well as reducing some of the constraints on comments. Feedback welcome.
