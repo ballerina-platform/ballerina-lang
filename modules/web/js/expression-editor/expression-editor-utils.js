@@ -27,7 +27,6 @@ define(['require', 'lodash', 'jquery'], function (require, _, $) {
         hiddenSpan.css('padding-left', '15px');
         $(propertyInputValue).css('border', '1px solid');
         $(propertyInputValue).css('padding-left', '15px');
-        $(propertyInputValue).focus();
         $(propertyInputValue).val(propertyValue);
 
         // returns the width in pixels needed to show a given text
