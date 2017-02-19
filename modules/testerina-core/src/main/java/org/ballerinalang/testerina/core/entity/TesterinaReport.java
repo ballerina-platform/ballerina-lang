@@ -56,12 +56,12 @@ public class TesterinaReport {
             }
             outStream.println(newLine + "Result: " + newLine + " Tests Run: " + functionResults.size() + ", Passed: "
                     + passedFunctionCount + ", Failed: " + failedFunctionCount);
-            printTestSummeryDetails();
+            printTestDetails();
         }
     }
 
-    public static void printTestSummeryDetails(){
-        outStream.println(newLine + "Failed Tests:");
+    public static void printTestDetails(){
+        outStream.println( newLine + "Failed Tests");
         for (TesterinaFunctionResult failedResult : failedFunctionResults) {
             outStream.println(failedResult.getTestFunctionName() + ": "+ failedResult.getAssertFailureMessage());
         }
