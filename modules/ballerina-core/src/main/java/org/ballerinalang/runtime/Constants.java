@@ -34,11 +34,6 @@ public class Constants {
     // Ballerina version system property name
     public static final String BALLERINA_VERSION = "ballerina.version";
 
-    public static final String BALLERINA_LOGGER_NAME = "BALLERINA_LOGGER";
-
-    // Ballerina function node location
-    public static final String BALLERINA_SOURCE_FILE_LOCATION = "BALLERINA_SOURCE_FILE_LOCATION";
-
     // logger names.
     public static final String BAL_LINKED_INTERPRETER_LOGGER = "BLinkedInterpreter";
 

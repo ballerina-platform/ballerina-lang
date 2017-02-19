@@ -149,8 +149,6 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import static org.ballerinalang.runtime.Constants.BALLERINA_SOURCE_FILE_LOCATION;
-
 /**
  * {@link BLangAbstractExecutionVisitor} defines execution steps of a Ballerina program in Linked Node based execution.
  *
@@ -1100,7 +1098,6 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
 
         BValue[] cacheValue = new BValue[funcIExpr.getCallableUnit().getTempStackFrameSize() + 1];
         StackFrame stackFrame = new StackFrame(localVals, returnVals, cacheValue, functionInfo);
-        bContext.setProperty(BALLERINA_SOURCE_FILE_LOCATION, funcIExpr.getNodeLocation().toString());
         controlStack.pushFrame(stackFrame);
         if (funcIExpr.hasGotoBranchID()) {
             branchIDStack.push(funcIExpr.getGotoBranchID());
