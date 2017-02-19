@@ -36,7 +36,7 @@
             <version>${commons.io.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.wso2.ballerina</groupId>
+            <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-launcher</artifactId>
             <version>${ballerina.launcher.version}</version>
         </dependency>
