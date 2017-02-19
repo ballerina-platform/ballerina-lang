@@ -58,7 +58,7 @@ import java.util.List;
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
         value = "Sets the string value of an element that matches the given XPath."
                 + " If the XPath matches an existing element, that element's value will be updated."
-                + " If the XPath does not match an existing element, a new element will be added to match the XPath."
+                + " If the XPath does not match an existing element, this operation will have no effect.."
                 + " Namespaces are supported.") })
 @BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "x",
         value = "An XML object") })

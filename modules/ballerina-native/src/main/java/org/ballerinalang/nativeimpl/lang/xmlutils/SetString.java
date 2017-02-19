@@ -59,7 +59,7 @@ import java.util.List;
         value = "Sets the string value of an element that matches the given XPath. "
                 + "If the XPath matches an existing element, that element's value will be updated."
                 + " If the XPath does not match an existing element,"
-                + " a new element will be added to match the XPath.") })
+                + " this operation will have no effect.") })
 @BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "x",
         value = "An XML object") })
 @BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "xPath",
