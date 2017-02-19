@@ -54,8 +54,8 @@ define(['lodash', 'log', './statement', './try-statement', './catch-statement'],
         var self = this;
         _.each(jsonNode.children, function (childNode) {
             var child = self.getFactory().createFromJson(childNode);
-            child.initFromJson(childNode);
             self.addChild(child);
+            child.initFromJson(childNode);
         });
     };
 
