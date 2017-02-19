@@ -22,12 +22,12 @@ import com.github.jknack.handlebars.Helper;
 import com.github.jknack.handlebars.Template;
 import com.github.jknack.handlebars.io.ClassPathTemplateLoader;
 import com.github.jknack.handlebars.io.TemplateLoader;
-
 import org.ballerinalang.docgen.docs.BallerinaDocConstants;
 import org.ballerinalang.docgen.docs.DocumentWriter;
 import org.ballerinalang.docgen.docs.utils.BallerinaDocUtils;
 import org.ballerinalang.model.Annotation;
 import org.ballerinalang.model.BLangPackage;
+import org.ballerinalang.model.BTypeMapper;
 import org.ballerinalang.model.BallerinaAction;
 import org.ballerinalang.model.BallerinaConnectorDef;
 import org.ballerinalang.model.BallerinaFunction;
@@ -135,6 +135,12 @@ public class HtmlDocumentWriter implements DocumentWriter {
                         }
                         return options.inverse(null);
                     })
+                    .registerHelper("hasTypeMappers", (Helper<BLangPackage>) (balPackage, options) -> {
+                        if (balPackage.getTypeMappers().length > 0) {
+                            return options.fn(balPackage);
+                        }
+                        return options.inverse(null);
+                    })
                     // usage: {{currentObject this}}
                     .registerHelper("currentObject", (Helper<Object>) (obj, options) -> {
                         dataHolder.setCurrentObject(obj);
@@ -146,10 +152,11 @@ public class HtmlDocumentWriter implements DocumentWriter {
                             "paramAnnotation",
                             (Helper<ParameterDef>) (param, options) -> {
                                 String annotationName = options.param(0);
-                                if (annotationName == null || param.getName() == null) {
+                                if (annotationName == null) {
                                     return "";
                                 }
-                                String subName = param.getName();
+                                String subName = param.getName() == null ? param.getTypeName().getName() : 
+                                    param.getName();
                                 for (Annotation annotation : getAnnotations(dataHolder)) {
                                     if (annotationName.equalsIgnoreCase(annotation.getName())
                                             && annotation.getValue().startsWith(subName + ":")) {
@@ -251,6 +258,8 @@ public class HtmlDocumentWriter implements DocumentWriter {
             return ((BallerinaConnectorDef) dataHolder.getCurrentObject()).getAnnotations();
         } else if (dataHolder.getCurrentObject() instanceof BallerinaAction) {
             return ((BallerinaAction) dataHolder.getCurrentObject()).getAnnotations();
+        }  else if (dataHolder.getCurrentObject() instanceof BTypeMapper) {
+            return ((BTypeMapper) dataHolder.getCurrentObject()).getAnnotations();
         } else {
             return new Annotation[0];
         }
