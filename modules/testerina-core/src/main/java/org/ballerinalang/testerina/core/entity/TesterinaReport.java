@@ -18,10 +18,12 @@
 
 package org.ballerinalang.testerina.core.entity;
 
+import java.io.PrintStream;
 import java.util.ArrayList;
 
 public class TesterinaReport {
     private static ArrayList<TesterinaFunctionResult> functionResults = new ArrayList<TesterinaFunctionResult>();
+    private static PrintStream outStream = System.err;
 
     public void addFunctionResult(TesterinaFunctionResult functionResult){
         functionResults.add(functionResult);
@@ -31,5 +33,19 @@ public class TesterinaReport {
         return functionResults;
     }
 
-
+    private void printTestSummary(){
+        int passedFunctionCount = 0 ;
+        int failedFunctionCount = 0 ;
+        String newLine = System.getProperty("line.separator");
+        for (TesterinaFunctionResult result: functionResults) {
+            if(result.isTestFunctionPassed()){
+                passedFunctionCount ++;
+            }
+            else{
+                failedFunctionCount ++;
+            }
+        }
+        outStream.println("Result : " + newLine + "Test Run : " + functionResults.size() + ", Test Passed: " +
+                passedFunctionCount + ", Test Failures: " + failedFunctionCount);
+    }
 }
