@@ -1244,13 +1244,15 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
 
             this.getConnectorWorkerViewList().forEach(function (worker) {
                 if (worker instanceof WorkerDeclarationView) {
-                    if (worker.getModel().id === currentWorker.getModel().id && dy < 0) {
-                        // TODO: Refactor logic
-                        // Child we are removing, have not removed from the view list yet
-                        lastChildArr.push(worker.getStatementContainer().getManagedStatements()[worker.getStatementContainer().getManagedStatements() - 2]);
-                    } else {
-                        lastChildArr.push(_.last(worker.getStatementContainer().getManagedStatements()));
-                    }
+                    // if (worker.getModel().id === currentWorker.getModel().id && dy < 0) {
+                    //     // TODO: Refactor logic
+                    //     // Child we are removing, have not removed from the view list yet
+                    //     lastChildArr.push(worker.getStatementContainer().getManagedStatements()[worker.getStatementContainer().getManagedStatements() - 2]);
+                    // } else {
+                    //     lastChildArr.push(_.last(worker.getStatementContainer().getManagedStatements()));
+                    // }
+                    // TODO: We need to rewrite this logic due to the current limitation of the element remove in statement container
+                    lastChildArr.push(_.last(worker.getStatementContainer().getManagedStatements()));
                 }
             });
 
