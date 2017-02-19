@@ -175,6 +175,10 @@ public class HtmlDocumentWriter implements DocumentWriter {
                     //this would bind a link to the custom types defined
                     .registerHelper("bindLink", (Helper<SymbolName>) (type, options) -> {
                         if (type == null) {
+                            // for native functions check the type name
+                            if (options.context.model() instanceof ParameterDef) {
+                                return "#" + ((ParameterDef) options.context.model()).getTypeName().toString();
+                            }
                             return "";
                         }
                         if ((type.getPkgPath() != null) && (!type.getPkgPath().isEmpty())) {
@@ -186,6 +190,14 @@ public class HtmlDocumentWriter implements DocumentWriter {
                     // eg: {{typeTitle type}}
                     .registerHelper("typeTitle", (Helper<BType>) (type, options) -> {
                         if (type == null) {
+                            // for native functions check the type name
+                            if (options.context.model() instanceof ParameterDef) {
+                                String pkgPath = ((ParameterDef) options.context.model()).getTypeName()
+                                        .getPackagePath();
+                                if (pkgPath != null && !pkgPath.isEmpty()) {
+                                    return new Handlebars.SafeString(" title=\"" + type + "\"");
+                                }
+                            }
                             return null;
                         }
                         if ((type.getPackagePath() != null) && (!type.getPackagePath().isEmpty())) {
