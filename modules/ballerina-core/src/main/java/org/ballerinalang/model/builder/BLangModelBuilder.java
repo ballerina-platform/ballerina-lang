@@ -361,6 +361,14 @@ public class BLangModelBuilder {
         annotationList.add(annotation);
     }
 
+    public void startTypeMapperInput() {
+        annotationListStack.push(new ArrayList<>());
+    }
+
+
+    public void endTypeMapperInput() {
+        annotationListStack.pop();
+    }
 
     // Function/action input and out parameters
     public void startParamList() {
