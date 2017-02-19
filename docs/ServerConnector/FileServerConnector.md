@@ -53,13 +53,6 @@ Add a service level annotation named "Source" and add the key-value pairs to spe
     <td>A positive integer.</td>
     <td>30000</td>
   </tr>
-  <tr>
-    <td>deleteIfNotAcknowledged</td>
-    <td>If the file consumer did not acknowledge, the file will either be deleted or it will be kept, so it will be retried to be processed again in the next polling cycle. Set this parameter to true, if the file needs to be deleted. Set it to false otherwise.</td>
-    <td>No</td>
-    <td>true or false</td>
-    <td>false</td>
-  </tr>
 </table>
 
 
