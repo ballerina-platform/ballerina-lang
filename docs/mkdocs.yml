@@ -4,22 +4,22 @@ site_description: Documentation for the Ballerina Programming Language
 site_author: WSO2, Inc.
 copyright: 2017 WSO2, Inc.
 pages:
-- Home: 'index.md'
-- What is Ballerina?: 'intro.md'
+- Welcome: 'index.md'
 - Quick Tour: 'quick-tour.md'
-- Tutorials: 'tutorials/index.md'
-    - Writing your First Program: 'tutorials/first-program.md'
+- Write your First Program: 'tutorials/first-program.md'
 - Key Concepts: 'key-concepts.md'
+- Tools: 'tools.md'
 - Samples: 'samples.md'
 - Language Reference: 'model-ref/index.md'
-    - Language Overview: 'model-ref/model-overview.md'
-    - Packaging: 'model-ref/packaging.md'
-    - Services: 'model-ref/services.md'
-    - Resources: 'model-ref/resources.md'
-    - Functions: 'model-ref/functions.md'
-    - Connectors: 'model-ref/connectors.md'
-    - Actions: 'model-ref/actions.md'
-    - Workers: 'model-ref/workers.md'
-    - Types and Variables: 'model-ref/types-variables.md'
-    - Statements: 'model-ref/statements.md'
-theme: readthedocs
+    - Overview: 'lang-ref/lang-overview.md'
+    - Packaging and Running Programs: 'lang-ref/packaging.md'
+    - Services: 'lang-ref/services.md'
+    - Resources: 'lang-ref/resources.md'
+    - Functions: 'lang-ref/functions.md'
+    - Connectors: 'lang-ref/connectors.md'
+    - Actions: 'lang-ref/actions.md'
+    - Workers: 'lang-ref/workers.md'
+    - Types and Variables: 'lang-ref/types-variables.md'
+    - Statements: 'lang-ref/statements.md'
+theme: null
+theme_dir: ballerina-theme

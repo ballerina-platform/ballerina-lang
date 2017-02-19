@@ -16,6 +16,7 @@ Chanaka Fernando <<chanakaf@wso2.com>>
 - ![Functions](functions.md)
 - ![Connectors & Actions](connectors.md)
 - ![Workers](workers.md)
+- ![Names](names.md)
 - ![Types & Variables](typesandvar.md)
 - ![Exception Handling](exceptions.md)
 - ![Statements](statements.md)
