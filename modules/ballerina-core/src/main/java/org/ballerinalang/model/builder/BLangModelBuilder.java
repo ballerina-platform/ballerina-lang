@@ -361,6 +361,14 @@ public class BLangModelBuilder {
         annotationList.add(annotation);
     }
 
+    public void startTypeMapperInput() {
+        annotationListStack.push(new ArrayList<>());
+    }
+
+
+    public void endTypeMapperInput() {
+        annotationListStack.pop();
+    }
 
     // Function/action input and out parameters
     public void startParamList() {
@@ -791,6 +799,9 @@ public class BLangModelBuilder {
         //currentCUBuilder.setPkgPath(currentPackagePath);
         currentCUBuilder.setPublic(isPublic);
         currentCUBuilder.setNative(isNative);
+
+        List<Annotation> annotationList = annotationListStack.pop();
+        annotationList.forEach(currentCUBuilder::addAnnotation);
 
         BTypeMapper typeMapper = currentCUBuilder.buildTypeMapper();
 
