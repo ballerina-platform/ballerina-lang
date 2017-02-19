@@ -16,7 +16,7 @@
  *  under the License.
  */
 
-package org.wso2.ballerina.test.connector.http;
+package org.ballerinalang.test.connector.http;
 
 import org.osgi.service.component.annotations.Component;
 import org.slf4j.Logger;
@@ -26,7 +26,6 @@ import org.ballerinalang.core.model.Connector;
 import org.ballerinalang.core.model.types.TypeEnum;
 import org.ballerinalang.model.values.BConnector;
 import org.ballerinalang.model.values.BMessage;
-import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaAction;
@@ -34,35 +33,33 @@ import org.ballerinalang.natives.connectors.AbstractNativeAction;
 import org.wso2.carbon.messaging.CarbonMessage;
 
 import static org.ballerinalang.natives.connectors.http.Constants.HTTP_METHOD;
-import static org.ballerinalang.natives.connectors.http.Constants.HTTP_METHOD_PUT;
+import static org.ballerinalang.natives.connectors.http.Constants.HTTP_METHOD_GET;
 
 /**
- * {@code DummyPut} is the PUT action implementation of the HTTP Connector
- *
+ * {@code DummyGet} is the GET action implementation of the HTTP Connector
  */
 @BallerinaAction(
         packageName = "ballerina.net.http",
-        actionName = "put",
+        actionName = "get",
         connectorName = DummyHTTPConnector.CONNECTOR_NAME,
         args = {
-                @Argument(name = "connector",
-                        type = TypeEnum.CONNECTOR),
+                @Argument(name = "connector", type = TypeEnum.CONNECTOR),
                 @Argument(name = "path", type = TypeEnum.STRING),
                 @Argument(name = "message", type = TypeEnum.MESSAGE)
         },
         returnType = {TypeEnum.MESSAGE})
 @Component(
-        name = "action.net.http.dummy_put",
+        name = "action.net.http.dummy_get",
         immediate = true,
         service = AbstractNativeAction.class)
-public class DummyPut extends AbstractHTTPAction {
+public class DummyGet extends AbstractHTTPAction {
 
-    private static final Logger logger = LoggerFactory.getLogger(DummyPut.class);
+    private static final Logger logger = LoggerFactory.getLogger(DummyGet.class);
 
     @Override
     public BValue execute(Context context) {
 
-        logger.debug("Executing Native Action : DummyPut");
+        logger.info("Executing Native Action : DummyGet");
 
         // Extract Argument values
         BConnector connectorValue = (BConnector) getArgument(context, 0);
@@ -71,19 +68,16 @@ public class DummyPut extends AbstractHTTPAction {
 
         Connector connector = connectorValue.value();
         if (!(connector instanceof DummyHTTPConnector)) {
-            logger.error("Need to use a DummyHTTPConnector as the first argument");
+            logger.error("Need to use a HTTPConnector as the first argument");
             return null;
         }
-
         // Prepare the message
         CarbonMessage cMsg = messageValue.value();
         prepareRequest(connector, path, cMsg);
-        cMsg.setProperty(HTTP_METHOD, HTTP_METHOD_PUT);
+        cMsg.setProperty(HTTP_METHOD, HTTP_METHOD_GET);
 
-        // DummyExecute the operation
-        messageValue.setBuiltPayload(new BString("DummyPut method invoked."));
-        messageValue.setAlreadyRead(true);
-
-        return messageValue;
+        // Execute the operation
+        logger.info("Returning dummy value.");
+        return executeAction(context, cMsg);
     }
 }

@@ -17,6 +17,6 @@
   -->
 <FindBugsFilter>
     <Match>
-        <Package name="org.wso2.ballerina.annotation.processors"/>
+        <Package name="org.ballerinalang.annotation.processors"/>
     </Match>
 </FindBugsFilter>
