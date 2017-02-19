@@ -43,7 +43,6 @@ public class TesterinaFunction {
     private Type type;
     private Function bFunction;
     private BLangProgram bLangProgram;
-    //    private TesterinaContext tFile;
 
     public static final String PREFIX_TEST = "TEST";
     public static final String PREFIX_BEFORETEST = "BEFORETEST";
