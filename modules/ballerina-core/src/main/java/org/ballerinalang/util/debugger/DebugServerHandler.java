@@ -37,6 +37,8 @@ import io.netty.handler.codec.http.websocketx.WebSocketServerHandshaker;
 import io.netty.handler.codec.http.websocketx.WebSocketServerHandshakerFactory;
 import io.netty.util.CharsetUtil;
 
+import java.io.PrintStream;
+
 import static io.netty.handler.codec.http.HttpHeaders.Names.HOST;
 import static io.netty.handler.codec.http.HttpMethod.GET;
 import static io.netty.handler.codec.http.HttpResponseStatus.BAD_REQUEST;
@@ -140,7 +142,8 @@ public class DebugServerHandler extends SimpleChannelInboundHandler<Object> {
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
         ctx.close();
-        throw new DebugException("Debug Server Error : " + cause.getMessage(), cause);
+        PrintStream out = System.out;
+        out.println(DebugConstants.DEBUG_SERVER_ERROR);
     }
 
     private static String getWebSocketLocation(FullHttpRequest req) {
