@@ -146,10 +146,13 @@ define(['lodash', 'log', './simple-statement-view', './../ast/reply-statement', 
                     // Moving the statement up
                     if (!_.isNil(replyReceiver)) {
                         self.stopListening(self.getBoundingBox(), 'top-edge-moved');
-                        if (this.getDiagramRenderingContext().getViewOfModel(replyReceiver).canMoveUp(dy)) {
+                        var receiverView = this.getDiagramRenderingContext().getViewOfModel(replyReceiver);
+                        if (_.isNil(receiverView) || (!_.isNil(receiverView) && receiverView.canMoveUp(dy))) {
                             self.getSvgRect().attr('y', parseFloat(self.getSvgRect().attr('y')) + dy);
                             self.getSvgText().attr('y', parseFloat(self.getSvgText().attr('y')) + dy);
-                            this.getDiagramRenderingContext().getViewOfModel(replyReceiver).onMoveInitiatedByReply(dy);
+                            if (!_.isNil(receiverView)) {
+                                receiverView.onMoveInitiatedByReply(dy);
+                            }
                         } else {
                             self.getBoundingBox().move(0, -dy);
                         }
