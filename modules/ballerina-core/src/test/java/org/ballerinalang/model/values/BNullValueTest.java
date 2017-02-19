@@ -230,4 +230,32 @@ public class BNullValueTest {
     public void testSetElementInNullMap() {
         BLangFunctions.invoke(bLangProgram, "setElementInNullMap");
     }
+
+    @Test(description = "Test null as a if condition",
+          expectedExceptions = BallerinaException.class,
+          expectedExceptionsMessageRegExp = "null-as-if-condition.bal:2: null not allowed here")
+    public void testNullAsIfCondition() {
+        new BLangProgramLoader().loadLibrary(programPath, Paths.get("lang/values/null-as-if-condition.bal"));
+    }
+
+    @Test(description = "Test null as a else-if condition",
+          expectedExceptions = BallerinaException.class,
+          expectedExceptionsMessageRegExp = "null-as-elseif-condition.bal:3: null not allowed here")
+    public void testNullAsElseIfCondition() {
+        new BLangProgramLoader().loadLibrary(programPath, Paths.get("lang/values//null-as-elseif-condition.bal"));
+    }
+
+    @Test(description = "Test null in unary expression",
+          expectedExceptions = BallerinaException.class,
+          expectedExceptionsMessageRegExp = "null-in-unary-expr.bal:2: null not allowed here")
+    public void testNullInUnaryExpression() {
+        new BLangProgramLoader().loadLibrary(programPath, Paths.get("lang/values/null-in-unary-expr.bal"));
+    }
+
+    @Test(description = "Test null as while condition",
+          expectedExceptions = BallerinaException.class,
+          expectedExceptionsMessageRegExp = "null-as-while-condition.bal:2: null not allowed here")
+    public void testNullAsWhileCondition() {
+        new BLangProgramLoader().loadLibrary(programPath, Paths.get("lang/values/null-as-while-condition.bal"));
+    }
 }
