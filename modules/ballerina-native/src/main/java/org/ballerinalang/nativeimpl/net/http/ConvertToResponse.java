@@ -19,6 +19,7 @@ package org.ballerinalang.nativeimpl.net.http;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeEnum;
+import org.ballerinalang.model.values.BMessage;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
@@ -26,6 +27,7 @@ import org.ballerinalang.natives.annotations.Attribute;
 import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.runtime.Constants;
+import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.Headers;
 
 /**
@@ -43,19 +45,22 @@ import org.wso2.carbon.messaging.Headers;
         value = "A message object") })
 public class ConvertToResponse extends AbstractNativeFunction {
     public BValue[] execute(Context ctx) {
+
+        CarbonMessage carbonMessage = ((BMessage) getArgument(ctx, 0)).value();
+
         if (!org.wso2.carbon.messaging.Constants.DIRECTION_RESPONSE.
-                equals(ctx.getCarbonMessage().getProperty(org.wso2.carbon.messaging.Constants.DIRECTION))) {
+                equals(carbonMessage.getProperty(org.wso2.carbon.messaging.Constants.DIRECTION))) {
             // getting the Content-Type of request message
-            String requestContentType = ctx.getCarbonMessage().getHeader(
+            String requestContentType = carbonMessage.getHeader(
                     org.ballerinalang.nativeimpl.lang.utils.Constants.CONTENT_TYPE);
-            ctx.getCarbonMessage().getHeaders().clear();
+            carbonMessage.getHeaders().clear();
             // setting the request Content-Type for response message
-            ctx.getCarbonMessage().setHeader(org.ballerinalang.nativeimpl.lang.utils.Constants.CONTENT_TYPE
+            carbonMessage.setHeader(org.ballerinalang.nativeimpl.lang.utils.Constants.CONTENT_TYPE
                     , requestContentType);
             // Set any intermediate headers set during ballerina execution
-            if (ctx.getCarbonMessage().getProperty(Constants.INTERMEDIATE_HEADERS) != null) {
-                Headers headers = (Headers) ctx.getCarbonMessage().getProperty(Constants.INTERMEDIATE_HEADERS);
-                ctx.getCarbonMessage().setHeaders(headers.getAll());
+            if (carbonMessage.getProperty(Constants.INTERMEDIATE_HEADERS) != null) {
+                Headers headers = (Headers) carbonMessage.getProperty(Constants.INTERMEDIATE_HEADERS);
+                carbonMessage.setHeaders(headers.getAll());
             }
         }
         return VOID_RETURN;
