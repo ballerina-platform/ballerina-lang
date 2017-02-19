@@ -200,20 +200,22 @@ In the above example, once a file is found at the given URI,  orderProcessServic
 
 The service will then execute the statements given within the resource block. 
 
-```system:println(messages:getStringPayload(m));```
+```
+system:println(messages:getStringPayload(m));
+```
 
 
 Above line will read the file content as a String and then print it on the console.
 
-```file:acknowledge(m);```
-
+```
+file:acknowledge(m);
+```
 
 Above line sends an acknowledgment to the sender of the message (this sender has the control to close the file input stream). As a result, the file input stream will be closed; and then the file will be deleted. 
 
 Since this function makes the message sender to close the input stream; and delete the file, this function needs to be called only after message processing is done. 
 
 In case the service does not call the `acknowledge` function, the message sender will wait for 30 seconds (30 seconds is the default wait time. This value can be overridden by specifying a different value as the `acknowledgementTimeOut` service parameter) and assume that the file was not processed. Furthermore, following the same assumption, the message sender will not delete the file. As a result of this, the file will remain at the same URI to which the service listens, so it will be attempted to be processed in the next polling cycle as well. 
-
 
 
 [1]: http://commons.apache.org/compress/
