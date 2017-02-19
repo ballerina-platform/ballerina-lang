@@ -34,7 +34,8 @@ public class FunctionReference extends BallerinaElementReference {
     @Override
     public boolean isDefinitionNode(PsiElement def) {
         return def instanceof FunctionDefinitionNode || def instanceof ConnectorDefinitionNode
-                || def instanceof CallableUnitNameNode || def instanceof SimpleTypeNode;
+                || def instanceof CallableUnitNameNode || def instanceof SimpleTypeNode
+                || def instanceof FunctionNode;
     }
 
     @NotNull

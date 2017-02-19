@@ -56,6 +56,7 @@ import org.ballerinalang.plugins.idea.psi.ExpressionNode;
 import org.ballerinalang.plugins.idea.psi.FunctionBodyNode;
 import org.ballerinalang.plugins.idea.psi.FunctionDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.FunctionInvocationStatementNode;
+import org.ballerinalang.plugins.idea.psi.FunctionNode;
 import org.ballerinalang.plugins.idea.psi.ImportDeclarationNode;
 import org.ballerinalang.plugins.idea.psi.LiteralValueNode;
 import org.ballerinalang.plugins.idea.psi.MapStructInitKeyValueListNode;
@@ -64,6 +65,7 @@ import org.ballerinalang.plugins.idea.psi.NamedParameterNode;
 import org.ballerinalang.plugins.idea.psi.PackageDeclarationNode;
 import org.ballerinalang.plugins.idea.psi.PackageNameNode;
 import org.ballerinalang.plugins.idea.psi.PackagePathNode;
+import org.ballerinalang.plugins.idea.psi.ParameterListNode;
 import org.ballerinalang.plugins.idea.psi.ParameterNode;
 import org.ballerinalang.plugins.idea.psi.QualifiedTypeNameNode;
 import org.ballerinalang.plugins.idea.psi.ResourceDefinitionNode;
@@ -243,6 +245,10 @@ public class BallerinaParserDefinition implements ParserDefinition {
                 return new MapStructInitKeyValueListNode(node);
             case BallerinaParser.RULE_mapStructInitKeyValue:
                 return new MapStructInitKeyValueNode(node);
+            case BallerinaParser.RULE_function:
+                return new FunctionNode(node);
+            case BallerinaParser.RULE_parameterList:
+                return new ParameterListNode(node);
             default:
                 return new ANTLRPsiNode(node);
         }

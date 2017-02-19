@@ -19,22 +19,15 @@ package org.ballerinalang.plugins.idea.psi;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiErrorElement;
-import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiNameIdentifierOwner;
 import com.intellij.psi.PsiPolyVariantReference;
-import com.intellij.psi.PsiReference;
 import com.intellij.psi.PsiReferenceBase;
 import com.intellij.psi.ResolveResult;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.util.IncorrectOperationException;
-import org.antlr.jetbrains.adaptor.psi.IdentifierDefSubtree;
 import org.antlr.jetbrains.adaptor.psi.ScopeNode;
-import org.antlr.jetbrains.adaptor.xpath.XPath;
-import org.ballerinalang.plugins.idea.BallerinaLanguage;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.Collection;
 
 public abstract class BallerinaElementReference extends PsiReferenceBase<IdentifierPSINode>
         implements PsiPolyVariantReference {
@@ -116,6 +109,7 @@ public abstract class BallerinaElementReference extends PsiReferenceBase<Identif
                 // definitionElement is defined in.
                 PsiElement commonContext = PsiTreeUtil.findCommonContext(definitionElement, myElement);
                 if (!(commonContext instanceof FunctionDefinitionNode
+                        || commonContext instanceof FunctionNode
                         || commonContext instanceof ResourceDefinitionNode
                         || commonContext instanceof ConnectorDefinitionNode
                         || commonContext instanceof ActionDefinitionNode)) {
@@ -128,8 +122,21 @@ public abstract class BallerinaElementReference extends PsiReferenceBase<Identif
                 if (!(commonContext instanceof FunctionBodyNode || commonContext instanceof ConnectorBodyNode)) {
                     return false;
                 }
-            }
+            }else if (definitionElement instanceof PsiErrorElement) {
+                PsiElement commonContext = PsiTreeUtil.findCommonContext(definitionElement.getParent(), myElement);
+                if (!(commonContext instanceof FunctionDefinitionNode
+                        || commonContext instanceof FunctionBodyNode
+                        || commonContext instanceof FunctionNode
+                        || commonContext instanceof ResourceDefinitionNode
+                        || commonContext instanceof ConnectorDefinitionNode
+                        || commonContext instanceof ActionDefinitionNode)) {
+                    return false;
+                }
 
+                String defName = definitionElement.getText();
+
+                return refName != null && defName != null && refName.equals(defName);
+            }
             PsiElement id = ((PsiNameIdentifierOwner) definitionElement).getNameIdentifier();
             String defName = id != null ? id.getText() : null;
 

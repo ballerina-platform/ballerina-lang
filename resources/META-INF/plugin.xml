@@ -77,6 +77,9 @@
         <lang.braceMatcher language="Ballerina"
                            implementationClass="org.ballerinalang.plugins.idea.completion.BallerinaPairedBraceMatcher"/>
 
+        <codeInsight.parameterInfo language="Ballerina"
+                                   implementationClass="org.ballerinalang.plugins.idea.editor.BallerinaParameterInfoHandler"/>
+
         <!--line marker-->
         <codeInsight.lineMarkerProvider language="Ballerina"
                                         implementationClass="org.ballerinalang.plugins.idea.marker.BallerinaRecursiveCallMarkerProvider"/>
