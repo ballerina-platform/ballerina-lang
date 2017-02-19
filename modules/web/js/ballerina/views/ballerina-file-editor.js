@@ -104,6 +104,7 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
             }
             if ((!_.isUndefined(model) && !_.isNil(model) && model instanceof BallerinaASTRoot)) {
                 this._model = model;
+                var self = this;
                 //Registering event listeners
                 this._model.on('child-added', function(child){
                     this.visit(child);
@@ -123,6 +124,12 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                                 .isSourceModifiedOperation(this.getUndoManager().redoStackTop())){
                             this.getUndoManager().reset();
                         }
+                    }
+                    // If we have added a new action/function invocation statement the particular import has to be added
+                    // to the imports view
+                    if (_.isEqual(event.title, 'add import')) {
+                        var childModel = event.data.child;
+                        self.visit(childModel);
                     }
                     _.set(event, 'editor', this);
                     _.set(event, 'skipInSourceView', true);
@@ -475,14 +482,24 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                         var source = self._sourceView.getContent();
                         if(!_.isEmpty(source.trim())){
                             var validateResponse = self.validatorBackend.parse(source.trim());
-                            if (validateResponse.errors != undefined && !_.isEmpty(validateResponse.errors)) {
-                                alerts.error('cannot switch to swagger view due to syntax errors');
+                            if (validateResponse.errors && !_.isEmpty(validateResponse.errors)) {
+                                // syntax errors found
+                                // no need to show error as annotations are already displayed for each line
+                                alerts.error('Cannot switch to Swagger view due to syntax errors');
+                                return;
+                            } else if (validateResponse.error && !_.isEmpty(validateResponse.message)) {
+                                // end point error
+                                alerts.error('Cannot switch to Swagger view due to syntax errors : ' + validateResponse.message);
                                 return;
                             }
                         }
                         self._parseFailed = false;
                         //if no errors display the design.
                         var response = self.parserBackend.parse(source);
+                        if (response.error && !_.isEmpty(response.message)) {
+                            alerts.error('Cannot switch to Swagger view due to syntax errors : ' + response.message);
+                            return;
+                        }
                         var root = self.deserializer.getASTModel(response);
                         self.setModel(root);
                         self._sourceView.markClean();
@@ -492,7 +509,16 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
 
                     var treeModel = self.generateNodeTree();
                     if (_.isUndefined(treeModel)) {
-                        alerts.error("Cannot switch to swagger due to parser error");
+                        alerts.error("Cannot switch to Swagger due to parser error");
+                        return;
+                    }
+
+                    var serviceDef = _.find(treeModel.getChildren(), function (child) {
+                        return BallerinaASTFactory.isServiceDefinition(child);
+                    });
+
+                    if (_.isUndefined(serviceDef)) {
+                        alerts.warn("Provide at least one service to generate Swagger definition");
                         return;
                     }
 
@@ -510,7 +536,7 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                     swaggerViewBtn.hide();
                     self.toolPalette.hide();
                     self.setActiveView('swagger');
-                    alerts.warn("This version only supports one service representation on swagger");
+                    alerts.warn("This version only supports one service representation on Swagger");
                 } catch (err) {
                     alerts.error(err.message);
                 }
@@ -526,14 +552,24 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                     var source = self._sourceView.getContent();
                     if(!_.isEmpty(source.trim())){
                         var validateResponse = self.validatorBackend.parse(source.trim());
-                        if (validateResponse.errors != undefined && !_.isEmpty(validateResponse.errors)) {
-                            alerts.error('cannot switch to design view due to syntax errors');
+                        if (validateResponse.errors && !_.isEmpty(validateResponse.errors)) {
+                            // syntax errors found
+                            // no need to show error as annotations are already displayed for each line
+                            alerts.error('Cannot switch to Design view due to syntax errors');
+                            return;
+                        } else if (validateResponse.error && !_.isEmpty(validateResponse.message)) {
+                            // end point error
+                            alerts.error('Cannot switch to Design view due to syntax errors : ' + validateResponse.message);
                             return;
                         }
                     }
                     self._parseFailed = false;
                     //if no errors display the design.
                     var response = self.parserBackend.parse(source);
+                    if (response.error && !_.isEmpty(response.message)) {
+                        alerts.error('Cannot switch to design view due to syntax errors : ' + response.message);
+                        return;
+                    }
                     var root = self.deserializer.getASTModel(response);
                     self.setModel(root);
                     // reset source editor delta stack
@@ -681,13 +717,8 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                //@todo
                root = this.deserializer.getASTModel(response);
            } else {
-               root = BallerinaASTFactory.createBallerinaAstRoot();
-
-               //package definition
-               var packageDefinition = BallerinaASTFactory.createPackageDefinition();
-               packageDefinition.setPackageName("");
-               root.addChild(packageDefinition);
-               root.setPackageDefinition(packageDefinition);
+                //if source is empty get the current model. i.e. when in design view. TODO : refactor this behaviour
+               root = this.getModel();
            }
            return root;
         };

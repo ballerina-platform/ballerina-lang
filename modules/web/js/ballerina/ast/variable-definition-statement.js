@@ -53,14 +53,6 @@ define(['lodash', './statement', '../utils/common-utils', './variable-declaratio
     };
 
     /**
-     * Override the removeChild function
-     * @param {ASTNode} child - child node
-     */
-    VariableDefinitionStatement.prototype.removeChild = function (child) {
-        this.getParent().removeChild(this);
-    };
-
-    /**
      * Get the left expression
      * @return {string} _leftExpression - Left expression
      */
@@ -172,11 +164,48 @@ define(['lodash', './statement', '../utils/common-utils', './variable-declaratio
 
     VariableDefinitionStatement.prototype.initFromJson = function (jsonNode) {
         var self = this;
-        _.each(jsonNode.children, function (childNode) {
-            var child = self.getFactory().createFromJson(childNode);
-            self.addChild(child);
-            child.initFromJson(childNode);
-        });
+        var lhs = jsonNode.children[0];
+        var rhs = jsonNode.children[1];
+        if (lhs.type === 'left_operand_expression') {
+            if (!_.isNil(lhs.children[0].variable_def_options)) {
+                /**
+                 * Sample1: message m = 'messageValue';
+                 * Sample2: http:HTTPConnector connector = .....
+                 *          <packageName>:<> <variable reference>
+                 */
+                var expressionValue = (!_.isNil(lhs.children[0].variable_def_options.package_name) ?
+                    lhs.children[0].variable_def_options.package_name + ":" : "")
+                    + lhs.children[0].variable_def_options.type_name
+                    + " " + lhs.children[0].variable_reference_name;
+                this.setLeftExpression(expressionValue);
+            }
+        } else {
+
+
+        if (!_.isNil(lhs.variable_def_options)) {
+            /**
+             * Sample1: message m = 'messageValue';
+             * Sample2: http:HTTPConnector connector = .....
+             *          <packageName>:<> <variable reference>
+             */
+            var expressionValue = (!_.isNil(lhs.variable_def_options.package_name) ?
+                lhs.variable_def_options.package_name + ":" : "")
+                + lhs.variable_def_options.type_name
+                + " " + lhs.variable_reference_name;
+            this.setLeftExpression(expressionValue);
+        }
+    }
+
+        if (!_.isNil(rhs)) {
+            var rightExpressionChild = self.getFactory().createFromJson(rhs);
+            self.addChild(rightExpressionChild);
+            rightExpressionChild.initFromJson(rhs);
+            if (self.getFactory().isRightOperandExpression(rightExpressionChild)) {
+                this.setRightExpression(rightExpressionChild.getChildren()[0].getExpression());
+            } else {
+                this.setRightExpression(rightExpressionChild.getExpression());
+            }
+        }
     };
 
     return VariableDefinitionStatement;

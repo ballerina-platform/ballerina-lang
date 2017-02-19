@@ -33,7 +33,7 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
         './binary-expression', './unary-expression','./connector-action', './struct-definition', './constant-definition',
         './variable-definition-statement','./type-casting-expression', './worker-invoke',
         './reference-type-init-expression', './array-init-expression', './worker-receive','./struct-type','./struct-field-access-expression',
-        './block-statement','./type-cast-expression','./variable-definition', './break-statement', './throw-statement'],
+        './block-statement','./type-cast-expression','./variable-definition', './break-statement', './throw-statement', './comment-statement'],
     function (_, ballerinaAstRoot, serviceDefinition, functionDefinition, connectorDefinition, resourceDefinition,
               workerDeclaration, statement, conditionalStatement, connectorDeclaration, expression, ifElseStatement,
               ifStatement, elseStatement, elseIfStatement, tryCatchStatement, tryStatement, catchStatement, replyStatement,
@@ -45,7 +45,7 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
               thenBody, ifCondition, arrayMapAccessExpression, keyValueExpression, binaryExpression,
               unaryExpression, connectorAction, structDefinition, constantDefinition, variableDefinitionStatement,
               typeCastingExpression, workerInvoke, referenceTypeInitExpression, arrayInitExpression, workerReceive,structType,
-              structFieldAccessExpression,blockStatement,typeCastExpression,variableDefinition, breakStatement, throwStatement) {
+              structFieldAccessExpression,blockStatement,typeCastExpression,variableDefinition, breakStatement, throwStatement, commentStatement) {
 
 
 
@@ -643,6 +643,15 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
         };
 
         /**
+         * crates CommentStatement
+         * @param {Object} args - Arguments for creating a new comment statement.
+         * @returns {CommentStatement}
+         */
+        BallerinaASTFactory.createCommentStatement = function (args) {
+          return new commentStatement(args);
+        };
+
+        /**
          * instanceof check for BallerinaAstRoot
          * @param {Object} child
          * @returns {boolean}
@@ -776,6 +785,17 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
         BallerinaASTFactory.isVariableDeclaration = function (child) {
             return child instanceof variableDeclaration;
         };
+
+        /**
+         * is ReferenceTypeInitExpression
+         * @param child - Object for instanceof check
+         * @returns {boolean} - true if same type, else false
+         */
+        BallerinaASTFactory.isReferenceTypeInitiExpression = function (child) {
+            return child instanceof referenceTypeInitExpression;
+        };
+
+
 
         /**
          * is StructType
@@ -1156,6 +1176,15 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
             return child instanceof throwStatement;
         };
 
+        /**
+         * instanceof check for commentStatement
+         * @param {ASTNode} child - The ast node
+         * @returns {boolean} - true if same type, else false
+         */
+        BallerinaASTFactory.isCommentStatement = function (child) {
+          return child instanceof commentStatement;
+        };
+
         BallerinaASTFactory.createFromJson = function (jsonNode) {
             var node;
             var nodeType = jsonNode.type;
@@ -1363,8 +1392,8 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
                     case 'throw_statement':
                         node = BallerinaASTFactory.createThrowStatement();
                         break;
-                    case 'struct_field_access_expression':
-                        node = BallerinaASTFactory.createStructFieldAccessExpression();
+                    case 'comment_statement':
+                        node = BallerinaASTFactory.createCommentStatement();
                         break;
                     default:
                         throw "Unknown node definition for " + jsonNode.type;

@@ -428,13 +428,46 @@ define(['lodash', './node', '../utils/common-utils'], function (_, ASTNode, Comm
         var ballerinaASTFactory = this.getFactory();
         var self = this;
         this.setTypeMapperName(jsonNode.type_mapper_name, {doSilently: true});
-
+        var returnNode = undefined;
         _.each(jsonNode.children, function (childNode) {
-            var child = ballerinaASTFactory.createFromJson(childNode);
-            self.addChild(child);
-            child.initFromJson(childNode);
+            if(childNode.type === 'return_type'){
+                returnNode = childNode;
+            }else{
+                var child = ballerinaASTFactory.createFromJson(childNode);
+                self.addChild(child);
+                child.initFromJson(childNode);
+            }
         });
+        var blockStatementNode = ballerinaASTFactory.createBlockStatement();
+        var childrenArray = self.getChildren();
+        _.forEach(childrenArray, function (child) {
+            if (!(ballerinaASTFactory.isArgument(child) || ballerinaASTFactory.isVariableDefinitionStatement(child))) {
+                blockStatementNode.addChild(child);
+            }
+        });
+
+
+        _.forEach(blockStatementNode.getChildren(), function (childNode) {
+            _.remove(self.getChildren(), function(child){
+                return _.isEqual(childNode.getID(), child.getID());
+            });
+        });
+
+        var returnASTNode = ballerinaASTFactory.createReturnType();
+        returnASTNode.setType(returnNode.parameter_type);
+        
+        self.addChild(returnASTNode);
+
+        // _.forEach(self.getChildren(), function (outerChild) {
+        //     _.forEach(blockStatementNode.getChildren(), function (child) {
+        //         if(outerChild.getID() == child.getID()){
+        //             self.removeChild(outerChild);
+        //         }
+        //     });
+        // });
+        self.addChild(blockStatementNode);
     };
+
 
     return TypeMapperDefinition;
 });

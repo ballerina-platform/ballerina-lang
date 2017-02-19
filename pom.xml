@@ -29,7 +29,7 @@
     <groupId>org.ballerinalang.composer</groupId>
     <artifactId>ballerina-composer</artifactId>
     <packaging>pom</packaging>
-    <version>0.8-SNAPSHOT</version>
+    <version>0.8.0-SNAPSHOT</version>
     <name>Ballerina Composer - Parent</name>
 
     <scm>

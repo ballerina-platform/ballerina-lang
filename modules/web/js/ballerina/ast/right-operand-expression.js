@@ -47,6 +47,14 @@ define(['lodash', './statement'], function (_, Statement) {
     };
 
     /**
+     * Override the removeChild function
+     * @param {ASTNode} child - child node
+     */
+    RightOperandExpression.prototype.removeChild = function (child) {
+        this.getParent().removeChild(this);
+    };
+
+    /**
      * setting parameters from json
      * @param jsonNode
      */

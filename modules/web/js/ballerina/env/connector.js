@@ -29,6 +29,7 @@ define(['log', 'lodash', 'require', 'event_channel', './../ast/ballerina-ast-fac
             this._name = _.get(args, 'name', '');
             this._id = _.get(args, 'id', '');
             this._actions = _.get(args, 'actions', []);
+            this._params = _.get(args, 'params', []);
             this.BallerinaEnvFactory = require('./ballerina-env-factory');
         };
 
@@ -102,6 +103,15 @@ define(['log', 'lodash', 'require', 'event_channel', './../ast/ballerina-ast-fac
             return _.find(this.getActions(), function (action) {
                 return _.isEqual(action.getName(),actionName);
             });
+        };
+
+        Connector.prototype.addParam = function (param) {
+            this._params.push(param);
+            this.trigger("param-added", param);
+        };
+
+        Connector.prototype.getParams = function (param) {
+            return this._params;
         };
 
         Connector.prototype.initFromJson = function (jsonNode) {
