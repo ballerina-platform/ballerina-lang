@@ -20,6 +20,8 @@ TypeName VariableName [ = Expression];
 
 Variables can be initialized using the standard literal value syntax for that type of variable or using expressions consisting of literal values and any other variables that are in-scope and already initialized. See the 'Literal Values' subsection below for the syntax for literal values for value types, built-in reference types and user defined reference types.
 
+Note that variable declarations are considered to be statements of the language and can be done any place where a statement is allowed. See [Statements](statements.md).
+
 ## Allocating & Deallocating Variables
 
 All value typed variables are allocated on the stack, while all reference typed variables are allocated on the heap. Value typed variables are deallocated when they go out of scope and all reference typed variables are garbage collected when they are no longer in use.
