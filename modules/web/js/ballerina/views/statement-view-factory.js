@@ -20,12 +20,12 @@ define(['lodash', 'log', 'event_channel', '../ast/module', './try-catch-statemen
         './else-if-statement-view', './assignment-view', './function-invocation-view',
         './action-invocation-statement-view', './while-statement-view', './reply-statement-view',
         './logical-expression-view', './arithmetic-expression-view', './return-statement-view',
-        './variable-definition-statement-view', './worker-invoke-view', './worker-receive-view', './break-statement-view'],
+        './variable-definition-statement-view', './worker-invoke-view', './worker-receive-view', './break-statement-view', './throw-statement-view'],
     function (_, log, EventChannel, AST, TryCatchStatementView, TryStatementView, CatchStatementView,
               IfElseStatementView, IfStatementView, ElseStatementView, ElseIfStatementView, AssignmentStatementView,
               FunctionInvocationStatementView, ActionInvocationStatementView, WhileStatementView, ReplyStatementView,
               LogicalExpressionView, ArithmeticExpressionView, ReturnStatement, VariableDefinitionStatementView,
-              WorkerInvokeView, WorkerReceiveView, BreakStatementView) {
+              WorkerInvokeView, WorkerReceiveView, BreakStatementView, ThrowStatementView) {
 
         var StatementViewFactory = function () {
         };
@@ -81,7 +81,12 @@ define(['lodash', 'log', 'event_channel', '../ast/module', './try-catch-statemen
                 });
                 if (_.isUndefined(assignmentStatement)) {
                     _.set(args, 'model', statement);
-                    _.get(args, 'model').setStatementString(children[0].getLeftOperandExpressionString()+ " = "
+                    //If Operand type exist for the statement add it to the left operand expression.
+                    var leftOperandExpression = children[0].getOperandType() ?
+                        children[0].getOperandType() + " " + children[0].getLeftOperandExpressionString() :
+                        children[0].getLeftOperandExpressionString();
+
+                    _.get(args, 'model').setStatementString(leftOperandExpression + " = "
                         + children[1].getRightOperandExpressionString());
                     assignmentStatement = new AssignmentStatementView(args);
                 }
@@ -101,6 +106,8 @@ define(['lodash', 'log', 'event_channel', '../ast/module', './try-catch-statemen
                 return new WorkerInvokeView(args);
             } else if (statement instanceof AST.WorkerReceive) {
                 return new WorkerReceiveView(args);
+            } else if (statement instanceof AST.ThrowStatement) {
+                return new ThrowStatementView(args);
             }
         };
 

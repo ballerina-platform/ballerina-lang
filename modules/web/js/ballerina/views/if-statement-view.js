@@ -32,6 +32,7 @@ define(['require', 'lodash', 'log', './block-statement-view', './../ast/if-state
         var IfStatementView = function (args) {
             _.set(args, "viewOptions.title.text", "If");
             BlockStatementView.call(this, args);
+            this.getModel()._isChildOfWorker = args.isChildOfWorker;
         };
 
         IfStatementView.prototype = Object.create(BlockStatementView.prototype);

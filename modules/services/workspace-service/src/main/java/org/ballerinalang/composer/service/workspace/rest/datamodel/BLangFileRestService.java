@@ -130,14 +130,14 @@ public class BLangFileRestService {
         CommonTokenStream ballerinaToken = new CommonTokenStream(ballerinaLexer);
 
         BallerinaParser ballerinaParser = new BallerinaParser(ballerinaToken);
-        BallerinaEditorParserErrorStrategy errorStrategy = new BallerinaEditorParserErrorStrategy();
+        BallerinaComposerErrorStrategy errorStrategy = new BallerinaComposerErrorStrategy();
         ballerinaParser.setErrorHandler(errorStrategy);
 
         GlobalScope globalScope = GlobalScope.getInstance();
         BTypes.loadBuiltInTypes(globalScope);
         BLangPackage bLangPackage = new BLangPackage(globalScope);
         BLangPackage.PackageBuilder packageBuilder = new BLangPackage.PackageBuilder(bLangPackage);
-        BLangModelBuilder bLangModelBuilder = new BLangModelBuilder(packageBuilder, "");
+        BallerinaComposerModelBuilder bLangModelBuilder = new BallerinaComposerModelBuilder(packageBuilder, StringUtils.EMPTY);
         BLangAntlr4Listener ballerinaBaseListener = new BLangAntlr4Listener(bLangModelBuilder);
         ballerinaParser.addParseListener(ballerinaBaseListener);
         ballerinaParser.compilationUnit();
@@ -165,21 +165,18 @@ public class BLangFileRestService {
         CommonTokenStream ballerinaToken = new CommonTokenStream(ballerinaLexer);
 
         BallerinaParser ballerinaParser = new BallerinaParser(ballerinaToken);
-        BallerinaEditorParserErrorStrategy errorStrategy = new BallerinaEditorParserErrorStrategy();
+        BallerinaComposerErrorStrategy errorStrategy = new BallerinaComposerErrorStrategy();
         ballerinaParser.setErrorHandler(errorStrategy);
 
         GlobalScope globalScope = GlobalScope.getInstance();
         BTypes.loadBuiltInTypes(globalScope);
         BLangPackage bLangPackage = new BLangPackage(globalScope);
         BLangPackage.PackageBuilder packageBuilder = new BLangPackage.PackageBuilder(bLangPackage);
-    
-        BLangModelBuilder bLangModelBuilder = new BLangModelBuilder(packageBuilder, StringUtils.EMPTY);
+
+        BallerinaComposerModelBuilder bLangModelBuilder = new BallerinaComposerModelBuilder(packageBuilder, StringUtils.EMPTY);
         BLangAntlr4Listener ballerinaBaseListener = new BLangAntlr4Listener(bLangModelBuilder);
         ballerinaParser.addParseListener(ballerinaBaseListener);
         ballerinaParser.compilationUnit();
-        BallerinaFile bFile = bLangModelBuilder.build();
-
-        BuiltInNativeConstructLoader.loadConstructs(globalScope);
 
         JsonArray errors = new JsonArray();
 

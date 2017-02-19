@@ -25,11 +25,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.net.DatagramSocket;
-import java.net.ServerSocket;
 
 /**
  * Launch Manager which manage launch requests from the clients.
@@ -76,10 +73,7 @@ public class LaunchManager {
         }
     }
 
-    private void run(LauncherConstants.ProgramType type, String fileName, String filePath, boolean debug){
-        String command = "";
-        int port = -1;
-
+    private void run(Command command){
         // kill a previously running program
         stopProcess();
 
@@ -92,37 +86,21 @@ public class LaunchManager {
             return;
         }
 
-        // construct the command
-        command = System.getProperty("ballerina.home") + File.separator + "bin" + File.separator + "ballerina ";
-
-        if(type == LauncherConstants.ProgramType.RUN) {
-            command = command + " run main ";
-        }else{
-            command = command + " run service ";
-        }
-
-        command = command + filePath + File.separator + fileName;
-
-        if(debug){
-            port = getFreePort();
-            command = command + "  --ballerina.debug " + port;
-        }
-
         try {
-            this.program = Runtime.getRuntime().exec(command);
+            this.program = Runtime.getRuntime().exec(command.toString());
 
-            if(type == LauncherConstants.ProgramType.RUN ){
+            if(command.getType() == LauncherConstants.ProgramType.RUN ){
                 pushMessageToClient(launchSession, LauncherConstants.EXECUTION_STARTED, LauncherConstants.INFO,
-                        String.format(LauncherConstants.RUN_MESSAGE , fileName));
+                        String.format(LauncherConstants.RUN_MESSAGE , command.getFileName()));
             } else {
                 pushMessageToClient(launchSession, LauncherConstants.EXECUTION_STARTED, LauncherConstants.INFO,
-                        String.format(LauncherConstants.SERVICE_MESSAGE , fileName));
+                        String.format(LauncherConstants.SERVICE_MESSAGE , command.getFileName()));
             }
 
-            if(debug){
+            if(command.isDebug()){
                 MessageDTO debugMessage = new MessageDTO();
                 debugMessage.setCode(LauncherConstants.DEBUG);
-                debugMessage.setPort(port);
+                debugMessage.setPort(command.getPort());
                 pushMessageToClient(launchSession, debugMessage);
             }
 
@@ -184,55 +162,6 @@ public class LaunchManager {
         }
     }
 
-
-    public int getFreePort() {
-        for (int i = LauncherConstants.MIN_PORT_NUMBER; i < LauncherConstants.MAX_PORT_NUMBER; i++) {
-            if (available(i)) {
-                return i;
-            }
-        }
-        return -1;
-    }
-
-    /**
-     * Checks to see if a specific port is available.
-     *
-     * @param port the port number to check for availability
-     * @return <tt>true</tt> if the port is available, or <tt>false</tt> if not
-     * @throws IllegalArgumentException is thrown if the port number is out of range
-     */
-    public static boolean available(int port) throws IllegalArgumentException {
-        if (port < LauncherConstants.MIN_PORT_NUMBER || port > LauncherConstants.MAX_PORT_NUMBER) {
-            throw new IllegalArgumentException("Invalid start currentMinPort: " + port);
-        }
-
-        ServerSocket ss = null;
-        DatagramSocket ds = null;
-        try {
-            ss = new ServerSocket(port);
-            ss.setReuseAddress(true);
-            ds = new DatagramSocket(port);
-            ds.setReuseAddress(true);
-            return true;
-        } catch (IOException e) {
-            // Do nothing
-        } finally {
-            if (ds != null) {
-                ds.close();
-            }
-
-            if (ss != null) {
-                try {
-                    ss.close();
-                } catch (IOException e) {
-                    /* should not be thrown */
-                }
-            }
-        }
-
-        return false;
-    }
-
     public void addLaunchSession(Channel channel) {
         this.launchSession = new LaunchSession(channel);
     }
@@ -242,16 +171,20 @@ public class LaunchManager {
         CommandDTO command = gson.fromJson(json, CommandDTO.class);
         switch (command.getCommand()) {
             case LauncherConstants.RUN_PROGRAM:
-                run(LauncherConstants.ProgramType.RUN, command.getFileName(), command.getFilePath(), false);
+                run(new Command(LauncherConstants.ProgramType.RUN, command.getFileName(),
+                        command.getFilePath(), false ));
                 break;
             case LauncherConstants.RUN_SERVICE:
-                run(LauncherConstants.ProgramType.SERVICE, command.getFileName(), command.getFilePath(), false);
+                run(new Command(LauncherConstants.ProgramType.SERVICE, command.getFileName(),
+                        command.getFilePath(), false));
                 break;
             case LauncherConstants.DEBUG_PROGRAM:
-                run(LauncherConstants.ProgramType.RUN, command.getFileName(), command.getFilePath(), true);
+                run(new Command(LauncherConstants.ProgramType.RUN, command.getFileName(),
+                        command.getFilePath(), true));
                 break;
             case LauncherConstants.DEBUG_SERVICE:
-                run(LauncherConstants.ProgramType.SERVICE, command.getFileName(), command.getFilePath(), true);
+                run(new Command(LauncherConstants.ProgramType.SERVICE, command.getFileName(),
+                        command.getFilePath(), true));
                 break;
             case LauncherConstants.TERMINATE:
                 stopProcess();

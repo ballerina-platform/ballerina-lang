@@ -108,7 +108,7 @@ define(['require', 'jquery', 'backbone', 'lodash', 'event_channel', './channel',
         log.debug('debug point added', lineNumber, fileName);
         var point = new DebugPoint({ "fileName": fileName , "lineNumber": lineNumber});
     	this.debugPoints.push(point);
-    	this.trigger("breakpoint-added");
+    	this.trigger("breakpoint-added", fileName);
     };
 
     DebugManager.prototype.removeBreakPoint = function(lineNumber, fileName){
@@ -117,7 +117,7 @@ define(['require', 'jquery', 'backbone', 'lodash', 'event_channel', './channel',
         _.remove(this.debugPoints, function(item) {
             return item.fileName == point.fileName && item.lineNumber == point.lineNumber ;
         });
-        this.trigger("breakpoint-removed", point);
+        this.trigger("breakpoint-removed", fileName);
     };    
 
     DebugManager.prototype.publishBreakPoints = function(){
@@ -137,13 +137,26 @@ define(['require', 'jquery', 'backbone', 'lodash', 'event_channel', './channel',
         return this.enable;
     };
 
-    DebugManager.prototype.getDebugPoints = function () {
-        return this.debugPoints;
+    DebugManager.prototype.getDebugPoints = function (fileName) {
+        var breakpoints = _.map(this.debugPoints, function(breakpoint) {
+            if(breakpoint.fileName === fileName)  {
+                return breakpoint.lineNumber;
+            }
+        });
+        return breakpoints;
     };
+
+    DebugManager.prototype.removeAllBreakpoints = function(fileName) {
+        _.remove(this.debugPoints, function(item) {
+            return item.fileName == fileName;
+        });
+        log.debug('removed all debugpoints for fileName', fileName);
+        this.publishBreakPoints();
+    }
 
     DebugManager.prototype.createDebugPoint = function(lineNumber, fileName){
         return new DebugPoint({ "fileName": fileName , "lineNumber": lineNumber});
-    };    
+    };
 
     return (instance = (instance || new DebugManager()));
 });

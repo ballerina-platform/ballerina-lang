@@ -197,10 +197,15 @@ define(['log', 'lodash', './../env/package', './../tool-palette/tool-palette', '
             _.each(connectorsOrdered, function (connector) {
                 var packageName = _.last(_.split(package.getName(), '.'));
                 connector.nodeFactoryMethod = BallerinaASTFactory.createConnectorDeclaration;
+                var getParamString = function() {
+                    var params = _.map(connector.getParams(), function(p){return p.identifier});
+                    return _.join(params, ', ');
+                }
                 connector.meta = {
                     connectorName: connector.getName(),
                     connectorPackageName: packageName,
-                    fullPackageName: package.getName()
+                    fullPackageName: package.getName(),
+                    params: getParamString()
                 };
                 //TODO : use a generic icon
                 connector.icon = "images/tool-icons/connector.svg";
@@ -211,7 +216,12 @@ define(['log', 'lodash', './../env/package', './../tool-palette/tool-palette', '
                 var toolGroupID = package.getName() + "-tool-group";
                 // registering connector name-modified event
                 connector.on('name-modified', function(newName, oldName){
-                    self.updateToolItem(toolGroupID, connector, newName);
+                    self.updateToolItem(toolGroupID, connector, 'name', newName, 'connectorName');
+                });
+
+                connector.on('param-added', function (newName, oldName) {
+                    var paramString = getParamString();
+                    self.updateToolItem(toolGroupID, connector, 'params', paramString, 'params');
                 });
 
                 var actionsOrdered = _.sortBy(connector.getActions(), [function (action) {
@@ -219,6 +229,7 @@ define(['log', 'lodash', './../env/package', './../tool-palette/tool-palette', '
                 }]);
                 _.each(actionsOrdered, function (action, index, collection) {
                     /* We need to add a special class to actions to indent them in tool palette. */
+                    action.setId(connector.getName() + "-" + action.getName());
                     action.classNames = "tool-connector-action";
                     if ((index + 1 ) == collection.length) {
                         action.classNames = "tool-connector-action tool-connector-last-action";
@@ -237,23 +248,29 @@ define(['log', 'lodash', './../env/package', './../tool-palette/tool-palette', '
                         action.nodeFactoryMethod = DefaultsAddedBallerinaASTFactory.createAggregatedActionInvocationAssignmentStatement;
                     }
 
-                    action.id = connector.getName() + '-' + action.getName();
+                    action.id = action.getId();
                     definitions.push(action);
-
                     var toolGroupID = package.getName() + "-tool-group";
                     // registering connector action name-modified event
                     action.on('name-modified', function(newName, oldName){
-                        self.updateToolItem(toolGroupID, action, newName);
+                        self.updateToolItem(toolGroupID, action, 'name', newName);
                     });
                 });
                 connector.on('connector-action-added', function (action) {
                     var actionIcon = "images/tool-icons/action.svg";
                     var toolGroupID = package.getName() + "-tool-group";
                     action.classNames = "tool-connector-action";
+
                     action.meta = {
                         action: action.getName(),
                         actionConnectorName: connector.getName()
                     };
+
+                    // registering connector action name-modified event
+                    action.on('name-modified', function(newName, oldName){
+                        self.updateToolItem(toolGroupID, action, 'name', newName);
+                    });
+
                     var actionNodeFactoryMethod = DefaultsAddedBallerinaASTFactory.createAggregatedActionInvocationStatement;
                     if (action.getReturnParams().length > 0){
                         actionNodeFactoryMethod = DefaultsAddedBallerinaASTFactory.createAggregatedActionInvocationAssignmentStatement;
@@ -263,12 +280,17 @@ define(['log', 'lodash', './../env/package', './../tool-palette/tool-palette', '
 
                 connector.on('connector-action-removed', function (action) {
                     var toolGroupID = package.getName() + "-tool-group";
-                    var toolId = action.getActionName();
+                    var toolId = connector.getName() + '-' + action.getActionName();
                     self._toolPalette.removeToolFromGroup(toolGroupID, toolId);
                 });
             });
 
             _.each(functionsOrdered, function (functionDef) {
+                if(functionDef.getName() === "main") {
+                    //do not add main function to tool palette
+                    return;
+                }
+
                 var packageName = _.last(_.split(package.getName(), '.'));
                 if (functionDef.getReturnParams().length > 0){
                     functionDef.nodeFactoryMethod = BallerinaASTFactory.createAggregatedFunctionInvocationExpression;
@@ -291,7 +313,7 @@ define(['log', 'lodash', './../env/package', './../tool-palette/tool-palette', '
                 var toolGroupID = package.getName() + "-tool-group";
                 // registering function name-modified event
                 functionDef.on('name-modified', function(newName, oldName){
-                    self.updateToolItem(toolGroupID, functionDef, newName);
+                    self.updateToolItem(toolGroupID, functionDef, 'name', newName, 'functionName');
                 });
             });
 
@@ -303,13 +325,35 @@ define(['log', 'lodash', './../env/package', './../tool-palette/tool-palette', '
             });
 
             package.on('connector-defs-added', function (connector) {
+                var packageName = _.last(_.split(package.getName(), '.'));
                 var nodeFactoryMethod = BallerinaASTFactory.createConnectorDeclaration;
                 var toolGroupID = package.getName() + "-tool-group";
                 var icon = "images/tool-icons/connector.svg";
+
+                var getParamString = function() {
+                    var params = _.map(connector.getParams(), function(p){return p.identifier});
+                    return _.join(params, ',');
+                }
+
+                connector.meta = {
+                    connectorName: connector.getName(),
+                    connectorPackageName: packageName,
+                    fullPackageName: package.getName(),
+                    params: getParamString()
+                };
+
                 this.addToToolGroup(toolGroupID, connector, nodeFactoryMethod, icon);
 
                 connector.on('name-modified', function (newName, oldName) {
-                    self.updateToolItem(toolGroupID, connector, newName);
+                    self.updateToolItem(toolGroupID, connector, 'name', newName, 'connectorName');
+                    _.forEach(connector.getActions(), function (action) {
+                        self.updateToolItem(toolGroupID, action, '', newName, 'actionConnectorName');
+                    });
+                });
+
+                connector.on('param-added', function (newName, oldName) {
+                    var paramString = getParamString();
+                    self.updateToolItem(toolGroupID, connector, 'params', paramString, 'params');
                 });
 
                 connector.on('connector-action-added', function (action) {
@@ -320,27 +364,40 @@ define(['log', 'lodash', './../env/package', './../tool-palette/tool-palette', '
                     if (action.getReturnParams().length > 0){
                         actionNodeFactoryMethod = DefaultsAddedBallerinaASTFactory.createAggregatedActionInvocationAssignmentStatement;
                     }
+
+                    // Setting the meta attributes to be passed as the action arguments
+                    action.meta = {
+                        action: action.getName(),
+                        arguments: action.getParameters(),
+                        actionConnectorName: this.getName()
+                    };
                     self.addToToolGroup(toolGroupID, action, actionNodeFactoryMethod, actionIcon);
 
                     action.on('name-modified', function (newName, oldName) {
-                        self.updateToolItem(toolGroupID, action, newName);
+                        self.updateToolItem(toolGroupID, action, 'name', newName, 'action');
                     });
 
                 });
 
                 connector.on('connector-action-removed', function (action) {
                     var toolGroupID = package.getName() + "-tool-group";
-                    var toolId = action.getActionName();
+                    var toolId = connector.getName() + '-' + action.getActionName();
                     self._toolPalette.removeToolFromGroup(toolGroupID, toolId);
                 });
 
             }, this);
 
             package.on('function-defs-added', function (functionDef) {
+                if(functionDef.getName() === "main") {
+                    //do not add main function to tool palette
+                    return;
+                }
+
                 var nodeFactoryMethod = BallerinaASTFactory.createAggregatedFunctionInvocationStatement;
                 if (functionDef.getReturnParams().length > 0){
                     nodeFactoryMethod = BallerinaASTFactory.createAggregatedFunctionInvocationExpression;
                 }
+
                 // since functions are added to the current package, function name does not need
                 // packageName:functionName format
                 functionDef.meta = {
@@ -351,7 +408,7 @@ define(['log', 'lodash', './../env/package', './../tool-palette/tool-palette', '
                 this.addToToolGroup(toolGroupID, functionDef, nodeFactoryMethod, icon);
 
                 functionDef.on('name-modified', function(newName, oldName){
-                    self.updateToolItem(toolGroupID, functionDef, newName);
+                    self.updateToolItem(toolGroupID, functionDef, 'name', newName, 'functionName');
                 });
             }, this);
 
@@ -367,6 +424,15 @@ define(['log', 'lodash', './../env/package', './../tool-palette/tool-palette', '
                 var toolGroupID = package.getName() + "-tool-group";
                 var toolId = connectorDef.getConnectorName();
                 self._toolPalette.removeToolFromGroup(toolGroupID, toolId);
+
+                // remove connector action definitions inside this connector
+                var actions = connectorDef.getConnectorActionDefinitions();
+
+                _.forEach(actions, function(action){
+                    var toolGroupID = package.getName() + "-tool-group";
+                    var toolId = connectorDef.getConnectorName() + '-' + action.getActionName();
+                    self._toolPalette.removeToolFromGroup(toolGroupID, toolId);
+                });
             });
 
             return group;
@@ -383,7 +449,7 @@ define(['log', 'lodash', './../env/package', './../tool-palette/tool-palette', '
             tool.nodeFactoryMethod = nodeFactoryMethod;
             tool.icon = icon;
             tool.title = toolItem.getName();
-            tool.id = toolItem.getName();
+            tool.id = toolItem.getId();
             tool.classNames = toolItem.classNames;
             tool.meta = toolItem.meta;
             this._toolPalette.addNewToolToGroup(toolGroupID, tool);
@@ -395,8 +461,8 @@ define(['log', 'lodash', './../env/package', './../tool-palette/tool-palette', '
          * @param {Object} toolItem - tool object
          * @param {Object} newValue - new value for the tool
          */
-        ToolPaletteItemProvider.prototype.updateToolItem = function (toolGroupID, toolItem, newValue) {
-            this._toolPalette.updateToolPaletteItem(toolGroupID, toolItem, newValue);
+        ToolPaletteItemProvider.prototype.updateToolItem = function (toolGroupID, toolItem, attribute, newValue, metaAttr) {
+            this._toolPalette.updateToolPaletteItem(toolGroupID, toolItem, attribute, newValue, metaAttr);
         };
 
         ToolPaletteItemProvider.prototype.getNewImportPosition = function (newImportName) {

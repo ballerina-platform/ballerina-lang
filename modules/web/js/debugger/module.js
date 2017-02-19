@@ -16,7 +16,7 @@
  * under the License.
  */
 
-define(['jquery', 'backbone', 'lodash', 'log','./variable-tree', './debug-manager', './tools', './frames'], function ($, Backbone, _, log, VariableTree, DebugManager, Tools, Frames) {
+define(['jquery', 'backbone', 'lodash', 'log', './debug-manager', './tools', './frames'], function ($, Backbone, _, log, DebugManager, Tools, Frames) {
     var Debugger = Backbone.View.extend({
         initialize: function(config) {
             var errMsg;
@@ -91,15 +91,18 @@ define(['jquery', 'backbone', 'lodash', 'log','./variable-tree', './debug-manage
             });
 
             activateBtn.on('click', function(e){
+                $(this).tooltip('hide');
                 e.preventDefault();
                 e.stopPropagation();
                 self.application.commandManager.dispatch(_.get(self._options, 'command.id'));
             });
 
+            activateBtn.attr("data-placement", "bottom").attr("data-container", "body");
+
             if (this.application.isRunningOnMacOS()) {
-                activateBtn.attr("title", "Debugger (" + _.get(self._options, 'command.shortcuts.mac.label') + ") ")
+                activateBtn.attr("title", "Debugger (" + _.get(self._options, 'command.shortcuts.mac.label') + ") ").tooltip();
             } else {
-                activateBtn.attr("title", "Debugger  (" + _.get(self._options, 'command.shortcuts.other.label') + ") ")
+                activateBtn.attr("title", "Debugger  (" + _.get(self._options, 'command.shortcuts.other.label') + ") ").tooltip();
             }
 
             this._verticalSeparator.on('drag', function(event){
@@ -137,7 +140,6 @@ define(['jquery', 'backbone', 'lodash', 'log','./variable-tree', './debug-manage
             Tools.render();
             
             Frames.setContainer(debuggerContainer.find('.debug-frams-container'));
-            VariableTree.setContainer(debuggerContainer.find('.debug-variables-container'));
 
             this._debuggerContainer = debuggerContainer;
             debuggerContainer.mCustomScrollbar({

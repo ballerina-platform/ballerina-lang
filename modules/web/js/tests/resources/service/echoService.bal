@@ -1,30 +1,30 @@
 import ballerina.net.http;
-import ballerina.lang.message;
+import ballerina.lang.messages;
 
-@BasePath ("/echo")
+@http:BasePath ("/echo")
 service echo {
 
     string serviceLevelStr;
 
-    @GET
-    @Path ("/message")
+    @http:GET
+    @http:Path ("/message")
     resource echo (message m) {
         reply m;
     }
 
-    @POST
-    @Path ("/setString")
+    @http:POST
+    @http:Path ("/setString")
     resource setString (message m) {
-        serviceLevelStr = message:getStringPayload(m);
+        serviceLevelStr = messages:getStringPayload(m);
         http:convertToResponse(m);
         reply m;
     }
 
-    @GET
-    @Path ("/getString")
+    @http:GET
+    @http:Path ("/getString")
     resource getString (message m) {
         message response = {};
-        message:setStringPayload(response, serviceLevelStr);
+        messages:setStringPayload(response, serviceLevelStr);
         reply response;
     }
 }

@@ -36,6 +36,7 @@ define(['require', 'lodash', 'log', 'property_pane_utils', './compound-statement
             this._elseIfViews = [];
             this._elseBlockView = undefined;
             this._totalHeight = 0;
+            this.getModel()._isChildOfWorker = args.isChildOfWorker;
 
             if (_.isNil(this._model) || !(this._model instanceof IfElseStatement)) {
                 log.error("If Else statement definition is undefined or is of different type." + this._model);

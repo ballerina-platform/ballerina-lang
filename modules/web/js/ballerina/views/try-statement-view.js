@@ -33,14 +33,11 @@ define(
         var TryStatementView = function (args) {
             _.set(args, "viewOptions.title.text", "Try");
             BlockStatementView.call(this, args);
+            this.getModel()._isChildOfWorker = args.isChildOfWorker;
         };
 
         TryStatementView.prototype = Object.create(BlockStatementView.prototype);
         TryStatementView.prototype.constructor = TryStatementView;
-
-        TryStatementView.prototype.canVisitStatement = function(){
-            return true;
-        };
 
         TryStatementView.prototype.canVisitTryStatement = function(){
             return true;
@@ -57,6 +54,15 @@ define(
                 log.error("If statement definition is undefined or is of different type." + model);
                 throw "If statement definition is undefined or is of different type." + model;
             }
+        };
+
+        TryStatementView.prototype.initFromJson = function (jsonNode) {
+            var self = this;
+            _.each(jsonNode.children, function (childNode) {
+                var child = self.getFactory().createFromJson(childNode);
+                child.initFromJson(childNode);
+                self.addChild(child);
+            });
         };
 
         return TryStatementView;

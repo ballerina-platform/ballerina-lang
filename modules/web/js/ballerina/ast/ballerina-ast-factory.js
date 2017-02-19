@@ -33,7 +33,7 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
         './binary-expression', './unary-expression','./connector-action', './struct-definition', './constant-definition',
         './variable-definition-statement','./type-casting-expression', './worker-invoke',
         './reference-type-init-expression', './array-init-expression', './worker-receive','./struct-type','./struct-field-access-expression',
-        './block-statement','./type-cast-expression','./variable-definition', './break-statement'],
+        './block-statement','./type-cast-expression','./variable-definition', './break-statement', './throw-statement', './comment-statement'],
     function (_, ballerinaAstRoot, serviceDefinition, functionDefinition, connectorDefinition, resourceDefinition,
               workerDeclaration, statement, conditionalStatement, connectorDeclaration, expression, ifElseStatement,
               ifStatement, elseStatement, elseIfStatement, tryCatchStatement, tryStatement, catchStatement, replyStatement,
@@ -45,7 +45,8 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
               thenBody, ifCondition, arrayMapAccessExpression, keyValueExpression, binaryExpression,
               unaryExpression, connectorAction, structDefinition, constantDefinition, variableDefinitionStatement,
               typeCastingExpression, workerInvoke, referenceTypeInitExpression, arrayInitExpression, workerReceive,structType,
-              structFieldAccessExpression,blockStatement,typeCastExpression,variableDefinition, breakStatement) {
+              structFieldAccessExpression,blockStatement,typeCastExpression,variableDefinition, breakStatement, throwStatement, commentStatement) {
+
 
 
         /**
@@ -633,6 +634,24 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
         };
 
         /**
+         * creates ThrowStatement
+         * @param {Object} args - Arguments for creating a new throw statement.
+         * @returns {ThrowStatement}
+         */
+        BallerinaASTFactory.createThrowStatement = function (args) {
+          return new throwStatement(args);
+        };
+
+        /**
+         * crates CommentStatement
+         * @param {Object} args - Arguments for creating a new comment statement.
+         * @returns {CommentStatement}
+         */
+        BallerinaASTFactory.createCommentStatement = function (args) {
+          return new commentStatement(args);
+        };
+
+        /**
          * instanceof check for BallerinaAstRoot
          * @param {Object} child
          * @returns {boolean}
@@ -1137,6 +1156,24 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
             return child instanceof variableDefinitionStatement;
         };
 
+        /**
+         * instanceof check for throwStatement
+         * @param {ASTNode} child - The ast node
+         * @returns {boolean} - true if same type, else false
+         */
+        BallerinaASTFactory.isThrowStatement = function (child) {
+            return child instanceof throwStatement;
+        };
+
+        /**
+         * instanceof check for commentStatement
+         * @param {ASTNode} child - The ast node
+         * @returns {boolean} - true if same type, else false
+         */
+        BallerinaASTFactory.isCommentStatement = function (child) {
+          return child instanceof commentStatement;
+        };
+
         BallerinaASTFactory.createFromJson = function (jsonNode) {
             var node;
             var nodeType = jsonNode.type;
@@ -1171,10 +1208,7 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
                         node = BallerinaASTFactory.createConnectorDeclaration();
                         break;
                     case 'variable_definition':
-                        // This is the case where struct defines variables inside.
-                        // TODO: Instead of using the createVariableDeclaration we need to refactor this for createVariableDefinition
-                        // simply renaming would work.
-                        node = BallerinaASTFactory.createVariableDeclaration();
+                        node = BallerinaASTFactory.createVariableDefinition();
                         break;
                     case 'variable_definition_statement':
                         node = BallerinaASTFactory.createVariableDefinitionStatement();
@@ -1325,6 +1359,24 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
                         break;
                     case 'worker_reply_statement':
                         node = BallerinaASTFactory.createWorkerReceiveStatement();
+                        break;
+                    case 'try_catch_statement':
+                        node = BallerinaASTFactory.createTryCatchStatement();
+                        break;
+                    case 'try_block':
+                        node = BallerinaASTFactory.createTryStatement();
+                        break;
+                    case 'catch_block':
+                        node = BallerinaASTFactory.createCatchStatement();
+                        break;
+                    case 'throw_statement':
+                        node = BallerinaASTFactory.createThrowStatement();
+                        break;
+                    case 'struct_field_access_expression':
+                        node = BallerinaASTFactory.createStructFieldAccessExpression();
+                        break;
+                    case 'comment_statement':
+                        node = BallerinaASTFactory.createCommentStatement();
                         break;
                     default:
                         throw "Unknown node definition for " + jsonNode.type;

@@ -661,12 +661,66 @@ public class BLangJSONModelBuilder implements NodeVisitor {
 
     @Override
     public void visit(TryCatchStmt tryCatchStmt) {
+        JsonObject tryCatchStmtObj = new JsonObject();
+        tryCatchStmtObj.addProperty(BLangJSONModelConstants.STATEMENT_TYPE,
+                BLangJSONModelConstants.TRY_CATCH_STATEMENT);
+        this.addPosition(tryCatchStmtObj, tryCatchStmt.getNodeLocation());
+        tempJsonArrayRef.push(new JsonArray());
 
+        if (tryCatchStmt.getTryBlock() != null) {
+            tempJsonArrayRef.push(new JsonArray());
+
+            JsonObject tryBlockObj = new JsonObject();
+            tryBlockObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE,
+                    BLangJSONModelConstants.TRY_BLOCK);
+            this.addPosition(tryBlockObj, tryCatchStmt.getTryBlock().getNodeLocation());
+            tempJsonArrayRef.push(new JsonArray());
+            tryCatchStmt.getTryBlock().accept(this);
+            tryBlockObj.add(BLangJSONModelConstants.CHILDREN, tempJsonArrayRef.peek());
+            tempJsonArrayRef.pop();
+            tempJsonArrayRef.peek().add(tryBlockObj);
+
+            JsonArray tryStatement = tempJsonArrayRef.peek();
+            tempJsonArrayRef.pop();
+            tempJsonArrayRef.peek().addAll(tryStatement);
+        }
+
+        if (tryCatchStmt.getCatchBlock() != null) {
+            tempJsonArrayRef.push(new JsonArray());
+            JsonObject catchBlockObj = new JsonObject();
+            catchBlockObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE,
+                    BLangJSONModelConstants.CATCH_BLOCK);
+
+            this.addPosition(catchBlockObj, tryCatchStmt.getCatchBlock().getCatchBlockStmt().getNodeLocation());
+            tempJsonArrayRef.push(new JsonArray());
+            tryCatchStmt.getCatchBlock().getCatchBlockStmt().accept(this);
+            catchBlockObj.add(BLangJSONModelConstants.CHILDREN, tempJsonArrayRef.peek());
+            tempJsonArrayRef.pop();
+            tempJsonArrayRef.peek().add(catchBlockObj);
+
+            JsonArray catchStatement = tempJsonArrayRef.peek();
+            tempJsonArrayRef.pop();
+            tempJsonArrayRef.peek().addAll(catchStatement);
+        }
+
+        tryCatchStmtObj.add(BLangJSONModelConstants.CHILDREN, tempJsonArrayRef.peek());
+        tempJsonArrayRef.pop();
+        tempJsonArrayRef.peek().add(tryCatchStmtObj);
     }
 
     @Override
     public void visit(ThrowStmt throwStmt) {
-
+        JsonObject throwStmtObj = new JsonObject();
+        throwStmtObj.addProperty(BLangJSONModelConstants.STATEMENT_TYPE,
+                BLangJSONModelConstants.THROW_STATEMENT);
+        this.addPosition(throwStmtObj, throwStmt.getNodeLocation());
+        tempJsonArrayRef.push(new JsonArray());
+        if (throwStmt.getExpr() != null) {
+            throwStmt.getExpr().accept(this);
+        }
+        throwStmtObj.add(BLangJSONModelConstants.CHILDREN, tempJsonArrayRef.peek());
+        tempJsonArrayRef.pop();
+        tempJsonArrayRef.peek().add(throwStmtObj);
     }
 
     @Override
@@ -1215,7 +1269,19 @@ public class BLangJSONModelBuilder implements NodeVisitor {
 
     @Override
     public void visit(StructFieldAccessExpr structFieldAccessExpr) {
-        // TODO
+        JsonObject structFieldAccessObj = new JsonObject();
+        structFieldAccessObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE,
+                BLangJSONModelConstants.STRUCT_FIELD_ACCESS_EXPRESSION);
+        tempJsonArrayRef.push(new JsonArray());
+        if (structFieldAccessExpr.getVarRef() != null) {
+            structFieldAccessExpr.getVarRef().accept(this);
+        }
+        if (structFieldAccessExpr.getFieldExpr() != null) {
+            structFieldAccessExpr.getFieldExpr().accept(this);
+        }
+        structFieldAccessObj.add(BLangJSONModelConstants.CHILDREN, tempJsonArrayRef.peek());
+        tempJsonArrayRef.pop();
+        tempJsonArrayRef.peek().add(structFieldAccessObj);
     }
 
     @Override

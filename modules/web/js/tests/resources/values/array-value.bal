@@ -36,3 +36,7 @@ function addValueToFloatArray() (float[]) {
 
     return arr;
 }
+
+
+function commnetFunction() {
+}

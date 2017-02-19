@@ -100,7 +100,8 @@ define(
                 parent: this,
                 topCenter: childStatementViewTopCenter,
                 messageManager: this.messageManager,
-                toolPalette: this.getToolPalette()
+                toolPalette: this.getToolPalette(),
+                isChildOfWorker: childStatement.parent._isChildOfWorker
             };
             var StatementViewFactory = require('./statement-view-factory');
             var statementViewFactory = new StatementViewFactory();
@@ -220,11 +221,11 @@ define(
         };
 
         CompoundStatementView.prototype.showDebugHit = function () {
-            this.getStatementGroup().classed('highlight-statement', true);
+            this.getChildrenViewsList()[0]._titleRect.classed('highlight-statement', true)
         };
 
         CompoundStatementView.prototype.clearDebugHit = function () {
-            $(this.getStatementGroup().node()).find('.statement-title-rect').classed('highlight-statement', false);
+            this.getChildrenViewsList()[0]._titleRect.classed('highlight-statement', false)
         };
 
         return CompoundStatementView;

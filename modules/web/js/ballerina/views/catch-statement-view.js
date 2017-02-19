@@ -33,14 +33,11 @@ define(
         var CatchStatementView = function (args) {
             _.set(args, "viewOptions.title.text", "Catch");
             BlockStatementView.call(this, args);
+            this.getModel()._isChildOfWorker = args.isChildOfWorker;
         };
 
         CatchStatementView.prototype = Object.create(BlockStatementView.prototype);
         CatchStatementView.prototype.constructor = CatchStatementView;
-
-        CatchStatementView.prototype.canVisitStatement = function(){
-            return true;
-        };
 
         CatchStatementView.prototype.canVisitCatchStatement = function(){
             return true;

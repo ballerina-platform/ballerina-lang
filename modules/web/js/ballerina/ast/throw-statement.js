@@ -22,15 +22,15 @@ define(['lodash', 'log', './statement'], function (_, log, Statement) {
      * @param expression one expression for a throw statement.
      * @constructor
      */
-    var ThrowStatement = function (expression) {
-        this._expression = expression;
+    var ThrowStatement = function (args) {
+        Statement.call(this, 'ThrowStatement');
         this.type = "ThrowStatement";
     };
 
     ThrowStatement.prototype = Object.create(Statement.prototype);
     ThrowStatement.prototype.constructor = ThrowStatement;
 
-    ThrowStatement.prototype.setThrowExpression = function (expression, options) {
+    ThrowStatement.prototype.setExpression = function (expression, options) {
         if (!_.isNil(expression)) {
             this.setAttribute('_expression', expression, options);
         } else {
@@ -38,8 +38,33 @@ define(['lodash', 'log', './statement'], function (_, log, Statement) {
         }
     };
 
-    ThrowStatement.prototype.getThrowExpression = function () {
-        return this._expression;
+    /**
+     * Set the throw statement string
+     * @param {string} throwString
+     */
+    ThrowStatement.prototype.setStatementString = function (statementString, options) {
+        this.getChildren()[0].setExpression(statementString.split('throw ')[1]);
+    };
+
+    /**
+     * Get the throw statement string
+     * @return {string} throw statement string
+     */
+    ThrowStatement.prototype.getStatementString = function () {
+        return 'throw ' + this.getChildren()[0].getExpression();
+    };
+
+    /**
+     * initialize ThrowStatement from json object
+     * @param {Object} jsonNode to initialize from
+     */
+    ThrowStatement.prototype.initFromJson = function (jsonNode) {
+        var self = this;
+        _.each(jsonNode.children, function (childNode) {
+            var child = self.getFactory().createFromJson(childNode);
+            self.addChild(child);
+            child.initFromJson(childNode);
+        });
     };
 
     return ThrowStatement;

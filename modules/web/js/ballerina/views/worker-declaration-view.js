@@ -48,7 +48,7 @@ define(['lodash', 'jquery', './ballerina-view', './../ast/worker-declaration', '
             this._messageManager = _.get(args, 'messageManager');
             _.set(args, 'name',  _.get(args, 'name') || 'worker1');
             _.set(args, 'cssClass.group',  _.get(args, 'cssClass.group', 'worker-life-line'));
-            _.set(args, 'line.height',  _.get(args, 'lineHeight', 290));
+            _.set(args, 'line.height',  _.get(args, 'line.height', 290));
             _.set(args, 'content.offset',  {top: 10, bottom: 10});
             LifeLine.call(this, args);
 
@@ -129,7 +129,7 @@ define(['lodash', 'jquery', './ballerina-view', './../ast/worker-declaration', '
          */
         WorkerDeclarationView.prototype.visitStatement = function (statement) {
             var args = {model: statement, container: this.getContentArea().node(), viewOptions: {},
-                toolPalette: this._toolPalette, messageManager: this._messageManager, parent: this};
+                toolPalette: this._toolPalette, messageManager: this._messageManager, parent: this, isChildOfWorker: true};
             this._statementContainer.renderStatement(statement, args);
             var self =this;
             this.getDiagramRenderingContext().getViewOfModel(statement).listenTo(this.getBoundingBox(), 'right-edge-moved', function (dx) {

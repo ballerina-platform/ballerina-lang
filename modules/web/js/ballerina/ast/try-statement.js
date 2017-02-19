@@ -29,5 +29,14 @@ define(['lodash', 'log', './statement'], function (_, log, Statement) {
     TryStatement.prototype = Object.create(Statement.prototype);
     TryStatement.prototype.constructor = TryStatement;
 
+    TryStatement.prototype.initFromJson = function (jsonNode) {
+        var self = this;
+        _.each(jsonNode.children, function (childNode) {
+            var child = self.getFactory().createFromJson(childNode);
+            child.initFromJson(childNode);
+            self.addChild(child);
+        });
+    };
+
     return TryStatement;
 });

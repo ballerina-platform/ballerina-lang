@@ -220,7 +220,7 @@ define(['lodash', './node', '../utils/common-utils'], function(_, ASTNode, Commo
      * */
     var generateExpression = function (self) {
         var expression = "";
-        if (!_.isUndefined(self._connectorPkgName) && !_.isNil(self._connectorPkgName) && !_.isEqual(self._connectorPkgName, 'Current Package')) {
+        if (!shouldSkipPackageName(self._connectorPkgName)) {
             expression += self._connectorPkgName + ":";
         }
 
@@ -234,7 +234,7 @@ define(['lodash', './node', '../utils/common-utils'], function(_, ASTNode, Commo
 
         expression += "create ";
 
-        if (!_.isUndefined(self._connectorPkgName) && !_.isNil(self._connectorPkgName) && !_.isEqual(self._connectorPkgName, 'Current Package')) {
+        if (!shouldSkipPackageName(self._connectorPkgName)) {
             expression += self._connectorPkgName + ":";
         }
 
@@ -249,6 +249,11 @@ define(['lodash', './node', '../utils/common-utils'], function(_, ASTNode, Commo
         expression += ")";
         return expression;
     };
+
+    var shouldSkipPackageName = function(packageName) {
+        return _.isUndefined(packageName) || _.isNil(packageName) ||
+            _.isEqual(packageName, 'Current Package') || _.isEqual(packageName, '')
+    }
 
     /**
      * @inheritDoc

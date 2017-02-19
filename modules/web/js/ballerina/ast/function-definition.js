@@ -365,6 +365,21 @@ define(['lodash', 'log', './node', './callable-definition', '../utils/common-uti
             Object.getPrototypeOf(this.constructor.prototype).addChild.call(this, child, index);
         }
     };
+
+    FunctionDefinition.prototype.getWorkerDeclarations = function () {
+        var workerDeclarations = [];
+        var self = this;
+
+        _.forEach(this.getChildren(), function (child) {
+            if (self.getFactory().isWorkerDeclaration(child)) {
+                workerDeclarations.push(child);
+            }
+        });
+        return _.sortBy(workerDeclarations, [function (workerDeclaration) {
+            return workerDeclaration.getWorkerName();
+        }]);
+    };
+
     /**
      * Validates possible immediate child types.
      * @override
@@ -443,8 +458,14 @@ define(['lodash', 'log', './node', './callable-definition', '../utils/common-uti
         return connectorReference;
     };
 
+    /**
+     * Checks if the current method a main method.
+     * @return {boolean} - true if main method, else false.
+     */
     FunctionDefinition.prototype.isMainFunction = function () {
-        return _.isEqual(this.getFunctionName(), "main");
+        return _.isEqual(this.getFunctionName(), "main")
+            && _.isEqual(_.size(this.getArguments()), 1)
+            && _.isEqual(this.getArguments()[0].getType().trim(), "string[]");
     };
 
     return FunctionDefinition;

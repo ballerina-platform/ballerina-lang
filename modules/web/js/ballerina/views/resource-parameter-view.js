@@ -121,7 +121,7 @@ define(['lodash', 'jquery', 'log', 'alerts', './ballerina-view', './../ast/argum
 
             // Setting a default value for @PathParam and updating model when changed.
             $(annotationTypeDropdown).change(function () {
-                if ($(this).val() === "@PathParam" && $(annotationValue).val() === "") {
+                if ($(this).val() === "@http:PathParam" && $(annotationValue).val() === "") {
                     $(annotationValue).val("/");
                 } else if ($(annotationValue).val() === "/") {
                     $(annotationValue).val("");

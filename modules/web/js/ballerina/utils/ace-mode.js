@@ -65,11 +65,17 @@ define('ace/mode/ballerina',
                 worker.attachToDocument(session.getDocument());
 
                 worker.on("lint", function(results) {
-                    results.data.forEach(function(syntaxError){
-                        // ace's rows start from zero, but parser begins from 1
-                        syntaxError.row = syntaxError.row - 1;
-                    });
-                    session.setAnnotations(results.data);
+                    if(!_.isNil(results.data) && _.isArray(results.data))
+                    {
+                        results.data.forEach(function(syntaxError){
+                            // ace's rows start from zero, but parser begins from 1
+                            syntaxError.row = syntaxError.row - 1;
+                        });
+                        session.setAnnotations(results.data);
+                    } else {
+                        // no new errors or something wrong with validator. clear up current errors
+                        session.clearAnnotations();
+                    }
                 });
 
                 worker.on("terminate", function() {

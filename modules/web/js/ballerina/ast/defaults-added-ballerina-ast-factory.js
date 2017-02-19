@@ -151,5 +151,29 @@ define(['lodash', './ballerina-ast-factory'], function (_, BallerinaASTFactory) 
         return assignmentStmt;
     };
 
+    /**
+     * creates TryCatchStatement
+     * @param args
+     */
+    DefaultsAddedBallerinaASTFactory.createTryCatchStatement = function (args) {
+        var tryCatchStatement = BallerinaASTFactory.createTryCatchStatement(args);
+        var tryStatement = BallerinaASTFactory.createTryStatement(args);
+        tryCatchStatement.addChild(tryStatement);
+        var catchStatement = BallerinaASTFactory.createCatchStatement(args);
+        tryCatchStatement.addChild(catchStatement);
+        return tryCatchStatement;
+    };
+
+    /**
+     * creates ThrowStatement
+     * @param {Object} args - Arguments for creating a new throw statement.
+     * @returns {ThrowStatement}
+     */
+    DefaultsAddedBallerinaASTFactory.createThrowStatement = function (args) {
+        var throwStatement = BallerinaASTFactory.createThrowStatement(args);
+        throwStatement.addChild(BallerinaASTFactory.createVariableReferenceExpression({variableReferenceName:"e"}));
+        return throwStatement;
+    };
+
     return DefaultsAddedBallerinaASTFactory;
 });

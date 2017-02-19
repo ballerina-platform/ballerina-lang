@@ -20,6 +20,7 @@ import io.swagger.models.Operation;
 import io.swagger.models.Path;
 import io.swagger.models.Response;
 import io.swagger.models.parameters.PathParameter;
+import io.swagger.models.parameters.QueryParameter;
 import org.ballerinalang.model.Annotation;
 import org.ballerinalang.model.ParameterDef;
 import org.ballerinalang.model.Resource;
@@ -32,9 +33,15 @@ import java.util.concurrent.ConcurrentHashMap;
  * This class will do resource mapping from ballerina to swagger.
  */
 public class SwaggerResourceMapper {
-    public final static String HTTP_VERB_MATCHING_PATTERN = "(?i)|" + Constants.ANNOTATION_METHOD_GET + "|" +
-            Constants.ANNOTATION_METHOD_PUT + "|" + Constants.ANNOTATION_METHOD_POST + "|" +
-            Constants.ANNOTATION_METHOD_DELETE + "|" + Constants.ANNOTATION_METHOD_OPTIONS;
+    public final static String HTTP_PACKAGE_PREFIX = "http:";
+    public final static String HTTP_VERB_MATCHING_PATTERN = "(?i)|" +
+            HTTP_PACKAGE_PREFIX + Constants.ANNOTATION_METHOD_GET + "|" +
+            HTTP_PACKAGE_PREFIX + Constants.ANNOTATION_METHOD_PUT + "|" +
+            HTTP_PACKAGE_PREFIX + Constants.ANNOTATION_METHOD_POST + "|" +
+            HTTP_PACKAGE_PREFIX + Constants.ANNOTATION_METHOD_DELETE + "|" +
+            HTTP_PACKAGE_PREFIX + Constants.ANNOTATION_METHOD_OPTIONS + "|" +
+            HTTP_PACKAGE_PREFIX + Constants.ANNOTATION_METHOD_PATCH + "|" +
+            "http:HEAD";
     private Resource resource;
     private Operation operation;
 
@@ -98,41 +105,32 @@ public class SwaggerResourceMapper {
             String httpOperation = operationAdaptor.getHttpOperation();
             Operation operation = operationAdaptor.getOperation();
             switch (httpOperation) {
-                case Constants.ANNOTATION_METHOD_GET:
+                case HTTP_PACKAGE_PREFIX + Constants.ANNOTATION_METHOD_GET:
                     path.get(operation);
                     break;
-                case Constants.ANNOTATION_METHOD_PUT:
+                case HTTP_PACKAGE_PREFIX + Constants.ANNOTATION_METHOD_PUT:
                     path.put(operation);
                     break;
-                case Constants.ANNOTATION_METHOD_POST:
+                case HTTP_PACKAGE_PREFIX + Constants.ANNOTATION_METHOD_POST:
                     path.post(operation);
                     break;
-                case Constants.ANNOTATION_METHOD_DELETE:
+                case HTTP_PACKAGE_PREFIX + Constants.ANNOTATION_METHOD_DELETE:
                     path.delete(operation);
                     break;
-                case Constants.ANNOTATION_METHOD_OPTIONS:
+                case HTTP_PACKAGE_PREFIX + Constants.ANNOTATION_METHOD_OPTIONS:
                     path.options(operation);
                     break;
-                case Constants.ANNOTATION_METHOD_PATCH:
+                case HTTP_PACKAGE_PREFIX + Constants.ANNOTATION_METHOD_PATCH:
                     path.patch(operation);
+                    break;
+                case "http:HEAD":
+                    path.head(operation);
                     break;
                 default:
                     break;
             }
         }
         return map;
-    }
-
-
-    /**
-     * Converts operation into a resource.
-     *
-     * @param pathMap
-     * @return resources
-     */
-    protected Resource[] convertOperationsToResources(Map<String, Path> pathMap) {
-        // TODO need to implement this
-        throw new UnsupportedOperationException("Converting operations to resources is not implemented yet!");
     }
 
 
@@ -156,28 +154,43 @@ public class SwaggerResourceMapper {
             String path = "/";
             op.setPath(path);
             for (ParameterDef parameterDef : resource.getParameterDefs()) {
-                PathParameter queryParameter = new PathParameter();
-                queryParameter.setName(parameterDef.getName());
                 String typeName = parameterDef.getTypeName().getName();
-                if (!typeName.equalsIgnoreCase("message")) {
-                    queryParameter.setType(typeName);
-                    queryParameter.setIn("path");
-                    queryParameter.required(true);
-                    op.getOperation().addParameter(queryParameter);
+                if (!typeName.equalsIgnoreCase("message") && parameterDef.getAnnotations()!=null) {
+                    //Add query parameter
+                    if(parameterDef.getAnnotations().get(0).getName().equalsIgnoreCase("http:QueryParam")){
+                        QueryParameter queryParameter = new QueryParameter();
+                        queryParameter.setType(typeName);
+                        queryParameter.setIn("query");
+                        queryParameter.setVendorExtension(SwaggerConverterUtils.VARIABLE_UUID_NAME,
+                                parameterDef.getName());
+                        queryParameter.setName(parameterDef.getName());
+                        queryParameter.required(true);
+                        op.getOperation().addParameter(queryParameter);
+                    }
+                    if(parameterDef.getAnnotations().get(0).getName().equalsIgnoreCase("http:PathParam")){
+                        PathParameter pathParameter = new PathParameter();
+                        pathParameter.setType(typeName);
+                        pathParameter.setName(parameterDef.getName());
+                        pathParameter.setIn("path");
+                        pathParameter.setVendorExtension(SwaggerConverterUtils.VARIABLE_UUID_NAME,
+                                parameterDef.getName());
+                        pathParameter.required(true);
+                        op.getOperation().addParameter(pathParameter);
+                    }
                 }
             }
             if (resourceAnnotations != null) {
                 //TODO add all supported annotation mapping after annotation model finalized.
                 for (Annotation annotation : resourceAnnotations) {
-                    if (annotation.getName().equalsIgnoreCase("Consumes")) {
+                    if (annotation.getName().equalsIgnoreCase("http:Consumes")) {
                         op.getOperation().consumes(annotation.getValue());
-                    } else if (annotation.getName().equalsIgnoreCase("Produces")) {
+                    } else if (annotation.getName().equalsIgnoreCase("http:Produces")) {
                         op.getOperation().produces(annotation.getValue());
-                    } else if (annotation.getName().equalsIgnoreCase("Path")) {
+                    } else if (annotation.getName().equalsIgnoreCase("http:Path")) {
                         op.setPath(annotation.getValue());
-                    } else if (annotation.getName().equalsIgnoreCase("Summary")) {
+                    } else if (annotation.getName().equalsIgnoreCase("http:Summary")) {
                         op.getOperation().setSummary(annotation.getValue());
-                    } else if (annotation.getName().equalsIgnoreCase("Description")) {
+                    } else if (annotation.getName().equalsIgnoreCase("http:Description")) {
                         op.getOperation().setDescription(annotation.getValue());
                     } else if (annotation.getName().matches(HTTP_VERB_MATCHING_PATTERN)) {
                         op.setHttpOperation(annotation.getName());

@@ -57,7 +57,7 @@ define(['lodash', './expression'], function (_, Expression) {
     };
 
     VariableReferenceExpression.prototype.generateExpression = function () {
-        this._expression = this.getVariableReferenceName()
+        return this.getVariableReferenceName();
     };
 
     return VariableReferenceExpression;

@@ -2,12 +2,6 @@
     color: #dedede;
 }
 
-.debugger-container .panel-heading {
-    padding: 2px 1px;
-    background: #333;
-    border-bottom: 1px solid #e4e4e4;
-}
-
 .debugger-container .panel-heading a {
     color: #dadada;
 }
@@ -15,6 +9,10 @@
 /*TODO remove this when feature is done*/
 .left-tool-bar .debugger-activate-btn, .left-tool-bar .debugger-activate-btn i{
     /*display: none;*/
+}
+
+.ace_gutter-cell{
+    cursor: pointer;
 }
 
 .ace_gutter-cell.ace_breakpoint{ 
@@ -111,12 +109,6 @@ table.debug-frames {
     font-weight: bold;
 }
 
-.debug-frame-pkg-name{
-    display: block;
-    color:#00bbea;
-    font-size: 0.75em;
-}
-
 .debug-variables-container{
     color: white;
 }
@@ -179,4 +171,67 @@ div > .col-xs-12 {
     float: left;
     padding-left: 30px;
     font-weight: 300;
+}
+
+#frameAccordion{
+    border-bottom: 1px solid #232323;
+}
+
+#frameAccordion .panel-heading {
+    border-top: 1px solid #232323;
+    padding: 0px;
+}
+
+#frameAccordion .panel-heading a.in {
+    background:#232323;
+}
+
+#frameAccordion .panel-heading:hover a{
+    background:#232323;
+    border:0;
+}
+
+#frameAccordion .panel-heading a{
+    padding:5px 12px;
+    color:#fff;
+    background:#333333;
+    display:block;
+    margin:0;
+    padding-bottom:2px;
+    font-size: 17px;
+ 
+}
+
+#frameAccordion .debug-frame-pkg-name{
+    display: block;
+    color:#00bbea;
+    font-size: 0.75em;
+    margin-top: 3px;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+#frameAccordion .panel-body{
+    border-top:0px;
+}
+
+#frameAccordion .jstree-default .jstree-last{
+    background: #333333 !important;
+}
+
+#frameAccordion .panel{
+    margin:0px;
+}
+
+#frameAccordion .panel-body{
+    margin-bottom: 10px;
+    padding-left:5px;
+}
+
+#frameAccordion .panel-title{
+    border: 0px;
+}
+
+.debug-frame-header {
+    height:36px;
 }
