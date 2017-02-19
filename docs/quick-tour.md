@@ -1,6 +1,6 @@
 # Quick Tour
 
-Now that you know [a little bit about Ballerina](intro.md), let's take it for a spin! 
+Now that you know [a little bit about Ballerina](index.md), let's take it for a spin! 
 
 ## Install Ballerina
 
@@ -13,7 +13,7 @@ This sample will show you how easy it is to run Ballerina, send it a request, an
 At the command prompt, navigate to the `<ballerina_home>/bin` directory and enter the following line:
 
 ```
-ballerina run helloworld.bal
+ballerina run main helloworld.bal
 ```
 
 You will see the following response:
@@ -28,17 +28,16 @@ You just started Ballerina, ran the HelloWorld sample, and got a response within
 function main (string[] args) {
   system:println("Hello, World!");
 }
-```
+``` 
+Pretty simple and straightforward, right? Now, let's look at something a little more interesting: the Composer.
 
-Pretty simple and straightforward, right? Now, let's look at something a little more interesting: the editor.
+## Run the Composer
 
-## Run the editor
+1. In the `bin` directory, type `sh composer` at the command prompt (omit `sh` if you are running on Windows).
 
-1. In the `bin` directory, type `sh editor` at the command prompt (omit `sh` if you are running on Windows).
+1. Access the Composer from the following URL in your browser: http://localhost:9091
 
-1. Access the editor from the following URL in your browser: http://localhost:9091
-
-   The welcome page of the Ballerina editor appears. Let's open a sample and take a look around. 
+    The welcome page of Ballerina Composer appears. Let's open a sample and take a look around. 
 
 1. Click **echoService**.
 
@@ -48,8 +47,8 @@ Also notice in the lower right corner the Source View and Swagger View buttons.
    
 1. Click **Source View**. You'll see the source code editor that represents the sequence diagram as code in the Ballerina language. You can go back and forth between the visual editor and the source code and make your edits in either place. 
 
-1. Click **Swagger View**. This editor allows you to create Swagger definitions to create APIs.
+1. Click **Swagger View**. This editor allows you to write Swagger definitions to create services.
 
 1. Click **Design View** to return to the visual editor. 
 
-Now that you've had a look around, it's time to take the leap into [creating your first Ballerina program](tutorials/first-program.md).
+Now that you've had a look around, it's time to take the leap and [write your first Ballerina program](tutorials/first-program.md).

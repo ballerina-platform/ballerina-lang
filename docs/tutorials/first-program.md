@@ -7,15 +7,15 @@ Now that you’ve taken the [Quick Tour](../quick-tour.md), let's dig a little d
 In the [Quick Tour](../quick-tour.md), you learned how to start Ballerina and run a sample program from the `bin` directory with a single command:
 
 ```
-./ballerina run ../samples/helloWorld/helloWorld.bal
+./ballerina run main ../samples/helloWorld/helloWorld.bal
 ```
 
 After the HelloWorld program executed, Ballerina stopped. This approach is called **standalone mode**, and it's useful when you want to execute a program once and then stop as soon as it has finished its job. It runs the `main()` function of the program you specify and then exits. 
 
-You can also run Ballerina as a **server**, so that it can deploy a program as a service that waits for requests. To see how this works, let's go to the Ballerina `bin` directory, and then run Ballerina in server mode and deploy the HelloWorldService program:
+You can also run Ballerina as a **server**, so that it can deploy one or more services that wait for requests. To see how this works, let's go to the Ballerina `bin` directory, and then run Ballerina in server mode and deploy the HelloWorldService program:
 
 ```
-./ballerina service ../samples/helloWorldService/helloWorldService.bal
+./ballerina run service ../samples/helloWorldService/helloWorldService.bal
 ```
 
 In this case, Ballerina ran and deployed the HelloWorldService program as a service, which is waiting for a request. Let's send it one now. The Ballerina server is available at `localhost:9090`, and HelloWorldService is available at context `hello`. Open another command line and use the [curl](https://curl.haxx.se) client to call the service as follows:
@@ -32,15 +32,17 @@ It's time to build your first integration! In this exercise, we are going to bui
 
 ### Add a service and resource
 
-First, we add a service construct to the canvas in the editor. A **service** is a container for all the other constructs and represents a single unit of functionality that can be accessed remotely. Technically, it's an HTTP web service described by a Swagger definition file. 
+First, we add a service construct to the canvas in the Composer. A **service** is a container for all the other constructs and represents a single unit of functionality that can be accessed remotely.
 
-1. If the editor is not already running, run it as described in the [Quick Tour](../quick-tour.md).
+1. If the Composer is not already running, run it as described in the [Quick Tour](../quick-tour.md).
 
 1. On the tool palette, click the service icon and drag it to the canvas. 
 
 A box appears with the name `newService`, and inside it is another box called `newResource` with some logic already created for you. 
 
-A **resource** is a single request handler within a service. This is where we will program the logic describing how to handle the incoming message to this service. By default, the resource is configured to accept a message `m`. You can see this by clicking the Arguments icon in the upper right corner of the resource box. When you click it, you'll see `message m` listed below the fields. Click the Arguments icon again to close its window.
+A **resource** is a single request handler within a service. This is where we will program the logic describing how to handle the incoming messages to this service. By default, the resource is configured to accept a message `m`. You can see this by clicking the Arguments icon in the upper right corner of the resource box. 
+
+When you click it, you'll see `message m` listed below the fields. Click the Arguments icon again to close its window.
 
 Let's rename both the service and resource. 
 
@@ -69,30 +71,30 @@ You can click the symbol again to confirm that GET was in fact changed to POST. 
 
 ### Add a function
 
-Now, let's add a function that will take the incoming message and convert it to a response that gets sent back to the client. The Reply construct will send the message back with all its original headers, which aren't useful in the server -> client direction, so we should strip those headers before we reply. The ballerina.net.http package includes a native function called `convertToResponse` that removes the incoming HTTP headers when replying to the client. Let's add that function to our flow.
+Now, let's add a function that will take the incoming message and convert it to a response that gets sent back to the client. The Reply construct will send the message back with all its original headers, which aren't useful in the server -> client direction, so we should strip those headers before we reply. The `ballerina.net.http` package includes a native function called `convertToResponse` that removes the incoming HTTP headers when replying to the client. Let's add that function to our flow.
 
-1. On the tool palette, go to the ballerina.net.http section, click the `convertToResponse` function, and drag it to the canvas below Start. 
-1. Click in the parentheses after `convertToResponse` and type `m`, which is the incoming message. 
+1. On the tool palette, go to the **ballerina.net.http** section, click the **convertToResponse** function, and drag it to the canvas below **Start**. 
+1. Click in the parentheses of `convertToResponse()` and type `m`, which is the incoming message, so that it looks like this: `convertToResponse(m)`
 
 ### Add the reply
 Now that we've added the function that will convert the incoming message text to a response, we just need to instruct the program to send the response back to the client.
 
-1. On the tool palette, click the Reply icon (the straight left arrow) and drag it to the canvas under the `convertToResponse` you just added. You'll see that it appears as a box with an arrow going back to the client. 
-1. Click the box, click the Edit icon, and set the response message to m, which instructs the program to send the message processed by the convertToResponse function back to the client. 
+1. On the tool palette, click the Reply icon ![alt text](../images/icons/reply.png "Reply icon") and drag it to the canvas under the `convertToResponse` function you just added. You'll see that it appears as a box with an arrow going back to the client. 
+1. Click the box, click the Edit icon, and set the response message to `m`, which instructs the program to send the message processed by the `convertToResponse` function back to the client. 
 
 This completes the sequence, so you are now ready to save and run your integration program.
 
 ### Save the program
 
 1. Click the **File** menu and choose **Save As**. 
-1. Save it as `myEcho.bal` in your Ballerina `bin` directory. 
+1. Save it as `myEcho.bal` in your Ballerina `samples` directory. 
 
 ### Run the program
 
-1. At your command prompt, navigate to your Ballerina `bin` directory, and enter the command to run the Ballerina server and deploy your myEcho program:
+1. At your command prompt, navigate to your Ballerina `bin` directory, and enter the command to run the Ballerina server and deploy your myEcho program (if you're running on UNIX/Linux, type `./ballerina` instead of `ballerina`):
 
   ```
-  ./ballerina service myEcho.bal
+  ballerina run service ../samples/myEcho.bal
   ```
 
 Your service is now deployed and running on the Ballerina server. 
@@ -111,7 +113,7 @@ You have now completed your first Ballerina program! If you run into problems, y
 
 ## Next steps
 
-Now that you're familiar with running Ballerina in standalone and server mode, using the editor to build an integration program, and creating a service and resource, you are ready to learn more. 
+Now that you're familiar with running Ballerina in standalone and server mode, using the Composer to build an integration program, and creating a service and resource, you are ready to learn more. 
 
 * Read the [Key Concepts](../key-concepts.md) page to familiarize yourself with the rest of the main features you need to know about.
 * Browse through the [Samples](../samples.md) and use them as templates for your own programs.

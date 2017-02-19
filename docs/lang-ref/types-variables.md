@@ -1,5 +1,7 @@
 # Types and Variables
 
+TODO: review this page and update with latest features
+
 Ballerina has variables of various types. The type system includes built-in primitive or value types, a collection of built-in structured types, and array, record, and iterator type constructors. All variables of primitive types are allocated on the stack, while all non-primitive types are allocated on a heap using `new`.
 
 The type system is illustrated in the following diagram:
@@ -151,7 +153,7 @@ That is, the registered type mapper is invoked by indicating the type cast as ab
 
 In addition to the built-in value type coercions, Ballerina also ships with a few pre-defined type mappers to make development easier. The following predefined type mappers are declared in the Ballerina package `ballerina.lang.typemappers`:
 
-* string/xml/json to message: creates a new message with the given string/xml/json as its payload
+* string/xml/json to messages: creates a new message with the given string/xml/json as its payload
 * down conversions for numeral types: int -> boolean (0 is false), long -> int/boolean, float -> int/boolean, double -> float/long/int/boolean,
 
 Note that these must be triggered by indicating a type cast to the desired type.

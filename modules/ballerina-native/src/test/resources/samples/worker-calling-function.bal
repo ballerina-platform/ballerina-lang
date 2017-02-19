@@ -1,5 +1,5 @@
 import ballerina.lang.system;
-import ballerina.lang.message;
+import ballerina.lang.messages;
 
 const int index = 12;
 
@@ -16,7 +16,7 @@ function testWorker()(message) {
   msg -> sampleWorker;
   system:println("After worker");
   result <- sampleWorker;
-  string s = message:getStringPayload(result);
+  string s = messages:getStringPayload(result);
   system:println(s);
   return result;
 
@@ -25,6 +25,6 @@ function testWorker()(message) {
 function changeMessage(message m)(message) {
       json j;
       j = `{"name":"chanaka"}`;
-      message:setJsonPayload(m, j);
+      messages:setJsonPayload(m, j);
       return m;
 }

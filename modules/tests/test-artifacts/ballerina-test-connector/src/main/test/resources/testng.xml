@@ -22,21 +22,21 @@
 <suite name="ballerina-test-suite">
     <!--<test name="ballerina-model-unit-tests" preserve-order="true" parallel="false">
         <classes>
-            <class name="org.wso2.ballerina.core.model.FunctionInvocationTest" />
-            <class name="org.wso2.ballerina.core.model.WhileStmtTest" />
-            <class name="org.wso2.ballerina.core.model.IfElseStmtTest" />
-            <class name="org.wso2.ballerina.core.model.RecursiveFuncTest" />
-            <class name="org.wso2.ballerina.core.model.NativeFunctionInvocationTest" />
-            <class name="org.wso2.ballerina.core.model.NativeJSONFunctionTest" />
-	        <class name="org.wso2.ballerina.core.model.NativeXMLFunctionTest" />
-            <class name="org.wso2.ballerina.core.model.NativeMessageFunctionTest" />
+            <class name="org.ballerinalang.core.model.FunctionInvocationTest" />
+            <class name="org.ballerinalang.core.model.WhileStmtTest" />
+            <class name="org.ballerinalang.core.model.IfElseStmtTest" />
+            <class name="org.ballerinalang.core.model.RecursiveFuncTest" />
+            <class name="org.ballerinalang.core.model.NativeFunctionInvocationTest" />
+            <class name="org.ballerinalang.core.model.NativeJSONFunctionTest" />
+	        <class name="org.ballerinalang.core.model.NativeXMLFunctionTest" />
+            <class name="org.ballerinalang.core.model.NativeMessageFunctionTest" />
         </classes>
     </test>  -->
     <test name="ballerina-parser-unit-tests" preserve-order="true" parallel="false">
         <classes>
-            <!--<class name="org.wso2.ballerina.core.parser.LocalFuncInvocationTest" />
-            <class name="org.wso2.ballerina.core.parser.BLangInterpreterTest" />
-            <class name="org.wso2.ballerina.core.parser.InvalidSyntaxParserTest" />-->
+            <!--<class name="org.ballerinalang.core.parser.LocalFuncInvocationTest" />
+            <class name="org.ballerinalang.core.parser.BLangInterpreterTest" />
+            <class name="org.ballerinalang.core.parser.InvalidSyntaxParserTest" />-->
         </classes>
     </test>
 </suite>

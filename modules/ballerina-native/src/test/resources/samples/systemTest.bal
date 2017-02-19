@@ -1,5 +1,3 @@
-package samples.nativeimpl;
-
 import ballerina.lang.system;
 
 function testPrintAndPrintlnString(string s1, string s2){
@@ -62,21 +60,32 @@ function testLog(long l, double d) {
     system:log(6, b);
 }
 
-function testTimeFunctions() {
+function testTimeFunctions()(long, long, long) {
 
     long currentTime;
     long epochTime;
     long nanoTime;
 
     currentTime = system:currentTimeMillis();
-    system:log(3, currentTime);
     epochTime = system:epochTime();
-    system:log(3, epochTime);
     nanoTime = system:nanoTime();
-    system:log(3, nanoTime);
+    return currentTime, epochTime, nanoTime;
+}
+
+function testDateFunction()(string) {
+
+    string shortDate;
+
+    shortDate = system:getDateFormat("yyyyMMdd");
+    return shortDate;
 
 }
 
 function printNewline() {
     system:print("hello\n");
+}
+
+function getEnvVar(string varName) {
+    string pathValue = system:getEnv(varName);
+    system:print(pathValue);
 }

@@ -1,6 +1,9 @@
 # Resources
 
-A resource is a construct that handles one request within a [service](services.md). When you create a service in Ballerina using the visual editor, a default resource is automatically created within that service so that you can add your integration logic to it. 
+A resource is a construct that handles one request within a [service](services.md). 
+
+## Defining a resource
+When you create a service in Ballerina using the Design view in the Composer, a default resource is automatically created within that service so that you can add your integration logic to it. To add another resource, drag the Resource icon ![alt-text](../images/icons/resource.png "Resource icon") to the canvas. 
 
 A resource is defined as follows:
 

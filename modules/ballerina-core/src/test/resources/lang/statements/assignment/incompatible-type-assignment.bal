@@ -1,5 +1,3 @@
-package lang.expressions;
-
 function main(string[] i) {
 
 	boolean b;

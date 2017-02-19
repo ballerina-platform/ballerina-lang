@@ -1,7 +1,7 @@
 package samples.datamapping;
 
-import ballerina.lang.message;
-import ballerina.lang.json;
+import ballerina.lang.messages;
+import ballerina.lang.jsonutils;
 
 @Path ("/transform")
 @Source (interface = "default_http_listener")

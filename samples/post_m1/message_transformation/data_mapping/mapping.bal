@@ -8,7 +8,7 @@ function foo (message m) {
    json<{"Accounts"}account> outJson;
 
 
-    inXML = message:getPayload(m);
+    inXML = messages:getPayload(m);
 // UC 1
   // what I want to end up is with an XML Element who's schema type is
   // EnterpriseAccount.

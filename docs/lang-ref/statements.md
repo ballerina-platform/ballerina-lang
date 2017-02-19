@@ -19,19 +19,23 @@ A statement can be one of the following:
 
 ## Assignment
 
-Assignment statements are encoded as follows:
+An assignment statement allows you to assign a value to a variable accessor. In the Composer, you can drag the Assignment icon ![alt-text](../images/icons/assign.png "Assignment icon") from the tool palette to the canvas to add the statement to your program. 
+
+An assignment statement is defined as follows:
 ```
 VariableAccessor = Expression;
 ```
-A `VariableAccessor` is one of:
+where a `VariableAccessor` is one of:
 - VariableName
 - VariableAccessor'['ArrayIndex']'
 - VariableAccessor'['MapIndex']'
 - VariableAccessor.FieldName
 
-## If
+## If-else
 
-An `if` statement provides a way to perform conditional execution.
+An `if-else` statement provides a way to perform conditional execution. In the Composer, you can drag the If-Else icon ![alt-text](../images/icons/if-else.png "If-Else icon") from the tool palette to the canvas to add the statement to your program. 
+
+An if-else statement is defined as follows: 
 ```
 if (BooleanExpression) {
     Statement;*
@@ -46,6 +50,9 @@ if (BooleanExpression) {
 ## Iterate
 
 An `iterate` statement provides a way to iterate through an iterator.
+
+TODO: is this available in the Composer?
+
 ```
 iterate (VariableType VariableName : Iterator) {
   Statement;+
@@ -54,7 +61,8 @@ iterate (VariableType VariableName : Iterator) {
 
 ## While
 
-A `while` statement provides a way to execute a series of statements as long as a Boolean expression is met. 
+A `while` statement provides a way to execute a series of statements as long as a Boolean expression is met. In the Composer, you can drag the While icon ![alt-text](../images/icons/while.png "While icon") from the tool palette to the canvas to add the statement to your program. 
+
 ```
 while (BooleanExpression) {
     Statement;+
@@ -64,13 +72,18 @@ while (BooleanExpression) {
 ## Break
 
 A `break` statement allows you to terminate the immediately enclosing loop. This is only allowed within the `iterate` or `while` constructs.
+
+TODO: is this available in the Composer?
+
 ```
 break;
 ```
 
 ## Fork/Join
 
-A `fork` statement allows you to replicate a message to any number of parallel workers and have them independently operate on the copies of the message. The `join` part of the `fork` statement allows you to define how the caller of `fork` will wait for the parallel workers to complete.
+A `fork` statement allows you to replicate a message to any number of parallel workers and have them independently operate on the copies of the message. The `join` part of the `fork` statement allows you to define how the caller of `fork` will wait for the parallel workers to complete. 
+
+TODO: is this availabe in the Composer?
 
 ```
 fork (MessageName) {
@@ -121,14 +134,18 @@ throw Expression;
 
 ## Return
 
-The Return statement evaluates the expression, stops the current function, and returns the result of the expression to the caller. The syntax of a `return` statement is as follows:
+The Return statement evaluates the expression, stops the current function, and returns the result of the expression to the caller. In the Composer, you can drag the Return icon ![alt-text](../images/icons/return.png "Return icon") from the tool palette to the canvas to add the statement to your program. 
+
+The syntax of a `return` statement is as follows:
 ```
 return Expression*;
 ```
 
 ## Reply
 
-The Reply statement sends the request message back to the client. The syntax of a `reply` statement is as follows:
+The Reply statement sends the request message back to the client. In the Composer, you can drag the Reply icon ![alt-text](../images/icons/reply.png "Reply icon") from the tool palette to the canvas to add the statement to your program. 
+
+The syntax of a `reply` statement is as follows:
 ```
 reply Message?;
 ```
