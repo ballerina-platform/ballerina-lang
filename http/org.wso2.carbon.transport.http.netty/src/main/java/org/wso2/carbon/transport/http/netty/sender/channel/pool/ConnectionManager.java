@@ -135,8 +135,8 @@ public class ConnectionManager {
             CarbonCallback carbonCallback) throws Exception {
         TargetChannel targetChannel = null;
 
-        Class cl = null;
-        EventLoopGroup group = null;
+        Class cl;
+        EventLoopGroup group;
 
         if (sourceHandler != null) {
             ChannelHandlerContext ctx = sourceHandler.getInboundChannelContext();
@@ -157,10 +157,9 @@ public class ConnectionManager {
                 objectPoolMap.put(httpRoute.toString(), pool);
             }
             try {
-                executorService.execute(
-                        new ClientRequestWorker(httpRoute, sourceHandler, senderConfiguration, httpRequest,
-                                carbonMessage, carbonCallback, PoolManagementPolicy.
-                                GLOBAL_ENDPOINT_CONNECTION_CACHING, pool, this, group, cl));
+                acquireChannelAndDeliver(httpRoute, sourceHandler, senderConfiguration, httpRequest,
+                                         carbonMessage, carbonCallback, PoolManagementPolicy.
+                                                 GLOBAL_ENDPOINT_CONNECTION_CACHING, pool, group, cl);
             } catch (Exception e) {
                 String msg = "Cannot borrow free channel from pool ";
                 log.error(msg, e);
@@ -170,24 +169,30 @@ public class ConnectionManager {
             }
         } else if (poolManagementPolicy == PoolManagementPolicy.PER_SERVER_CHANNEL_ENDPOINT_CONNECTION_CACHING) {
             // manage connections according to per inbound channel caching method
-            synchronized (sourceHandler) {
-                if (!sourceHandler.isChannelFutureExists(httpRoute)) {
-                    executorService.execute(
-                            new ClientRequestWorker(httpRoute, sourceHandler, senderConfiguration, httpRequest,
-                                                    carbonMessage, carbonCallback,
-                                                    PoolManagementPolicy.PER_SERVER_CHANNEL_ENDPOINT_CONNECTION_CACHING,
-                                                    null, this, group, cl));
-                } else {
-                    targetChannel = sourceHandler.getChannelFuture(httpRoute);
-                    Channel channel = targetChannel.getChannel();
-                    if (!channel.isActive()) {
-                        targetChannel = null;
-                        executorService.execute(
-                                new ClientRequestWorker(httpRoute, sourceHandler, senderConfiguration, httpRequest,
-                                                        carbonMessage, carbonCallback,
-                                                        PoolManagementPolicy.
-                                                                PER_SERVER_CHANNEL_ENDPOINT_CONNECTION_CACHING,
-                                                        null, this, group, cl));
+            if (!sourceHandler.isChannelFutureExists(httpRoute)) {
+                acquireChannelAndDeliver(httpRoute, sourceHandler, senderConfiguration, httpRequest,
+                                         carbonMessage, carbonCallback,
+                                         PoolManagementPolicy.PER_SERVER_CHANNEL_ENDPOINT_CONNECTION_CACHING,
+                                         null, group, cl);
+            } else {
+                synchronized (sourceHandler) {
+                    if (sourceHandler.isChannelFutureExists(httpRoute)) {
+                        targetChannel = sourceHandler.getChannelFuture(httpRoute);
+                        Channel channel = targetChannel.getChannel();
+                        if (!channel.isActive()) {
+                            targetChannel = null;
+                            acquireChannelAndDeliver(httpRoute, sourceHandler, senderConfiguration, httpRequest,
+                                                     carbonMessage, carbonCallback,
+                                                     PoolManagementPolicy.
+                                                             PER_SERVER_CHANNEL_ENDPOINT_CONNECTION_CACHING,
+                                                     null, group, cl);
+                        }
+                    } else {
+                        acquireChannelAndDeliver(httpRoute, sourceHandler, senderConfiguration, httpRequest,
+                                                 carbonMessage, carbonCallback,
+                                                 PoolManagementPolicy.
+                                                         PER_SERVER_CHANNEL_ENDPOINT_CONNECTION_CACHING,
+                                                 null, group, cl);
                     }
                 }
             }
@@ -197,19 +202,33 @@ public class ConnectionManager {
                 pool = createPoolForRoute(httpRoute, group, cl, senderConfiguration);
                 localConnectionMap.put(httpRoute.toString(), pool);
             }
-            executorService.
-                    execute(new ClientRequestWorker(httpRoute, sourceHandler, senderConfiguration, httpRequest,
-                            carbonMessage, carbonCallback, PoolManagementPolicy.
-                            DEFAULT_POOLING, pool, this, group, cl));
+            acquireChannelAndDeliver(httpRoute, sourceHandler, senderConfiguration, httpRequest,
+                                     carbonMessage, carbonCallback, PoolManagementPolicy.
+                                             DEFAULT_POOLING, pool, group, cl);
         }
+
         if (targetChannel != null) {
             targetChannel.setHttpRoute(httpRoute);
             if (sourceHandler != null) {
                 targetChannel.setCorrelatedSource(sourceHandler);
             }
         }
-
         return targetChannel;
+    }
+
+    private void acquireChannelAndDeliver(HttpRoute httpRoute, SourceHandler sourceHandler,
+                                          SenderConfiguration senderConfig,
+                                          HttpRequest httpRequest, CarbonMessage carbonMessage,
+                                          CarbonCallback carbonCallback,
+                                          PoolManagementPolicy poolManagementPolicy,
+                                          GenericObjectPool genericObjectPool,
+                                          EventLoopGroup eventLoopGroup,
+                                          Class aClass) {
+        executorService.execute(
+                new ClientRequestWorker(httpRoute, sourceHandler, senderConfig, httpRequest,
+                                        carbonMessage, carbonCallback,
+                                        poolManagementPolicy,
+                                        genericObjectPool, this, eventLoopGroup, aClass));
     }
 
     //Add connection to Pool back
@@ -219,29 +238,20 @@ public class ConnectionManager {
             sourceHandler.addTargetChannel(targetChannel.getHttpRoute(), targetChannel);
         } else if (poolManagementPolicy == PoolManagementPolicy.GLOBAL_ENDPOINT_CONNECTION_CACHING) {
             Map<String, GenericObjectPool> objectPoolMap = targetChannel.getCorrelatedSource().getTargetChannelPool();
-            GenericObjectPool pool = objectPoolMap.get(targetChannel.getHttpRoute().toString());
-            try {
-                if (targetChannel.getChannel().isActive()) {
-                    pool.returnObject(targetChannel);
-                }
-            } catch (Exception e) {
-                String msg = "Cannot return channel to pool";
-                log.error(msg, e);
-                throw new Exception(msg, e);
-            }
-
+            releaseChannelToPool(targetChannel, objectPoolMap.get(targetChannel.getHttpRoute().toString()));
         } else if (poolManagementPolicy == PoolManagementPolicy.DEFAULT_POOLING) {
-            HttpRoute httpRoute = targetChannel.getHttpRoute();
-            GenericObjectPool pool = localConnectionMap.get(httpRoute.toString());
-            try {
-                if (targetChannel.getChannel().isActive()) {
-                    pool.returnObject(targetChannel);
-                }
-            } catch (Exception e) {
-                String msg = "Cannot return channel to pool";
-                log.error(msg, e);
-                throw new Exception(msg, e);
+            GenericObjectPool pool = localConnectionMap.get(targetChannel.getHttpRoute().toString());
+            releaseChannelToPool(targetChannel, pool);
+        }
+    }
+
+    private void releaseChannelToPool(TargetChannel targetChannel, GenericObjectPool pool) throws Exception {
+        try {
+            if (targetChannel.getChannel().isActive()) {
+                pool.returnObject(targetChannel);
             }
+        } catch (Exception e) {
+            throw new Exception("Cannot return channel to pool", e);
         }
     }
 
