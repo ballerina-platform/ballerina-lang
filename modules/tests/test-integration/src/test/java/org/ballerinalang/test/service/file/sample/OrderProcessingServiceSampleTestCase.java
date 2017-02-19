@@ -43,8 +43,8 @@ import javax.jms.Session;
 import javax.jms.TextMessage;
 
 /**
- * Testing the Echo service sample located in
- * ballerina_home/samples/fileService/orderProcessService.bal.
+ * Testing the service sample located in
+ * other_samples/fileServiceWithActiveMq/testFileService.bal
  */
 public class OrderProcessingServiceSampleTestCase {
     private Logger logger = LoggerFactory.getLogger(OrderProcessingServiceSampleTestCase.class);
@@ -92,7 +92,7 @@ public class OrderProcessingServiceSampleTestCase {
          */
         Thread.sleep(12000);
         ClassLoader classLoader = getClass().getClassLoader();
-        File folder = new File(classLoader.getResource(Constant.VFS_LOCATION + File.separator + "orders").getFile());
+        File folder = new File(classLoader.getResource(Constant.FTP_LOCATION + File.separator + "orders").getFile());
         File[] listOfFiles = folder.listFiles();
         Assert.assertEquals(listOfFiles.length, 0, "Files are not deleted after content is read from the files");
     }

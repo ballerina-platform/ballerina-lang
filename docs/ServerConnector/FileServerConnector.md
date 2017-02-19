@@ -53,6 +53,13 @@ Add a service level annotation named "Source" and add the key-value pairs to spe
     <td>A positive integer.</td>
     <td>30000</td>
   </tr>
+  <tr>
+    <td>deleteIfNotAcknowledged</td>
+    <td>If the file consumer did not acknowledge, the file will either be deleted or it will be kept, so it will be retried to be processed again in the next polling cycle. Set this parameter to true, if the file needs to be deleted. Set it to false otherwise.</td>
+    <td>No</td>
+    <td>true or false</td>
+    <td>false</td>
+  </tr>
 </table>
 
 
@@ -78,7 +85,7 @@ name, size, lastModifiedTimestamp</td>
     <td>fileSortAscending</td>
     <td>A boolean parameter which indicates whether to sort files in ascending order. If set to "true", files will be sorted in ascending order. If set to “false”, files will be sorted in descending order.</td>
     <td>No</td>
-    <td>True or false</td>
+    <td>true or false</td>
     <td>true</td>
   </tr>
 </table>

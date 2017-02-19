@@ -272,9 +272,9 @@ public class ServerInstance implements Server {
          * Copying the file sample to samples directory for integration testing.
          */
             Path source = Paths.get(baseDir + File.separator + Constant.OTHER_SAMPLES + File.separator
-                    + "orderProcessService.bal");
+                    + "testFileService.bal");
             Path destination = Paths
-                    .get(serverExtractedPath + File.separator + "samples" + File.separator + "orderProcessService.bal");
+                    .get(serverExtractedPath + File.separator + "samples" + File.separator + "testFileService.bal");
             Files.copy(source, destination, StandardCopyOption.REPLACE_EXISTING);
 
         /*
