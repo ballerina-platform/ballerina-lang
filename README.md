@@ -4,12 +4,12 @@ The Ballerina Composer provides a flexible and powerful browser-based tool for c
 
 **You can create your integration in Design view:**
 
-![alt text](images/EchoDesign.png "Design view")
+![alt text](./EchoDesign.png?raw=true "Design view")
 
 
 **And go to Source view to edit the code that's generated:**
 
-![alt text](images/EchoSource.png "Source view")
+![alt text](./EchoSource.png?raw=true "Source view")
 
 ## Running the Composer
 

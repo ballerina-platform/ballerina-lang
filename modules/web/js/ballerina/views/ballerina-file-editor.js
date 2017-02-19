@@ -104,6 +104,7 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
             }
             if ((!_.isUndefined(model) && !_.isNil(model) && model instanceof BallerinaASTRoot)) {
                 this._model = model;
+                var self = this;
                 //Registering event listeners
                 this._model.on('child-added', function(child){
                     this.visit(child);
@@ -123,6 +124,12 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                                 .isSourceModifiedOperation(this.getUndoManager().redoStackTop())){
                             this.getUndoManager().reset();
                         }
+                    }
+                    // If we have added a new action/function invocation statement the particular import has to be added
+                    // to the imports view
+                    if (_.isEqual(event.title, 'add import')) {
+                        var childModel = event.data.child;
+                        self.visit(childModel);
                     }
                     _.set(event, 'editor', this);
                     _.set(event, 'skipInSourceView', true);
@@ -475,7 +482,13 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                         var source = self._sourceView.getContent();
                         if(!_.isEmpty(source.trim())){
                             var validateResponse = self.validatorBackend.parse(source.trim());
-                            if (validateResponse.error && !_.isEmpty(validateResponse.message)) {
+                            if (validateResponse.errors && !_.isEmpty(validateResponse.errors)) {
+                                // syntax errors found
+                                // no need to show error as annotations are already displayed for each line
+                                alerts.error('Cannot switch to Swagger view due to syntax errors');
+                                return;
+                            } else if (validateResponse.error && !_.isEmpty(validateResponse.message)) {
+                                // end point error
                                 alerts.error('Cannot switch to Swagger view due to syntax errors : ' + validateResponse.message);
                                 return;
                             }
@@ -539,8 +552,14 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                     var source = self._sourceView.getContent();
                     if(!_.isEmpty(source.trim())){
                         var validateResponse = self.validatorBackend.parse(source.trim());
-                        if (validateResponse.errors && !_.isEmpty(validateResponse.message)) {
-                            alerts.error('cannot switch to design view due to syntax errors : ' + validateResponse.message);
+                        if (validateResponse.errors && !_.isEmpty(validateResponse.errors)) {
+                            // syntax errors found
+                            // no need to show error as annotations are already displayed for each line
+                            alerts.error('Cannot switch to Design view due to syntax errors');
+                            return;
+                        } else if (validateResponse.error && !_.isEmpty(validateResponse.message)) {
+                            // end point error
+                            alerts.error('Cannot switch to Design view due to syntax errors : ' + validateResponse.message);
                             return;
                         }
                     }
@@ -837,7 +856,6 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
 
                         //Clear the import value box
                         importValueText.val("");
-                        self.visit(newImportDeclaration);
                         collapserWrapper.empty();
                         collapserWrapper.data("collapsed", "false");
                         $("<i class='fw fw-left'></i>").appendTo(collapserWrapper);

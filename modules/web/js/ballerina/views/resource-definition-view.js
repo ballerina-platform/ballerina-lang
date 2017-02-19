@@ -121,8 +121,6 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
 
         ResourceDefinitionView.prototype = Object.create(BallerinaView.prototype);
         ResourceDefinitionView.prototype.constructor = ResourceDefinitionView;
-        // TODO move variable types into constant class
-        var variableTypes = ['message', 'boolean', 'string', 'int', 'float', 'long', 'double', 'json', 'xml'];
 
         ResourceDefinitionView.prototype.init = function(){
             this._model.on('child-removed', this.childRemovedCallback, this);

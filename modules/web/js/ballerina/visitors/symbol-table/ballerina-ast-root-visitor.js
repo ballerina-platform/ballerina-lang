@@ -38,7 +38,7 @@ define(['lodash', 'log', 'event_channel', './abstract-symbol-table-gen-visitor',
             this._model.on('child-removed', function (child) {
                 if (BallerinaASTFactory.isFunctionDefinition(child)) {
                     this.removeFunctionDefinition(child);
-                }else if(BallerinaASTFactory.isConnectorDefinition(child)){
+                } else if (BallerinaASTFactory.isConnectorDefinition(child)) {
                     this.removeConnectorDefinition(child);
                 }
             }, this);
@@ -68,15 +68,41 @@ define(['lodash', 'log', 'event_channel', './abstract-symbol-table-gen-visitor',
             var functionDef = BallerinaEnvFactory.createFunction();
             functionDef.setName(functionDefinition.getFunctionName());
             functionDef.setId(functionDefinition.getFunctionName());
+
+            // Adding arguments
+            var args = [];
+            _.forEach(functionDefinition.getArguments(), function (argument) {
+                args.push({
+                    name: argument.getIdentifier(),
+                    type: argument.getType()
+                })
+            });
+            functionDef.setParameters(args);
+
+            // Adding return types
+            var returnTypes = [];
+            _.forEach(functionDefinition.getReturnTypes(), function (returnType) {
+                // Return type contains an Argument child.
+                returnTypes.push({
+                    name: returnType.getIdentifier(),
+                    type: returnType.getType()
+                })
+            });
+            functionDef.setReturnParams(returnTypes);
+
             this.getPackage().addFunctionDefinitions(functionDef);
 
             var self = this;
             functionDefinition.on('tree-modified', function (modifiedData) {
                 var attributeName = modifiedData.data.attributeName;
                 var newValue = modifiedData.data.newValue;
-                var oldValue = modifiedData.data.oldValue;
-                if (BallerinaASTFactory.isFunctionDefinition(modifiedData.origin) && _.isEqual(attributeName, '_functionName')) {
-                    self.updateFunctionDefinition(oldValue, newValue);
+                if (BallerinaASTFactory.isFunctionDefinition(modifiedData.origin)) {
+                    if (!_.isEqual(attributeName, '_functionName')) {
+                        newValue = undefined;
+                    }
+                    self.updateFunctionDefinition(modifiedData.origin, newValue, modifiedData.data.child);
+                } else if (BallerinaASTFactory.isReturnType(modifiedData.origin)){
+                    self.updateFunctionDefinition(modifiedData.origin.getParent(), newValue, modifiedData.origin);
                 }
             });
         };
@@ -173,7 +199,7 @@ define(['lodash', 'log', 'event_channel', './abstract-symbol-table-gen-visitor',
          * remove given connector definition from the package object
          * @param {Object} connectorDef - connector definition to be removed
          */
-        BallerinaASTRootVisitor.prototype.removeConnectorDefinition  = function (connectorDef) {
+        BallerinaASTRootVisitor.prototype.removeConnectorDefinition = function (connectorDef) {
             this.getPackage().removeConnectorDefinition(connectorDef);
         };
 
@@ -188,13 +214,38 @@ define(['lodash', 'log', 'event_channel', './abstract-symbol-table-gen-visitor',
 
         /**
          * updates function definition with new value
-         * @param {Object} oldValue - old value
+         * @param {Object} functionDefinition - function name
          * @param {Object} newValue - new value
+         * @param {Object} child - child which is getting modified
          */
-        BallerinaASTRootVisitor.prototype.updateFunctionDefinition = function (oldValue, newValue) {
-            var functionDefinition = this.getPackage().getFunctionDefinitionByName(oldValue);
-            functionDefinition.setName(newValue);
-            functionDefinition.setId(newValue);
+        BallerinaASTRootVisitor.prototype.updateFunctionDefinition = function (functionDefinition, newValue, child) {
+            var funcName = functionDefinition.getFunctionName();
+            var functionDef = this.getPackage().getFunctionDefinitionByName(funcName);
+            if (newValue) {
+                functionDef.setName(newValue);
+                functionDef.setId(newValue);
+            }
+            if (child) {
+                if (BallerinaASTFactory.isReturnType(child)) {
+                    var returnTypes = [];
+                    _.forEach(functionDefinition.getReturnTypes(), function (returnType) {
+                        returnTypes.push({
+                            name: returnType.getIdentifier(),
+                            type: returnType.getType()
+                        })
+                    });
+                    functionDef.setReturnParams(returnTypes);
+                } else if (BallerinaASTFactory.isArgument(child)) {
+                    var args = [];
+                    _.forEach(functionDefinition.getArguments(), function (argument) {
+                        args.push({
+                            name: argument.getIdentifier(),
+                            type: argument.getType()
+                        })
+                    });
+                    functionDef.setParameters(args);
+                }
+            }
         };
 
         /**
@@ -203,9 +254,9 @@ define(['lodash', 'log', 'event_channel', './abstract-symbol-table-gen-visitor',
          * @param {Object} newValue - new value
          */
         BallerinaASTRootVisitor.prototype.updateConnectorDefinition = function (connectorDefinition, modifiedData) {
-            if(modifiedData.type === 'child-added') {
+            if (modifiedData.type === 'child-added') {
                 // child_added sends different format of data
-                if(BallerinaASTFactory.isArgument(modifiedData.data.child)) {
+                if (BallerinaASTFactory.isArgument(modifiedData.data.child)) {
                     connectorDefinition.addParam(modifiedData.data.child);
                     return;
                 }

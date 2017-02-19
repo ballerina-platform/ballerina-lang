@@ -86,6 +86,27 @@ define(['lodash', 'log', './ballerina-view', './../ast/block-statement', 'typeMa
                     });
                     typeMapperStatementView.render(this._diagramRenderingContext);
                 }
+            } else if (BallerinaASTFactory.isFunctionInvocationStatement(statement)) {
+                var functionInvocationExp = statement.getChildren()[0];
+                var assignmentNode = BallerinaASTFactory.createAssignmentStatement();
+                var leftOperand = BallerinaASTFactory.createLeftOperandExpression();
+                leftOperand.setLeftOperandExpressionString('');
+                leftOperand.setLeftOperandType('');
+                var rightOperand = BallerinaASTFactory.createRightOperandExpression();
+                rightOperand.setRightOperandExpressionString('');
+                assignmentNode.addChild(leftOperand);
+                assignmentNode.addChild(rightOperand);
+                rightOperand.addChild(functionInvocationExp);
+                self.getModel().removeChild(statement, true, false);
+                self.getModel().addChild(assignmentNode, _.findLastIndex(self.getModel().getChildren()) - 1, undefined, false);
+                var typeMapperFunctionDefinitionView = new TypeMapperFunctionAssignmentView({
+                    model: assignmentNode,
+                    parentView: this,
+                    typeMapperRenderer: this._parentView.getTypeMapperRenderer(),
+                    sourceInfo: self.getSourceInfo(),
+                    targetInfo: self.getTargetInfo()
+                });
+                typeMapperFunctionDefinitionView.render(this._diagramRenderingContext);
             }
         };
 
