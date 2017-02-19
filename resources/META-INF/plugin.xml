@@ -63,6 +63,9 @@
         <quoteHandler fileType="Ballerina file"
                       className="org.ballerinalang.plugins.idea.codeinsight.editoractions.BallerinaQuoteHandler"/>
 
+        <enterHandlerDelegate
+                implementation="org.ballerinalang.plugins.idea.formatter.BallerinaEnterBetweenBracesHandler"/>
+
         <!--structure view-->
         <lang.psiStructureViewFactory language="Ballerina"
                                       implementationClass="org.ballerinalang.plugins.idea.structureview.BallerinaStructureViewFactory"/>
