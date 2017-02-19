@@ -93,12 +93,13 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             this.getBoundingBox().fromTopLeft(this._viewOptions.topLeft, this._viewOptions.heading.width, this._viewOptions.heading.height
                 + this._viewOptions.contentHeight);
 
-            //set initial worker margin for the resource
+            //set initial worker margin for the action
             this._workerLifelineMargin = new Axis(0, false);
             // Set the initial height control margin
             this._horizontalMargin = new Axis(0, true);
 
             this._connectorActionGroup = undefined;
+            this._offsetLastStatementGap = 100;
             this.init();
         };
 
@@ -130,7 +131,7 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             if (BallerinaASTFactory.isStatement(child)) {
                 this.getStatementContainer().childStatementRemovedCallback(child);
             } else if (BallerinaASTFactory.isConnectorDeclaration(child) || BallerinaASTFactory.isWorkerDeclaration(child)) {
-                var childViewIndex = _.findIndex(this._connectorViewList, function (view) {
+                var childViewIndex = _.findIndex(this._connectorWorkerViewList, function (view) {
                     return view.getModel().id === child.id;
                 });
 
@@ -776,7 +777,7 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                 });
             }, this);
 
-            /* When the width of the statement container's bounding box changes, width of this resource definition's
+            /* When the width of the statement container's bounding box changes, width of this action definition's
              bounding box should also change.*/
             this._statementContainer.getBoundingBox().on('right-edge-moved', function (dw) {
                 this._defaultWorker.getBoundingBox().zoomWidth(this._statementContainer.getBoundingBox().w());
@@ -875,9 +876,6 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                     lineHeight: this._defaultWorker.getTopCenter().absDistInYFrom(this._defaultWorker.getBottomCenter()),
                     centerPoint: lastLifeLine.getTopCenter().clone().move(this._viewOptions.LifeLineCenterGap, 0)
             });
-
-            _.set(connectorOpts, 'centerPoint', center);
-            connectorDeclarationView = new ConnectorDeclarationView(connectorOpts);
             this.diagramRenderingContext.getViewModelMap()[connectorDeclaration.id] = connectorDeclarationView;
 
             connectorDeclarationView._rootGroup.attr('id', '_' +connectorDeclarationView._model.id);
@@ -901,7 +899,7 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             if (_.isNil(lastConnectorLifeLine)) {
                 // This is the first connector we are adding
                 connectorDeclarationView.listenTo(this.getWorkerLifeLineMargin(), 'moved', function (offset) {
-                    self.moveResourceLevelConnector(this, offset);
+                    self.moveActionLevelConnector(this, offset);
                 });
             } else {
                 // There are already added connectors
@@ -909,12 +907,12 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                 // Based on this event we increase the service container width
                 lastConnectorLifeLine.stopListening(lastConnectorLifeLine.getBoundingBox(), 'right-edge-moved');
                 connectorDeclarationView.listenTo(lastConnectorLifeLine.getBoundingBox(), 'right-edge-moved', function (offset) {
-                    self.moveResourceLevelConnector(this, offset);
+                    self.moveActionLevelConnector(this, offset);
                 });
             }
 
-            /* If the adding connector (connectorDeclarationView) goes out of this resource definition's view,
-             then we need to expand this resource definition's view. */
+            /* If the adding connector (connectorDeclarationView) goes out of this action definition's view,
+             then we need to expand this action definition's view. */
             if (connectorDeclarationView.getBoundingBox().getRight() > this.getBoundingBox().getRight()) {
                 this._parentView.getLifeLineMargin().setPosition(this._parentView.getLifeLineMargin().getPosition()
                     + this._viewOptions.LifeLineCenterGap);
@@ -1181,12 +1179,14 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             var lastChildArr = [];
 
             this.getConnectorWorkerViewList().forEach(function (worker) {
-                if (worker.getModel().id === currentWorker.getModel().id && dy < 0) {
-                    // TODO: Refactor logic
-                    // Child we are removing, have not removed from the view list yet
-                    lastChildArr.push(worker.getStatementContainer().getManagedStatements()[worker.getStatementContainer().getManagedStatements() - 2]);
-                } else {
-                    lastChildArr.push(_.last(worker.getStatementContainer().getManagedStatements()));
+                if (worker instanceof WorkerDeclarationView) {
+                    if (worker.getModel().id === currentWorker.getModel().id && dy < 0) {
+                        // TODO: Refactor logic
+                        // Child we are removing, have not removed from the view list yet
+                        lastChildArr.push(worker.getStatementContainer().getManagedStatements()[worker.getStatementContainer().getManagedStatements() - 2]);
+                    } else {
+                        lastChildArr.push(_.last(worker.getStatementContainer().getManagedStatements()));
+                    }
                 }
             });
 
