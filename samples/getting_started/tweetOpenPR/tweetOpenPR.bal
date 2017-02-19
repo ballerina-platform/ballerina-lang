@@ -1,5 +1,5 @@
 import ballerina.lang.arrays;
-import ballerina.lang.jsonutils;
+import ballerina.lang.jsons;
 import ballerina.lang.messages;
 import ballerina.lang.strings;
 import ballerina.lang.system;
@@ -40,7 +40,7 @@ function main (string[] args) {
         message gitHubResponse = http:ClientConnector.get(gitHubEP, repoPRpath, request);
 
         json gitHubJsonResponse = messages:getJsonPayload(gitHubResponse);
-        int noOfPRs = jsonutils:getInt(gitHubJsonResponse, "$.length()");
+        int noOfPRs = jsons:getInt(gitHubJsonResponse, "$.length()");
         string noOfPRstr = strings:valueOf(noOfPRs);
         string textMsg = "Number of pending pull requests in " + repo + " is "+ noOfPRstr;
         string oauthHeader = constructOAuthHeader(consumerKey, consumerSecret, accessToken, accessTokenSecret, textMsg);
