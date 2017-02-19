@@ -250,11 +250,22 @@ define(['lodash', 'd3','log', './simple-statement-view', './../ast/action-invoca
 
             var newY = this.getBoundingBox().getBottom() + 30;
             var destinationStatementContainer = destinationView.getStatementContainer();
-            // TODO: Use the getter method
-            this.getDiagramRenderingContext().getViewOfModel(destinationStatementContainer._managedStatements[0]).getBoundingBox().y(newY);
-            // Move the first inner drop zone down
-            // TODO: use the getter method
-            destinationStatementContainer._managedInnerDropzones[0].d3el.attr('y', newY - 30);
+            if (destinationStatementContainer._managedStatements.length > 0) {
+                // TODO: Use the getter method
+                this.getDiagramRenderingContext().getViewOfModel(destinationStatementContainer._managedStatements[0]).getBoundingBox().y(newY);
+                // Move the first inner drop zone down
+                // TODO: use the getter method
+                destinationStatementContainer._managedInnerDropzones[0].d3el.attr('y', newY - 30);
+            }
+            this.listenTo(destinationStatementContainer, 'statement-added', function (d) {
+                if (_.isEqual(destinationStatementContainer._managedStatements.length, 1)) {
+                    // TODO: Use the getter method
+                    this.getDiagramRenderingContext().getViewOfModel(destinationStatementContainer._managedStatements[0]).getBoundingBox().y(newY);
+                    // Move the first inner drop zone down
+                    // TODO: use the getter method
+                    destinationStatementContainer._managedInnerDropzones[0].d3el.attr('y', newY - 30);
+                }
+            });
             this._messageView.render();
 
             // Set the invoker for the destination model (worker)
@@ -273,10 +284,12 @@ define(['lodash', 'd3','log', './simple-statement-view', './../ast/action-invoca
                 // Here we force fully move the top most statement of the destination
                 self._startRect.attr('y', parseFloat(self._startRect.attr('y')) + dy);
                 self._startActionText.attr('y', parseFloat(self._startActionText.attr('y')) + dy);
-                self.getDiagramRenderingContext().getViewOfModel(destinationStatementContainer._managedStatements[0]).getBoundingBox().move(0, dy);
-                destinationStatementContainer._managedInnerDropzones[0].d3el.attr('y',
-                    parseFloat(destinationStatementContainer._managedInnerDropzones[0].d3el.attr('y')) + dy);
-                self._messageView.move(0, dy);
+                if (destinationStatementContainer._managedStatements. length > 0) {
+                    self.getDiagramRenderingContext().getViewOfModel(destinationStatementContainer._managedStatements[0]).getBoundingBox().move(0, dy);
+                    destinationStatementContainer._managedInnerDropzones[0].d3el.attr('y',
+                        parseFloat(destinationStatementContainer._managedInnerDropzones[0].d3el.attr('y')) + dy);
+                    self._messageView.move(0, dy);
+                }
             });
 
             // Triggers when we delete an element above the worker-invoke
@@ -285,10 +298,12 @@ define(['lodash', 'd3','log', './simple-statement-view', './../ast/action-invoca
                 // Here we force fully move the top most statement of the destination
                 self._startRect.attr('y', parseFloat(self._startRect.attr('y')) + dy);
                 self._startActionText.attr('y', parseFloat(self._startActionText.attr('y')) + dy);
-                self.getDiagramRenderingContext().getViewOfModel(destinationStatementContainer._managedStatements[0]).getBoundingBox().move(0, dy);
-                destinationStatementContainer._managedInnerDropzones[0].d3el.attr('y',
-                    parseFloat(destinationStatementContainer._managedInnerDropzones[0].d3el.attr('y')) + dy);
-                self._messageView.move(0, dy);
+                if (destinationStatementContainer._managedStatements. length > 0) {
+                    self.getDiagramRenderingContext().getViewOfModel(destinationStatementContainer._managedStatements[0]).getBoundingBox().move(0, dy);
+                    destinationStatementContainer._managedInnerDropzones[0].d3el.attr('y',
+                        parseFloat(destinationStatementContainer._managedInnerDropzones[0].d3el.attr('y')) + dy);
+                    self._messageView.move(0, dy);
+                }
             });
 
             // Listen to the destination's before-remove event and remove arrow and start box.

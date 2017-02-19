@@ -133,6 +133,7 @@ define(['jquery', 'backbone', 'lodash', 'log', 'event_channel', './debug-manager
         if(this.isReadyToRun(activeTab)) {
             var file = activeTab.getFile();
             this.launchManager.debugService(file);
+        } else {
             alerts.error("Save file before start debugging service");
         }
     };

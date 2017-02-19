@@ -130,10 +130,9 @@ define(['lodash', 'jquery', './ballerina-view', './../ast/worker-declaration', '
         WorkerDeclarationView.prototype.visitStatement = function (statement) {
             var args = {model: statement, container: this.getContentArea().node(), viewOptions: {},
                 toolPalette: this._toolPalette, messageManager: this._messageManager, parent: this, isChildOfWorker: true};
-            this._statementContainer.renderStatement(statement, args);
-            var self =this;
-            this.getDiagramRenderingContext().getViewOfModel(statement).listenTo(this.getBoundingBox(), 'right-edge-moved', function (dx) {
-                self.getDiagramRenderingContext().getViewOfModel(statement).getBoundingBox().move(dx, 0);
+            var statementView = this._statementContainer.renderStatement(statement, args);
+            statementView.listenTo(this.getBoundingBox(), 'right-edge-moved', function (dx) {
+                statementView.getBoundingBox().move(dx, 0);
             });
         };
 
