@@ -49,12 +49,12 @@
             <scope>test</scope>
         </dependency>
 	    <dependency>
-	    	<groupId>org.wso2.ballerina</groupId>
+	    	<groupId>org.ballerinalang</groupId>
 	    	<artifactId>ballerina-core</artifactId>
         	<version>${ballerina.version}</version>
 		</dependency>
        <dependency>
-            <groupId>org.wso2.ballerina</groupId>
+            <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-launcher</artifactId>
             <version>${ballerina.version}</version>
         </dependency>
