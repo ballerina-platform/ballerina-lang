@@ -482,6 +482,7 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                         var source = self._sourceView.getContent();
                         if(!_.isEmpty(source.trim())){
                             var validateResponse = self.validatorBackend.parse(source.trim());
+                            //TODO : error messages from backend come as error or errors. Make this consistent.
                             if (validateResponse.errors && !_.isEmpty(validateResponse.errors)) {
                                 // syntax errors found
                                 // no need to show error as annotations are already displayed for each line
@@ -552,6 +553,7 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                     var source = self._sourceView.getContent();
                     if(!_.isEmpty(source.trim())){
                         var validateResponse = self.validatorBackend.parse(source.trim());
+                        //TODO : error messages from backend come as error or errors. Make this consistent.
                         if (validateResponse.errors && !_.isEmpty(validateResponse.errors)) {
                             // syntax errors found
                             // no need to show error as annotations are already displayed for each line
@@ -709,6 +711,7 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                    alerts.error('cannot switch to design view due to parse errors');
                    return;
                } else if (!_.isUndefined(response.errorMessage)) {
+                   //TODO : error messages from backend come as message or errorMessage. Make this consistent.
                    alerts.error("Unable to parse the source: " + response.errorMessage);
                    return;
                }
