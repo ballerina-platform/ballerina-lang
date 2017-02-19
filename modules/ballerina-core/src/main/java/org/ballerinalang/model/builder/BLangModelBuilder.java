@@ -792,6 +792,9 @@ public class BLangModelBuilder {
         currentCUBuilder.setPublic(isPublic);
         currentCUBuilder.setNative(isNative);
 
+        List<Annotation> annotationList = annotationListStack.pop();
+        annotationList.forEach(currentCUBuilder::addAnnotation);
+
         BTypeMapper typeMapper = currentCUBuilder.buildTypeMapper();
 
         bFileBuilder.addTypeMapper(typeMapper);
