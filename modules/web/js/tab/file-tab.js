@@ -65,6 +65,7 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace/f
                 this.renderBallerinaEditor(this._astRoot, false);
                 var updatedContent = this.getBallerinaFileEditor().generateSource();
                 this._file.setContent(updatedContent);
+                this._file.setDirty(true);
                 this._file.save();
             } else {
                 this.renderBallerinaEditor(this.createEmptyBallerinaRoot(), false);
@@ -112,10 +113,13 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace/f
                 this.removeAllBreakpoints();
             });
 
-            var breakPointChangeCallback = function() {
+            var breakPointChangeCallback = function(debugPointChangedFileName) {
                 var fileName = self._file.getName();
-                var newBreakpoints = DebugManager.getDebugPoints(fileName);
-                fileEditor.trigger('reset-breakpoints', newBreakpoints);
+                
+                if(debugPointChangedFileName === fileName) {
+                    var newBreakpoints = DebugManager.getDebugPoints(fileName);
+                    fileEditor.trigger('reset-breakpoints', newBreakpoints);
+                }
             };
             DebugManager.on('breakpoint-added', breakPointChangeCallback);
             DebugManager.on('breakpoint-removed', breakPointChangeCallback);

@@ -365,6 +365,21 @@ define(['lodash', 'log', './node', './callable-definition', '../utils/common-uti
             Object.getPrototypeOf(this.constructor.prototype).addChild.call(this, child, index);
         }
     };
+
+    FunctionDefinition.prototype.getWorkerDeclarations = function () {
+        var workerDeclarations = [];
+        var self = this;
+
+        _.forEach(this.getChildren(), function (child) {
+            if (self.getFactory().isWorkerDeclaration(child)) {
+                workerDeclarations.push(child);
+            }
+        });
+        return _.sortBy(workerDeclarations, [function (workerDeclaration) {
+            return workerDeclaration.getWorkerName();
+        }]);
+    };
+
     /**
      * Validates possible immediate child types.
      * @override

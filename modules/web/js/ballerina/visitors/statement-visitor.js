@@ -254,6 +254,16 @@ define(['lodash', 'log', './ast-visitor', '../ast/module'], function (_, log, AS
     StatementVisitor.prototype.endVisitThrowStatement = function (statement) {
     };
 
+    StatementVisitor.prototype.canVisitCommentStatement = function (statement) {
+        return false;
+    };
+    StatementVisitor.prototype.beginVisitCommentStatement = function (statement) {
+    };
+    StatementVisitor.prototype.visitCommentStatement = function (statement) {
+    };
+    StatementVisitor.prototype.endVisitCommentStatement = function (statement) {
+    };
+
     /**
      * @param node {ASTNode}
      */
@@ -304,6 +314,8 @@ define(['lodash', 'log', './ast-visitor', '../ast/module'], function (_, log, AS
             return this.visitWorkerReceiver(node);
         }  else if (node instanceof AST.ThrowStatement) {
             return this.visitThrowStatement(node);
+        }  else if (node instanceof AST.CommentStatement) {
+            return this.visitCommentStatement(node);
         }
     };
 
@@ -357,6 +369,8 @@ define(['lodash', 'log', './ast-visitor', '../ast/module'], function (_, log, AS
             return this.canVisitWorkerReceiver(node);
         }  else if (node instanceof AST.ThrowStatement) {
             return this.canVisitThrowStatement(node);
+        }  else if (node instanceof AST.CommentStatement) {
+            return this.canVisitCommentStatement(node);
         }
     };
 
@@ -410,6 +424,8 @@ define(['lodash', 'log', './ast-visitor', '../ast/module'], function (_, log, AS
             return this.beginVisitWorkerReceiver(node);
         }  else if (node instanceof AST.ThrowStatement) {
             return this.beginVisitThrowStatement(node);
+        }  else if (node instanceof AST.CommentStatement) {
+            return this.beginVisitCommentStatement(node);
         }
     };
 
@@ -463,6 +479,8 @@ define(['lodash', 'log', './ast-visitor', '../ast/module'], function (_, log, AS
             return this.endVisitWorkerReceiver(node);
         }  else if (node instanceof AST.ThrowStatement) {
             return this.endVisitThrowStatement(node);
+        }  else if (node instanceof AST.CommentStatement) {
+            return this.endVisitCommentStatement(node);
         }
     };
 

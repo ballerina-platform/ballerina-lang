@@ -81,12 +81,14 @@ define(['log', 'lodash', 'jquery', 'event_channel', 'yaml', './../ast/ballerina-
                    "ballerinaDefinition": content
                }, [{name: "expectedType", value: "ballerina"}]);
 
-               if (!response.error && !response.errorMessage) {
+               if (!response.error && !response.message) {
                    if(response.swaggerDefinition){
                        generatedSwagger = response.swaggerDefinition;
                    } else {
                        throw new Error("Swagger needs at least one service");
                    }
+               } else {
+                   throw new Error("Cannot switch to swagger view due to parser error");
                }
            }
            if (!this._swaggerEditorWindow.setSwaggerEditorValue) {

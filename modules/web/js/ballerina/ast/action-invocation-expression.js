@@ -24,12 +24,12 @@ define(['lodash', 'log', './expression'], function (_, log, Expression) {
      */
     var ActionInvocationExpression = function (args) {
         Expression.call(this, "ActionInvocationExpression");
-        this._actionName = _.get(args, 'action', '');
-        this._actionPackageName = _.get(args, 'actionPackageName', '');
-        this._actionConnectorName = _.get(args, 'actionConnectorName', '');
+        this._actionName = _.get(args, 'action', undefined);
+        this._actionPackageName = _.get(args, 'actionPackageName', undefined);
+        this._actionConnectorName = _.get(args, 'actionConnectorName', undefined);
         this._arguments = _.get(args, "arguments", []);
         this._connector = _.get(args, 'connector');
-        this._fullPackageName = _.get(args, 'fullPackageName', '');
+        this._fullPackageName = _.get(args, 'fullPackageName', undefined);
         //create the default expression for action invocation
         this.setExpression(this.generateExpression());
         this.type = "ActionInvocationExpression";
@@ -173,7 +173,13 @@ define(['lodash', 'log', './expression'], function (_, log, Expression) {
         var arguments = this.getArguments();
 
         for (var itr = 0; itr < arguments.length; itr++) {
-            argsString += arguments[itr].getExpression();
+
+            // TODO: we need to refactor this along with the action invocation argument types as well
+            if (this.getFactory().isExpression(arguments[itr])) {
+                argsString += arguments[itr].getExpression();
+            } else if (this.getFactory().isResourceParameter(arguments[itr])) {
+                argsString += arguments[itr].getParameterAsString();
+            }
 
             if (itr !== arguments.length - 1) {
                 argsString += ' , ';

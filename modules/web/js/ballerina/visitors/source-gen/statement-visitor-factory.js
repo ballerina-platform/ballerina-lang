@@ -23,7 +23,7 @@ define(['lodash', 'log', 'event_channel', '../../ast/module', './try-catch-state
         './function-invocation-visitor', './function-invocation-expression-visitor', './assignment-visitor',
         './left-operand-expression-visitor', './right-operand-expression-visitor',
         './variable-definition-statement-visitor', './worker-invoke-visitor', './worker-receive-visitor',
-        './break-statement-visitor', './throw-statement-visitor'],
+        './break-statement-visitor', './throw-statement-visitor', './comment-statement-visitor'],
 function (_, log, EventChannel, AST, TryCatchStatementVisitor,
           TryStatementVisitor, CatchStatementVisitor, IfElseStatementVisitor, IfStatementVisitor,
           ElseStatementVisitor, ElseIfStatementVisitor, WhileStatementVisitor,
@@ -32,7 +32,7 @@ function (_, log, EventChannel, AST, TryCatchStatementVisitor,
           FunctionInvocationVisitor, FunctionInvocationExpressionVisitor, AssignmentVisitor,
           LeftOperandExpressionVisitor, RightOperandExpressionVisitor,
           VariableDefinitionStatement, WorkerInvoke, WorkerReceive,
-          BreakStatementVisitor, ThrowStatementVisitor) {
+          BreakStatementVisitor, ThrowStatementVisitor, CommentStatementVisitor) {
 
     var StatementVisitorFactor = function () {
     };
@@ -84,6 +84,8 @@ function (_, log, EventChannel, AST, TryCatchStatementVisitor,
             return new BreakStatementVisitor(parent);
         } else if (statement instanceof AST.ThrowStatement) {
             return new ThrowStatementVisitor(parent);
+        } else if (statement instanceof AST.CommentStatement) {
+            return new CommentStatementVisitor(parent);
         }
     };
 
