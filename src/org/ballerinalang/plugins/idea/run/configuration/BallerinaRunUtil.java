@@ -25,6 +25,8 @@ import org.ballerinalang.plugins.idea.BallerinaFileType;
 
 public class BallerinaRunUtil {
 
+    public static String PARAMETER_REGEX = "\".+?(?<!\\\\)\"|\\w+";
+
     private BallerinaRunUtil() {
 
     }
