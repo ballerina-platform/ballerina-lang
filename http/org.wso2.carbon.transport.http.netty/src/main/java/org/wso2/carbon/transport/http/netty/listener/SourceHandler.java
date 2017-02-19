@@ -126,15 +126,11 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
              */
             HttpRequest httpRequest = (HttpRequest) msg;
             HttpHeaders headers = httpRequest.headers();
-            String connection = headers.get(Constants.CONNECTION);
-            String upgrade = headers.get(Constants.UPGRADE);
-            if (connection != null && upgrade != null) {
-                if (headers.get(Constants.CONNECTION).equalsIgnoreCase(Constants.UPGRADE) &&
-                        headers.get(Constants.UPGRADE).equalsIgnoreCase(Constants.WEBSOCKET_UPGRADE)) {
-                    log.info("Upgrading the connection from Http to WebSocket for " +
-                                         "channel : " + ctx.channel());
-                    handleWebSocketHandshake(httpRequest);
-                }
+            if (Constants.UPGRADE.equalsIgnoreCase(headers.get(Constants.CONNECTION)) &&
+                    Constants.WEBSOCKET_UPGRADE.equalsIgnoreCase(headers.get(Constants.UPGRADE))) {
+                log.info("Upgrading the connection from Http to WebSocket for " +
+                                     "channel : " + ctx.channel());
+                handleWebSocketHandshake(httpRequest);
 
             } else {
                 cMsg = (HTTPCarbonMessage) setupCarbonMessage(httpRequest);
