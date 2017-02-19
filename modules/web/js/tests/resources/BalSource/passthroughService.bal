@@ -1,19 +1,30 @@
-package samples.message_passthrough;
-
-import ballerina.lang.messages;
-import ballerina.net.http as http;
-
+import ballerina.lang.message;
+import ballerina.net.http;
 
 @BasePath ("/passthrough")
-service PassthroughService {
+service passthrough {
 
-    @POST
-    @Path ("/stocks")
+    @GET
     resource passthrough (message m) {
-        http:ClientConnector nyseEP = new http:ClientConnector("http://localhost:8280/exchange/nyse/");
-
+        http:HTTPConnector nyseEP = new http:HTTPConnector("http://localhost:9090");
         message response;
-        response = http:ClientConnector.post(nyseEP, "/us", m);
+
+        response = http:HTTPConnector.get(nyseEP, "/nyseStock", m);
+
+        reply response;
+    }
+}
+
+@BasePath("/nyseStock")
+service nyseStockQuote {
+
+    @GET
+    resource stocks (message m) {
+        message response;
+        json payload;
+
+        payload = `{"exchange":"nyse", "name":"IBM", "value":"127.50"}`;
+        message:setJsonPayload(response, payload);
         reply response;
     }
 }

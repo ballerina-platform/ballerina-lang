@@ -11,7 +11,7 @@ service contentBasedRouting {
         http:ClientConnector nyseEP = create http:ClientConnector("http://localhost:9090/nyseStocks");
         http:ClientConnector nasdaqEP = create http:ClientConnector("http://localhost:9090/nasdaqStocks");
 
-        string nyseString = "nyset";
+        string nyseString = "nyse";
 
         json jsonMsg = messages:getJsonPayload(m);
         string nameString = jsonutils:getString(jsonMsg, "$.name");
