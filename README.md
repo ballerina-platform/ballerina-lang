@@ -3,6 +3,10 @@
 Docerina is the API documentation generator tool of the Ballerina language. It currently supports generating API 
 documentation in HTML format and it can be extended to support additional output formats as required.
 
+## Supported Annotations
+
+Please refer to [Docerina Annotations guide](docs/Annotations.md).
+
 ## Generating Ballerina API Documentation
 
 Docerina is distributed with [Ballerina Tools Distribution](https://github.com/ballerinalang/tools-distribution) and [Docerina Maven Plugin] (https://github.com/ballerinalang/plugin-maven/tree/master/docerina-maven-plugin). 
