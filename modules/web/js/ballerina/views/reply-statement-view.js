@@ -79,7 +79,7 @@ define(['lodash', 'log', './simple-statement-view', './../ast/reply-statement', 
                 var replyLineStartPoint = new Point(x, (y + (h / 2)));
                 var replyLineEndPoint = new Point((x - this._distanceToClient), (y + (h / 2)));
                 this._replyLine = D3Utils.lineFromPoints(replyLineStartPoint, replyLineEndPoint, this._replyArrow)
-                    .classed('action-dash-line', true);
+                    .classed('message', true);
                 this._replyArrowHead = D3Utils.outputTriangle(replyLineEndPoint.x(), replyLineEndPoint.y(), this._replyArrow)
                     .classed("action-arrow", true);
                 this._replyArrow.arrowLineElement = this._replyLine;
@@ -146,10 +146,13 @@ define(['lodash', 'log', './simple-statement-view', './../ast/reply-statement', 
                     // Moving the statement up
                     if (!_.isNil(replyReceiver)) {
                         self.stopListening(self.getBoundingBox(), 'top-edge-moved');
-                        if (this.getDiagramRenderingContext().getViewOfModel(replyReceiver).canMoveUp(dy)) {
+                        var receiverView = this.getDiagramRenderingContext().getViewOfModel(replyReceiver);
+                        if (_.isNil(receiverView) || (!_.isNil(receiverView) && receiverView.canMoveUp(dy))) {
                             self.getSvgRect().attr('y', parseFloat(self.getSvgRect().attr('y')) + dy);
                             self.getSvgText().attr('y', parseFloat(self.getSvgText().attr('y')) + dy);
-                            this.getDiagramRenderingContext().getViewOfModel(replyReceiver).onMoveInitiatedByReply(dy);
+                            if (!_.isNil(receiverView)) {
+                                receiverView.onMoveInitiatedByReply(dy);
+                            }
                         } else {
                             self.getBoundingBox().move(0, -dy);
                         }
