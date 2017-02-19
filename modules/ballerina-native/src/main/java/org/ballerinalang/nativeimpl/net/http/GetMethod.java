@@ -20,6 +20,7 @@ package org.ballerinalang.nativeimpl.net.http;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeEnum;
+import org.ballerinalang.model.values.BMessage;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
@@ -48,9 +49,10 @@ import static org.ballerinalang.nativeimpl.connectors.http.Constants.HTTP_METHOD
 @BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "string",
         value = "http method value") })
 public class GetMethod extends AbstractNativeFunction {
-    String httpMethod;
     public BValue[] execute(Context ctx) {
-        if (ctx.getCarbonMessage().getProperty(HTTP_METHOD) != null) {
+        String httpMethod = null;
+        BMessage bMsg = (BMessage) getArgument(ctx, 0);
+        if (bMsg.value().getProperty(HTTP_METHOD) != null) {
             httpMethod = ctx.getCarbonMessage().getProperty(HTTP_METHOD).toString();
         }
         return getBValues(new BString(httpMethod));
