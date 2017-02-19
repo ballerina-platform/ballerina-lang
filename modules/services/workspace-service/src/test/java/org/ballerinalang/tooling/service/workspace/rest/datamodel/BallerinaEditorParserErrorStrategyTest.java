@@ -16,7 +16,7 @@
 *  under the License.
 */
 
-package org.wso2.ballerina.tooling.service.workspace.rest.datamodel;
+package org.ballerinalang.tooling.service.workspace.rest.datamodel;
 
 
 import com.google.gson.JsonObject;

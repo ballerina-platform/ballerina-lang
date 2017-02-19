@@ -33,15 +33,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * This class will do resource mapping from ballerina to swagger.
  */
 public class SwaggerResourceMapper {
-    public final static String HTTP_PACKAGE_PREFIX = "http:";
-    public final static String HTTP_VERB_MATCHING_PATTERN = "(?i)|" +
-            HTTP_PACKAGE_PREFIX + Constants.ANNOTATION_METHOD_GET + "|" +
-            HTTP_PACKAGE_PREFIX + Constants.ANNOTATION_METHOD_PUT + "|" +
-            HTTP_PACKAGE_PREFIX + Constants.ANNOTATION_METHOD_POST + "|" +
-            HTTP_PACKAGE_PREFIX + Constants.ANNOTATION_METHOD_DELETE + "|" +
-            HTTP_PACKAGE_PREFIX + Constants.ANNOTATION_METHOD_OPTIONS + "|" +
-            HTTP_PACKAGE_PREFIX + Constants.ANNOTATION_METHOD_PATCH + "|" +
-            "http:HEAD";
+
     private Resource resource;
     private Operation operation;
 
@@ -105,22 +97,22 @@ public class SwaggerResourceMapper {
             String httpOperation = operationAdaptor.getHttpOperation();
             Operation operation = operationAdaptor.getOperation();
             switch (httpOperation) {
-                case HTTP_PACKAGE_PREFIX + Constants.ANNOTATION_METHOD_GET:
+                case SwaggerBallerinaConstants.HTTP_PACKAGE_PREFIX + Constants.ANNOTATION_METHOD_GET:
                     path.get(operation);
                     break;
-                case HTTP_PACKAGE_PREFIX + Constants.ANNOTATION_METHOD_PUT:
+                case SwaggerBallerinaConstants.HTTP_PACKAGE_PREFIX + Constants.ANNOTATION_METHOD_PUT:
                     path.put(operation);
                     break;
-                case HTTP_PACKAGE_PREFIX + Constants.ANNOTATION_METHOD_POST:
+                case SwaggerBallerinaConstants.HTTP_PACKAGE_PREFIX + Constants.ANNOTATION_METHOD_POST:
                     path.post(operation);
                     break;
-                case HTTP_PACKAGE_PREFIX + Constants.ANNOTATION_METHOD_DELETE:
+                case SwaggerBallerinaConstants.HTTP_PACKAGE_PREFIX + Constants.ANNOTATION_METHOD_DELETE:
                     path.delete(operation);
                     break;
-                case HTTP_PACKAGE_PREFIX + Constants.ANNOTATION_METHOD_OPTIONS:
+                case SwaggerBallerinaConstants.HTTP_PACKAGE_PREFIX + Constants.ANNOTATION_METHOD_OPTIONS:
                     path.options(operation);
                     break;
-                case HTTP_PACKAGE_PREFIX + Constants.ANNOTATION_METHOD_PATCH:
+                case SwaggerBallerinaConstants.HTTP_PACKAGE_PREFIX + Constants.ANNOTATION_METHOD_PATCH:
                     path.patch(operation);
                     break;
                 case "http:HEAD":
@@ -161,7 +153,7 @@ public class SwaggerResourceMapper {
                         QueryParameter queryParameter = new QueryParameter();
                         queryParameter.setType(typeName);
                         queryParameter.setIn("query");
-                        queryParameter.setVendorExtension(SwaggerConverterUtils.VARIABLE_UUID_NAME,
+                        queryParameter.setVendorExtension(SwaggerBallerinaConstants.VARIABLE_UUID_NAME,
                                 parameterDef.getName());
                         queryParameter.setName(parameterDef.getName());
                         queryParameter.required(true);
@@ -172,7 +164,7 @@ public class SwaggerResourceMapper {
                         pathParameter.setType(typeName);
                         pathParameter.setName(parameterDef.getName());
                         pathParameter.setIn("path");
-                        pathParameter.setVendorExtension(SwaggerConverterUtils.VARIABLE_UUID_NAME,
+                        pathParameter.setVendorExtension(SwaggerBallerinaConstants.VARIABLE_UUID_NAME,
                                 parameterDef.getName());
                         pathParameter.required(true);
                         op.getOperation().addParameter(pathParameter);
@@ -192,7 +184,8 @@ public class SwaggerResourceMapper {
                         op.getOperation().setSummary(annotation.getValue());
                     } else if (annotation.getName().equalsIgnoreCase("http:Description")) {
                         op.getOperation().setDescription(annotation.getValue());
-                    } else if (annotation.getName().matches(HTTP_VERB_MATCHING_PATTERN)) {
+                    } else if (annotation.getName().matches(SwaggerBallerinaConstants.
+                            HTTP_VERB_MATCHING_PATTERN)) {
                         op.setHttpOperation(annotation.getName());
                     }
                 /*
@@ -203,7 +196,7 @@ public class SwaggerResourceMapper {
                     }
                 }*/
                 }
-                op.getOperation().setVendorExtension(SwaggerConverterUtils.RESOURCE_UUID_NAME,
+                op.getOperation().setVendorExtension(SwaggerBallerinaConstants.RESOURCE_UUID_NAME,
                         SwaggerConverterUtils.generateServiceUUID(op.getPath(), op.getHttpOperation()));
             }
         }

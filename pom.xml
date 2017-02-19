@@ -59,27 +59,27 @@
             <!--<type>zip</type>-->
             <!--</dependency>-->
             <dependency>
-                <groupId>org.wso2.ballerina</groupId>
+                <groupId>org.ballerinalang</groupId>
                 <artifactId>ballerina-core</artifactId>
                 <version>${ballerina.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.wso2.ballerina</groupId>
+                <groupId>org.ballerinalang</groupId>
                 <artifactId>ballerina-launcher</artifactId>
                 <version>${ballerina.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.wso2.ballerina</groupId>
+                <groupId>org.ballerinalang</groupId>
                 <artifactId>ballerina-native</artifactId>
                 <version>${ballerina.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.wso2.ballerina</groupId>
+                <groupId>org.ballerinalang</groupId>
                 <artifactId>annotation-processor</artifactId>
                 <version>${ballerina.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.wso2.ballerina</groupId>
+                <groupId>org.ballerinalang</groupId>
                 <artifactId>ballerina-core-feature</artifactId>
                 <version>${ballerina.version}</version>
                 <type>zip</type>
@@ -232,7 +232,7 @@
                 <version>${mockito.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.wso2.ballerina</groupId>
+                <groupId>org.ballerinalang</groupId>
                 <artifactId>gson-fragment</artifactId>
                 <version>${ballerina.version}</version>
             </dependency>
@@ -405,10 +405,10 @@
         <carbon.kernel.package.import.version.range>[5.0.0, 6.0.0)</carbon.kernel.package.import.version.range>
         <carbon.kernel.pax.version>5.2.0-m2</carbon.kernel.pax.version>
 
-        <carbon.transport.version>4.1.0</carbon.transport.version>
+        <carbon.transport.version>4.2.4</carbon.transport.version>
         <carbon.transport.package.import.version.range>[4.0.0, 5.0.0)</carbon.transport.package.import.version.range>
 
-        <carbon.messaging.version>2.1.0</carbon.messaging.version>
+        <carbon.messaging.version>2.2.3</carbon.messaging.version>
         <carbon.messaging.package.import.version.range>[2.0.0, 3.0.0)</carbon.messaging.package.import.version.range>
 
         <carbon.deployment.version>5.0.0</carbon.deployment.version>
@@ -459,7 +459,7 @@
         <org.snakeyaml.version>1.16.0.wso2v1</org.snakeyaml.version>
         <jcommander.version>1.60</jcommander.version>
 
-        <native.constructs.provider.package>org.wso2.ballerina.nativeimpl</native.constructs.provider.package>
+        <native.constructs.provider.package>org.ballerinalang.nativeimpl</native.constructs.provider.package>
         <native.constructs.provider.class>BallerinaNativeConstructsProvider</native.constructs.provider.class>
         <mvn.processor.plugin.version>2.2.4</mvn.processor.plugin.version>
     </properties>

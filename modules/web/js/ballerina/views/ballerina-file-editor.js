@@ -482,7 +482,14 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                         var source = self._sourceView.getContent();
                         if(!_.isEmpty(source.trim())){
                             var validateResponse = self.validatorBackend.parse(source.trim());
-                            if (validateResponse.error && !_.isEmpty(validateResponse.message)) {
+                            //TODO : error messages from backend come as error or errors. Make this consistent.
+                            if (validateResponse.errors && !_.isEmpty(validateResponse.errors)) {
+                                // syntax errors found
+                                // no need to show error as annotations are already displayed for each line
+                                alerts.error('Cannot switch to Swagger view due to syntax errors');
+                                return;
+                            } else if (validateResponse.error && !_.isEmpty(validateResponse.message)) {
+                                // end point error
                                 alerts.error('Cannot switch to Swagger view due to syntax errors : ' + validateResponse.message);
                                 return;
                             }
@@ -546,8 +553,15 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                     var source = self._sourceView.getContent();
                     if(!_.isEmpty(source.trim())){
                         var validateResponse = self.validatorBackend.parse(source.trim());
-                        if (validateResponse.errors && !_.isEmpty(validateResponse.message)) {
-                            alerts.error('cannot switch to design view due to syntax errors : ' + validateResponse.message);
+                        //TODO : error messages from backend come as error or errors. Make this consistent.
+                        if (validateResponse.errors && !_.isEmpty(validateResponse.errors)) {
+                            // syntax errors found
+                            // no need to show error as annotations are already displayed for each line
+                            alerts.error('Cannot switch to Design view due to syntax errors');
+                            return;
+                        } else if (validateResponse.error && !_.isEmpty(validateResponse.message)) {
+                            // end point error
+                            alerts.error('Cannot switch to Design view due to syntax errors : ' + validateResponse.message);
                             return;
                         }
                     }
@@ -697,6 +711,7 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                    alerts.error('cannot switch to design view due to parse errors');
                    return;
                } else if (!_.isUndefined(response.errorMessage)) {
+                   //TODO : error messages from backend come as message or errorMessage. Make this consistent.
                    alerts.error("Unable to parse the source: " + response.errorMessage);
                    return;
                }
@@ -844,7 +859,6 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
 
                         //Clear the import value box
                         importValueText.val("");
-                        self.visit(newImportDeclaration);
                         collapserWrapper.empty();
                         collapserWrapper.data("collapsed", "false");
                         $("<i class='fw fw-left'></i>").appendTo(collapserWrapper);

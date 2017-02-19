@@ -79,7 +79,7 @@ define(['lodash', 'log', './simple-statement-view', './../ast/reply-statement', 
                 var replyLineStartPoint = new Point(x, (y + (h / 2)));
                 var replyLineEndPoint = new Point((x - this._distanceToClient), (y + (h / 2)));
                 this._replyLine = D3Utils.lineFromPoints(replyLineStartPoint, replyLineEndPoint, this._replyArrow)
-                    .classed('action-dash-line', true);
+                    .classed('message', true);
                 this._replyArrowHead = D3Utils.outputTriangle(replyLineEndPoint.x(), replyLineEndPoint.y(), this._replyArrow)
                     .classed("action-arrow", true);
                 this._replyArrow.arrowLineElement = this._replyLine;
