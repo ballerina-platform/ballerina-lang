@@ -119,6 +119,7 @@ public class BallerinaConnectorCodeGenerator extends DefaultCodegen implements C
         typeMapping.put("password", "string");
         typeMapping.put("binary", "string");
         typeMapping.put("ByteArray", "string");
+        typeMapping.put("array", "string[]");
         importMapping = new HashMap<String, String>();
 
         cliOptions.clear();
