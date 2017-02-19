@@ -267,6 +267,8 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
             self._managedInnerDropzones[statementViewIndex].onLastStatementMovedHorizontally(dx);
         });
 
+        this.trigger('statement-added');
+
         return statementView;
     };
 
