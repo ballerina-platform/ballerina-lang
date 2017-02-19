@@ -95,19 +95,19 @@ public class BallerinaConnectorCodeGenerator extends DefaultCodegen implements C
 
         languageSpecificPrimitives = new HashSet<String>(
                 Arrays.asList(
-                        "BString",
-                        "BBoolean",
-                        "BInteger",
-                        "BFloat",
-                        "BDouble",
-                        "BLong")
+                        "string",
+                        "boolean",
+                        "int",
+                        "double",
+                        "map",
+                        "array")
         );
 
         instantiationTypes.clear();
-        instantiationTypes.put("array", "array");
+        instantiationTypes.put("array", "string[]");
         instantiationTypes.put("map", "map");
         typeMapping.clear();
-        typeMapping.put("integer", "integer");
+        typeMapping.put("integer", "int");
         typeMapping.put("long", "long");
         typeMapping.put("number", "float");
         typeMapping.put("float", "float");
