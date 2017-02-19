@@ -35,7 +35,7 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.wso2.ballerina</groupId>
+            <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-distribution</artifactId>
             <version>${ballerina.distribution.version}</version>
             <type>zip</type>
@@ -52,7 +52,7 @@
             <version>${testerina.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.wso2.ballerina.swagger</groupId>
+            <groupId>org.ballerinalang.swagger-ballerina</groupId>
             <artifactId>swagger-ballerina-generator</artifactId>
             <version>${tool.swagger.version}</version>
         </dependency>
@@ -153,7 +153,7 @@
         <ballerina.composer.distribution.version>0.8.0-SNAPSHOT</ballerina.composer.distribution.version>
         <testerina.version>0.8.0-SNAPSHOT</testerina.version>
         <tool.swagger.version>0.8.0-SNAPSHOT</tool.swagger.version>
-        <ballerina.container.version>0.8.0-ALPHA</ballerina.container.version>
+        <ballerina.container.version>0.8.0-SNAPSHOT</ballerina.container.version>
         <docerina.version>0.8.0-SNAPSHOT</docerina.version>
         <docerina.maven.plugin.version>0.8.0-SNAPSHOT</docerina.maven.plugin.version>
     </properties>
