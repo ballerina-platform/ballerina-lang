@@ -31,5 +31,5 @@ public class TestConstant {
     public static final long HTTP2_RESPONSE_TIME_OUT = 10;
     public static final TimeUnit HTTP2_RESPONSE_TIME_UNIT = TimeUnit.SECONDS;
     //Default HTTP2 port of the server
-    public static final int HTTP2_TEST_PORT = 9092;
+    public static final int SERVER_CONNECTOR_TEST_PORT = 9092;
 }
