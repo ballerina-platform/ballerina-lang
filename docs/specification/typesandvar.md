@@ -87,6 +87,8 @@ VariableName = [ Expression, Expression, ... ];
 ```
 If there are no expressions given (i.e., the right hand side is `[]`), then the variable will be initialized to an array of length 0. Else it will be array of the same length as the number of expressions with each value being stored in the corresponding index of the array.
 
+> NOTE: We are considering adding support for arrays of arrays (of arrays ...).
+
 ## Built-In Reference Types
 
 Ballerina comes with a pre-defined set of reference types which are key to supporting the types of programs that Ballerina developers are expected to write. These are supported by a set of standard library functions found in the packages `ballerina.lang.*`. This section defines each of these types and defines their usage.
