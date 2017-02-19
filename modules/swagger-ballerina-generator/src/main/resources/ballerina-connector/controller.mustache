@@ -6,19 +6,20 @@ import ballerina.lang.exceptions;
 import ballerina.lang.arrays;
 
 connector {{classname}} (string text) {
+
+http:ClientConnector endpoint = create http:ClientConnector("{{basePath}}");
 {{#operations}}
 {{#operation}}
-action {{nickname}} (string msg, string auth) (message) {
-http:ClientConnector rmEP = create http:ClientConnector("{{basePath}}");
-message request = {};
-message requestH;
-message response;
-string jiraPath;
-jiraPath = "/issue/" + issueID;
-requestH = authHeader(request, auth);
-response = http:ClientConnector.{{httpMethod}}(rmEP, {{path}}, requestH);
-return response;
-}
+    action {{nickname}} ( message msg )
+    (message) {
+        //Create sample json message as follows.
+        //message request = {};
+        //messages:setHeader(request, "Content-Type", "application/json");
+        //Users can process input message msg as per requirements.
+        message response;
+        response = http:ClientConnector.{{httpMethod}}(endpoint, http:getRequestURL(message) , msg);
+        return response;
+    }
 {{/operation}}
 {{/operations}}
 }
