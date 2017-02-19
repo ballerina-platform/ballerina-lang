@@ -81,12 +81,10 @@ public class BallerinaConnectorCodeGenerator extends DefaultCodegen implements C
          */
         setReservedWordsLowerCase(
                 Arrays.asList(
-                        "break", "default", "func", "interface", "select",
-                        "case", "defer", "go", "map", "struct",
-                        "chan", "else", "goto", "package", "switch",
-                        "const", "fallthrough", "if", "range", "type",
-                        "continue", "for", "import", "return", "var")
-                // Added "error" as it's used so frequently that it may as well be a keyword
+                        "action", "all", "any", "as", "boolean", "break", "catch", "connector", "const", "datatable",
+                        "double", "else", "exception", "fork", "function", "if", "import", "int", "json", "map",
+                        "message", "native", "package", "reply", "resource", "return", "service", "string", "struct",
+                        "throws", "timeout", "try", "typemapper", "while", "worker", "xml")
         );
 
         defaultIncludes = new HashSet<String>(
