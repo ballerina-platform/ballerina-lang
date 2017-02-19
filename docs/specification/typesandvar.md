@@ -1,6 +1,6 @@
 # Types, Variables & Constants
 
-The Ballerina type system has value types and reference types. Ballerina comes with a set of built-in reference types and array, struct or iterator type constructors to create new reference types.
+The Ballerina type system has value types and reference types. Ballerina comes with a set of built-in value types, a set of built-in reference types, array & struct type constructors to create new reference types and an iterator type constructor to create new iterators.
 
 The type system is illustrated in the following:
 
@@ -201,7 +201,7 @@ TypeName~
 ```
 Iterator typed values are navigated through using an `iterate` statement.
 
-> NOTE: Iterators are still not fully consumated. Iterators are currently only available for the built-in types xml and json. In the future we will allow developers to define their own iterators for their types.
+> NOTE: Iterators are still under development and not fully implemented.
 
 ## Type Conversion and Mapping
 
