@@ -91,7 +91,7 @@
                                 ${java.io.tmpdir}/dependency-reduced-pom.xml
                             </dependencyReducedPomLocation>
                             <artifactSet>
-                                <Includes>
+                                <includes>
                                     <include>io.swagger:swagger-codegen</include>
                                     <include>com.googlecode.lambdaj:lambdaj</include>
                                     <include>io.swagger:*</include>
@@ -103,7 +103,7 @@
                                     <include>com.samskivert:jmustache</include>
                                     <include>joda-time:joda-time</include>
                                     <include>commons-io:commons-io</include>
-                                </Includes>
+                                </includes>
                             </artifactSet>
                             <filters>
                             <filter>
