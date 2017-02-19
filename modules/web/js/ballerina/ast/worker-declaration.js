@@ -21,7 +21,7 @@ define(['lodash', './node', '../utils/common-utils'], function (_, ASTNode, Comm
         this._isDefaultWorker = _.get(args, "isDefaultWorker", false);
         this._reply = _.get(args, "replyStatement", null);
         this._childrenList = [];
-        this._workerDeclarationStatement = _.get(args, 'declarationStatement');
+        this._workerDeclarationStatement = _.get(args, 'declarationStatement', 'newWorker1(message m)');
         this._invoker = undefined;
         this._replyReceiver = undefined;
         this._workerName = undefined;
@@ -51,8 +51,8 @@ define(['lodash', './node', '../utils/common-utils'], function (_, ASTNode, Comm
      * Set the worker declaration statement [workerName(message m)]
      * @param {string} declarationStatement
      */
-    WorkerDeclaration.prototype.setWorkerDeclarationStatement = function (declarationStatement) {
-        this._workerDeclarationStatement = declarationStatement;
+    WorkerDeclaration.prototype.setWorkerDeclarationStatement = function (declarationStatement, options) {
+        this.setAttribute('_workerDeclarationStatement', declarationStatement, options);
         var tokens = this._workerDeclarationStatement.split("(");
         this.setWorkerName(tokens[0].trim());
     };
@@ -69,8 +69,8 @@ define(['lodash', './node', '../utils/common-utils'], function (_, ASTNode, Comm
         return this._workerName;
     };
 
-    WorkerDeclaration.prototype.setWorkerName = function (workerName) {
-        this._workerName = workerName;
+    WorkerDeclaration.prototype.setWorkerName = function (workerName, options) {
+        this.setAttribute('_workerName', workerName, options);
     };
 
     /**
@@ -84,9 +84,10 @@ define(['lodash', './node', '../utils/common-utils'], function (_, ASTNode, Comm
     /**
      * Set the invoker statement
      * @param {ASTNode} invoker
+     * @param {object} options
      */
-    WorkerDeclaration.prototype.setInvoker = function (invoker) {
-        this._invoker = invoker;
+    WorkerDeclaration.prototype.setInvoker = function (invoker, options) {
+        this.setAttribute('_invoker', invoker, options);
     };
 
     /**
@@ -100,15 +101,16 @@ define(['lodash', './node', '../utils/common-utils'], function (_, ASTNode, Comm
     /**
      * Set the reply receiver statement
      * @param {ASTNode} replyReceiver
+     * @param {object} options
      */
-    WorkerDeclaration.prototype.setReplyReceiver = function (replyReceiver) {
-        this._replyReceiver = replyReceiver;
+    WorkerDeclaration.prototype.setReplyReceiver = function (replyReceiver, options) {
+        this.setAttribute('_replyReceiver', replyReceiver, options);
     };
     
     WorkerDeclaration.prototype.addArgument = function (paramType, paramName) {
         this.getArgumentsList().push({
-            parameter_type: paramName,
-            parameter_name: paramType
+            parameter_type: paramType,
+            parameter_name: paramName
         });
     };
 
@@ -124,6 +126,8 @@ define(['lodash', './node', '../utils/common-utils'], function (_, ASTNode, Comm
         _.forEach(args, function(argument) {
             self.addArgument(argument.parameter_type, argument.parameter_name);
         });
+
+        this.setWorkerDeclarationStatement(this.getWorkerName() + "(" + this.getArgumentsAsString() + ")");
 
         // TODO: check whether return types are allowed
         _.each(jsonNode.children, function (childNode) {
@@ -150,8 +154,8 @@ define(['lodash', './node', '../utils/common-utils'], function (_, ASTNode, Comm
             node: this,
             attributes: [{
                 defaultValue: "newWorker",
-                setter: this.setWorkerDeclarationStatement,
-                getter: this.getWorkerDeclarationStatement,
+                setter: this.setWorkerName,
+                getter: this.getWorkerName,
                 parents: [{
                     // function-def/connector-action/resource
                     node: this.parent,
@@ -160,8 +164,23 @@ define(['lodash', './node', '../utils/common-utils'], function (_, ASTNode, Comm
                 }]
             }]
         });
+    };
 
-        this.setWorkerDeclarationStatement(this.getWorkerDeclarationStatement() + "(message m)") ;
+    /**
+     * Returns the list of arguments as a string separated by commas.
+     * @return {string} - Arguments as string.
+     */
+    WorkerDeclaration.prototype.getArgumentsAsString = function () {
+        var argsAsString = "";
+        var args = this.getArgumentsList();
+        _.forEach(args, function(argument, index){
+            argsAsString += argument.parameter_type + " ";
+            argsAsString += argument.parameter_name;
+            if (args.length - 1 != index) {
+                argsAsString += " , ";
+            }
+        });
+        return argsAsString;
     };
 
     return WorkerDeclaration;
