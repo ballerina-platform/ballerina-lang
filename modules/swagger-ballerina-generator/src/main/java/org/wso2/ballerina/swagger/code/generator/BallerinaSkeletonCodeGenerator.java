@@ -94,19 +94,20 @@ public class BallerinaSkeletonCodeGenerator extends DefaultCodegen implements Co
 
         languageSpecificPrimitives = new HashSet<String>(
                 Arrays.asList(
-                        "BString",
-                        "BBoolean",
-                        "BInteger",
-                        "BFloat",
-                        "BDouble",
-                        "BLong")
+                        "string",
+                        "boolean",
+                        "int",
+                        "float",
+                        "double",
+                        "long",
+                        "array", "map")
         );
 
         instantiationTypes.clear();
-        instantiationTypes.put("array", "array");
+        instantiationTypes.put("array", "string[]");
         instantiationTypes.put("map", "map");
         typeMapping.clear();
-        typeMapping.put("integer", "integer");
+        typeMapping.put("integer", "int");
         typeMapping.put("long", "long");
         typeMapping.put("number", "float");
         typeMapping.put("float", "float");
@@ -118,6 +119,7 @@ public class BallerinaSkeletonCodeGenerator extends DefaultCodegen implements Co
         typeMapping.put("password", "string");
         typeMapping.put("binary", "string");
         typeMapping.put("ByteArray", "string");
+        typeMapping.put("array", "string[]");
         importMapping = new HashMap<String, String>();
 
         cliOptions.clear();
