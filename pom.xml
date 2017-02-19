@@ -41,7 +41,7 @@
             <type>zip</type>
         </dependency>
         <dependency>
-            <groupId>org.ballerinalang.composer</groupId>
+            <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-composer-distribution</artifactId>
             <version>${ballerina.composer.distribution.version}</version>
             <type>zip</type>
