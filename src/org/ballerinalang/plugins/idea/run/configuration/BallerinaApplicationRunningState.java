@@ -28,6 +28,13 @@ import com.intellij.util.ObjectUtils;
 import org.ballerinalang.plugins.idea.sdk.BallerinaSdkUtil;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import static org.ballerinalang.plugins.idea.run.configuration.BallerinaRunUtil.PARAMETER_REGEX;
+
 public class BallerinaApplicationRunningState extends BallerinaRunningState {
 
     public BallerinaApplicationRunningState(Project project, String params, ExecutionEnvironment environment) {
@@ -36,7 +43,7 @@ public class BallerinaApplicationRunningState extends BallerinaRunningState {
 
     @Override
     public String getCommand() {
-        return "run";
+        return "main";
     }
 
     @NotNull
@@ -44,14 +51,25 @@ public class BallerinaApplicationRunningState extends BallerinaRunningState {
     protected ProcessHandler startProcess() throws ExecutionException {
         GeneralCommandLine commandLine = new GeneralCommandLine();
         commandLine.setExePath(ObjectUtils.notNull(BallerinaSdkUtil.getBallerinaExecutablePath(getProject())));
+        commandLine.addParameter("run");
         commandLine.addParameter(getCommand());
         commandLine.addParameter(BallerinaRunUtil.getOpenFilePath(getProject()));
         commandLine.withCharset(CharsetToolkit.UTF8_CHARSET);
         // Add program arguments
-        commandLine.addParameter(getParams());
+        getArguments(getParams()).forEach(commandLine::addParameter);
 
         KillableColoredProcessHandler handler = new KillableColoredProcessHandler(commandLine, true);
         ProcessTerminatedListener.attach(handler);
         return handler;
+    }
+
+    private List<String> getArguments(String params) {
+        List<String> results = new ArrayList<>();
+        Pattern pattern = Pattern.compile(PARAMETER_REGEX);
+        Matcher matcher = pattern.matcher(params);
+        while (matcher.find()) {
+            results.add(matcher.group(0));
+        }
+        return results;
     }
 }

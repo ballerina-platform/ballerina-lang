@@ -16,19 +16,17 @@
 
 package org.ballerinalang.plugins.idea.psi;
 
-import com.intellij.codeInsight.lookup.LookupElementBuilder;
 import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementResolveResult;
-import com.intellij.psi.PsiErrorElement;
 import com.intellij.psi.PsiReference;
 import com.intellij.psi.ResolveResult;
 import org.antlr.jetbrains.adaptor.psi.IdentifierDefSubtree;
+import org.apache.xerces.xs.datatypes.ObjectList;
 import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class StatementReference extends BallerinaElementReference {
@@ -41,7 +39,7 @@ public class StatementReference extends BallerinaElementReference {
     public boolean isDefinitionNode(PsiElement def) {
         return def instanceof PackageNameNode || def instanceof VariableDefinitionNode || def instanceof ParameterNode
                 || def instanceof ConstantDefinitionNode || def instanceof SimpleTypeNode
-                || def instanceof StructDefinitionNode || def instanceof PsiErrorElement;
+                || def instanceof StructDefinitionNode;
     }
 
     @NotNull
@@ -49,13 +47,6 @@ public class StatementReference extends BallerinaElementReference {
     public Object[] getVariants() {
 
         List results = new ArrayList<>();
-
-        String[] simpleTypesArray = {"boolean", "int", "long", "float", "double", "string",
-                "message", "map", "exception"};
-        List<String> simpleTypesList = Arrays.asList(simpleTypesArray);
-
-        results.addAll(simpleTypesList);
-
         String text = getElement().getText();
 
         PsiElement prevSibling = getElement().getParent().getPrevSibling();
@@ -63,14 +54,12 @@ public class StatementReference extends BallerinaElementReference {
             text = prevSibling.getPrevSibling().getText();
         }
 
-
         if (text.endsWith(":")) {
             List<PsiElement> allImportedPackages = BallerinaPsiImplUtil.getAllImportedPackages(getElement());
 
             for (PsiElement importedPackage : allImportedPackages) {
                 if (text.equals(importedPackage.getText() + ":")) {
-                    PsiElement packageIdentifier = ((IdentifierDefSubtree) importedPackage)
-                            .getNameIdentifier();
+                    PsiElement packageIdentifier = ((IdentifierDefSubtree) importedPackage).getNameIdentifier();
 
                     ResolveResult[] resolveResults = ((PackageNameReference) packageIdentifier.getReference())
                             .multiResolve(false);
@@ -86,11 +75,7 @@ public class StatementReference extends BallerinaElementReference {
                     }
                 }
             }
-        } else {
-            results.addAll(BallerinaPsiImplUtil.getAllImportedPackages(getElement()));
-            results.addAll(BallerinaPsiImplUtil.getAllFunctions(getElement()));
         }
-
         return results.toArray();
     }
 

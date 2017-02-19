@@ -60,6 +60,9 @@
         <langCodeStyleSettingsProvider
                 implementation="org.ballerinalang.plugins.idea.formatter.settings.BallerinaLanguageCodeStyleSettingsProvider"/>
 
+        <quoteHandler fileType="Ballerina file"
+                      className="org.ballerinalang.plugins.idea.codeinsight.editoractions.BallerinaQuoteHandler"/>
+
         <!--structure view-->
         <lang.psiStructureViewFactory language="Ballerina"
                                       implementationClass="org.ballerinalang.plugins.idea.structureview.BallerinaStructureViewFactory"/>
@@ -74,14 +77,14 @@
         <lang.braceMatcher language="Ballerina"
                            implementationClass="org.ballerinalang.plugins.idea.completion.BallerinaPairedBraceMatcher"/>
 
+        <codeInsight.parameterInfo language="Ballerina"
+                                   implementationClass="org.ballerinalang.plugins.idea.editor.BallerinaParameterInfoHandler"/>
+
         <!--line marker-->
         <codeInsight.lineMarkerProvider language="Ballerina"
                                         implementationClass="org.ballerinalang.plugins.idea.marker.BallerinaRecursiveCallMarkerProvider"/>
 
-        <codeInsight.parameterInfo language="Ballerina"
-                                   implementationClass="org.ballerinalang.plugins.idea.editor.BallerinaParameterInfoHandler"/>
-
-        <!--find org.ballerinalang.plugins.idea.usage-->
+        <!--find usage-->
         <lang.findUsagesProvider language="Ballerina"
                                  implementationClass="org.ballerinalang.plugins.idea.usage.BallerinaFindUsageProvider"/>
 

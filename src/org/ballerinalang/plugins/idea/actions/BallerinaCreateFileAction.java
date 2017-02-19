@@ -43,14 +43,14 @@ public class BallerinaCreateFileAction extends CreateFileFromTemplateAction impl
     private static final String DEFAULT_BALLERINA_TEMPLATE_PROPERTY = FILE_TEMPLATE;
 
     public BallerinaCreateFileAction() {
-        super(NEW_BALLERINA_FILE, "", BallerinaIcons.FILE);
+        super(NEW_BALLERINA_FILE, "", BallerinaIcons.ICON);
     }
 
     @Override
     protected void buildDialog(Project project, PsiDirectory directory, @NotNull CreateFileFromTemplateDialog.Builder
             builder) {
-        builder.setTitle(NEW_BALLERINA_FILE).addKind("Simple Application", BallerinaIcons.FILE, APPLICATION_TEMPLATE)
-                .addKind("Empty file", BallerinaIcons.FILE, FILE_TEMPLATE);
+        builder.setTitle(NEW_BALLERINA_FILE).addKind("Simple Application", BallerinaIcons.ICON, APPLICATION_TEMPLATE)
+                .addKind("Empty file", BallerinaIcons.ICON, FILE_TEMPLATE);
     }
 
     @Nullable

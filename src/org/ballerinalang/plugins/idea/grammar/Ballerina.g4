@@ -11,7 +11,7 @@ compilationUnit
     |   functionDefinition
     |   connectorDefinition
     |   structDefinition
-    |   typeConvertorDefinition
+    |   typeMapperDefinition
     |   constantDefinition
     )*
         EOF
@@ -92,25 +92,25 @@ structDefinitionBody
     :   (typeName Identifier ';')*
     ;
 
-typeConvertorDefinition
-    :   nativeTypeConvertor
-    |   typeConvertor
+typeMapperDefinition
+    :   nativeTypeMapper
+    |   typeMapper
     ;
 
-nativeTypeConvertor
-    :   'native' 'typeconvertor' Identifier '(' typeConvertorInput ')' '('typeConvertorType')' ';'
+nativeTypeMapper
+    :   'native' 'typemapper' Identifier '(' typeMapperInput ')' '('typeMapperType')' ';'
     ;
 
-typeConvertor
-    :   'typeconvertor' Identifier '(' typeConvertorInput ')' '('typeConvertorType')' '{' typeConvertorBody '}'
+typeMapper
+    :   'typemapper' Identifier '(' typeMapperInput ')' '('typeMapperType')' '{' typeMapperBody '}'
     ;
 
-typeConvertorInput
-    :   typeConvertorType Identifier
+typeMapperInput
+    :   typeMapperType Identifier
     ;
 
 // cannot have conector declaration, need to validate at semantic analyzing
-typeConvertorBody
+typeMapperBody
     :   statement*
     ;
 
@@ -144,7 +144,7 @@ qualifiedTypeName
     :   packagePath ':' unqualifiedTypeName
     ;
 
-typeConvertorType
+typeMapperType
     :   simpleType
     |   withFullSchemaType
     |   withSchemaIdType
@@ -250,11 +250,13 @@ literalValue
  //============================================================================================================
  // ANNOTATION
 
- annotation
-     :   annotationName ( '(' ( elementValuePairs | elementValue )? ')' )?
-     ;
+annotation
+    :    annotationName ( '(' ( elementValuePairs | elementValue )? ')' )?
+    ;
 
- annotationName : '@' Identifier ;
+annotationName
+    :    '@' (packageName ':')? Identifier
+    ;
 
  elementValuePairs
      :   elementValuePair (',' elementValuePair)*
@@ -330,7 +332,7 @@ forkJoinStatement
 
 // below typeName is only 'message[]'
 joinClause
-    :   'join' '(' joinConditions ')' '(' typeName Identifier ')'  '{' statement* '}'
+    :   'join' '(' joinConditions ')' '(' typeName Identifier ')' '{' statement* '}'
     ;
 
 joinConditions
@@ -386,7 +388,7 @@ actionInvocationStatement
 
 variableReference
     :   Identifier                                  # simpleVariableIdentifier// simple identifier
-    |   Identifier '['expression']'                 # mapArrayVariableIdentifier// array and map reference
+    |   Identifier '['expression']'                 # mapArrayVariableIdentifier// arrays and map reference
     |   variableReference ('.' variableReference)+  # structFieldIdentifier// struct field reference
     ;
 
@@ -478,7 +480,7 @@ THROW           : 'throw';
 THROWS          : 'throws';
 TIMEOUT         : 'timeout';
 TRY             : 'try';
-TYPECONVERTOR   : 'typeconvertor';
+TYPEMAPPER      : 'typemapper';
 WHILE           : 'while';
 WORKER          : 'worker';
 

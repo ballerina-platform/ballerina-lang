@@ -37,7 +37,7 @@ public class BallerinaServiceRunConfigurationType implements ConfigurationType {
 
     @Override
     public Icon getIcon() {
-        return BallerinaIcons.FILE;
+        return BallerinaIcons.ICON;
     }
 
     @NotNull

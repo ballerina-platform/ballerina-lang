@@ -44,6 +44,7 @@ public class BallerinaServiceRunningState extends BallerinaRunningState {
     protected ProcessHandler startProcess() throws ExecutionException {
         GeneralCommandLine commandLine = new GeneralCommandLine();
         commandLine.setExePath(ObjectUtils.notNull(BallerinaSdkUtil.getBallerinaExecutablePath(getProject())));
+        commandLine.addParameter("run");
         commandLine.addParameter(getCommand());
         commandLine.addParameter(BallerinaRunUtil.getOpenFilePath(getProject()));
         commandLine.withCharset(CharsetToolkit.UTF8_CHARSET);

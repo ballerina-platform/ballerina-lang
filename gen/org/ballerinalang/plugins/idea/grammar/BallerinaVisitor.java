@@ -125,35 +125,35 @@ public interface BallerinaVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitStructDefinitionBody(BallerinaParser.StructDefinitionBodyContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link BallerinaParser#typeConvertorDefinition}.
+	 * Visit a parse tree produced by {@link BallerinaParser#typeMapperDefinition}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitTypeConvertorDefinition(BallerinaParser.TypeConvertorDefinitionContext ctx);
+	T visitTypeMapperDefinition(BallerinaParser.TypeMapperDefinitionContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link BallerinaParser#nativeTypeConvertor}.
+	 * Visit a parse tree produced by {@link BallerinaParser#nativeTypeMapper}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitNativeTypeConvertor(BallerinaParser.NativeTypeConvertorContext ctx);
+	T visitNativeTypeMapper(BallerinaParser.NativeTypeMapperContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link BallerinaParser#typeConvertor}.
+	 * Visit a parse tree produced by {@link BallerinaParser#typeMapper}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitTypeConvertor(BallerinaParser.TypeConvertorContext ctx);
+	T visitTypeMapper(BallerinaParser.TypeMapperContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link BallerinaParser#typeConvertorInput}.
+	 * Visit a parse tree produced by {@link BallerinaParser#typeMapperInput}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitTypeConvertorInput(BallerinaParser.TypeConvertorInputContext ctx);
+	T visitTypeMapperInput(BallerinaParser.TypeMapperInputContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link BallerinaParser#typeConvertorBody}.
+	 * Visit a parse tree produced by {@link BallerinaParser#typeMapperBody}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitTypeConvertorBody(BallerinaParser.TypeConvertorBodyContext ctx);
+	T visitTypeMapperBody(BallerinaParser.TypeMapperBodyContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link BallerinaParser#constantDefinition}.
 	 * @param ctx the parse tree
@@ -197,11 +197,11 @@ public interface BallerinaVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitQualifiedTypeName(BallerinaParser.QualifiedTypeNameContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link BallerinaParser#typeConvertorType}.
+	 * Visit a parse tree produced by {@link BallerinaParser#typeMapperType}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitTypeConvertorType(BallerinaParser.TypeConvertorTypeContext ctx);
+	T visitTypeMapperType(BallerinaParser.TypeMapperTypeContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link BallerinaParser#unqualifiedTypeName}.
 	 * @param ctx the parse tree

@@ -14,14 +14,15 @@
  *  limitations under the License.
  */
 
-package org.ballerinalang.plugins.idea;
+package org.ballerinalang.plugins.idea.codeinsight.editoractions;
 
-import com.intellij.openapi.util.IconLoader;
+import com.intellij.codeInsight.editorActions.SimpleTokenSetQuoteHandler;
+import org.ballerinalang.plugins.idea.BallerinaTypes;
 
-import javax.swing.Icon;
+public class BallerinaQuoteHandler extends SimpleTokenSetQuoteHandler {
 
-public class BallerinaIcons {
-
-    public static final Icon ICON = IconLoader.findIcon("/icons/ballerina.png");
-
+    public BallerinaQuoteHandler() {
+        super(BallerinaTypes.DOUBLE_QUOTE, BallerinaTypes.BACK_TICK, //Needed to identify start tokens
+                BallerinaTypes.QUOTED_STRING, BallerinaTypes.BACKTICKED_STRING);//Need to identify ending tokens
+    }
 }
