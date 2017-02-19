@@ -104,7 +104,7 @@ define(['lodash', './node', '../utils/common-utils'], function(_, ASTNode, Commo
 
                 this.setAttribute("_connectorVariable", leftSide.includes(":") ?
                     leftSide.split(":", 2)[1].split(" ", 2)[1]
-                    : (leftSide.indexOf(" ") !== (leftSide.length - 1) ? leftSide.split(" ", 1)[1] : ""));
+                    : (leftSide.indexOf(" ") !== (leftSide.length - 1) ? leftSide.split(" ", 2)[1] : ""));
             }
             if (rightSide) {
                 rightSide = rightSide.trim();
