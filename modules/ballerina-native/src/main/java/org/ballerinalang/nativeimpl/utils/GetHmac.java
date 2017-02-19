@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.ballerinalang.nativeimpl.util;
+package org.ballerinalang.nativeimpl.utils;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeEnum;
@@ -40,12 +40,12 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 
 /**
- * Native function ballerina.util:getHmac.
+ * Native function ballerina.utils:getHmac.
  *
  * @since 0.8.0
  */
 @BallerinaFunction(
-        packageName = "ballerina.util",
+        packageName = "ballerina.utils",
         functionName = "getHmac",
         args = {
                 @Argument(name = "baseString", type = TypeEnum.STRING),
