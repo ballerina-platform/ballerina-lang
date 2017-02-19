@@ -386,7 +386,7 @@ text-anchor: start;
 
 .default-worker-life-line rect{
     stroke: #000;
-    fill: #FFF;
+    fill: #e2e2e2;
     stroke-width: 2px;
 }
 
