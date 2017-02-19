@@ -102,6 +102,7 @@ public class WebSocketSourceHandler extends SourceHandler {
             String reasonText = closeWebSocketFrame.reasonText();
             int statusCode = closeWebSocketFrame.statusCode();
             ctx.channel().close();
+            WebSocketSessionManager.getInstance().removeSession(uri, channelId);
             cMsg = new StatusCarbonMessage(org.wso2.carbon.messaging.Constants.STATUS_CLOSE, statusCode, reasonText);
 
         } else if (msg instanceof PongWebSocketFrame) {
@@ -148,10 +149,9 @@ public class WebSocketSourceHandler extends SourceHandler {
      */
     private void sendOnOpenMessage(ChannelHandlerContext ctx, boolean isSecured, String uri) {
         cMsg = new StatusCarbonMessage(org.wso2.carbon.messaging.Constants.STATUS_OPEN, 0, null);
+        Session session = new WebSocketSessionImpl(ctx, isSecured, uri, channelId);
+        WebSocketSessionManager.getInstance().add(uri, session);
         setupCarbonMessage(ctx);
-        Session session = new WebSocketSessionImpl(ctx, isSecured, uri);
-        cMsg.setProperty(Constants.WEBSOCKET_SESSION, session);
-        cMsg.setProperty(Constants.CHANNEL_ID, channelId);
         cMsg.setProperty(Constants.CONNECTION, Constants.UPGRADE);
         cMsg.setProperty(Constants.UPGRADE, Constants.WEBSOCKET_UPGRADE);
         publishToMessageProcessor(cMsg);
@@ -181,5 +181,7 @@ public class WebSocketSourceHandler extends SourceHandler {
         cMsg.setProperty(Constants.REMOTE_PORT, ((InetSocketAddress) ctx.channel().remoteAddress()).getPort());
         cMsg.setProperty(Constants.CHANNEL_ID, channelId);
         cMsg.setProperty(Constants.PROTOCOL, Constants.WEBSOCKET_PROTOCOL);
+        Session session = WebSocketSessionManager.getInstance().getSession(uri, channelId);
+        cMsg.setProperty(Constants.WEBSOCKET_SESSION, session);
     }
 }
