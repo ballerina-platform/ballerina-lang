@@ -1,7 +1,6 @@
 package {{apiPackage}};
 
-import ballerina.lang.json;
-import ballerina.lang.message;
+import ballerina.lang.messages;
 import ballerina.lang.string;
 import ballerina.lang.system;
 import ballerina.net.http;
@@ -10,16 +9,15 @@ import ballerina.util;
 
 connector {{classname}} () {
 
-http:HTTPConnector baseEP = new http:HTTPConnector("{{basePath}}");
+http:ClientConnector baseEP = new http:ClientConnector("{{basePath}}");
 
 {{#operations}}
 {{#operation}}
 action {{nickname}} ({{classname}} t, string msg) (message) {
-        message request;
+        message request = {};
         message response;
-        tweetPath = "/1.1/statuses/update.json?status="+uri:encode(msg);
-        message:setHeader(request, "User-Agent", "Ballerina-1.0");
-        message:setHeader(request, "Authorization", oauthHeader);
+        messages:setHeader(request, "User-Agent", "Ballerina-1.0");
+        messages:setStringPayload(request, msg);
         response = http:HTTPConnector.{{httpMethod}}(baseEP, {{path}} , request);
         return response;		
 }
