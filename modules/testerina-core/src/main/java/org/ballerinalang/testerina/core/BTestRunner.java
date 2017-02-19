@@ -47,7 +47,7 @@ public class BTestRunner {
     private static TesterinaReport tReport = new TesterinaReport();
 
     public static void runTest(Path[] sourceFilePaths) {
-
+        outStream.println("------ Test Program Path set to : " + System.getProperty("user.dir") + " -------");
         BallerinaConnectorManager.getInstance().initialize(new MessageProcessor());
         BallerinaConnectorManager.getInstance().initializeClientConnectors(new MessageProcessor());
 
@@ -103,13 +103,14 @@ public class BTestRunner {
                 tFunction.invoke();
             } catch (BallerinaException e) {
                 outStream.println(
-                        "Error while running the before test function: '" + tFunction.getName() + "'. Error : " + e
-                                .getMessage());
+                        "Error while running the before test function: '" + tFunction.getName() + "'. Error : " +
+                                e.getBException().value().getMessage().stringValue());
             }
         }
 
         //test
         for (TesterinaFunction tFunction : testFunctions) {
+            outStream.println("----------------------------------------------------------------------------");
             boolean isTestPassed = true;
             String testMessage = "Test Passed";
             try {
@@ -117,11 +118,8 @@ public class BTestRunner {
                 tFunction.invoke();
                 outStream.println("Finished running test '" + tFunction.getName() + "'.");
             } catch (BallerinaException e) {
-                //TODO catch BallerinaAssertionException and throw it in assert functions, and catch it here. create a result object to store the result.
-                //if(e.getBException().value().getCategory().toString().equals(TesterinaContext.ASSERTION_EXCEPTION_CATEGORY)){
-                //}
                 isTestPassed = false;
-                testMessage = e.getBException().value().getMessage().toString();
+                testMessage = e.getBException().value().getMessage().stringValue();
                 outStream.println(
                         "Error while running the function: '" + tFunction.getName() + "'. Error : " +
                                 e.getBException().value().getMessage().stringValue());
@@ -132,6 +130,7 @@ public class BTestRunner {
                     isTestPassed, testMessage);
             tReport.addFunctionResult(functionResult);
         }
+        outStream.println("----------------------------------------------------------------------------");
 
         //after test
         for (TesterinaFunction tFunction : afterTestFunctions) {
@@ -139,8 +138,8 @@ public class BTestRunner {
                 tFunction.invoke();
             } catch (BallerinaException e) {
                 outStream.println(
-                        "Error while running the after test function: '" + tFunction.getName() + "'. Error : " + e
-                                .getMessage());
+                        "Error while running the after test function: '" + tFunction.getName() + "'. Error : " +
+                                e.getBException().value().getMessage().stringValue());
             }
         }
 
