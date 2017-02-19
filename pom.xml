@@ -52,8 +52,8 @@
             <version>${testerina.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.ballerinalang.swagger-ballerina</groupId>
-            <artifactId>swagger-ballerina-generator</artifactId>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>swagger-ballerina</artifactId>
             <version>${tool.swagger.version}</version>
         </dependency>
         <dependency>
