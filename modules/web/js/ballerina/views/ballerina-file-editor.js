@@ -127,7 +127,7 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                     }
                     // If we have added a new action/function invocation statement the particular import has to be added
                     // to the imports view
-                    if (event.title === 'add import') {
+                    if (_.isEqual(event.title, 'add import')) {
                         var childModel = event.data.child;
                         self.visit(childModel);
                     }
