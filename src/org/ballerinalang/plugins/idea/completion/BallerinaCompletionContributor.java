@@ -72,7 +72,7 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
     private static final LookupElementBuilder FUNCTION;
     private static final LookupElementBuilder CONNECTOR;
     private static final LookupElementBuilder STRUCT;
-    private static final LookupElementBuilder TYPECONVERTER;
+    private static final LookupElementBuilder TYPEMAPPER;
 
     // Simple types
     private static final LookupElementBuilder BOOLEAN;
@@ -96,7 +96,7 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
         FUNCTION = createKeywordLookupElement("function", true, AddSpaceInsertHandler.INSTANCE);
         CONNECTOR = createKeywordLookupElement("connector", true, AddSpaceInsertHandler.INSTANCE);
         STRUCT = createKeywordLookupElement("struct", true, AddSpaceInsertHandler.INSTANCE);
-        TYPECONVERTER = createKeywordLookupElement("typeconverter", true, AddSpaceInsertHandler.INSTANCE);
+        TYPEMAPPER = createKeywordLookupElement("typemapper", true, AddSpaceInsertHandler.INSTANCE);
 
         BOOLEAN = createSimpleTypeLookupElement("boolean", true, AddSpaceInsertHandler.INSTANCE);
         INT = createSimpleTypeLookupElement("int", true, AddSpaceInsertHandler.INSTANCE);
@@ -730,7 +730,7 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
         resultSet.addElement(PrioritizedLookupElement.withPriority(FUNCTION, priority));
         resultSet.addElement(PrioritizedLookupElement.withPriority(CONNECTOR, priority));
         resultSet.addElement(PrioritizedLookupElement.withPriority(STRUCT, priority));
-        resultSet.addElement(PrioritizedLookupElement.withPriority(TYPECONVERTER, priority));
+        resultSet.addElement(PrioritizedLookupElement.withPriority(TYPEMAPPER, priority));
     }
 
     @Override
