@@ -93,7 +93,24 @@
                     </execution>
                 </executions>
             </plugin>
-
+            <plugin>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>docerina-maven-plugin</artifactId>
+                <version>${docerina.maven.plugin.version}</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>docerina</goal>
+                        </goals>
+                        <configuration>
+                            <outputDir>${project.build.directory}/api-docs</outputDir>
+                            <sourceDir>${project.build.directory}/extracted-distributions/ballerina-distribution-${ballerina.distribution.version}-zip/ballerina-${ballerina.distribution.version}/src</sourceDir>
+                            <nativeCode>true</nativeCode>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>
@@ -132,11 +149,12 @@
     </build>
 
     <properties>
-        <ballerina.distribution.version>0.8.0-ALPHA</ballerina.distribution.version>
+        <ballerina.distribution.version>0.8.0-SNAPSHOT</ballerina.distribution.version>
         <ballerina.composer.distribution.version>0.8.0-SNAPSHOT</ballerina.composer.distribution.version>
         <testerina.version>0.8.0-SNAPSHOT</testerina.version>
         <tool.swagger.version>0.8.0-SNAPSHOT</tool.swagger.version>
         <ballerina.container.version>0.8.0-ALPHA</ballerina.container.version>
-        <docerina.version>0.8.0-ALPHA</docerina.version>
+        <docerina.version>0.8.0-SNAPSHOT</docerina.version>
+        <docerina.maven.plugin.version>0.8.0-SNAPSHOT</docerina.maven.plugin.version>
     </properties>
 </project>

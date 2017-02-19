@@ -42,6 +42,12 @@
             </directory>
             <outputDirectory>src</outputDirectory>
         </fileSet>
+        <fileSet>
+            <directory>
+                ${project.build.directory}/api-docs
+            </directory>
+            <outputDirectory>docs/api</outputDirectory>
+        </fileSet>
     </fileSets>
 
     <files>
