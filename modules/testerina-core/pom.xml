@@ -63,7 +63,7 @@
 
             <!-- copy built-in ballerina sources to the jar -->
             <resource>
-                <directory>${generated.ballerina.source.directory}</directory>
+                <directory>${generated.testerina.source.directory}</directory>
                 <targetPath>META-INF/natives</targetPath>
             </resource>
         </resources>
@@ -83,7 +83,7 @@
                             <goal>copy-resources</goal>
                         </goals>
                         <configuration>
-                            <outputDirectory>${generated.ballerina.source.directory}</outputDirectory>
+                            <outputDirectory>${generated.testerina.source.directory}</outputDirectory>
                             <resources>
                                 <resource>
                                     <directory>src/main/ballerina</directory>
@@ -107,8 +107,8 @@
                     <options>
                         <packageName>${native.constructs.provider.package}</packageName>
                         <className>${native.constructs.provider.class}</className>
-                        <srcDir>${ballerina.source.directory}</srcDir>
-                        <targetDir>${project.build.directory}</targetDir>
+                        <srcDir>${testerina.source.directory}</srcDir>
+                        <targetDir>${generated.testerina.source.directory}</targetDir>
                     </options>
                 </configuration>
                 <executions>
@@ -129,14 +129,14 @@
                 <version>${mvn.exec.plugin.version}</version>
                 <executions>
                     <execution>
-                        <phase>test</phase>
+                        <phase>process-classes</phase>
                         <goals>
                             <goal>java</goal>
                         </goals>
                         <configuration>
                             <mainClass>org.ballerinalang.natives.annotation.processor.NativeValidator</mainClass>
                             <arguments>
-                                <argument>${generated.ballerina.source.directory}</argument>
+                                <argument>${generated.testerina.source.directory}</argument>
                             </arguments>
                         </configuration>
                     </execution>
@@ -154,11 +154,11 @@
         <mvn.exec.plugin.version>1.1.1</mvn.exec.plugin.version>
         <mvn.resource.plugins.version>3.0.2</mvn.resource.plugins.version>
 
-        <!-- Path to the ballerina source directory -->
-        <ballerina.source.directory>${project.build.directory}/../src/main/ballerina</ballerina.source.directory>
+        <!-- Path to the testerina source directory -->
+        <testerina.source.directory>${project.build.directory}/../src/main/ballerina</testerina.source.directory>
 
         <!-- Path to the generated natives ballerina files temp directory -->
-        <generated.ballerina.source.directory>${project.build.directory}/natives</generated.ballerina.source.directory>
+        <generated.testerina.source.directory>${project.build.directory}/natives</generated.testerina.source.directory>
 
         <antlr4.runtime.version>4.5.1.wso2v1</antlr4.runtime.version>
     </properties>
