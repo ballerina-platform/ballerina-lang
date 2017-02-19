@@ -43,7 +43,7 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>org.wso2.ballerina</groupId>
+                <groupId>org.ballerinalang</groupId>
                 <artifactId>ballerina-launcher</artifactId>
                 <version>${ballerina.version}</version>
             </dependency>

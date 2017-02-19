@@ -46,7 +46,7 @@
             <artifactId>testng</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.wso2.ballerina</groupId>
+            <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-launcher</artifactId>
             <exclusions>
                 <exclusion>
@@ -58,6 +58,10 @@
         <dependency>
             <groupId>com.beust</groupId>
             <artifactId>jcommander</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
         </dependency>
     </dependencies>
     <build>
@@ -114,6 +118,13 @@
                                     <exclude>org.wso2.orbit.org.yaml:snakeyaml</exclude>
                                     <exclude>org.wso2.staxon:staxon-core</exclude>
                                     <exclude>org.wso2.orbit.org.apache.tapestry:tapestry-json</exclude>
+                                    <exclude>org.wso2.eclipse.osgi:*</exclude>
+                                    <exclude>org.wso2.eclipse.equinox:*</exclude>
+                                    <exclude>org.osgi:*</exclude>
+                                    <exclude>org.apache.felix:*</exclude>
+                                    <exclude>xmlpull:xmlpull</exclude>
+                                    <exclude>com.google.code.findbugs:jsr305</exclude>
+                                    <exclude>net.minidev:accessors-smart</exclude>
                                 </excludes>
                             </artifactSet>
                             <filters>
