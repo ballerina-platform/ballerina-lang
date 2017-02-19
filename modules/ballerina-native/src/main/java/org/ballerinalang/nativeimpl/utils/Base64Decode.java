@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.ballerinalang.nativeimpl.util;
+package org.ballerinalang.nativeimpl.utils;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeEnum;
@@ -34,35 +34,35 @@ import java.nio.charset.Charset;
 import java.util.Base64;
 
 /**
- * Native function ballerina.util:base64encode.
+ * Native function ballerina.utils:base64decode.
  *
  * @since 0.8.0
  */
 @BallerinaFunction(
-        packageName = "ballerina.util",
-        functionName = "base64encode",
+        packageName = "ballerina.utils",
+        functionName = "base64decode",
         args = {@Argument(name = "s", type = TypeEnum.STRING)},
         returnType = {@ReturnType(type = TypeEnum.STRING)},
         isPublic = true
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
-        value = "Encodes the specified string into a string using the Base64 scheme") })
+        value = "Decodes a Base64 encoded string to a new string") })
 @BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "s",
-        value = "The input string to be encoded") })
+        value = "The input string to be decoded") })
 @BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "string",
-        value = "The encoded string") })
+        value = "The decoded string") })
 @Component(
-        name = "func.util_base64encode",
+        name = "func.util_base64decode",
         immediate = true,
         service = AbstractNativeFunction.class
 )
-public class Base64Encode extends AbstractNativeFunction {
+public class Base64Decode extends AbstractNativeFunction {
 
     @Override
     public BValue[] execute(Context context) {
         String str = getArgument(context, 0).stringValue();
-        byte[] encodedValue = Base64.getEncoder().encode(str.getBytes(Charset.defaultCharset()));
+        byte[] decode = Base64.getDecoder().decode(str.getBytes(Charset.defaultCharset()));
 
-        return getBValues(new BString(new String(encodedValue, Charset.defaultCharset())));
+        return getBValues(new BString(new String(decode, Charset.defaultCharset())));
     }
 }
