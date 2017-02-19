@@ -125,7 +125,6 @@ public class ClientRequestWorker implements Runnable {
             }
             if (sourceHandler != null) {
                 targetChannel.setCorrelatedSource(sourceHandler);
-                sourceHandler.addTargetChannel(httpRoute, targetChannel);
             }
         }
     }

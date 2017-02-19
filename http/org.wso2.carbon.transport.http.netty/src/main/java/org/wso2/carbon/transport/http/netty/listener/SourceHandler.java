@@ -261,13 +261,12 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
         channelFutureMap.put(route.toString(), targetChannel);
     }
 
-    public void removeChannelFuture(HttpRoute route) {
-        log.debug("Removing channel future from map");
-        channelFutureMap.remove(route.toString());
+    public TargetChannel getChannelFuture(HttpRoute route) {
+        return channelFutureMap.remove(route.toString());
     }
 
-    public TargetChannel getChannel(HttpRoute route) {
-        return channelFutureMap.get(route.toString());
+    public boolean isChannelFutureExists(HttpRoute route) {
+        return (channelFutureMap.get(route.toString()) != null);
     }
 
     public Map<String, GenericObjectPool> getTargetChannelPool() {
@@ -296,7 +295,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
 
         HttpRequest httpRequest = (HttpRequest) httpMessage;
         cMsg.setProperty(Constants.CHNL_HNDLR_CTX, this.ctx);
-        cMsg.setProperty(Constants.SRC_HNDLR, this);
+        cMsg.setProperty(Constants.SRC_HANDLER, this);
         cMsg.setProperty(Constants.HTTP_VERSION, httpRequest.getProtocolVersion().text());
         cMsg.setProperty(Constants.HTTP_METHOD, httpRequest.getMethod().name());
         cMsg.setProperty(org.wso2.carbon.messaging.Constants.LISTENER_PORT,
