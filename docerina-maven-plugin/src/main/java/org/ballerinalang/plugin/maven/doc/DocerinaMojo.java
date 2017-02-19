@@ -49,6 +49,12 @@ public class DocerinaMojo extends AbstractMojo {
     private String packageFilter;
     
     /**
+     * treat the source as native ballerina code
+     */
+    @Parameter(property = "nativeCode", required = false)
+    private boolean nativeCode;
+    
+    /**
      * enable debug level logs
      */
     @Parameter(property = "debugDocerina", required = false)
@@ -58,6 +64,7 @@ public class DocerinaMojo extends AbstractMojo {
         if (debugDocerina) {
             System.setProperty(BallerinaDocConstants.ENABLE_DEBUG_LOGS, "true");
         }
-        BallerinaDocGenerator.generateApiDocsWithFilter(outputDir, packageFilter, sourceDir.split(","));
+        String[] sources = sourceDir.split(",");
+        BallerinaDocGenerator.generateApiDocs(outputDir, packageFilter, nativeCode, sources);
     }
 }
