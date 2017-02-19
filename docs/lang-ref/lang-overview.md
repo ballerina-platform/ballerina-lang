@@ -76,15 +76,6 @@ while
 worker
 xml
 
-## Documenting your code
+## Development tools
 
-As you develop new connectors, actions, and functions that you want to share with others, it's important to add documentation that describes each entity and how it's used. Ballerina provides a documentation framework called Docerina that generates API documentation from your annotations in your Ballerina files. You can check it out at https://github.com/ballerinalang/docerina. 
-
-## Testing your code
-
-When you write your code in Ballerina Composer, the syntax is checked for you as you write it. You can also manually test a Ballerina file using the following command:
-
-```
-ballerina test <ballerina_file>
-```
-Ballerina provides a testing framework called Testerina that you can use for your programs. You can check it out at https://github.com/ballerinalang/testerina. 
+Ballerina provides several tools to help you create, document, and test your code. For more information, see [Tools](../tools.md).
