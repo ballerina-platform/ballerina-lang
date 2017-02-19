@@ -47,7 +47,7 @@
             <type>zip</type>
         </dependency>
         <dependency>
-            <groupId>org.ballerinalang.testerina</groupId>
+            <groupId>org.ballerinalang</groupId>
             <artifactId>testerina-core</artifactId>
             <version>${testerina.version}</version>
         </dependency>
