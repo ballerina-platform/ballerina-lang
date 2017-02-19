@@ -52,7 +52,7 @@
             <version>${testerina.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.wso2.ballerina.swagger</groupId>
+            <groupId>org.ballerinalang.swagger-ballerina</groupId>
             <artifactId>swagger-ballerina-generator</artifactId>
             <version>${tool.swagger.version}</version>
         </dependency>
