@@ -5,8 +5,8 @@ typemapper mapRequestToHotelRequest (xmlElement<t1> in) (xmlElement<t2>) {
   xmlElement<smalladdr> addr;
   xmlElement out;
 
-  name = xmlutils:get(in, "/name", nil);
-  addr = mapAddress (xmlutils:get (in, "/address", nil));
+  name = xmls:get(in, "/name", nil);
+  addr = mapAddress (xmls:get (in, "/address", nil));
   out =
     `<Hotels>
        <name>$name</name>
@@ -17,9 +17,9 @@ typemapper mapRequestToHotelRequest (xmlElement<t1> in) (xmlElement<t2>) {
 
 typemapper mapAddress (xmlElement<bigaddr> in) (xmlElement<smalladdr>) {
   string addrstring;
-  addrstring = xmlutils:get(in, "/address/number", nil) + " " +
-                          xmlutils:get(in, "/address/street", nil) + ", " +
-                          xmlutils:get(in, "/address/city", nil);
+  addrstring = xmls:get(in, "/address/number", nil) + " " +
+                          xmls:get(in, "/address/street", nil) + ", " +
+                          xmls:get(in, "/address/city", nil);
   return `<address>$addrstring</address>`;
 }
 
@@ -28,8 +28,8 @@ typemapper requestToCarRequest (xmlElement<t1> in) (xmlElement<t2>) {
   xmlElement<smallDetails> details;
   xmlElement out;
 
-  category = xmlutils:get(in, "/category", nil);
-  details = mapDetails (xmlutils:get (in, "/details", nil));
+  category = xmls:get(in, "/category", nil);
+  details = mapDetails (xmls:get (in, "/details", nil));
   out =
     `<Cars>
        <category>$category</category>
@@ -40,8 +40,8 @@ typemapper requestToCarRequest (xmlElement<t1> in) (xmlElement<t2>) {
 
 typemapper mapDetails (xmlElement<bigDetails> in) (xmlElement<smallDetails>) {
   string details;
-  details = xmlutils:get(in, "/order/capacity", nil) + " " +
-                          xmlutils:get(in, "/order/pickup", nil) + ", " +
-                          xmlutils:get(in, "/order/destination", nil);
+  details = xmls:get(in, "/order/capacity", nil) + " " +
+                          xmls:get(in, "/order/pickup", nil) + ", " +
+                          xmls:get(in, "/order/destination", nil);
   return `<address>$details</address>`;
 }
