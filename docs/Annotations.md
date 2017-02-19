@@ -30,7 +30,7 @@ Following is a sample function with documentation annotations:
 @doc:Param("key: HTTP header key")
 @doc:Param("value: HTTP header value")
 @doc:Return("result: Result of the execution")
-public function addHeader (message m, string key, string value) (bool result) {
+function addHeader (message m, string key, string value) (boolean result) {
     system:println("invoked");
     return true;
 }
@@ -44,23 +44,25 @@ Following is a sample connector with documentation annotations:
 package foo.bar;
 
 @doc:Description("Heapster Connector")
-@doc:Param("clientSecret: Client secret")
+@doc:Param("accessToken: Access Token")
 @doc:Param("endpointUrl: Heapster endpoint URL")
 @doc:Param("retryCount: Retry count")
-connector TestConnector(string accessToken, string endpointUrl, int retryCount) {
-    
+connector HeapsterConnector(string accessToken, string endpointUrl, int retryCount) {
+
     @doc:Description("Get CPU usage of a conatiner")
+    @doc:Param("c: connector object")
     @doc:Param("containerId: Id of the container")
     @doc:Return("cpu: CPU usage")
-    action getCpuUsage(string containerId) (int cpuUsage) {
+    action getCpuUsage(HeapsterConnector c, string containerId) (int cpuUsage) {
         // Find CPU usage of container
         return cpuUsage;
     }
 
     @doc:Description("Get Memory usage of a conatiner")
+    @doc:Param("c: connector object")
     @doc:Param("containerId: Id of the container")
     @doc:Return("memoryUsage: Memory usage")
-    action getCpuUsage(string containerId) (int memoryUsage) {
+    action getCpuUsage(HeapsterConnector c, string containerId) (int memoryUsage) {
         // Find memory usage of container
         return memoryUsage;
     }

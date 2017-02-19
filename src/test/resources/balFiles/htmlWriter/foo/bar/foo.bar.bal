@@ -26,7 +26,7 @@ function getHeader (message m, string key) (string value) {
 @doc:Param("accessTokenSecret: access token secret")
 connector TestConnector(string consumerKey, string consumerSecret, string accessToken, string accessTokenSecret) {
     @doc:Description("test connector action")
-    @doc:Param("t: a string argument")
+    @doc:Param("t: connector object")
     @doc:Param("msg: a string message")
     @doc:Return("response: response object")
     action testAction1(TestConnector t, string msg) (message response) {
@@ -36,7 +36,7 @@ connector TestConnector(string consumerKey, string consumerSecret, string access
     }
 
     @doc:Description("test connector action2")
-    @doc:Param("t: a string argument")
+    @doc:Param("t: connector object")
     @doc:Param("msg: a string message")
     @doc:Return("response2: response object")
     action testAction2(TestConnector t, string msg) (message response) {
