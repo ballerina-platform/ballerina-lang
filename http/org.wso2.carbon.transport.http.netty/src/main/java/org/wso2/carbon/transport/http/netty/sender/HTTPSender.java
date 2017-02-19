@@ -99,10 +99,10 @@ public class HTTPSender implements TransportSender {
         final HttpRoute route = new HttpRoute((String) msg.getProperty(Constants.HOST),
                 (Integer) msg.getProperty(Constants.PORT));
 
-        SourceHandler srcHandler = (SourceHandler) msg.getProperty(Constants.SRC_HNDLR);
+        SourceHandler srcHandler = (SourceHandler) msg.getProperty(Constants.SRC_HANDLER);
         if (srcHandler == null) {
-            log.debug("Cannot find property SRC_HNDLR hence Sender uses as standalone.If you need to use sender with"
-                    + "listener side please copy property SRC_HNDLR from incoming message");
+            log.debug("Cannot find property SRC_HANDLER hence Sender uses as standalone.If you need to use sender with"
+                    + "listener side please copy property SRC_HANDLER from incoming message");
         }
 
         Channel outboundChannel = null;
