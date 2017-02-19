@@ -129,8 +129,8 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
             String connection = headers.get(Constants.CONNECTION);
             String upgrade = headers.get(Constants.UPGRADE);
             if (connection != null && upgrade != null) {
-                if (headers.get(Constants.CONNECTION).equals(Constants.UPGRADE) &&
-                        headers.get(Constants.UPGRADE).equals(Constants.WEBSOCKET_UPGRADE)) {
+                if (headers.get(Constants.CONNECTION).equalsIgnoreCase(Constants.UPGRADE) &&
+                        headers.get(Constants.UPGRADE).equalsIgnoreCase(Constants.WEBSOCKET_UPGRADE)) {
                     log.info("Upgrading the connection from Http to WebSocket for " +
                                          "channel : " + ctx.channel());
                     handleWebSocketHandshake(httpRequest);
