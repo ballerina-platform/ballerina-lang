@@ -1,10 +1,10 @@
 #File Server Connector
 
-File Server Connector is used to process files in the specified source directory. Note that files cannot remain in the source directory after processing or they will be processed again. Due to this reason, after processing a file, it will be deleted.
+The File Server Connector is used to process files in the specified source directory. Note that files cannot remain in the source directory after processing or they will be processed again. Due to this reason, after processing a file, it will be deleted.
 
-## How to define a File Service?
+## How to define a file service
 
-### Step 1: Defining a Service
+### Step 1: Create the service
 
 Create a service with unique name.
 ```
@@ -13,17 +13,17 @@ service orderProcessService {
 }
 ```
 
-### Step 2: Specifying Service-Parameters
+### Step 2: Specify service parameters
 
 Add a service level annotation named "Source" and add the key-value pairs to specify the parameters. Following section describes the each key that can be used with a file service. An example is provided after following tables.
 
 <table>
   <tr>
-    <td>Key</td>
-    <td>Description</td>
-    <td>Required</td>
-    <td>Expected Value</td>
-    <td>Default value</td>
+    <th>Key</th>
+    <th>Description</th>
+    <th>Required</th>
+    <th>Expected Value</th>
+    <th>Default value</th>
   </tr>
   <tr>
     <td>protocol</td>
@@ -60,11 +60,11 @@ When the fileURI parameter points to a folder, user has the option to sort the f
 
 <table>
   <tr>
-    <td>Key</td>
-    <td>Description</td>
-    <td>Required</td>
-    <td>Expected Value</td>
-    <td>Default value</td>
+    <th>Key</th>
+    <th>Description</th>
+    <th>Required</th>
+    <th>Expected Value</th>
+    <th>Default value</th>
   </tr>
   <tr>
     <td>fileSortAttribute</td>
@@ -98,7 +98,7 @@ service orderProcessService {
 }
 ```
 
-### Step 3: Adding a Resource
+### Step 3: Add a resource
 
 Add a resource under the File service as below:
 ```
@@ -118,9 +118,9 @@ service orderProcessService {
 
 In general, a service may have multiple resources. However, a service of type File is **required to have one and only one service**. 
 
-### Step 4: Adding File-processing Logic
+### Step 4: Add file-processing logic
 
-Within the `resource` block, specify file processing logic. In the example given below, Ballerina functions (`system:println`, `messages:getStringPayload(m)` and `file:acknowledge(m)`) have being used to process the file.
+Within the `resource` block, specify the file-processing logic. In the example given below, Ballerina functions (`system:println`, `messages:getStringPayload(m)` and `file:acknowledge(m)`) are being used to process the file.
 
 ```
 import ballerina.lang.messages;
@@ -143,9 +143,9 @@ service orderProcessService {
 ```
 
 **Note:**
-Here, `file:acknowledge(m)` is a function which is exclusive for file processing. Refer following section for more information on the same function. 
+Here, `file:acknowledge(m)` is a function that is exclusive for file processing. See [Acknowledge](#Acknowledge) below for details. 
 
-## Step 5: Adding Dependency Jars
+## Step 5: Add dependency jars
 
 When the `fileURI` parameter refers to a location in the local file system, it is not required to add any additional jars for the file service to work.
 
@@ -162,7 +162,7 @@ Following table lists down which dependency-jars are required for which file-acc
 | [Commons Httpclient][3] Version 3.1. Requires [Commons Codec][4] Version 1.2.           | HTTP, URI Utils| 
 | [JSch][5] Version 0.1.51.           |SFTP| 
 
-## Native Ballerina Functions for File Processing
+## Native Ballerina functions for file processing
 
 ### Acknowledge
 
