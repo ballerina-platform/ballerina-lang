@@ -84,7 +84,7 @@ public class BallerinaConnectorCodeGenerator extends DefaultCodegen implements C
                         "action", "all", "any", "as", "boolean", "break", "catch", "connector", "const", "datatable",
                         "double", "else", "exception", "fork", "function", "if", "import", "int", "json", "map",
                         "message", "native", "package", "reply", "resource", "return", "service", "string", "struct",
-                        "throws", "timeout", "try", "typemapper", "while", "worker", "xml")
+                        "throws", "timeout", "try", "typemapper", "while", "worker", "xml", "join")
         );
 
         defaultIncludes = new HashSet<String>(
