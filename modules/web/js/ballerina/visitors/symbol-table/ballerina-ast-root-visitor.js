@@ -68,6 +68,26 @@ define(['lodash', 'log', 'event_channel', './abstract-symbol-table-gen-visitor',
             var functionDef = BallerinaEnvFactory.createFunction();
             functionDef.setName(functionDefinition.getFunctionName());
             functionDef.setId(functionDefinition.getFunctionName());
+
+            // Adding arguments
+            var args = [];
+            _.forEach(functionDefinition.getArguments(), function(argument) {
+                args.push({
+                    name: argument.getIdentifier(),
+                    type: argument.getType()
+                })
+            });
+            functionDef.setParameters(args);
+
+            // Adding return types
+            var returnTypes = [];
+            _.forEach(functionDefinition.getReturnTypes(), function(returnType) {
+                // Return type contains an Argument child.
+                returnTypes.push({
+                    name: returnType.getIdentifier(),
+                    type: returnType.getType()
+                })
+            });
             this.getPackage().addFunctionDefinitions(functionDef);
 
             var self = this;
