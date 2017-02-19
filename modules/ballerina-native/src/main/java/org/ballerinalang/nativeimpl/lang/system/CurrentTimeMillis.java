@@ -23,6 +23,8 @@ import org.ballerinalang.model.types.TypeEnum;
 import org.ballerinalang.model.values.BLong;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
+import org.ballerinalang.natives.annotations.Attribute;
+import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
@@ -37,6 +39,10 @@ import org.ballerinalang.natives.annotations.ReturnType;
         returnType = {@ReturnType(type = TypeEnum.LONG)},
         isPublic = true
 )
+@BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
+        value = "Gets the current system time in milliseconds") })
+@BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "long",
+        value = "System time in milliseconds") })
 public class CurrentTimeMillis extends AbstractNativeFunction {
 
     @Override

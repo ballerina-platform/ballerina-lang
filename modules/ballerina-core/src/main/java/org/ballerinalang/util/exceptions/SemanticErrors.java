@@ -79,7 +79,8 @@ public enum SemanticErrors {
     UNDEFINED_TYPE_MAPPER("undefined.type.mapper", "SEMANTIC_0054"),
     UNDEFINED_ACTION_IN_CONNECTOR("undefined.action.in.connector", "SEMANTIC_0055"),
     NULL_NOT_ALLOWED_HERE_WITH_OPERATOR("null.not.allowed.here.with.operator", "SEMANTIC_0056"),
-    NULL_NOT_ALLOWED_HERE("null.not.allowed.here", "SEMANTIC_0057");
+    NULL_NOT_ALLOWED_HERE("null.not.allowed.here", "SEMANTIC_0057"),
+    INCOMPATIBLE_TYPES_UNKNOWN_FOUND("incompatible.types.unknown.found", "SEMANTIC_0056");
 
     private String errorMsgKey;
     private String errorCode;

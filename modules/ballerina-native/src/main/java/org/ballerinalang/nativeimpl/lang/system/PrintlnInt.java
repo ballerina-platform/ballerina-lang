@@ -23,6 +23,8 @@ import org.ballerinalang.model.types.TypeEnum;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
+import org.ballerinalang.natives.annotations.Attribute;
+import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 
 import java.io.PrintStream;
@@ -38,6 +40,10 @@ import java.io.PrintStream;
         args = {@Argument(name = "i", type = TypeEnum.INT)},
         isPublic = true
 )
+@BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
+        value = "Prints an integer value to the STDOUT in a new line") })
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "i",
+        value = "Integer value to be printed") })
 public class PrintlnInt extends AbstractNativeFunction {
 
     public BValue[] execute(Context ctx) {

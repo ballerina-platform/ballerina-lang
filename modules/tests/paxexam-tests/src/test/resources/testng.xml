@@ -20,7 +20,7 @@
 <suite name="Ballerina-Test-Suite">
     <test name="ballerina-tests" preserve-order="true" parallel="false">
         <classes>
-            <class name="org.wso2.ballerina.osgi.IntegrationFlowTest"/>
+            <class name="IntegrationFlowTest"/>
         </classes>
     </test>
 </suite>
