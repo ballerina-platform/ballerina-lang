@@ -22,17 +22,11 @@ import java.io.PrintStream;
 import java.util.ArrayList;
 
 public class TesterinaReport {
-    public static void main(String[] args){
-            printTestSummary();
-    }
 
     private static ArrayList<TesterinaFunctionResult> functionResults = new ArrayList<TesterinaFunctionResult>();
     private static ArrayList<TesterinaFunctionResult> passedFunctionResults = new ArrayList<TesterinaFunctionResult>();
     private static ArrayList<TesterinaFunctionResult> failedFunctionResults = new ArrayList<TesterinaFunctionResult>();
-
-
     private static PrintStream outStream = System.err;
-
     static int passedFunctionCount;
     static int failedFunctionCount;
     static String newLine = System.getProperty("line.separator");
@@ -67,16 +61,9 @@ public class TesterinaReport {
     }
 
     public static void printTestSummeryDetails(){
-        outStream.format( newLine + "%s%32s%16s", "| Function", " | Test Status", " | Test Message");
-        outStream.format( newLine + "%s","-------------------------------------------------------------");
-
-        for (TesterinaFunctionResult passedresult : passedFunctionResults) {
-            outStream.format( newLine +"%s%32s%16s", "| "+ passedresult.getTestFunctionName(), "| "+passedresult.isTestFunctionPassed(), "| "+
-                    passedresult.getAssertFailureMessage());
-        }
+        outStream.println( newLine + "Failed Tests");
         for (TesterinaFunctionResult failedResult : failedFunctionResults) {
-            outStream.format( newLine +"%s%32s%16s", "| "+ failedResult.getTestFunctionName(), "| "+failedResult.isTestFunctionPassed(), "| "+
-                    failedResult.getAssertFailureMessage());
+            outStream.println( newLine + failedResult.getTestFunctionName() + ": "+ failedResult.getAssertFailureMessage());
         }
     }
 }
