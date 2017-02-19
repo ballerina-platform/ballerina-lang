@@ -13,7 +13,7 @@ service {{classname}} {
         json payload;
 
         messages:setHeader(response, "Server", "Powered by Ballerina");
-        payload = `{{#examples}}{{#-first}} {{{example}}} {{/-first}}{{/examples}}`;
+        payload = ` {{#examples}}{{#-first}} {{{example}}} {{/-first}}{{/examples}}`;
         messages:setJsonPayload(response, payload);
         reply response;
     }
