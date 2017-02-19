@@ -31,6 +31,11 @@ public class BlockStmtTest {
         BTestUtils.parseBalFile("lang/statements/block/valid-block-with-return.bal");
     }
 
+    @Test(description = "Testing the comment statement after return")
+    public void testCommentStmtAfterReturnStmt() {
+        BTestUtils.parseBalFile("lang/statements/block/comment-after-return-stmt.bal");
+    }
+
     @Test(description = "Testing the unreachable statement in function block",
           expectedExceptions = SemanticException.class,
           expectedExceptionsMessageRegExp = "function-unreachable-stmt1.bal:9: unreachable statement")
@@ -57,5 +62,12 @@ public class BlockStmtTest {
           expectedExceptionsMessageRegExp = "whileblock-unreachable-stmt.bal:7: unreachable statement")
     public void testUnreachableStmtInWhileBlock() {
         BTestUtils.parseBalFile("lang/statements/block/whileblock-unreachable-stmt.bal");
+    }
+
+    @Test(description = "Testing the unreachable statement after comment statement",
+          expectedExceptions = SemanticException.class,
+          expectedExceptionsMessageRegExp = "unreachable-stmt-after-comment.bal:12: unreachable statement")
+    public void testUnreachableStmtAfterComment() {
+        BTestUtils.parseBalFile("lang/statements/block/unreachable-stmt-after-comment.bal");
     }
 }
