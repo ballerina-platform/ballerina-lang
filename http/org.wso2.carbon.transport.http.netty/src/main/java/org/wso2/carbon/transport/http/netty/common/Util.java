@@ -143,8 +143,11 @@ public class Util {
     public static void setupTransferEncodingForRequest(CarbonMessage cMsg) {
         if (cMsg.getHeader(Constants.HTTP_TRANSFER_ENCODING) != null) {
             cMsg.removeHeader(Constants.HTTP_CONTENT_LENGTH);
-        } else if (cMsg.isAlreadyRead() || (cMsg.getHeader(Constants.HTTP_CONTENT_LENGTH) == null && !cMsg.isEmpty())) {
-            cMsg.setHeader(Constants.HTTP_CONTENT_LENGTH, String.valueOf(cMsg.getFullMessageLength()));
+        } else if (cMsg.isAlreadyRead() || cMsg.getHeader(Constants.HTTP_CONTENT_LENGTH) == null) {
+            int contentLength = cMsg.getFullMessageLength();
+            if (contentLength > 0) {
+                cMsg.setHeader(Constants.HTTP_CONTENT_LENGTH, String.valueOf(contentLength));
+            }
         }
     }
 
@@ -181,7 +184,10 @@ public class Util {
         String requestContentLength = requestDataHolder.getContentLengthHeader();
         if (requestContentLength != null &&
             (cMsg.isAlreadyRead() || cMsg.getHeader(Constants.HTTP_CONTENT_LENGTH) == null)) {
-            cMsg.setHeader(Constants.HTTP_CONTENT_LENGTH, String.valueOf(cMsg.getFullMessageLength()));
+            int contentLength = cMsg.getFullMessageLength();
+            if (contentLength > 0) {
+                cMsg.setHeader(Constants.HTTP_CONTENT_LENGTH, String.valueOf(contentLength));
+            }
             cMsg.removeHeader(Constants.HTTP_TRANSFER_ENCODING);
             return;
         }
@@ -189,8 +195,11 @@ public class Util {
         // 4. If request doesn't have Transfer-Encoding or Content-Length header look for response properties
         if (cMsg.getHeader(Constants.HTTP_TRANSFER_ENCODING) != null) {
             cMsg.getHeaders().remove(Constants.HTTP_CONTENT_LENGTH);  // remove Content-Length if present
-        } else if (cMsg.isAlreadyRead() || (cMsg.getHeader(Constants.HTTP_CONTENT_LENGTH) == null && !cMsg.isEmpty())) {
-            cMsg.setHeader(Constants.HTTP_CONTENT_LENGTH, String.valueOf(cMsg.getFullMessageLength()));
+        } else if (cMsg.isAlreadyRead() || cMsg.getHeader(Constants.HTTP_CONTENT_LENGTH) == null) {
+            int contentLength = cMsg.getFullMessageLength();
+            if (contentLength > 0) {
+                cMsg.setHeader(Constants.HTTP_CONTENT_LENGTH, String.valueOf(contentLength));
+            }
         }
 
     }
