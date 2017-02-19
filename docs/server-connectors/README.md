@@ -1,7 +1,7 @@
-This document provides usage details and information related multiple server connector protocols supported
-with ballerina.
+The folowing documents provide usage details and information related to multiple server connector protocols supported
+by Ballerina.
 
-* [Documentation on JMS Server Connector](jms-server.md)
-* [Documentation on JMS Client Connector](jms-client.md)
-* [Documentation on Websocket Server Connector](websocket-server.md)
-* [Documentation on File Server Connector](file-server.md)
+* [File Server Connector](file-server.md)
+* [JMS Server Connector](jms-server.md)
+* [JMS Client Connector](jms-client.md)
+* [Websocket Server Connector](websocket-server.md)
