@@ -22,6 +22,8 @@ import org.ballerinalang.model.types.TypeEnum;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
+import org.ballerinalang.natives.annotations.Attribute;
+import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.runtime.Constants;
 import org.wso2.carbon.messaging.Headers;
@@ -35,6 +37,10 @@ import org.wso2.carbon.messaging.Headers;
         args = {@Argument(name = "m", type = TypeEnum.MESSAGE)},
         isPublic = true
 )
+@BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
+        value = "Converts the message into an HTTP response") })
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "m",
+        value = "A message object") })
 public class ConvertToResponse extends AbstractNativeFunction {
     public BValue[] execute(Context ctx) {
         if (!org.wso2.carbon.messaging.Constants.DIRECTION_RESPONSE.

@@ -1,7 +1,7 @@
 package samples.holidaypackage;
 
 import ballerina.net.http;
-import ballerina.lang.jsonutils;
+import ballerina.lang.jsons;
 import ballerina.lang.messages;
 import ballerina.lang.system.log;
 

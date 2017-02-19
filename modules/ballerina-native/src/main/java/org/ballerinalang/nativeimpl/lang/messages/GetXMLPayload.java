@@ -24,6 +24,8 @@ import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.nativeimpl.lang.utils.ErrorHandler;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
+import org.ballerinalang.natives.annotations.Attribute;
+import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.wso2.carbon.messaging.MessageDataSource;
@@ -38,6 +40,12 @@ import org.wso2.carbon.messaging.MessageDataSource;
         returnType = {@ReturnType(type = TypeEnum.XML)},
         isPublic = true
 )
+@BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
+        value = "Gets the message payload in XML format") })
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "m",
+        value = "The message object") })
+@BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "xml",
+        value = "The XML representation of the message payload") })
 public class GetXMLPayload extends AbstractNativeFunction {
 
     private static final String OPERATION = "get xml payload";

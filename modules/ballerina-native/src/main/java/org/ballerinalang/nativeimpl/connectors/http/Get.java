@@ -57,11 +57,11 @@ import org.wso2.carbon.messaging.exceptions.ClientConnectorException;
         service = AbstractNativeAction.class)
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
         value = "GET action implementation of the HTTP Connector")})
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "connector",
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "c",
         value = "Connector")})
 @BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "path",
         value = "Request path")})
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "message",
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "m",
         value = "message")})
 public class Get extends AbstractHTTPAction {
 

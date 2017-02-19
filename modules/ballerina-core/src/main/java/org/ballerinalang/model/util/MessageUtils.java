@@ -20,11 +20,10 @@ package org.ballerinalang.model.util;
 
 import org.ballerinalang.util.exceptions.BallerinaException;
 
-import java.io.BufferedReader;
+import java.io.BufferedInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
 
 /**
  * Common Utils methods used in Message.
@@ -38,34 +37,24 @@ public class MessageUtils {
      * @return Message payload as string
      */
     public static String getStringFromInputStream(InputStream in) {
-        StringBuilder sb = new StringBuilder(4096);
-        InputStreamReader reader = new InputStreamReader(in, StandardCharsets.UTF_8);
-        BufferedReader bufferedReader = new BufferedReader(reader);
+        BufferedInputStream bis = new BufferedInputStream(in);
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        String result;
         try {
-            String str;
-            while ((str = bufferedReader.readLine()) != null) {
-                sb.append(str);
+            int data;
+            while ((data = bis.read()) != -1) {
+                bos.write(data);
             }
+            result = bos.toString();
         } catch (IOException ioe) {
-            throw new BallerinaException(ioe.getMessage(), ioe);
+            throw new BallerinaException("Error occurred when reading input stream", ioe);
         } finally {
             try {
-                in.close();
-            } catch (IOException e) {
-                // Do nothing.
-            }
-            try {
-                reader.close();
-            } catch (IOException e) {
-                // Do nothing.
-            }
-            try {
-                bufferedReader.close();
-            } catch (IOException e) {
-                // Do nothing.
+                bos.close();
+            } catch (IOException ignored) {
             }
         }
-        return sb.toString();
+        return result;
     }
 
     /**

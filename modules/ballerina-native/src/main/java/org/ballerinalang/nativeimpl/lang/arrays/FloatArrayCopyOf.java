@@ -25,6 +25,8 @@ import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
+import org.ballerinalang.natives.annotations.Attribute;
+import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
@@ -38,6 +40,12 @@ import org.ballerinalang.natives.annotations.ReturnType;
         returnType = {@ReturnType(type = TypeEnum.ARRAY, elementType = TypeEnum.FLOAT)},
         isPublic = true
 )
+@BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
+        value = "Copies the specified float array") })
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "floatArray",
+        value = "The array to be copied") })
+@BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "float[]",
+        value = "A copy of the specified array") })
 public class FloatArrayCopyOf extends AbstractNativeFunction {
     @Override
     public BValue[] execute(Context context) {

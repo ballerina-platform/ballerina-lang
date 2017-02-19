@@ -1,5 +1,5 @@
 import ballerina.net.http;
-import ballerina.lang.jsonutils;
+import ballerina.lang.jsons;
 import ballerina.lang.messages;
 
 @http:BasePath ("/cbr")
@@ -14,7 +14,7 @@ service contentBasedRouting {
         string nyseString = "nyse";
 
         json jsonMsg = messages:getJsonPayload(m);
-        string nameString = jsonutils:getString(jsonMsg, "$.name");
+        string nameString = jsons:getString(jsonMsg, "$.name");
 
         message response = {};
 

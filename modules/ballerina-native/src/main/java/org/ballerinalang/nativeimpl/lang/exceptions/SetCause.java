@@ -24,6 +24,8 @@ import org.ballerinalang.model.values.BException;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
+import org.ballerinalang.natives.annotations.Attribute;
+import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 
 /**
@@ -36,6 +38,12 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
                 @Argument(name = "cause", type = TypeEnum.EXCEPTION)},
         isPublic = true
 )
+@BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
+        value = "Sets cause of the specified exception") })
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "e",
+        value = "The exception object") })
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "cause",
+        value = "The exception cause to be added") })
 public class SetCause extends AbstractNativeFunction {
     @Override
     public BValue[] execute(Context context) {
