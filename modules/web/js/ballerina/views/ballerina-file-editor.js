@@ -844,7 +844,6 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
 
                         //Clear the import value box
                         importValueText.val("");
-                        self.visit(newImportDeclaration);
                         collapserWrapper.empty();
                         collapserWrapper.data("collapsed", "false");
                         $("<i class='fw fw-left'></i>").appendTo(collapserWrapper);
