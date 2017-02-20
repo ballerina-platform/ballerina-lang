@@ -37,18 +37,21 @@ define(['jquery', 'backbone', 'lodash', 'log', 'event_channel', './debug-manager
             + '</div>'             
             + '<div class="">'
             + '<button type="button" class="btn btn-default btn-debug-action" data-action="Stop"  title="Stop Debug ( Alt + P )"><i class="fw fw-stop" /></button>' 
-            + '<button type="button" class="btn btn-default btn-debug-action" data-action="Resume"  title="Resume ( Alt + R )"><i class="fw fw-start " /></button>' 
-            + '<button type="button" class="btn btn-default btn-debug-action" data-action="StepOver"  title="Step Over ( Alt + O )"><i class="fw fw-stepover " /></button>' 
-            + '<button type="button" class="btn btn-default btn-debug-action" data-action="StepIn"  title="Step In ( Alt + I )"><i class="fw fw-stepin " /></button>' 
-            + '<button type="button" class="btn btn-default btn-debug-action" data-action="StepOut"  title="Step Out ( Alt + U )"><i class="fw fw-stepout " /></button>'
+            + '<button type="button" class="btn btn-default btn-debug-action <% if (!navigation) { %>disabled<%}%>" data-action="Resume"  title="Resume ( Alt + R )"><i class="fw fw-start " /></button>' 
+            + '<button type="button" class="btn btn-default btn-debug-action <% if (!navigation) { %>disabled<%}%>" data-action="StepOver"  title="Step Over ( Alt + O )"><i class="fw fw-stepover " /></button>' 
+            + '<button type="button" class="btn btn-default btn-debug-action <% if (!navigation) { %>disabled<%}%>" data-action="StepIn"  title="Step In ( Alt + I )"><i class="fw fw-stepin " /></button>' 
+            + '<button type="button" class="btn btn-default btn-debug-action <% if (!navigation) { %>disabled<%}%>" data-action="StepOut"  title="Step Out ( Alt + U )"><i class="fw fw-stepout " /></button>'
             + '</div><% } %>');
 
         this.connectionDialog = $("#modalDebugConnection");
+        this.navigation = false;
 
         $('.debug-connect-button').on("click", _.bindKey(this, 'connect'));  
         DebugManager.on("session-terminated", _.bindKey(this, 'connectionError'));
         DebugManager.on("session-started",_.bindKey(this, 'connectionStarted'));      
         DebugManager.on("session-ended",_.bindKey(this, 'render'));
+        DebugManager.on("debug-hit",_.bindKey(this, 'enableNavigation'));
+        DebugManager.on("resume-execution",_.bindKey(this, 'disableNavigation'));
     };
 
     Tools.prototype = Object.create(EventChannel.prototype);
@@ -75,10 +78,14 @@ define(['jquery', 'backbone', 'lodash', 'log', 'event_channel', './debug-manager
     Tools.prototype.render = function () {
         var context = {};
         context.active = DebugManager.active;
+        context.navigation = this.navigation;
         this.container.html(this.compiled(context));
     };
 
     Tools.prototype.handleActions = function(event){
+        if($(event.currentTarget).hasClass('disabled')){
+            return;
+        } 
         var actionName = $(event.currentTarget).data('action');
         switch(actionName){
             case 'Resume':
@@ -151,7 +158,17 @@ define(['jquery', 'backbone', 'lodash', 'log', 'event_channel', './debug-manager
 
        return true;
 
-    }
+    };
+
+    Tools.prototype.enableNavigation = function(message) {
+        this.navigation = true;
+        this.render();        
+    };
+
+    Tools.prototype.disableNavigation = function() {
+        this.navigation = false;
+        this.render();
+    };    
 
     return (instance = (instance || new Tools() ));
 });
