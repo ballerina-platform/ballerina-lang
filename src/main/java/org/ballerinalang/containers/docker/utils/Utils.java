@@ -19,6 +19,8 @@ package org.ballerinalang.containers.docker.utils;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.net.ServerSocket;
 import java.net.URL;
 import java.util.Random;
 
@@ -117,6 +119,13 @@ public class Utils {
             "campaign", "can", "canal", "cancer", "candidate", "candle", "canvas", "cap", "capability", "capacity",
             "capital", "capitalism"};
 
+    /**
+     * Returns a {@link File} object pointing to the specified resource file inside the resources folder.
+     *
+     * @param resourceName {@link String} resource name. This should be the relative path from the resources folder.
+     * @return A {@link File} object constructed from the specified path.
+     * @throws FileNotFoundException If the specified path is not found inside the resources folder.
+     */
     public static File getResourceFile(String resourceName) throws FileNotFoundException {
         ClassLoader classLoader = Utils.class.getClassLoader();
         URL resource = classLoader.getResource(resourceName);
@@ -127,11 +136,42 @@ public class Utils {
         }
     }
 
+    /**
+     * Generate a random name to be used as a Container name. The name consists of adjective_noun format.
+     *
+     * @return A {@link String} with a random adjective and noun combination.
+     */
     public static String generateContainerName() {
         Random random = new Random();
         int iAdj = random.nextInt(400);
         int iNoun = random.nextInt(400);
 
         return adjectives[iAdj] + "_" + nouns[iNoun];
+    }
+
+    /**
+     * Generate a random port number from the ephemeral port range.
+     *
+     * @return A random port number from the ephemeral port range.
+     */
+    public static int generateContainerPort() {
+        ServerSocket socket = null;
+        try {
+            socket = new ServerSocket(0);
+            return socket.getLocalPort();
+        } catch (IOException e) {
+            //..
+        } finally {
+            if (socket != null) {
+                try {
+                    socket.close();
+                } catch (IOException e) {
+                    //..
+                }
+            }
+        }
+
+        // This wouldn't be executed.
+        return 0;
     }
 }
