@@ -121,7 +121,8 @@ define(['log', 'lodash', './../env/package', './../tool-palette/tool-palette', '
          * Adds a tool group view to the tool palette for a given package
          * @param package - package to be added
          */
-        ToolPaletteItemProvider.prototype.addImportToolGroup = function (package, options) {
+        ToolPaletteItemProvider.prototype.addImportToolGroup = function (package, opts) {
+            var options = _.isUndefined(opts) ? {} : opts;
             if (package instanceof Package) {
                 var isADefaultPackage = _.includes(this._defaultImportedPackages, package);
                 if (!isADefaultPackage) { // Removing existing package
@@ -132,6 +133,18 @@ define(['log', 'lodash', './../env/package', './../tool-palette/tool-palette', '
                     _.remove(this._toolGroups, function(group){
                         return group.get('toolGroupName') === package.getName()
                     });
+
+                    // Similarly need to remove old views
+                    var existingView = this._importedPackagesViews[package.getName()];
+
+                    if(!_.isUndefined(existingView)){
+                        var isCollapsed = existingView.$el.find('.tool-group-header').hasClass('tool-group-header-collapse');
+                        // if 'tool-group-header-collapse' class is present the view was collapsed. So add the new view also in
+                        // collapsed state
+                        options.collapsed = isCollapsed;
+                        existingView.remove();
+                    }
+
                     this._toolGroups.push(group);
                     var groupView = this._toolPalette.addVerticallyFormattedToolGroup({group: group, options: options});
                     this._importedPackagesViews[package.getName()] = groupView;
