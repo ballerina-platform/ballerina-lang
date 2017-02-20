@@ -156,6 +156,58 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <groupId>org.apache.rat</groupId>
+                <artifactId>apache-rat-plugin</artifactId>
+                <configuration>
+                    <licenses>
+                        <license implementation="org.apache.rat.analysis.license.SimplePatternBasedLicense">
+                            <licenseFamilyCategory>WSO2</licenseFamilyCategory>
+                            <licenseFamilyName>WSO2 License 1.0</licenseFamilyName>
+                            <patterns>
+                                <pattern>Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.</pattern>
+                                <pattern>Copyright (c) 2017, WSO2 Inc. (http://wso2.com) All Rights Reserved.</pattern>
+                            </patterns>
+                        </license>
+                        <!-- <license implementation="org.apache.rat.analysis.license.ApacheSoftwareLicense20" /> -->
+                    </licenses>
+                    <licenseFamilies>
+                        <licenseFamily implementation="org.apache.rat.license.SimpleLicenseFamily">
+                            <familyName>WSO2 License 1.0</familyName>
+                        </licenseFamily>
+                        <!-- <licenseFamily implementation="org.apache.rat.license.Apache20LicenseFamily" /> -->
+                    </licenseFamilies>
+                    <excludes>
+                        <exclude>**/target/**/*</exclude>
+                        <exclude>**/META-INF/**/*</exclude>
+                        <exclude>**/.settings/**/*</exclude>
+                        <exclude>**/.project</exclude>
+                        <exclude>**/.classpath</exclude>
+                        <exclude>**/.git/**/*</exclude>
+                        <exclude>**/.gitignore</exclude>
+                        <exclude>**/.gitkeep</exclude>
+                        <exclude>**/.gitmodules</exclude>
+                        <exclude>**/*.iml</exclude>
+                        <exclude>**/*.log</exclude>
+                        <exclude>**/*.log.*</exclude>
+                        <exclude>**/*.iws</exclude>
+                        <exclude>**/*.ipr</exclude>
+                        <exclude>**/.idea/**/*</exclude>
+                        <exclude>**/.idea</exclude>
+                        <exclude>**/README.md</exclude>
+                        <exclude>**/*.bal</exclude>
+                    </excludes>
+                    <excludeSubProjects>false</excludeSubProjects>
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
 
