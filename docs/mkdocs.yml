@@ -27,7 +27,8 @@ pages:
     - Workers: 'lang-ref/workers.md'
     - Types and Variables: 'lang-ref/types-variables.md'
     - Statements: 'lang-ref/statements.md'
-- Native Functions: 'native-functions.md'
-- Architecture: `architecture.md`
+    - Exception Handling: 'lang-ref/exceptions.md'
+- Native Functions Reference: 'native-functions.md'
+- Architecture: 'architecture.md'
 theme: null
 theme_dir: ballerina-theme
