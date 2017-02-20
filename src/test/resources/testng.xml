@@ -22,7 +22,8 @@
             <class name="org.ballerinalang.containers.docker.DefaultBallerinaDockerClientSingleFileTest"/>
             <class name="org.ballerinalang.containers.docker.DefaultBallerinaDockerClientPackageBasedTest"/>
             <class name="org.ballerinalang.containers.docker.cmd.validator.DockerHostValidatorTest"/>
-            <class name="org.ballerinalang.containers.docker.cmd.DockerCmdTest" />
+            <class name="org.ballerinalang.containers.docker.cmd.validator.DockerImageNameValidatorTest"/>
+            <class name="org.ballerinalang.containers.docker.cmd.DockerCmdTest"/>
         </classes>
     </test>
 </suite>
