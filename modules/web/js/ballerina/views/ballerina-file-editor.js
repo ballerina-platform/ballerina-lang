@@ -754,7 +754,9 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
 
             $("<i class='fw fw-right'></i>").appendTo(collapserWrapper);
 
-            var importDeclarationActionWrapper = $("<div class='imports-action-wrapper'/>").appendTo(importDeclarationWrapper);
+            var importDeclarationControlsWrapper = $('<div />').appendTo(importDeclarationWrapper);
+
+            var importDeclarationActionWrapper = $("<div class='imports-action-wrapper'/>").appendTo(importDeclarationControlsWrapper);
 
             // Creating add imports editor button.
             var addImportButton = $("<div class='action-icon-wrapper import-add-icon-wrapper' title='Add Import'" +
@@ -795,8 +797,8 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                 $(addImportButton).show();
             });
 
-            var importsDeclarationContentWrapper = $("<div class='imports-content-wrapper'/>")
-                .appendTo(importDeclarationWrapper);
+            var importsDeclarationContentWrapper = $("<span class='imports-content-wrapper'/>")
+                .appendTo(importDeclarationControlsWrapper);
 
             var substringMatcher = function(strs) {
                 return function findMatches(q, cb) {
