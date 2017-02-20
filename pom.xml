@@ -29,7 +29,7 @@
     <groupId>org.ballerinalang</groupId>
     <artifactId>ballerina-composer</artifactId>
     <packaging>pom</packaging>
-    <version>0.8.0-SNAPSHOT</version>
+    <version>0.8.0</version>
     <name>Ballerina Composer - Parent</name>
 
     <scm>
@@ -378,7 +378,7 @@
     </build>
 
     <properties>
-        <ballerina.version>0.8.0-SNAPSHOT</ballerina.version>
+        <ballerina.version>0.8.0</ballerina.version>
         <ballerina.package.export.version>0.8.0</ballerina.package.export.version>
 
         <!-- Maven plugins -->
