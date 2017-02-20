@@ -14,7 +14,8 @@ function getXXXByIndex()(int, long, float, double, boolean, string) {
     boolean b;
     string s;
 
-    df = sql:ClientConnector.select(testDB, "SELECT int_type, long_type, float_type, double_type, boolean_type, string_type from DataTable LIMIT 1",parameters);
+    df = sql:ClientConnector.select(testDB, "SELECT int_type, long_type, float_type, double_type, boolean_type,
+                string_type from DataTable LIMIT 1",parameters);
     while (datatables:next(df)) {
         i = datatables:getInt(df, 1);
         l = datatables:getLong(df, 2);
@@ -40,7 +41,8 @@ function getXXXByName()(int, long, float, double, boolean, string) {
     boolean b;
     string s;
 
-    df = sql:ClientConnector.select(testDB, "SELECT int_type, long_type, float_type, double_type, boolean_type, string_type from DataTable LIMIT 1",parameters);
+    df = sql:ClientConnector.select(testDB, "SELECT int_type, long_type, float_type, double_type, boolean_type,
+                string_type from DataTable LIMIT 1",parameters);
     while (datatables:next(df)) {
         i = datatables:getInt(df, "int_type");
         l = datatables:getLong(df, "long_type");
@@ -61,7 +63,8 @@ function toJson()(json) {
     datatable df;
     json result;
 
-    df = sql:ClientConnector.select(testDB, "SELECT int_type, long_type, float_type, double_type, boolean_type, string_type from DataTable LIMIT 1",parameters);
+    df = sql:ClientConnector.select(testDB, "SELECT int_type, long_type, float_type, double_type, boolean_type,
+                string_type from DataTable LIMIT 1",parameters);
     result = datatables:toJson(df);
     return result;
 }
@@ -74,7 +77,8 @@ function toXmlWithWrapper()(xml) {
     datatable df;
     xml result;
 
-    df = sql:ClientConnector.select(testDB, "SELECT int_type, long_type, float_type, double_type, boolean_type, string_type from DataTable LIMIT 1",parameters);
+    df = sql:ClientConnector.select(testDB, "SELECT int_type, long_type, float_type, double_type, boolean_type,
+                string_type from DataTable LIMIT 1",parameters);
     result = datatables:toXml(df, "types", "type");
     return result;
 }
@@ -87,7 +91,9 @@ function toXmlComplex() (xml) {
     datatable df;
     xml result;
 
-    df = sql:ClientConnector.select(testDB, "SELECT int_type, int_array, long_type, long_array, float_type, float_array, double_type, boolean_type, string_type, double_array, boolean_array, string_array from MixTypes LIMIT 1",parameters);
+    df = sql:ClientConnector.select(testDB, "SELECT int_type, int_array, long_type, long_array, float_type,
+                float_array, double_type, boolean_type, string_type, double_array, boolean_array, string_array
+                from MixTypes LIMIT 1",parameters);
     result = datatables:toXml(df, "types", "type");
     return result;
 }
@@ -104,7 +110,8 @@ function getByName()(string, string, long, long, long) {
     long date;
     long timestamp;
 
-    df = sql:ClientConnector.select(testDB, "SELECT blob_type, clob_type, time_type, date_type, timestamp_type from ComplexTypes LIMIT 1",parameters);
+    df = sql:ClientConnector.select(testDB, "SELECT blob_type, clob_type, time_type, date_type, timestamp_type
+                from ComplexTypes LIMIT 1",parameters);
     while (datatables:next(df)) {
         blob = datatables:getString(df, "blob_type", "blob");
         clob = datatables:getString(df, "clob_type", "clob");
@@ -130,7 +137,8 @@ function getByIndex()(string, string, long, long, long) {
 
     sql:ClientConnector.update(testDB, "Update ComplexTypes set clob_type = 'Test String' where row_id = 1",parameters);
 
-    df = sql:ClientConnector.select(testDB, "SELECT blob_type, clob_type, time_type, date_type, timestamp_type from ComplexTypes LIMIT 1",parameters);
+    df = sql:ClientConnector.select(testDB, "SELECT blob_type, clob_type, time_type, date_type, timestamp_type
+                from ComplexTypes LIMIT 1",parameters);
     while (datatables:next(df)) {
         blob = datatables:getString(df, 1, "blob");
         clob = datatables:getString(df, 2, "clob");
@@ -154,7 +162,8 @@ function getObjectAsStringByIndex()(string, string, string, string, string) {
     string date;
     string timestamp;
 
-    df = sql:ClientConnector.select(testDB, "SELECT blob_type, clob_type, time_type, date_type, timestamp_type from ComplexTypes LIMIT 1",parameters);
+    df = sql:ClientConnector.select(testDB, "SELECT blob_type, clob_type, time_type, date_type, timestamp_type
+                from ComplexTypes LIMIT 1",parameters);
     while (datatables:next(df)) {
         blob = datatables:getValueAsString(df, 1);
         clob = datatables:getValueAsString(df, 2);
@@ -178,7 +187,8 @@ function getObjectAsStringByName()(string, string, string, string, string) {
     string date;
     string timestamp;
 
-    df = sql:ClientConnector.select(testDB, "SELECT blob_type, clob_type, time_type, date_type, timestamp_type from ComplexTypes LIMIT 1",parameters);
+    df = sql:ClientConnector.select(testDB, "SELECT blob_type, clob_type, time_type, date_type, timestamp_type
+                from ComplexTypes LIMIT 1",parameters);
     while (datatables:next(df)) {
         blob = datatables:getValueAsString(df, "blob_type");
         clob = datatables:getValueAsString(df, "clob_type");
@@ -198,7 +208,8 @@ function getArrayByName()(map int_arr, map long_arr, map double_arr, map string_
     sql:Parameter[] parameters=[];
     datatable df;
 
-    df = sql:ClientConnector.select(testDB, "SELECT int_array, long_array, double_array, boolean_array, string_array from ArrayTypes LIMIT 1",parameters);
+    df = sql:ClientConnector.select(testDB, "SELECT int_array, long_array, double_array, boolean_array, string_array
+                from ArrayTypes LIMIT 1",parameters);
     while (datatables:next(df)) {
         int_arr = datatables:getArray(df, "int_array");
         long_arr = datatables:getArray(df, "long_array");
@@ -217,7 +228,8 @@ function getArrayByIndex()(map int_arr, map long_arr, map double_arr, map string
     sql:Parameter[] parameters=[];
     datatable df;
 
-    df = sql:ClientConnector.select(testDB, "SELECT int_array, long_array, double_array, boolean_array, string_array from ArrayTypes LIMIT 1",parameters);
+    df = sql:ClientConnector.select(testDB, "SELECT int_array, long_array, double_array, boolean_array, string_array
+                from ArrayTypes LIMIT 1",parameters);
     while (datatables:next(df)) {
         int_arr = datatables:getArray(df, 1);
         long_arr = datatables:getArray(df, 2);

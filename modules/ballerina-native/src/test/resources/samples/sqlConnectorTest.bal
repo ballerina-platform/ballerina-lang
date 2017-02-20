@@ -8,7 +8,8 @@ function testInsertTableData() (int) {
     sql:Parameter[] parameters=[];
 
     int insertCount = sql:ClientConnector.update(testDB,"Insert into Customers
-        (firstName,lastName,registrationID,creditLimit,country) values ('James', 'Clerk', 2, 5000.75, 'USA')", parameters);
+        (firstName,lastName,registrationID,creditLimit,country) values ('James', 'Clerk', 2, 5000.75, 'USA')",
+            parameters);
     return insertCount;
 }
 
@@ -29,7 +30,8 @@ function testUpdateTableData() (int) {
     sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
     sql:Parameter[] parameters=[];
 
-    int updateCount = sql:ClientConnector.update(testDB, "Update Customers set country = 'UK' where registrationID = 1", parameters);
+    int updateCount = sql:ClientConnector.update(testDB, "Update Customers set country = 'UK' where registrationID = 1",
+            parameters);
     return updateCount;
 }
 
@@ -72,7 +74,8 @@ function testSelectData() (string) {
 
     string firstName;
     sql:Parameter[] parameters=[];
-    datatable dt = sql:ClientConnector.select(testDB, "SELECT  FirstName from Customers where registrationID = 1", parameters);
+    datatable dt = sql:ClientConnector.select(testDB, "SELECT  FirstName from Customers where registrationID = 1",
+        parameters);
     while (datatables:next(dt)) {
         firstName = datatables:getString(dt, 1);
     }
@@ -88,7 +91,8 @@ function testCallProcedure() (string) {
     sql:ClientConnector.call(testDB, "{call InsertPersonData(100,'James')}",parameters);
 
     string firstName;
-    datatable dt = sql:ClientConnector.select(testDB, "SELECT  FirstName from Customers where registrationID = 100", parameters);
+    datatable dt = sql:ClientConnector.select(testDB, "SELECT  FirstName from Customers where registrationID = 100",
+        parameters);
     while (datatables:next(dt)) {
         firstName = datatables:getString(dt, 1);
     }
@@ -104,7 +108,8 @@ function testConnectorWithDataSource() (string) {
 
     string firstName;
     sql:Parameter[] parameters=[];
-    datatable dt = sql:ClientConnector.select(testDB, "SELECT  FirstName from Customers where registrationID = 1", parameters);
+    datatable dt = sql:ClientConnector.select(testDB, "SELECT  FirstName from Customers where registrationID = 1",
+        parameters);
     while (datatables:next(dt)) {
         firstName = datatables:getString(dt, 1);
     }
@@ -126,7 +131,8 @@ function testConnectionPoolProperties() (string) {
 
     string firstName;
     sql:Parameter[] parameters=[];
-    datatable dt = sql:ClientConnector.select(testDB, "SELECT  FirstName from Customers where registrationID = 1", parameters);
+    datatable dt = sql:ClientConnector.select(testDB, "SELECT  FirstName from Customers where registrationID = 1",
+        parameters);
     while (datatables:next(dt)) {
         firstName = datatables:getString(dt, 1);
     }
@@ -142,7 +148,8 @@ function testQueryParameters() (string) {
     string firstName;
     sql:Parameter para1 = {sqlType:"integer", value:"1", direction:0};
     sql:Parameter[] parameters=[para1];
-    datatable dt = sql:ClientConnector.select(testDB, "SELECT  FirstName from Customers where registrationID = ?", parameters);
+    datatable dt = sql:ClientConnector.select(testDB, "SELECT  FirstName from Customers where registrationID = ?",
+        parameters);
     while (datatables:next(dt)) {
         firstName = datatables:getString(dt, 1);
     }

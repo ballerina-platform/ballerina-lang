@@ -68,7 +68,7 @@ public class DataTableTest {
         Assert.assertEquals(returns[5].stringValue(), "Hello");
     }
 
-    //@Test(description = "Check getByName methods for primitive types.")
+    @Test(description = "Check getByName methods for primitive types.")
     public void testGetXXXByName() {
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "getXXXByName");
 
