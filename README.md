@@ -11,6 +11,8 @@ This contains
     (https://github.com/ballerinalang/testerina)
 - Docerina
     (https://github.com/ballerinalang/docerina)
+    Docerina uses HTML5 UP templates for documents
+    (https://html5up.net/)
 - Container Support
     (https://github.com/ballerinalang/container-support)
 - Connectors
