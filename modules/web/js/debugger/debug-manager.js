@@ -54,8 +54,14 @@ define(['require', 'jquery', 'backbone', 'lodash', 'event_channel', './channel',
 
     DebugManager.prototype.stop = function(){
         var message = { "command": "STOP" };
-        this.channel.sendMessage(message);
-        this.trigger("resume-execution");
+        if(this.launchManager.active){
+            this.launchManager.stopProgram();
+            this.trigger("resume-execution");
+            this.trigger("session-ended");
+        }else{
+            this.channel.sendMessage(message);
+            this.trigger("resume-execution");
+        }
     };
 
     DebugManager.prototype.stepOver = function(){
