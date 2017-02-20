@@ -12,8 +12,6 @@
     <name>Ballerina - Container Support</name>
     <packaging>jar</packaging>
 
-    <url>http://wso2.org</url>
-
     <dependencies>
         <dependency>
             <groupId>com.beust</groupId>
