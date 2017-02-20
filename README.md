@@ -47,9 +47,12 @@ Hello, World!
 You just started Ballerina, ran the HelloWorld sample, and got a response within seconds. Let's take a look at what the
 sample looks like in the Ballerina programming language:
 
+```
 function main (string[] args) {
   system:println("Hello, World!");
 }
+```
+
 Pretty simple and straightforward, right? Now, let's look at something a little more interesting: the Composer.
 
 ### Run the Composer
