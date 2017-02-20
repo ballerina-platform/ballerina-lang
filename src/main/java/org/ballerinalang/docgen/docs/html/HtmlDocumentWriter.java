@@ -22,6 +22,7 @@ import com.github.jknack.handlebars.Helper;
 import com.github.jknack.handlebars.Template;
 import com.github.jknack.handlebars.io.ClassPathTemplateLoader;
 import com.github.jknack.handlebars.io.TemplateLoader;
+
 import org.ballerinalang.docgen.docs.BallerinaDocConstants;
 import org.ballerinalang.docgen.docs.DocumentWriter;
 import org.ballerinalang.docgen.docs.utils.BallerinaDocUtils;
@@ -32,7 +33,9 @@ import org.ballerinalang.model.BallerinaAction;
 import org.ballerinalang.model.BallerinaConnectorDef;
 import org.ballerinalang.model.BallerinaFunction;
 import org.ballerinalang.model.ParameterDef;
+import org.ballerinalang.model.StructDef;
 import org.ballerinalang.model.SymbolName;
+import org.ballerinalang.model.VariableDef;
 import org.ballerinalang.model.types.BType;
 
 import java.io.File;
@@ -150,7 +153,7 @@ public class HtmlDocumentWriter implements DocumentWriter {
                     // eg: {{paramAnnotation this "param"}}
                     .registerHelper(
                             "paramAnnotation",
-                            (Helper<ParameterDef>) (param, options) -> {
+                            (Helper<VariableDef>) (param, options) -> {
                                 String annotationName = options.param(0);
                                 if (annotationName == null) {
                                     return "";
@@ -258,8 +261,10 @@ public class HtmlDocumentWriter implements DocumentWriter {
             return ((BallerinaConnectorDef) dataHolder.getCurrentObject()).getAnnotations();
         } else if (dataHolder.getCurrentObject() instanceof BallerinaAction) {
             return ((BallerinaAction) dataHolder.getCurrentObject()).getAnnotations();
-        }  else if (dataHolder.getCurrentObject() instanceof BTypeMapper) {
+        } else if (dataHolder.getCurrentObject() instanceof BTypeMapper) {
             return ((BTypeMapper) dataHolder.getCurrentObject()).getAnnotations();
+        } else if (dataHolder.getCurrentObject() instanceof StructDef) {
+            return ((StructDef) dataHolder.getCurrentObject()).getAnnotations();
         } else {
             return new Annotation[0];
         }

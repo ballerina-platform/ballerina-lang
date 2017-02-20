@@ -1,5 +1,9 @@
 import ballerina.lang.system;
 
+@doc:Description("an Argument")
+@doc:Field("text: a string")
+@doc:Field("argumentId: an id")
+@doc:Field("sentiment: setiment about the argument")
 struct Argument {
     string text;
     int argumentId;
