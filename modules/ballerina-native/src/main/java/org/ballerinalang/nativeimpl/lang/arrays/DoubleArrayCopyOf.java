@@ -41,9 +41,11 @@ import org.ballerinalang.natives.annotations.ReturnType;
         isPublic = true
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
-        value = "Native function ballerina.model.arrays:copyOf(double[])")})
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "arr",
-        value = "Array to copy")})
+        value = "Copies the specified double array") })
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "doubleArray",
+        value = "The array to be copied") })
+@BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "double[]",
+        value = "A copy of the specified array") })
 public class DoubleArrayCopyOf extends AbstractNativeFunction {
     @Override
     public BValue[] execute(Context context) {

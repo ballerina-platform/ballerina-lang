@@ -10,6 +10,8 @@ import org.ballerinalang.BLangProgramArchiveBuilder;
 import org.ballerinalang.BLangProgramLoader;
 import org.ballerinalang.model.BLangProgram;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
+import org.ballerinalang.util.exceptions.ParserException;
+import org.ballerinalang.util.exceptions.SemanticException;
 import org.ballerinalang.util.program.BLangPrograms;
 
 import java.io.IOException;
@@ -46,11 +48,11 @@ public class Main {
 
             LauncherUtils.writePID(System.getProperty("ballerina.home"));
             optionalInvokedCmd.ifPresent(BLauncherCmd::execute);
+        } catch (ParserException | SemanticException | BLangRuntimeException e) {
+            outStream.println(e.getMessage());
+            Runtime.getRuntime().exit(1);
         } catch (BLauncherException e) {
             LauncherUtils.printLauncherException(e, outStream);
-            Runtime.getRuntime().exit(1);
-        } catch (BLangRuntimeException e) {
-            outStream.println(e.getMessage());
             Runtime.getRuntime().exit(1);
         } catch (Throwable e) {
             String msg = e.getMessage();
