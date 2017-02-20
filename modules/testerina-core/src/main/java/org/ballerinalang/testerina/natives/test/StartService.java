@@ -28,6 +28,8 @@ import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
+import org.ballerinalang.natives.annotations.Attribute;
+import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.natives.connectors.BallerinaConnectorManager;
@@ -59,6 +61,12 @@ import java.util.stream.Collectors;
         functionName = "startService", args = {
         @Argument(name = "serviceName", type = TypeEnum.STRING) }, returnType = {
         @ReturnType(type = TypeEnum.STRING) }, isPublic = true)
+@BallerinaAnnotation(annotationName = "Description",
+                     attributes = { @Attribute(name = "value",
+                                               value = "Starts the service specified in the 'serviceName' argument") })
+@BallerinaAnnotation(annotationName = "Param",
+                     attributes = { @Attribute(name = "serviceName",
+                                               value = "Name of the service to start") })
 public class StartService extends AbstractNativeFunction {
 
     private static final String MSG_PREFIX = "test:startService: ";
