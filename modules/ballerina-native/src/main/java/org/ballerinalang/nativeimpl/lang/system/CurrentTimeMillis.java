@@ -20,7 +20,7 @@ package org.ballerinalang.nativeimpl.lang.system;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeEnum;
-import org.ballerinalang.model.values.BLong;
+import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Attribute;
@@ -36,7 +36,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 @BallerinaFunction(
         packageName = "ballerina.lang.system",
         functionName = "currentTimeMillis",
-        returnType = {@ReturnType(type = TypeEnum.LONG)},
+        returnType = {@ReturnType(type = TypeEnum.INT)},
         isPublic = true
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
@@ -47,6 +47,6 @@ public class CurrentTimeMillis extends AbstractNativeFunction {
 
     @Override
     public BValue[] execute(Context context) {
-        return getBValues(new BLong(System.currentTimeMillis()));
+        return getBValues(new BInteger(System.currentTimeMillis()));
     }
 }

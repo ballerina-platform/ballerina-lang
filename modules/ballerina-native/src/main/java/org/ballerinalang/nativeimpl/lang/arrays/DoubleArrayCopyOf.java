@@ -19,33 +19,25 @@
 package org.ballerinalang.nativeimpl.lang.arrays;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.model.types.TypeEnum;
 import org.ballerinalang.model.values.BArray;
 import org.ballerinalang.model.values.BDouble;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.Attribute;
-import org.ballerinalang.natives.annotations.BallerinaAnnotation;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
  * Native function ballerina.model.arrays:copyOf(double[]).
  */
-@BallerinaFunction(
-        packageName = "ballerina.lang.arrays",
-        functionName = "copyOf",
-        args = {@Argument(name = "doubleArray", type = TypeEnum.ARRAY, elementType = TypeEnum.DOUBLE)},
-        returnType = {@ReturnType(type = TypeEnum.ARRAY, elementType = TypeEnum.DOUBLE)},
-        isPublic = true
-)
-@BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
-        value = "Copies the specified double array") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "doubleArray",
-        value = "The array to be copied") })
-@BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "double[]",
-        value = "A copy of the specified array") })
+//@BallerinaFunction(
+//        packageName = "ballerina.lang.arrays",
+//        functionName = "copyOf",
+//        args = {@Argument(name = "doubleArray", type = TypeEnum.ARRAY, elementType = TypeEnum.DOUBLE)},
+//        returnType = {@ReturnType(type = TypeEnum.ARRAY, elementType = TypeEnum.DOUBLE)},
+//        isPublic = true
+//)
+//@BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
+//        value = "Native function ballerina.model.arrays:copyOf(double[])")})
+//@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "arr",
+//        value = "Array to copy")})
 public class DoubleArrayCopyOf extends AbstractNativeFunction {
     @Override
     public BValue[] execute(Context context) {

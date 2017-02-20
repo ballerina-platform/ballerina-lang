@@ -19,41 +19,25 @@
 package org.ballerinalang.nativeimpl.lang.arrays;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.model.types.TypeEnum;
 import org.ballerinalang.model.values.BArray;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BLong;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.Attribute;
-import org.ballerinalang.natives.annotations.BallerinaAnnotation;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 /**
  * Native function ballerina.model.arrays:copyOfRange(long[], int, int).
  */
-@BallerinaFunction(
-        packageName = "ballerina.lang.arrays",
-        functionName = "copyOfRange",
-        args = {@Argument(name = "longArray", type = TypeEnum.ARRAY, elementType = TypeEnum.LONG),
-                @Argument(name = "from", type = TypeEnum.INT),
-                @Argument(name = "to", type = TypeEnum.INT)},
-        returnType = {@ReturnType(type = TypeEnum.ARRAY, elementType = TypeEnum.LONG)},
-        isPublic = true
-)
-@BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
-        value = "Copies the specified range of the specified long array ") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "longArray",
-        value = "The long array from which the range will be copied") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "from",
-        value = "The initial index of the range") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "to",
-        value = "The final index of the range") })
-@BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "long[]",
-        value = "A new array with the specified range from the original array") })
+//@BallerinaFunction(
+//        packageName = "ballerina.lang.arrays",
+//        functionName = "copyOfRange",
+//        args = {@Argument(name = "longArray", type = TypeEnum.ARRAY, elementType = TypeEnum.LONG),
+//                @Argument(name = "from", type = TypeEnum.INT),
+//                @Argument(name = "to", type = TypeEnum.INT)},
+//        returnType = {@ReturnType(type = TypeEnum.ARRAY, elementType = TypeEnum.LONG)},
+//        isPublic = true
+//)
 public class LongArrayRangeCopy extends AbstractNativeFunction {
     @Override
     public BValue[] execute(Context context) {

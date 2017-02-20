@@ -24,9 +24,9 @@ package org.ballerinalang.model.values;
  */
 public final class BFloat extends BValueType {
 
-    private float value;
+    private double value;
 
-    public BFloat(float value) {
+    public BFloat(double value) {
         this.value = value;
     }
 
@@ -42,12 +42,12 @@ public final class BFloat extends BValueType {
 
     @Override
     public float floatValue() {
-        return this.value;
+        return (float) this.value;
     }
 
     @Override
     public double doubleValue() {
-        return (double) this.value;
+        return this.value;
     }
 
     @Override
@@ -57,11 +57,11 @@ public final class BFloat extends BValueType {
 
     @Override
     public String stringValue() {
-        return Float.toString(value);
+        return Double.toString(value);
     }
 
     @Override
     public boolean equals(Object obj) {
-        return ((BFloat) obj).floatValue() == value;
+        return ((BFloat) obj).doubleValue() == value;
     }
 }

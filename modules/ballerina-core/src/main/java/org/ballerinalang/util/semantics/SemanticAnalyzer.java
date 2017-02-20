@@ -1578,7 +1578,7 @@ public class SemanticAnalyzer implements NodeVisitor {
                     indexExpr.setType(BTypes.typeString);
                 } else {
                     indexExpr = new BasicLiteral(backtickExpr.getNodeLocation(),
-                            new SimpleTypeName(TypeConstants.INT_TNAME), new BInteger(Integer.parseInt(m.group(4))));
+                            new SimpleTypeName(TypeConstants.INT_TNAME), new BInteger(Long.parseLong(m.group(4))));
                     indexExpr.setType(BTypes.typeInt);
                 }
 

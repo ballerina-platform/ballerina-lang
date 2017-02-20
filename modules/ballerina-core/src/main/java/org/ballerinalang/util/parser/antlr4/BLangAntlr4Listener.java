@@ -1639,10 +1639,17 @@ public class BLangAntlr4Listener implements BallerinaListener {
         if (ctx.exception == null) {
             TerminalNode terminalNode = ctx.IntegerLiteral();
             if (terminalNode != null) {
-                if (terminalNode.getText().endsWith("l") || terminalNode.getText().endsWith("L")) {
+                /*if (terminalNode.getText().endsWith("l") || terminalNode.getText().endsWith("L")) {
                     //dropping the last character L
                     String longValue = terminalNode.getText().substring(0, terminalNode.getText().length() - 1);
                     modelBuilder.createLongLiteral(longValue, getCurrentLocation(ctx));
+                } else {
+                    modelBuilder.createIntegerLiteral(terminalNode.getText(), getCurrentLocation(ctx));
+                }*/
+                if (terminalNode.getText().endsWith("f") || terminalNode.getText().endsWith("F")) {
+                    //dropping the last character f/F
+                    String floatValue = terminalNode.getText().substring(0, terminalNode.getText().length() - 1);
+                    modelBuilder.createFloatLiteral(floatValue, getCurrentLocation(ctx));
                 } else {
                     modelBuilder.createIntegerLiteral(terminalNode.getText(), getCurrentLocation(ctx));
                 }
@@ -1650,13 +1657,14 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
             terminalNode = ctx.FloatingPointLiteral();
             if (terminalNode != null) {
-                if (terminalNode.getText().endsWith("d") || terminalNode.getText().endsWith("D")) {
+                /*if (terminalNode.getText().endsWith("d") || terminalNode.getText().endsWith("D")) {
                     //dropping the last character D
                     String doubleValue = terminalNode.getText().substring(0, terminalNode.getText().length() - 1);
                     modelBuilder.createDoubleLiteral(doubleValue, getCurrentLocation(ctx));
                 } else {
                     modelBuilder.createFloatLiteral(terminalNode.getText(), getCurrentLocation(ctx));
-                }
+                }*/
+                modelBuilder.createFloatLiteral(terminalNode.getText(), getCurrentLocation(ctx));
             }
 
             terminalNode = ctx.QuotedStringLiteral();

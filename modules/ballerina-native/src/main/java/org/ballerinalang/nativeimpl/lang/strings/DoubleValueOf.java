@@ -19,35 +19,23 @@
 package org.ballerinalang.nativeimpl.lang.strings;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.model.types.TypeEnum;
 import org.ballerinalang.model.values.BDouble;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.Attribute;
-import org.ballerinalang.natives.annotations.BallerinaAnnotation;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
  * Native function ballerina.model.strings:valueOf.
  *
  * @since 0.8.0
  */
-@BallerinaFunction(
-        packageName = "ballerina.lang.strings",
-        functionName = "valueOf",
-        args = {@Argument(name = "d", type = TypeEnum.DOUBLE)},
-        returnType = {@ReturnType(type = TypeEnum.STRING)},
-        isPublic = true
-)
-@BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
-        value = "Returns a string representation of a double argument") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "d",
-        value = "A double argument") })
-@BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "string",
-        value = "String representation of the specified double argument") })
+//@BallerinaFunction(
+//        packageName = "ballerina.lang.strings",
+//        functionName = "valueOf",
+//        args = {@Argument(name = "d", type = TypeEnum.DOUBLE)},
+//        returnType = {@ReturnType(type = TypeEnum.STRING)},
+//        isPublic = true
+//)
 public class DoubleValueOf extends AbstractNativeFunction {
 
     @Override

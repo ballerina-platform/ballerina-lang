@@ -19,13 +19,8 @@
 package org.ballerinalang.nativeimpl.lang.system;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.model.types.TypeEnum;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.Attribute;
-import org.ballerinalang.natives.annotations.BallerinaAnnotation;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
 
 import java.io.PrintStream;
 
@@ -34,16 +29,12 @@ import java.io.PrintStream;
  *
  * @since 0.8.0
  */
-@BallerinaFunction(
-        packageName = "ballerina.lang.system",
-        functionName = "println",
-        args = {@Argument(name = "l", type = TypeEnum.LONG)},
-        isPublic = true
-)
-@BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
-        value = "Prints a long value to the STDOUT in a new line") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "l",
-        value = "Long value to be printed") })
+//@BallerinaFunction(
+//        packageName = "ballerina.lang.system",
+//        functionName = "println",
+//        args = {@Argument(name = "l", type = TypeEnum.LONG)},
+//        isPublic = true
+//)
 public class PrintlnLong extends AbstractNativeFunction {
 
     public BValue[] execute(Context ctx) {

@@ -5,7 +5,7 @@ const string ageError = "age-error";
 const string lowAgeError = "low-age";
 
 function calculateLoanPayment(string name, int age, int amount, int months)(string) {
-    double payment = 0;
+    float payment = 0;
     try{
         try{
             validateAge(age);

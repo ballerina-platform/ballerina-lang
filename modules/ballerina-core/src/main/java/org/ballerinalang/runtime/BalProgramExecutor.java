@@ -92,7 +92,7 @@ public class BalProgramExecutor {
                         if (parameter.getType() == BTypes.typeString) {
                             argValues[locationCounter] = new BString(resourceArgsMap.get(annotation.getValue()));
                         } else if (parameter.getType() == BTypes.typeInt) {
-                            argValues[locationCounter] = new BInteger(Integer.parseInt(
+                            argValues[locationCounter] = new BInteger(Long.parseLong(
                                     resourceArgsMap.get(annotation.getValue())));
                         }
                     }
