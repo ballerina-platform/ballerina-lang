@@ -115,6 +115,22 @@ public class SQLConnectorTest {
         Assert.assertEquals(retValue.stringValue(), expected);
     }
 
+    @Test
+    public void testQueryParameters() {
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testQueryParameters");
+        BString retValue = (BString) returns[0];
+        final String expected = "Peter";
+        Assert.assertEquals(retValue.stringValue(), expected);
+    }
+
+    @Test
+    public void testInsertTableDataWithParameters() {
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testInsertTableDataWithParameters");
+        BInteger retValue = (BInteger) returns[0];
+        Assert.assertEquals(retValue.intValue(), 1);
+    }
+
+
     @AfterSuite
     public void cleanup() {
         SQLDBUtils.deleteDirectory(new File(SQLDBUtils.DB_DIRECTORY));

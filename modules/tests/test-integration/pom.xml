@@ -28,7 +28,7 @@
 
     <modelVersion>4.0.0</modelVersion>
     <artifactId>test-integration</artifactId>
-    <name>WSO2 Ballerina - Test Integration</name>
+    <name>Ballerina - Test Integration</name>
 
     <dependencies>
         <dependency>

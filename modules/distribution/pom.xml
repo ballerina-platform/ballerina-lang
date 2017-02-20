@@ -29,9 +29,9 @@
 
     <artifactId>ballerina-distribution</artifactId>
     <packaging>pom</packaging>
-    <name>WSO2 Ballerina - Distribution</name>
-    <description>WSO2 Ballerina - Distribution</description>
-    <url>http://wso2.org</url>
+    <name>Ballerina - Distribution</name>
+    <description>Ballerina - Distribution</description>
+    <url>http://ballerinalang.org</url>
 
     <dependencies>
         <dependency>

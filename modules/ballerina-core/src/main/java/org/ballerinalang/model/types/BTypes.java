@@ -121,7 +121,7 @@ public class BTypes {
         // If bType is not null, then element type of this arrays type is available.
         // We should define the arrays type here.
         if (bType != null) {
-            BArrayType bArrayType = new BArrayType(typeName.getSymbolName().toString(),
+            BArrayType bArrayType = new BArrayType(typeName.getSymbolName().getName(),
                     bType, typeName.getPackagePath(), bType.getSymbolScope());
             bType.getSymbolScope().define(typeName.getSymbolName(), bArrayType);
             return bArrayType;

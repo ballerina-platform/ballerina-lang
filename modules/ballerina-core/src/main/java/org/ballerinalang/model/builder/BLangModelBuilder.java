@@ -263,6 +263,7 @@ public class BLangModelBuilder {
     public void startStructDef(NodeLocation location) {
         currentStructBuilder = new StructDef.StructBuilder(location, currentScope);
         currentScope = currentStructBuilder.getCurrentScope();
+        annotationListStack.push(new ArrayList<>());
     }
 
     /**
@@ -303,6 +304,9 @@ public class BLangModelBuilder {
      */
     public void addStructDef(NodeLocation location, String name) {
         currentStructBuilder.setName(name);
+        
+        List<Annotation> annotationList = annotationListStack.pop();
+        annotationList.forEach(currentStructBuilder::addAnnotation);
 
         // TODO: Fix the package path
 //        currentStructBuilder.setPackagePath(currentPackagePath);

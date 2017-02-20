@@ -35,7 +35,7 @@ Add a base path and WebSocketUpgradePath to the service.
 For example:
 
 ```
-@http:Basepath(“/test”)
+@http:BasePath(“/test”)
 @ws:WebSocketUpgradePath(“/websocket”)
 service myService {
 }

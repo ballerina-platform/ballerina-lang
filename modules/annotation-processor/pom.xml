@@ -27,8 +27,8 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>annotation-processor</artifactId>
     <packaging>jar</packaging>
-    <name>WSO2 Ballerina - Annotation Processor</name>
-    <url>http://wso2.org</url>
+    <name>Ballerina - Annotation Processor</name>
+    <url>http://ballerinalang.org</url>
 
     <dependencies>
         <dependency>
