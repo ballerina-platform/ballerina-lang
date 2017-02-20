@@ -47,7 +47,6 @@ public class BTestRunner {
     private static TesterinaReport tReport = new TesterinaReport();
 
     public static void runTest(Path[] sourceFilePaths) {
-        outStream.println("------ Test Program Path set to : " + System.getProperty("user.dir") + " -------");
         BallerinaConnectorManager.getInstance().initialize(new MessageProcessor());
         BallerinaConnectorManager.getInstance().initializeClientConnectors(new MessageProcessor());
 
