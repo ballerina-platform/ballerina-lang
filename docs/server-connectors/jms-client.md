@@ -36,7 +36,7 @@ MessageType | string | The message type needed to be sent | TextMessage, BytesMe
 Message | message | The message conaining the payload to be sent | A Ballerina message
 PropertyMap | map | A map of optional Ballerina properties | A valid Ballerina map
 
-Optional parameters that can be defined in propertyMap:
+Optional parameters that can be defined in PropertyMap:
 
 Parameter Name | Parameter type | Description | Expected Values
 ------------- | ------------------- | ---------------- | ---------------
