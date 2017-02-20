@@ -339,6 +339,7 @@ define(['lodash', 'log', 'event_channel',  'alerts', './svg-canvas', './../ast/f
 
             // Set the workerLifeLineMargin to the end of the default worker
             this.getHorizontalMargin().setPosition(this._defaultWorkerLifeLine.getBoundingBox().getBottom());
+            this.getWorkerLifeLineMargin().setPosition(this._defaultWorkerLifeLine.getBoundingBox().getRight());
             this.listenTo(this.getHorizontalMargin(), 'moved', function (dy) {
                 self._defaultWorkerLifeLine.getBottomCenter().y(self._defaultWorkerLifeLine.getBottomCenter().y() + dy);
                 // Silently increase the bounding box of the worker. Because this size change is due to the

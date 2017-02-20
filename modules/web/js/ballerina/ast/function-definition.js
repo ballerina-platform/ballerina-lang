@@ -359,7 +359,7 @@ define(['lodash', 'log', './node', './callable-definition', '../utils/common-uti
      * @param index
      */
     FunctionDefinition.prototype.addChild = function (child, index) {
-        if (this.BallerinaASTFactory.isConnectorDeclaration(child)) {
+        if (this.BallerinaASTFactory.isWorkerDeclaration(child)) {
             Object.getPrototypeOf(this.constructor.prototype).addChild.call(this, child, 0);
         } else {
             Object.getPrototypeOf(this.constructor.prototype).addChild.call(this, child, index);
