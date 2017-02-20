@@ -20,9 +20,9 @@ You can use plug-ins to write Ballerina code in your favorite IDE. The following
 * [IntelliJ IDEA] (https://github.com/ballerinalang/plugin-intellij)
 * [Vim](https://github.com/ballerinalang/plugin-vim)
 
-## Documentation generator
+## API documentation generator
 
-As you develop new connectors, actions, and functions that you want to share with others, it's important to add documentation that describes each entity and how it's used. Ballerina provides a documentation framework called Docerina that generates API documentation from your annotations in your Ballerina files. You can check it out at https://github.com/ballerinalang/docerina. 
+As you develop new connectors, actions, and functions that you want to share with others, it's important to add API documentation that describes each entity and how it's used. Ballerina provides a framework called Docerina that generates API documentation from your annotations in your Ballerina files. You can check it out at https://github.com/ballerinalang/docerina. 
 
 ## Test framework
 
