@@ -104,6 +104,24 @@
             <filtered>true</filtered>
             <fileMode>644</fileMode>
         </file>
+        <file>
+            <source>../../LICENSE.txt</source>
+            <outputDirectory>.</outputDirectory>
+            <filtered>true</filtered>
+            <fileMode>644</fileMode>
+        </file>
+        <file>
+            <source>../../copyright.txt</source>
+            <outputDirectory>.</outputDirectory>
+            <filtered>true</filtered>
+            <fileMode>644</fileMode>
+        </file>
+        <file>
+            <source>../../README.txt</source>
+            <outputDirectory>.</outputDirectory>
+            <filtered>true</filtered>
+            <fileMode>644</fileMode>
+        </file>
     </files>
 
     <dependencySets>
