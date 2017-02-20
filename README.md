@@ -34,23 +34,23 @@ Flags:
 
 ### Usage
 
-**Example 1:** Generate API documentation for Ballerina source directories and files. This would generate the API docs at `{currentdir}/api-docs/html/` directory.
+**Example 1:** Generate API documentation for the given Ballerina source directories and files. This would generate API documentation at `{currentdir}/api-docs/html/` directory:
 ```sh
 $ ballerina doc ../../../connectors/twitter/src/ ../../../connectors/soap/src/ test.bal
 ```
-**Example 2:** Generate API documentation for Ballerina source directories and files and copy them to the `{currentdir}/docs` directory.
+**Example 2:** Generate API documentation for the given Ballerina source directories and files and copy them to the `{currentdir}/docs` directory:
 ```sh
 $ ballerina doc ../../../connectors/twitter/src/ ../../../connectors/soap/src/ test.bal  -o docs
 ```
-**Example 3:** Generate API documentation for Ballerina source directories and files, excluding the `org.wso2.ballerina.connectors.twitter` package and copy them to the `{currentdir}/docs` directory.
+**Example 3:** Generate API documentation for the given Ballerina source directories and files, excluding `org.wso2.ballerina.connectors.twitter` package and copy them to the `{currentdir}/docs` directory:
 ```sh
 $ ballerina doc ../../../connectors/twitter/src/ ../../../connectors/soap/src/ test.bal  -o docs -e org.wso2.ballerina.connectors.twitter
 ```
-**Example 4:** Generate API documentation for Ballerina source directories and files and copy them to the `{currentdir}/docs` directory while printing debug level logs of Docerina to the stdout.
+**Example 4:** Generate API documentation for the given Ballerina source directories and files and copy them to the `{currentdir}/docs` directory while printing debug level logs of Docerina to the STDOUT:
 ```sh
 $ ballerina doc ../../../connectors/twitter/src/ ../../../connectors/soap/src/ test.bal  -o docs -v
 ```
-**Example 5:** Generate API documentation for native Ballerina source directories.
+**Example 5:** Generate API documentation for the given native Ballerina source directories:
 ```sh
 $ ballerina doc ../../../connectors/twitter/src/ ../../../connectors/soap/src/ -n
 ```
