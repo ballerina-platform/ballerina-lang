@@ -240,8 +240,13 @@ public class SwaggerConverterUtils {
             if (entry.getHasQueryParams()) {
                 for (CodegenParameter codegenParameter : entry.queryParams) {
                     //TODO compare and merge if existing parameter edited.
+                    String variableName = (String) codegenParameter.
+                            vendorExtensions.get(SwaggerBallerinaConstants.VARIABLE_UUID_NAME);
+                    if((variableName == null ) || variableName.isEmpty()){
+                        variableName = codegenParameter.baseName;
+                    }
                     ParameterDef parameterDef = new ParameterDef(
-                            new NodeLocation("<unknown>", 0), codegenParameter.paramName,
+                            new NodeLocation("<unknown>", 0), variableName,
                             new SimpleTypeName(codegenParameter.dataType), new SymbolName("m"),
                             resourceBuilder.buildResource());
                     Annotation annotation = new Annotation(null, new SymbolName("http:QueryParam"),
@@ -253,8 +258,13 @@ public class SwaggerConverterUtils {
             if (entry.getHasPathParams()) {
                 for (CodegenParameter codegenParameter : entry.pathParams) {
                     //TODO compare and merge if existing parameter edited.
-                    ParameterDef parameterDef = new ParameterDef(
-                            new NodeLocation("<unknown>", 0), codegenParameter.paramName,
+                    String variableName = (String) codegenParameter.
+                            vendorExtensions.get(SwaggerBallerinaConstants.VARIABLE_UUID_NAME);
+                    if((variableName == null ) || variableName.isEmpty()){
+                        variableName = codegenParameter.baseName;
+                    }
+                        ParameterDef parameterDef = new ParameterDef(
+                            new NodeLocation("<unknown>", 0), variableName,
                             new SimpleTypeName(codegenParameter.dataType), new SymbolName("m"),
                             resourceBuilder.buildResource());
                     Annotation annotation = new Annotation(null, new SymbolName("http:PathParam"),
