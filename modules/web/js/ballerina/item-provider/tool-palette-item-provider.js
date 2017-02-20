@@ -230,6 +230,9 @@ define(['log', 'lodash', './../env/package', './../tool-palette/tool-palette', '
                 // registering connector name-modified event
                 connector.on('name-modified', function(newName, oldName){
                     self.updateToolItem(toolGroupID, connector, 'name', newName, 'connectorName');
+                    _.forEach(connector.getActions(), function (action) {
+                        self.updateToolItem(toolGroupID, action, '', newName, 'actionConnectorName');
+                    });
                 });
 
                 connector.on('param-added', function (newName, oldName) {
@@ -266,7 +269,7 @@ define(['log', 'lodash', './../env/package', './../tool-palette/tool-palette', '
                     var toolGroupID = package.getName() + "-tool-group";
                     // registering connector action name-modified event
                     action.on('name-modified', function(newName, oldName){
-                        self.updateToolItem(toolGroupID, action, 'name', newName);
+                        self.updateToolItem(toolGroupID, action, 'name', newName, 'action');
                     });
                 });
                 connector.on('connector-action-added', function (action) {
@@ -281,7 +284,7 @@ define(['log', 'lodash', './../env/package', './../tool-palette/tool-palette', '
 
                     // registering connector action name-modified event
                     action.on('name-modified', function(newName, oldName){
-                        self.updateToolItem(toolGroupID, action, 'name', newName);
+                        self.updateToolItem(toolGroupID, action, 'name', newName, 'action');
                     });
 
                     var actionNodeFactoryMethod = DefaultsAddedBallerinaASTFactory.createAggregatedActionInvocationStatement;
