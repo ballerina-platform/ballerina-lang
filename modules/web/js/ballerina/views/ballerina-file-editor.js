@@ -595,6 +595,7 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                     self.rerenderCurrentPackageTool();
                     self.reDraw();
                 }
+                $(".outer-box").mCustomScrollbar("scrollTo", "left");
             });
 
             this.initDropTarget();
