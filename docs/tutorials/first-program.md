@@ -116,4 +116,4 @@ Now that you're familiar with running Ballerina in standalone and server mode, u
 
 * Read the [Key Concepts](../key-concepts.md) page to familiarize yourself with the rest of the main features you need to know about.
 * Browse through the [Samples](../samples.md) and use them as templates for your own programs.
-* See the [Language Reference](../lang-ref/index.md) for complete information on using the Ballerina language. 
+* See the [Language Reference](../lang-ref/lang-overview.md) for complete information on using the Ballerina language. 
