@@ -42,7 +42,7 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <docerina.version>0.8.0-SNAPSHOT</docerina.version>
+    <docerina.version>0.8.0</docerina.version>
   </properties>
 
   <modules>
