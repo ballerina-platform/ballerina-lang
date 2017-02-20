@@ -77,6 +77,9 @@ define(['lodash', './statement'], function (_, Statement) {
      */
     WorkerReceiver.prototype.initFromJson = function (jsonNode) {
         var workerName = jsonNode.worker_name;
+        var messageName = jsonNode.reply_message[0].variable_reference_name;
+        var receiveStatement = messageName + ' <- ' + workerName;
+        this.setReceiveStatement(receiveStatement);
         var self = this;
         var workerInstance = _.find(this.getParent().getChildren(), function (child) {
             return self.getFactory().isWorkerDeclaration(child) && !child.isDefaultWorker() && child.getWorkerName() === workerName;
