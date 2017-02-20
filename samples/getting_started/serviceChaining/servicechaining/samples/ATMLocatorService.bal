@@ -1,7 +1,10 @@
+package servicechaining.samples;
+
 import ballerina.lang.messages;
 import ballerina.net.http;
 import ballerina.lang.system;
 import ballerina.lang.jsons;
+
 @http:BasePath ("/ABCBank")
 service ATMLocator {
     
@@ -27,52 +30,5 @@ service ATMLocator {
         response = http:ClientConnector.post(bankInfoService, "", backendServiceReq);
         reply response;
     
-    }
-    
-}
-@http:BasePath ("/branchlocator")
-service Banklocator {
-    
-    @http:POST
-    resource product (message m) {
-        message response = {};
-        json jsonRequest = messages:getJsonPayload(m);
-        string zipCode = jsons:getString(jsonRequest, "$.BranchLocator.ZipCode");
-        json payload = {};
-        if (zipCode == "95999") {
-            payload = `{"ABCBank": {"BranchCode":"123"}}`;
-            
-        }
-        else {
-            payload = `{"ABCBank": {"BranchCode":"-1"}}`;
-            
-        }
-        messages:setJsonPayload(response, payload);
-        reply response;
-        
-    }
-    
-}
-@http:BasePath ("/bankinfo")
-service Bankinfo {
-    
-    @http:POST
-    resource product (message m) {
-        message response = {};
-        json jsonRequest = messages:getJsonPayload(m);
-        string branchCode = jsons:getString(jsonRequest, "$.BranchInfo.BranchCode");
-        json payload = {};
-        if (branchCode == "123") {
-            payload = `{"ABC Bank": {"Address": "111 River Oaks Pkwy, San Jose, CA 95999"}}`;
-            
-        }
-        else {
-            payload = `{"ABC Bank": {"error": "No branches found."}}`;
-            
-        }
-        messages:setJsonPayload(response, payload);
-        reply response;
-        
-    }
-    
+    }    
 }

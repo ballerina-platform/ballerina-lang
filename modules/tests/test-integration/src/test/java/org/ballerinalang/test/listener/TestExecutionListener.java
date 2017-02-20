@@ -136,7 +136,7 @@ public class TestExecutionListener implements IExecutionListener {
                 sampleDir + File.separator + "passthroughService" + File.separator + "passthroughService.bsz",
                 sampleDir + File.separator + "restfulService" + File.separator + "ecommerceService.bsz",
                 sampleDir + File.separator + "routingServices" + File.separator + "routingServices.bal",
-                sampleDir + File.separator + "serviceChaining" + File.separator + "ATMLocatorService.bal"
+                sampleDir + File.separator + "serviceChaining" + File.separator + "ATMLocatorService.bsz"
         };
         return sampleFiles;
     }
