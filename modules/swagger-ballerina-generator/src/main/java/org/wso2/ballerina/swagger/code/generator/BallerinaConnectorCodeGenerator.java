@@ -242,8 +242,8 @@ public class BallerinaConnectorCodeGenerator extends DefaultCodegen implements C
             LOGGER.warn(operationId + " (reserved word) cannot be used as method name. Renamed to " + camelize(sanitizeName("call_" + operationId)));
             operationId = "call_" + operationId;
         }
-
-        return camelize(operationId);
+        String name = camelize(operationId);
+        return Character.toLowerCase(name.charAt(0)) + name.substring(1);
     }
 
     @Override
@@ -268,12 +268,12 @@ public class BallerinaConnectorCodeGenerator extends DefaultCodegen implements C
         return underscore(name);
     }
 
-    @Override
+/*    @Override
     public String toApiFilename(String name) {
         name = name.replaceAll("-", "_");
         return underscore(name);
     }
-
+*/
     @Override
     public String escapeQuotationMark(String input) {
         // remove " to avoid code injection
