@@ -3,7 +3,6 @@ package org.ballerinalang.launcher;
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.MissingCommandException;
 import com.beust.jcommander.Parameter;
-import com.beust.jcommander.ParameterDescription;
 import com.beust.jcommander.ParameterException;
 import com.beust.jcommander.Parameters;
 import org.ballerinalang.BLangProgramArchiveBuilder;
@@ -23,7 +22,6 @@ import java.nio.file.NotDirectoryException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -119,6 +117,7 @@ public class Main {
             ServiceLoader<BLauncherCmd> bCmds = ServiceLoader.load(BLauncherCmd.class);
             for (BLauncherCmd bCmd : bCmds) {
                 cmdParser.addCommand(bCmd.getName(), bCmd);
+                bCmd.setParentCmdParser(cmdParser);
             }
 
             cmdParser.setProgramName("ballerina");
@@ -169,97 +168,13 @@ public class Main {
         out.append("\n");
 
         out.append("Available Commands:\n");
-        printCommandList(cmdParser, out);
+        BLauncherCmd.printCommandList(cmdParser, out);
 
         out.append("\n");
-        printFlags(cmdParser.getParameters(), out);
+        BLauncherCmd.printFlags(cmdParser.getParameters(), out);
 
         out.append("\n");
         out.append("Use \"ballerina help [command]\" for more information about a command.");
-        outStream.println(out.toString());
-    }
-
-    private static void printFlags(List<ParameterDescription> paramDescs, StringBuilder out) {
-        int longestNameLen = 0;
-        int count = 0;
-        for (ParameterDescription parameterDesc : paramDescs) {
-            if (parameterDesc.getParameter().hidden()) {
-                continue;
-            }
-
-            String names = parameterDesc.getNames();
-            int length = names.length() + 2;
-            if (length > longestNameLen) {
-                longestNameLen = length;
-            }
-            count++;
-        }
-
-        if (count == 0) {
-            return;
-        }
-        out.append("Flags:\n");
-        for (ParameterDescription parameterDesc : paramDescs) {
-            if (parameterDesc.getParameter().hidden()) {
-                continue;
-            }
-            String names = parameterDesc.getNames();
-            String desc = parameterDesc.getDescription();
-            int noOfSpaces = longestNameLen - (names.length() + 2);
-            char[] charArray = new char[noOfSpaces + 4];
-            Arrays.fill(charArray, ' ');
-            out.append("  ").append(names).append(new String(charArray)).append(desc).append("\n");
-        }
-    }
-
-    private static void printCommandList(JCommander cmdParser, StringBuilder out) {
-        int longestNameLen = 0;
-        for (JCommander commander : cmdParser.getCommands().values()) {
-            BLauncherCmd cmd = (BLauncherCmd) commander.getObjects().get(0);
-            if (cmd.getName().equals("default-cmd") || cmd.getName().equals("help")) {
-                continue;
-            }
-
-            int length = cmd.getName().length() + 2;
-            if (length > longestNameLen) {
-                longestNameLen = length;
-            }
-        }
-
-        for (JCommander commander : cmdParser.getCommands().values()) {
-            BLauncherCmd cmd = (BLauncherCmd) commander.getObjects().get(0);
-            if (cmd.getName().equals("default-cmd") || cmd.getName().equals("help")) {
-                continue;
-            }
-
-            String cmdName = cmd.getName();
-            String cmdDesc = cmdParser.getCommandDescription(cmdName);
-
-            int noOfSpaces = longestNameLen - (cmd.getName().length() + 2);
-            char[] charArray = new char[noOfSpaces + 4];
-            Arrays.fill(charArray, ' ');
-            out.append("  ").append(cmdName).append(new String(charArray)).append(cmdDesc).append("\n");
-        }
-    }
-
-    private static void printCommandUsageInfo(JCommander cmdParser, String commandName) {
-        StringBuilder out = new StringBuilder();
-        JCommander jCommander = cmdParser.getCommands().get(commandName);
-        BLauncherCmd bLauncherCmd = (BLauncherCmd) jCommander.getObjects().get(0);
-
-        out.append(cmdParser.getCommandDescription(commandName)).append("\n");
-        out.append("\n");
-        out.append("Usage:\n");
-        bLauncherCmd.printUsage(out);
-        out.append("\n");
-
-        if (jCommander.getCommands().values().size() != 0) {
-            out.append("Available Commands:\n");
-            printCommandList(jCommander, out);
-            out.append("\n");
-        }
-
-        printFlags(jCommander.getParameters(), out);
         outStream.println(out.toString());
     }
 
@@ -282,7 +197,8 @@ public class Main {
 
         public void execute() {
             if (helpFlag) {
-                printCommandUsageInfo(parentCmdParser, "run");
+                String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(parentCmdParser, "run");
+                outStream.println(commandUsageInfo);
                 return;
             }
 
@@ -342,7 +258,8 @@ public class Main {
 
         public void execute() {
             if (helpFlag) {
-                printCommandUsageInfo(parentCmdParser, "main");
+                String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(parentCmdParser, "main");
+                outStream.println(commandUsageInfo);
                 return;
             }
 
@@ -411,7 +328,8 @@ public class Main {
 
         public void execute() {
             if (helpFlag) {
-                printCommandUsageInfo(parentCmdParser, "service");
+                String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(parentCmdParser, "service");
+                outStream.println(commandUsageInfo);
                 return;
             }
 
@@ -499,7 +417,8 @@ public class Main {
 
         public void execute() {
             if (helpFlag) {
-                printCommandUsageInfo(parentCmdParser, "build");
+                String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(parentCmdParser, "build");
+                outStream.println(commandUsageInfo);
                 return;
             }
 
@@ -559,7 +478,8 @@ public class Main {
 
         public void execute() {
             if (helpFlag) {
-                printCommandUsageInfo(parentCmdParser, "main");
+                String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(parentCmdParser, "main");
+                outStream.println(commandUsageInfo);
                 return;
             }
 
@@ -642,7 +562,8 @@ public class Main {
 
         public void execute() {
             if (helpFlag) {
-                printCommandUsageInfo(parentCmdParser, "service");
+                String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(parentCmdParser, "service");
+                outStream.println(commandUsageInfo);
                 return;
             }
 
@@ -731,7 +652,8 @@ public class Main {
                 throw LauncherUtils.createUsageException("unknown help topic `" + userCommand + "`");
             }
 
-            printCommandUsageInfo(parentCmdParser, userCommand);
+            String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(parentCmdParser, userCommand);
+            outStream.println(commandUsageInfo);
         }
 
         @Override
