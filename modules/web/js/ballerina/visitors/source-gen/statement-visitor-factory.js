@@ -64,8 +64,6 @@ function (_, log, EventChannel, AST, TryCatchStatementVisitor,
             return new LogicalExpressionVisitor(parent);
         } else if (statement instanceof AST.FunctionInvocation) {
             return new FunctionInvocationVisitor(parent);
-        }else if (statement instanceof AST.FunctionInvocationExpression) {
-            return new FunctionInvocationExpressionVisitor(parent);
         } else if(statement instanceof AST.Assignment){
             return new AssignmentVisitor(parent);
         } else if (statement instanceof AST.LeftOperandExpression) {
