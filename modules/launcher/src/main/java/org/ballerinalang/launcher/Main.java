@@ -117,6 +117,7 @@ public class Main {
             ServiceLoader<BLauncherCmd> bCmds = ServiceLoader.load(BLauncherCmd.class);
             for (BLauncherCmd bCmd : bCmds) {
                 cmdParser.addCommand(bCmd.getName(), bCmd);
+                bCmd.setParentCmdParser(cmdParser);
             }
 
             cmdParser.setProgramName("ballerina");
