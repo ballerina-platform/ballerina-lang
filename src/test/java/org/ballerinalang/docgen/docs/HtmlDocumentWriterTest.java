@@ -104,15 +104,17 @@ public class HtmlDocumentWriterTest {
             // asserting action @return description
             Assert.assertTrue(content1
                     .contains("<td>response</td><td><a href=\"#message\">message</a></td><td>response object</td>"));
+            // asserting struct content
+            Assert.assertTrue(content1.contains("struct Argument(<a href=\"#string\">string</a> text,<a href=\"#int\">"
+                    + "int</a> argumentId,<a href=\"#int\">int</a> sentiment)"));
+            Assert.assertTrue(content1
+                    .contains("<td>text</td><td><a href=\"#string\">string</a></td><td>a string</td>"));
             
             // Assert function and connector exclusion logic
             String content2 = new Scanner(htmlFile2).useDelimiter("\\Z").next();
             Assert.assertTrue(content2.contains("Functions"));
             Assert.assertFalse(content2.contains("Connectors"));
             Assert.assertTrue(content2.contains("Structs"));
-            // asserting struct content
-            Assert.assertTrue(content2.contains("<a href=\"#Argument \">"
-                    + "Argument (string text, int argumentId, int sentiment)</a>"));
 
             String content3 = new Scanner(htmlFile3).useDelimiter("\\Z").next();
             Assert.assertFalse(content3.contains("Functions"));

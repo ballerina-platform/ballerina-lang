@@ -19,6 +19,16 @@ function getHeader (message m, string key) (string value) {
     return value;
 }
 
+@doc:Description("an Argument")
+@doc:Field("text: a string")
+@doc:Field("argumentId: an id")
+@doc:Field("sentiment: setiment about the argument")
+struct Argument {
+    string text;
+    int argumentId;
+    int sentiment;
+}
+
 @doc:Description("Test connector")
 @doc:Param("consumerKey: consumer key")
 @doc:Param("consumerSecret: consumer secret")

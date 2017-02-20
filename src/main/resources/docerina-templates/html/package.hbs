@@ -121,23 +121,22 @@
                         </p>
                         {{/if}} {{/each}} {{/each}}
                         <br>{{/hasConnectors}} 
-                        {{#hasStructs}}{{currentObject this}}
+                        {{#hasStructs}}
                         <!-- Structs -->
                         <h2>Structs of {{refinePackagePath this}} package</h2>
-                        {{#each structDefs}}
+                        {{#each structDefs}} {{currentObject this}}
                         <h3 id="{{symbolName.name}}">
-                            struct {{symbolName.name}}({{#each fields}}<a href="{{#bindLink type.symbolName}}{{/bindLink}}"{{typeTitle type}}>{{typeName}}</a> {{name}}{{#unless @last}},
-                            {{/unless}}{{/each}} )
+                            struct {{symbolName.name}}({{#each fields}}<a href="{{#bindLink type.symbolName}}{{/bindLink}}"{{typeTitle type}}>{{typeName}}</a> {{name}}{{#unless @last}},{{/unless}}{{/each}})
                         </h3>
                         <p>
                             <b>Fields:</b>
                             <table>
                                 <tr>
-                                    <th>Field Name</th><th>Data Type</th>
+                                    <th>Field Name</th><th>Data Type</th><th>Description</th>
                                 </tr>
                                 {{#each fields}}
                                 <tr>
-                                    <td>{{name}}</td><td><a href="{{#bindLink type.symbolName}}{{/bindLink}}"{{typeTitle type}}>{{typeName}}</a></td>
+                                    <td>{{name}}</td><td><a href="{{#bindLink type.symbolName}}{{/bindLink}}"{{typeTitle type}}>{{typeName}}</a></td><td>{{paramAnnotation this "doc:field"}}</td>
                                 </tr>
                                 {{/each}}
                             </table>
