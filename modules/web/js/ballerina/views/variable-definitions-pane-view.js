@@ -64,7 +64,7 @@ define(['require', 'lodash', 'log', 'jquery', 'alerts', './variable-definition-v
             var variablesContentWrapper = $("<div class='variables-content-wrapper'/>").appendTo(variablePaneWrapper);
 
             var collapserWrapper = $("<div class='variable-pane-collapser-wrapper'/>")
-                .data("collapsed", "false")
+                .data("collapsed", "true")
                 .appendTo(variablePaneWrapper);
             $("<i class='fw fw-left'></i>").appendTo(collapserWrapper);
 
@@ -177,6 +177,17 @@ define(['require', 'lodash', 'log', 'jquery', 'alerts', './variable-definition-v
                     Alerts.error(error);
                 }
             });
+
+            // Hiding/showing the variables depending on the default "collapsed" value of collapserWrapper.
+            if (_.isEqual(collapserWrapper.data("collapsed"), "false")) {
+                $(collapserWrapper).empty();
+                $("<i class='fw fw-left'></i>").appendTo(collapserWrapper);
+                variablesContentWrapper.find(".variable-wrapper").show();
+            } else {
+                $(collapserWrapper).empty();
+                $("<i class='fw fw-right'></i>").appendTo(collapserWrapper);
+                variablesContentWrapper.find(".variable-wrapper").hide();
+            }
 
             // The click event for hiding and showing variables.
             collapserWrapper.click(function () {
