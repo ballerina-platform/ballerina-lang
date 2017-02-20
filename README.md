@@ -20,7 +20,7 @@ $ ballerina doc --help
 generate Ballerina API documentation
 
 Usage:
-ballerina doc <sourcepath>
+ballerina doc <sourcepath>... [-o outputdir] [-n] [-e excludedpackages] [-v]
   sourcepath:
   Paths to the directories where Ballerina source files reside or a path to
   a Ballerina file which does not belong to a package
