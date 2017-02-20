@@ -15,7 +15,7 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.wso2.ballerina.swagger.code.generator.cmd;
+package org.ballerinalang.swagger.code.generator.cmd;
 
 import io.airlift.airline.Command;
 import io.airlift.airline.Option;
@@ -25,7 +25,6 @@ import io.swagger.codegen.DefaultGenerator;
 import io.swagger.codegen.config.CodegenConfigurator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.ballerina.swagger.code.generator.BallerinaConnectorCodeGenerator;
 
 import static io.swagger.codegen.config.CodegenConfiguratorUtils.*;
 import static org.apache.commons.lang3.StringUtils.isNotEmpty;

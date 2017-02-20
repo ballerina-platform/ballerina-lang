@@ -15,14 +15,13 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.wso2.ballerina.swagger.code.generator.cmd;
+package org.ballerinalang.swagger.code.generator.cmd;
 
 import io.airlift.airline.Command;
 import io.airlift.airline.Option;
 import io.swagger.codegen.CliOption;
 import io.swagger.codegen.CodegenConfig;
-import io.swagger.codegen.CodegenConfigLoader;
-import org.wso2.ballerina.swagger.code.generator.BallerinaConnectorCodeGenerator;
+import org.ballerinalang.swagger.code.generator.BallerinaConnectorCodeGenerator;
 
 @Command(name = "config-help", description = "Config help for chosen lang")
 public class ConfigHelp implements Runnable {
