@@ -32,35 +32,48 @@ import java.util.List;
 /**
  * doc command for ballerina which generates documentation for Ballerina packages
  */
-@Parameters(commandNames = "doc", commandDescription = "generates API documentation for Ballerina packages")
+@Parameters(commandNames = "doc", commandDescription = "generate Ballerina API documentation")
 public class BallerinaDocCmd implements BLauncherCmd {
     private final PrintStream out = System.out;
+
+    private JCommander parentCmdParser;
 
     @Parameter(arity = 1, description = "either the path to the directories where Ballerina source files reside or a "
             + "path to a Ballerina file which does not belong to a package")
     private List<String> argList;
-    
+
     @Parameter(names = { "--output", "-o" },
             description = "path to the output directory where the API documentation will be written to", hidden = false)
     private String outputDir;
-    
+
     @Parameter(names = { "--exclude", "-e" },
-            description = "comma separated list of package names to be filtered from the documentation", hidden = false)
+            description = "a comma separated list of package names to be filtered from the documentation",
+            hidden = false)
     private String packageFilter;
-    
+
     @Parameter(names = { "--native", "-n" },
-            description = "treat the source as native ballerina code", hidden = false)
+            description = "read the source as native ballerina code", hidden = false)
     private boolean nativeSource;
-    
+
     @Parameter(names = { "--verbose", "-v" },
             description = "enable debug level logs", hidden = false)
     private boolean debugEnabled;
 
+    @Parameter(names = { "--help", "-h" }, hidden = true)
+    private boolean helpFlag;
+
     @Override
     public void execute() {
+        if (helpFlag) {
+            String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(parentCmdParser, "doc");
+            out.println(commandUsageInfo);
+            return;
+        }
+
         if (argList == null || argList.size() == 0) {
-            StringBuilder sb = new StringBuilder("docerina: no valid Ballerina source given.\n");
-            printUsage(sb);
+            StringBuilder sb = new StringBuilder("docerina: no valid Ballerina source given."
+                    + System.lineSeparator());
+            sb.append(BLauncherCmd.getCommandUsageInfo(parentCmdParser, "doc"));
             out.println(sb);
             return;
         }
@@ -80,18 +93,20 @@ public class BallerinaDocCmd implements BLauncherCmd {
 
     @Override
     public void printUsage(StringBuilder stringBuilder) {
-        stringBuilder.append("ballerina doc <sourcepath>... [-o outputdir -e excludedpackages -v -n]\n");
-        stringBuilder
-                .append("\n\tsourcepath:\n\tEither the paths to the directories where Ballerina source files reside or "
-                        + "a path to a Ballerina file which does not belong to a package");
-        stringBuilder.append("\n");
+        stringBuilder.append("ballerina doc <sourcepath>... [-o outputdir] [-n] [-e excludedpackages] [-v]"
+                + System.lineSeparator())
+                .append("  sourcepath:" + System.lineSeparator())
+                .append("  Paths to the directories where Ballerina source files reside or a path to"
+                        + System.lineSeparator())
+                .append("  a Ballerina file which does not belong to a package" + System.lineSeparator());
     }
 
     @Override
-    public void setParentCmdParser(JCommander arg0) {
+    public void setParentCmdParser(JCommander parentCmdParser) {
+        this.parentCmdParser = parentCmdParser;
     }
 
     @Override
-    public void setSelfCmdParser(JCommander arg0) {
+    public void setSelfCmdParser(JCommander selfCmdParser) {
     }
 }
