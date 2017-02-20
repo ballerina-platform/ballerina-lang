@@ -18,11 +18,11 @@ pages:
     - Functions: 'lang-ref/functions.md'
     - Connectors: 
         - Working with Connectors: 'lang-ref/connectors.md'
-        - File Server Connector: 'server-connectors/file-server.md`
-        - HTTP/2 Server Connector: 'server-connectors/http2-server.md`
-        - JMS Client Connector: 'server-connectors/jms-client.md`
-        - JMS Server Connector: 'server-connectors/jms-server.md`
-        - WebSocket Server Connector: 'server-connectors/websocket-server.md`        
+        - File Server Connector: 'server-connectors/file-server.md'
+        - HTTP/2 Server Connector: 'server-connectors/http2-server.md'
+        - JMS Client Connector: 'server-connectors/jms-client.md'
+        - JMS Server Connector: 'server-connectors/jms-server.md'
+        - WebSocket Server Connector: 'server-connectors/websocket-server.md'    
     - Actions: 'lang-ref/actions.md'
     - Workers: 'lang-ref/workers.md'
     - Types and Variables: 'lang-ref/types-variables.md'
