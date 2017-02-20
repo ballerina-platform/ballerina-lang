@@ -155,14 +155,22 @@ public class SwaggerResourceMapper {
                         queryParameter.setIn("query");
                         queryParameter.setVendorExtension(SwaggerBallerinaConstants.VARIABLE_UUID_NAME,
                                 parameterDef.getName());
-                        queryParameter.setName(parameterDef.getName());
+                        String parameterName = parameterDef.getAnnotations().get(0).getValue();
+                        if((parameterName == null ) || parameterName.isEmpty()){
+                            parameterName = parameterDef.getName();
+                        }
+                        queryParameter.setName(parameterName);
                         queryParameter.required(true);
                         op.getOperation().addParameter(queryParameter);
                     }
                     if(parameterDef.getAnnotations().get(0).getName().equalsIgnoreCase("http:PathParam")){
                         PathParameter pathParameter = new PathParameter();
                         pathParameter.setType(typeName);
-                        pathParameter.setName(parameterDef.getName());
+                        String parameterName = parameterDef.getAnnotations().get(0).getValue();
+                        if((parameterName == null ) || parameterName.isEmpty()){
+                            parameterName = parameterDef.getName();
+                        }
+                        pathParameter.setName(parameterName);
                         pathParameter.setIn("path");
                         pathParameter.setVendorExtension(SwaggerBallerinaConstants.VARIABLE_UUID_NAME,
                                 parameterDef.getName());
