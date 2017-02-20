@@ -16,11 +16,13 @@ This contains
 - Connectors
     https://github.com/ballerinalang/connectors
 
-## Getting started
+ Getting started
+====================
 
 You can download the Ballerina Tools distribution, try samples, and read the documentation at http://ballerinalang.org.
 
-## Building from the source
+ Building from the source
+============================
 
 If you want to build Ballerina Tools from the source code:
 
@@ -28,7 +30,8 @@ If you want to build Ballerina Tools from the source code:
 1. Run the Maven command ``mvn clean install`` from the root directory.
 1. Extract the Ballerina Tools distribution created at `target/ballerina-tools-0.8.0.zip` to your local directory.
 
-## Running samples
+ Running samples
+==================================
 
 The website http://ballerinalang.org has several samples you can try out right there in the page. These samples are
 also available in the `<ballerina_tools_home>/samples` directory in your Ballerina distribution.
