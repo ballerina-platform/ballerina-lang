@@ -22,18 +22,20 @@ Add the `ballerina-container-support-<VERSION>.jar` file to `bre/lib/` folder in
 
 ### `ballerina docker` Command Line Usage
 ```
-Dockerize Ballerina programs
+create docker images for Ballerina program archives
 
 Usage:
 
-ballerina docker <package-file-path> [--tag | -t <image-name>] [--host | -H <hostURL>] --help | -h
+  ballerina docker <package-name> [--tag | -t <image-name>] [--host | -H <hostURL>] --yes | -y
 
 Flags:
-        --tag, -t
-        --host, -H
-        --help, -h
+  --tag, -t      docker image tag to use
+  --host, -H     remote docker daemon to use
+  --yes, -y      assume yes for prompts
+
 
 ```
+The `docker` command will detect the Ballerina archive type (main vs service) from the archive file extension provided. 
 
 To create a Docker image from a Ballerina package, simply provide the package name as an argument.
 
@@ -45,6 +47,32 @@ ballerina: docker image helloworld:latest successfully built.
 
 Use the following command to start a container.
         docker run --name determined_aluminum -it helloworld:latest
+
+```
+
+Creating a Docker image for a Ballerina Service.
+
+```bash
+$ ./ballerina docker helloWorldService.bsz
+ballerina: build docker image [helloworldservice:latest] in docker host [localhost]? (y/n): y
+Building Docker image helloworldservice:latest...
+
+ballerina: docker image helloworldservice:latest successfully built.
+
+Use the following command to start a container.
+        docker run -p 46325:9090 --name direct_actress -d helloworldservice:latest
+
+Use the following command to inspect the logs.
+        docker logs direct_actress
+
+Use the following command to retrieve the IP address of the container
+        docker inspect direct_actress | grep IPAddress
+
+Ballerina service will be running on the following ports.
+        http://localhost:46325
+        http://<container-ip>:9090
+
+Make requests using the format [curl -X GET http://localhost:46325/<service-name>]
 
 ```
 

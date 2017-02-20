@@ -20,5 +20,4 @@ else
   cmd="ballerina run main"
 fi
 
-echo "Running: ${cmd} ${arg_str}"
-bash $cmd $arg_str
+bash bin/$cmd $arg_str

@@ -56,18 +56,17 @@ public class DockerCmd implements BLauncherCmd {
      * Temporary usage printer
      */
     private static void printCommandUsageInfo() {
-        outStream.println("Dockerize Ballerina programs");
+        outStream.println("create docker images for Ballerina program archives");
         outStream.println();
         outStream.println("Usage:");
         outStream.println();
-        outStream.println("ballerina docker <package-file-path> [--tag | -t <image-name>] [--host | -H <hostURL>] " +
-                "--help | -h --yes | -y");
+        outStream.println("  ballerina docker <package-name> [--tag | -t <image-name>] [--host | -H <hostURL>] " +
+                "--yes | -y");
         outStream.println();
         outStream.println("Flags:");
-        outStream.println("\t--tag, -t");
-        outStream.println("\t--host, -H");
-        outStream.println("\t--yes, -y");
-        outStream.println("\t--help, -h");
+        outStream.println("  --tag, -t \t docker image tag to use");
+        outStream.println("  --host, -H \t remote docker daemon to use");
+        outStream.println("  --yes, -y \t assume yes for prompts");
         outStream.println();
     }
 
@@ -176,15 +175,24 @@ public class DockerCmd implements BLauncherCmd {
 
     private void printServiceImageSuccessMessage(String imageName) {
         String containerName = Utils.generateContainerName();
+        int portNumber = Utils.generateContainerPort();
         outStream.println("\nballerina: docker image " + imageName + " successfully built.");
-        outStream.println("\nUse the following command to start a container.");
-        outStream.println("\tdocker run --name " + containerName + " -d " + imageName);
         outStream.println();
-        outStream.println("Find the docker container IP using the following command");
+        outStream.println("Use the following command to start a container.");
+        outStream.println("\tdocker run -p " + portNumber + ":9090 --name " + containerName + " -d " + imageName);
+        outStream.println();
+        outStream.println("Use the following command to inspect the logs.");
+        outStream.println("\tdocker logs " + containerName);
+        outStream.println();
+        outStream.println("Use the following command to retrieve the IP address of the container");
         outStream.println("\tdocker inspect " + containerName + " | grep IPAddress");
         outStream.println();
-        outStream.println("Ballerina service will be running in http://<container-ip>:9090");
-        outStream.println("Make requests using the format [curl -X GET http://<container-ip>:9090/<service-name>]");
+        outStream.println("Ballerina service will be running on the following ports.");
+        outStream.println("\thttp://localhost:" + portNumber);
+        outStream.println("\thttp://<container-ip>:9090");
+        outStream.println();
+        outStream.println("Make requests using the format [curl -X GET http://localhost:" + portNumber
+                + "/<service-name>]");
     }
 
     private void printMainImageSuccessMessage(String imageName) {
