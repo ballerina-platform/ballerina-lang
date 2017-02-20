@@ -23,8 +23,9 @@ define(['lodash', './expression'], function (_, Expression) {
      * @constructor
      */
     var VariableReferenceExpression = function (args) {
-        this._variableReferenceName = _.get(args, 'variableReferenceName');
         Expression.call(this, 'VariableReferenceExpression');
+        this._variableReferenceName = _.get(args, 'variableReferenceName');
+        this.setExpression(this.generateExpression(), {doSilently: true});
     };
 
     VariableReferenceExpression.prototype = Object.create(Expression.prototype);
