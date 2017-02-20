@@ -76,7 +76,7 @@ public class HtmlDocumentWriterTest {
             Assert.assertTrue(content1.contains("function addHeader(<a href=\"#message\">message</a> m, "
                     + "<a href=\"#string\">string</a> key, <a href=\"#string\">string</a> value)"));
             Assert.assertTrue(content1.contains("function getHeader(<a href=\"#message\">message</a> m, "
-                    + "<a href=\"#string\">string</a> key) (string value)"));
+                    + "<a href=\"#string\">string</a> key) (string )"));
             Assert.assertTrue(content1.contains("Functions"));
             Assert.assertTrue(content1.contains("Connectors"));
 
@@ -86,7 +86,7 @@ public class HtmlDocumentWriterTest {
             Assert.assertTrue(content1.contains("<td>key</td><td><a href=\"#string\">string</a></td>"
                     + "<td>HTTP header key</td>"));
             // asserting function @return description
-            Assert.assertTrue(content1.contains("<td>value</td><td><a href=\"#string\">string</a></td>"
+            Assert.assertTrue(content1.contains("<td></td><td><a href=\"#string\">string</a></td>"
                             + "<td>HTTP header value</td>"));
             
             // asserting connector @description

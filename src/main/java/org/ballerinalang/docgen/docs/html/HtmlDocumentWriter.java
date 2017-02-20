@@ -166,6 +166,13 @@ public class HtmlDocumentWriter implements DocumentWriter {
                                         return annotation.getValue().split(subName + ":")[1].trim();
                                     }
                                 }
+                                // if the annotation values cannot be found still, return the first matching
+                                // annotation's value
+                                for (Annotation annotation : getAnnotations(dataHolder)) {
+                                    if (annotationName.equalsIgnoreCase(annotation.getName())) {
+                                        return annotation.getValue();
+                                    }
+                                }
                                 return "";
                             })
                     // usage: {{oneValueAnnotation "<annotationName>"}}
