@@ -93,11 +93,11 @@ public class BallerinaDocCmd implements BLauncherCmd {
 
     @Override
     public void printUsage(StringBuilder stringBuilder) {
-        stringBuilder.append("ballerina doc <source-path>" + System.lineSeparator())
-                .append("    source-path:" + System.lineSeparator())
-                .append("    Paths to the directories where Ballerina source files reside or a path to"
+        stringBuilder.append("ballerina doc <sourcepath>" + System.lineSeparator())
+                .append("  sourcepath:" + System.lineSeparator())
+                .append("  Paths to the directories where Ballerina source files reside or a path to"
                         + System.lineSeparator())
-                .append("    a Ballerina file which does not belong to a package" + System.lineSeparator());
+                .append("  a Ballerina file which does not belong to a package" + System.lineSeparator());
     }
 
     @Override
