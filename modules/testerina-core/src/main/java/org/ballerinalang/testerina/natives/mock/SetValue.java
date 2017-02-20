@@ -34,6 +34,8 @@ import org.ballerinalang.model.types.TypeEnum;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
+import org.ballerinalang.natives.annotations.Attribute;
+import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.connectors.AbstractNativeConnector;
 import org.ballerinalang.testerina.core.TesterinaRegistry;
@@ -60,8 +62,19 @@ import java.util.stream.Collectors;
  * @since 0.8.0
  */
 @BallerinaFunction(packageName = "ballerina.mock", functionName = "setValue", args = {
-        @Argument(name = "mockConnectorPath", type = TypeEnum.STRING),
+        @Argument(name = "mockableConnectorPathExpr", type = TypeEnum.STRING),
         @Argument(name = "value", type = TypeEnum.STRING) }, isPublic = true)
+@BallerinaAnnotation(annotationName = "Description",
+                     attributes = { @Attribute(name = "value",
+                                               value = "Modifies global connector instance's arguments for mocking "
+                                                       + "purposes") })
+@BallerinaAnnotation(annotationName = "Param",
+                     attributes = { @Attribute(name = "mockableConnectorPathExpr",
+                                               value = "A path like syntax to identify and navigate the "
+                                                       + "connector instances of a ballerina service") })
+@BallerinaAnnotation(annotationName = "Param",
+                     attributes = { @Attribute(name = "value",
+                                               value = "Mock value to set (e.g.: endpoint URL)") })
 public class SetValue extends AbstractNativeFunction {
 
     public static final String FIELD_NAME_VALUE = "value";
