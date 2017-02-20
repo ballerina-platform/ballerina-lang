@@ -149,7 +149,9 @@ public class BLangExecutionDebugger extends BLangAbstractExecutionVisitor {
                             continue;
                         }
                     }
-                    if (previous.getNextSibling() instanceof Statement &&
+                    if (null == previous) {
+                        break;
+                    } else if (previous.getNextSibling() instanceof Statement &&
                             !(previous.getNextSibling() instanceof CommentStmt)) {
                         nextStep = (Statement) previous.getNextSibling();
                         break;
