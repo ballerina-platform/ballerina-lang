@@ -29,11 +29,8 @@ define(['require','lodash', 'log', 'event_channel', './abstract-statement-source
             return true;
         };
 
-        FunctionInvocationVisitor.prototype.visitFuncInvocationExpression = function (expression) {
-            var StatementVisitorFactory = require('./statement-visitor-factory');
-            var statementVisitorFactory = new StatementVisitorFactory();
-            var statementVisitor = statementVisitorFactory.getStatementVisitor(expression, this);
-            expression.accept(statementVisitor);
+        FunctionInvocationVisitor.prototype.visitFuncInvocationExpression = function (functionInvocation) {
+            this.appendSource(functionInvocation.getExpression());
         };
 
         FunctionInvocationVisitor.prototype.endVisitFuncInvocationStatement = function(functionInvocation){
