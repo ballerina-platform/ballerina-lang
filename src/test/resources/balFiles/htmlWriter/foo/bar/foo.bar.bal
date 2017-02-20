@@ -13,10 +13,10 @@ function addHeader (message m, string key, string value) {
 @doc:Description("Get HTTP header from the message")
 @doc:Param("m: Incoming message")
 @doc:Param("key: HTTP header key")
-@doc:Return("value: HTTP header value")
-function getHeader (message m, string key) (string value) {
+@doc:Return("HTTP header value")
+function getHeader (message m, string key) (string) {
     system:println("invoked");
-    return value;
+    return "value";
 }
 
 @doc:Description("an Argument")
