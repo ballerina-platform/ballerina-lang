@@ -114,7 +114,17 @@
             "structs/invalid-type-attribute-init.bal",
             "structs/undeclared-attribute-init.bal",
             "structs/undeclared-struct-init.bal",
-            "values/exception-value.bal"
+            "values/exception-value.bal",
+            "samples/echoService/echoService.bal",
+            "samples/helloWorld/helloWorld.bal",
+            "samples/helloWorldService/helloWorldService.bal",
+            "samples/passthroughService/passthroughService.bal",
+            "samples/restfulService/ecommerceService.bal",
+            "samples/routingServices/routingServices.bal",
+            "samples/serviceChaining/ATMLocatorService.bal",
+            "samples/tweetMediumFeed/tweetMediumFeed.bal",
+            "samples/tweetOpenPR/tweetOpenPR.bal",
+            "samples/twitterConnector/twitterConnector.bal"
         ]
     }
 }
