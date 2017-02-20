@@ -21,6 +21,7 @@ import org.ballerinalang.model.DataIterator;
 import org.ballerinalang.model.values.BLong;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.nativeimpl.connectors.data.sql.client.SQLConnectorUtils;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.io.BufferedReader;
@@ -63,7 +64,7 @@ public class SQLDataIterator implements DataIterator {
 
     @Override
     public void close() {
-        SQLUtils.cleanupConnection(rs, stmt, conn);
+        SQLConnectorUtils.cleanupConnection(rs, stmt, conn);
         rs = null;
         stmt = null;
         conn = null;

@@ -6,15 +6,15 @@ Each connector defines a set of [actions](actions.md) that can be used when inte
 
 ## Using a connector
 
-The built-in connectors are listed in the tool palette in Ballerina Composer. Scroll down to the connector you want to use, and then drag the connector to the canvas if you want to create an endpoint connection to that service, or drag one of the connector's actions to the place in your integration flow where you want to invoke that action. For details on using these connectors, see the following topics:
+To use a connector, import it using the Import box in the upper left corner of the canvas in Design view (or use an import statement in the Source view). The connector will then be listed in the tool palette in Ballerina Composer. Scroll down to the connector you want to use, and then drag the connector to the canvas if you want to create an endpoint connection to that service, or drag one of the connector's actions to the place in your integration flow where you want to invoke that action. 
+
+For details on using the built-in connectors, see the following topics:
 
 * [File Server Connector](../server-connectors/file-server.md)
 * [HTTP/2 Server Connector](../server-connectors/http2-server.md)
 * [JMS Client Connector](../server-connectors/jms-client.md)
 * [JMS Server Connector](../server-connectors/jms-server.md)
 * [WebSocket Server Connector](../server-connectors/websocket-server.md)
-
-To use a third-party connector such as the Twitter connector, click the Import Packages button in the upper-right corner and enter the package path (such as `org.ballerinalang.connectors.twitter`). You can then use the actions in that connector.
 
 TODO: insert list of third-party connectors and point off to their docs. 
 

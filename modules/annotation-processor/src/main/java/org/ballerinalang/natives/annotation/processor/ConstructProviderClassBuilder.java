@@ -485,6 +485,10 @@ public class ConstructProviderClassBuilder {
                 if (bType == TypeEnum.CONNECTOR) {
                     sb.append("new " + simpleTypeNameClass + "(\"" + enclosingScopeName + "\",\"" + enclosingScopePkg +
                         "\", " + isArray + ")");
+                } else if (bType == TypeEnum.STRUCT) {
+                    sb.append(
+                            "new " + simpleTypeNameClass + "(\"" + argType.structType() + "\",\"" + enclosingScopePkg +
+                                    "\", " + isArray + ")");
                 } else {
                     sb.append("new " + simpleTypeNameClass + "(\"" + bType.getName() + "\", " + isArray + ")");
                 }

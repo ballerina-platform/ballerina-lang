@@ -28,7 +28,7 @@
 
     <modelVersion>4.0.0</modelVersion>
     <artifactId>paxexam-tests</artifactId>
-    <name>WSO2 Ballerina - Pax Exam</name>
+    <name>Ballerina - Pax Exam</name>
 
     <dependencies>
         <!-- Pax Exam Dependencies-->
