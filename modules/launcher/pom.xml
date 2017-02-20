@@ -29,8 +29,8 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>ballerina-launcher</artifactId>
 
-    <name>WSO2 Ballerina - Launcher</name>
-    <url>http://wso2.org</url>
+    <name>Ballerina - Launcher</name>
+    <url>http://ballerinalang.org</url>
 
     <dependencies>
         <dependency>

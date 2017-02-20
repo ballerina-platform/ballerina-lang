@@ -30,8 +30,8 @@
     <artifactId>ballerina-core</artifactId>
     <packaging>jar</packaging>
 
-    <name>WSO2 Ballerina - Core</name>
-    <url>http://wso2.org</url>
+    <name>Ballerina - Core</name>
+    <url>http://ballerinalang.org</url>
 
     <dependencies>
         <dependency>
