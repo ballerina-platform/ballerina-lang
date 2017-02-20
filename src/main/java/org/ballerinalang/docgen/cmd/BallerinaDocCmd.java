@@ -59,7 +59,7 @@ public class BallerinaDocCmd implements BLauncherCmd {
     @Override
     public void execute() {
         if (argList == null || argList.size() == 0) {
-            StringBuilder sb = new StringBuilder("Docerina: No valid Ballerina source given.\n");
+            StringBuilder sb = new StringBuilder("docerina: no valid ballerina source given.\n");
             printUsage(sb);
             out.println(sb);
             return;
