@@ -386,7 +386,7 @@ text-anchor: start;
 
 .default-worker-life-line rect{
     stroke: #000;
-    fill: #FFF;
+    fill: #e2e2e2;
     stroke-width: 2px;
 }
 
@@ -546,4 +546,10 @@ text-anchor: start;
 .heading-icon-return-type-wrapper-clicked {
     stroke: #000;
     fill: #000;
+}
+
+.worker-lifeline-grayed {
+    fill: #e2e2e2;
+    stroke: #000000;
+    stroke-width: 2px;
 }

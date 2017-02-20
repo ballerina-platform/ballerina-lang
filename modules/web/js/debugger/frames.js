@@ -91,7 +91,11 @@ define(['jquery', 'backbone', 'lodash', 'log', 'event_channel', './debug-manager
             if (_.isEqual(obj.frameName,other.frameName) && _.isEqual(obj.packageName,other.packageName))
                 return true;
         });
-        
+        // drop unnecessary first frame in services
+        var firstFrame = _.head(message.frames);
+        if(firstFrame && firstFrame.frameName !== "main") {
+            message.frames.splice(0, 1);
+        }
         message.frames = this.process(message.frames);
 
         var html = this.compiled(message);

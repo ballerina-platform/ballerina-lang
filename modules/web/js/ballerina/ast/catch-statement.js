@@ -47,8 +47,8 @@ define(['lodash', 'log', './conditional-statement', './argument'], function (_, 
         var self = this;
         _.each(jsonNode.children, function (childNode) {
             var child = self.getFactory().createFromJson(childNode);
-            child.initFromJson(childNode);
             self.addChild(child);
+            child.initFromJson(childNode);
         });
     };
 

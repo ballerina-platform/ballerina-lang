@@ -158,12 +158,6 @@ define(['lodash', './node', 'log', '../utils/common-utils'],
                 return self.getFactory().isVariableDefinitionStatement(child);
             });
 
-            if (index == -1) {
-                index = _.findLastIndex(this.getChildren(), function (child) {
-                    return self.getFactory().isConnectorDeclaration(child);
-                })
-            }
-
             this.addChild(newVariableDefinitionStatement, index + 1);
         }
     };
@@ -259,6 +253,13 @@ define(['lodash', './node', 'log', '../utils/common-utils'],
             newIndex = _.findLastIndex(this.getChildren(), function (node) {
                 return self.BallerinaASTFactory.isConnectorDeclaration(node);
             });
+
+            if (newIndex === -1) {
+                newIndex = _.findLastIndex(this.getChildren(), function (child) {
+                    return self.getFactory().isVariableDefinitionStatement(child);
+                });
+            }
+            newIndex = newIndex + 1;
         }
         if (newIndex === -1) {
             Object.getPrototypeOf(this.constructor.prototype).addChild.call(this, child, 0);

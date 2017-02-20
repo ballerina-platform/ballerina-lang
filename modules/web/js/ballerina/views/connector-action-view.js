@@ -105,6 +105,8 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
 
         ConnectorActionView.prototype = Object.create(BallerinaView.prototype);
         ConnectorActionView.prototype.constructor = ConnectorActionView;
+        // TODO move variable types into constant class
+        var variableTypes = ['message', 'boolean', 'string', 'int', 'float', 'long', 'double', 'json', 'xml'];
 
         /**
          * Init the event listeners

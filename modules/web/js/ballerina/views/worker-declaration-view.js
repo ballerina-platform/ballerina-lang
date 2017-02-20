@@ -48,6 +48,8 @@ define(['lodash', 'jquery', './ballerina-view', './../ast/worker-declaration', '
             this._messageManager = _.get(args, 'messageManager');
             _.set(args, 'name',  _.get(args, 'name') || 'worker1');
             _.set(args, 'cssClass.group',  _.get(args, 'cssClass.group', 'worker-life-line'));
+            _.set(args, 'cssClass.topPolygon', _.get(args, 'cssClass.topPolygon', 'connector-life-line-top-polygon worker-lifeline-grayed'));
+            _.set(args, 'cssClass.bottomPolygon', _.get(args, 'cssClass.bottomPolygon', 'connector-life-line-top-polygon worker-lifeline-grayed'));
             _.set(args, 'line.height',  _.get(args, 'line.height', 290));
             _.set(args, 'content.offset',  {top: 10, bottom: 10});
             LifeLine.call(this, args);
