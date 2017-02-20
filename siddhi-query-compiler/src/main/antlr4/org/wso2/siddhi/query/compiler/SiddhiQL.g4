@@ -33,10 +33,39 @@ error
 
 execution_plan
     : (plan_annotation|error)*
-      ( (definition_stream|definition_table|definition_trigger|definition_function|definition_window|error) (';' (definition_stream|definition_table|definition_trigger|definition_function|definition_window|error))* ';'?
+      ( (definition_stream|definition_table|definition_trigger|definition_function|definition_window|definition_aggregation|error) (';' (definition_stream|definition_table|definition_trigger|definition_function|definition_window|error))* ';'?
       || (execution_element|error) (';' (execution_element|error))* ';'?
       || (definition_stream|definition_table|definition_trigger|definition_function|definition_window|error) (';' (definition_stream|definition_table|definition_trigger|definition_function|definition_window|error))* (';' (execution_element|error))* ';'? )
     ;
+
+//TODO: 15-FEB find suitable location
+// Following added for Aggregation construct
+
+definition_aggregation
+    : annotation* DEFINE AGGREGATION aggregation_name FROM query_input query_section AGGREGATE (BY attribute_name)? EVERY aggregation_time_specifier
+    ;
+
+aggregation_name
+    : id
+    ;
+
+aggregation_time_specifier
+    : aggregation_time_rage_specifier
+    | aggregation_time_exact_specifier
+    ;
+
+aggregation_time_rage_specifier
+    : (SECONDS | MINUTES | HOURS | DAYS | WEEKS | MONTHS | YEARS)  aggregation_time_separator (SECONDS | MINUTES | HOURS | DAYS | WEEKS | MONTHS | YEARS)
+    ;
+
+aggregation_time_exact_specifier
+    :  (SECONDS | MINUTES | HOURS | DAYS | WEEKS | MONTHS | YEARS) ( COMMA (SECONDS | MINUTES | HOURS | DAYS | WEEKS | MONTHS | YEARS))*
+    ;
+
+aggregation_time_separator
+    : DOT DOT DOT
+    ;
+// End Aggregation  construct
 
 execution_element
     :query|partition
@@ -665,6 +694,8 @@ FLOAT:    F L O A T;
 DOUBLE:   D O U B L E;
 BOOL:     B O O L;
 OBJECT:   O B J E C T;
+AGGREGATION: A G G R E G A T I O N;
+AGGREGATE: A G G R E G A T E;
 
 ID_QUOTES : '`'[a-zA-Z_] [a-zA-Z_0-9]*'`' {setText(getText().substring(1, getText().length()-1));};
 
