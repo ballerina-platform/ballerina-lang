@@ -3,18 +3,21 @@
 Testerina is the test framework built for the Ballerina language.  
 This will be a part of ```ballerina-tools-0.8.0.zip``` distribution [1].
 
-Testerina implements ```ballerina test``` command.  
+Testerina provides the ```ballerina test``` command.  
 
-To test a file written in Ballerina language use the test command as follows.  
+To test a file written in Ballerina language, use the test command as follows.  
 ```./ballerina test <package_name>```
 
 Your test file should contain ```_test.bal``` suffix.
 
-Once you run the tests using ballerina ```test``` command,  
-Testerina will print a summary of test results on console.
+Once you run the tests using ```ballerina test``` command,  
+Testerina will print a summary of test results on the console.
 
-#### Testerina supports following assert functionality.  
+#### Testerina provides following functions.
 
+package ballerina.test;
+
+ - startService(string servicename)
  - assertTrue(boolean condition)
  - assertTrue(boolean condition, string message)
  - assertFalse(boolean condition)
@@ -34,22 +37,50 @@ Testerina will print a summary of test results on console.
  - assertEquals(int[] actual, int[] expected)
  - assertEquals(int[] actual, int[] expected, string message)
  
+package mock;
+ - setValue(string pathExpressionToMockableConnector)
+ 
+ 
 ### Writing ballerina tests
 
 - Test functions should contain the prefix ```test```.  
 e.g.: ```testAddTwoNumbers()```
 - Each test function may contain one or more asserts.  
-e.g.: 
+e.g. 1: 
 ```
-function testAddTwoNumbers() {	
+import ballerina.test;
+function testAddTwoNumbers() {
     test:assertEquals(addTwoNumbers(1, 2), 3, "Number addition failed for positive numbers");
     test:assertEquals(addTwoNumbers(-1, -2), -3, "Number addition failed for negative numbers");
     test:assertEquals(addTwoNumbers(0, 0), 0, "Number addition failed for number zero");
 }
 ```
+
+e.g. 2:
+This example shows how to test ballerina service with the back-end mocking support.
+```
+import ballerina.mock;
+import ballerina.test;
+import ballerina.lang.messages;
+
+function testService() {
+    string serviceURL = test:startService("helloWorld");
+    string mockedTwitterServiceURL = test:startService("mockedTwitterService");
+    mock:setValue("helloWorld.myTwitterConnectorInstance.myHttpConnector.serviceUri", mockedTwitterServiceURL);
+    
+    http:ClientConnector client = create http:ClientConnector(serviceURL);
+    message request = {};
+    message response = {};
+    response = http:ClientConnector.get(client, "/", request);
+    string payload = messages:getStringPayload(response);
+    test:assertEquals(payload, "<expectedOutput/>");
+}
+```
+> A complete sample can be found at `samples/mock/` directory.
+
 If at least one assert fails, whole test function will be marked as failed.
-Detailed information will be shown in the test result summary.  
-- One package may contain more than one ```*._test.bal``` file.
+Detailed information is shown in the test result summary.  
+> One package may contain more than one ```*._test.bal``` file.
 
 #### Tutorial
 
@@ -95,13 +126,9 @@ Note the package hierarchy in above files.
 Following is a sample console output. 
 
 ```
-
-----------------------------------------------------------------------------
-Started running test 'testInt'...
-Error while running the function: 'testInt'. **** ERROR : <Detail error message>
-----------------------------------------------------------------------------
+error in 'testInt': <Detail error message>
  
-Result: 
+Results: 
  Tests Run: 1, Passed: 0, Failed: 1
  
 Failed Tests:
@@ -110,7 +137,7 @@ Failed Tests:
 
 ### Running Samples
 
-#### Running mock sample
+#### Running the mock sample
 - Download ```ballerina-tools-0.8.0.zip``` distribution and unzip.  
 - Copy ```samples/mock``` directory to ```ballerina-tools-0.8.0```.  
 - Run tests as follows.  
