@@ -9,7 +9,7 @@ Each connector defines a set of [actions](actions.md) that can be used when inte
 The built-in connectors are listed in the tool palette in Ballerina Composer. Scroll down to the connector you want to use, and then drag the connector to the canvas if you want to create an endpoint connection to that service, or drag one of the connector's actions to the place in your integration flow where you want to invoke that action. For details on using these connectors, see the following topics:
 
 * [File Server Connector](../server-connectors/file-server.md)
-* [HTTP2 Server Connector](../server-connectors/http2-server.md)
+* [HTTP/2 Server Connector](../server-connectors/http2-server.md)
 * [JMS Client Connector](../server-connectors/jms-client.md)
 * [JMS Server Connector](../server-connectors/jms-server.md)
 * [WebSocket Server Connector](../server-connectors/websocket-server.md)
