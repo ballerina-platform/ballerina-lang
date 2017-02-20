@@ -397,29 +397,29 @@ define(['lodash', 'require', 'log', './node', '../utils/common-utils'],
     ResourceDefinition.prototype.addChild = function (child, index) {
         var indexNew;
         var self = this;
-        if (self.BallerinaASTFactory.isConnectorDeclaration(child)) {
+        if (self.BallerinaASTFactory.isWorkerDeclaration(child)) {
             indexNew = _.findLastIndex(this.getChildren(), function (node) {
-                self.BallerinaASTFactory.isConnectorDeclaration(node);
+                self.BallerinaASTFactory.isWorkerDeclaration(node);
             });
             indexNew = (indexNew === -1) ? 0 : (indexNew + 1);
-        } else if (this.BallerinaASTFactory.isWorkerDeclaration(child)) {
-            var firstConnector = _.findIndex(this.getChildren(), function (node) {
-                self.BallerinaASTFactory.isConnectorDeclaration(node);
-            });
-            if (firstConnector !== -1) {
-                indexNew = firstConnector - 1;
-            }
-        } else {
-            var firstConnector = _.findIndex(this.getChildren(), function (node) {
-                self.BallerinaASTFactory.isConnectorDeclaration(node);
-            });
+        } else if (this.BallerinaASTFactory.isConnectorDeclaration(child)) {
             var firstWorker = _.findIndex(this.getChildren(), function (node) {
-                self.BallerinaASTFactory.isConnectorDeclaration(node);
+                self.BallerinaASTFactory.isWorkerDeclaration(node);
             });
-
             if (firstWorker !== -1) {
                 indexNew = firstWorker - 1;
-            } else if (firstConnector !== -1) {
+            }
+        } else {
+            var firstWorker = _.findIndex(this.getChildren(), function (node) {
+                self.BallerinaASTFactory.isWorkerDeclaration(node);
+            });
+            var firstConnector = _.findIndex(this.getChildren(), function (node) {
+                self.BallerinaASTFactory.isWorkerDeclaration(node);
+            });
+
+            if (firstConnector !== -1) {
+                indexNew = firstConnector - 1;
+            } else if (firstWorker !== -1) {
                 indexNew = index
             } else {
                 indexNew = index
