@@ -15,15 +15,41 @@ Testerina will print a summary of test results on console.
 
 #### Testerina supports following assert functionality.  
 
- - assertTrue (boolean)
- - assertFalse (boolean)
- - assertEquals (string, int, float, boolean, string[], int[], float[])
-
+ - assertTrue(boolean condition)
+ - assertTrue(boolean condition, string message)
+ - assertFalse(boolean condition)
+ - assertFalse(boolean condition, string message) 
+ - assertEquals(string actual, string expected)
+ - assertEquals(string actual, string expected, string message)
+ - assertEquals(int actual, int expected)
+ - assertEquals(int actual, int expected, string message)
+ - assertEquals(float actual, float expected)
+ - assertEquals(float actual, float expected, string message)
+ - assertEquals(boolean actual, boolean expected)
+ - assertEquals(boolean actual, boolean expected, string message)
+ - assertEquals(string[] actual, string[] expected)
+ - assertEquals(string[] actual, string[] expected, string message)
+ - assertEquals(float[] actual, float[] expected)
+ - assertEquals(float[] actual, float[] expected, string message)
+ - assertEquals(int[] actual, int[] expected)
+ - assertEquals(int[] actual, int[] expected, string message)
+ 
 ### Writing ballerina tests
 
-- Test functions should contain the prefix ```test```.
-- Each test function may contain one or more asserts.
-- Once package may contain more than one *._test.bal files.
+- Test functions should contain the prefix ```test```.  
+e.g.: ```testAddTwoNumbers()```
+- Each test function may contain one or more asserts.  
+e.g.: 
+```
+function testAddTwoNumbers() {	
+    test:assertEquals(addTwoNumbers(1, 2), 3, "Number addition failed for positive numbers");
+    test:assertEquals(addTwoNumbers(-1, -2), -3, "Number addition failed for negative numbers");
+    test:assertEquals(addTwoNumbers(0, 0), 0, "Number addition failed for number zero");
+}
+```
+If at least one assert fails, whole test function will be marked as failed.
+Detailed information will be shown in the test result summary.  
+- One package may contain more than one ```*._test.bal``` file.
 
 #### Tutorial
 
@@ -64,7 +90,23 @@ function testInt() {
 Note the package hierarchy in above files.   
  
 5 Run tests using following command.  
-```> ./bin/ballerina test mySample/```
+```> ./bin/ballerina test mySample/```  
+
+Following is a sample console output. 
+
+```
+
+----------------------------------------------------------------------------
+Started running test 'testInt'...
+Error while running the function: 'testInt'. **** ERROR : <Detail error message>
+----------------------------------------------------------------------------
+ 
+Result: 
+ Tests Run: 1, Passed: 0, Failed: 1
+ 
+Failed Tests:
+ testInt: <Detail error message>
+```
 
 ### Running Samples
 
