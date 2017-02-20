@@ -275,10 +275,6 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
             case Constants.SQLDataTypes.CLOB:
                 SQLConnectorUtils.setClobValue(stmt, value, index, direction, Types.CLOB);
                 break;
-            case Constants.SQLDataTypes.ARRAY:
-                break;
-            case Constants.SQLDataTypes.STRUCT:
-                break;
             default:
                 throw new BallerinaException("Unsupported datatype as input parameter: " + sqlType + " index:" + index);
             }
