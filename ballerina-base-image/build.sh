@@ -18,8 +18,8 @@ function showUsageAndExit() {
     echo
     echo "USAGE: ./build.sh -d <ballerina-distribution> -v <image-version> -o <organization-name>"
     echo
-    echo "Ex: Create a Ballerina Docker image tagged \"ballerina-pkg:latest\" with Ballerina 0.8.0-ALPHA distribution."
-    echo "    ./build.sh -d ballerina-0.8.0-ALPHA.zip"
+    echo "Ex: Create a Ballerina Docker image tagged \"ballerina-pkg:latest\" with Ballerina 0.8.0 distribution."
+    echo "    ./build.sh -d ballerina-0.8.0.zip"
     echo
 
     exit
@@ -64,9 +64,12 @@ if [ ! -e $bal_dist_file ]; then
 fi
 
 echo "Building Ballerina Base Docker image $image_name..."
-docker build --no-cache=true --build-arg BAL_DIST=${bal_dist_file:0:-4} -t $image_name .
+cp $bal_dist_file .
+bal_dist_file_name=$(basename $bal_dist_file)
+docker build --no-cache=true --build-arg BAL_DIST=${bal_dist_file_name} -t $image_name .
 
 echo "Cleaning..."
 docker images | grep "<none>" | awk '{print $3}' | xargs docker rmi -f > /dev/null 2>&1
 docker images | head -n 2
+rm -rf $bal_dist_file_name
 echo "DONE!"

@@ -232,7 +232,7 @@ public class DockerCmd implements BLauncherCmd {
         outStream.println("\thttp://localhost:" + portNumber);
         outStream.println("\thttp://<container-ip>:9090");
         outStream.println();
-        outStream.println("Make requests using the format [curl -X GET http://localhost:" + portNumber
+        outStream.println("Make requests using the format [curl -X <http-method> http://localhost:" + portNumber
                 + "/<service-name>]");
         outStream.println();
     }
