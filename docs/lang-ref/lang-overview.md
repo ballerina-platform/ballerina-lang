@@ -34,7 +34,7 @@ Similar to languages such as Java, Go, etc, Ballerina supports the following exp
 
 ## Reserved names
 
-When naming your Ballerina elements (services, resources, actions, etc.) and packages, do not use the following terms for the name, as these terms are key words or otherwise reserved in Ballerina:
+When naming your Ballerina elements (services, resources, actions, etc.), Swagger files, program files, and packages, do not use the following terms for the name, as these terms are reserved in Ballerina:
 
 action
 all

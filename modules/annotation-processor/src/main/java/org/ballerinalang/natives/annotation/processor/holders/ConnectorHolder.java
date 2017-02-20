@@ -78,10 +78,11 @@ public class ConnectorHolder {
             sb.append("\n\tnative action ").append(ballerinaAction.actionName()).append(" (");
             for (int i = 1; i <= ballerinaAction.args().length; i++) {
                 Argument arg = ballerinaAction.args()[i - 1];
-                sb.append(
-                        TypeEnum.CONNECTOR.getName().equals(Utils.getArgumentType(arg.type(), arg.elementType()))
-                                ? balConnector.connectorName() : Utils.getArgumentType(arg.type(), arg.elementType()))
-                        .append(" ").append(arg.name());
+                sb.append(TypeEnum.CONNECTOR.getName()
+                                .equals(Utils.getArgumentType(arg.type(), arg.elementType(), arg.structType())) ?
+                                balConnector.connectorName() :
+                                Utils.getArgumentType(arg.type(), arg.elementType(), arg.structType())).append(" ")
+                        .append(arg.name());
                 if (i != ballerinaAction.args().length) {
                     sb.append(", ");
                 }
