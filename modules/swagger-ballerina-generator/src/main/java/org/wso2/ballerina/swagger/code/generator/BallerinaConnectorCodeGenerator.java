@@ -24,6 +24,7 @@ import io.swagger.codegen.CodegenOperation;
 import io.swagger.codegen.CodegenType;
 import io.swagger.codegen.DefaultCodegen;
 import io.swagger.codegen.SupportingFile;
+import io.swagger.models.Operation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -285,4 +286,37 @@ public class BallerinaConnectorCodeGenerator extends DefaultCodegen implements C
         return input.replace("*/", "*_/").replace("/*", "/_*");
     }
 
+    @Override
+    protected String getOrGenerateOperationId(Operation operation, String path, String httpMethod) {
+        String operationId = operation.getOperationId();
+        if (path.contains("?")) {
+            path = path.substring(0, path.indexOf("?"));
+        }
+        if (StringUtils.isBlank(operationId)) {
+            String tmpPath = path.replaceAll("\\{", "");
+            tmpPath = tmpPath.replaceAll("\\}", "");
+            String[] parts = (tmpPath + "/" + httpMethod).split("/");
+            StringBuilder builder = new StringBuilder();
+            if ("/".equals(tmpPath)) {
+                builder.append("root");
+            }
+            for (int i = 0; i < parts.length; ++i) {
+                String part = parts[i];
+                if (part.length() > 0) {
+                    if (builder.toString().length() == 0) {
+                        part = Character.toLowerCase(part.charAt(0)) + part.substring(1);
+                    } else {
+                        part = this.initialCaps(part);
+                    }
+
+                    builder.append(part);
+                }
+            }
+
+            operationId = this.sanitizeName(builder.toString());
+            LOGGER.warn("Empty operationId found for path: " + httpMethod + " " + path + ". Renamed to auto-generated operationId: " + operationId);
+        }
+
+        return operationId;
+    }
 }
