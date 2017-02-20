@@ -20,6 +20,7 @@ package org.ballerinalang.nativeimpl.connectors.data.sql.client;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.Connector;
 import org.ballerinalang.model.types.TypeEnum;
+import org.ballerinalang.model.values.BArray;
 import org.ballerinalang.model.values.BConnector;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.connectors.data.sql.SQLConnector;
@@ -39,7 +40,9 @@ import org.osgi.service.component.annotations.Component;
         actionName = "updateWithGeneratedKeys",
         connectorName = SQLConnector.CONNECTOR_NAME,
         args = {@Argument(name = "c", type = TypeEnum.CONNECTOR),
-                @Argument(name = "query", type = TypeEnum.STRING)},
+                @Argument(name = "query", type = TypeEnum.STRING),
+                @Argument(name = "parameters", type = TypeEnum.ARRAY, elementType = TypeEnum.STRUCT,
+                          structType = "Parameter")},
         returnType = { @ReturnType(type = TypeEnum.INT), @ReturnType(type = TypeEnum.STRING)})
 @Component(
         name = "action.data.sql.updateWithGeneratedKeys",
@@ -51,8 +54,9 @@ public class UpdateWithGeneratedKeys extends AbstractSQLAction {
     public BValue execute(Context context) {
         BConnector bConnector = (BConnector) getArgument(context, 0);
         String query = getArgument(context, 1).stringValue();
+        BArray parameters = (BArray) getArgument(context, 2);
         Connector connector = bConnector.value();
-        executeUpdateWithKeys(context, (SQLConnector) connector, query, null);
+        executeUpdateWithKeys(context, (SQLConnector) connector, query, null, parameters);
         return null;
     }
 }
