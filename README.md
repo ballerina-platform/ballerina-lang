@@ -1,7 +1,7 @@
 # Docerina
 
-Docerina is the API documentation generator tool of the Ballerina language. It currently supports generating API 
-documentation in HTML format and it can be extended to support additional output formats as required.
+Docerina is the API documentation generator tool of the Ballerina language. Currently API documentation is generated in HTML format 
+and it can be extended to support additional formats as required.
 
 ## Supported Annotations
 
@@ -11,55 +11,55 @@ Please refer to [Docerina Annotations guide](docs/Annotations.md).
 
 Docerina is distributed with [Ballerina Tools Distribution](https://github.com/ballerinalang/tools-distribution) and [Docerina Maven Plugin] (https://github.com/ballerinalang/plugin-maven/tree/master/docerina-maven-plugin). 
 
-# Using the Ballerina Tools Distribution
+## Using Ballerina Tools Distribution
 
 Ballerina doc command can be used to generate the API documentation for your Ballerina programs.
 
 ```sh
-$ ballerina help doc
-generates API documentation for Ballerina packages
+$ ballerina doc --help
+generate Ballerina API documentation
 
-Usage:
-ballerina doc <sourcepath>... [-o outputdir -e excludedpackages -v -n]
-
-  sourcepath:
-  Either the paths to the directories where Ballerina source files reside or a path to a Ballerina file which does not belong to a package
+Usage:  ballerina doc <source-path>
+    source-path:
+    Paths to the directories where Ballerina source files reside or a path to
+    a Ballerina file which does not belong to a package
 
 Flags:
-  --output, -o     path to the output directory where the API documentation will be written to
-  --native, -n     treat the source as native ballerina code
-  --exclude, -e    comma separated list of package names to be filtered from the documentation
-  --verbose, -v    enable debug level logs
+  --output,  -o   directory for API documentation to be generated
+  --exclude, -e   a comma separated list of package names to be filtered from the documentation
+  --native,  -n   read the source as native ballerina code
+  --verbose, -v   enable debug level logs
+  --help,    -h   print help
 ```
 
-## Usage
+### Usage
 
-**Example 1:** Generate the API documentation for the given Ballerina source directories and files. This would generate the API docs at `{currentdir}/api-docs/html/` directory.
+**Example 1:** Generate API documentation for Ballerina source directories and files. This would generate the API docs at `{currentdir}/api-docs/html/` directory.
 ```sh
 $ ballerina doc ../../../connectors/twitter/src/ ../../../connectors/soap/src/ test.bal
 ```
-**Example 2:** Generate the API documentation for the given Ballerina source directories and files and copy them to the `{currentdir}/docs` directory.
+**Example 2:** Generate API documentation for Ballerina source directories and files and copy them to the `{currentdir}/docs` directory.
 ```sh
 $ ballerina doc ../../../connectors/twitter/src/ ../../../connectors/soap/src/ test.bal  -o docs
 ```
-**Example 3:** Generate the API documentation for the given Ballerina source directories and files, excluding the `org.wso2.ballerina.connectors.twitter` package and copy them to the `{currentdir}/docs` directory.
+**Example 3:** Generate API documentation for Ballerina source directories and files, excluding the `org.wso2.ballerina.connectors.twitter` package and copy them to the `{currentdir}/docs` directory.
 ```sh
 $ ballerina doc ../../../connectors/twitter/src/ ../../../connectors/soap/src/ test.bal  -o docs -e org.wso2.ballerina.connectors.twitter
 ```
-**Example 4:** Generate the API documentation for the given Ballerina source directories and files and copy them to the `{currentdir}/docs` directory while printing debug level logs of Docerina to the stdout.
+**Example 4:** Generate API documentation for Ballerina source directories and files and copy them to the `{currentdir}/docs` directory while printing debug level logs of Docerina to the stdout.
 ```sh
 $ ballerina doc ../../../connectors/twitter/src/ ../../../connectors/soap/src/ test.bal  -o docs -v
 ```
-**Example 5:** Generate the API documentation for native Ballerina source directories.
+**Example 5:** Generate API documentation for native Ballerina source directories.
 ```sh
 $ ballerina doc ../../../connectors/twitter/src/ ../../../connectors/soap/src/ -n
 ```
 
-# Using the Docerina Maven Plugin
+## Using Docerina Maven Plugin
 
 The Docerina Maven plugin is used to generate Ballerina API documentation at the build time of a Ballerina Package.
 
-## Introduction
+### Introduction
 
 The Docerina Maven plugin is a Maven plugin, which is used within the Ballerina language eco-system. The Maven goals that are achieved through this plugin are explained below:
 
@@ -67,7 +67,7 @@ The Docerina Maven plugin is a Maven plugin, which is used within the Ballerina 
 
 This goal is executed during the compile phase in the default life cycle of the Maven build. You have the flexibility to configure the behavior of the plugin by passing the relevant parameters to this Maven goal.
 
-### Configuring the docerina Maven goal
+### Configuring Docerina Maven Goal
 
 A sample pom.xml file configuration of the docerina Maven goal is shown below.
 
