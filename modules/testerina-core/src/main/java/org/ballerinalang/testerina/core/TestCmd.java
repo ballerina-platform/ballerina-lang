@@ -39,7 +39,7 @@ public class TestCmd implements BLauncherCmd {
     private static final PrintStream outStream = System.err;
 
 
-    private JCommander selfCmdParser;
+    private JCommander parentCmdParser;
 
     @Parameter(names = "--mock", hidden = true, description = "Is mock enabled")
     private boolean mock = true;
@@ -61,7 +61,7 @@ public class TestCmd implements BLauncherCmd {
 
     public void execute() {
         if (helpFlag) {
-            printCommandUsageInfo(selfCmdParser, "test");
+            printCommandUsageInfo(parentCmdParser, "test");
             return;
         }
 
@@ -175,12 +175,12 @@ public class TestCmd implements BLauncherCmd {
 
     @Override
     public void setParentCmdParser(JCommander parentCmdParser) {
-       // ignore
+        this.parentCmdParser = parentCmdParser;
     }
 
     @Override
     public void setSelfCmdParser(JCommander selfCmdParser) {
-        this.selfCmdParser = selfCmdParser;
+        // ignore
 
     }
 }
