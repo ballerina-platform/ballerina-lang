@@ -6,7 +6,7 @@
     <parent>
         <groupId>org.ballerinalang</groupId>
         <artifactId>testerina</artifactId>
-        <version>0.8.0-SNAPSHOT</version>
+        <version>0.8.0</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
@@ -21,29 +21,24 @@
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-core</artifactId>
-            <version>${ballerina.version}</version>
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-native</artifactId>
-            <version>${ballerina.version}</version>
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>annotation-processor</artifactId>
-            <version>${ballerina.version}</version>
         </dependency>
 
         <!-- Dependencies for ballerina command: test -->
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-launcher</artifactId>
-            <version>${ballerina.version}</version>
         </dependency>
         <dependency>
             <groupId>com.beust</groupId>
             <artifactId>jcommander</artifactId>
-            <version>${com.beust.jcommander.version}</version>
         </dependency>
 
         <dependency>
@@ -147,7 +142,6 @@
             <plugin>
                 <groupId>org.ballerinalang</groupId>
                 <artifactId>docerina-maven-plugin</artifactId>
-                <version>${docerina.maven.plugin.version}</version>
                 <executions>
                     <execution>
                         <phase>compile</phase>
@@ -170,17 +164,5 @@
         <checkstyle.skip>true</checkstyle.skip>
         <native.constructs.provider.package>org.ballerinalang.testerina.natives</native.constructs.provider.package>
         <native.constructs.provider.class>TesterinaNativeConstructsProvider</native.constructs.provider.class>
-        <mvn.processor.plugin.version>2.2.4</mvn.processor.plugin.version>
-        <mvn.exec.plugin.version>1.1.1</mvn.exec.plugin.version>
-        <mvn.resource.plugins.version>3.0.2</mvn.resource.plugins.version>
-        <docerina.maven.plugin.version>0.8.0-SNAPSHOT</docerina.maven.plugin.version>
-
-        <!-- Path to the testerina source directory -->
-        <testerina.source.directory>${project.build.directory}/../src/main/ballerina</testerina.source.directory>
-
-        <!-- Path to the generated natives ballerina files temp directory -->
-        <generated.testerina.source.directory>${project.build.directory}/natives/</generated.testerina.source.directory>
-
-        <antlr4.runtime.version>4.5.1.wso2v1</antlr4.runtime.version>
     </properties>
 </project>
