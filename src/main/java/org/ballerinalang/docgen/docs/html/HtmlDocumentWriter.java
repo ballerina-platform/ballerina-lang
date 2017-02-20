@@ -81,7 +81,7 @@ public class HtmlDocumentWriter implements DocumentWriter {
     @Override
     public void write(Collection<BLangPackage> packages) throws IOException {
         if (packages == null || packages.size() == 0) {
-            out.println("Docerina: No package definitions found!");
+            out.println("docerina: no package definitions found!");
             return;
         }
 
@@ -224,7 +224,7 @@ public class HtmlDocumentWriter implements DocumentWriter {
             writer.println(template.apply(object));
             out.println("HTML file written: " + absoluteFilePath);
         } catch (IOException e) {
-            out.println("Docerina: Could not write HTML file " + absoluteFilePath +
+            out.println("docerina: could not write HTML file " + absoluteFilePath +
                     System.lineSeparator() + e.getMessage());
         } finally {
             if (writer != null) {

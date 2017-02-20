@@ -93,7 +93,7 @@ public class BallerinaDocGenerator {
                 Map<String, BLangPackage> docsMap = generatePackageDocsFromBallerina(source, packageFilter, isNative);
                 htmlDocumentWriter.write(docsMap.values());
             } catch (Exception e) {
-                out.println(String.format("Docerina: API documentation generation failed for %s: %s", source,
+                out.println(String.format("docerina: API documentation generation failed for %s: %s", source,
                         e.getMessage()));
                 log.error(String.format("API documentation generation failed for %s", source), e);
             }
@@ -155,7 +155,7 @@ public class BallerinaDocGenerator {
                 bLangProgram = new BLangProgramLoader().loadLibrary(pkgPath, path);
             }
             if (bLangProgram == null) {
-                out.println(String.format("Docerina: Invalid Ballerina Package: %s", packagePath));
+                out.println(String.format("docerina: invalid Ballerina package: %s", packagePath));
             } else {
                 for (BLangPackage bLangPackage : bLangProgram.getLibraryPackages()) {
                     String packageName = bLangPackage.getPackagePath();
