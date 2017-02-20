@@ -7,7 +7,7 @@ service {{classname}} {
     {{#operation}}
     @http:{{httpMethod}}
     @http:Path("{{path}}")
-    resource {{nickname}} ({{#allParams}}{{>queryParams}}{{>pathParams}}{{/allParams}} message m) {
+    resource {{nickname}} ( message m {{#allParams}}{{>queryParams}}{{>pathParams}}{{/allParams}}) {
         //stub code - fill as necessary
         message response = {};
         json payload;
