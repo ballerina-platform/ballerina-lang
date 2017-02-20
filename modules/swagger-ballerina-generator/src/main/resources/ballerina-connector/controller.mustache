@@ -1,18 +1,19 @@
+package {{apiPackage}};
+
 import ballerina.lang.messages;
 
-connector {{classname}} (string text) {
+connector {{classname}} {
 
 http:ClientConnector endpoint = create http:ClientConnector("{{basePath}}");
 {{#operations}}
 {{#operation}}
-    action {{nickname}} ( message msg )
-    (message) {
+    action {{nickname}} ( {{classname}} connector , message msg ) (message) {
         //Create sample json message as follows.
         //message request = {};
         //messages:setHeader(request, "Content-Type", "application/json");
         //Users can process input message msg as per requirements.
         message response;
-        response = http:ClientConnector.{{httpMethod}}(endpoint, http:getRequestURL(message) , msg);
+        response = http:ClientConnector.{{httpMethod}}(endpoint, http:getRequestURL(msg) , msg);
         return response;
     }
 {{/operation}}
