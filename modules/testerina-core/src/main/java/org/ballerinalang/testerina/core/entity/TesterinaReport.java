@@ -20,53 +20,49 @@ package org.ballerinalang.testerina.core.entity;
 
 import java.io.PrintStream;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 public class TesterinaReport {
 
-    private static ArrayList<TesterinaFunctionResult> functionResults = new ArrayList<TesterinaFunctionResult>();
-    private static ArrayList<TesterinaFunctionResult> passedFunctionResults = new ArrayList<TesterinaFunctionResult>();
-    private static ArrayList<TesterinaFunctionResult> failedFunctionResults = new ArrayList<TesterinaFunctionResult>();
     private static PrintStream outStream = System.err;
-    static int passedFunctionCount;
-    static int failedFunctionCount;
-    static String newLine = System.getProperty("line.separator");
 
-    public void addFunctionResult(TesterinaFunctionResult functionResult){
-        functionResults.add(functionResult);
-    }
+    private List<TesterinaResult> passedTests = new ArrayList<>();
+    private List<TesterinaResult> failedTests = new ArrayList<>();
 
-    public ArrayList<TesterinaFunctionResult> getFunctionResults() {
-        return functionResults;
-    }
+    public void printTestSummary() {
+        if (!passedTests.isEmpty() || !failedTests.isEmpty()) {
+            int totalTests = passedTests.size() + failedTests.size();
+            outStream.println();
+            outStream.println("result: ");
+            outStream.print("tests run: " + totalTests);
+            outStream.print(", passed: " + passedTests.size());
+            outStream.println(", failed: " + failedTests.size());
+        }
 
-    public static void printTestSummary(){
-        if(!functionResults.isEmpty()) {
-            passedFunctionCount = 0;
-            failedFunctionCount = 0;
-            passedFunctionResults.clear();
-            failedFunctionResults.clear();
-            for (TesterinaFunctionResult result : functionResults) {
-                if (result.isTestFunctionPassed()) {
-                    passedFunctionCount++;
-                    passedFunctionResults.add(result);
-                } else {
-                    failedFunctionCount++;
-                    failedFunctionResults.add(result);
-                }
+        if (!failedTests.isEmpty()) {
+            outStream.println("failed tests:");
+            for (TesterinaResult failedResult : failedTests) {
+                outStream.println(
+                        " " + failedResult.getTestFunctionName() + ": " + failedResult.getAssertFailureMessage());
             }
-            outStream.println(newLine + "Result: " + newLine + " Tests Run: " + functionResults.size() + ", Passed: "
-                    + passedFunctionCount + ", Failed: " + failedFunctionCount + newLine);
-            printTestDetails();
         }
     }
 
-    public static void printTestDetails(){
-        if (!failedFunctionResults.isEmpty()) {
-            outStream.println("Failed Tests:");
-            for (TesterinaFunctionResult failedResult : failedFunctionResults) {
-                outStream.println(" " + failedResult.getTestFunctionName() + ": "+ failedResult.getAssertFailureMessage());
-            }
-            outStream.println(newLine);
+    public void addFunctionResult(TesterinaResult result) {
+        if (result.isPassed()) {
+            passedTests.add(result);
+        } else {
+            failedTests.add(result);
         }
     }
+
+    public List<TesterinaResult> getPassedTests() {
+        return Collections.unmodifiableList(passedTests);
+    }
+
+    public List<TesterinaResult> getFailedTests() {
+        return Collections.unmodifiableList(failedTests);
+    }
+
 }

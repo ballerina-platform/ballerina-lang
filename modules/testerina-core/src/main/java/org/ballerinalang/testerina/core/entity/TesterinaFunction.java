@@ -91,7 +91,6 @@ public class TesterinaFunction {
     public BValue[] invoke(BValue[] args, Context bContext) {
 
         // 1) Check whether the given function is defined in the source file.
-        //        Function function = getFunction(bLangPrograms.getFunctions(), functionName, args);
         Function function = this.bFunction;
         if (function == null) {
             throw new RuntimeException("Function '" + name + "' is not defined");

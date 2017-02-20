@@ -18,29 +18,23 @@
 
 package org.ballerinalang.testerina.core.entity;
 
-public class TesterinaFunctionResult {
-    //private String testFileName;
+public class TesterinaResult {
     private String testFunctionName;
-    private boolean isTestFunctionPassed;
+    private boolean isPassed;
     private String assertFailureMessage;
 
-    public TesterinaFunctionResult(String testFunctionName, boolean isTestFunctionPassed, String assertFailureMessage){
-        //this.testFileName = testFileName;
+    public TesterinaResult(String testFunctionName, boolean isPassed, String assertFailureMessage){
         this.testFunctionName = testFunctionName;
-        this.isTestFunctionPassed = isTestFunctionPassed;
+        this.isPassed = isPassed;
         this.assertFailureMessage = assertFailureMessage;
     }
-
-//    public String getTestFileName() {
-//        return testFileName;
-//    }
 
     public String getTestFunctionName() {
         return testFunctionName;
     }
 
-    public boolean isTestFunctionPassed() {
-        return isTestFunctionPassed;
+    public boolean isPassed() {
+        return isPassed;
     }
 
     public String getAssertFailureMessage() {
