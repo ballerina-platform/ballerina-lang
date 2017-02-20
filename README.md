@@ -1,5 +1,4 @@
 # Ballerina Container Support
-
 Container support for Ballerina provides the implementation for the following functionality.
 
 1. Package Ballerina programs with Docker using `ballerina docker` command.
@@ -25,80 +24,72 @@ Add the `ballerina-container-support-<VERSION>.jar` file to `bre/lib/` folder in
 create docker images for Ballerina program archives
 
 Usage:
-
-  ballerina docker <package-name> [--tag | -t <image-name>] [--host | -H <hostURL>] --yes | -y
+ballerina docker <package-name> [--tag | -t <image-name>] [--host | -H <docker-hostURL>] --help | -h --yes | -y
 
 Flags:
-  --tag, -t      docker image tag to use
-  --host, -H     remote docker daemon to use
-  --yes, -y      assume yes for prompts
-
-
+  --tag, -t     docker image name. <image-name>:<version>
+  --yes, -y     assume yes for prompts
+  --host, -H    docker Host. http://<ip-address>:<port>
 ```
 The `docker` command will detect the Ballerina archive type (main vs service) from the archive file extension provided. 
 
 To create a Docker image from a Ballerina package, simply provide the package name as an argument.
 
-```bash
+```
 $ ./ballerina docker helloWorld.bmz
-ballerina: build docker image [helloworld:latest] in docker host [localhost]? (y/n): y
+Build docker image [helloworld:latest] in docker host [localhost]? (y/n): y
 
-ballerina: docker image helloworld:latest successfully built.
+Docker image helloworld:latest successfully built.
 
-Use the following command to start a container.
-        docker run --name determined_aluminum -it helloworld:latest
-
+Use the following command to execute the archive in a container.
+        docker run --name dirty_bubble -it helloworld:latest
 ```
 
 Creating a Docker image for a Ballerina Service.
 
-```bash
+```
 $ ./ballerina docker helloWorldService.bsz
-ballerina: build docker image [helloworldservice:latest] in docker host [localhost]? (y/n): y
-Building Docker image helloworldservice:latest...
+Build docker image [helloworldservice:latest] in docker host [localhost]? (y/n): y
 
-ballerina: docker image helloworldservice:latest successfully built.
+Docker image helloworldservice:latest successfully built.
 
 Use the following command to start a container.
-        docker run -p 46325:9090 --name direct_actress -d helloworldservice:latest
+        docker run -p 44558:9090 --name associated_bile -d helloworldservice:latest
 
 Use the following command to inspect the logs.
-        docker logs direct_actress
+        docker logs associated_bile
 
 Use the following command to retrieve the IP address of the container
-        docker inspect direct_actress | grep IPAddress
+        docker inspect associated_bile | grep IPAddress
 
 Ballerina service will be running on the following ports.
-        http://localhost:46325
+        http://localhost:44558
         http://<container-ip>:9090
 
-Make requests using the format [curl -X GET http://localhost:46325/<service-name>]
-
+Make requests using the format [curl -X GET http://localhost:44558/<service-name>]
 ```
 
 You can additionally provide a customized image name.
 
-```bash
+```
 ./ballerina docker helloWorld.bmz -t myhelloworld:0.1
-ballerina: build docker image [myhelloworld:0.1] in docker host [localhost]? (y/n): y
+Build docker image [myhelloworld:0.1] in docker host [localhost]? (y/n): y
 
-ballerina: docker image myhelloworld:0.1 successfully built.
+Docker image myhelloworld:0.1 successfully built.
 
-Use the following command to start a container.
-        docker run --name burning_aids -it myhelloworld:0.1
-
+Use the following command to execute the archive in a container.
+        docker run --name annual_avenue -it myhelloworld:0.1
 ```
 If a remote Docker daemon is available to be used, it can also be specified so the Docker image is created at the remote end.
 
-```bash
+```
 ./ballerina docker helloWorld.bmz -H http://127.0.0.1:2375
-ballerina: build docker image [myhelloworld:0.1] in docker host [http://127.0.0.1:2375]? (y/n): y
+Build docker image [helloworld:latest] in docker host [http://127.0.0.1:2375]? (y/n): y
 
-ballerina: docker image helloworld:latest successfully built.
+Docker image helloworld:latest successfully built.
 
-Use the following command to start a container.
-        docker run --name future_aquarium -it helloworld:latest
-
+Use the following command to execute the archive in a container.
+        docker run --name foolish_bronze -it helloworld:latest
 ```
 ## License
 Ballerina Container Support is licensed under [Apache License v2](LICENSE).

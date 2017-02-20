@@ -31,92 +31,92 @@ public interface BallerinaDockerClient {
     /**
      * Create a Ballerina Service Docker image from a Ballerina Service Package.
      *
-     * @param packageName
-     * @param dockerEnv
-     * @param bPackagePaths
-     * @param imageName
-     * @param imageVersion
-     * @return
-     * @throws BallerinaDockerClientException
-     * @throws IOException
-     * @throws InterruptedException
+     * @param packageName   The name used to identify the package.
+     * @param dockerEnv     The docker host URL.
+     * @param bPackagePaths The paths to packages to be packed to the image.
+     * @param imageName     The docker image name to use.
+     * @param imageVersion  The docker image version to use.
+     * @return The {@link String} name of the docker image created. Null if the image building process failed.
+     * @throws BallerinaDockerClientException If the input parameters are invalid.
+     * @throws IOException                    If specified files cannot be accessed.
+     * @throws InterruptedException           If the docker image build process was interrupted.
      */
-    public String createServiceImage(String packageName, String dockerEnv, List<Path> bPackagePaths,
-                                     String imageName, String imageVersion)
+    String createServiceImage(String packageName, String dockerEnv, List<Path> bPackagePaths,
+                              String imageName, String imageVersion)
             throws BallerinaDockerClientException, IOException, InterruptedException;
 
     /**
      * Create a Ballerina Service Docker image from a Ballerina configuration.
      *
-     * @param serviceName
-     * @param dockerEnv
-     * @param ballerinaConfig
-     * @param imageName
-     * @param imageVersion
-     * @return
-     * @throws InterruptedException
-     * @throws BallerinaDockerClientException
-     * @throws IOException
+     * @param serviceName     The name of the Service being packaged.
+     * @param dockerEnv       The docker host URL.
+     * @param ballerinaConfig The content of the Ballerina Service to be packaged.
+     * @param imageName       The docker image name to use.
+     * @param imageVersion    The docker image version to use.
+     * @return The {@link String} name of the docker image created. Null if the image building process failed.
+     * @throws InterruptedException           If the docker image build process was interrupted.
+     * @throws BallerinaDockerClientException If the input parameters are invalid.
+     * @throws IOException                    If specified files cannot be accessed.
      */
-    public String createServiceImage(String serviceName, String dockerEnv, String ballerinaConfig,
-                                     String imageName, String imageVersion)
+    String createServiceImage(String serviceName, String dockerEnv, String ballerinaConfig,
+                              String imageName, String imageVersion)
             throws InterruptedException, BallerinaDockerClientException, IOException;
 
     /**
      * Create a Ballerina Main Docker image from a Ballerina Main Package.
      *
-     * @param packageName
-     * @param dockerEnv
-     * @param bPackagePaths
-     * @param imageName
-     * @param imageVersion
-     * @return
-     * @throws BallerinaDockerClientException
-     * @throws IOException
-     * @throws InterruptedException
+     * @param packageName   The name used to identify the package.
+     * @param dockerEnv     The docker host URL.
+     * @param bPackagePaths The paths to packages to be packed to the image.
+     * @param imageName     The docker image name to use.
+     * @param imageVersion  The docker image version to use.
+     * @return The {@link String} name of the docker image created. Null if the image building process failed.
+     * @throws BallerinaDockerClientException If the input parameters are invalid.
+     * @throws IOException                    If specified files cannot be accessed.
+     * @throws InterruptedException           If the docker image build process was interrupted.
      */
-    public String createMainImage(String packageName, String dockerEnv, List<Path> bPackagePaths,
-                                  String imageName, String imageVersion)
+    String createMainImage(String packageName, String dockerEnv, List<Path> bPackagePaths,
+                           String imageName, String imageVersion)
             throws BallerinaDockerClientException, IOException, InterruptedException;
 
     /**
      * Create a Ballerina Main Docker image from a Ballerina configuration.
      *
-     * @param mainPackageName
-     * @param dockerEnv
-     * @param ballerinaConfig
-     * @param imageName
-     * @param imageVersion
-     * @return
-     * @throws InterruptedException
-     * @throws BallerinaDockerClientException
-     * @throws IOException
+     * @param mainPackageName The name used to identify the main function to be packed.
+     * @param dockerEnv       The docker host URL.
+     * @param ballerinaConfig The content of the Ballerina Service to be packaged.
+     * @param imageName       The docker image name to use.
+     * @param imageVersion    The docker image version to use.
+     * @return The {@link String} name of the docker image created. Null if the image building process failed.
+     * @throws InterruptedException           If the docker image build process was interrupted.
+     * @throws BallerinaDockerClientException If the input parameters are invalid.
+     * @throws IOException                    If specified files cannot be accessed.
      */
-    public String createMainImage(String mainPackageName, String dockerEnv, String ballerinaConfig,
-                                  String imageName, String imageVersion)
+    String createMainImage(String mainPackageName, String dockerEnv, String ballerinaConfig,
+                           String imageName, String imageVersion)
             throws InterruptedException, BallerinaDockerClientException, IOException;
 
     /**
      * Delete the Docker image of a created Ballerina package.
      *
-     * @param packageName
-     * @param dockerEnv
-     * @param imageName
-     * @param version
-     * @return
-     * @throws BallerinaDockerClientException
+     * @param packageName  The name used to identify the Ballerina program which was packed.
+     * @param dockerEnv    The docker host URL.
+     * @param imageName    The docker image name to use.
+     * @param imageVersion The docker image version to use.
+     * @return True if the image was successfully deleted, false otherwise.
+     * @throws BallerinaDockerClientException If the input parameters are invalid.
      */
-    public boolean deleteImage(String packageName, String dockerEnv, String imageName, String version)
+    boolean deleteImage(String packageName, String dockerEnv, String imageName, String imageVersion)
             throws BallerinaDockerClientException;
 
     /**
      * Retrieve Docker image name of a created Ballerina package.
      *
-     * @param packageName
-     * @param dockerEnv
-     * @return
+     * @param packageName The name used to identify the Ballerina program which was packed.
+     * @param dockerEnv   The docker host URL.
+     * @return The {@link String} name of the docker image
      */
-    public String getImage(String packageName, String dockerEnv);
+    String getImage(String packageName, String dockerEnv);
 
 //    public String runMainContainer(String dockerEnv, String serviceName)
 //            throws InterruptedException, IOException, BallerinaDockerClientException;

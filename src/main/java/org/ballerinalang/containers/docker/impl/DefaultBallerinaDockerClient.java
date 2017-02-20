@@ -65,6 +65,9 @@ public class DefaultBallerinaDockerClient implements BallerinaDockerClient {
     // when the build completed successfully.
 //    private final List<String> buildErrors = new ArrayList<>();
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String createServiceImage(String packageName, String dockerEnv, List<Path> bPackagePaths,
                                      String imageName, String imageVersion)
@@ -73,6 +76,9 @@ public class DefaultBallerinaDockerClient implements BallerinaDockerClient {
         return createImageFromPackage(packageName, dockerEnv, bPackagePaths, true, imageName, imageVersion);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String createServiceImage(String serviceName, String dockerEnv, String ballerinaConfig,
                                      String imageName, String imageVersion)
@@ -82,6 +88,9 @@ public class DefaultBallerinaDockerClient implements BallerinaDockerClient {
                 imageName, imageVersion);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String createMainImage(String packageName, String dockerEnv, List<Path> bPackagePaths,
                                   String imageName, String imageVersion)
@@ -90,6 +99,9 @@ public class DefaultBallerinaDockerClient implements BallerinaDockerClient {
         return createImageFromPackage(packageName, dockerEnv, bPackagePaths, false, imageName, imageVersion);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String createMainImage(String mainPackageName, String dockerEnv, String ballerinaConfig,
                                   String imageName, String imageVersion)
@@ -99,6 +111,9 @@ public class DefaultBallerinaDockerClient implements BallerinaDockerClient {
                 imageName, imageVersion);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean deleteImage(String packageName, String dockerEnv, String imageName, String imageVersion)
             throws BallerinaDockerClientException {
@@ -124,6 +139,9 @@ public class DefaultBallerinaDockerClient implements BallerinaDockerClient {
         return imageDeleteList.size() != 0;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String getImage(String imageName, String dockerEnv) {
         DockerClient client = getDockerClient(dockerEnv);
@@ -139,6 +157,9 @@ public class DefaultBallerinaDockerClient implements BallerinaDockerClient {
         return null;
     }
 
+    /*
+    Create a Docker image from a given set of Ballerina packages.
+     */
     private String createImageFromPackage(String packageName, String dockerEnv, List<Path> bPackagePaths,
                                           boolean isService, String imageName, String imageVersion)
             throws BallerinaDockerClientException, IOException, InterruptedException {
@@ -187,6 +208,9 @@ public class DefaultBallerinaDockerClient implements BallerinaDockerClient {
         return getImage(imageName, dockerEnv);
     }
 
+    /*
+    Create a Docker image from a give Ballerina configuration.
+     */
     private String createImageFromSingleConfig(String serviceName, String dockerEnv, String ballerinaConfig,
                                                boolean isService, String imageName, String imageVersion)
             throws BallerinaDockerClientException, IOException, InterruptedException {
@@ -265,10 +289,17 @@ public class DefaultBallerinaDockerClient implements BallerinaDockerClient {
         return client;
     }
 
+    /*
+    Delete the temporary Dockerfile context used to build the Docker image.
+     */
     private void cleanupTempDockerfileContext(Path tmpDir) throws IOException {
         FileUtils.deleteDirectory(tmpDir.toFile());
     }
 
+    /*
+    Create a temporary Dockerfile context, by copying the necessary Dockerfile and scripts. This is
+    created at the OS temporary directory, or if specified, at java.io.tmpdir.
+     */
     private Path prepTempDockerfileContext() throws IOException, BallerinaDockerClientException {
         // TODO: Until the tmp.dir modification is removed from ballerina-launcher
         String tmpDirLocation = System.getProperty("java.io.tmpdir");
@@ -292,6 +323,9 @@ public class DefaultBallerinaDockerClient implements BallerinaDockerClient {
         return tmpDir;
     }
 
+    /*
+    Execute a Docker image build using Fabric8 DSL.
+     */
     private void buildImage(String dockerEnv, String imageName, Path tmpDir, String buildArgs)
             throws InterruptedException, IOException {
 

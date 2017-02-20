@@ -1,3 +1,19 @@
+/*
+ * Copyright (c) 2017, WSO2 Inc. (http://wso2.com) All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.ballerinalang.containers.docker.cmd;
 
 import com.beust.jcommander.JCommander;
@@ -7,6 +23,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.ballerinalang.containers.Constants;
 import org.ballerinalang.containers.docker.BallerinaDockerClient;
 import org.ballerinalang.containers.docker.cmd.validator.DockerHostValidator;
+import org.ballerinalang.containers.docker.cmd.validator.DockerImageNameValidator;
 import org.ballerinalang.containers.docker.exception.BallerinaDockerClientException;
 import org.ballerinalang.containers.docker.impl.DefaultBallerinaDockerClient;
 import org.ballerinalang.containers.docker.utils.Utils;
@@ -16,6 +33,7 @@ import org.ballerinalang.launcher.LauncherUtils;
 import java.io.Console;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -25,7 +43,7 @@ import java.util.Locale;
 /**
  * Ballerina Command to support Docker based packaging Ballerina packages.
  */
-@Parameters(commandNames = "docker", commandDescription = "Dockerize Ballerina programs")
+@Parameters(commandNames = "docker", commandDescription = "create docker images for Ballerina program archives")
 public class DockerCmd implements BLauncherCmd {
 
     private static final String BALLERINA_MAIN_PACKAGE_EXTENSION = "bmz";
@@ -33,50 +51,40 @@ public class DockerCmd implements BLauncherCmd {
     private static final String DEFAULT_DOCKER_HOST = "localhost";
 
     private static PrintStream outStream = System.err;
-    //    private JCommander parentCmdParser = null;
+    private JCommander parentCmdParser = null;
     private BallerinaDockerClient dockerClient;
 
-    @Parameter(arity = 1, description = "builds the given package with all the dependencies")
+    @Parameter(arity = 1, description = "package names")
     private List<String> packagePathNames;
 
-    @Parameter(names = {"--tag", "-t"}, description = " Docker image name. <image-name>:version")
+    @Parameter(names = {"--tag", "-t"}, validateWith = DockerImageNameValidator.class,
+            description = "docker image name. <image-name>:<version>")
     private String dockerImageName;
 
     @Parameter(names = {"--host", "-H"}, validateWith = DockerHostValidator.class,
-            description = " Docker Host. http://127.0.0.1:2375 ")
+            description = "docker Host. http://<ip-address>:<port>")
     private String dockerHost;
 
-    @Parameter(names = {"--help", "-h"}, hidden = true)
+    @Parameter(names = {"--help", "-h"}, hidden = true, description = "show usage")
     private boolean helpFlag;
 
-    @Parameter(names = {"--yes", "-y"}, hidden = true)
+    @Parameter(names = {"--yes", "-y"}, description = "assume yes for prompts")
     private boolean assumeYes;
 
     /**
-     * Temporary usage printer
+     * Create an image name and image version from the given (if) image name and the package names.
+     *
+     * @param givenImageName The provided image name
+     * @param packageName    The provided package name.
+     * @return A {@link String} array containing the image name [0] and image version [1].
      */
-    private static void printCommandUsageInfo() {
-        outStream.println("create docker images for Ballerina program archives");
-        outStream.println();
-        outStream.println("Usage:");
-        outStream.println();
-        outStream.println("  ballerina docker <package-name> [--tag | -t <image-name>] [--host | -H <hostURL>] " +
-                "--yes | -y");
-        outStream.println();
-        outStream.println("Flags:");
-        outStream.println("  --tag, -t \t docker image tag to use");
-        outStream.println("  --host, -H \t remote docker daemon to use");
-        outStream.println("  --yes, -y \t assume yes for prompts");
-        outStream.println();
-    }
-
     private static String[] getImageNameDetails(String givenImageName, String packageName) {
         if (givenImageName != null) {
             givenImageName = givenImageName.toLowerCase(Locale.getDefault());
             if (givenImageName.contains(":")) {
                 return givenImageName.split(":");
             } else {
-                return new String[]{givenImageName, Constants.IMAGE_VERSION_LATEST};
+                return new String[]{givenImageName.toLowerCase(Locale.getDefault()), Constants.IMAGE_VERSION_LATEST};
             }
         } else {
             return new String[]{packageName.toLowerCase(Locale.getDefault()), Constants.IMAGE_VERSION_LATEST};
@@ -86,7 +94,8 @@ public class DockerCmd implements BLauncherCmd {
     @Override
     public void execute() {
         if (helpFlag) {
-            printCommandUsageInfo();
+            String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(parentCmdParser, getName());
+            outStream.println(commandUsageInfo);
             return;
         }
 
@@ -96,6 +105,10 @@ public class DockerCmd implements BLauncherCmd {
 
         // extract the package name and extension
         String packageCompletePath = packagePathNames.get(0);
+        if (!Files.exists(Paths.get(packageCompletePath))) {
+            throw LauncherUtils.createUsageException("cannot find ballerina package: " + packageCompletePath);
+        }
+
         String packageName = FilenameUtils.getBaseName(packageCompletePath);
         String packageExtension = FilenameUtils.getExtension(packageCompletePath);
         List<Path> packagePaths = new ArrayList<>();
@@ -109,8 +122,6 @@ public class DockerCmd implements BLauncherCmd {
             outStream.println("ballerina: aborting..\n");
             return;
         }
-
-        outStream.println("Building Docker image " + imageName + ":" + imageVersion + "...");
 
         dockerClient = new DefaultBallerinaDockerClient();
 
@@ -150,6 +161,33 @@ public class DockerCmd implements BLauncherCmd {
         }
     }
 
+    @Override
+    public String getName() {
+        return "docker";
+    }
+
+    @Override
+    public void printUsage(StringBuilder out) {
+        out.append("ballerina docker <package-name> [--tag | -t <image-name>] [--host | -H <docker-hostURL>] " +
+                "--help | -h --yes | -y\n");
+    }
+
+    @Override
+    public void setParentCmdParser(JCommander parentCmdParser) {
+        this.parentCmdParser = parentCmdParser;
+    }
+
+    @Override
+    public void setSelfCmdParser(JCommander selfCmdParser) {
+    }
+
+    /**
+     * Prompt user to continue Docker image building.
+     *
+     * @param imageName    Name of the image to be built.
+     * @param imageVersion Version of the image to be built
+     * @return True if confirmed, false if aborted or exceeded attempts.
+     */
     private boolean canProceed(String imageName, String imageVersion) {
         Console console = System.console();
         String choice;
@@ -157,7 +195,7 @@ public class DockerCmd implements BLauncherCmd {
 
         int attempts = 3;
         do {
-            choice = console.readLine("ballerina: build docker image [" + imageName + ":" + imageVersion
+            choice = console.readLine("Build docker image [" + imageName + ":" + imageVersion
                     + "] in docker host [" + dockerHostToPrint + "]? (y/n): ");
 
             if (choice.equalsIgnoreCase("y")) {
@@ -173,10 +211,13 @@ public class DockerCmd implements BLauncherCmd {
         return false;
     }
 
+    /*
+    Print helpful messages for functionality to perform after image build for a Ballerina Service.
+     */
     private void printServiceImageSuccessMessage(String imageName) {
         String containerName = Utils.generateContainerName();
         int portNumber = Utils.generateContainerPort();
-        outStream.println("\nballerina: docker image " + imageName + " successfully built.");
+        outStream.println("\nDocker image " + imageName + " successfully built.");
         outStream.println();
         outStream.println("Use the following command to start a container.");
         outStream.println("\tdocker run -p " + portNumber + ":9090 --name " + containerName + " -d " + imageName);
@@ -193,33 +234,17 @@ public class DockerCmd implements BLauncherCmd {
         outStream.println();
         outStream.println("Make requests using the format [curl -X GET http://localhost:" + portNumber
                 + "/<service-name>]");
-    }
-
-    private void printMainImageSuccessMessage(String imageName) {
-        String containerName = Utils.generateContainerName();
-        outStream.println("\nballerina: docker image " + imageName + " successfully built.");
-        outStream.println("\nUse the following command to start a container.");
-        outStream.println("\tdocker run --name " + containerName + " -it " + imageName);
         outStream.println();
     }
 
-    @Override
-    public String getName() {
-        return "docker";
+    /*
+    Print helpful messages for functionality to perform after image build for a Ballerina Main program.
+     */
+    private void printMainImageSuccessMessage(String imageName) {
+        String containerName = Utils.generateContainerName();
+        outStream.println("\nDocker image " + imageName + " successfully built.");
+        outStream.println("\nUse the following command to execute the archive in a container.");
+        outStream.println("\tdocker run --name " + containerName + " -it " + imageName);
+        outStream.println();
     }
-
-    @Override
-    public void printUsage(StringBuilder out) {
-        out.append("ballerina docker <package-file-path> [--tag | -t <image-name>] [--host | -H <docker-hostURL>] " +
-                "--help | -h --yes | -y\n");
-    }
-
-    @Override
-    public void setParentCmdParser(JCommander parentCmdParser) {
-    }
-
-    @Override
-    public void setSelfCmdParser(JCommander selfCmdParser) {
-    }
-
 }
