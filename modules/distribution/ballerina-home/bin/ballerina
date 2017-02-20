@@ -69,7 +69,7 @@ done
 PRGDIR=`dirname "$PRG"`
 
 # Only set BALLERINA_HOME if not already set
-[ -z "$BALLERINA_HOME" ] && BALLERINA_HOME=`cd "$PRGDIR/.." ; pwd`
+BALLERINA_HOME=`cd "$PRGDIR/.." ; pwd`
 
 # For Cygwin, ensure paths are in UNIX format before anything is touched
 if $cygwin; then
@@ -200,7 +200,7 @@ $JAVACMD \
 	-Djava.endorsed.dirs="$JAVA_ENDORSED_DIRS" \
 	-Dballerina.home=$BALLERINA_HOME \
 	-Dballerina.version=${project.version} \
-	-Dlog4j.configurationFile="$BALLERINA_HOME/bre/conf/log4j2.xml" \
+	-Djava.util.logging.config.file="$BALLERINA_HOME/bre/conf/logging.properties" \
 	-Dtransports.netty.conf="$BALLERINA_HOME/bre/conf/netty-transports.yml" \
 	-Djava.io.tmpdir="$BALLERINA_HOME/tmp" \
 	-Denable.nonblocking=false \

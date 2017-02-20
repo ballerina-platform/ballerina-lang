@@ -16,46 +16,46 @@
  * under the License.
  */
 
-package org.ballerinalang.nativeimpl.net.http;
+package org.ballerinalang.nativeimpl.utils;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeEnum;
-import org.ballerinalang.model.values.BMessage;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
-import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.Attribute;
 import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.wso2.carbon.messaging.CarbonMessage;
+import org.osgi.service.component.annotations.Component;
 
-import static org.ballerinalang.nativeimpl.connectors.http.Constants.HTTP_METHOD;
+import java.util.UUID;
 
 /**
- * Get HTTP Method from the message.
+ * Native function ballerina.utils:getRandomString.
+ *
+ * @since 0.8.0
  */
 @BallerinaFunction(
-        packageName = "ballerina.net.http",
-        functionName = "getMethod",
-        args = {@Argument(name = "m", type = TypeEnum.MESSAGE)},
+        packageName = "ballerina.utils",
+        functionName = "getRandomString",
         returnType = {@ReturnType(type = TypeEnum.STRING)},
         isPublic = true
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
-        value = "Gets the HTTP method from the message") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "m",
-        value = "A message object") })
+        value = "Returns a random UUID string") })
 @BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "string",
-        value = "http method value") })
-public class GetMethod extends AbstractNativeFunction {
-    public BValue[] execute(Context ctx) {
-        String httpMethod = null;
-        CarbonMessage carbonMessage = ((BMessage) getArgument(ctx, 0)).value();
-        if (carbonMessage.getProperty(HTTP_METHOD) != null) {
-            httpMethod = carbonMessage.getProperty(HTTP_METHOD).toString();
-        }
-        return getBValues(new BString(httpMethod));
+        value = "The random string") })
+@Component(
+        name = "func.util_getRandomString",
+        immediate = true,
+        service = AbstractNativeFunction.class
+)
+public class GetRandomString extends AbstractNativeFunction {
+
+    @Override
+    public BValue[] execute(Context context) {
+        String randomString = UUID.randomUUID().toString().replaceAll("-", "");
+        return getBValues(new BString(randomString));
     }
 }

@@ -6,7 +6,9 @@ Ballerina programs can be written in one or more files organized into packages.
 
 Files are declared to be in a package using the `package` declaration:
 
-``package PackageName;``
+```
+package PackageName;
+```
 
 If a file declares a package it must be the first line in the file. A `PackageName` is a collection of Identifiers separated by a `.` and must be stored in a directory hierarchy corresponding to the components of the package name. (This is the same as Java's approach for storing packages.)
 
