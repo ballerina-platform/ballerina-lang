@@ -1,4 +1,4 @@
-# Connectors
+# Working with Connectors
 
 A connector represents a participant in the integration and is used to interact with an external system or a service you've defined in Ballerina. Ballerina includes a set of connectors under `org.ballerinalang.connectors.*` that allow you to connect to Twitter, Facebook, and more. It also includes built-in connectors for network protocols under `ballerina.net.*` that handle HTTP(S) 1 & 2, WebSockets, JMS, and FTP/FTPS/SFTP.
 
