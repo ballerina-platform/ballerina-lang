@@ -93,7 +93,8 @@ public class BallerinaDocCmd implements BLauncherCmd {
 
     @Override
     public void printUsage(StringBuilder stringBuilder) {
-        stringBuilder.append("ballerina doc <sourcepath>" + System.lineSeparator())
+        stringBuilder.append("ballerina doc <sourcepath>... [-o outputdir] [-n] [-e excludedpackages] [-v]"
+                + System.lineSeparator())
                 .append("  sourcepath:" + System.lineSeparator())
                 .append("  Paths to the directories where Ballerina source files reside or a path to"
                         + System.lineSeparator())
