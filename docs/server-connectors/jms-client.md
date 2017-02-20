@@ -31,7 +31,7 @@ JMSConnector | JMSConnector | A JMSConnector instance. | A JMSConnector instance
 ConnectionFactoryName | string | The JNDI name of the connection factory. | -
 DestinationName | string | The JNDI name of the destination. | The JNDI name of the destination.
 DestinationType | string | The type of the destinaiton. | queue/topic. If not given taken as queue.
-MessageType | string | The message type needed to be sent | TextMessage<br>BytesMessage<br>ObjectMessage<br>MapMessage
+MessageType | string | The message type needed to be sent | Message<br>TextMessage<br>BytesMessage<br>ObjectMessage<br>MapMessage
 Message | message | The message conaining the payload to be sent. | A Ballerina message.
 PropertyMap | map | A map of optional Ballerina properties. | A valid Ballerina map.
 
