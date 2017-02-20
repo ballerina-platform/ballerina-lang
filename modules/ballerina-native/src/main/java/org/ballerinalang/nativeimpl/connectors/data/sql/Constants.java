@@ -53,4 +53,45 @@ public final class Constants {
         public static final String LEAK_DETECTION_THRESHOLD = "leakDetectionThreshold";
         public static final String DATASOURCE = "dataSource.";
     }
+
+    /**
+     * Constants for SQL DataTypes.
+     */
+    public static final class SQLDataTypes {
+        public static final String LONG = "LONG";
+        public static final String STRING = "STRING";
+        public static final String VARCHAR = "VARCHAR";
+        public static final String NUMERIC = "NUMERIC";
+        public static final String DECIMAL = "DECIMAL";
+        public static final String BIT = "BIT";
+        public static final String BOOLEAN = "BOOLEAN";
+        public static final String TINYINT = "TINYINT";
+        public static final String SMALLINT = "SMALLINT";
+        public static final String INTEGER = "INTEGER";
+        public static final String BIGINT = "BIGINT";
+        public static final String REAL = "REAL";
+        public static final String FLOAT = "FLOAT";
+        public static final String DOUBLE = "DOUBLE";
+        public static final String BINARY = "BINARY";
+        public static final String BLOB = "BLOB";
+        public static final String CLOB = "CLOB";
+        public static final String DATE = "DATE";
+        public static final String TIME = "TIME";
+        public static final String TIMESTAMP = "TIMESTAMP";
+        public static final String ARRAY = "ARRAY";
+        public static final String STRUCT = "STRUCT";
+        public static final String VARINT = "VARINT";
+        public static final String UUID = "UUID";
+        public static final String INETADDRESS = "INETADDRESS";
+    }
+
+    /**
+     * Constants for SQL Query Parameter direction.
+     */
+    public static final class QueryParamDirection {
+        public static final int IN = 0;
+        public static final int OUT = 1;
+        public static final int INOUT = 2;
+
+    }
 }
