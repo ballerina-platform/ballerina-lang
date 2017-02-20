@@ -67,7 +67,7 @@
             <version>${docerina.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.ballerinalang.connectors</groupId>
+            <groupId>org.ballerinalang</groupId>
             <artifactId>connectors</artifactId>
             <version>${ballerina.connectors.version}</version>
         </dependency>
