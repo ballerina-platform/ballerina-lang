@@ -47,7 +47,7 @@
             <type>zip</type>
         </dependency>
         <dependency>
-            <groupId>org.ballerinalang.testerina</groupId>
+            <groupId>org.ballerinalang</groupId>
             <artifactId>testerina-core</artifactId>
             <version>${testerina.version}</version>
         </dependency>
@@ -156,7 +156,7 @@
     <properties>
         <ballerina.distribution.version>0.8.0</ballerina.distribution.version>
         <ballerina.composer.distribution.version>0.8.0</ballerina.composer.distribution.version>
-        <testerina.version>0.8.0-SNAPSHOT</testerina.version>
+        <testerina.version>0.8.0</testerina.version>
         <tool.swagger.version>0.8.0</tool.swagger.version>
         <ballerina.container.version>0.8.0-SNAPSHOT</ballerina.container.version>
         <docerina.version>0.8.0</docerina.version>
