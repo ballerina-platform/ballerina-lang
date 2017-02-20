@@ -30,7 +30,7 @@ define(['require','lodash', 'log', 'event_channel', './abstract-statement-source
         };
 
         FunctionInvocationVisitor.prototype.visitFuncInvocationExpression = function (functionInvocation) {
-            this.appendSource(functionInvocation.getExpression());
+            this.appendSource(functionInvocation.getFunctionalExpression());
         };
 
         FunctionInvocationVisitor.prototype.endVisitFuncInvocationStatement = function(functionInvocation){
