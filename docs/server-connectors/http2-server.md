@@ -43,34 +43,35 @@ HTTP/2 is disabled by default. Follow these steps to initiate HTTP/2.
 
 ### Configure the listener
 
-Open the `$BALLERINA_HOME/bre/conf/netty-transports.yml` file and add the following line to the given interface ID in the listenerConfigurations section. You can enable http2 in multiple interfaces as well.
+Open the `$BALLERINA_HOME/bre/conf/netty-transports.yml` file and add the following line to the given interface ID in the listenerConfigurations section. You can enable http2 in multiple interfaces as well, e.g., HTTP and HTTPS.
 
-  ```
-     http2: true
-  ```
+```
+http2: true
+```
+
 For example:
 
 ```
-   id: "default"
-   host: "0.0.0.0"
-   port: 9090
-   http2: true
+id: "default"
+host: "0.0.0.0"
+port: 9090
+http2: true
 ```
 
-### Download ALPN agent
+### Download the ALPN agent
 
 HTTP/2 over TLS requires the use of ALPN to negotiate the use of the h2 protocol. Java does not currently support ALPN, which will be supported in the next Java version. For lack of support in the JDK we need to use the Jetty-ALPN  bootclasspath extension.
 
 You can download the [jetty-alpn-agent][1] and set the Java agent in the `$BALLERINA_HOME/bin/ballerina` file as follows:
 
 ```
--javaagent:(path_to_jetty-alpn-agent.jar) \
+-javaagent:(path_to_jetty-alpn-agent.jar)\
 ```
 
 For example:
 
 ```
--javaagent:"$BALLERINA_HOME/bre/lib/jetty-alpn-agent-2.0.6.jar" \
+-javaagent:"$BALLERINA_HOME/bre/lib/jetty-alpn-agent-2.0.6.jar"\
 ```
 >NOTE: The java-agent has all the class path extensions of different JDK versions. But you can use the release of the Jetty-ALPN JAR specific to the version of Java you are using and Xbootclasspath the JVM option referencing the path to the Jetty alpn-boot JAR. See the [Netty documentation][2] for other SSL options.
 
@@ -82,6 +83,6 @@ For example:
 
 You can use an HTTP/2 client to test the HTTP/2 services. See the example [HTTP/2 Java client][3] and [test samples][4] to see how to call HTTP samples using an HTTP/2 Java client.
 
-[3]: https://github.com/ballerinalang/ballerina/tree/master/modules/tests/test-integration/src/test/java/org/wso2/ballerina/test/util/http2
+[3]: https://github.com/ballerinalang/ballerina/tree/master/modules/tests/test-integration/src/test/java/org/ballerinalang/test/util/http2
 
-[4]: https://github.com/ballerinalang/ballerina/tree/master/modules/tests/test-integration/src/test/java/org/wso2/ballerina/test/service/http2/sample
+[4]: https://github.com/ballerinalang/ballerina/tree/master/modules/tests/test-integration/src/test/java/org/ballerinalang/test/service/http2/sample

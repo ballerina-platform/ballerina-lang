@@ -56,7 +56,7 @@ public class Utils {
         sb.append(" (");
         for (int i = 1; i <= args.length; i++) {
             Argument arg = args[i - 1];
-            sb.append(getArgumentType(arg.type(), arg.elementType())).append(" ").append(arg.name());
+            sb.append(getArgumentType(arg.type(), arg.elementType(), arg.structType())).append(" ").append(arg.name());
             if (i != args.length) {
                 sb.append(", ");
             }
@@ -77,7 +77,7 @@ public class Utils {
         sb.append(" (");
         for (int i = 1; i <= args.length; i++) {
             ReturnType arg = args[i - 1];
-            sb.append(getArgumentType(arg.type(), arg.elementType()));
+            sb.append(getArgumentType(arg.type(), arg.elementType(), ""));
             if (i != args.length) {
                 sb.append(", ");
             }
@@ -92,11 +92,20 @@ public class Utils {
      * @param argEltType type of the argument elements
      * @return argument type
      */
-    public static String getArgumentType(TypeEnum argType, TypeEnum argEltType) {
+    public static String getArgumentType(TypeEnum argType, TypeEnum argEltType, String structType) {
         if (TypeEnum.ARRAY.equals(argType)) {
-            return argEltType.getName() + "[]";
+            if (TypeEnum.STRUCT.equals(argEltType)) {
+                return structType + "[]";
+            } else {
+                return argEltType.getName() + "[]";
+            }
+        } else {
+            if (TypeEnum.STRUCT.equals(argType)) {
+                return structType;
+            } else {
+                return argType.getName();
+            }
         }
-        return argType.getName();
     }
 
     /**
@@ -180,9 +189,17 @@ public class Utils {
                 actionNameBuilder.append("." + connectorPkg + ":" + connectorName);
             } else if (arg.type() == TypeEnum.ARRAY && arg.elementType() != TypeEnum.EMPTY) {
                 // if the argument is arrayType, then append the element type to the method signature
-                actionNameBuilder.append("." + arg.elementType().getName() + "[]");
+                if (arg.elementType() == TypeEnum.STRUCT) {
+                    actionNameBuilder.append("." + connectorPkg + ":" + arg.structType() + "[]");
+                } else {
+                    actionNameBuilder.append("." + arg.elementType().getName() + "[]");
+                }
             } else {
-                actionNameBuilder.append("." + arg.type().getName());
+                if (arg.type() == TypeEnum.STRUCT) {
+                    actionNameBuilder.append("." + arg.structType());
+                } else {
+                    actionNameBuilder.append("." + arg.type().getName());
+                }
             }
         }
         return actionNameBuilder.toString();

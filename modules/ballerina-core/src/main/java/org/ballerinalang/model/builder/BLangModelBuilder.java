@@ -263,6 +263,7 @@ public class BLangModelBuilder {
     public void startStructDef(NodeLocation location) {
         currentStructBuilder = new StructDef.StructBuilder(location, currentScope);
         currentScope = currentStructBuilder.getCurrentScope();
+        annotationListStack.push(new ArrayList<>());
     }
 
     /**
@@ -303,6 +304,9 @@ public class BLangModelBuilder {
      */
     public void addStructDef(NodeLocation location, String name) {
         currentStructBuilder.setName(name);
+        
+        List<Annotation> annotationList = annotationListStack.pop();
+        annotationList.forEach(currentStructBuilder::addAnnotation);
 
         // TODO: Fix the package path
 //        currentStructBuilder.setPackagePath(currentPackagePath);
@@ -361,6 +365,14 @@ public class BLangModelBuilder {
         annotationList.add(annotation);
     }
 
+    public void startTypeMapperInput() {
+        annotationListStack.push(new ArrayList<>());
+    }
+
+
+    public void endTypeMapperInput() {
+        annotationListStack.pop();
+    }
 
     // Function/action input and out parameters
     public void startParamList() {
@@ -791,6 +803,9 @@ public class BLangModelBuilder {
         //currentCUBuilder.setPkgPath(currentPackagePath);
         currentCUBuilder.setPublic(isPublic);
         currentCUBuilder.setNative(isNative);
+
+        List<Annotation> annotationList = annotationListStack.pop();
+        annotationList.forEach(currentCUBuilder::addAnnotation);
 
         BTypeMapper typeMapper = currentCUBuilder.buildTypeMapper();
 

@@ -28,7 +28,7 @@ The `<program-name>` directory contains all the code that the developer writes a
 Each Ballerina program can have at most one `main()` function, which serves as the entry point for command-line execution, and zero or more services that are exposed as network entry points when the program is run as a service. Therefore, when organizing your files under a `<program-name>` directory, be sure that there is no more than one file containing the `main()` function. 
 
 ## Importing packages
-To import a package into your program, you can use the Import Packages button in the upper right corner of the canvas, or simply type `import <package-name>;` in the Source view. 
+To import a package into your program, you can use the Imports box in the upper left corner of the canvas, or simply type `import <package-name>;` in the Source view. 
 
 All built-in Ballerina library functions and connectors are defined in the `ballerina.*` packages. You don’t need to add import statements for system packages that start with `ballerina.lang.*` because they are imported by default and can be accessed by qualifying the symbol with the last part of the package name. For example, all message data type related functions (which live in the `ballerina.lang.message` package) can be accessed as `message:FunctionName`. 
 

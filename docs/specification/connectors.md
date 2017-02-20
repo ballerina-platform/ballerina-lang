@@ -47,6 +47,8 @@ Connectors are instantiated using the `create` keyword as follows:
 [ConnectorPackageName:]ConnectorName ConnectorVarName = create [ConnectorPackageName:]ConnectorName (ValueList);
 ```
 
+## Invoking Actions
+
 Actions are invoked as follows:
 ```
 [ConnectorPackageName:]ConnectorName.ActionName (ConnectorVarName, ValueList);
