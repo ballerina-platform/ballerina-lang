@@ -33,6 +33,13 @@
     <name>Ballerina - Tools</name>
     <description>Ballerina - Tools</description>
 
+    <scm>
+        <url>//github.com/ballerinalang/distribution.git</url>
+        <developerConnection>scm:git:https://github.com/ballerinalang/distribution.git</developerConnection>
+        <connection>scm:git:https://github.com/ballerinalang/distribution.git</connection>
+        <tag>HEAD</tag>
+    </scm>
+
     <dependencies>
         <dependency>
             <groupId>org.ballerinalang</groupId>
