@@ -1,145 +1,249 @@
-# Types and Variables
+# Types, Variables, and Constants
 
-TODO: review this page and update with latest features
+The Ballerina type system has value types and reference types. Ballerina comes with a set of built-in value types, a set of built-in reference types, array & struct type constructors to create new reference types, and an iterator type constructor to create new iterators.
 
-Ballerina has variables of various types. The type system includes built-in primitive or value types, a collection of built-in structured types, and array, record, and iterator type constructors. All variables of primitive types are allocated on the stack, while all non-primitive types are allocated on a heap using `new`.
+The type system is illustrated in the following:
 
-The type system is illustrated in the following diagram:
+![Ballerina Type System](../specification/images/typesystem.png)
 
-![alt text](../images/typesystem.png "Ballerina Type System")
+## Declaring and initializing variables
 
-## Declaring variables
+Variable declarations are considered [statements](statements.md) and can be added anywhere a statement is allowed. They can be interspersed with other statements in any order.
 
 A `VariableDeclaration` has the following structure:
+
+```
+TypeName VariableName [ = Expression];
+```
+
+Variables can be initialized using the standard literal value syntax for that type of variable or using expressions consisting of literal values and any other variables that are in-scope and already initialized. 
+
+## Allocating and deallocating variables
+
+All value-typed variables are allocated on the stack, while all reference-typed variables are allocated on the heap. Value-typed variables are deallocated when they go out of scope, and all reference-typed variables are garbage-collected when they are no longer in use.
+
+As all reference-typed variables are allocated on the heap, they must be explicitly allocated. This can be done by assigning them a literal value or by simply creating an empty value.
+
+## The `any` type
+
+> NOTE: We are planning to add a type named `any` to be the root of the type system. This will be used to represent a variable of any type in the type system and will have additional constraints.
+
+## Value types
+
+Ballerina includes the following value types:
+
+- boolean
+- int
+- float
+- string
+
+The types `int` and `float` both support 64-bit IEEE754 arithmetic. The `boolean` type has only two values: `true` and `false`. The `string` type operates similar to value types in that assignment and comparison involve the full value and not the pointer.
+
+Value types can be initialized at declaration by assigning a value of that type. If they are not initialized, they have the following default values: 
+
+- int: 0
+- float: 0.0
+- string: "" (empty string, not null)
+- boolean: false
+
+## User-defined reference types
+
+###  Structured types (records)
+
+User-defined record types are defined using the `struct` keyword as follows:
+
+```
+struct TypeName {
+    TypeName FieldName;+
+}
+```
+
+Variables of a struct type are defined by using the TypeName to declare the variable:
+
 ```
 TypeName VariableName;
 ```
-A `TypeName` can be one of the following built-in primitive types:
 
-* boolean
-* int
-* long
-* float
-* double
-* string
+The default value of a struct variable is null.
 
-Primitive types do not have to be dynamically allocated as they are always allocated on the stack.
+Variables of struct types can be initialized at declaration time or later using the following syntax:
 
-A `TypeName` can also be one of the following built-in non-primitive types:
-
-* message
-* map
-* exception
-
-## Constructed types (user-defined types)
-A `TypeName` can also be the name of a user-defined type.
-
-### Structured types (records)
-
-User-defined record types are defined using the struct keyword as follows:
 ```
-[public] struct TypeName {
-    TypeName VariableName;+
-}
+VariableName = { FieldName : Expression, .. FieldName : Expression};
 ```
-If a struct is marked public, it can be instantiated from another package.
+
+This results in a new instance of the struct being created with the named fields assigned the indicated values. If a field is not named, it has the default value for that type when the struct is created. Thus, structs with no values assigned can be created by assigning the value `{}`.
 
 ### Arrays
 
-Arrays are defined using the array constructor `[]` as follows:
-```
-TypeName[]
-```
-All arrays are unbounded in length and support 0 based indexing.
+Arrays are defined using the array constructor `[]` next to any type as follows:
 
-### Iterators
+```
+TypeName[] VariableName;
+```
 
+The default value of an array variable is null.
+
+All arrays are unbounded in length and support 0-based indexing. Arrays may be sparse as well, and they will grow to meet whatever size is needed based on the index (subject to memory availability, of course).
+
+Array-typed variables can be initialized at declaration time or later using the following syntax:
+
+```
+VariableName = [ Expression, Expression, ... ];
+```
+
+If there are no expressions given (i.e., the right-hand side is `[]`), the variable will be initialized to an array of length 0. Otherwise, it will be an array of the same length as the number of expressions, with each value being stored in the corresponding index of the array.
+
+## Built-in reference types
+
+Ballerina comes with a pre-defined set of reference types that are key to supporting the types of programs that Ballerina developers are expected to write. These are supported by a set of standard library functions found in the packages `ballerina.lang.*`. This section defines each of these types and defines their usage.
+
+### Type: `message`
+
+The `message` type is an opaque type used to represent a request to a `resource`. This approach allows the `resource` to be network-protocol independent, even though a given `resource` is always tied to a particular protocol because a `service` can only be bound to one network protocol at a time.
+
+Library functions for accessing information from this type are in the package `ballerina.lang.message`.
+
+A variable of type `message` can be initialized to hold an empty message as follows:
+
+```
+message VarName = {};
+```
+
+### Type: `exception`
+
+The `exception` type, like `message`, is an opaque type used to hold an exception.
+
+See [Exception Handling](exceptions.md) for more information on exception handling and the `exception` type.
+
+### Type: `map`
+
+The `map` type is a hash map with keys of type string mapped to values of any type.
+
+Library functions for accessing information from this type are in the package `ballerina.lang.maps`.
+
+### Type: `xml` and `xmldocument`
+
+The `xml` type is used to represent an XML element, and `xmldocument` is used to represent a full XML document. Ballerina also understands XML Schema and allows you to declare that an element or document must conform to a particular schema.
+
+XML element variables are declared in either of the following ways:
+
+```
+xml VariableName;
+xml<{SchemaNamespaceName}SchemaTypeOrElementName> VariableName;
+```
+
+The first approach is a variable that can hold any XML element. The second approach is a variable whose value is an element that is of the indicated XML Schema type (if the name is that of an XML Schema Complex Type), or the element has the name and content model defined by the indicated XML Element declaration (if the name is that of an XML Schema Element declaration). Note that 'SchemaNamespaceName' may be empty, which means the type name is unqualified.
+
+Similarly, the `xmldocument` type is used to represent a complete XML Document. Variables are declared as follows:
+
+```
+xmldocument VariableName;
+xmldocument<{SchemaNamespaceName}DocumentElementTypeOrElementName> VariableName;
+```
+
+The first approach is a variable that may hold any XML document. The second approach is a variable whose value is an XML Document whose document element conforms to the indicated XML Schema type or XML Element declaration, similar to the element case above.
+
+Literal XML values can be assigned to `xml` and `xmldocument` typed variables as follows:
+
+```
+xml VariableName = `<xml-element-name [namespace declarations] [attributes]>element-content</xml-element-name>`;
+```
+
+The same syntax is used to assign a literal value to a variable of type `xmldocument`.
+
+Within the literal XML expression (enclosed within back quote characters), other in-scope variables can be referred to using the syntax `${VariableName}`, which will be replaced by the value of the variable.
+
+> NOTE: There is currently no way to insert the XML Declaration, processing instructions, DTD nodes, comment nodes, etc. to the document literally.
+
+Library functions for manipulating XML documents and elements are in the package `ballerina.lang.xmls`.
+
+### Type: `json`
+
+A variable of type `json` can hold any JSON document. Ballerina also understands JSON Schema and allows you to declare that a JSON document must conform to a particular schema.
+
+JSON variables are declared in either of the following ways:
+
+```
+json VariableName;
+json<SchemaName> VariableName;
+```
+
+The first approach is a variable that can hold any JSON document. The second approach is a variable whose value is a document that is of the indicated JSON Schema.
+
+Literal JSON values can be assigned to `json` typed variables as follows:
+
+```
+json VariableName = `{"PropertyName" : "Value", "PropertyName": "Value", ...}`;
+```
+
+Within the literal JSON expression (enclosed within back quote characters), other in-scope variables can be referred to using the syntax `${VariableName}`, which will be replaced by the value of the variable.
+
+Library functions for manipulating XML documents and elements are in the package `ballerina.lang.jsons`.
+
+> NOTE: We are considering a deeper marriage of JSON types and structs. This is because a JSON document with its properties can be viewed as being analogous to a struct with fields. Some of the deeper integration we are considering is the ability to use dot notation (similar to the syntax for accessing fields of a struct) to navigate through a JSON document, instead of the current approach of using a library function.
+
+### Type: `datatable`
+
+The `datatable` type is used to hold tabular data, such as those returned from an SQL database queries, and provides cursor-based access to the data. In the current release, values of this type can only be created as the return value of certain actions of the SQL data connector (for details, see the `ballerina.data.sql` package).
+
+Navigating a `datatable` requires you to use the library functions in the package `ballerina.lang.datatables`. More information is available in the documentation for that package.
+
+## Iterators
 Iterators are defined using the iterator constructor `~` as follows:
+
 ```
 TypeName~
 ```
-Iterator typed values are navigated through using an iterate statement.
 
-Iterators are currently only available for the built-in types `xml` and `json`. In the future we will allow developers to define their own iterators for their types.
+The `iterate` statement navigates through iterator-typed values.
 
-## XML & JSON types
+> NOTE: Iterators are still under development and not fully implemented.
 
-Ballerina has built-in support for XML elements, XML documents, and JSON values. `TypeName` can be any of the following:
-```
-json[<json_schema_name>]
-xml[<{XSD_namespace_name}type_name>]
-xmlDocument[<{XSD_namespace_name}type_name>]
-```
-A variable of type `json` can hold any JSON value. Optionaly, you can associate a JSON schema with the JSON value to require the value to conform to that schema, which is useful for type mapping. For example:
-```
-json[schema.json] jsdoc;
-```
+## Type conversion and mapping
 
-You can use JSON literals to initialize JSON-typed variables. For example:
-```
-json address_json = `{"name" : "$name", "streetName" : "$street"}`;
-```
+Ballerina supports two styles of type conversion: implicit coercion and explicit casting. In addition, Ballerina allows you to add to the library of type convertors that may be explicitly invoked using the type cast operation.
 
-A variable of type `xml` can hold any XML element. Optionally, you can associate an XML schema with the XML value to constrain the value space. The optional TypeName specifies the qualified type name of the XML schema type that the XML element is assumed to conform to.
-
-A variable of type `xmlDocument` can hold any XML document, and the optional schema type is the type of the document element.
-
-You can use XML literals to initialize XML-typed variables. For example:
-```
-xmlElement address_xml = `<address><name>$name</name></address>`;
-```
-
-## Allocating variables
-
-Primitive types do not have to be dynamically allocated as they are always allocated on the stack.
-
-All non-primitive types, user-defined types, and array types have to be allocated on the heap using new as follows:
-```
-new TypeName[(ValueList)]
-```
-The optional `ValueList` can be used to give initial values for the fields of any record type. The order of values must correspond to the order of field declarations.
-
-## Default values for variables
-
-Variables can be given values at time of declaration as follows:
-```
-TypeName VariableName = Value;
-```
-
-## Literal values
-
-The following are examples of literal values for various types:
-```
-int age = 4;
-double price = 4.0;
-string name = "John";
-xml address_xml = `<address><name>$name</name></address>`;
-json address_json = `{"name" : "$name", "streetName" : "$street"}`;
-map m = {"name" : "John", "age" : 34 };
-int[] data = [1, 2, 3, 6, 10];
-```
-
-## Type coercion and conversion
-
-The built-in float and double follow the standard IEEE 754 specifications. The int and long types follow the standard 32- and 64-bit integer arithmetic, respectively.
+### Implicit coercions
 
 The following lossless type coercions are pre-defined in Ballerina:
 
-* boolean -> int/long/float/double with values 0 or 1 for false or true, respectively
-* int -> long/float/double
-* long -> double
-* float -> double
+- boolean -> int/float with values 0/0.0 or 1/1.0 for false or true, respectively
+- int -> float
 
-In addition to these built in type coercions, Ballerina allows you to define arbitrary conversions from one non-primitive type to another non-primitive using type mappers and have the language apply it automatically.
+### Explicit casting
 
-A `TypeMapper` is defined as follows:
+If a type conversion is lossy, it must be explicitly invoked via the type-casting operator. The syntax is as follows:
+
+```
+TypeName1 VariableName1;
+TypeName2 VariableName2;
+
+VariableName2 = (TypeName2) VariableName1;
+```
+
+This cast will be rejected at compile time if a suitable type mapper is not found. Ballerina defines the following pre-defined type mappings:
+
+- float -> int (by truncating at the decimal point)
+- int -> boolean (by mapping 0 to false and any other value to true)
+- float -> boolean (by mapping 0.0 to false and any other value to true)
+
+### Type Mapping
+
+Ballerina allows you to program type converters that convert one type to another and then invoke them via the type cast operator.
+
+A `typemapper` is defined as follows:
+
 ```
 typemapper TypeMapperName (TypeName VariableName) (TypeName) {
-    VariableDeclaration;*
     Statement;+
 }
 ```
-If a TypeMapper has been defined from Type1 to Type2, it will be invoked by the runtime upon executing the following statement:
+
+This declares that the type mapper named TypeMapperName is able to convert a value that is of the parameter type to a value of the result type. The logic of the conversion is found within the body of the type mapper as Ballerina code.
+
+If a TypeMapper has been defined from Type1 to Type2, it will be invoked by the runtime using the cast operator as shown below:
+
 ```
 Type1 t1;
 Type2 t2;
@@ -147,13 +251,8 @@ Type2 t2;
 t2 = (Type2) t1;
 ```
 
-That is, the registered type mapper is invoked by indicating the type cast as above. Note that while the compiler can auto-detect the right mapper to apply, we have chosen to force the user to request the appropriate mapper by applying a cast.
+That is, the registered type converter is invoked by indicating the type cast as above. Note that while the compiler can auto-detect the right converter to apply, Ballerina requires that the user request the appropriate converter by applying a cast, as the conversion may be lossy.
 
-## Built-in type mappers
+#### Built-in type mappers
 
-In addition to the built-in value type coercions, Ballerina also ships with a few pre-defined type mappers to make development easier. The following predefined type mappers are declared in the Ballerina package `ballerina.lang.typemappers`:
-
-* string/xml/json to messages: creates a new message with the given string/xml/json as its payload
-* down conversions for numeral types: int -> boolean (0 is false), long -> int/boolean, float -> int/boolean, double -> float/long/int/boolean,
-
-Note that these must be triggered by indicating a type cast to the desired type.
+In addition to the built-in value type coercions, Ballerina also includes pre-defined type mappers to make it easier to program common scenarios. These are found in the specific packages for those types.
