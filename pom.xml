@@ -29,7 +29,7 @@
     <groupId>org.ballerinalang</groupId>
     <artifactId>testerina</artifactId>
     <packaging>pom</packaging>
-    <version>0.8.0</version>
+    <version>0.8.0-SNAPSHOT</version>
     <name>WSO2 Testerina - Parent</name>
 
     <url>http://wso2.org</url>
@@ -89,12 +89,12 @@
     </build>
 
     <properties>
-        <ballerina.version>0.8.0</ballerina.version>
+        <ballerina.version>0.8.0-SNAPSHOT</ballerina.version>
 
         <com.beust.jcommander.version>1.60</com.beust.jcommander.version>
 
-        <testerina.version>0.8.0</testerina.version>
-        <testerina.package.export.version>0.8.0</testerina.package.export.version>
+        <testerina.version>0.8.0-SNAPSHOT</testerina.version>
+        <testerina.package.export.version>0.8.0-SNAPSHOT</testerina.package.export.version>
 
         <owasp.dependency.check.maven.version>1.4.5</owasp.dependency.check.maven.version>
     </properties>
