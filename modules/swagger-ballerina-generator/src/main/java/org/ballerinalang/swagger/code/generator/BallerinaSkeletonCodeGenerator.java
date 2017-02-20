@@ -15,7 +15,7 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.wso2.ballerina.swagger.code.generator;
+package org.ballerinalang.swagger.code.generator;
 
 import io.swagger.codegen.CliOption;
 import io.swagger.codegen.CodegenConfig;
@@ -39,18 +39,18 @@ import java.util.Map;
  * This the ballerina connector generator class. Here we can add/update templates to generate
  * different connectors, types services etc.
  */
-public class BallerinaMockServiceCodeGenerator extends DefaultCodegen implements CodegenConfig {
+public class BallerinaSkeletonCodeGenerator extends DefaultCodegen implements CodegenConfig {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(BallerinaMockServiceCodeGenerator.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(BallerinaSkeletonCodeGenerator.class);
 
     protected String apiVersion = "1.0.0";
     protected String apiPath = "";
 
-    public BallerinaMockServiceCodeGenerator() {
+    public BallerinaSkeletonCodeGenerator() {
         super();
 
         // set the output folder here
-        outputFolder = "generated-code/ballerina-mock-service";
+        outputFolder = "generated-code/ballerina-skeleton";
 
         /*
          * Models.  You can write model files using the modelTemplateFiles map.
@@ -73,7 +73,7 @@ public class BallerinaMockServiceCodeGenerator extends DefaultCodegen implements
          * Template Location.  This is the location which templates will be read from.  The generator
          * will use the resource stream to attempt to read the templates.
          */
-        embeddedTemplateDir = templateDir = "ballerina-mock-service";
+        embeddedTemplateDir = templateDir = "ballerina-skeleton";
 
         /*
          * Reserved words.  Override this with reserved words specific to your language
@@ -100,8 +100,7 @@ public class BallerinaMockServiceCodeGenerator extends DefaultCodegen implements
                         "float",
                         "double",
                         "long",
-                        "array", "map"
-                )
+                        "array", "map")
         );
 
         instantiationTypes.clear();
@@ -165,7 +164,7 @@ public class BallerinaMockServiceCodeGenerator extends DefaultCodegen implements
      */
     @Override
     public String getName() {
-        return "ballerina-mock-service";
+        return "ballerina-skeleton";
     }
 
     /**

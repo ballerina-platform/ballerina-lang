@@ -15,7 +15,7 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.wso2.ballerina.swagger.code.generator;
+package org.ballerinalang.swagger.code.generator;
 
 import io.swagger.codegen.CliOption;
 import io.swagger.codegen.CodegenConfig;
@@ -24,7 +24,7 @@ import io.swagger.codegen.CodegenOperation;
 import io.swagger.codegen.CodegenType;
 import io.swagger.codegen.DefaultCodegen;
 import io.swagger.codegen.SupportingFile;
-import io.swagger.models.Operation;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,24 +35,22 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang3.StringUtils;
-
 /**
  * This the ballerina connector generator class. Here we can add/update templates to generate
  * different connectors, types services etc.
  */
-public class BallerinaConnectorCodeGenerator extends DefaultCodegen implements CodegenConfig {
+public class BallerinaMockServiceCodeGenerator extends DefaultCodegen implements CodegenConfig {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(BallerinaConnectorCodeGenerator.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(BallerinaMockServiceCodeGenerator.class);
 
     protected String apiVersion = "1.0.0";
     protected String apiPath = "";
 
-    public BallerinaConnectorCodeGenerator() {
+    public BallerinaMockServiceCodeGenerator() {
         super();
 
         // set the output folder here
-        outputFolder = "generated-code/ballerina-connector";
+        outputFolder = "generated-code/ballerina-mock-service";
 
         /*
          * Models.  You can write model files using the modelTemplateFiles map.
@@ -68,14 +66,14 @@ public class BallerinaConnectorCodeGenerator extends DefaultCodegen implements C
          * class
          */
         apiTemplateFiles.put(
-                "controller.mustache",   // the template to use
+                "api.mustache",   // the template to use
                 ".bal");       // the extension for each file to write
 
         /*
          * Template Location.  This is the location which templates will be read from.  The generator
          * will use the resource stream to attempt to read the templates.
          */
-        embeddedTemplateDir = templateDir = "ballerina-connector";
+        embeddedTemplateDir = templateDir = "ballerina-mock-service";
 
         /*
          * Reserved words.  Override this with reserved words specific to your language
@@ -99,9 +97,11 @@ public class BallerinaConnectorCodeGenerator extends DefaultCodegen implements C
                         "string",
                         "boolean",
                         "int",
+                        "float",
                         "double",
-                        "map",
-                        "array")
+                        "long",
+                        "array", "map"
+                )
         );
 
         instantiationTypes.clear();
@@ -137,9 +137,7 @@ public class BallerinaConnectorCodeGenerator extends DefaultCodegen implements C
          * entire object tree available.  If the input file has a suffix of `.mustache
          * it will be processed by the template engine.  Otherwise, it will be copied
          */
-        //supportingFiles.add(new SupportingFile("model.mustache", apiPath, "types.bal"));
         supportingFiles.add(new SupportingFile("json-model.mustache", apiPath, "types.json"));
-        writeOptional(outputFolder, new SupportingFile("README.mustache", apiPath, "README.md"));
         writeOptional(outputFolder, new SupportingFile("json-model.mustache", apiPath, "types.json"));
     }
 
@@ -152,7 +150,7 @@ public class BallerinaConnectorCodeGenerator extends DefaultCodegen implements C
      * Configures the type of generator.
      *
      * @return the CodegenType for this generator
-     * @see io.swagger.codegen.CodegenType
+     * @see CodegenType
      */
     @Override
     public CodegenType getTag() {
@@ -167,7 +165,7 @@ public class BallerinaConnectorCodeGenerator extends DefaultCodegen implements C
      */
     @Override
     public String getName() {
-        return "ballerina-connector";
+        return "ballerina-mock-service";
     }
 
     /**
@@ -213,7 +211,7 @@ public class BallerinaConnectorCodeGenerator extends DefaultCodegen implements C
             if (operations != null) {
                 List<CodegenOperation> ops = (List<CodegenOperation>) operations.get("operation");
                 for (CodegenOperation operation : ops) {
-                    operation.httpMethod = operation.httpMethod.toLowerCase();
+                    operation.httpMethod = operation.httpMethod.toUpperCase();
                 }
             }
         }
@@ -243,8 +241,8 @@ public class BallerinaConnectorCodeGenerator extends DefaultCodegen implements C
             LOGGER.warn(operationId + " (reserved word) cannot be used as method name. Renamed to " + camelize(sanitizeName("call_" + operationId)));
             operationId = "call_" + operationId;
         }
-        String name = camelize(operationId);
-        return Character.toLowerCase(name.charAt(0)) + name.substring(1);
+
+        return camelize(operationId);
     }
 
     @Override
@@ -269,12 +267,12 @@ public class BallerinaConnectorCodeGenerator extends DefaultCodegen implements C
         return underscore(name);
     }
 
-/*    @Override
+    @Override
     public String toApiFilename(String name) {
         name = name.replaceAll("-", "_");
         return underscore(name);
     }
-*/
+
     @Override
     public String escapeQuotationMark(String input) {
         // remove " to avoid code injection
@@ -286,37 +284,4 @@ public class BallerinaConnectorCodeGenerator extends DefaultCodegen implements C
         return input.replace("*/", "*_/").replace("/*", "/_*");
     }
 
-    @Override
-    protected String getOrGenerateOperationId(Operation operation, String path, String httpMethod) {
-        String operationId = operation.getOperationId();
-        if (path.contains("?")) {
-            path = path.substring(0, path.indexOf("?"));
-        }
-        if (StringUtils.isBlank(operationId)) {
-            String tmpPath = path.replaceAll("\\{", "");
-            tmpPath = tmpPath.replaceAll("\\}", "");
-            String[] parts = (tmpPath + "/" + httpMethod).split("/");
-            StringBuilder builder = new StringBuilder();
-            if ("/".equals(tmpPath)) {
-                builder.append("root");
-            }
-            for (int i = 0; i < parts.length; ++i) {
-                String part = parts[i];
-                if (part.length() > 0) {
-                    if (builder.toString().length() == 0) {
-                        part = Character.toLowerCase(part.charAt(0)) + part.substring(1);
-                    } else {
-                        part = this.initialCaps(part);
-                    }
-
-                    builder.append(part);
-                }
-            }
-
-            operationId = this.sanitizeName(builder.toString());
-            LOGGER.warn("Empty operationId found for path: " + httpMethod + " " + path + ". Renamed to auto-generated operationId: " + operationId);
-        }
-
-        return operationId;
-    }
 }

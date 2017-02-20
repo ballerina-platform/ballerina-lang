@@ -15,7 +15,7 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.wso2.ballerina.swagger.code.generator.cmd;
+package org.ballerinalang.swagger.code.generator.cmd;
 
 import ch.lambdaj.collection.LambdaIterable;
 import io.airlift.airline.Command;

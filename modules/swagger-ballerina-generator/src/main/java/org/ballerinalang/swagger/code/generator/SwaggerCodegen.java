@@ -15,15 +15,15 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.wso2.ballerina.swagger.code.generator;
+package org.ballerinalang.swagger.code.generator;
 
 import io.airlift.airline.Cli;
 import io.airlift.airline.Help;
-import org.wso2.ballerina.swagger.code.generator.cmd.ConfigHelp;
-import org.wso2.ballerina.swagger.code.generator.cmd.Generate;
-import org.wso2.ballerina.swagger.code.generator.cmd.Meta;
-import org.wso2.ballerina.swagger.code.generator.cmd.Version;
-import org.wso2.ballerina.swagger.code.generator.cmd.Langs;
+import org.ballerinalang.swagger.code.generator.cmd.Version;
+import org.ballerinalang.swagger.code.generator.cmd.ConfigHelp;
+import org.ballerinalang.swagger.code.generator.cmd.Generate;
+import org.ballerinalang.swagger.code.generator.cmd.Meta;
+import org.ballerinalang.swagger.code.generator.cmd.Langs;
 
 /**
  * Swagger to Ballerina connector driver class.

@@ -1,4 +1,4 @@
-org.wso2.ballerina.swagger.code.generator.BallerinaConnectorCodeGenerator
-org.wso2.ballerina.swagger.code.generator.BallerinaMockServiceCodeGenerator
-org.wso2.ballerina.swagger.code.generator.BallerinaSkeletonCodeGenerator
+org.ballerinalang.swagger.code.generator.BallerinaConnectorCodeGenerator
+org.ballerinalang.swagger.code.generator.BallerinaMockServiceCodeGenerator
+org.ballerinalang.swagger.code.generator.BallerinaSkeletonCodeGenerator
 
