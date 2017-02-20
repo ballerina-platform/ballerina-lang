@@ -28,7 +28,7 @@
     <artifactId>annotation-processor</artifactId>
     <packaging>jar</packaging>
     <name>Ballerina - Annotation Processor</name>
-    <url>http://ballerinalang.org/</url>
+    <url>http://ballerinalang.org</url>
 
     <dependencies>
         <dependency>

@@ -31,7 +31,7 @@
     <packaging>jar</packaging>
 
     <name>Ballerina - Core</name>
-    <url>http://ballerinalang.org/</url>
+    <url>http://ballerinalang.org</url>
 
     <dependencies>
         <dependency>

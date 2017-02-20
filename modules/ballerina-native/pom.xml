@@ -28,7 +28,7 @@
     <artifactId>ballerina-native</artifactId>
     <packaging>jar</packaging>
     <name>Ballerina - Native Implementation</name>
-    <url>http://ballerinalang.org/</url>
+    <url>http://ballerinalang.org</url>
 
     <dependencies>
         <dependency>

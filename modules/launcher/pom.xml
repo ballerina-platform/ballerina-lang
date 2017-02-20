@@ -30,7 +30,7 @@
     <artifactId>ballerina-launcher</artifactId>
 
     <name>Ballerina - Launcher</name>
-    <url>http://ballerinalang.org/</url>
+    <url>http://ballerinalang.org</url>
 
     <dependencies>
         <dependency>
