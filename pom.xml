@@ -47,13 +47,13 @@
             <type>zip</type>
         </dependency>
         <dependency>
-            <groupId>org.ballerinalang</groupId>
+            <groupId>org.ballerinalang.testerina</groupId>
             <artifactId>testerina-core</artifactId>
             <version>${testerina.version}</version>
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
-            <artifactId>swagger-ballerina</artifactId>
+            <artifactId>swagger-ballerina-generator</artifactId>
             <version>${tool.swagger.version}</version>
         </dependency>
         <dependency>
@@ -154,13 +154,13 @@
     </build>
 
     <properties>
-        <ballerina.distribution.version>0.8.0-SNAPSHOT</ballerina.distribution.version>
-        <ballerina.composer.distribution.version>0.8.0-SNAPSHOT</ballerina.composer.distribution.version>
+        <ballerina.distribution.version>0.8.0</ballerina.distribution.version>
+        <ballerina.composer.distribution.version>0.8.0</ballerina.composer.distribution.version>
         <testerina.version>0.8.0-SNAPSHOT</testerina.version>
-        <tool.swagger.version>0.8.0-SNAPSHOT</tool.swagger.version>
+        <tool.swagger.version>0.8.0</tool.swagger.version>
         <ballerina.container.version>0.8.0-SNAPSHOT</ballerina.container.version>
-        <docerina.version>0.8.0-SNAPSHOT</docerina.version>
-        <docerina.maven.plugin.version>0.8.0-SNAPSHOT</docerina.maven.plugin.version>
-        <ballerina.connectors.version>0.8.0-SNAPSHOT</ballerina.connectors.version>
+        <docerina.version>0.8.0</docerina.version>
+        <docerina.maven.plugin.version>0.8.0</docerina.maven.plugin.version>
+        <ballerina.connectors.version>0.8.0</ballerina.connectors.version>
     </properties>
 </project>
