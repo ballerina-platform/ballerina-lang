@@ -19,17 +19,17 @@ Ballerina doc command can be used to generate the API documentation for your Bal
 $ ballerina doc --help
 generate Ballerina API documentation
 
-Usage:  ballerina doc <source-path>
-    source-path:
-    Paths to the directories where Ballerina source files reside or a path to
-    a Ballerina file which does not belong to a package
+Usage:
+ballerina doc <sourcepath>
+  sourcepath:
+  Paths to the directories where Ballerina source files reside or a path to
+  a Ballerina file which does not belong to a package
 
 Flags:
-  --output,  -o   directory for API documentation to be generated
-  --exclude, -e   a comma separated list of package names to be filtered from the documentation
-  --native,  -n   read the source as native ballerina code
-  --verbose, -v   enable debug level logs
-  --help,    -h   print help
+  --output, -o     path to the output directory where the API documentation will be written to
+  --native, -n     read the source as native ballerina code
+  --exclude, -e    a comma separated list of package names to be filtered from the documentation
+  --verbose, -v    enable debug level logs
 ```
 
 ### Usage
