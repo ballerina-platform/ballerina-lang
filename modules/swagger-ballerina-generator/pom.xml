@@ -125,6 +125,8 @@
                                     <exclude>xmlpull:xmlpull</exclude>
                                     <exclude>com.google.code.findbugs:jsr305</exclude>
                                     <exclude>net.minidev:accessors-smart</exclude>
+                                    <exclude>org.wso2.carbon.transport:*</exclude>
+                                    <exclude>org.wso2.carbon.messaging:*</exclude>
                                 </excludes>
                             </artifactSet>
                             <filters>
