@@ -32,9 +32,11 @@ import java.util.List;
 /**
  * doc command for ballerina which generates documentation for Ballerina packages
  */
-@Parameters(commandNames = "doc", commandDescription = "generates API documentation for Ballerina packages")
+@Parameters(commandNames = "doc", commandDescription = "generates Ballerina API documentation")
 public class BallerinaDocCmd implements BLauncherCmd {
     private final PrintStream out = System.out;
+
+    private JCommander parentCmdParser;
 
     @Parameter(arity = 1, description = "either the path to the directories where Ballerina source files reside or a "
             + "path to a Ballerina file which does not belong to a package")
@@ -63,15 +65,15 @@ public class BallerinaDocCmd implements BLauncherCmd {
     @Override
     public void execute() {
         if (helpFlag) {
-            StringBuilder sb = new StringBuilder();
-            printUsage(sb);
-            out.println(sb);
+            String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(parentCmdParser, "doc");
+            out.println(commandUsageInfo);
             return;
         }
 
         if (argList == null || argList.size() == 0) {
-            StringBuilder sb = new StringBuilder("docerina: no valid Ballerina source given.\n");
-            printUsage(sb);
+            StringBuilder sb = new StringBuilder("docerina: no valid Ballerina source given."
+                    + System.lineSeparator());
+            sb.append(BLauncherCmd.getCommandUsageInfo(parentCmdParser, "doc"));
             out.println(sb);
             return;
         }
@@ -91,28 +93,19 @@ public class BallerinaDocCmd implements BLauncherCmd {
 
     @Override
     public void printUsage(StringBuilder stringBuilder) {
-        stringBuilder.append("generate Ballerina API documentation\n")
-                .append("\n")
-                .append("Usage:")
-                .append("  ballerina doc <source-path>\n")
-                .append("    source-path:\n")
-                .append("    Paths to the directories where Ballerina source files reside or a path to\n")
-                .append("    a Ballerina file which does not belong to a package\n")
-                .append("\n")
-                .append("Flags:\n")
-                .append("  --output,  -o   directory for API documentation to be generated\n")
-                .append("  --exclude, -e   a comma separated list of package names to be filtered from the " +
-                        "documentation\n")
-                .append("  --native,  -n   read the source as native ballerina code\n")
-                .append("  --verbose, -v   enable debug level logs\n")
-                .append("  --help,    -h   print help\n");
+        stringBuilder.append("ballerina doc <source-path>" + System.lineSeparator())
+                .append("    source-path:" + System.lineSeparator())
+                .append("    Paths to the directories where Ballerina source files reside or a path to"
+                        + System.lineSeparator())
+                .append("    a Ballerina file which does not belong to a package" + System.lineSeparator());
     }
 
     @Override
-    public void setParentCmdParser(JCommander arg0) {
+    public void setParentCmdParser(JCommander parentCmdParser) {
+        this.parentCmdParser = parentCmdParser;
     }
 
     @Override
-    public void setSelfCmdParser(JCommander arg0) {
+    public void setSelfCmdParser(JCommander selfCmdParser) {
     }
 }
