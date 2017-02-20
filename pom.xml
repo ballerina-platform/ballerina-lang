@@ -153,8 +153,9 @@
                         </goals>
                         <configuration>
                             <target>
-                                <delete
-                                        dir="${project.build.directory}/extracted-distributions"
+                                <delete dir="${project.build.directory}/extracted-distributions"
+                                        includeemptydirs="true"/>
+                                <delete dir="${project.build.directory}/api-docs"
                                         includeemptydirs="true"/>
                             </target>
                         </configuration>
