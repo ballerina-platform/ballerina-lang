@@ -28,7 +28,7 @@
 
     <modelVersion>4.0.0</modelVersion>
     <artifactId>ballerina-test-artifacts</artifactId>
-    <name>WSO2 Ballerina - Test Artifacts</name>
+    <name>Ballerina - Test Artifacts</name>
     <packaging>bundle</packaging>
 
     <dependencies>
