@@ -189,7 +189,7 @@ status=$START_EXIT_STATUS
     $JAVACMD \
     -Xms256m -Xmx1024m \
     -XX:+HeapDumpOnOutOfMemoryError \
-    -XX:HeapDumpPath="$BAL_COMPOSER_HOME/logs/heap-dump-tool.hprof" \
+    -XX:HeapDumpPath="$BAL_COMPOSER_HOME/heap-dump-tool.hprof" \
     $JAVA_OPTS \
     -classpath ./resources/composer/services/workspace-service-*.jar \
     -Djava.io.tmpdir="$BAL_COMPOSER_HOME/tmp" \
