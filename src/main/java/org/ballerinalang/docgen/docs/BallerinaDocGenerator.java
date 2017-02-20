@@ -155,7 +155,7 @@ public class BallerinaDocGenerator {
                 bLangProgram = new BLangProgramLoader().loadLibrary(pkgPath, path);
             }
             if (bLangProgram == null) {
-                out.println(String.format("docerina: invalid ballerina package: %s", packagePath));
+                out.println(String.format("docerina: invalid Ballerina package: %s", packagePath));
             } else {
                 for (BLangPackage bLangPackage : bLangProgram.getLibraryPackages()) {
                     String packageName = bLangPackage.getPackagePath();
