@@ -26,7 +26,7 @@ import org.ballerinalang.natives.connectors.BallerinaConnectorManager;
 import org.ballerinalang.services.MessageProcessor;
 import org.ballerinalang.testerina.core.entity.TesterinaContext;
 import org.ballerinalang.testerina.core.entity.TesterinaFunction;
-import org.ballerinalang.testerina.core.entity.TesterinaFunctionResult;
+import org.ballerinalang.testerina.core.entity.TesterinaResult;
 import org.ballerinalang.testerina.core.entity.TesterinaReport;
 import org.ballerinalang.util.debugger.DebugManager;
 import org.ballerinalang.util.exceptions.BallerinaException;
@@ -66,8 +66,6 @@ public class BTestRunner {
             debugManager.init();
         }
 
-        //this.tReport = new
-
         executeTestFunctions(bLangPrograms);
         tReport.printTestSummary();
         Runtime.getRuntime().exit(0);
@@ -102,47 +100,40 @@ public class BTestRunner {
                 tFunction.invoke();
             } catch (BallerinaException e) {
                 outStream.println(
-                        "Error while running the before test function: '" + tFunction.getName() + "'. **** ERROR : " +
+                        "error in '" + tFunction.getName() + "': " +
                                 e.getBException().value().getMessage().stringValue());
             }
         }
 
         //test
         for (TesterinaFunction tFunction : testFunctions) {
-            outStream.println("----------------------------------------------------------------------------");
             boolean isTestPassed = true;
-            String testMessage = "Test Passed";
+            String errorMessage = null;
             try {
-                outStream.println("Started running test '" + tFunction.getName() + "'...");
                 tFunction.invoke();
-                outStream.println("Finished running test '" + tFunction.getName() + "'.");
             } catch (BallerinaException e) {
                 isTestPassed = false;
-                testMessage = e.getBException().value().getMessage().stringValue();
-                outStream.println(
-                        "Error while running the function: '" + tFunction.getName() + "'. **** ERROR : " +
-                                e.getBException().value().getMessage().stringValue());
-
+                errorMessage = e.getBException().value().getMessage().stringValue();
+                outStream.println("test '" + tFunction.getName() + "' failed: " + errorMessage);
+            } catch (Exception e) {
+                isTestPassed = false;
+                errorMessage = e.getMessage();
+                outStream.println("test '" + tFunction.getName() + "' has an error: " + errorMessage);
             }
             // if there are no exception thrown, test is passed
-            TesterinaFunctionResult functionResult = new TesterinaFunctionResult(tFunction.getName(),
-                    isTestPassed, testMessage);
+            TesterinaResult functionResult = new TesterinaResult(tFunction.getName(), isTestPassed,
+                    errorMessage);
             tReport.addFunctionResult(functionResult);
         }
-        outStream.println("----------------------------------------------------------------------------");
 
         //after test
         for (TesterinaFunction tFunction : afterTestFunctions) {
             try {
                 tFunction.invoke();
-            } catch (BallerinaException e) {
-                outStream.println(
-                        "Error while running the after test function: '" + tFunction.getName() + "'. **** ERROR : " +
-                                e.getBException().value().getMessage().stringValue());
+            } catch (Exception e) {
+                outStream.println("error in '" + tFunction.getName() + "': " + e.getMessage());
             }
         }
-
-
     }
 
 }
