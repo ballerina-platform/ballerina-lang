@@ -4,7 +4,7 @@ This page provides an overview of the Ballerina language and the main points you
 
 ## Structure of a Ballerina program
 
-A Ballerina file is structured as follows::
+A Ballerina file is structured as follows:
 
 ```
 [package PackageName;]
