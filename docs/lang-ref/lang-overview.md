@@ -24,6 +24,10 @@ Each of the Ballerina entities such as services and connectors are described in 
 
 A Ballerina program can consist of a number of Ballerina files, which may be in one or more packages. Ballerina uses a modular approach for managing names and organizing code into files. In summary, Ballerina entities (functions, services, etc.) all have globally unique qualified names consisting of their package name and the entity name. For complete information, see [Packaging and Running Programs](packaging.md).
 
+## Development tools
+
+Ballerina provides several tools to help you create, document, and test your code. For more information, see [Tools](../tools.md).
+
 ## Expressions
 Similar to languages such as Java, Go, etc, Ballerina supports the following expressions: 
 
@@ -36,47 +40,44 @@ Similar to languages such as Java, Go, etc, Ballerina supports the following exp
 
 When naming your Ballerina elements (services, resources, actions, etc.), Swagger files, program files, and packages, do not use the following terms for the name, as these terms are reserved in Ballerina:
 
-action
-all
-any
-as
-boolean
-break
-catch
-connector
-const
-datatable
-double
-else
-exception
-false
-fork
-function
-if
-import
-int 
-json
-map
-message
-native
-null
-package
-reply
-resource
-return
-service
-string
-struct
-throws
-timeout
-true
-try
-typemapper
-while
-worker
-xml
-xmldocument
+- action
+- all
+- any
+- as
+- boolean
+- break
+- catch
+- connector
+- const
+- datatable
+- double
+- else
+- exception
+- false
+- fork
+- function
+- if
+- import
+- int 
+- json
+- map
+- message
+- native
+- null
+- package
+- reply
+- resource
+- return
+- service
+- string
+- struct
+- throws
+- timeout
+- true
+- try
+- typemapper
+- while
+- worker
+- xml
+- xmldocument
 
-## Development tools
-
-Ballerina provides several tools to help you create, document, and test your code. For more information, see [Tools](../tools.md).
