@@ -39,6 +39,7 @@ import static org.ballerinalang.runtime.Constants.SYSTEM_PROP_BAL_DEBUG;
 public class Main {
     private static final String JC_UNKNOWN_OPTION_PREFIX = "Unknown option:";
     private static final String JC_EXPECTED_A_VALUE_AFTER_PARAMETER_PREFIX = "Expected a value after parameter";
+    private static final String BALLERINA_VERSION = Main.class.getPackage().getImplementationVersion();
 
     private static PrintStream outStream = System.err;
 
@@ -119,6 +120,11 @@ public class Main {
             cmdParser.addCommand("help", helpCmd);
             helpCmd.setParentCmdParser(cmdParser);
 
+            // Build Version Command
+            VersionCmd versionCmd = new VersionCmd();
+            cmdParser.addCommand("version", versionCmd);
+            versionCmd.setParentCmdParser(cmdParser);
+
             // loading additional commands via SPI
             ServiceLoader<BLauncherCmd> bCmds = ServiceLoader.load(BLauncherCmd.class);
             for (BLauncherCmd bCmd : bCmds) {
@@ -181,6 +187,14 @@ public class Main {
 
         out.append("\n");
         out.append("Use \"ballerina help [command]\" for more information about a command.");
+        outStream.println(out.toString());
+    }
+
+    private static void printVersionInfo() {
+        StringBuilder out = new StringBuilder();
+        out.append("Ballerina runtime version: ");
+        out.append(BALLERINA_VERSION);
+        out.append("\n");
         outStream.println(out.toString());
     }
 
@@ -682,6 +696,68 @@ public class Main {
     }
 
     /**
+     * This class represents the "version" command and it holds arguments and flags specified by the user
+     *
+     * @since 0.8.1
+     */
+    @Parameters(commandNames = "version", commandDescription = "print version information")
+    private static class VersionCmd implements BLauncherCmd {
+
+        @Parameter(description = "Command name")
+        private List<String> versionCommands;
+
+        @Parameter(names = "--debug", hidden = true)
+        private String debugPort;
+
+        @Parameter(names = {"--help", "-h"}, hidden = true)
+        private boolean helpFlag;
+
+        private JCommander parentCmdParser;
+
+        public void execute() {
+            if (helpFlag) {
+                String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(parentCmdParser, "version");
+                outStream.println(commandUsageInfo);
+                return;
+            }
+
+            if (versionCommands == null) {
+                printVersionInfo();
+                return;
+
+            } else if (versionCommands.size() > 1) {
+                throw LauncherUtils.createUsageException("too many arguments given");
+            }
+            String userCommand = versionCommands.get(0);
+            if (parentCmdParser.getCommands().get(userCommand) == null) {
+                throw LauncherUtils.createUsageException("unknown command `" + userCommand + "`");
+            }
+        }
+
+        @Override
+        public String getName() {
+            return "version";
+        }
+
+        @Override
+        public void printUsage(StringBuilder out) {
+            out.append("  ballerina -v\n");
+            out.append("  ballerina --version\n");
+            out.append("  ballerina version\n");
+        }
+
+        @Override
+        public void setParentCmdParser(JCommander parentCmdParser) {
+            this.parentCmdParser = parentCmdParser;
+        }
+
+        @Override
+        public void setSelfCmdParser(JCommander selfCmdParser) {
+
+        }
+    }
+
+    /**
      * This class represents the "main" command required by the JCommander.
      *
      * @since 0.8.0
@@ -691,6 +767,9 @@ public class Main {
         @Parameter(names = {"--help", "-h"}, description = "for more information")
         private boolean helpFlag;
 
+        @Parameter(names = {"--version", "-v"}, description = "for version information")
+        private boolean versionFlag;
+
         @Parameter(names = "--debug", hidden = true)
         private String debugPort;
 
@@ -698,6 +777,10 @@ public class Main {
 
         @Override
         public void execute() {
+            if (versionFlag) {
+                printVersionInfo();
+                return;
+            }
             printUsageInfo(parentCmdParser);
         }
 
