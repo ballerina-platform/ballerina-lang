@@ -35,7 +35,7 @@ public class ThreadPoolFactory {
     // based on the environment and runtime status (CPU Usage, memory, etc).
     // A configuration parameter which is user configurable is also required.
     // Issue#1929
-    private ExecutorService executorService =  Executors.newFixedThreadPool(500);
+    private ExecutorService executorService =  Executors.newFixedThreadPool(500, new BLangThreadFactory("BLangWorker"));
 
     private ThreadPoolFactory(){};
 
