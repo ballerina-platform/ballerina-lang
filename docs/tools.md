@@ -17,8 +17,10 @@ As you work in one view, the diagrams and code are updated in the other views, a
 You can use plug-ins to write Ballerina code in your favorite IDE. The following plug-ins are available in Github:
 
 * [Atom](https://github.com/ballerinalang/plugin-atom)
-* [IntelliJ IDEA] (https://github.com/ballerinalang/plugin-intellij)
+* [IntelliJ IDEA](https://github.com/ballerinalang/plugin-intellij)
+* [Sublime Text 3](https://github.com/ballerinalang/plugin-sublimetext3)
 * [Vim](https://github.com/ballerinalang/plugin-vim)
+* [Visual Studio Code (VS Code)](https://github.com/ballerinalang/plugin-vscode)
 
 ## API documentation generator
 
