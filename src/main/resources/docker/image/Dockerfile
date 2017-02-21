@@ -14,8 +14,8 @@
 # limitations under the License.
 # -----------------------------------------------------------------------
 
-FROM ballerina-pkg:latest
-MAINTAINER dev@wso2.org
+FROM ballerina/ballerina-pkg:0.8.0
+MAINTAINER tryballerina@gmail.com
 
 ARG SVC_MODE=false
 ARG FILE_MODE=false

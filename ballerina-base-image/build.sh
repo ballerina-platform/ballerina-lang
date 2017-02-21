@@ -66,7 +66,10 @@ fi
 echo "Building Ballerina Base Docker image $image_name..."
 cp $bal_dist_file .
 bal_dist_file_name=$(basename $bal_dist_file)
-docker build --no-cache=true --build-arg BAL_DIST=${bal_dist_file_name} -t $image_name .
+
+docker build --no-cache=true \
+             --build-arg BALLERINA_DIST=${bal_dist_file_name} \
+             -t $image_name .
 
 echo "Cleaning..."
 docker images | grep "<none>" | awk '{print $3}' | xargs docker rmi -f > /dev/null 2>&1
