@@ -34,7 +34,7 @@ Add a service level annotation named "Source" and add the key-value pairs to spe
   </tr>
   <tr>
     <td>fileURI</td>
-    <td>The URI where the files you want to process are located. This can be a URI to a folder. When it is a folder, all the files in the folder will be processed, one at a time. When the URI points to a single file, once the file is available at that location, it will be processed.</td>
+    <td>The URI where the files you want to process are located. This can be a URI to a folder. If it is a folder, all the files in the folder will be processed, one at a time. If the URI points to a single file, the file will be processed when it becomes available at that location.</td>
     <td>Yes</td>
     <td>A valid file URI</td>
     <td>-</td>
