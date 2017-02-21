@@ -12,13 +12,13 @@ ballerina run main helloWorld.bal
 
 After the HelloWorld program executed, Ballerina stopped. This approach is called **standalone mode**, and it's useful when you want to execute a program once and then stop as soon as it has finished its job. It runs the `main()` function of the program you specify and then exits. 
 
-You can also run Ballerina as a **server**, so that it can deploy one or more services that wait for requests. To see how this works, let's go to your `<ballerina_home>/samples/helloWorldService` directory, and then run Ballerina in server mode and deploy the HelloWorldService program (if you're on UNIX/Linux, type `./ballerina` instead of `ballerina`):
+You can also run Ballerina as a **server**, so that it can deploy one or more services that wait for requests. To see how this works, let's go to your `<ballerina_home>/samples/helloWorldService` directory, and then run Ballerina in server mode and deploy the HelloWorldService program:
 
 ```
 ballerina run service helloWorldService.bal
 ```
 
-In this case, Ballerina ran and deployed the HelloWorldService program as a service, which is waiting for a request. Let's send it one now. The Ballerina server is available at `localhost:9090`, and HelloWorldService is available at context `hello`. Open another command line and use the [curl](https://curl.haxx.se) client to call the service as follows:
+In this case, Ballerina ran and deployed the HelloWorldService program as a service, which is waiting for a request. Let's send it one now. The Ballerina server is available at `localhost:9090`, and HelloWorldService is available at context `hello`. Open another command line window and use the [curl](https://curl.haxx.se) client to call the service as follows:
 
 ```
 curl -v http://localhost:9090/hello
@@ -90,7 +90,7 @@ This completes the sequence, so you are now ready to save and run your integrati
 ### Run the program
 
 1. At the command prompt, navigate to your `<ballerina_home>/samples` directory. 
-1. Enter the command to run the Ballerina server and deploy your myEcho program (if you're running on UNIX/Linux, type `./ballerina` instead of `ballerina`):
+1. Enter the command to run the Ballerina server and deploy your myEcho program:
 
   ```
   ballerina run service ../samples/myEcho.bal
