@@ -887,13 +887,13 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                     $("<i class='fw fw-right'></i>").appendTo(this);
                     importDeclarationWrapper.find('.imports-content-wrapper').hide();
                     importDeclarationActionWrapper.hide();
-                    self._constantsDefinitionsMainWrapper.css("width", "0%");
+                    self._importDeclarationMainWrapper.css("width", "0%");
                 } else {
                     $(this).data("collapsed", "false").attr('data-original-title', "Close Import Pane").tooltip('hide');
                     $("<i class='fw fw-left'></i>").appendTo(this);
                     importDeclarationActionWrapper.show();
                     importDeclarationWrapper.find('.imports-content-wrapper').show();
-                    self._constantsDefinitionsMainWrapper.css("width", "92%");
+                    self._importDeclarationMainWrapper.css("width", "92%");
                 }
             });
         };
