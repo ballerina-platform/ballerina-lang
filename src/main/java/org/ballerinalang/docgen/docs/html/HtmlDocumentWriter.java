@@ -32,9 +32,11 @@ import org.ballerinalang.model.BTypeMapper;
 import org.ballerinalang.model.BallerinaAction;
 import org.ballerinalang.model.BallerinaConnectorDef;
 import org.ballerinalang.model.BallerinaFunction;
+import org.ballerinalang.model.Function;
 import org.ballerinalang.model.ParameterDef;
 import org.ballerinalang.model.StructDef;
 import org.ballerinalang.model.SymbolName;
+import org.ballerinalang.model.TypeMapper;
 import org.ballerinalang.model.VariableDef;
 import org.ballerinalang.model.types.BType;
 
@@ -42,9 +44,12 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.io.PrintWriter;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
 /**
  * HTML document writer generates ballerina API documentation in HTML format.
@@ -69,7 +74,7 @@ public class HtmlDocumentWriter implements DocumentWriter {
                         + File.separator + "html");
         init();
     }
-    
+
     public HtmlDocumentWriter(String outputDir) {
         this.outputFilePath = outputDir;
         init();
@@ -91,14 +96,33 @@ public class HtmlDocumentWriter implements DocumentWriter {
         if (BallerinaDocUtils.isDebugEnabled()) {
             out.println("Generating HTML API documentation...");
         }
-        Files.createDirectories(Paths.get(outputFilePath));
 
-        for (BLangPackage balPackage : packages) {
+        // Sort packages by package path
+        List<BLangPackage> packageList = new ArrayList<>(packages);
+        Collections.sort(packageList, Comparator.comparing(BLangPackage::getPackagePath));
+
+        // Write <package>.html files
+        for (BLangPackage balPackage : packageList) {
+            // Sort functions, connectors, structs and type mappers
+            Arrays.sort(balPackage.getFunctions(), Comparator.comparing(Function::getName));
+            Arrays.sort(balPackage.getConnectors(), Comparator.comparing(BallerinaConnectorDef::getName));
+            Arrays.sort(balPackage.getStructDefs(), Comparator.comparing(StructDef::getName));
+            Arrays.sort(balPackage.getTypeMappers(), Comparator.comparing(TypeMapper::getTypeMapperName));
+
+            // Sort connector actions
+            if ((balPackage.getConnectors() != null) && (balPackage.getConnectors().length > 0)) {
+                for (BallerinaConnectorDef connector : balPackage.getConnectors()) {
+                    Arrays.sort(connector.getActions(), Comparator.comparing(BallerinaAction::getName));
+                }
+            }
+
             String filePath = outputFilePath + File.separator + refinePackagePath(balPackage) + HTML;
             writeHtmlDocument(balPackage, packageTemplateName, filePath);
         }
+
+        // Write index.html
         String filePath = outputFilePath + File.separator + INDEX_HTML;
-        writeHtmlDocument(packages, indexTemplateName, filePath);
+        writeHtmlDocument(packageList, indexTemplateName, filePath);
 
         if (BallerinaDocUtils.isDebugEnabled()) {
             out.println("Copying HTML theme...");
@@ -158,8 +182,8 @@ public class HtmlDocumentWriter implements DocumentWriter {
                                 if (annotationName == null) {
                                     return "";
                                 }
-                                String subName = param.getName() == null ? param.getTypeName().getName() : 
-                                    param.getName();
+                                String subName = param.getName() == null ? param.getTypeName().getName() :
+                                        param.getName();
                                 for (Annotation annotation : getAnnotations(dataHolder)) {
                                     if (annotationName.equalsIgnoreCase(annotation.getName())
                                             && annotation.getValue().startsWith(subName + ":")) {
