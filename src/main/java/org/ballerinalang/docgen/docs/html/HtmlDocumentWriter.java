@@ -42,9 +42,11 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.io.PrintWriter;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
 /**
  * HTML document writer generates ballerina API documentation in HTML format.
@@ -91,14 +93,20 @@ public class HtmlDocumentWriter implements DocumentWriter {
         if (BallerinaDocUtils.isDebugEnabled()) {
             out.println("Generating HTML API documentation...");
         }
-        Files.createDirectories(Paths.get(outputFilePath));
 
-        for (BLangPackage balPackage : packages) {
+        // Sort packages by package path
+        List<BLangPackage> packageList = new ArrayList<>(packages);
+        Collections.sort(packageList, Comparator.comparing(BLangPackage::getPackagePath));
+
+        // Write <package>.html files
+        for (BLangPackage balPackage : packageList) {
             String filePath = outputFilePath + File.separator + refinePackagePath(balPackage) + HTML;
             writeHtmlDocument(balPackage, packageTemplateName, filePath);
         }
+
+        // Write index.html
         String filePath = outputFilePath + File.separator + INDEX_HTML;
-        writeHtmlDocument(packages, indexTemplateName, filePath);
+        writeHtmlDocument(packageList, indexTemplateName, filePath);
 
         if (BallerinaDocUtils.isDebugEnabled()) {
             out.println("Copying HTML theme...");
