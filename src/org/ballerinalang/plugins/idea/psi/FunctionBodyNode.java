@@ -23,10 +23,13 @@ import com.intellij.psi.ResolveResult;
 import org.antlr.jetbrains.adaptor.SymtabUtils;
 import org.antlr.jetbrains.adaptor.psi.ANTLRPsiNode;
 import org.antlr.jetbrains.adaptor.psi.ScopeNode;
+import org.antlr.jetbrains.adaptor.xpath.XPath;
 import org.ballerinalang.plugins.idea.BallerinaLanguage;
 import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.Collection;
 
 public class FunctionBodyNode extends ANTLRPsiNode implements ScopeNode {
 
@@ -38,14 +41,13 @@ public class FunctionBodyNode extends ANTLRPsiNode implements ScopeNode {
     @Override
     public PsiElement resolve(PsiNamedElement element) {
         if (element.getParent() instanceof CallableUnitNameNode) {
-            return BallerinaPsiImplUtil.resolveElement(this, element,"//function/Identifier",
+            return BallerinaPsiImplUtil.resolveElement(this, element, "//function/Identifier",
                     "//connector/Identifier");
         } else if (element.getParent() instanceof VariableReferenceNode) {
-            return SymtabUtils.resolve(this, BallerinaLanguage.INSTANCE, element,
-                    "//variableDefinitionStatement/Identifier");
+            return BallerinaPsiImplUtil.resolveElement(this, element, "//variableDefinitionStatement/Identifier");
         } else if (element.getParent() instanceof SimpleTypeNode) {
-            return SymtabUtils.resolve(this, BallerinaLanguage.INSTANCE, element,
-                    "//connectorDefinition/connector/Identifier");
+            return BallerinaPsiImplUtil.resolveElement(this, element, "//function/Identifier",
+                    "//connector/Identifier");
         }
         return null;
     }

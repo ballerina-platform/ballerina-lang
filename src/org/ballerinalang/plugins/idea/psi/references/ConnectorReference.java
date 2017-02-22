@@ -58,4 +58,9 @@ public class ConnectorReference extends BallerinaElementReference {
         }
         return results.toArray(new ResolveResult[results.size()]);
     }
+
+    @Override
+    public boolean isReferenceTo(PsiElement definitionElement) {
+        return false;
+    }
 }

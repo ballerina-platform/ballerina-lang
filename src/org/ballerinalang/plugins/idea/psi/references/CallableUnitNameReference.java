@@ -33,6 +33,11 @@ public class CallableUnitNameReference extends BallerinaElementReference {
         return def instanceof FunctionNode || def instanceof ConnectorNode;
     }
 
+    @Override
+    public boolean isReferenceTo(PsiElement definitionElement) {
+        return false;
+    }
+
     @NotNull
     @Override
     public Object[] getVariants() {

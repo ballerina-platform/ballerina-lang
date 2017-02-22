@@ -17,6 +17,7 @@
 package org.ballerinalang.plugins.idea.psi.references;
 
 import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiNameIdentifierOwner;
 import org.ballerinalang.plugins.idea.psi.ConnectorNode;
 import org.ballerinalang.plugins.idea.psi.FunctionNode;
 import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
@@ -38,5 +39,20 @@ public class SimpleTypeReference extends BallerinaElementReference {
     @Override
     public Object[] getVariants() {
         return new Object[0];
+    }
+
+    @Override
+    public boolean isReferenceTo(PsiElement definitionElement) {
+        String refName = myElement.getName();
+        if (definitionElement instanceof IdentifierPSINode && isDefinitionNode(definitionElement.getParent())) {
+            definitionElement = definitionElement.getParent();
+        }
+        if (isDefinitionNode(definitionElement)) {
+            PsiElement id = ((PsiNameIdentifierOwner) definitionElement).getNameIdentifier();
+            String defName = id != null ? id.getText() : null;
+
+            return refName != null && defName != null && refName.equals(defName);
+        }
+        return false;
     }
 }

@@ -19,6 +19,7 @@ package org.ballerinalang.plugins.idea.psi.references;
 import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementResolveResult;
+import com.intellij.psi.PsiNameIdentifierOwner;
 import com.intellij.psi.ResolveResult;
 import com.intellij.psi.util.PsiTreeUtil;
 import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
@@ -96,5 +97,20 @@ public class PackageNameReference extends BallerinaElementReference {
             }
         }
         return results.toArray(new ResolveResult[results.size()]);
+    }
+
+    @Override
+    public boolean isReferenceTo(PsiElement definitionElement) {
+        String refName = myElement.getName();
+        if (definitionElement instanceof IdentifierPSINode && isDefinitionNode(definitionElement.getParent())) {
+            definitionElement = definitionElement.getParent();
+        }
+        if (isDefinitionNode(definitionElement)) {
+            PsiElement id = ((PsiNameIdentifierOwner) definitionElement).getNameIdentifier();
+            String defName = id != null ? id.getText() : null;
+
+            return refName != null && defName != null && refName.equals(defName);
+        }
+        return false;
     }
 }

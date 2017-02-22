@@ -772,9 +772,23 @@ public class BallerinaPsiImplUtil {
     public static PsiElement resolveElement(ScopeNode scope, PsiNamedElement element, String... xpaths) {
         PsiElement resolved = null;
         for (String xpath : xpaths) {
-            resolved = SymtabUtils.resolve(scope, BallerinaLanguage.INSTANCE, element, xpath);
+            // Get all the matching elements from the given scope. We don't directly call SymtabUtils.resolve() here
+            // because then the last matching element is returned. So if there are duplicate definitions, it
+            // would resolve the last definition. But we want the first definition since it is the matching definition.
+            Collection<? extends PsiElement> elements = XPath.findAll(BallerinaLanguage.INSTANCE, scope, xpath);
+            // We need to get only the 1st matching element.
+            for (PsiElement psiElement : elements) {
+                if (element.getText().equals(psiElement.getText())) {
+                    resolved = psiElement;
+                    break;
+                }
+            }
+            // If the element is resolved, we return the element. Otherwise check the parent scope. This is done via
+            // calling the SymtabUtils.resolve().
             if (resolved != null) {
                 break;
+            } else {
+                resolved = SymtabUtils.resolve(scope, BallerinaLanguage.INSTANCE, element, xpath);
             }
         }
         return resolved;

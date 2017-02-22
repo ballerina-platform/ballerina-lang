@@ -30,6 +30,7 @@ import org.ballerinalang.plugins.idea.BallerinaParserDefinition;
 import org.ballerinalang.plugins.idea.psi.references.ActionInvocationReference;
 import org.ballerinalang.plugins.idea.psi.references.CallableUnitNameReference;
 import org.ballerinalang.plugins.idea.psi.references.ConnectorReference;
+import org.ballerinalang.plugins.idea.psi.references.FunctionReference;
 import org.ballerinalang.plugins.idea.psi.references.PackageNameReference;
 import org.ballerinalang.plugins.idea.psi.references.SimpleTypeReference;
 import org.ballerinalang.plugins.idea.psi.references.StatementReference;
@@ -121,7 +122,11 @@ public class IdentifierPSINode extends ANTLRPsiLeafNode implements PsiNamedEleme
                 case RULE_simpleType:
                     return new SimpleTypeReference(this);
                 case RULE_variableReference:
+                case RULE_parameter:
+                case RULE_namedParameter:
                     return new VariableReference(this);
+                case RULE_function:
+                    return new FunctionReference(this);
                 default:
                     return null;
             }

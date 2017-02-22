@@ -17,9 +17,20 @@
 package org.ballerinalang.plugins.idea.psi.references;
 
 import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiNameIdentifierOwner;
+import com.intellij.psi.ResolveResult;
+import com.intellij.psi.util.PsiTreeUtil;
+import org.ballerinalang.plugins.idea.psi.ActionDefinitionNode;
+import org.ballerinalang.plugins.idea.psi.ConnectorBodyNode;
+import org.ballerinalang.plugins.idea.psi.ConnectorDefinitionNode;
+import org.ballerinalang.plugins.idea.psi.FunctionBodyNode;
+import org.ballerinalang.plugins.idea.psi.FunctionNode;
 import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
+import org.ballerinalang.plugins.idea.psi.NamedParameterNode;
 import org.ballerinalang.plugins.idea.psi.ParameterNode;
+import org.ballerinalang.plugins.idea.psi.ResourceDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.VariableDefinitionNode;
+import org.ballerinalang.plugins.idea.psi.VariableReferenceNode;
 import org.jetbrains.annotations.NotNull;
 
 public class VariableReference extends BallerinaElementReference {
@@ -30,12 +41,51 @@ public class VariableReference extends BallerinaElementReference {
 
     @Override
     public boolean isDefinitionNode(PsiElement def) {
-        return def instanceof VariableDefinitionNode || def instanceof ParameterNode;
+        return def instanceof VariableDefinitionNode || def instanceof VariableReferenceNode
+                || def instanceof ParameterNode || def instanceof NamedParameterNode;
     }
 
     @NotNull
     @Override
     public Object[] getVariants() {
         return new Object[0];
+    }
+
+    @NotNull
+    @Override
+    public ResolveResult[] multiResolve(boolean incompleteCode) {
+        return super.multiResolve(incompleteCode);
+    }
+
+    @Override
+    public boolean isReferenceTo(PsiElement definitionElement) {
+        String refName = myElement.getName();
+        if (definitionElement instanceof IdentifierPSINode && isDefinitionNode(definitionElement.getParent())) {
+            definitionElement = definitionElement.getParent();
+        }
+        if (isDefinitionNode(definitionElement)) {
+            PsiElement id = ((PsiNameIdentifierOwner) definitionElement).getNameIdentifier();
+            String defName = id != null ? id.getText() : null;
+
+            if (definitionElement instanceof ParameterNode) {
+                // If the common context is file, that means the myElement is not in the scope where the
+                // definitionElement is defined in.
+                PsiElement commonContext = PsiTreeUtil.findCommonContext(definitionElement, myElement);
+                if (!(commonContext instanceof FunctionNode || commonContext instanceof ResourceDefinitionNode
+                        || commonContext instanceof ConnectorDefinitionNode
+                        || commonContext instanceof ActionDefinitionNode)) {
+                    return false;
+                }
+            } else if (definitionElement instanceof VariableDefinitionNode) {
+                // If the common context is file, that means the myElement is not in the scope where the
+                // definitionElement is defined in.
+                PsiElement commonContext = PsiTreeUtil.findCommonContext(definitionElement, myElement);
+                if (!(commonContext instanceof FunctionBodyNode || commonContext instanceof ConnectorBodyNode)) {
+                    return false;
+                }
+            }
+            return refName != null && defName != null && refName.equals(defName);
+        }
+        return false;
     }
 }
