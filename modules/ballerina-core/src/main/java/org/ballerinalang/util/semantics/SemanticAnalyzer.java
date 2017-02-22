@@ -854,6 +854,7 @@ public class SemanticAnalyzer implements NodeVisitor {
 
     @Override
     public void visit(ForkJoinStmt forkJoinStmt) {
+        //open the fork join statement scope
         openScope(forkJoinStmt);
         // Visit incoming message
         VariableRefExpr messageReference = forkJoinStmt.getMessageReference();
@@ -869,8 +870,6 @@ public class SemanticAnalyzer implements NodeVisitor {
         for (Worker worker: forkJoinStmt.getWorkers()) {
             worker.accept(this);
         }
-
-        closeScope();
 
         // Visit join condition
         ForkJoinStmt.Join join = forkJoinStmt.getJoin();
@@ -912,6 +911,9 @@ public class SemanticAnalyzer implements NodeVisitor {
         // Visit timeout body
         Statement timeoutBody = timeout.getTimeoutBlock();
         timeoutBody.accept(this);
+        closeScope();
+
+        //closing the fork join statement scope
         closeScope();
 
     }

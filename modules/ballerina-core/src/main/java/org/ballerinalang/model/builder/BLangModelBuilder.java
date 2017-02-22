@@ -156,6 +156,9 @@ public class BLangModelBuilder {
     // This variable keeps the fork-join scope when adding workers and resolve back to current scope once done
     protected SymbolScope forkJoinScope = null;
 
+    // This variable keeps the resource block scope when adding workers and resolve back to current scope once done
+    protected SymbolScope resourceBlockScope = null;
+
     // We need to keep a map of import packages.
     // This is useful when analyzing import functions, actions and types.
     protected Map<String, ImportPackage> importPkgMap = new HashMap<>();
@@ -768,6 +771,10 @@ public class BLangModelBuilder {
             parentCUBuilder = currentCUBuilder;
         }
         currentCUBuilder = new Worker.WorkerBuilder(packageScope);
+        //setting resourceBlockScope if it is not a fork join statement
+        if(forkJoinScope == null) {
+            resourceBlockScope = currentScope;
+        }
         currentScope = currentCUBuilder.getCurrentScope();
         annotationListStack.push(new ArrayList<>());
     }
@@ -856,6 +863,8 @@ public class BLangModelBuilder {
         Worker worker = currentCUBuilder.buildWorker();
         if (forkJoinStmtBuilderStack.isEmpty()) {
             parentCUBuilder.addWorker(worker);
+            //setting the current scope to resource block
+            currentScope = resourceBlockScope;
         } else {
             workerStack.peek().add(worker);
             currentScope = forkJoinScope;
@@ -863,6 +872,7 @@ public class BLangModelBuilder {
 
         currentCUBuilder = parentCUBuilder;
         parentCUBuilder = null;
+        resourceBlockScope = null;
 //        // Take the function body and set that as the CUBuilder body
 //        if (!blockStmtBuilderStack.empty()) {
 //            BlockStmt.BlockStmtBuilder blockStmtBuilder = blockStmtBuilderStack.pop();
