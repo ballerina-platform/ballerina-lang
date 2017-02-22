@@ -24,7 +24,6 @@ import com.intellij.psi.util.PsiTreeUtil;
 import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
 import org.ballerinalang.plugins.idea.psi.ImportDeclarationNode;
 import org.ballerinalang.plugins.idea.psi.PackageNameNode;
-import org.ballerinalang.plugins.idea.psi.PackagePathNode;
 import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
 import org.jetbrains.annotations.NotNull;
 
@@ -39,7 +38,8 @@ public class PackageNameReference extends BallerinaElementReference {
 
     @Override
     public boolean isDefinitionNode(PsiElement def) {
-        // Todo - Check whether the node is the last node in the packagePath
+        // Todo - Check whether the node is the last node in the packagePath. This should be done in isReferenceTo()
+        // of reference class
         return def instanceof PackageNameNode;
     }
 

@@ -21,18 +21,17 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiNamedElement;
 import com.intellij.psi.ResolveResult;
 import org.antlr.jetbrains.adaptor.SymtabUtils;
-import org.antlr.jetbrains.adaptor.psi.IdentifierDefSubtree;
+import org.antlr.jetbrains.adaptor.psi.ANTLRPsiNode;
 import org.antlr.jetbrains.adaptor.psi.ScopeNode;
 import org.ballerinalang.plugins.idea.BallerinaLanguage;
-import org.ballerinalang.plugins.idea.BallerinaParserDefinition;
 import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class FunctionDefinitionNode extends IdentifierDefSubtree implements ScopeNode {
+public class FunctionDefinitionNode extends ANTLRPsiNode implements ScopeNode {
 
     public FunctionDefinitionNode(@NotNull ASTNode node) {
-        super(node, BallerinaParserDefinition.ID);
+        super(node);
     }
 
     @Nullable
