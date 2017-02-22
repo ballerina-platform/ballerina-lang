@@ -769,7 +769,7 @@ public class BallerinaPsiImplUtil {
         return results;
     }
 
-    public static PsiElement resolveElement(PsiNamedElement element, ScopeNode scope, String... xpaths) {
+    public static PsiElement resolveElement(ScopeNode scope, PsiNamedElement element, String... xpaths) {
         PsiElement resolved = null;
         for (String xpath : xpaths) {
             resolved = SymtabUtils.resolve(scope, BallerinaLanguage.INSTANCE, element, xpath);
