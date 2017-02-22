@@ -46,11 +46,11 @@ define(['lodash', './package', './environment'], function(_, Package, Environmen
     PackageScopedEnvironment.prototype.searchPackage = function(query, exclude){
         var search_text = query;
         var exclude_packages = exclude;
-        var result = _.filter(this._packages, function (package) {
+        var result = _.filter(this._packages, function (pckg) {
             var existing = _.filter(exclude_packages, function (ex) {
-                return package.getName() == ex;
+                return pckg.getName() == ex;
             });
-            return (existing.length == 0) && (_.includes(package.getName().toUpperCase(), search_text.toUpperCase()));
+            return (existing.length == 0) && (_.includes(pckg.getName().toUpperCase(), search_text.toUpperCase()));
         });
         return result;
     };
