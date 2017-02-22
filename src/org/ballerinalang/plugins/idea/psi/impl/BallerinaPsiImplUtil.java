@@ -32,7 +32,9 @@ import com.intellij.psi.search.FileTypeIndex;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.util.indexing.FileBasedIndex;
+import org.antlr.jetbrains.adaptor.SymtabUtils;
 import org.antlr.jetbrains.adaptor.psi.IdentifierDefSubtree;
+import org.antlr.jetbrains.adaptor.psi.ScopeNode;
 import org.antlr.jetbrains.adaptor.psi.Trees;
 import org.antlr.jetbrains.adaptor.xpath.XPath;
 import org.ballerinalang.plugins.idea.BallerinaFileType;
@@ -765,5 +767,16 @@ public class BallerinaPsiImplUtil {
             }
         }
         return results;
+    }
+
+    public static PsiElement resolveElement(PsiNamedElement element, ScopeNode scope, String... xpaths) {
+        PsiElement resolved = null;
+        for (String xpath : xpaths) {
+            resolved = SymtabUtils.resolve(scope, BallerinaLanguage.INSTANCE, element, xpath);
+            if (resolved != null) {
+                break;
+            }
+        }
+        return resolved;
     }
 }
