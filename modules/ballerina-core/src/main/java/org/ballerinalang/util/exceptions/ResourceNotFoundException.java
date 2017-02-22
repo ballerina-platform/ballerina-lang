@@ -18,9 +18,9 @@
 package org.ballerinalang.util.exceptions;
 
 /**
- * {@code ResourceNotFoundException} is used to handle resource not found related errors with resource dispatching.
+ * {@code ResourceNotFoundException} is thrown when resource not found related errors occur with resource dispatching
+ * during ballerina runtime execution.
  *
- * @since 0.8.1
  */
 public class ResourceNotFoundException extends BallerinaException {
     public ResourceNotFoundException(String message) {

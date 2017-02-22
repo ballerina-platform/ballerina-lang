@@ -20,9 +20,9 @@ package org.ballerinalang.util.exceptions;
 import org.ballerinalang.bre.Context;
 
 /**
- * {@code ServiceNotFoundException} is used to handle service not found related errors with service dispatching.
+ * {@code ServiceNotFoundException} is thrown when service not found related errors occur with service dispatching
+ * during ballerina runtime execution.
  *
- * @since 0.8.1
  */
 public class ServiceNotFoundException extends BallerinaException {
 
