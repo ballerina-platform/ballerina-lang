@@ -9,7 +9,7 @@ module.exports = {
     },
     module: {
         rules: [
-            //'{test: /\.(js|jsx)$/, use: 'babel-loader'}
+            {test: /\.(js|jsx)$/, use: 'babel-loader'}
         ]
     },
     plugins: [
@@ -17,7 +17,7 @@ module.exports = {
     ],
 
     resolve: {
-        modules: ['./modules/web/lib', './modules/web/js', 'node_modules'],
+        modules: [path.resolve('./modules/web/lib'), path.resolve('./modules/web/js'), path.resolve('./node_modules')],
         alias: {
             /////////////////////////
             // third party modules from npm//
