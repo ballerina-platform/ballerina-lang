@@ -42,7 +42,9 @@ define(['require', 'lodash', 'log', 'event_channel', './abstract-statement-sourc
         };
 
         TypeMapperFunctionInvocationExpressionVisitor.prototype.beginVisitFuncInvocationExpression = function (functionInvocation) {
-            this.appendSource(functionInvocation.getFunctionName() + '(');
+            var source = functionInvocation.getFunctionalExpression();
+            source = source.substring(0, source.length - 1);
+            this.appendSource(source);
             log.debug('Begin Visit Type Mapper Function Invocation expression - ' + functionInvocation.getFunctionalExpression());
         };
 

@@ -18,8 +18,7 @@
 define(['lodash', 'log', './ballerina-view', './variables-view', './type-struct-definition-view',
         'ballerina/ast/ballerina-ast-factory', './svg-canvas', 'typeMapper', './input-struct-view', './output-struct-view', './type-mapper-statement-view',
         './type-mapper-block-statement-view', 'constants', './../ast/module', 'select2'],
-    function (_, log, BallerinaView, VariablesView, TypeStructDefinition, BallerinaASTFactory, SVGCanvas, TypeMapper,
-              InputStructView, OutputStructView, TypeMapperStatement, TypeMapperBlockStatement, Constants, AST, select2) {
+    function (_, log, BallerinaView, VariablesView, TypeStructDefinition, BallerinaASTFactory, SVGCanvas, TypeMapper, InputStructView, OutputStructView, TypeMapperStatement, TypeMapperBlockStatement, Constants, AST, select2) {
         var TypeMapperDefinitionView = function (args) {
             SVGCanvas.call(this, args);
 
@@ -30,6 +29,8 @@ define(['lodash', 'log', './ballerina-view', './variables-view', './type-struct-
             this._onDisconnectInstance = _.get(args, 'onDisconnectInstance', {});
             this._sourceInfo = _.get(args, 'sourceInfo', {});
             this._targetInfo = _.get(args, 'targetInfo', {});
+            this._selectedSourceStruct = _.get(args, 'selectedSourceStruct', TYPE_MAPPER_COMBOBOX_DEFAULT_SELECTION);
+            this._selectedTargetStruct = _.get(args, 'selectedTargetStruct', TYPE_MAPPER_COMBOBOX_DEFAULT_SELECTION);
 
             if (_.isNil(this._model) || !(BallerinaASTFactory.isTypeMapperDefinition(this._model))) {
                 log.error("Type Mapper definition is undefined or is of different type." + this._model);
@@ -66,12 +67,24 @@ define(['lodash', 'log', './ballerina-view', './variables-view', './type-struct-
          */
         TypeMapperDefinitionView.prototype.render = function (diagramRenderingContext) {
             this.setDiagramRenderingContext(diagramRenderingContext);
-            var selectedSourceStruct = TYPE_MAPPER_COMBOBOX_DEFAULT_SELECTION;
-            var selectedTargetStruct = TYPE_MAPPER_COMBOBOX_DEFAULT_SELECTION;
+            var self = this;
 
             // Draws the outlying body of the function.
             this.drawAccordionCanvas(this._viewOptions, this.getModel().getID(), this.getModel().type.toLowerCase(),
                 this.getModel().getTypeMapperName());
+
+            var resourceParameter = _.find(self.getModel().getChildren(), function (child) {
+                return BallerinaASTFactory.isResourceParameter(child)
+            });
+            if (!_.isUndefined(resourceParameter)) {
+                this.setSelectedSourceStruct(resourceParameter.getType());
+            }
+            var returnType = _.find(self.getModel().getChildren(), function (child) {
+                return BallerinaASTFactory.isReturnType(child)
+            });
+            if (!_.isUndefined(returnType)) {
+                this.setSelectedTargetStruct(returnType.getType());
+            }
 
             // Setting the styles for the canvas icon.
             this.getPanelIcon().addClass(_.get(this._viewOptions, "cssClass.type_mapper_icon", ""));
@@ -85,8 +98,6 @@ define(['lodash', 'log', './ballerina-view', './variables-view', './type-struct-
             var predefinedStructs = this._package.getStructDefinitions();
             this.getSourceInfo()["predefinedStructs"] = predefinedStructs;
             this.getTargetInfo()["predefinedStructs"] = predefinedStructs;
-
-            var self = this;
 
             $(this.getTitle()).text(this.getModel().getTypeMapperName())
                 .on("change paste keyup", function () {
@@ -156,34 +167,34 @@ define(['lodash', 'log', './ballerina-view', './variables-view', './type-struct-
             $(currentContainer).find("#" + sourceId).change(function () {
                 var sourceDropDown = $("#" + sourceId + " option:selected");
                 var selectedNewStructNameForSource = sourceDropDown.text();
-                self.getSourceInfo()[TYPE_MAPPER_COMBOBOX_PREVIOUS_SELECTION] = selectedSourceStruct;
 
-                if (selectedNewStructNameForSource != selectedTargetStruct) {
-                    selectedSourceStruct = selectedNewStructNameForSource;
-                    if (selectedNewStructNameForSource != "--Select--") {
+                if (selectedNewStructNameForSource != self.getSelectedTargetStruct()) {
+                    self.getSourceInfo()[TYPE_MAPPER_COMBOBOX_PREVIOUS_SELECTION] = self.getSelectedSourceStruct();
+                    self.setSelectedSourceStruct(selectedNewStructNameForSource);
+                    if (selectedNewStructNameForSource != TYPE_MAPPER_COMBOBOX_DEFAULT_SELECTION) {
                         self.getModel().removeResourceParameter();
                         self.getModel().addResourceParameterChild(selectedNewStructNameForSource, "y");
                     }
                 } else {
-                    self.setSourceSchemaNameToComboBox('#sourceStructs' + self.getModel().id, selectedSourceStruct);
+                    self.setSourceSchemaNameToComboBox('#sourceStructs' + self.getModel().id, self.getSelectedSourceStruct());
                 }
             });
 
             $(currentContainer).find("#" + targetId).change(function () {
                 var targetDropDown = $("#" + targetId + " option:selected");
                 var selectedStructNameForTarget = targetDropDown.text();
-                self.getTargetInfo()[TYPE_MAPPER_COMBOBOX_PREVIOUS_SELECTION] = selectedTargetStruct;
 
-                if (selectedStructNameForTarget != selectedSourceStruct) {
-                    selectedTargetStruct = selectedStructNameForTarget;
-                    if (selectedStructNameForTarget != "--Select--") {
+                if (selectedStructNameForTarget != self.getSelectedSourceStruct()) {
+                    self.getTargetInfo()[TYPE_MAPPER_COMBOBOX_PREVIOUS_SELECTION] = self.getSelectedTargetStruct();
+                    self.setSelectedTargetStruct(selectedStructNameForTarget);
+                    if (selectedStructNameForTarget != TYPE_MAPPER_COMBOBOX_DEFAULT_SELECTION) {
                         self.getModel().removeReturnType();
                         self.getModel().addReturnTypeChild(selectedStructNameForTarget, "x");
                         self.getModel().fillReturnStatement("x");
                         self.getModel().fillVariableDefStatement(selectedStructNameForTarget, "x");
                     }
                 } else {
-                    self.setTargetSchemaNameToComboBox('#targetStructs' + self.getModel().id, selectedTargetStruct);
+                    self.setTargetSchemaNameToComboBox('#targetStructs' + self.getModel().id, self.getSelectedTargetStruct());
                 }
             });
             this.getModel().accept(this);
@@ -287,7 +298,14 @@ define(['lodash', 'log', './ballerina-view', './variables-view', './type-struct-
             var functionPackage = _.find(packages, function (aPackage) {
                 return aPackage.getFunctionDefinitionByName(funcName);
             });
-            var functionDef = functionPackage.getFunctionDefinitionByName(funcName);
+            //This fix is done bcz the packages array returned from package scope environment doesn't have 
+            // the current package populated correctly. The functions definitions are missing there.
+            var functionDef;
+            if (functionPackage) {
+                functionDef = functionPackage.getFunctionDefinitionByName(funcName);
+            } else {
+                functionDef = diagramRenderingContext.getPackagedScopedEnvironment().getCurrentPackage().getFunctionDefinitionByName(funcName);
+            }
             if (functionDef) {
                 schema = {};
                 schema['name'] = funcName;
@@ -297,8 +315,7 @@ define(['lodash', 'log', './ballerina-view', './variables-view', './type-struct-
             return schema;
         };
 
-        TypeMapperDefinitionView.prototype.loadSchemasToComboBox = function (parentId, sourceComboboxId,
-                                                                             targetComboboxId, schemaArray) {
+        TypeMapperDefinitionView.prototype.loadSchemasToComboBox = function (parentId, sourceComboboxId, targetComboboxId, schemaArray) {
             for (var i = 0; i < schemaArray.length; i++) {
                 $(parentId).find(sourceComboboxId).append('<option value="' + schemaArray[i].getStructName() + '">'
                     + schemaArray[i].getStructName() + '</option>');
@@ -330,6 +347,7 @@ define(['lodash', 'log', './ballerina-view', './variables-view', './type-struct-
             log.debug("Visiting resource parameter");
             var self = this;
             var sourceStructName = resourceParameter.getType();
+            self.setSelectedSourceStruct(sourceStructName);
 
             var parent = resourceParameter.getParent();
             var blockStatement = _.find(parent.getChildren(), function (child) {
@@ -391,6 +409,7 @@ define(['lodash', 'log', './ballerina-view', './variables-view', './type-struct-
             log.debug("Visiting return type");
             var self = this;
             var targetStructName = returnType.getType();
+            self.setSelectedTargetStruct(targetStructName);
 
             if (!self.getBlockStatementView()) {
                 self.setBlockStatementView(new TypeMapperBlockStatement({
@@ -510,6 +529,34 @@ define(['lodash', 'log', './ballerina-view', './variables-view', './type-struct-
             this._blockStatementView = blockStatementView;
         };
 
+        /**
+         * set the selectedSourceStruct
+         * @param selectedSourceStruct
+         */
+        TypeMapperDefinitionView.prototype.setSelectedSourceStruct = function (selectedSourceStruct) {
+            var self = this;
+            if (!_.isNil(selectedSourceStruct)) {
+                self._selectedSourceStruct = selectedSourceStruct;
+            } else {
+                log.error('Invalid selectedSourceStruct [' + selectedSourceStruct + '] Provided');
+                throw 'Invalid selectedSourceStruct [' + selectedSourceStruct + '] Provided';
+            }
+        };
+
+        /**
+         * set the selectedTargetStruct
+         * @param selectedTargetStruct
+         */
+        TypeMapperDefinitionView.prototype.setSelectedTargetStruct = function (selectedTargetStruct) {
+            var self = this;
+            if (!_.isNil(selectedTargetStruct)) {
+                self._selectedTargetStruct = selectedTargetStruct;
+            } else {
+                log.error('Invalid selectedTargetStruct [' + selectedTargetStruct + '] Provided');
+                throw 'Invalid selectedTargetStruct [' + selectedTargetStruct + '] Provided';
+            }
+        };
+
         TypeMapperDefinitionView.prototype.getModel = function () {
             return this._model;
         };
@@ -536,6 +583,22 @@ define(['lodash', 'log', './ballerina-view', './variables-view', './type-struct-
 
         TypeMapperDefinitionView.prototype.getTargetInfo = function () {
             return this._targetInfo;
+        };
+
+        TypeMapperDefinitionView.prototype.getSelectedSourceStruct = function () {
+            var self = this;
+            if (self._selectedSourceStruct == undefined) {
+                self._selectedSourceStruct = TYPE_MAPPER_COMBOBOX_DEFAULT_SELECTION;
+            }
+            return this._selectedSourceStruct;
+        };
+
+        TypeMapperDefinitionView.prototype.getSelectedTargetStruct = function () {
+            var self = this;
+            if (self._selectedTargetStruct == undefined) {
+                self._selectedTargetStruct = TYPE_MAPPER_COMBOBOX_DEFAULT_SELECTION;
+            }
+            return this._selectedTargetStruct;
         };
 
         return TypeMapperDefinitionView;
