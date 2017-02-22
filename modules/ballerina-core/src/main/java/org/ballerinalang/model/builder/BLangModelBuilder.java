@@ -772,7 +772,7 @@ public class BLangModelBuilder {
         }
         currentCUBuilder = new Worker.WorkerBuilder(packageScope);
         //setting resourceBlockScope if it is not a fork join statement
-        if(forkJoinScope == null) {
+        if (forkJoinScope == null) {
             resourceBlockScope = currentScope;
         }
         currentScope = currentCUBuilder.getCurrentScope();
