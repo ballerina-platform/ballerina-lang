@@ -121,7 +121,7 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
                 context.getControlStack().setReturnValue(1, generatedKeys);
             }
         } catch (SQLException e) {
-            throw new BallerinaException("execute update with generated keys failed: " + e.getMessage());
+            throw new BallerinaException("execute update with generated keys failed: " + e.getMessage(), e);
         } finally {
             SQLConnectorUtils.cleanupConnection(rs, stmt, conn);
         }

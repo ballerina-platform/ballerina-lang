@@ -69,10 +69,10 @@ public class SQLConnectorUtils {
             } else if (Constants.QueryParamDirection.OUT == direction) {
                 ((CallableStatement) stmt).registerOutParameter(index + 1, sqlType);
             } else {
-                throw new BallerinaException("Invalid direction for the parameter, index: " + index);
+                throw new BallerinaException("invalid direction for the parameter with index: " + index);
             }
         } catch (SQLException e) {
-            throw new BallerinaException("Error in set integer to statement." + e.getMessage(), e);
+            throw new BallerinaException("error in set integer to statement: " + e.getMessage(), e);
         }
     }
 
@@ -94,10 +94,10 @@ public class SQLConnectorUtils {
             } else if (Constants.QueryParamDirection.OUT == direction) {
                 ((CallableStatement) stmt).registerOutParameter(index + 1, sqlType);
             } else {
-                throw new BallerinaException("Invalid direction for the parameter, index: " + index);
+                throw new BallerinaException("invalid direction for the parameter with index: " + index);
             }
         } catch (SQLException e) {
-            throw new BallerinaException("Error in set string to statement." + e.getMessage(), e);
+            throw new BallerinaException("error in set string to statement: " + e.getMessage(), e);
         }
     }
 
@@ -124,10 +124,10 @@ public class SQLConnectorUtils {
             } else if (Constants.QueryParamDirection.OUT == direction) {
                 ((CallableStatement) stmt).registerOutParameter(index + 1, sqlType);
             } else {
-                throw new BallerinaException("Invalid direction for the parameter, index: " + index);
+                throw new BallerinaException("invalid direction for the parameter with index: " + index);
             }
         } catch (SQLException e) {
-            throw new BallerinaException("Error in set double to statement." + e.getMessage(), e);
+            throw new BallerinaException("error in set double to statement: " + e.getMessage(), e);
         }
     }
 
@@ -154,10 +154,10 @@ public class SQLConnectorUtils {
             } else if (Constants.QueryParamDirection.OUT == direction) {
                 ((CallableStatement) stmt).registerOutParameter(index + 1, sqlType);
             } else {
-                throw new BallerinaException("Invalid direction for the parameter, index: " + index);
+                throw new BallerinaException("invalid direction for the parameter with index: " + index);
             }
         } catch (SQLException e) {
-            throw new BallerinaException("Error in set numeric value to statement." + e.getMessage(), e);
+            throw new BallerinaException("error in set numeric value to statement: " + e.getMessage(), e);
         }
     }
 
@@ -184,10 +184,10 @@ public class SQLConnectorUtils {
             } else if (Constants.QueryParamDirection.OUT == direction) {
                 ((CallableStatement) stmt).registerOutParameter(index + 1, sqlType);
             } else {
-                throw new BallerinaException("Invalid direction for the parameter, index: " + index);
+                throw new BallerinaException("invalid direction for the parameter with index: " + index);
             }
         } catch (SQLException e) {
-            throw new BallerinaException("Error in set boolean value to statement." + e.getMessage(), e);
+            throw new BallerinaException("error in set boolean value to statement: " + e.getMessage(), e);
         }
     }
 
@@ -214,10 +214,10 @@ public class SQLConnectorUtils {
             } else if (Constants.QueryParamDirection.OUT == direction) {
                 ((CallableStatement) stmt).registerOutParameter(index + 1, sqlType);
             } else {
-                throw new BallerinaException("Invalid direction for the parameter, index: " + index);
+                throw new BallerinaException("invalid direction for the parameter with index: " + index);
             }
         } catch (SQLException e) {
-            throw new BallerinaException("Error in set TinyInt value to statement." + e.getMessage(), e);
+            throw new BallerinaException("error in set TinyInt value to statement: " + e.getMessage(), e);
         }
     }
 
@@ -274,10 +274,10 @@ public class SQLConnectorUtils {
             } else if (Constants.QueryParamDirection.OUT == direction) {
                 ((CallableStatement) stmt).registerOutParameter(index + 1, sqlType);
             } else {
-                throw new BallerinaException("Invalid direction for the parameter, index: " + index);
+                throw new BallerinaException("invalid direction for the parameter with index: " + index);
             }
         } catch (SQLException e) {
-            throw new BallerinaException("Error in set Big Int value to statement." + e.getMessage(), e);
+            throw new BallerinaException("error in set Big Int value to statement: " + e.getMessage(), e);
         }
     }
 
@@ -334,10 +334,10 @@ public class SQLConnectorUtils {
             } else if (Constants.QueryParamDirection.OUT == direction) {
                 ((CallableStatement) stmt).registerOutParameter(index + 1, sqlType);
             } else {
-                throw new BallerinaException("Invalid direction for the parameter, index: " + index);
+                throw new BallerinaException("invalid direction for the parameter with index: " + index);
             }
         } catch (SQLException e) {
-            throw new BallerinaException("Error in set date value to statement." + e.getMessage(), e);
+            throw new BallerinaException("error in set date value to statement: " + e.getMessage(), e);
         }
     }
 
@@ -364,10 +364,10 @@ public class SQLConnectorUtils {
             } else if (Constants.QueryParamDirection.OUT == direction) {
                 ((CallableStatement) stmt).registerOutParameter(index + 1, sqlType);
             } else {
-                throw new BallerinaException("Invalid direction for the parameter, index: " + index);
+                throw new BallerinaException("invalid direction for the parameter, index: " + index);
             }
         } catch (SQLException e) {
-            throw new BallerinaException("Error in set Timestamp value to statement." + e.getMessage(), e);
+            throw new BallerinaException("error in set Timestamp value to statement: " + e.getMessage(), e);
         }
     }
 
@@ -394,10 +394,10 @@ public class SQLConnectorUtils {
             } else if (Constants.QueryParamDirection.OUT == direction) {
                 ((CallableStatement) stmt).registerOutParameter(index + 1, sqlType);
             } else {
-                throw new BallerinaException("Invalid direction for the parameter, index: " + index);
+                throw new BallerinaException("invalid direction for the parameter with index: " + index);
             }
         } catch (SQLException e) {
-            throw new BallerinaException("Error in set Timestamp value to statement." + e.getMessage(), e);
+            throw new BallerinaException("error in set Timestamp value to statement: " + e.getMessage(), e);
         }
     }
 
@@ -424,10 +424,10 @@ public class SQLConnectorUtils {
             } else if (Constants.QueryParamDirection.OUT == direction) {
                 ((CallableStatement) stmt).registerOutParameter(index + 1, sqlType);
             } else {
-                throw new BallerinaException("Invalid direction for the parameter, index: " + index);
+                throw new BallerinaException("invalid direction for the parameter with index: " + index);
             }
         } catch (SQLException e) {
-            throw new BallerinaException("Error in set binary value to statement." + e.getMessage(), e);
+            throw new BallerinaException("error in set binary value to statement: " + e.getMessage(), e);
         }
     }
 
@@ -454,10 +454,10 @@ public class SQLConnectorUtils {
             } else if (Constants.QueryParamDirection.OUT == direction) {
                 ((CallableStatement) stmt).registerOutParameter(index + 1, sqlType);
             } else {
-                throw new BallerinaException("Invalid direction for the parameter, index: " + index);
+                throw new BallerinaException("invalid direction for the parameter with index: " + index);
             }
         } catch (SQLException e) {
-            throw new BallerinaException("Error in set binary value to statement." + e.getMessage(), e);
+            throw new BallerinaException("error in set binary value to statement: " + e.getMessage(), e);
         }
     }
 
@@ -484,10 +484,10 @@ public class SQLConnectorUtils {
             } else if (Constants.QueryParamDirection.OUT == direction) {
                 ((CallableStatement) stmt).registerOutParameter(index + 1, sqlType);
             } else {
-                throw new BallerinaException("Invalid direction for the parameter, index: " + index);
+                throw new BallerinaException("invalid direction for the parameter with index: " + index);
             }
         } catch (SQLException e) {
-            throw new BallerinaException("Error in set binary value to statement." + e.getMessage(), e);
+            throw new BallerinaException("error in set binary value to statement: " + e.getMessage(), e);
         }
     }
 
@@ -495,7 +495,7 @@ public class SQLConnectorUtils {
         try {
             return Base64.getDecoder().decode(base64Str.getBytes(Charset.defaultCharset()));
         } catch (Exception e) {
-            throw new BallerinaException("Error in Processing Base64 String." + e.getMessage(), e);
+            throw new BallerinaException("error in processing base64 string: " + e.getMessage(), e);
         }
     }
 
