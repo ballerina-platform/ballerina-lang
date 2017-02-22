@@ -28,6 +28,7 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.Attribute;
 import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
+import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonMessage;
@@ -54,6 +55,10 @@ public class Commit extends AbstractNativeFunction {
             log.warn("JMS Commit function can only be used with JMS Messages. "
                     + JMSConstants.JMS_SESSION_ACKNOWLEDGEMENT_MODE + " property is not found in the message.");
             return VOID_RETURN;
+        }
+        if (!(jmsSessionAcknowledgementMode instanceof Integer)) {
+            throw new BallerinaException(JMSConstants.JMS_SESSION_ACKNOWLEDGEMENT_MODE + " property should hold a "
+                    + "integer value. ");
         }
         if (JMSConstants.SESSION_TRANSACTED_MODE == (Integer) jmsSessionAcknowledgementMode) {
             carbonMessage

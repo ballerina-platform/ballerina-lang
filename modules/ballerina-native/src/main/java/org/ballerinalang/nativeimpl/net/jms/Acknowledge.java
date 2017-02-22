@@ -65,6 +65,10 @@ public class Acknowledge extends AbstractNativeFunction {
                     + JMSConstants.JMS_SESSION_ACKNOWLEDGEMENT_MODE + " property is not found in the message.");
             return VOID_RETURN;
         }
+        if (!(jmsSessionAcknowledgementMode instanceof Integer)) {
+            throw new BallerinaException(JMSConstants.JMS_SESSION_ACKNOWLEDGEMENT_MODE + " property should hold a "
+                    + "integer value. ");
+        }
         if (JMSConstants.CLIENT_ACKNOWLEDGEMENT_MODE == (Integer) jmsSessionAcknowledgementMode) {
             if (JMSConstants.JMS_MESSAGE_DELIVERY_SUCCESS.equalsIgnoreCase(deliveryStatus)
                     || JMSConstants.JMS_MESSAGE_DELIVERY_ERROR.equalsIgnoreCase(deliveryStatus)) {
