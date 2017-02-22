@@ -44,6 +44,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.io.PrintWriter;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -96,6 +98,9 @@ public class HtmlDocumentWriter implements DocumentWriter {
         if (BallerinaDocUtils.isDebugEnabled()) {
             out.println("Generating HTML API documentation...");
         }
+
+        // Create output directories
+        Files.createDirectories(Paths.get(outputFilePath));
 
         // Sort packages by package path
         List<BLangPackage> packageList = new ArrayList<>(packages);
