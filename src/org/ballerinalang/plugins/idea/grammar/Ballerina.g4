@@ -413,7 +413,7 @@ actionInvocation
     ;
 
 callableUnitName
-    :   (packagePath ':')? Identifier
+    :   (packagePath ':')? simpleType
     ;
 
 backtickString

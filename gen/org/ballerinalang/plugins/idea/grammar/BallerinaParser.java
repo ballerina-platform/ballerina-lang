@@ -3814,33 +3814,31 @@ public class BallerinaParser extends Parser {
 			enterOuterAlt(_localctx, 1);
 			{
 			setState(655);
-			match(AT);
-			setState(656);
 			annotationName();
-			setState(663);
+			setState(662);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==LPAREN) {
 				{
-				setState(657);
+				setState(656);
 				match(LPAREN);
-				setState(660);
+				setState(659);
 				_errHandler.sync(this);
 				switch ( getInterpreter().adaptivePredict(_input,46,_ctx) ) {
 				case 1:
 					{
-					setState(658);
+					setState(657);
 					elementValuePairs();
 					}
 					break;
 				case 2:
 					{
-					setState(659);
+					setState(658);
 					elementValue();
 					}
 					break;
 				}
-				setState(662);
+				setState(661);
 				match(RPAREN);
 				}
 			}
@@ -3888,6 +3886,8 @@ public class BallerinaParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
+			setState(664);
+			match(AT);
 			setState(668);
 			_errHandler.sync(this);
 			switch ( getInterpreter().adaptivePredict(_input,48,_ctx) ) {
@@ -6278,7 +6278,9 @@ public class BallerinaParser extends Parser {
 	}
 
 	public static class CallableUnitNameContext extends ParserRuleContext {
-		public TerminalNode Identifier() { return getToken(BallerinaParser.Identifier, 0); }
+		public SimpleTypeContext simpleType() {
+			return getRuleContext(SimpleTypeContext.class,0);
+		}
 		public PackagePathContext packagePath() {
 			return getRuleContext(PackagePathContext.class,0);
 		}
@@ -6320,7 +6322,7 @@ public class BallerinaParser extends Parser {
 				break;
 			}
 			setState(1002);
-			match(Identifier);
+			simpleType();
 			}
 		}
 		catch (RecognitionException re) {
@@ -7284,8 +7286,8 @@ public class BallerinaParser extends Parser {
 		"-\3.\3.\3.\3.\3.\3.\3/\3/\5/\u026f\n/\3\60\3\60\3\60\7\60\u0274\n\60\f"+
 		"\60\16\60\u0277\13\60\3\61\7\61\u027a\n\61\f\61\16\61\u027d\13\61\3\61"+
 		"\3\61\3\61\3\62\3\62\3\62\7\62\u0285\n\62\f\62\16\62\u0288\13\62\3\62"+
-		"\3\62\3\63\3\63\3\64\3\64\3\65\3\65\3\66\3\66\3\66\3\66\3\66\5\66\u0297"+
-		"\n\66\3\66\5\66\u029a\n\66\3\67\3\67\3\67\5\67\u029f\n\67\3\67\3\67\3"+
+		"\3\62\3\63\3\63\3\64\3\64\3\65\3\65\3\66\3\66\3\66\3\66\5\66\u0296\n\66"+
+		"\3\66\5\66\u0299\n\66\3\67\3\67\3\67\3\67\5\67\u029f\n\67\3\67\3\67\3"+
 		"8\38\38\78\u02a6\n8\f8\168\u02a9\138\39\39\39\39\3:\3:\3:\5:\u02b2\n:"+
 		"\3;\3;\3;\3;\7;\u02b8\n;\f;\16;\u02bb\13;\5;\u02bd\n;\3;\5;\u02c0\n;\3"+
 		";\3;\3<\3<\3<\3<\3<\3<\3<\3<\3<\3<\3<\3<\3<\3<\3<\5<\u02d3\n<\3=\3=\3"+
@@ -7326,7 +7328,7 @@ public class BallerinaParser extends Parser {
 		"\u0239\3\2\2\2P\u0242\3\2\2\2R\u0249\3\2\2\2T\u0252\3\2\2\2V\u025a\3\2"+
 		"\2\2X\u025f\3\2\2\2Z\u0266\3\2\2\2\\\u026e\3\2\2\2^\u0270\3\2\2\2`\u027b"+
 		"\3\2\2\2b\u0286\3\2\2\2d\u028b\3\2\2\2f\u028d\3\2\2\2h\u028f\3\2\2\2j"+
-		"\u0291\3\2\2\2l\u029e\3\2\2\2n\u02a2\3\2\2\2p\u02aa\3\2\2\2r\u02b1\3\2"+
+		"\u0291\3\2\2\2l\u029a\3\2\2\2n\u02a2\3\2\2\2p\u02aa\3\2\2\2r\u02b1\3\2"+
 		"\2\2t\u02b3\3\2\2\2v\u02d2\3\2\2\2x\u02d4\3\2\2\2z\u02dc\3\2\2\2|\u02e1"+
 		"\3\2\2\2~\u02e9\3\2\2\2\u0080\u0313\3\2\2\2\u0082\u0323\3\2\2\2\u0084"+
 		"\u0330\3\2\2\2\u0086\u0333\3\2\2\2\u0088\u0346\3\2\2\2\u008a\u036e\3\2"+
@@ -7482,10 +7484,10 @@ public class BallerinaParser extends Parser {
 		"\2\2\u0285\u0288\3\2\2\2\u0286\u0284\3\2\2\2\u0286\u0287\3\2\2\2\u0287"+
 		"\u0289\3\2\2\2\u0288\u0286\3\2\2\2\u0289\u028a\5d\63\2\u028ac\3\2\2\2"+
 		"\u028b\u028c\7K\2\2\u028ce\3\2\2\2\u028d\u028e\5d\63\2\u028eg\3\2\2\2"+
-		"\u028f\u0290\t\2\2\2\u0290i\3\2\2\2\u0291\u0292\7A\2\2\u0292\u0299\5l"+
-		"\67\2\u0293\u0296\7$\2\2\u0294\u0297\5n8\2\u0295\u0297\5r:\2\u0296\u0294"+
-		"\3\2\2\2\u0296\u0295\3\2\2\2\u0296\u0297\3\2\2\2\u0297\u0298\3\2\2\2\u0298"+
-		"\u029a\7%\2\2\u0299\u0293\3\2\2\2\u0299\u029a\3\2\2\2\u029ak\3\2\2\2\u029b"+
+		"\u028f\u0290\t\2\2\2\u0290i\3\2\2\2\u0291\u0298\5l\67\2\u0292\u0295\7"+
+		"$\2\2\u0293\u0296\5n8\2\u0294\u0296\5r:\2\u0295\u0293\3\2\2\2\u0295\u0294"+
+		"\3\2\2\2\u0295\u0296\3\2\2\2\u0296\u0297\3\2\2\2\u0297\u0299\7%\2\2\u0298"+
+		"\u0292\3\2\2\2\u0298\u0299\3\2\2\2\u0299k\3\2\2\2\u029a\u029e\7A\2\2\u029b"+
 		"\u029c\5d\63\2\u029c\u029d\7\62\2\2\u029d\u029f\3\2\2\2\u029e\u029b\3"+
 		"\2\2\2\u029e\u029f\3\2\2\2\u029f\u02a0\3\2\2\2\u02a0\u02a1\7K\2\2\u02a1"+
 		"m\3\2\2\2\u02a2\u02a7\5p9\2\u02a3\u02a4\7+\2\2\u02a4\u02a6\5p9\2\u02a5"+
@@ -7594,7 +7596,7 @@ public class BallerinaParser extends Parser {
 		"\3\2\2\2\u03e1\u03e2\5\u00acW\2\u03e2\u00a9\3\2\2\2\u03e3\u03e4\5\u00ac"+
 		"W\2\u03e4\u03e5\7,\2\2\u03e5\u03e6\7K\2\2\u03e6\u00ab\3\2\2\2\u03e7\u03e8"+
 		"\5b\62\2\u03e8\u03e9\7\62\2\2\u03e9\u03eb\3\2\2\2\u03ea\u03e7\3\2\2\2"+
-		"\u03ea\u03eb\3\2\2\2\u03eb\u03ec\3\2\2\2\u03ec\u03ed\7K\2\2\u03ed\u00ad"+
+		"\u03ea\u03eb\3\2\2\2\u03eb\u03ec\3\2\2\2\u03ec\u03ed\5D#\2\u03ed\u00ad"+
 		"\3\2\2\2\u03ee\u03ef\7I\2\2\u03ef\u00af\3\2\2\2\u03f0\u03f1\bY\1\2\u03f1"+
 		"\u0415\5h\65\2\u03f2\u0415\5\u00a0Q\2\u03f3\u0415\5\u00aeX\2\u03f4\u03f5"+
 		"\5\u00a8U\2\u03f5\u03f6\5\u00a2R\2\u03f6\u0415\3\2\2\2\u03f7\u03f8\5\u00aa"+
@@ -7627,7 +7629,7 @@ public class BallerinaParser extends Parser {
 		"\u00e7\u00ed\u00f3\u0101\u0106\u010e\u0112\u0116\u011d\u0124\u0128\u012c"+
 		"\u0135\u013b\u0140\u0145\u0155\u015b\u016a\u0170\u0176\u0180\u0184\u018b"+
 		"\u0194\u0198\u01a1\u01b0\u01b5\u01d4\u01e7\u01ef\u01f8\u0203\u020e\u021c"+
-		"\u026e\u0275\u027b\u0286\u0296\u0299\u029e\u02a7\u02b1\u02b9\u02bc\u02bf"+
+		"\u026e\u0275\u027b\u0286\u0295\u0298\u029e\u02a7\u02b1\u02b9\u02bc\u02bf"+
 		"\u02d2\u02d8\u02e6\u02f1\u02fe\u0305\u030d\u0311\u031e\u032b\u033c\u0341"+
 		"\u0344\u0352\u035e\u0361\u0369\u036c\u036e\u037c\u0386\u0393\u039e\u03a8"+
 		"\u03c1\u03c8\u03cc\u03d1\u03da\u03ea\u040d\u0414\u042b\u042d\u0435";
