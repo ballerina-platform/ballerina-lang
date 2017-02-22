@@ -14,7 +14,7 @@
  *  limitations under the License.
  */
 
-package org.ballerinalang.plugins.idea.psi;
+package org.ballerinalang.plugins.idea.psi.references;
 
 import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiElement;
@@ -26,6 +26,16 @@ import com.intellij.psi.ResolveResult;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.util.IncorrectOperationException;
 import org.antlr.jetbrains.adaptor.psi.ScopeNode;
+import org.ballerinalang.plugins.idea.psi.ActionDefinitionNode;
+import org.ballerinalang.plugins.idea.psi.ConnectorBodyNode;
+import org.ballerinalang.plugins.idea.psi.ConnectorDefinitionNode;
+import org.ballerinalang.plugins.idea.psi.FunctionBodyNode;
+import org.ballerinalang.plugins.idea.psi.FunctionDefinitionNode;
+import org.ballerinalang.plugins.idea.psi.FunctionNode;
+import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
+import org.ballerinalang.plugins.idea.psi.ParameterNode;
+import org.ballerinalang.plugins.idea.psi.ResourceDefinitionNode;
+import org.ballerinalang.plugins.idea.psi.VariableDefinitionNode;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

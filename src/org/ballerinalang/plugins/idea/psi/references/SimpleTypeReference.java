@@ -14,9 +14,13 @@
  *  limitations under the License.
  */
 
-package org.ballerinalang.plugins.idea.psi;
+package org.ballerinalang.plugins.idea.psi.references;
 
 import com.intellij.psi.PsiElement;
+import org.ballerinalang.plugins.idea.psi.ConnectorNode;
+import org.ballerinalang.plugins.idea.psi.FunctionNode;
+import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
+import org.ballerinalang.plugins.idea.psi.SimpleTypeNode;
 import org.jetbrains.annotations.NotNull;
 
 public class SimpleTypeReference extends BallerinaElementReference {

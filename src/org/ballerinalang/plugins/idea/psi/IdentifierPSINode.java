@@ -27,6 +27,13 @@ import org.antlr.jetbrains.adaptor.psi.ANTLRPsiLeafNode;
 import org.antlr.jetbrains.adaptor.psi.Trees;
 import org.ballerinalang.plugins.idea.BallerinaLanguage;
 import org.ballerinalang.plugins.idea.BallerinaParserDefinition;
+import org.ballerinalang.plugins.idea.psi.references.ActionInvocationReference;
+import org.ballerinalang.plugins.idea.psi.references.CallableUnitNameReference;
+import org.ballerinalang.plugins.idea.psi.references.ConnectorReference;
+import org.ballerinalang.plugins.idea.psi.references.PackageNameReference;
+import org.ballerinalang.plugins.idea.psi.references.SimpleTypeReference;
+import org.ballerinalang.plugins.idea.psi.references.StatementReference;
+import org.ballerinalang.plugins.idea.psi.references.VariableReference;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 

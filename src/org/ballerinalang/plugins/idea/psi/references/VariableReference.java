@@ -14,20 +14,23 @@
  *  limitations under the License.
  */
 
-package org.ballerinalang.plugins.idea.psi;
+package org.ballerinalang.plugins.idea.psi.references;
 
 import com.intellij.psi.PsiElement;
+import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
+import org.ballerinalang.plugins.idea.psi.ParameterNode;
+import org.ballerinalang.plugins.idea.psi.VariableDefinitionNode;
 import org.jetbrains.annotations.NotNull;
 
-public class CallableUnitNameReference extends BallerinaElementReference {
+public class VariableReference extends BallerinaElementReference {
 
-    public CallableUnitNameReference(@NotNull IdentifierPSINode element) {
+    public VariableReference(@NotNull IdentifierPSINode element) {
         super(element);
     }
 
     @Override
     public boolean isDefinitionNode(PsiElement def) {
-        return def instanceof FunctionNode|| def instanceof ConnectorNode;
+        return def instanceof VariableDefinitionNode || def instanceof ParameterNode;
     }
 
     @NotNull
