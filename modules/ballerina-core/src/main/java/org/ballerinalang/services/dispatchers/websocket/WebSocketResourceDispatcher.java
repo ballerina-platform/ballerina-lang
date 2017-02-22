@@ -25,6 +25,7 @@ import org.ballerinalang.model.Service;
 import org.ballerinalang.services.dispatchers.ResourceDispatcher;
 import org.ballerinalang.services.dispatchers.http.Constants;
 import org.ballerinalang.util.exceptions.BallerinaException;
+import org.ballerinalang.util.exceptions.ResourceNotFoundException;
 import org.wso2.carbon.messaging.BinaryCarbonMessage;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
@@ -41,7 +42,7 @@ public class WebSocketResourceDispatcher implements ResourceDispatcher {
 
     @Override
     public Resource findResource(Service service, CarbonMessage cMsg, CarbonCallback callback, Context balContext)
-            throws BallerinaException {
+            throws ResourceNotFoundException {
 
         try {
             if (cMsg instanceof TextCarbonMessage) {
@@ -69,7 +70,7 @@ public class WebSocketResourceDispatcher implements ResourceDispatcher {
             throw new BallerinaException("Error occurred in WebSocket resource dispatchers : " + e.getMessage(),
                                          balContext);
         }
-        throw new BallerinaException("No matching Resource found for dispatchers.");
+        throw new ResourceNotFoundException("No matching Resource found for dispatchers.");
     }
 
     @Override

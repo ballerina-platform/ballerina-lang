@@ -68,7 +68,7 @@ public class ServerConnectorMessageHandler {
             // Find the Service
             Service service = dispatcher.findService(cMsg, callback, balContext);
             if (service == null) {
-                throw new BallerinaException("no Service found to handle the service request", balContext);
+                throw new BallerinaException("no service found to handle the service request", balContext);
                 // Finer details of the errors are thrown from the dispatcher itself, Ideally we shouldn't get here.
             }
 
@@ -80,13 +80,7 @@ public class ServerConnectorMessageHandler {
             }
 
             // Find the Resource
-            Resource resource = null;
-            try {
-                resource = resourceDispatcher.findResource(service, cMsg, callback, balContext);
-            } catch (BallerinaException ex) {
-                throw new BallerinaException("no resource found to handle the request to Service : " +
-                        service.getSymbolName().getName() + " : " + ex.getMessage());
-            }
+            Resource resource = resourceDispatcher.findResource(service, cMsg, callback, balContext);
             if (resource == null) {
                 throw new BallerinaException("no resource found to handle the request to Service : " +
                         service.getSymbolName().getName());
@@ -130,7 +124,7 @@ public class ServerConnectorMessageHandler {
         try {
             optionalErrorHandler
                     .orElseGet(DefaultServerConnectorErrorHandler::getInstance)
-                    .handleError(new BallerinaException(errorMsg, throwable.getCause(), balContext), cMsg, callback);
+                    .handleError(new BallerinaException(errorMsg, throwable, balContext), cMsg, callback);
         } catch (Exception e) {
             throw new BallerinaException("Cannot handle error using the error handler for : " + protocol, e);
         }

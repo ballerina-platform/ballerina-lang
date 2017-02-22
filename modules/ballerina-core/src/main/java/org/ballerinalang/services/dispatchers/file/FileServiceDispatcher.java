@@ -25,6 +25,7 @@ import org.ballerinalang.model.SymbolName;
 import org.ballerinalang.natives.connectors.BallerinaConnectorManager;
 import org.ballerinalang.services.dispatchers.ServiceDispatcher;
 import org.ballerinalang.util.exceptions.BallerinaException;
+import org.ballerinalang.util.exceptions.ServiceNotFoundException;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.ServerConnector;
@@ -42,15 +43,16 @@ public class FileServiceDispatcher implements ServiceDispatcher {
     Map<String, Service> servicesMap = new HashMap<>();
 
     @Override
-    public Service findService(CarbonMessage cMsg, CarbonCallback callback, Context balContext) {
+    public Service findService(CarbonMessage cMsg, CarbonCallback callback, Context balContext)
+            throws ServiceNotFoundException {
         Object serviceNameProperty = cMsg.getProperty(Constants.TRANSPORT_PROPERTY_SERVICE_NAME);
         String serviceName = (serviceNameProperty != null) ? serviceNameProperty.toString() : null;
         if (serviceName == null) {
-            throw new BallerinaException("Service name is not found with the file input stream.", balContext);
+            throw new ServiceNotFoundException("Service name is not found with the file input stream.", balContext);
         }
         Service service = servicesMap.get(serviceName);
         if (service == null) {
-            throw new BallerinaException("No file service is registered with the service name " + serviceName,
+            throw new ServiceNotFoundException("No file service is registered with the service name " + serviceName,
                     balContext);
         }
         return service;

@@ -17,9 +17,9 @@
  */
 package org.ballerinalang.services.dispatchers.http;
 
+import org.ballerinalang.util.exceptions.ResourceNotFoundException;
+import org.ballerinalang.util.exceptions.ServiceNotFoundException;
 import org.osgi.service.component.annotations.Component;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.DefaultCarbonMessage;
@@ -38,11 +38,14 @@ import java.util.Map;
         service = ServerConnectorErrorHandler.class)
 public class HTTPErrorHandler implements ServerConnectorErrorHandler {
 
-    private static final Logger log = LoggerFactory.getLogger(HTTPErrorHandler.class);
-
     @Override
-    public void handleError(Exception e, CarbonMessage carbonMessage, CarbonCallback callback) {
-        callback.done(createErrorMessage(e.getMessage(), 500));
+    public void handleError(Exception exception, CarbonMessage carbonMessage, CarbonCallback callback) {
+        if (exception.getCause() instanceof ServiceNotFoundException ||
+                exception.getCause() instanceof ResourceNotFoundException) {
+            callback.done(createErrorMessage(exception.getMessage(), 404));
+        } else {
+            callback.done(createErrorMessage(exception.getMessage(), 500));
+        }
     }
 
     @Override

@@ -23,6 +23,7 @@ import org.ballerinalang.model.Resource;
 import org.ballerinalang.model.Service;
 import org.ballerinalang.services.dispatchers.ResourceDispatcher;
 import org.ballerinalang.util.exceptions.BallerinaException;
+import org.ballerinalang.util.exceptions.ResourceNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonCallback;
@@ -36,7 +37,7 @@ public class FileResourceDispatcher implements ResourceDispatcher {
 
     @Override
     public Resource findResource(Service service, CarbonMessage cMsg, CarbonCallback callback,
-            Context balContext) throws BallerinaException {
+            Context balContext) throws ResourceNotFoundException {
         if (log.isDebugEnabled()) {
             log.debug("Starting to find resource in the file service " + service.getSymbolName().toString() + " to "
                     + "deliver the message");
