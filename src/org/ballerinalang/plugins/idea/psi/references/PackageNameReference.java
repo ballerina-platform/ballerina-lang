@@ -40,7 +40,7 @@ public class PackageNameReference extends BallerinaElementReference {
     @Override
     public boolean isDefinitionNode(PsiElement def) {
         // Todo - Check whether the node is the last node in the packagePath
-        return def.getParent() instanceof PackagePathNode && def instanceof PackageNameNode;
+        return def instanceof PackageNameNode;
     }
 
     @NotNull
@@ -74,10 +74,14 @@ public class PackageNameReference extends BallerinaElementReference {
                 // that means that the current element is what we are looking for.
                 if (identifierElement.getText().equals(pack.getText())) {
                     // Get the identifier of the package name from the import declaration.
-                    identifierElement = ((PackageNameNode) pack).getNameIdentifier();
+                    PsiElement[] children = pack.getChildren();
+                    if (children.length == 0) {
+                        continue;
+                    }
                     // Resolve the directory. Ideally this should return only on element because imports are unique.
-                    // But this can happen if the package names are same. In that case, we suggest all packages.
-                    PsiDirectory[] directories = BallerinaPsiImplUtil.resolveDirectory(identifierElement);
+                    // But this can happen if two or more imported  packages have the same. In that case, we suggest
+                    // all matching packages.
+                    PsiDirectory[] directories = BallerinaPsiImplUtil.resolveDirectory(children[0]);
                     for (PsiDirectory directory : directories) {
                         results.add(new PsiElementResolveResult(directory));
                     }
