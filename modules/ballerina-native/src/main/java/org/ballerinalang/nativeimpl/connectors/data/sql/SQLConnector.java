@@ -98,141 +98,150 @@ public class SQLConnector extends AbstractNativeConnector {
 
     @SuppressWarnings("unchecked")
     private void buildDataSource(BMap options) {
-        HikariConfig config = new HikariConfig();
-        BString key = new BString(Constants.PoolProperties.DATA_SOURCE_CLASSNAME);
-        BValue value = options.get(key);
-        if (value != null) {
-            config.setDataSourceClassName(value.stringValue());
-            options.remove(key);
+        try {
+            HikariConfig config = new HikariConfig();
+            BString key = new BString(Constants.PoolProperties.DATA_SOURCE_CLASSNAME);
+            BValue value = options.get(key);
+            if (value != null) {
+                config.setDataSourceClassName(value.stringValue());
+                options.remove(key);
+            }
+            key = new BString(Constants.PoolProperties.JDBC_URL);
+            value = options.get(key);
+            if (value != null) {
+                config.setJdbcUrl(value.stringValue());
+                options.remove(key);
+            }
+            key = new BString(Constants.PoolProperties.USER_NAME);
+            value = options.get(key);
+            if (value != null) {
+                config.setUsername(value.stringValue());
+                options.remove(key);
+            }
+            key = new BString(Constants.PoolProperties.PASSWORD);
+            value = options.get(key);
+            if (value != null) {
+                config.setPassword(value.stringValue());
+                options.remove(key);
+            }
+            key = new BString(Constants.PoolProperties.AUTO_COMMIT);
+            value = options.get(key);
+            if (value != null) {
+                config.setAutoCommit(Boolean.parseBoolean(value.stringValue()));
+                options.remove(key);
+            }
+            key = new BString(Constants.PoolProperties.CONNECTION_TIMEOUT);
+            value = options.get(key);
+            if (value != null) {
+                config.setConnectionTimeout(Long.parseLong(value.stringValue()));
+                options.remove(key);
+            }
+            key = new BString(Constants.PoolProperties.IDLE_TIMEOUT);
+            value = options.get(key);
+            if (value != null) {
+                config.setIdleTimeout(Long.parseLong(value.stringValue()));
+                options.remove(key);
+            }
+            key = new BString(Constants.PoolProperties.MAX_LIFETIME);
+            value = options.get(key);
+            if (value != null) {
+                config.setMaxLifetime(Long.parseLong(value.stringValue()));
+                options.remove(key);
+            }
+            key = new BString(Constants.PoolProperties.CONNECTION_TEST_QUERY);
+            value = options.get(key);
+            if (value != null) {
+                config.setConnectionTestQuery(value.stringValue());
+                options.remove(key);
+            }
+            key = new BString(Constants.PoolProperties.MINIMUM_IDLE);
+            value = options.get(key);
+            if (value != null) {
+                config.setMinimumIdle(Integer.parseInt(value.stringValue()));
+                options.remove(key);
+            }
+            key = new BString(Constants.PoolProperties.MAXIMUM_POOL_SIZE);
+            value = options.get(key);
+            if (value != null) {
+                config.setMaximumPoolSize(Integer.parseInt(value.stringValue()));
+                options.remove(key);
+            }
+            key = new BString(Constants.PoolProperties.POOOL_NAME);
+            value = options.get(key);
+            if (value != null) {
+                config.setPoolName(value.stringValue());
+                options.remove(key);
+            }
+            key = new BString(Constants.PoolProperties.ISOLATE_INTERNAL_QUERIES);
+            value = options.get(key);
+            if (value != null) {
+                config.setIsolateInternalQueries(Boolean.parseBoolean(value.stringValue()));
+                options.remove(key);
+            }
+            key = new BString(Constants.PoolProperties.ALLOW_POOL_SUSPENSION);
+            value = options.get(key);
+            if (value != null) {
+                config.setAllowPoolSuspension(Boolean.parseBoolean(value.stringValue()));
+                options.remove(key);
+            }
+            key = new BString(Constants.PoolProperties.READ_ONLY);
+            value = options.get(key);
+            if (value != null) {
+                config.setReadOnly(Boolean.parseBoolean(value.stringValue()));
+                options.remove(key);
+            }
+            key = new BString(Constants.PoolProperties.REGISTER_MBEANS);
+            value = options.get(key);
+            if (value != null) {
+                config.setRegisterMbeans(Boolean.parseBoolean(value.stringValue()));
+                options.remove(key);
+            }
+            key = new BString(Constants.PoolProperties.CATALOG);
+            value = options.get(key);
+            if (value != null) {
+                config.setCatalog(value.stringValue());
+                options.remove(key);
+            }
+            key = new BString(Constants.PoolProperties.CONNECTION_INIT_SQL);
+            value = options.get(key);
+            if (value != null) {
+                config.setConnectionInitSql(value.stringValue());
+                options.remove(key);
+            }
+            key = new BString(Constants.PoolProperties.DRIVER_CLASSNAME);
+            value = options.get(key);
+            if (value != null) {
+                config.setDriverClassName(value.stringValue());
+                options.remove(key);
+            }
+            key = new BString(Constants.PoolProperties.TRANSACTION_ISOLATION);
+            value = options.get(key);
+            if (value != null) {
+                config.setTransactionIsolation(value.stringValue());
+                options.remove(key);
+            }
+            key = new BString(Constants.PoolProperties.VALIDATION_TIMEOUT);
+            value = options.get(key);
+            if (value != null) {
+                config.setValidationTimeout(Long.parseLong(value.stringValue()));
+                options.remove(key);
+            }
+            key = new BString(Constants.PoolProperties.LEAK_DETECTION_THRESHOLD);
+            value = options.get(key);
+            if (value != null) {
+                config.setLeakDetectionThreshold(Long.parseLong(value.stringValue()));
+                options.remove(key);
+            }
+            setDataSourceProperties(options, config);
+            hikariDataSource = new HikariDataSource(config);
+        } catch (Throwable t) {
+            String errorMessage = "error in sql connector configuration";
+            if (t.getCause() != null) {
+                throw new BallerinaException(errorMessage + ": " + t.getCause().getMessage());
+            } else {
+                throw new BallerinaException(errorMessage);
+            }
         }
-        key = new BString(Constants.PoolProperties.JDBC_URL);
-        value = options.get(key);
-        if (value != null) {
-            config.setJdbcUrl(value.stringValue());
-            options.remove(key);
-        }
-        key = new BString(Constants.PoolProperties.USER_NAME);
-        value = options.get(key);
-        if (value != null) {
-            config.setUsername(value.stringValue());
-            options.remove(key);
-        }
-        key = new BString(Constants.PoolProperties.PASSWORD);
-        value = options.get(key);
-        if (value != null) {
-            config.setPassword(value.stringValue());
-            options.remove(key);
-        }
-        key = new BString(Constants.PoolProperties.AUTO_COMMIT);
-        value = options.get(key);
-        if (value != null) {
-            config.setAutoCommit(Boolean.parseBoolean(value.stringValue()));
-            options.remove(key);
-        }
-        key = new BString(Constants.PoolProperties.CONNECTION_TIMEOUT);
-        value = options.get(key);
-        if (value != null) {
-            config.setConnectionTimeout(Long.parseLong(value.stringValue()));
-            options.remove(key);
-        }
-        key = new BString(Constants.PoolProperties.IDLE_TIMEOUT);
-        value = options.get(key);
-        if (value != null) {
-            config.setIdleTimeout(Long.parseLong(value.stringValue()));
-            options.remove(key);
-        }
-        key = new BString(Constants.PoolProperties.MAX_LIFETIME);
-        value = options.get(key);
-        if (value != null) {
-            config.setMaxLifetime(Long.parseLong(value.stringValue()));
-            options.remove(key);
-        }
-        key = new BString(Constants.PoolProperties.CONNECTION_TEST_QUERY);
-        value = options.get(key);
-        if (value != null) {
-            config.setConnectionTestQuery(value.stringValue());
-            options.remove(key);
-        }
-        key = new BString(Constants.PoolProperties.MINIMUM_IDLE);
-        value = options.get(key);
-        if (value != null) {
-            config.setMinimumIdle(Integer.parseInt(value.stringValue()));
-            options.remove(key);
-        }
-        key = new BString(Constants.PoolProperties.MAXIMUM_POOL_SIZE);
-        value = options.get(key);
-        if (value != null) {
-            config.setMaximumPoolSize(Integer.parseInt(value.stringValue()));
-            options.remove(key);
-        }
-        key = new BString(Constants.PoolProperties.POOOL_NAME);
-        value = options.get(key);
-        if (value != null) {
-            config.setPoolName(value.stringValue());
-            options.remove(key);
-        }
-        key = new BString(Constants.PoolProperties.ISOLATE_INTERNAL_QUERIES);
-        value = options.get(key);
-        if (value != null) {
-            config.setIsolateInternalQueries(Boolean.parseBoolean(value.stringValue()));
-            options.remove(key);
-        }
-        key = new BString(Constants.PoolProperties.ALLOW_POOL_SUSPENSION);
-        value = options.get(key);
-        if (value != null) {
-            config.setAllowPoolSuspension(Boolean.parseBoolean(value.stringValue()));
-            options.remove(key);
-        }
-        key = new BString(Constants.PoolProperties.READ_ONLY);
-        value = options.get(key);
-        if (value != null) {
-            config.setReadOnly(Boolean.parseBoolean(value.stringValue()));
-            options.remove(key);
-        }
-        key = new BString(Constants.PoolProperties.REGISTER_MBEANS);
-        value = options.get(key);
-        if (value != null) {
-            config.setRegisterMbeans(Boolean.parseBoolean(value.stringValue()));
-            options.remove(key);
-        }
-        key = new BString(Constants.PoolProperties.CATALOG);
-        value = options.get(key);
-        if (value != null) {
-            config.setCatalog(value.stringValue());
-            options.remove(key);
-        }
-        key = new BString(Constants.PoolProperties.CONNECTION_INIT_SQL);
-        value = options.get(key);
-        if (value != null) {
-            config.setConnectionInitSql(value.stringValue());
-            options.remove(key);
-        }
-        key = new BString(Constants.PoolProperties.DRIVER_CLASSNAME);
-        value = options.get(key);
-        if (value != null) {
-            config.setDriverClassName(value.stringValue());
-            options.remove(key);
-        }
-        key = new BString(Constants.PoolProperties.TRANSACTION_ISOLATION);
-        value = options.get(key);
-        if (value != null) {
-            config.setTransactionIsolation(value.stringValue());
-            options.remove(key);
-        }
-        key = new BString(Constants.PoolProperties.VALIDATION_TIMEOUT);
-        value = options.get(key);
-        if (value != null) {
-            config.setValidationTimeout(Long.parseLong(value.stringValue()));
-            options.remove(key);
-        }
-        key = new BString(Constants.PoolProperties.LEAK_DETECTION_THRESHOLD);
-        value = options.get(key);
-        if (value != null) {
-            config.setLeakDetectionThreshold(Long.parseLong(value.stringValue()));
-            options.remove(key);
-        }
-        setDataSourceProperties(options, config);
-        hikariDataSource = new HikariDataSource(config);
     }
 
     @SuppressWarnings("unchecked")
