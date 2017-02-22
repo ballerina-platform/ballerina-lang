@@ -63,10 +63,14 @@
     padding:11px !important;
 }
 
-.btn-debug-action:hover , .btn-debug-activate:hover{
-    background: #232323 !important;
-    transition: all 250ms ease 0s;
-    color: #fff;
+.sidebar-left .btn-debug-action:hover ,
+    .sidebar-left  .btn-debug-activate:hover,
+    .sidebar-left  .btn-debug-activate:active,
+    .sidebar-left  .btn-debug-activate:focus{
+
+        background: #232323;
+        transition: all 250ms ease 0s;
+        color: #fff;
 }
 
 .debug-error{
