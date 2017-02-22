@@ -8,9 +8,6 @@ This is available as part of the Ballerina Tools distribution.
 ## Building From Source
 > Docker is required to build and enable Ballerina Container Support. To install Docker, follow the instructions on the [Docker Engine Installation Guide](https://docs.docker.com/engine/installation/). Make sure `docker` commands can be run without root/admin privileges.
 
-####Important 
-> **The base Ballerina Docker image has to be built before building on running Ballerina Container Support. To do this follow the instructions in the [Ballerina Base Image README](ballerina-base-image/README.md) and build `ballerina-pkg:latest` Docker image.**
-
 Navigate to the source root and execute the following command.
 
 ```bash
