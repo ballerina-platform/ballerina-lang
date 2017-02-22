@@ -37,7 +37,7 @@ import java.nio.file.Paths;
 /**
  * Workspace Service Entry point.
  *
- * @since 0.8.1
+ * @since 0.8.0
  */
 public class WorkspaceServiceRunner {
 
