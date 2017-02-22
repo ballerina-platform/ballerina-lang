@@ -27,6 +27,8 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.natives.AbstractNativeTypeMapper;
 import org.ballerinalang.natives.annotations.Argument;
+import org.ballerinalang.natives.annotations.Attribute;
+import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaTypeMapper;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.util.exceptions.BallerinaException;
@@ -58,6 +60,12 @@ import javax.xml.transform.stax.StAXSource;
         returnType = {@ReturnType(type = TypeEnum.JSON)},
         isPublic = true
 )
+@BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
+        value = "Converts XML to JSON") })
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "x",
+        value = "XML value to be converted") })
+@BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "json",
+        value = "JSON representation of the given XML") })
 public class XMLToJSON extends AbstractNativeTypeMapper {
 
     public BValue convert(Context ctx) {

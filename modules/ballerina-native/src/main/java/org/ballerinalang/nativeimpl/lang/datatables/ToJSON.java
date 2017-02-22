@@ -23,6 +23,8 @@ import org.ballerinalang.model.values.BDataTable;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
+import org.ballerinalang.natives.annotations.Attribute;
+import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
@@ -39,6 +41,12 @@ import org.ballerinalang.natives.annotations.ReturnType;
         returnType = {@ReturnType(type = TypeEnum.JSON)},
         isPublic = true
 )
+@BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
+        value = "Outputs the dataset in JSON format as a stream.") })
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "dt",
+        value = "The datatable object") })
+@BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "json",
+        value = "The resulting dataset in JSON format") })
 public class ToJSON extends AbstractNativeFunction {
 
     public BValue[] execute(Context ctx) {

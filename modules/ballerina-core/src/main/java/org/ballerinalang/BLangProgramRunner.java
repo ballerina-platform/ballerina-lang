@@ -29,6 +29,7 @@ import org.ballerinalang.model.BLangPackage;
 import org.ballerinalang.model.BLangProgram;
 import org.ballerinalang.model.BallerinaFunction;
 import org.ballerinalang.model.Service;
+import org.ballerinalang.model.SymbolName;
 import org.ballerinalang.model.builder.BLangExecutionFlowBuilder;
 import org.ballerinalang.model.values.BArray;
 import org.ballerinalang.model.values.BString;
@@ -37,6 +38,8 @@ import org.ballerinalang.services.ErrorHandlerUtils;
 import org.ballerinalang.services.dispatchers.DispatcherRegistry;
 import org.ballerinalang.util.debugger.DebugManager;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
+
+import java.util.AbstractMap;
 
 /**
  * {@code BLangProgramRunner} runs main and service programs.
@@ -104,6 +107,7 @@ public class BLangProgramRunner {
             // Invoke main function
             RuntimeEnvironment runtimeEnv = RuntimeEnvironment.get(bLangProgram);
             if (ModeResolver.getInstance().isDebugEnabled()) {
+                stackFrame.variables.put(new SymbolName("args"), new AbstractMap.SimpleEntry<>(0, "Arg"));
                 DebugManager debugManager = DebugManager.getInstance();
                 // This will start the websocket server.
                 debugManager.init();

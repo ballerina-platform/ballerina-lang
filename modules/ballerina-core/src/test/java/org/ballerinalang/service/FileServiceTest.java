@@ -32,7 +32,7 @@ import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.StreamingCarbonMessage;
 
 /**
- * Service dispatchers test class for vfs.
+ * Service dispatchers test class for file server connector.
  */
 public class FileServiceTest {
     private BLangProgram bLangProgram;

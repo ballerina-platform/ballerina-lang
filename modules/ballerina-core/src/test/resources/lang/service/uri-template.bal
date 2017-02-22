@@ -1,6 +1,6 @@
 import ballerina.lang.messages;
 import ballerina.lang.system;
-import ballerina.lang.jsonutils;
+import ballerina.lang.jsons;
 
 @http:BasePath ("/ecommerceservice")
 service Ecommerce {
@@ -16,7 +16,7 @@ service Ecommerce {
         system:println("Product ID " + prdID);
         system:println("Reg ID " + rID);
         responseJson = `{"X-ORDER-ID":${orderId}, "ProductID":${prdID}, "RegID":${rID}}`;
-        system:println(jsonutils:toString(responseJson));
+        system:println(jsons:toString(responseJson));
         messages:setJsonPayload(response, responseJson);
         reply response;
     }
@@ -29,7 +29,7 @@ service Ecommerce {
         system:println("Product ID " + prdID);
         system:println("Reg ID " + rID);
         responseJson = `{"Template":"T2", "ProductID":${prdID}, "RegID":${rID}}`;
-        system:println(jsonutils:toString(responseJson));
+        system:println(jsons:toString(responseJson));
         messages:setJsonPayload(response, responseJson);
         reply response;
     }
@@ -42,7 +42,7 @@ service Ecommerce {
         system:println("Product ID " + prdID);
         system:println("Reg ID " + rID);
         responseJson = `{"Template":"T3", "ProductID":${prdID}, "RegID":${rID}}`;
-        system:println(jsonutils:toString(responseJson));
+        system:println(jsons:toString(responseJson));
         messages:setJsonPayload(response, responseJson);
         reply response;
     }
@@ -55,7 +55,7 @@ service Ecommerce {
         system:println("Product ID " + prdID);
         system:println("Reg ID " + rID);
         responseJson = `{"Template":"T4", "ProductID":${prdID}, "RegID":${rID}}`;
-        system:println(jsonutils:toString(responseJson));
+        system:println(jsons:toString(responseJson));
         messages:setJsonPayload(response, responseJson);
         reply response;
     }
@@ -68,7 +68,7 @@ service Ecommerce {
         system:println("Product ID " + prdID);
         system:println("Reg ID " + rID);
         responseJson = `{"Template":"T5", "ProductID":${prdID}, "RegID":${rID}}`;
-        system:println(jsonutils:toString(responseJson));
+        system:println(jsons:toString(responseJson));
         messages:setJsonPayload(response, responseJson);
         reply response;
     }

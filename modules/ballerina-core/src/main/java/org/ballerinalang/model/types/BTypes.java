@@ -96,12 +96,12 @@ public class BTypes {
     }
 
     public static BType resolveType(SimpleTypeName typeName, SymbolScope symbolScope, NodeLocation location) {
-        BType bType;
+        BType bType = null;
         BLangSymbol symbol = symbolScope.resolve(typeName.getSymbolName());
         if (symbol instanceof NativeUnitProxy) {
             AbstractNativeConnector connector = (AbstractNativeConnector) ((NativeUnitProxy) symbol).load();
             bType = connector;
-        } else {
+        } else if (symbol instanceof BType) {
             bType = (BType) symbol;
         }
 
@@ -111,13 +111,17 @@ public class BTypes {
 
         // Now check whether this is an arrays type
         if (typeName.isArrayType()) {
-            bType = (BType) symbolScope.resolve(new SymbolName(typeName.getName(), typeName.getPackagePath()));
+            BLangSymbol bTypeSymbol = symbolScope.resolve(new SymbolName(typeName.getName(), 
+                    typeName.getPackagePath()));
+            if (bTypeSymbol instanceof BType) {
+                bType = (BType) bTypeSymbol;
+            }
         }
 
         // If bType is not null, then element type of this arrays type is available.
         // We should define the arrays type here.
         if (bType != null) {
-            BArrayType bArrayType = new BArrayType(typeName.getSymbolName().toString(),
+            BArrayType bArrayType = new BArrayType(typeName.getSymbolName().getName(),
                     bType, typeName.getPackagePath(), bType.getSymbolScope());
             bType.getSymbolScope().define(typeName.getSymbolName(), bArrayType);
             return bArrayType;

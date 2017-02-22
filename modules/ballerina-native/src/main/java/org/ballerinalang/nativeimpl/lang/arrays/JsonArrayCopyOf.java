@@ -25,6 +25,8 @@ import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
+import org.ballerinalang.natives.annotations.Attribute;
+import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
@@ -38,6 +40,12 @@ import org.ballerinalang.natives.annotations.ReturnType;
         returnType = {@ReturnType(type = TypeEnum.ARRAY, elementType = TypeEnum.JSON)},
         isPublic = true
 )
+@BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
+        value = "Copies the specified JSON array") })
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "jsonArray",
+        value = "The array to be copied") })
+@BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "json[]",
+        value = "A copy of the specified array") })
 public class JsonArrayCopyOf extends AbstractNativeFunction {
     @Override
     public BValue[] execute(Context context) {

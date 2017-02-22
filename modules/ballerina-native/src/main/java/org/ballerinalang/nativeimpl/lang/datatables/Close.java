@@ -23,6 +23,8 @@ import org.ballerinalang.model.values.BDataTable;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
+import org.ballerinalang.natives.annotations.Attribute;
+import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 
 /**
@@ -37,6 +39,10 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
         args = {@Argument(name = "dt", type = TypeEnum.DATATABLE)},
         isPublic = true
 )
+@BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
+        value = "Releases the database connection.") })
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "dt",
+        value = "The datatable object") })
 public class Close extends AbstractNativeFunction {
 
     public BValue[] execute(Context ctx) {

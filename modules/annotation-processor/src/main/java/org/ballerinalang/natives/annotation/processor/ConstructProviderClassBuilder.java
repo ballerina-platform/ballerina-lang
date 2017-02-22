@@ -49,8 +49,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import javax.annotation.processing.Filer;
 import javax.tools.FileObject;
 import javax.tools.JavaFileObject;
@@ -377,7 +379,7 @@ public class ConstructProviderClassBuilder {
     
     /**
      * Create the string representation of java source, of the construct insertion to the provided scope.
-     * 
+     *
      * @param scope Scope to which the construct is added
      * @param constructPkgName Package name of the construct
      * @param constructName Simple name of the construct
@@ -390,7 +392,7 @@ public class ConstructProviderClassBuilder {
      * @param constructVarName Name of the variable that holds the instance of this construct in generated class
      * @param scopeElements Child elements insertion string for the current construct. Only applicable for connectors
      * @param nativeUnitClass Class type of the current construct instance
-     * @param nativeUnitClassVarName Name of the temp variable which holds the class of the native construct in the 
+     * @param nativeUnitClassVarName Name of the temp variable which holds the class of the native construct in the
      * generated source.
      * @param enclosingScopeName Parent scope. Current construct will be added to this enclosingScope in the generated
      * source.
@@ -399,11 +401,12 @@ public class ConstructProviderClassBuilder {
      */
     private String getConstructInsertStr(String scope, String addMethod, String constructPkgName, String constructName,
             String constructQualifiedName, String constructArgType, String constructArg, String constructImplClassName,
-            Argument[] arguments, ReturnType[] returnTypes, String constructVarName, 
+            Argument[] arguments, ReturnType[] returnTypes, String constructVarName,
             String scopeElements, String nativeUnitClass, String nativeUnitClassVarName, String enclosingScopeName,
             String enclosingScopePkg) {
         String createSymbolStr = String.format(symbolNameStr, symbolNameClass, constructQualifiedName);
         String retrunTypesArrayStr = getReturnTypes(returnTypes);
+        String argsNamesArrayStr = getArgNames(arguments);
         String argsTypesArrayStr = getArgTypes(arguments, enclosingScopeName, enclosingScopePkg);
         String supplierInsertStr = getConstructSuplierInsertionStr(constructVarName, nativeUnitClassVarName);
         if (constructArgType == null) {
@@ -416,11 +419,12 @@ public class ConstructProviderClassBuilder {
             scopeElements = EMPTY;
         }
         return String.format(supplierInsertStr, scope, addMethod, createSymbolStr, nativeProxyClass, nativeUnitClass,
-            constructImplClassName, nativeUnitClass, constructArgType, constructArg, constructName, constructPkgName, 
-            argsTypesArrayStr, retrunTypesArrayStr, arguments.length, createSymbolStr, scopeElements);
+                constructImplClassName, nativeUnitClass, constructArgType, constructArg, constructName,
+                constructPkgName, argsNamesArrayStr, argsTypesArrayStr, retrunTypesArrayStr, arguments.length,
+                createSymbolStr, scopeElements);
     }
-    
-    
+
+
     /**
      * Get the return types arrays construction string.
      * 
@@ -481,6 +485,10 @@ public class ConstructProviderClassBuilder {
                 if (bType == TypeEnum.CONNECTOR) {
                     sb.append("new " + simpleTypeNameClass + "(\"" + enclosingScopeName + "\",\"" + enclosingScopePkg +
                         "\", " + isArray + ")");
+                } else if (bType == TypeEnum.STRUCT) {
+                    sb.append(
+                            "new " + simpleTypeNameClass + "(\"" + argType.structType() + "\",\"" + enclosingScopePkg +
+                                    "\", " + isArray + ")");
                 } else {
                     sb.append("new " + simpleTypeNameClass + "(\"" + bType.getName() + "\", " + isArray + ")");
                 }
@@ -495,7 +503,22 @@ public class ConstructProviderClassBuilder {
         return sb.toString();
         
     }
-    
+
+    /**
+     * Get the argument names array.
+     *
+     * @param arguments Array of arguments
+     * @return Argument names array construction string
+     */
+    private String getArgNames(Argument[] arguments) {
+        if (arguments == null || arguments.length == 0) {
+            return "new String[0]";
+        } else {
+            return Arrays.stream(arguments).map(Argument::name).
+                    collect(Collectors.joining("\", \"", "new String[] { \"", "\" }"));
+        }
+    }
+
     private String getConstructSuplierInsertionStr(String nativeUnitVarName, String classVarName) {
         return "\t\t%s.%s(%s,%n" +
                "\t\t    new %s(() -> {%n" +
@@ -506,6 +529,7 @@ public class ConstructProviderClassBuilder {
                ".getConstructor(%s).newInstance(%s));%n" +
                "\t\t            " + nativeUnitVarName + ".setName(\"%s\");%n" +
                "\t\t            " + nativeUnitVarName + ".setPackagePath(\"%s\");%n" +
+               "\t\t            " + nativeUnitVarName + ".setArgNames(%s);%n" +
                "\t\t            " + nativeUnitVarName + ".setArgTypeNames(%s);%n" +
                "\t\t            " + nativeUnitVarName + ".setReturnParamTypeNames(%s);%n" +
                "\t\t            " + nativeUnitVarName + ".setStackFrameSize(%s);%n" +

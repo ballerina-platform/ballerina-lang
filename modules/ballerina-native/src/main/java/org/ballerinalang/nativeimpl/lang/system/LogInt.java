@@ -23,6 +23,8 @@ import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
+import org.ballerinalang.natives.annotations.Attribute;
+import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaConstant;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.slf4j.Logger;
@@ -50,6 +52,12 @@ import org.slf4j.LoggerFactory;
                         argumentRefs = {"logLevel"})
         }
 )
+@BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
+        value = "Logs an integer value") })
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "logLevel",
+        value = "Log level: 1 - Trace, 2 - Debug, 3 - Info, 4 - Warn, 5 - Error") })
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "i",
+        value = "Integer value to be logged") })
 public class LogInt extends AbstractNativeFunction {
 
     private static final Logger logger = LoggerFactory.getLogger(LogInt.class);

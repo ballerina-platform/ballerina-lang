@@ -22,6 +22,8 @@ import org.ballerinalang.model.types.TypeEnum;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
+import org.ballerinalang.natives.annotations.Attribute;
+import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 
 /**
@@ -33,6 +35,10 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
         args = {@Argument(name = "value", type = TypeEnum.JSON)},
         isPublic = true
 )
+@BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
+        value = "Prints a JSON value to the STDOUT") })
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "value",
+        value = "JSON value to be printed") })
 public class PrintJSON extends AbstractNativeFunction {
 
     public BValue[] execute(Context ctx) {

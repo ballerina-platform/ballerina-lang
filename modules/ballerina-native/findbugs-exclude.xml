@@ -17,7 +17,7 @@
   -->
 <FindBugsFilter>
     <Match>
-        <Package name="org.wso2.ballerina.nativeimpl"/>
+        <Package name="org.ballerinalang.nativeimpl"/>
     </Match>
     <Match>
         <Class name="org.ballerinalang.nativeimpl.connectors.data.sql.client.AbstractSQLAction"/>

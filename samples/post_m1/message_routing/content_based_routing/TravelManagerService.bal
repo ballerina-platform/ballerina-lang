@@ -2,7 +2,7 @@ package samples.message_routing.content_based_routing;
 
 import ballerina.lang.messages;
 import ballerina.net.http;
-import ballerina.lang.jsonutils;
+import ballerina.lang.jsons;
 
 
 @BasePath ("/travelmgr")
@@ -21,7 +21,7 @@ service TravelManagerService {
         json errorMsg;
         jsonMsg = messages:getJsonPayload(m);
         try {
-          if (jsonutils:get(jsonMsg, "$.TravelpediaReservation.reservationType") == "CAR-RENTAL") {
+          if (jsons:get(jsonMsg, "$.TravelpediaReservation.reservationType") == "CAR-RENTAL") {
               response = http:ClientConnector.sendPost(hotelEP, m);
           } else {
               response = http:ClientConnector.sendPost(carRentalEP, m);

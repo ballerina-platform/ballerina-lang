@@ -30,6 +30,8 @@ import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
+import org.ballerinalang.natives.annotations.Attribute;
+import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
@@ -49,6 +51,14 @@ import java.util.Map;
         returnType = { @ReturnType(type = TypeEnum.MAP) },
         isPublic = true
 )
+@BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
+        value = "Retrieves arrays values of a given column index.") })
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "dt",
+        value = "The datatable object") })
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "index",
+        value = "") })
+@BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "map)",
+        value = "The column value as map") })
 public class GetArrayByIndex extends AbstractNativeFunction {
 
     public BValue[] execute(Context ctx) {

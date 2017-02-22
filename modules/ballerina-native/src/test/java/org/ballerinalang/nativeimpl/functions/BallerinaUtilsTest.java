@@ -31,7 +31,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Test Cases for ballerina.util native functions.
+ * Test Cases for ballerina.utils native functions.
  */
 public class BallerinaUtilsTest {
 

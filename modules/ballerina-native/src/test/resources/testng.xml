@@ -52,7 +52,7 @@ under the License.
     <test name="ballerina-native-type-convertors-unit-tests" preserve-order="true" parallel="false">
         <parameter name="enableNonBlocking" value="false"/>
         <packages>
-            <package name="org.ballerinalang.nativeimpl.mappers"/>
+            <package name="org.ballerinalang.nativeimpl.typemappers"/>
         </packages>
         <classes>
             <class name="org.ballerinalang.nativeimpl.util.TestConfigurationUtil"/>
@@ -61,7 +61,7 @@ under the License.
     <test name="ballerina-native-type-convertors-unit-tests-non-blocking" preserve-order="true" parallel="false">
         <parameter name="enableNonBlocking" value="true"/>
         <packages>
-            <package name="org.ballerinalang.nativeimpl.mappers"/>
+            <package name="org.ballerinalang.nativeimpl.typemappers"/>
         </packages>
         <classes>
             <class name="org.ballerinalang.nativeimpl.util.TestConfigurationUtil"/>

@@ -54,6 +54,7 @@ public class DataTableJSONDataSource implements JSONDataSource {
         while (this.df.next()) {
             this.objGen.transform(this.df).serialize(gen, null);
         }
+        gen.writeEndArray();
         this.df.close();
     }
 

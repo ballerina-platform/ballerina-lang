@@ -23,6 +23,8 @@ import org.ballerinalang.model.values.BException;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
+import org.ballerinalang.natives.annotations.Attribute;
+import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 
 /**
@@ -37,6 +39,12 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
                 @Argument(name = "message", type = TypeEnum.STRING)},
         isPublic = true
 )
+@BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
+        value = "Sets exception message specified exception") })
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "e",
+        value = "The exception object") })
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "message",
+        value = "The exception message to be added") })
 public class SetMessage extends AbstractNativeFunction {
     @Override
     public BValue[] execute(Context context) {

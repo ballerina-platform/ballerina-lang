@@ -1,7 +1,7 @@
 package samples.contentaware;
 
 import ballerina.net.http;
-import ballerina.lang.jsonutils;
+import ballerina.lang.jsons;
 import ballerina.lang.messages;
 import ballerina.lang.system.log;
 
@@ -18,8 +18,8 @@ service IteratorService {
   resource stockIterate (message m) {
       json jsonMsg;
       message response;
-      jsonMsg = jsonutils:getPayload(m);
-      iterate(json stock : jsonutils:get(jsonMsg, "$.stock.quote.exchange")){
+      jsonMsg = jsons:getPayload(m);
+      iterate(json stock : jsons:get(jsonMsg, "$.stock.quote.exchange")){
           messages:setPayload(stock, m);
           response = http:sendPost(stockEP, m);
           log:info(response);

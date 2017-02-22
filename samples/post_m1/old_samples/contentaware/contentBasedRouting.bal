@@ -1,7 +1,7 @@
 package samples.contentaware;
 
 import ballerina.net.http;
-import ballerina.lang.jsonutils;
+import ballerina.lang.jsons;
 import ballerina.lang.messages;
 
 @BasePath ("/stock")
@@ -19,9 +19,9 @@ service ContentBasedRouteService {
       message response;
       json jsonMsg;
       json errorMsg;
-      jsonMsg = jsonutils:getPayload(m);
+      jsonMsg = jsons:getPayload(m);
       try {
-          if (jsonutils:get(jsonMsg, "$.stock.quote.exchange") == "NYSE") {
+          if (jsons:get(jsonMsg, "$.stock.quote.exchange") == "NYSE") {
               response = http:sendPost(nyseEP, m);
           } else {
               response = http:sendPost(nasdaqEP, m);

@@ -26,6 +26,8 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.lang.utils.Constants;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
+import org.ballerinalang.natives.annotations.Attribute;
+import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.MessageUtil;
@@ -40,6 +42,12 @@ import org.wso2.carbon.messaging.MessageUtil;
                 @Argument(name = "payload", type = TypeEnum.JSON)},
         isPublic = true
 )
+@BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
+        value = "Sets the message payload using a JSON object") })
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "m",
+        value = "The current message object") })
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "payload",
+        value = "The JSON payload object") })
 public class SetJsonPayload extends AbstractNativeFunction {
 
     @Override

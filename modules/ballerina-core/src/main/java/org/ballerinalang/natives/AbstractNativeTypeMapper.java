@@ -63,6 +63,7 @@ public abstract class AbstractNativeTypeMapper implements NativeUnit, TypeMapper
     private BType[] parameterTypes;
     private SimpleTypeName[] returnParamTypeNames;
     private SimpleTypeName[] argTypeNames;
+    private String[] argNames;
     private int tempStackFrameSize;
 
     public AbstractNativeTypeMapper() {
@@ -258,10 +259,20 @@ public abstract class AbstractNativeTypeMapper implements NativeUnit, TypeMapper
     }
     
     @Override
+    public void setArgNames(String[] argNames) {
+        this.argNames = argNames;
+    }
+
+    @Override
     public SimpleTypeName[] getArgumentTypeNames() {
         return argTypeNames;
     }
-    
+
+    @Override
+    public String[] getArgumentNames() {
+        return argNames;
+    }
+
     @Override
     public SimpleTypeName[] getReturnParamTypeNames() {
         return returnParamTypeNames;

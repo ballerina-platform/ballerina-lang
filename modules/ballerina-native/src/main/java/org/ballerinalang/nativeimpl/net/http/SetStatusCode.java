@@ -26,6 +26,8 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.connectors.http.Constants;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
+import org.ballerinalang.natives.annotations.Attribute;
+import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
@@ -39,6 +41,12 @@ import org.ballerinalang.util.exceptions.BallerinaException;
                 @Argument(name = "statusCode", type = TypeEnum.INT)},
         isPublic = true
 )
+@BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
+        value = "Sets the HTTP StatusCode on the message") })
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "m",
+        value = "A message object") })
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "statusCode",
+        value = "HTTP status code") })
 public class SetStatusCode extends AbstractNativeFunction {
     @Override
     public BValue[] execute(Context context) {

@@ -27,9 +27,9 @@ service AirfareProviderService {
                 message response;
 
                 payload = messages:getXmlPayload(m);
-                from = xmlutils:get(payload, "reservationInfo/from");
-                to = xmlutils:get(payload, "reservationInfo/to");
-                date = xmlutils:get(payload, "reservationInfo/date");
+                from = xmls:get(payload, "reservationInfo/from");
+                to = xmls:get(payload, "reservationInfo/to");
+                date = xmls:get(payload, "reservationInfo/date");
                 query = "?departure_city=" + from + "&destination_city=" + to + "&date=" + date;
                 response = http:ClientConnector.sendGet (abcAirlineEP, query, m);
                 reply response;
@@ -44,18 +44,18 @@ service AirfareProviderService {
                 message response;
 
                 payload = messages:getXmlPayload(m);
-                from = xmlutils:get(payload, "reservationInfo/from");
-                to = xmlutils:get(payload, "reservationInfo/to");
-                date = xmlutils:get(payload, "reservationInfo/date");
+                from = xmls:get(payload, "reservationInfo/from");
+                to = xmls:get(payload, "reservationInfo/to");
+                date = xmls:get(payload, "reservationInfo/date");
                 query = "?From=" + from + "&To=" + to + "&Date=" + date;
                 response = http:ClientConnector.sendGet (xyzAirlineEP, query, m);
                 reply response;
             }
         } join (all) (message[] airfareResponses) {
             airfareAggregatedResponse = `<airfareRes></airfareRes>`;
-            xmlutils:set(airfareAggregatedResponse, "/airfareRes", null, airfareResponses[0]);
-            xmlutils:set(airfareAggregatedResponse, "/airfareRes", null, airfareResponses[1]);
-            system:logDebug(xmlutils:toString(airfareAggregatedResponse));
+            xmls:set(airfareAggregatedResponse, "/airfareRes", null, airfareResponses[0]);
+            xmls:set(airfareAggregatedResponse, "/airfareRes", null, airfareResponses[1]);
+            system:logDebug(xmls:toString(airfareAggregatedResponse));
             reply airfareAggregatedResponse;
         }
    }

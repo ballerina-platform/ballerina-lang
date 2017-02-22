@@ -16,27 +16,26 @@
   ~ under the License.
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <parent>
-        <groupId>org.wso2.ballerina</groupId>
+        <groupId>org.ballerinalang</groupId>
         <artifactId>ballerina</artifactId>
-        <version>0.8.0-SNAPSHOT</version>
+        <version>0.8.1-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>ballerina-native</artifactId>
     <packaging>jar</packaging>
-    <name>WSO2 Ballerina - Native Implementation</name>
-    <url>http://wso2.org</url>
+    <name>Ballerina - Native Implementation</name>
+    <url>http://ballerinalang.org</url>
 
     <dependencies>
         <dependency>
-            <groupId>org.wso2.ballerina</groupId>
+            <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-core</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.wso2.ballerina</groupId>
+            <groupId>org.ballerinalang</groupId>
             <artifactId>annotation-processor</artifactId>
         </dependency>
         <dependency>
@@ -152,7 +151,7 @@
                             <dataFile>${basedir}/target/coverage-reports/jacoco-unit.exec</dataFile>
                             <haltOnFailure>true</haltOnFailure>
                             <rules>
-                                <rule >
+                                <rule>
                                     <element>BUNDLE</element>
                                     <!-- <limits>
                                         <limit >
@@ -203,12 +202,12 @@
                         <packageBranchRate>50</packageBranchRate>
                         <regexes>
                             <regex>
-                                <pattern>org.wso2.ballerina.nativeimpl.lang.*</pattern>
+                                <pattern>org.ballerinalang.nativeimpl.lang.*</pattern>
                                 <branchRate>50</branchRate>
                                 <lineRate>50</lineRate>
                             </regex>
                             <regex>
-                                <pattern>org.wso2.ballerina.nativeimpl.net.*</pattern>
+                                <pattern>org.ballerinalang.nativeimpl.net.*</pattern>
                                 <branchRate>50</branchRate>
                                 <lineRate>50</lineRate>
                             </regex>

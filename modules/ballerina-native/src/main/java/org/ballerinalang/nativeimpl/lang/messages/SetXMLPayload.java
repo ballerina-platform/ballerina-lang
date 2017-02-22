@@ -24,6 +24,8 @@ import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.nativeimpl.lang.utils.Constants;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
+import org.ballerinalang.natives.annotations.Attribute;
+import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,6 +42,12 @@ import org.wso2.carbon.messaging.MessageUtil;
                 @Argument(name = "payload", type = TypeEnum.XML)},
         isPublic = true
 )
+@BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
+        value = "Sets the message payload using an XML object") })
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "m",
+        value = "The current message object") })
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "payload",
+        value = "The XML payload object") })
 public class SetXMLPayload extends AbstractNativeFunction {
 
     private static final Logger log = LoggerFactory.getLogger(SetXMLPayload.class);

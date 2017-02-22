@@ -4,22 +4,34 @@ site_description: Documentation for the Ballerina Programming Language
 site_author: WSO2, Inc.
 copyright: 2017 WSO2, Inc.
 pages:
-- Home: 'index.md'
-- What is Ballerina?: 'intro.md'
-- Quick Tour: 'quick-tour.md'
-- Tutorials: 'tutorials/index.md'
-    - Writing your First Program: 'tutorials/first-program.md'
-- Key Concepts: 'key-concepts.md'
-- Samples: 'samples.md'
-- Language Reference: 'model-ref/index.md'
-    - Language Overview: 'model-ref/model-overview.md'
-    - Packaging: 'model-ref/packaging.md'
-    - Services: 'model-ref/services.md'
-    - Resources: 'model-ref/resources.md'
-    - Functions: 'model-ref/functions.md'
-    - Connectors: 'model-ref/connectors.md'
-    - Actions: 'model-ref/actions.md'
-    - Workers: 'model-ref/workers.md'
-    - Types and Variables: 'model-ref/types-variables.md'
-    - Statements: 'model-ref/statements.md'
-theme: readthedocs
+- Get Started:
+    - Welcome: 'index.md'
+    - Quick Tour: 'quick-tour.md'
+    - Write your First Program: 'tutorials/first-program.md'
+    - Key Concepts: 'key-concepts.md'
+    - Tools: 'tools.md'
+    - Samples: 'samples.md'
+- Language Reference:
+    - Overview: 'lang-ref/lang-overview.md'
+    - Packaging and Running Programs: 'lang-ref/packaging.md'
+    - Services: 'lang-ref/services.md'
+    - Resources: 'lang-ref/resources.md'
+    - Functions: 'lang-ref/functions.md'
+    - Connectors: 
+        - Working with Connectors: 'lang-ref/connectors.md'
+        - File Server Connector: 'server-connectors/file-server.md'
+        - HTTP/2 Server Connector: 'server-connectors/http2-server.md'
+        - JMS Client Connector: 'server-connectors/jms-client.md'
+        - JMS Server Connector: 'server-connectors/jms-server.md'
+        - WebSocket Server Connector: 'server-connectors/websocket-server.md'    
+    - Actions: 'lang-ref/actions.md'
+    - Workers: 'lang-ref/workers.md'
+    - Types and Variables: 'lang-ref/types-variables.md'
+    - Statements: 'lang-ref/statements.md'
+    - Exception Handling: 'lang-ref/exceptions.md'
+- Additional Reference:
+    - API Documentation: 'native-functions.md'
+    - Language Specification: 'spec.md'
+    - Architecture Design Documents: 'architecture.md'
+theme_dir: ballerina-theme
+theme: null

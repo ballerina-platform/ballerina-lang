@@ -46,4 +46,3 @@ senderConfigurations:
   scheme: "https"
   trustStoreFile: "${ballerina.home}/bre/security/client-truststore.jks"
   trustStorePass: "wso2carbon"
-  parameters: []

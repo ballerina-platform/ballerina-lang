@@ -149,7 +149,9 @@ public class BLangExecutionDebugger extends BLangAbstractExecutionVisitor {
                             continue;
                         }
                     }
-                    if (previous.getNextSibling() instanceof Statement &&
+                    if (null == previous) {
+                        break;
+                    } else if (previous.getNextSibling() instanceof Statement &&
                             !(previous.getNextSibling() instanceof CommentStmt)) {
                         nextStep = (Statement) previous.getNextSibling();
                         break;
@@ -425,6 +427,19 @@ public class BLangExecutionDebugger extends BLangAbstractExecutionVisitor {
     public void visit(WorkerReplyStmt workerReplyStmt) {
         super.visit(workerReplyStmt);
         tryNext(workerReplyStmt);
+    }
+
+    @Override
+    public void visit(ResourceInvocationExpr resourceIExpr) {
+        super.visit(resourceIExpr);
+        if (resourceIExpr.getResource().getParameterDefs() != null) {
+            int i = 0;
+            for (ParameterDef parameter : resourceIExpr.getResource().getParameterDefs()) {
+                bContext.getControlStack().getCurrentFrame().variables.put(
+                        parameter.getSymbolName(), new AbstractMap.SimpleEntry<>(i, "Arg"));
+                i++;
+            }
+        }
     }
 
     @Override

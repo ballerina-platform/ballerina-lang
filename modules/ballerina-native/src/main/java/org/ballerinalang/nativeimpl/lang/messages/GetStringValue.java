@@ -47,9 +47,9 @@ import org.wso2.carbon.messaging.MapCarbonMessage;
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = { @Attribute(name = "value",
         value = "To get the value for a string property in a map type message") })
-@BallerinaAnnotation(annotationName = "Param", attributes = { @Attribute(name = "message",
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "message",
         value = "message") })
-@BallerinaAnnotation(annotationName = "Param", attributes = { @Attribute(name = "propertyName",
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "propertyName",
         value = "Name of the property") })
 public class GetStringValue extends AbstractNativeFunction {
     @Override
