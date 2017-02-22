@@ -15,9 +15,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require', 'log', 'jquery', 'lodash', 'backbone', 'app/menu-bar/menu-bar', 'breadcrumbs', 'file_browser', 'tab/file-tab-list',
+define(['require', 'log', 'jquery', 'lodash', 'backbone', './menu-bar/menu-bar', 'breadcrumbs', 'file_browser', './tab/file-tab-list',
 
-    'command','workspace', 'debugger', 'debugger/debug-manager', './launcher/launch-manager' , './launcher/launcher', 'console' ,/* void modules */ 'jquery_ui', 'bootstrap', 'theme_wso2'],
+    'command','workspace', './debugger', './debugger/debug-manager', './launcher/launch-manager' , './launcher/launcher', 'console' ,/* void modules */ 'jquery_ui', 'bootstrap', 'theme_wso2'],
 
     function (require, log, $, _, Backbone, MenuBar, BreadcrumbController, FileBrowser, TabController, CommandManager, Workspace, Debugger, DebugManager, LaunchManager, Launcher, Console) {
 

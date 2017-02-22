@@ -190,3 +190,9 @@ $RECYCLE.BIN/
 #################
 target/
 dependency-reduced-pom.xml
+
+#################
+## NPM
+#################
+node_modules
+dist

@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['log', 'jquery', 'lodash', './tab-list', './file-tab',  'workspace/file'],
+define(['log', 'jquery', 'lodash', './tab-list', './file-tab',  '../workspace/file'],
 
     function (log, $, _, TabList, FileTab, File) {
 
