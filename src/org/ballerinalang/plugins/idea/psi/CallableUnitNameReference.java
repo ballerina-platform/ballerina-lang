@@ -17,19 +17,17 @@
 package org.ballerinalang.plugins.idea.psi;
 
 import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiErrorElement;
-import com.intellij.psi.PsiWhiteSpace;
 import org.jetbrains.annotations.NotNull;
 
-public class CompilationUnitReference extends BallerinaElementReference {
+public class CallableUnitNameReference extends BallerinaElementReference {
 
-    public CompilationUnitReference(@NotNull IdentifierPSINode element) {
+    public CallableUnitNameReference(@NotNull IdentifierPSINode element) {
         super(element);
     }
 
     @Override
     public boolean isDefinitionNode(PsiElement def) {
-        return def instanceof FunctionDefinitionNode;
+        return def instanceof FunctionNode|| def instanceof ConnectorNode;
     }
 
     @NotNull

@@ -16,30 +16,23 @@
 
 package org.ballerinalang.plugins.idea.psi;
 
-import com.intellij.lang.ASTNode;
 import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiNamedElement;
-import com.intellij.psi.ResolveResult;
-import org.antlr.jetbrains.adaptor.psi.IdentifierDefSubtree;
-import org.antlr.jetbrains.adaptor.psi.ScopeNode;
-import org.ballerinalang.plugins.idea.BallerinaParserDefinition;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
-public class ConnectorNode extends IdentifierDefSubtree implements ScopeNode {
+public class VariableReference extends BallerinaElementReference {
 
-    public ConnectorNode(@NotNull ASTNode node) {
-        super(node, BallerinaParserDefinition.ID);
-    }
-
-    @Nullable
-    @Override
-    public PsiElement resolve(PsiNamedElement element) {
-        return null;
+    public VariableReference(@NotNull IdentifierPSINode element) {
+        super(element);
     }
 
     @Override
-    public ResolveResult[] multiResolve(IdentifierPSINode myElement) {
-        return new ResolveResult[0];
+    public boolean isDefinitionNode(PsiElement def) {
+        return def instanceof VariableDefinitionNode || def instanceof ParameterNode;
+    }
+
+    @NotNull
+    @Override
+    public Object[] getVariants() {
+        return new Object[0];
     }
 }

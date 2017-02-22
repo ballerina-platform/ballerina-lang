@@ -41,7 +41,7 @@ public class FunctionReference extends BallerinaElementReference {
     @NotNull
     @Override
     public Object[] getVariants() {
-        return new Object[]{"function1", "function2"};
+        return new Object[0];
     }
 
     @NotNull

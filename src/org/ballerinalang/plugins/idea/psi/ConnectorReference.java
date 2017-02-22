@@ -40,7 +40,7 @@ public class ConnectorReference extends BallerinaElementReference {
     @NotNull
     @Override
     public Object[] getVariants() {
-        return new Object[]{"conn1", "conn2"};
+        return new Object[0];
     }
 
     @NotNull

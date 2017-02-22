@@ -22,7 +22,6 @@ import com.intellij.psi.PsiElementResolveResult;
 import com.intellij.psi.PsiReference;
 import com.intellij.psi.ResolveResult;
 import org.antlr.jetbrains.adaptor.psi.IdentifierDefSubtree;
-import org.apache.xerces.xs.datatypes.ObjectList;
 import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
 import org.jetbrains.annotations.NotNull;
 
