@@ -137,7 +137,7 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
             createProcessedStatement(stmt, parameters);
             boolean hasResult = stmt.execute();
             if (hasResult) {
-                rs = stmt.getResultSet(); //TODO:How to return next result sets
+                rs = stmt.getResultSet();
                 BDataTable datatable = new BDataTable(new SQLDataIterator(conn, stmt, rs), new HashMap<>(),
                         getColumnDefinitions(rs));
                 context.getControlStack().setReturnValue(0, datatable);
@@ -229,9 +229,6 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
             case Constants.SQLDataTypes.INTEGER:
                 SQLConnectorUtils.setIntValue(stmt, value, index, direction, Types.INTEGER);
                 break;
-            case Constants.SQLDataTypes.STRING:
-            case Constants.SQLDataTypes.UUID:
-            case Constants.SQLDataTypes.INETADDRESS:
             case Constants.SQLDataTypes.VARCHAR:
                 SQLConnectorUtils.setStringValue(stmt, value, index, direction, Types.VARCHAR);
                 break;
@@ -253,7 +250,6 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
                 SQLConnectorUtils.setSmallIntValue(stmt, value, index, direction, Types.SMALLINT);
                 break;
             case Constants.SQLDataTypes.BIGINT:
-            case Constants.SQLDataTypes.VARINT:
                 SQLConnectorUtils.setBigIntValue(stmt, value, index, direction, Types.BIGINT);
                 break;
             case Constants.SQLDataTypes.REAL:
@@ -279,7 +275,7 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
                 SQLConnectorUtils.setClobValue(stmt, value, index, direction, Types.CLOB);
                 break;
             default:
-                throw new BallerinaException("Unsupported datatype as input parameter: " + sqlType + " index:" + index);
+                throw new BallerinaException("unsupported datatype as input parameter: " + sqlType + " index:" + index);
             }
         }
     }
