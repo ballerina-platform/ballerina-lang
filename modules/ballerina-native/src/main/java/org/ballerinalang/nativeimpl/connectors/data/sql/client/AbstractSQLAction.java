@@ -61,9 +61,9 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
             stmt = conn.prepareStatement(query);
             createProcessedStatement(stmt, parameters);
             rs = stmt.executeQuery();
-            BDataTable datatable = new BDataTable(new SQLDataIterator(conn, stmt, rs), new HashMap<>(),
+            BDataTable dataTable = new BDataTable(new SQLDataIterator(conn, stmt, rs), new HashMap<>(),
                     getColumnDefinitions(rs));
-            context.getControlStack().setReturnValue(0, datatable);
+            context.getControlStack().setReturnValue(0, dataTable);
         } catch (SQLException e) {
             SQLConnectorUtils.cleanupConnection(rs, stmt, conn);
             throw new BallerinaException("execute query failed: " + e.getMessage(), e);
@@ -151,7 +151,7 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
     }
 
     private ArrayList<BDataTable.ColumnDefinition> getColumnDefinitions(ResultSet rs) throws SQLException {
-        ArrayList<BDataTable.ColumnDefinition> columnDefs = new ArrayList<BDataTable.ColumnDefinition>();
+        ArrayList<BDataTable.ColumnDefinition> columnDefs = new ArrayList<>();
         ResultSetMetaData rsMetaData = rs.getMetaData();
         int cols = rsMetaData.getColumnCount();
         for (int i = 1; i <= cols; i++) {
@@ -164,7 +164,7 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
     }
 
     private BArray<BString> getGeneratedKeys(ResultSet rs) throws SQLException {
-        BArray<BString> generatredKeys = new BArray<>(BString.class);
+        BArray<BString> generatedKeys = new BArray<>(BString.class);
         ResultSetMetaData metaData = rs.getMetaData();
         int columnCount = metaData.getColumnCount();
         int columnType;
@@ -204,9 +204,9 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
                 value = rs.getString(i);
                 break;
             }
-            generatredKeys.add(i - 1, new BString(value));
+            generatedKeys.add(i - 1, new BString(value));
         }
-        return generatredKeys;
+        return generatedKeys;
     }
 
     private void createProcessedStatement(PreparedStatement stmt, BArray params) {
