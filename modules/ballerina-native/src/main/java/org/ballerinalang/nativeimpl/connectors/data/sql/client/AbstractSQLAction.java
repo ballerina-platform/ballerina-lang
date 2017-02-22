@@ -57,8 +57,14 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
         PreparedStatement stmt = null;
         ResultSet rs = null;
         try {
+            boolean mysql = connector.getDatabaseName().contains("mysql");
             conn = connector.getSQLConnection();
-            stmt = conn.prepareStatement(query);
+            if (mysql) {
+                stmt = conn.prepareStatement(query, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
+                stmt.setFetchSize(Integer.MIN_VALUE);
+            } else {
+                stmt = conn.prepareStatement(query);
+            }
             createProcessedStatement(stmt, parameters);
             rs = stmt.executeQuery();
             BDataTable datatable = new BDataTable(new SQLDataIterator(conn, stmt, rs), new HashMap<>(),
