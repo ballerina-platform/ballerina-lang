@@ -36,6 +36,7 @@ import org.ballerinalang.plugins.idea.psi.ArgumentListNode;
 import org.ballerinalang.plugins.idea.psi.CallableUnitNameNode;
 import org.ballerinalang.plugins.idea.psi.ExpressionListNode;
 import org.ballerinalang.plugins.idea.psi.FunctionInvocationStatementNode;
+import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
 import org.ballerinalang.plugins.idea.psi.references.FunctionReference;
 import org.ballerinalang.plugins.idea.psi.ParameterListNode;
 import org.ballerinalang.plugins.idea.psi.ParameterNode;
@@ -120,40 +121,45 @@ public class BallerinaParameterInfoHandler implements ParameterInfoHandlerWithTa
 
             // Todo - Check support for connectors and actions after finalizing the Ballerina SDK
             if (parent != null) {
-                CallableUnitNameNode function = PsiTreeUtil.findChildOfType(parent, CallableUnitNameNode.class);
-                PsiReference reference = function.getNameIdentifier().getReference();
-                if (reference != null) {
-                    PsiElement resolvedElement = reference.resolve();
-                    if (resolvedElement != null) {
-                        ParameterListNode parameterListNode =
-                                PsiTreeUtil.findChildOfType(resolvedElement, ParameterListNode.class);
-                        if (parameterListNode == null) {
-                            // Todo - change how to identify no parameter situation
-                            context.setItemsToShow(new Object[]{"Empty"});
-                        } else {
-                            context.setItemsToShow(new Object[]{parameterListNode});
-                        }
-                        context.showHint(psiElement, (psiElement).getTextRange().getStartOffset(), this);
-                        return;
-                    }
-                }
-                PsiReference[] references = function.getNameIdentifier().getReferences();
                 List<ParameterListNode> list = new ArrayList<>();
-                for (PsiReference psiReference : references) {
-                    ResolveResult[] resolveResults = ((FunctionReference) psiReference).multiResolve(false);
-                    if (resolveResults.length == 0) {
-                        continue;
+
+                CallableUnitNameNode function = PsiTreeUtil.findChildOfType(parent, CallableUnitNameNode.class);
+                IdentifierPSINode identifier = PsiTreeUtil.findChildOfType(function, IdentifierPSINode.class);
+                if (identifier != null) {
+                    PsiReference reference = identifier.getReference();
+                    if (reference != null) {
+                        PsiElement resolvedElement = reference.resolve();
+                        if (resolvedElement != null) {
+                            ParameterListNode parameterListNode =
+                                    PsiTreeUtil.findChildOfType(resolvedElement, ParameterListNode.class);
+                            if (parameterListNode == null) {
+                                // Todo - change how to identify no parameter situation
+                                context.setItemsToShow(new Object[]{"Empty"});
+                            } else {
+                                context.setItemsToShow(new Object[]{parameterListNode});
+                            }
+                            context.showHint(psiElement, (psiElement).getTextRange().getStartOffset(), this);
+                            return;
+                        }
                     }
 
-                    for (ResolveResult resolveResult : resolveResults) {
-                        PsiElement parentElement = resolveResult.getElement().getParent();
-                        ParameterListNode parameterListNode = PsiTreeUtil.findChildOfType(parentElement,
-                                ParameterListNode.class);
-                        if (parameterListNode != null) {
-                            list.add(parameterListNode);
+                    PsiReference[] references = identifier.getReferences();
+                    for (PsiReference psiReference : references) {
+                        ResolveResult[] resolveResults = ((FunctionReference) psiReference).multiResolve(false);
+                        if (resolveResults.length == 0) {
+                            continue;
+                        }
+                        for (ResolveResult resolveResult : resolveResults) {
+                            PsiElement parentElement = resolveResult.getElement().getParent();
+                            ParameterListNode parameterListNode = PsiTreeUtil.findChildOfType(parentElement,
+                                    ParameterListNode.class);
+                            if (parameterListNode != null) {
+                                list.add(parameterListNode);
+                            }
                         }
                     }
                 }
+
                 if (list.isEmpty()) {
                     // Todo - change how to identify no parameter situation
                     context.setItemsToShow(new Object[]{"Empty"});
