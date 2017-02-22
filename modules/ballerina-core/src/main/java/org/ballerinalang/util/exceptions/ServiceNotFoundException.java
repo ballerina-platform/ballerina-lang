@@ -26,19 +26,23 @@ import org.ballerinalang.bre.Context;
  */
 public class ServiceNotFoundException extends BallerinaException {
 
-    public ServiceNotFoundException(String message, Context context) {
-        super(message, context);
-    }
-
-    public ServiceNotFoundException(String message, Throwable cause, Context context) {
-        super(message, cause, context);
-    }
-
+    /**
+     * Constructs a new {@link ServiceNotFoundException} with the specified detail message.
+     *
+     * @param message Error Message
+     */
     public ServiceNotFoundException(String message) {
         super(message);
     }
 
-    public ServiceNotFoundException(String message, Throwable cause) {
-        super(message, cause);
+    /**
+     * Constructs a new {@link ServiceNotFoundException} with ballerina context.
+     *
+     * @param message Error message
+     * @param context Ballerina context
+     */
+    public ServiceNotFoundException(String message, Context context) {
+        super(message, context);
     }
+
 }

@@ -25,15 +25,23 @@ import org.ballerinalang.bre.Context;
  *
  */
 public class ResourceNotFoundException extends BallerinaException {
+
+    /**
+     * Constructs a new {@link ResourceNotFoundException} with the specified detail message.
+     *
+     * @param message Error Message
+     */
     public ResourceNotFoundException(String message) {
         super(message);
     }
 
+    /**
+     * Constructs a new {@link ResourceNotFoundException} with ballerina context.
+     *
+     * @param message Error message
+     * @param context Ballerina context
+     */
     public ResourceNotFoundException(String message, Context context) {
         super(message, context);
-    }
-
-    public ResourceNotFoundException(String message, Throwable cause) {
-        super(message, cause);
     }
 }
