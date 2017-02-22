@@ -56,9 +56,9 @@ public class JMSMessageUtils {
                 serializableCarbonMessage.setPayload(getJsonPayload(message));
             } else if (headerMap.get(Constants.CONTENT_TYPE).equals(Constants.APPLICATION_XML)) {
                 serializableCarbonMessage.setPayload(getXmlPayload(message));
-            } else if (headerMap.get(Constants.CONTENT_TYPE).equals(Constants.TEXT_PLAIN)) {
-                serializableCarbonMessage.setPayload(getStringPayload(message));
             }
+        } else {
+            serializableCarbonMessage.setPayload(getStringPayload(message));
         }
 
         return serializableCarbonMessage;

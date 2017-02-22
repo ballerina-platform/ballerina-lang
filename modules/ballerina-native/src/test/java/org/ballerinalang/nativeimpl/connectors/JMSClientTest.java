@@ -51,22 +51,6 @@ public class JMSClientTest {
         BLangFunctions.invoke(bLangProgram, "jmsClientConnectorTest");
     }
 
-    @Test(description = "Test for jms client connector without valid message",
-            expectedExceptions = { BallerinaException.class },
-            expectedExceptionsMessageRegExp = ".*If the message type is TextMessage, a string payload must be set.*")
-    public void testJMSClientConnectorWithoutValidMessage() throws BallerinaException {
-        BLangFunctions.invoke(bLangProgram, "jmsSendNoMessageTest");
-    }
-
-    @Test(description = "Test for jms client connector map message without data",
-            expectedExceptions = { BallerinaException.class },
-            expectedExceptionsMessageRegExp =
-                    ".*If the message type is MapMessage, either set MapData property or pass a " +
-                    "received jms map message*")
-    public void testJMSClientConnectorMapMessageWithoutData() throws BallerinaException {
-        BLangFunctions.invoke(bLangProgram, "jmsSendMapMessageWithoutData");
-    }
-
     @AfterClass
     public void tearDown() {
         ModeResolver.getInstance().setNonblockingEnabled(isNonBlockingEnabled);
