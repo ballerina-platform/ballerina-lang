@@ -24,17 +24,14 @@ import org.ballerinalang.bre.Context;
  *
  * @since 0.8.1
  */
-public class ServiceNotFoundException extends Exception {
-    private transient Context context;
+public class ServiceNotFoundException extends BallerinaException {
 
     public ServiceNotFoundException(String message, Context context) {
-        super(message);
-        this.context = context;
+        super(message, context);
     }
 
     public ServiceNotFoundException(String message, Throwable cause, Context context) {
-        super(message, cause);
-        this.context = context;
+        super(message, cause, context);
     }
 
     public ServiceNotFoundException(String message) {
@@ -43,9 +40,5 @@ public class ServiceNotFoundException extends Exception {
 
     public ServiceNotFoundException(String message, Throwable cause) {
         super(message, cause);
-    }
-
-    public Context getContext() {
-        return this.context;
     }
 }

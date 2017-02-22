@@ -22,7 +22,7 @@ package org.ballerinalang.util.exceptions;
  *
  * @since 0.8.1
  */
-public class ResourceNotFoundException extends Exception {
+public class ResourceNotFoundException extends BallerinaException {
     public ResourceNotFoundException(String message) {
         super(message);
     }
