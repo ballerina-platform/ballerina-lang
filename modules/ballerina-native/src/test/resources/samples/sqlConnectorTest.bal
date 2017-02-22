@@ -41,13 +41,13 @@ function testGeneratedKeyOnInsert() (string) {
     sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
 
     int insertCount;
-    string generatedID;
+    string[] generatedID;
     sql:Parameter[] parameters=[];
 
     insertCount,generatedID = sql:ClientConnector.updateWithGeneratedKeys(testDB,
         "insert into Customers (firstName,lastName,registrationID,creditLimit,country)
         values ('Mary', 'Williams', 3, 5000.75, 'USA')", parameters);
-    return generatedID;
+    return generatedID[0];
 }
 
 function testGeneratedKeyWithColumn() (string) {
@@ -56,7 +56,7 @@ function testGeneratedKeyWithColumn() (string) {
     sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
 
     int insertCount;
-    string generatedID;
+    string[] generatedID;
     string[] keyColumns;
     keyColumns = ["CUSTOMERID"];
     sql:Parameter[] parameters=[];
@@ -64,7 +64,7 @@ function testGeneratedKeyWithColumn() (string) {
     insertCount,generatedID = sql:ClientConnector.updateWithGeneratedKeys(testDB,
         "insert into Customers (firstName,lastName,registrationID,creditLimit,country)
         values ('Kathy', 'Williams', 4, 5000.75, 'USA')",keyColumns, parameters);
-    return generatedID;
+    return generatedID[0];
 }
 
 function testSelectData() (string) {

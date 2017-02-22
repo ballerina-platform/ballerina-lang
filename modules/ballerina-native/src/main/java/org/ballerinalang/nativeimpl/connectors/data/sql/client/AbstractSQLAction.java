@@ -113,9 +113,12 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
             BInteger updatedCount = new BInteger(count);
             context.getControlStack().setReturnValue(0, updatedCount);
             rs = stmt.getGeneratedKeys();
+            /*The result set contains the auto generated keys. It can have multiple rows if multiple rows have
+            updated with the execute operation. There can be multiple auto generated columns in a table.
+            TODO: iterate the result set and generate a array of key arrays*/
             if (rs.next()) {
                 BArray<BString> generatedKeys = getGeneratedKeys(rs);
-                context.getControlStack().setReturnValue(1, generatedKeys); //TODO:Set Array of Keys
+                context.getControlStack().setReturnValue(1, generatedKeys);
             }
         } catch (SQLException e) {
             throw new BallerinaException("execute update with generated keys failed: " + e.getMessage());
