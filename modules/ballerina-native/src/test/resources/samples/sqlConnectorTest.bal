@@ -63,7 +63,7 @@ function testGeneratedKeyWithColumn() (string) {
 
     insertCount,generatedID = sql:ClientConnector.updateWithGeneratedKeys(testDB,
         "insert into Customers (firstName,lastName,registrationID,creditLimit,country)
-        values ('Kathy', 'Williams', 4, 5000.75, 'USA')",keyColumns, parameters);
+        values ('Kathy', 'Williams', 4, 5000.75, 'USA')",parameters,keyColumns);
     return generatedID[0];
 }
 
