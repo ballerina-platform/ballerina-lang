@@ -4,12 +4,13 @@ site_description: Documentation for the Ballerina Programming Language
 site_author: WSO2, Inc.
 copyright: 2017 WSO2, Inc.
 pages:
-- Welcome: 'index.md'
-- Quick Tour: 'quick-tour.md'
-- Write your First Program: 'tutorials/first-program.md'
-- Key Concepts: 'key-concepts.md'
-- Tools: 'tools.md'
-- Samples: 'samples.md'
+- Get Started:
+    - Welcome: 'index.md'
+    - Quick Tour: 'quick-tour.md'
+    - Write your First Program: 'tutorials/first-program.md'
+    - Key Concepts: 'key-concepts.md'
+    - Tools: 'tools.md'
+    - Samples: 'samples.md'
 - Language Reference:
     - Overview: 'lang-ref/lang-overview.md'
     - Packaging and Running Programs: 'lang-ref/packaging.md'
@@ -28,7 +29,9 @@ pages:
     - Types and Variables: 'lang-ref/types-variables.md'
     - Statements: 'lang-ref/statements.md'
     - Exception Handling: 'lang-ref/exceptions.md'
-- Native Functions Reference: 'native-functions.md'
-- Architecture: 'architecture.md'
-theme: null
+- Additional Reference:
+    - API Documentation: 'native-functions.md'
+    - Language Specification: 'spec.md'
+    - Architecture Design Documents: 'architecture.md'
 theme_dir: ballerina-theme
+theme: null
