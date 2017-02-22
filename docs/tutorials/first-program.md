@@ -103,7 +103,7 @@ Your service is now deployed and running on the Ballerina server.
 From a separate command prompt, use curl to send a request to your program:
 
 ```
-curl -v http://localhost:9090/echo2 -d "Hello World......"
+curl -v http://localhost:9090/myecho -d "Hello World......"
 ```
 
 The service receives the request, takes the text `Hello World......` from the incoming message, converts it into a response without the client headers, and sends it back to the command line where the request was sent.
