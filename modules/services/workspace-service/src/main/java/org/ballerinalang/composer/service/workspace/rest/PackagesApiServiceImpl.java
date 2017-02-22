@@ -45,7 +45,7 @@ import java.util.stream.Stream;
 /**
  * This is the service implementation class for Packages list related operations
  *
- * @since 0.8.0
+ * @since 0.8.1
  */
 public class PackagesApiServiceImpl extends PackagesApiService {
 
