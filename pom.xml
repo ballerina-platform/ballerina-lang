@@ -29,7 +29,7 @@
     <groupId>org.ballerinalang</groupId>
     <artifactId>docerina</artifactId>
     <packaging>jar</packaging>
-    <version>0.8.0-SNAPSHOT</version>
+    <version>0.8.1-SNAPSHOT</version>
 
     <name>WSO2 Docerina - Ballerina Documentation Generation</name>
     <url>http://wso2.org</url>
@@ -263,7 +263,7 @@
     </build>
 
     <properties>
-        <ballerina.version>0.8.0-SNAPSHOT</ballerina.version>
+        <ballerina.version>0.8.0</ballerina.version>
 
         <!-- Maven plugins -->
         <!--Bundle Plugin - Overridden from parent due to a bug in latest version related to capability providers-->
