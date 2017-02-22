@@ -44,12 +44,12 @@ public class JMSResourceDispatcher implements ResourceDispatcher {
         }
         Resource[] resources = service.getResources();
         if (resources.length == 0) {
-            throw new BallerinaException("No resources found to handle the JMS message in " + service.getSymbolName()
-                    .toString(), balContext);
+            throw new ResourceNotFoundException("no resources found to handle the jms message in " +
+                    service.getSymbolName().toString(), balContext);
         }
         if (resources.length > 1) {
-            throw new BallerinaException("More than one resources found in JMS service " + service.getSymbolName()
-                    .toString() + ".JMS Service should only have one resource", balContext);
+            throw new BallerinaException("more than one resources found in jms service " + service.getSymbolName()
+                    .toString() + ". jms service should only have one resource", balContext);
         }
         return resources[0];
     }

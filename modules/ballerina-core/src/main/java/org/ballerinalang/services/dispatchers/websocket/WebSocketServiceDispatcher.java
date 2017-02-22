@@ -51,27 +51,27 @@ public class WebSocketServiceDispatcher extends HTTPServiceDispatcher {
         String serviceUri = (String) cMsg.getProperty(Constants.TO);
         serviceUri = refactorUri(serviceUri);
         if (serviceUri == null) {
-            throw new ServiceNotFoundException("No service found to dispatch");
+            throw new ServiceNotFoundException("no service found to dispatch");
         }
         String basePath = URIUtil.getFirstPathSegment(serviceUri);
         Service service = HTTPServicesRegistry.getInstance().
                 getService(interfaceId, Constants.DEFAULT_BASE_PATH + basePath);
 
         if (service == null) {
-            throw new ServiceNotFoundException("No service found to handle message for " + serviceUri);
+            throw new ServiceNotFoundException("no service found to handle message for " + serviceUri);
         }
 
 
         String webSocketUpgradePath = findWebSocketUpgradePath(service);
         if (webSocketUpgradePath == null) {
-            throw new ServiceNotFoundException("No service found to handle message for " + serviceUri);
+            throw new ServiceNotFoundException("no service found to handle message for " + serviceUri);
         }
 
         if (webSocketUpgradePath.equals(serviceUri)) {
             return service;
         }
 
-        throw new ServiceNotFoundException("No service found to handle message for " + serviceUri);
+        throw new ServiceNotFoundException("no service found to handle message for " + serviceUri);
     }
 
     @Override
@@ -101,7 +101,7 @@ public class WebSocketServiceDispatcher extends HTTPServiceDispatcher {
         }
         if (websocketUpgradePathAnnotation != null && websocketUpgradePathAnnotation.getValue() != null) {
             if (basePathAnnotation == null) {
-                throw new BallerinaException("Cannot define @WebSocketPathUpgrade without @BasePath");
+                throw new BallerinaException("cannot define @WebSocketPathUpgrade without @BasePath");
             }
 
             String basePath = refactorUri(basePathAnnotation.getValue());

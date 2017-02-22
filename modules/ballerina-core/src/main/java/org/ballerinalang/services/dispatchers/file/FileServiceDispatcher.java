@@ -48,11 +48,11 @@ public class FileServiceDispatcher implements ServiceDispatcher {
         Object serviceNameProperty = cMsg.getProperty(Constants.TRANSPORT_PROPERTY_SERVICE_NAME);
         String serviceName = (serviceNameProperty != null) ? serviceNameProperty.toString() : null;
         if (serviceName == null) {
-            throw new ServiceNotFoundException("Service name is not found with the file input stream.", balContext);
+            throw new ServiceNotFoundException("service name is not found with the file input stream.", balContext);
         }
         Service service = servicesMap.get(serviceName);
         if (service == null) {
-            throw new ServiceNotFoundException("No file service is registered with the service name " + serviceName,
+            throw new ServiceNotFoundException("no file service is registered with the service name " + serviceName,
                     balContext);
         }
         return service;

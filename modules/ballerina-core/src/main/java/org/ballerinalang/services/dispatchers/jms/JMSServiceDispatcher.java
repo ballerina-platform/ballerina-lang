@@ -52,11 +52,11 @@ public class JMSServiceDispatcher implements ServiceDispatcher {
         Object serviceIdProperty = cMsg.getProperty(Constants.JMS_SERVICE_ID);
         String serviceId = (serviceIdProperty != null) ? serviceIdProperty.toString() : null;
         if (serviceId == null) {
-            throw new ServiceNotFoundException("Service Id is not found in JMS Message", balContext);
+            throw new ServiceNotFoundException("service id is not found in jms message", balContext);
         }
         Service service = serviceMap.get(serviceId);
         if (service == null) {
-            throw new ServiceNotFoundException("No jms service is registered with the service id " + serviceId,
+            throw new ServiceNotFoundException("no jms service is registered with the service id " + serviceId,
                     balContext);
         }
         return service;

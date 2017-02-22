@@ -67,10 +67,10 @@ public class WebSocketResourceDispatcher implements ResourceDispatcher {
                 }
             }
         } catch (Throwable e) {
-            throw new BallerinaException("Error occurred in WebSocket resource dispatchers : " + e.getMessage(),
+            throw new BallerinaException("error occurred in web-socket resource dispatchers : " + e.getMessage(),
                                          balContext);
         }
-        throw new ResourceNotFoundException("No matching Resource found for dispatchers.");
+        throw new ResourceNotFoundException("no matching resource found for dispatchers.");
     }
 
     @Override

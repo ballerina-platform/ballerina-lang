@@ -17,6 +17,8 @@
  */
 package org.ballerinalang.util.exceptions;
 
+import org.ballerinalang.bre.Context;
+
 /**
  * {@code ResourceNotFoundException} is thrown when resource not found related errors occur with resource dispatching
  * during ballerina runtime execution.
@@ -25,6 +27,10 @@ package org.ballerinalang.util.exceptions;
 public class ResourceNotFoundException extends BallerinaException {
     public ResourceNotFoundException(String message) {
         super(message);
+    }
+
+    public ResourceNotFoundException(String message, Context context) {
+        super(message, context);
     }
 
     public ResourceNotFoundException(String message, Throwable cause) {
