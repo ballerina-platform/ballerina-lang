@@ -115,7 +115,7 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
             rs = stmt.getGeneratedKeys();
             if (rs.next()) {
                 BArray<BString> generatedKeys = getGeneratedKeys(rs);
-                context.getControlStack().setReturnValue(1, generatedKeys.get(0)); //TODO:Set Array of Keys
+                context.getControlStack().setReturnValue(1, generatedKeys); //TODO:Set Array of Keys
             }
         } catch (SQLException e) {
             throw new BallerinaException("execute update with generated keys failed: " + e.getMessage());
