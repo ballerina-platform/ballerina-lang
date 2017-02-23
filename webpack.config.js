@@ -8,9 +8,23 @@ module.exports = {
         path: path.resolve(__dirname, 'dist')
     },
     module: {
-        rules: [
-            {test: /\.(js|jsx)$/, use: 'babel-loader'}
-        ]
+        rules: [{
+          test: /\.js$/,
+          exclude: /(node_modules|modules\/web\/lib)/,
+          use: [
+            {
+              loader: 'babel-loader',
+              query: {
+                  presets: ['es2015']
+              }
+            }
+          ]
+        },
+        {
+          test: /\.css$/,
+          use: [ 'css-loader' ]
+        }
+      ]
     },
     plugins: [
         new webpack.optimize.UglifyJsPlugin()
@@ -56,6 +70,7 @@ module.exports = {
             console: "launcher/console",
             workspace$: "workspace/module",
             ballerina$: "ballerina/module",
+            "welcome-page$": "welcome-page/module",
         }
     }
 
