@@ -54,6 +54,8 @@ import org.ballerinalang.model.values.BConnector;
 import org.ballerinalang.model.values.BException;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.runtime.Constants;
+import org.ballerinalang.services.ErrorHandlerUtils;
+import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -70,7 +72,6 @@ public class BLangExecutionDebugger extends BLangAbstractExecutionVisitor {
     private static final Logger logger = LoggerFactory.getLogger(Constants.BAL_LINKED_INTERPRETER_LOGGER);
     private HashMap<String, NodeLocation> positionHashMap;
 
-    private Context bContext;
     private RuntimeEnvironment runtimeEnvironment;
 
     private LinkedNode currentHaltNode;
@@ -116,7 +117,7 @@ public class BLangExecutionDebugger extends BLangAbstractExecutionVisitor {
             LinkedNode current = currentHaltNode;
             this.currentHaltNode = null;
             this.stepInToStatement = false;
-            continueExecution(current);
+            startExecution(current);
         }
     }
 
@@ -160,7 +161,7 @@ public class BLangExecutionDebugger extends BLangAbstractExecutionVisitor {
                     }
                 }
             }
-            continueExecution(current);
+            startExecution(current);
         }
     }
 
@@ -176,7 +177,7 @@ public class BLangExecutionDebugger extends BLangAbstractExecutionVisitor {
             this.stepInToStatement = true;
             // Currently we are stepping though statements.
             // We always step in to next Statement.
-            continueExecution(current);
+            startExecution(current);
         }
     }
 
@@ -190,7 +191,7 @@ public class BLangExecutionDebugger extends BLangAbstractExecutionVisitor {
             LinkedNode current = currentHaltNode;
             this.currentHaltNode = null;
             this.stepOutFromCallableUnit = true;
-            continueExecution(current);
+            startExecution(current);
         }
     }
 
@@ -280,40 +281,72 @@ public class BLangExecutionDebugger extends BLangAbstractExecutionVisitor {
     }
 
     public void execute(ResourceInvocationExpr resourceIExpr) {
-        continueExecution(resourceIExpr);
+        resourceInvocation = true;
+        startExecution(resourceIExpr);
     }
 
     public void execute(FunctionInvocationExpr functionInvocationExpr) {
-        continueExecution(functionInvocationExpr);
+        testFunctionInvocation = true;
+        startExecution(functionInvocationExpr);
     }
 
-    public void continueExecution(LinkedNode linkedNode) {
-        linkedNode.accept(this);
-        while (next != null) {
+    public void startExecution(LinkedNode linkedNode) {
+        try {
+            linkedNode.accept(this);
+            // TODO : Improve logic.
+            // Intentionally catching exception outside of the loop and continueExecution after handlingException.
+            // This can cause to grow stack depth. But throwing a runtimeExceptions is unlikely in normal execution
+            // flow.
             try {
-                if (next instanceof AbstractStatement && !(next instanceof BlockStmt)) {
-                    tryNext((AbstractStatement) next);
-                } else {
-                    next.accept(this);
+                while (next != null) {
+                    if (next instanceof AbstractStatement && !(next instanceof BlockStmt)) {
+                        tryNext((AbstractStatement) next);
+                    } else {
+                        next.accept(this);
+                    }
                 }
+            } catch (BallerinaException be) {
+                if (be.getBException() != null) {
+                    handleBException(be.getBException());
+                } else {
+                    handleBException(new BException(be.getMessage()));
+                }
+                continueExecution();
             } catch (RuntimeException e) {
                 handleBException(new BException(e.getMessage()));
+                continueExecution();
+            }
+        } catch (Throwable throwable) {
+            if (resourceInvocation) {
+                ErrorHandlerUtils.handleResourceInvocationError(bContext, next, null, throwable);
+            } else if (testFunctionInvocation) {
+                ErrorHandlerUtils.handleTestFuncInvocationError(bContext, next, null, throwable);
+                throw throwable;
+            } else {
+                ErrorHandlerUtils.handleMainFuncInvocationError(bContext, next, null, throwable);
             }
         }
     }
 
     @Override
     public void continueExecution() {
-        while (next != null) {
-            try {
+        try {
+            while (next != null) {
                 if (next instanceof AbstractStatement && !(next instanceof BlockStmt)) {
                     tryNext((AbstractStatement) next);
                 } else {
                     next.accept(this);
                 }
-            } catch (RuntimeException e) {
-                handleBException(new BException(e.getMessage()));
             }
+        } catch (BallerinaException be) {
+            if (be.getBException() != null) {
+                handleBException(be.getBException());
+            } else {
+                handleBException(new BException(be.getMessage()));
+            }
+        } catch (RuntimeException e) {
+            handleBException(new BException(e.getMessage()));
+            continueExecution();
         }
     }
 
@@ -342,7 +375,7 @@ public class BLangExecutionDebugger extends BLangAbstractExecutionVisitor {
 
     @Override
     public void visit(GotoNode gotoNode) {
-        Integer pop = branchIDStack.pop();
+        Integer pop = controlStack.getCurrentFrame().returningBranchID;
         if (logger.isDebugEnabled()) {
             logger.debug("Executing GotoNode branch:{}", pop);
         }

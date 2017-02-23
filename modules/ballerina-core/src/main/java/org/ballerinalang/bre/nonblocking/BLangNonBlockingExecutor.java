@@ -23,6 +23,10 @@ import org.ballerinalang.model.LinkedNode;
 import org.ballerinalang.model.expressions.FunctionInvocationExpr;
 import org.ballerinalang.model.expressions.ResourceInvocationExpr;
 import org.ballerinalang.model.values.BException;
+import org.ballerinalang.services.ErrorHandlerUtils;
+import org.ballerinalang.util.exceptions.BallerinaException;
+
+import static java.lang.Thread.sleep;
 
 /**
  * {@link BLangNonBlockingExecutor} is a non-blocking and self driven Ballerina Executor.
@@ -36,31 +40,66 @@ public class BLangNonBlockingExecutor extends BLangAbstractExecutionVisitor {
     }
 
     public void execute(ResourceInvocationExpr resourceIExpr) {
-        continueExecution(resourceIExpr);
+        resourceInvocation = true;
+        startExecution(resourceIExpr);
     }
 
     public void execute(FunctionInvocationExpr functionInvocationExpr) {
-        continueExecution(functionInvocationExpr);
+        testFunctionInvocation = true;
+        startExecution(functionInvocationExpr);
     }
 
-    public void continueExecution(LinkedNode linkedNode) {
-        linkedNode.accept(this);
-        while (next != null) {
+    public void startExecution(LinkedNode linkedNode) {
+        try {
+            linkedNode.accept(this);
+            // TODO : Improve logic.
+            // Intentionally catching exception outside of the loop and continueExecution after handlingException.
+            // This can cause to grow stack depth. But throwing a runtimeExceptions is unlikely in normal execution
+            // flow.
             try {
-                next.accept(this);
+                while (next != null) {
+                    next.accept(this);
+                }
+            } catch (BallerinaException be) {
+                if (be.getBException() != null) {
+                    handleBException(be.getBException());
+                } else {
+                    handleBException(new BException(be.getMessage()));
+                }
+                continueExecution();
             } catch (RuntimeException e) {
                 handleBException(new BException(e.getMessage()));
+                continueExecution();
+            }
+        } catch (Throwable throwable) {
+            if (resourceInvocation) {
+                ErrorHandlerUtils.handleResourceInvocationError(bContext, next, null, throwable);
+            } else if (testFunctionInvocation) {
+                ErrorHandlerUtils.handleTestFuncInvocationError(bContext, next, null, throwable);
+                throw throwable;
+            } else {
+                ErrorHandlerUtils.handleMainFuncInvocationError(bContext, next, null, throwable);
             }
         }
     }
 
     public void continueExecution() {
-        while (next != null) {
-            try {
+        try {
+            while (next != null) {
                 next.accept(this);
-            } catch (RuntimeException e) {
-                handleBException(new BException(e.getMessage()));
             }
+        } catch (RuntimeException e) {
+            handleBException(new BException(e.getMessage()));
+            continueExecution();
+        }
+    }
+
+    public void holdOn() {
+        try {
+            while (!isExecutionCompleted()) {
+                sleep(100);
+            }
+        } catch (InterruptedException ignore) {
         }
     }
 }

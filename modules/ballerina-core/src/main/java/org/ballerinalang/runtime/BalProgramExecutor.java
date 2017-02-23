@@ -104,9 +104,8 @@ public class BalProgramExecutor {
         // Create the interpreter and Execute
         RuntimeEnvironment runtimeEnv = service.getBLangProgram().getRuntimeEnvironment();
 
-        SymbolName resourceSymbolName = resource.getSymbolName();
-        CallableUnitInfo resourceInfo = new CallableUnitInfo(resourceSymbolName.getName(),
-                resourceSymbolName.getName(), resource.getNodeLocation());
+        CallableUnitInfo resourceInfo = new CallableUnitInfo(resource.getName(),
+                resource.getPackagePath(), resource.getNodeLocation());
 
         BValue[] cacheValues = new BValue[resource.getTempStackFrameSize()];
 
@@ -129,6 +128,7 @@ public class BalProgramExecutor {
                 } else {
                     BLangExecutor executor = new BLangExecutor(runtimeEnv, balContext);
                     new ResourceInvocationExpr(resource, exprs).executeMultiReturn(executor);
+                    balContext.getControlStack().popFrame();
                 }
             }
         } else if (ModeResolver.getInstance().isNonblockingEnabled()) {

@@ -58,5 +58,4 @@ public class ConnectorInitExprEndNode extends AbstractLinkedNode {
     public void setHasGotoBranchID(boolean hasReturningBranch) {
         this.hasReturningBranch = hasReturningBranch;
     }
-
 }
