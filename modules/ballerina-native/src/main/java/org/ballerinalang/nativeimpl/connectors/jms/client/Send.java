@@ -132,8 +132,10 @@ public class Send extends AbstractJMSAction {
                 }
             }
             propertyMap.put(JMSConstants.JMS_MESSAGE_TYPE, JMSConstants.MAP_MESSAGE_TYPE);
-        } else {
+        } else if (messageType.equalsIgnoreCase(JMSConstants.GENERIC_MESSAGE_TYPE)) {
             propertyMap.put(JMSConstants.JMS_MESSAGE_TYPE, JMSConstants.GENERIC_MESSAGE_TYPE);
+        } else {
+            throw new BallerinaException("JMS message type is invalid", context);
         }
         //Getting necessary values from the connector instance.
         propertyMap.put(JMSConstants.NAMING_FACTORY_INITIAL_PARAM_NAME,

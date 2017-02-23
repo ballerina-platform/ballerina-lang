@@ -48,7 +48,14 @@ public class JMSClientTest {
             expectedExceptions = { BallerinaException.class },
             expectedExceptionsMessageRegExp = ".*Connector parameters not defined correctly..*")
     public void testJMSClientConnectorWithoutValidInitialContextFactory() throws BallerinaException {
-        BLangFunctions.invoke(bLangProgram, "jmsClientConnectorTest");
+        BLangFunctions.invoke(bLangProgram, "jmsClientConnectorTestWrongContextFactory");
+    }
+
+    @Test(description = "Test for jms client connector without valid message type",
+            expectedExceptions = { BallerinaException.class },
+            expectedExceptionsMessageRegExp = ".*JMS message type is invalid.*")
+    public void testJMSClientConnectorWithoutValidMessageType() throws BallerinaException {
+        BLangFunctions.invoke(bLangProgram, "jmsClientConnectorTestWrongType");
     }
 
     @AfterClass
