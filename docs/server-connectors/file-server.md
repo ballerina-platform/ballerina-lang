@@ -36,7 +36,7 @@ Add a service level annotation named `Source` and add the key-value pairs to spe
     <td>fileURI</td>
     <td>The URI where the files you want to process are located. This can be a URI to a folder. If it is a folder, all the files in the folder will be processed, one at a time. If the URI points to a single file, the file will be processed when it becomes available at that location.</td>
     <td>Yes</td>
-    <td>A valid file URI</td>
+    <td>A valid file URI. <br/><br/> If the file URI contains a user name or a password, make sure that it does not contain '#' or '?' character.</td>
     <td>-</td>
   </tr>
   <tr>
