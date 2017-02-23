@@ -61,8 +61,8 @@ service Ecommerce {
     }
 
     @http:GET
-    @http:Path ("/products?productId={productId}&regID={regID}")
-    resource productsInfo6 (message m, @http:QueryParam ("productId") string prdID, @http:QueryParam ("regID") string rID) {
+    @http:Path ("/products?productId={prodId}&regID={regID}")
+    resource productsInfo6 (message m, @http:QueryParam ("prodId") string prdID, @http:QueryParam ("regID") string rID) {
         json responseJson;
         message response = {};
         system:println ("Product ID " + prdID);
