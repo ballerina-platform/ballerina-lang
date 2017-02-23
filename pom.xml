@@ -29,7 +29,7 @@
     <groupId>org.ballerinalang</groupId>
     <artifactId>swagger-ballerina</artifactId>
     <packaging>pom</packaging>
-    <version>0.8.0-SNAPSHOT</version>
+    <version>0.8.1-SNAPSHOT</version>
     <name>WSO2 Swagger Ballerina Tooling - Parent</name>
     <url>http://wso2.org</url>
 
@@ -167,7 +167,7 @@
     </build>
 
     <properties>
-        <ballerina.version>0.8.0</ballerina.version>
+        <ballerina.version>0.8.1-SNAPSHOT</ballerina.version>
         <testng.version>6.9.4</testng.version>
         <slf4j-version>1.7.12</slf4j-version>
         <jcommander-version>1.60</jcommander-version>
