@@ -761,7 +761,8 @@ public class BallerinaPsiImplUtil {
             Collection<? extends PsiElement> variableDefinitions =
                     XPath.findAll(BallerinaLanguage.INSTANCE, context, "//variableDefinitionStatement/Identifier");
             for (PsiElement variableDefinition : variableDefinitions) {
-                if (!variableDefinition.getText().contains("IntellijIdeaRulezzz")) {
+                if (!variableDefinition.getText().contains("IntellijIdeaRulezzz") &&
+                        !variableDefinition.getParent().getText().contains("IntellijIdeaRulezzz")) {
                     results.add(variableDefinition);
                 }
             }
