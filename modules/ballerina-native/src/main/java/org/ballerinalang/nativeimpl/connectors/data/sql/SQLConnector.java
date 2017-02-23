@@ -60,14 +60,6 @@ public class SQLConnector extends AbstractNativeConnector {
     private String databaseName;
 
     public String getDatabaseName() {
-        if (databaseName == null) {
-            try (Connection con = getSQLConnection()) {
-                databaseName = con.getMetaData().getDatabaseProductName().toLowerCase(Locale.ENGLISH);
-            } catch (SQLException e) {
-                throw new BallerinaException(
-                        "error in get connection: " + SQLConnector.CONNECTOR_NAME + ": " + e.getMessage(), e);
-            }
-        }
         return databaseName;
     }
 
@@ -79,6 +71,12 @@ public class SQLConnector extends AbstractNativeConnector {
     public boolean init(BValue[] bValueRefs) {
         BMap options = (BMap) bValueRefs[0];
         buildDataSource(options);
+        try (Connection con = getSQLConnection()) {
+            databaseName = con.getMetaData().getDatabaseProductName().toLowerCase(Locale.ENGLISH);
+        } catch (SQLException e) {
+            throw new BallerinaException(
+                    "error in get connection: " + SQLConnector.CONNECTOR_NAME + ": " + e.getMessage(), e);
+        }
         return true;
     }
 

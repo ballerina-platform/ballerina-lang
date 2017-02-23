@@ -57,14 +57,8 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
         PreparedStatement stmt = null;
         ResultSet rs = null;
         try {
-            boolean mysql = connector.getDatabaseName().contains("mysql");
             conn = connector.getSQLConnection();
-            if (mysql) {
-                stmt = conn.prepareStatement(query, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
-                stmt.setFetchSize(Integer.MIN_VALUE);
-            } else {
-                stmt = conn.prepareStatement(query);
-            }
+            stmt = getPreparedStatement(conn, connector, query);
             createProcessedStatement(stmt, parameters);
             rs = stmt.executeQuery();
             BDataTable datatable = new BDataTable(new SQLDataIterator(conn, stmt, rs), new HashMap<>(),
@@ -136,7 +130,7 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
         ResultSet rs = null;
         try {
             conn = connector.getSQLConnection();
-            stmt = conn.prepareCall(query);
+            stmt = getPreparedCall(conn, connector, query);
             createProcessedStatement(stmt, parameters);
             boolean hasResult = stmt.execute();
             if (hasResult) {
@@ -151,6 +145,37 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
             SQLConnectorUtils.cleanupConnection(rs, stmt, conn);
             throw new BallerinaException("execute stored procedure failed: " + e.getMessage(), e);
         }
+    }
+
+    private PreparedStatement getPreparedStatement(Connection conn, SQLConnector connector, String query)
+            throws SQLException {
+        PreparedStatement stmt;
+        boolean mysql = connector.getDatabaseName().contains("mysql");
+        if (mysql) {
+            stmt = conn.prepareStatement(query, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
+            // To fulfill OBL_UNSATISFIED_OBLIGATION_EXCEPTION_EDGE findbugs validation.
+            try {
+                stmt.setFetchSize(Integer.MIN_VALUE);
+            } catch (SQLException e) {
+                stmt.close();
+            }
+        } else {
+            stmt = conn.prepareStatement(query);
+        }
+        return stmt;
+    }
+
+    private CallableStatement getPreparedCall(Connection conn, SQLConnector connector, String query)
+            throws SQLException {
+        CallableStatement stmt;
+        boolean mysql = connector.getDatabaseName().contains("mysql");
+        if (mysql) {
+            stmt = conn.prepareCall(query, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
+            stmt.setFetchSize(Integer.MIN_VALUE);
+        } else {
+            stmt = conn.prepareCall(query);
+        }
+        return stmt;
     }
 
     private ArrayList<BDataTable.ColumnDefinition> getColumnDefinitions(ResultSet rs) throws SQLException {
