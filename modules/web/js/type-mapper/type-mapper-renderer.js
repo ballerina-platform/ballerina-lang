@@ -282,25 +282,27 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
      */
     TypeMapperRenderer.prototype.removeStruct = function (name) {
         var structId = name + this.viewIdSeperator + this.viewId;
-        var structConns;
-        var lookupClass = "property";
+        if ($("#" + structId) != null) {
+            var structConns;
+            var lookupClass = "property";
 
-        if ($("#" + structId).attr('class').includes("struct")) {
-            lookupClass = "jstree-anchor";
-            structConns = $('div[id^="' + this.jsTreePrefix + this.viewIdSeperator + structId + '"]')
-                .find('.' + lookupClass);
-        } else {
-            structConns = $('div[id^="' + structId + '"]');
-        }
-
-        var self = this;
-        _.forEach(structConns, function (structCon) {
-            if (_.includes(structCon.className, lookupClass)) {
-                self.jsPlumbInstance.remove(structCon.id);
+            if ($("#" + structId).attr('class').includes("struct")) {
+                lookupClass = "jstree-anchor";
+                structConns = $('div[id^="' + this.jsTreePrefix + this.viewIdSeperator + structId + '"]')
+                    .find('.' + lookupClass);
+            } else {
+                structConns = $('div[id^="' + structId + '"]');
             }
-        });
-        $("#" + structId).remove();
-        this.dagrePosition(this);
+
+            var self = this;
+            _.forEach(structConns, function (structCon) {
+                if (_.includes(structCon.className, lookupClass)) {
+                    self.jsPlumbInstance.remove(structCon.id);
+                }
+            });
+            $("#" + structId).remove();
+            this.dagrePosition(this);
+        }
     };
 
     /**
