@@ -350,7 +350,7 @@ define(['lodash', './node', '../utils/common-utils'], function (_, ASTNode, Comm
 
 
     /**
-     * 
+     *
      * @param identifier
      * @param properties
      * @returns {*}
@@ -430,9 +430,9 @@ define(['lodash', './node', '../utils/common-utils'], function (_, ASTNode, Comm
         this.setTypeMapperName(jsonNode.type_mapper_name, {doSilently: true});
         var returnNode = undefined;
         _.each(jsonNode.children, function (childNode) {
-            if(childNode.type === 'return_type'){
+            if (childNode.type === 'return_type') {
                 returnNode = childNode;
-            }else{
+            } else {
                 var child = ballerinaASTFactory.createFromJson(childNode);
                 self.addChild(child);
                 child.initFromJson(childNode);
@@ -448,15 +448,28 @@ define(['lodash', './node', '../utils/common-utils'], function (_, ASTNode, Comm
 
 
         _.forEach(blockStatementNode.getChildren(), function (childNode) {
-            _.remove(self.getChildren(), function(child){
+            _.remove(self.getChildren(), function (child) {
                 return _.isEqual(childNode.getID(), child.getID());
             });
         });
 
         var returnASTNode = ballerinaASTFactory.createReturnType();
         returnASTNode.setType(returnNode.parameter_type);
-        
+
         self.addChild(returnASTNode);
+
+        var returnStatement = _.find(blockStatementNode.getChildren(), function (child) {
+            return ballerinaASTFactory.isReturnStatement(child);
+        });
+
+        var variableReferenceExpression = _.find(returnStatement.getChildren(), function (child) {
+            return ballerinaASTFactory.isVariableReferenceExpression(child);
+        });
+
+        if (!variableReferenceExpression) {
+            var returnStatementVariableReferenceExpression = ballerinaASTFactory.createVariableReferenceExpression();
+            returnStatement.addChild(returnStatementVariableReferenceExpression);
+        }
 
         // _.forEach(self.getChildren(), function (outerChild) {
         //     _.forEach(blockStatementNode.getChildren(), function (child) {
