@@ -78,7 +78,8 @@ public enum SemanticErrors {
     BREAK_STMT_NOT_ALLOWED_HERE("break.stmt.not.allowed.here", "SEMANTIC_0053"),
     UNDEFINED_TYPE_MAPPER("undefined.type.mapper", "SEMANTIC_0054"),
     UNDEFINED_ACTION_IN_CONNECTOR("undefined.action.in.connector", "SEMANTIC_0055"),
-    INCOMPATIBLE_TYPES_UNKNOWN_FOUND("incompatible.types.unknown.found", "SEMANTIC_0056");
+    INCOMPATIBLE_TYPES_UNKNOWN_FOUND("incompatible.types.unknown.found", "SEMANTIC_0056"),
+    BUILT_IN_TYPE_NAMES_NOT_ALLOWED_AS_IDENTIFIER("built.in.type.names.not.allowed.as.identifier", "SEMANTIC_0057");
 
     private String errorMsgKey;
     private String errorCode;
