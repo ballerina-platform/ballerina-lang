@@ -27,7 +27,7 @@ define(['lodash', 'event_channel', './ballerina-env-factory', 'environment_conte
      */
     var BallerinaEnvironment = function(args) {
         this._packages = _.get(args, 'packages', []);
-        this._types = _.get(args, 'types', ['message', 'connection', 'string', 'boolean', 'int', 'double', 'float', 'long', 'exception', 'json', 'xml', 'map', 'string[]', 'int[]']);
+        this._types = _.get(args, 'types', ['message', 'string', 'boolean', 'int', 'double', 'float', 'long', 'exception', 'json', 'xml', 'map', 'string[]', 'int[]']);
         this.initializePackages();
     };
 
