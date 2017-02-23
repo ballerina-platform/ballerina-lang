@@ -42,7 +42,7 @@ public class VariableReference extends BallerinaElementReference {
     @Override
     public boolean isDefinitionNode(PsiElement def) {
         return def instanceof VariableDefinitionNode || def instanceof VariableReferenceNode
-                || def instanceof ParameterNode || def instanceof NamedParameterNode;
+                || def instanceof NamedParameterNode;
     }
 
     @NotNull
@@ -83,6 +83,17 @@ public class VariableReference extends BallerinaElementReference {
                 if (!(commonContext instanceof FunctionBodyNode || commonContext instanceof ConnectorBodyNode)) {
                     return false;
                 }
+            } else if (definitionElement instanceof NamedParameterNode) {
+                // The parent of myElement must be a VariableReferenceNode. If this is not checked, The named
+                // parameter definition will also be added as a usage when we use Find Usages.
+                if(!(myElement.getParent() instanceof VariableReferenceNode)){
+                    return false;
+                }
+                PsiElement nameIdentifier = ((NamedParameterNode) definitionElement).getNameIdentifier();
+                if (nameIdentifier == null) {
+                    return false;
+                }
+                return refName.equals(nameIdentifier.getText());
             }
             return refName != null && defName != null && refName.equals(defName);
         }
