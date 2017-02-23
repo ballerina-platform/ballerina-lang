@@ -1,6 +1,6 @@
 # Write your First Program
 
-Now that you’ve taken the [Quick Tour](../quick-tour.md), let's dig a little deeper write your first Ballerina integration program. This tutorial will teach you how to run Ballerina in standalone and server mode, use the editor to build your integration, understand the key concepts, and get familiar with the Ballerina language.
+Now that you’ve taken the [Quick Tour](../quick-tour.md), let's dig a little deeper and write your first Ballerina integration program. This tutorial will teach you how to run Ballerina in standalone and server mode, use the editor to build your integration, understand the key concepts, and get familiar with the Ballerina language.
 
 ## Running Ballerina
 
@@ -12,13 +12,13 @@ ballerina run main helloWorld.bal
 
 After the HelloWorld program executed, Ballerina stopped. This approach is called **standalone mode**, and it's useful when you want to execute a program once and then stop as soon as it has finished its job. It runs the `main()` function of the program you specify and then exits. 
 
-You can also run Ballerina as a **server**, so that it can deploy one or more services that wait for requests. To see how this works, let's go to your `<ballerina_home>/samples/helloWorldService` directory, and then run Ballerina in server mode and deploy the HelloWorldService program (if you're on UNIX/Linux, type `./ballerina` instead of `ballerina`):
+You can also run Ballerina as a **server**, so that it can deploy one or more services that wait for requests. To see how this works, let's go to your `<ballerina_home>/samples/helloWorldService` directory, and then run Ballerina in server mode and deploy the HelloWorldService program:
 
 ```
 ballerina run service helloWorldService.bal
 ```
 
-In this case, Ballerina ran and deployed the HelloWorldService program as a service, which is waiting for a request. Let's send it one now. The Ballerina server is available at `localhost:9090`, and HelloWorldService is available at context `hello`. Open another command line and use the [curl](https://curl.haxx.se) client to call the service as follows:
+In this case, Ballerina ran and deployed the HelloWorldService program as a service, which is waiting for a request. Let's send it one now. The Ballerina server is available at `localhost:9090`, and HelloWorldService is available at context `hello`. Open another command line window and use the [curl](https://curl.haxx.se) client to call the service as follows:
 
 ```
 curl -v http://localhost:9090/hello
@@ -90,7 +90,7 @@ This completes the sequence, so you are now ready to save and run your integrati
 ### Run the program
 
 1. At the command prompt, navigate to your `<ballerina_home>/samples` directory. 
-1. Enter the command to run the Ballerina server and deploy your myEcho program (if you're running on UNIX/Linux, type `./ballerina` instead of `ballerina`):
+1. Enter the command to run the Ballerina server and deploy your myEcho program:
 
   ```
   ballerina run service ../samples/myEcho.bal
@@ -103,7 +103,7 @@ Your service is now deployed and running on the Ballerina server.
 From a separate command prompt, use curl to send a request to your program:
 
 ```
-curl -v http://localhost:9090/echo2 -d "Hello World......"
+curl -v http://localhost:9090/myecho -d "Hello World......"
 ```
 
 The service receives the request, takes the text `Hello World......` from the incoming message, converts it into a response without the client headers, and sends it back to the command line where the request was sent.
@@ -116,4 +116,4 @@ Now that you're familiar with running Ballerina in standalone and server mode, u
 
 * Read the [Key Concepts](../key-concepts.md) page to familiarize yourself with the rest of the main features you need to know about.
 * Browse through the [Samples](../samples.md) and use them as templates for your own programs.
-* See the [Language Reference](../lang-ref/index.md) for complete information on using the Ballerina language. 
+* See the [Language Reference](../lang-ref/lang-overview.md) for complete information on using the Ballerina language. 
