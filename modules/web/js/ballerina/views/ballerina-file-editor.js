@@ -459,11 +459,17 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
             var sourceViewBtn = $(this._container).find(_.get(this._viewOptions, 'controls.view_source_btn'));
             sourceViewBtn.click(function () {
                 lastRenderedTimestamp = self._file.getLastPersisted();
-                var generatedSource = self.generateSource();
                 self.toolPalette.hide();
-                // Get the generated source and append it to the source view container's content
-                self._sourceView.setContent(generatedSource);
-                self._sourceView.format(true);
+                // If the file has changed we will add the generated source to source view
+                // If not we will display the content as it is in the file.
+                if(self._file.isDirty()){
+                    var generatedSource = self.generateSource();
+                    self._sourceView.setContent(generatedSource);
+                    self._sourceView.format(true);
+                } else {
+                    self._sourceView.setContent(self._file.getContent());
+                }
+
                 sourceViewContainer.show();
                 swaggerViewContainer.hide();
                 self._$designViewContainer.hide();
