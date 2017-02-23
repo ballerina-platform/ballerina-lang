@@ -17,12 +17,28 @@
 package org.ballerinalang.containers.docker.cmd;
 
 import org.ballerinalang.containers.Constants;
+import org.ballerinalang.containers.docker.BallerinaDockerClient;
+import org.ballerinalang.containers.docker.exception.BallerinaDockerClientException;
+import org.ballerinalang.containers.docker.utils.TestUtils;
+import org.ballerinalang.containers.docker.utils.Utils;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import java.io.ByteArrayOutputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.PrintStream;
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 /**
  * Test DockerCmd functionality.
@@ -82,5 +98,327 @@ public class DockerCmdTest {
                 "Invalid image name returned");
         Assert.assertEquals(imageNameParts[1], Constants.IMAGE_VERSION_LATEST,
                 "Invalid image version returned");
+    }
+
+    @Test
+    public void testGetName() {
+        Assert.assertEquals(new DockerCmd().getName(), "docker", "The Docker command name should be \"docker\"");
+    }
+
+    @Test
+    public void testExecuteSuccessfulServiceImageCreation()
+            throws NoSuchFieldException, IllegalAccessException, InstantiationException,
+            FileNotFoundException, NoSuchMethodException, InvocationTargetException {
+
+        Class<DockerCmd> cmdClass = DockerCmd.class;
+        DockerCmd dockerCmd = cmdClass.newInstance();
+
+        Field dockerClientField = cmdClass.getDeclaredField("dockerClient");
+        dockerClientField.setAccessible(true);
+        dockerClientField.set(dockerCmd, new TestBallerinaDockerClient());
+
+        Field packageNameField = cmdClass.getDeclaredField("packagePathNames");
+        packageNameField.setAccessible(true);
+        List<Path> packageList = TestUtils.getTestServiceAsPathList();
+        List<String> packageListStr = new ArrayList<>();
+        packageListStr.add(packageList.get(0).toString());
+        packageNameField.set(dockerCmd, packageListStr);
+
+        Field assumeYesField = cmdClass.getDeclaredField("assumeYes");
+        assumeYesField.setAccessible(true);
+        assumeYesField.set(dockerCmd, true);
+
+        ByteArrayOutputStream testOutputStream = new ByteArrayOutputStream();
+        PrintStream testPrintStream = new PrintStream(testOutputStream);
+        Field sysout = cmdClass.getDeclaredField("outStream");
+        sysout.setAccessible(true);
+        sysout.set(dockerCmd, testPrintStream);
+
+        dockerCmd.execute();
+
+        String testResultString = new String(testOutputStream.toByteArray(), StandardCharsets.UTF_8);
+        String[] outLines = testResultString.split("\n");
+        Assert.assertEquals(outLines[1], "Docker image testservice:latest successfully built.");
+    }
+
+    @Test
+    public void testExecuteSuccessfulMainImageCreation()
+            throws NoSuchFieldException, IllegalAccessException, InstantiationException,
+            FileNotFoundException, NoSuchMethodException, InvocationTargetException {
+
+        Class<DockerCmd> cmdClass = DockerCmd.class;
+        DockerCmd dockerCmd = cmdClass.newInstance();
+
+        Field dockerClientField = cmdClass.getDeclaredField("dockerClient");
+        dockerClientField.setAccessible(true);
+        dockerClientField.set(dockerCmd, new TestBallerinaDockerClient());
+
+        Field packageNameField = cmdClass.getDeclaredField("packagePathNames");
+        packageNameField.setAccessible(true);
+        List<Path> packageList = TestUtils.getTestFunctionAsPathList();
+        List<String> packageListStr = new ArrayList<>();
+        packageListStr.add(packageList.get(0).toString());
+        packageNameField.set(dockerCmd, packageListStr);
+
+        Field assumeYesField = cmdClass.getDeclaredField("assumeYes");
+        assumeYesField.setAccessible(true);
+        assumeYesField.set(dockerCmd, true);
+
+        ByteArrayOutputStream testOutputStream = new ByteArrayOutputStream();
+        PrintStream testPrintStream = new PrintStream(testOutputStream);
+        Field sysout = cmdClass.getDeclaredField("outStream");
+        sysout.setAccessible(true);
+        sysout.set(dockerCmd, testPrintStream);
+
+        dockerCmd.execute();
+
+        String testResultString = new String(testOutputStream.toByteArray(), StandardCharsets.UTF_8);
+        String[] outLines = testResultString.split("\n");
+        Assert.assertEquals(outLines[1], "Docker image testfunction:latest successfully built.");
+    }
+
+    @Test(expectedExceptions = {RuntimeException.class})
+    public void testExecuteFailedMainImageCreation()
+            throws NoSuchFieldException, IllegalAccessException, InstantiationException,
+            FileNotFoundException, NoSuchMethodException, InvocationTargetException {
+
+        Class<DockerCmd> cmdClass = DockerCmd.class;
+        DockerCmd dockerCmd = cmdClass.newInstance();
+
+        Field dockerClientField = cmdClass.getDeclaredField("dockerClient");
+        dockerClientField.setAccessible(true);
+        TestBallerinaDockerClient testDockerClient = new TestBallerinaDockerClient();
+        testDockerClient.setMethodException("createMainImage", BallerinaDockerClientException.class);
+        dockerClientField.set(dockerCmd, testDockerClient);
+
+        Field packageNameField = cmdClass.getDeclaredField("packagePathNames");
+        packageNameField.setAccessible(true);
+        List<Path> packageList = TestUtils.getTestFunctionAsPathList();
+        List<String> packageListStr = new ArrayList<>();
+        packageListStr.add(packageList.get(0).toString());
+        packageNameField.set(dockerCmd, packageListStr);
+
+        Field assumeYesField = cmdClass.getDeclaredField("assumeYes");
+        assumeYesField.setAccessible(true);
+        assumeYesField.set(dockerCmd, true);
+
+        ByteArrayOutputStream testOutputStream = new ByteArrayOutputStream();
+        PrintStream testPrintStream = new PrintStream(testOutputStream);
+        Field sysout = cmdClass.getDeclaredField("outStream");
+        sysout.setAccessible(true);
+        sysout.set(dockerCmd, testPrintStream);
+
+        dockerCmd.execute();
+    }
+
+    @Test(expectedExceptions = {RuntimeException.class})
+    public void testExecuteFailedServiceImageCreation()
+            throws NoSuchFieldException, IllegalAccessException, InstantiationException,
+            FileNotFoundException, NoSuchMethodException, InvocationTargetException {
+
+        Class<DockerCmd> cmdClass = DockerCmd.class;
+        DockerCmd dockerCmd = cmdClass.newInstance();
+
+        Field dockerClientField = cmdClass.getDeclaredField("dockerClient");
+        dockerClientField.setAccessible(true);
+        TestBallerinaDockerClient testDockerClient = new TestBallerinaDockerClient();
+        testDockerClient.setMethodException("createServiceImage", BallerinaDockerClientException.class);
+        dockerClientField.set(dockerCmd, testDockerClient);
+
+        Field packageNameField = cmdClass.getDeclaredField("packagePathNames");
+        packageNameField.setAccessible(true);
+        List<Path> packageList = TestUtils.getTestServiceAsPathList();
+        List<String> packageListStr = new ArrayList<>();
+        packageListStr.add(packageList.get(0).toString());
+        packageNameField.set(dockerCmd, packageListStr);
+
+        Field assumeYesField = cmdClass.getDeclaredField("assumeYes");
+        assumeYesField.setAccessible(true);
+        assumeYesField.set(dockerCmd, true);
+
+        ByteArrayOutputStream testOutputStream = new ByteArrayOutputStream();
+        PrintStream testPrintStream = new PrintStream(testOutputStream);
+        Field sysout = cmdClass.getDeclaredField("outStream");
+        sysout.setAccessible(true);
+        sysout.set(dockerCmd, testPrintStream);
+
+        dockerCmd.execute();
+    }
+
+    @Test(expectedExceptions = {RuntimeException.class})
+    public void testExecuteInvalidArchiveType()
+            throws NoSuchFieldException, IllegalAccessException, InstantiationException,
+            FileNotFoundException, NoSuchMethodException, InvocationTargetException {
+
+        Class<DockerCmd> cmdClass = DockerCmd.class;
+        DockerCmd dockerCmd = cmdClass.newInstance();
+
+        Field dockerClientField = cmdClass.getDeclaredField("dockerClient");
+        dockerClientField.setAccessible(true);
+        TestBallerinaDockerClient testDockerClient = new TestBallerinaDockerClient();
+        dockerClientField.set(dockerCmd, testDockerClient);
+
+        Field packageNameField = cmdClass.getDeclaredField("packagePathNames");
+        packageNameField.setAccessible(true);
+        List<String> packageListStr = new ArrayList<>();
+        packageListStr.add(Utils.getResourceFile("ballerina/TestFunction.blz").getAbsolutePath());
+        packageNameField.set(dockerCmd, packageListStr);
+
+        Field assumeYesField = cmdClass.getDeclaredField("assumeYes");
+        assumeYesField.setAccessible(true);
+        assumeYesField.set(dockerCmd, true);
+
+        ByteArrayOutputStream testOutputStream = new ByteArrayOutputStream();
+        PrintStream testPrintStream = new PrintStream(testOutputStream);
+        Field sysout = cmdClass.getDeclaredField("outStream");
+        sysout.setAccessible(true);
+        sysout.set(dockerCmd, testPrintStream);
+
+        dockerCmd.execute();
+    }
+
+    @Test(expectedExceptions = {RuntimeException.class})
+    public void testExecuteNonExistingPackage()
+            throws NoSuchFieldException, IllegalAccessException, InstantiationException,
+            FileNotFoundException, NoSuchMethodException, InvocationTargetException {
+
+        Class<DockerCmd> cmdClass = DockerCmd.class;
+        DockerCmd dockerCmd = cmdClass.newInstance();
+
+        Field dockerClientField = cmdClass.getDeclaredField("dockerClient");
+        dockerClientField.setAccessible(true);
+        TestBallerinaDockerClient testDockerClient = new TestBallerinaDockerClient();
+        dockerClientField.set(dockerCmd, testDockerClient);
+
+        Field packageNameField = cmdClass.getDeclaredField("packagePathNames");
+        packageNameField.setAccessible(true);
+        List<String> packageListStr = new ArrayList<>();
+        ClassLoader classLoader = Utils.class.getClassLoader();
+        URL resource = classLoader.getResource("ballerina");
+        packageListStr.add(resource.toString() + "/NonExistent.arc");
+        packageNameField.set(dockerCmd, packageListStr);
+
+        Field assumeYesField = cmdClass.getDeclaredField("assumeYes");
+        assumeYesField.setAccessible(true);
+        assumeYesField.set(dockerCmd, true);
+
+        ByteArrayOutputStream testOutputStream = new ByteArrayOutputStream();
+        PrintStream testPrintStream = new PrintStream(testOutputStream);
+        Field sysout = cmdClass.getDeclaredField("outStream");
+        sysout.setAccessible(true);
+        sysout.set(dockerCmd, testPrintStream);
+
+        dockerCmd.execute();
+    }
+
+
+    @Test(expectedExceptions = {RuntimeException.class})
+    public void testExecuteNullPackageNames()
+            throws NoSuchFieldException, IllegalAccessException, InstantiationException,
+            FileNotFoundException, NoSuchMethodException, InvocationTargetException {
+
+        Class<DockerCmd> cmdClass = DockerCmd.class;
+        DockerCmd dockerCmd = cmdClass.newInstance();
+
+        Field dockerClientField = cmdClass.getDeclaredField("dockerClient");
+        dockerClientField.setAccessible(true);
+        TestBallerinaDockerClient testDockerClient = new TestBallerinaDockerClient();
+        dockerClientField.set(dockerCmd, testDockerClient);
+
+        Field assumeYesField = cmdClass.getDeclaredField("assumeYes");
+        assumeYesField.setAccessible(true);
+        assumeYesField.set(dockerCmd, true);
+
+        ByteArrayOutputStream testOutputStream = new ByteArrayOutputStream();
+        PrintStream testPrintStream = new PrintStream(testOutputStream);
+        Field sysout = cmdClass.getDeclaredField("outStream");
+        sysout.setAccessible(true);
+        sysout.set(dockerCmd, testPrintStream);
+
+        dockerCmd.execute();
+    }
+
+    /**
+     * Test implementation of {@link BallerinaDockerClient} to mock Docker layer.
+     */
+    class TestBallerinaDockerClient implements BallerinaDockerClient {
+        private Map<String, Class> methodExceptions = new HashMap<>();
+
+        public void setMethodException(String methodName, Class exceptionClass) {
+            methodExceptions.put(methodName, exceptionClass);
+        }
+
+        @Override
+        public String createServiceImage(String packageName, String dockerEnv, List<Path> bPackagePaths,
+                                         String imageName, String imageVersion)
+                throws BallerinaDockerClientException, IOException, InterruptedException {
+
+//            Thread.currentThread().getStackTrace()[1] // get currently running method name
+            String methodName = "createServiceImage";
+            if (methodExceptions.containsKey(methodName)) {
+                Class exceptionClass = methodExceptions.get(methodName);
+                String name = exceptionClass.getSimpleName();
+                switch (name) {
+                    case "BallerinaDockerClientException":
+                        throw new BallerinaDockerClientException("Test exception");
+                    case "IOException":
+                        throw new IOException("Test exception");
+                    case "InterruptedException":
+                        throw new InterruptedException("Test exception");
+                }
+            }
+
+            return packageName.toLowerCase(Locale.getDefault()) + ":" + Constants.IMAGE_VERSION_LATEST;
+        }
+
+        @Override
+        public String createServiceImage(String serviceName, String dockerEnv, String ballerinaConfig,
+                                         String imageName, String imageVersion)
+                throws InterruptedException, BallerinaDockerClientException, IOException {
+
+            throw new BallerinaDockerClientException("Not Implemented.");
+        }
+
+        @Override
+        public String createMainImage(String packageName, String dockerEnv, List<Path> bPackagePaths,
+                                      String imageName, String imageVersion)
+                throws BallerinaDockerClientException, IOException, InterruptedException {
+
+            String methodName = "createMainImage";
+            if (methodExceptions.containsKey(methodName)) {
+                Class exceptionClass = methodExceptions.get(methodName);
+                String name = exceptionClass.getSimpleName();
+                switch (name) {
+                    case "BallerinaDockerClientException":
+                        throw new BallerinaDockerClientException("Test exception");
+                    case "IOException":
+                        throw new IOException("Test exception");
+                    case "InterruptedException":
+                        throw new InterruptedException("Test exception");
+                }
+            }
+
+            return packageName.toLowerCase(Locale.getDefault()) + ":" + Constants.IMAGE_VERSION_LATEST;
+        }
+
+        @Override
+        public String createMainImage(String mainPackageName, String dockerEnv, String ballerinaConfig,
+                                      String imageName, String imageVersion)
+                throws InterruptedException, BallerinaDockerClientException, IOException {
+
+            throw new BallerinaDockerClientException("Not Implemented.");
+        }
+
+        @Override
+        public boolean deleteImage(String packageName, String dockerEnv, String imageName, String imageVersion)
+                throws BallerinaDockerClientException {
+
+            throw new BallerinaDockerClientException("Not Implemented.");
+        }
+
+        @Override
+        public String getImage(String packageName, String dockerEnv) {
+            return null;
+        }
     }
 }
