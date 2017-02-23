@@ -52,7 +52,7 @@ public class DockerCmd implements BLauncherCmd {
 
     private static PrintStream outStream = System.err;
     private JCommander parentCmdParser = null;
-    private BallerinaDockerClient dockerClient;
+    private BallerinaDockerClient dockerClient = new DefaultBallerinaDockerClient();
 
     @Parameter(arity = 1, description = "package names")
     private List<String> packagePathNames;
@@ -122,8 +122,6 @@ public class DockerCmd implements BLauncherCmd {
             outStream.println("ballerina: aborting..\n");
             return;
         }
-
-        dockerClient = new DefaultBallerinaDockerClient();
 
         switch (packageExtension) {
             case BALLERINA_SERVICE_PACKAGE_EXTENSION:

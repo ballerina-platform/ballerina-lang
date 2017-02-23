@@ -24,6 +24,7 @@
             <class name="org.ballerinalang.containers.docker.cmd.validator.DockerHostValidatorTest"/>
             <class name="org.ballerinalang.containers.docker.cmd.validator.DockerImageNameValidatorTest"/>
             <class name="org.ballerinalang.containers.docker.cmd.DockerCmdTest"/>
+            <class name="org.ballerinalang.containers.docker.utils.UtilsTest"/>
         </classes>
     </test>
 </suite>

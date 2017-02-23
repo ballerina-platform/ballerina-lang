@@ -18,7 +18,7 @@
 package org.ballerinalang.containers.docker.exception;
 
 /**
- * Generic exception in Dockerizer Service.
+ * Generic exception in Ballerina Container Support.
  */
 public class BallerinaDockerClientException extends Exception {
     public BallerinaDockerClientException(String message) {
