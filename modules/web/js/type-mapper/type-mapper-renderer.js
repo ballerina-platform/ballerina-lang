@@ -853,6 +853,7 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
 
             $("#" + self.placeHolderName).height(maxTypeHeight + maxYPosition + 55);
             self.jsPlumbInstance.repaintEverything();
+            $(self.viewId).closest(".panel-body").find(".outer-box").mCustomScrollbar("update");
         }
     };
 
