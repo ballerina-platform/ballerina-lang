@@ -8,14 +8,16 @@ A statement can be one of the following:
 - while
 - break
 - fork/join
-- try/catch
-- throw
 - return
 - reply
 - worker initiation
 - worker join
 - action invocation
 - comment
+
+There are also exception-handling statements: try/catch and throw. For more information on these statements, see [Exception Handling](exceptions.md).
+
+The rest of this page describes the statements you can use in your Ballerina program. 
 
 ## Assignment
 
@@ -51,8 +53,6 @@ if (BooleanExpression) {
 
 An `iterate` statement provides a way to iterate through an iterator.
 
-TODO: is this available in the Composer?
-
 ```
 iterate (VariableType VariableName : Iterator) {
   Statement;+
@@ -73,8 +73,6 @@ while (BooleanExpression) {
 
 A `break` statement allows you to terminate the immediately enclosing loop. This is only allowed within the `iterate` or `while` constructs.
 
-TODO: is this available in the Composer?
-
 ```
 break;
 ```
@@ -82,8 +80,6 @@ break;
 ## Fork/Join
 
 A `fork` statement allows you to replicate a message to any number of parallel workers and have them independently operate on the copies of the message. The `join` part of the `fork` statement allows you to define how the caller of `fork` will wait for the parallel workers to complete. 
-
-TODO: is this availabe in the Composer?
 
 ```
 fork (MessageName) {
@@ -109,28 +105,6 @@ where `WorkerNameList` is a list of comma-separated names of workers.
 When the `JoinCondition` has been satisfied, the corresponding slots of the message array will be filled with the returned messages from the workers in the workers' lexical order. If the condition asks for up to some number of results to be available to satisfy the condition, it may be the case that more than that number are available by the time the statements within the join condition are executed. If a particular worker has completed but not sent a response message, or not yet completed, the corresponding message slot will be null.
 
 The `timeout` clause allows one to specify a maximum time (in milliseconds) within which the join condition must be satisfied.
-
-## Exception handling: try/catch and throw
-
-Ballerina supports exception handling as a way to address unexpected scenarios in a Ballerina program. This is provided by the built-in `exception` type, the `try/catch` statement, and the `throw` statement. Furthermore, any function can indicate that it may throw an exception by saying `throws exception`.
-
-The built-in `exception` type has three properties: its category (a string), its message (a string), and its properties (a map). These properties are manipulated using the functions defined in the `ballerina.lang.exception` package.
-
-Note that there is only one built-in exception type, and all exceptions use this type with different values for the category property. All standard exception "types" are defined by category string constants in the `ballerina.lang.exception` package.
-
-The syntax of a `try/catch` is as follows:
-```
-try {
-    Statement;+
-} catch (exception e) {
-    Statement;+
-}
-```
-
-The syntax of a `throw` statement is as follows:
-```
-throw Expression;
-```
 
 ## Return
 

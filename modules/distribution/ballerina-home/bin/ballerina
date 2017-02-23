@@ -68,8 +68,8 @@ done
 # Get standard environment variables
 PRGDIR=`dirname "$PRG"`
 
-# Only set BALLERINA_HOME if not already set
-[ -z "$BALLERINA_HOME" ] && BALLERINA_HOME=`cd "$PRGDIR/.." ; pwd`
+# set BALLERINA_HOME
+BALLERINA_HOME=`cd "$PRGDIR/.." ; pwd`
 
 # For Cygwin, ensure paths are in UNIX format before anything is touched
 if $cygwin; then
@@ -194,7 +194,7 @@ $JAVACMD \
 	-Xbootclasspath/a:"$BALLERINA_XBOOTCLASSPATH" \
 	-Xms256m -Xmx1024m \
 	-XX:+HeapDumpOnOutOfMemoryError \
-	-XX:HeapDumpPath="$BALLERINA_HOME/logs/heap-dump.hprof" \
+	-XX:HeapDumpPath="$BALLERINA_HOME/heap-dump.hprof" \
 	$JAVA_OPTS \
 	-classpath "$BALLERINA_CLASSPATH" \
 	-Djava.endorsed.dirs="$JAVA_ENDORSED_DIRS" \

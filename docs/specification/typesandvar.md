@@ -1,6 +1,6 @@
-xmldocument# Types, Variables & Constants
+# Types, Variables & Constants
 
-The Ballerina type system has value types and reference types. Ballerina comes with a set of built-in reference types and array, struct or iterator type constructors to create new reference types.
+The Ballerina type system has value types and reference types. Ballerina comes with a set of built-in value types, a set of built-in reference types, array & struct type constructors to create new reference types and an iterator type constructor to create new iterators.
 
 The type system is illustrated in the following:
 
@@ -19,6 +19,8 @@ TypeName VariableName [ = Expression];
 ```
 
 Variables can be initialized using the standard literal value syntax for that type of variable or using expressions consisting of literal values and any other variables that are in-scope and already initialized. See the 'Literal Values' subsection below for the syntax for literal values for value types, built-in reference types and user defined reference types.
+
+Note that variable declarations are considered to be statements of the language and can be done any place where a statement is allowed. See [Statements](statements.md).
 
 ## Allocating & Deallocating Variables
 
@@ -39,6 +41,8 @@ Ballerina includes the following value types:
 - string
 
 The types `int` and `float` both support 64-bit IEEE754 arithmetic. The `boolean` type has only two values: `true` and `false`. The `string` type operates similar to value types in that assignment and comparison involve the full value and not the pointer.
+
+> NOTE: Earlier versions of the language (while it was under development) we had additional types such as long and double. Those have been removed but there are some remnants in the implementation. The only valid value types are those listed above and the implementation will be cleaned up shortly.
 
 Value types can be initialized at declaration by assigning a value of that type. If they are not initialized they have the following default values: int: 0, float: 0.0, string: "" (empty string, not null) and boolean: false.
 
@@ -85,6 +89,8 @@ VariableName = [ Expression, Expression, ... ];
 ```
 If there are no expressions given (i.e., the right hand side is `[]`), then the variable will be initialized to an array of length 0. Else it will be array of the same length as the number of expressions with each value being stored in the corresponding index of the array.
 
+> NOTE: We are considering adding support for arrays of arrays (of arrays ...).
+
 ## Built-In Reference Types
 
 Ballerina comes with a pre-defined set of reference types which are key to supporting the types of programs that Ballerina developers are expected to write. These are supported by a set of standard library functions found in the packages `ballerina.lang.*`. This section defines each of these types and defines their usage.
@@ -102,11 +108,9 @@ message VarName = {};
 
 ### Type: `exception`
 
-The `exception` type, like `message`, is an opaque type used to hold an exception. A collection of library functions can use to set and get properties of exceptions, including stack traces. Note that unlike other languages, Ballerina does not allow developers to define subtypes of the exception type and custom exceptions must be thrown by using customer type strings. As such exception type strings starting with "Ballerina:" are reserved for system use only.
+The `exception` type, like `message`, is an opaque type used to hold an exception.
 
-Library functions for accessing information from this type are in the package `ballerina.lang.exceptions`.
-
-> NOTE: There will be more capabilities brought to exceptions in future.
+See [Exception Handling](exceptions.md) for more information on exception handling and the `exception` type.
 
 ### Type: `map`
 
@@ -199,7 +203,7 @@ TypeName~
 ```
 Iterator typed values are navigated through using an `iterate` statement.
 
-> NOTE: Iterators are still not fully consumated. Iterators are currently only available for the built-in types xml and json. In the future we will allow developers to define their own iterators for their types.
+> NOTE: Iterators are still under development and not fully implemented.
 
 ## Type Conversion and Mapping
 

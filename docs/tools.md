@@ -17,18 +17,20 @@ As you work in one view, the diagrams and code are updated in the other views, a
 You can use plug-ins to write Ballerina code in your favorite IDE. The following plug-ins are available in Github:
 
 * [Atom](https://github.com/ballerinalang/plugin-atom)
-* [IntelliJ IDEA] (https://github.com/ballerinalang/plugin-intellij)
+* [IntelliJ IDEA](https://github.com/ballerinalang/plugin-intellij)
+* [Sublime Text 3](https://github.com/ballerinalang/plugin-sublimetext3)
 * [Vim](https://github.com/ballerinalang/plugin-vim)
+* [Visual Studio Code (VS Code)](https://github.com/ballerinalang/plugin-vscode)
 
-## Documentation generator
+## API documentation generator
 
-As you develop new connectors, actions, and functions that you want to share with others, it's important to add documentation that describes each entity and how it's used. Ballerina provides a documentation framework called Docerina that generates API documentation from your annotations in your Ballerina files. You can check it out at https://github.com/ballerinalang/docerina. 
+As you develop new connectors, actions, and functions that you want to share with others, it's important to add API documentation that describes each entity and how it's used. Ballerina provides a framework called **Docerina** that generates API documentation from your annotations in your Ballerina files. You can check it out at https://github.com/ballerinalang/docerina. 
 
 ## Test framework
 
-When you write your code in Ballerina Composer, the syntax is checked for you as you write it. You can also manually test a Ballerina file using the following command:
+When you write your code in Ballerina Composer, the syntax is checked for you as you write it, and you can use the Debug button to step through your program. You can also manually test a Ballerina file using the following command:
 
 ```
 ballerina test <ballerina_file>
 ```
-Ballerina provides a testing framework called Testerina that you can use for your programs. You can check it out at https://github.com/ballerinalang/testerina. 
+Ballerina provides a testing framework called **Testerina** that you can use for your programs. You can check it out at https://github.com/ballerinalang/testerina. 
