@@ -29,6 +29,13 @@ define(([],function (){
                 }
             },
             {
+                id: "user_guide",
+                label: "User Guide",
+                command: {
+                    id: "go-to-user-guide"
+                }
+            },
+            {
                 id: "about",
                 label: "About",
                 command: {
