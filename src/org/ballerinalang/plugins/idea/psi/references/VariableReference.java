@@ -42,7 +42,7 @@ public class VariableReference extends BallerinaElementReference {
     @Override
     public boolean isDefinitionNode(PsiElement def) {
         return def instanceof VariableDefinitionNode || def instanceof VariableReferenceNode
-                || def instanceof NamedParameterNode;
+                || def instanceof ParameterNode || def instanceof NamedParameterNode;
     }
 
     @NotNull
@@ -68,6 +68,9 @@ public class VariableReference extends BallerinaElementReference {
             String defName = id != null ? id.getText() : null;
 
             if (definitionElement instanceof ParameterNode) {
+                if (!(myElement.getParent() instanceof VariableReferenceNode)) {
+                    return false;
+                }
                 // If the common context is file, that means the myElement is not in the scope where the
                 // definitionElement is defined in.
                 PsiElement commonContext = PsiTreeUtil.findCommonContext(definitionElement, myElement);
@@ -86,7 +89,7 @@ public class VariableReference extends BallerinaElementReference {
             } else if (definitionElement instanceof NamedParameterNode) {
                 // The parent of myElement must be a VariableReferenceNode. If this is not checked, The named
                 // parameter definition will also be added as a usage when we use Find Usages.
-                if(!(myElement.getParent() instanceof VariableReferenceNode)){
+                if (!(myElement.getParent() instanceof VariableReferenceNode)) {
                     return false;
                 }
                 PsiElement nameIdentifier = ((NamedParameterNode) definitionElement).getNameIdentifier();
