@@ -86,8 +86,7 @@ public class BTypes {
         builtInTypeNames.add(TypeConstants.DATATABLE_TNAME);
         builtInTypeNames.add(TypeConstants.CONNECTOR_TNAME);
         builtInTypeNames.add(TypeConstants.STRUCT_TNAME);
-
-
+        
         TypeLattice.loadImplicitCastLattice(globalScope);
         TypeLattice.loadExplicitCastLattice(globalScope);
 
