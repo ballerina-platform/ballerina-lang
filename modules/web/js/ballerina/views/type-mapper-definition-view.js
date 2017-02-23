@@ -220,7 +220,7 @@ define(['lodash', 'log', './ballerina-view', './variables-view', './type-struct-
                                     var functionInvocationExp = children[1].getChildren()[0];
                                     var functionSchema = self.getFunctionSchema(functionInvocationExp, self.getDiagramRenderingContext());
                                     if (!(functionSchema.returnType.length > 0 && functionSchema.parameters.length > 0)) {
-                                        alerts.error('The function needs to have atleast one input and out output parameter to be dragged and dropped in the type mapper!');
+                                        alerts.error('The function needs to have atleast one input and output parameter, to be dragged and dropped in to the type mapper!');
                                         return false;
                                     } else {
                                         return true;
@@ -229,7 +229,7 @@ define(['lodash', 'log', './ballerina-view', './variables-view', './type-struct-
                                     var functionInvocationExp = nodeBeingDragged.getChildren()[0];
                                     var functionSchema = self.getFunctionSchema(functionInvocationExp, self.getDiagramRenderingContext());
                                     if (!(functionSchema.returnType.length > 0 && functionSchema.parameters.length > 0)) {
-                                        alerts.error('The function needs to have atleast one input and out output parameter to be dragged and dropped in the type mapper!');
+                                        alerts.error('The function needs to have atleast one input and output parameter to be dragged and dropped in to the type mapper!');
                                         return false;
                                     } else {
                                         return true;
