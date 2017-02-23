@@ -42,8 +42,12 @@ define(['require', 'lodash', 'log', 'event_channel', './abstract-statement-sourc
         };
 
         TypeMapperFunctionInvocationExpressionVisitor.prototype.beginVisitFuncInvocationExpression = function (functionInvocation) {
-            var source = functionInvocation.getFunctionalExpression();
-            source = source.substring(0, source.length - 1);
+            var source = "";
+            if (!_.isNil(functionInvocation.getPackageName()) && !_.isEmpty(functionInvocation.getPackageName())
+                && !_.isEqual(functionInvocation.getPackageName(), 'Current Package')) {
+                source += functionInvocation.getPackageName() + ":";
+            }
+            source += functionInvocation.getFunctionName() + '(';
             this.appendSource(source);
             log.debug('Begin Visit Type Mapper Function Invocation expression - ' + functionInvocation.getFunctionalExpression());
         };
