@@ -48,6 +48,7 @@ define(['lodash', 'log', './node', './import-declaration'],
                     && !_.isEqual(fullPackageName, "Current Package")) {
                     var importDeclaration = self.getFactory().createImportDeclaration();
                     importDeclaration.setPackageName(fullPackageName);
+                    importDeclaration.setParent(self);
                     self.addImport(importDeclaration);
                 }
             };
