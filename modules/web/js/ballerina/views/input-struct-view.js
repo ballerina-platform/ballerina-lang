@@ -47,15 +47,20 @@ define(['lodash', 'log','./ballerina-view','./../ast/resource-parameter', 'typeM
             var self = this;
             this._diagramRenderingContext = diagramRenderingContext;
             var typeStructSchema = this.getSourceInfo().sourceStruct;
+            var typeStructName = this.getSourceInfo().sourceStructName;
             var previousSelection = this.getSourceInfo()[TYPE_MAPPER_COMBOBOX_PREVIOUS_SELECTION];
+            var isAlreadtRenderedInTarget = this.getSourceInfo()[TYPE_MAPPER_COMBOBOX_SOURCE_IS_ALREADY_RENDERED_IN_TARGET];
 
             if(!mapper) {
                 mapper = new TypeMapperRenderer(self.getOnConnectInstance(), self.getOnDisconnectInstance(), this._parentView);
                 this._parentView._typeMapper = mapper;
             }
 
-            if(previousSelection != undefined && previousSelection != TYPE_MAPPER_COMBOBOX_DEFAULT_SELECTION){
+            if(!_.isUndefined(previousSelection) && previousSelection != TYPE_MAPPER_COMBOBOX_DEFAULT_SELECTION){
                 mapper.removeStruct(previousSelection);
+            }
+            if(!_.isUndefined(isAlreadtRenderedInTarget)){
+                mapper.removeStruct(typeStructName);
             }
             mapper.addSourceStruct(typeStructSchema.getAttributesArray(),this.getModel());
         };

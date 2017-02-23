@@ -169,14 +169,33 @@ define(['lodash', 'log', './ballerina-view', './variables-view', './type-struct-
                 var sourceDropDown = $("#" + sourceId + " option:selected");
                 var selectedNewStructNameForSource = sourceDropDown.text();
 
-                if (selectedNewStructNameForSource != self.getSelectedTargetStruct()) {
-                    self.getSourceInfo()[TYPE_MAPPER_COMBOBOX_PREVIOUS_SELECTION] = self.getSelectedSourceStruct();
-                    self.setSelectedSourceStruct(selectedNewStructNameForSource);
-                    if (selectedNewStructNameForSource != TYPE_MAPPER_COMBOBOX_DEFAULT_SELECTION) {
-                        self.getModel().removeResourceParameter();
-                        self.getModel().addResourceParameterChild(selectedNewStructNameForSource, "y");
+//                if (selectedNewStructNameForSource != self.getSelectedTargetStruct()) {
+//                    self.getSourceInfo()[TYPE_MAPPER_COMBOBOX_PREVIOUS_SELECTION] = self.getSelectedSourceStruct();
+//                    self.setSelectedSourceStruct(selectedNewStructNameForSource);
+//                    if (selectedNewStructNameForSource != TYPE_MAPPER_COMBOBOX_DEFAULT_SELECTION) {
+//                        self.getModel().removeResourceParameter();
+//                        self.getModel().addResourceParameterChild(selectedNewStructNameForSource, "y");
+//                    }
+//                } else {
+//                    self.setSourceSchemaNameToComboBox('#sourceStructs' + self.getModel().id, self.getSelectedSourceStruct());
+//                }
+
+                if (selectedNewStructNameForSource != TYPE_MAPPER_COMBOBOX_DEFAULT_SELECTION && selectedNewStructNameForSource
+                    != self.getSelectedSourceStruct()) {
+                    if(selectedNewStructNameForSource == self.getSelectedTargetStruct()){
+
+                        self.getSourceInfo()[TYPE_MAPPER_COMBOBOX_SOURCE_IS_ALREADY_RENDERED_IN_TARGET] = true;
+                        self.getModel().removeReturnType();
+                        self.setSelectedTargetStruct(TYPE_MAPPER_COMBOBOX_DEFAULT_SELECTION);
+                        self.setTargetSchemaNameToComboBox('#targetStructs' + self.getModel().id, self.getSelectedTargetStruct());
+
+                    }else{
+                        self.getSourceInfo()[TYPE_MAPPER_COMBOBOX_SOURCE_IS_ALREADY_RENDERED_IN_TARGET] = false;
                     }
-                } else {
+                    self.getSourceInfo()[TYPE_MAPPER_COMBOBOX_PREVIOUS_SELECTION] = self.getSelectedSourceStruct();
+                    self.getModel().removeResourceParameter();
+                    self.getModel().addResourceParameterChild(selectedNewStructNameForSource, "y");
+                }else if(selectedNewStructNameForSource == TYPE_MAPPER_COMBOBOX_DEFAULT_SELECTION){
                     self.setSourceSchemaNameToComboBox('#sourceStructs' + self.getModel().id, self.getSelectedSourceStruct());
                 }
             });
@@ -185,21 +204,42 @@ define(['lodash', 'log', './ballerina-view', './variables-view', './type-struct-
                 var targetDropDown = $("#" + targetId + " option:selected");
                 var selectedStructNameForTarget = targetDropDown.text();
 
-                if (selectedStructNameForTarget != self.getSelectedSourceStruct()) {
-                    self.getTargetInfo()[TYPE_MAPPER_COMBOBOX_PREVIOUS_SELECTION] = self.getSelectedTargetStruct();
-                    self.setSelectedTargetStruct(selectedStructNameForTarget);
-                    if (selectedStructNameForTarget != TYPE_MAPPER_COMBOBOX_DEFAULT_SELECTION) {
-                        self.getModel().removeReturnType();
-                        self.getModel().addReturnTypeChild(selectedStructNameForTarget, "x");
-                        self.getModel().fillReturnStatement("x");
-                        self.getModel().fillVariableDefStatement(selectedStructNameForTarget, "x");
+//                if (selectedStructNameForTarget != self.getSelectedSourceStruct()) {
+//                    self.getTargetInfo()[TYPE_MAPPER_COMBOBOX_PREVIOUS_SELECTION] = self.getSelectedTargetStruct();
+//                    self.setSelectedTargetStruct(selectedStructNameForTarget);
+//                    if (selectedStructNameForTarget != TYPE_MAPPER_COMBOBOX_DEFAULT_SELECTION) {
+//                        self.getModel().removeReturnType();
+//                        self.getModel().addReturnTypeChild(selectedStructNameForTarget, "x");
+//                        self.getModel().fillReturnStatement("x");
+//                        self.getModel().fillVariableDefStatement(selectedStructNameForTarget, "x");
+//                    }
+//                } else {
+//                    self.setTargetSchemaNameToComboBox('#targetStructs' + self.getModel().id, self.getSelectedTargetStruct());
+//                }
+
+                if (selectedStructNameForTarget != TYPE_MAPPER_COMBOBOX_DEFAULT_SELECTION && selectedStructNameForTarget
+                    != self.getSelectedTargetStruct()) {
+                    if(selectedStructNameForTarget == self.getSelectedSourceStruct()){
+
+                        self.getTargetInfo()[TYPE_MAPPER_COMBOBOX_SOURCE_IS_ALREADY_RENDERED_IN_TARGET] = true;
+                        self.getModel().removeResourceParameter();
+                        self.setSelectedSourceStruct(TYPE_MAPPER_COMBOBOX_DEFAULT_SELECTION);
+                        self.setSourceSchemaNameToComboBox('#sourceStructs' + self.getModel().id, self.getSelectedSourceStruct());
+
+                    }else{
+                        self.getTargetInfo()[TYPE_MAPPER_COMBOBOX_TARGET_IS_ALREADY_RENDERED_IN_SOURCE] = false;
                     }
-                } else {
+                    self.getTargetInfo()[TYPE_MAPPER_COMBOBOX_PREVIOUS_SELECTION] = self.getSelectedTargetStruct();
+                    self.getModel().removeReturnType();
+                    self.getModel().addReturnTypeChild(selectedStructNameForTarget, "x");
+                    self.getModel().fillReturnStatement("x");
+                    self.getModel().fillVariableDefStatement(selectedStructNameForTarget, "x");
+                }else if(selectedStructNameForTarget == TYPE_MAPPER_COMBOBOX_DEFAULT_SELECTION){
                     self.setTargetSchemaNameToComboBox('#targetStructs' + self.getModel().id, self.getSelectedTargetStruct());
                 }
             });
-            this.getModel().accept(this);
 
+            this.getModel().accept(this);
             this.getModel().on('child-added', function (child) {
                 self.visit(child);
             });
@@ -393,12 +433,12 @@ define(['lodash', 'log', './ballerina-view', './variables-view', './type-struct-
                 self.getBlockStatementView().initializeConnections();
             }
 
-            self.getSourceInfo()["sourceStructName"] = sourceStructName;
+            self.getSourceInfo()[TYPE_MAPPER_SOURCE_STRUCT_NAME] = sourceStructName;
             var predefinedStructs = self.getSourceInfo().predefinedStructs;
 
             _.each(predefinedStructs, function (struct) {
                 if (struct.getStructName() == sourceStructName) {
-                    self.getSourceInfo()["sourceStruct"] = struct;
+                    self.getSourceInfo()[TYPE_MAPPER_SOURCE_STRUCT_SCHEMA] = struct;
                     return false;
                 }
             });
@@ -429,12 +469,12 @@ define(['lodash', 'log', './ballerina-view', './variables-view', './type-struct-
                 self.getBlockStatementView().initializeConnections();
             }
 
-            self.getTargetInfo()["targetStructName"] = targetStructName;
+            self.getTargetInfo()[TYPE_MAPPER_TARGET_STRUCT_NAME] = targetStructName;
             var predefinedStructs = self.getTargetInfo().predefinedStructs;
 
             _.each(predefinedStructs, function (struct) {
                 if (struct.getStructName() == targetStructName) {
-                    self.getTargetInfo()["targetStruct"] = struct;
+                    self.getTargetInfo()[TYPE_MAPPER_TARGET_STRUCT_SCHEMA] = struct;
                     return false;
                 }
             });
