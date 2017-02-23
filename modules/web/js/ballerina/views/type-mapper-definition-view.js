@@ -17,8 +17,9 @@
  */
 define(['lodash', 'log', './ballerina-view', './variables-view', './type-struct-definition-view',
         'ballerina/ast/ballerina-ast-factory', './svg-canvas', 'typeMapper', './input-struct-view', './output-struct-view', './type-mapper-statement-view',
-        './type-mapper-block-statement-view', 'constants', './../ast/module', 'select2'],
-    function (_, log, BallerinaView, VariablesView, TypeStructDefinition, BallerinaASTFactory, SVGCanvas, TypeMapper, InputStructView, OutputStructView, TypeMapperStatement, TypeMapperBlockStatement, Constants, AST, select2) {
+        './type-mapper-block-statement-view', 'constants', './../ast/module', 'select2', 'alerts'],
+    function (_, log, BallerinaView, VariablesView, TypeStructDefinition, BallerinaASTFactory, SVGCanvas, TypeMapper,
+              InputStructView, OutputStructView, TypeMapperStatement, TypeMapperBlockStatement, Constants, AST, select2, alerts) {
         var TypeMapperDefinitionView = function (args) {
             SVGCanvas.call(this, args);
 
@@ -218,11 +219,21 @@ define(['lodash', 'log', './ballerina-view', './variables-view', './type-struct-
                                     var children = nodeBeingDragged.getChildren();
                                     var functionInvocationExp = children[1].getChildren()[0];
                                     var functionSchema = self.getFunctionSchema(functionInvocationExp, self.getDiagramRenderingContext());
-                                    return functionSchema.returnType.length > 0 && functionSchema.parameters.length > 0
+                                    if (!(functionSchema.returnType.length > 0 && functionSchema.parameters.length > 0)) {
+                                        alerts.error('The function needs to have atleast one input and out output parameter to be dragged and dropped in the type mapper!');
+                                        return false;
+                                    } else {
+                                        return true;
+                                    }
                                 } else if (BallerinaASTFactory.isFunctionInvocationStatement(nodeBeingDragged)) {
                                     var functionInvocationExp = nodeBeingDragged.getChildren()[0];
                                     var functionSchema = self.getFunctionSchema(functionInvocationExp, self.getDiagramRenderingContext());
-                                    return functionSchema.returnType.length > 0 && functionSchema.parameters.length > 0
+                                    if (!(functionSchema.returnType.length > 0 && functionSchema.parameters.length > 0)) {
+                                        alerts.error('The function needs to have atleast one input and out output parameter to be dragged and dropped in the type mapper!');
+                                        return false;
+                                    } else {
+                                        return true;
+                                    }
                                 } else {
                                     return false;
                                 }
