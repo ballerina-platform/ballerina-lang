@@ -15,6 +15,7 @@ module.exports = {
     plugins: [
         new webpack.optimize.UglifyJsPlugin()
     ],
+    node: { module: "empty", net: "empty", fs: "empty" },
 
     resolve: {
         modules: [path.resolve('./modules/web/lib'), path.resolve('./modules/web/js'), path.resolve('./node_modules')],
