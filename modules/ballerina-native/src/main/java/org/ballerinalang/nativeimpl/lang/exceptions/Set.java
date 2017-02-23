@@ -35,7 +35,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
         packageName = "ballerina.lang.exceptions",
         functionName = "set",
         args = {@Argument(name = "e", type = TypeEnum.EXCEPTION),
-                @Argument(name = "message", type = TypeEnum.STRING),
+                @Argument(name = "m", type = TypeEnum.STRING),
                 @Argument(name = "category", type = TypeEnum.STRING)},
         isPublic = true
 )

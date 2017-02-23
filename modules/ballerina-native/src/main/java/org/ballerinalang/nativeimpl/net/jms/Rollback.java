@@ -35,7 +35,7 @@ import org.wso2.carbon.messaging.CarbonMessage;
  * To rollback the transactions.
  */
 @BallerinaFunction(packageName = "ballerina.net.jms", functionName = "rollback", args = {
-        @Argument(name = "message", type = TypeEnum.MESSAGE) }, isPublic = true)
+        @Argument(name = "m", type = TypeEnum.MESSAGE) }, isPublic = true)
 @BallerinaAnnotation(annotationName = "Description", attributes = { @Attribute(name = "value",
         value = "Session rollback action implementation for jms connector when using jms session transaction mode") })
 @BallerinaAnnotation(annotationName = "Param", attributes = { @Attribute(name = "message",

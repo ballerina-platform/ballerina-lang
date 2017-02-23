@@ -4,7 +4,7 @@ Each Ballerina program represents a discrete unit of functionality that performs
 
 As you create your program, there are several constructs available that you can use:
 
-* [Service](lang-ref/services.md): When defining a Ballerina program as a service instead of an executable program, the `service` construct acts as the top-level container that holds all the integration logic and can interact with the rest of the world. Its base path is the context part of the URL that you use when sending requests to the service. Note that you can have multiple services in a single Ballerina program, each with their own base path. This is useful in more complex scenarios like the Content-Based Routing sample.  
+* [Service](lang-ref/services.md): When defining a Ballerina program as a service instead of an executable program, the `service` construct acts as the top-level container that holds all the integration logic and can interact with the rest of the world. Its base path is the context part of the URL that you use when sending requests to the service.
 * [Resource](lang-ref/resources.md): A resource is a single request handler within a service. When you create a service in Ballerina using the visual editor, a default resource is automatically created as well. The resource contains the integration logic.  
 * [Function](lang-ref/functions.md): A function is a single operation. Ballerina includes a set of native functions you can call, such as the `ConvertToResponse()` function you used in the [Write your First Program](tutorials/first-program.md) tutorial, and you can define additional functions within your Ballerina programs. 
 
