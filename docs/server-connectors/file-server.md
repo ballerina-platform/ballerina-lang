@@ -15,7 +15,7 @@ service orderProcessService {
 
 ### Step 2: Specify service parameters
 
-Add a service level annotation named "Source" and add the key-value pairs to specify the parameters. The following section describes each key that can be used with a file service. An example is provided after the tables.
+Add a service level annotation named `Source` and add the key-value pairs to specify the parameters. The following section describes each key that can be used with a file service. An example is provided after the tables.
 
 <table>
   <tr>
@@ -77,7 +77,7 @@ name, size, lastModifiedTimestamp</td>
     <td>fileSortAscending</td>
     <td>A Boolean parameter that indicates whether to sort files in ascending order. If set to "true", files will be sorted in ascending order. If set to “false”, files will be sorted in descending order.</td>
     <td>No</td>
-    <td>True or false</td>
+    <td>true or false</td>
     <td>true</td>
   </tr>
 </table>
@@ -90,7 +90,7 @@ name, size, lastModifiedTimestamp</td>
   protocol = "file",
   fileURI = "file:///home/user/orders",
   pollingInterval = "20000",
-  fileSortAttribute = "Size",
+  fileSortAttribute = "size",
   fileSortAscending = "false"
   )
 service orderProcessService {
@@ -144,7 +144,7 @@ service orderProcessService {
 **Note:**
 Here, `file:acknowledge(m)` is a function that is exclusive for file processing. See the function description below for details. 
 
-## Step 5: Add dependency JARs
+### Step 5: Add dependency JARs
 
 When the `fileURI` parameter refers to a location in the local file system, you do not need to add any additional JARs for the file service to work. However, in other cases (for example, when the `fileURI` refers to a remote file or a folder that needs to be accessed via FTP), it may be required to add specific JARs to the `<ballerina_home>/bre/lib` folder. 
 
@@ -210,7 +210,7 @@ The above line sends an acknowledgment to the sender of the message (this sender
 
 Since this function makes the message sender close the input stream and delete the file, this function needs to be called only after message processing is done. 
 
-In case the service does not call the `acknowledge` function, the message sender will wait for 30 seconds (the default wait time; you can specify a different wait time as the `acknowledgementTimeOut` service parameter) and assume that the file was not processed. Furthermore, following the same assumption, the message sender will not delete the file. As a result of this, the file will remain at the same URI to which the service listens, so the service will attempt to process it in the next polling cycle as well. 
+In case the service does not call the `acknowledge` function, the message sender will wait for 30 seconds (30 seconds is the default wait time. This value can be overridden by specifying a different value as the `acknowledgementTimeOut` service parameter) and will delete the file. 
 
 [1]: http://commons.apache.org/compress/
 [2]: http://commons.apache.org/net/

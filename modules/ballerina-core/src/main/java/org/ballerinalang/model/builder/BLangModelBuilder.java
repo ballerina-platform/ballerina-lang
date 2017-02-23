@@ -83,6 +83,7 @@ import org.ballerinalang.model.statements.WhileStmt;
 import org.ballerinalang.model.statements.WorkerInvocationStmt;
 import org.ballerinalang.model.statements.WorkerReplyStmt;
 import org.ballerinalang.model.symbols.BLangSymbol;
+import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.SimpleTypeName;
 import org.ballerinalang.model.types.TypeConstants;
 import org.ballerinalang.model.values.BBoolean;
@@ -393,6 +394,13 @@ public class BLangModelBuilder {
      * @param paramName name of the function parameter
      */
     public void addParam(String paramName, NodeLocation location) {
+        // Check the name against the type names
+        if (BTypes.isBuiltInTypeName(paramName)) {
+            String errMsg = BLangExceptionHelper.constructSemanticError(location,
+                    SemanticErrors.BUILT_IN_TYPE_NAMES_NOT_ALLOWED_AS_IDENTIFIER, paramName);
+            errorMsgs.add(errMsg);
+            return;
+        }
         SymbolName symbolName = new SymbolName(paramName);
 
         // Check whether this constant is already defined.
@@ -948,6 +956,13 @@ public class BLangModelBuilder {
     // Statements
 
     public void addVariableDefinitionStmt(NodeLocation location, String varName, boolean exprAvailable) {
+        // Check the name against the type names
+        if (BTypes.isBuiltInTypeName(varName)) {
+            String errMsg = BLangExceptionHelper.constructSemanticError(location,
+                    SemanticErrors.BUILT_IN_TYPE_NAMES_NOT_ALLOWED_AS_IDENTIFIER, varName);
+            errorMsgs.add(errMsg);
+            return;
+        }
         SimpleTypeName typeName = typeNameStack.pop();
         VariableRefExpr variableRefExpr = new VariableRefExpr(location, varName);
 

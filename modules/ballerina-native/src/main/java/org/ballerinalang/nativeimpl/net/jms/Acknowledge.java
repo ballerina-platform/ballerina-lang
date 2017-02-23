@@ -36,7 +36,7 @@ import org.wso2.carbon.messaging.CarbonMessage;
 @BallerinaFunction(
         packageName = "ballerina.net.jms",
         functionName = "acknowledge",
-        args = {@Argument(name = "message", type = TypeEnum.MESSAGE),
+        args = {@Argument(name = "m", type = TypeEnum.MESSAGE),
                 @Argument(name = "deliveryStatus", type = TypeEnum.STRING)},
         isPublic = true
 )

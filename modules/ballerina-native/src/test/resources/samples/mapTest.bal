@@ -18,32 +18,32 @@ function testRemove(map data, string key){
 function testDefinition()(boolean, string){
     map dataMap;
     boolean success;
-    string message;
+    string msg;
     int value;
     string[] keys;
 
     dataMap = { "country" : "US", "currency" : "Dollar" , "states" : 50};
     success = true;
-    message = "No Error found.!!!";
+    msg = "No Error found.!!!";
 
     value = dataMap["states"];
 
     // TODO : Fix dataMap["states"] != 50
     if(value != 50){
          success = false;
-         message = "Get operation failed.";
+         msg = "Get operation failed.";
     }
 
     if(testLength(dataMap) != 3){
         success = false;
-        message = "length didn't match.";
+        msg = "length didn't match.";
     }
 
     keys = testGetKeys(dataMap);
 
     if(arrays:length(keys) !=3){
         success = false;
-        message = "keys operation failed.";
+        msg = "keys operation failed.";
     }
 
     testRemove(dataMap , "country");
@@ -52,8 +52,8 @@ function testDefinition()(boolean, string){
 
     if(arrays:length(keys) != 2){
         success = false;
-        message = "remove operation failed.";
+        msg = "remove operation failed.";
     }
 
-    return success, message;
+    return success, msg;
 }
