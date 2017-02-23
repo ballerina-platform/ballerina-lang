@@ -20,7 +20,7 @@ import $ from 'jquery';
 import _ from 'lodash';
 import Backbone from 'backbone';
 import MenuBar from './menu-bar/menu-bar';
-import BreadcrumbController from './breadcrumbs/breadcumbs';
+import BreadcrumbController from './breadcrumbs/breadcrumbs';
 import FileBrowser from './file-browser/file-browser';
 import TabController from './tab/file-tab-list';
 import CommandManager from './command/command';
