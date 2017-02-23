@@ -282,11 +282,11 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
      */
     TypeMapperRenderer.prototype.removeStruct = function (name) {
         var structId = name + this.viewIdSeperator + this.viewId;
-        var structConns;
-        var lookupClass = "property";
-        var structDiv = $("#" + structId);
-        if (structDiv.length > 0) {
-            if (structDiv.attr('class').includes("struct")) {
+        if ($("#" + structId).attr('class') != null) {
+            var structConns;
+            var lookupClass = "property";
+
+            if ($("#" + structId).attr('class').includes("struct")) {
                 lookupClass = "jstree-anchor";
                 structConns = $('div[id^="' + this.jsTreePrefix + this.viewIdSeperator + structId + '"]')
                     .find('.' + lookupClass);
