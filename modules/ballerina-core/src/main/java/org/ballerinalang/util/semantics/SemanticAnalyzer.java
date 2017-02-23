@@ -1955,7 +1955,6 @@ public class SemanticAnalyzer implements NodeVisitor {
             BLangExceptionHelper.throwSemanticError(actionIExpr, SemanticErrors.UNDEFINED_CONNECTOR,
                     connectorWithPkgName);
         }
-
         Expression[] exprs = actionIExpr.getArgExprs();
         BType[] paramTypes = new BType[exprs.length];
         for (int i = 0; i < exprs.length; i++) {
@@ -1975,8 +1974,8 @@ public class SemanticAnalyzer implements NodeVisitor {
         } else if (connectorSymbol instanceof BallerinaConnectorDef) {
             actionSymbol = ((BallerinaConnectorDef) connectorSymbol).resolveMembers(symbolName);
         } else {
-            BLangExceptionHelper.throwSemanticError(actionIExpr, SemanticErrors.INCOMPATIBLE_TYPES_UNKNOWN_FOUND, 
-                    connectorSymbolName);
+            BLangExceptionHelper.throwSemanticError(actionIExpr, SemanticErrors.INCOMPATIBLE_TYPES_CONNECTOR_EXPECTED,
+                connectorSymbolName);
         }
 
         if (actionSymbol == null) {
