@@ -284,9 +284,9 @@ public class DataTableTest {
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "testDateTime", args);
 
         Assert.assertEquals(returns.length, 3);
-        Assert.assertEquals(((BLong) returns[0]).longValue(), time);
-        Assert.assertEquals(((BLong) returns[1]).longValue(), date);
-        Assert.assertEquals(((BLong) returns[2]).longValue(), timestamp);
+        Assert.assertEquals(((BInteger) returns[0]).longValue(), time);
+        Assert.assertEquals(((BInteger) returns[1]).longValue(), date);
+        Assert.assertEquals(((BInteger) returns[2]).longValue(), timestamp);
     }
 
     @AfterSuite

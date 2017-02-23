@@ -546,11 +546,9 @@ public class SQLConnectorUtils {
         case Types.TINYINT:
         case Types.SMALLINT:
         case Types.INTEGER:
-            return TypeEnum.INT;
         case Types.BIGINT:
-            return TypeEnum.LONG;
-        case Types.REAL:
-            return TypeEnum.FLOAT;
+            return TypeEnum.INT;
+
         case Types.BIT:
         case Types.BOOLEAN:
             return TypeEnum.BOOLEAN;
@@ -558,7 +556,8 @@ public class SQLConnectorUtils {
         case Types.DECIMAL:
         case Types.FLOAT:
         case Types.DOUBLE:
-            return TypeEnum.DOUBLE;
+        case Types.REAL:
+            return TypeEnum.FLOAT;
         case Types.DATE:
         case Types.TIME:
         case Types.TIMESTAMP:

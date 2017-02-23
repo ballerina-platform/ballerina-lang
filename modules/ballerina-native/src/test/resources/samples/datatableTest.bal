@@ -241,7 +241,7 @@ function getArrayByIndex()(map int_arr, map long_arr, map double_arr, map string
     return;
 }
 
-function testDateTime(string time, string date, string timestamp) (long time1, long date1, long timestamp1) {
+function testDateTime(string time, string date, string timestamp) (int time1, int date1, int timestamp1) {
     map propertiesMap = {"jdbcUrl" : "jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
                          "username":"SA", "password":"", "maximumPoolSize":1};
     sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
@@ -257,9 +257,9 @@ function testDateTime(string time, string date, string timestamp) (long time1, l
     datatable dt = sql:ClientConnector.select(testDB, "SELECT time_type, date_type, timestamp_type
                 from DateTimeTypes LIMIT 1", emptyParam);
     while (datatables:next(dt)) {
-        time1 = datatables:getLong(dt, "time_type", "time");
-        date1 = datatables:getLong(dt, "date_type", "date");
-        timestamp1 = datatables:getLong(dt, "timestamp_type", "timestamp");
+        time1 = datatables:getInt(dt, "time_type", "time");
+        date1 = datatables:getInt(dt, "date_type", "date");
+        timestamp1 = datatables:getInt(dt, "timestamp_type", "timestamp");
     }
     datatables:close(dt);
     return;
