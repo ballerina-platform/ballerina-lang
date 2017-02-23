@@ -282,7 +282,7 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
      */
     TypeMapperRenderer.prototype.removeStruct = function (name) {
         var structId = name + this.viewIdSeperator + this.viewId;
-        if ($("#" + structId) != null) {
+        if ($("#" + structId).attr('class') != null) {
             var structConns;
             var lookupClass = "property";
 
