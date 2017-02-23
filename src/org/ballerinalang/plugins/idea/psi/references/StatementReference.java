@@ -93,6 +93,7 @@ public class StatementReference extends BallerinaElementReference {
         List<ResolveResult> results = new ArrayList<>();
 
         PsiElement prevSibling = getElement().getParent().getPrevSibling();
+        // Todo - handle incomplete function invocation completion
         if (prevSibling != null && prevSibling.getPrevSibling() != null) {
             String text = prevSibling.getPrevSibling().getText();
             if (text.endsWith(":")) {
@@ -105,10 +106,17 @@ public class StatementReference extends BallerinaElementReference {
                         PsiReference packageReference = packageIdentifier.getReference();
                         PsiElement resolved = packageReference.resolve();
 
-                        List<PsiElement> allMatchingElementsFromPackage = BallerinaPsiImplUtil
-                                .getAllMatchingElementsFromPackage((PsiDirectory) resolved,
+                        List<PsiElement> allFunctions =
+                                BallerinaPsiImplUtil.getAllMatchingElementsFromPackage((PsiDirectory) resolved,
                                         "//functionDefinition");
-                        for (PsiElement psiElement : allMatchingElementsFromPackage) {
+                        for (PsiElement psiElement : allFunctions) {
+                            results.add(new PsiElementResolveResult(psiElement));
+                        }
+
+                        List<PsiElement> allConnectors =
+                                BallerinaPsiImplUtil.getAllMatchingElementsFromPackage((PsiDirectory) resolved,
+                                        "//connectorDefinition");
+                        for (PsiElement psiElement : allConnectors) {
                             results.add(new PsiElementResolveResult(psiElement));
                         }
                     }

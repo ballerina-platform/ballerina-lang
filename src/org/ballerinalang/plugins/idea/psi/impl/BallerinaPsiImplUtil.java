@@ -417,62 +417,64 @@ public class BallerinaPsiImplUtil {
     public static List<PsiElement> resolveFunction(PsiElement element) {
         List<PsiElement> results = new ArrayList<>();
 
-        // Todo - Add null checks
+        // Get the packagePath element.
         Collection<? extends PsiElement> packagePaths =
                 XPath.findAll(BallerinaLanguage.INSTANCE, element.getParent(), "//packagePath");
 
         if (packagePaths.isEmpty()) {
+            // Todo - Resolve function in current package
             return results;
-        }
-        PsiElement packagePathNode = packagePaths.iterator().next();
-        // Todo - Check for 'import as' as well
-        PsiElement packageNameNode = packagePathNode.getLastChild();
+        } else {
+            // There cannot be multiple package paths. So we get the next path from the iterator.
+            PsiElement packagePathNode = packagePaths.iterator().next();
 
-        //        PsiReference reference = packageName.getReference();
-
-        PsiElement identifier = ((IdentifierDefSubtree) packageNameNode).getNameIdentifier();
-
-        // Get the reference.
-        PsiReference reference = identifier.getReference();
-        // Resolve the reference. This will mostly point to the import statement package name.
-        PsiElement resolvedImportPackageName = reference.resolve();
-
-        if (resolvedImportPackageName == null) {
-            // Package is not imported. Return the empty results.
-            return results;
-        }
-
-        PsiElement packageIdentifier = ((IdentifierDefSubtree) resolvedImportPackageName.getParent())
-                .getNameIdentifier();
-
-        PsiReference packageReference = packageIdentifier.getReference();
-        //        PsiElement resolvedPackage = packageReference.resolve();
-
-        ResolveResult[] resolveResults = ((PackageNameReference) packageReference).multiResolve(false);
-        // Todo - Resolve result cannot be more than one because all package imports are unique
-        for (ResolveResult resolveResult : resolveResults) {
-            PsiElement element1 = resolveResult.getElement();
-            if (!(element1 instanceof PsiDirectory)) {
-                continue;
+            //Get the last package name node.
+            PsiElement packageNameNode = packagePathNode.getLastChild();
+            if (packageNameNode == null || !(packageNameNode instanceof IdentifierDefSubtree)) {
+                return results;
             }
 
-            List<PsiElement> allFunctionsInAPackage = getAllMatchingElementsFromPackage(((PsiDirectory) element1),
-                    "//functionDefinition/function/Identifier");
-            for (PsiElement psiElement : allFunctionsInAPackage) {
-                if (element.getText().equals(psiElement.getText())) {
-                    results.add(psiElement);
+            // Get the identifier.
+            PsiElement identifier = ((IdentifierDefSubtree) packageNameNode).getNameIdentifier();
+
+            // Get the reference.
+            PsiReference reference = identifier.getReference();
+
+            // Multi resolve the reference.
+            ResolveResult[] resolveResults = ((PackageNameReference) reference).multiResolve(false);
+
+            // If resolve result is 0, that means the package was not resolved.
+            if (resolveResults.length == 0) {
+                // Package is not imported or cannot resolve. Return the empty results.
+                return results;
+            }
+
+            // Resolve result cannot be more than one because all package imports are unique. This should be
+            // annotated using an annotator.
+            for (ResolveResult resolveResult : resolveResults) {
+                PsiElement element1 = resolveResult.getElement();
+                if (!(element1 instanceof PsiDirectory)) {
+                    continue;
+                }
+
+                // Todo - Use an util function to get values of multiple xpaths.
+                List<PsiElement> allFunctionsInAPackage = getAllMatchingElementsFromPackage(((PsiDirectory) element1),
+                        "//function/Identifier");
+                for (PsiElement psiElement : allFunctionsInAPackage) {
+                    if (element.getText().equals(psiElement.getText())) {
+                        results.add(psiElement);
+                    }
+                }
+
+                List<PsiElement> allNativeFunctionsInAPackage =
+                        getAllMatchingElementsFromPackage(((PsiDirectory) element1), "//nativeFunction/Identifier");
+                for (PsiElement psiElement : allNativeFunctionsInAPackage) {
+                    if (element.getText().equals(psiElement.getText())) {
+                        results.add(psiElement);
+                    }
                 }
             }
-
-            List<PsiElement> allNativeFunctionsInAPackage = getAllMatchingElementsFromPackage(((PsiDirectory) element1),
-                    "//functionDefinition/nativeFunction/Identifier");
-            for (PsiElement psiElement : allNativeFunctionsInAPackage) {
-                if (element.getText().equals(psiElement.getText())) {
-                    results.add(psiElement);
-                }
-            }
         }
-
         return results;
     }
 
@@ -484,39 +486,53 @@ public class BallerinaPsiImplUtil {
                 XPath.findAll(BallerinaLanguage.INSTANCE, element.getParent().getParent().getParent(), "//packagePath");
 
         if (packagePaths.isEmpty()) {
+            // Todo - Resolve connectors in current package
             return results;
-        }
-        PsiElement packagePathNode = packagePaths.iterator().next();
-        PsiElement packageNameNode = packagePathNode.getLastChild();
-        PsiElement identifier = ((IdentifierDefSubtree) packageNameNode).getNameIdentifier();
+        } else {
+            PsiElement packagePathNode = packagePaths.iterator().next();
+            PsiElement packageNameNode = packagePathNode.getLastChild();
 
-        // Get the reference.
-        PsiReference reference = identifier.getReference();
-        // Resolve the reference. This will mostly point to the import statement package name.
-        PsiElement resolvedImportPackageName = reference.resolve();
-
-        if (resolvedImportPackageName == null) {
-            // Package is not imported. Return the empty results.
-            return results;
-        }
-
-        PsiElement packageIdentifier =
-                ((IdentifierDefSubtree) resolvedImportPackageName.getParent()).getNameIdentifier();
-        PsiReference packageReference = packageIdentifier.getReference();
-
-        ResolveResult[] resolveResults = ((PackageNameReference) packageReference).multiResolve(false);
-        // Todo - Resolve result cannot be more than one because all package imports are unique
-        for (ResolveResult resolveResult : resolveResults) {
-            PsiElement element1 = resolveResult.getElement();
-            if (!(element1 instanceof PsiDirectory)) {
-                continue;
+            if (packageNameNode == null || !(packageNameNode instanceof IdentifierDefSubtree)) {
+                return results;
             }
 
-            List<PsiElement> allFunctionsInAPackage = getAllMatchingElementsFromPackage(((PsiDirectory) element1),
-                    "//connectorDefinition/connector/Identifier");
-            for (PsiElement psiElement : allFunctionsInAPackage) {
-                if (element.getText().equals(psiElement.getText())) {
-                    results.add(psiElement);
+            PsiElement identifier = ((IdentifierDefSubtree) packageNameNode).getNameIdentifier();
+
+            // Get the reference.
+            PsiReference reference = identifier.getReference();
+
+            // Multi resolve the reference.
+            ResolveResult[] resolveResults = ((PackageNameReference) reference).multiResolve(false);
+
+            // If resolve result is 0, that means the package was not resolved.
+            if (resolveResults.length == 0) {
+                // Package is not imported or cannot resolve. Return the empty results.
+                return results;
+            }
+
+            // Resolve result cannot be more than one because all package imports are unique. This should be
+            // annotated using an annotator.
+            for (ResolveResult resolveResult : resolveResults) {
+                PsiElement element1 = resolveResult.getElement();
+                if (!(element1 instanceof PsiDirectory)) {
+                    continue;
+                }
+
+                // Todo - Use an util function to get values of multiple xpaths.
+                List<PsiElement> allConnecotrsInAPackage = getAllMatchingElementsFromPackage(((PsiDirectory) element1),
+                        "//connector/Identifier");
+                for (PsiElement psiElement : allConnecotrsInAPackage) {
+                    if (element.getText().equals(psiElement.getText())) {
+                        results.add(psiElement);
+                    }
+                }
+
+                List<PsiElement> allNativeConnecotrsInAPackage =
+                        getAllMatchingElementsFromPackage(((PsiDirectory) element1), "//nativeConnector/Identifier");
+                for (PsiElement psiElement : allNativeConnecotrsInAPackage) {
+                    if (element.getText().equals(psiElement.getText())) {
+                        results.add(psiElement);
+                    }
                 }
             }
         }
@@ -681,7 +697,7 @@ public class BallerinaPsiImplUtil {
                 for (ResolveResult resolveResult : resolveResults) {
                     Collection<? extends PsiElement> actionDefinitions =
                             XPath.findAll(BallerinaLanguage.INSTANCE, resolveResult.getElement().getParent(),
-                                    "//actionDefinition");
+                                    "//action");
 
                     for (PsiElement actionDefinition : actionDefinitions) {
 
@@ -709,7 +725,7 @@ public class BallerinaPsiImplUtil {
         }
 
         Collection<? extends PsiElement> actionDefinitions =
-                XPath.findAll(BallerinaLanguage.INSTANCE, resolvedConnector, "//actionDefinition");
+                XPath.findAll(BallerinaLanguage.INSTANCE, resolvedConnector, "//action");
 
         for (PsiElement actionDefinition : actionDefinitions) {
 
@@ -720,7 +736,7 @@ public class BallerinaPsiImplUtil {
         }
 
         Collection<? extends PsiElement> functionDefinitions =
-                XPath.findAll(BallerinaLanguage.INSTANCE, resolvedConnector, "//functionDefinition");
+                XPath.findAll(BallerinaLanguage.INSTANCE, resolvedConnector, "//functionDefinition/function");
         for (PsiElement functionDefinition : functionDefinitions) {
 
             PsiElement nameIdentifier = ((IdentifierDefSubtree) functionDefinition).getNameIdentifier();
