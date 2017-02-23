@@ -28,7 +28,8 @@ import org.testng.annotations.Test;
 public class TypeNamesAsIdentifierNegativeTest {
 
     @Test(expectedExceptions = SemanticException.class,
-            expectedExceptionsMessageRegExp = "boolean-as-identifier.bal:2: boolean is a built in type name which is not allowed as identifier")
+            expectedExceptionsMessageRegExp = "boolean-as-identifier.bal:2: boolean is a built in type name which " +
+                    "is not allowed as identifier")
     public void testBooleanAsIdentifier() {
         BTestUtils.parseBalFile("lang/statements/boolean-as-identifier.bal");
     }
@@ -40,49 +41,57 @@ public class TypeNamesAsIdentifierNegativeTest {
     }
 
     @Test(expectedExceptions = SemanticException.class,
-            expectedExceptionsMessageRegExp = "datatable-as-identifier.bal:2: datatable is a built in type name which is not allowed as identifier")
+            expectedExceptionsMessageRegExp = "datatable-as-identifier.bal:2: datatable is a built in type name " +
+                    "which is not allowed as identifier")
     public void testDatatableAsIdentifier() {
         BTestUtils.parseBalFile("lang/statements/datatable-as-identifier.bal");
     }
 
     @Test(expectedExceptions = SemanticException.class,
-            expectedExceptionsMessageRegExp = "exception-as-identifier.bal:2: exception is a built in type name which is not allowed as identifier")
+            expectedExceptionsMessageRegExp = "exception-as-identifier.bal:2: exception is a built in type name " +
+                    "which is not allowed as identifier")
     public void testExceptionAsIdentifier() {
         BTestUtils.parseBalFile("lang/statements/exception-as-identifier.bal");
     }
 
     @Test(expectedExceptions = SemanticException.class,
-            expectedExceptionsMessageRegExp = "float-as-identifier.bal:2: float is a built in type name which is not allowed as identifier")
+            expectedExceptionsMessageRegExp = "float-as-identifier.bal:2: float is a built in type name which is " +
+                    "not allowed as identifier")
     public void testFloatAsIdentifier() {
         BTestUtils.parseBalFile("lang/statements/float-as-identifier.bal");
     }
 
     @Test(expectedExceptions = SemanticException.class,
-            expectedExceptionsMessageRegExp = "int-as-identifier.bal:2: int is a built in type name which is not allowed as identifier")
+            expectedExceptionsMessageRegExp = "int-as-identifier.bal:2: int is a built in type name which is not " +
+                    "allowed as identifier")
     public void testIntAsIdentifier() {
         BTestUtils.parseBalFile("lang/statements/int-as-identifier.bal");
     }
 
     @Test(expectedExceptions = SemanticException.class,
-            expectedExceptionsMessageRegExp = "json-as-identifier.bal:2: json is a built in type name which is not allowed as identifier")
+            expectedExceptionsMessageRegExp = "json-as-identifier.bal:2: json is a built in type name which is " +
+                    "not allowed as identifier")
     public void testJsonAsIdentifier() {
         BTestUtils.parseBalFile("lang/statements/json-as-identifier.bal");
     }
 
     @Test(expectedExceptions = SemanticException.class,
-            expectedExceptionsMessageRegExp = "map-as-identifier.bal:2: map is a built in type name which is not allowed as identifier")
+            expectedExceptionsMessageRegExp = "map-as-identifier.bal:2: map is a built in type name which is " +
+                    "not allowed as identifier")
     public void testMapAsIdentifier() {
         BTestUtils.parseBalFile("lang/statements/map-as-identifier.bal");
     }
 
     @Test(expectedExceptions = SemanticException.class,
-            expectedExceptionsMessageRegExp = "message-as-identifier.bal:2: message is a built in type name which is not allowed as identifier")
+            expectedExceptionsMessageRegExp = "message-as-identifier.bal:2: message is a built in type name " +
+                    "which is not allowed as identifier")
     public void testMessageAsIdentifier() {
         BTestUtils.parseBalFile("lang/statements/message-as-identifier.bal");
     }
 
     @Test(expectedExceptions = SemanticException.class,
-            expectedExceptionsMessageRegExp = "string-as-identifier.bal:2: string is a built in type name which is not allowed as identifier")
+            expectedExceptionsMessageRegExp = "string-as-identifier.bal:2: string is a built in type name which " +
+                    "is not allowed as identifier")
     public void testStringAsIdentifier() {
         BTestUtils.parseBalFile("lang/statements/string-as-identifier.bal");
     }
