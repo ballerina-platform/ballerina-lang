@@ -77,6 +77,7 @@ import org.ballerinalang.model.expressions.MapStructInitKeyValueExpr;
 import org.ballerinalang.model.expressions.ModExpression;
 import org.ballerinalang.model.expressions.MultExpression;
 import org.ballerinalang.model.expressions.NotEqualExpression;
+import org.ballerinalang.model.expressions.NullLiteral;
 import org.ballerinalang.model.expressions.OrExpression;
 import org.ballerinalang.model.expressions.RefTypeInitExpr;
 import org.ballerinalang.model.expressions.ReferenceExpr;
@@ -582,6 +583,18 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         Expression rExpr = varDefStmt.getRExpr();
         if (rExpr == null) {
+            if (BTypes.isValueType(varDef.getType())) {
+                //Value type has default value and cannot be null
+                return;
+            } else {
+                //initialised with BNull value when reference variable have no right expression
+                rExpr = new NullLiteral(varDefStmt.getNodeLocation());
+                varDefStmt.setRExpr(rExpr);
+            }
+        }
+
+        if (rExpr instanceof NullLiteral) {
+            checkTypeReferenced(varDef.getType(), varDef.getNodeLocation());
             return;
         }
 
@@ -676,6 +689,11 @@ public class SemanticAnalyzer implements NodeVisitor {
 
             refTypeInitExpr.setInheritedType(lExprType);
             refTypeInitExpr.accept(this);
+            return;
+        }
+
+        if (rExpr instanceof NullLiteral) {
+            checkTypeReferenced(lExpr);
             return;
         }
 
@@ -981,6 +999,10 @@ public class SemanticAnalyzer implements NodeVisitor {
         for (int i = 0; i < returnArgExprs.length; i++) {
             Expression returnArgExpr = returnArgExprs[i];
             returnArgExpr.accept(this);
+            if (returnArgExpr instanceof NullLiteral) {
+                ParameterDef parameterDef = returnParamsOfCU[i];
+                checkTypeReferenced(parameterDef.getType(), returnArgExpr.getNodeLocation());
+            }
             typesOfReturnExprs[i] = returnArgExpr.getType();
         }
 
@@ -1035,7 +1057,8 @@ public class SemanticAnalyzer implements NodeVisitor {
                     }
                 }
 
-                if (!typesOfReturnExprs[i].equals(returnParamsOfCU[i].getType())) {
+                if (!typesOfReturnExprs[i].equals(returnParamsOfCU[i].getType()) && !typesOfReturnExprs[i]
+                        .equals(BTypes.typeReference)) {
                     BLangExceptionHelper.throwSemanticError(returnStmt,
                             SemanticErrors.CANNOT_USE_TYPE_IN_RETURN_STATEMENT, typesOfReturnExprs[i],
                             returnParamsOfCU[i].getType());
@@ -1094,6 +1117,10 @@ public class SemanticAnalyzer implements NodeVisitor {
     public void visit(BasicLiteral basicLiteral) {
         BType bType = BTypes.resolveType(basicLiteral.getTypeName(), currentScope, basicLiteral.getNodeLocation());
         basicLiteral.setType(bType);
+    }
+
+    @Override
+    public void visit(NullLiteral nullLiteral) {
     }
 
     @Override
@@ -1278,6 +1305,9 @@ public class SemanticAnalyzer implements NodeVisitor {
         } else if (compareExprType == BTypes.typeString) {
             equalExpr.setEvalFunc(EqualExpression.EQUAL_STRING_FUNC);
 
+        } else if (compareExprType == BTypes.typeReference) {
+            equalExpr.setRefTypeEvalFunction(EqualExpression.EQUAL_REFERENCE_FUNC);
+
         } else {
             throwInvalidBinaryOpError(equalExpr);
         }
@@ -1298,6 +1328,9 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         } else if (compareExprType == BTypes.typeString) {
             notEqualExpr.setEvalFunc(NotEqualExpression.NOT_EQUAL_STRING_FUNC);
+
+        } else if (compareExprType == BTypes.typeReference) {
+            notEqualExpr.setRefTypeEvalFunction(NotEqualExpression.NOT_EQUAL_REFERENCE_FUNC);
 
         } else {
             throwInvalidBinaryOpError(notEqualExpr);
@@ -1775,6 +1808,11 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         Expression rExpr = binaryExpr.getRExpr();
         Expression lExpr = binaryExpr.getLExpr();
+        if (rExpr instanceof NullLiteral) {
+            checkTypeReferenced(lExpr);
+        }  else if (lExpr instanceof NullLiteral) {
+            checkTypeReferenced(rExpr);
+        }
 
         BType rType = rExpr.getType();
         if (rExpr instanceof TypeCastExpression && rType == null) {
@@ -1786,7 +1824,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             lType = BTypes.resolveType(((TypeCastExpression) lExpr).getTypeName(), currentScope, null);
         }
 
-        if (!(rType.equals(lType))) {
+        if (!(rType.equals(lType)) && !(rType.equals(BTypes.typeReference) || lType.equals(BTypes.typeReference))) {
             TypeCastExpression newExpr;
             TypeEdge newEdge;
 
@@ -2487,6 +2525,19 @@ public class SemanticAnalyzer implements NodeVisitor {
                         variableDef.getNodeLocation());
                 variableDef.setType(fieldType);
             }
+        }
+    }
+
+    private void checkTypeReferenced(Expression expr) {
+        if (BTypes.isValueType(expr.getType())) {
+            throw new SemanticException(
+                    LangModelUtils.getNodeLocationStr(expr.getNodeLocation()) + expr.getType() + " cannot be null");
+        }
+    }
+
+    private void checkTypeReferenced(BType type, NodeLocation nodeLocation) {
+        if (BTypes.isValueType(type)) {
+            throw new SemanticException(LangModelUtils.getNodeLocationStr(nodeLocation) + type + " cannot be null");
         }
     }
 

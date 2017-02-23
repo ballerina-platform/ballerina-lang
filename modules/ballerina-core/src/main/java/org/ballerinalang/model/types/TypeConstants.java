@@ -30,6 +30,7 @@ public class TypeConstants {
     public static final String FLOAT_TNAME = "float";
     public static final String BOOLEAN_TNAME = "boolean";
     public static final String STRING_TNAME = "string";
+    public static final String REFERENCE_TNAME = "ref";
     public static final String ARRAY_TNAME = "[]";
     public static final String MAP_TNAME = "map";
     public static final String XML_TNAME = "xml";

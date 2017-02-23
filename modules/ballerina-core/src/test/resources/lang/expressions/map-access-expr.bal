@@ -20,4 +20,16 @@ function mapReturnTest(string firstName, string lastName) (map) {
     return testMap;
 }
 
+function nullMapElementAccessTest() (map) {
+    map testMap;
+    string firstName = testMap["fname"];
+    return testMap;
+}
+
+function nullMapElementSetTest() (map) {
+    map testMap = null;
+    testMap["fname"] = "myname";
+    return testMap;
+}
+
 

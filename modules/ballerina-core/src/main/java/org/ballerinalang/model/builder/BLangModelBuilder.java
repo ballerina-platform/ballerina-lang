@@ -57,6 +57,7 @@ import org.ballerinalang.model.expressions.MapStructInitKeyValueExpr;
 import org.ballerinalang.model.expressions.ModExpression;
 import org.ballerinalang.model.expressions.MultExpression;
 import org.ballerinalang.model.expressions.NotEqualExpression;
+import org.ballerinalang.model.expressions.NullLiteral;
 import org.ballerinalang.model.expressions.OrExpression;
 import org.ballerinalang.model.expressions.RefTypeInitExpr;
 import org.ballerinalang.model.expressions.ReferenceExpr;
@@ -506,6 +507,14 @@ public class BLangModelBuilder {
         Expression lExpr = exprStack.pop();
         checkArgExprValidity(location, lExpr);
 
+        // if one of expression is null, only equal and not equal operators are allowed for null values
+        if ((rExpr instanceof NullLiteral || lExpr instanceof NullLiteral) && !(opStr.equals("==") || opStr
+                .equals("!="))) {
+            errorMsgs.add(BLangExceptionHelper
+                    .constructSemanticError(location, SemanticErrors.NULL_NOT_ALLOWED_HERE_WITH_OPERATOR) + " "
+                    + opStr);
+        }
+
         BinaryExpression expr;
         switch (opStr) {
             case "+":
@@ -576,6 +585,7 @@ public class BLangModelBuilder {
     public void createUnaryExpr(NodeLocation location, String op) {
         Expression rExpr = exprStack.pop();
         checkArgExprValidity(location, rExpr);
+        checkNotNullLiteralExpr(location, rExpr);
 
         UnaryExpression expr;
         switch (op) {
@@ -1037,6 +1047,7 @@ public class BLangModelBuilder {
         // Get the expression at the top of the expression stack and set it as the while condition
         Expression condition = exprStack.pop();
         checkArgExprValidity(location, condition);
+        checkNotNullLiteralExpr(location, condition);
         whileStmtBuilder.setCondition(condition);
 
         // Get the statement block at the top of the block statement stack and set as the while body.
@@ -1084,6 +1095,7 @@ public class BLangModelBuilder {
 
         Expression condition = exprStack.pop();
         checkArgExprValidity(ifElseStmtBuilder.getLocation(), condition);
+        checkNotNullLiteralExpr(ifElseStmtBuilder.getLocation(), condition);
         ifElseStmtBuilder.setIfCondition(condition);
 
         BlockStmt.BlockStmtBuilder blockStmtBuilder = blockStmtBuilderStack.pop();
@@ -1101,6 +1113,7 @@ public class BLangModelBuilder {
 
         Expression condition = exprStack.pop();
         checkArgExprValidity(ifElseStmtBuilder.getLocation(), condition);
+        checkNotNullLiteralExpr(ifElseStmtBuilder.getLocation(), condition);
         ifElseStmtBuilder.addElseIfBlock(elseIfStmtBlock.getNodeLocation(), condition, elseIfStmtBlock);
 
         currentScope = elseIfStmtBlock.getEnclosingScope();
@@ -1400,9 +1413,9 @@ public class BLangModelBuilder {
         createLiteral(location, new SimpleTypeName(TypeConstants.BOOLEAN_TNAME), bValue);
     }
 
-    public void createNullLiteral(String value, NodeLocation location) {
-        throw new RuntimeException("null values are not yet supported in Ballerina in " + location.getFileName()
-                + ":" + location.getLineNumber());
+    public void createNullLiteral(NodeLocation location) {
+        NullLiteral nullLiteral = new NullLiteral(location);
+        exprStack.push(nullLiteral);
     }
 
 
@@ -1549,6 +1562,12 @@ public class BLangModelBuilder {
         }
     }
 
+    protected void checkNotNullLiteralExpr(NodeLocation location, Expression argExpr) {
+        if (argExpr instanceof NullLiteral) {
+            errorMsgs.add(BLangExceptionHelper
+                    .constructSemanticError(location, SemanticErrors.NULL_NOT_ALLOWED_HERE));
+        }
+    }
 
     /**
      * This class represents CallableUnitName used in function and action invocation expressions.

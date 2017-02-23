@@ -40,6 +40,7 @@ public class BTypes {
     public static BType typeDouble;
     public static BType typeBoolean;
     public static BType typeString;
+    public static BType typeReference;
     public static BType typeXML;
     public static BType typeJSON;
     public static BType typeMessage;
@@ -63,6 +64,7 @@ public class BTypes {
         globalScope.define(typeDouble.getSymbolName(), typeDouble);
         globalScope.define(typeBoolean.getSymbolName(), typeBoolean);
         globalScope.define(typeString.getSymbolName(), typeString);
+        globalScope.define(typeReference.getSymbolName(), typeReference);
         globalScope.define(typeXML.getSymbolName(), typeXML);
         globalScope.define(typeJSON.getSymbolName(), typeJSON);
         globalScope.define(typeMessage.getSymbolName(), typeMessage);
@@ -82,6 +84,7 @@ public class BTypes {
         typeDouble = new BDoubleType(TypeConstants.DOUBLE_TNAME, null, globalScope);
         typeBoolean = new BBooleanType(TypeConstants.BOOLEAN_TNAME, null, globalScope);
         typeString = new BStringType(TypeConstants.STRING_TNAME, null, globalScope);
+        typeReference = new BReferenceType(TypeConstants.REFERENCE_TNAME, null, globalScope);
         typeXML = new BXMLType(TypeConstants.XML_TNAME, null, globalScope);
         typeJSON = new BJSONType(TypeConstants.JSON_TNAME, null, globalScope);
         typeMessage = new BMessageType(TypeConstants.MESSAGE_TNAME, null, globalScope);
