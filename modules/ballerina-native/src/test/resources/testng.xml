@@ -87,4 +87,25 @@ under the License.
             <class name="org.ballerinalang.nativeimpl.util.TestConfigurationUtil"/>
         </classes>
     </test>
+
+
+    <!-- Service Related Test Cases -->
+    <test name="ballerina-service-unit-tests" preserve-order="true" parallel="false">
+        <parameter name="enableNonBlocking" value="false"/>
+        <packages>
+            <package name="org.ballerinalang.service"/>
+        </packages>
+        <classes>
+            <class name="org.ballerinalang.nativeimpl.util.TestConfigurationUtil"/>
+        </classes>
+    </test>
+    <test name="ballerina-service-unit-tests-non-blocking" preserve-order="true" parallel="false">
+        <parameter name="enableNonBlocking" value="true"/>
+        <packages>
+            <package name="org.ballerinalang.service"/>
+        </packages>
+        <classes>
+            <class name="org.ballerinalang.nativeimpl.util.TestConfigurationUtil"/>
+        </classes>
+    </test>
 </suite>
