@@ -512,69 +512,71 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
         func.name = func.name + functionInvocationModelId;
 
         var id = func.name + this.viewIdSeperator + this.viewId;
-        this.references.push({name: id, refObj: reference});
-        var newFunc = $('<div>').attr('id', id).addClass('func');
-        var self = this;
-        var funcName = $('<div>');
-        var funcIcon = $('<i>').addClass('type-mapper-icon fw fw-function fw-inverse');
-        var closeButton = $('<span>').attr('id', id + "-button").addClass('fw-stack fw-lg btn btn-remove');
+        if ($("#" + id).length === 0) {
+            this.references.push({name: id, refObj: reference});
+            var newFunc = $('<div>').attr('id', id).addClass('func');
+            var self = this;
+            var funcName = $('<div>');
+            var funcIcon = $('<i>').addClass('type-mapper-icon fw fw-function fw-inverse');
+            var closeButton = $('<span>').attr('id', id + "-button").addClass('fw-stack fw-lg btn btn-remove');
 
-        var square = $('<i>').addClass('fw fw-square fw-stack-1x');
-        var del = $('<i>').addClass('fw fw-delete fw-stack-1x fw-inverse');
+            var square = $('<i>').addClass('fw fw-square fw-stack-1x');
+            var del = $('<i>').addClass('fw fw-delete fw-stack-1x fw-inverse');
 
-        funcName.append(funcIcon);
-        funcName.append($('<span>').text(funcText));
-        closeButton.append(square);
-        closeButton.append(del);
-        funcName.append(closeButton);
-        newFunc.append(funcName);
+            funcName.append(funcIcon);
+            funcName.append($('<span>').text(funcText));
+            closeButton.append(square);
+            closeButton.append(del);
+            funcName.append(closeButton);
+            newFunc.append(funcName);
 
-        newFunc.css({
-            'top': 0,
-            'left': 0
-        });
-
-        $("#" + this.placeHolderName).append(newFunc);
-
-        //Remove button functionality
-        $("#" + id + "-button").on("click", function () {
-            var removedFunction = {name: func.name}
-            removedFunction.incomingConnections = [];
-            removedFunction.outgoingConnections = [];
-
-            _.forEach(self.jsPlumbInstance.getAllConnections(), function (connection) {
-                if (connection.target.id.includes(id)) {
-                    removedFunction.incomingConnections.push(
-                        self.getConnectionObject(connection.getParameter("id"),
-                            connection.sourceId, connection.targetId));
-                } else if (connection.source.id.includes(id)) {
-                    removedFunction.outgoingConnections.push(
-                        self.getConnectionObject(connection.getParameter("id"),
-                            connection.sourceId, connection.targetId));
-                }
+            newFunc.css({
+                'top': 0,
+                'left': 0
             });
 
-            for (var i = 0; i < self.references.length; i++) {
-                if (self.references[i].name == id) {
-                    removedFunction.reference = self.references[i].refObj;
+            $("#" + this.placeHolderName).append(newFunc);
+
+            //Remove button functionality
+            $("#" + id + "-button").on("click", function () {
+                var removedFunction = {name: func.name};
+                removedFunction.incomingConnections = [];
+                removedFunction.outgoingConnections = [];
+
+                _.forEach(self.jsPlumbInstance.getAllConnections(), function (connection) {
+                    if (connection.target.id.includes(id)) {
+                        removedFunction.incomingConnections.push(
+                            self.getConnectionObject(connection.getParameter("id"),
+                                connection.sourceId, connection.targetId));
+                    } else if (connection.source.id.includes(id)) {
+                        removedFunction.outgoingConnections.push(
+                            self.getConnectionObject(connection.getParameter("id"),
+                                connection.sourceId, connection.targetId));
+                    }
+                });
+
+                for (var i = 0; i < self.references.length; i++) {
+                    if (self.references[i].name == id) {
+                        removedFunction.reference = self.references[i].refObj;
+                    }
                 }
-            }
 
-            self.removeStruct(func.name);
-            onFunctionRemove(removedFunction);
-        });
+                self.removeStruct(func.name);
+                onFunctionRemove(removedFunction);
+            });
 
-        _.forEach(func.parameters, function (parameter) {
-            var property = self.makeFunctionAttribute($('#' + id), parameter.name, parameter.type, true);
-            self.addTarget(property, self);
-        });
+            _.forEach(func.parameters, function (parameter) {
+                var property = self.makeFunctionAttribute($('#' + id), parameter.name, parameter.type, true);
+                self.addTarget(property, self);
+            });
 
-        _.forEach(func.returnType, function (parameter) {
-            var property = self.makeFunctionAttribute($('#' + id), parameter.name, parameter.type, false);
-            self.addSource(property, self, true);
-        });
+            _.forEach(func.returnType, function (parameter) {
+                var property = self.makeFunctionAttribute($('#' + id), parameter.name, parameter.type, false);
+                self.addSource(property, self, true);
+            });
 
-        self.dagrePosition(this);
+            self.dagrePosition(this);
+        }
     };
 
     TypeMapperRenderer.prototype.makeFunctionAttribute = function (parentId, name, type, input) {
