@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['jquery', 'lodash', 'backbone', 'log', 'dialog/module', 'welcome-page', 'tab/module','alerts', './service-client', 'bootstrap'],
+define(['jquery', 'lodash', 'backbone', 'log', 'dialog/module', 'welcome-page/module', 'tab/module','alerts', './service-client', 'bootstrap'],
     function ($, _, Backbone, log, Dialogs, WelcomePages, Tab, alerts, ServiceClient) {
 
     // workspace manager constructor

@@ -382,8 +382,8 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
 
             // add current imported packages to tool pallet
             _.forEach(importDeclarations, function (importDeclaration) {
-                var package = BallerinaEnvironment.searchPackage(importDeclaration.getPackageName());
-                self.toolPalette.getItemProvider().addImportToolGroup(package[0]);
+                var pckg = BallerinaEnvironment.searchPackage(importDeclaration.getPackageName());
+                self.toolPalette.getItemProvider().addImportToolGroup(pckg[0]);
             });
 
             // container for per-tab source view TODO improve source view to wrap this logic
@@ -939,8 +939,8 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
 
             // adding declared import packages to tool palette
             _.forEach(this._model.getImportDeclarations(), function (importDeclaration) {
-                var package = BallerinaEnvironment.searchPackage(importDeclaration.getPackageName());
-                self.toolPalette.getItemProvider().addImportToolGroup(package[0]);
+                var pckg = BallerinaEnvironment.searchPackage(importDeclaration.getPackageName());
+                self.toolPalette.getItemProvider().addImportToolGroup(pckg[0]);
             });
 
             this.initDropTarget();

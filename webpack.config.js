@@ -20,43 +20,12 @@ module.exports = {
         modules: [path.resolve('./modules/web/lib'), path.resolve('./modules/web/js'), path.resolve('./node_modules')],
         alias: {
             /////////////////////////
-            // third party modules from npm//
-            ////////////////////////
-            jquery: "jquery/jquery-1.9.1.min",
-            jquery_ui: "jquery-ui/jquery-ui",
-            bootstrap: "bootstrap/dist/js/bootstrap",
-            d3: "d3_v4.1.1/d3",
-            dagre: "dagre-0.7.4/dagre.min",
-            log4javascript: "log4javascript-1.4.13/log4javascript",
-            lodash: "lodash_v4.13.1/lodash",
-            backbone: "backbone_v1.3.3/backbone",
-            mousetrap: "mousetrap_v1.6.0/mousetrap.min",
-            ace: "ace_v1.2.6",
-            /////////////////////////
             // third party modules //
             ////////////////////////
-            jquery: "jquery_v1.9.1/jquery-1.9.1.min",
-            jquery_ui: "jquery-ui_v1.12.1.custom/jquery-ui",
-            bootstrap: "bootstrap_v3.3.6/js/bootstrap",
-            d3: "d3_v4.1.1/d3",
-            dagre: "dagre-0.7.4/dagre.min",
-            log4javascript: "log4javascript-1.4.13/log4javascript",
-            lodash: "lodash_v4.13.1/lodash",
-            backbone: "backbone_v1.3.3/backbone",
-            mousetrap: "mousetrap_v1.6.0/mousetrap.min",
-            ace: "ace_v1.2.6",
             svg_pan_zoom: "svg-panNZoom/jquery.svg.pan.zoom",
-            js_tree: "js-tree-v3.3.2/jstree",
             theme_wso2: "theme-wso2-2.0.0/js/theme-wso2",
-            beautify: "beautify/beautify",
             mcustom_scroller: "mCustomScrollbar_v3.1.5/js/jquery.mCustomScrollbar",
-            jquery_mousewheel: "jquery-mousewheel_v3.1.13/jquery.mousewheel",
-            jquery_context_menu: "context-menu_v2.4.2/jquery.contextMenu.min",
-            html5_shiv: "html5shiv_3.7.2/html5shiv.min",
             respond: "respond_1.4.2/respond.min",
-            jsPlumb: "jsPlumb-2.2.8/jsPlumb-2.2.8-min",
-            yaml: "js-yaml-v3.7.0/dist/js-yaml.min",
-            typeahead: "typeahead_v0.11.1/typeahead.bundle.min",
             select2: "select2-4.0.3/dist/js/select2.full.min",
             underscore: "lodash_v4.13.1/lodash",
             ///////////////////////

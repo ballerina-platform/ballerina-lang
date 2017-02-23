@@ -18,8 +18,8 @@
 define(['lodash', 'log', 'event_channel', './abstract-symbol-table-gen-visitor', './../../env/connector', './../../env/ballerina-env-factory', './../../ast/ballerina-ast-factory'],
     function (_, log, EventChannel, AbstractSymbolTableGenVisitor, Connector, BallerinaEnvFactory, BallerinaASTFactory) {
 
-        var BallerinaASTRootVisitor = function (package, model) {
-            AbstractSymbolTableGenVisitor.call(this, package);
+        var BallerinaASTRootVisitor = function (pckg, model) {
+            AbstractSymbolTableGenVisitor.call(this, pckg);
             this._model = model;
             this.init();
         };

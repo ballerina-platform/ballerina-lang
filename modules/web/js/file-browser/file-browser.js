@@ -16,7 +16,7 @@
  * under the License.
  */
 
-define(['jquery', 'backbone', 'lodash', 'log', /** void module - jquery plugin **/ 'js_tree'], function ($, Backbone, _, log) {
+define(['jquery', 'backbone', 'lodash', 'log', /** void module - jquery plugin **/ 'jstree'], function ($, Backbone, _, log) {
 
     var FileBrowser = Backbone.View.extend({
 

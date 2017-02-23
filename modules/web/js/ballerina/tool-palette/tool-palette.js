@@ -165,11 +165,11 @@ define(['require', 'log', 'jquery', 'backbone', './tool-group-view', './tool-gro
 
         /**
          * Adding given package
-         * @param {Object} package - package to add
+         * @param {Object} pckg - package to add
          */
         //TODO: this method needs to be removed from tool palette class
-        addImport: function (package) {
-            this._itemProvider.addImportToolGroup(package);
+        addImport: function (pckgs) {
+            this._itemProvider.addImportToolGroup(pckg);
         },
 
         /**

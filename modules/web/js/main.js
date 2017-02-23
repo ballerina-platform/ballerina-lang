@@ -31,7 +31,7 @@ import LaunchManager from './launcher/launch-manager';
 import Launcher from './launcher/launcher';
 import Console from 'console';
 // importing for side effects only
-import 'jquery_ui';
+import 'jquery-ui';
 import 'bootstrap';
 import 'theme_wso2';
 
