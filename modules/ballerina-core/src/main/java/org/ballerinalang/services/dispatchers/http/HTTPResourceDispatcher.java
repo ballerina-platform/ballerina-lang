@@ -65,8 +65,9 @@ public class HTTPResourceDispatcher implements ResourceDispatcher {
 
                 Map<String, String> resourceArgumentValues = new HashMap<>();
                 //to enable dispatchers with query params products/{productId}?regID={regID}
-                String queryStr = cMsg.getProperty(Constants.QUERY_STR) != null
-                                  ? "?" + cMsg.getProperty(Constants.QUERY_STR)
+                //queryStr is the encoded value of query params
+                String queryStr = cMsg.getProperty(Constants.RAW_QUERY_STR) != null
+                                  ? "?" + cMsg.getProperty(Constants.RAW_QUERY_STR)
                                   : "";
                 if ((matches(subPathAnnotationVal, (subPath + queryStr), resourceArgumentValues) ||
                         Constants.DEFAULT_SUB_PATH.equals(subPathAnnotationVal))

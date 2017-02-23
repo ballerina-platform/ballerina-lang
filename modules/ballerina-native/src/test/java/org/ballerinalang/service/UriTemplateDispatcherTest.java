@@ -158,6 +158,39 @@ public class UriTemplateDispatcherTest {
                 , "RegID variable not set properly.");
     }
 
+    @Test(description = "Test dispatching with URL. /products?productId={productId}&regID={regID}")
+    public void testUrlTemplateWithMultipleQueryParamDispatching() {
+        String path = "/ecommerceservice/products?productId=PID123&regID=RID123";
+        CarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "GET");
+        CarbonMessage response = Services.invoke(cMsg);
+        Assert.assertNotNull(response, "Response message not found");
+        //Expected Json message : {"X-ORDER-ID":"ORD12345","ProductID":"PID123","RegID":"RID123"}
+        BJSON bJson = ((BJSON) response.getMessageDataSource());
+        Assert.assertEquals(bJson.value().get("Template").asText(), "T6"
+                , "Resource dispatched to wrong template");
+        Assert.assertEquals(bJson.value().get("ProductID").asText(), "PID123"
+                , "ProductID variable not set properly.");
+        Assert.assertEquals(bJson.value().get("RegID").asText(), "RID123"
+                , "RegID variable not set properly.");
+    }
+
+    @Test(description = "Test dispatching with URL. /products?productId={productId}&regID={regID} "
+            + "Ex: products?productId=PID%20123&regID=RID%201123")
+    public void testUrlTemplateWithMultipleQueryParamWithURIEncodeCharacterDispatching() {
+        String path = "/ecommerceservice/products?productId=PID%20123&regID=RID%20123";
+        CarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "GET");
+        CarbonMessage response = Services.invoke(cMsg);
+        Assert.assertNotNull(response, "Response message not found");
+        //Expected Json message : {"X-ORDER-ID":"ORD12345","ProductID":"PID123","RegID":"RID123"}
+        BJSON bJson = ((BJSON) response.getMessageDataSource());
+        Assert.assertEquals(bJson.value().get("Template").asText(), "T6"
+                , "Resource dispatched to wrong template");
+        Assert.assertEquals(bJson.value().get("ProductID").asText(), "PID 123"
+                , "ProductID variable not set properly.");
+        Assert.assertEquals(bJson.value().get("RegID").asText(), "RID 123"
+                , "RegID variable not set properly.");
+    }
+
 
     @DataProvider(name = "validUrl")
     public static Object[][] validUrl() {

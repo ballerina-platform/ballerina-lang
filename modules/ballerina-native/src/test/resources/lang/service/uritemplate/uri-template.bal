@@ -61,6 +61,19 @@ service Ecommerce {
     }
 
     @http:GET
+    @http:Path ("/products?productId={productId}&regID={regID}")
+    resource productsInfo6 (message m, @http:QueryParam ("productId") string prdID, @http:QueryParam ("regID") string rID) {
+        json responseJson;
+        message response = {};
+        system:println ("Product ID " + prdID);
+        system:println ("Reg ID " + rID);
+        responseJson = `{"Template":"T6", "ProductID":${prdID}, "RegID":${rID}}`;
+        system:println (jsons:toString (responseJson));
+        messages:setJsonPayload (response, responseJson);
+        reply response;
+    }
+
+    @http:GET
     @http:Path ("/products5/{productId}/reg?regID={regID}*")
     resource productsInfo5 (message m, @http:PathParam ("productId") string prdID, @http:QueryParam ("regID") string rID) {
         json responseJson;
