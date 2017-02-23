@@ -5,7 +5,7 @@ import ballerina.lang.jsons;
 
 @http:BasePath ("/branchlocator")
 service Banklocator {
-    
+
     @http:POST
     resource product (message m) {
         message response = {};
@@ -14,16 +14,10 @@ service Banklocator {
         json payload = {};
         if (zipCode == "95999") {
             payload = `{"ABCBank": {"BranchCode":"123"}}`;
-            
-        }
-        else {
+        } else {
             payload = `{"ABCBank": {"BranchCode":"-1"}}`;
-            
         }
         messages:setJsonPayload(response, payload);
         reply response;
-        
     }
-    
 }
-

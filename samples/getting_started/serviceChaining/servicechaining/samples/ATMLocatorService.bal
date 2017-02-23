@@ -7,7 +7,7 @@ import ballerina.lang.jsons;
 
 @http:BasePath ("/ABCBank")
 service ATMLocator {
-    
+
     @http:POST
     @http:Path ("/locator")
     resource locator (message m) {
@@ -29,6 +29,5 @@ service ATMLocator {
         messages:setJsonPayload(backendServiceReq, bankInfoReq);
         response = http:ClientConnector.post(bankInfoService, "", backendServiceReq);
         reply response;
-    
-    }    
+    }
 }

@@ -11,7 +11,5 @@ service nyseStockQuote {
         message response = {};
         messages:setJsonPayload(response, payload);
         reply response;
-
     }
-
 }

@@ -1,20 +1,21 @@
 package restfulservice.samples;
+
 import ballerina.lang.messages;
 import ballerina.lang.system;
 import ballerina.lang.jsons;
-@http:BasePath("/productsservice")
+
+@http:BasePath ("/productsservice")
 service productmgt {
+
     map productsMap = populateSampleProducts();
 
     @http:GET
     @http:Path ("/{id}")
-    resource product(message m,
-    @PathParam("id") string prodId) {
+    resource product (message m, @PathParam ("id") string prodId) {
         json payload = productsMap[prodId];
         message response = {};
         messages:setJsonPayload(response, payload);
         reply response;
-
     }
 
     @http:POST
@@ -27,12 +28,10 @@ service productmgt {
         message response = {};
         messages:setJsonPayload(response, payload);
         reply response;
-
     }
-
 }
 
-function populateSampleProducts()(map productsMap) {
+function populateSampleProducts () (map productsMap) {
     productsMap = {};
     json prod_1 = `{"Product": {"ID": "123000", "Name": "ABC_1","Description": "Sample product."}}`;
     json prod_2 = `{"Product": {"ID": "123001", "Name": "ABC_2","Description": "Sample product."}}`;
@@ -42,5 +41,4 @@ function populateSampleProducts()(map productsMap) {
     productsMap["123002"] = prod_3;
     system:println("Sample products are added.");
     return productsMap;
-
 }
