@@ -152,7 +152,7 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
      * @returns {*}
      */
     TypeMapperRenderer.prototype.getStructId = function (propertyId) {
-        var id = propertyId.replace("jstree-container" + this.viewIdSeperator, "");
+        var id = propertyId.replace(this.jsTreePrefix + this.viewIdSeperator, "");
         return id.split(this.idNameSeperator)[0]
     };
 
@@ -469,7 +469,7 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
         var placeHolderWidth = document.getElementById(this.placeHolderName).offsetWidth;
         var posY = placeHolderWidth - (placeHolderWidth / 3);
         this.makeStruct(struct, 50, posY, reference, "target");
-        var jsTreeId = 'jstree-container' + this.viewIdSeperator + id;
+        var jsTreeId = this.jsTreePrefix + this.viewIdSeperator + id;
         this.addComplexProperty(jsTreeId, struct);
         this.processJSTree(jsTreeId, id, this.addTarget);
     };
@@ -494,7 +494,7 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
             'top': posX,
             'left': posY
         });
-        var jsTreeContainer = $('<div>').attr('id', 'jstree-container' + this.viewIdSeperator + struct.id)
+        var jsTreeContainer = $('<div>').attr('id', this.jsTreePrefix + this.viewIdSeperator + struct.id)
             .addClass('tree-container');
         newStruct.append(jsTreeContainer);
         $("#" + this.placeHolderName).append(newStruct);
@@ -697,8 +697,7 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
     };
 
     TypeMapperRenderer.prototype.disableParentsJsTree = function (connectionId, self) {
-        var jsTreeContainerPrefix = 'jstree-container';
-        var sourceJsTreeId = jsTreeContainerPrefix + self.viewIdSeperator + self.getStructId(connectionId);
+        var sourceJsTreeId = this.jsTreePrefix + self.viewIdSeperator + self.getStructId(connectionId);
         var sourceJsTree = $("#" + sourceJsTreeId).jstree(true);
         var node = sourceJsTree.get_node(connectionId.replace('_anchor', ''));
         _.forEach(node.parents, function (parentNodeId) {
@@ -710,8 +709,7 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
     };
 
     TypeMapperRenderer.prototype.enableParentsJsTree = function (connectionId, self, connections, isSource) {
-        var jsTreeContainerPrefix = 'jstree-container';
-        var sourceJsTreeId = jsTreeContainerPrefix + self.viewIdSeperator + self.getStructId(connectionId);
+        var sourceJsTreeId = this.jsTreePrefix + self.viewIdSeperator + self.getStructId(connectionId);
         var sourceJsTree = $("#" + sourceJsTreeId).jstree(true);
         var node = sourceJsTree.get_node(connectionId.replace('_anchor', ''));
         _.forEach(node.parents, function (parentNodeId) {
@@ -801,12 +799,18 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
 
             _.forEach(nodes, function (n) {
                 var nodeContent = $("#" + n.id);
-                if (maxTypeHeight < nodeContent.height()) {
-                    maxTypeHeight = nodeContent.height();
-                }
-                graph.setNode(n.id, {width: nodeContent.width(), height: nodeContent.height()});
-            });
+                var height  = nodeContent.height();
 
+                if ( $("#" + n.id).attr('class').includes("struct")) {
+                    height = height + height/2;
+                }
+
+                if (maxTypeHeight < height) {
+                    maxTypeHeight = height;
+                }
+
+                graph.setNode(n.id, {width: nodeContent.width(), height: height});
+            });
             var edges = self.jsPlumbInstance.getAllConnections();
 
             _.forEach(edges, function (edge) {
