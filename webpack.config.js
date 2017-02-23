@@ -84,7 +84,8 @@ module.exports = {
             bal_utils: "ballerina/utils",
             bal_configs: "ballerina/configs",
             console: "launcher/console",
-            workspace: "workspace/module"
+            workspace$: "workspace/module",
+            ballerina$: "ballerina/module",
         }
     }
 
