@@ -4,16 +4,16 @@ The Ballerina Composer provides a flexible and powerful browser-based tool for c
 
 **You can create your integration in Design view:**
 
-![alt text](./DesignView.png?raw=true "Design view")
+![alt text](./docs/images/DesignView.png?raw=true "Design view")
 
 
 **And go to Source view to edit the code that's generated:**
 
-![alt text](./SourceView.png?raw=true "Source view")
+![alt text](./docs/images/SourceView.png?raw=true "Source view")
 
 **You can also go to Swagger view to edit the Swagger definition that's generated:**
 
-![alt text](./SwaggerView.png?raw=true "Source view")
+![alt text](./docs/images/SwaggerView.png?raw=true "Source view")
 
 ## Running the Composer
 

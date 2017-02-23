@@ -1,5 +1,5 @@
 import ballerina.net.http;
-import ballerina.lang.jsonutils;
+import ballerina.lang.jsons;
 import ballerina.lang.messages;
 
 @http:BasePath ("/cbr")
