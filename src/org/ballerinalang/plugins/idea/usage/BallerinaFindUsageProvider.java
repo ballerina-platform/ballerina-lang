@@ -42,12 +42,7 @@ public class BallerinaFindUsageProvider implements FindUsagesProvider {
 
     @Override
     public boolean canFindUsagesFor(@NotNull PsiElement psiElement) {
-        return psiElement instanceof IdentifierPSINode || // the case where we highlight the ID in def subtree itself
-                psiElement instanceof FunctionDefinitionNode ||   // remaining cases are for resolve() results
-                psiElement instanceof ConnectorDefinitionNode
-                || psiElement instanceof ActionDefinitionNode
-                || psiElement instanceof VariableDefinitionNode
-                || psiElement instanceof VariableReferenceNode;
+        return psiElement instanceof IdentifierPSINode;
     }
 
     @Nullable
@@ -61,17 +56,26 @@ public class BallerinaFindUsageProvider implements FindUsagesProvider {
     public String getType(@NotNull PsiElement element) {
         ANTLRPsiNode parent = (ANTLRPsiNode) element.getParent();
         RuleIElementType elType = (RuleIElementType) parent.getNode().getElementType();
+        // Todo - Add more types
         switch (elType.getRuleIndex()) {
-            case RULE_functionDefinition:
-                return "function";
+            case RULE_function:
+                return "Function";
+            case RULE_connector:
+                return "Connector";
             case RULE_action:
-                return "action";
+                return "Action";
             case RULE_serviceDefinition:
-                return "service";
+                return "Service";
             case RULE_variableDefinitionStatement:
-                return "variable";
-            case RULE_variableReference:
-                return "variable reference";
+                return "Variable";
+            case RULE_parameter:
+                return "Parameter";
+            case RULE_packageName:
+                return "Package";
+            case RULE_namedParameter:
+                return "Named Parameter";
+            case RULE_simpleType:
+                // Todo - Resolve the SimpleType element and return the correct type.
         }
         return "";
     }
