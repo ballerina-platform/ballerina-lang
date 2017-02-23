@@ -40,7 +40,7 @@ import org.wso2.carbon.messaging.MapCarbonMessage;
 @BallerinaFunction(
         packageName = "ballerina.lang.messages",
         functionName = "getStringValue",
-        args = {@Argument(name = "message", type = TypeEnum.MESSAGE),
+        args = {@Argument(name = "m", type = TypeEnum.MESSAGE),
                 @Argument(name = "propertyName", type = TypeEnum.STRING)},
         returnType = {@ReturnType(type = TypeEnum.STRING)},
         isPublic = true

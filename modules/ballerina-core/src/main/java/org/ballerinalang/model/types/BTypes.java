@@ -26,6 +26,9 @@ import org.ballerinalang.natives.NativeUnitProxy;
 import org.ballerinalang.natives.connectors.AbstractNativeConnector;
 import org.ballerinalang.util.exceptions.SemanticException;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import static org.ballerinalang.model.util.LangModelUtils.getNodeLocationStr;
 
 /**
@@ -48,6 +51,7 @@ public class BTypes {
     public static BType typeDatatable;
 
     private static boolean initialized = false;
+    private static Set<String> builtInTypeNames = new HashSet<>();
 
     private BTypes() {
     }
@@ -69,6 +73,20 @@ public class BTypes {
         globalScope.define(typeMap.getSymbolName(), typeMap);
         globalScope.define(typeException.getSymbolName(), typeException);
         globalScope.define(typeDatatable.getSymbolName(), typeDatatable);
+
+        builtInTypeNames.add(TypeConstants.INT_TNAME);
+        builtInTypeNames.add(TypeConstants.STRING_TNAME);
+        builtInTypeNames.add(TypeConstants.FLOAT_TNAME);
+        builtInTypeNames.add(TypeConstants.BOOLEAN_TNAME);
+        builtInTypeNames.add(TypeConstants.MESSAGE_TNAME);
+        builtInTypeNames.add(TypeConstants.EXCEPTION_TNAME);
+        builtInTypeNames.add(TypeConstants.XML_TNAME);
+        builtInTypeNames.add(TypeConstants.JSON_TNAME);
+        builtInTypeNames.add(TypeConstants.MAP_TNAME);
+        builtInTypeNames.add(TypeConstants.DATATABLE_TNAME);
+        builtInTypeNames.add(TypeConstants.CONNECTOR_TNAME);
+        builtInTypeNames.add(TypeConstants.STRUCT_TNAME);
+
 
         TypeLattice.loadImplicitCastLattice(globalScope);
         TypeLattice.loadExplicitCastLattice(globalScope);
@@ -142,5 +160,9 @@ public class BTypes {
         }
 
         return false;
+    }
+
+    public static boolean isBuiltInTypeName(String paramName) {
+        return builtInTypeNames.contains(paramName);
     }
 }
