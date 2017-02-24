@@ -757,9 +757,12 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
     TypeMapperRenderer.prototype.getSourceConnectionsByProperty = function(structName, property) {
         var self = this;
         var connections = [];
+
+        struct.name + this.viewIdSeperator + this.viewId;
         _.forEach(property, function (propertyName) {
             _.forEach(self.jsPlumbInstance.getAllConnections(), function (connection) {
-                    if (connection.sourceId.includes(structName + self.idNameSeperator + propertyName)) {
+                    if (connection.sourceId.includes(structName + this.viewIdSeperator + this.viewId
+                                                        + self.idNameSeperator + propertyName)) {
                         connections.push(self.getConnectionObject(connection.getParameter("id"),
                                                         connection.sourceId, connection.targetId));
                     }
@@ -779,7 +782,8 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
         var connections = [];
         _.forEach(property, function (propertyName) {
             _.forEach(self.jsPlumbInstance.getAllConnections(), function (connection) {
-                if (connection.targetId.includes(structName + self.idNameSeperator + propertyName)) {
+                if (connection.targetId.includes(structName + this.viewIdSeperator + this.viewId
+                                                    + self.idNameSeperator + propertyName)) {
                     connections.push(self.getConnectionObject(connection.getParameter("id"),
                         connection.sourceId, connection.targetId));
                 }
