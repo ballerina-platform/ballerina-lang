@@ -787,9 +787,8 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
     };
 
     /**
-     * Get list of connections for provided property of a source struct
+     * Get list of connections for provided source struct
      * @param {string} structName
-     * @param {Array} property name hierarchy of the property
      * @returns {Array} List of connections
      */
     TypeMapperRenderer.prototype.getSourceConnectionsByStruct = function(structName) {
@@ -804,9 +803,8 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
     };
 
     /**
-     * Get list of connections for provided property of a target struct
+     * Get list of connections for provided target struct
      * @param {string} structName
-     * @param {Array} property name hierarchy of the property
      * @returns {Array} List of connections
      */
     TypeMapperRenderer.prototype.getTargetConnectionsByStruct = function(structName) {
