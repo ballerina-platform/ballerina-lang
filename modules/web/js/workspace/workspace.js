@@ -323,6 +323,10 @@ define(['jquery', 'lodash', 'backbone', 'log', 'dialogs', 'welcome-page', 'tab',
             aboutModal.modal('show')
         };
 
+        this.showUserGuide = function () {
+            window.open(app.config.menu_bar.help_urls.user_guide_url);
+        };
+
         this.handleCreateNewItemAtPath = function(data){
             if(_.isNil(this._newItemDialog)){
                 this._newItemDialog = new Dialogs.NewItemDialog({application: app});
@@ -372,6 +376,9 @@ define(['jquery', 'lodash', 'backbone', 'log', 'dialogs', 'welcome-page', 'tab',
         app.commandManager.registerHandler('create-new-item-at-path', this.handleCreateNewItemAtPath, this);
 
         app.commandManager.registerHandler('remove-from-disk', this.handleRemoveFromDisk, this);
+
+        // Go to User Guide.
+        app.commandManager.registerHandler('go-to-user-guide', this.showUserGuide, this);
 
     }
 
