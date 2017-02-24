@@ -73,6 +73,7 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace/f
                 this._file.setContent(updatedContent);
                 this._file.save();
             }
+            $(this.app.config.tab_controller.tabs.tab.ballerina_editor.design_view.container).scrollTop(0);
         },
 
         renderBallerinaEditor: function(astRoot, parseFailed){
