@@ -58,7 +58,7 @@ public class SetJsonPayload extends AbstractNativeFunction {
         // Clone the message without content
         CarbonMessage cmsg = MessageUtil.cloneCarbonMessageWithOutData(msg.value());
         msg.setValue(cmsg);
-        msg.setMessageDataSource(payload);
+        msg.setMessageDataSource(payload.clone());
         msg.setHeader(Constants.CONTENT_TYPE, Constants.APPLICATION_JSON);
         return VOID_RETURN;
     }

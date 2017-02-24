@@ -61,7 +61,7 @@ public class SetXMLPayload extends AbstractNativeFunction {
         // Clone the message without content
         CarbonMessage cmsg = MessageUtil.cloneCarbonMessageWithOutData(msg.value());
         msg.setValue(cmsg);
-        msg.setMessageDataSource(payload);
+        msg.setMessageDataSource(payload.clone());
         msg.setHeader(Constants.CONTENT_TYPE, Constants.APPLICATION_XML);
         return VOID_RETURN;
     }
