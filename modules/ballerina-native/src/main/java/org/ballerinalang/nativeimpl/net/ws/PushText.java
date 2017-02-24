@@ -44,7 +44,7 @@ import javax.websocket.Session;
         packageName = "ballerina.net.ws",
         functionName = "pushText",
         args = {
-                @Argument(name = "message", type = TypeEnum.MESSAGE),
+                @Argument(name = "m", type = TypeEnum.MESSAGE),
                 @Argument(name = "text", type = TypeEnum.STRING)
         },
         isPublic = true

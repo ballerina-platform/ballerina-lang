@@ -43,7 +43,8 @@ import org.osgi.service.component.annotations.Component;
                 @Argument(name = "query", type = TypeEnum.STRING),
                 @Argument(name = "parameters", type = TypeEnum.ARRAY, elementType = TypeEnum.STRUCT,
                           structType = "Parameter")},
-        returnType = { @ReturnType(type = TypeEnum.INT), @ReturnType(type = TypeEnum.STRING)})
+        returnType = { @ReturnType(type = TypeEnum.INT),
+                       @ReturnType(type = TypeEnum.ARRAY, elementType = TypeEnum.STRING)})
 @Component(
         name = "action.data.sql.updateWithGeneratedKeys",
         immediate = true,

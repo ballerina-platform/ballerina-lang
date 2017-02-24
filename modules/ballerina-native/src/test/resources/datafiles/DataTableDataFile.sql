@@ -65,3 +65,11 @@ INSERT INTO MixTypes (int_type, long_type, float_type, double_type, boolean_type
 VALUES 1, 9223372036854774807, 123.34, 2139095039, TRUE, 'Hello', ARRAY [1, 2, 3], ARRAY [100000000, 200000000, 300000000], ARRAY [245.23, 5559.49, 8796.123],
   ARRAY [245.23, 5559.49, 8796.123], ARRAY [TRUE, FALSE, TRUE], ARRAY ['Hello', 'Ballerina'];
 /
+CREATE TABLE IF NOT EXISTS DateTimeTypes(
+  row_id         INTEGER NOT NULL IDENTITY,
+  time_type      TIME,
+  date_type      DATE,
+  timestamp_type timestamp,
+PRIMARY KEY (row_id)
+);
+/
