@@ -29,10 +29,10 @@ define(([],function (){
                 }
             },
             {
-                id: "about",
-                label: "About",
+                id: "user_guide",
+                label: "User Guide",
                 command: {
-                    id: "show-about-dialog",
+                    id: "go-to-user-guide",
                     shortcuts: {
                         mac: {
                             key: "f1",
@@ -43,6 +43,13 @@ define(([],function (){
                             label: "F1"
                         }
                     }
+                }
+            },
+            {
+                id: "about",
+                label: "About",
+                command: {
+                    id: "show-about-dialog"
                 }
             }
         ]
