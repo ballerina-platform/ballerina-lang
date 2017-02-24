@@ -767,10 +767,6 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
                                                         connection.sourceId, connection.targetId));
                     }
             });
-
-            _.forEach(connections, function (connection) {
-                self.jsPlumbInstance.detach(connection);
-            });
         });
         return connections;
     };
@@ -792,10 +788,6 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
                         connection.sourceId, connection.targetId));
                 }
             });
-
-            _.forEach(connections, function (connection) {
-                    self.jsPlumbInstance.detach(connection);
-            });
         });
         return connections;
     };
@@ -814,11 +806,6 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
                     connection.sourceId, connection.targetId));
             }
         });
-
-        _.forEach(connections, function (connection) {
-            self.jsPlumbInstance.detach(connection);
-        });
-
         return connections;
     };
 
@@ -836,11 +823,6 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
                         connection.sourceId, connection.targetId));
                 }
             });
-
-        _.forEach(connections, function (connection) {
-            self.jsPlumbInstance.detach(connection);
-        });
-
         return connections;
     };
 

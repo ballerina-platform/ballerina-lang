@@ -25,7 +25,7 @@ define(['lodash', 'log', './ballerina-view', './../ast/return-type', 'typeMapper
             this._onDisconnectInstance = _.get(args, 'onDisconnectInstance', {});
             this._targetInfo = _.get(args, 'targetInfo', {});
 
-            if (!_.isNil(this.getModel()) && !(this._model instanceof ReturnType)) {
+            if (_.isNil(this.getModel()) || !(this._model instanceof ReturnType)) {
                 log.error("Return type is undefined or is of different type." + this.getModel());
                 throw "Return type is undefined or is of different type." + this.getModel();
             }
@@ -48,28 +48,23 @@ define(['lodash', 'log', './ballerina-view', './../ast/return-type', 'typeMapper
             this._diagramRenderingContext = diagramRenderingContext;
 
             var typeStructSchema = this.getTargetInfo().targetStruct;
+            var typeStructName = this.getTargetInfo().targetStructName;
+            var previousSelection = this.getTargetInfo()[TYPE_MAPPER_COMBOBOX_PREVIOUS_SELECTION];
+            var isAlreadtRenderedInSource = this.getTargetInfo()[TYPE_MAPPER_COMBOBOX_TARGET_IS_ALREADY_RENDERED_IN_SOURCE];
+
             if (!mapper) {
                 mapper = new TypeMapperRenderer(self.getOnConnectInstance(), self.getOnDisconnectInstance(), this._parentView);
                 this._parentView._typeMapper = mapper;
             }
-            
-            if (typeStructSchema) {
-                var typeStructName = this.getTargetInfo().targetStructName;
-                var previousSelection = this.getTargetInfo()[TYPE_MAPPER_COMBOBOX_PREVIOUS_SELECTION];
-                var isAlreadtRenderedInSource = this.getTargetInfo()[TYPE_MAPPER_COMBOBOX_TARGET_IS_ALREADY_RENDERED_IN_SOURCE];
 
-                if (!_.isUndefined(previousSelection) && previousSelection != TYPE_MAPPER_COMBOBOX_DEFAULT_SELECTION) {
-                    mapper.removeStruct(previousSelection);
-                }
-                if (!_.isUndefined(isAlreadtRenderedInSource)) {
-                    mapper.removeStruct(typeStructName);
-                }
-                if (!_.isUndefined(typeStructSchema)) {
-                    mapper.addTargetStruct(typeStructSchema.getAttributesArray(), this.getModel());
-                }
-            } else {
-                var previousSelection = this.getTargetInfo()[TYPE_MAPPER_COMBOBOX_PREVIOUS_SELECTION];
+            if (!_.isUndefined(previousSelection) && previousSelection != TYPE_MAPPER_COMBOBOX_DEFAULT_SELECTION) {
                 mapper.removeStruct(previousSelection);
+            }
+            if (!_.isUndefined(isAlreadtRenderedInSource)) {
+                mapper.removeStruct(typeStructName);
+            }
+            if (typeStructSchema) {
+                mapper.addTargetStruct(typeStructSchema.getAttributesArray(), this.getModel());
             }
         };
 
