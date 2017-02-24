@@ -700,12 +700,10 @@ public class SQLConnectorUtils {
         }
         int hours = timezoneOffSetInMinits / 60;
         int minits = timezoneOffSetInMinits % 60;
-
         if (hours < 10) {
             dateString.append("0");
         }
         dateString.append(hours).append(":");
-
         if (minits < 10) {
             dateString.append("0");
         }
@@ -736,7 +734,6 @@ public class SQLConnectorUtils {
 
     private static void appendDate(StringBuffer dateString, Calendar calendar) {
         int year = calendar.get(Calendar.YEAR);
-
         if (year < 1000) {
             dateString.append("0");
         }
@@ -747,7 +744,7 @@ public class SQLConnectorUtils {
             dateString.append("0");
         }
         dateString.append(year).append("-");
-        // xml date month is started from 1 and calendar month is
+        // sql date month is started from 1 and calendar month is
         // started from 0. so have to add one
         int month = calendar.get(Calendar.MONTH) + 1;
         if (month < 10) {
