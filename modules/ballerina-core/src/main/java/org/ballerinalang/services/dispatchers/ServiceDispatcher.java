@@ -19,6 +19,7 @@ package org.ballerinalang.services.dispatchers;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.Service;
+import org.ballerinalang.util.exceptions.ServiceNotFoundException;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
 
@@ -36,8 +37,10 @@ public interface ServiceDispatcher {
      * @param cMsg Carbon Message
      * @param callback callback
      * @return service which can handle a given cMsg
+     * @throws ServiceNotFoundException on error if the service cannot be found.
      */
-    Service findService(CarbonMessage cMsg, CarbonCallback callback, Context balContext);
+    Service findService(CarbonMessage cMsg, CarbonCallback callback, Context balContext)
+            throws ServiceNotFoundException;
 
     /**
      * Get the protocol of the dispatcher.

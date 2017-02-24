@@ -23,6 +23,7 @@ import org.ballerinalang.model.Resource;
 import org.ballerinalang.model.Service;
 import org.ballerinalang.services.dispatchers.ResourceDispatcher;
 import org.ballerinalang.util.exceptions.BallerinaException;
+import org.ballerinalang.util.exceptions.ResourceNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonCallback;
@@ -36,19 +37,19 @@ public class JMSResourceDispatcher implements ResourceDispatcher {
 
     @Override
     public Resource findResource(Service service, CarbonMessage cMsg, CarbonCallback callback, Context balContext)
-            throws BallerinaException {
+            throws ResourceNotFoundException {
         if (log.isDebugEnabled()) {
             log.debug("Starting to find resource in the jms service " + service.getSymbolName().toString() + " to "
                             + "deliver the message");
         }
         Resource[] resources = service.getResources();
         if (resources.length == 0) {
-            throw new BallerinaException("No resources found to handle the JMS message in " + service.getSymbolName()
-                    .toString(), balContext);
+            throw new ResourceNotFoundException("no resources found to handle the jms message in " +
+                    service.getSymbolName().toString(), balContext);
         }
         if (resources.length > 1) {
-            throw new BallerinaException("More than one resources found in JMS service " + service.getSymbolName()
-                    .toString() + ".JMS Service should only have one resource", balContext);
+            throw new BallerinaException("more than one resources found in jms service " + service.getSymbolName()
+                    .toString() + ". jms service should only have one resource", balContext);
         }
         return resources[0];
     }

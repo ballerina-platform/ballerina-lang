@@ -27,11 +27,13 @@ import org.ballerinalang.services.dispatchers.uri.QueryParamProcessor;
 import org.ballerinalang.services.dispatchers.uri.URITemplate;
 import org.ballerinalang.services.dispatchers.uri.URITemplateException;
 import org.ballerinalang.util.exceptions.BallerinaException;
+import org.ballerinalang.util.exceptions.ResourceNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
 
+import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -44,30 +46,30 @@ public class HTTPResourceDispatcher implements ResourceDispatcher {
 
     @Override
     public Resource findResource(Service service, CarbonMessage cMsg, CarbonCallback callback, Context balContext)
-            throws BallerinaException {
+            throws ResourceNotFoundException {
 
         String method = (String) cMsg.getProperty(Constants.HTTP_METHOD);
         String subPath = (String) cMsg.getProperty(Constants.SUB_PATH);
 
-        try {
-            for (Resource resource : service.getResources()) {
-                Annotation subPathAnnotation = resource.getAnnotation(Constants.PROTOCOL_HTTP,
-                        Constants.ANNOTATION_NAME_PATH);
-                String subPathAnnotationVal;
-                if (subPathAnnotation != null) {
-                    subPathAnnotationVal = subPathAnnotation.getValue();
-                } else {
-                    if (log.isDebugEnabled()) {
-                        log.debug("Path not specified in the Resource, using default sub path");
-                    }
-                    subPathAnnotationVal = Constants.DEFAULT_SUB_PATH;
+        for (Resource resource : service.getResources()) {
+            Annotation subPathAnnotation = resource.getAnnotation(Constants.PROTOCOL_HTTP,
+                    Constants.ANNOTATION_NAME_PATH);
+            String subPathAnnotationVal;
+            if (subPathAnnotation != null) {
+                subPathAnnotationVal = subPathAnnotation.getValue();
+            } else {
+                if (log.isDebugEnabled()) {
+                    log.debug("Path not specified in the Resource, using default sub path");
                 }
+                subPathAnnotationVal = Constants.DEFAULT_SUB_PATH;
+            }
 
-                Map<String, String> resourceArgumentValues = new HashMap<>();
-                //to enable dispatchers with query params products/{productId}?regID={regID}
-                String queryStr = cMsg.getProperty(Constants.QUERY_STR) != null
-                                  ? "?" + cMsg.getProperty(Constants.QUERY_STR)
-                                  : "";
+            Map<String, String> resourceArgumentValues = new HashMap<>();
+            //to enable dispatchers with query params products/{productId}?regID={regID}
+            String queryStr = cMsg.getProperty(Constants.QUERY_STR) != null
+                    ? "?" + cMsg.getProperty(Constants.QUERY_STR)
+                    : "";
+            try {
                 if ((matches(subPathAnnotationVal, (subPath + queryStr), resourceArgumentValues) ||
                         Constants.DEFAULT_SUB_PATH.equals(subPathAnnotationVal))
                         && (resource.getAnnotation(Constants.PROTOCOL_HTTP, method) != null)) {
@@ -80,13 +82,14 @@ public class HTTPResourceDispatcher implements ResourceDispatcher {
                     cMsg.setProperty(org.ballerinalang.runtime.Constants.RESOURCE_ARGS, resourceArgumentValues);
                     return resource;
                 }
+            } catch (URITemplateException | UnsupportedEncodingException e) {
+                throw new BallerinaException(e.getMessage(), e, balContext);
             }
-        } catch (Throwable e) {
-            throw new BallerinaException(e.getMessage(), balContext);
         }
 
         // Throw an exception if the resource is not found.
-        throw new BallerinaException("no matching resource found for Path : " + subPath + " , Method : " + method);
+        throw new ResourceNotFoundException("no matching resource found for path : " + subPath + " , method : "
+                + method);
     }
 
     public static boolean matches(String uriTemplate, String reqPath,

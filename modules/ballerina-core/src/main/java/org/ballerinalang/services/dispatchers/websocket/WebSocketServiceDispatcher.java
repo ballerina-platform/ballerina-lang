@@ -27,6 +27,7 @@ import org.ballerinalang.services.dispatchers.http.HTTPServiceDispatcher;
 import org.ballerinalang.services.dispatchers.http.HTTPServicesRegistry;
 import org.ballerinalang.services.dispatchers.uri.URIUtil;
 import org.ballerinalang.util.exceptions.BallerinaException;
+import org.ballerinalang.util.exceptions.ServiceNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonCallback;
@@ -43,33 +44,34 @@ public class WebSocketServiceDispatcher extends HTTPServiceDispatcher {
     private static final Logger logger = LoggerFactory.getLogger(WebSocketServiceDispatcher.class);
 
     @Override
-    public Service findService(CarbonMessage cMsg, CarbonCallback callback, Context balContext) {
+    public Service findService(CarbonMessage cMsg, CarbonCallback callback, Context balContext)
+            throws ServiceNotFoundException {
         String interfaceId = getInterface(cMsg);
 
         String serviceUri = (String) cMsg.getProperty(Constants.TO);
         serviceUri = refactorUri(serviceUri);
         if (serviceUri == null) {
-            throw new BallerinaException("No service found to dispatch");
+            throw new ServiceNotFoundException("no service found to dispatch");
         }
         String basePath = URIUtil.getFirstPathSegment(serviceUri);
         Service service = HTTPServicesRegistry.getInstance().
                 getService(interfaceId, Constants.DEFAULT_BASE_PATH + basePath);
 
         if (service == null) {
-            throw new BallerinaException("No service found to handle message for " + serviceUri);
+            throw new ServiceNotFoundException("no service found to handle message for " + serviceUri);
         }
 
 
         String webSocketUpgradePath = findWebSocketUpgradePath(service);
         if (webSocketUpgradePath == null) {
-            throw new BallerinaException("No service found to handle message for " + serviceUri);
+            throw new ServiceNotFoundException("no service found to handle message for " + serviceUri);
         }
 
         if (webSocketUpgradePath.equals(serviceUri)) {
             return service;
         }
 
-        throw new BallerinaException("No service found to handle message for " + serviceUri);
+        throw new ServiceNotFoundException("no service found to handle message for " + serviceUri);
     }
 
     @Override
@@ -99,7 +101,7 @@ public class WebSocketServiceDispatcher extends HTTPServiceDispatcher {
         }
         if (websocketUpgradePathAnnotation != null && websocketUpgradePathAnnotation.getValue() != null) {
             if (basePathAnnotation == null) {
-                throw new BallerinaException("Cannot define @WebSocketPathUpgrade without @BasePath");
+                throw new BallerinaException("cannot define @WebSocketPathUpgrade without @BasePath");
             }
 
             String basePath = refactorUri(basePathAnnotation.getValue());

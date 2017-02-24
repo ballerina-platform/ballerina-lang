@@ -25,6 +25,7 @@ import org.ballerinalang.model.SymbolName;
 import org.ballerinalang.natives.connectors.BallerinaConnectorManager;
 import org.ballerinalang.services.dispatchers.ServiceDispatcher;
 import org.ballerinalang.util.exceptions.BallerinaException;
+import org.ballerinalang.util.exceptions.ServiceNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonCallback;
@@ -46,15 +47,16 @@ public class JMSServiceDispatcher implements ServiceDispatcher {
     private Map<String, Service> serviceMap = new HashMap<>();
 
     @Override
-    public Service findService(CarbonMessage cMsg, CarbonCallback callback, Context balContext) {
+    public Service findService(CarbonMessage cMsg, CarbonCallback callback, Context balContext)
+            throws ServiceNotFoundException {
         Object serviceIdProperty = cMsg.getProperty(Constants.JMS_SERVICE_ID);
         String serviceId = (serviceIdProperty != null) ? serviceIdProperty.toString() : null;
         if (serviceId == null) {
-            throw new BallerinaException("Service Id is not found in JMS Message", balContext);
+            throw new ServiceNotFoundException("service id is not found in jms message", balContext);
         }
         Service service = serviceMap.get(serviceId);
         if (service == null) {
-            throw new BallerinaException("No jms service is registered with the service id " + serviceId,
+            throw new ServiceNotFoundException("no jms service is registered with the service id " + serviceId,
                     balContext);
         }
         return service;

@@ -20,7 +20,7 @@ package org.ballerinalang.services.dispatchers;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.Resource;
 import org.ballerinalang.model.Service;
-import org.ballerinalang.util.exceptions.BallerinaException;
+import org.ballerinalang.util.exceptions.ResourceNotFoundException;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
 
@@ -38,9 +38,10 @@ public interface ResourceDispatcher {
      * @param cMsg     Carbon Message
      * @param callback Carbon Messaging Callback
      * @return resource which can handle a given cMsg
+     * @throws ResourceNotFoundException on error if the resource cannot be found.
      */
-    Resource findResource(
-            Service service, CarbonMessage cMsg, CarbonCallback callback, Context balContext) throws BallerinaException;
+    Resource findResource(Service service, CarbonMessage cMsg, CarbonCallback callback, Context balContext)
+            throws ResourceNotFoundException;
 
     String getProtocol();
 
