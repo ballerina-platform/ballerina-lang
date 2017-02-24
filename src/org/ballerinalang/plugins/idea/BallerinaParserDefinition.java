@@ -74,6 +74,9 @@ import org.ballerinalang.plugins.idea.psi.ServiceBodyNode;
 import org.ballerinalang.plugins.idea.psi.SimpleTypeNode;
 import org.ballerinalang.plugins.idea.psi.StatementNode;
 import org.ballerinalang.plugins.idea.psi.StructDefinitionNode;
+import org.ballerinalang.plugins.idea.psi.TypeMapperBodyNode;
+import org.ballerinalang.plugins.idea.psi.TypeMapperInputNode;
+import org.ballerinalang.plugins.idea.psi.TypeMapperNode;
 import org.ballerinalang.plugins.idea.psi.TypeNameNode;
 import org.ballerinalang.plugins.idea.psi.VariableDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.VariableReferenceNode;
@@ -255,6 +258,12 @@ public class BallerinaParserDefinition implements ParserDefinition {
                 return new FunctionName(node);
             case BallerinaParser.RULE_typeName:
                 return new TypeNameNode(node);
+            case BallerinaParser.RULE_typeMapperInput:
+                return new TypeMapperInputNode(node);
+            case BallerinaParser.RULE_typeMapper:
+                return new TypeMapperNode(node);
+            case BallerinaParser.RULE_typeMapperBody:
+                return new TypeMapperBodyNode(node);
             default:
                 return new ANTLRPsiNode(node);
         }

@@ -80,6 +80,8 @@ public class BallerinaFindUsageProvider implements FindUsagesProvider {
                 return "Package";
             case RULE_namedParameter:
                 return "Named Parameter";
+            case RULE_typeMapperInput:
+                return "Type Mapper Input";
             case RULE_simpleType:
                 // Todo - Resolve the SimpleType element and return the correct type.
         }
