@@ -53,6 +53,7 @@ import org.ballerinalang.plugins.idea.psi.ParameterNode;
 import org.ballerinalang.plugins.idea.psi.ResourceDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.SimpleTypeNode;
 import org.ballerinalang.plugins.idea.psi.StatementNode;
+import org.ballerinalang.plugins.idea.psi.TypeMapperNode;
 import org.ballerinalang.plugins.idea.psi.VariableReferenceNode;
 import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
 import org.jetbrains.annotations.NotNull;
@@ -91,6 +92,7 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
 
     // Other keywords
     private static final LookupElementBuilder REPLY;
+    private static final LookupElementBuilder RETURN;
 
     static {
         PACKAGE = createKeywordLookupElement("package", true, AddSpaceInsertHandler.INSTANCE_WITH_AUTO_POPUP);
@@ -115,6 +117,7 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
         DATATABLE = createReferenceTypeLookupElement("datatable", true, AddSpaceInsertHandler.INSTANCE);
 
         REPLY = createKeywordLookupElement("reply", true, AddSpaceInsertHandler.INSTANCE);
+        RETURN = createKeywordLookupElement("return", true, AddSpaceInsertHandler.INSTANCE);
     }
 
     private static LookupElementBuilder createLookupElement(String name, boolean withBoldness,
@@ -272,6 +275,18 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                         PsiTreeUtil.getParentOfType(element, ResourceDefinitionNode.class);
                 if (resourceDefinitionNode != null) {
                     addKeyword(resultSet, REPLY, CONTEXT_KEYWORD_PRIORITY);
+                }
+
+                FunctionDefinitionNode functionBodyNode =
+                        PsiTreeUtil.getParentOfType(element, FunctionDefinitionNode.class);
+                if (functionBodyNode != null) {
+                    addKeyword(resultSet, RETURN, CONTEXT_KEYWORD_PRIORITY);
+                }
+
+                TypeMapperNode typeMapperNode =
+                        PsiTreeUtil.getParentOfType(element, TypeMapperNode.class);
+                if (typeMapperNode != null) {
+                    addKeyword(resultSet, RETURN, CONTEXT_KEYWORD_PRIORITY);
                 }
 
             } else if (superParent instanceof CompilationUnitNode) {
