@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', 'jquery', 'alerts', './return-type-view', './../ast/node', 'select2'],
+define(['lodash', 'log', 'jquery', 'alerts', './return-type-view', './../ast/node','select2'],
     function (_, log, $, Alerts, ReturnTypeView, ASTNode, select2) {
 
         /**
@@ -29,13 +29,15 @@ define(['lodash', 'log', 'jquery', 'alerts', './return-type-view', './../ast/nod
          * @param {ASTNode} args.view - The view of the model.
          */
         var ReturnTypePaneView = function (args) {
+            this._supportedReturnTypes = ['message', 'connection', 'string', 'int', 'exception', 'json', 'xml',
+                'map', 'string[]', 'int[]'];
+
             this._activatorElement = _.get(args, "activatorElement");
             this._model = _.get(args, "model");
             this._paneElement = _.get(args, "paneAppendElement");
             this._viewOptions = _.get(args, "viewOptions");
             this._viewOfModel = _.get(args, "view");
             this._returnTypeEditorWrapper = undefined;
-            this._supportedReturnTypes = this._viewOfModel.getDiagramRenderingContext().getEnvironment().getTypes();
         };
 
         ReturnTypePaneView.prototype.constructor = ReturnTypePaneView;
