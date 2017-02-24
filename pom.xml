@@ -16,8 +16,7 @@
   ~ * limitations under the License.
   ~ */
   -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <parent>
         <groupId>org.wso2</groupId>
@@ -29,7 +28,7 @@
     <groupId>org.ballerinalang.tools</groupId>
     <artifactId>ballerina-tools</artifactId>
     <packaging>pom</packaging>
-    <version>0.8.0-SNAPSHOT</version>
+    <version>0.8.1-SNAPSHOT</version>
     <name>Ballerina - Tools</name>
     <description>Ballerina - Tools</description>
 
@@ -160,10 +159,8 @@
                         </goals>
                         <configuration>
                             <target>
-                                <delete dir="${project.build.directory}/extracted-distributions"
-                                        includeemptydirs="true"/>
-                                <delete dir="${project.build.directory}/api-docs"
-                                        includeemptydirs="true"/>
+                                <delete dir="${project.build.directory}/extracted-distributions" includeemptydirs="true" />
+                                <delete dir="${project.build.directory}/api-docs" includeemptydirs="true" />
                             </target>
                         </configuration>
                     </execution>
