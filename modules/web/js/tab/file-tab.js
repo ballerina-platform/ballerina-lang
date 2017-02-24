@@ -110,7 +110,6 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace/f
             }, this);
 
             fileEditor.on('content-modified', function() {
-                console.log(arguments)
                 // TODO handle line number changes in a better way
                 // remove breakpoints if tree modified
                 if(!_.isEmpty(self.getBreakPoints())) {
