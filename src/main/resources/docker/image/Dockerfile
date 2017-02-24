@@ -14,7 +14,7 @@
 # limitations under the License.
 # -----------------------------------------------------------------------
 
-FROM ballerina/ballerina-pkg:0.8.0
+FROM ballerinalang/ballerina:0.8.1
 MAINTAINER tryballerina@gmail.com
 
 ARG SVC_MODE=false
