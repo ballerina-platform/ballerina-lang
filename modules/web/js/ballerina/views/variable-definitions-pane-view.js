@@ -80,22 +80,47 @@ define(['require', 'lodash', 'log', 'jquery', 'alerts', './variable-definition-v
             var variableAddPane = $("<div class='action-content-wrapper-heading variable-add-action-wrapper'/>")
                 .appendTo(variablesActionWrapper);
 
-            var variableSelect = $("<select/>");
-            var typeDropdownWrapper = $('<div class="type-drop-wrapper service"></div>');
-            variableSelect.appendTo(typeDropdownWrapper);
-            typeDropdownWrapper.appendTo(variableAddPane);
+            // Creating the variable type dropdown.
+            var typeDropdownWrapper = $('<div class="type-drop-wrapper service"/>').appendTo(variableAddPane);
+            var variableSelect = $("<select/>").appendTo(typeDropdownWrapper);
+
             var variableIdentifier = $("<input id='text' placeholder='Identifier'/>").appendTo(variableAddPane);
             var variableValueExpression = $("<input id='text' placeholder='Value'/>").appendTo(variableAddPane);
 
-            var variableTypes = this._viewOfModel.getDiagramRenderingContext().getEnvironment().getTypes();
-            for (var typeCount = 0; typeCount < variableTypes.length; typeCount++) {
-                $("<option value=" + variableTypes[typeCount] + ">" + variableTypes[typeCount] + "</option>")
-                    .appendTo($(variableSelect));
-            }
-            variableSelect.select2({
+            $(variableSelect).select2({
+                data: this._getTypeDropdownValues(),
                 tags: true,
                 selectOnClose: true
             });
+
+            $(document).ready(function() {
+                $(typeDropdownWrapper).empty();
+                variableSelect = $("<select/>").appendTo(typeDropdownWrapper);
+                $(variableSelect).select2({
+                    tags: true,
+                    selectOnClose: true,
+                    data : self._getTypeDropdownValues(),
+                    query: function (query) {
+                        var data = {results: []};
+                        if (!_.isNil(query.term)) {
+                            _.forEach(self._getTypeDropdownValues(), function (item) {
+                                if (item.text.toUpperCase().indexOf(query.term.toUpperCase()) >= 0) {
+                                    data.results.push(item);
+                                }
+                            });
+                        } else {
+                            data.results = self._getTypeDropdownValues();
+                        }
+                        query.callback(data);
+                    }
+                });
+
+                $(variableSelect).on("select2:open", function() {
+                    $(".select2-search__field").attr("placeholder", "Search");
+                });
+            });
+
+
             // Add new variable upon enter key.
             $(variableIdentifier).on("change paste keydown", function (e) {
                 if (e.which == 13) {
@@ -265,6 +290,21 @@ define(['require', 'lodash', 'log', 'jquery', 'alerts', './variable-definition-v
             } else {
                 collapserWrapper.hide();
             }
+        };
+
+        /**
+         * Returns an object array with support types.
+         * @return {Object[]} Object array as supported data types.
+         */
+        VariableDeclarationsPaneView.prototype._getTypeDropdownValues = function() {
+            var dropdownData = [];
+            // Adding items to the type dropdown.
+            var bTypes = this._viewOfModel.getDiagramRenderingContext().getEnvironment().getTypes();
+            _.forEach(bTypes, function (bType) {
+                dropdownData.push({id: bType, text: bType});
+            });
+
+            return dropdownData;
         };
 
         return VariableDeclarationsPaneView;
