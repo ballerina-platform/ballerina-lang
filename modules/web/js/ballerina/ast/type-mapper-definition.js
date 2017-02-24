@@ -179,15 +179,33 @@ define(['lodash', './node', '../utils/common-utils'], function (_, ASTNode, Comm
      * @param {string} typeStructName
      * @param {string} identifier
      */
-    TypeMapperDefinition.prototype.addResourceParameterChild = function (typeStructName, identifier) {
+    TypeMapperDefinition.prototype.addResourceParameterChild = function (typeStructName, identifier, ignoreVisit) {
 
         // Creating a new ResourceParameter.
         var newResourceParameter = this.getFactory().createResourceParameter();
-        newResourceParameter.setIdentifier(identifier);
-        newResourceParameter.setType(typeStructName);
+        if (identifier) newResourceParameter.setIdentifier(identifier);
+        if (typeStructName) newResourceParameter.setType(typeStructName);
 
         var lastIndex = _.findLastIndex(this.getChildren());
-        this.addChild(newResourceParameter, lastIndex - 1);
+        this.addChild(newResourceParameter, lastIndex - 1, false, ignoreVisit);
+    };
+
+    TypeMapperDefinition.prototype.addChild = function (child, index, ignoreTreeModifiedEvent, ignoreVisit) {
+        var self = this;
+
+        if (!_.isUndefined(ignoreVisit) && ignoreVisit) {
+
+            if (_.isUndefined(index)) {
+                self.children.push(child);
+            } else {
+                self.children.splice(index, 0, child);
+            }
+            //setting the parent node - doing silently avoid subsequent change events
+            child.setParent(self, {doSilently: true});
+            child.generateUniqueIdentifiers();
+        } else {
+            Object.getPrototypeOf(this.constructor.prototype).addChild.call(this, child, index, ignoreTreeModifiedEvent);
+        }
     };
 
     /**
@@ -195,14 +213,14 @@ define(['lodash', './node', '../utils/common-utils'], function (_, ASTNode, Comm
      * @param {string} typeStructName
      * @param {string} identifier
      */
-    TypeMapperDefinition.prototype.addReturnTypeChild = function (typeStructName, identifier) {
+    TypeMapperDefinition.prototype.addReturnTypeChild = function (typeStructName, ignoreVisit) {
 
         // Creating a new ResourceParameter.
         var newReturnType = this.getFactory().createReturnType();
-        newReturnType.setType(typeStructName);
+        if (typeStructName) newReturnType.setType(typeStructName);
 
         var lastIndex = _.findLastIndex(this.getChildren());
-        this.addChild(newReturnType, lastIndex - 1);
+        this.addChild(newReturnType, lastIndex - 1, false, ignoreVisit);
     };
 
     /**
