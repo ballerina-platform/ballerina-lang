@@ -755,10 +755,14 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
      * @returns {Array} List of connections
      */
     TypeMapperRenderer.prototype.getSourceConnectionsByProperty = function(structName, property) {
+        var self = this;
         var connections = [];
+
+        struct.name + this.viewIdSeperator + this.viewId;
         _.forEach(property, function (propertyName) {
             _.forEach(self.jsPlumbInstance.getAllConnections(), function (connection) {
-                    if (connection.sourceId.includes(structName + self.idNameSeperator + propertyName)) {
+                    if (connection.sourceId.includes(structName + this.viewIdSeperator + this.viewId
+                                                        + self.idNameSeperator + propertyName)) {
                         connections.push(self.getConnectionObject(connection.getParameter("id"),
                                                         connection.sourceId, connection.targetId));
                     }
@@ -774,10 +778,12 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
      * @returns {Array} List of connections
      */
     TypeMapperRenderer.prototype.getTargetConnectionsByProperty = function(structName, property) {
+        var self = this;
         var connections = [];
         _.forEach(property, function (propertyName) {
             _.forEach(self.jsPlumbInstance.getAllConnections(), function (connection) {
-                if (connection.targetId.includes(structName + self.idNameSeperator + propertyName)) {
+                if (connection.targetId.includes(structName + this.viewIdSeperator + this.viewId
+                                                    + self.idNameSeperator + propertyName)) {
                     connections.push(self.getConnectionObject(connection.getParameter("id"),
                         connection.sourceId, connection.targetId));
                 }
@@ -792,6 +798,7 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
      * @returns {Array} List of connections
      */
     TypeMapperRenderer.prototype.getSourceConnectionsByStruct = function(structName) {
+        var self = this;
         var connections = [];
         _.forEach(self.jsPlumbInstance.getAllConnections(), function (connection) {
             if (connection.sourceId.includes(structName)) {
@@ -808,6 +815,7 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
      * @returns {Array} List of connections
      */
     TypeMapperRenderer.prototype.getTargetConnectionsByStruct = function(structName) {
+        var self = this;
         var connections = [];
            _.forEach(self.jsPlumbInstance.getAllConnections(), function (connection) {
                 if (connection.targetId.includes(structName)) {
