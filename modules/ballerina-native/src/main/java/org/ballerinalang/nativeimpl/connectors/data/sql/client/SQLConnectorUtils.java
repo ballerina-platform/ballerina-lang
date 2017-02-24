@@ -24,10 +24,13 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.Reader;
 import java.io.StringReader;
 import java.math.BigDecimal;
 import java.nio.charset.Charset;
 import java.sql.CallableStatement;
+import java.sql.Clob;
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.PreparedStatement;
@@ -496,6 +499,36 @@ public class SQLConnectorUtils {
             return Base64.getDecoder().decode(base64Str.getBytes(Charset.defaultCharset()));
         } catch (Exception e) {
             throw new BallerinaException("error in processing base64 string: " + e.getMessage(), e);
+        }
+    }
+
+    /**
+     * This will retrive the string value for the given clob.
+     *
+     * @param data   clob data
+     */
+    public static String deriveValueFromClob(Clob data) {
+        Reader r = null;
+        try {
+            StringBuilder sb = new StringBuilder();
+            r = new BufferedReader((data).getCharacterStream());
+            int pos;
+            while ((pos = r.read()) != -1) {
+                sb.append((char) pos);
+            }
+            return sb.toString();
+        } catch (IOException e) {
+            throw new BallerinaException("error occurred while reading CLOB value", e);
+        } catch (SQLException e) {
+            throw new BallerinaException("error occurred while reading CLOB value: " + e.getMessage(), e);
+        } finally {
+            if (r != null) {
+                try {
+                    r.close();
+                } catch (IOException e) {
+                    throw new BallerinaException("error occurred while reading CLOB value", e);
+                }
+            }
         }
     }
 

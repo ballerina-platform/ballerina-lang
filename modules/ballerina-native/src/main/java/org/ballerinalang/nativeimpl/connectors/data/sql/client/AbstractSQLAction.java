@@ -33,6 +33,7 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.math.BigDecimal;
 import java.sql.CallableStatement;
+import java.sql.Clob;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -136,6 +137,7 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
             stmt = conn.prepareCall(query);
             createProcessedStatement(stmt, parameters);
             boolean hasResult = stmt.execute();
+            setOutParameters(stmt, parameters);
             if (hasResult) {
                 rs = stmt.getResultSet();
                 BDataTable datatable = new BDataTable(new SQLDataIterator(conn, stmt, rs), new HashMap<>(),
@@ -275,8 +277,79 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
                 SQLConnectorUtils.setClobValue(stmt, value, index, direction, Types.CLOB);
                 break;
             default:
-                throw new BallerinaException("unsupported datatype as input parameter: " + sqlType + " index:" + index);
+                throw new BallerinaException("unsupported datatype as parameter: " + sqlType + " index:" + index);
             }
+        }
+    }
+
+    private void setOutParameters(CallableStatement stmt, BArray params) {
+        int paramCount = params.size();
+        for (int index = 0; index < paramCount; index++) {
+            BStruct paramValue = (BStruct) params.get(index);
+            String sqlType = paramValue.getValue(0).stringValue();
+            int direction = Integer.parseInt(paramValue.getValue(2).stringValue());
+            if (direction == Constants.QueryParamDirection.INOUT || direction == Constants.QueryParamDirection.OUT) {
+                setOutParameterValue(stmt, sqlType, index, paramValue);
+            }
+        }
+    }
+
+    private void setOutParameterValue(CallableStatement stmt, String sqlType, int index, BStruct paramValue) {
+        try {
+            String sqlDataType = sqlType.toUpperCase(Locale.getDefault());
+            Object elementValue;
+            String stringValue = "";
+            switch (sqlDataType) {
+            case Constants.SQLDataTypes.INTEGER:
+                elementValue = stmt.getInt(index + 1);
+                stringValue = elementValue.toString();
+                break;
+            case Constants.SQLDataTypes.VARCHAR:
+                elementValue = stmt.getString(index + 1);
+                stringValue = elementValue == null ? "" : elementValue.toString();
+                break;
+            case Constants.SQLDataTypes.NUMERIC:
+            case Constants.SQLDataTypes.DECIMAL:
+                elementValue = stmt.getBigDecimal(index + 1);
+                stringValue = elementValue == null ? "" : elementValue.toString();
+                break;
+            case Constants.SQLDataTypes.BIT:
+            case Constants.SQLDataTypes.BOOLEAN:
+                elementValue = stmt.getBoolean(index + 1);
+                stringValue = elementValue.toString();
+                break;
+            case Constants.SQLDataTypes.TINYINT:
+                elementValue = stmt.getByte(index + 1);
+                stringValue = elementValue.toString();
+                break;
+            case Constants.SQLDataTypes.SMALLINT:
+                elementValue = stmt.getShort(index + 1);
+                stringValue = elementValue.toString();
+                break;
+            case Constants.SQLDataTypes.BIGINT:
+                elementValue = stmt.getLong(index + 1);
+                stringValue = elementValue.toString();
+                break;
+            case Constants.SQLDataTypes.REAL:
+            case Constants.SQLDataTypes.FLOAT:
+                elementValue = stmt.getFloat(index + 1);
+                stringValue = elementValue.toString();
+                break;
+            case Constants.SQLDataTypes.DOUBLE:
+                elementValue = stmt.getDouble(index + 1);
+                stringValue = elementValue.toString();
+                break;
+            case Constants.SQLDataTypes.CLOB:
+                elementValue = stmt.getClob(index + 1);
+                stringValue = elementValue == null ? "" : SQLConnectorUtils.deriveValueFromClob((Clob) elementValue);
+                break;
+            default:
+                throw new BallerinaException(
+                        "unsupported datatype as out/inout parameter: " + sqlType + " index:" + index);
+            }
+            paramValue.setValue(1, new BString(stringValue)); //Value is the first position of the struct
+        } catch (SQLException e) {
+            throw new BallerinaException("error in getting out parameter value: " + e.getMessage(), e);
         }
     }
 }
