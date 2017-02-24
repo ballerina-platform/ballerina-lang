@@ -41,7 +41,7 @@ public class SwaggerServiceMapper {
     }
 
     /**
-     * @return @ObjectMapper instance to be used to generate service definition.
+     * @return ObjectMapper instance to be used to generate service definition.
      */
     public ObjectMapper getObjectMapper() {
         return objectMapper;
@@ -58,7 +58,8 @@ public class SwaggerServiceMapper {
     }
 
     /**
-     * @return @String representation of current service object.
+     * @param swagger Swagger definition
+     * @return String representation of current service object.
      */
     public String generateSwaggerString(Swagger swagger) {
         try {
@@ -74,7 +75,7 @@ public class SwaggerServiceMapper {
      * This method will convert ballerina @Service to swaggers @Swagger object.
      *
      * @param service ballerina @Service object to be map to swagger definition
-     * @return @Swagger object which represent current service.
+     * @return Swagger object which represent current service.
      */
     public Swagger convertServiceToSwagger(Service service) {
         Swagger swagger = new Swagger();
@@ -103,9 +104,9 @@ public class SwaggerServiceMapper {
      * Assumption made here was ballerina service will be always super set of swagger. Swagger can have its annotations
      * and those will be part of ballerina service without any data loss.
      *
-     * @param swagger @Swagger to be convert to @Service.
-     * @param service @Service object that need to update with swagger changes.
-     * @return Updated @Service object with swagger changes.
+     * @param swagger Swagger to be convert to @Service.
+     * @param service Service object that need to update with swagger changes.
+     * @return Updated Service object with swagger changes.
      */
     public Service convertSwaggerToService(Swagger swagger, Service service) {
         //We need to pass both swagger definition and service definition for this class
