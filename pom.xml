@@ -167,7 +167,7 @@
     </build>
 
     <properties>
-        <ballerina.version>0.8.1-SNAPSHOT</ballerina.version>
+        <ballerina.version>0.8.1</ballerina.version>
         <testng.version>6.9.4</testng.version>
         <slf4j-version>1.7.12</slf4j-version>
         <jcommander-version>1.60</jcommander-version>
