@@ -489,6 +489,9 @@ public class BLangAntlr4Listener implements BallerinaListener {
      */
     @Override
     public void enterTypeMapperInput(BallerinaParser.TypeMapperInputContext ctx) {
+        if (ctx.exception == null) {
+            modelBuilder.startTypeMapperInput();
+        }
     }
 
     /**
@@ -503,6 +506,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
         }
 
         modelBuilder.addParam(ctx.Identifier().getText(), getCurrentLocation(ctx));
+        modelBuilder.endTypeMapperInput();
     }
 
     @Override

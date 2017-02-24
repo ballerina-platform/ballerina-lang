@@ -77,6 +77,8 @@ public class HTTPServiceDispatcher implements ServiceDispatcher {
             cMsg.setProperty(Constants.BASE_PATH, basePath);
             cMsg.setProperty(Constants.SUB_PATH, subPath);
             cMsg.setProperty(Constants.QUERY_STR, requestUri.getQuery());
+            //store query params comes with request as it is
+            cMsg.setProperty(Constants.RAW_QUERY_STR, requestUri.getRawQuery());
 
             return service;
         } catch (Throwable e) {

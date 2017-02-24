@@ -23,7 +23,7 @@ import org.antlr.v4.runtime.misc.ParseCancellationException;
 import org.ballerinalang.model.BLangPackage;
 import org.ballerinalang.model.BallerinaFile;
 import org.ballerinalang.model.builder.BLangModelBuilder;
-import org.ballerinalang.util.exceptions.BallerinaException;
+import org.ballerinalang.util.exceptions.ParserException;
 import org.ballerinalang.util.parser.BallerinaLexer;
 import org.ballerinalang.util.parser.BallerinaParser;
 import org.ballerinalang.util.parser.BallerinaParserErrorStrategy;
@@ -75,7 +75,7 @@ public class BLangFiles {
                     sourceFilePath + "': " + e.getMessage());
 
         } catch (ParseCancellationException e) {
-            throw new BallerinaException(e.getMessage(), e);
+            throw new ParserException(e.getMessage(), e);
         }
     }
 }

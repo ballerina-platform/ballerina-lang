@@ -58,7 +58,7 @@ import java.util.Map;
                  @Argument(name = "destinationName", type = TypeEnum.STRING),
                  @Argument(name = "destinationType", type = TypeEnum.STRING),
                  @Argument(name = "msgType", type = TypeEnum.STRING),
-                 @Argument(name = "message", type = TypeEnum.MESSAGE),
+                 @Argument(name = "m", type = TypeEnum.MESSAGE),
                  @Argument(name = "properties", type = TypeEnum.MAP) },
         returnType = {@ReturnType(type = TypeEnum.BOOLEAN)})
 @BallerinaAnnotation(annotationName = "Description", attributes = { @Attribute(name = "value",

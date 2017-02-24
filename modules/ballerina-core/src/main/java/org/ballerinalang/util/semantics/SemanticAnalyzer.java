@@ -527,7 +527,7 @@ public class SemanticAnalyzer implements NodeVisitor {
     private void addWorkerSymbol(Worker worker) {
         SymbolName symbolName = worker.getSymbolName();
         BLangSymbol varSymbol = currentScope.resolve(symbolName);
-        if (varSymbol != null && varSymbol.getSymbolScope().getScopeName() == currentScope.getScopeName()) {
+        if (varSymbol != null) {
             BLangExceptionHelper.throwSemanticError(worker,
                     SemanticErrors.REDECLARED_SYMBOL, worker.getName());
         }
@@ -872,6 +872,7 @@ public class SemanticAnalyzer implements NodeVisitor {
 
     @Override
     public void visit(ForkJoinStmt forkJoinStmt) {
+        //open the fork join statement scope
         openScope(forkJoinStmt);
         // Visit incoming message
         VariableRefExpr messageReference = forkJoinStmt.getMessageReference();
@@ -887,8 +888,6 @@ public class SemanticAnalyzer implements NodeVisitor {
         for (Worker worker: forkJoinStmt.getWorkers()) {
             worker.accept(this);
         }
-
-        closeScope();
 
         // Visit join condition
         ForkJoinStmt.Join join = forkJoinStmt.getJoin();
@@ -930,6 +929,9 @@ public class SemanticAnalyzer implements NodeVisitor {
         // Visit timeout body
         Statement timeoutBody = timeout.getTimeoutBlock();
         timeoutBody.accept(this);
+        closeScope();
+
+        //closing the fork join statement scope
         closeScope();
 
     }
@@ -1993,7 +1995,6 @@ public class SemanticAnalyzer implements NodeVisitor {
             BLangExceptionHelper.throwSemanticError(actionIExpr, SemanticErrors.UNDEFINED_CONNECTOR,
                     connectorWithPkgName);
         }
-
         Expression[] exprs = actionIExpr.getArgExprs();
         BType[] paramTypes = new BType[exprs.length];
         for (int i = 0; i < exprs.length; i++) {
@@ -2013,8 +2014,8 @@ public class SemanticAnalyzer implements NodeVisitor {
         } else if (connectorSymbol instanceof BallerinaConnectorDef) {
             actionSymbol = ((BallerinaConnectorDef) connectorSymbol).resolveMembers(symbolName);
         } else {
-            BLangExceptionHelper.throwSemanticError(actionIExpr, SemanticErrors.INCOMPATIBLE_TYPES_UNKNOWN_FOUND, 
-                    connectorSymbolName);
+            BLangExceptionHelper.throwSemanticError(actionIExpr, SemanticErrors.INCOMPATIBLE_TYPES_CONNECTOR_EXPECTED,
+                connectorSymbolName);
         }
 
         if (actionSymbol == null) {

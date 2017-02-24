@@ -19,4 +19,7 @@ Ballerina is:
 
 ![alt text](images/EchoSource.png "Source view")
 
+**Or go to the Swagger view to define the service in Swagger:**
+![alt text](images/EchoSwagger.png "Swagger view")
+
 To get started, go to the [Quick Tour](quick-tour.md) and take Ballerina for a spin!

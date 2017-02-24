@@ -42,8 +42,11 @@ import org.osgi.service.component.annotations.Component;
         connectorName = SQLConnector.CONNECTOR_NAME,
         args = {@Argument(name = "c", type = TypeEnum.CONNECTOR),
                 @Argument(name = "query", type = TypeEnum.STRING),
+                @Argument(name = "parameters", type = TypeEnum.ARRAY, elementType = TypeEnum.STRUCT,
+                          structType = "Parameter"),
                 @Argument(name = "keyColumns", type = TypeEnum.ARRAY, elementType = TypeEnum.STRING)},
-        returnType = { @ReturnType(type = TypeEnum.INT), @ReturnType(type = TypeEnum.STRING) })
+        returnType = { @ReturnType(type = TypeEnum.INT),
+                       @ReturnType(type = TypeEnum.ARRAY, elementType = TypeEnum.STRING) })
 @Component(
         name = "action.data.sql.UpdateWithGeneratedKeyColumns",
         immediate = true,
@@ -54,9 +57,10 @@ public class UpdateWithGeneratedKeyColumns extends AbstractSQLAction {
     public BValue execute(Context context) {
         BConnector bConnector = (BConnector) getArgument(context, 0);
         String query = getArgument(context, 1).stringValue();
-        BArray<BString> keyColumns = ((BArray<BString>) getArgument(context, 2));
+        BArray parameters = (BArray) getArgument(context, 2);
+        BArray<BString> keyColumns = ((BArray<BString>) getArgument(context, 3));
         Connector connector = bConnector.value();
-        executeUpdateWithKeys(context, (SQLConnector) connector, query, keyColumns);
+        executeUpdateWithKeys(context, (SQLConnector) connector, query, keyColumns, parameters);
         return null;
     }
 }

@@ -36,7 +36,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
         packageName = "ballerina.lang.exceptions",
         functionName = "setMessage",
         args = {@Argument(name = "e", type = TypeEnum.EXCEPTION),
-                @Argument(name = "message", type = TypeEnum.STRING)},
+                @Argument(name = "m", type = TypeEnum.STRING)},
         isPublic = true
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",

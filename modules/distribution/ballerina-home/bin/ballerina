@@ -41,15 +41,15 @@ CYGWIN*) cygwin=true;;
 MINGW*) mingw=true;;
 OS400*) os400=true;;
 Darwin*) darwin=true
-        if [ -z "$JAVA_VERSION" ] ; then
-             JAVA_VERSION="CurrentJDK"
+        if [ -z "$JAVA_HOME" ] ; then
+		   if [ -z "$JAVA_VERSION" ] ; then
+			 JAVA_HOME=$(/usr/libexec/java_home)
            else
              echo "Using Java version: $JAVA_VERSION"
-           fi
-           if [ -z "$JAVA_HOME" ] ; then
-             JAVA_HOME=/System/Library/Frameworks/JavaVM.framework/Versions/${JAVA_VERSION}/Home
-           fi
-           ;;
+			 JAVA_HOME=$(/usr/libexec/java_home -v $JAVA_VERSION)
+		   fi
+	    fi
+        ;;
 esac
 
 # resolve links - $0 may be a softlink
@@ -68,7 +68,7 @@ done
 # Get standard environment variables
 PRGDIR=`dirname "$PRG"`
 
-# Only set BALLERINA_HOME if not already set
+# set BALLERINA_HOME
 BALLERINA_HOME=`cd "$PRGDIR/.." ; pwd`
 
 # For Cygwin, ensure paths are in UNIX format before anything is touched
@@ -194,7 +194,7 @@ $JAVACMD \
 	-Xbootclasspath/a:"$BALLERINA_XBOOTCLASSPATH" \
 	-Xms256m -Xmx1024m \
 	-XX:+HeapDumpOnOutOfMemoryError \
-	-XX:HeapDumpPath="$BALLERINA_HOME/logs/heap-dump.hprof" \
+	-XX:HeapDumpPath="$BALLERINA_HOME/heap-dump.hprof" \
 	$JAVA_OPTS \
 	-classpath "$BALLERINA_CLASSPATH" \
 	-Djava.endorsed.dirs="$JAVA_ENDORSED_DIRS" \

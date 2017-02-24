@@ -23,9 +23,11 @@ import org.ballerinalang.model.values.BArray;
 import org.ballerinalang.model.values.BDataTable;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
+import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.nativeimpl.connectors.data.sql.Constants;
 import org.ballerinalang.nativeimpl.connectors.data.sql.SQLConnector;
 import org.ballerinalang.nativeimpl.connectors.data.sql.SQLDataIterator;
-import org.ballerinalang.nativeimpl.connectors.data.sql.SQLUtils;
 import org.ballerinalang.natives.connectors.AbstractNativeAction;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
@@ -40,6 +42,7 @@ import java.sql.Statement;
 import java.sql.Types;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Locale;
 
 /**
  * {@code AbstractSQLAction} is the base class for all SQL Connector Action.
@@ -49,42 +52,44 @@ import java.util.HashMap;
 public abstract class AbstractSQLAction extends AbstractNativeAction {
 
 
-    protected void executeQuery(Context context, SQLConnector connector, String query) {
+    protected void executeQuery(Context context, SQLConnector connector, String query, BArray parameters) {
         Connection conn = null;
         PreparedStatement stmt = null;
         ResultSet rs = null;
         try {
             conn = connector.getSQLConnection();
             stmt = conn.prepareStatement(query);
+            createProcessedStatement(stmt, parameters);
             rs = stmt.executeQuery();
-            BDataTable datatable = new BDataTable(new SQLDataIterator(conn, stmt, rs), new HashMap<>(),
+            BDataTable dataTable = new BDataTable(new SQLDataIterator(conn, stmt, rs), new HashMap<>(),
                     getColumnDefinitions(rs));
-            context.getControlStack().setReturnValue(0, datatable);
+            context.getControlStack().setReturnValue(0, dataTable);
         } catch (SQLException e) {
-            SQLUtils.cleanupConnection(rs, stmt, conn);
+            SQLConnectorUtils.cleanupConnection(rs, stmt, conn);
             throw new BallerinaException("execute query failed: " + e.getMessage(), e);
         }
     }
 
-    protected void executeUpdate(Context context, SQLConnector connector, String query) {
+    protected void executeUpdate(Context context, SQLConnector connector, String query, BArray parameters) {
         Connection conn = null;
         PreparedStatement stmt = null;
         ResultSet rs = null;
         try {
             conn = connector.getSQLConnection();
             stmt = conn.prepareStatement(query);
+            createProcessedStatement(stmt, parameters);
             int count = stmt.executeUpdate();
             BInteger updatedCount = new BInteger(count);
             context.getControlStack().setReturnValue(0, updatedCount);
         } catch (SQLException e) {
             throw new BallerinaException("execute update failed: " + e.getMessage(), e);
         } finally {
-            SQLUtils.cleanupConnection(rs, stmt, conn);
+            SQLConnectorUtils.cleanupConnection(rs, stmt, conn);
         }
     }
 
     protected void executeUpdateWithKeys(Context context, SQLConnector connector, String query,
-            BArray<BString> keyColumns) {
+            BArray<BString> keyColumns, BArray parameters) {
         Connection conn = null;
         PreparedStatement stmt = null;
         ResultSet rs = null;
@@ -103,58 +108,63 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
             } else {
                 stmt = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
             }
+            createProcessedStatement(stmt, parameters);
             int count = stmt.executeUpdate();
             BInteger updatedCount = new BInteger(count);
             context.getControlStack().setReturnValue(0, updatedCount);
             rs = stmt.getGeneratedKeys();
+            /*The result set contains the auto generated keys. It can have multiple rows if multiple rows have
+            updated with the execute operation. There can be multiple auto generated columns in a table.
+            TODO: iterate the result set and generate a array of key arrays*/
             if (rs.next()) {
                 BArray<BString> generatedKeys = getGeneratedKeys(rs);
-                context.getControlStack().setReturnValue(1, generatedKeys.get(0)); //TODO:Set Array of Keys
+                context.getControlStack().setReturnValue(1, generatedKeys);
             }
         } catch (SQLException e) {
-            throw new BallerinaException("execute update with generated keys failed: " + e.getMessage());
+            throw new BallerinaException("execute update with generated keys failed: " + e.getMessage(), e);
         } finally {
-            SQLUtils.cleanupConnection(rs, stmt, conn);
+            SQLConnectorUtils.cleanupConnection(rs, stmt, conn);
         }
     }
 
-    protected void executeProcedure(Context context, SQLConnector connector, String query) {
+    protected void executeProcedure(Context context, SQLConnector connector, String query, BArray parameters) {
         Connection conn = null;
         CallableStatement stmt = null;
         ResultSet rs = null;
         try {
             conn = connector.getSQLConnection();
             stmt = conn.prepareCall(query);
+            createProcessedStatement(stmt, parameters);
             boolean hasResult = stmt.execute();
             if (hasResult) {
-                rs = stmt.getResultSet(); //TODO:How to return next result sets
+                rs = stmt.getResultSet();
                 BDataTable datatable = new BDataTable(new SQLDataIterator(conn, stmt, rs), new HashMap<>(),
                         getColumnDefinitions(rs));
                 context.getControlStack().setReturnValue(0, datatable);
             } else {
-                SQLUtils.cleanupConnection(null, stmt, conn);
+                SQLConnectorUtils.cleanupConnection(null, stmt, conn);
             }
         } catch (SQLException e) {
-            SQLUtils.cleanupConnection(rs, stmt, conn);
+            SQLConnectorUtils.cleanupConnection(rs, stmt, conn);
             throw new BallerinaException("execute stored procedure failed: " + e.getMessage(), e);
         }
     }
 
     private ArrayList<BDataTable.ColumnDefinition> getColumnDefinitions(ResultSet rs) throws SQLException {
-        ArrayList<BDataTable.ColumnDefinition> columnDefs = new ArrayList<BDataTable.ColumnDefinition>();
+        ArrayList<BDataTable.ColumnDefinition> columnDefs = new ArrayList<>();
         ResultSetMetaData rsMetaData = rs.getMetaData();
         int cols = rsMetaData.getColumnCount();
         for (int i = 1; i <= cols; i++) {
             String colName = rsMetaData.getColumnName(i);
             int colType = rsMetaData.getColumnType(i);
-            TypeEnum mappedType = SQLUtils.getColumnType(colType);
+            TypeEnum mappedType = SQLConnectorUtils.getColumnType(colType);
             columnDefs.add(new BDataTable.ColumnDefinition(colName, mappedType));
         }
         return columnDefs;
     }
 
     private BArray<BString> getGeneratedKeys(ResultSet rs) throws SQLException {
-        BArray<BString> generatredKeys = new BArray<>(BString.class);
+        BArray<BString> generatedKeys = new BArray<>(BString.class);
         ResultSetMetaData metaData = rs.getMetaData();
         int columnCount = metaData.getColumnCount();
         int columnType;
@@ -194,8 +204,79 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
                 value = rs.getString(i);
                 break;
             }
-            generatredKeys.add(i - 1, new BString(value));
+            generatedKeys.add(i - 1, new BString(value));
         }
-        return generatredKeys;
+        return generatedKeys;
+    }
+
+    private void createProcessedStatement(PreparedStatement stmt, BArray params) {
+        int paramCount = params.size();
+        for (int index = 0; index < paramCount; index++) {
+            BStruct paramValue = (BStruct) params.get(index);
+            String sqlType = paramValue.getValue(0).stringValue();
+            BValue value = paramValue.getValue(1);
+            int direction = Integer.parseInt(paramValue.getValue(2).stringValue());
+            setParameter(stmt, sqlType, value, direction, index);
+        }
+    }
+
+    private void setParameter(PreparedStatement stmt, String sqlType, BValue value, int direction, int index) {
+        if (sqlType == null || sqlType.isEmpty()) {
+            SQLConnectorUtils.setStringValue(stmt, value, index, direction, Types.VARCHAR);
+        } else {
+            String sqlDataType = sqlType.toUpperCase(Locale.getDefault());
+            switch (sqlDataType) {
+            case Constants.SQLDataTypes.INTEGER:
+                SQLConnectorUtils.setIntValue(stmt, value, index, direction, Types.INTEGER);
+                break;
+            case Constants.SQLDataTypes.VARCHAR:
+                SQLConnectorUtils.setStringValue(stmt, value, index, direction, Types.VARCHAR);
+                break;
+            case Constants.SQLDataTypes.DOUBLE:
+                SQLConnectorUtils.setDoubleValue(stmt, value, index, direction, Types.DOUBLE);
+                break;
+            case Constants.SQLDataTypes.NUMERIC:
+            case Constants.SQLDataTypes.DECIMAL:
+                SQLConnectorUtils.setNumericValue(stmt, value, index, direction, Types.NUMERIC);
+                break;
+            case Constants.SQLDataTypes.BIT:
+            case Constants.SQLDataTypes.BOOLEAN:
+                SQLConnectorUtils.setBooleanValue(stmt, value, index, direction, Types.BIT);
+                break;
+            case Constants.SQLDataTypes.TINYINT:
+                SQLConnectorUtils.setTinyIntValue(stmt, value, index, direction, Types.TINYINT);
+                break;
+            case Constants.SQLDataTypes.SMALLINT:
+                SQLConnectorUtils.setSmallIntValue(stmt, value, index, direction, Types.SMALLINT);
+                break;
+            case Constants.SQLDataTypes.BIGINT:
+                SQLConnectorUtils.setBigIntValue(stmt, value, index, direction, Types.BIGINT);
+                break;
+            case Constants.SQLDataTypes.REAL:
+            case Constants.SQLDataTypes.FLOAT:
+                SQLConnectorUtils.setRealValue(stmt, value, index, direction, Types.FLOAT);
+                break;
+            case Constants.SQLDataTypes.DATE:
+                SQLConnectorUtils.setDateValue(stmt, value, index, direction, Types.DATE);
+                break;
+            case Constants.SQLDataTypes.TIMESTAMP:
+                SQLConnectorUtils.setTimeStampValue(stmt, value, index, direction, Types.TIMESTAMP);
+                break;
+            case Constants.SQLDataTypes.TIME:
+                SQLConnectorUtils.setTimeValue(stmt, value, index, direction, Types.TIME);
+                break;
+            case Constants.SQLDataTypes.BINARY:
+                SQLConnectorUtils.setBinaryValue(stmt, value, index, direction, Types.BINARY);
+                break;
+            case Constants.SQLDataTypes.BLOB:
+                SQLConnectorUtils.setBlobValue(stmt, value, index, direction, Types.BLOB);
+                break;
+            case Constants.SQLDataTypes.CLOB:
+                SQLConnectorUtils.setClobValue(stmt, value, index, direction, Types.CLOB);
+                break;
+            default:
+                throw new BallerinaException("unsupported datatype as input parameter: " + sqlType + " index:" + index);
+            }
+        }
     }
 }

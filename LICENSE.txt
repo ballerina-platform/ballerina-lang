@@ -1,0 +1,73 @@
+
+This product is licensed by WSO2 Inc. under Apache License 2.0. The license
+can be downloaded from the following locations:
+	http://www.apache.org/licenses/LICENSE-2.0.html
+	http://www.apache.org/licenses/LICENSE-2.0.txt
+
+This product also contains software under different licenses. This table below
+all the contained libraries (jar files) and the license under which they are 
+provided to you.
+
+At the bottom of this file is a table that shows what each license indicated
+below is and where the actual text of the license can be found.
+
+Name                                                                            Type           License   
+---------------------------------------------------------------------------------------------------------
+antlr4-runtime-4.5.1.wso2v1.jar                                                 bundle         bsd       11767     
+apache-mime4j-core-0.7.2.jar                                                    bundle         apache2   2112      
+axiom-api-1.2.20.jar                                                            bundle         apache2   2111      
+axiom-impl-1.2.20.jar                                                           bundle         apache2   2110      
+ballerina-core-0.8.0.jar                                                        jar            apache2   2120      
+ballerina-launcher-0.8.0.jar                                                    jar            apache2   2119      
+ballerina-native-0.8.0.jar                                                      jar            apache2   2118      
+commons-lang3-3.5.jar                                                           bundle         apache2   2105      
+commons-logging-1.2.jar                                                         bundle         apache2   1702      
+commons-pool-1.5.6.wso2v1.jar                                                   bundle         apache2   5589      
+commons-vfs2-2.0-wso2v15.jar                                                    bundle         apache2   11766     
+geronimo-activation_1.1_spec-1.1.jar                                            bundle         apache2   2103      
+geronimo-stax-api_1.0_spec-1.0.1.jar                                            bundle         apache2   635       
+HikariCP-2.5.1.jar                                                              bundle         apache2   2101      
+jackson-annotations-2.8.0.jar                                                   bundle         apache2   2100      
+jackson-core-2.8.6.jar                                                          bundle         apache2   2099      
+jackson-databind-2.8.6.jar                                                      bundle         apache2   2098      
+javax.jms-api-2.0.1.jar                                                         bundle         cddl+gpl  2097      
+javax.websocket-api-1.1.jar                                                     bundle         cddl+gpl  2096      
+jaxen-1.1.6.jar                                                                 bundle         apache2   2095      
+jcommander-1.60.jar                                                             jar            apache2   2094      
+json-path-2.2.0.jar                                                             bundle         apache2   2093      
+netty-buffer-4.1.7.Final.jar                                                    bundle         apache2   2091      
+netty-codec-4.1.7.Final.jar                                                     bundle         apache2   2089      
+netty-codec-http-4.1.7.Final.jar                                                bundle         apache2   2087      
+netty-codec-http2-4.1.7.Final.jar                                               bundle         apache2   2086      
+netty-common-4.1.7.Final.jar                                                    bundle         apache2   2084      
+netty-handler-4.1.7.Final.jar                                                   bundle         apache2   2082      
+netty-resolver-4.1.7.Final.jar                                                  bundle         apache2   2081      
+netty-transport-4.1.7.Final.jar                                                 bundle         apache2   2079      
+org.wso2.carbon.connector.framework-4.2.5.jar                                   bundle         apache2   11776
+org.wso2.carbon.core-5.1.0.jar                                                  bundle         apache2   11763
+org.wso2.carbon.messaging-2.2.3.jar                                             bundle         apache2   11771
+org.wso2.carbon.transport.file-4.2.5.jar                                        bundle         apache2   11775
+org.wso2.carbon.transport.http.netty-4.2.5.jar                                  bundle         apache2   11774
+org.wso2.carbon.transport.jms-4.2.5.jar                                         bundle         apache2   11773
+Saxon-HE-9.7.0.wso2v1.jar                                                       bundle         mpl10     11756     
+slf4j-api-1.7.22.jar                                                            bundle         mit       2078      
+slf4j-nop-1.7.22.jar                                                            bundle         mit       2077      
+snakeyaml-1.16.0.wso2v1.jar                                                     bundle         apache2   11755     
+staxon-core-1.2.0.wso2v2.jar                                                    bundle         apache2   11754     
+tapestry-json-5.4.1.wso2v1.jar                                                  bundle         apache2   11753     
+xml-resolver-1.2.jar                                                            jarinbundle    apache2   431       
+
+
+
+The license types used by the above libraries and their information is given below:
+
+bsd            Berkeley License
+               http://www.opensource.org/licenses/bsd-license.php
+apache2        Apache License Version 2.0
+               http://www.apache.org/licenses/LICENSE-2.0.html
+mit            MIT License
+               http://www.opensource.org/licenses/mit-license.php
+mpl10          Mozilla Public License 1.0
+               http://www.mozilla.org/MPL/
+cddl+gpl       CDDL + GPLv2
+               https://glassfish.dev.java.net/public/CDDL+GPL.html

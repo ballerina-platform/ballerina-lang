@@ -37,7 +37,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 @BallerinaFunction(
         packageName = "ballerina.net.jms",
         functionName = "getMessageType",
-        args = {@Argument(name = "message", type = TypeEnum.MESSAGE)},
+        args = {@Argument(name = "m", type = TypeEnum.MESSAGE)},
         returnType = {@ReturnType(type = TypeEnum.STRING)},
         isPublic = true
 )

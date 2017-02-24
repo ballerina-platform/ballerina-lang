@@ -16,8 +16,7 @@
   ~ under the License.
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <parent>
         <groupId>org.wso2</groupId>
@@ -27,17 +26,17 @@
 
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.ballerinalang</groupId>
-    <artifactId>ballerina</artifactId>
+    <artifactId>ballerina-parent</artifactId>
     <packaging>pom</packaging>
-    <version>0.8.0-SNAPSHOT</version>
-    <name>WSO2 Ballerina - Parent</name>
+    <version>0.8.1-SNAPSHOT</version>
+    <name>Ballerina - Parent</name>
 
-    <url>http://wso2.org</url>
+    <url>http://ballerinalang.org</url>
 
     <scm>
-        <url>https://github.com/wso2/ballerina.git</url>
-        <developerConnection>scm:git:https://github.com/wso2/ballerina.git</developerConnection>
-        <connection>scm:git:https://github.com/wso2/ballerina.git</connection>
+        <url>https://github.com/ballerinalang/ballerina.git</url>
+        <developerConnection>scm:git:https://github.com/ballerinalang/ballerina.git</developerConnection>
+        <connection>scm:git:https://github.com/ballerinalang/ballerina.git</connection>
         <tag>HEAD</tag>
     </scm>
 
@@ -48,18 +47,6 @@
                 <artifactId>org.wso2.carbon.core</artifactId>
                 <version>${carbon.kernel.version}</version>
             </dependency>
-            <!--<dependency>-->
-                <!--<groupId>org.wso2.carbon</groupId>-->
-                <!--<artifactId>org.wso2.carbon.kernel.feature</artifactId>-->
-                <!--<version>${carbon.kernel.version}</version>-->
-                <!--<type>zip</type>-->
-            <!--</dependency>-->
-            <!--<dependency>-->
-                <!--<groupId>org.wso2.carbon</groupId>-->
-                <!--<artifactId>org.wso2.carbon.runtime.feature</artifactId>-->
-                <!--<version>${carbon.kernel.version}</version>-->
-                <!--<type>zip</type>-->
-            <!--</dependency>-->
             <dependency>
                 <groupId>org.ballerinalang</groupId>
                 <artifactId>ballerina-core</artifactId>
@@ -444,7 +431,7 @@
     </build>
 
     <properties>
-        <ballerina.version>0.8.0-SNAPSHOT</ballerina.version>
+        <ballerina.version>0.8.1-SNAPSHOT</ballerina.version>
         <ballerina.package.export.version>0.8.0</ballerina.package.export.version>
 
         <!-- Maven plugins -->
@@ -471,7 +458,7 @@
         <carbon.kernel.package.import.version.range>[5.0.0, 6.0.0)</carbon.kernel.package.import.version.range>
         <carbon.kernel.pax.version>5.2.0-m2</carbon.kernel.pax.version>
 
-        <carbon.transport.version>4.2.4</carbon.transport.version>
+        <carbon.transport.version>4.2.5</carbon.transport.version>
         <carbon.transport.package.import.version.range>[4.0.0, 5.0.0)</carbon.transport.package.import.version.range>
 
         <carbon.messaging.version>2.2.3</carbon.messaging.version>
@@ -549,10 +536,7 @@
         <module>modules/launcher</module>
         <module>modules/ballerina-native</module>
         <module>modules/annotation-processor</module>
-        <!--<module>modules/gson-fragment</module>-->
-        <!--<module>modules/features</module>-->
         <module>modules/distribution</module>
-        <!--<module>modules/tests</module>-->
         <module>modules/tests/test-integration</module>
     </modules>
 

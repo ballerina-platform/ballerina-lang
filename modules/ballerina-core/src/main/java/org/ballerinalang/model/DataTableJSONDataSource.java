@@ -54,6 +54,7 @@ public class DataTableJSONDataSource implements JSONDataSource {
         while (this.df.next()) {
             this.objGen.transform(this.df).serialize(gen, null);
         }
+        gen.writeEndArray();
         this.df.close();
     }
 
@@ -121,11 +122,11 @@ public class DataTableJSONDataSource implements JSONDataSource {
         /**
          * Converts the current position of the given datatable to a JSON object.
          *
-         * @param dataframe The datatable that should be used in the current position
+         * @param datatable The datatable that should be used in the current position
          * @return The generated JSON object
          * @throws java.io.IOException
          */
-        JsonNode transform(BDataTable dataframe) throws IOException;
+        JsonNode transform(BDataTable datatable) throws IOException;
 
     }
 
