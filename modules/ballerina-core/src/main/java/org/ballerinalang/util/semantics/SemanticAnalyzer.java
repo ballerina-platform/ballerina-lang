@@ -526,7 +526,7 @@ public class SemanticAnalyzer implements NodeVisitor {
     private void addWorkerSymbol(Worker worker) {
         SymbolName symbolName = worker.getSymbolName();
         BLangSymbol varSymbol = currentScope.resolve(symbolName);
-        if (varSymbol != null && varSymbol.getSymbolScope().getScopeName() == currentScope.getScopeName()) {
+        if (varSymbol != null) {
             BLangExceptionHelper.throwSemanticError(worker,
                     SemanticErrors.REDECLARED_SYMBOL, worker.getName());
         }

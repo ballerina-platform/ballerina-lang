@@ -98,7 +98,7 @@ public class Worker implements SymbolScope, CompilationUnit, CallableUnit {
      */
     @Override
     public NodeLocation getNodeLocation() {
-        return null;
+        return location;
     }
 
     /**
