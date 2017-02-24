@@ -149,18 +149,20 @@ define(['lodash', 'log', './ballerina-view', './variables-view', './type-struct-
             $(".type-mapper-combo").select2();
             $("#" + targetId).on("select2:open", function () {
                 var predefinedStructs = self._package.getStructDefinitions();
-                $("#" + targetId).empty().append('<option value="-1">--Select--</option>');
-                self.getTargetInfo()[TYPE_MAPPER_PREDEFINED_STRUCTS] = predefinedStructs;
-                self.loadSchemaToComboBox(currentContainer, "#" + targetId, predefinedStructs);
-                self.attachOnRemoveStruct(predefinedStructs);
+                    $("#" + targetId).empty().append('<option value="-1">--Select--</option>');
+                    self.getTargetInfo()["predefinedStructs"] = predefinedStructs;
+                    self.loadSchemaToComboBox(currentContainer, "#" + targetId, predefinedStructs);
+                    $("#" + targetId).val(-1).change();
+                    self.attachOnRemoveStruct(predefinedStructs);
             });
 
             $("#" + sourceId).on("select2:open", function () {
                 var predefinedStructs = self._package.getStructDefinitions();
-                $("#" + sourceId).empty().append('<option value="-1">--Select--</option>');
-                self.getSourceInfo()[TYPE_MAPPER_PREDEFINED_STRUCTS] = predefinedStructs;
-                self.loadSchemaToComboBox(currentContainer, "#" + sourceId, predefinedStructs);
-                self.attachOnRemoveStruct(predefinedStructs);
+                    $("#" + sourceId).empty().append('<option value="-1">--Select--</option>');
+                    self.getSourceInfo()["predefinedStructs"] = predefinedStructs;
+                    self.loadSchemaToComboBox(currentContainer, "#" + sourceId, predefinedStructs);
+                    $("#" + sourceId).val(-1).change();
+                    self.attachOnRemoveStruct(predefinedStructs);
             });
             self.attachOnRemoveStruct(predefinedStructs);
 

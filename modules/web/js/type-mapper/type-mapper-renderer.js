@@ -748,6 +748,88 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
         self.jsPlumbInstance.unmakeTarget(element);
     };
 
+    /**
+     * Get list of connections for provided property of a source struct
+     * @param {string} structName
+     * @param {Array} property name hierarchy of the property
+     * @returns {Array} List of connections
+     */
+    TypeMapperRenderer.prototype.getSourceConnectionsByProperty = function(structName, property) {
+        var self = this;
+        var connections = [];
+
+        struct.name + this.viewIdSeperator + this.viewId;
+        _.forEach(property, function (propertyName) {
+            _.forEach(self.jsPlumbInstance.getAllConnections(), function (connection) {
+                    if (connection.sourceId.includes(structName + self.viewIdSeperator + self.viewId
+                                                        + self.idNameSeperator + propertyName)) {
+                        connections.push(self.getConnectionObject(connection.getParameter("id"),
+                                                        connection.sourceId, connection.targetId));
+                        self.disconnect(connection);
+                    }
+            });
+        });
+        return connections;
+    };
+
+    /**
+     * Get list of connections for provided property of a target struct
+     * @param {string} structName
+     * @param {Array} property name hierarchy of the property
+     * @returns {Array} List of connections
+     */
+    TypeMapperRenderer.prototype.getTargetConnectionsByProperty = function(structName, property) {
+        var self = this;
+        var connections = [];
+        _.forEach(property, function (propertyName) {
+            _.forEach(self.jsPlumbInstance.getAllConnections(), function (connection) {
+                if (connection.targetId.includes(structName + self.viewIdSeperator + self.viewId
+                                                    + self.idNameSeperator + propertyName)) {
+                    connections.push(self.getConnectionObject(connection.getParameter("id"),
+                        connection.sourceId, connection.targetId));
+                    self.disconnect(connection);
+                }
+            });
+        });
+        return connections;
+    };
+
+    /**
+     * Get list of connections for provided source struct
+     * @param {string} structName
+     * @returns {Array} List of connections
+     */
+    TypeMapperRenderer.prototype.getSourceConnectionsByStruct = function(structName) {
+        var self = this;
+        var connections = [];
+        _.forEach(self.jsPlumbInstance.getAllConnections(), function (connection) {
+            if (connection.sourceId.includes(structName)) {
+                connections.push(self.getConnectionObject(connection.getParameter("id"),
+                    connection.sourceId, connection.targetId));
+                self.disconnect(connection);
+            }
+        });
+        return connections;
+    };
+
+    /**
+     * Get list of connections for provided target struct
+     * @param {string} structName
+     * @returns {Array} List of connections
+     */
+    TypeMapperRenderer.prototype.getTargetConnectionsByStruct = function(structName) {
+        var self = this;
+        var connections = [];
+           _.forEach(self.jsPlumbInstance.getAllConnections(), function (connection) {
+                if (connection.targetId.includes(structName)) {
+                    connections.push(self.getConnectionObject(connection.getParameter("id"),
+                        connection.sourceId, connection.targetId));
+                    self.disconnect(connection);
+                }
+            });
+        return connections;
+    };
+
 
     /**
      * Position Nodes with dagre
