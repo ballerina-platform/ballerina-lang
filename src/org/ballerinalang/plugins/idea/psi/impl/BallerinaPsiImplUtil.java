@@ -773,6 +773,14 @@ public class BallerinaPsiImplUtil {
                     results.add(namedParameterDefinition);
                 }
             }
+            Collection<? extends PsiElement> typeMapperInputTypes =
+                    XPath.findAll(BallerinaLanguage.INSTANCE, context, "//typeMapperInput/Identifier");
+            for (PsiElement type : typeMapperInputTypes) {
+                if (!type.getText().contains("IntellijIdeaRulezzz") &&
+                        !type.getParent().getText().contains("IntellijIdeaRulezzz")) {
+                    results.add(type);
+                }
+            }
             if (context != null) {
 
                 List<PsiElement> allVariablesInResolvableScope = getAllVariablesInResolvableScope(context.getContext());
