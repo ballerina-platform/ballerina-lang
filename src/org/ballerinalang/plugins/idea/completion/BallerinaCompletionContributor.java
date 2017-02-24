@@ -93,6 +93,8 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
     // Other keywords
     private static final LookupElementBuilder REPLY;
     private static final LookupElementBuilder RETURN;
+    private static final LookupElementBuilder IF;
+    private static final LookupElementBuilder ELSE;
 
     static {
         PACKAGE = createKeywordLookupElement("package", true, AddSpaceInsertHandler.INSTANCE_WITH_AUTO_POPUP);
@@ -118,6 +120,8 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
 
         REPLY = createKeywordLookupElement("reply", true, AddSpaceInsertHandler.INSTANCE);
         RETURN = createKeywordLookupElement("return", true, AddSpaceInsertHandler.INSTANCE);
+        IF = createKeywordLookupElement("if", true, ParenthesisInsertHandler.INSTANCE_WITH_AUTO_POPUP);
+        ELSE = createKeywordLookupElement("else", true, AddSpaceInsertHandler.INSTANCE);
     }
 
     private static LookupElementBuilder createLookupElement(String name, boolean withBoldness,
@@ -271,6 +275,9 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                 addPackages(resultSet, originalFile);
                 addVariables(resultSet, element);
 
+                addKeyword(resultSet, IF, CONTEXT_KEYWORD_PRIORITY);
+                addKeyword(resultSet, ELSE, CONTEXT_KEYWORD_PRIORITY);
+
                 ResourceDefinitionNode resourceDefinitionNode =
                         PsiTreeUtil.getParentOfType(element, ResourceDefinitionNode.class);
                 if (resourceDefinitionNode != null) {
@@ -351,6 +358,9 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                 addPackages(resultSet, originalFile);
                 addVariables(resultSet, element);
 
+                addKeyword(resultSet, IF, CONTEXT_KEYWORD_PRIORITY);
+                addKeyword(resultSet, ELSE, CONTEXT_KEYWORD_PRIORITY);
+
                 // Todo - Move to utils
                 PsiElement temp = parent.getParent().getParent().getParent().getParent();
                 while (temp != null && !(temp instanceof PsiFile)) {
@@ -361,9 +371,7 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                     temp = temp.getParent();
                 }
                 return;
-            }
-
-            if (":".equals(sibling.getText())) {
+            } else if (":".equals(sibling.getText())) {
 
                 sibling = sibling.getPrevSibling();
                 if (sibling == null) {
@@ -471,8 +479,11 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                     PsiReference reference = identifierNode.getReference();
                     PsiElement resolvedElement = reference.resolve();
 
+                } else if ("else".equals(prevToken.getText())) {
+                    resultSet.addElement(PrioritizedLookupElement.withPriority(IF, CONTEXT_KEYWORD_PRIORITY));
                 } else {
                     // Todo - Add struct, map field suggestions
+                    resultSet.addElement(PrioritizedLookupElement.withPriority(IF, CONTEXT_KEYWORD_PRIORITY));
                 }
             } else {
                 // Todo - Handle scenario
