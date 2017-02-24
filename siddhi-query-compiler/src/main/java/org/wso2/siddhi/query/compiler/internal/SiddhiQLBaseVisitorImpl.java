@@ -19,7 +19,11 @@ package org.wso2.siddhi.query.compiler.internal;
 
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.misc.NotNull;
+import org.antlr.v4.runtime.tree.TerminalNode;
 import org.wso2.siddhi.query.api.ExecutionPlan;
+import org.wso2.siddhi.query.api.aggregation.ExactTimeSpecifier;
+import org.wso2.siddhi.query.api.aggregation.RangeTimeSpecifier;
+import org.wso2.siddhi.query.api.aggregation.TimeSpecifier;
 import org.wso2.siddhi.query.api.annotation.Annotation;
 import org.wso2.siddhi.query.api.annotation.Element;
 import org.wso2.siddhi.query.api.definition.*;
@@ -2083,4 +2087,128 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
         private boolean isInnerStream;
         private Integer streamIndex;
     }
+
+    // TODO: 2/22/17 : Added by Upul, review
+    @Override
+    public Object visitAggregation_time_duration(@NotNull SiddhiQLParser.Aggregation_time_durationContext ctx) {
+        if(ctx.SECONDS() != null){
+            return TimeSpecifier.second();
+        }
+        
+        if(ctx.MINUTES() != null){
+            return TimeSpecifier.minute();
+        }
+        
+        if(ctx.DAYS() != null) {
+            return TimeSpecifier.day();
+        }
+        
+        if(ctx.WEEKS() != null) {
+            return TimeSpecifier.week();
+        }
+        
+        if(ctx.MONTHS() != null) {
+            return TimeSpecifier.month();
+        }
+        
+        if(ctx.YEARS() != null) {
+            return TimeSpecifier.year();
+        }
+
+        // TODO: 2/23/17 : create a proper exception
+        return newSiddhiParserException(ctx);
+    }
+
+    @Override
+    public ExactTimeSpecifier visitAggregation_time_exact_specifier(@NotNull SiddhiQLParser.Aggregation_time_exact_specifierContext ctx) {
+        ExactTimeSpecifier exactTimeSpecifier = TimeSpecifier.exact();
+        for (SiddhiQLParser.Aggregation_time_durationContext context : ctx.aggregation_time_duration()) {
+            exactTimeSpecifier.add((TimeSpecifier) visit(context));
+        }
+        return exactTimeSpecifier;
+    }
+
+    @Override
+    public Object visitAggregation_time_separator(@NotNull SiddhiQLParser.Aggregation_time_separatorContext ctx) {
+        // TODO: 2/23/17 Error ????
+        //return visitChildren(ctx);
+        List<TerminalNode> terminalNodes = ctx.DOT();
+        return "DOT DOT DOT";
+    }
+
+    @Override
+    public RangeTimeSpecifier visitAggregation_time_range_specifier(@NotNull SiddhiQLParser.Aggregation_time_range_specifierContext ctx) {
+        // TODO: 2/23/17 : a lot of error checking .......
+        SiddhiQLParser.Aggregation_time_separatorContext seperatorCtx = ctx.aggregation_time_separator();
+        SiddhiQLParser.Aggregation_time_durationContext left = ctx.aggregation_time_duration().get(0);
+        SiddhiQLParser.Aggregation_time_durationContext right = ctx.aggregation_time_duration().get(1);
+
+        TimeSpecifier leftTimeSpecifier = (TimeSpecifier) visitAggregation_time_duration(left);
+        TimeSpecifier rightTimeSpecifier = (TimeSpecifier) visitAggregation_time_duration(right);
+        return TimeSpecifier.range(leftTimeSpecifier, rightTimeSpecifier);
+    }
+
+//    @Override
+//    public T visitAggregation_time_rage_specifier(@NotNull SiddhiQLParser.Aggregation_time_rage_specifierContext ctx) {
+//        //RangeTimeSpecifier rangeTimeSpecifier = TimeSpecifier.range();
+//
+//        //return visitChildren(ctx);
+//        TimeSpecifier left = visit(ctx.aggregation_time_duration(ctx.));
+//    }
+//
+//    @Override
+//    public T visitAggregation_time_separator(@NotNull SiddhiQLParser.Aggregation_time_separatorContext ctx) {
+//        //return visitChildren(ctx);
+//        ctx.DOT();
+//    }
+//
+//    @Override
+//    public T visitDefinition_aggregation(@NotNull SiddhiQLParser.Definition_aggregationContext ctx) {
+//        //return visitChildren(ctx);
+//        ctx.
+//    }
+
+    @Override
+    public TimeSpecifier visitAggregation_time_specifier(@NotNull SiddhiQLParser.Aggregation_time_specifierContext ctx) {
+        //return visitChildren(ctx);
+        if (ctx.aggregation_time_exact_specifier() != null){
+            return visitAggregation_time_exact_specifier(ctx.aggregation_time_exact_specifier());
+        } else if (ctx.aggregation_time_range_specifier() != null){
+            return visitAggregation_time_range_specifier(ctx.aggregation_time_range_specifier());
+        }
+        // else
+        // TODO: 2/23/17 Exception
+        return null;
+
+    }
+
+    @Override
+    public Object visitDefinition_aggregation(@NotNull SiddhiQLParser.Definition_aggregationContext ctx) {
+        String aggregationName = (String)visitAggregation_name(ctx.aggregation_name());
+        AggregationDefinition aggregationDefinition = AggregationDefinition.id(aggregationName);
+
+
+        for (SiddhiQLParser.AnnotationContext annotationContext : ctx.annotation()) {
+            aggregationDefinition.annotation((Annotation) visit(annotationContext));
+        }
+
+        SiddhiQLParser.Query_inputContext queryInputCtx = ctx.query_input();
+
+        InputStream inputStream = (InputStream) visit(ctx.query_input());
+
+        Selector selector = (Selector) visit(ctx.query_section());
+
+        //SiddhiQLParser.Attribute_nameContext attribute_names = ctx.attribute_name();
+        //List<SiddhiQLParser.Attribute_typeContext> attribute_types = ctx.attribute_type();
+
+        //ctx.attribute_name()
+
+        //visit(ctx.query_section())
+        //visitQuery_input(queryInputCtx);
+        //SiddhiQLParser.Query_inputContext ctx =  ctx.annotation()
+        //SiddhiQLParser. ctx.query_input()
+        return  null;
+    }
+
+    // end upul
 }

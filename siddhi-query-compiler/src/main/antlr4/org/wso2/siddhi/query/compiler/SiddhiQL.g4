@@ -42,7 +42,7 @@ execution_plan
 // Following added for Aggregation construct
 
 definition_aggregation
-    : annotation* DEFINE AGGREGATION aggregation_name FROM query_input query_section AGGREGATE (BY attribute_name)? EVERY aggregation_time_specifier
+    : annotation* DEFINE AGGREGATION aggregation_name FROM query_input query_section AGGREGATE (BY attribute_reference)? EVERY aggregation_time_specifier
     ;
 
 aggregation_name
@@ -50,16 +50,20 @@ aggregation_name
     ;
 
 aggregation_time_specifier
-    : aggregation_time_rage_specifier
+    : aggregation_time_range_specifier
     | aggregation_time_exact_specifier
     ;
 
-aggregation_time_rage_specifier
-    : (SECONDS | MINUTES | HOURS | DAYS | WEEKS | MONTHS | YEARS)  aggregation_time_separator (SECONDS | MINUTES | HOURS | DAYS | WEEKS | MONTHS | YEARS)
+aggregation_time_duration
+    : (SECONDS | MINUTES | HOURS | DAYS | WEEKS | MONTHS | YEARS)
+    ;
+
+aggregation_time_range_specifier
+    : aggregation_time_duration aggregation_time_separator aggregation_time_duration
     ;
 
 aggregation_time_exact_specifier
-    :  (SECONDS | MINUTES | HOURS | DAYS | WEEKS | MONTHS | YEARS) ( COMMA (SECONDS | MINUTES | HOURS | DAYS | WEEKS | MONTHS | YEARS))*
+    :  aggregation_time_duration (COMMA aggregation_time_duration)*
     ;
 
 aggregation_time_separator
