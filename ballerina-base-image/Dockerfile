@@ -15,34 +15,62 @@
 # -----------------------------------------------------------------------
 
 FROM openjdk:jre-alpine
-MAINTAINER tryballerina@gmail.com
+LABEL maintainer "tryballerina@gmail.com"
 
+# Ballerina runtime distribution filename.
 ARG BALLERINA_DIST
+ARG BUILD_DATE
+ARG VCS_REF
 
-# Add Ballerina
+# Labels.
+LABEL org.label-schema.schema-version="1.0"
+LABEL org.label-schema.build-date=$BUILD_DATE
+LABEL org.label-schema.name="ballerinalang/ballerina"
+LABEL org.label-schema.description="Ballerina language runtime"
+LABEL org.label-schema.url="http://ballerinalang.org/"
+LABEL org.label-schema.vcs-url="https://github.com/ballerinalang/container-support"
+LABEL org.label-schema.vcs-ref=$VCS_REF
+LABEL org.label-schema.vendor="WSO2"
+LABEL org.label-schema.version="0.8.1-SNAPSHOT"
+LABEL org.label-schema.docker.cmd="docker run -v ~/ballerina/packages:/ballerina/files -e 'SVC_MODE=true' -p 9090:9090 -d ballerina:latest"
+LABEL org.label-schema.docker.params="SVC_MODE=true if packages to be run are Ballerina Services, false if they are Ballerina main programs"
+
+
+# Add Ballerina runtime.
 COPY ${BALLERINA_DIST} /root/
-COPY scripts/cmd.sh /usr/bin/cmd.sh
+COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 
 # Create folders, unzip distribution, create users, & set permissions.
-RUN mkdir -p /ballerina && \
-    apk add --update bash && \
-    rm -rf /var/cache/apk/* && \
-    chmod +x /usr/bin/cmd.sh && \
-    unzip /root/${BALLERINA_DIST} -d /ballerina/ && \
-    rm -rf /root/${BALLERINA_DIST} > /dev/null 2>&1 && \
-    mv /ballerina/ballerina* /ballerina/dist && \
-    ln -s /ballerina/dist/bin/ballerina /usr/bin/ballerina && \
-    ln -s /ballerina/dist/bin/ballerinaserver /usr/bin/ballerinaserver && \
-    mkdir -p /ballerina/dist/logs && \
-    addgroup ballerina && \
-    adduser -S -s /bin/bash -g 'buser' -G ballerina -D buser && \
-    chown -R buser:ballerina /ballerina && \
-    chown buser:ballerina /usr/bin/cmd.sh
+RUN mkdir -p /ballerina/files \
+    && addgroup troupe \
+    && adduser -S -s /bin/bash -g 'ballerina' -G troupe -D ballerina \
+    && apk add --update bash \
+    && chmod +x /usr/local/bin/docker-entrypoint.sh \
+    && chown ballerina:troupe /usr/local/bin/docker-entrypoint.sh \
+    && unzip /root/${BALLERINA_DIST} -d /ballerina/ > /dev/null 2>&1 \
+    && mv /ballerina/ballerina* /ballerina/runtime \
+    && mkdir -p /ballerina/runtime/logs \
+    && chown -R ballerina:troupe /ballerina \
+    && rm -rf /root/${BALLERINA_DIST} > /dev/null 2>&1 \
+    && rm -rf /var/cache/apk/*
 
-ENV BALLERINA_HOME=/ballerina/dist
-WORKDIR /ballerina/dist
-USER buser
+ENV BALLERINA_HOME /ballerina/runtime
+ENV PATH $BALLERINA_HOME/bin:$PATH
 
+# Where Ballerina files and archives should be copied to.
+VOLUME /ballerina/files
+
+WORKDIR /ballerina/runtime
+
+USER ballerina
+
+# Ballerina Service port.
 EXPOSE 9090
 
-ENTRYPOINT ["/usr/bin/cmd.sh"]
+ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
+
+# Instructions for derivative images.
+ONBUILD ARG SVC_MODE=false
+ONBUILD ARG FILE_MODE=false
+ONBUILD ENV SVC_MODE=${SVC_MODE}
+ONBUILD ENV FILE_MODE=${FILE_MODE}

@@ -34,4 +34,4 @@ else
   cmd="ballerina run main"
 fi
 
-bash bin/$cmd $arg_str
+exec bin/$cmd $arg_str
