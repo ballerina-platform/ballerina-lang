@@ -33,5 +33,5 @@ pages:
     - API Documentation: 'native-functions.md'
     - Language Specification: 'spec.md'
     - Architecture Design Documents: 'architecture.md'
-theme_dir: ballerina-theme
+theme_dir: docs/ballerina-theme
 theme: null
