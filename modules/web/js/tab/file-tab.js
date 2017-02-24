@@ -113,7 +113,7 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace/f
                 // TODO handle line number changes in a better way
                 // remove breakpoints if tree modified
                 if(!_.isEmpty(self.getBreakPoints())) {
-                    alerts.warn('Could not preserve debug points');
+                    alerts.warn('Could not preserve debug points', 60000);
                     self.removeAllBreakpoints();
                 }
             });
