@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.ballerinalang</groupId>
         <artifactId>swagger-ballerina</artifactId>
-        <version>0.8.0-SNAPSHOT</version>
+        <version>0.8.1-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
@@ -100,7 +100,10 @@
                                     <exclude>org.apache.james:apache-mime4j-core</exclude>
                                     <exclude>org.apache.ws.commons.axiom:axiom-api</exclude>
                                     <exclude>org.apache.ws.commons.axiom:axiom-impl</exclude>
-                                    <exclude>org.wso2.ballerina:*</exclude>
+                                    <exclude>org.ballerinalang:annotation-processor</exclude>
+                                    <exclude>org.ballerinalang:ballerina-core</exclude>
+                                    <exclude>org.ballerinalang:ballerina-native</exclude>
+                                    <exclude>org.ballerinalang:ballerina-launcher</exclude>
                                     <exclude>commons-logging:commons-logging</exclude>
                                     <exclude>org.apache.commons:commons-lang3</exclude>
                                     <exclude>commons-pool.wso2:commons-pool</exclude>

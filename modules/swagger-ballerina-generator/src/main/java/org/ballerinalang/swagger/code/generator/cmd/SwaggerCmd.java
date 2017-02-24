@@ -30,7 +30,7 @@ import java.util.List;
 
 /**
  * Class to implement "swagger" command for ballerina.
- * Ex: ballerina swagger <connector | skeleton | mock> <swaggerFile> -p<package name> -d<output directory name>
+ * Ex: ballerina swagger (connector | skeleton | mock) (swaggerFile) -p(package name) -d(output directory name)
  */
 @Parameters(commandNames = "swagger", commandDescription = "Generate connector/service using swagger definition")
 public class SwaggerCmd implements BLauncherCmd {
