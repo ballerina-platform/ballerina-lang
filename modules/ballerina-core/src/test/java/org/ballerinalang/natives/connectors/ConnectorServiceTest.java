@@ -18,14 +18,11 @@
 
 package org.ballerinalang.natives.connectors;
 
-import org.ballerinalang.bre.SymScope;
 import org.ballerinalang.core.EnvironmentInitializer;
+import org.ballerinalang.core.utils.BTestUtils;
 import org.ballerinalang.core.utils.MessageUtils;
 import org.ballerinalang.model.BLangProgram;
-import org.ballerinalang.model.SymbolName;
 import org.ballerinalang.model.util.Services;
-import org.ballerinalang.natives.BuiltInNativeConstructLoader;
-import org.ballerinalang.runtime.internal.GlobalScopeHolder;
 import org.ballerinalang.runtime.message.StringDataSource;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -42,11 +39,7 @@ public class ConnectorServiceTest {
 
     @BeforeClass()
     public void setup() {
-        SymScope symScope = GlobalScopeHolder.getInstance().getScope();
-        if (symScope.lookup(new SymbolName("ballerina.model.messages:setStringPayload_message_string")) == null) {
-            BuiltInNativeConstructLoader.loadConstructs();
-        }
-        bLangProgram = EnvironmentInitializer.setup("lang/connectors/connector-in-service.bal");
+        bLangProgram = BTestUtils.parseBalFile("lang/connectors/connector-in-service.bal");
     }
 
     @Test(description = "Test action3Resource")

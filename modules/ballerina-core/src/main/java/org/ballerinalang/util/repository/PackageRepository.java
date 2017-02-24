@@ -17,10 +17,12 @@
 */
 package org.ballerinalang.util.repository;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
@@ -46,9 +48,12 @@ public abstract class PackageRepository {
                     .filter(filePath -> filePath.toString().endsWith(".bal"))
                     .collect(Collectors.toMap(filePath -> filePath.getFileName().toString(),
                             this::getInputStream));
+        } catch (NoSuchFileException e) {
+            throw new RuntimeException("cannot resolve package: " +
+                    packageDirPath.toString().replace(File.separator, "."), e);
         } catch (IOException e) {
-            throw new RuntimeException("error reading from file: " + baseDirPath +
-                    " reason: " + e.getMessage(), e);
+            throw new RuntimeException("error while resolving package: " +
+                    packageDirPath.toString().replace(File.separator, "."), e);
         }
 
         return new PackageSource(packageDirPath, fileStreamMap, this);

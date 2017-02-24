@@ -15,7 +15,7 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.natives.connectors;
+package org.ballerinalang.model.connectors;
 
 import org.ballerinalang.core.utils.BTestUtils;
 import org.ballerinalang.model.BLangProgram;
@@ -135,29 +135,37 @@ public class ConnectorActionTest {
     
     @Test(description = "Test invoking an undefined connector",
             expectedExceptions = {SemanticException.class },
-            expectedExceptionsMessageRegExp = "undefined-connector.bal:4: undefined type 'UndefinedConnector'")
+            expectedExceptionsMessageRegExp = "undefined-connector.bal:2: undefined type 'UndefinedConnector'")
     public void testUndefinedConnector() {
         BTestUtils.parseBalFile("lang/connectors/undefined-connector.bal");
     }
     
     @Test(description = "Test invoking an undefined action",
             expectedExceptions = {SemanticException.class },
-            expectedExceptionsMessageRegExp = "undefined-actions.bal:16: undefined action 'TestConnector.foo'")
+            expectedExceptionsMessageRegExp = "undefined-actions.bal:14: undefined action 'TestConnector.foo'")
     public void testUndefinedAction() {
         BTestUtils.parseBalFile("lang/connectors/undefined-actions.bal");
     }
     
     @Test(description = "Test defining duplicate connector",
             expectedExceptions = {SemanticException.class },
-            expectedExceptionsMessageRegExp = "duplicate-connector.bal:13: redeclared symbol 'TestConnector'")
+            expectedExceptionsMessageRegExp = "duplicate-connector.bal:11: redeclared symbol 'TestConnector'")
     public void testDuplicateConnectorDef() {
         BTestUtils.parseBalFile("lang/connectors/duplicate-connector.bal");
     }
     
     @Test(description = "Test defining duplicate action",
             expectedExceptions = {SemanticException.class },
-            expectedExceptionsMessageRegExp = "duplicate-action.bal:11: redeclared symbol 'foo'")
+            expectedExceptionsMessageRegExp = "duplicate-action.bal:9: redeclared symbol 'foo'")
     public void testDuplicateAction() {
         BTestUtils.parseBalFile("lang/connectors/duplicate-action.bal");
+    }
+    
+    @Test(description = "Test incorrect action invocation",
+            expectedExceptions = {SemanticException.class },
+            expectedExceptionsMessageRegExp = "incorrect-action-invocation.bal:16: incompatible types: expected a " +
+            "connector name, found 'cal'")
+    public void testIncorrectActionInvocation() {
+        BTestUtils.parseBalFile("lang/connectors/incorrect-action-invocation.bal");
     }
 }
