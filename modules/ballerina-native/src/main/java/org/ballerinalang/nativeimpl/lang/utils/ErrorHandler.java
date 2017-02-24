@@ -101,11 +101,12 @@ public class ErrorHandler {
     /*
      * XML error handling methods.
      */
-    
+
     /**
      * Handle invalid/malformed xpath exceptions.
-     * 
-     * @param e     Exception to handle
+     *
+     * @param operation Operation that executed
+     * @param e         Exception to handle
      */
     public static void handleInvalidXPath(String operation, Exception e) {
         throw new BallerinaException("Failed to " + operation + ". Invalid xpath: " + e.getMessage());
