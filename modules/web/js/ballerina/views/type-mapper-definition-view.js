@@ -214,12 +214,12 @@ define(['lodash', 'log', './ballerina-view', './variables-view', './type-struct-
                     self.getTargetInfo()[TYPE_MAPPER_COMBOBOX_PREVIOUS_SELECTION] = self.getSelectedTargetStruct();
                     self.getModel().removeReturnType(self.getTargetInfo().targetStructName,self.getBlockStatementView(),
                         self.getTypeMapperRenderer());
-                    self.getModel().addReturnTypeChild(selectedStructNameForTarget, "x");
+                    self.getModel().addReturnTypeChild(selectedStructNameForTarget);
                     self.getModel().fillReturnStatement("x");
                     self.getModel().fillVariableDefStatement(selectedStructNameForTarget, "x");
                 } else if (selectedStructNameForTarget == TYPE_MAPPER_COMBOBOX_DEFAULT_SELECTION) {
                     self.setTargetSchemaNameToComboBox('#targetStructs' + self.getModel().id, self.getSelectedTargetStruct());
-                    if (self.getSelectedSourceStruct() == TYPE_MAPPER_COMBOBOX_DEFAULT_SELECTION) {
+                    if (self.getSelectedTargetStruct() == TYPE_MAPPER_COMBOBOX_DEFAULT_SELECTION) {
                         self.getModel().removeReturnType();
                         self.getModel().addReturnTypeChild(undefined, true);
                     }
