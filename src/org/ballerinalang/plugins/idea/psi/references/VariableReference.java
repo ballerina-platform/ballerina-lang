@@ -23,6 +23,7 @@ import com.intellij.psi.util.PsiTreeUtil;
 import org.ballerinalang.plugins.idea.psi.ActionDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.ConnectorBodyNode;
 import org.ballerinalang.plugins.idea.psi.ConnectorDefinitionNode;
+import org.ballerinalang.plugins.idea.psi.ConstantDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.FunctionBodyNode;
 import org.ballerinalang.plugins.idea.psi.FunctionNode;
 import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
@@ -45,7 +46,7 @@ public class VariableReference extends BallerinaElementReference {
     public boolean isDefinitionNode(PsiElement def) {
         return def instanceof VariableDefinitionNode || def instanceof VariableReferenceNode
                 || def instanceof ParameterNode || def instanceof NamedParameterNode
-                || def instanceof TypeMapperInputNode;
+                || def instanceof TypeMapperInputNode || def instanceof ConstantDefinitionNode;
     }
 
     @NotNull
@@ -100,7 +101,7 @@ public class VariableReference extends BallerinaElementReference {
                     return false;
                 }
                 return refName.equals(nameIdentifier.getText());
-            }else if(definitionElement instanceof TypeMapperInputNode){
+            } else if (definitionElement instanceof TypeMapperInputNode) {
                 PsiElement commonContext = PsiTreeUtil.findCommonContext(definitionElement, myElement);
                 if (!(commonContext instanceof TypeMapperNode)) {
                     return false;

@@ -83,6 +83,8 @@ public class BallerinaFindUsageProvider implements FindUsagesProvider {
                 return "Type Mapper Input";
             case RULE_structDefinition:
                 return "Struct";
+            case RULE_constantDefinition:
+                return "Constant";
             case RULE_simpleType:
                 // Todo - Resolve the SimpleType element and return the correct type.
         }
