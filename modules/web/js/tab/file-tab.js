@@ -73,6 +73,7 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace/f
                 this._file.setContent(updatedContent);
                 this._file.save();
             }
+            $(this.app.config.tab_controller.tabs.tab.ballerina_editor.design_view.container).scrollTop(0);
         },
 
         renderBallerinaEditor: function(astRoot, parseFailed){
@@ -108,6 +109,15 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace/f
             fileEditor.on('remove-breakpoint', function(row){
                 DebugManager.removeBreakPoint(row, this._file.getName());
             }, this);
+
+            fileEditor.on('content-modified', function() {
+                // TODO handle line number changes in a better way
+                // remove breakpoints if tree modified
+                if(!_.isEmpty(self.getBreakPoints())) {
+                    alerts.warn('Could not preserve debug points', 60000);
+                    self.removeAllBreakpoints();
+                }
+            });
 
             this.on('tab-removed', function() {
                 this.removeAllBreakpoints();
@@ -187,6 +197,11 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace/f
 
         removeAllBreakpoints: function() {
             DebugManager.removeAllBreakpoints(this._file.getName());
+            this._fileEditor.trigger('reset-breakpoints', []);
+        },
+
+        getBreakPoints: function() {
+            return DebugManager.getDebugPoints(this._file.getName());
         }
 
     });
