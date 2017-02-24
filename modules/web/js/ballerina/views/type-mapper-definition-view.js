@@ -144,104 +144,92 @@ define(['lodash', 'log', './ballerina-view', './variables-view', './type-struct-
             currentContainer.find('svg').parent().append(selectorContainer).append(dataMapperContainer);
             currentContainer.find('svg').remove();
 
-            this.loadSchemasToComboBox(currentContainer, "#" + sourceId, "#" + targetId, predefinedStructs);
+            this.loadSchemasToComboBox(self, predefinedStructs);
 
             $(".type-mapper-combo").select2();
             $("#" + targetId).on("select2:open", function () {
                 var predefinedStructs = self._package.getStructDefinitions();
-                if (predefinedStructs.length > 0) {
-                    $("#" + targetId).empty().append('<option value="-1">--Select--</option>');
-                    self.getTargetInfo()["predefinedStructs"] = predefinedStructs;
-                    self.loadSchemaToComboBox(currentContainer, "#" + targetId, predefinedStructs);
-                }
+                $("#" + targetId).empty().append('<option value="-1">--Select--</option>');
+                self.getTargetInfo()[TYPE_MAPPER_PREDEFINED_STRUCTS] = predefinedStructs;
+                self.loadSchemaToComboBox(currentContainer, "#" + targetId, predefinedStructs);
+                self.attachOnRemoveStruct(predefinedStructs);
             });
 
             $("#" + sourceId).on("select2:open", function () {
                 var predefinedStructs = self._package.getStructDefinitions();
-                if (predefinedStructs.length > 0) {
-                    $("#" + sourceId).empty().append('<option value="-1">--Select--</option>');
-                    self.getSourceInfo()["predefinedStructs"] = predefinedStructs;
-                    self.loadSchemaToComboBox(currentContainer, "#" + sourceId, predefinedStructs);
-                }
+                $("#" + sourceId).empty().append('<option value="-1">--Select--</option>');
+                self.getSourceInfo()[TYPE_MAPPER_PREDEFINED_STRUCTS] = predefinedStructs;
+                self.loadSchemaToComboBox(currentContainer, "#" + sourceId, predefinedStructs);
+                self.attachOnRemoveStruct(predefinedStructs);
             });
+            self.attachOnRemoveStruct(predefinedStructs);
 
             $(currentContainer).find("#" + sourceId).change(function () {
                 var sourceDropDown = $("#" + sourceId + " option:selected");
                 var selectedNewStructNameForSource = sourceDropDown.text();
-
-//                if (selectedNewStructNameForSource != self.getSelectedTargetStruct()) {
-//                    self.getSourceInfo()[TYPE_MAPPER_COMBOBOX_PREVIOUS_SELECTION] = self.getSelectedSourceStruct();
-//                    self.setSelectedSourceStruct(selectedNewStructNameForSource);
-//                    if (selectedNewStructNameForSource != TYPE_MAPPER_COMBOBOX_DEFAULT_SELECTION) {
-//                        self.getModel().removeResourceParameter();
-//                        self.getModel().addResourceParameterChild(selectedNewStructNameForSource, "y");
-//                    }
-//                } else {
-//                    self.setSourceSchemaNameToComboBox('#sourceStructs' + self.getModel().id, self.getSelectedSourceStruct());
-//                }
-
                 if (selectedNewStructNameForSource != TYPE_MAPPER_COMBOBOX_DEFAULT_SELECTION && selectedNewStructNameForSource
                     != self.getSelectedSourceStruct()) {
-                    if(selectedNewStructNameForSource == self.getSelectedTargetStruct()){
+                    if (selectedNewStructNameForSource == self.getSelectedTargetStruct()) {
 
                         self.getSourceInfo()[TYPE_MAPPER_COMBOBOX_SOURCE_IS_ALREADY_RENDERED_IN_TARGET] = true;
                         self.getModel().removeReturnType();
                         self.setSelectedTargetStruct(TYPE_MAPPER_COMBOBOX_DEFAULT_SELECTION);
                         self.setTargetSchemaNameToComboBox('#targetStructs' + self.getModel().id, self.getSelectedTargetStruct());
 
-                    }else{
+                    } else {
                         self.getSourceInfo()[TYPE_MAPPER_COMBOBOX_SOURCE_IS_ALREADY_RENDERED_IN_TARGET] = false;
                     }
                     self.getSourceInfo()[TYPE_MAPPER_COMBOBOX_PREVIOUS_SELECTION] = self.getSelectedSourceStruct();
                     self.getModel().removeResourceParameter();
                     self.getModel().addResourceParameterChild(selectedNewStructNameForSource, "y");
-                }else if(selectedNewStructNameForSource == TYPE_MAPPER_COMBOBOX_DEFAULT_SELECTION){
+                } else if (selectedNewStructNameForSource == TYPE_MAPPER_COMBOBOX_DEFAULT_SELECTION) {
                     self.setSourceSchemaNameToComboBox('#sourceStructs' + self.getModel().id, self.getSelectedSourceStruct());
+                    if (self.getSelectedSourceStruct() == TYPE_MAPPER_COMBOBOX_DEFAULT_SELECTION) {
+                        self.getModel().removeResourceParameter();
+                        self.getModel().addResourceParameterChild(undefined, undefined, true);
+                    }
                 }
             });
 
             $(currentContainer).find("#" + targetId).change(function () {
                 var targetDropDown = $("#" + targetId + " option:selected");
                 var selectedStructNameForTarget = targetDropDown.text();
-
-//                if (selectedStructNameForTarget != self.getSelectedSourceStruct()) {
-//                    self.getTargetInfo()[TYPE_MAPPER_COMBOBOX_PREVIOUS_SELECTION] = self.getSelectedTargetStruct();
-//                    self.setSelectedTargetStruct(selectedStructNameForTarget);
-//                    if (selectedStructNameForTarget != TYPE_MAPPER_COMBOBOX_DEFAULT_SELECTION) {
-//                        self.getModel().removeReturnType();
-//                        self.getModel().addReturnTypeChild(selectedStructNameForTarget, "x");
-//                        self.getModel().fillReturnStatement("x");
-//                        self.getModel().fillVariableDefStatement(selectedStructNameForTarget, "x");
-//                    }
-//                } else {
-//                    self.setTargetSchemaNameToComboBox('#targetStructs' + self.getModel().id, self.getSelectedTargetStruct());
-//                }
-
                 if (selectedStructNameForTarget != TYPE_MAPPER_COMBOBOX_DEFAULT_SELECTION && selectedStructNameForTarget
                     != self.getSelectedTargetStruct()) {
-                    if(selectedStructNameForTarget == self.getSelectedSourceStruct()){
+                    if (selectedStructNameForTarget == self.getSelectedSourceStruct()) {
 
                         self.getTargetInfo()[TYPE_MAPPER_COMBOBOX_SOURCE_IS_ALREADY_RENDERED_IN_TARGET] = true;
                         self.getModel().removeResourceParameter();
                         self.setSelectedSourceStruct(TYPE_MAPPER_COMBOBOX_DEFAULT_SELECTION);
                         self.setSourceSchemaNameToComboBox('#sourceStructs' + self.getModel().id, self.getSelectedSourceStruct());
 
-                    }else{
+                    } else {
                         self.getTargetInfo()[TYPE_MAPPER_COMBOBOX_TARGET_IS_ALREADY_RENDERED_IN_SOURCE] = false;
                     }
                     self.getTargetInfo()[TYPE_MAPPER_COMBOBOX_PREVIOUS_SELECTION] = self.getSelectedTargetStruct();
                     self.getModel().removeReturnType();
-                    self.getModel().addReturnTypeChild(selectedStructNameForTarget, "x");
+                    self.getModel().addReturnTypeChild(selectedStructNameForTarget);
                     self.getModel().fillReturnStatement("x");
                     self.getModel().fillVariableDefStatement(selectedStructNameForTarget, "x");
-                }else if(selectedStructNameForTarget == TYPE_MAPPER_COMBOBOX_DEFAULT_SELECTION){
+                } else if (selectedStructNameForTarget == TYPE_MAPPER_COMBOBOX_DEFAULT_SELECTION) {
                     self.setTargetSchemaNameToComboBox('#targetStructs' + self.getModel().id, self.getSelectedTargetStruct());
+                    if (self.getSelectedSourceStruct() == TYPE_MAPPER_COMBOBOX_DEFAULT_SELECTION) {
+                        self.getModel().removeReturnType();
+                        self.getModel().addReturnTypeChild(undefined, true);
+                    }
                 }
             });
 
             this.getModel().accept(this);
             this.getModel().on('child-added', function (child) {
                 self.visit(child);
+            });
+            this.getModel().on('child-removed', function (child) {
+                if (BallerinaASTFactory.isResourceParameter(child)) {
+                    self.removeResourceParameter(self);
+                } else if (BallerinaASTFactory.isReturnType(child)) {
+                    self.removeReturnType(self);
+                }
             });
 
             var dropActiveClass = _.get(this._viewOptions, 'cssClass.design_view_drop');
@@ -334,6 +322,22 @@ define(['lodash', 'log', './ballerina-view', './variables-view', './type-struct-
             });
         };
 
+        TypeMapperDefinitionView.prototype.removeResourceParameter = function (self) {
+            var inputStructView = new InputStructView({
+                model: null, parentView: this, onConnectInstance: self.getOnConnectInstance(),
+                onDisconnectInstance: self.getOnDisconnectInstance(), sourceInfo: self.getSourceInfo()
+            });
+
+            inputStructView.render(self.diagramRenderingContext, self.getTypeMapperRenderer());
+        };
+
+        TypeMapperDefinitionView.prototype.removeReturnType = function (self) {
+            var outputStructView = new OutputStructView({
+                model: null, parentView: this, onConnectInstance: self.getOnConnectInstance(),
+                onDisconnectInstance: self.getOnDisconnectInstance(), targetInfo: self.getTargetInfo()
+            });
+            outputStructView.render(this.diagramRenderingContext, self.getTypeMapperRenderer());
+        };
 
         /**
          * return attributes list as a json object
@@ -366,11 +370,14 @@ define(['lodash', 'log', './ballerina-view', './variables-view', './type-struct-
             return schema;
         };
 
-        TypeMapperDefinitionView.prototype.loadSchemasToComboBox = function (parentId, sourceComboboxId, targetComboboxId, schemaArray) {
+        TypeMapperDefinitionView.prototype.loadSchemasToComboBox = function (self, schemaArray) {
+            var currentContainer = $('#' + self.getModel().getID());
+            var sourceId = '#sourceStructs' + this.getModel().id;
+            var targetId = '#targetStructs' + this.getModel().id;
             for (var i = 0; i < schemaArray.length; i++) {
-                $(parentId).find(sourceComboboxId).append('<option value="' + schemaArray[i].getStructName() + '">'
+                currentContainer.find(sourceId).append('<option value="' + schemaArray[i].getStructName() + '">'
                     + schemaArray[i].getStructName() + '</option>');
-                $(parentId).find(targetComboboxId).append('<option value="' + schemaArray[i].getStructName() + '">'
+                currentContainer.find(targetId).append('<option value="' + schemaArray[i].getStructName() + '">'
                     + schemaArray[i].getStructName() + '</option>');
             }
         };
@@ -379,6 +386,50 @@ define(['lodash', 'log', './ballerina-view', './variables-view', './type-struct-
             for (var i = 0; i < schemaArray.length; i++) {
                 $(parentId).find(comboBoxId).append('<option value="' + schemaArray[i].getStructName() + '">'
                     + schemaArray[i].getStructName() + '</option>');
+            }
+        };
+
+        TypeMapperDefinitionView.prototype.clearComboBox = function (self) {
+            var currentContainer = $('#' + self.getModel().getID());
+            var sourceId = '#sourceStructs' + self.getModel().id;
+            var targetId = '#targetStructs' + self.getModel().id;
+            currentContainer.find(sourceId).find('option').remove();
+            currentContainer.find(targetId).find('option').remove();
+        };
+
+        TypeMapperDefinitionView.prototype.attachOnRemoveStruct = function (predefinedStructs) {
+            var self = this;
+            var index = 0;
+            _.forEach(predefinedStructs, function (struct) {
+                struct.on('after-remove', self.onStructRemove, {struct: struct, self: self});
+                index++;
+            })
+        };
+
+        TypeMapperDefinitionView.prototype.onStructRemove = function () {
+            var struct = this.struct;
+            var self = this.self;
+            var predefinedStructs = self.getSourceInfo()[TYPE_MAPPER_PREDEFINED_STRUCTS];
+            var indexOf = _.findIndex(predefinedStructs, function (aStruct) {
+                return aStruct == struct;
+            });
+            if (indexOf != -1) {
+                predefinedStructs.splice(indexOf, 1);
+            }
+            if (self.getSourceInfo()[TYPE_MAPPER_SOURCE_STRUCT_SCHEMA]
+                && self.getSourceInfo()[TYPE_MAPPER_SOURCE_STRUCT_SCHEMA] == struct) {
+                self._selectedSourceStruct = TYPE_MAPPER_COMBOBOX_DEFAULT_SELECTION;
+                self.getSourceInfo()[TYPE_MAPPER_COMBOBOX_PREVIOUS_SELECTION] = struct.getStructName();
+                self.getSourceInfo()[TYPE_MAPPER_SOURCE_STRUCT_SCHEMA] = undefined;
+                self.getSourceInfo()[TYPE_MAPPER_SOURCE_STRUCT_NAME] = undefined;
+                $('#sourceStructs' + self.getModel().id).val(TYPE_MAPPER_COMBOBOX_DEFAULT_SELECTION).change();
+            } else if (self.getTargetInfo()[TYPE_MAPPER_TARGET_STRUCT_SCHEMA]
+                && self.getTargetInfo()[TYPE_MAPPER_TARGET_STRUCT_SCHEMA] == struct) {
+                self._selectedTargetStruct = TYPE_MAPPER_COMBOBOX_DEFAULT_SELECTION;
+                self.getTargetInfo()[TYPE_MAPPER_COMBOBOX_PREVIOUS_SELECTION] = struct.getStructName();
+                self.getTargetInfo()[TYPE_MAPPER_TARGET_STRUCT_NAME] = undefined;
+                self.getTargetInfo()[TYPE_MAPPER_TARGET_STRUCT_SCHEMA] = undefined;
+                $('#targetStructs' + self.getModel().id).val(TYPE_MAPPER_COMBOBOX_DEFAULT_SELECTION).change();
             }
         };
 
