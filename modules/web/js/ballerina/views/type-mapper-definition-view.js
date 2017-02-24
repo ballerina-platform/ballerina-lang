@@ -171,23 +171,13 @@ define(['lodash', 'log', './ballerina-view', './variables-view', './type-struct-
                 var sourceDropDown = $("#" + sourceId + " option:selected");
                 var selectedNewStructNameForSource = sourceDropDown.text();
 
-//                if (selectedNewStructNameForSource != self.getSelectedTargetStruct()) {
-//                    self.getSourceInfo()[TYPE_MAPPER_COMBOBOX_PREVIOUS_SELECTION] = self.getSelectedSourceStruct();
-//                    self.setSelectedSourceStruct(selectedNewStructNameForSource);
-//                    if (selectedNewStructNameForSource != TYPE_MAPPER_COMBOBOX_DEFAULT_SELECTION) {
-//                        self.getModel().removeResourceParameter();
-//                        self.getModel().addResourceParameterChild(selectedNewStructNameForSource, "y");
-//                    }
-//                } else {
-//                    self.setSourceSchemaNameToComboBox('#sourceStructs' + self.getModel().id, self.getSelectedSourceStruct());
-//                }
-
                 if (selectedNewStructNameForSource != TYPE_MAPPER_COMBOBOX_DEFAULT_SELECTION && selectedNewStructNameForSource
                     != self.getSelectedSourceStruct()) {
                     if(selectedNewStructNameForSource == self.getSelectedTargetStruct()){
 
                         self.getSourceInfo()[TYPE_MAPPER_COMBOBOX_SOURCE_IS_ALREADY_RENDERED_IN_TARGET] = true;
-                        self.getModel().removeReturnType();
+                        self.getModel().removeReturnType(self.getTargetInfo().targetStructName,self.getBlockStatementView(),
+                            self.getTypeMapperRenderer());
                         self.setSelectedTargetStruct(TYPE_MAPPER_COMBOBOX_DEFAULT_SELECTION);
                         self.setTargetSchemaNameToComboBox('#targetStructs' + self.getModel().id, self.getSelectedTargetStruct());
 
@@ -195,7 +185,8 @@ define(['lodash', 'log', './ballerina-view', './variables-view', './type-struct-
                         self.getSourceInfo()[TYPE_MAPPER_COMBOBOX_SOURCE_IS_ALREADY_RENDERED_IN_TARGET] = false;
                     }
                     self.getSourceInfo()[TYPE_MAPPER_COMBOBOX_PREVIOUS_SELECTION] = self.getSelectedSourceStruct();
-                    self.getModel().removeResourceParameter();
+                    self.getModel().removeResourceParameter(self.getSourceInfo().sourceStructName,self.getBlockStatementView(),
+                        self.getTypeMapperRenderer());
                     self.getModel().addResourceParameterChild(selectedNewStructNameForSource, "y");
                 }else if(selectedNewStructNameForSource == TYPE_MAPPER_COMBOBOX_DEFAULT_SELECTION){
                     self.setSourceSchemaNameToComboBox('#sourceStructs' + self.getModel().id, self.getSelectedSourceStruct());
@@ -206,25 +197,13 @@ define(['lodash', 'log', './ballerina-view', './variables-view', './type-struct-
                 var targetDropDown = $("#" + targetId + " option:selected");
                 var selectedStructNameForTarget = targetDropDown.text();
 
-//                if (selectedStructNameForTarget != self.getSelectedSourceStruct()) {
-//                    self.getTargetInfo()[TYPE_MAPPER_COMBOBOX_PREVIOUS_SELECTION] = self.getSelectedTargetStruct();
-//                    self.setSelectedTargetStruct(selectedStructNameForTarget);
-//                    if (selectedStructNameForTarget != TYPE_MAPPER_COMBOBOX_DEFAULT_SELECTION) {
-//                        self.getModel().removeReturnType();
-//                        self.getModel().addReturnTypeChild(selectedStructNameForTarget, "x");
-//                        self.getModel().fillReturnStatement("x");
-//                        self.getModel().fillVariableDefStatement(selectedStructNameForTarget, "x");
-//                    }
-//                } else {
-//                    self.setTargetSchemaNameToComboBox('#targetStructs' + self.getModel().id, self.getSelectedTargetStruct());
-//                }
-
                 if (selectedStructNameForTarget != TYPE_MAPPER_COMBOBOX_DEFAULT_SELECTION && selectedStructNameForTarget
                     != self.getSelectedTargetStruct()) {
                     if(selectedStructNameForTarget == self.getSelectedSourceStruct()){
 
                         self.getTargetInfo()[TYPE_MAPPER_COMBOBOX_SOURCE_IS_ALREADY_RENDERED_IN_TARGET] = true;
-                        self.getModel().removeResourceParameter();
+                        self.getModel().removeResourceParameter(self.getSourceInfo().sourceStructName,self.getBlockStatementView(),
+                            self.getTypeMapperRenderer());
                         self.setSelectedSourceStruct(TYPE_MAPPER_COMBOBOX_DEFAULT_SELECTION);
                         self.setSourceSchemaNameToComboBox('#sourceStructs' + self.getModel().id, self.getSelectedSourceStruct());
 
@@ -232,7 +211,8 @@ define(['lodash', 'log', './ballerina-view', './variables-view', './type-struct-
                         self.getTargetInfo()[TYPE_MAPPER_COMBOBOX_TARGET_IS_ALREADY_RENDERED_IN_SOURCE] = false;
                     }
                     self.getTargetInfo()[TYPE_MAPPER_COMBOBOX_PREVIOUS_SELECTION] = self.getSelectedTargetStruct();
-                    self.getModel().removeReturnType();
+                    self.getModel().removeReturnType(self.getTargetInfo().targetStructName,self.getBlockStatementView(),
+                        self.getTypeMapperRenderer());
                     self.getModel().addReturnTypeChild(selectedStructNameForTarget, "x");
                     self.getModel().fillReturnStatement("x");
                     self.getModel().fillVariableDefStatement(selectedStructNameForTarget, "x");
@@ -315,7 +295,6 @@ define(['lodash', 'log', './ballerina-view', './variables-view', './type-struct-
                             }
                         });
 
-
                     // indicate drop area
                     self._container.addClass(dropActiveClass);
 
@@ -335,7 +314,6 @@ define(['lodash', 'log', './ballerina-view', './variables-view', './type-struct-
                 event.stopPropagation();
             });
         };
-
 
         /**
          * return attributes list as a json object
