@@ -26,13 +26,13 @@
     <fileSets>
         <fileSet>
             <directory>
-                ${project.build.directory}/extracted-distributions/ballerina-distribution-${ballerina.distribution.version}-zip/ballerina-${ballerina.distribution.version}
+                ${project.build.directory}/extracted-distributions/ballerina-${ballerina.runtime.version}-zip/ballerina-${ballerina.runtime.version}
             </directory>
             <outputDirectory>.</outputDirectory>
         </fileSet>
         <fileSet>
             <directory>
-                ${project.build.directory}/extracted-distributions/ballerina-composer-distribution-${ballerina.composer.distribution.version}-zip/ballerina-composer-${ballerina.composer.distribution.version}
+                ${project.build.directory}/extracted-distributions/ballerina-composer-${ballerina.composer.version}-zip/ballerina-composer-${ballerina.composer.version}
             </directory>
             <outputDirectory>.</outputDirectory>
         </fileSet>

@@ -42,14 +42,14 @@
     <dependencies>
         <dependency>
             <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-distribution</artifactId>
-            <version>${ballerina.distribution.version}</version>
+            <artifactId>ballerina</artifactId>
+            <version>${ballerina.runtime.version}</version>
             <type>zip</type>
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-composer-distribution</artifactId>
-            <version>${ballerina.composer.distribution.version}</version>
+            <artifactId>ballerina-composer</artifactId>
+            <version>${ballerina.composer.version}</version>
             <type>zip</type>
         </dependency>
         <dependency>
@@ -94,7 +94,7 @@
                         </goals>
                         <configuration>
                             <includeArtifactIds>
-                                ballerina-distribution,ballerina-composer-distribution,testerina-core,connectors
+                                ballerina,ballerina-composer,testerina-core,connectors
                             </includeArtifactIds>
                             <outputDirectory>${project.build.directory}/extracted-distributions</outputDirectory>
                             <overWriteReleases>false</overWriteReleases>
@@ -116,7 +116,7 @@
                         </goals>
                         <configuration>
                             <outputDir>${project.build.directory}/api-docs</outputDir>
-                            <sourceDir>${project.build.directory}/extracted-distributions/ballerina-distribution-${ballerina.distribution.version}-zip/ballerina-${ballerina.distribution.version}/src</sourceDir>
+                            <sourceDir>${project.build.directory}/extracted-distributions/ballerina-${ballerina.runtime.version}-zip/ballerina-${ballerina.runtime.version}/src</sourceDir>
                             <nativeCode>true</nativeCode>
                         </configuration>
                     </execution>
@@ -180,8 +180,8 @@
     </build>
 
     <properties>
-        <ballerina.distribution.version>0.8.0</ballerina.distribution.version>
-        <ballerina.composer.distribution.version>0.8.0</ballerina.composer.distribution.version>
+        <ballerina.runtime.version>0.8.0</ballerina.runtime.version>
+        <ballerina.composer.version>0.8.0</ballerina.composer.version>
         <testerina.version>0.8.0</testerina.version>
         <tool.swagger.version>0.8.0</tool.swagger.version>
         <ballerina.container.version>0.8.0</ballerina.container.version>
