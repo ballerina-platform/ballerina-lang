@@ -16,25 +16,38 @@
 *  under the License.
 */
 
-package org.ballerinalang.test.util;
+package org.ballerinalang.test.server;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.broker.BrokerService;
 import org.ballerinalang.test.context.Constant;
+import org.ballerinalang.test.context.Server;
 
 import javax.jms.ConnectionFactory;
 
 /**
  * JMS Provider for the test case.
  */
-public class JMSBroker {
-    private static ConnectionFactory connectionFactory = new ActiveMQConnectionFactory(Constant.ACTIVEMQ_PROVIDER_URL);
-    private static BrokerService broker;
+public class JMSTestBroker implements Server {
+    private ConnectionFactory connectionFactory = new ActiveMQConnectionFactory(Constant.ACTIVEMQ_PROVIDER_URL);
+    private BrokerService broker;
+    private static JMSTestBroker instance = new JMSTestBroker();
 
-    static {
+    /**
+     * Creates a JMS Broker.
+     */
+    private JMSTestBroker() {
         broker = new BrokerService();
         broker.setPersistent(false);
         broker.setUseJmx(true);
+    }
+
+    /**
+     * To get the instance of the JMS Broker.
+     * @return instance of the JMS Broker
+     */
+    public static JMSTestBroker getInstance() {
+        return instance;
     }
 
     /**
@@ -42,19 +55,35 @@ public class JMSBroker {
      *
      * @return Connection factory of the particular jms provider
      */
-    public static ConnectionFactory getConnectionFactory() {
+    public ConnectionFactory getConnectionFactory() {
         return connectionFactory;
     }
 
-    /**
-     * To start the broker.
-     *
-     * @throws Exception Exception that can be thrown when adding the connector
-     */
-    public static void startBroker() throws Exception {
+    @Override
+    public void start() throws Exception {
         if (!broker.isStarted()) {
             broker.addConnector("tcp://localhost:61616");
             broker.start();
         }
+
+    }
+
+    @Override
+    public void stop() throws Exception {
+        if (broker.isStarted() && !broker.isStopped()) {
+            broker.stop();
+        }
+    }
+
+    @Override
+    public void restart() throws Exception {
+        if (broker.isStarted() && broker.isRestartAllowed()) {
+            broker.requestRestart();
+        }
+    }
+
+    @Override
+    public boolean isRunning() {
+        return broker.isStarted() && !broker.isStopped();
     }
 }
