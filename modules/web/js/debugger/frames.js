@@ -128,7 +128,43 @@ define(['jquery', 'backbone', 'lodash', 'log', 'event_channel', './debug-manager
                     item.type = "double";
                     break;                    
                   case 'BString': 
-                    item.type = "string";              
+                    item.type = "string";
+                    break;
+                  case 'BJSON':
+                    item.type = "json";
+                    break;
+                  case 'BArray':
+                    item.type = "array";
+                    break;
+                  case 'BMessage':
+                    item.type = "message";
+                    break;
+                  case 'BConnector':
+                    item.type = "connector";
+                    break;
+                  case 'BDataTable':
+                    item.type = "datatable";
+                    break;
+                  case 'BXML':
+                    item.type = "xml";
+                    break;
+                  case 'BValue':
+                    item.type = "value";
+                    break;
+                  case 'BMap':
+                    item.type = "map";
+                    break;
+                  case 'BValueType':
+                    item.type = "valuetype";
+                    break;
+                  case 'BStruct':
+                    item.type = "struct";
+                    break;
+                  case 'BException':
+                    item.type = "exception";
+                    break;
+                  case 'BRefType':
+                    item.type = "reftype";
                     break;
                   default:
                     

@@ -97,24 +97,43 @@ define(['lodash', 'log', 'jquery', 'alerts', './resource-parameter-view', './../
             }).appendTo(headerWrapper);
 
             // Creating parameter type dropdown.
-            var parameterTypeDropDown = $("<select/>");
-            var typeDropdownWrapper = $('<div class="type-drop-wrapper resource"></div>');
-            parameterTypeDropDown.appendTo(typeDropdownWrapper);
-            typeDropdownWrapper.appendTo(parameterWrapper);
+            var typeDropdownWrapper = $('<div class="type-drop-wrapper resource"/>').appendTo(parameterWrapper);
 
-            this._supportedParameterTypes = this._viewOfModel.getDiagramRenderingContext().getEnvironment().getTypes();
-            // Adding dropdown elements.
-            _.forEach(this._supportedParameterTypes, function (type) {
-                // Adding supported parameter types to the type dropdown.
-                parameterTypeDropDown.append(
-                    $('<option></option>').val(type).html(type)
-                );
-            });
-            parameterTypeDropDown.select2({
+            var parameterTypeDropDown = $("<select/>").appendTo(typeDropdownWrapper);
+
+            $(parameterTypeDropDown).select2({
+                data: this._getTypeDropdownValues(),
                 tags: true,
                 selectOnClose: true
-
             });
+
+            $(document).ready(function() {
+                $(typeDropdownWrapper).empty();
+                parameterTypeDropDown = $("<select/>").appendTo(typeDropdownWrapper);
+                $(parameterTypeDropDown).select2({
+                    tags: true,
+                    selectOnClose: true,
+                    data : self._getTypeDropdownValues(),
+                    query: function (query) {
+                        var data = {results: []};
+                        if (!_.isNil(query.term)) {
+                            _.forEach(self._getTypeDropdownValues(), function (item) {
+                                if (item.text.toUpperCase().indexOf(query.term.toUpperCase()) >= 0) {
+                                    data.results.push(item);
+                                }
+                            });
+                        } else {
+                            data.results = self._getTypeDropdownValues();
+                        }
+                        query.callback(data);
+                    }
+                });
+
+                $(parameterTypeDropDown).on("select2:open", function() {
+                    $(".select2-search__field").attr("placeholder", "Search");
+                });
+            });
+
             // Text input for the new identifier.
             var parameterIdentifierInput = $("<input/>", {
                 type: "text",
@@ -170,8 +189,7 @@ define(['lodash', 'log', 'jquery', 'alerts', './resource-parameter-view', './../
 
             // Adding a new parameter.
             $(addButton).click(function () {
-                var annotationType = $(allowAnnotationCheckBox).is(":checked")
-                    ? annotationTypeDropdown.val() : undefined;
+                var annotationType = $(allowAnnotationCheckBox).is(":checked") ? annotationTypeDropdown.val() : undefined;
                 var annotationText = $(allowAnnotationCheckBox).is(":checked") ? annotationValue.val() : undefined;
                 var parameterType = $(parameterTypeDropDown).val();
                 var parameterIdentifier = $(parameterIdentifierInput).val();
@@ -290,13 +308,13 @@ define(['lodash', 'log', 'jquery', 'alerts', './resource-parameter-view', './../
             // Check if there are parameters with @Form or @Body annotations.
             var hasFormParam = _.findIndex(this._model.getParameters(), function (resourceParam) {
                 return resourceParam.getAnnotationType() === "@FormParam" ||
-                    resourceParam.getAnnotationType() === "@Body"
+                    resourceParam.getAnnotationType() === "@Body";
             });
 
             // If there is already parameters with @Form or @Body annotation, remove them from suggestions.
             if (hasFormParam) {
                 _.remove(availableAnnotationTypes, function (availableAnnotationType) {
-                    return availableAnnotationType === "@FormParam" || availableAnnotationType === "@Body"
+                    return availableAnnotationType === "@FormParam" || availableAnnotationType === "@Body";
                 });
             }
 
@@ -304,8 +322,23 @@ define(['lodash', 'log', 'jquery', 'alerts', './resource-parameter-view', './../
             _.forEach(availableAnnotationTypes, function (availableAnnotationType) {
                 annotationTypeDropdown.append(
                     $('<option></option>').val(availableAnnotationType).html(availableAnnotationType)
-                )
+                );
             });
+        };
+
+        /**
+         * Returns an object array with support types.
+         * @return {Object[]} Object array as supported data types.
+         */
+        ResourceParametersPaneView.prototype._getTypeDropdownValues = function() {
+            var dropdownData = [];
+            // Adding items to the type dropdown.
+            var bTypes = this._viewOfModel.getDiagramRenderingContext().getEnvironment().getTypes();
+            _.forEach(bTypes, function (bType) {
+                dropdownData.push({id: bType, text: bType});
+            });
+
+            return dropdownData;
         };
 
         return ResourceParametersPaneView;

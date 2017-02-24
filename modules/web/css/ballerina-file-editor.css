@@ -380,6 +380,7 @@
 
 .return-types-heading-named-return-wrapper input[type=checkbox] {
     margin-top: 6px;
+    float: left;
 }
 
 .return-types-heading-parameter-wrapper {
@@ -392,7 +393,9 @@
 .return-types-heading-named-return-wrapper-text {
     padding-right: 5px;
     padding-left: 3px;
+    padding-top: 3px;
     color: #FFF;
+    float: left;
 }
 
 .return-types-edit-named-return-wrapper-text {

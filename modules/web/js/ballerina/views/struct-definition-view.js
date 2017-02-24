@@ -58,7 +58,7 @@ define(['lodash', 'log', 'd3', 'alerts', './ballerina-view', 'ballerina/ast/ball
             var canvas_heading_new = _.get(this._viewOptions, "cssClass.canvas_heading_new", "");
             var new_drop_timeout = _.get(this._viewOptions, "design_view.new_drop_timeout", "");
             hadingBox.addClass(canvas_heading_new);
-            setTimeout(function(){hadingBox.removeClass(canvas_heading_new)}, new_drop_timeout);
+            setTimeout(function(){hadingBox.removeClass(canvas_heading_new);}, new_drop_timeout);
 
             $(this.getTitle()).text(this.getModel().getStructName())
                 .on("change paste keyup", function () {
@@ -101,26 +101,35 @@ define(['lodash', 'log', 'd3', 'alerts', './ballerina-view', 'ballerina/ast/ball
             var typeDropdown = $("<select/>").appendTo(typeDropdownWrapper);
 
             $(typeDropdown).select2({
-                tags: true,
-                selectOnClose: true,
-                data : self._getTypeDropdownValues(),
-                query: function (query) {
-                    var data = {results: []};
-                    if (!_.isNil(query.term)) {
-                        _.forEach(self._getTypeDropdownValues(), function (item) {
-                            if (item.text.toUpperCase().indexOf(query.term.toUpperCase()) >= 0) {
-                                data.results.push(item);
-                            }
-                        });
-                    } else {
-                        data.results = self._getTypeDropdownValues();
-                    }
-                    query.callback(data);
-                }
+                data : this._getTypeDropdownValues()
             });
 
-            $(typeDropdown).on("select2:open", function() {
-                $(".select2-search__field").attr("placeholder", "Search");
+            $(document).ready(function() {
+                $(typeDropdownWrapper).empty();
+                typeDropdown = $("<select/>").appendTo(typeDropdownWrapper);
+                console.log("destroying");
+                $(typeDropdown).select2({
+                    tags: true,
+                    selectOnClose: true,
+                    data : self._getTypeDropdownValues(),
+                    query: function (query) {
+                        var data = {results: []};
+                        if (!_.isNil(query.term)) {
+                            _.forEach(self._getTypeDropdownValues(), function (item) {
+                                if (item.text.toUpperCase().indexOf(query.term.toUpperCase()) >= 0) {
+                                    data.results.push(item);
+                                }
+                            });
+                        } else {
+                            data.results = self._getTypeDropdownValues();
+                        }
+                        query.callback(data);
+                    }
+                });
+
+                $(typeDropdown).on("select2:open", function() {
+                    $(".select2-search__field").attr("placeholder", "Search");
+                });
             });
 
             // Creating the identifier text box.
