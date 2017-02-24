@@ -27,7 +27,7 @@
 
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.ballerinalang.tools</groupId>
-    <artifactId>ballerina-tools-distribution</artifactId>
+    <artifactId>ballerina-tools</artifactId>
     <packaging>pom</packaging>
     <version>0.8.0-SNAPSHOT</version>
     <name>Ballerina - Tools</name>
@@ -141,7 +141,7 @@
                             <descriptors>
                                 <descriptor>${basedir}/src/assembly/bin.xml</descriptor>
                             </descriptors>
-                            <finalName>ballerina-tools-${project.version}</finalName>
+                            <finalName>${artifactId}-${project.version}</finalName>
                             <appendAssemblyId>false</appendAssemblyId>
                         </configuration>
                     </execution>
