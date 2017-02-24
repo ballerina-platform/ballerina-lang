@@ -109,6 +109,16 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace/f
                 DebugManager.removeBreakPoint(row, this._file.getName());
             }, this);
 
+            fileEditor.on('content-modified', function() {
+                console.log(arguments)
+                // TODO handle line number changes in a better way
+                // remove breakpoints if tree modified
+                if(!_.isEmpty(self.getBreakPoints())) {
+                    alerts.warn('Could not preserve debug points');
+                    self.removeAllBreakpoints();
+                }
+            });
+
             this.on('tab-removed', function() {
                 this.removeAllBreakpoints();
             });
@@ -187,6 +197,11 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace/f
 
         removeAllBreakpoints: function() {
             DebugManager.removeAllBreakpoints(this._file.getName());
+            this._fileEditor.trigger('reset-breakpoints', []);
+        },
+
+        getBreakPoints: function() {
+            return DebugManager.getDebugPoints(this._file.getName());
         }
 
     });
