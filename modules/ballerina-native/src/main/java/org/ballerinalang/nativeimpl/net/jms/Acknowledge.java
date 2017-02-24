@@ -28,6 +28,9 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.Attribute;
 import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
+import org.ballerinalang.util.exceptions.BallerinaException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonMessage;
 
 /**
@@ -36,7 +39,7 @@ import org.wso2.carbon.messaging.CarbonMessage;
 @BallerinaFunction(
         packageName = "ballerina.net.jms",
         functionName = "acknowledge",
-        args = {@Argument(name = "message", type = TypeEnum.MESSAGE),
+        args = {@Argument(name = "m", type = TypeEnum.MESSAGE),
                 @Argument(name = "deliveryStatus", type = TypeEnum.STRING)},
         isPublic = true
 )
@@ -48,14 +51,37 @@ import org.wso2.carbon.messaging.CarbonMessage;
 @BallerinaAnnotation(annotationName = "Param", attributes = { @Attribute(name = "deliveryStatus",
         value = "Specify whether message delivery is SUCCESS or ERROR") })
 public class Acknowledge extends AbstractNativeFunction {
+    private static final Logger log = LoggerFactory.getLogger(Acknowledge.class);
+
     public BValue[] execute(Context ctx) {
         BMessage msg = (BMessage) getArgument(ctx, 0);
         CarbonMessage carbonMessage = msg.value();
         String deliveryStatus = getArgument(ctx, 1).stringValue();
+        Object jmsSessionAcknowledgementMode = carbonMessage
+                .getProperty(JMSConstants.JMS_SESSION_ACKNOWLEDGEMENT_MODE);
 
-        if (ctx.getBalCallback() != null) {
-            carbonMessage.setProperty(JMSConstants.JMS_MESSAGE_DELIVERY_STATUS, deliveryStatus);
-            ctx.getBalCallback().done(carbonMessage);
+        if (null == jmsSessionAcknowledgementMode) {
+            log.warn("JMS Acknowledge function can only be used with JMS Messages. "
+                    + JMSConstants.JMS_SESSION_ACKNOWLEDGEMENT_MODE + " property is not found in the message.");
+            return VOID_RETURN;
+        }
+        if (!(jmsSessionAcknowledgementMode instanceof Integer)) {
+            throw new BallerinaException(JMSConstants.JMS_SESSION_ACKNOWLEDGEMENT_MODE + " property should hold a "
+                    + "integer value. ");
+        }
+        if (JMSConstants.CLIENT_ACKNOWLEDGEMENT_MODE == (Integer) jmsSessionAcknowledgementMode) {
+            if (JMSConstants.JMS_MESSAGE_DELIVERY_SUCCESS.equalsIgnoreCase(deliveryStatus)
+                    || JMSConstants.JMS_MESSAGE_DELIVERY_ERROR.equalsIgnoreCase(deliveryStatus)) {
+                carbonMessage.setProperty(JMSConstants.JMS_MESSAGE_DELIVERY_STATUS, deliveryStatus);
+                ctx.getBalCallback().done(carbonMessage);
+            } else {
+                throw new BallerinaException(
+                        "Second parameter for the jms:acknowledge function should be within the " + "set ["
+                                + JMSConstants.JMS_MESSAGE_DELIVERY_SUCCESS + ", "
+                                + JMSConstants.JMS_MESSAGE_DELIVERY_ERROR + "]. '" + deliveryStatus + "' is invalid.");
+            }
+        } else {
+            log.warn("JMS Acknowledge function can only be used with JMS CLIENT ACKNOWLEDGEMENT Mode");
         }
         return VOID_RETURN;
     }

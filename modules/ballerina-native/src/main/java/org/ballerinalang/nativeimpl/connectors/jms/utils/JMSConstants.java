@@ -74,4 +74,11 @@ public class JMSConstants {
     public static final String JMS_MESSAGE_DELIVERY_ERROR = "ERROR";
     public static final String JMS_MESSAGE_DELIVERY_SUCCESS = "SUCCESS";
     public static final String JMS_MESSAGE_DELIVERY_STATUS = "JMS_MESSAGE_DELIVERY_STATUS";
+
+    /*
+    * Session acknowledgement mode of the particular message.
+    */
+    public static final String JMS_SESSION_ACKNOWLEDGEMENT_MODE = "JMS_SESSION_ACKNOWLEDGEMENT_MODE";
+    public static final int CLIENT_ACKNOWLEDGEMENT_MODE = 2;
+    public static final int SESSION_TRANSACTED_MODE = 0;
 }

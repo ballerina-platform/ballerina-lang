@@ -20,7 +20,7 @@ package org.ballerinalang.model;
 import org.ballerinalang.model.values.BValue;
 
 /**
- * {@code ExecutableMultiReturnExpr} interface makes an {@link org.ballerinalang.core.model.expressions.Expression}.
+ * {@code ExecutableMultiReturnExpr} interface makes an {@link org.ballerinalang.model.expressions.Expression}.
  * which returns multiple values executable.
  *
  * @since 0.8.0

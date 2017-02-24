@@ -104,7 +104,7 @@ public class ConstructProviderClassBuilder {
      * @param filer {@link Filer} of the current processing environment
      * @param packageName Package name of the generated construct provider class
      * @param className Class name of the generated construct provider class
-     * @param srcDir 
+     * @param srcDir  source directory of ballerina files
      */
     public ConstructProviderClassBuilder(Filer filer, String packageName, String className, String srcDir) {
         this.packageName = packageName;

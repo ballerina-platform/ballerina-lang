@@ -27,7 +27,7 @@ import java.util.function.BiFunction;
 import static org.ballerinalang.model.Operator.LESS_EQUAL;
 
 /**
- * {@code LessEqualExpression} represents a less than or equal (<=) expression in Ballerina.
+ * {@code LessEqualExpression} represents a less than or equal (&lt;=) expression in Ballerina.
  *
  * @since 0.8.0
  */

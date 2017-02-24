@@ -33,9 +33,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * {@code CallableUnitBuilder} is responsible for building Functions, Actions and Resources from parser events.
- * <p/>
- * A CallableUnit represents a Function, an Action or a Resource.
+ * <p>{@code CallableUnitBuilder} is responsible for building Functions, Actions and Resources from parser events.</p>
+ * 
+ * <p>A CallableUnit represents a Function, an Action or a Resource.</p>
  *
  * @since 0.8.0
  */

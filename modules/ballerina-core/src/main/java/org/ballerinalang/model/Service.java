@@ -27,19 +27,18 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * A {@code Service} is an HTTP web service described by a Swagger.
+ * <p>A {@code Service} is an HTTP web service described by a Swagger.
  * A Service is the discrete unit of functionality that can be remotely accessed.
- * <p/>
- * <p/>
+ * </p>
  * A Service is defined as follows:
- * <p/>
+ * <br>
  * [ServiceAnnotations]
  * service ServiceName {
  * ConnectorDeclaration;*
  * VariableDeclaration;*
  * ResourceDefinition;+
  * }
- *
+ * <br>
  * @since 0.8.0
  */
 public class Service implements CompilationUnit, SymbolScope, BLangSymbol {
@@ -189,7 +188,7 @@ public class Service implements CompilationUnit, SymbolScope, BLangSymbol {
     }
 
     /**
-     * {@code ServiceBuilder} is responsible for building a {@cdoe Service} node.
+     * {@code ServiceBuilder} is responsible for building a {@code Service} node.
      *
      * @since 0.8.0
      */

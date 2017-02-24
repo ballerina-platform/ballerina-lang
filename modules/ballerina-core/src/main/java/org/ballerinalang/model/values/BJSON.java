@@ -22,6 +22,7 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser.Feature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import org.ballerinalang.runtime.message.BallerinaMessageDataSource;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
@@ -77,7 +78,8 @@ public final class BJSON extends BallerinaMessageDataSource implements BRefType<
 
     /**
      * Initialize a {@link BJSON} from a streaming datasource.
-     * @param datasource
+     * 
+     * @param datasource Datasource of this json
      */
     public BJSON(JSONDataSource datasource) {
         this.datasource = datasource;
@@ -117,7 +119,8 @@ public final class BJSON extends BallerinaMessageDataSource implements BRefType<
     /**
      * Create a {@link BJSON} from a {@link InputStream}.
      *
-     * @param in InputStream
+     * @param in InputStream of the json content
+     * @param schema Schema of the json
      */
     public BJSON(InputStream in, String schema) {
         try {
@@ -167,15 +170,16 @@ public final class BJSON extends BallerinaMessageDataSource implements BRefType<
     @Override
     public void serializeData() {
         try {
-            JsonGenerator gen = JSON_FAC.createGenerator(this.outputStream);
             /* the below order is important, where if the value is generated from a streaming data source,
              * it should be able to serialize the data out again using the value */
             if (this.value != null) {
-                this.value.serialize(gen, null);
+                this.outputStream.write(OBJECT_MAPPER.writeValueAsBytes(this.value));  
+                this.outputStream.flush();
             } else {
+                JsonGenerator gen = JSON_FAC.createGenerator(this.outputStream);
                 this.datasource.serialize(gen);
+                gen.flush();
             }
-            gen.flush();
         } catch (Throwable t) {
             handleJsonException("error occurred during writing the message to the output stream: ", t);
         }
