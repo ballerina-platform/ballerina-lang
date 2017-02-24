@@ -21,12 +21,7 @@ import com.intellij.lang.findUsages.FindUsagesProvider;
 import com.intellij.psi.PsiElement;
 import org.antlr.jetbrains.adaptor.lexer.RuleIElementType;
 import org.antlr.jetbrains.adaptor.psi.ANTLRPsiNode;
-import org.ballerinalang.plugins.idea.psi.ActionDefinitionNode;
-import org.ballerinalang.plugins.idea.psi.ConnectorDefinitionNode;
-import org.ballerinalang.plugins.idea.psi.FunctionDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
-import org.ballerinalang.plugins.idea.psi.VariableDefinitionNode;
-import org.ballerinalang.plugins.idea.psi.VariableReferenceNode;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

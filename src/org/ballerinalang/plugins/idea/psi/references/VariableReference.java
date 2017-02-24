@@ -45,9 +45,9 @@ public class VariableReference extends BallerinaElementReference {
 
     @Override
     public boolean isDefinitionNode(PsiElement def) {
-        return def instanceof VariableDefinitionNode || def instanceof VariableReferenceNode
-                || def instanceof ParameterNode || def instanceof NamedParameterNode
-                || def instanceof TypeMapperInputNode || def instanceof ConstantDefinitionNode;
+        return def instanceof VariableDefinitionNode || def instanceof ParameterNode
+                || def instanceof NamedParameterNode || def instanceof TypeMapperInputNode
+                || def instanceof ConstantDefinitionNode;
     }
 
     @NotNull
