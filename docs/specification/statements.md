@@ -99,7 +99,7 @@ where `WorkerNameList` is a list of comma-separated names of workers.
 
 When the `JoinCondition` has been satisfied, the corresponding slots of the message array will be filled with the returned messages from the workers in the workers' lexical order. If the condition asks for up to some number of results to be available to satisfy the condition, it may be the case that more than that number are available by the time the statements within the join condition are executed. If a particular worker has completed but not sent a response message, or not yet completed, the corresponding message slot will be null.
 
-The `timeout` clause allows one to specify a maximum time (in milliseconds) within which the join condition must be satisfied.
+The `timeout` clause allows one to specify a maximum time (in seconds) within which the join condition must be satisfied.
 
 > NOTE: The Ballerina Composer does not yet support fork/join as of v0.8.0.
 
