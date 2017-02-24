@@ -27,11 +27,11 @@ import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.util.FunctionUtil;
 import org.ballerinalang.plugins.idea.psi.CallableUnitNameNode;
 import org.ballerinalang.plugins.idea.psi.FunctionNode;
+import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
 import org.ballerinalang.plugins.idea.psi.SimpleTypeNode;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -40,55 +40,47 @@ public class BallerinaRecursiveCallMarkerProvider implements LineMarkerProvider 
     @Nullable
     @Override
     public LineMarkerInfo getLineMarkerInfo(@NotNull PsiElement element) {
+        // Check whether the element is an instance of IdentifierPSINode since recursion can only happen for those
+        // (function name and function invocation both are instance of IdentifierPSINode).
+        if (element instanceof IdentifierPSINode) {
+            // If it is a function invocation, there should be a parent of CallableUnitNameNode.
+            CallableUnitNameNode parent = PsiTreeUtil.getParentOfType(element, CallableUnitNameNode.class);
+            if (parent == null) {
+                return null;
+            }
+            // Get the SimpleTypeNode child because the function name is inside the SimpleTypeNode child.
+            SimpleTypeNode simpleTypeNode = PsiTreeUtil.getChildOfType(parent, SimpleTypeNode.class);
+            if (simpleTypeNode == null) {
+                return null;
+            }
+            // Get the identifier.
+            PsiElement identifier = simpleTypeNode.getNameIdentifier();
+            if (identifier == null) {
+                return null;
+            }
+            // Get the reference.
+            PsiReference reference = identifier.getReference();
+            if (reference == null) {
+                return null;
+            }
+            // Resolve the reference.
+            PsiElement resolvedElement = reference.resolve();
+            if (resolvedElement == null) {
+                return null;
+            }
+            // Find the common context. For a recursive call, the common context should be a FunctionNode.
+            PsiElement commonContext = PsiTreeUtil.findCommonContext(parent, resolvedElement);
+            if (commonContext instanceof FunctionNode) {
+                // Return a new line marker.
+                return new RecursiveMethodCallMarkerInfo(element);
+            }
+        }
         return null;
     }
 
     @Override
     public void collectSlowLineMarkers(@NotNull List<PsiElement> elements, @NotNull Collection<LineMarkerInfo> result) {
-        List<PsiElement> callableUnitNameNodes = new ArrayList<>();
-        // Iterate through all elements and get CallableUnitNameNodes.
-        for (PsiElement element : elements) {
-            if (element instanceof CallableUnitNameNode) {
-                callableUnitNameNodes.add(element);
-            }
-        }
-        // Iterate through all elements to identify recursive calls.
-        for (PsiElement element : elements) {
-            // We need to check FunctionNodes only.
-            if (!(element instanceof FunctionNode)) {
-                continue;
-            }
-            // Check each FunctionNode against all callableUnitNameNodes to identify recursive calls.
-            for (PsiElement node : callableUnitNameNodes) {
-                // Get the SimpleTypeNode child element.
-                SimpleTypeNode simpleTypeNode = PsiTreeUtil.getChildOfType(node, SimpleTypeNode.class);
-                if (simpleTypeNode == null) {
-                    continue;
-                }
-                // Get the identifier.
-                PsiElement identifier = simpleTypeNode.getNameIdentifier();
-                if (identifier == null) {
-                    continue;
-                }
-                // Get the reference.
-                PsiReference reference = identifier.getReference();
-                if (reference == null) {
-                    continue;
-                }
-                // Resolve the reference.
-                PsiElement resolvedElement = reference.resolve();
-                if (resolvedElement == null) {
-                    continue;
-                }
-                // Find the common context.
-                PsiElement commonContext = PsiTreeUtil.findCommonContext(node, element);
-                // If the resolved element is same as the current function in the iteration(element), and the
-                // common context is also the same function, that means it is a recursive call.
-                if (element == resolvedElement.getParent() && element == commonContext) {
-                    result.add(new RecursiveMethodCallMarkerInfo(identifier));
-                }
-            }
-        }
+
     }
 
     private static class RecursiveMethodCallMarkerInfo extends LineMarkerInfo<PsiElement> {
