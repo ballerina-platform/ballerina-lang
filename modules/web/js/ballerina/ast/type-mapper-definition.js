@@ -129,7 +129,7 @@ define(['lodash', './node', '../utils/common-utils'], function (_, ASTNode, Comm
     /**
      * removes the already selected child before adding a new child
      */
-    TypeMapperDefinition.prototype.removeResourceParameter = function (schemaName,blockStatementView,renderer) {
+    TypeMapperDefinition.prototype.removeResourceParameter = function () {
         var self = this;
         var ballerinaASTFactory = this.getFactory();
 
@@ -137,13 +137,12 @@ define(['lodash', './node', '../utils/common-utils'], function (_, ASTNode, Comm
             return ballerinaASTFactory.isResourceParameter(child)
         });
 
-        if(!_.isUndefined(renderer) && !_.isUndefined(schemaName)){
-            var connections = renderer.getSourceConnectionsByStruct(schemaName);
-            _.each(connections, function (connection) {
-                blockStatementView.onAttributesDisConnect(connection);
-                //renderer.disconnect(connection);
-            });
-        }
+        var blockStatement = self.getBlockStatement();
+        _.find(blockStatement.getChildren(), function (child) {
+            if (ballerinaASTFactory.isAssignmentStatement(child)) {
+                child.remove();
+            }
+        });
 
         if (!_.isUndefined(previousInputType)) {
             this.removeChild(previousInputType);
@@ -153,7 +152,7 @@ define(['lodash', './node', '../utils/common-utils'], function (_, ASTNode, Comm
     /**
      * removes the already selected child before adding a new child
      */
-    TypeMapperDefinition.prototype.removeReturnType = function (schemaName,blockStatementView,renderer) {
+    TypeMapperDefinition.prototype.removeReturnType = function () {
         var self = this;
         var ballerinaASTFactory = this.getFactory();
 
@@ -161,13 +160,12 @@ define(['lodash', './node', '../utils/common-utils'], function (_, ASTNode, Comm
             return ballerinaASTFactory.isReturnType(child)
         });
 
-        if(!_.isUndefined(renderer) && !_.isUndefined(schemaName)){
-            var connections = renderer.getTargetConnectionsByStruct(schemaName);
-            _.each(connections, function (connection) {
-                blockStatementView.onAttributesDisConnect(connection);
-                //renderer.disconnect(connection);
-            });
-        }
+        var blockStatement = self.getBlockStatement();
+        _.find(blockStatement.getChildren(), function (child) {
+            if (ballerinaASTFactory.isAssignmentStatement(child)) {
+                child.remove();
+            }
+        });
 
         if (!_.isUndefined(previousOutputType)) {
             this.removeChild(previousOutputType);
@@ -179,33 +177,15 @@ define(['lodash', './node', '../utils/common-utils'], function (_, ASTNode, Comm
      * @param {string} typeStructName
      * @param {string} identifier
      */
-    TypeMapperDefinition.prototype.addResourceParameterChild = function (typeStructName, identifier, ignoreVisit) {
+    TypeMapperDefinition.prototype.addResourceParameterChild = function (typeStructName, identifier) {
 
         // Creating a new ResourceParameter.
         var newResourceParameter = this.getFactory().createResourceParameter();
-        if (identifier) newResourceParameter.setIdentifier(identifier);
-        if (typeStructName) newResourceParameter.setType(typeStructName);
+        newResourceParameter.setIdentifier(identifier);
+        newResourceParameter.setType(typeStructName);
 
         var lastIndex = _.findLastIndex(this.getChildren());
-        this.addChild(newResourceParameter, lastIndex - 1, false, ignoreVisit);
-    };
-
-    TypeMapperDefinition.prototype.addChild = function (child, index, ignoreTreeModifiedEvent, ignoreVisit) {
-        var self = this;
-
-        if (!_.isUndefined(ignoreVisit) && ignoreVisit) {
-
-            if (_.isUndefined(index)) {
-                self.children.push(child);
-            } else {
-                self.children.splice(index, 0, child);
-            }
-            //setting the parent node - doing silently avoid subsequent change events
-            child.setParent(self, {doSilently: true});
-            child.generateUniqueIdentifiers();
-        } else {
-            Object.getPrototypeOf(this.constructor.prototype).addChild.call(this, child, index, ignoreTreeModifiedEvent);
-        }
+        this.addChild(newResourceParameter, lastIndex - 1);
     };
 
     /**
@@ -213,14 +193,14 @@ define(['lodash', './node', '../utils/common-utils'], function (_, ASTNode, Comm
      * @param {string} typeStructName
      * @param {string} identifier
      */
-    TypeMapperDefinition.prototype.addReturnTypeChild = function (typeStructName, ignoreVisit) {
+    TypeMapperDefinition.prototype.addReturnTypeChild = function (typeStructName, identifier) {
 
         // Creating a new ResourceParameter.
         var newReturnType = this.getFactory().createReturnType();
-        if (typeStructName) newReturnType.setType(typeStructName);
+        newReturnType.setType(typeStructName);
 
         var lastIndex = _.findLastIndex(this.getChildren());
-        this.addChild(newReturnType, lastIndex - 1, false, ignoreVisit);
+        this.addChild(newReturnType, lastIndex - 1);
     };
 
     /**
@@ -370,7 +350,7 @@ define(['lodash', './node', '../utils/common-utils'], function (_, ASTNode, Comm
 
 
     /**
-     *
+     * 
      * @param identifier
      * @param properties
      * @returns {*}
@@ -450,9 +430,9 @@ define(['lodash', './node', '../utils/common-utils'], function (_, ASTNode, Comm
         this.setTypeMapperName(jsonNode.type_mapper_name, {doSilently: true});
         var returnNode = undefined;
         _.each(jsonNode.children, function (childNode) {
-            if (childNode.type === 'return_type') {
+            if(childNode.type === 'return_type'){
                 returnNode = childNode;
-            } else {
+            }else{
                 var child = ballerinaASTFactory.createFromJson(childNode);
                 self.addChild(child);
                 child.initFromJson(childNode);
@@ -468,28 +448,15 @@ define(['lodash', './node', '../utils/common-utils'], function (_, ASTNode, Comm
 
 
         _.forEach(blockStatementNode.getChildren(), function (childNode) {
-            _.remove(self.getChildren(), function (child) {
+            _.remove(self.getChildren(), function(child){
                 return _.isEqual(childNode.getID(), child.getID());
             });
         });
 
         var returnASTNode = ballerinaASTFactory.createReturnType();
         returnASTNode.setType(returnNode.parameter_type);
-
+        
         self.addChild(returnASTNode);
-
-        var returnStatement = _.find(blockStatementNode.getChildren(), function (child) {
-            return ballerinaASTFactory.isReturnStatement(child);
-        });
-
-        var variableReferenceExpression = _.find(returnStatement.getChildren(), function (child) {
-            return ballerinaASTFactory.isVariableReferenceExpression(child);
-        });
-
-        if (!variableReferenceExpression) {
-            var returnStatementVariableReferenceExpression = ballerinaASTFactory.createVariableReferenceExpression();
-            returnStatement.addChild(returnStatementVariableReferenceExpression);
-        }
 
         // _.forEach(self.getChildren(), function (outerChild) {
         //     _.forEach(blockStatementNode.getChildren(), function (child) {
