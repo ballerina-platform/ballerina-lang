@@ -80,7 +80,14 @@ public class BLangProgramRunner {
         bLangProgram.setRuntimeEnvironment(runtimeEnv);
     }
 
-    public void runMain(BLangProgram bLangProgram, String[] args) {
+    /**
+     * Run Ballerina main program.
+     *
+     * @param bLangProgram BalProgram to run.
+     * @param args         input arguments.
+     * @return execution status.  a nonzero status code represents abnormal termination.
+     */
+    public int runMain(BLangProgram bLangProgram, String[] args) {
         Context bContext = new Context();
         BallerinaFunction mainFunction = bLangProgram.getMainFunction();
 
@@ -116,12 +123,14 @@ public class BLangProgramRunner {
             bContext.setExecutor(debugger);
             debugger.startExecution(mainFunction.getCallableUnitBody());
             debugManager.holdON();
+            return debugger.getStatus();
         } else if (ModeResolver.getInstance().isNonblockingEnabled()) {
             BLangNonBlockingExecutor executor = new BLangNonBlockingExecutor(runtimeEnv, bContext);
             bContext.setExecutor(executor);
             executor.startExecution(mainFunction.getCallableUnitBody());
             // Wait until execution completes.
             executor.holdOn();
+            return executor.getStatus();
         } else {
             BLangExecutor executor = new BLangExecutor(runtimeEnv, bContext);
             try {
@@ -129,11 +138,14 @@ public class BLangProgramRunner {
                 if (executor.getCurrentBException() != null) {
                     ErrorHandlerUtils.handleMainFuncInvocationError(bContext, executor.getLastActiveNode(),
                             executor.getCurrentBException(), null);
+                    return 1;
                 }
                 bContext.getControlStack().popFrame();
             } catch (Throwable ex) {
                 ErrorHandlerUtils.handleMainFuncInvocationError(bContext, executor.getLastActiveNode(), null, ex);
+                return 1;
             }
+            return 0;
         }
     }
 }

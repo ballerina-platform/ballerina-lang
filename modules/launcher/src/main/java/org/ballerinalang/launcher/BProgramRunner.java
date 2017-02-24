@@ -47,8 +47,8 @@ class BProgramRunner {
         BallerinaConnectorManager.getInstance().initializeClientConnectors(new MessageProcessor());
 
         // Check whether there is a main function
-        new BLangProgramRunner().runMain(bLangProgram, args.toArray(new String[0]));
-        Runtime.getRuntime().exit(0);
+        int statusCode = new BLangProgramRunner().runMain(bLangProgram, args.toArray(new String[0]));
+        Runtime.getRuntime().exit(statusCode);
     }
 
     static void runServices(Path[] serviceFilePaths) {

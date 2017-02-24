@@ -67,6 +67,12 @@ import org.ballerinalang.model.values.BValue;
  */
 public abstract class BLangExecutionVisitor implements LinkedNodeVisitor {
 
+    public static final int STATUS_INIT = -1;
+    public static final int STATUS_COMPLETE = 0;
+    public static final int STATUS_MAIN_TERMINATION = 1;
+    public static final int STATUS_RESOURCE_TERMINATION = 2;
+    public static final int STATUS_TEST_TERMINATION = 3;
+
     protected boolean resourceInvocation;
     protected boolean testFunctionInvocation;
 
@@ -94,6 +100,12 @@ public abstract class BLangExecutionVisitor implements LinkedNodeVisitor {
     public abstract void continueExecution();
 
     public abstract Node getLastActiveNode();
+
+    public abstract void setStatus(int status);
+
+    public abstract int getStatus();
+
+    public abstract boolean isExecutionStopped();
 
     public boolean isResourceInvocation() {
         return resourceInvocation;

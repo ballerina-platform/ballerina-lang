@@ -18,13 +18,8 @@
 
 package org.ballerinalang.runtime.threadpool;
 
-import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.nonblocking.BLangExecutionVisitor;
-import org.ballerinalang.model.Node;
-import org.ballerinalang.model.values.BException;
 import org.ballerinalang.natives.connectors.BalConnectorCallback;
-import org.ballerinalang.services.ErrorHandlerUtils;
-import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
 
@@ -43,32 +38,7 @@ public class ResponseWorkerThread extends WorkerThread {
         // Because of this we have to start new thread from the callback, if non-blocking is enabled.
         BalConnectorCallback connectorCallback = (BalConnectorCallback) this.callback;
         BLangExecutionVisitor executor = connectorCallback.getContext().getExecutor();
-        try {
-            try {
-                connectorCallback.getActionNode().getCallableUnit().validate(connectorCallback);
-                executor.startExecution(connectorCallback.getCurrentNode().next());
-            } catch (RuntimeException e) {
-                BException bException;
-                if (e instanceof BallerinaException && ((BallerinaException) e).getBException() != null) {
-                    bException = ((BallerinaException) e).getBException();
-                } else {
-                    bException = new BException(e.getMessage());
-                }
-                executor.handleBException(bException);
-                executor.continueExecution();
-            }
-        } catch (Throwable unhandled) {
-            // Root level Error handler. we have to notify server connector.
-            Context bContext = connectorCallback.getContext();
-            Node lastActive = executor.getLastActiveNode();
-            if (executor.isResourceInvocation()) {
-                ErrorHandlerUtils.handleResourceInvocationError(bContext, lastActive, null, unhandled);
-            } else if (executor.isTestFunctionInvocation()) {
-                ErrorHandlerUtils.handleTestFuncInvocationError(bContext, lastActive, null, unhandled);
-                throw unhandled;
-            } else {
-                ErrorHandlerUtils.handleMainFuncInvocationError(bContext, lastActive, null, unhandled);
-            }
-        }
+        connectorCallback.getActionNode().getCallableUnit().validate(connectorCallback);
+        executor.startExecution(connectorCallback.getCurrentNode().next());
     }
 }

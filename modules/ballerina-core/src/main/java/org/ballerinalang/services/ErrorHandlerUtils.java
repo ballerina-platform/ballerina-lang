@@ -180,37 +180,7 @@ public class ErrorHandlerUtils {
         String errorWithTrace = errorMsg + "\n" + stacktrace;
         log.error(errorWithTrace);
         outStream.println(errorWithTrace);
-        Runtime.getRuntime().exit(1);
-    }
-
-    /**
-     * Root Level Error handling for Test function invocations.
-     *
-     * @param bContext    Context instance.
-     * @param currentNode Last execution node.
-     * @param bException  BException to handle.
-     * @param throwable   throwable to handle.
-     */
-    public static void handleTestFuncInvocationError(Context bContext, Node currentNode, BException bException,
-                                                     Throwable throwable) {
-        // Enable this logic, if we need to print ballerina stack trace at build time.
-//        String errorMsg;
-//        if (throwable != null) {
-//            errorMsg = ErrorHandlerUtils.getErrorMessage(throwable);
-//        } else if (bException != null && bException.value() != null) {
-//            errorMsg = bException.value().toString();
-//        } else {
-//            errorMsg = ERROR_PREFIX;
-//        }
-//        String stacktrace = null;
-//        if (bException != null) {
-//            stacktrace = bException.value().getStackTrace();
-//        }
-//        if (stacktrace == null || "".equals(stacktrace)) {
-//            stacktrace = ErrorHandlerUtils.getStackTrace(bContext, currentNode);
-//        }
-//        String errorWithTrace = errorMsg + "\n" + stacktrace;
-//        log.error(errorWithTrace);
+//        Runtime.getRuntime().exit(1);
     }
 
     /**

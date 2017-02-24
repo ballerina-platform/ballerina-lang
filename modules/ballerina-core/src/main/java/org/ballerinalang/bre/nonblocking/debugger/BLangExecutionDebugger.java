@@ -55,7 +55,7 @@ import org.ballerinalang.model.values.BException;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.runtime.Constants;
 import org.ballerinalang.services.ErrorHandlerUtils;
-import org.ballerinalang.util.exceptions.BallerinaException;
+import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -76,7 +76,7 @@ public class BLangExecutionDebugger extends BLangAbstractExecutionVisitor {
 
     private LinkedNode currentHaltNode;
     private Statement nextStep;
-    private boolean done, stepInToStatement, stepOutFromCallableUnit;
+    private boolean stepInToStatement, stepOutFromCallableUnit;
     private DebugSessionObserver observer;
 
     public BLangExecutionDebugger(RuntimeEnvironment runtimeEnv, Context bContext) {
@@ -84,7 +84,6 @@ public class BLangExecutionDebugger extends BLangAbstractExecutionVisitor {
         this.bContext = bContext;
         this.runtimeEnvironment = runtimeEnv;
         this.positionHashMap = new HashMap<>();
-        this.done = false;
         this.stepInToStatement = false;
         this.stepOutFromCallableUnit = false;
     }
@@ -111,7 +110,7 @@ public class BLangExecutionDebugger extends BLangAbstractExecutionVisitor {
      * Resume Execution.
      */
     public synchronized void resume() {
-        if (done) {
+        if (isExecutionStopped()) {
             throw new IllegalStateException("Can't resume. Ballerina Program execution completed.");
         } else {
             LinkedNode current = currentHaltNode;
@@ -126,7 +125,7 @@ public class BLangExecutionDebugger extends BLangAbstractExecutionVisitor {
      * sibling.
      */
     public synchronized void stepOver() {
-        if (done) {
+        if (isExecutionStopped()) {
             throw new IllegalStateException("Can't Step Over. Ballerina Program execution completed.");
         } else {
             LinkedNode current = currentHaltNode;
@@ -169,7 +168,7 @@ public class BLangExecutionDebugger extends BLangAbstractExecutionVisitor {
      * Step into the first statement of current statement's callable unit.(Function, Action, TypeMapper)
      */
     public synchronized void stepIn() {
-        if (done) {
+        if (isExecutionStopped()) {
             throw new IllegalStateException("Can't Step In. Ballerina Program execution completed.");
         } else {
             LinkedNode current = currentHaltNode;
@@ -185,7 +184,7 @@ public class BLangExecutionDebugger extends BLangAbstractExecutionVisitor {
      * Step out from current callable unit, and move to next sibling statement of the parent.
      */
     public synchronized void stepOut() {
-        if (done) {
+        if (isExecutionStopped()) {
             throw new IllegalStateException("Can't Step Out. Ballerina Program execution completed.");
         } else {
             LinkedNode current = currentHaltNode;
@@ -195,14 +194,6 @@ public class BLangExecutionDebugger extends BLangAbstractExecutionVisitor {
         }
     }
 
-    /**
-     * Check whether execution is completed.
-     *
-     * @return true, if debug execution is completed.
-     */
-    public boolean isDone() {
-        return done;
-    }
 
     /**
      * Try to execute given statement.
@@ -292,12 +283,12 @@ public class BLangExecutionDebugger extends BLangAbstractExecutionVisitor {
 
     public void startExecution(LinkedNode linkedNode) {
         try {
-            linkedNode.accept(this);
             // TODO : Improve logic.
             // Intentionally catching exception outside of the loop and continueExecution after handlingException.
             // This can cause to grow stack depth. But throwing a runtimeExceptions is unlikely in normal execution
             // flow.
             try {
+                linkedNode.accept(this);
                 while (next != null) {
                     if (next instanceof AbstractStatement && !(next instanceof BlockStmt)) {
                         tryNext((AbstractStatement) next);
@@ -305,24 +296,23 @@ public class BLangExecutionDebugger extends BLangAbstractExecutionVisitor {
                         next.accept(this);
                     }
                 }
-            } catch (BallerinaException be) {
-                if (be.getBException() != null) {
-                    handleBException(be.getBException());
-                } else {
-                    handleBException(new BException(be.getMessage()));
-                }
-                continueExecution();
+            } catch (BLangRuntimeException e) {
+                // Execution stop abnormally. Stop executing further.
             } catch (RuntimeException e) {
+                // Handling any unhandled java runtime errors.
                 handleBException(new BException(e.getMessage()));
                 continueExecution();
             }
         } catch (Throwable throwable) {
+            // Handling any unhandled java runtime errors, which can occurs during handleBException or any Java Error.
             if (resourceInvocation) {
+                setStatus(STATUS_RESOURCE_TERMINATION);
                 ErrorHandlerUtils.handleResourceInvocationError(bContext, next, null, throwable);
             } else if (testFunctionInvocation) {
-                ErrorHandlerUtils.handleTestFuncInvocationError(bContext, next, null, throwable);
-                throw throwable;
+                setStatus(STATUS_TEST_TERMINATION);
+                failedCause = throwable.getMessage();
             } else {
+                setStatus(STATUS_MAIN_TERMINATION);
                 ErrorHandlerUtils.handleMainFuncInvocationError(bContext, next, null, throwable);
             }
         }
@@ -338,13 +328,10 @@ public class BLangExecutionDebugger extends BLangAbstractExecutionVisitor {
                     next.accept(this);
                 }
             }
-        } catch (BallerinaException be) {
-            if (be.getBException() != null) {
-                handleBException(be.getBException());
-            } else {
-                handleBException(new BException(be.getMessage()));
-            }
+        } catch (BLangRuntimeException e) {
+            // Execution stop abnormally. Stop executing further.
         } catch (RuntimeException e) {
+            // Handling any unhandled java runtime errors.
             handleBException(new BException(e.getMessage()));
             continueExecution();
         }
@@ -355,7 +342,6 @@ public class BLangExecutionDebugger extends BLangAbstractExecutionVisitor {
     @Override
     public void visit(EndNode endNode) {
         super.visit(endNode);
-        this.done = true;
         this.currentHaltNode = null;
         if (observer != null) {
             observer.notifyComplete();
@@ -364,9 +350,7 @@ public class BLangExecutionDebugger extends BLangAbstractExecutionVisitor {
 
     @Override
     public void visit(ExitNode exitNode) {
-        // We don't want to call system exit here.
-        next = null;
-        this.done = true;
+        super.visit(exitNode);
         this.currentHaltNode = null;
         if (observer != null) {
             observer.notifyExit();

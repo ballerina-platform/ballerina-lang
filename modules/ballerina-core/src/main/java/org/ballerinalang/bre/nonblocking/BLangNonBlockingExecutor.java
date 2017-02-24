@@ -24,7 +24,7 @@ import org.ballerinalang.model.expressions.FunctionInvocationExpr;
 import org.ballerinalang.model.expressions.ResourceInvocationExpr;
 import org.ballerinalang.model.values.BException;
 import org.ballerinalang.services.ErrorHandlerUtils;
-import org.ballerinalang.util.exceptions.BallerinaException;
+import org.ballerinalang.util.exceptions.BLangRuntimeException;
 
 import static java.lang.Thread.sleep;
 
@@ -51,33 +51,32 @@ public class BLangNonBlockingExecutor extends BLangAbstractExecutionVisitor {
 
     public void startExecution(LinkedNode linkedNode) {
         try {
-            linkedNode.accept(this);
             // TODO : Improve logic.
             // Intentionally catching exception outside of the loop and continueExecution after handlingException.
             // This can cause to grow stack depth. But throwing a runtimeExceptions is unlikely in normal execution
             // flow.
             try {
+                linkedNode.accept(this);
                 while (next != null) {
                     next.accept(this);
                 }
-            } catch (BallerinaException be) {
-                if (be.getBException() != null) {
-                    handleBException(be.getBException());
-                } else {
-                    handleBException(new BException(be.getMessage()));
-                }
-                continueExecution();
+            } catch (BLangRuntimeException e) {
+                // Execution stop abnormally. Stop executing further.
             } catch (RuntimeException e) {
+                // Handling any unhandled java runtime errors.
                 handleBException(new BException(e.getMessage()));
                 continueExecution();
             }
         } catch (Throwable throwable) {
+            // Handling any unhandled java runtime errors, which can occurs during handleBException or any Java Error.
             if (resourceInvocation) {
+                setStatus(STATUS_RESOURCE_TERMINATION);
                 ErrorHandlerUtils.handleResourceInvocationError(bContext, next, null, throwable);
             } else if (testFunctionInvocation) {
-                ErrorHandlerUtils.handleTestFuncInvocationError(bContext, next, null, throwable);
-                throw throwable;
+                setStatus(STATUS_TEST_TERMINATION);
+                failedCause = throwable.getMessage();
             } else {
+                setStatus(STATUS_MAIN_TERMINATION);
                 ErrorHandlerUtils.handleMainFuncInvocationError(bContext, next, null, throwable);
             }
         }
@@ -88,7 +87,10 @@ public class BLangNonBlockingExecutor extends BLangAbstractExecutionVisitor {
             while (next != null) {
                 next.accept(this);
             }
+        } catch (BLangRuntimeException e) {
+            // Execution stop abnormally. Stop executing further.
         } catch (RuntimeException e) {
+            // Handling any unhandled java runtime errors.
             handleBException(new BException(e.getMessage()));
             continueExecution();
         }
@@ -96,7 +98,7 @@ public class BLangNonBlockingExecutor extends BLangAbstractExecutionVisitor {
 
     public void holdOn() {
         try {
-            while (!isExecutionCompleted()) {
+            while (!isExecutionStopped()) {
                 sleep(100);
             }
         } catch (InterruptedException ignore) {

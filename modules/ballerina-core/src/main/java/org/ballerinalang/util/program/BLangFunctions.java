@@ -23,6 +23,7 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.RuntimeEnvironment;
 import org.ballerinalang.bre.StackFrame;
 import org.ballerinalang.bre.StackVarLocation;
+import org.ballerinalang.bre.nonblocking.BLangExecutionVisitor;
 import org.ballerinalang.bre.nonblocking.BLangNonBlockingExecutor;
 import org.ballerinalang.bre.nonblocking.ModeResolver;
 import org.ballerinalang.model.BLangProgram;
@@ -152,6 +153,10 @@ public class BLangFunctions {
             // TODO : Non-Blocking Action Invocations are not supported yet.
             BLangNonBlockingExecutor nonBlockingExecutor = new BLangNonBlockingExecutor(runtimeEnv, bContext);
             nonBlockingExecutor.execute(funcIExpr);
+            nonBlockingExecutor.holdOn();
+            if (BLangExecutionVisitor.STATUS_TEST_TERMINATION == nonBlockingExecutor.getStatus()) {
+                throw new BallerinaException(nonBlockingExecutor.getFailedCause());
+            }
             int length = funcIExpr.getCallableUnit().getReturnParameters().length;
             BValue[] result = new BValue[length];
             for (int i = 0; i < length; i++) {

@@ -132,7 +132,7 @@ import org.ballerinalang.natives.connectors.BalConnectorCallback;
 import org.ballerinalang.runtime.Constants;
 import org.ballerinalang.runtime.worker.WorkerCallback;
 import org.ballerinalang.services.ErrorHandlerUtils;
-import org.ballerinalang.util.exceptions.BallerinaException;
+import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.util.exceptions.FlowBuilderException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -166,7 +166,9 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
     private Node lastActive;
     private ExecutorService executor;
     private ForkJoinInvocationStatus forkJoinInvocationStatus;
-    private boolean completed;
+    // positive Non-zero execution status represent abnormal termination.
+    protected int executionStatus = STATUS_INIT;
+    protected String failedCause;
 
     public BLangAbstractExecutionVisitor(RuntimeEnvironment runtimeEnv, Context bContext) {
         this.runtimeEnv = runtimeEnv;
@@ -628,7 +630,7 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
         if (logger.isDebugEnabled()) {
             logger.debug("Executing EndNode");
         }
-        completed = true;
+        executionStatus = STATUS_COMPLETE;
         next = null;
     }
 
@@ -637,9 +639,8 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
         if (logger.isDebugEnabled()) {
             logger.debug("Executing ExitNode");
         }
-        completed = true;
+        executionStatus = STATUS_COMPLETE;
         next = null;
-//        Runtime.getRuntime().exit(0);
     }
 
     @Override
@@ -1381,13 +1382,20 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
             if (resourceInvocation) {
                 ErrorHandlerUtils.handleResourceInvocationError(bContext, lastActive, bException, null);
                 next = null;
-                return;
+                executionStatus = STATUS_RESOURCE_TERMINATION;
+                throw new BLangRuntimeException(bException.value().getMessage().stringValue());
             } else if (testFunctionInvocation) {
-                ErrorHandlerUtils.handleTestFuncInvocationError(bContext, lastActive, bException, null);
-                throw new BallerinaException(bException.value().getMessage().stringValue());
+                next = null;
+                executionStatus = STATUS_TEST_TERMINATION;
+                // Preserver Original exception message.
+                failedCause = bException.value().getMessage().stringValue();
+                throw new BLangRuntimeException(bException.value().getMessage().stringValue());
             } else {
                 ErrorHandlerUtils.handleMainFuncInvocationError(bContext, lastActive, bException, null);
-                return;
+                next = null;
+                executionStatus = STATUS_MAIN_TERMINATION;
+                failedCause = bException.value().getMessage().stringValue();
+                throw new BLangRuntimeException(bException.value().getMessage().stringValue());
             }
         }
         TryCatchStackRef ref = tryCatchStackRefs.pop();
@@ -1411,6 +1419,30 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
 
     public Node getLastActiveNode() {
         return lastActive;
+    }
+
+    @Override
+    public void setStatus(int status) {
+        executionStatus = status;
+    }
+
+    @Override
+    public int getStatus() {
+        return executionStatus;
+    }
+
+    /**
+     * Indicate whether execution is completed (including abnormal termination) or not.
+     *
+     * @return true, if execution is completed.
+     */
+    @Override
+    public boolean isExecutionStopped() {
+        return executionStatus >= 0;
+    }
+
+    public String getFailedCause() {
+        return failedCause;
     }
 
     // Private methods
@@ -1747,14 +1779,5 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
 
     private String getNodeLocation(NodeLocation nodeLocation) {
         return nodeLocation != null ? nodeLocation.getFileName() + ":" + nodeLocation.getLineNumber() : "";
-    }
-
-    /**
-     * Indicate whether execution is completed or not.
-     *
-     * @return true, if execution is completed.
-     */
-    public boolean isExecutionCompleted() {
-        return completed;
     }
 }
