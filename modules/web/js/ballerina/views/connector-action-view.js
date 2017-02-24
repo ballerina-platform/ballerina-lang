@@ -415,11 +415,11 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
 
             // Creating wrapper for arguments icon.
             var headingArgumentsIconWrapper = D3utils.rect(
-                xEndOfHeadingRect - (4 * this._viewOptions.heading.icon.width), headingStart.y() + 1,
+                xEndOfHeadingRect - (5 * this._viewOptions.heading.icon.width), headingStart.y() + 1,
                 this._viewOptions.heading.icon.width - 1, this._viewOptions.heading.icon.height - 2, 0, 0, headingIconsGroup)
                 .classed("heading-icon-wrapper heading-icon-arguments-wrapper", true);
 
-            var xForArgumentsIcon = xEndOfHeadingRect - (4 * this._viewOptions.heading.icon.width) + (((this._viewOptions.heading.icon.width) / 2) - (14 / 2));
+            var xForArgumentsIcon = xEndOfHeadingRect - (5 * this._viewOptions.heading.icon.width) + (((this._viewOptions.heading.icon.width) / 2) - (14 / 2));
 
             // Connector Action heading arguments icon.
             var headingArgumentsIcon = D3utils.rect(xForArgumentsIcon, yForIcons,
@@ -428,11 +428,11 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
 
             // Creating wrapper for Return Types icon.
             var headingReturnTypesIconWrapper = D3utils.rect(
-                xEndOfHeadingRect - (5 * this._viewOptions.heading.icon.width), headingStart.y() + 1,
+                xEndOfHeadingRect - (4 * this._viewOptions.heading.icon.width), headingStart.y() + 1,
                 this._viewOptions.heading.icon.width - 1, this._viewOptions.heading.icon.height - 2, 0, 0, headingIconsGroup)
                 .classed("heading-icon-wrapper heading-icon-return-type-wrapper", true);
 
-            var xForReturnTypesIcon = xEndOfHeadingRect - (5 * this._viewOptions.heading.icon.width) + (((this._viewOptions.heading.icon.width) / 2) - (14 / 2));
+            var xForReturnTypesIcon = xEndOfHeadingRect - (4 * this._viewOptions.heading.icon.width) + (((this._viewOptions.heading.icon.width) / 2) - (14 / 2));
 
             // Connector Action heading Return Types icon.
             var headingReturnTypesIcon = D3utils.rect(xForReturnTypesIcon, yForIcons,
