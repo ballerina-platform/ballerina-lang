@@ -206,7 +206,9 @@ public class BallerinaFile implements Node {
         }
 
         /**
-         * Add a ballerina user defined Struct to the ballerina file
+         * Add a ballerina user defined Struct to the ballerina file.
+         * 
+         * @param structDef User defined struct definition
          */
         public void addStruct(StructDef structDef) {
             this.compilationUnitList.add(structDef);

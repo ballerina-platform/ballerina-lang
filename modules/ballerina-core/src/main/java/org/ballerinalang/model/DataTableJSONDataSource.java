@@ -124,7 +124,7 @@ public class DataTableJSONDataSource implements JSONDataSource {
          *
          * @param datatable The datatable that should be used in the current position
          * @return The generated JSON object
-         * @throws java.io.IOException
+         * @throws IOException for json reading/serializing errors
          */
         JsonNode transform(BDataTable datatable) throws IOException;
 

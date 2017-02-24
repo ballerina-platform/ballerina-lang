@@ -145,21 +145,21 @@ import java.util.Stack;
  * Eg 1 : Assessment Statement :  a =   5 + 10;
  * <i>Execution order:</i>
  * AssignStmt
- * BasicLiteralExpr(5) -> storeTemp(0)
- * BasicLiteralExpr(10) -> storeTemp(1)
- * AddExpr ( getTemp(0) + getTemp(1)) -> storeTemp(2)
- * AssignStmtEnd -> setVarValue( getTemp(2) -> a)      This is a helper Node.
+ * BasicLiteralExpr(5) -&gt; storeTemp(0)
+ * BasicLiteralExpr(10) -&gt; storeTemp(1)
+ * AddExpr ( getTemp(0) + getTemp(1)) -&gt; storeTemp(2)
+ * AssignStmtEnd -&lt; setVarValue( getTemp(2) -&gt; a)      This is a helper Node.
  *
  * Eg 2 : Assessment Statement with function invocation expression :  a =  5 + getValueFromDB()
  * <i>Execution order:</i>
  * AssignStmt
- * BasicLiteralExpr(5) -> storeTemp(0)
+ * BasicLiteralExpr(5) -&lt; storeTemp(0)
  * FunInvocationExpr(getValueFromDB)
  * ...
  * ...
- * FuncInvocationExprEnd -> storeTemp(1)                This is a helper Node.
- * AddExpr ( getTemp(0) + getTemp(1)) -> storeTemp(2)
- * AssignStmtEnd - setVarValue( getTemp(2) -> a)      This is a helper Node.
+ * FuncInvocationExprEnd -&gt; storeTemp(1)                This is a helper Node.
+ * AddExpr ( getTemp(0) + getTemp(1)) -&gt; storeTemp(2)
+ * AssignStmtEnd - setVarValue( getTemp(2) -&gt; a)      This is a helper Node.
  *
  * TempOffset
  * - Each expression has a tempOffset, which maps to a location in a current stack frame, to store its value.

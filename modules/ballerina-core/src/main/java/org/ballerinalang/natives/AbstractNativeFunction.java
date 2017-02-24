@@ -137,8 +137,8 @@ public abstract class AbstractNativeFunction implements NativeUnit, Function {
     /**
      * Util method to construct BValue arrays.
      *
-     * @param values
-     * @return BValue
+     * @param values BValues to construct the array
+     * @return Array of BValues
      */
     public BValue[] getBValues(BValue... values) {
         return values;

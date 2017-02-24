@@ -53,7 +53,7 @@ public interface CallableUnitInvocationExpr<T extends CallableUnit> extends Exec
     T getCallableUnit();
 
     /**
-     * Sets the {@code CallableUnit.
+     * Sets the {@code CallableUnit}.
      *
      * @param callableUnit type of the callable unit
      */

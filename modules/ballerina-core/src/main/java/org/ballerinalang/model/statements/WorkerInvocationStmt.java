@@ -28,9 +28,9 @@ import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.values.BValue;
 
 /**
- * A {@code WorkerInvocationStmt} Class to hold data related to worker invocation statement
- * <p>
- * message -> sampleWorker;
+ * <p>A {@code WorkerInvocationStmt} Class to hold data related to worker invocation statement</p>
+ * 
+ * message -&gt; sampleWorker;
  *
  *  @since 0.8.0
  */

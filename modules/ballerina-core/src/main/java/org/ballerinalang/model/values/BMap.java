@@ -119,7 +119,10 @@ public class BMap<BString, V extends BValue> implements BRefType {
         return set;
     }
 
-    /** Return true if this map is empty. */
+    /**Return true if this map is empty.
+     * 
+     * @return Flag indicating whether the map is empty or not
+     */
     public boolean isEmpty() {
         return size() == 0;
     }

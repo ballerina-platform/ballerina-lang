@@ -25,7 +25,9 @@ package org.ballerinalang.model;
 public interface Node {
 
     /**
-     * @param visitor
+     * Accept a {link NodeVisitor} and executes the visitor.
+     * 
+     * @param visitor Node visitor to traverse the node
      */
     void accept(NodeVisitor visitor);
 

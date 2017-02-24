@@ -172,9 +172,10 @@ public class TypeLattice {
      * ({one, two}, weight) iff no TypeEdge relating one and two
      * exists in the Graph.
      *
-     * @param one           The first TypeVertex of the TypeEdge
-     * @param two           The second TypeVertex of the TypeEdge
+     * @param one The first TypeVertex of the TypeEdge
+     * @param two The second TypeVertex of the TypeEdge
      * @param typeMapper The weight of the TypeEdge
+     * @param packageName package of the TypeMapper
      * @return true iff no TypeEdge already exists in the Graph
      */
     public boolean addEdge(TypeVertex one, TypeVertex two, TypeMapper typeMapper, String packageName) {
@@ -224,8 +225,8 @@ public class TypeLattice {
      * only if overwriteExisting is true. If the existing TypeVertex is overwritten,
      * the Edges incident to it are all removed from the Graph.
      *
-     * @param vertex
-     * @param overwriteExisting
+     * @param vertex {@link TypeVertex} to add
+     * @param overwriteExisting flag indicating whetehr to overide the vertex, if already exists with the same name
      * @return true iff vertex was added to the Graph
      */
     public boolean addVertex(TypeVertex vertex, boolean overwriteExisting) {
@@ -246,7 +247,7 @@ public class TypeLattice {
     }
 
     /**
-     * @return Set<TypeEdge> The Edges of this graph
+     * @return Set &lt;TypeEdge&gt; The Edges of this graph
      */
     public Set<TypeEdge> getEdges() {
         return new HashSet<TypeEdge>(this.edges.values());
