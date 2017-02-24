@@ -40,7 +40,7 @@ import java.util.Locale;
         packageName = "ballerina.lang.datatables",
         functionName = "getLong",
         args = {@Argument(name = "dt", type = TypeEnum.DATATABLE),
-                @Argument(name = "string", type = TypeEnum.STRING),
+                @Argument(name = "column", type = TypeEnum.STRING),
                 @Argument(name = "type", type = TypeEnum.STRING)},
         returnType = {@ReturnType(type = TypeEnum.LONG)},
         isPublic = true

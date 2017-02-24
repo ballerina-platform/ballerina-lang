@@ -33,5 +33,15 @@ pages:
     - API Documentation: 'native-functions.md'
     - Language Specification: 'spec.md'
     - Architecture Design Documents: 'architecture.md'
-theme_dir: ballerina-theme
+theme_dir: docs/ballerina-theme
 theme: null
+extra_css:
+    - ballerina-theme/css/ballerina.css
+    - ballerina-theme/css/highlight.css
+    - ballerina-theme/css/theme.css
+    - ballerina-theme/css/theme_extra.css
+extra_javascript:
+    - ballerina-theme/js/highlight.pack.js
+    - ballerina-theme/js/jquery-2.1.1.min.js
+    - ballerina-theme/js/modernizr-2.8.3.min.js
+    - ballerina-theme/js/theme.js
