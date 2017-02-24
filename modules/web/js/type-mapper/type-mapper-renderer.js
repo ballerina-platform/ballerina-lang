@@ -748,6 +748,44 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
         self.jsPlumbInstance.unmakeTarget(element);
     };
 
+    /**
+     * Get list of connections for provided property of a source struct
+     * @param {string} structName
+     * @param {Array} property name hierarchy of the property
+     * @returns {Array} List of connections
+     */
+    TypeMapperRenderer.prototype.getSourceConnections = function(structName, property) {
+        var connections = [];
+        _.forEach(property, function (propertyName) {
+            _.forEach(self.jsPlumbInstance.getAllConnections(), function (connection) {
+                    if (connection.sourceId.includes(structName + self.idNameSeperator + propertyName)) {
+                        connections.push(self.getConnectionObject(connection.getParameter("id"),
+                                                        connection.sourceId, connection.targetId));
+                    }
+            });
+        });
+        return connections;
+    };
+
+    /**
+     * Get list of connections for provided property of a target struct
+     * @param {string} structName
+     * @param {Array} property name hierarchy of the property
+     * @returns {Array} List of connections
+     */
+    TypeMapperRenderer.prototype.getTargetConnections = function(structName, property) {
+        var connections = [];
+        _.forEach(property, function (propertyName) {
+            _.forEach(self.jsPlumbInstance.getAllConnections(), function (connection) {
+                if (connection.targetId.includes(structName + self.idNameSeperator + propertyName)) {
+                    connections.push(self.getConnectionObject(connection.getParameter("id"),
+                        connection.sourceId, connection.targetId));
+                }
+            });
+        });
+        return connections;
+    };
+
 
     /**
      * Position Nodes with dagre
