@@ -123,7 +123,7 @@
                                 <resource>
                                     <directory>../../../samples/other_samples/jmsServiceWithActiveMq</directory>
                                     <includes>
-                                        <include>jmsWithActiveMq.bal</include>
+                                        <include>jmsServiceWithActiveMq.bsz</include>
                                     </includes>
                                 </resource>
                                 <resource>

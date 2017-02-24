@@ -137,9 +137,11 @@ public class ServerConnectorExecutionListener implements IExecutionListener {
          * Copying the jms sample to samples directory for integration testing.
          */
             source = Paths
-                    .get(baseDir + File.separator + Constant.OTHER_SAMPLES + File.separator + "jmsWithActiveMq.bal");
+                    .get(baseDir + File.separator + Constant.OTHER_SAMPLES + File.separator +
+                            "jmsServiceWithActiveMq.bsz");
             destination = Paths
-                    .get(serverExtractedPath + File.separator + "samples" + File.separator + "jmsWithActiveMq.bal");
+                    .get(serverExtractedPath + File.separator + "samples" + File.separator + "jmsServiceWithActiveMq"
+                            + ".bsz");
             Files.copy(source, destination, StandardCopyOption.REPLACE_EXISTING);
 
          /*
@@ -170,7 +172,7 @@ public class ServerConnectorExecutionListener implements IExecutionListener {
     protected static String[] listSamples(String sampleDir) {
         String[] sampleFiles = TestExecutionListener.listSamples(sampleDir);
         String[] jmsAndFileSampleFiles = {
-                sampleDir + File.separator + "jmsWithActiveMq.bal",
+                sampleDir + File.separator + "jmsServiceWithActiveMq.bsz",
                 sampleDir + File.separator + "testFileService.bal"
         };
         String[] allSamples = Stream.concat(Arrays.stream(sampleFiles), Arrays.stream(jmsAndFileSampleFiles))
