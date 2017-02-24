@@ -18,3 +18,15 @@ CREATE PROCEDURE InsertPersonData(IN p_RegID INTEGER, IN p_PersonName VARCHAR(50
     VALUES (p_RegID, p_PersonName, p_PersonName, 25000, 'UK');
   END
 /
+CREATE PROCEDURE GetCustomerID (IN regID INT,OUT credLimit DOUBLE)
+  READS SQL DATA
+  BEGIN ATOMIC
+  SELECT creditLimit INTO credLimit FROM Customers where registrationID = regID ;
+  END
+/
+CREATE PROCEDURE GetCustomerCountry (IN regID INT,INOUT param VARCHAR(300))
+  READS SQL DATA
+  BEGIN ATOMIC
+  SELECT country INTO param FROM Customers where lastName = param and registrationID = regID;
+  END
+/

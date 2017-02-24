@@ -130,6 +130,22 @@ public class SQLConnectorTest {
         Assert.assertEquals(retValue.intValue(), 1);
     }
 
+    @Test
+    public void testOutQueryParameters() {
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testOutQueryParameters");
+        BString retValue = (BString) returns[0];
+        final double expected = 5000.75;
+        Assert.assertEquals(retValue.doubleValue(), expected);
+    }
+
+    @Test
+    public void testInOutQueryParameters() {
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testInOutQueryParameters");
+        BString retValue = (BString) returns[0];
+        final String expected = "USA";
+        Assert.assertEquals(retValue.stringValue(), expected);
+    }
+
 
     @AfterSuite
     public void cleanup() {
