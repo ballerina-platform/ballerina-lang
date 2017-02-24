@@ -124,8 +124,13 @@ define(['lodash', './statement', '../utils/common-utils', './variable-declaratio
      */
     VariableDefinitionStatement.prototype.setStatementString = function (variableDefinitionStatementString) {
         var equalIndex = _.indexOf(variableDefinitionStatementString, '=');
-        var leftOperand = variableDefinitionStatementString.substring(0, equalIndex);
-        var rightOperand = variableDefinitionStatementString.substring(equalIndex + 1);
+        if(equalIndex === -1){
+            var leftOperand = variableDefinitionStatementString;
+        }else{
+            var leftOperand = variableDefinitionStatementString.substring(0, equalIndex);
+            var rightOperand = variableDefinitionStatementString.substring(equalIndex + 1);
+        }
+
         this.setLeftExpression(!_.isNil(leftOperand) ? leftOperand.trim() : "");
         this.setRightExpression(!_.isNil(rightOperand) ? rightOperand.trim() : "");
     };
