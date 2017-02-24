@@ -98,7 +98,6 @@ define(['require', 'log', 'lodash', 'jquery', 'event_channel', 'ace/ace', '../ut
         //register actions
         if(this._debugger != undefined && this._debugger.isEnabled()){
             this._editor.on("guttermousedown", _.bind(this.toggleDebugPoints, this));
-            this._debugger.on("resume-execution", _.bind(this.clearExistingDebugHit, this));
         }
     };
 
