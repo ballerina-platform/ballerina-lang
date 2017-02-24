@@ -56,10 +56,6 @@ define(['lodash', 'log', 'jquery', 'alerts', './return-type-view', './../ast/nod
                 class: "action-content-wrapper-heading return-types-wrapper-heading"
             }).appendTo(this._returnTypeEditorWrapper);
 
-            var returnTypeWrapper = $("<div/>", {
-                class: "action-content-wrapper-heading return-types-heading-named-return-wrapper"
-            }).appendTo(headerWrapper);
-
             // Checkbox to enable/disable named return types.
             var allowNamedReturnCheckBox = $("<input/>", {
                 type: "checkbox",
@@ -69,6 +65,10 @@ define(['lodash', 'log', 'jquery', 'alerts', './return-type-view', './../ast/nod
             // The "Named Return Types" text.
             $("<span class='return-types-heading-named-return-wrapper-text'>Named Return Types</span>")
                 .appendTo(headerWrapper);
+
+            var returnTypeWrapper = $("<div/>", {
+                class: "action-content-wrapper-heading return-types-heading-named-return-wrapper"
+            }).appendTo(headerWrapper);
 
             // Creating the return type dropdown.
             var typeDropdownWrapper = $('<div class="type-drop-wrapper"/>').appendTo(returnTypeWrapper);

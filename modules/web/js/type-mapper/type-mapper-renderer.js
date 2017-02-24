@@ -152,7 +152,7 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
      * @returns {*}
      */
     TypeMapperRenderer.prototype.getStructId = function (propertyId) {
-        var id = propertyId.replace("jstree-container" + this.viewIdSeperator, "");
+        var id = propertyId.replace(this.jsTreePrefix + this.viewIdSeperator, "");
         return id.split(this.idNameSeperator)[0]
     };
 
@@ -282,25 +282,27 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
      */
     TypeMapperRenderer.prototype.removeStruct = function (name) {
         var structId = name + this.viewIdSeperator + this.viewId;
-        var structConns;
-        var lookupClass = "property";
+        if ($("#" + structId).attr('class') != null) {
+            var structConns;
+            var lookupClass = "property";
 
-        if ($("#" + structId).attr('class').includes("struct")) {
-            lookupClass = "jstree-anchor";
-            structConns = $('div[id^="' + this.jsTreePrefix + this.viewIdSeperator + structId + '"]')
-                .find('.' + lookupClass);
-        } else {
-            structConns = $('div[id^="' + structId + '"]');
-        }
-
-        var self = this;
-        _.forEach(structConns, function (structCon) {
-            if (_.includes(structCon.className, lookupClass)) {
-                self.jsPlumbInstance.remove(structCon.id);
+            if ($("#" + structId).attr('class').includes("struct")) {
+                lookupClass = "jstree-anchor";
+                structConns = $('div[id^="' + this.jsTreePrefix + this.viewIdSeperator + structId + '"]')
+                    .find('.' + lookupClass);
+            } else {
+                structConns = $('div[id^="' + structId + '"]');
             }
-        });
-        $("#" + structId).remove();
-        this.dagrePosition(this);
+
+            var self = this;
+            _.forEach(structConns, function (structCon) {
+                if (_.includes(structCon.className, lookupClass)) {
+                    self.jsPlumbInstance.remove(structCon.id);
+                }
+            });
+            $("#" + structId).remove();
+            this.dagrePosition(this);
+        }
     };
 
     /**
@@ -309,9 +311,9 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
      */
     TypeMapperRenderer.prototype.addConnection = function (connection) {
         var anchorEnd = '_anchor';
-        var sourceId =  this.jsTreePrefix + this.viewIdSeperator +  connection.sourceStruct
+        var sourceId = this.jsTreePrefix + this.viewIdSeperator + connection.sourceStruct
             + this.viewIdSeperator + this.viewId;
-        var targetId =  this.jsTreePrefix + this.viewIdSeperator +  connection.targetStruct
+        var targetId = this.jsTreePrefix + this.viewIdSeperator + connection.targetStruct
             + this.viewIdSeperator + this.viewId;
         var isSourceExists;
         var isTargetExists;
@@ -321,14 +323,14 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
             isSourceExists = true;
         } else {
             isSourceExists = _.includes(this.existingJsTrees,
-                                        connection.sourceStruct + this.viewIdSeperator + this.viewId)
+                connection.sourceStruct + this.viewIdSeperator + this.viewId)
         }
         if (connection.targetFunction) {
             targetId = connection.targetStruct + connection.targetId + this.viewIdSeperator + this.viewId;
             isTargetExists = true;
         } else {
             isTargetExists = _.includes(this.existingJsTrees,
-                                        connection.targetStruct+ this.viewIdSeperator + this.viewId)
+                connection.targetStruct + this.viewIdSeperator + this.viewId)
         }
 
         if (isSourceExists && isTargetExists) {
@@ -359,10 +361,10 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
 
         } else {
             this.connectionPool.push({
-                connection : connection,
-                isSourceExists : isSourceExists,
-                isTargetExists : isTargetExists,
-                connected : false
+                connection: connection,
+                isSourceExists: isSourceExists,
+                isTargetExists: isTargetExists,
+                connected: false
             });
         }
     };
@@ -401,10 +403,10 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
             self.dagrePosition(self);
             _.forEach(self.connectionPool, function (conPoolObj) {
                 if (!conPoolObj.connected && structId ==
-                    conPoolObj.connection.sourceStruct + self.viewIdSeperator + self.viewId ) {
+                    conPoolObj.connection.sourceStruct + self.viewIdSeperator + self.viewId) {
                     conPoolObj.isSourceExists = true;
                 } else if (!conPoolObj.connected && structId ==
-                    conPoolObj.connection.targetStruct + self.viewIdSeperator + self.viewId ) {
+                    conPoolObj.connection.targetStruct + self.viewIdSeperator + self.viewId) {
                     conPoolObj.isTargetExists = true;
                 }
                 if (!conPoolObj.connected && conPoolObj.isSourceExists && conPoolObj.isTargetExists) {
@@ -469,7 +471,7 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
         var placeHolderWidth = document.getElementById(this.placeHolderName).offsetWidth;
         var posY = placeHolderWidth - (placeHolderWidth / 3);
         this.makeStruct(struct, 50, posY, reference, "target");
-        var jsTreeId = 'jstree-container' + this.viewIdSeperator + id;
+        var jsTreeId = this.jsTreePrefix + this.viewIdSeperator + id;
         this.addComplexProperty(jsTreeId, struct);
         this.processJSTree(jsTreeId, id, this.addTarget);
     };
@@ -494,7 +496,7 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
             'top': posX,
             'left': posY
         });
-        var jsTreeContainer = $('<div>').attr('id', 'jstree-container' + this.viewIdSeperator + struct.id)
+        var jsTreeContainer = $('<div>').attr('id', this.jsTreePrefix + this.viewIdSeperator + struct.id)
             .addClass('tree-container');
         newStruct.append(jsTreeContainer);
         $("#" + this.placeHolderName).append(newStruct);
@@ -512,69 +514,71 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
         func.name = func.name + functionInvocationModelId;
 
         var id = func.name + this.viewIdSeperator + this.viewId;
-        this.references.push({name: id, refObj: reference});
-        var newFunc = $('<div>').attr('id', id).addClass('func');
-        var self = this;
-        var funcName = $('<div>');
-        var funcIcon = $('<i>').addClass('type-mapper-icon fw fw-function fw-inverse');
-        var closeButton = $('<span>').attr('id', id + "-button").addClass('fw-stack fw-lg btn btn-remove');
+        if ($("#" + id).length === 0) {
+            this.references.push({name: id, refObj: reference});
+            var newFunc = $('<div>').attr('id', id).addClass('func');
+            var self = this;
+            var funcName = $('<div>');
+            var funcIcon = $('<i>').addClass('type-mapper-icon fw fw-function fw-inverse');
+            var closeButton = $('<span>').attr('id', id + "-button").addClass('fw-stack fw-lg btn btn-remove');
 
-        var square = $('<i>').addClass('fw fw-square fw-stack-1x');
-        var del = $('<i>').addClass('fw fw-delete fw-stack-1x fw-inverse');
+            var square = $('<i>').addClass('fw fw-square fw-stack-1x');
+            var del = $('<i>').addClass('fw fw-delete fw-stack-1x fw-inverse');
 
-        funcName.append(funcIcon);
-        funcName.append($('<span>').text(funcText));
-        closeButton.append(square);
-        closeButton.append(del);
-        funcName.append(closeButton);
-        newFunc.append(funcName);
+            funcName.append(funcIcon);
+            funcName.append($('<span>').text(funcText));
+            closeButton.append(square);
+            closeButton.append(del);
+            funcName.append(closeButton);
+            newFunc.append(funcName);
 
-        newFunc.css({
-            'top': 0,
-            'left': 0
-        });
-
-        $("#" + this.placeHolderName).append(newFunc);
-
-        //Remove button functionality
-        $("#" + id + "-button").on("click", function () {
-            var removedFunction = {name: func.name}
-            removedFunction.incomingConnections = [];
-            removedFunction.outgoingConnections = [];
-
-            _.forEach(self.jsPlumbInstance.getAllConnections(), function (connection) {
-                if (connection.target.id.includes(id)) {
-                    removedFunction.incomingConnections.push(
-                        self.getConnectionObject(connection.getParameter("id"),
-                            connection.sourceId, connection.targetId));
-                } else if (connection.source.id.includes(id)) {
-                    removedFunction.outgoingConnections.push(
-                        self.getConnectionObject(connection.getParameter("id"),
-                            connection.sourceId, connection.targetId));
-                }
+            newFunc.css({
+                'top': 0,
+                'left': 0
             });
 
-            for (var i = 0; i < self.references.length; i++) {
-                if (self.references[i].name == id) {
-                    removedFunction.reference = self.references[i].refObj;
+            $("#" + this.placeHolderName).append(newFunc);
+
+            //Remove button functionality
+            $("#" + id + "-button").on("click", function () {
+                var removedFunction = {name: func.name};
+                removedFunction.incomingConnections = [];
+                removedFunction.outgoingConnections = [];
+
+                _.forEach(self.jsPlumbInstance.getAllConnections(), function (connection) {
+                    if (connection.target.id.includes(id)) {
+                        removedFunction.incomingConnections.push(
+                            self.getConnectionObject(connection.getParameter("id"),
+                                connection.sourceId, connection.targetId));
+                    } else if (connection.source.id.includes(id)) {
+                        removedFunction.outgoingConnections.push(
+                            self.getConnectionObject(connection.getParameter("id"),
+                                connection.sourceId, connection.targetId));
+                    }
+                });
+
+                for (var i = 0; i < self.references.length; i++) {
+                    if (self.references[i].name == id) {
+                        removedFunction.reference = self.references[i].refObj;
+                    }
                 }
-            }
 
-            self.removeStruct(func.name);
-            onFunctionRemove(removedFunction);
-        });
+                self.removeStruct(func.name);
+                onFunctionRemove(removedFunction);
+            });
 
-        _.forEach(func.parameters, function (parameter) {
-            var property = self.makeFunctionAttribute($('#' + id), parameter.name, parameter.type, true);
-            self.addTarget(property, self);
-        });
+            _.forEach(func.parameters, function (parameter) {
+                var property = self.makeFunctionAttribute($('#' + id), parameter.name, parameter.type, true);
+                self.addTarget(property, self);
+            });
 
-        _.forEach(func.returnType, function (parameter) {
-            var property = self.makeFunctionAttribute($('#' + id), parameter.name, parameter.type, false);
-            self.addSource(property, self, true);
-        });
+            _.forEach(func.returnType, function (parameter) {
+                var property = self.makeFunctionAttribute($('#' + id), parameter.name, parameter.type, false);
+                self.addSource(property, self, true);
+            });
 
-        self.dagrePosition(this);
+            self.dagrePosition(this);
+        }
     };
 
     TypeMapperRenderer.prototype.makeFunctionAttribute = function (parentId, name, type, input) {
@@ -643,8 +647,8 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
      * @param {object} connection
      * @returns {boolean} has a connection or not
      */
-    TypeMapperRenderer.prototype.hasFunction = function(connection, self) {
-        return  $("#" + connection.sourceStruct + self.viewIdSeperator + self.viewId).attr('class').includes("func")
+    TypeMapperRenderer.prototype.hasFunction = function (connection, self) {
+        return $("#" + connection.sourceStruct + self.viewIdSeperator + self.viewId).attr('class').includes("func")
             || $("#" + connection.targetStruct + self.viewIdSeperator + self.viewId).attr('class').includes("func");
     }
 
@@ -695,8 +699,7 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
     };
 
     TypeMapperRenderer.prototype.disableParentsJsTree = function (connectionId, self) {
-        var jsTreeContainerPrefix = 'jstree-container';
-        var sourceJsTreeId = jsTreeContainerPrefix + self.viewIdSeperator + self.getStructId(connectionId);
+        var sourceJsTreeId = this.jsTreePrefix + self.viewIdSeperator + self.getStructId(connectionId);
         var sourceJsTree = $("#" + sourceJsTreeId).jstree(true);
         var node = sourceJsTree.get_node(connectionId.replace('_anchor', ''));
         _.forEach(node.parents, function (parentNodeId) {
@@ -708,8 +711,7 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
     };
 
     TypeMapperRenderer.prototype.enableParentsJsTree = function (connectionId, self, connections, isSource) {
-        var jsTreeContainerPrefix = 'jstree-container';
-        var sourceJsTreeId = jsTreeContainerPrefix + self.viewIdSeperator + self.getStructId(connectionId);
+        var sourceJsTreeId = this.jsTreePrefix + self.viewIdSeperator + self.getStructId(connectionId);
         var sourceJsTree = $("#" + sourceJsTreeId).jstree(true);
         var node = sourceJsTree.get_node(connectionId.replace('_anchor', ''));
         _.forEach(node.parents, function (parentNodeId) {
@@ -744,6 +746,84 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
 
     TypeMapperRenderer.prototype.removeTarget = function (element, self) {
         self.jsPlumbInstance.unmakeTarget(element);
+    };
+
+    /**
+     * Get list of connections for provided property of a source struct
+     * @param {string} structName
+     * @param {Array} property name hierarchy of the property
+     * @returns {Array} List of connections
+     */
+    TypeMapperRenderer.prototype.getSourceConnectionsByProperty = function(structName, property) {
+        var self = this;
+        var connections = [];
+
+        struct.name + this.viewIdSeperator + this.viewId;
+        _.forEach(property, function (propertyName) {
+            _.forEach(self.jsPlumbInstance.getAllConnections(), function (connection) {
+                    if (connection.sourceId.includes(structName + self.viewIdSeperator + self.viewId
+                                                        + self.idNameSeperator + propertyName)) {
+                        connections.push(self.getConnectionObject(connection.getParameter("id"),
+                                                        connection.sourceId, connection.targetId));
+                    }
+            });
+        });
+        return connections;
+    };
+
+    /**
+     * Get list of connections for provided property of a target struct
+     * @param {string} structName
+     * @param {Array} property name hierarchy of the property
+     * @returns {Array} List of connections
+     */
+    TypeMapperRenderer.prototype.getTargetConnectionsByProperty = function(structName, property) {
+        var self = this;
+        var connections = [];
+        _.forEach(property, function (propertyName) {
+            _.forEach(self.jsPlumbInstance.getAllConnections(), function (connection) {
+                if (connection.targetId.includes(structName + self.viewIdSeperator + self.viewId
+                                                    + self.idNameSeperator + propertyName)) {
+                    connections.push(self.getConnectionObject(connection.getParameter("id"),
+                        connection.sourceId, connection.targetId));
+                }
+            });
+        });
+        return connections;
+    };
+
+    /**
+     * Get list of connections for provided source struct
+     * @param {string} structName
+     * @returns {Array} List of connections
+     */
+    TypeMapperRenderer.prototype.getSourceConnectionsByStruct = function(structName) {
+        var self = this;
+        var connections = [];
+        _.forEach(self.jsPlumbInstance.getAllConnections(), function (connection) {
+            if (connection.sourceId.includes(structName)) {
+                connections.push(self.getConnectionObject(connection.getParameter("id"),
+                    connection.sourceId, connection.targetId));
+            }
+        });
+        return connections;
+    };
+
+    /**
+     * Get list of connections for provided target struct
+     * @param {string} structName
+     * @returns {Array} List of connections
+     */
+    TypeMapperRenderer.prototype.getTargetConnectionsByStruct = function(structName) {
+        var self = this;
+        var connections = [];
+           _.forEach(self.jsPlumbInstance.getAllConnections(), function (connection) {
+                if (connection.targetId.includes(structName)) {
+                    connections.push(self.getConnectionObject(connection.getParameter("id"),
+                        connection.sourceId, connection.targetId));
+                }
+            });
+        return connections;
     };
 
 
@@ -799,12 +879,18 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
 
             _.forEach(nodes, function (n) {
                 var nodeContent = $("#" + n.id);
-                if (maxTypeHeight < nodeContent.height()) {
-                    maxTypeHeight = nodeContent.height();
-                }
-                graph.setNode(n.id, {width: nodeContent.width(), height: nodeContent.height()});
-            });
+                var height = nodeContent.height();
 
+                if ($("#" + n.id).attr('class').includes("struct")) {
+                    height = height + height / 2;
+                }
+
+                if (maxTypeHeight < height) {
+                    maxTypeHeight = height;
+                }
+
+                graph.setNode(n.id, {width: nodeContent.width(), height: height});
+            });
             var edges = self.jsPlumbInstance.getAllConnections();
 
             _.forEach(edges, function (edge) {
@@ -847,6 +933,7 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
 
             $("#" + self.placeHolderName).height(maxTypeHeight + maxYPosition + 55);
             self.jsPlumbInstance.repaintEverything();
+            $(self.viewId).closest(".panel-body").find(".outer-box").mCustomScrollbar("update");
         }
     };
 
