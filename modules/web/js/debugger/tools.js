@@ -16,9 +16,18 @@
  * under the License.
  */
 
-define(['jquery', 'backbone', 'lodash', 'log', 'event_channel', './debug-manager', 'alerts'], function ($, Backbone, _, log, EventChannel, DebugManager, alerts) {
+define(['jquery', 'backbone', 'lodash', 'log', 'event_channel', './debug-manager', 'alerts', 'mousetrap'],
+    function ($, Backbone, _, log, EventChannel, DebugManager, alerts, Mousetrap) {
 
     var instance;
+
+    var SHORT_CUT_TO_ACTION = {
+        'alt+o':'StepOver',
+        'alt+r':'Resume',
+        'alt+i':'StepIn',
+        'alt+u':'StepOut',
+        'alt+p':'Stop'
+     }
 
     var Tools = function(){
         this.compiled = _.template('<% if (!active) { %>'
@@ -33,25 +42,27 @@ define(['jquery', 'backbone', 'lodash', 'log', 'event_channel', './debug-manager
             + '<% } %>' 
             + '<% if (active) { %>'
             + '<div class="debug-panel-header">'
-            + '     <span class="tool-group-header-title">Debugger Active</span></span>' 
-            + '</div>'             
+            + '     <span class="tool-group-header-title">Debugger Active</span></span>'
+            + '</div>'
             + '<div class="">'
-            + '<button type="button" class="btn btn-default btn-debug-action" data-action="Stop"  title="Stop Debug ( Alt + P )"><i class="fw fw-stop" /></button>' 
-            + '<button type="button" class="btn btn-default btn-debug-action <% if (!navigation) { %>disabled<%}%>" data-action="Resume"  title="Resume ( Alt + R )"><i class="fw fw-start " /></button>' 
-            + '<button type="button" class="btn btn-default btn-debug-action <% if (!navigation) { %>disabled<%}%>" data-action="StepOver"  title="Step Over ( Alt + O )"><i class="fw fw-stepover " /></button>' 
-            + '<button type="button" class="btn btn-default btn-debug-action <% if (!navigation) { %>disabled<%}%>" data-action="StepIn"  title="Step In ( Alt + I )"><i class="fw fw-stepin " /></button>' 
+            + '<button type="button" class="btn btn-default btn-debug-action" data-action="Stop"  title="Stop Debug ( Alt + P )"><i class="fw fw-stop" /></button>'
+            + '<button type="button" class="btn btn-default btn-debug-action <% if (!navigation) { %>disabled<%}%>" data-action="Resume"  title="Resume ( Alt + R )"><i class="fw fw-start " /></button>'
+            + '<button type="button" class="btn btn-default btn-debug-action <% if (!navigation) { %>disabled<%}%>" data-action="StepOver"  title="Step Over ( Alt + O )"><i class="fw fw-stepover " /></button>'
+            + '<button type="button" class="btn btn-default btn-debug-action <% if (!navigation) { %>disabled<%}%>" data-action="StepIn"  title="Step In ( Alt + I )"><i class="fw fw-stepin " /></button>'
             + '<button type="button" class="btn btn-default btn-debug-action <% if (!navigation) { %>disabled<%}%>" data-action="StepOut"  title="Step Out ( Alt + U )"><i class="fw fw-stepout " /></button>'
             + '</div><% } %>');
 
         this.connectionDialog = $("#modalDebugConnection");
         this.navigation = false;
 
-        $('.debug-connect-button').on("click", _.bindKey(this, 'connect'));  
+        $('.debug-connect-button').on("click", _.bindKey(this, 'connect'));
         DebugManager.on("session-terminated", _.bindKey(this, 'connectionError'));
-        DebugManager.on("session-started",_.bindKey(this, 'connectionStarted'));      
+        DebugManager.on("session-started", _.bindKey(this, 'connectionStarted'));
         DebugManager.on("session-ended",_.bindKey(this, 'render'));
         DebugManager.on("debug-hit",_.bindKey(this, 'enableNavigation'));
         DebugManager.on("resume-execution",_.bindKey(this, 'disableNavigation'));
+
+        Mousetrap.bind(_.keys(SHORT_CUT_TO_ACTION), _.bindKey(this, 'handleKeyAction'));
     };
 
     Tools.prototype = Object.create(EventChannel.prototype);
@@ -63,7 +74,7 @@ define(['jquery', 'backbone', 'lodash', 'log', 'event_channel', './debug-manager
         this.launchManager = args.launchManager;
         this.application = args.application;
 
-        this.container.on('click', '.btn-debug-action', _.bindKey(this, 'handleActions'));
+        this.container.on('click', '.btn-debug-action', _.bindKey(this, 'handleMouseAction'));
 
         this.container.on('click', '#debug_application', _.bindKey(this, 'debugApplication'));
         this.container.on('click', '#debug_service', _.bindKey(this, 'debugService'));
@@ -82,11 +93,21 @@ define(['jquery', 'backbone', 'lodash', 'log', 'event_channel', './debug-manager
         this.container.html(this.compiled(context));
     };
 
-    Tools.prototype.handleActions = function(event){
-        if($(event.currentTarget).hasClass('disabled')){
-            return;
-        } 
+    Tools.prototype.handleMouseAction = function(event) {
         var actionName = $(event.currentTarget).data('action');
+        this.handleAction(actionName);
+    };
+
+    Tools.prototype.handleKeyAction = function(e, combo) {
+        var actionName = SHORT_CUT_TO_ACTION[combo];
+        this.handleAction(actionName);
+    };
+
+    Tools.prototype.handleAction = function(actionName){
+        if(actionName !== 'Stop' && !this.navigation) {
+            return;
+        }
+
         switch(actionName){
             case 'Resume':
                 DebugManager.resume();
