@@ -153,6 +153,7 @@ define(['lodash', 'log', './ballerina-view', './variables-view', './type-struct-
                     $("#" + targetId).empty().append('<option value="-1">--Select--</option>');
                     self.getTargetInfo()["predefinedStructs"] = predefinedStructs;
                     self.loadSchemaToComboBox(currentContainer, "#" + targetId, predefinedStructs);
+                    $("#" + targetId).val(-1).change();
                 }
             });
 
@@ -162,6 +163,7 @@ define(['lodash', 'log', './ballerina-view', './variables-view', './type-struct-
                     $("#" + sourceId).empty().append('<option value="-1">--Select--</option>');
                     self.getSourceInfo()["predefinedStructs"] = predefinedStructs;
                     self.loadSchemaToComboBox(currentContainer, "#" + sourceId, predefinedStructs);
+                    $("#" + sourceId).val(-1).change();
                 }
             });
 
