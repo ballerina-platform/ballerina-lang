@@ -96,23 +96,12 @@ define(['lodash', './expression'], function (_, Expression) {
     TypeCastExpression.prototype.initFromJson = function (jsonNode) {
         var self = this;
         this.setName(jsonNode.target_type, {doSilently: true});
-        this.setExpression(this.generateExpressionString(jsonNode), {doSilently: true});
 
         _.each(jsonNode.children, function (childNode) {
             var child = self.getFactory().createFromJson(childNode);
             self.addChild(child);
             child.initFromJson(childNode);
         });
-    };
-
-    TypeCastExpression.prototype.generateExpressionString = function (jsonNode) {
-        var self = this;
-        var expString = "";
-        var targetType = jsonNode.target_type;
-        var child = self.getFactory().createFromJson(jsonNode.children[0]);
-        child.initFromJson(jsonNode.children[0]);
-        expString += "(" + targetType + ")" + child.getExpression();
-        return expString;
     };
     
     return TypeCastExpression;
