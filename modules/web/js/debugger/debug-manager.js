@@ -29,12 +29,6 @@ define(['require', 'jquery', 'backbone', 'lodash', 'event_channel', './channel',
 
     	this.on("breakpoint-added",_.bind(this.publishBreakPoints, this));
         this.on("breakpoint-removed",_.bind(this.publishBreakPoints, this));
-
-        Mousetrap.bind('alt+o', _.bindKey(this, 'stepOver'));
-        Mousetrap.bind('alt+r', _.bindKey(this, 'resume'));
-        Mousetrap.bind('alt+i', _.bindKey(this, 'stepIn'));
-        Mousetrap.bind('alt+u', _.bindKey(this, 'stepOut'));
-        Mousetrap.bind('alt+p', _.bindKey(this, 'stop'));
     };
 
     DebugManager.prototype = Object.create(EventChannel.prototype);

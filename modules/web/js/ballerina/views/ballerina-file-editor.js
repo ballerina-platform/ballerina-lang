@@ -1012,6 +1012,7 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
             if(this._currentDebugHit) {
                 this._currentDebugHit.clearDebugHit();
             }
+            this._sourceView.clearExistingDebugHit();
         };
 
         BallerinaFileEditor.prototype._showBreakpoint = function (newBreakpoint) {
