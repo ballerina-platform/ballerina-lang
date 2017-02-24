@@ -17,7 +17,7 @@ mvn clean install
 This will create a fat JAR file with the dependencies included, inside the `target` folder.
 
 ## Usage
-Add the `ballerina-container-support-0.8.0.jar` file to `bre/lib/` folder in the Ballerina distribution.
+Add the `ballerina-container-support-0.8.1.jar` file to `bre/lib/` folder in the Ballerina distribution.
 
 ### `ballerina docker` Command Line Usage
 ```
