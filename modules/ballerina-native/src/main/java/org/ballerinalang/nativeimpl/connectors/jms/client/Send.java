@@ -131,9 +131,7 @@ public class Send extends AbstractJMSAction {
                     for (Object o : mapData.keySet()) {
                         BValue key = (BValue) o;
                         BValue value = mapData.get(key);
-                        if (key instanceof BString && value instanceof BString) {
-                            mapCarbonMessage.setValue(key.stringValue(), value.stringValue());
-                        }
+                        mapCarbonMessage.setValue(key.stringValue(), value.stringValue());
                     }
                 }
             } else if (!(message instanceof MapCarbonMessage)) {
