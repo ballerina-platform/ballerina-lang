@@ -32,14 +32,18 @@ import org.ballerinalang.natives.connectors.AbstractNativeAction;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.math.BigDecimal;
+import java.sql.Blob;
 import java.sql.CallableStatement;
 import java.sql.Clob;
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Time;
+import java.sql.Timestamp;
 import java.sql.Types;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -341,7 +345,24 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
                 break;
             case Constants.SQLDataTypes.CLOB:
                 elementValue = stmt.getClob(index + 1);
-                stringValue = elementValue == null ? "" : SQLConnectorUtils.deriveValueFromClob((Clob) elementValue);
+                stringValue = elementValue == null ? "" : SQLConnectorUtils.getString((Clob) elementValue);
+                break;
+            case Constants.SQLDataTypes.BLOB:
+            case Constants.SQLDataTypes.BINARY:
+                elementValue = stmt.getBlob(index + 1);
+                stringValue = elementValue == null ? "" : SQLConnectorUtils.getString((Blob) elementValue);
+                break;
+            case Constants.SQLDataTypes.DATE:
+                elementValue = stmt.getDate(index + 1);
+                stringValue = elementValue == null ? "" : SQLConnectorUtils.getString((Date) elementValue);
+                break;
+            case Constants.SQLDataTypes.TIMESTAMP:
+                elementValue = stmt.getTimestamp(index + 1);
+                stringValue = elementValue == null ? "" : SQLConnectorUtils.getString((Timestamp) elementValue);
+                break;
+            case Constants.SQLDataTypes.TIME:
+                elementValue = stmt.getTime(index + 1);
+                stringValue = elementValue == null ? "" : SQLConnectorUtils.getString((Time) elementValue);
                 break;
             default:
                 throw new BallerinaException(
