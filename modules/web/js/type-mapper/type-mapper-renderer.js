@@ -754,7 +754,7 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
      * @param {Array} property name hierarchy of the property
      * @returns {Array} List of connections
      */
-    TypeMapperRenderer.prototype.getSourceConnections = function(structName, property) {
+    TypeMapperRenderer.prototype.getSourceConnectionsByProperty = function(structName, property) {
         var connections = [];
         _.forEach(property, function (propertyName) {
             _.forEach(self.jsPlumbInstance.getAllConnections(), function (connection) {
@@ -773,7 +773,7 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
      * @param {Array} property name hierarchy of the property
      * @returns {Array} List of connections
      */
-    TypeMapperRenderer.prototype.getTargetConnections = function(structName, property) {
+    TypeMapperRenderer.prototype.getTargetConnectionsByProperty = function(structName, property) {
         var connections = [];
         _.forEach(property, function (propertyName) {
             _.forEach(self.jsPlumbInstance.getAllConnections(), function (connection) {
@@ -783,6 +783,38 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
                 }
             });
         });
+        return connections;
+    };
+
+    /**
+     * Get list of connections for provided source struct
+     * @param {string} structName
+     * @returns {Array} List of connections
+     */
+    TypeMapperRenderer.prototype.getSourceConnectionsByStruct = function(structName) {
+        var connections = [];
+        _.forEach(self.jsPlumbInstance.getAllConnections(), function (connection) {
+            if (connection.sourceId.includes(structName)) {
+                connections.push(self.getConnectionObject(connection.getParameter("id"),
+                    connection.sourceId, connection.targetId));
+            }
+        });
+        return connections;
+    };
+
+    /**
+     * Get list of connections for provided target struct
+     * @param {string} structName
+     * @returns {Array} List of connections
+     */
+    TypeMapperRenderer.prototype.getTargetConnectionsByStruct = function(structName) {
+        var connections = [];
+           _.forEach(self.jsPlumbInstance.getAllConnections(), function (connection) {
+                if (connection.targetId.includes(structName)) {
+                    connections.push(self.getConnectionObject(connection.getParameter("id"),
+                        connection.sourceId, connection.targetId));
+                }
+            });
         return connections;
     };
 
