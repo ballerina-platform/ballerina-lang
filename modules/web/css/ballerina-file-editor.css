@@ -378,7 +378,7 @@
     height: auto;
 }
 
-.return-types-heading-named-return-wrapper input[type=checkbox] {
+.action-content-wrapper-heading.return-types-wrapper-heading input[type=checkbox] {
     margin-top: 6px;
     float: left;
 }
