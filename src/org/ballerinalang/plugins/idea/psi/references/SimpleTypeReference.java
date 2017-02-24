@@ -31,6 +31,7 @@ import org.ballerinalang.plugins.idea.psi.FunctionNode;
 import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
 import org.ballerinalang.plugins.idea.psi.PackageNameNode;
 import org.ballerinalang.plugins.idea.psi.SimpleTypeNode;
+import org.ballerinalang.plugins.idea.psi.StructDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.TypeNameNode;
 import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
 import org.jetbrains.annotations.NotNull;
@@ -47,7 +48,8 @@ public class SimpleTypeReference extends BallerinaElementReference {
 
     @Override
     public boolean isDefinitionNode(PsiElement def) {
-        return def instanceof SimpleTypeNode || def instanceof FunctionNode || def instanceof ConnectorNode;
+        return def instanceof SimpleTypeNode || def instanceof FunctionNode || def instanceof ConnectorNode
+                || def instanceof StructDefinitionNode;
     }
 
     @NotNull

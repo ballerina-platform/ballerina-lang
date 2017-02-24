@@ -36,7 +36,6 @@ public class BallerinaFindUsageProvider implements FindUsagesProvider {
     @Nullable
     @Override
     public WordsScanner getWordsScanner() {
-
         return null;
     }
 
@@ -82,6 +81,8 @@ public class BallerinaFindUsageProvider implements FindUsagesProvider {
                 return "Named Parameter";
             case RULE_typeMapperInput:
                 return "Type Mapper Input";
+            case RULE_structDefinition:
+                return "Struct";
             case RULE_simpleType:
                 // Todo - Resolve the SimpleType element and return the correct type.
         }
