@@ -32,10 +32,7 @@ import javax.ws.rs.ext.ExceptionMapper;
  */
 public class SemanticExceptionMapper implements ExceptionMapper<SemanticException> {
     private static final Logger logger = LoggerFactory.getLogger(SemanticExceptionMapper.class);
-    
-    /**
-     * @inheritDoc
-     */
+
     @Override
     public Response toResponse(SemanticException exception) {
         logger.error("error: " + exception.getMessage());
