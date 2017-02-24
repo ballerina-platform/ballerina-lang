@@ -15,8 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', 'jquery', 'alerts', './return-type-view', './../ast/node', 'select2', './../env/environment'],
-    function (_, log, $, Alerts, ReturnTypeView, ASTNode, select2, BallerinaEnvironment) {
+define(['lodash', 'log', 'jquery', 'alerts', './return-type-view', './../ast/node', 'select2'],
+    function (_, log, $, Alerts, ReturnTypeView, ASTNode, select2) {
 
         /**
          * Creates the return types pane. This is not a ballerina view. This is simply a pane which is created
@@ -29,14 +29,13 @@ define(['lodash', 'log', 'jquery', 'alerts', './return-type-view', './../ast/nod
          * @param {ASTNode} args.view - The view of the model.
          */
         var ReturnTypePaneView = function (args) {
-            this._supportedReturnTypes = BallerinaEnvironment.getTypes();
-
             this._activatorElement = _.get(args, "activatorElement");
             this._model = _.get(args, "model");
             this._paneElement = _.get(args, "paneAppendElement");
             this._viewOptions = _.get(args, "viewOptions");
             this._viewOfModel = _.get(args, "view");
             this._returnTypeEditorWrapper = undefined;
+            this._supportedReturnTypes = this._viewOfModel.getDiagramRenderingContext().getEnvironment().getTypes();
         };
 
         ReturnTypePaneView.prototype.constructor = ReturnTypePaneView;
