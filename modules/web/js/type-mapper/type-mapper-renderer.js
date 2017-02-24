@@ -282,25 +282,27 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
      */
     TypeMapperRenderer.prototype.removeStruct = function (name) {
         var structId = name + this.viewIdSeperator + this.viewId;
-        var structConns;
-        var lookupClass = "property";
+        if ($("#" + structId).attr('class') != null) {
+            var structConns;
+            var lookupClass = "property";
 
-        if ($("#" + structId).attr('class').includes("struct")) {
-            lookupClass = "jstree-anchor";
-            structConns = $('div[id^="' + this.jsTreePrefix + this.viewIdSeperator + structId + '"]')
-                .find('.' + lookupClass);
-        } else {
-            structConns = $('div[id^="' + structId + '"]');
-        }
-
-        var self = this;
-        _.forEach(structConns, function (structCon) {
-            if (_.includes(structCon.className, lookupClass)) {
-                self.jsPlumbInstance.remove(structCon.id);
+            if ($("#" + structId).attr('class').includes("struct")) {
+                lookupClass = "jstree-anchor";
+                structConns = $('div[id^="' + this.jsTreePrefix + this.viewIdSeperator + structId + '"]')
+                    .find('.' + lookupClass);
+            } else {
+                structConns = $('div[id^="' + structId + '"]');
             }
-        });
-        $("#" + structId).remove();
-        this.dagrePosition(this);
+
+            var self = this;
+            _.forEach(structConns, function (structCon) {
+                if (_.includes(structCon.className, lookupClass)) {
+                    self.jsPlumbInstance.remove(structCon.id);
+                }
+            });
+            $("#" + structId).remove();
+            this.dagrePosition(this);
+        }
     };
 
     /**
@@ -309,9 +311,9 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
      */
     TypeMapperRenderer.prototype.addConnection = function (connection) {
         var anchorEnd = '_anchor';
-        var sourceId =  this.jsTreePrefix + this.viewIdSeperator +  connection.sourceStruct
+        var sourceId = this.jsTreePrefix + this.viewIdSeperator + connection.sourceStruct
             + this.viewIdSeperator + this.viewId;
-        var targetId =  this.jsTreePrefix + this.viewIdSeperator +  connection.targetStruct
+        var targetId = this.jsTreePrefix + this.viewIdSeperator + connection.targetStruct
             + this.viewIdSeperator + this.viewId;
         var isSourceExists;
         var isTargetExists;
@@ -321,14 +323,14 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
             isSourceExists = true;
         } else {
             isSourceExists = _.includes(this.existingJsTrees,
-                                        connection.sourceStruct + this.viewIdSeperator + this.viewId)
+                connection.sourceStruct + this.viewIdSeperator + this.viewId)
         }
         if (connection.targetFunction) {
             targetId = connection.targetStruct + connection.targetId + this.viewIdSeperator + this.viewId;
             isTargetExists = true;
         } else {
             isTargetExists = _.includes(this.existingJsTrees,
-                                        connection.targetStruct+ this.viewIdSeperator + this.viewId)
+                connection.targetStruct + this.viewIdSeperator + this.viewId)
         }
 
         if (isSourceExists && isTargetExists) {
@@ -359,10 +361,10 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
 
         } else {
             this.connectionPool.push({
-                connection : connection,
-                isSourceExists : isSourceExists,
-                isTargetExists : isTargetExists,
-                connected : false
+                connection: connection,
+                isSourceExists: isSourceExists,
+                isTargetExists: isTargetExists,
+                connected: false
             });
         }
     };
@@ -401,10 +403,10 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
             self.dagrePosition(self);
             _.forEach(self.connectionPool, function (conPoolObj) {
                 if (!conPoolObj.connected && structId ==
-                    conPoolObj.connection.sourceStruct + self.viewIdSeperator + self.viewId ) {
+                    conPoolObj.connection.sourceStruct + self.viewIdSeperator + self.viewId) {
                     conPoolObj.isSourceExists = true;
                 } else if (!conPoolObj.connected && structId ==
-                    conPoolObj.connection.targetStruct + self.viewIdSeperator + self.viewId ) {
+                    conPoolObj.connection.targetStruct + self.viewIdSeperator + self.viewId) {
                     conPoolObj.isTargetExists = true;
                 }
                 if (!conPoolObj.connected && conPoolObj.isSourceExists && conPoolObj.isTargetExists) {
@@ -645,8 +647,8 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
      * @param {object} connection
      * @returns {boolean} has a connection or not
      */
-    TypeMapperRenderer.prototype.hasFunction = function(connection, self) {
-        return  $("#" + connection.sourceStruct + self.viewIdSeperator + self.viewId).attr('class').includes("func")
+    TypeMapperRenderer.prototype.hasFunction = function (connection, self) {
+        return $("#" + connection.sourceStruct + self.viewIdSeperator + self.viewId).attr('class').includes("func")
             || $("#" + connection.targetStruct + self.viewIdSeperator + self.viewId).attr('class').includes("func");
     }
 
@@ -799,10 +801,10 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
 
             _.forEach(nodes, function (n) {
                 var nodeContent = $("#" + n.id);
-                var height  = nodeContent.height();
+                var height = nodeContent.height();
 
-                if ( $("#" + n.id).attr('class').includes("struct")) {
-                    height = height + height/2;
+                if ($("#" + n.id).attr('class').includes("struct")) {
+                    height = height + height / 2;
                 }
 
                 if (maxTypeHeight < height) {
@@ -853,6 +855,7 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
 
             $("#" + self.placeHolderName).height(maxTypeHeight + maxYPosition + 55);
             self.jsPlumbInstance.repaintEverything();
+            $(self.viewId).closest(".panel-body").find(".outer-box").mCustomScrollbar("update");
         }
     };
 

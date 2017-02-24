@@ -153,7 +153,6 @@ define(['require', 'lodash', 'jquery', 'log', 'backbone', 'file_browser', 'boots
                 });
 
                 fileSave.find("button").filter("#saveButton").click(function() {
-
                     var _location = location.val();
                     var _configName = configName.val();
                     if (_.isEmpty(_location)) {
@@ -165,6 +164,9 @@ define(['require', 'lodash', 'jquery', 'log', 'backbone', 'file_browser', 'boots
                         newWizardError.text("Please enter a valid file name");
                         newWizardError.show();
                         return;
+                    }
+                    if(!_configName.endsWith(".bal")){
+                        _configName = _configName + ".bal";
                     }
 
                     var callback = function(isSaved) {
@@ -182,20 +184,20 @@ define(['require', 'lodash', 'jquery', 'log', 'backbone', 'file_browser', 'boots
                         // File with this name already exists. Need confirmation from user to replace
                         var replaceConfirmCb = function(confirmed) {
                             if(confirmed) {
-                                saveConfiguration({location: location, configName:configName}, callback);
+                                saveConfiguration({location: _location, configName: _configName}, callback);
                             } else {
                                 callback(false);
                             }
-                        }
+                        };
 
                         var options = {
                             path: path,
-                            handleConfirm: replaceConfirmCb,
+                            handleConfirm: replaceConfirmCb
                         };
 
                         self.app.commandManager.dispatch('open-replace-file-confirm-dialog', options);
                     } else {
-                        saveConfiguration({location: location, configName:configName}, callback);
+                        saveConfiguration({location: _location, configName: _configName}, callback);
                     }
                 });
 
@@ -208,7 +210,7 @@ define(['require', 'lodash', 'jquery', 'log', 'backbone', 'file_browser', 'boots
                     successNotification.fadeTo(2000, 200).slideUp(1000, function(){
                         successNotification.slideUp(1000);
                     });
-                };
+                }
 
                 function alertError(errorMessage) {
                     var errorNotification = getErrorNotification(errorMessage);
@@ -216,7 +218,7 @@ define(['require', 'lodash', 'jquery', 'log', 'backbone', 'file_browser', 'boots
                     errorNotification.fadeTo(2000, 200).slideUp(1000, function () {
                         errorNotification.slideUp(1000);
                     });
-                };
+                }
 
                 function isJsonString(str) {
                     try {
@@ -228,12 +230,13 @@ define(['require', 'lodash', 'jquery', 'log', 'backbone', 'file_browser', 'boots
                 }
 
                 function saveConfiguration(options, callback) {
-                    var workspaceServiceURL = "http://localhost:8289/service/workspace";
+                    var workspaceServiceURL = app.config.services.workspace.endpoint;
                     var saveServiceURL = workspaceServiceURL + "/write";
                     var activeTab = app.tabController.activeTab;
                     var ballerinaFileEditor= activeTab.getBallerinaFileEditor();
                     var config = ballerinaFileEditor.getContent();
-                    var payload = "location=" + btoa(location.val()) + "&configName=" + btoa(configName.val()) + "&config=" + (btoa(config));
+                    var payload = "location=" + btoa(options.location) + "&configName=" + btoa(options.configName)
+                        + "&config=" + (btoa(config));
 
                     $.ajax({
                         url: saveServiceURL,
@@ -243,24 +246,24 @@ define(['require', 'lodash', 'jquery', 'log', 'backbone', 'file_browser', 'boots
                         async: false,
                         success: function (data, textStatus, xhr) {
                             if (xhr.status == 200) {
-                                activeTab.setTitle(configName.val());
+                                activeTab.setTitle(options.configName);
                                 activeTab.getFile()
-                                            .setPath(location.val())
-                                            .setName(configName.val())
+                                            .setPath(options.location)
+                                            .setName(options.configName)
                                             .setContent(config)
                                             .setPersisted(true)
                                             .setLastPersisted(_.now())
                                             .setDirty(false)
                                             .save();
                                 if(app.workspaceExplorer.isEmpty()){
-                                    app.commandManager.dispatch("open-folder", location.val());
+                                    app.commandManager.dispatch("open-folder", options.location);
                                     if(!app.workspaceExplorer.isActive()){
                                         app.commandManager.dispatch("toggle-file-explorer");
                                     }
                                 }
-                                app.breadcrumbController.setPath(location.val(), configName.val());
+                                app.breadcrumbController.setPath(options.location, options.configName);
                                 saveConfigModal.modal('hide');
-                                log.debug('file saved successfully')
+                                log.debug('file saved successfully');
                                 callback(true);
                             } else {
                                 newWizardError.text(data.Error);
@@ -281,8 +284,8 @@ define(['require', 'lodash', 'jquery', 'log', 'backbone', 'file_browser', 'boots
                             callback(false);
                         }
                     });
-                };
-            },
+                }
+            }
         });
 
     return SaveToFileDialog;

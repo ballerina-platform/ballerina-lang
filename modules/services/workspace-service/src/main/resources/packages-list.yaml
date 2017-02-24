@@ -3,7 +3,7 @@ swagger: '2.0'
 # Prolog
 ######################################################
 info:
-  version: "0.8.0"
+  version: "0.8.1"
   title: "Ballerina Composer API"
   description: |
     This specifies a **RESTful API** which act as the backend of Ballerina Composer.
