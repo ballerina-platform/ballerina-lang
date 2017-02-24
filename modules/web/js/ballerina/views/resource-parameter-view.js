@@ -170,17 +170,31 @@ define(['lodash', 'jquery', 'log', 'alerts', './ballerina-view', './../ast/argum
             // Creating parameter type dropdown.
             var parameterTypeDropDown = $("<select/>").appendTo(parameterWrapper);
 
-            this._supportedParameterTypes = this.getDiagramRenderingContext().getEnvironment().getTypes();
-            // Adding dropdown elements.
-            _.forEach(this._supportedParameterTypes, function (type) {
-                // Adding supported parameter types to the type dropdown.
-                parameterTypeDropDown.append(
-                    $('<option></option>').val(type).html(type)
-                );
+            $(parameterTypeDropDown).select2({
+                tags: true,
+                selectOnClose: true,
+                data : self._getTypeDropdownValues(),
+                query: function (query) {
+                    var data = {results: []};
+                    if (!_.isNil(query.term)) {
+                        _.forEach(self._getTypeDropdownValues(), function (item) {
+                            if (item.text.toUpperCase().indexOf(query.term.toUpperCase()) >= 0) {
+                                data.results.push(item);
+                            }
+                        });
+                    } else {
+                        data.results = self._getTypeDropdownValues();
+                    }
+                    query.callback(data);
+                }
+            });
+
+            $(parameterTypeDropDown).on("select2:open", function() {
+                $(".select2-search__field").attr("placeholder", "Search");
             });
 
             // Setting selected bType of the parameter.
-            $(parameterTypeDropDown).val(this.getModel().getType());
+            $(parameterTypeDropDown).val(this.getModel().getType()).change();
 
             // Updating parameter type upon change,
             $(parameterTypeDropDown).change(function () {
@@ -215,6 +229,21 @@ define(['lodash', 'jquery', 'log', 'alerts', './ballerina-view', './../ast/argum
             //// End of parameter section
 
             $(this._deleteButton).appendTo(this._parameterWrapper);
+        };
+
+        /**
+         * Returns an object array with support types.
+         * @return {Object[]} Object array as supported data types.
+         */
+        ResourceParameterView.prototype._getTypeDropdownValues = function() {
+            var dropdownData = [];
+            // Adding items to the type dropdown.
+            var bTypes = this.getDiagramRenderingContext().getEnvironment().getTypes();
+            _.forEach(bTypes, function (bType) {
+                dropdownData.push({id: bType, text: bType});
+            });
+
+            return dropdownData;
         };
 
         ResourceParameterView.prototype.getParameterWrapper = function () {
