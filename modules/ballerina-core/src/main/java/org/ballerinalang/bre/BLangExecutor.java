@@ -90,6 +90,7 @@ import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.AbstractNativeTypeMapper;
 import org.ballerinalang.natives.connectors.AbstractNativeAction;
 import org.ballerinalang.natives.connectors.AbstractNativeConnector;
+import org.ballerinalang.runtime.threadpool.BLangThreadFactory;
 import org.ballerinalang.runtime.worker.WorkerCallback;
 import org.ballerinalang.services.ErrorHandlerUtils;
 import org.ballerinalang.util.exceptions.BallerinaException;
@@ -342,7 +343,7 @@ public class BLangExecutor implements NodeExecutor {
         workerContext.setBalCallback(workerCallback);
         BLangExecutor workerExecutor = new BLangExecutor(runtimeEnv, workerContext);
 
-        executor = Executors.newSingleThreadExecutor();
+        executor = Executors.newSingleThreadExecutor(new BLangThreadFactory(worker.getName()));
         WorkerRunner workerRunner = new WorkerRunner(workerExecutor, workerContext, worker);
         Future<BMessage> future = executor.submit(workerRunner);
         worker.setResultFuture(future);

@@ -21,12 +21,12 @@
 
     <parent>
         <groupId>org.ballerinalang</groupId>
-        <artifactId>ballerina</artifactId>
+        <artifactId>ballerina-parent</artifactId>
         <version>0.8.1-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
-    <artifactId>ballerina-distribution</artifactId>
+    <artifactId>ballerina</artifactId>
     <packaging>pom</packaging>
     <name>Ballerina - Distribution</name>
     <description>Ballerina - Distribution</description>
@@ -234,7 +234,7 @@
                             <descriptors>
                                 <descriptor>${basedir}/src/assembly/bin.xml</descriptor>
                             </descriptors>
-                            <finalName>ballerina-${project.version}</finalName>
+                            <finalName>${artifactId}-${project.version}</finalName>
                             <appendAssemblyId>false</appendAssemblyId>
                         </configuration>
                     </execution>

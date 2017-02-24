@@ -33,7 +33,7 @@ import java.util.List;
 
 /**
  * {@code CallableUnitGroupBuilder} builds Services and Connectors.
- * <p/>
+ * <br>
  * A CallableUnitGroup represents a Service or a Connector
  *
  * @since 0.8.0

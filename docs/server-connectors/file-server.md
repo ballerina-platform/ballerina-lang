@@ -36,7 +36,7 @@ Add a service level annotation named `Source` and add the key-value pairs to spe
     <td>fileURI</td>
     <td>The URI where the files you want to process are located. This can be a URI to a folder. If it is a folder, all the files in the folder will be processed, one at a time. If the URI points to a single file, the file will be processed when it becomes available at that location.</td>
     <td>Yes</td>
-    <td>A valid file URI</td>
+    <td>A valid file URI. <br/><br/> If the file URI contains a user name or a password, make sure that it does not contain '#' or '?' character.</td>
     <td>-</td>
   </tr>
   <tr>
@@ -52,6 +52,13 @@ Add a service level annotation named `Source` and add the key-value pairs to spe
     <td>No</td>
     <td>A positive integer.</td>
     <td>30000</td>
+  </tr>
+  <tr>
+    <td>deleteIfNotAcknowledged</td>
+    <td>If this parameter is set to "true", the file will be deleted in case the file consumer did not acknowledge. Otherwise (if set to "false") the file will be kept without deleting, so it will be retried to be processed again in the next polling cycle.</td>
+    <td>No</td>
+    <td>true or false</td>
+    <td>false</td>
   </tr>
 </table>
 
@@ -210,7 +217,7 @@ The above line sends an acknowledgment to the sender of the message (this sender
 
 Since this function makes the message sender close the input stream and delete the file, this function needs to be called only after message processing is done. 
 
-In case the service does not call the `acknowledge` function, the message sender will wait for 30 seconds (30 seconds is the default wait time. This value can be overridden by specifying a different value as the `acknowledgementTimeOut` service parameter) and will delete the file. 
+In case the service does not call the `acknowledge` function, the message sender will wait for 30 seconds (30 seconds is the default wait time. This value can be overridden by specifying a different value as the `acknowledgementTimeOut` service parameter) and assume that the file was not processed. Following the same assumption, the message sender will not delete the file. As a result of this, the file will remain at the same URI to which the service listens, so it will be attempted to be processed in the next polling cycle as well. This behavior can be changed by setting `deleteIfNotAcknowledged` service parameter to "true". If it is set to "true" then, the file will be deleted anyway, regardless of whether the acknowledgement was made or not. 
 
 [1]: http://commons.apache.org/compress/
 [2]: http://commons.apache.org/net/

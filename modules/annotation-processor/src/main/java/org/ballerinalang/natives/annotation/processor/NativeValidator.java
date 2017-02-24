@@ -45,7 +45,7 @@ public class NativeValidator {
     /**
      * Process built-in ballerina sources and validate them.
      * 
-     * @param args
+     * @param args string array of arguments
      */
     public static void main(String[] args) {
         

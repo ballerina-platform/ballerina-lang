@@ -67,10 +67,10 @@ public class BallerinaAnnotationProcessor extends AbstractProcessor {
         super();
         this.nativePackages = new HashMap<String, PackageHolder>();
     }
-    
+
     /**
      * Process the ballerina annotations and generate the construct provider class.
-     * <br/>
+     *
      * {@inheritDoc}
      */
     @Override

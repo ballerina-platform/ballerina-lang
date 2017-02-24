@@ -1,3 +1,4 @@
+
 {% if nav_item.children %}
     <ul class="subnav">
     <li><span>{{ nav_item.title }}</span></li>
@@ -11,6 +12,7 @@
         <a class="{% if nav_item.active%}current{%endif%}" href="{{ nav_item.url }}">{{ nav_item.title }}</a>
         {% if nav_item == page %}
             <ul>
+                <li><a href="{{ nav.homepage.url }}">Home</a></li>
             {% for toc_item in page.toc %}
                 <li class="toctree-l3"><a href="{{ toc_item.url }}">{{ toc_item.title }}</a></li>
                 {% for toc_item in toc_item.children %}
@@ -21,3 +23,4 @@
         {% endif %}
     </li>
 {% endif %}
+

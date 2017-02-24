@@ -20,7 +20,7 @@ package org.ballerinalang.model;
 import org.ballerinalang.model.values.BValue;
 
 /**
- * {@code ExecutableExpr} interface makes an {@link org.ballerinalang.core.model.expressions.Expression} executable.
+ * {@code ExecutableExpr} interface makes an {@link org.ballerinalang.model.expressions.Expression} executable.
  *
  * @since 0.8.0
  */

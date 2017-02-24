@@ -90,6 +90,7 @@ public class Utils {
      * 
      * @param argType type of the argument
      * @param argEltType type of the argument elements
+     * @param structType type of the struct
      * @return argument type
      */
     public static String getArgumentType(TypeEnum argType, TypeEnum argEltType, String structType) {

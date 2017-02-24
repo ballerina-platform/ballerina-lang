@@ -24,9 +24,8 @@ import org.ballerinalang.model.Worker;
 import org.ballerinalang.model.expressions.VariableRefExpr;
 
 /**
- * A {@code WorkerReplyStmt} Class to hold data related to worker reply statement
- * <p>
- * result <- sampleWorker;
+ * <p>A {@code WorkerReplyStmt} Class to hold data related to worker reply statement</p>
+ * result &lt;- sampleWorker;
  *
  *  @since 0.8.0
  */
