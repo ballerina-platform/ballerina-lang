@@ -24,12 +24,7 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.connectors.data.sql.client.SQLConnectorUtils;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
-import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
-import java.nio.charset.Charset;
 import java.sql.Array;
 import java.sql.Blob;
 import java.sql.Clob;
@@ -40,7 +35,6 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Time;
 import java.sql.Timestamp;
-import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -316,52 +310,14 @@ public class SQLDataIterator implements DataIterator {
     }
 
     private BValue getBString(Clob clob) throws SQLException {
-        // Directly allocating full length arrays for decode byte arrays since anyway we are building
-        // new String in memory.
-        char[] arr = new char[8 * 1024];
-        StringBuilder buffer = new StringBuilder();
-        int numCharsRead;
-        try (Reader characterStream = clob.getCharacterStream()) {
-            while ((numCharsRead = characterStream.read(arr, 0, arr.length)) != -1) {
-                buffer.append(arr, 0, numCharsRead);
-            }
-        } catch (IOException e) {
-            throw new BallerinaException("failed to read from clob type: " + e.getMessage(), e);
-        }
-        return new BString(buffer.toString());
+        return new BString(SQLConnectorUtils.getString(clob));
     }
 
     private BValue getBString(InputStream inputStream) throws SQLException {
-        String value = getStringFromInputStream(inputStream);
-        byte[] encode = getBase64Encode(value);
-        return new BString(new String(encode, Charset.defaultCharset()));
+        return new BString(SQLConnectorUtils.getString(inputStream));
     }
 
     private BValue getBString(Blob blob) throws SQLException {
-        // Directly allocating full length arrays for decode byte arrays since anyway we are building
-        // new String in memory.
-        // Position of the getBytes has to be 1 instead of 0.
-        // "pos - the ordinal position of the first byte in the BLOB value to be extracted;
-        // the first byte is at position 1"
-        // - https://docs.oracle.com/javase/7/docs/api/java/sql/Blob.html#getBytes(long,%20int)
-        byte[] encode = getBase64Encode(new String(blob.getBytes(1L, (int) blob.length()), Charset.defaultCharset()));
-        return new BString(new String(encode, Charset.defaultCharset()));
-    }
-
-    private static String getStringFromInputStream(InputStream is) {
-        StringBuilder sb = new StringBuilder();
-        try (BufferedReader br = new BufferedReader(new InputStreamReader(is, Charset.defaultCharset()))) {
-            String line;
-            while ((line = br.readLine()) != null) {
-                sb.append(line);
-            }
-        } catch (IOException e) {
-            throw new BallerinaException("failed to read binary as a string: " + e.getMessage(), e);
-        }
-        return sb.toString();
-    }
-
-    private byte[] getBase64Encode(String st) {
-        return Base64.getEncoder().encode(st.getBytes(Charset.defaultCharset()));
+        return new BString(SQLConnectorUtils.getString(blob));
     }
 }

@@ -40,7 +40,7 @@ public final class Constants {
         public static final String CONNECTION_TEST_QUERY = "connectionTestQuery";
         public static final String MINIMUM_IDLE = "minimumIdle";
         public static final String MAXIMUM_POOL_SIZE = "maximumPoolSize";
-        public static final String POOOL_NAME = "poolName";
+        public static final String POOL_NAME = "poolName";
         public static final String ISOLATE_INTERNAL_QUERIES = "isolateInternalQueries";
         public static final String ALLOW_POOL_SUSPENSION = "allowPoolSuspension";
         public static final String READ_ONLY = "readOnly";
