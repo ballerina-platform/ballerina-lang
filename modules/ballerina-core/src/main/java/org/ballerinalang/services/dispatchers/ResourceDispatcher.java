@@ -37,6 +37,7 @@ public interface ResourceDispatcher {
      * @param service  Ballerina Service which resources are belongs to
      * @param cMsg     Carbon Message
      * @param callback Carbon Messaging Callback
+     * @param balContext Ballerina context
      * @return resource which can handle a given cMsg
      */
     Resource findResource(

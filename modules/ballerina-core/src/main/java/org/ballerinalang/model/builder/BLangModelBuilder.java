@@ -263,6 +263,7 @@ public class BLangModelBuilder {
 
     /**
      * Start a struct builder.
+     * @param location Location of the struct definition in the source bal file
      */
     public void startStructDef(NodeLocation location) {
         currentStructBuilder = new StructDef.StructBuilder(location, currentScope);
@@ -391,12 +392,12 @@ public class BLangModelBuilder {
     // Function parameters and types
 
     /**
-     * Create a function parameter and a corresponding variable reference expression.
-     * <p/>
+     * <p>Create a function parameter and a corresponding variable reference expression.</p>
      * Set the even function to get the value from the function arguments with the correct index.
      * Store the reference in the symbol table.
      *
      * @param paramName name of the function parameter
+     * @param location  Location of the parameter in the source file
      */
     public void addParam(String paramName, NodeLocation location) {
         // Check the name against the type names
@@ -481,12 +482,16 @@ public class BLangModelBuilder {
     }
 
     /**
-     * Create variable reference expression.
-     * <p/>
+     * <p>Create variable reference expression.</p>
      * There are three types of variables references as per the grammar file.
-     * 1) Simple variable references. a, b, index etc
-     * 2) Map or arrays access a[1], m["key"]
-     * 3) Struct field access  Person.name
+     * <ol>
+     * <li> Simple variable references. a, b, index etc</li>
+     * <li> Map or arrays access a[1], m["key"]</li>
+     * <li> Struct field access  Person.name</li>
+     * </ol>
+     * 
+     * @param location Location of the variable reference expression in the source file
+     * @param varName name of the variable
      */
     public void createVarRefExpr(NodeLocation location, String varName) {
         VariableRefExpr variableRefExpr = new VariableRefExpr(location, varName);

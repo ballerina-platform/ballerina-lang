@@ -46,7 +46,7 @@ public class ParserException extends BallerinaException {
     /**
      * Constructs a new {@link ParserException} with the cause.
      *
-     * @param cause
+     * @param cause Cause
      */
     public ParserException(Throwable cause) {
         super(cause);

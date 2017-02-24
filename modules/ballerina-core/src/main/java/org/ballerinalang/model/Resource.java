@@ -76,6 +76,7 @@ public class Resource implements Node, SymbolScope, CallableUnit {
     /**
      * Get an Annotation from a given name.
      *
+     * @param packageName Package name of the annotation
      * @param name name of the annotation
      * @return Annotation
      */
@@ -280,7 +281,7 @@ public class Resource implements Node, SymbolScope, CallableUnit {
     }
 
     /**
-     * {@code ResourceBuilder} is responsible for building a {@cdoe Resource} node.
+     * {@code ResourceBuilder} is responsible for building a {@code Resource} node.
      *
      * @since 0.8.0
      */

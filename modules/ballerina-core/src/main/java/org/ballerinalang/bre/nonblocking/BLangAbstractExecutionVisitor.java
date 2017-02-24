@@ -1369,7 +1369,7 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
     /**
      * Util method handle Ballerina exception. Native implementations <b>Must</b> use method to handle errors.
      *
-     * @param bException
+     * @param bException Exception to handle
      */
     public void handleBException(BException bException) {
         // SaveStack current StackTrace.

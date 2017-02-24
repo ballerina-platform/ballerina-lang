@@ -105,8 +105,8 @@ public class DebugServer {
     /**
      * Push message to client.
      *
-     * @param debugSession
-     * @param status      
+     * @param debugSession current debugging session
+     * @param status debug point information
      */
     public void pushMessageToClient(DebugSession debugSession, MessageDTO status) {
         ObjectMapper mapper = new ObjectMapper();

@@ -233,7 +233,7 @@ public class BTypeMapper implements TypeMapper, SymbolScope, CompilationUnit {
     }
 
     /**
-     * {@code BTypeMapperBuilder} is responsible for building a {@cdoe BTypeMapper} node.
+     * {@code BTypeMapperBuilder} is responsible for building a {@code BTypeMapper} node.
      *
      * @since 0.8.0
      */
