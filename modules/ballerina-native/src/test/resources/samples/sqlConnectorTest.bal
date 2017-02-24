@@ -173,3 +173,29 @@ function testInsertTableDataWithParameters() (int) {
     return insertCount;
 }
 
+function testOutQueryParameters() (string) {
+    map propertiesMap = {"jdbcUrl" : "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
+            "username":"SA", "password":"", "maximumPoolSize":1};
+    sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
+
+    string firstName;
+    sql:Parameter para1 = {sqlType:"integer", value:"1", direction:0};
+    sql:Parameter para2 = {sqlType:"double", value:"0", direction:1};
+    sql:Parameter[] parameters=[para1,para2];
+    sql:ClientConnector.call(testDB, "{call GetCustomerID(?,?)}",parameters);
+    return para2.value;
+}
+
+function testInOutQueryParameters() (string) {
+    map propertiesMap = {"jdbcUrl" : "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
+            "username":"SA", "password":"", "maximumPoolSize":1};
+    sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
+
+    string firstName;
+    sql:Parameter para1 = {sqlType:"integer", value:"1", direction:0};
+    sql:Parameter para2 = {sqlType:"varchar", value:"Stuart", direction:2};
+    sql:Parameter[] parameters=[para1,para2];
+    sql:ClientConnector.call(testDB, "{call GetCustomerCountry(?,?)}",parameters);
+    return para2.value;
+}
+

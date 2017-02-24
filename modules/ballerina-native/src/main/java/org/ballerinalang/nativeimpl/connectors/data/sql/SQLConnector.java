@@ -151,7 +151,7 @@ public class SQLConnector extends AbstractNativeConnector {
                 config.setMaximumPoolSize(Integer.parseInt(value.stringValue()));
                 options.remove(key);
             }
-            key = new BString(Constants.PoolProperties.POOOL_NAME);
+            key = new BString(Constants.PoolProperties.POOL_NAME);
             value = options.get(key);
             if (value != null) {
                 config.setPoolName(value.stringValue());
