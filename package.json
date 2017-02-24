@@ -28,6 +28,7 @@
     "babel-loader": "^6.3.2",
     "backbone": "^1.3.3",
     "bootstrap": "^3.3.6",
+    "brace": "^0.10.0",
     "d3": "^4.1.1",
     "dagre": "^0.7.4",
     "html5shiv": "^3.7.3",
@@ -44,6 +45,6 @@
     "mousetrap": "^1.6.0",
     "npm": "^4.2.0",
     "select2": "^4.0.3",
-    "typeahead": "^0.2.2"
+    "typeahead.js": "^0.11.1"
   }
 }

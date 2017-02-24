@@ -15,9 +15,20 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require', 'log', 'lodash', 'jquery', 'event_channel', 'ace/ace', '../utils/ace-mode', 'beautify', 'ace/ext/language_tools','ace/range',
-    ],
-    function(require , log, _, $, EventChannel, ace, BallerinaMode, Beautify, language_tools, Range) {
+define(['log', 'lodash', 'jquery', 'event_channel', 'beautify'],
+    function(log, _, $, EventChannel, Beautify) {
+
+    var ace = require('brace');
+    require('brace/ext/language_tools');
+    var language_tools = ace.acequire('ace/ext/language_tools');
+    var Range = ace.acequire('ace/range');
+
+    // require possible themes
+    require('brace/theme/twilight');
+
+    // require ballerina mode
+    require('../utils/ace-mode');
+    var mode = ace.acequire('ace/mode/ballerina')
 
     /**
      * @class SourceView
@@ -48,13 +59,16 @@ define(['require', 'log', 'lodash', 'jquery', 'event_channel', 'ace/ace', '../ut
     SourceView.prototype.render = function () {
         var self = this;
         this._editor = ace.edit(this._container);
+        var mode = ace.acequire(_.get(this._options, 'mode')).Mode;
         this._editor.getSession().setMode(_.get(this._options, 'mode'));
         //Avoiding ace warning
         this._editor.$blockScrolling = Infinity;
-        var editorTheme = (this._storage.get("pref:sourceViewTheme") != null) ? this._storage.get("pref:sourceViewTheme")
+        var editorThemeName = (this._storage.get("pref:sourceViewTheme") != null) ? this._storage.get("pref:sourceViewTheme")
             : _.get(this._options, 'theme');
         var editorFontSize = (this._storage.get("pref:sourceViewFontSize") != null) ? this._storage.get("pref:sourceViewFontSize")
             : _.get(this._options, 'font_size');
+
+        var editorTheme = ace.acequire(editorThemeName);
 
         this._editor.setTheme(editorTheme);
         this._editor.setFontSize(editorFontSize);

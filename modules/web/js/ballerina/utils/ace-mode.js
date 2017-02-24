@@ -15,14 +15,14 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define('ace/mode/ballerina',
-    ["require", "exports", "module", "jquery", "ace/lib/oop", "ace/mode/javascript", "ace/mode/text_highlight_rules", "ace/worker/worker_client"],
-    function (require, exports, module) {
+ace.define('ace/mode/ballerina',
+    ["require", "exports", "module"], function (acequire, exports, module) {
+        require("brace/mode/javascript");
 
-        var oop = require("ace/lib/oop");
-        var JavaScriptMode = require("ace/mode/javascript").Mode;
-        var TextHighlightRules = require("ace/mode/text_highlight_rules").TextHighlightRules;
-        var WorkerClient = require("ace/worker/worker_client").WorkerClient;
+        var oop = acequire("ace/lib/oop");
+        var JavaScriptMode = acequire("ace/mode/javascript").Mode;
+        var TextHighlightRules = acequire("ace/mode/text_highlight_rules").TextHighlightRules;
+        var WorkerClient = acequire("ace/worker/worker_client").WorkerClient;
 
         var BallerinaHighlightRules = function () {
 
