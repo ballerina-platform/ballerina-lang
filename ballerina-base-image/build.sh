@@ -18,8 +18,8 @@ function showUsageAndExit() {
     echo
     echo "USAGE: ./build.sh -d <ballerina-distribution> -v <image-version> -o <organization-name>"
     echo
-    echo "Ex: Create a Ballerina Docker image tagged \"ballerina-pkg:latest\" with Ballerina 0.8.0 distribution."
-    echo "    ./build.sh -d ballerina-0.8.0.zip"
+    echo "Ex: Create a Ballerina Docker image tagged \"ballerina:latest\" with Ballerina 0.8.1 distribution."
+    echo "    ./build.sh -d ballerina-0.8.1.zip"
     echo
 
     exit
@@ -56,7 +56,7 @@ if [ -z "$image_version" ]; then
     image_version="latest"
 fi
 
-image_name="${org_name}ballerina-pkg:${image_version}"
+image_name="${org_name}ballerina:${image_version}"
 
 if [ ! -e $bal_dist_file ]; then
   echo "Cannot find Ballerina distribution ${bal_dist_file}. Aborting..."
