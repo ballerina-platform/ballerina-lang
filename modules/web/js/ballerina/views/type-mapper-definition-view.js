@@ -174,7 +174,8 @@ define(['lodash', 'log', './ballerina-view', './variables-view', './type-struct-
                     if (selectedNewStructNameForSource == self.getSelectedTargetStruct()) {
 
                         self.getSourceInfo()[TYPE_MAPPER_COMBOBOX_SOURCE_IS_ALREADY_RENDERED_IN_TARGET] = true;
-                        self.getModel().removeReturnType();
+                        self.getModel().removeReturnType(self.getTargetInfo().targetStructName,self.getBlockStatementView(),
+                            self.getTypeMapperRenderer());
                         self.setSelectedTargetStruct(TYPE_MAPPER_COMBOBOX_DEFAULT_SELECTION);
                         self.setTargetSchemaNameToComboBox('#targetStructs' + self.getModel().id, self.getSelectedTargetStruct());
 
@@ -182,7 +183,8 @@ define(['lodash', 'log', './ballerina-view', './variables-view', './type-struct-
                         self.getSourceInfo()[TYPE_MAPPER_COMBOBOX_SOURCE_IS_ALREADY_RENDERED_IN_TARGET] = false;
                     }
                     self.getSourceInfo()[TYPE_MAPPER_COMBOBOX_PREVIOUS_SELECTION] = self.getSelectedSourceStruct();
-                    self.getModel().removeResourceParameter();
+                    self.getModel().removeResourceParameter(self.getSourceInfo().sourceStructName,self.getBlockStatementView(),
+                        self.getTypeMapperRenderer());
                     self.getModel().addResourceParameterChild(selectedNewStructNameForSource, "y");
                 } else if (selectedNewStructNameForSource == TYPE_MAPPER_COMBOBOX_DEFAULT_SELECTION) {
                     self.setSourceSchemaNameToComboBox('#sourceStructs' + self.getModel().id, self.getSelectedSourceStruct());
@@ -201,7 +203,8 @@ define(['lodash', 'log', './ballerina-view', './variables-view', './type-struct-
                     if (selectedStructNameForTarget == self.getSelectedSourceStruct()) {
 
                         self.getTargetInfo()[TYPE_MAPPER_COMBOBOX_SOURCE_IS_ALREADY_RENDERED_IN_TARGET] = true;
-                        self.getModel().removeResourceParameter();
+                        self.getModel().removeResourceParameter(self.getSourceInfo().sourceStructName,self.getBlockStatementView(),
+                            self.getTypeMapperRenderer());
                         self.setSelectedSourceStruct(TYPE_MAPPER_COMBOBOX_DEFAULT_SELECTION);
                         self.setSourceSchemaNameToComboBox('#sourceStructs' + self.getModel().id, self.getSelectedSourceStruct());
 
@@ -209,8 +212,9 @@ define(['lodash', 'log', './ballerina-view', './variables-view', './type-struct-
                         self.getTargetInfo()[TYPE_MAPPER_COMBOBOX_TARGET_IS_ALREADY_RENDERED_IN_SOURCE] = false;
                     }
                     self.getTargetInfo()[TYPE_MAPPER_COMBOBOX_PREVIOUS_SELECTION] = self.getSelectedTargetStruct();
-                    self.getModel().removeReturnType();
-                    self.getModel().addReturnTypeChild(selectedStructNameForTarget);
+                    self.getModel().removeReturnType(self.getTargetInfo().targetStructName,self.getBlockStatementView(),
+                        self.getTypeMapperRenderer());
+                    self.getModel().addReturnTypeChild(selectedStructNameForTarget, "x");
                     self.getModel().fillReturnStatement("x");
                     self.getModel().fillVariableDefStatement(selectedStructNameForTarget, "x");
                 } else if (selectedStructNameForTarget == TYPE_MAPPER_COMBOBOX_DEFAULT_SELECTION) {
@@ -302,7 +306,6 @@ define(['lodash', 'log', './ballerina-view', './variables-view', './type-struct-
                                 });
                             }
                         });
-
 
                     // indicate drop area
                     self._container.addClass(dropActiveClass);

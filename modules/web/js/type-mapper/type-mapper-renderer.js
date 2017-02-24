@@ -765,8 +765,11 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
                                                         + self.idNameSeperator + propertyName)) {
                         connections.push(self.getConnectionObject(connection.getParameter("id"),
                                                         connection.sourceId, connection.targetId));
-                        self.disconnect(connection);
                     }
+            });
+
+            _.forEach(connections, function (connection) {
+                self.jsPlumbInstance.detach(connection);
             });
         });
         return connections;
@@ -787,8 +790,11 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
                                                     + self.idNameSeperator + propertyName)) {
                     connections.push(self.getConnectionObject(connection.getParameter("id"),
                         connection.sourceId, connection.targetId));
-                    self.disconnect(connection);
                 }
+            });
+
+            _.forEach(connections, function (connection) {
+                    self.jsPlumbInstance.detach(connection);
             });
         });
         return connections;
@@ -806,9 +812,13 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
             if (connection.sourceId.includes(structName)) {
                 connections.push(self.getConnectionObject(connection.getParameter("id"),
                     connection.sourceId, connection.targetId));
-                self.disconnect(connection);
             }
         });
+
+        _.forEach(connections, function (connection) {
+            self.jsPlumbInstance.detach(connection);
+        });
+
         return connections;
     };
 
@@ -824,9 +834,13 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
                 if (connection.targetId.includes(structName)) {
                     connections.push(self.getConnectionObject(connection.getParameter("id"),
                         connection.sourceId, connection.targetId));
-                    self.disconnect(connection);
                 }
             });
+
+        _.forEach(connections, function (connection) {
+            self.jsPlumbInstance.detach(connection);
+        });
+
         return connections;
     };
 

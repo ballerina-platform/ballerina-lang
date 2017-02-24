@@ -129,7 +129,7 @@ define(['lodash', './node', '../utils/common-utils'], function (_, ASTNode, Comm
     /**
      * removes the already selected child before adding a new child
      */
-    TypeMapperDefinition.prototype.removeResourceParameter = function () {
+    TypeMapperDefinition.prototype.removeResourceParameter = function (schemaName,blockStatementView,renderer) {
         var self = this;
         var ballerinaASTFactory = this.getFactory();
 
@@ -137,12 +137,13 @@ define(['lodash', './node', '../utils/common-utils'], function (_, ASTNode, Comm
             return ballerinaASTFactory.isResourceParameter(child)
         });
 
-        var blockStatement = self.getBlockStatement();
-        _.find(blockStatement.getChildren(), function (child) {
-            if (ballerinaASTFactory.isAssignmentStatement(child)) {
-                child.remove();
-            }
-        });
+        if(!_.isUndefined(renderer) && !_.isUndefined(schemaName)){
+            var connections = renderer.getSourceConnectionsByStruct(schemaName);
+            _.each(connections, function (connection) {
+                blockStatementView.onAttributesDisConnect(connection);
+                //renderer.disconnect(connection);
+            });
+        }
 
         if (!_.isUndefined(previousInputType)) {
             this.removeChild(previousInputType);
@@ -152,7 +153,7 @@ define(['lodash', './node', '../utils/common-utils'], function (_, ASTNode, Comm
     /**
      * removes the already selected child before adding a new child
      */
-    TypeMapperDefinition.prototype.removeReturnType = function () {
+    TypeMapperDefinition.prototype.removeReturnType = function (schemaName,blockStatementView,renderer) {
         var self = this;
         var ballerinaASTFactory = this.getFactory();
 
@@ -160,12 +161,13 @@ define(['lodash', './node', '../utils/common-utils'], function (_, ASTNode, Comm
             return ballerinaASTFactory.isReturnType(child)
         });
 
-        var blockStatement = self.getBlockStatement();
-        _.find(blockStatement.getChildren(), function (child) {
-            if (ballerinaASTFactory.isAssignmentStatement(child)) {
-                child.remove();
-            }
-        });
+        if(!_.isUndefined(renderer) && !_.isUndefined(schemaName)){
+            var connections = renderer.getTargetConnectionsByStruct(schemaName);
+            _.each(connections, function (connection) {
+                blockStatementView.onAttributesDisConnect(connection);
+                //renderer.disconnect(connection);
+            });
+        }
 
         if (!_.isUndefined(previousOutputType)) {
             this.removeChild(previousOutputType);
