@@ -18,6 +18,8 @@
 
 package org.ballerinalang.runtime.threadpool;
 
+import io.netty.util.concurrent.DefaultThreadFactory;
+
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -35,9 +37,10 @@ public class ThreadPoolFactory {
     // based on the environment and runtime status (CPU Usage, memory, etc).
     // A configuration parameter which is user configurable is also required.
     // Issue#1929
-    private ExecutorService executorService =  Executors.newFixedThreadPool(500);
+    private ExecutorService executorService =  Executors.newFixedThreadPool(500,
+            new DefaultThreadFactory("ballerina-worker-pool"));
 
-    private ThreadPoolFactory(){};
+    private ThreadPoolFactory(){}
 
     public static ThreadPoolFactory getInstance() {
         return instance;
