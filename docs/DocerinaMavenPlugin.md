@@ -29,6 +29,7 @@ A sample pom.xml file configuration of the docerina Maven goal is shown below.
                         <configuration>
                             <outputDir>${output.dir}</outputDir>
                             <sourceDir>${generated.ballerina.source.directory}</sourceDir>
+                            <templatesDir>/home/docerina/templates</templatesDir>
                             <packageFilter>org.ballerinalang.xyz</packageFilter>
                             <debugDocerina>false</debugDocerina>
                         </configuration>
@@ -51,6 +52,12 @@ paths to Ballerina files which does not belong to a package.
  OPTIONAL property.
  DEFAULT value is the ${project.build.directory} which is the target directory.
  Example: `<outputDir>/home/docerina/output</outputDir>`
+
+* `templatesDir`: Points to a custom templates directory.
+
+ OPTIONAL property.
+ DEFAULT value is the embedded templates folder.
+ Example: `<templatesDir>/home/docerina/templates</templatesDir>`
 
 * `packageFilter`: Comma separated list of package names to be filtered from the documentation.
 
