@@ -9,57 +9,57 @@ const string arraysNotEqualMessage = "Arrays are not equal";
 const string arrayLengthsMismatchMessage = " (Array lengths are not the same)";
 
 @doc:Description("Creates a BallerinaException with custom message and category")
-@doc:Param("message: Custom message for the ballerina exception")
+@doc:Param("errorMessage: Custom message for the ballerina exception")
 @doc:Param("category: Exception category")
-function createBallerinaException (string message, string category) (exception) {
+function createBallerinaException (string errorMessage, string category) (exception) {
     exception e = {};
-    exceptions:setMessage(e, message);
+    exceptions:setMessage(e, errorMessage);
     exceptions:setCategory(e, category);
     return e;
 }
 
 @doc:Description("Asserts whether the given condition is true.
-                  If it is not, a BallerinaException is thrown with the given message")
+                  If it is not, a BallerinaException is thrown with the given errorMessage")
 @doc:Param("condition: Boolean condition to evaluate")
 function assertTrue(boolean condition) {
     assertTrue(condition, "");
 }
 
 @doc:Description("Asserts whether the given condition is true.
-                  If it is not, a BallerinaException is thrown with the given message")
+                  If it is not, a BallerinaException is thrown with the given errorMessage")
 @doc:Param("condition: Boolean condition to evaluate")
-@doc:Param("message: Assertion error message")
-function assertTrue(boolean condition, string message) {
+@doc:Param("errorMessage: Assertion error message")
+function assertTrue(boolean condition, string errorMessage) {
     if (!condition) {
-        if (message == "") {
-            message = "Assert Failed";
+        if (errorMessage == "") {
+            errorMessage = "Assert Failed";
         }
-        throw createBallerinaException(message, assertFailureErrorCategory);
+        throw createBallerinaException(errorMessage, assertFailureErrorCategory);
     }
 }
 
 @doc:Description("Asserts whether the given condition is false.
-                  If it is not, a BallerinaException is thrown with the given message")
+                  If it is not, a BallerinaException is thrown with the given errorMessage")
 @doc:Param("condition: Boolean condition to evaluate")
 function assertFalse(boolean condition) {
     assertFalse(condition, "");
 }
 
 @doc:Description("Asserts whether the given condition is false.
-                  If it is not, a BallerinaException is thrown with the given message")
+                  If it is not, a BallerinaException is thrown with the given errorMessage")
 @doc:Param("condition: Boolean condition to evaluate")
-@doc:Param("message: Assertion error message")
-function assertFalse(boolean condition, string message) {
+@doc:Param("errorMessage: Assertion error message")
+function assertFalse(boolean condition, string errorMessage) {
     if (condition) {
-        if (message == "") {
-            message = "Assert Failed";
+        if (errorMessage == "") {
+            errorMessage = "Assert Failed";
         }
-        throw createBallerinaException(message, assertFailureErrorCategory);
+        throw createBallerinaException(errorMessage, assertFailureErrorCategory);
     }
 }
 
 @doc:Description("Asserts whether the given string values are equal.
-                  If it is not, a BallerinaException is thrown with the given message.")
+                  If it is not, a BallerinaException is thrown with the given errorMessage.")
 @doc:Param("actual: Actual string value")
 @doc:Param("expected: Expected string value")
 function assertEquals(string actual, string expected) {
@@ -67,21 +67,21 @@ function assertEquals(string actual, string expected) {
 }
 
 @doc:Description("Asserts whether the given string values are equal.
-                  If it is not, a BallerinaException is thrown with the given message.")
+                  If it is not, a BallerinaException is thrown with the given errorMessage.")
 @doc:Param("actual: Actual string value")
 @doc:Param("expected: Expected string value")
-@doc:Param("message: Assertion error message")
-function assertEquals(string actual, string expected, string message) {
+@doc:Param("errorMessage: Assertion error message")
+function assertEquals(string actual, string expected, string errorMessage) {
     if (actual != expected) {
-        if (message == "") {
-            message = "String not equal: expected: " + expected + " and actual: "+ actual;
+        if (errorMessage == "") {
+            errorMessage = "String not equal: expected: " + expected + " and actual: "+ actual;
         }
-        throw createBallerinaException(message, assertFailureErrorCategory);
+        throw createBallerinaException(errorMessage, assertFailureErrorCategory);
     }
 }
 
 @doc:Description("Asserts whether the given integer values are equal.
-                  If it is not, a BallerinaException is thrown with the given message.")
+                  If it is not, a BallerinaException is thrown with the given errorMessage.")
 @doc:Param("actual: Actual integer value")
 @doc:Param("expected: Expected integer value")
 function assertEquals(int actual, int expected) {
@@ -89,21 +89,21 @@ function assertEquals(int actual, int expected) {
 }
 
 @doc:Description("Asserts whether the given integer values are equal.
-                  If it is not, a BallerinaException is thrown with the given message.")
+                  If it is not, a BallerinaException is thrown with the given errorMessage.")
 @doc:Param("actual: Actual integer value")
 @doc:Param("expected: Expected integer value")
-@doc:Param("message: Assertion error message")
-function assertEquals(int actual, int expected, string message) {
+@doc:Param("errorMessage: Assertion error message")
+function assertEquals(int actual, int expected, string errorMessage) {
     if (actual != expected) {
-        if (message == "") {
-            message = "Integer not equal: expected: " + expected + " and actual: "+ actual;
+        if (errorMessage == "") {
+            errorMessage = "Integer not equal: expected: " + expected + " and actual: "+ actual;
         }
-        throw createBallerinaException(message, assertFailureErrorCategory);
+        throw createBallerinaException(errorMessage, assertFailureErrorCategory);
     }
 }
 
 @doc:Description("Asserts whether the given float values are equal.
-                  If it is not, a BallerinaException is thrown with the given message.")
+                  If it is not, a BallerinaException is thrown with the given errorMessage.")
 @doc:Param("actual: Actual float value")
 @doc:Param("expected: Expected float value")
 function assertEquals(float actual, float expected) {
@@ -111,21 +111,21 @@ function assertEquals(float actual, float expected) {
 }
 
 @doc:Description("Asserts whether the given float values are equal.
-                  If it is not, a BallerinaException is thrown with the given message.")
+                  If it is not, a BallerinaException is thrown with the given errorMessage.")
 @doc:Param("actual: Actual float value")
 @doc:Param("expected: Expected float value")
-@doc:Param("message: Assertion error message")
-function assertEquals(float actual, float expected, string message) {
+@doc:Param("errorMessage: Assertion error message")
+function assertEquals(float actual, float expected, string errorMessage) {
     if (actual != expected) {
-        if (message == "") {
-            message = "Float not equal: expected: " + expected + " and actual: "+ actual;
+        if (errorMessage == "") {
+            errorMessage = "Float not equal: expected: " + expected + " and actual: "+ actual;
         }
-        throw createBallerinaException(message, assertFailureErrorCategory);
+        throw createBallerinaException(errorMessage, assertFailureErrorCategory);
     }
 }
 
 @doc:Description("Asserts whether the given boolean values are equal.
-                  If it is not, a BallerinaException is thrown with the given message.")
+                  If it is not, a BallerinaException is thrown with the given errorMessage.")
 @doc:Param("actual: Actual boolean value")
 @doc:Param("expected: Expected boolean value")
 function assertEquals(boolean actual, boolean expected) {
@@ -133,21 +133,21 @@ function assertEquals(boolean actual, boolean expected) {
 }
 
 @doc:Description("Asserts whether the given boolean values are equal.
-                  If it is not, a BallerinaException is thrown with the given message.")
+                  If it is not, a BallerinaException is thrown with the given errorMessage.")
 @doc:Param("actual: Actual boolean value")
 @doc:Param("expected: Expected boolean value")
-@doc:Param("message: Assertion error message")
-function assertEquals(boolean actual, boolean expected, string message) {
+@doc:Param("errorMessage: Assertion error message")
+function assertEquals(boolean actual, boolean expected, string errorMessage) {
     if (actual != expected) {
-        if (message == "") {
-            message = "Boolean not equal: expected: " + expected + " and actual: "+ actual;
+        if (errorMessage == "") {
+            errorMessage = "Boolean not equal: expected: " + expected + " and actual: "+ actual;
         }
-        throw createBallerinaException(message, assertFailureErrorCategory);
+        throw createBallerinaException(errorMessage, assertFailureErrorCategory);
     }
 }
 
 @doc:Description("Asserts whether the given string arrays are equal.
-                  If it is not, a BallerinaException is thrown with the given message
+                  If it is not, a BallerinaException is thrown with the given errorMessage
                   including differed string values and array index.")
 @doc:Param("actual: Actual string array")
 @doc:Param("expected: Expected string array")
@@ -156,17 +156,17 @@ function assertEquals(string[] actual, string[] expected) {
 }
 
 @doc:Description("Asserts whether the given string arrays are equal.
-                  If it is not, a BallerinaException is thrown with the given message
+                  If it is not, a BallerinaException is thrown with the given errorMessage
                   including differed string values and array index.")
 @doc:Param("actual: Actual string array")
 @doc:Param("expected: Expected string array")
-@doc:Param("message: Assertion error message")
-function assertEquals(string[] actual, string[] expected, string message) {
-    if (message == "") {
-        message = arraysNotEqualMessage;
+@doc:Param("errorMessage: Assertion error message")
+function assertEquals(string[] actual, string[] expected, string errorMessage) {
+    if (errorMessage == "") {
+        errorMessage = arraysNotEqualMessage;
     }
     if (array:length(actual) != array:length(expected)) {
-        throw createBallerinaException(message + arrayLengthsMismatchMessage, assertFailureErrorCategory);
+        throw createBallerinaException(errorMessage + arrayLengthsMismatchMessage, assertFailureErrorCategory);
     } else {
         if (array:length(expected) > 0) {
             int i = 0;
@@ -176,8 +176,9 @@ function assertEquals(string[] actual, string[] expected, string message) {
                 } catch (exception e) {
                     if (exceptions:getCategory(e) == assertFailureErrorCategory) {
                         throw createBallerinaException(
-                                                message + ". " + exceptions:getMessage(e) + " (at index " + i + ") " ,
-                                                assertFailureErrorCategory);
+                                                      errorMessage + ". " + exceptions:getMessage(e) +
+                                                      " (at index " + i + ") " ,
+                                                      assertFailureErrorCategory);
                     }
                 }
                 i = i + 1;
@@ -187,7 +188,7 @@ function assertEquals(string[] actual, string[] expected, string message) {
 }
 
 @doc:Description("Asserts whether the given float arrays are equal.
-                  If it is not, a BallerinaException is thrown with the given message
+                  If it is not, a BallerinaException is thrown with the given errorMessage
                   including differed float values and array index.")
 @doc:Param("actual: Actual float array")
 @doc:Param("expected: Expected float array")
@@ -196,17 +197,17 @@ function assertEquals(float[] actual, float[] expected) {
 }
 
 @doc:Description("Asserts whether the given float arrays are equal.
-                  If it is not, a BallerinaException is thrown with the given message
+                  If it is not, a BallerinaException is thrown with the given errorMessage
                   including differed float values and array index.")
 @doc:Param("actual: Actual float array")
 @doc:Param("expected: Expected float array")
-@doc:Param("message: Assertion error message")
-function assertEquals(float[] actual, float[] expected, string message) {
-    if (message == "") {
-        message = arraysNotEqualMessage;
+@doc:Param("errorMessage: Assertion error message")
+function assertEquals(float[] actual, float[] expected, string errorMessage) {
+    if (errorMessage == "") {
+        errorMessage = arraysNotEqualMessage;
     }
     if (array:length(actual) != array:length(expected)) {
-        throw createBallerinaException(message + arrayLengthsMismatchMessage, assertFailureErrorCategory);
+        throw createBallerinaException(errorMessage + arrayLengthsMismatchMessage, assertFailureErrorCategory);
     } else {
         if (array:length(expected) > 0) {
             int i = 0;
@@ -216,8 +217,9 @@ function assertEquals(float[] actual, float[] expected, string message) {
                 } catch (exception e) {
                     if (exceptions:getCategory(e) == assertFailureErrorCategory) {
                         throw createBallerinaException(
-                                                message + ". " + exceptions:getMessage(e) + " (at index " + i + ") " ,
-                                                assertFailureErrorCategory);
+                                                      errorMessage + ". " + exceptions:getMessage(e) +
+                                                      " (at index " + i + ") " ,
+                                                      assertFailureErrorCategory);
                     }
                 }
                 i = i + 1;
@@ -227,7 +229,7 @@ function assertEquals(float[] actual, float[] expected, string message) {
 }
 
 @doc:Description("Asserts whether the given integer arrays are equal.
-                  If it is not, a BallerinaException is thrown with the given message
+                  If it is not, a BallerinaException is thrown with the given errorMessage
                   including differed integer values and array index.")
 @doc:Param("actual: Actual integer array")
 @doc:Param("expected: Expected integer array")
@@ -236,17 +238,17 @@ function assertEquals(int[] actual, int[] expected) {
 }
 
 @doc:Description("Asserts whether the given integer arrays are equal.
-                  If it is not, a BallerinaException is thrown with the given message
+                  If it is not, a BallerinaException is thrown with the given errorMessage
                   including differed integer values and array index.")
 @doc:Param("actual: Actual integer array")
 @doc:Param("expected: Expected integer array")
-@doc:Param("message: Assertion error message")
-function assertEquals(int[] actual, int[] expected, string message) {
-    if (message == "") {
-        message = arraysNotEqualMessage;
+@doc:Param("errorMessage: Assertion error message")
+function assertEquals(int[] actual, int[] expected, string errorMessage) {
+    if (errorMessage == "") {
+        errorMessage = arraysNotEqualMessage;
     }
     if (array:length(actual) != array:length(expected)) {
-        throw createBallerinaException(message + arrayLengthsMismatchMessage, assertFailureErrorCategory);
+        throw createBallerinaException(errorMessage + arrayLengthsMismatchMessage, assertFailureErrorCategory);
     } else {
         if (array:length(expected) > 0) {
             int i = 0;
@@ -256,8 +258,9 @@ function assertEquals(int[] actual, int[] expected, string message) {
                 } catch (exception e) {
                     if (exceptions:getCategory(e) == assertFailureErrorCategory) {
                         throw createBallerinaException(
-                                                message + ". " + exceptions:getMessage(e) + " (at index " + i + ") " ,
-                                                assertFailureErrorCategory);
+                                                      errorMessage + ". " + exceptions:getMessage(e) +
+                                                      " (at index " + i + ") " ,
+                                                      assertFailureErrorCategory);
                     }
                 }
                 i = i + 1;
