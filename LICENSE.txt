@@ -26,7 +26,7 @@ commons-logging-1.2.jar                                                         
 commons-pool-1.5.6.wso2v1.jar                                                   bundle         apache2   5589
 commons-vfs2-2.0-wso2v15.jar                                                    bundle         apache2   11766
 connectors-0.8.0.jar                                                            jar            apache2   2117
-docerina-0.8.0.jar                                                              jar            apache2   2116
+docerina-0.8.1.jar                                                              jar            apache2   2130
 geronimo-activation_1.1_spec-1.1.jar                                            bundle         apache2   2103
 geronimo-stax-api_1.0_spec-1.0.1.jar                                            bundle         apache2   635
 gson-2.7.jar                                                                    bundle         apache2   2102
@@ -60,7 +60,7 @@ snakeyaml-1.16.0.wso2v1.jar                                                     
 staxon-core-1.2.0.wso2v2.jar                                                    bundle         apache2   11754
 swagger-ballerina-generator-0.8.1.jar                                           jar            apache2   2126
 tapestry-json-5.4.1.wso2v1.jar                                                  bundle         apache2   11753
-testerina-core-0.8.0.jar                                                        jar            apache2   2114
+testerina-core-0.8.1.jar                                                        jar            apache2   2129
 workspace-service-0.8.1.jar                                                     jar            apache2   2128
 xml-resolver-1.2.jar                                                            jarinbundle    apache2   431
 xml-resolver-1.2.jar                                                            jarinbundle    apache2   2128
