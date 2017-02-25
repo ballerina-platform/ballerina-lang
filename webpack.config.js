@@ -27,7 +27,9 @@ module.exports = {
       ]
     },
     plugins: [
-        new webpack.optimize.UglifyJsPlugin()
+        new webpack.optimize.UglifyJsPlugin({
+          sourceMap: true
+        })
     ],
     node: { module: "empty", net: "empty", fs: "empty" },
     devtool: 'source-map',
