@@ -16,8 +16,7 @@
   ~ under the License.
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <parent>
         <groupId>org.wso2</groupId>
@@ -29,7 +28,7 @@
     <groupId>org.ballerinalang</groupId>
     <artifactId>testerina</artifactId>
     <packaging>pom</packaging>
-    <version>${testerina.version}</version>
+    <version>0.8.2-SNAPSHOT</version>
 
     <name>Testerina - Test Framework for Ballerina Language</name>
     <url>http://wso2.org</url>
@@ -100,11 +99,8 @@
 
     <properties>
 
-        <testerina.version>0.8.1</testerina.version>
-        <testerina.package.export.version>0.8.1</testerina.package.export.version>
-
         <ballerina.version>0.8.1</ballerina.version>
-        <docerina.maven.plugin.version>0.8.0</docerina.maven.plugin.version>
+        <docerina.maven.plugin.version>0.8.1</docerina.maven.plugin.version>
 
         <com.beust.jcommander.version>1.60</com.beust.jcommander.version>
         <owasp.dependency.check.maven.version>1.4.5</owasp.dependency.check.maven.version>
