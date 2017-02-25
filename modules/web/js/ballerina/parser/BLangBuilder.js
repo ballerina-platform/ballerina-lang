@@ -15,13 +15,16 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-var antlr4 = require('antlr4');
-var BallerinaLexer = require('./BallerinaLexer');
-var BallerinaParser = require('./BallerinaParser');
+var ASTFactory = require("./../ast/ballerina-ast-factory");
 
-var input = "import com.ballerina.test;";
-var chars = new antlr4.InputStream(input);
-var lexer = new BallerinaLexer.BallerinaLexer(chars);
-var tokens  = new antlr4.CommonTokenStream(lexer);
-var parser = new BallerinaParser.BallerinaParser(tokens);
-parser.compilationUnit();
+class BLangBuilder {
+
+    constructor(){
+    }
+
+    createPackageDeclaration(packageName){
+        ASTFactory.createPackageDefinition({packageName: packageName});
+    }
+}
+
+export default BLangBuilder;

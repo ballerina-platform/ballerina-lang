@@ -23,3 +23,8 @@ var BLangListener = function() {
 
 BLangListener.prototype = Object.create(BallerinaListener.prototype);
 BLangListener.prototype.constructor = BLangListener;
+
+
+BLangListener.prototype.enterCompilationUnit = function(ctx) {
+    console.log(ctx);
+};
