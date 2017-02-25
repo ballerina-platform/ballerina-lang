@@ -17,9 +17,7 @@
   },
   "homepage": "https://github.com/ballerinalang/composer#readme",
   "devDependencies": {
-    "html-webpack-plugin": "^2.28.0",
-    "webpack": "^2.2.1",
-    "webpack-dev-server": "^2.4.1"
+    "webpack": "^2.2.1"
   },
   "dependencies": {
     "ace-builds": "^1.2.6",

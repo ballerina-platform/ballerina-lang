@@ -1,10 +1,8 @@
 var path = require('path');
 var webpack = require("webpack");
-var HtmlWebpackPlugin = require('html-webpack-plugin');
 
 module.exports = {
-    entry: './modules/web/js/main',
-    devtool: 'source-map',
+    entry: './modules/web/js/main.js',
     output: {
         filename: 'bundle.js',
         path: path.resolve(__dirname, 'dist')
@@ -15,8 +13,7 @@ module.exports = {
         ]
     },
     plugins: [
-        new webpack.optimize.UglifyJsPlugin({sourceMap: true}),
-        new HtmlWebpackPlugin()
+        new webpack.optimize.UglifyJsPlugin()
     ],
     node: { module: "empty", net: "empty", fs: "empty" },
 
@@ -58,7 +55,7 @@ module.exports = {
             bal_configs: "ballerina/configs",
             console: "launcher/console",
             workspace$: "workspace/module",
-            ballerina$: "ballerina/module"
+            ballerina$: "ballerina/module",
         }
     }
 

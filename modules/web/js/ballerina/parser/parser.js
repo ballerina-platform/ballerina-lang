@@ -16,12 +16,4 @@
  * under the License.
  */
 var antlr4 = require('antlr4');
-var BallerinaLexer = require('./BallerinaLexer');
-var BallerinaParser = require('./BallerinaParser');
-
-var input = "import com.ballerina.test;";
-var chars = new antlr4.InputStream(input);
-var lexer = new BallerinaLexer.BallerinaLexer(chars);
-var tokens  = new antlr4.CommonTokenStream(lexer);
-var parser = new BallerinaParser.BallerinaParser(tokens);
-parser.compilationUnit();
+console.log(antlr4);
