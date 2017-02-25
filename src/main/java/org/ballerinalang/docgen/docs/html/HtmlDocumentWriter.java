@@ -21,7 +21,7 @@ import com.github.jknack.handlebars.Handlebars;
 import com.github.jknack.handlebars.Helper;
 import com.github.jknack.handlebars.Template;
 import com.github.jknack.handlebars.io.ClassPathTemplateLoader;
-import com.github.jknack.handlebars.io.TemplateLoader;
+import com.github.jknack.handlebars.io.FileTemplateLoader;
 
 import org.ballerinalang.docgen.docs.BallerinaDocConstants;
 import org.ballerinalang.docgen.docs.DocumentWriter;
@@ -83,7 +83,9 @@ public class HtmlDocumentWriter implements DocumentWriter {
     }
 
     private void init() {
-        this.templatesFolderPath = File.separator + "docerina-templates" + File.separator + "html";
+        this.templatesFolderPath =
+                System.getProperty(BallerinaDocConstants.TEMPLATES_FOLDER_PATH_KEY, File.separator
+                        + "docerina-templates" + File.separator + "html");
         this.packageTemplateName = System.getProperty(BallerinaDocConstants.PACKAGE_TEMPLATE_NAME_KEY, "package");
         this.indexTemplateName = System.getProperty(BallerinaDocConstants.INDEX_TEMPLATE_NAME_KEY, "index");
     }
@@ -145,8 +147,9 @@ public class HtmlDocumentWriter implements DocumentWriter {
     private void writeHtmlDocument(Object object, String templateName, String absoluteFilePath) {
         PrintWriter writer = null;
         try {
-            TemplateLoader templateLoader = new ClassPathTemplateLoader(templatesFolderPath);
-            Handlebars handlebars = new Handlebars(templateLoader);
+            Handlebars handlebars =
+                    new Handlebars().with(new ClassPathTemplateLoader(templatesFolderPath), new FileTemplateLoader(
+                            templatesFolderPath));
             DataHolder dataHolder = DataHolder.getInstance();
             handlebars
                     .registerHelper("hasFunctions", (Helper<BLangPackage>) (balPackage, options) -> {
