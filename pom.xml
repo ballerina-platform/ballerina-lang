@@ -104,7 +104,7 @@
         <testerina.package.export.version>0.8.1</testerina.package.export.version>
 
         <ballerina.version>0.8.1</ballerina.version>
-        <docerina.maven.plugin.version>0.8.0</docerina.maven.plugin.version>
+        <docerina.maven.plugin.version>0.8.1</docerina.maven.plugin.version>
 
         <com.beust.jcommander.version>1.60</com.beust.jcommander.version>
         <owasp.dependency.check.maven.version>1.4.5</owasp.dependency.check.maven.version>
