@@ -28,7 +28,7 @@
     <groupId>org.ballerinalang</groupId>
     <artifactId>docerina</artifactId>
     <packaging>jar</packaging>
-    <version>0.8.1</version>
+    <version>0.8.2-SNAPSHOT</version>
 
     <name>WSO2 Docerina - Ballerina Documentation Generation</name>
     <url>http://wso2.org</url>
@@ -37,7 +37,7 @@
         <url>https://github.com/wso2/docerina.git</url>
         <developerConnection>scm:git:https://github.com/wso2/docerina.git</developerConnection>
         <connection>scm:git:https://github.com/wso2/docerina.git</connection>
-        <tag>v0.8.1-RC1</tag>
+        <tag>HEAD</tag>
     </scm>
 
    <dependencies>
