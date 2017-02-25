@@ -29,7 +29,7 @@
     <groupId>org.ballerinalang</groupId>
     <artifactId>testerina</artifactId>
     <packaging>pom</packaging>
-    <version>0.8.0</version>
+    <version>${testerina.version}</version>
 
     <name>Testerina - Test Framework for Ballerina Language</name>
     <url>http://wso2.org</url>
@@ -100,10 +100,10 @@
 
     <properties>
 
-        <testerina.version>0.8.0</testerina.version>
-        <testerina.package.export.version>0.8.0</testerina.package.export.version>
+        <testerina.version>0.8.1</testerina.version>
+        <testerina.package.export.version>0.8.1</testerina.package.export.version>
 
-        <ballerina.version>0.8.0</ballerina.version>
+        <ballerina.version>0.8.1</ballerina.version>
         <docerina.maven.plugin.version>0.8.0</docerina.maven.plugin.version>
 
         <com.beust.jcommander.version>1.60</com.beust.jcommander.version>
