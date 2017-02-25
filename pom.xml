@@ -15,8 +15,7 @@
   ~ specific language governing permissions and limitations
   ~ under the License.
   -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <parent>
     <groupId>org.wso2</groupId>
     <artifactId>wso2</artifactId>
@@ -27,7 +26,7 @@
 
   <groupId>org.ballerinalang</groupId>
   <artifactId>ballerina-maven-plugins</artifactId>
-  <version>0.8.0-SNAPSHOT</version>
+  <version>0.8.1-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <name>Ballerina Maven Plugins - Parent Pom</name>
@@ -42,7 +41,7 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <docerina.version>0.8.0-SNAPSHOT</docerina.version>
+    <docerina.version>0.8.0</docerina.version>
   </properties>
 
   <modules>
