@@ -26,7 +26,7 @@
 
   <groupId>org.ballerinalang</groupId>
   <artifactId>ballerina-maven-plugins</artifactId>
-  <version>0.8.1-SNAPSHOT</version>
+  <version>0.8.2-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <name>Ballerina Maven Plugins - Parent Pom</name>
@@ -41,7 +41,7 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <docerina.version>0.8.1-SNAPSHOT</docerina.version>
+    <docerina.version>0.8.1</docerina.version>
   </properties>
 
   <modules>
