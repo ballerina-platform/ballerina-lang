@@ -112,7 +112,7 @@ public class HtmlDocumentWriter implements DocumentWriter {
             Arrays.sort(balPackage.getFunctions(), Comparator.comparing(Function::getName));
             Arrays.sort(balPackage.getConnectors(), Comparator.comparing(BallerinaConnectorDef::getName));
             Arrays.sort(balPackage.getStructDefs(), Comparator.comparing(StructDef::getName));
-            Arrays.sort(balPackage.getTypeMappers(), Comparator.comparing(TypeMapper::getTypeMapperName));
+            Arrays.sort(balPackage.getTypeMappers(), Comparator.comparing(TypeMapper::getName));
 
             // Sort connector actions
             if ((balPackage.getConnectors() != null) && (balPackage.getConnectors().length > 0)) {
