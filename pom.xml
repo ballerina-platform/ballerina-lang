@@ -16,8 +16,7 @@
   ~ under the License.
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <parent>
         <groupId>org.wso2</groupId>
@@ -29,7 +28,7 @@
     <groupId>org.ballerinalang</groupId>
     <artifactId>docerina</artifactId>
     <packaging>jar</packaging>
-    <version>0.8.1-SNAPSHOT</version>
+    <version>0.8.1</version>
 
     <name>WSO2 Docerina - Ballerina Documentation Generation</name>
     <url>http://wso2.org</url>
@@ -38,7 +37,7 @@
         <url>https://github.com/wso2/docerina.git</url>
         <developerConnection>scm:git:https://github.com/wso2/docerina.git</developerConnection>
         <connection>scm:git:https://github.com/wso2/docerina.git</connection>
-        <tag>HEAD</tag>
+        <tag>v0.8.1-RC1</tag>
     </scm>
 
    <dependencies>
@@ -198,8 +197,7 @@
                     </filters>
                     <shadedArtifactAttached>false</shadedArtifactAttached>
                     <transformers>
-                        <transformer
-                                implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                        <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                         </transformer>
                     </transformers>
                 </configuration>
