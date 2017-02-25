@@ -43,6 +43,12 @@ public class DocerinaMojo extends AbstractMojo {
     private String sourceDir;
     
     /**
+     * A custom templates directory.
+     */
+    @Parameter(property = "templatesDir", required = false)
+    private String templatesDir;
+
+    /**
      * Comma separated list of packages to be excluded
      */
     @Parameter(property = "packageFilter", required = false)
@@ -53,7 +59,7 @@ public class DocerinaMojo extends AbstractMojo {
      */
     @Parameter(property = "nativeCode", required = false)
     private boolean nativeCode;
-    
+
     /**
      * enable debug level logs
      */
@@ -63,6 +69,9 @@ public class DocerinaMojo extends AbstractMojo {
     public void execute() throws MojoExecutionException {
         if (debugDocerina) {
             System.setProperty(BallerinaDocConstants.ENABLE_DEBUG_LOGS, "true");
+        }
+        if (templatesDir != null) {
+            System.setProperty(BallerinaDocConstants.TEMPLATES_FOLDER_PATH_KEY, templatesDir);
         }
         String[] sources = sourceDir.split(",");
         BallerinaDocGenerator.generateApiDocs(outputDir, packageFilter, nativeCode, sources);
