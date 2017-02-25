@@ -61,7 +61,6 @@ public class SimpleTypeReference extends BallerinaElementReference {
     @NotNull
     @Override
     public ResolveResult[] multiResolve(boolean incompleteCode) {
-        List<ResolveResult> results = new ArrayList<>();
         // Get the CallableUnitNameNode parent. This is to resolve functions from other packages. Ex- system:println().
         PsiElement parentElement = PsiTreeUtil.getParentOfType(getElement(), CallableUnitNameNode.class);
         if (parentElement == null) {
@@ -75,51 +74,59 @@ public class SimpleTypeReference extends BallerinaElementReference {
                 XPath.findAll(BallerinaLanguage.INSTANCE, parentElement, "//packagePath");
 
         // Check whether a packagePath is found.
-        if (packagePath.iterator().hasNext()) {
-            // There cannot be multiple packagePath nodes. So we get the fist package path.
-            PsiElement packagePathNode = packagePath.iterator().next();
-            if (packagePathNode != null) {
-                // Get the PackageNameNode. We need this to resolve the package.
-                PackageNameNode[] packageNameNodes =
-                        PsiTreeUtil.getChildrenOfType(packagePathNode, PackageNameNode.class);
-                if (packageNameNodes != null) {
-                    // Get the last PackageNameNode because we only need to resolve the corresponding package.
-                    PackageNameNode lastPackage = packageNameNodes[packageNameNodes.length - 1];
-                    if (lastPackage != null) {
-                        // Get the identifier from the last package name.
-                        PsiElement nameIdentifier = lastPackage.getNameIdentifier();
-                        if (nameIdentifier != null) {
-                            // Get the reference.
-                            PsiReference reference = nameIdentifier.getReference();
-                            if (reference != null) {
-                                // Multi resolve the reference.
-                                ResolveResult[] resolveResults = ((PackageNameReference) reference).multiResolve(false);
-                                // Iterate through all resolve results.
-                                for (ResolveResult resolveResult : resolveResults) {
-                                    // Get the element from the resolve result.
-                                    PsiElement element = resolveResult.getElement();
-                                    // Get all functions in the package.
-                                    List<PsiElement> allFunctions =
-                                            BallerinaPsiImplUtil.getAllFunctionsInPackage((PsiDirectory) element);
-                                    // Add matching functions to results.
-                                    for (PsiElement psiElement : allFunctions) {
-                                        if (getElement().getText().equals(psiElement.getText())) {
-                                            results.add(new PsiElementResolveResult(psiElement));
-                                        }
-                                    }
-                                    // Get all connectors in the package.
-                                    List<PsiElement> allConnectors =
-                                            BallerinaPsiImplUtil.getAllConnectorsInPackage((PsiDirectory) element);
-                                    // Add matching functions to results.
-                                    for (PsiElement psiElement : allConnectors) {
-                                        if (getElement().getText().equals(psiElement.getText())) {
-                                            results.add(new PsiElementResolveResult(psiElement));
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
+        if (!packagePath.iterator().hasNext()) {
+            return new ResolveResult[0];
+        }
+        // There cannot be multiple packagePath nodes. So we get the fist package path.
+        PsiElement packagePathNode = packagePath.iterator().next();
+        if (packagePathNode == null) {
+            return new ResolveResult[0];
+        }
+        // Get the PackageNameNode. We need this to resolve the package.
+        PackageNameNode[] packageNameNodes =
+                PsiTreeUtil.getChildrenOfType(packagePathNode, PackageNameNode.class);
+        if (packageNameNodes == null) {
+            return new ResolveResult[0];
+        }
+        // Get the last PackageNameNode because we only need to resolve the corresponding package.
+        PackageNameNode lastPackage = packageNameNodes[packageNameNodes.length - 1];
+        if (lastPackage == null) {
+            return new ResolveResult[0];
+        }
+        // Get the identifier from the last package name.
+        PsiElement nameIdentifier = lastPackage.getNameIdentifier();
+        if (nameIdentifier == null) {
+            return new ResolveResult[0];
+        }
+        // Get the reference.
+        PsiReference reference = nameIdentifier.getReference();
+        if (reference == null) {
+            return new ResolveResult[0];
+        }
+        // Multi resolve the reference.
+        ResolveResult[] resolveResults = ((PackageNameReference) reference).multiResolve(false);
+        // Create a new List to save resolved elements.
+        List<ResolveResult> results = new ArrayList<>();
+        // Iterate through all resolve results.
+        for (ResolveResult resolveResult : resolveResults) {
+            // Get the element from the resolve result.
+            PsiElement element = resolveResult.getElement();
+            // Get all functions in the package.
+            List<PsiElement> allFunctions =
+                    BallerinaPsiImplUtil.getAllFunctionsInPackage((PsiDirectory) element);
+            // Add matching functions to results.
+            for (PsiElement psiElement : allFunctions) {
+                if (getElement().getText().equals(psiElement.getText())) {
+                    results.add(new PsiElementResolveResult(psiElement));
+                }
+            }
+            // Get all connectors in the package.
+            List<PsiElement> allConnectors =
+                    BallerinaPsiImplUtil.getAllConnectorsInPackage((PsiDirectory) element);
+            // Add matching functions to results.
+            for (PsiElement psiElement : allConnectors) {
+                if (getElement().getText().equals(psiElement.getText())) {
+                    results.add(new PsiElementResolveResult(psiElement));
                 }
             }
         }
