@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['log', 'lodash', 'jquery', 'event_channel', 'yaml', './../ast/ballerina-ast-deserializer'],
+define(['log', 'lodash', 'jquery', 'event_channel', 'js-yaml', './../ast/ballerina-ast-deserializer'],
    function(log, _, $, EventChannel, YAML, BallerinaASTDeserializer) {
 
        /**

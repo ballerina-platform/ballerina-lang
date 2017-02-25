@@ -15,10 +15,10 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(["require", "ace/token_iterator"],
-    function (require) {
+define(function (require) {
 
-        var TokenIterator = require("ace/token_iterator").TokenIterator;
+        var ace = require('brace');
+        var TokenIterator = ace.acequire("ace/token_iterator").TokenIterator;
 
         var BallerinaFormatter = {};
 

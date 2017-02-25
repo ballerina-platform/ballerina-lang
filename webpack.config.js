@@ -2,21 +2,35 @@ var path = require('path');
 var webpack = require("webpack");
 
 module.exports = {
-    entry: './modules/web/js/main.js',
+    entry: './modules/web/index.js',
     output: {
         filename: 'bundle.js',
-        path: path.resolve(__dirname, 'dist')
+        path: path.resolve(__dirname, 'modules/web/dist')
     },
     module: {
-        rules: [
-            {test: /\.(js|jsx)$/, use: 'babel-loader'}
-        ]
+        rules: [{
+          test: /\.js$/,
+          exclude: /(node_modules|modules\/web\/lib)/,
+          use: [
+            {
+              loader: 'babel-loader',
+              query: {
+                  presets: ['es2015']
+              }
+            }
+          ]
+        },
+        {
+          test: /\.css$/,
+          use: [ 'css-loader' ]
+        }
+      ]
     },
     plugins: [
         new webpack.optimize.UglifyJsPlugin()
     ],
     node: { module: "empty", net: "empty", fs: "empty" },
-
+    devtool: 'source-map',
     resolve: {
         modules: [path.resolve('./modules/web/lib'), path.resolve('./modules/web/js'), path.resolve('./node_modules')],
         alias: {
@@ -29,6 +43,7 @@ module.exports = {
             respond: "respond_1.4.2/respond.min",
             select2: "select2-4.0.3/dist/js/select2.full.min",
             underscore: "lodash_v4.13.1/lodash",
+            beautify: "beautify/beautify",
             ///////////////////////
             // custom modules ////
             //////////////////////
@@ -56,6 +71,7 @@ module.exports = {
             console: "launcher/console",
             workspace$: "workspace/module",
             ballerina$: "ballerina/module",
+            "welcome-page$": "welcome-page/module",
         }
     }
 

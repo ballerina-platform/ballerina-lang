@@ -16,43 +16,44 @@
  * under the License.
  */
 define(function(require, exports, module) {
+    // TODO: FIX THIS WORKER TO USE BRACE AND UCOMMENT
 
-    var oop = require("ace/lib/oop");
-    var backends = require("bal_configs/backends");
-    var Mirror = require("ace/worker/mirror").Mirror;
-
-    var WorkerModule = exports.WorkerModule = function(sender) {
-        Mirror.call(this, sender);
-    };
-
-    // Mirror is a simple class which keeps main and webWorker versions of the document in sync
-    oop.inherits(WorkerModule, Mirror);
-
-    (function() {
-        this.onUpdate = function() {
-            var value = this.doc.getValue();
-            if(value.trim()){
-                var errors = [];
-                var content = { "content": value};
-                var request = new XMLHttpRequest();
-                var self = this;
-
-                request.onreadystatechange = function() {
-                    if(request.readyState === 4) {
-                        if(request.status === 200) {
-                            errors = (JSON.parse(request.responseText)).errors;
-                            self.sender.emit("lint", errors);
-                        }
-                    }
-                };
-
-                request.open('POST', backends.services.validator.endpoint, true);
-                request.setRequestHeader("Content-type", "application/json");
-                request.send(JSON.stringify(content));
-            } else {
-                this.sender.emit("lint", []);
-            }
-        };
-    }).call(WorkerModule.prototype);
+    // var oop = require("ace/lib/oop");
+    // var backends = require("bal_configs/backends");
+    // var Mirror = require("ace/worker/mirror").Mirror;
+    //
+    // var WorkerModule = exports.WorkerModule = function(sender) {
+    //     Mirror.call(this, sender);
+    // };
+    //
+    // // Mirror is a simple class which keeps main and webWorker versions of the document in sync
+    // oop.inherits(WorkerModule, Mirror);
+    //
+    // (function() {
+    //     this.onUpdate = function() {
+    //         var value = this.doc.getValue();
+    //         if(value.trim()){
+    //             var errors = [];
+    //             var content = { "content": value};
+    //             var request = new XMLHttpRequest();
+    //             var self = this;
+    //
+    //             request.onreadystatechange = function() {
+    //                 if(request.readyState === 4) {
+    //                     if(request.status === 200) {
+    //                         errors = (JSON.parse(request.responseText)).errors;
+    //                         self.sender.emit("lint", errors);
+    //                     }
+    //                 }
+    //             };
+    //
+    //             request.open('POST', backends.services.validator.endpoint, true);
+    //             request.setRequestHeader("Content-type", "application/json");
+    //             request.send(JSON.stringify(content));
+    //         } else {
+    //             this.sender.emit("lint", []);
+    //         }
+    //     };
+    // }).call(WorkerModule.prototype);
 
 });
