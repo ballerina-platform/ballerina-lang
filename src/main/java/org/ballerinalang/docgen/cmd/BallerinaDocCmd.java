@@ -46,6 +46,11 @@ public class BallerinaDocCmd implements BLauncherCmd {
             description = "path to the output directory where the API documentation will be written to", hidden = false)
     private String outputDir;
 
+    @Parameter(names = { "--template", "-t" },
+            description = "path to a custom templates directory to be used for API documentation generation",
+            hidden = false)
+    private String templatesDir;
+
     @Parameter(names = { "--exclude", "-e" },
             description = "a comma separated list of package names to be filtered from the documentation",
             hidden = false)
@@ -82,6 +87,10 @@ public class BallerinaDocCmd implements BLauncherCmd {
             System.setProperty(BallerinaDocConstants.ENABLE_DEBUG_LOGS, "true");
         }
 
+        if (templatesDir != null) {
+            System.setProperty(BallerinaDocConstants.TEMPLATES_FOLDER_PATH_KEY, templatesDir);
+        }
+
         String[] sources = argList.toArray(new String[argList.size()]);
         BallerinaDocGenerator.generateApiDocs(outputDir, packageFilter, nativeSource, sources);
     }
@@ -93,8 +102,9 @@ public class BallerinaDocCmd implements BLauncherCmd {
 
     @Override
     public void printUsage(StringBuilder stringBuilder) {
-        stringBuilder.append("ballerina doc <sourcepath>... [-o outputdir] [-n] [-e excludedpackages] [-v]"
-                + System.lineSeparator())
+        stringBuilder
+                .append("ballerina doc <sourcepath>... [-t templatesdir] [-o outputdir] [-n] [-e excludedpackages] [-v]"
+                        + System.lineSeparator())
                 .append("  sourcepath:" + System.lineSeparator())
                 .append("  Paths to the directories where Ballerina source files reside or a path to"
                         + System.lineSeparator())
