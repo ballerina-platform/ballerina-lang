@@ -806,7 +806,7 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                     matches = [];
 
                     // regex used to determine if a string contains the substring `q`
-                    substrRegex = new RegExp(q, 'i');
+                    substringRegex = new RegExp(q, 'i');
 
                     // iterate through the pool of strings and for any string that
                     // contains the substring `q`, add it to the `matches` array
