@@ -89,7 +89,11 @@ structDefinition
     ;
 
 structDefinitionBody
-    :   (typeName Identifier ';')*
+    :   structField*
+    ;
+
+structField
+    :   typeName Identifier ';'
     ;
 
 typeMapperDefinition
@@ -98,11 +102,11 @@ typeMapperDefinition
     ;
 
 nativeTypeMapper
-    :   'native' 'typemapper' Identifier '(' typeMapperInput ')' '('typeMapperType')' ';'
+    :   annotation* 'native' 'typemapper' Identifier '(' typeMapperInput ')' '('typeMapperType')' ';'
     ;
 
 typeMapper
-    :   'typemapper' Identifier '(' typeMapperInput ')' '('typeMapperType')' '{' typeMapperBody '}'
+    :   annotation* 'typemapper' Identifier '(' typeMapperInput ')' '('typeMapperType')' '{' typeMapperBody '}'
     ;
 
 typeMapperInput
@@ -327,7 +331,7 @@ breakStatement
 
 // typeName is only message
 forkJoinStatement
-    :   'fork' '(' typeName Identifier ')' '{' workerDeclaration* '}' joinClause? timeoutClause?
+    :   'fork' '(' variableReference ')' '{' workerDeclaration* '}' joinClause? timeoutClause?
     ;
 
 // below typeName is only 'message[]'

@@ -198,6 +198,16 @@ public interface BallerinaListener extends ParseTreeListener {
 	 */
 	void exitStructDefinitionBody(BallerinaParser.StructDefinitionBodyContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#structField}.
+	 * @param ctx the parse tree
+	 */
+	void enterStructField(BallerinaParser.StructFieldContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#structField}.
+	 * @param ctx the parse tree
+	 */
+	void exitStructField(BallerinaParser.StructFieldContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#typeMapperDefinition}.
 	 * @param ctx the parse tree
 	 */

@@ -125,6 +125,12 @@ public interface BallerinaVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitStructDefinitionBody(BallerinaParser.StructDefinitionBodyContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link BallerinaParser#structField}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitStructField(BallerinaParser.StructFieldContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link BallerinaParser#typeMapperDefinition}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
