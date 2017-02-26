@@ -17,8 +17,7 @@
  */
 define(function (require) {
 
-        var ace = require('brace');
-        var TokenIterator = ace.acequire("ace/token_iterator").TokenIterator;
+        var TokenIterator = ace.require("ace/token_iterator").TokenIterator;
 
         var BallerinaFormatter = {};
 

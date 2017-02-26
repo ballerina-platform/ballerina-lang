@@ -17,12 +17,14 @@
  */
 ace.define('ace/mode/ballerina',
     ["require", "exports", "module"], function (acequire, exports, module) {
-        require("brace/mode/javascript");
+        require("ace/mode-javascript");
+
+        acequire("ace/config").set("workerPath", "dist");
 
         var oop = acequire("ace/lib/oop");
         var JavaScriptMode = acequire("ace/mode/javascript").Mode;
         var TextHighlightRules = acequire("ace/mode/text_highlight_rules").TextHighlightRules;
-        var WorkerClient = acequire("ace/worker/worker_client").WorkerClient;
+        var WorkerClient = acequire("ace/worker/worker_client").UIWorkerClient;
 
         var BallerinaHighlightRules = function () {
 
@@ -61,7 +63,7 @@ ace.define('ace/mode/ballerina',
             this.HighlightRules = BallerinaHighlightRules;
 
             this.createWorker = function(session) {
-                var worker = new WorkerClient(["ace", "bal_utils", "bal_configs"], "bal_utils/ace-worker", "WorkerModule");
+                var worker = new WorkerClient(["ace/ace", "bal_utils", "bal_configs"], "ace/worker/ballerina", "WorkerModule");
                 worker.attachToDocument(session.getDocument());
 
                 worker.on("lint", function(results) {

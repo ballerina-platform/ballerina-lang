@@ -18,17 +18,17 @@
 define(['log', 'lodash', 'jquery', 'event_channel', 'beautify'],
     function(log, _, $, EventChannel, Beautify) {
 
-    var ace = require('brace');
-    require('brace/ext/language_tools');
-    var language_tools = ace.acequire('ace/ext/language_tools');
-    var Range = ace.acequire('ace/range');
+    require('ace/ace');
+    require('ace/ext-language_tools');
+    var language_tools = ace.require('ace/ext/language_tools');
+    var Range = ace.require('ace/range');
 
     // require possible themes
-    require('brace/theme/twilight');
+    require('ace/theme-twilight');
 
     // require ballerina mode
     require('../utils/ace-mode');
-    var mode = ace.acequire('ace/mode/ballerina')
+    var mode = ace.require('ace/mode/ballerina')
 
     /**
      * @class SourceView
@@ -59,7 +59,7 @@ define(['log', 'lodash', 'jquery', 'event_channel', 'beautify'],
     SourceView.prototype.render = function () {
         var self = this;
         this._editor = ace.edit(this._container);
-        var mode = ace.acequire(_.get(this._options, 'mode')).Mode;
+        var mode = ace.require(_.get(this._options, 'mode')).Mode;
         this._editor.getSession().setMode(_.get(this._options, 'mode'));
         //Avoiding ace warning
         this._editor.$blockScrolling = Infinity;
@@ -68,7 +68,7 @@ define(['log', 'lodash', 'jquery', 'event_channel', 'beautify'],
         var editorFontSize = (this._storage.get("pref:sourceViewFontSize") != null) ? this._storage.get("pref:sourceViewFontSize")
             : _.get(this._options, 'font_size');
 
-        var editorTheme = ace.acequire(editorThemeName);
+        var editorTheme = ace.require(editorThemeName);
 
         this._editor.setTheme(editorTheme);
         this._editor.setFontSize(editorFontSize);
@@ -227,7 +227,7 @@ define(['log', 'lodash', 'jquery', 'event_channel', 'beautify'],
         if(this.debugPointMarker != undefined){
             this._editor.getSession().removeMarker(this.debugPointMarker);
         }
-    }    
+    }
 
     SourceView.prototype.isClean = function(){
        return this._editor.getSession().getUndoManager().isClean();

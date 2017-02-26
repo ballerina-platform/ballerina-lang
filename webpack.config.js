@@ -2,9 +2,12 @@ var path = require('path');
 var webpack = require("webpack");
 
 module.exports = {
-    entry: './modules/web/index.js',
+    entry: {
+      bundle: './modules/web/index.js',
+      'worker-ballerina': './modules/web/js/ballerina/utils/ace-worker.js'
+    },
     output: {
-        filename: 'bundle.js',
+        filename: '[name].js',
         path: path.resolve(__dirname, 'modules/web/dist')
     },
     module: {
@@ -46,6 +49,7 @@ module.exports = {
             select2: "select2-4.0.3/dist/js/select2.full.min",
             underscore: "lodash_v4.13.1/lodash",
             beautify: "beautify/beautify",
+            ace: "ace-builds/src-noconflict",
             ///////////////////////
             // custom modules ////
             //////////////////////
