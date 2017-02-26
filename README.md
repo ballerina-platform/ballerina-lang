@@ -123,12 +123,12 @@ Note the package hierarchy in above files.
 Following is a sample console output. 
 
 ```
+test 'testInt' failed: <Detail error message>
+ 
 result:  
- tests run: 1, passed: 0, failed: 1
-
+tests run: 1, passed: 0, failed: 1
 failed tests:
- testAddTwoIntegersWithNumber: AddTwoIntegers for positive numbers failed
- testAddTwoIntegersWithZero: AddTwoIntegers for zero value failed 
+ testInt: <Detail error message>
 ```
 
 ### Running Samples

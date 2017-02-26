@@ -103,7 +103,7 @@
         <docerina.maven.plugin.version>0.8.1</docerina.maven.plugin.version>
 
         <com.beust.jcommander.version>1.60</com.beust.jcommander.version>
-        <owasp.dependency.check.maven.version>1.4.5</owasp.dependency.check.maven.version>
+        <owasp.dependency.check.maven.version>1.4.0</owasp.dependency.check.maven.version>
         <mvn.processor.plugin.version>2.2.4</mvn.processor.plugin.version>
         <mvn.exec.plugin.version>1.1.1</mvn.exec.plugin.version>
         <mvn.resource.plugins.version>3.0.2</mvn.resource.plugins.version>

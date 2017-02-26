@@ -66,7 +66,7 @@ public class TestCmd implements BLauncherCmd {
         }
 
         if (sourceFileList == null || sourceFileList.size() == 0) {
-            throw LauncherUtils.createUsageException("no ballerina program or folder given to run tests");
+            throw LauncherUtils.createUsageException("no ballerina program or directory given to run tests");
         }
 
         if (mock) {
