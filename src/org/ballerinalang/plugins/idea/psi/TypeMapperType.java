@@ -17,32 +17,12 @@
 package org.ballerinalang.plugins.idea.psi;
 
 import com.intellij.lang.ASTNode;
-import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiNamedElement;
-import com.intellij.psi.ResolveResult;
 import org.antlr.jetbrains.adaptor.psi.ANTLRPsiNode;
-import org.antlr.jetbrains.adaptor.psi.ScopeNode;
-import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
-public class StructDefinitionNode extends ANTLRPsiNode implements ScopeNode {
+public class TypeMapperType extends ANTLRPsiNode {
 
-    public StructDefinitionNode(@NotNull ASTNode node) {
+    public TypeMapperType(@NotNull ASTNode node) {
         super(node);
-    }
-
-    @Nullable
-    @Override
-    public PsiElement resolve(PsiNamedElement element) {
-        if (element.getParent() instanceof VariableReferenceNode) {
-            return BallerinaPsiImplUtil.resolveElement(this, element, "//structField/Identifier");
-        }
-        return null;
-    }
-
-    @Override
-    public ResolveResult[] multiResolve(IdentifierPSINode myElement) {
-        return new ResolveResult[0];
     }
 }

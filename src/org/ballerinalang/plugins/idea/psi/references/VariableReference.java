@@ -17,7 +17,9 @@
 package org.ballerinalang.plugins.idea.psi.references;
 
 import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiElementResolveResult;
 import com.intellij.psi.PsiNameIdentifierOwner;
+import com.intellij.psi.PsiReference;
 import com.intellij.psi.ResolveResult;
 import com.intellij.psi.util.PsiTreeUtil;
 import org.ballerinalang.plugins.idea.psi.ActionDefinitionNode;
@@ -30,12 +32,19 @@ import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
 import org.ballerinalang.plugins.idea.psi.NamedParameterNode;
 import org.ballerinalang.plugins.idea.psi.ParameterNode;
 import org.ballerinalang.plugins.idea.psi.ResourceDefinitionNode;
+import org.ballerinalang.plugins.idea.psi.StructDefinitionNode;
+import org.ballerinalang.plugins.idea.psi.StructFieldNode;
 import org.ballerinalang.plugins.idea.psi.TypeMapperBodyNode;
 import org.ballerinalang.plugins.idea.psi.TypeMapperInputNode;
 import org.ballerinalang.plugins.idea.psi.TypeMapperNode;
+import org.ballerinalang.plugins.idea.psi.TypeMapperType;
+import org.ballerinalang.plugins.idea.psi.TypeNameNode;
 import org.ballerinalang.plugins.idea.psi.VariableDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.VariableReferenceNode;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class VariableReference extends BallerinaElementReference {
 
@@ -47,7 +56,7 @@ public class VariableReference extends BallerinaElementReference {
     public boolean isDefinitionNode(PsiElement def) {
         return def instanceof VariableDefinitionNode || def instanceof ParameterNode
                 || def instanceof NamedParameterNode || def instanceof TypeMapperInputNode
-                || def instanceof ConstantDefinitionNode;
+                || def instanceof ConstantDefinitionNode || def instanceof StructFieldNode;
     }
 
     @NotNull
@@ -59,7 +68,89 @@ public class VariableReference extends BallerinaElementReference {
     @NotNull
     @Override
     public ResolveResult[] multiResolve(boolean incompleteCode) {
-        return super.multiResolve(incompleteCode);
+        // We resolve struct fields using the multiResolve().
+
+        // For struct fields, PSI tree will be 'variableReference.variableReference'. The first variableReference
+        // will resolve to the corresponding struct variable definition. This is already resolvable. So when we
+        // want to resolve the second variable definition, we get the first variableReference and then resolve it.
+        // Most likely, it will resolve into some Node like variableDefinition. Then we get the struct type from
+        // that and resolve and the struct definition node. From there, we resolve the second variableReference
+        // (struct field).
+        PsiElement parent = myElement.getParent();
+        if (parent == null) {
+            return new ResolveResult[0];
+        }
+        PsiElement superParent = parent.getParent();
+        if (superParent == null) {
+            return new ResolveResult[0];
+        }
+        // For struct fields, super parent is also a VariableReferenceNode.
+        if (superParent instanceof VariableReferenceNode) {
+            // Get the previous VariableReferenceNode.
+            VariableReferenceNode prevSibling =
+                    PsiTreeUtil.getPrevSiblingOfType(parent, VariableReferenceNode.class);
+            if (prevSibling == null) {
+                return new ResolveResult[0];
+            }
+            // Get the identifier.
+            PsiElement nameIdentifier = prevSibling.getNameIdentifier();
+            if (nameIdentifier == null) {
+                return new ResolveResult[0];
+            }
+            // Get references.
+            PsiReference[] references = nameIdentifier.getReferences();
+            // This list will be used to store resolved elements.
+            List<ResolveResult> results = new ArrayList<>();
+            // Iterate through all references
+            for (PsiReference reference : references) {
+                // Resolve the reference. This will most likely to resolve to a definition like variableDefinition.
+                PsiElement resolvedElement = reference.resolve();
+                if (resolvedElement == null) {
+                    continue;
+                }
+                // Now we need to get the struct type. So we get the parent element.
+                PsiElement parentNode = resolvedElement.getParent();
+                if (parentNode == null || !(parentNode instanceof VariableDefinitionNode
+                        || parentNode instanceof TypeMapperInputNode || parentNode instanceof ParameterNode
+                        || parentNode instanceof NamedParameterNode)) {
+                    continue;
+                }
+                // In a definition, the first child will be the type.
+                PsiElement firstChild = parentNode.getFirstChild();
+                if (firstChild == null || !(firstChild instanceof TypeNameNode
+                        || firstChild instanceof TypeMapperType)) {
+                    continue;
+                }
+                // But there can be other children within the first child as well. So we need to navigate into each
+                // child until an IdentifierPSINode is found.
+                while (firstChild != null && !(firstChild instanceof IdentifierPSINode)) {
+                    firstChild = firstChild.getFirstChild();
+                }
+                if (firstChild == null) {
+                    continue;
+                }
+                // Get reference of struct.
+                PsiReference structReference = firstChild.getReference();
+                if (structReference == null) {
+                    continue;
+                }
+                // Resolve the struct.
+                PsiElement resolvedStruct = structReference.resolve();
+                if (resolvedStruct == null || !(resolvedStruct.getParent() instanceof StructDefinitionNode)) {
+                    continue;
+                }
+                // Resolve the field within the struct.
+                PsiElement resolveField = ((StructDefinitionNode) resolvedStruct.getParent()).resolve(myElement);
+                if (resolveField == null) {
+                    continue;
+                }
+                // Add to the result list.
+                results.add(new PsiElementResolveResult(resolveField));
+            }
+            // Return the results.
+            return results.toArray(new ResolveResult[results.size()]);
+        }
+        return new ResolveResult[0];
     }
 
     @Override
