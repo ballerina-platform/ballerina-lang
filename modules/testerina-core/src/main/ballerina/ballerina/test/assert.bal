@@ -269,3 +269,15 @@ function assertEquals(int[] actual, int[] expected, string errorMessage) {
     }
 }
 
+@doc:Description("Assert failure is triggered based on user discretion.")
+function assertFail() {
+    throw createBallerinaException("Assert failure", assertFailureErrorCategory);
+}
+
+@doc:Description("Assert failure is triggered based on user discretion.
+                  BallerinaException is thrown with the given errorMessage")
+@doc:Param("errorMessage: Assertion error message")
+function assertFail(string errorMessage) {
+    throw createBallerinaException(errorMessage, assertFailureErrorCategory);
+}
+
