@@ -214,7 +214,7 @@ public abstract class AbstractNativeConnector extends BType implements NativeUni
     }
     
     /**
-     * Get all actions associated with the connector
+     * Get all actions associated with the connector.
      * 
      * @return Actions associated with the connector
      */

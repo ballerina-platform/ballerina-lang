@@ -31,7 +31,7 @@ import java.nio.file.Paths;
 import java.util.List;
 
 /**
- * Executes the main function of a Ballerina program
+ * Executes the main function of a Ballerina program.
  *
  * @since 0.8.0
  */

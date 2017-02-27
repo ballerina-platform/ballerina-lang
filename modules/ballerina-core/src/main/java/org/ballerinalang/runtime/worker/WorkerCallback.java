@@ -24,7 +24,7 @@ import org.ballerinalang.runtime.DefaultBalCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
 
 /**
- * {@code WorkerCallback} represents a callback which will get executed once the worker replies to the caller
+ * {@code WorkerCallback} represents a callback which will get executed once the worker replies to the caller.
  *
  * @since 0.8.0
  */

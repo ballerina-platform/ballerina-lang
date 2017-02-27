@@ -48,7 +48,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 /**
- * Test Cases for {@link BLangExecutionDebugger}
+ * Test Cases for {@link BLangExecutionDebugger}.
  */
 public class DebuggerTest {
 

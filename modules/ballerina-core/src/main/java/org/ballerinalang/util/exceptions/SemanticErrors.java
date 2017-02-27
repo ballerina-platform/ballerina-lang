@@ -19,7 +19,7 @@
 package org.ballerinalang.util.exceptions;
 
 /**
- * Error codes and Error keys to represent the semantic errors
+ * Error codes and Error keys to represent the semantic errors.
  */
 public enum SemanticErrors {
 

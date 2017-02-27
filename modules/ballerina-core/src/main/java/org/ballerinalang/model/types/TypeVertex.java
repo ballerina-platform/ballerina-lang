@@ -22,7 +22,7 @@ import org.ballerinalang.model.symbols.BLangSymbol;
 import java.util.ArrayList;
 
 /**
- * One node of the Type Lattice graph
+ * One node of the Type Lattice graph.
  */
 public class TypeVertex {
 

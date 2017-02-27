@@ -31,7 +31,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
- * Test cases for user defined struct types in ballerina
+ * Test cases for user defined struct types in ballerina.
  */
 public class StructTest {
 

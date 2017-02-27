@@ -28,6 +28,9 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+/**
+ * Test cases for native type mappers.
+ */
 public class NativeTypeMappersTest {
     private BLangProgram bLangProgram;
 

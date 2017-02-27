@@ -32,6 +32,9 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+/**
+ * Test Cases for type casting.
+ */
 public class TypeCastExprTest {
     private BLangProgram bLangProgram;
 

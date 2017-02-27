@@ -24,7 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * DTO to hold Ballerina action
+ * DTO to hold Ballerina action.
  */
 public class ActionHolder {
     

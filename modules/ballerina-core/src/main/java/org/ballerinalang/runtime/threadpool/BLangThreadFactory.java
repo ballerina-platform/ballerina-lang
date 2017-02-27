@@ -22,7 +22,7 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * {@code BLangThreadFactory} creates a thread factory with a given prefix
+ * {@code BLangThreadFactory} creates a thread factory with a given prefix.
  *
  * @since 1.0.0
  */
