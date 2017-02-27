@@ -46,17 +46,33 @@ Pretty simple and straightforward, right? Now, let's look at something a little 
 
 1. Access the Composer from the following URL in your browser: http://localhost:9091
 
-    The welcome page of Ballerina Composer appears. Let's open a sample and take a look around. 
+    The welcome page of Ballerina Composer appears. 
+    
+    ![alt text](images/WelcomePage.png "Welcome page")
+    
+    Let's open a sample and take a look around. 
 
 1. Click **echoService**.
+
+    The Echo Service program displays in the Composer.
+    
+    ![alt text](images/EchoDesign.png "Echo Service program")
 
 Notice that on the left you have a tool palette containing the various constructs that you'll use to build your integration. On the right, you have a visual editor with a canvas onto which you drag those constructs. This is where you build your sequence diagrams that define your integration logic. 
 
 Also notice in the lower right corner the **Source View** and **Swagger View** buttons. 
    
-1. Click **Source View**. You'll see the source code editor that represents the sequence diagram as code in the Ballerina language. You can go back and forth between the visual editor and the source code and make your edits in either place. 
+1. Click **Source View**. 
 
-1. Click **Swagger View**. This editor allows you to write Swagger definitions to create services.
+    ![alt text](images/EchoSource.png "Source view")
+
+    You'll see the source code editor that represents the sequence diagram as code in the Ballerina language. You can go back and forth between the visual editor and the source code and make your edits in either place. 
+
+1. Click **Swagger View**. 
+
+    ![alt text](images/EchoSwagger.png "Swagger view")
+
+    This editor allows you to write Swagger definitions to create services.
 
 1. Click **Design View** to return to the visual editor. 
 
