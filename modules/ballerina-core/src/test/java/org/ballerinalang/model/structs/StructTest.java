@@ -173,7 +173,8 @@ public class StructTest {
     
     @Test(description = "Test defining a struct constant",
             expectedExceptions = {SemanticException.class},
-            expectedExceptionsMessageRegExp = "lang/structs/constants/struct-constants.bal:3: invalid type 'Person'")
+            expectedExceptionsMessageRegExp = "lang[/\\\\]structs[/\\\\]constants[/\\\\]struct-constants.bal:3: " +
+            "invalid type 'Person'")
     public void testStructConstant() {
         BTestUtils.parseBalFile("lang/structs/constants");
     }

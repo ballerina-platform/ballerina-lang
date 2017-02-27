@@ -44,6 +44,7 @@ import org.testng.annotations.Test;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
+import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -185,7 +186,14 @@ public class DebuggerTest {
         void setup() {
             ModeResolver.getInstance().setNonblockingEnabled(true);
             String sourceFilePath = "samples/debug/testDebug.bal";
-            Path path = Paths.get(BTestUtils.class.getProtectionDomain().getCodeSource().getLocation().getPath());
+            Path path;
+            
+            try {
+                path = Paths.get(BTestUtils.class.getProtectionDomain().getCodeSource().getLocation().toURI());
+            } catch (URISyntaxException e) {
+                throw new IllegalArgumentException("error while running test: " + e.getMessage());
+            }
+            
             bLangProgram = new BLangProgramLoader().loadMain(path, Paths.get(sourceFilePath));
             // Arguments for main function.
             BArray<BString> arrayArgs = new BArray<>(BString.class);

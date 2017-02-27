@@ -18,7 +18,6 @@
 
 package org.ballerinalang.model.expressions;
 
-import org.ballerinalang.BLangProgramLoader;
 import org.ballerinalang.core.utils.BTestUtils;
 import org.ballerinalang.model.BLangProgram;
 import org.ballerinalang.model.values.BDouble;
@@ -33,9 +32,6 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import java.nio.file.Path;
-import java.nio.file.Paths;
-
 /**
  * Primitive add expression test.
  */
@@ -44,9 +40,7 @@ public class AddExprTest {
 
     @BeforeClass
     public void setup() {
-        Path programPath = Paths.get(this.getClass().getProtectionDomain().getCodeSource().getLocation().getPath());
-        bLangProgram = new BLangProgramLoader().loadLibrary(programPath,
-                Paths.get("lang/expressions/add-expr.bal"));
+        bLangProgram = BTestUtils.parseBalFile("lang/expressions/add-expr.bal");
     }
 
     @Test(description = "Test two int add expression")
