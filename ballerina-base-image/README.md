@@ -36,3 +36,18 @@ bash build.sh -d ~/Downloads/ballerina-0.8.1.zip
 # Show usage
 bash build.sh -h
 ```
+
+## As a Parent Image
+This image contains build triggers to make sure crucial settings are applied in the child images. Because of this, the following values must be set as build arguments when building child images.
+
+```
+SVC_MODE=[true|false]
+FILE_MODE=[true|false]
+BUILD_DATE=[RFC3339 formatted date]
+```
+
+Out of these, `BUILD_DATE` is mandatory, as this affects the meta data of the child images. The value should be `RFC 3339` formatted value of the current date and time.
+
+```
+BUILD_DATE=2017-02-27T09:22:57Z
+```

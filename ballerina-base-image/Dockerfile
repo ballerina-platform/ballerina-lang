@@ -72,5 +72,11 @@ ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
 # Instructions for derivative images.
 ONBUILD ARG SVC_MODE=false
 ONBUILD ARG FILE_MODE=false
+
+# Force child images to override the crucial labels
+ONBUILD ARG BUILD_DATE
+ONBUILD RUN if [ -z "$BUILD_DATE" ]; then >&2 echo "ERROR: Haven't set mandatory build argument \"BUILD_DATE\". Please set an RFC 3339 Date value."; exit 1; fi
+LABEL org.label-schema.build-date=$BUILD_DATE
+
 ONBUILD ENV SVC_MODE=${SVC_MODE}
 ONBUILD ENV FILE_MODE=${FILE_MODE}

@@ -41,7 +41,9 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
+import java.text.SimpleDateFormat;
 import java.time.Instant;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.CountDownLatch;
@@ -199,7 +201,9 @@ public class DefaultBallerinaDockerClient implements BallerinaDockerClient {
         }
 
         // 3. Create a docker image from the temp context
-        String buildArgs = "{\"" + ENV_SVC_MODE + "\":\"" + String.valueOf(isService) + "\"}";
+        String timestamp = new SimpleDateFormat("yyyy-MM-dd'T'h:m:ssXX").format(new Date());
+        String buildArgs = "{\"" + ENV_SVC_MODE + "\":\"" + String.valueOf(isService) + "\", " +
+                "\"BUILD_DATE\":\"" + timestamp + "\"}";
         buildImage(dockerEnv, imageName, tmpDir, buildArgs);
 
         // 4. Cleanup
@@ -228,8 +232,9 @@ public class DefaultBallerinaDockerClient implements BallerinaDockerClient {
                 StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
 
         // 3. Create a docker image from the temp context
+        String timestamp = new SimpleDateFormat("yyyy-MM-dd'T'h:m:ssXX").format(new Date());
         String buildArgs = "{\"" + ENV_SVC_MODE + "\":\"" + String.valueOf(isService) + "\", " +
-                "\"" + ENV_FILE_MODE + "\":\"true\"}";
+                "\"" + ENV_FILE_MODE + "\":\"true\", \"BUILD_DATE\":\"" + timestamp + "\"}";
         buildImage(dockerEnv, imageName, tmpDir, buildArgs);
 
         // 4. Cleanup
