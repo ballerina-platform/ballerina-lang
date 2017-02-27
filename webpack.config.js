@@ -26,7 +26,14 @@ module.exports = {
         {
           test: /\.css$/,
           use: [ 'css-loader' ]
+        },
+        {
+            test: /\.html$/,
+            use: [ {
+                loader: 'html-loader'
+            }]
         }
+
       ]
     },
     plugins: [
