@@ -25,16 +25,17 @@ import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.values.BValue;
 
 /**
+ * <p>
  * {@code StructfieldAccessExpr} represents struct field access operation.
  * {@link StructFieldAccessExpr} is a chain of {@link StructFieldAccessExpr}s, similar to a
  * linked list, with references to the parent expression and child expressions, that are in either
  * side of this expression.
- * <br/>
+ * </p>
  * eg:
- * <br/>
- * In the expression <b>person[3].name.firstName<b> each variable reference separated by '.', is
+ * <p>
+ * In the expression <b>person[3].name.firstName</b> each variable reference separated by '.', is
  * represented by a {@link StructFieldAccessExpr}, with links to the nearest neighbor.
- *
+ * </p>
  * @since 1.0.0
  */
 public class StructFieldAccessExpr extends UnaryExpression implements ReferenceExpr {
@@ -74,7 +75,8 @@ public class StructFieldAccessExpr extends UnaryExpression implements ReferenceE
     /**
      * Creates a Struct field access expression.
      *
-     * @param symbolName       Symbol Name of the current field
+     * @param location location of the expression in the source file
+     * @param symbolName Symbol Name of the current field
      * @param structVarRefExpr Variable reference represented by the current field
      */
     public StructFieldAccessExpr(NodeLocation location, SymbolName symbolName, ReferenceExpr structVarRefExpr) {

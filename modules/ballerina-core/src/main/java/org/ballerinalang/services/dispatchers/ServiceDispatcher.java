@@ -35,6 +35,7 @@ public interface ServiceDispatcher {
      *
      * @param cMsg Carbon Message
      * @param callback callback
+     * @param balContext Ballerina context
      * @return service which can handle a given cMsg
      */
     Service findService(CarbonMessage cMsg, CarbonCallback callback, Context balContext);

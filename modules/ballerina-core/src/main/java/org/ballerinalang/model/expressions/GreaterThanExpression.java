@@ -27,7 +27,7 @@ import java.util.function.BiFunction;
 import static org.ballerinalang.model.Operator.GREATER_THAN;
 
 /**
- * {@code GreaterThanExpression} represents a greater than (>) expression in Ballerina.
+ * {@code GreaterThanExpression} represents a greater than (&gt;) expression in Ballerina.
  *
  * @since 0.8.0
  */

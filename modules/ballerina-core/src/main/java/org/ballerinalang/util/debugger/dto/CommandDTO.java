@@ -52,7 +52,8 @@ public class CommandDTO {
 
     /**
      * This method is there to decouple core and editor data transfer.
-     * @return
+     * 
+     * @return list of locations of the break points
      */
     public ArrayList<NodeLocation> getBreakPoints() {
         ArrayList<NodeLocation> breakPoints = new ArrayList<NodeLocation>();

@@ -78,7 +78,8 @@ public final class BJSON extends BallerinaMessageDataSource implements BRefType<
 
     /**
      * Initialize a {@link BJSON} from a streaming datasource.
-     * @param datasource
+     * 
+     * @param datasource Datasource of this json
      */
     public BJSON(JSONDataSource datasource) {
         this.datasource = datasource;
@@ -118,7 +119,8 @@ public final class BJSON extends BallerinaMessageDataSource implements BRefType<
     /**
      * Create a {@link BJSON} from a {@link InputStream}.
      *
-     * @param in InputStream
+     * @param in InputStream of the json content
+     * @param schema Schema of the json
      */
     public BJSON(InputStream in, String schema) {
         try {

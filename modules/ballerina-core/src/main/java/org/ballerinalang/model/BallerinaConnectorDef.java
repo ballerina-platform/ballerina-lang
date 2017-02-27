@@ -191,7 +191,7 @@ public class BallerinaConnectorDef extends BType implements Connector, Compilati
     }
 
     /**
-     * {@code BallerinaConnectorDefBuilder} is responsible for building a {@cdoe BallerinaConnectorDef} node.
+     * {@code BallerinaConnectorDefBuilder} is responsible for building a {@code BallerinaConnectorDef} node.
      *
      * @since 0.8.0
      */
