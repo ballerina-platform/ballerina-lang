@@ -70,6 +70,7 @@ import org.ballerinalang.plugins.idea.psi.ParameterListNode;
 import org.ballerinalang.plugins.idea.psi.ParameterNode;
 import org.ballerinalang.plugins.idea.psi.QualifiedTypeNameNode;
 import org.ballerinalang.plugins.idea.psi.ResourceDefinitionNode;
+import org.ballerinalang.plugins.idea.psi.ReturnTypeListNode;
 import org.ballerinalang.plugins.idea.psi.ServiceBodyNode;
 import org.ballerinalang.plugins.idea.psi.SimpleTypeNode;
 import org.ballerinalang.plugins.idea.psi.StatementNode;
@@ -270,6 +271,8 @@ public class BallerinaParserDefinition implements ParserDefinition {
                 return new StructFieldNode(node);
             case BallerinaParser.RULE_typeMapperType:
                 return new TypeMapperType(node);
+            case BallerinaParser.RULE_returnTypeList:
+                return new ReturnTypeListNode(node);
             default:
                 return new ANTLRPsiNode(node);
         }

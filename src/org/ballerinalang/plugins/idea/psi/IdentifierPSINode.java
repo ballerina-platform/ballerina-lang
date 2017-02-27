@@ -16,6 +16,7 @@
 
 package org.ballerinalang.plugins.idea.psi;
 
+import com.intellij.navigation.ItemPresentation;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiErrorElement;
 import com.intellij.psi.PsiNamedElement;
@@ -135,5 +136,13 @@ public class IdentifierPSINode extends ANTLRPsiLeafNode implements PsiNamedEleme
             }
         }
         return null;
+    }
+
+    @Override
+    public ItemPresentation getPresentation() {
+        if (getParent() instanceof FunctionNode) {
+            return ((FunctionNode) getParent()).getPresentation();
+        }
+        return super.getPresentation();
     }
 }
