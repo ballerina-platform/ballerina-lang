@@ -4,7 +4,7 @@
   "description": "A web based tool for creating integrations in ballerina language.",
   "scripts": {
     "build": "npm run webpack",
-    "webpack": "./node_modules/.bin/webpack --config webpack.config.js",
+    "webpack": "NODE_ENV=production webpack --config webpack.config.js",
     "build-service": "cd ./modules/services/workspace-service && mvn clean install",
     "build-dist": "npm run build-service && cd ./modules/distribution && mvn clean install",
     "build-pack": "npm run webpack && npm run build-dist",
