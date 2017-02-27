@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (require, _, $, jsPlumb, dagre, alerts) {
+define(['require', 'lodash', 'jquery', 'jsplumb', 'dagre', 'alerts'], function (require, _, $, jsPlumb, dagre, alerts) {
 
     /**
      * Renderer constructor for TypeMapper
