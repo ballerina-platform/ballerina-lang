@@ -1,7 +1,7 @@
 var path = require('path');
 var webpack = require("webpack");
 
-module.exports = {
+var config = {
     entry: {
       bundle: './modules/web/index.js',
       'worker-ballerina': './modules/web/js/ballerina/utils/ace-worker.js'
@@ -24,10 +24,6 @@ module.exports = {
           ]
         },
         {
-          test: /\.css$/,
-          use: [ 'css-loader' ]
-        },
-        {
             test: /\.html$/,
             use: [ {
                 loader: 'html-loader'
@@ -36,11 +32,11 @@ module.exports = {
 
       ]
     },
-    plugins: [
-        new webpack.optimize.UglifyJsPlugin({
-          sourceMap: true
-        })
-    ],
+    plugins: [],
+    devServer: {
+      contentBase: './modules/web',
+      publicPath: '/dist/'
+    },
     node: { module: "empty", net: "empty", fs: "empty" },
     devtool: 'source-map',
     resolve: {
@@ -88,3 +84,13 @@ module.exports = {
     }
 
 };
+
+if (process.env.NODE_ENV === 'production') {
+  // Add UglifyJsPlugin only when we build for production.
+  // uglyfying slows down webpack build so we avoid in when in development
+  config.plugins.push(new webpack.optimize.UglifyJsPlugin({
+    sourceMap: true
+  }));
+}
+
+module.exports = config;
