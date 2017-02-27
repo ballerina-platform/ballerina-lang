@@ -316,6 +316,7 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
         var boundingBox = this.getBoundingBox();
         this.listenTo(boundingBox, 'height-changed', function (offset) {
             self._mainDropZone.attr('height', parseFloat(self._mainDropZone.attr('height')) + offset);
+            self.trigger('statement-container-height-adjusted', offset);
         });
         boundingBox.on('width-changed', function(offset){
             self._mainDropZone.attr('width', boundingBox.w());
@@ -531,8 +532,8 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
         return this._managedStatements;
     };
 
-    StatementContainerView.prototype.changeDropZoneHeight = function (dh) {
-        this._mainDropZone.attr('height', parseFloat(this._mainDropZone.attr('height')) + dh);
+    StatementContainerView.prototype.changeDropZoneHeight = function (newH) {
+        this._mainDropZone.attr('height', newH);
     };
 
     StatementContainerView.prototype.changeHeightSilent = function (h) {
