@@ -8,6 +8,7 @@
     "build-service": "cd ./modules/services/workspace-service && mvn clean install",
     "build-dist": "npm run build-service && cd ./modules/distribution && mvn clean install",
     "build-pack": "npm run webpack && npm run build-dist",
+    "dev": "webpack-dev-server --hot --inline --progress",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -23,7 +24,8 @@
   "devDependencies": {
     "babel-preset-es2015": "^6.22.0",
     "css-loader": "^0.26.1",
-    "webpack": "^2.2.1"
+    "webpack": "^2.2.1",
+    "webpack-dev-server": "^2.4.1"
   },
   "dependencies": {
     "ace-builds": "^1.2.6",
@@ -32,7 +34,6 @@
     "babel-loader": "^6.3.2",
     "backbone": "^1.3.3",
     "bootstrap": "^3.3.6",
-    "brace": "^0.10.0",
     "d3": "^4.1.1",
     "dagre": "^0.7.4",
     "html-loader": "^0.4.5",

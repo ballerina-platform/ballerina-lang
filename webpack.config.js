@@ -41,6 +41,10 @@ module.exports = {
           sourceMap: true
         })
     ],
+    devServer: {
+      contentBase: './modules/web',
+      publicPath: '/dist/'
+    },
     node: { module: "empty", net: "empty", fs: "empty" },
     devtool: 'source-map',
     resolve: {
