@@ -15,8 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['log', 'lodash', 'jquery', 'event_channel', 'beautify'],
-    function(log, _, $, EventChannel, Beautify) {
+define(['log', 'lodash', 'jquery', 'event_channel'],
+    function(log, _, $, EventChannel) {
 
     require('ace/ace');
     require('ace/ext-language_tools');
