@@ -710,7 +710,7 @@ button.variable-list {
 }
 .import-declaration-wrapper{
     float: left;
-    margin: 1px 3px;
+    margin: 2px 3px;
     border: 1px solid orange;
     font-size: 12px;
 }
@@ -933,10 +933,13 @@ button.variable-list {
 }
 
 .constants-wrapper, .constants-content-wrapper, .constants-action-wrapper
-,.imports-wrapper, .imports-content-wrapper, .imports-action-wrapper {
+,.imports-wrapper, .imports-action-wrapper {
     float: left;
 }
 
+.imports-content-wrapper {
+    float: none;
+}
 
 .constant-add-icon-wrapper, .import-add-icon-wrapper {
     height: 28px;

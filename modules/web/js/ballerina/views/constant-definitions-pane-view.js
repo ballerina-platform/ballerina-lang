@@ -75,22 +75,45 @@ define(['require', 'lodash', 'jquery', 'log', 'd3utils', 'd3', 'alerts', './poin
             var constantsAddPane = $("<div class='action-content-wrapper-heading constant-add-action-wrapper'/>")
                 .appendTo(constantsActionWrapper);
 
-            var constantBTypeSelect = $("<select/>");
-            var typeDropdownWrapper = $('<div class="type-drop-wrapper"></div>');
-            constantBTypeSelect.appendTo(typeDropdownWrapper);
-            typeDropdownWrapper.appendTo(constantsAddPane);
+            var typeDropdownWrapper = $('<div class="type-drop-wrapper"></div>').appendTo(constantsAddPane);
             var constantIdentifierText = $("<input id='text' placeholder='Identifier'/>").appendTo(constantsAddPane);
             var constantValueText = $("<input id='text' placeholder='Value'/>").appendTo(constantsAddPane);
 
-            var constantTypes = this._viewOfModel.getDiagramRenderingContext().getEnvironment().getTypes();
-            _.forEach(constantTypes, function(constantType){
-                $("<option value=" + constantType + ">" + constantType + "</option>")
-                    .appendTo($(constantBTypeSelect));
-            });
-            constantBTypeSelect.select2({
+            var constantBTypeSelect = $("<select/>").appendTo(typeDropdownWrapper);
+
+            $(constantBTypeSelect).select2({
+                data: this._getTypeDropdownValues(),
                 tags: true,
                 selectOnClose: true
             });
+
+            $(document).ready(function() {
+                $(typeDropdownWrapper).empty();
+                constantBTypeSelect = $("<select/>").appendTo(typeDropdownWrapper);
+                $(constantBTypeSelect).select2({
+                    tags: true,
+                    selectOnClose: true,
+                    data : self._getTypeDropdownValues(),
+                    query: function (query) {
+                        var data = {results: []};
+                        if (!_.isNil(query.term)) {
+                            _.forEach(self._getTypeDropdownValues(), function (item) {
+                                if (item.text.toUpperCase().indexOf(query.term.toUpperCase()) >= 0) {
+                                    data.results.push(item);
+                                }
+                            });
+                        } else {
+                            data.results = self._getTypeDropdownValues();
+                        }
+                        query.callback(data);
+                    }
+                });
+
+                $(constantBTypeSelect).on("select2:open", function() {
+                    $(".select2-search__field").attr("placeholder", "Search");
+                });
+            });
+
             // Add new constant upon enter key.
             $(constantIdentifierText).keypress(function (e) {
                 var enteredKey = e.which || e.charCode || e.keyCode;
@@ -239,6 +262,21 @@ define(['require', 'lodash', 'jquery', 'log', 'd3utils', 'd3', 'alerts', './poin
                 });
             });
 
+        };
+
+        /**
+         * Returns an object array with support types.
+         * @return {Object[]} Object array as supported data types.
+         */
+        ConstantDefinitionPaneView.prototype._getTypeDropdownValues = function() {
+            var dropdownData = [];
+            // Adding items to the type dropdown.
+            var bTypes = this._viewOfModel.getDiagramRenderingContext().getEnvironment().getTypes();
+            _.forEach(bTypes, function (bType) {
+                dropdownData.push({id: bType, text: bType});
+            });
+
+            return dropdownData;
         };
 
         return ConstantDefinitionPaneView;

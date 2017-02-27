@@ -31,10 +31,7 @@ import javax.ws.rs.ext.ExceptionMapper;
  */
 public class DefaultExceptionMapper implements ExceptionMapper<Exception> {
     private static final Logger logger = LoggerFactory.getLogger(DefaultExceptionMapper.class);
-    
-    /**
-     * @inheritDoc
-     */
+
     @Override
     public Response toResponse(Exception exception) {
         logger.error("Error in BLang parser rest service for composer", exception.getMessage());

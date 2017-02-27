@@ -24,7 +24,7 @@
     <name>Ballerina Composer - UI Tests</name>
     <groupId>org.ballerinalang</groupId>
     <artifactId>ui-tests</artifactId>
-    <version>0.8.0-SNAPSHOT</version>
+    <version>0.8.1-SNAPSHOT</version>
     <dependencies>
         <dependency>
             <groupId>commons-io</groupId>

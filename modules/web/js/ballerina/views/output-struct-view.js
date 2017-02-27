@@ -15,8 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log','./ballerina-view','./../ast/return-type', 'typeMapper','constants'],
-    function (_, log, BallerinaView,ReturnType, TypeMapperRenderer,Constants) {
+define(['lodash', 'log', './ballerina-view', './../ast/return-type', 'typeMapper', 'constants'],
+    function (_, log, BallerinaView, ReturnType, TypeMapperRenderer, Constants) {
 
         var OutputStructView = function (args) {
             BallerinaView.call(this, args);
@@ -48,17 +48,24 @@ define(['lodash', 'log','./ballerina-view','./../ast/return-type', 'typeMapper',
             this._diagramRenderingContext = diagramRenderingContext;
 
             var typeStructSchema = this.getTargetInfo().targetStruct;
+            var typeStructName = this.getTargetInfo().targetStructName;
             var previousSelection = this.getTargetInfo()[TYPE_MAPPER_COMBOBOX_PREVIOUS_SELECTION];
+            var isAlreadtRenderedInSource = this.getTargetInfo()[TYPE_MAPPER_COMBOBOX_TARGET_IS_ALREADY_RENDERED_IN_SOURCE];
 
-            if(!mapper) {
+            if (!mapper) {
                 mapper = new TypeMapperRenderer(self.getOnConnectInstance(), self.getOnDisconnectInstance(), this._parentView);
                 this._parentView._typeMapper = mapper;
             }
 
-            if(previousSelection != undefined && previousSelection != TYPE_MAPPER_COMBOBOX_DEFAULT_SELECTION){
+            if (!_.isUndefined(previousSelection) && previousSelection != TYPE_MAPPER_COMBOBOX_DEFAULT_SELECTION) {
                 mapper.removeStruct(previousSelection);
             }
-            mapper.addTargetStruct(typeStructSchema.getAttributesArray(),this.getModel());
+            if (!_.isUndefined(isAlreadtRenderedInSource)) {
+                mapper.removeStruct(typeStructName);
+            }
+            if (typeStructSchema) {
+                mapper.addTargetStruct(typeStructSchema.getAttributesArray(), this.getModel());
+            }
         };
 
         /**
@@ -112,4 +119,4 @@ define(['lodash', 'log','./ballerina-view','./../ast/return-type', 'typeMapper',
         };
 
         return OutputStructView;
-});
+    });

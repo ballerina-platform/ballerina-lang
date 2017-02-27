@@ -101,35 +101,37 @@ define(['lodash', 'jquery', 'log', 'alerts', './ballerina-view'],
             var typeDropdownWrapper = $('<div class="type-drop-wrapper struct-edit"></div>')
                 .appendTo(typeEditWrapper);
 
-            var typeDropdown = $("<select/>").appendTo(typeDropdownWrapper);
+            $(document).ready(function(){
+                var typeDropdown = $("<select/>").appendTo(typeDropdownWrapper);
 
-            $(typeDropdown).select2({
-                tags: true,
-                selectOnClose: true,
-                data : self._getTypeDropdownValues(),
-                query: function (query) {
-                    var data = {results: []};
-                    if (!_.isNil(query.term)) {
-                        _.forEach(self._getTypeDropdownValues(), function (item) {
-                            if (item.text.toUpperCase().indexOf(query.term.toUpperCase()) >= 0) {
-                                data.results.push(item);
-                            }
-                        });
-                    } else {
-                        data.results = self._getTypeDropdownValues();
+                $(typeDropdown).select2({
+                    tags: true,
+                    selectOnClose: true,
+                    data : self._getTypeDropdownValues(),
+                    query: function (query) {
+                        var data = {results: []};
+                        if (!_.isNil(query.term)) {
+                            _.forEach(self._getTypeDropdownValues(), function (item) {
+                                if (item.text.toUpperCase().indexOf(query.term.toUpperCase()) >= 0) {
+                                    data.results.push(item);
+                                }
+                            });
+                        } else {
+                            data.results = self._getTypeDropdownValues();
+                        }
+                        query.callback(data);
                     }
-                    query.callback(data);
-                }
-            });
+                });
 
-            $(typeDropdown).on("select2:open", function() {
-                $(".select2-search__field").attr("placeholder", "Search");
-            });
+                $(typeDropdown).on("select2:open", function() {
+                    $(".select2-search__field").attr("placeholder", "Search");
+                });
 
-            $(typeDropdown).val(self.getModel().getTypeName()).change();
+                $(typeDropdown).val(self.getModel().getTypeName()).change();
 
-            $(typeDropdown).on("select2:select", function() {
-                self.getModel().setTypeName(typeDropdown.select2('data')[0].text);
+                $(typeDropdown).on("select2:select", function() {
+                    self.getModel().setTypeName(typeDropdown.select2('data')[0].text);
+                });
             });
 
             $(this._identifierWrapper).empty();

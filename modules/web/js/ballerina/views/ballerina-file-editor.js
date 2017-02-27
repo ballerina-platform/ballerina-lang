@@ -459,11 +459,17 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
             var sourceViewBtn = $(this._container).find(_.get(this._viewOptions, 'controls.view_source_btn'));
             sourceViewBtn.click(function () {
                 lastRenderedTimestamp = self._file.getLastPersisted();
-                var generatedSource = self.generateSource();
                 self.toolPalette.hide();
-                // Get the generated source and append it to the source view container's content
-                self._sourceView.setContent(generatedSource);
-                self._sourceView.format(true);
+                // If the file has changed we will add the generated source to source view
+                // If not we will display the content as it is in the file.
+                if(self._file.isDirty()){
+                    var generatedSource = self.generateSource();
+                    self._sourceView.setContent(generatedSource);
+                    self._sourceView.format(true);
+                } else {
+                    self._sourceView.setContent(self._file.getContent());
+                }
+
                 sourceViewContainer.show();
                 swaggerViewContainer.hide();
                 self._$designViewContainer.hide();
@@ -754,7 +760,9 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
 
             $("<i class='fw fw-right'></i>").appendTo(collapserWrapper);
 
-            var importDeclarationActionWrapper = $("<div class='imports-action-wrapper'/>").appendTo(importDeclarationWrapper);
+            var importDeclarationControlsWrapper = $('<div />').appendTo(importDeclarationWrapper);
+
+            var importDeclarationActionWrapper = $("<div class='imports-action-wrapper'/>").appendTo(importDeclarationControlsWrapper);
 
             // Creating add imports editor button.
             var addImportButton = $("<div class='action-icon-wrapper import-add-icon-wrapper' title='Add Import'" +
@@ -795,8 +803,8 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                 $(addImportButton).show();
             });
 
-            var importsDeclarationContentWrapper = $("<div class='imports-content-wrapper'/>")
-                .appendTo(importDeclarationWrapper);
+            var importsDeclarationContentWrapper = $("<span class='imports-content-wrapper'/>")
+                .appendTo(importDeclarationControlsWrapper);
 
             var substringMatcher = function(strs) {
                 return function findMatches(q, cb) {
@@ -1004,6 +1012,7 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
             if(this._currentDebugHit) {
                 this._currentDebugHit.clearDebugHit();
             }
+            this._sourceView.clearExistingDebugHit();
         };
 
         BallerinaFileEditor.prototype._showBreakpoint = function (newBreakpoint) {

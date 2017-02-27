@@ -59,8 +59,8 @@ define(['lodash', './argument'], function (_, Argument) {
      */
     ResourceParameter.prototype.getParameterAsString = function() {
         var paramAsString = !_.isUndefined(this.getAnnotationType()) ? this.getAnnotationType() : "";
-        paramAsString += !_.isUndefined(this.getAnnotationText()) && !_.isEmpty(this.getAnnotationText())
-            ? "(\"" + this.getAnnotationText() + "\")" : "";
+        paramAsString += !_.isUndefined(this.getAnnotationText()) && !_.isEmpty(this.getAnnotationText()) ?
+        "(\"" + this.getAnnotationText() + "\")" : "";
         paramAsString += " " + this.getType() + " ";
         paramAsString += this.getIdentifier();
 

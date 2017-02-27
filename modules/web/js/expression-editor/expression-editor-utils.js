@@ -38,6 +38,7 @@ define(['require', 'lodash', 'jquery'], function (require, _, $) {
         }
 
         $(propertyInputValue).css("width", getNecessaryWidth(propertyValue));
+        $(propertyInputValue).focus();
 
         $(propertyInputValue).on("paste keyup", function (e) {
             var width = getNecessaryWidth($(this).val());

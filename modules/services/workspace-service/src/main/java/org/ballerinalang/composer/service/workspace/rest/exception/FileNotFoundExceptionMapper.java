@@ -32,10 +32,7 @@ import javax.ws.rs.ext.ExceptionMapper;
  */
 public class FileNotFoundExceptionMapper implements ExceptionMapper<FileNotFoundException> {
     private static final Logger logger = LoggerFactory.getLogger(FileNotFoundExceptionMapper.class);
-    
-    /**
-     * @inheritDoc
-     */
+
     @Override
     public Response toResponse(FileNotFoundException exception) {
         logger.error("error: failed to generate JSON data model for ballerina file. File not found.",

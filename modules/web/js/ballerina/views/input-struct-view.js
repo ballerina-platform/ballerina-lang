@@ -15,8 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log','./ballerina-view','./../ast/resource-parameter', 'typeMapper','constants'],
-    function (_, log, BallerinaView,ResourceParameter, TypeMapperRenderer,Constants) {
+define(['lodash', 'log', './ballerina-view', './../ast/resource-parameter', 'typeMapper', 'constants'],
+    function (_, log, BallerinaView, ResourceParameter, TypeMapperRenderer, Constants) {
 
         var InputStructView = function (args) {
             BallerinaView.call(this, args);
@@ -47,17 +47,24 @@ define(['lodash', 'log','./ballerina-view','./../ast/resource-parameter', 'typeM
             var self = this;
             this._diagramRenderingContext = diagramRenderingContext;
             var typeStructSchema = this.getSourceInfo().sourceStruct;
+            var typeStructName = this.getSourceInfo().sourceStructName;
             var previousSelection = this.getSourceInfo()[TYPE_MAPPER_COMBOBOX_PREVIOUS_SELECTION];
+            var isAlreadtRenderedInTarget = this.getSourceInfo()[TYPE_MAPPER_COMBOBOX_SOURCE_IS_ALREADY_RENDERED_IN_TARGET];
 
-            if(!mapper) {
+            if (!mapper) {
                 mapper = new TypeMapperRenderer(self.getOnConnectInstance(), self.getOnDisconnectInstance(), this._parentView);
                 this._parentView._typeMapper = mapper;
             }
 
-            if(previousSelection != undefined && previousSelection != TYPE_MAPPER_COMBOBOX_DEFAULT_SELECTION){
+            if (!_.isUndefined(previousSelection) && previousSelection != TYPE_MAPPER_COMBOBOX_DEFAULT_SELECTION) {
                 mapper.removeStruct(previousSelection);
             }
-            mapper.addSourceStruct(typeStructSchema.getAttributesArray(),this.getModel());
+            if (!_.isUndefined(isAlreadtRenderedInTarget)) {
+                mapper.removeStruct(typeStructName);
+            }
+            if (typeStructSchema) {
+                mapper.addSourceStruct(typeStructSchema.getAttributesArray(), this.getModel());
+            }
         };
 
         /**
@@ -111,4 +118,4 @@ define(['lodash', 'log','./ballerina-view','./../ast/resource-parameter', 'typeM
         };
 
         return InputStructView;
-});
+    });
