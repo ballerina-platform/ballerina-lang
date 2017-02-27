@@ -56,6 +56,10 @@ import java.security.NoSuchAlgorithmException;
         value = "The hashed string") })
 public class GetHash extends AbstractNativeFunction {
 
+    /**
+     * Hashes the string contents (assumed to be UTF-8) using the SHA-256 algorithm.
+     */
+
     @Override public BValue[] execute(Context context) {
         String baseString = getArgument(context, 0).stringValue();
         String algorithm = getArgument(context, 1).stringValue();
@@ -91,7 +95,8 @@ public class GetHash extends AbstractNativeFunction {
 
         } catch (NoSuchAlgorithmException e) {
             throw new BallerinaException(
-                    "Error while calculating HMAC for " + algorithm + ": " + e.getMessage(), context);
+                    "Error while calculating HMAC for " + algorithm + ": " + e.getMessage(),
+                    context);
         } catch (UnsupportedEncodingException e) {
             throw new BallerinaException("Error while encoding" + e.getMessage(), context);
         }
