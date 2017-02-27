@@ -54,7 +54,7 @@ module.exports = {
             mcustom_scroller: "mCustomScrollbar_v3.1.5/js/jquery.mCustomScrollbar",
             respond: "respond_1.4.2/respond.min",
             select2: "select2-4.0.3/dist/js/select2.full.min",
-            underscore: "lodash_v4.13.1/lodash",
+            underscore: "lodash",
             ace: "ace-builds/src-noconflict",
             ///////////////////////
             // custom modules ////
