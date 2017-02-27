@@ -5,7 +5,8 @@
   "scripts": {
     "build": "npm run webpack",
     "webpack": "./node_modules/.bin/webpack --config webpack.config.js",
-    "build-dist": "cd ./modules/distribution && mvn clean install",
+    "build-service": "cd ./modules/services/workspace-service && mvn clean install",
+    "build-dist": "npm run build-service && cd ./modules/distribution && mvn clean install",
     "build-pack": "npm run webpack && npm run build-dist",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
