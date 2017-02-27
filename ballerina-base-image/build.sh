@@ -24,6 +24,7 @@ function showUsageAndExit() {
 
     exit
 }
+
 while getopts :d:o:v:h FLAG; do
   case $FLAG in
     d)
@@ -69,6 +70,8 @@ bal_dist_file_name=$(basename $bal_dist_file)
 
 docker build --no-cache=true \
              --build-arg BALLERINA_DIST=${bal_dist_file_name} \
+             --build-arg BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ') \
+             --build-arg VCS_REF=$(git rev-parse --short HEAD) \
              -t $image_name .
 
 echo "Cleaning..."

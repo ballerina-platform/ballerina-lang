@@ -14,6 +14,19 @@
 # limitations under the License.
 # -----------------------------------------------------------------------
 
-FROM ballerinalang/ballerina:0.8.1-SNAPSHOT
+build.sh
+README.md
 
-COPY files/* /ballerina/files/
+# Include only ballerina distributions
+*.zip
+!ballerina*.zip
+
+*.tar
+*.gz
+*.rar
+*.war
+*.ear
+
+# Ignore self
+.dockerignore
+Dockerfile
