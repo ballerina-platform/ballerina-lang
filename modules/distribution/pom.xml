@@ -22,12 +22,12 @@
 
     <parent>
         <groupId>org.ballerinalang</groupId>
-        <artifactId>ballerina-composer</artifactId>
+        <artifactId>ballerina-composer-parent</artifactId>
         <version>0.8.1-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
-    <artifactId>ballerina-composer-distribution</artifactId>
+    <artifactId>ballerina-composer</artifactId>
     <packaging>pom</packaging>
     <name>Ballerina Composer - Distribution</name>
     <description>Ballerina Composer - Distribution</description>
@@ -180,7 +180,7 @@
                             <descriptors>
                                 <descriptor>${basedir}/src/assembly/bin.xml</descriptor>
                             </descriptors>
-                            <finalName>ballerina-composer-${project.version}</finalName>
+                            <finalName>${project.artifactId}-${project.version}</finalName>
                             <appendAssemblyId>false</appendAssemblyId>
                         </configuration>
                     </execution>

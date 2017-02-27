@@ -54,29 +54,47 @@ define(['require', 'lodash', 'jquery', 'ballerina/ast/ballerina-ast-factory'],
             }
 
             // Creating arguments dropdown.
-            var argumentTypeDropDown = $("<select/>").appendTo(headerWrapper);
-            var typeDropdownWrapper = $('<div class="type-drop-wrapper"></div>');
-            argumentTypeDropDown.appendTo(typeDropdownWrapper);
-            typeDropdownWrapper.appendTo(headerWrapper);
+            var typeDropdownWrapper = $('<div class="type-drop-wrapper"/>').appendTo(headerWrapper);
 
-            var variableTypes = diagramRenderingContext.getEnvironment().getTypes();
-            // Adding dropdown elements.
-            _.forEach(variableTypes, function (type) {
-                // Adding arguments which has no value to the dropdown.
-                argumentTypeDropDown.append(
-                    $('<option></option>').val(type).html(type)
-                );
-            });
+            var argumentTypeDropDown = $("<select/>").appendTo(typeDropdownWrapper);
 
-            argumentTypeDropDown.select2({
+            $(argumentTypeDropDown).select2({
+                data: _getTypeDropdownValues(diagramRenderingContext),
                 tags: true,
                 selectOnClose: true
+            });
 
+            $(document).ready(function() {
+                $(typeDropdownWrapper).empty();
+                argumentTypeDropDown = $("<select/>").appendTo(typeDropdownWrapper);
+                $(argumentTypeDropDown).select2({
+                    tags: true,
+                    selectOnClose: true,
+                    data : _getTypeDropdownValues(diagramRenderingContext),
+                    query: function (query) {
+                        var data = {results: []};
+                        if (!_.isNil(query.term)) {
+                            _.forEach(_getTypeDropdownValues(diagramRenderingContext), function (item) {
+                                if (item.text.toUpperCase().indexOf(query.term.toUpperCase()) >= 0) {
+                                    data.results.push(item);
+                                }
+                            });
+                        } else {
+                            data.results = _getTypeDropdownValues(diagramRenderingContext);
+                        }
+                        query.callback(data);
+                    }
+                });
+
+                $(argumentTypeDropDown).on("select2:open", function() {
+                    $(".select2-search__field").attr("placeholder", "Search");
+                });
             });
 
             // Text input for editing the identifier of an arguments.
             var argumentIdentifierInput = $("<input/>", {
-                type: "text"
+                type: "text",
+                placeholder: "Identifier"
             }).appendTo(headerWrapper);
 
             // Wrapper for the add and check icon.
@@ -258,6 +276,23 @@ define(['require', 'lodash', 'jquery', 'ballerina/ast/ballerina-ast-factory'],
                     });
                 }
             });
+        }
+
+        /**
+         * Gets the supported ballerina datatypes.
+         * @param  {DiagramRenderContext} diagramRenderingContext The diagram rendering context which the data types are
+         *  picked up form.
+         * @return {Object[]} An array of supported data types.
+         */
+        function _getTypeDropdownValues(diagramRenderingContext) {
+            var dropdownData = [];
+            // Adding items to the type dropdown.
+            var bTypes = diagramRenderingContext.getEnvironment().getTypes();
+            _.forEach(bTypes, function (bType) {
+                dropdownData.push({id: bType, text: bType});
+            });
+
+            return dropdownData;
         }
 
         var argumentsView = {};

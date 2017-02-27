@@ -29,9 +29,6 @@ define(['lodash', 'log', 'jquery', 'alerts', './return-type-view', './../ast/nod
          * @param {ASTNode} args.view - The view of the model.
          */
         var ReturnTypePaneView = function (args) {
-            this._supportedReturnTypes = ['message', 'connection', 'string', 'int', 'exception', 'json', 'xml',
-                'map', 'string[]', 'int[]'];
-
             this._activatorElement = _.get(args, "activatorElement");
             this._model = _.get(args, "model");
             this._paneElement = _.get(args, "paneAppendElement");
@@ -59,37 +56,57 @@ define(['lodash', 'log', 'jquery', 'alerts', './return-type-view', './../ast/nod
                 class: "action-content-wrapper-heading return-types-wrapper-heading"
             }).appendTo(this._returnTypeEditorWrapper);
 
-            var returnTypeWrapper = $("<div/>", {
-                class: "action-content-wrapper-heading return-types-heading-named-return-wrapper"
-            }).appendTo(headerWrapper);
-
             // Checkbox to enable/disable named return types.
             var allowNamedReturnCheckBox = $("<input/>", {
                 type: "checkbox",
                 checked : this._model.hasNamedReturnTypes()
-            }).appendTo(returnTypeWrapper);
+            }).appendTo(headerWrapper);
 
             // The "Named Return Types" text.
             $("<span class='return-types-heading-named-return-wrapper-text'>Named Return Types</span>")
-                .appendTo(returnTypeWrapper);
+                .appendTo(headerWrapper);
+
+            var returnTypeWrapper = $("<div/>", {
+                class: "action-content-wrapper-heading return-types-heading-named-return-wrapper"
+            }).appendTo(headerWrapper);
 
             // Creating the return type dropdown.
-            var returnTypeDropdown = $("<select/>");
-            var typeDropdownWrapper = $('<div class="type-drop-wrapper"></div>');
-            returnTypeDropdown.appendTo(typeDropdownWrapper);
-            typeDropdownWrapper.appendTo(returnTypeWrapper);
+            var typeDropdownWrapper = $('<div class="type-drop-wrapper"/>').appendTo(returnTypeWrapper);
+            var returnTypeDropdown = $("<select/>").appendTo(typeDropdownWrapper);
 
-            // Adding dropdown elements.
-            _.forEach(this._supportedReturnTypes, function (type) {
-                // Adding supported return types to the type dropdown.
-                returnTypeDropdown.append(
-                    $('<option></option>').val(type).html(type)
-                );
-            });
-            returnTypeDropdown.select2({
+            $(returnTypeDropdown).select2({
+                data: this._getTypeDropdownValues(),
                 tags: true,
                 selectOnClose: true
             });
+
+            $(document).ready(function() {
+                $(typeDropdownWrapper).empty();
+                returnTypeDropdown = $("<select/>").appendTo(typeDropdownWrapper);
+                $(returnTypeDropdown).select2({
+                    tags: true,
+                    selectOnClose: true,
+                    data : self._getTypeDropdownValues(),
+                    query: function (query) {
+                        var data = {results: []};
+                        if (!_.isNil(query.term)) {
+                            _.forEach(self._getTypeDropdownValues(), function (item) {
+                                if (item.text.toUpperCase().indexOf(query.term.toUpperCase()) >= 0) {
+                                    data.results.push(item);
+                                }
+                            });
+                        } else {
+                            data.results = self._getTypeDropdownValues();
+                        }
+                        query.callback(data);
+                    }
+                });
+
+                $(returnTypeDropdown).on("select2:open", function() {
+                    $(".select2-search__field").attr("placeholder", "Search");
+                });
+            });
+
             // Return type name value text box.
             var returnTypeNameInput = $("<input/>", {
                 type: "text",
@@ -159,7 +176,7 @@ define(['lodash', 'log', 'jquery', 'alerts', './return-type-view', './../ast/nod
 
             // Adding a new return type.
             $(addButton).click(function () {
-                var returnType = $(returnTypeDropdown).val();
+                var returnType = returnTypeDropdown.select2('data')[0].text;
                 var returnTypeName = $(allowNamedReturnCheckBox).is(":checked") ? returnTypeNameInput.val() : undefined;
 
                 try {
@@ -255,6 +272,21 @@ define(['lodash', 'log', 'jquery', 'alerts', './return-type-view', './../ast/nod
                     paramViewToEdit.renderEditView();
                 });
             });
+        };
+
+        /**
+         * Returns an object array with support types.
+         * @return {Object[]} Object array as supported data types.
+         */
+        ReturnTypePaneView.prototype._getTypeDropdownValues = function() {
+            var dropdownData = [];
+            // Adding items to the type dropdown.
+            var bTypes = this._viewOfModel.getDiagramRenderingContext().getEnvironment().getTypes();
+            _.forEach(bTypes, function (bType) {
+                dropdownData.push({id: bType, text: bType});
+            });
+
+            return dropdownData;
         };
 
         return ReturnTypePaneView;
