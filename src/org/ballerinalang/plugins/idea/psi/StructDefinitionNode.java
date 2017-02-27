@@ -20,16 +20,17 @@ import com.intellij.lang.ASTNode;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiNamedElement;
 import com.intellij.psi.ResolveResult;
-import org.antlr.jetbrains.adaptor.psi.ANTLRPsiNode;
+import org.antlr.jetbrains.adaptor.psi.IdentifierDefSubtree;
 import org.antlr.jetbrains.adaptor.psi.ScopeNode;
+import org.ballerinalang.plugins.idea.BallerinaParserDefinition;
 import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class StructDefinitionNode extends ANTLRPsiNode implements ScopeNode {
+public class StructDefinitionNode extends IdentifierDefSubtree implements ScopeNode {
 
     public StructDefinitionNode(@NotNull ASTNode node) {
-        super(node);
+        super(node, BallerinaParserDefinition.ID);
     }
 
     @Nullable
