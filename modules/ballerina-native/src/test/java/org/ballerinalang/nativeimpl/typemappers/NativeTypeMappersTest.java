@@ -19,6 +19,7 @@ package org.ballerinalang.nativeimpl.typemappers;
 
 import org.ballerinalang.model.BLangProgram;
 import org.ballerinalang.model.values.BJSON;
+import org.ballerinalang.model.values.BNull;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXML;
@@ -97,6 +98,24 @@ public class NativeTypeMappersTest {
         Assert.assertTrue(returns[0] instanceof BXML);
         final String expected = "<jsonObject><name>chanaka</name><company>wso2</company></jsonObject>";
         Assert.assertEquals(returns[0].stringValue().replaceAll("\\r|\\n|\\t| ", ""), expected);
+    }
+
+    @Test(description = "Test null value casting. json to xml")
+    public void testNullValueCastingXmlToJson() {
+        BValue[] returns =  BLangFunctions.invoke(bLangProgram, "nullCasting1");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BNull.class);
+        BNull nullValue = (BNull) returns[0];
+        Assert.assertNotNull(nullValue);
+    }
+
+    @Test(description = "Test null value casting. xml to json")
+    public void testNullValueCastingJsonToXml() {
+        BValue[] returns =  BLangFunctions.invoke(bLangProgram, "nullCasting2");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BNull.class);
+        BNull nullValue = (BNull) returns[0];
+        Assert.assertNotNull(nullValue);
     }
 
 }
