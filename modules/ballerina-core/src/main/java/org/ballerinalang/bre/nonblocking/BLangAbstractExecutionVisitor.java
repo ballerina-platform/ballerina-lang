@@ -163,7 +163,7 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
     protected ControlStack controlStack;
     private Stack<TryCatchStackRef> tryCatchStackRefs;
     protected LinkedNode next;
-    private Node lastActive;
+    protected Node lastActive;
     private ExecutorService executor;
     private ForkJoinInvocationStatus forkJoinInvocationStatus;
     // positive Non-zero execution status represent abnormal termination.
@@ -853,7 +853,10 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
             logger.debug("Executing ThrowStmt - EndNode");
         }
         BException exception = (BException) getTempValue(throwStmtEndNode.getStatement().getExpr());
-        exception.value().setStackTrace(ErrorHandlerUtils.getStackTrace(bContext, lastActive));
+        // Avoid setting stackTrace if already set.
+        if ("".equals(exception.value().getStackTrace())) {
+            exception.value().setStackTrace(ErrorHandlerUtils.getStackTrace(bContext, lastActive));
+        }
         this.handleBException(exception);
     }
 
@@ -1374,16 +1377,18 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
      * @param bException
      */
     public void handleBException(BException bException) {
-        String stackTrace = ErrorHandlerUtils.getStackTrace(bContext, lastActive);
-        // SaveStack current StackTrace.
-        bException.value().setStackTrace(stackTrace);
+        // Avoid setting stackTrace if already set.
+        if ("".equals(bException.value().getStackTrace())) {
+            String stackTrace = ErrorHandlerUtils.getStackTrace(bContext, lastActive);
+            bException.value().setStackTrace(stackTrace);
+        }
         if (tryCatchStackRefs.size() == 0) {
             // There is no tryCatch block to handle this exception. Pass this to handle at root.
             if (resourceInvocation) {
                 ErrorHandlerUtils.handleResourceInvocationError(bContext, lastActive, bException, null);
                 next = null;
                 executionStatus = STATUS_RESOURCE_TERMINATION;
-                throw new BLangRuntimeException(bException.value().getMessage().stringValue());
+                return;
             } else if (testFunctionInvocation) {
                 next = null;
                 executionStatus = STATUS_TEST_TERMINATION;
@@ -1395,7 +1400,7 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
                 next = null;
                 executionStatus = STATUS_MAIN_TERMINATION;
                 failedCause = bException.value().getMessage().stringValue();
-                throw new BLangRuntimeException(bException.value().getMessage().stringValue());
+              return;
             }
         }
         TryCatchStackRef ref = tryCatchStackRefs.pop();

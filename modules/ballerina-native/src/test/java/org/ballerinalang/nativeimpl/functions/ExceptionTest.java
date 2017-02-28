@@ -65,9 +65,9 @@ public class ExceptionTest {
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "calculateLoanPayment", args);
         Assert.assertNotNull(returns[0]);
         Assert.assertTrue(returns[0].stringValue().contains(
-                "exception age-error: age Error"));
+                "age-error: age Error"));
         Assert.assertTrue(returns[0].stringValue().contains(
-                "caused by: exception low-age: age should be over 18"));
+                "caused by: low-age: age should be over 18"));
     }
 
     @Test(description = "testing divide by zero")

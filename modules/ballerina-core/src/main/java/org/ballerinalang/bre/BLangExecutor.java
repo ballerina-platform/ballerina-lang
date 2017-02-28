@@ -283,7 +283,10 @@ public class BLangExecutor implements NodeExecutor {
         // Note: This logic is based on Java exception and hence not recommended.
         // This is added only to make it work with blocking executor. and will be removed in a future release.
         this.currentBException = (BException) throwStmt.getExpr().execute(this);
-        this.currentBException.value().setStackTrace(ErrorHandlerUtils.getStackTrace(bContext, lastActive));
+        // Avoid setting stackTrace if already contain.
+        if ("".equals(currentBException.value().getStackTrace())) {
+            this.currentBException.value().setStackTrace(ErrorHandlerUtils.getStackTrace(bContext, lastActive));
+        }
     }
 
     @Override

@@ -43,7 +43,6 @@ public class ErrorHandlerUtils {
     private static final int STACK_TRACE_LIMIT = 20;
 
     private static final Logger log = LoggerFactory.getLogger(ErrorHandlerUtils.class);
-    private static PrintStream outStream = System.err;
 
     private static final String ERROR_PREFIX = "error in ballerina program: ";
 
@@ -136,6 +135,7 @@ public class ErrorHandlerUtils {
         }
         String errorWithTrace = errorMsg + "\n" + stacktrace;
         log.error(errorWithTrace);
+        PrintStream outStream = System.err;
         outStream.println(errorWithTrace);
 
         Object protocol = bContext.getServerConnectorProtocol();
@@ -179,6 +179,7 @@ public class ErrorHandlerUtils {
         }
         String errorWithTrace = errorMsg + "\n" + stacktrace;
         log.error(errorWithTrace);
+        PrintStream outStream = System.err;
         outStream.println(errorWithTrace);
 //        Runtime.getRuntime().exit(1);
     }
@@ -202,12 +203,17 @@ public class ErrorHandlerUtils {
             sb.append("\t at ").append(pkgName).append(frameInfo.getName())
                     .append(getNodeLocation(currentNode.getNodeLocation())).append("\n");
         }
-        while (i >= 0) {
+        int lastStackTracePosition = 0;
+        if (context.getServiceInfo() != null) {
+            // For Resource we have to skip, 0th stackFrame.
+            lastStackTracePosition = 1;
+        }
+        while (i >= lastStackTracePosition) {
             frameInfo = stack.get(i).getNodeInfo();
             pkgName = (frameInfo.getPackage() != null) ? frameInfo.getPackage() + ":" : "";
             sb.append("\t at ").append(pkgName).append(frameInfo.getName())
                     .append(getNodeLocation(frameInfo));
-            if (i > 0) {
+            if (i > lastStackTracePosition) {
                 sb.append("\n");
             }
             i--;

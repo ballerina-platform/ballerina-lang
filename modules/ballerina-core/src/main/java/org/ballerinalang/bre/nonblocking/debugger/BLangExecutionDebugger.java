@@ -307,13 +307,13 @@ public class BLangExecutionDebugger extends BLangAbstractExecutionVisitor {
             // Handling any unhandled java runtime errors, which can occurs during handleBException or any Java Error.
             if (resourceInvocation) {
                 setStatus(STATUS_RESOURCE_TERMINATION);
-                ErrorHandlerUtils.handleResourceInvocationError(bContext, next, null, throwable);
+                ErrorHandlerUtils.handleResourceInvocationError(bContext, lastActive, null, throwable);
             } else if (testFunctionInvocation) {
                 setStatus(STATUS_TEST_TERMINATION);
                 failedCause = throwable.getMessage();
             } else {
                 setStatus(STATUS_MAIN_TERMINATION);
-                ErrorHandlerUtils.handleMainFuncInvocationError(bContext, next, null, throwable);
+                ErrorHandlerUtils.handleMainFuncInvocationError(bContext, lastActive, null, throwable);
             }
         }
     }
