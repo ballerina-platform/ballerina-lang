@@ -330,30 +330,17 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
 
                 var statementContainer = workerDeclarationView.renderStatementContainer(this.diagramRenderingContext);
                 this.diagramRenderingContext.getViewModelMap()[workerDeclaration.id] = workerDeclarationView;
-                this.listenWorkerToHorizontalMargin(workerDeclarationView);
 
-                // Worker listen to its statement container
-                workerDeclarationView.listenTo(statementContainer.getBoundingBox(), 'bottom-edge-moved', function(dy) {
-                    var deltaMove = self.getDeltaMove(self.getDeepestChild(workerDeclarationView, dy), dy);
-                    // Bellow logic is for properly align all the workers and the connectors
-                    // Statement Container expands. we move the horizontal line
-                    workerDeclarationView.getBottomCenter().y(workerDeclarationView.getBottomCenter().y() + deltaMove);
-                    workerDeclarationView.getBoundingBox().h(workerDeclarationView.getBoundingBox().h() + deltaMove);
-                    workerDeclarationView.stopListening(self.getHorizontalMargin());
+                workerDeclarationView.listenTo(this.getHorizontalMargin(), 'moved', function (dy) {
+                    workerDeclarationView.getBottomCenter().y(workerDeclarationView.getBottomCenter().y() + dy);
+                    var newDropZoneHeight = workerDeclarationView.getBottomCenter().y() - workerDeclarationView.getTopCenter().y();
+                    workerDeclarationView.getStatementContainer().getBoundingBox().h(newDropZoneHeight, true);
+                    workerDeclarationView.getStatementContainer().changeDropZoneHeight(newDropZoneHeight);
+                });
+
+                workerDeclarationView.listenTo(statementContainer, 'statement-container-height-adjusted', function (dh) {
+                    var deltaMove = self.getDeltaMove(self.getDeepestChild(self, dh), dh);
                     self.getHorizontalMargin().setPosition(self.getHorizontalMargin().getPosition() + deltaMove);
-                    self.listenWorkerToHorizontalMargin(workerDeclarationView);
-                    // We need to change the height of the statement container, silently. This is because when this
-                    // particular event is triggered, bounding box of the statement container has already changed,
-                    // before hand we manipulate it with this logic
-                    var statementContainerNewH = workerDeclarationView.getBottomCenter().y() - workerDeclarationView.getTopCenter().y();
-                    // TODO: re consider stopListening of the following event of the statement container. This is because we silently change the heights
-                    self.getStatementContainer().stopListening(self.getStatementContainer().getBoundingBox(), 'height-changed');
-                    workerDeclarationView.getStatementContainer().changeHeightSilent(statementContainerNewH);
-                    // Re initialize the above disabled event
-                    // self.getStatementContainer().listenTo(self.getStatementContainer().getBoundingBox(), 'height-changed', function (offset) {
-                    //     self.getStatementContainer()._mainDropZone.attr('height', parseFloat(self.getStatementContainer()._mainDropZone.attr('height')) + offset);
-                    // });
-
                 });
 
                 // Set the workerLifeLineMargin to the right edge of the newly added worker
@@ -747,11 +734,9 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
 
             this.listenTo(this.getHorizontalMargin(), 'moved', function (dy) {
                 self._defaultWorker.getBottomCenter().y(self._defaultWorker.getBottomCenter().y() + dy);
-                // Silently increase the bounding box of the worker. Because this size change is due to the
-                // horizontal margin movement, in other sense, for balancing with the other connectors/ workers' height
-                // therefore we need to manually change the bbox height and the drop zone size of the statement container
-                self.getStatementContainer().getBoundingBox().h(self.getStatementContainer().getBoundingBox().h() + dy, true);
-                self.getStatementContainer().changeDropZoneHeight(dy);
+                var newDropZoneHeight = self._defaultWorker.getBottomCenter().y() - self._defaultWorker.getTopCenter().y();
+                self.getStatementContainer().getBoundingBox().h(newDropZoneHeight, true);
+                self.getStatementContainer().changeDropZoneHeight(newDropZoneHeight);
                 self.getBoundingBox().h(this.getBoundingBox().h() + dy);
             });
 
@@ -879,36 +864,11 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             _.set(statementContainerOpts, 'container', this._defaultWorker.getContentArea().node());
             _.set(statementContainerOpts, 'toolPalette', this.toolPalette);
             this._statementContainer = new StatementContainer(statementContainerOpts);
-            this.listenTo(this._statementContainer.getBoundingBox(), 'bottom-edge-moved', function(dy){
 
-                var deltaMove = this.getDeltaMove(this.getDeepestChild(this, dy), dy);
-                // Statement Container expands. we move the horizontal line
-                self._defaultWorker.getBottomCenter().y(self._defaultWorker.getBottomCenter().y() + deltaMove);
-                // self._defaultWorker.getBoundingBox().h(self._defaultWorker.getBoundingBox().h() + dy);
-                self.stopListening(self.getHorizontalMargin());
+            this.listenTo(this.getStatementContainer(), 'statement-container-height-adjusted', function (dh) {
+                var deltaMove = self.getDeltaMove(self.getDeepestChild(self, dh), dh);
                 self.getHorizontalMargin().setPosition(self.getHorizontalMargin().getPosition() + deltaMove);
-                self.getBoundingBox().h(this.getBoundingBox().h() + deltaMove);
-                // We need to change the height of the statement container, silently. This is because when this
-                // particular event is triggered, bounding box of the statement container has already changed,
-                // before hand we manipulate it with this logic
-                var statementContainerNewH = self._defaultWorker.getBottomCenter().y() - self._defaultWorker.getTopCenter().y();
-                // TODO: re consider stopListening of the following event of the statement container. This is because we silently change the heights
-                self.getStatementContainer().stopListening(self.getStatementContainer().getBoundingBox(), 'height-changed');
-                self.getStatementContainer().changeHeightSilent(statementContainerNewH);
-                // Re initialize the above disabled event
-                // self.getStatementContainer().listenTo(self.getStatementContainer().getBoundingBox(), 'height-changed', function (offset) {
-                //     self.getStatementContainer()._mainDropZone.attr('height', parseFloat(self.getStatementContainer()._mainDropZone.attr('height')) + offset);
-                // });
-                self.listenTo(self.getHorizontalMargin(), 'moved', function (dy) {
-                    self._defaultWorker.getBottomCenter().y(self._defaultWorker.getBottomCenter().y() + dy);
-                    // Silently increase the bounding box of the worker. Because this size change is due to the
-                    // horizontal margin movement, in other sense, for balancing with the other connectors/ workers' height
-                    // therefore we need to manually change the bbox height and the drop zone size of the statement container
-                    self.getStatementContainer().getBoundingBox().h(self.getStatementContainer().getBoundingBox().h() + dy, true);
-                    self.getStatementContainer().changeDropZoneHeight(dy);
-                    self.getBoundingBox().h(self.getBoundingBox().h() + dy);
-                });
-            }, this);
+            });
 
             /* When the width of the statement container's bounding box changes, width of this resource definition's
              bounding box should also change.*/
@@ -1279,18 +1239,6 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             } else {
                 return defaultWorkerLastChild;
             }
-        };
-
-        ResourceDefinitionView.prototype.listenWorkerToHorizontalMargin = function (workerDeclarationView) {
-            workerDeclarationView.listenTo(this.getHorizontalMargin(), 'moved', function (dy) {
-                workerDeclarationView.getBottomCenter().y(workerDeclarationView.getBottomCenter().y() + dy);
-                workerDeclarationView.getBoundingBox().h(workerDeclarationView.getBoundingBox().h() + dy);
-                // Silently increase the bounding box of the worker. Because this size change is due to the
-                // horizontal margin movement, in other sense, for balancing with the other connectors/ workers' height
-                // therefore we need to manually change the bbox height and the drop zone size of the statement container
-                workerDeclarationView.getStatementContainer().getBoundingBox().h(workerDeclarationView.getStatementContainer().getBoundingBox().h() + dy, true);
-                workerDeclarationView.getStatementContainer().changeDropZoneHeight(dy);
-            });
         };
 
         ResourceDefinitionView.prototype.getDeltaMove = function (deepestChild, dy) {
