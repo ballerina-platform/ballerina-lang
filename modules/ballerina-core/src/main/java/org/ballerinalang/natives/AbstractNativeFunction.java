@@ -32,6 +32,7 @@ import org.ballerinalang.model.statements.BlockStmt;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.SimpleTypeName;
 import org.ballerinalang.model.values.BException;
+import org.ballerinalang.model.values.BNull;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.exceptions.ArgumentOutOfRangeException;
 import org.ballerinalang.util.exceptions.BallerinaException;
@@ -89,7 +90,7 @@ public abstract class AbstractNativeFunction implements NativeUnit, Function {
     public BValue getArgument(Context context, int index) {
         if (index > -1 && index < argTypeNames.length) {
             BValue result = context.getControlStack().getCurrentFrame().values[index];
-            if (result == null) {
+            if (result == BNull.instance() || result == null) {
                 throw new BallerinaException("argument " + index + " is null");
             }
             return result;
