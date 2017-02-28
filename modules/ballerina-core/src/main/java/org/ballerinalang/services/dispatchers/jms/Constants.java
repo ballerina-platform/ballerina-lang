@@ -34,4 +34,11 @@ public class Constants {
     // jms protocol name
     public static final String PROTOCOL_JMS = "jms";
     public static final String JMS_SERVICE_ID = "JMS_SERVICE_ID";
+
+    /**
+     * Acknowledgements to client
+     */
+    public static final String JMS_MESSAGE_DELIVERY_ERROR = "ERROR";
+    public static final String JMS_MESSAGE_DELIVERY_SUCCESS = "SUCCESS";
+    public static final String JMS_MESSAGE_DELIVERY_STATUS = "JMS_MESSAGE_DELIVERY_STATUS";
 }
