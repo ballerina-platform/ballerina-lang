@@ -1,7 +1,7 @@
 <idea-plugin version="2">
     <id>org.ballerinalang</id>
     <name>Ballerina</name>
-    <version>0.1</version>
+    <version>0.8.0</version>
     <category>Custom Languages</category>
     <vendor email="support@wso2.org" url="http://wso2.org">WSO2 Inc.</vendor>
 
@@ -13,11 +13,14 @@
 
     <change-notes><![CDATA[
       <ul>
-        <li>Syntax highlighting.</li>
-        <li>Code formatting.</li>
-        <li>Support to create new Ballerina Projects.</li>
-        <li>Support to add Ballerina SDKs.</li>
-        <li>Support to run Ballerina applications, services.</li>
+        <li>Support syntax highlighting for Ballerina files.</li>
+        <li>Support creating new Ballerina Projects.</li>
+        <li>Support adding Ballerina SDKs.</li>
+        <li>Support running single file Ballerina applications, services.</li>
+        <li>Support code completion.</li>
+        <li>Support refactoring.</li>
+        <li>Support formatting Ballerina files.</li>
+        <li>Support live templates.</li>
       </ul>
     ]]>
     </change-notes>
@@ -62,6 +65,9 @@
 
         <quoteHandler fileType="Ballerina file"
                       className="org.ballerinalang.plugins.idea.codeinsight.editoractions.BallerinaQuoteHandler"/>
+
+        <enterHandlerDelegate
+                implementation="org.ballerinalang.plugins.idea.formatter.BallerinaEnterBetweenBracesHandler"/>
 
         <!--structure view-->
         <lang.psiStructureViewFactory language="Ballerina"
