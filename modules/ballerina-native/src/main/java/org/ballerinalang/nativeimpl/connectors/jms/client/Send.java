@@ -58,7 +58,7 @@ import java.util.Map;
                  @Argument(name = "destinationName", type = TypeEnum.STRING),
                  @Argument(name = "destinationType", type = TypeEnum.STRING),
                  @Argument(name = "msgType", type = TypeEnum.STRING),
-                 @Argument(name = "message", type = TypeEnum.MESSAGE),
+                 @Argument(name = "m", type = TypeEnum.MESSAGE),
                  @Argument(name = "properties", type = TypeEnum.MAP) },
         returnType = {@ReturnType(type = TypeEnum.BOOLEAN)})
 @BallerinaAnnotation(annotationName = "Description", attributes = { @Attribute(name = "value",
@@ -131,9 +131,7 @@ public class Send extends AbstractJMSAction {
                     for (Object o : mapData.keySet()) {
                         BValue key = (BValue) o;
                         BValue value = mapData.get(key);
-                        if (key instanceof BString && value instanceof BString) {
-                            mapCarbonMessage.setValue(key.stringValue(), value.stringValue());
-                        }
+                        mapCarbonMessage.setValue(key.stringValue(), value.stringValue());
                     }
                 }
             } else if (!(message instanceof MapCarbonMessage)) {

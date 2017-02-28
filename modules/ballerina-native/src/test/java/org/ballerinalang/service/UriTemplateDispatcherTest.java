@@ -17,20 +17,17 @@
 */
 package org.ballerinalang.service;
 
-//import com.google.gson.JsonObject;
-//import com.google.gson.JsonParser;
-//import org.testng.Assert;
-//import org.testng.annotations.AfterClass;
-//import org.testng.annotations.BeforeClass;
-//import org.testng.annotations.DataProvider;
-//import org.testng.annotations.Test;
-//import org.ballerinalang.core.EnvironmentInitializer;
-//import org.ballerinalang.core.exception.BallerinaException;
-//import org.ballerinalang.model.Application;
-//import org.ballerinalang.model.values.BJSON;
-//import org.ballerinalang.core.utils.MessageUtils;
-//import org.wso2.ballerina.model.util.Services;
-//import org.wso2.carbon.messaging.CarbonMessage;
+import org.ballerinalang.model.BLangProgram;
+import org.ballerinalang.model.values.BJSON;
+import org.ballerinalang.testutils.EnvironmentInitializer;
+import org.ballerinalang.testutils.MessageUtils;
+import org.ballerinalang.testutils.Services;
+import org.testng.Assert;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
+import org.testng.annotations.Test;
+import org.wso2.carbon.messaging.CarbonMessage;
 
 /**
  * Test class for Uri Template based resource dispatchers.
@@ -38,11 +35,11 @@ package org.ballerinalang.service;
  */
 public class UriTemplateDispatcherTest {
 
-    /*private Application application;
+    private BLangProgram application;
 
     @BeforeClass()
     public void setup() {
-        application = EnvironmentInitializer.setup("model/service/uri-template.bal");
+        application = EnvironmentInitializer.setup("lang/service/uritemplate/uri-template.bal");
     }
 
     @Test(description = "Test accessing the variables parsed with URL. /products/{productId}/{regId}",
@@ -56,24 +53,30 @@ public class UriTemplateDispatcherTest {
         Assert.assertNotNull(response, "Response message not found");
         //Expected Json message : {"X-ORDER-ID":"ORD12345","ProductID":"PID123","RegID":"RID123"}
         BJSON bJson = ((BJSON) response.getMessageDataSource());
-        JsonObject jsonResponse = new JsonParser().parse(bJson.stringValue()).getAsJsonObject();
-        Assert.assertEquals(jsonResponse.get(xOrderIdHeadeName).getAsString(), xOrderIdHeadeValue
+        Assert.assertEquals(bJson.value().get(xOrderIdHeadeName).asText(), xOrderIdHeadeValue
                 , "Header value mismatched");
-        Assert.assertEquals(jsonResponse.get("ProductID").getAsString(), "PID123"
+        Assert.assertEquals(bJson.value().get("ProductID").asText(), "PID123"
                 , "ProductID variable not set properly.");
-        Assert.assertEquals(jsonResponse.get("RegID").getAsString(), "RID123"
+        Assert.assertEquals(bJson.value().get("RegID").asText(), "RID123"
                 , "RegID variable not set properly.");
     }
 
     @Test(description = "Test resource dispatchers with invalid URL. /products/{productId}/{regId}",
-            dataProvider = "inValidUrl", expectedExceptions = BallerinaException.class
-            , expectedExceptionsMessageRegExp = ".* no resource found to handle the request to Service .*")
+            dataProvider = "inValidUrl")
     public void testInValidUrlTemplateDispatching(String path) {
         CarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "GET");
         final String xOrderIdHeadeName = "X-ORDER-ID";
         final String xOrderIdHeadeValue = "ORD12345";
         cMsg.setHeader(xOrderIdHeadeName, xOrderIdHeadeValue);
-        Services.invoke(cMsg);
+        CarbonMessage response = Services.invoke(cMsg);
+        Assert.assertEquals(
+                response.getProperty(org.wso2.carbon.transport.http.netty.common.Constants.HTTP_STATUS_CODE), 500,
+                "Response code mismatch");
+        Assert.assertNotNull(response.getMessageDataSource(), "Message body null");
+        //checking the exception message
+        String errorMessage = response.getMessageDataSource().getMessageAsString();
+        Assert.assertTrue(errorMessage.contains("no resource found to handle the request to Service"),
+                "Expected error not found.");
     }
 
     @Test(description = "Test accessing the variables parsed with URL. /products/{productId}?regID={regID}",
@@ -84,21 +87,27 @@ public class UriTemplateDispatcherTest {
         Assert.assertNotNull(response, "Response message not found");
         //Expected Json message : {"X-ORDER-ID":"ORD12345","ProductID":"PID123","RegID":"RID123"}
         BJSON bJson = ((BJSON) response.getMessageDataSource());
-        JsonObject jsonResponse = new JsonParser().parse(bJson.stringValue()).getAsJsonObject();
-        Assert.assertEquals(jsonResponse.get("Template").getAsString(), "T4"
+        Assert.assertEquals(bJson.value().get("Template").asText(), "T4"
                 , "Resource dispatched to wrong template");
-        Assert.assertEquals(jsonResponse.get("ProductID").getAsString(), "PID123"
+        Assert.assertEquals(bJson.value().get("ProductID").asText(), "PID123"
                 , "ProductID variable not set properly.");
-        Assert.assertEquals(jsonResponse.get("RegID").getAsString(), "RID123"
+        Assert.assertEquals(bJson.value().get("RegID").asText(), "RID123"
                 , "RegID variable not set properly.");
     }
 
     @Test(description = "Test resource dispatchers with invalid URL. /products/{productId}?regID={regID}",
-            dataProvider = "inValidUrlWithQueryParam", expectedExceptions = BallerinaException.class
-            , expectedExceptionsMessageRegExp = ".* no resource found to handle the request to Service .*")
+            dataProvider = "inValidUrlWithQueryParam")
     public void testInValidUrlTemplateWithQueryParamDispatching(String path) {
         CarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "GET");
-        Services.invoke(cMsg);
+        CarbonMessage response = Services.invoke(cMsg);
+        Assert.assertEquals(
+                response.getProperty(org.wso2.carbon.transport.http.netty.common.Constants.HTTP_STATUS_CODE), 500,
+                "Response code mismatch");
+        Assert.assertNotNull(response.getMessageDataSource(), "Message body null");
+        //checking the exception message
+        String errorMessage = response.getMessageDataSource().getMessageAsString();
+        Assert.assertTrue(errorMessage.contains("no resource found to handle the request to Service"),
+                "Expected error not found.");
     }
 
     @Test(description = "Test accessing the variables parsed with URL. /products2/{productId}/{regId}/item")
@@ -109,12 +118,11 @@ public class UriTemplateDispatcherTest {
         Assert.assertNotNull(response, "Response message not found");
         //Expected Json message : {"Template":"T2","ProductID":"PID125","RegID":"RID125"}
         BJSON bJson = ((BJSON) response.getMessageDataSource());
-        JsonObject jsonResponse = new JsonParser().parse(bJson.stringValue()).getAsJsonObject();
-        Assert.assertEquals(jsonResponse.get("Template").getAsString(), "T2"
+        Assert.assertEquals(bJson.value().get("Template").asText(), "T2"
                 , "Resource dispatched to wrong template");
-        Assert.assertEquals(jsonResponse.get("ProductID").getAsString(), "PID125"
+        Assert.assertEquals(bJson.value().get("ProductID").asText(), "PID125"
                 , "ProductID variable not set properly.");
-        Assert.assertEquals(jsonResponse.get("RegID").getAsString(), "RID125"
+        Assert.assertEquals(bJson.value().get("RegID").asText(), "RID125"
                 , "RegID variable not set properly.");
     }
 
@@ -126,12 +134,11 @@ public class UriTemplateDispatcherTest {
         Assert.assertNotNull(response, "Response message not found");
         //Expected Json message : {"Template":"T3","ProductID":"PID125","RegID":"RID125"}
         BJSON bJson = ((BJSON) response.getMessageDataSource());
-        JsonObject jsonResponse = new JsonParser().parse(bJson.stringValue()).getAsJsonObject();
-        Assert.assertEquals(jsonResponse.get("Template").getAsString(), "T3"
+        Assert.assertEquals(bJson.value().get("Template").asText(), "T3"
                 , "Resource dispatched to wrong template");
-        Assert.assertEquals(jsonResponse.get("ProductID").getAsString(), "PID125"
+        Assert.assertEquals(bJson.value().get("ProductID").asText(), "PID125"
                 , "ProductID variable not set properly.");
-        Assert.assertEquals(jsonResponse.get("RegID").getAsString(), "RID125"
+        Assert.assertEquals(bJson.value().get("RegID").asText(), "RID125"
                 , "RegID variable not set properly.");
     }
 
@@ -143,12 +150,44 @@ public class UriTemplateDispatcherTest {
         Assert.assertNotNull(response, "Response message not found");
         //Expected Json message : {"Template":"T5","ProductID":"PID125","RegID":"RID125"}
         BJSON bJson = ((BJSON) response.getMessageDataSource());
-        JsonObject jsonResponse = new JsonParser().parse(bJson.stringValue()).getAsJsonObject();
-        Assert.assertEquals(jsonResponse.get("Template").getAsString(), "T5"
+        Assert.assertEquals(bJson.value().get("Template").asText(), "T5"
                 , "Resource dispatched to wrong template");
-        Assert.assertEquals(jsonResponse.get("ProductID").getAsString(), "PID125"
+        Assert.assertEquals(bJson.value().get("ProductID").asText(), "PID125"
                 , "ProductID variable not set properly.");
-        Assert.assertEquals(jsonResponse.get("RegID").getAsString(), "RID125"
+        Assert.assertEquals(bJson.value().get("RegID").asText(), "RID125"
+                , "RegID variable not set properly.");
+    }
+
+    @Test(description = "Test dispatching with URL. /products?productId={productId}&regID={regID}")
+    public void testUrlTemplateWithMultipleQueryParamDispatching() {
+        String path = "/ecommerceservice/products?productId=PID123&regID=RID123";
+        CarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "GET");
+        CarbonMessage response = Services.invoke(cMsg);
+        Assert.assertNotNull(response, "Response message not found");
+        //Expected Json message : {"X-ORDER-ID":"ORD12345","ProductID":"PID123","RegID":"RID123"}
+        BJSON bJson = ((BJSON) response.getMessageDataSource());
+        Assert.assertEquals(bJson.value().get("Template").asText(), "T6"
+                , "Resource dispatched to wrong template");
+        Assert.assertEquals(bJson.value().get("ProductID").asText(), "PID123"
+                , "ProductID variable not set properly.");
+        Assert.assertEquals(bJson.value().get("RegID").asText(), "RID123"
+                , "RegID variable not set properly.");
+    }
+
+    @Test(description = "Test dispatching with URL. /products?productId={productId}&regID={regID} "
+            + "Ex: products?productId=PID%20123&regID=RID%201123")
+    public void testUrlTemplateWithMultipleQueryParamWithURIEncodeCharacterDispatching() {
+        String path = "/ecommerceservice/products?productId=PID%20123&regID=RID%20123";
+        CarbonMessage cMsg = MessageUtils.generateHTTPMessage(path, "GET");
+        CarbonMessage response = Services.invoke(cMsg);
+        Assert.assertNotNull(response, "Response message not found");
+        //Expected Json message : {"X-ORDER-ID":"ORD12345","ProductID":"PID123","RegID":"RID123"}
+        BJSON bJson = ((BJSON) response.getMessageDataSource());
+        Assert.assertEquals(bJson.value().get("Template").asText(), "T6"
+                , "Resource dispatched to wrong template");
+        Assert.assertEquals(bJson.value().get("ProductID").asText(), "PID 123"
+                , "ProductID variable not set properly.");
+        Assert.assertEquals(bJson.value().get("RegID").asText(), "RID 123"
                 , "RegID variable not set properly.");
     }
 
@@ -206,5 +245,5 @@ public class UriTemplateDispatcherTest {
     @AfterClass
     public void tearDown() {
         EnvironmentInitializer.cleanup(application);
-    }*/
+    }
 }

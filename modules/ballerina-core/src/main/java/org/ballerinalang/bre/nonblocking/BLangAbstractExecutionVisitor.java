@@ -130,6 +130,7 @@ import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.natives.connectors.AbstractNativeConnector;
 import org.ballerinalang.natives.connectors.BalConnectorCallback;
 import org.ballerinalang.runtime.Constants;
+import org.ballerinalang.runtime.threadpool.BLangThreadFactory;
 import org.ballerinalang.runtime.worker.WorkerCallback;
 import org.ballerinalang.services.ErrorHandlerUtils;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
@@ -354,7 +355,7 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
         workerContext.setBalCallback(workerCallback);
         BLangExecutor workerExecutor = new BLangExecutor(runtimeEnv, workerContext);
 
-        executor = Executors.newSingleThreadExecutor();
+        executor = Executors.newSingleThreadExecutor(new BLangThreadFactory(worker.getName()));
         WorkerRunner workerRunner = new WorkerRunner(workerExecutor, workerContext, worker);
         Future<BMessage> future = executor.submit(workerRunner);
         worker.setResultFuture(future);
@@ -1374,7 +1375,7 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
     /**
      * Util method handle Ballerina exception. Native implementations <b>Must</b> use method to handle errors.
      *
-     * @param bException
+     * @param bException Exception to handle
      */
     public void handleBException(BException bException) {
         // Avoid setting stackTrace if already set.

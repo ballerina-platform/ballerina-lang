@@ -83,6 +83,7 @@ import org.ballerinalang.model.statements.WhileStmt;
 import org.ballerinalang.model.statements.WorkerInvocationStmt;
 import org.ballerinalang.model.statements.WorkerReplyStmt;
 import org.ballerinalang.model.symbols.BLangSymbol;
+import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.SimpleTypeName;
 import org.ballerinalang.model.types.TypeConstants;
 import org.ballerinalang.model.values.BBoolean;
@@ -155,6 +156,9 @@ public class BLangModelBuilder {
 
     // This variable keeps the fork-join scope when adding workers and resolve back to current scope once done
     protected SymbolScope forkJoinScope = null;
+
+    // This variable keeps the current scope when adding workers and resolve back to current scope once done
+    protected SymbolScope workerOuterBlockScope = null;
 
     // We need to keep a map of import packages.
     // This is useful when analyzing import functions, actions and types.
@@ -259,6 +263,7 @@ public class BLangModelBuilder {
 
     /**
      * Start a struct builder.
+     * @param location Location of the struct definition in the source bal file
      */
     public void startStructDef(NodeLocation location) {
         currentStructBuilder = new StructDef.StructBuilder(location, currentScope);
@@ -387,14 +392,21 @@ public class BLangModelBuilder {
     // Function parameters and types
 
     /**
-     * Create a function parameter and a corresponding variable reference expression.
-     * <p/>
+     * <p>Create a function parameter and a corresponding variable reference expression.</p>
      * Set the even function to get the value from the function arguments with the correct index.
      * Store the reference in the symbol table.
      *
      * @param paramName name of the function parameter
+     * @param location  Location of the parameter in the source file
      */
     public void addParam(String paramName, NodeLocation location) {
+        // Check the name against the type names
+        if (BTypes.isBuiltInTypeName(paramName)) {
+            String errMsg = BLangExceptionHelper.constructSemanticError(location,
+                    SemanticErrors.BUILT_IN_TYPE_NAMES_NOT_ALLOWED_AS_IDENTIFIER, paramName);
+            errorMsgs.add(errMsg);
+            return;
+        }
         SymbolName symbolName = new SymbolName(paramName);
 
         // Check whether this constant is already defined.
@@ -470,12 +482,16 @@ public class BLangModelBuilder {
     }
 
     /**
-     * Create variable reference expression.
-     * <p/>
+     * <p>Create variable reference expression.</p>
      * There are three types of variables references as per the grammar file.
-     * 1) Simple variable references. a, b, index etc
-     * 2) Map or arrays access a[1], m["key"]
-     * 3) Struct field access  Person.name
+     * <ol>
+     * <li> Simple variable references. a, b, index etc</li>
+     * <li> Map or arrays access a[1], m["key"]</li>
+     * <li> Struct field access  Person.name</li>
+     * </ol>
+     * 
+     * @param location Location of the variable reference expression in the source file
+     * @param varName name of the variable
      */
     public void createVarRefExpr(NodeLocation location, String varName) {
         VariableRefExpr variableRefExpr = new VariableRefExpr(location, varName);
@@ -768,6 +784,10 @@ public class BLangModelBuilder {
             parentCUBuilder = currentCUBuilder;
         }
         currentCUBuilder = new Worker.WorkerBuilder(packageScope);
+        //setting workerOuterBlockScope if it is not a fork join statement
+        if (forkJoinScope == null) {
+            workerOuterBlockScope = currentScope;
+        }
         currentScope = currentCUBuilder.getCurrentScope();
         annotationListStack.push(new ArrayList<>());
     }
@@ -856,6 +876,8 @@ public class BLangModelBuilder {
         Worker worker = currentCUBuilder.buildWorker();
         if (forkJoinStmtBuilderStack.isEmpty()) {
             parentCUBuilder.addWorker(worker);
+            //setting the current scope to resource block
+            currentScope = workerOuterBlockScope;
         } else {
             workerStack.peek().add(worker);
             currentScope = forkJoinScope;
@@ -863,6 +885,7 @@ public class BLangModelBuilder {
 
         currentCUBuilder = parentCUBuilder;
         parentCUBuilder = null;
+        workerOuterBlockScope = null;
 //        // Take the function body and set that as the CUBuilder body
 //        if (!blockStmtBuilderStack.empty()) {
 //            BlockStmt.BlockStmtBuilder blockStmtBuilder = blockStmtBuilderStack.pop();
@@ -950,6 +973,13 @@ public class BLangModelBuilder {
     // Statements
 
     public void addVariableDefinitionStmt(NodeLocation location, String varName, boolean exprAvailable) {
+        // Check the name against the type names
+        if (BTypes.isBuiltInTypeName(varName)) {
+            String errMsg = BLangExceptionHelper.constructSemanticError(location,
+                    SemanticErrors.BUILT_IN_TYPE_NAMES_NOT_ALLOWED_AS_IDENTIFIER, varName);
+            errorMsgs.add(errMsg);
+            return;
+        }
         SimpleTypeName typeName = typeNameStack.pop();
         VariableRefExpr variableRefExpr = new VariableRefExpr(location, varName);
 

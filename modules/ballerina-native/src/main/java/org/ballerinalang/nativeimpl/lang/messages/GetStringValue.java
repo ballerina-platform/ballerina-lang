@@ -40,7 +40,7 @@ import org.wso2.carbon.messaging.MapCarbonMessage;
 @BallerinaFunction(
         packageName = "ballerina.lang.messages",
         functionName = "getStringValue",
-        args = {@Argument(name = "message", type = TypeEnum.MESSAGE),
+        args = {@Argument(name = "m", type = TypeEnum.MESSAGE),
                 @Argument(name = "propertyName", type = TypeEnum.STRING)},
         returnType = {@ReturnType(type = TypeEnum.STRING)},
         isPublic = true
@@ -51,6 +51,8 @@ import org.wso2.carbon.messaging.MapCarbonMessage;
         value = "message") })
 @BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "propertyName",
         value = "Name of the property") })
+@BallerinaAnnotation(annotationName = "Return", attributes = {@Attribute(name = "string",
+        value = "The value of the map property") })
 public class GetStringValue extends AbstractNativeFunction {
     @Override
     public BValue[] execute(Context context) {

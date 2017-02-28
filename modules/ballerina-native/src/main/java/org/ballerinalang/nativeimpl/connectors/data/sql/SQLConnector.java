@@ -35,6 +35,7 @@ import org.osgi.service.component.annotations.Component;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.Locale;
 import java.util.Set;
 
 /**
@@ -52,10 +53,15 @@ import java.util.Set;
         service = AbstractNativeConnector.class)
 public class SQLConnector extends AbstractNativeConnector {
 
-    public static final String CONNECTOR_PACKAGE = "ballerina.data.sql";
+    static final String CONNECTOR_PACKAGE = "ballerina.data.sql";
     public static final String CONNECTOR_NAME = "ClientConnector";
 
     private HikariDataSource hikariDataSource;
+    private String databaseName;
+
+    public String getDatabaseName() {
+        return databaseName;
+    }
 
     public SQLConnector(SymbolScope enclosingScope) {
         super(enclosingScope);
@@ -65,6 +71,12 @@ public class SQLConnector extends AbstractNativeConnector {
     public boolean init(BValue[] bValueRefs) {
         BMap options = (BMap) bValueRefs[0];
         buildDataSource(options);
+        try (Connection con = getSQLConnection()) {
+            databaseName = con.getMetaData().getDatabaseProductName().toLowerCase(Locale.ENGLISH);
+        } catch (SQLException e) {
+            throw new BallerinaException(
+                    "error in get connection: " + SQLConnector.CONNECTOR_NAME + ": " + e.getMessage(), e);
+        }
         return true;
     }
 
@@ -82,6 +94,7 @@ public class SQLConnector extends AbstractNativeConnector {
         }
     }
 
+    @SuppressWarnings("unchecked")
     private void buildDataSource(BMap options) {
         try {
             HikariConfig config = new HikariConfig();
@@ -151,7 +164,7 @@ public class SQLConnector extends AbstractNativeConnector {
                 config.setMaximumPoolSize(Integer.parseInt(value.stringValue()));
                 options.remove(key);
             }
-            key = new BString(Constants.PoolProperties.POOOL_NAME);
+            key = new BString(Constants.PoolProperties.POOL_NAME);
             value = options.get(key);
             if (value != null) {
                 config.setPoolName(value.stringValue());
@@ -229,6 +242,7 @@ public class SQLConnector extends AbstractNativeConnector {
         }
     }
 
+    @SuppressWarnings("unchecked")
     void setDataSourceProperties(BMap options, HikariConfig config) {
         Set<BString> keySet = options.keySet();
         for (BString key : keySet) {

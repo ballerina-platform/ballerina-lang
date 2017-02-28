@@ -40,7 +40,7 @@ public final class Constants {
         public static final String CONNECTION_TEST_QUERY = "connectionTestQuery";
         public static final String MINIMUM_IDLE = "minimumIdle";
         public static final String MAXIMUM_POOL_SIZE = "maximumPoolSize";
-        public static final String POOOL_NAME = "poolName";
+        public static final String POOL_NAME = "poolName";
         public static final String ISOLATE_INTERNAL_QUERIES = "isolateInternalQueries";
         public static final String ALLOW_POOL_SUSPENSION = "allowPoolSuspension";
         public static final String READ_ONLY = "readOnly";
@@ -58,8 +58,6 @@ public final class Constants {
      * Constants for SQL DataTypes.
      */
     public static final class SQLDataTypes {
-        public static final String LONG = "LONG";
-        public static final String STRING = "STRING";
         public static final String VARCHAR = "VARCHAR";
         public static final String NUMERIC = "NUMERIC";
         public static final String DECIMAL = "DECIMAL";
@@ -80,9 +78,6 @@ public final class Constants {
         public static final String TIMESTAMP = "TIMESTAMP";
         public static final String ARRAY = "ARRAY";
         public static final String STRUCT = "STRUCT";
-        public static final String VARINT = "VARINT";
-        public static final String UUID = "UUID";
-        public static final String INETADDRESS = "INETADDRESS";
     }
 
     /**

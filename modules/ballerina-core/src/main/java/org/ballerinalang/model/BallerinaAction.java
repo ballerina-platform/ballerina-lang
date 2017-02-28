@@ -30,7 +30,7 @@ import java.util.Map;
 
 /**
  * An {@code Action} is a operation (function) that can be executed against a connector.
- * <p/>
+ * <p>
  * The structure of an action definition is as follows:
  * [ActionAnnotations]
  * action ActionName (ConnectorName VariableName[, ([ActionParamAnnotations] TypeName VariableName)+]) (TypeName*)
@@ -40,7 +40,7 @@ import java.util.Map;
  * WorkerDeclaration;*
  * Statement;+
  * }
- *
+ * </p>
  * @since 0.8.0
  */
 public class BallerinaAction implements Action, SymbolScope, Node {
@@ -245,7 +245,7 @@ public class BallerinaAction implements Action, SymbolScope, Node {
     }
 
     /**
-     * {@code BallerinaActionBuilder} is responsible for building a {@cdoe BallerinaAction} node.
+     * {@code BallerinaActionBuilder} is responsible for building a {@code BallerinaAction} node.
      *
      * @since 0.8.0
      */

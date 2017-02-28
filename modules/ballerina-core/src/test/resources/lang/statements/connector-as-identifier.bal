@@ -1,0 +1,3 @@
+function connectorTest() {
+    map connector = {};
+}

@@ -32,6 +32,8 @@ public class BConnectorType extends BType {
      * Create a {@code BConnectorType} which represents the boolean type.
      *
      * @param typeName string name of the type
+     * @param pkgPath package of the connector
+     * @param symbolScope symbol scope of the connector
      */
     public BConnectorType(String typeName, String pkgPath, SymbolScope symbolScope) {
         super(typeName, pkgPath, symbolScope, BConnector.class);

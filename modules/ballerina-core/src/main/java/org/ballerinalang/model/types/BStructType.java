@@ -32,6 +32,8 @@ public class BStructType extends BType {
      * Create a {@code BStructType} which represents the boolean type
      *
      * @param typeName string name of the type
+     * @param pkgPath package of the struct
+     * @param symbolScope symbol scope of the struct
      */
     public BStructType(String typeName, String pkgPath, SymbolScope symbolScope) {
         super(typeName, pkgPath, symbolScope, BStruct.class);

@@ -106,7 +106,7 @@ public class BallerinaException extends RuntimeException {
     /**
      * Constructs a new {@link BallerinaException} with the cause.
      *
-     * @param cause
+     * @param cause Throwable to wrap by a ballerina exception
      */
     public BallerinaException(Throwable cause) {
         super(cause);

@@ -181,7 +181,7 @@ public class DebugManager {
     /**
      * Set {@link BLangExecutionDebugger} to current execution.
      *
-     * @param debugger
+     * @param debugger Debugger
      */
     public void setDebugger(BLangExecutionDebugger debugger) {
         // if we are handling multiple connections
@@ -201,8 +201,8 @@ public class DebugManager {
     /**
      * Send a message to the debug client when a breakpoint is hit.
      *
-     * @param debugSession
-     * @param breakPointInfo
+     * @param debugSession current debugging session
+     * @param breakPointInfo info of the current break point
      */
     public void notifyDebugHit(DebugSession debugSession, BreakPointInfo breakPointInfo) {
         MessageDTO message = new MessageDTO();
@@ -217,7 +217,7 @@ public class DebugManager {
     /**
      * Notify client when debugger has finish execution.
      *
-     * @param debugSession
+     * @param debugSession current debugging session
      */
     public void notifyComplete(DebugSession debugSession) {
         MessageDTO message = new MessageDTO();
@@ -229,7 +229,7 @@ public class DebugManager {
     /**
      * Notify client when the debugger is exiting
      *
-     * @param debugSession
+     * @param debugSession current debugging session
      */
     public void notifyExit(DebugSession debugSession) {
         MessageDTO message = new MessageDTO();
@@ -241,8 +241,8 @@ public class DebugManager {
     /**
      * Send a generic acknowledge message to the client.
      *
-     * @param debugSession
-     * @param messageText
+     * @param debugSession current debugging session
+     * @param messageText message to send to the client
      */
     public void sendAcknowledge(DebugSession debugSession, String messageText) {
         MessageDTO message = new MessageDTO();

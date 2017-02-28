@@ -78,6 +78,7 @@ public class BLangFunctions {
      *
      * @param bLangProgram parsed, analyzed and linked object model
      * @param functionName name of the function to be invoked
+     * @param args arguments for the function
      * @return return values from the function
      */
     public static BValue[] invoke(BLangProgram bLangProgram, String functionName, BValue[] args) {
@@ -89,8 +90,11 @@ public class BLangFunctions {
      *
      * @param bLangProgram parsed, analyzed and linked object model
      * @param functionName name of the function to be invoked
+     * @param args arguments for the function
+     * @param bContext ballerina context
      * @return return values from the function
      */
+    
     public static BValue[] invoke(BLangProgram bLangProgram, String functionName, BValue[] args, Context bContext) {
         Function function = getFunction(bLangProgram.getLibraryPackages()[0].getFunctions(), functionName, args);
         if (function == null) {

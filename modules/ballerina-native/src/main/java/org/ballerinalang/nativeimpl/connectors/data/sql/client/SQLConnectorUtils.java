@@ -24,10 +24,16 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.io.StringReader;
 import java.math.BigDecimal;
 import java.nio.charset.Charset;
+import java.sql.Blob;
 import java.sql.CallableStatement;
+import java.sql.Clob;
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.PreparedStatement;
@@ -38,6 +44,8 @@ import java.sql.Time;
 import java.sql.Timestamp;
 import java.sql.Types;
 import java.util.Base64;
+import java.util.Calendar;
+import java.util.TimeZone;
 
 /**
  * Class contains utility methods for SQL Connector operations.
@@ -69,10 +77,10 @@ public class SQLConnectorUtils {
             } else if (Constants.QueryParamDirection.OUT == direction) {
                 ((CallableStatement) stmt).registerOutParameter(index + 1, sqlType);
             } else {
-                throw new BallerinaException("Invalid direction for the parameter, index: " + index);
+                throw new BallerinaException("invalid direction for the parameter with index: " + index);
             }
         } catch (SQLException e) {
-            throw new BallerinaException("Error in set integer to statement." + e.getMessage(), e);
+            throw new BallerinaException("error in set integer to statement: " + e.getMessage(), e);
         }
     }
 
@@ -94,10 +102,10 @@ public class SQLConnectorUtils {
             } else if (Constants.QueryParamDirection.OUT == direction) {
                 ((CallableStatement) stmt).registerOutParameter(index + 1, sqlType);
             } else {
-                throw new BallerinaException("Invalid direction for the parameter, index: " + index);
+                throw new BallerinaException("invalid direction for the parameter with index: " + index);
             }
         } catch (SQLException e) {
-            throw new BallerinaException("Error in set string to statement." + e.getMessage(), e);
+            throw new BallerinaException("error in set string to statement: " + e.getMessage(), e);
         }
     }
 
@@ -124,10 +132,10 @@ public class SQLConnectorUtils {
             } else if (Constants.QueryParamDirection.OUT == direction) {
                 ((CallableStatement) stmt).registerOutParameter(index + 1, sqlType);
             } else {
-                throw new BallerinaException("Invalid direction for the parameter, index: " + index);
+                throw new BallerinaException("invalid direction for the parameter with index: " + index);
             }
         } catch (SQLException e) {
-            throw new BallerinaException("Error in set double to statement." + e.getMessage(), e);
+            throw new BallerinaException("error in set double to statement: " + e.getMessage(), e);
         }
     }
 
@@ -154,10 +162,10 @@ public class SQLConnectorUtils {
             } else if (Constants.QueryParamDirection.OUT == direction) {
                 ((CallableStatement) stmt).registerOutParameter(index + 1, sqlType);
             } else {
-                throw new BallerinaException("Invalid direction for the parameter, index: " + index);
+                throw new BallerinaException("invalid direction for the parameter with index: " + index);
             }
         } catch (SQLException e) {
-            throw new BallerinaException("Error in set numeric value to statement." + e.getMessage(), e);
+            throw new BallerinaException("error in set numeric value to statement: " + e.getMessage(), e);
         }
     }
 
@@ -184,10 +192,10 @@ public class SQLConnectorUtils {
             } else if (Constants.QueryParamDirection.OUT == direction) {
                 ((CallableStatement) stmt).registerOutParameter(index + 1, sqlType);
             } else {
-                throw new BallerinaException("Invalid direction for the parameter, index: " + index);
+                throw new BallerinaException("invalid direction for the parameter with index: " + index);
             }
         } catch (SQLException e) {
-            throw new BallerinaException("Error in set boolean value to statement." + e.getMessage(), e);
+            throw new BallerinaException("error in set boolean value to statement: " + e.getMessage(), e);
         }
     }
 
@@ -214,10 +222,10 @@ public class SQLConnectorUtils {
             } else if (Constants.QueryParamDirection.OUT == direction) {
                 ((CallableStatement) stmt).registerOutParameter(index + 1, sqlType);
             } else {
-                throw new BallerinaException("Invalid direction for the parameter, index: " + index);
+                throw new BallerinaException("invalid direction for the parameter with index: " + index);
             }
         } catch (SQLException e) {
-            throw new BallerinaException("Error in set TinyInt value to statement." + e.getMessage(), e);
+            throw new BallerinaException("error in set TinyInt value to statement: " + e.getMessage(), e);
         }
     }
 
@@ -274,10 +282,10 @@ public class SQLConnectorUtils {
             } else if (Constants.QueryParamDirection.OUT == direction) {
                 ((CallableStatement) stmt).registerOutParameter(index + 1, sqlType);
             } else {
-                throw new BallerinaException("Invalid direction for the parameter, index: " + index);
+                throw new BallerinaException("invalid direction for the parameter with index: " + index);
             }
         } catch (SQLException e) {
-            throw new BallerinaException("Error in set Big Int value to statement." + e.getMessage(), e);
+            throw new BallerinaException("error in set Big Int value to statement: " + e.getMessage(), e);
         }
     }
 
@@ -334,10 +342,10 @@ public class SQLConnectorUtils {
             } else if (Constants.QueryParamDirection.OUT == direction) {
                 ((CallableStatement) stmt).registerOutParameter(index + 1, sqlType);
             } else {
-                throw new BallerinaException("Invalid direction for the parameter, index: " + index);
+                throw new BallerinaException("invalid direction for the parameter with index: " + index);
             }
         } catch (SQLException e) {
-            throw new BallerinaException("Error in set date value to statement." + e.getMessage(), e);
+            throw new BallerinaException("error in set date value to statement: " + e.getMessage(), e);
         }
     }
 
@@ -364,10 +372,10 @@ public class SQLConnectorUtils {
             } else if (Constants.QueryParamDirection.OUT == direction) {
                 ((CallableStatement) stmt).registerOutParameter(index + 1, sqlType);
             } else {
-                throw new BallerinaException("Invalid direction for the parameter, index: " + index);
+                throw new BallerinaException("invalid direction for the parameter, index: " + index);
             }
         } catch (SQLException e) {
-            throw new BallerinaException("Error in set Timestamp value to statement." + e.getMessage(), e);
+            throw new BallerinaException("error in set Timestamp value to statement: " + e.getMessage(), e);
         }
     }
 
@@ -394,10 +402,10 @@ public class SQLConnectorUtils {
             } else if (Constants.QueryParamDirection.OUT == direction) {
                 ((CallableStatement) stmt).registerOutParameter(index + 1, sqlType);
             } else {
-                throw new BallerinaException("Invalid direction for the parameter, index: " + index);
+                throw new BallerinaException("invalid direction for the parameter with index: " + index);
             }
         } catch (SQLException e) {
-            throw new BallerinaException("Error in set Timestamp value to statement." + e.getMessage(), e);
+            throw new BallerinaException("error in set Timestamp value to statement: " + e.getMessage(), e);
         }
     }
 
@@ -424,10 +432,10 @@ public class SQLConnectorUtils {
             } else if (Constants.QueryParamDirection.OUT == direction) {
                 ((CallableStatement) stmt).registerOutParameter(index + 1, sqlType);
             } else {
-                throw new BallerinaException("Invalid direction for the parameter, index: " + index);
+                throw new BallerinaException("invalid direction for the parameter with index: " + index);
             }
         } catch (SQLException e) {
-            throw new BallerinaException("Error in set binary value to statement." + e.getMessage(), e);
+            throw new BallerinaException("error in set binary value to statement: " + e.getMessage(), e);
         }
     }
 
@@ -454,10 +462,10 @@ public class SQLConnectorUtils {
             } else if (Constants.QueryParamDirection.OUT == direction) {
                 ((CallableStatement) stmt).registerOutParameter(index + 1, sqlType);
             } else {
-                throw new BallerinaException("Invalid direction for the parameter, index: " + index);
+                throw new BallerinaException("invalid direction for the parameter with index: " + index);
             }
         } catch (SQLException e) {
-            throw new BallerinaException("Error in set binary value to statement." + e.getMessage(), e);
+            throw new BallerinaException("error in set binary value to statement: " + e.getMessage(), e);
         }
     }
 
@@ -484,18 +492,10 @@ public class SQLConnectorUtils {
             } else if (Constants.QueryParamDirection.OUT == direction) {
                 ((CallableStatement) stmt).registerOutParameter(index + 1, sqlType);
             } else {
-                throw new BallerinaException("Invalid direction for the parameter, index: " + index);
+                throw new BallerinaException("invalid direction for the parameter with index: " + index);
             }
         } catch (SQLException e) {
-            throw new BallerinaException("Error in set binary value to statement." + e.getMessage(), e);
-        }
-    }
-
-    private static byte[] getBytesFromBase64String(String base64Str) {
-        try {
-            return Base64.getDecoder().decode(base64Str.getBytes(Charset.defaultCharset()));
-        } catch (Exception e) {
-            throw new BallerinaException("Error in Processing Base64 String." + e.getMessage(), e);
+            throw new BallerinaException("error in set binary value to statement: " + e.getMessage(), e);
         }
     }
 
@@ -572,5 +572,188 @@ public class SQLConnectorUtils {
         default:
             return TypeEnum.EMPTY;
         }
+    }
+
+    /**
+     * This will retrieve the string value for the given clob.
+     *
+     * @param data   clob data
+     */
+    public static String getString(Clob data) {
+        try (Reader r = new BufferedReader(data.getCharacterStream())) {
+            StringBuilder sb = new StringBuilder();
+            int pos;
+            while ((pos = r.read()) != -1) {
+                sb.append((char) pos);
+            }
+            return sb.toString();
+        } catch (IOException | SQLException e) {
+            throw new BallerinaException("error occurred while reading CLOB value: " + e.getMessage(), e);
+        }
+    }
+
+    /**
+     * This will retrieve the string value for the given blob.
+     *
+     * @param data blob data
+     */
+    public static String getString(Blob data) {
+        // Directly allocating full length arrays for decode byte arrays since anyway we are building
+        // new String in memory.
+        // Position of the getBytes has to be 1 instead of 0.
+        // "pos - the ordinal position of the first byte in the BLOB value to be extracted;
+        // the first byte is at position 1"
+        // - https://docs.oracle.com/javase/7/docs/api/java/sql/Blob.html#getBytes(long,%20int)
+        try {
+            byte[] encode = getBase64Encode(
+                    new String(data.getBytes(1L, (int) data.length()), Charset.defaultCharset()));
+            return new String(encode, Charset.defaultCharset());
+        } catch (SQLException e) {
+            throw new BallerinaException("error occurred while reading BLOB value", e);
+        }
+    }
+
+    /**
+     * This will retrieve the string value for the given input stream.
+     *
+     * @param inputStream input stream data
+     */
+    public static String getString(InputStream inputStream) {
+        String value = getStringFromInputStream(inputStream);
+        byte[] encode = getBase64Encode(value);
+        return new String(encode, Charset.defaultCharset());
+    }
+
+    public static String getString(Date value) {
+        // lexical form of the date is '-'? yyyy '-' mm '-' dd zzzzzz?
+        Calendar calendar = Calendar.getInstance();
+        calendar.clear();
+        calendar.setTime(value);
+        if (!calendar.isSet(Calendar.ZONE_OFFSET)) {
+            calendar.setTimeZone(TimeZone.getDefault());
+        }
+        StringBuffer dateString = new StringBuffer(16);
+        appendDate(dateString, calendar);
+        appendTimeZone(calendar, dateString);
+        return dateString.toString();
+    }
+
+    public static String getString(Timestamp sqlTimestamp) {
+        Calendar cal = Calendar.getInstance();
+        cal.setTimeInMillis(sqlTimestamp.getTime());
+        return getString(cal);
+    }
+
+    public static String getString(Time sqlTimestamp) {
+        Calendar cal = Calendar.getInstance();
+        cal.setTimeInMillis(sqlTimestamp.getTime());
+        return getString(cal);
+    }
+
+    private static String getString(Calendar value) {
+        // lexical form of the calendar is '-'? yyyy '-' mm '-' dd 'T' hh ':' mm ':' ss ('.' s+)? (zzzzzz)?
+        if (value.get(Calendar.ZONE_OFFSET) == -1) {
+            value.setTimeZone(TimeZone.getDefault());
+        }
+        StringBuffer dateString = new StringBuffer(28);
+        appendDate(dateString, value);
+        dateString.append("T");
+        //adding hours
+        appendTime(value, dateString);
+        appendTimeZone(value, dateString);
+        return dateString.toString();
+    }
+
+    private static byte[] getBytesFromBase64String(String base64Str) {
+        try {
+            return Base64.getDecoder().decode(base64Str.getBytes(Charset.defaultCharset()));
+        } catch (Exception e) {
+            throw new BallerinaException("error in processing base64 string: " + e.getMessage(), e);
+        }
+    }
+
+    private static byte[] getBase64Encode(String st) {
+        return Base64.getEncoder().encode(st.getBytes(Charset.defaultCharset()));
+    }
+
+    private static String getStringFromInputStream(InputStream is) {
+        StringBuilder sb = new StringBuilder();
+        try (BufferedReader br = new BufferedReader(new InputStreamReader(is, Charset.defaultCharset()))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                sb.append(line);
+            }
+        } catch (IOException e) {
+            throw new BallerinaException("failed to read binary as a string: " + e.getMessage(), e);
+        }
+        return sb.toString();
+    }
+
+    private static void appendTimeZone(Calendar calendar, StringBuffer dateString) {
+        int timezoneOffSet = calendar.get(Calendar.ZONE_OFFSET) + calendar.get(Calendar.DST_OFFSET);
+        int timezoneOffSetInMinits = timezoneOffSet / 60000;
+        if (timezoneOffSetInMinits < 0) {
+            dateString.append("-");
+            timezoneOffSetInMinits = timezoneOffSetInMinits * -1;
+        } else {
+            dateString.append("+");
+        }
+        int hours = timezoneOffSetInMinits / 60;
+        int minits = timezoneOffSetInMinits % 60;
+        if (hours < 10) {
+            dateString.append("0");
+        }
+        dateString.append(hours).append(":");
+        if (minits < 10) {
+            dateString.append("0");
+        }
+        dateString.append(minits);
+    }
+
+    private static void appendTime(Calendar value, StringBuffer dateString) {
+        if (value.get(Calendar.HOUR_OF_DAY) < 10) {
+            dateString.append("0");
+        }
+        dateString.append(value.get(Calendar.HOUR_OF_DAY)).append(":");
+        if (value.get(Calendar.MINUTE) < 10) {
+            dateString.append("0");
+        }
+        dateString.append(value.get(Calendar.MINUTE)).append(":");
+        if (value.get(Calendar.SECOND) < 10) {
+            dateString.append("0");
+        }
+        dateString.append(value.get(Calendar.SECOND)).append(".");
+        if (value.get(Calendar.MILLISECOND) < 10) {
+            dateString.append("0");
+        }
+        if (value.get(Calendar.MILLISECOND) < 100) {
+            dateString.append("0");
+        }
+        dateString.append(value.get(Calendar.MILLISECOND));
+    }
+
+    private static void appendDate(StringBuffer dateString, Calendar calendar) {
+        int year = calendar.get(Calendar.YEAR);
+        if (year < 1000) {
+            dateString.append("0");
+        }
+        if (year < 100) {
+            dateString.append("0");
+        }
+        if (year < 10) {
+            dateString.append("0");
+        }
+        dateString.append(year).append("-");
+        // sql date month is started from 1 and calendar month is
+        // started from 0. so have to add one
+        int month = calendar.get(Calendar.MONTH) + 1;
+        if (month < 10) {
+            dateString.append("0");
+        }
+        dateString.append(month).append("-");
+        if (calendar.get(Calendar.DAY_OF_MONTH) < 10) {
+            dateString.append("0");
+        }
+        dateString.append(calendar.get(Calendar.DAY_OF_MONTH));
     }
 }

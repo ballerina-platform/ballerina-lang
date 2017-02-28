@@ -69,6 +69,7 @@ public class ErrorHandlerUtils {
      * Get the ballerina stack trace from context.
      *
      * @param context Ballerina context
+     * @param throwable Throwable associated with the error
      * @return Ballerina stack trace
      */
     public static String getServiceStackTrace(Context context, Throwable throwable) {
@@ -97,6 +98,7 @@ public class ErrorHandlerUtils {
      * Deprecated method to Get the ballerina stack trace for a main function. Use {@code getStackTrace} instead.
      *
      * @param context Ballerina context associated with the main function
+     * @param throwable Throwable associated with the error
      * @return Ballerina stack trace
      * @since 0.8.0.
      * @deprecated
