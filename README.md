@@ -28,6 +28,10 @@ git clone --recursive https://github.com/ballerinalang/plugin-intellij.git
 3. Add a new **plugin** configuration.
 4. Now you can run or debug the plugin directly from the IDEA.
 
+## Getting started
+
+Please refer the [Getting Started](getting-started) section.
+
 ## How to contribute
 Pull requests are highly encouraged and we recommend you to create a GitHub issue to discuss the issue or feature that you are contributing to.
 
