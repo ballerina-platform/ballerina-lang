@@ -332,12 +332,14 @@ define(['lodash', 'd3','log', './simple-statement-view', './../ast/action-invoca
          */
         WorkerInvoke.prototype.onBeforeModelRemove = function () {
             d3.select("#_" +this.getModel().getID()).remove();
-            this._startRect.node().remove();
-            this._startActionText.node().remove();
+            if (!_.isNil(this._startRect) && !_.isNil(this._startActionText) && !_.isNil(this._messageView)) {
+                this._startRect.node().remove();
+                this._startActionText.node().remove();
+                this._messageView.removeArrow();
+            }
             // resize the bounding box in order to the other objects to resize
             var gap = this.getParent().getStatementContainer().getInnerDropZoneHeight();
             this.getBoundingBox().move(0, -this.getBoundingBox().h() - gap).w(0);
-            this._messageView.removeArrow();
         };
 
         return WorkerInvoke;
