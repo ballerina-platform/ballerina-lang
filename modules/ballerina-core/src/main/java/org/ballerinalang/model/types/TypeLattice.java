@@ -77,6 +77,8 @@ public class TypeLattice {
         implicitCastLattice.addEdge(doubleV, stringV, NativeCastMapper.DOUBLE_TO_STRING_FUNC);
 
         implicitCastLattice.addEdge(booleanV, stringV, NativeCastMapper.BOOLEAN_TO_STRING_FUNC);
+        implicitCastLattice.addEdge(booleanV, intV, NativeCastMapper.BOOLEAN_TO_INT_FUNC);
+        implicitCastLattice.addEdge(booleanV, floatV, NativeCastMapper.BOOLEAN_TO_FLOAT_FUNC);
     }
 
     public static void loadExplicitCastLattice(SymbolScope scope) {
@@ -104,6 +106,7 @@ public class TypeLattice {
         explicitCastLattice.addEdge(intV, floatV, NativeCastMapper.INT_TO_FLOAT_FUNC);
         explicitCastLattice.addEdge(intV, doubleV, NativeCastMapper.INT_TO_DOUBLE_FUNC);
         explicitCastLattice.addEdge(intV, stringV, NativeCastMapper.INT_TO_STRING_FUNC);
+        explicitCastLattice.addEdge(intV, booleanV, NativeCastMapper.INT_TO_BOOLEAN_FUNC);
         explicitCastLattice.addEdge(intV, intV, NativeCastMapper.INT_TO_INT_FUNC);
 
         explicitCastLattice.addEdge(longV, intV, NativeCastMapper.LONG_TO_INT_FUNC);
@@ -122,6 +125,7 @@ public class TypeLattice {
         explicitCastLattice.addEdge(floatV, floatV, NativeCastMapper.FLOAT_TO_FLOAT_FUNC);
         explicitCastLattice.addEdge(floatV, doubleV, NativeCastMapper.FLOAT_TO_DOUBLE_FUNC);
         explicitCastLattice.addEdge(floatV, stringV, NativeCastMapper.FLOAT_TO_STRING_FUNC);
+        explicitCastLattice.addEdge(floatV, booleanV, NativeCastMapper.FLOAT_TO_BOOLEAN_FUNC);
         explicitCastLattice.addEdge(floatV, intV, NativeCastMapper.FLOAT_TO_INT_FUNC);
 
         explicitCastLattice.addEdge(stringV, longV, NativeCastMapper.STRING_TO_LONG_FUNC);
@@ -132,6 +136,8 @@ public class TypeLattice {
 
         explicitCastLattice.addEdge(booleanV, stringV, NativeCastMapper.BOOLEAN_TO_STRING_FUNC);
         explicitCastLattice.addEdge(booleanV, booleanV, NativeCastMapper.BOOLEAN_TO_BOOLEAN_FUNC);
+        explicitCastLattice.addEdge(booleanV, intV, NativeCastMapper.BOOLEAN_TO_INT_FUNC);
+        explicitCastLattice.addEdge(booleanV, floatV, NativeCastMapper.BOOLEAN_TO_FLOAT_FUNC);
 
 //        explicitCastLattice.addEdge(jsonV, xmlV, new JSONToXML(), TypeConstants.NATIVE_PACKAGE);
 //        explicitCastLattice.addEdge(xmlV, jsonV, new XMLToJSON(), TypeConstants.NATIVE_PACKAGE);

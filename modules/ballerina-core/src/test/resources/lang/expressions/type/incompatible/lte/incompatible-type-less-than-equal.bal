@@ -2,6 +2,6 @@ package lang.expressions.type.incompatible.lte;
 
 function checkLessThanEual() (boolean){
 	int a;
-	boolean b;
+	string b;
 	return a <= b;
 }
