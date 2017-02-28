@@ -54,7 +54,7 @@ Let's rename both the service and resource.
 Now, let's set the base path for this service. This will be the context portion of the URL that clients will use to send requests to this service. 
 
 1. In the upper right corner of the **service** box (not the resource box this time), click the Annotations (`@`) icon. 
-1. Make sure BasePath is selected in the list, type `/myecho` in the text box, and then press Enter or click the + symbol to its right. 
+1. Make sure `http:BasePath` is selected in the list, type `/myecho` in the text box, and then press Enter or click the + symbol to its right. 
 
 The base path is now set, so that when you deploy this service, clients will be able to send requests to it using the URL http://localhost:9090/myecho.
 
@@ -62,7 +62,8 @@ The base path is now set, so that when you deploy this service, clients will be 
 
 When you added the service, Ballerina configured the resource to use the GET method by default. Because we are going to use the incoming message to post a reply, let's change it to POST. 
 
-1. Click the `@` symbol in the upper right corner of the resource box, highlight `GET`, and type `POST`. 
+1. Click the `@` symbol in the upper right corner of the **resource** box (not the service box).
+1. Click `http:GET`, highlight `GET`, and type `POST`. 
 1. Click the `@` symbol again to hide the box. 
 
 You can click the symbol again to confirm that GET was in fact changed to POST. You can also click the Source View button in the lower right corner to see the changes that are being made to the Ballerina code as you work with the visual editor.
@@ -71,14 +72,14 @@ You can click the symbol again to confirm that GET was in fact changed to POST. 
 
 Now, let's add a function that will take the incoming message and convert it to a response that gets sent back to the client. Because we are sending the original request back instead of composing a new message to send to the client, we need to strip its original headers before we reply, as those headers are intended for use in the client -> server direction and not the other way around. The `ballerina.net.http` package includes a native function called `convertToResponse` that removes the incoming HTTP headers when replying to the client. Let's add that function to our flow.
 
-1. On the tool palette, go to the **ballerina.net.http** section, click the **convertToResponse** function, and drag it to the canvas below **Start**. 
-1. Click in the parentheses of `convertToResponse()` and type `m`, which is the incoming message, so that it looks like this: `convertToResponse(m)`
+1. On the tool palette, scroll down to the **ballerina.net.http** section, click the **convertToResponse** function, and drag it to the canvas below **Start**. 
+1. Highlight `message` in `http:convertToResponse(message)` and replace it with `m`, which is the incoming message, so that it looks like this: `http:convertToResponse(m)`
 
 ### Add the reply
 Now that we've added the function that will convert the incoming message text to a response, we just need to instruct the program to send the response back to the client.
 
 1. On the tool palette, click the Reply icon ![alt text](../images/icons/reply.png "Reply icon") and drag it to the canvas under the `convertToResponse` function you just added. You'll see that it appears as a box with an arrow going back to the client. 
-1. Click the reply box you just added, click the Edit icon, and set the response message to `m`, which instructs the program to send the message processed by the `convertToResponse` function back to the client. 
+1. Click the reply box you just added and type `m` to instruct the program to send the message processed by the `convertToResponse` function back to the client. Click outside of the box. 
 
 This completes the sequence, so you are now ready to save and run your integration program.
 
@@ -89,18 +90,14 @@ This completes the sequence, so you are now ready to save and run your integrati
 
 ### Run the program
 
-1. At the command prompt, navigate to your `<ballerina_home>/samples` directory. 
-1. Enter the command to run the Ballerina server and deploy your myEcho program:
-
-  ```
-  ballerina run service ../samples/myEcho.bal
-  ```
+1. To the left of the tool palette, click the run icon ">" and click **Service**. 
+   If you were creating a Ballerina program with a `main()` function, you would click **Application** instead.
 
 Your service is now deployed and running on the Ballerina server. 
 
 ### Send the request
 
-From a separate command prompt, use curl to send a request to your program:
+In a new command prompt, use curl to send a request to your program:
 
 ```
 curl -v http://localhost:9090/myecho -d "Hello World......"
