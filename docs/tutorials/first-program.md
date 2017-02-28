@@ -35,7 +35,6 @@ It's time to create your first integration! In this exercise, we are going to cr
 First, we add a **service** construct to the canvas in the Composer. A service is a container for all the other constructs and represents a single unit of functionality that can be accessed remotely.
 
 1. If the Composer is not already running, run it as described in the [Quick Tour](../quick-tour.md).
-
 1. On the tool palette, click the service icon and drag it to the canvas. 
 
 A box appears with the name `newService`, and inside it is another box called `newResource` with some content already created for you. 
@@ -90,8 +89,9 @@ This completes the sequence, so you are now ready to save and run your integrati
 
 ### Run the program
 
-1. To the left of the tool palette, click the run icon ">" and click **Service**. 
-   If you were creating a Ballerina program with a `main()` function, you would click **Application** instead.
+To the left of the tool palette, click the run icon ">" and click **Service**. 
+   
+If you were creating a Ballerina program with a `main()` function, you would click **Application** instead.
 
 Your service is now deployed and running on the Ballerina server. 
 
