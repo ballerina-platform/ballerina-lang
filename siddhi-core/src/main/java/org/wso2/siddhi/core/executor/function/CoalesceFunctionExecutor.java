@@ -29,19 +29,25 @@ import java.util.Map;
 @Extension(
         name = "coalesce",
         namespace = "",
-        description = "Returns the value of the first input parameter that is not null, and all input parameters have to" +
-                " be on the same type",
+        description = "Returns the value of the first input parameter that is not null, " +
+                "and all input parameters have to be on the same type.",
         parameters = {
-                @Parameter(name = "arg1", type = {DataType.INT, DataType.LONG, DataType.DOUBLE, DataType.FLOAT,
-                        DataType.STRING, DataType.BOOL, DataType.OBJECT}),
+                @Parameter(name = "arg1",
+                        type = {DataType.INT, DataType.LONG, DataType.DOUBLE, DataType.FLOAT,
+                                DataType.STRING, DataType.BOOL, DataType.OBJECT}),
                 @Parameter(name = "arg2", type = {DataType.INT, DataType.LONG, DataType.DOUBLE, DataType.FLOAT,
                         DataType.STRING, DataType.BOOL, DataType.OBJECT}),
-                @Parameter(name = "argN", type = {DataType.INT, DataType.LONG, DataType.DOUBLE, DataType.FLOAT,
-                        DataType.STRING, DataType.BOOL, DataType.OBJECT})
+                @Parameter(name = "argN",
+                        description = "This function accepts one or more parameters. " +
+                                "They can belong to any one of the available types." +
+                                " All the specified parameters should be of the same type.",
+                        type = {DataType.INT, DataType.LONG, DataType.DOUBLE, DataType.FLOAT,
+                                DataType.STRING, DataType.BOOL, DataType.OBJECT})
         },
-        returnAttributes = @ReturnAttribute(type = {DataType.INT, DataType.LONG, DataType.DOUBLE, DataType.FLOAT,
-                DataType.STRING, DataType.BOOL, DataType.OBJECT})
-
+        returnAttributes = @ReturnAttribute(
+                description = "This will be the same as the type of the first input parameter.",
+                type = {DataType.INT, DataType.LONG, DataType.DOUBLE, DataType.FLOAT,
+                        DataType.STRING, DataType.BOOL, DataType.OBJECT})
 )
 public class CoalesceFunctionExecutor extends FunctionExecutor {
 

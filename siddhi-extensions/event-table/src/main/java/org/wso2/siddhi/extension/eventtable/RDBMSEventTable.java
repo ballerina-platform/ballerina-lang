@@ -21,6 +21,8 @@ package org.wso2.siddhi.extension.eventtable;
 
 import org.apache.log4j.Logger;
 import org.wso2.siddhi.annotation.Extension;
+import org.wso2.siddhi.annotation.Parameter;
+import org.wso2.siddhi.annotation.util.DataType;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.state.StateEvent;
@@ -58,7 +60,46 @@ import java.util.TimerTask;
 @Extension(
         name = "rdbms",
         namespace = "eventtable",
-        description = ""
+        description = "Using this extension the data source or the connection instructions can be " +
+                "assigned to the event table.",
+        parameters = {
+                @Parameter(name = "datasource.name",
+                        description = "Name of the data source, which is registered in the system.",
+                        type = {DataType.STRING}),
+                @Parameter(name = "table.name",
+                        description = "Name of the backed by table.",
+                        type = {DataType.STRING}),
+                @Parameter(name = "cache",
+                        description = "Type of the cache implementation.\n(" +
+                                "    Basic: Events are cached in a FIFO manner where the oldest event will be " +
+                                "dropped when the cache is full.\n" +
+                                "    LRU (Least Recently Used): The least recently used event is dropped " +
+                                "when the cache is full.\n" +
+                                "    LFU (Least Frequently Used): The least frequently used event is dropped " +
+                                "when the cache is full." +
+                                ")\n" +
+                                " if the cache element is not specified the Basic cache will be assigned by default.",
+                        type = {DataType.STRING}),
+                @Parameter(name = "cache.size",
+                        description = "The size of the cache. If the element is not assigned the default value 4096 " +
+                                "will be assigned as the cache size.",
+                        type = {DataType.STRING}),
+                @Parameter(name = "bloom.filters",
+                        description = "The bloom filter enable or disable property.",
+                        type = {DataType.STRING}),
+                @Parameter(name = "jdbc.url",
+                        description = "The jdbc url for databases which is not registered as datasource.",
+                        type = {DataType.STRING}),
+                @Parameter(name = "driver.name",
+                        description = "The jdbc driver name for databases which is not registered as datasource.",
+                        type = {DataType.STRING}),
+                @Parameter(name = "username",
+                        description = "The username for databases which is not registered as datasource.",
+                        type = {DataType.STRING}),
+                @Parameter(name = "password",
+                        description = "The password for databases which is not registered as datasource.",
+                        type = {DataType.STRING})
+        }
 )
 public class RDBMSEventTable implements EventTable {
 

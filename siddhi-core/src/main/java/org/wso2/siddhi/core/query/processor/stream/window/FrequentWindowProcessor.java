@@ -19,6 +19,9 @@
 package org.wso2.siddhi.core.query.processor.stream.window;
 
 import org.wso2.siddhi.annotation.Extension;
+import org.wso2.siddhi.annotation.Parameter;
+import org.wso2.siddhi.annotation.ReturnAttribute;
+import org.wso2.siddhi.annotation.util.DataType;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.state.StateEvent;
@@ -44,19 +47,25 @@ import java.util.concurrent.ConcurrentHashMap;
  * This is the implementation of a counting algorithm based on
  * Misra-Gries counting algorithm
  */
-//@Description("This window returns the latest events with the most frequently " +
-//        "occurred value for a given attribute(s). Frequency calculation for this " +
-//        "window processor is based on Misra-Gries counting algorithm.")
-//@Parameters({
-//        @Parameter(name = "eventCount", type = {DataType.INT}),
-//        @Parameter(name = "attribute1", type = {DataType.STRING}, optional = true),
-//        @Parameter(name = "attribute2", type = {DataType.STRING}, optional = true)
-//})
 @Extension(
         name = "frequent",
         namespace = "",
-        description = "",
-        parameters = {}
+        description = "This window returns the latest events with the most frequently occurred value for " +
+                "a given attribute(s). Frequency calculation for this window processor is based on " +
+                "Misra-Gries counting algorithm.",
+        parameters = {
+                @Parameter(name = "eventCount",
+                        description = "The number of most frequent events to be emitted to the stream.",
+                        type = {DataType.INT}),
+                @Parameter(name = "attribute",
+                        description = "The attributes to group the events. If no attributes are given, " +
+                                "the concatenation of all the attributes of the event is considered.",
+                        type = {DataType.STRING},
+                        optional = true)
+        },
+        returnAttributes = @ReturnAttribute(
+                description = "Returns current and expired events.",
+                type = {})
 )
 public class FrequentWindowProcessor extends WindowProcessor implements FindableProcessor {
     private ConcurrentHashMap<String, Integer> countMap = new ConcurrentHashMap<String, Integer>();

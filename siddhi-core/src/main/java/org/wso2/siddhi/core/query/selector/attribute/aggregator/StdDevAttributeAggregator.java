@@ -19,6 +19,9 @@
 package org.wso2.siddhi.core.query.selector.attribute.aggregator;
 
 import org.wso2.siddhi.annotation.Extension;
+import org.wso2.siddhi.annotation.Parameter;
+import org.wso2.siddhi.annotation.ReturnAttribute;
+import org.wso2.siddhi.annotation.util.DataType;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.exception.OperationNotSupportedException;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
@@ -28,16 +31,18 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-//@Description("Returns the calculated standard deviation for all the events.")
-//@Parameters({
-//        @Parameter(name = "attribute", type = {DataType.INT, DataType.LONG, DataType.DOUBLE, DataType.FLOAT})
-//})
-//@Return(type = {DataType.DOUBLE})
 @Extension(
         name = "stdDev",
         namespace = "",
-        description = "",
-        parameters = {}
+        description = "Returns the calculated standard deviation for all the events.",
+        parameters = {
+                @Parameter(name = "arg",
+                        description = "The value that should be used to calculate the standard deviation.",
+                        type = {DataType.INT, DataType.LONG, DataType.DOUBLE, DataType.FLOAT})
+        },
+        returnAttributes = @ReturnAttribute(
+                description = "Returns the calculated standard deviation value as a double.",
+                type = {DataType.DOUBLE})
 )
 public class StdDevAttributeAggregator extends AttributeAggregator {
     private StdDevAttributeAggregator stdDevOutputAttributeAggregator;

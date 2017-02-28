@@ -19,6 +19,9 @@
 package org.wso2.siddhi.core.query.processor.stream.window;
 
 import org.wso2.siddhi.annotation.Extension;
+import org.wso2.siddhi.annotation.Parameter;
+import org.wso2.siddhi.annotation.ReturnAttribute;
+import org.wso2.siddhi.annotation.util.DataType;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.state.StateEvent;
@@ -48,20 +51,27 @@ import java.util.*;
  * The arguments following the size of the window are optional.
  * If neither "asc" nor "desc" is given for a certain attribute, order defaults to "asc"
  */
-//@Description("This window holds a batch of events that equal the number specified " +
-//        "as the windowLength and sorts them in the given order.")
-//@Parameters({
-//        @Parameter(name = "windowLength", type = {DataType.INT}),
-//        @Parameter(name = "attribute1", type = {DataType.STRING}, optional = true),
-//        @Parameter(name = "order1", type = {DataType.STRING}, optional = true),
-//        @Parameter(name = "attribute2", type = {DataType.STRING}, optional = true),
-//        @Parameter(name = "order2", type = {DataType.STRING}, optional = true)
-//})
 @Extension(
         name = "sort",
         namespace = "",
-        description = "",
-        parameters = {}
+        description = "This window holds a batch of events that equal the number specified as the windowLength " +
+                "and sorts them in the given order.",
+        parameters = {
+                @Parameter(name = "windowLength",
+                        description = "The size of the window length.",
+                        type = {DataType.INT}),
+                @Parameter(name = "attribute",
+                        description = "The attribute that should be checked for the order.",
+                        type = {DataType.STRING},
+                        optional = true),
+                @Parameter(name = "order",
+                        description = "The order define as \"asc\" or \"desc\".",
+                        type = {DataType.STRING},
+                        optional = true)
+        },
+        returnAttributes = @ReturnAttribute(
+                description = "Returns current and expired events.",
+                type = {})
 )
 public class SortWindowProcessor extends WindowProcessor implements FindableProcessor {
     private static final String ASC = "asc";

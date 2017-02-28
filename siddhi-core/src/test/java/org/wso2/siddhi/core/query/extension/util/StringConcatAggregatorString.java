@@ -19,6 +19,9 @@
 package org.wso2.siddhi.core.query.extension.util;
 
 import org.wso2.siddhi.annotation.Extension;
+import org.wso2.siddhi.annotation.Parameter;
+import org.wso2.siddhi.annotation.ReturnAttribute;
+import org.wso2.siddhi.annotation.util.DataType;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.query.selector.attribute.aggregator.AttributeAggregator;
@@ -30,7 +33,15 @@ import java.util.Map;
 @Extension(
         name = "getAll",
         namespace = "custom",
-        description = ""
+        description = "Return the concatenations of the given input values.",
+        parameters = {
+                @Parameter(name = "arg",
+                        description = "The value that need to be concat.",
+                        type = {DataType.STRING})
+        },
+        returnAttributes = @ReturnAttribute(
+                description = "Returns the concatenated value as a string.",
+                type = {DataType.STRING})
 )
 public class StringConcatAggregatorString extends AttributeAggregator {
     private static final long serialVersionUID = 1358667438272544590L;
