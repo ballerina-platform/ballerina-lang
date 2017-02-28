@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', './block-statement-view', './../ast/while-statement', 'd3'],
+define(['lodash', 'log', './block-statement-view', '../ast/statements/while-statement', 'd3'],
     function (_, log, BlockStatementView, WhileStatement, d3) {
 
         /**

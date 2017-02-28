@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require', 'lodash', 'log', './block-statement-view', './../ast/else-statement'],
+define(['require', 'lodash', 'log', './block-statement-view', '../ast/statements/else-statement'],
     function (require, _, log, BlockStatementView, ElseStatement) {
 
         /**

@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require', 'lodash', 'jquery', 'log', './ballerina-statement-view', './../ast/else-if-statement', 'd3utils', 'd3', './point'],
+define(['require', 'lodash', 'jquery', 'log', './ballerina-statement-view', '../ast/statements/else-if-statement', 'd3utils', 'd3', './point'],
     function (require, _, $, log, BallerinaStatementView, ElseIfStatement, D3Utils, d3, Point) {
 
         // TODO: 14/02/17 this class should extend from BlockStatementView class

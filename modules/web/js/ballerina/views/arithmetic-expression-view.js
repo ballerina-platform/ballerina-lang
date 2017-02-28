@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', './ballerina-statement-view', './../ast/arithmetic-expression', 'd3utils', 'd3'],
+define(['lodash', 'log', './ballerina-statement-view', '../ast/expressions/arithmetic-expression', 'd3utils', 'd3'],
     function (_, log, BallerinaStatementView, ArithmeticExpression, D3Utils, d3) {
 
         /**

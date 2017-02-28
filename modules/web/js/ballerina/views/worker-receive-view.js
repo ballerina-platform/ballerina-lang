@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'd3','log', './simple-statement-view', './../ast/action-invocation-expression', './point', 'd3utils', './../ast/ballerina-ast-factory', './message'],
+define(['lodash', 'd3','log', './simple-statement-view', '../ast/expressions/action-invocation-expression', './point', 'd3utils', './../ast/ballerina-ast-factory', './message'],
     function (_, d3, log, SimpleStatementView, ActionInvocationExpression, Point, D3Utils, BallerinaASTFactory, MessageView) {
 
         /**

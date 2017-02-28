@@ -15,8 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require', 'lodash', 'log', 'event_channel', './abstract-statement-source-gen-visitor', '../../ast/function-invocation-expression',
-        '../../ast/struct-field-access-expression'],
+define(['require', 'lodash', 'log', 'event_channel', './abstract-statement-source-gen-visitor', '../../ast/expressions/function-invocation-expression',
+        '../../ast/expressions/struct-field-access-expression'],
     function (require, _, log, EventChannel, AbstractStatementSourceGenVisitor, FunctionInvocationExpression, StructFieldAccessExpression) {
 
         /**

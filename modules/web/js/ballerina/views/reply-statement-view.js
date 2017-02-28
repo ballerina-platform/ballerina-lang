@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', './simple-statement-view', './../ast/reply-statement', 'd3utils', 'd3', './point', './../ast/ballerina-ast-factory'],
+define(['lodash', 'log', './simple-statement-view', '../ast/statements/reply-statement', 'd3utils', 'd3', './point', './../ast/ballerina-ast-factory'],
     function (_, log, SimpleStatementView, ReplyStatement, D3Utils, d3, Point, BallerinaASTFactory) {
 
         /**
