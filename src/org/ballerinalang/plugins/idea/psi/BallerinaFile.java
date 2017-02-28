@@ -79,9 +79,4 @@ public class BallerinaFile extends PsiFileBase implements ScopeNode {
         }
         return null;
     }
-
-    @Override
-    public ResolveResult[] multiResolve(IdentifierPSINode myElement) {
-        return new ResolveResult[0];
-    }
 }

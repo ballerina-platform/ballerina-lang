@@ -43,9 +43,4 @@ public class TypeMapperNode extends ANTLRPsiNode implements ScopeNode {
         }
         return null;
     }
-
-    @Override
-    public ResolveResult[] multiResolve(IdentifierPSINode myElement) {
-        return new ResolveResult[0];
-    }
 }

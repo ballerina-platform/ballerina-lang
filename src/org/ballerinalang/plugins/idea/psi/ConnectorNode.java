@@ -37,9 +37,4 @@ public class ConnectorNode extends IdentifierDefSubtree implements ScopeNode {
     public PsiElement resolve(PsiNamedElement element) {
         return null;
     }
-
-    @Override
-    public ResolveResult[] multiResolve(IdentifierPSINode myElement) {
-        return new ResolveResult[0];
-    }
 }

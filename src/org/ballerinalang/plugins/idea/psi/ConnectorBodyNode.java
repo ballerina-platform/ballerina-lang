@@ -51,9 +51,4 @@ public class ConnectorBodyNode extends ANTLRPsiNode implements ScopeNode {
         }
         return null;
     }
-
-    @Override
-    public ResolveResult[] multiResolve(IdentifierPSINode myElement) {
-        return new ResolveResult[0];
-    }
 }

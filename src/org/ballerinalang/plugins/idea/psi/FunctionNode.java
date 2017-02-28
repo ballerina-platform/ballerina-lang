@@ -59,11 +59,6 @@ public class FunctionNode extends IdentifierDefSubtree implements ScopeNode {
     }
 
     @Override
-    public ResolveResult[] multiResolve(IdentifierPSINode myElement) {
-        return new ResolveResult[0];
-    }
-
-    @Override
     public ItemPresentation getPresentation() {
         return new ItemPresentation() {
 

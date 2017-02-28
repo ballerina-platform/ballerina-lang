@@ -46,9 +46,4 @@ public class ResourceDefinitionNode extends IdentifierDefSubtree implements Scop
         }
         return null;
     }
-
-    @Override
-    public ResolveResult[] multiResolve(IdentifierPSINode myElement) {
-        return new ResolveResult[0];
-    }
 }

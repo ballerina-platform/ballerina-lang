@@ -41,9 +41,4 @@ public class StructDefinitionNode extends IdentifierDefSubtree implements ScopeN
         }
         return null;
     }
-
-    @Override
-    public ResolveResult[] multiResolve(IdentifierPSINode myElement) {
-        return new ResolveResult[0];
-    }
 }

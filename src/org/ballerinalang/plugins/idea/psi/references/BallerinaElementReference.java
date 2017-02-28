@@ -80,13 +80,7 @@ public abstract class BallerinaElementReference extends PsiReferenceBase<Identif
     @NotNull
     @Override
     public ResolveResult[] multiResolve(boolean incompleteCode) {
-        ScopeNode scope = (ScopeNode) myElement.getContext();
-        if (scope == null) {
-            return new ResolveResult[0];
-        }
-
-        return scope.multiResolve(myElement);
-        //        return new ResolveResult[0];
+        return new ResolveResult[0];
     }
 
     public abstract boolean isReferenceTo(PsiElement definitionElement);
