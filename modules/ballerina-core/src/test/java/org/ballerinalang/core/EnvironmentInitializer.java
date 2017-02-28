@@ -38,8 +38,7 @@ public class EnvironmentInitializer {
         // Initialize server connectors before starting the test cases
         BallerinaConnectorManager.getInstance().initialize(new MessageProcessor());
         BallerinaConnectorManager.getInstance().registerServerConnectorErrorHandler(new TestErrorHandler());
-        BallerinaConnectorManager.getInstance().registerServerConnectorErrorHandler(
-                new TestFileErrorHandler());
+        BallerinaConnectorManager.getInstance().registerServerConnectorErrorHandler(new TestFileErrorHandler());
 
         // Load constructors
         BuiltInNativeConstructLoader.loadConstructs();
