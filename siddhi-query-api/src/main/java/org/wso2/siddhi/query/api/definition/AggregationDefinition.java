@@ -19,27 +19,21 @@ package org.wso2.siddhi.query.api.definition;
 
 import org.wso2.siddhi.query.api.aggregation.TimeSpecifier;
 import org.wso2.siddhi.query.api.annotation.Annotation;
-import org.wso2.siddhi.query.api.execution.query.Query;
 import org.wso2.siddhi.query.api.execution.query.input.stream.InputStream;
 import org.wso2.siddhi.query.api.execution.query.selection.Selector;
 import org.wso2.siddhi.query.api.expression.Variable;
-
-import java.util.List;
 
 public class AggregationDefinition extends AbstractDefinition {
 
     private InputStream inputStream = null;
     private Selector selector = null;
-
     private Variable aggregateAttribute = null;
-
     private TimeSpecifier timeSpecifier = null;
-
     private Annotation annotation = null;
 
 
-    protected AggregationDefinition(String aggregationName) {
-        super(aggregationName);
+    protected AggregationDefinition(String id) {
+        super(id);
     }
 
     public AggregationDefinition select(Selector selector) {
@@ -51,7 +45,7 @@ public class AggregationDefinition extends AbstractDefinition {
         return new AggregationDefinition(aggregationName);
     }
 
-    public AggregationDefinition aggriateBy(Variable aggregateAttribute) {
+    public AggregationDefinition aggregateBy(Variable aggregateAttribute) {
         this.aggregateAttribute = aggregateAttribute;
         return this;
     }
@@ -66,34 +60,10 @@ public class AggregationDefinition extends AbstractDefinition {
         return this;
     }
 
-    public AggregationDefinition annotation(Annotation annotation){
+    public AggregationDefinition annotation(Annotation annotation) {
         this.annotation = annotation;
         return this;
     }
 
-    //public static AggregationDefinition id(String streamId) { //OK
-    //return new AggregationDefinition(streamId);
-    //}
-
-    //public AggregationDefinition attribute(String attributeName, Attribute.Type type) {
-    //checkAttribute(attributeName);
-    // this.attributeList.add(new Attribute(attributeName, type));
-    //return this;
-    //}
-
-    //public AggregationDefinition annotation(Annotation annotation) { //OK
-    //annotations.add(annotation);
-    //return this;
-    //}
-
-
-//    @Override
-//    public String toString() {
-//        return "StreamDefinition{" +
-//                "id='" + id + '\'' +
-//                ", attributeList=" + attributeList +
-//                ", annotations=" + annotations +
-//                '}';
-//    }
-
+    // TODO: 2/24/17 : toString and hashcode and equals ....
 }

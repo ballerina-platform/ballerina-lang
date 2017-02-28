@@ -1,10 +1,7 @@
 package org.wso2.siddhi.query.api.aggregation;
 
-/**
- * Created by upul on 2/22/17.
- */
 public class MinuteSpecifier extends TimeSpecifier {
-    private TimeSpecifier.Duration duration = Duration.DAY;
+    private TimeSpecifier.Duration duration = Duration.DAYS;
 
     public MinuteSpecifier() {
 

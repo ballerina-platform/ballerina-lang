@@ -19,7 +19,6 @@ package org.wso2.siddhi.query.compiler.internal;
 
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.misc.NotNull;
-import org.antlr.v4.runtime.tree.TerminalNode;
 import org.wso2.siddhi.query.api.ExecutionPlan;
 import org.wso2.siddhi.query.api.aggregation.ExactTimeSpecifier;
 import org.wso2.siddhi.query.api.aggregation.RangeTimeSpecifier;
@@ -101,6 +100,9 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
         }
         for (SiddhiQLParser.Definition_windowContext windowContext : ctx.definition_window()) {
             executionPlan.defineWindow((WindowDefinition) visit(windowContext));
+        }
+        for (SiddhiQLParser.Definition_aggregationContext aggregationContext : ctx.definition_aggregation()) {
+            executionPlan.defineAggregation((AggregationDefinition)visit(aggregationContext));
         }
         for (SiddhiQLParser.Execution_elementContext executionElementContext : ctx.execution_element()) {
             ExecutionElement executionElement = (ExecutionElement) visit(executionElementContext);
@@ -2089,6 +2091,7 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
     }
 
     // TODO: 2/22/17 : Added by Upul, review
+    // TODO: 2/24/17 : still not tested
     @Override
     public Object visitAggregation_time_duration(@NotNull SiddhiQLParser.Aggregation_time_durationContext ctx) {
         if(ctx.SECONDS() != null){
@@ -2097,6 +2100,10 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
         
         if(ctx.MINUTES() != null){
             return TimeSpecifier.minute();
+        }
+
+        if(ctx.HOURS() != null){
+            return TimeSpecifier.hour();
         }
         
         if(ctx.DAYS() != null) {
@@ -2130,85 +2137,73 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
     @Override
     public Object visitAggregation_time_separator(@NotNull SiddhiQLParser.Aggregation_time_separatorContext ctx) {
-        // TODO: 2/23/17 Error ????
-        //return visitChildren(ctx);
-        List<TerminalNode> terminalNodes = ctx.DOT();
-        return "DOT DOT DOT";
+        if(ctx.DOT() == null){
+            throw newSiddhiParserException(ctx, "Found " + ctx.getText() +
+                    " but only ... is supported!");
+        }
+        return TimeSpecifier.RANGE_SPECIFIER;
     }
 
     @Override
     public RangeTimeSpecifier visitAggregation_time_range_specifier(@NotNull SiddhiQLParser.Aggregation_time_range_specifierContext ctx) {
-        // TODO: 2/23/17 : a lot of error checking .......
-        SiddhiQLParser.Aggregation_time_separatorContext seperatorCtx = ctx.aggregation_time_separator();
+        // TODO: 2/23/17 : review this method with Suho
+
+        // First visit the time separator. If it has some syntax error, throw an exception
+        visitAggregation_time_separator(ctx.aggregation_time_separator());
+
+        // read left and right contexts
         SiddhiQLParser.Aggregation_time_durationContext left = ctx.aggregation_time_duration().get(0);
         SiddhiQLParser.Aggregation_time_durationContext right = ctx.aggregation_time_duration().get(1);
 
+        // Visit left and right expression using above contexts and create a new
+        // RangeTimeSpecifier object
         TimeSpecifier leftTimeSpecifier = (TimeSpecifier) visitAggregation_time_duration(left);
         TimeSpecifier rightTimeSpecifier = (TimeSpecifier) visitAggregation_time_duration(right);
         return TimeSpecifier.range(leftTimeSpecifier, rightTimeSpecifier);
     }
 
-//    @Override
-//    public T visitAggregation_time_rage_specifier(@NotNull SiddhiQLParser.Aggregation_time_rage_specifierContext ctx) {
-//        //RangeTimeSpecifier rangeTimeSpecifier = TimeSpecifier.range();
-//
-//        //return visitChildren(ctx);
-//        TimeSpecifier left = visit(ctx.aggregation_time_duration(ctx.));
-//    }
-//
-//    @Override
-//    public T visitAggregation_time_separator(@NotNull SiddhiQLParser.Aggregation_time_separatorContext ctx) {
-//        //return visitChildren(ctx);
-//        ctx.DOT();
-//    }
-//
-//    @Override
-//    public T visitDefinition_aggregation(@NotNull SiddhiQLParser.Definition_aggregationContext ctx) {
-//        //return visitChildren(ctx);
-//        ctx.
-//    }
-
     @Override
     public TimeSpecifier visitAggregation_time_specifier(@NotNull SiddhiQLParser.Aggregation_time_specifierContext ctx) {
-        //return visitChildren(ctx);
-        if (ctx.aggregation_time_exact_specifier() != null){
+
+        if (ctx.aggregation_time_exact_specifier() != null) {
             return visitAggregation_time_exact_specifier(ctx.aggregation_time_exact_specifier());
-        } else if (ctx.aggregation_time_range_specifier() != null){
+        } else if (ctx.aggregation_time_range_specifier() != null) {
             return visitAggregation_time_range_specifier(ctx.aggregation_time_range_specifier());
         }
-        // else
-        // TODO: 2/23/17 Exception
-        return null;
-
+        throw newSiddhiParserException(ctx, "Found " + ctx.getText() +
+                " but only comma separated time durations or time duration ... time duration is supported!");
     }
 
     @Override
     public Object visitDefinition_aggregation(@NotNull SiddhiQLParser.Definition_aggregationContext ctx) {
-        String aggregationName = (String)visitAggregation_name(ctx.aggregation_name());
+        // Read the name of the aggregation
+        String aggregationName = (String) visitAggregation_name(ctx.aggregation_name());
+
+        // Create the aggregation using the extracted aggregation name
         AggregationDefinition aggregationDefinition = AggregationDefinition.id(aggregationName);
 
-
+        // Get all annotation and populate the aggregation
         for (SiddhiQLParser.AnnotationContext annotationContext : ctx.annotation()) {
             aggregationDefinition.annotation((Annotation) visit(annotationContext));
         }
 
-        SiddhiQLParser.Query_inputContext queryInputCtx = ctx.query_input();
-
+        // Attach the input stream
         InputStream inputStream = (InputStream) visit(ctx.query_input());
+        aggregationDefinition.from(inputStream);
 
+        // Extract the selector and attach it to the new aggregation
         Selector selector = (Selector) visit(ctx.query_section());
+        aggregationDefinition.select(selector);
 
-        //SiddhiQLParser.Attribute_nameContext attribute_names = ctx.attribute_name();
-        //List<SiddhiQLParser.Attribute_typeContext> attribute_types = ctx.attribute_type();
+        // Get the variable (if available) and aggregate on that variable
+        Variable aggregatedBy = (Variable) visit(ctx.attribute_reference());
+        aggregationDefinition.aggregateBy(aggregatedBy);
 
-        //ctx.attribute_name()
+        // Extract the specified time-durations and attache it to the aggregation definition
+        TimeSpecifier timeSpecifier = (TimeSpecifier) visit(ctx.aggregation_time_specifier());
+        aggregationDefinition.every(timeSpecifier);
 
-        //visit(ctx.query_section())
-        //visitQuery_input(queryInputCtx);
-        //SiddhiQLParser.Query_inputContext ctx =  ctx.annotation()
-        //SiddhiQLParser. ctx.query_input()
-        return  null;
+        return aggregationDefinition;
     }
-
     // end upul
 }

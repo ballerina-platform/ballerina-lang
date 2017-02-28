@@ -2,7 +2,9 @@ package org.wso2.siddhi.query.api.aggregation;
 
 public class TimeSpecifier {
 
-    public enum Duration {SECOND, MINUTE, HOUR, DAY, WEEK, MONTH, YEAR}
+    public enum Duration {SECONDS, MINUTES, HOURS, DAYS, WEEKS, MONTHS, YEARS}
+
+    public static final String RANGE_SPECIFIER = "..."; // TODO: 2/24/17 Ugly ???
 
     public static TimeSpecifier second() {
         return new SecondSpecifier();
@@ -40,9 +42,4 @@ public class TimeSpecifier {
         return new ExactTimeSpecifier();
     }
 
-//    public void test(){
-//        TimeSpecifier.exact(TimeSpecifier.minute(), TimeSpecifier.second());
-//        TimeSpecifier.exact(TimeSpecifier.second(),
-//                (TimeSpecifier.exact( TimeSpecifier.second(), TimeSpecifier.minute())));
-//    }
 }

@@ -1,12 +1,9 @@
 package org.wso2.siddhi.query.api.aggregation;
 
-/**
- * Created by upul on 2/23/17.
- */
 public class YearSpecifier extends TimeSpecifier {
-    private TimeSpecifier.Duration duration = Duration.YEAR;
+    private TimeSpecifier.Duration duration = Duration.YEARS;
 
-    public YearSpecifier() {
+    private YearSpecifier() {
 
     }
 

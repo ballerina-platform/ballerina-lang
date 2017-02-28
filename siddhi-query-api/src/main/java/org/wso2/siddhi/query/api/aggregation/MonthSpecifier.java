@@ -1,16 +1,13 @@
 package org.wso2.siddhi.query.api.aggregation;
 
-/**
- * Created by upul on 2/23/17.
- */
 public class MonthSpecifier extends TimeSpecifier {
-    private TimeSpecifier.Duration duration = Duration.MONTH;
+    private TimeSpecifier.Duration duration = Duration.MONTHS;
 
-    public MonthSpecifier(){
+    public MonthSpecifier() {
 
     }
 
-    public TimeSpecifier.Duration getDuration(){
+    public TimeSpecifier.Duration getDuration() {
         return duration;
     }
 }
