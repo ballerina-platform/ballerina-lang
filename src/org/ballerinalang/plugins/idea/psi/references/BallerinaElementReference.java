@@ -14,18 +14,16 @@
  *  limitations under the License.
  */
 
-package org.ballerinalang.plugins.idea.psi;
+package org.ballerinalang.plugins.idea.psi.references;
 
 import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiErrorElement;
-import com.intellij.psi.PsiNameIdentifierOwner;
 import com.intellij.psi.PsiPolyVariantReference;
 import com.intellij.psi.PsiReferenceBase;
 import com.intellij.psi.ResolveResult;
-import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.util.IncorrectOperationException;
 import org.antlr.jetbrains.adaptor.psi.ScopeNode;
+import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -82,68 +80,10 @@ public abstract class BallerinaElementReference extends PsiReferenceBase<Identif
     @NotNull
     @Override
     public ResolveResult[] multiResolve(boolean incompleteCode) {
-        ScopeNode scope = (ScopeNode) myElement.getContext();
-        if (scope == null) {
-            return new ResolveResult[0];
-        }
-
-        return scope.multiResolve(myElement);
-        //        return new ResolveResult[0];
+        return new ResolveResult[0];
     }
 
-    @Override
-    public boolean isReferenceTo(PsiElement definitionElement) {
-        String refName = myElement.getName();
-        //		System.out.println(getClass().getSimpleName()+".isReferenceTo("+refName+"->"+definitionElement.getText
-        // ()+")");
-        // sometimes definitionElement comes in pointing to ID node itself. depends on what you click on
-        if (definitionElement instanceof IdentifierPSINode && isDefinitionNode(definitionElement.getParent())) {
-            definitionElement = definitionElement.getParent();
-        }
-        if (isDefinitionNode(definitionElement)) {
-
-            // Todo - check offset as well to identify the locations of the variable declaration and usages
-            // Check the scope of the variable
-            if (definitionElement instanceof ParameterNode) {
-                // If the common context is file, that means the myElement is not in the scope where the
-                // definitionElement is defined in.
-                PsiElement commonContext = PsiTreeUtil.findCommonContext(definitionElement, myElement);
-                if (!(commonContext instanceof FunctionDefinitionNode
-                        || commonContext instanceof FunctionNode
-                        || commonContext instanceof ResourceDefinitionNode
-                        || commonContext instanceof ConnectorDefinitionNode
-                        || commonContext instanceof ActionDefinitionNode)) {
-                    return false;
-                }
-            } else if (definitionElement instanceof VariableDefinitionNode) {
-                // If the common context is file, that means the myElement is not in the scope where the
-                // definitionElement is defined in.
-                PsiElement commonContext = PsiTreeUtil.findCommonContext(definitionElement, myElement);
-                if (!(commonContext instanceof FunctionBodyNode || commonContext instanceof ConnectorBodyNode)) {
-                    return false;
-                }
-            }else if (definitionElement instanceof PsiErrorElement) {
-                PsiElement commonContext = PsiTreeUtil.findCommonContext(definitionElement.getParent(), myElement);
-                if (!(commonContext instanceof FunctionDefinitionNode
-                        || commonContext instanceof FunctionBodyNode
-                        || commonContext instanceof FunctionNode
-                        || commonContext instanceof ResourceDefinitionNode
-                        || commonContext instanceof ConnectorDefinitionNode
-                        || commonContext instanceof ActionDefinitionNode)) {
-                    return false;
-                }
-
-                String defName = definitionElement.getText();
-
-                return refName != null && defName != null && refName.equals(defName);
-            }
-            PsiElement id = ((PsiNameIdentifierOwner) definitionElement).getNameIdentifier();
-            String defName = id != null ? id.getText() : null;
-
-            return refName != null && defName != null && refName.equals(defName);
-        }
-        return false;
-    }
+    public abstract boolean isReferenceTo(PsiElement definitionElement);
 
     /**
      * Is the targeted def a subtree associated with this ref's kind of node?

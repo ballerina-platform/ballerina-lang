@@ -13,50 +13,50 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
-package org.ballerinalang.plugins.idea.psi;
+package org.ballerinalang.plugins.idea.psi.references;
 
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementResolveResult;
 import com.intellij.psi.ResolveResult;
+import org.ballerinalang.plugins.idea.psi.FunctionDefinitionNode;
+import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
 import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class FunctionReference extends BallerinaElementReference {
+public class ActionInvocationReference extends BallerinaElementReference {
 
-    public FunctionReference(@NotNull IdentifierPSINode element) {
+    public ActionInvocationReference(@NotNull IdentifierPSINode element) {
         super(element);
     }
 
     @Override
     public boolean isDefinitionNode(PsiElement def) {
-        return def instanceof FunctionDefinitionNode || def instanceof ConnectorDefinitionNode
-                || def instanceof CallableUnitNameNode || def instanceof SimpleTypeNode
-                || def instanceof FunctionNode;
+        return def instanceof FunctionDefinitionNode;
     }
 
     @NotNull
     @Override
     public Object[] getVariants() {
-        return new Object[]{"function1", "function2"};
+        return new Object[0];
     }
 
     @NotNull
     @Override
     public ResolveResult[] multiResolve(boolean incompleteCode) {
         //Todo: Use java8
-        List<PsiElement> functions = BallerinaPsiImplUtil.resolveFunction(getElement());
+        List<PsiElement> actions = BallerinaPsiImplUtil.resolveAction(getElement());
         List<ResolveResult> results = new ArrayList<>();
-        for (PsiElement function : functions) {
-            results.add(new PsiElementResolveResult(function));
-        }
-        List<PsiElement> connectors = BallerinaPsiImplUtil.resolveConnector(getElement());
-        for (PsiElement function : connectors) {
-            results.add(new PsiElementResolveResult(function));
+        for (PsiElement directory : actions) {
+            results.add(new PsiElementResolveResult(directory));
         }
         return results.toArray(new ResolveResult[results.size()]);
+    }
+
+    @Override
+    public boolean isReferenceTo(PsiElement definitionElement) {
+        return false;
     }
 }

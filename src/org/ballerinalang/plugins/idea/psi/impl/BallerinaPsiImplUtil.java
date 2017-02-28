@@ -32,20 +32,24 @@ import com.intellij.psi.search.FileTypeIndex;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.util.indexing.FileBasedIndex;
+import org.antlr.jetbrains.adaptor.SymtabUtils;
 import org.antlr.jetbrains.adaptor.psi.IdentifierDefSubtree;
+import org.antlr.jetbrains.adaptor.psi.ScopeNode;
 import org.antlr.jetbrains.adaptor.psi.Trees;
 import org.antlr.jetbrains.adaptor.xpath.XPath;
 import org.ballerinalang.plugins.idea.BallerinaFileType;
 import org.ballerinalang.plugins.idea.BallerinaLanguage;
 import org.ballerinalang.plugins.idea.psi.AliasNode;
+import org.ballerinalang.plugins.idea.psi.ConnectorDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.ExpressionNode;
 import org.ballerinalang.plugins.idea.psi.FunctionInvocationStatementNode;
-import org.ballerinalang.plugins.idea.psi.FunctionReference;
 import org.ballerinalang.plugins.idea.psi.ImportDeclarationNode;
 import org.ballerinalang.plugins.idea.psi.PackageNameNode;
-import org.ballerinalang.plugins.idea.psi.PackageNameReference;
+import org.ballerinalang.plugins.idea.psi.SimpleTypeNode;
+import org.ballerinalang.plugins.idea.psi.references.PackageNameReference;
 import org.ballerinalang.plugins.idea.psi.PackagePathNode;
 import org.ballerinalang.plugins.idea.psi.ParameterNode;
+import org.ballerinalang.plugins.idea.psi.references.SimpleTypeReference;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -664,83 +668,72 @@ public class BallerinaPsiImplUtil {
 
     public static List<PsiElement> resolveAction(PsiElement element) {
         List<PsiElement> results = new ArrayList<>();
-
-        // Todo - Add null checks
+        // Get tht parent element.
+        PsiElement parent = element.getParent();
+        // Get the CallableUnitName node.
         Collection<? extends PsiElement> callableUnits =
-                XPath.findAll(BallerinaLanguage.INSTANCE, element.getParent(), "//callableUnitName");
-
+                XPath.findAll(BallerinaLanguage.INSTANCE, parent, "//callableUnitName");
         if (callableUnits.isEmpty()) {
             return results;
         }
+        // There can be only one callableUnitName. So we get the next item from the iterator.
         PsiElement callableUnit = callableUnits.iterator().next();
-
-        PsiElement identifier = ((IdentifierDefSubtree) callableUnit).getNameIdentifier();
-
-        // Get the reference.
-        PsiReference reference = identifier.getReference();
-        // Resolve the reference. This will mostly point to the connector.
-        PsiElement resolvedConnector = reference.resolve();
-
-        if (resolvedConnector == null) {
-            // Package is not imported. Return the empty results.
-            PsiReference[] references = identifier.getReferences();
-
-            if (references.length == 0) {
-                return results;
-            }
-            for (PsiReference psiReference : references) {
-
-                ResolveResult[] resolveResults = ((FunctionReference) psiReference).multiResolve(false);
-
-                for (ResolveResult resolveResult : resolveResults) {
-                    Collection<? extends PsiElement> actionDefinitions =
-                            XPath.findAll(BallerinaLanguage.INSTANCE, resolveResult.getElement().getParent(),
-                                    "//action");
-
-                    for (PsiElement actionDefinition : actionDefinitions) {
-
-                        PsiElement nameIdentifier = ((IdentifierDefSubtree) actionDefinition).getNameIdentifier();
-                        if (element.getText().equals(nameIdentifier.getText())) {
-                            results.add(actionDefinition);
-                        }
-                    }
-
-                    Collection<? extends PsiElement> functionDefinitions =
-                            XPath.findAll(BallerinaLanguage.INSTANCE, resolveResult.getElement().getParent(),
-                                    "//functionDefinition//function");
-                    for (PsiElement functionDefinition : functionDefinitions) {
-
-                        PsiElement nameIdentifier = ((IdentifierDefSubtree) functionDefinition).getNameIdentifier();
-                        if (element.getText().equals(nameIdentifier.getText())) {
-                            results.add(functionDefinition);
-                        }
-                    }
-                }
-
-            }
-
+        // Get the SimpleTypeNode. This is the Connector name and we use this to resolve the Connector location.
+        SimpleTypeNode simpleTypeNode = PsiTreeUtil.getChildOfType(callableUnit, SimpleTypeNode.class);
+        if (simpleTypeNode == null) {
             return results;
         }
-
-        Collection<? extends PsiElement> actionDefinitions =
-                XPath.findAll(BallerinaLanguage.INSTANCE, resolvedConnector, "//action");
-
-        for (PsiElement actionDefinition : actionDefinitions) {
-
-            PsiElement nameIdentifier = ((IdentifierDefSubtree) actionDefinition).getNameIdentifier();
-            if (element.getText().equals(nameIdentifier.getText())) {
-                results.add(actionDefinition);
+        // Get the identifier.
+        PsiElement identifier = simpleTypeNode.getNameIdentifier();
+        if (identifier == null) {
+            return results;
+        }
+        // Get the reference.
+        PsiReference[] references = identifier.getReferences();
+        for (PsiReference reference : references) {
+            // Multi resolve each of the reference.
+            ResolveResult[] resolveResults = ((SimpleTypeReference) reference).multiResolve(false);
+            for (ResolveResult resolveResult : resolveResults) {
+                // Get the element. This will represent the identifier of the Connector definiton.
+                PsiElement resolvedElement = resolveResult.getElement();
+                if (resolvedElement == null) {
+                    continue;
+                }
+                // Get the ConnectorDefinitionNode parent node. This is used to get all the actions/native actions.
+                ConnectorDefinitionNode connectorDefinitionNode = PsiTreeUtil.getParentOfType(resolvedElement,
+                        ConnectorDefinitionNode.class);
+                // Get all actions/native actions.
+                List<PsiElement> allActions = getAllActionsFromAConnector(connectorDefinitionNode);
+                for (PsiElement action : allActions) {
+                    // Get the matching action/native action.
+                    if (element.getText().equals(action.getText())) {
+                        results.add(action);
+                    }
+                }
             }
         }
+        return results;
+    }
 
-        Collection<? extends PsiElement> functionDefinitions =
-                XPath.findAll(BallerinaLanguage.INSTANCE, resolvedConnector, "//functionDefinition/function");
-        for (PsiElement functionDefinition : functionDefinitions) {
-
-            PsiElement nameIdentifier = ((IdentifierDefSubtree) functionDefinition).getNameIdentifier();
-            if (element.getText().equals(nameIdentifier.getText())) {
-                results.add(functionDefinition);
-            }
+    /**
+     * Returns all actions/native actions defined in the given ConnectorDefinitionNode.
+     *
+     * @param connectorDefinitionNode PsiElement which represent a Connector Definition
+     * @return List of all actions/native actions defined in the given ConnectorDefinitionNode.
+     */
+    public static List<PsiElement> getAllActionsFromAConnector(PsiElement connectorDefinitionNode) {
+        List<PsiElement> results = new ArrayList<>();
+        // Get all actions
+        Collection<? extends PsiElement> allActions =
+                XPath.findAll(BallerinaLanguage.INSTANCE, connectorDefinitionNode, "//action/Identifier");
+        for (PsiElement action : allActions) {
+            results.add(action);
+        }
+        // Get all native actions
+        Collection<? extends PsiElement> allNativeActions =
+                XPath.findAll(BallerinaLanguage.INSTANCE, connectorDefinitionNode, "//nativeAction/Identifier");
+        for (PsiElement action : allNativeActions) {
+            results.add(action);
         }
         return results;
     }
@@ -759,15 +752,33 @@ public class BallerinaPsiImplUtil {
             Collection<? extends PsiElement> variableDefinitions =
                     XPath.findAll(BallerinaLanguage.INSTANCE, context, "//variableDefinitionStatement/Identifier");
             for (PsiElement variableDefinition : variableDefinitions) {
-                if (!variableDefinition.getText().contains("IntellijIdeaRulezzz")) {
+                if (!variableDefinition.getText().contains("IntellijIdeaRulezzz") &&
+                        !variableDefinition.getParent().getText().contains("IntellijIdeaRulezzz")) {
                     results.add(variableDefinition);
                 }
             }
             Collection<? extends PsiElement> parameterDefinitions =
                     XPath.findAll(BallerinaLanguage.INSTANCE, context, "//parameter/Identifier");
             for (PsiElement parameterDefinition : parameterDefinitions) {
-                if (!parameterDefinition.getText().contains("IntellijIdeaRulezzz")) {
+                if (!parameterDefinition.getText().contains("IntellijIdeaRulezzz") &&
+                        !parameterDefinition.getParent().getText().contains("IntellijIdeaRulezzz")) {
                     results.add(parameterDefinition);
+                }
+            }
+            Collection<? extends PsiElement> namedParameterDefinitions =
+                    XPath.findAll(BallerinaLanguage.INSTANCE, context, "//namedParameter/Identifier");
+            for (PsiElement namedParameterDefinition : namedParameterDefinitions) {
+                if (!namedParameterDefinition.getText().contains("IntellijIdeaRulezzz") &&
+                        !namedParameterDefinition.getParent().getText().contains("IntellijIdeaRulezzz")) {
+                    results.add(namedParameterDefinition);
+                }
+            }
+            Collection<? extends PsiElement> typeMapperInputTypes =
+                    XPath.findAll(BallerinaLanguage.INSTANCE, context, "//typeMapperInput/Identifier");
+            for (PsiElement type : typeMapperInputTypes) {
+                if (!type.getText().contains("IntellijIdeaRulezzz") &&
+                        !type.getParent().getText().contains("IntellijIdeaRulezzz")) {
+                    results.add(type);
                 }
             }
             if (context != null) {
@@ -781,5 +792,30 @@ public class BallerinaPsiImplUtil {
             }
         }
         return results;
+    }
+
+    public static PsiElement resolveElement(ScopeNode scope, PsiNamedElement element, String... xpaths) {
+        PsiElement resolved = null;
+        for (String xpath : xpaths) {
+            // Get all the matching elements from the given scope. We don't directly call SymtabUtils.resolve() here
+            // because then the last matching element is returned. So if there are duplicate definitions, it
+            // would resolve the last definition. But we want the first definition since it is the matching definition.
+            Collection<? extends PsiElement> elements = XPath.findAll(BallerinaLanguage.INSTANCE, scope, xpath);
+            // We need to get only the 1st matching element.
+            for (PsiElement psiElement : elements) {
+                if (element.getText().equals(psiElement.getText())) {
+                    resolved = psiElement;
+                    break;
+                }
+            }
+            // If the element is resolved, we return the element. Otherwise check the parent scope. This is done via
+            // calling the SymtabUtils.resolve().
+            if (resolved != null) {
+                break;
+            } else {
+                resolved = SymtabUtils.resolve(scope, BallerinaLanguage.INSTANCE, element, xpath);
+            }
+        }
+        return resolved;
     }
 }

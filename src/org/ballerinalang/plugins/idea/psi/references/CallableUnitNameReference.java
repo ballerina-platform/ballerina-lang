@@ -14,27 +14,33 @@
  *  limitations under the License.
  */
 
-package org.ballerinalang.plugins.idea.psi;
+package org.ballerinalang.plugins.idea.psi.references;
 
-import com.intellij.lang.ASTNode;
 import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiNamedElement;
-import com.intellij.psi.ResolveResult;
-import org.antlr.jetbrains.adaptor.psi.IdentifierDefSubtree;
-import org.antlr.jetbrains.adaptor.psi.ScopeNode;
-import org.ballerinalang.plugins.idea.BallerinaParserDefinition;
+import org.ballerinalang.plugins.idea.psi.ConnectorNode;
+import org.ballerinalang.plugins.idea.psi.FunctionNode;
+import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
-public class ConnectorNode extends IdentifierDefSubtree implements ScopeNode {
+public class CallableUnitNameReference extends BallerinaElementReference {
 
-    public ConnectorNode(@NotNull ASTNode node) {
-        super(node, BallerinaParserDefinition.ID);
+    public CallableUnitNameReference(@NotNull IdentifierPSINode element) {
+        super(element);
     }
 
-    @Nullable
     @Override
-    public PsiElement resolve(PsiNamedElement element) {
-        return null;
+    public boolean isDefinitionNode(PsiElement def) {
+        return def instanceof FunctionNode || def instanceof ConnectorNode;
+    }
+
+    @Override
+    public boolean isReferenceTo(PsiElement definitionElement) {
+        return false;
+    }
+
+    @NotNull
+    @Override
+    public Object[] getVariants() {
+        return new Object[0];
     }
 }

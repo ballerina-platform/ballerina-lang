@@ -17,24 +17,12 @@
 package org.ballerinalang.plugins.idea.psi;
 
 import com.intellij.lang.ASTNode;
-import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiNamedElement;
-import com.intellij.psi.ResolveResult;
-import org.antlr.jetbrains.adaptor.psi.IdentifierDefSubtree;
-import org.antlr.jetbrains.adaptor.psi.ScopeNode;
-import org.ballerinalang.plugins.idea.BallerinaParserDefinition;
+import org.antlr.jetbrains.adaptor.psi.ANTLRPsiNode;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
-public class ConnectorNode extends IdentifierDefSubtree implements ScopeNode {
+public class TypeMapperType extends ANTLRPsiNode {
 
-    public ConnectorNode(@NotNull ASTNode node) {
-        super(node, BallerinaParserDefinition.ID);
-    }
-
-    @Nullable
-    @Override
-    public PsiElement resolve(PsiNamedElement element) {
-        return null;
+    public TypeMapperType(@NotNull ASTNode node) {
+        super(node);
     }
 }

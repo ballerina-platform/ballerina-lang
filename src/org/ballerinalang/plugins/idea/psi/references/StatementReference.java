@@ -14,14 +14,23 @@
  *  limitations under the License.
  */
 
-package org.ballerinalang.plugins.idea.psi;
+package org.ballerinalang.plugins.idea.psi.references;
 
 import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementResolveResult;
+import com.intellij.psi.PsiFile;
+import com.intellij.psi.PsiNameIdentifierOwner;
 import com.intellij.psi.PsiReference;
 import com.intellij.psi.ResolveResult;
 import org.antlr.jetbrains.adaptor.psi.IdentifierDefSubtree;
+import org.ballerinalang.plugins.idea.psi.ConstantDefinitionNode;
+import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
+import org.ballerinalang.plugins.idea.psi.PackageNameNode;
+import org.ballerinalang.plugins.idea.psi.ParameterNode;
+import org.ballerinalang.plugins.idea.psi.SimpleTypeNode;
+import org.ballerinalang.plugins.idea.psi.StructDefinitionNode;
+import org.ballerinalang.plugins.idea.psi.VariableDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
 import org.jetbrains.annotations.NotNull;
 
@@ -119,5 +128,36 @@ public class StatementReference extends BallerinaElementReference {
             results.add(new PsiElementResolveResult(function));
         }
         return results.toArray(new ResolveResult[results.size()]);
+    }
+
+    @Override
+    public boolean isReferenceTo(PsiElement definitionElement) {
+        String refName = myElement.getName();
+        if (definitionElement instanceof IdentifierPSINode && isDefinitionNode(definitionElement.getParent())) {
+            definitionElement = definitionElement.getParent();
+        }
+        if (isDefinitionNode(definitionElement)) {
+            PsiElement id = ((PsiNameIdentifierOwner) definitionElement).getNameIdentifier();
+            String defName = id != null ? id.getText() : null;
+
+            PsiElement parent = definitionElement.getParent();
+            PsiElement temp = myElement;
+
+            boolean inScope = false;
+            while (!(temp instanceof PsiFile)) {
+                if (parent == temp) {
+                    inScope = true;
+                    break;
+                }
+                temp = temp.getParent();
+            }
+
+            if (!inScope) {
+                return false;
+            }
+
+            return refName != null && defName != null && refName.equals(defName);
+        }
+        return false;
     }
 }

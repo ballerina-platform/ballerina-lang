@@ -33,12 +33,13 @@ import com.intellij.util.ArrayUtil;
 import com.intellij.util.containers.ContainerUtil;
 import org.ballerinalang.plugins.idea.BallerinaTypes;
 import org.ballerinalang.plugins.idea.psi.ArgumentListNode;
-import org.ballerinalang.plugins.idea.psi.CallableUnitNameNode;
 import org.ballerinalang.plugins.idea.psi.ExpressionListNode;
 import org.ballerinalang.plugins.idea.psi.FunctionInvocationStatementNode;
-import org.ballerinalang.plugins.idea.psi.FunctionReference;
+import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
 import org.ballerinalang.plugins.idea.psi.ParameterListNode;
 import org.ballerinalang.plugins.idea.psi.ParameterNode;
+import org.ballerinalang.plugins.idea.psi.SimpleTypeNode;
+import org.ballerinalang.plugins.idea.psi.references.SimpleTypeReference;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -115,24 +116,22 @@ public class BallerinaParameterInfoHandler implements ParameterInfoHandlerWithTa
         if (element instanceof ArgumentListNode) {
             PsiElement psiElement = (ArgumentListNode) element;
 
-            PsiElement functionNameNode = ((ArgumentListNode) element).getPrevSibling();
-            if (functionNameNode == null) {
-                functionNameNode = PsiTreeUtil.getParentOfType(psiElement, FunctionInvocationStatementNode.class);
-            }
+            FunctionInvocationStatementNode parent = PsiTreeUtil.getParentOfType(psiElement,
+                    FunctionInvocationStatementNode.class);
 
             // Todo - Check support for connectors and actions after finalizing the Ballerina SDK
-            if (functionNameNode != null) {
+            if (parent != null) {
+                List<ParameterListNode> list = new ArrayList<>();
 
-                //Todo - Add support to typeName (Constructors)
-                CallableUnitNameNode function =
-                        PsiTreeUtil.findChildOfType(functionNameNode, CallableUnitNameNode.class);
-                if (function != null) {
-                    PsiReference reference = function.getNameIdentifier().getReference();
+                SimpleTypeNode function = PsiTreeUtil.findChildOfType(parent, SimpleTypeNode.class);
+                IdentifierPSINode identifier = PsiTreeUtil.findChildOfType(function, IdentifierPSINode.class);
+                if (identifier != null) {
+                    PsiReference reference = identifier.getReference();
                     if (reference != null) {
                         PsiElement resolvedElement = reference.resolve();
                         if (resolvedElement != null) {
                             ParameterListNode parameterListNode =
-                                    PsiTreeUtil.findChildOfType(resolvedElement, ParameterListNode.class);
+                                    PsiTreeUtil.findChildOfType(resolvedElement.getParent(), ParameterListNode.class);
                             if (parameterListNode == null) {
                                 // Todo - change how to identify no parameter situation
                                 context.setItemsToShow(new Object[]{"Empty"});
@@ -144,14 +143,12 @@ public class BallerinaParameterInfoHandler implements ParameterInfoHandlerWithTa
                         }
                     }
 
-                    PsiReference[] references = function.getNameIdentifier().getReferences();
-                    List<ParameterListNode> list = new ArrayList<>();
+                    PsiReference[] references = identifier.getReferences();
                     for (PsiReference psiReference : references) {
-                        ResolveResult[] resolveResults = ((FunctionReference) psiReference).multiResolve(false);
+                        ResolveResult[] resolveResults = ((SimpleTypeReference) psiReference).multiResolve(false);
                         if (resolveResults.length == 0) {
                             continue;
                         }
-
                         for (ResolveResult resolveResult : resolveResults) {
                             PsiElement parentElement = resolveResult.getElement().getParent();
                             ParameterListNode parameterListNode = PsiTreeUtil.findChildOfType(parentElement,
@@ -161,16 +158,15 @@ public class BallerinaParameterInfoHandler implements ParameterInfoHandlerWithTa
                             }
                         }
                     }
-                    if (list.isEmpty()) {
-                        // Todo - change how to identify no parameter situation
-                        context.setItemsToShow(new Object[]{"Empty"});
-                    } else {
-                        context.setItemsToShow(list.toArray(new ParameterListNode[list.size()]));
-                    }
-                    context.showHint(psiElement, (psiElement).getTextRange().getStartOffset(), this);
-                } else {
-                    // Todo - Handle situation
                 }
+
+                if (list.isEmpty()) {
+                    // Todo - change how to identify no parameter situation
+                    context.setItemsToShow(new Object[]{"Empty"});
+                } else {
+                    context.setItemsToShow(list.toArray(new ParameterListNode[list.size()]));
+                }
+                context.showHint(psiElement, (psiElement).getTextRange().getStartOffset(), this);
             }
         }
     }

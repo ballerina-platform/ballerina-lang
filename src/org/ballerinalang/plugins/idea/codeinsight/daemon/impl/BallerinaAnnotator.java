@@ -20,8 +20,11 @@ import com.intellij.lang.annotation.Annotation;
 import com.intellij.lang.annotation.AnnotationHolder;
 import com.intellij.lang.annotation.Annotator;
 import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiReference;
 import org.ballerinalang.plugins.idea.highlighter.BallerinaSyntaxHighlightingColors;
 import org.ballerinalang.plugins.idea.psi.AnnotationNameNode;
+import org.ballerinalang.plugins.idea.psi.ConstantDefinitionNode;
+import org.ballerinalang.plugins.idea.psi.VariableReferenceNode;
 import org.jetbrains.annotations.NotNull;
 
 public class BallerinaAnnotator implements Annotator {
@@ -31,6 +34,29 @@ public class BallerinaAnnotator implements Annotator {
         if (element instanceof AnnotationNameNode) {
             Annotation annotation = holder.createInfoAnnotation(element, null);
             annotation.setTextAttributes(BallerinaSyntaxHighlightingColors.ANNOTATION);
+        } else if (element instanceof ConstantDefinitionNode) {
+            PsiElement nameIdentifier = ((ConstantDefinitionNode) element).getNameIdentifier();
+            if (nameIdentifier == null) {
+                return;
+            }
+            Annotation annotation = holder.createInfoAnnotation(nameIdentifier, null);
+            annotation.setTextAttributes(BallerinaSyntaxHighlightingColors.CONSTANT);
+        } else if (element instanceof VariableReferenceNode) {
+            PsiElement nameIdentifier = ((VariableReferenceNode) element).getNameIdentifier();
+            if (nameIdentifier == null) {
+                return;
+            }
+            PsiReference[] references = nameIdentifier.getReferences();
+            for (PsiReference reference : references) {
+                PsiElement resolvedElement = reference.resolve();
+                if (resolvedElement == null) {
+                    return;
+                }
+                if (resolvedElement.getParent() instanceof ConstantDefinitionNode) {
+                    Annotation annotation = holder.createInfoAnnotation(nameIdentifier, null);
+                    annotation.setTextAttributes(BallerinaSyntaxHighlightingColors.CONSTANT);
+                }
+            }
         }
     }
 }

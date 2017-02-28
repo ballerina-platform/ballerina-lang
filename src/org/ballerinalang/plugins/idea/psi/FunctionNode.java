@@ -16,17 +16,25 @@
 
 package org.ballerinalang.plugins.idea.psi;
 
+import com.intellij.icons.AllIcons;
 import com.intellij.lang.ASTNode;
+import com.intellij.navigation.ItemPresentation;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiNamedElement;
 import com.intellij.psi.ResolveResult;
+import com.intellij.psi.util.PsiTreeUtil;
 import org.antlr.jetbrains.adaptor.SymtabUtils;
 import org.antlr.jetbrains.adaptor.psi.IdentifierDefSubtree;
 import org.antlr.jetbrains.adaptor.psi.ScopeNode;
 import org.ballerinalang.plugins.idea.BallerinaLanguage;
 import org.ballerinalang.plugins.idea.BallerinaParserDefinition;
+import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.Collection;
+
+import javax.swing.*;
 
 public class FunctionNode extends IdentifierDefSubtree implements ScopeNode {
 
@@ -39,24 +47,79 @@ public class FunctionNode extends IdentifierDefSubtree implements ScopeNode {
     public PsiElement resolve(PsiNamedElement element) {
         if (element.getParent() instanceof CallableUnitNameNode) {
             return SymtabUtils.resolve(this, BallerinaLanguage.INSTANCE, element,
-                    "//functionDefinition/function/Identifier");
+                    "//function/Identifier");
         } else if (element.getParent() instanceof VariableReferenceNode) {
-            PsiElement resolved = SymtabUtils.resolve(this, BallerinaLanguage.INSTANCE, element,
-                    "//parameter/Identifier");
-            if (resolved == null) {
-                resolved = SymtabUtils.resolve(this, BallerinaLanguage.INSTANCE, element,
-                        "//namedParameter/Identifier");
-            }
-            return resolved;
+            return BallerinaPsiImplUtil.resolveElement(this, element, "//parameter/Identifier",
+                    "//namedParameter/Identifier");
         } else if (element.getParent() instanceof SimpleTypeNode) {
             return SymtabUtils.resolve(this, BallerinaLanguage.INSTANCE, element,
-                    "//connectorDefinition/connector/Identifier");
+                    "//connector/Identifier");
         }
         return null;
     }
 
     @Override
-    public ResolveResult[] multiResolve(IdentifierPSINode myElement) {
-        return new ResolveResult[0];
+    public ItemPresentation getPresentation() {
+        return new ItemPresentation() {
+
+            @Nullable
+            @Override
+            public String getPresentableText() {
+                // Get the identifier.
+                PsiElement nameIdentifier = getNameIdentifier();
+                if (nameIdentifier == null) {
+                    return null;
+                }
+                // Create a new StringBuilder. We will use this to build the presentable text.
+                StringBuilder builder = new StringBuilder(nameIdentifier.getText());
+                // Get the parameter list node.
+                ParameterListNode parameterListNode = PsiTreeUtil.findChildOfType(FunctionNode.this,
+                        ParameterListNode.class);
+                if (parameterListNode == null) {
+                    return builder.toString();
+                }
+                // Get the parameters.
+                Collection<SimpleTypeNode> parameterTypeNodes = PsiTreeUtil.findChildrenOfType(parameterListNode,
+                        SimpleTypeNode.class);
+                builder.append(" (");
+                for (SimpleTypeNode typeNode : parameterTypeNodes) {
+                    builder.append(typeNode.getText()).append(",");
+                }
+                // Remove the extra ',' at the end.
+                builder.deleteCharAt(builder.length() - 1);
+                builder.append(")");
+
+                // Get the return type list node.
+                ReturnTypeListNode returnTypeListNode = PsiTreeUtil.findChildOfType(FunctionNode.this,
+                        ReturnTypeListNode.class);
+                if (returnTypeListNode == null) {
+                    return builder.toString();
+                }
+                // Get the return types.
+                Collection<SimpleTypeNode> returnTypeNodes = PsiTreeUtil.findChildrenOfType(parameterListNode,
+                        SimpleTypeNode.class);
+                builder.append(" (");
+                for (SimpleTypeNode typeNode : returnTypeNodes) {
+                    builder.append(typeNode.getText()).append(",");
+                }
+                // Remove the extra ',' at the end.
+                builder.deleteCharAt(builder.length() - 1);
+                builder.append(")");
+                // Return the presentable text.
+                return builder.toString();
+            }
+
+            @Nullable
+            @Override
+            public String getLocationString() {
+                return null;
+            }
+
+            @Nullable
+            @Override
+            public Icon getIcon(boolean unused) {
+                return AllIcons.Nodes.Field;
+            }
+        };
     }
 }

@@ -70,10 +70,17 @@ import org.ballerinalang.plugins.idea.psi.ParameterListNode;
 import org.ballerinalang.plugins.idea.psi.ParameterNode;
 import org.ballerinalang.plugins.idea.psi.QualifiedTypeNameNode;
 import org.ballerinalang.plugins.idea.psi.ResourceDefinitionNode;
+import org.ballerinalang.plugins.idea.psi.ReturnTypeListNode;
 import org.ballerinalang.plugins.idea.psi.ServiceBodyNode;
 import org.ballerinalang.plugins.idea.psi.SimpleTypeNode;
 import org.ballerinalang.plugins.idea.psi.StatementNode;
 import org.ballerinalang.plugins.idea.psi.StructDefinitionNode;
+import org.ballerinalang.plugins.idea.psi.StructFieldNode;
+import org.ballerinalang.plugins.idea.psi.TypeMapperBodyNode;
+import org.ballerinalang.plugins.idea.psi.TypeMapperInputNode;
+import org.ballerinalang.plugins.idea.psi.TypeMapperNode;
+import org.ballerinalang.plugins.idea.psi.TypeMapperType;
+import org.ballerinalang.plugins.idea.psi.TypeNameNode;
 import org.ballerinalang.plugins.idea.psi.VariableDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.VariableReferenceNode;
 import org.jetbrains.annotations.NotNull;
@@ -252,6 +259,20 @@ public class BallerinaParserDefinition implements ParserDefinition {
                 return new ParameterListNode(node);
             case BallerinaParser.RULE_functionName:
                 return new FunctionName(node);
+            case BallerinaParser.RULE_typeName:
+                return new TypeNameNode(node);
+            case BallerinaParser.RULE_typeMapperInput:
+                return new TypeMapperInputNode(node);
+            case BallerinaParser.RULE_typeMapper:
+                return new TypeMapperNode(node);
+            case BallerinaParser.RULE_typeMapperBody:
+                return new TypeMapperBodyNode(node);
+            case BallerinaParser.RULE_structField:
+                return new StructFieldNode(node);
+            case BallerinaParser.RULE_typeMapperType:
+                return new TypeMapperType(node);
+            case BallerinaParser.RULE_returnTypeList:
+                return new ReturnTypeListNode(node);
             default:
                 return new ANTLRPsiNode(node);
         }

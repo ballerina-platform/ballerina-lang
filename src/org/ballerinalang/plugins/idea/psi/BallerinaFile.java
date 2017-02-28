@@ -26,6 +26,7 @@ import org.antlr.jetbrains.adaptor.SymtabUtils;
 import org.antlr.jetbrains.adaptor.psi.ScopeNode;
 import org.ballerinalang.plugins.idea.BallerinaFileType;
 import org.ballerinalang.plugins.idea.BallerinaLanguage;
+import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -68,31 +69,14 @@ public class BallerinaFile extends PsiFileBase implements ScopeNode {
         //		                   ".resolve("+element.getName()+
         //		                   " at "+Integer.toHexString(element.hashCode())+")");
         if (element.getParent() instanceof CallableUnitNameNode) {
-            PsiElement resolved = SymtabUtils.resolve(this, BallerinaLanguage.INSTANCE, element,
-                    "//functionDefinition/function/Identifier");
-            if (resolved == null) {
-                resolved = SymtabUtils.resolve(this, BallerinaLanguage.INSTANCE, element,
-                        "//connectorDefinition/connector/Identifier");
-            }
-            return resolved;
+            return BallerinaPsiImplUtil.resolveElement(this, element, "//function/Identifier",
+                    "//connector/Identifier");
         } else if (element.getParent() instanceof SimpleTypeNode) {
-
-            PsiElement resolved =SymtabUtils.resolve(this, BallerinaLanguage.INSTANCE, element,
-                    "//connectorDefinition/connector/Identifier");
-            if (resolved == null) {
-                resolved = SymtabUtils.resolve(this, BallerinaLanguage.INSTANCE, element,
-                        "//structDefinition/Identifier");
-            }
-            return resolved;
+            return BallerinaPsiImplUtil.resolveElement(this, element, "//function/Identifier",
+                    "//connector/Identifier", "//structDefinition/Identifier");
         } else if (element.getParent() instanceof VariableReferenceNode) {
-            return SymtabUtils.resolve(this, BallerinaLanguage.INSTANCE, element,
-                    "//constantDefinition/Identifier");
+            return BallerinaPsiImplUtil.resolveElement(this, element, "//constantDefinition/Identifier");
         }
         return null;
-    }
-
-    @Override
-    public ResolveResult[] multiResolve(IdentifierPSINode myElement) {
-        return new ResolveResult[0];
     }
 }

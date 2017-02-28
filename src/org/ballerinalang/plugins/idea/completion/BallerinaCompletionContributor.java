@@ -35,7 +35,7 @@ import com.intellij.psi.PsiErrorElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiReference;
 import com.intellij.psi.PsiWhiteSpace;
-import com.intellij.psi.impl.source.tree.LeafPsiElement;
+import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.util.ProcessingContext;
 import org.ballerinalang.plugins.idea.psi.AliasNode;
 import org.ballerinalang.plugins.idea.psi.AnnotationNameNode;
@@ -50,8 +50,10 @@ import org.ballerinalang.plugins.idea.psi.MapStructInitKeyValueNode;
 import org.ballerinalang.plugins.idea.psi.PackageDeclarationNode;
 import org.ballerinalang.plugins.idea.psi.PackageNameNode;
 import org.ballerinalang.plugins.idea.psi.ParameterNode;
+import org.ballerinalang.plugins.idea.psi.ResourceDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.SimpleTypeNode;
 import org.ballerinalang.plugins.idea.psi.StatementNode;
+import org.ballerinalang.plugins.idea.psi.TypeMapperNode;
 import org.ballerinalang.plugins.idea.psi.VariableReferenceNode;
 import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
 import org.jetbrains.annotations.NotNull;
@@ -88,6 +90,12 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
     private static final LookupElementBuilder MAP;
     private static final LookupElementBuilder DATATABLE;
 
+    // Other keywords
+    private static final LookupElementBuilder REPLY;
+    private static final LookupElementBuilder RETURN;
+    private static final LookupElementBuilder IF;
+    private static final LookupElementBuilder ELSE;
+
     static {
         PACKAGE = createKeywordLookupElement("package", true, AddSpaceInsertHandler.INSTANCE_WITH_AUTO_POPUP);
         IMPORT = createKeywordLookupElement("import", true, AddSpaceInsertHandler.INSTANCE_WITH_AUTO_POPUP);
@@ -109,6 +117,11 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
         EXCEPTION = createReferenceTypeLookupElement("exception", true, AddSpaceInsertHandler.INSTANCE);
         MAP = createReferenceTypeLookupElement("map", true, AddSpaceInsertHandler.INSTANCE);
         DATATABLE = createReferenceTypeLookupElement("datatable", true, AddSpaceInsertHandler.INSTANCE);
+
+        REPLY = createKeywordLookupElement("reply", true, AddSpaceInsertHandler.INSTANCE);
+        RETURN = createKeywordLookupElement("return", true, AddSpaceInsertHandler.INSTANCE);
+        IF = createKeywordLookupElement("if", true, ParenthesisInsertHandler.INSTANCE_WITH_AUTO_POPUP);
+        ELSE = createKeywordLookupElement("else", true, AddSpaceInsertHandler.INSTANCE);
     }
 
     private static LookupElementBuilder createLookupElement(String name, boolean withBoldness,
@@ -261,6 +274,28 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                 addStructs(resultSet, originalFile);
                 addPackages(resultSet, originalFile);
                 addVariables(resultSet, element);
+
+                addKeyword(resultSet, IF, CONTEXT_KEYWORD_PRIORITY);
+                addKeyword(resultSet, ELSE, CONTEXT_KEYWORD_PRIORITY);
+
+                ResourceDefinitionNode resourceDefinitionNode =
+                        PsiTreeUtil.getParentOfType(element, ResourceDefinitionNode.class);
+                if (resourceDefinitionNode != null) {
+                    addKeyword(resultSet, REPLY, CONTEXT_KEYWORD_PRIORITY);
+                }
+
+                FunctionDefinitionNode functionBodyNode =
+                        PsiTreeUtil.getParentOfType(element, FunctionDefinitionNode.class);
+                if (functionBodyNode != null) {
+                    addKeyword(resultSet, RETURN, CONTEXT_KEYWORD_PRIORITY);
+                }
+
+                TypeMapperNode typeMapperNode =
+                        PsiTreeUtil.getParentOfType(element, TypeMapperNode.class);
+                if (typeMapperNode != null) {
+                    addKeyword(resultSet, RETURN, CONTEXT_KEYWORD_PRIORITY);
+                }
+
             } else if (superParent instanceof CompilationUnitNode) {
                 // This can be called depending on the caret location.
                 if (parentPrevSibling == null) {
@@ -317,10 +352,14 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                 addValueTypes(resultSet, CONTEXT_KEYWORD_PRIORITY);
                 addReferenceTypes(resultSet, CONTEXT_KEYWORD_PRIORITY);
 
+                addFunctions(resultSet, originalFile);
                 addConnectors(resultSet, originalFile);
                 addStructs(resultSet, originalFile);
                 addPackages(resultSet, originalFile);
                 addVariables(resultSet, element);
+
+                addKeyword(resultSet, IF, CONTEXT_KEYWORD_PRIORITY);
+                addKeyword(resultSet, ELSE, CONTEXT_KEYWORD_PRIORITY);
 
                 // Todo - Move to utils
                 PsiElement temp = parent.getParent().getParent().getParent().getParent();
@@ -332,9 +371,7 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                     temp = temp.getParent();
                 }
                 return;
-            }
-
-            if (":".equals(sibling.getText())) {
+            } else if (":".equals(sibling.getText())) {
 
                 sibling = sibling.getPrevSibling();
                 if (sibling == null) {
@@ -408,7 +445,7 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
             PsiElement prevToken = file.findElementAt(parameters.getOffset() - 1);
 
             if (prevToken != null) {
-                if (Objects.equals(":", prevToken.getText())) {
+                if (":".equals(prevToken.getText())) {
 
                     PsiElement prevElement = file.findElementAt(parameters.getOffset() - 2);
 
@@ -442,8 +479,11 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                     PsiReference reference = identifierNode.getReference();
                     PsiElement resolvedElement = reference.resolve();
 
+                } else if ("else".equals(prevToken.getText())) {
+                    resultSet.addElement(PrioritizedLookupElement.withPriority(IF, CONTEXT_KEYWORD_PRIORITY));
                 } else {
                     // Todo - Add struct, map field suggestions
+                    resultSet.addElement(PrioritizedLookupElement.withPriority(IF, CONTEXT_KEYWORD_PRIORITY));
                 }
             } else {
                 // Todo - Handle scenario
@@ -514,38 +554,7 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
 
                     // Todo - Add struct, map field suggestions
                     for (int i = 0; i < children.length; i++) {
-
-                        if (children[i] instanceof LeafPsiElement) {
-                            continue;
-                        }
-
-                        PsiElement nameIdentifier = ((VariableReferenceNode) children[i]).getNameIdentifier();
-                        if (nameIdentifier == null) {
-                            break;
-                        }
-                        PsiReference reference = nameIdentifier.getReference();
-                        if (reference == null) {
-                            break;
-                        }
-                        PsiElement resolvedElement = reference.resolve();
-                        if (resolvedElement == null) {
-                            break;
-                        }
-
-                        //resolvedElement.getFirstChild().getChildren()[0].getChildren()[0].getChildren()[0]
-                        // .getReference()
-
-                        // .resolve()
-
-                        temp = resolvedElement.getFirstChild();
-                        while (!(temp instanceof IdentifierPSINode)) {
-                            temp = temp.getChildren()[0];
-                        }
-
-
-                        PsiReference reference1 = temp.getReference();
-                        PsiElement resolve = reference1.resolve();
-
+                        // Todo - Complete
                     }
 
                     if (".".equals(prevToken.getText())) {
@@ -577,6 +586,10 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                 addFileLevelKeywords(resultSet, CONTEXT_KEYWORD_PRIORITY, false, true);
             }
         }
+    }
+
+    private void addKeyword(CompletionResultSet resultSet, LookupElement lookupElement, int priority) {
+        resultSet.addElement(PrioritizedLookupElement.withPriority(lookupElement, priority));
     }
 
     /**

@@ -21,12 +21,7 @@ import com.intellij.lang.findUsages.FindUsagesProvider;
 import com.intellij.psi.PsiElement;
 import org.antlr.jetbrains.adaptor.lexer.RuleIElementType;
 import org.antlr.jetbrains.adaptor.psi.ANTLRPsiNode;
-import org.ballerinalang.plugins.idea.psi.ActionDefinitionNode;
-import org.ballerinalang.plugins.idea.psi.ConnectorDefinitionNode;
-import org.ballerinalang.plugins.idea.psi.FunctionDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
-import org.ballerinalang.plugins.idea.psi.VariableDefinitionNode;
-import org.ballerinalang.plugins.idea.psi.VariableReferenceNode;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -36,18 +31,12 @@ public class BallerinaFindUsageProvider implements FindUsagesProvider {
     @Nullable
     @Override
     public WordsScanner getWordsScanner() {
-
         return null;
     }
 
     @Override
     public boolean canFindUsagesFor(@NotNull PsiElement psiElement) {
-        return psiElement instanceof IdentifierPSINode || // the case where we highlight the ID in def subtree itself
-                psiElement instanceof FunctionDefinitionNode ||   // remaining cases are for resolve() results
-                psiElement instanceof ConnectorDefinitionNode
-                || psiElement instanceof ActionDefinitionNode
-                || psiElement instanceof VariableDefinitionNode
-                || psiElement instanceof VariableReferenceNode;
+        return psiElement instanceof IdentifierPSINode;
     }
 
     @Nullable
@@ -61,17 +50,40 @@ public class BallerinaFindUsageProvider implements FindUsagesProvider {
     public String getType(@NotNull PsiElement element) {
         ANTLRPsiNode parent = (ANTLRPsiNode) element.getParent();
         RuleIElementType elType = (RuleIElementType) parent.getNode().getElementType();
+        // Todo - Add more types
         switch (elType.getRuleIndex()) {
-            case RULE_functionDefinition:
-                return "function";
+            case RULE_function:
+                return "Function";
+            case RULE_nativeFunction:
+                return "Native Function";
+            case RULE_connector:
+                return "Connector";
+            case RULE_nativeConnector:
+                return "Native Connector";
             case RULE_action:
-                return "action";
+                return "Action";
+            case RULE_nativeAction:
+                return "Native Action";
             case RULE_serviceDefinition:
-                return "service";
+                return "Service";
             case RULE_variableDefinitionStatement:
-                return "variable";
-            case RULE_variableReference:
-                return "variable reference";
+                return "Variable";
+            case RULE_parameter:
+                return "Parameter";
+            case RULE_packageName:
+                return "Package";
+            case RULE_namedParameter:
+                return "Named Parameter";
+            case RULE_typeMapperInput:
+                return "Type Mapper Input";
+            case RULE_structDefinition:
+                return "Struct";
+            case RULE_constantDefinition:
+                return "Constant";
+            case RULE_structField:
+                return "Struct Field";
+            case RULE_simpleType:
+                // Todo - Resolve the SimpleType element and return the correct type.
         }
         return "";
     }

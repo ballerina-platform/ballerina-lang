@@ -21,17 +21,17 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiNamedElement;
 import com.intellij.psi.ResolveResult;
 import org.antlr.jetbrains.adaptor.SymtabUtils;
-import org.antlr.jetbrains.adaptor.psi.IdentifierDefSubtree;
+import org.antlr.jetbrains.adaptor.psi.ANTLRPsiNode;
 import org.antlr.jetbrains.adaptor.psi.ScopeNode;
 import org.ballerinalang.plugins.idea.BallerinaLanguage;
-import org.ballerinalang.plugins.idea.BallerinaParserDefinition;
+import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class FunctionDefinitionNode extends IdentifierDefSubtree implements ScopeNode {
+public class FunctionDefinitionNode extends ANTLRPsiNode implements ScopeNode {
 
     public FunctionDefinitionNode(@NotNull ASTNode node) {
-        super(node, BallerinaParserDefinition.ID);
+        super(node);
     }
 
     @Nullable
@@ -39,24 +39,14 @@ public class FunctionDefinitionNode extends IdentifierDefSubtree implements Scop
     public PsiElement resolve(PsiNamedElement element) {
         if (element.getParent() instanceof CallableUnitNameNode) {
             return SymtabUtils.resolve(this, BallerinaLanguage.INSTANCE, element,
-                    "//functionDefinition/function/Identifier");
+                    "//function/Identifier");
         } else if (element.getParent() instanceof VariableReferenceNode) {
-            PsiElement resolved = SymtabUtils.resolve(this, BallerinaLanguage.INSTANCE, element,
-                    "//parameter/Identifier");
-            if (resolved == null) {
-                resolved = SymtabUtils.resolve(this, BallerinaLanguage.INSTANCE, element,
-                        "//namedParameter/Identifier");
-            }
-            return resolved;
+            return BallerinaPsiImplUtil.resolveElement(this, element,"//parameter/Identifier",
+                    "//namedParameter/Identifier");
         } else if (element.getParent() instanceof SimpleTypeNode) {
             return SymtabUtils.resolve(this, BallerinaLanguage.INSTANCE, element,
-                    "//connectorDefinition/connector/Identifier");
+                    "//connector/Identifier");
         }
         return null;
-    }
-
-    @Override
-    public ResolveResult[] multiResolve(IdentifierPSINode myElement) {
-        return new ResolveResult[0];
     }
 }

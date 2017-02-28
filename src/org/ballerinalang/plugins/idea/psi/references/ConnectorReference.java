@@ -14,11 +14,15 @@
  *  limitations under the License.
  */
 
-package org.ballerinalang.plugins.idea.psi;
+package org.ballerinalang.plugins.idea.psi.references;
 
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementResolveResult;
 import com.intellij.psi.ResolveResult;
+import org.ballerinalang.plugins.idea.psi.CallableUnitNameNode;
+import org.ballerinalang.plugins.idea.psi.ConnectorDefinitionNode;
+import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
+import org.ballerinalang.plugins.idea.psi.SimpleTypeNode;
 import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
 import org.jetbrains.annotations.NotNull;
 
@@ -40,7 +44,7 @@ public class ConnectorReference extends BallerinaElementReference {
     @NotNull
     @Override
     public Object[] getVariants() {
-        return new Object[]{"conn1", "conn2"};
+        return new Object[0];
     }
 
     @NotNull
@@ -53,5 +57,10 @@ public class ConnectorReference extends BallerinaElementReference {
             results.add(new PsiElementResolveResult(function));
         }
         return results.toArray(new ResolveResult[results.size()]);
+    }
+
+    @Override
+    public boolean isReferenceTo(PsiElement definitionElement) {
+        return false;
     }
 }

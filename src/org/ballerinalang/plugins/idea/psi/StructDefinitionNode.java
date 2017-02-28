@@ -17,13 +17,28 @@
 package org.ballerinalang.plugins.idea.psi;
 
 import com.intellij.lang.ASTNode;
+import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiNamedElement;
+import com.intellij.psi.ResolveResult;
 import org.antlr.jetbrains.adaptor.psi.IdentifierDefSubtree;
+import org.antlr.jetbrains.adaptor.psi.ScopeNode;
 import org.ballerinalang.plugins.idea.BallerinaParserDefinition;
+import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-public class StructDefinitionNode extends IdentifierDefSubtree {
+public class StructDefinitionNode extends IdentifierDefSubtree implements ScopeNode {
 
     public StructDefinitionNode(@NotNull ASTNode node) {
         super(node, BallerinaParserDefinition.ID);
+    }
+
+    @Nullable
+    @Override
+    public PsiElement resolve(PsiNamedElement element) {
+        if (element.getParent() instanceof VariableReferenceNode) {
+            return BallerinaPsiImplUtil.resolveElement(this, element, "//structField/Identifier");
+        }
+        return null;
     }
 }
