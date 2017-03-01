@@ -79,7 +79,7 @@ define(['lodash', 'd3','log', './simple-statement-view', '../ast/expressions/act
         };
 
         /**
-         * Rendering the view for get-Action statement.
+         * Rendering the view for worker-receive statement.
          * @returns {group} The svg group which contains the elements of the action statement view.
          */
         WorkerReceive.prototype.render = function (renderingContext) {
@@ -137,7 +137,7 @@ define(['lodash', 'd3','log', './simple-statement-view', '../ast/expressions/act
             });
             this.processorConnectPoint.on("mouseout", function () {
                 self.processorConnectPoint.style("fill-opacity", 0.01);
-                self.messageManager.setTypeBeingDragged(false);
+                self.messageManager.setTypeBeingDragged(undefined);
             });
 
             this.getBoundingBox().on('top-edge-moved', function(dy){
