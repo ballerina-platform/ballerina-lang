@@ -188,6 +188,11 @@ define(['lodash', 'log', './simple-statement-view', './../ast/reply-statement', 
                 previousStatement = statementContainer.getManagedStatements()[currentIndex - 1];
                 previousStatementView = self.getDiagramRenderingContext().getViewOfModel(previousStatement);
                 return newBBoxTop >= previousStatementView.getBoundingBox().getBottom() + innerDropZoneHeight;
+            } else if (currentIndex === 0) {
+                return true;
+            } else {
+                log.error("Invalid index Found for the Reply Statement");
+                throw "Invalid index Found for the Reply Statement";
             }
         };
 
