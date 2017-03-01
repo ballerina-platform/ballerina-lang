@@ -20,27 +20,30 @@ package org.wso2.siddhi.extension.output.mapper.keyvalue;
 
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.core.event.Event;
+import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
 import org.wso2.siddhi.core.stream.output.sink.OutputMapper;
+import org.wso2.siddhi.core.stream.output.sink.OutputTransportCallback;
 import org.wso2.siddhi.core.util.transport.TemplateBuilder;
 import org.wso2.siddhi.core.util.transport.OptionHolder;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
 
+import java.util.HashMap;
 import java.util.Map;
-import java.util.TreeMap;
 
 @Extension(
         name = "keyvalue",
         namespace = "outputmapper",
         description = "Event to key-value (HashMap) output mapper."
 )
-public class MapOutputMapper extends OutputMapper {
+public class KeyValueOutputMapper extends OutputMapper {
     private StreamDefinition streamDefinition;
 
     /**
      * Initialize the mapper and the mapping configurations.
-     *  @param streamDefinition The stream definition
-     * @param optionHolder     Unmapped dynamic options
-     * @param payloadTemplateBuilder
+     *
+     * @param streamDefinition       The stream definition
+     * @param optionHolder           Option holder containing static and dynamic options
+     * @param payloadTemplateBuilder Unmapped payload for reference
      */
     @Override
     public void init(StreamDefinition streamDefinition, OptionHolder optionHolder, TemplateBuilder payloadTemplateBuilder) {
@@ -48,15 +51,29 @@ public class MapOutputMapper extends OutputMapper {
     }
 
     /**
-     * Convert the given option mapping to a HashMap object
+     * Map and publish the given {@link Event} array
      *
-     * @param event         Event object
-     * @param mappedPayload mapped payload if any
-     * @return the mapped object
+     * @param events                  Event object array
+     * @param outputTransportCallback output transport callback
+     * @param optionHolder            option holder containing static and dynamic options
+     * @param payloadTemplateBuilder  Unmapped payload for reference
      */
     @Override
-    public Object mapEvent(Event event, String mappedPayload) {
-        Map<Object, Object> eventMapObject = new TreeMap<Object, Object>();
+    public void mapAndSend(Event[] events, OutputTransportCallback outputTransportCallback, OptionHolder optionHolder, TemplateBuilder payloadTemplateBuilder) throws ConnectionUnavailableException {
+        //TODO add support to publish multiple events
+        for (Event event : events) {
+            outputTransportCallback.publish(constructDefaultMapping(event), event);
+        }
+    }
+
+    /**
+     * Convert the given {@link Event} to HashMap
+     *
+     * @param event Event object
+     * @return the constructed HashMap
+     */
+    private Object constructDefaultMapping(Event event) {
+        Map<Object, Object> eventMapObject = new HashMap<Object, Object>();
         Object[] eventData = event.getData();
         for (int i = 0; i < eventData.length; i++) {
             String attributeName = streamDefinition.getAttributeNameArray()[i];
@@ -64,14 +81,15 @@ public class MapOutputMapper extends OutputMapper {
             eventMapObject.put(attributeName, attributeValue);
         }
 
-        // Get arbitrary data from event
+        // TODO remove if we are not going to support arbitraryDataMap
+/*        // Get arbitrary data from event
         Map<String, Object> arbitraryDataMap = event.getArbitraryDataMap();
         if (arbitraryDataMap != null) {
             for (Map.Entry<String, Object> entry : arbitraryDataMap.entrySet()) {
                 // Add arbitrary data keyvalue to the default template
                 eventMapObject.put(entry.getKey(), entry.getValue());
             }
-        }
+        }*/
         return eventMapObject;
     }
 }

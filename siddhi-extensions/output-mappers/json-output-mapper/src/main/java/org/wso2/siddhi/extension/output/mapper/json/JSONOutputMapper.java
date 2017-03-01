@@ -32,7 +32,7 @@ import java.util.Map;
 
 @Extension(
         name = "json",
-        namespace = "",
+        namespace = "outputmapper",
         description = "Event to JSON output mapper."
 )
 public class JSONOutputMapper extends OutputMapper {
@@ -50,7 +50,7 @@ public class JSONOutputMapper extends OutputMapper {
      *
      * @param streamDefinition       The stream definition
      * @param optionHolder           Option holder containing static and dynamic options
-     * @param payloadTemplateBuilder un mapped payload for reference
+     * @param payloadTemplateBuilder Unmapped payload for reference
      */
     @Override
     public void init(StreamDefinition streamDefinition, OptionHolder optionHolder, TemplateBuilder payloadTemplateBuilder) {
@@ -61,6 +61,14 @@ public class JSONOutputMapper extends OutputMapper {
         }
     }
 
+    /**
+     * Map and publish the given {@link Event} array
+     *
+     * @param events                  Event object array
+     * @param outputTransportCallback output transport callback
+     * @param optionHolder            option holder containing static and dynamic options
+     * @param payloadTemplateBuilder  Unmapped payload for reference
+     */
     @Override
     public void mapAndSend(Event[] events, OutputTransportCallback outputTransportCallback,
                            OptionHolder optionHolder, TemplateBuilder payloadTemplateBuilder)
@@ -71,6 +79,7 @@ public class JSONOutputMapper extends OutputMapper {
                 outputTransportCallback.publish(payloadTemplateBuilder.build(event), event);
             }
         } else {
+            //TODO add support to publish multiple events
             for (Event event : events) {
                 outputTransportCallback.publish(constructDefaultMapping(event), event);
             }

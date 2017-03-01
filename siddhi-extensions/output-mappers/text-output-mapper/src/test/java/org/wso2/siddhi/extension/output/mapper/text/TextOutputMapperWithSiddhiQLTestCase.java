@@ -45,7 +45,7 @@ public class TextOutputMapperWithSiddhiQLTestCase {
     }
 
     //    from FooStream
-    //    select symbol
+    //    select *
     //    publish inMemory options ("topic", "{{symbol}}")
     //    map text
     @Test
@@ -113,7 +113,7 @@ public class TextOutputMapperWithSiddhiQLTestCase {
     }
 
     //    from FooStream
-    //    select symbol,price
+    //    select *
     //    publish inMemory options ("topic", "{{symbol}}")
     //    map text custom
     @Test
@@ -188,7 +188,7 @@ public class TextOutputMapperWithSiddhiQLTestCase {
     }
 
     //    from FooStream
-    //    select symbol,price
+    //    select *
     //    publish inMemory options ("topic", "{{symbol}}")
     //    map text custom
     @Test(expected = NoSuchAttributeException.class)
