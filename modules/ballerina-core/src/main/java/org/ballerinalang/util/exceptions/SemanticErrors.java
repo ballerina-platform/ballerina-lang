@@ -80,8 +80,8 @@ public enum SemanticErrors {
     UNDEFINED_ACTION_IN_CONNECTOR("undefined.action.in.connector", "SEMANTIC_0055"),
     INCOMPATIBLE_TYPES_UNKNOWN_FOUND("incompatible.types.unknown.found", "SEMANTIC_0056"),
     BUILT_IN_TYPE_NAMES_NOT_ALLOWED_AS_IDENTIFIER("built.in.type.names.not.allowed.as.identifier", "SEMANTIC_0057"),
-    INCOMPATIBLE_TYPES_CONNECTOR_EXPECTED("incompatible.types.connector.expected", "SEMANTIC_0058");
-
+    INCOMPATIBLE_TYPES_CONNECTOR_EXPECTED("incompatible.types.connector.expected", "SEMANTIC_0058"),
+    REDECLARED_NATIVE_TYPEMAPPER_SYMBOL("redeclared.native.typemapper.symbol", "SEMANTIC_0059");
     private String errorMsgKey;
     private String errorCode;
 

@@ -314,7 +314,7 @@ public class BLangModelBuilder {
         annotationList.forEach(currentStructBuilder::addAnnotation);
 
         // TODO: Fix the package path
-//        currentStructBuilder.setPackagePath(currentPackagePath);
+        currentStructBuilder.setPackagePath(currentPackagePath);
         StructDef structDef = currentStructBuilder.build();
 
         // Close Struct scope
@@ -820,7 +820,7 @@ public class BLangModelBuilder {
             NodeLocation location, boolean isPublic, boolean isNative) {
         currentCUBuilder.setNodeLocation(location);
         currentCUBuilder.setName(name);
-        //currentCUBuilder.setPkgPath(currentPackagePath);
+        currentCUBuilder.setPkgPath(currentPackagePath);
         currentCUBuilder.setPublic(isPublic);
         currentCUBuilder.setNative(isNative);
 
