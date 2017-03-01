@@ -938,13 +938,15 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
 
             // Applying the calculated layout
             _.forEach(graph.nodes(), function (dagreNode) {
-                var node = $("#" + dagreNode);
-                node.css("left", graph.node(dagreNode).x + "px");
-                node.css("top", graph.node(dagreNode).y + "px");
-                // }
+                if (funcs.length > 0) {
+                    var node = $("#" + dagreNode);
+                    node.css("left", graph.node(dagreNode).x + "px");
+                    node.css("top", graph.node(dagreNode).y + "px");
 
-                if (graph.node(dagreNode) != null && graph.node(dagreNode).y > maxYPosition) {
-                    maxYPosition = graph.node(dagreNode).y;
+                    if (graph.node(dagreNode) != null && graph.node(dagreNode).y > maxYPosition) {
+                        maxYPosition = graph.node(dagreNode).y;
+                    }
+
                 }
             });
 
