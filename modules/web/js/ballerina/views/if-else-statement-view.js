@@ -15,8 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require', 'lodash', 'log', 'property_pane_utils', './compound-statement-view', './../ast/if-else-statement', './../ast/if-statement'],
-    function (require, _, log, PropertyPaneUtils, CompoundStatementView, IfElseStatement, IfStatement) {
+define(['require', 'lodash', 'log', './compound-statement-view', './../ast/if-else-statement', './../ast/if-statement'],
+    function (require, _, log, CompoundStatementView, IfElseStatement, IfStatement) {
 
         /**
          * The view to represent a If Else statement which is an AST visitor.

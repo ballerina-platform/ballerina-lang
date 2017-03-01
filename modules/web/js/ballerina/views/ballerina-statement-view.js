@@ -15,9 +15,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require', 'lodash', 'log', './../visitors/statement-visitor', 'd3', 'd3utils', 'property_pane_utils', './point',
+define(['require', 'lodash', 'log', './../visitors/statement-visitor', 'd3', 'd3utils', './point',
         './bounding-box', 'expression_editor_utils', 'debugger/debug-manager'],
-    function (require, _, log, StatementVisitor, d3, D3Utils, PropertyPaneUtils, Point, BBox, expressionEditor, DebugManager) {
+    function (require, _, log, StatementVisitor, d3, D3Utils, Point, BBox, expressionEditor, DebugManager) {
 
     /**
      * A common class which consists functions of moving or resizing views.
