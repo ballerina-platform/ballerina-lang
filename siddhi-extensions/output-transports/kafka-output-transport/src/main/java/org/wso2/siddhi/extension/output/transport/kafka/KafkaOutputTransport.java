@@ -23,9 +23,12 @@ import kafka.producer.KeyedMessage;
 import kafka.producer.ProducerConfig;
 import org.apache.log4j.Logger;
 import org.wso2.siddhi.annotation.Extension;
+import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
 import org.wso2.siddhi.core.exception.TestConnectionNotSupportedException;
 import org.wso2.siddhi.core.stream.output.sink.OutputTransport;
+import org.wso2.siddhi.core.util.transport.OptionHolder;
+import org.wso2.siddhi.query.api.definition.StreamDefinition;
 
 import java.util.Map;
 import java.util.Properties;
@@ -60,33 +63,33 @@ public class KafkaOutputTransport extends OutputTransport {
     private static ThreadPoolExecutor threadPoolExecutor;
     private ProducerConfig config;
     private Producer<String, Object> producer;
-    private Map<String, String> options;
+    private OptionHolder options;
     private String topic = null;
 
     @Override
-    public void init(String type, Map<String, String> options, Map<String, String> unmappedDynamicOptions) {
+    protected void init(StreamDefinition streamDefinition, OptionHolder optionHolder) {
         //ThreadPoolExecutor will be assigned  if it is null
         if (threadPoolExecutor == null) {
             int minThread;
             int maxThread;
             int jobQueSize;
             long defaultKeepAliveTime;
-            this.options = options;
+            this.options = optionHolder;
             //If global properties are available those will be assigned else constant values will be assigned
-            minThread = (options.get(ADAPTER_MIN_THREAD_POOL_SIZE_NAME) != null)
-                    ? Integer.parseInt(options.get(ADAPTER_MIN_THREAD_POOL_SIZE_NAME))
+            minThread = (options.getStaticOption(ADAPTER_MIN_THREAD_POOL_SIZE_NAME) != null)
+                    ? Integer.parseInt(options.getStaticOption(ADAPTER_MIN_THREAD_POOL_SIZE_NAME))
                     : ADAPTER_MIN_THREAD_POOL_SIZE;
 
-            maxThread = (options.get(ADAPTER_MAX_THREAD_POOL_SIZE_NAME) != null)
-                    ? Integer.parseInt(options.get(ADAPTER_MAX_THREAD_POOL_SIZE_NAME))
+            maxThread = (options.getStaticOption(ADAPTER_MAX_THREAD_POOL_SIZE_NAME) != null)
+                    ? Integer.parseInt(options.getStaticOption(ADAPTER_MAX_THREAD_POOL_SIZE_NAME))
                     : ADAPTER_MAX_THREAD_POOL_SIZE;
 
-            defaultKeepAliveTime = (options.get(ADAPTER_KEEP_ALIVE_TIME_NAME) != null)
-                    ? Integer.parseInt(options.get(ADAPTER_KEEP_ALIVE_TIME_NAME))
+            defaultKeepAliveTime = (options.getStaticOption(ADAPTER_KEEP_ALIVE_TIME_NAME) != null)
+                    ? Integer.parseInt(options.getStaticOption(ADAPTER_KEEP_ALIVE_TIME_NAME))
                     : DEFAULT_KEEP_ALIVE_TIME_IN_MILLIS;
 
-            jobQueSize = (options.get(ADAPTER_EXECUTOR_JOB_QUEUE_SIZE_NAME) != null)
-                    ? Integer.parseInt(options.get(ADAPTER_EXECUTOR_JOB_QUEUE_SIZE_NAME))
+            jobQueSize = (options.getStaticOption(ADAPTER_EXECUTOR_JOB_QUEUE_SIZE_NAME) != null)
+                    ? Integer.parseInt(options.getStaticOption(ADAPTER_EXECUTOR_JOB_QUEUE_SIZE_NAME))
                     : ADAPTER_EXECUTOR_JOB_QUEUE_SIZE;
 
             threadPoolExecutor = new ThreadPoolExecutor(minThread, maxThread, defaultKeepAliveTime,
@@ -95,16 +98,10 @@ public class KafkaOutputTransport extends OutputTransport {
     }
 
     @Override
-    public void testConnect() throws TestConnectionNotSupportedException, ConnectionUnavailableException {
-        log.info("KafkaOutputTransport:testConnect()");
-        throw new TestConnectionNotSupportedException("Test connection is not available");
-    }
-
-    @Override
     public void connect() throws ConnectionUnavailableException {
         log.info("KafkaOutputTransport:testConnect()");
-        String kafkaConnect = options.get(ADAPTOR_META_BROKER_LIST);
-        String optionalConfigs = options.get(ADAPTOR_OPTIONAL_CONFIGURATION_PROPERTIES);
+        String kafkaConnect = options.getStaticOption(ADAPTOR_META_BROKER_LIST);
+        String optionalConfigs = options.getStaticOption(ADAPTOR_OPTIONAL_CONFIGURATION_PROPERTIES);
         Properties props = new Properties();
         props.put("metadata.broker.list", kafkaConnect);
         props.put("serializer.class", "kafka.serializer.StringEncoder");
@@ -123,14 +120,14 @@ public class KafkaOutputTransport extends OutputTransport {
         }
         config = new ProducerConfig(props);
         producer = new Producer<String, Object>(config);
-        topic = options.get(ADAPTOR_PUBLISH_TOPIC);
+        topic = options.getStaticOption(ADAPTOR_PUBLISH_TOPIC);
     }
 
     @Override
-    public void publish(Object event, Map<String, String> dynamicOptions) throws ConnectionUnavailableException {
+    protected void publish(Object payload, Event event, OptionHolder optionHolder) throws ConnectionUnavailableException {
         String topic;
         if (this.topic == null) {
-            topic = dynamicOptions.get(ADAPTOR_PUBLISH_TOPIC);
+            topic = optionHolder.getDynamicOption(ADAPTOR_PUBLISH_TOPIC, event);
         } else {
             topic = this.topic;
         }
@@ -152,11 +149,6 @@ public class KafkaOutputTransport extends OutputTransport {
     @Override
     public void destroy() {
         //not required
-    }
-
-    @Override
-    public boolean isPolled() {
-        return false;
     }
 
     private class KafkaSender implements Runnable {

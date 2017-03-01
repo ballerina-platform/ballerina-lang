@@ -40,7 +40,7 @@ public class KafkaInputTransport extends InputTransport {
     private SourceCallback sourceCallback;
     private ScheduledExecutorService executorService;
     private static ThreadPoolExecutor threadPoolExecutor;
-    private Map<String, String> transportOptions;
+    private OptionHolder transportOptions;
     private ConsumerKafkaAdaptor consumerKafkaAdaptor;
 
     //    public static final int ADAPTER_CORE_POOL_SIZE = 8;
@@ -72,8 +72,8 @@ public class KafkaInputTransport extends InputTransport {
     public void disconnect() {
         if (consumerKafkaAdaptor != null) {
             consumerKafkaAdaptor.shutdown();
-            String topic = transportOptions.get(ADAPTOR_SUSCRIBER_TOPIC);
-            log.debug("Adapter " + transportOptions.get(ADAPTER_NAME) + " disconnected " + topic);
+            String topic = transportOptions.getStaticOption(ADAPTOR_SUSCRIBER_TOPIC);
+            log.debug("Adapter " + transportOptions.getStaticOption(ADAPTER_NAME) + " disconnected " + topic);
         }
     }
 
@@ -82,30 +82,15 @@ public class KafkaInputTransport extends InputTransport {
 
     }
 
-    @Override
-    public boolean isEventDuplicatedInCluster() {
-        return (transportOptions.get(EVENTS_DUPLICATED_IN_CLUSTER_NAME) != null)
-                ? Boolean.parseBoolean(transportOptions.get(EVENTS_DUPLICATED_IN_CLUSTER_NAME))
-                : EVENTS_DUPLICATED_IN_CLUSTER;
-    }
-
-    @Override
-    public boolean isPolling(){
-        return true;
-    }
-
-
     private void createKafkaAdaptorListener() throws ConnectionUnavailableException{
 
-        String zkConnect = transportOptions.get(ADAPTOR_SUSCRIBER_ZOOKEEPER_CONNECT);
-        String groupID = transportOptions.get(ADAPTOR_SUSCRIBER_GROUP_ID);
-        String threadsStr = transportOptions.get(ADAPTOR_SUSCRIBER_THREADS);
-        String optionalConfiguration = transportOptions.get(ADAPTOR_OPTIONAL_CONFIGURATION_PROPERTIES);
+        String zkConnect = transportOptions.getStaticOption(ADAPTOR_SUSCRIBER_ZOOKEEPER_CONNECT);
+        String groupID = transportOptions.getStaticOption(ADAPTOR_SUSCRIBER_GROUP_ID);
+        String threadsStr = transportOptions.getStaticOption(ADAPTOR_SUSCRIBER_THREADS);
+        String optionalConfiguration = transportOptions.getStaticOption(ADAPTOR_OPTIONAL_CONFIGURATION_PROPERTIES);
         int threads = Integer.parseInt(threadsStr);
-        String topic = transportOptions.get(ADAPTOR_SUSCRIBER_TOPIC);
+        String topic = transportOptions.getStaticOption(ADAPTOR_SUSCRIBER_TOPIC);
 
-//        consumerKafkaAdaptor = new ConsumerKafkaAdaptor(topic,
-//                KafkaInputTransport.createConsumerConfig(zkConnect, groupID, optionalConfiguration));
         consumerKafkaAdaptor = new ConsumerKafkaAdaptor(topic, KafkaInputTransport.createConsumerConfig(zkConnect, groupID));
         consumerKafkaAdaptor.run(threads, sourceCallback);
     }

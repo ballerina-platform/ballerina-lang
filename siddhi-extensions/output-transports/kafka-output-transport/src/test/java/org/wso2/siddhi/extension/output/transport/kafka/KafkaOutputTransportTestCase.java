@@ -25,6 +25,7 @@ import org.wso2.siddhi.core.ExecutionPlanRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.stream.output.sink.PassThroughOutputMapper;
+import org.wso2.siddhi.extension.output.mapper.text.TextOutputMapper;
 import org.wso2.siddhi.query.api.ExecutionPlan;
 import org.wso2.siddhi.query.api.annotation.Annotation;
 import org.wso2.siddhi.query.api.definition.Attribute;
@@ -42,13 +43,13 @@ public class KafkaOutputTransportTestCase {
         try {
             StreamDefinition streamDefinition = StreamDefinition.id("FooStream")
                     .attribute("symbol", Attribute.Type.STRING)
-                    .attribute("price", Attribute.Type.INT)
-                    .attribute("volume", Attribute.Type.FLOAT);
+                    .attribute("price", Attribute.Type.FLOAT)
+                    .attribute("volume", Attribute.Type.INT);
 
             StreamDefinition outputDefinition = StreamDefinition.id("BarStream")
                     .attribute("symbol", Attribute.Type.STRING)
-                    .attribute("price", Attribute.Type.INT)
-                    .attribute("volume", Attribute.Type.FLOAT)
+                    .attribute("price", Attribute.Type.FLOAT)
+                    .attribute("volume", Attribute.Type.INT)
                     .annotation(Annotation.annotation("sink")
                             .element("type", "kafka")
                             .element("topic", "page_visits")
@@ -66,7 +67,7 @@ public class KafkaOutputTransportTestCase {
             query.insertInto("BarStream");
 
             SiddhiManager siddhiManager = new SiddhiManager();
-            siddhiManager.setExtension("outputmapper:text", PassThroughOutputMapper.class);
+            siddhiManager.setExtension("outputmapper:text", TextOutputMapper.class);
 
             ExecutionPlan executionPlan = new ExecutionPlan("ep1");
             executionPlan.defineStream(streamDefinition);

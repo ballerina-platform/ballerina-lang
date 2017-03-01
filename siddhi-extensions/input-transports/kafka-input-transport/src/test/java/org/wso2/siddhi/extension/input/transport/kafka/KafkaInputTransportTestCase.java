@@ -30,19 +30,14 @@ import org.junit.Test;
 import org.wso2.siddhi.core.ExecutionPlanRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
-import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.stream.output.StreamCallback;
 import org.wso2.siddhi.core.util.EventPrinter;
-import org.wso2.siddhi.core.stream.input.source.PassThroughInputMapper;
 import org.wso2.siddhi.extension.input.mapper.text.TextInputMapper;
 import org.wso2.siddhi.extension.output.mapper.text.TextOutputMapper;
 import org.wso2.siddhi.query.api.ExecutionPlan;
 import org.wso2.siddhi.query.api.annotation.Annotation;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
-import org.wso2.siddhi.query.api.execution.Subscription;
-import org.wso2.siddhi.query.api.execution.io.Transport;
-import org.wso2.siddhi.query.api.execution.io.map.Mapping;
 import org.wso2.siddhi.query.api.execution.query.Query;
 import org.wso2.siddhi.query.api.execution.query.input.stream.InputStream;
 import org.wso2.siddhi.query.api.execution.query.selection.Selector;
@@ -58,33 +53,52 @@ public class KafkaInputTransportTestCase {
     @Test
     public void testCreatingKafkaSubscription() throws InterruptedException {
         try{
-            Subscription subscription = Subscription.Subscribe(Transport.transport("kafka")
-                    .option("topic", "test22")
-                    .option("threads", "1")
-                    .option("group.id", "group11")
-                    .option("zookeeper.connect", "localhost")
-                    .option("adapter.name", "org.wso2.cep.kafka.receiver"));
-            subscription.map(Mapping.format("passThrough"));
-            subscription.insertInto("FooStream");
 
-            ExecutionPlan executionPlan = ExecutionPlan.executionPlan();
-            executionPlan.defineStream(StreamDefinition.id("FooStream")
+            StreamDefinition inputDefinition = StreamDefinition.id("FooStream")
                     .attribute("symbol", Attribute.Type.STRING)
                     .attribute("price", Attribute.Type.FLOAT)
-                    .attribute("volume", Attribute.Type.INT));
-            executionPlan.addSubscription(subscription);
-            SiddhiManager siddhiManager = new SiddhiManager();
-            siddhiManager.setExtension("inputmapper:passThrough", PassThroughInputMapper.class);
+                    .attribute("volume", Attribute.Type.INT)
+                    .annotation(Annotation.annotation("source")
+                            .element("type", "kafka")
+                            .element("topic", "page_visits")
+                            .element("threads", "1")
+                            .element("group.id", "group1")
+                            .element("zookeeper.connect", "localhost")
+                            .annotation(Annotation.annotation("map")
+                                    .element("type", "text")));
 
+            Query query = Query.query();
+            query.from(
+                    InputStream.stream("FooStream")
+            );
+            query.select(
+                    Selector.selector().select(new Variable("symbol")).select(new Variable("price")).select(new Variable("volume"))
+            );
+            query.insertInto("BarStream");
+
+            StreamDefinition outputDefinition = StreamDefinition.id("BarStream")
+                    .attribute("symbol", Attribute.Type.STRING)
+                    .attribute("price", Attribute.Type.FLOAT)
+                    .attribute("volume", Attribute.Type.INT);
+
+            SiddhiManager siddhiManager = new SiddhiManager();
+            siddhiManager.setExtension("inputmapper:text", TextInputMapper.class);
+
+            ExecutionPlan executionPlan = new ExecutionPlan("ep1");
+            executionPlan.defineStream(inputDefinition);
+            executionPlan.defineStream(outputDefinition);
+            executionPlan.addQuery(query);
             ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
-            executionPlanRuntime.addCallback("FooStream", new StreamCallback() {
+
+
+            executionPlanRuntime.addCallback("BarStream", new StreamCallback() {
                 @Override
                 public void receive(Event[] events) {
                     EventPrinter.print(events);
                 }
             });
             executionPlanRuntime.start();
-            Thread.sleep(10000);
+            Thread.sleep(30000);
             executionPlanRuntime.shutdown();
         } catch (ZkTimeoutException ex) {
             log.warn("No zookeeper may not be available.", ex);
@@ -93,20 +107,15 @@ public class KafkaInputTransportTestCase {
 
     @Test
     public void testCreatingFullKafkaEventFlow() throws InterruptedException {
-        setupKafkaBroker();
-        Thread.sleep(10000);
+//        setupKafkaBroker();
+//        Thread.sleep(10000);
 
-        Runnable kafkaReceiver = new KafkaReciever();
+        Runnable kafkaReceiver = new KafkaFlow();
         Thread t1 = new Thread(kafkaReceiver);
         t1.start();
-        Thread.sleep(10000);
+        Thread.sleep(35000);
 
-        Runnable kafkaProducer = new KafkaPublisher();
-        Thread t2 = new Thread(kafkaProducer);
-        t2.start();
-        Thread.sleep(10000);
-
-        stopKafkaBroker();
+//        stopKafkaBroker();
     }
 
     //---- private methods --------
@@ -152,68 +161,33 @@ public class KafkaInputTransportTestCase {
         }
     }
 
-    class KafkaReciever implements Runnable {
+    private class KafkaFlow implements Runnable {
         @Override
         public void run() {
             try{
-                Subscription subscription = Subscription.Subscribe(Transport.transport("kafka")
-                        .option("topic", "page_visits")
-                        .option("threads", "1")
-                        .option("group.id", "group")
-                        .option("zookeeper.connect", "localhost")
-                        .option("adapter.name", "org.wso2.cep.kafka.receiver"));
-                subscription.map(Mapping.format("text"));
-                subscription.insertInto("FooStream");
-
-                ExecutionPlan executionPlan = ExecutionPlan.executionPlan();
-                executionPlan.defineStream(StreamDefinition.id("FooStream")
+                StreamDefinition inputDefinition = StreamDefinition.id("FooStream")
                         .attribute("symbol", Attribute.Type.STRING)
-                        .attribute("price", Attribute.Type.INT)
-                        .attribute("volume", Attribute.Type.FLOAT));
-                executionPlan.addSubscription(subscription);
-                SiddhiManager siddhiManager = new SiddhiManager();
-                siddhiManager.setExtension("inputmapper:text", TextInputMapper.class);
-
-                ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
-                executionPlanRuntime.addCallback("FooStream", new StreamCallback() {
-                    @Override
-                    public void receive(Event[] events) {
-                        System.out.println("Printing received events !!");
-                        EventPrinter.print(events);
-                    }
-                });
-                executionPlanRuntime.start();
-                Thread.sleep(10000);
-                executionPlanRuntime.shutdown();
-            } catch (ZkTimeoutException ex) {
-                log.warn("No zookeeper may not be available.", ex);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
-    class KafkaPublisher implements Runnable {
-        @Override
-        public void run() {
-            try{
-                StreamDefinition streamDefinition = StreamDefinition.id("FooStream")
-                        .attribute("symbol", Attribute.Type.STRING)
-                        .attribute("price", Attribute.Type.INT)
-                        .attribute("volume", Attribute.Type.FLOAT);
+                        .attribute("price", Attribute.Type.FLOAT)
+                        .attribute("volume", Attribute.Type.INT)
+                        .annotation(Annotation.annotation("source")
+                                .element("type", "kafka")
+                                .element("topic", "receiver_topic")
+                                .element("threads", "1")
+                                .element("group.id", "group1")
+                                .element("zookeeper.connect", "localhost")
+                                .annotation(Annotation.annotation("map")
+                                        .element("type", "text")));
 
                 StreamDefinition outputDefinition = StreamDefinition.id("BarStream")
                         .attribute("symbol", Attribute.Type.STRING)
-                        .attribute("price", Attribute.Type.INT)
-                        .attribute("volume", Attribute.Type.FLOAT)
+                        .attribute("price", Attribute.Type.FLOAT)
+                        .attribute("volume", Attribute.Type.INT)
                         .annotation(Annotation.annotation("sink")
                                 .element("type", "kafka")
-                                .element("topic", "page_visits")
+                                .element("topic", "publisher_topic")
                                 .element("meta.broker.list", "localhost:9092")
                                 .annotation(Annotation.annotation("map")
-                                        .element("type", "text")
-                                        .annotation(Annotation.annotation("payload")
-                                                .element("{{symbol}},{{price}},{{volume}}"))));
+                                        .element("type", "text")));
 
                 Query query = Query.query();
                 query.from(
@@ -225,22 +199,33 @@ public class KafkaInputTransportTestCase {
                 query.insertInto("BarStream");
 
                 SiddhiManager siddhiManager = new SiddhiManager();
+                siddhiManager.setExtension("inputmapper:text", TextInputMapper.class);
                 siddhiManager.setExtension("outputmapper:text", TextOutputMapper.class);
 
                 ExecutionPlan executionPlan = new ExecutionPlan("ep1");
-                executionPlan.defineStream(streamDefinition);
+                executionPlan.defineStream(inputDefinition);
                 executionPlan.defineStream(outputDefinition);
                 executionPlan.addQuery(query);
                 ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
-                InputHandler stockStream = executionPlanRuntime.getInputHandler("FooStream");
 
+                executionPlanRuntime.addCallback("FooStream", new StreamCallback() {
+                    @Override
+                    public void receive(Event[] events) {
+                        System.out.println("Printing received events !!");
+                        EventPrinter.print(events);
+                    }
+                });
+                executionPlanRuntime.addCallback("BarStream", new StreamCallback() {
+                    @Override
+                    public void receive(Event[] events) {
+                        System.out.println("Printing publishing events !!");
+                        EventPrinter.print(events);
+                    }
+                });
                 executionPlanRuntime.start();
-                stockStream.send(new Object[]{"WSO2", 100, 55.6f});
-                stockStream.send(new Object[]{"IBM", 100, 75.6f});
-                stockStream.send(new Object[]{"WSO2", 100, 57.6f});
-                Thread.sleep(10000);
+                Thread.sleep(30000);
                 executionPlanRuntime.shutdown();
-            } catch(ZkTimeoutException ex) {
+            } catch (ZkTimeoutException ex) {
                 log.warn("No zookeeper may not be available.", ex);
             } catch (InterruptedException e) {
                 e.printStackTrace();

@@ -20,12 +20,13 @@ package org.wso2.siddhi.extension.output.mapper.text;
 
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.core.event.Event;
+import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
 import org.wso2.siddhi.core.stream.output.sink.OutputMapper;
+import org.wso2.siddhi.core.stream.output.sink.OutputTransportCallback;
 import org.wso2.siddhi.core.util.transport.TemplateBuilder;
 import org.wso2.siddhi.core.util.transport.OptionHolder;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
 
-import java.util.Map;
 
 @Extension(
         name = "text",
@@ -34,6 +35,7 @@ import java.util.Map;
 )
 public class TextOutputMapper extends OutputMapper {
     private StreamDefinition streamDefinition;
+    private TemplateBuilder payloadTemplateBuilder;
     private static final String EVENT_ATTRIBUTE_SEPARATOR = ",";
     private static final String EVENT_ATTRIBUTE_VALUE_SEPARATOR = ":";
 
@@ -46,21 +48,19 @@ public class TextOutputMapper extends OutputMapper {
     @Override
     public void init(StreamDefinition streamDefinition, OptionHolder optionHolder, TemplateBuilder payloadTemplateBuilder) {
         this.streamDefinition = streamDefinition;
+        this.payloadTemplateBuilder = payloadTemplateBuilder;
     }
 
-    /**
-     * Convert the given Event mapping to TEXT string
-     *
-     * @param event         Event object
-     * @param mappedPayload mapped payload if any
-     * @return the mapped TEXT string
-     */
     @Override
-    public Object mapEvent(Event event, String mappedPayload) {
-        if (mappedPayload != null) {
-            return mappedPayload;
+    public void mapAndSend(Event[] events, OutputTransportCallback outputTransportCallback, OptionHolder optionHolder, TemplateBuilder payloadTemplateBuilder) throws ConnectionUnavailableException {
+        if (this.payloadTemplateBuilder != null) {
+            for (Event event : events) {
+                outputTransportCallback.publish(payloadTemplateBuilder.build(event), event);
+            }
         } else {
-            return constructDefaultMapping(event);
+            for (Event event : events) {
+                outputTransportCallback.publish(constructDefaultMapping(event), event);
+            }
         }
     }
 
@@ -81,17 +81,17 @@ public class TextOutputMapper extends OutputMapper {
         eventText.deleteCharAt(eventText.lastIndexOf(EVENT_ATTRIBUTE_SEPARATOR));
         eventText.deleteCharAt(eventText.lastIndexOf("\n"));
 
-        // Get arbitrary data from event
-        Map<String, Object> arbitraryDataMap = event.getArbitraryDataMap();
-        if (arbitraryDataMap != null && !arbitraryDataMap.isEmpty()) {
-            // Add arbitrary data key-value to the default template
-            eventText.append(EVENT_ATTRIBUTE_SEPARATOR);
-            for (Map.Entry<String, Object> entry : arbitraryDataMap.entrySet()) {
-                eventText.append("\n" + entry.getKey() + EVENT_ATTRIBUTE_SEPARATOR + entry.getValue() + EVENT_ATTRIBUTE_SEPARATOR);
-            }
-            eventText.deleteCharAt(eventText.lastIndexOf(EVENT_ATTRIBUTE_SEPARATOR));
-            eventText.deleteCharAt(eventText.lastIndexOf("\n"));
-        }
+//        // Get arbitrary data from event
+//        Map<String, Object> arbitraryDataMap = event.getArbitraryDataMap();
+//        if (arbitraryDataMap != null && !arbitraryDataMap.isEmpty()) {
+//            // Add arbitrary data key-value to the default template
+//            eventText.append(EVENT_ATTRIBUTE_SEPARATOR);
+//            for (Map.Entry<String, Object> entry : arbitraryDataMap.entrySet()) {
+//                eventText.append("\n" + entry.getKey() + EVENT_ATTRIBUTE_SEPARATOR + entry.getValue() + EVENT_ATTRIBUTE_SEPARATOR);
+//            }
+//            eventText.deleteCharAt(eventText.lastIndexOf(EVENT_ATTRIBUTE_SEPARATOR));
+//            eventText.deleteCharAt(eventText.lastIndexOf("\n"));
+//        }
 
         return eventText.toString();
     }
