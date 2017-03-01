@@ -1,3 +1,4 @@
+
 // provide global jquery object because wso2 theme expects it
 window.$ = window.jQuery = require("jquery");
 

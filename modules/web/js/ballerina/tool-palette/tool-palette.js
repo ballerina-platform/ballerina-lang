@@ -15,11 +15,12 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+import './tool-palette.css';
+
 define(['require', 'log', 'jquery', 'backbone', './tool-group-view', './tool-group',
         './drag-drop-manager', './../search/search', './../search/import-search-adapter', 'mousetrap', 'mcustom_scroller'],
     function (require, log, $, Backbone, ToolGroupView, ToolGroup,
               DragDropManager, Search, ImportSearchAdapter, Mousetrap, mcustomScroller) {
-
 
     var ToolPalette = Backbone.View.extend({
         initialize: function (options) {

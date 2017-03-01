@@ -15,12 +15,12 @@
     cursor: pointer;
 }
 
-.ace_gutter-cell.ace_breakpoint{ 
+.ace_gutter-cell.ace_breakpoint{
     background: rgba(255, 181, 163, 0.2);
-    background-image: url(../images/debug-point.svg);
-    background-size: 10px 10px; 
-    background-repeat: no-repeat;  
-    background-position: 5 center; 
+    background-image: url(./images/debug-point.svg);
+    background-size: 10px 10px;
+    background-repeat: no-repeat;
+    background-position: 5 center;
 }
 
 .debug-point {
@@ -45,8 +45,8 @@
 .btn-debug-action{
     margin:0px !important;
     background-color: #333;
-    color: white;   
-    font-size: 13px; 
+    color: white;
+    font-size: 13px;
 }
 
 .btn-debug-activate{
@@ -55,7 +55,7 @@
     margin:0px !important;
     text-align: left !important;
     background-color: #333;
-    color: white;    
+    color: white;
 }
 
 .btn-debug-action{
@@ -92,7 +92,7 @@ table.debug-frames {
 
 .debug-frames td{
     color:white;
-    border-top: none; 
+    border-top: none;
     border-bottom: 1px #232323 solid !important;
     border-top: 0 !important;
 }
@@ -124,11 +124,11 @@ table.debug-frames {
 .highlight-statement{
     fill: #b2d4ff;
 }
-  
+
 #console-container {
     color: #FFF !important;
     background: #131313 !important;
-    
+
 }
 
 .launcher-container .btn-group button{
@@ -203,7 +203,7 @@ div > .col-xs-12 {
     margin:0;
     padding-bottom:2px;
     font-size: 17px;
- 
+
 }
 
 #frameAccordion .debug-frame-pkg-name{

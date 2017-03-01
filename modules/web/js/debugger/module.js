@@ -15,6 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+import './debugger.css';
 
 define(['jquery', 'backbone', 'lodash', 'log', './debug-manager', './tools', './frames'], function ($, Backbone, _, log, DebugManager, Tools, Frames) {
     var Debugger = Backbone.View.extend({
@@ -47,7 +48,7 @@ define(['jquery', 'backbone', 'lodash', 'log', './debug-manager', './tools', './
             this._lastWidth = undefined;
             this._verticalSeparator = $(_.get(this._options, 'separator'));
             this._containerToAdjust = $(_.get(this._options, 'containerToAdjust'));
-            
+
             // register command
             this.application.commandManager.registerCommand(config.command.id, {shortcuts: config.command.shortcuts});
             this.application.commandManager.registerHandler(config.command.id, this.toggleDebugger, this);
@@ -134,11 +135,11 @@ define(['jquery', 'backbone', 'lodash', 'log', './debug-manager', './tools', './
             debuggerContainer.attr('id', _.get(this._options, ('containerId')));
             this._$parent_el.append(debuggerContainer);
 
-            Tools.setArgs({ container : debuggerContainer.find('.debug-tools-container') , 
+            Tools.setArgs({ container : debuggerContainer.find('.debug-tools-container') ,
                             launchManager: this.launchManager,
                             application: this.application });
             Tools.render();
-            
+
             Frames.setContainer(debuggerContainer.find('.debug-frams-container'));
 
             this._debuggerContainer = debuggerContainer;
@@ -152,4 +153,3 @@ define(['jquery', 'backbone', 'lodash', 'log', './debug-manager', './tools', './
 
     return Debugger;
 });
-
