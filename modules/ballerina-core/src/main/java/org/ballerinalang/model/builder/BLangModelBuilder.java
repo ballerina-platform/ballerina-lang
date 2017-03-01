@@ -798,6 +798,9 @@ public class BLangModelBuilder {
         currentCUBuilder.setPublic(isPublic);
         currentCUBuilder.setNative(isNative);
         
+        // pkg path is set only for stack trace generation
+        currentCUBuilder.setPkgPath(currentPackagePath);
+        
         List<Annotation> annotationList = annotationListStack.pop();
         annotationList.forEach(currentCUBuilder::addAnnotation);
 
@@ -820,9 +823,11 @@ public class BLangModelBuilder {
             NodeLocation location, boolean isPublic, boolean isNative) {
         currentCUBuilder.setNodeLocation(location);
         currentCUBuilder.setName(name);
-        //currentCUBuilder.setPkgPath(currentPackagePath);
         currentCUBuilder.setPublic(isPublic);
         currentCUBuilder.setNative(isNative);
+        
+        // pkg path is set only for stack trace generation
+        currentCUBuilder.setPkgPath(currentPackagePath);
 
         List<Annotation> annotationList = annotationListStack.pop();
         annotationList.forEach(currentCUBuilder::addAnnotation);
@@ -908,6 +913,9 @@ public class BLangModelBuilder {
         currentCUBuilder.setNodeLocation(location);
         currentCUBuilder.setName(name);
         currentCUBuilder.setNative(isNative);
+        
+        // pkg path is set only for stack trace generation
+        currentCUBuilder.setPkgPath(currentPackagePath);
         
         List<Annotation> annotationList = annotationListStack.pop();
         annotationList.forEach(currentCUBuilder::addAnnotation);

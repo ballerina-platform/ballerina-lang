@@ -29,7 +29,6 @@ import org.ballerinalang.services.ErrorHandlerUtils;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.program.BLangFunctions;
 import org.testng.Assert;
-import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.carbon.messaging.CarbonMessage;
@@ -41,23 +40,19 @@ import org.wso2.carbon.messaging.CarbonMessage;
 public class RuntimeErrorsTest {
     
     private BLangProgram bLangProgram;
-    BLangProgram undeclaredPackageProgram;
-
 
     @BeforeClass
     public void setup() {
         bLangProgram = BTestUtils.parseBalFile("lang/errors/runtime");
-        undeclaredPackageProgram = EnvironmentInitializer.setup("lang/errors/undeclared-package-errors.bal");
     }
 
     @Test
     public void testStackTraceOnError() {
         Exception ex = null;
         Context bContext = new Context();
-        String expectedStackTrace = "\t at test.model:getApple(runtime-errors.bal:26)\n" +
-                "\t at test.model:getFruit2(runtime-errors.bal:22)\n" +
-                "\t at test.model:getFruit1(runtime-errors.bal:18)\n" +
-                "\t at test.model:testStackTrace(runtime-errors.bal:15)\n";
+        String expectedStackTrace = "\t at lang.errors.runtime:getFruit2(runtime-errors.bal:23)\n" +
+                "\t at lang.errors.runtime:getFruit1(runtime-errors.bal:19)\n" + 
+                "\t at lang.errors.runtime:testStackTrace(runtime-errors.bal:15)\n";
         try {
             BLangFunctions.invoke(bLangProgram, "testStackTrace", new BString[0], bContext);
         } catch (Exception e) {
@@ -65,10 +60,10 @@ public class RuntimeErrorsTest {
         } finally {
             Assert.assertTrue(ex instanceof BallerinaException, "Expected a " + BallerinaException.class.getName() +
                 ", but found: " + ex + ".");
-            Assert.assertEquals(ex.getMessage(), "Array index out of range: Index: 24, Size: 0", 
+            Assert.assertEquals(getRootCause(ex).getMessage(), "arrays index out of range: Index: 24, Size: 0", 
                     "Incorrect error message printed.");
             // Check the stack trace
-            String stackTrace = ErrorHandlerUtils.getServiceStackTrace(bContext, ex);
+            String stackTrace = ErrorHandlerUtils.getMainFuncStackTrace(bContext, ex);
             Assert.assertEquals(stackTrace, expectedStackTrace);
         }
     }
@@ -87,20 +82,21 @@ public class RuntimeErrorsTest {
                 ", but found: " + ex + ".");
             
             // Check the stack trace
-            String stackTrace = ErrorHandlerUtils.getServiceStackTrace(bContext, ex);
+            String stackTrace = ErrorHandlerUtils.getMainFuncStackTrace(bContext, ex);
             Assert.assertEquals(stackTrace, expectedStackTrace);
         }
     }
     
     @Test(description = "Test error of a service in default package")
     public void testDefaultPackageServiceError() {
+        BLangProgram undeclaredPackageProgram = EnvironmentInitializer.setup(
+                "lang/errors/undeclared-package-errors.bal");
         Throwable ex = null;
-        String expectedStackTrace = "\t at getApple(undeclared-package-errors.bal:22)\n" +
-                                    "\t at getFruit2(undeclared-package-errors.bal:18)\n" +
-                                    "\t at getFruit1(undeclared-package-errors.bal:14)\n" +
-                                    "\t at testStackTrace(undeclared-package-errors.bal:6)\n" +
-                                    "\t at echo(undeclared-package-errors.bal:5)\n" +
-                                    "\t at echo(undeclared-package-errors.bal:2)\n";
+        String expectedStackTrace = "\t at getFruit2(undeclared-package-errors.bal:22)\n" +
+                                    "\t at getFruit1(undeclared-package-errors.bal:18)\n" +
+                                    "\t at testStackTrace(undeclared-package-errors.bal:14)\n" +
+                                    "\t at echoResource(undeclared-package-errors.bal:6)\n" +
+                                    "\t at echoService(undeclared-package-errors.bal:5)\n";
         try {
             CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/test/error", "GET");
             Services.invoke(cMsg);
@@ -112,14 +108,17 @@ public class RuntimeErrorsTest {
                     ", but found: " + ex + ".");
             
             // Check error message
-            String errorMsg = ex.getCause().getMessage();
+            String errorMsg = getRootCause(ex).getMessage();
             Assert.assertEquals(errorMsg, "error in ballerina program: arrays index out of range: Index: 24, Size: 0",
                     "Incorrect error message printed.");
             
             // Check the stack trace
             String stackTrace = ErrorHandlerUtils.getServiceStackTrace(
-                    ((BallerinaException) ex.getCause()).getContext(), ex);
+                    ((BallerinaException) getRootCause(ex)).getContext(), ex);
             Assert.assertEquals(stackTrace, expectedStackTrace);
+            
+            // cleanup
+            EnvironmentInitializer.cleanup(undeclaredPackageProgram);
         }
     }
 
@@ -136,27 +135,97 @@ public class RuntimeErrorsTest {
             Assert.assertTrue(ex != null);
             Assert.assertTrue(ex instanceof BallerinaException, "Expected a " + BallerinaException.class.getName() +
                     ", but found: " + ex.getClass() + ".");
-            Assert.assertEquals(ex.getMessage(), "input value value cannot be cast to integer");
+            Assert.assertEquals(getRootCause(ex).getMessage(), "input value value cannot be cast to integer");
 
         }
     }
     
+    @Test
+    public void testStackTraceOnCrossPkgError() {
+        BLangProgram muplitplePackageAccessProg = EnvironmentInitializer.setup("lang/errors/services");
+        Throwable ex = null;
+        String expectedStackTrace = "\t at lang.errors.runtime:getFruit2(runtime-errors.bal:23)\n" +
+                                    "\t at lang.errors.runtime:getFruit1(runtime-errors.bal:19)\n" +
+                                    "\t at lang.errors.runtime:testStackTrace(runtime-errors.bal:15)\n" +
+                                    "\t at lang.errors.services:echoResource(multiple-package-errors.bal:10)\n" +
+                                    "\t at lang.errors.services:echoService(multiple-package-errors.bal:9)\n";
+        try {
+            CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/test/crossPkg", "GET");
+            Services.invoke(cMsg);
+        } catch (Exception e) {
+            ex = e;
+        } finally {
+            // Check exception type
+            Assert.assertTrue(ex instanceof BallerinaException, "Expected a " + BallerinaException.class.getName() +
+                    ", but found: " + ex + ".");
+            
+            // Check error message
+            String errorMsg = getRootCause(ex).getMessage();
+            Assert.assertEquals(errorMsg, "error in ballerina program: arrays index out of range: Index: 24, Size: 0",
+                    "Incorrect error message printed.");
+            
+            // Check the stack trace
+            String stackTrace = ErrorHandlerUtils.getServiceStackTrace(
+                    ((BallerinaException) getRootCause(ex)).getContext(), ex);
+            Assert.assertEquals(stackTrace, expectedStackTrace);
+            
+            // cleanup
+            EnvironmentInitializer.cleanup(muplitplePackageAccessProg);
+        }
+    }
+    
+    @Test
+    public void testStackTraceOnConnectorError() {
+        BLangProgram connectorErrorProg = EnvironmentInitializer.setup("lang/errors/connectors");
+        Throwable ex = null;
+        String expectedStackTrace = "\t at lang.errors.runtime:getFruit2(runtime-errors.bal:23)\n" +
+                                    "\t at lang.errors.runtime:getFruit1(runtime-errors.bal:19)\n" +
+                                    "\t at lang.errors.runtime:testStackTrace(runtime-errors.bal:15)\n" +
+                                    "\t at lang.errors.connectors:action1(connector-runtime-errors.bal:18)\n" +
+                                    "\t at lang.errors.connectors:echoResource(connector-runtime-errors.bal:11)\n" +
+                                    "\t at lang.errors.connectors:echoService(connector-runtime-errors.bal:9)\n";
+        try {
+            CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/test/connector", "GET");
+            Services.invoke(cMsg);
+        } catch (Exception e) {
+            ex = e;
+        } finally {
+            // Check exception type
+            Assert.assertTrue(ex instanceof BallerinaException, "Expected a " + BallerinaException.class.getName() +
+                    ", but found: " + ex + ".");
+            
+            // Check error message
+            String errorMsg = getRootCause(ex).getMessage();
+            Assert.assertEquals(errorMsg, "error in ballerina program: arrays index out of range: Index: 24, Size: 0",
+                    "Incorrect error message printed.");
+            
+            // Check the stack trace
+            String stackTrace = ErrorHandlerUtils.getServiceStackTrace(
+                    ((BallerinaException) getRootCause(ex)).getContext(), ex);
+            Assert.assertEquals(stackTrace, expectedStackTrace);
+            
+            // cleanup
+            EnvironmentInitializer.cleanup(connectorErrorProg);
+        }
+    }
+
     private static String getStackOverflowTrace() {
         StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < 40; i++) {
+        for (int i = 0; i < 41; i++) {
             if (i == 20 || i == 21) {
                 sb.append("\t ...\n");
             } else {
-                sb.append("\t at test.model:infiniteRecurse(runtime-errors.bal:38)\n");
+                sb.append("\t at lang.errors.runtime:infiniteRecurse(runtime-errors.bal:35)\n");
             }
         }
-        sb.append("\t at test.model:infiniteRecurse(runtime-errors.bal:34)\n");
-        sb.append("\t at test.model:testStackOverflow(runtime-errors.bal:33)\n");
+        sb.append("\t at lang.errors.runtime:infiniteRecurse(runtime-errors.bal:31)\n");
         return sb.toString();
     }
-
-    @AfterClass
-    public void tearDown() {
-        EnvironmentInitializer.cleanup(undeclaredPackageProgram);
+    
+    private Throwable getRootCause(Throwable t) {
+        if (t.getCause() != null) {
+            return getRootCause(t.getCause());
+        }
+        return t;
     }
 }

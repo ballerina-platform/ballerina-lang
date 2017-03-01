@@ -10,7 +10,7 @@ function arrayIndexOutOfBoundTest() {
 }
 
 function testStackTrace() {
-  string[] fruits;
+  string[] fruits = [];
   string apple;
   apple = getFruit1(fruits);
 }
