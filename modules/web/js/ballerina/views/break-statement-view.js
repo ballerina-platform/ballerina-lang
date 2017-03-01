@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', './simple-statement-view', './../ast/break-statement'],
+define(['lodash', 'log', './simple-statement-view', '../ast/statements/break-statement'],
     function (_, log, SimpleStatementView, BreakStatement) {
 
         /**

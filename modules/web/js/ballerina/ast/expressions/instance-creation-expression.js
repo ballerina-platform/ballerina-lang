@@ -41,7 +41,7 @@ define(['lodash', './expression'], function (_, Expression) {
     };
 
     /**
-     * initialize BackQuoteExpression from json object
+     * initialize InstanceCreationExpression from json object
      * @param {Object} jsonNode to initialize from
      * @param {string} [jsonNode.instance_type] - instance type
      */

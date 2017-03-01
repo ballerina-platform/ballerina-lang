@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', './statement', '../utils/common-utils', './variable-declaration'],
+define(['lodash', './statement', '../../utils/common-utils', './../variable-declaration'],
     function (_, Statement, CommonUtils, VariableDeclaration) {
 
     /**

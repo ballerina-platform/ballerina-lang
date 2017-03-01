@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require', 'lodash', 'log', 'property_pane_utils', './compound-statement-view', './../ast/if-else-statement', './../ast/if-statement'],
+define(['require', 'lodash', 'log', 'property_pane_utils', './compound-statement-view', '../ast/statements/if-else-statement', '../ast/statements/if-statement'],
     function (require, _, log, PropertyPaneUtils, CompoundStatementView, IfElseStatement, IfStatement) {
 
         /**
