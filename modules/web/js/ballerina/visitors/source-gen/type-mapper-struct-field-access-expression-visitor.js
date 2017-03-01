@@ -16,7 +16,7 @@
  * under the License.
  */
 define(['require','lodash', 'log', 'event_channel', './abstract-expression-source-gen-visitor', 
-        '../../ast/expressions/struct-field-access-expression', '../../ast/expressions/left-operand-expression'],
+        '../../ast/expressions/struct-field-access-expression', '../../ast/statements/left-operand-expression'],
     function(require, _, log, EventChannel, AbstractExpressionSourceGenVisitor, StructFieldAccessExpression,
              LeftOperandExpression) {
 

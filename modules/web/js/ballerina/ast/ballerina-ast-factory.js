@@ -28,11 +28,11 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
         './function-invocation', './expressions/function-invocation-expression', './expressions/variable-reference-expression',
         './statements/action-invocation-statement', './expressions/action-invocation-expression',
         './return-type', './type-name', './argument', './expressions/back-tick-expression', './expressions/basic-literal-expression',
-        './expressions/left-operand-expression', './expressions/right-operand-expression', './expressions/instance-creation-expression', './then-body',
+        './statements/left-operand-expression', './statements/right-operand-expression', './expressions/instance-creation-expression', './then-body',
         './if-condition', './expressions/array-map-access-expression', './expressions/key-value-expression',
         './expressions/binary-expression', './expressions/unary-expression','./connector-action', './struct-definition', './constant-definition',
-        './statements/variable-definition-statement','./expressions/type-casting-expression', './worker-invoke',
-        './expressions/reference-type-init-expression', './expressions/array-init-expression', './worker-receive','./struct-type','./expressions/struct-field-access-expression',
+        './statements/variable-definition-statement', './worker-invoke', './expressions/reference-type-init-expression',
+        './expressions/array-init-expression', './worker-receive','./struct-type','./expressions/struct-field-access-expression',
         './statements/block-statement','./expressions/type-cast-expression','./variable-definition', './statements/break-statement', './statements/throw-statement', './statements/comment-statement'],
     function (_, ballerinaAstRoot, serviceDefinition, functionDefinition, connectorDefinition, resourceDefinition,
               workerDeclaration, statement, conditionalStatement, connectorDeclaration, expression, ifElseStatement,
@@ -44,8 +44,9 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
               basicLiteralExpression, leftOperandExpression, rightOperandExpression, instanceCreationExpression,
               thenBody, ifCondition, arrayMapAccessExpression, keyValueExpression, binaryExpression,
               unaryExpression, connectorAction, structDefinition, constantDefinition, variableDefinitionStatement,
-              typeCastingExpression, workerInvoke, referenceTypeInitExpression, arrayInitExpression, workerReceive,structType,
-              structFieldAccessExpression,blockStatement,typeCastExpression,variableDefinition, breakStatement, throwStatement, commentStatement) {
+              workerInvoke, referenceTypeInitExpression, arrayInitExpression, workerReceive,structType,
+              structFieldAccessExpression,blockStatement,typeCastExpression,variableDefinition, breakStatement,
+              throwStatement, commentStatement) {
 
 
 
@@ -151,17 +152,8 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
         };
 
         /**
-         * creates TypeCastingExpression
-         * @param {Object} args - object for TypeCastingExpression creation
-         * @returns {TypeCastingExpression}
-         */
-        BallerinaASTFactory.createTypeCastingExpression = function (args) {
-            return new typeCastingExpression(args);
-        };
-
-        /**
          * creates ReferenceTypeInitExpression
-         * @param {Object} args - object for TypeCastingExpression creation
+         * @param {Object} args - object for ReferenceTypeInitExpression creation
          * @returns {ReferenceTypeInitExpression}
          */
         BallerinaASTFactory.createReferenceTypeInitExpression = function (args) {
@@ -170,7 +162,7 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
 
         /**
          * creates ArrayInitExpression
-         * @param {Object} args - object for TypeCastingExpression creation
+         * @param {Object} args - object for ArrayInitExpression creation
          * @returns {ArrayInitExpression}
          */
         BallerinaASTFactory.createArrayInitExpression = function (args) {
@@ -1334,7 +1326,7 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
                     case 'key_value_expression':
                         node = BallerinaASTFactory.createKeyValueExpression();
                         break;
-                    case 'type_casting_expression':
+                    case 'type_cast_expression':
                         node = BallerinaASTFactory.createTypeCastExpression();
                         break;
                     case 'type_mapper_definition':

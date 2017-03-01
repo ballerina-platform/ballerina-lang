@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', '../statements/statement'], function (_, Statement) {
+define(['lodash', './statement'], function (_, Statement) {
 
     /**
      * Constructor for RightOperandExpression
