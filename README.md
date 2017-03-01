@@ -30,7 +30,7 @@ The build process of the composer works with Node Package Manager(npm). Using th
 -`npm run build` or `npm run webpack` To build the site only.
 -`npm run build-service` To build the backend microservice.
 -`npm run build-dist` To build the backend microservice and build the distribution.
--`npm run dev` To build the site with hot deployment.
+-`npm run dev` To start development server with hot deployment.
 
 ## Running the Composer
 
