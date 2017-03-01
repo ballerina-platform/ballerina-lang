@@ -22,8 +22,8 @@ define(['./ballerina-ast-factory', './ballerina-ast-root', './statements/conditi
         './statements/return-statement', './service-definition', './statements/statement', './statements/throw-statement', './type-definition',
         './type-mapper-definition', './type-element', './variable-declaration', './statements/while-statement',
         './worker-declaration', './package-definition', './import-declaration', './assignment',
-        './statements/assignment-statement', './function-invocation', './expressions/logical-expression',
-        './expressions/action-invocation-expression', './ballerina-ast-deserializer', './expressions/function-invocation-expression',
+        './statements/assignment-statement', './function-invocation', './expressions/action-invocation-expression',
+        './ballerina-ast-deserializer', './expressions/function-invocation-expression',
         './expressions/left-operand-expression', './expressions/right-operand-expression', './connector-action', './struct-definition',
         './statements/action-invocation-statement', './statements/variable-definition-statement','./resource-parameter',
         './return-type','./worker-invoke','./worker-receive','./statements/block-statement','./expressions/struct-field-access-expression',
@@ -35,12 +35,11 @@ define(['./ballerina-ast-factory', './ballerina-ast-root', './statements/conditi
               ResourceDefinition, ReturnStatement, ServiceDefinition, Statement, ThrowStatement,
               TypeDefinition, TypeMapperDefinition, TypeElement, VariableDeclaration, WhileStatement,
               WorkerDeclaration, PackageDefinition, ImportDeclaration, Assignment, AssignmentStatement,
-              FunctionInvocation, LogicalExpression, ActionInvocationExpression,
-              BallerinaASTDeserializer, FunctionInvocationExpression, LeftOperandExpression, RightOperandExpression,
-              ConnectorAction, StructDefinition, ActionInvocationStatement, VariableDefinitionStatement,
-	          ResourceParameter,ReturnType,WorkerInvoke,WorkerReceive ,BlockStatement,StructFieldAccessExpression,
-              VariableReferenceExpression, ReferenceTypeInitExpression, VariableDefinition, BreakStatement, CommentStatement,
-              TypeCastExpression) {
+              FunctionInvocation, ActionInvocationExpression, BallerinaASTDeserializer, FunctionInvocationExpression,
+              LeftOperandExpression, RightOperandExpression, ConnectorAction, StructDefinition,
+              ActionInvocationStatement, VariableDefinitionStatement, ResourceParameter, ReturnType, WorkerInvoke,
+              WorkerReceive, BlockStatement, StructFieldAccessExpression, VariableReferenceExpression,
+              ReferenceTypeInitExpression, VariableDefinition, BreakStatement, CommentStatement, TypeCastExpression) {
 
         return  {
             BallerinaASTFactory: BallerinaASTFactory,
@@ -79,7 +78,6 @@ define(['./ballerina-ast-factory', './ballerina-ast-root', './statements/conditi
             RightOperandExpression: RightOperandExpression,
             FunctionInvocation: FunctionInvocation,
             FunctionInvocationExpression: FunctionInvocationExpression,
-            LogicalExpression: LogicalExpression,
             ActionInvocationStatement: ActionInvocationStatement,
             ActionInvocationExpression: ActionInvocationExpression,
             BallerinaASTDeserializer : BallerinaASTDeserializer,

@@ -26,7 +26,7 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
         './type-mapper-definition', './type-definition', './type-element', './variable-declaration',
         './package-definition', './import-declaration', './resource-parameter', './assignment', './statements/assignment-statement',
         './function-invocation', './expressions/function-invocation-expression', './expressions/variable-reference-expression',
-        './statements/action-invocation-statement', './expressions/logical-expression', './expressions/action-invocation-expression',
+        './statements/action-invocation-statement', './expressions/action-invocation-expression',
         './return-type', './type-name', './argument', './expressions/back-tick-expression', './expressions/basic-literal-expression',
         './expressions/left-operand-expression', './expressions/right-operand-expression', './expressions/instance-creation-expression', './then-body',
         './if-condition', './expressions/array-map-access-expression', './expressions/key-value-expression',
@@ -40,7 +40,7 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
               whileStatement, returnStatement, typeMapperDefinition, typeDefinition, typeElement, variableDeclaration,
               packageDefinition, importDeclaration, resourceParameter, assignment, assignmentStatement, functionInvocation,
               functionInvocationExpression, variableReferenceExpression, actionInvocationStatement,
-              logicalExpression, actionInvocationExpression, returnType, typeName, argument, backTickExpression,
+              actionInvocationExpression, returnType, typeName, argument, backTickExpression,
               basicLiteralExpression, leftOperandExpression, rightOperandExpression, instanceCreationExpression,
               thenBody, ifCondition, arrayMapAccessExpression, keyValueExpression, binaryExpression,
               unaryExpression, connectorAction, structDefinition, constantDefinition, variableDefinitionStatement,
@@ -378,14 +378,6 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
          */
         BallerinaASTFactory.createVariableReferenceExpression = function (args) {
             return new variableReferenceExpression(args);
-        };
-
-        /**
-         * creates LogicalExpression
-         * @param args
-         */
-        BallerinaASTFactory.createLogicalExpression = function (args) {
-            return new logicalExpression(args);
         };
 
         /**

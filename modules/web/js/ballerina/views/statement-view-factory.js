@@ -19,13 +19,13 @@ define(['lodash', 'log', 'event_channel', '../ast/module', './try-catch-statemen
         './catch-statement-view', './if-else-statement-view', './if-statement-view', './else-statement-view',
         './else-if-statement-view', './assignment-view', './function-invocation-view',
         './action-invocation-statement-view', './while-statement-view', './reply-statement-view',
-        './logical-expression-view', './return-statement-view',
-        './variable-definition-statement-view', './worker-invoke-view', './worker-receive-view', './break-statement-view', './throw-statement-view'],
+        './return-statement-view', './variable-definition-statement-view', './worker-invoke-view',
+        './worker-receive-view', './break-statement-view', './throw-statement-view'],
     function (_, log, EventChannel, AST, TryCatchStatementView, TryStatementView, CatchStatementView,
               IfElseStatementView, IfStatementView, ElseStatementView, ElseIfStatementView, AssignmentStatementView,
               FunctionInvocationStatementView, ActionInvocationStatementView, WhileStatementView, ReplyStatementView,
-              LogicalExpressionView, ReturnStatement, VariableDefinitionStatementView,
-              WorkerInvokeView, WorkerReceiveView, BreakStatementView, ThrowStatementView) {
+              ReturnStatement, VariableDefinitionStatementView, WorkerInvokeView, WorkerReceiveView, BreakStatementView,
+              ThrowStatementView) {
 
         var StatementViewFactory = function () {
         };
@@ -56,8 +56,6 @@ define(['lodash', 'log', 'event_channel', '../ast/module', './try-catch-statemen
                 return new ActionInvocationStatementView(args);
             } else if (statement instanceof AST.ReplyStatement) {
                 return new ReplyStatementView(args);
-            } else if (statement instanceof AST.LogicalExpression) {
-                return new LogicalExpressionView(args);
             } else if (statement instanceof AST.ReturnStatement) {
                 return new ReturnStatement(args);
             } else if (statement instanceof AST.BreakStatement) {
