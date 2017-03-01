@@ -760,7 +760,7 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
         for (var i = 0; i < property.length; i++) {
             _.forEach(self.jsPlumbInstance.getAllConnections(), function (connection) {
                 if (connection.sourceId.includes(structName + self.viewIdSeperator + self.viewId
-                    + self.idNameSeperator + property[i] + this.nameTypeSeperator + type[i])) {
+                    + self.idNameSeperator + property[i] + self.nameTypeSeperator + type[i])) {
                     connections.push(self.getConnectionObject(connection.getParameter("id"),
                         connection.sourceId, connection.targetId));
                 }
@@ -786,7 +786,7 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
         for (var i = 0; i < property.length; i++) {
             _.forEach(self.jsPlumbInstance.getAllConnections(), function (connection) {
                 if (connection.targetId.includes(structName + self.viewIdSeperator + self.viewId
-                    + self.idNameSeperator + property[i] + this.nameTypeSeperator + type[i])) {
+                    + self.idNameSeperator + property[i] + self.nameTypeSeperator + type[i])) {
                     connections.push(self.getConnectionObject(connection.getParameter("id"),
                         connection.sourceId, connection.targetId));
                 }
