@@ -278,32 +278,18 @@ define(['lodash', 'd3','log', './simple-statement-view', './../ast/action-invoca
                 .classed('statement-text', true);
             this._startActionGroup = group;
 
-            // Triggers when we add a new element above the worker invoke
-            this.getBoundingBox().on('bottom-edge-moved', function (dy) {
-                // If the bounding box of the invoker moved, we move the start action, arrow and the top most connector
-                // Here we force fully move the top most statement of the destination
-                self._startRect.attr('y', parseFloat(self._startRect.attr('y')) + dy);
-                self._startActionText.attr('y', parseFloat(self._startActionText.attr('y')) + dy);
-                if (destinationStatementContainer._managedStatements. length > 0) {
-                    self.getDiagramRenderingContext().getViewOfModel(destinationStatementContainer._managedStatements[0]).getBoundingBox().move(0, dy);
-                    destinationStatementContainer._managedInnerDropzones[0].d3el.attr('y',
-                        parseFloat(destinationStatementContainer._managedInnerDropzones[0].d3el.attr('y')) + dy);
-                    self._messageView.move(0, dy);
-                }
-            });
-
             // Triggers when we delete an element above the worker-invoke
             this.getBoundingBox().on('top-edge-moved', function (dy) {
                 // If the bounding box of the invoker moved, we move the start action, arrow and the top most connector
                 // Here we force fully move the top most statement of the destination
                 self._startRect.attr('y', parseFloat(self._startRect.attr('y')) + dy);
                 self._startActionText.attr('y', parseFloat(self._startActionText.attr('y')) + dy);
-                if (destinationStatementContainer._managedStatements. length > 0) {
+                if (destinationStatementContainer._managedStatements.length > 0) {
                     self.getDiagramRenderingContext().getViewOfModel(destinationStatementContainer._managedStatements[0]).getBoundingBox().move(0, dy);
                     destinationStatementContainer._managedInnerDropzones[0].d3el.attr('y',
                         parseFloat(destinationStatementContainer._managedInnerDropzones[0].d3el.attr('y')) + dy);
-                    self._messageView.move(0, dy);
                 }
+                self._messageView.move(0, dy);
             });
 
             // Listen to the destination's before-remove event and remove arrow and start box.
