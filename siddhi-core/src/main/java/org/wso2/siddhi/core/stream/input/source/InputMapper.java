@@ -20,7 +20,7 @@ package org.wso2.siddhi.core.stream.input.source;
 
 import org.apache.log4j.Logger;
 import org.wso2.siddhi.core.stream.input.InputHandler;
-import org.wso2.siddhi.query.api.execution.io.map.AttributeMapping;
+import org.wso2.siddhi.core.stream.AttributeMapping;
 import org.wso2.siddhi.core.util.transport.OptionHolder;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
 

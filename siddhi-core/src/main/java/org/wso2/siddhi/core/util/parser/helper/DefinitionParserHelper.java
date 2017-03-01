@@ -38,7 +38,7 @@ import org.wso2.siddhi.core.trigger.StartEventTrigger;
 import org.wso2.siddhi.core.util.SiddhiClassLoader;
 import org.wso2.siddhi.core.util.SiddhiConstants;
 import org.wso2.siddhi.core.util.extension.holder.*;
-import org.wso2.siddhi.query.api.execution.io.map.AttributeMapping;
+import org.wso2.siddhi.core.stream.AttributeMapping;
 import org.wso2.siddhi.core.util.transport.OptionHolder;
 import org.wso2.siddhi.core.window.EventWindow;
 import org.wso2.siddhi.query.api.annotation.Annotation;

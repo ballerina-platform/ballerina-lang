@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.wso2.siddhi.query.api.execution.io.map;
+package org.wso2.siddhi.core.stream;
 
 public class AttributeMapping {
     private String mapping;
