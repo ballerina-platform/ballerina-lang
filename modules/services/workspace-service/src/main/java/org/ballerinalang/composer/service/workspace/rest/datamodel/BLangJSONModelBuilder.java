@@ -1169,13 +1169,13 @@ public class BLangJSONModelBuilder implements NodeVisitor {
 
     @Override
     public void visit(BacktickExpr backtickExpr) {
-        JsonObject backquoteExprObj = new JsonObject();
-        this.addPosition(backquoteExprObj, backtickExpr.getNodeLocation());
-        backquoteExprObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE,
-                BLangJSONModelConstants.BACK_QUOTE_EXPRESSION);
-        backquoteExprObj.addProperty(BLangJSONModelConstants.BACK_QUOTE_ENCLOSED_STRING,
+        JsonObject backtickExprObj = new JsonObject();
+        this.addPosition(backtickExprObj, backtickExpr.getNodeLocation());
+        backtickExprObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE,
+                BLangJSONModelConstants.BACK_TICK_EXPRESSION);
+        backtickExprObj.addProperty(BLangJSONModelConstants.BACK_TICK_ENCLOSED_STRING,
                 backtickExpr.getTemplateStr());
-        tempJsonArrayRef.peek().add(backquoteExprObj);
+        tempJsonArrayRef.peek().add(backtickExprObj);
     }
 
     @Override

@@ -27,7 +27,7 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
         './package-definition', './import-declaration', './resource-parameter', './assignment', './statements/assignment-statement',
         './function-invocation', './expressions/function-invocation-expression', './expressions/variable-reference-expression',
         './statements/action-invocation-statement', './expressions/logical-expression', './expressions/action-invocation-expression',
-        './return-type', './type-name', './argument', './expressions/back-quote-expression', './expressions/basic-literal-expression',
+        './return-type', './type-name', './argument', './expressions/back-tick-expression', './expressions/basic-literal-expression',
         './expressions/left-operand-expression', './expressions/right-operand-expression', './expressions/instance-creation-expression', './then-body',
         './if-condition', './expressions/array-map-access-expression', './expressions/key-value-expression',
         './expressions/binary-expression', './expressions/unary-expression','./connector-action', './struct-definition', './constant-definition',
@@ -40,7 +40,7 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
               whileStatement, returnStatement, typeMapperDefinition, typeDefinition, typeElement, variableDeclaration,
               packageDefinition, importDeclaration, resourceParameter, assignment, assignmentStatement, functionInvocation,
               functionInvocationExpression, variableReferenceExpression, actionInvocationStatement,
-              logicalExpression, actionInvocationExpression, returnType, typeName, argument, backQuoteExpression,
+              logicalExpression, actionInvocationExpression, returnType, typeName, argument, backTickExpression,
               basicLiteralExpression, leftOperandExpression, rightOperandExpression, instanceCreationExpression,
               thenBody, ifCondition, arrayMapAccessExpression, keyValueExpression, binaryExpression,
               unaryExpression, connectorAction, structDefinition, constantDefinition, variableDefinitionStatement,
@@ -525,12 +525,12 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
         };
 
         /**
-         * creates BackQuoteExpression
+         * creates BackTickExpression
          * @param {Object} args
-         * @returns {backQuoteExpression}
+         * @returns {backTickExpression}
          */
-        BallerinaASTFactory.createBackQuoteExpression = function (args) {
-            return new backQuoteExpression(args);
+        BallerinaASTFactory.createBackTickExpression = function (args) {
+            return new backTickExpression(args);
         };
 
         /**
@@ -1006,12 +1006,12 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
         };
 
         /**
-         * instanceof check for BackQuoteExpression
+         * instanceof check for BackTickExpression
          * @param child
          * @returns {boolean}
          */
-        BallerinaASTFactory.isBackQuoteExpression = function (child) {
-            return child instanceof backQuoteExpression;
+        BallerinaASTFactory.isBackTickExpression = function (child) {
+            return child instanceof backTickExpression;
         };
 
         /**
@@ -1252,8 +1252,8 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
                     case 'assignment_statement':
                         node = BallerinaASTFactory.createAssignmentStatement();
                         break;
-                    case 'back_quote_expression':
-                        node = BallerinaASTFactory.createBackQuoteExpression();
+                    case 'back_tick_expression':
+                        node = BallerinaASTFactory.createBackTickExpression();
                         break;
                     case 'while_statement' :
                         node = BallerinaASTFactory.createWhileStatement();
