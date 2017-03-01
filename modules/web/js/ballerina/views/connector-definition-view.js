@@ -198,7 +198,7 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', 'alerts', './svg-canvas', '.
                         var enteredKey = e.which || e.charCode || e.keyCode;
                         // Disabling enter key
                         if (_.isEqual(enteredKey, 13)) {
-                            event.stopPropagation();
+                            e.stopPropagation();
                             return false;
                         }
 
@@ -208,7 +208,7 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', 'alerts', './svg-canvas', '.
                             self.getModel().setConnectorName(newServiceName);
                         } catch (error) {
                             Alerts.error(error);
-                            event.stopPropagation();
+                            e.stopPropagation();
                             return false;
                         }
                     }
