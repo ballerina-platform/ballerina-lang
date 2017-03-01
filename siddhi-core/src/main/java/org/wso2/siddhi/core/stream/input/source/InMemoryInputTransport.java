@@ -41,8 +41,9 @@ public class InMemoryInputTransport extends InputTransport {
     private InMemoryBroker.Subscriber subscriber;
 
     @Override
-    public void init(SourceCallback sourceCallback, OptionHolder transportOptionHolder) {
+    public void init(SourceCallback sourceCallback, OptionHolder optionHolder) {
         this.sourceCallback = sourceCallback;
+        String topic = optionHolder.validateAndGetStaticValue(TOPIC_KEY,"input inMemory transport");
         this.subscriber = new InMemoryBroker.Subscriber() {
             @Override
             public void onMessage(Object event) {
@@ -51,7 +52,7 @@ public class InMemoryInputTransport extends InputTransport {
 
             @Override
             public String getTopic() {
-                return transportOptionHolder.getStaticOption(TOPIC_KEY);
+                return topic;
             }
         };
     }

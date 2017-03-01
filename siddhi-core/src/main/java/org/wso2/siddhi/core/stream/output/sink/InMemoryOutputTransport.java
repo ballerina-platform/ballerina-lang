@@ -24,8 +24,8 @@ import org.wso2.siddhi.annotation.Parameter;
 import org.wso2.siddhi.annotation.util.DataType;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
-import org.wso2.siddhi.core.exception.ExecutionPlanCreationException;
 import org.wso2.siddhi.core.util.transport.InMemoryBroker;
+import org.wso2.siddhi.core.util.transport.Option;
 import org.wso2.siddhi.core.util.transport.OptionHolder;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
 
@@ -40,13 +40,11 @@ import org.wso2.siddhi.query.api.definition.StreamDefinition;
 public class InMemoryOutputTransport extends OutputTransport {
     private static final Logger log = Logger.getLogger(InMemoryOutputTransport.class);
     private static final String TOPIC_KEY = "topic";
+    private Option topicOption;
 
     @Override
     protected void init(StreamDefinition streamDefinition, OptionHolder optionHolder) {
-        if (!optionHolder.containsOption(TOPIC_KEY)) {
-            throw new ExecutionPlanCreationException(String.format("{{%s}} configuration " +
-                    "could not be found in provided configs.", TOPIC_KEY));
-        }
+        topicOption = optionHolder.validateAndGetOption(TOPIC_KEY);
     }
 
     @Override
@@ -67,7 +65,7 @@ public class InMemoryOutputTransport extends OutputTransport {
     @Override
     protected void publish(Object payload, Event event, OptionHolder optionHolder)
             throws ConnectionUnavailableException {
-        InMemoryBroker.publish(optionHolder.getOption(TOPIC_KEY, event), payload);
+        InMemoryBroker.publish(topicOption.getValue(event), payload);
     }
 
 }

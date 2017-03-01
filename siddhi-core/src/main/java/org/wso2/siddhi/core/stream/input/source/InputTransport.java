@@ -35,7 +35,7 @@ public abstract class InputTransport {
         init(inputMapper, transportOptionHolder);
     }
 
-    public abstract void init(SourceCallback sourceCallback, OptionHolder transportOptionHolder);
+    public abstract void init(SourceCallback sourceCallback, OptionHolder optionHolder);
 
     public abstract void connect() throws ConnectionUnavailableException;
 

@@ -46,6 +46,8 @@
         <!--<module>input-mappers/json-input-mapper</module>-->
         <!--<module>input-mappers/map-input-mapper</module>-->
         <module>input-transports/kafka-input-transport</module>
+        <module>input-transports/tcp-input-transport</module>
+        <module>transport/tcp-transport</module>
     </modules>
 
 </project>
