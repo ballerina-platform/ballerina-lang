@@ -25,12 +25,11 @@ import org.apache.log4j.Logger;
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
-import org.wso2.siddhi.core.exception.TestConnectionNotSupportedException;
 import org.wso2.siddhi.core.stream.output.sink.OutputTransport;
+import org.wso2.siddhi.core.util.transport.Option;
 import org.wso2.siddhi.core.util.transport.OptionHolder;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
 
-import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.RejectedExecutionException;
@@ -44,10 +43,10 @@ import java.util.concurrent.TimeUnit;
 )
 public class KafkaOutputTransport extends OutputTransport {
 
-    public static final int ADAPTER_MIN_THREAD_POOL_SIZE = 8;
-    public static final int ADAPTER_MAX_THREAD_POOL_SIZE = 100;
-    public static final int ADAPTER_EXECUTOR_JOB_QUEUE_SIZE = 2000;
-    public static final long DEFAULT_KEEP_ALIVE_TIME_IN_MILLIS = 20000;
+    public static final String ADAPTER_MIN_THREAD_POOL_SIZE = "8";
+    public static final String ADAPTER_MAX_THREAD_POOL_SIZE = "100";
+    public static final String ADAPTER_EXECUTOR_JOB_QUEUE_SIZE = "2000";
+    public static final String DEFAULT_KEEP_ALIVE_TIME_IN_MILLIS = "20000";
     public static final String ADAPTER_MIN_THREAD_POOL_SIZE_NAME = "minThread";
     public static final String ADAPTER_MAX_THREAD_POOL_SIZE_NAME = "maxThread";
     public static final String ADAPTER_KEEP_ALIVE_TIME_NAME = "keepAliveTimeInMillis";
@@ -63,8 +62,10 @@ public class KafkaOutputTransport extends OutputTransport {
     private static ThreadPoolExecutor threadPoolExecutor;
     private ProducerConfig config;
     private Producer<String, Object> producer;
-    private OptionHolder options;
-    private String topic = null;
+    private OptionHolder optionHolder;
+    private Option topicOption = null;
+    private String kafkaConnect;
+    private String optionalConfigs;
 
     @Override
     protected void init(StreamDefinition streamDefinition, OptionHolder optionHolder) {
@@ -74,23 +75,24 @@ public class KafkaOutputTransport extends OutputTransport {
             int maxThread;
             int jobQueSize;
             long defaultKeepAliveTime;
-            this.options = optionHolder;
+            this.optionHolder = optionHolder;
             //If global properties are available those will be assigned else constant values will be assigned
-            minThread = (options.getStaticOption(ADAPTER_MIN_THREAD_POOL_SIZE_NAME) != null)
-                    ? Integer.parseInt(options.getStaticOption(ADAPTER_MIN_THREAD_POOL_SIZE_NAME))
-                    : ADAPTER_MIN_THREAD_POOL_SIZE;
+            minThread = Integer.parseInt(optionHolder.validateAndGetStaticValue(ADAPTER_MIN_THREAD_POOL_SIZE_NAME,
+                    ADAPTER_MIN_THREAD_POOL_SIZE));
 
-            maxThread = (options.getStaticOption(ADAPTER_MAX_THREAD_POOL_SIZE_NAME) != null)
-                    ? Integer.parseInt(options.getStaticOption(ADAPTER_MAX_THREAD_POOL_SIZE_NAME))
-                    : ADAPTER_MAX_THREAD_POOL_SIZE;
+            maxThread = Integer.parseInt(optionHolder.validateAndGetStaticValue(ADAPTER_MAX_THREAD_POOL_SIZE_NAME,
+                    ADAPTER_MAX_THREAD_POOL_SIZE));
 
-            defaultKeepAliveTime = (options.getStaticOption(ADAPTER_KEEP_ALIVE_TIME_NAME) != null)
-                    ? Integer.parseInt(options.getStaticOption(ADAPTER_KEEP_ALIVE_TIME_NAME))
-                    : DEFAULT_KEEP_ALIVE_TIME_IN_MILLIS;
+            defaultKeepAliveTime = Integer.parseInt(optionHolder.validateAndGetStaticValue(ADAPTER_KEEP_ALIVE_TIME_NAME,
+                    DEFAULT_KEEP_ALIVE_TIME_IN_MILLIS));
 
-            jobQueSize = (options.getStaticOption(ADAPTER_EXECUTOR_JOB_QUEUE_SIZE_NAME) != null)
-                    ? Integer.parseInt(options.getStaticOption(ADAPTER_EXECUTOR_JOB_QUEUE_SIZE_NAME))
-                    : ADAPTER_EXECUTOR_JOB_QUEUE_SIZE;
+            jobQueSize = Integer.parseInt(optionHolder.validateAndGetStaticValue(ADAPTER_EXECUTOR_JOB_QUEUE_SIZE_NAME,
+                    ADAPTER_EXECUTOR_JOB_QUEUE_SIZE));
+
+            kafkaConnect = optionHolder.validateAndGetStaticValue(ADAPTOR_META_BROKER_LIST);
+            optionalConfigs = optionHolder.validateAndGetStaticValue(ADAPTOR_OPTIONAL_CONFIGURATION_PROPERTIES,
+                    null);
+            topicOption = optionHolder.validateAndGetOption(ADAPTOR_PUBLISH_TOPIC);
 
             threadPoolExecutor = new ThreadPoolExecutor(minThread, maxThread, defaultKeepAliveTime,
                     TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>(jobQueSize));
@@ -100,8 +102,6 @@ public class KafkaOutputTransport extends OutputTransport {
     @Override
     public void connect() throws ConnectionUnavailableException {
         log.info("KafkaOutputTransport:testConnect()");
-        String kafkaConnect = options.getStaticOption(ADAPTOR_META_BROKER_LIST);
-        String optionalConfigs = options.getStaticOption(ADAPTOR_OPTIONAL_CONFIGURATION_PROPERTIES);
         Properties props = new Properties();
         props.put("metadata.broker.list", kafkaConnect);
         props.put("serializer.class", "kafka.serializer.StringEncoder");
@@ -120,17 +120,11 @@ public class KafkaOutputTransport extends OutputTransport {
         }
         config = new ProducerConfig(props);
         producer = new Producer<String, Object>(config);
-        topic = options.getStaticOption(ADAPTOR_PUBLISH_TOPIC);
     }
 
     @Override
     protected void publish(Object payload, Event event, OptionHolder optionHolder) throws ConnectionUnavailableException {
-        String topic;
-        if (this.topic == null) {
-            topic = optionHolder.getDynamicOption(ADAPTOR_PUBLISH_TOPIC, event);
-        } else {
-            topic = this.topic;
-        }
+        String topic = topicOption.getValue(event);
         try {
             threadPoolExecutor.submit(new KafkaSender(topic, event));
         } catch (RejectedExecutionException e) {

@@ -26,7 +26,6 @@ import org.wso2.siddhi.core.stream.input.source.SourceCallback;
 import org.wso2.siddhi.core.stream.input.source.InputTransport;
 import org.wso2.siddhi.core.util.transport.OptionHolder;
 
-import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.*;
 
@@ -40,7 +39,7 @@ public class KafkaInputTransport extends InputTransport {
     private SourceCallback sourceCallback;
     private ScheduledExecutorService executorService;
     private static ThreadPoolExecutor threadPoolExecutor;
-    private OptionHolder transportOptions;
+    private OptionHolder optionHolder;
     private ConsumerKafkaAdaptor consumerKafkaAdaptor;
 
     //    public static final int ADAPTER_CORE_POOL_SIZE = 8;
@@ -58,9 +57,9 @@ public class KafkaInputTransport extends InputTransport {
     private static final Logger log = Logger.getLogger(KafkaInputTransport.class);
 
     @Override
-    public void init(SourceCallback sourceCallback, OptionHolder transportOptionHolder) {
+    public void init(SourceCallback sourceCallback, OptionHolder optionHolder) {
         this.sourceCallback = sourceCallback;
-        this.transportOptions = transportOptionHolder;
+        this.optionHolder = optionHolder;
     }
 
     @Override
@@ -72,8 +71,8 @@ public class KafkaInputTransport extends InputTransport {
     public void disconnect() {
         if (consumerKafkaAdaptor != null) {
             consumerKafkaAdaptor.shutdown();
-            String topic = transportOptions.getStaticOption(ADAPTOR_SUSCRIBER_TOPIC);
-            log.debug("Adapter " + transportOptions.getStaticOption(ADAPTER_NAME) + " disconnected " + topic);
+            String topic = optionHolder.validateAndGetStaticValue(ADAPTOR_SUSCRIBER_TOPIC);
+            log.debug("Adapter " + topic + " disconnected " + topic);
         }
     }
 
@@ -84,12 +83,12 @@ public class KafkaInputTransport extends InputTransport {
 
     private void createKafkaAdaptorListener() throws ConnectionUnavailableException{
 
-        String zkConnect = transportOptions.getStaticOption(ADAPTOR_SUSCRIBER_ZOOKEEPER_CONNECT);
-        String groupID = transportOptions.getStaticOption(ADAPTOR_SUSCRIBER_GROUP_ID);
-        String threadsStr = transportOptions.getStaticOption(ADAPTOR_SUSCRIBER_THREADS);
-        String optionalConfiguration = transportOptions.getStaticOption(ADAPTOR_OPTIONAL_CONFIGURATION_PROPERTIES);
+        String zkConnect = optionHolder.validateAndGetStaticValue(ADAPTOR_SUSCRIBER_ZOOKEEPER_CONNECT);
+        String groupID = optionHolder.validateAndGetStaticValue(ADAPTOR_SUSCRIBER_GROUP_ID);
+        String threadsStr = optionHolder.validateAndGetStaticValue(ADAPTOR_SUSCRIBER_THREADS);
+        String optionalConfiguration = optionHolder.validateAndGetStaticValue(ADAPTOR_OPTIONAL_CONFIGURATION_PROPERTIES);
         int threads = Integer.parseInt(threadsStr);
-        String topic = transportOptions.getStaticOption(ADAPTOR_SUSCRIBER_TOPIC);
+        String topic = optionHolder.validateAndGetStaticValue(ADAPTOR_SUSCRIBER_TOPIC);
 
         consumerKafkaAdaptor = new ConsumerKafkaAdaptor(topic, KafkaInputTransport.createConsumerConfig(zkConnect, groupID));
         consumerKafkaAdaptor.run(threads, sourceCallback);

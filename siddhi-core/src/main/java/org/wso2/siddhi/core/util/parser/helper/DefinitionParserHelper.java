@@ -24,6 +24,7 @@ import org.wso2.siddhi.core.event.stream.StreamEventCloner;
 import org.wso2.siddhi.core.event.stream.StreamEventPool;
 import org.wso2.siddhi.core.exception.ExecutionPlanCreationException;
 import org.wso2.siddhi.core.function.EvalScript;
+import org.wso2.siddhi.core.stream.AttributeMapping;
 import org.wso2.siddhi.core.stream.StreamJunction;
 import org.wso2.siddhi.core.stream.input.source.InputMapper;
 import org.wso2.siddhi.core.stream.input.source.InputTransport;
@@ -38,7 +39,6 @@ import org.wso2.siddhi.core.trigger.StartEventTrigger;
 import org.wso2.siddhi.core.util.SiddhiClassLoader;
 import org.wso2.siddhi.core.util.SiddhiConstants;
 import org.wso2.siddhi.core.util.extension.holder.*;
-import org.wso2.siddhi.core.stream.AttributeMapping;
 import org.wso2.siddhi.core.util.transport.OptionHolder;
 import org.wso2.siddhi.core.window.EventWindow;
 import org.wso2.siddhi.query.api.annotation.Annotation;
@@ -231,8 +231,10 @@ public class DefinitionParserHelper {
                         InputMapper inputMapper = (InputMapper) SiddhiClassLoader.loadExtensionImplementation(
                                 mapper, InputMapperExecutorExtensionHolder.getInstance(executionPlanContext));
 
-                        OptionHolder sourceOptionHolder = constructOptionProcessor(streamDefinition, sourceAnnotation);
-                        OptionHolder mapOptionHolder = constructOptionProcessor(streamDefinition, mapAnnotation);
+                        OptionHolder sourceOptionHolder = constructOptionProcessor(streamDefinition, sourceAnnotation,
+                                inputTransport.getClass().getAnnotation(org.wso2.siddhi.annotation.Extension.class));
+                        OptionHolder mapOptionHolder = constructOptionProcessor(streamDefinition, mapAnnotation,
+                                inputMapper.getClass().getAnnotation(org.wso2.siddhi.annotation.Extension.class));
 
                         inputMapper.init(streamDefinition, mapType, mapOptionHolder, getAttributeMappings(mapAnnotation));
                         inputTransport.init(sourceOptionHolder, inputMapper);
@@ -276,8 +278,10 @@ public class DefinitionParserHelper {
                         OutputMapper outputMapper = (OutputMapper) SiddhiClassLoader.loadExtensionImplementation(
                                 mapper, OutputMapperExecutorExtensionHolder.getInstance(executionPlanContext));
 
-                        OptionHolder sinkOptionHolder = constructOptionProcessor(streamDefinition, sinkAnnotation);
-                        OptionHolder mapOptionHolder = constructOptionProcessor(streamDefinition, mapAnnotation);
+                        OptionHolder sinkOptionHolder = constructOptionProcessor(streamDefinition, sinkAnnotation,
+                                outputTransport.getClass().getAnnotation(org.wso2.siddhi.annotation.Extension.class));
+                        OptionHolder mapOptionHolder = constructOptionProcessor(streamDefinition, mapAnnotation,
+                                outputMapper.getClass().getAnnotation(org.wso2.siddhi.annotation.Extension.class));
                         String payload = getPayload(mapAnnotation);
 
                         outputMapper.init(streamDefinition, mapType, mapOptionHolder, payload);
@@ -360,7 +364,8 @@ public class DefinitionParserHelper {
         }
     }
 
-    private static OptionHolder constructOptionProcessor(StreamDefinition streamDefinition, Annotation annotation) {
+    private static OptionHolder constructOptionProcessor(StreamDefinition streamDefinition, Annotation annotation,
+                                                         org.wso2.siddhi.annotation.Extension extension) {
         // returns [options, dynamicOptions]
         Map<String, String> options = new HashMap<String, String>();
         Map<String, String> dynamicOptions = new HashMap<String, String>();
@@ -371,6 +376,6 @@ public class DefinitionParserHelper {
                 options.put(element.getKey(), element.getValue());
             }
         }
-        return new OptionHolder(streamDefinition, options, dynamicOptions);
+        return new OptionHolder(streamDefinition, options, dynamicOptions, extension);
     }
 }

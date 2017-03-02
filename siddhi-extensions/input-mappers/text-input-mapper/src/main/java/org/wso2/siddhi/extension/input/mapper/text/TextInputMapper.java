@@ -31,7 +31,6 @@ import org.wso2.siddhi.core.stream.AttributeMapping;
 import org.wso2.siddhi.core.util.transport.OptionHolder;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
-import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 
 import java.util.List;
 import java.util.regex.Matcher;
@@ -111,12 +110,8 @@ public class TextInputMapper extends InputMapper {
                     position = i;
                 }
                 String[] mappingComponents = attributeMapping.getMapping().split("\\[");
-                String regex = optionHolder.getStaticOption(mappingComponents[0]);
+                String regex = optionHolder.validateAndGetStaticValue(mappingComponents[0]);
                 int index = Integer.parseInt(mappingComponents[1].substring(0, mappingComponents[1].length() - 1));
-                if (regex == null) {
-                    throw new ExecutionPlanValidationException("The regex " + mappingComponents[0] + " does not have " +
-                            "a regex definition");
-                }
                 this.mappingPositions[i] = new MappingPositionData(position, regex, index);
             }
         } else {

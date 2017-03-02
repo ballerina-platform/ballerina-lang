@@ -27,7 +27,6 @@ import java.lang.annotation.Target;
 /**
  * Annotation for storing additional attributes returned by a stream processor.
  * This should not be directly applied to any classes.
- * This should only be passed as a parameter to org.wso2.siddhi.core.util.docs.annotation.ReturnEvent
  * <p>
  * <pre><code>
  * eg:-
