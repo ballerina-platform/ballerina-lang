@@ -99,7 +99,7 @@ A Ballerina service archive containing one or more services is named with the ex
 ballerina build service <pkg1> [<pkg2> <pkg3> ...] [-o filename]
 ```
 
-Note: Package names should be delineated with slashes, such as `org/foo/bar` instead of `org.foo.bar`. If you do not specify a name for the archive file using the `-o` flag, the archive will be named after the last part of the package name.  
+**Note:** Package names should be delineated with slashes, such as `org/foo/bar` instead of `org.foo.bar`. If you do not specify a name for the archive file using the `-o` flag, the archive will be named after the last part of the package name.  
 
 ## Running a Ballerina program
 
