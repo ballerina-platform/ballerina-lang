@@ -2312,13 +2312,8 @@ public class SemanticAnalyzer implements NodeVisitor {
 
             if (!typeMapper.isNative()) {
                 if (typConvertorSymbol != null) {
-                    if (typConvertorSymbol instanceof NativeUnitProxy) {
-                        BLangExceptionHelper
-                                .throwSemanticError(typeMapper, SemanticErrors.REDECLARED_NATIVE_TYPEMAPPER_SYMBOL);
-                    } else {
                         BLangExceptionHelper
                                 .throwSemanticError(typeMapper, SemanticErrors.REDECLARED_SYMBOL, typeMapper.getName());
-                    }
                 }
                 currentScope.define(symbolName, typeMapper);
             }
