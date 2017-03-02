@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require','lodash', 'log', 'event_channel', './abstract-statement-source-gen-visitor', '../../ast/function-invocation-expression'],
+define(['require','lodash', 'log', 'event_channel', './abstract-statement-source-gen-visitor', '../../ast/expressions/function-invocation-expression'],
     function(require, _, log, EventChannel, AbstractStatementSourceGenVisitor, FunctionInvocationExpression) {
 
         /**

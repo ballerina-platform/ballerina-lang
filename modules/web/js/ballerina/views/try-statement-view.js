@@ -16,7 +16,7 @@
  * under the License.
  */
 define(
-    ['require', 'lodash', 'log', './block-statement-view', './../ast/try-statement'],
+    ['require', 'lodash', 'log', './block-statement-view', '../ast/statements/try-statement'],
     function (require, _, log, BlockStatementView, TryStatement) {
 
         /**

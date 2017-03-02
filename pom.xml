@@ -28,7 +28,7 @@
     <groupId>org.ballerinalang</groupId>
     <artifactId>ballerina-composer-parent</artifactId>
     <packaging>pom</packaging>
-    <version>0.8.2-SNAPSHOT</version>
+    <version>0.8.6-SNAPSHOT</version>
     <name>Ballerina Composer - Parent</name>
 
     <scm>

@@ -18,8 +18,8 @@
 define(['lodash', './expression'], function (_, Expression) {
 
     /**
-     * Constructor for BackQuoteExpression
-     * @param {Object} args - Arguments to create the BackQuoteExpression
+     * Constructor for BasicLiteralExpression
+     * @param {Object} args - Arguments to create the BasicLiteralExpression
      * @constructor
      */
     var BasicLiteralExpression = function (args) {

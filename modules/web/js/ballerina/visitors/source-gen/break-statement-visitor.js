@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', 'event_channel', './abstract-statement-source-gen-visitor', '../../ast/break-statement',
+define(['lodash', 'log', 'event_channel', './abstract-statement-source-gen-visitor', '../../ast/statements/break-statement',
         './expression-visitor-factory'],
     function(_, log, EventChannel, AbstractStatementSourceGenVisitor, BreakStatement, ExpressionVisitorFactory) {
 

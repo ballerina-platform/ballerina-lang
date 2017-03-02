@@ -92,7 +92,12 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
 
             x2 = parseFloat(self._line.attr('x2'));
             y2 = parseFloat(self._line.attr('y2'));
-            var points = "" + x2 + "," + (y2 - 5) + " " + (x2 + 5) + "," + (y2) + " " + x2 + "," + (y2 + 5);
+            var points = undefined;
+            if (self._isInputArrow) {
+                points = "" + (x2 - 5) + "," + (y2 - 5) + " " + (x2) + "," + (y2) + " " + (x2 - 5) + "," + (y2 + 5);
+            } else {
+                points = "" + (x2 + 5) + "," + (y2 - 5) + " " + x2 + "," + (y2) + " " + (x2 + 5) + "," + (y2 + 5);
+            }
             self._arrowHead.attr('points', points);
 
         });

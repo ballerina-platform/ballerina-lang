@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log','./ballerina-view','ballerina/ast/ballerina-ast-factory', 'typeMapper','./../ast/statement'],
+define(['lodash', 'log','./ballerina-view','ballerina/ast/ballerina-ast-factory', 'typeMapper','../ast/statements/statement'],
     function (_, log,BallerinaView, BallerinaASTFactory, TypeMapper,Statement) {
 
         var TypeMapperStatementView = function (args) {

@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', './node'], function (_, ASTNode) {
+define(['lodash', '../node'], function (_, ASTNode) {
 
     /**
      * Class to represent a block statement in ballerina.
