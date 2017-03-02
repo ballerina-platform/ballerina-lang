@@ -65,7 +65,6 @@ public class WSO2EventOutputMapperTestCase {
             public void onMessage(Object msg) {
                 wso2Count.incrementAndGet();
                 onMessageList.add(msg);
-                log.info(msg);
             }
 
             @Override
@@ -79,7 +78,6 @@ public class WSO2EventOutputMapperTestCase {
             public void onMessage(Object msg) {
                 ibmCount.incrementAndGet();
                 onMessageList.add(msg);
-                log.info(msg);
             }
 
             @Override

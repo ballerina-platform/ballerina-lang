@@ -55,10 +55,11 @@ public class JSONOutputMapper extends OutputMapper {
     @Override
     public void init(StreamDefinition streamDefinition, OptionHolder optionHolder, TemplateBuilder payloadTemplateBuilder) {
         this.streamDefinition = streamDefinition;
-        String groupEventsString = optionHolder.getStaticOption(GROUP_EVENTS_OPTION);
-        if (groupEventsString != null) {
-            groupEvents = Boolean.parseBoolean(groupEventsString);
-        }
+        ///TODO 2/3/2017 Fix this to support grouping events
+//        String groupEventsString = optionHolder.getStaticOption(GROUP_EVENTS_OPTION);
+//        if (groupEventsString != null) {
+//            groupEvents = Boolean.parseBoolean(groupEventsString);
+//        }
     }
 
     /**

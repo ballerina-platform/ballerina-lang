@@ -37,12 +37,6 @@ public class WSO2EventOutputMapper extends OutputMapper {
     public void init(StreamDefinition streamDefinition, OptionHolder optionHolder, TemplateBuilder payloadTemplateBuilder) {
         this.streamDefinition = streamDefinition;
         this.optionHolder = optionHolder;
-
-        //streamID is expected to receive as an option
-        if (!optionHolder.containsOption(STREAM_ID)) {
-            throw new ExecutionPlanCreationException(String.format("{{%s}} configuration " +
-                    "could not be found in provided configs.", STREAM_ID));
-        }
     }
 
     /**
@@ -74,8 +68,8 @@ public class WSO2EventOutputMapper extends OutputMapper {
         List<Object> correlationData = new ArrayList<Object>();
         List<Object> payloadData = new ArrayList<Object>();
 
-        // Construct WSO2Event
-        eventObject.setStreamId(optionHolder.getOption(STREAM_ID, event));
+        //streamID is expected to receive as an option
+        eventObject.setStreamId(optionHolder.validateAndGetOption(STREAM_ID).getValue());
         eventObject.setTimeStamp(event.getTimestamp());
         for (int i = 0; i < eventData.length; i++) {
             String attributeName = streamDefinition.getAttributeNameArray()[i];
