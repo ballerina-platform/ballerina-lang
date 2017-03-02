@@ -20,19 +20,7 @@ package org.wso2.carbon.transport.http.netty.internal;
 
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
-import org.wso2.carbon.messaging.TransportListener;
-import org.wso2.carbon.messaging.TransportSender;
 import org.wso2.carbon.messaging.handler.HandlerExecutor;
-import org.wso2.carbon.transport.http.netty.config.ConfigurationBuilder;
-import org.wso2.carbon.transport.http.netty.config.ListenerConfiguration;
-import org.wso2.carbon.transport.http.netty.config.SenderConfiguration;
-import org.wso2.carbon.transport.http.netty.config.TransportProperty;
-import org.wso2.carbon.transport.http.netty.config.TransportsConfiguration;
-import org.wso2.carbon.transport.http.netty.listener.HTTPTransportListener;
-import org.wso2.carbon.transport.http.netty.sender.HTTPSender;
-
-import java.util.Collections;
-import java.util.Set;
 
 /**
  * OSGi BundleActivator of the Netty transport component.
@@ -41,42 +29,9 @@ public class HTTPTransportActivator implements BundleActivator {
 
     @Override
     public void start(BundleContext bundleContext) throws Exception {
-        registerTransport(bundleContext);
-        bundleContext.registerService(TransportSender.class, createClientBootstrapper(), null);
         HTTPTransportContextHolder.getInstance().setBundleContext(bundleContext);
         HandlerExecutor handlerExecutor = new HandlerExecutor();
         HTTPTransportContextHolder.getInstance().setHandlerExecutor(handlerExecutor);
-    }
-
-    /**
-     * Parse the  netty-transports.xml config file & create the Netty transport instances.
-     *
-     * @return Netty transport instances
-     */
-    private void registerTransport(BundleContext bundleContext) {
-        TransportsConfiguration trpConfig = ConfigurationBuilder.getInstance().getConfiguration();
-        Set<ListenerConfiguration> listenerConfigurations = trpConfig.getListenerConfigurations();
-        Set<TransportProperty> transportProperties = trpConfig.getTransportProperties();
-        listenerConfigurations.forEach(listenerConfiguration -> {
-            HTTPTransportContextHolder.getInstance()
-                                      .setListenerConfiguration(listenerConfiguration.getId(), listenerConfiguration);
-            HTTPTransportListener httpTransportListener =
-                    new HTTPTransportListener(transportProperties, Collections.singleton(listenerConfiguration));
-            bundleContext.registerService(TransportListener.class, httpTransportListener, null);
-        });
-    }
-
-    /**
-     * Parse the  netty-transports.xml config file & create the Netty transport instances.
-     *
-     * @return Netty transport instances
-     */
-    private HTTPSender createClientBootstrapper() {
-        TransportsConfiguration trpConfig = ConfigurationBuilder.getInstance().getConfiguration();
-        Set<SenderConfiguration> senderConfigurations = trpConfig.getSenderConfigurations();
-        Set<TransportProperty> transportProperties = trpConfig.getTransportProperties();
-        HTTPSender sender = new HTTPSender(senderConfigurations, transportProperties);
-        return sender;
     }
 
     @Override

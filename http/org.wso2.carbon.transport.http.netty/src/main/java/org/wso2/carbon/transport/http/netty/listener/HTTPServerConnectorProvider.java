@@ -18,6 +18,7 @@
 
 package org.wso2.carbon.transport.http.netty.listener;
 
+import org.osgi.service.component.annotations.Component;
 import org.wso2.carbon.messaging.ServerConnector;
 import org.wso2.carbon.messaging.ServerConnectorProvider;
 import org.wso2.carbon.transport.http.netty.common.Constants;
@@ -27,11 +28,17 @@ import org.wso2.carbon.transport.http.netty.config.TransportsConfiguration;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
  * {@code HTTPServerConnectorProvider} is responsible for providing and managing HTTP Listeners
  */
+@Component(
+        name = "org.wso2.carbon.transport.http.netty.listener.HTTPServerConnectorProvider",
+        immediate = true,
+        service = ServerConnectorProvider.class
+)
 public class HTTPServerConnectorProvider extends ServerConnectorProvider {
 
     public HTTPServerConnectorProvider() {
@@ -66,7 +73,7 @@ public class HTTPServerConnectorProvider extends ServerConnectorProvider {
     }
 
     @Override
-    public ServerConnector createConnector(String s) {
+    public ServerConnector createConnector(String id, Map<String, String> properties) {
         return null;
     }
 }

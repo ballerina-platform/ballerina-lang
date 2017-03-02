@@ -197,6 +197,7 @@
             javax.net.ssl.*;version="${javax.net.ssl.import.version.range}",javax.management,
             javax.websocket.*;version="${javax.websocket.version.range}",
             org.yaml.snakeyaml.*;version="${org.snakeyaml.package.import.version.range}",
+            org.wso2.carbon.kernel.utils;version="${carbon.kernel.package.import.version.range}",
             org.wso2.carbon.messaging.*;version="${carbon.messaging.package.import.version.range}",
             org.apache.commons.pool.*;version="${commons.pool.package.import.version.range}",
             com.lmax.disruptor.*;version="${disruptor.package.import.version.range}",
@@ -205,11 +206,12 @@
             startup.listener;componentName="netty-transports-mgt";
             requiredService="org.wso2.carbon.messaging.CarbonTransportInitializer,
             org.wso2.carbon.messaging.CarbonMessageProcessor",
-            osgi.service;
+            <!--osgi.service;
             objectClass="org.wso2.carbon.transport.http.netty.internal.HTTPTransportServiceComponent";
-            requiredByComponentName="carbon-transport-mgt",
-            osgi.service;objectClass="org.wso2.carbon.kernel.startupresolver.CapabilityProvider";
-            capabilityName="org.wso2.carbon.kernel.transports.CarbonTransport"
+            requiredByComponentName="carbon-runtime-mgt",-->
+            <!--osgi.service;objectClass="org.wso2.carbon.kernel.startupresolver.CapabilityProvider";
+            capabilityName="org.wso2.carbon.kernel.transports.CarbonTransport",-->
+            osgi.service; objectClass="org.wso2.carbon.messaging.ServerConnectorProvider"
         </carbon.component>
     </properties>
 </project>

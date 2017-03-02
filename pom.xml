@@ -304,7 +304,7 @@
 
 
 
-        <carbon.messaging.version>2.2.3</carbon.messaging.version>
+        <carbon.messaging.version>2.2.4</carbon.messaging.version>
         <carbon.messaging.package.import.version.range>[2.0.0, 3.0.0)</carbon.messaging.package.import.version.range>
         <slf4j.version>1.7.5</slf4j.version>
         <!--Logging API version range-->
