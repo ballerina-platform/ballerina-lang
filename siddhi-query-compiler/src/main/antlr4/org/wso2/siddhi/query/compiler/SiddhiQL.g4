@@ -41,33 +41,30 @@ execution_plan
 //TODO: 15-FEB find suitable location
 // Following added for Aggregation construct
 
+//todo: time_period
 definition_aggregation
-    : annotation* DEFINE AGGREGATION aggregation_name FROM query_input query_section AGGREGATE (BY attribute_reference)? EVERY aggregation_time_specifier
+    : annotation* DEFINE AGGREGATION aggregation_name FROM query_input query_section AGGREGATE (BY attribute_reference)? EVERY aggregation_time
     ;
 
 aggregation_name
     : id
     ;
 
-aggregation_time_specifier
-    : aggregation_time_range_specifier
-    | aggregation_time_exact_specifier
+aggregation_time
+    : aggregation_time_range
+    | aggregation_time_interval
     ;
 
 aggregation_time_duration
     : (SECONDS | MINUTES | HOURS | DAYS | WEEKS | MONTHS | YEARS)
     ;
 
-aggregation_time_range_specifier
-    : aggregation_time_duration aggregation_time_separator aggregation_time_duration
+aggregation_time_range
+    : aggregation_time_duration DRIPLE_DOT aggregation_time_duration
     ;
 
-aggregation_time_exact_specifier
+aggregation_time_interval
     :  aggregation_time_duration (COMMA aggregation_time_duration)*
-    ;
-
-aggregation_time_separator
-    : DOT DOT DOT
     ;
 // End Aggregation  construct
 
@@ -273,8 +270,12 @@ window
     :'#' WINDOW '.' function_operation
     ;
 
+groupby_query_selection
+    : (SELECT ('*'| (output_attribute (',' output_attribute)* ))) group_by?
+    ;
+
 query_section
-    :(SELECT ('*'| (output_attribute (',' output_attribute)* ))) group_by? having?
+    : groupby_query_selection having?
     ;
 
 group_by
@@ -608,6 +609,7 @@ STRING_VAL
 COL : ':';
 SCOL : ';';
 DOT : '.';
+DRIPLE_DOT : '...';
 OPEN_PAR : '(';
 CLOSE_PAR : ')';
 OPEN_SQARE_BRACKETS : '[';

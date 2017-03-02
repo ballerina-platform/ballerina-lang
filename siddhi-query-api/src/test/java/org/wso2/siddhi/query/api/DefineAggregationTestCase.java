@@ -2,6 +2,7 @@ package org.wso2.siddhi.query.api;
 
 import org.junit.Test;
 import org.wso2.siddhi.query.api.aggregation.ExactTimeSpecifier;
+import org.wso2.siddhi.query.api.aggregation.TimePeriod;
 import org.wso2.siddhi.query.api.aggregation.TimeSpecifier;
 import org.wso2.siddhi.query.api.definition.AggregationDefinition;
 import org.wso2.siddhi.query.api.execution.query.input.stream.InputStream;
@@ -13,9 +14,9 @@ public class DefineAggregationTestCase {
     @Test
     public void testDefineAggregationWithTimeRage() {
 
-        AggregationDefinition aggregationDefinition = AggregationDefinition.id("StockAggregationDefinition").from(
-                InputStream.stream("StockStream")).select(
-                Selector.selector().
+        AggregationDefinition aggregationDefinition = AggregationDefinition.id("StockAggregation").from(
+                InputStream.stream("StockStream")).
+                select(Selector.selector().
                         select("timeStamp", Expression.variable("timeStamp").ofStream("StockStream")).
                         select("symbol", Expression.variable("symbol").ofStream("StockStream")).
                         select("price", Expression.variable("price").ofStream("StockStream")).
@@ -26,8 +27,8 @@ public class DefineAggregationTestCase {
                                         Compare.Operator.GREATER_THAN,
                                         Expression.variable("price"))
                         )
-        ).aggregateBy(Expression.variable("timeStamp")).every(
-                TimeSpecifier.range(TimeSpecifier.second(), TimeSpecifier.minute()));
+                ).aggregateBy(Expression.variable("timeStamp")).every(
+                TimePeriod.range(TimePeriod.Duration.SECONDS, TimePeriod.Duration.DAYS));
 
     }
 
@@ -47,8 +48,7 @@ public class DefineAggregationTestCase {
                                         Expression.variable("price"))
                         )
         ).aggregateBy(Expression.variable("timeStamp")).every(
-                TimeSpecifier.exact().add(TimeSpecifier.second()).add(TimeSpecifier.month())
-        );
+                TimePeriod.interval(TimePeriod.Duration.SECONDS, TimePeriod.Duration.MINUTES, TimePeriod.Duration.HOURS));
     }
 }
 

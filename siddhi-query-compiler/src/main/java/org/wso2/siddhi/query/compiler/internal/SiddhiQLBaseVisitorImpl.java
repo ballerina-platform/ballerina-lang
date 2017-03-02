@@ -22,6 +22,7 @@ import org.antlr.v4.runtime.misc.NotNull;
 import org.wso2.siddhi.query.api.ExecutionPlan;
 import org.wso2.siddhi.query.api.aggregation.ExactTimeSpecifier;
 import org.wso2.siddhi.query.api.aggregation.RangeTimeSpecifier;
+import org.wso2.siddhi.query.api.aggregation.TimePeriod;
 import org.wso2.siddhi.query.api.aggregation.TimeSpecifier;
 import org.wso2.siddhi.query.api.annotation.Annotation;
 import org.wso2.siddhi.query.api.annotation.Element;
@@ -2095,31 +2096,31 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
     @Override
     public Object visitAggregation_time_duration(@NotNull SiddhiQLParser.Aggregation_time_durationContext ctx) {
         if(ctx.SECONDS() != null){
-            return TimeSpecifier.second();
+            return TimePeriod.Duration.SECONDS;
         }
         
         if(ctx.MINUTES() != null){
-            return TimeSpecifier.minute();
+            return TimePeriod.Duration.MINUTES;
         }
 
         if(ctx.HOURS() != null){
-            return TimeSpecifier.hour();
+            return TimePeriod.Duration.HOURS;
         }
         
         if(ctx.DAYS() != null) {
-            return TimeSpecifier.day();
+            return TimePeriod.Duration.DAYS;
         }
         
         if(ctx.WEEKS() != null) {
-            return TimeSpecifier.week();
+            return TimePeriod.Duration.WEEKS;
         }
         
         if(ctx.MONTHS() != null) {
-            return TimeSpecifier.month();
+            return TimePeriod.Duration.MONTHS;
         }
         
         if(ctx.YEARS() != null) {
-            return TimeSpecifier.year();
+            return TimePeriod.Duration.YEARS;
         }
 
         // TODO: 2/23/17 : create a proper exception
@@ -2127,29 +2128,35 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
     }
 
     @Override
-    public ExactTimeSpecifier visitAggregation_time_exact_specifier(@NotNull SiddhiQLParser.Aggregation_time_exact_specifierContext ctx) {
+    public TimePeriod visitAggregation_time_interval(@NotNull SiddhiQLParser.Aggregation_time_intervalContext ctx) {
         ExactTimeSpecifier exactTimeSpecifier = TimeSpecifier.exact();
+        List<TimePeriod.Duration> durations = new ArrayList<TimePeriod.Duration>();
+
         for (SiddhiQLParser.Aggregation_time_durationContext context : ctx.aggregation_time_duration()) {
-            exactTimeSpecifier.add((TimeSpecifier) visit(context));
+            durations.add((TimePeriod.Duration) visit(context));
         }
-        return exactTimeSpecifier;
+
+        TimePeriod.Duration[] durationVarArg = new TimePeriod.Duration[durations.size()];
+        durationVarArg = durations.toArray(durationVarArg);
+        return TimePeriod.interval(durationVarArg);
     }
 
-    @Override
-    public Object visitAggregation_time_separator(@NotNull SiddhiQLParser.Aggregation_time_separatorContext ctx) {
-        if(ctx.DOT() == null){
-            throw newSiddhiParserException(ctx, "Found " + ctx.getText() +
-                    " but only ... is supported!");
-        }
-        return TimeSpecifier.RANGE_SPECIFIER;
-    }
+//    @Override
+//    public Object visitAggregation_time_separator(@NotNull SiddhiQLParser.Aggregation_time_separatorContext ctx) {
+//        if(ctx.DOT() == null){
+//            throw newSiddhiParserException(ctx, "Found " + ctx.getText() +
+//                    " but only ... is supported!");
+//        }
+//        return TimeSpecifier.RANGE_SPECIFIER;
+//    }
 
     @Override
-    public RangeTimeSpecifier visitAggregation_time_range_specifier(@NotNull SiddhiQLParser.Aggregation_time_range_specifierContext ctx) {
+    //@Override public T visitAggregation_time_range(@NotNull SiddhiQLParser.Aggregation_time_rangeContext ctx) { return visitChildren(ctx); }
+    public TimePeriod visitAggregation_time_range(@NotNull SiddhiQLParser.Aggregation_time_rangeContext ctx) {
         // TODO: 2/23/17 : review this method with Suho
 
         // First visit the time separator. If it has some syntax error, throw an exception
-        visitAggregation_time_separator(ctx.aggregation_time_separator());
+        //visitAggregation_time_separator(ctx.aggregation_time_separator());
 
         // read left and right contexts
         SiddhiQLParser.Aggregation_time_durationContext left = ctx.aggregation_time_duration().get(0);
@@ -2157,18 +2164,19 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 
         // Visit left and right expression using above contexts and create a new
         // RangeTimeSpecifier object
-        TimeSpecifier leftTimeSpecifier = (TimeSpecifier) visitAggregation_time_duration(left);
-        TimeSpecifier rightTimeSpecifier = (TimeSpecifier) visitAggregation_time_duration(right);
-        return TimeSpecifier.range(leftTimeSpecifier, rightTimeSpecifier);
+        TimePeriod.Duration leftTimeDuration = (TimePeriod.Duration) visitAggregation_time_duration(left);
+        TimePeriod.Duration rightTimeDuration = (TimePeriod.Duration) visitAggregation_time_duration(right);
+        return TimePeriod.range(leftTimeDuration, rightTimeDuration);
     }
 
     @Override
-    public TimeSpecifier visitAggregation_time_specifier(@NotNull SiddhiQLParser.Aggregation_time_specifierContext ctx) {
+    //@Override public T visitAggregation_time(@NotNull SiddhiQLParser.Aggregation_timeContext ctx) { return visitChildren(ctx); }
+    public TimePeriod visitAggregation_time(@NotNull SiddhiQLParser.Aggregation_timeContext ctx) {
 
-        if (ctx.aggregation_time_exact_specifier() != null) {
-            return visitAggregation_time_exact_specifier(ctx.aggregation_time_exact_specifier());
-        } else if (ctx.aggregation_time_range_specifier() != null) {
-            return visitAggregation_time_range_specifier(ctx.aggregation_time_range_specifier());
+        if (ctx.aggregation_time_interval() != null) {
+            return visitAggregation_time_interval(ctx.aggregation_time_interval());
+        } else if (ctx.aggregation_time_range() != null) {
+            return visitAggregation_time_range(ctx.aggregation_time_range());
         }
         throw newSiddhiParserException(ctx, "Found " + ctx.getText() +
                 " but only comma separated time durations or time duration ... time duration is supported!");
@@ -2196,12 +2204,14 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
         aggregationDefinition.select(selector);
 
         // Get the variable (if available) and aggregate on that variable
-        Variable aggregatedBy = (Variable) visit(ctx.attribute_reference());
-        aggregationDefinition.aggregateBy(aggregatedBy);
+        if (ctx.attribute_reference() != null) {
+            Variable aggregatedBy = (Variable) visit(ctx.attribute_reference());
+            aggregationDefinition.aggregateBy(aggregatedBy);
+        }
 
         // Extract the specified time-durations and attache it to the aggregation definition
-        TimeSpecifier timeSpecifier = (TimeSpecifier) visit(ctx.aggregation_time_specifier());
-        aggregationDefinition.every(timeSpecifier);
+        TimePeriod timePeriod = (TimePeriod) visit(ctx.aggregation_time());
+        aggregationDefinition.every(timePeriod);
 
         return aggregationDefinition;
     }
