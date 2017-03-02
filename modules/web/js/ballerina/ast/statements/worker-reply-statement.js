@@ -15,56 +15,56 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', './statements/statement'], function (_, Statement) {
+define(['lodash', './statement'], function (_, Statement) {
 
     /**
-     * Class to represent an assignment in ballerina.
+     * Class to represent worker reply statement in ballerina.
      * @constructor
      */
-    var WorkerInvoker = function (args) {
-        Statement.call(this, 'WorkerInvoker');
+    var WorkerReplyStatement = function (args) {
+        Statement.call(this, 'WorkerReplyStatement');
         this._source = _.get(args, 'source');
         this._destination = _.get(args, 'destination');
         this._message = _.get(args, 'message', 'm');
-        this._invokeStatement = _.get(args, 'invokeStatement', 'messageName -> workerName');
+        this._replyStatement = _.get(args, 'replyStatement', 'messageName <- workerName');
     };
 
-    WorkerInvoker.prototype = Object.create(Statement.prototype);
-    WorkerInvoker.prototype.constructor = WorkerInvoker;
+    WorkerReplyStatement.prototype = Object.create(Statement.prototype);
+    WorkerReplyStatement.prototype.constructor = WorkerReplyStatement;
 
-    WorkerInvoker.prototype.setSource = function (source) {
+    WorkerReplyStatement.prototype.setSource = function (source) {
         this._source = source;
     };
 
-    WorkerInvoker.prototype.getSource = function () {
+    WorkerReplyStatement.prototype.getSource = function () {
         return this._source;
     };
 
-    WorkerInvoker.prototype.setDestination = function (destination) {
+    WorkerReplyStatement.prototype.setDestination = function (destination) {
         this._destination = destination;
     };
 
-    WorkerInvoker.prototype.getDestination = function () {
+    WorkerReplyStatement.prototype.getDestination = function () {
         return this._destination;
     };
 
-    WorkerInvoker.prototype.setMessage = function (message) {
+    WorkerReplyStatement.prototype.setMessage = function (message) {
         this._message = message;
     };
 
-    WorkerInvoker.prototype.getMessage = function () {
+    WorkerReplyStatement.prototype.getMessage = function () {
         return this._message;
     };
 
-    WorkerInvoker.prototype.setInvokeStatement = function (invokeStatement) {
-        this._invokeStatement = invokeStatement;
+    WorkerReplyStatement.prototype.setReplyStatement = function (replyStatement) {
+        this._replyStatement = replyStatement;
     };
 
-    WorkerInvoker.prototype.getInvokeStatement = function () {
-        return this._invokeStatement;
+    WorkerReplyStatement.prototype.getReplyStatement = function () {
+        return this._replyStatement;
     };
 
-    WorkerInvoker.prototype.canBeAChildOf = function(node){
+    WorkerReplyStatement.prototype.canBeAChildOf = function(node){
         return this.getFactory().isResourceDefinition(node)
             || this.getFactory().isFunctionDefinition(node)
             || this.getFactory().isConnectorAction(node)
@@ -75,11 +75,11 @@ define(['lodash', './statements/statement'], function (_, Statement) {
      * initialize from json
      * @param jsonNode
      */
-    WorkerInvoker.prototype.initFromJson = function (jsonNode) {
+    WorkerReplyStatement.prototype.initFromJson = function (jsonNode) {
         var workerName = jsonNode.worker_name;
-        var messageName = jsonNode.invoke_message[0].variable_reference_name;
-        var invokeStatement = messageName + ' -> ' + workerName;
-        this.setInvokeStatement(invokeStatement);
+        var messageName = jsonNode.reply_message[0].variable_reference_name;
+        var receiveStatement = messageName + ' <- ' + workerName;
+        this.setReplyStatement(receiveStatement);
         var self = this;
         var workerInstance = _.find(this.getParent().getChildren(), function (child) {
             return self.getFactory().isWorkerDeclaration(child) && !child.isDefaultWorker() && child.getWorkerName() === workerName;
@@ -87,5 +87,5 @@ define(['lodash', './statements/statement'], function (_, Statement) {
         this.setDestination(workerInstance);
     };
 
-    return WorkerInvoker;
+    return WorkerReplyStatement;
 });

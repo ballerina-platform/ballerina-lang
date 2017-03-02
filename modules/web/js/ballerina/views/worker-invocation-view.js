@@ -15,17 +15,17 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'd3','log', './simple-statement-view', '../ast/expressions/action-invocation-expression', './point', 'd3utils', './../ast/ballerina-ast-factory', './message'],
-    function (_, d3, log, SimpleStatementView, ActionInvocationExpression, Point, D3Utils, BallerinaASTFactory, MessageView) {
+define(['lodash', 'd3','log', './simple-statement-view', './point', 'd3utils', './../ast/ballerina-ast-factory', './message'],
+    function (_, d3, log, SimpleStatementView, Point, D3Utils, BallerinaASTFactory, MessageView) {
 
         /**
          * Worker invoke statement view.
          * @param args {*} constructor arguments
-         * @class WorkerInvoke
+         * @class WorkerInvocationView
          * @constructor
          * @extends SimpleStatementView
          */
-        var WorkerInvoke = function (args) {
+        var WorkerInvocationView = function (args) {
             SimpleStatementView.call(this, args);
             this._connectorView = {};
 
@@ -45,49 +45,39 @@ define(['lodash', 'd3','log', './simple-statement-view', '../ast/expressions/act
             this._messageView = undefined;
         };
 
-        WorkerInvoke.prototype = Object.create(SimpleStatementView.prototype);
-        WorkerInvoke.prototype.constructor = WorkerInvoke;
+        WorkerInvocationView.prototype = Object.create(SimpleStatementView.prototype);
+        WorkerInvocationView.prototype.constructor = WorkerInvocationView;
 
 
-        WorkerInvoke.prototype.init = function(){
+        WorkerInvocationView.prototype.init = function(){
             // TODO: Event name should modify in order to tally for both connector action and other dynamic arrow draws
             this.getModel().on("drawConnectionForAction",this.renderWorkerStart, this);
             Object.getPrototypeOf(this.constructor.prototype).init.call(this);
         };
-        WorkerInvoke.prototype.setDiagramRenderingContext = function(context){
+        WorkerInvocationView.prototype.setDiagramRenderingContext = function(context){
             this._diagramRenderingContext = context;
         };
-        WorkerInvoke.prototype.getDiagramRenderingContext = function(){
+        WorkerInvocationView.prototype.getDiagramRenderingContext = function(){
             return this._diagramRenderingContext;
         };
 
         // TODO : Please revisit this method. Needs a refactor
-        WorkerInvoke.prototype.draw = function(startPoint){
+        WorkerInvocationView.prototype.draw = function(startPoint){
             var source = this.getModel().getSource();
             var destination = this.getModel().getDestination();
-        };
-
-        WorkerInvoke.prototype.setModel = function (model) {
-            var actionInvocationModel = this._model.getChildren()[1].getChildren()[0];
-            if (!_.isNil(model) && model instanceof ActionInvocationExpression) {
-                actionInvocationModel = model;
-            } else {
-                log.error("Action statement definition is undefined or is of different type." + model);
-                throw "Action statement definition is undefined or is of different type." + model;
-            }
         };
 
         /**
          * Rendering the view for get-Action statement.
          * @returns {group} The svg group which contains the elements of the action statement view.
          */
-        WorkerInvoke.prototype.render = function (renderingContext) {
+        WorkerInvocationView.prototype.render = function (renderingContext) {
             var self = this;
             var model = this.getModel();
             // Calling super class's render function.
             (this.__proto__.__proto__).render.call(this, renderingContext);
             // Setting display text.
-            this.renderDisplayText(model.getInvokeStatement());
+            this.renderDisplayText(model.getInvocationStatement());
 
             this.renderProcessorConnectPoint(renderingContext);
             if (!_.isNil(this.getModel().getDestination())) {
@@ -99,8 +89,8 @@ define(['lodash', 'd3','log', './simple-statement-view', '../ast/expressions/act
                 propertyType: "text",
                 key: "Worker Invocation",
                 model: model,
-                getterMethod: model.getInvokeStatement,
-                setterMethod: model.setInvokeStatement
+                getterMethod: model.getInvocationStatement,
+                setterMethod: model.setInvocationStatement
             };
 
             this._createPropertyPane({
@@ -145,7 +135,7 @@ define(['lodash', 'd3','log', './simple-statement-view', '../ast/expressions/act
             this.listenTo(model, 'update-property-text', this.updateStatementText);
         };
 
-        WorkerInvoke.prototype.renderArrows = function (context) {
+        WorkerInvocationView.prototype.renderArrows = function (context) {
             this.setDiagramRenderingContext(context);
 
             var destination = this.getModel().getDestination();
@@ -185,7 +175,7 @@ define(['lodash', 'd3','log', './simple-statement-view', '../ast/expressions/act
             }
         };
 
-        WorkerInvoke.prototype.renderProcessorConnectPoint = function (renderingContext) {
+        WorkerInvocationView.prototype.renderProcessorConnectPoint = function (renderingContext) {
             var boundingBox = this.getBoundingBox();
             var width = boundingBox.w();
             var height = boundingBox.h();
@@ -200,7 +190,7 @@ define(['lodash', 'd3','log', './simple-statement-view', '../ast/expressions/act
         /**
          * Remove the forward and the backward arrow heads
          */
-        WorkerInvoke.prototype.removeArrows = function () {
+        WorkerInvocationView.prototype.removeArrows = function () {
             if (!_.isNil(this._arrowGroup) && !_.isNil(this._arrowGroup.node())) {
                 d3.select(this._arrowGroup).node().remove();
             }
@@ -210,7 +200,7 @@ define(['lodash', 'd3','log', './simple-statement-view', '../ast/expressions/act
          * Covert a point in user space Coordinates to client viewport Coordinates.
          * @param {Point} point a point in current user coordinate system
          */
-        WorkerInvoke.prototype.toGlobalCoordinates = function (point) {
+        WorkerInvocationView.prototype.toGlobalCoordinates = function (point) {
             var pt = this.processorConnectPoint.node().ownerSVGElement.createSVGPoint();
             pt.x = point.x();
             pt.y = point.y();
@@ -218,13 +208,13 @@ define(['lodash', 'd3','log', './simple-statement-view', '../ast/expressions/act
             return new Point(pt.x, pt.y);
         };
 
-        WorkerInvoke.prototype.updateStatementText = function (newStatementText, propertyKey) {
+        WorkerInvocationView.prototype.updateStatementText = function (newStatementText, propertyKey) {
             this._model.setStatementString(newStatementText);
             var displayText = this._model.getStatementString();
             this.renderDisplayText(displayText);
         };
 
-        WorkerInvoke.prototype.renderWorkerStart = function (startPoint, container) {
+        WorkerInvocationView.prototype.renderWorkerStart = function (startPoint, container) {
             log.debug("Render the worker start");
             var activatedWorkerTarget = this.messageManager.getActivatedDropTarget();
             if (BallerinaASTFactory.isWorkerDeclaration(activatedWorkerTarget)) {
@@ -234,7 +224,7 @@ define(['lodash', 'd3','log', './simple-statement-view', '../ast/expressions/act
             }
         };
 
-        WorkerInvoke.prototype.renderInvokeArrows = function () {
+        WorkerInvocationView.prototype.renderInvokeArrows = function () {
             var self = this;
             var group = D3Utils.group(d3.select(this._container));
             var destinationView = this.getDiagramRenderingContext().getViewOfModel(this.getModel().getDestination());
@@ -307,16 +297,16 @@ define(['lodash', 'd3','log', './simple-statement-view', '../ast/expressions/act
             });
         };
 
-        WorkerInvoke.prototype.updateStatementText = function (newStatementText, propertyKey) {
-            this._model.setInvokeStatement(newStatementText);
-            var displayText = this._model.getInvokeStatement();
+        WorkerInvocationView.prototype.updateStatementText = function (newStatementText, propertyKey) {
+            this._model.setInvocationStatement(newStatementText);
+            var displayText = this._model.getInvocationStatement();
             this.renderDisplayText(displayText);
         };
 
         /**
          * Remove statement view callback
          */
-        WorkerInvoke.prototype.onBeforeModelRemove = function () {
+        WorkerInvocationView.prototype.onBeforeModelRemove = function () {
             d3.select("#_" +this.getModel().getID()).remove();
             if (!_.isNil(this._startRect) && !_.isNil(this._startActionText) && !_.isNil(this._messageView)) {
                 this._startRect.node().remove();
@@ -328,6 +318,6 @@ define(['lodash', 'd3','log', './simple-statement-view', '../ast/expressions/act
             this.getBoundingBox().move(0, -this.getBoundingBox().h() - gap).w(0);
         };
 
-        return WorkerInvoke;
+        return WorkerInvocationView;
 
     });

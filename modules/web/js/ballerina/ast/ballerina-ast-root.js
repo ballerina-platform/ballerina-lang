@@ -31,12 +31,6 @@ define(['lodash', 'log', './node', './import-declaration'],
      */
     var BallerinaASTRoot = function (args) {
         this.packageDefinition = _.get(args, 'packageDefinition');
-        this.serviceDefinitions = _.get(args, 'serviceDefinitions', []);
-        this.functionDefinitions = _.get(args, 'functionDefinitions', []);
-        this.connectorDefinitions = _.get(args, 'connectorDefinitions', []);
-        this.structDefinitions = _.get(args, 'structDefinitions', []);
-        this.typeDefinitions = _.get(args, 'typeDefinitions', []);
-        this.typeMapperDefinitions = _.get(args, 'typeMapperDefinitions', []);
         ASTNode.call(this, "BallerinaASTRoot");
         var self = this;
         // Listener to tree modified event.
@@ -54,6 +48,7 @@ define(['lodash', 'log', './node', './import-declaration'],
             };
 
             if (e.type === "child-added") {
+                //to add the imports based on the function/action drag and drop to editor
                 if (self.getFactory().isAssignmentStatement(e.data.child)) {
                     if (e.data.child._fullPackageName) {
                         addImportOnTreeChange(e.data.child.getFullPackageName());
@@ -93,58 +88,6 @@ define(['lodash', 'log', './node', './import-declaration'],
         }
     };
 
-    /**
-     * Setter for ImportDeclarations
-     * @param importDeclarations
-     */
-    BallerinaASTRoot.prototype.setImportDeclarations = function (importDeclarations, options) {
-        if(!_.isNil(importDeclarations)){
-            // TODO : Need to be implemented.
-            throw "Set import declaration is not implemented";
-        }
-    };
-
-    /**
-     * Setter function for ServiceDefinition
-     * @param serviceDefinitions
-     */
-    BallerinaASTRoot.prototype.setServiceDefinitions = function (serviceDefinitions, options) {
-        if (!_.isNil(serviceDefinitions)) {
-            this.setAttribute('serviceDefinitions', serviceDefinitions, options);
-            var self = this;
-            _.forEach(serviceDefinitions, function (serviceDefinition) {
-                serviceDefinition.setParent(self, options);
-            });
-        }
-    };
-
-    /**
-     * Setter function for ConnectorDefinition
-     * @param connectorDefinitions
-     */
-    BallerinaASTRoot.prototype.setConnectorDefinitions = function (connectorDefinitions, options) {
-        if (!_.isNil(connectorDefinitions)) {
-            this.setAttribute('connectorDefinitions', connectorDefinitions, options);
-            var self = this;
-            _.forEach(connectorDefinitions, function (connectorDefinition) {
-                connectorDefinition.setParent(self, options);
-            });
-        }
-    };
-
-    /**
-     * Setter function for FunctionDefinition
-     * @param functionDefinitions
-     */
-    BallerinaASTRoot.prototype.setFunctionDefinitions = function (functionDefinitions, options) {
-        if (!_.isNil(functionDefinitions)) {
-            this.setAttribute('functionDefinitions', functionDefinitions, options);
-            var self = this;
-            _.forEach(functionDefinitions, function (functionDefinition) {
-                functionDefinition.setParent(self, options);
-            });
-        }
-    };
 
     /**
      * Getter function for PackageDefinition
@@ -167,22 +110,6 @@ define(['lodash', 'log', './node', './import-declaration'],
             }
         });
         return importDeclarations;
-    };
-
-    /**
-     * Getter function for ServiceDefinition
-     * @returns {Array}
-     */
-    BallerinaASTRoot.prototype.getServiceDefinitions = function () {
-        return this.serviceDefinitions;
-    };
-
-    /**
-     * Getter function for ServiceDefinition
-     * @returns {Array}
-     */
-    BallerinaASTRoot.prototype.getConnectorDefinitions = function () {
-        return this.connectorDefinitions;
     };
 
     /**

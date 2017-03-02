@@ -19,13 +19,13 @@ define(['lodash', 'log', 'event_channel', '../ast/module', './try-catch-statemen
         './catch-statement-view', './if-else-statement-view', './if-statement-view', './else-statement-view',
         './else-if-statement-view', './assignment-view', './function-invocation-view',
         './action-invocation-statement-view', './while-statement-view', './reply-statement-view',
-        './return-statement-view', './variable-definition-statement-view', './worker-invoke-view',
-        './worker-receive-view', './break-statement-view', './throw-statement-view'],
+        './return-statement-view', './variable-definition-statement-view', './worker-invocation-view',
+        './worker-reply-statement-view', './break-statement-view', './throw-statement-view'],
     function (_, log, EventChannel, AST, TryCatchStatementView, TryStatementView, CatchStatementView,
               IfElseStatementView, IfStatementView, ElseStatementView, ElseIfStatementView, AssignmentStatementView,
               FunctionInvocationStatementView, ActionInvocationStatementView, WhileStatementView, ReplyStatementView,
-              ReturnStatement, VariableDefinitionStatementView, WorkerInvokeView, WorkerReceiveView, BreakStatementView,
-              ThrowStatementView) {
+              ReturnStatement, VariableDefinitionStatementView, WorkerInvocationView, WorkerReplyStatementView,
+              BreakStatementView, ThrowStatementView) {
 
         var StatementViewFactory = function () {
         };
@@ -98,10 +98,10 @@ define(['lodash', 'log', 'event_channel', '../ast/module', './try-catch-statemen
                     variableStatement = new VariableDefinitionStatementView(args);
                 }
                 return variableStatement;
-            } else if (statement instanceof AST.WorkerInvoke) {
-                return new WorkerInvokeView(args);
-            } else if (statement instanceof AST.WorkerReceive) {
-                return new WorkerReceiveView(args);
+            } else if (statement instanceof AST.WorkerInvocationStatement) {
+                return new WorkerInvocationView(args);
+            } else if (statement instanceof AST.WorkerReplyStatement) {
+                return new WorkerReplyStatementView(args);
             } else if (statement instanceof AST.ThrowStatement) {
                 return new ThrowStatementView(args);
             }
