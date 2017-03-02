@@ -14,7 +14,7 @@ service contentBasedRouting {
         string nyseString = "nyse";
 
         json jsonMsg = messages:getJsonPayload(m);
-        string nameString = jsonutils:getString(jsonMsg, "$.name");
+        string nameString = jsons:getString(jsonMsg, "$.name");
 
         message response = {};
 
