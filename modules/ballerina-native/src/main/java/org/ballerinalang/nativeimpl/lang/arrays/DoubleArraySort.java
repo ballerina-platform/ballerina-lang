@@ -40,9 +40,6 @@ import java.util.List;
 /**
  * Native function ballerina.lang.array:sort(double[]).
  */
-/**
- * Native function ballerina.model.arrays:sort(string[]).
- */
 @BallerinaFunction(
         packageName = "ballerina.lang.arrays",
         functionName = "sort",

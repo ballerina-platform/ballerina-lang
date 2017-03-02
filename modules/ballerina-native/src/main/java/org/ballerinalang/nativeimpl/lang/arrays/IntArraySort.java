@@ -35,12 +35,8 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-
 /**
- * Native function ballerina.lang.array:sort(double[]).
- */
-/**
- * Native function ballerina.model.arrays:sort(string[]).
+ * Native function ballerina.model.arrays:sort(int[]).
  */
 @BallerinaFunction(
         packageName = "ballerina.lang.arrays",
