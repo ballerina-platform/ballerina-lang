@@ -22,7 +22,7 @@
     <parent>
         <groupId>org.ballerinalang</groupId>
         <artifactId>ballerina-composer-parent</artifactId>
-        <version>0.8.11-SNAPSHOT</version>
+        <version>0.8.11</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
