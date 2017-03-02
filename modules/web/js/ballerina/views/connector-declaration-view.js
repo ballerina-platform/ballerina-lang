@@ -16,7 +16,7 @@
  * under the License.
  */
 
-define(['lodash','d3', 'jquery', './ballerina-view', './../ast/connector-declaration', 'log', 'd3utils','./life-line'],
+define(['lodash','d3', 'jquery', './ballerina-view', '../ast/connector-declaration', 'log', 'd3utils','./life-line'],
     function (_, d3, $, BallerinaView, ConnectorDeclaration, log, D3utils, LifeLine) {
 
         /**

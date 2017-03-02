@@ -22,11 +22,11 @@ define(['./ballerina-ast-factory', './ballerina-ast-root', './statements/conditi
         './statements/return-statement', './service-definition', './statements/statement', './statements/throw-statement', './type-definition',
         './type-mapper-definition', './type-element', './variable-declaration', './statements/while-statement',
         './worker-declaration', './package-definition', './import-declaration', './assignment',
-        './statements/assignment-statement', './function-invocation', './expressions/action-invocation-expression',
+        './statements/assignment-statement', './statements/function-invocation-statement', './expressions/action-invocation-expression',
         './ballerina-ast-deserializer', './expressions/function-invocation-expression',
         './statements/left-operand-expression', './statements/right-operand-expression', './connector-action', './struct-definition',
         './statements/action-invocation-statement', './statements/variable-definition-statement','./resource-parameter',
-        './return-type','./worker-invoke','./worker-receive','./statements/block-statement','./expressions/struct-field-access-expression',
+        './return-type','./statements/worker-invocation-statement','./statements/worker-reply-statement','./statements/block-statement','./expressions/struct-field-access-expression',
         './expressions/variable-reference-expression','./expressions/reference-type-init-expression','./variable-definition', './statements/break-statement',
         './statements/comment-statement', './expressions/type-cast-expression'],
     function (BallerinaASTFactory, BallerinaASTRoot, ConditionalStatement, ConnectorDeclaration, ConnectorDefinition,
@@ -37,9 +37,10 @@ define(['./ballerina-ast-factory', './ballerina-ast-root', './statements/conditi
               WorkerDeclaration, PackageDefinition, ImportDeclaration, Assignment, AssignmentStatement,
               FunctionInvocation, ActionInvocationExpression, BallerinaASTDeserializer, FunctionInvocationExpression,
               LeftOperandExpression, RightOperandExpression, ConnectorAction, StructDefinition,
-              ActionInvocationStatement, VariableDefinitionStatement, ResourceParameter, ReturnType, WorkerInvoke,
-              WorkerReceive, BlockStatement, StructFieldAccessExpression, VariableReferenceExpression,
-              ReferenceTypeInitExpression, VariableDefinition, BreakStatement, CommentStatement, TypeCastExpression) {
+              ActionInvocationStatement, VariableDefinitionStatement, ResourceParameter, ReturnType,
+              WorkerInvocationStatement, WorkerReplyStatement, BlockStatement, StructFieldAccessExpression,
+              VariableReferenceExpression, ReferenceTypeInitExpression, VariableDefinition, BreakStatement,
+              CommentStatement, TypeCastExpression) {
 
         return  {
             BallerinaASTFactory: BallerinaASTFactory,
@@ -86,8 +87,8 @@ define(['./ballerina-ast-factory', './ballerina-ast-root', './statements/conditi
             VariableDefinitionStatement: VariableDefinitionStatement,
             ResourceParameter: ResourceParameter,
             ReturnType: ReturnType,
-            WorkerInvoke: WorkerInvoke,
-            WorkerReceive: WorkerReceive,
+            WorkerInvocationStatement: WorkerInvocationStatement,
+            WorkerReplyStatement: WorkerReplyStatement,
             BlockStatement: BlockStatement,
             StructFieldAccessExpression : StructFieldAccessExpression,
             VariableReferenceExpression : VariableReferenceExpression,

@@ -186,19 +186,19 @@ define(['log', 'jquery', './../ast/ballerina-ast-factory', './../tool-palette/to
         };
 
         var createWorkerInvocationStatementTool = {
-            id: "WorkerInvoke",
-            name: "Worker Invoke",
+            id: "WorkerInvocation",
+            name: "Worker Invocation",
             icon: "images/tool-icons/worker-invoke.svg",
             title: "Worker Invoke",
-            nodeFactoryMethod: BallerinaASTFactory.createWorkerInvokeStatement
+            nodeFactoryMethod: BallerinaASTFactory.createWorkerInvocationStatement
         };
 
-        var createWorkerReceiverStatementTool = {
-            id: "WorkerReceive",
-            name: "Worker Receive",
-            icon: "images/tool-icons/worker-receive.svg",
+        var createWorkerReplyStatementTool = {
+            id: "WorkerReply",
+            name: "Worker Reply",
+            icon: "images/tool-icons/worker-reply.svg",
             title: "Worker Receive",
-            nodeFactoryMethod: BallerinaASTFactory.createWorkerReceiveStatement
+            nodeFactoryMethod: BallerinaASTFactory.createWorkerReplyStatement
         };
 
         var createThrowStatementTool = {
@@ -212,7 +212,7 @@ define(['log', 'jquery', './../ast/ballerina-ast-factory', './../tool-palette/to
         var statementToolDefArray = [createIfStatementTool, createAssignmentExpressionTool,
             createVariableDefinitionStatementTool,  createFunctionInvocationTool, createReturnStatementTool,
             createReplyStatementTool, createWhileStatementTool, createBreakStatementTool, createTryCatchStatementTool, createThrowStatementTool,
-            createWorkerInvocationStatementTool, createWorkerReceiverStatementTool];
+            createWorkerInvocationStatementTool, createWorkerReplyStatementTool];
 
         // Create statements tool group
         var statements = new ToolGroup({

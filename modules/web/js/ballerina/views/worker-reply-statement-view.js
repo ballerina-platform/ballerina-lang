@@ -15,17 +15,18 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'd3','log', './simple-statement-view', '../ast/expressions/action-invocation-expression', './point', 'd3utils', './../ast/ballerina-ast-factory', './message'],
-    function (_, d3, log, SimpleStatementView, ActionInvocationExpression, Point, D3Utils, BallerinaASTFactory, MessageView) {
+define(['lodash', 'd3','log', './simple-statement-view', './point', 'd3utils', './../ast/ballerina-ast-factory',
+        './message'],
+    function (_, d3, log, SimpleStatementView, Point, D3Utils, BallerinaASTFactory, MessageView) {
 
         /**
          * Worker receive statement view.
          * @param args {*} constructor arguments
-         * @class WorkerReceive
+         * @class WorkerReplyStatementView
          * @constructor
          * @extends SimpleStatementView
          */
-        var WorkerReceive = function (args) {
+        var WorkerReplyStatementView = function (args) {
             SimpleStatementView.call(this, args);
             this._connectorView = {};
 
@@ -46,29 +47,29 @@ define(['lodash', 'd3','log', './simple-statement-view', '../ast/expressions/act
 
         };
 
-        WorkerReceive.prototype = Object.create(SimpleStatementView.prototype);
-        WorkerReceive.prototype.constructor = WorkerReceive;
+        WorkerReplyStatementView.prototype = Object.create(SimpleStatementView.prototype);
+        WorkerReplyStatementView.prototype.constructor = WorkerReplyStatementView;
 
 
-        WorkerReceive.prototype.init = function(){
+        WorkerReplyStatementView.prototype.init = function(){
             // TODO: Event name should modify in order to tally for both connector action and other dynamic arrow draws
-            this.getModel().on("drawConnectionForAction",this.renderWorkerReceive, this);
+            this.getModel().on("drawConnectionForAction",this.renderWorkerReply, this);
             Object.getPrototypeOf(this.constructor.prototype).init.call(this);
         };
-        WorkerReceive.prototype.setDiagramRenderingContext = function(context){
+        WorkerReplyStatementView.prototype.setDiagramRenderingContext = function(context){
             this._diagramRenderingContext = context;
         };
-        WorkerReceive.prototype.getDiagramRenderingContext = function(){
+        WorkerReplyStatementView.prototype.getDiagramRenderingContext = function(){
             return this._diagramRenderingContext;
         };
 
         // TODO : Please revisit this method. Needs a refactor
-        WorkerReceive.prototype.draw = function(startPoint){
+        WorkerReplyStatementView.prototype.draw = function(startPoint){
             var source = this.getModel().getSource();
             var destination = this.getModel().getDestination();
         };
 
-        WorkerReceive.prototype.setModel = function (model) {
+        WorkerReplyStatementView.prototype.setModel = function (model) {
             var actionInvocationModel = this._model.getChildren()[1].getChildren()[0];
             if (!_.isNil(model) && model instanceof ActionInvocationExpression) {
                 actionInvocationModel = model;
@@ -82,13 +83,13 @@ define(['lodash', 'd3','log', './simple-statement-view', '../ast/expressions/act
          * Rendering the view for worker-receive statement.
          * @returns {group} The svg group which contains the elements of the action statement view.
          */
-        WorkerReceive.prototype.render = function (renderingContext) {
+        WorkerReplyStatementView.prototype.render = function (renderingContext) {
             var self = this;
             var model = this.getModel();
             // Calling super class's render function.
             (this.__proto__.__proto__).render.call(this, renderingContext);
             // Setting display text.
-            this.renderDisplayText(model.getReceiveStatement());
+            this.renderDisplayText(model.getReplyStatement());
 
             this.renderProcessorConnectPoint(renderingContext);
 
@@ -101,8 +102,8 @@ define(['lodash', 'd3','log', './simple-statement-view', '../ast/expressions/act
                 propertyType: "text",
                 key: "Worker Invocation",
                 model: model,
-                getterMethod: model.getReceiveStatement,
-                setterMethod: model.setReceiveStatement
+                getterMethod: model.getReplyStatement,
+                setterMethod: model.setReplyStatement
             };
 
             this._createPropertyPane({
@@ -147,7 +148,7 @@ define(['lodash', 'd3','log', './simple-statement-view', '../ast/expressions/act
             this.listenTo(model, 'update-property-text', this.updateStatementText);
         };
 
-        WorkerReceive.prototype.renderArrows = function (context) {
+        WorkerReplyStatementView.prototype.renderArrows = function (context) {
             this.setDiagramRenderingContext(context);
 
             var destination = this.getModel().getDestination();
@@ -184,7 +185,7 @@ define(['lodash', 'd3','log', './simple-statement-view', '../ast/expressions/act
             }
         };
 
-        WorkerReceive.prototype.renderProcessorConnectPoint = function (renderingContext) {
+        WorkerReplyStatementView.prototype.renderProcessorConnectPoint = function (renderingContext) {
             var boundingBox = this.getBoundingBox();
             var width = boundingBox.w();
             var height = boundingBox.h();
@@ -199,7 +200,7 @@ define(['lodash', 'd3','log', './simple-statement-view', '../ast/expressions/act
         /**
          * Remove the forward and the backward arrow heads
          */
-        WorkerReceive.prototype.removeArrows = function () {
+        WorkerReplyStatementView.prototype.removeArrows = function () {
             if (!_.isNil(this._arrowGroup) && !_.isNil(this._arrowGroup.node())) {
                 d3.select(this._arrowGroup).node().remove();
             }
@@ -209,7 +210,7 @@ define(['lodash', 'd3','log', './simple-statement-view', '../ast/expressions/act
          * Covert a point in user space Coordinates to client viewport Coordinates.
          * @param {Point} point a point in current user coordinate system
          */
-        WorkerReceive.prototype.toGlobalCoordinates = function (point) {
+        WorkerReplyStatementView.prototype.toGlobalCoordinates = function (point) {
             var pt = this.processorConnectPoint.node().ownerSVGElement.createSVGPoint();
             pt.x = point.x();
             pt.y = point.y();
@@ -220,7 +221,7 @@ define(['lodash', 'd3','log', './simple-statement-view', '../ast/expressions/act
         /**
          * Remove statement view callback
          */
-        WorkerReceive.prototype.onBeforeModelRemove = function () {
+        WorkerReplyStatementView.prototype.onBeforeModelRemove = function () {
             this.stopListening(this.getBoundingBox());
             d3.select("#_" +this._model.id).remove();
             this.removeArrows();
@@ -229,13 +230,13 @@ define(['lodash', 'd3','log', './simple-statement-view', '../ast/expressions/act
             this.getBoundingBox().move(0, moveOffset);
         };
 
-        WorkerReceive.prototype.updateStatementText = function (newStatementText, propertyKey) {
+        WorkerReplyStatementView.prototype.updateStatementText = function (newStatementText, propertyKey) {
             this._model.setStatementString(newStatementText);
             var displayText = this._model.getStatementString();
             this.renderDisplayText(displayText);
         };
 
-        WorkerReceive.prototype.renderWorkerReceive = function (startPoint, container) {
+        WorkerReplyStatementView.prototype.renderWorkerReply = function (startPoint, container) {
             log.debug("Render the worker start");
             var activatedWorkerTarget = this.messageManager.getActivatedDropTarget();
             if (BallerinaASTFactory.isWorkerDeclaration(activatedWorkerTarget)) {
@@ -245,7 +246,7 @@ define(['lodash', 'd3','log', './simple-statement-view', '../ast/expressions/act
             }
         };
 
-        WorkerReceive.prototype.renderReceiveArrows = function () {
+        WorkerReplyStatementView.prototype.renderReceiveArrows = function () {
             this._arrowGroup = D3Utils.group(d3.select(this._container));
             var destinationView = this.getDiagramRenderingContext().getViewOfModel(this.getModel().getDestination());
             var destinationStatementContainer = destinationView.getStatementContainer();
@@ -259,15 +260,15 @@ define(['lodash', 'd3','log', './simple-statement-view', '../ast/expressions/act
             var destinationReplyStatement = _.find(destinationStatementContainer._managedStatements, function (node) {
                 return BallerinaASTFactory.isReplyStatement(node);
             });
-            var workerInvokeStatement = _.find(this.getParent().getModel().getChildren(), function (child) {
-                return BallerinaASTFactory.isWorkerInvokeStatement(child);
+            var workerInvocationStatement = _.find(this.getParent().getModel().getChildren(), function (child) {
+                return BallerinaASTFactory.isWorkerInvocationStatement(child);
             });
             this._destinationReplyStatementView = !_.isNil(destinationReplyStatement) ?
                 this.getDiagramRenderingContext().getViewOfModel(destinationReplyStatement) : undefined;
 
             // We have added a reply statement to the worker and the invoker can receive a valid response from the worker
             // We do not allow to add the receive unless we have added a reply to the particular worker
-            if (!_.isNil(this._destinationReplyStatementView) && !_.isNil(workerInvokeStatement)) {
+            if (!_.isNil(this._destinationReplyStatementView) && !_.isNil(workerInvocationStatement)) {
                 if (this.getBoundingBox().getBottom() > this._destinationReplyStatementView.getBoundingBox().getBottom()) {
                     // Worker receive statement is located bellow the reply statement.
                     // We need to move the reply statement down
@@ -297,7 +298,7 @@ define(['lodash', 'd3','log', './simple-statement-view', '../ast/expressions/act
              * When the top edge move event triggered
              * @override
              */
-            WorkerReceive.prototype.onTopEdgeMovedTrigger = function (dy) {
+            WorkerReplyStatementView.prototype.onTopEdgeMovedTrigger = function (dy) {
                 var self = this;
 
                 if (_.isNil(self._messageView)) {
@@ -339,7 +340,7 @@ define(['lodash', 'd3','log', './simple-statement-view', '../ast/expressions/act
              * @param {number} dy - delta y distance
              * @return {boolean}
              */
-            WorkerReceive.prototype.canMoveUp = function (dy) {
+            WorkerReplyStatementView.prototype.canMoveUp = function (dy) {
                 var self = this;
                 var bBox = this.getBoundingBox();
                 var previousStatement = undefined;
@@ -362,7 +363,7 @@ define(['lodash', 'd3','log', './simple-statement-view', '../ast/expressions/act
              * When the reply receive statement view move is initiated by the reply receiver view
              * @param {number} dy delta y distance
              */
-            WorkerReceive.prototype.onMoveInitiatedByReply = function (dy) {
+            WorkerReplyStatementView.prototype.onMoveInitiatedByReply = function (dy) {
                 this.stopListening(this.getBoundingBox(), 'top-edge-moved');
                 this.getBoundingBox().move(0, dy);
                 this._messageView.move(0, dy);
@@ -374,12 +375,12 @@ define(['lodash', 'd3','log', './simple-statement-view', '../ast/expressions/act
             };
         };
 
-        WorkerReceive.prototype.updateStatementText = function (newStatementText, propertyKey) {
+        WorkerReplyStatementView.prototype.updateStatementText = function (newStatementText, propertyKey) {
             this._model.setReceiveStatement(newStatementText);
             var displayText = this._model.getReceiveStatement();
             this.renderDisplayText(displayText);
         };
 
-        return WorkerReceive;
+        return WorkerReplyStatementView;
 
     });

@@ -22,7 +22,7 @@ define(['lodash', 'log', 'event_channel', '../../ast/module', './try-catch-state
         './type-mapper-return-statement-visitor', './function-invocation-visitor',
         './type-mapper-function-invocation-expression-visitor', './assignment-visitor',
         './type-mapper-left-operand-expression-visitor', './type-mapper-right-operand-expression-visitor',
-        './type-mapper-variable-definition-statement-visitor', './worker-invoke-visitor', './worker-receive-visitor',
+        './type-mapper-variable-definition-statement-visitor', './worker-invocation-statement-visitor', './worker-reply-statement-visitor',
         './break-statement-visitor', './throw-statement-visitor'],
 function (_, log, EventChannel, AST, TryCatchStatementVisitor,
           TryStatementVisitor, CatchStatementVisitor, IfElseStatementVisitor, IfStatementVisitor,
@@ -30,7 +30,8 @@ function (_, log, EventChannel, AST, TryCatchStatementVisitor,
           TypeMapperAssignmentStatementVisitor, ActionInvocationStatementVisitor, ReplyStatementVisitor,
           TypeMapperReturnStatementVisitor, FunctionInvocationVisitor, TypeMapperFunctionInvocationExpressionVisitor,
           AssignmentVisitor, TypeMapperLeftOperandExpressionVisitor, TypeMapperRightOperandExpressionVisitor,
-          TypeMapperVariableDefinitionStatement, WorkerInvoke, WorkerReceive, BreakStatementVisitor, ThrowStatementVisitor) {
+          TypeMapperVariableDefinitionStatement, WorkerInvocationStatement, WorkerReplyStatement, BreakStatementVisitor,
+          ThrowStatementVisitor) {
 
     var TypeMapperStatementVisitorFactory = function () {
     };
@@ -70,10 +71,10 @@ function (_, log, EventChannel, AST, TryCatchStatementVisitor,
             return new TypeMapperRightOperandExpressionVisitor(parent);
         } else if (statement instanceof AST.VariableDefinitionStatement) {
             return new TypeMapperVariableDefinitionStatement(parent);
-        } else if (statement instanceof AST.WorkerInvoke) {
-            return new WorkerInvoke(parent);
-        }  else if (statement instanceof AST.WorkerReceive) {
-            return new WorkerReceive(parent);
+        } else if (statement instanceof AST.WorkerInvocationStatement) {
+            return new WorkerInvocationStatement(parent);
+        }  else if (statement instanceof AST.WorkerReplyStatement) {
+            return new WorkerReplyStatement(parent);
         } else if (statement instanceof AST.ActionInvocationStatement) {
             return new ActionInvocationStatementVisitor(parent);
         } else if (statement instanceof AST.BreakStatement) {
