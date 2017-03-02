@@ -37,7 +37,7 @@ where a `VariableAccessor` is one of:
 
 An `if-else` statement provides a way to perform conditional execution. In the Composer, you can drag the If-Else icon ![alt-text](../images/icons/if-else.png "If-Else icon") from the tool palette to the canvas to add the statement to your program. 
 
-An if-else statement is defined as follows: 
+An `if-else` statement is defined as follows: 
 ```
 if (BooleanExpression) {
     Statement;*
@@ -51,7 +51,7 @@ if (BooleanExpression) {
 
 ## Iterate
 
-An `iterate` statement provides a way to iterate through an iterator.
+An `iterate` statement provides a way to iterate through an iterator. It is defined as follows:
 
 ```
 iterate (VariableType VariableName : Iterator) {
@@ -63,6 +63,8 @@ iterate (VariableType VariableName : Iterator) {
 
 A `while` statement provides a way to execute a series of statements as long as a Boolean expression is met. In the Composer, you can drag the While icon ![alt-text](../images/icons/while.png "While icon") from the tool palette to the canvas to add the statement to your program. 
 
+A `while` statement is defined as follows:
+
 ```
 while (BooleanExpression) {
     Statement;+
@@ -71,7 +73,9 @@ while (BooleanExpression) {
 
 ## Break
 
-A `break` statement allows you to terminate the immediately enclosing loop. This is only allowed within the `iterate` or `while` constructs.
+A `break` statement allows you to terminate the immediately enclosing loop. This is only allowed within the `iterate` or `while` constructs. In the Composer, you can drag the Break icon ![alt-text](../images/icons/break.png "Break icon") from the tool palette to the canvas. 
+
+A `break` statement is defined as follows:
 
 ```
 break;
@@ -110,7 +114,7 @@ The `timeout` clause allows one to specify a maximum time (in seconds) within wh
 
 The Return statement evaluates the expression, stops the current function, and returns the result of the expression to the caller. In the Composer, you can drag the Return icon ![alt-text](../images/icons/return.png "Return icon") from the tool palette to the canvas to add the statement to your program. 
 
-The syntax of a `return` statement is as follows:
+A `return` statement is defined as follows:
 ```
 return Expression*;
 ```
@@ -119,7 +123,7 @@ return Expression*;
 
 The Reply statement sends the request message back to the client. In the Composer, you can drag the Reply icon ![alt-text](../images/icons/reply.png "Reply icon") from the tool palette to the canvas to add the statement to your program. 
 
-The syntax of a `reply` statement is as follows:
+A `reply` statement is defined as follows:
 ```
 reply Message?;
 ```
