@@ -26,6 +26,7 @@ define(['lodash', 'log', './ballerina-view', './variables-view', './type-struct-
         var TYPE_MAPPER_TARGET_STRUCT_NAME = Constants.TYPE_MAPPER_TARGET_STRUCT_NAME;
         var TYPE_MAPPER_COMBOBOX_TARGET_IS_ALREADY_RENDERED_IN_SOURCE = Constants.TYPE_MAPPER_COMBOBOX_TARGET_IS_ALREADY_RENDERED_IN_SOURCE;
         var TYPE_MAPPER_COMBOBOX_SOURCE_IS_ALREADY_RENDERED_IN_TARGET = Constants.TYPE_MAPPER_COMBOBOX_SOURCE_IS_ALREADY_RENDERED_IN_TARGET;
+        var TYPE_MAPPER_SOURCE_STRUCT_NAME = Constants.TYPE_MAPPER_SOURCE_STRUCT_NAME;
 
         var TypeMapperDefinitionView = function (args) {
             SVGCanvas.call(this, args);
