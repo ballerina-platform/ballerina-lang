@@ -41,7 +41,11 @@ A box appears with the name `newService`, and inside it is another box called `n
 
 A **resource** is a single request handler within a service. This is where we will program the logic describing how to handle certain types of requests from incoming messages to this service. 
 
-By default, the resource is configured to accept a message `m`. You can see this by clicking the Arguments icon in the upper right corner of the resource box. When you click it, you'll see `message m` listed below the fields. Click the Arguments icon again to close its window.
+By default, the resource is configured to accept a message `m`. You can see this by clicking the Arguments icon in the upper right corner of the resource box: 
+
+![alt text](../images/icons/arguments.png "Arguments icon")
+
+When you click it, you'll see `message m` listed below the fields. Click the Arguments icon again to close its window.
 
 Let's rename both the service and resource. 
 
@@ -61,11 +65,11 @@ The base path is now set, so that when you deploy this service, clients will be 
 
 When you added the service, Ballerina configured the resource to use the GET method by default. Because we are going to use the incoming message to post a reply, let's change it to POST. 
 
-1. Click the `@` symbol in the upper right corner of the **resource** box (not the service box).
+1. Click the Annotations (`@`) icon in the upper right corner of the **resource** box (not the service box).
 1. Click `http:GET`, highlight `GET`, and type `POST`. 
-1. Click the `@` symbol again to hide the box. 
+1. Click the `@` icon again to hide the box. 
 
-You can click the symbol again to confirm that GET was in fact changed to POST. You can also click the Source View button in the lower right corner to see the changes that are being made to the Ballerina code as you work with the visual editor.
+You can click the symbol again to confirm that GET was in fact changed to POST. You can also click the **Source View** button in the lower right corner to see the changes that are being made to the Ballerina code as you work with the visual editor.
 
 ### Add a function
 
@@ -89,7 +93,7 @@ This completes the sequence, so you are now ready to save and run your integrati
 
 ### Run the program
 
-To the left of the tool palette, click the run icon ">" and click **Service**. 
+To the left of the tool palette, click the Run (`>`) icon and click **Service**. 
    
 If you were creating a Ballerina program with a `main()` function, you would click **Application** instead.
 
