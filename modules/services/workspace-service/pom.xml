@@ -25,7 +25,7 @@
 
     <groupId>org.ballerinalang</groupId>
     <artifactId>workspace-service</artifactId>
-    <version>0.8.9-SNAPSHOT</version>
+    <version>0.8.10-SNAPSHOT</version>
     <name>Ballerina Composer - Workspace Service</name>
 
     <repositories>
