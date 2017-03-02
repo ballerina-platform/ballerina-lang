@@ -2,11 +2,15 @@
 
 A worker is a thread of execution. It is represented on a sequence diagram as a vertical "lifeline" of logic to be executed. 
 
-There are two kinds of workers: implicit workers and explicit workers. *Implicit* workers are those that are created externally to the executable entity ([resource](resources.md), [function](functions.md), or [action](actions.md)) and simply represent the caller's thread being used to execute the callee's statements. *Explicit* workers are those that are defined and programmed explicitly by placing any number of executable statements in the worker. 
+![alt text](../images/worker-lifeline.png "The default worker in a resource")
 
 When you create a [resource](resources.md), [function](functions.md), or [action](actions.md), a default worker is created automatically that performs the logic for that entity. You can add additional workers to a resource or function, giving each worker its own logic to execute. This approach allows you to program parallel threads of execution. You can also use the [fork/join](statements.md#forkjoin) statement to easily create a set of workers, have them process in parallel, and then aggregate their results.
 
-To add a worker in Design View in the Composer, drag the Worker icon to your sequence diagram:
+Workers do not share any state with each other. Upon invocation, the “parent” worker can pass a message to the new worker. Resource workers can also access the service's state.
+
+## Adding a worker
+
+To add a worker in Design View in the Composer, drag the Worker icon from the tool palette to your sequence diagram:
 
 ![alt text](../images/icons/worker.png "Worker icon")
 
@@ -28,13 +32,6 @@ Workers initially come into existence when the enclosing entity-- a [resource](r
 A worker is triggered when a message is sent to the worker as follows by the enclosing entity:
 ```
 MessageName -> WorkerName;
-```
-
-## Waiting for worker completion
-
-When the worker replies, the response message (if any) is received by the enclosing entity from the worker as follows:
-```
-MessageName <- WorkerName;
 ```
 
 ## Replying from a worker
