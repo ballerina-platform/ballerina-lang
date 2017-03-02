@@ -114,3 +114,10 @@ svg.plumbConnect path {
 .jstree-themeicon {
     display:none !important;
 }
+
+.typeMapperContextMenu {
+    position:fixed;
+    border: 1px solid black;
+    padding:5px;
+    display:none;
+}

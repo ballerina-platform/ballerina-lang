@@ -27,6 +27,7 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
     var TypeMapperRenderer = function (onConnectionCallback, onDisconnectCallback, typeConverterView) {
         this.references = [];
         this.viewId = typeConverterView._model.id;
+        this.contextMenu = "typeMapperContextMenu";
         this.jsTreePrefix = "jstree-container";
         this.viewIdSeperator = "___";
         this.sourceTargetSeperator = "_--_";
@@ -79,9 +80,30 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
             ]
         });
 
-        this.jsPlumbInstance.bind('dblclick', function (connection, e) {
-            self.disconnect(connection);
+        $('#' + self.contextMenu).hide();
+        this.jsPlumbInstance.bind('contextmenu', function (connection, e) {
+            var contextMenuDiv = $('#' + self.contextMenu);
+            contextMenuDiv.html('<a id="typeMapperConRemove"> <i class="fw fw-delete"></i> Remove </a>');
+
+            document.addEventListener('click', function() {
+                $('#' + self.contextMenu).hide();
+            }, false);
+
+            $("#typeMapperConRemove").click(function() {
+                self.disconnect(connection);
+                $('#' + self.contextMenu).hide();
+            });
+
+            contextMenuDiv.css({
+                                'top':e.pageY  ,
+                                'left': e.pageX,
+                                zIndex : 1000
+                                });
+
+            contextMenuDiv.show();
+            e.preventDefault();
         });
+
 
         this.jsPlumbInstance.bind('connection', function (info, ev) {
             self.dagrePosition(self);

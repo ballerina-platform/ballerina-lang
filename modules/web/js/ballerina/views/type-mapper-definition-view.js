@@ -139,7 +139,8 @@ define(['lodash', 'log', './ballerina-view', './variables-view', './type-struct-
                 '</div>' +
                 '</div>');
 
-            var dataMapperContainer = $('<div id="' + dataMapperContainerId + '" class="data-mapper-container"></div>');
+            var dataMapperContainer = $('<div id="' + dataMapperContainerId + '" class="data-mapper-container">'
+                                      +'<div id ="typeMapperContextMenu" class ="typeMapperContextMenu"></div></div> ');
 
             currentContainer.find('svg').parent().append(selectorContainer).append(dataMapperContainer);
             currentContainer.find('svg').remove();
