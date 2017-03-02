@@ -112,23 +112,27 @@ define(['lodash', 'log', 'jquery', 'alerts', './return-type-view', './../ast/nod
                 type: "text",
                 "placeholder": "m"
             }).keypress(function (e) {
-                var enteredKey = e.which || e.charCode || e.keyCode;
-                // Disabling enter key
-                if (enteredKey == 13) {
-                    addButton.click();
-                    event.stopPropagation();
-                    return false;
-                }
+                /* Ignore Delete and Backspace keypress in firefox and capture other keypress events.
+                 (Chrome and IE ignore keypress event of these keys in browser level)*/
+                if (!_.isEqual(e.key, "Delete") && !_.isEqual(e.key, "Backspace")) {
+                    var enteredKey = e.which || e.charCode || e.keyCode;
+                    // Disabling enter key
+                    if (_.isEqual(enteredKey, 13)) {
+                        addButton.click();
+                        e.stopPropagation();
+                        return false;
+                    }
 
-                var newIdentifier = $(this).val() + String.fromCharCode(enteredKey);
+                    var newIdentifier = $(this).val() + String.fromCharCode(enteredKey);
 
-                // Validation the identifier against grammar.
-                if (!ASTNode.isValidIdentifier(newIdentifier)) {
-                    var errorString = "Invalid identifier for a return type: " + newIdentifier;
-                    log.error(errorString);
-                    Alerts.error(errorString);
-                    event.stopPropagation();
-                    return false;
+                    // Validation the identifier against grammar.
+                    if (!ASTNode.isValidIdentifier(newIdentifier)) {
+                        var errorString = "Invalid identifier for a return type: " + newIdentifier;
+                        log.error(errorString);
+                        Alerts.error(errorString);
+                        e.stopPropagation();
+                        return false;
+                    }
                 }
             }).toggle(self._model.hasNamedReturnTypes()).appendTo(returnTypeWrapper);
 
