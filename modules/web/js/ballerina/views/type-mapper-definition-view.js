@@ -112,22 +112,26 @@ define(['lodash', 'log', './ballerina-view', './variables-view', './type-struct-
                 .on("change paste keyup", function () {
                     self.getModel().setTypeMapperName($(this).text());
                 }).on("click", function (event) {
-                event.stopPropagation();
-            }).keypress(function (e) {
-                var enteredKey = e.which || e.charCode || e.keyCode;
-                // Disabling enter key
-                if (enteredKey == 13) {
                     event.stopPropagation();
-                    return false;
-                }
-                var newTypeMapperName = $(this).val() + String.fromCharCode(enteredKey);
-                try {
-                    self.getModel().setTypeMapperName(newTypeMapperName);
-                } catch (error) {
-                    event.stopPropagation();
-                    return false;
-                }
-            });
+                }).keypress(function (e) {
+                    /* Ignore Delete and Backspace keypress in firefox and capture other keypress events.
+                     (Chrome and IE ignore keypress event of these keys in browser level)*/
+                    if (!_.isEqual(e.key, "Delete") && !_.isEqual(e.key, "Backspace")) {
+                        var enteredKey = e.which || e.charCode || e.keyCode;
+                        // Disabling enter key
+                        if (_.isEqual(enteredKey, 13)) {
+                            e.stopPropagation();
+                            return false;
+                        }
+                        var newTypeMapperName = $(this).val() + String.fromCharCode(enteredKey);
+                        try {
+                            self.getModel().setTypeMapperName(newTypeMapperName);
+                        } catch (error) {
+                            e.stopPropagation();
+                            return false;
+                        }
+                    }
+                });
 
             var dataMapperContainerId = "data-mapper-container___" + this._model.id;
             var sourceId = 'sourceStructs' + this.getModel().id;

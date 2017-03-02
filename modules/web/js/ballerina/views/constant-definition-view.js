@@ -58,18 +58,22 @@ define(['lodash', 'jquery', 'log', 'alerts', './ballerina-view', './../ast/node'
                 "contenteditable": true,
                 class: "constant-declaration-field"
             }).keypress(function (e) {
-                // Updating annotation text of the model on typing.
-                var enteredKey = e.which || e.charCode || e.keyCode;
-                var newIdentifier = $(this).text() + String.fromCharCode(enteredKey);
+                /* Ignore Delete and Backspace keypress in firefox and capture other keypress events.
+                 (Chrome and IE ignore keypress event of these keys in browser level)*/
+                if (!_.isEqual(e.key, "Delete") && !_.isEqual(e.key, "Backspace")) {
+                    // Updating annotation text of the model on typing.
+                    var enteredKey = e.which || e.charCode || e.keyCode;
+                    var newIdentifier = $(this).text() + String.fromCharCode(enteredKey);
 
-                // Validation the identifier against grammar.
-                if (!ASTNode.isValidIdentifier(newIdentifier)) {
-                    var errorString = "Invalid identifier for a parameter: " + newIdentifier;
-                    Alerts.error(errorString);
-                    event.stopPropagation();
-                    return false;
-                } else {
-                    self.getModel().setIdentifier(newIdentifier);
+                    // Validation the identifier against grammar.
+                    if (!ASTNode.isValidIdentifier(newIdentifier)) {
+                        var errorString = "Invalid identifier for a parameter: " + newIdentifier;
+                        Alerts.error(errorString);
+                        e.stopPropagation();
+                        return false;
+                    } else {
+                        self.getModel().setIdentifier(newIdentifier);
+                    }
                 }
             }).keyup(function(){
                 try {
@@ -93,22 +97,26 @@ define(['lodash', 'jquery', 'log', 'alerts', './ballerina-view', './../ast/node'
                 "contenteditable": true,
                 class: "constant-declaration-field"
             }).keypress(function (e) {
-                // Updating annotation text of the model on typing.
-                var enteredKey = e.which || e.charCode || e.keyCode;
-                // Disabling enter key
-                if (enteredKey == 13) {
-                    event.stopPropagation();
-                    return false;
-                }
+                /* Ignore Delete and Backspace keypress in firefox and capture other keypress events.
+                 (Chrome and IE ignore keypress event of these keys in browser level)*/
+                if (!_.isEqual(e.key, "Delete") && !_.isEqual(e.key, "Backspace")) {
+                    // Updating annotation text of the model on typing.
+                    var enteredKey = e.which || e.charCode || e.keyCode;
+                    // Disabling enter key
+                    if (_.isEqual(enteredKey, 13)) {
+                        e.stopPropagation();
+                        return false;
+                    }
 
-                var newValue = $(this).text() + String.fromCharCode(enteredKey);
+                    var newValue = $(this).text() + String.fromCharCode(enteredKey);
 
-                try {
-                    self.getModel().setValue(newValue);
-                } catch (errorString) {
-                    Alerts.error(errorString);
-                    event.stopPropagation();
-                    return false;
+                    try {
+                        self.getModel().setValue(newValue);
+                    } catch (errorString) {
+                        Alerts.error(errorString);
+                        e.stopPropagation();
+                        return false;
+                    }
                 }
             }).keyup(function () {
                 try {

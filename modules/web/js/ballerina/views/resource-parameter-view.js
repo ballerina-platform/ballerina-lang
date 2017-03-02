@@ -206,21 +206,25 @@ define(['lodash', 'jquery', 'log', 'alerts', './ballerina-view', './../ast/argum
                 type: "text",
                 val: this.getModel().getIdentifier()
             }).keypress(function (e) {
-                var enteredKey = e.which || e.charCode || e.keyCode;
-                // Disabling enter key
-                if (enteredKey == 13) {
-                    event.stopPropagation();
-                    return false;
-                }
+                /* Ignore Delete and Backspace keypress in firefox and capture other keypress events.
+                 (Chrome and IE ignore keypress event of these keys in browser level)*/
+                if (!_.isEqual(e.key, "Delete") && !_.isEqual(e.key, "Backspace")) {
+                    var enteredKey = e.which || e.charCode || e.keyCode;
+                    // Disabling enter key
+                    if (_.isEqual(enteredKey, 13)) {
+                        e.stopPropagation();
+                        return false;
+                    }
 
-                var newIdentifier = $(this).val() + String.fromCharCode(enteredKey);
+                    var newIdentifier = $(this).val() + String.fromCharCode(enteredKey);
 
-                try {
-                    self.getModel().setIdentifier(newIdentifier);
-                } catch (error) {
-                    Alerts.error(error);
-                    event.stopPropagation();
-                    return false;
+                    try {
+                        self.getModel().setIdentifier(newIdentifier);
+                    } catch (error) {
+                        Alerts.error(error);
+                        e.stopPropagation();
+                        return false;
+                    }
                 }
             }).keyup(function(){
                 self.getModel().setIdentifier($(this).val());

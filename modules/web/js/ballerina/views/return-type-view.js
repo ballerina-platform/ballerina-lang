@@ -128,7 +128,7 @@ define(['lodash', 'jquery', 'log', 'alerts', './ballerina-view'],
                         self.getModel().setIdentifier(newIdentifier);
                     } catch (error) {
                         Alerts.error(error);
-                        event.stopPropagation();
+                        e.stopPropagation();
                         return false;
                     }
                 }).keyup(function(){
