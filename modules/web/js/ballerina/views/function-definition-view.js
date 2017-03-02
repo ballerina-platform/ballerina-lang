@@ -76,32 +76,84 @@ define(['lodash', 'log', 'event_channel',  'alerts', './svg-canvas', './../ast/f
             var self = this;
             if (BallerinaASTFactory.isStatement(child)) {
                 this.getStatementContainer().childStatementRemovedCallback(child);
-            } else if (BallerinaASTFactory.isConnectorDeclaration(child) || BallerinaASTFactory.isWorkerDeclaration(child)) {
-                var childViewIndex = _.findIndex(this._workerAndConnectorViews, function (view) {
+            } else if (BallerinaASTFactory.isConnectorDeclaration(child)) {
+                var connectorViews = this.getConnectorViews();
+                var nextConnector = undefined;
+                var previousConnector = undefined;
+                var connectorViewIndex = _.findIndex(connectorViews, function (view) {
                     return view.getModel().id === child.id;
                 });
 
-                if (childViewIndex === 0) {
-                    // Deleted the first connector/worker in the list (Addresses both first element scenario and the only element scenario
-                    if (!_.isNil(this._workerAndConnectorViews[childViewIndex + 1])) {
-                        // Unregister the listening event of the second element on the first element
-                        this._workerAndConnectorViews[childViewIndex + 1].stopListening(this._workerAndConnectorViews[childViewIndex].getBoundingBox());
+                var currentConnector = connectorViews[connectorViewIndex];
+
+                if (connectorViewIndex === 0) {
+                    // Deleted the first connector/ only connector
+                    currentConnector.stopListening(this.getWorkerLifeLineMargin());
+                    if (!_.isNil(connectorViews[connectorViewIndex + 1])) {
+                        nextConnector = connectorViews[connectorViewIndex + 1];
+                        nextConnector.stopListening(currentConnector.getBoundingBox());
+                        nextConnector.listenTo(this.getWorkerLifeLineMargin(), 'moved', function (offset) {
+                            nextConnector.getBoundingBox().move(offset, 0);
+                        });
                     }
-                } else if (childViewIndex === this._workerAndConnectorViews.length - 1) {
-                    // Deleted the last connector/worker when there are more than one worker/ connector
-                    this._workerAndConnectorViews[childViewIndex].stopListening(this._workerAndConnectorViews[childViewIndex - 1].getBoundingBox());
+                } else if (connectorViewIndex === connectorViews.length - 1) {
+                    // Deleted the last connector
+                    currentConnector.stopListening(connectorViews[connectorViewIndex].getBoundingBox());
                 } else {
-                    // Deleted connector is in between two other connectors/ workers
-                    // Connector being deleted, stop listening to it's previous connector
-                    this._workerAndConnectorViews[childViewIndex].stopListening(this._workerAndConnectorViews[childViewIndex - 1].getBoundingBox());
-                    this._workerAndConnectorViews[childViewIndex + 1].stopListening(this._workerAndConnectorViews[childViewIndex].getBoundingBox());
-                    this._workerAndConnectorViews[childViewIndex + 1].listenTo(this._workerAndConnectorViews[childViewIndex - 1].getBoundingBox(), 'right-edge-moved', function (offset) {
-                        self.moveFunctionDefinitionLevelConnector(this, offset);
+                    // Deleted an intermediate Connector
+                    previousConnector = connectorViews[connectorViewIndex - 1];
+                    nextConnector = connectorViews[connectorViewIndex + 1];
+                    currentConnector.stopListening(previousConnector.getBoundingBox());
+                    nextConnector.stopListening(currentConnector.getBoundingBox());
+                    nextConnector.listenTo(previousConnector.getBoundingBox(), 'right-edge-moved', function (offset) {
+                        self.moveFunctionDefinitionLevelConnector(nextConnector, offset);
                     });
                 }
-                this._workerAndConnectorViews[childViewIndex] = null;
-                this._workerAndConnectorViews.splice(childViewIndex, 1);
+                var connectorViewOriginalIndex = _.findIndex(this.getWorkerAndConnectorViews(), function (view) {
+                    return view.getModel().id === child.id;
+                });
+                this.getWorkerAndConnectorViews()[connectorViewOriginalIndex] = null;
+                this.getWorkerAndConnectorViews().splice(connectorViewOriginalIndex, 1);
+            } else if (BallerinaASTFactory.isWorkerDeclaration(child)) {
+                var workerViews = this.getWorkerViews();
+                var nextWorker = undefined;
+                var previousWorker = undefined;
+                var workerViewIndex = _.findIndex(workerViews, function (view) {
+                    return view.getModel().id === child.id;
+                });
+
+                var currentWorker = workerViews[workerViewIndex];
+
+                if (workerViewIndex === 0 && !_.isNil(workerViews[workerViewIndex + 1])) {
+                    // Deleted the first worker/ only worker
+                    nextWorker = workerViews[workerViewIndex + 1];
+                    // nextWorker.stopListening(currentWorker.getBoundingBox());
+                } else if (workerViewIndex === workerViews.length - 1) {
+                    // Deleted the last worker
+                    this.getWorkerLifeLineMargin().stopListening(currentWorker.getBoundingBox());
+                    previousWorker = workerViews[workerViewIndex - 1];
+                    if (!_.isNil(previousWorker)) {
+                        this.getWorkerLifeLineMargin().listenTo(previousWorker.getBoundingBox(), 'right-edge-moved', function (offset) {
+                            self.getWorkerLifeLineMargin().setPosition(self.getWorkerLifeLineMargin().getPosition() + offset);
+                        });
+                    }
+                } else {
+                    // Deleted an intermediate Connector
+                    previousWorker = workerViews[workerViewIndex - 1];
+                    nextWorker = workerViews[workerViewIndex + 1];
+                    currentWorker.stopListening(previousWorker.getBoundingBox());
+                    nextWorker.stopListening(currentWorker.getBoundingBox());
+                    nextWorker.listenTo(previousWorker.getBoundingBox(), 'right-edge-moved', function (offset) {
+                        self.moveFunctionDefinitionLevelWorker(nextWorker, offset);
+                    });
+                }
+                var workerViewOriginalIndex = _.findIndex(this.getWorkerAndConnectorViews(), function (view) {
+                    return view.getModel().id === child.id;
+                });
+                this.getWorkerAndConnectorViews()[workerViewOriginalIndex] = null;
+                this.getWorkerAndConnectorViews().splice(workerViewOriginalIndex, 1);
             }
+
             // Remove the connector/ worker from the diagram rendering context
             delete this.diagramRenderingContext.getViewModelMap()[child.id];
         };
@@ -176,6 +228,7 @@ define(['lodash', 'log', 'event_channel',  'alerts', './svg-canvas', './../ast/f
             // If the default worker, we skip
             if (!workerDeclaration.isDefaultWorker()) {
                 var lastWorkerIndex = this.getLastWorkerLifeLineIndex();
+                var lastWorker = this.getWorkerAndConnectorViews()[lastWorkerIndex];
                 var newWorkerPosition = lastWorkerIndex === -1 ? 0 : lastWorkerIndex + 1;
                 var centerPoint = undefined;
                 if (newWorkerPosition === 0) {
@@ -231,10 +284,22 @@ define(['lodash', 'log', 'event_channel',  'alerts', './svg-canvas', './../ast/f
 
                 // Set the workerLifeLineMargin to the right edge of the newly added worker
                 this.getWorkerLifeLineMargin().setPosition(workerDeclarationView.getBoundingBox().getRight());
+
+                if (newWorkerPosition > 0) {
+                    // There are already added workers
+                    this.getWorkerLifeLineMargin().stopListening(this.getWorkerAndConnectorViews()[lastWorkerIndex].getBoundingBox());
+                    workerDeclarationView.listenTo(lastWorker.getBoundingBox(), 'right-edge-moved', function (offset) {
+                        self.moveFunctionDefinitionLevelWorker(workerDeclarationView, offset);
+                    });
+                }
+                this.getWorkerLifeLineMargin().listenTo(workerDeclarationView.getBoundingBox(), 'right-edge-moved', function (offset) {
+                    self.getWorkerLifeLineMargin().setPosition(self.getWorkerLifeLineMargin().getPosition() + offset);
+                });
+
                 if (lastWorkerIndex === this.getWorkerAndConnectorViews().length -1 &&
                     workerDeclarationView.getBoundingBox().getRight() > this.getBoundingBox().getRight()) {
                     // Worker is added as the last element for the ConnectorWorkerViewList.
-                    // Only Connectors are there at the moment
+                    // Only Workers are there at the moment
                     this._parentView.getLifeLineMargin().setPosition(this._parentView.getLifeLineMargin().getPosition() + this._lifeLineCenterGap);
                     this.setContentMinWidth(workerDeclarationView.getBoundingBox().getRight());
                     this.setHeadingMinWidth(workerDeclarationView.getBoundingBox().getRight());
@@ -637,6 +702,10 @@ define(['lodash', 'log', 'event_channel',  'alerts', './svg-canvas', './../ast/f
             connectorView.getBoundingBox().move(offset, 0);
         };
 
+        FunctionDefinitionView.prototype.moveFunctionDefinitionLevelWorker = function (resourceView, offset) {
+            resourceView.getBoundingBox().move(offset, 0);
+        };
+
         /**
          * Set the horizontal margin
          * @param {Axis} horizontalMargin - horizontal margin
@@ -766,6 +835,20 @@ define(['lodash', 'log', 'event_channel',  'alerts', './svg-canvas', './../ast/f
             } else {
                 return defaultWorkerLastChild;
             }
+        };
+
+        FunctionDefinitionView.prototype.getWorkerViews = function () {
+            var workers = _.filter(this.getWorkerAndConnectorViews(), function (view) {
+                return BallerinaASTFactory.isWorkerDeclaration(view.getModel());
+            });
+            return workers;
+        };
+
+        FunctionDefinitionView.prototype.getConnectorViews = function () {
+            var connectors = _.filter(this.getWorkerAndConnectorViews(), function (view) {
+                return BallerinaASTFactory.isConnectorDeclaration(view.getModel());
+            });
+            return connectors;
         };
 
         return FunctionDefinitionView;
