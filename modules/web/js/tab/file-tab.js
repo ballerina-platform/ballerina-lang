@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', 'workspace/file', 'ballerina/diagram-render/diagram-render-context',
+define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', '../workspace/file', 'ballerina/diagram-render/diagram-render-context',
         'ballerina/views/backend', 'ballerina/ast/ballerina-ast-deserializer', '../debugger/debug-manager', 'alerts'],
     function (require, log, $, _, Tab, Ballerina, File, DiagramRenderContext, Backend, BallerinaASTDeserializer, DebugManager, alerts) {
     var FileTab;

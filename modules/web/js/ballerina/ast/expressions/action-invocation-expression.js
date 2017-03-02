@@ -170,18 +170,18 @@ define(['lodash', 'log', './expression'], function (_, log, Expression) {
      */
     ActionInvocationExpression.prototype.generateExpression = function () {
         var argsString = "";
-        var arguments = this.getArguments();
+        var args = this.getArguments();
 
-        for (var itr = 0; itr < arguments.length; itr++) {
+        for (var itr = 0; itr < args.length; itr++) {
 
             // TODO: we need to refactor this along with the action invocation argument types as well
-            if (this.getFactory().isExpression(arguments[itr])) {
-                argsString += arguments[itr].getExpression();
-            } else if (this.getFactory().isResourceParameter(arguments[itr])) {
-                argsString += arguments[itr].getParameterAsString();
+            if (this.getFactory().isExpression(args[itr])) {
+                argsString += args[itr].getExpression();
+            } else if (this.getFactory().isResourceParameter(args[itr])) {
+                argsString += args[itr].getParameterAsString();
             }
 
-            if (itr !== arguments.length - 1) {
+            if (itr !== args.length - 1) {
                 argsString += ' , ';
             }
         }

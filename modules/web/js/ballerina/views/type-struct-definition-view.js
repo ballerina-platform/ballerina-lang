@@ -15,9 +15,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', 'd3', './ballerina-view', './variables-view', 'ballerina/ast/ballerina-ast-factory', 'typeMapper',
+define(['lodash', 'log', 'd3', './variables-view', 'ballerina/ast/ballerina-ast-factory', 'typeMapper',
         './ballerina-view'],
-    function (_, log, d3, BallerinaView, VariablesView, BallerinaASTFactory, TypeMapper, BallerinaView) {
+    function (_, log, d3, VariablesView, BallerinaASTFactory, TypeMapper, BallerinaView) {
 
         var TypeStructDefinitionView = function (args) {
             BallerinaView.call(this, args);

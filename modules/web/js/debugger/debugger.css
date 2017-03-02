@@ -1,0 +1,241 @@
+.debugger-container {
+    color: #dedede;
+}
+
+.debugger-container .panel-heading a {
+    color: #dadada;
+}
+
+/*TODO remove this when feature is done*/
+.left-tool-bar .debugger-activate-btn, .left-tool-bar .debugger-activate-btn i{
+    /*display: none;*/
+}
+
+.ace_gutter-cell{
+    cursor: pointer;
+}
+
+.ace_gutter-cell.ace_breakpoint{
+    background: rgba(255, 181, 163, 0.2);
+    background-image: url(./images/debug-point.svg);
+    background-size: 10px 10px;
+    background-repeat: no-repeat;
+    background-position: 5 center;
+}
+
+.debug-point {
+    background: rgba(255, 181, 163, 0.2);
+    position: absolute;
+    width: 100% !important;
+    left: 0 !important;
+}
+
+.debug-point-hit {
+    background: rgba(0, 161, 255, 0.4);
+    position: absolute;
+    width: 100% !important;
+    left: 0 !important;
+}
+
+.debug-connect-button {
+    margin-right: 10px;
+    margin-bottom: 10px;
+}
+
+.btn-debug-action{
+    margin:0px !important;
+    background-color: #333;
+    color: white;
+    font-size: 13px;
+}
+
+.btn-debug-activate{
+    padding-top: 8px !important;
+    padding-bottom: 8px !important;
+    margin:0px !important;
+    text-align: left !important;
+    background-color: #333;
+    color: white;
+}
+
+.btn-debug-action{
+    width: 20% !important;
+    padding:11px !important;
+}
+
+.sidebar-left .btn-debug-action:hover ,
+    .sidebar-left  .btn-debug-activate:hover,
+    .sidebar-left  .btn-debug-activate:active,
+    .sidebar-left  .btn-debug-activate:focus{
+
+        background: #232323;
+        transition: all 250ms ease 0s;
+        color: #fff;
+}
+
+.debug-error{
+    color: #ff3333;
+}
+
+.statement-view-breakpoint-indicator{
+    display:none;
+}
+
+.debug .has-error .input-group-addon{
+    color:black !important;
+}
+
+table.debug-frames {
+    margin-bottom: 0px !important;
+    border-top: 0px !important;
+}
+
+.debug-frames td{
+    color:white;
+    border-top: none;
+    border-bottom: 1px #232323 solid !important;
+    border-top: 0 !important;
+}
+
+.debug-frames td a{
+    color:white;
+}
+
+.debug-panel-header{
+    padding: 8px;
+    color: #FFF !important;
+    font-weight: bold;
+}
+
+.debug-panel-header a{
+    padding:5px;
+    color: #FFF;
+    font-weight: bold;
+}
+
+.debug-variables-container{
+    color: white;
+}
+
+#debug-v-tree ul li{
+    color: white;
+}
+
+.highlight-statement{
+    fill: #b2d4ff;
+}
+
+#console-container {
+    color: #FFF !important;
+    background: #131313 !important;
+
+}
+
+.launcher-container .btn-group button{
+    background-color: #333;
+    color: white;
+    width: 100%;
+    padding-left: 30px;
+    font-weight: 300;
+}
+
+#console{
+    height: calc(100% - 25px );
+    padding: 5px 10px !important;
+    overflow: auto;
+    font-family: "Lucida Console", Monaco, monospace;
+}
+
+#console .INFO { color: #03a9f4 !important; }
+#console .ERROR { color: #f44336 !important; }
+
+.console-header{
+    font-weight: bolder !important;
+    background: #232323 !important;
+    padding: 5px 10px !important;
+    height: 25px;
+}
+
+.closeConsole{
+    color: #AAA;
+    font-size: 12px;
+    margin-top: 5px;
+    margin-left:10px;
+}
+.btn-debug-activate {
+    padding-left: 30px;
+}
+
+div > .col-xs-12 {
+    padding:0;
+    margin: 0;
+}
+.btn-group > .btn, .btn-group-vertical > .btn {
+    position: relative;
+    float: left;
+    padding-left: 30px;
+    font-weight: 300;
+}
+
+#frameAccordion{
+    border-bottom: 1px solid #232323;
+}
+
+#frameAccordion .panel-heading {
+    border-top: 1px solid #232323;
+    padding: 0px;
+}
+
+#frameAccordion .panel-heading a.in {
+    background:#232323;
+}
+
+#frameAccordion .panel-heading:hover a{
+    background:#232323;
+    border:0;
+}
+
+#frameAccordion .panel-heading a{
+    padding:5px 12px;
+    color:#fff;
+    background:#333333;
+    display:block;
+    margin:0;
+    padding-bottom:2px;
+    font-size: 17px;
+
+}
+
+#frameAccordion .debug-frame-pkg-name{
+    display: block;
+    color:#00bbea;
+    font-size: 0.75em;
+    margin-top: 3px;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+#frameAccordion .panel-body{
+    border-top:0px;
+}
+
+#frameAccordion .jstree-default .jstree-last{
+    background: #333333 !important;
+}
+
+#frameAccordion .panel{
+    margin:0px;
+}
+
+#frameAccordion .panel-body{
+    margin-bottom: 10px;
+    padding-left:5px;
+}
+
+#frameAccordion .panel-title{
+    border: 0px;
+}
+
+.debug-frame-header {
+    height:36px;
+}

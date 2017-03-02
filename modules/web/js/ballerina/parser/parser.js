@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -15,12 +15,13 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import './welcome-page.css'
+var antlr4 = require('antlr4');
+var BallerinaLexer = require('./BallerinaLexer');
+var BallerinaParser = require('./BallerinaParser');
 
-define(['require','./first-launch-welcome', './regular-welcome'],
-    function (require, FirstLaunchWelcomePage, RegularWelcomePage) {
-        return  {
-            FirstLaunchWelcomePage: FirstLaunchWelcomePage,
-            RegularWelcomePage: RegularWelcomePage
-        }
-    });
+var input = "import com.ballerina.test;";
+var chars = new antlr4.InputStream(input);
+var lexer = new BallerinaLexer.BallerinaLexer(chars);
+var tokens  = new antlr4.CommonTokenStream(lexer);
+var parser = new BallerinaParser.BallerinaParser(tokens);
+parser.compilationUnit();

@@ -15,8 +15,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (require, _, $, jsPlumb, dagre, alerts) {
+import './type-mapper.css';
 
+define(['require', 'lodash', 'jquery', 'jsplumb', 'dagre', 'alerts'], function (require, _, $, jsPlumbLib, dagre, alerts) {
     /**
      * Renderer constructor for TypeMapper
      * @param {object} onConnectionCallback call back function when connection made
@@ -24,6 +25,8 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
      * @param {object} typeConverterView Type Mapper View reference object
      * @constructor
      */
+    var jsPlumb = jsPlumbLib.jsPlumb;
+
     var TypeMapperRenderer = function (onConnectionCallback, onDisconnectCallback, typeConverterView) {
         this.references = [];
         this.viewId = typeConverterView._model.id;

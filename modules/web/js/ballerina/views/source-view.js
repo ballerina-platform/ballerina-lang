@@ -15,9 +15,20 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require', 'log', 'lodash', 'jquery', 'event_channel', 'ace/ace', '../utils/ace-mode', 'beautify', 'ace/ext/language_tools','ace/range',
-    ],
-    function(require , log, _, $, EventChannel, ace, BallerinaMode, Beautify, language_tools, Range) {
+define(['log', 'lodash', 'jquery', 'event_channel'],
+    function(log, _, $, EventChannel) {
+
+    require('ace/ace');
+    require('ace/ext-language_tools');
+    var language_tools = ace.require('ace/ext/language_tools');
+    var Range = ace.require('ace/range');
+
+    // require possible themes
+    require('ace/theme-twilight');
+
+    // require ballerina mode
+    require('../utils/ace-mode');
+    var mode = ace.require('ace/mode/ballerina')
 
     /**
      * @class SourceView
@@ -48,13 +59,16 @@ define(['require', 'log', 'lodash', 'jquery', 'event_channel', 'ace/ace', '../ut
     SourceView.prototype.render = function () {
         var self = this;
         this._editor = ace.edit(this._container);
+        var mode = ace.require(_.get(this._options, 'mode')).Mode;
         this._editor.getSession().setMode(_.get(this._options, 'mode'));
         //Avoiding ace warning
         this._editor.$blockScrolling = Infinity;
-        var editorTheme = (this._storage.get("pref:sourceViewTheme") != null) ? this._storage.get("pref:sourceViewTheme")
+        var editorThemeName = (this._storage.get("pref:sourceViewTheme") != null) ? this._storage.get("pref:sourceViewTheme")
             : _.get(this._options, 'theme');
         var editorFontSize = (this._storage.get("pref:sourceViewFontSize") != null) ? this._storage.get("pref:sourceViewFontSize")
             : _.get(this._options, 'font_size');
+
+        var editorTheme = ace.require(editorThemeName);
 
         this._editor.setTheme(editorTheme);
         this._editor.setFontSize(editorFontSize);
@@ -212,7 +226,7 @@ define(['require', 'log', 'lodash', 'jquery', 'event_channel', 'ace/ace', '../ut
         if(this.debugPointMarker != undefined){
             this._editor.getSession().removeMarker(this.debugPointMarker);
         }
-    }    
+    }
 
     SourceView.prototype.isClean = function(){
        return this._editor.getSession().getUndoManager().isClean();

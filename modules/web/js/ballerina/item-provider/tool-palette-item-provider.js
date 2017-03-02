@@ -68,8 +68,8 @@ define(['log', 'lodash', './../env/package', './../tool-palette/tool-palette', '
             this._toolGroups = _.merge(this._initialToolGroups, this._dynamicToolGroups);
 
             // Adding default packages
-            var sortedPackages = _.sortBy(self._defaultImportedPackages, [function (package) {
-                return package.getName();
+            var sortedPackages = _.sortBy(self._defaultImportedPackages, [function (pckg) {
+                return pckg.getName();
             }]);
             _.forEach(sortedPackages, function (packageToImport) {
                 self.addImport(packageToImport);
@@ -102,11 +102,11 @@ define(['log', 'lodash', './../env/package', './../tool-palette/tool-palette', '
 
         /**
          * function to add imports. Packages will be converted to a ToolGroup and added to relevant arrays
-         * @param package - package to be imported
+         * @param pckg - package to be imported
          */
-        ToolPaletteItemProvider.prototype.addImport = function (package, index) {
-            if (package instanceof Package) {
-                var group = this.getToolGroup(package);
+        ToolPaletteItemProvider.prototype.addImport = function (pckg, index) {
+            if (pckg instanceof Package) {
+                var group = this.getToolGroup(pckg);
                 if (_.isNil(index)) {
                     this._dynamicToolGroups.push(group);
                     this._toolGroups.push(group);
@@ -119,23 +119,23 @@ define(['log', 'lodash', './../env/package', './../tool-palette/tool-palette', '
 
         /**
          * Adds a tool group view to the tool palette for a given package
-         * @param package - package to be added
+         * @param pckg - package to be added
          */
-        ToolPaletteItemProvider.prototype.addImportToolGroup = function (package, opts) {
+        ToolPaletteItemProvider.prototype.addImportToolGroup = function (pckg, opts) {
             var options = _.isUndefined(opts) ? {} : opts;
-            if (package instanceof Package) {
-                var isADefaultPackage = _.includes(this._defaultImportedPackages, package);
+            if (pckg instanceof Package) {
+                var isADefaultPackage = _.includes(this._defaultImportedPackages, pckg);
                 if (!isADefaultPackage) { // Removing existing package
                     // Re-adding the package
-                    var group = this.getToolGroup(package);
+                    var group = this.getToolGroup(pckg);
 
                     // Need to remove any old group models added for this package and add the new one
                     _.remove(this._toolGroups, function(group){
-                        return group.get('toolGroupName') === package.getName()
+                        return group.get('toolGroupName') === pckg.getName()
                     });
 
                     // Similarly need to remove old views
-                    var existingView = this._importedPackagesViews[package.getName()];
+                    var existingView = this._importedPackagesViews[pckg.getName()];
 
                     if(!_.isUndefined(existingView)){
                         var isCollapsed = existingView.$el.find('.tool-group-header').hasClass('tool-group-header-collapse');
@@ -147,7 +147,7 @@ define(['log', 'lodash', './../env/package', './../tool-palette/tool-palette', '
 
                     this._toolGroups.push(group);
                     var groupView = this._toolPalette.addVerticallyFormattedToolGroup({group: group, options: options});
-                    this._importedPackagesViews[package.getName()] = groupView;
+                    this._importedPackagesViews[pckg.getName()] = groupView;
                 }
             }
         };
@@ -192,23 +192,23 @@ define(['log', 'lodash', './../env/package', './../tool-palette/tool-palette', '
 
         /**
          * Create and return a ToolGroup object for a given package
-         * @param package {Package} Package Object.
+         * @param pckg {Package} Package Object.
          */
-        ToolPaletteItemProvider.prototype.getToolGroup = function (package) {
+        ToolPaletteItemProvider.prototype.getToolGroup = function (pckg) {
             var definitions = [];
             var self = this;
 
             // Sort the connector package by name
-            var connectorsOrdered = _.sortBy(package.getConnectors(), [function (connectorPackage) {
+            var connectorsOrdered = _.sortBy(pckg.getConnectors(), [function (connectorPackage) {
                 return connectorPackage.getName();
             }]);
 
-            var functionsOrdered = _.sortBy(package.getFunctionDefinitions(), [function (functionDef) {
+            var functionsOrdered = _.sortBy(pckg.getFunctionDefinitions(), [function (functionDef) {
                 return functionDef.getName()
             }]);
 
             _.each(connectorsOrdered, function (connector) {
-                var packageName = _.last(_.split(package.getName(), '.'));
+                var packageName = _.last(_.split(pckg.getName(), '.'));
                 connector.nodeFactoryMethod = BallerinaASTFactory.createConnectorDeclaration;
                 var getParamString = function() {
                     var params = _.map(connector.getParams(), function(p){return p.identifier});
@@ -217,7 +217,7 @@ define(['log', 'lodash', './../env/package', './../tool-palette/tool-palette', '
                 connector.meta = {
                     connectorName: connector.getName(),
                     connectorPackageName: packageName,
-                    fullPackageName: package.getName(),
+                    fullPackageName: pckg.getName(),
                     params: getParamString()
                 };
                 //TODO : use a generic icon
@@ -226,7 +226,7 @@ define(['log', 'lodash', './../env/package', './../tool-palette/tool-palette', '
                 connector.id = connector.getName();
                 definitions.push(connector);
 
-                var toolGroupID = package.getName() + "-tool-group";
+                var toolGroupID = pckg.getName() + "-tool-group";
                 // registering connector name-modified event
                 connector.on('name-modified', function(newName, oldName){
                     self.updateToolItem(toolGroupID, connector, 'name', newName, 'connectorName');
@@ -254,7 +254,7 @@ define(['log', 'lodash', './../env/package', './../tool-palette/tool-palette', '
                         action: action.getName(),
                         actionConnectorName: connector.getName(),
                         actionPackageName: packageName,
-                        fullPackageName: package.getName()
+                        fullPackageName: pckg.getName()
                     };
                     action.icon = "images/tool-icons/action.svg";
                     action.title = action.getName();
@@ -266,7 +266,7 @@ define(['log', 'lodash', './../env/package', './../tool-palette/tool-palette', '
 
                     action.id = action.getId();
                     definitions.push(action);
-                    var toolGroupID = package.getName() + "-tool-group";
+                    var toolGroupID = pckg.getName() + "-tool-group";
                     // registering connector action name-modified event
                     action.on('name-modified', function(newName, oldName){
                         self.updateToolItem(toolGroupID, action, 'name', newName, 'action');
@@ -274,7 +274,7 @@ define(['log', 'lodash', './../env/package', './../tool-palette/tool-palette', '
                 });
                 connector.on('connector-action-added', function (action) {
                     var actionIcon = "images/tool-icons/action.svg";
-                    var toolGroupID = package.getName() + "-tool-group";
+                    var toolGroupID = pckg.getName() + "-tool-group";
                     action.classNames = "tool-connector-action";
 
                     action.meta = {
@@ -295,7 +295,7 @@ define(['log', 'lodash', './../env/package', './../tool-palette/tool-palette', '
                 });
 
                 connector.on('connector-action-removed', function (action) {
-                    var toolGroupID = package.getName() + "-tool-group";
+                    var toolGroupID = pckg.getName() + "-tool-group";
                     var toolId = connector.getName() + '-' + action.getActionName();
                     self._toolPalette.removeToolFromGroup(toolGroupID, toolId);
                 });
@@ -307,7 +307,7 @@ define(['log', 'lodash', './../env/package', './../tool-palette/tool-palette', '
                     return;
                 }
 
-                var packageName = _.last(_.split(package.getName(), '.'));
+                var packageName = _.last(_.split(pckg.getName(), '.'));
                 if (functionDef.getReturnParams().length > 0){
                     functionDef.nodeFactoryMethod = BallerinaASTFactory.createAggregatedFunctionInvocationExpression;
                 } else {
@@ -319,14 +319,14 @@ define(['log', 'lodash', './../env/package', './../tool-palette/tool-palette', '
                     params: getArgumentString(functionDef.getParameters()),
                     returnParams: getReturnParamString(functionDef.getReturnParams()),
                     operandType: getReturnParamString(functionDef.getReturnParams()),
-                    fullPackageName: package.getName()
+                    fullPackageName: pckg.getName()
                 };
                 functionDef.icon = "images/tool-icons/function.svg";
                 functionDef.title = functionDef.getName();
                 functionDef.id = functionDef.getName();
                 definitions.push(functionDef);
 
-                var toolGroupID = package.getName() + "-tool-group";
+                var toolGroupID = pckg.getName() + "-tool-group";
                 // registering function name-modified event
                 functionDef.on('name-modified', function(newName, oldName){
                     self.updateToolItem(toolGroupID, functionDef, 'name', newName, 'functionName');
@@ -334,16 +334,16 @@ define(['log', 'lodash', './../env/package', './../tool-palette/tool-palette', '
             });
 
             var group = new ToolGroup({
-                toolGroupName: package.getName(),
-                toolGroupID: package.getName() + "-tool-group",
+                toolGroupName: pckg.getName(),
+                toolGroupID: pckg.getName() + "-tool-group",
                 toolOrder: "vertical",
                 toolDefinitions: definitions
             });
 
-            package.on('connector-defs-added', function (connector) {
-                var packageName = _.last(_.split(package.getName(), '.'));
+            pckg.on('connector-defs-added', function (connector) {
+                var packageName = _.last(_.split(pckg.getName(), '.'));
                 var nodeFactoryMethod = BallerinaASTFactory.createConnectorDeclaration;
-                var toolGroupID = package.getName() + "-tool-group";
+                var toolGroupID = pckg.getName() + "-tool-group";
                 var icon = "images/tool-icons/connector.svg";
 
                 var getParamString = function() {
@@ -354,7 +354,7 @@ define(['log', 'lodash', './../env/package', './../tool-palette/tool-palette', '
                 connector.meta = {
                     connectorName: connector.getName(),
                     connectorPackageName: packageName,
-                    fullPackageName: package.getName(),
+                    fullPackageName: pckg.getName(),
                     params: getParamString()
                 };
 
@@ -396,14 +396,14 @@ define(['log', 'lodash', './../env/package', './../tool-palette/tool-palette', '
                 });
 
                 connector.on('connector-action-removed', function (action) {
-                    var toolGroupID = package.getName() + "-tool-group";
+                    var toolGroupID = pckg.getName() + "-tool-group";
                     var toolId = connector.getName() + '-' + action.getActionName();
                     self._toolPalette.removeToolFromGroup(toolGroupID, toolId);
                 });
 
             }, this);
 
-            package.on('function-defs-added', function (functionDef) {
+            pckg.on('function-defs-added', function (functionDef) {
                 if(functionDef.getName() === "main") {
                     //do not add main function to tool palette
                     return;
@@ -419,7 +419,7 @@ define(['log', 'lodash', './../env/package', './../tool-palette/tool-palette', '
                 functionDef.meta = {
                     functionName: functionDef.getName()
                 };
-                var toolGroupID = package.getName() + "-tool-group";
+                var toolGroupID = pckg.getName() + "-tool-group";
                 var icon = "images/tool-icons/function.svg";
                 this.addToToolGroup(toolGroupID, functionDef, nodeFactoryMethod, icon);
 
@@ -429,15 +429,15 @@ define(['log', 'lodash', './../env/package', './../tool-palette/tool-palette', '
             }, this);
 
             var self = this;
-            package.on('function-def-removed', function (functionDef) {
-                var toolGroupID = package.getName() + "-tool-group";
+            pckg.on('function-def-removed', function (functionDef) {
+                var toolGroupID = pckg.getName() + "-tool-group";
                 var toolId = functionDef.getFunctionName();
                 self._toolPalette.removeToolFromGroup(toolGroupID, toolId);
             });
 
             // registering event handler for 'connector-def-removed' event
-            package.on('connector-def-removed', function (connectorDef) {
-                var toolGroupID = package.getName() + "-tool-group";
+            pckg.on('connector-def-removed', function (connectorDef) {
+                var toolGroupID = pckg.getName() + "-tool-group";
                 var toolId = connectorDef.getConnectorName();
                 self._toolPalette.removeToolFromGroup(toolGroupID, toolId);
 
@@ -445,7 +445,7 @@ define(['log', 'lodash', './../env/package', './../tool-palette/tool-palette', '
                 var actions = connectorDef.getConnectorActionDefinitions();
 
                 _.forEach(actions, function(action){
-                    var toolGroupID = package.getName() + "-tool-group";
+                    var toolGroupID = pckg.getName() + "-tool-group";
                     var toolId = connectorDef.getConnectorName() + '-' + action.getActionName();
                     self._toolPalette.removeToolFromGroup(toolGroupID, toolId);
                 });
