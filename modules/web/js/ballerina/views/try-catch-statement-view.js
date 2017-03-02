@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require', 'lodash', 'log', './compound-statement-view', './../ast/trycatch-statement', './../ast/catch-statement', './point'],
+define(['require', 'lodash', 'log', './compound-statement-view', '../ast/statements/trycatch-statement', '../ast/statements/catch-statement', './point'],
     function (require, _, log, CompoundStatementView, TryCatchStatement, CatchStatement, Point) {
 
         /**

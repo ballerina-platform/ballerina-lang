@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require','lodash', 'log', 'event_channel', './abstract-statement-source-gen-visitor', '../../ast/assignment-statement'],
+define(['require','lodash', 'log', 'event_channel', './abstract-statement-source-gen-visitor', '../../ast/statements/assignment-statement'],
     function(require, _, log, EventChannel, AbstractStatementSourceGenVisitor, AssignmentStatement) {
 
         var TypeMapperAssignmentStatementVisitor = function(parent){

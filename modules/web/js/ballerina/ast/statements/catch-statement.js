@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', './conditional-statement', './argument'], function (_, log, ConditionalStatement, Argument) {
+define(['lodash', 'log', './conditional-statement'], function (_, log, ConditionalStatement) {
 
     /**
      * Class for catch statement in ballerina.

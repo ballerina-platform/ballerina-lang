@@ -16,7 +16,7 @@
  * under the License.
  */
 
-define(['lodash', 'jquery', './ballerina-view', 'log', 'typeMapper', './../ast/assignment-statement', 'alerts', 'ballerina/ast/ballerina-ast-factory'],
+define(['lodash', 'jquery', './ballerina-view', 'log', 'typeMapper', '../ast/statements/assignment-statement', 'alerts', 'ballerina/ast/ballerina-ast-factory'],
     function (_, $, BallerinaView, log, TypeMapper, AssignmentStatement, alerts, BallerinaASTFactory) {
 
         //todo add correct doc comments

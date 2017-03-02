@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'd3','log', './simple-statement-view', './../ast/action-invocation-expression', './point', 'd3utils', './../ast/ballerina-ast-factory', './message'],
+define(['lodash', 'd3','log', './simple-statement-view', '../ast/expressions/action-invocation-expression', './point', 'd3utils', './../ast/ballerina-ast-factory', './message'],
     function (_, d3, log, SimpleStatementView, ActionInvocationExpression, Point, D3Utils, BallerinaASTFactory, MessageView) {
 
         /**
@@ -278,32 +278,18 @@ define(['lodash', 'd3','log', './simple-statement-view', './../ast/action-invoca
                 .classed('statement-text', true);
             this._startActionGroup = group;
 
-            // Triggers when we add a new element above the worker invoke
-            this.getBoundingBox().on('bottom-edge-moved', function (dy) {
-                // If the bounding box of the invoker moved, we move the start action, arrow and the top most connector
-                // Here we force fully move the top most statement of the destination
-                self._startRect.attr('y', parseFloat(self._startRect.attr('y')) + dy);
-                self._startActionText.attr('y', parseFloat(self._startActionText.attr('y')) + dy);
-                if (destinationStatementContainer._managedStatements. length > 0) {
-                    self.getDiagramRenderingContext().getViewOfModel(destinationStatementContainer._managedStatements[0]).getBoundingBox().move(0, dy);
-                    destinationStatementContainer._managedInnerDropzones[0].d3el.attr('y',
-                        parseFloat(destinationStatementContainer._managedInnerDropzones[0].d3el.attr('y')) + dy);
-                    self._messageView.move(0, dy);
-                }
-            });
-
             // Triggers when we delete an element above the worker-invoke
             this.getBoundingBox().on('top-edge-moved', function (dy) {
                 // If the bounding box of the invoker moved, we move the start action, arrow and the top most connector
                 // Here we force fully move the top most statement of the destination
                 self._startRect.attr('y', parseFloat(self._startRect.attr('y')) + dy);
                 self._startActionText.attr('y', parseFloat(self._startActionText.attr('y')) + dy);
-                if (destinationStatementContainer._managedStatements. length > 0) {
+                if (destinationStatementContainer._managedStatements.length > 0) {
                     self.getDiagramRenderingContext().getViewOfModel(destinationStatementContainer._managedStatements[0]).getBoundingBox().move(0, dy);
                     destinationStatementContainer._managedInnerDropzones[0].d3el.attr('y',
                         parseFloat(destinationStatementContainer._managedInnerDropzones[0].d3el.attr('y')) + dy);
-                    self._messageView.move(0, dy);
                 }
+                self._messageView.move(0, dy);
             });
 
             // Listen to the destination's before-remove event and remove arrow and start box.
@@ -332,12 +318,14 @@ define(['lodash', 'd3','log', './simple-statement-view', './../ast/action-invoca
          */
         WorkerInvoke.prototype.onBeforeModelRemove = function () {
             d3.select("#_" +this.getModel().getID()).remove();
-            this._startRect.node().remove();
-            this._startActionText.node().remove();
+            if (!_.isNil(this._startRect) && !_.isNil(this._startActionText) && !_.isNil(this._messageView)) {
+                this._startRect.node().remove();
+                this._startActionText.node().remove();
+                this._messageView.removeArrow();
+            }
             // resize the bounding box in order to the other objects to resize
             var gap = this.getParent().getStatementContainer().getInnerDropZoneHeight();
             this.getBoundingBox().move(0, -this.getBoundingBox().h() - gap).w(0);
-            this._messageView.removeArrow();
         };
 
         return WorkerInvoke;
