@@ -6,7 +6,7 @@ A function is a single operation that is intended to be a unit of reusable funct
 
 To use a native Ballerina function, scroll down in the tool palette to the package that contains that function, and then drag the function's icon to the canvas. If the function is in another package and is marked public, you can import that package using the Imports box in the upper left corner of the canvas, and then drag the Function Invocation icon to the canvas and call the function: 
 
-![alt text](../images/icons/function-invocation.png "Function Invocation icon")
+![alt text](../images/icons/function-invoke.png "Function Invocation icon")
 
 All functions are private to the package unless explicitly declared to be public with the `public` keyword. You can invoke functions from a [resource](resources.md) or a function within the same package without importing.
 
