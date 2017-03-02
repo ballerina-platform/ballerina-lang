@@ -17,6 +17,9 @@
  */
 define(['lodash', 'log', './ballerina-view', './../ast/return-type', 'typeMapper', 'constants'],
     function (_, log, BallerinaView, ReturnType, TypeMapperRenderer, Constants) {
+        var TYPE_MAPPER_COMBOBOX_DEFAULT_SELECTION = Constants.TYPE_MAPPER_COMBOBOX_DEFAULT_SELECTION;
+        var TYPE_MAPPER_COMBOBOX_PREVIOUS_SELECTION = Constants.TYPE_MAPPER_COMBOBOX_PREVIOUS_SELECTION;
+        var TYPE_MAPPER_COMBOBOX_TARGET_IS_ALREADY_RENDERED_IN_SOURCE = Constants.TYPE_MAPPER_COMBOBOX_TARGET_IS_ALREADY_RENDERED_IN_SOURCE;
 
         var OutputStructView = function (args) {
             BallerinaView.call(this, args);

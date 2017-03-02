@@ -17,6 +17,9 @@
  */
 define(['lodash', 'log', './ballerina-view', './../ast/resource-parameter', 'typeMapper', 'constants'],
     function (_, log, BallerinaView, ResourceParameter, TypeMapperRenderer, Constants) {
+        var TYPE_MAPPER_COMBOBOX_PREVIOUS_SELECTION = Constants.TYPE_MAPPER_COMBOBOX_PREVIOUS_SELECTION;
+        var TYPE_MAPPER_COMBOBOX_DEFAULT_SELECTION = Constants.TYPE_MAPPER_COMBOBOX_DEFAULT_SELECTION;
+        var TYPE_MAPPER_COMBOBOX_SOURCE_IS_ALREADY_RENDERED_IN_TARGET = Constants.TYPE_MAPPER_COMBOBOX_SOURCE_IS_ALREADY_RENDERED_IN_TARGET;
 
         var InputStructView = function (args) {
             BallerinaView.call(this, args);
