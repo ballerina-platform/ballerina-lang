@@ -735,4 +735,86 @@ public class JoinTestCase {
             executionPlanRuntime.shutdown();
         }
     }
+
+    @Test
+    public void joinTest18() throws InterruptedException {
+        log.info("Join test18");
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+        String streams = "" +
+                "define stream dataIn (id int, data string); " +
+                "define stream countOutA (count long); " +
+                "define stream countOutB (count long); " +
+                "define stream deleteIn (id int); " +
+                "define table dataTable (id int, data string); " +
+                "define table dow_items (custid string, dow string, item string) ; " +
+                "define stream dow_items_stream (custid string, dow string, item string); ";
+
+        String query = "" +
+                "from dataIn\n" +
+                "insert into dataTable;\n" +
+                "" +
+                "from deleteIn \n" +
+                "delete dataTable\n" +
+                "    on dataTable.id == id;\n" +
+                "" +
+                "from deleteIn \n" +
+                "select id " +
+                "insert into countIn;\n" +
+                "" +
+                "@info(name = 'query1') " +
+                "from countIn#window.length(0) as c join dataTable as d\n" +
+                "select count() as count\n" +
+                "insert into countOutA;\n" +
+                "\n" +
+                "" +
+                "@info(name = 'query2') " +
+                "from countIn#window.length(1) as c join dataTable as d\n" +
+                "select count() as count\n" +
+                "insert into countOutB;\n";
+
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+        try {
+            InputHandler dataIn = executionPlanRuntime.getInputHandler("dataIn");
+            InputHandler countIn = executionPlanRuntime.getInputHandler("countIn");
+            InputHandler deleteIn = executionPlanRuntime.getInputHandler("deleteIn");
+            executionPlanRuntime.addCallback("query1", new QueryCallback() {
+                @Override
+                public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
+                    inEventCount.incrementAndGet();
+                    if (inEventCount.get() == 1) {
+                        EventPrinter.print(timeStamp, inEvents, removeEvents);
+                        Assert.assertTrue((Long) inEvents[0].getData(0) == 4L);
+                    } else {
+                        EventPrinter.print(timeStamp, inEvents, removeEvents);
+                        Assert.assertTrue((Long) inEvents[0].getData(0) == 3L);
+                    }
+                }
+            });
+            executionPlanRuntime.addCallback("query2", new QueryCallback() {
+                @Override
+                public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
+                    removeEventCount.incrementAndGet();
+                    if (removeEventCount.get() == 1) {
+                        EventPrinter.print(timeStamp, inEvents, removeEvents);
+                        Assert.assertTrue((Long) inEvents[0].getData(0) == 4L);
+                    } else {
+                        EventPrinter.print(timeStamp, inEvents, removeEvents);
+                        Assert.assertTrue((Long) inEvents[0].getData(0) == 4L);
+                    }
+                }
+            });
+            executionPlanRuntime.start();
+
+            Thread.sleep(100);
+            dataIn.send(new Object[]{1, "item1"});
+            dataIn.send(new Object[]{2, "item2"});
+            dataIn.send(new Object[]{3, "item3"});
+            dataIn.send(new Object[]{4, "item4"});
+            countIn.send(new Object[]{1});
+            deleteIn.send(new Object[]{1});
+        } finally {
+            executionPlanRuntime.shutdown();
+        }
+    }
 }
