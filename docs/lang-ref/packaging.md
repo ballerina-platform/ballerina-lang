@@ -87,8 +87,6 @@ repository-directory/
 
 While Ballerina programs can be executed directly from the program directory, if you want to create a self-contained package containing all the program code and third-party dependencies, you need to build the program into a packaged format. When a program is packaged using the `ballerina build` command, the resulting archive will contain not just the Ballerina files that contain the main function and/or services, but also all the Ballerina packages that are imported by all the code needed to execute the main function and/or services. 
 
-Note: if you are running on UNIX/Linux, use `./ballerina build` instead of `ballerina build` in the following commands.
-
 A Ballerina executable archive containing a `main()` function is named with the extension “.bmz”. Use the following command to build an executable archive:
 
 ```
@@ -101,9 +99,11 @@ A Ballerina service archive containing one or more services is named with the ex
 ballerina build service <pkg1> [<pkg2> <pkg3> ...] [-o filename]
 ```
 
+Note: Package names should be delineated with slashes, such as `org/foo/bar` instead of `org.foo.bar`. If you do not specify a name for the archive file using the `-o` flag, the archive will be named after the last part of the package name.  
+
 ## Running a Ballerina program
 
-The `ballerina` command runs a Ballerina program/service in its packaged or unpackaged format. (If you are using UNIX/Linux, type `./ballerina` instead of `ballerina`.)
+The `ballerina` command runs a Ballerina program/service in its packaged or unpackaged format.
 
 To execute `main()` from a `.bal` file or a package or archive file:
 
@@ -129,7 +129,7 @@ After you have built an archive, you can create a Docker image of it and run it 
 To create a Docker image from a Ballerina package, you run `ballerina docker` and provide the package name as an argument:
 
 ```
-$ ./ballerina docker helloWorld.bmz
+ballerina docker helloWorld.bmz
 ballerina: build docker image [helloworld:latest] in docker host [localhost]? (y/n): y
 
 ballerina: docker image helloworld:latest successfully built.
@@ -142,7 +142,7 @@ Use the following command to start a container.
 You can additionally provide a customized image name:
 
 ```
-./ballerina docker helloWorld.bmz -t myhelloworld:0.1
+ballerina docker helloWorld.bmz -t myhelloworld:0.1
 ballerina: build docker image [myhelloworld:0.1] in docker host [localhost]? (y/n): y
 
 ballerina: docker image myhelloworld:0.1 successfully built.
@@ -155,7 +155,7 @@ Use the following command to start a container.
 If you want to use a remote Docker daemon, you can specify it using the -H flag so the Docker image is created at the remote end:
 
 ```
-./ballerina docker helloWorld.bmz -H http://127.0.0.1:2375
+ballerina docker helloWorld.bmz -H http://127.0.0.1:2375
 ballerina: build docker image [myhelloworld:0.1] in docker host [http://127.0.0.1:2375]? (y/n): y
 
 ballerina: docker image helloworld:latest successfully built.
