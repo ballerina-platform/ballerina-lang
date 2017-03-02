@@ -15,25 +15,25 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', './statements/statement'], function (_, Statement) {
+define(['lodash', './statement'], function (_, Statement) {
 
     /**
-     * Class to represent a function invocation in ballerina.
-     * @class FunctionInvocation
+     * Class to represent a function invocation statement in ballerina.
+     * @class FunctionInvocationStatement
      * @constructor
      */
-    var FunctionInvocation = function (args) {
-        Statement.call(this, 'FunctionInvocation');
+    var FunctionInvocationStatement = function (args) {
+        Statement.call(this, 'FunctionInvocationStatement');
     };
 
-    FunctionInvocation.prototype = Object.create(Statement.prototype);
-    FunctionInvocation.prototype.constructor = FunctionInvocation;
+    FunctionInvocationStatement.prototype = Object.create(Statement.prototype);
+    FunctionInvocationStatement.prototype.constructor = FunctionInvocationStatement;
 
     /**
      * initialize from json
      * @param jsonNode
      */
-    FunctionInvocation.prototype.initFromJson = function (jsonNode) {
+    FunctionInvocationStatement.prototype.initFromJson = function (jsonNode) {
         var self = this;
         _.each(jsonNode.children, function (childNode) {
             var child = self.getFactory().createFromJson(childNode);
@@ -42,5 +42,5 @@ define(['lodash', './statements/statement'], function (_, Statement) {
         });
     };
 
-    return FunctionInvocation;
+    return FunctionInvocationStatement;
 });

@@ -23,8 +23,7 @@ define(['lodash', 'log', './statement'], function (_, log, Statement) {
      * @constructor
      */
     var ActionInvocationStatement = function (args) {
-        Statement.call(this);
-        this.type = "ActionInvocationStatement";
+        Statement.call(this, 'ActionInvocationStatement');
     };
 
     ActionInvocationStatement.prototype = Object.create(Statement.prototype);

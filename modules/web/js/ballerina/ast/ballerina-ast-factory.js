@@ -25,28 +25,28 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
         './statements/try-statement', './statements/catch-statement', './statements/reply-statement', './statements/while-statement', './statements/return-statement',
         './type-mapper-definition', './type-definition', './type-element', './variable-declaration',
         './package-definition', './import-declaration', './resource-parameter', './assignment', './statements/assignment-statement',
-        './function-invocation', './expressions/function-invocation-expression', './expressions/variable-reference-expression',
+        './statements/function-invocation-statement', './expressions/function-invocation-expression', './expressions/variable-reference-expression',
         './statements/action-invocation-statement', './expressions/action-invocation-expression',
         './return-type', './type-name', './argument', './expressions/back-tick-expression', './expressions/basic-literal-expression',
         './statements/left-operand-expression', './statements/right-operand-expression', './expressions/instance-creation-expression', './then-body',
         './if-condition', './expressions/array-map-access-expression', './expressions/key-value-expression',
         './expressions/binary-expression', './expressions/unary-expression','./connector-action', './struct-definition', './constant-definition',
-        './statements/variable-definition-statement', './worker-invoke', './expressions/reference-type-init-expression',
-        './expressions/array-init-expression', './worker-receive','./struct-type','./expressions/struct-field-access-expression',
+        './statements/variable-definition-statement', './statements/worker-invocation-statement', './expressions/reference-type-init-expression',
+        './expressions/array-init-expression', './statements/worker-reply-statement','./struct-type','./expressions/struct-field-access-expression',
         './statements/block-statement','./expressions/type-cast-expression','./variable-definition', './statements/break-statement', './statements/throw-statement', './statements/comment-statement'],
     function (_, ballerinaAstRoot, serviceDefinition, functionDefinition, connectorDefinition, resourceDefinition,
               workerDeclaration, statement, conditionalStatement, connectorDeclaration, expression, ifElseStatement,
               ifStatement, elseStatement, elseIfStatement, tryCatchStatement, tryStatement, catchStatement, replyStatement,
               whileStatement, returnStatement, typeMapperDefinition, typeDefinition, typeElement, variableDeclaration,
-              packageDefinition, importDeclaration, resourceParameter, assignment, assignmentStatement, functionInvocation,
-              functionInvocationExpression, variableReferenceExpression, actionInvocationStatement,
-              actionInvocationExpression, returnType, typeName, argument, backTickExpression,
+              packageDefinition, importDeclaration, resourceParameter, assignment, assignmentStatement,
+              functionInvocationStatement, functionInvocationExpression, variableReferenceExpression,
+              actionInvocationStatement, actionInvocationExpression, returnType, typeName, argument, backTickExpression,
               basicLiteralExpression, leftOperandExpression, rightOperandExpression, instanceCreationExpression,
               thenBody, ifCondition, arrayMapAccessExpression, keyValueExpression, binaryExpression,
               unaryExpression, connectorAction, structDefinition, constantDefinition, variableDefinitionStatement,
-              workerInvoke, referenceTypeInitExpression, arrayInitExpression, workerReceive,structType,
-              structFieldAccessExpression,blockStatement,typeCastExpression,variableDefinition, breakStatement,
-              throwStatement, commentStatement) {
+              workerInvocationStatement, referenceTypeInitExpression, arrayInitExpression, workerReplyStatement,
+              structType, structFieldAccessExpression,blockStatement,typeCastExpression,variableDefinition,
+              breakStatement, throwStatement, commentStatement) {
 
 
 
@@ -339,7 +339,7 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
          * @param args
          */
         BallerinaASTFactory.createFunctionInvocationStatement = function (args) {
-            return new functionInvocation(args);
+            return new functionInvocationStatement(args);
         };
 
         /**
@@ -348,7 +348,7 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
          * @returns {FunctionInvocation}
          */
         BallerinaASTFactory.createAggregatedFunctionInvocationStatement = function (args) {
-            var funcInvocationStatement = new functionInvocation(args);
+            var funcInvocationStatement = BallerinaASTFactory.createFunctionInvocationStatement(args);
             var funcInvocationExpression = BallerinaASTFactory.createFunctionInvocationExpression(args);
             funcInvocationStatement.addChild(funcInvocationExpression);
             return funcInvocationStatement;
@@ -405,19 +405,19 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
         };
 
         /**
-         * creates WorkerInvokeStatement
+         * creates WorkerInvocationStatement
          * @param args
          */
-        BallerinaASTFactory.createWorkerInvokeStatement = function (args) {
-            return new workerInvoke(args);
+        BallerinaASTFactory.createWorkerInvocationStatement = function (args) {
+            return new workerInvocationStatement(args);
         };
 
         /**
-         * creates WorkerReceiveStatement
+         * creates WorkerReplyStatement
          * @param args
          */
-        BallerinaASTFactory.createWorkerReceiveStatement = function (args) {
-            return new workerReceive(args);
+        BallerinaASTFactory.createWorkerReplyStatement = function (args) {
+            return new workerReplyStatement(args);
         };
 
         /**
@@ -673,21 +673,21 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
         };
 
         /**
-         * instanceof check for WorkerInvoke
+         * instanceof check for WorkerInvocationStatement
          * @param child - Object for instanceof check
          * @returns {boolean} - true if same type, else false
          */
-        BallerinaASTFactory.isWorkerInvokeStatement = function (child) {
-            return child instanceof workerInvoke;
+        BallerinaASTFactory.isWorkerInvocationStatement = function (child) {
+            return child instanceof workerInvocationStatement;
         };
 
         /**
-         * instanceof check for WorkerReceive
+         * instanceof check for WorkerReplyStatement
          * @param child - Object for instanceof check
          * @returns {boolean} - true if same type, else false
          */
-        BallerinaASTFactory.isWorkerReceiveStatement = function (child) {
-            return child instanceof workerReceive;
+        BallerinaASTFactory.isWorkerReplyStatement = function (child) {
+            return child instanceof workerReplyStatement;
         };
 
         /**
@@ -1113,7 +1113,7 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
          * @returns {boolean} - true if same type, else false
          */
         BallerinaASTFactory.isFunctionInvocationStatement = function (child) {
-            return child instanceof functionInvocation;
+            return child instanceof functionInvocationStatement;
         };
 
         /**
@@ -1351,10 +1351,10 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
                         node = BallerinaASTFactory.createWorkerDeclaration();
                         break;
                     case 'worker_invocation_statement':
-                        node = BallerinaASTFactory.createWorkerInvokeStatement();
+                        node = BallerinaASTFactory.createWorkerInvocationStatement();
                         break;
                     case 'worker_reply_statement':
-                        node = BallerinaASTFactory.createWorkerReceiveStatement();
+                        node = BallerinaASTFactory.createWorkerReplyStatement();
                         break;
                     case 'try_catch_statement':
                         node = BallerinaASTFactory.createTryCatchStatement();
