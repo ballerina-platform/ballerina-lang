@@ -4,18 +4,15 @@ A statement can be one of the following:
 
 - assignment
 - if
-- iterate
 - while
 - break
 - fork/join
+- try/catch and throw: see [Exception Handling](exceptions.md)
 - return
 - reply
-- worker initiation
-- worker join
-- action invocation
+- worker initiation/invocation/join: see [Workers](workers.md)
+- action invocation: see [Actions](actions.md)
 - comment
-
-There are also exception-handling statements: try/catch and throw. For more information on these statements, see [Exception Handling](exceptions.md).
 
 The rest of this page describes the statements you can use in your Ballerina program. 
 
@@ -49,16 +46,6 @@ if (BooleanExpression) {
 }]
 ```
 
-## Iterate
-
-An `iterate` statement provides a way to iterate through an iterator. It is defined as follows:
-
-```
-iterate (VariableType VariableName : Iterator) {
-  Statement;+
-}
-```
-
 ## While
 
 A `while` statement provides a way to execute a series of statements as long as a Boolean expression is met. In the Composer, you can drag the While icon ![alt-text](../images/icons/while.png "While icon") from the tool palette to the canvas to add the statement to your program. 
@@ -73,7 +60,7 @@ while (BooleanExpression) {
 
 ## Break
 
-A `break` statement allows you to terminate the immediately enclosing loop. This is only allowed within the `iterate` or `while` constructs. In the Composer, you can drag the Break icon ![alt-text](../images/icons/break.png "Break icon") from the tool palette to the canvas. 
+A `break` statement allows you to terminate the immediately enclosing loop. This is only allowed within the `while` construct. In the Composer, you can drag the Break icon ![alt-text](../images/icons/break.png "Break icon") from the tool palette to the canvas. 
 
 A `break` statement is defined as follows:
 
@@ -105,6 +92,8 @@ The `JoinCondition` is one of the following:
 - `all [(WorkerNameList)]`: wait for all given workers or all of the workers
 
 where `WorkerNameList` is a list of comma-separated names of workers.
+
+> **Note:** The join condition "any k" where k != 1 is not yet implemented.
 
 When the `JoinCondition` has been satisfied, the corresponding slots of the message array will be filled with the returned messages from the workers in the workers' lexical order. If the condition asks for up to some number of results to be available to satisfy the condition, it may be the case that more than that number are available by the time the statements within the join condition are executed. If a particular worker has completed but not sent a response message, or not yet completed, the corresponding message slot will be null.
 
