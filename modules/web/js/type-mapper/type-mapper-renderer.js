@@ -83,7 +83,10 @@ define(['require', 'lodash', 'jquery', 'jsPlumb', 'dagre', 'alerts'], function (
         $('#' + self.contextMenu).hide();
         this.jsPlumbInstance.bind('contextmenu', function (connection, e) {
             var contextMenuDiv = $('#' + self.contextMenu);
-            contextMenuDiv.html('<a id="typeMapperConRemove"> <i class="fw fw-delete"></i> Remove </a>');
+            var anchorTag = $('<a>').attr('id', 'typeMapperConRemove');
+            anchorTag.html($('<i>').addClass('fw fw-delete'));
+            anchorTag.html( anchorTag.html() + " Remove");
+            contextMenuDiv.html(anchorTag);
 
             document.addEventListener('click', function() {
                 $('#' + self.contextMenu).hide();
