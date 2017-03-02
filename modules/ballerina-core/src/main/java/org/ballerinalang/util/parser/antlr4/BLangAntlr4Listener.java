@@ -58,6 +58,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
     // Variable to keep whether worker creation has been started. This is used at BLangAntlr4Listener class
     // to create parameter when there is a named parameter
     protected boolean isWorkerStarted = false;
+    private boolean isTypeMapperStarted = false;
 
     public BLangAntlr4Listener(BLangModelBuilder modelBuilder) {
         this.modelBuilder = modelBuilder;
@@ -435,6 +436,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
         if (ctx.exception != null) {
             return;
         }
+        isTypeMapperStarted = true;
         modelBuilder.startTypeMapperDef();
     }
 
@@ -452,14 +454,16 @@ public class BLangAntlr4Listener implements BallerinaListener {
             String fileName = identifier.getSymbol().getInputStream().getSourceName();
             int lineNo = identifier.getSymbol().getLine();
             NodeLocation typeconvertorLocation = new NodeLocation(fileName, lineNo);
-            modelBuilder.addTypeMapper(ctx.typeMapperInput().typeMapperType().getText(),
-                ctx.typeMapperType().getText(), identifier.getText(), typeconvertorLocation, isPublic, true);
+            modelBuilder.addTypeMapper(ctx.namedParameter().typeName().getText(),
+                ctx.typeName().getText(), identifier.getText(), typeconvertorLocation, isPublic, true);
         }
+        isTypeMapperStarted = false;
     }
 
     @Override
     public void enterTypeMapper(BallerinaParser.TypeMapperContext ctx) {
         if (ctx.exception == null) {
+            isTypeMapperStarted = true;
             modelBuilder.startTypeMapperDef();
         }
     }
@@ -476,37 +480,11 @@ public class BLangAntlr4Listener implements BallerinaListener {
                 String fileName = identifier.getSymbol().getInputStream().getSourceName();
                 int lineNo = identifier.getSymbol().getLine();
                 NodeLocation typeconvertorLocation = new NodeLocation(fileName, lineNo);
-                modelBuilder.addTypeMapper(ctx.typeMapperInput().typeMapperType().getText(),
-                    ctx.typeMapperType().getText(), identifier.getText(), typeconvertorLocation, isPublic, false);
+                modelBuilder.addTypeMapper(ctx.namedParameter().typeName().getText(),
+                    ctx.typeName().getText(), identifier.getText(), typeconvertorLocation, isPublic, false);
             }
+            isTypeMapperStarted = false;
         }
-    }
-
-    /**
-     * Enter a parse tree produced by {@link BallerinaParser#typeMapperInput}.
-     *
-     * @param ctx the parse tree
-     */
-    @Override
-    public void enterTypeMapperInput(BallerinaParser.TypeMapperInputContext ctx) {
-        if (ctx.exception == null) {
-            modelBuilder.startTypeMapperInput();
-        }
-    }
-
-    /**
-     * Exit a parse tree produced by {@link BallerinaParser#typeMapperInput}.
-     *
-     * @param ctx the parse tree
-     */
-    @Override
-    public void exitTypeMapperInput(BallerinaParser.TypeMapperInputContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-
-        modelBuilder.addParam(ctx.Identifier().getText(), getCurrentLocation(ctx));
-        modelBuilder.endTypeMapperInput();
     }
 
     @Override
@@ -607,7 +585,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
             return;
         }
         // If worker is started, then this is an input parameter definition
-        if (isWorkerStarted) {
+        if (isWorkerStarted || isTypeMapperStarted) {
             modelBuilder.addParam(ctx.Identifier().getText(), getCurrentLocation(ctx));
         } else {
             modelBuilder.createNamedReturnParam(getCurrentLocation(ctx), ctx.Identifier().getText());
@@ -639,26 +617,6 @@ public class BLangAntlr4Listener implements BallerinaListener {
         }
 
         currentPkgName = ctx.packageName().getText();
-    }
-
-    @Override
-    public void enterTypeMapperType(BallerinaParser.TypeMapperTypeContext ctx) {
-    }
-
-    @Override
-    public void exitTypeMapperType(BallerinaParser.TypeMapperTypeContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-
-        if (isSimpleType) {
-            modelBuilder.addSimpleTypeName(getCurrentLocation(ctx), typeName, currentPkgName, isArrayType);
-            typeName = null;
-            currentPkgName = null;
-            isArrayType = false;
-            isSimpleType = false;
-        }
-
     }
 
     @Override
