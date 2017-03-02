@@ -1,3 +1,4 @@
+
 // provide global jquery object because wso2 theme expects it
 window.$ = window.jQuery = require("jquery");
 
@@ -71,6 +72,9 @@ var config = {
         },
         cssClass: {
             menu_bar: "dropdown-menu file-dropdown-menu"
+        },
+        help_urls: {
+            user_guide_url: "http://ballerinalang.org/docs/user-guide/0.8/"
         }
     },
     breadcrumbs:{

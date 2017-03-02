@@ -28,8 +28,15 @@ var config = {
             use: [ {
                 loader: 'html-loader'
             }]
+        },
+        {
+            test: /\.css$/,
+            use: [ 'style-loader', 'css-loader' ]
+        },
+        {
+            test: /\.(png|jpg|svg|cur|gif)$/,
+            use: [ 'url-loader' ]
         }
-
       ]
     },
     plugins: [],
@@ -47,7 +54,7 @@ var config = {
             ////////////////////////
             svg_pan_zoom: "svg-panNZoom/jquery.svg.pan.zoom",
             theme_wso2: "theme-wso2-2.0.0/js/theme-wso2",
-            mcustom_scroller: "mCustomScrollbar_v3.1.5/js/jquery.mCustomScrollbar",
+            mcustom_scroller: "malihu-custom-scrollbar-plugin",
             respond: "respond_1.4.2/respond.min",
             select2: "select2-4.0.3/dist/js/select2.full.min",
             underscore: "lodash",
