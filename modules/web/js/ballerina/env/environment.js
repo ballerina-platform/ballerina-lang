@@ -87,20 +87,20 @@ define(['lodash', 'event_channel', './ballerina-env-factory', 'environment_conte
         var packagesJson = EnvironmentContent.getPackages();
 
         _.each(packagesJson, function (packageNode) {
-            var package = BallerinaEnvFactory.createPackage();
-            package.initFromJson(packageNode);
-            self._packages.push(package);
+            var pckg = BallerinaEnvFactory.createPackage();
+            pckg.initFromJson(packageNode);
+            self._packages.push(pckg);
         });
     };
 
     BallerinaEnvironment.prototype.searchPackage = function(query, exclude){
         var search_text = query;
         var exclude_packages = exclude;
-        var result = _.filter(this._packages, function (package) {
+        var result = _.filter(this._packages, function (pckg) {
             var existing = _.filter(exclude_packages, function (ex) {
-                return package.getName() == ex;
+                return pckg.getName() == ex;
             });
-            return (existing.length == 0) && new RegExp(query.toUpperCase()).test(package.getName().toUpperCase());
+            return (existing.length == 0) && new RegExp(query.toUpperCase()).test(pckg.getName().toUpperCase());
         });
         return result;
     };

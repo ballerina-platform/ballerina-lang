@@ -31,4 +31,3 @@ define(['./tool', './tool-view', './tool-group',
             DragDropManager: DragDropManager
         }
     });
-

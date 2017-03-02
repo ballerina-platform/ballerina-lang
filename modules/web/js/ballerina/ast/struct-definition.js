@@ -17,6 +17,11 @@
  */
 define(['lodash', 'log', './node', 'constants', '../utils/common-utils'],
     function (_, log, ASTNode, constants, CommonUtils) {
+        var STRUCT_DEFINITION_ATTRIBUTES_ARRAY_NAME = constants.STRUCT_DEFINITION_ATTRIBUTES_ARRAY_NAME;
+        var STRUCT_DEFINITION_ATTRIBUTES_ARRAY_PROPERTY_NAME = constants.STRUCT_DEFINITION_ATTRIBUTES_ARRAY_PROPERTY_NAME;
+        var STRUCT_DEFINITION_ATTRIBUTES_ARRAY_PROPERTY_TYPE = constants.STRUCT_DEFINITION_ATTRIBUTES_ARRAY_PROPERTY_TYPE;
+        var STRUCT_DEFINITION_ATTRIBUTES_ARRAY_PROPERTIES = constants.STRUCT_DEFINITION_ATTRIBUTES_ARRAY_PROPERTIES;
+
         var StructDefinition = function (args) {
             ASTNode.call(this, 'StructDefinition');
             this._structName = _.get(args, 'structName');

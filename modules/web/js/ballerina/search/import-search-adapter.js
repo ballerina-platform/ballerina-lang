@@ -18,7 +18,7 @@
 define(['./../env/environment'],
     function (BallerinaEnvironment ) {
 
-    ImportSearchAdapter = function(){
+    var ImportSearchAdapter = function(){
         this._excludes = [];
     };
 

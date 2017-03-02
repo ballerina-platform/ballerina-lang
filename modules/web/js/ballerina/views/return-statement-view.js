@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', './../ast/return-statement', './simple-statement-view', 'd3utils', 'd3'],
+define(['lodash', 'log', '../ast/statements/return-statement', './simple-statement-view', 'd3utils', 'd3'],
     function (_, log, ReturnStatement, SimpleStatementView, D3Utils, d3) {
 
         /**

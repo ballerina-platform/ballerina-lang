@@ -140,9 +140,9 @@ define(['lodash', './node', 'log', '../utils/common-utils'], function(_, ASTNode
      * Set the Connector Arguments
      * @param {object[]} arguments - Connector Arguments
      */
-    ConnectorDefinition.prototype.setArguments = function (arguments, options) {
-        if (!_.isNil(arguments)) {
-            this.setAttribute('arguments', arguments, options);
+    ConnectorDefinition.prototype.setArguments = function (args, options) {
+        if (!_.isNil(args)) {
+            this.setAttribute('arguments', args, options);
         } else {
             log.warn('Trying to set a null or undefined array to arguments');
         }

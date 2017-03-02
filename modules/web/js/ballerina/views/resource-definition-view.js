@@ -148,32 +148,86 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             var self = this;
             if (BallerinaASTFactory.isStatement(child)) {
                 this.getStatementContainer().childStatementRemovedCallback(child);
-            } else if (BallerinaASTFactory.isConnectorDeclaration(child) || BallerinaASTFactory.isWorkerDeclaration(child)) {
-                var childViewIndex = _.findIndex(this._connectorWorkerViewList, function (view) {
+            } else if (BallerinaASTFactory.isConnectorDeclaration(child)) {
+                var connectorViews = this.getConnectorViews();
+                var currentConnector = undefined;
+                var nextConnector = undefined;
+                var previousConnector = undefined;
+                var connectorViewIndex = _.findIndex(connectorViews, function (view) {
                     return view.getModel().id === child.id;
                 });
 
-                if (childViewIndex === 0) {
-                    // Deleted the first connector/worker in the list (Addresses both first element scenario and the only element scenario
-                    if (!_.isNil(this._connectorWorkerViewList[childViewIndex + 1])) {
-                        // Unregister the listening event of the second element on the first element
-                        this._connectorWorkerViewList[childViewIndex + 1].stopListening(this._connectorWorkerViewList[childViewIndex].getBoundingBox());
+                currentConnector = connectorViews[connectorViewIndex];
+
+                if (connectorViewIndex === 0) {
+                    // Deleted the first connector/ only connector
+                    currentConnector.stopListening(this.getWorkerLifeLineMargin());
+                    if (!_.isNil(connectorViews[connectorViewIndex + 1])) {
+                        nextConnector = connectorViews[connectorViewIndex + 1];
+                        nextConnector.stopListening(currentConnector.getBoundingBox());
+                        nextConnector.listenTo(this.getWorkerLifeLineMargin(), 'moved', function (offset) {
+                            nextConnector.getBoundingBox().move(offset, 0);
+                        });
                     }
-                } else if (childViewIndex === this._connectorWorkerViewList.length - 1) {
-                    // Deleted the last connector/worker when there are more than one worker/ connector
-                    this._connectorWorkerViewList[childViewIndex].stopListening(this._connectorWorkerViewList[childViewIndex - 1].getBoundingBox());
+                } else if (connectorViewIndex === connectorViews.length - 1) {
+                    // Deleted the last connector
+                    currentConnector.stopListening(connectorViews[connectorViewIndex].getBoundingBox());
                 } else {
-                    // Deleted connector is in between two other connectors/ workers
-                    // Connector being deleted, stop listening to it's previous connector
-                    this._connectorWorkerViewList[childViewIndex].stopListening(this._connectorWorkerViewList[childViewIndex - 1].getBoundingBox());
-                    this._connectorWorkerViewList[childViewIndex + 1].stopListening(this._connectorWorkerViewList[childViewIndex].getBoundingBox());
-                    this._connectorWorkerViewList[childViewIndex + 1].listenTo(this._connectorWorkerViewList[childViewIndex - 1].getBoundingBox(), 'right-edge-moved', function (offset) {
-                        self.moveResourceLevelConnector(this, offset);
+                    // Deleted an intermediate Connector
+                    previousConnector = connectorViews[connectorViewIndex - 1];
+                    nextConnector = connectorViews[connectorViewIndex + 1];
+                    currentConnector.stopListening(previousConnector.getBoundingBox());
+                    nextConnector.stopListening(currentConnector.getBoundingBox());
+                    nextConnector.listenTo(previousConnector.getBoundingBox(), 'right-edge-moved', function (offset) {
+                        self.moveResourceLevelConnector(nextConnector, offset);
                     });
                 }
-                this._connectorWorkerViewList[childViewIndex] = null;
-                this._connectorWorkerViewList.splice(childViewIndex, 1);
+                var connectorViewOriginalIndex = _.findIndex(this.getConnectorWorkerViewList(), function (view) {
+                    return view.getModel().id === child.id;
+                });
+                this.getConnectorWorkerViewList()[connectorViewOriginalIndex] = null;
+                this.getConnectorWorkerViewList().splice(connectorViewOriginalIndex, 1);
+            } else if (BallerinaASTFactory.isWorkerDeclaration(child)) {
+                var workerViews = this.getWorkerViews();
+                var currentWorker = undefined;
+                var nextWorker = undefined;
+                var previousWorker = undefined;
+                var workerViewIndex = _.findIndex(workerViews, function (view) {
+                    return view.getModel().id === child.id;
+                });
+
+                currentWorker = workerViews[workerViewIndex];
+
+                if (workerViewIndex === 0 && !_.isNil(workerViews[workerViewIndex + 1])) {
+                    // Deleted the first worker/ only worker
+                    nextWorker = workerViews[workerViewIndex + 1];
+                    // nextWorker.stopListening(currentWorker.getBoundingBox());
+                } else if (workerViewIndex === workerViews.length - 1) {
+                    // Deleted the last worker
+                    this.getWorkerLifeLineMargin().stopListening(currentWorker.getBoundingBox());
+                    previousWorker = workerViews[workerViewIndex - 1];
+                    if (!_.isNil(previousWorker)) {
+                        this.getWorkerLifeLineMargin().listenTo(previousWorker.getBoundingBox(), 'right-edge-moved', function (offset) {
+                            self.getWorkerLifeLineMargin().setPosition(self.getWorkerLifeLineMargin().getPosition() + offset);
+                        });
+                    }
+                } else {
+                    // Deleted an intermediate Connector
+                    previousWorker = workerViews[workerViewIndex - 1];
+                    nextWorker = workerViews[workerViewIndex + 1];
+                    currentWorker.stopListening(previousWorker.getBoundingBox());
+                    nextWorker.stopListening(currentWorker.getBoundingBox());
+                    nextWorker.listenTo(previousWorker.getBoundingBox(), 'right-edge-moved', function (offset) {
+                        self.moveResourceLevelWorker(nextWorker, offset);
+                    });
+                }
+                var workerViewOriginalIndex = _.findIndex(this.getConnectorWorkerViewList(), function (view) {
+                    return view.getModel().id === child.id;
+                });
+                this.getConnectorWorkerViewList()[workerViewOriginalIndex] = null;
+                this.getConnectorWorkerViewList().splice(workerViewOriginalIndex, 1);
             }
+
             // Remove the connector/ worker from the diagram rendering context
             delete this.diagramRenderingContext.getViewModelMap()[child.id];
         };
@@ -290,6 +344,7 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             if (!workerDeclaration.isDefaultWorker()) {
                 var container = this._contentGroup.node();
                 var lastWorkerIndex = this.getLastWorkerLifeLineIndex();
+                var lastWorker = this.getConnectorWorkerViewList()[lastWorkerIndex];
                 var newWorkerPosition = lastWorkerIndex === -1 ? 0 : lastWorkerIndex + 1;
                 var centerPoint = undefined;
                 if (newWorkerPosition === 0) {
@@ -345,10 +400,22 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
 
                 // Set the workerLifeLineMargin to the right edge of the newly added worker
                 this.getWorkerLifeLineMargin().setPosition(workerDeclarationView.getBoundingBox().getRight());
+
+                if (newWorkerPosition > 0) {
+                    // There are already added workers
+                    this.getWorkerLifeLineMargin().stopListening(this.getConnectorWorkerViewList()[lastWorkerIndex].getBoundingBox());
+                    workerDeclarationView.listenTo(lastWorker.getBoundingBox(), 'right-edge-moved', function (offset) {
+                       self.moveResourceLevelWorker(workerDeclarationView, offset);
+                    });
+                }
+                this.getWorkerLifeLineMargin().listenTo(workerDeclarationView.getBoundingBox(), 'right-edge-moved', function (offset) {
+                    self.getWorkerLifeLineMargin().setPosition(self.getWorkerLifeLineMargin().getPosition() + offset);
+                });
+
                 if (lastWorkerIndex === this.getConnectorWorkerViewList().length -1 &&
                     workerDeclarationView.getBoundingBox().getRight() > this.getBoundingBox().getRight()) {
                     // Worker is added as the last element for the ConnectorWorkerViewList.
-                    // Only Connectors are there at the moment
+                    // Only Workers are there at the moment
                     this._parentView.getLifeLineMargin().setPosition(this._parentView.getLifeLineMargin().getPosition() + this._viewOptions.LifeLineCenterGap);
                     this.setContentMinWidth(workerDeclarationView.getBoundingBox().getRight());
                     this.setHeadingMinWidth(workerDeclarationView.getBoundingBox().getRight());
@@ -1169,6 +1236,16 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             connectorView.getBoundingBox().move(offset, 0);
         };
 
+
+        /**
+         * Move the Resource level worker
+         * @param {BallerinaView} workerView - connector being moved
+         * @param {number} offset - move offset
+         */
+        ResourceDefinitionView.prototype.moveResourceLevelWorker = function (workerView, offset) {
+            workerView.getBoundingBox().move(offset, 0);
+        };
+
         /**
          * Get the worker lifeline margin
          * @return {Axis}
@@ -1255,6 +1332,22 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             }
             return deltaMove;
         };
+
+        ResourceDefinitionView.prototype.getWorkerViews = function () {
+            var self = this;
+            var workers = _.filter(this.getConnectorWorkerViewList(), function (view) {
+                return BallerinaASTFactory.isWorkerDeclaration(view.getModel());
+            });
+            return workers;
+        }
+
+        ResourceDefinitionView.prototype.getConnectorViews = function () {
+            var self = this;
+            var connectors = _.filter(this.getConnectorWorkerViewList(), function (view) {
+                return BallerinaASTFactory.isConnectorDeclaration(view.getModel());
+            });
+            return connectors;
+        }
 
         return ResourceDefinitionView;
 

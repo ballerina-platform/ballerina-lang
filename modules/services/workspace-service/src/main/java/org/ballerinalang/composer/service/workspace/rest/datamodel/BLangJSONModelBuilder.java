@@ -1122,7 +1122,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
     public void visit(TypeCastExpression typeCastExpression) {
         JsonObject typeCastEprObj = new JsonObject();
         this.addPosition(typeCastEprObj, typeCastExpression.getNodeLocation());
-        typeCastEprObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE, BLangJSONModelConstants.TYPE_CASTING_EXPRESSION);
+        typeCastEprObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE, BLangJSONModelConstants.TYPE_CAST_EXPRESSION);
         typeCastEprObj.addProperty(BLangJSONModelConstants.TARGET_TYPE, typeCastExpression.getTypeName().toString());
 
         tempJsonArrayRef.push(new JsonArray());
@@ -1169,13 +1169,13 @@ public class BLangJSONModelBuilder implements NodeVisitor {
 
     @Override
     public void visit(BacktickExpr backtickExpr) {
-        JsonObject backquoteExprObj = new JsonObject();
-        this.addPosition(backquoteExprObj, backtickExpr.getNodeLocation());
-        backquoteExprObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE,
-                BLangJSONModelConstants.BACK_QUOTE_EXPRESSION);
-        backquoteExprObj.addProperty(BLangJSONModelConstants.BACK_QUOTE_ENCLOSED_STRING,
+        JsonObject backtickExprObj = new JsonObject();
+        this.addPosition(backtickExprObj, backtickExpr.getNodeLocation());
+        backtickExprObj.addProperty(BLangJSONModelConstants.EXPRESSION_TYPE,
+                BLangJSONModelConstants.BACK_TICK_EXPRESSION);
+        backtickExprObj.addProperty(BLangJSONModelConstants.BACK_TICK_ENCLOSED_STRING,
                 backtickExpr.getTemplateStr());
-        tempJsonArrayRef.peek().add(backquoteExprObj);
+        tempJsonArrayRef.peek().add(backtickExprObj);
     }
 
     @Override

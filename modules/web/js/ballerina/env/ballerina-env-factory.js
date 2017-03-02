@@ -32,8 +32,8 @@ define(['./package', './connector', './connector-action', './function','./type-m
          * @param args
          */
         BallerinaEnvFactory.createPackage = function (args) {
-            var package = new Package(args);
-            return package;
+            var pckg = new Package(args);
+            return pckg;
         };
 
         /**

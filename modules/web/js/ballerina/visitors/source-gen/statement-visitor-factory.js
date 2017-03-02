@@ -19,20 +19,16 @@ define(['lodash', 'log', 'event_channel', '../../ast/module', './try-catch-state
         './try-statement-visitor', './catch-statement-visitor', './if-else-statement-visitor', './if-statement-visitor',
         './else-statement-visitor', './else-if-statement-visitor', './while-statement-visitor',
         './assignment-statement-visitor', './action-invocation-statement-visitor', './reply-statement-visitor',
-        './logical-expression-visitor', './arithmetic-expression-visitor', './return-statement-visitor',
-        './function-invocation-visitor', './function-invocation-expression-visitor', './assignment-visitor',
-        './left-operand-expression-visitor', './right-operand-expression-visitor',
+        './return-statement-visitor', './function-invocation-visitor', './function-invocation-expression-visitor',
+        './assignment-visitor', './left-operand-expression-visitor', './right-operand-expression-visitor',
         './variable-definition-statement-visitor', './worker-invoke-visitor', './worker-receive-visitor',
         './break-statement-visitor', './throw-statement-visitor', './comment-statement-visitor'],
-function (_, log, EventChannel, AST, TryCatchStatementVisitor,
-          TryStatementVisitor, CatchStatementVisitor, IfElseStatementVisitor, IfStatementVisitor,
-          ElseStatementVisitor, ElseIfStatementVisitor, WhileStatementVisitor,
-          AssignmentStatementVisitor, ActionInvocationStatementVisitor, ReplyStatementVisitor,
-          LogicalExpressionVisitor, ArithmeticExpression, ReturnStatementVisitor,
-          FunctionInvocationVisitor, FunctionInvocationExpressionVisitor, AssignmentVisitor,
-          LeftOperandExpressionVisitor, RightOperandExpressionVisitor,
-          VariableDefinitionStatement, WorkerInvoke, WorkerReceive,
-          BreakStatementVisitor, ThrowStatementVisitor, CommentStatementVisitor) {
+function (_, log, EventChannel, AST, TryCatchStatementVisitor, TryStatementVisitor, CatchStatementVisitor,
+          IfElseStatementVisitor, IfStatementVisitor, ElseStatementVisitor, ElseIfStatementVisitor,
+          WhileStatementVisitor, AssignmentStatementVisitor, ActionInvocationStatementVisitor, ReplyStatementVisitor,
+          ReturnStatementVisitor, FunctionInvocationVisitor, FunctionInvocationExpressionVisitor, AssignmentVisitor,
+          LeftOperandExpressionVisitor, RightOperandExpressionVisitor, VariableDefinitionStatement, WorkerInvoke,
+          WorkerReceive, BreakStatementVisitor, ThrowStatementVisitor, CommentStatementVisitor) {
 
     var StatementVisitorFactor = function () {
     };
@@ -60,8 +56,6 @@ function (_, log, EventChannel, AST, TryCatchStatementVisitor,
             return new ReplyStatementVisitor(parent);
         } else if (statement instanceof AST.ReturnStatement) {
             return new ReturnStatementVisitor(parent);
-        } else if (statement instanceof AST.LogicalExpression) {
-            return new LogicalExpressionVisitor(parent);
         } else if (statement instanceof AST.FunctionInvocation) {
             return new FunctionInvocationVisitor(parent);
         } else if(statement instanceof AST.Assignment){

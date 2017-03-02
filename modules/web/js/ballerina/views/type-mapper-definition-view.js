@@ -20,6 +20,14 @@ define(['lodash', 'log', './ballerina-view', './variables-view', './type-struct-
         './type-mapper-block-statement-view', 'constants', './../ast/module', 'select2', 'alerts'],
     function (_, log, BallerinaView, VariablesView, TypeStructDefinition, BallerinaASTFactory, SVGCanvas, TypeMapper,
               InputStructView, OutputStructView, TypeMapperStatement, TypeMapperBlockStatement, Constants, AST, select2, alerts) {
+        var TYPE_MAPPER_COMBOBOX_DEFAULT_SELECTION = Constants.TYPE_MAPPER_COMBOBOX_DEFAULT_SELECTION;
+        var TYPE_MAPPER_COMBOBOX_PREVIOUS_SELECTION = Constants.TYPE_MAPPER_COMBOBOX_PREVIOUS_SELECTION;
+        var TYPE_MAPPER_TARGET_STRUCT_SCHEMA = Constants.TYPE_MAPPER_TARGET_STRUCT_SCHEMA;
+        var TYPE_MAPPER_TARGET_STRUCT_NAME = Constants.TYPE_MAPPER_TARGET_STRUCT_NAME;
+        var TYPE_MAPPER_COMBOBOX_TARGET_IS_ALREADY_RENDERED_IN_SOURCE = Constants.TYPE_MAPPER_COMBOBOX_TARGET_IS_ALREADY_RENDERED_IN_SOURCE;
+        var TYPE_MAPPER_COMBOBOX_SOURCE_IS_ALREADY_RENDERED_IN_TARGET = Constants.TYPE_MAPPER_COMBOBOX_SOURCE_IS_ALREADY_RENDERED_IN_TARGET;
+        var TYPE_MAPPER_SOURCE_STRUCT_NAME = Constants.TYPE_MAPPER_SOURCE_STRUCT_NAME;
+
         var TypeMapperDefinitionView = function (args) {
             SVGCanvas.call(this, args);
 

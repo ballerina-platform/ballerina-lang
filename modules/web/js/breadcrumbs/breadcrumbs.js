@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require', 'log', 'jquery', 'lodash', 'backbone', /* void modules */ 'jquery_ui'],
+define(['require', 'log', 'jquery', 'lodash', 'backbone', /* void modules */ 'jquery-ui'],
 
     function (require, log, $, _, Backbone) {
 

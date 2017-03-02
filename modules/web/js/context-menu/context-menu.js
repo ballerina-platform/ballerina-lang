@@ -16,7 +16,7 @@
  * under the License.
  */
 
-define(['jquery', 'lodash', 'log', 'event_channel', 'jquery_context_menu'],
+define(['jquery', 'lodash', 'log', 'event_channel', 'jquery-contextmenu'],
     function ($, _, log, EventChannel) {
 
         /**
