@@ -17,9 +17,9 @@ antlr4-runtime-4.5.1.wso2v1.jar                                                 
 apache-mime4j-core-0.7.2.jar                                                    bundle         apache2   2112      
 axiom-api-1.2.20.jar                                                            bundle         apache2   2111      
 axiom-impl-1.2.20.jar                                                           bundle         apache2   2110      
-ballerina-core-0.8.2.jar                                                        jar            apache2   2134      
-ballerina-launcher-0.8.2.jar                                                    jar            apache2   2133      
-ballerina-native-0.8.2.jar                                                      jar            apache2   2132      
+ballerina-core-0.8.3.jar                                                        jar            apache2   2139
+ballerina-launcher-0.8.3.jar                                                    jar            apache2   2138
+ballerina-native-0.8.3.jar                                                      jar            apache2   2137
 commons-lang3-3.5.jar                                                           bundle         apache2   2105      
 commons-logging-1.2.jar                                                         bundle         apache2   1702      
 commons-pool-1.5.6.wso2v1.jar                                                   bundle         apache2   5589      
