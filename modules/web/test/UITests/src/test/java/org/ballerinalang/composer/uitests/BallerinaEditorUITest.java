@@ -16,32 +16,32 @@
  * under the License.
  */
 
+package org.ballerinalang.composer.uitests;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
-import org.testng.annotations.AfterTest;
-import org.testng.annotations.BeforeTest;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
-
-import org.openqa.selenium.*;
-import org.openqa.selenium.firefox.FirefoxDriver;
+import org.xml.sax.SAXException;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
-
-import static junit.framework.Assert.assertEquals;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
-import org.xml.sax.SAXException;
+
+import static org.junit.Assert.assertEquals;
 
 public class BallerinaEditorUITest {
 
-
-    @Test(dataProvider="getData")
-    public void openBallerinaFile(String fileName) throws IOException, InterruptedException,
-            ParserConfigurationException, SAXException, TransformerException, URISyntaxException {
+    @Test(dataProvider = "getData") public void openBallerinaFile(String fileName)
+            throws IOException, InterruptedException, ParserConfigurationException, SAXException, TransformerException,
+                   URISyntaxException {
 
         //creating relevant browser webdriver
         //TODO make this generic for multiple browsers
@@ -51,10 +51,10 @@ public class BallerinaEditorUITest {
         //once the open button available click it
         waitAndGetElementByXpath(driver, TestConstants.WELCOME_PAGE_OPEN_BUTTON_XPATH).click();
         //fill the location of the ballerina file to be opened
-        URL BallerinaResourceLocation = BallerinaEditorUITest.class.getResource(
-                TestConstants.BALLERINA_RESOURCE_FOLDER + File.separator + fileName + ".bal");
-        waitAndGetElementByXpath(driver, TestConstants.FILE_OPEN_POPUP_LOCATION_INPUT_XPATH).
-                sendKeys(BallerinaResourceLocation.getPath());
+        URL ballerinaResourceLocation = BallerinaEditorUITest.class
+                .getResource(TestConstants.BALLERINA_RESOURCE_FOLDER + File.separator + fileName + ".bal");
+        waitAndGetElementByXpath(driver, TestConstants.FILE_OPEN_POPUP_LOCATION_INPUT_XPATH)
+                .sendKeys(ballerinaResourceLocation.getPath());
         //wait for the open button in the pop-up window
         waitAndGetElementByXpath(driver, TestConstants.FILE_OPEN_POPUP_LOCATION_OPEN_XPATH).click();
         //wait for the SVG element where the diagram is rendered
@@ -62,39 +62,37 @@ public class BallerinaEditorUITest {
         //Getting inner HTML of the SVG node
         String dom = TestUtils.preprocessDOMContent(domElement.getAttribute("innerHTML"));
         //TODO Add mechanism to generate DOM files
-        //TestUtils.fileWriter(dom, fileName + "DOM.xml");
-        URL DOMResourceLocation = BallerinaEditorUITest.class.getResource(TestConstants.DOM_RESOURCE_FOLDER +
-                File.separator + fileName +"DOM.xml");
+        //org.ballerinalang.composer.uitests.TestUtils.fileWriter(dom, fileName + "DOM.xml");
+        URL domResourceLocation = BallerinaEditorUITest.class.getResource(TestConstants.DOM_RESOURCE_FOLDER +
+                                                                          File.separator + fileName + "DOM.xml");
         //destroying browser instance
         driver.quit();
         //checking inner content of the DOM element
         assertEquals("Rendered diagram of " + fileName + "is not equal to the expected diagram",
-                TestUtils.fileReader(DOMResourceLocation.getPath()), dom);
+                     TestUtils.fileReader(domResourceLocation.getPath()), dom);
     }
 
     /*
     Data provider for running the test case for multiple ballerina files
      */
-    @DataProvider()
-    public Object[][] getData()
-    {
+    @DataProvider() public Object[][] getData() {
         Object[][] data = new Object[9][1];
-        data[0][0] ="helloWorld";
-        data[1][0] ="echoService";
-        data[2][0] ="passthroughService";
-        data[3][0] ="ecommerceService";
-        data[4][0] ="helloWorldService";
-        data[5][0] ="ATMLocatorService";
-        data[6][0] ="routingServices";
-        data[7][0] ="tweetMediumFeed";
-        data[8][0] ="tweetOpenPR";
+        data[0][0] = "helloWorld";
+        data[1][0] = "echoService";
+        data[2][0] = "passthroughService";
+        data[3][0] = "ecommerceService";
+        data[4][0] = "helloWorldService";
+        data[5][0] = "ATMLocatorService";
+        data[6][0] = "routingServices";
+        data[7][0] = "tweetMediumFeed";
+        data[8][0] = "tweetOpenPR";
         return data;
     }
 
     /*
     Wait for visibility of an element and provide that element
      */
-    private WebElement waitAndGetElementByXpath(WebDriver driver, String xpath){
+    private WebElement waitAndGetElementByXpath(WebDriver driver, String xpath) {
         WebDriverWait wait = new WebDriverWait(driver, 50);
         wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath(xpath)));
         return driver.findElement(By.xpath(xpath));

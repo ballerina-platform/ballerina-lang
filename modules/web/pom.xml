@@ -27,7 +27,7 @@
 
     <artifactId>ballerina-composer-web</artifactId>
     <packaging>pom</packaging>
-    <name>Ballerina Composer Web</name>
+    <name>Ballerina Composer - Web</name>
     <description>Ballerina Composer Web</description>
 
     <build>

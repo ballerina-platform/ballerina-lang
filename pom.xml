@@ -467,6 +467,7 @@
         <module>modules/services/workspace-service</module>
         <module>modules/web</module>
         <module>modules/distribution</module>
+        <module>modules/web/test/UITests</module>
     </modules>
 
 </project>
