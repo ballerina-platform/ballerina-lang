@@ -100,7 +100,7 @@ public class Command {
 
     @Override
     public String toString(){
-        String ballerinaBin, ballerinaCommand, programType, scriptLocation, debugSwitch = "";
+        String ballerinaBin, ballerinaCommand, programType, scriptLocation, debugSwitch = "", commandArgs = "";
         int port = -1;
 
         // path to bi directory
@@ -120,9 +120,12 @@ public class Command {
 
         scriptLocation =   getScript();
 
-        String commandArgs = " " + this.commandArgs;
         if(debug) {
             debugSwitch = "  --ballerina.debug " + this.port;
+        }
+
+        if(this.commandArgs != null) {
+            commandArgs = " " + this.commandArgs;
         }
         return ballerinaBin + ballerinaCommand + programType + scriptLocation + debugSwitch + commandArgs;
     }
