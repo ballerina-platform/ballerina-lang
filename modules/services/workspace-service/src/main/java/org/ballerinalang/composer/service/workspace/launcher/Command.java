@@ -28,6 +28,7 @@ public class Command {
     private String fileName;
     private String filePath;
     private boolean debug = false;
+    private String commandArgs;
     private LauncherConstants.ProgramType type;
     private int port;
     private Process program;
@@ -38,9 +39,15 @@ public class Command {
         this.filePath = filePath;
         this.debug = debug;
         this.type = type;
+
         if(debug){
             this.port = LaunchUtils.getFreePort();
         }
+    }
+    public Command(LauncherConstants.ProgramType type, String fileName, String filePath, String commandArgs, boolean debug)
+    {
+        this(type, fileName, filePath, debug);
+        this.commandArgs = commandArgs;
     }
 
     public String getFileName() {
@@ -83,6 +90,14 @@ public class Command {
         this.port = port;
     }
 
+    public String getCommandArgs() {
+        return commandArgs;
+    }
+
+    public void setCommandArgs(String commandArgs) {
+        this.commandArgs = commandArgs;
+    }
+
     @Override
     public String toString(){
         String ballerinaBin, ballerinaCommand, programType, scriptLocation, debugSwitch = "";
@@ -105,11 +120,11 @@ public class Command {
 
         scriptLocation =   getScript();
 
-
+        String commandArgs = " " + this.commandArgs;
         if(debug) {
             debugSwitch = "  --ballerina.debug " + this.port;
         }
-        return ballerinaBin + ballerinaCommand + programType + scriptLocation + debugSwitch;
+        return ballerinaBin + ballerinaCommand + programType + scriptLocation + debugSwitch + commandArgs;
     }
 
     public String getScript() {
