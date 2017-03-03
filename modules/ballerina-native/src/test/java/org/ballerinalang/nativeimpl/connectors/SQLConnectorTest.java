@@ -146,6 +146,27 @@ public class SQLConnectorTest {
         Assert.assertEquals(retValue.stringValue(), expected);
     }
 
+    @Test
+    public void testOutParameters() {
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testOutParameters");
+        Assert.assertEquals(returns.length, 13);
+        Assert.assertEquals(((BString) returns[0]).intValue(), 10);
+        Assert.assertEquals(((BString) returns[1]).longValue(), 9223372036854774807L);
+        Assert.assertEquals(((BString) returns[2]).floatValue(), 123.34f);
+        Assert.assertEquals(((BString) returns[3]).doubleValue(), 2139095039D);
+        boolean bValue = Boolean.parseBoolean(returns[4].stringValue());
+        Assert.assertEquals(bValue, true);
+        Assert.assertEquals(returns[5].stringValue(), "Hello");
+        //String value = ((BString) returns[6]).stringValue();
+        //Assert.assertEquals(Double.parseDouble(value), 1234.567D);
+        //Assert.assertEquals(((BString) returns[7]).floatValue(), 1234.567D);
+        Assert.assertEquals(((BString) returns[8]).doubleValue(), 1234.567D);
+        Assert.assertEquals(((BString) returns[9]).intValue(), 1);
+        Assert.assertEquals(((BString) returns[10]).intValue(), 5555);
+        Assert.assertEquals(returns[11].stringValue(), "very long text");
+        Assert.assertEquals(returns[12].stringValue(), "d3NvMiBiYWxsZXJpbmEgYmxvYiB0ZXN0Lg==");
+    }
+
 
     @AfterSuite
     public void cleanup() {

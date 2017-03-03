@@ -57,9 +57,11 @@ public class SQLConnectorUtils {
     public static void setIntValue(PreparedStatement stmt, BValue value, int index, int direction, int sqlType) {
         Integer val = null;
         if (value != null) {
-            val = Integer.parseInt(value.stringValue());
+            String strValue = value.stringValue();
+            if (!strValue.isEmpty()) {
+                val = Integer.parseInt(strValue);
+            }
         }
-
         try {
             if (Constants.QueryParamDirection.IN == direction) {
                 if (value == null) {
@@ -112,9 +114,11 @@ public class SQLConnectorUtils {
     public static void setDoubleValue(PreparedStatement stmt, BValue value, int index, int direction, int sqlType) {
         Double val = null;
         if (value != null) {
-            val = Double.parseDouble(value.stringValue());
+            String strValue = value.stringValue();
+            if (!strValue.isEmpty()) {
+                val = Double.parseDouble(strValue);
+            }
         }
-
         try {
             if (Constants.QueryParamDirection.IN == direction) {
                 if (value == null) {
@@ -142,9 +146,11 @@ public class SQLConnectorUtils {
     public static void setNumericValue(PreparedStatement stmt, BValue value, int index, int direction, int sqlType) {
         BigDecimal val = null;
         if (value != null) {
-            val = new BigDecimal(value.stringValue());
+            String strValue = value.stringValue();
+            if (!strValue.isEmpty()) {
+                val = new BigDecimal(strValue);
+            }
         }
-
         try {
             if (Constants.QueryParamDirection.IN == direction) {
                 if (value == null) {
@@ -172,9 +178,11 @@ public class SQLConnectorUtils {
     public static void setBooleanValue(PreparedStatement stmt, BValue value, int index, int direction, int sqlType) {
         Boolean val = null;
         if (value != null) {
-            val = Boolean.valueOf(value.stringValue());
+            String strValue = value.stringValue();
+            if (!strValue.isEmpty()) {
+                val = Boolean.valueOf(strValue);
+            }
         }
-
         try {
             if (Constants.QueryParamDirection.IN == direction) {
                 if (value == null) {
@@ -202,9 +210,11 @@ public class SQLConnectorUtils {
     public static void setTinyIntValue(PreparedStatement stmt, BValue value, int index, int direction, int sqlType) {
         Byte val = null;
         if (value != null) {
-            val = Byte.valueOf(value.stringValue());
+            String strValue = value.stringValue();
+            if (!strValue.isEmpty()) {
+                val = Byte.valueOf(strValue);
+            }
         }
-
         try {
             if (Constants.QueryParamDirection.IN == direction) {
                 if (value == null) {
@@ -232,9 +242,11 @@ public class SQLConnectorUtils {
     public static void setSmallIntValue(PreparedStatement stmt, BValue value, int index, int direction, int sqlType) {
         Short val = null;
         if (value != null) {
-            val = Short.parseShort(value.stringValue());
+            String strValue = value.stringValue();
+            if (!strValue.isEmpty()) {
+                val = Short.parseShort(strValue);
+            }
         }
-
         try {
             if (Constants.QueryParamDirection.IN == direction) {
                 if (value == null) {
@@ -262,9 +274,11 @@ public class SQLConnectorUtils {
     public static void setBigIntValue(PreparedStatement stmt, BValue value, int index, int direction, int sqlType) {
         Long val = null;
         if (value != null) {
-            val = Long.parseLong(value.stringValue());
+            String strValue = value.stringValue();
+            if (!strValue.isEmpty()) {
+                val = Long.parseLong(strValue);
+            }
         }
-
         try {
             if (Constants.QueryParamDirection.IN == direction) {
                 if (value == null) {
@@ -292,9 +306,11 @@ public class SQLConnectorUtils {
     public static void setRealValue(PreparedStatement stmt, BValue value, int index, int direction, int sqlType) {
         Float val = null;
         if (value != null) {
-            val = Float.parseFloat(value.stringValue());
+            String strValue = value.stringValue();
+            if (!strValue.isEmpty()) {
+                val = Float.parseFloat(strValue);
+            }
         }
-
         try {
             if (Constants.QueryParamDirection.IN == direction) {
                 if (value == null) {
@@ -322,9 +338,11 @@ public class SQLConnectorUtils {
     public static void setDateValue(PreparedStatement stmt, BValue value, int index, int direction, int sqlType) {
         Date val = null;
         if (value != null) {
-            val = new Date(Long.parseLong(value.stringValue()));
+            String strValue = value.stringValue();
+            if (!strValue.isEmpty()) {
+                val = new Date(Long.parseLong(strValue));
+            }
         }
-
         try {
             if (Constants.QueryParamDirection.IN == direction) {
                 if (value == null) {
@@ -352,9 +370,11 @@ public class SQLConnectorUtils {
     public static void setTimeStampValue(PreparedStatement stmt, BValue value, int index, int direction, int sqlType) {
         Timestamp val = null;
         if (value != null) {
-            val = new Timestamp(Long.parseLong(value.stringValue()));
+            String strValue = value.stringValue();
+            if (!strValue.isEmpty()) {
+                val = new Timestamp(Long.parseLong(strValue));
+            }
         }
-
         try {
             if (Constants.QueryParamDirection.IN == direction) {
                 if (value == null) {
@@ -382,9 +402,11 @@ public class SQLConnectorUtils {
     public static void setTimeValue(PreparedStatement stmt, BValue value, int index, int direction, int sqlType) {
         Time val = null;
         if (value != null) {
-            val = new Time(Long.parseLong(value.stringValue()));
+            String strValue = value.stringValue();
+            if (!strValue.isEmpty()) {
+                val = new Time(Long.parseLong(strValue));
+            }
         }
-
         try {
             if (Constants.QueryParamDirection.IN == direction) {
                 if (value == null) {
@@ -414,7 +436,6 @@ public class SQLConnectorUtils {
         if (value != null) {
             val = getBytesFromBase64String(value.stringValue());
         }
-
         try {
             if (Constants.QueryParamDirection.IN == direction) {
                 if (value == null) {
@@ -444,7 +465,6 @@ public class SQLConnectorUtils {
         if (value != null) {
             val = getBytesFromBase64String(value.stringValue());
         }
-
         try {
             if (Constants.QueryParamDirection.IN == direction) {
                 if (value == null) {
@@ -474,7 +494,6 @@ public class SQLConnectorUtils {
         if (value != null) {
             val = new BufferedReader(new StringReader(value.stringValue()));
         }
-
         try {
             if (Constants.QueryParamDirection.IN == direction) {
                 if (value == null) {
