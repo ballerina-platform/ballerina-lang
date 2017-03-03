@@ -73,6 +73,9 @@ public class ConstDef extends VariableDef implements CompilationUnit {
         this.value = value;
     }
 
+    public void setRhsExpr(Expression rhsExpr) {
+        this.rhsExpr = rhsExpr;
+    }
 
     // Methods in Node interface
 

@@ -45,9 +45,17 @@ public class RuntimeEnvironment {
         StaticMemory staticMemory = new StaticMemory(bLangProgram.getSizeOfStaticMem());
         RuntimeEnvironment runtimeEnvironment = new RuntimeEnvironment(staticMemory);
 
+        Context bContext = new Context();
+        BLangExecutor bLangExecutor = new BLangExecutor(runtimeEnvironment, bContext);
+
         int staticMemOffset = 0;
         for (BLangPackage bLangPackage : bLangProgram.getPackages()) {
             for (ConstDef constant : bLangPackage.getConsts()) {
+                //todo improve this logic by introducing a const init function
+                StackFrame currentStackFrame = new StackFrame(new BValue[0], new BValue[0]);
+                bContext.getControlStack().pushFrame(currentStackFrame);
+                BValue value = constant.getRhsExpr().execute(bLangExecutor);
+                constant.setValue(value);
                 staticMemory.setValue(staticMemOffset, constant.getValue());
                 staticMemOffset++;
             }
@@ -59,11 +67,7 @@ public class RuntimeEnvironment {
                 CallableUnitInfo functionInfo = new CallableUnitInfo(initFunction.getName(),
                         initFunction.getPackagePath(), initFunction.getNodeLocation());
                 StackFrame currentStackFrame = new StackFrame(new BValue[0], new BValue[0], functionInfo);
-
-                Context bContext = new Context();
                 bContext.getControlStack().pushFrame(currentStackFrame);
-
-                BLangExecutor bLangExecutor = new BLangExecutor(runtimeEnvironment, bContext);
                 initFunction.getCallableUnitBody().execute(bLangExecutor);
             }
         }
