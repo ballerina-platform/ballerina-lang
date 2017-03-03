@@ -15,13 +15,15 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+package org.ballerinalang.composer.uitests;
 
 import org.apache.commons.io.FileUtils;
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.WebDriver;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
@@ -39,7 +41,7 @@ public class TestUtils {
         return new String(Files.readAllBytes(Paths.get(fileName)));
     }
 
-    public static String preprocessDOMContent(String currentDOM){
-        return currentDOM.replaceAll("#*[a-z0-9]{8}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{12}","");
+    public static String preprocessDOMContent(String currentDOM) {
+        return currentDOM.replaceAll("#*[a-z0-9]{8}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{12}", "");
     }
 }
