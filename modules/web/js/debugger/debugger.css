@@ -49,13 +49,31 @@
     font-size: 13px;
 }
 
-.btn-debug-activate{
-    padding-top: 8px !important;
-    padding-bottom: 8px !important;
-    margin:0px !important;
+.debugger-container .btn-debug-activate,
+.launcher-container .btn-debug-activate
+{
+    height: 40px;
     text-align: left !important;
     background-color: #333;
     color: white;
+}
+
+.debugger-container .btn-debug-activate .launch-label,.debugger-container .btn-debug-activate .btn-config,
+.launcher-container .btn-debug-activate .launch-label,.launcher-container .btn-debug-activate .btn-config
+ {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.debugger-container .btn-debug-activate .btn-config,
+.launcher-container .btn-debug-activate .btn-config
+ {
+    padding: 5px;
+    right: 5px;
+    background-color: #333;
+    color: white;
+    width: 25px;
 }
 
 .btn-debug-action{
@@ -238,4 +256,15 @@ div > .col-xs-12 {
 
 .debug-frame-header {
     height:36px;
+}
+
+#modalRunApplicationWithArgs button {
+    margin-right: 10px;
+    margin-bottom: 10px;
+    margin-top: 10px;
+    border: none;
+}
+
+#form-run-application-with-args{
+
 }

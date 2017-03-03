@@ -15,76 +15,57 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+import _ from 'lodash';
+import log from 'log';
+import $ from 'jquery';
+import Ballerina from 'ballerina';
+import fs from 'fs';
+import { expect } from 'chai';
+import path from 'path';
 
-define(['lodash', 'log', 'jquery', 'ballerina'], function(_, log, $, Ballerina) {
+var testFileList = require('../../resources/BalList.json');
 
 var getModelBackend = "http://localhost:8289/ballerina/model/content";
 var getFileContentBackend = "http://localhost:8289/service/workspace";
 
-    //Test running function
-    function ballerinaTestRunner(sourceList){
+//Ballerina AST Deserializer
+function ballerinaASTDeserializer(fileContent){
+    var backend = new Ballerina.views.Backend({"url" : getModelBackend})
+    var response = backend.parse(fileContent);
+    var ASTModel = Ballerina.ast.BallerinaASTDeserializer.getASTModel(response);
+    var sourceGenVisitor = new Ballerina.visitors.SourceGen.BallerinaASTRootVisitor();
+    ASTModel.accept(sourceGenVisitor);
+    var source = sourceGenVisitor.getGeneratedSource();
+    return source;
+}
 
-        var expectedSource = readFile(sourceList);
-        var generatedSource = ballerinaASTDeserializer(expectedSource);
+function readFile(filePath, callback){
+    var workspaceServiceURL = getFileContentBackend;
+    var saveServiceURL = workspaceServiceURL + "/read";
 
-        describe("Ballerina Tests", function() {
-            it(sourceList.replace(/^.*[\\\/]/, '') + " Service Test", function() {
-                expectedSource = expectedSource.replace(/\s/g, '');
-                generatedSource = generatedSource.replace(/(\r\n|\n|\r)/gm,"");
-                generatedSource = generatedSource.replace(/\s/g, '');
-                if(generatedSource!=expectedSource){
-                    log.error('error');
-                }
-                expect(generatedSource).to.equal(expectedSource);
-            });
-        });
-    }
+    return fs.readFileSync(filePath, 'utf8');
+}
 
-    //Ballerina AST Deserializer
-    function ballerinaASTDeserializer(fileContent){
-        var backend = new Ballerina.views.Backend({"url" : getModelBackend})
-        var response = backend.parse(fileContent);
-        var ASTModel = Ballerina.ast.BallerinaASTDeserializer.getASTModel(response);
-        var sourceGenVisitor = new Ballerina.visitors.SourceGen.BallerinaASTRootVisitor();
-        ASTModel.accept(sourceGenVisitor);
-        var source = sourceGenVisitor.getGeneratedSource();
-        return source;
-    }
+var sourceList = testFileList.sources.source;
 
-    function getTestResourceLocation(){
-        var resourcePath = document.location.pathname;
-        return resourcePath.substring(resourcePath.indexOf('/'), resourcePath.lastIndexOf('/')) + "/resources/";
-    }
-
-    function readFile(filePath){
-        var workspaceServiceURL = getFileContentBackend;
-        var saveServiceURL = workspaceServiceURL + "/read";
-
-        //TODO remove picking folder location and get file content from ajax call running test on http server
-        var fileContent;
-
-        $.ajax({
-            url: saveServiceURL,
-            type: "POST",
-            data: filePath,
-            contentType: "text/plain; charset=utf-8",
-            async: false,
-            success: function (data, textStatus, xhr) {
-                if (xhr.status == 200) {
-                    fileContent = data.content;
-                }
-            },
-
-            error: function (res, errorCode, error) {}
-        });
-        return fileContent;
-    }
-
-    var testFileList = readFile(getTestResourceLocation() + "BalList.json");
-    var sourceList = JSON.parse(testFileList)["sources"]["source"];
-
-    //Running test for provide source list
+describe("Ballerina Tests", function() {
     sourceList.forEach(function(testFile) {
-        ballerinaTestRunner(getTestResourceLocation() +testFile);
+
+        // TODO: following path resolution only works if tests are run from the root directory of the project
+        // To avoid that we need to use __dirname or __filename
+        // but mocha-webpack does not seem to provide correct values for them. So using path.resolve for now.
+        var sourceFile = path.resolve('modules/web/js/tests/resources/' + testFile)
+
+        it(sourceFile.replace(/^.*[\\\/]/, '') + " Service Test", function() {
+            var expectedSource = readFile(sourceFile);
+            var generatedSource = ballerinaASTDeserializer(expectedSource)
+            expectedSource = expectedSource.replace(/\s/g, '');
+            generatedSource = generatedSource.replace(/(\r\n|\n|\r)/gm,"");
+            generatedSource = generatedSource.replace(/\s/g, '');
+            if(generatedSource!=expectedSource){
+                log.error('error');
+            }
+            expect(generatedSource).to.equal(expectedSource);
+        });
     });
 });

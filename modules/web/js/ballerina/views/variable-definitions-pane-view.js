@@ -136,7 +136,7 @@ define(['require', 'lodash', 'log', 'jquery', 'alerts', './variable-definition-v
                     var errorString = "Invalid identifier for a variable: " + newIdentifier;
                     log.error(errorString);
                     Alerts.error(errorString);
-                    event.stopPropagation();
+                    e.stopPropagation();
                     return false;
                 }
             });

@@ -35,9 +35,9 @@ define(['jquery', 'backbone', 'lodash', 'log', 'event_channel', './debug-manager
             + '     <span class="tool-group-header-title">Debug</span></span>' 
             + '</div>' 
             + '<div class="btn-group col-xs-12">' 
-            + '     <button type="button" class="btn btn-default text-left btn-debug-activate col-xs-12" id="debug_application" title="Start Debug">Application</button>' 
-            + '     <button type="button" class="btn btn-default text-left btn-debug-activate col-xs-12" id="debug_service" title="Start Debug">Service</button>' 
-            + '     <button type="button" class="btn btn-default text-left btn-debug-activate col-xs-12" id="remote_debug" title="Start Debug">Debug Remotely</button>' 
+            + '     <div type="button" class="btn btn-default text-left btn-debug-activate col-xs-12" id="debug_application" title="Start Debug"><span class="launch-label">Application</span><button type="button" class="btn btn-default pull-right btn-config" title="Config"><i class="fw fw-configarations"></i></button></div>'
+            + '     <button type="button" class="btn btn-default text-left btn-debug-activate col-xs-12" id="debug_service" title="Start Debug">Service</button>'
+            + '     <button type="button" class="btn btn-default text-left btn-debug-activate col-xs-12" id="remote_debug" title="Start Debug">Debug Remotely</button>'
             + '</div>'
             + '<% } %>' 
             + '<% if (active) { %>'
@@ -53,6 +53,7 @@ define(['jquery', 'backbone', 'lodash', 'log', 'event_channel', './debug-manager
             + '</div><% } %>');
 
         this.connectionDialog = $("#modalDebugConnection");
+        this.appArgsDialog = $("#modalRunApplicationWithArgs");
         this.navigation = false;
 
         $('.debug-connect-button').on("click", _.bindKey(this, 'connect'));
@@ -79,11 +80,57 @@ define(['jquery', 'backbone', 'lodash', 'log', 'event_channel', './debug-manager
         this.container.on('click', '#debug_application', _.bindKey(this, 'debugApplication'));
         this.container.on('click', '#debug_service', _.bindKey(this, 'debugService'));
 
+        this.container.on('click', '.btn-config', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            self.appArgsDialog.modal('show');
+        });
+
+        $('#form-run-application-with-args').submit(function(e) {
+            e.preventDefault();
+            var args = _.map($(this).serializeArray(), function(input) {
+                return input.value;
+            }).join(' ').trim();
+            var activeTab = self.application.tabController.getActiveTab();
+            if(activeTab && activeTab.getFile()) {
+                var id = activeTab.getFile().id;
+                self.application.browserStorage.put('launcher-app-configs-' + id, args);
+            }
+            self.appArgsDialog.modal('hide');
+        });
+
+        var wrapper = $("#form-run-application-with-args .input_fields_wrap");
+        $('#form-run-application-with-args .add_field_button').on('click', function() {
+            $(wrapper).append('<div class="removable"><input type="text" name="applicationArgs[]" class="form-control"/><button class="remove_field btn-file-dialog">Remove</button></div>');
+        });
+
+        $(wrapper).on("click",".remove_field", function(e){
+            e.preventDefault();
+            $(this).parent('div').remove();
+        });
+
+        this.appArgsDialog.on('shown.bs.modal', function() {
+            $('#form-run-application-with-args .removable').remove();
+            var activeTab = self.application.tabController.getActiveTab();
+            if(activeTab && activeTab.getFile()) {
+                var id = activeTab.getFile().id;
+                var args = (self.application.browserStorage.get('launcher-app-configs-' + id) || "").split(" ");
+                _.each(args, function(arg, i) {
+                    if(i === 0) {
+                        $("#form-run-application-with-args input[type='text']").get(0).value = arg;
+                    } else {
+                        $(wrapper).append('<div class="removable"><input type="text" name="applicationArgs[]" class="form-control" value="' + arg
+                        + '"/><button class="remove_field btn-file-dialog">Remove</button></div>');
+                    }
+                });
+            }
+        });
+
         this.container.on('click', '#remote_debug', function () {
             $('.debug-connection-group').removeClass("has-error");
             $('.debug-connection-error').addClass("hide");
             self.connectionDialog.modal('show');
-        });        
+        });
     }
 
     Tools.prototype.render = function () {
@@ -154,9 +201,9 @@ define(['jquery', 'backbone', 'lodash', 'log', 'event_channel', './debug-manager
         } else {
             alerts.error("Save file before start debugging application");
         }
-    };     
+    };
 
-    Tools.prototype.debugService = function(){
+    Tools.prototype.debugService = function() {
         var activeTab = this.application.tabController.getActiveTab();
         if(this.isReadyToRun(activeTab)) {
             var file = activeTab.getFile();

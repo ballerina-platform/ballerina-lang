@@ -10,7 +10,7 @@
   <groupId>org.ballerinalang</groupId>
   <artifactId>workspace-service</artifactId>
   <name>Ballerina Composer - Workspace Service</name>
-  <version>0.8.2-SNAPSHOT</version>
+  <version>0.8.14-SNAPSHOT</version>
   <build>
     <plugins>
       <plugin>

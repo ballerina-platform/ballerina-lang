@@ -197,3 +197,8 @@ dependency-reduced-pom.xml
 node_modules
 dist
 npm-debug.log
+
+#################
+## ATOM
+#################
+.jshintrc

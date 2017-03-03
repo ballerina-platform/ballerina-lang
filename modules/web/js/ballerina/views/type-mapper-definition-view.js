@@ -23,10 +23,11 @@ define(['lodash', 'log', './ballerina-view', './variables-view', './type-struct-
         var TYPE_MAPPER_COMBOBOX_DEFAULT_SELECTION = Constants.TYPE_MAPPER_COMBOBOX_DEFAULT_SELECTION;
         var TYPE_MAPPER_COMBOBOX_PREVIOUS_SELECTION = Constants.TYPE_MAPPER_COMBOBOX_PREVIOUS_SELECTION;
         var TYPE_MAPPER_TARGET_STRUCT_SCHEMA = Constants.TYPE_MAPPER_TARGET_STRUCT_SCHEMA;
+        var TYPE_MAPPER_SOURCE_STRUCT_SCHEMA = Constants.TYPE_MAPPER_SOURCE_STRUCT_SCHEMA;
         var TYPE_MAPPER_TARGET_STRUCT_NAME = Constants.TYPE_MAPPER_TARGET_STRUCT_NAME;
+        var TYPE_MAPPER_SOURCE_STRUCT_NAME = Constants.TYPE_MAPPER_SOURCE_STRUCT_NAME;
         var TYPE_MAPPER_COMBOBOX_TARGET_IS_ALREADY_RENDERED_IN_SOURCE = Constants.TYPE_MAPPER_COMBOBOX_TARGET_IS_ALREADY_RENDERED_IN_SOURCE;
         var TYPE_MAPPER_COMBOBOX_SOURCE_IS_ALREADY_RENDERED_IN_TARGET = Constants.TYPE_MAPPER_COMBOBOX_SOURCE_IS_ALREADY_RENDERED_IN_TARGET;
-        var TYPE_MAPPER_SOURCE_STRUCT_NAME = Constants.TYPE_MAPPER_SOURCE_STRUCT_NAME;
 
         var TypeMapperDefinitionView = function (args) {
             SVGCanvas.call(this, args);
@@ -112,22 +113,26 @@ define(['lodash', 'log', './ballerina-view', './variables-view', './type-struct-
                 .on("change paste keyup", function () {
                     self.getModel().setTypeMapperName($(this).text());
                 }).on("click", function (event) {
-                event.stopPropagation();
-            }).keypress(function (e) {
-                var enteredKey = e.which || e.charCode || e.keyCode;
-                // Disabling enter key
-                if (enteredKey == 13) {
                     event.stopPropagation();
-                    return false;
-                }
-                var newTypeMapperName = $(this).val() + String.fromCharCode(enteredKey);
-                try {
-                    self.getModel().setTypeMapperName(newTypeMapperName);
-                } catch (error) {
-                    event.stopPropagation();
-                    return false;
-                }
-            });
+                }).keypress(function (e) {
+                    /* Ignore Delete and Backspace keypress in firefox and capture other keypress events.
+                     (Chrome and IE ignore keypress event of these keys in browser level)*/
+                    if (!_.isEqual(e.key, "Delete") && !_.isEqual(e.key, "Backspace")) {
+                        var enteredKey = e.which || e.charCode || e.keyCode;
+                        // Disabling enter key
+                        if (_.isEqual(enteredKey, 13)) {
+                            e.stopPropagation();
+                            return false;
+                        }
+                        var newTypeMapperName = $(this).val() + String.fromCharCode(enteredKey);
+                        try {
+                            self.getModel().setTypeMapperName(newTypeMapperName);
+                        } catch (error) {
+                            e.stopPropagation();
+                            return false;
+                        }
+                    }
+                });
 
             var dataMapperContainerId = "data-mapper-container___" + this._model.id;
             var sourceId = 'sourceStructs' + this.getModel().id;

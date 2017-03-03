@@ -116,23 +116,27 @@ define(['require', 'lodash', 'jquery', 'log', 'd3utils', 'd3', 'alerts', './poin
 
             // Add new constant upon enter key.
             $(constantIdentifierText).keypress(function (e) {
-                var enteredKey = e.which || e.charCode || e.keyCode;
-                // Disabling enter key
-                if (enteredKey == 13) {
-                    constantAddCompleteButtonPane.click();
-                    event.stopPropagation();
-                    return false;
-                }
+                /* Ignore Delete and Backspace keypress in firefox and capture other keypress events.
+                 (Chrome and IE ignore keypress event of these keys in browser level)*/
+                if (!_.isEqual(e.key, "Delete") && !_.isEqual(e.key, "Backspace")) {
+                    var enteredKey = e.which || e.charCode || e.keyCode;
+                    // Disabling enter key
+                    if (_.isEqual(enteredKey, 13)) {
+                        constantAddCompleteButtonPane.click();
+                        e.stopPropagation();
+                        return false;
+                    }
 
-                var newIdentifier = $(this).val() + String.fromCharCode(enteredKey);
+                    var newIdentifier = $(this).val() + String.fromCharCode(enteredKey);
 
-                // Validation the identifier against grammar.
-                if (!ASTNode.isValidIdentifier(newIdentifier)) {
-                    var errorString = "Invalid identifier for a parameter: " + newIdentifier;
-                    log.error(errorString);
-                    Alerts.error(errorString);
-                    event.stopPropagation();
-                    return false;
+                    // Validation the identifier against grammar.
+                    if (!ASTNode.isValidIdentifier(newIdentifier)) {
+                        var errorString = "Invalid identifier for a parameter: " + newIdentifier;
+                        log.error(errorString);
+                        Alerts.error(errorString);
+                        e.stopPropagation();
+                        return false;
+                    }
                 }
             });
 
@@ -140,9 +144,9 @@ define(['require', 'lodash', 'jquery', 'log', 'd3utils', 'd3', 'alerts', './poin
             $(constantValueText).keypress(function(e){
                 var enteredKey = e.which || e.charCode || e.keyCode;
                 // Disabling enter key
-                if (enteredKey == 13) {
+                if (_.isEqual(enteredKey, 13)) {
                     constantAddCompleteButtonPane.click();
-                    event.stopPropagation();
+                    e.stopPropagation();
                     return false;
                 }
             });
