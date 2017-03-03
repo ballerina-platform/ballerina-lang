@@ -16,21 +16,22 @@ The Ballerina Composer provides a flexible and powerful browser-based tool for c
 ![alt text](./docs/images/SwaggerView.png?raw=true "Source view")
 
 ## How to build
-The build process of the composer works with Node Package Manager(npm). Using the `npm` commands building of the workspace service is also executed.
+The build process of the composer works on Node Package Manager(npm).
 
 ### Prerequisites
--[Latest NPM installed](https://docs.npmjs.com/getting-started/installing-node)
+-[Latest NPM installed](https://docs.npmjs.com/getting-started/installing-node)  
 -Maven
 
 ### Steps to build
--`npm install` To get all the dependencies.
--`npm run build-pack` To build the complete distribution including the site and the microservice.
+-`npm install` - To get all the dependencies.  
+-`npm run test` - To execute tests.  
+-`npm run build-pack` - To build the complete distribution including the site and the microservice.
 
 ### Dev commands
--`npm run build` or `npm run webpack` To build the site only.
--`npm run build-service` To build the backend microservice.
--`npm run build-dist` To build the backend microservice and build the distribution.
--`npm run dev` To start development server with hot deployment.
+-`npm run build` or `npm run webpack` - To build the site only.  
+-`npm run build-service` - To build the backend microservice.  
+-`npm run build-dist` - To build the backend microservice and build the distribution.  
+-`npm run dev` - To start development server with hot deployment. Go to [http://localhost:8080](http://localhost:8080) or [http://127.0.0.1:8080](http://127.0.0.1:8080) afterwards.    
 
 ## Running the Composer
 
