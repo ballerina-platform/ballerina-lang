@@ -297,10 +297,10 @@ define(['lodash', 'log', 'event_channel',  'alerts', './svg-canvas', './../ast/f
                 });
 
                 if (lastWorkerIndex === this.getWorkerAndConnectorViews().length -1 &&
-                    workerDeclarationView.getBoundingBox().getRight() > this.getBoundingBox().getRight()) {
+                    workerDeclarationView.getBoundingBox().getRight() >= this.getBoundingBox().getRight()) {
                     // Worker is added as the last element for the ConnectorWorkerViewList.
                     // Only Workers are there at the moment
-                    this._parentView.getLifeLineMargin().setPosition(this._parentView.getLifeLineMargin().getPosition() + this._lifeLineCenterGap);
+                    this.setSVGWidth(workerDeclarationView.getBoundingBox().getRight() + this._lifeLineCenterGap);
                     this.setContentMinWidth(workerDeclarationView.getBoundingBox().getRight());
                     this.setHeadingMinWidth(workerDeclarationView.getBoundingBox().getRight());
                 }
@@ -651,15 +651,14 @@ define(['lodash', 'log', 'event_channel',  'alerts', './svg-canvas', './../ast/f
 
             /* If the adding connector (connectorDeclarationView) goes out of this function definition's view,
              then we need to expand this function definition's view. */
-            if (connectorDeclarationView.getBoundingBox().getRight() > this.getBoundingBox().getRight()) {
-                this._parentView.getLifeLineMargin().setPosition(this._parentView.getLifeLineMargin().getPosition()
-                    + this._lifeLineCenterGap);
+            if (connectorDeclarationView.getBoundingBox().getRight() >= this.getBoundingBox().getRight()) {
+                this.setSVGWidth(connectorDeclarationView.getBoundingBox().getRight() + this._lifeLineCenterGap);
             }
 
             var connectorBBox = connectorDeclarationView.getBoundingBox();
             connectorDeclarationView.listenTo(connectorBBox, 'right-edge-moved', function (offset) {
-                if (connectorBBox.getRight() > self.getBoundingBox().getRight()) {
-                    self._parentView.getLifeLineMargin().setPosition(self._parentView.getLifeLineMargin().getPosition() + self._lifeLineCenterGap);
+                if (connectorBBox.getRight() >= self.getBoundingBox().getRight()) {
+                    self.setSVGWidth(connectorDeclarationView.getBoundingBox().getRight() + self._lifeLineCenterGap);
                 }
             }, connectorDeclarationView);
 
