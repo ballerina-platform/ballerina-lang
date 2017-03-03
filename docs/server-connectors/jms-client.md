@@ -59,11 +59,11 @@ jms:JMSConnector.send(jmsEP, "QueueConnectionFactory", "MyQueue", "queue", "Text
 Given below is a sample Ballerina function depicting the creation of a JMS client connector:
 
 ```
-jms:ClientConnector jmsEP = create jms:ClientConnector("org.wso2.andes.jndi.PropertiesFileInitialContextFactory", "jndi.properties");
+jms:JMSConnector jmsEP = create jms:JMSConnector("org.wso2.andes.jndi.PropertiesFileInitialContextFactory", "jndi.properties");
 message queueMessage = {};
 map dataMap;
 dataMap = { "country" : "US", "currency" : "Dollar" , "states" : "50"};
 map propertyMap;
 propertyMap = { "MapData" : dataMap};
-jms:ClientConnector.send(jmsEP, "QueueConnectionFactory", "MyQueue", "queue", "MapMessage", queueMessage, propertyMap);
+jms:JMSConnector.send(jmsEP, "QueueConnectionFactory", "MyQueue", "queue", "MapMessage", queueMessage, propertyMap);
 ```
