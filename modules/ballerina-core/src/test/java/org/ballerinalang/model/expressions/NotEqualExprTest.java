@@ -155,9 +155,8 @@ public class NotEqualExprTest {
 
     @Test(description = "Test checking equality of two types",
             expectedExceptions = {SemanticException.class },
-            expectedExceptionsMessageRegExp =
-                  "lang[/\\\\]expressions[/\\\\]type[/\\\\]incompatible[/\\\\]eq[/\\\\]" +
-                  "incompatible-type-equal-expr.bal:6: invalid operation: incompatible types 'int' and 'boolean'")
+            expectedExceptionsMessageRegExp = "lang[/\\\\]expressions[/\\\\]type[/\\\\]incompatible[/\\\\]eq[/\\\\]"
+                    + "incompatible-type-equal-expr.bal:6: invalid operation: incompatible types 'int' and 'string'")
     public void testIncompatibleEquality() {
         BTestUtils.parseBalFile("lang/expressions/type/incompatible/eq");
     }
