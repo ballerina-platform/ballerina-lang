@@ -19,7 +19,7 @@
 package org.ballerinalang.test.service.jms.sample;
 
 import org.ballerinalang.test.IntegrationTestCase;
-import org.ballerinalang.test.util.JMSBroker;
+import org.ballerinalang.test.server.JMSTestBroker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.Assert;
@@ -76,7 +76,7 @@ public class JMSServiceSampleTestCase extends IntegrationTestCase {
      * @throws InterruptedException Interrupted exception while waiting in between messages
      */
     private void publishMessagesToQueue(String queueName) throws JMSException, InterruptedException {
-        ConnectionFactory connectionFactory = JMSBroker.getConnectionFactory();
+        ConnectionFactory connectionFactory = JMSTestBroker.getInstance().getConnectionFactory();
         QueueConnection queueConn = (QueueConnection) connectionFactory.createConnection();
         queueConn.start();
         QueueSession queueSession = queueConn.createQueueSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -102,14 +102,14 @@ public class JMSServiceSampleTestCase extends IntegrationTestCase {
      * @throws InterruptedException Interrupted exception while waiting in between messages
      */
     private void receiveMessagesFromTopic(String topicName) throws JMSException, InterruptedException {
-        ConnectionFactory connectionFactory = JMSBroker.getConnectionFactory();
+        ConnectionFactory connectionFactory = JMSTestBroker.getInstance().getConnectionFactory();
 
-        TopicConnection queueConn = (TopicConnection) connectionFactory.createConnection();
-        queueConn.start();
-        TopicSession queueSession = queueConn.createTopicSession(false, Session.AUTO_ACKNOWLEDGE);
-        Topic destination = queueSession.createTopic(topicName);
-        TopicSubscriber queueReceiver = queueSession.createSubscriber(destination);
-        queueReceiver.setMessageListener(new MessageListener() {
+        TopicConnection topicConnection = (TopicConnection) connectionFactory.createConnection();
+        topicConnection.start();
+        TopicSession topicSession = topicConnection.createTopicSession(false, Session.AUTO_ACKNOWLEDGE);
+        Topic destination = topicSession.createTopic(topicName);
+        TopicSubscriber topicSubscriber = topicSession.createSubscriber(destination);
+        topicSubscriber.setMessageListener(new MessageListener() {
             @Override
             public void onMessage(Message message) {
                 if (message instanceof MapMessage) {

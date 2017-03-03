@@ -129,7 +129,7 @@ public class TestExecutionListener implements IExecutionListener {
      * @param sampleDir sample directory
      * @return String arrays of file absolute paths
      */
-    private static String[] listSamples(String sampleDir) {
+    public static String[] listSamples(String sampleDir) {
         String[] sampleFiles = {
                 sampleDir + File.separator + "echoService" + File.separator + "echoService.bal",
                 sampleDir + File.separator + "helloWorldService" + File.separator + "helloWorldService.bal",
