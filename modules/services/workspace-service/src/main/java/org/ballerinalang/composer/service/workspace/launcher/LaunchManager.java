@@ -173,7 +173,7 @@ public class LaunchManager {
         switch (command.getCommand()) {
             case LauncherConstants.RUN_PROGRAM:
                 run(new Command(LauncherConstants.ProgramType.RUN, command.getFileName(),
-                        command.getFilePath(), false ));
+                        command.getFilePath(), command.getCommandArgs(), false));
                 break;
             case LauncherConstants.RUN_SERVICE:
                 run(new Command(LauncherConstants.ProgramType.SERVICE, command.getFileName(),
@@ -181,7 +181,7 @@ public class LaunchManager {
                 break;
             case LauncherConstants.DEBUG_PROGRAM:
                 run(new Command(LauncherConstants.ProgramType.RUN, command.getFileName(),
-                        command.getFilePath(), true));
+                        command.getFilePath(), command.getCommandArgs(), true));
                 break;
             case LauncherConstants.DEBUG_SERVICE:
                 run(new Command(LauncherConstants.ProgramType.SERVICE, command.getFileName(),

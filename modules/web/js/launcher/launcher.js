@@ -24,6 +24,7 @@ define(['log', 'jquery', 'backbone', 'lodash', 'context_menu', 'mcustom_scroller
 
         initialize: function (config) {
             var errMsg;
+            var self = this;
             if (!_.has(config, 'container')) {
                 errMsg = 'unable to find configuration for container';
                 log.error(errMsg);
@@ -57,8 +58,8 @@ define(['log', 'jquery', 'backbone', 'lodash', 'context_menu', 'mcustom_scroller
 	            + '     <span class="tool-group-header-title">Run</span>' 
 	            + '</div>' 
 	            + '<div class="btn-group col-xs-12">' 
-	            + '     <button type="button" id="run_application" class="btn btn-default text-left btn-debug-activate col-xs-12" title="Start Debug">Application</button>' 
-	            + '     <button type="button" id="run_service" class="btn btn-default text-left btn-debug-activate col-xs-12" title="Start Debug">Service</button>' 
+	            + '     <div type="button" id="run_application" class="btn btn-default text-left btn-debug-activate col-xs-12" title="Start Application"><span class="launch-label">Application</span><button type="button" class="btn btn-default pull-right btn-config" title="Config"><i class="fw fw-configarations"></i></button></div>'
+	            + '     <button type="button" id="run_service" class="btn btn-default text-left btn-debug-activate col-xs-12" title="Start Debug">Service</button>'
 	            + '</div>'
 	            + '<% } %>' 
 	            + '<% if (active) { %>'
@@ -69,6 +70,7 @@ define(['log', 'jquery', 'backbone', 'lodash', 'context_menu', 'mcustom_scroller
 	            + '<button type="button" class="btn btn-default btn-debug-activate" title="Stop Application" id="stop_program"><i class="fw fw-stop" /> Stop Application</button>' 
 	            + '</div><% } %></div>');
 
+            this.appArgsDialog = $("#modalRunApplicationWithArgs");
 
 	        //event bindings
 	        this._$parent_el.on('click',"#run_application", _.bindKey(this,'runApplication'));
@@ -78,7 +80,11 @@ define(['log', 'jquery', 'backbone', 'lodash', 'context_menu', 'mcustom_scroller
             LaunchManager.on("execution-started",_.bindKey(this,'renderBody'));
             LaunchManager.on("execution-ended",_.bindKey(this,'renderBody'));
 
-
+            this._$parent_el.on('click', '.btn-config', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                self.appArgsDialog.modal('show');
+            });
 
         },
 

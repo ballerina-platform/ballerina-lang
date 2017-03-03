@@ -57,7 +57,8 @@ define(['require', 'jquery', 'backbone', 'lodash', 'event_channel', './launch-ma
         var message = { 
             "command": "RUN_PROGRAM",
             "fileName" : file.getName(),
-            "filePath" : file.getPath()
+            "filePath" : file.getPath(),
+            "commandArgs": this.getApplicationConfigs(file)
         };
         this.channel.sendMessage(message);
     };
@@ -75,7 +76,8 @@ define(['require', 'jquery', 'backbone', 'lodash', 'event_channel', './launch-ma
         var message = { 
             "command": "DEBUG_PROGRAM",
             "fileName" : file.getName(),
-            "filePath" : file.getPath()
+            "filePath" : file.getPath(),
+            "commandArgs": this.getApplicationConfigs(file)
         };
         this.channel.sendMessage(message);
     };
@@ -122,7 +124,8 @@ define(['require', 'jquery', 'backbone', 'lodash', 'event_channel', './launch-ma
 
     LaunchManager.prototype.init = function(options){        
         this.endpoint = _.get(options, 'application.config.services.launcher.endpoint');
-        this.enable = true; 
+        this.enable = true;
+        this.application = options.application;
     };
 
     LaunchManager.prototype.stopProgram = function(){        
@@ -130,7 +133,12 @@ define(['require', 'jquery', 'backbone', 'lodash', 'event_channel', './launch-ma
             "command": "TERMINATE",
         };
         this.channel.sendMessage(message);
-    }; 
+    };
+
+    LaunchManager.prototype.getApplicationConfigs = function(file) {
+        var args = this.application.browserStorage.get('launcher-app-configs-' + file.id);
+        return args || "";
+    };
 
     return (instance = (instance || new LaunchManager()));
 });

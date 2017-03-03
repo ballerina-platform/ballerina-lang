@@ -28,10 +28,13 @@ public class CommandDTO {
 
     private String fileName;
 
-    public CommandDTO(String command, String filePath, String fileName) {
+    private String commandArgs;
+
+    public CommandDTO(String command, String filePath, String fileName, String args) {
         this.command = command;
         this.filePath = filePath;
         this.fileName = fileName;
+        this.commandArgs = args;
     }
 
     public String getCommand() {
@@ -56,5 +59,13 @@ public class CommandDTO {
 
     public void setFileName(String fileName) {
         this.fileName = fileName;
+    }
+
+    public String getCommandArgs() {
+        return commandArgs;
+    }
+
+    public void setCommandArgs(String commandArgs) {
+        this.commandArgs = commandArgs;
     }
 }
