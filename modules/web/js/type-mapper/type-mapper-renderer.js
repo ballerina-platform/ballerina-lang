@@ -30,6 +30,7 @@ define(['require', 'lodash', 'jquery', 'jsplumb', 'dagre', 'alerts'], function (
     var TypeMapperRenderer = function (onConnectionCallback, onDisconnectCallback, typeConverterView) {
         this.references = [];
         this.viewId = typeConverterView._model.id;
+        this.contextMenu = "typeMapperContextMenu";
         this.jsTreePrefix = "jstree-container";
         this.viewIdSeperator = "___";
         this.sourceTargetSeperator = "_--_";
@@ -82,9 +83,33 @@ define(['require', 'lodash', 'jquery', 'jsplumb', 'dagre', 'alerts'], function (
             ]
         });
 
-        this.jsPlumbInstance.bind('dblclick', function (connection, e) {
-            self.disconnect(connection);
+        $('#' + self.contextMenu).hide();
+        this.jsPlumbInstance.bind('contextmenu', function (connection, e) {
+            var contextMenuDiv = $('#' + self.contextMenu);
+            var anchorTag = $('<a>').attr('id', 'typeMapperConRemove');
+            anchorTag.html($('<i>').addClass('fw fw-delete'));
+            anchorTag.html( anchorTag.html() + " Remove");
+            contextMenuDiv.html(anchorTag);
+
+            document.addEventListener('click', function() {
+                $('#' + self.contextMenu).hide();
+            }, false);
+
+            $("#typeMapperConRemove").click(function() {
+                self.disconnect(connection);
+                $('#' + self.contextMenu).hide();
+            });
+
+            contextMenuDiv.css({
+                                'top':e.pageY  ,
+                                'left': e.pageX,
+                                zIndex : 1000
+                                });
+
+            contextMenuDiv.show();
+            e.preventDefault();
         });
+
 
         this.jsPlumbInstance.bind('connection', function (info, ev) {
             self.dagrePosition(self);
@@ -757,20 +782,23 @@ define(['require', 'lodash', 'jquery', 'jsplumb', 'dagre', 'alerts'], function (
      * @param {Array} property name hierarchy of the property
      * @returns {Array} List of connections
      */
-    TypeMapperRenderer.prototype.getSourceConnectionsByProperty = function(structName, property) {
+    TypeMapperRenderer.prototype.getSourceConnectionsByProperty = function(structName, property, type) {
         var self = this;
         var connections = [];
-
-        struct.name + this.viewIdSeperator + this.viewId;
-        _.forEach(property, function (propertyName) {
+        for (var i = 0; i < property.length; i++) {
             _.forEach(self.jsPlumbInstance.getAllConnections(), function (connection) {
-                    if (connection.sourceId.includes(structName + self.viewIdSeperator + self.viewId
-                                                        + self.idNameSeperator + propertyName)) {
-                        connections.push(self.getConnectionObject(connection.getParameter("id"),
-                                                        connection.sourceId, connection.targetId));
-                    }
+                if (connection.sourceId.includes(structName + self.viewIdSeperator + self.viewId
+                    + self.idNameSeperator + property[i] + self.nameTypeSeperator + type[i])) {
+                    connections.push(self.getConnectionObject(connection.getParameter("id"),
+                        connection.sourceId, connection.targetId));
+                }
             });
-        });
+
+            _.forEach(connections, function (connection) {
+                self.jsPlumbInstance.detach(connection);
+            });
+        }
+
         return connections;
     };
 
@@ -780,18 +808,22 @@ define(['require', 'lodash', 'jquery', 'jsplumb', 'dagre', 'alerts'], function (
      * @param {Array} property name hierarchy of the property
      * @returns {Array} List of connections
      */
-    TypeMapperRenderer.prototype.getTargetConnectionsByProperty = function(structName, property) {
+    TypeMapperRenderer.prototype.getTargetConnectionsByProperty = function(structName, property, type) {
         var self = this;
         var connections = [];
-        _.forEach(property, function (propertyName) {
+        for (var i = 0; i < property.length; i++) {
             _.forEach(self.jsPlumbInstance.getAllConnections(), function (connection) {
                 if (connection.targetId.includes(structName + self.viewIdSeperator + self.viewId
-                                                    + self.idNameSeperator + propertyName)) {
+                    + self.idNameSeperator + property[i] + self.nameTypeSeperator + type[i])) {
                     connections.push(self.getConnectionObject(connection.getParameter("id"),
                         connection.sourceId, connection.targetId));
                 }
             });
-        });
+
+            _.forEach(connections, function (connection) {
+                self.jsPlumbInstance.detach(connection);
+            });
+        }
         return connections;
     };
 
@@ -809,6 +841,11 @@ define(['require', 'lodash', 'jquery', 'jsplumb', 'dagre', 'alerts'], function (
                     connection.sourceId, connection.targetId));
             }
         });
+
+        _.forEach(connections, function (connection) {
+            self.jsPlumbInstance.detach(connection);
+        });
+
         return connections;
     };
 
@@ -826,6 +863,11 @@ define(['require', 'lodash', 'jquery', 'jsplumb', 'dagre', 'alerts'], function (
                         connection.sourceId, connection.targetId));
                 }
             });
+
+        _.forEach(connections, function (connection) {
+            self.jsPlumbInstance.detach(connection);
+        });
+
         return connections;
     };
 
@@ -924,13 +966,15 @@ define(['require', 'lodash', 'jquery', 'jsplumb', 'dagre', 'alerts'], function (
 
             // Applying the calculated layout
             _.forEach(graph.nodes(), function (dagreNode) {
-                var node = $("#" + dagreNode);
-                node.css("left", graph.node(dagreNode).x + "px");
-                node.css("top", graph.node(dagreNode).y + "px");
-                // }
+                if (funcs.length > 0) {
+                    var node = $("#" + dagreNode);
+                    node.css("left", graph.node(dagreNode).x + "px");
+                    node.css("top", graph.node(dagreNode).y + "px");
 
-                if (graph.node(dagreNode) != null && graph.node(dagreNode).y > maxYPosition) {
-                    maxYPosition = graph.node(dagreNode).y;
+                    if (graph.node(dagreNode) != null && graph.node(dagreNode).y > maxYPosition) {
+                        maxYPosition = graph.node(dagreNode).y;
+                    }
+
                 }
             });
 
