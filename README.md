@@ -28,7 +28,7 @@ If you want to build Ballerina Tools from the source code:
 
 1. Get a clone or download the source from this repository (https://github.com/ballerinalang/distribution).
 1. Run the following Maven command from the root Ballerina Tools directory: `mvn clean install`
-1. Extract the Ballerina Tools distribution created at `target/ballerina-tools-0.8.0.zip` to your local directory.
+1. Extract the Ballerina Tools distribution created at `target/ballerina-tools-0.8.2.zip` to your local directory.
 
 ## Running samples
 
