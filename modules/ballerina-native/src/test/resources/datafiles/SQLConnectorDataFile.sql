@@ -18,6 +18,13 @@ CREATE PROCEDURE InsertPersonData(IN p_RegID INTEGER, IN p_PersonName VARCHAR(50
     VALUES (p_RegID, p_PersonName, p_PersonName, 25000, 'UK');
   END
 /
+CREATE PROCEDURE SelectPersonData()
+  READS SQL DATA DYNAMIC RESULT SETS 1
+  BEGIN ATOMIC
+  DECLARE result CURSOR WITH RETURN FOR SELECT firstName FROM Customers where registrationID = 1 FOR READ ONLY;
+  open result;
+  END
+/
 CREATE PROCEDURE GetCustomerID (IN regID INT,OUT credLimit DOUBLE)
   READS SQL DATA
   BEGIN ATOMIC

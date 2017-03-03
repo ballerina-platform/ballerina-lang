@@ -100,6 +100,14 @@ public class SQLConnectorTest {
     }
 
     @Test
+    public void testCallProcedureWithResultSet() {
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testCallProcedureWithResultSet");
+        BString retValue = (BString) returns[0];
+        final String expected = "Peter";
+        Assert.assertEquals(retValue.stringValue(), expected);
+    }
+
+    @Test
     public void testConnectorWithDataSource() {
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "testConnectorWithDataSource");
         BString retValue = (BString) returns[0];

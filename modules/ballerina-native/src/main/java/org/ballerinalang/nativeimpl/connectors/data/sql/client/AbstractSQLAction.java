@@ -140,10 +140,9 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
             conn = connector.getSQLConnection();
             stmt = getPreparedCall(conn, connector, query, parameters);
             createProcessedStatement(stmt, parameters);
-            boolean hasResult = stmt.execute();
+            rs = executeStoredProc(stmt);
             setOutParameters(stmt, parameters);
-            if (hasResult) {
-                rs = stmt.getResultSet();
+            if (rs != null) {
                 BDataTable datatable = new BDataTable(new SQLDataIterator(conn, stmt, rs), new HashMap<>(),
                         getColumnDefinitions(rs));
                 context.getControlStack().setReturnValue(0, datatable);
@@ -421,5 +420,27 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
             }
         }
         return false;
+    }
+
+    private ResultSet executeStoredProc(CallableStatement stmt) throws SQLException {
+        boolean resultAndNoUpdateCount = stmt.execute();
+        ResultSet result = null;
+        while (true) {
+            if (!resultAndNoUpdateCount) {
+                int updateCount = stmt.getUpdateCount();
+                if (updateCount == -1) {
+                    break;
+                }
+            } else {
+                result = stmt.getResultSet();
+                break;
+            }
+            try {
+                resultAndNoUpdateCount = stmt.getMoreResults(Statement.KEEP_CURRENT_RESULT);
+            } catch (SQLException e) {
+                break;
+            }
+        }
+        return result;
     }
 }
