@@ -21,9 +21,9 @@
  */
 define(['log', 'lodash', './../env/package', './../tool-palette/tool-palette', './../tool-palette/tool-group',
         './../env/environment', './initial-definitions', 'event_channel', './../ast/ballerina-ast-factory',
-        './../ast/defaults-added-ballerina-ast-factory'],
+        '../ast/default-ballerina-ast-factory'],
     function (log, _, Package, ToolPalette, ToolGroup, Environment, InitialTools, EventChannel, BallerinaASTFactory,
-              DefaultsAddedBallerinaASTFactory) {
+              DefaultBallerinaASTFactory) {
 
         /**
          * constructs ToolPaletteItemProvider
@@ -259,9 +259,9 @@ define(['log', 'lodash', './../env/package', './../tool-palette/tool-palette', '
                     action.icon = "images/tool-icons/action.svg";
                     action.title = action.getName();
 
-                    action.nodeFactoryMethod = DefaultsAddedBallerinaASTFactory.createAggregatedActionInvocationStatement;
+                    action.nodeFactoryMethod = DefaultBallerinaASTFactory.createAggregatedActionInvocationStatement;
                     if (action.getReturnParams().length > 0){
-                        action.nodeFactoryMethod = DefaultsAddedBallerinaASTFactory.createAggregatedActionInvocationAssignmentStatement;
+                        action.nodeFactoryMethod = DefaultBallerinaASTFactory.createAggregatedActionInvocationAssignmentStatement;
                     }
 
                     action.id = action.getId();
@@ -287,9 +287,9 @@ define(['log', 'lodash', './../env/package', './../tool-palette/tool-palette', '
                         self.updateToolItem(toolGroupID, action, 'name', newName, 'action');
                     });
 
-                    var actionNodeFactoryMethod = DefaultsAddedBallerinaASTFactory.createAggregatedActionInvocationStatement;
+                    var actionNodeFactoryMethod = DefaultBallerinaASTFactory.createAggregatedActionInvocationStatement;
                     if (action.getReturnParams().length > 0){
-                        actionNodeFactoryMethod = DefaultsAddedBallerinaASTFactory.createAggregatedActionInvocationAssignmentStatement;
+                        actionNodeFactoryMethod = DefaultBallerinaASTFactory.createAggregatedActionInvocationAssignmentStatement;
                     }
                     self.addToToolGroup(toolGroupID, action, actionNodeFactoryMethod, actionIcon);
                 });
@@ -309,9 +309,9 @@ define(['log', 'lodash', './../env/package', './../tool-palette/tool-palette', '
 
                 var packageName = _.last(_.split(pckg.getName(), '.'));
                 if (functionDef.getReturnParams().length > 0){
-                    functionDef.nodeFactoryMethod = BallerinaASTFactory.createAggregatedFunctionInvocationExpression;
+                    functionDef.nodeFactoryMethod = DefaultBallerinaASTFactory.createAggregatedFunctionInvocationExpression;
                 } else {
-                    functionDef.nodeFactoryMethod = BallerinaASTFactory.createAggregatedFunctionInvocationStatement;
+                    functionDef.nodeFactoryMethod = DefaultBallerinaASTFactory.createAggregatedFunctionInvocationStatement;
                 }
                 functionDef.meta = {
                     functionName: functionDef.getName(),
@@ -349,7 +349,7 @@ define(['log', 'lodash', './../env/package', './../tool-palette/tool-palette', '
                 var getParamString = function() {
                     var params = _.map(connector.getParams(), function(p){return p.identifier});
                     return _.join(params, ',');
-                }
+                };
 
                 connector.meta = {
                     connectorName: connector.getName(),
@@ -376,9 +376,9 @@ define(['log', 'lodash', './../env/package', './../tool-palette/tool-palette', '
                     var actionIcon = "images/tool-icons/action.svg";
                     action.classNames = "tool-connector-action";
                     action.setId(action.getId());
-                    var actionNodeFactoryMethod = DefaultsAddedBallerinaASTFactory.createAggregatedActionInvocationStatement;
+                    var actionNodeFactoryMethod = DefaultBallerinaASTFactory.createAggregatedActionInvocationStatement;
                     if (action.getReturnParams().length > 0){
-                        actionNodeFactoryMethod = DefaultsAddedBallerinaASTFactory.createAggregatedActionInvocationAssignmentStatement;
+                        actionNodeFactoryMethod = DefaultBallerinaASTFactory.createAggregatedActionInvocationAssignmentStatement;
                     }
 
                     // Setting the meta attributes to be passed as the action arguments
@@ -409,9 +409,9 @@ define(['log', 'lodash', './../env/package', './../tool-palette/tool-palette', '
                     return;
                 }
 
-                var nodeFactoryMethod = BallerinaASTFactory.createAggregatedFunctionInvocationStatement;
+                var nodeFactoryMethod = DefaultBallerinaASTFactory.createAggregatedFunctionInvocationStatement;
                 if (functionDef.getReturnParams().length > 0){
-                    nodeFactoryMethod = BallerinaASTFactory.createAggregatedFunctionInvocationExpression;
+                    nodeFactoryMethod = DefaultBallerinaASTFactory.createAggregatedFunctionInvocationExpression;
                 }
 
                 // since functions are added to the current package, function name does not need

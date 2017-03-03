@@ -70,8 +70,7 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
          * @param setDefaults - if this is set to true, default values will be set to the serviceDefinition
          */
         BallerinaASTFactory.createServiceDefinition = function (args, setDefaults) {
-            var serviceDef = new serviceDefinition(args);
-            return serviceDef;
+            return new serviceDefinition(args);
         };
 
         /**
@@ -80,17 +79,6 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
          */
         BallerinaASTFactory.createFunctionDefinition = function (args) {
             return new functionDefinition(args);
-        };
-
-        /**
-         * creates MainFunctionDefinition
-         * @param args
-         */
-        BallerinaASTFactory.createMainFunctionDefinition = function (args) {
-            var functionDefinition = BallerinaASTFactory.createFunctionDefinition(args);
-            functionDefinition.setFunctionName("main");
-            functionDefinition.addArgument("string[]", "args");
-            return functionDefinition;
         };
 
         /**
@@ -236,22 +224,6 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
             return new connectorAction(args);
         };
 
-        /* Create the particular assignment statement for the function invocation
-         * @param args
-         * @returns {AssignmentStatement}
-         */
-        BallerinaASTFactory.createAggregatedFunctionInvocationExpression = function(args) {
-            var assignmentStmt = BallerinaASTFactory.createAssignmentStatement(args);
-            var leftOp = BallerinaASTFactory.createLeftOperandExpression(args);
-            var rightOp = BallerinaASTFactory.createRightOperandExpression(args);
-            var functionInExp = BallerinaASTFactory.createFunctionInvocationExpression(args);
-            rightOp.addChild(functionInExp);
-            rightOp.setRightOperandExpressionString(functionInExp.getExpression());
-            assignmentStmt.addChild(leftOp);
-            assignmentStmt.addChild(rightOp);
-            return assignmentStmt;
-        };
-
         /**
          * creates If-Else Statement
          * @param args
@@ -311,22 +283,6 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
         };
 
         /**
-         * creates Aggregated AssignmentStatement
-         * @param {Object} args
-         * @returns {AssignmentStatement}
-         */
-        BallerinaASTFactory.createAggregatedAssignmentStatement = function (args) {
-            var assignmentStmt = BallerinaASTFactory.createAssignmentStatement(args);
-            var leftOperand = BallerinaASTFactory.createLeftOperandExpression(args);
-            leftOperand.setLeftOperandExpressionString("a");
-            var rightOperand = BallerinaASTFactory.createRightOperandExpression(args);
-            rightOperand.setRightOperandExpressionString("b");
-            assignmentStmt.addChild(leftOperand);
-            assignmentStmt.addChild(rightOperand);
-            return assignmentStmt;
-        };
-
-        /**
          * creates ReplyStatement
          * @param args
          */
@@ -340,18 +296,6 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
          */
         BallerinaASTFactory.createFunctionInvocationStatement = function (args) {
             return new functionInvocationStatement(args);
-        };
-
-        /**
-         * creates FunctionInvocationStatement
-         * @param args
-         * @returns {FunctionInvocation}
-         */
-        BallerinaASTFactory.createAggregatedFunctionInvocationStatement = function (args) {
-            var funcInvocationStatement = BallerinaASTFactory.createFunctionInvocationStatement(args);
-            var funcInvocationExpression = BallerinaASTFactory.createFunctionInvocationExpression(args);
-            funcInvocationStatement.addChild(funcInvocationExpression);
-            return funcInvocationStatement;
         };
 
         /**
