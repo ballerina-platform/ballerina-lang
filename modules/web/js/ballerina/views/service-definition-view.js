@@ -317,7 +317,7 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', 'alerts', './svg-canvas', '.
                 var width = undefined;
 
                 if (!_.isEmpty(this._connectorViewList)) {
-                    width = this.getLifeLineMargin().getPosition() - newX - 60;
+                    width = this.getLifeLineMargin().getPosition() - newX;
                 }
                 var viewOpts = {
                     topLeft: new Point(newX, newY),
