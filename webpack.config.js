@@ -59,6 +59,11 @@ var config = {
             select2: "select2-4.0.3/dist/js/select2.full.min",
             underscore: "lodash",
             ace: "ace-builds/src-noconflict",
+            // dagre uses an older version of lodash which conflicts
+            // with the lodash version used by the composer.
+            // hence dagre is added to libs
+            // https://github.com/cpettitt/graphlib/issues/58
+            dagre : "dagre-0.7.4/dagre.min.js",
             ///////////////////////
             // custom modules ////
             //////////////////////
