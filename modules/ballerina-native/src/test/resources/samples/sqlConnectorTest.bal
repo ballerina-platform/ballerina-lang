@@ -207,7 +207,7 @@ function testOutQueryParameters() (string) {
 
     string firstName;
     sql:Parameter para1 = {sqlType:"integer", value:"1", direction:0};
-    sql:Parameter para2 = {sqlType:"double", value:"0", direction:1};
+    sql:Parameter para2 = {sqlType:"double", direction:1};
     sql:Parameter[] parameters=[para1,para2];
     sql:ClientConnector.call(testDB, "{call GetCustomerID(?,?)}",parameters);
     sql:ClientConnector.close(testDB);
@@ -228,3 +228,31 @@ function testInOutQueryParameters() (string) {
     return para2.value;
 }
 
+function testOutParameters()
+    (string, string, string, string, string, string, string ,string ,string ,string ,string,string,string) {
+    map propertiesMap = {"jdbcUrl" : "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
+            "username":"SA", "password":"", "maximumPoolSize":1};
+    sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
+
+    sql:Parameter paraID     = {sqlType:"integer", value:"1", direction:0};
+    sql:Parameter paraInt    = {sqlType:"integer", direction:1};
+    sql:Parameter paraLong   = {sqlType:"bigint", direction:1};
+    sql:Parameter paraFloat  = {sqlType:"float", direction:1};
+    sql:Parameter paraDouble = {sqlType:"double", direction:1};
+    sql:Parameter paraBool   = {sqlType:"boolean", direction:1};
+    sql:Parameter paraString = {sqlType:"varchar", direction:1};
+    sql:Parameter paraNumeric= {sqlType:"numeric", direction:1};
+    sql:Parameter paraDecimal= {sqlType:"decimal", direction:1};
+    sql:Parameter paraReal   = {sqlType:"real", direction:1};
+    sql:Parameter paraTinyInt= {sqlType:"tinyint", direction:1};
+    sql:Parameter paraSmallInt= {sqlType:"smallint", direction:1};
+    sql:Parameter paraClob   = {sqlType:"clob", direction:1};
+    sql:Parameter paraBlob   = {sqlType:"blob", direction:1};
+
+    sql:Parameter[] parameters=[paraID,paraInt,paraLong,paraFloat,paraDouble,paraBool,paraString,paraNumeric,
+        paraDecimal,paraReal,paraTinyInt,paraSmallInt,paraClob,paraBlob];
+    sql:ClientConnector.call(testDB, "{call TestOutParams(?,?,?,?,?,?,?,?,?,?,?,?,?,?)}",parameters);
+    return paraInt.value, paraLong.value, paraFloat.value,paraDouble.value,paraBool.value,paraString.value,
+        paraNumeric.value,paraDecimal.value,paraReal.value,paraTinyInt.value,paraSmallInt.value,paraClob.value,
+        paraBlob.value;
+}
