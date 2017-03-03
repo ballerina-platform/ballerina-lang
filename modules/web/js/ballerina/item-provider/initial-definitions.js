@@ -15,8 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['log', 'jquery', './../ast/ballerina-ast-factory', './../tool-palette/tool-group', './../ast/defaults-added-ballerina-ast-factory'],
-    function (log, $, BallerinaASTFactory, ToolGroup, DefaultsAddedBallerinaASTFactory) {
+define(['log', 'jquery', './../ast/ballerina-ast-factory', './../tool-palette/tool-group', '../ast/default-ballerina-ast-factory'],
+    function (log, $, BallerinaASTFactory, ToolGroup, DefaultBallerinaASTFactory) {
 
         var ToolPalette = [];
 
@@ -25,7 +25,7 @@ define(['log', 'jquery', './../ast/ballerina-ast-factory', './../tool-palette/to
             name: "Resource",
             icon: "images/tool-icons/resource.svg",
             title: "Resource",
-            nodeFactoryMethod: DefaultsAddedBallerinaASTFactory.createResourceDefinition
+            nodeFactoryMethod: DefaultBallerinaASTFactory.createResourceDefinition
         };
 
         var createServiceDefTool = {
@@ -33,7 +33,7 @@ define(['log', 'jquery', './../ast/ballerina-ast-factory', './../tool-palette/to
             name: "Service",
             icon: "images/tool-icons/service.svg",
             title: "Service",
-            nodeFactoryMethod: DefaultsAddedBallerinaASTFactory.createServiceDefinition
+            nodeFactoryMethod: DefaultBallerinaASTFactory.createServiceDefinition
         };
 
         var createFunctionDefTool = {
@@ -58,7 +58,7 @@ define(['log', 'jquery', './../ast/ballerina-ast-factory', './../tool-palette/to
             },
             icon: "images/tool-icons/main-function.svg",
             title: "Main Function",
-            nodeFactoryMethod:  BallerinaASTFactory.createMainFunctionDefinition
+            nodeFactoryMethod:  DefaultBallerinaASTFactory.createMainFunctionDefinition
         };
 
         var createConnectorDefTool = {
@@ -66,7 +66,7 @@ define(['log', 'jquery', './../ast/ballerina-ast-factory', './../tool-palette/to
             name: "Connector Definition",
             icon: "images/tool-icons/connector.svg",
             title: "Connector Definition",
-            nodeFactoryMethod:  DefaultsAddedBallerinaASTFactory.createConnectorDefinition
+            nodeFactoryMethod:  DefaultBallerinaASTFactory.createConnectorDefinition
         };
 
         var createConnectorActionTool = {
@@ -74,7 +74,7 @@ define(['log', 'jquery', './../ast/ballerina-ast-factory', './../tool-palette/to
             name: "Connector Action",
             icon: "images/tool-icons/action.svg",
             title: "Connector Action",
-            nodeFactoryMethod:  DefaultsAddedBallerinaASTFactory.createConnectorAction
+            nodeFactoryMethod:  DefaultBallerinaASTFactory.createConnectorAction
         };
 
         var createStructsDefTool = {
@@ -90,7 +90,7 @@ define(['log', 'jquery', './../ast/ballerina-ast-factory', './../tool-palette/to
             name: "Type Mapper",
             icon: "images/tool-icons/type-converter.svg",
             title: "Type Mapper",
-            nodeFactoryMethod: DefaultsAddedBallerinaASTFactory.createTypeMapperDefinition
+            nodeFactoryMethod: DefaultBallerinaASTFactory.createTypeMapperDefinition
         };
 
         var createWorkerDecTool = {
@@ -141,7 +141,7 @@ define(['log', 'jquery', './../ast/ballerina-ast-factory', './../tool-palette/to
             name: "Try-Catch",
             icon: "images/tool-icons/try-catch.svg",
             title: "Try-Catch",
-            nodeFactoryMethod: DefaultsAddedBallerinaASTFactory.createTryCatchStatement
+            nodeFactoryMethod: DefaultBallerinaASTFactory.createTryCatchStatement
         };
 
         var createAssignmentExpressionTool = {
@@ -149,7 +149,7 @@ define(['log', 'jquery', './../ast/ballerina-ast-factory', './../tool-palette/to
             name: "Assignment",
             icon: "images/tool-icons/assign.svg",
             title: "Assignment",
-            nodeFactoryMethod: BallerinaASTFactory.createAggregatedAssignmentStatement
+            nodeFactoryMethod: DefaultBallerinaASTFactory.createAggregatedAssignmentStatement
         };
 
         // TODO: change the icon with the new one
@@ -158,7 +158,7 @@ define(['log', 'jquery', './../ast/ballerina-ast-factory', './../tool-palette/to
             name: "VariableDefinition",
             icon: "images/variable.svg",
             title: "Variable Definition",
-            nodeFactoryMethod: DefaultsAddedBallerinaASTFactory.createVariableDefinitionStatement
+            nodeFactoryMethod: DefaultBallerinaASTFactory.createVariableDefinitionStatement
         };
 
         var createFunctionInvocationTool = {
@@ -166,7 +166,7 @@ define(['log', 'jquery', './../ast/ballerina-ast-factory', './../tool-palette/to
             name: "FunctionInvocation",
             icon: "images/tool-icons/function-invoke.svg",
             title: "Function Invocation",
-            nodeFactoryMethod: BallerinaASTFactory.createAggregatedFunctionInvocationStatement
+            nodeFactoryMethod: DefaultBallerinaASTFactory.createAggregatedFunctionInvocationStatement
         };
 
         var createReplyStatementTool = {
@@ -206,7 +206,7 @@ define(['log', 'jquery', './../ast/ballerina-ast-factory', './../tool-palette/to
             name: "Throw",
             icon: "images/tool-icons/throw.svg",
             title: "Throw",
-            nodeFactoryMethod: DefaultsAddedBallerinaASTFactory.createThrowStatement
+            nodeFactoryMethod: DefaultBallerinaASTFactory.createThrowStatement
         };
 
         var statementToolDefArray = [createIfStatementTool, createAssignmentExpressionTool,

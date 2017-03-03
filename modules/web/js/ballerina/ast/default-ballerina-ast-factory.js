@@ -19,18 +19,18 @@
 define(['lodash', './ballerina-ast-factory'], function (_, BallerinaASTFactory) {
 
     /**
-     * @class DefaultsAddedBallerinaASTFactory
-     * @lends DefaultsAddedBallerinaASTFactory
+     * @class DefaultBallerinaASTFactory
+     * @lends DefaultBallerinaASTFactory
      */
-    var DefaultsAddedBallerinaASTFactory = {};
+    var DefaultBallerinaASTFactory = {};
 
     /**
      * creates ServiceDefinition
      * @param args
      */
-    DefaultsAddedBallerinaASTFactory.createServiceDefinition = function (args) {
+    DefaultBallerinaASTFactory.createServiceDefinition = function (args) {
         var serviceDef = BallerinaASTFactory.createServiceDefinition(args);
-        var resourceDef = DefaultsAddedBallerinaASTFactory.createResourceDefinition(args);
+        var resourceDef = DefaultBallerinaASTFactory.createResourceDefinition(args);
         serviceDef.addChild(resourceDef);
         return serviceDef;
     };
@@ -39,7 +39,7 @@ define(['lodash', './ballerina-ast-factory'], function (_, BallerinaASTFactory) 
      * creates ResourceDefinition
      * @param args
      */
-    DefaultsAddedBallerinaASTFactory.createResourceDefinition = function (args) {
+    DefaultBallerinaASTFactory.createResourceDefinition = function (args) {
         var resourceDef = BallerinaASTFactory.createResourceDefinition(args);
         var resourceArg = BallerinaASTFactory.createResourceParameter();
         resourceArg.setType("message");
@@ -52,7 +52,7 @@ define(['lodash', './ballerina-ast-factory'], function (_, BallerinaASTFactory) 
      * creates ConnectorDefinition
      * @param args
      */
-    DefaultsAddedBallerinaASTFactory.createConnectorDefinition = function (args) {
+    DefaultBallerinaASTFactory.createConnectorDefinition = function (args) {
         var connectorDef = BallerinaASTFactory.createConnectorDefinition(args);
         var connectorArg = BallerinaASTFactory.createResourceParameter();
         connectorArg.setType("message");
@@ -65,7 +65,7 @@ define(['lodash', './ballerina-ast-factory'], function (_, BallerinaASTFactory) 
      * creates ConnectorAction
      * @param args
      */
-    DefaultsAddedBallerinaASTFactory.createConnectorAction = function (args) {
+    DefaultBallerinaASTFactory.createConnectorAction = function (args) {
         var actionDef = BallerinaASTFactory.createConnectorAction(args);
         var actionArg = BallerinaASTFactory.createResourceParameter();
         actionArg.setType("message");
@@ -81,7 +81,7 @@ define(['lodash', './ballerina-ast-factory'], function (_, BallerinaASTFactory) 
      *
      * @see {@link VariableDefinitionStatement}
      */
-    DefaultsAddedBallerinaASTFactory.createVariableDefinitionStatement = function (args) {
+    DefaultBallerinaASTFactory.createVariableDefinitionStatement = function (args) {
         var variableDefinitionStatement = BallerinaASTFactory.createVariableDefinitionStatement(args);
         variableDefinitionStatement.setLeftExpression("int i");
         variableDefinitionStatement.setRightExpression("0");
@@ -93,7 +93,7 @@ define(['lodash', './ballerina-ast-factory'], function (_, BallerinaASTFactory) 
      * @param {Object} args - object for typeMapperDefinition creation
      * @returns {TypeMapperDefinition}
      */
-    DefaultsAddedBallerinaASTFactory.createTypeMapperDefinition = function (args) {
+    DefaultBallerinaASTFactory.createTypeMapperDefinition = function (args) {
         var typeMapperDefinition = BallerinaASTFactory.createTypeMapperDefinition(args);
         var blockStatement = BallerinaASTFactory.createBlockStatement(args);
         var returnStatement = BallerinaASTFactory.createReturnStatement(args);
@@ -120,7 +120,7 @@ define(['lodash', './ballerina-ast-factory'], function (_, BallerinaASTFactory) 
      * @param args
      * @returns {ActionInvocationStatement}
      */
-    DefaultsAddedBallerinaASTFactory.createAggregatedActionInvocationStatement = function(args) {
+    DefaultBallerinaASTFactory.createAggregatedActionInvocationStatement = function(args) {
         var actionInStmt = BallerinaASTFactory.createActionInvocationStatement(args);
         var actionInExp = BallerinaASTFactory.createActionInvocationExpression(args);
         actionInStmt.addChild(actionInExp);
@@ -132,7 +132,7 @@ define(['lodash', './ballerina-ast-factory'], function (_, BallerinaASTFactory) 
      * @param args
      * @returns {AssignmentStatement}
      */
-    DefaultsAddedBallerinaASTFactory.createAggregatedActionInvocationAssignmentStatement = function(args) {
+    DefaultBallerinaASTFactory.createAggregatedActionInvocationAssignmentStatement = function(args) {
         var assignmentStmt = BallerinaASTFactory.createAssignmentStatement(args);
         var leftOp = BallerinaASTFactory.createLeftOperandExpression(args);
         var rightOp = BallerinaASTFactory.createRightOperandExpression(args);
@@ -148,7 +148,7 @@ define(['lodash', './ballerina-ast-factory'], function (_, BallerinaASTFactory) 
      * creates TryCatchStatement
      * @param args
      */
-    DefaultsAddedBallerinaASTFactory.createTryCatchStatement = function (args) {
+    DefaultBallerinaASTFactory.createTryCatchStatement = function (args) {
         var tryCatchStatement = BallerinaASTFactory.createTryCatchStatement(args);
         var tryStatement = BallerinaASTFactory.createTryStatement(args);
         tryCatchStatement.addChild(tryStatement);
@@ -162,11 +162,66 @@ define(['lodash', './ballerina-ast-factory'], function (_, BallerinaASTFactory) 
      * @param {Object} args - Arguments for creating a new throw statement.
      * @returns {ThrowStatement}
      */
-    DefaultsAddedBallerinaASTFactory.createThrowStatement = function (args) {
+    DefaultBallerinaASTFactory.createThrowStatement = function (args) {
         var throwStatement = BallerinaASTFactory.createThrowStatement(args);
         throwStatement.addChild(BallerinaASTFactory.createVariableReferenceExpression({variableReferenceName:"e"}));
         return throwStatement;
     };
 
-    return DefaultsAddedBallerinaASTFactory;
+    /**
+     * creates MainFunctionDefinition
+     * @param args
+     */
+    DefaultBallerinaASTFactory.createMainFunctionDefinition = function (args) {
+        var functionDefinition = BallerinaASTFactory.createFunctionDefinition(args);
+        functionDefinition.setFunctionName("main");
+        functionDefinition.addArgument("string[]", "args");
+        return functionDefinition;
+    };
+
+    /* Create the particular assignment statement for the function invocation
+     * @param args
+     * @returns {AssignmentStatement}
+     */
+    DefaultBallerinaASTFactory.createAggregatedFunctionInvocationExpression = function(args) {
+        var assignmentStmt = BallerinaASTFactory.createAssignmentStatement(args);
+        var leftOp = BallerinaASTFactory.createLeftOperandExpression(args);
+        var rightOp = BallerinaASTFactory.createRightOperandExpression(args);
+        var functionInExp = BallerinaASTFactory.createFunctionInvocationExpression(args);
+        rightOp.addChild(functionInExp);
+        rightOp.setRightOperandExpressionString(functionInExp.getExpression());
+        assignmentStmt.addChild(leftOp);
+        assignmentStmt.addChild(rightOp);
+        return assignmentStmt;
+    };
+
+    /**
+     * creates Aggregated AssignmentStatement
+     * @param {Object} args
+     * @returns {AssignmentStatement}
+     */
+    DefaultBallerinaASTFactory.createAggregatedAssignmentStatement = function (args) {
+        var assignmentStmt = BallerinaASTFactory.createAssignmentStatement(args);
+        var leftOperand = BallerinaASTFactory.createLeftOperandExpression(args);
+        leftOperand.setLeftOperandExpressionString("a");
+        var rightOperand = BallerinaASTFactory.createRightOperandExpression(args);
+        rightOperand.setRightOperandExpressionString("b");
+        assignmentStmt.addChild(leftOperand);
+        assignmentStmt.addChild(rightOperand);
+        return assignmentStmt;
+    };
+
+    /**
+     * creates FunctionInvocationStatement
+     * @param args
+     * @returns {FunctionInvocation}
+     */
+    DefaultBallerinaASTFactory.createAggregatedFunctionInvocationStatement = function (args) {
+        var funcInvocationStatement = BallerinaASTFactory.createFunctionInvocationStatement(args);
+        var funcInvocationExpression = BallerinaASTFactory.createFunctionInvocationExpression(args);
+        funcInvocationStatement.addChild(funcInvocationExpression);
+        return funcInvocationStatement;
+    };
+
+    return DefaultBallerinaASTFactory;
 });
