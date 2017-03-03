@@ -29,7 +29,7 @@ package org.ballerinalang.model.types;
 public interface BIndexedType {
     
     /**
-     * Get the type of a child elements of this type
+     * Get the type of a child elements of this type.
      * 
      * @return  Type of the child elements
      */

@@ -179,7 +179,7 @@ public class Main {
     }
 
     /**
-     * This class represents the "run" command and it holds arguments and flags specified by the user
+     * This class represents the "run" command and it holds arguments and flags specified by the user.
      *
      * @since 0.8.0
      */
@@ -235,7 +235,7 @@ public class Main {
     }
 
     /**
-     * This class represents the "run" command and it holds arguments and flags specified by the user
+     * This class represents the "run" command and it holds arguments and flags specified by the user.
      *
      * @since 0.8.0
      */
@@ -302,7 +302,7 @@ public class Main {
     }
 
     /**
-     * This class represents the "service" command and it holds arguments and flags specified by the user
+     * This class represents the "service" command and it holds arguments and flags specified by the user.
      *
      * @since 0.8.0
      */
@@ -396,7 +396,7 @@ public class Main {
     }
 
     /**
-     * This class represents the "build" command and it holds arguments and flags specified by the user
+     * This class represents the "build" command and it holds arguments and flags specified by the user.
      *
      * @since 0.8.0
      */
@@ -455,7 +455,7 @@ public class Main {
     }
 
     /**
-     * This class represents the "build main" command and it holds arguments and flags specified by the user
+     * This class represents the "build main" command and it holds arguments and flags specified by the user.
      *
      * @since 0.8.0
      */
@@ -539,7 +539,7 @@ public class Main {
     }
 
     /**
-     * This class represents the "build service" command and it holds arguments and flags specified by the user
+     * This class represents the "build service" command and it holds arguments and flags specified by the user.
      *
      * @since 0.8.0
      */
@@ -623,7 +623,7 @@ public class Main {
     }
 
     /**
-     * This class represents the "help" command and it holds arguments and flags specified by the user
+     * This class represents the "help" command and it holds arguments and flags specified by the user.
      *
      * @since 0.8.0
      */
@@ -676,7 +676,7 @@ public class Main {
     }
 
     /**
-     * This class represents the "main" command required by the JCommander
+     * This class represents the "main" command required by the JCommander.
      *
      * @since 0.8.0
      */

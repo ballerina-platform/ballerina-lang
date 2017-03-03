@@ -24,6 +24,10 @@ Library functions for accessing information from this type are in the package `b
 
 ## The `try-catch` statement
 
+In Design View in the Composer, you can add a `try-catch` statement to your sequence diagram by dragging the following icon from the tool palette to the canvas:
+
+![alt text](../images/icons/try-catch.png "Try-Catch icon")
+
 The syntax of a `try-catch` is as follows:
 
 ```
@@ -37,6 +41,10 @@ try {
 If any exception occurs while execution, the first block of statements and then the exception will be handled by the block after the `catch`.
 
 ## The `throw` statement
+
+You can add a `throw` statement to your diagram by dragging the folloiwng icon to the canvas:
+
+![alt text](../images/icons/throw.png "Throw icon")
 
 The syntax of a `throw` statement is as follows:
 

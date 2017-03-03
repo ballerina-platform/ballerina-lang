@@ -27,6 +27,9 @@ import org.ballerinalang.util.program.BLangFunctions;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+/**
+ * Test Cases for variable scopes.
+ */
 public class VariableScopeTest {
 
     @Test(expectedExceptions = SemanticException.class,

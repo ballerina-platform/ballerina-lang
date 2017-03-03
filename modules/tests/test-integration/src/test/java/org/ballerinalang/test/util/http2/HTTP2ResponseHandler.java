@@ -33,7 +33,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 /**
- * Process {@link io.netty.handler.codec.http.FullHttpResponse} translated from HTTP/2 frames
+ * Process {@link io.netty.handler.codec.http.FullHttpResponse} translated from HTTP/2 frames.
  */
 public class HTTP2ResponseHandler extends SimpleChannelInboundHandler<FullHttpResponse> {
 
@@ -48,7 +48,7 @@ public class HTTP2ResponseHandler extends SimpleChannelInboundHandler<FullHttpRe
     }
 
     /**
-     * Create an association between an anticipated response stream id and a {@link io.netty.channel.ChannelPromise}
+     * Create an association between an anticipated response stream id and a {@link io.netty.channel.ChannelPromise}.
      *
      * @param streamId    The stream for which a response is expected
      * @param writeFuture A future that represent the request write operation
@@ -79,7 +79,7 @@ public class HTTP2ResponseHandler extends SimpleChannelInboundHandler<FullHttpRe
     }
 
     /**
-     * Provide asynchronous response to HTTP2 request
+     * Provide asynchronous response to HTTP2 request.
      *
      * @param streamId StreamID
      * @return Response string

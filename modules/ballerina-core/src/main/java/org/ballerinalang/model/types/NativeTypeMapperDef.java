@@ -25,7 +25,7 @@ import org.ballerinalang.model.values.BValueType;
 import java.util.function.Function;
 
 /**
- * Type mapper represents a native conversion
+ * Type mapper represents a native conversion.
  */
 public class NativeTypeMapperDef implements BLangSymbol {
 

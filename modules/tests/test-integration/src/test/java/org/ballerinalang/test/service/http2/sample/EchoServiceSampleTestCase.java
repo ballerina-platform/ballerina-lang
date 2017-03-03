@@ -31,6 +31,11 @@ import org.testng.annotations.Test;
 import static io.netty.handler.codec.http.HttpMethod.POST;
 import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 
+/**
+ * Testing the Echo service sample located in
+ * ballerina_home/samples/echoService/echoService.bal.
+ * Request message should be returned as response message
+ */
 public class EchoServiceSampleTestCase extends HTTP2IntegrationTestCase {
     private final String requestMessage = "{\"exchange\":\"nyse\",\"name\":\"WSO2\",\"value\":\"127.50\"}";
     private static final Logger log = LoggerFactory.getLogger(EchoServiceSampleTestCase.class);

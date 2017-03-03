@@ -28,6 +28,9 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+/**
+ * Test Cases for operator precedence.
+ */
 public class OperatorPrecedenceTest {
     private BLangProgram bLangProgram;
 

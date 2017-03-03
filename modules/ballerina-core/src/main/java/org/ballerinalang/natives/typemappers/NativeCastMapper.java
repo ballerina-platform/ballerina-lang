@@ -28,7 +28,7 @@ import org.ballerinalang.model.values.BValueType;
 import java.util.function.Function;
 
 /**
- * Type mapper for converting across native types
+ * Type mapper for converting across native types.
  */
 public class NativeCastMapper {
 
@@ -43,6 +43,9 @@ public class NativeCastMapper {
 
     public static final Function<BValueType, BValueType> INT_TO_STRING_FUNC =
             (rVal) -> new BString(rVal.stringValue());
+
+    public static final Function<BValueType, BValueType> INT_TO_BOOLEAN_FUNC =
+            (rVal) -> new BBoolean(rVal.intValue() != 0);
 
     public static final Function<BValueType, BValueType> INT_TO_INT_FUNC =
             (rVal) -> rVal;
@@ -67,6 +70,9 @@ public class NativeCastMapper {
 
     public static final Function<BValueType, BValueType> FLOAT_TO_STRING_FUNC =
             (rVal) -> new BString(rVal.stringValue());
+
+    public static final Function<BValueType, BValueType> FLOAT_TO_BOOLEAN_FUNC =
+            (rVal) -> new BBoolean(rVal.floatValue() != 0.0);
 
     public static final Function<BValueType, BValueType> FLOAT_TO_FLOAT_FUNC =
             (rVal) -> rVal;
@@ -112,6 +118,12 @@ public class NativeCastMapper {
 
     public static final Function<BValueType, BValueType> BOOLEAN_TO_STRING_FUNC =
             (rVal) -> new BString(rVal.stringValue());
+
+    public static final Function<BValueType, BValueType> BOOLEAN_TO_INT_FUNC =
+            (rVal) -> rVal.booleanValue() ? new BInteger(1) : new BInteger(0);
+
+    public static final Function<BValueType, BValueType> BOOLEAN_TO_FLOAT_FUNC =
+            (rVal) -> rVal.booleanValue() ? new BFloat(1.0f) : new BFloat(0.0f);
 
     public static final Function<BValueType, BValueType> BOOLEAN_TO_BOOLEAN_FUNC =
             (rVal) -> rVal;

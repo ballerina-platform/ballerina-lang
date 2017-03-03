@@ -30,7 +30,7 @@ import org.ballerinalang.model.values.BValueType;
 import java.util.function.Function;
 
 /**
- * Class to hold the data related to type casting expression
+ * Class to hold the data related to type casting expression.
  *
  * @since 0.8.0
  */
@@ -127,7 +127,7 @@ public class TypeCastExpression extends AbstractExpression implements CallableUn
     }
 
     /**
-     * Returns an arrays of arguments of this callable unit invocation expression
+     * Returns an arrays of arguments of this callable unit invocation expression.
      *
      * @return the arrays of arguments
      */
@@ -138,7 +138,7 @@ public class TypeCastExpression extends AbstractExpression implements CallableUn
     }
 
     /**
-     * Returns the {@code CallableUnit} linked with this callable unit invocation expression
+     * Returns the {@code CallableUnit} linked with this callable unit invocation expression.
      *
      * @return the linked {@code CallableUnit}
      */
@@ -148,7 +148,7 @@ public class TypeCastExpression extends AbstractExpression implements CallableUn
     }
 
     /**
-     * Sets the {@code CallableUnit}
+     * Sets the {@code CallableUnit}.
      *
      * @param callableUnit type of the callable unit
      */
@@ -159,7 +159,7 @@ public class TypeCastExpression extends AbstractExpression implements CallableUn
     }
 
     /**
-     * Returns an arrays of argument types of this callable unit invocation expression
+     * Returns an arrays of argument types of this callable unit invocation expression.
      *
      * @return an arrays of argument types
      */
@@ -169,7 +169,7 @@ public class TypeCastExpression extends AbstractExpression implements CallableUn
     }
 
     /**
-     * Sets an arrays of argument types
+     * Sets an arrays of argument types.
      *
      * @param types arrays of argument types
      */
@@ -179,7 +179,7 @@ public class TypeCastExpression extends AbstractExpression implements CallableUn
     }
 
     /**
-     * Executes and Returns all the results of this expression
+     * Executes and Returns all the results of this expression.
      *
      * @param executor instance of a {@code NodeExecutor}
      * @return results of this expression

@@ -38,6 +38,13 @@
             <outputDirectory>bre/conf</outputDirectory>
             <fileMode>644</fileMode>
         </fileSet>
+
+        <fileSet>
+            <directory>ballerina-home/logs</directory>
+            <outputDirectory>logs</outputDirectory>
+            <fileMode>644</fileMode>
+        </fileSet>
+
         <fileSet>
             <directory>ballerina-home/resources/security</directory>
             <outputDirectory>bre/security</outputDirectory>
@@ -142,7 +149,7 @@
                 <include>org.apache.james:apache-mime4j-core</include>
                 <include>com.beust:jcommander</include>
                 <include>org.slf4j:slf4j-api</include>
-                <include>org.slf4j:slf4j-nop</include>
+                <include>org.slf4j:slf4j-jdk14</include>
                 <include>io.netty:netty-common</include>
                 <include>io.netty:netty-buffer</include>
                 <include>io.netty:netty-transport</include>

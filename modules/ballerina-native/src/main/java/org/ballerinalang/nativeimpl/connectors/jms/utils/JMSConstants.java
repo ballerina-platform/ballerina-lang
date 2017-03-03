@@ -44,32 +44,32 @@ public class JMSConstants {
 
     /**
      * Do not cache any JMS resources between tasks (when sending) or JMS CF's
-     * (when sending)
+     * (when sending).
      */
     public static final int CACHE_NONE = 0;
     /**
      * Cache only the JMS connection between tasks (when receiving), or JMS CF's
-     * (when sending)
+     * (when sending).
      */
     public static final int CACHE_CONNECTION = 1;
     /**
      * Cache only the JMS connection and Session between tasks (receiving), or
-     * JMS CF's (sending)
+     * JMS CF's (sending).
      */
     public static final int CACHE_SESSION = 2;
     /**
      * Cache the JMS connection, Session and Consumer between tasks when
-     * receiving
+     * receiving.
      */
     public static final int CACHE_CONSUMER = 3;
     /**
      * Cache the JMS connection, Session and Producer within a
-     * JMSConnectionFactory when sending
+     * JMSConnectionFactory when sending.
      */
     public static final int CACHE_PRODUCER = 4;
 
     /**
-     * Acknowledgements to client
+     * Acknowledgements to client.
      */
     public static final String JMS_MESSAGE_DELIVERY_ERROR = "ERROR";
     public static final String JMS_MESSAGE_DELIVERY_SUCCESS = "SUCCESS";

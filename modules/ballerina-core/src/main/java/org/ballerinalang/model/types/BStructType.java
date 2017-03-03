@@ -29,7 +29,7 @@ import org.ballerinalang.model.values.BValue;
 public class BStructType extends BType {
 
     /**
-     * Create a {@code BStructType} which represents the boolean type
+     * Create a {@code BStructType} which represents the boolean type.
      *
      * @param typeName string name of the type
      * @param pkgPath package of the struct
