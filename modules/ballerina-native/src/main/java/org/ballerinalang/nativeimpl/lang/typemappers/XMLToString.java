@@ -30,7 +30,7 @@ import org.ballerinalang.natives.annotations.BallerinaTypeMapper;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * Convert JSON to String
+ * Convert JSON to String.
  */
 @BallerinaTypeMapper(
         packageName = "ballerina.lang.typemappers",

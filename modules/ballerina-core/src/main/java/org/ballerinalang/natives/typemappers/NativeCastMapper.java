@@ -28,7 +28,7 @@ import org.ballerinalang.model.values.BValueType;
 import java.util.function.Function;
 
 /**
- * Type mapper for converting across native types
+ * Type mapper for converting across native types.
  */
 public class NativeCastMapper {
 

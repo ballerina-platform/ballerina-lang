@@ -31,7 +31,7 @@ import java.util.concurrent.Semaphore;
 import static java.lang.Thread.sleep;
 
 /**
- * {@code DebugManager} Manages debug sessions and handle debug related actions
+ * {@code DebugManager} Manages debug sessions and handle debug related actions.
  *
  * @since 0.8.0
  */
@@ -44,7 +44,7 @@ public class DebugManager {
     private DebugServer debugServer;
 
     /**
-     * Object to hold debug session related context
+     * Object to hold debug session related context.
      * @todo , allow managing multiple debug sessions.
      */
     private DebugSession debugSession;
@@ -61,7 +61,7 @@ public class DebugManager {
     }
 
     /**
-     * Debug manager singleton
+     * Debug manager singleton.
      *
      * @return DebugManager instance
      */
@@ -227,7 +227,7 @@ public class DebugManager {
     }
 
     /**
-     * Notify client when the debugger is exiting
+     * Notify client when the debugger is exiting.
      *
      * @param debugSession current debugging session
      */

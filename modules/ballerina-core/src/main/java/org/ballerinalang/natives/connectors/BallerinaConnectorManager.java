@@ -57,6 +57,7 @@ public class BallerinaConnectorManager {
 
     /**
      * Returns the server connector instance associated with the given protocol.
+     * 
      * @param id the identifier of the server connector.
      * @return server connector instance.
      */
@@ -66,6 +67,7 @@ public class BallerinaConnectorManager {
 
     /**
      * Returns the client connector instance associated with the given protocol.
+     * 
      * @param protocol of the client connector.
      * @return client connector instance.
      */
@@ -97,6 +99,7 @@ public class BallerinaConnectorManager {
     /**
      * Register the given server connector error handler instance with the manager. Protocol of the handler will be
      * used with registering the handler.
+     * 
      * @param serverConnectorErrorHandler handler instance to register.
      */
     public void registerServerConnectorErrorHandler(ServerConnectorErrorHandler serverConnectorErrorHandler) {
@@ -106,6 +109,7 @@ public class BallerinaConnectorManager {
     /**
      * Returns an {@code Optional} value of the server connector error handler registered against the given transport
      * protocol.
+     * 
      * @param protocol the transport protocol associated with the error handler.
      * @return error handler instance.
      */
@@ -152,7 +156,7 @@ public class BallerinaConnectorManager {
     }
 
     /**
-     * Add a ServerConnector which startup is delayed at the service deployment time
+     * Add a ServerConnector which startup is delayed at the service deployment time.
      *
      * @param serverConnector ServerConnector
      * @param parameters      parameter map required to start the ServerConnector
@@ -189,7 +193,7 @@ public class BallerinaConnectorManager {
     }
 
     /**
-     * DataHolder for store startup delayed ServerConnectors
+     * DataHolder for store startup delayed ServerConnectors.
      * TODO: We may get rid of this later with a messaging api change
      */
     private class StartupDelayedServerConnectorHolder {

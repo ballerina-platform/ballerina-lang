@@ -27,7 +27,7 @@ import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 
 /**
- * Native function ballerina.model.system:print(json)
+ * Native function ballerina.model.system:print(json).
  */
 @BallerinaFunction(
         packageName = "ballerina.lang.system",

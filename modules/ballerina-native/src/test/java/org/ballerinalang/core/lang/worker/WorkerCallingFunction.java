@@ -26,6 +26,9 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+/**
+ * Test cases for calling worker in functions.
+ */
 public class WorkerCallingFunction {
     private BLangProgram bLangProgram;
 

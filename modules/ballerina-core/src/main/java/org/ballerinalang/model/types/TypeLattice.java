@@ -29,7 +29,7 @@ import java.util.Set;
 import java.util.function.Function;
 
 /**
- * Class to hold the types and their connections within ballerina
+ * Class to hold the types and their connections within ballerina.
  */
 public class TypeLattice {
 

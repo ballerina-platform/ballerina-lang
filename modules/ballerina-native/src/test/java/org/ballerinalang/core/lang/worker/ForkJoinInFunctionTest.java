@@ -27,7 +27,9 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-
+/**
+ * Test cases for usages of fork-join in functions.
+ */
 public class ForkJoinInFunctionTest {
     private BLangProgram bLangProgram;
 
