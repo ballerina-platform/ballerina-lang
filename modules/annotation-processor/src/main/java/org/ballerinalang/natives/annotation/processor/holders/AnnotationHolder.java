@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * Holds a {@link BallerinaAnnotation}
+ * Holds a {@link BallerinaAnnotation}.
  */
 public class AnnotationHolder {
     

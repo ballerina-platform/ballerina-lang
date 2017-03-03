@@ -20,7 +20,9 @@ package org.ballerinalang.core.lang.worker;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-
+/**
+ * Test cases for usages of worker in resources.
+ */
 public class WorkerInResourceTest {
     //private BallerinaFile bFile;
 

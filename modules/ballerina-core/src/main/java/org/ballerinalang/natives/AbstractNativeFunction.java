@@ -48,7 +48,7 @@ import java.util.List;
 public abstract class AbstractNativeFunction implements NativeUnit, Function {
 
     /**
-     * Value to be returned for functions having a void return
+     * Value to be returned for functions having a void return.
      */
     public static final BValue[] VOID_RETURN = new BValue[0];
 
@@ -71,7 +71,7 @@ public abstract class AbstractNativeFunction implements NativeUnit, Function {
     private int tempStackFrameSize;
 
     /**
-     * Initialize a native function
+     * Initialize a native function.
      */
     public AbstractNativeFunction() {
         parameterDefs = new ArrayList<>();

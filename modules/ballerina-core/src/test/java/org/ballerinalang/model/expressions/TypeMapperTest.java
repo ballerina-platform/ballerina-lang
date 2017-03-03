@@ -27,6 +27,9 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+/**
+ * Test Cases for type mapping.
+ */
 public class TypeMapperTest {
 
     private BLangProgram bLangProgram;

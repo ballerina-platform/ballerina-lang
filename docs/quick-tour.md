@@ -17,6 +17,7 @@ The HelloWorld sample will show you how easy it is to run Ballerina, send it a r
 Let's take a look at what the sample looks like in the Ballerina programming language:
 
 ```
+import ballerina.lang.system;
 function main (string[] args) {
   system:println("Hello, World!");
 }
