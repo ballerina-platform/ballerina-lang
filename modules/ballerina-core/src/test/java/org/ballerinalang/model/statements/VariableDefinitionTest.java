@@ -32,6 +32,9 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+/**
+ * Test Cases for defining variable.
+ */
 public class VariableDefinitionTest {
     private BLangProgram bLangProgram;
 

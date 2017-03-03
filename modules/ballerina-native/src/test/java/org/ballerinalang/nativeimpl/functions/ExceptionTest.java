@@ -28,7 +28,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
- * Test cases for ballerina.model.exception
+ * Test cases for ballerina.model.exception.
  */
 public class ExceptionTest {
 

@@ -25,7 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * An {@code BreakStmt} represents a break statement
+ * An {@code BreakStmt} represents a break statement.
  */
 public class BreakStmt extends AbstractStatement {
 
@@ -46,7 +46,7 @@ public class BreakStmt extends AbstractStatement {
     }
 
     /**
-     * Executes the statement
+     * Executes the statement.
      *
      * @param executor instance of a {@code NodeExecutor}
      */

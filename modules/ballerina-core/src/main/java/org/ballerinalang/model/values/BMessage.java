@@ -89,7 +89,8 @@ public final class BMessage implements BRefType<CarbonMessage> {
     }
 
     /**
-     * This method returns the already built content of this ballerina message
+     * This method returns the already built content of this ballerina message.
+     * 
      * @return BallerinaMessageDataSource content of this message
      */
     public BallerinaMessageDataSource getMessageDataSource() {

@@ -121,8 +121,8 @@ public class GreaterLessThanExprTest {
     @Test(description = "Test greater-than check for two different types",
             expectedExceptions = {SemanticException.class},
             expectedExceptionsMessageRegExp =
-                  "lang/expressions/type/incompatible/gt/incompatible-type-greater-than.bal:6: "
-                          + "invalid operation: incompatible types 'int' and 'boolean'")
+                  "lang[/\\\\]expressions[/\\\\]type[/\\\\]incompatible[/\\\\]gt[/\\\\]" + 
+                  "incompatible-type-greater-than.bal:6: invalid operation: incompatible types 'int' and 'boolean'")
     public void testIncompatibleGreaterThan() {
         BTestUtils.parseBalFile("lang/expressions/type/incompatible/gt");
     }
@@ -130,8 +130,9 @@ public class GreaterLessThanExprTest {
     @Test(description = "Test greater-than-equal check for two different types",
             expectedExceptions = {SemanticException.class},
             expectedExceptionsMessageRegExp =
-                  "lang/expressions/type/incompatible/gte/incompatible-type-greater-than-equal.bal:6: "
-                          + "invalid operation: incompatible types 'int' and 'boolean'")
+                  "lang[/\\\\]expressions[/\\\\]type[/\\\\]incompatible[/\\\\]gte[/\\\\]" + 
+                  "incompatible-type-greater-than-equal.bal:6: invalid operation: incompatible types 'int' and" +
+                  " 'boolean'")
     public void testIncompatibleGreaterThanEqual() {
         BTestUtils.parseBalFile("lang/expressions/type/incompatible/gte");
     }
@@ -139,8 +140,8 @@ public class GreaterLessThanExprTest {
     @Test(description = "Test less-than check for two different types",
             expectedExceptions = {SemanticException.class},
             expectedExceptionsMessageRegExp =
-                  "lang/expressions/type/incompatible/lt/incompatible-type-less-than.bal:6: "
-                          + "invalid operation: incompatible types 'int' and 'boolean'")
+                  "lang[/\\\\]expressions[/\\\\]type[/\\\\]incompatible[/\\\\]lt[/\\\\]" +
+                  "incompatible-type-less-than.bal:6: invalid operation: incompatible types 'int' and 'boolean'")
     public void testIncompatibleLessThan() {
         BTestUtils.parseBalFile("lang/expressions/type/incompatible/lt");
     }
@@ -148,8 +149,8 @@ public class GreaterLessThanExprTest {
     @Test(description = "Test less-than-equal check for two different types",
             expectedExceptions = {SemanticException.class},
             expectedExceptionsMessageRegExp =
-                  "lang/expressions/type/incompatible/lte/incompatible-type-less-than-equal.bal:6: "
-                          + "invalid operation: incompatible types 'int' and 'boolean'")
+                  "lang[/\\\\]expressions[/\\\\]type[/\\\\]incompatible[/\\\\]lte[/\\\\]" +
+                  "incompatible-type-less-than-equal.bal:6: invalid operation: incompatible types 'int' and 'boolean'")
     public void testIncompatibleLessThanEqual() {
         BTestUtils.parseBalFile("lang/expressions/type/incompatible/lte");
     }
@@ -157,8 +158,8 @@ public class GreaterLessThanExprTest {
     @Test(description = "Test less-than check for unsupported types (json)",
             expectedExceptions = {SemanticException.class },
             expectedExceptionsMessageRegExp =
-                  "lang/expressions/type/unsupported/lt/unsupported-type-less-than.bal:9: "
-                          + "invalid operation: operator < not defined on 'json'")
+                  "lang[/\\\\]expressions[/\\\\]type[/\\\\]unsupported[/\\\\]lt[/\\\\]" +
+                  "unsupported-type-less-than.bal:9: invalid operation: operator < not defined on 'json'")
     public void testUnsupportedTypeLessThan() {
         BTestUtils.parseBalFile("lang/expressions/type/unsupported/lt");
     }
@@ -166,8 +167,8 @@ public class GreaterLessThanExprTest {
     @Test(description = "Test greater-than check for unsupported types (json)",
             expectedExceptions = {SemanticException.class },
             expectedExceptionsMessageRegExp =
-                  "lang/expressions/type/unsupported/gt/unsupported-type-greater-than.bal:9: "
-                          + "invalid operation: operator > not defined on 'json'")
+                  "lang[/\\\\]expressions[/\\\\]type[/\\\\]unsupported[/\\\\]gt[/\\\\]" +
+                  "unsupported-type-greater-than.bal:9: invalid operation: operator > not defined on 'json'")
     public void testUnsupportedTypeGreaterThan() {
         BTestUtils.parseBalFile("lang/expressions/type/unsupported/gt");
     }
@@ -175,8 +176,8 @@ public class GreaterLessThanExprTest {
     @Test(description = "Test greater-than-equal check for unsupported types (json)",
             expectedExceptions = {SemanticException.class },
             expectedExceptionsMessageRegExp =
-                    "lang/expressions/type/unsupported/gte/unsupported-type-greater-than-equal.bal:9: "
-                    + "invalid operation: operator >= not defined on 'json'")
+                    "lang[/\\\\]expressions[/\\\\]type[/\\\\]unsupported[/\\\\]gte[/\\\\]" +
+                    "unsupported-type-greater-than-equal.bal:9: invalid operation: operator >= not defined on 'json'")
     public void testUnsupportedTypeGreaterThanEqual() {
         BTestUtils.parseBalFile("lang/expressions/type/unsupported/gte");
     }
@@ -184,8 +185,8 @@ public class GreaterLessThanExprTest {
     @Test(description = "Test less-than-equal check for unsupported types (json)",
             expectedExceptions = {SemanticException.class },
             expectedExceptionsMessageRegExp =
-                  "lang/expressions/type/unsupported/lte/unsupported-type-less-than-equal.bal:9: "
-                          + "invalid operation: operator <= not defined on 'json'")
+                  "lang[/\\\\]expressions[/\\\\]type[/\\\\]unsupported[/\\\\]lte[/\\\\]" + 
+                  "unsupported-type-less-than-equal.bal:9: invalid operation: operator <= not defined on 'json'")
     public void testUnsupportedTypeLessThanEqual() {
         BTestUtils.parseBalFile("lang/expressions/type/unsupported/lte");
     }

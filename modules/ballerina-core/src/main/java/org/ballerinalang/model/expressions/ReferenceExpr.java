@@ -20,14 +20,14 @@ package org.ballerinalang.model.expressions;
 import org.ballerinalang.model.SymbolName;
 
 /**
- * {@code ReferenceExpr} represents a variable reference in Ballerina
+ * {@code ReferenceExpr} represents a variable reference in Ballerina.
  *
  * @since 1.0.0
  */
 public interface ReferenceExpr extends Expression {
 
     /**
-     * Return the name of the variable reference
+     * Return the name of the variable reference.
      *
      * @return  variable name
      */

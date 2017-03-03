@@ -22,7 +22,7 @@ import org.ballerinalang.model.TypeMapper;
 import java.util.function.Function;
 
 /**
- * One edge in the Type Lattice graph
+ * One edge in the Type Lattice graph.
  */
 public class TypeEdge {
     private TypeVertex source, target;

@@ -138,7 +138,7 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
         ResultSet rs = null;
         try {
             conn = connector.getSQLConnection();
-            stmt = getPreparedCall(conn, connector, query);
+            stmt = getPreparedCall(conn, connector, query, parameters);
             createProcessedStatement(stmt, parameters);
             rs = executeStoredProc(stmt);
             setOutParameters(stmt, parameters);
@@ -159,6 +159,8 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
             throws SQLException {
         PreparedStatement stmt;
         boolean mysql = connector.getDatabaseName().contains("mysql");
+        /* In MySQL by default, ResultSets are completely retrieved and stored in memory.
+           Following properties are set to stream the results back one row at a time.*/
         if (mysql) {
             stmt = conn.prepareStatement(query, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
             // To fulfill OBL_UNSATISFIED_OBLIGATION_EXCEPTION_EDGE findbugs validation.
@@ -173,13 +175,17 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
         return stmt;
     }
 
-    private CallableStatement getPreparedCall(Connection conn, SQLConnector connector, String query)
+    private CallableStatement getPreparedCall(Connection conn, SQLConnector connector, String query, BArray parameters)
             throws SQLException {
         CallableStatement stmt;
         boolean mysql = connector.getDatabaseName().contains("mysql");
         if (mysql) {
             stmt = conn.prepareCall(query, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
-            stmt.setFetchSize(Integer.MIN_VALUE);
+            /* Only stream if there aren't any OUT parameters since can't use streaming result sets with callable
+               statements that have output parameters */
+            if (!hasOutParams(parameters)) {
+                stmt.setFetchSize(Integer.MIN_VALUE);
+            }
         } else {
             stmt = conn.prepareCall(query);
         }
@@ -402,6 +408,18 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
         } catch (SQLException e) {
             throw new BallerinaException("error in getting out parameter value: " + e.getMessage(), e);
         }
+    }
+
+    private boolean hasOutParams(BArray params) {
+        int paramCount = params.size();
+        for (int index = 0; index < paramCount; index++) {
+            BStruct paramValue = (BStruct) params.get(index);
+            int direction = Integer.parseInt(paramValue.getValue(2).stringValue());
+            if (direction == Constants.QueryParamDirection.OUT || direction == Constants.QueryParamDirection.INOUT) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private ResultSet executeStoredProc(CallableStatement stmt) throws SQLException {

@@ -29,7 +29,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import java.io.PrintStream;
 
 /**
- * Native function ballerina.model.system:println(json)
+ * Native function ballerina.model.system:println(json).
  */
 @BallerinaFunction(
         packageName = "ballerina.lang.system",

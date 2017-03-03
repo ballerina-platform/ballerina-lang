@@ -30,7 +30,7 @@ import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 
 /**
- * Native function to set a custom Http Reason Phrase
+ * Native function to set a custom Http Reason Phrase.
  */
 @BallerinaFunction(
         packageName = "ballerina.net.http",

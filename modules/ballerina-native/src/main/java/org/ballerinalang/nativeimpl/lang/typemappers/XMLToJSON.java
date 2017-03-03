@@ -51,7 +51,7 @@ import javax.xml.transform.stax.StAXResult;
 import javax.xml.transform.stax.StAXSource;
 
 /**
- * Convert XML to JSON
+ * Convert XML to JSON.
  */
 @BallerinaTypeMapper(
         packageName = "ballerina.lang.typemappers",
