@@ -334,6 +334,14 @@ define(['lodash', 'log', './ballerina-view', './variables-view', './type-struct-
                 }
                 event.stopPropagation();
             });
+
+            this._model.on('after-remove', function (child) {
+                this.stopListening();
+            },this);
+
+            this._model.on('after-remove', function (child) {
+                this.stopListening();
+            },this);
         };
 
 
@@ -445,6 +453,17 @@ define(['lodash', 'log', './ballerina-view', './variables-view', './type-struct-
                 }
             });
 
+            registerListeners(self, self.getSourceInfo().sourceStruct);
+
+            _.each(self.getSourceInfo().sourceStruct.getChildren(), function (variableDef) {
+                _.each(predefinedStructs, function (predefinedStruct) {
+                    if (variableDef.getTypeName() === predefinedStruct.getStructName()) {
+                        traverseChildren(self, predefinedStructs, predefinedStruct);
+                    }
+                });
+
+            });
+
             self.setSourceSchemaNameToComboBox('#sourceStructs' + self.getModel().id, sourceStructName);
             var inputStructView = new InputStructView({
                 model: resourceParameter, parentView: this, onConnectInstance: self.getOnConnectInstance(),
@@ -480,6 +499,16 @@ define(['lodash', 'log', './ballerina-view', './variables-view', './type-struct-
                     return false;
                 }
             });
+            registerListeners(self, self.getTargetInfo().targetStruct);
+
+            _.each(self.getTargetInfo().targetStruct.getChildren(), function (variableDef) {
+                _.each(predefinedStructs, function (predefinedStruct) {
+                    if (variableDef.getTypeName() === predefinedStruct.getStructName()) {
+                        traverseChildren(self, predefinedStructs, predefinedStruct);
+                    }
+                });
+
+            });
 
             self.setTargetSchemaNameToComboBox('#targetStructs' + self.getModel().id, targetStructName);
 
@@ -488,6 +517,61 @@ define(['lodash', 'log', './ballerina-view', './variables-view', './type-struct-
                 onDisconnectInstance: self.getOnDisconnectInstance(), targetInfo: self.getTargetInfo()
             });
             outputStructView.render(this.diagramRenderingContext, self.getTypeMapperRenderer());
+        };
+
+        /**
+         * register listeners to be fired upon changes in structs
+         * @param view
+         * @param struct
+         */
+        var registerListeners = function (view, struct) {
+            view.listenTo(struct, 'tree-modified', function (child) {
+                var connectionArray;
+                if (child.type === 'child-removed') {
+                    // connectionArray = self.getTypeMapperRenderer().getTargetConnectionsByProperty(
+                    //     struct.getStructName(), [child.data.child.getName()],[child.data.child.getTypeName()]);
+                    //TODO : retrieve the exact connection and delete only that connection
+                    connectionArray = view.getTypeMapperRenderer().getTargetConnectionsByStruct(struct.getStructName());
+                    _.each(connectionArray, function (connection) {
+                        self.getBlockStatementView().onAttributesDisConnect(connection);
+                    });
+                } else if (child.type === 'custom') {
+                    // connectionArray = self.getTypeMapperRenderer().getTargetConnectionsByProperty(
+                    //     struct.getStructName(), [child.data.oldValue],[child.context.getTypeName()]);
+                    //TODO : retrieve the exact connection and delete only that connection
+                    connectionArray = view.getTypeMapperRenderer().getTargetConnectionsByStruct(struct.getStructName());
+                    _.each(connectionArray, function (connection) {
+                        view.getBlockStatementView().onAttributesDisConnect(connection);
+                    });
+                }
+                var typeMapperModel = view._model;
+                var containerId = view._container.selector;
+                typeMapperModel.remove();
+                $('#_' + containerId.substring(1, containerId.length)).remove();
+                typeMapperModel.getParent().removeChild(typeMapperModel);
+                typeMapperModel.getParent().addChild(typeMapperModel);
+            });
+        };
+
+        /**
+         * traverse structs to register listeners in a nested struct scenario
+         * @param view
+         * @param predefinedStructs
+         * @param structOfVariableDef
+         */
+        var traverseChildren = function (view, predefinedStructs, structOfVariableDef) {
+            registerListeners(view, structOfVariableDef);
+            _.each(structOfVariableDef.getChildren(), function (innerVariableDef) {
+                _.each(predefinedStructs, function (predefinedStruct) {
+                    if (innerVariableDef.getTypeName() === predefinedStruct.getStructName()) {
+                        if (innerVariableDef.getChildren().length == 0) {
+                            registerListeners(view, predefinedStruct);
+                        } else {
+                            traverseChildren(view, predefinedStructs, predefinedStruct);
+                        }
+                    }
+                });
+            });
         };
 
         /**
