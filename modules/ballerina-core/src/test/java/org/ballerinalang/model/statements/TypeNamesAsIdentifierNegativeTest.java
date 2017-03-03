@@ -23,7 +23,7 @@ import org.ballerinalang.util.exceptions.SemanticException;
 import org.testng.annotations.Test;
 
 /**
- * Test to verify negative case of using type names as identifiers
+ * Test to verify negative case of using type names as identifiers.
  */
 public class TypeNamesAsIdentifierNegativeTest {
 

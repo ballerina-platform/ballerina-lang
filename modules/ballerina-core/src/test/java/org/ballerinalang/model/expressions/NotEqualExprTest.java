@@ -155,9 +155,8 @@ public class NotEqualExprTest {
 
     @Test(description = "Test checking equality of two types",
             expectedExceptions = {SemanticException.class },
-            expectedExceptionsMessageRegExp =
-                  "lang/expressions/type/incompatible/eq/incompatible-type-equal-expr.bal:6: "
-                          + "invalid operation: incompatible types 'int' and 'string'")
+            expectedExceptionsMessageRegExp = "lang[/\\\\]expressions[/\\\\]type[/\\\\]incompatible[/\\\\]eq[/\\\\]"
+                    + "incompatible-type-equal-expr.bal:6: invalid operation: incompatible types 'int' and 'string'")
     public void testIncompatibleEquality() {
         BTestUtils.parseBalFile("lang/expressions/type/incompatible/eq");
     }
@@ -165,8 +164,8 @@ public class NotEqualExprTest {
     @Test(description = "Test checking equality of unsupported types (json)",
             expectedExceptions = {SemanticException.class },
             expectedExceptionsMessageRegExp =
-                  "lang/expressions/type/unsupported/eq/unsupported-type-equal-expr.bal:9: "
-                          + "invalid operation: operator == not defined on 'json'")
+                  "lang[/\\\\]expressions[/\\\\]type[/\\\\]unsupported[/\\\\]eq[/\\\\]" +
+                  "unsupported-type-equal-expr.bal:9: invalid operation: operator == not defined on 'json'")
     public void testUnsupportedTypeEquality() {
         BTestUtils.parseBalFile("lang/expressions/type/unsupported/eq");
     }
@@ -174,8 +173,8 @@ public class NotEqualExprTest {
     @Test(description = "Test checking not-equality of unsupported types (json)",
             expectedExceptions = {SemanticException.class },
             expectedExceptionsMessageRegExp =
-                  "lang/expressions/type/unsupported/neq/unsupported-type-not-equal-expr.bal:9: "
-                          + "invalid operation: operator != not defined on 'json'")
+                  "lang[/\\\\]expressions[/\\\\]type[/\\\\]unsupported[/\\\\]neq[/\\\\]" +
+                  "unsupported-type-not-equal-expr.bal:9: invalid operation: operator != not defined on 'json'")
     public void testUnsupportedTypeNotEquality() {
         BTestUtils.parseBalFile("lang/expressions/type/unsupported/neq");
     }

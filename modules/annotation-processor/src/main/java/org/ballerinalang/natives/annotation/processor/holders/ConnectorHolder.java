@@ -27,7 +27,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * DTO to hold Ballerina Connector
+ * DTO to hold Ballerina Connector.
  */
 public class ConnectorHolder {
     

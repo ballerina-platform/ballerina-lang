@@ -30,7 +30,9 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-
+/**
+ * Test Cases type mapping for structs.
+ */
 public class StructTypeMapperTest {
     private BLangProgram bLangProgram;
 

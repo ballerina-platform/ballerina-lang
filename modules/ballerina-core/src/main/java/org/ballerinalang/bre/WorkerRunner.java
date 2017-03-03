@@ -29,7 +29,7 @@ import java.io.PrintStream;
 import java.util.concurrent.Callable;
 
 /**
- * A {@code WorkerRunner} Callable class which is running in a separate worker thread when worker is invoked
+ * A {@code WorkerRunner} Callable class which is running in a separate worker thread when worker is invoked.
  * <p>
  *
  * @since 0.8.0

@@ -45,7 +45,7 @@ import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 
 /**
- * Convert JSON to XML
+ * Convert JSON to XML.
  */
 @BallerinaTypeMapper(
         packageName = "ballerina.lang.typemappers",
