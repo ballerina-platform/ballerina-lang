@@ -32,7 +32,7 @@
         </fileSet>
         <fileSet>
             <directory>
-                ${project.build.directory}/extracted-distributions/ballerina-composer-${ballerina.composer.version}-zip/ballerina-composer-${ballerina.composer.version}
+                ${project.build.directory}/extracted-distributions/ballerina-composer-web-${ballerina.composer.version}-zip/ballerina-composer-web-${ballerina.composer.version}
             </directory>
             <outputDirectory>.</outputDirectory>
         </fileSet>
@@ -93,6 +93,16 @@
             <filtered>true</filtered>
             <fileMode>644</fileMode>
         </file>
+
+        <!-- Composer specific files -->
+        <file>
+            <source>
+                ${project.build.directory}/extracted-distributions/workspace-service-${ballerina.composer.version}-jar/netty-transports.yml
+            </source>
+            <outputDirectory>resources/composer/services</outputDirectory>
+            <filtered>true</filtered>
+            <fileMode>644</fileMode>
+        </file>
     </files>
 
     <dependencySets>
@@ -106,6 +116,14 @@
                 <include>org.ballerinalang:connectors:jar</include>
             </includes>
             <unpack>false</unpack>
+        </dependencySet>
+
+        <!-- Composer specific artifacts -->
+        <dependencySet>
+            <outputDirectory>resources/composer/services</outputDirectory>
+            <includes>
+                <include>org.ballerinalang:workspace-service:jar</include>
+            </includes>
         </dependencySet>
     </dependencySets>
 </assembly>

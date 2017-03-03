@@ -48,7 +48,12 @@
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-composer</artifactId>
+            <artifactId>workspace-service</artifactId>
+            <version>${ballerina.composer.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-composer-web</artifactId>
             <version>${ballerina.composer.version}</version>
             <type>zip</type>
         </dependency>
@@ -94,7 +99,7 @@
                         </goals>
                         <configuration>
                             <includeArtifactIds>
-                                ballerina,ballerina-composer,testerina-core,connectors
+                                ballerina,workspace-service,ballerina-composer-web,testerina-core,connectors
                             </includeArtifactIds>
                             <outputDirectory>${project.build.directory}/extracted-distributions</outputDirectory>
                             <overWriteReleases>false</overWriteReleases>
@@ -181,7 +186,7 @@
 
     <properties>
         <ballerina.runtime.version>0.8.1</ballerina.runtime.version>
-        <ballerina.composer.version>0.8.1</ballerina.composer.version>
+        <ballerina.composer.version>0.8.14-SNAPSHOT</ballerina.composer.version>
         <testerina.version>0.8.1</testerina.version>
         <tool.swagger.version>0.8.1</tool.swagger.version>
         <ballerina.container.version>0.8.1</ballerina.container.version>
