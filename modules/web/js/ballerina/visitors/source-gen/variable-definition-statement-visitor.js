@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require','lodash', 'log', 'event_channel', './abstract-statement-source-gen-visitor', '../../ast/variable-definition-statement'],
+define(['require','lodash', 'log', 'event_channel', './abstract-statement-source-gen-visitor', '../../ast/statements/variable-definition-statement'],
     function(require, _, log, EventChannel, AbstractStatementSourceGenVisitor, VariableDefinitionStatement) {
 
         var VariableDefinitionStatementVisitor = function(parent){

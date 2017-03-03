@@ -15,11 +15,12 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+import './tool-palette.css';
+
 define(['require', 'log', 'jquery', 'backbone', './tool-group-view', './tool-group',
         './drag-drop-manager', './../search/search', './../search/import-search-adapter', 'mousetrap', 'mcustom_scroller'],
     function (require, log, $, Backbone, ToolGroupView, ToolGroup,
               DragDropManager, Search, ImportSearchAdapter, Mousetrap, mcustomScroller) {
-
 
     var ToolPalette = Backbone.View.extend({
         initialize: function (options) {
@@ -165,11 +166,11 @@ define(['require', 'log', 'jquery', 'backbone', './tool-group-view', './tool-gro
 
         /**
          * Adding given package
-         * @param {Object} package - package to add
+         * @param {Object} pckg - package to add
          */
         //TODO: this method needs to be removed from tool palette class
-        addImport: function (package) {
-            this._itemProvider.addImportToolGroup(package);
+        addImport: function (pckgs) {
+            this._itemProvider.addImportToolGroup(pckg);
         },
 
         /**

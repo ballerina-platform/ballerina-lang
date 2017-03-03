@@ -165,21 +165,25 @@ define(['lodash', 'log', 'd3', 'd3utils', 'jquery', 'alerts', './svg-canvas', '.
                 }).on("click", function (event) {
                     event.stopPropagation();
                 }).keypress(function (e) {
-                    var enteredKey = e.which || e.charCode || e.keyCode;
-                    // Disabling enter key
-                    if (enteredKey == 13) {
-                        event.stopPropagation();
-                        return false;
-                    }
+                    /* Ignore Delete and Backspace keypress in firefox and capture other keypress events.
+                     (Chrome and IE ignore keypress event of these keys in browser level)*/
+                    if (!_.isEqual(e.key, "Delete") && !_.isEqual(e.key, "Backspace")) {
+                        var enteredKey = e.which || e.charCode || e.keyCode;
+                        // Disabling enter key
+                        if (_.isEqual(enteredKey, 13)) {
+                            e.stopPropagation();
+                            return false;
+                        }
 
-                    var newServiceName = $(this).text() + String.fromCharCode(enteredKey);
+                        var newServiceName = $(this).text() + String.fromCharCode(enteredKey);
 
-                    try {
-                        self.getModel().setServiceName(newServiceName);
-                    } catch (error) {
-                        Alerts.error(error);
-                        event.stopPropagation();
-                        return false;
+                        try {
+                            self.getModel().setServiceName(newServiceName);
+                        } catch (error) {
+                            Alerts.error(error);
+                            e.stopPropagation();
+                            return false;
+                        }
                     }
                 });
 

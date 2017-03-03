@@ -20,7 +20,7 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
         './../visitors/source-gen/ballerina-ast-root-visitor','./../visitors/symbol-table/ballerina-ast-root-visitor', './../tool-palette/tool-palette',
         './../undo-manager/undo-manager','./backend', './../ast/ballerina-ast-deserializer', './connector-definition-view', './struct-definition-view',
         './../env/package', './../env/package-scoped-environment', './../env/environment', './constant-definitions-pane-view', './../item-provider/tool-palette-item-provider',
-        './package-definition-pane-view','./import-declaration-view', './type-mapper-definition-view', 'alerts', 'typeahead'],
+        './package-definition-pane-view','./import-declaration-view', './type-mapper-definition-view', 'alerts', 'typeahead.js'],
     function (_, $, log, BallerinaView, ServiceDefinitionView, FunctionDefinitionView, BallerinaASTRoot, BallerinaASTFactory,
               PackageDefinition, SourceView, SwaggerView, SourceGenVisitor, SymbolTableGenVisitor, ToolPalette, UndoManager, Backend, BallerinaASTDeserializer,
               ConnectorDefinitionView, StructDefinitionView, Package, PackageScopedEnvironment, BallerinaEnvironment,
@@ -382,8 +382,8 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
 
             // add current imported packages to tool pallet
             _.forEach(importDeclarations, function (importDeclaration) {
-                var package = BallerinaEnvironment.searchPackage(importDeclaration.getPackageName());
-                self.toolPalette.getItemProvider().addImportToolGroup(package[0]);
+                var pckg = BallerinaEnvironment.searchPackage(importDeclaration.getPackageName());
+                self.toolPalette.getItemProvider().addImportToolGroup(pckg[0]);
             });
 
             // container for per-tab source view TODO improve source view to wrap this logic
@@ -808,13 +808,11 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
 
             var substringMatcher = function(strs) {
                 return function findMatches(q, cb) {
-                    var matches, substringRegex;
-
                     // an array that will be populated with substring matches
-                    matches = [];
+                    var matches = [];
 
                     // regex used to determine if a string contains the substring `q`
-                    substrRegex = new RegExp(q, 'i');
+                    var substrRegex = new RegExp(q, 'i');
 
                     // iterate through the pool of strings and for any string that
                     // contains the substring `q`, add it to the `matches` array
@@ -867,7 +865,7 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                         }
 
                         //Clear the import value box
-                        importValueText.val("");
+                        importValueText.typeahead('val','');
                         collapserWrapper.empty();
                         collapserWrapper.data("collapsed", "false");
                         $("<i class='fw fw-left'></i>").appendTo(collapserWrapper);
@@ -947,8 +945,8 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
 
             // adding declared import packages to tool palette
             _.forEach(this._model.getImportDeclarations(), function (importDeclaration) {
-                var package = BallerinaEnvironment.searchPackage(importDeclaration.getPackageName());
-                self.toolPalette.getItemProvider().addImportToolGroup(package[0]);
+                var pckg = BallerinaEnvironment.searchPackage(importDeclaration.getPackageName());
+                self.toolPalette.getItemProvider().addImportToolGroup(pckg[0]);
             });
 
             this.initDropTarget();

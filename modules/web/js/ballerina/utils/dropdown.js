@@ -121,7 +121,7 @@ define(['lodash', 'jquery'], function (_, $) {
         $(this.dropdownButton).keypress(function (e) {
             var enteredKey = e.which || e.charCode || e.keyCode;
             // Disabling enter key
-            if (enteredKey == 13) {
+            if (_.isEqual(enteredKey, 13)) {
                 $(this).click();
                 e.stopPropagation();
             }

@@ -130,32 +130,84 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             var self = this;
             if (BallerinaASTFactory.isStatement(child)) {
                 this.getStatementContainer().childStatementRemovedCallback(child);
-            } else if (BallerinaASTFactory.isConnectorDeclaration(child) || BallerinaASTFactory.isWorkerDeclaration(child)) {
-                var childViewIndex = _.findIndex(this._connectorWorkerViewList, function (view) {
+            } else if (BallerinaASTFactory.isConnectorDeclaration(child)) {
+                var connectorViews = this.getConnectorViews();
+                var nextConnector = undefined;
+                var previousConnector = undefined;
+                var connectorViewIndex = _.findIndex(connectorViews, function (view) {
                     return view.getModel().id === child.id;
                 });
 
-                if (childViewIndex === 0) {
-                    // Deleted the first connector/worker in the list (Addresses both first element scenario and the only element scenario
-                    if (!_.isNil(this._connectorWorkerViewList[childViewIndex + 1])) {
-                        // Unregister the listening event of the second element on the first element
-                        this._connectorWorkerViewList[childViewIndex + 1].stopListening(this._connectorWorkerViewList[childViewIndex].getBoundingBox());
+                var currentConnector = connectorViews[connectorViewIndex];
+
+                if (connectorViewIndex === 0) {
+                    // Deleted the first connector/ only connector
+                    currentConnector.stopListening(this.getWorkerLifeLineMargin());
+                    if (!_.isNil(connectorViews[connectorViewIndex + 1])) {
+                        nextConnector = connectorViews[connectorViewIndex + 1];
+                        nextConnector.stopListening(currentConnector.getBoundingBox());
+                        nextConnector.listenTo(this.getWorkerLifeLineMargin(), 'moved', function (offset) {
+                            nextConnector.getBoundingBox().move(offset, 0);
+                        });
                     }
-                } else if (childViewIndex === this._connectorWorkerViewList.length - 1) {
-                    // Deleted the last connector/worker when there are more than one worker/ connector
-                    this._connectorWorkerViewList[childViewIndex].stopListening(this._connectorWorkerViewList[childViewIndex - 1].getBoundingBox());
+                } else if (connectorViewIndex === connectorViews.length - 1) {
+                    // Deleted the last connector
+                    currentConnector.stopListening(connectorViews[connectorViewIndex].getBoundingBox());
                 } else {
-                    // Deleted connector is in between two other connectors/ workers
-                    // Connector being deleted, stop listening to it's previous connector
-                    this._connectorWorkerViewList[childViewIndex].stopListening(this._connectorWorkerViewList[childViewIndex - 1].getBoundingBox());
-                    this._connectorWorkerViewList[childViewIndex + 1].stopListening(this._connectorWorkerViewList[childViewIndex].getBoundingBox());
-                    this._connectorWorkerViewList[childViewIndex + 1].listenTo(this._connectorWorkerViewList[childViewIndex - 1].getBoundingBox(), 'right-edge-moved', function (offset) {
-                        self.moveActionLevelConnector(this, offset);
+                    // Deleted an intermediate Connector
+                    previousConnector = connectorViews[connectorViewIndex - 1];
+                    nextConnector = connectorViews[connectorViewIndex + 1];
+                    currentConnector.stopListening(previousConnector.getBoundingBox());
+                    nextConnector.stopListening(currentConnector.getBoundingBox());
+                    nextConnector.listenTo(previousConnector.getBoundingBox(), 'right-edge-moved', function (offset) {
+                        self.moveActionLevelConnector(nextConnector, offset);
                     });
                 }
-                this._connectorWorkerViewList[childViewIndex] = null;
-                this._connectorWorkerViewList.splice(childViewIndex, 1);
+                var connectorViewOriginalIndex = _.findIndex(this.getConnectorWorkerViewList(), function (view) {
+                    return view.getModel().id === child.id;
+                });
+                this.getConnectorWorkerViewList()[connectorViewOriginalIndex] = null;
+                this.getConnectorWorkerViewList().splice(connectorViewOriginalIndex, 1);
+            } else if (BallerinaASTFactory.isWorkerDeclaration(child)) {
+                var workerViews = this.getWorkerViews();
+                var nextWorker = undefined;
+                var previousWorker = undefined;
+                var workerViewIndex = _.findIndex(workerViews, function (view) {
+                    return view.getModel().id === child.id;
+                });
+
+                var currentWorker = workerViews[workerViewIndex];
+
+                if (workerViewIndex === 0 && !_.isNil(workerViews[workerViewIndex + 1])) {
+                    // Deleted the first worker/ only worker
+                    nextWorker = workerViews[workerViewIndex + 1];
+                    // nextWorker.stopListening(currentWorker.getBoundingBox());
+                } else if (workerViewIndex === workerViews.length - 1) {
+                    // Deleted the last worker
+                    this.getWorkerLifeLineMargin().stopListening(currentWorker.getBoundingBox());
+                    previousWorker = workerViews[workerViewIndex - 1];
+                    if (!_.isNil(previousWorker)) {
+                        this.getWorkerLifeLineMargin().listenTo(previousWorker.getBoundingBox(), 'right-edge-moved', function (offset) {
+                            self.getWorkerLifeLineMargin().setPosition(self.getWorkerLifeLineMargin().getPosition() + offset);
+                        });
+                    }
+                } else {
+                    // Deleted an intermediate Connector
+                    previousWorker = workerViews[workerViewIndex - 1];
+                    nextWorker = workerViews[workerViewIndex + 1];
+                    currentWorker.stopListening(previousWorker.getBoundingBox());
+                    nextWorker.stopListening(currentWorker.getBoundingBox());
+                    nextWorker.listenTo(previousWorker.getBoundingBox(), 'right-edge-moved', function (offset) {
+                        self.moveActionLevelConnector(nextWorker, offset);
+                    });
+                }
+                var workerViewOriginalIndex = _.findIndex(this.getConnectorWorkerViewList(), function (view) {
+                    return view.getModel().id === child.id;
+                });
+                this.getConnectorWorkerViewList()[workerViewOriginalIndex] = null;
+                this.getConnectorWorkerViewList().splice(workerViewOriginalIndex, 1);
             }
+
             // Remove the connector/ worker from the diagram rendering context
             delete this.diagramRenderingContext.getViewModelMap()[child.id];
         };
@@ -592,11 +644,9 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
 
             this.listenTo(this.getHorizontalMargin(), 'moved', function (dy) {
                 self._defaultWorker.getBottomCenter().y(self._defaultWorker.getBottomCenter().y() + dy);
-                // Silently increase the bounding box of the worker. Because this size change is due to the
-                // horizontal margin movement, in other sense, for balancing with the other connectors/ workers' height
-                // therefore we need to manually change the bbox height and the drop zone size of the statement container
-                self.getStatementContainer().getBoundingBox().h(self.getStatementContainer().getBoundingBox().h() + dy, true);
-                self.getStatementContainer().changeDropZoneHeight(dy);
+                var newDropZoneHeight = self._defaultWorker.getBottomCenter().y() - self._defaultWorker.getTopCenter().y();
+                self.getStatementContainer().getBoundingBox().h(newDropZoneHeight, true);
+                self.getStatementContainer().changeDropZoneHeight(newDropZoneHeight);
                 self.getBoundingBox().h(this.getBoundingBox().h() + dy);
             });
 
@@ -746,36 +796,11 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             _.set(statementContainerOpts, 'toolPalette', this.toolPalette);
             _.set(statementContainerOpts, 'offset', {top: 40, bottom: 40});
             this._statementContainer = new StatementContainer(statementContainerOpts);
-            this.listenTo(this._statementContainer.getBoundingBox(), 'bottom-edge-moved', function(dy){
 
-                var deltaMove = this.getDeltaMove(this.getDeepestChild(this, dy), dy);
-                // Statement Container expands. we move the horizontal line
-                self._defaultWorker.getBottomCenter().y(self._defaultWorker.getBottomCenter().y() + deltaMove);
-                // self._defaultWorker.getBoundingBox().h(self._defaultWorker.getBoundingBox().h() + dy);
-                self.stopListening(self.getHorizontalMargin());
+            this.listenTo(this.getStatementContainer(), 'statement-container-height-adjusted', function (dh) {
+                var deltaMove = self.getDeltaMove(self.getDeepestChild(self, dh), dh);
                 self.getHorizontalMargin().setPosition(self.getHorizontalMargin().getPosition() + deltaMove);
-                self.getBoundingBox().h(this.getBoundingBox().h() + deltaMove);
-                // We need to change the height of the statement container, silently. This is because when this
-                // particular event is triggered, bounding box of the statement container has already changed,
-                // before hand we manipulate it with this logic
-                var statementContainerNewH = self._defaultWorker.getBottomCenter().y() - self._defaultWorker.getTopCenter().y();
-                // TODO: re consider stopListening of the following event of the statement container. This is because we silently change the heights
-                self.getStatementContainer().stopListening(self.getStatementContainer().getBoundingBox(), 'height-changed');
-                self.getStatementContainer().changeHeightSilent(statementContainerNewH);
-                // Re initialize the above disabled event
-                // self.getStatementContainer().listenTo(self.getStatementContainer().getBoundingBox(), 'height-changed', function (offset) {
-                //     self.getStatementContainer()._mainDropZone.attr('height', parseFloat(self.getStatementContainer()._mainDropZone.attr('height')) + offset);
-                // });
-                self.listenTo(self.getHorizontalMargin(), 'moved', function (dy) {
-                    self._defaultWorker.getBottomCenter().y(self._defaultWorker.getBottomCenter().y() + dy);
-                    // Silently increase the bounding box of the worker. Because this size change is due to the
-                    // horizontal margin movement, in other sense, for balancing with the other connectors/ workers' height
-                    // therefore we need to manually change the bbox height and the drop zone size of the statement container
-                    self.getStatementContainer().getBoundingBox().h(self.getStatementContainer().getBoundingBox().h() + dy, true);
-                    self.getStatementContainer().changeDropZoneHeight(dy);
-                    self.getBoundingBox().h(self.getBoundingBox().h() + dy);
-                });
-            }, this);
+            });
 
             /* When the width of the statement container's bounding box changes, width of this action definition's
              bounding box should also change.*/
@@ -947,6 +972,7 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             if (!workerDeclaration.isDefaultWorker()) {
                 var container = this._contentGroup.node();
                 var lastWorkerIndex = this.getLastWorkerLifeLineIndex();
+                var lastWorker = this.getConnectorWorkerViewList()[lastWorkerIndex];
                 var newWorkerPosition = lastWorkerIndex === -1 ? 0 : lastWorkerIndex + 1;
                 var centerPoint = undefined;
                 if (newWorkerPosition === 0) {
@@ -987,34 +1013,33 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
 
                 var statementContainer = workerDeclarationView.renderStatementContainer({offset: {top: 40, bottom: 50}});
                 this.diagramRenderingContext.getViewModelMap()[workerDeclaration.id] = workerDeclarationView;
-                this.listenWorkerToHorizontalMargin(workerDeclarationView);
 
-                // Worker listen to its statement container
-                workerDeclarationView.listenTo(statementContainer.getBoundingBox(), 'bottom-edge-moved', function(dy) {
-                    var deltaMove = self.getDeltaMove(self.getDeepestChild(workerDeclarationView, dy), dy);
-                    // Bellow logic is for properly align all the workers and the connectors
-                    // Statement Container expands. we move the horizontal line
-                    workerDeclarationView.getBottomCenter().y(workerDeclarationView.getBottomCenter().y() + deltaMove);
-                    workerDeclarationView.getBoundingBox().h(workerDeclarationView.getBoundingBox().h() + deltaMove);
-                    workerDeclarationView.stopListening(self.getHorizontalMargin());
+                workerDeclarationView.listenTo(this.getHorizontalMargin(), 'moved', function (dy) {
+                    workerDeclarationView.getBottomCenter().y(workerDeclarationView.getBottomCenter().y() + dy);
+                    var newDropZoneHeight = workerDeclarationView.getBottomCenter().y() - workerDeclarationView.getTopCenter().y();
+                    workerDeclarationView.getStatementContainer().getBoundingBox().h(newDropZoneHeight, true);
+                    workerDeclarationView.getStatementContainer().changeDropZoneHeight(newDropZoneHeight);
+                });
+
+                workerDeclarationView.listenTo(statementContainer, 'statement-container-height-adjusted', function (dh) {
+                    var deltaMove = self.getDeltaMove(self.getDeepestChild(self, dh), dh);
                     self.getHorizontalMargin().setPosition(self.getHorizontalMargin().getPosition() + deltaMove);
-                    self.listenWorkerToHorizontalMargin(workerDeclarationView);
-                    // We need to change the height of the statement container, silently. This is because when this
-                    // particular event is triggered, bounding box of the statement container has already changed,
-                    // before hand we manipulate it with this logic
-                    var statementContainerNewH = workerDeclarationView.getBottomCenter().y() - workerDeclarationView.getTopCenter().y();
-                    // TODO: re consider stopListening of the following event of the statement container. This is because we silently change the heights
-                    self.getStatementContainer().stopListening(self.getStatementContainer().getBoundingBox(), 'height-changed');
-                    workerDeclarationView.getStatementContainer().changeHeightSilent(statementContainerNewH);
-                    // Re initialize the above disabled event
-                    // self.getStatementContainer().listenTo(self.getStatementContainer().getBoundingBox(), 'height-changed', function (offset) {
-                    //     self.getStatementContainer()._mainDropZone.attr('height', parseFloat(self.getStatementContainer()._mainDropZone.attr('height')) + offset);
-                    // });
-
                 });
 
                 // Set the workerLifeLineMargin to the right edge of the newly added worker
                 this.getWorkerLifeLineMargin().setPosition(workerDeclarationView.getBoundingBox().getRight());
+
+                if (newWorkerPosition > 0) {
+                    // There are already added workers
+                    this.getWorkerLifeLineMargin().stopListening(this.getConnectorWorkerViewList()[lastWorkerIndex].getBoundingBox());
+                    workerDeclarationView.listenTo(lastWorker.getBoundingBox(), 'right-edge-moved', function (offset) {
+                        self.moveActionLevelWorker(workerDeclarationView, offset);
+                    });
+                }
+                this.getWorkerLifeLineMargin().listenTo(workerDeclarationView.getBoundingBox(), 'right-edge-moved', function (offset) {
+                    self.getWorkerLifeLineMargin().setPosition(self.getWorkerLifeLineMargin().getPosition() + offset);
+                });
+
                 if (lastWorkerIndex === this.getConnectorWorkerViewList().length -1 &&
                     workerDeclarationView.getBoundingBox().getRight() > this.getBoundingBox().getRight()) {
                     // Worker is added as the last element for the ConnectorWorkerViewList.
@@ -1144,6 +1169,15 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
         };
 
         /**
+         * Move the action level worker
+         * @param {BallerinaView} workerView - Worker View
+         * @param {number} offset - Move offset
+         */
+        ConnectorActionView.prototype.moveActionLevelWorker = function (workerView, offset) {
+            workerView.getBoundingBox().move(offset, 0);
+        };
+
+        /**
          * Get the worker lifeline margin
          * @return {Axis}
          */
@@ -1215,18 +1249,6 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             }
         };
 
-        ConnectorActionView.prototype.listenWorkerToHorizontalMargin = function (workerDeclarationView) {
-            workerDeclarationView.listenTo(this.getHorizontalMargin(), 'moved', function (dy) {
-                workerDeclarationView.getBottomCenter().y(workerDeclarationView.getBottomCenter().y() + dy);
-                workerDeclarationView.getBoundingBox().h(workerDeclarationView.getBoundingBox().h() + dy);
-                // Silently increase the bounding box of the worker. Because this size change is due to the
-                // horizontal margin movement, in other sense, for balancing with the other connectors/ workers' height
-                // therefore we need to manually change the bbox height and the drop zone size of the statement container
-                workerDeclarationView.getStatementContainer().getBoundingBox().h(workerDeclarationView.getStatementContainer().getBoundingBox().h() + dy, true);
-                workerDeclarationView.getStatementContainer().changeDropZoneHeight(dy);
-            });
-        };
-
         ConnectorActionView.prototype.getDeltaMove = function (deepestChild, dy) {
             var deltaMove = 0;
             if (dy > 0) {
@@ -1254,6 +1276,20 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                 return lifeLine instanceof ConnectorDeclarationView;
             });
             return index;
+        };
+
+        ConnectorActionView.prototype.getWorkerViews = function () {
+            var workers = _.filter(this.getConnectorWorkerViewList(), function (view) {
+                return BallerinaASTFactory.isWorkerDeclaration(view.getModel());
+            });
+            return workers;
+        };
+
+        ConnectorActionView.prototype.getConnectorViews = function () {
+            var connectors = _.filter(this.getConnectorWorkerViewList(), function (view) {
+                return BallerinaASTFactory.isConnectorDeclaration(view.getModel());
+            });
+            return connectors;
         };
 
         return ConnectorActionView;

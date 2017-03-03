@@ -17,8 +17,8 @@
  */
 
 define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view',
-        'property_pane_utils', 'expression_editor_utils'],
-    function (_, $, d3, log, D3Utils, Point, BallerinaView,  PropertyPaneUtils, expressionEditor) {
+       'expression_editor_utils'],
+    function (_, $, d3, log, D3Utils, Point, BallerinaView, expressionEditor) {
 
     /**
      * View for a generic lifeline

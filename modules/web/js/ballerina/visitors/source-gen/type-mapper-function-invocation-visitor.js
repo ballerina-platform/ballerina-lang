@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require','lodash', 'log', 'event_channel', './abstract-statement-source-gen-visitor', '../../ast/function-invocation'],
+define(['require','lodash', 'log', 'event_channel', './abstract-statement-source-gen-visitor', '../../ast/statements/function-invocation-statement'],
     function(require, _, log, EventChannel, AbstractStatementSourceGenVisitor, FunctionInvocation) {
 
         var TypeMapperFunctionInvocationVisitor = function(parent){

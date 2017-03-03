@@ -15,11 +15,14 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(function(require, exports, module) {
-
-    var oop = require("ace/lib/oop");
+ace.define('ace/worker/ballerina', ['require', 'exports', 'module'], function(acequire, exports, module) {
+    var oop = acequire("ace/lib/oop");
     var backends = require("bal_configs/backends");
-    var Mirror = require("ace/worker/mirror").Mirror;
+
+    // This require defines ace/worker/mirror so we can ace.require ace/worker/mirror later
+    require('./ace-mirror-worker');
+
+    var Mirror = acequire("ace/worker/mirror").Mirror;
 
     var WorkerModule = exports.WorkerModule = function(sender) {
         Mirror.call(this, sender);

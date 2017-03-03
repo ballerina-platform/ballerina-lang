@@ -22,9 +22,9 @@ define(['lodash', 'log', 'event_channel', '../ast-visitor'], function(_, log, Ev
      * @param parent
      * @constructor
      */
-    var AbstractSymbolTableGenVisitor = function(package) {
+    var AbstractSymbolTableGenVisitor = function(pckg) {
         ASTVisitor.call(this);
-        this._package = package;
+        this._package = pckg;
     };
 
     AbstractSymbolTableGenVisitor.prototype = Object.create(ASTVisitor.prototype);

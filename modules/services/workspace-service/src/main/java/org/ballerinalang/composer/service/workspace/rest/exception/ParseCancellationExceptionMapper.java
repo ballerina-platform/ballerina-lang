@@ -32,10 +32,7 @@ import javax.ws.rs.ext.ExceptionMapper;
  */
 public class ParseCancellationExceptionMapper implements ExceptionMapper<ParseCancellationException> {
     private static final Logger logger = LoggerFactory.getLogger(ParseCancellationExceptionMapper.class);
-    
-    /**
-     * @inheritDoc
-     */
+
     @Override
     public Response toResponse(ParseCancellationException exception) {
         logger.error("error: " + exception.getMessage());

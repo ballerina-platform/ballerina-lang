@@ -20,7 +20,6 @@ define(['lodash', './node', '../utils/common-utils'], function (_, ASTNode, Comm
     var WorkerDeclaration = function (args) {
         this._isDefaultWorker = _.get(args, "isDefaultWorker", false);
         this._reply = _.get(args, "replyStatement", null);
-        this._childrenList = [];
         this._workerDeclarationStatement = _.get(args, 'declarationStatement', '');
         this._invoker = undefined;
         this._replyReceiver = undefined;

@@ -202,9 +202,9 @@ public class BLangJSONModelConstants {
 
     public static final String ARRAY_MAP_ACCESS_EXPRESSION_INDEX = "array_map_access_expression_index";
 
-    public static final String BACK_QUOTE_EXPRESSION = "back_quote_expression";
+    public static final String BACK_TICK_EXPRESSION = "back_tick_expression";
 
-    public static final String BACK_QUOTE_ENCLOSED_STRING = "back_quote_enclosed_string";
+    public static final String BACK_TICK_ENCLOSED_STRING = "back_tick_enclosed_string";
 
     public static final String MAP_INIT_EXPRESSION = "map_init_expression";
 
@@ -238,7 +238,7 @@ public class BLangJSONModelConstants {
 
     public static final String QUOTED_LITERAL_STRING = "quoted_literal_string";
 
-    public static final String TYPE_CASTING_EXPRESSION = "type_casting_expression";
+    public static final String TYPE_CAST_EXPRESSION = "type_cast_expression";
 
     public static final String TARGET_TYPE = "target_type";
 

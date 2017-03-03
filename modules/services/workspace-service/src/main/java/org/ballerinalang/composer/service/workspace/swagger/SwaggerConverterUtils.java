@@ -77,8 +77,8 @@ public class SwaggerConverterUtils {
     /**
      * This method will extract service definitions from ballerina source
      *
-     * @param ballerinaDefinition @String service definition to be process as ballerina
-     * @return @List<Service> which contain all services within give ballerina source
+     * @param ballerinaDefinition service definition to be process as ballerina
+     * @return service list which contain all services within give ballerina source
      * @throws IOException when input stream handling error.
      */
     public static Service[] getServicesFromBallerinaDefinition(String ballerinaDefinition) throws IOException {
@@ -96,9 +96,9 @@ public class SwaggerConverterUtils {
     /**
      * Generate ballerina fine from the String definition
      *
-     * @param ballerinaDefinition
-     * @return
-     * @throws IOException
+     * @param ballerinaDefinition ballerina string definition
+     * @return ballerina file created from ballerina string definition
+     * @throws IOException IO exception
      */
     public static BallerinaFile getBFileFromBallerinaDefinition(String ballerinaDefinition) throws IOException {
         //TODO this method need to replaced with the utility provided by ballerina core.
@@ -122,9 +122,9 @@ public class SwaggerConverterUtils {
     /**
      * This method will generate Ballerina service from Swagger definition.
      *
-     * @param swaggerDefinition @String swagger definition
-     * @return @Service
-     * @throws IOException
+     * @param swaggerDefinition Swagger definition
+     * @return service generated from Swagger definition
+     * @throws IOException IO exception
      */
     public static Service getServiceFromSwaggerDefinition(String swaggerDefinition) throws IOException {
         //TODO this logic need to be reviewed and fix issues. This is temporary commit to test swagger UI flow
@@ -194,7 +194,7 @@ public class SwaggerConverterUtils {
      * This method will convert swagger path List into ballerina @Resource array
      *
      * @param pathMap Swagger @CodegenOperation list to be processed
-     * @return @Resource array generated from pathMap
+     * @return Resource array generated from pathMap
      */
     public static Resource[] mapSwaggerPathsToResources(List<CodegenOperation> pathMap) {
         //TODO this logic need to be reviewed and fix issues. This is temporary commit to test swagger UI flow
@@ -296,8 +296,8 @@ public class SwaggerConverterUtils {
     }
 
     /**
-     * @param pathMap
-     * @return
+     * @param pathMap Swagger path map
+     * @return resource array
      */
     public static Resource[] mapPathsToResources(Map<String, Path> pathMap) {
         //TODO this logic need to be reviewed and fix issues. This is temporary commit to test swagger UI flow
@@ -324,9 +324,9 @@ public class SwaggerConverterUtils {
     /**
      * This method will merge swagger definition based to ballerina service.
      *
-     * @param ballerinaService
-     * @param swaggerService
-     * @return
+     * @param ballerinaService ballerina service
+     * @param swaggerService swagger service
+     * @return merged service
      */
     public static Service mergeBallerinaService(Service ballerinaService, Service swaggerService) {
         //TODO this logic need to be reviewed and fix issues. This is temporary commit to test swagger UI flow
@@ -388,9 +388,9 @@ public class SwaggerConverterUtils {
     /**
      * This method will merge annotations from two different services or resources.
      *
-     * @param annotations
-     * @param annotationsToMerge
-     * @return
+     * @param annotations annotations array
+     * @param annotationsToMerge annotations array to merge
+     * @return merged annotations
      */
     public static Annotation[] mergeAnnotations(Annotation[] annotations, Annotation[] annotationsToMerge) {
         //TODO this logic need to be reviewed and fix issues. This is temporary commit to test swagger UI flow
@@ -418,8 +418,8 @@ public class SwaggerConverterUtils {
     /**
      * Clone annotations array
      *
-     * @param annotations
-     * @return
+     * @param annotations annotation array
+     * @return cloned annotation array
      */
     private static Annotation[] clone(Annotation[] annotations) {
         return annotations == null ? null : (Annotation[]) annotations.clone();
@@ -428,9 +428,9 @@ public class SwaggerConverterUtils {
     /**
      * Check if 2 resources are having same UUID.
      *
-     * @param swaggerResource
-     * @param ballerinaResource
-     * @return
+     * @param swaggerResource Swagger resource
+     * @param ballerinaResource Ballerina resources
+     * @return whether UUIDs for Swagger and Ballerina resources are matching
      */
     public static boolean isResourceUUIDMatch(Resource swaggerResource, Resource ballerinaResource) {
         String path = "/";
@@ -449,9 +449,9 @@ public class SwaggerConverterUtils {
     /**
      * This will generate UUID specific to given resource.
      *
-     * @param path
-     * @param verb
-     * @return
+     * @param path path
+     * @param verb verb
+     * @return generated UUID
      */
     public static String generateServiceUUID(String path, String verb) {
         String tmpPath = path;
@@ -490,9 +490,9 @@ public class SwaggerConverterUtils {
     /**
      * Remove duplicate resources and merge them.
      *
-     * @param resourceList
-     * @param resources
-     * @return
+     * @param resourceList resources list
+     * @param resources resources array
+     * @return merged resources array without duplicates
      */
     public static Resource[] mergeResources(List<Resource> resourceList, Resource[] resources) {
         for (int i = 0; i < resources.length; i++) {
@@ -543,9 +543,9 @@ public class SwaggerConverterUtils {
      * set of swagger definition we will take both swagger and ballerina definition and merge swagger changes to
      * ballerina definition selectively to prevent data loss
      *
-     * @param swaggerDefinition   @String swagger definition to be processed as swagger
-     * @param ballerinaDefinition @String ballerina definition to be process as ballerina definition
-     * @return @String representation of converted ballerina source
+     * @param swaggerDefinition  swagger definition to be processed as swagger
+     * @param ballerinaDefinition  ballerina definition to be process as ballerina definition
+     * @return String representation of converted ballerina source
      * @throws IOException when error occur while processing input swagger and ballerina definitions.
      */
     public static String generateBallerinaDataModel(String swaggerDefinition, String ballerinaDefinition)

@@ -21,9 +21,11 @@ define(['require', 'jquery', 'lodash'], function (require, $, _) {
      * */
     environment_content.getPackages = function () {
         var data = [];
+
+        // TODO: remove the following hard coded url and use a value from application config
         $.ajax({
             type: "GET",
-            url: requirejs.s.contexts._.config.package_listing,
+            url: "http://localhost:8289/service/packages",
             contentType: "application/json; charset=utf-8",
             async: false,
             dataType: "json",
