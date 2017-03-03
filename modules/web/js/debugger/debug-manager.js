@@ -138,12 +138,15 @@ define(['require', 'jquery', 'backbone', 'lodash', 'event_channel', './channel',
     };
 
     DebugManager.prototype.getDebugPoints = function (fileName) {
-        var breakpoints = _.map(this.debugPoints, function(breakpoint) {
-            if(breakpoint.fileName === fileName)  {
-                return breakpoint.lineNumber;
-            }
+        var breakpoints = _.filter(this.debugPoints, function(breakpoint) {
+            return breakpoint.fileName === fileName;
         });
-        return breakpoints;
+
+        var breakpointsLineNumbers = _.map(breakpoints, function(breakpoint) {
+             return breakpoint.lineNumber;
+        });
+        console.log(breakpointsLineNumbers)
+        return breakpointsLineNumbers;
     };
 
     DebugManager.prototype.removeAllBreakpoints = function(fileName) {
