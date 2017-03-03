@@ -28,7 +28,7 @@
     <groupId>org.ballerinalang</groupId>
     <artifactId>ballerina-composer-parent</artifactId>
     <packaging>pom</packaging>
-    <version>0.8.12-SNAPSHOT</version>
+    <version>0.8.14-SNAPSHOT</version>
     <name>Ballerina Composer - Parent</name>
 
     <scm>
@@ -465,7 +465,7 @@
 
     <modules>
         <module>modules/services/workspace-service</module>
-        <module>modules/distribution</module>
+        <module>modules/web</module>
     </modules>
 
 </project>

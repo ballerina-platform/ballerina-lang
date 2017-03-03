@@ -16,9 +16,11 @@
  * under the License.
  */
 define(['lodash', 'log', './ballerina-view', '../ast/statements/block-statement', 'typeMapper', './type-mapper-statement-view',
-        'ballerina/ast/ballerina-ast-factory', './type-mapper-function-assignment-view', './../ast/module'],
+        'ballerina/ast/ballerina-ast-factory', './type-mapper-function-assignment-view', './../ast/module', 'constants'],
     function (_, log, BallerinaView, BlockStatement, TypeMapperRenderer, TypeMapperStatement, BallerinaASTFactory,
-              TypeMapperFunctionAssignmentView, AST) {
+              TypeMapperFunctionAssignmentView, AST, Constants) {
+        var STRUCT_DEFINITION_ATTRIBUTES_ARRAY_PROPERTY_TYPE = Constants.STRUCT_DEFINITION_ATTRIBUTES_ARRAY_PROPERTY_TYPE;
+        var STRUCT_DEFINITION_ATTRIBUTES_ARRAY_PROPERTY_NAME = Constants.STRUCT_DEFINITION_ATTRIBUTES_ARRAY_PROPERTY_NAME;
 
         var TypeMapperBlockStatementView = function (args) {
             BallerinaView.call(this, args);
