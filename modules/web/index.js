@@ -142,7 +142,7 @@ var config = {
                         // relative selector within container for a tab
                         container: '.source-view-container',
                         theme: 'ace/theme/twilight',
-                        font_size: '14pt',
+                        font_size: '14px',
                         scroll_margin: '20',
                         mode: 'ace/mode/ballerina'
                     },

@@ -24,7 +24,10 @@ define(['log', 'lodash', 'jquery', 'event_channel'],
     var Range = ace.require('ace/range');
 
     // require possible themes
-    require('ace/theme-twilight');
+    function requireAll(requireContext) {
+      return requireContext.keys().map(requireContext);
+    }
+    requireAll(require.context('ace', false, /theme-/));
 
     // require ballerina mode
     require('../utils/ace-mode');
