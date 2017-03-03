@@ -29,12 +29,10 @@
             <outputDirectory>resources/composer</outputDirectory>
             <includes>
                 <include>css/**</include>
-                <include>fonts/**</include>
+                <include>dist/**</include>
                 <include>images/**</include>
-                <include>js/**</include>
                 <include>lib/**</include>
                 <include>resources/**</include>
-                <include>test/**</include>
                 <include>index.html</include>
             </includes>
         </fileSet>
