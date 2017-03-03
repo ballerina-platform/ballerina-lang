@@ -26,7 +26,7 @@ public class SyntaxError {
     protected String text;
     protected String type;
 
-    public : SyntaxError(int row, int column,  String text) {
+    public SyntaxError(int row, int column,  String text) {
         this.text = text;
         this.column = column;
         this.row = row;
