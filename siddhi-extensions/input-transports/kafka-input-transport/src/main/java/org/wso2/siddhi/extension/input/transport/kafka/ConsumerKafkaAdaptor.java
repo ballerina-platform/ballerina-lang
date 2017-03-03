@@ -63,8 +63,9 @@ public class ConsumerKafkaAdaptor {
             for (final KafkaStream stream : streams) {
                 executor.submit(new KafkaConsumer(stream, sourceCallback));
             }
+            log.info("Kafka Consumer started listening on topic: " + topic);
         } catch (Throwable t) {
-            log.error("Error while creating KafkaConsumer ", t);
+            log.error("Error while creating KafkaConsumer for topic: " + topic, t);
         }
     }
 }

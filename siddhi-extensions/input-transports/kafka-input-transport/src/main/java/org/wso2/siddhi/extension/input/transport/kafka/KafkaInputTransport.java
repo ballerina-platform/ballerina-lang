@@ -86,7 +86,6 @@ public class KafkaInputTransport extends InputTransport {
         String zkConnect = optionHolder.validateAndGetStaticValue(ADAPTOR_SUSCRIBER_ZOOKEEPER_CONNECT);
         String groupID = optionHolder.validateAndGetStaticValue(ADAPTOR_SUSCRIBER_GROUP_ID);
         String threadsStr = optionHolder.validateAndGetStaticValue(ADAPTOR_SUSCRIBER_THREADS);
-        String optionalConfiguration = optionHolder.validateAndGetStaticValue(ADAPTOR_OPTIONAL_CONFIGURATION_PROPERTIES);
         int threads = Integer.parseInt(threadsStr);
         String topic = optionHolder.validateAndGetStaticValue(ADAPTOR_SUSCRIBER_TOPIC);
 
