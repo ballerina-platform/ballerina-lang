@@ -100,4 +100,9 @@ if (process.env.NODE_ENV === 'production') {
   }));
 }
 
+if (process.env.NODE_ENV === 'test') {
+  // we run tests on nodejs. So compile for nodejs
+  config.target = 'node';
+}
+
 module.exports = config;
