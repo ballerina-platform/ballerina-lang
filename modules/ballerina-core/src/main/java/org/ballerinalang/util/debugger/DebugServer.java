@@ -39,7 +39,7 @@ import java.io.PrintStream;
 import static org.ballerinalang.runtime.Constants.SYSTEM_PROP_BAL_DEBUG;
 
 /**
- * {@code DebugServer} will open a websocket server for external clients to connect
+ * {@code DebugServer} will open a websocket server for external clients to connect.
  * The websocket server is implemented with netty websocket library.
  *
  * @since 0.8.0
@@ -48,7 +48,7 @@ public class DebugServer {
 
 
     /**
-     *  Debug server initializer class
+     *  Debug server initializer class.
      */
     static class DebugServerInitializer extends ChannelInitializer<SocketChannel> {
 
@@ -62,7 +62,7 @@ public class DebugServer {
     }
 
     /**
-     * Start the web socket server
+     * Start the web socket server.
      */
     public void startServer() {
         //lets start the server in a new thread.

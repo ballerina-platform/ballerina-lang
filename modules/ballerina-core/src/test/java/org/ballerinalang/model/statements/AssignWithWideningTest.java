@@ -30,7 +30,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
- * Test assignment statement with implicit casting (widening)
+ * Test assignment statement with implicit casting (widening).
  */
 public class AssignWithWideningTest {
     private BLangProgram bLangProgram;

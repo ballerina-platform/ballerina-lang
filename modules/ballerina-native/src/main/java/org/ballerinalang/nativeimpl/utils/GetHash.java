@@ -66,8 +66,10 @@ public class GetHash extends AbstractNativeFunction {
 
         //todo document the supported algorithm
         switch (algorithm) {
-            case "SHA1":
-            case "SHA256":
+            case "SHA1": algorithm = "SHA-1";
+                break;
+            case "SHA256": algorithm = "SHA-256";
+                break;
             case "MD5":
                 break;
             default:
@@ -78,7 +80,7 @@ public class GetHash extends AbstractNativeFunction {
         String result;
         try {
             MessageDigest messageDigest;
-            messageDigest = MessageDigest.getInstance("SHA-256");
+            messageDigest = MessageDigest.getInstance(algorithm);
             messageDigest.update(baseString.getBytes("UTF-8"));
             byte[] bytes = messageDigest.digest();
 

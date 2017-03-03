@@ -29,7 +29,7 @@ import java.util.Set;
 import java.util.function.Function;
 
 /**
- * Class to hold the types and their connections within ballerina
+ * Class to hold the types and their connections within ballerina.
  */
 public class TypeLattice {
 
@@ -77,6 +77,8 @@ public class TypeLattice {
         implicitCastLattice.addEdge(doubleV, stringV, NativeCastMapper.DOUBLE_TO_STRING_FUNC);
 
         implicitCastLattice.addEdge(booleanV, stringV, NativeCastMapper.BOOLEAN_TO_STRING_FUNC);
+        implicitCastLattice.addEdge(booleanV, intV, NativeCastMapper.BOOLEAN_TO_INT_FUNC);
+        implicitCastLattice.addEdge(booleanV, floatV, NativeCastMapper.BOOLEAN_TO_FLOAT_FUNC);
     }
 
     public static void loadExplicitCastLattice(SymbolScope scope) {
@@ -104,6 +106,7 @@ public class TypeLattice {
         explicitCastLattice.addEdge(intV, floatV, NativeCastMapper.INT_TO_FLOAT_FUNC);
         explicitCastLattice.addEdge(intV, doubleV, NativeCastMapper.INT_TO_DOUBLE_FUNC);
         explicitCastLattice.addEdge(intV, stringV, NativeCastMapper.INT_TO_STRING_FUNC);
+        explicitCastLattice.addEdge(intV, booleanV, NativeCastMapper.INT_TO_BOOLEAN_FUNC);
         explicitCastLattice.addEdge(intV, intV, NativeCastMapper.INT_TO_INT_FUNC);
 
         explicitCastLattice.addEdge(longV, intV, NativeCastMapper.LONG_TO_INT_FUNC);
@@ -122,6 +125,7 @@ public class TypeLattice {
         explicitCastLattice.addEdge(floatV, floatV, NativeCastMapper.FLOAT_TO_FLOAT_FUNC);
         explicitCastLattice.addEdge(floatV, doubleV, NativeCastMapper.FLOAT_TO_DOUBLE_FUNC);
         explicitCastLattice.addEdge(floatV, stringV, NativeCastMapper.FLOAT_TO_STRING_FUNC);
+        explicitCastLattice.addEdge(floatV, booleanV, NativeCastMapper.FLOAT_TO_BOOLEAN_FUNC);
         explicitCastLattice.addEdge(floatV, intV, NativeCastMapper.FLOAT_TO_INT_FUNC);
 
         explicitCastLattice.addEdge(stringV, longV, NativeCastMapper.STRING_TO_LONG_FUNC);
@@ -132,6 +136,8 @@ public class TypeLattice {
 
         explicitCastLattice.addEdge(booleanV, stringV, NativeCastMapper.BOOLEAN_TO_STRING_FUNC);
         explicitCastLattice.addEdge(booleanV, booleanV, NativeCastMapper.BOOLEAN_TO_BOOLEAN_FUNC);
+        explicitCastLattice.addEdge(booleanV, intV, NativeCastMapper.BOOLEAN_TO_INT_FUNC);
+        explicitCastLattice.addEdge(booleanV, floatV, NativeCastMapper.BOOLEAN_TO_FLOAT_FUNC);
 
 //        explicitCastLattice.addEdge(jsonV, xmlV, new JSONToXML(), TypeConstants.NATIVE_PACKAGE);
 //        explicitCastLattice.addEdge(xmlV, jsonV, new XMLToJSON(), TypeConstants.NATIVE_PACKAGE);
@@ -139,6 +145,26 @@ public class TypeLattice {
 //        explicitCastLattice.addEdge(stringV, xmlV, new StringToXML(), TypeConstants.NATIVE_PACKAGE);
 //        explicitCastLattice.addEdge(xmlV, stringV, new XMLToString(), TypeConstants.NATIVE_PACKAGE);
 //        explicitCastLattice.addEdge(jsonV, stringV, new JSONToString(), TypeConstants.NATIVE_PACKAGE);
+    }
+
+    /**
+     * Merges a given type lattice with the current type lattice
+     * @param typeLattice given type lattice
+     * @param packageName package name to be merged into
+     */
+    public void merge(TypeLattice typeLattice, String packageName) {
+        for (TypeVertex typeVertex : typeLattice.getVertices()) {
+            this.addVertex(typeVertex, false);
+        }
+
+        for (TypeEdge typeEdge : typeLattice.getEdges()) {
+            if (typeEdge.getTypeMapperFunction() != null) {
+                this.addEdge(typeEdge.getSource(), typeEdge.getTarget(), typeEdge.getTypeMapperFunction());
+            } else {
+                this.addEdge(typeEdge.getSource(), typeEdge.getTarget(), typeEdge.getTypeMapper(),
+                        packageName);
+            }
+        }
     }
 
     /**
@@ -199,6 +225,10 @@ public class TypeLattice {
         // First check within the package
         result = this.edges.get((source.toString() + target.toString() + packageName).hashCode());
         if (result == null) {
+            result = this.edges.get((packageName + ":" + source.toString() + packageName + ":" +
+                    target.toString() + packageName).hashCode());
+        }
+        if (result == null) {
             // If not found, check in native type typemappers
             packageName = TypeConstants.NATIVE_PACKAGE;
             result = this.edges.get((source.toString() + target.toString() + packageName).hashCode());
@@ -251,5 +281,12 @@ public class TypeLattice {
      */
     public Set<TypeEdge> getEdges() {
         return new HashSet<TypeEdge>(this.edges.values());
+    }
+
+    /**
+     * @return Set &lt;TypeVertex&gt; The Vertices of this graph
+     */
+    public Set<TypeVertex> getVertices() {
+        return new HashSet<TypeVertex>(this.vertices.values());
     }
 }

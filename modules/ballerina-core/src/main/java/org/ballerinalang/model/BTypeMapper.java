@@ -69,7 +69,7 @@ public class BTypeMapper implements TypeMapper, SymbolScope, CompilationUnit {
     }
 
     /**
-     * Get all the Annotations associated with a BallerinatypeMapper
+     * Get all the Annotations associated with a BallerinatypeMapper.
      *
      * @return list of Annotations
      */
@@ -78,7 +78,7 @@ public class BTypeMapper implements TypeMapper, SymbolScope, CompilationUnit {
     }
 
     /**
-     * Get list of Arguments associated with the typeMapper definition
+     * Get list of Arguments associated with the typeMapper definition.
      *
      * @return list of Arguments
      */
@@ -87,7 +87,7 @@ public class BTypeMapper implements TypeMapper, SymbolScope, CompilationUnit {
     }
 
     /**
-     * Get all the variableDcls declared in the scope of BallerinaTypeMapper
+     * Get all the variableDcls declared in the scope of BallerinaTypeMapper.
      *
      * @return list of all BallerinaTypeMapper scoped variableDcls
      */

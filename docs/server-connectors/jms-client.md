@@ -21,7 +21,7 @@ ProviderURL | string | The URL/file path of the JNDI provider. | A valid URL/pat
 Example:
 
 ```
-jms:ClientConnector jmsConnector = create jms:ClientConnector("org.wso2.andes.jndi.PropertiesFileInitialContextFactory", "jndi.properties");
+jms:ClientConnector jmsEP = create jms:ClientConnector("org.wso2.andes.jndi.PropertiesFileInitialContextFactory", "jndi.properties");
 ```
 ### Step 3
 Invoke the send action of the JMS client connector and pass the relevant parameters as mentioned below.
@@ -53,7 +53,7 @@ message queueMessage = {};
 map dataMap;
 dataMap = {};
 messages:setStringPayload(queueMessage, "Hello from ballerina");
-jms:JMSConnector.send(jmsEP, "QueueConnectionFactory", "MyQueue", "queue", "TextMessage", queueMessage, dataMap);
+jms:ClientConnector.send(jmsEP, "QueueConnectionFactory", "MyQueue", "queue", "TextMessage", queueMessage, dataMap);
 ```
 
 Given below is a sample Ballerina function depicting the creation of a JMS client connector:

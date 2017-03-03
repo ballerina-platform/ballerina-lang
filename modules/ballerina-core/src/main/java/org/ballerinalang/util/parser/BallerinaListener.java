@@ -238,16 +238,6 @@ public interface BallerinaListener extends ParseTreeListener {
 	 */
 	void exitTypeMapper(BallerinaParser.TypeMapperContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link BallerinaParser#typeMapperInput}.
-	 * @param ctx the parse tree
-	 */
-	void enterTypeMapperInput(BallerinaParser.TypeMapperInputContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link BallerinaParser#typeMapperInput}.
-	 * @param ctx the parse tree
-	 */
-	void exitTypeMapperInput(BallerinaParser.TypeMapperInputContext ctx);
-	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#typeMapperBody}.
 	 * @param ctx the parse tree
 	 */
@@ -327,16 +317,6 @@ public interface BallerinaListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitQualifiedTypeName(BallerinaParser.QualifiedTypeNameContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link BallerinaParser#typeMapperType}.
-	 * @param ctx the parse tree
-	 */
-	void enterTypeMapperType(BallerinaParser.TypeMapperTypeContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link BallerinaParser#typeMapperType}.
-	 * @param ctx the parse tree
-	 */
-	void exitTypeMapperType(BallerinaParser.TypeMapperTypeContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#unqualifiedTypeName}.
 	 * @param ctx the parse tree
