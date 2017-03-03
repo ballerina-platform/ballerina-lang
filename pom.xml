@@ -465,7 +465,7 @@
 
     <modules>
         <module>modules/services/workspace-service</module>
-        <module>modules/distribution</module>
+        <module>modules/web</module>
     </modules>
 
 </project>
