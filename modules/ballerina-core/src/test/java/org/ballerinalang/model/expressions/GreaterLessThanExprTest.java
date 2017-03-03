@@ -96,7 +96,7 @@ public class GreaterLessThanExprTest {
         Assert.assertEquals(actual, expected);
     }
 
-    @Test(description = "Test Integer and long comparison")
+    @Test(description = "Test Integer and float comparison")
     public void testIntAndFloatComparison() {
         int a = 10;
         float b = 20f;

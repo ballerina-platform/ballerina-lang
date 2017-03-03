@@ -43,13 +43,13 @@ public interface DataIterator {
 
     long getLong(String columnName);
 
-    int getInt(int columnIndex);
+//    int getInt(int columnIndex);
 
-    int getInt(String columnName);
+//    int getInt(String columnName);
 
-    float getFloat(int columnIndex);
+//    float getFloat(int columnIndex);
 
-    float getFloat(String columnName);
+//    float getFloat(String columnName);
 
     double getDouble(int columnIndex);
 

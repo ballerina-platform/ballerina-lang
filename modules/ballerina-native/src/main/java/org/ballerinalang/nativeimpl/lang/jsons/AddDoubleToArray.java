@@ -24,37 +24,23 @@ import com.jayway.jsonpath.JsonPathException;
 import com.jayway.jsonpath.PathNotFoundException;
 import com.jayway.jsonpath.WriteContext;
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.model.types.TypeEnum;
 import org.ballerinalang.model.values.BDouble;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.lang.utils.ErrorHandler;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.Attribute;
-import org.ballerinalang.natives.annotations.BallerinaAnnotation;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
 
 /**
  * Insert a double to a JSON Array. This method will add a new double value
  * to the end of the JSON Array identified by the given jsonpath.
  */
-@BallerinaFunction(
-        packageName = "ballerina.lang.jsons",
-        functionName = "add",
-        args = {@Argument(name = "j", type = TypeEnum.JSON),
-                @Argument(name = "jsonPath", type = TypeEnum.STRING),
-                @Argument(name = "value", type = TypeEnum.DOUBLE)},
-        isPublic = true
-)
-@BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
-        value = "Inserts a double to a JSON array. This function will add a new double value to the end of "
-                + "the JSON array identified by the given JSONPath.") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "j",
-        value = "A JSON array object") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "jsonPath",
-        value = "The path of the JSON element") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "value",
-        value = "A double value") })
+//@BallerinaFunction(
+//        packageName = "ballerina.lang.jsonutils",
+//        functionName = "add",
+//        args = {@Argument(name = "j", type = TypeEnum.JSON),
+//                @Argument(name = "jsonPath", type = TypeEnum.STRING),
+//                @Argument(name = "value", type = TypeEnum.DOUBLE)},
+//        isPublic = true
+//)
 public class AddDoubleToArray extends AbstractJSONFunction {
 
     private static final String OPERATION = "add double to json arrays";

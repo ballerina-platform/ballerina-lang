@@ -1,16 +1,16 @@
 import ballerina.lang.datatables;
 import ballerina.data.sql;
 
-function getXXXByIndex()(int, long, float, double, boolean, string) {
+function getXXXByIndex()(int, int, float, float, boolean, string) {
     map propertiesMap = {"jdbcUrl" : "jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
                         "username":"SA", "password":"", "maximumPoolSize":1};
     sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
     sql:Parameter[] parameters=[];
     datatable df;
     int i;
-    long l;
+    int l;
     float f;
-    double d;
+    float d;
     boolean b;
     string s;
 
@@ -18,9 +18,9 @@ function getXXXByIndex()(int, long, float, double, boolean, string) {
                 string_type from DataTable LIMIT 1",parameters);
     while (datatables:next(df)) {
         i = datatables:getInt(df, 1);
-        l = datatables:getLong(df, 2);
+        l = datatables:getInt(df, 2);
         f = datatables:getFloat(df, 3);
-        d = datatables:getDouble(df, 4);
+        d = datatables:getFloat(df, 4);
         b = datatables:getBoolean(df, 5);
         s = datatables:getString(df, 6);
     }
@@ -28,16 +28,16 @@ function getXXXByIndex()(int, long, float, double, boolean, string) {
     return i, l, f, d, b, s;
 }
 
-function getXXXByName()(int, long, float, double, boolean, string) {
+function getXXXByName()(int, int, float, float, boolean, string) {
     map propertiesMap = {"jdbcUrl" : "jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
                             "username":"SA", "password":"", "maximumPoolSize":1};
     sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
     sql:Parameter[] parameters=[];
     datatable df;
     int i;
-    long l;
+    int l;
     float f;
-    double d;
+    float d;
     boolean b;
     string s;
 
@@ -45,9 +45,9 @@ function getXXXByName()(int, long, float, double, boolean, string) {
                 string_type from DataTable LIMIT 1",parameters);
     while (datatables:next(df)) {
         i = datatables:getInt(df, "int_type");
-        l = datatables:getLong(df, "long_type");
+        l = datatables:getInt(df, "long_type");
         f = datatables:getFloat(df, "float_type");
-        d = datatables:getDouble(df, "double_type");
+        d = datatables:getFloat(df, "double_type");
         b = datatables:getBoolean(df, "boolean_type");
         s = datatables:getString(df, "string_type");
     }
@@ -98,7 +98,7 @@ function toXmlComplex() (xml) {
     return result;
 }
 
-function getByName()(string, string, long, long, long) {
+function getByName()(string, string, int, int, int) {
     map propertiesMap = {"jdbcUrl" : "jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
                             "username":"SA", "password":"", "maximumPoolSize":1};
     sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
@@ -106,24 +106,24 @@ function getByName()(string, string, long, long, long) {
     datatable df;
     string blob;
     string clob;
-    long time;
-    long date;
-    long timestamp;
+    int time;
+    int date;
+    int timestamp;
 
     df = sql:ClientConnector.select(testDB, "SELECT blob_type, clob_type, time_type, date_type, timestamp_type
                 from ComplexTypes LIMIT 1",parameters);
     while (datatables:next(df)) {
         blob = datatables:getString(df, "blob_type", "blob");
         clob = datatables:getString(df, "clob_type", "clob");
-        time = datatables:getLong(df, "time_type", "time");
-        date = datatables:getLong(df, "date_type", "date");
-        timestamp = datatables:getLong(df, "timestamp_type", "timestamp");
+        time = datatables:getInt(df, "time_type", "time");
+        date = datatables:getInt(df, "date_type", "date");
+        timestamp = datatables:getInt(df, "timestamp_type", "timestamp");
     }
     datatables:close(df);
     return blob, clob, time, date, timestamp;
 }
 
-function getByIndex()(string, string, long, long, long) {
+function getByIndex()(string, string, int, int, int) {
     map propertiesMap = {"jdbcUrl" : "jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
                             "username":"SA", "password":"", "maximumPoolSize":1};
     sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
@@ -131,9 +131,9 @@ function getByIndex()(string, string, long, long, long) {
     datatable df;
     string blob;
     string clob;
-    long time;
-    long date;
-    long timestamp;
+    int time;
+    int date;
+    int timestamp;
 
     sql:ClientConnector.update(testDB, "Update ComplexTypes set clob_type = 'Test String' where row_id = 1",parameters);
 
@@ -142,9 +142,9 @@ function getByIndex()(string, string, long, long, long) {
     while (datatables:next(df)) {
         blob = datatables:getString(df, 1, "blob");
         clob = datatables:getString(df, 2, "clob");
-        time = datatables:getLong(df, 3, "time");
-        date = datatables:getLong(df, 4, "date");
-        timestamp = datatables:getLong(df, 5, "timestamp");
+        time = datatables:getInt(df, 3, "time");
+        date = datatables:getInt(df, 4, "date");
+        timestamp = datatables:getInt(df, 5, "timestamp");
     }
     datatables:close(df);
     return blob, clob, time, date, timestamp;
@@ -241,7 +241,7 @@ function getArrayByIndex()(map int_arr, map long_arr, map double_arr, map string
     return;
 }
 
-function testDateTime(string time, string date, string timestamp) (long time1, long date1, long timestamp1) {
+function testDateTime(string time, string date, string timestamp) (int time1, int date1, int timestamp1) {
     map propertiesMap = {"jdbcUrl" : "jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
                          "username":"SA", "password":"", "maximumPoolSize":1};
     sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
@@ -257,9 +257,9 @@ function testDateTime(string time, string date, string timestamp) (long time1, l
     datatable dt = sql:ClientConnector.select(testDB, "SELECT time_type, date_type, timestamp_type
                 from DateTimeTypes LIMIT 1", emptyParam);
     while (datatables:next(dt)) {
-        time1 = datatables:getLong(dt, "time_type", "time");
-        date1 = datatables:getLong(dt, "date_type", "date");
-        timestamp1 = datatables:getLong(dt, "timestamp_type", "timestamp");
+        time1 = datatables:getInt(dt, "time_type", "time");
+        date1 = datatables:getInt(dt, "date_type", "date");
+        timestamp1 = datatables:getInt(dt, "timestamp_type", "timestamp");
     }
     datatables:close(dt);
     return;

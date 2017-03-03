@@ -41,11 +41,7 @@ import org.slf4j.LoggerFactory;
         consts = {
                 @BallerinaConstant(identifier = "LOG_LEVEL_TRACE", type = TypeEnum.INT, value = "1",
                         argumentRefs = {"logLevel"}),
-                @BallerinaConstant(identifier = "LOG_LEVEL_DEBUG", type = TypeEnum.LONG, value = "2",
-                        argumentRefs = {"logLevel"}),
                 @BallerinaConstant(identifier = "LOG_LEVEL_INFO", type = TypeEnum.FLOAT, value = "3",
-                        argumentRefs = {"logLevel"}),
-                @BallerinaConstant(identifier = "LOG_LEVEL_WARN", type = TypeEnum.DOUBLE, value = "4",
                         argumentRefs = {"logLevel"}),
                 @BallerinaConstant(identifier = "LOG_LEVEL_ERROR", type = TypeEnum.BOOLEAN, value = "5",
                         argumentRefs = {"logLevel"}),

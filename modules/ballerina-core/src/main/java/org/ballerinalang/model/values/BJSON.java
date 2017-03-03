@@ -205,7 +205,7 @@ public final class BJSON extends BallerinaMessageDataSource implements BRefType<
                 gen.close();
                 this.value = OBJECT_MAPPER.readTree(byteOut.toByteArray());
             } catch (Throwable t) {
-                handleJsonException("Error in building JSON node", t);
+                handleJsonException("Error in building JSON node: ", t);
             }
         }
         return this.value;

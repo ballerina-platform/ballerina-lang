@@ -6,12 +6,6 @@ function testPrintAndPrintlnString(string s1, string s2){
     // output is equal to s1\ns2
 }
 
-function testPrintAndPrintlnLong(long v1, long v2){
-    system:println(v1);
-    system:print(v2);
-    // output is equal to v1\nv2
-}
-
 function testPrintAndPrintlnInt(int v1, int v2){
     system:println(v1);
     system:print(v2);
@@ -24,19 +18,13 @@ function testPrintAndPrintlnFloat(float v1, float v2){
     // output is equal to v1\nv2
 }
 
-function testPrintAndPrintlnBoolean(double v1, double v2){
+function testPrintAndPrintlnBoolean(boolean v1, boolean v2){
     system:println(v1);
     system:print(v2);
     // output is equal to v1\nv2
 }
 
-function testPrintAndPrintlnDouble(boolean v1, boolean v2){
-    system:println(v1);
-    system:print(v2);
-    // output is equal to v1\nv2
-}
-
-function testLog(long l, double d) {
+function testLog(int l, float d) {
     int i;
     //long l; // Related to issue #679
     float f;
@@ -60,11 +48,11 @@ function testLog(long l, double d) {
     system:log(6, b);
 }
 
-function testTimeFunctions()(long, long, long) {
+function testTimeFunctions()(int, int, int) {
 
-    long currentTime;
-    long epochTime;
-    long nanoTime;
+    int currentTime;
+    int epochTime;
+    int nanoTime;
 
     currentTime = system:currentTimeMillis();
     epochTime = system:epochTime();

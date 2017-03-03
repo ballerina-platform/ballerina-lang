@@ -27,6 +27,7 @@ import org.ballerinalang.model.values.BValue;
  *
  * @since 0.8.0
  */
+@Deprecated
 class BDoubleType extends BType {
 
     /**

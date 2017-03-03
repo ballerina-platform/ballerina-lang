@@ -473,27 +473,22 @@ IntegerLiteral
 
 fragment
 DecimalIntegerLiteral
-    :   DecimalNumeral IntegerTypeSuffix?
+    :   DecimalNumeral
     ;
 
 fragment
 HexIntegerLiteral
-    :   HexNumeral IntegerTypeSuffix?
+    :   HexNumeral
     ;
 
 fragment
 OctalIntegerLiteral
-    :   OctalNumeral IntegerTypeSuffix?
+    :   OctalNumeral
     ;
 
 fragment
 BinaryIntegerLiteral
-    :   BinaryNumeral IntegerTypeSuffix?
-    ;
-
-fragment
-IntegerTypeSuffix
-    :   [lL]
+    :   BinaryNumeral
     ;
 
 fragment
@@ -629,7 +624,7 @@ Sign
 
 fragment
 FloatTypeSuffix
-    :   [fFdD]
+    :   [fF]
     ;
 
 fragment

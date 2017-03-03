@@ -22,6 +22,7 @@ package org.ballerinalang.model.values;
  *
  * @since 0.8.0
  */
+@Deprecated
 public final class BDouble extends BValueType {
 
     private double value;

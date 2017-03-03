@@ -24,37 +24,23 @@ import com.jayway.jsonpath.JsonPathException;
 import com.jayway.jsonpath.PathNotFoundException;
 import com.jayway.jsonpath.WriteContext;
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.model.types.TypeEnum;
 import org.ballerinalang.model.values.BDouble;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.lang.utils.ErrorHandler;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.Attribute;
-import org.ballerinalang.natives.annotations.BallerinaAnnotation;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
 
 /**
  * Set the double value of a element that matches the given jsonpath.
  * If the jsonpath doesn't match any element, then this operation would have no effect.
  */
-@BallerinaFunction(
-        packageName = "ballerina.lang.jsons",
-        functionName = "set",
-        args = {@Argument(name = "j", type = TypeEnum.JSON),
-                @Argument(name = "jsonPath", type = TypeEnum.STRING),
-                @Argument(name = "value", type = TypeEnum.DOUBLE)},
-        isPublic = true
-)
-@BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
-        value = "Sets the double value of the element that matches the given JSONPath."
-                + " If the JSONPath doesn't match any element, this operation will have no effect.") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "j",
-        value = "A JSON object") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "jsonPath",
-        value = "The path of the JSON element") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "value",
-        value = "A double value") })
+//@BallerinaFunction(
+//        packageName = "ballerina.lang.jsonutils",
+//        functionName = "set",
+//        args = {@Argument(name = "j", type = TypeEnum.JSON),
+//                @Argument(name = "jsonPath", type = TypeEnum.STRING),
+//                @Argument(name = "value", type = TypeEnum.DOUBLE)},
+//        isPublic = true
+//)
 public class SetDouble extends AbstractJSONFunction {
 
     private static final String OPERATION = "set double in json";

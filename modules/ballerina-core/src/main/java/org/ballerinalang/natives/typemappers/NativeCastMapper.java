@@ -36,7 +36,7 @@ public class NativeCastMapper {
             (rVal) -> new BLong(rVal.longValue());
 
     public static final Function<BValueType, BValueType> INT_TO_FLOAT_FUNC =
-            (rVal) -> new BFloat(rVal.floatValue());
+            (rVal) -> new BFloat(rVal.doubleValue());
 
     public static final Function<BValueType, BValueType> INT_TO_DOUBLE_FUNC =
             (rVal) -> new BDouble(rVal.doubleValue());

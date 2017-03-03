@@ -23,10 +23,10 @@ function testWhileScope(int number)(int) {
     return i;
 }
 
-function testWhileScopeWithIf()(int, double) {
-    double[] values = [];
+function testWhileScopeWithIf()(int, float) {
+    float[] values = [];
     string operator;
-    double sum = 0.0d;
+    float sum = 0.0f;
     string[] args = ["+" , "10", "20"];
 
     int i = 0;
@@ -34,7 +34,7 @@ function testWhileScopeWithIf()(int, double) {
            if(i == 0){
                  operator = args[0];
            } else {
-                 values[i -1] = (double)args[i];
+                 values[i -1] = (float)args[i];
            }
            i = i + 1;
            }

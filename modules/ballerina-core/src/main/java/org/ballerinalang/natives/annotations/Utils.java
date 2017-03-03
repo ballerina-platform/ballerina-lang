@@ -19,11 +19,9 @@ package org.ballerinalang.natives.annotations;
 
 import org.ballerinalang.model.types.TypeEnum;
 import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BDouble;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BJSON;
-import org.ballerinalang.model.values.BLong;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.exceptions.MalformedEntryException;
@@ -49,16 +47,16 @@ public class Utils {
                     bValue = new BBoolean(Boolean.parseBoolean(value));
                     break;
                 case INT:
-                    bValue = new BInteger(Integer.parseInt(value));
+                    bValue = new BInteger(Long.parseLong(value));
                     break;
-                case LONG:
+                /*case LONG:
                     bValue = new BLong(Long.parseLong(value));
-                    break;
-                case DOUBLE:
+                    break;*/
+                /*case DOUBLE:
                     bValue = new BDouble(Double.parseDouble(value));
-                    break;
+                    break;*/
                 case FLOAT:
-                    bValue = new BFloat(Float.parseFloat(value));
+                    bValue = new BFloat(Double.parseDouble(value));
                     break;
                 case STRING:
                     bValue = new BString(value);
