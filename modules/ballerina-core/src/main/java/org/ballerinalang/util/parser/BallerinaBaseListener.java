@@ -292,18 +292,6 @@ public class BallerinaBaseListener implements BallerinaListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterTypeMapperInput(BallerinaParser.TypeMapperInputContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitTypeMapperInput(BallerinaParser.TypeMapperInputContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
 	@Override public void enterTypeMapperBody(BallerinaParser.TypeMapperBodyContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -395,18 +383,6 @@ public class BallerinaBaseListener implements BallerinaListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitQualifiedTypeName(BallerinaParser.QualifiedTypeNameContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterTypeMapperType(BallerinaParser.TypeMapperTypeContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitTypeMapperType(BallerinaParser.TypeMapperTypeContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

@@ -18,7 +18,7 @@
 package org.ballerinalang.natives.annotations;
 
 /**
- * Represents an Attribute which is used in {@link BallerinaAnnotation}
+ * Represents an Attribute which is used in {@link BallerinaAnnotation}.
  */
 public @interface Attribute {
     String name();

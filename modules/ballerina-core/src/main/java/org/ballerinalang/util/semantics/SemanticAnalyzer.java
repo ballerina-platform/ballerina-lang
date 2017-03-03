@@ -198,7 +198,13 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         currentScope = bLangPackage;
         currentPkg = bLangPackage.getPackagePath();
-        packageTypeLattice = bLangPackage.getTypeLattice();
+        if (packageTypeLattice != null) {
+            TypeLattice currentLattice = bLangPackage.getTypeLattice();
+            currentLattice.merge(packageTypeLattice, currentPkg);
+            packageTypeLattice = currentLattice;
+        } else {
+            packageTypeLattice = bLangPackage.getTypeLattice();
+        }
 
         defineConstants(bLangPackage.getConsts());
         defineStructs(bLangPackage.getStructDefs());
@@ -1648,6 +1654,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         BType targetType = typeCastExpression.getTargetType();
         if (targetType == null) {
             targetType = BTypes.resolveType(typeCastExpression.getTypeName(), currentScope, null);
+            typeCastExpression.setTargetType(targetType);
         }
         // Check whether this is a native conversion
         if (BTypes.isValueType(sourceType) &&
@@ -2290,14 +2297,11 @@ public class SemanticAnalyzer implements NodeVisitor {
             TypeVertex targetV = new TypeVertex(targetBType);
             typeMapper.setReturnParamTypes(new BType[] { targetBType });
 
-            packageTypeLattice.addVertex(sourceV, true);
-            packageTypeLattice.addVertex(targetV, true);
-            packageTypeLattice.addEdge(sourceV, targetV, typeMapper, null);
-
-            SymbolName symbolName = LangModelUtils.getTypeMapperSymName(null, sourceBType, targetBType);
+            SymbolName symbolName = LangModelUtils
+                        .getTypeMapperSymName(typeMapper.getPackagePath(), sourceBType, targetBType);
             typeMapper.setSymbolName(symbolName);
-
             BLangSymbol typConvertorSymbol = currentScope.resolve(symbolName);
+
 
             if (typeMapper.isNative() && typConvertorSymbol == null) {
                 BLangExceptionHelper
@@ -2311,6 +2315,12 @@ public class SemanticAnalyzer implements NodeVisitor {
                 }
                 currentScope.define(symbolName, typeMapper);
             }
+
+            // Typemapper should be added to type lattice after it is defined in the symbol scope
+            packageTypeLattice.addVertex(sourceV, true);
+            packageTypeLattice.addVertex(targetV, true);
+            packageTypeLattice.addEdge(sourceV, targetV, typeMapper,
+                    typeMapper.getPackagePath() != null ? typeMapper.getPackagePath() : ".");
         }
     }
 

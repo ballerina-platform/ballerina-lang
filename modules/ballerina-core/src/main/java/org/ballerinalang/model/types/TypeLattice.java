@@ -29,7 +29,7 @@ import java.util.Set;
 import java.util.function.Function;
 
 /**
- * Class to hold the types and their connections within ballerina
+ * Class to hold the types and their connections within ballerina.
  */
 public class TypeLattice {
 
@@ -142,6 +142,26 @@ public class TypeLattice {
     }
 
     /**
+     * Merges a given type lattice with the current type lattice
+     * @param typeLattice given type lattice
+     * @param packageName package name to be merged into
+     */
+    public void merge(TypeLattice typeLattice, String packageName) {
+        for (TypeVertex typeVertex : typeLattice.getVertices()) {
+            this.addVertex(typeVertex, false);
+        }
+
+        for (TypeEdge typeEdge : typeLattice.getEdges()) {
+            if (typeEdge.getTypeMapperFunction() != null) {
+                this.addEdge(typeEdge.getSource(), typeEdge.getTarget(), typeEdge.getTypeMapperFunction());
+            } else {
+                this.addEdge(typeEdge.getSource(), typeEdge.getTarget(), typeEdge.getTypeMapper(),
+                        packageName);
+            }
+        }
+    }
+
+    /**
      * Accepts two vertices and a weight, and adds the edge
      * ({one, two}, weight) iff no TypeEdge relating one and two
      * exists in the Graph.
@@ -199,6 +219,10 @@ public class TypeLattice {
         // First check within the package
         result = this.edges.get((source.toString() + target.toString() + packageName).hashCode());
         if (result == null) {
+            result = this.edges.get((packageName + ":" + source.toString() + packageName + ":" +
+                    target.toString() + packageName).hashCode());
+        }
+        if (result == null) {
             // If not found, check in native type typemappers
             packageName = TypeConstants.NATIVE_PACKAGE;
             result = this.edges.get((source.toString() + target.toString() + packageName).hashCode());
@@ -251,5 +275,12 @@ public class TypeLattice {
      */
     public Set<TypeEdge> getEdges() {
         return new HashSet<TypeEdge>(this.edges.values());
+    }
+
+    /**
+     * @return Set &lt;TypeVertex&gt; The Vertices of this graph
+     */
+    public Set<TypeVertex> getVertices() {
+        return new HashSet<TypeVertex>(this.vertices.values());
     }
 }

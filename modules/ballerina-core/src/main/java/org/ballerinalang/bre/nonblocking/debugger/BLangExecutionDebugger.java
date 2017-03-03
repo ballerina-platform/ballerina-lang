@@ -165,7 +165,7 @@ public class BLangExecutionDebugger extends BLangAbstractExecutionVisitor {
     }
 
     /**
-     * Step into the first statement of current statement's callable unit.(Function, Action, TypeMapper)
+     * Step into the first statement of current statement's callable unit (Function, Action, TypeMapper).
      */
     public synchronized void stepIn() {
         if (done) {

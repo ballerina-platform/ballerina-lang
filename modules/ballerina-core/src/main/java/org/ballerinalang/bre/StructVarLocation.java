@@ -25,7 +25,7 @@ import org.ballerinalang.model.values.BValue;
 
 /**
  * {@code StructVarLocation} represents a location where a variable declared in a
- * {@code StructDef} is stored at runtime
+ * {@code StructDef} is stored at runtime.
  *
  * @since 0.8.0
  */

@@ -29,7 +29,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import java.io.PrintStream;
 
 /**
- * Native function ballerina.model.system:println(xml)
+ * Native function ballerina.model.system:println(xml).
  */
 @BallerinaFunction(
         packageName = "ballerina.lang.system",

@@ -28,8 +28,8 @@ import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.values.BValue;
 
 /**
- * <p>A {@code WorkerInvocationStmt} Class to hold data related to worker invocation statement</p>
- * 
+ * A {@code WorkerInvocationStmt} Class to hold data related to worker invocation statement.
+ * <br>
  * message -&gt; sampleWorker;
  *
  *  @since 0.8.0

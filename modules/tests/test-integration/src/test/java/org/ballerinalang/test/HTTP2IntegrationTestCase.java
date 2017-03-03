@@ -91,7 +91,7 @@ public abstract class HTTP2IntegrationTestCase {
     }
 
     /**
-     * Used to copy conf file
+     * Used to copy conf file.
      *
      * @param source source file
      * @param dest   destination file
@@ -138,7 +138,7 @@ public abstract class HTTP2IntegrationTestCase {
     }
 
     /**
-     * Get content from response\
+     * Get content from response.
      *
      * @param msg HTTP Response
      * @return content

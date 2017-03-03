@@ -63,7 +63,7 @@ public class ForkJoinStmt extends AbstractStatement implements SymbolScope, Comp
     }
 
     /**
-     * An inner class represents a join block of a fork-join statement
+     * An inner class represents a join block of a fork-join statement.
      */
     public static class Join implements SymbolScope {
 
@@ -137,7 +137,7 @@ public class ForkJoinStmt extends AbstractStatement implements SymbolScope, Comp
     }
 
     /**
-     * An inner class represents a timeout block of a fork-join statement
+     * An inner class represents a timeout block of a fork-join statement.
      */
     public static class Timeout implements SymbolScope {
 
