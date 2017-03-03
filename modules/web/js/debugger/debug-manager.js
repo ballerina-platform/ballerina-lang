@@ -145,7 +145,6 @@ define(['require', 'jquery', 'backbone', 'lodash', 'event_channel', './channel',
         var breakpointsLineNumbers = _.map(breakpoints, function(breakpoint) {
              return breakpoint.lineNumber;
         });
-        console.log(breakpointsLineNumbers)
         return breakpointsLineNumbers;
     };
 
