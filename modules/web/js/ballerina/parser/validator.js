@@ -51,28 +51,4 @@ Validator.prototype.validate = function(input){
     return errorListener.getErrors();
 };
 
-/**
- * builds the AST for given ballerina source
- * @param input {string} ballerina source content
- */
-Validator.prototype.parse = function(input){
-    // setup parser
-    var chars = new antlr4.InputStream(input);
-    var lexer = new BallerinaLexer.BallerinaLexer(chars);
-    var tokens  = new antlr4.CommonTokenStream(lexer);
-    var parser = new BallerinaParser.BallerinaParser(tokens);
-
-    // set custom error listener for collecting syntax errors
-    var errorListener = new BLangParserErrorListener();
-    parser.removeErrorListeners();
-    parser.addErrorListener(errorListener);
-
-    // start parsing
-    parser.compilationUnit();
-
-    // return collected errors
-    return errorListener.getErrors();
-};
-
-
 exports.Validator = Validator;
