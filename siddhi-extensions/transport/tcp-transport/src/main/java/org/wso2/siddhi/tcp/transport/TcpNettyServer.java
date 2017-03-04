@@ -18,36 +18,35 @@
 package org.wso2.siddhi.tcp.transport;
 
 import io.netty.bootstrap.ServerBootstrap;
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.EventLoopGroup;
+import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import org.apache.log4j.Logger;
-import org.wso2.siddhi.tcp.transport.config.ServerConfig;
-import org.wso2.siddhi.tcp.transport.handlers.ServerChannelInitializer;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
-
-import java.io.FileNotFoundException;
-import java.io.PrintWriter;
+import org.wso2.siddhi.tcp.transport.callback.LogStreamCallback;
+import org.wso2.siddhi.tcp.transport.callback.StreamCallback;
+import org.wso2.siddhi.tcp.transport.config.ServerConfig;
+import org.wso2.siddhi.tcp.transport.callback.StatisticsStreamCallback;
+import org.wso2.siddhi.tcp.transport.utils.StreamTypeHolder;
+import org.wso2.siddhi.tcp.transport.handlers.EventDecoder;
 
 public class TcpNettyServer {
     private static final Logger log = Logger.getLogger(TcpNettyServer.class);
-    private PrintWriter writer = null;
     private EventLoopGroup bossGroup;
     private EventLoopGroup workerGroup;
+    private StreamTypeHolder streamInfoHolder = new StreamTypeHolder();
 
     public static void main(String[] args) {
-        StreamDefinition stockStream = StreamDefinition.id("StockStream").attribute("symbol", Attribute.Type.STRING)
+        StreamDefinition streamDefinition = StreamDefinition.id("StockStream").attribute("symbol", Attribute.Type.STRING)
                 .attribute("price", Attribute.Type.INT).attribute("volume", Attribute.Type.INT);
-        TransportStreamManager.getInstance().addStreamDefinition(stockStream);
-        TcpNettyServer tcpNettyServer= new TcpNettyServer();
+
+        TcpNettyServer tcpNettyServer = new TcpNettyServer();
+//        tcpNettyServer.addStreamCallback(new LogStreamCallback(streamDefinition));
+        tcpNettyServer.addStreamCallback(new StatisticsStreamCallback(streamDefinition));
+
         tcpNettyServer.bootServer(new ServerConfig());
         tcpNettyServer.shutdownGracefully();
-    }
-
-    public static void slog(Object msg) {
-        log.info("[Server]:" + msg);
     }
 
     public void bootServer(ServerConfig serverConfig) {
@@ -55,14 +54,22 @@ public class TcpNettyServer {
         workerGroup = new NioEventLoopGroup(serverConfig.getWorkerThreads());
         try {
             // More terse code to setup the server
-            ServerBootstrap b = new ServerBootstrap();
-            b.group(bossGroup, workerGroup)
+            ServerBootstrap bootstrap = new ServerBootstrap();
+            bootstrap.group(bossGroup, workerGroup)
                     .channel(NioServerSocketChannel.class)
-                    .childHandler(new ServerChannelInitializer());
+                    .childHandler(new ChannelInitializer() {
+
+                        @Override
+                        protected void initChannel(Channel channel) throws Exception {
+                            ChannelPipeline p = channel.pipeline();
+                            p.addLast(
+                                    new EventDecoder(streamInfoHolder));
+                        }
+                    });
 
             // Bind and start to accept incoming connections.
-            ChannelFuture f = b.bind(serverConfig.getHost(), serverConfig.getPort()).sync();
-            f.channel().closeFuture().sync();
+            ChannelFuture channelFuture = bootstrap.bind(serverConfig.getHost(), serverConfig.getPort()).sync();
+            channelFuture.channel().closeFuture().sync();
         } catch (InterruptedException e) {
             log.error("Error when booting up binary server " + e.getMessage(), e);
         }
@@ -71,20 +78,19 @@ public class TcpNettyServer {
     public void shutdownGracefully() {
         workerGroup.shutdownGracefully();
         bossGroup.shutdownGracefully();
+        workerGroup = null;
+        bossGroup = null;
     }
 
-    public void writeResult(String data) {
-        try {
-            if (writer == null) {
-                writer = new PrintWriter("results.csv");
-            }
-        } catch (FileNotFoundException ex) {
-            log.error("File not found......");
-        }
-
-        writer.println(data);
-        writer.flush();
+    public void addStreamCallback(StreamCallback streamCallback) {
+        streamInfoHolder.putStreamCallback(streamCallback);
     }
+
+    public void removeStreamCallback(String streamId) {
+        streamInfoHolder.removeStreamCallback(streamId);
+
+    }
+
 }
 
 

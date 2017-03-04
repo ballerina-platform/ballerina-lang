@@ -15,9 +15,9 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.wso2.siddhi.tcp.transport.dto;
+package org.wso2.siddhi.tcp.transport.utils;
 
-import org.wso2.siddhi.tcp.transport.utils.EventDefinitionConverterUtil;
+import org.wso2.siddhi.tcp.transport.callback.StreamCallback;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
 
@@ -25,16 +25,17 @@ import org.wso2.siddhi.query.api.definition.StreamDefinition;
  * Class to hold attribute type order array and size of attributes.
  */
 
-public class StreamAttributeComposite {
+public class StreamInfo {
     private Attribute.Type[] attributeTypes;
+    private StreamCallback streamCallback;
     private StreamDefinition streamDefinition;
     private int attributeSize;
 
-    public StreamAttributeComposite(StreamDefinition streamDefinition) {
-        this.streamDefinition = streamDefinition;
+    public StreamInfo(StreamCallback streamCallback) {
+        this.streamCallback = streamCallback;
+        this.streamDefinition = streamCallback.getStreamDefinition();
         this.attributeTypes = EventDefinitionConverterUtil.generateAttributeTypeArray(streamDefinition.getAttributeList());
         this.attributeSize = getSize(attributeTypes);
-
     }
 
     private int getSize(Attribute.Type[] attributeTypes) {
@@ -49,19 +50,15 @@ public class StreamAttributeComposite {
         return attributeSize;
     }
 
-    public void setAttributeSize(int attributeSize) {
-        this.attributeSize = attributeSize;
-    }
-
     public Attribute.Type[] getAttributeTypes() {
         return attributeTypes;
     }
 
-    public void setAttributeTypes(Attribute.Type[] attributeTypes) {
-        this.attributeTypes = attributeTypes;
-    }
-
     public StreamDefinition getStreamDefinition() {
         return streamDefinition;
+    }
+
+    public StreamCallback getStreamCallback() {
+        return streamCallback;
     }
 }

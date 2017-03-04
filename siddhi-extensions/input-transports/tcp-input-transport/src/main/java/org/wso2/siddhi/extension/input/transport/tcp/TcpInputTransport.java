@@ -23,6 +23,7 @@ import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
 import org.wso2.siddhi.core.stream.input.source.InputTransport;
 import org.wso2.siddhi.core.stream.input.source.SourceCallback;
 import org.wso2.siddhi.core.util.transport.OptionHolder;
+import org.wso2.siddhi.tcp.transport.TcpNettyServer;
 import org.wso2.siddhi.tcp.transport.config.ServerConfig;
 
 @Extension(
@@ -37,9 +38,12 @@ public class TcpInputTransport extends InputTransport {
     static String RECEIVER_THREADS = "receiverThreads";
 
     private ServerConfig serverConfig;
+    private TcpNettyServer tcpNettyServer;
+    private SourceCallback sourceCallback;
 
     @Override
     public void init(SourceCallback sourceCallback, OptionHolder optionHolder) {
+        this.sourceCallback = sourceCallback;
         serverConfig = new ServerConfig();
         serverConfig.setHost(optionHolder.validateAndGetStaticValue(HOST, serverConfig.getHost()));
         serverConfig.setPort(Integer.parseInt(optionHolder.validateAndGetStaticValue(PORT,
@@ -48,20 +52,23 @@ public class TcpInputTransport extends InputTransport {
                 Integer.toString(serverConfig.getReceiverThreads()))));
         serverConfig.setWorkerThreads(Integer.parseInt(optionHolder.validateAndGetStaticValue(WORKER_THREADS,
                 Integer.toString(serverConfig.getWorkerThreads()))));
+        tcpNettyServer = new TcpNettyServer();
+//        TransportStreamManager.getInstance().addStreamDefinition(sourceCallback.getStreamDefinition());
     }
 
     @Override
     public void connect() throws ConnectionUnavailableException {
-
+        tcpNettyServer.bootServer(serverConfig);
     }
 
     @Override
     public void disconnect() {
-
+        tcpNettyServer.shutdownGracefully();
     }
 
     @Override
     public void destroy() {
-
+//        TransportStreamManager.getInstance().removeStreamDefinition(sourceCallback.getStreamDefinition().getId());
+        tcpNettyServer = null;
     }
 }

@@ -36,7 +36,6 @@ public abstract class InputMapper implements SourceCallback {
     private String mapType;
     private static final Logger log = Logger.getLogger(InputMapper.class);
 
-
     public void init(StreamDefinition streamDefinition, String mapType, OptionHolder mapOptionHolder,
                      List<AttributeMapping> attributeMappings) {
         this.streamDefinition = streamDefinition;
@@ -61,6 +60,10 @@ public abstract class InputMapper implements SourceCallback {
             log.error("Error while processing '" + eventObject + "', for the input Mapping '" + mapType +
                     "' for the stream '" + streamDefinition.getId() + "'");
         }
+    }
+
+    public StreamDefinition getStreamDefinition() {
+        return streamDefinition;
     }
 
     protected abstract void mapAndProcess(Object eventObject, InputHandler inputHandler) throws InterruptedException;

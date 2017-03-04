@@ -16,28 +16,16 @@
  *  under the License.
  */
 
-package org.wso2.siddhi.tcp.transport.dto;
+package org.wso2.siddhi.tcp.transport.callback;
 
 import org.wso2.siddhi.core.event.Event;
+import org.wso2.siddhi.query.api.definition.StreamDefinition;
 
-/**
- * Class to hold Siddhi Event and the corresponding stream iD. Composite was introduced because
- * {@link org.wso2.siddhi.core.event.Event} does not contain a stream ID
- */
-public class SiddhiEventComposite {
-    private Event siddhiEvent;
-    private String streamID;
+public interface StreamCallback {
 
-    public SiddhiEventComposite(Event siddhiEvent, String streamID) {
-        this.siddhiEvent = siddhiEvent;
-        this.streamID = streamID;
-    }
+    StreamDefinition getStreamDefinition();
 
-    public Event getSiddhiEvent() {
-        return siddhiEvent;
-    }
+    void onEvent(Event event);
 
-    public String getStreamID() {
-        return streamID;
-    }
+    void onEvents(Event[] events);
 }

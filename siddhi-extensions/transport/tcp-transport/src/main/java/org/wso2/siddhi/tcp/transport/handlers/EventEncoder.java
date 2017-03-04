@@ -15,22 +15,22 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
+
 package org.wso2.siddhi.tcp.transport.handlers;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToByteEncoder;
-import org.wso2.siddhi.tcp.transport.dto.SiddhiEventComposite;
+import org.wso2.siddhi.tcp.transport.utils.EventComposite;
 import org.wso2.siddhi.tcp.transport.converter.BinaryEventConverter;
 
-import java.util.List;
 
-
-public class EventEncoder extends MessageToByteEncoder<List<SiddhiEventComposite>> {
+public class EventEncoder extends MessageToByteEncoder<EventComposite> {
 
 
     @Override
-    protected void encode(ChannelHandlerContext channelHandlerContext, List<SiddhiEventComposite> eventList, ByteBuf byteBuf) throws Exception {
-        BinaryEventConverter.convertToBinaryMessage(eventList, "test", byteBuf);
+    protected void encode(ChannelHandlerContext channelHandlerContext, EventComposite eventComposite, ByteBuf byteBuf) throws Exception {
+        BinaryEventConverter.convertToBinaryMessage(eventComposite, byteBuf);
     }
+
 }

@@ -17,7 +17,28 @@
  */
 package org.wso2.siddhi.tcp.transport.utils;
 
-public class BinaryMessageConstants {
-    public static final String DEFAULT_CHARSET = "UTF-8";
+
+import org.wso2.siddhi.tcp.transport.callback.StreamCallback;
+
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
+/**
+ * Event stream data type holder
+ */
+public class StreamTypeHolder {
+    private Map<String, StreamInfo> streamInfoMap = new ConcurrentHashMap<String, StreamInfo>();
+
+    public StreamInfo getStreamInfo(String streamId) {
+        return streamInfoMap.get(streamId);
+    }
+
+    public void putStreamCallback(StreamCallback streamCallback) {
+        this.streamInfoMap.put(streamCallback.getStreamDefinition().getId(), new StreamInfo(streamCallback));
+    }
+
+    public void removeStreamCallback(String streamId) {
+        this.streamInfoMap.remove(streamId);
+    }
 
 }
