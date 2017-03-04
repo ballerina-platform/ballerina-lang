@@ -17,14 +17,14 @@
  */
 var BallerinaListener = require('./antlr-gen/BallerinaListener');
 
-var BLangListener = function() {
+var BLangParserListener = function() {
 
 };
 
-BLangListener.prototype = Object.create(BallerinaListener.prototype);
-BLangListener.prototype.constructor = BLangListener;
+BLangParserListener.prototype = Object.create(BallerinaListener.prototype);
+BLangParserListener.prototype.constructor = BLangParserListener;
 
 
-BLangListener.prototype.enterCompilationUnit = function(ctx) {
+BLangParserListener.prototype.enterCompilationUnit = function(ctx) {
     console.log(ctx);
 };

@@ -17,7 +17,7 @@
  */
 var ASTFactory = require("./../ast/ballerina-ast-factory");
 
-class BLangBuilder {
+class BLangModelBuilder {
 
     constructor(){
     }
@@ -27,4 +27,4 @@ class BLangBuilder {
     }
 }
 
-export default BLangBuilder;
+export default BLangModelBuilder;
