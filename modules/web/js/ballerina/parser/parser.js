@@ -18,7 +18,7 @@
 var antlr4 = require('antlr4');
 var BallerinaLexer = require('./antlr-gen/BallerinaLexer');
 var BallerinaParser = require('./antlr-gen/BallerinaParser');
-var BLangParserErrorListener = require('./BLangParserErrorListener').BLangParserErrorListener;
+var BLangParserErrorListener = require('./error-listener').BLangParserErrorListener;
 
 /**
  * Entry point for client side antlr based parser for ballerina

@@ -18,12 +18,12 @@
 
 var DefaultErrorStrategy = require('antlr4/error/ErrorStrategy').DefaultErrorStrategy;
 
-var BLangErrorStrategy = function() {
+var BLangParserErrorStrategy = function() {
 
 };
 
-BLangErrorStrategy.prototype = Object.create(DefaultErrorStrategy.prototype);
-BLangErrorStrategy.prototype.constructor = BLangErrorStrategy;
+BLangParserErrorStrategy.prototype = Object.create(DefaultErrorStrategy.prototype);
+BLangParserErrorStrategy.prototype.constructor = BLangParserErrorStrategy;
 
 // This is called by {@link //reportError} when the exception is a
 // {@link NoViableAltException}.
@@ -33,7 +33,7 @@ BLangErrorStrategy.prototype.constructor = BLangErrorStrategy;
 // @param recognizer the parser instance
 // @param e the recognition exception
 //
-BLangErrorStrategy.prototype.reportNoViableAlternative = function(recognizer, e) {
+BLangParserErrorStrategy.prototype.reportNoViableAlternative = function(recognizer, e) {
     var tokens = recognizer.getTokenStream();
     var input;
     if(tokens !== null) {
@@ -58,7 +58,7 @@ BLangErrorStrategy.prototype.reportNoViableAlternative = function(recognizer, e)
 // @param recognizer the parser instance
 // @param e the recognition exception
 //
-BLangErrorStrategy.prototype.reportInputMismatch = function(recognizer, e) {
+BLangParserErrorStrategy.prototype.reportInputMismatch = function(recognizer, e) {
     var msg = "mismatched input " + this.getTokenErrorDisplay(e.offendingToken) +
         " expecting " + e.getExpectedTokens().toString(recognizer.literalNames, recognizer.symbolicNames);
     recognizer.notifyErrorListeners(msg, e.offendingToken, e);
@@ -73,7 +73,7 @@ BLangErrorStrategy.prototype.reportInputMismatch = function(recognizer, e) {
 // @param recognizer the parser instance
 // @param e the recognition exception
 //
-BLangErrorStrategy.prototype.reportFailedPredicate = function(recognizer, e) {
+BLangParserErrorStrategy.prototype.reportFailedPredicate = function(recognizer, e) {
     var ruleName = recognizer.ruleNames[recognizer._ctx.ruleIndex];
     var msg = "rule " + ruleName + " " + e.message;
     recognizer.notifyErrorListeners(msg, e.offendingToken, e);
@@ -96,7 +96,7 @@ BLangErrorStrategy.prototype.reportFailedPredicate = function(recognizer, e) {
 //
 // @param recognizer the parser instance
 //
-BLangErrorStrategy.prototype.reportUnwantedToken = function(recognizer) {
+BLangParserErrorStrategy.prototype.reportUnwantedToken = function(recognizer) {
     if (DefaultErrorStrategy.prototype.inErrorRecoveryMode.call(this, recognizer)) {
         return;
     }
@@ -124,7 +124,7 @@ BLangErrorStrategy.prototype.reportUnwantedToken = function(recognizer) {
 //
 // @param recognizer the parser instance
 //
-BLangErrorStrategy.prototype.reportMissingToken = function(recognizer) {
+BLangParserErrorStrategy.prototype.reportMissingToken = function(recognizer) {
     if ( DefaultErrorStrategy.prototype.inErrorRecoveryMode.call(this, recognizer)) {
         return;
     }
