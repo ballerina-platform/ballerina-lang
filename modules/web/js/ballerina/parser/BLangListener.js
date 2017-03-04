@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-var BallerinaListener = require('./BallerinaListener');
+var BallerinaListener = require('./antlr-gen/BallerinaListener');
 
 var BLangListener = function() {
 

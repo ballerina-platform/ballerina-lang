@@ -16,8 +16,8 @@
  * under the License.
  */
 var antlr4 = require('antlr4');
-var BallerinaLexer = require('./BallerinaLexer');
-var BallerinaParser = require('./BallerinaParser');
+var BallerinaLexer = require('./antlr-gen/BallerinaLexer');
+var BallerinaParser = require('./antlr-gen/BallerinaParser');
 var BLangParserErrorListener = require('./BLangParserErrorListener').BLangParserErrorListener;
 
 /**
