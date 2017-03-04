@@ -17,7 +17,8 @@
  */
 ace.define('ace/worker/ballerina', ['require', 'exports', 'module'], function(acequire, exports, module) {
     var oop = acequire("ace/lib/oop");
-    var Parser = require("./../parser/parser").Parser;
+    var Validator = require("./../parser/validator").Validator;
+    var validator = new Validator();
 
     // This require defines ace/worker/mirror so we can ace.require ace/worker/mirror later
     require('./ace-mirror-worker');
@@ -35,7 +36,7 @@ ace.define('ace/worker/ballerina', ['require', 'exports', 'module'], function(ac
         this.onUpdate = function() {
             var value = this.doc.getValue();
             if(value.trim()){
-                var errors = (new Parser()).validate(value);
+                var errors = validator.validate(value);
 
                 this.sender.emit("lint", errors);
             } else {

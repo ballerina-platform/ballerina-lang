@@ -21,18 +21,41 @@ var BallerinaParser = require('./BallerinaParser');
 var BLangParserErrorListener = require('./BLangParserErrorListener').BLangParserErrorListener;
 
 /**
- * Entry point for client side antlr based parser for ballerina
+ * Entry point for client side antlr based validator for ballerina
  *
  * @constructor
  */
-var Parser = function() {
+var Validator = function() {
 };
 
 /**
  * Checks for syntax errors in ballerina source
  * @param input {string} ballerina source content
  */
-Parser.prototype.validate = function(input){
+Validator.prototype.validate = function(input){
+    // setup parser
+    var chars = new antlr4.InputStream(input);
+    var lexer = new BallerinaLexer.BallerinaLexer(chars);
+    var tokens  = new antlr4.CommonTokenStream(lexer);
+    var parser = new BallerinaParser.BallerinaParser(tokens);
+
+    // set custom error listener for collecting syntax errors
+    var errorListener = new BLangParserErrorListener();
+    parser.removeErrorListeners();
+    parser.addErrorListener(errorListener);
+
+    // start parsing
+    parser.compilationUnit();
+
+    // return collected errors
+    return errorListener.getErrors();
+};
+
+/**
+ * builds the AST for given ballerina source
+ * @param input {string} ballerina source content
+ */
+Validator.prototype.parse = function(input){
     // setup parser
     var chars = new antlr4.InputStream(input);
     var lexer = new BallerinaLexer.BallerinaLexer(chars);
@@ -52,4 +75,4 @@ Parser.prototype.validate = function(input){
 };
 
 
-exports.Parser = Parser;
+exports.Validator = Validator;
