@@ -54,7 +54,7 @@ describe("Ballerina Tests", function() {
         // TODO: following path resolution only works if tests are run from the root directory of the project
         // To avoid that we need to use __dirname or __filename
         // but mocha-webpack does not seem to provide correct values for them. So using path.resolve for now.
-        var sourceFile = path.resolve('modules/web/js/tests/resources/' + testFile)
+        var sourceFile = path.resolve('js/tests/resources/' + testFile)
 
         it(sourceFile.replace(/^.*[\\\/]/, '') + " Service Test", function() {
             var expectedSource = readFile(sourceFile);
