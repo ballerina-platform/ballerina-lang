@@ -44,14 +44,14 @@ resourceDefinition
 
 functionDefinition
     :   nativeFunction
-    |   function
+    |   ballerinaFunction
     ;
 
 nativeFunction
     :   annotation* 'native' 'function' Identifier '(' parameterList? ')' returnParameters? ('throws' Identifier)? ';'
     ;
 
-function
+ballerinaFunction
     :   annotation* 'function' Identifier '(' parameterList? ')' returnParameters? ('throws' Identifier)? functionBody
     ;
 
