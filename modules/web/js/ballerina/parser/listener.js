@@ -28,3 +28,11 @@ BLangParserListener.prototype.constructor = BLangParserListener;
 BLangParserListener.prototype.enterCompilationUnit = function(ctx) {
     console.log(ctx);
 };
+BLangParserListener.prototype.enterPackageDeclaration = function(ctx) {
+    console.log(ctx);
+};
+BLangParserListener.prototype.exitPackageDeclaration = function(ctx) {
+    console.log(ctx);
+};
+
+exports.BLangParserListener = BLangParserListener;

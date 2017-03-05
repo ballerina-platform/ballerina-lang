@@ -19,6 +19,7 @@ var antlr4 = require('antlr4');
 var BallerinaLexer = require('./antlr-gen/BallerinaLexer');
 var BallerinaParser = require('./antlr-gen/BallerinaParser');
 var BLangParserErrorListener = require('./error-listener').BLangParserErrorListener;
+var BLangParserListener = require('./listener').BLangParserListener;
 
 /**
  * Entry point for client side antlr based parser for ballerina
@@ -38,6 +39,7 @@ Parser.prototype.parse = function(input){
     var lexer = new BallerinaLexer.BallerinaLexer(chars);
     var tokens  = new antlr4.CommonTokenStream(lexer);
     var parser = new BallerinaParser.BallerinaParser(tokens);
+    var listener = new BLangParserListener();
 
     // set custom error listener for collecting syntax errors
     var errorListener = new BLangParserErrorListener();
@@ -45,7 +47,9 @@ Parser.prototype.parse = function(input){
     parser.addErrorListener(errorListener);
 
     // start parsing
-    parser.compilationUnit();
+    var tree = parser.compilationUnit();
+
+    antlr4.tree.ParseTreeWalker.DEFAULT.walk(listener, tree);
 
     // return collected errors
     return errorListener.getErrors();
