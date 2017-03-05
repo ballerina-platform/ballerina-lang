@@ -18,7 +18,7 @@
 package org.wso2.siddhi.tcp.transport.utils;
 
 
-import org.wso2.siddhi.tcp.transport.callback.StreamCallback;
+import org.wso2.siddhi.tcp.transport.callback.StreamListener;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -33,8 +33,8 @@ public class StreamTypeHolder {
         return streamInfoMap.get(streamId);
     }
 
-    public void putStreamCallback(StreamCallback streamCallback) {
-        this.streamInfoMap.put(streamCallback.getStreamDefinition().getId(), new StreamInfo(streamCallback));
+    public void putStreamCallback(StreamListener streamListener) {
+        this.streamInfoMap.put(streamListener.getStreamDefinition().getId(), new StreamInfo(streamListener));
     }
 
     public void removeStreamCallback(String streamId) {

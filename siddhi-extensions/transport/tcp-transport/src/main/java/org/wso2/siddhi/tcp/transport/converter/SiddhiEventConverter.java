@@ -64,7 +64,7 @@ public class SiddhiEventConverter {
             events[i] = getEvent(eventByteBuffer, streamInfo.getAttributeTypes());
         }
         byteBuffer.markReaderIndex();
-        streamInfo.getStreamCallback().onEvents(events);
+        streamInfo.getStreamListener().onEvents(events);
     }
 
     public static Event getEvent(ByteBuffer byteBuffer, Attribute.Type[] attributeTypes) throws MalformedEventException {

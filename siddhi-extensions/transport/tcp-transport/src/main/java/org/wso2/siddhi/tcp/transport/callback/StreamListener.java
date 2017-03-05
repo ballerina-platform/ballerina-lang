@@ -21,7 +21,7 @@ package org.wso2.siddhi.tcp.transport.callback;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
 
-public interface StreamCallback {
+public interface StreamListener {
 
     StreamDefinition getStreamDefinition();
 

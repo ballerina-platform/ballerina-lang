@@ -29,7 +29,7 @@ import java.util.List;
 /**
  * Convert custom input from {@link InputTransport} to {@link org.wso2.siddhi.core.event.ComplexEventChunk}.
  */
-public abstract class InputMapper implements SourceCallback {
+public abstract class InputMapper implements SourceEventListener {
 
     private InputHandler inputHandler;
     private StreamDefinition streamDefinition;

@@ -29,8 +29,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
 
-public class StatisticsStreamCallback implements StreamCallback {
-    private static final Logger log = Logger.getLogger(StatisticsStreamCallback.class);
+public class StatisticsStreamListener implements StreamListener {
+    private static final Logger log = Logger.getLogger(StatisticsStreamListener.class);
     private AtomicLong totalDelay = new AtomicLong(0);
     private AtomicLong lastIndex = new AtomicLong(0);
     private AtomicLong lastCounter = new AtomicLong(0);
@@ -44,7 +44,7 @@ public class StatisticsStreamCallback implements StreamCallback {
     private PrintWriter writer = null;
     private StreamDefinition streamDefinition;
 
-    public StatisticsStreamCallback(StreamDefinition streamDefinition) {
+    public StatisticsStreamListener(StreamDefinition streamDefinition) {
         this.streamDefinition = streamDefinition;
     }
 

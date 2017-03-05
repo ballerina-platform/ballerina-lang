@@ -24,11 +24,11 @@ import org.wso2.siddhi.query.api.definition.StreamDefinition;
 
 import java.util.Arrays;
 
-public class LogStreamCallback implements StreamCallback {
-    private static final Logger log = Logger.getLogger(LogStreamCallback.class);
+public class LogStreamListener implements StreamListener {
+    private static final Logger log = Logger.getLogger(LogStreamListener.class);
     private StreamDefinition streamDefinition;
 
-    public LogStreamCallback(StreamDefinition streamDefinition) {
+    public LogStreamListener(StreamDefinition streamDefinition) {
 
         this.streamDefinition = streamDefinition;
     }

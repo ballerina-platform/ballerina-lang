@@ -17,7 +17,7 @@
  */
 package org.wso2.siddhi.tcp.transport.utils;
 
-import org.wso2.siddhi.tcp.transport.callback.StreamCallback;
+import org.wso2.siddhi.tcp.transport.callback.StreamListener;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
 
@@ -27,13 +27,13 @@ import org.wso2.siddhi.query.api.definition.StreamDefinition;
 
 public class StreamInfo {
     private Attribute.Type[] attributeTypes;
-    private StreamCallback streamCallback;
+    private StreamListener streamListener;
     private StreamDefinition streamDefinition;
     private int attributeSize;
 
-    public StreamInfo(StreamCallback streamCallback) {
-        this.streamCallback = streamCallback;
-        this.streamDefinition = streamCallback.getStreamDefinition();
+    public StreamInfo(StreamListener streamListener) {
+        this.streamListener = streamListener;
+        this.streamDefinition = streamListener.getStreamDefinition();
         this.attributeTypes = EventDefinitionConverterUtil.generateAttributeTypeArray(streamDefinition.getAttributeList());
         this.attributeSize = getSize(attributeTypes);
     }
@@ -58,7 +58,7 @@ public class StreamInfo {
         return streamDefinition;
     }
 
-    public StreamCallback getStreamCallback() {
-        return streamCallback;
+    public StreamListener getStreamListener() {
+        return streamListener;
     }
 }

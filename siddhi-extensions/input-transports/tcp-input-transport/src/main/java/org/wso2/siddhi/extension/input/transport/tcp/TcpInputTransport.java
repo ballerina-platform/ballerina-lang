@@ -19,11 +19,14 @@
 package org.wso2.siddhi.extension.input.transport.tcp;
 
 import org.wso2.siddhi.annotation.Extension;
+import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
 import org.wso2.siddhi.core.stream.input.source.InputTransport;
-import org.wso2.siddhi.core.stream.input.source.SourceCallback;
+import org.wso2.siddhi.core.stream.input.source.SourceEventListener;
 import org.wso2.siddhi.core.util.transport.OptionHolder;
+import org.wso2.siddhi.query.api.definition.StreamDefinition;
 import org.wso2.siddhi.tcp.transport.TcpNettyServer;
+import org.wso2.siddhi.tcp.transport.callback.StreamListener;
 import org.wso2.siddhi.tcp.transport.config.ServerConfig;
 
 @Extension(
@@ -39,11 +42,11 @@ public class TcpInputTransport extends InputTransport {
 
     private ServerConfig serverConfig;
     private TcpNettyServer tcpNettyServer;
-    private SourceCallback sourceCallback;
+    private SourceEventListener sourceEventListener;
 
     @Override
-    public void init(SourceCallback sourceCallback, OptionHolder optionHolder) {
-        this.sourceCallback = sourceCallback;
+    public void init(SourceEventListener sourceEventListener, OptionHolder optionHolder) {
+        this.sourceEventListener = sourceEventListener;
         serverConfig = new ServerConfig();
         serverConfig.setHost(optionHolder.validateAndGetStaticValue(HOST, serverConfig.getHost()));
         serverConfig.setPort(Integer.parseInt(optionHolder.validateAndGetStaticValue(PORT,
@@ -53,7 +56,22 @@ public class TcpInputTransport extends InputTransport {
         serverConfig.setWorkerThreads(Integer.parseInt(optionHolder.validateAndGetStaticValue(WORKER_THREADS,
                 Integer.toString(serverConfig.getWorkerThreads()))));
         tcpNettyServer = new TcpNettyServer();
-//        TransportStreamManager.getInstance().addStreamDefinition(sourceCallback.getStreamDefinition());
+        tcpNettyServer.addStreamListener(new StreamListener() {
+            @Override
+            public StreamDefinition getStreamDefinition() {
+                return sourceEventListener.getStreamDefinition();
+            }
+
+            @Override
+            public void onEvent(Event event) {
+                sourceEventListener.onEvent(event);
+            }
+
+            @Override
+            public void onEvents(Event[] events) {
+                sourceEventListener.onEvent(events);
+            }
+        });
     }
 
     @Override
@@ -68,7 +86,7 @@ public class TcpInputTransport extends InputTransport {
 
     @Override
     public void destroy() {
-//        TransportStreamManager.getInstance().removeStreamDefinition(sourceCallback.getStreamDefinition().getId());
+        tcpNettyServer.removeStreamListener(sourceEventListener.getStreamDefinition().getId());
         tcpNettyServer = null;
     }
 }

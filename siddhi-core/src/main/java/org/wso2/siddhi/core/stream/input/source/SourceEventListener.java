@@ -20,7 +20,7 @@ package org.wso2.siddhi.core.stream.input.source;
 
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
 
-public interface SourceCallback {
+public interface SourceEventListener {
 
     StreamDefinition getStreamDefinition();
 
