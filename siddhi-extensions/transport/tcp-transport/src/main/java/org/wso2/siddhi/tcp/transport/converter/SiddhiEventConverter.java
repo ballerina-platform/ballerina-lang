@@ -19,90 +19,64 @@ package org.wso2.siddhi.tcp.transport.converter;
 
 
 import io.netty.buffer.ByteBuf;
-import org.wso2.siddhi.tcp.transport.dto.SiddhiEventComposite;
-import org.wso2.siddhi.tcp.transport.dto.StreamTypeHolder;
-import org.wso2.siddhi.tcp.transport.exception.MalformedEventException;
-import org.wso2.siddhi.tcp.transport.utils.BinaryMessageConverterUtil;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.query.api.definition.Attribute;
+import org.wso2.siddhi.tcp.transport.utils.StreamInfo;
+import org.wso2.siddhi.tcp.transport.utils.StreamTypeHolder;
+import org.wso2.siddhi.tcp.transport.exception.MalformedEventException;
+import org.wso2.siddhi.tcp.transport.utils.BinaryMessageConverterUtil;
 
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 /**
  * This class is a implementation EventConverter to create the event from the Binary message.
  * This is used within data bridge to create the event from the row message received.
  */
-public class SiddhiEventConverter implements EventConverter {
-    private static SiddhiEventConverter instance = new SiddhiEventConverter();
+public class SiddhiEventConverter {
 
-    private SiddhiEventConverter() {
-    }
-
-    @Override
-    public List<SiddhiEventComposite> toEventList(Object eventBundle, StreamTypeHolder streamTypeHolder) {
+    public static void toConvertToSiddhiEvents(Object eventBundle, StreamTypeHolder streamTypeHolder) {
 
         ByteBuf byteBuffer = (ByteBuf) eventBundle;
-        int sessionIdSize = byteBuffer.readInt();
-        byteBuffer.readBytes(new byte[sessionIdSize]);
-        int events = byteBuffer.readInt();
 
-        List<SiddhiEventComposite> eventList = new ArrayList<SiddhiEventComposite>();
-        for (int i = 0; i < events; i++) {
-            int eventSize = byteBuffer.readInt();
-            byte[] bytes= new byte[eventSize];
-            byteBuffer.readBytes(bytes);
-            ByteBuffer eventByteBuffer = ByteBuffer.wrap(bytes);
-            eventList.add(getEvent(eventByteBuffer, streamTypeHolder));
+        int protocol = byteBuffer.readByte();
+        int messageSize = byteBuffer.readInt();
+        if (protocol != 2 || messageSize > byteBuffer.readableBytes()) {
+            byteBuffer.resetReaderIndex();
+            return;
         }
-        byteBuffer.markReaderIndex();
-        return eventList;
-    }
 
-    @Override
-    public int getSize(Object eventBundle) {
-        return ((byte[])eventBundle).length;
-    }
+        int sessionIdSize = byteBuffer.readInt();
+        String sessionId = BinaryMessageConverterUtil.getString(byteBuffer, sessionIdSize);
 
-    @Override
-    public int getNumberOfEvents(Object eventBundle) {
-        ByteBuffer byteBuffer = ByteBuffer.wrap((byte[]) eventBundle);
-        int sessionIdSize = byteBuffer.getInt();
-        byteBuffer.get(new byte[sessionIdSize]);
-        return byteBuffer.getInt();
-    }
-
-    public SiddhiEventComposite getEvent(ByteBuffer byteBuffer, StreamTypeHolder streamTypeHolder) throws MalformedEventException {
-        long timeStamp = byteBuffer.getLong();
-        int streamIdSize = byteBuffer.getInt();
+        int streamIdSize = byteBuffer.readInt();
         String streamId = BinaryMessageConverterUtil.getString(byteBuffer, streamIdSize);
 
-        Event event = new Event();
-        event.setTimestamp(timeStamp);
+        StreamInfo streamInfo = streamTypeHolder.getStreamInfo(streamId);
 
-        Attribute.Type[] attributeTypeOrder = streamTypeHolder.getDataType(streamId);
-        /*if (attributeTypeOrder == null) {
-            PrivilegedCarbonContext privilegedCarbonContext = PrivilegedCarbonContext.getThreadLocalCarbonContext();
-            if (privilegedCarbonContext.getTenantDomain() == null) {
-                privilegedCarbonContext.setTenantDomain(MultitenantConstants.SUPER_TENANT_DOMAIN_NAME);
-                privilegedCarbonContext.setTenantId(MultitenantConstants.SUPER_TENANT_ID);
-            }
-            streamTypeHolder.reloadStreamTypeHolder();
-            attributeTypeOrder = streamTypeHolder.getDataType(event.getStreamId());
-            if (attributeTypeOrder == null) {
-                throw new EventConversionException("No StreamDefinition for streamId " + event.getStreamId()
-                        + " present in cache ");
-            }
-        }*/
-        event.setData(toObjectArray(byteBuffer, attributeTypeOrder));
-        return new SiddhiEventComposite(event, streamId);
+        int numberOfEvents = byteBuffer.readInt();
+
+        Event[] events = new Event[numberOfEvents];
+        for (int i = 0; i < numberOfEvents; i++) {
+            int eventSize = byteBuffer.readInt();
+            byte[] bytes = new byte[eventSize];
+            byteBuffer.readBytes(bytes);
+            ByteBuffer eventByteBuffer = ByteBuffer.wrap(bytes);
+            events[i] = getEvent(eventByteBuffer, streamInfo.getAttributeTypes());
+        }
+        byteBuffer.markReaderIndex();
+        streamInfo.getStreamListener().onEvents(events);
     }
 
-    public Object[] toObjectArray(ByteBuffer byteBuffer,
-                                  Attribute.Type[] attributeTypeOrder) {
+    public static Event getEvent(ByteBuffer byteBuffer, Attribute.Type[] attributeTypes) throws MalformedEventException {
+        Event event = new Event();
+        long timeStamp = byteBuffer.getLong();
+        event.setTimestamp(timeStamp);
+        event.setData(toObjectArray(byteBuffer, attributeTypes));
+        return event;
+    }
+
+    public static Object[] toObjectArray(ByteBuffer byteBuffer,
+                                         Attribute.Type[] attributeTypeOrder) {
         if (attributeTypeOrder != null) {
             if (byteBuffer == null) {
                 throw new MalformedEventException("Received byte stream in null. Hence cannot convert to event");
@@ -141,64 +115,20 @@ public class SiddhiEventConverter implements EventConverter {
         }
     }
 
-    public Object[] toObjectArray(ByteBuf byteBuffer,
-                                  Attribute.Type[] attributeTypeOrder) {
-        if (attributeTypeOrder != null) {
-            if (byteBuffer == null) {
-                throw new MalformedEventException("Received byte stream in null. Hence cannot convert to event");
-            }
-            Object[] objects = new Object[attributeTypeOrder.length];
-            for (int i = 0; i < attributeTypeOrder.length; i++) {
-                switch (attributeTypeOrder[i]) {
-                    case INT:
-                        objects[i] = byteBuffer.readInt();
-                        break;
-                    case LONG:
-                        objects[i] = byteBuffer.readLong();
-                        break;
-                    case STRING:
-                        int stringSize = byteBuffer.readInt();
-                        if (stringSize == 0) {
-                            objects[i] = null;
-                        } else {
-                            objects[i] = BinaryMessageConverterUtil.getString(byteBuffer, stringSize);
-                        }
-                        break;
-                    case DOUBLE:
-                        objects[i] = byteBuffer.readDouble();
-                        break;
-                    case FLOAT:
-                        objects[i] = byteBuffer.readFloat();
-                        break;
-                    case BOOL:
-                        objects[i] = byteBuffer.readByte() == 1;
-                        break;
-                }
-            }
-            return objects;
-        } else {
-            return null;
-        }
-    }
-
-    public Map<String, String> toStringMap(ByteBuffer byteBuffer) {
-        if (byteBuffer != null) {
-            Map<String, String> eventProps = new HashMap<String, String>();
-
-            while (byteBuffer.remaining() > 0) {
-                int keySize = byteBuffer.getInt();
-                String key = BinaryMessageConverterUtil.getString(byteBuffer, keySize);
-                int valueSize = byteBuffer.getInt();
-                String value = BinaryMessageConverterUtil.getString(byteBuffer,valueSize);
-                eventProps.put(key, value);
-            }
-            return eventProps;
-        }
-        return null;
-    }
-
-    public static SiddhiEventConverter getConverter() {
-        return instance;
-    }
+//    public Map<String, String> toStringMap(ByteBuffer byteBuffer) {
+//        if (byteBuffer != null) {
+//            Map<String, String> eventProps = new HashMap<String, String>();
+//
+//            while (byteBuffer.remaining() > 0) {
+//                int keySize = byteBuffer.getInt();
+//                String key = BinaryMessageConverterUtil.getString(byteBuffer, keySize);
+//                int valueSize = byteBuffer.getInt();
+//                String value = BinaryMessageConverterUtil.getString(byteBuffer, valueSize);
+//                eventProps.put(key, value);
+//            }
+//            return eventProps;
+//        }
+//        return null;
+//    }
 
 }

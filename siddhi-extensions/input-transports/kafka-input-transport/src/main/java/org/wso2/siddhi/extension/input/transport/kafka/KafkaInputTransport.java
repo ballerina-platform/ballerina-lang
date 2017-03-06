@@ -22,7 +22,7 @@ import kafka.consumer.ConsumerConfig;
 import org.apache.log4j.Logger;
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
-import org.wso2.siddhi.core.stream.input.source.SourceCallback;
+import org.wso2.siddhi.core.stream.input.source.SourceEventListener;
 import org.wso2.siddhi.core.stream.input.source.InputTransport;
 import org.wso2.siddhi.core.util.transport.OptionHolder;
 
@@ -36,7 +36,7 @@ import java.util.concurrent.*;
 )
 public class KafkaInputTransport extends InputTransport {
 
-    private SourceCallback sourceCallback;
+    private SourceEventListener sourceEventListener;
     private ScheduledExecutorService executorService;
     private static ThreadPoolExecutor threadPoolExecutor;
     private OptionHolder optionHolder;
@@ -58,8 +58,8 @@ public class KafkaInputTransport extends InputTransport {
     private static final Logger log = Logger.getLogger(KafkaInputTransport.class);
 
     @Override
-    public void init(SourceCallback sourceCallback, OptionHolder optionHolder) {
-        this.sourceCallback = sourceCallback;
+    public void init(SourceEventListener sourceEventListener, OptionHolder optionHolder) {
+        this.sourceEventListener = sourceEventListener;
         this.optionHolder = optionHolder;
     }
 

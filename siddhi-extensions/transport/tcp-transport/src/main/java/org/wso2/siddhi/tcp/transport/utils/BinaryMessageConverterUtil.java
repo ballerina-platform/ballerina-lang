@@ -24,7 +24,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 
-public class BinaryMessageConverterUtil {
+public final class BinaryMessageConverterUtil {
+
+    private BinaryMessageConverterUtil() {
+
+    }
 
     public static byte[] loadData(InputStream in, byte[] dataArray) throws IOException {
 
@@ -77,7 +81,7 @@ public class BinaryMessageConverterUtil {
     public static void assignData(Object data, ByteBuf eventDataBuffer) throws IOException {
         if (data instanceof String) {
             eventDataBuffer.writeInt(((String) data).length());
-            eventDataBuffer.writeBytes((((String) data).getBytes(BinaryMessageConstants.DEFAULT_CHARSET)));
+            eventDataBuffer.writeBytes((((String) data).getBytes(Constant.DEFAULT_CHARSET)));
         } else if (data instanceof Integer) {
             eventDataBuffer.writeInt((Integer) data);
         } else if (data instanceof Long) {

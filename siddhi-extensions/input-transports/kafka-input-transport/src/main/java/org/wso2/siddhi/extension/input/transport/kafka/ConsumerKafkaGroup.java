@@ -19,13 +19,14 @@
 package org.wso2.siddhi.extension.input.transport.kafka;
 
 import org.apache.log4j.Logger;
-import org.wso2.siddhi.core.stream.input.source.SourceCallback;
+import org.wso2.siddhi.core.stream.input.source.SourceEventListener;
 
 import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class ConsumerKafkaGroup {
+public class ConsumerKafkaAdaptor {
+    private final ConsumerConnector consumer;
     private final String topic;
     private final String partitionList;
     private final Properties props;
@@ -44,8 +45,12 @@ public class ConsumerKafkaGroup {
         }
     }
 
-    public void run(int numThreads, SourceCallback sourceCallback) {
+    public void run(int numThreads, SourceEventListener sourceEventListener) {
         try {
+            Map<String, Integer> topicCountMap = new HashMap<String, Integer>();
+            topicCountMap.put(topic, numThreads);
+            Map<String, List<KafkaStream<byte[], byte[]>>> consumerMap = consumer.createMessageStreams(topicCountMap);
+            List<KafkaStream<byte[], byte[]>> streams = consumerMap.get(topic);
             // now launch all the threads
             executor = Executors.newFixedThreadPool(numThreads);
             // now create consumers to consume the messages
