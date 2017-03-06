@@ -42,7 +42,7 @@ public class DefaultBallerinaDockerClientGenericTest {
     @BeforeMethod
     public void setUp() {
         this.dockerClient = new DefaultBallerinaDockerClient();
-        System.setProperty("ballerina.version", "0.8.3");
+        System.setProperty("ballerina.version", "0.8.3-SNAPSHOT");
     }
 
     @Test
