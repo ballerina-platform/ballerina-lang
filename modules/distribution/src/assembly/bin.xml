@@ -72,6 +72,7 @@
             <outputDirectory>resources/composer/web</outputDirectory>
             <excludes>
                 <exclude>target/**</exclude>
+                <exclude>node_modules/</exclude>
                 <exclude>js/**</exclude>
                 <exclude>**/*.ipr</exclude>
                 <exclude>**/*.iwr</exclude>
