@@ -21,7 +21,6 @@ import org.apache.axiom.om.OMAttribute;
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.util.AXIOMUtil;
 import org.apache.axiom.om.xpath.AXIOMXPath;
-import org.apache.log4j.Logger;
 import org.jaxen.JaxenException;
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
@@ -56,13 +55,9 @@ import java.util.Map;
 )
 public class XmlInputMapper extends InputMapper {
 
-    /**
-     * Logger to log the events.
-     */
-    private static final Logger log = Logger.getLogger(XmlInputMapper.class);
-
     private static final String PARENT_SELECTOR_XPATH = "parentSelector";
     private static final String NAMESPACES = "namespaces";
+    private static final String EVENTS_PARENT_ELEMENT = "events";
 
     /**
      * Indicates whether custom mapping is enabled or not.
@@ -73,7 +68,6 @@ public class XmlInputMapper extends InputMapper {
     private String parentSelectorXPath;
     private Map<String, String> namespaceMap;
     private Map<String, AXIOMXPath> xPathMap = new HashMap<>();
-
 
     /**
      * Initialize the mapper and the mapping configurations.
@@ -202,19 +196,18 @@ public class XmlInputMapper extends InputMapper {
         } else {    //default mapping case
             AXIOMXPath parentSelectorPath;
             try {
-                parentSelectorPath = new AXIOMXPath("//" + "events");
-                // TODO: 3/2/17  Use constant for "events"
+                parentSelectorPath = new AXIOMXPath("//" + EVENTS_PARENT_ELEMENT);
             } catch (JaxenException e) {
-                throw new ExecutionPlanRuntimeException("Could not get XPath from expression: //events", e);
+                throw new ExecutionPlanRuntimeException("Could not get XPath from expression: //" + EVENTS_PARENT_ELEMENT, e);
             }
             List eventsNodes;
             try {
                 eventsNodes = parentSelectorPath.selectNodes(parentOMElement);
             } catch (JaxenException e) {
-                throw new ExecutionPlanRuntimeException("Error occurred when selecting nodes from XPath: //events", e);
+                throw new ExecutionPlanRuntimeException("Error occurred when selecting nodes from XPath: //" + EVENTS_PARENT_ELEMENT, e);
             }
             if (eventsNodes.size() != 1) {
-                throw new ExecutionPlanRuntimeException("Input XML event can have only one \"events\" element. " +
+                throw new ExecutionPlanRuntimeException("Input XML event can have only one \"" + EVENTS_PARENT_ELEMENT + "\" element. " +
                         "Found " + eventsNodes.size() + ". Input event: " + inputEventStr);
             } else {
                 OMElement eventsElement = (OMElement) eventsNodes.get(0);

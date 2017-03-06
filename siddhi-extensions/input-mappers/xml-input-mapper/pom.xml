@@ -30,7 +30,6 @@
     <artifactId>siddhi-extension-xml-input-mapper</artifactId>
     <name>Siddhi Extension - XML Input Mapper</name>
 
-
     <dependencies>
         <dependency>
             <groupId>org.wso2.siddhi</groupId>

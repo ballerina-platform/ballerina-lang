@@ -33,7 +33,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class XmlInputMapperTestCase {
     static final Logger log = Logger.getLogger(XmlInputMapperTestCase.class);
-
     private AtomicInteger count = new AtomicInteger();
 
     @Before
@@ -88,14 +87,11 @@ public class XmlInputMapperTestCase {
                 }
             }
         });
-
         executionPlanRuntime.start();
-
         InMemoryBroker.publish("stock", "<events><event><symbol>WSO2</symbol><price>55.6</price>" +
                 "<volume>100</volume></event></events>");
         InMemoryBroker.publish("stock", "<events><event><symbol>IBM</symbol><price>75.6</price>" +
                 "<volume>10</volume></event></events>");
-        Thread.sleep(100);
 
         //assert event count
         Assert.assertEquals("Number of events", 2, count.get());
@@ -142,9 +138,7 @@ public class XmlInputMapperTestCase {
                 }
             }
         });
-
         executionPlanRuntime.start();
-
         InMemoryBroker.publish("stock", "<?xml version=\"1.0\"?>" +
                 "<portfolio xmlns:dt=\"urn:schemas-microsoft-com:datatypes\">" +
                 "  <stock exchange=\"nasdaq\">" +
@@ -158,8 +152,6 @@ public class XmlInputMapperTestCase {
                 "    <price dt:dt=\"number\">75.6</price>" +
                 "  </stock>" +
                 "</portfolio>");
-        Thread.sleep(100);
-
         //assert event count
         Assert.assertEquals("Number of events", 2, count.get());
         executionPlanRuntime.shutdown();
@@ -205,9 +197,7 @@ public class XmlInputMapperTestCase {
                 }
             }
         });
-
         executionPlanRuntime.start();
-
         InMemoryBroker.publish("stock", "<?xml version=\"1.0\"?>" +
                 "<portfolio xmlns:dt=\"urn:schemas-microsoft-com:datatypes\">" +
                 "  <stock exchange=\"nasdaq\">" +
@@ -224,8 +214,6 @@ public class XmlInputMapperTestCase {
                 "    <price dt:dt=\"number\">75.6</price>" +
                 "  </stock>" +
                 "</portfolio>");
-        Thread.sleep(100);
-
         //assert event count
         Assert.assertEquals("Number of events", 2, count.get());
         executionPlanRuntime.shutdown();
