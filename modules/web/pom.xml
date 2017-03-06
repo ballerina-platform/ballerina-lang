@@ -53,7 +53,75 @@
                     </execution>
                 </executions>
             </plugin>
-
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>1.5.0</version>
+                <executions>
+                    <execution>
+                        <id>npm install (initialize)</id>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <phase>initialize</phase>
+                        <configuration>
+                            <executable>npm</executable>
+                            <arguments>
+                                <argument>install</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>npm run clean (clean)</id>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <phase>clean</phase>
+                        <configuration>
+                            <executable>npm</executable>
+                            <arguments>
+                                <argument>run</argument>
+                                <argument>clean</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>npm run build (compile)</id>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <phase>compile</phase>
+                        <configuration>
+                            <executable>npm</executable>
+                            <arguments>
+                                <argument>run</argument>
+                                <argument>build</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+                    <!--Commenting as these are integration tests and should be moved to tools.-->
+                    <!--<execution>-->
+                        <!--<id>npm run test (test)</id>-->
+                        <!--<goals>-->
+                            <!--<goal>exec</goal>-->
+                        <!--</goals>-->
+                        <!--<phase>test</phase>-->
+                        <!--<configuration>-->
+                            <!--<executable>npm</executable>-->
+                            <!--<arguments>-->
+                                <!--<argument>run</argument>-->
+                                <!--<argument>test</argument>-->
+                                <!--<argument>&#45;&#45;</argument>-->
+                                <!--<argument>&#45;&#45;skipTests=${maven.test.skip}</argument>-->
+                            <!--</arguments>-->
+                        <!--</configuration>-->
+                    <!--</execution>-->
+                </executions>
+            </plugin>
         </plugins>
     </build>
+
+    <properties>
+        <maven.test.skip>false</maven.test.skip>
+    </properties>
 </project>
