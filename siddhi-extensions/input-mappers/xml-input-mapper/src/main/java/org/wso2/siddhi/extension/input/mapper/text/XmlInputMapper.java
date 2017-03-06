@@ -63,7 +63,6 @@ public class XmlInputMapper extends InputMapper {
      * Indicates whether custom mapping is enabled or not.
      */
     private boolean isCustomMappingEnabled = false;
-
     private StreamDefinition streamDefinition;
     private String parentSelectorXPath;
     private Map<String, String> namespaceMap;
@@ -77,7 +76,8 @@ public class XmlInputMapper extends InputMapper {
      * @param attributeMappingList list of attributes mapping
      */
     @Override
-    public void init(StreamDefinition streamDefinition, OptionHolder optionHolder, List<AttributeMapping> attributeMappingList) {
+    public void init(StreamDefinition streamDefinition, OptionHolder optionHolder, List<AttributeMapping>
+            attributeMappingList) {
         this.streamDefinition = streamDefinition;
         if (attributeMappingList != null && attributeMappingList.size() > 0) {
             isCustomMappingEnabled = true;
@@ -204,11 +204,12 @@ public class XmlInputMapper extends InputMapper {
             try {
                 eventsNodes = parentSelectorPath.selectNodes(parentOMElement);
             } catch (JaxenException e) {
-                throw new ExecutionPlanRuntimeException("Error occurred when selecting nodes from XPath: //" + EVENTS_PARENT_ELEMENT, e);
+                throw new ExecutionPlanRuntimeException("Error occurred when selecting nodes from XPath: //"
+                        + EVENTS_PARENT_ELEMENT, e);
             }
             if (eventsNodes.size() != 1) {
-                throw new ExecutionPlanRuntimeException("Input XML event can have only one \"" + EVENTS_PARENT_ELEMENT + "\" element. " +
-                        "Found " + eventsNodes.size() + ". Input event: " + inputEventStr);
+                throw new ExecutionPlanRuntimeException("Input XML event can have only one \"" + EVENTS_PARENT_ELEMENT
+                        + "\" element. " + "Found " + eventsNodes.size() + ". Input event: " + inputEventStr);
             } else {
                 OMElement eventsElement = (OMElement) eventsNodes.get(0);
                 Iterator iterator = eventsElement.getChildElements();
