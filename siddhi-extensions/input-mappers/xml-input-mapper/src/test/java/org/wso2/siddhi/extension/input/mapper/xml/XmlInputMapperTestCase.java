@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.wso2.siddhi.extension.input.mapper.text;
+package org.wso2.siddhi.extension.input.mapper.xml;
 
 import org.apache.log4j.Logger;
 import org.junit.Assert;
@@ -52,7 +52,7 @@ public class XmlInputMapperTestCase {
      */
     @Test
     public void testXmlInputMappingDefault() throws InterruptedException {
-        log.info("Test case for text input mapping with default mapping");
+        log.info("Test case for xml input mapping with default mapping");
 
         String streams = "" +
                 "@Plan:name('TestExecutionPlan')" +
@@ -100,7 +100,7 @@ public class XmlInputMapperTestCase {
 
     @Test
     public void testXmlInputMappingCustom1() throws InterruptedException {
-        log.info("Test case for text input mapping with custom mapping. Here multiple events are sent in one message.");
+        log.info("Test case for xml input mapping with custom mapping. Here multiple events are sent in one message.");
 
         String streams = "" +
                 "@Plan:name('TestExecutionPlan')" +
@@ -159,7 +159,7 @@ public class XmlInputMapperTestCase {
 
     @Test
     public void testXmlInputMappingCustom2() throws InterruptedException {
-        log.info("Test case for text input mapping with custom mapping. Here, only one event is sent in a message.");
+        log.info("Test case for xml input mapping with custom mapping. Here, only one event is sent in a message.");
 
         String streams = "" +
                 "@Plan:name('TestExecutionPlan')" +
