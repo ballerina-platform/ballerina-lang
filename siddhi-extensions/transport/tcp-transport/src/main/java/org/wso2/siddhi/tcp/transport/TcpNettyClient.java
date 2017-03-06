@@ -76,7 +76,7 @@ public class TcpNettyClient {
             public void operationComplete(ChannelFuture future) throws Exception {
                 if (!future.isSuccess()) {
                     log.error("Error sending events to '" + hostAndPort + "' on stream '" + streamId +
-                            "', dropping events " + Arrays.deepToString(events) + ", " + future.cause());
+                            "', " + future.cause() + ", dropping events " + Arrays.deepToString(events), future.cause());
                 }
             }
         });

@@ -35,6 +35,8 @@ public class TcpNettyServer {
     private EventLoopGroup bossGroup;
     private EventLoopGroup workerGroup;
     private StreamTypeHolder streamInfoHolder = new StreamTypeHolder();
+    private ChannelFuture channelFuture;
+    private String hostAndPort;
 
     public static void main(String[] args) {
         StreamDefinition streamDefinition = StreamDefinition.id("StockStream").attribute("symbol", Attribute.Type.STRING)
@@ -51,6 +53,7 @@ public class TcpNettyServer {
     public void bootServer(ServerConfig serverConfig) {
         bossGroup = new NioEventLoopGroup(serverConfig.getReceiverThreads());
         workerGroup = new NioEventLoopGroup(serverConfig.getWorkerThreads());
+        hostAndPort = serverConfig.getHost() + ":" + serverConfig.getPort();
         try {
             // More terse code to setup the server
             ServerBootstrap bootstrap = new ServerBootstrap();
@@ -67,20 +70,26 @@ public class TcpNettyServer {
                     });
 
             // Bind and start to accept incoming connections.
-            ChannelFuture channelFuture = bootstrap.bind(serverConfig.getHost(), serverConfig.getPort()).sync();
-            log.info("Tcp Server started in " + serverConfig.getHost() + ":" + serverConfig.getPort() + "");
-            channelFuture.channel().closeFuture().sync();
-
+            channelFuture = bootstrap.bind(serverConfig.getHost(), serverConfig.getPort()).sync();
+            log.info("Tcp Server started in " + hostAndPort + "");
         } catch (InterruptedException e) {
-            log.error("Error when booting up binary server " + e.getMessage(), e);
+            log.error("Error when booting up tcp server on '" + hostAndPort + "' " + e.getMessage(), e);
         }
     }
 
     public void shutdownGracefully() {
+        channelFuture.channel().close();
+        try {
+            channelFuture.channel().closeFuture().sync();
+        } catch (InterruptedException e) {
+            log.error("Error when shutdowning the tcp server " + e.getMessage(), e);
+        }
         workerGroup.shutdownGracefully();
         bossGroup.shutdownGracefully();
+        log.info("Tcp Server running on '" + hostAndPort + "' stopped.");
         workerGroup = null;
         bossGroup = null;
+
     }
 
     public void addStreamListener(StreamListener streamListener) {
