@@ -54,7 +54,7 @@ public class KafkaOutputTransportTestCase {
                             .element("type", "kafka")
                             .element("topic", "kafka_topic")
                             .element("partition.no", "0")
-                            .element("meta.broker.list", "localhost:9092")
+                            .element("bootstrap.servers", "localhost:9092")
                             .annotation(Annotation.annotation("map")
                                     .element("type", "text")));
 
