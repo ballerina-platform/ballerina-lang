@@ -51,13 +51,14 @@ define(['require', 'lodash', 'log', 'jquery', 'alerts', './variable-definition-v
             variableButton.css("left", parseInt(this._viewOptions.position.x) + "px");
             variableButton.css("top", parseInt(this._viewOptions.position.y) + "px");
 
-            $("<i class='fw fw-variable fw-2x'></i>").appendTo(variableButton);
+
+            $("<span class='btn-icon'> Variables </span>").appendTo(variableButton);
 
             var variablePaneWrapper = $("<div class='variable-pane'/>").appendTo($(this._paneAppendElement));
             // Positioning the variable pane from the left border of the container(service, resource, etc).
-            variablePaneWrapper.css("left", (this._viewOptions.position.x + 10) + "px");
+            variablePaneWrapper.css("left", (this._viewOptions.position.x + 69) + "px");
             // Positioning the variable pane from the top border of the container(service, resource, etc).
-            variablePaneWrapper.css("top", (this._viewOptions.position.y - 2) + "px");
+            variablePaneWrapper.css("top", (this._viewOptions.position.y - 0) + "px");
             // Setting max-width of the variable wrapper.
             variablePaneWrapper.css("max-width", this._viewOptions.width + "px");
 
@@ -74,8 +75,7 @@ define(['require', 'lodash', 'log', 'jquery', 'alerts', './variable-definition-v
             var addVariableButton = $("<div class='action-icon-wrapper variable-add-icon-wrapper' " +
                 "data-toggle='tooltip' title='Add variable' data-placement='bottom'/>")
                 .appendTo(variablesActionWrapper).tooltip();
-            $("<span class='fw-stack fw-lg'><i class='fw fw-square fw-stack-2x'></i>" +
-                "<i class='fw fw-add fw-stack-1x fw-inverse'></i></span>").appendTo(addVariableButton);
+            $("<i class='fw fw-add'></i>").appendTo(addVariableButton);
 
             var variableAddPane = $("<div class='action-content-wrapper-heading variable-add-action-wrapper'/>")
                 .appendTo(variablesActionWrapper);
@@ -259,37 +259,31 @@ define(['require', 'lodash', 'log', 'jquery', 'alerts', './variable-definition-v
          * @param {HTMLDivElement} collapserWrapper - The collpasing icon.
          * @private
          */
-        VariableDeclarationsPaneView.prototype._renderVariables = function(variablePaneWrapper, collapserWrapper) {
-            if (this._model.getVariableDefinitionStatements().length > 0) {
-                // Clear existing variables on UI.
-                $(variablePaneWrapper).find(".variable-wrapper").remove();
+        VariableDeclarationsPaneView.prototype._renderVariables = function (variablePaneWrapper, collapserWrapper) {
+            // Clear existing variables on UI.
+            $(variablePaneWrapper).find(".variable-wrapper").remove();
 
-                collapserWrapper.show();
+            var self = this;
 
-                var self = this;
+            _.forEach(this._model.getVariableDefinitionStatements(), function (variableDeclaration) {
 
-                _.forEach(this._model.getVariableDefinitionStatements(), function (variableDeclaration) {
-
-                    var variableDefinitionStatementView = new VariableDefinitionView({
-                        parent: self._model,
-                        model: variableDeclaration,
-                        container: variablePaneWrapper,
-                        toolPalette: self._viewOfModel.getToolPalette(),
-                        messageManager: self._viewOfModel.getMessageManager(),
-                        parentView: self._viewOfModel
-                    });
-
-                    self._viewOfModel.getDiagramRenderingContext().getViewModelMap()[variableDeclaration.id] = variableDefinitionStatementView;
-
-                    variableDefinitionStatementView.render(self._viewOfModel.getDiagramRenderingContext());
-
-                    $(variableDefinitionStatementView.getDeleteButton()).click(function () {
-                        self._renderVariables(variablePaneWrapper, collapserWrapper);
-                    });
+                var variableDefinitionStatementView = new VariableDefinitionView({
+                    parent: self._model,
+                    model: variableDeclaration,
+                    container: variablePaneWrapper,
+                    toolPalette: self._viewOfModel.getToolPalette(),
+                    messageManager: self._viewOfModel.getMessageManager(),
+                    parentView: self._viewOfModel
                 });
-            } else {
-                collapserWrapper.hide();
-            }
+
+                self._viewOfModel.getDiagramRenderingContext().getViewModelMap()[variableDeclaration.id] = variableDefinitionStatementView;
+
+                variableDefinitionStatementView.render(self._viewOfModel.getDiagramRenderingContext());
+
+                $(variableDefinitionStatementView.getDeleteButton()).click(function () {
+                    self._renderVariables(variablePaneWrapper, collapserWrapper);
+                });
+            });
         };
 
         /**
