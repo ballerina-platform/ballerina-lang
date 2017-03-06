@@ -67,6 +67,7 @@ local.properties
 
 ## Directory-based project format:
 .idea/
+modules/web/.idea
 # if you remove the above rule, at least ignore the following:
 
 # User-specific stuff:
@@ -194,7 +195,7 @@ dependency-reduced-pom.xml
 #################
 ## NPM
 #################
-node_modules
+modules/web/node_modules
 dist
 npm-debug.log
 
