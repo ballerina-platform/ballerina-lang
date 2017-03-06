@@ -36,6 +36,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -53,6 +54,8 @@ import java.util.concurrent.CountDownLatch;
  */
 public class DefaultBallerinaDockerClient implements BallerinaDockerClient {
 
+    private static final String BALLERINA_VERSION_SYSTEM_PROP = "ballerina.version";
+    private static final String TMPDIR_SYSTEM_PROP = "java.io.tmpdir";
     private static final String PATH_FILES = "files";
     private static final String PATH_DOCKER_IMAGE_ROOT = "/docker/image";
     private static final String PATH_DOCKERFILE_NAME = "Dockerfile";
@@ -307,12 +310,18 @@ public class DefaultBallerinaDockerClient implements BallerinaDockerClient {
      */
     private Path prepTempDockerfileContext() throws IOException, BallerinaDockerClientException {
         // TODO: Until the tmp.dir modification is removed from ballerina-launcher
-        String tmpDirLocation = System.getProperty("java.io.tmpdir");
+        String tmpDirLocation = System.getProperty(TMPDIR_SYSTEM_PROP);
+        String ballerinaVersion = System.getProperty(BALLERINA_VERSION_SYSTEM_PROP);
         if (tmpDirLocation != null) {
             File tmpDirFile = new File(tmpDirLocation);
             if (!tmpDirFile.exists() && !tmpDirFile.mkdirs()) {
                 throw new BallerinaDockerClientException("Couldn't create temporary directory: " + tmpDirLocation);
             }
+        }
+        
+        if (ballerinaVersion == null) {
+            throw new BallerinaDockerClientException(
+                    "[ERROR] System Property '" + BALLERINA_VERSION_SYSTEM_PROP + "' is not defined. ");
         }
 
         String tempDirName = PATH_TEMP_DOCKERFILE_CONTEXT_PREFIX + String.valueOf(Instant.now().getEpochSecond());
@@ -324,6 +333,14 @@ public class DefaultBallerinaDockerClient implements BallerinaDockerClient {
         Files.copy(in,
                 Paths.get(tmpDir.toString() + File.separator + PATH_DOCKERFILE_NAME),
                 StandardCopyOption.REPLACE_EXISTING);
+        
+        // Replace ${BALLERINA_VERSION} with ballerinaVersion
+        Path path = Paths.get(tmpDir.toString() + File.separator + PATH_DOCKERFILE_NAME);
+        Charset charset = StandardCharsets.UTF_8;
+
+        String content = new String(Files.readAllBytes(path), charset);
+        content = content.replaceAll("BALLERINA_VERSION", ballerinaVersion);
+        Files.write(path, content.getBytes(charset));
 
         return tmpDir;
     }
