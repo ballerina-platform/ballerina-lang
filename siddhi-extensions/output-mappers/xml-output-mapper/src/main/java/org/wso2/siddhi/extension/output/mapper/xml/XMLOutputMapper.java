@@ -22,7 +22,9 @@ import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.OMFactory;
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.core.event.Event;
+import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
 import org.wso2.siddhi.core.stream.output.sink.OutputMapper;
+import org.wso2.siddhi.core.stream.output.sink.OutputTransportCallback;
 import org.wso2.siddhi.core.util.transport.TemplateBuilder;
 import org.wso2.siddhi.core.util.transport.OptionHolder;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
@@ -33,20 +35,20 @@ import java.util.Map;
 @Extension(
         name = "xml",
         namespace = "outputmapper",
-        description = ""
+        description = "Event to XML output mapper"
 )
 public class XMLOutputMapper extends OutputMapper {
     private StreamDefinition streamDefinition;
     private static final String EVENTS_PARENT_TAG = "events";
     private static final String EVENT_PARENT_TAG = "event";
     private static final String EVENT_ARBITRARY_DATA_MAP_TAG = "arbitraryDataMap";
-    private static final String EVENT_ATTRIBUTE_SEPARATOR = ",";
 
     /**
      * Initialize the mapper and the mapping configurations.
-     *  @param streamDefinition The stream definition
-     * @param optionHolder     Unmapped dynamic options
-     * @param payloadTemplateBuilder
+     *
+     * @param streamDefinition       The stream definition
+     * @param optionHolder           Option holder containing static and dynamic options
+     * @param payloadTemplateBuilder Unmapped payload for reference
      */
     @Override
     public void init(StreamDefinition streamDefinition, OptionHolder optionHolder, TemplateBuilder payloadTemplateBuilder) {
@@ -54,18 +56,26 @@ public class XMLOutputMapper extends OutputMapper {
     }
 
     /**
-     * Convert the given Event mapping to XML string
+     * Map and publish the given {@link Event} array
      *
-     * @param event         Event object
-     * @param mappedPayload mapped Payload if any
-     * @return the mapped XML string
+     * @param events                  Event object array
+     * @param outputTransportCallback output transport callback
+     * @param optionHolder            option holder containing static and dynamic options
+     * @param payloadTemplateBuilder  Unmapped payload for reference
      */
     @Override
-    public Object mapEvent(Event event, String mappedPayload) {
-        if (mappedPayload != null) {
-            return mappedPayload;
+    public void mapAndSend(Event[] events, OutputTransportCallback outputTransportCallback,
+                           OptionHolder optionHolder, TemplateBuilder payloadTemplateBuilder)
+            throws ConnectionUnavailableException {
+        if (payloadTemplateBuilder != null) {
+            for (Event event : events) {
+                outputTransportCallback.publish(payloadTemplateBuilder.build(event), event);
+            }
         } else {
-            return constructDefaultMapping(event);
+            //TODO add support to publish multiple events
+            for (Event event : events) {
+                outputTransportCallback.publish(constructDefaultMapping(event), event);
+            }
         }
     }
 
@@ -93,8 +103,9 @@ public class XMLOutputMapper extends OutputMapper {
             templateEventElement.addChild(propertyElement);
         }
 
+        // TODO: remove if we are not going to support arbitraryDataMap
         // Get arbitrary data from event
-        Map<String, Object> arbitraryDataMap = event.getArbitraryDataMap();
+/*        Map<String, Object> arbitraryDataMap = event.getArbitraryDataMap();
         if (arbitraryDataMap != null && !arbitraryDataMap.isEmpty()) {
             // Add arbitrary data map to the default template
             OMElement parentPropertyElement = factory.createOMElement(new QName(EVENT_ARBITRARY_DATA_MAP_TAG));
@@ -105,7 +116,7 @@ public class XMLOutputMapper extends OutputMapper {
                 parentPropertyElement.addChild(propertyElement);
             }
             compositeEventElement.getFirstElement().addChild(parentPropertyElement);
-        }
+        }*/
 
         return compositeEventElement.toString();
     }
