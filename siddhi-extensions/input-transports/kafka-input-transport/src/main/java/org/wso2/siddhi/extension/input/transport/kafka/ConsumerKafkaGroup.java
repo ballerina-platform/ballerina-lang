@@ -25,8 +25,7 @@ import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class ConsumerKafkaAdaptor {
-    private final ConsumerConnector consumer;
+public class ConsumerKafkaGroup {
     private final String topic;
     private final String partitionList;
     private final Properties props;
@@ -47,15 +46,11 @@ public class ConsumerKafkaAdaptor {
 
     public void run(int numThreads, SourceEventListener sourceEventListener) {
         try {
-            Map<String, Integer> topicCountMap = new HashMap<String, Integer>();
-            topicCountMap.put(topic, numThreads);
-            Map<String, List<KafkaStream<byte[], byte[]>>> consumerMap = consumer.createMessageStreams(topicCountMap);
-            List<KafkaStream<byte[], byte[]>> streams = consumerMap.get(topic);
             // now launch all the threads
             executor = Executors.newFixedThreadPool(numThreads);
             // now create consumers to consume the messages
             for (int i = 0; i < numThreads; i++) {
-                executor.submit(new KafkaConsumerThread(sourceCallback, topic, partitionList, props));
+                executor.submit(new KafkaConsumerThread(sourceEventListener, topic, partitionList, props));
             }
             log.info("Kafka Consumer started listening on topic: " + topic);
         } catch (Throwable t) {

@@ -174,8 +174,9 @@ public class KafkaInputTransportTestCase {
                                 .element("type", "kafka")
                                 .element("topic", "receiver_topic")
                                 .element("threads", "1")
+                                .element("partition.no.list", "0,1")
                                 .element("group.id", "group1")
-                                .element("zookeeper.connect", "localhost")
+                                .element("bootstrap.servers", "localhost:9092")
                                 .annotation(Annotation.annotation("map")
                                         .element("type", "text")));
 
@@ -186,7 +187,8 @@ public class KafkaInputTransportTestCase {
                         .annotation(Annotation.annotation("sink")
                                 .element("type", "kafka")
                                 .element("topic", "publisher_topic")
-                                .element("meta.broker.list", "localhost:9092")
+                                .element("partition.no", "0")
+                                .element("bootstrap.servers", "localhost:9092")
                                 .annotation(Annotation.annotation("map")
                                         .element("type", "text")));
 

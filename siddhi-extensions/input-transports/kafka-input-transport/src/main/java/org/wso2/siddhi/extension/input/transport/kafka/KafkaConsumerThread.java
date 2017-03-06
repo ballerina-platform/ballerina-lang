@@ -23,7 +23,7 @@ import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.TopicPartition;
 import org.apache.log4j.Logger;
-import org.wso2.siddhi.core.stream.input.source.SourceCallback;
+import org.wso2.siddhi.core.stream.input.source.SourceEventListener;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,13 +34,13 @@ public class KafkaConsumerThread implements Runnable {
 
     private final KafkaConsumer<byte[], byte[]> consumer;
     private String evento;
-    private SourceCallback sourceCallback;
+    private SourceEventListener sourceEventListener;
     private static final Logger log = Logger.getLogger(KafkaConsumerThread.class);
 
 
-    public KafkaConsumerThread(SourceCallback sourceCallback, String topic, String partitionList, Properties props) {
+    public KafkaConsumerThread(SourceEventListener sourceEventListener, String topic, String partitionList, Properties props) {
         this.consumer = new KafkaConsumer<>(props);
-        this.sourceCallback = sourceCallback;
+        this.sourceEventListener = sourceEventListener;
         String partitions[] = partitionList.split(",");
         List<TopicPartition> partitionsList = new ArrayList<>();
         for (String partition1 : partitions) {
@@ -56,12 +56,11 @@ public class KafkaConsumerThread implements Runnable {
         while (true) {
             ConsumerRecords<byte[], byte[]> records = consumer.poll(200);
             for (ConsumerRecord record : records) {
-                System.out.printf("offset = %d, key = %s, value = %s, partition = %s \n", record.offset(), record.key().toString(), record.value(), record.partition());
                 evento = record.value().toString();
                 if (log.isDebugEnabled()) {
                     log.debug("Event received in Kafka Event Adaptor: " + evento + ", offSet: " + record.offset() + ", key: " + record.key() + ", partition: " + record.partition());
                 }
-                sourceCallback.onEvent(evento);
+                sourceEventListener.onEvent(evento);
             }
         }
 

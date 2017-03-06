@@ -94,7 +94,7 @@ public class KafkaInputTransport extends InputTransport {
         threads = 1;
         String topic = optionHolder.validateAndGetStaticValue(ADAPTOR_SUBSCRIBER_TOPIC);
         consumerKafkaGroup = new ConsumerKafkaGroup(topic, partitionList, KafkaInputTransport.createConsumerConfig(zkServerList, groupID));
-        consumerKafkaGroup.run(threads, sourceCallback);
+        consumerKafkaGroup.run(threads, sourceEventListener);
     }
 
     private static Properties createConsumerConfig(String zkServerList, String groupId) {

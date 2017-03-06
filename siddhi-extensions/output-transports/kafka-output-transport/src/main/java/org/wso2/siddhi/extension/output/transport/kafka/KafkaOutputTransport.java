@@ -54,7 +54,7 @@ public class KafkaOutputTransport extends OutputTransport {
     public static final String ADAPTER_KEEP_ALIVE_TIME_NAME = "keepAliveTimeInMillis";
     public static final String ADAPTER_EXECUTOR_JOB_QUEUE_SIZE_NAME = "jobQueueSize";
     public final static String ADAPTOR_PUBLISH_TOPIC = "topic";
-    public final static String ADAPTOR_META_BROKER_LIST = "meta.broker.list";
+    public final static String ADAPTOR_META_BROKER_LIST = "bootstrap.servers";
     public final static String ADAPTOR_OPTIONAL_CONFIGURATION_PROPERTIES = "optional.configuration";
     public static final String HEADER_SEPARATOR = ",";
     public static final String ENTRY_SEPARATOR = ":";
