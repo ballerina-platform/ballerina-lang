@@ -28,7 +28,9 @@ import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.query.output.callback.QueryCallback;
 import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.util.EventPrinter;
-import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
+import org.wso2.siddhi.tcp.transport.TcpNettyClient;
+
+import java.util.ArrayList;
 
 public class TcpInputTransportTestCase {
     static final Logger log = Logger.getLogger(TcpInputTransportTestCase.class);
@@ -42,66 +44,77 @@ public class TcpInputTransportTestCase {
     }
 
 
-    @Test
-    public void testTcpInputTransport1() throws InterruptedException {
-        log.info("tcpInputTransport TestCase 1");
-        SiddhiManager siddhiManager = new SiddhiManager();
-
-        String inStreamDefinition = "" +
-                "@source(type='tcp', @map(type='passThrough'))" +
-                "define stream inputStream (a string, b int, c float, d long, e double, f bool);";
-        String query = ("@info(name = 'query1') " +
-                "from inputStream " +
-                "select *  " +
-                "insert into outputStream;");
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition + query);
-
-        executionPlanRuntime.addCallback("query1", new QueryCallback() {
-            @Override
-            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
-                EventPrinter.print(timeStamp, inEvents, removeEvents);
-                eventArrived = true;
-//                for (Event event : inEvents) {
-//                    count++;
-//                    switch (count) {
-//                        case 1:
-//                            Assert.assertEquals(36.0, event.getData(0));
-//                            break;
-//                        case 2:
-//                            Assert.assertEquals(36.0, event.getData(0));
-//                            break;
-//                        case 3:
-//                            Assert.assertEquals(36.0, event.getData(0));
-//                            break;
-//                        case 4:
-//                            Assert.assertEquals(36.0, event.getData(0));
-//                            break;
-//                        case 5:
-//                            Assert.assertEquals(36.0, event.getData(0));
-//                            break;
-//                        case 6:
-//                            Assert.assertEquals(36.0, event.getData(0));
-//                            break;
-//                        default:
-//                            org.junit.Assert.fail();
-//                    }
-//                }
-            }
-        });
-
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler("inputStream");
-        executionPlanRuntime.start();
-
-        inputHandler.send(new Object[]{"test", 36, 3.0f, 380l, 23.0, true});
-        inputHandler.send(new Object[]{"test1", 361, 31.0f, 3801l, 231.0, false});
-        inputHandler.send(new Object[]{"test2", 362, 32.0f, 3802l, 232.0, true});
-
-        Thread.sleep(300);
-//        Assert.assertEquals(6, count);
-        Assert.assertTrue(eventArrived);
-        executionPlanRuntime.shutdown();
-
-    }
+//    @Test
+//    public void testTcpInputTransport1() throws InterruptedException {
+//        log.info("tcpInputTransport TestCase 1");
+//        SiddhiManager siddhiManager = new SiddhiManager();
+//
+//        String inStreamDefinition = "" +
+//                "@source(type='tcp', @map(type='passThrough'))" +
+//                "define stream inputStream (a string, b int, c float, d long, e double, f bool);";
+//        String query = ("@info(name = 'query1') " +
+//                "from inputStream " +
+//                "select *  " +
+//                "insert into outputStream;");
+//        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition + query);
+//
+//        executionPlanRuntime.addCallback("query1", new QueryCallback() {
+//            @Override
+//            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
+//                EventPrinter.print(timeStamp, inEvents, removeEvents);
+//                eventArrived = true;
+////                for (Event event : inEvents) {
+////                    count++;
+////                    switch (count) {
+////                        case 1:
+////                            Assert.assertEquals(36.0, event.getData(0));
+////                            break;
+////                        case 2:
+////                            Assert.assertEquals(36.0, event.getData(0));
+////                            break;
+////                        case 3:
+////                            Assert.assertEquals(36.0, event.getData(0));
+////                            break;
+////                        case 4:
+////                            Assert.assertEquals(36.0, event.getData(0));
+////                            break;
+////                        case 5:
+////                            Assert.assertEquals(36.0, event.getData(0));
+////                            break;
+////                        case 6:
+////                            Assert.assertEquals(36.0, event.getData(0));
+////                            break;
+////                        default:
+////                            org.junit.Assert.fail();
+////                    }
+////                }
+//            }
+//        });
+//
+//        InputHandler inputHandler = executionPlanRuntime.getInputHandler("inputStream");
+//        executionPlanRuntime.start();
+//
+//        inputHandler.send(new Object[]{"test", 36, 3.0f, 380l, 23.0, true});
+//        inputHandler.send(new Object[]{"test1", 361, 31.0f, 3801l, 231.0, false});
+//        inputHandler.send(new Object[]{"test2", 362, 32.0f, 3802l, 232.0, true});
+//
+//        TcpNettyClient tcpNettyClient = new TcpNettyClient();
+//        tcpNettyClient.connect("localhost", 8080);
+//        ArrayList<Event> arrayList = new ArrayList<Event>(3);
+//
+//        arrayList.add(new Event(System.currentTimeMillis(), new Object[]{"test", 36, 3.0f, 380l, 23.0, true}));
+//        arrayList.add(new Event(System.currentTimeMillis(), new Object[]{"test1", 361, 31.0f, 3801l, 231.0, false}));
+//        arrayList.add(new Event(System.currentTimeMillis(), new Object[]{"test2", 362, 32.0f, 3802l, 232.0, true}));
+//        tcpNettyClient.send("inputStream", arrayList.toArray(new Event[10]));
+//
+//        tcpNettyClient.disconnect();
+//        tcpNettyClient.shutdown();
+//        Thread.sleep(300);
+////        Assert.assertEquals(6, count);
+//        Assert.assertTrue(eventArrived);
+//        executionPlanRuntime.shutdown();
+//
+//    }
 
 //    @Test
 //    public void testMinForeverAggregatorExtension2() throws InterruptedException {

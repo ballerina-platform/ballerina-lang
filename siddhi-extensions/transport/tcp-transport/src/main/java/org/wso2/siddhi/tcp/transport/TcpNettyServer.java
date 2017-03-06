@@ -25,11 +25,10 @@ import org.apache.log4j.Logger;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
 import org.wso2.siddhi.tcp.transport.callback.LogStreamListener;
-import org.wso2.siddhi.tcp.transport.callback.StatisticsStreamListener;
 import org.wso2.siddhi.tcp.transport.callback.StreamListener;
 import org.wso2.siddhi.tcp.transport.config.ServerConfig;
-import org.wso2.siddhi.tcp.transport.utils.StreamTypeHolder;
 import org.wso2.siddhi.tcp.transport.handlers.EventDecoder;
+import org.wso2.siddhi.tcp.transport.utils.StreamTypeHolder;
 
 public class TcpNettyServer {
     private static final Logger log = Logger.getLogger(TcpNettyServer.class);
@@ -69,7 +68,9 @@ public class TcpNettyServer {
 
             // Bind and start to accept incoming connections.
             ChannelFuture channelFuture = bootstrap.bind(serverConfig.getHost(), serverConfig.getPort()).sync();
+            log.info("Tcp Server started in " + serverConfig.getHost() + ":" + serverConfig.getPort() + "");
             channelFuture.channel().closeFuture().sync();
+
         } catch (InterruptedException e) {
             log.error("Error when booting up binary server " + e.getMessage(), e);
         }
