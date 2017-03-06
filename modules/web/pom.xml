@@ -71,6 +71,22 @@
                             </arguments>
                         </configuration>
                     </execution>
+                    <!-- 'npm run clean' which is run in clean lifecycle needs 'rimraf' node module.
+                     Make sure it is installed  -->
+                    <execution>
+                      <id>npm install rimraf (clean)</id>
+                      <goals>
+                        <goal>exec</goal>
+                      </goals>
+                      <phase>pre-clean</phase>
+                      <configuration>
+                        <executable>npm</executable>
+                        <arguments>
+                          <argument>install</argument>
+                          <argument>rimraf</argument>
+                        </arguments>
+                      </configuration>
+                    </execution>
                     <execution>
                         <id>npm run clean (clean)</id>
                         <goals>
