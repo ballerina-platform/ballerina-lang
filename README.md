@@ -23,7 +23,7 @@ The build process of the composer works on Maven and Node Package Manager(npm).
 * Maven 3.0.5  
 
 ### Steps to build
-* `mvn clean install` - To build the composer. You can find the distribution at `<BALLERINA_COMPOSER>/modules/distribution/target` folder.  
+* `mvn clean install` - To build the composer.  
 
 ### Dev commands on web module(`<BALLERINA_COMPOSER>/modules/web`)
 * `npm install` - Installs all npm dependencies.
