@@ -23,10 +23,12 @@ import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
 
 import java.util.Arrays;
+import java.util.concurrent.atomic.AtomicLong;
 
 public class LogStreamListener implements StreamListener {
     private static final Logger log = Logger.getLogger(LogStreamListener.class);
     private StreamDefinition streamDefinition;
+    private AtomicLong count = new AtomicLong(0);
 
     public LogStreamListener(StreamDefinition streamDefinition) {
 
@@ -40,11 +42,11 @@ public class LogStreamListener implements StreamListener {
 
     @Override
     public void onEvent(Event event) {
-        log.info(event);
+        log.info( count.incrementAndGet()+ " " + event);
     }
 
     @Override
     public void onEvents(Event[] events) {
-        log.info(Arrays.deepToString(events));
+        log.info(count.addAndGet(events.length) + " " + Arrays.deepToString(events));
     }
 }

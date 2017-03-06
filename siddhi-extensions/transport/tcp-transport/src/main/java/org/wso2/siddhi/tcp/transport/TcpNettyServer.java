@@ -24,6 +24,7 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 import org.apache.log4j.Logger;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
+import org.wso2.siddhi.tcp.transport.callback.LogStreamListener;
 import org.wso2.siddhi.tcp.transport.callback.StatisticsStreamListener;
 import org.wso2.siddhi.tcp.transport.callback.StreamListener;
 import org.wso2.siddhi.tcp.transport.config.ServerConfig;
@@ -41,8 +42,8 @@ public class TcpNettyServer {
                 .attribute("price", Attribute.Type.INT).attribute("volume", Attribute.Type.INT);
 
         TcpNettyServer tcpNettyServer = new TcpNettyServer();
-//        tcpNettyServer.addStreamListener(new LogStreamListener(streamDefinition));
-        tcpNettyServer.addStreamListener(new StatisticsStreamListener(streamDefinition));
+        tcpNettyServer.addStreamListener(new LogStreamListener(streamDefinition));
+//        tcpNettyServer.addStreamListener(new StatisticsStreamListener(streamDefinition));
 
         tcpNettyServer.bootServer(new ServerConfig());
         tcpNettyServer.shutdownGracefully();
