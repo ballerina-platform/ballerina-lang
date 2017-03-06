@@ -37,17 +37,17 @@ import org.wso2.siddhi.core.util.transport.OptionHolder;
 public class InMemoryInputTransport extends InputTransport {
     private static final Logger log = Logger.getLogger(InMemoryInputTransport.class);
     private static final String TOPIC_KEY = "topic";
-    private SourceCallback sourceCallback;
+    private SourceEventListener sourceEventListener;
     private InMemoryBroker.Subscriber subscriber;
 
     @Override
-    public void init(SourceCallback sourceCallback, OptionHolder optionHolder) {
-        this.sourceCallback = sourceCallback;
+    public void init(SourceEventListener sourceEventListener, OptionHolder optionHolder) {
+        this.sourceEventListener = sourceEventListener;
         String topic = optionHolder.validateAndGetStaticValue(TOPIC_KEY,"input inMemory transport");
         this.subscriber = new InMemoryBroker.Subscriber() {
             @Override
             public void onMessage(Object event) {
-                sourceCallback.onEvent(event);
+                sourceEventListener.onEvent(event);
             }
 
             @Override
