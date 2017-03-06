@@ -59,7 +59,7 @@ define(['log', 'jquery', 'backbone', 'lodash', 'context_menu', 'mcustom_scroller
 	            + '</div>' 
 	            + '<div class="btn-group col-xs-12">' 
 	            + '     <div type="button" id="run_application" class="btn btn-default text-left btn-debug-activate col-xs-12" title="Start Application"><span class="launch-label">Application</span><button type="button" class="btn btn-default pull-right btn-config" title="Config"><i class="fw fw-configarations"></i></button></div>'
-	            + '     <button type="button" id="run_service" class="btn btn-default text-left btn-debug-activate col-xs-12" title="Start Debug">Service</button>'
+	            + '     <button type="button" id="run_service" class="btn btn-default text-left btn-debug-activate col-xs-12" title="Start Service">Service</button>'
 	            + '</div>'
 	            + '<% } %>' 
 	            + '<% if (active) { %>'
@@ -200,6 +200,7 @@ define(['log', 'jquery', 'backbone', 'lodash', 'context_menu', 'mcustom_scroller
                 });
             }
             this.renderBody();
+            $('.btn-debug-activate').tooltip();
             return this;
         },
 

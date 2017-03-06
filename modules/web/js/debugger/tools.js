@@ -35,9 +35,9 @@ define(['jquery', 'backbone', 'lodash', 'log', 'event_channel', './debug-manager
             + '     <span class="tool-group-header-title">Debug</span></span>' 
             + '</div>' 
             + '<div class="btn-group col-xs-12">' 
-            + '     <div type="button" class="btn btn-default text-left btn-debug-activate col-xs-12" id="debug_application" title="Start Debug"><span class="launch-label">Application</span><button type="button" class="btn btn-default pull-right btn-config" title="Config"><i class="fw fw-configarations"></i></button></div>'
-            + '     <button type="button" class="btn btn-default text-left btn-debug-activate col-xs-12" id="debug_service" title="Start Debug">Service</button>'
-            + '     <button type="button" class="btn btn-default text-left btn-debug-activate col-xs-12" id="remote_debug" title="Start Debug">Debug Remotely</button>'
+            + '     <div type="button" class="btn btn-default text-left btn-debug-activate col-xs-12" id="debug_application" title="Start Debugging Application"><span class="launch-label">Application</span><button type="button" class="btn btn-default pull-right btn-config" title="Config"><i class="fw fw-configarations"></i></button></div>'
+            + '     <button type="button" class="btn btn-default text-left btn-debug-activate col-xs-12" id="debug_service" title="Start Debugging Service">Service</button>'
+            + '     <button type="button" class="btn btn-default text-left btn-debug-activate col-xs-12" id="remote_debug" title="Start Debugging Remotely">Debug Remotely</button>'
             + '</div>'
             + '<% } %>' 
             + '<% if (active) { %>'
@@ -138,6 +138,7 @@ define(['jquery', 'backbone', 'lodash', 'log', 'event_channel', './debug-manager
         context.active = DebugManager.active;
         context.navigation = this.navigation;
         this.container.html(this.compiled(context));
+        $('.btn-debug-activate').tooltip();
     };
 
     Tools.prototype.handleMouseAction = function(event) {
