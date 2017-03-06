@@ -59,7 +59,9 @@ public class KeyValueOutputMapper extends OutputMapper {
      * @param payloadTemplateBuilder  Unmapped payload for reference
      */
     @Override
-    public void mapAndSend(Event[] events, OutputTransportCallback outputTransportCallback, OptionHolder optionHolder, TemplateBuilder payloadTemplateBuilder) throws ConnectionUnavailableException {
+    public void mapAndSend(Event[] events, OutputTransportCallback outputTransportCallback,
+                           OptionHolder optionHolder, TemplateBuilder payloadTemplateBuilder)
+            throws ConnectionUnavailableException {
         //TODO add support to publish multiple events
         for (Event event : events) {
             outputTransportCallback.publish(constructDefaultMapping(event), event);

@@ -3,7 +3,6 @@ package org.wso2.siddhi.extension.output.mapper.wso2event;
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
-import org.wso2.siddhi.core.exception.ExecutionPlanCreationException;
 import org.wso2.siddhi.core.stream.output.sink.OutputMapper;
 import org.wso2.siddhi.core.stream.output.sink.OutputTransportCallback;
 import org.wso2.siddhi.core.util.transport.OptionHolder;
@@ -48,7 +47,9 @@ public class WSO2EventOutputMapper extends OutputMapper {
      * @param payloadTemplateBuilder  Unmapped payload for reference
      */
     @Override
-    public void mapAndSend(Event[] events, OutputTransportCallback outputTransportCallback, OptionHolder optionHolder, TemplateBuilder payloadTemplateBuilder) throws ConnectionUnavailableException {
+    public void mapAndSend(Event[] events, OutputTransportCallback outputTransportCallback,
+                           OptionHolder optionHolder, TemplateBuilder payloadTemplateBuilder)
+            throws ConnectionUnavailableException {
         //TODO add support to publish multiple events
         for (Event event : events) {
             outputTransportCallback.publish(constructDefaultMapping(event), event);

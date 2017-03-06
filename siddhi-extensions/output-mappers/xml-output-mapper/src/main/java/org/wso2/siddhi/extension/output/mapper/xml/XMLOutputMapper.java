@@ -64,7 +64,9 @@ public class XMLOutputMapper extends OutputMapper {
      * @param payloadTemplateBuilder  Unmapped payload for reference
      */
     @Override
-    public void mapAndSend(Event[] events, OutputTransportCallback outputTransportCallback, OptionHolder optionHolder, TemplateBuilder payloadTemplateBuilder) throws ConnectionUnavailableException {
+    public void mapAndSend(Event[] events, OutputTransportCallback outputTransportCallback,
+                           OptionHolder optionHolder, TemplateBuilder payloadTemplateBuilder)
+            throws ConnectionUnavailableException {
         if (payloadTemplateBuilder != null) {
             for (Event event : events) {
                 outputTransportCallback.publish(payloadTemplateBuilder.build(event), event);
