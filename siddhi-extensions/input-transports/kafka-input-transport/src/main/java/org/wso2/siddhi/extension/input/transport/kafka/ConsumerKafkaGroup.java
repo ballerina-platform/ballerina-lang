@@ -18,34 +18,27 @@
 
 package org.wso2.siddhi.extension.input.transport.kafka;
 
-import kafka.consumer.ConsumerConfig;
-import kafka.consumer.KafkaStream;
-import kafka.javaapi.consumer.ConsumerConnector;
 import org.apache.log4j.Logger;
 import org.wso2.siddhi.core.stream.input.source.SourceCallback;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class ConsumerKafkaAdaptor {
-    private final ConsumerConnector consumer;
+public class ConsumerKafkaGroup {
     private final String topic;
+    private final String partitionList;
+    private final Properties props;
     private ExecutorService executor;
-    private static final Logger log = Logger.getLogger(ConsumerKafkaAdaptor.class);
-    private int tenantId;
+    private static final Logger log = Logger.getLogger(ConsumerKafkaGroup.class);
 
-    public ConsumerKafkaAdaptor(String inTopic, ConsumerConfig conf) {
-        consumer = kafka.consumer.Consumer.createJavaConsumerConnector(conf);
-        this.topic = inTopic;
+    public ConsumerKafkaGroup(String topic, String partitionList, Properties props) {
+        this.topic = topic;
+        this.partitionList = partitionList;
+        this.props = props;
     }
 
     public void shutdown() {
-        if (consumer != null) {
-            consumer.shutdown();
-        }
         if (executor != null) {
             executor.shutdown();
         }
@@ -53,19 +46,15 @@ public class ConsumerKafkaAdaptor {
 
     public void run(int numThreads, SourceCallback sourceCallback) {
         try {
-            Map<String, Integer> topicCountMap = new HashMap<String, Integer>();
-            topicCountMap.put(topic, numThreads);
-            Map<String, List<KafkaStream<byte[], byte[]>>> consumerMap = consumer.createMessageStreams(topicCountMap);
-            List<KafkaStream<byte[], byte[]>> streams = consumerMap.get(topic);
             // now launch all the threads
             executor = Executors.newFixedThreadPool(numThreads);
-            // now create an object to consume the messages
-            for (final KafkaStream stream : streams) {
-                executor.submit(new KafkaConsumer(stream, sourceCallback));
+            // now create consumers to consume the messages
+            for (int i = 0; i < numThreads; i++) {
+                executor.submit(new KafkaConsumerThread(sourceCallback, topic, partitionList, props));
             }
             log.info("Kafka Consumer started listening on topic: " + topic);
         } catch (Throwable t) {
-            log.error("Error while creating KafkaConsumer for topic: " + topic, t);
+            log.error("Error while creating KafkaConsumerThread for topic: " + topic, t);
         }
     }
 }

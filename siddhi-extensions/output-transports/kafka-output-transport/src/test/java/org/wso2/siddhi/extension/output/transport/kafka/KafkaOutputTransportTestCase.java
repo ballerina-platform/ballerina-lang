@@ -52,7 +52,8 @@ public class KafkaOutputTransportTestCase {
                     .attribute("volume", Attribute.Type.INT)
                     .annotation(Annotation.annotation("sink")
                             .element("type", "kafka")
-                            .element("topic", "page_visits")
+                            .element("topic", "kafka_topic")
+                            .element("partition.no", "0")
                             .element("meta.broker.list", "localhost:9092")
                             .annotation(Annotation.annotation("map")
                                     .element("type", "text")));

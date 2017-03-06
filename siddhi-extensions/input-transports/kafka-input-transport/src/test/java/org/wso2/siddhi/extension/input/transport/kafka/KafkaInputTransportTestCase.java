@@ -60,10 +60,11 @@ public class KafkaInputTransportTestCase {
                     .attribute("volume", Attribute.Type.INT)
                     .annotation(Annotation.annotation("source")
                             .element("type", "kafka")
-                            .element("topic", "page_visits")
+                            .element("topic", "kafka_topic")
                             .element("threads", "1")
-                            .element("group.id", "group1")
-                            .element("zookeeper.connect", "localhost")
+                            .element("partition.no.list", "0,1")
+                            .element("group.id", "test")
+                            .element("bootstrap.servers", "localhost:9092")
                             .annotation(Annotation.annotation("map")
                                     .element("type", "text")));
 
@@ -136,9 +137,9 @@ public class KafkaInputTransportTestCase {
             kafkaServer.startup();
 
             // create "page_visits" topic
-            ZkClient zkClient = new ZkClient(zkTestServer.getConnectString(), 10000, 10000, ZKStringSerializer$.MODULE$);
-            AdminUtils.createTopic(zkClient, "page_visits", 1, 1, new Properties());
-            zkClient.close();
+//            ZkClient zkClient = new ZkClient(zkTestServer.getConnectString(), 10000, 10000, ZKStringSerializer$.MODULE$);
+//            AdminUtils.createTopic(zkClient, "page_visits", 1, 1, new Properties());
+//            zkClient.close();
         } catch (Exception e) {
             log.error("Error running local Kafka broker / Zookeeper", e);
         }

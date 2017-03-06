@@ -40,17 +40,18 @@ public class KafkaInputTransport extends InputTransport {
     private ScheduledExecutorService executorService;
     private static ThreadPoolExecutor threadPoolExecutor;
     private OptionHolder optionHolder;
-    private ConsumerKafkaAdaptor consumerKafkaAdaptor;
+    private ConsumerKafkaGroup consumerKafkaGroup;
 
     //    public static final int ADAPTER_CORE_POOL_SIZE = 8;
 //    public final static String ADAPTER_CORE_POOL_SIZE_NAME = "kafka";
     public final static String ADAPTER_NAME = "adapter.name";
     public static final String EVENTS_DUPLICATED_IN_CLUSTER_NAME = "events.duplicated.in.cluster";
     public static final boolean EVENTS_DUPLICATED_IN_CLUSTER = false;
-    public final static String ADAPTOR_SUSCRIBER_TOPIC = "topic";
-    public final static String ADAPTOR_SUSCRIBER_GROUP_ID = "group.id";
-    public final static String ADAPTOR_SUSCRIBER_ZOOKEEPER_CONNECT = "zookeeper.connect";
-    public final static String ADAPTOR_SUSCRIBER_THREADS = "threads";
+    public final static String ADAPTOR_SUBSCRIBER_TOPIC = "topic";
+    public final static String ADAPTOR_SUBSCRIBER_GROUP_ID = "group.id";
+    public final static String ADAPTOR_SUBSCRIBER_ZOOKEEPER_CONNECT_SERVERS = "bootstrap.servers";
+    public final static String ADAPTOR_SUBSCRIBER_THREADS = "threads";
+    public final static String ADAPTOR_SUBSCRIBER_PARTITION_NO_LIST = "partition.no.list";
     public final static String ADAPTOR_OPTIONAL_CONFIGURATION_PROPERTIES = "optional.configuration";
     public static final int AXIS_TIME_INTERVAL_IN_MILLISECONDS = 10000;
 
@@ -69,9 +70,9 @@ public class KafkaInputTransport extends InputTransport {
 
     @Override
     public void disconnect() {
-        if (consumerKafkaAdaptor != null) {
-            consumerKafkaAdaptor.shutdown();
-            String topic = optionHolder.validateAndGetStaticValue(ADAPTOR_SUSCRIBER_TOPIC);
+        if (consumerKafkaGroup != null) {
+            consumerKafkaGroup.shutdown();
+            String topic = optionHolder.validateAndGetStaticValue(ADAPTOR_SUBSCRIBER_TOPIC);
             log.debug("Adapter " + topic + " disconnected " + topic);
         }
     }
@@ -83,33 +84,37 @@ public class KafkaInputTransport extends InputTransport {
 
     private void createKafkaAdaptorListener() throws ConnectionUnavailableException{
 
-        String zkConnect = optionHolder.validateAndGetStaticValue(ADAPTOR_SUSCRIBER_ZOOKEEPER_CONNECT);
-        String groupID = optionHolder.validateAndGetStaticValue(ADAPTOR_SUSCRIBER_GROUP_ID);
-        String threadsStr = optionHolder.validateAndGetStaticValue(ADAPTOR_SUSCRIBER_THREADS);
-        int threads = Integer.parseInt(threadsStr);
-        String topic = optionHolder.validateAndGetStaticValue(ADAPTOR_SUSCRIBER_TOPIC);
+        String zkServerList = optionHolder.validateAndGetStaticValue(ADAPTOR_SUBSCRIBER_ZOOKEEPER_CONNECT_SERVERS);
+        String groupID = optionHolder.validateAndGetStaticValue(ADAPTOR_SUBSCRIBER_GROUP_ID);
+        String partitionList = optionHolder.validateAndGetStaticValue(ADAPTOR_SUBSCRIBER_PARTITION_NO_LIST);
 
-        consumerKafkaAdaptor = new ConsumerKafkaAdaptor(topic, KafkaInputTransport.createConsumerConfig(zkConnect, groupID));
-        consumerKafkaAdaptor.run(threads, sourceCallback);
+        //todo: consumers same group id still gets the same message
+        String threadsStr = optionHolder.validateAndGetStaticValue(ADAPTOR_SUBSCRIBER_THREADS);
+        int threads = Integer.parseInt(threadsStr);
+        threads = 1;
+        String topic = optionHolder.validateAndGetStaticValue(ADAPTOR_SUBSCRIBER_TOPIC);
+        consumerKafkaGroup = new ConsumerKafkaGroup(topic, partitionList, KafkaInputTransport.createConsumerConfig(zkServerList, groupID));
+        consumerKafkaGroup.run(threads, sourceCallback);
     }
 
-    private static ConsumerConfig createConsumerConfig(String a_zookeeper, String a_groupId) {
+    private static Properties createConsumerConfig(String zkServerList, String groupId) {
         Properties props = new Properties();
-        props.put("zookeeper.connect", a_zookeeper);
-        props.put("group.id", a_groupId);
-        props.put("zookeeper.session.timeout.ms", "400");
-        props.put("zookeeper.sync.time.ms", "200");
+        props.put(ADAPTOR_SUBSCRIBER_ZOOKEEPER_CONNECT_SERVERS, zkServerList);
+        props.put(ADAPTOR_SUBSCRIBER_GROUP_ID, groupId);
+        props.put("session.timeout.ms", "30000");
+        props.put("enable.auto.commit", "true");
         props.put("auto.commit.interval.ms", "1000");
-
-        return new ConsumerConfig(props);
+        props.put("key.deserializer","org.apache.kafka.common.serialization.StringDeserializer");
+        props.put("value.deserializer","org.apache.kafka.common.serialization.StringDeserializer");
+        return props;
     }
 
     private static ConsumerConfig createConsumerConfig2(String zookeeper, String groupId,
                                                        String optionalConfigs) throws ConnectionUnavailableException{
         try {
             Properties props = new Properties();
-            props.put(ADAPTOR_SUSCRIBER_ZOOKEEPER_CONNECT, zookeeper);
-            props.put(ADAPTOR_SUSCRIBER_GROUP_ID, groupId);
+            props.put(ADAPTOR_SUBSCRIBER_ZOOKEEPER_CONNECT_SERVERS, zookeeper);
+            props.put(ADAPTOR_SUBSCRIBER_GROUP_ID, groupId);
             if (optionalConfigs != null) {
                 String[] optionalProperties = optionalConfigs.split(",");
                 if (optionalProperties != null) {

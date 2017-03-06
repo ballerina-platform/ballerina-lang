@@ -18,9 +18,11 @@
 
 package org.wso2.siddhi.extension.output.transport.kafka;
 
-import kafka.javaapi.producer.Producer;
+import org.apache.kafka.clients.producer.Producer;
 import kafka.producer.KeyedMessage;
 import kafka.producer.ProducerConfig;
+import org.apache.kafka.clients.producer.KafkaProducer;
+import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.log4j.Logger;
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.core.event.Event;
@@ -56,16 +58,18 @@ public class KafkaOutputTransport extends OutputTransport {
     public final static String ADAPTOR_OPTIONAL_CONFIGURATION_PROPERTIES = "optional.configuration";
     public static final String HEADER_SEPARATOR = ",";
     public static final String ENTRY_SEPARATOR = ":";
+    public static final String KAFKA_PARTITION_NO = "partition.no";
 
     private static final Logger log = Logger.getLogger(KafkaOutputTransport.class);
 
     private static ThreadPoolExecutor threadPoolExecutor;
     private ProducerConfig config;
-    private Producer<String, Object> producer;
+    private Producer<String, String>  producer;
     private OptionHolder optionHolder;
     private Option topicOption = null;
     private String kafkaConnect;
     private String optionalConfigs;
+    private Option partitionNumber;
 
     @Override
     protected void init(StreamDefinition streamDefinition, OptionHolder optionHolder) {
@@ -93,6 +97,7 @@ public class KafkaOutputTransport extends OutputTransport {
             optionalConfigs = optionHolder.validateAndGetStaticValue(ADAPTOR_OPTIONAL_CONFIGURATION_PROPERTIES,
                     null);
             topicOption = optionHolder.validateAndGetOption(ADAPTOR_PUBLISH_TOPIC);
+            partitionNumber = optionHolder.validateAndGetOption(KAFKA_PARTITION_NO);
 
             threadPoolExecutor = new ThreadPoolExecutor(minThread, maxThread, defaultKeepAliveTime,
                     TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>(jobQueSize));
@@ -103,8 +108,15 @@ public class KafkaOutputTransport extends OutputTransport {
     public void connect() throws ConnectionUnavailableException {
         log.info("KafkaOutputTransport:testConnect()");
         Properties props = new Properties();
-        props.put("metadata.broker.list", kafkaConnect);
-        props.put("serializer.class", "kafka.serializer.StringEncoder");
+        props.put("bootstrap.servers", kafkaConnect);
+        props.put("acks", "all");
+        props.put("retries", 0);
+        props.put("batch.size", 16384);
+        props.put("linger.ms", 1);
+        props.put("buffer.memory", 33554432);
+        props.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
+        props.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
+
         if (optionalConfigs != null) {
             String[] optionalProperties = optionalConfigs.split(HEADER_SEPARATOR);
             if (optionalProperties != null && optionalProperties.length > 0) {
@@ -118,15 +130,15 @@ public class KafkaOutputTransport extends OutputTransport {
                 }
             }
         }
-        config = new ProducerConfig(props);
-        producer = new Producer<String, Object>(config);
+        producer = new KafkaProducer<String, String>(props);
     }
 
     @Override
     protected void publish(Object payload, Event event, OptionHolder optionHolder) throws ConnectionUnavailableException {
         String topic = topicOption.getValue(event);
+        int partitionNo = Integer.parseInt(partitionNumber.getValue(event));
         try {
-            threadPoolExecutor.submit(new KafkaSender(topic, event));
+            threadPoolExecutor.submit(new KafkaSender(topic, partitionNo, event));
         } catch (RejectedExecutionException e) {
             log.error("Job queue is full : " + e.getMessage(), e);
         }
@@ -149,17 +161,18 @@ public class KafkaOutputTransport extends OutputTransport {
 
         String topic;
         Object message;
+        int partitionNo;
 
-        KafkaSender(String topic, Object message) {
+        KafkaSender(String topic, int partitionNo, Object message) {
             this.topic = topic;
             this.message = message;
+            this.partitionNo = partitionNo;
         }
 
         @Override
         public void run() {
             try {
-                KeyedMessage<String, Object> data = new KeyedMessage<String, Object>(topic, message.toString());
-                producer.send(data);
+                producer.send(new ProducerRecord<>(topic, Integer.toString(partitionNo), message.toString()));
             } catch (Throwable e) {
                 log.error("Unexpected error when sending event via Kafka Output Adapter:" + e.getMessage(), e);
             }
