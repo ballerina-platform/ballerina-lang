@@ -5,7 +5,7 @@ var BallerinaListener = require('./BallerinaListener').BallerinaListener;
 var grammarFileName = "Ballerina.g4";
 
 var serializedATN = ["\u0003\u0430\ud6d1\u8206\uad2d\u4417\uaef1\u8d80\uaadd",
-    "\u0003I\u0441\u0004\u0002\t\u0002\u0004\u0003\t\u0003\u0004\u0004\t",
+    "\u0003H\u0441\u0004\u0002\t\u0002\u0004\u0003\t\u0003\u0004\u0004\t",
     "\u0004\u0004\u0005\t\u0005\u0004\u0006\t\u0006\u0004\u0007\t\u0007\u0004",
     "\b\t\b\u0004\t\t\t\u0004\n\t\n\u0004\u000b\t\u000b\u0004\f\t\f\u0004",
     "\r\t\r\u0004\u000e\t\u000e\u0004\u000f\t\u000f\u0004\u0010\t\u0010\u0004",
@@ -613,7 +613,7 @@ var serializedATN = ["\u0003\u0430\ud6d1\u8206\uad2d\u4417\uaef1\u8d80\uaadd",
     "\u0002\u03b3\u009b\u0003\u0002\u0002\u0002\u03b4\u03b5\u0007F\u0002",
     "\u0002\u03b5\u03b6\u0007/\u0002\u0002\u03b6\u03b7\u0007F\u0002\u0002",
     "\u03b7\u03b8\u0007\u0004\u0002\u0002\u03b8\u009d\u0003\u0002\u0002\u0002",
-    "\u03b9\u03ba\u0007I\u0002\u0002\u03ba\u009f\u0003\u0002\u0002\u0002",
+    "\u03b9\u03ba\u0007H\u0002\u0002\u03ba\u009f\u0003\u0002\u0002\u0002",
     "\u03bb\u03bc\u0005\u00acW\u0002\u03bc\u03bd\u0005\u00a4S\u0002\u03bd",
     "\u03be\u0007\u0004\u0002\u0002\u03be\u00a1\u0003\u0002\u0002\u0002\u03bf",
     "\u03c0\bR\u0001\u0002\u03c0\u03c7\u0007F\u0002\u0002\u03c1\u03c2\u0007",
@@ -729,7 +729,7 @@ var symbolicNames = [ null, null, null, null, null, null, null, null, null,
                       null, null, null, null, null, null, null, null, "IntegerLiteral", 
                       "FloatingPointLiteral", "BooleanLiteral", "QuotedStringLiteral", 
                       "BacktickStringLiteral", "NullLiteral", "Identifier", 
-                      "WS", "NEW_LINE", "LINE_COMMENT" ];
+                      "WS", "LINE_COMMENT" ];
 
 var ruleNames =  [ "compilationUnit", "packageDeclaration", "importDeclaration", 
                    "serviceDefinition", "serviceBody", "serviceBodyDeclaration", 
@@ -850,8 +850,7 @@ BallerinaParser.BacktickStringLiteral = 66;
 BallerinaParser.NullLiteral = 67;
 BallerinaParser.Identifier = 68;
 BallerinaParser.WS = 69;
-BallerinaParser.NEW_LINE = 70;
-BallerinaParser.LINE_COMMENT = 71;
+BallerinaParser.LINE_COMMENT = 70;
 
 BallerinaParser.RULE_compilationUnit = 0;
 BallerinaParser.RULE_packageDeclaration = 1;
