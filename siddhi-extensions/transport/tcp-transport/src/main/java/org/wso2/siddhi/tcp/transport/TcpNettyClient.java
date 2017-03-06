@@ -18,21 +18,16 @@
 package org.wso2.siddhi.tcp.transport;
 
 import io.netty.bootstrap.Bootstrap;
-import io.netty.channel.Channel;
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelInitializer;
-import io.netty.channel.ChannelPipeline;
-import io.netty.channel.EventLoopGroup;
+import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import org.apache.log4j.Logger;
-import org.wso2.siddhi.tcp.transport.dto.SiddhiEventComposite;
-import org.wso2.siddhi.tcp.transport.handlers.EventEncoder;
 import org.wso2.siddhi.core.event.Event;
+import org.wso2.siddhi.tcp.transport.utils.EventComposite;
+import org.wso2.siddhi.tcp.transport.handlers.EventEncoder;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class TcpNettyClient {
     private static final Logger log = Logger.getLogger(TcpNettyClient.class);
@@ -60,24 +55,22 @@ public class TcpNettyClient {
 
             // Start the connection attempt.
             Channel ch = b.connect("localhost", 8080).sync().channel();
-            List<SiddhiEventComposite> eventList = new ArrayList<SiddhiEventComposite>();
             ChannelFuture cf;
-            for (int i = 0; i < 1; i++) {
-                for (int j=0; j<5; j++) {
-                    Event event = new Event(System.currentTimeMillis(), new Object[]{"WSO2", i, 10});
-                    eventList.add(new SiddhiEventComposite(event, "StockStream"));
-                    Event event1 = new Event(System.currentTimeMillis(), new Object[]{"IBM", i, 10});
-                    eventList.add(new SiddhiEventComposite(event1, "StockStream"));
+            for (int i = 0; i < 1000000; i++) {
+                ArrayList<Event> arrayList = new ArrayList<Event>(100);
+                for (int j = 0; j < 50; j++) {
+                    arrayList.add(new Event(System.currentTimeMillis(), new Object[]{"WSO2", i, 10}));
+                    arrayList.add(new Event(System.currentTimeMillis(), new Object[]{"IBM", i, 10}));
                 }
-                cf = ch.write(eventList);
-                    ch.flush();
-                    cf.await();
-                eventList =  new ArrayList<SiddhiEventComposite>();
+                EventComposite EventComposite = new EventComposite("test","StockStream", arrayList.toArray(new Event[10]));
+                cf = ch.write(EventComposite);
+                ch.flush();
+                cf.await();
 
-
-                if (i*10 % 10000 == 0) {
-                    log.info("Done Sending " + i*10 + " events..");
-                }
+//                if (i * 10 % 10000 == 0) {
+//                    Thread.sleep(10000);
+                    log.info("Done Sending " + i * 10 + " events..");
+//                }
             }
 
             ch.close().sync();

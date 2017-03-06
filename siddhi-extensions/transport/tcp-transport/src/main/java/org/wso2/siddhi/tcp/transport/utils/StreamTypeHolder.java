@@ -15,29 +15,30 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
+package org.wso2.siddhi.tcp.transport.utils;
 
-package org.wso2.siddhi.tcp.transport.dto;
 
-import org.wso2.siddhi.core.event.Event;
+import org.wso2.siddhi.tcp.transport.callback.StreamListener;
+
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Class to hold Siddhi Event and the corresponding stream iD. Composite was introduced because
- * {@link org.wso2.siddhi.core.event.Event} does not contain a stream ID
+ * Event stream data type holder
  */
-public class SiddhiEventComposite {
-    private Event siddhiEvent;
-    private String streamID;
+public class StreamTypeHolder {
+    private Map<String, StreamInfo> streamInfoMap = new ConcurrentHashMap<String, StreamInfo>();
 
-    public SiddhiEventComposite(Event siddhiEvent, String streamID) {
-        this.siddhiEvent = siddhiEvent;
-        this.streamID = streamID;
+    public StreamInfo getStreamInfo(String streamId) {
+        return streamInfoMap.get(streamId);
     }
 
-    public Event getSiddhiEvent() {
-        return siddhiEvent;
+    public void putStreamCallback(StreamListener streamListener) {
+        this.streamInfoMap.put(streamListener.getStreamDefinition().getId(), new StreamInfo(streamListener));
     }
 
-    public String getStreamID() {
-        return streamID;
+    public void removeStreamCallback(String streamId) {
+        this.streamInfoMap.remove(streamId);
     }
+
 }

@@ -15,34 +15,30 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
+
 package org.wso2.siddhi.tcp.transport.handlers;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;
-import org.wso2.siddhi.tcp.transport.TransportStreamManager;
-import org.wso2.siddhi.tcp.transport.dto.SiddhiEventComposite;
-import org.wso2.siddhi.tcp.transport.dto.StreamTypeHolder;
 import org.wso2.siddhi.tcp.transport.converter.SiddhiEventConverter;
+import org.wso2.siddhi.tcp.transport.utils.StreamTypeHolder;
 
 import java.util.List;
 
 
 public class EventDecoder extends ByteToMessageDecoder {
+    private StreamTypeHolder streamInfoHolder;
+
+    public EventDecoder(StreamTypeHolder streamInfoHolder) {
+        this.streamInfoHolder = streamInfoHolder;
+    }
 
     @Override
     protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) {
-        if (in.readableBytes() < 5){
+        if (in.readableBytes() < 5) {
             return;
         }
-        int protocol = in.readByte();
-        int messageSize = in.readInt();
-        if(protocol != 2 || messageSize > in.readableBytes()) {
-            in.resetReaderIndex();
-            return;
-        }
-        StreamTypeHolder streamTypeHolder = TransportStreamManager.getInstance().getStreamTypeHolder();
-        List<SiddhiEventComposite> testList = SiddhiEventConverter.getConverter().toEventList(in, streamTypeHolder);
-        out.add(testList);
+        SiddhiEventConverter.toConvertToSiddhiEvents(in, streamInfoHolder);
     }
 }

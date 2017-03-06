@@ -15,9 +15,17 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.wso2.siddhi.tcp.transport.utils;
 
-public class BinaryMessageConstants {
-    public static final String DEFAULT_CHARSET = "UTF-8";
+package org.wso2.siddhi.tcp.transport.callback;
 
+import org.wso2.siddhi.core.event.Event;
+import org.wso2.siddhi.query.api.definition.StreamDefinition;
+
+public interface StreamListener {
+
+    StreamDefinition getStreamDefinition();
+
+    void onEvent(Event event);
+
+    void onEvents(Event[] events);
 }

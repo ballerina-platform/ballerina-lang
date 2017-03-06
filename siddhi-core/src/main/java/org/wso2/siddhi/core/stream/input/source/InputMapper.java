@@ -29,13 +29,12 @@ import java.util.List;
 /**
  * Convert custom input from {@link InputTransport} to {@link org.wso2.siddhi.core.event.ComplexEventChunk}.
  */
-public abstract class InputMapper implements SourceCallback {
+public abstract class InputMapper implements SourceEventListener {
 
     private InputHandler inputHandler;
     private StreamDefinition streamDefinition;
     private String mapType;
     private static final Logger log = Logger.getLogger(InputMapper.class);
-
 
     public void init(StreamDefinition streamDefinition, String mapType, OptionHolder mapOptionHolder,
                      List<AttributeMapping> attributeMappings) {
@@ -61,6 +60,10 @@ public abstract class InputMapper implements SourceCallback {
             log.error("Error while processing '" + eventObject + "', for the input Mapping '" + mapType +
                     "' for the stream '" + streamDefinition.getId() + "'");
         }
+    }
+
+    public StreamDefinition getStreamDefinition() {
+        return streamDefinition;
     }
 
     protected abstract void mapAndProcess(Object eventObject, InputHandler inputHandler) throws InterruptedException;

@@ -16,22 +16,17 @@
  *  under the License.
  */
 
-package org.wso2.siddhi.tcp.transport.converter;
+package org.wso2.siddhi.tcp.transport.utils;
 
-import org.wso2.siddhi.tcp.transport.dto.SiddhiEventComposite;
-import org.wso2.siddhi.tcp.transport.dto.StreamTypeHolder;
+public final class Constant {
 
-import java.util.List;
+    private Constant() {
 
-/**
- * the converter class that converts Events and its definitions in to various forms
- */
-public interface EventConverter {
+    }
 
-    List<SiddhiEventComposite> toEventList(Object eventBundle,
-                                           StreamTypeHolder streamTypeHolder);
-
-    int getSize(Object eventBundle);
-
-    int getNumberOfEvents(Object eventBundle);
+    public static final String DEFAULT_CHARSET = "UTF-8";
+    public static final int DEFAULT_RECEIVER_THREADS = 10;
+    public static final int DEFAULT_WORKER_THREADS = 10;
+    public static final int DEFAULT_PORT = 8080;
+    public static final String DEFAULT_HOST = "0.0.0.0";
 }
