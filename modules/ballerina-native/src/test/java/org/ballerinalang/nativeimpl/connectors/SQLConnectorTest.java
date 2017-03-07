@@ -154,12 +154,10 @@ public class SQLConnectorTest {
         Assert.assertEquals(((BString) returns[1]).longValue(), 9223372036854774807L);
         Assert.assertEquals(((BString) returns[2]).floatValue(), 123.34f);
         Assert.assertEquals(((BString) returns[3]).doubleValue(), 2139095039D);
-        boolean bValue = Boolean.parseBoolean(returns[4].stringValue());
-        Assert.assertEquals(bValue, true);
+        Assert.assertEquals(Boolean.parseBoolean(returns[4].stringValue()), true);
         Assert.assertEquals(returns[5].stringValue(), "Hello");
-        //String value = ((BString) returns[6]).stringValue();
-        //Assert.assertEquals(Double.parseDouble(value), 1234.567D);
-        //Assert.assertEquals(((BString) returns[7]).floatValue(), 1234.567D);
+        Assert.assertEquals(((BString) returns[6]).doubleValue(), 1234.567D);
+        Assert.assertEquals(((BString) returns[7]).doubleValue(), 1234.567D);
         Assert.assertEquals(((BString) returns[8]).doubleValue(), 1234.567D);
         Assert.assertEquals(((BString) returns[9]).intValue(), 1);
         Assert.assertEquals(((BString) returns[10]).intValue(), 5555);
@@ -168,7 +166,6 @@ public class SQLConnectorTest {
         String temp = returns[13].stringValue();
         Assert.assertEquals(temp, "wso2 ballerina binary test.");
     }
-
 
     @AfterSuite
     public void cleanup() {

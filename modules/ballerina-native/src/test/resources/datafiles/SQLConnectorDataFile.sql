@@ -57,7 +57,7 @@ CREATE PROCEDURE GetCustomerCountry (IN regID INT,INOUT param VARCHAR(300))
 /
 CREATE PROCEDURE TestOutParams (IN id INT,OUT paramInt INT,OUT paramBigInt BIGINT,OUT paramFloat FLOAT,
   OUT paramDouble DOUBLE,OUT paramBool BOOLEAN,OUT paramString VARCHAR(50),
-  OUT paramNumeric NUMERIC,OUT paramDecimal DECIMAL,OUT paramReal REAL,OUT paramTinyInt TINYINT,
+  OUT paramNumeric NUMERIC(10,3),OUT paramDecimal DECIMAL(10,3),OUT paramReal REAL,OUT paramTinyInt TINYINT,
   OUT paramSmallInt SMALLINT,OUT paramClob CLOB,OUT paramBlob BLOB, OUT paramBinary BINARY(27))
   READS SQL DATA
   BEGIN ATOMIC
