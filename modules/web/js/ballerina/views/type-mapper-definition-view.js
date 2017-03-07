@@ -237,7 +237,7 @@ define(['lodash', 'log', './ballerina-view', './variables-view', './type-struct-
                     != self.getSelectedTargetStruct()) {
                     if(selectedStructNameForTarget == self.getSelectedSourceStruct()){
 
-                        self.getTargetInfo()[TYPE_MAPPER_COMBOBOX_SOURCE_IS_ALREADY_RENDERED_IN_TARGET] = true;
+                        self.getTargetInfo()[TYPE_MAPPER_COMBOBOX_TARGET_IS_ALREADY_RENDERED_IN_SOURCE] = true;
                         self.getModel().removeResourceParameter();
                         self.setSelectedSourceStruct(TYPE_MAPPER_COMBOBOX_DEFAULT_SELECTION);
                         self.setSourceSchemaNameToComboBox('#sourceStructs' + self.getModel().id, self.getSelectedSourceStruct());
