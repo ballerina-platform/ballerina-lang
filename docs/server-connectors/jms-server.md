@@ -72,6 +72,7 @@ service jmsService {
 Now you will have a JMS service that can be deployed to the Ballerina server. 
 
 >NOTE: 
+
 >1. Before deploying the JMS service, you must copy the client-libs provided by the JMS provider to
 `{Ballerina_HOME}/bre/lib`
 >2. For the JMS providers that require a jndi.properties file, absolute path/relative path (i.e. relative path from 
