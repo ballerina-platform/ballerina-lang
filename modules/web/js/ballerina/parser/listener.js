@@ -15,24 +15,62 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-var BallerinaListener = require('./antlr-gen/BallerinaListener').BallerinaListener;
+var BallerinaListener = require('./antlr-gen/BallerinaListener').BallerinaListener,
+    WS = require('./antlr-gen/BallerinaParser').BallerinaParser.WS,
+    HIDDEN_CHANNEL = require('antlr4/Token').Token.HIDDEN_CHANNEL,
+    _ = require('lodash');
 
-var BLangParserListener = function() {
-
+var BLangParserListener = function(parser) {
+    this.parser = parser;
 };
 
 BLangParserListener.prototype = Object.create(BallerinaListener.prototype);
 BLangParserListener.prototype.constructor = BLangParserListener;
 
+/**
+ * Get all whitespace to the right from the given token until next token
+ * @param token {Token} token
+ */
+BLangParserListener.prototype.getWhitespaceToRight = function(token) {
+    var parser =  this.parser,
+        hiddenTokensToRight = parser.getTokenStream().getHiddenTokensToRight(token.tokenIndex, HIDDEN_CHANNEL),
+        whiteSpace = null;
 
-BLangParserListener.prototype.enterCompilationUnit = function(ctx) {
-    console.log(ctx);
+    hiddenTokensToRight.forEach(function(hiddenToken){
+        if(_.isEqual(hiddenToken.type, WS)){
+            whiteSpace = (_.isNil(whiteSpace)) ? hiddenToken.text : whiteSpace + hiddenToken.text;
+        }
+    });
+
+    return whiteSpace;
 };
+
 BLangParserListener.prototype.enterPackageDeclaration = function(ctx) {
-    console.log(ctx);
+    var tokenStream = ctx.parser.getTokenStream();
 };
+
 BLangParserListener.prototype.exitPackageDeclaration = function(ctx) {
-    console.log(ctx);
+
+    var packageNameToken = ctx.packageName(),
+        packageFQN = packageNameToken.getText();
+
+    var wsBetWeenPackageKeywordAndPackageNameStart = this.getWhitespaceToRight(ctx.start),
+        wsBetWeenPackageNameEndAndSemicolon = this.getWhitespaceToRight(packageNameToken.stop),
+        wsBetWeenSemicolonAndNextToken = this.getWhitespaceToRight(ctx.stop);
+};
+
+// Enter a parse tree produced by BallerinaParser#importDeclaration.
+BallerinaListener.prototype.enterImportDeclaration = function(ctx) {
+};
+
+// Exit a parse tree produced by BallerinaParser#importDeclaration.
+BallerinaListener.prototype.exitImportDeclaration = function(ctx) {
+    var packageNameToken = ctx.packageName(),
+        packageFQN = packageNameToken.getText();
+
+    var wsBetWeenImportKeywordAndPackageNameStart = this.getWhitespaceToRight(ctx.start),
+        wsBetWeenPackageNameEndAndSemicolon = this.getWhitespaceToRight(packageNameToken.stop),
+        wsBetWeenSemicolonAndNextToken = this.getWhitespaceToRight(ctx.stop);
 };
 
 exports.BLangParserListener = BLangParserListener;

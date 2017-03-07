@@ -39,7 +39,7 @@ Parser.prototype.parse = function(input){
     var lexer = new BallerinaLexer.BallerinaLexer(chars);
     var tokens  = new antlr4.CommonTokenStream(lexer);
     var parser = new BallerinaParser.BallerinaParser(tokens);
-    var listener = new BLangParserListener();
+    var listener = new BLangParserListener(parser);
 
     // set custom error listener for collecting syntax errors
     var errorListener = new BLangParserErrorListener();
