@@ -37,6 +37,7 @@ import org.ballerinalang.model.CallableUnit;
 import org.ballerinalang.model.CompilationUnit;
 import org.ballerinalang.model.ConstDef;
 import org.ballerinalang.model.Function;
+import org.ballerinalang.model.FunctionSymbolName;
 import org.ballerinalang.model.ImportPackage;
 import org.ballerinalang.model.NativeUnit;
 import org.ballerinalang.model.NodeLocation;
@@ -133,6 +134,7 @@ import org.ballerinalang.util.exceptions.SemanticException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -1914,6 +1916,11 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         SymbolName symbolName = LangModelUtils.getSymNameWithParams(funcIExpr.getName(), pkgPath, paramTypes);
         BLangSymbol functionSymbol = currentScope.resolve(symbolName);
+
+        if (functionSymbol == null) {
+            functionSymbol = findBestMatchForFunctionSymbol(symbolName);
+        }
+
         if (functionSymbol == null) {
             String funcName = (funcIExpr.getPackageName() != null) ? funcIExpr.getPackageName() + ":" +
                     funcIExpr.getName() : funcIExpr.getName();
@@ -1949,6 +1956,80 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         // Link the function with the function invocation expression
         funcIExpr.setCallableUnit(function);
+    }
+
+    /**
+     * Helper method to find the best function match when there is no direct match.
+     *
+     * @param symbolName
+     * @return bLangSymbol
+     */
+    private BLangSymbol findBestMatchForFunctionSymbol(SymbolName symbolName) {
+        // resolve the package symbol first
+        BLangSymbol pkgSymbol = null;
+        if (symbolName.getPkgPath() == null) {
+            pkgSymbol = (BLangPackage) getCurrentPackageScope(currentScope);
+        } else {
+            SymbolName pkgSymbolName = new SymbolName(symbolName.getPkgPath());
+            pkgSymbol = currentScope.resolve(pkgSymbolName);
+        }
+
+        if (pkgSymbol != null && pkgSymbol instanceof SymbolScope) {
+            BLangSymbol matchingFunction = null;
+            for (Map.Entry entry : ((SymbolScope) pkgSymbol).getSymbolMap().entrySet()) {
+                if (!(entry.getKey() instanceof FunctionSymbolName)) {
+                    continue;
+                }
+                FunctionSymbolName functionSymbolName = (FunctionSymbolName) entry.getKey();
+                if (functionSymbolName.getFuncName().equals(((FunctionSymbolName) symbolName).getFuncName()) &&
+                    functionSymbolName.getNoOfParameters() == ((FunctionSymbolName) symbolName).getNoOfParameters()) {
+                    if (checkForImplicitParamCasting(symbolName, functionSymbolName) && matchingFunction == null) {
+                        matchingFunction = (BLangSymbol) entry.getValue();
+                    } else {
+                        return null;
+                    }
+                }
+            }
+            return matchingFunction;
+        }
+        return null;
+    }
+
+    /**
+     * Helper method to find whether there are implicit castings for the function parameters.
+     *
+     * @param symbolName
+     * @param functionSymbolName
+     * @return true if implicit casting is possible
+     */
+    private boolean checkForImplicitParamCasting(SymbolName symbolName, FunctionSymbolName functionSymbolName) {
+        boolean implicitCastPossible = true;
+
+        for (int i = 0; i < functionSymbolName.getTypes().length; i++) {
+            BType lhsType = functionSymbolName.getTypes()[i];
+            BType rhsType = ((FunctionSymbolName) symbolName).getTypes()[i];
+
+            TypeEdge newEdge = TypeLattice.getImplicitCastLattice().getEdgeFromTypes(rhsType, lhsType, null);
+            if (newEdge == null) {
+                implicitCastPossible = false;
+                break;
+            }
+        }
+        return implicitCastPossible;
+    }
+
+    /**
+     * Get current package Scope.
+     *
+     * @param scope
+     * @return scope
+     */
+    private SymbolScope getCurrentPackageScope(SymbolScope scope) {
+        if (scope instanceof BLangPackage) {
+            return scope;
+        } else {
+            return getCurrentPackageScope(scope.getEnclosingScope());
+        }
     }
 
     private void linkAction(ActionInvocationExpr actionIExpr) {
