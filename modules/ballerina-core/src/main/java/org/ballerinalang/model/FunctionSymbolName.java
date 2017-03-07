@@ -27,20 +27,20 @@ import org.ballerinalang.model.types.BType;
 public class FunctionSymbolName extends SymbolName {
     private int noOfParameters;
     private String funcName;
-    private BType[] types;
+    private BType[] parameterTypes;
 
     public FunctionSymbolName(String name, String funcName, String pkgPath, int noOfParameters, BType[] types) {
         super(name, pkgPath);
         this.funcName = funcName;
         this.noOfParameters = noOfParameters;
-        this.types = types;
+        this.parameterTypes = types;
     }
 
     public FunctionSymbolName(String name, String funcName, int noOfParameters, BType[] types) {
         super(name);
         this.funcName = funcName;
         this.noOfParameters = noOfParameters;
-        this.types = types;
+        this.parameterTypes = types;
     }
 
     public int getNoOfParameters() {
@@ -51,7 +51,7 @@ public class FunctionSymbolName extends SymbolName {
         return funcName;
     }
 
-    public BType[] getTypes() {
-        return types;
+    public BType[] getParameterTypes() {
+        return parameterTypes;
     }
 }

@@ -2005,9 +2005,9 @@ public class SemanticAnalyzer implements NodeVisitor {
     private boolean checkForImplicitParamCasting(SymbolName symbolName, FunctionSymbolName functionSymbolName) {
         boolean implicitCastPossible = true;
 
-        for (int i = 0; i < functionSymbolName.getTypes().length; i++) {
-            BType lhsType = functionSymbolName.getTypes()[i];
-            BType rhsType = ((FunctionSymbolName) symbolName).getTypes()[i];
+        for (int i = 0; i < functionSymbolName.getParameterTypes().length; i++) {
+            BType lhsType = functionSymbolName.getParameterTypes()[i];
+            BType rhsType = ((FunctionSymbolName) symbolName).getParameterTypes()[i];
 
             TypeEdge newEdge = TypeLattice.getImplicitCastLattice().getEdgeFromTypes(rhsType, lhsType, null);
             if (newEdge == null) {
