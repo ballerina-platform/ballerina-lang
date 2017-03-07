@@ -15,11 +15,12 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-var ASTFactory = require("./../ast/ballerina-ast-factory");
+import ASTFactory from "./../ast/ballerina-ast-factory";
 
 class BLangModelBuilder {
 
     constructor(){
+        this.astRoot = ASTFactory.createBallerinaAstRoot();
     }
 
     createPackageDeclaration(packageName){

@@ -15,26 +15,26 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-var ErrorListener = require('antlr4/error/ErrorListener').ErrorListener;
+import { ErrorListener } from 'antlr4/error/ErrorListener';
 
-var BLangParserErrorListener = function() {
-    this._errors = [];
-};
+class BLangParserErrorListener extends ErrorListener{
+    constructor(){
+        super();
+        this._errors = [];
+    }
 
-BLangParserErrorListener.prototype = Object.create(ErrorListener.prototype);
-BLangParserErrorListener.prototype.constructor = BLangParserErrorListener;
+    getErrors(){
+        return this._errors;
+    }
 
-BLangParserErrorListener.prototype.syntaxError = function(recognizer, offendingSymbol, line, column, msg, e) {
-    this._errors.push({
-        row: line,
-        column: column,
-        text: msg,
-        type: 'error'
-    });
-};
+    syntaxError(recognizer, offendingSymbol, line, column, msg, e){
+        this._errors.push({
+            row: line,
+            column: column,
+            text: msg,
+            type: 'error'
+        });
+    }
+}
 
-BLangParserErrorListener.prototype.getErrors = function() {
-    return this._errors;
-};
-
-exports.BLangParserErrorListener = BLangParserErrorListener;
+export default BLangParserErrorListener;

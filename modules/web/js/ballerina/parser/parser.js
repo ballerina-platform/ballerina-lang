@@ -15,44 +15,39 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-var antlr4 = require('antlr4');
-var BallerinaLexer = require('./antlr-gen/BallerinaLexer');
-var BallerinaParser = require('./antlr-gen/BallerinaParser');
-var BLangParserErrorListener = require('./error-listener').BLangParserErrorListener;
-var BLangParserListener = require('./listener').BLangParserListener;
+import antlr4 from 'antlr4';
+import BallerinaLexer from './antlr-gen/BallerinaLexer';
+import BallerinaParser from './antlr-gen/BallerinaParser';
+import BLangParserErrorListener from './error-listener'
+import BLangParserListener from './listener';
 
-/**
- * Entry point for client side antlr based parser for ballerina
- *
- * @constructor
- */
-var Parser = function() {
-};
+class Parser {
 
-/**
- * Creates AST for the given ballerina source
- * @param input {string} ballerina source content
- */
-Parser.prototype.parse = function(input){
-    // setup parser
-    var chars = new antlr4.InputStream(input);
-    var lexer = new BallerinaLexer.BallerinaLexer(chars);
-    var tokens  = new antlr4.CommonTokenStream(lexer);
-    var parser = new BallerinaParser.BallerinaParser(tokens);
-    var listener = new BLangParserListener(parser);
+    /**
+     * Creates AST for the given ballerina source
+     * @param input {string} ballerina source content
+     */
+    parse(input){
+        // setup parser
+        var chars = new antlr4.InputStream(input);
+        var lexer = new BallerinaLexer.BallerinaLexer(chars);
+        var tokens  = new antlr4.CommonTokenStream(lexer);
+        var parser = new BallerinaParser.BallerinaParser(tokens);
+        var listener = new BLangParserListener(parser);
 
-    // set custom error listener for collecting syntax errors
-    var errorListener = new BLangParserErrorListener();
-    parser.removeErrorListeners();
-    parser.addErrorListener(errorListener);
+        // set custom error listener for collecting syntax errors
+        var errorListener = new BLangParserErrorListener();
+        parser.removeErrorListeners();
+        parser.addErrorListener(errorListener);
 
-    // start parsing
-    var tree = parser.compilationUnit();
+        // start parsing
+        var tree = parser.compilationUnit();
 
-    antlr4.tree.ParseTreeWalker.DEFAULT.walk(listener, tree);
+        antlr4.tree.ParseTreeWalker.DEFAULT.walk(listener, tree);
 
-    // return collected errors
-    return errorListener.getErrors();
-};
+        // return collected errors
+        return errorListener.getErrors();
+    };
+}
 
-exports.Parser = Parser;
+export default Parser;

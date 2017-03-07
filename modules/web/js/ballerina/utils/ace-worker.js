@@ -17,7 +17,7 @@
  */
 ace.define('ace/worker/ballerina', ['require', 'exports', 'module'], function(acequire, exports, module) {
     var oop = acequire("ace/lib/oop");
-    var Validator = require("./../parser/validator").Validator;
+    var Validator = require("./../parser/validator").default;
     var validator = new Validator();
 
     // This require defines ace/worker/mirror so we can ace.require ace/worker/mirror later

@@ -15,40 +15,35 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-var antlr4 = require('antlr4');
-var BallerinaLexer = require('./antlr-gen/BallerinaLexer');
-var BallerinaParser = require('./antlr-gen/BallerinaParser');
-var BLangParserErrorListener = require('./error-listener').BLangParserErrorListener;
+import antlr4 from 'antlr4';
+import BallerinaLexer from './antlr-gen/BallerinaLexer';
+import BallerinaParser from './antlr-gen/BallerinaParser';
+import BLangParserErrorListener from './error-listener';
 
-/**
- * Entry point for client side antlr based validator for ballerina
- *
- * @constructor
- */
-var Validator = function() {
-};
+class Validator {
 
-/**
- * Checks for syntax errors in ballerina source
- * @param input {string} ballerina source content
- */
-Validator.prototype.validate = function(input){
-    // setup parser
-    var chars = new antlr4.InputStream(input);
-    var lexer = new BallerinaLexer.BallerinaLexer(chars);
-    var tokens  = new antlr4.CommonTokenStream(lexer);
-    var parser = new BallerinaParser.BallerinaParser(tokens);
+    /**
+     * Checks for syntax errors in ballerina source
+     * @param input {string} ballerina source content
+     */
+    validate(input){
+        // setup parser
+        var chars = new antlr4.InputStream(input);
+        var lexer = new BallerinaLexer.BallerinaLexer(chars);
+        var tokens  = new antlr4.CommonTokenStream(lexer);
+        var parser = new BallerinaParser.BallerinaParser(tokens);
 
-    // set custom error listener for collecting syntax errors
-    var errorListener = new BLangParserErrorListener();
-    parser.removeErrorListeners();
-    parser.addErrorListener(errorListener);
+        // set custom error listener for collecting syntax errors
+        var errorListener = new BLangParserErrorListener();
+        parser.removeErrorListeners();
+        parser.addErrorListener(errorListener);
 
-    // start parsing
-    parser.compilationUnit();
+        // start parsing
+        parser.compilationUnit();
 
-    // return collected errors
-    return errorListener.getErrors();
-};
+        // return collected errors
+        return errorListener.getErrors();
+    };
+}
 
-exports.Validator = Validator;
+export default Validator;
