@@ -25,7 +25,8 @@ import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.FullHttpResponse;
-import io.netty.handler.codec.http.HttpHeaders;
+import io.netty.handler.codec.http.HttpHeaderNames;
+import io.netty.handler.codec.http.HttpUtil;
 import io.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.PingWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.PongWebSocketFrame;
@@ -35,7 +36,6 @@ import io.netty.handler.codec.http.websocketx.WebSocketServerHandshaker;
 import io.netty.handler.codec.http.websocketx.WebSocketServerHandshakerFactory;
 import io.netty.util.CharsetUtil;
 
-import static io.netty.handler.codec.http.HttpHeaders.Names.HOST;
 import static io.netty.handler.codec.http.HttpMethod.GET;
 import static io.netty.handler.codec.http.HttpResponseStatus.BAD_REQUEST;
 import static io.netty.handler.codec.http.HttpResponseStatus.FORBIDDEN;
@@ -66,18 +66,18 @@ public class LaunchServerHandler extends SimpleChannelInboundHandler<Object> {
 
     private void handleHttpRequest(ChannelHandlerContext ctx, FullHttpRequest req) {
         // Handle a bad request.
-        if (!req.getDecoderResult().isSuccess()) {
+        if (!req.decoderResult().isSuccess()) {
             sendHttpResponse(ctx, req, new DefaultFullHttpResponse(HTTP_1_1, BAD_REQUEST));
             return;
         }
 
         // Allow only GET methods.
-        if (req.getMethod() != GET) {
+        if (req.method() != GET) {
             sendHttpResponse(ctx, req, new DefaultFullHttpResponse(HTTP_1_1, FORBIDDEN));
             return;
         }
 
-        if (!LauncherConstants.LAUNCHER_WEBSOCKET_PATH.equals(req.getUri())) {
+        if (!LauncherConstants.LAUNCHER_WEBSOCKET_PATH.equals(req.uri())) {
             FullHttpResponse res = new DefaultFullHttpResponse(HTTP_1_1, NOT_FOUND);
             sendHttpResponse(ctx, req, res);
             return;
@@ -121,16 +121,16 @@ public class LaunchServerHandler extends SimpleChannelInboundHandler<Object> {
     private static void sendHttpResponse(
             ChannelHandlerContext ctx, FullHttpRequest req, FullHttpResponse res) {
         // Generate an error page if response getStatus code is not OK (200).
-        if (res.getStatus().code() != OK.code()) {
-            ByteBuf buf = Unpooled.copiedBuffer(res.getStatus().toString(), CharsetUtil.UTF_8);
+        if (res.status().code() != OK.code()) {
+            ByteBuf buf = Unpooled.copiedBuffer(res.status().toString(), CharsetUtil.UTF_8);
             res.content().writeBytes(buf);
             buf.release();
-            HttpHeaders.setContentLength(res, res.content().readableBytes());
+            HttpUtil.setContentLength(res, res.content().readableBytes());
         }
 
         // Send the response and close the connection if necessary.
         ChannelFuture f = ctx.channel().writeAndFlush(res);
-        if (!HttpHeaders.isKeepAlive(req) || res.getStatus().code() != OK.code()) {
+        if (!HttpUtil.isKeepAlive(req) || res.status().code() != OK.code()) {
             f.addListener(ChannelFutureListener.CLOSE);
         }
     }
@@ -142,7 +142,7 @@ public class LaunchServerHandler extends SimpleChannelInboundHandler<Object> {
     }
 
     private static String getWebSocketLocation(FullHttpRequest req) {
-        String location =  req.headers().get(HOST) + LauncherConstants.LAUNCHER_WEBSOCKET_PATH;
+        String location = req.headers().get(HttpHeaderNames.HOST) + LauncherConstants.LAUNCHER_WEBSOCKET_PATH;
         return "ws://" + location;
     }
 }

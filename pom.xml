@@ -45,18 +45,6 @@
                 <artifactId>org.wso2.carbon.core</artifactId>
                 <version>${carbon.kernel.version}</version>
             </dependency>
-            <!--<dependency>-->
-            <!--<groupId>org.wso2.carbon</groupId>-->
-            <!--<artifactId>org.wso2.carbon.kernel.feature</artifactId>-->
-            <!--<version>${carbon.kernel.version}</version>-->
-            <!--<type>zip</type>-->
-            <!--</dependency>-->
-            <!--<dependency>-->
-            <!--<groupId>org.wso2.carbon</groupId>-->
-            <!--<artifactId>org.wso2.carbon.runtime.feature</artifactId>-->
-            <!--<version>${carbon.kernel.version}</version>-->
-            <!--<type>zip</type>-->
-            <!--</dependency>-->
             <dependency>
                 <groupId>org.ballerinalang</groupId>
                 <artifactId>ballerina-core</artifactId>
@@ -103,7 +91,7 @@
             <dependency>
                 <groupId>org.wso2.carbon.transport</groupId>
                 <artifactId>org.wso2.carbon.connector.framework</artifactId>
-                <version>${carbon.transport.version}</version>
+                <version>${carbon.connector.framework.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon.messaging</groupId>
@@ -292,46 +280,9 @@
                 <version>${commons-cli.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.slf4j</groupId>
-                <artifactId>slf4j-log4j12</artifactId>
-                <version>${slf4j-log4j.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.google.code.gson</groupId>
-                <artifactId>gson</artifactId>
-                <version>${gson.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>junit</groupId>
                 <artifactId>junit</artifactId>
                 <version>${junit.version}</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-core</artifactId>
-                <version>${ballerina.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>org.wso2.carbon.transport</groupId>
-                        <artifactId>org.wso2.carbon.transport.http.netty</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-            <dependency>
-                <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-native</artifactId>
-                <version>${ballerina.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.wso2.orbit.org.antlr</groupId>
-                <artifactId>antlr4-runtime</artifactId>
-                <version>${antlr4.runtime.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.testng</groupId>
-                <artifactId>testng</artifactId>
-                <version>${testng.version}</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
@@ -513,6 +464,12 @@
                         </execution>
                     </executions>
                 </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <version>${maven.surefire.plugin.version}</version>
+                    <!-- keep maven-failsafe-plugin in sync -->
+                </plugin>
             </plugins>
         </pluginManagement>
     </build>
@@ -545,8 +502,10 @@
         <carbon.kernel.package.import.version.range>[5.0.0, 6.0.0)</carbon.kernel.package.import.version.range>
         <carbon.kernel.pax.version>5.2.0-m2</carbon.kernel.pax.version>
 
-        <carbon.transport.version>4.2.6</carbon.transport.version>
-        <carbon.transport.package.import.version.range>[4.0.0, 5.0.0)</carbon.transport.package.import.version.range>
+        <carbon.transport.version>2.1.4</carbon.transport.version>
+        <carbon.transport.package.import.version.range>[2.0,3)</carbon.transport.package.import.version.range>
+
+        <carbon.connector.framework.version>4.2.6</carbon.connector.framework.version>
 
         <carbon.messaging.version>2.2.3</carbon.messaging.version>
         <carbon.messaging.package.import.version.range>[2.0.0, 3.0.0)</carbon.messaging.package.import.version.range>

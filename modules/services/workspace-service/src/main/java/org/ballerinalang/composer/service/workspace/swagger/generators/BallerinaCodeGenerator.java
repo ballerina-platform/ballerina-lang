@@ -204,8 +204,8 @@ public class BallerinaCodeGenerator extends DefaultCodegen implements CodegenCon
     public String escapeReservedWord(String name) {
         return "_" + name;
     }
-
-
+    
+    @SuppressWarnings("unchecked")
     @Override
     public Map<String, Object> postProcessOperations(Map<String, Object> objs) {
         super.postProcessOperations(objs);

@@ -22,6 +22,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.model.BLangPackage;
 import org.ballerinalang.model.BallerinaFile;
@@ -62,9 +63,16 @@ public class BLangFileRestService {
     @Path("/model")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getBallerinaJsonDataModelGivenLocation(@QueryParam("location") String location) throws IOException {
-        InputStream stream = new FileInputStream(new File(location));
-        String response = parseJsonDataModel(stream);
-        return Response.ok(response, MediaType.APPLICATION_JSON).build();
+        InputStream stream = null;
+        try {
+            stream = new FileInputStream(new File(location));
+            String response = parseJsonDataModel(stream);
+            return Response.ok(response, MediaType.APPLICATION_JSON).build();
+        } finally {
+            if (null != stream) {
+                IOUtils.closeQuietly(stream);
+            }
+        }
     }
     
     @POST

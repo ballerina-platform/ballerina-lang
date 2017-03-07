@@ -516,6 +516,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         tempJsonArrayRef.peek().add(jsonWorker);
     }
     
+    @SuppressWarnings("unchecked")
     @Override
     public void visit(Annotation annotation) {
         JsonObject jsonAnnotation = new JsonObject();

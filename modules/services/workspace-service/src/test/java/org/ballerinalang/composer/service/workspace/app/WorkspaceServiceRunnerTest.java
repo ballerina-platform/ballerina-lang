@@ -1,7 +1,7 @@
 package org.ballerinalang.composer.service.workspace.app;
 
 import org.ballerinalang.composer.service.workspace.Constants;
-import org.junit.Test;
+import org.testng.annotations.Test;
 
 /**
  * Tests for Workspace Mirco-Service Runner.

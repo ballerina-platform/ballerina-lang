@@ -90,7 +90,7 @@ public class LocalFSWorkspace implements Workspace {
     @Override
     public void write(String path, String content) throws IOException {
         Path ioPath = Paths.get(path);
-        Files.write(ioPath, content.getBytes());
+        Files.write(ioPath, content.getBytes(Charset.defaultCharset()));
     }
     
     @Override
@@ -149,7 +149,14 @@ public class LocalFSWorkspace implements Workspace {
     
     private JsonObject getJsonObjForFile(Path root, boolean checkChildren) {
         JsonObject rootObj = new JsonObject();
-        rootObj.addProperty("text", root.getFileName() != null ? root.getFileName().toString() : root.toString());
+        if (null != root.getFileName()) {
+            Path fileName = root.getFileName();
+            if (null != fileName) {
+                rootObj.addProperty("text", fileName.toString());
+            }
+        } else {
+            rootObj.addProperty("text", root.toString());
+        }
         rootObj.addProperty("id", root.toAbsolutePath().toString());
         if (Files.isDirectory(root) && checkChildren) {
             rootObj.addProperty("type", "folder");
@@ -180,7 +187,8 @@ public class LocalFSWorkspace implements Workspace {
             if ((Files.isDirectory(next) || Files.isRegularFile(next)) && !Files.isHidden(next)) {
                 JsonObject jsnObj = getJsonObjForFile(next, true);
                 if (Files.isRegularFile(next)) {
-                    if (next.getFileName().toString().endsWith(FILE_EXTENSION)) {
+                    Path fileName = next.getFileName();
+                    if (null != fileName && fileName.toString().endsWith(FILE_EXTENSION)) {
                         dirs.add(jsnObj);
                     }
                 } else {

@@ -25,9 +25,9 @@ import org.ballerinalang.model.builder.BLangModelBuilder;
 import org.ballerinalang.util.parser.BallerinaLexer;
 import org.ballerinalang.util.parser.BallerinaParser;
 import org.ballerinalang.util.parser.antlr4.BLangAntlr4Listener;
-import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.testng.annotations.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
