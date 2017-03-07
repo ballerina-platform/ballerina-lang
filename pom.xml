@@ -186,7 +186,7 @@
 
     <properties>
         <ballerina.runtime.version>0.8.1</ballerina.runtime.version>
-        <ballerina.composer.version>0.8.14-SNAPSHOT</ballerina.composer.version>
+        <ballerina.composer.version>0.8.15-SNAPSHOT</ballerina.composer.version>
         <testerina.version>0.8.1</testerina.version>
         <tool.swagger.version>0.8.1</tool.swagger.version>
         <ballerina.container.version>0.8.1</ballerina.container.version>
