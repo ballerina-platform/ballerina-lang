@@ -547,7 +547,7 @@ define(['lodash', 'log', './ballerina-view', './variables-view', './type-struct-
                     //TODO : retrieve the exact connection and delete only that connection
                     connectionArray = view.getTypeMapperRenderer().getTargetConnectionsByStruct(struct.getStructName());
                     _.each(connectionArray, function (connection) {
-                        self.getBlockStatementView().onAttributesDisConnect(connection);
+                        view.getBlockStatementView().onAttributesDisConnect(connection);
                     });
                 } else if (child.type === 'custom') {
                     // connectionArray = self.getTypeMapperRenderer().getTargetConnectionsByProperty(
