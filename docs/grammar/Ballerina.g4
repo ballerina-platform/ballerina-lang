@@ -103,15 +103,11 @@ typeMapperDefinition
     ;
 
 nativeTypeMapper
-    :   annotation* 'native' 'typemapper' Identifier '(' typeMapperInput ')' '('typeMapperType')' ';'
+    :   annotation* 'native' 'typemapper' Identifier '(' namedParameter ')' '('typeName')' ';'
     ;
 
 typeMapper
-    :   annotation* 'typemapper' Identifier '(' typeMapperInput ')' '('typeMapperType')' typeMapperBody
-    ;
-
-typeMapperInput
-    :   typeMapperType Identifier
+    :   annotation* 'typemapper' Identifier '(' namedParameter ')' '('typeName')' typeMapperBody
     ;
 
 // cannot have conector declaration, need to validate at semantic analyzing
@@ -148,14 +144,6 @@ returnTypeList
 qualifiedTypeName
     :   packageName ':' unqualifiedTypeName
     ;
-
-typeMapperType
-    :   simpleType
-    |   withFullSchemaType
-    |   withSchemaIdType
-    |   withScheamURLType
-    ;
-
 
 unqualifiedTypeName
     :   simpleType

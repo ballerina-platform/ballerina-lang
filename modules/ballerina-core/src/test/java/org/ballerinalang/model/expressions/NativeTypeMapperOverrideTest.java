@@ -15,35 +15,30 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.core.lang.worker;
+package org.ballerinalang.model.expressions;
 
+import org.ballerinalang.core.utils.BTestUtils;
 import org.ballerinalang.model.BLangProgram;
-import org.ballerinalang.model.values.BMessage;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.nativeimpl.util.BTestUtils;
+import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.util.program.BLangFunctions;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-/**
- * Test cases for usages of worker in functions.
- */
-public class WorkerInFunctionTest {
+public class NativeTypeMapperOverrideTest {
     private BLangProgram bLangProgram;
 
     @BeforeClass
     public void setup() {
-        bLangProgram = BTestUtils.parseBalFile("samples/worker-declaration-stmt.bal");
+        bLangProgram = BTestUtils.parseBalFile("lang/expressions/native-typemapper-override.bal");
     }
 
-    @Test(description = "Test worker declaration")
-    public void testWorkerDeclaration() {
-        BValue[] args = {new BMessage()};
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testworker", args);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertTrue(returns[0] instanceof BMessage);
-        final String expected = "{\"name\":\"chanaka\"}";
-        Assert.assertEquals(returns[0].stringValue(), expected);
+    @Test
+    public void testStructMapper() {
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "nativeMapperOverrideTest");
+        Assert.assertTrue(returns[0] instanceof BXML);
+        String expected = "<test>hello</test>";
+        Assert.assertEquals(expected, returns[0].stringValue());
     }
 }

@@ -21,7 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Thrown to indicate that an exception occurred in Ballerina program launcher
+ * Thrown to indicate that an exception occurred in Ballerina program launcher.
  *
  * @since 0.8.0
  */

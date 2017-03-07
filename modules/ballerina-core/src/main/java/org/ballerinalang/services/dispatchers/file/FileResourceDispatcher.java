@@ -29,7 +29,7 @@ import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
 
 /**
- * Resource level dispatchers handler for file protocol
+ * Resource level dispatchers handler for file protocol.
  */
 public class FileResourceDispatcher implements ResourceDispatcher {
     private static final Logger log = LoggerFactory.getLogger(FileResourceDispatcher.class);

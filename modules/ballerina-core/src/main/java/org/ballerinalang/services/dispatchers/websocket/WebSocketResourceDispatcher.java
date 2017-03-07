@@ -33,7 +33,7 @@ import org.wso2.carbon.messaging.StatusCarbonMessage;
 import org.wso2.carbon.messaging.TextCarbonMessage;
 
 /**
- * Resource Dispatcher for WebSocket Endpoint
+ * Resource Dispatcher for WebSocket Endpoint.
  *
  * @since 0.8.0
  */

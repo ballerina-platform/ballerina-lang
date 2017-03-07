@@ -17,7 +17,7 @@
 package org.ballerinalang.natives.annotation.processor;
 
 /**
- *
+ * Constants related to annotation processor.
  */
 public class Constants {
     

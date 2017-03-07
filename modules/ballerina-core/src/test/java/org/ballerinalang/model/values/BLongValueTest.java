@@ -17,15 +17,12 @@
 */
 package org.ballerinalang.model.values;
 
-import org.ballerinalang.BLangProgramLoader;
+import org.ballerinalang.core.utils.BTestUtils;
 import org.ballerinalang.model.BLangProgram;
 import org.ballerinalang.util.program.BLangFunctions;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-
-import java.nio.file.Path;
-import java.nio.file.Paths;
 
 /**
  * This test class will test the behaviour of long values with expressions.
@@ -43,9 +40,7 @@ public class BLongValueTest {
 
     @BeforeClass
     public void setup() {
-        Path programPath = Paths.get(this.getClass().getProtectionDomain().getCodeSource().getLocation().getPath());
-        bLangProgram = new BLangProgramLoader().loadLibrary(programPath,
-                Paths.get("lang/values/long-value.bal"));
+        bLangProgram = BTestUtils.parseBalFile("lang/values/long-value.bal");
     }
 
     @Test(description = "Test long value assignment")

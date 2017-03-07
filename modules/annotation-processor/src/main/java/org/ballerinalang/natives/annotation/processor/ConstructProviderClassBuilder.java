@@ -65,8 +65,8 @@ import javax.tools.StandardLocation;
  */
 public class ConstructProviderClassBuilder {
     
-    private static final String SERVICES = "services" + File.separator;
-    private static final String META_INF = "META-INF" + File.separator;
+    private static final String SERVICES = "services/";
+    private static final String META_INF = "META-INF/";
     private static final String GLOBAL_SCOPE = "globalScope";
     private static final String PACKAGE_SCOPE = "nativePackage";
     private static final String PACKAGE_REPO = "pkgRepo";

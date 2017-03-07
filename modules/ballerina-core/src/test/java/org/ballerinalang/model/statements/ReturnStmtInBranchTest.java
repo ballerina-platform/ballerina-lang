@@ -27,7 +27,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
- * Test functionality of the return statements which in multiple code branches
+ * Test functionality of the return statements which in multiple code branches.
  *
  * @since 0.8.0
  */
