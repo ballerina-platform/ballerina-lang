@@ -24,22 +24,23 @@ import java.io.IOException;
  * Interface for the workspace.
  */
 public interface Workspace {
-
-      JsonArray listRoots() throws IOException;
-
-      JsonArray listDirectoriesInPath(String path) throws IOException;
-
-      JsonArray listFilesInPath(String path) throws IOException;
-
-      JsonObject exists(String path) throws IOException;
-
-      void create(String path, String type) throws IOException;
-
-      void delete(String path, String type) throws IOException;
-
-      void write(String path, String content) throws IOException;
-
-      JsonObject read(String path) throws IOException;
-
-      void log(String logger, String timestamp, String level, String URL, String message, String layout) throws IOException;
+    
+    JsonArray listRoots() throws IOException;
+    
+    JsonArray listDirectoriesInPath(String path) throws IOException;
+    
+    JsonArray listFilesInPath(String path) throws IOException;
+    
+    JsonObject exists(String path) throws IOException;
+    
+    void create(String path, String type) throws IOException;
+    
+    void delete(String path, String type) throws IOException;
+    
+    void write(String path, String content) throws IOException;
+    
+    JsonObject read(String path) throws IOException;
+    
+    void log(String logger, String timestamp, String level, String url, String message, String layout) throws
+            IOException;
 }

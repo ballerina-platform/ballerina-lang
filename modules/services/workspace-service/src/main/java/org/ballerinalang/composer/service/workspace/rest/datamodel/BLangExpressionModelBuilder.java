@@ -99,99 +99,101 @@ import java.util.Stack;
  * Serializes ballerina statement/expression java object to a line of string.
  */
 public class BLangExpressionModelBuilder implements NodeVisitor {
-
-    private String SPACE_CHAR = " ";
+    
+    private static final String SPACE_CHAR = " ";
     private Stack<StringBuffer> bufferStack = new Stack<>();
-
-    public StringBuffer getBuffer(){
+    
+    public StringBuffer getBuffer() {
         return bufferStack.pop();
     }
-
-    public BLangExpressionModelBuilder() {}
-
-    @Override public void visit(BLangProgram bLangProgram) {
-
+    
+    public BLangExpressionModelBuilder() {
     }
-
-    @Override public void visit(BLangPackage bLangPackage) {
-
+    
+    @Override
+    public void visit(BLangProgram bLangProgram) {
+        
     }
-
+    
+    @Override
+    public void visit(BLangPackage bLangPackage) {
+        
+    }
+    
     @Override
     public void visit(BallerinaFile bFile) {
     }
-
+    
     @Override
     public void visit(ImportPackage importPackage) {
     }
-
+    
     @Override
     public void visit(Service service) {
     }
-
+    
     @Override
     public void visit(BallerinaConnectorDef connector) {
     }
-
+    
     @Override
     public void visit(Resource resource) {
     }
-
+    
     @Override
     public void visit(BallerinaFunction function) {
     }
-
+    
     @Override
     public void visit(BTypeMapper typeMapper) {
-
+        
     }
-
+    
     @Override
     public void visit(BallerinaAction action) {
     }
-
+    
     @Override
     public void visit(Worker worker) {
     }
-
+    
     @Override
     public void visit(Annotation annotation) {
     }
-
+    
     @Override
     public void visit(ParameterDef parameterDef) {
     }
-
-//    @Override
-//    public void visit(ConnectorDcl connectorDcl) {
-//        StringBuffer buffer = new StringBuffer();
-//        bufferStack.push(buffer);
-//        buffer.append(connectorDcl.getConnectorName()).append(SPACE_CHAR)
-//                .append(connectorDcl.getVarName().getName()).append(SPACE_CHAR).append("=")
-//                .append(SPACE_CHAR).append("new").append(SPACE_CHAR)
-//                .append(connectorDcl.getConnectorName()).append("(");
-//        boolean isFirstItr = true;
-//        for (Expression expr : connectorDcl.getArgExprs()) {
-//            if (!isFirstItr) {
-//                buffer.append(",");
-//            } else {
-//                isFirstItr = false;
-//            }
-//            expr.accept(this);
-//            buffer.append(bufferStack.peek());
-//            bufferStack.pop();
-//        }
-//        buffer.append(SPACE_CHAR).append(");");
-//    }
-
+    
+    //    @Override
+    //    public void visit(ConnectorDcl connectorDcl) {
+    //        StringBuffer buffer = new StringBuffer();
+    //        bufferStack.push(buffer);
+    //        buffer.append(connectorDcl.getConnectorName()).append(SPACE_CHAR)
+    //                .append(connectorDcl.getVarName().getName()).append(SPACE_CHAR).append("=")
+    //                .append(SPACE_CHAR).append("new").append(SPACE_CHAR)
+    //                .append(connectorDcl.getConnectorName()).append("(");
+    //        boolean isFirstItr = true;
+    //        for (Expression expr : connectorDcl.getArgExprs()) {
+    //            if (!isFirstItr) {
+    //                buffer.append(",");
+    //            } else {
+    //                isFirstItr = false;
+    //            }
+    //            expr.accept(this);
+    //            buffer.append(bufferStack.peek());
+    //            bufferStack.pop();
+    //        }
+    //        buffer.append(SPACE_CHAR).append(");");
+    //    }
+    
     @Override
     public void visit(VariableDef variableDef) {
         StringBuffer buffer = new StringBuffer();
         bufferStack.push(buffer);
-        buffer.append(variableDef.getType().toString()).append(SPACE_CHAR)
-                .append(variableDef.getName()).append(";");
+        buffer.append(variableDef.getType().toString()).append(SPACE_CHAR).append(variableDef.getName()).append(";");
     }
-
+    
     @Override
     public void visit(BlockStmt blockStmt) {
         StringBuffer buffer = new StringBuffer();
@@ -205,7 +207,7 @@ public class BLangExpressionModelBuilder implements NodeVisitor {
         }
         buffer.append("}\n");
     }
-
+    
     @Override
     public void visit(AssignStmt assignStmt) {
         StringBuffer buffer = new StringBuffer();
@@ -219,14 +221,14 @@ public class BLangExpressionModelBuilder implements NodeVisitor {
         bufferStack.pop();
         buffer.append(";");
     }
-
+    
     @Override
     public void visit(CommentStmt commentStmt) {
         StringBuffer buffer = new StringBuffer();
         bufferStack.push(buffer);
         buffer.append("//").append(commentStmt.getComment());
     }
-
+    
     @Override
     public void visit(IfElseStmt ifElseStmt) {
         StringBuffer buffer = new StringBuffer();
@@ -245,7 +247,7 @@ public class BLangExpressionModelBuilder implements NodeVisitor {
         buffer.append(bufferStack.peek());
         bufferStack.pop();
     }
-
+    
     @Override
     public void visit(WhileStmt whileStmt) {
         StringBuffer buffer = new StringBuffer();
@@ -261,22 +263,22 @@ public class BLangExpressionModelBuilder implements NodeVisitor {
         buffer.append(bufferStack.peek());
         bufferStack.pop();
     }
-
+    
     @Override
     public void visit(BreakStmt breakStmt) {
-
+        
     }
-
+    
     @Override
     public void visit(TryCatchStmt tryCatchStmt) {
-
+        
     }
-
+    
     @Override
     public void visit(ThrowStmt throwStmt) {
-
+        
     }
-
+    
     @Override
     public void visit(FunctionInvocationStmt functionInvocationStmt) {
         StringBuffer buffer = new StringBuffer();
@@ -286,7 +288,7 @@ public class BLangExpressionModelBuilder implements NodeVisitor {
         bufferStack.pop();
         buffer.append(";");
     }
-
+    
     @Override
     public void visit(ActionInvocationStmt actionInvocationStmt) {
         StringBuffer buffer = new StringBuffer();
@@ -296,22 +298,22 @@ public class BLangExpressionModelBuilder implements NodeVisitor {
         bufferStack.pop();
         buffer.append(";");
     }
-
+    
     @Override
     public void visit(WorkerInvocationStmt workerInvocationStmt) {
-
+        
     }
-
+    
     @Override
     public void visit(WorkerReplyStmt workerReplyStmt) {
-
+        
     }
-
+    
     @Override
     public void visit(ForkJoinStmt forkJoinStmt) {
-
+        
     }
-
+    
     @Override
     public void visit(ReplyStmt replyStmt) {
         StringBuffer buffer = new StringBuffer();
@@ -320,7 +322,7 @@ public class BLangExpressionModelBuilder implements NodeVisitor {
         buffer.append(bufferStack.peek());
         bufferStack.pop();
     }
-
+    
     @Override
     public void visit(ReturnStmt returnStmt) {
         StringBuffer buffer = new StringBuffer();
@@ -328,7 +330,7 @@ public class BLangExpressionModelBuilder implements NodeVisitor {
         buffer.append("reply ");
         boolean isFirstItr = true;
         for (Expression expression : returnStmt.getExprs()) {
-            if(!isFirstItr){
+            if (!isFirstItr) {
                 buffer.append(" , ");
             }
             expression.accept(this);
@@ -337,19 +339,19 @@ public class BLangExpressionModelBuilder implements NodeVisitor {
         }
         buffer.append(" ;");
     }
-
+    
     @Override
     public void visit(FunctionInvocationExpr funcIExpr) {
         StringBuffer buffer = new StringBuffer();
         bufferStack.push(buffer);
-        if(funcIExpr.getPackageName() != null){
+        if (funcIExpr.getPackageName() != null) {
             buffer.append(funcIExpr.getPackageName()).append(":");
         }
         boolean isFirstItr = true;
         buffer.append(funcIExpr.getName()).append("( ");
         if (funcIExpr.getArgExprs() != null) {
-            if(!isFirstItr){
-
+            if (!isFirstItr) {
+                
             } else {
                 isFirstItr = false;
             }
@@ -359,20 +361,19 @@ public class BLangExpressionModelBuilder implements NodeVisitor {
         }
         buffer.append(" )");
     }
-
+    
     @Override
     public void visit(ActionInvocationExpr actionIExpr) {
         StringBuffer buffer = new StringBuffer();
         bufferStack.push(buffer);
         boolean isFirstItr = true;
-        if(actionIExpr.getPackageName() != null){
+        if (actionIExpr.getPackageName() != null) {
             buffer.append(actionIExpr.getPackageName()).append(":");
         }
-        buffer.append(actionIExpr.getConnectorName())
-                .append(".").append(actionIExpr.getName()).append("( ");
+        buffer.append(actionIExpr.getConnectorName()).append(".").append(actionIExpr.getName()).append("( ");
         if (actionIExpr.getArgExprs() != null) {
-            if(!isFirstItr){
-
+            if (!isFirstItr) {
+                
             } else {
                 isFirstItr = false;
             }
@@ -382,18 +383,18 @@ public class BLangExpressionModelBuilder implements NodeVisitor {
         }
         buffer.append(" )");
     }
-
+    
     @Override
     public void visit(BasicLiteral basicLiteral) {
         StringBuffer buffer = new StringBuffer();
         bufferStack.push(buffer);
-        if(basicLiteral.getType() == BTypes.typeString) {
+        if (basicLiteral.getType() == BTypes.typeString) {
             buffer.append("\"").append(basicLiteral.getBValue().stringValue()).append("\"");
         } else {
             buffer.append(basicLiteral.getBValue().stringValue());
         }
     }
-
+    
     @Override
     public void visit(UnaryExpression unaryExpression) {
         StringBuffer buffer = new StringBuffer();
@@ -403,7 +404,7 @@ public class BLangExpressionModelBuilder implements NodeVisitor {
         buffer.append(bufferStack.peek());
         bufferStack.pop();
     }
-
+    
     @Override
     public void visit(AddExpression addExpr) {
         StringBuffer buffer = new StringBuffer();
@@ -416,7 +417,7 @@ public class BLangExpressionModelBuilder implements NodeVisitor {
         buffer.append(bufferStack.peek());
         bufferStack.pop();
     }
-
+    
     @Override
     public void visit(SubtractExpression subExpr) {
         StringBuffer buffer = new StringBuffer();
@@ -429,7 +430,7 @@ public class BLangExpressionModelBuilder implements NodeVisitor {
         buffer.append(bufferStack.peek());
         bufferStack.pop();
     }
-
+    
     @Override
     public void visit(MultExpression multExpr) {
         StringBuffer buffer = new StringBuffer();
@@ -442,7 +443,7 @@ public class BLangExpressionModelBuilder implements NodeVisitor {
         buffer.append(bufferStack.peek());
         bufferStack.pop();
     }
-
+    
     @Override
     public void visit(DivideExpr divideExpr) {
         StringBuffer buffer = new StringBuffer();
@@ -455,7 +456,7 @@ public class BLangExpressionModelBuilder implements NodeVisitor {
         buffer.append(bufferStack.peek());
         bufferStack.pop();
     }
-
+    
     @Override
     public void visit(AndExpression andExpr) {
         StringBuffer buffer = new StringBuffer();
@@ -468,7 +469,7 @@ public class BLangExpressionModelBuilder implements NodeVisitor {
         buffer.append(bufferStack.peek());
         bufferStack.pop();
     }
-
+    
     @Override
     public void visit(OrExpression orExpr) {
         StringBuffer buffer = new StringBuffer();
@@ -481,7 +482,7 @@ public class BLangExpressionModelBuilder implements NodeVisitor {
         buffer.append(bufferStack.peek());
         bufferStack.pop();
     }
-
+    
     @Override
     public void visit(EqualExpression equalExpr) {
         StringBuffer buffer = new StringBuffer();
@@ -494,7 +495,7 @@ public class BLangExpressionModelBuilder implements NodeVisitor {
         buffer.append(bufferStack.peek());
         bufferStack.pop();
     }
-
+    
     @Override
     public void visit(NotEqualExpression notEqualExpression) {
         StringBuffer buffer = new StringBuffer();
@@ -507,7 +508,7 @@ public class BLangExpressionModelBuilder implements NodeVisitor {
         buffer.append(bufferStack.peek());
         bufferStack.pop();
     }
-
+    
     @Override
     public void visit(GreaterEqualExpression greaterEqualExpression) {
         StringBuffer buffer = new StringBuffer();
@@ -520,7 +521,7 @@ public class BLangExpressionModelBuilder implements NodeVisitor {
         buffer.append(bufferStack.peek());
         bufferStack.pop();
     }
-
+    
     @Override
     public void visit(GreaterThanExpression greaterThanExpression) {
         StringBuffer buffer = new StringBuffer();
@@ -533,7 +534,7 @@ public class BLangExpressionModelBuilder implements NodeVisitor {
         buffer.append(bufferStack.peek());
         bufferStack.pop();
     }
-
+    
     @Override
     public void visit(LessEqualExpression lessEqualExpression) {
         StringBuffer buffer = new StringBuffer();
@@ -546,7 +547,7 @@ public class BLangExpressionModelBuilder implements NodeVisitor {
         buffer.append(bufferStack.peek());
         bufferStack.pop();
     }
-
+    
     @Override
     public void visit(LessThanExpression lessThanExpression) {
         StringBuffer buffer = new StringBuffer();
@@ -559,19 +560,19 @@ public class BLangExpressionModelBuilder implements NodeVisitor {
         buffer.append(bufferStack.peek());
         bufferStack.pop();
     }
-
+    
     @Override
     public void visit(VariableRefExpr variableRefExpr) {
         StringBuffer buffer = new StringBuffer();
         bufferStack.push(buffer);
         buffer.append(variableRefExpr.getSymbolName().getName());
     }
-
+    
     @Override
     public void visit(TypeCastExpression typeCastExpression) {
-
+        
     }
-
+    
     @Override
     public void visit(ArrayInitExpr arrayInitExpr) {
         StringBuffer buffer = new StringBuffer();
@@ -586,14 +587,14 @@ public class BLangExpressionModelBuilder implements NodeVisitor {
         }
         buffer.append(" ]");
     }
-
+    
     @Override
     public void visit(BacktickExpr backtickExpr) {
         StringBuffer buffer = new StringBuffer();
         bufferStack.push(buffer);
-        buffer.append("'"+ backtickExpr.getTemplateStr()+"'").append(";");
+        buffer.append("'" + backtickExpr.getTemplateStr() + "'").append(";");
     }
-
+    
     @Override
     public void visit(InstanceCreationExpr instanceCreationExpr) {
         StringBuffer buffer = new StringBuffer();
@@ -603,100 +604,100 @@ public class BLangExpressionModelBuilder implements NodeVisitor {
         buffer.append(bufferStack.peek());
         bufferStack.pop();
     }
-
+    
     @Override
     public void visit(MainInvoker mainInvoker) {
         //TODO
     }
-
+    
     @Override
     public void visit(ResourceInvocationExpr resourceInvokerExpr) {
         //TODO
     }
-
+    
     @Override
     public void visit(RefTypeInitExpr refTypeInitExpr) {
         //TODO
     }
-
+    
     @Override
     public void visit(ConnectorInitExpr connectorInitExpr) {
-
+        
     }
-
+    
     @Override
     public void visit(ConstantLocation constantLocation) {
         //TODO
     }
-
+    
     @Override
     public void visit(StackVarLocation stackVarLocation) {
         //TODO
     }
-
+    
     @Override
     public void visit(ConnectorVarLocation connectorVarLocation) {
         //TODO
     }
-
+    
     @Override
     public void visit(ServiceVarLocation serviceVarLocation) {
         //TODO
     }
-
+    
     @Override
     public void visit(ConstDef constant) {
         //TODO
     }
-
+    
     @Override
     public void visit(ArrayMapAccessExpr arrayMapAccessExpr) {
         //TODO
     }
-
+    
     @Override
     public void visit(MapStructInitKeyValueExpr arrayMapAccessExpr) {
         //TODO
     }
-
+    
     @Override
     public void visit(StructDef structDef) {
         //TODO
     }
-
+    
     @Override
     public void visit(VariableDefStmt varDefStmt) {
-
+        
     }
-
+    
     @Override
     public void visit(StructVarLocation structVarLocation) {
         //TODO
     }
-
+    
     @Override
     public void visit(WorkerVarLocation workerVarLocation) {
-
+        
     }
-
+    
     @Override
     public void visit(StructInitExpr structInitExpr) {
         //TODO
     }
-
+    
     @Override
     public void visit(MapInitExpr mapInitExpr) {
-
+        
     }
-
+    
     @Override
     public void visit(StructFieldAccessExpr structFieldAccessExpr) {
         //TODO
     }
-
+    
     @Override
     public void visit(ModExpression modExpression) {
         
     }
-
+    
 }

@@ -25,53 +25,53 @@ import java.io.IOException;
 /**
  * Workspace implementation for cloud file system.
  */
-public class CloudWorkspace  implements Workspace {
+public class CloudWorkspace implements Workspace {
     @Override
     public JsonArray listRoots() throws IOException {
         return null;
     }
-
+    
     @Override
     public JsonArray listDirectoriesInPath(String path) {
         return null;
     }
-
+    
     @Override
     public void write(String path, String content) throws IOException {
-
+        
     }
-
+    
     @Override
     public JsonObject read(String path) throws IOException {
         return null;
     }
-
+    
     @Override
     public void create(String path, String type) throws IOException {
-
-    }
-
-    @Override
-    public void delete(String path, String type) throws IOException {
-
-    }
-
-    @Override
-    public void log(String logger, String timestamp, String level, String URL, String message, String layout) throws IOException {
-
+        
     }
     
     @Override
-	public JsonArray listFilesInPath(String path) throws IOException {
-		return null;
-	}
-
+    public void delete(String path, String type) throws IOException {
+        
+    }
+    
+    @Override
+    public void log(String logger, String timestamp, String level, String url, String message, String layout) throws
+            IOException {
+    }
+    
+    @Override
+    public JsonArray listFilesInPath(String path) throws IOException {
+        return null;
+    }
+    
     @Override
     public JsonObject exists(String path) throws IOException {
         return null;
     }
-
+    
     // TODO: This is just for future use.
-
-	
+    
+    
 }

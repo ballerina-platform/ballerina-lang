@@ -25,8 +25,9 @@ import org.ballerinalang.model.builder.BLangModelBuilder;
 import org.ballerinalang.util.parser.BallerinaLexer;
 import org.ballerinalang.util.parser.BallerinaParser;
 import org.ballerinalang.util.parser.antlr4.BLangAntlr4Listener;
-import org.junit.Assert;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -36,6 +37,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class SwaggerServiceMapperTest {
+    private static final Logger logger = LoggerFactory.getLogger(SwaggerServiceMapperTest.class);
     @Test
     public void testBallerinaToSwaggerConversion() {
         String ballerinaServiceDefinition = "import ballerina.net.http;\n" +
@@ -54,36 +56,36 @@ public class SwaggerServiceMapperTest {
         try {
             antlrInputStream = new ANTLRInputStream(stream);
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error("Error occurred while creating antler input stream.", e);
         }
         BallerinaLexer ballerinaLexer = new BallerinaLexer(antlrInputStream);
         CommonTokenStream ballerinaToken = new CommonTokenStream(ballerinaLexer);
         BallerinaParser ballerinaParser = new BallerinaParser(ballerinaToken);
-
+    
         BLangPackage bLangPackage = new BLangPackage(GlobalScope.getInstance());
         BLangPackage.PackageBuilder packageBuilder = new BLangPackage.PackageBuilder(bLangPackage);
         BLangModelBuilder modelBuilder = new BLangModelBuilder(packageBuilder, "");
-
+    
         BLangAntlr4Listener langModelBuilder = new BLangAntlr4Listener(modelBuilder);
         ballerinaParser.addParseListener(langModelBuilder);
         ballerinaParser.compilationUnit();
         BallerinaFile bFile = modelBuilder.build();
         CompilationUnit[] compilationUnits = bFile.getCompilationUnits();
         Swagger swaggerDefinition = new Swagger();
-        for(CompilationUnit compilationUnit:compilationUnits){
-            if(compilationUnit instanceof Service){
+        for (CompilationUnit compilationUnit : compilationUnits) {
+            if (compilationUnit instanceof Service) {
                 //TODO this need to improve iterate through multiple services and generate single swagger file.
                 SwaggerServiceMapper swaggerServiceMapper = new SwaggerServiceMapper();
                 //TODO mapper type need to set according to expected type.
                 //swaggerServiceMapper.setObjectMapper(io.swagger.util.Yaml.mapper());
-                swaggerDefinition = swaggerServiceMapper.convertServiceToSwagger((Service)compilationUnit);
+                swaggerDefinition = swaggerServiceMapper.convertServiceToSwagger((Service) compilationUnit);
                 break;
             }
         }
         //TODO add complete logic to test all attributes present in swagger object
         //Assert.assertEquals(swaggerDefinition.getBasePath().toString(), "/echo");
         //Assert.assertEquals(swaggerDefinition.getBasePath().toString(), "/echo");
-
+    
     }
 
 

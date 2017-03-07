@@ -58,8 +58,9 @@ public class BLangJSONModelTest {
             "{\"type\":\"return_type\",\"children\":[{\"type\":\"return_argument\",\"parameter_type\":\"int\"," +
             "\"line_number\":\"13\"}]},{\"type\":\"return_statement\",\"line_number\":\"14\"," +
             "\"children\":[{\"line_number\":\"14\",\"type\":\"add_expression\",\"children\":[{\"line_number\":\"14\"," +
-            "\"type\":\"variable_reference_name\",\"variable_reference_name\":\"a\"},{\"type\":\"basic_literal_expression\"," +
-            "\"basic_literal_type\":\"int\",\"basic_literal_value\":\"2\",\"line_number\":\"14\"}]}]}]}]}";
+            "\"type\":\"variable_reference_name\",\"variable_reference_name\":\"a\"}," +
+            "{\"type\":\"basic_literal_expression\"," + "\"basic_literal_type\":\"int\"," +
+            "\"basic_literal_value\":\"2\",\"line_number\":\"14\"}]}]}]}]}";
 
     public static void main(String[] args) {
         try {
@@ -135,7 +136,7 @@ public class BLangJSONModelTest {
         File file = new File(getClass().getClassLoader().getResource("samples/service/ServiceSample.bal")
                 .getFile());
         HttpURLConnection urlConn = request("/ballerina/model/content", HttpMethod.POST);
-        urlConn.setRequestProperty("Content-Type","application/json");
+        urlConn.setRequestProperty("Content-Type", "application/json");
         OutputStream outputStream = urlConn.getOutputStream();
         String content = new Scanner(file).useDelimiter("\\Z").next();;
         JsonObject json = new JsonObject();

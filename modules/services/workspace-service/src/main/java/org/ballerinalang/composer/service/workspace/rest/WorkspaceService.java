@@ -23,6 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.FileNotFoundException;
+import java.nio.charset.Charset;
 import java.nio.file.AccessDeniedException;
 import java.nio.file.DirectoryNotEmptyException;
 import java.nio.file.FileAlreadyExistsException;
@@ -82,7 +83,8 @@ public class WorkspaceService {
     public Response directoriesInPath(@QueryParam("path") String path) {
         try {
             return Response.status(Response.Status.OK)
-                    .entity(workspace.listDirectoriesInPath(new String(Base64.getDecoder().decode(path))))
+                    .entity(workspace.listDirectoriesInPath(new String(Base64.getDecoder().decode(path),
+                            Charset.defaultCharset())))
                     .header("Access-Control-Allow-Origin", '*')
                     .type(MediaType.APPLICATION_JSON)
                     .build();
@@ -91,14 +93,14 @@ public class WorkspaceService {
             return  getErrorResponse(throwable);
         }
     }
-
-	@GET
+    
+    @GET
     @Path("/exists")
     @Produces("application/json")
     public Response pathExists(@QueryParam("path") String path) {
         try {
             return Response.status(Response.Status.OK)
-                    .entity(workspace.exists(new String(Base64.getDecoder().decode(path))))
+                    .entity(workspace.exists(new String(Base64.getDecoder().decode(path), Charset.defaultCharset())))
                     .header("Access-Control-Allow-Origin", '*')
                     .type(MediaType.APPLICATION_JSON)
                     .build();
@@ -113,8 +115,8 @@ public class WorkspaceService {
     @Produces("application/json")
     public Response create(@QueryParam("path") String pathParam, @QueryParam("type") String typeParam) {
         try {
-            String path = new String(Base64.getDecoder().decode(pathParam)),
-                   type = new String(Base64.getDecoder().decode(typeParam));
+            String path = new String(Base64.getDecoder().decode(pathParam), Charset.defaultCharset()),
+                   type = new String(Base64.getDecoder().decode(typeParam), Charset.defaultCharset());
             workspace.create(path, type);
             JsonObject entity = new JsonObject();
             entity.addProperty(STATUS, SUCCESS);
@@ -131,8 +133,8 @@ public class WorkspaceService {
     @Produces("application/json")
     public Response delete(@QueryParam("path") String pathParam, @QueryParam("type") String typeParam) {
         try {
-            String path = new String(Base64.getDecoder().decode(pathParam)),
-                   type = new String(Base64.getDecoder().decode(typeParam));
+            String path = new String(Base64.getDecoder().decode(pathParam), Charset.defaultCharset()),
+                   type = new String(Base64.getDecoder().decode(typeParam), Charset.defaultCharset());
             workspace.delete(path, type);
             JsonObject entity = new JsonObject();
             entity.addProperty(STATUS, SUCCESS);
@@ -144,80 +146,81 @@ public class WorkspaceService {
         }
     }
     
-	@GET
-	@Path("/listFiles")
-	@Produces("application/json")
-	public Response filesInPath(@QueryParam("path") String path) {
-		try {
-			return Response.status(Response.Status.OK)
-					.entity(workspace.listFilesInPath(new String(Base64.getDecoder().decode(path))))
-					.header("Access-Control-Allow-Origin", '*').type(MediaType.APPLICATION_JSON).build();
-		} catch (Throwable throwable) {
+    @GET
+    @Path("/listFiles")
+    @Produces("application/json")
+    public Response filesInPath(@QueryParam("path") String path) {
+        try {
+            return Response.status(Response.Status.OK)
+                    .entity(workspace.listFilesInPath(new String(Base64.getDecoder().decode(path),
+                            Charset.defaultCharset())))
+                    .header("Access-Control-Allow-Origin", '*').type(MediaType.APPLICATION_JSON).build();
+        } catch (Throwable throwable) {
             logger.error("/list service error", throwable.getMessage());
             return getErrorResponse(throwable);
         }
-	}
+    }
 
-	@POST
-	@Path("/write")
-	@Produces("application/json")
-	public Response write(String payload) {
-		try {
-			String location = "";
-			String configName = "";
-			String config = "";
-			Matcher locationMatcher = Pattern.compile("location=(.*?)&configName").matcher(payload);
-			while (locationMatcher.find()) {
-				location = locationMatcher.group(1);
-			}
-			Matcher configNameMatcher = Pattern.compile("configName=(.*?)&").matcher(payload);
-			while (configNameMatcher.find()) {
-				configName = configNameMatcher.group(1);
-			}
-			String[] splitConfigContent = payload.split("config=");
-            if (splitConfigContent.length > 1){
+    @POST
+    @Path("/write")
+    @Produces("application/json")
+    public Response write(String payload) {
+        try {
+            String location = "";
+            String configName = "";
+            String config = "";
+            Matcher locationMatcher = Pattern.compile("location=(.*?)&configName").matcher(payload);
+            while (locationMatcher.find()) {
+                location = locationMatcher.group(1);
+            }
+            Matcher configNameMatcher = Pattern.compile("configName=(.*?)&").matcher(payload);
+            while (configNameMatcher.find()) {
+                configName = configNameMatcher.group(1);
+            }
+            String[] splitConfigContent = payload.split("config=");
+            if (splitConfigContent.length > 1) {
                 config = splitConfigContent[1];
             }
-			byte[] base64Config = Base64.getDecoder().decode(config);
-			byte[] base64ConfigName = Base64.getDecoder().decode(configName);
-			byte[] base64Location = Base64.getDecoder().decode(location);
-			Files.write(Paths.get(new String(base64Location) + System.getProperty(FILE_SEPARATOR)
-                            + new String(base64ConfigName)), base64Config);
-			JsonObject entity = new JsonObject();
-			entity.addProperty(STATUS, SUCCESS);
-			return Response.status(Response.Status.OK).entity(entity).header("Access-Control-Allow-Origin", '*')
-					.type(MediaType.APPLICATION_JSON).build();
-		} catch (Throwable throwable) {
+            byte[] base64Config = Base64.getDecoder().decode(config);
+            byte[] base64ConfigName = Base64.getDecoder().decode(configName);
+            byte[] base64Location = Base64.getDecoder().decode(location);
+            Files.write(Paths.get(new String(base64Location) + System.getProperty(FILE_SEPARATOR) + new String
+                    (base64ConfigName)), base64Config);
+            JsonObject entity = new JsonObject();
+            entity.addProperty(STATUS, SUCCESS);
+            return Response.status(Response.Status.OK).entity(entity).header("Access-Control-Allow-Origin", '*').type
+                    (MediaType.APPLICATION_JSON).build();
+        } catch (Throwable throwable) {
             logger.error("/write service error", throwable.getMessage());
             return getErrorResponse(throwable);
         }
-	}
-
-	@POST
-	@Path("/read")
-	@Produces("application/json")
-	public Response read(String path) {
+    }
+    
+    @POST
+    @Path("/read")
+    @Produces("application/json")
+    public Response read(String path) {
         try {
             return Response.status(Response.Status.OK)
-                    .entity(workspace.read(new String(path)))
-                    .header("Access-Control-Allow-Origin", '*').type(MediaType.APPLICATION_JSON).build();
+                    .entity(workspace.read(path)).header("Access-Control-Allow-Origin", '*')
+                    .type(MediaType.APPLICATION_JSON).build();
         } catch (Throwable throwable) {
             logger.error("/read service error", throwable.getMessage());
             return getErrorResponse(throwable);
         }
-	}
-
+    }
+    
     @POST
     @Path("/log")
     @Produces("application/json")
     public Response log(@FormParam("logger") String loggerID,
                         @FormParam("timestamp") String timestamp,
                         @FormParam("level") String level,
-                        @FormParam("url") String URL,
+                        @FormParam("url") String url,
                         @FormParam("message") String message,
                         @FormParam("layout") String layout) {
         try {
-            workspace.log(loggerID, timestamp, level, URL, message, layout);
+            workspace.log(loggerID, timestamp, level, url, message, layout);
             JsonObject entity = new JsonObject();
             entity.addProperty("status", "success");
             return Response.status(Response.Status.OK)
@@ -231,14 +234,14 @@ public class WorkspaceService {
         }
     }
 
-    public Workspace getWorkspace(){
+    public Workspace getWorkspace() {
         return this.workspace;
     }
 
-    private Response getErrorResponse(Throwable ex){
+    private Response getErrorResponse(Throwable ex) {
         JsonObject entity = new JsonObject();
         String errMsg = ex.getMessage();
-        if(ex instanceof AccessDeniedException) {
+        if (ex instanceof AccessDeniedException) {
             errMsg = "Access Denied to " + ex.getMessage();
         } else if (ex instanceof NoSuchFileException) {
             errMsg = "No such file: " + ex.getMessage();
