@@ -1,5 +1,5 @@
 # Swagger to Ballerina Code Generator
-[Ballerina](http://www.ballerinalang.org) is a programming language designed for integration. The Ballerina Composer allows you to define your integrations by creating sequence diagrams in the Design View, by writing Ballerina code in the Source View, or by creating Swagger definitions in the Swagger View. If you already have Swagger definition files that define servcies you want to use, the Swagger to Ballerina Code Generator can take existing Swagger defintion files and generate Ballerina connectors and services from them.
+[Ballerina](http://www.ballerinalang.org) is a programming language designed for integration. The Ballerina Composer allows you to define your integrations by creating sequence diagrams in the Design View, by writing Ballerina code in the Source View, or by creating Swagger definitions in the Swagger View. If you already have Swagger definition files that define functionality you want to use, the Swagger to Ballerina Code Generator can take existing Swagger definition files and generate Ballerina connectors and services from them.
 
 # Prerequisites
 Download and install Ballerina by visiting http://www.ballerinalang.org. 
