@@ -25,13 +25,13 @@ worker WorkerName (message m) {
 
 You then define the logic that you want the worker to reply. The worker can invoke any functions that are defined in the same package. 
 
-If the [Reply](statements.md#reply) statement is present, it must be at the end of the worker. The reply indicates what message will be returned to the initiator if the initiator requires a response from the worker (see "Receiving a reply from a worker" below). If no Reply statement is present, it has the same effect as having sent a null message.
+If the [Reply](statements.md#reply) statement is present, it must be at the end of the worker definition. The reply indicates what message will be returned to the initiator if the initiator requires a response from the worker (see "Receiving a reply from a worker" below). If no Reply statement is present, it has the same effect as having sent a null message.
 
-## Initiating the worker
+## Invoking the worker
 
 Workers initially come into existence when the enclosing entity-- a [resource](resources.md), [function](functions.md), or [action](actions.md)--becomes active. However, similar to a resource, the worker does not execute until it has been sent a message.
 
-A worker is triggered when a message is sent to the worker. You can send the message to the worker by dragging the Worker Invoke icon to the enclosing entity and typing the message name:
+A worker is triggered when a message is sent to the worker. You can configure the enclosing entity to send a message to the worker by dragging the Worker Invoke icon to the enclosing entity and typing the message name:
 
 ![alt text](../images/icons/worker-invoke.png "Worker Invoke icon")
 
@@ -49,7 +49,7 @@ msg -> sampleWorker;
 
 ## Receiving a reply from a worker
 
-The worker can reply to the enclosing entity using a [Reply](statements.md#reply) statement. You can configure the enclosing entity to receive the reply by dragging the Worker Receive icon to the point where you want the enclosing entity to receive the reply:
+The worker can reply to the enclosing entity using a [Reply](statements.md#reply) statement at the end of the worker defintion. You can configure the enclosing entity to receive the reply by dragging the Worker Receive icon to the point where you want the enclosing entity to receive the reply:
 
 ![alt text](../images/icons/worker-receive.png "Worker Receive icon")
 
