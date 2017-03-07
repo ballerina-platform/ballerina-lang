@@ -19,6 +19,7 @@ package org.wso2.siddhi.tcp.transport.converter;
 
 
 import io.netty.buffer.ByteBuf;
+import org.apache.log4j.Logger;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.tcp.transport.utils.StreamInfo;
@@ -33,6 +34,7 @@ import java.nio.ByteBuffer;
  * This is used within data bridge to create the event from the row message received.
  */
 public class SiddhiEventConverter {
+    static final Logger log = Logger.getLogger(SiddhiEventConverter.class);
 
     public static void toConvertToSiddhiEvents(Object eventBundle, StreamTypeHolder streamTypeHolder) {
 
@@ -52,6 +54,11 @@ public class SiddhiEventConverter {
         String streamId = BinaryMessageConverterUtil.getString(byteBuffer, streamIdSize);
 
         StreamInfo streamInfo = streamTypeHolder.getStreamInfo(streamId);
+        if(streamInfo ==null){
+            byteBuffer.markReaderIndex();
+            log.error("Events with unknown streamId : '"+streamId+"' hence dropping the events!");
+            return;
+        }
 
         int numberOfEvents = byteBuffer.readInt();
 
