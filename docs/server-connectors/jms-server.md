@@ -71,7 +71,13 @@ service jmsService {
 
 Now you will have a JMS service that can be deployed to the Ballerina server. 
 
->NOTE: Before deploying the JMS service, you must copy the client-libs provided by the JMS provider to `{Ballerina_HOME}/bre/lib` 
+>NOTE: 
+>1. Before deploying the JMS service, you must copy the client-libs provided by the JMS provider to
+`{Ballerina_HOME}/bre/lib`
+>2. For the JMS providers that require a jndi.properties file, absolute path/relative path (i.e. relative path from 
+the directory where we execute the ballerina run command) of the jndi.properties file can be specified as the 
+ value for "providerUrl" annotation.
+ 
 
 Following is a sample JMS service.
 
@@ -196,3 +202,9 @@ import ballerina.net.jms
 ---
 jms:rollback();
 ```
+
+Please refer the [jmsServiceWithMB sample][1] to get started with JMS service with WSO2 Message Broker and [jmsServiceWithActiveMQ sample][2] to get started with JMS service with Apache ActiveMQ.
+
+
+[1]: https://github.com/ballerinalang/ballerina/tree/master/samples/other_samples/jmsServiceWithMB
+[2]: https://github.com/ballerinalang/ballerina/tree/master/samples/other_samples/jmsServiceWithActiveMq
