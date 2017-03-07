@@ -1,21 +1,25 @@
-#Swagger to Ballerina Code Generator
-Ballerina is a new programming language for integration built on a sequence diagram metaphor. The conceptual model of
- Ballerina is that of a sequence diagram. Each participant in the integration gets its own lifeline and Ballerina
- defines a complete syntax and semantics for how the sequence diagram works and execute the desired integration. This
-  tool can generate ballerina connector/service skeleton/mock service from swagger definition.
+# Swagger to Ballerina Code Generator
+[Ballerina](http://www.ballerinalang.org) is a programming language designed for integration. The Ballerina Composer allows you to define your integrations by creating sequence diagrams in the Design View, by writing Ballerina code in the Source View, or by creating Swagger definitions in the Swagger View. If you already have Swagger definition files that define functionality you want to use, the Swagger to Ballerina Code Generator can take existing Swagger definition files and generate Ballerina connectors and services from them.
 
-#prerequisites
-Install Ballerina by visiting https://github.com/ballerinalang/ballerina
+# Prerequisites
+Download and install Ballerina by visiting http://www.ballerinalang.org. 
 
-#Generating Connector
-Navigate to bin folder of Ballerina distribution
+# Generating a connector
+To generate a connector from your Swagger definition file, navigate to the `bin` folder of your Ballerina distribution and run the following command:
 
-Then run following command.
 ```
->>  ballerina swagger connector <swaggerFile> -p<package name> -d<output directory name>
+ballerina swagger connector <swaggerFile> [-d <output directory name>] [-p <package name>] 
 ```
-when you type above command you can point online swagger definition or local swagger file.
-Once connector code generated you can see all generated files within you project as follows. If your service definition is having more than one tags then it will generate connectors per each tag defined with service definition 
+
+You can specify a local Swagger file by entering its file path, or specify an online file by entering its URL. The output directory name specifies where to save the generated files (default is the current directory), and the package name specifies the package name to use for this connector. If your Swagger definition has more than one tag, a separate Ballerina file will be generated for each tag, each definining a separate connector. Also, if any JSON Schema types are defined in the Swagger file, a JSON file will be generated defining those types.
+
+For example, let's look at the sample Swagger file http://petstore.swagger.io/v2/swagger.json. It contains three tags: pet, store, and user, and it defines JSON Schema types. If you enter the following command:
+
+```
+ballerina swagger connector http://petstore.swagger.io/v2/swagger.json -d server/petstore/ -p wso2.carbon.test
+```
+
+The files will be generated as follows:  
 
 ```
 .
@@ -33,45 +37,24 @@ Once connector code generated you can see all generated files within you project
 
 ```
 
-#Generating Service Skeleton
-Navigate to bin folder of Ballerina distribution
+You can now connect to the pet, store, and user functionality in the Swagger file from your Ballerina services by using these connectors.
 
-Then run following command.
-```
->>  ballerina swagger skeleton <swaggerFile> -p<package name> -d<output directory name>
-```
-when you type above command you can point online swagger definition or local swagger file.
-Once connector code generated you can see all generated files within you project as follows.
-```
-.
-└── server
-    └── petstore
-        └── wso2
-            └── carbon
-                └── test
-                    └── ballerina
-                        ├── store.bal
+# Generating a service skeleton
+
+If you want to package the functionality from the Swagger file as services, you can generate service skeletons instead of connectors by entering the following command:
 
 ```
+ballerina swagger skeleton <swaggerFile> [-d <output directory name>] [-p <package name>] 
+```
 
-#Generating Mock Service
-Navigate to bin folder of Ballerina distribution
+This will generate Ballerina files that define each tag as a service, and it generates a JSON file for any JSON Schema types defined in the Swagger file. 
 
-Then run following command.
-```
->>  ballerina swagger mock <swaggerFile> -p<package name> -d<output directory name>
-```
-when you type above command you can point online swagger definition or local swagger file.
-Once connector code generated you can see all generated files within you project as follows.
-In addition to skeleton this will include sample responses within the service.
-```
-.
-└── server
-    └── petstore
-        └── wso2
-            └── carbon
-                └── test
-                    └── ballerina
-                        ├── store.bal
+# Generating a mock service
+
+If you want to generate the service skeletons and also add code into each resource body to return sample responses using the data type as defined by the Swagger resource definition, you can generate mock services by entering the following command:
 
 ```
+ballerina swagger mock <swaggerFile>  [-d <output directory name>] [-p <package name>] 
+```
+
+This will generate the service defintions and JSON Schema types file as it did with the skeleton command, but each service definition will include sample responses.
