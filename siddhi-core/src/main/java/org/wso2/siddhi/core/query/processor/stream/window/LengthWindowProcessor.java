@@ -97,7 +97,9 @@ public class LengthWindowProcessor extends WindowProcessor implements FindablePr
                         streamEventChunk.insertBeforeCurrent(firstEvent);
                         this.expiredEventChunk.add(clonedEvent);
                     } else {
-                        streamEventChunk.insertBeforeCurrent(clonedEvent);
+                        streamEventChunk.insertAfterCurrent(clonedEvent);
+                        // skip the added clonedEvent from next iteration.
+                        streamEventChunk.next();
                     }
                 }
             }
