@@ -3,12 +3,12 @@ var webpack = require("webpack");
 
 var config = {
     entry: {
-      bundle: './modules/web/index.js',
-      'worker-ballerina': './modules/web/js/ballerina/utils/ace-worker.js'
+      bundle: './index.js',
+      'worker-ballerina': './js/ballerina/utils/ace-worker.js'
     },
     output: {
         filename: '[name].js',
-        path: path.resolve(__dirname, 'modules/web/dist')
+        path: path.resolve(__dirname, 'dist')
     },
     module: {
         rules: [{
@@ -41,13 +41,12 @@ var config = {
     },
     plugins: [],
     devServer: {
-      contentBase: './modules/web',
       publicPath: '/dist/'
     },
     node: { module: "empty", net: "empty", fs: "empty" },
     devtool: 'source-map',
     resolve: {
-        modules: [path.resolve('./modules/web/lib'), path.resolve('./modules/web/js'), path.resolve('./node_modules')],
+        modules: [path.resolve('./lib'), path.resolve('./js'), path.resolve('./node_modules')],
         alias: {
             /////////////////////////
             // third party modules //
