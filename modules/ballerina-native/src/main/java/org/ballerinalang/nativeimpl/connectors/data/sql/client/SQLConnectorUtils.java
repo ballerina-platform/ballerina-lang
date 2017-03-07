@@ -633,6 +633,15 @@ public class SQLConnectorUtils {
     }
 
     /**
+     * This will retrieve the string value for the given binary data.
+     *
+     * @param data blob data
+     */
+    public static String getString(byte[] data) {
+        return new String(data, Charset.defaultCharset());
+    }
+
+    /**
      * This will retrieve the string value for the given input stream.
      *
      * @param inputStream input stream data

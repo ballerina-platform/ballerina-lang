@@ -229,7 +229,7 @@ function testInOutQueryParameters() (string) {
 }
 
 function testOutParameters()
-    (string, string, string, string, string, string, string ,string ,string ,string ,string,string,string) {
+    (string, string, string, string, string, string, string ,string ,string ,string ,string,string,string,string) {
     map propertiesMap = {"jdbcUrl" : "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
             "username":"SA", "password":"", "maximumPoolSize":1};
     sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
@@ -248,11 +248,12 @@ function testOutParameters()
     sql:Parameter paraSmallInt= {sqlType:"smallint", direction:1};
     sql:Parameter paraClob   = {sqlType:"clob", direction:1};
     sql:Parameter paraBlob   = {sqlType:"blob", direction:1};
+    sql:Parameter paraBinary = {sqlType:"binary", direction:1};
 
     sql:Parameter[] parameters=[paraID,paraInt,paraLong,paraFloat,paraDouble,paraBool,paraString,paraNumeric,
-        paraDecimal,paraReal,paraTinyInt,paraSmallInt,paraClob,paraBlob];
-    sql:ClientConnector.call(testDB, "{call TestOutParams(?,?,?,?,?,?,?,?,?,?,?,?,?,?)}",parameters);
+        paraDecimal,paraReal,paraTinyInt,paraSmallInt,paraClob,paraBlob,paraBinary];
+    sql:ClientConnector.call(testDB, "{call TestOutParams(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)}",parameters);
     return paraInt.value, paraLong.value, paraFloat.value,paraDouble.value,paraBool.value,paraString.value,
         paraNumeric.value,paraDecimal.value,paraReal.value,paraTinyInt.value,paraSmallInt.value,paraClob.value,
-        paraBlob.value;
+        paraBlob.value,paraBinary.value;
 }
