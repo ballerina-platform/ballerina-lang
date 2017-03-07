@@ -22,6 +22,10 @@ You can use plug-ins to write Ballerina code in your favorite IDE. The following
 * [Vim](https://github.com/ballerinalang/plugin-vim)
 * [Visual Studio Code (VS Code)](https://github.com/ballerinalang/plugin-vscode)
 
+## Swagger to Ballerina code generator
+
+You can use existing Swagger files to generate connectors and services in Ballerina code. For details, see the [Swagger to Ballerina Code Generator](https://github.com/ballerinalang/tool-swagger-ballerina/tree/master/modules/swagger-ballerina-generator).
+
 ## API documentation generator
 
 As you develop new connectors, actions, and functions that you want to share with others, it's important to add API documentation that describes each entity and how it's used. Ballerina provides a framework called **Docerina** that generates API documentation from your annotations in your Ballerina files. You can check it out at https://github.com/ballerinalang/docerina. 
