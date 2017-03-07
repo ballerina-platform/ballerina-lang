@@ -44,7 +44,7 @@ import java.util.Optional;
  */
 public class ServerConnectorMessageHandler {
 
-    private static final Logger log = LoggerFactory.getLogger(ServerConnectorMessageHandler.class);
+    private static final Logger breLog = LoggerFactory.getLogger(ServerConnectorMessageHandler.class);
 
     private static PrintStream outStream = System.err;
 
@@ -120,9 +120,10 @@ public class ServerConnectorMessageHandler {
         String errorMsg = ErrorHandlerUtils.getErrorMessage(throwable);
         String stacktrace = ErrorHandlerUtils.getServiceStackTrace(balContext, throwable);
         String errorWithTrace = errorMsg + "\n" + stacktrace;
-        log.error(errorWithTrace);
         outStream.println(errorWithTrace);
 
+        // bre log should contain bre stack trace, not the ballerina stack trace
+        breLog.error("error : " + errorMsg + ", ballerina service stack trace : " + stacktrace, throwable);
         Object protocol = cMsg.getProperty("PROTOCOL");
         Optional<ServerConnectorErrorHandler> optionalErrorHandler =
                 BallerinaConnectorManager.getInstance().getServerConnectorErrorHandler((String) protocol);
@@ -141,8 +142,10 @@ public class ServerConnectorMessageHandler {
         String errorMsg = ErrorHandlerUtils.getErrorMessage(throwable);
         String stacktrace = ErrorHandlerUtils.getServiceStackTrace(balContext, throwable);
         String errorWithTrace = errorMsg + "\n" + stacktrace;
-        log.error(errorWithTrace);
         outStream.println(errorWithTrace);
+
+        // bre log should contain bre stack trace, not the ballerina stack trace
+        breLog.error("error : " + errorMsg + ", ballerina service stack trace : " + stacktrace, throwable);
 
         Object protocol = balContext.getServerConnectorProtocol();
         Optional<ServerConnectorErrorHandler> optionalErrorHandler =
