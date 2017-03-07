@@ -20,6 +20,7 @@ define(['log', 'lodash', 'jquery', 'event_channel'],
 
     require('ace/ace');
     require('ace/ext-language_tools');
+    require('ace/ext-searchbox');
     var language_tools = ace.require('ace/ext/language_tools');
     var Range = ace.require('ace/range');
 
