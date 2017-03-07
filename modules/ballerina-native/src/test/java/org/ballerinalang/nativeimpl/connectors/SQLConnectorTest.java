@@ -149,7 +149,7 @@ public class SQLConnectorTest {
     @Test
     public void testOutParameters() {
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "testOutParameters");
-        Assert.assertEquals(returns.length, 13);
+        Assert.assertEquals(returns.length, 14);
         Assert.assertEquals(((BString) returns[0]).intValue(), 10);
         Assert.assertEquals(((BString) returns[1]).longValue(), 9223372036854774807L);
         Assert.assertEquals(((BString) returns[2]).floatValue(), 123.34f);
@@ -165,6 +165,8 @@ public class SQLConnectorTest {
         Assert.assertEquals(((BString) returns[10]).intValue(), 5555);
         Assert.assertEquals(returns[11].stringValue(), "very long text");
         Assert.assertEquals(returns[12].stringValue(), "d3NvMiBiYWxsZXJpbmEgYmxvYiB0ZXN0Lg==");
+        String temp = returns[13].stringValue();
+        Assert.assertEquals(temp, "wso2 ballerina binary test.");
     }
 
 

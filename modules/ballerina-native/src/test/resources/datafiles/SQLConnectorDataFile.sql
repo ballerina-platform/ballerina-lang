@@ -23,13 +23,15 @@ CREATE TABLE IF NOT EXISTS DataTypeTable(
   smallint_type SMALLINT,
   clob_type    CLOB,
   blob_type    BLOB,
+  binary_type  BINARY(27),
   PRIMARY KEY (row_id)
 );
 /
 insert into DataTypeTable (row_id,int_type, long_type, float_type, double_type, boolean_type, string_type,numeric_type,
-  decimal_type,real_type,tinyint_type,smallint_type,clob_type,blob_type) values
+  decimal_type,real_type,tinyint_type,smallint_type,clob_type,blob_type,binary_type) values
   (1, 10, 9223372036854774807, 123.34, 2139095039, TRUE, 'Hello',1234.567,1234.567,1234.567,1,5555,
-  CONVERT('very long text', CLOB),X'77736F322062616C6C6572696E6120626C6F6220746573742E');
+  CONVERT('very long text', CLOB),X'77736F322062616C6C6572696E6120626C6F6220746573742E',
+  X'77736F322062616C6C6572696E612062696E61727920746573742E');
 /
 insert into Customers (firstName,lastName,registrationID,creditLimit,country)
   values ('Peter', 'Stuart', 1, 5000.75, 'USA');
@@ -56,7 +58,7 @@ CREATE PROCEDURE GetCustomerCountry (IN regID INT,INOUT param VARCHAR(300))
 CREATE PROCEDURE TestOutParams (IN id INT,OUT paramInt INT,OUT paramBigInt BIGINT,OUT paramFloat FLOAT,
   OUT paramDouble DOUBLE,OUT paramBool BOOLEAN,OUT paramString VARCHAR(50),
   OUT paramNumeric NUMERIC,OUT paramDecimal DECIMAL,OUT paramReal REAL,OUT paramTinyInt TINYINT,
-  OUT paramSmallInt SMALLINT,OUT paramClob CLOB,OUT paramBlob BLOB)
+  OUT paramSmallInt SMALLINT,OUT paramClob CLOB,OUT paramBlob BLOB, OUT paramBinary BINARY(27))
   READS SQL DATA
   BEGIN ATOMIC
   SELECT int_type INTO paramInt FROM DataTypeTable where row_id = id;
@@ -72,5 +74,6 @@ CREATE PROCEDURE TestOutParams (IN id INT,OUT paramInt INT,OUT paramBigInt BIGIN
   SELECT smallint_type INTO paramSmallInt FROM DataTypeTable where row_id = id;
   SELECT clob_type INTO paramClob FROM DataTypeTable where row_id = id;
   SELECT blob_type INTO paramBlob FROM DataTypeTable where row_id = id;
+  SELECT binary_type INTO paramBinary FROM DataTypeTable where row_id = id;
   END
 /
