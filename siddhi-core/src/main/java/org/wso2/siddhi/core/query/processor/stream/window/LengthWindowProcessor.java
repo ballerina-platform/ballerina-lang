@@ -22,6 +22,7 @@ import org.wso2.siddhi.annotation.Parameter;
 import org.wso2.siddhi.annotation.ReturnAttribute;
 import org.wso2.siddhi.annotation.util.DataType;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
+import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.state.StateEvent;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
@@ -98,7 +99,11 @@ public class LengthWindowProcessor extends WindowProcessor implements FindablePr
                         this.expiredEventChunk.add(clonedEvent);
                     } else {
                         streamEventChunk.insertAfterCurrent(clonedEvent);
-                        // skip the added clonedEvent from next iteration.
+                        StreamEvent resetEvent = streamEventCloner.copyStreamEvent(streamEvent);
+                        resetEvent.setType(ComplexEvent.Type.RESET);
+                        streamEventChunk.insertAfterCurrent(resetEvent);
+                        // skip the added clonedEvents from next iteration.
+                        streamEventChunk.next();
                         streamEventChunk.next();
                     }
                 }
