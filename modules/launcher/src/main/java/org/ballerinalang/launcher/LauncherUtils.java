@@ -29,7 +29,7 @@ import java.nio.file.Paths;
 import java.util.List;
 
 /**
- * Contains utility methods for executing a Ballerina program
+ * Contains utility methods for executing a Ballerina program.
  *
  * @since 0.8.0
  */

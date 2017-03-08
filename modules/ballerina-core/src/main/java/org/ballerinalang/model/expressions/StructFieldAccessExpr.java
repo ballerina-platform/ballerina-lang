@@ -41,12 +41,12 @@ import org.ballerinalang.model.values.BValue;
 public class StructFieldAccessExpr extends UnaryExpression implements ReferenceExpr {
 
     /**
-     * Name of the variable reference
+     * Name of the variable reference.
      */
     private String varName;
 
     /**
-     * Unique identifier or this expression
+     * Unique identifier or this expression.
      */
     private SymbolName symbolName;
 
@@ -216,7 +216,7 @@ public class StructFieldAccessExpr extends UnaryExpression implements ReferenceE
     }
 
     /**
-     * Get the type of the current expression
+     * Get the type of the current expression.
      *
      * @return Type of this expression
      */

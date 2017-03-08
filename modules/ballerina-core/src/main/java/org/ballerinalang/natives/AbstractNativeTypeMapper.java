@@ -93,7 +93,7 @@ public abstract class AbstractNativeTypeMapper implements NativeUnit, TypeMapper
     }
 
     /**
-     * Get all the variableDcls declared in the scope of BallerinaTypeMapper
+     * Get all the variableDcls declared in the scope of BallerinaTypeMapper.
      *
      * @return list of all BallerinaTypeMapper scoped variableDcls
      */

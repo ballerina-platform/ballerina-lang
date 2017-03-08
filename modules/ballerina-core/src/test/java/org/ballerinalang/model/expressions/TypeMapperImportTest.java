@@ -17,48 +17,36 @@
  */
 package org.ballerinalang.model.expressions;
 
-
 import org.ballerinalang.core.utils.BTestUtils;
 import org.ballerinalang.model.BLangProgram;
-import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.program.BLangFunctions;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-/**
- * Test Cases type mapping for structs.
- */
-public class StructTypeMapperTest {
+public class TypeMapperImportTest {
     private BLangProgram bLangProgram;
 
     @BeforeClass
     public void setup() {
-        bLangProgram = BTestUtils.parseBalFile("lang/expressions/struct-type-mapper.bal");
+        bLangProgram = BTestUtils.parseBalFile("lang/expressions/mappers/default");
     }
 
     @Test
     public void testStructMapper() {
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "testStructMapper");
-        Assert.assertTrue(returns[0] instanceof BStruct);
-        BStruct bStruct = (BStruct) returns[0];
-        final String expectedName = "Jack";
-        Assert.assertEquals(bStruct.getValue(0).stringValue(), expectedName);
-        Assert.assertTrue(bStruct.getValue(1) instanceof BMap);
-        final BMap<BString, BValue> resultMap = (BMap<BString, BValue>) bStruct.getValue(1);
-        Assert.assertEquals(resultMap.get(new BString("country")).stringValue(), "USA");
-        Assert.assertEquals(resultMap.get(new BString("state")).stringValue(), "CA");
-        Assert.assertTrue(bStruct.getValue(2) instanceof BInteger);
-        final String expectedAge = "25";
-        Assert.assertEquals(bStruct.getValue(2).stringValue(), expectedAge);
-
+        Assert.assertTrue(returns[0] instanceof BString);
+        String expected = "Jack";
+        Assert.assertEquals(expected, returns[0].stringValue());
     }
 
-
+    @Test
+    public void testStructMapperLocal() {
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testStructMapperLocal");
+        Assert.assertTrue(returns[0] instanceof BString);
+        String expected = "Jill";
+        Assert.assertEquals(expected, returns[0].stringValue());
+    }
 }
-
-

@@ -31,7 +31,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 
 
 /**
- * Convert String to XML
+ * Convert String to XML.
  */
 @BallerinaTypeMapper(
         packageName = "ballerina.lang.typemappers",

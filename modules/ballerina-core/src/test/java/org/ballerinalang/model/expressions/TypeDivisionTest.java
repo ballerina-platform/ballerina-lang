@@ -28,6 +28,9 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+/**
+ * Test Cases for divide operation on different types.
+ */
 public class TypeDivisionTest {
 
     private BLangProgram bLangProgram;

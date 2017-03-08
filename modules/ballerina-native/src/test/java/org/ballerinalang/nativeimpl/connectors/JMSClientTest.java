@@ -29,7 +29,9 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-
+/**
+ * Test cases for jms client.
+ */
 public class JMSClientTest {
     private SymScope globalScope;
     private BLangProgram bLangProgram;

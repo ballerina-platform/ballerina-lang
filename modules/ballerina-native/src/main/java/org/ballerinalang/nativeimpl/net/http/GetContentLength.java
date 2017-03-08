@@ -33,7 +33,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 /**
- * Get Content-Length header from the Message
+ * Get Content-Length header from the Message.
  */
 @BallerinaFunction(
         packageName = "ballerina.net.http",

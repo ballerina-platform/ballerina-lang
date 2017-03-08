@@ -19,7 +19,7 @@ package org.ballerinalang.model.values;
 import org.ballerinalang.model.StructDef;
 
 /**
- * The {@code BStruct} represents athe value of a user defined struct in Ballerina
+ * The {@code BStruct} represents athe value of a user defined struct in Ballerina.
  *
  * @since 1.0.0
  */
@@ -29,7 +29,7 @@ public final class BStruct implements BRefType<StructDef> {
     private BValue[] structMemBlock;
 
     /**
-     * Creates a struct with a single memory block
+     * Creates a struct with a single memory block.
      */
     public BStruct() {
         this(null, new BValue[0]);

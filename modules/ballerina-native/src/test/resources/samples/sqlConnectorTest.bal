@@ -100,6 +100,21 @@ function testCallProcedure() (string) {
     return firstName;
 }
 
+function testCallProcedureWithResultSet() (string) {
+    map propertiesMap = {"jdbcUrl" : "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
+        "username":"SA", "password":"", "maximumPoolSize":1};
+    sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
+    sql:Parameter[] parameters=[];
+    datatable dt = sql:ClientConnector.call(testDB, "{call SelectPersonData()}",parameters);
+
+    string firstName;
+    while (datatables:next(dt)) {
+        firstName = datatables:getString(dt, 1);
+    }
+    datatables:close(dt);
+    return firstName;
+}
+
 function testConnectorWithDataSource() (string) {
     map propertiesMap = {"dataSourceClassName"  :"org.hsqldb.jdbc.JDBCDataSource",
         "dataSource.user":"SA", "dataSource.password":"", "dataSource.loginTimeout":0,

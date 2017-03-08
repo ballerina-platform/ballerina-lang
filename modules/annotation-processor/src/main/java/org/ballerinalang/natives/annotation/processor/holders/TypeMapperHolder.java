@@ -23,7 +23,7 @@ import org.ballerinalang.natives.annotations.BallerinaTypeMapper;
 import java.util.List;
 
 /**
- * DTO to hold Ballerina type convertor annotation
+ * DTO to hold Ballerina type convertor annotation.
  */
 public class TypeMapperHolder {
     
