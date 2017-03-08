@@ -42,6 +42,7 @@ import org.wso2.carbon.transport.http.netty.internal.websocket.WebSocketSessionI
 import org.wso2.carbon.transport.http.netty.sender.channel.pool.ConnectionManager;
 
 import java.net.InetSocketAddress;
+import java.net.URISyntaxException;
 import java.nio.ByteBuffer;
 import javax.websocket.Session;
 
@@ -56,6 +57,7 @@ public class WebSocketSourceHandler extends SourceHandler {
     private CarbonMessage cMsg;
     private final String channelId;
     private final boolean isSecured;
+    private final WebSocketSessionImpl session;
 
     /**
      * @param channelId This works as the session id of the WebSocket connection.
@@ -75,6 +77,7 @@ public class WebSocketSourceHandler extends SourceHandler {
         this.uri = uri;
         this.channelId = channelId;
         this.isSecured = isSecured;
+        this.session = new WebSocketSessionImpl(ctx, isSecured, uri, channelId);
         sendOnOpenMessage(ctx, isSecured, uri);
     }
 
@@ -102,7 +105,7 @@ public class WebSocketSourceHandler extends SourceHandler {
             String reasonText = closeWebSocketFrame.reasonText();
             int statusCode = closeWebSocketFrame.statusCode();
             ctx.channel().close();
-            WebSocketSessionManager.getInstance().removeSession(uri, channelId);
+            session.setIsOpen(false);
             cMsg = new StatusCarbonMessage(org.wso2.carbon.messaging.Constants.STATUS_CLOSE, statusCode, reasonText);
 
         } else if (msg instanceof PongWebSocketFrame) {
@@ -111,8 +114,9 @@ public class WebSocketSourceHandler extends SourceHandler {
             boolean finalFragment = pongWebSocketFrame.isFinalFragment();
             ByteBuf byteBuf = pongWebSocketFrame.content();
             ByteBuffer byteBuffer = byteBuf.nioBuffer();
-            cMsg = new ControlCarbonMessage(byteBuffer, finalFragment);
-
+            cMsg = new ControlCarbonMessage(org.wso2.carbon.messaging.Constants.CONTROL_SIGNAL_HEARTBEAT,
+                                            byteBuffer, finalFragment);
+            setupCarbonMessage(ctx);
         }
         setupCarbonMessage(ctx);
         publishToMessageProcessor(cMsg);
@@ -144,13 +148,10 @@ public class WebSocketSourceHandler extends SourceHandler {
         }
     }
 
-    /*
-    This method runs when initiating a connection.
-     */
-    private void sendOnOpenMessage(ChannelHandlerContext ctx, boolean isSecured, String uri) {
+
+    private void sendOnOpenMessage(ChannelHandlerContext ctx, boolean isSecured, String uri) throws URISyntaxException {
         cMsg = new StatusCarbonMessage(org.wso2.carbon.messaging.Constants.STATUS_OPEN, 0, null);
         Session session = new WebSocketSessionImpl(ctx, isSecured, uri, channelId);
-        WebSocketSessionManager.getInstance().add(uri, session);
         setupCarbonMessage(ctx);
         cMsg.setProperty(Constants.CONNECTION, Constants.UPGRADE);
         cMsg.setProperty(Constants.UPGRADE, Constants.WEBSOCKET_UPGRADE);
@@ -180,8 +181,7 @@ public class WebSocketSourceHandler extends SourceHandler {
         cMsg.setProperty(Constants.REMOTE_HOST, ((InetSocketAddress) ctx.channel().remoteAddress()).getHostName());
         cMsg.setProperty(Constants.REMOTE_PORT, ((InetSocketAddress) ctx.channel().remoteAddress()).getPort());
         cMsg.setProperty(Constants.CHANNEL_ID, channelId);
-        cMsg.setProperty(Constants.PROTOCOL, Constants.WEBSOCKET_PROTOCOL);
-        Session session = WebSocketSessionManager.getInstance().getSession(uri, channelId);
+        cMsg.setProperty(Constants.PROTOCOL, Constants.WEBSOCKET_PROTOCOL_NAME);
         cMsg.setProperty(Constants.WEBSOCKET_SESSION, session);
     }
 }
