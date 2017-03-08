@@ -19,13 +19,12 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <parent>
-        <groupId>org.wso2</groupId>
-        <artifactId>wso2</artifactId>
-        <version>5</version>
+        <groupId>org.ballerinalang</groupId>
+        <artifactId>ballerinalang</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
-    <groupId>org.ballerinalang</groupId>
     <artifactId>testerina</artifactId>
     <packaging>pom</packaging>
     <version>0.8.2-SNAPSHOT</version>
@@ -62,17 +61,6 @@
                 <artifactId>ballerina-launcher</artifactId>
                 <version>${ballerina.version}</version>
             </dependency>
-            <dependency>
-                <groupId>org.wso2.orbit.org.antlr</groupId>
-                <artifactId>antlr4-runtime</artifactId>
-                <version>${antlr4.runtime.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.beust</groupId>
-                <artifactId>jcommander</artifactId>
-                <version>${com.beust.jcommander.version}</version>
-            </dependency>
-
         </dependencies>
     </dependencyManagement>
 
@@ -101,20 +89,13 @@
 
         <ballerina.version>0.8.1</ballerina.version>
         <docerina.maven.plugin.version>0.8.1</docerina.maven.plugin.version>
-
-        <com.beust.jcommander.version>1.60</com.beust.jcommander.version>
-        <owasp.dependency.check.maven.version>1.4.0</owasp.dependency.check.maven.version>
-        <mvn.processor.plugin.version>2.2.4</mvn.processor.plugin.version>
         <mvn.exec.plugin.version>1.1.1</mvn.exec.plugin.version>
+        <mvn.processor.plugin.version>2.2.4</mvn.processor.plugin.version>
         <mvn.resource.plugins.version>3.0.2</mvn.resource.plugins.version>
-
-        <!-- Path to the testerina source directory -->
         <testerina.source.directory>${project.build.directory}/../src/main/ballerina</testerina.source.directory>
 
         <!-- Path to the generated natives ballerina files temp directory -->
         <generated.testerina.source.directory>${project.build.directory}/natives/</generated.testerina.source.directory>
-
-        <antlr4.runtime.version>4.5.1.wso2v1</antlr4.runtime.version>
     </properties>
 
     <modules>
