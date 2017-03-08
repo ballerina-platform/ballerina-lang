@@ -17,6 +17,7 @@
 package org.ballerinalang.plugins.idea.sdk;
 
 import com.intellij.execution.configurations.PathEnvironmentVariableUtil;
+import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.projectRoots.Sdk;
 import com.intellij.openapi.roots.ProjectRootManager;
@@ -28,15 +29,19 @@ import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VfsUtilCore;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
+import com.intellij.util.Function;
 import com.intellij.util.ObjectUtils;
 import com.intellij.util.containers.ContainerUtil;
 import org.ballerinalang.plugins.idea.BallerinaConstants;
+import org.ballerinalang.plugins.idea.project.BallerinaLibrariesService;
+import org.ballerinalang.plugins.idea.project.BallerinaApplicationLibrariesService;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -159,5 +164,39 @@ public class BallerinaSdkUtil {
             return sdkHome + File.separator + "bin/ballerina";
         }
         return "";
+    }
+
+    @NotNull
+    public static Collection<VirtualFile> getBallerinaPathsRootsFromEnvironment() {
+        return BallerinaPathModificationTracker.getBallerinaEnvironmentPathRoots();
+    }
+
+    @NotNull
+    private static List<VirtualFile> getInnerGoPathSources(@NotNull Project project, @Nullable Module module) {
+        return ContainerUtil.mapNotNull(getBallerinaPathRoots(project, module), new RetrieveSubDirectoryOrSelfFunction("src"));
+    }
+
+    @NotNull
+    public static Collection<VirtualFile> getBallerinaPathRoots(@NotNull Project project, @Nullable Module module) {
+        Collection<VirtualFile> roots = ContainerUtil.newArrayList();
+        if (BallerinaApplicationLibrariesService.getInstance().isUseBallerinaPathFromSystemEnvironment()) {
+            roots.addAll(getBallerinaPathsRootsFromEnvironment());
+        }
+        roots.addAll(module != null ? BallerinaLibrariesService.getUserDefinedLibraries(module) :
+                BallerinaLibrariesService.getUserDefinedLibraries(project));
+        return roots;
+    }
+
+    private static class RetrieveSubDirectoryOrSelfFunction implements Function<VirtualFile, VirtualFile> {
+        @NotNull private final String mySubdirName;
+
+        public RetrieveSubDirectoryOrSelfFunction(@NotNull String subdirName) {
+            mySubdirName = subdirName;
+        }
+
+        @Override
+        public VirtualFile fun(VirtualFile file) {
+            return file == null || FileUtil.namesEqual(mySubdirName, file.getName()) ? file : file.findChild(mySubdirName);
+        }
     }
 }

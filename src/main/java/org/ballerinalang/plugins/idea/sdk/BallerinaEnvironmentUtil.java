@@ -16,10 +16,14 @@
 
 package org.ballerinalang.plugins.idea.sdk;
 
+import com.intellij.openapi.application.PathMacros;
 import com.intellij.openapi.util.SystemInfo;
 import com.intellij.openapi.util.io.FileUtil;
+import com.intellij.util.EnvironmentUtil;
 import com.intellij.util.PathUtil;
+import org.ballerinalang.plugins.idea.BallerinaConstants;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class BallerinaEnvironmentUtil {
 
@@ -30,5 +34,11 @@ public class BallerinaEnvironmentUtil {
     public static String getBinaryFileNameForPath(@NotNull String path) {
         String resultBinaryName = FileUtil.getNameWithoutExtension(PathUtil.getFileName(path));
         return SystemInfo.isWindows ? resultBinaryName + ".exe" : resultBinaryName;
+    }
+
+    @Nullable
+    public static String retrieveRepositoryPathFromEnvironment() {
+        String path = EnvironmentUtil.getValue(BallerinaConstants.BALLERINA_REPOSITORY);
+        return path != null ? path : PathMacros.getInstance().getValue(BallerinaConstants.BALLERINA_REPOSITORY);
     }
 }

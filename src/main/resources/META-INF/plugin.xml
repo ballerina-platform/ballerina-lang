@@ -34,6 +34,12 @@
     <depends>com.intellij.modules.lang</depends>
     -->
 
+    <module-components>
+        <component>
+            <implementation-class>org.ballerinalang.plugins.idea.project.BallerinaModuleLibrariesInitializer</implementation-class>
+        </component>
+    </module-components>
+
     <extensions defaultExtensionNs="com.intellij">
         <!-- Add your extensions here -->
 
@@ -114,6 +120,8 @@
         <sdkType implementation="org.ballerinalang.plugins.idea.sdk.BallerinaSdkType"/>
         <projectSdkSetupValidator id="BallerinaSdk"
                                   implementation="org.ballerinalang.plugins.idea.codeinsight.daemon.impl.BallerinaProjectSdkSetupValidator"/>
+        <library.presentationProvider implementation="org.ballerinalang.plugins.idea.sdk.BallerinaSdkLibraryPresentationProvider"/>
+        <applicationService serviceImplementation="org.ballerinalang.plugins.idea.sdk.BallerinaPathModificationTracker"/>
 
         <!-- module -->
         <moduleType id="BALLERINA_MODULE" implementationClass="org.ballerinalang.plugins.idea.BallerinaModuleType"/>
@@ -123,6 +131,12 @@
                 implementation="org.ballerinalang.plugins.idea.run.configuration.application.BallerinaApplicationRunConfigurationType"/>
         <configurationType
                 implementation="org.ballerinalang.plugins.idea.run.configuration.service.BallerinaServiceRunConfigurationType"/>
+
+        <!--project-->
+        <applicationService serviceImplementation="org.ballerinalang.plugins.idea.project.BallerinaApplicationLibrariesService"/>
+        <projectService serviceImplementation="org.ballerinalang.plugins.idea.project.BallerinaProjectLibrariesService"/>
+        <projectConfigurable id="Ballerina" groupId="language" provider="org.ballerinalang.plugins.idea.configuration.BallerinaConfigurableProvider"
+                             dynamic="true"/>
 
     </extensions>
 

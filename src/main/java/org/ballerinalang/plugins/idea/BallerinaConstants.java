@@ -36,4 +36,8 @@ public class BallerinaConstants {
     public static final NotificationGroup BALLERINA_NOTIFICATION_GROUP =
             NotificationGroup.balloonGroup("Ballerina plugin notifications");
 
+    public static final String BALLERINA_REPOSITORY = "BALLERINA_REPOSITORY";
+    public static final String BALLERINA_LIBRARIES_SERVICE_NAME = "BallerinaLibraries";
+    public static final String BALLERINA_LIBRARIES_CONFIG_FILE = "BallerinaLibraries.xml";
+    public static final String BALLERINA_MODULE_SESTTINGS_SERVICE_NAME = "Ballerina";
 }
