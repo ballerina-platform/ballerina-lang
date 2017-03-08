@@ -214,7 +214,7 @@
 
     <properties>
         <maven.findbugsplugin.version.exclude>findbugs-exclude.xml</maven.findbugsplugin.version.exclude>
-        <ballerina.launcher.version>0.8.1</ballerina.launcher.version>
+        <ballerina.launcher.version>0.8.3-SNAPSHOT</ballerina.launcher.version>
         <surefireArgLine>-Dfile.encoding=UTF-8</surefireArgLine>
     </properties>
 </project>

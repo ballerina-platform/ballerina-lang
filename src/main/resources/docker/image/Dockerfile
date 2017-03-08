@@ -14,6 +14,6 @@
 # limitations under the License.
 # -----------------------------------------------------------------------
 
-FROM ballerinalang/ballerina:0.8.1-SNAPSHOT
+FROM ballerinalang/ballerina:BALLERINA_VERSION
 
 COPY files/* /ballerina/files/
