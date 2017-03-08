@@ -230,13 +230,11 @@ define(['jquery', 'backbone', 'lodash', 'log', 'event_channel', './debug-manager
     };
 
     Tools.prototype.enableNavigation = function(message) {
-        var self = this;
         this.navigation = true;
         this.render();
     };
 
     Tools.prototype.disableNavigation = function() {
-        var self = this;
         this.navigation = false;
         this.render();
     };
