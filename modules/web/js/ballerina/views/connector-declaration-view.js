@@ -130,6 +130,7 @@ define(['lodash','d3', 'jquery', './ballerina-view', '../ast/connector-declarati
                         self.setStyles(self._middleRectangle);
                     });
                 }
+                d3.event.stopPropagation();
             };
 
             var mouseOutHandler = function() {
