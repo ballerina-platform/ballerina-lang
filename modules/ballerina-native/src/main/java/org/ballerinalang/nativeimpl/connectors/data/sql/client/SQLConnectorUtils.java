@@ -64,13 +64,13 @@ public class SQLConnectorUtils {
         }
         try {
             if (Constants.QueryParamDirection.IN == direction) {
-                if (value == null) {
+                if (val == null) {
                     stmt.setNull(index + 1, sqlType);
                 } else {
                     stmt.setInt(index + 1, val);
                 }
             } else if (Constants.QueryParamDirection.INOUT == direction) {
-                if (value == null) {
+                if (val == null) {
                     stmt.setNull(index + 1, sqlType);
                 } else {
                     stmt.setInt(index + 1, val);
@@ -121,13 +121,13 @@ public class SQLConnectorUtils {
         }
         try {
             if (Constants.QueryParamDirection.IN == direction) {
-                if (value == null) {
+                if (val == null) {
                     stmt.setNull(index + 1, sqlType);
                 } else {
                     stmt.setDouble(index + 1, val);
                 }
             } else if (Constants.QueryParamDirection.INOUT == direction) {
-                if (value == null) {
+                if (val == null) {
                     stmt.setNull(index + 1, sqlType);
                 } else {
                     stmt.setDouble(index + 1, val);
@@ -153,13 +153,13 @@ public class SQLConnectorUtils {
         }
         try {
             if (Constants.QueryParamDirection.IN == direction) {
-                if (value == null) {
+                if (val == null) {
                     stmt.setNull(index + 1, sqlType);
                 } else {
                     stmt.setBigDecimal(index + 1, val);
                 }
             } else if (Constants.QueryParamDirection.INOUT == direction) {
-                if (value == null) {
+                if (val == null) {
                     stmt.setNull(index + 1, sqlType);
                 } else {
                     stmt.setBigDecimal(index + 1, val);
@@ -185,13 +185,13 @@ public class SQLConnectorUtils {
         }
         try {
             if (Constants.QueryParamDirection.IN == direction) {
-                if (value == null) {
+                if (val == null) {
                     stmt.setNull(index + 1, sqlType);
                 } else {
                     stmt.setBoolean(index + 1, val);
                 }
             } else if (Constants.QueryParamDirection.INOUT == direction) {
-                if (value == null) {
+                if (val == null) {
                     stmt.setNull(index + 1, sqlType);
                 } else {
                     stmt.setBoolean(index + 1, val);
@@ -217,13 +217,13 @@ public class SQLConnectorUtils {
         }
         try {
             if (Constants.QueryParamDirection.IN == direction) {
-                if (value == null) {
+                if (val == null) {
                     stmt.setNull(index + 1, sqlType);
                 } else {
                     stmt.setByte(index + 1, val);
                 }
             } else if (Constants.QueryParamDirection.INOUT == direction) {
-                if (value == null) {
+                if (val == null) {
                     stmt.setNull(index + 1, sqlType);
                 } else {
                     stmt.setByte(index + 1, val);
@@ -249,13 +249,13 @@ public class SQLConnectorUtils {
         }
         try {
             if (Constants.QueryParamDirection.IN == direction) {
-                if (value == null) {
+                if (val == null) {
                     stmt.setNull(index + 1, sqlType);
                 } else {
                     stmt.setShort(index + 1, val);
                 }
             } else if (Constants.QueryParamDirection.INOUT == direction) {
-                if (value == null) {
+                if (val == null) {
                     stmt.setNull(index + 1, sqlType);
                 } else {
                     stmt.setShort(index + 1, val);
@@ -281,13 +281,13 @@ public class SQLConnectorUtils {
         }
         try {
             if (Constants.QueryParamDirection.IN == direction) {
-                if (value == null) {
+                if (val == null) {
                     stmt.setNull(index + 1, sqlType);
                 } else {
                     stmt.setLong(index + 1, val);
                 }
             } else if (Constants.QueryParamDirection.INOUT == direction) {
-                if (value == null) {
+                if (val == null) {
                     stmt.setNull(index + 1, sqlType);
                 } else {
                     stmt.setLong(index + 1, val);
@@ -313,13 +313,13 @@ public class SQLConnectorUtils {
         }
         try {
             if (Constants.QueryParamDirection.IN == direction) {
-                if (value == null) {
+                if (val == null) {
                     stmt.setNull(index + 1, sqlType);
                 } else {
                     stmt.setFloat(index + 1, val);
                 }
             } else if (Constants.QueryParamDirection.INOUT == direction) {
-                if (value == null) {
+                if (val == null) {
                     stmt.setNull(index + 1, sqlType);
                 } else {
                     stmt.setFloat(index + 1, val);
@@ -345,13 +345,13 @@ public class SQLConnectorUtils {
         }
         try {
             if (Constants.QueryParamDirection.IN == direction) {
-                if (value == null) {
+                if (val == null) {
                     stmt.setNull(index + 1, sqlType);
                 } else {
                     stmt.setDate(index + 1, val);
                 }
             } else if (Constants.QueryParamDirection.INOUT == direction) {
-                if (value == null) {
+                if (val == null) {
                     stmt.setNull(index + 1, sqlType);
                 } else {
                     stmt.setDate(index + 1, val);
@@ -377,13 +377,13 @@ public class SQLConnectorUtils {
         }
         try {
             if (Constants.QueryParamDirection.IN == direction) {
-                if (value == null) {
+                if (val == null) {
                     stmt.setNull(index + 1, sqlType);
                 } else {
                     stmt.setTimestamp(index + 1, val);
                 }
             } else if (Constants.QueryParamDirection.INOUT == direction) {
-                if (value == null) {
+                if (val == null) {
                     stmt.setNull(index + 1, sqlType);
                 } else {
                     stmt.setTimestamp(index + 1, val);
@@ -409,13 +409,13 @@ public class SQLConnectorUtils {
         }
         try {
             if (Constants.QueryParamDirection.IN == direction) {
-                if (value == null) {
+                if (val == null) {
                     stmt.setNull(index + 1, sqlType);
                 } else {
                     stmt.setTime(index + 1, val);
                 }
             } else if (Constants.QueryParamDirection.INOUT == direction) {
-                if (value == null) {
+                if (val == null) {
                     stmt.setNull(index + 1, sqlType);
                 } else {
                     stmt.setTime(index + 1, val);
@@ -438,13 +438,13 @@ public class SQLConnectorUtils {
         }
         try {
             if (Constants.QueryParamDirection.IN == direction) {
-                if (value == null) {
+                if (val == null) {
                     stmt.setNull(index + 1, sqlType);
                 } else {
                     stmt.setBinaryStream(index + 1, new ByteArrayInputStream(val), val.length);
                 }
             } else if (Constants.QueryParamDirection.INOUT == direction) {
-                if (value == null) {
+                if (val == null) {
                     stmt.setNull(index + 1, sqlType);
                 } else {
                     stmt.setBinaryStream(index + 1, new ByteArrayInputStream(val), val.length);
@@ -467,13 +467,13 @@ public class SQLConnectorUtils {
         }
         try {
             if (Constants.QueryParamDirection.IN == direction) {
-                if (value == null) {
+                if (val == null) {
                     stmt.setNull(index + 1, sqlType);
                 } else {
                     stmt.setBlob(index + 1, new ByteArrayInputStream(val), val.length);
                 }
             } else if (Constants.QueryParamDirection.INOUT == direction) {
-                if (value == null) {
+                if (val == null) {
                     stmt.setNull(index + 1, sqlType);
                 } else {
                     stmt.setBlob(index + 1, new ByteArrayInputStream(val), val.length);
@@ -496,13 +496,13 @@ public class SQLConnectorUtils {
         }
         try {
             if (Constants.QueryParamDirection.IN == direction) {
-                if (value == null) {
+                if (val == null) {
                     stmt.setNull(index + 1, sqlType);
                 } else {
                     stmt.setClob(index + 1, val, value.stringValue().length());
                 }
             } else if (Constants.QueryParamDirection.INOUT == direction) {
-                if (value == null) {
+                if (val == null) {
                     stmt.setNull(index + 1, sqlType);
                 } else {
                     stmt.setClob(index + 1, val, value.stringValue().length());
