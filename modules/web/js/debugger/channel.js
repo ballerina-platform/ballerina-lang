@@ -44,7 +44,7 @@ define(['lodash', 'event_channel', 'log'],
             this.websocket = websocket;
         }
 
-        Channel.prototype.parseMessage = function (strMessage) {            
+        Channel.prototype.parseMessage = function (strMessage) {
             var message = JSON.parse(strMessage.data);
             this.debugger.processMesssage(message);
         };
