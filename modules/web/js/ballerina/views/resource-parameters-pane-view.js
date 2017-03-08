@@ -345,5 +345,27 @@ define(['lodash', 'log', 'jquery', 'alerts', './resource-parameter-view', './../
             return dropdownData;
         };
 
+        /**
+         * moves the position of parameter editor view
+         * @param {Object} args - object which contains delta values for x and y
+         * @param {Object} args.dx - delta value for x value
+         * @param {Object} args.dy - delta value for y value
+         */
+        ResourceParametersPaneView.prototype.move = function (args) {
+            var dx = _.get(args, "dx", 0);
+            var dy = _.get(args, "dy", 0);
+
+            // Left margin of the resource view
+            var leftMargin = this._viewOfModel.getBoundingBox().x();
+            var resourceParameterEditorLeft = parseInt(this._resourceParametersEditorWrapper.css("left"), 10) + dx;
+            // This is to ensure that resource parameter editor doesn't go beyond the left margin of the resource.(to avoid clipping)
+            if (leftMargin < resourceParameterEditorLeft) {
+                this._resourceParametersEditorWrapper.css("left", resourceParameterEditorLeft);
+            } else {
+                this._resourceParametersEditorWrapper.css("left", leftMargin);
+            }
+            this._resourceParametersEditorWrapper.css("top", (parseInt(this._resourceParametersEditorWrapper.css("top"), 10) + dy));
+        };
+
         return ResourceParametersPaneView;
     });
