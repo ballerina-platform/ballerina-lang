@@ -227,7 +227,7 @@
         <commons.lang3.version>3.5</commons.lang3.version>
         <commons.io.version>2.5</commons.io.version>
         <jcommander.version>1.60</jcommander.version>
-        <ballerina.launcher.version>0.8.1</ballerina.launcher.version>
+        <ballerina.launcher.version>0.8.3-SNAPSHOT</ballerina.launcher.version>
         <jacoco.version>0.7.5.201505241946</jacoco.version>
         <surefireArgLine>-Dfile.encoding=UTF-8</surefireArgLine>
     </properties>
