@@ -24,7 +24,7 @@ define(['jquery', 'backbone', 'lodash', 'log', 'event_channel', './debug-manager
 
         var template = 
         '<div class="debug-panel-header debug-frame-header">'+
-        '   <a class="tool-group-header-title">Frames</a></span>'+
+        '   <span><a class="tool-group-header-title">Frames</a></span>'+
         '</div>'+
         '<div class="panel-group" id="frameAccordion">'+
         '<% _.forEach(frames, function(frame, index) { %>'+       
@@ -38,7 +38,7 @@ define(['jquery', 'backbone', 'lodash', 'log', 'event_channel', './debug-manager
         '          </a>'+
         '        </h4>'+
         '      </div>'+
-        '      <div id="<%- frame.frameName %>" class="panel-collapse collapse <% if(index == 0){%>in<% } %>">'+
+        '      <div id="debugger-frame-<%- frame.frameName %>" class="panel-collapse collapse <% if(index == 0){%>in<% } %>">'+
         '        <div class="panel-body">'+
         '        <div class="debug-v-tree">'+
         '          <ul>'+
@@ -72,6 +72,8 @@ define(['jquery', 'backbone', 'lodash', 'log', 'event_channel', './debug-manager
 
         DebugManager.on('debug-hit', _.bindKey(this,'render'));
         DebugManager.on('resume-execution', _.bindKey(this,'clear'));
+        DebugManager.on('session-ended', _.bindKey(this,'clear'));
+        DebugManager.on('session-completed', _.bindKey(this,'clear'));
     };
 
     Frames.prototype = Object.create(EventChannel.prototype);
@@ -81,7 +83,7 @@ define(['jquery', 'backbone', 'lodash', 'log', 'event_channel', './debug-manager
         this.container = container;
     };
 
-    Frames.prototype.clear =function(message){
+    Frames.prototype.clear = function(){
         this.container.empty();
     };
 
