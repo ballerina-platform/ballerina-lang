@@ -15,8 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import _ from 'lodash';
 import log from 'log';
+import _ from 'lodash';
 import AbstractSourceGenVisitor from './abstract-source-gen-visitor';
 import StatementVisitorFactory from './statement-visitor-factory';
 import ExpressionVisitorFactory from './expression-visitor-factory';
@@ -43,35 +43,14 @@ class ResourceDefinitionVisitor extends AbstractSourceGenVisitor {
          * If we need to add additional parameters which are dynamically added to the configuration start
          * that particular source generation has to be constructed here
          */
-        var self = this;
-        _.forEach(resourceDefinition.getAnnotations(), function(annotation) {
-            if (!_.isEmpty(annotation.value)) {
-
-                // At the moment we support only the http:Method and http:Path
-
-                var constructedPathAnnotation;
-                if (annotation.key.indexOf(":") !== -1) {
-                    constructedPathAnnotation = '@' + annotation.key + '("' + annotation.value + '")\n';
-                    // Separately handling the HTTP method annotations.
-                    if (_.isEqual(annotation.key, "http:Method")) {
-                        constructedPathAnnotation = "";
-                        var methods = annotation.value.replace( /\n/g, " " ).split(/[\s,]+/);
-                        _.forEach(methods, function(method){
-                            var cleanedMethod = method.trim();
-                            if (!_.isEmpty(cleanedMethod)) {
-                                constructedPathAnnotation += '@http:' + cleanedMethod + " {}\n";
-                            }
-                        });
-                    }
-                    else if (_.isEqual(annotation.key, "http:Path")) {
-                        constructedPathAnnotation = '@http:Path { value : "' + annotation.value +'" }';
-                    }
-                }
-                self.appendSource(self.getParent().getIndentation() + constructedPathAnnotation);
+        let constructedSourceSegment = '';
+        _.forEach(resourceDefinition.getChildrenOfType(resourceDefinition.getFactory().isAnnotation), annotationNode => {
+            if (annotationNode.isSupported()) {
+                constructedSourceSegment += annotationNode.toString() + '\n';
             }
         });
 
-        var constructedSourceSegment = 'resource ' + resourceDefinition.getResourceName() + ' (';
+        constructedSourceSegment += 'resource ' + resourceDefinition.getResourceName() + '(';
 
         constructedSourceSegment += resourceDefinition.getParametersAsString() + ') {\n';
         this.appendSource(this.getIndentation() + constructedSourceSegment);
