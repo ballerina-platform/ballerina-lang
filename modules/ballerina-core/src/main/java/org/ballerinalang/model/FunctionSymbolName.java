@@ -20,7 +20,7 @@ package org.ballerinalang.model;
 /**
  * {@code FunctionSymbolName} represents a package qualified name of a {@link Symbol} in Ballerina.
  *
- * @since 0.8.4
+ * @since 0.8.3
  */
 public class FunctionSymbolName extends SymbolName {
     private int noOfParameters;
