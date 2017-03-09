@@ -66,7 +66,11 @@ public abstract class StreamCallback implements StreamJunction.Receiver {
             eventBuffer.add(new Event(complexEvent.getOutputData().length).copyFrom(complexEvent));
             complexEvent = complexEvent.getNext();
         }
-        receiveEvents(eventBuffer.toArray(new Event[eventBuffer.size()]));
+        if (eventBuffer.size() == 1) {
+            receive(eventBuffer.get(0));
+        } else {
+            receiveEvents(eventBuffer.toArray(new Event[eventBuffer.size()]));
+        }
     }
 
     @Override

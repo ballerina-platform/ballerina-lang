@@ -19,18 +19,16 @@
 package org.wso2.siddhi.extension.output.transport.kafka;
 
 import org.apache.kafka.clients.producer.Producer;
-import kafka.producer.KeyedMessage;
 import kafka.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.log4j.Logger;
 import org.wso2.siddhi.annotation.Extension;
-import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
 import org.wso2.siddhi.core.stream.output.sink.OutputTransport;
 import org.wso2.siddhi.core.util.transport.Option;
 import org.wso2.siddhi.core.util.transport.OptionHolder;
-import org.wso2.siddhi.query.api.definition.StreamDefinition;
+import org.wso2.siddhi.core.util.transport.DynamicOptions;
 
 import java.util.Properties;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -72,7 +70,7 @@ public class KafkaOutputTransport extends OutputTransport {
     private Option partitionNumber;
 
     @Override
-    protected void init(StreamDefinition streamDefinition, OptionHolder optionHolder) {
+    protected String[] init(OptionHolder optionHolder) {
         //ThreadPoolExecutor will be assigned  if it is null
         if (threadPoolExecutor == null) {
             int minThread;
@@ -102,6 +100,7 @@ public class KafkaOutputTransport extends OutputTransport {
             threadPoolExecutor = new ThreadPoolExecutor(minThread, maxThread, defaultKeepAliveTime,
                     TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>(jobQueSize));
         }
+        return new String[0];
     }
 
     @Override
@@ -134,11 +133,11 @@ public class KafkaOutputTransport extends OutputTransport {
     }
 
     @Override
-    protected void publish(Object payload, Event event, OptionHolder optionHolder) throws ConnectionUnavailableException {
-        String topic = topicOption.getValue(event);
-        int partitionNo = Integer.parseInt(partitionNumber.getValue(event));
+    public void publish(Object payload, DynamicOptions dynamicOptions) throws ConnectionUnavailableException {
+        String topic = topicOption.getValue(dynamicOptions);
+        int partitionNo = Integer.parseInt(partitionNumber.getValue(dynamicOptions));
         try {
-            threadPoolExecutor.submit(new KafkaSender(topic, partitionNo, event));
+            threadPoolExecutor.submit(new KafkaSender(topic, partitionNo, payload));
         } catch (RejectedExecutionException e) {
             log.error("Job queue is full : " + e.getMessage(), e);
         }

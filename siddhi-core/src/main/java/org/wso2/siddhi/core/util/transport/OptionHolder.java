@@ -7,9 +7,6 @@ import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.wso2.siddhi.core.util.transport.Option.Type.DYNAMIC;
-import static org.wso2.siddhi.core.util.transport.Option.Type.STATIC;
-
 public class OptionHolder {
 
     private final Map<String, Option> options = new HashMap<>();
@@ -19,10 +16,10 @@ public class OptionHolder {
                         Map<String, String> dynamicOptions, Extension extension) {
         this.extension = extension;
         for (Map.Entry<String, String> entry : staticOptions.entrySet()) {
-            options.put(entry.getKey(), new Option(entry.getKey(), entry.getValue(), STATIC, null));
+            options.put(entry.getKey(), new Option(entry.getKey(), entry.getValue(), null));
         }
         for (Map.Entry<String, String> entry : dynamicOptions.entrySet()) {
-            options.put(entry.getKey(), new Option(entry.getKey(), null, DYNAMIC,
+            options.put(entry.getKey(), new Option(entry.getKey(), null,
                     new TemplateBuilder(streamDefinition, entry.getValue())));
         }
     }
@@ -39,7 +36,7 @@ public class OptionHolder {
     public Option getOrCreateOption(String optionKey, String defaultValue) {
         Option option = options.get(optionKey);
         if (option == null) {
-            option = new Option(optionKey, defaultValue, STATIC, null);
+            option = new Option(optionKey, defaultValue, null);
         }
         return option;
     }
@@ -47,9 +44,9 @@ public class OptionHolder {
     public String validateAndGetStaticValue(String optionKey, String defaultValue) {
         Option option = options.get(optionKey);
         if (option != null) {
-            if (option.getType() != STATIC) {
-                throw new ExecutionPlanValidationException("'" + optionKey + "' is not a '" + STATIC +
-                        "' option in the configuration of " + extension.namespace() + ":" + extension.name() + ".");
+            if (!option.isStatic()) {
+                throw new ExecutionPlanValidationException("'" + optionKey + "' is not a 'static' " +
+                        "option in the configuration of " + extension.namespace() + ":" + extension.name() + ".");
             }
             return option.getValue();
         } else {
@@ -60,14 +57,14 @@ public class OptionHolder {
     public String validateAndGetStaticValue(String optionKey) {
         Option option = options.get(optionKey);
         if (option != null) {
-            if (option.getType() != STATIC) {
-                throw new ExecutionPlanValidationException("'" + optionKey + "' is defined as a '" + option.getType() +
-                        "' option but it has to be a '" + STATIC + "' option for the " + extension.namespace() + ":" +
+            if (!option.isStatic()) {
+                throw new ExecutionPlanValidationException("'" + optionKey + "' is defined as a 'dynamic' option " +
+                        "but it has to be a 'static' option for the " + extension.namespace() + ":" +
                         extension.name() + " configuration.");
             }
             return option.getValue();
         } else {
-            throw new ExecutionPlanValidationException("'" + optionKey + "' '" + STATIC + "' option is not " +
+            throw new ExecutionPlanValidationException("'" + optionKey + "' 'static' option is not " +
                     "defined in the configuration of " + extension.namespace() + ":" + extension.name() + ".");
         }
     }

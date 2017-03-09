@@ -21,6 +21,7 @@ package org.wso2.siddhi.core.stream.output.sink;
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
+import org.wso2.siddhi.core.util.transport.DynamicOptions;
 import org.wso2.siddhi.core.util.transport.OptionHolder;
 import org.wso2.siddhi.core.util.transport.TemplateBuilder;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
@@ -38,9 +39,16 @@ public class PassThroughOutputMapper extends OutputMapper {
     }
 
     @Override
-    public void mapAndSend(Event[] events, OutputTransportCallback outputTransportCallback,
-                           OptionHolder optionHolder, TemplateBuilder payloadTemplateBuilder)
-            throws ConnectionUnavailableException {
-        outputTransportCallback.publish(events, events[0]);
+    public void mapAndSend(Event[] events, OptionHolder optionHolder, TemplateBuilder payloadTemplateBuilder,
+                           OutputTransportListener outputTransportListener, DynamicOptions dynamicTransportOptions) throws ConnectionUnavailableException {
+        outputTransportListener.publish(events, dynamicTransportOptions);
     }
+
+    @Override
+    public void mapAndSend(Event event, OptionHolder optionHolder, TemplateBuilder payloadTemplateBuilder,
+                           OutputTransportListener outputTransportListener, DynamicOptions dynamicTransportOptions) throws ConnectionUnavailableException {
+        outputTransportListener.publish(event, dynamicTransportOptions);
+
+    }
+
 }
