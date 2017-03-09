@@ -1914,11 +1914,12 @@ public class SemanticAnalyzer implements NodeVisitor {
             paramTypes[i] = exprs[i].getType();
         }
 
-        SymbolName symbolName = LangModelUtils.getSymNameWithParams(funcIExpr.getName(), pkgPath, paramTypes);
+        FunctionSymbolName symbolName = LangModelUtils.getFuncSymNameWithParams(funcIExpr.getName(),
+                                                                                pkgPath, paramTypes);
         BLangSymbol functionSymbol = currentScope.resolve(symbolName);
 
         if (functionSymbol == null) {
-            functionSymbol = findBestMatchForFunctionSymbol(symbolName);
+            functionSymbol = findBestMatchForFunctionSymbol(funcIExpr, symbolName);
         }
 
         if (functionSymbol == null) {
@@ -1964,8 +1965,8 @@ public class SemanticAnalyzer implements NodeVisitor {
      * @param symbolName
      * @return bLangSymbol
      */
-    private BLangSymbol findBestMatchForFunctionSymbol(SymbolName symbolName) {
-        // resolve the package symbol first
+    private BLangSymbol findBestMatchForFunctionSymbol(FunctionInvocationExpr funcIExpr, SymbolName symbolName) {
+        BLangSymbol functionSymbol = null;
         BLangSymbol pkgSymbol = null;
         if (symbolName.getPkgPath() == null) {
             pkgSymbol = (BLangPackage) getCurrentPackageScope(currentScope);
@@ -1973,49 +1974,55 @@ public class SemanticAnalyzer implements NodeVisitor {
             SymbolName pkgSymbolName = new SymbolName(symbolName.getPkgPath());
             pkgSymbol = currentScope.resolve(pkgSymbolName);
         }
+        //pkgSymbol should be a instance of SymbolScope, hence doesn't do the check here
+        if (pkgSymbol == null) {
+            return null;
+        }
+        for (Map.Entry entry : ((SymbolScope) pkgSymbol).getSymbolMap().entrySet()) {
+            if (!(entry.getKey() instanceof FunctionSymbolName)) {
+                continue;
+            }
+            FunctionSymbolName funcSymName = (FunctionSymbolName) entry.getKey();
+            if (!funcSymName.isFunctionsEqual((FunctionSymbolName) symbolName)) {
+                continue;
+            }
 
-        if (pkgSymbol != null && pkgSymbol instanceof SymbolScope) {
-            BLangSymbol matchingFunction = null;
-            for (Map.Entry entry : ((SymbolScope) pkgSymbol).getSymbolMap().entrySet()) {
-                if (!(entry.getKey() instanceof FunctionSymbolName)) {
+            boolean implicitCastPossible = true;
+            Expression[] exprs = funcIExpr.getArgExprs();
+            for (int i = 0; i < exprs.length; i++) {
+                BType lhsType = ((Function) entry.getValue()).getParameterDefs()[i].getType();
+
+                BType rhsType = exprs[i].getType();
+                if (rhsType != null && lhsType.equals(rhsType)) {
                     continue;
                 }
-                FunctionSymbolName functionSymbolName = (FunctionSymbolName) entry.getKey();
-                if (functionSymbolName.getFuncName().equals(((FunctionSymbolName) symbolName).getFuncName()) &&
-                    functionSymbolName.getNoOfParameters() == ((FunctionSymbolName) symbolName).getNoOfParameters()) {
-                    if (checkForImplicitParamCasting(symbolName, functionSymbolName) && matchingFunction == null) {
-                        matchingFunction = (BLangSymbol) entry.getValue();
-                    } else {
-                        return null;
-                    }
+                TypeCastExpression newExpr = checkWideningPossible(lhsType, exprs[i]);
+                if (newExpr != null) {
+                    exprs[i] = newExpr;
+                } else {
+                    implicitCastPossible = false;
+                    break;
                 }
             }
-            return matchingFunction;
-        }
-        return null;
-    }
-
-    /**
-     * Helper method to find whether there are implicit castings for the function parameters.
-     *
-     * @param symbolName
-     * @param functionSymbolName
-     * @return true if implicit casting is possible
-     */
-    private boolean checkForImplicitParamCasting(SymbolName symbolName, FunctionSymbolName functionSymbolName) {
-        boolean implicitCastPossible = true;
-
-        for (int i = 0; i < functionSymbolName.getParameterTypes().length; i++) {
-            BType lhsType = functionSymbolName.getParameterTypes()[i];
-            BType rhsType = ((FunctionSymbolName) symbolName).getParameterTypes()[i];
-
-            TypeEdge newEdge = TypeLattice.getImplicitCastLattice().getEdgeFromTypes(rhsType, lhsType, null);
-            if (newEdge == null) {
-                implicitCastPossible = false;
+            if (implicitCastPossible && functionSymbol == null) {
+                functionSymbol = (BLangSymbol) entry.getValue();
+            } else {
+                /**
+                 * This way second ambiguous function will cause this method to throw semantic error, so in a scenario
+                 * where there are more than two ambiguous functions, then this will show only the first two.
+                 */
+                SymbolName matchingFuncSym = functionSymbol.getSymbolName();
+                String ambiguousFunc1 = (matchingFuncSym.getPkgPath() != null) ?
+                                        matchingFuncSym.getPkgPath() + ":" + matchingFuncSym.getName() :
+                                        matchingFuncSym.getName();
+                String ambiguousFunc2 = (funcSymName.getPkgPath() != null) ?
+                                        funcSymName.getPkgPath() + ":" + funcSymName.getName() : funcSymName.getName();
+                BLangExceptionHelper.throwSemanticError(funcIExpr, SemanticErrors.AMBIGUOUS_FUNCTIONS,
+                                                        funcSymName.getFuncName(), ambiguousFunc1, ambiguousFunc2);
                 break;
             }
         }
-        return implicitCastPossible;
+        return functionSymbol;
     }
 
     /**
@@ -2330,8 +2337,8 @@ public class SemanticAnalyzer implements NodeVisitor {
             }
 
             function.setParameterTypes(paramTypes);
-            SymbolName symbolName = LangModelUtils.getSymNameWithParams(function.getName(),
-                    function.getPackagePath(), paramTypes);
+            FunctionSymbolName symbolName = LangModelUtils.getFuncSymNameWithParams(function.getName(),
+                                                                            function.getPackagePath(), paramTypes);
             function.setSymbolName(symbolName);
 
             BLangSymbol functionSymbol = currentScope.resolve(symbolName);

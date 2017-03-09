@@ -17,8 +17,6 @@
 */
 package org.ballerinalang.model;
 
-import org.ballerinalang.model.types.BType;
-
 /**
  * {@code FunctionSymbolName} represents a package qualified name of a {@link Symbol} in Ballerina.
  *
@@ -27,20 +25,17 @@ import org.ballerinalang.model.types.BType;
 public class FunctionSymbolName extends SymbolName {
     private int noOfParameters;
     private String funcName;
-    private BType[] parameterTypes;
 
-    public FunctionSymbolName(String name, String funcName, String pkgPath, int noOfParameters, BType[] types) {
+    public FunctionSymbolName(String name, String funcName, String pkgPath, int noOfParameters) {
         super(name, pkgPath);
         this.funcName = funcName;
         this.noOfParameters = noOfParameters;
-        this.parameterTypes = types;
     }
 
-    public FunctionSymbolName(String name, String funcName, int noOfParameters, BType[] types) {
+    public FunctionSymbolName(String name, String funcName, int noOfParameters) {
         super(name);
         this.funcName = funcName;
         this.noOfParameters = noOfParameters;
-        this.parameterTypes = types;
     }
 
     public int getNoOfParameters() {
@@ -51,7 +46,8 @@ public class FunctionSymbolName extends SymbolName {
         return funcName;
     }
 
-    public BType[] getParameterTypes() {
-        return parameterTypes;
+    public boolean isFunctionsEqual(FunctionSymbolName funcSymName) {
+        return this.funcName.equals(funcSymName.getFuncName())
+               && (this.getNoOfParameters() == funcSymName.getNoOfParameters());
     }
 }
