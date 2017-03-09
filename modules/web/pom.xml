@@ -154,5 +154,6 @@
 
     <properties>
         <maven.test.skip>false</maven.test.skip>
+        <npm.executable>npm</npm.executable>
     </properties>
 </project>
