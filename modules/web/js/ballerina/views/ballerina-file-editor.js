@@ -27,6 +27,7 @@ import BallerinaASTFactory from './../ast/ballerina-ast-factory';
 import SourceView from './source-view';
 import SwaggerView from './swagger-view';
 import SourceGenVisitor from './../visitors/source-gen/ballerina-ast-root-visitor';
+import SwaggerJsonVisitor from './../visitors/swagger-json-gen/service-definition-visitor';
 import SymbolTableGenVisitor from './../visitors/symbol-table/ballerina-ast-root-visitor';
 import ToolPalette from './../tool-palette/tool-palette';
 import UndoManager from './../undo-manager/undo-manager';
@@ -90,10 +91,8 @@ class BallerinaFileEditor extends BallerinaView {
     getContent() {
         if (this.isInSourceView()) {
             return this._sourceView.getContent();
-        } else if (this.isInSwaggerView()) {
-            return this._swaggerView.getContent();
         } else {
-            var generatedSource = this.generateSource();
+            let generatedSource = this.generateSource();
             this._sourceView.setContent(generatedSource);
             this._sourceView.format(true);
             return this._sourceView.getContent();
@@ -505,8 +504,8 @@ class BallerinaFileEditor extends BallerinaView {
         _.set(swaggerViewOpts, 'container', swaggerViewContainer);
         _.set(swaggerViewOpts, 'content', '');
         _.set(swaggerViewOpts, 'backend', new Backend({url : _.get(this._backendEndpointsOptions, 'swagger.endpoint')}));
+        _.set(swaggerViewOpts, 'swaggerEditorId', this.getModel().getID() + '-swagger-editor');
         this._swaggerView = new SwaggerView(swaggerViewOpts);
-        this._swaggerView.render();
 
         var sourceViewBtn = $(this._container).find(_.get(this._viewOptions, 'controls.view_source_btn'));
         sourceViewBtn.click(() => {
@@ -581,11 +580,8 @@ class BallerinaFileEditor extends BallerinaView {
                     return;
                 }
 
-                var generatedSource = self.generateSource();
-
                 // Get the generated swagger and append it to the swagger view container's content
-                self._swaggerView.setContent(generatedSource);
-                self._swaggerView.setNodeTree(treeModel);//setting fallback node tree
+                self._swaggerView.render(self.generateSwaggerSources());//setting fallback node tree
 
                 swaggerViewContainer.show();
                 sourceViewContainer.hide();
@@ -595,8 +591,8 @@ class BallerinaFileEditor extends BallerinaView {
                 swaggerViewBtn.hide();
                 self.toolPalette.hide();
                 self.setActiveView('swagger');
-                alerts.warn('This version only supports one service representation on Swagger');
             } catch (err) {
+                log.error(err);
                 alerts.error(err.message);
             }
         });
@@ -636,8 +632,7 @@ class BallerinaFileEditor extends BallerinaView {
                 self._sourceView.markClean();
                 self._createConstantDefinitionsView(self._$canvasContainer);
             } else if (isSwaggerChanged) {
-                self.setModel(self._swaggerView.getContent());
-                // reset source editor delta stack
+                // Nothing to do, all changed are merge to the AST on-edit of the swagger view.
             }
             //canvas should be visible before you can call reDraw. drawing dependednt on attr:offsetWidth
             self.toolPalette.show();
@@ -753,6 +748,18 @@ class BallerinaFileEditor extends BallerinaView {
         var sourceGenVisitor = new SourceGenVisitor();
         this._model.accept(sourceGenVisitor);
         return sourceGenVisitor.getGeneratedSource();
+    }
+
+    generateSwaggerSources() {
+        // Visit the ast model and generate the source
+        let swaggerSources = [];
+        for (let i = 0; i < _.size(this.getModel().getServiceDefinitions()); i++) {
+            let swaggerJsonVisitor = new SwaggerJsonVisitor();
+            this.getModel().getServiceDefinitions()[i].accept(swaggerJsonVisitor);
+            swaggerSources.push({serviceDefinitionAST: this.getModel().getServiceDefinitions()[i], swagger: swaggerJsonVisitor.getSwaggerJson()});
+        }
+
+        return swaggerSources;
     }
 
     /**
@@ -1147,23 +1154,8 @@ class BallerinaFileEditor extends BallerinaView {
         return this.deserializer.getASTModel(response);
     }
 
-    getPathToNode(node, pathVector) {
-        var nodeParent = node.getParent();
-        if (!_.isNil(nodeParent)) {
-            var nodeIndex = _.findIndex(nodeParent.getChildren(), node);
-            pathVector.push(nodeIndex);
-            this.getPathToNode(nodeParent, pathVector);
-        }
-    }
-
-    getNodeByVector(root, pathVector) {
-        var returnNode = root;
-        var reverseVector = _.reverse(pathVector);
-
-        _.forEach(reverseVector, function (index) {
-            returnNode = returnNode.getChildren()[index];
-        });
-        return returnNode;
+    getFile() {
+        return this._file;
     }
 
     publishBreakPoints() {

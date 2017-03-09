@@ -629,21 +629,16 @@ class ConnectorActionView extends BallerinaView {
             self._model.remove();
         });
 
-        var annotationProperties = {
-            model: this._model,
-            activatorElement: headingAnnotationIcon.node(),
-            paneAppendElement: this.getChildContainer().node().ownerSVGElement.parentElement,
-            viewOptions: {
-                position: {
-                    // "-1" to remove the svg stroke line
-                    left: parseFloat(this.getChildContainer().attr('x')) + parseFloat(this.getChildContainer().attr('width')) - 1,
-                    top: this.getChildContainer().attr('y')
-                }
-            },
-            view: this
+        let annotationViewArgs = {
+            astNode: this.getModel(),
+            diagramRenderingContext: this.getDiagramRenderingContext()
         };
-
-        this._annotationView = new AnnotationView().createAnnotationPane(annotationProperties);
+        // this._annotationView = new AnnotationView(annotationViewArgs);
+        // this._annotationView.render();
+        // $(headingAnnotationIcon.node()).click(function() {
+        //     self._annotationView.setEditorValue();
+        //     self._annotationView.showEditor();
+        // });
 
         var argumentsProperties = {
             model: this._model,

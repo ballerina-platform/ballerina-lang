@@ -24,25 +24,12 @@ import CommonUtils from '../utils/common-utils';
  * Constructor for ServiceDefinition
  * @param {Object} args - The arguments to create the ServiceDefinition
  * @param {string} [args.serviceName=newService] - Service name
- * @param {string[]} [args.annotations] - Service annotations
- * @param {string} [args.annotations.BasePath] - Service annotation for BasePath
  * @constructor
  */
 class ServiceDefinition extends ASTNode {
     constructor(args) {
         super('Service');
         this._serviceName = _.get(args, 'serviceName');
-        this._annotations = _.get(args, 'annotations', []);
-
-        // Adding available annotations and their default values.
-        if (_.isNil(_.find(this._annotations, function (annotation) {
-                return annotation.key == "http:BasePath";
-            }))) {
-            this._annotations.push({
-                key: "http:BasePath",
-                value: ""
-            });
-        }
 
         // TODO: All the types should be referred from the global constants
         this.BallerinaASTFactory = this.getFactory();
@@ -60,10 +47,6 @@ class ServiceDefinition extends ASTNode {
 
     getServiceName() {
         return this._serviceName;
-    }
-
-    getAnnotations() {
-        return this._annotations;
     }
 
     getConnectionDeclarations() {
@@ -158,24 +141,6 @@ class ServiceDefinition extends ASTNode {
     }
 
     /**
-     * Adding/Updating an annotation.
-     * @param key - Annotation key
-     * @param value - Value for the annotation.
-     */
-    addAnnotation(key, value) {
-        if (!_.isNil(key) && !_.isNil(value)) {
-            var options = {
-              predicate: {key: key}
-            }
-            this.pushToArrayAttribute('_annotations', {key: key, value: value}, options);
-        } else {
-            var errorString = "Cannot add annotation @" + key + "(\"" + value + "\").";
-            log.error(errorString);
-            throw errorString;
-        }
-    }
-
-    /**
      * Validates possible immediate child types.
      * @override
      * @param node
@@ -197,21 +162,10 @@ class ServiceDefinition extends ASTNode {
         var self = this;
         this.setServiceName(jsonNode.service_name, {doSilently: true});
 
-        // Populate the annotations array
-        for (var itr = 0; itr < this._annotations.length; itr ++) {
-            var key = this._annotations[itr].key;
-            for (var itrInner = 0; itrInner < jsonNode.annotation_attachments.length; itrInner ++) {
-                var annotationName = jsonNode.annotation_attachments[itrInner].annotation_package_name + ":" +
-                    jsonNode.annotation_attachments[itrInner].annotation_name;
-                if (annotationName === key) {
-                    this._annotations[itr].value = jsonNode.annotation_attachments[itrInner].children[0].value;
-                }
-            }
-        }
         _.each(jsonNode.children, function (childNode) {
             var child = undefined;
             var childNodeTemp = undefined;
-            if (childNode.type === "variable_definition_statement" && !_.isNil(childNode.children[1]) && childNode.children[1].type === 'connector_init_expr') {
+            if (childNode.type === 'variable_definition_statement' && !_.isNil(childNode.children[1]) && childNode.children[1].type === 'connector_init_expr') {
                 child = self.BallerinaASTFactory.createConnectorDeclaration();
                 childNodeTemp = childNode;
             } else {
@@ -228,7 +182,7 @@ class ServiceDefinition extends ASTNode {
      * @param {ASTNode} child
      * @param {number} index
      */
-    addChild(child, index) {
+    addChild(child, index, ignoreTreeModifiedEvent) {
         var self = this;
         var newIndex = index;
         // Always the connector declarations should be the first children
@@ -245,9 +199,9 @@ class ServiceDefinition extends ASTNode {
             newIndex = newIndex + 1;
         }
         if (newIndex === -1) {
-            Object.getPrototypeOf(this.constructor.prototype).addChild.call(this, child, 0);
+            Object.getPrototypeOf(this.constructor.prototype).addChild.call(this, child, 0, ignoreTreeModifiedEvent);
         } else {
-            Object.getPrototypeOf(this.constructor.prototype).addChild.call(this, child, newIndex);
+            Object.getPrototypeOf(this.constructor.prototype).addChild.call(this, child, newIndex, ignoreTreeModifiedEvent);
         }
     }
 
@@ -317,5 +271,3 @@ class ServiceDefinition extends ASTNode {
 }
 
 export default ServiceDefinition;
-
-

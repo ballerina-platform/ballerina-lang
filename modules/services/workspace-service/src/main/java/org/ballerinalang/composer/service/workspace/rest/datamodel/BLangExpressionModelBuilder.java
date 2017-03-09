@@ -576,7 +576,7 @@ public class BLangExpressionModelBuilder implements NodeVisitor {
     public void visit(NullLiteral nullLiteral) {
 
     }
-
+    
     @Override
     public void visit(TypeCastExpression typeCastExpression) {
         
