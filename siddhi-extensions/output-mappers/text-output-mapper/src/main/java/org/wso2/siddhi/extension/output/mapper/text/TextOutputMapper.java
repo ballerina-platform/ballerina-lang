@@ -22,9 +22,10 @@ import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
 import org.wso2.siddhi.core.stream.output.sink.OutputMapper;
-import org.wso2.siddhi.core.stream.output.sink.OutputTransportCallback;
-import org.wso2.siddhi.core.util.transport.TemplateBuilder;
+import org.wso2.siddhi.core.stream.output.sink.OutputTransportListener;
+import org.wso2.siddhi.core.util.transport.DynamicOptions;
 import org.wso2.siddhi.core.util.transport.OptionHolder;
+import org.wso2.siddhi.core.util.transport.TemplateBuilder;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
 
 
@@ -41,8 +42,9 @@ public class TextOutputMapper extends OutputMapper {
 
     /**
      * Initialize the mapper and the mapping configurations
-     *  @param streamDefinition The stream definition
-     * @param optionHolder     Unmapped dynamic options
+     *
+     * @param streamDefinition       The stream definition
+     * @param optionHolder           Unmapped dynamic options
      * @param payloadTemplateBuilder
      */
     @Override
@@ -52,15 +54,28 @@ public class TextOutputMapper extends OutputMapper {
     }
 
     @Override
-    public void mapAndSend(Event[] events, OutputTransportCallback outputTransportCallback, OptionHolder optionHolder, TemplateBuilder payloadTemplateBuilder) throws ConnectionUnavailableException {
+    public void mapAndSend(Event[] events, OptionHolder optionHolder, TemplateBuilder payloadTemplateBuilder,
+                           OutputTransportListener outputTransportListener, DynamicOptions dynamicTransportOptions)
+            throws ConnectionUnavailableException {
         if (this.payloadTemplateBuilder != null) {
             for (Event event : events) {
-                outputTransportCallback.publish(payloadTemplateBuilder.build(event), event);
+                outputTransportListener.publish(payloadTemplateBuilder.build(event), dynamicTransportOptions);
             }
         } else {
             for (Event event : events) {
-                outputTransportCallback.publish(constructDefaultMapping(event), event);
+                outputTransportListener.publish(constructDefaultMapping(event), dynamicTransportOptions);
             }
+        }
+    }
+
+    @Override
+    public void mapAndSend(Event event, OptionHolder optionHolder, TemplateBuilder payloadTemplateBuilder,
+                           OutputTransportListener outputTransportListener, DynamicOptions dynamicTransportOptions)
+            throws ConnectionUnavailableException {
+        if (this.payloadTemplateBuilder != null) {
+            outputTransportListener.publish(payloadTemplateBuilder.build(event), dynamicTransportOptions);
+        } else {
+            outputTransportListener.publish(constructDefaultMapping(event), dynamicTransportOptions);
         }
     }
 

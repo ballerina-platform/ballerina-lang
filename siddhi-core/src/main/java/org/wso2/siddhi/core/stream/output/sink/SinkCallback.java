@@ -42,6 +42,20 @@ public class SinkCallback extends StreamCallback {
     }
 
     @Override
+    public void receive(Event event) {
+        if (event != null) {
+            for (OutputTransport outputTransport : outputTransports) {
+                try {
+                    outputTransport.getMapper().mapAndSend(event, outputTransport);
+                } catch (ConnectionUnavailableException e) {
+                    log.error("Cannot publish to via Output Transport '" + outputTransport.getType() +
+                            "' due to unavailability of connection.", e);
+                }
+            }
+        }
+    }
+
+    @Override
     public void receive(Event[] events) {
         if (events != null) {
             for (OutputTransport outputTransport : outputTransports) {

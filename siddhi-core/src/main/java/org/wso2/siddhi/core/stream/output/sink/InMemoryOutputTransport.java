@@ -22,11 +22,11 @@ import org.apache.log4j.Logger;
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.annotation.Parameter;
 import org.wso2.siddhi.annotation.util.DataType;
-import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
 import org.wso2.siddhi.core.util.transport.InMemoryBroker;
 import org.wso2.siddhi.core.util.transport.Option;
 import org.wso2.siddhi.core.util.transport.OptionHolder;
+import org.wso2.siddhi.core.util.transport.DynamicOptions;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
 
 @Extension(
@@ -43,8 +43,12 @@ public class InMemoryOutputTransport extends OutputTransport {
     private Option topicOption;
 
     @Override
-    protected void init(StreamDefinition streamDefinition, OptionHolder optionHolder) {
+    protected String[] init(StreamDefinition streamDefinition, OptionHolder optionHolder) {
         topicOption = optionHolder.validateAndGetOption(TOPIC_KEY);
+        if(!topicOption.isStatic()){
+            return new String[]{topicOption.getKey()};
+        }
+        return new String[0];
     }
 
     @Override
@@ -63,9 +67,8 @@ public class InMemoryOutputTransport extends OutputTransport {
     }
 
     @Override
-    protected void publish(Object payload, Event event, OptionHolder optionHolder)
-            throws ConnectionUnavailableException {
-        InMemoryBroker.publish(topicOption.getValue(event), payload);
+    public void publish(Object payload, DynamicOptions dynamicOptions) throws ConnectionUnavailableException {
+        InMemoryBroker.publish(topicOption.getValue(dynamicOptions), payload);
     }
 
 }

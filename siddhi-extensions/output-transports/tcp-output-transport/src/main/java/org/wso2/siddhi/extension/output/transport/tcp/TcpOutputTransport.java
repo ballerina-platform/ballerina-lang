@@ -25,6 +25,7 @@ import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
 import org.wso2.siddhi.core.stream.output.sink.OutputTransport;
 import org.wso2.siddhi.core.util.transport.Option;
 import org.wso2.siddhi.core.util.transport.OptionHolder;
+import org.wso2.siddhi.core.util.transport.DynamicOptions;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
 import org.wso2.siddhi.tcp.transport.TcpNettyClient;
 
@@ -45,11 +46,15 @@ public class TcpOutputTransport extends OutputTransport {
     private Option streamIdOption;
 
     @Override
-    protected void init(StreamDefinition streamDefinition, OptionHolder optionHolder) {
+    protected String[] init(StreamDefinition streamDefinition, OptionHolder optionHolder) {
         tcpNettyClient = new TcpNettyClient();
         host = optionHolder.validateAndGetStaticValue(HOST, "localhost");
         port = Integer.parseInt(optionHolder.validateAndGetStaticValue(PORT, "8080"));
         streamIdOption = optionHolder.validateAndGetOption(STREAM_ID);
+        if (!streamIdOption.isStatic()) {
+            return new String[]{streamIdOption.getKey()};
+        }
+        return new String[0];
     }
 
     @Override
@@ -59,8 +64,8 @@ public class TcpOutputTransport extends OutputTransport {
     }
 
     @Override
-    protected void publish(Object payload, Event event, OptionHolder optionHolder) throws ConnectionUnavailableException {
-        String streamId = streamIdOption.getValue(event);
+    public void publish(Object payload, DynamicOptions dynamicOptions) throws ConnectionUnavailableException {
+        String streamId = streamIdOption.getValue(dynamicOptions);
         tcpNettyClient.send(streamId, (Event[]) payload);
     }
 
@@ -78,4 +83,6 @@ public class TcpOutputTransport extends OutputTransport {
             tcpNettyClient = null;
         }
     }
+
+
 }

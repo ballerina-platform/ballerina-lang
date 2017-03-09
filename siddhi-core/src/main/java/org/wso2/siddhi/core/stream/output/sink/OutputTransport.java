@@ -19,7 +19,6 @@
 package org.wso2.siddhi.core.stream.output.sink;
 
 import org.apache.log4j.Logger;
-import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
 import org.wso2.siddhi.core.util.transport.OptionHolder;
 import org.wso2.siddhi.query.api.definition.AbstractDefinition;
@@ -31,7 +30,7 @@ import java.util.concurrent.ExecutorService;
  * This is a OutputTransport type. these let users to publish events according to
  * some type. this type can either be local, jms or ws (or any custom extension)
  */
-public abstract class OutputTransport implements OutputTransportCallback {
+public abstract class OutputTransport implements OutputTransportListener {
 
     private static final Logger log = Logger.getLogger(OutputTransport.class);
     private AbstractDefinition streamDefinition;
@@ -40,16 +39,17 @@ public abstract class OutputTransport implements OutputTransportCallback {
     private OutputMapper mapper;
     private boolean tryConnect = false;
 
-
-    public void init(StreamDefinition streamDefinition, String type, OptionHolder optionHolder, OutputMapper outputMapper) {
+    public void init(StreamDefinition streamDefinition, String type, OptionHolder transportOptionHolder, OutputMapper outputMapper,
+                     String mapType, OptionHolder mapOptionHolder, String payload) {
         this.type = type;
-        this.optionHolder = optionHolder;
-        this.mapper = outputMapper;
+        this.optionHolder = transportOptionHolder;
         this.streamDefinition = streamDefinition;
-        init(streamDefinition, optionHolder);
+        String[] publishGroupDeterminers = init(streamDefinition, transportOptionHolder);
+        outputMapper.init(streamDefinition, mapType, mapOptionHolder, payload, publishGroupDeterminers, transportOptionHolder);
+        this.mapper = outputMapper;
     }
 
-    protected abstract void init(StreamDefinition streamDefinition, OptionHolder optionHolder);
+    protected abstract String[] init(StreamDefinition streamDefinition, OptionHolder optionHolder);
 
     /**
      * Will be called to connect to the backend before events are published
@@ -75,13 +75,6 @@ public abstract class OutputTransport implements OutputTransportCallback {
     public OutputMapper getMapper() {
         return mapper;
     }
-
-    public void publish(Object payload, Event event) throws ConnectionUnavailableException {
-        publish(payload, event, optionHolder);
-    }
-
-    protected abstract void publish(Object payload, Event event, OptionHolder optionHolder) throws
-            ConnectionUnavailableException;
 
     public void connectWithRetry(ExecutorService executorService) {
         tryConnect = true;

@@ -20,43 +20,85 @@ package org.wso2.siddhi.core.stream.output.sink;
 
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
-import org.wso2.siddhi.core.util.transport.TemplateBuilder;
+import org.wso2.siddhi.core.util.transport.DynamicOptions;
+import org.wso2.siddhi.core.util.transport.Option;
 import org.wso2.siddhi.core.util.transport.OptionHolder;
+import org.wso2.siddhi.core.util.transport.TemplateBuilder;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
+
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 
 public abstract class OutputMapper {
     private String type;
     private OptionHolder optionHolder;
     private TemplateBuilder payloadTemplateBuilder = null;
+    private ArrayList<Option> transportOptions;
 
     public final void init(StreamDefinition streamDefinition,
                            String type,
-                           OptionHolder optionHolder, String unmappedPayload) {
-        this.optionHolder = optionHolder;
+                           OptionHolder mapOptionHolder, String unmappedPayload, String[] publishGroupDeterminers,
+                           OptionHolder transportOptionHolder) {
+        this.optionHolder = mapOptionHolder;
         this.type = type;
         if (unmappedPayload != null && !unmappedPayload.isEmpty()) {
             payloadTemplateBuilder = new TemplateBuilder(streamDefinition, unmappedPayload);
         }
-        init(streamDefinition, optionHolder, payloadTemplateBuilder);
+        init(streamDefinition, mapOptionHolder, payloadTemplateBuilder);
+        transportOptions = new ArrayList<Option>(publishGroupDeterminers.length);
+        for (String publishGroupDeterminer : publishGroupDeterminers) {
+            transportOptions.add(transportOptionHolder.validateAndGetOption(publishGroupDeterminer));
+        }
+
     }
 
     /**
      * Initialize the mapper and the mapping configurations.
      *
-     * @param streamDefinition The stream definition
-     * @param optionHolder     Option holder containing static and dynamic options
+     * @param streamDefinition       The stream definition
+     * @param optionHolder           Option holder containing static and dynamic options
      * @param payloadTemplateBuilder un mapped payload for reference
      */
     public abstract void init(StreamDefinition streamDefinition,
                               OptionHolder optionHolder, TemplateBuilder payloadTemplateBuilder);
 
-    public void mapAndSend(Event[] events, OutputTransportCallback outputTransportCallback)
-            throws ConnectionUnavailableException{
-        mapAndSend(events, outputTransportCallback, optionHolder, payloadTemplateBuilder);
+    public void mapAndSend(Event[] events, OutputTransportListener outputTransportListener)
+            throws ConnectionUnavailableException {
+
+        if (transportOptions.size() > 0) {
+            LinkedHashMap<String, ArrayList<Event>> eventMap = new LinkedHashMap<>();
+            for (Event event : events) {
+                StringBuilder stringBuilder = new StringBuilder();
+                for (Option transportOption : transportOptions) {
+                    stringBuilder.append(transportOption.getValue(event));
+                    stringBuilder.append(":::");
+                }
+                String key = stringBuilder.toString();
+                ArrayList<Event> eventList = eventMap.computeIfAbsent(key, k -> new ArrayList<>());
+                eventList.add(event);
+            }
+            for (ArrayList<Event> eventList : eventMap.values()) {
+                mapAndSend(eventList.toArray(new Event[eventList.size()]), optionHolder,
+                        payloadTemplateBuilder, outputTransportListener, new DynamicOptions(eventList.get(0)));
+
+            }
+        } else {
+            mapAndSend(events, optionHolder, payloadTemplateBuilder, outputTransportListener,
+                    new DynamicOptions(events[0]));
+        }
     }
 
-    public abstract void mapAndSend(Event[] events, OutputTransportCallback outputTransportCallback,
-                                    OptionHolder optionHolder, TemplateBuilder payloadTemplateBuilder)
+    public void mapAndSend(Event event, OutputTransportListener outputTransportListener)
+            throws ConnectionUnavailableException {
+        mapAndSend(event, optionHolder, payloadTemplateBuilder, outputTransportListener, new DynamicOptions(event));
+    }
+
+    public abstract void mapAndSend(Event[] events, OptionHolder optionHolder, TemplateBuilder payloadTemplateBuilder,
+                                    OutputTransportListener outputTransportListener, DynamicOptions dynamicTransportOptions)
+            throws ConnectionUnavailableException;
+
+    public abstract void mapAndSend(Event event, OptionHolder optionHolder, TemplateBuilder payloadTemplateBuilder,
+                                    OutputTransportListener outputTransportListener, DynamicOptions dynamicTransportOptions)
             throws ConnectionUnavailableException;
 
     public final String getType() {
