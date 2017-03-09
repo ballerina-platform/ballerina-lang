@@ -414,7 +414,9 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                                     BallerinaPsiImplUtil.getAllConnectorsInPackage(psiDirectories[0]);
                             addConnectors(resultSet, connectors);
 
-                            // Todo - Add structs
+                            List<PsiElement> structs =
+                                    BallerinaPsiImplUtil.getAllStructsInPackage(psiDirectories[0]);
+                            addStructs(resultSet, structs);
                         } else {
                             // This situation cannot/should not happen since all the imported packages are unique.
                             // If this happen, this should be highlighted using an annotator.
@@ -469,6 +471,15 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                                         BallerinaPsiImplUtil.getAllFunctionsInPackage(psiDirectories[0]);
                                 // Add all functions as lookup elements.
                                 addFunctions(resultSet, functions);
+
+                                List<PsiElement> connectors =
+                                        BallerinaPsiImplUtil.getAllConnectorsInPackage(psiDirectories[0]);
+                                addConnectors(resultSet, connectors);
+
+                                List<PsiElement> structs =
+                                        BallerinaPsiImplUtil.getAllStructsInPackage(psiDirectories[0]);
+                                addStructs(resultSet, structs);
+
                             } else {
                                 // This situation cannot/should not happen since all the imported packages are unique.
                                 // This should be highlighted using an annotator.
@@ -669,9 +680,21 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
      */
     private void addStructs(CompletionResultSet resultSet, PsiFile originalFile) {
         List<PsiElement> structs = BallerinaPsiImplUtil.getAllStructsInCurrentPackage(originalFile);
-        for (PsiElement struct : structs) {
-            LookupElementBuilder builder = LookupElementBuilder.create(struct.getText()).withTypeText("Struct")
-                    .withIcon(AllIcons.Nodes.Static).withInsertHandler(AddSpaceInsertHandler.INSTANCE);
+        addStructs(resultSet, structs);
+    }
+
+
+    /**
+     * Helper method to add structs as lookup elements.
+     *
+     * @param resultSet result set which needs to add the lookup elements
+     * @param structs   list of structs which needs to be added
+     */
+    private void addStructs(CompletionResultSet resultSet, List<PsiElement> structs) {
+        for (PsiElement connector : structs) {
+            LookupElementBuilder builder = LookupElementBuilder.create(connector.getText())
+                    .withTypeText("Struct").withIcon(AllIcons.Nodes.Static)
+                    .withInsertHandler(AddSpaceInsertHandler.INSTANCE);
             resultSet.addElement(PrioritizedLookupElement.withPriority(builder, STRUCT_PRIORITY));
         }
     }
