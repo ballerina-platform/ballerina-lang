@@ -461,7 +461,7 @@ define(['lodash', 'log', './ballerina-view', './variables-view', './type-struct-
             var predefinedStructs = self.getSourceInfo().predefinedStructs;
 
             _.each(predefinedStructs, function (struct) {
-                if (struct.getStructName() == sourceStructName) {
+                if (_.isEqual(struct.getStructName(), sourceStructName)) {
                     self.getSourceInfo()[TYPE_MAPPER_SOURCE_STRUCT_SCHEMA] = struct;
                     return false;
                 }
@@ -471,7 +471,7 @@ define(['lodash', 'log', './ballerina-view', './variables-view', './type-struct-
 
             _.each(self.getSourceInfo().sourceStruct.getChildren(), function (variableDef) {
                 _.each(predefinedStructs, function (predefinedStruct) {
-                    if (variableDef.getTypeName() === predefinedStruct.getStructName()) {
+                    if (_.isEqual(variableDef.getTypeName(), predefinedStruct.getStructName())) {
                         traverseChildren(self, predefinedStructs, predefinedStruct);
                     }
                 });
@@ -535,8 +535,8 @@ define(['lodash', 'log', './ballerina-view', './variables-view', './type-struct-
 
         /**
          * register listeners to be fired upon changes in structs
-         * @param view
-         * @param struct
+         * @param {object} view node where structs are included
+         * @param {object} struct where listener is registered
          */
         var registerListeners = function (view, struct) {
             view.listenTo(struct, 'tree-modified', function (child) {
