@@ -95,6 +95,7 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
     private static final LookupElementBuilder RETURN;
     private static final LookupElementBuilder IF;
     private static final LookupElementBuilder ELSE;
+    private static final LookupElementBuilder CREATE;
 
     static {
         PACKAGE = createKeywordLookupElement("package", true, AddSpaceInsertHandler.INSTANCE_WITH_AUTO_POPUP);
@@ -122,6 +123,7 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
         RETURN = createKeywordLookupElement("return", true, AddSpaceInsertHandler.INSTANCE);
         IF = createKeywordLookupElement("if", true, ParenthesisInsertHandler.INSTANCE_WITH_AUTO_POPUP);
         ELSE = createKeywordLookupElement("else", true, AddSpaceInsertHandler.INSTANCE);
+        CREATE = createKeywordLookupElement("create", true, AddSpaceInsertHandler.INSTANCE);
     }
 
     private static LookupElementBuilder createLookupElement(String name, boolean withBoldness,
@@ -507,7 +509,13 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
             PsiFile file = element.getContainingFile();
             PsiElement prevToken = file.findElementAt(parameters.getOffset() - 1);
 
+            while (prevToken != null && prevToken instanceof PsiWhiteSpace) {
+                prevToken = prevToken.getPrevSibling();
+            }
+
             if (prevToken != null) {
+
+                addKeyword(resultSet, CREATE, CONTEXT_KEYWORD_PRIORITY);
 
                 PsiElement prevTokenParent = prevToken.getParent();
                 PsiElement firstChild = prevTokenParent.getFirstChild();
