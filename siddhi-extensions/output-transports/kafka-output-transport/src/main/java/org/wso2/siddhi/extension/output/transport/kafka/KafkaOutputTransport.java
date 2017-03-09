@@ -29,7 +29,6 @@ import org.wso2.siddhi.core.stream.output.sink.OutputTransport;
 import org.wso2.siddhi.core.util.transport.Option;
 import org.wso2.siddhi.core.util.transport.OptionHolder;
 import org.wso2.siddhi.core.util.transport.DynamicOptions;
-import org.wso2.siddhi.query.api.definition.StreamDefinition;
 
 import java.util.Properties;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -71,7 +70,7 @@ public class KafkaOutputTransport extends OutputTransport {
     private Option partitionNumber;
 
     @Override
-    protected String[] init(StreamDefinition streamDefinition, OptionHolder optionHolder) {
+    protected String[] init(OptionHolder optionHolder) {
         //ThreadPoolExecutor will be assigned  if it is null
         if (threadPoolExecutor == null) {
             int minThread;

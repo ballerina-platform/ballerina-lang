@@ -27,7 +27,6 @@ import org.wso2.siddhi.core.util.transport.InMemoryBroker;
 import org.wso2.siddhi.core.util.transport.Option;
 import org.wso2.siddhi.core.util.transport.OptionHolder;
 import org.wso2.siddhi.core.util.transport.DynamicOptions;
-import org.wso2.siddhi.query.api.definition.StreamDefinition;
 
 @Extension(
         name = "inMemory",
@@ -43,7 +42,7 @@ public class InMemoryOutputTransport extends OutputTransport {
     private Option topicOption;
 
     @Override
-    protected String[] init(StreamDefinition streamDefinition, OptionHolder optionHolder) {
+    protected String[] init(OptionHolder optionHolder) {
         topicOption = optionHolder.validateAndGetOption(TOPIC_KEY);
         if(!topicOption.isStatic()){
             return new String[]{topicOption.getKey()};

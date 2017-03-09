@@ -56,12 +56,19 @@ public abstract class OutputMapper {
      * Initialize the mapper and the mapping configurations.
      *
      * @param streamDefinition       The stream definition
-     * @param optionHolder           Option holder containing static and dynamic options
+     * @param optionHolder           Option holder containing static and dynamic options related to the mapper
      * @param payloadTemplateBuilder un mapped payload for reference
      */
     public abstract void init(StreamDefinition streamDefinition,
                               OptionHolder optionHolder, TemplateBuilder payloadTemplateBuilder);
 
+    /**
+     * Called to map the events and send them to {@link OutputTransportListener}
+     *
+     * @param events                  {@link Event}s that need to be mapped
+     * @param outputTransportListener {@link OutputTransportListener} that will be called with the mapped events
+     * @throws ConnectionUnavailableException If the connection is not available to send the message
+     */
     public void mapAndSend(Event[] events, OutputTransportListener outputTransportListener)
             throws ConnectionUnavailableException {
 
@@ -88,15 +95,44 @@ public abstract class OutputMapper {
         }
     }
 
+    /**
+     * Called to map the event and send it to {@link OutputTransportListener}
+     *
+     * @param event                   The {@link Event} that need to be mapped
+     * @param outputTransportListener {@link OutputTransportListener} that will be called with the mapped event
+     * @throws ConnectionUnavailableException If the connection is not available to send the message
+     */
     public void mapAndSend(Event event, OutputTransportListener outputTransportListener)
             throws ConnectionUnavailableException {
         mapAndSend(event, optionHolder, payloadTemplateBuilder, outputTransportListener, new DynamicOptions(event));
     }
 
+    /**
+     * Called to map the events and send them to {@link OutputTransportListener}
+     *
+     * @param events                  {@link Event}s that need to be mapped
+     * @param optionHolder            Option holder containing static and dynamic options related to the mapper
+     * @param payloadTemplateBuilder  To build the message payload based on the given template
+     * @param outputTransportListener {@link OutputTransportListener} that will be called with the mapped events
+     * @param dynamicTransportOptions {@link DynamicOptions} containing transport related options which will be passed
+     *                                to the  {@link OutputTransportListener}
+     * @throws ConnectionUnavailableException If the connection is not available to send the message
+     */
     public abstract void mapAndSend(Event[] events, OptionHolder optionHolder, TemplateBuilder payloadTemplateBuilder,
                                     OutputTransportListener outputTransportListener, DynamicOptions dynamicTransportOptions)
             throws ConnectionUnavailableException;
 
+    /**
+     * Called to map the event and send it to {@link OutputTransportListener}
+     *
+     * @param event                   {@link Event} that need to be mapped
+     * @param optionHolder            Option holder containing static and dynamic options related to the mapper
+     * @param payloadTemplateBuilder  To build the message payload based on the given template
+     * @param outputTransportListener {@link OutputTransportListener} that will be called with the mapped event
+     * @param dynamicTransportOptions {@link DynamicOptions} containing transport related options which will be passed
+     *                                to the  {@link OutputTransportListener}
+     * @throws ConnectionUnavailableException If the connection is not available to send the message
+     */
     public abstract void mapAndSend(Event event, OptionHolder optionHolder, TemplateBuilder payloadTemplateBuilder,
                                     OutputTransportListener outputTransportListener, DynamicOptions dynamicTransportOptions)
             throws ConnectionUnavailableException;

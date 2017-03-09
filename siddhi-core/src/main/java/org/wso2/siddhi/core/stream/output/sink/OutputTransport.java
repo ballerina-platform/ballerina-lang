@@ -44,12 +44,18 @@ public abstract class OutputTransport implements OutputTransportListener {
         this.type = type;
         this.optionHolder = transportOptionHolder;
         this.streamDefinition = streamDefinition;
-        String[] publishGroupDeterminers = init(streamDefinition, transportOptionHolder);
+        String[] publishGroupDeterminers = init(transportOptionHolder);
         outputMapper.init(streamDefinition, mapType, mapOptionHolder, payload, publishGroupDeterminers, transportOptionHolder);
         this.mapper = outputMapper;
     }
 
-    protected abstract String[] init(StreamDefinition streamDefinition, OptionHolder optionHolder);
+    /**
+     * Will be called for initialing the {@link OutputTransport}
+     * @param optionHolder Option holder containing static and dynamic options related to the {@link OutputTransport}
+     * @return the list of {@link org.wso2.siddhi.core.util.transport.Option} keys on which events should be grouped to
+     * publish together
+     */
+    protected abstract String[] init(OptionHolder optionHolder);
 
     /**
      * Will be called to connect to the backend before events are published

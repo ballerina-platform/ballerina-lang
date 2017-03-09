@@ -26,7 +26,6 @@ import org.wso2.siddhi.core.stream.output.sink.OutputTransport;
 import org.wso2.siddhi.core.util.transport.Option;
 import org.wso2.siddhi.core.util.transport.OptionHolder;
 import org.wso2.siddhi.core.util.transport.DynamicOptions;
-import org.wso2.siddhi.query.api.definition.StreamDefinition;
 import org.wso2.siddhi.tcp.transport.TcpNettyClient;
 
 @Extension(
@@ -46,7 +45,7 @@ public class TcpOutputTransport extends OutputTransport {
     private Option streamIdOption;
 
     @Override
-    protected String[] init(StreamDefinition streamDefinition, OptionHolder optionHolder) {
+    protected String[] init(OptionHolder optionHolder) {
         tcpNettyClient = new TcpNettyClient();
         host = optionHolder.validateAndGetStaticValue(HOST, "localhost");
         port = Integer.parseInt(optionHolder.validateAndGetStaticValue(PORT, "8080"));
