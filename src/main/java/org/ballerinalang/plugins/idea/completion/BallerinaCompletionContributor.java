@@ -35,10 +35,13 @@ import com.intellij.psi.PsiErrorElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiReference;
 import com.intellij.psi.PsiWhiteSpace;
+import com.intellij.psi.ResolveResult;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.util.ProcessingContext;
+import org.ballerinalang.plugins.idea.psi.ActionInvocationNode;
 import org.ballerinalang.plugins.idea.psi.AliasNode;
 import org.ballerinalang.plugins.idea.psi.AnnotationNameNode;
+import org.ballerinalang.plugins.idea.psi.CallableUnitNameNode;
 import org.ballerinalang.plugins.idea.psi.CompilationUnitNode;
 import org.ballerinalang.plugins.idea.psi.ExpressionNode;
 import org.ballerinalang.plugins.idea.psi.FunctionDefinitionNode;
@@ -56,6 +59,7 @@ import org.ballerinalang.plugins.idea.psi.StatementNode;
 import org.ballerinalang.plugins.idea.psi.TypeMapperNode;
 import org.ballerinalang.plugins.idea.psi.VariableReferenceNode;
 import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
+import org.ballerinalang.plugins.idea.psi.references.SimpleTypeReference;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -594,6 +598,44 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                 addFunctions(resultSet, originalFile);
                 addPackages(resultSet, originalFile);
             }
+        } else if (parent instanceof ActionInvocationNode) {
+            // Get the CallableUnitNameNode.
+            CallableUnitNameNode callableUnitNameNode = PsiTreeUtil.getChildOfType(parent, CallableUnitNameNode.class);
+            if (callableUnitNameNode == null) {
+                return;
+            }
+            // Get the SimpleTypeNode.
+            SimpleTypeNode simpleTypeNode = PsiTreeUtil.getChildOfType(callableUnitNameNode, SimpleTypeNode.class);
+            if (simpleTypeNode == null) {
+                return;
+            }
+            // Get the identifier.
+            PsiElement nameIdentifier = simpleTypeNode.getNameIdentifier();
+            if (nameIdentifier == null) {
+                return;
+            }
+            // Get the reference.
+            PsiReference reference = nameIdentifier.getReference();
+            if (reference == null || !(reference instanceof SimpleTypeReference)) {
+                return;
+            }
+            // Multi resolve the reference.
+            ResolveResult[] resolvedElement = ((SimpleTypeReference) reference).multiResolve(false);
+            // For each resolve result, get all actions and add them as lookup elements.
+            for (ResolveResult resolveResult : resolvedElement) {
+                PsiElement resolveResultElement = resolveResult.getElement();
+                if (resolveResultElement == null) {
+                    continue;
+                }
+                // Resolved element will be an identifier. So we need to get the parent which is a connector or
+                // native connector.
+                List<PsiElement> allActions =
+                        BallerinaPsiImplUtil.getAllActionsFromAConnector(resolveResultElement.getParent());
+                if (!allActions.isEmpty()) {
+                    // Add all actions as lookup elements.
+                    addActions(resultSet, allActions);
+                }
+            }
         } else {
             // If we are currently at an identifier node, no need to suggest.
             if (element instanceof IdentifierPSINode) {
@@ -691,10 +733,9 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
      * @param structs   list of structs which needs to be added
      */
     private void addStructs(CompletionResultSet resultSet, List<PsiElement> structs) {
-        for (PsiElement connector : structs) {
-            LookupElementBuilder builder = LookupElementBuilder.create(connector.getText())
-                    .withTypeText("Struct").withIcon(AllIcons.Nodes.Static)
-                    .withInsertHandler(AddSpaceInsertHandler.INSTANCE);
+        for (PsiElement struct : structs) {
+            LookupElementBuilder builder = LookupElementBuilder.create(struct.getText())
+                    .withTypeText("Struct").withIcon(AllIcons.Nodes.Static);
             resultSet.addElement(PrioritizedLookupElement.withPriority(builder, STRUCT_PRIORITY));
         }
     }
@@ -719,9 +760,23 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
     private void addConnectors(CompletionResultSet resultSet, List<PsiElement> connectors) {
         for (PsiElement connector : connectors) {
             LookupElementBuilder builder = LookupElementBuilder.create(connector.getText())
-                    .withTypeText("Connector").withIcon(AllIcons.Nodes.Class)
-                    .withInsertHandler(AddSpaceInsertHandler.INSTANCE);
+                    .withTypeText("Connector").withIcon(AllIcons.Nodes.Class);
             resultSet.addElement(PrioritizedLookupElement.withPriority(builder, CONNECTOR_PRIORITY));
+        }
+    }
+
+    /**
+     * Helper method to add actions as lookup elements.
+     *
+     * @param resultSet result set which needs to add the lookup elements
+     * @param actions   list of actions which needs to be added
+     */
+    private void addActions(CompletionResultSet resultSet, List<PsiElement> actions) {
+        for (PsiElement action : actions) {
+            LookupElementBuilder builder = LookupElementBuilder.create(action.getText())
+                    .withTypeText("Action").withIcon(AllIcons.Nodes.AnonymousClass)
+                    .withInsertHandler(FunctionCompletionInsertHandler.INSTANCE);
+            resultSet.addElement(PrioritizedLookupElement.withPriority(builder, ACTION_PRIORITY));
         }
     }
 
