@@ -126,7 +126,7 @@ function getByName()(string, string, long, long, long) {
     return blob, clob, time, date, timestamp;
 }
 
-function getByIndex()(string, string, long, long, long) {
+function getByIndex()(string, string, long, long, long, string) {
     map propertiesMap = {"jdbcUrl" : "jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
                             "username":"SA", "password":"", "maximumPoolSize":1};
     sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
@@ -137,21 +137,23 @@ function getByIndex()(string, string, long, long, long) {
     long time;
     long date;
     long timestamp;
+    string binary;
 
     sql:ClientConnector.update(testDB, "Update ComplexTypes set clob_type = 'Test String' where row_id = 1",parameters);
 
-    df = sql:ClientConnector.select(testDB, "SELECT blob_type, clob_type, time_type, date_type, timestamp_type
-                from ComplexTypes LIMIT 1",parameters);
+    df = sql:ClientConnector.select(testDB, "SELECT blob_type, clob_type, time_type, date_type, timestamp_type,
+            binary_type from ComplexTypes LIMIT 1",parameters);
     while (datatables:next(df)) {
         blob = datatables:getString(df, 1, "blob");
         clob = datatables:getString(df, 2, "clob");
         time = datatables:getLong(df, 3, "time");
         date = datatables:getLong(df, 4, "date");
         timestamp = datatables:getLong(df, 5, "timestamp");
+        binary = datatables:getString(df, 6, "binary");
     }
     datatables:close(df);
     sql:ClientConnector.close(testDB);
-    return blob, clob, time, date, timestamp;
+    return blob, clob, time, date, timestamp, binary;
 }
 
 function getObjectAsStringByIndex()(string, string, string, string, string) {
