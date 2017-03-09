@@ -36,6 +36,8 @@ import 'jquery-ui/themes/base/draggable.css';
 import 'mcustom_scroller/jquery.mCustomScrollbar.css';
 import 'bootstrap';
 import 'theme_wso2';
+import '../css/jstree.css';
+
 
 class Application {
 
