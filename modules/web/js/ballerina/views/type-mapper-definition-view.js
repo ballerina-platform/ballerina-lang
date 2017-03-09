@@ -508,7 +508,7 @@ define(['lodash', 'log', './ballerina-view', './variables-view', './type-struct-
             var predefinedStructs = self.getTargetInfo().predefinedStructs;
 
             _.each(predefinedStructs, function (struct) {
-                if (struct.getStructName() == targetStructName) {
+                if (_.isEqual(struct.getStructName(), targetStructName)) {
                     self.getTargetInfo()[TYPE_MAPPER_TARGET_STRUCT_SCHEMA] = struct;
                     return false;
                 }
@@ -517,7 +517,7 @@ define(['lodash', 'log', './ballerina-view', './variables-view', './type-struct-
 
             _.each(self.getTargetInfo().targetStruct.getChildren(), function (variableDef) {
                 _.each(predefinedStructs, function (predefinedStruct) {
-                    if (variableDef.getTypeName() === predefinedStruct.getStructName()) {
+                    if (_.isEqual(variableDef.getTypeName(), predefinedStruct.getStructName())) {
                         traverseChildren(self, predefinedStructs, predefinedStruct);
                     }
                 });
