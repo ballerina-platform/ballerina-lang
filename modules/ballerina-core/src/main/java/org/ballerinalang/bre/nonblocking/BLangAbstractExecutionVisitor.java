@@ -516,7 +516,7 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
         CallableUnitInfo resourceInfo = new CallableUnitInfo(resource.getName(), resource.getPackagePath(),
                 resource.getNodeLocation());
 
-        BValue[] cacheValues = new BValue[resource.getTempStackFrameSize() + 1];
+        BValue[] cacheValues = new BValue[resource.getCacheFrameSize() + 1];
         StackFrame stackFrame = new StackFrame(valueParams, ret, cacheValues, resourceInfo);
         controlStack.pushFrame(stackFrame);
         next = resourceIExpr.getResource().getResourceBody();
@@ -961,7 +961,7 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
         CallableUnitInfo actionInfo = new CallableUnitInfo(action.getName(), action.getPackagePath(),
                 actionIExpr.getNodeLocation());
 
-        BValue[] cacheValues = new BValue[actionIExpr.getCallableUnit().getTempStackFrameSize() + 1];
+        BValue[] cacheValues = new BValue[actionIExpr.getCallableUnit().getCacheFrameSize() + 1];
         StackFrame stackFrame = new StackFrame(localVals, returnVals, cacheValues, actionInfo);
         controlStack.pushFrame(stackFrame);
         if (actionIExpr.hasGotoBranchID()) {
@@ -1097,7 +1097,7 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
         CallableUnitInfo functionInfo = new CallableUnitInfo(function.getName(), function.getPackagePath(),
                 funcIExpr.getNodeLocation());
 
-        BValue[] cacheValue = new BValue[funcIExpr.getCallableUnit().getTempStackFrameSize() + 1];
+        BValue[] cacheValue = new BValue[funcIExpr.getCallableUnit().getCacheFrameSize() + 1];
         StackFrame stackFrame = new StackFrame(localVals, returnVals, cacheValue, functionInfo);
         controlStack.pushFrame(stackFrame);
         if (funcIExpr.hasGotoBranchID()) {
@@ -1188,7 +1188,7 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
             CallableUnitInfo functionInfo = new CallableUnitInfo(typeMapper.getTypeMapperName(),
                     typeMapper.getPackagePath(), typeCastExpression.getNodeLocation());
 
-            BValue[] cacheValue = new BValue[typeCastExpression.getCallableUnit().getTempStackFrameSize() + 1];
+            BValue[] cacheValue = new BValue[typeCastExpression.getCallableUnit().getCacheFrameSize() + 1];
             StackFrame stackFrame = new StackFrame(localVals, returnVals, cacheValue, functionInfo);
             controlStack.pushFrame(stackFrame);
             if (typeCastExpression.hasGotoBranchID()) {
@@ -1296,7 +1296,7 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
             CallableUnitInfo functionInfo = new CallableUnitInfo(initFunction.getName(), initFunction.getPackagePath(),
                     initFunction.getNodeLocation());
 
-            BValue[] cacheValue = new BValue[initFunction.getTempStackFrameSize() + 1];
+            BValue[] cacheValue = new BValue[initFunction.getCacheFrameSize() + 1];
             StackFrame stackFrame = new StackFrame(localVals, returnVals, cacheValue, functionInfo);
             controlStack.pushFrame(stackFrame);
             if (connectorInitExprEndNode.hasGotoBranchID()) {
@@ -1701,7 +1701,7 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
      */
     private BValue getTempValue(Expression expression) {
         if (expression.hasTemporaryValues()) {
-            return bContext.getControlStack().getCurrentFrame().tempValues[expression.getTempOffset()];
+            return bContext.getControlStack().getCurrentFrame().cacheValues[expression.getTempOffset()];
         } else {
             MemoryLocation memoryLocation = ((VariableRefExpr) expression).getVariableDef().getMemoryLocation();
             return memoryLocation.access(this);
@@ -1715,11 +1715,11 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
      * @return temporary BValue.
      */
     private BValue getTempValue(int tempOffSet) {
-        return bContext.getControlStack().getCurrentFrame().tempValues[tempOffSet];
+        return bContext.getControlStack().getCurrentFrame().cacheValues[tempOffSet];
     }
 
     private void setTempValue(int offset, BValue result) {
-        bContext.getControlStack().getCurrentFrame().tempValues[offset] = result;
+        bContext.getControlStack().getCurrentFrame().cacheValues[offset] = result;
     }
 
     private String getNodeLocation(NodeLocation nodeLocation) {

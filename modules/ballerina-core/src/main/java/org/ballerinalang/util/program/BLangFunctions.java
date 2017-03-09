@@ -157,7 +157,7 @@ public class BLangFunctions {
             int length = funcIExpr.getCallableUnit().getReturnParameters().length;
             BValue[] result = new BValue[length];
             for (int i = 0; i < length; i++) {
-                result[i] = bContext.getControlStack().getCurrentFrame().tempValues[funcIExpr.getTempOffset() + i];
+                result[i] = bContext.getControlStack().getCurrentFrame().cacheValues[funcIExpr.getTempOffset() + i];
             }
             return result;
         } else {

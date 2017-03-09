@@ -207,7 +207,7 @@ public class DebuggerTest {
             mainFunction.accept(new BLangExecutionFlowBuilder());
 
             BValue[] argValues = new BValue[mainFunction.getStackFrameSize()];
-            BValue[] cacheValues = new BValue[mainFunction.getTempStackFrameSize()];
+            BValue[] cacheValues = new BValue[mainFunction.getCacheFrameSize()];
 
             argValues[0] = arrayArgs;
 

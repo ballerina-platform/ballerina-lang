@@ -21,7 +21,6 @@ import org.ballerinalang.model.builder.CallableUnitBuilder;
 import org.ballerinalang.model.statements.BlockStmt;
 import org.ballerinalang.model.symbols.BLangSymbol;
 import org.ballerinalang.model.types.BType;
-import org.ballerinalang.util.exceptions.FlowBuilderException;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -54,7 +53,7 @@ public class BTypeMapper implements TypeMapper, SymbolScope, CompilationUnit {
     private Map<SymbolName, BLangSymbol> symbolMap;
 
     // Linker related variables
-    private int tempStackFrameSize;
+    private int cacheFrameSize;
     private boolean isFlowBuilderVisited;
 
 
@@ -113,17 +112,12 @@ public class BTypeMapper implements TypeMapper, SymbolScope, CompilationUnit {
     }
 
     @Override
-    public int getTempStackFrameSize() {
-        return tempStackFrameSize;
+    public int getCacheFrameSize() {
+        return cacheFrameSize;
     }
 
-    @Override
-    public void setTempStackFrameSize(int stackFrameSize) {
-        if (this.tempStackFrameSize > 0 && stackFrameSize != this.tempStackFrameSize) {
-            throw new FlowBuilderException("Attempt to Overwrite tempValue Frame size. current :" +
-                    this.tempStackFrameSize + ", new :" + stackFrameSize);
-        }
-        this.tempStackFrameSize = stackFrameSize;
+    public void setCacheFrameSize(int stackFrameSize) {
+        this.cacheFrameSize = stackFrameSize;
     }
 
     @Override

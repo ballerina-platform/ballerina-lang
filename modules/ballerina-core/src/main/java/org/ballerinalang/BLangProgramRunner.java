@@ -89,7 +89,7 @@ public class BLangProgramRunner {
         mainFunction.accept(new BLangExecutionFlowBuilder());
         try {
             BValue[] argValues = new BValue[mainFunction.getStackFrameSize()];
-            BValue[] cacheValues = new BValue[mainFunction.getTempStackFrameSize()];
+            BValue[] cacheValues = new BValue[mainFunction.getCacheFrameSize()];
 
             BArray<BString> arrayArgs = new BArray<>(BString.class);
             for (int i = 0; i < args.length; i++) {

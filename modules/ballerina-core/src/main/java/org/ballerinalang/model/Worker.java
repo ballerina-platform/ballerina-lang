@@ -23,7 +23,6 @@ import org.ballerinalang.model.statements.BlockStmt;
 import org.ballerinalang.model.symbols.BLangSymbol;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.values.BMessage;
-import org.ballerinalang.util.exceptions.FlowBuilderException;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -65,7 +64,7 @@ public class Worker implements SymbolScope, CompilationUnit, CallableUnit {
     private BType[] returnParamTypes;
     private BlockStmt workerBody;
     private int stackFrameSize;
-    private int tempStackFrameSize;
+    private int cacheFrameSize;
 
     // Scope related variables
     private SymbolScope enclosingScope;
@@ -237,17 +236,12 @@ public class Worker implements SymbolScope, CompilationUnit, CallableUnit {
     }
 
     @Override
-    public int getTempStackFrameSize() {
-        return this.tempStackFrameSize;
+    public int getCacheFrameSize() {
+        return this.cacheFrameSize;
     }
 
-    @Override
-    public void setTempStackFrameSize(int frameSize) {
-        if (this.tempStackFrameSize > 0 && stackFrameSize != this.tempStackFrameSize) {
-            throw new FlowBuilderException("Attempt to Overwrite tempValue Frame size. current :" +
-                    this.tempStackFrameSize + ", new :" + stackFrameSize);
-        }
-        this.tempStackFrameSize = stackFrameSize;
+    public void setCacheFrameSize(int frameSize) {
+        this.cacheFrameSize = stackFrameSize;
     }
 
     /**

@@ -22,7 +22,6 @@ import org.ballerinalang.model.builder.CallableUnitBuilder;
 import org.ballerinalang.model.statements.BlockStmt;
 import org.ballerinalang.model.symbols.BLangSymbol;
 import org.ballerinalang.model.types.BType;
-import org.ballerinalang.util.exceptions.FlowBuilderException;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -66,7 +65,7 @@ public class Resource implements Node, SymbolScope, CallableUnit {
     // Scope related variables
     private SymbolScope enclosingScope;
     private Map<SymbolName, BLangSymbol> symbolMap;
-    private int tempStackFrameSize;
+    private int cacheFrameSize;
 
     private Resource(SymbolScope enclosingScope) {
         this.enclosingScope = enclosingScope;
@@ -128,17 +127,12 @@ public class Resource implements Node, SymbolScope, CallableUnit {
     }
 
     @Override
-    public int getTempStackFrameSize() {
-        return tempStackFrameSize;
+    public int getCacheFrameSize() {
+        return cacheFrameSize;
     }
 
-    @Override
-    public void setTempStackFrameSize(int stackFrameSize) {
-        if (this.tempStackFrameSize > 0 && stackFrameSize != this.tempStackFrameSize) {
-            throw new FlowBuilderException("Attempt to Overwrite tempValue Frame size. current :" +
-                    this.tempStackFrameSize + ", new :" + stackFrameSize);
-        }
-        this.tempStackFrameSize = stackFrameSize;
+    public void setCacheFrameSize(int stackFrameSize) {
+        this.cacheFrameSize = stackFrameSize;
     }
 
     // Methods in CallableUnit interface

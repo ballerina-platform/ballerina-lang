@@ -81,18 +81,18 @@ public interface CallableUnit extends BLangSymbol, Node {
     void setStackFrameSize(int frameSize);
 
     /**
-     * Return size of the current stack's temporary value frame.
+     * Return size of the current stack's cache value frame.
      *
-     * @return size of the temporary value frame
+     * @return size of the cache value frame
      */
-    int getTempStackFrameSize();
+    int getCacheFrameSize();
 
     /**
-     * Replace size of the current stack's temporary value frame.
+     * Replace size of the current stack's cache value frame.
      *
-     * @param frameSize size of the temporary value frame
+     * @param frameSize size of the cache value frame
      */
-    void setTempStackFrameSize(int frameSize);
+    void setCacheFrameSize(int frameSize);
 
     /**
      * Returns the body of the callable unit as a {@code BlockStmt}.

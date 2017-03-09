@@ -108,7 +108,7 @@ public class BalProgramExecutor {
         CallableUnitInfo resourceInfo = new CallableUnitInfo(resourceSymbolName.getName(),
                 resourceSymbolName.getName(), resource.getNodeLocation());
 
-        BValue[] cacheValues = new BValue[resource.getTempStackFrameSize()];
+        BValue[] cacheValues = new BValue[resource.getCacheFrameSize()];
 
         StackFrame currentStackFrame = new StackFrame(argValues, new BValue[0], cacheValues, resourceInfo);
         balContext.getControlStack().pushFrame(currentStackFrame);

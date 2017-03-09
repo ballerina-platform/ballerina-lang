@@ -188,14 +188,14 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
     private Stack<WhileStmt> loopingStack;
     // Function/Action Statement stack related to break.
     private Stack<BlockStmt> returningBlockStmtStack;
-    private Stack<OffSetCounter> offSetCounterStack;
+    private Stack<CacheOffSetCounter> cacheOffSetCounterStack;
     private Resource currentResource;
 
     public BLangExecutionFlowBuilder() {
         loopingStack = new Stack<>();
         returningBlockStmtStack = new Stack<>();
-        offSetCounterStack = new Stack<>();
-        offSetCounterStack.push(new OffSetCounter());
+        cacheOffSetCounterStack = new Stack<>();
+        cacheOffSetCounterStack.push(new CacheOffSetCounter());
         nonblockingEnabled = ModeResolver.getInstance().isNonblockingEnabled();
     }
 
@@ -249,14 +249,14 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
         // Resource is a Staring point. Calculate parent from here.
         clearBranchingStacks();
         // Add offset counter for current Stack Frame.
-        offSetCounterStack.push(new OffSetCounter());
+        cacheOffSetCounterStack.push(new CacheOffSetCounter());
         currentResource = resource;
         // This is a execution Start point. Hence link Block Statement with StartNode
         BlockStmt blockStmt = resource.getResourceBody();
         blockStmt.setParent(new StartNode(StartNode.Originator.RESOURCE));
         // Visit Block Statement and ask it to handle its children.
         blockStmt.accept(this);
-        resource.setTempStackFrameSize(offSetCounterStack.pop().getCount());
+        resource.setCacheFrameSize(cacheOffSetCounterStack.pop().getCount());
     }
 
     @Override
@@ -270,10 +270,10 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
         blockStmt.setParent(new StartNode(StartNode.Originator.MAIN_FUNCTION));
         // Visit Block Statement and ask it to handle its children.
         returningBlockStmtStack.push(blockStmt);
-        offSetCounterStack.push(new OffSetCounter());
+        cacheOffSetCounterStack.push(new CacheOffSetCounter());
         function.setFlowBuilderVisited(true);
         blockStmt.accept(this);
-        function.setTempStackFrameSize(offSetCounterStack.pop().getCount());
+        function.setCacheFrameSize(cacheOffSetCounterStack.pop().getCount());
         returningBlockStmtStack.pop();
     }
 
@@ -742,10 +742,10 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
             if (!bFunction.isFlowBuilderVisited()) {
                 // Visiting Block Statement.
                 returningBlockStmtStack.push(blockStmt);
-                offSetCounterStack.push(new OffSetCounter());
+                cacheOffSetCounterStack.push(new CacheOffSetCounter());
                 bFunction.setFlowBuilderVisited(true);
                 blockStmt.accept(this);
-                funcInvExpr.getCallableUnit().setTempStackFrameSize(offSetCounterStack.pop().getCount());
+                funcInvExpr.getCallableUnit().setCacheFrameSize(cacheOffSetCounterStack.pop().getCount());
                 returningBlockStmtStack.pop();
             }
         } else {
@@ -845,10 +845,10 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
             BallerinaAction bAction = (BallerinaAction) actionInvExpr.getCallableUnit();
             if (!bAction.isFlowBuilderVisited()) {
                 returningBlockStmtStack.push(blockStmt);
-                offSetCounterStack.push(new OffSetCounter());
+                cacheOffSetCounterStack.push(new CacheOffSetCounter());
                 bAction.setFlowBuilderVisited(true);
                 blockStmt.accept(this);
-                actionInvExpr.getCallableUnit().setTempStackFrameSize(offSetCounterStack.pop().getCount());
+                actionInvExpr.getCallableUnit().setCacheFrameSize(cacheOffSetCounterStack.pop().getCount());
                 returningBlockStmtStack.pop();
             }
         } else {
@@ -1001,10 +1001,10 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
                 BTypeMapper bTypeMapper = (BTypeMapper) castExpression.getCallableUnit();
                 if (!bTypeMapper.isFlowBuilderVisited()) {
                     returningBlockStmtStack.push(blockStmt);
-                    offSetCounterStack.push(new OffSetCounter());
+                    cacheOffSetCounterStack.push(new CacheOffSetCounter());
                     bTypeMapper.setFlowBuilderVisited(true);
                     blockStmt.accept(this);
-                    castExpression.getCallableUnit().setTempStackFrameSize(offSetCounterStack.pop().getCount());
+                    castExpression.getCallableUnit().setCacheFrameSize(cacheOffSetCounterStack.pop().getCount());
                     returningBlockStmtStack.pop();
                 }
             } else {
@@ -1266,10 +1266,10 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
             endNode.setGotoBranchID(branchID);
             if (!connectorDef.getInitFunction().isFlowBuilderVisited()) {
                 returningBlockStmtStack.push(blockStmt);
-                offSetCounterStack.push(new OffSetCounter());
+                cacheOffSetCounterStack.push(new CacheOffSetCounter());
                 connectorDef.getInitFunction().setFlowBuilderVisited(true);
                 blockStmt.accept(this);
-                connectorDef.getInitFunction().setTempStackFrameSize(offSetCounterStack.pop().getCount());
+                connectorDef.getInitFunction().setCacheFrameSize(cacheOffSetCounterStack.pop().getCount());
                 returningBlockStmtStack.pop();
             }
             callableUnitEndNode.setNext(findNext(connectorInitExpr));
@@ -1404,10 +1404,6 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
     public void visit(WorkerVarLocation workerVarLocation) {
     }
 
-    public int getCurrentTempStackSize() {
-        return offSetCounterStack.peek().getCount();
-    }
-
     private void handelBinaryExpression(BinaryExpression binaryExpression) {
         // Handle this as non-blocking manner.
         // Flow: BinaryExpr -> RHSExpr -> LHSExpr -> BinaryExpressionEndNode -> BinaryExpression.nextSibling -> ...
@@ -1433,7 +1429,7 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
         this.loopingStack.clear();
         this.returningBlockStmtStack.clear();
         this.currentResource = null;
-        this.offSetCounterStack.clear();
+        this.cacheOffSetCounterStack.clear();
     }
 
     /**
@@ -1480,25 +1476,25 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
     private void calculateTempOffSet(Expression expr) {
         int valRef;
         if (expr instanceof FunctionInvocationExpr) {
-            valRef = offSetCounterStack.peek().incrementAndGet(
+            valRef = cacheOffSetCounterStack.peek().incrementAndGet(
                     ((FunctionInvocationExpr) expr).getCallableUnit().getReturnParamTypes().length);
         } else if (expr instanceof ActionInvocationExpr) {
-            valRef = offSetCounterStack.peek().incrementAndGet(
+            valRef = cacheOffSetCounterStack.peek().incrementAndGet(
                     ((ActionInvocationExpr) expr).getCallableUnit().getReturnParamTypes().length);
         } else {
-            valRef = offSetCounterStack.peek().incrementAndGet();
+            valRef = cacheOffSetCounterStack.peek().incrementAndGet();
         }
         expr.setTempOffset(valRef);
     }
 
     /**
-     * Utility Counter Implementation for calculating offset values for temp values in a statement.
+     * Utility Counter Implementation for calculating offset values for cache values in a statement.
      */
-    private static class OffSetCounter {
+    private static class CacheOffSetCounter {
 
         private int count;
 
-        OffSetCounter() {
+        CacheOffSetCounter() {
             count = -1;
         }
 

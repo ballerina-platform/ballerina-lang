@@ -33,8 +33,8 @@ public class StackFrame {
     public BValue[] values;
     public BValue[] returnValues;
     private CallableUnitInfo callableUnitInfo;
-    // Field for Non-Blocking Implementation.
-    public BValue[] tempValues;
+    // Cache values.
+    public BValue[] cacheValues;
     // Use only in debugger. Added when variables are accessed.
     public HashMap<SymbolName, AbstractMap.SimpleEntry<Integer, String>> variables;
 
@@ -56,10 +56,10 @@ public class StackFrame {
         this.callableUnitInfo = callableUnitInfo;
     }
 
-    public StackFrame(BValue[] values, BValue[] returnValues, BValue[] tempValues, CallableUnitInfo callableUnitInfo) {
+    public StackFrame(BValue[] values, BValue[] returnValues, BValue[] cacheValues, CallableUnitInfo callableUnitInfo) {
         this.values = values;
         this.returnValues = returnValues;
-        this.tempValues = tempValues;
+        this.cacheValues = cacheValues;
         this.callableUnitInfo = callableUnitInfo;
         variables = new HashMap<>();
     }
