@@ -49,7 +49,7 @@ public abstract class OutputTransport implements OutputTransportCallback {
         init(streamDefinition, optionHolder);
     }
 
-    protected abstract void init(StreamDefinition streamDefinition, OptionHolder optionHolder);
+    public abstract void init(StreamDefinition streamDefinition, OptionHolder optionHolder);
 
     /**
      * Will be called to connect to the backend before events are published

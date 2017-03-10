@@ -18,10 +18,9 @@
 
 package org.wso2.siddhi.extension.output.transport.kafka;
 
-import org.apache.kafka.clients.producer.Producer;
-import kafka.producer.KeyedMessage;
 import kafka.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.KafkaProducer;
+import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.log4j.Logger;
 import org.wso2.siddhi.annotation.Extension;
@@ -72,7 +71,7 @@ public class KafkaOutputTransport extends OutputTransport {
     private Option partitionNumber;
 
     @Override
-    protected void init(StreamDefinition streamDefinition, OptionHolder optionHolder) {
+    public void init(StreamDefinition streamDefinition, OptionHolder optionHolder) {
         //ThreadPoolExecutor will be assigned  if it is null
         if (threadPoolExecutor == null) {
             int minThread;

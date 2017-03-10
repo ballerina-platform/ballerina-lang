@@ -28,6 +28,7 @@ import org.wso2.siddhi.core.stream.AttributeMapping;
 import org.wso2.siddhi.core.stream.StreamJunction;
 import org.wso2.siddhi.core.stream.input.source.InputMapper;
 import org.wso2.siddhi.core.stream.input.source.InputTransport;
+import org.wso2.siddhi.core.stream.output.sink.DistributedTransport;
 import org.wso2.siddhi.core.stream.output.sink.OutputMapper;
 import org.wso2.siddhi.core.stream.output.sink.OutputTransport;
 import org.wso2.siddhi.core.table.EventTable;
@@ -262,17 +263,33 @@ public class DefinitionParserHelper {
             if (SiddhiConstants.ANNOTATION_SINK.equalsIgnoreCase(sinkAnnotation.getName())) {
                 Annotation mapAnnotation = AnnotationHelper.getAnnotation(SiddhiConstants.ANNOTATION_MAP,
                         sinkAnnotation.getAnnotations());
+                Annotation distributionAnnotation = AnnotationHelper.getAnnotation(SiddhiConstants.ANNOTATION_DISTRIBUTION,
+                        sinkAnnotation.getAnnotations());
+
                 if (mapAnnotation != null) {
-                    final String sinkType = sinkAnnotation.getElement(SiddhiConstants.ANNOTATION_ELEMENT_TYPE);
+                    boolean isDistributedTransport = (distributionAnnotation != null);
+                    String sinkType;
+
+                    if (isDistributedTransport){
+                        // All distributed transports falls under two generalized extensions. Here we instantiate the generalised extension and
+                        // the actual underlying transport is instantiated inside the generalized extensions depending on the 'type' parameter
+                        // in Sink options.
+                        sinkType = (distributionAnnotation.getElement("channels") == null) ?
+                                SiddhiConstants.EXTENSION_MULTI_ENDPOINT_TRANSPORT :
+                                SiddhiConstants.EXTENSION_PARTITIONED_TRANSPORT;
+                    } else {
+                        sinkType = sinkAnnotation.getElement(SiddhiConstants.ANNOTATION_ELEMENT_TYPE);
+                    }
+
                     final String mapType = mapAnnotation.getElement(SiddhiConstants.ANNOTATION_ELEMENT_TYPE);
                     if (sinkType != null && mapType != null) {
-                        // load input transport extension
+                        // load output transport extension
                         Extension sink = constructExtension(streamDefinition, SiddhiConstants.ANNOTATION_SINK,
                                 sinkType, sinkAnnotation, SiddhiConstants.NAMESPACE_OUTPUT_TRANSPORT);
                         OutputTransport outputTransport = (OutputTransport) SiddhiClassLoader.loadExtensionImplementation(
                                 sink, OutputTransportExecutorExtensionHolder.getInstance(executionPlanContext));
 
-                        // load input mapper extension
+                        // load output mapper extension
                         Extension mapper = constructExtension(streamDefinition, SiddhiConstants.ANNOTATION_MAP,
                                 mapType, sinkAnnotation, SiddhiConstants.NAMESPACE_OUTPUT_MAPPER);
                         OutputMapper outputMapper = (OutputMapper) SiddhiClassLoader.loadExtensionImplementation(
@@ -286,6 +303,20 @@ public class DefinitionParserHelper {
 
                         outputMapper.init(streamDefinition, mapType, mapOptionHolder, payload);
                         outputTransport.init(streamDefinition, sinkType, sinkOptionHolder, outputMapper);
+
+                        // Initializing output transport with distributed configurations
+                        if (isDistributedTransport){
+                            OptionHolder distributionOptionHolder = constructOptionProcessor(streamDefinition, distributionAnnotation,
+                                    outputTransport.getClass().getAnnotation(org.wso2.siddhi.annotation.Extension.class));
+
+                            List<OptionHolder> endpointOptionHolders = new ArrayList<>();
+                            distributionAnnotation.getAnnotations().stream()
+                                    .filter(annotation -> SiddhiConstants.ANNOTATION_ENDPOINT.equalsIgnoreCase(annotation.getName()))
+                                    .forEach(annotation -> endpointOptionHolders.add(constructOptionProcessor(streamDefinition, annotation,
+                                            outputTransport.getClass().getAnnotation(org.wso2.siddhi.annotation.Extension.class))));
+
+                           ((DistributedTransport)outputTransport).initDistribution(distributionOptionHolder, endpointOptionHolders);
+                        }
 
                         List<OutputTransport> eventSinks = eventSinkMap.get(streamDefinition.getId());
                         if (eventSinks == null) {

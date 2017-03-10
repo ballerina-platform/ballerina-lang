@@ -45,7 +45,7 @@ public class TcpOutputTransport extends OutputTransport {
     private Option streamIdOption;
 
     @Override
-    protected void init(StreamDefinition streamDefinition, OptionHolder optionHolder) {
+    public void init(StreamDefinition streamDefinition, OptionHolder optionHolder) {
         tcpNettyClient = new TcpNettyClient();
         host = optionHolder.validateAndGetStaticValue(HOST, "localhost");
         port = Integer.parseInt(optionHolder.validateAndGetStaticValue(PORT, "8080"));

@@ -43,7 +43,7 @@ public class InMemoryOutputTransport extends OutputTransport {
     private Option topicOption;
 
     @Override
-    protected void init(StreamDefinition streamDefinition, OptionHolder optionHolder) {
+    public void init(StreamDefinition streamDefinition, OptionHolder optionHolder) {
         topicOption = optionHolder.validateAndGetOption(TOPIC_KEY);
     }
 

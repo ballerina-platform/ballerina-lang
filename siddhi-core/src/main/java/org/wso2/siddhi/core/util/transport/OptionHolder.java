@@ -72,6 +72,10 @@ public class OptionHolder {
         }
     }
 
+    public boolean isOptionExists(String optionKey){
+        return (options.get(optionKey) != null);
+    }
+
 //    public void validate(String key, boolean optional) {
 //        Option option = options.get(key);
 //        if (option == null) {
