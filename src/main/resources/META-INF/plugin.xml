@@ -1,9 +1,9 @@
 <idea-plugin version="2">
     <id>org.ballerinalang</id>
     <name>Ballerina</name>
-    <version>0.8.0</version>
+    <version>0.8.1</version>
     <category>Custom Languages</category>
-    <vendor email="support@wso2.org" url="http://wso2.org">WSO2 Inc.</vendor>
+    <vendor email="ballerinalang@wso2.com" url="http://wso2.org">WSO2 Inc.</vendor>
 
     <description><![CDATA[
       Plugin for Ballerina language.<br>
