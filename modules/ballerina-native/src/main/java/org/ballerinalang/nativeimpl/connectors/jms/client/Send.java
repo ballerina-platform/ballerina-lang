@@ -24,7 +24,6 @@ import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BMessage;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.nativeimpl.connectors.jms.utils.JMSConstants;
 import org.ballerinalang.nativeimpl.connectors.jms.utils.JMSMessageUtils;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.Attribute;
@@ -42,9 +41,11 @@ import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.MapCarbonMessage;
 import org.wso2.carbon.messaging.TextCarbonMessage;
 import org.wso2.carbon.messaging.exceptions.ClientConnectorException;
+import org.wso2.carbon.transport.jms.utils.JMSConstants;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * {@code Post} is the send action implementation of the JMS Connector.
@@ -54,29 +55,20 @@ import java.util.Map;
         actionName = "send",
         connectorName = ClientConnector.CONNECTOR_NAME,
         args = { @Argument(name = "jmsClientConnector", type = TypeEnum.CONNECTOR),
-                 @Argument(name = "connectionFactoryName", type = TypeEnum.STRING),
                  @Argument(name = "destinationName", type = TypeEnum.STRING),
-                 @Argument(name = "destinationType", type = TypeEnum.STRING),
                  @Argument(name = "msgType", type = TypeEnum.STRING),
-                 @Argument(name = "m", type = TypeEnum.MESSAGE),
-                 @Argument(name = "properties", type = TypeEnum.MAP) },
+                 @Argument(name = "m", type = TypeEnum.MESSAGE)},
         returnType = {@ReturnType(type = TypeEnum.BOOLEAN)})
 @BallerinaAnnotation(annotationName = "Description", attributes = { @Attribute(name = "value",
         value = "SEND action implementation of the JMS Connector") })
 @BallerinaAnnotation(annotationName = "Param", attributes = { @Attribute(name = "connector",
         value = "Connector") })
-@BallerinaAnnotation(annotationName = "Param", attributes = { @Attribute(name = "connectionFactoryName",
-        value = "Connection Factory Name") })
 @BallerinaAnnotation(annotationName = "Param", attributes = { @Attribute(name = "destinationName",
         value = "Destination Name") })
-@BallerinaAnnotation(annotationName = "Param", attributes = { @Attribute(name = "destinationType",
-        value = "Destination Type") })
 @BallerinaAnnotation(annotationName = "Param", attributes = { @Attribute(name = "msgType",
         value = "Message Type") })
 @BallerinaAnnotation(annotationName = "Param", attributes = { @Attribute(name = "message",
         value = "Message") })
-@BallerinaAnnotation(annotationName = "Param", attributes = { @Attribute(name = "properties",
-        value = "Properties") })
 public class Send extends AbstractJMSAction {
     private static final Logger log = LoggerFactory.getLogger(Send.class);
 
@@ -90,7 +82,7 @@ public class Send extends AbstractJMSAction {
             throw new BallerinaException("Need to use a JMSConnector as the first argument", context);
         }
         //Getting ballerina message and extract carbon message.
-        BMessage bMessage = (BMessage) getArgument(context, 5);
+        BMessage bMessage = (BMessage) getArgument(context, 3);
         if (bMessage == null) {
             throw new BallerinaException("Ballerina message not found", context);
         }
@@ -98,10 +90,14 @@ public class Send extends AbstractJMSAction {
         //Create property map to send to transport.
         Map<String, String> propertyMap = new HashMap<>();
         //Getting the map of properties.
-        BMap properties = (BMap) getArgument(context, 6);
+        BMap properties = ((ClientConnector) connector).getProperties();
+
+        for (BString key : (Set<BString>) properties.keySet()) {
+            propertyMap.put(key.stringValue(), (properties.get(key)).stringValue());
+        }
 
         //Creating message content according to the message type.
-        String messageType = getArgument(context, 4).stringValue();
+        String messageType = getArgument(context, 2).stringValue();
         if (messageType.equalsIgnoreCase(JMSConstants.TEXT_MESSAGE_TYPE) ||
             messageType.equalsIgnoreCase(JMSConstants.BYTES_MESSAGE_TYPE)) {
             BallerinaMessageDataSource ballerinaMessageDataSource = bMessage.getMessageDataSource();
@@ -122,17 +118,20 @@ public class Send extends AbstractJMSAction {
             message = JMSMessageUtils.toSerializableCarbonMessage(bMessage);
             propertyMap.put(JMSConstants.JMS_MESSAGE_TYPE, JMSConstants.OBJECT_MESSAGE_TYPE);
         } else if (messageType.equalsIgnoreCase(JMSConstants.MAP_MESSAGE_TYPE)) {
-            BValue bValue = properties.get(new BString(JMSConstants.MAP_DATA));
-            if (bValue != null) {
+            BallerinaMessageDataSource ballerinaMessageDataSource = bMessage.getMessageDataSource();
+
+            if (ballerinaMessageDataSource != null) {
                 message = new MapCarbonMessage();
                 MapCarbonMessage mapCarbonMessage = (MapCarbonMessage) message;
-                if (bValue instanceof BMap) {
-                    BMap mapData = (BMap) bValue;
+                if (ballerinaMessageDataSource instanceof BMap) {
+                    BMap mapData = (BMap) ballerinaMessageDataSource;
                     for (Object o : mapData.keySet()) {
                         BValue key = (BValue) o;
                         BValue value = mapData.get(key);
                         mapCarbonMessage.setValue(key.stringValue(), value.stringValue());
                     }
+
+                    message = mapCarbonMessage;
                 }
             } else if (!(message instanceof MapCarbonMessage)) {
                 throw new BallerinaException(
@@ -143,34 +142,7 @@ public class Send extends AbstractJMSAction {
         } else {
             propertyMap.put(JMSConstants.JMS_MESSAGE_TYPE, JMSConstants.GENERIC_MESSAGE_TYPE);
         }
-        //Getting necessary values from the connector instance.
-        propertyMap.put(JMSConstants.NAMING_FACTORY_INITIAL_PARAM_NAME,
-                        ((ClientConnector) connector).getInitialContextFactory());
-        propertyMap.put(JMSConstants.PROVIDER_URL_PARAM_NAME,
-                        ((ClientConnector) connector).getJndiProviderUrl());
-
-        //Getting necessary parameter values.
-        propertyMap.put(JMSConstants.CONNECTION_FACTORY_JNDI_PARAM_NAME,
-                        getArgument(context, 1).stringValue());
-        propertyMap.put(JMSConstants.DESTINATION_PARAM_NAME, getArgument(context, 2).stringValue());
-        propertyMap.put(JMSConstants.CONNECTION_FACTORY_TYPE_PARAM_NAME,
-                        getArgument(context, 3).stringValue());
-        //Setting optional parameters.
-        if (properties.get(new BString(JMSConstants.CONNECTION_USERNAME)) != null) {
-            propertyMap.put(JMSConstants.CONNECTION_USERNAME,
-                            properties.get(new BString(JMSConstants.CONNECTION_USERNAME))
-                                      .stringValue());
-        }
-        if (properties.get(new BString(JMSConstants.CONNECTION_PASSWORD)) != null) {
-            propertyMap.put(JMSConstants.CONNECTION_PASSWORD,
-                            properties.get(new BString(JMSConstants.CONNECTION_PASSWORD)).stringValue());
-        }
-        if (properties.get(new BString(JMSConstants.CACHE_LEVEL)) != null) {
-            propertyMap
-                    .put(JMSConstants.CACHE_LEVEL, properties.get(new BString(JMSConstants.CACHE_LEVEL)).stringValue());
-        } else {
-            propertyMap.put(JMSConstants.CACHE_LEVEL, Integer.toString(JMSConstants.CACHE_NONE));
-        }
+        propertyMap.put(JMSConstants.DESTINATION_PARAM_NAME, getArgument(context, 1).stringValue());
         try {
             if (log.isDebugEnabled()) {
                 log.debug("Sending " + messageType + " to " +

@@ -40,4 +40,6 @@ public class Constants {
      * HTTP content-type text/plain.
      */
     public static final String TEXT_PLAIN = "text/plain";
+
+    public static final String MAP_TYPE = "application/x-www-form-urlencoded";
 }
