@@ -301,8 +301,8 @@ public class DefinitionParserHelper {
                                 outputMapper.getClass().getAnnotation(org.wso2.siddhi.annotation.Extension.class));
                         String payload = getPayload(mapAnnotation);
 
-                        outputMapper.init(streamDefinition, mapType, mapOptionHolder, payload);
-                        outputTransport.init(streamDefinition, sinkType, sinkOptionHolder, outputMapper);
+                        outputTransport.init(streamDefinition, sinkType, sinkOptionHolder, outputMapper, mapType,
+                                mapOptionHolder, payload);
 
                         // Initializing output transport with distributed configurations
                         if (isDistributedTransport){

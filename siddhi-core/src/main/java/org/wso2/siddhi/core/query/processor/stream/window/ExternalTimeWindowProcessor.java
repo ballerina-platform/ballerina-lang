@@ -97,6 +97,9 @@ public class ExternalTimeWindowProcessor extends WindowProcessor implements Find
                 StreamEvent clonedEvent = streamEventCloner.copyStreamEvent(streamEvent);
                 clonedEvent.setType(StreamEvent.Type.EXPIRED);
 
+                // reset expiredEventChunk to make sure all of the expired events get removed,
+                // otherwise lastReturned.next will always return null and here while check is always false
+                expiredEventChunk.reset();
                 while (expiredEventChunk.hasNext()) {
                     StreamEvent expiredEvent = expiredEventChunk.next();
                     long expiredEventTime = (Long) timeStampVariableExpressionExecutor.execute(expiredEvent);
