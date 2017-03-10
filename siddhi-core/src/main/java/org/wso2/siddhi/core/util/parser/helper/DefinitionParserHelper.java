@@ -137,7 +137,7 @@ public class DefinitionParserHelper {
             } else {
                 eventTable = new InMemoryEventTable();
             }
-            eventTable.init(tableDefinition, tableMetaStreamEvent, tableStreamEventPool, tableStreamEventCloner, executionPlanContext);
+            eventTable.init(tableDefinition, tableStreamEventPool, tableStreamEventCloner, executionPlanContext);
             eventTableMap.putIfAbsent(tableDefinition.getId(), eventTable);
         }
     }

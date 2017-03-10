@@ -48,7 +48,8 @@ public class MaxForeverAggregatorExtensionTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String inStreamDefinition = "define stream inputStream (price1 double,price2 double, price3 double);";
-        String query = ("@info(name = 'query1') from inputStream " +
+        String query = ("@info(name = 'query1') " +
+                "from inputStream " +
                 "select maxForever(price1) as maxForeverValue " +
                 "insert into outputStream;");
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(inStreamDefinition + query);

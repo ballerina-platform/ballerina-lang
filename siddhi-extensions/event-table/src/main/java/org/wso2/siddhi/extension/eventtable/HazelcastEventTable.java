@@ -100,15 +100,13 @@ public class HazelcastEventTable implements EventTable {
 
     /**
      * Event Table initialization method, it checks the annotation and do necessary pre configuration tasks.
-     *
      * @param tableDefinition        Definition of event table.
-     * @param tableMetaStreamEvent
      * @param tableStreamEventPool
      * @param tableStreamEventCloner
      * @param executionPlanContext   ExecutionPlan related meta information.
      */
     @Override
-    public void init(TableDefinition tableDefinition, MetaStreamEvent tableMetaStreamEvent,
+    public void init(TableDefinition tableDefinition,
                      StreamEventPool tableStreamEventPool, StreamEventCloner tableStreamEventCloner,
                      ExecutionPlanContext executionPlanContext) {
         this.tableDefinition = tableDefinition;

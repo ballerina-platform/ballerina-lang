@@ -24,9 +24,6 @@ import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.util.collection.OverwritingStreamEventExtractor;
 import org.wso2.siddhi.core.util.collection.UpdateAttributeMapper;
 
-/**
- * Created on 3/22/15.
- */
 public interface Operator extends Finder {
 
     void delete(ComplexEventChunk<StateEvent> deletingEventChunk, Object candidateEvents);
