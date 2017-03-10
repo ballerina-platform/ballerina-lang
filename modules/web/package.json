@@ -8,7 +8,8 @@
     "webpack": "cross-env NODE_ENV=production webpack --config webpack.config.js",
     "dev": "webpack-dev-server --hot --inline --progress",
     "runTests": "cross-env NODE_ENV=test mocha-webpack --require ./js/tests/js/spec/setup.js --webpack-config ./webpack.config.js ./js/tests/js/spec/BallerinaTest.js;",
-    "test": "node run-tests.js"
+    "test": "node run-tests.js",
+    "lint": "eslint ."
   },
   "repository": {
     "type": "git",
@@ -26,6 +27,7 @@
     "chai": "^3.5.0",
     "cross-env": "^3.2.3",
     "css-loader": "^0.26.2",
+    "eslint": "^3.17.1",
     "file-loader": "^0.10.1",
     "jsdom": "^9.11.0",
     "mocha": "^3.2.0",
