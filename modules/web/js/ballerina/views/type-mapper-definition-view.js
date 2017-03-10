@@ -158,101 +158,82 @@ define(['lodash', 'log', './ballerina-view', './variables-view', './type-struct-
             currentContainer.find('svg').parent().append(selectorContainer).append(dataMapperContainer);
             currentContainer.find('svg').remove();
 
-            this.loadSchemasToComboBox(currentContainer, "#" + sourceId, "#" + targetId, predefinedStructs);
+            $(document).ready(function() {
+                this.loadSchemasToComboBox(currentContainer, "#" + sourceId, "#" + targetId, predefinedStructs);
 
-            $(".type-mapper-combo").select2();
-            $("#" + targetId).on("select2:open", function () {
-                var predefinedStructs = self._package.getStructDefinitions();
-                if (predefinedStructs.length > 0) {
-                    $("#" + targetId).empty().append('<option value="-1">--Select--</option>');
-                    self.getTargetInfo()["predefinedStructs"] = predefinedStructs;
-                    self.loadSchemaToComboBox(currentContainer, "#" + targetId, predefinedStructs);
-                    $("#" + targetId).val(-1).change();
-                }
-            });
-
-            $("#" + sourceId).on("select2:open", function () {
-                var predefinedStructs = self._package.getStructDefinitions();
-                if (predefinedStructs.length > 0) {
-                    $("#" + sourceId).empty().append('<option value="-1">--Select--</option>');
-                    self.getSourceInfo()["predefinedStructs"] = predefinedStructs;
-                    self.loadSchemaToComboBox(currentContainer, "#" + sourceId, predefinedStructs);
-                    $("#" + sourceId).val(-1).change();
-                }
-            });
-
-            $(currentContainer).find("#" + sourceId).change(function () {
-                var sourceDropDown = $("#" + sourceId + " option:selected");
-                var selectedNewStructNameForSource = sourceDropDown.text();
-
-//                if (selectedNewStructNameForSource != self.getSelectedTargetStruct()) {
-//                    self.getSourceInfo()[TYPE_MAPPER_COMBOBOX_PREVIOUS_SELECTION] = self.getSelectedSourceStruct();
-//                    self.setSelectedSourceStruct(selectedNewStructNameForSource);
-//                    if (selectedNewStructNameForSource != TYPE_MAPPER_COMBOBOX_DEFAULT_SELECTION) {
-//                        self.getModel().removeResourceParameter();
-//                        self.getModel().addResourceParameterChild(selectedNewStructNameForSource, "y");
-//                    }
-//                } else {
-//                    self.setSourceSchemaNameToComboBox('#sourceStructs' + self.getModel().id, self.getSelectedSourceStruct());
-//                }
-
-                if (selectedNewStructNameForSource != TYPE_MAPPER_COMBOBOX_DEFAULT_SELECTION && selectedNewStructNameForSource
-                    != self.getSelectedSourceStruct()) {
-                    if(selectedNewStructNameForSource == self.getSelectedTargetStruct()){
-
-                        self.getSourceInfo()[TYPE_MAPPER_COMBOBOX_SOURCE_IS_ALREADY_RENDERED_IN_TARGET] = true;
-                        self.getModel().removeReturnType();
-                        self.setSelectedTargetStruct(TYPE_MAPPER_COMBOBOX_DEFAULT_SELECTION);
-                        self.setTargetSchemaNameToComboBox('#targetStructs' + self.getModel().id, self.getSelectedTargetStruct());
-
-                    }else{
-                        self.getSourceInfo()[TYPE_MAPPER_COMBOBOX_SOURCE_IS_ALREADY_RENDERED_IN_TARGET] = false;
+                $(".type-mapper-combo").select2();
+                $("#" + targetId).on("select2:open", function () {
+                    var predefinedStructs = self._package.getStructDefinitions();
+                    if (predefinedStructs.length > 0) {
+                        $("#" + targetId).empty().append('<option value="-1">--Select--</option>');
+                        self.getTargetInfo()["predefinedStructs"] = predefinedStructs;
+                        self.loadSchemaToComboBox(currentContainer, "#" + targetId, predefinedStructs);
+                        $("#" + targetId).val(-1).change();
                     }
-                    self.getSourceInfo()[TYPE_MAPPER_COMBOBOX_PREVIOUS_SELECTION] = self.getSelectedSourceStruct();
-                    self.getModel().removeResourceParameter();
-                    self.getModel().addResourceParameterChild(selectedNewStructNameForSource, "y");
-                }else if(selectedNewStructNameForSource == TYPE_MAPPER_COMBOBOX_DEFAULT_SELECTION){
-                    self.setSourceSchemaNameToComboBox('#sourceStructs' + self.getModel().id, self.getSelectedSourceStruct());
-                }
-            });
+                });
 
-            $(currentContainer).find("#" + targetId).change(function () {
-                var targetDropDown = $("#" + targetId + " option:selected");
-                var selectedStructNameForTarget = targetDropDown.text();
+                $("#" + sourceId).on("select2:open", function () {
+                    var predefinedStructs = self._package.getStructDefinitions();
+                    if (predefinedStructs.length > 0) {
+                        $("#" + sourceId).empty().append('<option value="-1">--Select--</option>');
+                        self.getSourceInfo()["predefinedStructs"] = predefinedStructs;
+                        self.loadSchemaToComboBox(currentContainer, "#" + sourceId, predefinedStructs);
+                        $("#" + sourceId).val(-1).change();
+                    }
+                });
 
-//                if (selectedStructNameForTarget != self.getSelectedSourceStruct()) {
-//                    self.getTargetInfo()[TYPE_MAPPER_COMBOBOX_PREVIOUS_SELECTION] = self.getSelectedTargetStruct();
-//                    self.setSelectedTargetStruct(selectedStructNameForTarget);
-//                    if (selectedStructNameForTarget != TYPE_MAPPER_COMBOBOX_DEFAULT_SELECTION) {
-//                        self.getModel().removeReturnType();
-//                        self.getModel().addReturnTypeChild(selectedStructNameForTarget, "x");
-//                        self.getModel().fillReturnStatement("x");
-//                        self.getModel().fillVariableDefStatement(selectedStructNameForTarget, "x");
-//                    }
-//                } else {
-//                    self.setTargetSchemaNameToComboBox('#targetStructs' + self.getModel().id, self.getSelectedTargetStruct());
-//                }
+                $(currentContainer).find("#" + sourceId).change(function () {
+                    var sourceDropDown = $("#" + sourceId + " option:selected");
+                    var selectedNewStructNameForSource = sourceDropDown.text();
+                    if (selectedNewStructNameForSource != TYPE_MAPPER_COMBOBOX_DEFAULT_SELECTION
+                        && selectedNewStructNameForSource != self.getSelectedSourceStruct()) {
+                        if (selectedNewStructNameForSource == self.getSelectedTargetStruct()) {
+                            self.getSourceInfo()[TYPE_MAPPER_COMBOBOX_SOURCE_IS_ALREADY_RENDERED_IN_TARGET] = true;
+                            self.getModel().removeReturnType();
+                            self.setSelectedTargetStruct(TYPE_MAPPER_COMBOBOX_DEFAULT_SELECTION);
+                            self.setTargetSchemaNameToComboBox('#targetStructs' + self.getModel().id,
+                                                                self.getSelectedTargetStruct());
 
-                if (selectedStructNameForTarget != TYPE_MAPPER_COMBOBOX_DEFAULT_SELECTION && selectedStructNameForTarget
-                    != self.getSelectedTargetStruct()) {
-                    if(selectedStructNameForTarget == self.getSelectedSourceStruct()){
-
-                        self.getTargetInfo()[TYPE_MAPPER_COMBOBOX_TARGET_IS_ALREADY_RENDERED_IN_SOURCE] = true;
+                        } else {
+                            self.getSourceInfo()[TYPE_MAPPER_COMBOBOX_SOURCE_IS_ALREADY_RENDERED_IN_TARGET] = false;
+                        }
+                        self.getSourceInfo()[TYPE_MAPPER_COMBOBOX_PREVIOUS_SELECTION] = self.getSelectedSourceStruct();
                         self.getModel().removeResourceParameter();
-                        self.setSelectedSourceStruct(TYPE_MAPPER_COMBOBOX_DEFAULT_SELECTION);
-                        self.setSourceSchemaNameToComboBox('#sourceStructs' + self.getModel().id, self.getSelectedSourceStruct());
-
-                    }else{
-                        self.getTargetInfo()[TYPE_MAPPER_COMBOBOX_TARGET_IS_ALREADY_RENDERED_IN_SOURCE] = false;
+                        self.getModel().addResourceParameterChild(selectedNewStructNameForSource, "y");
+                    } else if (selectedNewStructNameForSource == TYPE_MAPPER_COMBOBOX_DEFAULT_SELECTION) {
+                        self.setSourceSchemaNameToComboBox('#sourceStructs' + self.getModel().id,
+                                                            self.getSelectedSourceStruct());
                     }
-                    self.getTargetInfo()[TYPE_MAPPER_COMBOBOX_PREVIOUS_SELECTION] = self.getSelectedTargetStruct();
-                    self.getModel().removeReturnType();
-                    self.getModel().addReturnTypeChild(selectedStructNameForTarget, "x");
-                    self.getModel().fillReturnStatement("x");
-                    self.getModel().fillVariableDefStatement(selectedStructNameForTarget, "x");
-                }else if(selectedStructNameForTarget == TYPE_MAPPER_COMBOBOX_DEFAULT_SELECTION){
-                    self.setTargetSchemaNameToComboBox('#targetStructs' + self.getModel().id, self.getSelectedTargetStruct());
-                }
+                });
+
+                $(currentContainer).find("#" + targetId).change(function () {
+                    var targetDropDown = $("#" + targetId + " option:selected");
+                    var selectedStructNameForTarget = targetDropDown.text();
+
+                    if (selectedStructNameForTarget != TYPE_MAPPER_COMBOBOX_DEFAULT_SELECTION
+                            && selectedStructNameForTarget != self.getSelectedTargetStruct()) {
+                        if (selectedStructNameForTarget == self.getSelectedSourceStruct()) {
+
+                            self.getTargetInfo()[TYPE_MAPPER_COMBOBOX_TARGET_IS_ALREADY_RENDERED_IN_SOURCE] = true;
+                            self.getModel().removeResourceParameter();
+                            self.setSelectedSourceStruct(TYPE_MAPPER_COMBOBOX_DEFAULT_SELECTION);
+                            self.setSourceSchemaNameToComboBox('#sourceStructs' + self.getModel().id,
+                                self.getSelectedSourceStruct());
+
+                        } else {
+                            self.getTargetInfo()[TYPE_MAPPER_COMBOBOX_TARGET_IS_ALREADY_RENDERED_IN_SOURCE] = false;
+                        }
+                        self.getTargetInfo()[TYPE_MAPPER_COMBOBOX_PREVIOUS_SELECTION] = self.getSelectedTargetStruct();
+                        self.getModel().removeReturnType();
+                        self.getModel().addReturnTypeChild(selectedStructNameForTarget, "x");
+                        self.getModel().fillReturnStatement("x");
+                        self.getModel().fillVariableDefStatement(selectedStructNameForTarget, "x");
+                    } else if (selectedStructNameForTarget == TYPE_MAPPER_COMBOBOX_DEFAULT_SELECTION) {
+                        self.setTargetSchemaNameToComboBox('#targetStructs' + self.getModel().id,
+                            self.getSelectedTargetStruct());
+                    }
+                });
+
             });
 
             this.getModel().accept(this);
