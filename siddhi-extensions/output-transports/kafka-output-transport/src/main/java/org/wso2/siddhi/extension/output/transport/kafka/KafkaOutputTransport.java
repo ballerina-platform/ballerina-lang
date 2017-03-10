@@ -70,7 +70,7 @@ public class KafkaOutputTransport extends OutputTransport {
     private Option partitionNumber;
 
     @Override
-    protected String[] init(OptionHolder optionHolder) {
+    protected void init(OptionHolder optionHolder) {
         //ThreadPoolExecutor will be assigned  if it is null
         if (threadPoolExecutor == null) {
             int minThread;
@@ -100,7 +100,6 @@ public class KafkaOutputTransport extends OutputTransport {
             threadPoolExecutor = new ThreadPoolExecutor(minThread, maxThread, defaultKeepAliveTime,
                     TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>(jobQueSize));
         }
-        return new String[0];
     }
 
     @Override

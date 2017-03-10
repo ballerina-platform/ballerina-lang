@@ -6,11 +6,15 @@ import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 public class OptionHolder {
 
     private final Map<String, Option> options = new HashMap<>();
     private final Extension extension;
+    private final Set<String> dynamicOptionsKeys;
+    private final Set<String> staticOptionsKeys;
+
 
     public OptionHolder(StreamDefinition streamDefinition, Map<String, String> staticOptions,
                         Map<String, String> dynamicOptions, Extension extension) {
@@ -22,6 +26,8 @@ public class OptionHolder {
             options.put(entry.getKey(), new Option(entry.getKey(), null,
                     new TemplateBuilder(streamDefinition, entry.getValue())));
         }
+        staticOptionsKeys = staticOptions.keySet();
+        dynamicOptionsKeys = dynamicOptions.keySet();
     }
 
     public Option validateAndGetOption(String optionKey) {
@@ -69,7 +75,15 @@ public class OptionHolder {
         }
     }
 
-//    public void validate(String key, boolean optional) {
+    public Set<String> getDynamicOptionsKeys() {
+        return dynamicOptionsKeys;
+    }
+
+    public Set<String> getStaticOptionsKeys() {
+        return staticOptionsKeys;
+    }
+
+    //    public void validate(String key, boolean optional) {
 //        Option option = options.get(key);
 //        if (option == null) {
 //            if (!optional) {
