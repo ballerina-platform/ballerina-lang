@@ -16,12 +16,14 @@
   ~ * limitations under the License.
   ~ */
   -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <parent>
-        <groupId>org.wso2</groupId>
-        <artifactId>wso2</artifactId>
-        <version>5</version>
+        <groupId>org.ballerinalang</groupId>
+        <artifactId>ballerinalang</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
@@ -34,164 +36,87 @@
 
     <scm>
         <url>//github.com/ballerinalang/distribution.git</url>
-        <developerConnection>scm:git:https://github.com/ballerinalang/distribution.git</developerConnection>
+        <developerConnection>scm:git:https://github.com/ballerinalang/distribution.git
+        </developerConnection>
         <connection>scm:git:https://github.com/ballerinalang/distribution.git</connection>
         <tag>HEAD</tag>
     </scm>
 
-    <dependencies>
-        <dependency>
-            <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina</artifactId>
-            <version>${ballerina.runtime.version}</version>
-            <type>zip</type>
-        </dependency>
-        <dependency>
-            <groupId>org.ballerinalang</groupId>
-            <artifactId>workspace-service</artifactId>
-            <version>${ballerina.composer.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-composer-web</artifactId>
-            <version>${ballerina.composer.version}</version>
-            <type>zip</type>
-        </dependency>
-        <dependency>
-            <groupId>org.ballerinalang</groupId>
-            <artifactId>testerina-core</artifactId>
-            <version>${testerina.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.ballerinalang</groupId>
-            <artifactId>swagger-ballerina-generator</artifactId>
-            <version>${tool.swagger.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-container-support</artifactId>
-            <version>${ballerina.container.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.ballerinalang</groupId>
-            <artifactId>docerina</artifactId>
-            <version>${docerina.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.ballerinalang</groupId>
-            <artifactId>connectors</artifactId>
-            <version>${ballerina.connectors.version}</version>
-        </dependency>
-    </dependencies>
-
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-dependency-plugin</artifactId>
-                <version>3.0.0</version>
-                <executions>
-                    <execution>
-                        <id>unpack-dependencies</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>unpack-dependencies</goal>
-                        </goals>
-                        <configuration>
-                            <includeArtifactIds>
-                                ballerina,workspace-service,ballerina-composer-web,testerina-core,connectors
-                            </includeArtifactIds>
-                            <outputDirectory>${project.build.directory}/extracted-distributions</outputDirectory>
-                            <overWriteReleases>false</overWriteReleases>
-                            <overWriteSnapshots>true</overWriteSnapshots>
-                            <useSubDirectoryPerArtifact>true</useSubDirectoryPerArtifact>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
                 <groupId>org.ballerinalang</groupId>
-                <artifactId>docerina-maven-plugin</artifactId>
-                <version>${docerina.maven.plugin.version}</version>
-                <executions>
-                    <execution>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>docerina</goal>
-                        </goals>
-                        <configuration>
-                            <outputDir>${project.build.directory}/api-docs</outputDir>
-                            <sourceDir>${project.build.directory}/extracted-distributions/ballerina-${ballerina.runtime.version}-zip/ballerina-${ballerina.runtime.version}/src</sourceDir>
-                            <nativeCode>true</nativeCode>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-assembly-plugin</artifactId>
-                <version>2.5.2</version>
-                <executions>
-                    <execution>
-                        <id>distribution</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>attached</goal>
-                        </goals>
-                        <configuration>
-                            <filters>
-                                <filter>${basedir}/src/assembly/filter.properties</filter>
-                            </filters>
-                            <descriptors>
-                                <descriptor>${basedir}/src/assembly/bin.xml</descriptor>
-                            </descriptors>
-                            <finalName>${artifactId}-${project.version}</finalName>
-                            <appendAssemblyId>false</appendAssemblyId>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
+                <artifactId>ballerina-core</artifactId>
+                <version>${ballerina.runtime.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-native</artifactId>
+                <version>${ballerina.runtime.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-launcher</artifactId>
+                <version>${ballerina.runtime.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-samples</artifactId>
+                <version>${ballerina.runtime.version}</version>
+                <type>zip</type>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>workspace-service</artifactId>
+                <version>${ballerina.composer.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-composer-web</artifactId>
+                <version>${ballerina.composer.version}</version>
+                <type>zip</type>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>testerina-core</artifactId>
+                <version>${testerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>swagger-ballerina-generator</artifactId>
+                <version>${tool.swagger.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-container-support</artifactId>
+                <version>${ballerina.container.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>docerina</artifactId>
+                <version>${docerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.ballerina.connectors</groupId>
+                <artifactId>connectors</artifactId>
+                <version>${ballerina.connectors.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-antrun-plugin</artifactId>
-                <version>1.8</version>
-                <executions>
-                    <execution>
-                        <phase>verify</phase>
-                        <goals>
-                            <goal>run</goal>
-                        </goals>
-                        <configuration>
-                            <target>
-                                <delete dir="${project.build.directory}/extracted-distributions" includeemptydirs="true" />
-                                <delete dir="${project.build.directory}/api-docs" includeemptydirs="true" />
-                            </target>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-
-        </plugins>
-        <resources>
-            <resource>
-                <directory>ballerina-home/bin/</directory>
-                <filtering>true</filtering>
-                <includes>
-                    <include>**/version.txt</include>
-                </includes>
-            </resource>
-        </resources>
-    </build>
+    <modules>
+        <module>modules/ballerina-run-time</module>
+        <module>modules/ballerina-tooling</module>
+    </modules>
 
     <properties>
-        <ballerina.runtime.version>0.8.1</ballerina.runtime.version>
-        <ballerina.composer.version>0.8.14-SNAPSHOT</ballerina.composer.version>
-        <testerina.version>0.8.1</testerina.version>
+        <ballerina.runtime.version>0.8.3-SNAPSHOT</ballerina.runtime.version>
+        <ballerina.composer.version>0.8.15-SNAPSHOT</ballerina.composer.version>
+        <testerina.version>0.8.2-SNAPSHOT</testerina.version>
         <tool.swagger.version>0.8.1</tool.swagger.version>
-        <ballerina.container.version>0.8.1</ballerina.container.version>
-        <docerina.version>0.8.1</docerina.version>
-        <docerina.maven.plugin.version>0.8.1</docerina.maven.plugin.version>
-        <ballerina.connectors.version>0.8.0</ballerina.connectors.version>
+        <ballerina.container.version>0.8.1-SNAPSHOT</ballerina.container.version>
+        <docerina.version>0.8.2-SNAPSHOT</docerina.version>
+        <docerina.maven.plugin.version>0.8.2-SNAPSHOT</docerina.maven.plugin.version>
+        <ballerina.connectors.version>0.8.3-SNAPSHOT</ballerina.connectors.version>
     </properties>
 </project>

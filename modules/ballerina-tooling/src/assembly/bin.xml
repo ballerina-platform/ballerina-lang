@@ -26,7 +26,7 @@
     <fileSets>
         <fileSet>
             <directory>
-                ${project.build.directory}/extracted-distributions/ballerina-${ballerina.runtime.version}-zip/ballerina-${ballerina.runtime.version}
+                ${project.build.directory}/extracted-distributions/ballerina-run-time-${ballerina.runtime.version}-zip/ballerina-${ballerina.runtime.version}
             </directory>
             <outputDirectory>.</outputDirectory>
         </fileSet>
@@ -58,37 +58,37 @@
 
     <files>
         <file>
-            <source>ballerina-home/bin/version.txt</source>
+            <source>../../ballerina-home/tool/bin/version.txt</source>
             <outputDirectory>bin/</outputDirectory>
             <filtered>true</filtered>
             <fileMode>644</fileMode>
         </file>
         <file>
-            <source>ballerina-home/bin/composer</source>
+            <source>../../ballerina-home/tool/bin/composer</source>
             <outputDirectory>bin/</outputDirectory>
             <filtered>true</filtered>
             <fileMode>755</fileMode>
         </file>
         <file>
-            <source>ballerina-home/bin/composer.bat</source>
+            <source>../../ballerina-home/tool/bin/composer.bat</source>
             <outputDirectory>bin/</outputDirectory>
             <filtered>true</filtered>
             <fileMode>644</fileMode>
         </file>
         <file>
-            <source>LICENSE.txt</source>
+            <source>../../ballerina-home/tool/LICENSE.txt</source>
             <outputDirectory>.</outputDirectory>
             <filtered>true</filtered>
             <fileMode>644</fileMode>
         </file>
         <file>
-            <source>README.txt</source>
+            <source>../../ballerina-home/tool/README.txt</source>
             <outputDirectory>.</outputDirectory>
             <filtered>true</filtered>
             <fileMode>644</fileMode>
         </file>
         <file>
-            <source>copyright.txt</source>
+            <source>../../copyright.txt</source>
             <outputDirectory>.</outputDirectory>
             <filtered>true</filtered>
             <fileMode>644</fileMode>
