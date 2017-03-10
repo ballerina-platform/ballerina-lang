@@ -74,7 +74,9 @@ import 'bootstrap';
                 this._$tab_container = tabContainer;
                 this.options = options;
             },
-
+            getBrowserStorage: function(){
+                return _.get(this, 'options.application.browserStorage');
+            },
             render: function () {
                 var tabHeaderContainer = this._$parent_el.children(_.get(this.options, 'headers.container'));
                 var tabList = $('<ul></ul>');
@@ -239,6 +241,9 @@ import 'bootstrap';
                     }
                     this.activeTab.getHeader().addClass(activeTabHeaderClass);
                     this.activeTab.setActive(true);
+
+                    var storage = this.getBrowserStorage();
+                    storage.put('activeTab', tab.cid);
 
                     //this.activeTab.getHeader().tab('show');
                     /**

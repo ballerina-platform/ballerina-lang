@@ -75,12 +75,20 @@ import File from '../workspace/file';
             TabList.prototype.render.call(this);
             if(!_.isEmpty(this._workingFileSet)){
                 var self = this;
+                var activeTabId = this.getBrowserStorage().get('activeTab');
                 this._workingFileSet.forEach(function(fileID){
                     var fileData = self.getBrowserStorage().get(fileID);
                     var file = new File(fileData, {storage:self.getBrowserStorage()});
                     var tab = self.newTab(_.set({}, 'tabOptions.file', file));
                     tab.updateHeader();
                 });
+
+                if(!_.isUndefined(activeTabId)){
+                    var activeTab = _.find(this.getTabList(), function(t){
+                        return t.cid === activeTabId
+                    });
+                    this.setActiveTab(activeTab);
+                }
             }
         },
         setActiveTab: function(tab) {
@@ -214,4 +222,3 @@ import File from '../workspace/file';
     });
 
     export default FileTabList;
-
