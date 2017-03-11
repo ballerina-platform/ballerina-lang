@@ -48,6 +48,7 @@ import org.ballerinalang.model.values.BMessage;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXML;
+import org.ballerinalang.util.exceptions.BallerinaException;
 
 /**
  * This class contains helper methods to invoke Ballerina functions.
@@ -151,7 +152,8 @@ public class BLangFunctions {
             StackFrame stackFrame = new StackFrame(argValues, new BValue[0], cacheValues, functionInfo);
             bContext.getControlStack().pushFrame(stackFrame);
 
-            // Invoke main function
+            // Invoke function
+            // TODO : Non-Blocking Action Invocations are not supported yet.
             BLangNonBlockingExecutor nonBlockingExecutor = new BLangNonBlockingExecutor(runtimeEnv, bContext);
             nonBlockingExecutor.execute(funcIExpr);
             int length = funcIExpr.getCallableUnit().getReturnParameters().length;
@@ -164,9 +166,14 @@ public class BLangFunctions {
             StackFrame stackFrame = new StackFrame(argValues, returnValues, functionInfo);
             bContext.getControlStack().pushFrame(stackFrame);
 
-            // Invoke main function
+            // Invoke function
             BLangExecutor executor = new BLangExecutor(runtimeEnv, bContext);
             function.getCallableUnitBody().execute(executor);
+            if (executor.getCurrentBException() != null) {
+                throw new BallerinaException(executor.getCurrentBException().value().getMessage().stringValue(),
+                        executor.getCurrentBException());
+            }
+            bContext.getControlStack().popFrame();
             return returnValues;
         }
     }

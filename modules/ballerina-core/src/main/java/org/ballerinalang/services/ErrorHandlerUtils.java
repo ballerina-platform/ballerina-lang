@@ -20,9 +20,19 @@ import org.ballerinalang.bre.CallableUnitInfo;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.ControlStack;
 import org.ballerinalang.bre.StackFrame;
+import org.ballerinalang.model.Node;
 import org.ballerinalang.model.NodeLocation;
+import org.ballerinalang.model.values.BException;
+import org.ballerinalang.natives.connectors.BallerinaConnectorManager;
 import org.ballerinalang.util.exceptions.BallerinaException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.wso2.carbon.messaging.CarbonCallback;
+import org.wso2.carbon.messaging.CarbonMessage;
+import org.wso2.carbon.messaging.ServerConnectorErrorHandler;
 
+import java.io.PrintStream;
+import java.util.Optional;
 import java.util.Stack;
 
 /**
@@ -32,6 +42,12 @@ public class ErrorHandlerUtils {
 
     private static final int STACK_TRACE_LIMIT = 20;
 
+    private static final Logger log = LoggerFactory.getLogger(ErrorHandlerUtils.class);
+    private static PrintStream outStream = System.err;
+
+    private static final String ERROR_PREFIX = "error in ballerina program: ";
+
+
     /**
      * Get the error message of a throwable.
      *
@@ -40,13 +56,12 @@ public class ErrorHandlerUtils {
      */
     public static String getErrorMessage(Throwable throwable) {
         String errorMsg;
-        String errorPrefix = "error in ballerina program: ";
         if (throwable instanceof StackOverflowError) {
-            errorMsg = "fatal " + errorPrefix + "stack overflow ";
+            errorMsg = "fatal " + ERROR_PREFIX + "stack overflow ";
         } else if (throwable.getMessage() != null) {
-            errorMsg = errorPrefix + makeFirstLetterLowerCase(throwable.getMessage());
+            errorMsg = ERROR_PREFIX + makeFirstLetterLowerCase(throwable.getMessage());
         } else {
-            errorMsg = errorPrefix;
+            errorMsg = ERROR_PREFIX;
         }
         return errorMsg;
     }
@@ -81,15 +96,163 @@ public class ErrorHandlerUtils {
     }
 
     /**
-     * Get the ballerina stack trace for a main function.
+     * Deprecated method to Get the ballerina stack trace for a main function. Use {@code getStackTrace} instead.
      *
      * @param context Ballerina context associated with the main function
      * @param throwable Throwable associated with the error
      * @return Ballerina stack trace
+     * @since 0.8.0.
+     * @deprecated
      */
     public static String getMainFuncStackTrace(Context context, Throwable throwable) {
         // Need to omit the main function invocation from the stack trace. Hence the starting index is 1
         return getStackTrace(context, throwable, 0);
+    }
+
+    /**
+     * Root Level Error handling for Resource invocations.
+     *
+     * @param bContext    Context instance.
+     * @param currentNode Last execution node.
+     * @param bException  BException to handle.
+     * @param throwable   throwable to handle.
+     */
+    public static void handleResourceInvocationError(Context bContext, Node currentNode, BException bException,
+                                                     Throwable throwable) {
+        CarbonMessage cMsg = bContext.getCarbonMessage();
+        CarbonCallback callback = bContext.getBalCallback();
+        String errorMsg;
+        if (throwable != null) {
+            errorMsg = ErrorHandlerUtils.getErrorMessage(throwable);
+        } else if (bException != null && bException.value() != null) {
+            errorMsg = ERROR_PREFIX + bException.value();
+        } else {
+            errorMsg = ERROR_PREFIX;
+        }
+        String stacktrace = null;
+        if (bException != null) {
+            stacktrace = bException.value().getStackTrace();
+        }
+        if (stacktrace == null || "".equals(stacktrace)) {
+            stacktrace = ErrorHandlerUtils.getStackTrace(bContext, currentNode);
+        }
+        String errorWithTrace = errorMsg + "\n" + stacktrace;
+        log.error(errorWithTrace);
+        outStream.println(errorWithTrace);
+
+        Object protocol = bContext.getServerConnectorProtocol();
+        Optional<ServerConnectorErrorHandler> optionalErrorHandler =
+                BallerinaConnectorManager.getInstance().getServerConnectorErrorHandler((String) protocol);
+
+        try {
+            optionalErrorHandler
+                    .orElseGet(DefaultServerConnectorErrorHandler::getInstance)
+                    .handleError(new BallerinaException(errorMsg, throwable, bContext), cMsg, callback);
+        } catch (Exception e) {
+            // Something wrong. This shouldn't execute.
+            log.error("Cannot handle error using the error handler for : " + protocol, e);
+        }
+    }
+
+    /**
+     * Root Level Error handling for Main function invocations.
+     *
+     * @param bContext    Context instance.
+     * @param currentNode Last execution node.
+     * @param bException  BException to handle.
+     * @param throwable   throwable to handle.
+     */
+    public static void handleMainFuncInvocationError(Context bContext, Node currentNode, BException bException,
+                                                     Throwable throwable) {
+        String errorMsg;
+        if (throwable != null) {
+            errorMsg = ErrorHandlerUtils.getErrorMessage(throwable);
+        } else if (bException != null && bException.value() != null) {
+            errorMsg = ERROR_PREFIX + bException.value();
+        } else {
+            errorMsg = ERROR_PREFIX;
+        }
+        String stacktrace = null;
+        if (bException != null) {
+            stacktrace = bException.value().getStackTrace();
+        }
+        if (stacktrace == null || "".equals(stacktrace)) {
+            stacktrace = ErrorHandlerUtils.getStackTrace(bContext, currentNode);
+        }
+        String errorWithTrace = errorMsg + "\n" + stacktrace;
+        log.error(errorWithTrace);
+        outStream.println(errorWithTrace);
+        Runtime.getRuntime().exit(1);
+    }
+
+    /**
+     * Root Level Error handling for Test function invocations.
+     *
+     * @param bContext    Context instance.
+     * @param currentNode Last execution node.
+     * @param bException  BException to handle.
+     * @param throwable   throwable to handle.
+     */
+    public static void handleTestFuncInvocationError(Context bContext, Node currentNode, BException bException,
+                                                     Throwable throwable) {
+        // Enable this logic, if we need to print ballerina stack trace at build time.
+//        String errorMsg;
+//        if (throwable != null) {
+//            errorMsg = ErrorHandlerUtils.getErrorMessage(throwable);
+//        } else if (bException != null && bException.value() != null) {
+//            errorMsg = bException.value().toString();
+//        } else {
+//            errorMsg = ERROR_PREFIX;
+//        }
+//        String stacktrace = null;
+//        if (bException != null) {
+//            stacktrace = bException.value().getStackTrace();
+//        }
+//        if (stacktrace == null || "".equals(stacktrace)) {
+//            stacktrace = ErrorHandlerUtils.getStackTrace(bContext, currentNode);
+//        }
+//        String errorWithTrace = errorMsg + "\n" + stacktrace;
+//        log.error(errorWithTrace);
+    }
+
+    /**
+     * Get the stack trace from the context and current node.
+     *
+     * @param context     Ballerina context
+     * @param currentNode CurrentNode
+     * @return Stack trace
+     */
+    public static String getStackTrace(Context context, Node currentNode) {
+        ControlStack controlStack = context.getControlStack();
+        StringBuilder sb = new StringBuilder();
+        Stack<StackFrame> stack = controlStack.getStack();
+        int i = stack.size() - 1;
+        CallableUnitInfo frameInfo = stack.get(i).getNodeInfo();
+        String pkgName = (frameInfo.getPackage() != null) ? frameInfo.getPackage() + ":" : "";
+        // Adding first node's Stack trace.
+        if (currentNode.getNodeLocation() != null) {
+            sb.append("\t at ").append(pkgName).append(frameInfo.getName())
+                    .append(getNodeLocation(currentNode.getNodeLocation())).append("\n");
+        }
+        while (i >= 0) {
+            frameInfo = stack.get(i).getNodeInfo();
+            pkgName = (frameInfo.getPackage() != null) ? frameInfo.getPackage() + ":" : "";
+            sb.append("\t at ").append(pkgName).append(frameInfo.getName())
+                    .append(getNodeLocation(frameInfo));
+            if (i > 0) {
+                sb.append("\n");
+            }
+            i--;
+        }
+        // print the service info
+        CallableUnitInfo serviceInfo = context.getServiceInfo();
+        if (serviceInfo != null) {
+            pkgName = (serviceInfo.getPackage() != null) ? serviceInfo.getPackage() + ":" : "";
+            sb.append("\n\t at service ").append(pkgName).append(serviceInfo.getName())
+                    .append(getNodeLocation(serviceInfo));
+        }
+
+        return sb.toString();
     }
 
     /**
@@ -126,6 +289,16 @@ public class ErrorHandlerUtils {
      */
     private static String getNodeLocation(CallableUnitInfo nodeInfo) {
         NodeLocation nodeLocation = nodeInfo.getNodeLocation();
+        return getNodeLocation(nodeLocation);
+    }
+
+    /**
+     * Get the source location as string in the format of '(fileName:lineNumber)'.
+     *
+     * @param nodeLocation {@link NodeLocation} to get the location
+     * @return source location of this {@link CallableUnitInfo}
+     */
+    private static String getNodeLocation(NodeLocation nodeLocation) {
         if (nodeLocation != null) {
             String fileName = nodeLocation.getFileName();
             int line = nodeLocation.getLineNumber();

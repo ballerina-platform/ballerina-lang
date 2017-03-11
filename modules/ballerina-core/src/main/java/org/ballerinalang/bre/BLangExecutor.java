@@ -24,6 +24,7 @@ import org.ballerinalang.model.BallerinaConnectorDef;
 import org.ballerinalang.model.BallerinaFunction;
 import org.ballerinalang.model.Connector;
 import org.ballerinalang.model.Function;
+import org.ballerinalang.model.Node;
 import org.ballerinalang.model.NodeExecutor;
 import org.ballerinalang.model.ParameterDef;
 import org.ballerinalang.model.Resource;
@@ -122,6 +123,8 @@ public class BLangExecutor implements NodeExecutor {
     private boolean isForkJoinTimedOut;
     private boolean isBreakCalled;
     private ExecutorService executor;
+    private Node lastActive;
+    private BException currentBException;
 
     public BLangExecutor(RuntimeEnvironment runtimeEnv, Context bContext) {
         this.runtimeEnv = runtimeEnv;
@@ -133,7 +136,7 @@ public class BLangExecutor implements NodeExecutor {
     public void visit(BlockStmt blockStmt) {
         Statement[] stmts = blockStmt.getStatements();
         for (Statement stmt : stmts) {
-            if (returnedOrReplied || isBreakCalled) {
+            if (returnedOrReplied || isBreakCalled || currentBException != null) {
                 break;
             }
             stmt.execute(this);
@@ -142,6 +145,7 @@ public class BLangExecutor implements NodeExecutor {
 
     @Override
     public void visit(VariableDefStmt varDefStmt) {
+        lastActive = varDefStmt;
         // TODO This variable definition statement can be modeled exactly same as the assignment statement.
         // TODO Remove the following duplicate code segments soon.
         BValue rValue;
@@ -170,6 +174,7 @@ public class BLangExecutor implements NodeExecutor {
 
     @Override
     public void visit(AssignStmt assignStmt) {
+        lastActive = assignStmt;
         // TODO WARN: Implementation of this method is inefficient
         // TODO We are in the process of refactoring this method, please bear with us.
         BValue[] rValues;
@@ -198,6 +203,7 @@ public class BLangExecutor implements NodeExecutor {
 
     @Override
     public void visit(IfElseStmt ifElseStmt) {
+        lastActive = ifElseStmt;
         Expression expr = ifElseStmt.getCondition();
         BBoolean condition = (BBoolean) expr.execute(this);
 
@@ -224,13 +230,14 @@ public class BLangExecutor implements NodeExecutor {
 
     @Override
     public void visit(WhileStmt whileStmt) {
+        lastActive = whileStmt;
         Expression expr = whileStmt.getCondition();
         BBoolean condition = (BBoolean) expr.execute(this);
 
         while (condition.booleanValue()) {
             // Interpret the statements in the while body.
             whileStmt.getBody().execute(this);
-            if (returnedOrReplied || isBreakCalled) {
+            if (returnedOrReplied || isBreakCalled || currentBException != null) {
                 break;
             }
             // Now evaluate the condition again to decide whether to continue the loop or not.
@@ -246,57 +253,55 @@ public class BLangExecutor implements NodeExecutor {
 
     @Override
     public void visit(TryCatchStmt tryCatchStmt) {
+        lastActive = tryCatchStmt;
         // Note: This logic is based on Java exception and hence not recommended.
         // This is added only to make it work with blocking executor. and will be removed in a future release.
-        StackFrame current = bContext.getControlStack().getCurrentFrame();
+        StackFrame currentFrame = bContext.getControlStack().getCurrentFrame();
         try {
             tryCatchStmt.getTryBlock().execute(this);
-        } catch (BallerinaException be) {
-            BException exception;
-            if (be.getBException() != null) {
-                exception = be.getBException();
+            if (this.currentBException != null) {
+                // Exception coming from throw statement.
+                BException thrownBException = this.currentBException;
+                this.currentBException = null;
+                handleBException(tryCatchStmt, thrownBException, currentFrame);
+            }
+        } catch (RuntimeException runtimeException) {
+            BException unhandledException;
+            if (this.currentBException != null) {
+                unhandledException = currentBException;
+                currentBException = null;
             } else {
-                exception = new BException(be.getMessage());
+                unhandledException = new BException(runtimeException.getMessage());
             }
-            exception.value().setStackTrace(ErrorHandlerUtils.getMainFuncStackTrace(bContext, null));
-            while (bContext.getControlStack().getCurrentFrame() != current) {
-                if (controlStack.getStack().size() > 0) {
-                    controlStack.popFrame();
-                } else {
-                    // Throw this to handle at root error handler.
-                    throw new BallerinaException(be);
-                }
-            }
-            MemoryLocation memoryLocation = tryCatchStmt.getCatchBlock().getParameterDef().getMemoryLocation();
-            if (memoryLocation instanceof StackVarLocation) {
-                int stackFrameOffset = ((StackVarLocation) memoryLocation).getStackFrameOffset();
-                controlStack.setValue(stackFrameOffset, exception);
-            }
-            tryCatchStmt.getCatchBlock().getCatchBlockStmt().execute(this);
+            unhandledException.value().setStackTrace(ErrorHandlerUtils.getStackTrace(bContext, lastActive));
+            handleBException(tryCatchStmt, unhandledException, currentFrame);
         }
     }
 
     @Override
     public void visit(ThrowStmt throwStmt) {
+        lastActive = throwStmt;
         // Note: This logic is based on Java exception and hence not recommended.
         // This is added only to make it work with blocking executor. and will be removed in a future release.
-        BException exception = (BException) throwStmt.getExpr().execute(this);
-        exception.value().setStackTrace(ErrorHandlerUtils.getMainFuncStackTrace(bContext, null));
-        throw new BallerinaException(exception);
+        this.currentBException = (BException) throwStmt.getExpr().execute(this);
+        this.currentBException.value().setStackTrace(ErrorHandlerUtils.getStackTrace(bContext, lastActive));
     }
 
     @Override
     public void visit(FunctionInvocationStmt funcIStmt) {
+        lastActive = funcIStmt;
         funcIStmt.getFunctionInvocationExpr().executeMultiReturn(this);
     }
 
     @Override
     public void visit(ActionInvocationStmt actionIStmt) {
+        lastActive = actionIStmt;
         actionIStmt.getActionInvocationExpr().executeMultiReturn(this);
     }
 
     @Override
     public void visit(WorkerInvocationStmt workerInvocationStmt) {
+        lastActive = workerInvocationStmt;
         // Create the Stack frame
         Worker worker = workerInvocationStmt.getCallableUnit();
 
@@ -354,6 +359,7 @@ public class BLangExecutor implements NodeExecutor {
 
     @Override
     public void visit(WorkerReplyStmt workerReplyStmt) {
+        lastActive = workerReplyStmt;
         Worker worker = workerReplyStmt.getWorker();
         Future<BMessage> future = worker.getResultFuture();
         try {
@@ -378,6 +384,7 @@ public class BLangExecutor implements NodeExecutor {
 
     @Override
     public void visit(ReturnStmt returnStmt) {
+        lastActive = returnStmt;
         Expression[] exprs = returnStmt.getExprs();
 
         // Check whether the first argument is a multi-return function
@@ -404,6 +411,7 @@ public class BLangExecutor implements NodeExecutor {
 
     @Override
     public void visit(ReplyStmt replyStmt) {
+        lastActive = replyStmt;
         // TODO revisit this logic
         Expression expr = replyStmt.getReplyExpr();
         BMessage bMessage = (BMessage) expr.execute(this);
@@ -413,6 +421,7 @@ public class BLangExecutor implements NodeExecutor {
 
     @Override
     public void visit(ForkJoinStmt forkJoinStmt) {
+        lastActive = forkJoinStmt;
         VariableRefExpr expr = forkJoinStmt.getMessageReference();
         BMessage inMsg = (BMessage) expr.execute(this);
         List<WorkerRunner> workerRunnerList = new ArrayList<>();
@@ -606,7 +615,12 @@ public class BLangExecutor implements NodeExecutor {
             bFunction.getCallableUnitBody().execute(this);
         } else {
             AbstractNativeFunction nativeFunction = (AbstractNativeFunction) function;
-            nativeFunction.executeNative(bContext);
+            try {
+                nativeFunction.executeNative(bContext);
+            } catch (RuntimeException e) {
+                currentBException = new BException(e.getMessage(), nativeFunction.getName());
+                throw e;
+            }
         }
 
         controlStack.popFrame();
@@ -653,7 +667,12 @@ public class BLangExecutor implements NodeExecutor {
             bAction.getCallableUnitBody().execute(this);
         } else {
             AbstractNativeAction nativeAction = (AbstractNativeAction) action;
-            nativeAction.execute(bContext);
+            try {
+                nativeAction.execute(bContext);
+            } catch (RuntimeException e) {
+                currentBException = new BException(e.getMessage(), nativeAction.getName());
+                throw e;
+            }
         }
 
         controlStack.popFrame();
@@ -689,8 +708,17 @@ public class BLangExecutor implements NodeExecutor {
                 resource.getNodeLocation());
         StackFrame stackFrame = new StackFrame(valueParams, ret, resourceInfo);
         controlStack.pushFrame(stackFrame);
-
-        resource.getResourceBody().execute(this);
+        try {
+            resource.getResourceBody().execute(this);
+            // Check for unHandled exceptions and handle them finally.
+            if (currentBException != null) {
+                ErrorHandlerUtils.handleResourceInvocationError(bContext, lastActive, currentBException, null);
+            }
+        } catch (Throwable throwable) {
+            // Not handle Java Runtime exceptions. Handle them ack client.
+            ErrorHandlerUtils.handleResourceInvocationError(bContext, lastActive,
+                    new BException(throwable.getMessage()), throwable);
+        }
 
         return ret;
     }
@@ -1097,6 +1125,14 @@ public class BLangExecutor implements NodeExecutor {
         return controlStack.getValue(offset);
     }
 
+    public BException getCurrentBException() {
+        return currentBException;
+    }
+
+    public Node getLastActiveNode() {
+        return lastActive;
+    }
+
     /**
      * Assign a value to a field of a struct, represented by a {@link StructFieldAccessExpr}.
      *
@@ -1301,5 +1337,31 @@ public class BLangExecutor implements NodeExecutor {
         controlStack.pushFrame(stackFrame);
         initFunction.getCallableUnitBody().execute(this);
         controlStack.popFrame();
+    }
+
+    /**
+     * Handle BException that Caught at TryCatch Statement.
+     *
+     * @param tryCatchStmt     Current TryCatch statement.
+     * @param thrownBException Thrown BException.
+     * @param currentFrame     CurrentFrame where TryCatch Statement is located.
+     */
+    private void handleBException(TryCatchStmt tryCatchStmt, BException thrownBException, StackFrame currentFrame) {
+        while (bContext.getControlStack().getCurrentFrame() != currentFrame) {
+            if (controlStack.getStack().size() > 0) {
+                controlStack.popFrame();
+            } else {
+                // Something wrong. This shouldn't execute.
+                throw new BallerinaException("fatal : unexpected error occurred. No stack frame found.");
+            }
+        }
+        // Assign Exception value.
+        MemoryLocation memoryLocation = tryCatchStmt.getCatchBlock().getParameterDef().getMemoryLocation();
+        if (memoryLocation instanceof StackVarLocation) {
+            int stackFrameOffset = ((StackVarLocation) memoryLocation).getStackFrameOffset();
+            controlStack.setValue(stackFrameOffset, thrownBException);
+        }
+        // Invoke Catch Block.
+        tryCatchStmt.getCatchBlock().getCatchBlockStmt().execute(this);
     }
 }

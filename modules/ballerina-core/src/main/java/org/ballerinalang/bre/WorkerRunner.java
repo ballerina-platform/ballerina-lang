@@ -57,7 +57,7 @@ public class WorkerRunner implements Callable<BMessage> {
             return (BMessage) bContext.getControlStack().getCurrentFrame().returnValues[0];
         } catch (RuntimeException throwable) {
             String errorMsg = ErrorHandlerUtils.getErrorMessage(throwable);
-            String stacktrace = ErrorHandlerUtils.getServiceStackTrace(bContext, throwable);
+            String stacktrace = ErrorHandlerUtils.getStackTrace(bContext, executor.getLastActiveNode());
             String errorWithTrace = "exception in worker" + worker.getName() + " : " + errorMsg + "\n" + stacktrace;
             log.error(errorWithTrace);
             outStream.println(errorWithTrace);
