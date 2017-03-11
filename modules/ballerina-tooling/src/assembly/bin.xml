@@ -58,31 +58,31 @@
 
     <files>
         <file>
-            <source>../../ballerina-home/tool/bin/version.txt</source>
+            <source>bin/version.txt</source>
             <outputDirectory>bin/</outputDirectory>
             <filtered>true</filtered>
             <fileMode>644</fileMode>
         </file>
         <file>
-            <source>../../ballerina-home/tool/bin/composer</source>
+            <source>bin/composer</source>
             <outputDirectory>bin/</outputDirectory>
             <filtered>true</filtered>
             <fileMode>755</fileMode>
         </file>
         <file>
-            <source>../../ballerina-home/tool/bin/composer.bat</source>
+            <source>bin/composer.bat</source>
             <outputDirectory>bin/</outputDirectory>
             <filtered>true</filtered>
             <fileMode>644</fileMode>
         </file>
         <file>
-            <source>../../ballerina-home/tool/LICENSE.txt</source>
+            <source>LICENSE.txt</source>
             <outputDirectory>.</outputDirectory>
             <filtered>true</filtered>
             <fileMode>644</fileMode>
         </file>
         <file>
-            <source>../../ballerina-home/tool/README.txt</source>
+            <source>README.txt</source>
             <outputDirectory>.</outputDirectory>
             <filtered>true</filtered>
             <fileMode>644</fileMode>

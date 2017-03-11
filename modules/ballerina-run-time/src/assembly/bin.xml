@@ -25,7 +25,7 @@
 
     <fileSets>
         <fileSet>
-            <directory>../../ballerina-home/run-time</directory>
+            <directory>./</directory>
             <outputDirectory>.</outputDirectory>
             <includes>
                 <include>LICENSE</include>
@@ -33,13 +33,13 @@
         </fileSet>
 
         <fileSet>
-            <directory>../../ballerina-home/run-time/conf</directory>
+            <directory>conf</directory>
             <outputDirectory>bre/conf</outputDirectory>
             <fileMode>644</fileMode>
         </fileSet>
 
         <fileSet>
-            <directory>../../ballerina-home/run-time/logs</directory>
+            <directory>logs</directory>
             <outputDirectory>logs</outputDirectory>
             <fileMode>644</fileMode>
         </fileSet>
@@ -79,25 +79,25 @@
 
     <files>
         <file>
-            <source>../../ballerina-home/run-time/bin/version.txt</source>
+            <source>bin/version.txt</source>
             <outputDirectory>bin/</outputDirectory>
             <filtered>true</filtered>
             <fileMode>644</fileMode>
         </file>
         <file>
-            <source>../../ballerina-home/run-time/bin/ballerina</source>
+            <source>bin/ballerina</source>
             <outputDirectory>bin/</outputDirectory>
             <filtered>true</filtered>
             <fileMode>755</fileMode>
         </file>
         <file>
-            <source>../../ballerina-home/run-time/bin/ballerina.bat</source>
+            <source>bin/ballerina.bat</source>
             <outputDirectory>bin/</outputDirectory>
             <filtered>true</filtered>
             <fileMode>644</fileMode>
         </file>
         <file>
-            <source>../../ballerina-home/run-time/LICENSE.txt</source>
+            <source>LICENSE.txt</source>
             <outputDirectory>.</outputDirectory>
             <filtered>true</filtered>
             <fileMode>644</fileMode>
@@ -109,7 +109,7 @@
             <fileMode>644</fileMode>
         </file>
         <file>
-            <source>../../ballerina-home/run-time/README.txt</source>
+            <source>README.txt</source>
             <outputDirectory>.</outputDirectory>
             <filtered>true</filtered>
             <fileMode>644</fileMode>
