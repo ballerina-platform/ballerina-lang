@@ -34,8 +34,8 @@ import org.wso2.siddhi.core.query.output.ratelimit.snapshot.WrappedSnapshotOutpu
 import org.wso2.siddhi.core.query.output.ratelimit.time.*;
 import org.wso2.siddhi.core.stream.StreamJunction;
 import org.wso2.siddhi.core.table.EventTable;
+import org.wso2.siddhi.core.util.collection.operator.CompiledCondition;
 import org.wso2.siddhi.core.util.collection.operator.MatchingMetaStateHolder;
-import org.wso2.siddhi.core.util.collection.operator.Operator;
 import org.wso2.siddhi.core.util.parser.helper.DefinitionParserHelper;
 import org.wso2.siddhi.core.window.EventWindow;
 import org.wso2.siddhi.query.api.definition.Attribute;
@@ -113,10 +113,10 @@ public class OutputParser {
                     try {
                         MatchingMetaStateHolder matchingMetaStateHolder =
                                 MatcherParser.constructMatchingMetaStateHolder(tableMetaStreamEvent, 0, eventTable.getTableDefinition());
-                        Operator operator = eventTable.constructOperator((((DeleteStream) outStream).getOnDeleteExpression()),
+                        CompiledCondition compiledCondition = eventTable.compileCondition((((DeleteStream) outStream).getOnDeleteExpression()),
                                 matchingMetaStateHolder, executionPlanContext, null, eventTableMap);
                         StateEventPool stateEventPool = new StateEventPool(matchingMetaStateHolder.getMetaStateEvent(), 10);
-                        return new DeleteTableCallback(eventTable, operator, matchingMetaStateHolder.getDefaultStreamEventIndex(),
+                        return new DeleteTableCallback(eventTable, compiledCondition, matchingMetaStateHolder.getDefaultStreamEventIndex(),
                                 convertToStreamEvent, stateEventPool, streamEventPool, streamEventConverter);
                     } catch (ExecutionPlanValidationException e) {
                         throw new ExecutionPlanCreationException("Cannot create delete for table '" + outStream.getId() + "', " + e.getMessage(), e);
@@ -125,10 +125,10 @@ public class OutputParser {
                     try {
                         MatchingMetaStateHolder matchingMetaStateHolder =
                                 MatcherParser.constructMatchingMetaStateHolder(tableMetaStreamEvent, 0, eventTable.getTableDefinition());
-                        Operator operator = eventTable.constructOperator((((UpdateStream) outStream).getOnUpdateExpression()),
+                        CompiledCondition compiledCondition = eventTable.compileCondition((((UpdateStream) outStream).getOnUpdateExpression()),
                                 matchingMetaStateHolder, executionPlanContext, null, eventTableMap);
                         StateEventPool stateEventPool = new StateEventPool(matchingMetaStateHolder.getMetaStateEvent(), 10);
-                        return new UpdateTableCallback(eventTable, operator, outputStreamDefinition,
+                        return new UpdateTableCallback(eventTable, compiledCondition, outputStreamDefinition,
                                 matchingMetaStateHolder.getDefaultStreamEventIndex(), convertToStreamEvent, stateEventPool,
                                 streamEventPool, streamEventConverter);
                     } catch (ExecutionPlanValidationException e) {
@@ -139,10 +139,10 @@ public class OutputParser {
                     try {
                         MatchingMetaStateHolder matchingMetaStateHolder =
                                 MatcherParser.constructMatchingMetaStateHolder(tableMetaStreamEvent, 0, eventTable.getTableDefinition());
-                        Operator operator = eventTable.constructOperator((((InsertOverwriteStream) outStream).getOnOverwriteExpression()),
+                        CompiledCondition compiledCondition  = eventTable.compileCondition((((InsertOverwriteStream) outStream).getOnOverwriteExpression()),
                                 matchingMetaStateHolder, executionPlanContext, null, eventTableMap);
                         StateEventPool stateEventPool = new StateEventPool(matchingMetaStateHolder.getMetaStateEvent(), 10);
-                        return new InsertOverwriteTableCallback(eventTable, operator, outputStreamDefinition,
+                        return new InsertOverwriteTableCallback(eventTable, compiledCondition, outputStreamDefinition,
                                 matchingMetaStateHolder.getDefaultStreamEventIndex(), convertToStreamEvent, stateEventPool,
                                 streamEventPool, streamEventConverter);
 

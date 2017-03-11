@@ -28,7 +28,7 @@ import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
 import org.wso2.siddhi.core.table.holder.EventHolder;
 import org.wso2.siddhi.core.util.collection.OverwritingStreamEventExtractor;
 import org.wso2.siddhi.core.util.collection.UpdateAttributeMapper;
-import org.wso2.siddhi.core.util.collection.operator.Finder;
+import org.wso2.siddhi.core.util.collection.operator.CompiledCondition;
 import org.wso2.siddhi.core.util.collection.operator.MatchingMetaStateHolder;
 import org.wso2.siddhi.core.util.collection.operator.Operator;
 import org.wso2.siddhi.core.util.parser.EventHolderPasser;
@@ -37,7 +37,9 @@ import org.wso2.siddhi.core.util.snapshot.Snapshotable;
 import org.wso2.siddhi.query.api.definition.TableDefinition;
 import org.wso2.siddhi.query.api.expression.Expression;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -85,21 +87,21 @@ public class InMemoryEventTable implements EventTable, Snapshotable {
     }
 
     @Override
-    public void delete(ComplexEventChunk<StateEvent> deletingEventChunk, Operator operator) {
+    public void delete(ComplexEventChunk<StateEvent> deletingEventChunk, CompiledCondition compiledCondition) {
         try {
             readWriteLock.writeLock().lock();
-            operator.delete(deletingEventChunk, eventHolder);
+            ((Operator) compiledCondition).delete(deletingEventChunk, eventHolder);
         } finally {
             readWriteLock.writeLock().unlock();
         }
     }
 
     @Override
-    public void update(ComplexEventChunk<StateEvent> updatingEventChunk, Operator operator,
+    public void update(ComplexEventChunk<StateEvent> updatingEventChunk, CompiledCondition compiledCondition,
                        UpdateAttributeMapper[] updateAttributeMappers) {
         try {
             readWriteLock.writeLock().lock();
-            operator.update(updatingEventChunk, eventHolder, updateAttributeMappers);
+            ((Operator) compiledCondition).update(updatingEventChunk, eventHolder, updateAttributeMappers);
         } finally {
             readWriteLock.writeLock().unlock();
         }
@@ -107,12 +109,12 @@ public class InMemoryEventTable implements EventTable, Snapshotable {
     }
 
     @Override
-    public void overwriteOrAdd(ComplexEventChunk<StateEvent> overwritingOrAddingEventChunk, Operator operator,
+    public void overwriteOrAdd(ComplexEventChunk<StateEvent> overwritingOrAddingEventChunk, CompiledCondition compiledCondition,
                                UpdateAttributeMapper[] updateAttributeMappers,
                                OverwritingStreamEventExtractor overwritingStreamEventExtractor) {
         try {
             readWriteLock.writeLock().lock();
-            ComplexEventChunk<StreamEvent> failedEvents = operator.overwrite(overwritingOrAddingEventChunk,
+            ComplexEventChunk<StreamEvent> failedEvents = ((Operator) compiledCondition).overwrite(overwritingOrAddingEventChunk,
                     eventHolder, updateAttributeMappers, overwritingStreamEventExtractor);
             eventHolder.add(failedEvents);
         } finally {
@@ -122,10 +124,10 @@ public class InMemoryEventTable implements EventTable, Snapshotable {
     }
 
     @Override
-    public boolean contains(StateEvent matchingEvent, Finder finder) {
+    public boolean contains(StateEvent matchingEvent, CompiledCondition compiledCondition) {
         try {
             readWriteLock.readLock().lock();
-            return finder.contains(matchingEvent, eventHolder);
+            return ((Operator) compiledCondition).contains(matchingEvent, eventHolder);
         } finally {
             readWriteLock.readLock().unlock();
         }
@@ -133,10 +135,10 @@ public class InMemoryEventTable implements EventTable, Snapshotable {
     }
 
     @Override
-    public StreamEvent find(StateEvent matchingEvent, Finder finder) {
+    public StreamEvent find(StateEvent matchingEvent, CompiledCondition compiledCondition) {
         try {
             readWriteLock.readLock().lock();
-            return finder.find(matchingEvent, eventHolder, tableStreamEventCloner);
+            return ((Operator) compiledCondition).find(matchingEvent, eventHolder, tableStreamEventCloner);
         } finally {
             readWriteLock.readLock().unlock();
         }
@@ -144,20 +146,10 @@ public class InMemoryEventTable implements EventTable, Snapshotable {
     }
 
     @Override
-    public Finder constructFinder(Expression expression, MatchingMetaStateHolder matchingMetaStateHolder,
-                                  ExecutionPlanContext executionPlanContext,
-                                  List<VariableExpressionExecutor> variableExpressionExecutors,
-                                  Map<String, EventTable> eventTableMap) {
-        return OperatorParser.constructOperator(eventHolder, expression, matchingMetaStateHolder,
-                executionPlanContext, variableExpressionExecutors, eventTableMap, tableDefinition.getId());
-    }
-
-
-    @Override
-    public Operator constructOperator(Expression expression, MatchingMetaStateHolder matchingMetaStateHolder,
-                                      ExecutionPlanContext executionPlanContext,
-                                      List<VariableExpressionExecutor> variableExpressionExecutors,
-                                      Map<String, EventTable> eventTableMap) {
+    public CompiledCondition compileCondition(Expression expression, MatchingMetaStateHolder matchingMetaStateHolder,
+                                              ExecutionPlanContext executionPlanContext,
+                                              List<VariableExpressionExecutor> variableExpressionExecutors,
+                                              Map<String, EventTable> eventTableMap) {
         return OperatorParser.constructOperator(eventHolder, expression, matchingMetaStateHolder,
                 executionPlanContext, variableExpressionExecutors, eventTableMap, tableDefinition.getId());
     }
@@ -166,8 +158,8 @@ public class InMemoryEventTable implements EventTable, Snapshotable {
     @Override
     public Map<String, Object> currentState() {
         Map<String, Object> state = new HashMap<>();
-                state.put("EventHolder", eventHolder);
-                return state;
+        state.put("EventHolder", eventHolder);
+        return state;
     }
 
     @Override

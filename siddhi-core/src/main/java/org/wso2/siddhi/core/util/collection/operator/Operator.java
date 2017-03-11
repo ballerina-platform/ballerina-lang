@@ -21,10 +21,15 @@ package org.wso2.siddhi.core.util.collection.operator;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.state.StateEvent;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
+import org.wso2.siddhi.core.event.stream.StreamEventCloner;
 import org.wso2.siddhi.core.util.collection.OverwritingStreamEventExtractor;
 import org.wso2.siddhi.core.util.collection.UpdateAttributeMapper;
 
-public interface Operator extends Finder {
+public interface Operator extends CompiledCondition {
+
+    StreamEvent find(StateEvent matchingEvent, Object candidateEvents, StreamEventCloner candidateEventCloner);
+
+    boolean contains(StateEvent matchingEvent, Object candidateEvents);
 
     void delete(ComplexEventChunk<StateEvent> deletingEventChunk, Object candidateEvents);
 

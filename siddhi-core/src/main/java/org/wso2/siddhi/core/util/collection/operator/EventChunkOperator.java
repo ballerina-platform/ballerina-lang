@@ -26,8 +26,6 @@ import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.util.collection.OverwritingStreamEventExtractor;
 import org.wso2.siddhi.core.util.collection.UpdateAttributeMapper;
 
-import java.util.Collection;
-
 /**
  * Operator which is related to non-indexed In-memory table operations.
  */
@@ -41,7 +39,7 @@ public class EventChunkOperator implements Operator {
     }
 
     @Override
-    public Finder cloneFinder(String key) {
+    public CompiledCondition cloneCompiledCondition(String key) {
         return new EventChunkOperator(expressionExecutor.cloneExecutor(key), candidateEventPosition);
     }
 

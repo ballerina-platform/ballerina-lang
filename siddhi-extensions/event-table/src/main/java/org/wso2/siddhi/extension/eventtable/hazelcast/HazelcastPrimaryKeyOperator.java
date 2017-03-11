@@ -25,7 +25,7 @@ import org.wso2.siddhi.core.event.stream.StreamEventCloner;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.util.collection.OverwritingStreamEventExtractor;
 import org.wso2.siddhi.core.util.collection.UpdateAttributeMapper;
-import org.wso2.siddhi.core.util.collection.operator.Finder;
+import org.wso2.siddhi.core.util.collection.operator.CompiledCondition;
 import org.wso2.siddhi.core.util.collection.operator.Operator;
 
 
@@ -45,7 +45,7 @@ public class HazelcastPrimaryKeyOperator implements Operator {
     }
 
     @Override
-    public Finder cloneFinder(String key) {
+    public CompiledCondition cloneCompiledCondition(String key) {
         return new HazelcastPrimaryKeyOperator(expressionExecutor.cloneExecutor(key), candidateEventPosition, indexPosition);
     }
 

@@ -24,7 +24,7 @@ import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.util.collection.OverwritingStreamEventExtractor;
 import org.wso2.siddhi.core.util.collection.UpdateAttributeMapper;
-import org.wso2.siddhi.core.util.collection.operator.Finder;
+import org.wso2.siddhi.core.util.collection.operator.CompiledCondition;
 import org.wso2.siddhi.core.util.collection.operator.MapOperator;
 
 import java.util.Map;
@@ -39,7 +39,7 @@ public class HazelcastMapOperator extends MapOperator {
     }
 
     @Override
-    public Finder cloneFinder(String key) {
+    public CompiledCondition cloneCompiledCondition(String key) {
         return new HazelcastMapOperator(expressionExecutor.cloneExecutor(key), candidateEventPosition);
     }
 

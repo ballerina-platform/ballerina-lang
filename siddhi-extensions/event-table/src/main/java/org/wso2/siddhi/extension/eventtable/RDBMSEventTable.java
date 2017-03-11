@@ -36,7 +36,7 @@ import org.wso2.siddhi.core.table.EventTable;
 import org.wso2.siddhi.core.util.SiddhiConstants;
 import org.wso2.siddhi.core.util.collection.OverwritingStreamEventExtractor;
 import org.wso2.siddhi.core.util.collection.UpdateAttributeMapper;
-import org.wso2.siddhi.core.util.collection.operator.Finder;
+import org.wso2.siddhi.core.util.collection.operator.CompiledCondition;
 import org.wso2.siddhi.core.util.collection.operator.MatchingMetaStateHolder;
 import org.wso2.siddhi.core.util.collection.operator.Operator;
 import org.wso2.siddhi.extension.eventtable.cache.CachingTable;
@@ -255,73 +255,74 @@ public class RDBMSEventTable implements EventTable {
     }
 
     @Override
-    public void update(ComplexEventChunk<StateEvent> updatingEventChunk, Operator operator, UpdateAttributeMapper[] updateAttributeMappers) {
-        operator.update(updatingEventChunk, null, null);
+    public void update(ComplexEventChunk<StateEvent> updatingEventChunk, CompiledCondition compiledCondition,
+                       UpdateAttributeMapper[] updateAttributeMappers) {
+        ((Operator) compiledCondition).update(updatingEventChunk, null, null);
         if (isCachingEnabled) {
-            ((RDBMSOperator) operator).getInMemoryEventTableOperator().update(updatingEventChunk, cachedTable.getCacheList(), updateAttributeMappers);
+            ((RDBMSOperator) compiledCondition).getInMemoryEventTableOperator().update(updatingEventChunk,
+                    cachedTable.getCacheList(), updateAttributeMappers);
         }
     }
 
     @Override
-    public void overwriteOrAdd(ComplexEventChunk<StateEvent> overwritingOrAddingEventChunk, Operator operator, UpdateAttributeMapper[] updateAttributeMappers, OverwritingStreamEventExtractor overwritingStreamEventExtractor) {
-        operator.overwrite(overwritingOrAddingEventChunk, null, null, overwritingStreamEventExtractor);
+    public void overwriteOrAdd(ComplexEventChunk<StateEvent> overwritingOrAddingEventChunk,
+                               CompiledCondition compiledCondition, UpdateAttributeMapper[] updateAttributeMappers,
+                               OverwritingStreamEventExtractor overwritingStreamEventExtractor) {
+        ((Operator) compiledCondition).overwrite(overwritingOrAddingEventChunk, null, null,
+                overwritingStreamEventExtractor);
         if (isCachingEnabled) {
-            ((RDBMSOperator) operator).getInMemoryEventTableOperator().overwrite(overwritingOrAddingEventChunk, cachedTable.getCacheList(), updateAttributeMappers, overwritingStreamEventExtractor);
+            ((RDBMSOperator) compiledCondition).getInMemoryEventTableOperator().overwrite(overwritingOrAddingEventChunk,
+                    cachedTable.getCacheList(), updateAttributeMappers, overwritingStreamEventExtractor);
         }
     }
 
     /**
      * Called when having "in" condition, to check the existence of the event
-     *
-     * @param matchingEvent Event that need to be check for existence
-     * @param finder        Operator that perform RDBMS related search
-     */
+     *  @param matchingEvent Event that need to be check for existence
+     * @param compiledCondition        Operator that perform RDBMS related search*/
     @Override
-    public synchronized boolean contains(StateEvent matchingEvent, Finder finder) {
+    public synchronized boolean contains(StateEvent matchingEvent, CompiledCondition compiledCondition) {
         if (isCachingEnabled) {
-            return ((RDBMSOperator) finder).getInMemoryEventTableOperator().contains(matchingEvent, cachedTable.getCacheList()) || finder.contains(matchingEvent, null);
+            return ((RDBMSOperator) compiledCondition).getInMemoryEventTableOperator().contains(matchingEvent,
+                    cachedTable.getCacheList()) || ((Operator) compiledCondition).contains(matchingEvent, null);
         } else {
-            return finder.contains(matchingEvent, null);
+            return ((Operator) compiledCondition).contains(matchingEvent, null);
         }
     }
 
     /**
      * Called when deleting an event chunk from event table
-     *
-     * @param deletingEventChunk Event list for deletion
-     * @param operator           Operator that perform RDBMS related operations
-     */
+     *  @param deletingEventChunk Event list for deletion
+     * @param compiledCondition           Operator that perform RDBMS related operations*/
     @Override
-    public synchronized void delete(ComplexEventChunk deletingEventChunk, Operator operator) {
-        operator.delete(deletingEventChunk, null);
+    public synchronized void delete(ComplexEventChunk deletingEventChunk, CompiledCondition compiledCondition) {
+        ((Operator) compiledCondition).delete(deletingEventChunk, null);
         if (isCachingEnabled) {
-            ((RDBMSOperator) operator).getInMemoryEventTableOperator().delete(deletingEventChunk, cachedTable.getCacheList());
+            ((RDBMSOperator) compiledCondition).getInMemoryEventTableOperator().delete(deletingEventChunk,
+                    cachedTable.getCacheList());
         }
-    }
-
-    /**
-     * Called to construct a operator to perform delete and update operations
-     */
-    @Override
-    public Operator constructOperator(Expression expression, MatchingMetaStateHolder matchingMetaStateHolder, ExecutionPlanContext executionPlanContext, List<VariableExpressionExecutor> variableExpressionExecutors, Map<String, EventTable> eventTableMap) {
-        return RDBMSOperatorParser.parse(dbHandler, expression, matchingMetaStateHolder, executionPlanContext, variableExpressionExecutors, eventTableMap, tableDefinition, cachedTable, tableDefinition.getId());
     }
 
     /**
      * Called to find a event from event table
      */
     @Override
-    public synchronized StreamEvent find(StateEvent matchingEvent, Finder finder) {
-        return finder.find(matchingEvent, null, null);
+    public synchronized StreamEvent find(StateEvent matchingEvent, CompiledCondition compiledCondition) {
+        return ((Operator) compiledCondition).find(matchingEvent, null, null);
     }
 
     /**
-     * Called to construct a operator to perform search operations
+     * Called to construct a operator to perform search, delete and update operations
      */
     @Override
-    public Finder constructFinder(Expression expression, MatchingMetaStateHolder matchingMetaStateHolder, ExecutionPlanContext executionPlanContext, List<VariableExpressionExecutor> variableExpressionExecutors, Map<String, EventTable> eventTableMap) {
-        return RDBMSOperatorParser.parse(dbHandler, expression, matchingMetaStateHolder, executionPlanContext, variableExpressionExecutors, eventTableMap, tableDefinition, cachedTable, tableDefinition.getId());
+    public CompiledCondition compileCondition(Expression expression, MatchingMetaStateHolder matchingMetaStateHolder,
+                                              ExecutionPlanContext executionPlanContext,
+                                              List<VariableExpressionExecutor> variableExpressionExecutors,
+                                              Map<String, EventTable> eventTableMap) {
+        return RDBMSOperatorParser.parse(dbHandler, expression, matchingMetaStateHolder, executionPlanContext,
+                variableExpressionExecutors, eventTableMap, tableDefinition, cachedTable, tableDefinition.getId());
     }
+
 
     class CacheUpdateTask extends TimerTask {
         public void run() {

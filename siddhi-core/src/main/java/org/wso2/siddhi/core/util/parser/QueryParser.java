@@ -179,7 +179,8 @@ public class QueryParser {
             executionPlanContext.addEternalReferencedHolder(outputRateLimiter);
 
             OutputCallback outputCallback = OutputParser.constructOutputCallback(query.getOutputStream(),
-                    streamRuntime.getMetaComplexEvent().getOutputStreamDefinition(), eventTableMap, eventWindowMap, executionPlanContext, !(streamRuntime instanceof SingleStreamRuntime), queryName);
+                    streamRuntime.getMetaComplexEvent().getOutputStreamDefinition(), eventTableMap, eventWindowMap,
+                    executionPlanContext, !(streamRuntime instanceof SingleStreamRuntime), queryName);
 
             QueryParserHelper.reduceMetaComplexEvent(streamRuntime.getMetaComplexEvent());
             QueryParserHelper.updateVariablePosition(streamRuntime.getMetaComplexEvent(), executors);

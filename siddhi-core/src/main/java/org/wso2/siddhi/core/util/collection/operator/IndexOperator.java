@@ -39,7 +39,7 @@ public class IndexOperator implements Operator {
     }
 
     @Override
-    public Finder cloneFinder(String key) {
+    public CompiledCondition cloneCompiledCondition(String key) {
         //todo check if there are any issues when not cloning
         return new IndexOperator(collectionExecutor);
     }

@@ -38,7 +38,7 @@ public class MapOperator extends CollectionOperator {
     }
 
     @Override
-    public Finder cloneFinder(String key) {
+    public CompiledCondition cloneCompiledCondition(String key) {
         return new MapOperator(expressionExecutor.cloneExecutor(key), candidateEventPosition);
     }
 

@@ -24,18 +24,11 @@ import org.wso2.siddhi.core.event.state.StateEvent;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEventCloner;
 import org.wso2.siddhi.core.event.stream.StreamEventPool;
-import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
 import org.wso2.siddhi.core.query.processor.stream.window.FindableProcessor;
 import org.wso2.siddhi.core.util.collection.OverwritingStreamEventExtractor;
 import org.wso2.siddhi.core.util.collection.UpdateAttributeMapper;
-import org.wso2.siddhi.core.util.collection.operator.Finder;
-import org.wso2.siddhi.core.util.collection.operator.MatchingMetaStateHolder;
-import org.wso2.siddhi.core.util.collection.operator.Operator;
+import org.wso2.siddhi.core.util.collection.operator.CompiledCondition;
 import org.wso2.siddhi.query.api.definition.TableDefinition;
-import org.wso2.siddhi.query.api.expression.Expression;
-
-import java.util.List;
-import java.util.Map;
 
 public interface EventTable extends FindableProcessor {
 
@@ -45,14 +38,12 @@ public interface EventTable extends FindableProcessor {
 
     void add(ComplexEventChunk<StreamEvent> addingEventChunk);
 
-    void delete(ComplexEventChunk<StateEvent> deletingEventChunk, Operator operator);
+    void delete(ComplexEventChunk<StateEvent> deletingEventChunk, CompiledCondition compiledCondition);
 
-    void update(ComplexEventChunk<StateEvent> updatingEventChunk, Operator operator, UpdateAttributeMapper[] updateAttributeMappers);
+    void update(ComplexEventChunk<StateEvent> updatingEventChunk, CompiledCondition compiledCondition, UpdateAttributeMapper[] updateAttributeMappers);
 
-    void overwriteOrAdd(ComplexEventChunk<StateEvent> overwritingOrAddingEventChunk, Operator operator, UpdateAttributeMapper[] updateAttributeMappers, OverwritingStreamEventExtractor overwritingStreamEventExtractor);
+    void overwriteOrAdd(ComplexEventChunk<StateEvent> overwritingOrAddingEventChunk, CompiledCondition compiledCondition, UpdateAttributeMapper[] updateAttributeMappers, OverwritingStreamEventExtractor overwritingStreamEventExtractor);
 
-    boolean contains(StateEvent matchingEvent, Finder finder);
-
-    Operator constructOperator(Expression expression, MatchingMetaStateHolder matchingMetaStateHolder, ExecutionPlanContext executionPlanContext, List<VariableExpressionExecutor> variableExpressionExecutors, Map<String, EventTable> eventTableMap) ;
+    boolean contains(StateEvent matchingEvent, CompiledCondition compiledCondition);
 
 }

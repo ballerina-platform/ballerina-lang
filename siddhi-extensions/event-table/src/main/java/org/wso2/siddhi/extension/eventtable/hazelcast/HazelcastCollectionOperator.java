@@ -25,11 +25,9 @@ import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.util.collection.OverwritingStreamEventExtractor;
 import org.wso2.siddhi.core.util.collection.UpdateAttributeMapper;
 import org.wso2.siddhi.core.util.collection.operator.CollectionOperator;
-import org.wso2.siddhi.core.util.collection.operator.Finder;
+import org.wso2.siddhi.core.util.collection.operator.CompiledCondition;
 
-import java.util.Collection;
 import java.util.Iterator;
-import java.util.List;
 
 /**
  * Operator which is related to non-indexed Hazelcast table operations.
@@ -41,7 +39,7 @@ public class HazelcastCollectionOperator extends CollectionOperator {
     }
 
     @Override
-    public Finder cloneFinder(String key) {
+    public CompiledCondition cloneCompiledCondition(String key) {
         return new HazelcastCollectionOperator(expressionExecutor, candidateEventPosition);
     }
 
