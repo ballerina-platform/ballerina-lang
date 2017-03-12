@@ -62,7 +62,7 @@ import org.wso2.siddhi.core.query.selector.attribute.processor.executor.GroupByA
 import org.wso2.siddhi.core.table.EventTable;
 import org.wso2.siddhi.core.util.SiddhiClassLoader;
 import org.wso2.siddhi.core.util.collection.operator.CompiledCondition;
-import org.wso2.siddhi.core.util.collection.operator.MatchingMetaStateHolder;
+import org.wso2.siddhi.core.util.collection.operator.MatchingMetaInfoHolder;
 import org.wso2.siddhi.core.util.extension.holder.AttributeAggregatorExtensionHolder;
 import org.wso2.siddhi.core.util.extension.holder.FunctionExecutorExtensionHolder;
 import org.wso2.siddhi.query.api.definition.AbstractDefinition;
@@ -70,11 +70,11 @@ import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.exception.AttributeNotExistException;
 import org.wso2.siddhi.query.api.exception.DuplicateAttributeException;
 import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
+import org.wso2.siddhi.query.api.expression.AttributeFunction;
 import org.wso2.siddhi.query.api.expression.Expression;
 import org.wso2.siddhi.query.api.expression.Variable;
 import org.wso2.siddhi.query.api.expression.condition.*;
 import org.wso2.siddhi.query.api.expression.constant.*;
-import org.wso2.siddhi.query.api.expression.AttributeFunction;
 import org.wso2.siddhi.query.api.expression.math.*;
 
 import java.util.ArrayList;
@@ -277,9 +277,9 @@ public class ExpressionParser {
         } else if (expression instanceof In) {
 
             EventTable eventTable = eventTableMap.get(((In) expression).getSourceId());
-            MatchingMetaStateHolder matchingMetaStateHolder = MatcherParser.constructMatchingMetaStateHolder(metaEvent, defaultStreamEventIndex, eventTable.getTableDefinition());
-            CompiledCondition compiledCondition = eventTable.compileCondition(((In) expression).getExpression(), matchingMetaStateHolder, executionPlanContext, executorList, eventTableMap);
-            return new InConditionExpressionExecutor(eventTable, compiledCondition, matchingMetaStateHolder.getStreamEventSize(), metaEvent instanceof StateEvent, matchingMetaStateHolder.getDefaultStreamEventIndex());
+            MatchingMetaInfoHolder matchingMetaInfoHolder = MatcherParser.constructMatchingMetaStateHolder(metaEvent, defaultStreamEventIndex, eventTable.getTableDefinition());
+            CompiledCondition compiledCondition = eventTable.compileCondition(((In) expression).getExpression(), matchingMetaInfoHolder, executionPlanContext, executorList, eventTableMap);
+            return new InConditionExpressionExecutor(eventTable, compiledCondition, matchingMetaInfoHolder.getMetaStateEvent().getMetaStreamEvents().length, metaEvent instanceof StateEvent, matchingMetaInfoHolder.getStreamEventIndex());
 
         } else if (expression instanceof IsNull) {
 

@@ -27,13 +27,17 @@ import org.wso2.siddhi.core.util.collection.UpdateAttributeMapper;
 
 public interface Operator extends CompiledCondition {
 
-    StreamEvent find(StateEvent matchingEvent, Object candidateEvents, StreamEventCloner candidateEventCloner);
+    StreamEvent find(StateEvent matchingEvent, Object storeEvents, StreamEventCloner storeEventCloner);
 
-    boolean contains(StateEvent matchingEvent, Object candidateEvents);
+    boolean contains(StateEvent matchingEvent, Object storeEvents);
 
-    void delete(ComplexEventChunk<StateEvent> deletingEventChunk, Object candidateEvents);
+    void delete(ComplexEventChunk<StateEvent> deletingEventChunk, Object storeEvents);
 
-    void update(ComplexEventChunk<StateEvent> updatingEventChunk, Object candidateEvents, UpdateAttributeMapper[] updateAttributeMappers);
+    void update(ComplexEventChunk<StateEvent> updatingEventChunk, Object storeEvents,
+                UpdateAttributeMapper[] updateAttributeMappers);
 
-    ComplexEventChunk<StreamEvent> overwrite(ComplexEventChunk<StateEvent> overwritingOrAddingEventChunk, Object candidateEvents, UpdateAttributeMapper[] updateAttributeMappers, OverwritingStreamEventExtractor overwritingStreamEventExtractor);
+    ComplexEventChunk<StreamEvent> overwrite(ComplexEventChunk<StateEvent> overwritingOrAddingEventChunk,
+                                             Object storeEvents,
+                                             UpdateAttributeMapper[] updateAttributeMappers,
+                                             OverwritingStreamEventExtractor overwritingStreamEventExtractor);
 }

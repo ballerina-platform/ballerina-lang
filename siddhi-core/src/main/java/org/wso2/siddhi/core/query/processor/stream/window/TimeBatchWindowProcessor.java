@@ -35,7 +35,7 @@ import org.wso2.siddhi.core.query.processor.SchedulingProcessor;
 import org.wso2.siddhi.core.table.EventTable;
 import org.wso2.siddhi.core.util.Scheduler;
 import org.wso2.siddhi.core.util.collection.operator.CompiledCondition;
-import org.wso2.siddhi.core.util.collection.operator.MatchingMetaStateHolder;
+import org.wso2.siddhi.core.util.collection.operator.MatchingMetaInfoHolder;
 import org.wso2.siddhi.core.util.collection.operator.Operator;
 import org.wso2.siddhi.core.util.parser.OperatorParser;
 import org.wso2.siddhi.query.api.definition.Attribute;
@@ -256,11 +256,11 @@ public class TimeBatchWindowProcessor extends WindowProcessor implements Schedul
     }
 
     @Override
-    public CompiledCondition compileCondition(Expression expression, MatchingMetaStateHolder matchingMetaStateHolder, ExecutionPlanContext executionPlanContext,
+    public CompiledCondition compileCondition(Expression expression, MatchingMetaInfoHolder matchingMetaInfoHolder, ExecutionPlanContext executionPlanContext,
                                               List<VariableExpressionExecutor> variableExpressionExecutors, Map<String, EventTable> eventTableMap) {
         if (expiredEventChunk == null) {
             expiredEventChunk = new ComplexEventChunk<StreamEvent>(false);
         }
-        return OperatorParser.constructOperator(expiredEventChunk, expression, matchingMetaStateHolder, executionPlanContext, variableExpressionExecutors, eventTableMap, queryName);
+        return OperatorParser.constructOperator(expiredEventChunk, expression, matchingMetaInfoHolder, executionPlanContext, variableExpressionExecutors, eventTableMap, queryName);
     }
 }

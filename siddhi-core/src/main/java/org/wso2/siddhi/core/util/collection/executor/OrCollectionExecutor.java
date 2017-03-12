@@ -41,28 +41,28 @@ public class OrCollectionExecutor implements CollectionExecutor {
         this.exhaustiveCollectionExecutor = exhaustiveCollectionExecutor;
     }
 
-    public StreamEvent find(StateEvent matchingEvent, IndexedEventHolder indexedEventHolder, StreamEventCloner candidateEventCloner) {
+    public StreamEvent find(StateEvent matchingEvent, IndexedEventHolder indexedEventHolder, StreamEventCloner storeEventCloner) {
 
         Collection<StreamEvent> leftStreamEvents = leftCollectionExecutor.findEvents(matchingEvent, indexedEventHolder);
         if (leftStreamEvents == null) {
-            return exhaustiveCollectionExecutor.find(matchingEvent, indexedEventHolder, candidateEventCloner);
+            return exhaustiveCollectionExecutor.find(matchingEvent, indexedEventHolder, storeEventCloner);
         } else {
             Collection<StreamEvent> rightStreamEvents = rightCollectionExecutor.findEvents(matchingEvent, indexedEventHolder);
             if (rightStreamEvents == null) {
-                return exhaustiveCollectionExecutor.find(matchingEvent, indexedEventHolder, candidateEventCloner);
+                return exhaustiveCollectionExecutor.find(matchingEvent, indexedEventHolder, storeEventCloner);
             } else {
                 ComplexEventChunk<StreamEvent> returnEventChunk = new ComplexEventChunk<StreamEvent>(false);
                 for (StreamEvent resultEvent : leftStreamEvents) {
-                    if (candidateEventCloner != null) {
-                        returnEventChunk.add(candidateEventCloner.copyStreamEvent(resultEvent));
+                    if (storeEventCloner != null) {
+                        returnEventChunk.add(storeEventCloner.copyStreamEvent(resultEvent));
                     } else {
                         returnEventChunk.add(resultEvent);
                     }
                 }
                 for (StreamEvent resultEvent : rightStreamEvents) {
                     if (!leftStreamEvents.contains(resultEvent)) {
-                        if (candidateEventCloner != null) {
-                            returnEventChunk.add(candidateEventCloner.copyStreamEvent(resultEvent));
+                        if (storeEventCloner != null) {
+                            returnEventChunk.add(storeEventCloner.copyStreamEvent(resultEvent));
                         } else {
                             returnEventChunk.add(resultEvent);
                         }

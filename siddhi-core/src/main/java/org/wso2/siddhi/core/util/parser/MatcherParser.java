@@ -22,7 +22,7 @@ import org.wso2.siddhi.core.event.MetaComplexEvent;
 import org.wso2.siddhi.core.event.state.MetaStateEvent;
 import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
 import org.wso2.siddhi.core.util.collection.UpdateAttributeMapper;
-import org.wso2.siddhi.core.util.collection.operator.MatchingMetaStateHolder;
+import org.wso2.siddhi.core.util.collection.operator.MatchingMetaInfoHolder;
 import org.wso2.siddhi.query.api.definition.AbstractDefinition;
 import org.wso2.siddhi.query.api.definition.Attribute;
 
@@ -30,9 +30,8 @@ import java.util.List;
 
 public class MatcherParser {
 
-    public static MatchingMetaStateHolder constructMatchingMetaStateHolder(MetaComplexEvent matchingMetaComplexEvent, int defaultStreamEventIndex, AbstractDefinition candsidateDefinition) {
-        int candidateEventIndex = 0;
-        int streamEventSize = 0;
+    public static MatchingMetaInfoHolder constructMatchingMetaStateHolder(MetaComplexEvent matchingMetaComplexEvent, int defaultStreamEventIndex, AbstractDefinition candsidateDefinition) {
+        int storeEventIndex = 0;
 
         MetaStreamEvent eventTableStreamEvent = new MetaStreamEvent();
         eventTableStreamEvent.setTableEvent(true);
@@ -46,19 +45,17 @@ public class MatcherParser {
             metaStateEvent = new MetaStateEvent(2);
             metaStateEvent.addEvent(((MetaStreamEvent) matchingMetaComplexEvent));
             metaStateEvent.addEvent(eventTableStreamEvent);
-            candidateEventIndex = 1;
+            storeEventIndex = 1;
             defaultStreamEventIndex = 0;
-            streamEventSize = 2;
         } else {
 
             MetaStreamEvent[] metaStreamEvents = ((MetaStateEvent) matchingMetaComplexEvent).getMetaStreamEvents();
 
             //for join
-            for (; candidateEventIndex < metaStreamEvents.length; candidateEventIndex++) {
-                MetaStreamEvent metaStreamEvent = metaStreamEvents[candidateEventIndex];
-                if (candidateEventIndex != defaultStreamEventIndex && metaStreamEvent.getLastInputDefinition().equalsIgnoreAnnotations(candsidateDefinition)) {
+            for (; storeEventIndex < metaStreamEvents.length; storeEventIndex++) {
+                MetaStreamEvent metaStreamEvent = metaStreamEvents[storeEventIndex];
+                if (storeEventIndex != defaultStreamEventIndex && metaStreamEvent.getLastInputDefinition().equalsIgnoreAnnotations(candsidateDefinition)) {
                     metaStateEvent = ((MetaStateEvent) matchingMetaComplexEvent);
-                    streamEventSize = metaStreamEvents.length;
                     break;
                 }
             }
@@ -69,11 +66,10 @@ public class MatcherParser {
                     metaStateEvent.addEvent(metaStreamEvent);
                 }
                 metaStateEvent.addEvent(eventTableStreamEvent);
-                candidateEventIndex = metaStreamEvents.length;
-                streamEventSize = metaStreamEvents.length + 1;
+                storeEventIndex = metaStreamEvents.length;
             }
         }
-        return new MatchingMetaStateHolder(metaStateEvent, defaultStreamEventIndex, candidateEventIndex, streamEventSize, metaStateEvent.getMetaStreamEvent(defaultStreamEventIndex).getLastInputDefinition(), candsidateDefinition);
+        return new MatchingMetaInfoHolder(metaStateEvent, defaultStreamEventIndex, storeEventIndex, metaStateEvent.getMetaStreamEvent(defaultStreamEventIndex).getLastInputDefinition(), candsidateDefinition);
     }
 
     public static UpdateAttributeMapper[] constructUpdateAttributeMapper(AbstractDefinition tableDefinition, List<Attribute> updatingStreamDefinition, int matchingStreamEventPosition) {

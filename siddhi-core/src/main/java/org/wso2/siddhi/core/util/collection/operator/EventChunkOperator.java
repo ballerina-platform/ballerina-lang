@@ -31,118 +31,118 @@ import org.wso2.siddhi.core.util.collection.UpdateAttributeMapper;
  */
 public class EventChunkOperator implements Operator {
     protected ExpressionExecutor expressionExecutor;
-    protected int candidateEventPosition;
+    protected int storeEventPosition;
 
-    public EventChunkOperator(ExpressionExecutor expressionExecutor, int candidateEventPosition) {
+    public EventChunkOperator(ExpressionExecutor expressionExecutor, int storeEventPosition) {
         this.expressionExecutor = expressionExecutor;
-        this.candidateEventPosition = candidateEventPosition;
+        this.storeEventPosition = storeEventPosition;
     }
 
     @Override
     public CompiledCondition cloneCompiledCondition(String key) {
-        return new EventChunkOperator(expressionExecutor.cloneExecutor(key), candidateEventPosition);
+        return new EventChunkOperator(expressionExecutor.cloneExecutor(key), storeEventPosition);
     }
 
     @Override
-    public StreamEvent find(StateEvent matchingEvent, Object candidateEvents, StreamEventCloner candidateEventCloner) {
-        ComplexEventChunk<StreamEvent> candidateEventChunk = (ComplexEventChunk<StreamEvent>) candidateEvents;
+    public StreamEvent find(StateEvent matchingEvent, Object storeEvents, StreamEventCloner storeEventCloner) {
+        ComplexEventChunk<StreamEvent> storeEventChunk = (ComplexEventChunk<StreamEvent>) storeEvents;
         ComplexEventChunk<StreamEvent> returnEventChunk = new ComplexEventChunk<StreamEvent>(false);
 
-        candidateEventChunk.reset();
-        while (candidateEventChunk.hasNext()) {
-            StreamEvent candidateEvent = candidateEventChunk.next();
-            matchingEvent.setEvent(candidateEventPosition, candidateEvent);
+        storeEventChunk.reset();
+        while (storeEventChunk.hasNext()) {
+            StreamEvent storeEvent = storeEventChunk.next();
+            matchingEvent.setEvent(storeEventPosition, storeEvent);
             if ((Boolean) expressionExecutor.execute(matchingEvent)) {
-                returnEventChunk.add(candidateEventCloner.copyStreamEvent(candidateEvent));
+                returnEventChunk.add(storeEventCloner.copyStreamEvent(storeEvent));
             }
-            matchingEvent.setEvent(candidateEventPosition, null);
+            matchingEvent.setEvent(storeEventPosition, null);
         }
         return returnEventChunk.getFirst();
 
     }
 
     @Override
-    public boolean contains(StateEvent matchingEvent, Object candidateEvents) {
-        ComplexEventChunk<StreamEvent> candidateEventChunk = (ComplexEventChunk<StreamEvent>) candidateEvents;
+    public boolean contains(StateEvent matchingEvent, Object storeEvents) {
+        ComplexEventChunk<StreamEvent> storeEventChunk = (ComplexEventChunk<StreamEvent>) storeEvents;
         try {
-            candidateEventChunk.reset();
-            while (candidateEventChunk.hasNext()) {
-                StreamEvent candidateEvent = candidateEventChunk.next();
-                matchingEvent.setEvent(candidateEventPosition, candidateEvent);
+            storeEventChunk.reset();
+            while (storeEventChunk.hasNext()) {
+                StreamEvent storeEvent = storeEventChunk.next();
+                matchingEvent.setEvent(storeEventPosition, storeEvent);
                 if ((Boolean) expressionExecutor.execute(matchingEvent)) {
                     return true;
                 }
             }
             return false;
         } finally {
-            matchingEvent.setEvent(candidateEventPosition, null);
+            matchingEvent.setEvent(storeEventPosition, null);
         }
     }
 
     @Override
-    public void delete(ComplexEventChunk<StateEvent> deletingEventChunk, Object candidateEvents) {
-        ComplexEventChunk<StreamEvent> candidateEventChunk = (ComplexEventChunk<StreamEvent>) candidateEvents;
+    public void delete(ComplexEventChunk<StateEvent> deletingEventChunk, Object storeEvents) {
+        ComplexEventChunk<StreamEvent> storeEventChunk = (ComplexEventChunk<StreamEvent>) storeEvents;
         deletingEventChunk.reset();
         while (deletingEventChunk.hasNext()) {
             StateEvent deletingEvent = deletingEventChunk.next();
             try {
-                candidateEventChunk.reset();
-                while (candidateEventChunk.hasNext()) {
-                    StreamEvent candidateEvent = candidateEventChunk.next();
-                    deletingEvent.setEvent(candidateEventPosition, candidateEvent);
+                storeEventChunk.reset();
+                while (storeEventChunk.hasNext()) {
+                    StreamEvent storeEvent = storeEventChunk.next();
+                    deletingEvent.setEvent(storeEventPosition, storeEvent);
                     if ((Boolean) expressionExecutor.execute(deletingEvent)) {
-                        candidateEventChunk.remove();
+                        storeEventChunk.remove();
                     }
                 }
             } finally {
-                deletingEvent.setEvent(candidateEventPosition, null);
+                deletingEvent.setEvent(storeEventPosition, null);
             }
         }
     }
 
 
     @Override
-    public void update(ComplexEventChunk<StateEvent> updatingEventChunk, Object candidateEvents, UpdateAttributeMapper[] updateAttributeMappers) {
-        ComplexEventChunk<StreamEvent> candidateEventChunk = (ComplexEventChunk<StreamEvent>) candidateEvents;
+    public void update(ComplexEventChunk<StateEvent> updatingEventChunk, Object storeEvents, UpdateAttributeMapper[] updateAttributeMappers) {
+        ComplexEventChunk<StreamEvent> storeEventChunk = (ComplexEventChunk<StreamEvent>) storeEvents;
         updatingEventChunk.reset();
         while (updatingEventChunk.hasNext()) {
             StateEvent updatingEvent = updatingEventChunk.next();
             try {
-                candidateEventChunk.reset();
-                while (candidateEventChunk.hasNext()) {
-                    StreamEvent candidateEvent = candidateEventChunk.next();
-                    updatingEvent.setEvent(candidateEventPosition, candidateEvent);
+                storeEventChunk.reset();
+                while (storeEventChunk.hasNext()) {
+                    StreamEvent storeEvent = storeEventChunk.next();
+                    updatingEvent.setEvent(storeEventPosition, storeEvent);
                     if ((Boolean) expressionExecutor.execute(updatingEvent)) {
                         for (UpdateAttributeMapper updateAttributeMapper : updateAttributeMappers) {
-                            candidateEvent.setOutputData(updateAttributeMapper.getOutputData(updatingEvent),
-                                    updateAttributeMapper.getCandidateAttributePosition());
+                            storeEvent.setOutputData(updateAttributeMapper.getOutputData(updatingEvent),
+                                    updateAttributeMapper.getstoreEventAttributePosition());
                         }
                     }
                 }
             } finally {
-                updatingEvent.setEvent(candidateEventPosition, null);
+                updatingEvent.setEvent(storeEventPosition, null);
             }
         }
     }
 
     @Override
-    public ComplexEventChunk<StreamEvent> overwrite(ComplexEventChunk<StateEvent> overwritingOrAddingEventChunk, Object candidateEvents,
+    public ComplexEventChunk<StreamEvent> overwrite(ComplexEventChunk<StateEvent> overwritingOrAddingEventChunk, Object storeEvents,
                                                     UpdateAttributeMapper[] updateAttributeMappers, OverwritingStreamEventExtractor overwritingStreamEventExtractor) {
-        ComplexEventChunk<StreamEvent> candidateEventChunk = (ComplexEventChunk<StreamEvent>) candidateEvents;
+        ComplexEventChunk<StreamEvent> storeEventChunk = (ComplexEventChunk<StreamEvent>) storeEvents;
         overwritingOrAddingEventChunk.reset();
         ComplexEventChunk<StreamEvent> failedEventChunk = new ComplexEventChunk<StreamEvent>(overwritingOrAddingEventChunk.isBatch());
         while (overwritingOrAddingEventChunk.hasNext()) {
             StateEvent overwritingOrAddingEvent = overwritingOrAddingEventChunk.next();
             try {
                 boolean updated = false;
-                candidateEventChunk.reset();
-                while (candidateEventChunk.hasNext()) {
-                    StreamEvent candidateEvent = candidateEventChunk.next();
-                    overwritingOrAddingEvent.setEvent(candidateEventPosition, candidateEvent);
+                storeEventChunk.reset();
+                while (storeEventChunk.hasNext()) {
+                    StreamEvent storeEvent = storeEventChunk.next();
+                    overwritingOrAddingEvent.setEvent(storeEventPosition, storeEvent);
                     if ((Boolean) expressionExecutor.execute(overwritingOrAddingEvent)) {
                         for (UpdateAttributeMapper updateAttributeMapper : updateAttributeMappers) {
-                            candidateEvent.setOutputData(updateAttributeMapper.getOutputData(overwritingOrAddingEvent),
-                                    updateAttributeMapper.getCandidateAttributePosition());
+                            storeEvent.setOutputData(updateAttributeMapper.getOutputData(overwritingOrAddingEvent),
+                                    updateAttributeMapper.getstoreEventAttributePosition());
                         }
                         updated = true;
                     }
@@ -151,7 +151,7 @@ public class EventChunkOperator implements Operator {
                     failedEventChunk.add(overwritingStreamEventExtractor.getOverwritingStreamEvent(overwritingOrAddingEvent));
                 }
             } finally {
-                overwritingOrAddingEvent.setEvent(candidateEventPosition, null);
+                overwritingOrAddingEvent.setEvent(storeEventPosition, null);
             }
         }
         return failedEventChunk;

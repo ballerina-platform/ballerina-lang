@@ -29,7 +29,7 @@ import org.wso2.siddhi.core.table.holder.EventHolder;
 import org.wso2.siddhi.core.util.collection.OverwritingStreamEventExtractor;
 import org.wso2.siddhi.core.util.collection.UpdateAttributeMapper;
 import org.wso2.siddhi.core.util.collection.operator.CompiledCondition;
-import org.wso2.siddhi.core.util.collection.operator.MatchingMetaStateHolder;
+import org.wso2.siddhi.core.util.collection.operator.MatchingMetaInfoHolder;
 import org.wso2.siddhi.core.util.collection.operator.Operator;
 import org.wso2.siddhi.core.util.parser.EventHolderPasser;
 import org.wso2.siddhi.core.util.parser.OperatorParser;
@@ -57,12 +57,12 @@ public class InMemoryEventTable implements EventTable, Snapshotable {
 
     @Override
     public void init(TableDefinition tableDefinition,
-                     StreamEventPool tableStreamEventPool, StreamEventCloner tableStreamEventCloner,
+                     StreamEventPool storeEventPool, StreamEventCloner storeEventCloner,
                      ExecutionPlanContext executionPlanContext) {
         this.tableDefinition = tableDefinition;
-        this.tableStreamEventCloner = tableStreamEventCloner;
+        this.tableStreamEventCloner = storeEventCloner;
 
-        eventHolder = EventHolderPasser.parse(tableDefinition, tableStreamEventPool);
+        eventHolder = EventHolderPasser.parse(tableDefinition, storeEventPool);
 
         if (elementId == null) {
             elementId = "InMemoryEventTable-" + executionPlanContext.getElementIdGenerator().createNewId();
@@ -146,11 +146,11 @@ public class InMemoryEventTable implements EventTable, Snapshotable {
     }
 
     @Override
-    public CompiledCondition compileCondition(Expression expression, MatchingMetaStateHolder matchingMetaStateHolder,
+    public CompiledCondition compileCondition(Expression expression, MatchingMetaInfoHolder matchingMetaInfoHolder,
                                               ExecutionPlanContext executionPlanContext,
                                               List<VariableExpressionExecutor> variableExpressionExecutors,
                                               Map<String, EventTable> eventTableMap) {
-        return OperatorParser.constructOperator(eventHolder, expression, matchingMetaStateHolder,
+        return OperatorParser.constructOperator(eventHolder, expression, matchingMetaInfoHolder,
                 executionPlanContext, variableExpressionExecutors, eventTableMap, tableDefinition.getId());
     }
 

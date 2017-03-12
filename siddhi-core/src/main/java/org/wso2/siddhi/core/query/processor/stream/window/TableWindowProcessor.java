@@ -28,7 +28,7 @@ import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
 import org.wso2.siddhi.core.query.processor.Processor;
 import org.wso2.siddhi.core.table.EventTable;
 import org.wso2.siddhi.core.util.collection.operator.CompiledCondition;
-import org.wso2.siddhi.core.util.collection.operator.MatchingMetaStateHolder;
+import org.wso2.siddhi.core.util.collection.operator.MatchingMetaInfoHolder;
 import org.wso2.siddhi.query.api.expression.Expression;
 
 import java.util.List;
@@ -61,9 +61,9 @@ public class TableWindowProcessor extends WindowProcessor implements FindablePro
     }
 
     @Override
-    public CompiledCondition compileCondition(Expression expression, MatchingMetaStateHolder matchingMetaStateHolder, ExecutionPlanContext executionPlanContext,
+    public CompiledCondition compileCondition(Expression expression, MatchingMetaInfoHolder matchingMetaInfoHolder, ExecutionPlanContext executionPlanContext,
                                               List<VariableExpressionExecutor> variableExpressionExecutors, Map<String, EventTable> eventTableMap) {
-        return eventTable.compileCondition(expression, matchingMetaStateHolder, executionPlanContext, variableExpressionExecutors, eventTableMap);
+        return eventTable.compileCondition(expression, matchingMetaInfoHolder, executionPlanContext, variableExpressionExecutors, eventTableMap);
     }
 
     @Override

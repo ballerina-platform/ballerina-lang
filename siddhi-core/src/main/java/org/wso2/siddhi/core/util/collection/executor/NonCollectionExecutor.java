@@ -36,18 +36,18 @@ public class NonCollectionExecutor implements CollectionExecutor {
         this.expressionExecutor = expressionExecutor;
     }
 
-    public StreamEvent find(StateEvent matchingEvent, IndexedEventHolder indexedEventHolder, StreamEventCloner candidateEventCloner) {
+    public StreamEvent find(StateEvent matchingEvent, IndexedEventHolder indexedEventHolder, StreamEventCloner storeEventCloner) {
 
         if ((Boolean) expressionExecutor.execute(matchingEvent)) {
 
             ComplexEventChunk<StreamEvent> returnEventChunk = new ComplexEventChunk<StreamEvent>(false);
-            Collection<StreamEvent> candidateEvents = indexedEventHolder.getAllEvents();
+            Collection<StreamEvent> storeEvents = indexedEventHolder.getAllEvents();
 
-            for (StreamEvent candidateEvent : candidateEvents) {
-                if (candidateEventCloner != null) {
-                    returnEventChunk.add(candidateEventCloner.copyStreamEvent(candidateEvent));
+            for (StreamEvent storeEvent : storeEvents) {
+                if (storeEventCloner != null) {
+                    returnEventChunk.add(storeEventCloner.copyStreamEvent(storeEvent));
                 } else {
-                    returnEventChunk.add(candidateEvent);
+                    returnEventChunk.add(storeEvent);
                 }
             }
             return returnEventChunk.getFirst();

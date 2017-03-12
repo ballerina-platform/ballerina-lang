@@ -68,7 +68,7 @@ public class RDBMSOperator implements Operator {
     }
 
     @Override
-    public void delete(ComplexEventChunk<StateEvent> deletingEventChunk, Object candidateEvents) {
+    public void delete(ComplexEventChunk<StateEvent> deletingEventChunk, Object storeEvents) {
         deletingEventChunk.reset();
         List<Object[]> deletionEventList = new ArrayList<Object[]>();
         while (deletingEventChunk.hasNext()) {
@@ -95,7 +95,7 @@ public class RDBMSOperator implements Operator {
     }
 
     @Override
-    public void update(ComplexEventChunk<StateEvent> updatingEventChunk, Object candidateEvents, UpdateAttributeMapper[] updateAttributeMappers) {
+    public void update(ComplexEventChunk<StateEvent> updatingEventChunk, Object storeEvents, UpdateAttributeMapper[] updateAttributeMappers) {
         updatingEventChunk.reset();
         List<Object[]> updateEventList = new ArrayList<Object[]>();
         while (updatingEventChunk.hasNext()) {
@@ -118,7 +118,7 @@ public class RDBMSOperator implements Operator {
     }
 
     @Override
-    public ComplexEventChunk<StreamEvent> overwrite(ComplexEventChunk<StateEvent> overwritingOrAddingEventChunk, Object candidateEvents, UpdateAttributeMapper[] updateAttributeMappers, OverwritingStreamEventExtractor overwritingStreamEventExtractor) {
+    public ComplexEventChunk<StreamEvent> overwrite(ComplexEventChunk<StateEvent> overwritingOrAddingEventChunk, Object storeEvents, UpdateAttributeMapper[] updateAttributeMappers, OverwritingStreamEventExtractor overwritingStreamEventExtractor) {
         overwritingOrAddingEventChunk.reset();
         List<Object[]> updateEventList = new ArrayList<Object[]>();
 
@@ -145,7 +145,7 @@ public class RDBMSOperator implements Operator {
     }
 
     @Override
-    public StreamEvent find(StateEvent matchingEvent, Object candidateEvents, StreamEventCloner candidateEventCloner) {
+    public StreamEvent find(StateEvent matchingEvent, Object storeEvents, StreamEventCloner storeEventCloner) {
 
         Object[] obj;
         if (expressionExecutorList != null) {
@@ -169,7 +169,7 @@ public class RDBMSOperator implements Operator {
     }
 
     @Override
-    public boolean contains(StateEvent matchingEvent, Object candidateEvents) {
+    public boolean contains(StateEvent matchingEvent, Object storeEvents) {
 
         Object[] obj;
         if (expressionExecutorList != null) {

@@ -32,7 +32,7 @@ import org.wso2.siddhi.query.api.definition.TableDefinition;
 
 public interface EventTable extends FindableProcessor {
 
-    void init(TableDefinition tableDefinition, StreamEventPool tableStreamEventPool, StreamEventCloner tableStreamEventCloner, ExecutionPlanContext executionPlanContext);
+    void init(TableDefinition tableDefinition, StreamEventPool storeEventPool, StreamEventCloner storeEventCloner, ExecutionPlanContext executionPlanContext);
 
     TableDefinition getTableDefinition();
 

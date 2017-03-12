@@ -37,7 +37,7 @@ import org.wso2.siddhi.core.util.SiddhiConstants;
 import org.wso2.siddhi.core.util.collection.OverwritingStreamEventExtractor;
 import org.wso2.siddhi.core.util.collection.UpdateAttributeMapper;
 import org.wso2.siddhi.core.util.collection.operator.CompiledCondition;
-import org.wso2.siddhi.core.util.collection.operator.MatchingMetaStateHolder;
+import org.wso2.siddhi.core.util.collection.operator.MatchingMetaInfoHolder;
 import org.wso2.siddhi.core.util.collection.operator.Operator;
 import org.wso2.siddhi.extension.eventtable.cache.CachingTable;
 import org.wso2.siddhi.extension.eventtable.rdbms.*;
@@ -123,11 +123,11 @@ public class RDBMSEventTable implements EventTable {
     /**
      * Event Table initialization method, it checks the annotation and do necessary pre configuration tasks.
      *  @param tableDefinition        Definition of event table
-     * @param tableStreamEventPool
-     * @param tableStreamEventCloner
+     * @param storeEventPool
+     * @param storeEventCloner
      * @param executionPlanContext   ExecutionPlan related meta information
      */
-    public void init(TableDefinition tableDefinition, StreamEventPool tableStreamEventPool, StreamEventCloner tableStreamEventCloner, ExecutionPlanContext executionPlanContext) {
+    public void init(TableDefinition tableDefinition, StreamEventPool storeEventPool, StreamEventCloner storeEventCloner, ExecutionPlanContext executionPlanContext) {
         this.tableDefinition = tableDefinition;
         Connection con = null;
         int bloomFilterSize = RDBMSEventTableConstants.BLOOM_FILTER_SIZE;
@@ -315,11 +315,11 @@ public class RDBMSEventTable implements EventTable {
      * Called to construct a operator to perform search, delete and update operations
      */
     @Override
-    public CompiledCondition compileCondition(Expression expression, MatchingMetaStateHolder matchingMetaStateHolder,
+    public CompiledCondition compileCondition(Expression expression, MatchingMetaInfoHolder matchingMetaInfoHolder,
                                               ExecutionPlanContext executionPlanContext,
                                               List<VariableExpressionExecutor> variableExpressionExecutors,
                                               Map<String, EventTable> eventTableMap) {
-        return RDBMSOperatorParser.parse(dbHandler, expression, matchingMetaStateHolder, executionPlanContext,
+        return RDBMSOperatorParser.parse(dbHandler, expression, matchingMetaInfoHolder, executionPlanContext,
                 variableExpressionExecutors, eventTableMap, tableDefinition, cachedTable, tableDefinition.getId());
     }
 

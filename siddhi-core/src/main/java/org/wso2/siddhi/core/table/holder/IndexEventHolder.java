@@ -239,8 +239,8 @@ public class IndexEventHolder implements IndexedEventHolder {
     }
 
     @Override
-    public void deleteAll(Collection<StreamEvent> candidateEventSet) {
-        for (StreamEvent streamEvent : candidateEventSet) {
+    public void deleteAll(Collection<StreamEvent> storeEventSet) {
+        for (StreamEvent streamEvent : storeEventSet) {
             if (primaryKeyData != null) {
                 StreamEvent deletedEvent = primaryKeyData.remove(streamEvent.getOutputData()[primaryKeyPosition]);
                 if (indexData != null) {

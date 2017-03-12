@@ -36,7 +36,7 @@ import org.wso2.siddhi.core.query.processor.stream.window.*;
 import org.wso2.siddhi.core.table.EventTable;
 import org.wso2.siddhi.core.util.SiddhiConstants;
 import org.wso2.siddhi.core.util.collection.operator.CompiledCondition;
-import org.wso2.siddhi.core.util.collection.operator.MatchingMetaStateHolder;
+import org.wso2.siddhi.core.util.collection.operator.MatchingMetaInfoHolder;
 import org.wso2.siddhi.core.util.statistics.LatencyTracker;
 import org.wso2.siddhi.core.window.EventWindow;
 import org.wso2.siddhi.query.api.definition.AbstractDefinition;
@@ -192,10 +192,10 @@ public class JoinInputStreamParser {
             throw new OperationNotSupportedException("within not support for joins, found withing time '" + ((TimeConstant) joinInputStream.getWithin()).getValue() + " ms'");
         }
 
-        MatchingMetaStateHolder rightMatchingMetaStateHolder = MatcherParser.constructMatchingMetaStateHolder(metaStateEvent, 0, rightMetaStreamEvent.getLastInputDefinition());
-        CompiledCondition leftCompiledCondition = rightFindableProcessor.compileCondition(compareCondition, rightMatchingMetaStateHolder, executionPlanContext, executors, eventTableMap);
-        MatchingMetaStateHolder leftMatchingMetaStateHolder = MatcherParser.constructMatchingMetaStateHolder(metaStateEvent, 1, leftMetaStreamEvent.getLastInputDefinition());
-        CompiledCondition rightCompiledCondition = leftFindableProcessor.compileCondition(compareCondition, leftMatchingMetaStateHolder, executionPlanContext, executors, eventTableMap);
+        MatchingMetaInfoHolder rightMatchingMetaInfoHolder = MatcherParser.constructMatchingMetaStateHolder(metaStateEvent, 0, rightMetaStreamEvent.getLastInputDefinition());
+        CompiledCondition leftCompiledCondition = rightFindableProcessor.compileCondition(compareCondition, rightMatchingMetaInfoHolder, executionPlanContext, executors, eventTableMap);
+        MatchingMetaInfoHolder leftMatchingMetaInfoHolder = MatcherParser.constructMatchingMetaStateHolder(metaStateEvent, 1, leftMetaStreamEvent.getLastInputDefinition());
+        CompiledCondition rightCompiledCondition = leftFindableProcessor.compileCondition(compareCondition, leftMatchingMetaInfoHolder, executionPlanContext, executors, eventTableMap);
 
         if (joinInputStream.getTrigger() != JoinInputStream.EventTrigger.LEFT) {
             rightPreJoinProcessor.setTrigger(false);    // Pre JoinProcessor does not process the events

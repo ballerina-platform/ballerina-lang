@@ -25,7 +25,7 @@ import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
 import org.wso2.siddhi.core.table.EventTable;
-import org.wso2.siddhi.core.util.collection.operator.MatchingMetaStateHolder;
+import org.wso2.siddhi.core.util.collection.operator.MatchingMetaInfoHolder;
 import org.wso2.siddhi.core.util.collection.operator.Operator;
 import org.wso2.siddhi.core.util.parser.ExpressionParser;
 import org.wso2.siddhi.core.util.parser.OperatorParser;
@@ -56,14 +56,14 @@ public class RDBMSOperatorParser {
      *
      * @param dbHandler                   dbHandler
      * @param expression                  Expression
-     * @param matchingMetaStateHolder     MetaComplexEvent and details
+     * @param matchingMetaInfoHolder     MetaComplexEvent and details
      * @param executionPlanContext        ExecutionPlanContext
      * @param variableExpressionExecutors list of VariableExpressionExecutor
      * @param eventTableMap               EventTable map
      * @param cachingTable                caching table
      * @return Operator
      */
-    public static Operator parse(DBHandler dbHandler, Expression expression, MatchingMetaStateHolder matchingMetaStateHolder, ExecutionPlanContext executionPlanContext, List<VariableExpressionExecutor> variableExpressionExecutors, Map<String, EventTable> eventTableMap, TableDefinition tableDefinition, CachingTable cachingTable, String queryName) {
+    public static Operator parse(DBHandler dbHandler, Expression expression, MatchingMetaInfoHolder matchingMetaInfoHolder, ExecutionPlanContext executionPlanContext, List<VariableExpressionExecutor> variableExpressionExecutors, Map<String, EventTable> eventTableMap, TableDefinition tableDefinition, CachingTable cachingTable, String queryName) {
 
 
         ExecutionInfo executionInfo = dbHandler.getExecutionInfoInstance();
@@ -72,7 +72,7 @@ public class RDBMSOperatorParser {
         List<Attribute> conditionAttributeList = new ArrayList<Attribute>();
 
         List<Attribute> updateConditionAttributeList = new ArrayList<Attribute>();
-        updateConditionAttributeList.addAll(matchingMetaStateHolder.getMatchingStreamDefinition().getAttributeList());
+        updateConditionAttributeList.addAll(matchingMetaInfoHolder.getStreamDefinition().getAttributeList());
 
         List<ExpressionExecutor> expressionExecutorList = new ArrayList<ExpressionExecutor>();
 
@@ -80,7 +80,7 @@ public class RDBMSOperatorParser {
 
         Map<String, Boolean> isTableStreamMap = new HashMap<String, Boolean>();
 
-        for (MetaStreamEvent metaStreamEvent : matchingMetaStateHolder.getMetaStateEvent().getMetaStreamEvents()) {
+        for (MetaStreamEvent metaStreamEvent : matchingMetaInfoHolder.getMetaStateEvent().getMetaStreamEvents()) {
             String referenceId = metaStreamEvent.getInputReferenceId();
             AbstractDefinition abstractDefinition = metaStreamEvent.getLastInputDefinition();
             if (!abstractDefinition.getId().trim().equals("")) {
@@ -99,7 +99,7 @@ public class RDBMSOperatorParser {
 
         }
 
-        buildConditionQuery(isTableStreamMap, expression, conditionBuilder, conditionAttributeList, expressionExecutorList, dbHandler, elementMappings, matchingMetaStateHolder.getMetaStateEvent(), matchingMetaStateHolder.getDefaultStreamEventIndex(), eventTableMap, variableExpressionExecutors, executionPlanContext, executionInfo, queryName);
+        buildConditionQuery(isTableStreamMap, expression, conditionBuilder, conditionAttributeList, expressionExecutorList, dbHandler, elementMappings, matchingMetaInfoHolder.getMetaStateEvent(), matchingMetaInfoHolder.getStreamEventIndex(), eventTableMap, variableExpressionExecutors, executionPlanContext, executionInfo, queryName);
 
         //Constructing query to delete a table row
         String deleteTableRowQuery = dbHandler.constructQuery(tableName, elementMappings.get(RDBMSEventTableConstants.EVENT_TABLE_GENERIC_RDBMS_DELETE_TABLE), null, null, null, null, conditionBuilder);
@@ -137,10 +137,10 @@ public class RDBMSOperatorParser {
 
         Operator inMemoryEventTableOperator = null;
         if (cachingTable != null) {
-            inMemoryEventTableOperator = OperatorParser.constructOperator(cachingTable.getCacheList(), expression, matchingMetaStateHolder,
+            inMemoryEventTableOperator = OperatorParser.constructOperator(cachingTable.getCacheList(), expression, matchingMetaInfoHolder,
                     executionPlanContext, variableExpressionExecutors, eventTableMap, queryName);
         }
-        return new RDBMSOperator(executionInfo, expressionExecutorList, dbHandler, inMemoryEventTableOperator, matchingMetaStateHolder.getMatchingStreamDefinition().getAttributeList().size());
+        return new RDBMSOperator(executionInfo, expressionExecutorList, dbHandler, inMemoryEventTableOperator, matchingMetaInfoHolder.getStreamDefinition().getAttributeList().size());
     }
 
 
@@ -252,7 +252,6 @@ public class RDBMSOperatorParser {
             } else if (leftExpression instanceof Constant) {
                 setConstantValue(leftExpression, conditionBuilder);
                 isLeftExpressionEventTable = false;
-
             }
 
             if (((Compare) expression).getOperator().equals(Compare.Operator.EQUAL)) {

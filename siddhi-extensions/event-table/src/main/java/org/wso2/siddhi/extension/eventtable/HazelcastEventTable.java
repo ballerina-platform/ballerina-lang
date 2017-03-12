@@ -44,7 +44,7 @@ import org.wso2.siddhi.core.util.SiddhiConstants;
 import org.wso2.siddhi.core.util.collection.OverwritingStreamEventExtractor;
 import org.wso2.siddhi.core.util.collection.UpdateAttributeMapper;
 import org.wso2.siddhi.core.util.collection.operator.CompiledCondition;
-import org.wso2.siddhi.core.util.collection.operator.MatchingMetaStateHolder;
+import org.wso2.siddhi.core.util.collection.operator.MatchingMetaInfoHolder;
 import org.wso2.siddhi.core.util.collection.operator.Operator;
 import org.wso2.siddhi.extension.eventtable.hazelcast.HazelcastCollectionEventHolder;
 import org.wso2.siddhi.extension.eventtable.hazelcast.HazelcastEventTableConstants;
@@ -101,16 +101,16 @@ public class HazelcastEventTable implements EventTable {
     /**
      * Event Table initialization method, it checks the annotation and do necessary pre configuration tasks.
      * @param tableDefinition        Definition of event table.
-     * @param tableStreamEventPool
-     * @param tableStreamEventCloner
+     * @param storeEventPool
+     * @param storeEventCloner
      * @param executionPlanContext   ExecutionPlan related meta information.
      */
     @Override
     public void init(TableDefinition tableDefinition,
-                     StreamEventPool tableStreamEventPool, StreamEventCloner tableStreamEventCloner,
+                     StreamEventPool storeEventPool, StreamEventCloner storeEventCloner,
                      ExecutionPlanContext executionPlanContext) {
         this.tableDefinition = tableDefinition;
-        this.tableStreamEventCloner = tableStreamEventCloner;
+        this.tableStreamEventCloner = storeEventCloner;
         this.executionPlanContext = executionPlanContext;
         String clusterName;
         String clusterPassword;
@@ -158,10 +158,10 @@ public class HazelcastEventTable implements EventTable {
             }
             String indexAttribute = annotation.getElements().get(0).getValue();
             int indexPosition = tableDefinition.getAttributePosition(indexAttribute);
-            eventHolder = new HazelcastPrimaryKeyEventHolder(hzInstance.getMap(collectionName), tableStreamEventPool,
+            eventHolder = new HazelcastPrimaryKeyEventHolder(hzInstance.getMap(collectionName), storeEventPool,
                     eventConverter, indexPosition, indexAttribute);
         } else {
-            eventHolder = new HazelcastCollectionEventHolder(hzInstance.getList(collectionName), tableStreamEventPool,
+            eventHolder = new HazelcastCollectionEventHolder(hzInstance.getList(collectionName), storeEventPool,
                     eventConverter);
         }
         if (elementId == null) {
@@ -260,11 +260,11 @@ public class HazelcastEventTable implements EventTable {
     }
 
     @Override
-    public CompiledCondition compileCondition(Expression expression, MatchingMetaStateHolder matchingMetaStateHolder,
+    public CompiledCondition compileCondition(Expression expression, MatchingMetaInfoHolder matchingMetaInfoHolder,
                                               ExecutionPlanContext executionPlanContext,
                                               List<VariableExpressionExecutor> variableExpressionExecutors,
                                               Map<String, EventTable> eventTableMap) {
-        return HazelcastOperatorParser.constructOperator(eventHolder, expression, matchingMetaStateHolder,
+        return HazelcastOperatorParser.constructOperator(eventHolder, expression, matchingMetaInfoHolder,
                 executionPlanContext, variableExpressionExecutors, eventTableMap, tableDefinition.getId());
     }
 

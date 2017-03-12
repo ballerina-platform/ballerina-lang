@@ -30,19 +30,16 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 
-/**
- * Created by suho on 5/22/16.
- */
 public class HazelcastPrimaryKeyEventHolder implements EventHolder, Map<Object, StreamEvent> {
 
-    private IMap<Object, StreamEvent> candidateDataMap;
+    private IMap<Object, StreamEvent> storeEventMap;
     private StreamEventPool tableStreamEventPool;
     private StreamEventConverter eventConverter;
     private int indexPosition;
     private String indexAttribute;
 
-    public HazelcastPrimaryKeyEventHolder(IMap candidateDataMap, StreamEventPool tableStreamEventPool, StreamEventConverter eventConverter, int indexPosition, String indexAttribute) {
-        this.candidateDataMap = candidateDataMap;
+    public HazelcastPrimaryKeyEventHolder(IMap storeEventMap, StreamEventPool tableStreamEventPool, StreamEventConverter eventConverter, int indexPosition, String indexAttribute) {
+        this.storeEventMap = storeEventMap;
         this.tableStreamEventPool = tableStreamEventPool;
         this.eventConverter = eventConverter;
         this.indexPosition = indexPosition;
@@ -56,7 +53,7 @@ public class HazelcastPrimaryKeyEventHolder implements EventHolder, Map<Object, 
             ComplexEvent complexEvent = addingEventChunk.next();
             StreamEvent streamEvent = tableStreamEventPool.borrowEvent();
             eventConverter.convertComplexEvent(complexEvent, streamEvent);
-            candidateDataMap.put(streamEvent.getOutputData()[indexPosition], streamEvent);
+            storeEventMap.put(streamEvent.getOutputData()[indexPosition], streamEvent);
         }
     }
 
@@ -70,17 +67,17 @@ public class HazelcastPrimaryKeyEventHolder implements EventHolder, Map<Object, 
 
     @Override
     public int size() {
-        return candidateDataMap.size();
+        return storeEventMap.size();
     }
 
     @Override
     public boolean isEmpty() {
-        return candidateDataMap.isEmpty();
+        return storeEventMap.isEmpty();
     }
 
     @Override
     public boolean containsKey(Object key) {
-        return candidateDataMap.containsKey(key);
+        return storeEventMap.containsKey(key);
     }
 
     @Override
@@ -90,46 +87,46 @@ public class HazelcastPrimaryKeyEventHolder implements EventHolder, Map<Object, 
 
     @Override
     public StreamEvent get(Object key) {
-        return candidateDataMap.get(key);
+        return storeEventMap.get(key);
     }
 
     @Override
     public StreamEvent put(Object key, StreamEvent value) {
-        return candidateDataMap.put(key, value);
+        return storeEventMap.put(key, value);
     }
 
 
     public StreamEvent replace(Object key, StreamEvent value) {
-        return candidateDataMap.replace(key, value);
+        return storeEventMap.replace(key, value);
     }
 
     @Override
     public StreamEvent remove(Object key) {
-        return candidateDataMap.remove(key);
+        return storeEventMap.remove(key);
     }
 
     @Override
     public void putAll(Map<?, ? extends StreamEvent> m) {
-        candidateDataMap.putAll(m);
+        storeEventMap.putAll(m);
     }
 
     @Override
     public void clear() {
-        candidateDataMap.clear();
+        storeEventMap.clear();
     }
 
     @Override
     public Set<Object> keySet() {
-        return candidateDataMap.keySet();
+        return storeEventMap.keySet();
     }
 
     @Override
     public Collection<StreamEvent> values() {
-        return candidateDataMap.values();
+        return storeEventMap.values();
     }
 
     @Override
     public Set<Entry<Object, StreamEvent>> entrySet() {
-        return candidateDataMap.entrySet();
+        return storeEventMap.entrySet();
     }
 }
