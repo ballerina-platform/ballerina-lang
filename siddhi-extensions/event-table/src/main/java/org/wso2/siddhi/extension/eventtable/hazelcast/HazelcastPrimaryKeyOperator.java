@@ -87,8 +87,7 @@ public class HazelcastPrimaryKeyOperator implements Operator {
             StreamEvent streamEvent = ((HazelcastPrimaryKeyEventHolder) storeEvents).get(matchingKey);
             if (streamEvent != null) {
                 for (UpdateAttributeMapper updateAttributeMapper : updateAttributeMappers) {
-                    streamEvent.setOutputData(updateAttributeMapper.getOutputData(updatingEvent),
-                            updateAttributeMapper.getstoreEventAttributePosition());
+                    updateAttributeMapper.mapOutputData(updatingEvent, streamEvent);
                 }
                 ((HazelcastPrimaryKeyEventHolder) storeEvents).replace(matchingKey, streamEvent);
 
@@ -109,8 +108,7 @@ public class HazelcastPrimaryKeyOperator implements Operator {
             StreamEvent streamEvent = ((HazelcastPrimaryKeyEventHolder) storeEvents).get(matchingKey);
             if (streamEvent != null) {
                 for (UpdateAttributeMapper updateAttributeMapper : updateAttributeMappers) {
-                    streamEvent.setOutputData(updateAttributeMapper.getOutputData(overwritingOrAddingEvent),
-                            updateAttributeMapper.getstoreEventAttributePosition());
+                    updateAttributeMapper.mapOutputData(overwritingOrAddingEvent, streamEvent);
                 }
                 ((HazelcastPrimaryKeyEventHolder) storeEvents).replace(matchingKey, streamEvent);
             } else {

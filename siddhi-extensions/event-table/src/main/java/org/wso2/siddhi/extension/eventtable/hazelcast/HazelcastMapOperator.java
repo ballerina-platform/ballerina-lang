@@ -78,8 +78,7 @@ public class HazelcastMapOperator extends MapOperator {
                     updatingEvent.setEvent(storeEventPosition, storeEventEntry.getValue());
                     if ((Boolean) expressionExecutor.execute(updatingEvent)) {
                         for (UpdateAttributeMapper updateAttributeMapper : updateAttributeMappers) {
-                            storeEventEntry.getValue().setOutputData(updateAttributeMapper.getOutputData(updatingEvent),
-                                    updateAttributeMapper.getstoreEventAttributePosition());
+                            updateAttributeMapper.mapOutputData(updatingEvent, storeEventEntry.getValue());
                         }
                         ((HazelcastPrimaryKeyEventHolder) storeEvents).replace(storeEventEntry.getKey(), storeEventEntry.getValue());
                     }
@@ -103,8 +102,7 @@ public class HazelcastMapOperator extends MapOperator {
                     overwritingOrAddingEvent.setEvent(storeEventPosition, storeEventEntry.getValue());
                     if ((Boolean) expressionExecutor.execute(overwritingOrAddingEvent)) {
                         for (UpdateAttributeMapper updateAttributeMapper : updateAttributeMappers) {
-                            storeEventEntry.getValue().setOutputData(updateAttributeMapper.getOutputData(overwritingOrAddingEvent),
-                                    updateAttributeMapper.getstoreEventAttributePosition());
+                            updateAttributeMapper.mapOutputData(overwritingOrAddingEvent, storeEventEntry.getValue());
                         }
                         ((HazelcastPrimaryKeyEventHolder) storeEvents).replace(storeEventEntry.getKey(), storeEventEntry.getValue());
                         updated = true;

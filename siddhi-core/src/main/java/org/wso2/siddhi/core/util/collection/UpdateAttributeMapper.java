@@ -33,16 +33,18 @@ public class UpdateAttributeMapper {
         this.matchingStreamEventPosition = matchingStreamEventPosition;
     }
 
-    public int getstoreEventAttributePosition() {
+    public int getStoreEventAttributePosition() {
         return storeEventAttributePosition;
     }
 
-    public Object getOutputData(StateEvent updatingEvent) {
+    public Object getUpdateEventOutputData(StateEvent updatingEvent) {
         return updatingEvent.getStreamEvent(matchingStreamEventPosition).getOutputData()[updatingAttributePosition];
     }
 
-    public StreamEvent getOverwritingStreamEvent(StateEvent updatingEvent) {
-        return updatingEvent.getStreamEvent(matchingStreamEventPosition);
+    public void mapOutputData(StateEvent updatingEvent, StreamEvent storeEvent) {
+        storeEvent.setOutputData(
+                updatingEvent.getStreamEvent(matchingStreamEventPosition).getOutputData()[updatingAttributePosition],
+                storeEventAttributePosition);
     }
 }
 

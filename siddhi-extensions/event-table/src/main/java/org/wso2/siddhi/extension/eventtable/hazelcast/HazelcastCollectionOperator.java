@@ -66,7 +66,7 @@ public class HazelcastCollectionOperator extends CollectionOperator {
      * Called when updating the event table entries.
      *
      * @param updatingEventChunk     Event list that needs to be updated.
-     * @param storeEvents        Map of store events.
+     * @param storeEvents            Map of store events.
      * @param updateAttributeMappers Mapping positions array.
      */
     @Override
@@ -80,8 +80,7 @@ public class HazelcastCollectionOperator extends CollectionOperator {
                     updatingEvent.setEvent(storeEventPosition, storeEvent);
                     if ((Boolean) expressionExecutor.execute(updatingEvent)) {
                         for (UpdateAttributeMapper updateAttributeMapper : updateAttributeMappers) {
-                            storeEvent.setOutputData(updateAttributeMapper.getOutputData(updatingEvent),
-                                    updateAttributeMapper.getstoreEventAttributePosition());
+                            updateAttributeMapper.mapOutputData(updatingEvent, storeEvent);
                         }
                         ((HazelcastCollectionEventHolder) storeEvents).set(i, storeEvent);
                     }
@@ -106,8 +105,7 @@ public class HazelcastCollectionOperator extends CollectionOperator {
                     overwritingOrAddingEvent.setEvent(storeEventPosition, storeEvent);
                     if ((Boolean) expressionExecutor.execute(overwritingOrAddingEvent)) {
                         for (UpdateAttributeMapper updateAttributeMapper : updateAttributeMappers) {
-                            storeEvent.setOutputData(updateAttributeMapper.getOutputData(overwritingOrAddingEvent),
-                                    updateAttributeMapper.getstoreEventAttributePosition());
+                            updateAttributeMapper.mapOutputData(overwritingOrAddingEvent, storeEvent);
                         }
                         ((HazelcastCollectionEventHolder) storeEvents).set(i, storeEvent);
                         updated = true;

@@ -112,15 +112,15 @@ public class IndexOperator implements Operator {
         //to reduce number of passes needed to update the events
         boolean doDeleteUpdate = false;
         for (UpdateAttributeMapper updateAttributeMapper : updateAttributeMappers) {
-            if(doDeleteUpdate){
+            if (doDeleteUpdate) {
                 break;
             }
-            if (storeEvents.isAttributeIndexed(updateAttributeMapper.getstoreEventAttributePosition())) {
+            if (storeEvents.isAttributeIndexed(updateAttributeMapper.getStoreEventAttributePosition())) {
                 //Todo how much check we need to do before falling back to Delete and then Update
                 while (foundEventChunk.hasNext()) {
                     StreamEvent streamEvent = foundEventChunk.next();
-                    Object updatingDate = updateAttributeMapper.getOutputData(overwritingOrAddingEvent);
-                    Object storeEventData = streamEvent.getOutputData()[updateAttributeMapper.getstoreEventAttributePosition()];
+                    Object updatingDate = updateAttributeMapper.getUpdateEventOutputData(overwritingOrAddingEvent);
+                    Object storeEventData = streamEvent.getOutputData()[updateAttributeMapper.getStoreEventAttributePosition()];
                     if (updatingDate != null && storeEventData != null && !updatingDate.equals(storeEventData)) {
                         doDeleteUpdate = true;
                         break;
@@ -139,8 +139,7 @@ public class IndexOperator implements Operator {
                 foundEventChunk.remove();
                 streamEvent.setNext(null);// to make the chained state back to normal
                 for (UpdateAttributeMapper updateAttributeMapper : updateAttributeMappers) {
-                    streamEvent.setOutputData(updateAttributeMapper.getOutputData(overwritingOrAddingEvent),
-                            updateAttributeMapper.getstoreEventAttributePosition());
+                    updateAttributeMapper.mapOutputData(overwritingOrAddingEvent, streamEvent);
                 }
                 toUpdateEventChunk.add(streamEvent);
             }
@@ -150,8 +149,7 @@ public class IndexOperator implements Operator {
                 StreamEvent streamEvent = foundEventChunk.next();
                 streamEvent.setNext(null);// to make the chained state back to normal
                 for (UpdateAttributeMapper updateAttributeMapper : updateAttributeMappers) {
-                    streamEvent.setOutputData(updateAttributeMapper.getOutputData(overwritingOrAddingEvent),
-                            updateAttributeMapper.getstoreEventAttributePosition());
+                    updateAttributeMapper.mapOutputData(overwritingOrAddingEvent, streamEvent);
                 }
             }
         }

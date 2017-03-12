@@ -32,7 +32,8 @@ import org.wso2.siddhi.query.api.definition.TableDefinition;
 
 public interface EventTable extends FindableProcessor {
 
-    void init(TableDefinition tableDefinition, StreamEventPool storeEventPool, StreamEventCloner storeEventCloner, ExecutionPlanContext executionPlanContext);
+    void init(TableDefinition tableDefinition, StreamEventPool storeEventPool, StreamEventCloner storeEventCloner,
+              ExecutionPlanContext executionPlanContext);
 
     TableDefinition getTableDefinition();
 
@@ -40,9 +41,13 @@ public interface EventTable extends FindableProcessor {
 
     void delete(ComplexEventChunk<StateEvent> deletingEventChunk, CompiledCondition compiledCondition);
 
-    void update(ComplexEventChunk<StateEvent> updatingEventChunk, CompiledCondition compiledCondition, UpdateAttributeMapper[] updateAttributeMappers);
+    void update(ComplexEventChunk<StateEvent> updatingEventChunk, CompiledCondition compiledCondition,
+                UpdateAttributeMapper[] updateAttributeMappers);
 
-    void overwriteOrAdd(ComplexEventChunk<StateEvent> overwritingOrAddingEventChunk, CompiledCondition compiledCondition, UpdateAttributeMapper[] updateAttributeMappers, OverwritingStreamEventExtractor overwritingStreamEventExtractor);
+    void overwriteOrAdd(ComplexEventChunk<StateEvent> overwritingOrAddingEventChunk,
+                        CompiledCondition compiledCondition,
+                        UpdateAttributeMapper[] updateAttributeMappers,
+                        OverwritingStreamEventExtractor overwritingStreamEventExtractor);
 
     boolean contains(StateEvent matchingEvent, CompiledCondition compiledCondition);
 

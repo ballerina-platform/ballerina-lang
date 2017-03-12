@@ -114,8 +114,7 @@ public class EventChunkOperator implements Operator {
                     updatingEvent.setEvent(storeEventPosition, storeEvent);
                     if ((Boolean) expressionExecutor.execute(updatingEvent)) {
                         for (UpdateAttributeMapper updateAttributeMapper : updateAttributeMappers) {
-                            storeEvent.setOutputData(updateAttributeMapper.getOutputData(updatingEvent),
-                                    updateAttributeMapper.getstoreEventAttributePosition());
+                            updateAttributeMapper.mapOutputData(updatingEvent, storeEvent);
                         }
                     }
                 }
@@ -141,8 +140,7 @@ public class EventChunkOperator implements Operator {
                     overwritingOrAddingEvent.setEvent(storeEventPosition, storeEvent);
                     if ((Boolean) expressionExecutor.execute(overwritingOrAddingEvent)) {
                         for (UpdateAttributeMapper updateAttributeMapper : updateAttributeMappers) {
-                            storeEvent.setOutputData(updateAttributeMapper.getOutputData(overwritingOrAddingEvent),
-                                    updateAttributeMapper.getstoreEventAttributePosition());
+                            updateAttributeMapper.mapOutputData(overwritingOrAddingEvent, storeEvent);
                         }
                         updated = true;
                     }
