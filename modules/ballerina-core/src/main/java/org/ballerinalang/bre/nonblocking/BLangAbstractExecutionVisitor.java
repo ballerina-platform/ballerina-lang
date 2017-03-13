@@ -1175,7 +1175,7 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
     @Override
     public void visit(UnaryExpressionEndNode unaryExpressionEndNode) {
         if (logger.isDebugEnabled()) {
-            logger.debug("Executing UnaryExpressionEnd[Link]");
+            logger.debug("Executing UnaryExpression - EndNode");
         }
         next = unaryExpressionEndNode.next;
         UnaryExpression unaryExpr = unaryExpressionEndNode.getExpression();

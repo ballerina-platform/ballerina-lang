@@ -740,29 +740,29 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
                 previous = expression;
             }
         }
-        FunctionInvocationExprStartNode endLink = new FunctionInvocationExprStartNode(funcInvExpr);
+        FunctionInvocationExprStartNode funcIExprStartNode = new FunctionInvocationExprStartNode(funcInvExpr);
         if (previous == null) {
-            funcInvExpr.setNext(endLink);
+            funcInvExpr.setNext(funcIExprStartNode);
         } else {
-            previous.setNextSibling(endLink);
+            previous.setNextSibling(funcIExprStartNode);
         }
-        endLink.setParent(funcInvExpr);
+        funcIExprStartNode.setParent(funcInvExpr);
         // Parsing Function Body.
         BlockStmt blockStmt = funcInvExpr.getCallableUnit().getCallableUnitBody();
-        CallableUnitEndNode callableUnitEndLink = new CallableUnitEndNode(funcInvExpr);
+        CallableUnitEndNode callableUnitEndNode = new CallableUnitEndNode(funcInvExpr);
         if (blockStmt != null) {
             // Ballerina Function. This blockStatement can have multi parents. So we need to handle this especially.
-            endLink.setNext(blockStmt);
-            endLink.setBranchingLinkedNode(callableUnitEndLink);
-            callableUnitEndLink.setNativeInvocation(false);
+            funcIExprStartNode.setNext(blockStmt);
+            funcIExprStartNode.setBranchingLinkedNode(callableUnitEndNode);
+            callableUnitEndNode.setNativeInvocation(false);
         } else {
             // Native functions.
             InvokeNativeFunctionNode nativeIStmt = new InvokeNativeFunctionNode(
                     (AbstractNativeFunction) funcInvExpr.getCallableUnit());
-            callableUnitEndLink.setNativeInvocation(true);
-            endLink.setNext(nativeIStmt);
-            nativeIStmt.setParent(endLink);
-            nativeIStmt.setNext(callableUnitEndLink);
+            callableUnitEndNode.setNativeInvocation(true);
+            funcIExprStartNode.setNext(nativeIStmt);
+            nativeIStmt.setParent(funcIExprStartNode);
+            nativeIStmt.setNext(callableUnitEndNode);
         }
         // Visiting sub expressions.
         if (funcInvExpr.getCallableUnit() instanceof BallerinaFunction) {
@@ -776,7 +776,7 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
         if (argExprs != null) {
             Arrays.stream(argExprs).forEach(arg -> arg.accept(this));
         }
-        callableUnitEndLink.setNext(findNext(funcInvExpr));
+        callableUnitEndNode.setNext(findNext(funcInvExpr));
     }
 
     @Override
@@ -820,29 +820,29 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
                 previous = expression;
             }
         }
-        ActionInvocationExprStartNode endLink = new ActionInvocationExprStartNode(actionInvExpr);
+        ActionInvocationExprStartNode actionIExprStartNode = new ActionInvocationExprStartNode(actionInvExpr);
         if (previous == null) {
-            actionInvExpr.setNext(endLink);
+            actionInvExpr.setNext(actionIExprStartNode);
         } else {
-            previous.setNextSibling(endLink);
+            previous.setNextSibling(actionIExprStartNode);
         }
-        endLink.setParent(actionInvExpr);
+        actionIExprStartNode.setParent(actionInvExpr);
         // Parsing Function Body.
         BlockStmt blockStmt = actionInvExpr.getCallableUnit().getCallableUnitBody();
-        CallableUnitEndNode callableUnitEndLink = new CallableUnitEndNode(actionInvExpr);
+        CallableUnitEndNode callableUnitEndNode = new CallableUnitEndNode(actionInvExpr);
         if (blockStmt != null) {
             // Ballerina Function. This blockStatement can have multi parents. So we need to handle this especially.
-            endLink.setNext(blockStmt);
-            endLink.setBranchingLinkedNode(callableUnitEndLink);
-            callableUnitEndLink.setNativeInvocation(false);
+            actionIExprStartNode.setNext(blockStmt);
+            actionIExprStartNode.setBranchingLinkedNode(callableUnitEndNode);
+            callableUnitEndNode.setNativeInvocation(false);
         } else {
             // Native Action.
-            InvokeNativeActionNode link = new InvokeNativeActionNode(
+            InvokeNativeActionNode invokeNativeActionNode = new InvokeNativeActionNode(
                     (AbstractNativeAction) actionInvExpr.getCallableUnit());
-            callableUnitEndLink.setNativeInvocation(true);
-            endLink.setNext(link);
-            link.setParent(endLink);
-            link.setNext(callableUnitEndLink);
+            callableUnitEndNode.setNativeInvocation(true);
+            actionIExprStartNode.setNext(invokeNativeActionNode);
+            invokeNativeActionNode.setParent(actionIExprStartNode);
+            invokeNativeActionNode.setNext(callableUnitEndNode);
         }
         // Visiting sub expressions.
         if (actionInvExpr.getCallableUnit() instanceof BallerinaAction) {
@@ -856,7 +856,7 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
         if (argExprs != null) {
             Arrays.stream(argExprs).forEach(arg -> arg.accept(this));
         }
-        callableUnitEndLink.setNext(findNext(actionInvExpr));
+        callableUnitEndNode.setNext(findNext(actionInvExpr));
     }
 
     @Override
@@ -914,7 +914,7 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
     public void visit(UnaryExpression unaryExpression) {
         calculateTempOffSet(unaryExpression);
         // Handle this as non-blocking manner.
-        // Flow : UnaryExpression -> RHSExpr -> UnaryExpressionEndLink -> UnaryExpression.nextSibling -> ...
+        // Flow : UnaryExpression -> RHSExpr -> UnaryExpressionEndNode -> UnaryExpression.nextSibling -> ...
         UnaryExpressionEndNode endNode = new UnaryExpressionEndNode(unaryExpression);
         Expression rExp = unaryExpression.getRExpr();
         unaryExpression.setNext(rExp);
@@ -933,14 +933,14 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
         }
         calculateTempOffSet(castExpression);
         Expression rExpr = castExpression.getRExpr();
-        TypeCastExpressionEndNode endLink = new TypeCastExpressionEndNode(castExpression);
+        TypeCastExpressionEndNode castExpEndNode = new TypeCastExpressionEndNode(castExpression);
         if (castExpression.getEvalFunc() != null) {
             castExpression.setNext(rExpr);
             rExpr.setParent(castExpression);
-            rExpr.setNextSibling(endLink);
-            endLink.setParent(castExpression);
+            rExpr.setNextSibling(castExpEndNode);
+            castExpEndNode.setParent(castExpression);
             rExpr.accept(this);
-            endLink.setNext(findNext(castExpression));
+            castExpEndNode.setNext(findNext(castExpression));
         } else {
             Expression[] argExprs = castExpression.getArgExprs();
             LinkedNode previous = null;
@@ -955,19 +955,19 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
                 }
             }
             if (previous == null) {
-                castExpression.setNext(endLink);
+                castExpression.setNext(castExpEndNode);
             } else {
-                previous.setNextSibling(endLink);
+                previous.setNextSibling(castExpEndNode);
             }
-            endLink.setParent(castExpression);
+            castExpEndNode.setParent(castExpression);
             // Parsing Function Body.
             BlockStmt blockStmt = castExpression.getCallableUnit().getCallableUnitBody();
-            CallableUnitEndNode callableUnitEndLink = new CallableUnitEndNode(castExpression);
+            CallableUnitEndNode callableUnitEndNode = new CallableUnitEndNode(castExpression);
             if (blockStmt != null) {
                 // Ballerina TypeCase. This blockStatement can have multi parents. So we need to handle this especially.
-                endLink.setNext(blockStmt);
-                endLink.setBranchingLinkedNode(callableUnitEndLink);
-                callableUnitEndLink.setNativeInvocation(false);
+                castExpEndNode.setNext(blockStmt);
+                castExpEndNode.setBranchingLinkedNode(callableUnitEndNode);
+                callableUnitEndNode.setNativeInvocation(false);
                 // TODO : Fix this. Type cast expression creates new type mapper instances which is not correct.
                 blockStmt.setParent(new StartNode());
                 // Visit Block Statement and handle its children.
@@ -979,16 +979,16 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
                 returningBlockStmtStack.pop();
             } else {
                 // Native functions.
-                InvokeNativeTypeMapperNode link = new InvokeNativeTypeMapperNode(
+                InvokeNativeTypeMapperNode invokeNativeTypeMapperNode = new InvokeNativeTypeMapperNode(
                         (AbstractNativeTypeMapper) castExpression.getCallableUnit());
-                callableUnitEndLink.setNativeInvocation(true);
-                endLink.setNext(link);
-                link.setParent(endLink);
-                link.setNext(callableUnitEndLink);
+                callableUnitEndNode.setNativeInvocation(true);
+                castExpEndNode.setNext(invokeNativeTypeMapperNode);
+                invokeNativeTypeMapperNode.setParent(castExpEndNode);
+                invokeNativeTypeMapperNode.setNext(callableUnitEndNode);
             }
             // Visiting each Argument.
             Arrays.stream(argExprs).forEach(arg -> arg.accept(this));
-            callableUnitEndLink.setNext(findNext(castExpression));
+            callableUnitEndNode.setNext(findNext(castExpression));
         }
     }
 
