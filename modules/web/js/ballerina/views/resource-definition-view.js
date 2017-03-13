@@ -757,6 +757,23 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                 self._model.remove();
             });
 
+            var annotationProperties = {
+                model: this._model,
+                activatorElement: headingAnnotationIcon.node(),
+                paneAppendElement: this.getChildContainer().node().ownerSVGElement.parentElement,
+                viewOptions: {
+                    position: {
+                        // "-1" to remove the svg stroke line
+                        left: parseFloat(this.getChildContainer().attr("x")) + parseFloat(this.getChildContainer().attr("width")) - 1,
+                        top: this.getChildContainer().attr("y")
+                    }
+                }
+            };
+
+            this._annotationView = AnnotationView.createAnnotationPane(annotationProperties);
+
+            this._createParametersView(headingArgumentsIcon.node(), diagramRenderingContext);
+
             this.getBoundingBox().on("height-changed", function(dh){
                 var newHeight = parseFloat(this._contentRect.attr('height')) + dh;
                 this._contentRect.attr('height', (newHeight < 0 ? 0 : newHeight));
@@ -768,6 +785,10 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                 this._headerIconGroup.node().transform.baseVal.getItem(0).setTranslate(transformX + dw, transformY);
                 this._contentRect.attr('width', parseFloat(this._contentRect.attr('width')) + dw);
                 this._headingRect.attr('width', parseFloat(this._headingRect.attr('width')) + dw);
+                //repositioning annotation editor view
+                this._annotationView.move({dx: dw});
+                //repositioning argument editor view
+                this._resourceParamatersPaneView.move({dx: dw});
                 // If the bounding box of the resource go over the svg's current width
                 if (this.getBoundingBox().getRight() > this._parentView.getSVG().width()) {
                     this._parentView.setSVGWidth(this.getBoundingBox().getRight() + 60);
@@ -828,23 +849,6 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                 // Show/Hide scrolls.
                 self._showHideScrolls(self.getChildContainer().node().ownerSVGElement.parentElement, self.getChildContainer().node().ownerSVGElement);
             });
-
-            var annotationProperties = {
-                model: this._model,
-                activatorElement: headingAnnotationIcon.node(),
-                paneAppendElement: this.getChildContainer().node().ownerSVGElement.parentElement,
-                viewOptions: {
-                    position: {
-                        // "-1" to remove the svg stroke line
-                        left: parseFloat(this.getChildContainer().attr("x")) + parseFloat(this.getChildContainer().attr("width")) - 1,
-                        top: this.getChildContainer().attr("y")
-                    }
-                }
-            };
-
-            AnnotationView.createAnnotationPane(annotationProperties);
-
-            this._createParametersView(headingArgumentsIcon.node(), diagramRenderingContext);
 
             var operationButtons = [headingAnnotationIcon.node(), headingArgumentsIcon.node()];
 

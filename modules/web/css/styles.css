@@ -230,14 +230,13 @@ ol#breadcrumbList {
 }
 
 .variable-pane {
-    border: 1px solid #f0f0f0;
+    border: 1px solid #dddddd;
     background-color: #fff;
     position: absolute;
     top: 9px;
     left: 28px;
     margin: auto;
-    min-height: 29px;
-    padding: 3px 3px 0 16px;
+    min-height: 28px;
 }
 
 .resource-variable-pane {
@@ -279,7 +278,7 @@ button.variable-list {
 }
 
 .variable-wrapper i {
-    padding: 10px 6px 8px;
+    padding:6px;
     font-size: 8px;
     background-color: #fff;
     color: #19b89c;
@@ -294,13 +293,12 @@ button.variable-list {
 .variable-type {
     float: left;
     color: white;
-    padding: 4px 8px;
-    height: 29px;
+    padding: 2px 8px;
 }
 
 .variable-identifier {
     float: left;
-    padding: 4px 8px;
+    padding: 2px 8px;
 }
 
 /*Start Message*/
@@ -705,7 +703,6 @@ button.variable-list {
 }
 
 .imports-wrapper div span {
-    font-style: italic;
     cursor: default;
 }
 .import-declaration-wrapper{
@@ -834,21 +831,21 @@ button.variable-list {
 }
 
 .variable-add-icon-wrapper {
-    margin-left: 2px;
-    height: 20px;
+    height: 16px;
     position: static;
-    width: 19px;
-    font-size: 7px;
+    width: 15px;
+    font-size: 11px;
     float: left;
-    margin-top: 2px;
+    margin: 7px 2px 0 7px;
+    opacity: 1;
 }
 
 .variable-add-action-wrapper {
     display: none;
     width: 517px;
-    background-color: #efefef;
-    height: 30px;
-    padding: 3px;
+    background-color: #ddd;
+    height: 26px;
+    padding: 2px 4px;
 }
 
 .variable-add-action-wrapper input {
@@ -873,9 +870,10 @@ button.variable-list {
 
 .variable-wrapper {
     float: left;
-    margin-left: 6px;
-    margin-bottom: 3px;
     border: 1px solid #19b89c;
+    margin: 2px;
+    font-size: 12px;
+    height: 22px;
 }
 
 .variable-pane-collapser-wrapper {
@@ -910,7 +908,6 @@ button.variable-list {
 }
 
 /** Start of Constants view **/
-
 
 .constants-btn:hover {
     opacity: 1;
@@ -991,7 +988,7 @@ button.variable-list {
     margin-bottom: 3px;
 }
 
-.constant-pane-collapser-wrapper, .import-pane-collapser-wrapper {
+.constant-pane-collapser-wrapper, .import-pane-collapser-wrapper, .variable-pane-collapser-wrapper {
     font-size: 14px;
     padding: 9px;
     background-color: #efefef;
@@ -1428,7 +1425,7 @@ span.fw-stack.fw-lg {
     width: 37px;
 }
 
-.constants-btn, .package-name-btn, .imports-btn {
+.constants-btn, .package-name-btn, .imports-btn, .variable-btn {
     background: #333;
     width: 69px;
     color: #fff;
@@ -1482,3 +1479,5 @@ span.fw-stack.fw-lg {
     font-size: 14px;
 }
 .orange{ color: #f17b31;}
+
+

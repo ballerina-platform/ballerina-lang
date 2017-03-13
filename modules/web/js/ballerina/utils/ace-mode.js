@@ -18,6 +18,7 @@
 ace.define('ace/mode/ballerina',
     ["require", "exports", "module"], function (acequire, exports, module) {
         require("ace/mode-javascript");
+        require("./ace-styles.css");
 
         acequire("ace/config").set("workerPath", "dist");
 

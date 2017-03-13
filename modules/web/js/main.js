@@ -33,10 +33,11 @@ import Console from 'console';
 // importing for side effects only
 import 'jquery-ui/ui/widgets/draggable';
 import 'jquery-ui/themes/base/draggable.css';
-import 'jstree/dist/themes/default/style.css';
 import 'mcustom_scroller/jquery.mCustomScrollbar.css';
 import 'bootstrap';
 import 'theme_wso2';
+import '../css/jstree.css';
+
 
 class Application {
 

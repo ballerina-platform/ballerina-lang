@@ -35,6 +35,7 @@ define(['require', 'lodash', 'jquery'],
             var annotationEditorWrapper = $("<div/>", {
                 class: "main-action-wrapper service-annotation-main-action-wrapper"
             }).appendTo(paneElement);
+            this._annotationEditorWrapper = annotationEditorWrapper;
 
             // Positioning the main wrapper
             annotationEditorWrapper.css("left",
@@ -134,6 +135,8 @@ define(['require', 'lodash', 'jquery'],
                     $(event.data.activatorElement).click();
                 }
             });
+
+            return this;
         };
 
         /**
@@ -280,9 +283,23 @@ define(['require', 'lodash', 'jquery'],
             });
         }
 
+        /**
+         * moves the position of annotation editor view
+         * @param {Object} args - object which contains delta values for x and y
+         * @param {Object} args.dx - delta value for x value
+         * @param {Object} args.dy - delta value for y value
+         */
+        function move(args) {
+            var dx = _.get(args, "dx", 0);
+            var dy = _.get(args, "dy", 0);
+            this._annotationEditorWrapper.css("left", (parseInt(this._annotationEditorWrapper.css("left"), 10)  + dx));
+            this._annotationEditorWrapper.css("top", (parseInt(this._annotationEditorWrapper.css("top"), 10) + dy));
+        };
+
         var annotationView = {};
 
         annotationView.createAnnotationPane = createAnnotationPane;
+        annotationView.move = move;
 
         return annotationView;
     });

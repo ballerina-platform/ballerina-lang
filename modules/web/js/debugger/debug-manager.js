@@ -78,11 +78,16 @@ define(['require', 'jquery', 'backbone', 'lodash', 'event_channel', './channel',
 
     DebugManager.prototype.processMesssage = function(message){
         if(message.code == "DEBUG_HIT"){
+            this.active = true;
             this.trigger("debug-hit", message);
         }
         if(message.code == "EXIT"){
             this.active = false;
             this.trigger("session-ended");            
+        }
+        if(message.code == "COMPLETE") {
+            this.active = false;
+            this.trigger("session-completed");
         }
     };
 

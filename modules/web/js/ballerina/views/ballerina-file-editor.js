@@ -442,6 +442,7 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
             });
 
             this._debugger.on("resume-execution", _.bind(this._clearExistingDebugHit, this));
+            this._debugger.on("session-completed", _.bind(this._clearExistingDebugHit, this));
 
             this._sourceView.render();
 
