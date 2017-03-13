@@ -19,9 +19,9 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <parent>
-        <groupId>org.wso2</groupId>
-        <artifactId>wso2</artifactId>
-        <version>5</version>
+        <groupId>org.ballerinalang</groupId>
+        <artifactId>ballerinalang</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
@@ -45,53 +45,6 @@
                 <groupId>org.ballerinalang</groupId>
                 <artifactId>ballerina-launcher</artifactId>
                 <version>${ballerina.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.testng</groupId>
-                <artifactId>testng</artifactId>
-                <version>${testng.version}</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.maven</groupId>
-                <artifactId>maven-plugin-api</artifactId>
-                <version>${maven-plugin-api-version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.maven.plugin-tools</groupId>
-                <artifactId>maven-plugin-annotations</artifactId>
-                <version>${maven-plugin-annotation-version}</version>
-                <scope>provided</scope>
-            </dependency>
-            <dependency>
-                <groupId>io.swagger</groupId>
-                <artifactId>swagger-codegen</artifactId>
-                <version>${swagger-codegen-version}</version>
-            </dependency>
-            <dependency>
-                <groupId>io.airlift</groupId>
-                <artifactId>airline</artifactId>
-                <version>${airline-version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.googlecode.lambdaj</groupId>
-                <artifactId>lambdaj</artifactId>
-                <version>${lambdaj-version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.slf4j</groupId>
-                <artifactId>slf4j-simple</artifactId>
-                <version>${slf4j-version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.beust</groupId>
-                <artifactId>jcommander</artifactId>
-                <version>${jcommander-version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.commons</groupId>
-                <artifactId>commons-lang3</artifactId>
-                <version>3.5</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -166,15 +119,7 @@
     </build>
 
     <properties>
-        <ballerina.version>0.8.1</ballerina.version>
-        <testng.version>6.9.4</testng.version>
-        <slf4j-version>1.7.12</slf4j-version>
-        <jcommander-version>1.60</jcommander-version>
-        <lambdaj-version>2.3.3</lambdaj-version>
-        <maven-plugin-api-version>2.0</maven-plugin-api-version>
-        <maven-plugin-annotation-version>3.4</maven-plugin-annotation-version>
-        <swagger-codegen-version>2.2.1</swagger-codegen-version>
-        <airline-version>0.7</airline-version>
+        <ballerina.version>0.8.3-SNAPSHOT</ballerina.version>
         <project.scm.id>my-scm-server</project.scm.id>
     </properties>
 
