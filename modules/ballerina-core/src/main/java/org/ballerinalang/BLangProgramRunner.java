@@ -17,7 +17,6 @@
 */
 package org.ballerinalang;
 
-import org.ballerinalang.bre.BLangExecutor;
 import org.ballerinalang.bre.CallableUnitInfo;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.RuntimeEnvironment;
@@ -56,14 +55,13 @@ public class BLangProgramRunner {
 
         int serviceCount = 0;
         BLangExecutionFlowBuilder flowBuilder = new BLangExecutionFlowBuilder();
+        bLangProgram.accept(flowBuilder);
         for (BLangPackage servicePackage : servicePackages) {
             for (Service service : servicePackage.getServices()) {
                 serviceCount++;
                 service.setBLangProgram(bLangProgram);
                 DispatcherRegistry.getInstance().getServiceDispatchers().forEach((protocol, dispatcher) ->
                         dispatcher.serviceRegistered(service));
-                // Build Flow for Non-Blocking execution.
-                service.accept(flowBuilder);
             }
         }
 
@@ -117,13 +115,10 @@ public class BLangProgramRunner {
                 bContext.setExecutor(debugger);
                 debugger.continueExecution(mainFunction.getCallableUnitBody());
                 debugManager.holdON();
-            } else if (ModeResolver.getInstance().isNonblockingEnabled()) {
+            } else {
                 BLangNonBlockingExecutor executor = new BLangNonBlockingExecutor(runtimeEnv, bContext);
                 bContext.setExecutor(executor);
                 executor.continueExecution(mainFunction.getCallableUnitBody());
-            } else {
-                BLangExecutor executor = new BLangExecutor(runtimeEnv, bContext);
-                mainFunction.getCallableUnitBody().execute(executor);
             }
 
             bContext.getControlStack().popFrame();

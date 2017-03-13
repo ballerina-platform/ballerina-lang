@@ -22,7 +22,6 @@ import org.ballerinalang.bre.CallableUnitInfo;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.RuntimeEnvironment;
 import org.ballerinalang.bre.StackFrame;
-import org.ballerinalang.bre.nonblocking.ModeResolver;
 import org.ballerinalang.bre.nonblocking.debugger.BLangExecutionDebugger;
 import org.ballerinalang.bre.nonblocking.debugger.BreakPointInfo;
 import org.ballerinalang.bre.nonblocking.debugger.DebugSessionObserver;
@@ -179,7 +178,6 @@ public class DebuggerTest {
         BLangExecutionDebugger debugger;
 
         void setup() {
-            ModeResolver.getInstance().setNonblockingEnabled(true);
             String sourceFilePath = "samples/debug/testDebug.bal";
             Path path;
             try {

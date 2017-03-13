@@ -18,7 +18,6 @@
 
 package org.ballerinalang.runtime;
 
-import org.ballerinalang.bre.BLangExecutor;
 import org.ballerinalang.bre.CallableUnitInfo;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.RuntimeEnvironment;
@@ -122,23 +121,14 @@ public class BalProgramExecutor {
                 debugger.execute(new ResourceInvocationExpr(resource, exprs));
             } else {
                 // repeated code to make sure debugger have no impact in none debug mode.
-                if (ModeResolver.getInstance().isNonblockingEnabled()) {
-                    BLangNonBlockingExecutor executor = new BLangNonBlockingExecutor(runtimeEnv, balContext);
-                    balContext.setExecutor(executor);
-                    executor.execute(new ResourceInvocationExpr(resource, exprs));
-                } else {
-                    BLangExecutor executor = new BLangExecutor(runtimeEnv, balContext);
-                    new ResourceInvocationExpr(resource, exprs).executeMultiReturn(executor);
-                }
+                BLangNonBlockingExecutor executor = new BLangNonBlockingExecutor(runtimeEnv, balContext);
+                balContext.setExecutor(executor);
+                executor.execute(new ResourceInvocationExpr(resource, exprs));
             }
-        } else if (ModeResolver.getInstance().isNonblockingEnabled()) {
+        } else {
             BLangNonBlockingExecutor executor = new BLangNonBlockingExecutor(runtimeEnv, balContext);
             balContext.setExecutor(executor);
             executor.execute(new ResourceInvocationExpr(resource, exprs));
-        } else {
-            BLangExecutor executor = new BLangExecutor(runtimeEnv, balContext);
-            new ResourceInvocationExpr(resource, exprs).executeMultiReturn(executor);
-            balContext.getControlStack().popFrame();
         }
     }
 }

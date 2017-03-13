@@ -23,7 +23,6 @@ import org.ballerinalang.bre.ServiceVarLocation;
 import org.ballerinalang.bre.StackVarLocation;
 import org.ballerinalang.bre.StructVarLocation;
 import org.ballerinalang.bre.WorkerVarLocation;
-import org.ballerinalang.bre.nonblocking.ModeResolver;
 import org.ballerinalang.model.Annotation;
 import org.ballerinalang.model.BLangPackage;
 import org.ballerinalang.model.BLangProgram;
@@ -179,8 +178,6 @@ import java.util.Stack;
  */
 public class BLangExecutionFlowBuilder implements NodeVisitor {
 
-    private boolean nonblockingEnabled = false;
-
     // Iterate/While Statement stack related to break.
     private Stack<WhileStmt> loopingStack;
     // Function/Action Statement stack related to break.
@@ -193,14 +190,10 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
         returningBlockStmtStack = new Stack<>();
         cacheOffSetCounterStack = new Stack<>();
         cacheOffSetCounterStack.push(new CacheOffSetCounter());
-        nonblockingEnabled = ModeResolver.getInstance().isNonblockingEnabled();
     }
 
     @Override
     public void visit(BLangProgram bLangProgram) {
-        if (!nonblockingEnabled) {
-            return;
-        }
         Arrays.stream(bLangProgram.getServicePackages()).forEach(bLangPackage -> bLangPackage.accept(this));
         Arrays.stream(bLangProgram.getLibraryPackages()).forEach(bLangPackage -> bLangPackage.accept(this));
         if (bLangProgram.getMainPackage() != null) {

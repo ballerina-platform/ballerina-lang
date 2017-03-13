@@ -17,13 +17,11 @@
 */
 package org.ballerinalang.util.program;
 
-import org.ballerinalang.bre.BLangExecutor;
 import org.ballerinalang.bre.CallableUnitInfo;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.RuntimeEnvironment;
 import org.ballerinalang.bre.StackFrame;
 import org.ballerinalang.bre.nonblocking.BLangNonBlockingExecutor;
-import org.ballerinalang.bre.nonblocking.ModeResolver;
 import org.ballerinalang.model.BLangProgram;
 import org.ballerinalang.model.Function;
 import org.ballerinalang.model.ParameterDef;
@@ -119,27 +117,16 @@ public class BLangFunctions {
                 function.getNodeLocation());
         RuntimeEnvironment runtimeEnv = RuntimeEnvironment.get(bLangProgram);
 
-        if (ModeResolver.getInstance().isNonblockingEnabled()) {
-            // Linking.
-            BLangExecutionFlowBuilder flowBuilder = new BLangExecutionFlowBuilder();
-            bLangProgram.accept(flowBuilder);
+        BLangExecutionFlowBuilder flowBuilder = new BLangExecutionFlowBuilder();
+        bLangProgram.accept(flowBuilder);
 
-            BValue[] cacheValues = new BValue[function.getCacheFrameSize()];
-            StackFrame stackFrame = new StackFrame(argValues, returnValues, cacheValues, functionInfo);
-            bContext.getControlStack().pushFrame(stackFrame);
-            // Invoke main function
-            BLangNonBlockingExecutor nonBlockingExecutor = new BLangNonBlockingExecutor(runtimeEnv, bContext);
-            nonBlockingExecutor.continueExecution(function.getCallableUnitBody());
-            return returnValues;
-        } else {
-            StackFrame stackFrame = new StackFrame(argValues, returnValues, functionInfo);
-            bContext.getControlStack().pushFrame(stackFrame);
-
-            // Invoke main function
-            BLangExecutor executor = new BLangExecutor(runtimeEnv, bContext);
-            function.getCallableUnitBody().execute(executor);
-            return returnValues;
-        }
+        BValue[] cacheValues = new BValue[function.getCacheFrameSize()];
+        StackFrame stackFrame = new StackFrame(argValues, returnValues, cacheValues, functionInfo);
+        bContext.getControlStack().pushFrame(stackFrame);
+        // Invoke main function
+        BLangNonBlockingExecutor nonBlockingExecutor = new BLangNonBlockingExecutor(runtimeEnv, bContext);
+        nonBlockingExecutor.continueExecution(function.getCallableUnitBody());
+        return returnValues;
     }
 
     /**
