@@ -18,12 +18,14 @@
 import {BallerinaListener} from './antlr-gen/BallerinaListener';
 import {BallerinaParser} from './antlr-gen/BallerinaParser';
 import {Token} from 'antlr4/Token';
+import BLangModelBuilder from './model-builder';
 import _ from 'lodash';
 
 class BLangParserListener extends BallerinaListener {
     constructor(parser){
         super();
         this.parser = parser;
+        this.modelBuilder = new BLangModelBuilder();
     }
 
     getWhitespaceToRight (token) {
@@ -43,21 +45,40 @@ class BLangParserListener extends BallerinaListener {
     exitPackageDeclaration(ctx) {
 
         var packageNameToken = ctx.packageName(),
-            packageFQN = packageNameToken.getText();
+            packageFQN = packageNameToken.getText(),
+            whitespaceTokens = [];
 
         var wsBetWeenPackageKeywordAndPackageNameStart = this.getWhitespaceToRight(ctx.start),
             wsBetWeenPackageNameEndAndSemicolon = this.getWhitespaceToRight(packageNameToken.stop),
             wsBetWeenSemicolonAndNextToken = this.getWhitespaceToRight(ctx.stop);
+
+        whitespaceTokens.push(wsBetWeenPackageKeywordAndPackageNameStart);
+        whitespaceTokens.push(wsBetWeenPackageNameEndAndSemicolon);
+        whitespaceTokens.push(wsBetWeenSemicolonAndNextToken);
+
+        this.modelBuilder.createPackageDeclaration(packageFQN, whitespaceTokens);
     };
 
     exitImportDeclaration(ctx) {
         var packageNameToken = ctx.packageName(),
-            packageFQN = packageNameToken.getText();
+            packageFQN = packageNameToken.getText(),
+            whitespaceTokens = [];
 
         var wsBetWeenImportKeywordAndPackageNameStart = this.getWhitespaceToRight(ctx.start),
             wsBetWeenPackageNameEndAndSemicolon = this.getWhitespaceToRight(packageNameToken.stop),
             wsBetWeenSemicolonAndNextToken = this.getWhitespaceToRight(ctx.stop);
+
+        whitespaceTokens.push(wsBetWeenImportKeywordAndPackageNameStart);
+        whitespaceTokens.push(wsBetWeenPackageNameEndAndSemicolon);
+        whitespaceTokens.push(wsBetWeenSemicolonAndNextToken);
+
+        this.modelBuilder.createImportDeclaration(packageFQN, whitespaceTokens);
+
     };
+
+    getASTRoot(){
+        return this.modelBuilder.getASTRoot();
+    }
 
 }
 

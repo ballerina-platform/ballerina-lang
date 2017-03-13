@@ -45,8 +45,10 @@ class Parser {
 
         antlr4.tree.ParseTreeWalker.DEFAULT.walk(listener, tree);
 
-        // return collected errors
-        return errorListener.getErrors();
+        return {
+            errors: errorListener.getErrors(),
+            ast: listener.getASTRoot()
+        };
     };
 }
 

@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['./ast/module', './env/module', './views/module', './visitors/module', './utils/module'],
+define(['./ast/module', './env/module', './views/module', './visitors/module', './utils/module', './parser/test/parser-test'],
     function (astModule, envModule, viewsModule, visitorsModule, utilsModule) {
         return  {
             ast: astModule,

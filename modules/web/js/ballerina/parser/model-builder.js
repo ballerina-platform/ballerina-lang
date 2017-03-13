@@ -23,8 +23,20 @@ class BLangModelBuilder {
         this.astRoot = ASTFactory.createBallerinaAstRoot();
     }
 
-    createPackageDeclaration(packageName){
-        ASTFactory.createPackageDefinition({packageName: packageName});
+    createPackageDeclaration(packageName, whitespaceTokens){
+        var packageDeclaration = ASTFactory.createPackageDefinition({packageName: packageName});
+        packageDeclaration.setWhitespaceTokens(whitespaceTokens);
+        this.astRoot.setPackageDefinition(packageDeclaration);
+    }
+
+    createImportDeclaration(packageName, whitespaceTokens){
+        var importDeclaration = ASTFactory.createImportDeclaration({packageName: packageName});
+        importDeclaration.setWhitespaceTokens(whitespaceTokens);
+        this.astRoot.addImport(importDeclaration);
+    }
+
+    getASTRoot(){
+        return this.astRoot;
     }
 }
 
