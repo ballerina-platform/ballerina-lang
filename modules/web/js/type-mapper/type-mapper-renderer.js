@@ -305,30 +305,30 @@ define(['require', 'lodash', 'jquery', 'jsplumb', 'dagre', 'alerts'], function (
     };
 
     /**
-     * Remove a struct from the mapper UI
-     * @param {string} name identifier of the struct
+     * Remove a type from the mapper UI
+     * @param {string} name identifier of the type
      */
-    TypeMapperRenderer.prototype.removeStruct = function (name) {
-        var structId = name + this.viewIdSeperator + this.viewId;
-        if ($("#" + structId).attr('class') != null) {
-            var structConns;
+    TypeMapperRenderer.prototype.removeType = function (name) {
+        var typeId = name + this.viewIdSeperator + this.viewId;
+        if ($("#" + typeId).attr('class') != null) {
+            var typeConns;
             var lookupClass = "property";
 
-            if ($("#" + structId).attr('class').includes("struct")) {
+            if ($("#" + typeId).attr('class').includes("struct")) {
                 lookupClass = "jstree-anchor";
-                structConns = $('div[id^="' + this.jsTreePrefix + this.viewIdSeperator + structId + '"]')
+                typeConns = $('div[id^="' + this.jsTreePrefix + this.viewIdSeperator + typeId + '"]')
                     .find('.' + lookupClass);
             } else {
-                structConns = $('div[id^="' + structId + '"]');
+                typeConns = $('div[id^="' + typeId + '"]');
             }
 
             var self = this;
-            _.forEach(structConns, function (structCon) {
+            _.forEach(typeConns, function (structCon) {
                 if (_.includes(structCon.className, lookupClass)) {
                     self.jsPlumbInstance.remove(structCon.id);
                 }
             });
-            $("#" + structId).remove();
+            $("#" + typeId).remove();
             this.dagrePosition(this);
         }
     };
@@ -398,14 +398,15 @@ define(['require', 'lodash', 'jquery', 'jsplumb', 'dagre', 'alerts'], function (
     };
 
     /**
-     * Add a source struct in the mapper UI
-     * @param {object} struct definition with parameters to be mapped
+     * Add a source type in the mapper UI
+     * @param {object} type definition with paramet
+     * ers to be mapped
      * @param {object} reference AST model reference
      */
-    TypeMapperRenderer.prototype.addSourceStruct = function (struct, reference) {
+    TypeMapperRenderer.prototype.addSourceType = function (struct, reference) {
         var id = struct.name + this.viewIdSeperator + this.viewId;
         struct.id = id;
-        this.makeStruct(struct, 50, 50, reference, "source");
+        this.makeType(struct, 50, 50, reference, "source");
         var jsTreeId = this.jsTreePrefix + this.viewIdSeperator + id;
         this.addComplexProperty(jsTreeId, struct);
         this.processJSTree(jsTreeId, id, this.addSource)
@@ -493,12 +494,12 @@ define(['require', 'lodash', 'jquery', 'jsplumb', 'dagre', 'alerts'], function (
      * @param {object} struct definition with parameters to be mapped
      * @param {object} reference AST model reference
      */
-    TypeMapperRenderer.prototype.addTargetStruct = function (struct, reference) {
+    TypeMapperRenderer.prototype.addTargetType = function (struct, reference) {
         var id = struct.name + this.viewIdSeperator + this.viewId;
         struct.id = id;
         var placeHolderWidth = document.getElementById(this.placeHolderName).offsetWidth;
         var posY = placeHolderWidth - (placeHolderWidth / 3);
-        this.makeStruct(struct, 50, posY, reference, "target");
+        this.makeType(struct, 50, posY, reference, "target");
         var jsTreeId = this.jsTreePrefix + this.viewIdSeperator + id;
         this.addComplexProperty(jsTreeId, struct);
         this.processJSTree(jsTreeId, id, this.addTarget);
@@ -511,7 +512,7 @@ define(['require', 'lodash', 'jquery', 'jsplumb', 'dagre', 'alerts'], function (
      * @param {int} posY Y position cordinate
      * @param {object} reference
      */
-    TypeMapperRenderer.prototype.makeStruct = function (struct, posX, posY, reference, type) {
+    TypeMapperRenderer.prototype.makeType = function (struct, posX, posY, reference, type) {
         this.references.push({name: struct.id, refObj: reference});
         var newStruct = $('<div>').attr('id', struct.id).attr('type', type).addClass('struct');
         var structIcon = $('<i>').addClass('type-mapper-icon fw fw-struct fw-inverse');
@@ -591,7 +592,7 @@ define(['require', 'lodash', 'jquery', 'jsplumb', 'dagre', 'alerts'], function (
                     }
                 }
 
-                self.removeStruct(func.name);
+                self.removeType(func.name);
                 onFunctionRemove(removedFunction);
             });
 
