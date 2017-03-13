@@ -155,6 +155,10 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
         }
     }
 
+    protected void closeConnections(SQLConnector connector) {
+        connector.closeConnectionPool();
+    }
+
     private PreparedStatement getPreparedStatement(Connection conn, SQLConnector connector, String query)
             throws SQLException {
         PreparedStatement stmt;
