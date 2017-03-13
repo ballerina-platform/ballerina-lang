@@ -106,6 +106,7 @@
 
     <modules>
         <module>modules/ballerina-run-time</module>
+        <module>modules/tests/test-integration</module>
         <module>modules/ballerina-tooling</module>
     </modules>
 
@@ -118,5 +119,6 @@
         <docerina.version>0.8.2-SNAPSHOT</docerina.version>
         <docerina.maven.plugin.version>0.8.2-SNAPSHOT</docerina.maven.plugin.version>
         <ballerina.connectors.version>0.8.3-SNAPSHOT</ballerina.connectors.version>
+        <commons-net.version>3.6</commons-net.version>
     </properties>
 </project>
