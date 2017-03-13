@@ -54,22 +54,6 @@ public class SiddhiService {
     private Map<String, ExecutionPlanConfiguration> executionPlanConfigurationMap = new ConcurrentHashMap<>();
     private Map<String, ExecutionPlanRuntime> executionPlanRunTimeMap = new ConcurrentHashMap<>();
 
-    @GET
-    @Path("/sendMsg")
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response authenticate() {
-
-        String refNum = "1111";
-        String priority = "AAA";
-        String fullMsg = "Hellllo";
-
-        return Response.ok()
-                .entity("{\"status\": \"ACK\",\"refNum\": \"" + refNum + "\",\"messageStatus\": \"" + priority + "\"," +
-                        "" + "\"remarks\": \"" + fullMsg + "\"}")
-                .build();
-    }
-
-
     @POST
     @Path("/deploy")
     @Consumes(MediaType.TEXT_PLAIN)
