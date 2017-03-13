@@ -32,11 +32,14 @@ define(['require', 'lodash', 'jquery', 'ballerina/ast/ballerina-ast-factory'],
             var model = _.get(args, "model");
             var paneElement = _.get(args, "paneAppendElement");
             var viewOptions = _.get(args, "viewOptions");
+            this._viewOfModel = _.get(args, "view");
             var disableEditing = _.get(args, "disableEditing");
 
             var argumentsEditorWrapper = $("<div/>", {
                 class: "main-action-wrapper arguments-main-action-wrapper"
             }).appendTo(paneElement);
+
+            this._argumentsEditorWrapper = argumentsEditorWrapper;
 
             // Positioning the main wrapper
             argumentsEditorWrapper.css("left",
@@ -170,6 +173,8 @@ define(['require', 'lodash', 'jquery', 'ballerina/ast/ballerina-ast-factory'],
                     $(event.data.activatorElement).click();
                 }
             });
+
+            return this;
         };
 
         /**
@@ -295,9 +300,32 @@ define(['require', 'lodash', 'jquery', 'ballerina/ast/ballerina-ast-factory'],
             return dropdownData;
         }
 
+        /**
+         * moves the position of argument editor view
+         * @param {Object} args - object which contains delta values for x and y
+         * @param {Object} args.dx - delta value for x value
+         * @param {Object} args.dy - delta value for y value
+         */
+        function move(args) {
+            var dx = _.get(args, "dx", 0);
+            var dy = _.get(args, "dy", 0);
+
+            // Left margin of the connector action view
+            var leftMargin = this._viewOfModel.getBoundingBox().x();
+            var argumentsEditorLeft = parseInt(this._argumentsEditorWrapper.css("left"), 10) + dx;
+            // This is to ensure that resource parameter editor doesn't go beyond the left margin of the connector action.(to avoid clipping)
+            if (leftMargin < argumentsEditorLeft) {
+                this._argumentsEditorWrapper.css("left", argumentsEditorLeft);
+            } else {
+                this._argumentsEditorWrapper.css("left", leftMargin);
+            }
+            this._argumentsEditorWrapper.css("top", (parseInt(this._argumentsEditorWrapper.css("top"), 10) + dy));
+        };
+
         var argumentsView = {};
 
         argumentsView.createArgumentsPane = createArgumentsPane;
+        argumentsView.move = move;
 
         return argumentsView;
     });

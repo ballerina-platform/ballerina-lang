@@ -293,5 +293,27 @@ define(['lodash', 'log', 'jquery', 'alerts', './return-type-view', './../ast/nod
             return dropdownData;
         };
 
+        /**
+         * moves the position of return type editor view
+         * @param {Object} args - object which contains delta values for x and y
+         * @param {Object} args.dx - delta value for x value
+         * @param {Object} args.dy - delta value for y value
+         */
+        ReturnTypePaneView.prototype.move = function (args) {
+            var dx = _.get(args, "dx", 0);
+            var dy = _.get(args, "dy", 0);
+
+            // Left margin of the connector action view
+            var leftMargin = this._viewOfModel.getBoundingBox().x();
+            var returnTypeEditorLeft = parseInt(this._returnTypeEditorWrapper.css("left"), 10) + dx;
+            // This is to ensure that return type editor view doesn't go beyond the left margin of the connector action.(to avoid clipping)
+            if (leftMargin < returnTypeEditorLeft) {
+                this._returnTypeEditorWrapper.css("left", returnTypeEditorLeft);
+            } else {
+                this._returnTypeEditorWrapper.css("left", leftMargin);
+            }
+            this._returnTypeEditorWrapper.css("top", (parseInt(this._returnTypeEditorWrapper.css("top"), 10) + dy));
+        };
+
         return ReturnTypePaneView;
     });
