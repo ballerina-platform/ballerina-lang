@@ -34,64 +34,64 @@ import java.util.Iterator;
  */
 public class CollectionOperator implements Operator {
     protected ExpressionExecutor expressionExecutor;
-    protected int candidateEventPosition;
+    protected int storeEventPosition;
 
-    public CollectionOperator(ExpressionExecutor expressionExecutor, int candidateEventPosition) {
+    public CollectionOperator(ExpressionExecutor expressionExecutor, int storeEventPosition) {
         this.expressionExecutor = expressionExecutor;
-        this.candidateEventPosition = candidateEventPosition;
+        this.storeEventPosition = storeEventPosition;
     }
 
     @Override
-    public Finder cloneFinder(String key) {
-        return new CollectionOperator(expressionExecutor.cloneExecutor(key), candidateEventPosition);
+    public CompiledCondition cloneCompiledCondition(String key) {
+        return new CollectionOperator(expressionExecutor.cloneExecutor(key), storeEventPosition);
     }
 
     @Override
-    public StreamEvent find(StateEvent matchingEvent, Object candidateEvents, StreamEventCloner candidateEventCloner) {
+    public StreamEvent find(StateEvent matchingEvent, Object storeEvents, StreamEventCloner storeEventCloner) {
 
         ComplexEventChunk<StreamEvent> returnEventChunk = new ComplexEventChunk<StreamEvent>(false);
-        for (StreamEvent candidateEvent : (Collection<StreamEvent>) candidateEvents) {
-            matchingEvent.setEvent(candidateEventPosition, candidateEvent);
+        for (StreamEvent storeEvent : (Collection<StreamEvent>) storeEvents) {
+            matchingEvent.setEvent(storeEventPosition, storeEvent);
             if ((Boolean) expressionExecutor.execute(matchingEvent)) {
-                returnEventChunk.add(candidateEventCloner.copyStreamEvent(candidateEvent));
+                returnEventChunk.add(storeEventCloner.copyStreamEvent(storeEvent));
             }
-            matchingEvent.setEvent(candidateEventPosition, null);
+            matchingEvent.setEvent(storeEventPosition, null);
         }
         return returnEventChunk.getFirst();
 
     }
 
     @Override
-    public boolean contains(StateEvent matchingEvent, Object candidateEvents) {
+    public boolean contains(StateEvent matchingEvent, Object storeEvents) {
         try {
-            for (StreamEvent candidateEvent : (Collection<StreamEvent>) candidateEvents) {
-                matchingEvent.setEvent(candidateEventPosition, candidateEvent);
+            for (StreamEvent storeEvent : (Collection<StreamEvent>) storeEvents) {
+                matchingEvent.setEvent(storeEventPosition, storeEvent);
                 if ((Boolean) expressionExecutor.execute(matchingEvent)) {
                     return true;
                 }
             }
             return false;
         } finally {
-            matchingEvent.setEvent(candidateEventPosition, null);
+            matchingEvent.setEvent(storeEventPosition, null);
         }
     }
 
     @Override
-    public void delete(ComplexEventChunk<StateEvent> deletingEventChunk, Object candidateEvents) {
-        if (((Collection<StreamEvent>) candidateEvents).size() > 0) {
+    public void delete(ComplexEventChunk<StateEvent> deletingEventChunk, Object storeEvents) {
+        if (((Collection<StreamEvent>) storeEvents).size() > 0) {
             deletingEventChunk.reset();
             while (deletingEventChunk.hasNext()) {
                 StateEvent deletingEvent = deletingEventChunk.next();
                 try {
-                    for (Iterator<StreamEvent> iterator = ((Collection<StreamEvent>) candidateEvents).iterator(); iterator.hasNext(); ) {
-                        StreamEvent candidateEvent = iterator.next();
-                        deletingEvent.setEvent(candidateEventPosition, candidateEvent);
+                    for (Iterator<StreamEvent> iterator = ((Collection<StreamEvent>) storeEvents).iterator(); iterator.hasNext(); ) {
+                        StreamEvent storeEvent = iterator.next();
+                        deletingEvent.setEvent(storeEventPosition, storeEvent);
                         if ((Boolean) expressionExecutor.execute(deletingEvent)) {
                             iterator.remove();
                         }
                     }
                 } finally {
-                    deletingEvent.setEvent(candidateEventPosition, null);
+                    deletingEvent.setEvent(storeEventPosition, null);
                 }
             }
         }
@@ -99,30 +99,29 @@ public class CollectionOperator implements Operator {
 
 
     @Override
-    public void update(ComplexEventChunk<StateEvent> updatingEventChunk, Object candidateEvents, UpdateAttributeMapper[] updateAttributeMappers) {
-        if (((Collection<StreamEvent>) candidateEvents).size() > 0) {
+    public void update(ComplexEventChunk<StateEvent> updatingEventChunk, Object storeEvents, UpdateAttributeMapper[] updateAttributeMappers) {
+        if (((Collection<StreamEvent>) storeEvents).size() > 0) {
             updatingEventChunk.reset();
             while (updatingEventChunk.hasNext()) {
                 StateEvent updatingEvent = updatingEventChunk.next();
                 try {
-                    for (StreamEvent candidateEvent : ((Collection<StreamEvent>) candidateEvents)) {
-                        updatingEvent.setEvent(candidateEventPosition, candidateEvent);
+                    for (StreamEvent storeEvent : ((Collection<StreamEvent>) storeEvents)) {
+                        updatingEvent.setEvent(storeEventPosition, storeEvent);
                         if ((Boolean) expressionExecutor.execute(updatingEvent)) {
                             for (UpdateAttributeMapper updateAttributeMapper : updateAttributeMappers) {
-                                candidateEvent.setOutputData(updateAttributeMapper.getOutputData(updatingEvent),
-                                        updateAttributeMapper.getCandidateAttributePosition());
+                                updateAttributeMapper.mapOutputData(updatingEvent,storeEvent);
                             }
                         }
                     }
                 } finally {
-                    updatingEvent.setEvent(candidateEventPosition, null);
+                    updatingEvent.setEvent(storeEventPosition, null);
                 }
             }
         }
     }
 
     @Override
-    public ComplexEventChunk<StreamEvent> overwrite(ComplexEventChunk<StateEvent> overwritingOrAddingEventChunk, Object candidateEvents,
+    public ComplexEventChunk<StreamEvent> overwrite(ComplexEventChunk<StateEvent> overwritingOrAddingEventChunk, Object storeEvents,
                                                     UpdateAttributeMapper[] updateAttributeMappers, OverwritingStreamEventExtractor overwritingStreamEventExtractor) {
 
         overwritingOrAddingEventChunk.reset();
@@ -131,13 +130,12 @@ public class CollectionOperator implements Operator {
             StateEvent overwritingOrAddingEvent = overwritingOrAddingEventChunk.next();
             try {
                 boolean updated = false;
-                if (((Collection<StreamEvent>) candidateEvents).size() > 0) {
-                    for (StreamEvent candidateEvent : ((Collection<StreamEvent>) candidateEvents)) {
-                        overwritingOrAddingEvent.setEvent(candidateEventPosition, candidateEvent);
+                if (((Collection<StreamEvent>) storeEvents).size() > 0) {
+                    for (StreamEvent storeEvent : ((Collection<StreamEvent>) storeEvents)) {
+                        overwritingOrAddingEvent.setEvent(storeEventPosition, storeEvent);
                         if ((Boolean) expressionExecutor.execute(overwritingOrAddingEvent)) {
                             for (UpdateAttributeMapper updateAttributeMapper : updateAttributeMappers) {
-                                candidateEvent.setOutputData(updateAttributeMapper.getOutputData(overwritingOrAddingEvent),
-                                        updateAttributeMapper.getCandidateAttributePosition());
+                                updateAttributeMapper.mapOutputData(overwritingOrAddingEvent, storeEvent);
                             }
                             updated = true;
                         }
@@ -147,7 +145,7 @@ public class CollectionOperator implements Operator {
                     failedEventChunk.add(overwritingStreamEventExtractor.getOverwritingStreamEvent(overwritingOrAddingEvent));
                 }
             } finally {
-                overwritingOrAddingEvent.setEvent(candidateEventPosition, null);
+                overwritingOrAddingEvent.setEvent(storeEventPosition, null);
             }
         }
         return failedEventChunk;

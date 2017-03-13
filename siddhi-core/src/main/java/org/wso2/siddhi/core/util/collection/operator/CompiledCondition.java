@@ -18,19 +18,8 @@
 
 package org.wso2.siddhi.core.util.collection.operator;
 
-import org.wso2.siddhi.core.event.state.StateEvent;
-import org.wso2.siddhi.core.event.stream.StreamEvent;
-import org.wso2.siddhi.core.event.stream.StreamEventCloner;
+public interface CompiledCondition {
 
-/**
- * Created on 1/19/15.
- */
-public interface Finder {
-
-    Finder cloneFinder(String key);
-
-    StreamEvent find(StateEvent matchingEvent, Object candidateEvents, StreamEventCloner candidateEventCloner);
-
-    boolean contains(StateEvent matchingEvent, Object candidateEvents);
+    CompiledCondition cloneCompiledCondition(String key);
 
 }

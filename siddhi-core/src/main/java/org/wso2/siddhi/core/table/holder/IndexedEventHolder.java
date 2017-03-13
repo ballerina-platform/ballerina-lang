@@ -35,7 +35,7 @@ public interface IndexedEventHolder extends EventHolder {
 
     void deleteAll();
 
-    void deleteAll(Collection<StreamEvent> candidateEventSet);
+    void deleteAll(Collection<StreamEvent> storeEventSet);
 
     void delete(String attribute, Compare.Operator operator, Object value);
 

@@ -32,41 +32,41 @@ import java.util.Set;
 
 public class ExhaustiveCollectionExecutor implements CollectionExecutor {
     private ExpressionExecutor expressionExecutor;
-    private int candidateEventIndex;
+    private int storeEventIndex;
 
-    public ExhaustiveCollectionExecutor(ExpressionExecutor expressionExecutor, int candidateEventIndex) {
+    public ExhaustiveCollectionExecutor(ExpressionExecutor expressionExecutor, int storeEventIndex) {
 
         this.expressionExecutor = expressionExecutor;
-        this.candidateEventIndex = candidateEventIndex;
+        this.storeEventIndex = storeEventIndex;
     }
 
-    public StreamEvent find(StateEvent matchingEvent, IndexedEventHolder indexedEventHolder, StreamEventCloner candidateEventCloner) {
+    public StreamEvent find(StateEvent matchingEvent, IndexedEventHolder indexedEventHolder, StreamEventCloner storeEventCloner) {
         ComplexEventChunk<StreamEvent> returnEventChunk = new ComplexEventChunk<StreamEvent>(false);
-        Collection<StreamEvent> candidateEvents = indexedEventHolder.getAllEvents();
+        Collection<StreamEvent> storeEvents = indexedEventHolder.getAllEvents();
 
-        for (StreamEvent candidateEvent : candidateEvents) {
-            matchingEvent.setEvent(candidateEventIndex, candidateEvent);
+        for (StreamEvent storeEvent : storeEvents) {
+            matchingEvent.setEvent(storeEventIndex, storeEvent);
             if ((Boolean) expressionExecutor.execute(matchingEvent)) {
-                if (candidateEventCloner != null) {
-                    returnEventChunk.add(candidateEventCloner.copyStreamEvent(candidateEvent));
+                if (storeEventCloner != null) {
+                    returnEventChunk.add(storeEventCloner.copyStreamEvent(storeEvent));
                 } else {
-                    returnEventChunk.add(candidateEvent);
+                    returnEventChunk.add(storeEvent);
                 }
             }
-            matchingEvent.setEvent(candidateEventIndex, null);
+            matchingEvent.setEvent(storeEventIndex, null);
         }
         return returnEventChunk.getFirst();
     }
 
-    public Collection<StreamEvent> findEvents(StateEvent matchingEvent, Collection<StreamEvent> preProcessedCandidateEvents) {
+    public Collection<StreamEvent> findEvents(StateEvent matchingEvent, Collection<StreamEvent> preProcessedstoreEvents) {
         HashSet<StreamEvent> streamEvents = new HashSet<StreamEvent>();
-        for (Iterator<StreamEvent> iterator = preProcessedCandidateEvents.iterator(); iterator.hasNext(); ) {
-            StreamEvent candidateEvent = iterator.next();
-            matchingEvent.setEvent(candidateEventIndex, candidateEvent);
+        for (Iterator<StreamEvent> iterator = preProcessedstoreEvents.iterator(); iterator.hasNext(); ) {
+            StreamEvent storeEvent = iterator.next();
+            matchingEvent.setEvent(storeEventIndex, storeEvent);
             if ((Boolean) expressionExecutor.execute(matchingEvent)) {
-                streamEvents.add(candidateEvent);
+                streamEvents.add(storeEvent);
             }
-            matchingEvent.setEvent(candidateEventIndex, null);
+            matchingEvent.setEvent(storeEventIndex, null);
         }
         return streamEvents;
     }
@@ -77,16 +77,16 @@ public class ExhaustiveCollectionExecutor implements CollectionExecutor {
 
     @Override
     public boolean contains(StateEvent matchingEvent, IndexedEventHolder indexedEventHolder) {
-        Collection<StreamEvent> candidateEvents = indexedEventHolder.getAllEvents();
+        Collection<StreamEvent> storeEvents = indexedEventHolder.getAllEvents();
 
-        for (StreamEvent candidateEvent : candidateEvents) {
-            matchingEvent.setEvent(candidateEventIndex, candidateEvent);
+        for (StreamEvent storeEvent : storeEvents) {
+            matchingEvent.setEvent(storeEventIndex, storeEvent);
             try {
                 if ((Boolean) expressionExecutor.execute(matchingEvent)) {
                     return true;
                 }
             } finally {
-                matchingEvent.setEvent(candidateEventIndex, null);
+                matchingEvent.setEvent(storeEventIndex, null);
             }
         }
         return false;
@@ -94,14 +94,14 @@ public class ExhaustiveCollectionExecutor implements CollectionExecutor {
 
     @Override
     public void delete(StateEvent deletingEvent, IndexedEventHolder indexedEventHolder) {
-        Collection<StreamEvent> candidateEvents = indexedEventHolder.getAllEvents();
+        Collection<StreamEvent> storeEvents = indexedEventHolder.getAllEvents();
         Set<StreamEvent> toDeleteEvents = new HashSet<StreamEvent>();
-        for (StreamEvent candidateEvent : candidateEvents) {
-            deletingEvent.setEvent(candidateEventIndex, candidateEvent);
+        for (StreamEvent storeEvent : storeEvents) {
+            deletingEvent.setEvent(storeEventIndex, storeEvent);
             if ((Boolean) expressionExecutor.execute(deletingEvent)) {
-                toDeleteEvents.add(candidateEvent);
+                toDeleteEvents.add(storeEvent);
             }
-            deletingEvent.setEvent(candidateEventIndex, null);
+            deletingEvent.setEvent(storeEventIndex, null);
         }
         indexedEventHolder.deleteAll(toDeleteEvents);
     }

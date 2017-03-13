@@ -32,46 +32,46 @@ public class CompareCollectionExecutor implements CollectionExecutor {
 
 
     private ExpressionExecutor expressionExecutor;
-    private int candidateEventIndex;
+    private int storeEventIndex;
     private final String attribute;
     private final Compare.Operator operator;
     private final ExpressionExecutor valueExpressionExecutor;
 
-    public CompareCollectionExecutor(ExpressionExecutor expressionExecutor, int candidateEventIndex, String attribute, Compare.Operator operator, ExpressionExecutor valueExpressionExecutor) {
+    public CompareCollectionExecutor(ExpressionExecutor expressionExecutor, int storeEventIndex, String attribute, Compare.Operator operator, ExpressionExecutor valueExpressionExecutor) {
         this.expressionExecutor = expressionExecutor;
-        this.candidateEventIndex = candidateEventIndex;
+        this.storeEventIndex = storeEventIndex;
 
         this.attribute = attribute;
         this.operator = operator;
         this.valueExpressionExecutor = valueExpressionExecutor;
     }
 
-    public StreamEvent find(StateEvent matchingEvent, IndexedEventHolder indexedEventHolder, StreamEventCloner candidateEventCloner) {
+    public StreamEvent find(StateEvent matchingEvent, IndexedEventHolder indexedEventHolder, StreamEventCloner storeEventCloner) {
 
         ComplexEventChunk<StreamEvent> returnEventChunk = new ComplexEventChunk<StreamEvent>(false);
-        Collection<StreamEvent> candidateEventSet = findEvents(matchingEvent, indexedEventHolder);
+        Collection<StreamEvent> storeEventSet = findEvents(matchingEvent, indexedEventHolder);
 
-        if (candidateEventSet == null) {
+        if (storeEventSet == null) {
             //triggering sequential scan
-            Collection<StreamEvent> candidateEvents = indexedEventHolder.getAllEvents();
-            for (StreamEvent candidateEvent : candidateEvents) {
-                matchingEvent.setEvent(candidateEventIndex, candidateEvent);
+            Collection<StreamEvent> storeEvents = indexedEventHolder.getAllEvents();
+            for (StreamEvent storeEvent : storeEvents) {
+                matchingEvent.setEvent(storeEventIndex, storeEvent);
                 if ((Boolean) expressionExecutor.execute(matchingEvent)) {
-                    if (candidateEventCloner != null) {
-                        returnEventChunk.add(candidateEventCloner.copyStreamEvent(candidateEvent));
+                    if (storeEventCloner != null) {
+                        returnEventChunk.add(storeEventCloner.copyStreamEvent(storeEvent));
                     } else {
-                        returnEventChunk.add(candidateEvent);
+                        returnEventChunk.add(storeEvent);
                     }
                 }
-                matchingEvent.setEvent(candidateEventIndex, null);
+                matchingEvent.setEvent(storeEventIndex, null);
             }
             return returnEventChunk.getFirst();
         } else {
-            for (StreamEvent candidateEvent : candidateEventSet) {
-                if (candidateEventCloner != null) {
-                    returnEventChunk.add(candidateEventCloner.copyStreamEvent(candidateEvent));
+            for (StreamEvent storeEvent : storeEventSet) {
+                if (storeEventCloner != null) {
+                    returnEventChunk.add(storeEventCloner.copyStreamEvent(storeEvent));
                 } else {
-                    returnEventChunk.add(candidateEvent);
+                    returnEventChunk.add(storeEvent);
                 }
             }
             return returnEventChunk.getFirst();
