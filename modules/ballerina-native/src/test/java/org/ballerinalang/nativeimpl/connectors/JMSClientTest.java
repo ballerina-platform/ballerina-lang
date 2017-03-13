@@ -18,10 +18,8 @@
 
 package org.ballerinalang.nativeimpl.connectors;
 
-import org.ballerinalang.bre.SymScope;
 import org.ballerinalang.model.BLangProgram;
 import org.ballerinalang.nativeimpl.util.BTestUtils;
-import org.ballerinalang.natives.BuiltInNativeConstructLoader;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.program.BLangFunctions;
 import org.testng.annotations.BeforeClass;
@@ -31,14 +29,11 @@ import org.testng.annotations.Test;
  * Test cases for jms client.
  */
 public class JMSClientTest {
-    private SymScope globalScope;
     private BLangProgram bLangProgram;
 
     @BeforeClass
     public void setup() {
         bLangProgram = BTestUtils.parseBalFile("samples/jmsClientConnectorTest.bal");
-        globalScope = new SymScope(SymScope.Name.GLOBAL);
-        BuiltInNativeConstructLoader.loadConstructs();
     }
 
     @Test(description = "Test for jms client connector without valid initial context factory",

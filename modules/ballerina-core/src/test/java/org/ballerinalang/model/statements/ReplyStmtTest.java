@@ -18,7 +18,6 @@
 package org.ballerinalang.model.statements;
 
 import org.ballerinalang.core.utils.BTestUtils;
-import org.ballerinalang.natives.BuiltInNativeConstructLoader;
 import org.ballerinalang.util.exceptions.SemanticException;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -30,7 +29,6 @@ public class ReplyStmtTest {
 
     @BeforeClass
     public void setup() {
-        BuiltInNativeConstructLoader.loadConstructs();
     }
 
     /* Negative Tests */

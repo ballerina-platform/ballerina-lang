@@ -17,17 +17,13 @@
  */
 package org.ballerinalang.model.expressions;
 
-import org.ballerinalang.bre.SymScope;
 import org.ballerinalang.core.utils.BTestUtils;
 import org.ballerinalang.model.BLangProgram;
-import org.ballerinalang.model.SymbolName;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXML;
-import org.ballerinalang.natives.BuiltInNativeConstructLoader;
-import org.ballerinalang.runtime.internal.GlobalScopeHolder;
 import org.ballerinalang.util.program.BLangFunctions;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -40,11 +36,6 @@ public class TemplateExpressionTest {
     private BLangProgram bLangProgram;
     @BeforeClass
     public void setup() {
-        // Add Native functions.
-        SymScope symScope = GlobalScopeHolder.getInstance().getScope();
-        if (symScope.lookup(new SymbolName("ballerina.model.system:print_string")) == null) {
-            BuiltInNativeConstructLoader.loadConstructs();
-        }
         bLangProgram = BTestUtils.parseBalFile("lang/expressions/template-expr.bal");
     }
 

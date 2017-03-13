@@ -17,15 +17,12 @@
 */
 package org.ballerinalang.model.statements;
 
-import org.ballerinalang.bre.SymScope;
 import org.ballerinalang.core.utils.BTestUtils;
 import org.ballerinalang.model.BLangProgram;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.BuiltInNativeConstructLoader;
-import org.ballerinalang.runtime.internal.GlobalScopeHolder;
 import org.ballerinalang.util.program.BLangFunctions;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -39,8 +36,6 @@ public class ReturnStmtTest {
 
     @BeforeClass
     public void setup() {
-        BuiltInNativeConstructLoader.loadConstructs();
-        SymScope globalSymScope = GlobalScopeHolder.getInstance().getScope();
         bLangProgram = BTestUtils.parseBalFile("lang/statements/returnstmt/return-stmt-positive.bal");
     }
 
