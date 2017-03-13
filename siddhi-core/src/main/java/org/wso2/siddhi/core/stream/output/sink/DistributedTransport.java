@@ -1,23 +1,41 @@
+/*
+ * Copyright (c)  2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
 package org.wso2.siddhi.core.stream.output.sink;
 
-import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
+import org.wso2.siddhi.core.util.transport.DynamicOptions;
 import org.wso2.siddhi.core.util.transport.OptionHolder;
-import org.wso2.siddhi.query.api.definition.StreamDefinition;
 import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 
 import java.util.List;
 
 /**
+ * This is the base class for Distributed transports. All distributed transport types must inherit from this class
  *
  */
 public abstract class DistributedTransport extends OutputTransport {
 
     public static final String DISTRIBUTION_STRATEGY_KEY = "strategy";
     public static final String DISTRIBUTION_CHANNELS_KEY = "channels";
-    public static final String PARTITION_KEY_FIELD_KEY = "partition-key";
+    public static final String PARTITION_KEY_FIELD_KEY = "partitionKey";
 
-    public static final String DISTRIBUTION_STRATEGY_ROUND_ROBIN = "round-robin";
+    public static final String DISTRIBUTION_STRATEGY_ROUND_ROBIN = "roundRobin";
     public static final String DISTRIBUTION_STRATEGY_DUPLICATE = "duplicate";
     public static final String DISTRIBUTION_STRATEGY_PARTITIONED = "partitioned";
 
@@ -25,18 +43,17 @@ public abstract class DistributedTransport extends OutputTransport {
     private int channelCount = -1;
     private int partitionFiledIndex = -1;
     private DistributedPublishingAlgorithm publisher;
-    protected StreamDefinition streamDefinition;
-    protected OptionHolder sinkOptionHolder;
+    private OptionHolder sinkOptionHolder;
 
     @Override
-    public void init(StreamDefinition streamDefinition, OptionHolder optionHolder){
-        this.streamDefinition = streamDefinition;
+    public  void init(OptionHolder optionHolder){
         this.sinkOptionHolder = optionHolder;
+
     }
 
     @Override
-    public void publish(Object payload, Event event, OptionHolder optionHolder) throws ConnectionUnavailableException {
-        publisher.publish(payload, event, optionHolder);
+    public void publish(Object payload, DynamicOptions transportOptions) throws ConnectionUnavailableException {
+        publisher.publish(payload,  transportOptions);
     }
 
     public void initDistribution(OptionHolder distributedOptionHolder, List<OptionHolder> nodeOptionHolders){
@@ -53,10 +70,6 @@ public abstract class DistributedTransport extends OutputTransport {
             }
         }
 
-        if (distributionStrategy.equals(DISTRIBUTION_STRATEGY_PARTITIONED)){
-            partitionFiledIndex = streamDefinition.getAttributePosition(PARTITION_KEY_FIELD_KEY);
-        }
-
         if (distributionStrategy.equals(DISTRIBUTION_STRATEGY_ROUND_ROBIN)){
             publisher = getRoundRobinPublisher();
         } else if (distributionStrategy.equals(DISTRIBUTION_STRATEGY_DUPLICATE)){
@@ -67,7 +80,7 @@ public abstract class DistributedTransport extends OutputTransport {
             throw new ExecutionPlanValidationException("Unknown distribution strategy '" + distributionStrategy + "'.");
         }
 
-        initTransport(streamDefinition, sinkOptionHolder, nodeOptionHolders);
+        initTransport(sinkOptionHolder, nodeOptionHolders);
     }
 
     public String getDistributionStrategy(){
@@ -92,6 +105,6 @@ public abstract class DistributedTransport extends OutputTransport {
 
     public abstract DistributedPublishingAlgorithm getPartitionedPublisher();
 
-    public abstract void initTransport(StreamDefinition streamDefinition, OptionHolder sinkOptionHolder, List<OptionHolder> nodeOptionHolders);
+    public abstract void initTransport(OptionHolder sinkOptionHolder, List<OptionHolder> nodeOptionHolders);
 
 }

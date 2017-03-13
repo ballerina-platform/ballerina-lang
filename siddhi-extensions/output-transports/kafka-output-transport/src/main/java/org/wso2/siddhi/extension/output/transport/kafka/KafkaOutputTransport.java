@@ -18,7 +18,6 @@
 
 package org.wso2.siddhi.extension.output.transport.kafka;
 
-import org.apache.kafka.clients.producer.Producer;
 import kafka.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
@@ -27,9 +26,9 @@ import org.apache.log4j.Logger;
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
 import org.wso2.siddhi.core.stream.output.sink.OutputTransport;
+import org.wso2.siddhi.core.util.transport.DynamicOptions;
 import org.wso2.siddhi.core.util.transport.Option;
 import org.wso2.siddhi.core.util.transport.OptionHolder;
-import org.wso2.siddhi.core.util.transport.DynamicOptions;
 
 import java.util.Properties;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -71,7 +70,7 @@ public class KafkaOutputTransport extends OutputTransport {
     private Option partitionNumber;
 
     @Override
-    protected String[] init(OptionHolder optionHolder) {
+    protected void init(OptionHolder optionHolder) {
         //ThreadPoolExecutor will be assigned  if it is null
         if (threadPoolExecutor == null) {
             int minThread;
@@ -101,7 +100,6 @@ public class KafkaOutputTransport extends OutputTransport {
             threadPoolExecutor = new ThreadPoolExecutor(minThread, maxThread, defaultKeepAliveTime,
                     TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>(jobQueSize));
         }
-        return new String[0];
     }
 
     @Override

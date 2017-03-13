@@ -21,7 +21,6 @@ package org.wso2.siddhi.core.table;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.state.StateEvent;
-import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEventCloner;
 import org.wso2.siddhi.core.event.stream.StreamEventPool;
@@ -55,7 +54,7 @@ public class InMemoryEventTable implements EventTable, Snapshotable {
 
 
     @Override
-    public void init(TableDefinition tableDefinition, MetaStreamEvent tableMetaStreamEvent,
+    public void init(TableDefinition tableDefinition,
                      StreamEventPool tableStreamEventPool, StreamEventCloner tableStreamEventCloner,
                      ExecutionPlanContext executionPlanContext) {
         this.tableDefinition = tableDefinition;

@@ -26,7 +26,6 @@ import org.wso2.siddhi.annotation.util.DataType;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.state.StateEvent;
-import org.wso2.siddhi.core.event.stream.MetaStreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEventCloner;
 import org.wso2.siddhi.core.event.stream.StreamEventPool;
@@ -123,14 +122,12 @@ public class RDBMSEventTable implements EventTable {
 
     /**
      * Event Table initialization method, it checks the annotation and do necessary pre configuration tasks.
-     *
-     * @param tableDefinition        Definition of event table
-     * @param tableMetaStreamEvent
+     *  @param tableDefinition        Definition of event table
      * @param tableStreamEventPool
      * @param tableStreamEventCloner
      * @param executionPlanContext   ExecutionPlan related meta information
      */
-    public void init(TableDefinition tableDefinition, MetaStreamEvent tableMetaStreamEvent, StreamEventPool tableStreamEventPool, StreamEventCloner tableStreamEventCloner, ExecutionPlanContext executionPlanContext) {
+    public void init(TableDefinition tableDefinition, StreamEventPool tableStreamEventPool, StreamEventCloner tableStreamEventCloner, ExecutionPlanContext executionPlanContext) {
         this.tableDefinition = tableDefinition;
         Connection con = null;
         int bloomFilterSize = RDBMSEventTableConstants.BLOOM_FILTER_SIZE;
