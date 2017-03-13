@@ -47,22 +47,22 @@ public class AnyAndCollectionExecutor implements CollectionExecutor {
         this.exhaustiveCollectionExecutor = exhaustiveCollectionExecutor;
     }
 
-    public StreamEvent find(StateEvent matchingEvent, IndexedEventHolder indexedEventHolder, StreamEventCloner candidateEventCloner) {
+    public StreamEvent find(StateEvent matchingEvent, IndexedEventHolder indexedEventHolder, StreamEventCloner storeEventCloner) {
 
         Collection<StreamEvent> resultEventSet = findEvents(matchingEvent, indexedEventHolder);
         ComplexEventChunk<StreamEvent> returnEventChunk = new ComplexEventChunk<StreamEvent>(false);
 
         if (resultEventSet != null) {
             for (StreamEvent resultEvent : resultEventSet) {
-                if (candidateEventCloner != null) {
-                    returnEventChunk.add(candidateEventCloner.copyStreamEvent(resultEvent));
+                if (storeEventCloner != null) {
+                    returnEventChunk.add(storeEventCloner.copyStreamEvent(resultEvent));
                 } else {
                     returnEventChunk.add(resultEvent);
                 }
             }
             return returnEventChunk.getFirst();
         } else {
-            return exhaustiveCollectionExecutor.find(matchingEvent, indexedEventHolder, candidateEventCloner);
+            return exhaustiveCollectionExecutor.find(matchingEvent, indexedEventHolder, storeEventCloner);
         }
     }
 

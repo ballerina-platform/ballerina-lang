@@ -40,20 +40,20 @@ public class NotCollectionExecutor implements CollectionExecutor {
         this.exhaustiveCollectionExecutor = exhaustiveCollectionExecutor;
     }
 
-    public StreamEvent find(StateEvent matchingEvent, IndexedEventHolder indexedEventHolder, StreamEventCloner candidateEventCloner) {
+    public StreamEvent find(StateEvent matchingEvent, IndexedEventHolder indexedEventHolder, StreamEventCloner storeEventCloner) {
 
         Collection<StreamEvent> notStreamEvents = notCollectionExecutor.findEvents(matchingEvent, indexedEventHolder);
         if (notStreamEvents == null) {
-            return exhaustiveCollectionExecutor.find(matchingEvent, indexedEventHolder, candidateEventCloner);
+            return exhaustiveCollectionExecutor.find(matchingEvent, indexedEventHolder, storeEventCloner);
         } else if (notStreamEvents.size() == 0) {
             ComplexEventChunk<StreamEvent> returnEventChunk = new ComplexEventChunk<StreamEvent>(false);
-            Collection<StreamEvent> candidateEventSet = indexedEventHolder.getAllEvents();
+            Collection<StreamEvent> storeEventSet = indexedEventHolder.getAllEvents();
 
-            for (StreamEvent candidateEvent : candidateEventSet) {
-                if (candidateEventCloner != null) {
-                    returnEventChunk.add(candidateEventCloner.copyStreamEvent(candidateEvent));
+            for (StreamEvent storeEvent : storeEventSet) {
+                if (storeEventCloner != null) {
+                    returnEventChunk.add(storeEventCloner.copyStreamEvent(storeEvent));
                 } else {
-                    returnEventChunk.add(candidateEvent);
+                    returnEventChunk.add(storeEvent);
                 }
             }
             return returnEventChunk.getFirst();
@@ -62,8 +62,8 @@ public class NotCollectionExecutor implements CollectionExecutor {
             ComplexEventChunk<StreamEvent> returnEventChunk = new ComplexEventChunk<StreamEvent>(false);
             for (StreamEvent aEvent : allEvents) {
                 if (!notStreamEvents.contains(aEvent)) {
-                    if (candidateEventCloner != null) {
-                        returnEventChunk.add(candidateEventCloner.copyStreamEvent(aEvent));
+                    if (storeEventCloner != null) {
+                        returnEventChunk.add(storeEventCloner.copyStreamEvent(aEvent));
                     } else {
                         returnEventChunk.add(aEvent);
                     }

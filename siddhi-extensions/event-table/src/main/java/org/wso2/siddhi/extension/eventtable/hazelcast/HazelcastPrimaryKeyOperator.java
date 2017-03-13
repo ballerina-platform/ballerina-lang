@@ -25,7 +25,7 @@ import org.wso2.siddhi.core.event.stream.StreamEventCloner;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.util.collection.OverwritingStreamEventExtractor;
 import org.wso2.siddhi.core.util.collection.UpdateAttributeMapper;
-import org.wso2.siddhi.core.util.collection.operator.Finder;
+import org.wso2.siddhi.core.util.collection.operator.CompiledCondition;
 import org.wso2.siddhi.core.util.collection.operator.Operator;
 
 
@@ -35,62 +35,61 @@ import org.wso2.siddhi.core.util.collection.operator.Operator;
 public class HazelcastPrimaryKeyOperator implements Operator {
 
     protected final ExpressionExecutor expressionExecutor;
-    protected final int candidateEventPosition;
+    protected final int storeEventPosition;
     protected final int indexPosition;
 
-    public HazelcastPrimaryKeyOperator(ExpressionExecutor expressionExecutor, int candidateEventPosition, int indexPosition) {
+    public HazelcastPrimaryKeyOperator(ExpressionExecutor expressionExecutor, int storeEventPosition, int indexPosition) {
         this.expressionExecutor = expressionExecutor;
-        this.candidateEventPosition = candidateEventPosition;
+        this.storeEventPosition = storeEventPosition;
         this.indexPosition = indexPosition;
     }
 
     @Override
-    public Finder cloneFinder(String key) {
-        return new HazelcastPrimaryKeyOperator(expressionExecutor.cloneExecutor(key), candidateEventPosition, indexPosition);
+    public CompiledCondition cloneCompiledCondition(String key) {
+        return new HazelcastPrimaryKeyOperator(expressionExecutor.cloneExecutor(key), storeEventPosition, indexPosition);
     }
 
     @Override
-    public StreamEvent find(StateEvent matchingEvent, Object candidateEvents, StreamEventCloner candidateEventCloner) {
+    public StreamEvent find(StateEvent matchingEvent, Object storeEvents, StreamEventCloner storeEventCloner) {
         Object matchingKey = expressionExecutor.execute(matchingEvent);
-        StreamEvent streamEvent = ((HazelcastPrimaryKeyEventHolder) candidateEvents).get(matchingKey);
+        StreamEvent streamEvent = ((HazelcastPrimaryKeyEventHolder) storeEvents).get(matchingKey);
         if (streamEvent == null) {
             return null;
         } else {
-            return candidateEventCloner.copyStreamEvent(streamEvent);
+            return storeEventCloner.copyStreamEvent(streamEvent);
         }
     }
 
     @Override
-    public boolean contains(StateEvent matchingEvent, Object candidateEvents) {
+    public boolean contains(StateEvent matchingEvent, Object storeEvents) {
         Object matchingKey = expressionExecutor.execute(matchingEvent);
-        StreamEvent streamEvent = ((HazelcastPrimaryKeyEventHolder) candidateEvents).get(matchingKey);
+        StreamEvent streamEvent = ((HazelcastPrimaryKeyEventHolder) storeEvents).get(matchingKey);
         return streamEvent != null;
     }
 
     @Override
-    public void delete(ComplexEventChunk<StateEvent> deletingEventChunk, Object candidateEvents) {
+    public void delete(ComplexEventChunk<StateEvent> deletingEventChunk, Object storeEvents) {
         deletingEventChunk.reset();
         while (deletingEventChunk.hasNext()) {
             StateEvent deletingEvent = deletingEventChunk.next();
             Object matchingKey = expressionExecutor.execute(deletingEvent);
-            ((HazelcastPrimaryKeyEventHolder) candidateEvents).remove(matchingKey);
+            ((HazelcastPrimaryKeyEventHolder) storeEvents).remove(matchingKey);
         }
 
     }
 
     @Override
-    public void update(ComplexEventChunk<StateEvent> updatingEventChunk, Object candidateEvents, UpdateAttributeMapper[] updateAttributeMappers) {
+    public void update(ComplexEventChunk<StateEvent> updatingEventChunk, Object storeEvents, UpdateAttributeMapper[] updateAttributeMappers) {
         updatingEventChunk.reset();
         while (updatingEventChunk.hasNext()) {
             StateEvent updatingEvent = updatingEventChunk.next();
             Object matchingKey = expressionExecutor.execute(updatingEvent);
-            StreamEvent streamEvent = ((HazelcastPrimaryKeyEventHolder) candidateEvents).get(matchingKey);
+            StreamEvent streamEvent = ((HazelcastPrimaryKeyEventHolder) storeEvents).get(matchingKey);
             if (streamEvent != null) {
                 for (UpdateAttributeMapper updateAttributeMapper : updateAttributeMappers) {
-                    streamEvent.setOutputData(updateAttributeMapper.getOutputData(updatingEvent),
-                            updateAttributeMapper.getCandidateAttributePosition());
+                    updateAttributeMapper.mapOutputData(updatingEvent, streamEvent);
                 }
-                ((HazelcastPrimaryKeyEventHolder) candidateEvents).replace(matchingKey, streamEvent);
+                ((HazelcastPrimaryKeyEventHolder) storeEvents).replace(matchingKey, streamEvent);
 
             }
         }
@@ -98,7 +97,7 @@ public class HazelcastPrimaryKeyOperator implements Operator {
 
     @Override
     public ComplexEventChunk<StreamEvent> overwrite(ComplexEventChunk<StateEvent> overwritingOrAddingEventChunk,
-                                                    Object candidateEvents,
+                                                    Object storeEvents,
                                                     UpdateAttributeMapper[] updateAttributeMappers,
                                                     OverwritingStreamEventExtractor overwritingStreamEventExtractor) {
         overwritingOrAddingEventChunk.reset();
@@ -106,13 +105,12 @@ public class HazelcastPrimaryKeyOperator implements Operator {
         while (overwritingOrAddingEventChunk.hasNext()) {
             StateEvent overwritingOrAddingEvent = overwritingOrAddingEventChunk.next();
             Object matchingKey = expressionExecutor.execute(overwritingOrAddingEvent);
-            StreamEvent streamEvent = ((HazelcastPrimaryKeyEventHolder) candidateEvents).get(matchingKey);
+            StreamEvent streamEvent = ((HazelcastPrimaryKeyEventHolder) storeEvents).get(matchingKey);
             if (streamEvent != null) {
                 for (UpdateAttributeMapper updateAttributeMapper : updateAttributeMappers) {
-                    streamEvent.setOutputData(updateAttributeMapper.getOutputData(overwritingOrAddingEvent),
-                            updateAttributeMapper.getCandidateAttributePosition());
+                    updateAttributeMapper.mapOutputData(overwritingOrAddingEvent, streamEvent);
                 }
-                ((HazelcastPrimaryKeyEventHolder) candidateEvents).replace(matchingKey, streamEvent);
+                ((HazelcastPrimaryKeyEventHolder) storeEvents).replace(matchingKey, streamEvent);
             } else {
                 failedEventChunk.add(overwritingStreamEventExtractor.getOverwritingStreamEvent(overwritingOrAddingEvent));
             }

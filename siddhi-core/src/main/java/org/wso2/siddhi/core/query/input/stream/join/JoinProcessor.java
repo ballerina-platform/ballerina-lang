@@ -26,7 +26,7 @@ import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.query.processor.Processor;
 import org.wso2.siddhi.core.query.processor.stream.window.FindableProcessor;
 import org.wso2.siddhi.core.query.selector.QuerySelector;
-import org.wso2.siddhi.core.util.collection.operator.Finder;
+import org.wso2.siddhi.core.util.collection.operator.CompiledCondition;
 import org.wso2.siddhi.core.util.lock.LockWrapper;
 
 /**
@@ -40,7 +40,7 @@ public class JoinProcessor implements Processor {
     private LockWrapper joinLockWrapper;
     private boolean preJoinProcessor;
     private StateEventPool stateEventPool;
-    private Finder finder;
+    private CompiledCondition compiledCondition;
     private FindableProcessor findableProcessor;
     private Processor nextProcessor;
     private QuerySelector selector;
@@ -82,7 +82,7 @@ public class JoinProcessor implements Processor {
                         }
                     } else {
                         joinStateEvent.setEvent(matchingStreamIndex, streamEvent);
-                        StreamEvent foundStreamEvent = findableProcessor.find(joinStateEvent, finder);
+                        StreamEvent foundStreamEvent = findableProcessor.find(joinStateEvent, compiledCondition);
                         joinStateEvent.setEvent(matchingStreamIndex, null);
                         if (foundStreamEvent == null) {
                             if (outerJoinProcessor && !leftJoinProcessor) {
@@ -175,7 +175,7 @@ public class JoinProcessor implements Processor {
         JoinProcessor joinProcessor = new JoinProcessor(leftJoinProcessor, preJoinProcessor, outerJoinProcessor, matchingStreamIndex);
         joinProcessor.setTrigger(trigger);
         if (trigger) {
-            joinProcessor.setFinder(finder.cloneFinder(key));
+            joinProcessor.setCompiledCondition(compiledCondition.cloneCompiledCondition(key));
         }
         return joinProcessor;
     }
@@ -184,8 +184,8 @@ public class JoinProcessor implements Processor {
         this.findableProcessor = findableProcessor;
     }
 
-    public void setFinder(Finder finder) {
-        this.finder = finder;
+    public void setCompiledCondition(CompiledCondition compiledCondition) {
+        this.compiledCondition = compiledCondition;
     }
 
     public void setTrigger(boolean trigger) {

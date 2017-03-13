@@ -49,10 +49,10 @@ public interface CollectionExecutor {
      *
      * @param matchingEvent        matching input event
      * @param indexedEventHolder   indexed EventHolder containing data
-     * @param candidateEventCloner candidate event cloner
-     * @return matched StreamEvent, null if no events matched. If candidateEventCloner is null it will return the actual event references.
+     * @param storeEventCloner store event cloner
+     * @return matched StreamEvent, null if no events matched. If storeEventCloner is null it will return the actual event references.
      */
-    StreamEvent find(StateEvent matchingEvent, IndexedEventHolder indexedEventHolder, StreamEventCloner candidateEventCloner);
+    StreamEvent find(StateEvent matchingEvent, IndexedEventHolder indexedEventHolder, StreamEventCloner storeEventCloner);
 
     /**
      * Find the Events matching to the condition, used for consecutive calls from parent CollectionExecutor

@@ -35,12 +35,12 @@ import java.util.Iterator;
  */
 public class HazelcastCollectionEventHolder implements EventHolder, Collection<StreamEvent> {
 
-    private IList<StreamEvent> candidateDataList;
+    private IList<StreamEvent> storeEventList;
     private StreamEventPool tableStreamEventPool;
     private StreamEventConverter eventConverter = new ZeroStreamEventConverter();
 
-    public HazelcastCollectionEventHolder(IList candidateDataList, StreamEventPool tableStreamEventPool, StreamEventConverter eventConverter) {
-        this.candidateDataList = candidateDataList;
+    public HazelcastCollectionEventHolder(IList storeEventList, StreamEventPool tableStreamEventPool, StreamEventConverter eventConverter) {
+        this.storeEventList = storeEventList;
         this.tableStreamEventPool = tableStreamEventPool;
         this.eventConverter = eventConverter;
     }
@@ -52,80 +52,80 @@ public class HazelcastCollectionEventHolder implements EventHolder, Collection<S
             ComplexEvent complexEvent = addingEventChunk.next();
             StreamEvent streamEvent = tableStreamEventPool.borrowEvent();
             eventConverter.convertComplexEvent(complexEvent, streamEvent);
-            candidateDataList.add(streamEvent);
+            storeEventList.add(streamEvent);
         }
     }
 
     @Override
     public int size() {
-        return candidateDataList.size();
+        return storeEventList.size();
     }
 
     @Override
     public boolean isEmpty() {
-        return candidateDataList.isEmpty();
+        return storeEventList.isEmpty();
     }
 
     @Override
     public boolean contains(Object o) {
-        return candidateDataList.contains(o);
+        return storeEventList.contains(o);
     }
 
     @Override
     public Iterator<StreamEvent> iterator() {
-        return candidateDataList.iterator();
+        return storeEventList.iterator();
     }
 
     @Override
     public Object[] toArray() {
-        return candidateDataList.toArray();
+        return storeEventList.toArray();
     }
 
     @Override
     public <T> T[] toArray(T[] a) {
-        return candidateDataList.toArray(a);
+        return storeEventList.toArray(a);
     }
 
     @Override
     public boolean add(StreamEvent streamEvent) {
-        return candidateDataList.add(streamEvent);
+        return storeEventList.add(streamEvent);
     }
 
     @Override
     public boolean remove(Object o) {
-        return candidateDataList.remove(o);
+        return storeEventList.remove(o);
     }
 
     @Override
     public boolean containsAll(Collection<?> c) {
-        return candidateDataList.containsAll(c);
+        return storeEventList.containsAll(c);
     }
 
     @Override
     public boolean addAll(Collection<? extends StreamEvent> c) {
-        return candidateDataList.addAll(c);
+        return storeEventList.addAll(c);
     }
 
     @Override
     public boolean removeAll(Collection<?> c) {
-        return candidateDataList.removeAll(c);
+        return storeEventList.removeAll(c);
     }
 
     @Override
     public boolean retainAll(Collection<?> c) {
-        return candidateDataList.retainAll(c);
+        return storeEventList.retainAll(c);
     }
 
     @Override
     public void clear() {
-        candidateDataList.clear();
+        storeEventList.clear();
     }
 
     public StreamEvent get(int i) {
-        return candidateDataList.get(i);
+        return storeEventList.get(i);
     }
 
-    public void set(int i, StreamEvent candidateEvent) {
-        candidateDataList.set(i, candidateEvent);
+    public void set(int i, StreamEvent storeEvent) {
+        storeEventList.set(i, storeEvent);
     }
 }

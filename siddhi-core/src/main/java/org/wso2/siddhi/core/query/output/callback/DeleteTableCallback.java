@@ -24,23 +24,23 @@ import org.wso2.siddhi.core.event.state.StateEventPool;
 import org.wso2.siddhi.core.event.stream.StreamEventPool;
 import org.wso2.siddhi.core.event.stream.converter.StreamEventConverter;
 import org.wso2.siddhi.core.table.EventTable;
-import org.wso2.siddhi.core.util.collection.operator.Operator;
+import org.wso2.siddhi.core.util.collection.operator.CompiledCondition;
 
 public class DeleteTableCallback extends OutputCallback {
     private final int matchingStreamIndex;
     private EventTable eventTable;
-    private Operator operator;
+    private CompiledCondition compiledCondition;
     private boolean convertToStreamEvent;
     private StateEventPool stateEventPool;
     private StreamEventPool streamEventPool;
     private StreamEventConverter streamEventConvertor;
 
-    public DeleteTableCallback(EventTable eventTable, Operator operator, int matchingStreamIndex,
+    public DeleteTableCallback(EventTable eventTable, CompiledCondition compiledCondition, int matchingStreamIndex,
                                boolean convertToStreamEvent, StateEventPool stateEventPool,
                                StreamEventPool streamEventPool, StreamEventConverter streamEventConvertor) {
         this.matchingStreamIndex = matchingStreamIndex;
         this.eventTable = eventTable;
-        this.operator = operator;
+        this.compiledCondition = compiledCondition;
         this.convertToStreamEvent = convertToStreamEvent;
         this.stateEventPool = stateEventPool;
         this.streamEventPool = streamEventPool;
@@ -53,7 +53,7 @@ public class DeleteTableCallback extends OutputCallback {
         if (deletingEventChunk.hasNext()) {
             ComplexEventChunk<StateEvent> deletingStateEventChunk = constructMatchingStateEventChunk(deletingEventChunk,
                     convertToStreamEvent, stateEventPool, matchingStreamIndex, streamEventPool, streamEventConvertor);
-            eventTable.delete(deletingStateEventChunk, operator);
+            eventTable.delete(deletingStateEventChunk, compiledCondition);
         }
     }
 

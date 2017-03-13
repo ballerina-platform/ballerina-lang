@@ -39,39 +39,39 @@ import java.util.Map;
 
 public class OperatorParser {
 
-    public static Operator constructOperator(Object candidateEvents, Expression expression,
-                                             MatchingMetaStateHolder matchingMetaStateHolder,
+    public static Operator constructOperator(Object storeEvents, Expression expression,
+                                             MatchingMetaInfoHolder matchingMetaInfoHolder,
                                              ExecutionPlanContext executionPlanContext,
                                              List<VariableExpressionExecutor> variableExpressionExecutors,
                                              Map<String, EventTable> eventTableMap, String queryName) {
-        if (candidateEvents instanceof IndexedEventHolder) {
+        if (storeEvents instanceof IndexedEventHolder) {
             CollectionExpression collectionExpression = CollectionExpressionParser.parseCollectionExpression(expression,
-                    matchingMetaStateHolder, (IndexedEventHolder) candidateEvents);
+                    matchingMetaInfoHolder, (IndexedEventHolder) storeEvents);
             CollectionExecutor collectionExecutor = CollectionExpressionParser.buildCollectionExecutor(collectionExpression,
-                    matchingMetaStateHolder, variableExpressionExecutors, eventTableMap, executionPlanContext, true, queryName);
+                    matchingMetaInfoHolder, variableExpressionExecutors, eventTableMap, executionPlanContext, true, queryName);
             return new IndexOperator(collectionExecutor);
-        } else if (candidateEvents instanceof ComplexEventChunk) {
+        } else if (storeEvents instanceof ComplexEventChunk) {
             ExpressionExecutor expressionExecutor = ExpressionParser.parseExpression(expression,
-                    matchingMetaStateHolder.getMetaStateEvent(), matchingMetaStateHolder.getDefaultStreamEventIndex(), eventTableMap, variableExpressionExecutors, executionPlanContext, false, 0, queryName);
-            return new EventChunkOperator(expressionExecutor, matchingMetaStateHolder.getCandidateEventIndex());
-        } else if (candidateEvents instanceof Map) {
+                    matchingMetaInfoHolder.getMetaStateEvent(), matchingMetaInfoHolder.getStreamEventIndex(), eventTableMap, variableExpressionExecutors, executionPlanContext, false, 0, queryName);
+            return new EventChunkOperator(expressionExecutor, matchingMetaInfoHolder.getStoreEventIndex());
+        } else if (storeEvents instanceof Map) {
             ExpressionExecutor expressionExecutor = ExpressionParser.parseExpression(expression,
-                    matchingMetaStateHolder.getMetaStateEvent(), matchingMetaStateHolder.getDefaultStreamEventIndex(), eventTableMap, variableExpressionExecutors, executionPlanContext, false, 0, queryName);
-            return new MapOperator(expressionExecutor, matchingMetaStateHolder.getCandidateEventIndex());
-        } else if (candidateEvents instanceof Collection) {
+                    matchingMetaInfoHolder.getMetaStateEvent(), matchingMetaInfoHolder.getStreamEventIndex(), eventTableMap, variableExpressionExecutors, executionPlanContext, false, 0, queryName);
+            return new MapOperator(expressionExecutor, matchingMetaInfoHolder.getStoreEventIndex());
+        } else if (storeEvents instanceof Collection) {
             ExpressionExecutor expressionExecutor = ExpressionParser.parseExpression(expression,
-                    matchingMetaStateHolder.getMetaStateEvent(), matchingMetaStateHolder.getDefaultStreamEventIndex(), eventTableMap, variableExpressionExecutors, executionPlanContext, false, 0, queryName);
-            return new CollectionOperator(expressionExecutor, matchingMetaStateHolder.getCandidateEventIndex());
+                    matchingMetaInfoHolder.getMetaStateEvent(), matchingMetaInfoHolder.getStreamEventIndex(), eventTableMap, variableExpressionExecutors, executionPlanContext, false, 0, queryName);
+            return new CollectionOperator(expressionExecutor, matchingMetaInfoHolder.getStoreEventIndex());
         } else {
-            throw new OperationNotSupportedException(candidateEvents.getClass() + " is not supported by OperatorParser!");
+            throw new OperationNotSupportedException(storeEvents.getClass() + " is not supported by OperatorParser!");
         }
     }
 
-    private static boolean isTableIndexVariable(MatchingMetaStateHolder matchingMetaStateHolder, Expression expression, String indexAttribute) {
+    private static boolean isTableIndexVariable(MatchingMetaInfoHolder matchingMetaInfoHolder, Expression expression, String indexAttribute) {
         if (expression instanceof Variable) {
             Variable variable = (Variable) expression;
             if (variable.getStreamId() != null) {
-                MetaStreamEvent tableStreamEvent = matchingMetaStateHolder.getMetaStateEvent().getMetaStreamEvent(matchingMetaStateHolder.getCandidateEventIndex());
+                MetaStreamEvent tableStreamEvent = matchingMetaInfoHolder.getMetaStateEvent().getMetaStreamEvent(matchingMetaInfoHolder.getStoreEventIndex());
                 if (tableStreamEvent != null) {
                     if ((tableStreamEvent.getInputReferenceId() != null && variable.getStreamId().equals(tableStreamEvent.getInputReferenceId())) ||
                             (tableStreamEvent.getLastInputDefinition().getId().equals(variable.getStreamId()))) {

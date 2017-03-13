@@ -36,24 +36,24 @@ public class CompareExhaustiveAndCollectionExecutor implements CollectionExecuto
         this.exhaustiveCollectionExecutor = exhaustiveCollectionExecutor;
     }
 
-    public StreamEvent find(StateEvent matchingEvent, IndexedEventHolder indexedEventHolder, StreamEventCloner candidateEventCloner) {
+    public StreamEvent find(StateEvent matchingEvent, IndexedEventHolder indexedEventHolder, StreamEventCloner storeEventCloner) {
         Collection<StreamEvent> compareStreamEvents = compareCollectionExecutor.findEvents(matchingEvent, indexedEventHolder);
         if (compareStreamEvents == null) {
-            return exhaustiveCollectionExecutor.find(matchingEvent, indexedEventHolder, candidateEventCloner);
+            return exhaustiveCollectionExecutor.find(matchingEvent, indexedEventHolder, storeEventCloner);
         } else if (compareStreamEvents.size() > 0) {
             compareStreamEvents = exhaustiveCollectionExecutor.findEvents(matchingEvent, compareStreamEvents);
             if (compareStreamEvents != null) {
                 ComplexEventChunk<StreamEvent> returnEventChunk = new ComplexEventChunk<StreamEvent>(false);
                 for (StreamEvent resultEvent : compareStreamEvents) {
-                    if (candidateEventCloner != null) {
-                        returnEventChunk.add(candidateEventCloner.copyStreamEvent(resultEvent));
+                    if (storeEventCloner != null) {
+                        returnEventChunk.add(storeEventCloner.copyStreamEvent(resultEvent));
                     } else {
                         returnEventChunk.add(resultEvent);
                     }
                 }
                 return returnEventChunk.getFirst();
             } else {
-                return exhaustiveCollectionExecutor.find(matchingEvent, indexedEventHolder, candidateEventCloner);
+                return exhaustiveCollectionExecutor.find(matchingEvent, indexedEventHolder, storeEventCloner);
             }
         } else {
             return null;

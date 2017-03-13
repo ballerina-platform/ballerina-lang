@@ -33,41 +33,41 @@ import java.util.Map;
  */
 public class MapOperator extends CollectionOperator {
 
-    public MapOperator(ExpressionExecutor expressionExecutor, int candidateEventPosition) {
-        super(expressionExecutor, candidateEventPosition);
+    public MapOperator(ExpressionExecutor expressionExecutor, int storeEventPosition) {
+        super(expressionExecutor, storeEventPosition);
     }
 
     @Override
-    public Finder cloneFinder(String key) {
-        return new MapOperator(expressionExecutor.cloneExecutor(key), candidateEventPosition);
+    public CompiledCondition cloneCompiledCondition(String key) {
+        return new MapOperator(expressionExecutor.cloneExecutor(key), storeEventPosition);
     }
 
     @Override
-    public StreamEvent find(StateEvent matchingEvent, Object candidateEvents, StreamEventCloner candidateEventCloner) {
-        return super.find(matchingEvent, ((Map<Object, StreamEvent>) candidateEvents).values(), candidateEventCloner);
+    public StreamEvent find(StateEvent matchingEvent, Object storeEvents, StreamEventCloner storeEventCloner) {
+        return super.find(matchingEvent, ((Map<Object, StreamEvent>) storeEvents).values(), storeEventCloner);
     }
 
     @Override
-    public boolean contains(StateEvent matchingEvent, Object candidateEvents) {
-        return super.contains(matchingEvent, ((Map<Object, StreamEvent>) candidateEvents).values());
+    public boolean contains(StateEvent matchingEvent, Object storeEvents) {
+        return super.contains(matchingEvent, ((Map<Object, StreamEvent>) storeEvents).values());
     }
 
     @Override
-    public void delete(ComplexEventChunk<StateEvent> deletingEventChunk, Object candidateEvents) {
-        super.delete(deletingEventChunk, ((Map<Object, StreamEvent>) candidateEvents).values());
+    public void delete(ComplexEventChunk<StateEvent> deletingEventChunk, Object storeEvents) {
+        super.delete(deletingEventChunk, ((Map<Object, StreamEvent>) storeEvents).values());
     }
 
     @Override
-    public void update(ComplexEventChunk<StateEvent> updatingEventChunk, Object candidateEvents, UpdateAttributeMapper[] updateAttributeMappers) {
-        super.update(updatingEventChunk, ((Map<Object, StreamEvent>) candidateEvents).values(), updateAttributeMappers);
+    public void update(ComplexEventChunk<StateEvent> updatingEventChunk, Object storeEvents, UpdateAttributeMapper[] updateAttributeMappers) {
+        super.update(updatingEventChunk, ((Map<Object, StreamEvent>) storeEvents).values(), updateAttributeMappers);
     }
 
     @Override
     public ComplexEventChunk<StreamEvent> overwrite(ComplexEventChunk<StateEvent> overwritingOrAddingEventChunk,
-                                                    Object candidateEvents,
+                                                    Object storeEvents,
                                                     UpdateAttributeMapper[] updateAttributeMappers,
                                                     OverwritingStreamEventExtractor overwritingStreamEventExtractor) {
-        return super.overwrite(overwritingOrAddingEventChunk, ((Map<Object, StreamEvent>) candidateEvents).values(),
+        return super.overwrite(overwritingOrAddingEventChunk, ((Map<Object, StreamEvent>) storeEvents).values(),
                 updateAttributeMappers, overwritingStreamEventExtractor);
     }
 

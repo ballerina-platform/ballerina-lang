@@ -39,42 +39,42 @@ public class IndexOperator implements Operator {
     }
 
     @Override
-    public Finder cloneFinder(String key) {
+    public CompiledCondition cloneCompiledCondition(String key) {
         //todo check if there are any issues when not cloning
         return new IndexOperator(collectionExecutor);
     }
 
     @Override
-    public StreamEvent find(StateEvent matchingEvent, Object candidateEvents, StreamEventCloner candidateEventCloner) {
-        return collectionExecutor.find(matchingEvent, (IndexedEventHolder) candidateEvents, candidateEventCloner);
+    public StreamEvent find(StateEvent matchingEvent, Object storeEvents, StreamEventCloner storeEventCloner) {
+        return collectionExecutor.find(matchingEvent, (IndexedEventHolder) storeEvents, storeEventCloner);
     }
 
     @Override
-    public boolean contains(StateEvent matchingEvent, Object candidateEvents) {
-        return collectionExecutor.contains(matchingEvent, (IndexedEventHolder) candidateEvents);
+    public boolean contains(StateEvent matchingEvent, Object storeEvents) {
+        return collectionExecutor.contains(matchingEvent, (IndexedEventHolder) storeEvents);
     }
 
     @Override
-    public void delete(ComplexEventChunk<StateEvent> deletingEventChunk, Object candidateEvents) {
+    public void delete(ComplexEventChunk<StateEvent> deletingEventChunk, Object storeEvents) {
         deletingEventChunk.reset();
         while (deletingEventChunk.hasNext()) {
             StateEvent deletingEvent = deletingEventChunk.next();
-            collectionExecutor.delete(deletingEvent, (IndexedEventHolder) candidateEvents);
+            collectionExecutor.delete(deletingEvent, (IndexedEventHolder) storeEvents);
         }
     }
 
     @Override
-    public void update(ComplexEventChunk<StateEvent> updatingEventChunk, Object candidateEvents, UpdateAttributeMapper[] updateAttributeMappers) {
+    public void update(ComplexEventChunk<StateEvent> updatingEventChunk, Object storeEvents, UpdateAttributeMapper[] updateAttributeMappers) {
 
         updatingEventChunk.reset();
         while (updatingEventChunk.hasNext()) {
             StateEvent updatingEvent = updatingEventChunk.next();
 
-            StreamEvent streamEvents = collectionExecutor.find(updatingEvent, (IndexedEventHolder) candidateEvents, null);
+            StreamEvent streamEvents = collectionExecutor.find(updatingEvent, (IndexedEventHolder) storeEvents, null);
             if (streamEvents != null) {
                 ComplexEventChunk<StreamEvent> foundEventChunk = new ComplexEventChunk<>(false);
                 foundEventChunk.add(streamEvents);
-                update((IndexedEventHolder) candidateEvents, updateAttributeMappers, updatingEvent, foundEventChunk);
+                update((IndexedEventHolder) storeEvents, updateAttributeMappers, updatingEvent, foundEventChunk);
             }
         }
 
@@ -83,7 +83,7 @@ public class IndexOperator implements Operator {
 
     @Override
     public ComplexEventChunk<StreamEvent> overwrite(ComplexEventChunk<StateEvent> overwritingOrAddingEventChunk,
-                                                    Object candidateEvents,
+                                                    Object storeEvents,
                                                     UpdateAttributeMapper[] updateAttributeMappers,
                                                     OverwritingStreamEventExtractor overwritingStreamEventExtractor) {
         overwritingOrAddingEventChunk.reset();
@@ -92,13 +92,13 @@ public class IndexOperator implements Operator {
         overwritingOrAddingEventChunk.reset();
         while (overwritingOrAddingEventChunk.hasNext()) {
             StateEvent overwritingOrAddingEvent = overwritingOrAddingEventChunk.next();
-            StreamEvent streamEvents = collectionExecutor.find(overwritingOrAddingEvent, (IndexedEventHolder) candidateEvents, null);
+            StreamEvent streamEvents = collectionExecutor.find(overwritingOrAddingEvent, (IndexedEventHolder) storeEvents, null);
             ComplexEventChunk<StreamEvent> foundEventChunk = new ComplexEventChunk<>(false);
             foundEventChunk.add(streamEvents);
             if (foundEventChunk.getFirst() != null) {
                 //for cases when indexed attribute is also updated but that not changed
                 //to reduce number of passes needed to update the events
-                update((IndexedEventHolder) candidateEvents, updateAttributeMappers, overwritingOrAddingEvent, foundEventChunk);
+                update((IndexedEventHolder) storeEvents, updateAttributeMappers, overwritingOrAddingEvent, foundEventChunk);
             } else {
                 failedEventChunk.add(overwritingStreamEventExtractor.getOverwritingStreamEvent(overwritingOrAddingEvent));
             }
@@ -106,22 +106,22 @@ public class IndexOperator implements Operator {
         return failedEventChunk;
     }
 
-    private void update(IndexedEventHolder candidateEvents, UpdateAttributeMapper[] updateAttributeMappers,
+    private void update(IndexedEventHolder storeEvents, UpdateAttributeMapper[] updateAttributeMappers,
                         StateEvent overwritingOrAddingEvent, ComplexEventChunk<StreamEvent> foundEventChunk) {
         //for cases when indexed attribute is also updated but that not changed
         //to reduce number of passes needed to update the events
         boolean doDeleteUpdate = false;
         for (UpdateAttributeMapper updateAttributeMapper : updateAttributeMappers) {
-            if(doDeleteUpdate){
+            if (doDeleteUpdate) {
                 break;
             }
-            if (candidateEvents.isAttributeIndexed(updateAttributeMapper.getCandidateAttributePosition())) {
+            if (storeEvents.isAttributeIndexed(updateAttributeMapper.getStoreEventAttributePosition())) {
                 //Todo how much check we need to do before falling back to Delete and then Update
                 while (foundEventChunk.hasNext()) {
                     StreamEvent streamEvent = foundEventChunk.next();
-                    Object updatingDate = updateAttributeMapper.getOutputData(overwritingOrAddingEvent);
-                    Object candidateData = streamEvent.getOutputData()[updateAttributeMapper.getCandidateAttributePosition()];
-                    if (updatingDate != null && candidateData != null && !updatingDate.equals(candidateData)) {
+                    Object updatingDate = updateAttributeMapper.getUpdateEventOutputData(overwritingOrAddingEvent);
+                    Object storeEventData = streamEvent.getOutputData()[updateAttributeMapper.getStoreEventAttributePosition()];
+                    if (updatingDate != null && storeEventData != null && !updatingDate.equals(storeEventData)) {
                         doDeleteUpdate = true;
                         break;
                     }
@@ -132,26 +132,24 @@ public class IndexOperator implements Operator {
         //other cases not yet supported by Siddhi
 
         if (doDeleteUpdate) {
-            collectionExecutor.delete(overwritingOrAddingEvent, candidateEvents);
+            collectionExecutor.delete(overwritingOrAddingEvent, storeEvents);
             ComplexEventChunk<StreamEvent> toUpdateEventChunk = new ComplexEventChunk<StreamEvent>(false);
             while (foundEventChunk.hasNext()) {
                 StreamEvent streamEvent = foundEventChunk.next();
                 foundEventChunk.remove();
                 streamEvent.setNext(null);// to make the chained state back to normal
                 for (UpdateAttributeMapper updateAttributeMapper : updateAttributeMappers) {
-                    streamEvent.setOutputData(updateAttributeMapper.getOutputData(overwritingOrAddingEvent),
-                            updateAttributeMapper.getCandidateAttributePosition());
+                    updateAttributeMapper.mapOutputData(overwritingOrAddingEvent, streamEvent);
                 }
                 toUpdateEventChunk.add(streamEvent);
             }
-            candidateEvents.add(toUpdateEventChunk);
+            storeEvents.add(toUpdateEventChunk);
         } else {
             while (foundEventChunk.hasNext()) {
                 StreamEvent streamEvent = foundEventChunk.next();
                 streamEvent.setNext(null);// to make the chained state back to normal
                 for (UpdateAttributeMapper updateAttributeMapper : updateAttributeMappers) {
-                    streamEvent.setOutputData(updateAttributeMapper.getOutputData(overwritingOrAddingEvent),
-                            updateAttributeMapper.getCandidateAttributePosition());
+                    updateAttributeMapper.mapOutputData(overwritingOrAddingEvent, streamEvent);
                 }
             }
         }

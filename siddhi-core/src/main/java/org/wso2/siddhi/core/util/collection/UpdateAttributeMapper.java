@@ -23,26 +23,28 @@ import org.wso2.siddhi.core.event.stream.StreamEvent;
 
 public class UpdateAttributeMapper {
     private final int updatingAttributePosition;
-    private final int candidateAttributePosition;
+    private final int storeEventAttributePosition;
     private int matchingStreamEventPosition;
 
-    public UpdateAttributeMapper(int updatingAttributePosition, int candidateAttributePosition, int matchingStreamEventPosition) {
+    public UpdateAttributeMapper(int updatingAttributePosition, int storeEventAttributePosition, int matchingStreamEventPosition) {
 
         this.updatingAttributePosition = updatingAttributePosition;
-        this.candidateAttributePosition = candidateAttributePosition;
+        this.storeEventAttributePosition = storeEventAttributePosition;
         this.matchingStreamEventPosition = matchingStreamEventPosition;
     }
 
-    public int getCandidateAttributePosition() {
-        return candidateAttributePosition;
+    public int getStoreEventAttributePosition() {
+        return storeEventAttributePosition;
     }
 
-    public Object getOutputData(StateEvent updatingEvent) {
+    public Object getUpdateEventOutputData(StateEvent updatingEvent) {
         return updatingEvent.getStreamEvent(matchingStreamEventPosition).getOutputData()[updatingAttributePosition];
     }
 
-    public StreamEvent getOverwritingStreamEvent(StateEvent updatingEvent) {
-        return updatingEvent.getStreamEvent(matchingStreamEventPosition);
+    public void mapOutputData(StateEvent updatingEvent, StreamEvent storeEvent) {
+        storeEvent.setOutputData(
+                updatingEvent.getStreamEvent(matchingStreamEventPosition).getOutputData()[updatingAttributePosition],
+                storeEventAttributePosition);
     }
 }
 
