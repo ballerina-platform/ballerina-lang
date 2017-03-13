@@ -36,8 +36,6 @@ import org.ballerinalang.model.expressions.TypeCastExpression;
 import org.ballerinalang.model.expressions.UnaryExpression;
 import org.ballerinalang.model.expressions.VariableRefExpr;
 import org.ballerinalang.model.nodes.EndNode;
-import org.ballerinalang.model.nodes.ExitNode;
-import org.ballerinalang.model.nodes.GotoNode;
 import org.ballerinalang.model.nodes.IfElseNode;
 import org.ballerinalang.model.nodes.fragments.expressions.ActionInvocationExprStartNode;
 import org.ballerinalang.model.nodes.fragments.expressions.ArrayInitExprEndNode;
@@ -154,10 +152,6 @@ public interface LinkedNodeVisitor extends NodeVisitor {
     /* Other Nodes */
 
     void visit(EndNode endNode);
-
-    void visit(ExitNode exitNode);
-
-    void visit(GotoNode gotoNode);
 
     void visit(IfElseNode ifElseNode);
 

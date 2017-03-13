@@ -17,6 +17,7 @@
 */
 package org.ballerinalang.model.nodes.fragments.expressions;
 
+import org.ballerinalang.model.LinkedNode;
 import org.ballerinalang.model.LinkedNodeVisitor;
 import org.ballerinalang.model.expressions.FunctionInvocationExpr;
 import org.ballerinalang.model.nodes.AbstractLinkedNode;
@@ -27,6 +28,7 @@ import org.ballerinalang.model.nodes.AbstractLinkedNode;
 public class FunctionInvocationExprStartNode extends AbstractLinkedNode {
 
     private FunctionInvocationExpr expression;
+    private LinkedNode branchingLinkedNode;
 
     public FunctionInvocationExprStartNode(FunctionInvocationExpr expression) {
         this.expression = expression;
@@ -40,5 +42,13 @@ public class FunctionInvocationExprStartNode extends AbstractLinkedNode {
     @Override
     public void accept(LinkedNodeVisitor nodeVisitor) {
         nodeVisitor.visit(this);
+    }
+
+    public LinkedNode getBranchingLinkedNode() {
+        return branchingLinkedNode;
+    }
+
+    public void setBranchingLinkedNode(LinkedNode branchingLinkedNode) {
+        this.branchingLinkedNode = branchingLinkedNode;
     }
 }

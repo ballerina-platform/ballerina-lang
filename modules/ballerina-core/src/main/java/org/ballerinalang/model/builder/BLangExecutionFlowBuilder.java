@@ -37,7 +37,6 @@ import org.ballerinalang.model.ConnectorDcl;
 import org.ballerinalang.model.ConstDef;
 import org.ballerinalang.model.ImportPackage;
 import org.ballerinalang.model.LinkedNode;
-import org.ballerinalang.model.Node;
 import org.ballerinalang.model.NodeVisitor;
 import org.ballerinalang.model.ParameterDef;
 import org.ballerinalang.model.Resource;
@@ -80,8 +79,6 @@ import org.ballerinalang.model.expressions.UnaryExpression;
 import org.ballerinalang.model.expressions.VariableRefExpr;
 import org.ballerinalang.model.invokers.MainInvoker;
 import org.ballerinalang.model.nodes.EndNode;
-import org.ballerinalang.model.nodes.ExitNode;
-import org.ballerinalang.model.nodes.GotoNode;
 import org.ballerinalang.model.nodes.IfElseNode;
 import org.ballerinalang.model.nodes.StartNode;
 import org.ballerinalang.model.nodes.fragments.expressions.ActionInvocationExprStartNode;
@@ -169,7 +166,7 @@ import java.util.Stack;
  * Nodes
  * - This phase will calculate 3 unique references: parent, next sibling and next, for each executable node
  * (expressions, statements, etc.). The parent and next sibling are used to calculate next reference.
- * Only next reference will be used at runtime.  ({@link GotoNode} and {@link IfElseNode}, have multiple next
+ * Only next reference will be used at runtime. {@link IfElseNode}, have multiple next
  * references and next will be calculated at runtime.)
  *
  * Best Practices.
@@ -201,10 +198,22 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
 
     @Override
     public void visit(BLangProgram bLangProgram) {
+        if (!nonblockingEnabled) {
+            return;
+        }
+        Arrays.stream(bLangProgram.getServicePackages()).forEach(bLangPackage -> bLangPackage.accept(this));
+        Arrays.stream(bLangProgram.getLibraryPackages()).forEach(bLangPackage -> bLangPackage.accept(this));
+        if (bLangProgram.getMainPackage() != null) {
+            bLangProgram.getMainPackage().accept(this);
+        }
     }
 
     @Override
     public void visit(BLangPackage bLangPackage) {
+        Arrays.stream(bLangPackage.getServices()).forEach(service -> service.accept(this));
+        Arrays.stream(bLangPackage.getFunctions()).forEach(function -> function.accept(this));
+        Arrays.stream(bLangPackage.getConnectors()).forEach(connector -> connector.accept(this));
+        Arrays.stream(bLangPackage.getTypeMappers()).forEach(typeMapper -> typeMapper.accept(this));
     }
 
     @Override
@@ -226,17 +235,14 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
      */
     @Override
     public void visit(Service service) {
-        if (!nonblockingEnabled) {
-            return;
-        }
         // Visit all of resources in a service
-        for (Resource resource : service.getResources()) {
-            resource.accept(this);
-        }
+        Arrays.stream(service.getResources()).forEach(resource -> resource.accept(this));
     }
 
     @Override
     public void visit(BallerinaConnectorDef connector) {
+        connector.getInitFunction().accept(this);
+        Arrays.stream(connector.getActions()).forEach(action -> action.accept(this));
     }
 
     /**
@@ -246,14 +252,12 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
      */
     @Override
     public void visit(Resource resource) {
-        // Resource is a Staring point. Calculate parent from here.
         clearBranchingStacks();
         // Add offset counter for current Stack Frame.
         cacheOffSetCounterStack.push(new CacheOffSetCounter());
         currentResource = resource;
-        // This is a execution Start point. Hence link Block Statement with StartNode
         BlockStmt blockStmt = resource.getResourceBody();
-        blockStmt.setParent(new StartNode(StartNode.Originator.RESOURCE));
+        blockStmt.setParent(new StartNode());
         // Visit Block Statement and ask it to handle its children.
         blockStmt.accept(this);
         resource.setCacheFrameSize(cacheOffSetCounterStack.pop().getCount());
@@ -261,28 +265,59 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
 
     @Override
     public void visit(BallerinaFunction function) {
-        if (!nonblockingEnabled || function.isFlowBuilderVisited()) {
+        if (function.isFlowBuilderVisited()) {
             return;
         }
         clearBranchingStacks();
         BlockStmt blockStmt = function.getCallableUnitBody();
-        // This is a execution Start point. Hence link Block Statement with StartNode
-        blockStmt.setParent(new StartNode(StartNode.Originator.MAIN_FUNCTION));
-        // Visit Block Statement and ask it to handle its children.
-        returningBlockStmtStack.push(blockStmt);
-        cacheOffSetCounterStack.push(new CacheOffSetCounter());
-        function.setFlowBuilderVisited(true);
-        blockStmt.accept(this);
-        function.setCacheFrameSize(cacheOffSetCounterStack.pop().getCount());
-        returningBlockStmtStack.pop();
+        if (blockStmt != null) {
+            blockStmt.setParent(new StartNode());
+            // Visit Block Statement and ask handle its children.
+            returningBlockStmtStack.push(blockStmt);
+            cacheOffSetCounterStack.push(new CacheOffSetCounter());
+            function.setFlowBuilderVisited(true);
+            blockStmt.accept(this);
+            function.setCacheFrameSize(cacheOffSetCounterStack.pop().getCount());
+            returningBlockStmtStack.pop();
+        }
     }
 
     @Override
     public void visit(BTypeMapper typeMapper) {
+        if (typeMapper.isFlowBuilderVisited()) {
+            return;
+        }
+        clearBranchingStacks();
+        BlockStmt blockStmt = typeMapper.getCallableUnitBody();
+        if (blockStmt != null) {
+            blockStmt.setParent(new StartNode());
+            // Visit Block Statement and handle its children.
+            returningBlockStmtStack.push(blockStmt);
+            cacheOffSetCounterStack.push(new CacheOffSetCounter());
+            typeMapper.setFlowBuilderVisited(true);
+            blockStmt.accept(this);
+            typeMapper.setCacheFrameSize(cacheOffSetCounterStack.pop().getCount());
+            returningBlockStmtStack.pop();
+        }
     }
 
     @Override
     public void visit(BallerinaAction action) {
+        if (action.isFlowBuilderVisited()) {
+            return;
+        }
+        clearBranchingStacks();
+        BlockStmt blockStmt = action.getCallableUnitBody();
+        if (blockStmt != null) {
+            blockStmt.setParent(new StartNode());
+            // Visit Block Statement and handle its children.
+            returningBlockStmtStack.push(blockStmt);
+            cacheOffSetCounterStack.push(new CacheOffSetCounter());
+            action.setFlowBuilderVisited(true);
+            blockStmt.accept(this);
+            action.setCacheFrameSize(cacheOffSetCounterStack.pop().getCount());
+            returningBlockStmtStack.pop();
+        }
     }
 
     @Override
@@ -670,10 +705,6 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
 
     @Override
     public void visit(FunctionInvocationExpr funcInvExpr) {
-        if (funcInvExpr.next != null || !nonblockingEnabled) {
-            // Already Visited.
-            return;
-        }
         calculateTempOffSet(funcInvExpr);
         LinkedNode previous = null;
         if (funcInvExpr.getCallableUnit() instanceof BallerinaFunction) {
@@ -722,32 +753,8 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
         if (blockStmt != null) {
             // Ballerina Function. This blockStatement can have multi parents. So we need to handle this especially.
             endLink.setNext(blockStmt);
+            endLink.setBranchingLinkedNode(callableUnitEndLink);
             callableUnitEndLink.setNativeInvocation(false);
-            GotoNode gotoNode;
-            // Setup MultiLink Statement for this block Statement.
-            if (blockStmt.getGotoNode() != null) {
-                gotoNode = blockStmt.getGotoNode();
-            } else {
-                gotoNode = new GotoNode();
-                blockStmt.setGotoNode(gotoNode);
-                blockStmt.setNextSibling(gotoNode);
-            }
-            // Get Branching ID for above multi link.
-            int branchID = gotoNode.addNext(callableUnitEndLink);
-            funcInvExpr.setHasGotoBranchID(true);
-            funcInvExpr.setGotoBranchID(branchID);
-
-            BallerinaFunction bFunction = (BallerinaFunction) funcInvExpr.getCallableUnit();
-            // Avoid recursive Linking.
-            if (!bFunction.isFlowBuilderVisited()) {
-                // Visiting Block Statement.
-                returningBlockStmtStack.push(blockStmt);
-                cacheOffSetCounterStack.push(new CacheOffSetCounter());
-                bFunction.setFlowBuilderVisited(true);
-                blockStmt.accept(this);
-                funcInvExpr.getCallableUnit().setCacheFrameSize(cacheOffSetCounterStack.pop().getCount());
-                returningBlockStmtStack.pop();
-            }
         } else {
             // Native functions.
             InvokeNativeFunctionNode nativeIStmt = new InvokeNativeFunctionNode(
@@ -826,31 +833,8 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
         if (blockStmt != null) {
             // Ballerina Function. This blockStatement can have multi parents. So we need to handle this especially.
             endLink.setNext(blockStmt);
+            endLink.setBranchingLinkedNode(callableUnitEndLink);
             callableUnitEndLink.setNativeInvocation(false);
-            GotoNode multiLinkStmt;
-            // Setup MultiLink Statement for this block Statement.
-            if (blockStmt.getGotoNode() != null) {
-                multiLinkStmt = blockStmt.getGotoNode();
-            } else {
-                multiLinkStmt = new GotoNode();
-                blockStmt.setGotoNode(multiLinkStmt);
-                blockStmt.setNextSibling(multiLinkStmt);
-            }
-            // Get Branching ID for above multi link.
-            int branchID = multiLinkStmt.addNext(callableUnitEndLink);
-            actionInvExpr.setHasGotoBranchID(true);
-            actionInvExpr.setGotoBranchID(branchID);
-
-            // Visiting Block Statement.
-            BallerinaAction bAction = (BallerinaAction) actionInvExpr.getCallableUnit();
-            if (!bAction.isFlowBuilderVisited()) {
-                returningBlockStmtStack.push(blockStmt);
-                cacheOffSetCounterStack.push(new CacheOffSetCounter());
-                bAction.setFlowBuilderVisited(true);
-                blockStmt.accept(this);
-                actionInvExpr.getCallableUnit().setCacheFrameSize(cacheOffSetCounterStack.pop().getCount());
-                returningBlockStmtStack.pop();
-            }
         } else {
             // Native Action.
             InvokeNativeActionNode link = new InvokeNativeActionNode(
@@ -982,31 +966,17 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
             if (blockStmt != null) {
                 // Ballerina TypeCase. This blockStatement can have multi parents. So we need to handle this especially.
                 endLink.setNext(blockStmt);
+                endLink.setBranchingLinkedNode(callableUnitEndLink);
                 callableUnitEndLink.setNativeInvocation(false);
-                GotoNode gotoNode;
-                // Setup MultiLink Statement for this block Statement.
-                if (blockStmt.getGotoNode() != null) {
-                    gotoNode = blockStmt.getGotoNode();
-                } else {
-                    gotoNode = new GotoNode();
-                    blockStmt.setGotoNode(gotoNode);
-                    blockStmt.setNextSibling(gotoNode);
-                }
-                // Get Branching ID for above multi link.
-                int branchID = gotoNode.addNext(callableUnitEndLink);
-                castExpression.setHasGotoBranchID(true);
-                castExpression.setGotoBranchID(branchID);
-
-                // Visiting Block Statement.
-                BTypeMapper bTypeMapper = (BTypeMapper) castExpression.getCallableUnit();
-                if (!bTypeMapper.isFlowBuilderVisited()) {
-                    returningBlockStmtStack.push(blockStmt);
-                    cacheOffSetCounterStack.push(new CacheOffSetCounter());
-                    bTypeMapper.setFlowBuilderVisited(true);
-                    blockStmt.accept(this);
-                    castExpression.getCallableUnit().setCacheFrameSize(cacheOffSetCounterStack.pop().getCount());
-                    returningBlockStmtStack.pop();
-                }
+                // TODO : Fix this. Type cast expression creates new type mapper instances which is not correct.
+                blockStmt.setParent(new StartNode());
+                // Visit Block Statement and handle its children.
+                returningBlockStmtStack.push(blockStmt);
+                cacheOffSetCounterStack.push(new CacheOffSetCounter());
+                ((BTypeMapper) castExpression.getCallableUnit()).setFlowBuilderVisited(true);
+                blockStmt.accept(this);
+                castExpression.getCallableUnit().setCacheFrameSize(cacheOffSetCounterStack.pop().getCount());
+                returningBlockStmtStack.pop();
             } else {
                 // Native functions.
                 InvokeNativeTypeMapperNode link = new InvokeNativeTypeMapperNode(
@@ -1248,30 +1218,10 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
         } else {
             BallerinaConnectorDef connectorDef = (BallerinaConnectorDef) connector;
             BlockStmt blockStmt = connectorDef.getInitFunction().getCallableUnitBody();
-            endNode.setNext(blockStmt);
             CallableUnitEndNode callableUnitEndNode = new CallableUnitEndNode(connectorInitExpr);
-            blockStmt.setNextSibling(callableUnitEndNode);
-            GotoNode gotoNode;
-            // Setup MultiLink Statement for this block Statement.
-            if (blockStmt.getGotoNode() != null) {
-                gotoNode = blockStmt.getGotoNode();
-            } else {
-                gotoNode = new GotoNode();
-                blockStmt.setGotoNode(gotoNode);
-                blockStmt.setNextSibling(gotoNode);
-            }
-            // Get Branching ID for above multi link.
-            int branchID = gotoNode.addNext(callableUnitEndNode);
-            endNode.setHasGotoBranchID(true);
-            endNode.setGotoBranchID(branchID);
-            if (!connectorDef.getInitFunction().isFlowBuilderVisited()) {
-                returningBlockStmtStack.push(blockStmt);
-                cacheOffSetCounterStack.push(new CacheOffSetCounter());
-                connectorDef.getInitFunction().setFlowBuilderVisited(true);
-                blockStmt.accept(this);
-                connectorDef.getInitFunction().setCacheFrameSize(cacheOffSetCounterStack.pop().getCount());
-                returningBlockStmtStack.pop();
-            }
+            endNode.setNext(blockStmt);
+            endNode.setBranchingLinkedNode(callableUnitEndNode);
+            callableUnitEndNode.setNativeInvocation(false);
             callableUnitEndNode.setNext(findNext(connectorInitExpr));
         }
     }
@@ -1454,21 +1404,10 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
             // Validate whether Last Parent is a start statement.
             if (lastParent instanceof StartNode) {
                 // There is no execution state left. Hence this should be an end/terminate link.
-                if (((StartNode) lastParent).isMainFunctionInvocation()) {
-                    return new ExitNode();
-                }
                 return new EndNode();
             } else {
                 // We shouldn't come here. Unless someone forgot to handle linking.
-                String location = "Unknown";
-                if (lastParent instanceof Node) {
-                    Node node = (Node) lastParent;
-                    if (node.getNodeLocation() != null) {
-                        location = node.getNodeLocation().getFileName() + ":" + node.getNodeLocation().getLineNumber();
-                    }
-                }
-                throw new FlowBuilderException("Internal Error. Broken Link in Class " + lastParent.getClass() +
-                        " line " + location);
+                throw new FlowBuilderException("Internal Error. Broken Link in Class " + lastParent.getClass());
             }
         }
     }

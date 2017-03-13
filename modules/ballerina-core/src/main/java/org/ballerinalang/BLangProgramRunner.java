@@ -86,7 +86,7 @@ public class BLangProgramRunner {
         BallerinaFunction mainFunction = bLangProgram.getMainFunction();
 
         // Build flow for Non-Blocking execution.
-        mainFunction.accept(new BLangExecutionFlowBuilder());
+        bLangProgram.accept(new BLangExecutionFlowBuilder());
         try {
             BValue[] argValues = new BValue[mainFunction.getStackFrameSize()];
             BValue[] cacheValues = new BValue[mainFunction.getCacheFrameSize()];

@@ -17,6 +17,7 @@
 */
 package org.ballerinalang.bre;
 
+import org.ballerinalang.model.LinkedNode;
 import org.ballerinalang.model.SymbolName;
 import org.ballerinalang.model.values.BValue;
 
@@ -35,6 +36,7 @@ public class StackFrame {
     private CallableUnitInfo callableUnitInfo;
     // Cache values.
     public BValue[] cacheValues;
+    public LinkedNode branchingNode;
     // Use only in debugger. Added when variables are accessed.
     public HashMap<SymbolName, AbstractMap.SimpleEntry<Integer, String>> variables;
 

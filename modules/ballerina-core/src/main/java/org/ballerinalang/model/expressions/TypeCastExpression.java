@@ -45,8 +45,6 @@ public class TypeCastExpression extends AbstractExpression implements CallableUn
     private SymbolName typeMapperName;
     private TypeMapper typeMapper;
     protected Function<BValueType, BValueType> evalFuncNewNew;
-    private int retuningBranchID;
-    private boolean hasReturningBranch;
 
     public TypeCastExpression(NodeLocation location, Expression rExpr, BType targetType) {
         super(location);
@@ -187,26 +185,6 @@ public class TypeCastExpression extends AbstractExpression implements CallableUn
     @Override
     public BValue[] executeMultiReturn(NodeExecutor executor) {
         return new BValue[0];
-    }
-
-    @Override
-    public int getGotoBranchID() {
-        return retuningBranchID;
-    }
-
-    @Override
-    public void setGotoBranchID(int retuningBranchID) {
-        this.retuningBranchID = retuningBranchID;
-    }
-
-    @Override
-    public boolean hasGotoBranchID() {
-        return hasReturningBranch;
-    }
-
-    @Override
-    public void setHasGotoBranchID(boolean hasReturningBranch) {
-        this.hasReturningBranch = hasReturningBranch;
     }
 
 }

@@ -31,9 +31,6 @@ import org.ballerinalang.model.BLangProgram;
 import org.ballerinalang.model.BallerinaFunction;
 import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.builder.BLangExecutionFlowBuilder;
-import org.ballerinalang.model.expressions.Expression;
-import org.ballerinalang.model.expressions.FunctionInvocationExpr;
-import org.ballerinalang.model.nodes.StartNode;
 import org.ballerinalang.model.values.BArray;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
@@ -42,7 +39,6 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
@@ -75,7 +71,7 @@ public class DebuggerTest {
                         "Unexpected halt position for debug step " + (i + 1));
                 executeDebuggerCmd(debugRunner, debugCommand[i]);
             } else {
-                Assert.assertTrue(debugSessionObserver.isExit, "Debugger didn't exit as expected.");
+                Assert.assertTrue(debugSessionObserver.isComplete, "Debugger didn't exit as expected.");
             }
         }
     }
@@ -113,7 +109,7 @@ public class DebuggerTest {
     public void setup() {
         original = System.out;
         // Hiding all test System outs.
-        System.setOut(new PrintStream(new ByteArrayOutputStream()));
+//        System.setOut(new PrintStream(new ByteArrayOutputStream()));
     }
 
     @AfterClass
@@ -180,21 +176,19 @@ public class DebuggerTest {
     static class DebugRunner {
 
         BLangProgram bLangProgram;
-        FunctionInvocationExpr funcIExpr;
         BLangExecutionDebugger debugger;
 
         void setup() {
             ModeResolver.getInstance().setNonblockingEnabled(true);
             String sourceFilePath = "samples/debug/testDebug.bal";
             Path path;
-            
             try {
                 path = Paths.get(BTestUtils.class.getProtectionDomain().getCodeSource().getLocation().toURI());
             } catch (URISyntaxException e) {
                 throw new IllegalArgumentException("error while running test: " + e.getMessage());
             }
-            
             bLangProgram = new BLangProgramLoader().loadMain(path, Paths.get(sourceFilePath));
+            bLangProgram.accept(new BLangExecutionFlowBuilder());
             // Arguments for main function.
             BArray<BString> arrayArgs = new BArray<>(BString.class);
             arrayArgs.add(0, new BString("Hello"));
@@ -204,8 +198,6 @@ public class DebuggerTest {
             Context bContext = new Context();
             BallerinaFunction mainFunction = bLangProgram.getMainFunction();
 
-            mainFunction.accept(new BLangExecutionFlowBuilder());
-
             BValue[] argValues = new BValue[mainFunction.getStackFrameSize()];
             BValue[] cacheValues = new BValue[mainFunction.getCacheFrameSize()];
 
@@ -213,15 +205,6 @@ public class DebuggerTest {
 
             CallableUnitInfo functionInfo = new CallableUnitInfo(mainFunction.getName(), mainFunction.getPackagePath(),
                     mainFunction.getNodeLocation());
-
-            funcIExpr = new FunctionInvocationExpr(
-                    mainFunction.getNodeLocation(), mainFunction.getName(), null, null, new Expression[0]);
-            funcIExpr.setOffset(argValues.length);
-            funcIExpr.setCallableUnit(mainFunction);
-            // Flow Building.
-            BLangExecutionFlowBuilder flowBuilder = new BLangExecutionFlowBuilder();
-            funcIExpr.setParent(new StartNode(StartNode.Originator.TEST));
-            funcIExpr.accept(flowBuilder);
 
             StackFrame stackFrame = new StackFrame(argValues, new BValue[0], cacheValues, functionInfo);
             bContext.getControlStack().pushFrame(stackFrame);
@@ -231,23 +214,18 @@ public class DebuggerTest {
         }
 
         public void startDebug() {
-            debugger.execute(funcIExpr);
+            debugger.continueExecution(bLangProgram.getMainFunction().getCallableUnitBody());
         }
     }
 
     static class DebugSessionObserverImpl implements DebugSessionObserver {
-
-        boolean isExit;
+        boolean isComplete;
         int hitCount = -1;
         NodeLocation haltPosition;
 
         @Override
         public void notifyComplete() {
-        }
-
-        @Override
-        public void notifyExit() {
-            isExit = true;
+            isComplete = true;
         }
 
         @Override

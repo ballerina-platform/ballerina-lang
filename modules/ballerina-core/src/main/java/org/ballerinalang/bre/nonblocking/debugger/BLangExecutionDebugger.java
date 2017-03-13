@@ -35,8 +35,7 @@ import org.ballerinalang.model.expressions.FunctionInvocationExpr;
 import org.ballerinalang.model.expressions.ResourceInvocationExpr;
 import org.ballerinalang.model.expressions.VariableRefExpr;
 import org.ballerinalang.model.nodes.EndNode;
-import org.ballerinalang.model.nodes.ExitNode;
-import org.ballerinalang.model.nodes.GotoNode;
+import org.ballerinalang.model.nodes.StartNode;
 import org.ballerinalang.model.nodes.fragments.expressions.ActionInvocationExprStartNode;
 import org.ballerinalang.model.nodes.fragments.expressions.FunctionInvocationExprStartNode;
 import org.ballerinalang.model.nodes.fragments.expressions.TypeCastExpressionEndNode;
@@ -75,7 +74,7 @@ public class BLangExecutionDebugger extends BLangAbstractExecutionVisitor {
 
     private LinkedNode currentHaltNode;
     private Statement nextStep;
-    private boolean done, stepInToStatement, stepOutFromCallableUnit;
+    private boolean done, stepInToStatement;
     private DebugSessionObserver observer;
 
     public BLangExecutionDebugger(RuntimeEnvironment runtimeEnv, Context bContext) {
@@ -85,7 +84,6 @@ public class BLangExecutionDebugger extends BLangAbstractExecutionVisitor {
         this.positionHashMap = new HashMap<>();
         this.done = false;
         this.stepInToStatement = false;
-        this.stepOutFromCallableUnit = false;
     }
 
     public void setDebugSessionObserver(DebugSessionObserver observer) {
@@ -139,7 +137,7 @@ public class BLangExecutionDebugger extends BLangAbstractExecutionVisitor {
                 LinkedNode previous = current;
                 while (nextStep == null) {
                     if (previous instanceof BlockStmt) {
-                        if (((BlockStmt) previous).getGotoNode() != null) {
+                        if (previous.getParent() instanceof StartNode) {
                             // This is a callable Unit. We have to step-in here.
                             this.stepInToStatement = true;
                             break;
@@ -187,9 +185,16 @@ public class BLangExecutionDebugger extends BLangAbstractExecutionVisitor {
         if (done) {
             throw new IllegalStateException("Can't Step Out. Ballerina Program execution completed.");
         } else {
+            // Find branchingNode's next statement
+            LinkedNode stepOutStatement = bContext.getControlStack().getCurrentFrame().branchingNode.next();
+            while (stepOutStatement != null && !(stepOutStatement instanceof Statement)) {
+                stepOutStatement = stepOutStatement.next();
+            }
+            if (stepOutStatement != null) {
+                nextStep = (Statement) stepOutStatement;
+            }
             LinkedNode current = currentHaltNode;
             this.currentHaltNode = null;
-            this.stepOutFromCallableUnit = true;
             continueExecution(current);
         }
     }
@@ -209,12 +214,11 @@ public class BLangExecutionDebugger extends BLangAbstractExecutionVisitor {
      * @param statement to be executed.
      */
     private synchronized void tryNext(AbstractStatement statement) {
-        if (statement instanceof CommentStmt || stepOutFromCallableUnit) {
+        if (statement instanceof CommentStmt) {
             statement.accept(this);
         } else if (stepInToStatement || positionHashMap.containsKey(statement.getNodeLocation().toString()) ||
                 statement == nextStep) {
             currentHaltNode = statement;
-            stepOutFromCallableUnit = false;
             stepInToStatement = false;
             nextStep = null;
             next = null;
@@ -322,35 +326,13 @@ public class BLangExecutionDebugger extends BLangAbstractExecutionVisitor {
     @Override
     public void visit(EndNode endNode) {
         super.visit(endNode);
-        this.done = true;
-        this.currentHaltNode = null;
-        if (observer != null) {
-            observer.notifyComplete();
+        if (next == null) {
+            this.done = true;
+            this.currentHaltNode = null;
+            if (observer != null) {
+                observer.notifyComplete();
+            }
         }
-    }
-
-    @Override
-    public void visit(ExitNode exitNode) {
-        // We don't want to call system exit here.
-        next = null;
-        this.done = true;
-        this.currentHaltNode = null;
-        if (observer != null) {
-            observer.notifyExit();
-        }
-    }
-
-    @Override
-    public void visit(GotoNode gotoNode) {
-        Integer pop = branchIDStack.pop();
-        if (logger.isDebugEnabled()) {
-            logger.debug("Executing GotoNode branch:{}", pop);
-        }
-        if (stepOutFromCallableUnit) {
-            this.stepInToStatement = true;
-            this.stepOutFromCallableUnit = false;
-        }
-        next = gotoNode.next(pop);
     }
 
     @Override

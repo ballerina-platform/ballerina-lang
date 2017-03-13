@@ -65,8 +65,6 @@ import org.ballerinalang.model.expressions.TypeCastExpression;
 import org.ballerinalang.model.expressions.UnaryExpression;
 import org.ballerinalang.model.expressions.VariableRefExpr;
 import org.ballerinalang.model.nodes.EndNode;
-import org.ballerinalang.model.nodes.ExitNode;
-import org.ballerinalang.model.nodes.GotoNode;
 import org.ballerinalang.model.nodes.IfElseNode;
 import org.ballerinalang.model.nodes.fragments.expressions.ActionInvocationExprStartNode;
 import org.ballerinalang.model.nodes.fragments.expressions.ArrayInitExprEndNode;
@@ -158,7 +156,6 @@ import java.util.concurrent.TimeoutException;
 public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisitor {
 
     private static final Logger logger = LoggerFactory.getLogger(Constants.BAL_LINKED_INTERPRETER_LOGGER);
-    protected Stack<Integer> branchIDStack;
     private RuntimeEnvironment runtimeEnv;
     private Context bContext;
     private ControlStack controlStack;
@@ -172,7 +169,6 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
         this.runtimeEnv = runtimeEnv;
         this.bContext = bContext;
         this.controlStack = bContext.getControlStack();
-        this.branchIDStack = new Stack<>();
         this.tryCatchStackRefs = new Stack<>();
     }
 
@@ -199,8 +195,7 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
     @Override
     public void visit(BlockStmt blockStmt) {
         if (logger.isDebugEnabled()) {
-            logger.debug("Executing BlockStmt {}-MultiParent={}", getNodeLocation(blockStmt.getNodeLocation()),
-                    blockStmt.getGotoNode() != null);
+            logger.debug("Executing BlockStmt {}", getNodeLocation(blockStmt.getNodeLocation()));
         }
         next = blockStmt.next;
     }
@@ -541,7 +536,7 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
     @Override
     public void visit(TypeCastExpression typeCastExpression) {
         if (logger.isDebugEnabled()) {
-            logger.debug("Executing typeCast {}->{}", typeCastExpression.getType(), typeCastExpression.getTargetType());
+            logger.debug("Executing typeCast ->{}", typeCastExpression.getTargetType());
         }
         next = typeCastExpression.next;
     }
@@ -624,31 +619,10 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
 
     @Override
     public void visit(EndNode endNode) {
-        // Done.
+        next = controlStack.getCurrentFrame().branchingNode;
         if (logger.isDebugEnabled()) {
-            logger.debug("Executing EndNode");
+            logger.debug("Executing {}", next != null ? "Branching" : "End");
         }
-        completed = true;
-        next = null;
-    }
-
-    @Override
-    public void visit(ExitNode exitNode) {
-        if (logger.isDebugEnabled()) {
-            logger.debug("Executing ExitNode");
-        }
-        completed = true;
-        next = null;
-        Runtime.getRuntime().exit(0);
-    }
-
-    @Override
-    public void visit(GotoNode gotoNode) {
-        Integer pop = branchIDStack.pop();
-        if (logger.isDebugEnabled()) {
-            logger.debug("Executing GotoNode branch:{}", pop);
-        }
-        next = gotoNode.next(pop);
     }
 
     @Override
@@ -964,8 +938,8 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
         BValue[] cacheValues = new BValue[actionIExpr.getCallableUnit().getCacheFrameSize() + 1];
         StackFrame stackFrame = new StackFrame(localVals, returnVals, cacheValues, actionInfo);
         controlStack.pushFrame(stackFrame);
-        if (actionIExpr.hasGotoBranchID()) {
-            branchIDStack.push(actionIExpr.getGotoBranchID());
+        if (actionInvocationExprStartNode.getBranchingLinkedNode() != null) {
+            stackFrame.branchingNode = actionInvocationExprStartNode.getBranchingLinkedNode();
         }
     }
 
@@ -1090,7 +1064,8 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
         }
 
         // Create an arrays in the stack frame to hold return values;
-        BValue[] returnVals = new BValue[function.getReturnParamTypes().length];
+        int size = function.getReturnParamTypes() != null ? function.getReturnParamTypes().length : 0;
+        BValue[] returnVals = new BValue[size];
 
         // Create a new stack frame with memory locations to hold parameters, local values, temp expression value,
         // return values and function invocation location;
@@ -1100,8 +1075,8 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
         BValue[] cacheValue = new BValue[funcIExpr.getCallableUnit().getCacheFrameSize() + 1];
         StackFrame stackFrame = new StackFrame(localVals, returnVals, cacheValue, functionInfo);
         controlStack.pushFrame(stackFrame);
-        if (funcIExpr.hasGotoBranchID()) {
-            branchIDStack.push(funcIExpr.getGotoBranchID());
+        if (functionInvocationExprStartNode.getBranchingLinkedNode() != null) {
+            stackFrame.branchingNode = functionInvocationExprStartNode.getBranchingLinkedNode();
         }
     }
 
@@ -1191,8 +1166,8 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
             BValue[] cacheValue = new BValue[typeCastExpression.getCallableUnit().getCacheFrameSize() + 1];
             StackFrame stackFrame = new StackFrame(localVals, returnVals, cacheValue, functionInfo);
             controlStack.pushFrame(stackFrame);
-            if (typeCastExpression.hasGotoBranchID()) {
-                branchIDStack.push(typeCastExpression.getGotoBranchID());
+            if (typeCastExpressionEndNode.getBranchingLinkedNode() != null) {
+                stackFrame.branchingNode = typeCastExpressionEndNode.getBranchingLinkedNode();
             }
         }
     }
@@ -1299,8 +1274,8 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
             BValue[] cacheValue = new BValue[initFunction.getCacheFrameSize() + 1];
             StackFrame stackFrame = new StackFrame(localVals, returnVals, cacheValue, functionInfo);
             controlStack.pushFrame(stackFrame);
-            if (connectorInitExprEndNode.hasGotoBranchID()) {
-                branchIDStack.push(connectorInitExprEndNode.getGotoBranchID());
+            if (connectorInitExprEndNode.getBranchingLinkedNode() != null) {
+                stackFrame.branchingNode = connectorInitExprEndNode.getBranchingLinkedNode();
             }
         }
 
