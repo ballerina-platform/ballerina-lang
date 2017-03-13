@@ -313,7 +313,7 @@ define(['require', 'lodash', 'jquery', 'ballerina/ast/ballerina-ast-factory'],
             // Left margin of the connector action view
             var leftMargin = this._viewOfModel.getBoundingBox().x();
             var argumentsEditorLeft = parseInt(this._argumentsEditorWrapper.css("left"), 10) + dx;
-            // This is to ensure that resource parameter editor doesn't go beyond the left margin of the connector action.(to avoid clipping)
+            // This is to ensure that argument editor doesn't go beyond the left margin of the connector action.(to avoid clipping)
             if (leftMargin < argumentsEditorLeft) {
                 this._argumentsEditorWrapper.css("left", argumentsEditorLeft);
             } else {
