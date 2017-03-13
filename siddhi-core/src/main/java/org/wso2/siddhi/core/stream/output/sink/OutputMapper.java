@@ -37,7 +37,7 @@ public abstract class OutputMapper {
 
     public final void init(StreamDefinition streamDefinition,
                            String type,
-                           OptionHolder mapOptionHolder, String unmappedPayload, String[] publishGroupDeterminers,
+                           OptionHolder mapOptionHolder, String unmappedPayload,
                            OptionHolder transportOptionHolder) {
         this.optionHolder = mapOptionHolder;
         this.type = type;
@@ -45,11 +45,10 @@ public abstract class OutputMapper {
             payloadTemplateBuilder = new TemplateBuilder(streamDefinition, unmappedPayload);
         }
         init(streamDefinition, mapOptionHolder, payloadTemplateBuilder);
-        transportOptions = new ArrayList<Option>(publishGroupDeterminers.length);
-        for (String publishGroupDeterminer : publishGroupDeterminers) {
+        transportOptions = new ArrayList<Option>(transportOptionHolder.getDynamicOptionsKeys().size());
+        for (String publishGroupDeterminer : transportOptionHolder.getDynamicOptionsKeys()) {
             transportOptions.add(transportOptionHolder.validateAndGetOption(publishGroupDeterminer));
         }
-
     }
 
     /**

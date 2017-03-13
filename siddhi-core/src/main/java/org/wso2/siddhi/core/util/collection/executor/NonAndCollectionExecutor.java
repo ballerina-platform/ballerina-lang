@@ -42,9 +42,9 @@ public class NonAndCollectionExecutor implements CollectionExecutor {
         this.collectionScope = collectionScope;
     }
 
-    public StreamEvent find(StateEvent matchingEvent, IndexedEventHolder indexedEventHolder, StreamEventCloner candidateEventCloner) {
+    public StreamEvent find(StateEvent matchingEvent, IndexedEventHolder indexedEventHolder, StreamEventCloner storeEventCloner) {
         if ((Boolean) valueExpressionExecutor.execute(matchingEvent)) {
-            return collectionExecutor.find(matchingEvent, indexedEventHolder, candidateEventCloner);
+            return collectionExecutor.find(matchingEvent, indexedEventHolder, storeEventCloner);
         } else {
             return null;
         }

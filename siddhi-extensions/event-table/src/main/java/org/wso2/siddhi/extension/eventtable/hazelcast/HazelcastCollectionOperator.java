@@ -25,41 +25,39 @@ import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.util.collection.OverwritingStreamEventExtractor;
 import org.wso2.siddhi.core.util.collection.UpdateAttributeMapper;
 import org.wso2.siddhi.core.util.collection.operator.CollectionOperator;
-import org.wso2.siddhi.core.util.collection.operator.Finder;
+import org.wso2.siddhi.core.util.collection.operator.CompiledCondition;
 
-import java.util.Collection;
 import java.util.Iterator;
-import java.util.List;
 
 /**
  * Operator which is related to non-indexed Hazelcast table operations.
  */
 public class HazelcastCollectionOperator extends CollectionOperator {
 
-    public HazelcastCollectionOperator(ExpressionExecutor expressionExecutor, int candidateEventPosition) {
-        super(expressionExecutor, candidateEventPosition);
+    public HazelcastCollectionOperator(ExpressionExecutor expressionExecutor, int storeEventPosition) {
+        super(expressionExecutor, storeEventPosition);
     }
 
     @Override
-    public Finder cloneFinder(String key) {
-        return new HazelcastCollectionOperator(expressionExecutor, candidateEventPosition);
+    public CompiledCondition cloneCompiledCondition(String key) {
+        return new HazelcastCollectionOperator(expressionExecutor, storeEventPosition);
     }
 
     @Override
-    public void delete(ComplexEventChunk<StateEvent> deletingEventChunk, Object candidateEvents) {
+    public void delete(ComplexEventChunk<StateEvent> deletingEventChunk, Object storeEvents) {
         deletingEventChunk.reset();
         while (deletingEventChunk.hasNext()) {
             StateEvent deletingEvent = deletingEventChunk.next();
             try {
-                for (Iterator<StreamEvent> iterator = ((HazelcastCollectionEventHolder) candidateEvents).iterator(); iterator.hasNext(); ) {
-                    StreamEvent candidateEvent = iterator.next();
-                    deletingEvent.setEvent(candidateEventPosition, candidateEvent);
+                for (Iterator<StreamEvent> iterator = ((HazelcastCollectionEventHolder) storeEvents).iterator(); iterator.hasNext(); ) {
+                    StreamEvent storeEvent = iterator.next();
+                    deletingEvent.setEvent(storeEventPosition, storeEvent);
                     if ((Boolean) expressionExecutor.execute(deletingEvent)) {
-                        ((HazelcastCollectionEventHolder) candidateEvents).remove(candidateEvent);
+                        ((HazelcastCollectionEventHolder) storeEvents).remove(storeEvent);
                     }
                 }
             } finally {
-                deletingEvent.setEvent(candidateEventPosition, null);
+                deletingEvent.setEvent(storeEventPosition, null);
             }
         }
     }
@@ -68,34 +66,33 @@ public class HazelcastCollectionOperator extends CollectionOperator {
      * Called when updating the event table entries.
      *
      * @param updatingEventChunk     Event list that needs to be updated.
-     * @param candidateEvents        Map of candidate events.
+     * @param storeEvents            Map of store events.
      * @param updateAttributeMappers Mapping positions array.
      */
     @Override
-    public void update(ComplexEventChunk<StateEvent> updatingEventChunk, Object candidateEvents, UpdateAttributeMapper[] updateAttributeMappers) {
+    public void update(ComplexEventChunk<StateEvent> updatingEventChunk, Object storeEvents, UpdateAttributeMapper[] updateAttributeMappers) {
         updatingEventChunk.reset();
         while (updatingEventChunk.hasNext()) {
             StateEvent updatingEvent = updatingEventChunk.next();
             try {
-                for (int i = 0; i < ((HazelcastCollectionEventHolder) candidateEvents).size(); i++) {
-                    StreamEvent candidateEvent = ((HazelcastCollectionEventHolder) candidateEvents).get(i);
-                    updatingEvent.setEvent(candidateEventPosition, candidateEvent);
+                for (int i = 0; i < ((HazelcastCollectionEventHolder) storeEvents).size(); i++) {
+                    StreamEvent storeEvent = ((HazelcastCollectionEventHolder) storeEvents).get(i);
+                    updatingEvent.setEvent(storeEventPosition, storeEvent);
                     if ((Boolean) expressionExecutor.execute(updatingEvent)) {
                         for (UpdateAttributeMapper updateAttributeMapper : updateAttributeMappers) {
-                            candidateEvent.setOutputData(updateAttributeMapper.getOutputData(updatingEvent),
-                                    updateAttributeMapper.getCandidateAttributePosition());
+                            updateAttributeMapper.mapOutputData(updatingEvent, storeEvent);
                         }
-                        ((HazelcastCollectionEventHolder) candidateEvents).set(i, candidateEvent);
+                        ((HazelcastCollectionEventHolder) storeEvents).set(i, storeEvent);
                     }
                 }
             } finally {
-                updatingEvent.setEvent(candidateEventPosition, null);
+                updatingEvent.setEvent(storeEventPosition, null);
             }
         }
     }
 
     @Override
-    public ComplexEventChunk<StreamEvent> overwrite(ComplexEventChunk<StateEvent> overwritingOrAddingEventChunk, Object candidateEvents,
+    public ComplexEventChunk<StreamEvent> overwrite(ComplexEventChunk<StateEvent> overwritingOrAddingEventChunk, Object storeEvents,
                                                     UpdateAttributeMapper[] updateAttributeMappers, OverwritingStreamEventExtractor overwritingStreamEventExtractor) {
         overwritingOrAddingEventChunk.reset();
         ComplexEventChunk<StreamEvent> failedEventChunk = new ComplexEventChunk<StreamEvent>(overwritingOrAddingEventChunk.isBatch());
@@ -103,15 +100,14 @@ public class HazelcastCollectionOperator extends CollectionOperator {
             StateEvent overwritingOrAddingEvent = overwritingOrAddingEventChunk.next();
             try {
                 boolean updated = false;
-                for (int i = 0; i < ((HazelcastCollectionEventHolder) candidateEvents).size(); i++) {
-                    StreamEvent candidateEvent = ((HazelcastCollectionEventHolder) candidateEvents).get(i);
-                    overwritingOrAddingEvent.setEvent(candidateEventPosition, candidateEvent);
+                for (int i = 0; i < ((HazelcastCollectionEventHolder) storeEvents).size(); i++) {
+                    StreamEvent storeEvent = ((HazelcastCollectionEventHolder) storeEvents).get(i);
+                    overwritingOrAddingEvent.setEvent(storeEventPosition, storeEvent);
                     if ((Boolean) expressionExecutor.execute(overwritingOrAddingEvent)) {
                         for (UpdateAttributeMapper updateAttributeMapper : updateAttributeMappers) {
-                            candidateEvent.setOutputData(updateAttributeMapper.getOutputData(overwritingOrAddingEvent),
-                                    updateAttributeMapper.getCandidateAttributePosition());
+                            updateAttributeMapper.mapOutputData(overwritingOrAddingEvent, storeEvent);
                         }
-                        ((HazelcastCollectionEventHolder) candidateEvents).set(i, candidateEvent);
+                        ((HazelcastCollectionEventHolder) storeEvents).set(i, storeEvent);
                         updated = true;
                     }
                 }
@@ -119,7 +115,7 @@ public class HazelcastCollectionOperator extends CollectionOperator {
                     failedEventChunk.add(overwritingStreamEventExtractor.getOverwritingStreamEvent(overwritingOrAddingEvent));
                 }
             } finally {
-                overwritingOrAddingEvent.setEvent(candidateEventPosition, null);
+                overwritingOrAddingEvent.setEvent(storeEventPosition, null);
             }
         }
         return failedEventChunk;

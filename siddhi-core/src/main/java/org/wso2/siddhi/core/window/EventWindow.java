@@ -35,8 +35,8 @@ import org.wso2.siddhi.core.query.processor.stream.window.WindowProcessor;
 import org.wso2.siddhi.core.stream.StreamJunction;
 import org.wso2.siddhi.core.table.EventTable;
 import org.wso2.siddhi.core.util.Scheduler;
-import org.wso2.siddhi.core.util.collection.operator.Finder;
-import org.wso2.siddhi.core.util.collection.operator.MatchingMetaStateHolder;
+import org.wso2.siddhi.core.util.collection.operator.CompiledCondition;
+import org.wso2.siddhi.core.util.collection.operator.MatchingMetaInfoHolder;
 import org.wso2.siddhi.core.util.lock.LockWrapper;
 import org.wso2.siddhi.core.util.parser.SchedulerParser;
 import org.wso2.siddhi.core.util.parser.SingleInputStreamParser;
@@ -223,17 +223,17 @@ public class EventWindow implements FindableProcessor, Snapshotable {
      * {@inheritDoc}
      */
     @Override
-    public StreamEvent find(StateEvent matchingEvent, Finder finder) {
-        return ((FindableProcessor) this.internalWindowProcessor).find(matchingEvent, finder);
+    public StreamEvent find(StateEvent matchingEvent, CompiledCondition compiledCondition) {
+        return ((FindableProcessor) this.internalWindowProcessor).find(matchingEvent, compiledCondition);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public Finder constructFinder(Expression expression, MatchingMetaStateHolder matchingMetaStateHolder, ExecutionPlanContext executionPlanContext, List<VariableExpressionExecutor> variableExpressionExecutors, Map<String, EventTable> eventTableMap) {
+    public CompiledCondition compileCondition(Expression expression, MatchingMetaInfoHolder matchingMetaInfoHolder, ExecutionPlanContext executionPlanContext, List<VariableExpressionExecutor> variableExpressionExecutors, Map<String, EventTable> eventTableMap) {
         if (this.internalWindowProcessor instanceof FindableProcessor) {
-            return ((FindableProcessor) this.internalWindowProcessor).constructFinder(expression, matchingMetaStateHolder, executionPlanContext, variableExpressionExecutors, eventTableMap);
+            return ((FindableProcessor) this.internalWindowProcessor).compileCondition(expression, matchingMetaInfoHolder, executionPlanContext, variableExpressionExecutors, eventTableMap);
         } else {
             throw new OperationNotSupportedException("Cannot construct finder for the window " + this.windowDefinition.getWindow());
         }

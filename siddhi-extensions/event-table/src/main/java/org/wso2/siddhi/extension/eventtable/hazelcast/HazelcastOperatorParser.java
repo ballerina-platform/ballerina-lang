@@ -24,7 +24,7 @@ import org.wso2.siddhi.core.exception.OperationNotSupportedException;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
 import org.wso2.siddhi.core.table.EventTable;
-import org.wso2.siddhi.core.util.collection.operator.MatchingMetaStateHolder;
+import org.wso2.siddhi.core.util.collection.operator.MatchingMetaInfoHolder;
 import org.wso2.siddhi.core.util.collection.operator.Operator;
 import org.wso2.siddhi.core.util.parser.ExpressionParser;
 import org.wso2.siddhi.query.api.expression.Expression;
@@ -46,12 +46,12 @@ public class HazelcastOperatorParser {
     private HazelcastOperatorParser() {
     }
 
-    public static Operator constructOperator(Object candidateEvents, Expression expression,
-                                             MatchingMetaStateHolder matchingMetaStateHolder,
+    public static Operator constructOperator(Object storeEvents, Expression expression,
+                                             MatchingMetaInfoHolder matchingMetaInfoHolder,
                                              ExecutionPlanContext executionPlanContext,
                                              List<VariableExpressionExecutor> variableExpressionExecutors,
                                              Map<String, EventTable> eventTableMap, String queryName) {
-        if (candidateEvents instanceof HazelcastPrimaryKeyEventHolder) {
+        if (storeEvents instanceof HazelcastPrimaryKeyEventHolder) {
             if (expression instanceof Compare && ((Compare) expression).getOperator() == Compare.Operator.EQUAL) {
                 Compare compare = (Compare) expression;
                 if ((compare.getLeftExpression() instanceof Variable || compare.getLeftExpression() instanceof Constant)
@@ -60,45 +60,45 @@ public class HazelcastOperatorParser {
                     boolean leftSideIndexed = false;
                     boolean rightSideIndexed = false;
 
-                    if (isTableIndexVariable(matchingMetaStateHolder, compare.getLeftExpression(), ((HazelcastPrimaryKeyEventHolder) candidateEvents).getIndexAttribute())) {
+                    if (isTableIndexVariable(matchingMetaInfoHolder, compare.getLeftExpression(), ((HazelcastPrimaryKeyEventHolder) storeEvents).getIndexAttribute())) {
                         leftSideIndexed = true;
                     }
 
-                    if (isTableIndexVariable(matchingMetaStateHolder, compare.getRightExpression(), ((HazelcastPrimaryKeyEventHolder) candidateEvents).getIndexAttribute())) {
+                    if (isTableIndexVariable(matchingMetaInfoHolder, compare.getRightExpression(), ((HazelcastPrimaryKeyEventHolder) storeEvents).getIndexAttribute())) {
                         rightSideIndexed = true;
                     }
 
                     if (leftSideIndexed && !rightSideIndexed) {
                         ExpressionExecutor expressionExecutor = ExpressionParser.parseExpression(compare.getRightExpression(),
-                                matchingMetaStateHolder.getMetaStateEvent(), matchingMetaStateHolder.getDefaultStreamEventIndex(), eventTableMap, variableExpressionExecutors, executionPlanContext, false, 0, queryName);
-                        return new HazelcastPrimaryKeyOperator(expressionExecutor, matchingMetaStateHolder.getCandidateEventIndex(), ((HazelcastPrimaryKeyEventHolder) candidateEvents).getIndexPosition());
+                                matchingMetaInfoHolder.getMetaStateEvent(), matchingMetaInfoHolder.getStreamEventIndex(), eventTableMap, variableExpressionExecutors, executionPlanContext, false, 0, queryName);
+                        return new HazelcastPrimaryKeyOperator(expressionExecutor, matchingMetaInfoHolder.getStoreEventIndex(), ((HazelcastPrimaryKeyEventHolder) storeEvents).getIndexPosition());
 
                     } else if (!leftSideIndexed && rightSideIndexed) {
                         ExpressionExecutor expressionExecutor = ExpressionParser.parseExpression(compare.getLeftExpression(),
-                                matchingMetaStateHolder.getMetaStateEvent(), matchingMetaStateHolder.getDefaultStreamEventIndex(), eventTableMap, variableExpressionExecutors, executionPlanContext, false, 0, queryName);
-                        return new HazelcastPrimaryKeyOperator(expressionExecutor, matchingMetaStateHolder.getCandidateEventIndex(), ((HazelcastPrimaryKeyEventHolder) candidateEvents).getIndexPosition());
+                                matchingMetaInfoHolder.getMetaStateEvent(), matchingMetaInfoHolder.getStreamEventIndex(), eventTableMap, variableExpressionExecutors, executionPlanContext, false, 0, queryName);
+                        return new HazelcastPrimaryKeyOperator(expressionExecutor, matchingMetaInfoHolder.getStoreEventIndex(), ((HazelcastPrimaryKeyEventHolder) storeEvents).getIndexPosition());
 
                     }
                 }
             }
             //fallback to not using primary key
             ExpressionExecutor expressionExecutor = ExpressionParser.parseExpression(expression,
-                    matchingMetaStateHolder.getMetaStateEvent(), matchingMetaStateHolder.getDefaultStreamEventIndex(), eventTableMap, variableExpressionExecutors, executionPlanContext, false, 0, queryName);
-            return new HazelcastMapOperator(expressionExecutor, matchingMetaStateHolder.getCandidateEventIndex());
-        } else if (candidateEvents instanceof Collection) {
+                    matchingMetaInfoHolder.getMetaStateEvent(), matchingMetaInfoHolder.getStreamEventIndex(), eventTableMap, variableExpressionExecutors, executionPlanContext, false, 0, queryName);
+            return new HazelcastMapOperator(expressionExecutor, matchingMetaInfoHolder.getStoreEventIndex());
+        } else if (storeEvents instanceof Collection) {
             ExpressionExecutor expressionExecutor = ExpressionParser.parseExpression(expression,
-                    matchingMetaStateHolder.getMetaStateEvent(), matchingMetaStateHolder.getDefaultStreamEventIndex(), eventTableMap, variableExpressionExecutors, executionPlanContext, false, 0, queryName);
-            return new HazelcastCollectionOperator(expressionExecutor, matchingMetaStateHolder.getCandidateEventIndex());
+                    matchingMetaInfoHolder.getMetaStateEvent(), matchingMetaInfoHolder.getStreamEventIndex(), eventTableMap, variableExpressionExecutors, executionPlanContext, false, 0, queryName);
+            return new HazelcastCollectionOperator(expressionExecutor, matchingMetaInfoHolder.getStoreEventIndex());
         } else {
-            throw new OperationNotSupportedException(candidateEvents.getClass() + " is not supported by OperatorParser!");
+            throw new OperationNotSupportedException(storeEvents.getClass() + " is not supported by OperatorParser!");
         }
     }
 
-    private static boolean isTableIndexVariable(MatchingMetaStateHolder matchingMetaStateHolder, Expression expression, String indexAttribute) {
+    private static boolean isTableIndexVariable(MatchingMetaInfoHolder matchingMetaInfoHolder, Expression expression, String indexAttribute) {
         if (expression instanceof Variable) {
             Variable variable = (Variable) expression;
             if (variable.getStreamId() != null) {
-                MetaStreamEvent tableStreamEvent = matchingMetaStateHolder.getMetaStateEvent().getMetaStreamEvent(matchingMetaStateHolder.getCandidateEventIndex());
+                MetaStreamEvent tableStreamEvent = matchingMetaInfoHolder.getMetaStateEvent().getMetaStreamEvent(matchingMetaInfoHolder.getStoreEventIndex());
                 if (tableStreamEvent != null) {
                     if ((tableStreamEvent.getInputReferenceId() != null && variable.getStreamId().equals(tableStreamEvent.getInputReferenceId())) ||
                             (tableStreamEvent.getLastInputDefinition().getId().equals(variable.getStreamId()))) {
@@ -107,7 +107,7 @@ public class HazelcastOperatorParser {
                         }
                     }
                 } else {
-                    if (matchingMetaStateHolder.getCandsidateDefinition().getId().equals(variable.getStreamId())) {
+                    if (matchingMetaInfoHolder.getStoreDefinition().getId().equals(variable.getStreamId())) {
                         return true;
                     }
                 }

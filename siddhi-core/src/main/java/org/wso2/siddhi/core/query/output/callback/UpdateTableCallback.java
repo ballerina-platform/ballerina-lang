@@ -25,7 +25,7 @@ import org.wso2.siddhi.core.event.stream.StreamEventPool;
 import org.wso2.siddhi.core.event.stream.converter.StreamEventConverter;
 import org.wso2.siddhi.core.table.EventTable;
 import org.wso2.siddhi.core.util.collection.UpdateAttributeMapper;
-import org.wso2.siddhi.core.util.collection.operator.Operator;
+import org.wso2.siddhi.core.util.collection.operator.CompiledCondition;
 import org.wso2.siddhi.core.util.parser.MatcherParser;
 import org.wso2.siddhi.query.api.definition.AbstractDefinition;
 
@@ -33,17 +33,17 @@ public class UpdateTableCallback extends OutputCallback {
     private final int matchingStreamIndex;
     private final UpdateAttributeMapper[] updateAttributeMappers;
     private EventTable eventTable;
-    private Operator operator;
+    private CompiledCondition compiledCondition;
     private boolean convertToStreamEvent;
     private StateEventPool stateEventPool;
     private StreamEventPool streamEventPool;
     private StreamEventConverter streamEventConvertor;
 
-    public UpdateTableCallback(EventTable eventTable, Operator operator, AbstractDefinition updatingStreamDefinition,
+    public UpdateTableCallback(EventTable eventTable, CompiledCondition compiledCondition, AbstractDefinition updatingStreamDefinition,
                                int matchingStreamIndex, boolean convertToStreamEvent, StateEventPool stateEventPool,
                                StreamEventPool streamEventPool, StreamEventConverter streamEventConvertor) {
         this.eventTable = eventTable;
-        this.operator = operator;
+        this.compiledCondition = compiledCondition;
         this.matchingStreamIndex = matchingStreamIndex;
         this.convertToStreamEvent = convertToStreamEvent;
         this.stateEventPool = stateEventPool;
@@ -59,7 +59,7 @@ public class UpdateTableCallback extends OutputCallback {
         if (updatingEventChunk.hasNext()) {
             ComplexEventChunk<StateEvent> updatingStateEventChunk = constructMatchingStateEventChunk(updatingEventChunk,
                     convertToStreamEvent, stateEventPool, matchingStreamIndex, streamEventPool, streamEventConvertor);
-            eventTable.update(updatingStateEventChunk, operator, updateAttributeMappers);
+            eventTable.update(updatingStateEventChunk, compiledCondition, updateAttributeMappers);
         }
     }
 

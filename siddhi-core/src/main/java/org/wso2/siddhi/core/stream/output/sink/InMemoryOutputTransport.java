@@ -42,12 +42,8 @@ public class InMemoryOutputTransport extends OutputTransport {
     private Option topicOption;
 
     @Override
-    protected String[] init(OptionHolder optionHolder) {
+    protected void init(OptionHolder optionHolder) {
         topicOption = optionHolder.validateAndGetOption(TOPIC_KEY);
-        if(!topicOption.isStatic()){
-            return new String[]{topicOption.getKey()};
-        }
-        return new String[0];
     }
 
     @Override
