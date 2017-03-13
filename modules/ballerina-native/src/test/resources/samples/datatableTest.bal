@@ -25,6 +25,7 @@ function getXXXByIndex()(int, long, float, double, boolean, string) {
         s = datatables:getString(df, 6);
     }
     datatables:close(df);
+    sql:ClientConnector.close(testDB);
     return i, l, f, d, b, s;
 }
 
@@ -52,6 +53,7 @@ function getXXXByName()(int, long, float, double, boolean, string) {
         s = datatables:getString(df, "string_type");
     }
     datatables:close(df);
+    sql:ClientConnector.close(testDB);
     return i, l, f, d, b, s;
 }
 
@@ -120,6 +122,7 @@ function getByName()(string, string, long, long, long) {
         timestamp = datatables:getLong(df, "timestamp_type", "timestamp");
     }
     datatables:close(df);
+    sql:ClientConnector.close(testDB);
     return blob, clob, time, date, timestamp;
 }
 
@@ -147,6 +150,7 @@ function getByIndex()(string, string, long, long, long) {
         timestamp = datatables:getLong(df, 5, "timestamp");
     }
     datatables:close(df);
+    sql:ClientConnector.close(testDB);
     return blob, clob, time, date, timestamp;
 }
 
@@ -172,6 +176,7 @@ function getObjectAsStringByIndex()(string, string, string, string, string) {
         timestamp = datatables:getValueAsString(df, 5);
     }
     datatables:close(df);
+    sql:ClientConnector.close(testDB);
     return blob, clob, time, date, timestamp;
 }
 
@@ -197,6 +202,7 @@ function getObjectAsStringByName()(string, string, string, string, string) {
         timestamp = datatables:getValueAsString(df, "timestamp_type");
     }
     datatables:close(df);
+    sql:ClientConnector.close(testDB);
     return blob, clob, time, date, timestamp;
 }
 
@@ -218,6 +224,7 @@ function getArrayByName()(map int_arr, map long_arr, map double_arr, map string_
         string_arr = datatables:getArray(df, "string_array");
     }
     datatables:close(df);
+    sql:ClientConnector.close(testDB);
     return;
 }
 
@@ -238,6 +245,7 @@ function getArrayByIndex()(map int_arr, map long_arr, map double_arr, map string
         string_arr = datatables:getArray(df, 5);
     }
     datatables:close(df);
+    sql:ClientConnector.close(testDB);
     return;
 }
 
@@ -262,5 +270,6 @@ function testDateTime(string time, string date, string timestamp) (long time1, l
         timestamp1 = datatables:getLong(dt, "timestamp_type", "timestamp");
     }
     datatables:close(dt);
+    sql:ClientConnector.close(testDB);
     return;
 }
