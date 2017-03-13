@@ -27,6 +27,9 @@ public final class SiddhiConstants {
     public static final String NAMESPACE_OUTPUT_TRANSPORT = "outputtransport";
     public static final String NAMESPACE_OUTPUT_MAPPER = "outputmapper";
 
+    public static final String EXTENSION_MULTI_ENDPOINT_TRANSPORT = "multi-endpoint";
+    public static final String EXTENSION_PARTITIONED_TRANSPORT = "partitioned";
+
     public static final int BEFORE_WINDOW_DATA_INDEX = 0;
     public static final int ON_AFTER_WINDOW_DATA_INDEX = 1;
     public static final int OUTPUT_DATA_INDEX = 2;
@@ -49,6 +52,8 @@ public final class SiddhiConstants {
     public static final String ANNOTATION_SOURCE = "source";
     public static final String ANNOTATION_SINK = "sink";
     public static final String ANNOTATION_MAP = "map";
+    public static final String ANNOTATION_DISTRIBUTION = "distribution";
+    public static final String ANNOTATION_ENDPOINT = "endpoint";
     public static final String ANNOTATION_ATTRIBUTES = "attributes";
     public static final String ANNOTATION_PAYLOAD = "payload";
     public static final String ANNOTATION_BUFFER_SIZE = "BufferSize";

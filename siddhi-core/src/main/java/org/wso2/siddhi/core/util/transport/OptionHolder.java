@@ -75,6 +75,10 @@ public class OptionHolder {
         }
     }
 
+    public boolean isOptionExists(String optionKey){
+        return (options.get(optionKey) != null);
+    }
+    
     public Set<String> getDynamicOptionsKeys() {
         return dynamicOptionsKeys;
     }
