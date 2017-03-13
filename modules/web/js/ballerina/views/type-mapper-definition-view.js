@@ -159,7 +159,7 @@ define(['lodash', 'log', './ballerina-view', './variables-view', './type-struct-
             currentContainer.find('svg').remove();
 
             $(document).ready(function() {
-                this.loadSchemasToComboBox(currentContainer, "#" + sourceId, "#" + targetId, predefinedStructs);
+                self.loadSchemasToComboBox(currentContainer, "#" + sourceId, "#" + targetId, predefinedStructs);
 
                 $(".type-mapper-combo").select2();
                 $("#" + targetId).on("select2:open", function () {
