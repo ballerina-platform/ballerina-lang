@@ -16,12 +16,18 @@
 
 package org.wso2.siddhi.service;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.wso2.msf4j.MicroservicesRunner;
+
+import java.io.File;
 
 /**
  * Application class.
  */
 public class Application {
+
+    private static Log log = LogFactory.getLog(Application.class);
 
     public static void main(String[] args) {
         new MicroservicesRunner().deploy(new SiddhiService()).start();
