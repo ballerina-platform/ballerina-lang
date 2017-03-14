@@ -27,8 +27,6 @@ import java.io.File;
  */
 public class Application {
 
-    private static Log log = LogFactory.getLog(Application.class);
-
     public static void main(String[] args) {
         new MicroservicesRunner().deploy(new SiddhiService()).start();
     }

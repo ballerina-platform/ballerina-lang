@@ -16,7 +16,9 @@
 
 package org.wso2.siddhi.service.util;
 
-
+/**
+ * Class which defines the API response
+ */
 public class ServiceResponse {
 
     private String status;

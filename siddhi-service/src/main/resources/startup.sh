@@ -1,33 +1,26 @@
 #! /bin/sh
 
 
-# add the libraries to the IREPORT_CLASSPATH.
+# add the libraries to the SIDDHI_CLASSPATH.
 # EXEDIR is the directory where this executable is.
-EXEDIR=${0%/*}
-DIRLIBS=${EXEDIR}/../lib/*.jar
+SCRIPT_PATH=${0%/*}
+
+if [ "$0" != "$SCRIPT_PATH" ] && [ "$SCRIPT_PATH" != "" ]; then
+    cd $SCRIPT_PATH
+fi
+
+DIRLIBS=dependencies/*.jar
+
 for i in ${DIRLIBS}
 do
-  if [ -z "$IREPORT_CLASSPATH" ] ; then
-    IREPORT_CLASSPATH=$i
+  if [ -z "$SIDDHI_CLASSPATH" ] ; then
+    SIDDHI_CLASSPATH=$i
   else
-    IREPORT_CLASSPATH="$i":$IREPORT_CLASSPATH
+    SIDDHI_CLASSPATH="$i":$SIDDHI_CLASSPATH
   fi
 done
 
-DIRLIBS=${EXEDIR}/../lib/*.zip
-for i in ${DIRLIBS}
-do
-  if [ -z "$IREPORT_CLASSPATH" ] ; then
-    IREPORT_CLASSPATH=$i
-  else
-    IREPORT_CLASSPATH="$i":$IREPORT_CLASSPATH
-  fi
-done
+echo $SIDDHI_CLASSPATH
+echo $EXEDIR
 
-IREPORT_CLASSPATH="${EXEDIR}/../classes":"${EXEDIR}/../fonts":$IREPORT_CLASSPATH
-cd ..
-IREPORT_HOME=$(pwd)
-cd bin
-#echo $IREPORT_HOME
-
-java -classpath "$IREPORT_CLASSPATH:$CLASSPATH" -Direport.home=$IREPORT_HOME -Djava.security.policy=$IREPORT_HOME/policy.all it.businesslogic.ireport.gui.MainFrame "$@"
+java -cp siddhi-service-4.0.0-SNAPSHOT.jar":$SIDDHI_CLASSPATH:." org.wso2.siddhi.service.Application

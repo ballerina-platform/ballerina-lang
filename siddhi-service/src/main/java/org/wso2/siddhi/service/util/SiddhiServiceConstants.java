@@ -16,6 +16,9 @@
 
 package org.wso2.siddhi.service.util;
 
+/**
+ * Class which holds the constants related to siddhi service
+ */
 public class SiddhiServiceConstants {
 
     public static final String ANNOTATION_NAME_NAME = "name";
