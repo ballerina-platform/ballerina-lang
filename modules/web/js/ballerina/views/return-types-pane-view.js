@@ -296,8 +296,8 @@ define(['lodash', 'log', 'jquery', 'alerts', './return-type-view', './../ast/nod
         /**
          * moves the position of return type editor view
          * @param {Object} args - object which contains delta values for x and y
-         * @param {Object} args.dx - delta value for x value
-         * @param {Object} args.dy - delta value for y value
+         * @param {Number} args.dx - delta value for x value
+         * @param {Number} args.dy - delta value for y value
          */
         ReturnTypePaneView.prototype.move = function (args) {
             var dx = _.get(args, "dx", 0);
