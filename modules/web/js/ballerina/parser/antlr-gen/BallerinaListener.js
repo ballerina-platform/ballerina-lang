@@ -92,12 +92,12 @@ BallerinaListener.prototype.exitNativeFunction = function(ctx) {
 };
 
 
-// Enter a parse tree produced by BallerinaParser#balFunction.
-BallerinaListener.prototype.enterBalFunction = function(ctx) {
+// Enter a parse tree produced by BallerinaParser#ballerinaFunction.
+BallerinaListener.prototype.enterBallerinaFunction = function(ctx) {
 };
 
-// Exit a parse tree produced by BallerinaParser#balFunction.
-BallerinaListener.prototype.exitBalFunction = function(ctx) {
+// Exit a parse tree produced by BallerinaParser#ballerinaFunction.
+BallerinaListener.prototype.exitBallerinaFunction = function(ctx) {
 };
 
 
@@ -218,15 +218,6 @@ BallerinaListener.prototype.exitTypeMapper = function(ctx) {
 };
 
 
-// Enter a parse tree produced by BallerinaParser#typeMapperInput.
-BallerinaListener.prototype.enterTypeMapperInput = function(ctx) {
-};
-
-// Exit a parse tree produced by BallerinaParser#typeMapperInput.
-BallerinaListener.prototype.exitTypeMapperInput = function(ctx) {
-};
-
-
 // Enter a parse tree produced by BallerinaParser#typeMapperBody.
 BallerinaListener.prototype.enterTypeMapperBody = function(ctx) {
 };
@@ -296,15 +287,6 @@ BallerinaListener.prototype.enterQualifiedTypeName = function(ctx) {
 
 // Exit a parse tree produced by BallerinaParser#qualifiedTypeName.
 BallerinaListener.prototype.exitQualifiedTypeName = function(ctx) {
-};
-
-
-// Enter a parse tree produced by BallerinaParser#typeMapperType.
-BallerinaListener.prototype.enterTypeMapperType = function(ctx) {
-};
-
-// Exit a parse tree produced by BallerinaParser#typeMapperType.
-BallerinaListener.prototype.exitTypeMapperType = function(ctx) {
 };
 
 

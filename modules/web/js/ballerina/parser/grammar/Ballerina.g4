@@ -44,14 +44,14 @@ resourceDefinition
 
 functionDefinition
     :   nativeFunction
-    |   balFunction
+    |   ballerinaFunction
     ;
 
 nativeFunction
     :   annotation* 'native' 'function' Identifier '(' parameterList? ')' returnParameters? ('throws' Identifier)? ';'
     ;
 
-balFunction
+ballerinaFunction
     :   annotation* 'function' Identifier '(' parameterList? ')' returnParameters? ('throws' Identifier)? functionBody
     ;
 
@@ -103,15 +103,11 @@ typeMapperDefinition
     ;
 
 nativeTypeMapper
-    :   annotation* 'native' 'typemapper' Identifier '(' typeMapperInput ')' '('typeMapperType')' ';'
+    :   annotation* 'native' 'typemapper' Identifier '(' namedParameter ')' '('typeName')' ';'
     ;
 
 typeMapper
-    :   annotation* 'typemapper' Identifier '(' typeMapperInput ')' '('typeMapperType')' typeMapperBody
-    ;
-
-typeMapperInput
-    :   typeMapperType Identifier
+    :   annotation* 'typemapper' Identifier '(' namedParameter ')' '('typeName')' typeMapperBody
     ;
 
 // cannot have conector declaration, need to validate at semantic analyzing
@@ -148,14 +144,6 @@ returnTypeList
 qualifiedTypeName
     :   packageName ':' unqualifiedTypeName
     ;
-
-typeMapperType
-    :   simpleType
-    |   withFullSchemaType
-    |   withSchemaIdType
-    |   withScheamURLType
-    ;
-
 
 unqualifiedTypeName
     :   simpleType
@@ -751,9 +739,9 @@ LetterOrDigit
 // Whitespace and comments
 //
 
-WS  :  [ \t\r\n\u000C]+ -> skip
+WS  :  [ \t\r\n\u000C]+ -> channel(HIDDEN)
     ;
-
+    
 LINE_COMMENT
     :   '//' ~[\r\n]*
     ;
