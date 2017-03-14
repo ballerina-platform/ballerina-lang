@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -15,13 +15,10 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['./ast/module', './env/module', './views/module', './visitors/module', './utils/module'],
-    function (astModule, envModule, viewsModule, visitorsModule, utilsModule) {
-        return  {
-            ast: astModule,
-            env: envModule,
-            views: viewsModule,
-            visitors: visitorsModule,
-            utils: utilsModule
-        };
-    });
+/*jshint esversion: 6 */
+import Parser from "./../parser";
+
+var parser = new Parser(),
+    sample = "package  \n  org.ballerinalang    ;\n import \n\n org.http.test \n ;\t\t\t\t\t\t";
+
+var ast = parser.parse(sample);
