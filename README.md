@@ -18,23 +18,24 @@ The Ballerina Composer provides a flexible and powerful browser-based tool for c
 The build process of the composer works on Maven and Node Package Manager(npm).
 
 ### Prerequisites
-* JDK 1.8.0  
-* [NPM](https://docs.npmjs.com/getting-started/installing-node) (Tested with 4.2.0)   
-* Maven 3.0.5  
+*   JDK 1.8.0  
+*   [NPM](https://docs.npmjs.com/getting-started/installing-node) (Tested with 4.2.0)   
+*   Maven 3.0.5  
 
 ### Steps to build
-* `mvn clean install` - To build the composer.  
+1.  Build the composer project using `mvn clean install`.  
+2.  Build [ballerinalang/tools-distribution](https://github.com/ballerinalang/tools-distribution/) project using `mvn clean install`. Find the distribution in `tools-distribution/target` folder.
 
 ### Dev commands on web module(`<BALLERINA_COMPOSER>/modules/web`)
-* `npm install` - Installs all npm dependencies.
-* `npm run clean` - Deletes the `/dist`(distribution folder) in the web module.  
-* `npm run build` or `npm run webpack` - To build the web module.  
-* `npm run dev` - To start development server with hot deployment. Go to [http://localhost:8080](http://localhost:8080) or [http://127.0.0.1:8080](http://127.0.0.1:8080) afterwards.
-* `npm run test` - Executes tests. The tests requires the composer service to run.    
+*   `npm install` - Installs all npm dependencies.
+*   `npm run clean` - Deletes the `/dist`(distribution folder) in the web module.  
+*   `npm run build` or `npm run webpack` - To build the web module.  
+*   `npm run dev` - To start development server with hot deployment. Go to [http://localhost:8080](http://localhost:8080) or [http://127.0.0.1:8080](http://127.0.0.1:8080) afterwards.
+*   `npm run test` - Executes tests. The tests requires the composer service to run.    
 
 ## Running the Composer
 
-The Composer is included in the full distribution of Ballerina, which you can download from www.ballerinalang.org. After you unzip it, navigate to its `/bin` directory in the command line, and enter the following command:
+The Composer is included in the full distribution of Ballerina Tools Distribution, which you can download from www.ballerinalang.org. After you unzip it, navigate to its `/bin` directory in the command line, and enter the following command:
 
 For Windows
 ```
