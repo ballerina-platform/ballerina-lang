@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.wso2.siddhi.core.stream.output.sink;
+package org.wso2.siddhi.core.stream.output.sink.distributed;
 
 import org.wso2.siddhi.core.util.transport.DynamicOptions;
 

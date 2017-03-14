@@ -28,9 +28,8 @@ import org.wso2.siddhi.core.stream.AttributeMapping;
 import org.wso2.siddhi.core.stream.StreamJunction;
 import org.wso2.siddhi.core.stream.input.source.InputMapper;
 import org.wso2.siddhi.core.stream.input.source.InputTransport;
-import org.wso2.siddhi.core.stream.output.sink.DistributedTransport;
-import org.wso2.siddhi.core.stream.output.sink.OutputMapper;
-import org.wso2.siddhi.core.stream.output.sink.OutputTransport;
+import org.wso2.siddhi.core.stream.output.sink.*;
+import org.wso2.siddhi.core.stream.output.sink.distributed.DistributedTransport;
 import org.wso2.siddhi.core.table.EventTable;
 import org.wso2.siddhi.core.table.InMemoryEventTable;
 import org.wso2.siddhi.core.trigger.CronEventTrigger;
@@ -40,6 +39,7 @@ import org.wso2.siddhi.core.trigger.StartEventTrigger;
 import org.wso2.siddhi.core.util.SiddhiClassLoader;
 import org.wso2.siddhi.core.util.SiddhiConstants;
 import org.wso2.siddhi.core.util.extension.holder.*;
+import org.wso2.siddhi.core.util.transport.Option;
 import org.wso2.siddhi.core.util.transport.OptionHolder;
 import org.wso2.siddhi.core.window.EventWindow;
 import org.wso2.siddhi.query.api.annotation.Annotation;
@@ -295,27 +295,34 @@ public class DefinitionParserHelper {
                         OutputMapper outputMapper = (OutputMapper) SiddhiClassLoader.loadExtensionImplementation(
                                 mapper, OutputMapperExecutorExtensionHolder.getInstance(executionPlanContext));
 
-                        OptionHolder sinkOptionHolder = constructOptionProcessor(streamDefinition, sinkAnnotation,
+                        OptionHolder transportOptionHolder = constructOptionProcessor(streamDefinition, sinkAnnotation,
                                 outputTransport.getClass().getAnnotation(org.wso2.siddhi.annotation.Extension.class));
                         OptionHolder mapOptionHolder = constructOptionProcessor(streamDefinition, mapAnnotation,
                                 outputMapper.getClass().getAnnotation(org.wso2.siddhi.annotation.Extension.class));
                         String payload = getPayload(mapAnnotation);
 
-                        outputTransport.init(streamDefinition, sinkType, sinkOptionHolder, outputMapper, mapType,
+                        outputTransport.init(streamDefinition, sinkType, transportOptionHolder, outputMapper, mapType,
                                 mapOptionHolder, payload);
 
                         // Initializing output transport with distributed configurations
+                        OptionHolder distributionOptionHolder = null;
+                        List<OptionHolder> endpointOptionHolders = new ArrayList<>();
                         if (isDistributedTransport){
-                            OptionHolder distributionOptionHolder = constructOptionProcessor(streamDefinition, distributionAnnotation,
+                            distributionOptionHolder = constructOptionProcessor(streamDefinition, distributionAnnotation,
                                     outputTransport.getClass().getAnnotation(org.wso2.siddhi.annotation.Extension.class));
 
-                            List<OptionHolder> endpointOptionHolders = new ArrayList<>();
                             distributionAnnotation.getAnnotations().stream()
                                     .filter(annotation -> SiddhiConstants.ANNOTATION_ENDPOINT.equalsIgnoreCase(annotation.getName()))
                                     .forEach(annotation -> endpointOptionHolders.add(constructOptionProcessor(streamDefinition, annotation,
                                             outputTransport.getClass().getAnnotation(org.wso2.siddhi.annotation.Extension.class))));
 
-                           ((DistributedTransport)outputTransport).initDistribution(distributionOptionHolder, endpointOptionHolders);
+                           ((DistributedTransport)outputTransport).initDistributedTransportOptions(distributionOptionHolder, endpointOptionHolders);
+                        }
+
+                        OutputGroupDeterminer groupDeterminer = constructOutputGroupDeterminer(transportOptionHolder,
+                                distributionOptionHolder, streamDefinition, endpointOptionHolders.size());
+                        if (groupDeterminer != null) {
+                            outputTransport.getMapper().setGroupDeterminer(groupDeterminer);
                         }
 
                         List<OutputTransport> eventSinks = eventSinkMap.get(streamDefinition.getId());
@@ -332,6 +339,41 @@ public class DefinitionParserHelper {
                 }
             }
         }
+    }
+
+    private static OutputGroupDeterminer constructOutputGroupDeterminer(OptionHolder transportOptionHolder,
+                                                                        OptionHolder distributedOptHolder,
+                                                                        StreamDefinition streamDefinition,
+                                                                        int endpointCount){
+
+        OutputGroupDeterminer groupDeterminer = null;
+        if (distributedOptHolder != null){
+            int partitionCount = endpointCount;
+            String strategy = distributedOptHolder.validateAndGetStaticValue(DistributedTransport.DISTRIBUTION_STRATEGY_KEY);
+
+            if (strategy.equalsIgnoreCase(DistributedTransport.DISTRIBUTION_STRATEGY_PARTITIONED)){
+                String partitionKeyField = distributedOptHolder.validateAndGetStaticValue(DistributedTransport.PARTITION_KEY_FIELD_KEY);
+                int partitioningFieldIndex = streamDefinition.getAttributePosition(partitionKeyField);
+
+                if (distributedOptHolder.isOptionExists(DistributedTransport.DISTRIBUTION_CHANNELS_KEY)){
+                    partitionCount = Integer.parseInt(distributedOptHolder.validateAndGetStaticValue(DistributedTransport.DISTRIBUTION_CHANNELS_KEY));
+                }
+                groupDeterminer = new PartitionedGrouping(partitioningFieldIndex, partitionCount);
+            }
+        }
+
+        if (groupDeterminer == null){
+            ArrayList<Option> transportOptions = new ArrayList<Option>(transportOptionHolder.getDynamicOptionsKeys().size());
+            for (String publishGroupDeterminer : transportOptionHolder.getDynamicOptionsKeys()) {
+                transportOptions.add(transportOptionHolder.validateAndGetOption(publishGroupDeterminer));
+            }
+
+            if (transportOptions.size() > 0){
+                groupDeterminer = new DynamicOptionGrouping(transportOptions);
+            }
+        }
+
+        return groupDeterminer;
     }
 
     private static Extension constructExtension(StreamDefinition streamDefinition, String typeName, String typeValue,

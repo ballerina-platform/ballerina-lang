@@ -16,9 +16,10 @@
  * under the License.
  */
 
-package org.wso2.siddhi.core.stream.output.sink;
+package org.wso2.siddhi.core.stream.output.sink.distributed;
 
 import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
+import org.wso2.siddhi.core.stream.output.sink.OutputTransport;
 import org.wso2.siddhi.core.util.transport.DynamicOptions;
 import org.wso2.siddhi.core.util.transport.OptionHolder;
 import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
@@ -56,7 +57,7 @@ public abstract class DistributedTransport extends OutputTransport {
         publisher.publish(payload,  transportOptions);
     }
 
-    public void initDistribution(OptionHolder distributedOptionHolder, List<OptionHolder> nodeOptionHolders){
+    public void initDistributedTransportOptions(OptionHolder distributedOptionHolder, List<OptionHolder> endpointOptionHolders){
         distributionStrategy = distributedOptionHolder.validateAndGetStaticValue(DISTRIBUTION_STRATEGY_KEY);
 
         if (distributionStrategy == null || distributionStrategy.isEmpty()){
@@ -67,6 +68,10 @@ public abstract class DistributedTransport extends OutputTransport {
             channelCount = Integer.parseInt(distributedOptionHolder.validateAndGetStaticValue(DISTRIBUTION_CHANNELS_KEY));
             if (channelCount <= 0) {
                 throw new ExecutionPlanValidationException("There must be at least one channel.");
+            }
+        } else {
+            if (endpointOptionHolders.size() <= 0){
+                throw new ExecutionPlanValidationException("There must be at least one endpoint.");
             }
         }
 
@@ -80,7 +85,7 @@ public abstract class DistributedTransport extends OutputTransport {
             throw new ExecutionPlanValidationException("Unknown distribution strategy '" + distributionStrategy + "'.");
         }
 
-        initTransport(sinkOptionHolder, nodeOptionHolders);
+        initTransport(sinkOptionHolder, endpointOptionHolders);
     }
 
     public String getDistributionStrategy(){

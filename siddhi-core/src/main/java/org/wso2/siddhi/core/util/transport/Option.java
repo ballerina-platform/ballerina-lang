@@ -35,6 +35,7 @@ public class Option {
         }
     }
 
+    //TODO: Add documentation
      public String getValue(Event event) {
         if (value != null) {
             return value;
