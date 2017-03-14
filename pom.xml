@@ -960,9 +960,9 @@
         <io.swagger.version>1.5.8</io.swagger.version>
         <com.fasterxml.jackson.datatype.version>2.4.1</com.fasterxml.jackson.datatype.version>
         <swagger.parser.version>1.0.25</swagger.parser.version>
-        <com.fasterxml.jackson.core.annotations.version>2.4.5</com.fasterxml.jackson.core.annotations.version>
+        <com.fasterxml.jackson.core.annotations.version>2.7.4</com.fasterxml.jackson.core.annotations.version>
         <rs-api.version>2.0</rs-api.version>
-        <msf4j.version>2.1.1</msf4j.version>
+        <msf4j.version>2.1.0</msf4j.version>
         <servlet-api-version>2.5</servlet-api-version>
 
         <wso2.maven.compiler.source>1.8</wso2.maven.compiler.source>
