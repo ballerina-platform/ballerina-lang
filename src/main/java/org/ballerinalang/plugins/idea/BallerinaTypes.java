@@ -75,6 +75,9 @@ public class BallerinaTypes {
     public static RuleIElementType TYPE_MAPPER_INPUT = ruleIElementTypes.get(BallerinaParser.RULE_typeMapperInput);
     public static RuleIElementType TYPE_MAPPER_TYPE = ruleIElementTypes.get(BallerinaParser.RULE_typeMapperType);
 
+    public static RuleIElementType ELEMENT_VALUE_PAIRS = ruleIElementTypes.get(BallerinaParser.RULE_elementValuePairs);
+    public static RuleIElementType ELEMENT_VALUE_PAIR = ruleIElementTypes.get(BallerinaParser.RULE_elementValuePair);
+
     // Keywords
     public static TokenIElementType ALL = tokenIElementTypes.get(BallerinaLexer.ALL);
     public static TokenIElementType ANY = tokenIElementTypes.get(BallerinaLexer.ANY);

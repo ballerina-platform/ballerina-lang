@@ -93,7 +93,6 @@ public class BallerinaBlock extends AbstractBlock {
                         indent = Indent.getSpaceIndent(4);
                     }
                 } else if (childElementType == COMMENT_STATEMENT) {
-
                     if (parentElementType == FUNCTION_DEFINITION || parentElementType == CONNECTOR_DEFINITION
                             || parentElementType == SERVICE_DEFINITION || parentElementType == STRUCT_DEFINITION
                             || parentElementType == IF_ELSE_STATEMENT || parentElementType == ITERATE_STATEMENT
@@ -102,6 +101,8 @@ public class BallerinaBlock extends AbstractBlock {
                             || parentElementType == TYPE_MAPPER_BODY || parentElementType == WORKER_DECLARATION) {
                         indent = Indent.getSpaceIndent(4);
                     }
+                } else if (childElementType == ELEMENT_VALUE_PAIR) {
+                    indent = Indent.getSpaceIndent(4);
                 }
 
                 Block block = new BallerinaBlock(
