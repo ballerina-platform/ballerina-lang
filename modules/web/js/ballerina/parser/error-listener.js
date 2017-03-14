@@ -15,6 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+/*jshint esversion: 6 */
 import { ErrorListener } from 'antlr4/error/ErrorListener';
 
 class BLangParserErrorListener extends ErrorListener{

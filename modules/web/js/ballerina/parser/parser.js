@@ -15,10 +15,11 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+/*jshint esversion: 6 */
 import antlr4 from 'antlr4';
 import BallerinaLexer from './antlr-gen/BallerinaLexer';
 import BallerinaParser from './antlr-gen/BallerinaParser';
-import BLangParserErrorListener from './error-listener'
+import BLangParserErrorListener from './error-listener';
 import BLangParserListener from './listener';
 
 class Parser {
@@ -49,7 +50,7 @@ class Parser {
             errors: errorListener.getErrors(),
             ast: listener.getASTRoot()
         };
-    };
+    }
 }
 
 export default Parser;

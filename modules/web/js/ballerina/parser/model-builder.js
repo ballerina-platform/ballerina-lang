@@ -15,6 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+/*jshint esversion: 6 */
 import ASTFactory from "./../ast/ballerina-ast-factory";
 
 class BLangModelBuilder {

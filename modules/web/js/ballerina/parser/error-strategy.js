@@ -15,8 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
-import {DefaultErrorStrategy} from 'antlr4/error/ErrorStrategy;
+ /*jshint esversion: 6 */
+import {DefaultErrorStrategy} from 'antlr4/error/ErrorStrategy';
 
 class BLangParserErrorStrategy extends DefaultErrorStrategy {
 
@@ -60,7 +60,7 @@ class BLangParserErrorStrategy extends DefaultErrorStrategy {
             expecting.toString(recognizer.literalNames, recognizer.symbolicNames);
         recognizer.notifyErrorListeners(msg, t, null);
     }
-    
+
     reportMissingToken(recognizer) {
         if (DefaultErrorStrategy.prototype.inErrorRecoveryMode.call(this, recognizer)) {
             return;

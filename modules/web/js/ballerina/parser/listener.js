@@ -15,6 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+ /*jshint esversion: 6 */
 import {BallerinaListener} from './antlr-gen/BallerinaListener';
 import {BallerinaParser} from './antlr-gen/BallerinaParser';
 import {Token} from 'antlr4/Token';
@@ -40,10 +41,10 @@ class BLangParserListener extends BallerinaListener {
         });
 
         return whiteSpace;
-    };
+    }
 
     exitPackageDeclaration(ctx) {
-
+      if(!_.isNil(ctx)) {
         var packageNameToken = ctx.packageName(),
             packageFQN = packageNameToken.getText(),
             whitespaceTokens = [];
@@ -57,24 +58,30 @@ class BLangParserListener extends BallerinaListener {
         whitespaceTokens.push(wsBetWeenSemicolonAndNextToken);
 
         this.modelBuilder.createPackageDeclaration(packageFQN, whitespaceTokens);
-    };
+      }
+    }
 
     exitImportDeclaration(ctx) {
-        var packageNameToken = ctx.packageName(),
-            packageFQN = packageNameToken.getText(),
-            whitespaceTokens = [];
+      if(!_.isNil(ctx)) {
+          var packageNameToken = ctx.packageName(),
+              packageFQN = packageNameToken.getText(),
+              whitespaceTokens = [];
 
-        var wsBetWeenImportKeywordAndPackageNameStart = this.getWhitespaceToRight(ctx.start),
-            wsBetWeenPackageNameEndAndSemicolon = this.getWhitespaceToRight(packageNameToken.stop),
-            wsBetWeenSemicolonAndNextToken = this.getWhitespaceToRight(ctx.stop);
+          var wsBetWeenImportKeywordAndPackageNameStart = this.getWhitespaceToRight(ctx.start),
+              wsBetWeenPackageNameEndAndSemicolon = this.getWhitespaceToRight(packageNameToken.stop),
+              wsBetWeenSemicolonAndNextToken = this.getWhitespaceToRight(ctx.stop);
 
-        whitespaceTokens.push(wsBetWeenImportKeywordAndPackageNameStart);
-        whitespaceTokens.push(wsBetWeenPackageNameEndAndSemicolon);
-        whitespaceTokens.push(wsBetWeenSemicolonAndNextToken);
+          whitespaceTokens.push(wsBetWeenImportKeywordAndPackageNameStart);
+          whitespaceTokens.push(wsBetWeenPackageNameEndAndSemicolon);
+          whitespaceTokens.push(wsBetWeenSemicolonAndNextToken);
 
-        this.modelBuilder.createImportDeclaration(packageFQN, whitespaceTokens);
+          this.modelBuilder.createImportDeclaration(packageFQN, whitespaceTokens);
+      }
+    }
 
-    };
+    getLineNumber(ctx){
+        console.log(ctx);
+    }
 
     getASTRoot(){
         return this.modelBuilder.getASTRoot();

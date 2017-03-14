@@ -15,6 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+/*jshint esversion: 6 */
 import antlr4 from 'antlr4';
 import BallerinaLexer from './antlr-gen/BallerinaLexer';
 import BallerinaParser from './antlr-gen/BallerinaParser';
@@ -43,7 +44,7 @@ class Validator {
 
         // return collected errors
         return errorListener.getErrors();
-    };
+    }
 }
 
 export default Validator;
