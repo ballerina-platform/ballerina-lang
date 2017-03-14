@@ -48,7 +48,6 @@ class ConnectorDefinitionVisitor extends AbstractSourceGenVisitor {
          * that particular source generation has to be constructed here
          */
         var self = this;
-        var argumentsSrc = "";
         _.forEach(connectorDefinition.getAnnotations(), function(annotation) {
             if (!_.isEmpty(annotation.value)) {
                 var constructedPathAnnotation;
@@ -62,16 +61,8 @@ class ConnectorDefinitionVisitor extends AbstractSourceGenVisitor {
             }
         });
 
-        _.forEach(connectorDefinition.getArguments(), function(argument, index){
-            argumentsSrc += argument.type + " ";
-            argumentsSrc += argument.identifier;
-            if (connectorDefinition.getArguments().length - 1 != index) {
-                argumentsSrc += ", ";
-            }
-        });
-
         var constructedSourceSegment = 'connector ' + connectorDefinition.getConnectorName() +
-            ' (' + argumentsSrc + ')' + ' {\n';
+            ' (' + connectorDefinition.getArgumentsAsString()  + ')' + ' {\n';
         this.appendSource(constructedSourceSegment);
         this.indent();
         log.debug('Begin Visit Connector Definition');

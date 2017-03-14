@@ -17,6 +17,7 @@
  */
 import _ from 'lodash';
 import Expression from './expression';
+import log from 'log';
 
 class TypeCastExpression extends Expression {
     constructor(args) {
