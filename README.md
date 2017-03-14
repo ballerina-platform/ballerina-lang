@@ -15,6 +15,14 @@
 2. Click **Install plugin from disc** button and select the deployed **plugin zip** file. Please make sure to install the Zip file, not the extracted Jar files. This zip contains an additional library as well. Without this library, the plugin will not work properly.
 3. Restart IDEA.
 
+## Release versions schema
+
+Below you can see the versions of the plugin which correspond to the versions of the 
+IntelliJ Platfom.
+
+| Plugin Version | Platform Version |
+| --- | --- |
+| 0.8.x | IntelliJ IDEA 2016.3+ | 
 
 ## Getting started
 
