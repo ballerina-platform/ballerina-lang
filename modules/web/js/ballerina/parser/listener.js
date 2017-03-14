@@ -34,11 +34,13 @@ class BLangParserListener extends BallerinaListener {
             hiddenTokensToRight = parser.getTokenStream().getHiddenTokensToRight(token.tokenIndex, Token.HIDDEN_CHANNEL),
             whiteSpace = null;
 
-        hiddenTokensToRight.forEach(function(hiddenToken){
-            if(_.isEqual(hiddenToken.type, BallerinaParser.WS)){
-                whiteSpace = (_.isNil(whiteSpace)) ? hiddenToken.text : whiteSpace + hiddenToken.text;
-            }
-        });
+        if(!_.isNil(hiddenTokensToRight)){
+          hiddenTokensToRight.forEach(function(hiddenToken){
+              if(_.isEqual(hiddenToken.type, BallerinaParser.WS)){
+                  whiteSpace = (_.isNil(whiteSpace)) ? hiddenToken.text : whiteSpace + hiddenToken.text;
+              }
+          });
+        }
 
         return whiteSpace;
     }
