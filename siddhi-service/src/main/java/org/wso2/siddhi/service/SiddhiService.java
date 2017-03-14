@@ -55,7 +55,7 @@ public class SiddhiService {
     private Map<String, ExecutionPlanRuntime> executionPlanRunTimeMap = new ConcurrentHashMap<>();
 
     @POST
-    @Path("/deploy")
+    @Path("/artifact/deploy")
     @Consumes(MediaType.TEXT_PLAIN)
     @Produces(MediaType.APPLICATION_JSON)
     public Response deployExecutionPlan(String executionPlan) {
@@ -106,7 +106,7 @@ public class SiddhiService {
     }
 
     @GET
-    @Path("/undeploy/{name}")
+    @Path("/artifact/undeploy/{name}")
     @Produces(MediaType.APPLICATION_JSON)
     public Response undeployExecutionPlan(@PathParam("name") String name) {
 
