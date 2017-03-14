@@ -17,8 +17,7 @@
  */
 ace.define('ace/worker/ballerina', ['require', 'exports', 'module'], function(acequire, exports, module) {
     var oop = acequire("ace/lib/oop");
-    var Validator = require("./../parser/validator").default;
-    var validator = new Validator();
+    var backends = require("bal_configs/backends");
 
     // This require defines ace/worker/mirror so we can ace.require ace/worker/mirror later
     require('./ace-mirror-worker');
@@ -36,9 +35,23 @@ ace.define('ace/worker/ballerina', ['require', 'exports', 'module'], function(ac
         this.onUpdate = function() {
             var value = this.doc.getValue();
             if(value.trim()){
-                var errors = validator.validate(value);
+                var errors = [];
+                var content = { "content": value};
+                var request = new XMLHttpRequest();
+                var self = this;
 
-                this.sender.emit("lint", errors);
+                request.onreadystatechange = function() {
+                    if(request.readyState === 4) {
+                        if(request.status === 200) {
+                            errors = (JSON.parse(request.responseText)).errors;
+                            self.sender.emit("lint", errors);
+                        }
+                    }
+                };
+
+                request.open('POST', backends.services.validator.endpoint, true);
+                request.setRequestHeader("Content-type", "application/json");
+                request.send(JSON.stringify(content));
             } else {
                 this.sender.emit("lint", []);
             }
