@@ -409,7 +409,7 @@ define(['log', 'require', 'event_channel', 'lodash'], function(log, require, Eve
      *        2 - whitespace between semicolon and next token start
      *
      * All nodes will carry whitespace tokens from it's end position to next token's start position. The very first node
-     * of AST will contain the whitespace from the begining of the file to start position of node.
+     * of AST will contain the whitespace from the beginning of the file to start position of node.
      *
      * @return {Array} The array of whitespace tokens associated with this node
      */
@@ -435,7 +435,7 @@ define(['log', 'require', 'event_channel', 'lodash'], function(log, require, Eve
      *
      *                      As explained above, in addition to whitespace tokens inside it's own structure, all nodes will carry whitespace
      *                      tokens from it's end position to next token's start position.   The very first node
-     *                      of AST will contain the whitespace from the begining of the file to start position of node.
+     *                      of AST will contain the whitespace from the beginning of the file to start position of node.
      *
      * @param options
      */
