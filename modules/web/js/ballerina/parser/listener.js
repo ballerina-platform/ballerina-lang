@@ -45,6 +45,10 @@ class BLangParserListener extends BallerinaListener {
         return whiteSpace;
     }
 
+    getLineNumber(ctx){
+        return ctx.start.line;
+    }
+
     exitPackageDeclaration(ctx) {
       if(!_.isNil(ctx)) {
         var packageNameToken = ctx.packageName(),
@@ -59,7 +63,7 @@ class BLangParserListener extends BallerinaListener {
         whitespaceTokens.push(wsBetWeenPackageNameEndAndSemicolon);
         whitespaceTokens.push(wsBetWeenSemicolonAndNextToken);
 
-        this.modelBuilder.createPackageDeclaration(packageFQN, whitespaceTokens);
+        this.modelBuilder.createPackageDeclaration(packageFQN, whitespaceTokens, this.getLineNumber(ctx));
       }
     }
 
@@ -77,12 +81,36 @@ class BLangParserListener extends BallerinaListener {
           whitespaceTokens.push(wsBetWeenPackageNameEndAndSemicolon);
           whitespaceTokens.push(wsBetWeenSemicolonAndNextToken);
 
-          this.modelBuilder.createImportDeclaration(packageFQN, whitespaceTokens);
+          this.modelBuilder.createImportDeclaration(packageFQN, whitespaceTokens, this.getLineNumber(ctx));
       }
     }
 
-    getLineNumber(ctx){
-        console.log(ctx);
+    enterServiceDefinition(ctx){
+      console.log(ctx);
+    }
+
+    enterAnnotation(ctx){
+      console.log(ctx);
+    }
+
+    exitAnnotation(ctx){
+      console.log(ctx);
+    }
+
+    exitServiceDefinition(ctx){
+      if(!_.isNil(ctx)) {
+          var identifierToken = ctx.Identifier(),
+              identifier = identifierToken.getText(),
+              whitespaceTokens = [];
+
+          var wsBetWeenServiceKeywordAndNameStart = this.getWhitespaceToRight(ctx.start),
+              wsBetWeenServiceNameEndAndBodyStart = this.getWhitespaceToRight(identifierToken.symbol),
+              wsBetWeenSemicolonAndNextToken = this.getWhitespaceToRight(ctx.stop);
+
+          whitespaceTokens.push(wsBetWeenServiceKeywordAndNameStart);
+          whitespaceTokens.push(wsBetWeenServiceNameEndAndBodyStart);
+          whitespaceTokens.push(wsBetWeenSemicolonAndNextToken);
+      }
     }
 
     getASTRoot(){
