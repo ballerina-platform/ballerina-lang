@@ -290,10 +290,10 @@ define(['lodash', 'd3','log', './simple-statement-view', './point', 'd3utils', '
                 self._startActionGroup.remove();
             });
 
-            this.listenTo(destinationView.getStatementContainer().getBoundingBox(), 'center-x-moved', function (dx) {
-                this._messageView.getEnd().move(dx, 0);
-                self._startRect.attr('x', parseFloat(self._startRect.attr('x')) + dx);
-                self._startActionText.attr('x', parseFloat(self._startActionText.attr('x')) + dx);
+            this.listenTo(destinationView.getStatementContainer().getBoundingBox(), 'width-changed', function (dw) {
+                this._messageView.getEnd().move(dw/2, 0);
+                self._startRect.attr('x', parseFloat(self._startRect.attr('x')) + dw/2);
+                self._startActionText.attr('x', parseFloat(self._startActionText.attr('x')) + dw/2);
             });
         };
 
