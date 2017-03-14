@@ -117,18 +117,15 @@ public class BalProgramExecutor {
             if (debugManager.isDebugSessionActive()) {
                 BLangExecutionDebugger debugger = new BLangExecutionDebugger(runtimeEnv, balContext);
                 debugManager.setDebugger(debugger);
-                balContext.setExecutor(debugger);
-                debugger.execute(new ResourceInvocationExpr(resource, exprs));
+                debugger.startExecution(new ResourceInvocationExpr(resource, exprs));
             } else {
                 // repeated code to make sure debugger have no impact in none debug mode.
                 BLangNonBlockingExecutor executor = new BLangNonBlockingExecutor(runtimeEnv, balContext);
-                balContext.setExecutor(executor);
-                executor.execute(new ResourceInvocationExpr(resource, exprs));
+                executor.startExecution(new ResourceInvocationExpr(resource, exprs));
             }
         } else {
             BLangNonBlockingExecutor executor = new BLangNonBlockingExecutor(runtimeEnv, balContext);
-            balContext.setExecutor(executor);
-            executor.execute(new ResourceInvocationExpr(resource, exprs));
+            executor.startExecution(new ResourceInvocationExpr(resource, exprs));
         }
     }
 }

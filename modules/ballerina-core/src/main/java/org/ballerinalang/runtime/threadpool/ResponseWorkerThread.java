@@ -61,7 +61,7 @@ public class ResponseWorkerThread extends WorkerThread {
                 executor.handleBException(exception);
                 executor.continueExecution();
             } else {
-                executor.continueExecution(connectorCallback.getCurrentNode().next());
+                executor.startExecution(connectorCallback.getCurrentNode().next());
             }
         } catch (Throwable unhandled) {
             // Root level Error handler. we have to notify server connector.

@@ -212,7 +212,7 @@ public class DebuggerTest {
         }
 
         public void startDebug() {
-            debugger.continueExecution(bLangProgram.getMainFunction().getCallableUnitBody());
+            debugger.startExecution(bLangProgram.getMainFunction().getCallableUnitBody());
         }
     }
 

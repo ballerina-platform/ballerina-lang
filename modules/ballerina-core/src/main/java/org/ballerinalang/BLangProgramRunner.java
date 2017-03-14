@@ -112,16 +112,13 @@ public class BLangProgramRunner {
                 debugManager.waitTillClientConnect();
                 BLangExecutionDebugger debugger = new BLangExecutionDebugger(runtimeEnv, bContext);
                 debugManager.setDebugger(debugger);
-                bContext.setExecutor(debugger);
-                debugger.continueExecution(mainFunction.getCallableUnitBody());
-                debugManager.holdON();
+                debugger.startExecution(mainFunction.getCallableUnitBody());
+                debugger.getExecution().get();
             } else {
                 BLangNonBlockingExecutor executor = new BLangNonBlockingExecutor(runtimeEnv, bContext);
-                bContext.setExecutor(executor);
-                executor.continueExecution(mainFunction.getCallableUnitBody());
+                executor.startExecution(mainFunction.getCallableUnitBody());
+                executor.getExecution().get();
             }
-
-            bContext.getControlStack().popFrame();
         } catch (Throwable ex) {
             String errorMsg = ErrorHandlerUtils.getErrorMessage(ex);
             String stacktrace = ErrorHandlerUtils.getMainFuncStackTrace(bContext, ex);

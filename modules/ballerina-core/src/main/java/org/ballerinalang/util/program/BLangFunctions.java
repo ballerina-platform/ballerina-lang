@@ -125,7 +125,7 @@ public class BLangFunctions {
         bContext.getControlStack().pushFrame(stackFrame);
         // Invoke main function
         BLangNonBlockingExecutor nonBlockingExecutor = new BLangNonBlockingExecutor(runtimeEnv, bContext);
-        nonBlockingExecutor.continueExecution(function.getCallableUnitBody());
+        nonBlockingExecutor.startExecution(function.getCallableUnitBody());
         return returnValues;
     }
 

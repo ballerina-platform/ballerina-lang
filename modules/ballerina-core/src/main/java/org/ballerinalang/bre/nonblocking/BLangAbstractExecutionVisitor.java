@@ -32,38 +32,62 @@ import org.ballerinalang.bre.StructVarLocation;
 import org.ballerinalang.bre.WorkerRunner;
 import org.ballerinalang.bre.WorkerVarLocation;
 import org.ballerinalang.model.Action;
+import org.ballerinalang.model.Annotation;
+import org.ballerinalang.model.BLangPackage;
+import org.ballerinalang.model.BLangProgram;
+import org.ballerinalang.model.BTypeMapper;
+import org.ballerinalang.model.BallerinaAction;
 import org.ballerinalang.model.BallerinaConnectorDef;
+import org.ballerinalang.model.BallerinaFile;
+import org.ballerinalang.model.BallerinaFunction;
 import org.ballerinalang.model.Connector;
+import org.ballerinalang.model.ConstDef;
 import org.ballerinalang.model.Function;
+import org.ballerinalang.model.ImportPackage;
 import org.ballerinalang.model.LinkedNode;
 import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.ParameterDef;
 import org.ballerinalang.model.Resource;
+import org.ballerinalang.model.Service;
 import org.ballerinalang.model.StructDef;
 import org.ballerinalang.model.SymbolName;
 import org.ballerinalang.model.TypeMapper;
 import org.ballerinalang.model.VariableDef;
 import org.ballerinalang.model.Worker;
 import org.ballerinalang.model.expressions.ActionInvocationExpr;
+import org.ballerinalang.model.expressions.AddExpression;
+import org.ballerinalang.model.expressions.AndExpression;
 import org.ballerinalang.model.expressions.ArrayInitExpr;
 import org.ballerinalang.model.expressions.ArrayMapAccessExpr;
 import org.ballerinalang.model.expressions.BacktickExpr;
 import org.ballerinalang.model.expressions.BasicLiteral;
 import org.ballerinalang.model.expressions.BinaryExpression;
 import org.ballerinalang.model.expressions.ConnectorInitExpr;
+import org.ballerinalang.model.expressions.DivideExpr;
+import org.ballerinalang.model.expressions.EqualExpression;
 import org.ballerinalang.model.expressions.Expression;
 import org.ballerinalang.model.expressions.FunctionInvocationExpr;
+import org.ballerinalang.model.expressions.GreaterEqualExpression;
+import org.ballerinalang.model.expressions.GreaterThanExpression;
 import org.ballerinalang.model.expressions.InstanceCreationExpr;
+import org.ballerinalang.model.expressions.LessEqualExpression;
+import org.ballerinalang.model.expressions.LessThanExpression;
 import org.ballerinalang.model.expressions.MapInitExpr;
 import org.ballerinalang.model.expressions.MapStructInitKeyValueExpr;
+import org.ballerinalang.model.expressions.ModExpression;
+import org.ballerinalang.model.expressions.MultExpression;
+import org.ballerinalang.model.expressions.NotEqualExpression;
+import org.ballerinalang.model.expressions.OrExpression;
 import org.ballerinalang.model.expressions.RefTypeInitExpr;
 import org.ballerinalang.model.expressions.ReferenceExpr;
 import org.ballerinalang.model.expressions.ResourceInvocationExpr;
 import org.ballerinalang.model.expressions.StructFieldAccessExpr;
 import org.ballerinalang.model.expressions.StructInitExpr;
+import org.ballerinalang.model.expressions.SubtractExpression;
 import org.ballerinalang.model.expressions.TypeCastExpression;
 import org.ballerinalang.model.expressions.UnaryExpression;
 import org.ballerinalang.model.expressions.VariableRefExpr;
+import org.ballerinalang.model.invokers.MainInvoker;
 import org.ballerinalang.model.nodes.EndNode;
 import org.ballerinalang.model.nodes.IfElseNode;
 import org.ballerinalang.model.nodes.fragments.expressions.ActionInvocationExprStartNode;
@@ -153,23 +177,26 @@ import java.util.concurrent.TimeoutException;
  *
  * @since 0.8.0
  */
-public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisitor {
+public abstract class BLangAbstractExecutionVisitor implements BLangExecutionVisitor {
 
     private static final Logger logger = LoggerFactory.getLogger(Constants.BAL_LINKED_INTERPRETER_LOGGER);
-    private RuntimeEnvironment runtimeEnv;
-    private Context bContext;
+    protected RuntimeEnvironment runtimeEnv;
+    protected Context bContext;
     private ControlStack controlStack;
     private Stack<TryCatchStackRef> tryCatchStackRefs;
     protected LinkedNode next;
     private ExecutorService executor;
     private ForkJoinInvocationStatus forkJoinInvocationStatus;
-    private boolean completed;
+    protected BLangExecution execution;
+    protected boolean complete;
 
     public BLangAbstractExecutionVisitor(RuntimeEnvironment runtimeEnv, Context bContext) {
         this.runtimeEnv = runtimeEnv;
         this.bContext = bContext;
+        this.bContext.setExecutor(this);
         this.controlStack = bContext.getControlStack();
         this.tryCatchStackRefs = new Stack<>();
+        this.execution = new BLangExecution(this);
     }
 
     /* Statement nodes. */
@@ -620,8 +647,12 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
     @Override
     public void visit(EndNode endNode) {
         next = controlStack.getCurrentFrame().branchingNode;
+        if (next == null) {
+            complete = true;
+            notifyComplete();
+        }
         if (logger.isDebugEnabled()) {
-            logger.debug("Executing {}", next != null ? "Branching" : "End");
+            logger.debug("Executing {}", complete ? "Branching" : "End");
         }
     }
 
@@ -1341,6 +1372,172 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
         setTempValue(mapInitExprEndNode.getExpression().getTempOffset(), bMap);
     }
 
+    /* Overriding methods */
+
+    @Override
+    public void visit(BLangProgram bLangProgram) {
+    }
+
+    @Override
+    public void visit(BLangPackage bLangPackage) {
+    }
+
+    public void visit(BallerinaFile bFile) {
+    }
+
+    @Override
+    public void visit(ImportPackage importPkg) {
+    }
+
+    @Override
+    public void visit(ConstDef constant) {
+    }
+
+    @Override
+    public void visit(Service service) {
+    }
+
+    @Override
+    public void visit(BallerinaConnectorDef connector) {
+    }
+
+    @Override
+    public void visit(Resource resource) {
+    }
+
+    @Override
+    public void visit(BallerinaFunction function) {
+    }
+
+    @Override
+    public void visit(BTypeMapper typeMapper) {
+    }
+
+    @Override
+    public void visit(BallerinaAction action) {
+    }
+
+    @Override
+    public void visit(Worker worker) {
+    }
+
+    @Override
+    public void visit(Annotation annotation) {
+    }
+
+    @Override
+    public void visit(ParameterDef parameterDef) {
+    }
+
+    @Override
+    public void visit(VariableDef variableDef) {
+    }
+
+    @Override
+    public void visit(StructDef structDef) {
+    }
+
+    @Override
+    public void visit(AddExpression addExpr) {
+        visitBinaryExpression(addExpr);
+    }
+
+    @Override
+    public void visit(AndExpression andExpression) {
+        visitBinaryExpression(andExpression);
+    }
+
+    @Override
+    public void visit(DivideExpr divideExpr) {
+        visitBinaryExpression(divideExpr);
+    }
+
+    @Override
+    public void visit(ModExpression modExpression) {
+        visitBinaryExpression(modExpression);
+    }
+
+    @Override
+    public void visit(EqualExpression equalExpression) {
+        visitBinaryExpression(equalExpression);
+    }
+
+    @Override
+    public void visit(GreaterEqualExpression greaterEqualExpression) {
+        visitBinaryExpression(greaterEqualExpression);
+    }
+
+    @Override
+    public void visit(GreaterThanExpression greaterThanExpression) {
+        visitBinaryExpression(greaterThanExpression);
+    }
+
+    @Override
+    public void visit(LessEqualExpression lessEqualExpression) {
+        visitBinaryExpression(lessEqualExpression);
+    }
+
+    @Override
+    public void visit(LessThanExpression lessThanExpression) {
+        visitBinaryExpression(lessThanExpression);
+    }
+
+    @Override
+    public void visit(MultExpression multExpression) {
+        visitBinaryExpression(multExpression);
+    }
+
+    @Override
+    public void visit(NotEqualExpression notEqualExpression) {
+        visitBinaryExpression(notEqualExpression);
+    }
+
+    @Override
+    public void visit(OrExpression orExpression) {
+        visitBinaryExpression(orExpression);
+    }
+
+    @Override
+    public void visit(SubtractExpression subtractExpression) {
+        visitBinaryExpression(subtractExpression);
+    }
+
+    @Override
+    public void visit(StackVarLocation stackVarLocation) {
+    }
+
+    @Override
+    public void visit(ServiceVarLocation serviceVarLocation) {
+    }
+
+    @Override
+    public void visit(ConnectorVarLocation connectorVarLocation) {
+    }
+
+    @Override
+    public void visit(ConstantLocation constantLocation) {
+    }
+
+    @Override
+    public void visit(MainInvoker mainInvoker) {
+    }
+
+    @Override
+    public void visit(StructVarLocation structVarLocation) {
+    }
+
+    @Override
+    public void visit(WorkerVarLocation workerVarLocation) {
+    }
+
+    private void visitBinaryExpression(BinaryExpression expression) {
+        try {
+            this.visit(expression);
+        } catch (RuntimeException e) {
+            handleBException(new BException(e.getMessage()));
+        }
+    }
+
     /**
      * Util method handle Ballerina exception. Native implementations <b>Must</b> use method to handle errors.
      *
@@ -1372,7 +1569,22 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
         next = ref.getCatchBlock().getCatchBlockStmt();
     }
 
-    // Private methods
+    @Override
+    public BLangExecution getExecution() {
+        return execution;
+    }
+
+    @Override
+    public void notifyComplete() {
+        execution.notifyComplete();
+    }
+
+    @Override
+    public boolean isExecutionCompleted() {
+        return complete;
+    }
+
+    /* Private methods */
 
     private int populateArgumentValues(Expression[] expressions, BValue[] localVals) {
         int i = 0;
@@ -1699,14 +1911,5 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
 
     private String getNodeLocation(NodeLocation nodeLocation) {
         return nodeLocation != null ? nodeLocation.getFileName() + ":" + nodeLocation.getLineNumber() : "";
-    }
-
-    /**
-     * Indicate whether execution is completed or not.
-     *
-     * @return true, if execution is completed.
-     */
-    public boolean isExecutionCompleted() {
-        return completed;
     }
 }
