@@ -73,6 +73,7 @@ define(['lodash', 'log', './node', 'constants', '../utils/common-utils'],
             // if identifier is empty
             if (_.isEmpty(identifier)) {
                 var errorString = "Identifier cannot be empty";
+                log.error(errorString);
                 throw errorString;
             }
 
