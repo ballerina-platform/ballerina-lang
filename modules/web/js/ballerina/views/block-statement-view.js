@@ -32,8 +32,8 @@ define(
 
             var viewOptions = this.getViewOptions();
             viewOptions.height = _.get(args, "viewOptions.height", 100);
-            viewOptions.width = _.get(args, "viewOptions.width", 140); // starting width
-            viewOptions.minWidth = _.get(args, "viewOptions.minWidth", 140); // minimum width
+            viewOptions.width = _.get(args, "viewOptions.width", 120); // starting width
+            viewOptions.minWidth = _.get(args, "viewOptions.minWidth", 120); // minimum width
             _.set(viewOptions, "title.text", _.get(args, "viewOptions.title.text", "Statement"));
             _.set(viewOptions, "title.width", _.get(args, "viewOptions.title.width", 40));
             _.set(viewOptions, "title.height", _.get(args, "viewOptions.title.height", 25));
@@ -44,8 +44,9 @@ define(
             _.set(viewOptions, 'contentOffset', _.get(viewOptions, 'contentOffset', {top: 10, bottom: 10}));
 
             this.getBoundingBox().fromTopCenter(
-                this.getTopCenter(), (viewOptions.padding.left + viewOptions.width + viewOptions.padding.right),
+                this.getTopCenter(), viewOptions.width,
                 viewOptions.height);
+            this._onForcedWidthZoomed = false;
         };
 
         BlockStatementView.prototype = Object.create(BallerinaStatementView.prototype);
@@ -132,19 +133,21 @@ define(
             var statementContainer = new StatementContainer(statementContainerOpts);
             this.setStatementContainer(statementContainer);
 
+            statementContainer.render(this.getDiagramRenderingContext());
+
             // Registering event handlers.
             this.listenTo(statementContainer.getBoundingBox(), 'height-changed', function (dh) {
                 boundingBox.h(boundingBox.h() + dh);
             });
-            boundingBox.on('top-edge-moved', function (dy) {
+
+            statementContainer.listenTo(this.getBoundingBox(), 'moved', function (offset) {
                 statementContainer.isOnWholeContainerMove = true;
-                statementContainer.getBoundingBox().y(statementContainer.getBoundingBox().y() + dy);
-            }, this);
-            this.listenTo(statementContainer.getBoundingBox(), 'width-changed', function (dw) {
-                boundingBox.zoomWidth(Math.max((boundingBox.w() + dw), viewOptions.minWidth));
+                statementContainer.getBoundingBox().move(offset.dx, offset.dy);
             });
 
-            statementContainer.render(this.getDiagramRenderingContext());
+            this.listenTo(statementContainer.getBoundingBox(), 'width-changed', function (dw) {
+                boundingBox.w(statementContainer.getBoundingBox().w());
+            });
 
             /* Removing all the registered 'child-added' event listeners for this model. This is needed because we
              are not un-registering registered event while the diagram element deletion. Due to that, sometimes we
@@ -233,6 +236,19 @@ define(
         BlockStatementView.prototype.childRemovedCallback = function (child) {
             if (BallerinaASTFactory.isStatement(child)) {
                 this.getStatementContainer().childStatementRemovedCallback(child);
+            }
+        };
+
+        /**
+         * Set or get the onForcedWidthZoomed status
+         * @param {boolean} flag
+         * @return {boolean|undefined}
+         */
+        BlockStatementView.prototype.onForcedWidthChanged = function (flag) {
+            if (!_.isNil(flag)) {
+                this._onForcedWidthZoomed = flag;
+            } else {
+                return this._onForcedWidthZoomed;
             }
         };
 

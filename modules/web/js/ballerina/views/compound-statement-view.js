@@ -38,8 +38,10 @@ define(
             this._childrenViewsActualWidths = [];
 
             var viewOptions = this.getViewOptions();
-            viewOptions.width = _.get(args, "viewOptions.width", 140);
+            viewOptions.width = _.get(args, "viewOptions.width", 120);
             viewOptions.height = _.get(args, "viewOptions.height", 0);
+            this._childStatementDefaultWidth = 120;
+            this._onWholeContainerMove = false;
 
             this.getBoundingBox().fromTopCenter(this.getTopCenter(), viewOptions.width, viewOptions.height);
         };
@@ -52,6 +54,7 @@ define(
             this.setDiagramRenderingContext(renderingContext);
             var bBox = this.getBoundingBox();
             var model = this.getModel();
+            var parentStatementContainerBBox = this.getParent().getStatementContainer().getBoundingBox();
 
             // Creating statement group.
             var statementGroup = D3Utils.group(d3.select(this.getContainer()));
@@ -59,16 +62,13 @@ define(
             statementGroup.attr("id", "_" + model.id);
             this.setStatementGroup(statementGroup);
 
-            /* If the top-edge-moved event triggered we only need to move the first child statement view. Because other
-             child statements are listening to it's previous sibling and accordingly move. */
-            bBox.on('top-edge-moved', function (offset) {
-                var firstChildStatementView = this._childrenViewsList[0];
-                if (!_.isUndefined(firstChildStatementView)) {
-                    this._pendingContainerMove = true;
-                    firstChildStatementView.getBoundingBox().move(0, offset, false);
+            this.listenTo(bBox, 'width-changed', function (dw) {
+                if (parentStatementContainerBBox.w() > bBox.w()) {
+                    bBox.x(parentStatementContainerBBox.x() + (parentStatementContainerBBox.w() - bBox.w())/2);
                 }
-            }, this);
+            });
 
+            this.getDiagramRenderingContext().setViewOfModel(this.getModel(), this);
             model.accept(this);
         };
 
@@ -84,6 +84,7 @@ define(
             /** @type {BlockStatementView[]} */
             var childStatementViews = this.getChildrenViewsList();
             var childrenViewsActualWidths = this._childrenViewsActualWidths;
+            var self = this;
 
             // Creating child statement view.
             var childStatementViewTopCenter;
@@ -96,7 +97,7 @@ define(
             var childStatementViewArgs = {
                 model: childStatement,
                 container: this.getStatementGroup().node(),
-                viewOptions: {},
+                viewOptions: {'width' : boundingBox.w()},
                 parent: this,
                 topCenter: childStatementViewTopCenter,
                 messageManager: this.messageManager,
@@ -108,49 +109,50 @@ define(
             /** @type {BlockStatementView} */
             var childStatementView = statementViewFactory.getStatementView(childStatementViewArgs);
 
+            childStatementView.listenTo(boundingBox, 'left-edge-moved', function (offset) {
+                childStatementView.getBoundingBox().x(boundingBox.x());
+            });
+
             // If there are previously added child statements, then get the last one.
             var lastChildStatementView = _.last(childStatementViews);
             if (!_.isUndefined(lastChildStatementView)) {
                 // When the last child statement's height change, adding child statement should move accordingly.
-                lastChildStatementView.getBoundingBox().on('bottom-edge-moved', function (offset) {
-                    childStatementView.getBoundingBox().move(0, offset, false);
+                childStatementView.listenTo(lastChildStatementView.getBoundingBox(), 'bottom-edge-moved', function (offset) {
+                    if (!self._onWholeContainerMove) {
+                        childStatementView.getBoundingBox().move(0, offset);
+                    }
                 });
-                this.stopListening(lastChildStatementView.getBoundingBox(), 'bottom-edge-moved');
             }
 
-            // When child statement's height changes, height of the bounding box should change accordingly.
-            this.listenTo(childStatementView.getBoundingBox(), 'bottom-edge-moved', function (dy) {
-                if (!this._pendingContainerMove) {
-                    this.getBoundingBox().h(this.getBoundingBox().h() + dy);
-                } else {
-                    this._pendingContainerMove = false;
-                }
+            this.listenTo(childStatementView.getBoundingBox(), 'height-changed', function (dh) {
+                boundingBox.h(boundingBox.h() + dh);
             });
-            // When child statement's width changes, the width of the bounding box should change accordingly.
+
             this.listenTo(childStatementView.getBoundingBox(), 'width-changed', function (dw) {
-                if (childStatementView._isResizingFromCompoundStatement === true) {
-                    return;
+                if (!childStatementView.onForcedWidthChanged()) {
+                    var widestChildOfChildBlock = self.getWidestChildOfChildBlock();
+                    var newWidth = !_.isNil(widestChildOfChildBlock) ? widestChildOfChildBlock.getBoundingBox().w() +
+                        childStatementView.getStatementContainer().getWidthGap() : self._childStatementDefaultWidth;
+                    if (newWidth !== self.getBoundingBox().w()) {
+                        _.forEach(childStatementViews, function (childView) {
+                            childView.onForcedWidthChanged(true);
+                            childView.getStatementContainer().getBoundingBox().w(newWidth);
+                        });
+                        self.getBoundingBox().w(newWidth);
+                    } else {
+                        childStatementView.onForcedWidthChanged(true);
+                        childStatementView.getStatementContainer().getBoundingBox().w(newWidth);
+                    }
+                } else {
+                    childStatementView.onForcedWidthChanged(false);
                 }
-
-                var childStatementViewIndex = _.findIndex(childStatementViews, childStatementView);
-                // Update the actual widths array with new width of this child statement.
-                childrenViewsActualWidths[childStatementViewIndex] =
-                    childrenViewsActualWidths[childStatementViewIndex] + dw;
-                var maxChildViewActualWidth = _.max(childrenViewsActualWidths);
-
-                _.forEach(childStatementViews, function (childStatementView) {
-                    childStatementView._isResizingFromCompoundStatement = true;
-                    childStatementView.getStatementContainer()._updateContainerWidth(maxChildViewActualWidth);
-                    childStatementView._isResizingFromCompoundStatement = false;
-                });
-                boundingBox.zoomWidth(maxChildViewActualWidth);
             });
 
             childStatementViews.push(childStatementView);
+            childStatementView.render(renderingContext);
+
             childrenViewsActualWidths.push(childStatementView.getBoundingBox().w());
             renderingContext.getViewModelMap()[childStatement.id] = childStatementView;
-
-            childStatementView.render(renderingContext);
 
             if (childStatementViews.length === 1) {
                 // This is the very first child statement.
@@ -158,6 +160,12 @@ define(
             } else {
                 boundingBox.h(boundingBox.h() + childStatementView.getBoundingBox().h());
             }
+
+            childStatementView.listenTo(boundingBox, 'moved', function (offset) {
+                self._onWholeContainerMove = true;
+                childStatementView.getBoundingBox().move(offset.dx, offset.dy);
+                self._onWholeContainerMove = false;
+            });
 
             return childStatementView;
         };
@@ -226,6 +234,27 @@ define(
 
         CompoundStatementView.prototype.clearDebugHit = function () {
             this.getChildrenViewsList()[0]._titleRect.classed('highlight-statement', false)
+        };
+
+        /**
+         * Get the widest child of a child block
+         * @return {BallerinaStatementView}
+         */
+        CompoundStatementView.prototype.getWidestChildOfChildBlock = function () {
+            var childrenViews = this.getChildrenViewsList();
+            var blockStatementWidestChildren = [];
+            _.forEach(childrenViews, function (child) {
+                blockStatementWidestChildren.push(child.getStatementContainer().getWidestStatementView());
+            });
+            var sortedChildren = _.sortBy(blockStatementWidestChildren, function (child) {
+                if (_.isNil(child)) {
+                    return -1;
+                } else {
+                    return child.getBoundingBox().w();
+                }
+            });
+
+            return _.last(sortedChildren);
         };
 
         return CompoundStatementView;

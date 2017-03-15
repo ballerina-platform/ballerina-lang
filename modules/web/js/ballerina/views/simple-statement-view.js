@@ -69,15 +69,13 @@ define(
             });
             bBox.on('width-changed', function (dw) {
                 self._svgRect.attr('width', parseFloat(self._svgRect.attr('width')) + dw);
+                self._svgText.attr('x', parseFloat(self._svgText.attr('x')) + dw/2);
             });
             bBox.on('left-edge-moved', function (dx) {
                 self._svgRect.attr('x', parseFloat(self._svgRect.attr('x')) + dx);
-            });
-
-            // TODO: Re write this logic
-            bBox.on('center-x-moved', function (dx) {
                 self._svgText.attr('x', parseFloat(self._svgText.attr('x')) + dx);
             });
+            this.getDiagramRenderingContext().setViewOfModel(this.getModel(), this);
         };
 
         /**
@@ -87,6 +85,7 @@ define(
         SimpleStatementView.prototype.renderDisplayText = function (displayText) {
             var boundingBox = this.getBoundingBox();
             var viewOptions = this.getViewOptions();
+            var parentStatementContainerBBox = this.getParent().getStatementContainer().getBoundingBox();
             var minWidth = viewOptions.minWidth, maxWidth = viewOptions.maxWidth;
             var leftTextPadding = viewOptions.textPadding.left, rightTextPadding = viewOptions.textPadding.right;
             var textElement = this.getStatementGroup().displayTextElement.node();
@@ -100,11 +99,11 @@ define(
             var displayTextWidth = leftTextPadding + textElement.getComputedTextLength() + rightTextPadding;
             if (displayTextWidth < minWidth) {
                 // Text hasn't exceeded the minimum width of the bounding box. Hence no need to increase width.
-                boundingBox.zoomWidth(minWidth);
+                boundingBox.w(minWidth);
             } else {
                 if (displayTextWidth < maxWidth) {
                     // We can safely expand width as the text length is still less than maximum width of the box.
-                    boundingBox.zoomWidth(displayTextWidth);
+                    boundingBox.w(displayTextWidth);
                 } else {
                     // We need to truncate displayText and show an ellipses at the end.
                     var ellipses = "...";
@@ -118,8 +117,11 @@ define(
                     // We need room for the ellipses as well, hence removing 'ellipses.length' no. of characters.
                     textElement.textContent = displayText.substring(0, (possibleCharactersCount - ellipses.length))
                                               + ellipses; // Appending ellipses.
-                    boundingBox.zoomWidth(maxWidth);
+                    boundingBox.w(maxWidth);
                 }
+            }
+            if (parentStatementContainerBBox.w() > boundingBox.w()) {
+                boundingBox.x(parentStatementContainerBBox.x() + (parentStatementContainerBBox.w() - boundingBox.w())/2);
             }
         };
 

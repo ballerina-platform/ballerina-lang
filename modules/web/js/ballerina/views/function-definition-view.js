@@ -51,7 +51,7 @@ define(['lodash', 'log', 'event_channel',  'alerts', './svg-canvas', './../ast/f
             this._workerLifelineMargin = new Axis(0, false);
             // Set the initial height control margin
             this._horizontalMargin = new Axis(0, true);
-            this._lifeLineCenterGap = 180;
+            this._lifeLineCenterGap = 120;
             this._offsetLastStatementGap = 100;
 
             if (_.isNil(this._model) || !(this._model instanceof FunctionDefinition)) {
@@ -232,10 +232,13 @@ define(['lodash', 'log', 'event_channel',  'alerts', './svg-canvas', './../ast/f
                 var newWorkerPosition = lastWorkerIndex === -1 ? 0 : lastWorkerIndex + 1;
                 var centerPoint = undefined;
                 if (newWorkerPosition === 0) {
-                    centerPoint = this._defaultWorkerLifeLine.getTopCenter().clone().move(this._lifeLineCenterGap, 0);
+                    centerPoint = new Point(this._defaultWorkerLifeLine.getBoundingBox().getRight(),
+                        this._defaultWorkerLifeLine.getTopCenter().y());
+                    centerPoint.move(this._lifeLineCenterGap, 0);
                 } else {
-                    centerPoint = this._workerAndConnectorViews[lastWorkerIndex].getTopCenter()
-                        .clone().move(this._lifeLineCenterGap, 0)
+                    centerPoint = new Point(this._workerAndConnectorViews[lastWorkerIndex].getBoundingBox().getRight(),
+                        this._workerAndConnectorViews[lastWorkerIndex].getTopCenter().y());
+                    centerPoint.move(this._lifeLineCenterGap, 0);
                 }
                 var lineHeight = this.getDefaultWorker().getBottomCenter().y() - centerPoint.y();
                 var workerDeclarationOptions = {
@@ -291,6 +294,8 @@ define(['lodash', 'log', 'event_channel',  'alerts', './svg-canvas', './../ast/f
                     workerDeclarationView.listenTo(lastWorker.getBoundingBox(), 'right-edge-moved', function (offset) {
                         self.moveFunctionDefinitionLevelWorker(workerDeclarationView, offset);
                     });
+                } else {
+                    this.getWorkerLifeLineMargin().stopListening(this.getDefaultWorker().getBoundingBox());
                 }
                 this.getWorkerLifeLineMargin().listenTo(workerDeclarationView.getBoundingBox(), 'right-edge-moved', function (offset) {
                     self.getWorkerLifeLineMargin().setPosition(self.getWorkerLifeLineMargin().getPosition() + offset);
@@ -311,7 +316,7 @@ define(['lodash', 'log', 'event_channel',  'alerts', './svg-canvas', './../ast/f
                     });
                 }
 
-                statementContainer.listenTo(workerDeclarationView.getBoundingBox(), 'right-edge-moved', function (dx) {
+                statementContainer.listenTo(workerDeclarationView.getBoundingBox(), 'left-edge-moved', function (dx) {
                     statementContainer.getBoundingBox().move(dx, 0);
                 });
 
@@ -410,8 +415,12 @@ define(['lodash', 'log', 'event_channel',  'alerts', './svg-canvas', './../ast/f
             this.setSVGHeight(this._totalHeight);
             this.renderStatementContainer();
 
-            // TODO: change this accordingly, after the worker declaration introduced
-            this.getWorkerLifeLineMargin().listenTo(this.getStatementContainer().getBoundingBox(), 'right-edge-moved', function (dx) {
+            this.listenTo(this.getStatementContainer().getBoundingBox(), 'width-changed', function (dw) {
+                self.getDefaultWorker().getBoundingBox().w(self.getDefaultWorker().getBoundingBox().w() + dw);
+                self.getDefaultWorker().move(dw/2, 0);
+            });
+
+            this.getWorkerLifeLineMargin().listenTo(this.getDefaultWorker().getBoundingBox(), 'right-edge-moved', function (dx) {
                 self.getWorkerLifeLineMargin().setPosition(self.getWorkerLifeLineMargin().getPosition() + dx);
             });
 
@@ -573,12 +582,6 @@ define(['lodash', 'log', 'event_channel',  'alerts', './svg-canvas', './../ast/f
                 var deltaMove = self.getDeltaMove(self.getDeepestChild(self, dh), dh);
                 self.getHorizontalMargin().setPosition(self.getHorizontalMargin().getPosition() + deltaMove);
             });
-
-            /* When the width of the statement container's bounding box changes, width of this resource definition's
-             bounding box should also change.*/
-            this._statementContainer.getBoundingBox().on('right-edge-moved', function (dw) {
-                this._defaultWorkerLifeLine.getBoundingBox().zoomWidth(this._statementContainer.getBoundingBox().w());
-            }, this);
             this._statementContainer.render(this.diagramRenderingContext);
         };
 
@@ -613,8 +616,9 @@ define(['lodash', 'log', 'event_channel',  'alerts', './svg-canvas', './../ast/f
             var lastLifeLine = this.getLastLifeLine();
             var lastConnectorLifeLine = this.getWorkerAndConnectorViews()[this.getLastConnectorLifeLineIndex()];
             var self = this;
-            // TODO: Get these values from the constants
-            var offsetBetweenLifeLines = 50;
+            var centerPoint = new Point(lastLifeLine.getBoundingBox().getRight(), lastLifeLine.getTopCenter().y());
+            centerPoint.move(this._lifeLineCenterGap, 0);
+
             var connectorContainer = this.getChildContainer().node(),
                 connectorOpts = {
                     model: connectorDeclaration,
@@ -623,7 +627,7 @@ define(['lodash', 'log', 'event_channel',  'alerts', './svg-canvas', './../ast/f
                     lineHeight: this._defaultWorkerLifeLine.getTopCenter()
                                 .absDistInYFrom(this._defaultWorkerLifeLine.getBottomCenter()),
                     messageManager: this.messageManager,
-                    centerPoint: lastLifeLine.getTopCenter().clone().move(this._lifeLineCenterGap, 0)
+                    centerPoint: centerPoint
                 },
                 connectorDeclarationView;
 
