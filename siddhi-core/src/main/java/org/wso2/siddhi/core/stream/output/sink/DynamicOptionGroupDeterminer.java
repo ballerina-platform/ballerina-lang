@@ -45,7 +45,8 @@ public class DynamicOptionGroupDeterminer implements OutputGroupDeterminer {
     @Override
     public String decideGroup(Event event) {
         StringBuilder stringBuilder = new StringBuilder("");
-        dynamicTransportOptions.forEach(transportOption -> stringBuilder.append(transportOption.getValue(event)).append(":::"));
+        dynamicTransportOptions
+                .forEach(transportOption -> stringBuilder.append(transportOption.getValue(event)).append(":::"));
         return stringBuilder.toString();
     }
 }

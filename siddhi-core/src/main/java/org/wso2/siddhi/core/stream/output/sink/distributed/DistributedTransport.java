@@ -55,7 +55,8 @@ public abstract class DistributedTransport extends OutputTransport {
         publisher.publish(payload, transportOptions);
     }
 
-    public void initDistributedTransportOptions(OptionHolder distributedOptionHolder, List<OptionHolder> endpointOptionHolders) {
+    public void initDistributedTransportOptions(OptionHolder distributedOptionHolder,
+                                                List<OptionHolder> endpointOptionHolders) {
         distributionStrategy = distributedOptionHolder.validateAndGetStaticValue(DISTRIBUTION_STRATEGY_KEY);
 
         if (distributionStrategy == null || distributionStrategy.isEmpty()) {
@@ -63,7 +64,8 @@ public abstract class DistributedTransport extends OutputTransport {
         }
 
         if (distributedOptionHolder.isOptionExists(DISTRIBUTION_CHANNELS_KEY)) {
-            channelCount = Integer.parseInt(distributedOptionHolder.validateAndGetStaticValue(DISTRIBUTION_CHANNELS_KEY));
+            channelCount = Integer.parseInt(distributedOptionHolder
+                    .validateAndGetStaticValue(DISTRIBUTION_CHANNELS_KEY));
             if (channelCount <= 0) {
                 throw new ExecutionPlanValidationException("There must be at least one channel.");
             }
