@@ -15,16 +15,10 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-var ASTFactory = require("./../ast/ballerina-ast-factory");
+/*jshint esversion: 6 */
+import Parser from "./../parser";
 
-class BLangBuilder {
+var parser = new Parser(),
+    sample = "package  \n  org.ballerinalang    ;\n import \n\n org.http.test \n ;\t\t\t\t\t\t";
 
-    constructor(){
-    }
-
-    createPackageDeclaration(packageName){
-        ASTFactory.createPackageDefinition({packageName: packageName});
-    }
-}
-
-export default BLangBuilder;
+var ast = parser.parse(sample);

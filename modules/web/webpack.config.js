@@ -91,6 +91,7 @@ var config = {
             workspace$: "workspace/module",
             ballerina$: "ballerina/module",
             "welcome-page$": "welcome-page/module",
+            jstree : "js-tree-v3.3.2/jstree.js"
         }
     }
 
