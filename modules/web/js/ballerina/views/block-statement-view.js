@@ -143,6 +143,7 @@ define(
             statementContainer.listenTo(this.getBoundingBox(), 'moved', function (offset) {
                 statementContainer.isOnWholeContainerMove = true;
                 statementContainer.getBoundingBox().move(offset.dx, offset.dy);
+                statementContainer.isOnWholeContainerMove = false;
             });
 
             this.listenTo(statementContainer.getBoundingBox(), 'width-changed', function (dw) {
