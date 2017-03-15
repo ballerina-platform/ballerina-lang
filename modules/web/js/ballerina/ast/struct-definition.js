@@ -69,6 +69,13 @@ define(['lodash', 'log', './node', 'constants', '../utils/common-utils'],
          * @param {string} identifier - The identifier of the variable
          */
         StructDefinition.prototype.addVariableDefinition = function (bType, identifier) {
+
+            // if identifier is empty
+            if (_.isEmpty(identifier)) {
+                var errorString = "Identifier cannot be empty";
+                throw errorString;
+            }
+
             // Check if already variable definition exists with same identifier.
             var identifierAlreadyExists = _.findIndex(this.getVariableDefinitions(), function (variableDefinition) {
                 return variableDefinition.getName() === identifier;
