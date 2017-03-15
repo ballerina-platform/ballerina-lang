@@ -24,7 +24,6 @@ import org.ballerinalang.model.BallerinaFile;
 import org.ballerinalang.model.values.BMessage;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.nativeimpl.connectors.jms.utils.JMSConstants;
 import org.ballerinalang.nativeimpl.util.BTestUtils;
 import org.ballerinalang.nativeimpl.util.TestCallback;
 import org.ballerinalang.util.program.BLangFunctions;
@@ -32,6 +31,9 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.carbon.messaging.DefaultCarbonMessage;
+import org.wso2.carbon.transport.jms.utils.JMSConstants;
+
+import javax.jms.Session;
 
 /**
  * Test cases for ballerina.net.jms native functions.
@@ -71,7 +73,7 @@ public class NetJMSTest {
     @Test
     public void testAcknowledge() {
         DefaultCarbonMessage cMsg = new DefaultCarbonMessage();
-        cMsg.setProperty(JMSConstants.JMS_SESSION_ACKNOWLEDGEMENT_MODE, JMSConstants.CLIENT_ACKNOWLEDGEMENT_MODE);
+        cMsg.setProperty(JMSConstants.JMS_SESSION_ACKNOWLEDGEMENT_MODE, Session.CLIENT_ACKNOWLEDGE);
         BMessage msg = new BMessage();
         msg.setValue(cMsg);
         Context ctx = new Context(cMsg);
@@ -89,7 +91,7 @@ public class NetJMSTest {
     @Test
     public void testCommit() {
         DefaultCarbonMessage cMsg = new DefaultCarbonMessage();
-        cMsg.setProperty(JMSConstants.JMS_SESSION_ACKNOWLEDGEMENT_MODE, JMSConstants.SESSION_TRANSACTED_MODE);
+        cMsg.setProperty(JMSConstants.JMS_SESSION_ACKNOWLEDGEMENT_MODE, Session.SESSION_TRANSACTED);
         BMessage msg = new BMessage();
         msg.setValue(cMsg);
         Context ctx = new Context(cMsg);
@@ -103,7 +105,7 @@ public class NetJMSTest {
     @Test
     public void testRollback() {
         DefaultCarbonMessage cMsg = new DefaultCarbonMessage();
-        cMsg.setProperty(JMSConstants.JMS_SESSION_ACKNOWLEDGEMENT_MODE, JMSConstants.SESSION_TRANSACTED_MODE);
+        cMsg.setProperty(JMSConstants.JMS_SESSION_ACKNOWLEDGEMENT_MODE, Session.SESSION_TRANSACTED);
         BMessage msg = new BMessage();
         msg.setValue(cMsg);
         Context ctx = new Context(cMsg);

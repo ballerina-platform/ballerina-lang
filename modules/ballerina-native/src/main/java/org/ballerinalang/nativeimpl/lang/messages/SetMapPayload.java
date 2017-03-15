@@ -39,13 +39,13 @@ import org.slf4j.LoggerFactory;
 @BallerinaFunction(
         packageName = "ballerina.lang.messages",
         functionName = "setMapPayload",
-        args = {@Argument(name = "m", type = TypeEnum.MESSAGE),
+        args = {@Argument(name = "msg", type = TypeEnum.MESSAGE),
                 @Argument(name = "payload", type = TypeEnum.MAP)},
         isPublic = true
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
         value = "Sets the message payload using a map object") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "m",
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "msg",
         value = "The current message object") })
 @BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "payload",
         value = "The map payload object") })
