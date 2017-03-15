@@ -82,7 +82,7 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             this._viewOptions.contentMinWidth = 700;
 
             this._viewOptions.totalHeightGap = 50;
-            this._viewOptions.LifeLineCenterGap = 180;
+            this._viewOptions.LifeLineCenterGap = 120;
             this._viewOptions.defua = 180;
             this._viewOptions.hoverClass = _.get(args, "viewOptions.cssClass.hover_svg", 'design-view-hover-svg');
 
@@ -706,9 +706,19 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             });
 
             this.trigger("defaultWorkerViewAddedEvent", this._defaultWorker);
-
             this.initActionLevelDropTarget();
             this.renderStatementContainer();
+
+            // If the statement container moved, we move the default worker accordingly
+            this.listenTo(this.getStatementContainer().getBoundingBox(), 'width-changed', function (dw) {
+                self.getDefaultWorker().getBoundingBox().w(self.getDefaultWorker().getBoundingBox().w() + dw);
+                self.getDefaultWorker().move(dw/2, 0);
+            });
+
+            this.getWorkerLifeLineMargin().listenTo(this._defaultWorker.getBoundingBox(), 'right-edge-moved', function (dx) {
+                self.getWorkerLifeLineMargin().setPosition(self.getWorkerLifeLineMargin().getPosition() + dx);
+            });
+
             log.debug("Rendering Connector Action View");
             this.getModel().accept(this);
             //Removing all the registered 'child-added' event listeners for this model.
@@ -811,12 +821,6 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                 var deltaMove = self.getDeltaMove(self.getDeepestChild(self, dh), dh);
                 self.getHorizontalMargin().setPosition(self.getHorizontalMargin().getPosition() + deltaMove);
             });
-
-            /* When the width of the statement container's bounding box changes, width of this action definition's
-             bounding box should also change.*/
-            this._statementContainer.getBoundingBox().on('right-edge-moved', function (dw) {
-                this._defaultWorker.getBoundingBox().zoomWidth(this._statementContainer.getBoundingBox().w());
-            }, this);
             this._statementContainer.render(this.diagramRenderingContext);
         };
 
@@ -902,6 +906,8 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             var lastLifeLine = this.getLastLifeLine();
             var lastConnectorLifeLine = this.getConnectorWorkerViewList()[this.getLastConnectorLifeLineIndex()];
             var self = this;
+            var centerPoint = new Point(lastLifeLine.getBoundingBox().getRight(), lastLifeLine.getTopCenter().y());
+            centerPoint.move(this._viewOptions.LifeLineCenterGap, 0);
             var connectorContainer = this._contentGroup.node();
             var connectorDeclarationView = new ConnectorDeclarationView({
                     model: connectorDeclaration,
@@ -909,7 +915,7 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                     parentView: this,
                     messageManager: this.messageManager,
                     lineHeight: this._defaultWorker.getTopCenter().absDistInYFrom(this._defaultWorker.getBottomCenter()),
-                    centerPoint: lastLifeLine.getTopCenter().clone().move(this._viewOptions.LifeLineCenterGap, 0)
+                    centerPoint: centerPoint
             });
             this.diagramRenderingContext.getViewModelMap()[connectorDeclaration.id] = connectorDeclarationView;
 
@@ -986,10 +992,13 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                 var newWorkerPosition = lastWorkerIndex === -1 ? 0 : lastWorkerIndex + 1;
                 var centerPoint = undefined;
                 if (newWorkerPosition === 0) {
-                    centerPoint = this._defaultWorker.getTopCenter().clone().move(this._viewOptions.LifeLineCenterGap, 0);
+                    centerPoint = new Point(this._defaultWorker.getBoundingBox().getRight(),
+                        this._defaultWorker.getTopCenter().y());
+                    centerPoint.move(this._viewOptions.LifeLineCenterGap, 0);
                 } else {
-                    centerPoint = this._connectorWorkerViewList[lastWorkerIndex].getTopCenter()
-                        .clone().move(this._viewOptions.LifeLineCenterGap, 0)
+                    centerPoint = new Point(this._connectorWorkerViewList[lastWorkerIndex].getBoundingBox().getRight(),
+                        this._connectorWorkerViewList[lastWorkerIndex].getTopCenter().y());
+                    centerPoint.move(this._viewOptions.LifeLineCenterGap, 0);
                 }
                 var lineHeight = this.getDefaultWorker().getBottomCenter().y() - centerPoint.y();
                 var workerDeclarationOptions = {
@@ -1045,6 +1054,8 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                     workerDeclarationView.listenTo(lastWorker.getBoundingBox(), 'right-edge-moved', function (offset) {
                         self.moveActionLevelWorker(workerDeclarationView, offset);
                     });
+                } else {
+                    this.getWorkerLifeLineMargin().stopListening(this._defaultWorker.getBoundingBox());
                 }
                 this.getWorkerLifeLineMargin().listenTo(workerDeclarationView.getBoundingBox(), 'right-edge-moved', function (offset) {
                     self.getWorkerLifeLineMargin().setPosition(self.getWorkerLifeLineMargin().getPosition() + offset);
@@ -1058,6 +1069,16 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                     this.setContentMinWidth(workerDeclarationView.getBoundingBox().getRight());
                     this.setHeadingMinWidth(workerDeclarationView.getBoundingBox().getRight());
                 }
+
+                if (_.isEqual(newWorkerPosition, 0)) {
+                    workerDeclarationView.listenTo(this.getDefaultWorker().getBoundingBox(), 'right-edge-moved', function (dx) {
+                        workerDeclarationView.getBoundingBox().move(dx, 0);
+                    });
+                }
+
+                statementContainer.listenTo(workerDeclarationView.getBoundingBox(), 'left-edge-moved', function (dx) {
+                    statementContainer.getBoundingBox().move(dx, 0);
+                });
 
                 this._connectorWorkerViewList.splice(newWorkerPosition, 0, workerDeclarationView);
             }

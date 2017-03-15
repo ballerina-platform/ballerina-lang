@@ -29,15 +29,9 @@ define(['jquery', 'lodash', 'backbone', 'log'], function ($, _, log) {
 
     var BrowserStorage = function(name) {
         this.name = name;
-        var store = this.localStorage().getItem(this.name);
-        this.records = (store && store.split(",")) || [];
     };
 
     _.extend(BrowserStorage.prototype, {
-
-        save: function() {
-            this.localStorage().setItem(this.name, this.records.join(","));
-        },
 
         put: function(key, value){
             this.localStorage().setItem(this.name+"-"+key, JSON.stringify(value));
@@ -53,15 +47,11 @@ define(['jquery', 'lodash', 'backbone', 'log'], function ($, _, log) {
                 model.set(model.idAttribute, model.id);
             }
             this.localStorage().setItem(this.name+"-"+model.id, JSON.stringify(model));
-            this.records.push(model.id.toString());
-            this.save();
             return this.find(model);
         },
 
         update: function(model) {
             this.localStorage().setItem(this.name+"-"+model.id, JSON.stringify(model));
-            if (!_.includes(this.records, model.id.toString()))
-                this.records.push(model.id.toString()); this.save();
             return this.find(model);
         },
 
@@ -69,23 +59,10 @@ define(['jquery', 'lodash', 'backbone', 'log'], function ($, _, log) {
             return this.jsonData(this.localStorage().getItem(this.name+"-"+model.id));
         },
 
-        findAll: function() {
-            return _(this.records).chain()
-                .map(function(id){
-                    return this.jsonData(this.localStorage().getItem(this.name+"-"+id));
-                }, this)
-                .compact()
-                .value();
-        },
-
         destroy: function(model) {
             if (model.isNew())
                 return false;
             this.localStorage().removeItem(this.name+"-"+model.id);
-            this.records = _.reject(this.records, function(id){
-                return id === model.id.toString();
-            });
-            this.save();
             return model;
         },
 
