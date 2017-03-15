@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.wso2.siddhi.service;
+package org.wso2.siddhi.service.impl;
 
 import com.google.gson.Gson;
 import org.apache.commons.logging.Log;
@@ -25,47 +25,42 @@ import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.query.api.ExecutionPlan;
 import org.wso2.siddhi.query.api.util.AnnotationHelper;
 import org.wso2.siddhi.query.compiler.SiddhiCompiler;
+import org.wso2.siddhi.service.api.ApiResponseMessage;
+import org.wso2.siddhi.service.api.NotFoundException;
+import org.wso2.siddhi.service.api.SiddhiApiService;
 import org.wso2.siddhi.service.util.ExecutionPlanConfiguration;
-import org.wso2.siddhi.service.util.ServiceResponse;
 import org.wso2.siddhi.service.util.SiddhiServiceConstants;
 
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import javax.ws.rs.core.Response;
+
 /**
- * Siddhi Service for Siddhi Runtime Management
+ * Siddhi Service Implementataion Class
  */
 
-@Path("/siddhi")
-public class SiddhiService {
+@javax.annotation.Generated(value = "io.swagger.codegen.languages.JavaMSF4JServerCodegen",
+        date = "2017-03-15T08:56:59.657Z")
+public class SiddhiApiServiceImpl extends SiddhiApiService {
 
-    private Log log = LogFactory.getLog(SiddhiService.class);
+    private Log log = LogFactory.getLog(SiddhiApiServiceImpl.class);
     private SiddhiManager siddhiManager = new SiddhiManager();
     private Map<String, Map<String, InputHandler>> executionPlanSpecificInputHandlerMap = new ConcurrentHashMap<>();
     private Map<String, ExecutionPlanConfiguration> executionPlanConfigurationMap = new ConcurrentHashMap<>();
     private Map<String, ExecutionPlanRuntime> executionPlanRunTimeMap = new ConcurrentHashMap<>();
 
-    @POST
-    @Path("/artifact/deploy")
-    @Consumes(MediaType.TEXT_PLAIN)
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response deployExecutionPlan(String executionPlan) {
+    @Override
+    public Response siddhiArtifactDeployPost(String executionPlan) throws NotFoundException {
 
         log.info("ExecutionPlan = " + executionPlan);
         String jsonString = new Gson().toString();
         try {
             ExecutionPlan parsedExecutionPlan = SiddhiCompiler.parse(executionPlan);
-            String executionPlanName = AnnotationHelper.getAnnotationElement(SiddhiServiceConstants.ANNOTATION_NAME_NAME,
-                                                                             null, parsedExecutionPlan.getAnnotations()).getValue();
+            String executionPlanName = AnnotationHelper.getAnnotationElement(
+                    SiddhiServiceConstants.ANNOTATION_NAME_NAME, null, parsedExecutionPlan.
+                            getAnnotations()).getValue();
             if (!executionPlanRunTimeMap.containsKey(executionPlan)) {
                 ExecutionPlanConfiguration executionPlanConfiguration = new ExecutionPlanConfiguration();
                 executionPlanConfiguration.setName(executionPlanName);
@@ -86,18 +81,18 @@ public class SiddhiService {
                     executionPlanRunTimeMap.put(executionPlan, executionPlanRuntime);
                     executionPlanRuntime.start();
 
-                    jsonString = new Gson().toJson(new ServiceResponse("suceess",
-                                                                       "Execution Plan is deployed " +
-                                                                       "and runtime is created"));
+                    jsonString = new Gson().toJson(new ApiResponseMessage(ApiResponseMessage.OK,
+                                                                          "Execution Plan is deployed " +
+                                                                          "and runtime is created"));
                 }
             } else {
-                jsonString = new Gson().toJson(new ServiceResponse("error",
-                                                                   "There is a Execution plan already " +
-                                                                   "exists with same name"));
+                jsonString = new Gson().toJson(new ApiResponseMessage(ApiResponseMessage.ERROR,
+                                                                      "There is a Execution plan already " +
+                                                                      "exists with same name"));
             }
 
         } catch (Exception e) {
-            jsonString = new Gson().toJson(new ServiceResponse("error", e.getMessage()));
+            jsonString = new Gson().toJson(new ApiResponseMessage(ApiResponseMessage.ERROR, e.getMessage()));
         }
 
         return Response.ok()
@@ -105,34 +100,30 @@ public class SiddhiService {
                 .build();
     }
 
-    @GET
-    @Path("/artifact/undeploy/{name}")
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response undeployExecutionPlan(@PathParam("name") String name) {
+    @Override
+    public Response siddhiArtifactUndeployExecutionPlanGet(String executionPlan) throws NotFoundException {
 
         String jsonString = new Gson().toString();
-        if (name != null) {
-            if (executionPlanRunTimeMap.containsKey(name)) {
-                executionPlanRunTimeMap.remove(name);
-                executionPlanConfigurationMap.remove(name);
-                executionPlanSpecificInputHandlerMap.remove(name);
+        if (executionPlan != null) {
+            if (executionPlanRunTimeMap.containsKey(executionPlan)) {
+                executionPlanRunTimeMap.remove(executionPlan);
+                executionPlanConfigurationMap.remove(executionPlan);
+                executionPlanSpecificInputHandlerMap.remove(executionPlan);
 
-                jsonString = new Gson().toJson(new ServiceResponse("suceess",
-                                                                   "Execution plan removed successfully"));
+                jsonString = new Gson().toJson(new ApiResponseMessage(ApiResponseMessage.OK,
+                                                                      "Execution plan removed successfully"));
             } else {
-                jsonString = new Gson().toJson(new ServiceResponse("error",
-                                                                   "There is no execution plan exist " +
-                                                                   "with provided name : " + name));
+                jsonString = new Gson().toJson(new ApiResponseMessage(ApiResponseMessage.ERROR,
+                                                                      "There is no execution plan exist " +
+                                                                      "with provided name : " + executionPlan));
             }
         } else {
-            jsonString = new Gson().toJson(new ServiceResponse("error",
-                                                               "nvalid Request"));
+            jsonString = new Gson().toJson(new ApiResponseMessage(ApiResponseMessage.ERROR,
+                                                                  "nvalid Request"));
 
         }
         return Response.ok()
                 .entity(jsonString)
                 .build();
     }
-
-
 }
