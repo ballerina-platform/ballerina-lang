@@ -115,14 +115,30 @@
         <projectSdkSetupValidator id="BallerinaSdk"
                                   implementation="org.ballerinalang.plugins.idea.codeinsight.daemon.impl.BallerinaProjectSdkSetupValidator"/>
 
+        <projectService serviceInterface="org.ballerinalang.plugins.idea.sdk.BallerinaSdkService"
+                        serviceImplementation="org.ballerinalang.plugins.idea.sdk.BallerinaSdkService"
+                        overrides="false"/>
+
         <!-- module -->
         <moduleType id="BALLERINA_MODULE" implementationClass="org.ballerinalang.plugins.idea.BallerinaModuleType"/>
 
-        <!--run configurations-->
-        <configurationType
-                implementation="org.ballerinalang.plugins.idea.run.configuration.application.BallerinaApplicationRunConfigurationType"/>
-        <configurationType
-                implementation="org.ballerinalang.plugins.idea.run.configuration.service.BallerinaServiceRunConfigurationType"/>
+        <!--&lt;!&ndash;run configurations&ndash;&gt;-->
+        <!--<configurationType-->
+                <!--implementation="org.ballerinalang.plugins.idea.run.configuration.application.BallerinaApplicationRunConfigurationType"/>-->
+        <!--<configurationType-->
+                <!--implementation="org.ballerinalang.plugins.idea.run.configuration.service.BallerinaServiceRunConfigurationType"/>-->
+
+        <!-- run single file -->
+        <configurationType implementation="org.ballerinalang.plugins.idea.run.configuration.file.GoRunFileConfigurationType"/>
+        <runConfigurationProducer implementation="org.ballerinalang.plugins.idea.run.configuration.file.GoRunFileConfigurationProducer"/>
+
+        <!-- run application -->
+        <programRunner implementation="org.ballerinalang.plugins.idea.run.configuration.GoBuildingRunner" order="before ballerinaRunner"/>
+        <programRunner id="ballerinaRunner" implementation="org.ballerinalang.plugins.idea.run.configuration.GoRunner"/>
+        <configurationType implementation="org.ballerinalang.plugins.idea.run.configuration.application.GoApplicationRunConfigurationType"/>
+        <runConfigurationProducer implementation="org.ballerinalang.plugins.idea.run.configuration.application.GoApplicationRunConfigurationProducer"/>
+
+        <runLineMarkerContributor language="Ballerina" implementationClass="org.ballerinalang.plugins.idea.run.configuration.GoRunLineMarkerProvider"/>
 
     </extensions>
 

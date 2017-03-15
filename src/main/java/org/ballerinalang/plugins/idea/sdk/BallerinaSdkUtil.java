@@ -17,6 +17,8 @@
 package org.ballerinalang.plugins.idea.sdk;
 
 import com.intellij.execution.configurations.PathEnvironmentVariableUtil;
+import com.intellij.openapi.module.Module;
+import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.projectRoots.Sdk;
 import com.intellij.openapi.roots.ProjectRootManager;
@@ -37,6 +39,7 @@ import org.jetbrains.annotations.Nullable;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -159,5 +162,12 @@ public class BallerinaSdkUtil {
             return sdkHome + File.separator + "bin/ballerina";
         }
         return "";
+    }
+
+    @NotNull
+    public static Collection<Module> getGoModules(@NotNull Project project) {
+        if (project.isDefault()) return Collections.emptyList();
+        BallerinaSdkService sdkService = BallerinaSdkService.getInstance(project);
+        return ContainerUtil.filter(ModuleManager.getInstance(project).getModules(), sdkService::isGoModule);
     }
 }

@@ -17,11 +17,16 @@
 package org.ballerinalang.plugins.idea.sdk;
 
 import com.intellij.execution.configurations.PathEnvironmentVariableUtil;
+import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.openapi.module.Module;
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.SystemInfo;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.util.containers.ContainerUtil;
 import org.ballerinalang.plugins.idea.BallerinaConstants;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
@@ -32,6 +37,10 @@ public class BallerinaSdkService {
     public static final Logger LOG = Logger.getInstance(BallerinaSdkService.class);
     private static final Set<String> FEDORA_SUBDIRECTORIES = ContainerUtil.newHashSet("linux_amd64", "linux_386",
             "linux_arm");
+
+    public static BallerinaSdkService getInstance(@NotNull Project project) {
+        return ServiceManager.getService(project, BallerinaSdkService.class);
+    }
 
     public static String getBallerinaExecutablePath(@Nullable String sdkHomePath) {
         if (sdkHomePath != null) {
@@ -65,4 +74,10 @@ public class BallerinaSdkService {
         }
         return null;
     }
+
+    @Contract("null -> false")
+    public boolean isGoModule(@Nullable Module module) {
+        return module != null && !module.isDisposed();
+    }
+
 }

@@ -18,28 +18,40 @@ package org.ballerinalang.plugins.idea.run.configuration.ui;
 
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.options.SettingsEditor;
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.LabeledComponent;
+import com.intellij.openapi.ui.TextFieldWithBrowseButton;
 import com.intellij.ui.RawCommandLineEditor;
-import org.ballerinalang.plugins.idea.run.configuration.BallerinaRunConfigurationBase;
+import org.ballerinalang.plugins.idea.run.configuration.GoRunUtil;
+import org.ballerinalang.plugins.idea.run.configuration.application.GoApplicationConfiguration;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 
-public class BallerinaApplicationSettingsEditor extends SettingsEditor<BallerinaRunConfigurationBase> {
+public class BallerinaApplicationSettingsEditor extends SettingsEditor<GoApplicationConfiguration> {
 
     private JPanel myPanel;
+    private LabeledComponent<TextFieldWithBrowseButton> myFileField;
     private LabeledComponent<RawCommandLineEditor> params;
+    private Project myProject;
 
-    @Override
-    protected void resetEditorFrom(@NotNull BallerinaRunConfigurationBase ballerinaRunConfigurationBase) {
-        params.getComponent().setText(ballerinaRunConfigurationBase.getParams());
+    public BallerinaApplicationSettingsEditor(Project project) {
+        myProject = project;
+        GoRunUtil.installGoWithMainFileChooser(project, myFileField.getComponent());
     }
 
     @Override
-    protected void applyEditorTo(@NotNull BallerinaRunConfigurationBase ballerinaRunConfigurationBase)
+    protected void resetEditorFrom(@NotNull GoApplicationConfiguration configuration) {
+        params.getComponent().setText(configuration.getParams());
+        myFileField.getComponent().setText(configuration.getFilePath());
+    }
+
+    @Override
+    protected void applyEditorTo(@NotNull GoApplicationConfiguration configuration)
             throws ConfigurationException {
-        ballerinaRunConfigurationBase.setParams(params.getComponent().getText());
+        configuration.setParams(params.getComponent().getText());
+        configuration.setFilePath(myFileField.getComponent().getText());
     }
 
     @NotNull
@@ -49,6 +61,9 @@ public class BallerinaApplicationSettingsEditor extends SettingsEditor<Ballerina
     }
 
     private void createUIComponents() {
+        myFileField = new LabeledComponent<TextFieldWithBrowseButton>();
+        myFileField.setComponent(new TextFieldWithBrowseButton());
+
         params = new LabeledComponent<RawCommandLineEditor>();
         params.setComponent(new RawCommandLineEditor());
     }

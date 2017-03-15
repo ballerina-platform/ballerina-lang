@@ -17,6 +17,7 @@
 package org.ballerinalang.plugins.idea;
 
 import com.intellij.notification.NotificationGroup;
+import com.intellij.openapi.wm.ToolWindowId;
 import org.jetbrains.annotations.NonNls;
 
 public class BallerinaConstants {
@@ -25,15 +26,19 @@ public class BallerinaConstants {
 
     }
 
+    public static final String BALLERINA = "Ballerina";
+    public static final String MAIN = "main";
+    public static final String PATH = "PATH";
     public static final String MODULE_TYPE_ID = "BALLERINA_MODULE";
-
     @NonNls
     public static final String BALLERINA_EXECUTABLE_NAME = "ballerina";
-
     @NonNls
     public static final String BALLERINA_VERSION_FILE_PATH = "bin/version.txt";
 
     public static final NotificationGroup BALLERINA_NOTIFICATION_GROUP =
             NotificationGroup.balloonGroup("Ballerina plugin notifications");
+
+    public static final NotificationGroup BALLERINA_EXECUTION_NOTIFICATION_GROUP =
+            NotificationGroup.toolWindowGroup("Go Execution", ToolWindowId.RUN);
 
 }
