@@ -34,10 +34,12 @@ public abstract class OutputMapper {
     private OptionHolder optionHolder;
     private TemplateBuilder payloadTemplateBuilder = null;
     private ArrayList<Option> transportOptions;
+    private OutputGroupDeterminer groupDeterminer = null;
 
     public final void init(StreamDefinition streamDefinition,
                            String type,
-                           OptionHolder mapOptionHolder, String unmappedPayload,
+                           OptionHolder mapOptionHolder,
+                           String unmappedPayload,
                            OptionHolder transportOptionHolder) {
         this.optionHolder = mapOptionHolder;
         this.type = type;
@@ -45,10 +47,6 @@ public abstract class OutputMapper {
             payloadTemplateBuilder = new TemplateBuilder(streamDefinition, unmappedPayload);
         }
         init(streamDefinition, mapOptionHolder, payloadTemplateBuilder);
-        transportOptions = new ArrayList<Option>(transportOptionHolder.getDynamicOptionsKeys().size());
-        for (String publishGroupDeterminer : transportOptionHolder.getDynamicOptionsKeys()) {
-            transportOptions.add(transportOptionHolder.validateAndGetOption(publishGroupDeterminer));
-        }
     }
 
     /**
@@ -71,18 +69,14 @@ public abstract class OutputMapper {
     public void mapAndSend(Event[] events, OutputTransportListener outputTransportListener)
             throws ConnectionUnavailableException {
 
-        if (transportOptions.size() > 0) {
+        if (groupDeterminer != null) {
             LinkedHashMap<String, ArrayList<Event>> eventMap = new LinkedHashMap<>();
             for (Event event : events) {
-                StringBuilder stringBuilder = new StringBuilder();
-                for (Option transportOption : transportOptions) {
-                    stringBuilder.append(transportOption.getValue(event));
-                    stringBuilder.append(":::");
-                }
-                String key = stringBuilder.toString();
+                String key = groupDeterminer.decideGroup(event);
                 ArrayList<Event> eventList = eventMap.computeIfAbsent(key, k -> new ArrayList<>());
                 eventList.add(event);
             }
+
             for (ArrayList<Event> eventList : eventMap.values()) {
                 mapAndSend(eventList.toArray(new Event[eventList.size()]), optionHolder,
                         payloadTemplateBuilder, outputTransportListener, new DynamicOptions(eventList.get(0)));
@@ -138,6 +132,10 @@ public abstract class OutputMapper {
 
     public final String getType() {
         return this.type;
+    }
+
+    public final void setGroupDeterminer(OutputGroupDeterminer groupDeterminer) {
+        this.groupDeterminer = groupDeterminer;
     }
 
 }
