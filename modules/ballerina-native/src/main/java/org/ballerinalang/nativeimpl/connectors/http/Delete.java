@@ -102,6 +102,19 @@ public class Delete extends AbstractHTTPAction {
         }
     }
 
+    @Override
+    public void validate(BalConnectorCallback callback) {
+        try {
+            handleTransportException(callback.getValueRef());
+        } catch (BallerinaException e) {
+
+            String msg = "Failed to invoke 'delete' action in " + ClientConnector.CONNECTOR_NAME + ". " +
+                    e.getMessage();
+            BException bException = new BException(msg, this.getName());
+            throw new BallerinaException(msg, bException);
+        }
+    }
+
     private CarbonMessage createCarbonMsg(Context context) {
         // Extract Argument values
         BConnector bConnector = (BConnector) getArgument(context, 0);

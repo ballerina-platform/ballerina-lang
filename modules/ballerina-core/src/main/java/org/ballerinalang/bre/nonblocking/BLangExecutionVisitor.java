@@ -35,6 +35,7 @@ import org.ballerinalang.model.ConstDef;
 import org.ballerinalang.model.ImportPackage;
 import org.ballerinalang.model.LinkedNode;
 import org.ballerinalang.model.LinkedNodeVisitor;
+import org.ballerinalang.model.Node;
 import org.ballerinalang.model.ParameterDef;
 import org.ballerinalang.model.Resource;
 import org.ballerinalang.model.Service;
@@ -66,6 +67,15 @@ import org.ballerinalang.model.values.BValue;
  */
 public abstract class BLangExecutionVisitor implements LinkedNodeVisitor {
 
+    public static final int STATUS_INIT = -1;
+    public static final int STATUS_COMPLETE = 0;
+    public static final int STATUS_MAIN_TERMINATION = 1;
+    public static final int STATUS_RESOURCE_TERMINATION = 2;
+    public static final int STATUS_TEST_TERMINATION = 3;
+
+    protected boolean resourceInvocation;
+    protected boolean testFunctionInvocation;
+
     /* Memory Locations */
     public abstract BValue access(ConnectorVarLocation connectorVarLocation);
 
@@ -85,9 +95,25 @@ public abstract class BLangExecutionVisitor implements LinkedNodeVisitor {
 
     public abstract void handleBException(BException exception);
 
-    public abstract void continueExecution(LinkedNode linkedNode);
+    public abstract void startExecution(LinkedNode linkedNode);
 
     public abstract void continueExecution();
+
+    public abstract Node getLastActiveNode();
+
+    public abstract void setStatus(int status);
+
+    public abstract int getStatus();
+
+    public abstract boolean isExecutionStopped();
+
+    public boolean isResourceInvocation() {
+        return resourceInvocation;
+    }
+
+    public boolean isTestFunctionInvocation() {
+        return testFunctionInvocation;
+    }
 
     @Override
     public void visit(BLangProgram bLangProgram) {
@@ -255,4 +281,5 @@ public abstract class BLangExecutionVisitor implements LinkedNodeVisitor {
             handleBException(new BException(e.getMessage()));
         }
     }
+
 }

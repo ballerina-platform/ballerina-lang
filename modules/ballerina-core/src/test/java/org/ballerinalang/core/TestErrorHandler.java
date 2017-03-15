@@ -17,10 +17,14 @@
  */
 package org.ballerinalang.core;
 
-import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
+import org.wso2.carbon.messaging.DefaultCarbonMessage;
 import org.wso2.carbon.messaging.ServerConnectorErrorHandler;
+
+import java.nio.charset.Charset;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Test error handler used with handling server connector error with http related test cases.
@@ -29,11 +33,35 @@ public class TestErrorHandler implements ServerConnectorErrorHandler {
     @Override
     public void handleError(Exception exception, CarbonMessage carbonMessage, CarbonCallback carbonCallback)
             throws Exception {
-        throw new BallerinaException(exception);
+        carbonCallback.done(createErrorMessage(exception.getMessage(), 500));
     }
 
     @Override
     public String getProtocol() {
         return "http";
+    }
+
+    private CarbonMessage createErrorMessage(String payload, int statusCode) {
+
+        DefaultCarbonMessage response = new DefaultCarbonMessage();
+
+        response.setStringMessageBody(payload);
+        byte[] errorMessageBytes = payload.getBytes(Charset.defaultCharset());
+
+        Map<String, String> transportHeaders = new HashMap<>();
+        transportHeaders.put(org.wso2.carbon.transport.http.netty.common.Constants.HTTP_CONNECTION,
+                org.wso2.carbon.transport.http.netty.common.Constants.CONNECTION_KEEP_ALIVE);
+        transportHeaders.put(org.wso2.carbon.transport.http.netty.common.Constants.HTTP_CONTENT_TYPE,
+                org.wso2.carbon.transport.http.netty.common.Constants.TEXT_PLAIN);
+        transportHeaders.put(org.wso2.carbon.transport.http.netty.common.Constants.HTTP_CONTENT_LENGTH,
+                (String.valueOf(errorMessageBytes.length)));
+
+        response.setHeaders(transportHeaders);
+
+        response.setProperty(org.wso2.carbon.transport.http.netty.common.Constants.HTTP_STATUS_CODE, statusCode);
+        response.setProperty(org.wso2.carbon.messaging.Constants.DIRECTION,
+                org.wso2.carbon.messaging.Constants.DIRECTION_RESPONSE);
+        return response;
+
     }
 }

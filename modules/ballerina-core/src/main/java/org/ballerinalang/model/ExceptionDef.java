@@ -91,7 +91,7 @@ public class ExceptionDef implements CompilationUnit {
 
     @Override
     public String toString() {
-        return "exception " + (category.stringValue().equals("") ? "" : category.stringValue() + ": ") +
+        return (category.stringValue().equals("") ? "" : category.stringValue() + ": ") +
                 message.stringValue();
     }
 }

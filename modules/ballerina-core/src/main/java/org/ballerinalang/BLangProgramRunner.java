@@ -37,7 +37,6 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.services.ErrorHandlerUtils;
 import org.ballerinalang.services.dispatchers.DispatcherRegistry;
 import org.ballerinalang.util.debugger.DebugManager;
-import org.ballerinalang.util.exceptions.BLangRuntimeException;
 
 import java.util.AbstractMap;
 
@@ -81,56 +80,72 @@ public class BLangProgramRunner {
         bLangProgram.setRuntimeEnvironment(runtimeEnv);
     }
 
-    public void runMain(BLangProgram bLangProgram, String[] args) {
+    /**
+     * Run Ballerina main program.
+     *
+     * @param bLangProgram BalProgram to run.
+     * @param args         input arguments.
+     * @return execution status.  a nonzero status code represents abnormal termination.
+     */
+    public int runMain(BLangProgram bLangProgram, String[] args) {
         Context bContext = new Context();
         BallerinaFunction mainFunction = bLangProgram.getMainFunction();
 
         // Build flow for Non-Blocking execution.
         mainFunction.accept(new BLangExecutionFlowBuilder());
-        try {
-            BValue[] argValues = new BValue[mainFunction.getStackFrameSize()];
-            BValue[] cacheValues = new BValue[mainFunction.getTempStackFrameSize()];
 
-            BArray<BString> arrayArgs = new BArray<>(BString.class);
-            for (int i = 0; i < args.length; i++) {
-                arrayArgs.add(i, new BString(args[i]));
-            }
+        BValue[] argValues = new BValue[mainFunction.getStackFrameSize()];
+        BValue[] cacheValues = new BValue[mainFunction.getTempStackFrameSize()];
 
-            argValues[0] = arrayArgs;
+        BArray<BString> arrayArgs = new BArray<>(BString.class);
+        for (int i = 0; i < args.length; i++) {
+            arrayArgs.add(i, new BString(args[i]));
+        }
 
-            CallableUnitInfo functionInfo = new CallableUnitInfo(mainFunction.getName(), mainFunction.getPackagePath(),
-                    mainFunction.getNodeLocation());
+        argValues[0] = arrayArgs;
 
-            StackFrame stackFrame = new StackFrame(argValues, new BValue[0], cacheValues, functionInfo);
-            bContext.getControlStack().pushFrame(stackFrame);
+        CallableUnitInfo functionInfo = new CallableUnitInfo(mainFunction.getName(), mainFunction.getPackagePath(),
+                mainFunction.getNodeLocation());
 
-            // Invoke main function
-            RuntimeEnvironment runtimeEnv = RuntimeEnvironment.get(bLangProgram);
-            if (ModeResolver.getInstance().isDebugEnabled()) {
-                stackFrame.variables.put(new SymbolName("args"), new AbstractMap.SimpleEntry<>(0, "Arg"));
-                DebugManager debugManager = DebugManager.getInstance();
-                // This will start the websocket server.
-                debugManager.init();
-                debugManager.waitTillClientConnect();
-                BLangExecutionDebugger debugger = new BLangExecutionDebugger(runtimeEnv, bContext);
-                debugManager.setDebugger(debugger);
-                bContext.setExecutor(debugger);
-                debugger.continueExecution(mainFunction.getCallableUnitBody());
-                debugManager.holdON();
-            } else if (ModeResolver.getInstance().isNonblockingEnabled()) {
-                BLangNonBlockingExecutor executor = new BLangNonBlockingExecutor(runtimeEnv, bContext);
-                bContext.setExecutor(executor);
-                executor.continueExecution(mainFunction.getCallableUnitBody());
-            } else {
-                BLangExecutor executor = new BLangExecutor(runtimeEnv, bContext);
+        StackFrame stackFrame = new StackFrame(argValues, new BValue[0], cacheValues, functionInfo);
+        bContext.getControlStack().pushFrame(stackFrame);
+
+        // Invoke main function
+        RuntimeEnvironment runtimeEnv = RuntimeEnvironment.get(bLangProgram);
+        if (ModeResolver.getInstance().isDebugEnabled()) {
+            stackFrame.variables.put(new SymbolName("args"), new AbstractMap.SimpleEntry<>(0, "Arg"));
+            DebugManager debugManager = DebugManager.getInstance();
+            // This will start the websocket server.
+            debugManager.init();
+            debugManager.waitTillClientConnect();
+            BLangExecutionDebugger debugger = new BLangExecutionDebugger(runtimeEnv, bContext);
+            debugManager.setDebugger(debugger);
+            bContext.setExecutor(debugger);
+            debugger.startExecution(mainFunction.getCallableUnitBody());
+            debugManager.holdON();
+            return debugger.getStatus();
+        } else if (ModeResolver.getInstance().isNonblockingEnabled()) {
+            BLangNonBlockingExecutor executor = new BLangNonBlockingExecutor(runtimeEnv, bContext);
+            bContext.setExecutor(executor);
+            executor.startExecution(mainFunction.getCallableUnitBody());
+            // Wait until execution completes.
+            executor.holdOn();
+            return executor.getStatus();
+        } else {
+            BLangExecutor executor = new BLangExecutor(runtimeEnv, bContext);
+            try {
                 mainFunction.getCallableUnitBody().execute(executor);
+                if (executor.getCurrentBException() != null) {
+                    ErrorHandlerUtils.handleMainFuncInvocationError(bContext, executor.getLastActiveNode(),
+                            executor.getCurrentBException(), null);
+                    return 1;
+                }
+                bContext.getControlStack().popFrame();
+            } catch (Throwable ex) {
+                ErrorHandlerUtils.handleMainFuncInvocationError(bContext, executor.getLastActiveNode(), null, ex);
+                return 1;
             }
-
-            bContext.getControlStack().popFrame();
-        } catch (Throwable ex) {
-            String errorMsg = ErrorHandlerUtils.getErrorMessage(ex);
-            String stacktrace = ErrorHandlerUtils.getMainFuncStackTrace(bContext, ex);
-            throw new BLangRuntimeException(errorMsg + "\n" + stacktrace);
+            return 0;
         }
     }
 }
