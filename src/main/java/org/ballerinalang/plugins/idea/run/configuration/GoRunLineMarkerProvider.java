@@ -16,16 +16,9 @@
 
 package org.ballerinalang.plugins.idea.run.configuration;
 
-import com.intellij.execution.RunManager;
-import com.intellij.execution.RunManagerConfig;
-import com.intellij.execution.RunnerAndConfigurationSettings;
-import com.intellij.execution.configurations.RunConfiguration;
 import com.intellij.execution.lineMarker.ExecutorAction;
 import com.intellij.execution.lineMarker.RunLineMarkerContributor;
 import com.intellij.icons.AllIcons;
-import com.intellij.openapi.module.ModuleManager;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.util.Function;
@@ -35,8 +28,6 @@ import org.ballerinalang.plugins.idea.psi.FunctionNode;
 import org.ballerinalang.plugins.idea.psi.ParameterListNode;
 import org.ballerinalang.plugins.idea.psi.ServiceDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.SimpleTypeArrayNode;
-import org.ballerinalang.plugins.idea.run.configuration.file.GoRunFileConfiguration;
-import org.ballerinalang.plugins.idea.run.configuration.file.GoRunFileConfigurationType;
 import org.jetbrains.annotations.Nullable;
 
 public class GoRunLineMarkerProvider extends RunLineMarkerContributor {
@@ -70,7 +61,7 @@ public class GoRunLineMarkerProvider extends RunLineMarkerContributor {
                     }
                     if ("string".equals(nameIdentifier.getText())) {
 
-                        //                        GoRunFileConfigurationType instance = GoRunFileConfigurationType
+                        //                        GoRunMainFileConfigurationType instance = GoRunMainFileConfigurationType
                         // .getInstance();
                         //                        RunConfiguration runConfiguration = instance
                         // .getConfigurationFactories()[0]
@@ -85,18 +76,18 @@ public class GoRunLineMarkerProvider extends RunLineMarkerContributor {
 //                        }
 //                        RunConfiguration configuration = configurationSettings.getConfiguration();
 //
-//                        if (configuration instanceof GoRunFileConfiguration) {
-//                            GoRunFileConfiguration goRunFileConfiguration =
-//                                    (GoRunFileConfiguration) configuration;
+//                        if (configuration instanceof GoRunMainFileConfiguration) {
+//                            GoRunMainFileConfiguration goRunFileConfiguration =
+//                                    (GoRunMainFileConfiguration) configuration;
 //
-//                            GoRunFileConfiguration.Kind kind = goRunFileConfiguration.getKind();
-//                            if (kind == GoRunFileConfiguration.Kind.APPLICATION) {
+//                            GoRunMainFileConfiguration.Kind kind = goRunFileConfiguration.getKind();
+//                            if (kind == GoRunMainFileConfiguration.Kind.APPLICATION) {
                                 return new Info(AllIcons.RunConfigurations.TestState.Run, APPLICATION_TOOLTIP_PROVIDER,
                                         ExecutorAction.getActions(0));
 //                            }
 //                        }
 
-                        // ((GoRunFileConfiguration)GoRunFileConfigurationType.getInstance()
+                        // ((GoRunMainFileConfiguration)GoRunMainFileConfigurationType.getInstance()
                         // .getConfigurationFactories()[0].createTemplateConfiguration(e.getProject())).getKind()
                     }
                 }
@@ -109,12 +100,12 @@ public class GoRunLineMarkerProvider extends RunLineMarkerContributor {
 //                }
 //                RunConfiguration configuration = configurationSettings.getConfiguration();
 //
-//                if (configuration instanceof GoRunFileConfiguration) {
-//                    GoRunFileConfiguration goRunFileConfiguration =
-//                            (GoRunFileConfiguration) configuration;
+//                if (configuration instanceof GoRunMainFileConfiguration) {
+//                    GoRunMainFileConfiguration goRunFileConfiguration =
+//                            (GoRunMainFileConfiguration) configuration;
 //
-//                    GoRunFileConfiguration.Kind kind = goRunFileConfiguration.getKind();
-//                    if (kind == GoRunFileConfiguration.Kind.SERVICE) {
+//                    GoRunMainFileConfiguration.Kind kind = goRunFileConfiguration.getKind();
+//                    if (kind == GoRunMainFileConfiguration.Kind.SERVICE) {
                         return new Info(AllIcons.RunConfigurations.TestState.Run, SERVICE_TOOLTIP_PROVIDER,
                                 ExecutorAction.getActions(0));
 //                    }

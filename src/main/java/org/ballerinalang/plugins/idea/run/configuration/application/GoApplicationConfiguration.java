@@ -113,7 +113,7 @@ public class GoApplicationConfiguration extends GoRunConfigurationWithMain<GoApp
                 break;
             case FILE:
                 // Todo - Remove null
-                checkFileConfiguration(null);
+                checkFileConfiguration();
                 break;
         }
     }

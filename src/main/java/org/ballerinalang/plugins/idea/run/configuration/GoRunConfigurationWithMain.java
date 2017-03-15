@@ -19,7 +19,6 @@ package org.ballerinalang.plugins.idea.run.configuration;
 import com.intellij.execution.configurations.ConfigurationFactory;
 import com.intellij.execution.configurations.RuntimeConfigurationError;
 import com.intellij.execution.configurations.RuntimeConfigurationException;
-import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.util.InvalidDataException;
 import com.intellij.openapi.util.JDOMExternalizerUtil;
 import com.intellij.openapi.util.WriteExternalException;
@@ -27,9 +26,8 @@ import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
-import com.intellij.util.FileContentUtil;
 import org.ballerinalang.plugins.idea.psi.BallerinaFile;
-import org.ballerinalang.plugins.idea.run.configuration.file.GoRunFileConfiguration;
+import org.ballerinalang.plugins.idea.sdk.BallerinaSdkService;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 
@@ -59,7 +57,7 @@ public abstract class GoRunConfigurationWithMain<T extends GoRunningState> exten
         addNonEmptyElement(element, FILE_PATH_ATTRIBUTE_NAME, myFilePath);
     }
 
-    protected void checkFileConfiguration(GoRunFileConfiguration.Kind myKind) throws RuntimeConfigurationError {
+    protected void checkFileConfiguration() throws RuntimeConfigurationError {
         VirtualFile file = findFile(getFilePath());
         if (file == null) {
             throw new RuntimeConfigurationError("Main file is not specified");
@@ -68,14 +66,16 @@ public abstract class GoRunConfigurationWithMain<T extends GoRunningState> exten
         if (!(psiFile instanceof BallerinaFile)) {
             throw new RuntimeConfigurationError("Main file is invalid");
         }
-        if (myKind != null) {
-            if (myKind == GoRunFileConfiguration.Kind.APPLICATION && !GoRunUtil.hasMainFunction(psiFile)) {
-                throw new RuntimeConfigurationError("Main file does not contain a main function.");
-            }
-            if (myKind == GoRunFileConfiguration.Kind.SERVICE && !GoRunUtil.hasServices(psiFile)) {
-                throw new RuntimeConfigurationError("Main file does not contain any service.");
-            }
-        }
+
+
+//        if (myKind != null) {
+//            if (myKind == FileConfigurationKind.APPLICATION && !GoRunUtil.hasMainFunction(psiFile)) {
+//                throw new RuntimeConfigurationError("Main file does not contain a main function.");
+//            }
+//            if (myKind == FileConfigurationKind.SERVICE && !GoRunUtil.hasServices(psiFile)) {
+//                throw new RuntimeConfigurationError("Main file does not contain any service.");
+//            }
+//        }
     }
 
     protected void checkBaseConfiguration() throws RuntimeConfigurationException {

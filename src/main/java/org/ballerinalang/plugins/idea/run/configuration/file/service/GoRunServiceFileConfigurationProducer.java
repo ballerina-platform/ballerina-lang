@@ -14,22 +14,22 @@
  *  limitations under the License.
  */
 
-package org.ballerinalang.plugins.idea.run.configuration.file;
+package org.ballerinalang.plugins.idea.run.configuration.file.service;
 
 import com.intellij.psi.PsiFile;
 import org.ballerinalang.plugins.idea.run.configuration.GoRunConfigurationProducerBase;
 import org.jetbrains.annotations.NotNull;
 
-public class GoRunFileConfigurationProducer extends GoRunConfigurationProducerBase<GoRunFileConfiguration>
+public class GoRunServiceFileConfigurationProducer extends GoRunConfigurationProducerBase<GoRunServiceFileConfiguration>
         implements Cloneable {
 
-    public GoRunFileConfigurationProducer() {
-        super(GoRunFileConfigurationType.getInstance());
+    public GoRunServiceFileConfigurationProducer() {
+        super(GoRunServiceFileConfigurationType.getInstance());
     }
 
     @Override
     @NotNull
     protected String getConfigurationName(@NotNull PsiFile file) {
-        return "Run " + file.getName();
+        return "Run service " + file.getName();
     }
 }

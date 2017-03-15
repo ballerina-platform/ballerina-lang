@@ -18,23 +18,23 @@ package org.ballerinalang.plugins.idea.run.configuration.ui;
 
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.options.SettingsEditor;
-import org.ballerinalang.plugins.idea.run.configuration.file.GoRunFileConfiguration;
+import org.ballerinalang.plugins.idea.run.configuration.file.main.GoRunMainFileConfiguration;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 
-public class BallerinaServiceSettingsEditor extends SettingsEditor<GoRunFileConfiguration> {
+public class BallerinaServiceSettingsEditor extends SettingsEditor<GoRunMainFileConfiguration> {
 
     private JPanel myPanel;
 
     @Override
-    protected void resetEditorFrom(@NotNull GoRunFileConfiguration ballerinaRunConfigurationBase) {
+    protected void resetEditorFrom(@NotNull GoRunMainFileConfiguration ballerinaRunConfigurationBase) {
 
     }
 
     @Override
-    protected void applyEditorTo(@NotNull GoRunFileConfiguration ballerinaRunConfigurationBase)
+    protected void applyEditorTo(@NotNull GoRunMainFileConfiguration ballerinaRunConfigurationBase)
             throws ConfigurationException {
 
     }

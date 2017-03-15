@@ -14,7 +14,7 @@
  *  limitations under the License.
  */
 
-package org.ballerinalang.plugins.idea.run.configuration.file;
+package org.ballerinalang.plugins.idea.run.configuration.file.main;
 
 import com.intellij.execution.configurations.ConfigurationTypeBase;
 import com.intellij.execution.configurations.RunConfiguration;
@@ -25,23 +25,23 @@ import org.ballerinalang.plugins.idea.BallerinaIcons;
 import org.ballerinalang.plugins.idea.run.configuration.GoConfigurationFactoryBase;
 import org.jetbrains.annotations.NotNull;
 
-public class GoRunFileConfigurationType extends ConfigurationTypeBase {
+public class GoRunMainFileConfigurationType extends ConfigurationTypeBase {
 
-    public GoRunFileConfigurationType() {
-        super("GoRunFileConfiguration", "Go Single File", "Go single run file configuration",
+    public GoRunMainFileConfigurationType() {
+        super("GoRunMainFileConfiguration", "Ballerina Main File", "Ballerina Service File Configuration",
                 BallerinaIcons.APPLICATION_RUN);
         addFactory(new GoConfigurationFactoryBase(this) {
 
             @Override
             @NotNull
             public RunConfiguration createTemplateConfiguration(@NotNull Project project) {
-                return new GoRunFileConfiguration(project, BallerinaConstants.BALLERINA, getInstance());
+                return new GoRunMainFileConfiguration(project, BallerinaConstants.BALLERINA, getInstance());
             }
         });
     }
 
     @NotNull
-    public static GoRunFileConfigurationType getInstance() {
-        return Extensions.findExtension(CONFIGURATION_TYPE_EP, GoRunFileConfigurationType.class);
+    public static GoRunMainFileConfigurationType getInstance() {
+        return Extensions.findExtension(CONFIGURATION_TYPE_EP, GoRunMainFileConfigurationType.class);
     }
 }

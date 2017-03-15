@@ -20,12 +20,12 @@ import com.intellij.openapi.options.SettingsEditor;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
 import org.ballerinalang.plugins.idea.run.configuration.GoRunUtil;
-import org.ballerinalang.plugins.idea.run.configuration.file.GoRunFileConfiguration;
+import org.ballerinalang.plugins.idea.run.configuration.file.main.GoRunMainFileConfiguration;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 
-public class GoRunFileConfigurationEditorForm extends SettingsEditor<GoRunFileConfiguration> {
+public class GoRunFileConfigurationEditorForm extends SettingsEditor<GoRunMainFileConfiguration> {
     private JPanel myComponent;
     private TextFieldWithBrowseButton myFileField;
     private GoCommonSettingsPanel myCommonSettingsPanel;
@@ -36,13 +36,13 @@ public class GoRunFileConfigurationEditorForm extends SettingsEditor<GoRunFileCo
     }
 
     @Override
-    protected void resetEditorFrom(GoRunFileConfiguration configuration) {
+    protected void resetEditorFrom(GoRunMainFileConfiguration configuration) {
         myFileField.setText(configuration.getFilePath());
         myCommonSettingsPanel.resetEditorFrom(configuration);
     }
 
     @Override
-    protected void applyEditorTo(GoRunFileConfiguration configuration) throws ConfigurationException {
+    protected void applyEditorTo(GoRunMainFileConfiguration configuration) throws ConfigurationException {
         configuration.setFilePath(myFileField.getText());
         myCommonSettingsPanel.applyEditorTo(configuration);
     }

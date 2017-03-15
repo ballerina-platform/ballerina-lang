@@ -111,10 +111,10 @@ public abstract class GoRunConfigurationBase<RunningState extends GoRunningState
         GoModuleBasedConfiguration configurationModule = getConfigurationModule();
         Module module = configurationModule.getModule();
         if (module != null) {
-//            if (BallerinaSdkService.getInstance(module.getProject()).getSdkHomePath(module) == null) {
-//                throw new RuntimeConfigurationWarning("Go SDK is not specified for module '" + module
-//                        .getName() + "'");
-//            }
+            if (BallerinaSdkService.getInstance(module.getProject()).getSdkHomePath(module) == null) {
+                throw new RuntimeConfigurationError("Go SDK is not specified for module '" + module
+                        .getName() + "'");
+            }
         } else {
             String moduleName = configurationModule.getModuleName();
             if (moduleName != null) {

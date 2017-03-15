@@ -17,12 +17,19 @@
 package org.ballerinalang.plugins.idea.sdk;
 
 import com.intellij.execution.configurations.PathEnvironmentVariableUtil;
+import com.intellij.openapi.components.ComponentManager;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.projectRoots.Sdk;
+import com.intellij.openapi.roots.ModuleRootManager;
+import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.util.SystemInfo;
 import com.intellij.openapi.util.io.FileUtil;
+import com.intellij.psi.util.CachedValueProvider;
+import com.intellij.psi.util.CachedValuesManager;
+import com.intellij.util.ObjectUtils;
 import com.intellij.util.containers.ContainerUtil;
 import org.ballerinalang.plugins.idea.BallerinaConstants;
 import org.jetbrains.annotations.Contract;
@@ -37,6 +44,11 @@ public class BallerinaSdkService {
     public static final Logger LOG = Logger.getInstance(BallerinaSdkService.class);
     private static final Set<String> FEDORA_SUBDIRECTORIES = ContainerUtil.newHashSet("linux_amd64", "linux_386",
             "linux_arm");
+    private Project myProject;
+
+    protected BallerinaSdkService(@NotNull Project project) {
+        myProject = project;
+    }
 
     public static BallerinaSdkService getInstance(@NotNull Project project) {
         return ServiceManager.getService(project, BallerinaSdkService.class);
@@ -80,4 +92,22 @@ public class BallerinaSdkService {
         return module != null && !module.isDisposed();
     }
 
+    public String getSdkHomePath(@Nullable Module module) {
+        ComponentManager holder = ObjectUtils.notNull(module, myProject);
+        return CachedValuesManager.getManager(myProject).getCachedValue(holder, () -> {
+            Sdk sdk = getGoSdk(module);
+            return CachedValueProvider.Result.create(sdk != null ? sdk.getHomePath() : null, this);
+        });
+    }
+
+    private Sdk getGoSdk(@Nullable Module module) {
+        if (module != null) {
+            Sdk sdk = ModuleRootManager.getInstance(module).getSdk();
+            if (sdk != null && sdk.getSdkType() instanceof BallerinaSdkType) {
+                return sdk;
+            }
+        }
+        Sdk sdk = ProjectRootManager.getInstance(myProject).getProjectSdk();
+        return sdk != null && sdk.getSdkType() instanceof BallerinaSdkType ? sdk : null;
+    }
 }

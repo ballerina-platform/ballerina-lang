@@ -126,6 +126,7 @@ public class GoRunUtil {
 //        return hasMainFunction(psiFile) || hasServices(psiFile);
 //    }
 
+    @Contract("null -> false")
     public static boolean hasMainFunction(PsiFile file) {
         Collection<FunctionNode> functionNodes = PsiTreeUtil.findChildrenOfType(file, FunctionNode.class);
         for (FunctionNode functionNode : functionNodes) {
@@ -153,6 +154,7 @@ public class GoRunUtil {
         return false;
     }
 
+    @Contract("null -> false")
     public static boolean hasServices(PsiFile file) {
         Collection<ServiceDefinitionNode> serviceDefinitionNodes =
                 PsiTreeUtil.findChildrenOfType(file, ServiceDefinitionNode.class);

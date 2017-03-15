@@ -14,32 +14,28 @@
  *  limitations under the License.
  */
 
-package org.ballerinalang.plugins.idea.run.configuration.file;
+package org.ballerinalang.plugins.idea.run.configuration.file.service;
 
 import com.intellij.execution.ExecutionException;
 import com.intellij.execution.runners.ExecutionEnvironment;
 import com.intellij.openapi.module.Module;
 import org.ballerinalang.plugins.idea.run.configuration.GoRunningState;
+import org.ballerinalang.plugins.idea.run.configuration.file.main.GoRunMainFileConfiguration;
 import org.ballerinalang.plugins.idea.util.GoExecutor;
 import org.jetbrains.annotations.NotNull;
 
-public class GoRunFileRunningState extends GoRunningState<GoRunFileConfiguration> {
+public class GoRunServiceFileRunningState extends GoRunningState<GoRunServiceFileConfiguration> {
 
-    public GoRunFileRunningState(@NotNull ExecutionEnvironment env, @NotNull Module module,
-                                 GoRunFileConfiguration configuration) {
+    public GoRunServiceFileRunningState(@NotNull ExecutionEnvironment env, @NotNull Module module,
+                                        GoRunServiceFileConfiguration configuration) {
         super(env, module, configuration);
     }
 
     @Override
     protected GoExecutor patchExecutor(@NotNull GoExecutor executor) throws ExecutionException {
-        GoRunFileConfiguration.Kind kind = getConfiguration().getKind();
-        String type = "service";
-        if (kind == GoRunFileConfiguration.Kind.APPLICATION) {
-            type = "main";
-        }
         return executor
                 .withParameters("run")
-                .withParameters(type)
+                .withParameters("service")
                 .withParameterString(myConfiguration.getGoToolParams())
                 .withParameters(myConfiguration.getFilePath());
     }
