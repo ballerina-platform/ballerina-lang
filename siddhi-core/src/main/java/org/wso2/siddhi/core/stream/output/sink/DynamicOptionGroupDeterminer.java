@@ -3,16 +3,16 @@ package org.wso2.siddhi.core.stream.output.sink;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.util.transport.Option;
 
-import java.util.ArrayList;
+import java.util.List;
 
 /**
  * This implementation of {@OutputEventGroupDeterminer} groups events based on dynamic options of the Sink. Events which are having the same value
  * for all dynamic options are belong to the same group.
  */
-public class DynamicOptionGrouping implements OutputGroupDeterminer {
+public class DynamicOptionGroupDeterminer implements OutputGroupDeterminer {
 
-    ArrayList<Option> dynamicTransportOptions;
-    public DynamicOptionGrouping(ArrayList<Option> dynamicTransportOptions){
+    List<Option> dynamicTransportOptions;
+    public DynamicOptionGroupDeterminer(List<Option> dynamicTransportOptions){
         this.dynamicTransportOptions = dynamicTransportOptions;
     }
     /**
@@ -25,10 +25,7 @@ public class DynamicOptionGrouping implements OutputGroupDeterminer {
     @Override
     public String decideGroup(Event event) {
         StringBuilder stringBuilder = new StringBuilder("");
-        for (Option transportOption : dynamicTransportOptions) {
-            stringBuilder.append(transportOption.getValue(event));
-            stringBuilder.append(":::");
-        }
+        dynamicTransportOptions.forEach(transportOption -> stringBuilder.append(transportOption.getValue(event)).append(":::"));
         return stringBuilder.toString();
     }
 }

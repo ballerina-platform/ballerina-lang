@@ -341,10 +341,8 @@ public class DefinitionParserHelper {
         }
     }
 
-    private static OutputGroupDeterminer constructOutputGroupDeterminer(OptionHolder transportOptionHolder,
-                                                                        OptionHolder distributedOptHolder,
-                                                                        StreamDefinition streamDefinition,
-                                                                        int endpointCount){
+    private static OutputGroupDeterminer constructOutputGroupDeterminer(OptionHolder transportOptionHolder, OptionHolder distributedOptHolder,
+                                                                        StreamDefinition streamDefinition, int endpointCount){
 
         OutputGroupDeterminer groupDeterminer = null;
         if (distributedOptHolder != null){
@@ -358,18 +356,17 @@ public class DefinitionParserHelper {
                 if (distributedOptHolder.isOptionExists(DistributedTransport.DISTRIBUTION_CHANNELS_KEY)){
                     partitionCount = Integer.parseInt(distributedOptHolder.validateAndGetStaticValue(DistributedTransport.DISTRIBUTION_CHANNELS_KEY));
                 }
-                groupDeterminer = new PartitionedGrouping(partitioningFieldIndex, partitionCount);
+                groupDeterminer = new PartitionedGroupDeterminer(partitioningFieldIndex, partitionCount);
             }
         }
 
         if (groupDeterminer == null){
-            ArrayList<Option> transportOptions = new ArrayList<Option>(transportOptionHolder.getDynamicOptionsKeys().size());
-            for (String publishGroupDeterminer : transportOptionHolder.getDynamicOptionsKeys()) {
-                transportOptions.add(transportOptionHolder.validateAndGetOption(publishGroupDeterminer));
-            }
+            List<Option> dynamicTransportOptions = new ArrayList<Option>(transportOptionHolder.getDynamicOptionsKeys().size());
+            transportOptionHolder.getDynamicOptionsKeys().
+                    forEach(option -> dynamicTransportOptions.add(transportOptionHolder.validateAndGetOption(option)));
 
-            if (transportOptions.size() > 0){
-                groupDeterminer = new DynamicOptionGrouping(transportOptions);
+            if (dynamicTransportOptions.size() > 0){
+                groupDeterminer = new DynamicOptionGroupDeterminer(dynamicTransportOptions);
             }
         }
 

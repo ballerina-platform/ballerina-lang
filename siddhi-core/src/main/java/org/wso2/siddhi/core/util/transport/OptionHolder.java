@@ -93,7 +93,7 @@ public class OptionHolder {
         }
     }
 
-    public boolean isOptionExists(String optionKey){
+    public boolean isOptionExists(String optionKey) {
         return (options.get(optionKey) != null);
     }
 

@@ -7,11 +7,11 @@ import org.wso2.siddhi.core.event.Event;
  * partitions based on the value of a given field in the event. Events which are having the same value for the partitioning field will belong the to
  * the same partition.
  */
-public class PartitionedGrouping implements OutputGroupDeterminer {
+public class PartitionedGroupDeterminer implements OutputGroupDeterminer {
     int partitionFieldIndex;
     int partitionCount;
 
-    public PartitionedGrouping (int partitionFieldIndex, int partitionCount){
+    public PartitionedGroupDeterminer(int partitionFieldIndex, int partitionCount){
         this.partitionFieldIndex = partitionFieldIndex;
         this.partitionCount = partitionCount;
     }

@@ -47,9 +47,8 @@ public abstract class DistributedTransport extends OutputTransport {
     private OptionHolder sinkOptionHolder;
 
     @Override
-    public  void init(OptionHolder optionHolder){
+    public void init(OptionHolder optionHolder){
         this.sinkOptionHolder = optionHolder;
-
     }
 
     @Override
