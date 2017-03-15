@@ -65,5 +65,4 @@ public class InMemoryOutputTransport extends OutputTransport {
     public void publish(Object payload, DynamicOptions dynamicOptions) throws ConnectionUnavailableException {
         InMemoryBroker.publish(topicOption.getValue(dynamicOptions), payload);
     }
-
 }

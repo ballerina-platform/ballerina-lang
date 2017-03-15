@@ -134,7 +134,7 @@ public abstract class OutputMapper {
         return this.type;
     }
 
-    public final void setGroupDeterminer(OutputGroupDeterminer groupDeterminer){
+    public final void setGroupDeterminer(OutputGroupDeterminer groupDeterminer) {
         this.groupDeterminer = groupDeterminer;
     }
 
