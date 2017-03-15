@@ -146,6 +146,7 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
                 });
 
                 statementView.render(this.diagramRenderingContext);
+                this.initInnerDropZoneMoveListeners(statementView, statement);
 
                 // insert at specific position
                 this._managedStatements.splice(this._selectedInnerDropZoneIndex, 0, statement);
@@ -177,6 +178,7 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
                 statementView = this._statementViewFactory.getStatementView(args);
                 this.setLastStatementView(statementView);
                 statementView.render(this.diagramRenderingContext);
+                this.initInnerDropZoneMoveListeners(statementView, statement);
                 this._managedStatements.push(statement);
 
                 // make new view listen to previous view
@@ -209,6 +211,7 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
             statementView = this._statementViewFactory.getStatementView(args);
             this.setLastStatementView(statementView);
             statementView.render(this.diagramRenderingContext);
+            this.initInnerDropZoneMoveListeners(statementView, statement);
             this._managedStatements.push(statement);
 
             statementView.listenTo(this.getBoundingBox(), 'width-changed', function (dw) {
@@ -272,21 +275,6 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
             }
 
         }, this);
-
-        // When the bounding box moved, we move the statement view as well
-        statementView.listenTo(statementView.getBoundingBox(), 'left-edge-moved', function (dx) {
-            var statementViewIndex = _.findIndex(self.getManagedStatements(), function (stmt) {
-                return _.isEqual(stmt.id, statement.id);
-            });
-            self._managedInnerDropzones[statementViewIndex].onLastStatementMovedHorizontally(dx);
-        });
-
-        statementView.listenTo(statementView.getBoundingBox(), 'width-changed', function (dw) {
-            var statementViewIndex = _.findIndex(self.getManagedStatements(), function (stmt) {
-                return _.isEqual(stmt.id, statement.id);
-            });
-            self._managedInnerDropzones[statementViewIndex].onLastStatementMovedHorizontally(dw/2);
-        });
 
         statementView.listenTo(this.getBoundingBox(), 'left-edge-moved', function (dx) {
             statementView.getBoundingBox().x(statementView.getBoundingBox().x() + dx);
@@ -577,6 +565,24 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
 
     StatementContainerView.prototype.getWidthGap = function () {
         return _.get(this._viewOptions, 'widthGap');
+    };
+
+    StatementContainerView.prototype.initInnerDropZoneMoveListeners = function (statementView, statementModel) {
+        var self = this;
+        // When the bounding box moved, we move the statement view as well
+        statementView.listenTo(statementView.getBoundingBox(), 'left-edge-moved', function (dx) {
+            var statementViewIndex = _.findIndex(self.getManagedStatements(), function (stmt) {
+                return _.isEqual(stmt.id, statementModel.id);
+            });
+            self._managedInnerDropzones[statementViewIndex].onLastStatementMovedHorizontally(dx);
+        });
+
+        statementView.listenTo(statementView.getBoundingBox(), 'width-changed', function (dw) {
+            var statementViewIndex = _.findIndex(self.getManagedStatements(), function (stmt) {
+                return _.isEqual(stmt.id, statementModel.id);
+            });
+            self._managedInnerDropzones[statementViewIndex].onLastStatementMovedHorizontally(dw/2);
+        });
     };
 
     /**
