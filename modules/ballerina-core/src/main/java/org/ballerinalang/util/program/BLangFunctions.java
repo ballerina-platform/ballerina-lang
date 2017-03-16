@@ -17,7 +17,6 @@
 */
 package org.ballerinalang.util.program;
 
-import org.ballerinalang.bre.CallableUnitInfo;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.RuntimeEnvironment;
 import org.ballerinalang.bre.StackFrame;
@@ -113,15 +112,13 @@ public class BLangFunctions {
         }
 
         BValue[] returnValues = new BValue[function.getReturnParameters().length];
-        CallableUnitInfo functionInfo = new CallableUnitInfo(function.getName(), function.getPackagePath(),
-                function.getNodeLocation());
         RuntimeEnvironment runtimeEnv = RuntimeEnvironment.get(bLangProgram);
 
         BLangExecutionFlowBuilder flowBuilder = new BLangExecutionFlowBuilder();
         bLangProgram.accept(flowBuilder);
 
         BValue[] cacheValues = new BValue[function.getCacheFrameSize()];
-        StackFrame stackFrame = new StackFrame(argValues, returnValues, cacheValues, functionInfo);
+        StackFrame stackFrame = new StackFrame(argValues, returnValues, cacheValues, function.getName());
         bContext.getControlStack().pushFrame(stackFrame);
         // Invoke main function
         BLangNonBlockingExecutor nonBlockingExecutor = new BLangNonBlockingExecutor(runtimeEnv, bContext);

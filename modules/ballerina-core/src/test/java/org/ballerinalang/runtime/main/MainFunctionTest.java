@@ -16,26 +16,6 @@
 * under the License.
 */
 package org.ballerinalang.runtime.main;
-//
-//import org.testng.Assert;
-//import org.testng.annotations.AfterClass;
-//import org.testng.annotations.BeforeClass;
-//import org.testng.annotations.Test;
-//import org.ballerinalang.core.interpreter.SymScope;
-//import org.ballerinalang.model.Application;
-//import org.ballerinalang.model.BallerinaFile;
-//import org.ballerinalang.model.SymbolName;
-//import org.ballerinalang.runtime.deployer.BalDeployer;
-//import org.ballerinalang.natives.BuiltInNativeConstructLoader;
-//import org.ballerinalang.runtime.internal.GlobalScopeHolder;
-//import org.ballerinalang.runtime.internal.ServiceContextHolder;
-//import org.ballerinalang.runtime.registry.ApplicationRegistry;
-//
-//import java.io.File;
-//import java.io.PrintStream;
-//import java.net.URL;
-//
-//import static org.ballerinalang.runtime.Constants.SYSTEM_PROP_BAL_ARGS;
 
 import org.ballerinalang.BLangProgramLoader;
 import org.ballerinalang.BLangProgramRunner;
@@ -100,7 +80,10 @@ public class MainFunctionTest {
             Assert.assertTrue(exceptionExpected instanceof BLangRuntimeException, "Exception "
                     + BLangRuntimeException.class);
             String expectedMessage = "error in ballerina program: arrays index out of range: Index: 2, Size: 0\n" +
-                    "\t at main(faulty-main.bal:1)\n";
+                    "\t at test3(faulty-main.bal:21)\n" +
+                    "\t at test2(faulty-main.bal:12)\n" +
+                    "\t at test1(faulty-main.bal:8)\n" +
+                    "\t at main(faulty-main.bal:3)";
             Assert.assertEquals(exceptionExpected.getMessage(), expectedMessage, "Unexpected error message");
         }
     }

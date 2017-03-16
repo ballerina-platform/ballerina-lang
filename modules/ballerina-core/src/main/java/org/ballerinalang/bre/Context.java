@@ -36,7 +36,9 @@ public class Context {
     private CarbonMessage cMsg;
     private BalCallback balCallback;
     protected Map<String, Object> properties = new HashMap();
+    @Deprecated
     private CallableUnitInfo serviceInfo;
+    private String serviceName;
     private BLangExecutionVisitor executor;
     private Object serverConnectorProtocol;
 
@@ -76,13 +78,43 @@ public class Context {
     public void setBalCallback(BalCallback balCallback) {
         this.balCallback = balCallback;
     }
-    
+
+    /**
+     * get ServiceInfo.
+     *
+     * @return serviceInfo instance
+     * @deprecated use getServiceName instead
+     */
     public CallableUnitInfo getServiceInfo() {
         return this.serviceInfo;
     }
 
+    /**
+     * Set Service Info.
+     *
+     * @param serviceInfo service info instance
+     * @deprecated use setServiceName instead
+     */
     public void setServiceInfo(CallableUnitInfo serviceInfo) {
         this.serviceInfo = serviceInfo;
+    }
+
+    /**
+     * Get Service name.
+     *
+     * @return service name
+     */
+    public String getServiceName() {
+        return serviceName;
+    }
+
+    /**
+     * Set service name.
+     *
+     * @param serviceName name of the service
+     */
+    public void setServiceName(String serviceName) {
+        this.serviceName = serviceName;
     }
 
     public void setExecutor(BLangExecutionVisitor executor) {

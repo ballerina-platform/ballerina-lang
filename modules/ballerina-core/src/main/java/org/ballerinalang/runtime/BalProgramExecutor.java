@@ -56,9 +56,10 @@ public class BalProgramExecutor {
 
     public static void execute(CarbonMessage cMsg, CarbonCallback callback, Resource resource, Service service,
                                Context balContext) {
-
+        // TODO : Remove deprecated usages.
         balContext.setServiceInfo(
                 new CallableUnitInfo(service.getName(), service.getPackagePath(), service.getNodeLocation()));
+        balContext.setServiceName(service.getName());
 
         balContext.setBalCallback(new DefaultBalCallback(callback));
         Expression[] exprs = new Expression[resource.getParameterDefs().length];
@@ -104,12 +105,11 @@ public class BalProgramExecutor {
         RuntimeEnvironment runtimeEnv = service.getBLangProgram().getRuntimeEnvironment();
 
         SymbolName resourceSymbolName = resource.getSymbolName();
-        CallableUnitInfo resourceInfo = new CallableUnitInfo(resourceSymbolName.getName(),
-                resourceSymbolName.getName(), resource.getNodeLocation());
 
         BValue[] cacheValues = new BValue[resource.getCacheFrameSize()];
 
-        StackFrame currentStackFrame = new StackFrame(argValues, new BValue[0], cacheValues, resourceInfo);
+        StackFrame currentStackFrame = new StackFrame(argValues, new BValue[0], cacheValues,
+                resourceSymbolName.getName());
         balContext.getControlStack().pushFrame(currentStackFrame);
         if (ModeResolver.getInstance().isDebugEnabled()) {
             DebugManager debugManager = DebugManager.getInstance();

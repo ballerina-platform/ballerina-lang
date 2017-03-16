@@ -18,7 +18,6 @@
 package org.ballerinalang.core.interpreter;
 
 import org.ballerinalang.BLangProgramLoader;
-import org.ballerinalang.bre.CallableUnitInfo;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.RuntimeEnvironment;
 import org.ballerinalang.bre.StackFrame;
@@ -201,10 +200,7 @@ public class DebuggerTest {
 
             argValues[0] = arrayArgs;
 
-            CallableUnitInfo functionInfo = new CallableUnitInfo(mainFunction.getName(), mainFunction.getPackagePath(),
-                    mainFunction.getNodeLocation());
-
-            StackFrame stackFrame = new StackFrame(argValues, new BValue[0], cacheValues, functionInfo);
+            StackFrame stackFrame = new StackFrame(argValues, new BValue[0], cacheValues, mainFunction.getName());
             bContext.getControlStack().pushFrame(stackFrame);
 
             RuntimeEnvironment runtimeEnv = RuntimeEnvironment.get(bLangProgram);

@@ -17,7 +17,6 @@
 */
 package org.ballerinalang;
 
-import org.ballerinalang.bre.CallableUnitInfo;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.RuntimeEnvironment;
 import org.ballerinalang.bre.StackFrame;
@@ -95,11 +94,8 @@ public class BLangProgramRunner {
             }
 
             argValues[0] = arrayArgs;
-
-            CallableUnitInfo functionInfo = new CallableUnitInfo(mainFunction.getName(), mainFunction.getPackagePath(),
-                    mainFunction.getNodeLocation());
-
-            StackFrame stackFrame = new StackFrame(argValues, new BValue[0], cacheValues, functionInfo);
+            StackFrame stackFrame = new StackFrame(argValues, new BValue[0], cacheValues, mainFunction.getName());
+            stackFrame.nodeLocation = mainFunction.getNodeLocation();
             bContext.getControlStack().pushFrame(stackFrame);
 
             // Invoke main function
@@ -120,9 +116,15 @@ public class BLangProgramRunner {
                 executor.getExecution().get();
             }
         } catch (Throwable ex) {
-            String errorMsg = ErrorHandlerUtils.getErrorMessage(ex);
-            String stacktrace = ErrorHandlerUtils.getMainFuncStackTrace(bContext, ex);
-            throw new BLangRuntimeException(errorMsg + "\n" + stacktrace);
+            StringBuilder sb = new StringBuilder();
+            sb.append(ErrorHandlerUtils.getErrorMessage(ex));
+            String cause = ErrorHandlerUtils.getCause(ex);
+            if (!"".equals(cause)) {
+                sb.append("\n\t").append(cause);
+            }
+            sb.append("\n");
+            sb.append(ErrorHandlerUtils.getStackTrace(bContext));
+            throw new BLangRuntimeException(sb.toString());
         }
     }
 }

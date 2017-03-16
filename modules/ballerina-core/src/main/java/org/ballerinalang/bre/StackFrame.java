@@ -18,6 +18,7 @@
 package org.ballerinalang.bre;
 
 import org.ballerinalang.model.LinkedNode;
+import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.SymbolName;
 import org.ballerinalang.model.values.BValue;
 
@@ -33,6 +34,8 @@ import java.util.HashMap;
 public class StackFrame {
     public BValue[] values;
     public BValue[] returnValues;
+
+    @Deprecated
     private CallableUnitInfo callableUnitInfo;
     // Cache values.
     public BValue[] cacheValues;
@@ -40,36 +43,43 @@ public class StackFrame {
     // Use only in debugger. Added when variables are accessed.
     public HashMap<SymbolName, AbstractMap.SimpleEntry<Integer, String>> variables;
 
-    public StackFrame(BValue[] values, BValue[] returnValues) {
-        this.values = values;
-        this.returnValues = returnValues;
-    }
+    // Information about callable unit.
+    public NodeLocation nodeLocation;
+    public final String unitName;
+
+//    public StackFrame(BValue[] values, BValue[] returnValues) {
+//        this.values = values;
+//        this.returnValues = returnValues;
+//    }
     
     /**
      * Create a Stack frame.
      * 
      * @param values         Parameter and local variable values
      * @param returnValues   Return values
-     * @param callableUnitInfo         Meta info of the node.   
+     * @param callableUnitInfo         Meta info of the node.
+     * @deprecated As of 0.8.3
      */
     public StackFrame(BValue[] values, BValue[] returnValues, CallableUnitInfo callableUnitInfo) {
         this.values = values;
         this.returnValues = returnValues;
         this.callableUnitInfo = callableUnitInfo;
+        this.unitName = callableUnitInfo.getName();
     }
 
-    public StackFrame(BValue[] values, BValue[] returnValues, BValue[] cacheValues, CallableUnitInfo callableUnitInfo) {
+    public StackFrame(BValue[] values, BValue[] returnValues, BValue[] cacheValues, String unitName) {
         this.values = values;
         this.returnValues = returnValues;
         this.cacheValues = cacheValues;
-        this.callableUnitInfo = callableUnitInfo;
-        variables = new HashMap<>();
+        this.unitName = unitName;
+        this.variables = new HashMap<>();
     }
 
     /**
      * Get the meta info (see {@link CallableUnitInfo}) of this CallableUnit.
      * 
      * @return  Meta info (see {@link CallableUnitInfo}) of this CallableUnit.
+     * @deprecated As of 0.8.3
      */
     public CallableUnitInfo getNodeInfo() {
         return this.callableUnitInfo;

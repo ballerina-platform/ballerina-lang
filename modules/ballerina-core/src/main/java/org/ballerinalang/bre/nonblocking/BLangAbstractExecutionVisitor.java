@@ -207,6 +207,7 @@ public abstract class BLangAbstractExecutionVisitor implements BLangExecutionVis
             logger.debug("Executing ActionInvocationStmt {}-{}", getNodeLocation(actionIStmt.getNodeLocation()),
                     actionIStmt.getActionInvocationExpr().getCallableUnit().getName());
         }
+        controlStack.getCurrentFrame().nodeLocation = actionIStmt.getNodeLocation();
         next = actionIStmt.next;
     }
 
@@ -216,6 +217,7 @@ public abstract class BLangAbstractExecutionVisitor implements BLangExecutionVis
         if (logger.isDebugEnabled()) {
             logger.debug("Executing AssignStmt {}", getNodeLocation(assignStmt.getNodeLocation()));
         }
+        controlStack.getCurrentFrame().nodeLocation = assignStmt.getNodeLocation();
         next = assignStmt.next;
     }
 
@@ -224,6 +226,7 @@ public abstract class BLangAbstractExecutionVisitor implements BLangExecutionVis
         if (logger.isDebugEnabled()) {
             logger.debug("Executing BlockStmt {}", getNodeLocation(blockStmt.getNodeLocation()));
         }
+        controlStack.getCurrentFrame().nodeLocation = blockStmt.getNodeLocation();
         next = blockStmt.next;
     }
 
@@ -232,6 +235,7 @@ public abstract class BLangAbstractExecutionVisitor implements BLangExecutionVis
         if (logger.isDebugEnabled()) {
             logger.debug("Executing BreakStmt {}", getNodeLocation(breakStmt.getNodeLocation()));
         }
+        controlStack.getCurrentFrame().nodeLocation = breakStmt.getNodeLocation();
         next = breakStmt.next;
     }
 
@@ -250,6 +254,7 @@ public abstract class BLangAbstractExecutionVisitor implements BLangExecutionVis
         if (logger.isDebugEnabled()) {
             logger.debug("Executing forkJoinStmt {}", getNodeLocation(forkJoinStmt.getNodeLocation()));
         }
+        controlStack.getCurrentFrame().nodeLocation = forkJoinStmt.getNodeLocation();
         next = forkJoinStmt.next;
     }
 
@@ -259,6 +264,7 @@ public abstract class BLangAbstractExecutionVisitor implements BLangExecutionVis
             logger.debug("Executing FunctionInvocationStmt {}-{}", getNodeLocation(funcIStmt.getNodeLocation()),
                     funcIStmt.getFunctionInvocationExpr().getCallableUnit().getName());
         }
+        controlStack.getCurrentFrame().nodeLocation = funcIStmt.getNodeLocation();
         next = funcIStmt.next;
     }
 
@@ -267,6 +273,7 @@ public abstract class BLangAbstractExecutionVisitor implements BLangExecutionVis
         if (logger.isDebugEnabled()) {
             logger.debug("Executing IfElseStmt {}", getNodeLocation(ifElseStmt.getNodeLocation()));
         }
+        controlStack.getCurrentFrame().nodeLocation = ifElseStmt.getNodeLocation();
         next = ifElseStmt.next;
     }
 
@@ -275,6 +282,7 @@ public abstract class BLangAbstractExecutionVisitor implements BLangExecutionVis
         if (logger.isDebugEnabled()) {
             logger.debug("Executing ReplyStmt {}", getNodeLocation(replyStmt.getNodeLocation()));
         }
+        controlStack.getCurrentFrame().nodeLocation = replyStmt.getNodeLocation();
         next = replyStmt.next;
     }
 
@@ -283,6 +291,7 @@ public abstract class BLangAbstractExecutionVisitor implements BLangExecutionVis
         if (logger.isDebugEnabled()) {
             logger.debug("Executing ReturnStmt {}", getNodeLocation(returnStmt.getNodeLocation()));
         }
+        controlStack.getCurrentFrame().nodeLocation = returnStmt.getNodeLocation();
         next = returnStmt.next;
     }
 
@@ -291,6 +300,7 @@ public abstract class BLangAbstractExecutionVisitor implements BLangExecutionVis
         if (logger.isDebugEnabled()) {
             logger.debug("Executing ThrowStmt {}", getNodeLocation(throwStmt.getNodeLocation()));
         }
+        controlStack.getCurrentFrame().nodeLocation = throwStmt.getNodeLocation();
         next = throwStmt.next;
     }
 
@@ -301,6 +311,7 @@ public abstract class BLangAbstractExecutionVisitor implements BLangExecutionVis
         }
         this.tryCatchStackRefs.push(new TryCatchStackRef(tryCatchStmt.getCatchBlock(),
                 bContext.getControlStack().getCurrentFrame()));
+        controlStack.getCurrentFrame().nodeLocation = tryCatchStmt.getNodeLocation();
         next = tryCatchStmt.next;
     }
 
@@ -309,6 +320,7 @@ public abstract class BLangAbstractExecutionVisitor implements BLangExecutionVis
         if (logger.isDebugEnabled()) {
             logger.debug("Executing VariableDefStmt {}", getNodeLocation(variableDefStmt.getNodeLocation()));
         }
+        controlStack.getCurrentFrame().nodeLocation = variableDefStmt.getNodeLocation();
         next = variableDefStmt.next;
     }
 
@@ -317,7 +329,7 @@ public abstract class BLangAbstractExecutionVisitor implements BLangExecutionVis
         if (logger.isDebugEnabled()) {
             logger.debug("Executing WorkerInvocationStmt {}", getNodeLocation(workerInvocationStmt.getNodeLocation()));
         }
-        next = workerInvocationStmt.next;
+        controlStack.getCurrentFrame().nodeLocation = workerInvocationStmt.getNodeLocation();
         // Create the Stack frame
         Worker worker = workerInvocationStmt.getCallableUnit();
 
@@ -368,6 +380,7 @@ public abstract class BLangAbstractExecutionVisitor implements BLangExecutionVis
         WorkerRunner workerRunner = new WorkerRunner(workerExecutor, workerContext, worker);
         Future<BMessage> future = executor.submit(workerRunner);
         worker.setResultFuture(future);
+        next = workerInvocationStmt.next;
     }
 
     @Override
@@ -375,7 +388,7 @@ public abstract class BLangAbstractExecutionVisitor implements BLangExecutionVis
         if (logger.isDebugEnabled()) {
             logger.debug("Executing WorkerReplyStmt {}", getNodeLocation(workerReplyStmt.getNodeLocation()));
         }
-        next = workerReplyStmt.next;
+        controlStack.getCurrentFrame().nodeLocation = workerReplyStmt.getNodeLocation();
         Worker worker = workerReplyStmt.getWorker();
         Future<BMessage> future = worker.getResultFuture();
         try {
@@ -395,6 +408,7 @@ public abstract class BLangAbstractExecutionVisitor implements BLangExecutionVis
             // Finally, try again to shutdown if not done already
             executor.shutdownNow();
         }
+        next = workerReplyStmt.next;
     }
 
     @Override
@@ -402,6 +416,7 @@ public abstract class BLangAbstractExecutionVisitor implements BLangExecutionVis
         if (logger.isDebugEnabled()) {
             logger.debug("Executing WhileStmt {}", getNodeLocation(whileStmt.getNodeLocation()));
         }
+        controlStack.getCurrentFrame().nodeLocation = whileStmt.getNodeLocation();
         next = whileStmt.next;
     }
 
@@ -535,11 +550,9 @@ public abstract class BLangAbstractExecutionVisitor implements BLangExecutionVis
             i++;
         }
         BValue[] ret = new BValue[1];
-        CallableUnitInfo resourceInfo = new CallableUnitInfo(resource.getName(), resource.getPackagePath(),
-                resource.getNodeLocation());
-
-        BValue[] cacheValues = new BValue[resource.getCacheFrameSize() + 1];
-        StackFrame stackFrame = new StackFrame(valueParams, ret, cacheValues, resourceInfo);
+        BValue[] cacheValues = new BValue[resource.getCacheFrameSize()];
+        StackFrame stackFrame = new StackFrame(valueParams, ret, cacheValues, resource.getName());
+        stackFrame.nodeLocation = resourceIExpr.getNodeLocation();
         controlStack.pushFrame(stackFrame);
         next = resourceIExpr.getResource().getResourceBody();
     }
@@ -679,7 +692,6 @@ public abstract class BLangAbstractExecutionVisitor implements BLangExecutionVis
                     assignStmt.getLExprs().length,
                     assignStmt.getRExpr().getType() != null ? assignStmt.getRExpr().getType().toString() : null);
         }
-        next = assignStmtEndNode.next;
         Expression rExpr = assignStmt.getRExpr();
         Expression[] lExprs = assignStmt.getLExprs();
         if (rExpr instanceof FunctionInvocationExpr || rExpr instanceof ActionInvocationExpr) {
@@ -693,6 +705,7 @@ public abstract class BLangAbstractExecutionVisitor implements BLangExecutionVis
             BValue rValue = getTempValue(rExpr);
             assignValue(rValue, lExpr);
         }
+        next = assignStmtEndNode.next;
     }
 
     @Override
@@ -858,7 +871,7 @@ public abstract class BLangAbstractExecutionVisitor implements BLangExecutionVis
             logger.debug("Executing ThrowStmt - EndNode");
         }
         BException exception = (BException) getTempValue(throwStmtEndNode.getStatement().getExpr());
-        exception.value().setStackTrace(ErrorHandlerUtils.getMainFuncStackTrace(bContext, null));
+        exception.value().setStackTrace(ErrorHandlerUtils.getStackTrace(bContext));
         this.handleBException(exception);
     }
 
@@ -867,8 +880,8 @@ public abstract class BLangAbstractExecutionVisitor implements BLangExecutionVis
         if (logger.isDebugEnabled()) {
             logger.debug("Executing TryCatchStmt - EndNode");
         }
-        next = tryCatchStmtEndNode.next;
         tryCatchStackRefs.pop();
+        next = tryCatchStmtEndNode.next;
     }
 
     @Override
@@ -876,10 +889,10 @@ public abstract class BLangAbstractExecutionVisitor implements BLangExecutionVis
         if (logger.isDebugEnabled()) {
             logger.debug("Executing ReplyStmt - EndNode");
         }
-        next = replyStmtEndNode.next;
         Expression expr = replyStmtEndNode.getStatement().getReplyExpr();
         BMessage bMessage = (BMessage) getTempValue(expr);
         bContext.getBalCallback().done(bMessage.value());
+        next = replyStmtEndNode.next;
     }
 
     @Override
@@ -887,7 +900,6 @@ public abstract class BLangAbstractExecutionVisitor implements BLangExecutionVis
         if (logger.isDebugEnabled()) {
             logger.debug("Executing ReturnStmt - EndNode");
         }
-        next = returnStmtEndNode.next;
         ReturnStmt returnStmt = returnStmtEndNode.getStatement();
         Expression[] exprs = returnStmt.getExprs();
 
@@ -898,6 +910,7 @@ public abstract class BLangAbstractExecutionVisitor implements BLangExecutionVis
                 for (int i = 0; i < funcIExpr.getTypes().length; i++) {
                     controlStack.setReturnValue(i, getTempValue(funcIExpr.getTempOffset() + i));
                 }
+                next = returnStmtEndNode.next;
                 return;
             }
         }
@@ -906,6 +919,7 @@ public abstract class BLangAbstractExecutionVisitor implements BLangExecutionVis
             BValue returnVal = getTempValue(expr);
             controlStack.setReturnValue(i, returnVal);
         }
+        next = returnStmtEndNode.next;
     }
 
     @Override
@@ -916,7 +930,6 @@ public abstract class BLangAbstractExecutionVisitor implements BLangExecutionVis
                     varDefStmt.getLExpr().getType().toString(),
                     varDefStmt.getRExpr() != null ? varDefStmt.getLExpr().getType().toString() : null);
         }
-        next = variableDefStmtEndNode.next;
         BValue rValue;
         Expression lExpr = varDefStmt.getLExpr();
         Expression rExpr = varDefStmt.getRExpr();
@@ -931,6 +944,7 @@ public abstract class BLangAbstractExecutionVisitor implements BLangExecutionVis
             rValue = getTempValue(rExpr);
         }
         assignValue(rValue, lExpr);
+        next = variableDefStmtEndNode.next;
     }
 
     @Override
@@ -939,7 +953,6 @@ public abstract class BLangAbstractExecutionVisitor implements BLangExecutionVis
         if (logger.isDebugEnabled()) {
             logger.debug("Executing ActionInvocationExpr StartNode " + actionIExpr.getCallableUnit().getName());
         }
-        next = actionInvocationExprStartNode.next;
         // Create the Stack frame
         Action action = actionIExpr.getCallableUnit();
         BValue[] localVals = new BValue[action.getStackFrameSize()];
@@ -960,18 +973,14 @@ public abstract class BLangAbstractExecutionVisitor implements BLangExecutionVis
 
         // Create an arrays in the stack frame to hold return values;
         BValue[] returnVals = new BValue[action.getReturnParamTypes().length];
-
-        // Create a new stack frame with memory locations to hold parameters, local values, temp expression values and
-        // return values;
-        CallableUnitInfo actionInfo = new CallableUnitInfo(action.getName(), action.getPackagePath(),
-                actionIExpr.getNodeLocation());
-
-        BValue[] cacheValues = new BValue[actionIExpr.getCallableUnit().getCacheFrameSize() + 1];
-        StackFrame stackFrame = new StackFrame(localVals, returnVals, cacheValues, actionInfo);
+        BValue[] cacheValues = new BValue[actionIExpr.getCallableUnit().getCacheFrameSize()];
+        StackFrame stackFrame = new StackFrame(localVals, returnVals, cacheValues, action.getName());
+        stackFrame.nodeLocation = actionIExpr.getNodeLocation();
         controlStack.pushFrame(stackFrame);
         if (actionInvocationExprStartNode.getBranchingLinkedNode() != null) {
             stackFrame.branchingNode = actionInvocationExprStartNode.getBranchingLinkedNode();
         }
+        next = actionInvocationExprStartNode.next;
     }
 
     @Override
@@ -979,7 +988,6 @@ public abstract class BLangAbstractExecutionVisitor implements BLangExecutionVis
         if (logger.isDebugEnabled()) {
             logger.debug("Executing ArrayInitExpr - EndNode");
         }
-        next = arrayInitExprEndNode.next;
         Expression[] argExprs = arrayInitExprEndNode.getExpression().getArgExprs();
 
         // Creating a new arrays
@@ -991,6 +999,7 @@ public abstract class BLangAbstractExecutionVisitor implements BLangExecutionVis
             bArray.add(i, value);
         }
         setTempValue(arrayInitExprEndNode.getExpression().getTempOffset(), bArray);
+        next = arrayInitExprEndNode.next;
     }
 
     @Override
@@ -998,7 +1007,6 @@ public abstract class BLangAbstractExecutionVisitor implements BLangExecutionVis
         if (logger.isDebugEnabled()) {
             logger.debug("Executing ArrayMapAccessExpr - EndNode");
         }
-        next = arrayMapAccessExprEndNode.next;
         ArrayMapAccessExpr arrayMapAccessExpr = arrayMapAccessExprEndNode.getExpression();
         if (!arrayMapAccessExpr.isLHSExpr()) {
             VariableRefExpr arrayVarRefExpr = (VariableRefExpr) arrayMapAccessExpr.getRExpr();
@@ -1032,6 +1040,7 @@ public abstract class BLangAbstractExecutionVisitor implements BLangExecutionVis
             setTempValue(arrayMapAccessExpr.getTempOffset(), result);
         }
         // Else Nothing to do. (Assignment Statement will handle rest.
+        next = arrayMapAccessExprEndNode.next;
     }
 
     @Override
@@ -1039,13 +1048,13 @@ public abstract class BLangAbstractExecutionVisitor implements BLangExecutionVis
         if (logger.isDebugEnabled()) {
             logger.debug("Executing BacktickExpr - EndNode");
         }
-        next = backtickExprEndNode.next;
         String evaluatedString = evaluteBacktickString(backtickExprEndNode.getExpression());
         if (backtickExprEndNode.getExpression().getType() == BTypes.typeJSON) {
             setTempValue(backtickExprEndNode.getExpression().getTempOffset(), new BJSON(evaluatedString));
         } else {
             setTempValue(backtickExprEndNode.getExpression().getTempOffset(), new BXML(evaluatedString));
         }
+        next = backtickExprEndNode.next;
     }
 
     @Override
@@ -1073,7 +1082,6 @@ public abstract class BLangAbstractExecutionVisitor implements BLangExecutionVis
         if (logger.isDebugEnabled()) {
             logger.debug("Executing FunctionInvocationExpr StartNode - {}", funcIExpr.getCallableUnit().getName());
         }
-        next = functionInvocationExprStartNode.next;
         // Create the Stack frame
         Function function = funcIExpr.getCallableUnit();
 
@@ -1097,18 +1105,14 @@ public abstract class BLangAbstractExecutionVisitor implements BLangExecutionVis
         // Create an arrays in the stack frame to hold return values;
         int size = function.getReturnParamTypes() != null ? function.getReturnParamTypes().length : 0;
         BValue[] returnVals = new BValue[size];
-
-        // Create a new stack frame with memory locations to hold parameters, local values, temp expression value,
-        // return values and function invocation location;
-        CallableUnitInfo functionInfo = new CallableUnitInfo(function.getName(), function.getPackagePath(),
-                funcIExpr.getNodeLocation());
-
-        BValue[] cacheValue = new BValue[funcIExpr.getCallableUnit().getCacheFrameSize() + 1];
-        StackFrame stackFrame = new StackFrame(localVals, returnVals, cacheValue, functionInfo);
+        BValue[] cacheValue = new BValue[funcIExpr.getCallableUnit().getCacheFrameSize()];
+        StackFrame stackFrame = new StackFrame(localVals, returnVals, cacheValue, function.getName());
+        stackFrame.nodeLocation = funcIExpr.getNodeLocation();
         controlStack.pushFrame(stackFrame);
         if (functionInvocationExprStartNode.getBranchingLinkedNode() != null) {
             stackFrame.branchingNode = functionInvocationExprStartNode.getBranchingLinkedNode();
         }
+        next = functionInvocationExprStartNode.next;
     }
 
     @Override
@@ -1116,11 +1120,11 @@ public abstract class BLangAbstractExecutionVisitor implements BLangExecutionVis
         if (logger.isDebugEnabled()) {
             logger.debug("Executing StructFieldAccess - EndNode");
         }
-        next = structFieldAccessExprEndNode.next;
         StructFieldAccessExpr structFieldAccessExpr = structFieldAccessExprEndNode.getExpression();
         Expression varRef = structFieldAccessExpr.getVarRef();
         BValue value = getTempValue(varRef);
         setTempValue(structFieldAccessExpr.getTempOffset(), getFieldExprValue(structFieldAccessExpr, value));
+        next = structFieldAccessExprEndNode.next;
     }
 
     @Override
@@ -1128,7 +1132,6 @@ public abstract class BLangAbstractExecutionVisitor implements BLangExecutionVis
         if (logger.isDebugEnabled()) {
             logger.debug("Executing StructInitExpr - EndNode");
         }
-        next = structInitExprEndNode.next;
         StructInitExpr structInitExpr = structInitExprEndNode.getExpression();
         StructDef structDef = (StructDef) structInitExpr.getType();
         BValue[] structMemBlock;
@@ -1152,6 +1155,7 @@ public abstract class BLangAbstractExecutionVisitor implements BLangExecutionVis
             structMemBlock[structVarLoc.getStructMemAddrOffset()] = getTempValue(expr.getValueExpr());
         }
         setTempValue(structInitExpr.getTempOffset(), new BStruct(structDef, structMemBlock));
+        next = structInitExprEndNode.next;
     }
 
     @Override
@@ -1161,7 +1165,6 @@ public abstract class BLangAbstractExecutionVisitor implements BLangExecutionVis
             logger.debug("Executing TypeCastExpression - EndNode {}->{}, source-{}", typeCastExpression.getType(),
                     typeCastExpression.getTargetType(), typeCastExpression.getRExpr() != null);
         }
-        next = typeCastExpressionEndNode.next;
         // Check for native type casting
         if (typeCastExpression.getEvalFunc() != null) {
             BValueType result = (BValueType) getTempValue(typeCastExpression.getRExpr());
@@ -1188,19 +1191,15 @@ public abstract class BLangAbstractExecutionVisitor implements BLangExecutionVis
 
             // Create an arrays in the stack frame to hold return values;
             BValue[] returnVals = new BValue[1];
-
-            // Create a new stack frame with memory locations to hold parameters, local values, temp expression value,
-            // return values and function invocation location;
-            CallableUnitInfo functionInfo = new CallableUnitInfo(typeMapper.getTypeMapperName(),
-                    typeMapper.getPackagePath(), typeCastExpression.getNodeLocation());
-
-            BValue[] cacheValue = new BValue[typeCastExpression.getCallableUnit().getCacheFrameSize() + 1];
-            StackFrame stackFrame = new StackFrame(localVals, returnVals, cacheValue, functionInfo);
+            BValue[] cacheValue = new BValue[typeCastExpression.getCallableUnit().getCacheFrameSize()];
+            StackFrame stackFrame = new StackFrame(localVals, returnVals, cacheValue, typeMapper.getName());
+            stackFrame.nodeLocation = typeCastExpression.getNodeLocation();
             controlStack.pushFrame(stackFrame);
             if (typeCastExpressionEndNode.getBranchingLinkedNode() != null) {
                 stackFrame.branchingNode = typeCastExpressionEndNode.getBranchingLinkedNode();
             }
         }
+        next = typeCastExpressionEndNode.next;
     }
 
     @Override
@@ -1208,11 +1207,11 @@ public abstract class BLangAbstractExecutionVisitor implements BLangExecutionVis
         if (logger.isDebugEnabled()) {
             logger.debug("Executing UnaryExpression - EndNode");
         }
-        next = unaryExpressionEndNode.next;
         UnaryExpression unaryExpr = unaryExpressionEndNode.getExpression();
         BValueType rValue = (BValueType) getTempValue(unaryExpr.getRExpr());
         BValue result = unaryExpr.getEvalFunc().apply(null, rValue);
         setTempValue(unaryExpr.getTempOffset(), result);
+        next = unaryExpressionEndNode.next;
     }
 
     @Override
@@ -1221,9 +1220,9 @@ public abstract class BLangAbstractExecutionVisitor implements BLangExecutionVis
         if (logger.isDebugEnabled()) {
             logger.debug("Executing RefTypeInitExpr - EndNode");
         }
-        next = refTypeInitExprEndNode.next;
         BType bType = refTypeInitExpr.getType();
         setTempValue(refTypeInitExpr.getTempOffset(), bType.getDefaultValue());
+        next = refTypeInitExprEndNode.next;
     }
 
     @Override
@@ -1246,7 +1245,6 @@ public abstract class BLangAbstractExecutionVisitor implements BLangExecutionVis
         if (logger.isDebugEnabled()) {
             logger.debug("Executing ConnectorInitExpr - EndNode");
         }
-        next = connectorInitExprEndNode.next;
         ConnectorInitExpr connectorInitExpr = connectorInitExprEndNode.getExpression();
         BConnector bConnector;
         BValue[] connectorMemBlock;
@@ -1264,18 +1262,6 @@ public abstract class BLangAbstractExecutionVisitor implements BLangExecutionVis
             nativeConnector.init(connectorMemBlock);
             bConnector = new BConnector(nativeConnector, connectorMemBlock);
 
-//            //TODO Fix Issue#320
-//            NativeUnit nativeUnit = ((NativeUnitProxy) connector).load();
-//            AbstractNativeConnector nativeConnector = (AbstractNativeConnector) ((NativeUnitProxy) connector).load();
-//            Expression[] argExpressions = connectorDcl.getArgExprs();
-//            connectorMemBlock = new BValue[argExpressions.length];
-//
-//            for (int j = 0; j < argExpressions.length; j++) {
-//                connectorMemBlock[j] = argExpressions[j].execute(this);
-//            }
-//
-//            nativeConnector.init(connectorMemBlock);
-//            connector = nativeConnector;
             setTempValue(connectorInitExpr.getTempOffset(), bConnector);
         } else {
             BallerinaConnectorDef connectorDef = (BallerinaConnectorDef) connector;
@@ -1296,20 +1282,16 @@ public abstract class BLangAbstractExecutionVisitor implements BLangExecutionVis
 
             // Create an arrays in the stack frame to hold return values;
             BValue[] returnVals = new BValue[0];
-
-            // Create a new stack frame with memory locations to hold parameters, local values, temp expression value,
-            // return values and function invocation location;
-            CallableUnitInfo functionInfo = new CallableUnitInfo(initFunction.getName(), initFunction.getPackagePath(),
-                    initFunction.getNodeLocation());
-
-            BValue[] cacheValue = new BValue[initFunction.getCacheFrameSize() + 1];
-            StackFrame stackFrame = new StackFrame(localVals, returnVals, cacheValue, functionInfo);
+            BValue[] cacheValue = new BValue[initFunction.getCacheFrameSize()];
+            StackFrame stackFrame = new StackFrame(localVals, returnVals, cacheValue, initFunction.getName());
+            stackFrame.nodeLocation = initFunction.getNodeLocation();
             controlStack.pushFrame(stackFrame);
             if (connectorInitExprEndNode.getBranchingLinkedNode() != null) {
                 stackFrame.branchingNode = connectorInitExprEndNode.getBranchingLinkedNode();
             }
         }
 
+        next = connectorInitExprEndNode.next;
     }
 
     @Override
@@ -1338,8 +1320,8 @@ public abstract class BLangAbstractExecutionVisitor implements BLangExecutionVis
         if (logger.isDebugEnabled()) {
             logger.debug("Executing Native Function - " + invokeNativeFunctionNode.getCallableUnit().getName());
         }
-        next = invokeNativeFunctionNode.next;
         invokeNativeFunctionNode.getCallableUnit().executeNative(bContext);
+        next = invokeNativeFunctionNode.next;
     }
 
     @Override
@@ -1348,8 +1330,8 @@ public abstract class BLangAbstractExecutionVisitor implements BLangExecutionVis
             logger.debug("Executing Native TypeMapperNode - " + invokeNativeTypeMapperNode.getCallableUnit()
                     .getName());
         }
-        next = invokeNativeTypeMapperNode.next;
         invokeNativeTypeMapperNode.getCallableUnit().convertNative(bContext);
+        next = invokeNativeTypeMapperNode.next;
     }
 
     @Override
@@ -1357,7 +1339,6 @@ public abstract class BLangAbstractExecutionVisitor implements BLangExecutionVis
         if (logger.isDebugEnabled()) {
             logger.debug("Executing MapInitExprEndNode - EndNode");
         }
-        next = mapInitExprEndNode.next;
         Expression[] argExprs = mapInitExprEndNode.getExpression().getArgExprs();
 
         // Creating a new arrays
@@ -1370,6 +1351,7 @@ public abstract class BLangAbstractExecutionVisitor implements BLangExecutionVis
             bMap.put(keyVal, value);
         }
         setTempValue(mapInitExprEndNode.getExpression().getTempOffset(), bMap);
+        next = mapInitExprEndNode.next;
     }
 
     /* Overriding methods */
@@ -1545,7 +1527,7 @@ public abstract class BLangAbstractExecutionVisitor implements BLangExecutionVis
      */
     public void handleBException(BException bException) {
         // SaveStack current StackTrace.
-        bException.value().setStackTrace(ErrorHandlerUtils.getMainFuncStackTrace(bContext, null));
+        bException.value().setStackTrace(ErrorHandlerUtils.getStackTrace(bContext));
         if (tryCatchStackRefs.size() == 0) {
             // There is no tryCatch block to handle this exception. Pass this to handle at root.
             throw new BallerinaException(bException.value().getMessage().stringValue());

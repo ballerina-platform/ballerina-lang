@@ -230,10 +230,10 @@ public class BLangExecutionDebugger extends BLangAbstractExecutionVisitor {
         }
         BreakPointInfo breakPointInfo = new BreakPointInfo(current);
         for (StackFrame stackFrame : bContext.getControlStack().getStack()) {
-            String pck =
-                    (stackFrame.getNodeInfo().getPackage() == null ? "default" : stackFrame.getNodeInfo().getPackage());
-            String functionName = stackFrame.getNodeInfo().getName();
-            NodeLocation location = stackFrame.getNodeInfo().getNodeLocation();
+            String pck = (stackFrame.nodeLocation.getPackageDirPath() == null ? "default" :
+                    stackFrame.nodeLocation.getPackageDirPath());
+            String functionName = stackFrame.unitName;
+            NodeLocation location = stackFrame.nodeLocation;
             FrameInfo frameInfo = new FrameInfo(pck, functionName, location.getFileName(), location.getLineNumber());
             HashMap<SymbolName, AbstractMap.SimpleEntry<Integer, String>> variables = stackFrame.variables;
             if (null != variables) {

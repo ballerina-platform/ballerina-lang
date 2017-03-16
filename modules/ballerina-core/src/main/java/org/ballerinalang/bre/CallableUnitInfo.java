@@ -23,6 +23,7 @@ import org.ballerinalang.model.NodeLocation;
  * including name, type, package and the location in the ballerina source (see {@link NodeLocation}).
  *
  * @since 0.8.0
+ * @deprecated As of 0.8.3.
  */
 public class CallableUnitInfo {
     private String unitName;
