@@ -46,14 +46,11 @@ public abstract class BallerinaRunConfigurationProducerBase<T extends BallerinaR
     @Override
     protected boolean setupConfigurationFromContext(@NotNull T configuration, @NotNull ConfigurationContext context,
                                                     Ref<PsiElement> sourceElement) {
-
         PsiFile file = getFileFromContext(context);
         PsiElement element = sourceElement.get();
-        FunctionNode functionNode = PsiTreeUtil.getParentOfType(element, FunctionNode.class);
-        ServiceDefinitionNode serviceDefinitionNode = PsiTreeUtil.getParentOfType(element,
-                ServiceDefinitionNode.class);
-        if (BallerinaRunUtil.hasMainFunction(file) && functionNode != null) {
 
+        FunctionNode functionNode = PsiTreeUtil.getParentOfType(element, FunctionNode.class);
+        if (BallerinaRunUtil.hasMainFunction(file) && functionNode != null) {
 
             configuration.setName(getConfigurationName(file));
             configuration.setFilePath(file.getVirtualFile().getPath());
@@ -64,22 +61,33 @@ public abstract class BallerinaRunConfigurationProducerBase<T extends BallerinaR
             if (configuration instanceof BallerinaRunFileConfiguration) {
                 configuration.setRunKind(BallerinaRunFileConfiguration.Kind.APPLICATION);
 
-                Project project = context.getProject();
-                RunManager runManager = RunManager.getInstance(project);
 
+                RunnerAndConfigurationSettings existingConfigurations = context.findExisting();
+                if (existingConfigurations != null) {
+                    RunConfiguration existingConfiguration = existingConfigurations.getConfiguration();
+                    ((BallerinaRunFileConfiguration) existingConfiguration).setRunKind(
+                            BallerinaRunFileConfiguration.Kind.APPLICATION);
+                } else {
 
-                RunnerAndConfigurationSettings selectedConfigurationSettings = runManager.getSelectedConfiguration();
-                if (selectedConfigurationSettings != null) {
+                    Project project = context.getProject();
+                    RunManager runManager = RunManager.getInstance(project);
 
-                    RunConfiguration currentRunConfiguration = selectedConfigurationSettings
-                            .getConfiguration();
-                    ((BallerinaRunFileConfiguration) currentRunConfiguration).setRunKind
-                            (BallerinaRunFileConfiguration.Kind.APPLICATION);
+                    RunnerAndConfigurationSettings selectedConfigurationSettings =
+                            runManager.getSelectedConfiguration();
+                    if (selectedConfigurationSettings != null) {
+
+                        RunConfiguration currentRunConfiguration = selectedConfigurationSettings.getConfiguration();
+                        if (currentRunConfiguration instanceof BallerinaRunFileConfiguration) {
+                            ((BallerinaRunFileConfiguration) currentRunConfiguration).setRunKind
+                                    (BallerinaRunFileConfiguration.Kind.APPLICATION);
+                        }
+                    }
                 }
-
                 return true;
             }
         }
+
+        ServiceDefinitionNode serviceDefinitionNode = PsiTreeUtil.getParentOfType(element, ServiceDefinitionNode.class);
         if (BallerinaRunUtil.hasServices(file) && serviceDefinitionNode != null) {
             configuration.setName(getConfigurationName(file));
             configuration.setFilePath(file.getVirtualFile().getPath());
@@ -90,18 +98,25 @@ public abstract class BallerinaRunConfigurationProducerBase<T extends BallerinaR
             if (configuration instanceof BallerinaRunFileConfiguration) {
                 configuration.setRunKind(BallerinaRunFileConfiguration.Kind.SERVICE);
 
-                Project project = context.getProject();
-                RunManager runManager = RunManager.getInstance(project);
-                RunnerAndConfigurationSettings selectedConfigurationSettings = runManager.getSelectedConfiguration();
-                if (selectedConfigurationSettings != null) {
+                RunnerAndConfigurationSettings existingConfigurations = context.findExisting();
+                if (existingConfigurations != null) {
+                    RunConfiguration existingConfiguration = existingConfigurations.getConfiguration();
+                    ((BallerinaRunFileConfiguration) existingConfiguration).setRunKind(
+                            BallerinaRunFileConfiguration.Kind.SERVICE);
+                } else {
+                    Project project = context.getProject();
+                    RunManager runManager = RunManager.getInstance(project);
+                    RunnerAndConfigurationSettings selectedConfigurationSettings =
+                            runManager.getSelectedConfiguration();
+                    if (selectedConfigurationSettings != null) {
 
-                    RunConfiguration currentRunConfiguration = selectedConfigurationSettings
-                            .getConfiguration();
-                    ((BallerinaRunFileConfiguration) currentRunConfiguration).setRunKind
-                            (BallerinaRunFileConfiguration.Kind
-                                    .SERVICE);
+                        RunConfiguration currentRunConfiguration = selectedConfigurationSettings.getConfiguration();
+                        if (currentRunConfiguration instanceof BallerinaRunFileConfiguration) {
+                            ((BallerinaRunFileConfiguration) currentRunConfiguration).setRunKind
+                                    (BallerinaRunFileConfiguration.Kind.SERVICE);
+                        }
+                    }
                 }
-
                 return true;
             }
         }
