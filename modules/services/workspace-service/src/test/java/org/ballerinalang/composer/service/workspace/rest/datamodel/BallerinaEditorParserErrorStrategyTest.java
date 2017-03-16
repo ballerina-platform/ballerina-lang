@@ -23,28 +23,28 @@ import com.google.gson.JsonObject;
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.apache.commons.lang3.StringUtils;
-import org.ballerinalang.composer.service.workspace.rest.datamodel.BLangJSONModelBuilder;
-import org.ballerinalang.composer.service.workspace.rest.datamodel.BallerinaComposerErrorStrategy;
 import org.ballerinalang.model.BLangPackage;
 import org.ballerinalang.model.BallerinaFile;
 import org.ballerinalang.model.GlobalScope;
 import org.ballerinalang.model.builder.BLangModelBuilder;
 import org.ballerinalang.model.types.BTypes;
+import org.ballerinalang.natives.BuiltInNativeConstructLoader;
 import org.ballerinalang.util.parser.BallerinaLexer;
 import org.ballerinalang.util.parser.BallerinaParser;
 import org.ballerinalang.util.parser.antlr4.BLangAntlr4Listener;
-import org.ballerinalang.natives.BuiltInNativeConstructLoader;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 
 public class BallerinaEditorParserErrorStrategyTest {
-
+    private static final Logger logger = LoggerFactory.getLogger(BallerinaEditorParserErrorStrategyTest.class);
     public static void main(String[] args) {
         try {
-            File file = new File(BallerinaEditorParserErrorStrategyTest.class.getClassLoader().getResource("samples/parser/InvalidBal.bal")
-                    .getFile());
+            File file = new File(BallerinaEditorParserErrorStrategyTest.class.getClassLoader()
+                    .getResource("samples/parser/InvalidBal.bal").getFile());
             InputStream stream = new FileInputStream(file);
             ANTLRInputStream antlrInputStream = new ANTLRInputStream(stream);
             BallerinaLexer ballerinaLexer = new BallerinaLexer(antlrInputStream);
@@ -73,10 +73,10 @@ public class BallerinaEditorParserErrorStrategyTest {
             bFile.accept(jsonModelBuilder);
 
             String responseString = response.toString();
-            System.out.println(responseString);
+            logger.info(responseString);
         } catch (Exception ex) {
             String error = ex.getMessage();
-            System.out.println(error);
+            logger.error(error);
         }
     }
 }

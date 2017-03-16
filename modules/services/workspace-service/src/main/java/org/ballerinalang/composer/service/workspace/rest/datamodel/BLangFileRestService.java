@@ -22,11 +22,11 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.model.BLangPackage;
 import org.ballerinalang.model.BallerinaFile;
 import org.ballerinalang.model.GlobalScope;
-import org.ballerinalang.model.builder.BLangModelBuilder;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.natives.BuiltInNativeConstructLoader;
 import org.ballerinalang.util.parser.BallerinaLexer;
@@ -56,44 +56,45 @@ import javax.ws.rs.core.Response;
  */
 @Path("/ballerina")
 public class BLangFileRestService {
-
+    
     private static final Logger logger = LoggerFactory.getLogger(BLangFileRestService.class);
-
+    
     @GET
     @Path("/model")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getBallerinaJsonDataModelGivenLocation(@QueryParam("location") String location) throws IOException {
-        InputStream stream = new FileInputStream(new File(location));
-        String response = parseJsonDataModel(stream);
-        return Response.ok(response, MediaType.APPLICATION_JSON).build();
+        InputStream stream = null;
+        try {
+            stream = new FileInputStream(new File(location));
+            String response = parseJsonDataModel(stream);
+            return Response.ok(response, MediaType.APPLICATION_JSON).build();
+        } finally {
+            if (null != stream) {
+                IOUtils.closeQuietly(stream);
+            }
+        }
     }
-
+    
     @POST
     @Path("/validate")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response validateBallerinaSource(BFileContent content) throws IOException {
         InputStream stream = new ByteArrayInputStream(content.getContent().getBytes(StandardCharsets.UTF_8));
-        return Response.status(Response.Status.OK)
-                .entity(validate(stream))
-                .header("Access-Control-Allow-Origin", '*')
-                .type(MediaType.APPLICATION_JSON)
-                .build();
+        return Response.status(Response.Status.OK).entity(validate(stream)).header("Access-Control-Allow-Origin",
+                '*').type(MediaType.APPLICATION_JSON).build();
     }
-
+    
     @OPTIONS
     @Path("/validate")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response validateOptions() {
-        return Response.ok()
-                .header("Access-Control-Allow-Origin", "*")
-                .header("Access-Control-Allow-Credentials", "true")
-                .header("Access-Control-Allow-Methods", "POST, GET, PUT, UPDATE, DELETE, OPTIONS, HEAD")
-                .header("Access-Control-Allow-Headers", "Content-Type, Accept, X-Requested-With")
-                .build();
+        return Response.ok().header("Access-Control-Allow-Origin", "*").header("Access-Control-Allow-Credentials",
+                "true").header("Access-Control-Allow-Methods", "POST, GET, PUT, UPDATE, DELETE, OPTIONS, HEAD")
+                .header("Access-Control-Allow-Headers", "Content-Type, Accept, X-Requested-With").build();
     }
-
+    
     @POST
     @Path("/model/content")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -103,91 +104,92 @@ public class BLangFileRestService {
         String response = parseJsonDataModel(stream);
         return Response.ok(response, MediaType.APPLICATION_JSON).header("Access-Control-Allow-Origin", '*').build();
     }
-
+    
     @OPTIONS
     @Path("/model/content")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response options() {
-        return Response.ok()
-                       .header("Access-Control-Allow-Origin", "*")
-                       .header("Access-Control-Allow-Credentials", "true")
-                       .header("Access-Control-Allow-Methods", "POST, GET, PUT, UPDATE, DELETE, OPTIONS, HEAD")
-                       .header("Access-Control-Allow-Headers", "Content-Type, Accept, X-Requested-With")
-                       .build();
+        return Response.ok().header("Access-Control-Allow-Origin", "*").header("Access-Control-Allow-Credentials",
+                "true").header("Access-Control-Allow-Methods", "POST, GET, PUT, UPDATE, DELETE, OPTIONS, HEAD")
+                .header("Access-Control-Allow-Headers", "Content-Type, Accept, X-Requested-With").build();
     }
-
+    
     /**
      * Parses an input stream into a json model. During this parsing we are compiling the code as well.
+     *
      * @param stream - The input stream.
      * @return A string which contains a json model.
      * @throws IOException
      */
     private String parseJsonDataModel(InputStream stream) throws IOException {
-
+        
         ANTLRInputStream antlrInputStream = new ANTLRInputStream(stream);
         BallerinaLexer ballerinaLexer = new BallerinaLexer(antlrInputStream);
         CommonTokenStream ballerinaToken = new CommonTokenStream(ballerinaLexer);
-
+        
         BallerinaParser ballerinaParser = new BallerinaParser(ballerinaToken);
         BallerinaComposerErrorStrategy errorStrategy = new BallerinaComposerErrorStrategy();
         ballerinaParser.setErrorHandler(errorStrategy);
-
+        
         GlobalScope globalScope = GlobalScope.getInstance();
         BTypes.loadBuiltInTypes(globalScope);
         BLangPackage bLangPackage = new BLangPackage(globalScope);
         BLangPackage.PackageBuilder packageBuilder = new BLangPackage.PackageBuilder(bLangPackage);
-        BallerinaComposerModelBuilder bLangModelBuilder = new BallerinaComposerModelBuilder(packageBuilder, StringUtils.EMPTY);
+        BallerinaComposerModelBuilder bLangModelBuilder = new BallerinaComposerModelBuilder(packageBuilder,
+                StringUtils.EMPTY);
         BLangAntlr4Listener ballerinaBaseListener = new BLangAntlr4Listener(bLangModelBuilder);
         ballerinaParser.addParseListener(ballerinaBaseListener);
         ballerinaParser.compilationUnit();
         BallerinaFile bFile = bLangModelBuilder.build();
-
+        
         BuiltInNativeConstructLoader.loadConstructs(globalScope);
-
+        
         JsonObject response = new JsonObject();
         BLangJSONModelBuilder jsonModelBuilder = new BLangJSONModelBuilder(response);
         bFile.accept(jsonModelBuilder);
-
+        
         return response.toString();
     }
-
+    
     /**
      * Validates a given ballerina input
+     *
      * @param stream - The input stream.
      * @return List of errors if any
      * @throws IOException
      */
     private JsonObject validate(InputStream stream) throws IOException {
-
+        
         ANTLRInputStream antlrInputStream = new ANTLRInputStream(stream);
         BallerinaLexer ballerinaLexer = new BallerinaLexer(antlrInputStream);
         CommonTokenStream ballerinaToken = new CommonTokenStream(ballerinaLexer);
-
+        
         BallerinaParser ballerinaParser = new BallerinaParser(ballerinaToken);
         BallerinaComposerErrorStrategy errorStrategy = new BallerinaComposerErrorStrategy();
         ballerinaParser.setErrorHandler(errorStrategy);
-
+        
         GlobalScope globalScope = GlobalScope.getInstance();
         BTypes.loadBuiltInTypes(globalScope);
         BLangPackage bLangPackage = new BLangPackage(globalScope);
         BLangPackage.PackageBuilder packageBuilder = new BLangPackage.PackageBuilder(bLangPackage);
-
-        BallerinaComposerModelBuilder bLangModelBuilder = new BallerinaComposerModelBuilder(packageBuilder, StringUtils.EMPTY);
+        
+        BallerinaComposerModelBuilder bLangModelBuilder = new BallerinaComposerModelBuilder(packageBuilder,
+                StringUtils.EMPTY);
         BLangAntlr4Listener ballerinaBaseListener = new BLangAntlr4Listener(bLangModelBuilder);
         ballerinaParser.addParseListener(ballerinaBaseListener);
         ballerinaParser.compilationUnit();
-
+        
         JsonArray errors = new JsonArray();
-
-        for (SyntaxError error : errorStrategy.getErrorTokens()){
+        
+        for (SyntaxError error : errorStrategy.getErrorTokens()) {
             errors.add(error.toJson());
         }
-
+        
         JsonObject result = new JsonObject();
         result.add("errors", errors);
-
+        
         return result;
     }
-
+    
 }

@@ -31,6 +31,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -203,8 +204,8 @@ public class BallerinaCodeGenerator extends DefaultCodegen implements CodegenCon
     public String escapeReservedWord(String name) {
         return "_" + name;
     }
-
-
+    
+    @SuppressWarnings("unchecked")
     @Override
     public Map<String, Object> postProcessOperations(Map<String, Object> objs) {
         super.postProcessOperations(objs);
@@ -213,7 +214,7 @@ public class BallerinaCodeGenerator extends DefaultCodegen implements CodegenCon
             if (operations != null) {
                 List<CodegenOperation> ops = (List<CodegenOperation>) operations.get("operation");
                 for (CodegenOperation operation : ops) {
-                    operation.httpMethod = operation.httpMethod.toLowerCase();
+                    operation.httpMethod = operation.httpMethod.toLowerCase(Locale.getDefault());
                 }
             }
         }

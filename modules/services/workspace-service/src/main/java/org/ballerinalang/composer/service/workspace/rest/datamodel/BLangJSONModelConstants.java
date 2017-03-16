@@ -18,6 +18,9 @@
 
 package org.ballerinalang.composer.service.workspace.rest.datamodel;
 
+/**
+ * Constants used in definition the JSON model when parsing the bFile.
+ */
 public class BLangJSONModelConstants {
 
     public static final String ROOT = "root";
