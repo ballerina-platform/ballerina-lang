@@ -33,10 +33,10 @@
     <name>Ballerina Composer - Parent</name>
 
     <scm>
-        <url>https://github.com/ballerinalang/composer.git</url>
-        <developerConnection>scm:git:https://github.com/ballerinalang/composer.git
+        <url>https://github.com/maheeka/composer.git</url>
+        <developerConnection>scm:git:https://github.com/maheeka/composer.git
         </developerConnection>
-        <connection>scm:git:https://github.com/ballerinalang/composer.git</connection>
+        <connection>scm:git:https://github.com/maheeka/composer.git</connection>
         <tag>HEAD</tag>
     </scm>
 
