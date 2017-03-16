@@ -116,21 +116,21 @@ public class StructTest {
     
     @Test(description = "Test accessing the field of a noninitialized struct",
             expectedExceptions = {BallerinaException.class},
-            expectedExceptionsMessageRegExp = "field 'dpt' is null")
+            expectedExceptionsMessageRegExp = "struct.bal:70: variable 'dpt' is null")
     public void testGetNonInitLastField() {
         BLangFunctions.invoke(bLangProgram, "testGetNonInitLastAttribute");
     }
     
     @Test(description = "Test setting an field of a noninitialized child struct",
             expectedExceptions = {BallerinaException.class},
-            expectedExceptionsMessageRegExp = "field 'family' is null")
+            expectedExceptionsMessageRegExp = "struct.bal:75: field 'family' is null")
     public void testSetNonInitField() {
         BLangFunctions.invoke(bLangProgram, "testSetFieldOfNonInitChildStruct");
     }
     
     @Test(description = "Test setting the field of a noninitialized root struct",
             expectedExceptions = {BallerinaException.class},
-            expectedExceptionsMessageRegExp = "field 'dpt' is null")
+            expectedExceptionsMessageRegExp = "struct.bal:80: variable 'dpt' is null")
     public void testSetNonInitLastField() {
         BLangFunctions.invoke(bLangProgram, "testSetFieldOfNonInitStruct");
     }

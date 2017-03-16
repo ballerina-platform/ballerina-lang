@@ -49,6 +49,7 @@ import org.ballerinalang.model.expressions.ArrayInitExpr;
 import org.ballerinalang.model.expressions.ArrayMapAccessExpr;
 import org.ballerinalang.model.expressions.BacktickExpr;
 import org.ballerinalang.model.expressions.BasicLiteral;
+import org.ballerinalang.model.expressions.BinaryEqualityExpression;
 import org.ballerinalang.model.expressions.BinaryExpression;
 import org.ballerinalang.model.expressions.ConnectorInitExpr;
 import org.ballerinalang.model.expressions.Expression;
@@ -56,6 +57,7 @@ import org.ballerinalang.model.expressions.FunctionInvocationExpr;
 import org.ballerinalang.model.expressions.InstanceCreationExpr;
 import org.ballerinalang.model.expressions.MapInitExpr;
 import org.ballerinalang.model.expressions.MapStructInitKeyValueExpr;
+import org.ballerinalang.model.expressions.NullLiteral;
 import org.ballerinalang.model.expressions.RefTypeInitExpr;
 import org.ballerinalang.model.expressions.ReferenceExpr;
 import org.ballerinalang.model.expressions.ResourceInvocationExpr;
@@ -72,6 +74,7 @@ import org.ballerinalang.model.nodes.fragments.expressions.ActionInvocationExprS
 import org.ballerinalang.model.nodes.fragments.expressions.ArrayInitExprEndNode;
 import org.ballerinalang.model.nodes.fragments.expressions.ArrayMapAccessExprEndNode;
 import org.ballerinalang.model.nodes.fragments.expressions.BacktickExprEndNode;
+import org.ballerinalang.model.nodes.fragments.expressions.BinaryEqualityExpressionEndNode;
 import org.ballerinalang.model.nodes.fragments.expressions.BinaryExpressionEndNode;
 import org.ballerinalang.model.nodes.fragments.expressions.CallableUnitEndNode;
 import org.ballerinalang.model.nodes.fragments.expressions.ConnectorInitExprEndNode;
@@ -113,6 +116,7 @@ import org.ballerinalang.model.types.BMapType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.util.BValueUtils;
+import org.ballerinalang.model.util.LangModelUtils;
 import org.ballerinalang.model.values.BArray;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BConnector;
@@ -121,6 +125,7 @@ import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BMessage;
+import org.ballerinalang.model.values.BNull;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
@@ -429,11 +434,29 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
     }
 
     @Override
+    public void visit(NullLiteral nullLiteral) {
+        if (logger.isDebugEnabled()) {
+            logger.debug("Executing NullLiteral {}-\"{}\"", nullLiteral.getType().getName(),
+                    nullLiteral.getBValue().stringValue());
+        }
+        setTempValue(nullLiteral.getTempOffset(), nullLiteral.getBValue());
+        next = nullLiteral.next;
+    }
+
+    @Override
     public void visit(BinaryExpression expression) {
         if (logger.isDebugEnabled()) {
             logger.debug("Executing BinaryExpression {}", getNodeLocation(expression.getNodeLocation()));
         }
         next = expression.next;
+    }
+
+    @Override
+    public void visit(BinaryEqualityExpression equalExpr) {
+        if (logger.isDebugEnabled()) {
+            logger.debug("Executing BinaryEqualExpression {}", getNodeLocation(equalExpr.getNodeLocation()));
+        }
+        next = equalExpr.next;
     }
 
     @Override
@@ -999,8 +1022,10 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
             VariableRefExpr arrayVarRefExpr = (VariableRefExpr) arrayMapAccessExpr.getRExpr();
             BValue collectionValue = getTempValue(arrayVarRefExpr);
 
-            if (collectionValue == null) {
-                throw new BallerinaException("variable '" + arrayVarRefExpr.getVarName() + "' is null");
+            if (collectionValue == BNull.instance()) {
+                throw new BallerinaException(
+                        LangModelUtils.getNodeLocationStr(arrayVarRefExpr.getNodeLocation()) + "variable '"
+                                + arrayVarRefExpr.getVarName() + "' is null");
             }
 
             Expression indexExpr = arrayMapAccessExpr.getIndexExpr();
@@ -1060,6 +1085,29 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
         } catch (RuntimeException e) {
             handleBException(new BException(e.getMessage()));
         }
+    }
+
+    @Override
+    public void visit(BinaryEqualityExpressionEndNode binaryEqualityExpressionEndNode) {
+        if (logger.isDebugEnabled()) {
+            logger.debug("Executing BinaryEqualityExpression - EndNode");
+        }
+        BinaryEqualityExpression binaryEqualityExpression = binaryEqualityExpressionEndNode.getExpression();
+        Expression rExpr = binaryEqualityExpression.getRExpr();
+        Expression lExpr = binaryEqualityExpression.getLExpr();
+
+        if (rExpr.getType().equals(BTypes.typeReference) || lExpr.getType().equals(BTypes.typeReference)) {
+            BValue rValue = getTempValue(rExpr);
+            BValue lValue = getTempValue(lExpr);
+            setTempValue(binaryEqualityExpression.getTempOffset(),
+                    binaryEqualityExpression.getRefTypeEvalFunction().apply(lValue, rValue));
+        } else {
+            BValueType rValue = (BValueType) getTempValue(rExpr);
+            BValueType lValue = (BValueType) getTempValue(lExpr);
+            setTempValue(binaryEqualityExpression.getTempOffset(),
+                    binaryEqualityExpression.getEvalFunc().apply(lValue, rValue));
+        }
+        next = binaryEqualityExpressionEndNode.next;
     }
 
     @Override
@@ -1451,12 +1499,24 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
     private void assignValueToArrayMapAccessExpr(BValue rValue, ArrayMapAccessExpr lExpr) {
         ArrayMapAccessExpr accessExpr = lExpr;
         if (!(accessExpr.getType() == BTypes.typeMap)) {
-            BArray arrayVal = (BArray) getTempValue(accessExpr.getRExpr());
+            BValue bValue = getTempValue(accessExpr.getRExpr());
+            if (bValue == BNull.instance()) {
+                throw new BallerinaException(
+                        LangModelUtils.getNodeLocationStr(accessExpr.getNodeLocation()) + "variable '" + accessExpr
+                                .getSymbolName() + "' is null");
+            }
+            BArray arrayVal = (BArray) bValue;
             BInteger indexVal = (BInteger) getTempValue(accessExpr.getIndexExpr());
             arrayVal.add(indexVal.intValue(), rValue);
 
         } else {
-            BMap<BString, BValue> mapVal = (BMap<BString, BValue>) getTempValue(accessExpr.getRExpr());
+            BValue bValue = getTempValue(accessExpr.getRExpr());
+            if (bValue == BNull.instance()) {
+                throw new BallerinaException(
+                        LangModelUtils.getNodeLocationStr(accessExpr.getNodeLocation()) + "variable '" + accessExpr
+                                .getSymbolName() + "' is null");
+            }
+            BMap<BString, BValue> mapVal = (BMap<BString, BValue>) bValue;
             BString indexVal = (BString) getTempValue(accessExpr.getIndexExpr());
             mapVal.put(indexVal, rValue);
             // set the type of this expression here
@@ -1516,10 +1576,6 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
         int fieldLocation = ((StructVarLocation) getMemoryLocation(fieldExpr)).getStructMemAddrOffset();
 
         if (fieldExpr.getFieldExpr() == null) {
-            if (currentStructVal.value() == null) {
-                throw new BallerinaException("cannot set field '" + fieldExpr.getSymbolName().getName() +
-                        "' of non-initialized variable '" + fieldExpr.getParent().getSymbolName().getName() + "'.");
-            }
             setUnitValue(rValue, currentStructVal, fieldLocation, fieldExpr);
             return;
         }
@@ -1527,14 +1583,13 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
         // At this point, field of the field is not null. Means current element,
         // and its field are both struct types.
 
-        if (currentStructVal.value() == null) {
-            throw new BallerinaException("cannot set field '" + fieldExpr.getSymbolName().getName() +
-                    "' of non-initialized variable '" + fieldExpr.getParent().getSymbolName().getName() + "'.");
-        }
-
         // get the unit value of the struct field,
         BValue value = currentStructVal.getValue(fieldLocation);
-
+        if (value == BNull.instance()) {
+            throw new BallerinaException(
+                    LangModelUtils.getNodeLocationStr(fieldExpr.getNodeLocation()) + "field '" + fieldExpr.getVarRef()
+                            .getVarName() + "' is null");
+        }
         setFieldValue(rValue, fieldExpr, value);
     }
 
@@ -1621,21 +1676,17 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
 
         // If this is the last field, return the value from memory location
         if (fieldExpr.getFieldExpr() == null) {
-            if (currentStructVal.value() == null) {
-                throw new BallerinaException("cannot access field '" + fieldExpr.getSymbolName().getName() +
-                        "' of non-initialized variable '" + fieldExpr.getParent().getSymbolName().getName() + "'.");
-            }
             // Value stored in the struct can be also an arrays. Hence if its an arrray access,
             // get the aray element value
             return getUnitValue(currentStructVal.getValue(fieldLocation), fieldExpr);
         }
 
-        if (currentStructVal.value() == null) {
-            throw new BallerinaException("cannot access field '" + fieldExpr.getSymbolName().getName() +
-                    "' of non-initialized variable '" + fieldExpr.getParent().getSymbolName().getName() + "'.");
-        }
         BValue value = currentStructVal.getValue(fieldLocation);
-
+        if (value == BNull.instance()) {
+            throw new BallerinaException(
+                    LangModelUtils.getNodeLocationStr(fieldExpr.getNodeLocation()) + "field '" + fieldExpr.getVarRef()
+                            .getVarName() + "' is null");
+        }
         // Recursively travel through the struct and get the value
         return getFieldExprValue(fieldExpr, value);
     }
@@ -1658,8 +1709,11 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
      */
     private BValue getUnitValue(BValue currentVal, StructFieldAccessExpr fieldExpr) {
         ReferenceExpr currentVarRefExpr = fieldExpr.getVarRef();
-        if (currentVal == null) {
-            throw new BallerinaException("field '" + currentVarRefExpr.getVarName() + "' is null");
+
+        if (currentVal == BNull.instance()) {
+            throw new BallerinaException(
+                    LangModelUtils.getNodeLocationStr(fieldExpr.getNodeLocation()) + "variable '" + currentVarRefExpr
+                            .getVarName() + "' is null");
         }
 
         if (!(currentVal instanceof BArray || currentVal instanceof BMap<?, ?>)) {
@@ -1685,7 +1739,7 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
             unitVal = ((BArray) currentVal).get(((BInteger) indexValue).intValue());
         }
 
-        if (unitVal == null) {
+        if (unitVal == BNull.instance()) {
             throw new BallerinaException("field '" + currentVarRefExpr.getSymbolName().getName() + "[" +
                     indexValue.stringValue() + "]' is null");
         }

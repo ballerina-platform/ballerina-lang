@@ -32,9 +32,9 @@ import org.ballerinalang.model.statements.BlockStmt;
 import org.ballerinalang.model.symbols.BLangSymbol;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.SimpleTypeName;
+import org.ballerinalang.model.values.BNull;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.exceptions.ArgumentOutOfRangeException;
-import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.exceptions.FlowBuilderException;
 
 import java.util.ArrayList;
@@ -115,9 +115,6 @@ public abstract class AbstractNativeTypeMapper implements NativeUnit, TypeMapper
     public BValue getArgument(Context context, int index) {
         if (index > -1 && index < parameterTypes.length) {
             BValue result = context.getControlStack().getCurrentFrame().values[index];
-            if (result == null) {
-                throw new BallerinaException("argument " + index + " is null");
-            }
             return result;
         }
         throw new ArgumentOutOfRangeException(index);
@@ -132,7 +129,13 @@ public abstract class AbstractNativeTypeMapper implements NativeUnit, TypeMapper
     public abstract BValue convert(Context context);
 
     public void convertNative(Context context) {
-        BValue retVals = convert(context);
+        BValue bValue = getArgument(context, 0);
+        BValue retVals;
+        if (bValue == BNull.instance() || bValue == null) {
+            retVals = BNull.instance();
+        } else {
+            retVals = convert(context);
+        }
         BValue[] returnRefs = context.getControlStack().getCurrentFrame().returnValues;
         if (returnRefs.length != 0) {
             returnRefs[0] = retVals;

@@ -33,3 +33,15 @@ function jsontostring(json value)(string) {
     result = (string)value;
     return result;
 }
+
+function nullCasting1 () (json) {
+    xml x;
+    json j = (json)x;
+    return j;
+}
+
+function nullCasting2 () (xml) {
+    json j;
+    xml x = (xml)j;
+    return x;
+}

@@ -55,7 +55,11 @@ public final class BArray<V extends BValue> implements BRefType {
 
         int bucketIndex = index / DEFAULT_ARRAY_SIZE;
         int slot = index % DEFAULT_ARRAY_SIZE;
-        arrayBucket[bucketIndex][slot] = value;
+        if (value == BNull.instance()) {
+            arrayBucket[bucketIndex][slot] = null;
+        } else {
+            arrayBucket[bucketIndex][slot] = value;
+        }
 
         if (index >= size) {
             size = index + 1;
@@ -68,8 +72,8 @@ public final class BArray<V extends BValue> implements BRefType {
 
         int bucketIndex = index / DEFAULT_ARRAY_SIZE;
         int slot = index % DEFAULT_ARRAY_SIZE;
-
-        return (V) arrayBucket[bucketIndex][slot];
+        Object value = arrayBucket[bucketIndex][slot];
+        return value == null ? (V) BNull.instance() : (V) value;
     }
 
     public int size() {

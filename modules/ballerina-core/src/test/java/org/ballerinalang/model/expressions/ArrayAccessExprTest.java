@@ -119,7 +119,7 @@ public class ArrayAccessExprTest {
     
     @Test(description = "Test access an non-initialized arrays",
             expectedExceptions = BallerinaException.class,
-            expectedExceptionsMessageRegExp = "variable 'fruits' is null")
+            expectedExceptionsMessageRegExp = "array-access-expr.bal:36: variable 'fruits' is null")
     public void testNonInitArrayAccess() {
         BLangFunctions.invoke(bLangProgram, "testNonInitArrayAccess");
         Assert.fail("Test should fail at this point.");

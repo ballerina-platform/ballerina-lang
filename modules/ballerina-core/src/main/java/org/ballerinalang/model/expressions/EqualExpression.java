@@ -20,6 +20,7 @@ package org.ballerinalang.model.expressions;
 import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.NodeVisitor;
 import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueType;
 
 import java.util.function.BiFunction;
@@ -50,6 +51,9 @@ public class EqualExpression extends BinaryEqualityExpression {
 
     public static final BiFunction<BValueType, BValueType, BValueType> EQUAL_STRING_FUNC =
             (lVal, rVal) -> new BBoolean(lVal.stringValue().equals(rVal.stringValue()));
+
+    public static final BiFunction<BValue, BValue, BValueType> EQUAL_REFERENCE_FUNC =
+            (lVal, rVal) -> new BBoolean(lVal ==  rVal);
 
     public EqualExpression(NodeLocation location, Expression lExpr, Expression rExpr) {
         super(location, lExpr, EQUAL, rExpr);
