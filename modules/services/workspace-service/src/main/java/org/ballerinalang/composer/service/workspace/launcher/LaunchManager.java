@@ -19,6 +19,7 @@ package org.ballerinalang.composer.service.workspace.launcher;
 import com.google.gson.Gson;
 import io.netty.channel.Channel;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
+import org.apache.commons.io.IOUtils;
 import org.ballerinalang.composer.service.workspace.launcher.dto.CommandDTO;
 import org.ballerinalang.composer.service.workspace.launcher.dto.MessageDTO;
 import org.slf4j.Logger;
@@ -27,29 +28,30 @@ import org.slf4j.LoggerFactory;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.charset.Charset;
 
 /**
  * Launch Manager which manage launch requests from the clients.
  */
 public class LaunchManager {
-
+    
     private static final Logger logger = LoggerFactory.getLogger(LaunchManager.class);
-
+    
     private static LaunchManager launchManagerInstance;
-
+    
     private LaunchServer launchServer;
-
+    
     private LaunchSession launchSession;
-
+    
     private Command command;
-
+    
     /**
      * Instantiates a new Debug manager.
      */
     protected LaunchManager() {
-
+        
     }
-
+    
     /**
      * Launch manager singleton
      *
@@ -63,48 +65,48 @@ public class LaunchManager {
         }
         return launchManagerInstance;
     }
-
-
-    public void init(){
+    
+    
+    public void init() {
         // start the debug server if it is not started yet.
         if (this.launchServer == null) {
             this.launchServer = new LaunchServer();
             this.launchServer.startServer();
         }
     }
-
-    private void run(Command command){
+    
+    private void run(Command command) {
         Process program = null;
         this.command = command;
         // send a message if ballerina home is not set
-        if(null == System.getProperty("ballerina.home") || System.getProperty("ballerina.home").isEmpty()){
-            pushMessageToClient(launchSession, LauncherConstants.ERROR, LauncherConstants.ERROR,
-                    LauncherConstants.INVALID_BAL_PATH_MESSAGE);
-            pushMessageToClient(launchSession, LauncherConstants.ERROR, LauncherConstants.ERROR,
-                    LauncherConstants.SET_BAL_PATH_MESSAGE);
+        if (null == System.getProperty("ballerina.home") || System.getProperty("ballerina.home").isEmpty()) {
+            pushMessageToClient(launchSession, LauncherConstants.ERROR, LauncherConstants.ERROR, LauncherConstants
+                    .INVALID_BAL_PATH_MESSAGE);
+            pushMessageToClient(launchSession, LauncherConstants.ERROR, LauncherConstants.ERROR, LauncherConstants
+                    .SET_BAL_PATH_MESSAGE);
             return;
         }
-
+        
         try {
             program = Runtime.getRuntime().exec(command.toString());
             command.setProgram(program);
-
-
-            if(command.getType() == LauncherConstants.ProgramType.RUN ){
+            
+            
+            if (command.getType() == LauncherConstants.ProgramType.RUN) {
                 pushMessageToClient(launchSession, LauncherConstants.EXECUTION_STARTED, LauncherConstants.INFO,
-                        String.format(LauncherConstants.RUN_MESSAGE , command.getFileName()));
+                        String.format(LauncherConstants.RUN_MESSAGE, command.getFileName()));
             } else {
                 pushMessageToClient(launchSession, LauncherConstants.EXECUTION_STARTED, LauncherConstants.INFO,
-                        String.format(LauncherConstants.SERVICE_MESSAGE , command.getFileName()));
+                        String.format(LauncherConstants.SERVICE_MESSAGE, command.getFileName()));
             }
-
-            if(command.isDebug()){
+            
+            if (command.isDebug()) {
                 MessageDTO debugMessage = new MessageDTO();
                 debugMessage.setCode(LauncherConstants.DEBUG);
                 debugMessage.setPort(command.getPort());
                 pushMessageToClient(launchSession, debugMessage);
             }
-
+            
             // start a new thread to stream command output.
             Runnable output = new Runnable() {
                 public void run() {
@@ -113,44 +115,57 @@ public class LaunchManager {
             };
             (new Thread(output)).start();
             Runnable error = new Runnable() {
-                public void run() { LaunchManager.this.streamError();  }
+                public void run() {
+                    LaunchManager.this.streamError();
+                }
             };
             (new Thread(error)).start();
-
+            
         } catch (IOException e) {
             pushMessageToClient(launchSession, LauncherConstants.EXIT, LauncherConstants.ERROR, e.getMessage());
-            program.destroy();
         }
     }
-
+    
     public void streamOutput() {
-        BufferedReader reader = new BufferedReader(new InputStreamReader(this.command.getProgram().getInputStream()));
-        String line = "";
+        BufferedReader reader = null;
         try {
-            while ((line = reader.readLine())!= null) {
+            reader = new BufferedReader(new InputStreamReader(this.command.getProgram().getInputStream(), Charset
+                    .defaultCharset()));
+            String line = "";
+            while ((line = reader.readLine()) != null) {
                 pushMessageToClient(launchSession, LauncherConstants.OUTPUT, LauncherConstants.DATA, line);
             }
-            pushMessageToClient(launchSession, LauncherConstants.EXECUTION_STOPED , LauncherConstants.INFO,
+            pushMessageToClient(launchSession, LauncherConstants.EXECUTION_STOPED, LauncherConstants.INFO,
                     LauncherConstants.END_MESSAGE);
         } catch (IOException e) {
-            logger.error("Error while sending output stream to client.",e);
+            logger.error("Error while sending output stream to client.", e);
+        } finally {
+            if (reader != null) {
+                IOUtils.closeQuietly(reader);
+            }
         }
     }
-
+    
     public void streamError() {
-        BufferedReader reader = new BufferedReader(new InputStreamReader(this.command.getProgram().getErrorStream()));
-        String line = "";
+        BufferedReader reader = null;
         try {
-            while ((line = reader.readLine())!= null) {
-                if(this.command.isErrorOutputEnabled()){
+            reader = new BufferedReader(new InputStreamReader(
+                    this.command.getProgram().getErrorStream(), Charset.defaultCharset()));
+            String line = "";
+            while ((line = reader.readLine()) != null) {
+                if (this.command.isErrorOutputEnabled()) {
                     pushMessageToClient(launchSession, LauncherConstants.OUTPUT, LauncherConstants.ERROR, line);
                 }
             }
         } catch (IOException e) {
-            logger.error("Error while sending error stream to client.",e);
+            logger.error("Error while sending error stream to client.", e);
+        } finally {
+            if (reader != null) {
+                IOUtils.closeQuietly(reader);
+            }
         }
     }
-
+    
     public void stopProcess() {
         int pid = -1;
         if (this.command != null && this.command.getProgram().isAlive()) {
@@ -158,34 +173,34 @@ public class LaunchManager {
             //shutdown error streaming to prevent kill message displaying to user.
             this.command.setErrorOutputEnabled(false);
             terminator.terminate();
-            pushMessageToClient(launchSession, LauncherConstants.EXECUTION_TERMINATED , LauncherConstants.INFO,
+            pushMessageToClient(launchSession, LauncherConstants.EXECUTION_TERMINATED, LauncherConstants.INFO,
                     LauncherConstants.TERMINATE_MESSAGE);
         }
     }
-
+    
     public void addLaunchSession(Channel channel) {
         this.launchSession = new LaunchSession(channel);
     }
-
+    
     public void processCommand(String json) {
         Gson gson = new Gson();
         CommandDTO command = gson.fromJson(json, CommandDTO.class);
         switch (command.getCommand()) {
             case LauncherConstants.RUN_PROGRAM:
-                run(new Command(LauncherConstants.ProgramType.RUN, command.getFileName(),
-                        command.getFilePath(), command.getCommandArgs(), false));
+                run(new Command(LauncherConstants.ProgramType.RUN, command.getFileName(), command.getFilePath(),
+                        command.getCommandArgs(), false));
                 break;
             case LauncherConstants.RUN_SERVICE:
-                run(new Command(LauncherConstants.ProgramType.SERVICE, command.getFileName(),
-                        command.getFilePath(), false));
+                run(new Command(LauncherConstants.ProgramType.SERVICE, command.getFileName(), command.getFilePath(),
+                        false));
                 break;
             case LauncherConstants.DEBUG_PROGRAM:
-                run(new Command(LauncherConstants.ProgramType.RUN, command.getFileName(),
-                        command.getFilePath(), command.getCommandArgs(), true));
+                run(new Command(LauncherConstants.ProgramType.RUN, command.getFileName(), command.getFilePath(),
+                        command.getCommandArgs(), true));
                 break;
             case LauncherConstants.DEBUG_SERVICE:
-                run(new Command(LauncherConstants.ProgramType.SERVICE, command.getFileName(),
-                        command.getFilePath(), true));
+                run(new Command(LauncherConstants.ProgramType.SERVICE, command.getFileName(), command.getFilePath(),
+                        true));
                 break;
             case LauncherConstants.TERMINATE:
                 stopProcess();
@@ -197,12 +212,12 @@ public class LaunchManager {
                 launchServer.pushMessageToClient(launchSession, message);
         }
     }
-
+    
     /**
      * Push message to client.
      *
      * @param session the debug session
-     * @param status       the status
+     * @param status  the status
      */
     public void pushMessageToClient(LaunchSession session, MessageDTO status) {
         Gson gson = new Gson();
@@ -210,7 +225,7 @@ public class LaunchManager {
         session.getChannel().write(new TextWebSocketFrame(json));
         session.getChannel().flush();
     }
-
+    
     public void pushMessageToClient(LaunchSession session, String code, String type, String text) {
         MessageDTO message = new MessageDTO();
         message.setCode(code);

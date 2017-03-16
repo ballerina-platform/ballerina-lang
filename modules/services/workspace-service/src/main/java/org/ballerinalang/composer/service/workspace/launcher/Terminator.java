@@ -16,89 +16,97 @@
 
 package org.ballerinalang.composer.service.workspace.launcher;
 
+import org.apache.commons.io.IOUtils;
 import org.ballerinalang.composer.service.workspace.launcher.util.LaunchUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.nio.charset.Charset;
 
 /**
  * Handle program termination
  */
 public class Terminator {
-
+    
     private static final Logger logger = LoggerFactory.getLogger(Terminator.class);
-
+    
     private Command command;
-
-    public Terminator(Command command){
+    
+    public Terminator(Command command) {
         this.command = command;
     }
-
-    public void terminate(){
-            int pid = findPID(command.getScript());
-            kill(pid);
+    
+    public void terminate() {
+        int pid = findPID(command.getScript());
+        kill(pid);
     }
-
-
-    private int findPID(String script){
+    
+    
+    private int findPID(String script) {
         int processID = -1;
         String findProcessCommand = getFindProcessCommand();
+        BufferedReader reader = null;
         try {
             Process kill = Runtime.getRuntime().exec(findProcessCommand);
             kill.waitFor();
-            BufferedReader reader =
-                    new BufferedReader(new InputStreamReader(kill.getInputStream()));
-
+            reader = new BufferedReader(new InputStreamReader(kill.getInputStream(), Charset.defaultCharset()));
+            
             String line = "";
             String explode[];
-            while ((line = reader.readLine())!= null) {
-                if(line.contains(script)){
+            while ((line = reader.readLine()) != null) {
+                if (line.contains(script)) {
                     explode = line.split(" ");
-                    if(explode !=null){
-                        processID = Integer.parseInt(explode[0]);
-                    }
+                    processID = Integer.parseInt(explode[0]);
                 }
             }
         } catch (Throwable e) {
-            logger.error("Launcher was unable to find the process ID for "+ script +".");
+            logger.error("Launcher was unable to find the process ID for " + script + ".");
+        } finally {
+            if (reader != null) {
+                IOUtils.closeQuietly(reader);
+            }
         }
         return processID;
     }
-
+    
     private String getFindProcessCommand() {
         String findProcessCommand = "";
         String jdkHome = System.getProperty("java.command");
         return jdkHome.replaceAll("java$", "jps -m");
     }
-
-    private void kill(int pid){
+    
+    private void kill(int pid) {
         //todo need to put aditional validation
-        if(pid < 0){
+        if (pid < 0) {
             return;
         }
         String killCommand = getKillCommand(pid);
+        BufferedReader reader = null;
         try {
             Process kill = Runtime.getRuntime().exec(killCommand);
             kill.waitFor();
-            BufferedReader reader =
-                    new BufferedReader(new InputStreamReader(kill.getInputStream()));
-
+            reader = new BufferedReader(new InputStreamReader(kill.getInputStream(), Charset.defaultCharset()));
+            
             String line = "";
-            while ((line = reader.readLine())!= null) {
+            while ((line = reader.readLine()) != null) {
                 System.out.print(line);
             }
         } catch (Throwable e) {
-            logger.error("Launcher was unable to terminate process:"+pid+".");
+            logger.error("Launcher was unable to terminate process:" + pid + ".");
+        } finally {
+            if (reader != null) {
+                IOUtils.closeQuietly(reader);
+            }
         }
     }
-
+    
     private String getKillCommand(int pid) {
         String killCommand = "";
-        if(LaunchUtils.isWindows()){
+        if (LaunchUtils.isWindows()) {
             killCommand = String.format("Taskkill /PID %d /F", pid);
-        }else{
+        } else {
             killCommand = String.format("kill -9 %d", pid);
         }
         return killCommand;
