@@ -22,8 +22,6 @@ import com.intellij.execution.RunProfileStarter;
 import com.intellij.execution.RunnerAndConfigurationSettings;
 import com.intellij.execution.configurations.RunProfile;
 import com.intellij.execution.configurations.RunProfileState;
-import com.intellij.execution.executors.DefaultDebugExecutor;
-import com.intellij.execution.executors.DefaultRunExecutor;
 import com.intellij.execution.process.ProcessAdapter;
 import com.intellij.execution.process.ProcessEvent;
 import com.intellij.execution.runners.AsyncGenericProgramRunner;
@@ -34,30 +32,21 @@ import com.intellij.internal.statistic.UsageTrigger;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.util.text.StringUtil;
-import com.intellij.util.ArrayUtil;
-import com.intellij.util.net.NetUtils;
-import com.intellij.xdebugger.XDebugProcess;
-import com.intellij.xdebugger.XDebugProcessStarter;
-import com.intellij.xdebugger.XDebugSession;
-import com.intellij.xdebugger.XDebuggerManager;
-import org.ballerinalang.plugins.idea.run.configuration.application.GoApplicationConfiguration;
-import org.ballerinalang.plugins.idea.run.configuration.application.GoApplicationRunningState;
+import org.ballerinalang.plugins.idea.run.configuration.application.BallerinaApplicationRunningState;
 import org.ballerinalang.plugins.idea.sdk.BallerinaEnvironmentUtil;
-import org.ballerinalang.plugins.idea.util.GoHistoryProcessListener;
+import org.ballerinalang.plugins.idea.util.BallerinaHistoryProcessListener;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.concurrency.AsyncPromise;
 import org.jetbrains.concurrency.Promise;
-import org.jetbrains.debugger.connection.RemoteVmConnection;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 
-public class GoBuildingRunner extends AsyncGenericProgramRunner {
+public class BallerinaBuildingRunner extends AsyncGenericProgramRunner {
 
-    private static final String ID = "GoBuildingRunner";
+    private static final String ID = "BallerinaBuildingRunner";
 
     @NotNull
     @Override
@@ -67,7 +56,7 @@ public class GoBuildingRunner extends AsyncGenericProgramRunner {
 
     @Override
     public boolean canRun(@NotNull String executorId, @NotNull RunProfile profile) {
-//        if (profile instanceof GoApplicationConfiguration) {
+//        if (profile instanceof BallerinaApplicationConfiguration) {
 //            return DefaultRunExecutor.EXECUTOR_ID.equals(executorId)
 //                    || DefaultDebugExecutor.EXECUTOR_ID.equals(executorId);
 //            //                    && !DlvDebugProcess.IS_DLV_DISABLED;
@@ -79,19 +68,19 @@ public class GoBuildingRunner extends AsyncGenericProgramRunner {
     @Override
     protected Promise<RunProfileStarter> prepare(@NotNull ExecutionEnvironment environment,
                                                  @NotNull RunProfileState state) throws ExecutionException {
-        File outputFile = getOutputFile(environment, (GoApplicationRunningState) state);
+        File outputFile = getOutputFile(environment, (BallerinaApplicationRunningState) state);
         FileDocumentManager.getInstance().saveAllDocuments();
 
         AsyncPromise<RunProfileStarter> buildingPromise = new AsyncPromise<>();
-        GoHistoryProcessListener historyProcessListener = new GoHistoryProcessListener();
-        ((GoApplicationRunningState) state).createCommonExecutor()
+        BallerinaHistoryProcessListener historyProcessListener = new BallerinaHistoryProcessListener();
+        ((BallerinaApplicationRunningState) state).createCommonExecutor()
                 .withParameters("run")
                 .withParameters("main")
-                .withParameterString(((GoApplicationRunningState) state).getGoBuildParams())
+                .withParameterString(((BallerinaApplicationRunningState) state).getGoBuildParams())
 
-                //                .withParameters(((GoApplicationRunningState) state).isDebug() ?
+                //                .withParameters(((BallerinaApplicationRunningState) state).isDebug() ?
                 //                        new String[]{"-gcflags", "-N -l"} : ArrayUtil.EMPTY_STRING_ARRAY)
-                .withParameters(((GoApplicationRunningState) state).getTarget())
+                .withParameters(((BallerinaApplicationRunningState) state).getTarget())
 //                .withParameters("-o", outputFile.getAbsolutePath())
 
                 .disablePty()
@@ -103,7 +92,7 @@ public class GoBuildingRunner extends AsyncGenericProgramRunner {
                     public void processTerminated(ProcessEvent event) {
                         super.processTerminated(event);
                         boolean compilationFailed = event.getExitCode() != 0;
-                        if (((GoApplicationRunningState) state).isDebug()) {
+                        if (((BallerinaApplicationRunningState) state).isDebug()) {
                             buildingPromise.setResult(new MyDebugStarter(outputFile.getAbsolutePath(),
                                     historyProcessListener, compilationFailed));
                         } else {
@@ -117,7 +106,7 @@ public class GoBuildingRunner extends AsyncGenericProgramRunner {
 
     @NotNull
     private static File getOutputFile(@NotNull ExecutionEnvironment environment,
-                                      @NotNull GoApplicationRunningState state) throws ExecutionException {
+                                      @NotNull BallerinaApplicationRunningState state) throws ExecutionException {
         File outputFile;
         String outputDirectoryPath = state.getConfiguration().getOutputFilePath();
         RunnerAndConfigurationSettings settings = environment.getRunnerAndConfigurationSettings();
@@ -161,12 +150,12 @@ public class GoBuildingRunner extends AsyncGenericProgramRunner {
 
     private class MyDebugStarter extends RunProfileStarter {
         private final String myOutputFilePath;
-        private final GoHistoryProcessListener myHistoryProcessListener;
+        private final BallerinaHistoryProcessListener myHistoryProcessListener;
         private final boolean myCompilationFailed;
 
 
         private MyDebugStarter(@NotNull String outputFilePath,
-                               @NotNull GoHistoryProcessListener historyProcessListener,
+                               @NotNull BallerinaHistoryProcessListener historyProcessListener,
                                boolean compilationFailed) {
             myOutputFilePath = outputFilePath;
             myHistoryProcessListener = historyProcessListener;
@@ -177,16 +166,16 @@ public class GoBuildingRunner extends AsyncGenericProgramRunner {
         @Override
         public RunContentDescriptor execute(@NotNull RunProfileState state, @NotNull ExecutionEnvironment env)
                 throws ExecutionException {
-            if (state instanceof GoApplicationRunningState) {
+            if (state instanceof BallerinaApplicationRunningState) {
                 int port = findFreePort();
                 FileDocumentManager.getInstance().saveAllDocuments();
-                ((GoApplicationRunningState) state).setHistoryProcessHandler(myHistoryProcessListener);
-                ((GoApplicationRunningState) state).setOutputFilePath(myOutputFilePath);
-                ((GoApplicationRunningState) state).setDebugPort(port);
-                ((GoApplicationRunningState) state).setCompilationFailed(myCompilationFailed);
+                ((BallerinaApplicationRunningState) state).setHistoryProcessHandler(myHistoryProcessListener);
+                ((BallerinaApplicationRunningState) state).setOutputFilePath(myOutputFilePath);
+                ((BallerinaApplicationRunningState) state).setDebugPort(port);
+                ((BallerinaApplicationRunningState) state).setCompilationFailed(myCompilationFailed);
 
                 // start debugger
-                ExecutionResult executionResult = state.execute(env.getExecutor(), GoBuildingRunner.this);
+                ExecutionResult executionResult = state.execute(env.getExecutor(), BallerinaBuildingRunner.this);
                 if (executionResult == null) {
                     throw new ExecutionException("Cannot run debugger");
                 }
@@ -213,12 +202,12 @@ public class GoBuildingRunner extends AsyncGenericProgramRunner {
 
     private class MyRunStarter extends RunProfileStarter {
         private final String myOutputFilePath;
-        private final GoHistoryProcessListener myHistoryProcessListener;
+        private final BallerinaHistoryProcessListener myHistoryProcessListener;
         private final boolean myCompilationFailed;
 
 
         private MyRunStarter(@NotNull String outputFilePath,
-                             @NotNull GoHistoryProcessListener historyProcessListener,
+                             @NotNull BallerinaHistoryProcessListener historyProcessListener,
                              boolean compilationFailed) {
             myOutputFilePath = outputFilePath;
             myHistoryProcessListener = historyProcessListener;
@@ -229,12 +218,12 @@ public class GoBuildingRunner extends AsyncGenericProgramRunner {
         @Override
         public RunContentDescriptor execute(@NotNull RunProfileState state, @NotNull ExecutionEnvironment env)
                 throws ExecutionException {
-            if (state instanceof GoApplicationRunningState) {
+            if (state instanceof BallerinaApplicationRunningState) {
                 FileDocumentManager.getInstance().saveAllDocuments();
-                ((GoApplicationRunningState) state).setHistoryProcessHandler(myHistoryProcessListener);
-                ((GoApplicationRunningState) state).setOutputFilePath(myOutputFilePath);
-                ((GoApplicationRunningState) state).setCompilationFailed(myCompilationFailed);
-                ExecutionResult executionResult = state.execute(env.getExecutor(), GoBuildingRunner.this);
+                ((BallerinaApplicationRunningState) state).setHistoryProcessHandler(myHistoryProcessListener);
+                ((BallerinaApplicationRunningState) state).setOutputFilePath(myOutputFilePath);
+                ((BallerinaApplicationRunningState) state).setCompilationFailed(myCompilationFailed);
+                ExecutionResult executionResult = state.execute(env.getExecutor(), BallerinaBuildingRunner.this);
                 return executionResult != null ?
                         new RunContentBuilder(executionResult, env).showRunContent(env.getContentToReuse()) : null;
             }

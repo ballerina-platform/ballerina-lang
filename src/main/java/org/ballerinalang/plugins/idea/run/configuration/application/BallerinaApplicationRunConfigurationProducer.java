@@ -22,36 +22,36 @@ import com.intellij.openapi.util.Comparing;
 import com.intellij.openapi.util.Ref;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
-import org.ballerinalang.plugins.idea.run.configuration.GoRunConfigurationProducerBase;
-import org.ballerinalang.plugins.idea.run.configuration.GoRunUtil;
+import org.ballerinalang.plugins.idea.run.configuration.BallerinaRunConfigurationProducerBase;
+import org.ballerinalang.plugins.idea.run.configuration.BallerinaRunUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class GoApplicationRunConfigurationProducer extends GoRunConfigurationProducerBase<GoApplicationConfiguration>
+public class BallerinaApplicationRunConfigurationProducer extends BallerinaRunConfigurationProducerBase<BallerinaApplicationConfiguration>
         implements Cloneable {
 
-    public GoApplicationRunConfigurationProducer() {
-        super(GoApplicationRunConfigurationType.getInstance());
+    public BallerinaApplicationRunConfigurationProducer() {
+        super(BallerinaApplicationRunConfigurationType.getInstance());
     }
 
     @Override
-    protected boolean setupConfigurationFromContext(@NotNull GoApplicationConfiguration configuration,
+    protected boolean setupConfigurationFromContext(@NotNull BallerinaApplicationConfiguration configuration,
                                                     @NotNull ConfigurationContext context,
                                                     Ref<PsiElement> sourceElement) {
-        //        PsiElement contextElement = GoRunUtil.getContextElement(context);
+        //        PsiElement contextElement = BallerinaRunUtil.getContextElement(context);
         //        if (contextElement != null && GoTestFinder.isTestFile(contextElement.getContainingFile())) {
         //            return false;
         //        }
         //        String importPath = getImportPathFromContext(contextElement);
         //        if (StringUtil.isNotEmpty(importPath)) {
         //            configuration.setModule(context.getModule());
-        //            configuration.setRunKind(GoApplicationConfiguration.Kind.PACKAGE);
+        //            configuration.setRunKind(BallerinaApplicationConfiguration.Kind.PACKAGE);
         //            configuration.setPackage(importPath);
         //            configuration.setName("Build " + importPath + " and run");
         //            return true;
         //        }
         if (super.setupConfigurationFromContext(configuration, context, sourceElement)) {
-            configuration.setKind(GoApplicationConfiguration.Kind.FILE);
+            configuration.setKind(BallerinaApplicationConfiguration.Kind.FILE);
             return true;
         }
         return false;
@@ -59,7 +59,7 @@ public class GoApplicationRunConfigurationProducer extends GoRunConfigurationPro
 
     @Nullable
     private static String getImportPathFromContext(@Nullable PsiElement contextElement) {
-        //        if (GoRunUtil.isPackageContext(contextElement)) {
+        //        if (BallerinaRunUtil.isPackageContext(contextElement)) {
         //            PsiFile file = contextElement.getContainingFile();
         //            if (file instanceof BallerinaFile) {
         //                return ((BallerinaFile)file).getImportPath(false);
@@ -72,15 +72,15 @@ public class GoApplicationRunConfigurationProducer extends GoRunConfigurationPro
     }
 
     @Override
-    public boolean isConfigurationFromContext(@NotNull GoApplicationConfiguration configuration,
+    public boolean isConfigurationFromContext(@NotNull BallerinaApplicationConfiguration configuration,
                                               ConfigurationContext context) {
-        PsiElement contextElement = GoRunUtil.getContextElement(context);
+        PsiElement contextElement = BallerinaRunUtil.getContextElement(context);
         if (contextElement == null) return false;
 
         Module module = ModuleUtilCore.findModuleForPsiElement(contextElement);
         if (!Comparing.equal(module, configuration.getConfigurationModule().getModule())) return false;
 
-        if (configuration.getKind() == GoApplicationConfiguration.Kind.PACKAGE) {
+        if (configuration.getKind() == BallerinaApplicationConfiguration.Kind.PACKAGE) {
             return Comparing.equal(getImportPathFromContext(contextElement), configuration.getPackage());
         }
 

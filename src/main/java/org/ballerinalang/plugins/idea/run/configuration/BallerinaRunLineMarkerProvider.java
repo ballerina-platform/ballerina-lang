@@ -30,7 +30,7 @@ import org.ballerinalang.plugins.idea.psi.ServiceDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.SimpleTypeArrayNode;
 import org.jetbrains.annotations.Nullable;
 
-public class GoRunLineMarkerProvider extends RunLineMarkerContributor {
+public class BallerinaRunLineMarkerProvider extends RunLineMarkerContributor {
 
     private static final Function<PsiElement, String> APPLICATION_TOOLTIP_PROVIDER = element -> "Run Application";
     private static final Function<PsiElement, String> SERVICE_TOOLTIP_PROVIDER = element -> "Run Services";
@@ -60,58 +60,13 @@ public class GoRunLineMarkerProvider extends RunLineMarkerContributor {
                         return null;
                     }
                     if ("string".equals(nameIdentifier.getText())) {
-
-                        //                        GoRunMainFileConfigurationType instance = GoRunMainFileConfigurationType
-                        // .getInstance();
-                        //                        RunConfiguration runConfiguration = instance
-                        // .getConfigurationFactories()[0]
-                        //                                .createTemplateConfiguration(e.getProject());
-
-
-//                        Project project = e.getProject();
-//                        RunManager runManager = RunManager.getInstance(project);
-//                        RunnerAndConfigurationSettings configurationSettings = runManager.getSelectedConfiguration();
-//                        if (configurationSettings == null) {
-//                            return null;
-//                        }
-//                        RunConfiguration configuration = configurationSettings.getConfiguration();
-//
-//                        if (configuration instanceof GoRunMainFileConfiguration) {
-//                            GoRunMainFileConfiguration goRunFileConfiguration =
-//                                    (GoRunMainFileConfiguration) configuration;
-//
-//                            GoRunMainFileConfiguration.Kind kind = goRunFileConfiguration.getRunKind();
-//                            if (kind == GoRunMainFileConfiguration.Kind.APPLICATION) {
-                                return new Info(AllIcons.RunConfigurations.TestState.Run, APPLICATION_TOOLTIP_PROVIDER,
-                                        ExecutorAction.getActions(0));
-//                            }
-//                        }
-
-                        // ((GoRunMainFileConfiguration)GoRunMainFileConfigurationType.getInstance()
-                        // .getConfigurationFactories()[0].createTemplateConfiguration(e.getProject())).getRunKind()
+                        return new Info(AllIcons.RunConfigurations.TestState.Run, APPLICATION_TOOLTIP_PROVIDER,
+                                ExecutorAction.getActions(0));
                     }
                 }
             } else if (parent instanceof ServiceDefinitionNode) {
-//                Project project = e.getProject();
-//                RunManager runManager = RunManager.getInstance(project);
-//                RunnerAndConfigurationSettings configurationSettings = runManager.getSelectedConfiguration();
-//                if (configurationSettings == null) {
-//                    return null;
-//                }
-//                RunConfiguration configuration = configurationSettings.getConfiguration();
-//
-//                if (configuration instanceof GoRunMainFileConfiguration) {
-//                    GoRunMainFileConfiguration goRunFileConfiguration =
-//                            (GoRunMainFileConfiguration) configuration;
-//
-//                    GoRunMainFileConfiguration.Kind kind = goRunFileConfiguration.getRunKind();
-//                    if (kind == GoRunMainFileConfiguration.Kind.SERVICE) {
-                        return new Info(AllIcons.RunConfigurations.TestState.Run, SERVICE_TOOLTIP_PROVIDER,
-                                ExecutorAction.getActions(0));
-//                    }
-//                }
-
-
+                return new Info(AllIcons.RunConfigurations.TestState.Run, SERVICE_TOOLTIP_PROVIDER,
+                        ExecutorAction.getActions(0));
             }
         }
         return null;

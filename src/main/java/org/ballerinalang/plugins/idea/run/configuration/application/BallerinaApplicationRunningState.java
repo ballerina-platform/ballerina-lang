@@ -24,30 +24,30 @@ import com.intellij.execution.process.ProcessHandler;
 import com.intellij.execution.runners.ExecutionEnvironment;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.util.text.StringUtil;
-import org.ballerinalang.plugins.idea.run.configuration.GoRunningState;
-import org.ballerinalang.plugins.idea.util.GoExecutor;
-import org.ballerinalang.plugins.idea.util.GoHistoryProcessListener;
+import org.ballerinalang.plugins.idea.run.configuration.BallerinaRunningState;
+import org.ballerinalang.plugins.idea.util.BallerinaExecutor;
+import org.ballerinalang.plugins.idea.util.BallerinaHistoryProcessListener;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 
-public class GoApplicationRunningState extends GoRunningState<GoApplicationConfiguration> {
+public class BallerinaApplicationRunningState extends BallerinaRunningState<BallerinaApplicationConfiguration> {
 
     private String myOutputFilePath;
     @Nullable
-    private GoHistoryProcessListener myHistoryProcessHandler;
+    private BallerinaHistoryProcessListener myHistoryProcessHandler;
     private int myDebugPort = 59090;
     private boolean myCompilationFailed;
 
-    public GoApplicationRunningState(@NotNull ExecutionEnvironment env, @NotNull Module module,
-                                     @NotNull GoApplicationConfiguration configuration) {
+    public BallerinaApplicationRunningState(@NotNull ExecutionEnvironment env, @NotNull Module module,
+                                            @NotNull BallerinaApplicationConfiguration configuration) {
         super(env, module, configuration);
     }
 
     @NotNull
     public String getTarget() {
-        return myConfiguration.getKind() == GoApplicationConfiguration.Kind.PACKAGE
+        return myConfiguration.getKind() == BallerinaApplicationConfiguration.Kind.PACKAGE
                 ? myConfiguration.getPackage() : myConfiguration.getFilePath();
     }
 
@@ -63,7 +63,7 @@ public class GoApplicationRunningState extends GoRunningState<GoApplicationConfi
     @NotNull
     @Override
     protected ProcessHandler startProcess() throws ExecutionException {
-        ProcessHandler processHandler = myCompilationFailed ? new GoNopProcessHandler() : super.startProcess();
+        ProcessHandler processHandler = myCompilationFailed ? new BallerinaNopProcessHandler() : super.startProcess();
         processHandler.addProcessListener(new ProcessAdapter() {
 
             @Override
@@ -89,7 +89,7 @@ public class GoApplicationRunningState extends GoRunningState<GoApplicationConfi
     }
 
     @Override
-    protected GoExecutor patchExecutor(@NotNull GoExecutor executor) throws ExecutionException {
+    protected BallerinaExecutor patchExecutor(@NotNull BallerinaExecutor executor) throws ExecutionException {
 //        if (isDebug()) {
 //            File dlv = dlv();
 //            if (dlv.exists() && !dlv.canExecute()) {
@@ -117,7 +117,7 @@ public class GoApplicationRunningState extends GoRunningState<GoApplicationConfi
         myOutputFilePath = outputFilePath;
     }
 
-    public void setHistoryProcessHandler(@Nullable GoHistoryProcessListener historyProcessHandler) {
+    public void setHistoryProcessHandler(@Nullable BallerinaHistoryProcessListener historyProcessHandler) {
         myHistoryProcessHandler = historyProcessHandler;
     }
 

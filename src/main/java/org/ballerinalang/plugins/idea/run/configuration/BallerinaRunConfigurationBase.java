@@ -26,10 +26,8 @@ import com.intellij.execution.configurations.RunConfigurationWithSuppressedDefau
 import com.intellij.execution.configurations.RunProfileState;
 import com.intellij.execution.configurations.RuntimeConfigurationError;
 import com.intellij.execution.configurations.RuntimeConfigurationException;
-import com.intellij.execution.configurations.RuntimeConfigurationWarning;
 import com.intellij.execution.runners.ExecutionEnvironment;
 import com.intellij.execution.runners.RunConfigurationWithSuppressedDefaultRunAction;
-import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.util.InvalidDataException;
 import com.intellij.openapi.util.JDOMExternalizerUtil;
@@ -39,7 +37,6 @@ import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.vfs.VfsUtilCore;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
-import com.intellij.util.FileContentUtil;
 import com.intellij.util.PathUtil;
 import com.intellij.util.containers.ContainerUtil;
 import org.ballerinalang.plugins.idea.sdk.BallerinaSdkService;
@@ -51,8 +48,8 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Collection;
 import java.util.Map;
 
-public abstract class GoRunConfigurationBase<RunningState extends GoRunningState>
-        extends ModuleBasedConfiguration<GoModuleBasedConfiguration>
+public abstract class BallerinaRunConfigurationBase<RunningState extends BallerinaRunningState>
+        extends ModuleBasedConfiguration<BallerinaModuleBasedConfiguration>
         implements RunConfigurationWithSuppressedDefaultRunAction, RunConfigurationWithSuppressedDefaultDebugAction {
 
     private static final String WORKING_DIRECTORY_NAME = "working_directory";
@@ -70,8 +67,8 @@ public abstract class GoRunConfigurationBase<RunningState extends GoRunningState
     private final Map<String, String> myCustomEnvironment = ContainerUtil.newHashMap();
     private boolean myPassParentEnvironment = true;
 
-    public GoRunConfigurationBase(String name, GoModuleBasedConfiguration configurationModule,
-                                  ConfigurationFactory factory) {
+    public BallerinaRunConfigurationBase(String name, BallerinaModuleBasedConfiguration configurationModule,
+                                         ConfigurationFactory factory) {
 
         super(name, configurationModule, factory);
 
@@ -108,7 +105,7 @@ public abstract class GoRunConfigurationBase<RunningState extends GoRunningState
 
     @Override
     public void checkConfiguration() throws RuntimeConfigurationException {
-        GoModuleBasedConfiguration configurationModule = getConfigurationModule();
+        BallerinaModuleBasedConfiguration configurationModule = getConfigurationModule();
         Module module = configurationModule.getModule();
         if (module != null) {
             if (BallerinaSdkService.getInstance(module.getProject()).getSdkHomePath(module) == null) {
@@ -170,10 +167,10 @@ public abstract class GoRunConfigurationBase<RunningState extends GoRunningState
 
     @NotNull
     private RunningState createRunningState(ExecutionEnvironment env) throws ExecutionException {
-        GoModuleBasedConfiguration configuration = getConfigurationModule();
+        BallerinaModuleBasedConfiguration configuration = getConfigurationModule();
         Module module = configuration.getModule();
         if (module == null) {
-            throw new ExecutionException("Go isn't configured for run configuration: " + getName());
+            throw new ExecutionException("Ballerina isn't configured for run configuration: " + getName());
         }
         return newRunningState(env, module);
     }

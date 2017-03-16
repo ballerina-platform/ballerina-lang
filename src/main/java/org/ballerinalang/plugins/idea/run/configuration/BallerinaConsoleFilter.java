@@ -41,7 +41,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class GoConsoleFilter implements Filter {
+public class BallerinaConsoleFilter implements Filter {
 
     private static final Pattern MESSAGE_PATTERN = Pattern.compile("(?:^|\\s)(\\S+\\.\\w+):(\\d+)(:(\\d+))?" +
             "(?=[:\\s]|$).*");
@@ -57,11 +57,12 @@ public class GoConsoleFilter implements Filter {
     private final String myWorkingDirectoryUrl;
 
     @SuppressWarnings("unused") //used by pico container
-    public GoConsoleFilter(@NotNull Project project) {
+    public BallerinaConsoleFilter(@NotNull Project project) {
         this(project, null, null);
     }
 
-    public GoConsoleFilter(@NotNull Project project, @Nullable Module module, @Nullable String workingDirectoryUrl) {
+    public BallerinaConsoleFilter(@NotNull Project project, @Nullable Module module,
+                                  @Nullable String workingDirectoryUrl) {
         myProject = project;
         myModule = module;
         myWorkingDirectoryUrl = ObjectUtils.chooseNotNull(workingDirectoryUrl, VfsUtilCore.pathToUrl(System

@@ -29,13 +29,13 @@ import com.intellij.openapi.util.InvalidDataException;
 import com.intellij.openapi.util.JDOMExternalizerUtil;
 import com.intellij.openapi.util.WriteExternalException;
 import com.intellij.openapi.util.text.StringUtil;
-import org.ballerinalang.plugins.idea.run.configuration.GoModuleBasedConfiguration;
-import org.ballerinalang.plugins.idea.run.configuration.GoRunConfigurationWithMain;
+import org.ballerinalang.plugins.idea.run.configuration.BallerinaModuleBasedConfiguration;
+import org.ballerinalang.plugins.idea.run.configuration.BallerinaRunConfigurationWithMain;
 import org.ballerinalang.plugins.idea.run.configuration.ui.BallerinaApplicationSettingsEditor;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 
-public class GoApplicationConfiguration extends GoRunConfigurationWithMain<GoApplicationRunningState> {
+public class BallerinaApplicationConfiguration extends BallerinaRunConfigurationWithMain<BallerinaApplicationRunningState> {
 
     private static final String PACKAGE_ATTRIBUTE_NAME = "package";
     private static final String KIND_ATTRIBUTE_NAME = "kind";
@@ -46,8 +46,8 @@ public class GoApplicationConfiguration extends GoRunConfigurationWithMain<GoApp
     @NotNull
     private Kind myKind = Kind.PACKAGE;
 
-    public GoApplicationConfiguration(Project project, String name, @NotNull ConfigurationType configurationType) {
-        super(name, new GoModuleBasedConfiguration(project), configurationType.getConfigurationFactories()[0]);
+    public BallerinaApplicationConfiguration(Project project, String name, @NotNull ConfigurationType configurationType) {
+        super(name, new BallerinaModuleBasedConfiguration(project), configurationType.getConfigurationFactories()[0]);
     }
 
     @Override
@@ -75,7 +75,7 @@ public class GoApplicationConfiguration extends GoRunConfigurationWithMain<GoApp
     @NotNull
     @Override
     protected ModuleBasedConfiguration createInstance() {
-        return new GoApplicationConfiguration(getProject(), getName(), GoApplicationRunConfigurationType.getInstance());
+        return new BallerinaApplicationConfiguration(getProject(), getName(), BallerinaApplicationRunConfigurationType.getInstance());
     }
 
     @NotNull
@@ -86,8 +86,8 @@ public class GoApplicationConfiguration extends GoRunConfigurationWithMain<GoApp
 
     @NotNull
     @Override
-    protected GoApplicationRunningState newRunningState(@NotNull ExecutionEnvironment env, @NotNull Module module) {
-        return new GoApplicationRunningState(env, module, this);
+    protected BallerinaApplicationRunningState newRunningState(@NotNull ExecutionEnvironment env, @NotNull Module module) {
+        return new BallerinaApplicationRunningState(env, module, this);
     }
 
     @Override
@@ -106,7 +106,7 @@ public class GoApplicationConfiguration extends GoRunConfigurationWithMain<GoApp
                 //                if (packageDirectory == null || !packageDirectory.isDirectory()) {
                 //                    throw new RuntimeConfigurationError("Cannot find package '" + myPackage + "'");
                 //                }
-                //                if (GoRunUtil.findMainFileInDirectory(packageDirectory, getProject()) == null) {
+                //                if (BallerinaRunUtil.findMainFileInDirectory(packageDirectory, getProject()) == null) {
                 //                    throw new RuntimeConfigurationError("Cannot find Go file with main in '" +
                 // myPackage + "'");
                 //                }

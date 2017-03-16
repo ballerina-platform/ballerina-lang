@@ -17,14 +17,14 @@
 package org.ballerinalang.plugins.idea.run.configuration.file;
 
 import com.intellij.psi.PsiFile;
-import org.ballerinalang.plugins.idea.run.configuration.GoRunConfigurationProducerBase;
+import org.ballerinalang.plugins.idea.run.configuration.BallerinaRunConfigurationProducerBase;
 import org.jetbrains.annotations.NotNull;
 
-public class GoRunServiceFileConfigurationProducer extends GoRunConfigurationProducerBase<GoRunFileConfiguration>
-        implements Cloneable {
+public class BallerinaRunServiceFileConfigurationProducer
+        extends BallerinaRunConfigurationProducerBase<BallerinaRunFileConfiguration> implements Cloneable {
 
-    public GoRunServiceFileConfigurationProducer() {
-        super(GoRunServiceFileConfigurationType.getInstance());
+    public BallerinaRunServiceFileConfigurationProducer() {
+        super(BallerinaRunServiceFileConfigurationType.getInstance());
     }
 
     @Override

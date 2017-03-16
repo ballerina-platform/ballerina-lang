@@ -22,14 +22,14 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.LabeledComponent;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
 import com.intellij.ui.RawCommandLineEditor;
-import org.ballerinalang.plugins.idea.run.configuration.GoRunUtil;
-import org.ballerinalang.plugins.idea.run.configuration.application.GoApplicationConfiguration;
+import org.ballerinalang.plugins.idea.run.configuration.BallerinaRunUtil;
+import org.ballerinalang.plugins.idea.run.configuration.application.BallerinaApplicationConfiguration;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 
-public class BallerinaApplicationSettingsEditor extends SettingsEditor<GoApplicationConfiguration> {
+public class BallerinaApplicationSettingsEditor extends SettingsEditor<BallerinaApplicationConfiguration> {
 
     private JPanel myPanel;
     private LabeledComponent<TextFieldWithBrowseButton> myFileField;
@@ -38,17 +38,17 @@ public class BallerinaApplicationSettingsEditor extends SettingsEditor<GoApplica
 
     public BallerinaApplicationSettingsEditor(Project project) {
         myProject = project;
-        GoRunUtil.installGoWithMainFileChooser(project, myFileField.getComponent());
+        BallerinaRunUtil.installGoWithMainFileChooser(project, myFileField.getComponent());
     }
 
     @Override
-    protected void resetEditorFrom(@NotNull GoApplicationConfiguration configuration) {
+    protected void resetEditorFrom(@NotNull BallerinaApplicationConfiguration configuration) {
         params.getComponent().setText(configuration.getParams());
         myFileField.getComponent().setText(configuration.getFilePath());
     }
 
     @Override
-    protected void applyEditorTo(@NotNull GoApplicationConfiguration configuration)
+    protected void applyEditorTo(@NotNull BallerinaApplicationConfiguration configuration)
             throws ConfigurationException {
         configuration.setParams(params.getComponent().getText());
         configuration.setFilePath(myFileField.getComponent().getText());

@@ -19,23 +19,22 @@ package org.ballerinalang.plugins.idea.run.configuration.file;
 import com.intellij.execution.ExecutionException;
 import com.intellij.execution.runners.ExecutionEnvironment;
 import com.intellij.openapi.module.Module;
-import org.ballerinalang.plugins.idea.run.configuration.GoRunningState;
-import org.ballerinalang.plugins.idea.run.configuration.file.GoRunFileConfiguration;
-import org.ballerinalang.plugins.idea.util.GoExecutor;
+import org.ballerinalang.plugins.idea.run.configuration.BallerinaRunningState;
+import org.ballerinalang.plugins.idea.util.BallerinaExecutor;
 import org.jetbrains.annotations.NotNull;
 
-public class GoRunServiceFileRunningState extends GoRunningState<GoRunFileConfiguration> {
+public class BallerinaRunServiceFileRunningState extends BallerinaRunningState<BallerinaRunFileConfiguration> {
 
-    public GoRunServiceFileRunningState(@NotNull ExecutionEnvironment env, @NotNull Module module,
-                                        GoRunFileConfiguration configuration) {
+    public BallerinaRunServiceFileRunningState(@NotNull ExecutionEnvironment env, @NotNull Module module,
+                                               BallerinaRunFileConfiguration configuration) {
         super(env, module, configuration);
     }
 
     @Override
-    protected GoExecutor patchExecutor(@NotNull GoExecutor executor) throws ExecutionException {
-        GoRunFileConfiguration.Kind kind = getConfiguration().getRunKind();
+    protected BallerinaExecutor patchExecutor(@NotNull BallerinaExecutor executor) throws ExecutionException {
+        BallerinaRunFileConfiguration.Kind kind = getConfiguration().getRunKind();
         String command = "main";
-        if (kind == GoRunFileConfiguration.Kind.SERVICE) {
+        if (kind == BallerinaRunFileConfiguration.Kind.SERVICE) {
             command = "service";
         }
         return executor
@@ -45,4 +44,3 @@ public class GoRunServiceFileRunningState extends GoRunningState<GoRunFileConfig
                 .withParameters(myConfiguration.getFilePath());
     }
 }
-

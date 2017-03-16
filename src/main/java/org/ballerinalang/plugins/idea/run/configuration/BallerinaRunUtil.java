@@ -18,11 +18,7 @@ package org.ballerinalang.plugins.idea.run.configuration;
 
 import com.intellij.execution.actions.ConfigurationContext;
 import com.intellij.execution.configurations.GeneralCommandLine;
-import com.intellij.execution.lineMarker.ExecutorAction;
-import com.intellij.execution.lineMarker.RunLineMarkerContributor;
 import com.intellij.execution.process.ProcessHandler;
-import com.intellij.execution.process.ProcessOutputTypes;
-import com.intellij.icons.AllIcons;
 import com.intellij.ide.scratch.ScratchFileType;
 import com.intellij.openapi.fileChooser.FileChooserDescriptor;
 import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory;
@@ -33,14 +29,12 @@ import com.intellij.openapi.ui.TextBrowseFolderListener;
 import com.intellij.openapi.ui.TextComponentAccessor;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
 import com.intellij.openapi.util.Condition;
-import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiFileSystemItem;
 import com.intellij.psi.PsiManager;
 import com.intellij.psi.util.PsiTreeUtil;
-import org.ballerinalang.plugins.idea.BallerinaConstants;
 import org.ballerinalang.plugins.idea.BallerinaFileType;
 import org.ballerinalang.plugins.idea.psi.BallerinaFile;
 import org.ballerinalang.plugins.idea.psi.FunctionNode;
@@ -54,9 +48,9 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Collection;
 import java.util.Map;
 
-public class GoRunUtil {
+public class BallerinaRunUtil {
 
-    private GoRunUtil() {
+    private BallerinaRunUtil() {
     }
 
     //    @Contract("null -> false")
@@ -121,10 +115,10 @@ public class GoRunUtil {
         return false;
     }
 
-//    @Contract("null -> false")
-//    public static boolean isRunnableFile(@Nullable PsiFile psiFile) {
-//        return hasMainFunction(psiFile) || hasServices(psiFile);
-//    }
+    //    @Contract("null -> false")
+    //    public static boolean isRunnableFile(@Nullable PsiFile psiFile) {
+    //        return hasMainFunction(psiFile) || hasServices(psiFile);
+    //    }
 
     @Contract("null -> false")
     public static boolean hasMainFunction(PsiFile file) {

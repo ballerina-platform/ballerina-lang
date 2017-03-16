@@ -16,23 +16,12 @@
 
 package org.ballerinalang.plugins.idea.run.configuration;
 
-import com.intellij.execution.configurations.RunProfile;
-import com.intellij.execution.executors.DefaultRunExecutor;
-import com.intellij.execution.runners.DefaultProgramRunner;
-import org.jetbrains.annotations.NotNull;
+import com.intellij.execution.configurations.RunConfigurationModule;
+import com.intellij.openapi.project.Project;
 
-public class GoRunner extends DefaultProgramRunner {
+public class BallerinaModuleBasedConfiguration extends RunConfigurationModule {
 
-    private static final String ID = "GoRunner";
-
-    @NotNull
-    @Override
-    public String getRunnerId() {
-        return ID;
-    }
-
-    @Override
-    public boolean canRun(@NotNull String executorId, @NotNull RunProfile profile) {
-        return DefaultRunExecutor.EXECUTOR_ID.equals(executorId) && profile instanceof GoRunConfigurationBase;
+    public BallerinaModuleBasedConfiguration(Project project) {
+        super(project);
     }
 }

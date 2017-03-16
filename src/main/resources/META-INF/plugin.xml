@@ -123,16 +123,16 @@
         <moduleType id="BALLERINA_MODULE" implementationClass="org.ballerinalang.plugins.idea.BallerinaModuleType"/>
 
         <!-- run single file -->
-        <configurationType implementation="org.ballerinalang.plugins.idea.run.configuration.file.GoRunServiceFileConfigurationType"/>
-        <runConfigurationProducer implementation="org.ballerinalang.plugins.idea.run.configuration.file.GoRunServiceFileConfigurationProducer"/>
+        <configurationType implementation="org.ballerinalang.plugins.idea.run.configuration.file.BallerinaRunServiceFileConfigurationType"/>
+        <runConfigurationProducer implementation="org.ballerinalang.plugins.idea.run.configuration.file.BallerinaRunServiceFileConfigurationProducer"/>
 
         <!-- run application -->
-        <programRunner implementation="org.ballerinalang.plugins.idea.run.configuration.GoBuildingRunner" order="before ballerinaRunner"/>
-        <programRunner id="ballerinaRunner" implementation="org.ballerinalang.plugins.idea.run.configuration.GoRunner"/>
-        <configurationType implementation="org.ballerinalang.plugins.idea.run.configuration.application.GoApplicationRunConfigurationType"/>
-        <runConfigurationProducer implementation="org.ballerinalang.plugins.idea.run.configuration.application.GoApplicationRunConfigurationProducer"/>
+        <programRunner implementation="org.ballerinalang.plugins.idea.run.configuration.BallerinaBuildingRunner" order="before ballerinaRunner"/>
+        <programRunner id="ballerinaRunner" implementation="org.ballerinalang.plugins.idea.run.configuration.BallerinaRunner"/>
+        <configurationType implementation="org.ballerinalang.plugins.idea.run.configuration.application.BallerinaApplicationRunConfigurationType"/>
+        <runConfigurationProducer implementation="org.ballerinalang.plugins.idea.run.configuration.application.BallerinaApplicationRunConfigurationProducer"/>
 
-        <runLineMarkerContributor language="Ballerina" implementationClass="org.ballerinalang.plugins.idea.run.configuration.GoRunLineMarkerProvider"/>
+        <runLineMarkerContributor language="Ballerina" implementationClass="org.ballerinalang.plugins.idea.run.configuration.BallerinaRunLineMarkerProvider"/>
 
     </extensions>
 

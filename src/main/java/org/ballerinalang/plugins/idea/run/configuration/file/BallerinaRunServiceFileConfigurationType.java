@@ -22,26 +22,27 @@ import com.intellij.openapi.extensions.Extensions;
 import com.intellij.openapi.project.Project;
 import org.ballerinalang.plugins.idea.BallerinaConstants;
 import org.ballerinalang.plugins.idea.BallerinaIcons;
-import org.ballerinalang.plugins.idea.run.configuration.GoConfigurationFactoryBase;
+import org.ballerinalang.plugins.idea.run.configuration.BallerinaConfigurationFactoryBase;
 import org.jetbrains.annotations.NotNull;
 
-public class GoRunServiceFileConfigurationType extends ConfigurationTypeBase {
+public class BallerinaRunServiceFileConfigurationType extends ConfigurationTypeBase {
 
-    public GoRunServiceFileConfigurationType() {
-        super("GoRunServiceFileConfiguration", "Ballerina File", "Ballerina File Configuration",
+    public BallerinaRunServiceFileConfigurationType() {
+        super("BallerinaRunFileConfiguration", "Ballerina File", "Ballerina File Configuration",
                 BallerinaIcons.APPLICATION_RUN);
-        addFactory(new GoConfigurationFactoryBase(this) {
+
+        addFactory(new BallerinaConfigurationFactoryBase(this) {
 
             @Override
             @NotNull
             public RunConfiguration createTemplateConfiguration(@NotNull Project project) {
-                return new GoRunFileConfiguration(project, BallerinaConstants.BALLERINA, getInstance());
+                return new BallerinaRunFileConfiguration(project, BallerinaConstants.BALLERINA, getInstance());
             }
         });
     }
 
     @NotNull
-    public static GoRunServiceFileConfigurationType getInstance() {
-        return Extensions.findExtension(CONFIGURATION_TYPE_EP, GoRunServiceFileConfigurationType.class);
+    public static BallerinaRunServiceFileConfigurationType getInstance() {
+        return Extensions.findExtension(CONFIGURATION_TYPE_EP, BallerinaRunServiceFileConfigurationType.class);
     }
 }

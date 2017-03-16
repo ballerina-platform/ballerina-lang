@@ -24,7 +24,8 @@ import com.intellij.openapi.util.Pair;
 
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-public class GoHistoryProcessListener extends ProcessAdapter {
+public class BallerinaHistoryProcessListener extends ProcessAdapter {
+
     private final ConcurrentLinkedQueue<Pair<ProcessEvent, Key>> myHistory = new ConcurrentLinkedQueue<>();
 
     @Override

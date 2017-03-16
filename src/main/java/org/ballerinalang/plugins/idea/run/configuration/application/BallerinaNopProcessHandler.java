@@ -22,9 +22,9 @@ import org.jetbrains.annotations.Nullable;
 import java.io.OutputStream;
 
 //Todo: replace with built-in implementation in 2017.1
-public class GoNopProcessHandler extends ProcessHandler {
+public class BallerinaNopProcessHandler extends ProcessHandler {
 
-    public GoNopProcessHandler() {
+    public BallerinaNopProcessHandler() {
         destroyProcess();
     }
 

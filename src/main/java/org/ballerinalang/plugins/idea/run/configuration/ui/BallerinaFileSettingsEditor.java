@@ -24,8 +24,8 @@ import com.intellij.openapi.ui.TextFieldWithBrowseButton;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.ui.ListCellRendererWrapper;
 import com.intellij.ui.RawCommandLineEditor;
-import org.ballerinalang.plugins.idea.run.configuration.GoRunUtil;
-import org.ballerinalang.plugins.idea.run.configuration.file.GoRunFileConfiguration;
+import org.ballerinalang.plugins.idea.run.configuration.BallerinaRunUtil;
+import org.ballerinalang.plugins.idea.run.configuration.file.BallerinaRunFileConfiguration;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -33,32 +33,32 @@ import java.util.Locale;
 
 import javax.swing.*;
 
-public class BallerinaFileSettingsEditor extends SettingsEditor<GoRunFileConfiguration> {
+public class BallerinaFileSettingsEditor extends SettingsEditor<BallerinaRunFileConfiguration> {
 
     private JPanel myPanel;
     private LabeledComponent<TextFieldWithBrowseButton> myFileField;
     private LabeledComponent<RawCommandLineEditor> params;
-    private LabeledComponent<JComboBox<GoRunFileConfiguration.Kind>> myRunKindComboBox;
+    private LabeledComponent<JComboBox<BallerinaRunFileConfiguration.Kind>> myRunKindComboBox;
     private Project myProject;
 
     public BallerinaFileSettingsEditor(Project project) {
         myProject = project;
         installRunKindComboBox();
-        GoRunUtil.installGoWithMainFileChooser(project, myFileField.getComponent());
+        BallerinaRunUtil.installGoWithMainFileChooser(project, myFileField.getComponent());
     }
 
     @Override
-    protected void resetEditorFrom(@NotNull GoRunFileConfiguration configuration) {
+    protected void resetEditorFrom(@NotNull BallerinaRunFileConfiguration configuration) {
         params.getComponent().setText(configuration.getParams());
         myFileField.getComponent().setText(configuration.getFilePath());
         myRunKindComboBox.getComponent().setSelectedItem(configuration.getRunKind());
     }
 
     @Override
-    protected void applyEditorTo(@NotNull GoRunFileConfiguration configuration) throws ConfigurationException {
+    protected void applyEditorTo(@NotNull BallerinaRunFileConfiguration configuration) throws ConfigurationException {
         configuration.setParams(params.getComponent().getText());
         configuration.setFilePath(myFileField.getComponent().getText());
-        configuration.setRunKind((GoRunFileConfiguration.Kind) myRunKindComboBox.getComponent().getSelectedItem());
+        configuration.setRunKind((BallerinaRunFileConfiguration.Kind) myRunKindComboBox.getComponent().getSelectedItem());
 
     }
 
@@ -69,8 +69,8 @@ public class BallerinaFileSettingsEditor extends SettingsEditor<GoRunFileConfigu
     }
 
     private void createUIComponents() {
-        myRunKindComboBox = new LabeledComponent<JComboBox<GoRunFileConfiguration.Kind>>();
-        myRunKindComboBox.setComponent(new JComboBox<GoRunFileConfiguration.Kind>());
+        myRunKindComboBox = new LabeledComponent<JComboBox<BallerinaRunFileConfiguration.Kind>>();
+        myRunKindComboBox.setComponent(new JComboBox<BallerinaRunFileConfiguration.Kind>());
 
         myFileField = new LabeledComponent<TextFieldWithBrowseButton>();
         myFileField.setComponent(new TextFieldWithBrowseButton());
@@ -82,17 +82,17 @@ public class BallerinaFileSettingsEditor extends SettingsEditor<GoRunFileConfigu
     private void installRunKindComboBox() {
         myRunKindComboBox.getComponent().removeAllItems();
         myRunKindComboBox.getComponent().setRenderer(getRunKindListCellRendererWrapper());
-        for (GoRunFileConfiguration.Kind kind : GoRunFileConfiguration.Kind.values()) {
+        for (BallerinaRunFileConfiguration.Kind kind : BallerinaRunFileConfiguration.Kind.values()) {
             myRunKindComboBox.getComponent().addItem(kind);
         }
         //        myRunKindComboBox.getComponent().addActionListener(e -> onRunKindChanged());
     }
 
     @Nullable
-    private static ListCellRendererWrapper<GoRunFileConfiguration.Kind> getRunKindListCellRendererWrapper() {
-        return new ListCellRendererWrapper<GoRunFileConfiguration.Kind>() {
+    private static ListCellRendererWrapper<BallerinaRunFileConfiguration.Kind> getRunKindListCellRendererWrapper() {
+        return new ListCellRendererWrapper<BallerinaRunFileConfiguration.Kind>() {
             @Override
-            public void customize(JList list, @Nullable GoRunFileConfiguration.Kind kind, int index, boolean selected,
+            public void customize(JList list, @Nullable BallerinaRunFileConfiguration.Kind kind, int index, boolean selected,
                                   boolean hasFocus) {
                 if (kind != null) {
                     String kindName = StringUtil.capitalize(kind.toString().toLowerCase(Locale.US));

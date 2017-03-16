@@ -39,6 +39,6 @@ public class BallerinaConstants {
             NotificationGroup.balloonGroup("Ballerina plugin notifications");
 
     public static final NotificationGroup BALLERINA_EXECUTION_NOTIFICATION_GROUP =
-            NotificationGroup.toolWindowGroup("Go Execution", ToolWindowId.RUN);
+            NotificationGroup.toolWindowGroup("Ballerina Execution", ToolWindowId.RUN);
 
 }

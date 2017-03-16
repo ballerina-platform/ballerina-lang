@@ -24,10 +24,10 @@ import com.intellij.execution.process.ProcessHandler;
 import com.intellij.execution.process.ProcessTerminatedListener;
 import com.intellij.execution.runners.ExecutionEnvironment;
 import com.intellij.openapi.module.Module;
-import org.ballerinalang.plugins.idea.util.GoExecutor;
+import org.ballerinalang.plugins.idea.util.BallerinaExecutor;
 import org.jetbrains.annotations.NotNull;
 
-public abstract class GoRunningState<T extends GoRunConfigurationBase<?>> extends CommandLineState {
+public abstract class BallerinaRunningState<T extends BallerinaRunConfigurationBase<?>> extends CommandLineState {
 
     @NotNull
     protected final Module myModule;
@@ -39,18 +39,18 @@ public abstract class GoRunningState<T extends GoRunConfigurationBase<?>> extend
 
     @NotNull protected final T myConfiguration;
 
-    public GoRunningState(@NotNull ExecutionEnvironment env, @NotNull Module module, @NotNull T configuration) {
+    public BallerinaRunningState(@NotNull ExecutionEnvironment env, @NotNull Module module, @NotNull T configuration) {
         super(env);
         myModule = module;
         myConfiguration = configuration;
-        addConsoleFilters(new GoConsoleFilter(myConfiguration.getProject(), myModule,
+        addConsoleFilters(new BallerinaConsoleFilter(myConfiguration.getProject(), myModule,
                 myConfiguration.getWorkingDirectoryUrl()));
     }
 
     @NotNull
     @Override
     protected ProcessHandler startProcess() throws ExecutionException {
-        GoExecutor executor = patchExecutor(createCommonExecutor());
+        BallerinaExecutor executor = patchExecutor(createCommonExecutor());
         GeneralCommandLine commandLine = executor.withParameterString(myConfiguration.getParams()).createCommandLine();
         KillableColoredProcessHandler handler = new KillableColoredProcessHandler(commandLine, true);
         ProcessTerminatedListener.attach(handler);
@@ -58,13 +58,13 @@ public abstract class GoRunningState<T extends GoRunConfigurationBase<?>> extend
     }
 
     @NotNull
-    public GoExecutor createCommonExecutor() {
-        return GoExecutor.in(myModule).withWorkDirectory(myConfiguration.getWorkingDirectory())
+    public BallerinaExecutor createCommonExecutor() {
+        return BallerinaExecutor.in(myModule).withWorkDirectory(myConfiguration.getWorkingDirectory())
                 .withExtraEnvironment(myConfiguration.getCustomEnvironment())
                 .withPassParentEnvironment(myConfiguration.isPassParentEnvironment());
     }
 
-    protected GoExecutor patchExecutor(@NotNull GoExecutor executor) throws ExecutionException {
+    protected BallerinaExecutor patchExecutor(@NotNull BallerinaExecutor executor) throws ExecutionException {
         return executor;
     }
 }

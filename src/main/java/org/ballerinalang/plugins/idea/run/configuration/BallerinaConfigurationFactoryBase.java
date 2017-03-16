@@ -22,9 +22,9 @@ import com.intellij.execution.configurations.ConfigurationFactory;
 import com.intellij.execution.configurations.ConfigurationType;
 import com.intellij.openapi.util.Key;
 
-public abstract class GoConfigurationFactoryBase extends ConfigurationFactory {
+public abstract class BallerinaConfigurationFactoryBase extends ConfigurationFactory {
 
-    protected GoConfigurationFactoryBase(ConfigurationType type) {
+    protected BallerinaConfigurationFactoryBase(ConfigurationType type) {
         super(type);
     }
 

@@ -13,8 +13,8 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.ballerinalang.plugins.idea.util;
 
+package org.ballerinalang.plugins.idea.util;
 
 import com.intellij.execution.ExecutionException;
 import com.intellij.execution.ExecutionHelper;
@@ -50,7 +50,7 @@ import com.intellij.util.EnvironmentUtil;
 import com.intellij.util.ObjectUtils;
 import com.intellij.util.containers.ContainerUtil;
 import org.ballerinalang.plugins.idea.BallerinaConstants;
-import org.ballerinalang.plugins.idea.run.configuration.GoConsoleFilter;
+import org.ballerinalang.plugins.idea.run.configuration.BallerinaConsoleFilter;
 import org.ballerinalang.plugins.idea.sdk.BallerinaSdkUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -60,8 +60,9 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 
-public class GoExecutor {
-    private static final Logger LOGGER = Logger.getInstance(GoExecutor.class);
+public class BallerinaExecutor {
+
+    private static final Logger LOGGER = Logger.getInstance(BallerinaExecutor.class);
     @NotNull
     private final Map<String, String> myExtraEnvironment = ContainerUtil.newHashMap();
     @NotNull
@@ -86,8 +87,8 @@ public class GoExecutor {
     private boolean myShowNotificationsOnError;
     private boolean myShowNotificationsOnSuccess;
     private boolean myShowGoEnvVariables = true;
-    private GeneralCommandLine.ParentEnvironmentType myParentEnvironmentType = GeneralCommandLine
-            .ParentEnvironmentType.CONSOLE;
+    private GeneralCommandLine.ParentEnvironmentType myParentEnvironmentType =
+            GeneralCommandLine.ParentEnvironmentType.CONSOLE;
     private boolean myPtyDisabled;
     @Nullable
     private String myExePath;
@@ -96,18 +97,18 @@ public class GoExecutor {
     private OSProcessHandler myProcessHandler;
     private final Collection<ProcessListener> myProcessListeners = ContainerUtil.newArrayList();
 
-    private GoExecutor(@NotNull Project project, @Nullable Module module) {
+    private BallerinaExecutor(@NotNull Project project, @Nullable Module module) {
         myProject = project;
         myModule = module;
     }
 
-    public static GoExecutor in(@NotNull Project project, @Nullable Module module) {
+    public static BallerinaExecutor in(@NotNull Project project, @Nullable Module module) {
         return module != null ? in(module) : in(project);
     }
 
     @NotNull
-    private static GoExecutor in(@NotNull Project project) {
-        return new GoExecutor(project, null)
+    private static BallerinaExecutor in(@NotNull Project project) {
+        return new BallerinaExecutor(project, null)
                 //                .withGoRoot(GoSdkService.getInstance(project).getSdkHomePath(null))
                 //                .withGoPath(GoSdkUtil.retrieveGoPath(project, null))
                 //                .withGoPath(GoSdkUtil.retrieveEnvironmentPathForGo(project, null))
@@ -115,10 +116,10 @@ public class GoExecutor {
     }
 
     @NotNull
-    public static GoExecutor in(@NotNull Module module) {
+    public static BallerinaExecutor in(@NotNull Module module) {
         Project project = module.getProject();
         //        ThreeState vendoringEnabled = GoModuleSettings.getInstance(module).getVendoringEnabled();
-        return new GoExecutor(project, module)
+        return new BallerinaExecutor(project, module)
                 //                .withGoRoot(GoSdkService.getInstance(project).getSdkHomePath(module))
                 //                .withGoPath(GoSdkUtil.retrieveGoPath(project, module))
                 //                .withEnvPath(GoSdkUtil.retrieveEnvironmentPathForGo(project, module))
@@ -128,96 +129,96 @@ public class GoExecutor {
     }
 
     @NotNull
-    public GoExecutor withPresentableName(@Nullable String presentableName) {
+    public BallerinaExecutor withPresentableName(@Nullable String presentableName) {
         myPresentableName = presentableName;
         return this;
     }
 
     @NotNull
-    public GoExecutor withExePath(@Nullable String exePath) {
+    public BallerinaExecutor withExePath(@Nullable String exePath) {
         myExePath = exePath;
         return this;
     }
 
     @NotNull
-    public GoExecutor withWorkDirectory(@Nullable String workDirectory) {
+    public BallerinaExecutor withWorkDirectory(@Nullable String workDirectory) {
         myWorkDirectory = workDirectory;
         return this;
     }
 
     @NotNull
-    public GoExecutor withGoRoot(@Nullable String goRoot) {
+    public BallerinaExecutor withGoRoot(@Nullable String goRoot) {
         myGoRoot = goRoot;
         return this;
     }
 
     @NotNull
-    public GoExecutor withGoPath(@Nullable String goPath) {
+    public BallerinaExecutor withGoPath(@Nullable String goPath) {
         myGoPath = goPath;
         return this;
     }
 
     @NotNull
-    public GoExecutor withEnvPath(@Nullable String envPath) {
+    public BallerinaExecutor withEnvPath(@Nullable String envPath) {
         myEnvPath = envPath;
         return this;
     }
 
     @NotNull
-    public GoExecutor withVendoring(@Nullable Boolean enabled) {
+    public BallerinaExecutor withVendoring(@Nullable Boolean enabled) {
         myVendoringEnabled = enabled;
         return this;
     }
 
-    public GoExecutor withProcessListener(@NotNull ProcessListener listener) {
+    public BallerinaExecutor withProcessListener(@NotNull ProcessListener listener) {
         myProcessListeners.add(listener);
         return this;
     }
 
     @NotNull
-    public GoExecutor withExtraEnvironment(@NotNull Map<String, String> environment) {
+    public BallerinaExecutor withExtraEnvironment(@NotNull Map<String, String> environment) {
         myExtraEnvironment.putAll(environment);
         return this;
     }
 
     @NotNull
-    public GoExecutor withPassParentEnvironment(boolean passParentEnvironment) {
+    public BallerinaExecutor withPassParentEnvironment(boolean passParentEnvironment) {
         myParentEnvironmentType = passParentEnvironment ? GeneralCommandLine.ParentEnvironmentType.CONSOLE
                 : GeneralCommandLine.ParentEnvironmentType.NONE;
         return this;
     }
 
     @NotNull
-    public GoExecutor withParameterString(@NotNull String parameterString) {
+    public BallerinaExecutor withParameterString(@NotNull String parameterString) {
         myParameterList.addParametersString(parameterString);
         return this;
     }
 
     @NotNull
-    public GoExecutor withParameters(@NotNull String... parameters) {
+    public BallerinaExecutor withParameters(@NotNull String... parameters) {
         myParameterList.addAll(parameters);
         return this;
     }
 
-    public GoExecutor showGoEnvVariables(boolean show) {
+    public BallerinaExecutor showGoEnvVariables(boolean show) {
         myShowGoEnvVariables = show;
         return this;
     }
 
     @NotNull
-    public GoExecutor showOutputOnError() {
+    public BallerinaExecutor showOutputOnError() {
         myShowOutputOnError = true;
         return this;
     }
 
     @NotNull
-    public GoExecutor disablePty() {
+    public BallerinaExecutor disablePty() {
         myPtyDisabled = true;
         return this;
     }
 
     @NotNull
-    public GoExecutor showNotifications(boolean onError, boolean onSuccess) {
+    public BallerinaExecutor showNotifications(boolean onError, boolean onSuccess) {
         myShowNotificationsOnError = onError;
         myShowNotificationsOnSuccess = onSuccess;
         return this;
@@ -237,12 +238,12 @@ public class GoExecutor {
                 @Override
                 public void startNotify() {
                     if (myShowGoEnvVariables) {
-                        //                        GoRunUtil.printGoEnvVariables(finalCommandLine, this);
+                        //                        BallerinaRunUtil.printGoEnvVariables(finalCommandLine, this);
                     }
                     super.startNotify();
                 }
             };
-            GoHistoryProcessListener historyProcessListener = new GoHistoryProcessListener();
+            BallerinaHistoryProcessListener historyProcessListener = new BallerinaHistoryProcessListener();
             myProcessHandler.addProcessListener(historyProcessListener);
             for (ProcessListener listener : myProcessListeners) {
                 myProcessHandler.addProcessListener(listener);
@@ -346,14 +347,14 @@ public class GoExecutor {
         });
     }
 
-    private void showOutput(@NotNull OSProcessHandler originalHandler, @NotNull GoHistoryProcessListener
+    private void showOutput(@NotNull OSProcessHandler originalHandler, @NotNull BallerinaHistoryProcessListener
             historyProcessListener) {
         if (myShowOutputOnError) {
             BaseOSProcessHandler outputHandler = new KillableColoredProcessHandler(originalHandler.getProcess(), null);
             RunContentExecutor runContentExecutor = new RunContentExecutor(myProject, outputHandler)
                     .withTitle(getPresentableName())
                     .withActivateToolWindow(myShowOutputOnError)
-                    .withFilter(new GoConsoleFilter(myProject, myModule, myWorkDirectory != null ? VfsUtilCore
+                    .withFilter(new BallerinaConsoleFilter(myProject, myModule, myWorkDirectory != null ? VfsUtilCore
                             .pathToUrl(myWorkDirectory) : null));
             Disposer.register(myProject, runContentExecutor);
             runContentExecutor.run();
@@ -398,6 +399,6 @@ public class GoExecutor {
 
     @NotNull
     private String getPresentableName() {
-        return ObjectUtils.notNull(myPresentableName, "go");
+        return ObjectUtils.notNull(myPresentableName, "Ballerina");
     }
 }

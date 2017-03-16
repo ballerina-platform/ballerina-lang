@@ -30,26 +30,26 @@ import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.PathUtil;
-import org.ballerinalang.plugins.idea.run.configuration.GoModuleBasedConfiguration;
-import org.ballerinalang.plugins.idea.run.configuration.GoRunConfigurationWithMain;
-import org.ballerinalang.plugins.idea.run.configuration.GoRunningState;
+import org.ballerinalang.plugins.idea.run.configuration.BallerinaModuleBasedConfiguration;
+import org.ballerinalang.plugins.idea.run.configuration.BallerinaRunConfigurationWithMain;
+import org.ballerinalang.plugins.idea.run.configuration.BallerinaRunningState;
 import org.ballerinalang.plugins.idea.run.configuration.ui.BallerinaFileSettingsEditor;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.util.UUID;
 
-public  class GoRunFileConfiguration extends GoRunConfigurationWithMain<GoRunningState> {
+public  class BallerinaRunFileConfiguration extends BallerinaRunConfigurationWithMain<BallerinaRunningState> {
 
-    public GoRunFileConfiguration(Project project, String name, @NotNull ConfigurationType configurationType) {
-        super(name, new GoModuleBasedConfiguration(project), configurationType.getConfigurationFactories()[0]);
+    public BallerinaRunFileConfiguration(Project project, String name, @NotNull ConfigurationType configurationType) {
+        super(name, new BallerinaModuleBasedConfiguration(project), configurationType.getConfigurationFactories()[0]);
     }
 
     @NotNull
     @Override
     protected ModuleBasedConfiguration createInstance() {
-        return new GoRunFileConfiguration(getProject(), getName(),
-                GoRunServiceFileConfigurationType.getInstance());
+        return new BallerinaRunFileConfiguration(getProject(), getName(),
+                BallerinaRunServiceFileConfigurationType.getInstance());
     }
 
     @NotNull
@@ -67,7 +67,7 @@ public  class GoRunFileConfiguration extends GoRunConfigurationWithMain<GoRunnin
 
     @NotNull
     @Override
-    protected GoRunServiceFileRunningState newRunningState(@NotNull ExecutionEnvironment env, @NotNull Module module) {
+    protected BallerinaRunServiceFileRunningState newRunningState(@NotNull ExecutionEnvironment env, @NotNull Module module) {
         String path = getFilePath();
         if (!"bal".equals(PathUtil.getFileExtension(path))) {
             VirtualFile f = LocalFileSystem.getInstance().refreshAndFindFileByPath(path);
@@ -90,10 +90,8 @@ public  class GoRunFileConfiguration extends GoRunConfigurationWithMain<GoRunnin
                 setName(getName().replace(beforeWithoutExt, beforeWithoutExt + suffixWithoutExt));
             }
         }
-        return new GoRunServiceFileRunningState(env, module, this);
+        return new BallerinaRunServiceFileRunningState(env, module, this);
     }
-
-
 
     public enum Kind {
         APPLICATION, SERVICE

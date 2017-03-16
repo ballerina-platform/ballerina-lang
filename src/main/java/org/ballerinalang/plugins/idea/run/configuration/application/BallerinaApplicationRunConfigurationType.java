@@ -22,26 +22,27 @@ import com.intellij.openapi.extensions.Extensions;
 import com.intellij.openapi.project.Project;
 import org.ballerinalang.plugins.idea.BallerinaConstants;
 import org.ballerinalang.plugins.idea.BallerinaIcons;
-import org.ballerinalang.plugins.idea.run.configuration.GoConfigurationFactoryBase;
+import org.ballerinalang.plugins.idea.run.configuration.BallerinaConfigurationFactoryBase;
 import org.jetbrains.annotations.NotNull;
 
-public class GoApplicationRunConfigurationType extends ConfigurationTypeBase {
+public class BallerinaApplicationRunConfigurationType extends ConfigurationTypeBase {
 
-    public GoApplicationRunConfigurationType() {
-        super("GoApplicationRunConfiguration", "Go Application", "Go application run configuration",
-                BallerinaIcons.APPLICATION_RUN);
-        addFactory(new GoConfigurationFactoryBase(this) {
+    public BallerinaApplicationRunConfigurationType() {
+        super("BallerinaApplicationRunConfiguration", "Ballerina Application",
+                "Ballerina Application Run Configuration", BallerinaIcons.APPLICATION_RUN);
+
+        addFactory(new BallerinaConfigurationFactoryBase(this) {
 
             @Override
             @NotNull
             public RunConfiguration createTemplateConfiguration(@NotNull Project project) {
-                return new GoApplicationConfiguration(project, BallerinaConstants.BALLERINA, getInstance());
+                return new BallerinaApplicationConfiguration(project, BallerinaConstants.BALLERINA, getInstance());
             }
         });
     }
 
     @NotNull
-    public static GoApplicationRunConfigurationType getInstance() {
-        return Extensions.findExtension(CONFIGURATION_TYPE_EP, GoApplicationRunConfigurationType.class);
+    public static BallerinaApplicationRunConfigurationType getInstance() {
+        return Extensions.findExtension(CONFIGURATION_TYPE_EP, BallerinaApplicationRunConfigurationType.class);
     }
 }

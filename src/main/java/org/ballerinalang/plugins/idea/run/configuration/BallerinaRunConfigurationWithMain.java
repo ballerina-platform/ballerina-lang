@@ -27,12 +27,11 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
 import org.ballerinalang.plugins.idea.psi.BallerinaFile;
-import org.ballerinalang.plugins.idea.run.configuration.file.GoRunFileConfiguration;
-import org.ballerinalang.plugins.idea.sdk.BallerinaSdkService;
+import org.ballerinalang.plugins.idea.run.configuration.file.BallerinaRunFileConfiguration;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 
-public abstract class GoRunConfigurationWithMain<T extends GoRunningState> extends GoRunConfigurationBase<T> {
+public abstract class BallerinaRunConfigurationWithMain<T extends BallerinaRunningState> extends BallerinaRunConfigurationBase<T> {
 
     private static final String FILE_PATH_ATTRIBUTE_NAME = "filePath";
     private static final String KIND_ATTRIBUTE_NAME = "kind";
@@ -40,10 +39,10 @@ public abstract class GoRunConfigurationWithMain<T extends GoRunningState> exten
     @NotNull
     private String myFilePath = "";
     @NotNull
-    private GoRunFileConfiguration.Kind kind = GoRunFileConfiguration.Kind.APPLICATION;
+    private BallerinaRunFileConfiguration.Kind kind = BallerinaRunFileConfiguration.Kind.APPLICATION;
 
-    public GoRunConfigurationWithMain(String name, GoModuleBasedConfiguration configurationModule,
-                                      ConfigurationFactory factory) {
+    public BallerinaRunConfigurationWithMain(String name, BallerinaModuleBasedConfiguration configurationModule,
+                                             ConfigurationFactory factory) {
         super(name, configurationModule, factory);
         myFilePath = getWorkingDirectory();
     }
@@ -53,7 +52,7 @@ public abstract class GoRunConfigurationWithMain<T extends GoRunningState> exten
         super.readExternal(element);
         myFilePath = StringUtil.notNullize(JDOMExternalizerUtil.getFirstChildValueAttribute(element,
                 FILE_PATH_ATTRIBUTE_NAME));
-        kind = GoRunFileConfiguration.Kind.valueOf(StringUtil.notNullize(
+        kind = BallerinaRunFileConfiguration.Kind.valueOf(StringUtil.notNullize(
                 JDOMExternalizerUtil.getFirstChildValueAttribute(element, KIND_ATTRIBUTE_NAME)));
     }
 
@@ -76,10 +75,10 @@ public abstract class GoRunConfigurationWithMain<T extends GoRunningState> exten
 
 
         //        if (myKind != null) {
-        //            if (myKind == FileConfigurationKind.APPLICATION && !GoRunUtil.hasMainFunction(psiFile)) {
+        //            if (myKind == FileConfigurationKind.APPLICATION && !BallerinaRunUtil.hasMainFunction(psiFile)) {
         //                throw new RuntimeConfigurationError("Main file does not contain a main function.");
         //            }
-        //            if (myKind == FileConfigurationKind.SERVICE && !GoRunUtil.hasServices(psiFile)) {
+        //            if (myKind == FileConfigurationKind.SERVICE && !BallerinaRunUtil.hasServices(psiFile)) {
         //                throw new RuntimeConfigurationError("Main file does not contain any service.");
         //            }
         //        }
@@ -98,11 +97,11 @@ public abstract class GoRunConfigurationWithMain<T extends GoRunningState> exten
         myFilePath = filePath;
     }
 
-    public GoRunFileConfiguration.Kind getRunKind() {
+    public BallerinaRunFileConfiguration.Kind getRunKind() {
         return kind;
     }
 
-    public void setRunKind(GoRunFileConfiguration.Kind kind) {
+    public void setRunKind(BallerinaRunFileConfiguration.Kind kind) {
         this.kind = kind;
     }
 }
