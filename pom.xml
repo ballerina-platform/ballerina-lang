@@ -102,7 +102,6 @@
                         <findbugsXmlOutputDirectory>${project.build.directory}/findbugs
                         </findbugsXmlOutputDirectory>
                         <excludeFilterFile>${maven.findbugsplugin.version.exclude}</excludeFilterFile>
-                        <!--Exclude generated sources-->
                     </configuration>
                     <version>${maven.findbugsplugin.version}</version>
                     <executions>
@@ -134,8 +133,7 @@
                                 <failsOnError>true</failsOnError>
                                 <includeTestSourceDirectory>true</includeTestSourceDirectory>
                                 <!--Exclude generated sources-->
-                                <excludes>**/parser/*,**/${native.constructs.provider.class}.java
-                                </excludes>
+                                <excludes>**/parser/*,**/${native.constructs.provider.class}.java</excludes>
                             </configuration>
                             <goals>
                                 <goal>check</goal>
