@@ -23,7 +23,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Scope class to support package listing in API level
+ * Scope class to support package listing in API level.
  */
 public class APIScope implements SymbolScope {
     private Map<SymbolName, BLangSymbol> symbolMap;
