@@ -16,12 +16,12 @@
 
 package org.ballerinalang.composer.service.workspace.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import io.swagger.annotations.ApiModelProperty;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-
-import com.fasterxml.jackson.annotation.JsonProperty;
-import io.swagger.annotations.ApiModelProperty;
 
 /**
  * Error.
@@ -130,7 +130,8 @@ public class Error   {
    * If there are more than one error list them out. For example, list out validation errors by each field. 
    * @return error
   **/
-  @ApiModelProperty(value = "If there are more than one error list them out. For example, list out validation errors by each field. ")
+  @ApiModelProperty(value = "If there are more than one error list them out. For example, list out validation errors " +
+                            "by each field. ")
   public List<ErrorListItem> getError() {
     return error;
   }
