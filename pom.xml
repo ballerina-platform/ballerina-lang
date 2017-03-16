@@ -16,9 +16,7 @@
   ~ under the License.
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <parent>
         <groupId>org.ballerinalang</groupId>
@@ -29,7 +27,7 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>ballerina-composer-parent</artifactId>
     <packaging>pom</packaging>
-    <version>0.8.15-SNAPSHOT</version>
+    <version>0.84</version>
     <name>Ballerina Composer - Parent</name>
 
     <scm>
@@ -37,7 +35,7 @@
         <developerConnection>scm:git:https://github.com/maheeka/composer.git
         </developerConnection>
         <connection>scm:git:https://github.com/maheeka/composer.git</connection>
-        <tag>HEAD</tag>
+        <tag>v0.84</tag>
     </scm>
 
     <dependencyManagement>
