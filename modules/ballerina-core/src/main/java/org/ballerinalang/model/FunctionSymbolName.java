@@ -18,7 +18,7 @@
 package org.ballerinalang.model;
 
 /**
- * {@code FunctionSymbolName} represents a package qualified name of a {@link Symbol} in Ballerina.
+ * {@code FunctionSymbolName} represents a package qualified name of a {@link Symbol} in Ballerina package.
  *
  * @since 0.8.3
  */
@@ -46,7 +46,7 @@ public class FunctionSymbolName extends SymbolName {
         return funcName;
     }
 
-    public boolean isFunctionsEqual(FunctionSymbolName funcSymName) {
+    public boolean isNameAndParamCountMatch(FunctionSymbolName funcSymName) {
         return this.funcName.equals(funcSymName.getFuncName())
                && (this.getNoOfParameters() == funcSymName.getNoOfParameters());
     }

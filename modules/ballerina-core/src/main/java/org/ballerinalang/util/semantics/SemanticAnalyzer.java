@@ -1983,7 +1983,7 @@ public class SemanticAnalyzer implements NodeVisitor {
                 continue;
             }
             FunctionSymbolName funcSymName = (FunctionSymbolName) entry.getKey();
-            if (!funcSymName.isFunctionsEqual((FunctionSymbolName) symbolName)) {
+            if (!funcSymName.isNameAndParamCountMatch((FunctionSymbolName) symbolName)) {
                 continue;
             }
 
@@ -2004,22 +2004,26 @@ public class SemanticAnalyzer implements NodeVisitor {
                     break;
                 }
             }
-            if (implicitCastPossible && functionSymbol == null) {
-                functionSymbol = (BLangSymbol) entry.getValue();
-            } else {
-                /**
-                 * This way second ambiguous function will cause this method to throw semantic error, so in a scenario
-                 * where there are more than two ambiguous functions, then this will show only the first two.
-                 */
-                SymbolName matchingFuncSym = functionSymbol.getSymbolName();
-                String ambiguousFunc1 = (matchingFuncSym.getPkgPath() != null) ?
-                                        matchingFuncSym.getPkgPath() + ":" + matchingFuncSym.getName() :
-                                        matchingFuncSym.getName();
-                String ambiguousFunc2 = (funcSymName.getPkgPath() != null) ?
-                                        funcSymName.getPkgPath() + ":" + funcSymName.getName() : funcSymName.getName();
-                BLangExceptionHelper.throwSemanticError(funcIExpr, SemanticErrors.AMBIGUOUS_FUNCTIONS,
-                                                        funcSymName.getFuncName(), ambiguousFunc1, ambiguousFunc2);
-                break;
+            if (implicitCastPossible) {
+                if (functionSymbol == null) {
+                    functionSymbol = (BLangSymbol) entry.getValue();
+                } else {
+                    /**
+                     * This way second ambiguous function will cause this method to throw semantic error, so in a
+                     * scenario where there are more than two ambiguous functions, then this will show only the
+                     * first two.
+                     */
+                    SymbolName matchingFuncSym = functionSymbol.getSymbolName();
+                    String ambiguousFunc1 = (matchingFuncSym.getPkgPath() != null) ?
+                                            matchingFuncSym.getPkgPath() + ":" + matchingFuncSym.getName() :
+                                            matchingFuncSym.getName();
+                    String ambiguousFunc2 = (funcSymName.getPkgPath() != null) ?
+                                            funcSymName.getPkgPath() + ":" + funcSymName.getName()
+                                                                               : funcSymName.getName();
+                    BLangExceptionHelper.throwSemanticError(funcIExpr, SemanticErrors.AMBIGUOUS_FUNCTIONS,
+                                                            funcSymName.getFuncName(), ambiguousFunc1, ambiguousFunc2);
+                    break;
+                }
             }
         }
         return functionSymbol;

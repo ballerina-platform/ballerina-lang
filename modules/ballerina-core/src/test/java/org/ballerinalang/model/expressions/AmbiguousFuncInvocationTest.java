@@ -44,4 +44,11 @@ public class AmbiguousFuncInvocationTest {
     public void testAmbiguousFuncInvocation() {
         BTestUtils.parseBalFile("lang/expressions/ambiguous-func-invocation.bal");
     }
+
+    @Test(description = "Test invoking function without any match",
+          expectedExceptions = {SemanticException.class },
+          expectedExceptionsMessageRegExp = "no-matching-func.bal:3: undefined function 'ambiguousFunc'")
+    public void testNoMatchingFunc() {
+        BTestUtils.parseBalFile("lang/expressions/no-matching-func.bal");
+    }
 }
