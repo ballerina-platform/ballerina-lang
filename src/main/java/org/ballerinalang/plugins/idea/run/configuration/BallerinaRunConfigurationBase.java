@@ -53,7 +53,7 @@ public abstract class BallerinaRunConfigurationBase<RunningState extends Balleri
         implements RunConfigurationWithSuppressedDefaultRunAction, RunConfigurationWithSuppressedDefaultDebugAction {
 
     private static final String WORKING_DIRECTORY_NAME = "working_directory";
-    private static final String GO_PARAMETERS_NAME = "go_parameters";
+    private static final String BALLERINA_PARAMETERS_NAME = "ballerina_parameters";
     private static final String PARAMETERS_NAME = "parameters";
     private static final String PASS_PARENT_ENV = "pass_parent_env";
 
@@ -130,7 +130,7 @@ public abstract class BallerinaRunConfigurationBase<RunningState extends Balleri
         super.writeExternal(element);
         writeModule(element);
         addNonEmptyElement(element, WORKING_DIRECTORY_NAME, myWorkingDirectory);
-        addNonEmptyElement(element, GO_PARAMETERS_NAME, myGoParams);
+        addNonEmptyElement(element, BALLERINA_PARAMETERS_NAME, myGoParams);
         addNonEmptyElement(element, PARAMETERS_NAME, myParams);
         if (!myCustomEnvironment.isEmpty()) {
             EnvironmentVariablesComponent.writeExternal(element, myCustomEnvironment);
@@ -151,7 +151,7 @@ public abstract class BallerinaRunConfigurationBase<RunningState extends Balleri
         super.readExternal(element);
         readModule(element);
         myGoParams = StringUtil.notNullize(JDOMExternalizerUtil.getFirstChildValueAttribute(element,
-                GO_PARAMETERS_NAME));
+                BALLERINA_PARAMETERS_NAME));
         myParams = StringUtil.notNullize(JDOMExternalizerUtil.getFirstChildValueAttribute(element, PARAMETERS_NAME));
 
         String workingDirectoryValue = JDOMExternalizerUtil.getFirstChildValueAttribute(element,
@@ -189,7 +189,7 @@ public abstract class BallerinaRunConfigurationBase<RunningState extends Balleri
     protected abstract RunningState newRunningState(ExecutionEnvironment env, Module module);
 
     @NotNull
-    public String getGoToolParams() {
+    public String getBallerinaToolParams() {
         return myGoParams;
     }
 

@@ -38,7 +38,7 @@ public class BallerinaApplicationSettingsEditor extends SettingsEditor<Ballerina
 
     public BallerinaApplicationSettingsEditor(Project project) {
         myProject = project;
-        BallerinaRunUtil.installGoWithMainFileChooser(project, myFileField.getComponent());
+        BallerinaRunUtil.installBallerinaWithMainFileChooser(project, myFileField.getComponent());
     }
 
     @Override

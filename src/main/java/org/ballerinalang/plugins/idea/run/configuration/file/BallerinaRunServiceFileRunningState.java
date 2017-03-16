@@ -40,7 +40,7 @@ public class BallerinaRunServiceFileRunningState extends BallerinaRunningState<B
         return executor
                 .withParameters("run")
                 .withParameters(command)
-                .withParameterString(myConfiguration.getGoToolParams())
+                .withParameterString(myConfiguration.getBallerinaToolParams())
                 .withParameters(myConfiguration.getFilePath());
     }
 }

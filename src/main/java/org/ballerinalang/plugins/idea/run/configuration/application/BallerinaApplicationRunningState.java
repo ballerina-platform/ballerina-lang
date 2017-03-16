@@ -53,7 +53,7 @@ public class BallerinaApplicationRunningState extends BallerinaRunningState<Ball
 
     @NotNull
     public String getGoBuildParams() {
-        return myConfiguration.getGoToolParams();
+        return myConfiguration.getBallerinaToolParams();
     }
 
     public boolean isDebug() {

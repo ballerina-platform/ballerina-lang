@@ -45,9 +45,9 @@ public class BallerinaConsoleFilter implements Filter {
 
     private static final Pattern MESSAGE_PATTERN = Pattern.compile("(?:^|\\s)(\\S+\\.\\w+):(\\d+)(:(\\d+))?" +
             "(?=[:\\s]|$).*");
-    private static final Pattern GO_GET_MESSAGE_PATTERN = Pattern.compile("^[ \t]*(go get (.*))\n?$");
+    private static final Pattern BALLERINA_GET_MESSAGE_PATTERN = Pattern.compile("^[ \t]*(go get (.*))\n?$");
     private static final Pattern APP_ENGINE_PATH_PATTERN = Pattern.compile("/tmp[A-z0-9]+appengine-go-bin/");
-    private static final Pattern GO_FILE_PATTERN = Pattern.compile("\\((\\w+\\.go)\\)");
+    private static final Pattern BALLERINA_FILE_PATTERN = Pattern.compile("\\((\\w+\\.bal)\\)");
 
     @NotNull
     private final Project myProject;
@@ -71,16 +71,16 @@ public class BallerinaConsoleFilter implements Filter {
 
     @Override
     public Result applyFilter(@NotNull String line, int entireLength) {
-        Matcher goGetMatcher = GO_GET_MESSAGE_PATTERN.matcher(line);
-        if (goGetMatcher.find() && myModule != null) {
-            String packageName = goGetMatcher.group(2).trim();
-            HyperlinkInfo hyperlinkInfo = new GoGetHyperlinkInfo(packageName, myModule);
+        Matcher ballerinaGetMatcher = BALLERINA_GET_MESSAGE_PATTERN.matcher(line);
+        if (ballerinaGetMatcher.find() && myModule != null) {
+            String packageName = ballerinaGetMatcher.group(2).trim();
+            HyperlinkInfo hyperlinkInfo = new BallerinaGetHyperlinkInfo(packageName, myModule);
             int lineStart = entireLength - line.length();
-            return new Result(lineStart + goGetMatcher.start(1), lineStart + goGetMatcher.end(2), hyperlinkInfo);
+            return new Result(lineStart + ballerinaGetMatcher.start(1), lineStart + ballerinaGetMatcher.end(2), hyperlinkInfo);
         }
         Matcher matcher = MESSAGE_PATTERN.matcher(line);
         if (!matcher.find()) {
-            Matcher fileMatcher = GO_FILE_PATTERN.matcher(line);
+            Matcher fileMatcher = BALLERINA_FILE_PATTERN.matcher(line);
             List<ResultItem> resultItems = ContainerUtil.newArrayList();
             while (fileMatcher.find()) {
                 VirtualFile file = findSingleFile(fileMatcher.group(1));
@@ -188,12 +188,12 @@ public class BallerinaConsoleFilter implements Filter {
         return null;
     }
 
-    public static class GoGetHyperlinkInfo implements HyperlinkInfo {
+    public static class BallerinaGetHyperlinkInfo implements HyperlinkInfo {
 
         private final String myPackageName;
         private final Module myModule;
 
-        public GoGetHyperlinkInfo(@NotNull String packageName, @NotNull Module module) {
+        public BallerinaGetHyperlinkInfo(@NotNull String packageName, @NotNull Module module) {
             myPackageName = packageName;
             myModule = module;
         }

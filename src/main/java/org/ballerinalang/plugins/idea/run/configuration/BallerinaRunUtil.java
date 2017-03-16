@@ -36,7 +36,6 @@ import com.intellij.psi.PsiFileSystemItem;
 import com.intellij.psi.PsiManager;
 import com.intellij.psi.util.PsiTreeUtil;
 import org.ballerinalang.plugins.idea.BallerinaFileType;
-import org.ballerinalang.plugins.idea.psi.BallerinaFile;
 import org.ballerinalang.plugins.idea.psi.FunctionNode;
 import org.ballerinalang.plugins.idea.psi.ParameterListNode;
 import org.ballerinalang.plugins.idea.psi.ServiceDefinitionNode;
@@ -65,7 +64,7 @@ public class BallerinaRunUtil {
                 continue;
             }
             PsiFile psiFile = PsiManager.getInstance(project).findFile(file);
-            if (isMainGoFile(psiFile)) {
+            if (isMainBallerinaFile(psiFile)) {
                 return psiFile;
             }
         }
@@ -94,31 +93,30 @@ public class BallerinaRunUtil {
         return psiElement;
     }
 
-    public static void installGoWithMainFileChooser(Project project, @NotNull TextFieldWithBrowseButton fileField) {
+    public static void installBallerinaWithMainFileChooser(Project project,
+                                                           @NotNull TextFieldWithBrowseButton fileField) {
         installFileChooser(project, fileField, false, false, file -> {
             if (file.getFileType() != BallerinaFileType.INSTANCE) {
                 return false;
             }
-            return isMainGoFile(PsiManager.getInstance(project).findFile(file));
+            return isMainBallerinaFile(PsiManager.getInstance(project).findFile(file));
         });
     }
 
     @Contract("null -> false")
-    public static boolean isMainGoFile(@Nullable PsiFile psiFile) {
-        if (/*!GoTestFinder.isTestFile(psiFile) &&*/ psiFile instanceof BallerinaFile) {
-            //            return BallerinaConstants.MAIN.equals(((BallerinaFile)psiFile).getPackageName()) && (
-            // (BallerinaFile)psiFile)
-            //                    .hasMainFunction();
-            //            return true;
-            return hasMainFunction(psiFile) || hasServices(psiFile);
-        }
-        return false;
-    }
+    public static boolean isMainBallerinaFile(@Nullable PsiFile psiFile) {
+        //        if (/*!GoTestFinder.isTestFile(psiFile) &&*/ psiFile instanceof BallerinaFile) {
+        //            //            return BallerinaConstants.MAIN.equals(((BallerinaFile)psiFile).getPackageName())
+        // && (
+        //            // (BallerinaFile)psiFile)
+        //            //                    .hasMainFunction();
+        //            //            return true;
+        //            return hasMainFunction(psiFile) || hasServices(psiFile);
+        //        }
+        //        return false;
 
-    //    @Contract("null -> false")
-    //    public static boolean isRunnableFile(@Nullable PsiFile psiFile) {
-    //        return hasMainFunction(psiFile) || hasServices(psiFile);
-    //    }
+        return hasMainFunction(psiFile);
+    }
 
     @Contract("null -> false")
     public static boolean hasMainFunction(PsiFile file) {
@@ -155,8 +153,7 @@ public class BallerinaRunUtil {
         return !serviceDefinitionNodes.isEmpty();
     }
 
-    public static void installFileChooser(@NotNull Project project,
-                                          @NotNull ComponentWithBrowseButton field,
+    public static void installFileChooser(@NotNull Project project, @NotNull ComponentWithBrowseButton field,
                                           boolean directory) {
         installFileChooser(project, field, directory, false);
     }
@@ -176,8 +173,8 @@ public class BallerinaRunUtil {
         chooseDirectoryDescriptor.setShowFileSystemRoots(showFileSystemRoots);
         chooseDirectoryDescriptor.withFileFilter(fileFilter);
         if (field instanceof TextFieldWithBrowseButton) {
-            ((TextFieldWithBrowseButton) field).addBrowseFolderListener(new TextBrowseFolderListener
-                    (chooseDirectoryDescriptor, project));
+            ((TextFieldWithBrowseButton) field).addBrowseFolderListener(
+                    new TextBrowseFolderListener(chooseDirectoryDescriptor, project));
         } else {
             //noinspection unchecked
             field.addBrowseFolderListener(project, new ComponentWithBrowseButton.BrowseFolderActionListener(null,
