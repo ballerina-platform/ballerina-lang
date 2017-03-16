@@ -53,7 +53,7 @@ public class NativeTypeMappersTest {
         BValue[] args = {new BJSON("{\"name\":\"chanaka\"}")};
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "jsontoxml", args);
         Assert.assertTrue(returns[0] instanceof BXML);
-        final String expected = "<jsonObject><name>chanaka</name></jsonObject>";
+        final String expected = "<root><name>chanaka</name></root>";
         Assert.assertEquals(returns[0].stringValue().replaceAll("\\r|\\n|\\t| ", ""), expected);
     }
 
@@ -98,7 +98,7 @@ public class NativeTypeMappersTest {
         BValue[] args = { new BJSON("{\"name\":\"chanaka\", \"company\":\"wso2\"}") };
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "jsontoxml", args);
         Assert.assertTrue(returns[0] instanceof BXML);
-        final String expected = "<jsonObject><name>chanaka</name><company>wso2</company></jsonObject>";
+        final String expected = "<root><name>chanaka</name><company>wso2</company></root>";
         Assert.assertEquals(returns[0].stringValue().replaceAll("\\r|\\n|\\t| ", ""), expected);
     }
 
