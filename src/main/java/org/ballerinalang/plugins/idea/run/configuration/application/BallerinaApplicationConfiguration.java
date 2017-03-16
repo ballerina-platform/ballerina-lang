@@ -13,8 +13,8 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.ballerinalang.plugins.idea.run.configuration.application;
 
+package org.ballerinalang.plugins.idea.run.configuration.application;
 
 import com.intellij.execution.configurations.ConfigurationType;
 import com.intellij.execution.configurations.ModuleBasedConfiguration;
@@ -48,7 +48,7 @@ public class BallerinaApplicationConfiguration extends
     private String myPackage = "";
 
     @NotNull
-    private Kind myKind = Kind.PACKAGE;
+    private Kind myKind = Kind.APPLICATION;
 
     public BallerinaApplicationConfiguration(Project project, String name, @NotNull ConfigurationType
             configurationType) {
@@ -62,9 +62,9 @@ public class BallerinaApplicationConfiguration extends
                 PACKAGE_ATTRIBUTE_NAME));
         try {
             String kindName = JDOMExternalizerUtil.getFirstChildValueAttribute(element, KIND_ATTRIBUTE_NAME);
-            myKind = kindName != null ? Kind.valueOf(kindName) : Kind.PACKAGE;
+            myKind = kindName != null ? Kind.valueOf(kindName) : Kind.APPLICATION;
         } catch (IllegalArgumentException e) {
-            myKind = !myPackage.isEmpty() ? Kind.PACKAGE : Kind.FILE;
+            myKind = !myPackage.isEmpty() ? Kind.APPLICATION : Kind.SERVICE;
         }
     }
 
@@ -101,7 +101,7 @@ public class BallerinaApplicationConfiguration extends
     public void checkConfiguration() throws RuntimeConfigurationException {
         checkBaseConfiguration();
         switch (myKind) {
-            case PACKAGE:
+            case APPLICATION:
                 Module module = getConfigurationModule().getModule();
                 assert module != null;
 
@@ -118,7 +118,7 @@ public class BallerinaApplicationConfiguration extends
                             myPackage + "'");
                 }
                 break;
-            case FILE:
+            case SERVICE:
                 checkFileConfiguration();
                 break;
         }
@@ -143,6 +143,6 @@ public class BallerinaApplicationConfiguration extends
     }
 
     public enum Kind {
-        PACKAGE, FILE
+        APPLICATION, SERVICE
     }
 }

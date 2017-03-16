@@ -51,7 +51,7 @@ public class BallerinaApplicationRunConfigurationProducer extends BallerinaRunCo
         //            return true;
         //        }
         if (super.setupConfigurationFromContext(configuration, context, sourceElement)) {
-            configuration.setKind(BallerinaApplicationConfiguration.Kind.FILE);
+            configuration.setKind(BallerinaApplicationConfiguration.Kind.SERVICE);
             return true;
         }
         return false;
@@ -80,7 +80,7 @@ public class BallerinaApplicationRunConfigurationProducer extends BallerinaRunCo
         Module module = ModuleUtilCore.findModuleForPsiElement(contextElement);
         if (!Comparing.equal(module, configuration.getConfigurationModule().getModule())) return false;
 
-        if (configuration.getKind() == BallerinaApplicationConfiguration.Kind.PACKAGE) {
+        if (configuration.getKind() == BallerinaApplicationConfiguration.Kind.APPLICATION) {
             return Comparing.equal(getImportPathFromContext(contextElement), configuration.getPackage());
         }
 

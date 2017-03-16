@@ -47,7 +47,7 @@ public class BallerinaApplicationRunningState extends BallerinaRunningState<Ball
 
     @NotNull
     public String getTarget() {
-        return myConfiguration.getKind() == BallerinaApplicationConfiguration.Kind.PACKAGE
+        return myConfiguration.getKind() == BallerinaApplicationConfiguration.Kind.APPLICATION
                 ? myConfiguration.getPackage() : myConfiguration.getFilePath();
     }
 
