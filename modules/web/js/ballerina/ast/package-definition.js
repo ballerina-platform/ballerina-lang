@@ -47,15 +47,6 @@ define(['lodash', './node'], function (_, ASTNode) {
           options.redoCallBack = changeCallBack;
 
           this.setAttribute('_packageName', packageName, options);
-
-          /**
-           * @event ASTNode#tree-modified
-           */
-          this.trigger('tree-modified', {
-              origin: this,
-              type: 'node-modified',
-              title: 'package name change'
-          });
       }
     };
 
