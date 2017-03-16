@@ -41,10 +41,33 @@ define(['require', 'jquery', 'log', 'backbone', 'file_browser', 'bootstrap'], fu
                 this._fileBrowser.select(path);
             },
 
+            /**
+             * This will open the folder and focus file explorer by dispatching "open-folder", "toggle-file-explorer" events.
+             * @param {Object} openFolderModal modal
+             */
+            openFolder: function(openFolderModal){
+              var app = this.application;
+              var options = this._options;
+              var errorsContainer = openFolderModal.find(_.get(options, 'errors_container'));
+              var location = openFolderModal.find("input").filter(_.get(options, 'location_input'));
+              var path = location.val();
+              if (_.isEmpty(path)) {
+                  errorsContainer.text("Invalid value for location.");
+                  errorsContainer.show();
+                  return;
+              }
+              openFolderModal.modal('hide');
+              app.commandManager.dispatch("open-folder", path);
+              if(!app.workspaceExplorer.isActive()){
+                  app.commandManager.dispatch("toggle-file-explorer");
+              }
+            },
+
             render: function () {
                 var fileBrowser,
                     app = this.application,
-                    options = this._options;
+                    options = this._options,
+                    self = this;
 
                 if(!_.isNil(this._modalContainer)){
                     this._modalContainer.remove();
@@ -71,15 +94,14 @@ define(['require', 'jquery', 'log', 'backbone', 'file_browser', 'bootstrap'], fu
                     }
                 });
 
-                openFolderModal.find("button").filter(_.get(options, 'submit_button')).click(function () {
-                    var path = location.val();
-                    if (_.isEmpty(path)) {
-                        errorsContainer.text("Invalid value for location.");
-                        errorsContainer.show();
-                        return;
-                    }
-                    openFolderModal.modal('hide');
-                    app.commandManager.dispatch("open-folder", path);
+                openFolderModal.find("button").filter(_.get(options, 'submit_button')).click(function() {
+                    self.openFolder(openFolderModal);
+                });
+
+                openFolderModal.keyup(function(e) {
+                    if (e.keyCode == 13) {
+                        self.openFolder(openFolderModal);
+                    } else {}
                 });
 
                 this._dialogContainer.append(openFolderModal);
