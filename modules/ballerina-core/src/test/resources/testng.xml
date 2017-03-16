@@ -19,9 +19,9 @@ under the License.
 
 <!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
 
-<suite name="ballerina-test-suite">
+<suite name="ballerina-test-suite" parallel="false" preserve-order="true">
 
-    <!-- Ballerina language Test Cases. -->
+    <!-- Ballerina language Test Cases. (blocking)-->
     <test name="ballerina-lang-test-suite" preserve-order="true" parallel="false">
         <parameter name="enableNonBlocking" value="false"  />
         <packages>
@@ -35,7 +35,8 @@ under the License.
             <class name="org.ballerinalang.TestConfigurationUtil" />
         </classes>
     </test>
-    <!-- Ballerina Test Cases - Non Blocking. -->
+    
+    <!-- Ballerina Language Test Cases (non-blocking) -->
     <test name="ballerina-lang-test-suite-non-blocking" preserve-order="true" parallel="false">
         <parameter name="enableNonBlocking" value="true" />
         <packages>
@@ -58,7 +59,7 @@ under the License.
         </classes>
     </test>
 
-    <!-- Native Function Related Test Cases. -->
+    <!-- Native Function Related Test Cases. (blocking) -->
     <test name="ballerina-native-functions-unit-tests" preserve-order="true" parallel="false">
         <parameter name="enableNonBlocking" value="false" />
         <packages>
@@ -68,7 +69,8 @@ under the License.
             <class name="org.ballerinalang.TestConfigurationUtil" />
         </classes>
     </test>
-    <!-- Native Function Related Test Cases. -->
+    
+    <!-- Native Function Related Test Cases. (non-blocking) -->
     <test name="ballerina-native-functions-unit-tests-non-blocking" preserve-order="true" parallel="false">
         <parameter name="enableNonBlocking" value="true" />
         <packages>
@@ -79,7 +81,7 @@ under the License.
         </classes>
     </test>
 
-
+    <!-- Service Test Cases (blocking) -->
     <test name="ballerina-service-test">
         <parameter name="enableNonBlocking" value="false" />
         <classes>
@@ -88,8 +90,9 @@ under the License.
             <class name="org.ballerinalang.service.JMSServiceTest" />
             <class name="org.ballerinalang.service.FileServiceTest" />
         </classes>
-    </test>
-    <!-- Non Blocking Test Cases -->
+    </test> 
+    
+    <!-- Service Test Cases (non-blocking) -->
     <test name="ballerina-service-test-non-blocking">
         <parameter name="enableNonBlocking" value="true" />
         <classes>
@@ -100,10 +103,18 @@ under the License.
     </test>
 
     <!-- Debugger TestCases -->
-
     <test name="ballerina-interpreter-test-suite" preserve-order="true" parallel="false">
         <classes>
             <class name="org.ballerinalang.core.interpreter.DebuggerTest"/>
+        </classes>
+    </test>
+
+    <!-- Runtime Errors Test Cases (blocking) -->
+    <test name="ballerina-runtime-errors-test-suite" preserve-order="true" parallel="false">
+        <parameter name="enableNonBlocking" value="false" />
+        <classes>
+            <class name="org.ballerinalang.TestConfigurationUtil" />
+            <class name="org.ballerinalang.runtime.RuntimeErrorsTest" />
         </classes>
     </test>
 </suite>

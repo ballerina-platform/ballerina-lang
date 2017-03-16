@@ -18,6 +18,7 @@
 package org.ballerinalang;
 
 import org.ballerinalang.bre.nonblocking.ModeResolver;
+import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Parameters;
 
@@ -25,11 +26,18 @@ import org.testng.annotations.Parameters;
  * Util class to configure Test with external configuration.
  */
 public class TestConfigurationUtil {
+    
+    private boolean isNonBlockingEnabled;
 
     @Parameters("enableNonBlocking")
     @BeforeTest
     public void configureTestExecutor(String enableNonBlocking) {
+        isNonBlockingEnabled = ModeResolver.getInstance().isNonblockingEnabled();
         ModeResolver.getInstance().setNonblockingEnabled(Boolean.valueOf(enableNonBlocking));
     }
-
+    
+    @AfterTest
+    public void cleanupTestExecutor() {
+        ModeResolver.getInstance().setNonblockingEnabled(isNonBlockingEnabled);
+    }
 }

@@ -2249,8 +2249,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             }
 
             function.setParameterTypes(paramTypes);
-            SymbolName symbolName = LangModelUtils.getSymNameWithParams(function.getName(),
-                    function.getPackagePath(), paramTypes);
+            SymbolName symbolName = LangModelUtils.getSymNameWithParams(function.getName(), null, paramTypes);
             function.setSymbolName(symbolName);
 
             BLangSymbol functionSymbol = currentScope.resolve(symbolName);
@@ -2300,7 +2299,6 @@ public class SemanticAnalyzer implements NodeVisitor {
 
             SymbolName symbolName = LangModelUtils
                         .getTypeMapperSymName(typeMapper.getPackagePath(), sourceBType, targetBType);
-
             typeMapper.setSymbolName(symbolName);
             BLangSymbol typConvertorSymbol = currentScope.resolve(symbolName);
 
@@ -2387,8 +2385,8 @@ public class SemanticAnalyzer implements NodeVisitor {
         }
 
         action.setParameterTypes(paramTypes);
-        SymbolName symbolName = LangModelUtils.getActionSymName(action.getName(), connectorDef.getName(),
-                action.getPackagePath(), paramTypes);
+        SymbolName symbolName = LangModelUtils.getActionSymName(action.getName(), connectorDef.getName(), null, 
+                paramTypes);
         action.setSymbolName(symbolName);
 
         BLangSymbol actionSymbol = currentScope.resolve(symbolName);

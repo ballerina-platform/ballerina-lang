@@ -23,6 +23,7 @@ import org.ballerinalang.bre.StackFrame;
 import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
+import java.nio.file.Paths;
 import java.util.Stack;
 
 /**
@@ -68,16 +69,7 @@ public class ErrorHandlerUtils {
             return throwable.getMessage();
         }
 
-        String stackTrace = getStackTrace(context, throwable, 1);
-
-        // print the service info
-        CallableUnitInfo serviceInfo = context.getServiceInfo();
-        if (serviceInfo != null) {
-            String pkgName = (serviceInfo.getPackage() != null) ? serviceInfo.getPackage() + ":" : "";
-            stackTrace = stackTrace + "\t at " + pkgName + serviceInfo.getName() + getNodeLocation(serviceInfo) + "\n";
-        }
-
-        return stackTrace;
+        return getStackTrace(context, throwable, 1);
     }
 
     /**
@@ -89,7 +81,7 @@ public class ErrorHandlerUtils {
      */
     public static String getMainFuncStackTrace(Context context, Throwable throwable) {
         // Need to omit the main function invocation from the stack trace. Hence the starting index is 1
-        return getStackTrace(context, throwable, 0);
+        return getStackTrace(context, throwable, 1);
     }
 
     /**
@@ -107,11 +99,20 @@ public class ErrorHandlerUtils {
 
         if (throwable instanceof StackOverflowError) {
             populateStackOverflowTrace(sb, stack, stackStartIndex);
-        } else {
+        } else if (stack.size() > 0) {
             for (int i = stack.size() - 1; i >= stackStartIndex; i--) {
                 CallableUnitInfo frameInfo = stack.get(i).getNodeInfo();
-                String pkgName = (frameInfo.getPackage() != null) ? frameInfo.getPackage() + ":" : "";
-                sb.append("\t at ").append(pkgName).append(frameInfo.getName())
+                String enclosingFramName;
+                String enclosingFramPkg;
+                if (i == 0) {
+                    enclosingFramName = frameInfo.getName();
+                    enclosingFramPkg = frameInfo.getPackage();
+                } else {
+                    enclosingFramName = stack.get(i - 1).getNodeInfo().getName();
+                    enclosingFramPkg = stack.get(i - 1).getNodeInfo().getPackage();
+                }
+                String pkgName = (enclosingFramPkg != null) ? enclosingFramPkg + ":" : "";
+                sb.append("\t at ").append(pkgName).append(enclosingFramName)
                         .append(getNodeLocation(frameInfo)).append("\n");
             }
         }
@@ -127,7 +128,7 @@ public class ErrorHandlerUtils {
     private static String getNodeLocation(CallableUnitInfo nodeInfo) {
         NodeLocation nodeLocation = nodeInfo.getNodeLocation();
         if (nodeLocation != null) {
-            String fileName = nodeLocation.getFileName();
+            String fileName = Paths.get(nodeLocation.getFileName()).getFileName().toString();
             int line = nodeLocation.getLineNumber();
             return "(" + fileName + ":" + line + ")";
         } else {
@@ -142,6 +143,10 @@ public class ErrorHandlerUtils {
      * @param stack Current stack
      */
     private static void populateStackOverflowTrace(StringBuilder sb, Stack<StackFrame> stack, int stackStartIndex) {
+        if (stack.size() == 0) {
+            return;
+        }
+        
         for (int i = stack.size() - 1; i >= stack.size() - STACK_TRACE_LIMIT; i--) {
             CallableUnitInfo frameInfo = stack.get(i).getNodeInfo();
             String pkgName = (frameInfo.getPackage() != null) ? frameInfo.getPackage() + ":" : "";
