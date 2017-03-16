@@ -73,7 +73,7 @@ public class GoApplicationConfigurationEditorForm extends SettingsEditor<GoAppli
     protected void resetEditorFrom(@NotNull GoApplicationConfiguration configuration) {
         myFileField.setText(configuration.getFilePath());
         myPackageField.setText(configuration.getPackage());
-        myRunKindComboBox.setSelectedItem(configuration.getKind());
+        myRunKindComboBox.setSelectedItem(configuration.getRunKind());
         myOutputFilePathField.setText(StringUtil.notNullize(configuration.getOutputFilePath()));
 //        myCommonSettingsPanel.resetEditorFrom(configuration);
     }

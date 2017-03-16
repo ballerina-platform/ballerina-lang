@@ -21,23 +21,29 @@ import com.intellij.openapi.options.SettingsEditor;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.LabeledComponent;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
+import com.intellij.openapi.util.text.StringUtil;
+import com.intellij.ui.ListCellRendererWrapper;
 import com.intellij.ui.RawCommandLineEditor;
 import org.ballerinalang.plugins.idea.run.configuration.GoRunUtil;
 import org.ballerinalang.plugins.idea.run.configuration.file.GoRunFileConfiguration;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import javax.swing.JComponent;
-import javax.swing.JPanel;
+import java.util.Locale;
+
+import javax.swing.*;
 
 public class BallerinaFileSettingsEditor extends SettingsEditor<GoRunFileConfiguration> {
 
     private JPanel myPanel;
     private LabeledComponent<TextFieldWithBrowseButton> myFileField;
     private LabeledComponent<RawCommandLineEditor> params;
+    private LabeledComponent<JComboBox> myRunKindComboBox;
     private Project myProject;
 
     public BallerinaFileSettingsEditor(Project project) {
         myProject = project;
+        installRunKindComboBox();
         GoRunUtil.installGoWithMainFileChooser(project, myFileField.getComponent());
     }
 
@@ -45,12 +51,15 @@ public class BallerinaFileSettingsEditor extends SettingsEditor<GoRunFileConfigu
     protected void resetEditorFrom(@NotNull GoRunFileConfiguration configuration) {
         params.getComponent().setText(configuration.getParams());
         myFileField.getComponent().setText(configuration.getFilePath());
+        myRunKindComboBox.getComponent().setSelectedItem(configuration.getRunKind());
     }
 
     @Override
     protected void applyEditorTo(@NotNull GoRunFileConfiguration configuration) throws ConfigurationException {
         configuration.setParams(params.getComponent().getText());
         configuration.setFilePath(myFileField.getComponent().getText());
+        configuration.setRunKind((GoRunFileConfiguration.Kind) myRunKindComboBox.getComponent().getSelectedItem());
+
     }
 
     @NotNull
@@ -60,11 +69,37 @@ public class BallerinaFileSettingsEditor extends SettingsEditor<GoRunFileConfigu
     }
 
     private void createUIComponents() {
+        myRunKindComboBox = new LabeledComponent<JComboBox>();
+        myRunKindComboBox.setComponent(new JComboBox());
+
         myFileField = new LabeledComponent<TextFieldWithBrowseButton>();
         myFileField.setComponent(new TextFieldWithBrowseButton());
 
         params = new LabeledComponent<RawCommandLineEditor>();
         params.setComponent(new RawCommandLineEditor());
+    }
+
+    private void installRunKindComboBox() {
+        myRunKindComboBox.getComponent().removeAllItems();
+        myRunKindComboBox.getComponent().setRenderer(getRunKindListCellRendererWrapper());
+        for (GoRunFileConfiguration.Kind kind : GoRunFileConfiguration.Kind.values()) {
+            myRunKindComboBox.getComponent().addItem(kind);
+        }
+        //        myRunKindComboBox.getComponent().addActionListener(e -> onRunKindChanged());
+    }
+
+    @Nullable
+    private static ListCellRendererWrapper<GoRunFileConfiguration.Kind> getRunKindListCellRendererWrapper() {
+        return new ListCellRendererWrapper<GoRunFileConfiguration.Kind>() {
+            @Override
+            public void customize(JList list, @Nullable GoRunFileConfiguration.Kind kind, int index, boolean selected,
+                                  boolean hasFocus) {
+                if (kind != null) {
+                    String kindName = StringUtil.capitalize(kind.toString().toLowerCase(Locale.US));
+                    setText(kindName);
+                }
+            }
+        };
     }
 }
 

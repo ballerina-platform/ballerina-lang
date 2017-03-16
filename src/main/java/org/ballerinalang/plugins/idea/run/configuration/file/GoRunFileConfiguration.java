@@ -21,18 +21,29 @@ import com.intellij.execution.configurations.ModuleBasedConfiguration;
 import com.intellij.execution.configurations.RunConfiguration;
 import com.intellij.execution.configurations.RuntimeConfigurationException;
 import com.intellij.execution.runners.ExecutionEnvironment;
+import com.intellij.ide.scratch.ScratchFileType;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.options.SettingsEditor;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.io.FileUtil;
+import com.intellij.openapi.vfs.LocalFileSystem;
+import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.util.PathUtil;
 import org.ballerinalang.plugins.idea.run.configuration.GoModuleBasedConfiguration;
 import org.ballerinalang.plugins.idea.run.configuration.GoRunConfigurationWithMain;
 import org.ballerinalang.plugins.idea.run.configuration.GoRunningState;
-import org.ballerinalang.plugins.idea.run.configuration.file.main.GoRunMainFileConfiguration;
-import org.ballerinalang.plugins.idea.run.configuration.file.main.GoRunMainFileConfigurationType;
+import org.ballerinalang.plugins.idea.run.configuration.file.service.GoRunServiceFileConfigurationType;
+import org.ballerinalang.plugins.idea.run.configuration.file.service.GoRunServiceFileRunningState;
 import org.ballerinalang.plugins.idea.run.configuration.ui.BallerinaFileSettingsEditor;
 import org.jetbrains.annotations.NotNull;
 
-public abstract class GoRunFileConfiguration extends GoRunConfigurationWithMain<GoRunningState> {
+import java.io.IOException;
+import java.util.UUID;
+
+public  class GoRunFileConfiguration extends GoRunConfigurationWithMain<GoRunningState> {
+
+
 
     public GoRunFileConfiguration(Project project, String name, @NotNull ConfigurationType configurationType) {
         super(name, new GoModuleBasedConfiguration(project), configurationType.getConfigurationFactories()[0]);
@@ -41,7 +52,8 @@ public abstract class GoRunFileConfiguration extends GoRunConfigurationWithMain<
     @NotNull
     @Override
     protected ModuleBasedConfiguration createInstance() {
-        return new GoRunMainFileConfiguration(getProject(), getName(), GoRunMainFileConfigurationType.getInstance());
+        return new GoRunFileConfiguration(getProject(), getName(),
+                GoRunServiceFileConfigurationType.getInstance());
     }
 
     @NotNull
@@ -54,8 +66,40 @@ public abstract class GoRunFileConfiguration extends GoRunConfigurationWithMain<
     public void checkConfiguration() throws RuntimeConfigurationException {
         super.checkBaseConfiguration();
         super.checkFileConfiguration();
-        //Todo - Check for main function
+        //Todo - Check for application function
     }
 
-    protected abstract GoRunningState newRunningState(@NotNull ExecutionEnvironment env, @NotNull Module module);
+    @NotNull
+    @Override
+    protected GoRunServiceFileRunningState newRunningState(@NotNull ExecutionEnvironment env, @NotNull Module module) {
+        String path = getFilePath();
+        if (!"bal".equals(PathUtil.getFileExtension(path))) {
+            VirtualFile f = LocalFileSystem.getInstance().refreshAndFindFileByPath(path);
+            if (f != null && f.getFileType() == ScratchFileType.INSTANCE) {
+                String suffixWithoutExt = "." + UUID.randomUUID().toString().substring(0, 4);
+                String suffix = suffixWithoutExt + ".bal";
+                String before = f.getName();
+                String beforeWithoutExt = FileUtil.getNameWithoutExtension(before);
+                ApplicationManager.getApplication().runWriteAction(new Runnable() {
+
+                    @Override
+                    public void run() {
+                        try {
+                            f.rename(this, before + suffix);
+                        } catch (IOException ignored) {
+                        }
+                    }
+                });
+                setFilePath(path + suffix);
+                setName(getName().replace(beforeWithoutExt, beforeWithoutExt + suffixWithoutExt));
+            }
+        }
+        return new GoRunServiceFileRunningState(env, module, this);
+    }
+
+
+
+    public enum Kind {
+        APPLICATION, SERVICE
+    }
 }

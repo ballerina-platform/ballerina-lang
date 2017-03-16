@@ -23,7 +23,6 @@ import com.intellij.execution.process.ProcessEvent;
 import com.intellij.execution.process.ProcessHandler;
 import com.intellij.execution.runners.ExecutionEnvironment;
 import com.intellij.openapi.module.Module;
-import com.intellij.openapi.util.SystemInfo;
 import com.intellij.openapi.util.text.StringUtil;
 import org.ballerinalang.plugins.idea.run.configuration.GoRunningState;
 import org.ballerinalang.plugins.idea.util.GoExecutor;

@@ -14,7 +14,7 @@
 // *  limitations under the License.
 // */
 //
-//package org.ballerinalang.plugins.idea.run.configuration.file.service;
+//package org.ballerinalang.plugins.idea.run.configuration.file.application;
 //
 //import com.intellij.execution.configurations.ConfigurationType;
 //import com.intellij.execution.configurations.RuntimeConfigurationException;
@@ -33,9 +33,9 @@
 //import java.io.IOException;
 //import java.util.UUID;
 //
-//public class GoRunServiceFileConfiguration extends GoRunFileConfiguration {
+//public class GoRunMainFileConfiguration extends GoRunFileConfiguration {
 //
-//    public GoRunServiceFileConfiguration(Project project, String name, @NotNull ConfigurationType configurationType) {
+//    public GoRunMainFileConfiguration(Project project, String name, @NotNull ConfigurationType configurationType) {
 //        super(project, name, configurationType);
 //    }
 //
@@ -43,12 +43,12 @@
 //    public void checkConfiguration() throws RuntimeConfigurationException {
 //        super.checkBaseConfiguration();
 //        super.checkFileConfiguration();
-//        // Todo - Check for services
+//        //Todo - Check for application function
 //    }
 //
 //    @NotNull
 //    @Override
-//    protected GoRunServiceFileRunningState newRunningState(@NotNull ExecutionEnvironment env, @NotNull Module module) {
+//    protected GoRunMainFileRunningState newRunningState(@NotNull ExecutionEnvironment env, @NotNull Module module) {
 //        String path = getFilePath();
 //        if (!"bal".equals(PathUtil.getFileExtension(path))) {
 //            VirtualFile f = LocalFileSystem.getInstance().refreshAndFindFileByPath(path);
@@ -71,6 +71,6 @@
 //                setName(getName().replace(beforeWithoutExt, beforeWithoutExt + suffixWithoutExt));
 //            }
 //        }
-//        return new GoRunServiceFileRunningState(env, module, this);
+//        return new GoRunMainFileRunningState(env, module, this);
 //    }
 //}

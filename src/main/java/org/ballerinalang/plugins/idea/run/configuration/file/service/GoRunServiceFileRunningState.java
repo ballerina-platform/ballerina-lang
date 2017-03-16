@@ -20,22 +20,27 @@ import com.intellij.execution.ExecutionException;
 import com.intellij.execution.runners.ExecutionEnvironment;
 import com.intellij.openapi.module.Module;
 import org.ballerinalang.plugins.idea.run.configuration.GoRunningState;
-import org.ballerinalang.plugins.idea.run.configuration.file.main.GoRunMainFileConfiguration;
+import org.ballerinalang.plugins.idea.run.configuration.file.GoRunFileConfiguration;
 import org.ballerinalang.plugins.idea.util.GoExecutor;
 import org.jetbrains.annotations.NotNull;
 
-public class GoRunServiceFileRunningState extends GoRunningState<GoRunServiceFileConfiguration> {
+public class GoRunServiceFileRunningState extends GoRunningState<GoRunFileConfiguration> {
 
     public GoRunServiceFileRunningState(@NotNull ExecutionEnvironment env, @NotNull Module module,
-                                        GoRunServiceFileConfiguration configuration) {
+                                        GoRunFileConfiguration configuration) {
         super(env, module, configuration);
     }
 
     @Override
     protected GoExecutor patchExecutor(@NotNull GoExecutor executor) throws ExecutionException {
+        GoRunFileConfiguration.Kind kind = getConfiguration().getRunKind();
+        String command = "main";
+        if (kind == GoRunFileConfiguration.Kind.SERVICE) {
+            command = "service";
+        }
         return executor
                 .withParameters("run")
-                .withParameters("service")
+                .withParameters(command)
                 .withParameterString(myConfiguration.getGoToolParams())
                 .withParameters(myConfiguration.getFilePath());
     }

@@ -18,9 +18,10 @@ package org.ballerinalang.plugins.idea.run.configuration.file.service;
 
 import com.intellij.psi.PsiFile;
 import org.ballerinalang.plugins.idea.run.configuration.GoRunConfigurationProducerBase;
+import org.ballerinalang.plugins.idea.run.configuration.file.GoRunFileConfiguration;
 import org.jetbrains.annotations.NotNull;
 
-public class GoRunServiceFileConfigurationProducer extends GoRunConfigurationProducerBase<GoRunServiceFileConfiguration>
+public class GoRunServiceFileConfigurationProducer extends GoRunConfigurationProducerBase<GoRunFileConfiguration>
         implements Cloneable {
 
     public GoRunServiceFileConfigurationProducer() {
@@ -30,6 +31,6 @@ public class GoRunServiceFileConfigurationProducer extends GoRunConfigurationPro
     @Override
     @NotNull
     protected String getConfigurationName(@NotNull PsiFile file) {
-        return "Run service " + file.getName();
+        return "Run " + file.getName();
     }
 }

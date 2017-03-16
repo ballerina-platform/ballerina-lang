@@ -80,7 +80,7 @@ public class GoRunLineMarkerProvider extends RunLineMarkerContributor {
 //                            GoRunMainFileConfiguration goRunFileConfiguration =
 //                                    (GoRunMainFileConfiguration) configuration;
 //
-//                            GoRunMainFileConfiguration.Kind kind = goRunFileConfiguration.getKind();
+//                            GoRunMainFileConfiguration.Kind kind = goRunFileConfiguration.getRunKind();
 //                            if (kind == GoRunMainFileConfiguration.Kind.APPLICATION) {
                                 return new Info(AllIcons.RunConfigurations.TestState.Run, APPLICATION_TOOLTIP_PROVIDER,
                                         ExecutorAction.getActions(0));
@@ -88,7 +88,7 @@ public class GoRunLineMarkerProvider extends RunLineMarkerContributor {
 //                        }
 
                         // ((GoRunMainFileConfiguration)GoRunMainFileConfigurationType.getInstance()
-                        // .getConfigurationFactories()[0].createTemplateConfiguration(e.getProject())).getKind()
+                        // .getConfigurationFactories()[0].createTemplateConfiguration(e.getProject())).getRunKind()
                     }
                 }
             } else if (parent instanceof ServiceDefinitionNode) {
@@ -104,7 +104,7 @@ public class GoRunLineMarkerProvider extends RunLineMarkerContributor {
 //                    GoRunMainFileConfiguration goRunFileConfiguration =
 //                            (GoRunMainFileConfiguration) configuration;
 //
-//                    GoRunMainFileConfiguration.Kind kind = goRunFileConfiguration.getKind();
+//                    GoRunMainFileConfiguration.Kind kind = goRunFileConfiguration.getRunKind();
 //                    if (kind == GoRunMainFileConfiguration.Kind.SERVICE) {
                         return new Info(AllIcons.RunConfigurations.TestState.Run, SERVICE_TOOLTIP_PROVIDER,
                                 ExecutorAction.getActions(0));

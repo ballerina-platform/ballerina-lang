@@ -20,11 +20,8 @@ import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleUtilCore;
 import com.intellij.openapi.util.Comparing;
 import com.intellij.openapi.util.Ref;
-import com.intellij.openapi.util.text.StringUtil;
-import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
-import org.ballerinalang.plugins.idea.psi.BallerinaFile;
 import org.ballerinalang.plugins.idea.run.configuration.GoRunConfigurationProducerBase;
 import org.ballerinalang.plugins.idea.run.configuration.GoRunUtil;
 import org.jetbrains.annotations.NotNull;
@@ -48,7 +45,7 @@ public class GoApplicationRunConfigurationProducer extends GoRunConfigurationPro
         //        String importPath = getImportPathFromContext(contextElement);
         //        if (StringUtil.isNotEmpty(importPath)) {
         //            configuration.setModule(context.getModule());
-        //            configuration.setKind(GoApplicationConfiguration.Kind.PACKAGE);
+        //            configuration.setRunKind(GoApplicationConfiguration.Kind.PACKAGE);
         //            configuration.setPackage(importPath);
         //            configuration.setName("Build " + importPath + " and run");
         //            return true;

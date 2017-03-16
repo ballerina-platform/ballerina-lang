@@ -27,6 +27,7 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
 import org.ballerinalang.plugins.idea.psi.BallerinaFile;
+import org.ballerinalang.plugins.idea.run.configuration.file.GoRunFileConfiguration;
 import org.ballerinalang.plugins.idea.sdk.BallerinaSdkService;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
@@ -34,9 +35,12 @@ import org.jetbrains.annotations.NotNull;
 public abstract class GoRunConfigurationWithMain<T extends GoRunningState> extends GoRunConfigurationBase<T> {
 
     private static final String FILE_PATH_ATTRIBUTE_NAME = "filePath";
+    private static final String KIND_ATTRIBUTE_NAME = "kind";
 
     @NotNull
     private String myFilePath = "";
+    @NotNull
+    private GoRunFileConfiguration.Kind kind = GoRunFileConfiguration.Kind.APPLICATION;
 
     public GoRunConfigurationWithMain(String name, GoModuleBasedConfiguration configurationModule,
                                       ConfigurationFactory factory) {
@@ -49,12 +53,15 @@ public abstract class GoRunConfigurationWithMain<T extends GoRunningState> exten
         super.readExternal(element);
         myFilePath = StringUtil.notNullize(JDOMExternalizerUtil.getFirstChildValueAttribute(element,
                 FILE_PATH_ATTRIBUTE_NAME));
+        kind = GoRunFileConfiguration.Kind.valueOf(StringUtil.notNullize(
+                JDOMExternalizerUtil.getFirstChildValueAttribute(element, KIND_ATTRIBUTE_NAME)));
     }
 
     @Override
     public void writeExternal(Element element) throws WriteExternalException {
         super.writeExternal(element);
         addNonEmptyElement(element, FILE_PATH_ATTRIBUTE_NAME, myFilePath);
+        addNonEmptyElement(element, KIND_ATTRIBUTE_NAME, kind.toString());
     }
 
     protected void checkFileConfiguration() throws RuntimeConfigurationError {
@@ -68,14 +75,14 @@ public abstract class GoRunConfigurationWithMain<T extends GoRunningState> exten
         }
 
 
-//        if (myKind != null) {
-//            if (myKind == FileConfigurationKind.APPLICATION && !GoRunUtil.hasMainFunction(psiFile)) {
-//                throw new RuntimeConfigurationError("Main file does not contain a main function.");
-//            }
-//            if (myKind == FileConfigurationKind.SERVICE && !GoRunUtil.hasServices(psiFile)) {
-//                throw new RuntimeConfigurationError("Main file does not contain any service.");
-//            }
-//        }
+        //        if (myKind != null) {
+        //            if (myKind == FileConfigurationKind.APPLICATION && !GoRunUtil.hasMainFunction(psiFile)) {
+        //                throw new RuntimeConfigurationError("Main file does not contain a main function.");
+        //            }
+        //            if (myKind == FileConfigurationKind.SERVICE && !GoRunUtil.hasServices(psiFile)) {
+        //                throw new RuntimeConfigurationError("Main file does not contain any service.");
+        //            }
+        //        }
     }
 
     protected void checkBaseConfiguration() throws RuntimeConfigurationException {
@@ -89,5 +96,13 @@ public abstract class GoRunConfigurationWithMain<T extends GoRunningState> exten
 
     public void setFilePath(@NotNull String filePath) {
         myFilePath = filePath;
+    }
+
+    public GoRunFileConfiguration.Kind getRunKind() {
+        return kind;
+    }
+
+    public void setRunKind(GoRunFileConfiguration.Kind kind) {
+        this.kind = kind;
     }
 }

@@ -23,19 +23,20 @@ import com.intellij.openapi.project.Project;
 import org.ballerinalang.plugins.idea.BallerinaConstants;
 import org.ballerinalang.plugins.idea.BallerinaIcons;
 import org.ballerinalang.plugins.idea.run.configuration.GoConfigurationFactoryBase;
+import org.ballerinalang.plugins.idea.run.configuration.file.GoRunFileConfiguration;
 import org.jetbrains.annotations.NotNull;
 
 public class GoRunServiceFileConfigurationType extends ConfigurationTypeBase {
 
     public GoRunServiceFileConfigurationType() {
-        super("GoRunServiceFileConfiguration", "Ballerina Service File", "Ballerina Service File Configuration",
+        super("GoRunServiceFileConfiguration", "Ballerina File", "Ballerina File Configuration",
                 BallerinaIcons.APPLICATION_RUN);
         addFactory(new GoConfigurationFactoryBase(this) {
 
             @Override
             @NotNull
             public RunConfiguration createTemplateConfiguration(@NotNull Project project) {
-                return new GoRunServiceFileConfiguration(project, BallerinaConstants.BALLERINA, getInstance());
+                return new GoRunFileConfiguration(project, BallerinaConstants.BALLERINA, getInstance());
             }
         });
     }

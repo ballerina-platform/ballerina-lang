@@ -129,8 +129,8 @@
                 <!--implementation="org.ballerinalang.plugins.idea.run.configuration.service.BallerinaServiceRunConfigurationType"/>-->
 
         <!-- run single file -->
-        <configurationType implementation="org.ballerinalang.plugins.idea.run.configuration.file.main.GoRunMainFileConfigurationType"/>
-        <runConfigurationProducer implementation="org.ballerinalang.plugins.idea.run.configuration.file.main.GoRunMainFileConfigurationProducer"/>
+        <!--<configurationType implementation="org.ballerinalang.plugins.idea.run.configuration.file.application.GoRunMainFileConfigurationType"/>-->
+        <!--<runConfigurationProducer implementation="org.ballerinalang.plugins.idea.run.configuration.file.application.GoRunMainFileConfigurationProducer"/>-->
 
         <configurationType implementation="org.ballerinalang.plugins.idea.run.configuration.file.service.GoRunServiceFileConfigurationType"/>
         <runConfigurationProducer implementation="org.ballerinalang.plugins.idea.run.configuration.file.service.GoRunServiceFileConfigurationProducer"/>
