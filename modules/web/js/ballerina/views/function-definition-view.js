@@ -124,10 +124,15 @@ define(['lodash', 'log', 'event_channel',  'alerts', './svg-canvas', './../ast/f
 
                 var currentWorker = workerViews[workerViewIndex];
 
-                if (workerViewIndex === 0 && !_.isNil(workerViews[workerViewIndex + 1])) {
+                if (workerViewIndex === 0) {
                     // Deleted the first worker/ only worker
                     nextWorker = workerViews[workerViewIndex + 1];
-                    // nextWorker.stopListening(currentWorker.getBoundingBox());
+                    // Since we deleted the first worker, now the worker lifeline margin listen to the default worker
+                    this.getWorkerLifeLineMargin().stopListening(currentWorker.getBoundingBox());
+                    this.getWorkerLifeLineMargin().listenTo(this.getDefaultWorker().getBoundingBox(),
+                        'right-edge-moved', function (offset) {
+                            self.getWorkerLifeLineMargin().setPosition(self.getWorkerLifeLineMargin().getPosition() + offset);
+                    });
                 } else if (workerViewIndex === workerViews.length - 1) {
                     // Deleted the last worker
                     this.getWorkerLifeLineMargin().stopListening(currentWorker.getBoundingBox());
@@ -138,7 +143,7 @@ define(['lodash', 'log', 'event_channel',  'alerts', './svg-canvas', './../ast/f
                         });
                     }
                 } else {
-                    // Deleted an intermediate Connector
+                    // Deleted an intermediate Worker
                     previousWorker = workerViews[workerViewIndex - 1];
                     nextWorker = workerViews[workerViewIndex + 1];
                     currentWorker.stopListening(previousWorker.getBoundingBox());

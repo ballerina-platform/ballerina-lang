@@ -33,10 +33,10 @@ define(['lodash', 'require', 'log', './node', '../utils/common-utils'],
 
         // Adding available annotations and their default values.
         if (_.isNil(_.find(this._annotations, function (annotation) {
-                return annotation.key == "Method";
+                return annotation.key == "http:Method";
             }))) {
             this._annotations.push({
-                key: "Method",
+                key: "http:Method",
                 value: "http:GET"
             });
         }
@@ -254,7 +254,7 @@ define(['lodash', 'require', 'log', './node', '../utils/common-utils'],
         if (!_.isNil(key) && !_.isNil(value)) {
             var options = {
               predicate: {key: key}
-            }
+          };
             this.pushToArrayAttribute('_annotations', {key: key, value: value}, options);
         } else {
             var errorString = "Cannot add annotation @" + key + "(\"" + value + "\").";
@@ -324,12 +324,12 @@ define(['lodash', 'require', 'log', './node', '../utils/common-utils'],
             return annotation.annotation_name === "http:POST" || annotation.annotation_name === "http:GET" ||
                 annotation.annotation_name === "http:PUT" || annotation.annotation_name === "http:DELETE" ||
                 annotation.annotation_name === "http:HEAD" || annotation.annotation_name === "http:PATCH" ||
-                annotation.annotation_name === "http:OPTIONS"
+                annotation.annotation_name === "http:OPTIONS";
         });
 
         // Get the method annotation of the model.
         var existingMethodAnnotationInModel = _.find(self._annotations, function (annotation) {
-            return annotation.key === "Method"
+            return annotation.key === "http:Method";
         });
 
         // If http method annotation is received from the service.
@@ -360,7 +360,7 @@ define(['lodash', 'require', 'log', './node', '../utils/common-utils'],
                annotationFromService.annotation_name === "http:HEAD" || annotationFromService.annotation_name === "http:PATCH" ||
                annotationFromService.annotation_name === "http:OPTIONS")) {
                var existingAnnotation = _.find(self._annotations, function (annotationInModel) {
-                   return annotationInModel.key === annotationFromService.annotation_name
+                   return annotationInModel.key === annotationFromService.annotation_name;
                });
                if (_.isNil(existingAnnotation)) {
                    self._annotations.push({
@@ -420,9 +420,9 @@ define(['lodash', 'require', 'log', './node', '../utils/common-utils'],
             if (firstConnector !== -1) {
                 indexNew = firstConnector - 1;
             } else if (firstWorker !== -1) {
-                indexNew = index
+                indexNew = index;
             } else {
-                indexNew = index
+                indexNew = index;
             }
         }
 
