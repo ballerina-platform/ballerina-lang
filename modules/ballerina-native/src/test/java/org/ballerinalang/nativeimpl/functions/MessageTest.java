@@ -181,16 +181,13 @@ public class MessageTest {
 
     @Test
     public void testClone() {
-        /*final String payload1 = "Hello World...!!! I am the Original Copy.";
+        final String payload1 = "Hello World...!!! I am the Original Copy.";
         final String payload2 = "Hello World...!!! I am the Cloned Copy.";
         DefaultCarbonMessage carbonMsg = new DefaultCarbonMessage();
         carbonMsg.setStringMessageBody(payload1);
         BValue[] args = {new BMessage(carbonMsg), new BString(payload2)};
-        FunctionInvocationExpr funcIExpr = FunctionUtils.createInvocationExpr(bLangProgram, "testClone", args.length);
-        Context bContext = FunctionUtils.createInvocationContext(args, 1);
-        BLangInterpreter bLangInterpreter = new BLangInterpreter(bContext);
-        funcIExpr.accept(bLangInterpreter);
-        Assert.assertEquals(FunctionUtils.getReturnBValue(bContext).intValue(), 1);*/
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testClone", args);
+        Assert.assertEquals(returns[0].stringValue(), "1");
     }
 
     @Test

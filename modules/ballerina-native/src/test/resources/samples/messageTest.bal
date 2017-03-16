@@ -1,5 +1,4 @@
 import ballerina.lang.messages;
-import ballerina.lang.system;
 
 function testGetJSONPayload(message msg) (json){
     return messages:getJsonPayload(msg);
@@ -63,8 +62,7 @@ function testClone(message msg, string payload2) (int) {
 
     v1 = messages:getStringPayload(msg);
     v2 = messages:getStringPayload(clone);
-    system:log(3, v1);
-    system:log(3, v2);
+
     if( v1 != payload2 ) {
         state = 1;
     } else {
