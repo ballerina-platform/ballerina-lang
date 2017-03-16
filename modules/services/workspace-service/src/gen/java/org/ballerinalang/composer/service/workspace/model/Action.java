@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * Action
+ * Action.
  */
 @javax.annotation.Generated(value = "io.swagger.codegen.languages.JavaMSF4JServerCodegen",
                             date = "2017-01-27T07:45:46.625Z")
@@ -47,7 +47,7 @@ public class Action {
     }
 
     /**
-     * Get name
+     * Get name.
      *
      * @return name
      **/
@@ -71,7 +71,7 @@ public class Action {
     }
 
     /**
-     * Get annotations
+     * Get annotations.
      *
      * @return annotations
      **/
@@ -95,7 +95,7 @@ public class Action {
     }
 
     /**
-     * Get parameters
+     * Get parameters.
      *
      * @return parameters
      **/
@@ -120,7 +120,7 @@ public class Action {
     }
 
     /**
-     * Get returnParams
+     * Get returnParams.
      *
      * @return returnParams
      **/

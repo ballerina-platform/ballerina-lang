@@ -33,7 +33,7 @@ public class APIScope implements SymbolScope {
     }
 
     /**
-     * Get Symbol Map
+     * Get Symbol Map.
      *
      * @return symbol map {@code APIScope}
      */
@@ -42,7 +42,7 @@ public class APIScope implements SymbolScope {
     }
 
     /**
-     * Set symbol map
+     * Set symbol map.
      *
      * @param symbolMap symbol map {@code APIScope}
      */

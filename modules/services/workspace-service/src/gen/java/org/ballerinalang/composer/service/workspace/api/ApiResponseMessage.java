@@ -18,8 +18,12 @@ package org.ballerinalang.composer.service.workspace.api;
 
 import javax.xml.bind.annotation.XmlTransient;
 
+/**
+ * API Response Message.
+ */
 @javax.xml.bind.annotation.XmlRootElement
-@javax.annotation.Generated(value = "io.swagger.codegen.languages.JavaMSF4JServerCodegen", date = "2017-01-27T07:45:46.625Z")
+@javax.annotation.Generated(value = "io.swagger.codegen.languages.JavaMSF4JServerCodegen",
+        date = "2017-01-27T07:45:46.625Z")
 public class ApiResponseMessage {
     public static final int ERROR = 1;
     public static final int WARNING = 2;
@@ -31,9 +35,9 @@ public class ApiResponseMessage {
     String type;
     String message;
 
-    public ApiResponseMessage(){}
+    public ApiResponseMessage() {}
 
-    public ApiResponseMessage(int code, String message){
+    public ApiResponseMessage(int code, String message) {
         this.code = code;
         switch(code){
         case ERROR:
