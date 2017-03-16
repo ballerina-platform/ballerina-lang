@@ -44,6 +44,17 @@
             <artifactId>org.jacoco.agent</artifactId>
             <classifier>runtime</classifier>
         </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-core</artifactId>
+            <classifier>${jackson.version}</classifier>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-annotations</artifactId>
+            <classifier>${jackson.version}</classifier>
+        </dependency>
+
     </dependencies>
 
     <build>
@@ -216,5 +227,6 @@
         <maven.findbugsplugin.version.exclude>findbugs-exclude.xml</maven.findbugsplugin.version.exclude>
         <ballerina.launcher.version>0.8.3-SNAPSHOT</ballerina.launcher.version>
         <surefireArgLine>-Dfile.encoding=UTF-8</surefireArgLine>
+        <jackson.version>2.6.1</jackson.version>
     </properties>
 </project>
