@@ -23,11 +23,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Send
+ * Append
  */
 @BallerinaAction(
         packageName = "ballerina.net.file",
-        actionName = "send",
+        actionName = "append",
         connectorName = ClientConnector.CONNECTOR_NAME,
         args = { @Argument(name = "fileClientConnector", type = TypeEnum.CONNECTOR),
                  @Argument(name = "m", type = TypeEnum.MESSAGE),
@@ -44,8 +44,8 @@ import java.util.Map;
         value = "Message") })
 //@BallerinaAnnotation(annotationName = "Param", attributes = { @Attribute(name = "properties",
       //  value = "Properties") })
-public class Send extends AbstractFileAction {
-    private static final Logger log = LoggerFactory.getLogger(Send.class);
+public class Append extends AbstractFileAction {
+    private static final Logger log = LoggerFactory.getLogger(Append.class);
     @Override public BValue execute(Context context) {
 
             // Extracting Argument values
@@ -68,7 +68,7 @@ public class Send extends AbstractFileAction {
         String baseString = ((ClientConnector) connector).getURI();
         String pathString = path.stringValue();
         propertyMap.put("uri", baseString + pathString);
-            propertyMap.put("action", "send");
+            propertyMap.put("action", "append");
         try {
             //Getting the sender instance and sending the message.
             BallerinaConnectorManager.getInstance().getClientConnector("file")

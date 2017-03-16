@@ -28,7 +28,7 @@ import org.osgi.service.component.annotations.Component;
 
 
 /**
- * Native JMS Connector.
+ * Native File Client Connector.
  */
 @BallerinaConnector(
         packageName = "ballerina.net.file",
@@ -43,7 +43,6 @@ import org.osgi.service.component.annotations.Component;
 public class ClientConnector extends AbstractNativeConnector {
 
     public static final String CONNECTOR_NAME = "ClientConnector";
-
     private String uri;
 
     public ClientConnector(SymbolScope enclosingScope) {
@@ -55,11 +54,10 @@ public class ClientConnector extends AbstractNativeConnector {
         if (bValueRefs != null && bValueRefs.length == 1 && !bValueRefs[0].stringValue().equals("")) {
             uri = bValueRefs[0].stringValue();
         } else {
-            throw new BallerinaException("Connector parameters not defined correctly !!.");
+            throw new BallerinaException("Connector parameters not defined correctly.");
         }
         return true;
     }
-
 
     @Override
     public AbstractNativeConnector getInstance() {
