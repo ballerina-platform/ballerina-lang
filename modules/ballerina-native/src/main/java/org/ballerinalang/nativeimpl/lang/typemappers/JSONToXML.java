@@ -62,7 +62,7 @@ import javax.xml.stream.XMLStreamException;
         value = "XML representation of the given JSON") })
 public class JSONToXML extends AbstractNativeTypeMapper {
 
-    private static final String XML_ROOT = "jsonObject";
+    private static final String XML_ROOT = "root";
     
     public BValue convert(Context ctx) {
         BJSON msg = (BJSON) getArgument(ctx, 0);

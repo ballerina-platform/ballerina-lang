@@ -143,9 +143,10 @@ public class DataTableTest {
     public void testGetByIndex() {
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "getByIndex");
 
-        Assert.assertEquals(returns.length, 5);
+        Assert.assertEquals(returns.length, 6);
         Assert.assertEquals((returns[0]).stringValue(), "d3NvMiBiYWxsZXJpbmEgYmxvYiB0ZXN0Lg==");
         Assert.assertEquals((returns[1]).stringValue(), "very long text");
+        Assert.assertEquals((returns[5]).stringValue(), "d3NvMiBiYWxsZXJpbmEgYmluYXJ5IHRlc3Qu");
         //        Assert.assertEquals(((BLong) returns[2]).longValue(), 21945000);
         //        Assert.assertEquals(((BLong) returns[3]).longValue(), 1486060200000L);
         //        Assert.assertEquals(((BLong) returns[4]).longValue(), 1486102980000L);

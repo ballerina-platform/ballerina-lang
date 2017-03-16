@@ -25,6 +25,7 @@ function getXXXByIndex()(int, long, float, double, boolean, string) {
         s = datatables:getString(df, 6);
     }
     datatables:close(df);
+    sql:ClientConnector.close(testDB);
     return i, l, f, d, b, s;
 }
 
@@ -52,6 +53,7 @@ function getXXXByName()(int, long, float, double, boolean, string) {
         s = datatables:getString(df, "string_type");
     }
     datatables:close(df);
+    sql:ClientConnector.close(testDB);
     return i, l, f, d, b, s;
 }
 
@@ -120,10 +122,11 @@ function getByName()(string, string, long, long, long) {
         timestamp = datatables:getLong(df, "timestamp_type", "timestamp");
     }
     datatables:close(df);
+    sql:ClientConnector.close(testDB);
     return blob, clob, time, date, timestamp;
 }
 
-function getByIndex()(string, string, long, long, long) {
+function getByIndex()(string, string, long, long, long, string) {
     map propertiesMap = {"jdbcUrl" : "jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
                             "username":"SA", "password":"", "maximumPoolSize":1};
     sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
@@ -134,20 +137,23 @@ function getByIndex()(string, string, long, long, long) {
     long time;
     long date;
     long timestamp;
+    string binary;
 
     sql:ClientConnector.update(testDB, "Update ComplexTypes set clob_type = 'Test String' where row_id = 1",parameters);
 
-    df = sql:ClientConnector.select(testDB, "SELECT blob_type, clob_type, time_type, date_type, timestamp_type
-                from ComplexTypes LIMIT 1",parameters);
+    df = sql:ClientConnector.select(testDB, "SELECT blob_type, clob_type, time_type, date_type, timestamp_type,
+            binary_type from ComplexTypes LIMIT 1",parameters);
     while (datatables:next(df)) {
         blob = datatables:getString(df, 1, "blob");
         clob = datatables:getString(df, 2, "clob");
         time = datatables:getLong(df, 3, "time");
         date = datatables:getLong(df, 4, "date");
         timestamp = datatables:getLong(df, 5, "timestamp");
+        binary = datatables:getString(df, 6, "binary");
     }
     datatables:close(df);
-    return blob, clob, time, date, timestamp;
+    sql:ClientConnector.close(testDB);
+    return blob, clob, time, date, timestamp, binary;
 }
 
 function getObjectAsStringByIndex()(string, string, string, string, string) {
@@ -172,6 +178,7 @@ function getObjectAsStringByIndex()(string, string, string, string, string) {
         timestamp = datatables:getValueAsString(df, 5);
     }
     datatables:close(df);
+    sql:ClientConnector.close(testDB);
     return blob, clob, time, date, timestamp;
 }
 
@@ -197,6 +204,7 @@ function getObjectAsStringByName()(string, string, string, string, string) {
         timestamp = datatables:getValueAsString(df, "timestamp_type");
     }
     datatables:close(df);
+    sql:ClientConnector.close(testDB);
     return blob, clob, time, date, timestamp;
 }
 
@@ -218,6 +226,7 @@ function getArrayByName()(map int_arr, map long_arr, map double_arr, map string_
         string_arr = datatables:getArray(df, "string_array");
     }
     datatables:close(df);
+    sql:ClientConnector.close(testDB);
     return;
 }
 
@@ -238,6 +247,7 @@ function getArrayByIndex()(map int_arr, map long_arr, map double_arr, map string
         string_arr = datatables:getArray(df, 5);
     }
     datatables:close(df);
+    sql:ClientConnector.close(testDB);
     return;
 }
 
@@ -262,5 +272,6 @@ function testDateTime(string time, string date, string timestamp) (long time1, l
         timestamp1 = datatables:getLong(dt, "timestamp_type", "timestamp");
     }
     datatables:close(dt);
+    sql:ClientConnector.close(testDB);
     return;
 }
