@@ -139,21 +139,103 @@ public class SQLConnectorTest {
     }
 
     @Test
-    public void testOutQueryParameters() {
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testOutQueryParameters");
-        BString retValue = (BString) returns[0];
-        final double expected = 5000.75;
-        Assert.assertEquals(retValue.doubleValue(), expected);
+    public void testOutParameters() {
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testOutParameters");
+        Assert.assertEquals(returns.length, 14);
+        Assert.assertEquals(((BString) returns[0]).intValue(), 10);
+        Assert.assertEquals(((BString) returns[1]).longValue(), 9223372036854774807L);
+        Assert.assertEquals(((BString) returns[2]).floatValue(), 123.34f);
+        Assert.assertEquals(((BString) returns[3]).doubleValue(), 2139095039D);
+        Assert.assertEquals(Boolean.parseBoolean(returns[4].stringValue()), true);
+        Assert.assertEquals(returns[5].stringValue(), "Hello");
+        Assert.assertEquals(((BString) returns[6]).doubleValue(), 1234.567D);
+        Assert.assertEquals(((BString) returns[7]).doubleValue(), 1234.567D);
+        Assert.assertEquals(((BString) returns[8]).doubleValue(), 1234.567D);
+        Assert.assertEquals(((BString) returns[9]).intValue(), 1);
+        Assert.assertEquals(((BString) returns[10]).intValue(), 5555);
+        Assert.assertEquals(returns[11].stringValue(), "very long text");
+        Assert.assertEquals(returns[12].stringValue(), "d3NvMiBiYWxsZXJpbmEgYmxvYiB0ZXN0Lg==");
+        Assert.assertEquals(returns[13].stringValue(), "wso2 ballerina binary test.");
     }
 
     @Test
-    public void testInOutQueryParameters() {
-        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testInOutQueryParameters");
-        BString retValue = (BString) returns[0];
-        final String expected = "USA";
-        Assert.assertEquals(retValue.stringValue(), expected);
+    public void testNullOutParameters() {
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testNullOutParameters");
+        Assert.assertEquals(returns.length, 14);
+        Assert.assertEquals(((BString) returns[0]).intValue(), 0);
+        Assert.assertEquals(((BString) returns[1]).longValue(), 0);
+        Assert.assertEquals(((BString) returns[2]).floatValue(), 0.0f);
+        Assert.assertEquals(((BString) returns[3]).doubleValue(), 0.0D);
+        Assert.assertEquals(Boolean.parseBoolean(returns[4].stringValue()), false);
+        Assert.assertEquals(returns[5].stringValue(), "");
+        Assert.assertEquals(returns[6].stringValue(), "");
+        Assert.assertEquals(returns[6].stringValue(), "");
+        Assert.assertEquals(((BString) returns[8]).doubleValue(), 0.0D);
+        Assert.assertEquals(((BString) returns[9]).intValue(), 0);
+        Assert.assertEquals(((BString) returns[10]).intValue(), 0);
+        Assert.assertEquals(returns[11].stringValue(), "");
+        Assert.assertEquals(returns[12].stringValue(), "");
+        Assert.assertEquals(returns[13].stringValue(), "");
     }
 
+    @Test
+    public void testINParameters() {
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testINParameters");
+        BInteger retValue = (BInteger) returns[0];
+        Assert.assertEquals(retValue.intValue(), 1);
+    }
+
+    @Test
+    public void testNullINParameters() {
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testNullINParameters");
+        BInteger retValue = (BInteger) returns[0];
+        Assert.assertEquals(retValue.intValue(), 1);
+    }
+
+    @Test
+    public void testINOutParameters() {
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testINOutParameters");
+        Assert.assertEquals(returns.length, 14);
+        Assert.assertEquals(((BString) returns[0]).intValue(), 10);
+        Assert.assertEquals(((BString) returns[1]).longValue(), 9223372036854774807L);
+        Assert.assertEquals(((BString) returns[2]).floatValue(), 123.34f);
+        Assert.assertEquals(((BString) returns[3]).doubleValue(), 2139095039D);
+        Assert.assertEquals(Boolean.parseBoolean(returns[4].stringValue()), true);
+        Assert.assertEquals(returns[5].stringValue(), "Hello");
+        Assert.assertEquals(((BString) returns[6]).doubleValue(), 1234.567D);
+        Assert.assertEquals(((BString) returns[7]).doubleValue(), 1234.567D);
+        Assert.assertEquals(((BString) returns[8]).doubleValue(), 1234.567D);
+        Assert.assertEquals(((BString) returns[9]).intValue(), 1);
+        Assert.assertEquals(((BString) returns[10]).intValue(), 5555);
+        Assert.assertEquals(returns[11].stringValue(), "very long text");
+        Assert.assertEquals(returns[12].stringValue(), "YmxvYiBkYXRh");
+        Assert.assertEquals(returns[13].stringValue(), "wso2 ballerina binary test.");
+    }
+
+    @Test
+    public void testNullINOutParameters() {
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testNullINOutParameters");
+        Assert.assertEquals(returns.length, 12);
+        Assert.assertEquals(((BString) returns[0]).intValue(), 0);
+        Assert.assertEquals(((BString) returns[1]).longValue(), 0);
+        Assert.assertEquals(((BString) returns[2]).floatValue(), 0.0f);
+        Assert.assertEquals(((BString) returns[3]).doubleValue(), 0.0D);
+        Assert.assertEquals(Boolean.parseBoolean(returns[4].stringValue()), false);
+        Assert.assertEquals(returns[5].stringValue(), "");
+        Assert.assertEquals(returns[6].stringValue(), "");
+        Assert.assertEquals(returns[6].stringValue(), "");
+        Assert.assertEquals(((BString) returns[8]).doubleValue(), 0.0D);
+        Assert.assertEquals(((BString) returns[9]).intValue(), 0);
+        Assert.assertEquals(((BString) returns[10]).intValue(), 0);
+        Assert.assertEquals(returns[11].stringValue(), "");
+    }
+
+    @Test
+    public void testEmptySQLType() {
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testEmptySQLType");
+        BInteger retValue = (BInteger) returns[0];
+        Assert.assertEquals(retValue.intValue(), 1);
+    }
 
     @AfterSuite
     public void cleanup() {
