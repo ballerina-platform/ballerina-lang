@@ -132,10 +132,12 @@
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
+            <version>${jackson.core.version}</version>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-annotations</artifactId>
+            <version>${jackson.core.version}</version>
         </dependency>
         <dependency>
             <groupId>javax.ws.rs</groupId>
@@ -223,6 +225,7 @@
         <maven.findbugsplugin.version.exclude>findbugs-exclude.xml</maven.findbugsplugin.version.exclude>
         <project.build.sourceEncoding>${file.encoding}</project.build.sourceEncoding>
         <org.wso2.carbon.transport.http.netty.version>2.1.4</org.wso2.carbon.transport.http.netty.version>
+        <jackson.core.version>2.4.5</jackson.core.version>
         <maven.shadeplugin.version>2.4.1</maven.shadeplugin.version>
     </properties>
 </project>
