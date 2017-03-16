@@ -102,7 +102,7 @@ Ballerina comes with a pre-defined set of reference types that are key to suppor
 
 The `message` type is an opaque type used to represent a request to a `resource`. This approach allows the `resource` to be network-protocol independent, even though a given `resource` is always tied to a particular protocol because a `service` can only be bound to one network protocol at a time.
 
-Library functions for accessing information from this type are in the package `ballerina.lang.message`.
+Library functions for accessing information from this type are in the package `ballerina.lang.messages`.
 
 A variable of type `message` can be initialized to hold an empty message as follows:
 
