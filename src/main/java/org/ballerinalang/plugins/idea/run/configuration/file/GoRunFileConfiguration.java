@@ -33,8 +33,6 @@ import com.intellij.util.PathUtil;
 import org.ballerinalang.plugins.idea.run.configuration.GoModuleBasedConfiguration;
 import org.ballerinalang.plugins.idea.run.configuration.GoRunConfigurationWithMain;
 import org.ballerinalang.plugins.idea.run.configuration.GoRunningState;
-import org.ballerinalang.plugins.idea.run.configuration.file.service.GoRunServiceFileConfigurationType;
-import org.ballerinalang.plugins.idea.run.configuration.file.service.GoRunServiceFileRunningState;
 import org.ballerinalang.plugins.idea.run.configuration.ui.BallerinaFileSettingsEditor;
 import org.jetbrains.annotations.NotNull;
 
@@ -42,8 +40,6 @@ import java.io.IOException;
 import java.util.UUID;
 
 public  class GoRunFileConfiguration extends GoRunConfigurationWithMain<GoRunningState> {
-
-
 
     public GoRunFileConfiguration(Project project, String name, @NotNull ConfigurationType configurationType) {
         super(name, new GoModuleBasedConfiguration(project), configurationType.getConfigurationFactories()[0]);

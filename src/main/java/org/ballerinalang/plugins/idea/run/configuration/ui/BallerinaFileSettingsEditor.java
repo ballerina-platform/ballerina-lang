@@ -38,7 +38,7 @@ public class BallerinaFileSettingsEditor extends SettingsEditor<GoRunFileConfigu
     private JPanel myPanel;
     private LabeledComponent<TextFieldWithBrowseButton> myFileField;
     private LabeledComponent<RawCommandLineEditor> params;
-    private LabeledComponent<JComboBox> myRunKindComboBox;
+    private LabeledComponent<JComboBox<GoRunFileConfiguration.Kind>> myRunKindComboBox;
     private Project myProject;
 
     public BallerinaFileSettingsEditor(Project project) {
@@ -69,8 +69,8 @@ public class BallerinaFileSettingsEditor extends SettingsEditor<GoRunFileConfigu
     }
 
     private void createUIComponents() {
-        myRunKindComboBox = new LabeledComponent<JComboBox>();
-        myRunKindComboBox.setComponent(new JComboBox());
+        myRunKindComboBox = new LabeledComponent<JComboBox<GoRunFileConfiguration.Kind>>();
+        myRunKindComboBox.setComponent(new JComboBox<GoRunFileConfiguration.Kind>());
 
         myFileField = new LabeledComponent<TextFieldWithBrowseButton>();
         myFileField.setComponent(new TextFieldWithBrowseButton());

@@ -14,7 +14,7 @@
  *  limitations under the License.
  */
 
-package org.ballerinalang.plugins.idea.run.configuration.file.service;
+package org.ballerinalang.plugins.idea.run.configuration.file;
 
 import com.intellij.execution.configurations.ConfigurationTypeBase;
 import com.intellij.execution.configurations.RunConfiguration;
@@ -23,7 +23,6 @@ import com.intellij.openapi.project.Project;
 import org.ballerinalang.plugins.idea.BallerinaConstants;
 import org.ballerinalang.plugins.idea.BallerinaIcons;
 import org.ballerinalang.plugins.idea.run.configuration.GoConfigurationFactoryBase;
-import org.ballerinalang.plugins.idea.run.configuration.file.GoRunFileConfiguration;
 import org.jetbrains.annotations.NotNull;
 
 public class GoRunServiceFileConfigurationType extends ConfigurationTypeBase {

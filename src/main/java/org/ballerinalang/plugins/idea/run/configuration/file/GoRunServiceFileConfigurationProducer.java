@@ -14,11 +14,10 @@
  *  limitations under the License.
  */
 
-package org.ballerinalang.plugins.idea.run.configuration.file.service;
+package org.ballerinalang.plugins.idea.run.configuration.file;
 
 import com.intellij.psi.PsiFile;
 import org.ballerinalang.plugins.idea.run.configuration.GoRunConfigurationProducerBase;
-import org.ballerinalang.plugins.idea.run.configuration.file.GoRunFileConfiguration;
 import org.jetbrains.annotations.NotNull;
 
 public class GoRunServiceFileConfigurationProducer extends GoRunConfigurationProducerBase<GoRunFileConfiguration>
