@@ -19,7 +19,7 @@ The build process of the composer works on Maven and Node Package Manager(npm).
 
 ### Prerequisites
 * JDK 1.8.0  
-* [NPM](https://docs.npmjs.com/getting-started/installing-node) (Tested with 4.2.0)   
+* [NodeJS](https://nodejs.org/en/) (Version 6.x.x)   
 * Maven 3.0.5  
 
 ### Steps to build
