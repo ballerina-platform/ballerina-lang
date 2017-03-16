@@ -37,6 +37,15 @@ define(['lodash', './node'], function (_, ASTNode) {
      */
     PackageDefinition.prototype.setPackageName = function (packageName, options) {
       if(!_.isNil(packageName)){
+          var self = this,
+              changeCallBack = function() {
+                  self.trigger('package-name-changed');
+              };
+
+          options = options || {};
+          options.undoCallBack = changeCallBack;
+          options.redoCallBack = changeCallBack;
+
           this.setAttribute('_packageName', packageName, options);
 
           /**
