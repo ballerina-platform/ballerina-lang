@@ -18,6 +18,9 @@ package org.ballerinalang.composer.service.workspace.api;
 
 import javax.ws.rs.core.Response;
 
+/**
+ * Packages API Service.
+ */
 @javax.annotation.Generated(value = "io.swagger.codegen.languages.JavaMSF4JServerCodegen",
                             date = "2017-01-27T07:45:46.625Z")
 public abstract class PackagesApiService {

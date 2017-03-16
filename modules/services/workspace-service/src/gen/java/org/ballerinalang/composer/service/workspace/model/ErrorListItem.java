@@ -16,14 +16,16 @@
 
 package org.ballerinalang.composer.service.workspace.model;
 
-import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.annotations.ApiModelProperty;
 
+import java.util.Objects;
+
 /**
- * ErrorListItem
+ * ErrorListItem.
  */
-@javax.annotation.Generated(value = "io.swagger.codegen.languages.JavaMSF4JServerCodegen", date = "2017-01-27T07:45:46.625Z")
+@javax.annotation.Generated(value = "io.swagger.codegen.languages.JavaMSF4JServerCodegen",
+        date = "2017-01-27T07:45:46.625Z")
 public class ErrorListItem   {
   @JsonProperty("code")
   private String code = null;
@@ -37,7 +39,7 @@ public class ErrorListItem   {
   }
 
    /**
-   * Get code
+   * Get code.
    * @return code
   **/
   @ApiModelProperty(required = true, value = "")
@@ -55,7 +57,7 @@ public class ErrorListItem   {
   }
 
    /**
-   * Description about Individual errors occurred 
+   * Description about Individual errors occurred.
    * @return message
   **/
   @ApiModelProperty(required = true, value = "Description about Individual errors occurred ")
