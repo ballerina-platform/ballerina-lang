@@ -28,7 +28,7 @@ import org.jetbrains.annotations.NotNull;
 public class BallerinaRunServiceFileConfigurationType extends ConfigurationTypeBase {
 
     public BallerinaRunServiceFileConfigurationType() {
-        super("BallerinaRunFileConfiguration", "Ballerina File", "Ballerina File Configuration",
+        super("BallerinaRunFileConfiguration", "Ballerina File", "Ballerina File Run Configuration",
                 BallerinaIcons.APPLICATION_RUN);
 
         addFactory(new BallerinaConfigurationFactoryBase(this) {

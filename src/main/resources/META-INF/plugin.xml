@@ -130,8 +130,8 @@
         <programRunner implementation="org.ballerinalang.plugins.idea.run.configuration.BallerinaBuildingRunner" order="before ballerinaRunner"/>
         <programRunner id="ballerinaRunner" implementation="org.ballerinalang.plugins.idea.run.configuration.BallerinaRunner"/>
 
-        <!--<configurationType implementation="org.ballerinalang.plugins.idea.run.configuration.application.BallerinaApplicationRunConfigurationType"/>-->
-        <!--<runConfigurationProducer implementation="org.ballerinalang.plugins.idea.run.configuration.application.BallerinaApplicationRunConfigurationProducer"/>-->
+        <configurationType implementation="org.ballerinalang.plugins.idea.run.configuration.application.BallerinaApplicationRunConfigurationType"/>
+        <runConfigurationProducer implementation="org.ballerinalang.plugins.idea.run.configuration.application.BallerinaApplicationRunConfigurationProducer"/>
 
         <runLineMarkerContributor language="Ballerina" implementationClass="org.ballerinalang.plugins.idea.run.configuration.BallerinaRunLineMarkerProvider"/>
 

@@ -85,7 +85,6 @@ public class BallerinaFileSettingsEditor extends SettingsEditor<BallerinaRunFile
         for (BallerinaRunFileConfiguration.Kind kind : BallerinaRunFileConfiguration.Kind.values()) {
             myRunKindComboBox.getComponent().addItem(kind);
         }
-        //        myRunKindComboBox.getComponent().addActionListener(e -> onRunKindChanged());
     }
 
     @Nullable

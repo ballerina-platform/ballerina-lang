@@ -94,8 +94,8 @@ public class BallerinaSdkService {
 
     public String getSdkHomePath(@Nullable Module module) {
         Sdk sdk = getGoSdk(module);
-       return sdk != null ? sdk.getHomePath() : null;
-//        ComponentManager holder = ObjectUtils.notNull(module, myProject);
+        return sdk != null ? sdk.getHomePath() : null;
+        //        ComponentManager holder = ObjectUtils.notNull(module, myProject);
         //        return CachedValuesManager.getManager(myProject).getCachedValue(holder, () -> {
         //            Sdk sdk = getGoSdk(module);
         //            return CachedValueProvider.Result.create(sdk != null ? sdk.getHomePath() : null, this);
@@ -111,5 +111,15 @@ public class BallerinaSdkService {
         }
         Sdk sdk = ProjectRootManager.getInstance(myProject).getProjectSdk();
         return sdk != null && sdk.getSdkType() instanceof BallerinaSdkType ? sdk : null;
+    }
+
+
+    @Nullable
+    public String getSdkVersion(@Nullable Module module) {
+        ComponentManager holder = ObjectUtils.notNull(module, myProject);
+        return CachedValuesManager.getManager(myProject).getCachedValue(holder, () -> {
+            Sdk sdk = getGoSdk(module);
+            return CachedValueProvider.Result.create(sdk != null ? sdk.getVersionString() : null, this);
+        });
     }
 }

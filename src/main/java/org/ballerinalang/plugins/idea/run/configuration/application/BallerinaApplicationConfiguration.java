@@ -29,13 +29,17 @@ import com.intellij.openapi.util.InvalidDataException;
 import com.intellij.openapi.util.JDOMExternalizerUtil;
 import com.intellij.openapi.util.WriteExternalException;
 import com.intellij.openapi.util.text.StringUtil;
+import com.intellij.openapi.vfs.VirtualFile;
 import org.ballerinalang.plugins.idea.run.configuration.BallerinaModuleBasedConfiguration;
 import org.ballerinalang.plugins.idea.run.configuration.BallerinaRunConfigurationWithMain;
+import org.ballerinalang.plugins.idea.run.configuration.BallerinaRunUtil;
 import org.ballerinalang.plugins.idea.run.configuration.ui.BallerinaApplicationSettingsEditor;
+import org.ballerinalang.plugins.idea.sdk.BallerinaPackageUtil;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 
-public class BallerinaApplicationConfiguration extends BallerinaRunConfigurationWithMain<BallerinaApplicationRunningState> {
+public class BallerinaApplicationConfiguration extends
+        BallerinaRunConfigurationWithMain<BallerinaApplicationRunningState> {
 
     private static final String PACKAGE_ATTRIBUTE_NAME = "package";
     private static final String KIND_ATTRIBUTE_NAME = "kind";
@@ -46,7 +50,8 @@ public class BallerinaApplicationConfiguration extends BallerinaRunConfiguration
     @NotNull
     private Kind myKind = Kind.PACKAGE;
 
-    public BallerinaApplicationConfiguration(Project project, String name, @NotNull ConfigurationType configurationType) {
+    public BallerinaApplicationConfiguration(Project project, String name, @NotNull ConfigurationType
+            configurationType) {
         super(name, new BallerinaModuleBasedConfiguration(project), configurationType.getConfigurationFactories()[0]);
     }
 
@@ -75,7 +80,8 @@ public class BallerinaApplicationConfiguration extends BallerinaRunConfiguration
     @NotNull
     @Override
     protected ModuleBasedConfiguration createInstance() {
-        return new BallerinaApplicationConfiguration(getProject(), getName(), BallerinaApplicationRunConfigurationType.getInstance());
+        return new BallerinaApplicationConfiguration(getProject(), getName(),
+                BallerinaApplicationRunConfigurationType.getInstance());
     }
 
     @NotNull
@@ -86,7 +92,8 @@ public class BallerinaApplicationConfiguration extends BallerinaRunConfiguration
 
     @NotNull
     @Override
-    protected BallerinaApplicationRunningState newRunningState(@NotNull ExecutionEnvironment env, @NotNull Module module) {
+    protected BallerinaApplicationRunningState newRunningState(@NotNull ExecutionEnvironment env, @NotNull Module
+            module) {
         return new BallerinaApplicationRunningState(env, module, this);
     }
 
@@ -101,18 +108,17 @@ public class BallerinaApplicationConfiguration extends BallerinaRunConfiguration
                 if (StringUtil.isEmptyOrSpaces(myPackage)) {
                     throw new RuntimeConfigurationError("Package is not specified");
                 }
-                //                VirtualFile packageDirectory = GoPackageUtil.findByImportPath(myPackage, module
-                // .getProject(), module);
-                //                if (packageDirectory == null || !packageDirectory.isDirectory()) {
-                //                    throw new RuntimeConfigurationError("Cannot find package '" + myPackage + "'");
-                //                }
-                //                if (BallerinaRunUtil.findMainFileInDirectory(packageDirectory, getProject()) == null) {
-                //                    throw new RuntimeConfigurationError("Cannot find Go file with main in '" +
-                // myPackage + "'");
-                //                }
+                VirtualFile packageDirectory = BallerinaPackageUtil.findByImportPath(myPackage, module.getProject(),
+                        module);
+                if (packageDirectory == null || !packageDirectory.isDirectory()) {
+                    throw new RuntimeConfigurationError("Cannot find package '" + myPackage + "'");
+                }
+                if (BallerinaRunUtil.findMainFileInDirectory(packageDirectory, getProject()) == null) {
+                    throw new RuntimeConfigurationError("Cannot find Ballerina file with main in '" +
+                            myPackage + "'");
+                }
                 break;
             case FILE:
-                // Todo - Remove null
                 checkFileConfiguration();
                 break;
         }

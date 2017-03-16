@@ -89,7 +89,6 @@ public class BallerinaRunUtil {
                 (!indexFacade.isInContent(file) || indexFacade.isExcludedFile(file))) {
             return null;
         }
-
         return psiElement;
     }
 

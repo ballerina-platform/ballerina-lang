@@ -100,7 +100,7 @@ public abstract class BallerinaRunConfigurationBase<RunningState extends Balleri
     @NotNull
     @Override
     public Collection<Module> getValidModules() {
-        return BallerinaSdkUtil.getGoModules(getProject());
+        return BallerinaSdkUtil.getBallerinaModules(getProject());
     }
 
     @Override
