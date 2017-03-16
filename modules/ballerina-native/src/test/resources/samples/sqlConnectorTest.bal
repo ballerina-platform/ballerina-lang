@@ -10,6 +10,7 @@ function testInsertTableData() (int) {
     int insertCount = sql:ClientConnector.update(testDB,"Insert into Customers
         (firstName,lastName,registrationID,creditLimit,country) values ('James', 'Clerk', 2, 5000.75, 'USA')",
             parameters);
+    sql:ClientConnector.close(testDB);
     return insertCount;
 }
 
@@ -21,6 +22,7 @@ function testCreateTable() (int) {
 
     int returnValue = sql:ClientConnector.update(testDB, "CREATE TABLE IF NOT EXISTS Students(studentID int,
                 LastName varchar(255))", parameters);
+    sql:ClientConnector.close(testDB);
     return returnValue;
 }
 
@@ -32,6 +34,7 @@ function testUpdateTableData() (int) {
 
     int updateCount = sql:ClientConnector.update(testDB, "Update Customers set country = 'UK' where registrationID = 1",
             parameters);
+    sql:ClientConnector.close(testDB);
     return updateCount;
 }
 
@@ -47,6 +50,7 @@ function testGeneratedKeyOnInsert() (string) {
     insertCount,generatedID = sql:ClientConnector.updateWithGeneratedKeys(testDB,
         "insert into Customers (firstName,lastName,registrationID,creditLimit,country)
         values ('Mary', 'Williams', 3, 5000.75, 'USA')", parameters);
+    sql:ClientConnector.close(testDB);
     return generatedID[0];
 }
 
@@ -64,6 +68,7 @@ function testGeneratedKeyWithColumn() (string) {
     insertCount,generatedID = sql:ClientConnector.updateWithGeneratedKeys(testDB,
         "insert into Customers (firstName,lastName,registrationID,creditLimit,country)
         values ('Kathy', 'Williams', 4, 5000.75, 'USA')",parameters,keyColumns);
+    sql:ClientConnector.close(testDB);
     return generatedID[0];
 }
 
@@ -80,6 +85,7 @@ function testSelectData() (string) {
         firstName = datatables:getString(dt, 1);
     }
     datatables:close(dt);
+    sql:ClientConnector.close(testDB);
     return firstName;
 }
 
@@ -97,6 +103,7 @@ function testCallProcedure() (string) {
         firstName = datatables:getString(dt, 1);
     }
     datatables:close(dt);
+    sql:ClientConnector.close(testDB);
     return firstName;
 }
 
@@ -112,6 +119,7 @@ function testCallProcedureWithResultSet() (string) {
         firstName = datatables:getString(dt, 1);
     }
     datatables:close(dt);
+    sql:ClientConnector.close(testDB);
     return firstName;
 }
 
@@ -129,6 +137,7 @@ function testConnectorWithDataSource() (string) {
         firstName = datatables:getString(dt, 1);
     }
     datatables:close(dt);
+    sql:ClientConnector.close(testDB);
     return firstName;
 }
 
@@ -152,6 +161,7 @@ function testConnectionPoolProperties() (string) {
         firstName = datatables:getString(dt, 1);
     }
     datatables:close(dt);
+    sql:ClientConnector.close(testDB);
     return firstName;
 }
 
@@ -169,6 +179,7 @@ function testQueryParameters() (string) {
         firstName = datatables:getString(dt, 1);
     }
     datatables:close(dt);
+    sql:ClientConnector.close(testDB);
     return firstName;
 }
 
@@ -185,6 +196,7 @@ function testInsertTableDataWithParameters() (int) {
 
 	int insertCount = sql:ClientConnector.update(testDB,"Insert into Customers
         (firstName,lastName,registrationID,creditLimit,country) values (?,?,?,?,?)", parameters);
+    sql:ClientConnector.close(testDB);
     return insertCount;
 }
 
@@ -198,6 +210,7 @@ function testOutQueryParameters() (string) {
     sql:Parameter para2 = {sqlType:"double", value:"0", direction:1};
     sql:Parameter[] parameters=[para1,para2];
     sql:ClientConnector.call(testDB, "{call GetCustomerID(?,?)}",parameters);
+    sql:ClientConnector.close(testDB);
     return para2.value;
 }
 
@@ -211,6 +224,7 @@ function testInOutQueryParameters() (string) {
     sql:Parameter para2 = {sqlType:"varchar", value:"Stuart", direction:2};
     sql:Parameter[] parameters=[para1,para2];
     sql:ClientConnector.call(testDB, "{call GetCustomerCountry(?,?)}",parameters);
+    sql:ClientConnector.close(testDB);
     return para2.value;
 }
 
