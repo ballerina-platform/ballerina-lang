@@ -344,7 +344,8 @@ define(['lodash', 'd3','log', './simple-statement-view', '../ast/expressions/act
             d3.select("#_" +this._model.id).remove();
             this.removeArrows();
             // resize the bounding box in order to the other objects to resize
-            this.getBoundingBox().h(0).w(0);
+            var gap = this.getParent().getStatementContainer().getInnerDropZoneHeight();
+            this.getBoundingBox().move(0, -this.getBoundingBox().h() - gap).w(0);
         };
 
         ActionInvocationStatementView.prototype.updateStatementText = function (newStatementText, propertyKey) {
