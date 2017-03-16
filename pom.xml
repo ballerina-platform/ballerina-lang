@@ -181,8 +181,6 @@
         <module>modules/launcher</module>
         <module>modules/ballerina-native</module>
         <module>modules/annotation-processor</module>
-        <module>modules/distribution</module>
-        <module>modules/tests/test-integration</module>
         <module>modules/ballerina-samples</module>
     </modules>
 
