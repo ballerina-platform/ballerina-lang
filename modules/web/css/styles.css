@@ -1390,6 +1390,10 @@ a:hover {
     margin: 100px auto 0;
 }
 
+.modal-dialog.file-dialog .jstree-anchor.jstree-clicked{
+    color: inherit;
+}
+
 .delete-item-dialog .icon {
     float: left;
     margin-left: 25px;
@@ -1479,3 +1483,5 @@ span.fw-stack.fw-lg {
     font-size: 14px;
 }
 .orange{ color: #f17b31;}
+
+

@@ -126,8 +126,8 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
         this.renderContentArea();
         this.listenTo(this._model, 'update-property-text', this.updateTitleText);
         // When the center of the bounding box moves, we need to move the life line as well.
-        this.getBoundingBox().on('center-x-moved', function (dx) {
-            self.move(dx, 0);
+        this.getBoundingBox().on('moved', function (offset) {
+            self.move(offset.dx, offset.dy);
         });
         return this;
     };
@@ -451,6 +451,14 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
             this._topPolygonText.node().textContent = updatedText;
             this._bottomPolygonText.node().textContent = updatedText;
         }
+    };
+
+    LifeLineView.prototype.moveTopCenter = function (dx, dy) {
+        this._topCenter.move(dx, dy);
+    };
+
+    LifeLineView.prototype.moveBottomCenter = function (dx, dy) {
+        this._bottomCenter.move(dx, dy);
     };
 
 

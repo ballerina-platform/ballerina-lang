@@ -98,7 +98,7 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             this._viewOptions.contentMinWidth = 700;
 
             this._viewOptions.totalHeightGap = 50;
-            this._viewOptions.LifeLineCenterGap = 180;
+            this._viewOptions.LifeLineCenterGap = 120;
             this._viewOptions.defua = 180;
             this._viewOptions.hoverClass = _.get(args, "viewOptions.cssClass.hover_svg", 'design-view-hover-svg');
 
@@ -116,6 +116,9 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             // Gap between the last statement of a worker/ default worker
             // and the worker/ default worker's BBox's bottom edge
             this._offsetLastStatementGap = 100;
+            this._startActionRect = undefined;
+            this._startActionText = undefined;
+            this._startActionMessageView = undefined;
             this.init();
         };
 
@@ -198,10 +201,15 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
 
                 currentWorker = workerViews[workerViewIndex];
 
-                if (workerViewIndex === 0 && !_.isNil(workerViews[workerViewIndex + 1])) {
+                if (workerViewIndex === 0) {
                     // Deleted the first worker/ only worker
                     nextWorker = workerViews[workerViewIndex + 1];
-                    // nextWorker.stopListening(currentWorker.getBoundingBox());
+                    // Since we deleted the first worker, now the worker lifeline margin listen to the default worker
+                    this.getWorkerLifeLineMargin().stopListening(currentWorker.getBoundingBox());
+                    this.getWorkerLifeLineMargin().listenTo(this.getDefaultWorker().getBoundingBox(),
+                        'right-edge-moved', function (offset) {
+                        self.getWorkerLifeLineMargin().setPosition(self.getWorkerLifeLineMargin().getPosition() + offset);
+                    });
                 } else if (workerViewIndex === workerViews.length - 1) {
                     // Deleted the last worker
                     this.getWorkerLifeLineMargin().stopListening(currentWorker.getBoundingBox());
@@ -212,7 +220,7 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                         });
                     }
                 } else {
-                    // Deleted an intermediate Connector
+                    // Deleted an intermediate Worker
                     previousWorker = workerViews[workerViewIndex - 1];
                     nextWorker = workerViews[workerViewIndex + 1];
                     currentWorker.stopListening(previousWorker.getBoundingBox());
@@ -271,17 +279,25 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             var group = D3utils.group(this._contentGroup).classed(prefs.cssClass, true);
             var center = this._viewOptions.defaultWorker.center.clone()
                             .move(0, _.get(this._viewOptions, "startActionOffSet"));
-
-            var rect = D3utils.centeredRect(center, prefs.width, prefs.height, 0, 0, group);
-            var text = D3utils.centeredText(center, prefs.title, group);
+            group.attr("transform", "translate(0,0)");
+            this._startActionRect = D3utils.centeredRect(center, prefs.width, prefs.height, 0, 0, group);
+            this._startActionText = D3utils.centeredText(center, prefs.title, group);
             var messageStart = this._clientLifeLine.getTopCenter().clone();
             messageStart.y(center.y());
             var messageEnd = messageStart.clone();
             messageEnd.x(center.x() - prefs.width/2);
-            var messageView = new MessageView({container: group.node(), start: messageStart, end: messageEnd});
-            messageView.render();
+            this._startActionMessageView = new MessageView({container: group.node(), start: messageStart, end: messageEnd});
+            this._startActionMessageView.render();
 
             this._startActionGroup = group;
+        };
+
+        ResourceDefinitionView.prototype.moveStartAction = function (dx, dy) {
+            this._startActionRect.attr('x', parseFloat(this._startActionRect.attr('x')) + dx);
+            this._startActionRect.attr('y', parseFloat(this._startActionRect.attr('y')) + dy);
+            this._startActionText.attr('x', parseFloat(this._startActionText.attr('x')) + dx);
+            this._startActionText.attr('y', parseFloat(this._startActionText.attr('y')) + dy);
+            this._startActionMessageView.getEnd().move(dx, dy);
         };
 
         ResourceDefinitionView.prototype.getModel = function () {
@@ -313,27 +329,6 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             this._statementContainer.renderStatement(statement, args);
         };
 
-        ResourceDefinitionView.prototype.visitExpression = function (expression) {
-           /* var expressionViewFactory = new ExpressionViewFactory();
-            var args = {model: expression, container: this._contentGroup.node(), viewOptions: undefined, parent:this};
-            var expressionView = expressionViewFactory.getExpressionView(args);
-
-             //TODO: we need to keep this value as a configurable value and read from constants
-            var statementsGap = 40;
-            var expressionWidth = 120;
-            if (this._statementExpressionViewList.length > 0) {
-                var lastStatement = this._statementExpressionViewList[this._statementExpressionViewList.length - 1];
-                expressionView.setXPosition(lastStatement.getXPosition());
-                expressionView.setYPosition(lastStatement.getYPosition() + lastStatement.getHeight() + statementsGap);
-            } else {
-               var x = this._defaultWorker.getMidPoint() - parseInt(expressionWidth/2);
-                expressionView.setXPosition(x);
-                expressionView.setYPosition(y + statementsGap);
-            }
-            this._statementExpressionViewList.push(expressionView);
-            expressionView.render();*/
-        };
-
         /**
          * Visit the worker declaration
          * @param {WorkerDeclaration} workerDeclaration
@@ -348,10 +343,13 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                 var newWorkerPosition = lastWorkerIndex === -1 ? 0 : lastWorkerIndex + 1;
                 var centerPoint = undefined;
                 if (newWorkerPosition === 0) {
-                    centerPoint = this._defaultWorker.getTopCenter().clone().move(this._viewOptions.LifeLineCenterGap, 0);
+                    centerPoint = new Point(this._defaultWorker.getBoundingBox().getRight(),
+                        this._defaultWorker.getTopCenter().y());
+                    centerPoint.move(this._viewOptions.LifeLineCenterGap, 0);
                 } else {
-                    centerPoint = this._connectorWorkerViewList[lastWorkerIndex].getTopCenter()
-                        .clone().move(this._viewOptions.LifeLineCenterGap, 0)
+                    centerPoint = new Point(this._connectorWorkerViewList[lastWorkerIndex].getBoundingBox().getRight(),
+                        this._connectorWorkerViewList[lastWorkerIndex].getTopCenter().y());
+                    centerPoint.move(this._viewOptions.LifeLineCenterGap, 0);
                 }
                 var lineHeight = this.getDefaultWorker().getBottomCenter().y() - centerPoint.y();
                 var workerDeclarationOptions = {
@@ -407,6 +405,8 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                     workerDeclarationView.listenTo(lastWorker.getBoundingBox(), 'right-edge-moved', function (offset) {
                        self.moveResourceLevelWorker(workerDeclarationView, offset);
                     });
+                } else {
+                    this.getWorkerLifeLineMargin().stopListening(this._defaultWorker.getBoundingBox());
                 }
                 this.getWorkerLifeLineMargin().listenTo(workerDeclarationView.getBoundingBox(), 'right-edge-moved', function (offset) {
                     self.getWorkerLifeLineMargin().setPosition(self.getWorkerLifeLineMargin().getPosition() + offset);
@@ -427,7 +427,7 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                     });
                 }
 
-                statementContainer.listenTo(workerDeclarationView.getBoundingBox(), 'right-edge-moved', function (dx) {
+                statementContainer.listenTo(workerDeclarationView.getBoundingBox(), 'left-edge-moved', function (dx) {
                     statementContainer.getBoundingBox().move(dx, 0);
                 });
 
@@ -757,6 +757,23 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                 self._model.remove();
             });
 
+            var annotationProperties = {
+                model: this._model,
+                activatorElement: headingAnnotationIcon.node(),
+                paneAppendElement: this.getChildContainer().node().ownerSVGElement.parentElement,
+                viewOptions: {
+                    position: {
+                        // "-1" to remove the svg stroke line
+                        left: parseFloat(this.getChildContainer().attr("x")) + parseFloat(this.getChildContainer().attr("width")) - 1,
+                        top: this.getChildContainer().attr("y")
+                    }
+                }
+            };
+
+            this._annotationView = AnnotationView.createAnnotationPane(annotationProperties);
+
+            this._createParametersView(headingArgumentsIcon.node(), diagramRenderingContext);
+
             this.getBoundingBox().on("height-changed", function(dh){
                 var newHeight = parseFloat(this._contentRect.attr('height')) + dh;
                 this._contentRect.attr('height', (newHeight < 0 ? 0 : newHeight));
@@ -768,6 +785,10 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                 this._headerIconGroup.node().transform.baseVal.getItem(0).setTranslate(transformX + dw, transformY);
                 this._contentRect.attr('width', parseFloat(this._contentRect.attr('width')) + dw);
                 this._headingRect.attr('width', parseFloat(this._headingRect.attr('width')) + dw);
+                //repositioning annotation editor view
+                this._annotationView.move({dx: dw});
+                //repositioning argument editor view
+                this._resourceParamatersPaneView.move({dx: dw});
                 // If the bounding box of the resource go over the svg's current width
                 if (this.getBoundingBox().getRight() > this._parentView.getSVG().width()) {
                     this._parentView.setSVGWidth(this.getBoundingBox().getRight() + 60);
@@ -812,8 +833,15 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             this.initResourceLevelDropTarget();
             this.renderStartAction();
             this.renderStatementContainer();
-            // TODO: change this accordingly, after the worker declaration introduced
-            this.getWorkerLifeLineMargin().listenTo(this.getStatementContainer().getBoundingBox(), 'right-edge-moved', function (dx) {
+
+            // If the statement container moved, we move the default worker accordingly
+            this.listenTo(this.getStatementContainer().getBoundingBox(), 'width-changed', function (dw) {
+                self.getDefaultWorker().getBoundingBox().w(self.getDefaultWorker().getBoundingBox().w() + dw);
+                self.getDefaultWorker().move(dw/2, 0);
+                self.moveStartAction(dw/2, 0);
+            });
+
+            this.getWorkerLifeLineMargin().listenTo(this._defaultWorker.getBoundingBox(), 'right-edge-moved', function (dx) {
                 self.getWorkerLifeLineMargin().setPosition(self.getWorkerLifeLineMargin().getPosition() + dx);
             });
             log.debug("Rendering Resource View");
@@ -828,23 +856,6 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                 // Show/Hide scrolls.
                 self._showHideScrolls(self.getChildContainer().node().ownerSVGElement.parentElement, self.getChildContainer().node().ownerSVGElement);
             });
-
-            var annotationProperties = {
-                model: this._model,
-                activatorElement: headingAnnotationIcon.node(),
-                paneAppendElement: this.getChildContainer().node().ownerSVGElement.parentElement,
-                viewOptions: {
-                    position: {
-                        // "-1" to remove the svg stroke line
-                        left: parseFloat(this.getChildContainer().attr("x")) + parseFloat(this.getChildContainer().attr("width")) - 1,
-                        top: this.getChildContainer().attr("y")
-                    }
-                }
-            };
-
-            AnnotationView.createAnnotationPane(annotationProperties);
-
-            this._createParametersView(headingArgumentsIcon.node(), diagramRenderingContext);
 
             var operationButtons = [headingAnnotationIcon.node(), headingArgumentsIcon.node()];
 
@@ -937,11 +948,6 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                 self.getHorizontalMargin().setPosition(self.getHorizontalMargin().getPosition() + deltaMove);
             });
 
-            /* When the width of the statement container's bounding box changes, width of this resource definition's
-             bounding box should also change.*/
-            this._statementContainer.getBoundingBox().on('right-edge-moved', function (dw) {
-                this._defaultWorker.getBoundingBox().zoomWidth(this._statementContainer.getBoundingBox().w());
-            }, this);
             this._statementContainer.render(this.diagramRenderingContext);
         };
 
@@ -1031,6 +1037,8 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             var lastLifeLine = this.getLastLifeLine();
             var lastConnectorLifeLine = this.getConnectorWorkerViewList()[this.getLastConnectorLifeLineIndex()];
             var self = this;
+            var centerPoint = new Point(lastLifeLine.getBoundingBox().getRight(), lastLifeLine.getTopCenter().y());
+            centerPoint.move(this._viewOptions.LifeLineCenterGap, 0);
 
             var connectorDeclarationView = new ConnectorDeclarationView({
                 model: connectorDeclaration,
@@ -1038,7 +1046,7 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                 parentView: this,
                 messageManager: this.messageManager,
                 lineHeight: this._clientLifeLine.getTopCenter().absDistInYFrom(this._clientLifeLine.getBottomCenter()),
-                centerPoint: lastLifeLine.getTopCenter().clone().move(this._viewOptions.LifeLineCenterGap, 0)
+                centerPoint: centerPoint
             });
             connectorDeclarationView.setParent(this);
             this.diagramRenderingContext.getViewModelMap()[connectorDeclaration.id] = connectorDeclarationView;

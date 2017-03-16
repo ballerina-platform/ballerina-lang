@@ -20,21 +20,19 @@ import antlr4 from 'antlr4';
 import BallerinaLexer from './antlr-gen/BallerinaLexer';
 import BallerinaParser from './antlr-gen/BallerinaParser';
 import BLangParserErrorListener from './error-listener';
-import BLangParserListener from './listener';
 
-class Parser {
+class Validator {
 
     /**
-     * Creates AST for the given ballerina source
+     * Checks for syntax errors in ballerina source
      * @param input {string} ballerina source content
      */
-    parse(input){
+    validate(input){
         // setup parser
         var chars = new antlr4.InputStream(input);
         var lexer = new BallerinaLexer.BallerinaLexer(chars);
         var tokens  = new antlr4.CommonTokenStream(lexer);
         var parser = new BallerinaParser.BallerinaParser(tokens);
-        var listener = new BLangParserListener(parser);
 
         // set custom error listener for collecting syntax errors
         var errorListener = new BLangParserErrorListener();
@@ -42,15 +40,11 @@ class Parser {
         parser.addErrorListener(errorListener);
 
         // start parsing
-        var tree = parser.compilationUnit();
+        parser.compilationUnit();
 
-        antlr4.tree.ParseTreeWalker.DEFAULT.walk(listener, tree);
-
-        return {
-            errors: errorListener.getErrors(),
-            ast: listener.getASTRoot()
-        };
+        // return collected errors
+        return errorListener.getErrors();
     }
 }
 
-export default Parser;
+export default Validator;

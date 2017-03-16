@@ -21,18 +21,10 @@ define(['jquery', 'backbone', 'lodash', 'log', 'event_channel', './debug-manager
 
     var instance;
 
-    var SHORT_CUT_TO_ACTION = {
-        'alt+o':'StepOver',
-        'alt+r':'Resume',
-        'alt+i':'StepIn',
-        'alt+u':'StepOut',
-        'alt+p':'Stop'
-     }
-
     var Tools = function(){
         this.compiled = _.template('<% if (!active) { %>'
             + '<div class="debug-panel-header">'
-            + '     <span class="tool-group-header-title">Debug</span></span>' 
+            + '     <span class="tool-group-header-title">Debug</span>'
             + '</div>' 
             + '<div class="btn-group col-xs-12">' 
             + '     <div type="button" class="btn btn-default text-left btn-debug-activate col-xs-12" id="debug_application" title="Start Debugging Application"><span class="launch-label">Application</span><button type="button" class="btn btn-default pull-right btn-config" title="Config"><i class="fw fw-configarations"></i></button></div>'
@@ -62,8 +54,7 @@ define(['jquery', 'backbone', 'lodash', 'log', 'event_channel', './debug-manager
         DebugManager.on("session-ended",_.bindKey(this, 'render'));
         DebugManager.on("debug-hit",_.bindKey(this, 'enableNavigation'));
         DebugManager.on("resume-execution",_.bindKey(this, 'disableNavigation'));
-
-        Mousetrap.bind(_.keys(SHORT_CUT_TO_ACTION), _.bindKey(this, 'handleKeyAction'));
+        DebugManager.on("session-completed",_.bindKey(this, 'disableNavigation'));
     };
 
     Tools.prototype = Object.create(EventChannel.prototype);
@@ -74,6 +65,7 @@ define(['jquery', 'backbone', 'lodash', 'log', 'event_channel', './debug-manager
         this.container = args.container;
         this.launchManager = args.launchManager;
         this.application = args.application;
+        this.toolbarShortcuts = args.toolbarShortcuts;
 
         this.container.on('click', '.btn-debug-action', _.bindKey(this, 'handleMouseAction'));
 
@@ -143,36 +135,37 @@ define(['jquery', 'backbone', 'lodash', 'log', 'event_channel', './debug-manager
 
     Tools.prototype.handleMouseAction = function(event) {
         var actionName = $(event.currentTarget).data('action');
-        this.handleAction(actionName);
-    };
-
-    Tools.prototype.handleKeyAction = function(e, combo) {
-        var actionName = SHORT_CUT_TO_ACTION[combo];
-        this.handleAction(actionName);
+        this.application.commandManager.dispatch(actionName);
     };
 
     Tools.prototype.handleAction = function(actionName){
-        if(actionName !== 'Stop' && !this.navigation) {
-            return;
-        }
-
         switch(actionName){
             case 'Resume':
-                DebugManager.resume();
+                var action = DebugManager.resume.bind(DebugManager);
                 break;
             case 'StepOver':
-                DebugManager.stepOver();
+                var action = DebugManager.stepOver.bind(DebugManager);
                 break;
             case 'StepIn':
-                DebugManager.stepIn();
+                var action = DebugManager.stepIn.bind(DebugManager);
                 break;
             case 'StepOut':
-                DebugManager.stepOut();
+                var action = DebugManager.stepOut.bind(DebugManager);
                 break;
             case 'Stop':
-                DebugManager.stop();
+                var action = DebugManager.stop.bind(DebugManager);
                 break;
         }
+
+        return function() {
+            if(this.navigation) {
+                action();
+            }
+            if(!this.navigation && actionName == "Stop") {
+                action();
+            }
+        }
+
     };
 
     Tools.prototype.connect = function(){
@@ -188,7 +181,14 @@ define(['jquery', 'backbone', 'lodash', 'log', 'event_channel', './debug-manager
     };
 
     Tools.prototype.connectionStarted = function(){
+        var self = this;
         this.render();
+
+        _.each(this.toolbarShortcuts, function(commandInfo) {
+            self.application.commandManager.registerCommand(commandInfo.id, {shortcuts: commandInfo.shortcuts});
+            self.application.commandManager.registerHandler(commandInfo.id, self.handleAction(commandInfo.id), self);
+        });
+
         this.connectionDialog.modal('hide');
         DebugManager.publishBreakPoints();
         DebugManager.startDebug();
@@ -231,13 +231,13 @@ define(['jquery', 'backbone', 'lodash', 'log', 'event_channel', './debug-manager
 
     Tools.prototype.enableNavigation = function(message) {
         this.navigation = true;
-        this.render();        
+        this.render();
     };
 
     Tools.prototype.disableNavigation = function() {
         this.navigation = false;
         this.render();
-    };    
+    };
 
     return (instance = (instance || new Tools() ));
 });

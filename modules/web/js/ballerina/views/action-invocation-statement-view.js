@@ -159,6 +159,8 @@ define(['lodash', 'd3','log', './simple-statement-view', '../ast/expressions/act
 
             this.getBoundingBox().on('top-edge-moved', function(dy){
                 self.processorConnectPoint.attr('cy',  parseFloat(self.processorConnectPoint.attr('cy')) + dy);
+                self.getSvgRect().attr('y', parseFloat(self.getSvgRect().attr('y')) + dy);
+                self.getSvgText().attr('y', parseFloat(self.getSvgText().attr('y')) + dy);
             });
         };
 
@@ -198,8 +200,6 @@ define(['lodash', 'd3','log', './simple-statement-view', '../ast/expressions/act
                 this.renderProcessorConnectEndPoint(renderingContext);
 
                 this.listenTo(this.getBoundingBox(), 'top-edge-moved', function (offset) {
-                    this.getSvgRect().attr('y', parseFloat(this.getSvgRect().attr('y')) + offset);
-                    this.getSvgText().attr('y', parseFloat(this.getSvgText().attr('y')) + offset);
                     var currentY1ProcessorConnector = this._processorConnector.attr('y1');
                     var currentY1ProcessorConnector2 = this._processorConnector2.attr('y1');
                     var currentY2ProcessorConnector = this._processorConnector.attr('y2');
@@ -344,7 +344,8 @@ define(['lodash', 'd3','log', './simple-statement-view', '../ast/expressions/act
             d3.select("#_" +this._model.id).remove();
             this.removeArrows();
             // resize the bounding box in order to the other objects to resize
-            this.getBoundingBox().h(0).w(0);
+            var gap = this.getParent().getStatementContainer().getInnerDropZoneHeight();
+            this.getBoundingBox().move(0, -this.getBoundingBox().h() - gap).w(0);
         };
 
         ActionInvocationStatementView.prototype.updateStatementText = function (newStatementText, propertyKey) {

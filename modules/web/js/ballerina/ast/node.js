@@ -42,6 +42,7 @@ define(['log', 'require', 'event_channel', 'lodash'], function(log, require, Eve
         });
 
         this._generateUniqueIdentifiers = undefined;
+        this._whitespaceTokens = [];
     };
 
     ASTNode.prototype = Object.create(EventChannel.prototype);
@@ -393,6 +394,54 @@ define(['log', 'require', 'event_channel', 'lodash'], function(log, require, Eve
      * Function which should be used to generate unique values for attributes. Ex: newStruct, newStruct1, newStruct2.
      */
     ASTNode.prototype.generateUniqueIdentifiers = function() {};
+
+    /**
+     * Returned array will contain all the whitespace tokens associated with this particular node. Each token's position in
+     * the array is mapped to the index of possible whitespace region for the language construct - which is represented
+     * by this particular node - as defined in ballerina grammar.
+     *
+     * For example, take a look at possible whitespace regions in a package declaration
+     *        package<-0->org.ballerina.sample<-1->;<-2->//until next token start
+     *
+     *        It has three possible regions as below
+     *        0 - whitespace between 'package' keyword and package name start
+     *        1 - whitespace between package name end and semicolon
+     *        2 - whitespace between semicolon and next token start
+     *
+     * All nodes will carry whitespace tokens from it's end position to next token's start position. The very first node
+     * of AST will contain the whitespace from the beginning of the file to start position of node.
+     *
+     * @return {Array} The array of whitespace tokens associated with this node
+     */
+    ASTNode.prototype.getWhitespaceTokens = function () {
+        return this._whitespaceTokens;
+    };
+
+    /**
+     * Sets whitespace tokens related to this particular node
+     *
+     * @param tokens {Array}
+     *                      This array should contain all the whitespace tokens associated with this particular node. Each token's position in
+     *                      the array is mapped to the index of possible whitespace region for the language construct - which is represented
+     *                      by this particular node - as defined in ballerina grammar.
+     *
+     *                      For example, take a look at possible whitespace regions in a package declaration
+     *                             package<-0->org.ballerina.sample<-1->;<-2->//until next token start
+     *
+     *                             It has three possible regions as below
+     *                             0 - whitespace between 'package' keyword and package name start
+     *                             1 - whitespace between package name end and semicolon
+     *                             2 - whitespace between semicolon and next token start
+     *
+     *                      As explained above, in addition to whitespace tokens inside it's own structure, all nodes will carry whitespace
+     *                      tokens from it's end position to next token's start position.   The very first node
+     *                      of AST will contain the whitespace from the beginning of the file to start position of node.
+     *
+     * @param options
+     */
+    ASTNode.prototype.setWhitespaceTokens = function (tokens, options) {
+        this.setAttribute('_whitespaceTokens', tokens, options);
+    };
 
     return ASTNode;
 
