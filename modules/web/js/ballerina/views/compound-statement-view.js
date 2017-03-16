@@ -152,7 +152,6 @@ define(
             childStatementView.render(renderingContext);
 
             childrenViewsActualWidths.push(childStatementView.getBoundingBox().w());
-            renderingContext.getViewModelMap()[childStatement.id] = childStatementView;
 
             if (childStatementViews.length === 1) {
                 // This is the very first child statement.

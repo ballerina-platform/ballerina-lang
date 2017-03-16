@@ -103,6 +103,7 @@ define(
                 outerRect.attr("height", bBox.h());
             });
 
+            this.getDiagramRenderingContext().setViewOfModel(this.getModel(), this);
             this.renderStatementContainer();
         };
 

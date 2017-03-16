@@ -137,6 +137,12 @@ define(['lodash', 'jquery', 'log', 'alerts', './ballerina-view'],
             }
 
             $(this._deleteButton).appendTo(returnTypeEditWrapper);
+
+            // Removes the value of the argument in the model and rebind the arguments to the arguments view.
+            $(this._deleteButton).click(function () {
+                $(returnTypeEditWrapper).remove();
+                self.getParent().removeReturnType(self.getModel().getID());
+            });
         };
 
         /**
