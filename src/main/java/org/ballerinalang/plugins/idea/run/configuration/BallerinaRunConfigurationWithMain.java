@@ -31,7 +31,8 @@ import org.ballerinalang.plugins.idea.run.configuration.file.BallerinaRunFileCon
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 
-public abstract class BallerinaRunConfigurationWithMain<T extends BallerinaRunningState> extends BallerinaRunConfigurationBase<T> {
+public abstract class BallerinaRunConfigurationWithMain<T extends BallerinaRunningState> extends
+        BallerinaRunConfigurationBase<T> {
 
     private static final String FILE_PATH_ATTRIBUTE_NAME = "filePath";
     private static final String KIND_ATTRIBUTE_NAME = "kind";
@@ -73,15 +74,13 @@ public abstract class BallerinaRunConfigurationWithMain<T extends BallerinaRunni
             throw new RuntimeConfigurationError("Main file is invalid");
         }
 
-
-        //        if (myKind != null) {
-        //            if (myKind == FileConfigurationKind.APPLICATION && !BallerinaRunUtil.hasMainFunction(psiFile)) {
-        //                throw new RuntimeConfigurationError("Main file does not contain a main function.");
-        //            }
-        //            if (myKind == FileConfigurationKind.SERVICE && !BallerinaRunUtil.hasServices(psiFile)) {
-        //                throw new RuntimeConfigurationError("Main file does not contain any service.");
-        //            }
-        //        }
+        if (kind == BallerinaRunFileConfiguration.Kind.APPLICATION &&
+                !BallerinaRunUtil.hasMainFunction(psiFile)) {
+            throw new RuntimeConfigurationError("Main file does not contain a main function.");
+        }
+        if (kind == BallerinaRunFileConfiguration.Kind.SERVICE && !BallerinaRunUtil.hasServices(psiFile)) {
+            throw new RuntimeConfigurationError("Main file does not contain any service.");
+        }
     }
 
     protected void checkBaseConfiguration() throws RuntimeConfigurationException {
