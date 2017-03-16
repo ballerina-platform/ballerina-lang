@@ -19,13 +19,12 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <parent>
-        <groupId>org.wso2</groupId>
-        <artifactId>wso2</artifactId>
-        <version>5</version>
+        <groupId>org.ballerinalang</groupId>
+        <artifactId>ballerinalang</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
-    <groupId>org.ballerinalang</groupId>
     <artifactId>docerina</artifactId>
     <packaging>jar</packaging>
     <version>0.8.2-SNAPSHOT</version>
@@ -44,7 +43,6 @@
         <dependency>
             <groupId>org.testng</groupId>
             <artifactId>testng</artifactId>
-            <version>${testng.version}</version>
             <scope>test</scope>
         </dependency>
 	    <dependency>
@@ -60,22 +58,18 @@
         <dependency>
             <groupId>com.beust</groupId>
             <artifactId>jcommander</artifactId>
-            <version>1.60</version>
         </dependency>
        <dependency>
            <groupId>com.github.jknack</groupId>
            <artifactId>handlebars</artifactId>
-           <version>${handlebars.version}</version>
        </dependency>
        <dependency>
            <groupId>org.apache.logging.log4j</groupId>
            <artifactId>log4j-api</artifactId>
-           <version>${log4j.version}</version>
        </dependency>
        <dependency>
            <groupId>org.apache.logging.log4j</groupId>
            <artifactId>log4j-core</artifactId>
-           <version>${log4j.version}</version>
        </dependency>
     </dependencies>
 
@@ -261,31 +255,7 @@
     </build>
 
     <properties>
-        <ballerina.version>0.8.1</ballerina.version>
-
-        <!-- Maven plugins -->
-        <!--Bundle Plugin - Overridden from parent due to a bug in latest version related to capability providers-->
-        <maven.bundle.plugin.version>2.5.4</maven.bundle.plugin.version>
-        
-        <carbon.p2.plugin.version>1.5.4</carbon.p2.plugin.version>
-        <carbon.feature.plugin.version>2.0.0</carbon.feature.plugin.version>
-
-        <testng.version>6.9.4</testng.version>
-        <plugin.version.antlr>4.5.1</plugin.version.antlr>
-
-        <slf4j.version>1.7.5</slf4j.version>
-
-	<!--pax-exam dependencies-->
-        <javax.inject.version>1</javax.inject.version>
-        <pax.exam.version>4.6.0</pax.exam.version>
-        <pax.exam.testng.version>4.6.0</pax.exam.testng.version>
-        <pax.exam.link.mvn.version>4.6.0</pax.exam.link.mvn.version>
-        <ow2.jta.spec.version>1.0.12</ow2.jta.spec.version>
-        <jacoco.version>0.7.5.201505241946</jacoco.version>
         <cobertura.version>2.7</cobertura.version>
-        <maven.paxexam.plugin.version>1.2.4</maven.paxexam.plugin.version>
-        <mockito.version>1.9.0</mockito.version>
-        <handlebars.version>4.0.6</handlebars.version>
-        <log4j.version>2.8</log4j.version>
+        <ballerina.version>0.8.1</ballerina.version>
     </properties>
 </project>
