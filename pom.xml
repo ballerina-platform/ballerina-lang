@@ -101,13 +101,8 @@
                         <xmlOutput>true</xmlOutput>
                         <findbugsXmlOutputDirectory>${project.build.directory}/findbugs
                         </findbugsXmlOutputDirectory>
-<<<<<<< HEAD
-                        <excludeFilterFile>${maven.findbugsplugin.version.exclude}
-                        </excludeFilterFile>
-                        <!--Exclude generated sources-->
-=======
                         <excludeFilterFile>${maven.findbugsplugin.version.exclude}</excludeFilterFile>
->>>>>>> 9d40d67ebcd70a79ba76bf8053cff74c20d3af12
+                        <!--Exclude generated sources-->
                     </configuration>
                     <version>${maven.findbugsplugin.version}</version>
                     <executions>
@@ -174,18 +169,9 @@
         <ballerina.package.export.version>0.8.1</ballerina.package.export.version>
 
         <!-- Maven plugins -->
-<<<<<<< HEAD
-        <maven.findbugsplugin.version.exclude>findbugs-exclude.xml
-        </maven.findbugsplugin.version.exclude>
-        <native.constructs.provider.package>org.ballerinalang.nativeimpl
-        </native.constructs.provider.package>
-        <native.constructs.provider.class>BallerinaNativeConstructsProvider
-        </native.constructs.provider.class>
-=======
         <maven.findbugsplugin.version.exclude>findbugs-exclude.xml</maven.findbugsplugin.version.exclude>
         <native.constructs.provider.package>org.ballerinalang.nativeimpl</native.constructs.provider.package>
         <native.constructs.provider.class>BallerinaNativeConstructsProvider</native.constructs.provider.class>
->>>>>>> 9d40d67ebcd70a79ba76bf8053cff74c20d3af12
     </properties>
 
     <modules>
