@@ -15,8 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require', 'lodash', 'jquery', 'ballerina/ast/ballerina-ast-factory'],
-    function (require, _, $, BallerinaASTFactory) {
+define(['require', 'lodash', 'jquery', 'alerts', 'ballerina/ast/ballerina-ast-factory'],
+    function (require, _, $, Alerts, BallerinaASTFactory) {
 
         /**
          * Creates the arguments pane.
@@ -111,19 +111,23 @@ define(['require', 'lodash', 'jquery', 'ballerina/ast/ballerina-ast-factory'],
 
             // Adding a value to a new arguments.
             $(addButton).click(function () {
-                var argumentType = argumentTypeDropDown.val();
-                var argumentValue = argumentIdentifierInput.val();
+                try {
+                    var argumentType = argumentTypeDropDown.val();
+                    var argumentValue = argumentIdentifierInput.val();
 
-                if (!_.isEmpty(argumentValue)) {
-                    // Sets the argument in the model
-                    model.addArgument(argumentType, argumentValue);
+                    if (!_.isEmpty(argumentValue)) {
+                        // Sets the argument in the model
+                        model.addArgument(argumentType, argumentValue);
 
-                    //Clear the text box and drop down value
-                    argumentIdentifierInput.val("");
+                        //Clear the text box and drop down value
+                        argumentIdentifierInput.val("");
 
-                    // Recreating the arguments details view.
-                    _createCurrentArgumentsView(model, argumentsContentWrapper, argumentTypeDropDown, headerWrapper,
-                        disableEditing);
+                        // Recreating the arguments details view.
+                        _createCurrentArgumentsView(model, argumentsContentWrapper, argumentTypeDropDown, headerWrapper,
+                            disableEditing);
+                    }
+                } catch (error) {
+                    Alerts.error(error);
                 }
             });
 
@@ -320,7 +324,7 @@ define(['require', 'lodash', 'jquery', 'ballerina/ast/ballerina-ast-factory'],
                 this._argumentsEditorWrapper.css("left", leftMargin);
             }
             this._argumentsEditorWrapper.css("top", (parseInt(this._argumentsEditorWrapper.css("top"), 10) + dy));
-        };
+        }
 
         var argumentsView = {};
 
