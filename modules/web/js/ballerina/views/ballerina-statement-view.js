@@ -381,6 +381,10 @@ define(['require', 'lodash', 'log', './../visitors/statement-visitor', 'd3', 'd3
 
          this._debugIndicator = removeBreakpointButton;
 
+         this.getBoundingBox().on('left-edge-moved', function(dx) {
+            removeBreakpointButton.attr('x', parseFloat(removeBreakpointButton.attr('x')) + dx);
+         });
+
          this.getBoundingBox().on('top-edge-moved', function (dy) {
              removeBreakpointButton.attr('y', parseFloat(removeBreakpointButton.attr('y')) + dy);
          });

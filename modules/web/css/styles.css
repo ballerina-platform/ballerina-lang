@@ -1390,6 +1390,10 @@ a:hover {
     margin: 100px auto 0;
 }
 
+.modal-dialog.file-dialog .jstree-anchor.jstree-clicked{
+    color: inherit;
+}
+
 .delete-item-dialog .icon {
     float: left;
     margin-left: 25px;

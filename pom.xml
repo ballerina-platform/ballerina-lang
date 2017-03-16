@@ -27,7 +27,6 @@
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
-    <groupId>org.ballerinalang</groupId>
     <artifactId>ballerina-composer-parent</artifactId>
     <packaging>pom</packaging>
     <version>0.8.15-SNAPSHOT</version>
@@ -82,12 +81,8 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <!-- <inherited>false</inherited> -->
                 <configuration>
                     <argLine>-Dfile.encoding=UTF-8</argLine>
-                    <environmentVariables>
-                        <testEnvironmentVariable>EnvironmentVariable</testEnvironmentVariable>
-                    </environmentVariables>
                     <suiteXmlFiles>
                         <suiteXmlFile>src/test/resources/testng.xml</suiteXmlFile>
                     </suiteXmlFiles>
@@ -97,7 +92,7 @@
 
         <pluginManagement>
             <plugins>
-                <plugin><!-- Overridden from parent pom to exclude generated sources -->
+                <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>findbugs-maven-plugin</artifactId>
                     <configuration>
@@ -106,9 +101,13 @@
                         <xmlOutput>true</xmlOutput>
                         <findbugsXmlOutputDirectory>${project.build.directory}/findbugs
                         </findbugsXmlOutputDirectory>
+<<<<<<< HEAD
                         <excludeFilterFile>${maven.findbugsplugin.version.exclude}
                         </excludeFilterFile>
                         <!--Exclude generated sources-->
+=======
+                        <excludeFilterFile>${maven.findbugsplugin.version.exclude}</excludeFilterFile>
+>>>>>>> 9d40d67ebcd70a79ba76bf8053cff74c20d3af12
                     </configuration>
                     <version>${maven.findbugsplugin.version}</version>
                     <executions>
@@ -121,7 +120,7 @@
                         </execution>
                     </executions>
                 </plugin>
-                <plugin><!-- Overridden from parent pom to exclude generated sources -->
+                <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-checkstyle-plugin</artifactId>
                     <executions>
@@ -149,11 +148,10 @@
                         </execution>
                     </executions>
                 </plugin>
-                <!-- ANTLR Plugin -->
                 <plugin>
                     <groupId>org.antlr</groupId>
                     <artifactId>antlr4-maven-plugin</artifactId>
-                    <version>4.5.1</version>
+                    <version>${antlr.maven.plugin.version}</version>
                     <executions>
                         <execution>
                             <goals>
@@ -176,18 +174,23 @@
         <ballerina.package.export.version>0.8.1</ballerina.package.export.version>
 
         <!-- Maven plugins -->
+<<<<<<< HEAD
         <maven.findbugsplugin.version.exclude>findbugs-exclude.xml
         </maven.findbugsplugin.version.exclude>
         <native.constructs.provider.package>org.ballerinalang.nativeimpl
         </native.constructs.provider.package>
         <native.constructs.provider.class>BallerinaNativeConstructsProvider
         </native.constructs.provider.class>
+=======
+        <maven.findbugsplugin.version.exclude>findbugs-exclude.xml</maven.findbugsplugin.version.exclude>
+        <native.constructs.provider.package>org.ballerinalang.nativeimpl</native.constructs.provider.package>
+        <native.constructs.provider.class>BallerinaNativeConstructsProvider</native.constructs.provider.class>
+>>>>>>> 9d40d67ebcd70a79ba76bf8053cff74c20d3af12
     </properties>
 
     <modules>
         <module>modules/services/workspace-service</module>
         <module>modules/web</module>
-        <module>modules/distribution</module>
         <module>modules/web/test/UITests</module>
     </modules>
 

@@ -21,11 +21,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.models.Info;
 import io.swagger.models.Swagger;
 import io.swagger.util.Json;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.ballerinalang.model.Annotation;
 import org.ballerinalang.model.Resource;
 import org.ballerinalang.model.Service;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * SwaggerServiceMapper provides functionality for reading and writing Swagger, either to and from ballerina service, or
@@ -114,7 +114,5 @@ public class SwaggerServiceMapper {
         //careful to add only new skeleton methods to service. Service resource body should preserve
         //as it is while adding new resources.
         return service;
-
     }
-
 }

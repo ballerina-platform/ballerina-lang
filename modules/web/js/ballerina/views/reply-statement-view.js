@@ -72,6 +72,7 @@ define(['lodash', 'log', './simple-statement-view', '../ast/statements/reply-sta
             var statementGroup = this.getStatementGroup();
             var bBox = this.getBoundingBox();
             var x = bBox.x(), y = bBox.y(), w = bBox.w(), h = bBox.h();
+            var self = this;
             this._distanceToClient = this.getViewOptions().distanceToClient - (w / 2);
 
             if (BallerinaASTFactory.isResourceDefinition(this.getModel().getParent())) {
@@ -84,6 +85,9 @@ define(['lodash', 'log', './simple-statement-view', '../ast/statements/reply-sta
                     .classed("action-arrow", true);
                 this._replyArrow.arrowLineElement = this._replyLine;
                 this._replyArrow.arrowHeadElement = this._replyArrowHead;
+                this.listenTo(this.getBoundingBox(), 'left-edge-moved', function (dx) {
+                    self._replyLine.attr('x1', parseFloat(this._replyLine.attr('x1')) + dx);
+                });
             }
             // Creating property pane.
             var model = this.getModel();
