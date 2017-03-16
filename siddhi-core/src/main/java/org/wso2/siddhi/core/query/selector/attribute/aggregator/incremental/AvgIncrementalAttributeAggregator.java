@@ -5,8 +5,7 @@ import org.wso2.siddhi.query.api.expression.AttributeFunction;
 import org.wso2.siddhi.query.api.expression.Expression;
 import org.wso2.siddhi.query.api.expression.Variable;
 
-public class AvgIncrementalAttributeAggregator {
-
+public class AvgIncrementalAttributeAggregator implements IncrementalAggregator {
 
     private String attributeName;
     private Attribute.Type type;
@@ -20,8 +19,11 @@ public class AvgIncrementalAttributeAggregator {
         if (attributeFunction.getParameters()[0] == null || !(attributeFunction.getParameters()[0] instanceof Variable)) {
             // TODO: 3/3/17 Exception
         }
-
         this.attributeName = ((Variable) attributeFunction.getParameters()[0]).getAttributeName();
+    }
+
+    public String getAttributeName() {
+        return this.attributeName;
     }
 
     public Attribute.Type getType() {

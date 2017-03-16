@@ -17,7 +17,7 @@
  */
 package org.wso2.siddhi.query.api.definition;
 
-import org.wso2.siddhi.query.api.aggregation.TimeSpecifier;
+import org.wso2.siddhi.query.api.aggregation.TimePeriod;
 import org.wso2.siddhi.query.api.annotation.Annotation;
 import org.wso2.siddhi.query.api.execution.query.input.stream.InputStream;
 import org.wso2.siddhi.query.api.execution.query.selection.Selector;
@@ -28,7 +28,7 @@ public class AggregationDefinition extends AbstractDefinition {
     private InputStream inputStream = null;
     private Selector selector = null;
     private Variable aggregateAttribute = null;
-    private TimeSpecifier timeSpecifier = null;
+    private TimePeriod timePeriod = null;
     private Annotation annotation = null;
 
 
@@ -41,6 +41,10 @@ public class AggregationDefinition extends AbstractDefinition {
         return this;
     }
 
+    public Selector getSelector(){
+        return this.selector;
+    }
+
     public static AggregationDefinition id(String aggregationName) {
         return new AggregationDefinition(aggregationName);
     }
@@ -50,9 +54,13 @@ public class AggregationDefinition extends AbstractDefinition {
         return this;
     }
 
-    public AggregationDefinition every(TimeSpecifier timeSpecifier) {
-        this.timeSpecifier = timeSpecifier;
+    public AggregationDefinition every(TimePeriod timePeriod) {
+        this.timePeriod = timePeriod;
         return this;
+    }
+
+    public TimePeriod getTimePeriod(){
+        return this.timePeriod;
     }
 
     public AggregationDefinition from(InputStream inputStream) {
@@ -60,9 +68,17 @@ public class AggregationDefinition extends AbstractDefinition {
         return this;
     }
 
+    public InputStream getInputStream(){
+        return this.inputStream;
+    }
+
     public AggregationDefinition annotation(Annotation annotation) {
         this.annotation = annotation;
         return this;
+    }
+
+    public Annotation getAnnotation(){
+        return this.annotation;
     }
 
     // TODO: 2/24/17 : toString and hashcode and equals ....

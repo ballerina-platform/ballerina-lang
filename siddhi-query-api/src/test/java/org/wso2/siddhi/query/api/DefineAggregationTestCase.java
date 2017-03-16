@@ -29,6 +29,7 @@ public class DefineAggregationTestCase {
                         )
                 ).aggregateBy(Expression.variable("timeStamp")).every(
                 TimePeriod.range(TimePeriod.Duration.SECONDS, TimePeriod.Duration.DAYS));
+        // TODO: 3/8/17 assertion
 
     }
 
@@ -49,6 +50,8 @@ public class DefineAggregationTestCase {
                         )
         ).aggregateBy(Expression.variable("timeStamp")).every(
                 TimePeriod.interval(TimePeriod.Duration.SECONDS, TimePeriod.Duration.MINUTES, TimePeriod.Duration.HOURS));
+
+        // TODO: 3/8/17 Assertion
     }
 }
 

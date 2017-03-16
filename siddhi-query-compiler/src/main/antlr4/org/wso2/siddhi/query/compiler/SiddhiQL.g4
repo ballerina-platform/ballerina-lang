@@ -43,7 +43,7 @@ execution_plan
 
 //todo: time_period
 definition_aggregation
-    : annotation* DEFINE AGGREGATION aggregation_name FROM query_input query_section AGGREGATE (BY attribute_reference)? EVERY aggregation_time
+    : annotation* DEFINE AGGREGATION aggregation_name FROM query_input groupby_query_selection AGGREGATE (BY attribute_reference)? EVERY aggregation_time
     ;
 
 aggregation_name

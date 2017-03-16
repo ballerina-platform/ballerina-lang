@@ -21,7 +21,6 @@ import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.misc.NotNull;
 import org.wso2.siddhi.query.api.ExecutionPlan;
 import org.wso2.siddhi.query.api.aggregation.ExactTimeSpecifier;
-import org.wso2.siddhi.query.api.aggregation.RangeTimeSpecifier;
 import org.wso2.siddhi.query.api.aggregation.TimePeriod;
 import org.wso2.siddhi.query.api.aggregation.TimeSpecifier;
 import org.wso2.siddhi.query.api.annotation.Annotation;
@@ -1080,6 +1079,24 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
         return new Window(attributeFunction.getNamespace(), attributeFunction.getName(), attributeFunction.getParameters());
     }
 
+    @Override
+    public Selector visitGroupby_query_selection(@NotNull SiddhiQLParser.Groupby_query_selectionContext ctx) {
+
+        Selector selector = new Selector();
+
+        List<OutputAttribute> attributeList = new ArrayList<OutputAttribute>(ctx.output_attribute().size());
+        for (SiddhiQLParser.Output_attributeContext output_attributeContext : ctx.output_attribute()) {
+            attributeList.add((OutputAttribute) visit(output_attributeContext));
+        }
+        selector.addSelectionList(attributeList);
+
+        if (ctx.group_by() != null) {
+            selector.addGroupByList((List<Variable>) visit(ctx.group_by()));
+        }
+
+        return selector;
+    }
+
     /**
      * {@inheritDoc}
      * <p>The default implementation returns the result of calling
@@ -1094,17 +1111,8 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
 //        :(SELECT ('*'| (output_attribute (',' output_attribute)* ))) group_by? having?
 //        ;
 
-        Selector selector = new Selector();
+        Selector selector = visitGroupby_query_selection(ctx.groupby_query_selection());
 
-        List<OutputAttribute> attributeList = new ArrayList<OutputAttribute>(ctx.output_attribute().size());
-        for (SiddhiQLParser.Output_attributeContext output_attributeContext : ctx.output_attribute()) {
-            attributeList.add((OutputAttribute) visit(output_attributeContext));
-        }
-        selector.addSelectionList(attributeList);
-
-        if (ctx.group_by() != null) {
-            selector.addGroupByList((List<Variable>) visit(ctx.group_by()));
-        }
         if (ctx.having() != null) {
             selector.having((Expression) visit(ctx.having()));
         }
@@ -2200,7 +2208,7 @@ public class SiddhiQLBaseVisitorImpl extends SiddhiQLBaseVisitor {
         aggregationDefinition.from(inputStream);
 
         // Extract the selector and attach it to the new aggregation
-        Selector selector = (Selector) visit(ctx.query_section());
+        Selector selector = (Selector) visit(ctx.groupby_query_selection());
         aggregationDefinition.select(selector);
 
         // Get the variable (if available) and aggregate on that variable
