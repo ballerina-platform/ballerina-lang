@@ -22,13 +22,13 @@
 
     <parent>
         <groupId>org.ballerinalang.tools</groupId>
-        <artifactId>ballerina-tools</artifactId>
+        <artifactId>ballerina-tools-distribution</artifactId>
         <version>0.8.3-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>ballerina-tooling</artifactId>
+    <artifactId>ballerina-tools</artifactId>
     <packaging>pom</packaging>
 
     <dependencies>
@@ -140,7 +140,7 @@
                             <descriptors>
                                 <descriptor>${basedir}/src/assembly/bin.xml</descriptor>
                             </descriptors>
-                            <finalName>ballerina-tools-${project.version}</finalName>
+                            <finalName>${artifactId}-${project.version}</finalName>
                             <appendAssemblyId>false</appendAssemblyId>
                         </configuration>
                     </execution>

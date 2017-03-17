@@ -5,7 +5,7 @@
 
     <parent>
         <groupId>org.ballerinalang.tools</groupId>
-        <artifactId>ballerina-tools</artifactId>
+        <artifactId>ballerina-tools-distribution</artifactId>
         <version>0.8.3-SNAPSHOT</version>
         <relativePath>../../../pom.xml</relativePath>
     </parent>
