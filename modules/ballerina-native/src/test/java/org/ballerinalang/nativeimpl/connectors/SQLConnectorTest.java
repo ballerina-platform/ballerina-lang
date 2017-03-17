@@ -48,42 +48,42 @@ public class SQLConnectorTest {
         SQLDBUtils.initDatabase(SQLDBUtils.DB_DIRECTORY, DB_NAME, "datafiles/SQLConnectorDataFile.sql");
     }
 
-    @Test
+    @Test(groups = "ConnectorTest")
     public void testInsertTableData() {
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "testInsertTableData");
         BInteger retValue = (BInteger) returns[0];
         Assert.assertEquals(retValue.intValue(), 1);
     }
 
-    @Test
+    @Test(groups = "ConnectorTest")
     public void testCreateTable() {
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "testCreateTable");
         BInteger retValue = (BInteger) returns[0];
         Assert.assertEquals(retValue.intValue(), 0);
     }
 
-    @Test
+    @Test(groups = "ConnectorTest")
     public void testUpdateTableData() {
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "testUpdateTableData");
         BInteger retValue = (BInteger) returns[0];
         Assert.assertEquals(retValue.intValue(), 1);
     }
 
-    @Test
+    @Test(groups = "ConnectorTest")
     public void testGeneratedKeyOnInsert() {
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "testGeneratedKeyOnInsert");
         BString retValue = (BString) returns[0];
         Assert.assertTrue(retValue.intValue() > 0);
     }
 
-    @Test
+    @Test(groups = "ConnectorTest")
     public void testGeneratedKeyWithColumn() {
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "testGeneratedKeyWithColumn");
         BString retValue = (BString) returns[0];
         Assert.assertTrue(retValue.intValue() > 0);
     }
 
-    @Test
+    @Test(groups = "ConnectorTest")
     public void testSelectData() {
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "testSelectData");
         BString retValue = (BString) returns[0];
@@ -91,7 +91,7 @@ public class SQLConnectorTest {
         Assert.assertEquals(retValue.stringValue(), expected);
     }
 
-    @Test
+    @Test(groups = "ConnectorTest")
     public void testCallProcedure() {
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "testCallProcedure");
         BString retValue = (BString) returns[0];
@@ -99,7 +99,7 @@ public class SQLConnectorTest {
         Assert.assertEquals(retValue.stringValue(), expected);
     }
 
-    @Test
+    @Test(groups = "ConnectorTest")
     public void testCallProcedureWithResultSet() {
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "testCallProcedureWithResultSet");
         BString retValue = (BString) returns[0];
@@ -107,7 +107,7 @@ public class SQLConnectorTest {
         Assert.assertEquals(retValue.stringValue(), expected);
     }
 
-    @Test
+    @Test(groups = "ConnectorTest")
     public void testConnectorWithDataSource() {
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "testConnectorWithDataSource");
         BString retValue = (BString) returns[0];
@@ -115,7 +115,7 @@ public class SQLConnectorTest {
         Assert.assertEquals(retValue.stringValue(), expected);
     }
 
-    @Test
+    @Test(groups = "ConnectorTest")
     public void testConnectionPoolProperties() {
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "testConnectionPoolProperties");
         BString retValue = (BString) returns[0];
@@ -123,7 +123,7 @@ public class SQLConnectorTest {
         Assert.assertEquals(retValue.stringValue(), expected);
     }
 
-    @Test
+    @Test(groups = "ConnectorTest")
     public void testQueryParameters() {
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "testQueryParameters");
         BString retValue = (BString) returns[0];
@@ -131,14 +131,14 @@ public class SQLConnectorTest {
         Assert.assertEquals(retValue.stringValue(), expected);
     }
 
-    @Test
+    @Test(groups = "ConnectorTest")
     public void testInsertTableDataWithParameters() {
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "testInsertTableDataWithParameters");
         BInteger retValue = (BInteger) returns[0];
         Assert.assertEquals(retValue.intValue(), 1);
     }
 
-    @Test
+    @Test(groups = "ConnectorTest")
     public void testOutParameters() {
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "testOutParameters");
         Assert.assertEquals(returns.length, 14);
@@ -158,7 +158,7 @@ public class SQLConnectorTest {
         Assert.assertEquals(returns[13].stringValue(), "wso2 ballerina binary test.");
     }
 
-    @Test
+    @Test(groups = "ConnectorTest")
     public void testNullOutParameters() {
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "testNullOutParameters");
         Assert.assertEquals(returns.length, 14);
@@ -178,21 +178,21 @@ public class SQLConnectorTest {
         Assert.assertEquals(returns[13].stringValue(), "");
     }
 
-    @Test
+    @Test(groups = "ConnectorTest")
     public void testINParameters() {
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "testINParameters");
         BInteger retValue = (BInteger) returns[0];
         Assert.assertEquals(retValue.intValue(), 1);
     }
 
-    @Test
+    @Test(groups = "ConnectorTest")
     public void testNullINParameters() {
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "testNullINParameters");
         BInteger retValue = (BInteger) returns[0];
         Assert.assertEquals(retValue.intValue(), 1);
     }
 
-    @Test
+    @Test(groups = "ConnectorTest")
     public void testINOutParameters() {
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "testINOutParameters");
         Assert.assertEquals(returns.length, 14);
@@ -212,7 +212,7 @@ public class SQLConnectorTest {
         Assert.assertEquals(returns[13].stringValue(), "wso2 ballerina binary test.");
     }
 
-    @Test
+    @Test(groups = "ConnectorTest")
     public void testNullINOutParameters() {
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "testNullINOutParameters");
         Assert.assertEquals(returns.length, 12);
@@ -230,11 +230,19 @@ public class SQLConnectorTest {
         Assert.assertEquals(returns[11].stringValue(), "");
     }
 
-    @Test
+    @Test(groups = "ConnectorTest")
     public void testEmptySQLType() {
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "testEmptySQLType");
         BInteger retValue = (BInteger) returns[0];
         Assert.assertEquals(retValue.intValue(), 1);
+    }
+
+    @Test(dependsOnGroups = "ConnectorTest")
+    public void testCloseConnectionPool() {
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testCloseConnectionPool");
+        BInteger retValue = (BInteger) returns[0];
+        final int expected = 1;
+        Assert.assertEquals(retValue.intValue(), expected);
     }
 
     @AfterSuite
