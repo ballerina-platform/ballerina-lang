@@ -89,7 +89,7 @@
                         </goals>
                         <configuration>
                             <includeArtifactIds>
-                                ballerina,workspace-service,ballerina-composer-web,testerina-core,connectors,ballerina
+                                workspace-service,ballerina-composer-web,testerina-core,connectors,ballerina
                             </includeArtifactIds>
                             <outputDirectory>${project.build.directory}/extracted-distributions
                             </outputDirectory>
