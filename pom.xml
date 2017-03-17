@@ -111,12 +111,12 @@
     </modules>
 
     <properties>
-        <ballerina.runtime.version>0.8.3-SNAPSHOT</ballerina.runtime.version>
-        <ballerina.composer.version>0.8.15-SNAPSHOT</ballerina.composer.version>
-        <testerina.version>0.8.2-SNAPSHOT</testerina.version>
-        <tool.swagger.version>0.8.1</tool.swagger.version>
-        <ballerina.container.version>0.8.1-SNAPSHOT</ballerina.container.version>
-        <docerina.version>0.8.2-SNAPSHOT</docerina.version>
+        <ballerina.runtime.version>0.84</ballerina.runtime.version>
+        <ballerina.composer.version>0.84</ballerina.composer.version>
+        <testerina.version>0.84</testerina.version>
+        <tool.swagger.version>0.84</tool.swagger.version>
+        <ballerina.container.version>0.84</ballerina.container.version>
+        <docerina.version>0.84</docerina.version>
         <docerina.maven.plugin.version>0.84</docerina.maven.plugin.version>
         <ballerina.connectors.version>0.84</ballerina.connectors.version>
         <commons-net.version>3.6</commons-net.version>
