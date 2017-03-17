@@ -68,7 +68,7 @@
         </dependency>
         <dependency>
             <groupId>org.ballerinalang.tools</groupId>
-            <artifactId>ballerina-run-time</artifactId>
+            <artifactId>ballerina</artifactId>
             <version>${ballerina.runtime.version}</version>
             <type>zip</type>
         </dependency>
@@ -89,7 +89,7 @@
                         </goals>
                         <configuration>
                             <includeArtifactIds>
-                                ballerina,workspace-service,ballerina-composer-web,testerina-core,connectors,ballerina-run-time
+                                ballerina,workspace-service,ballerina-composer-web,testerina-core,connectors,ballerina
                             </includeArtifactIds>
                             <outputDirectory>${project.build.directory}/extracted-distributions
                             </outputDirectory>
