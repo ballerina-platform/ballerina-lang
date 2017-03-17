@@ -241,8 +241,7 @@ public class SQLConnectorTest {
     public void testCloseConnectionPool() {
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "testCloseConnectionPool");
         BInteger retValue = (BInteger) returns[0];
-        final int expected = 1;
-        Assert.assertEquals(retValue.intValue(), expected);
+        Assert.assertEquals(retValue.intValue(), 1);
     }
 
     @AfterSuite
