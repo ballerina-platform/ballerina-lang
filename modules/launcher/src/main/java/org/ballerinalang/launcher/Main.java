@@ -12,6 +12,8 @@ import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.util.exceptions.ParserException;
 import org.ballerinalang.util.exceptions.SemanticException;
 import org.ballerinalang.util.program.BLangPrograms;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.PrintStream;
@@ -40,6 +42,8 @@ public class Main {
 
     private static PrintStream outStream = System.err;
 
+    private static final Logger breLog = LoggerFactory.getLogger(Main.class);
+
     public static void main(String... args) {
         try {
             Optional<BLauncherCmd> optionalInvokedCmd = getInvokedCmd(args);
@@ -55,10 +59,12 @@ public class Main {
         } catch (Throwable e) {
             String msg = e.getMessage();
             if (msg == null) {
-                outStream.println("ballerina: unexpected error occurred");
+                msg = "ballerina: unexpected error occurred";
             } else {
-                outStream.println("ballerina: " + LauncherUtils.makeFirstLetterLowerCase(msg));
+                msg = "ballerina: " + LauncherUtils.makeFirstLetterLowerCase(msg);
             }
+            outStream.println(msg);
+            breLog.error(msg, e);
             Runtime.getRuntime().exit(1);
         }
     }
