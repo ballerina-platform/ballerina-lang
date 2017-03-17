@@ -16,18 +16,18 @@
 
 package org.ballerinalang.composer.service.workspace.model;
 
-import java.util.Objects;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.annotations.ApiModelProperty;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
- * Connector
+ * Connector.
  */
-@javax.annotation.Generated(value = "io.swagger.codegen.languages.JavaMSF4JServerCodegen", date = "2017-01-27T07:45:46.625Z")
+@javax.annotation.Generated(value = "io.swagger.codegen.languages.JavaMSF4JServerCodegen",
+        date = "2017-01-27T07:45:46.625Z")
 public class Connector {
     @JsonProperty("name")
     private String name = null;
@@ -50,7 +50,7 @@ public class Connector {
     }
 
     /**
-     * Get name
+     * Get name.
      *
      * @return name
      **/
@@ -74,7 +74,7 @@ public class Connector {
     }
 
     /**
-     * Get annotations
+     * Get annotations.
      *
      * @return annotations
      **/
@@ -98,7 +98,7 @@ public class Connector {
     }
 
     /**
-     * Get parameters
+     * Get parameters.
      *
      * @return parameters
      **/
@@ -122,7 +122,7 @@ public class Connector {
     }
 
     /**
-     * Get actions
+     * Get actions.
      *
      * @return actions
      **/

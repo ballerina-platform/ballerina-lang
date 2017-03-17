@@ -16,16 +16,18 @@
 
 package org.ballerinalang.composer.service.workspace.model;
 
-import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.annotations.ApiModelProperty;
+
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
- * Error
+ * Error.
  */
-@javax.annotation.Generated(value = "io.swagger.codegen.languages.JavaMSF4JServerCodegen", date = "2017-01-27T07:45:46.625Z")
+@javax.annotation.Generated(value = "io.swagger.codegen.languages.JavaMSF4JServerCodegen",
+        date = "2017-01-27T07:45:46.625Z")
 public class Error   {
   @JsonProperty("code")
   private Long code = null;
@@ -48,7 +50,7 @@ public class Error   {
   }
 
    /**
-   * Get code
+   * Get code.
    * @return code
   **/
   @ApiModelProperty(required = true, value = "")
@@ -128,7 +130,8 @@ public class Error   {
    * If there are more than one error list them out. For example, list out validation errors by each field. 
    * @return error
   **/
-  @ApiModelProperty(value = "If there are more than one error list them out. For example, list out validation errors by each field. ")
+  @ApiModelProperty(value = "If there are more than one error list them out. For example, list out validation errors " +
+                            "by each field. ")
   public List<ErrorListItem> getError() {
     return error;
   }

@@ -16,7 +16,7 @@
 package org.ballerinalang.composer.service.workspace.model;
 
 /**
- * Struct
+ * Struct.
  */
 @javax.annotation.Generated(value = "io.swagger.codegen.languages.JavaMSF4JServerCodegen",
         date = "2017-01-27T07:45:46.625Z")

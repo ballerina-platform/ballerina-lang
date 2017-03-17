@@ -22,7 +22,7 @@ import io.swagger.annotations.ApiModelProperty;
 import java.util.Objects;
 
 /**
- * Parameter
+ * Parameter.
  */
 @javax.annotation.Generated(value = "io.swagger.codegen.languages.JavaMSF4JServerCodegen",
                             date = "2017-01-27T07:45:46.625Z")
@@ -39,7 +39,7 @@ public class Parameter {
     }
 
     /**
-     * Get name
+     * Get name.
      *
      * @return name
      **/
@@ -58,7 +58,7 @@ public class Parameter {
     }
 
     /**
-     * Get type
+     * Get type.
      *
      * @return type
      **/
