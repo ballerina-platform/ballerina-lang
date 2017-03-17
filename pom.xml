@@ -118,7 +118,7 @@
         <ballerina.container.version>0.8.1-SNAPSHOT</ballerina.container.version>
         <docerina.version>0.8.2-SNAPSHOT</docerina.version>
         <docerina.maven.plugin.version>0.84</docerina.maven.plugin.version>
-        <ballerina.connectors.version>0.8.3-SNAPSHOT</ballerina.connectors.version>
+        <ballerina.connectors.version>0.84</ballerina.connectors.version>
         <commons-net.version>3.6</commons-net.version>
     </properties>
 </project>
