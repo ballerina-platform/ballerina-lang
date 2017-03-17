@@ -210,28 +210,19 @@ variableDefinitionStatement
 
 initializerExpression
     :   arrayLiteral
-    |   mapLiteral
-    |   structLiteral
+    |   mapStructLiteral
     ;
 
-structLiteral
-    :   '{' (structFieldValue (',' structFieldValue)*)? '}'
+mapStructLiteral
+    :   '{' (mapStructKeyValue (',' mapStructKeyValue)*)? '}'
     ;
 
-structFieldValue
-    :   Identifier ':' (initializerExpression | expression)
+mapStructKeyValue
+    :   expression ':' (initializerExpression | expression)
     ;
 
 arrayLiteral
     :   '[' expressionList? ']'
-    ;
-
-mapLiteral
-    :   '{' (mapKeyValue (',' mapKeyValue)*)? '}'
-    ;
-
-mapKeyValue
-    :   QuotedStringLiteral ':' (initializerExpression | expression)
     ;
 
 connectorInitExpression
