@@ -172,7 +172,7 @@
 
         <resources>
             <resource>
-                <directory>../../ballerina-home/tool/bin/</directory>
+                <directory>bin/</directory>
                 <filtering>true</filtering>
                 <includes>
                     <include>**/version.txt</include>
