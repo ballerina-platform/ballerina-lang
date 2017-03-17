@@ -99,7 +99,7 @@
                 <configuration>
                     <systemPropertyVariables>
                         <server.zip>
-                            ${basedir}/../../ballerina-run-time/target/ballerina-${ballerina.runtime.version}.zip
+                            ${basedir}/../../ballerina/target/ballerina-${ballerina.runtime.version}.zip
                         </server.zip>
                     </systemPropertyVariables>
                     <suiteXmlFiles>
