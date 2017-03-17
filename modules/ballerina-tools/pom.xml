@@ -22,13 +22,13 @@
 
     <parent>
         <groupId>org.ballerinalang.tools</groupId>
-        <artifactId>ballerina-tools</artifactId>
+        <artifactId>tools-distribution</artifactId>
         <version>0.8.3-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>ballerina-tooling</artifactId>
+    <artifactId>ballerina-tools</artifactId>
     <packaging>pom</packaging>
 
     <dependencies>
@@ -68,7 +68,7 @@
         </dependency>
         <dependency>
             <groupId>org.ballerinalang.tools</groupId>
-            <artifactId>ballerina-run-time</artifactId>
+            <artifactId>ballerina</artifactId>
             <version>${ballerina.runtime.version}</version>
             <type>zip</type>
         </dependency>
@@ -89,7 +89,7 @@
                         </goals>
                         <configuration>
                             <includeArtifactIds>
-                                ballerina,workspace-service,ballerina-composer-web,testerina-core,connectors,ballerina-run-time
+                                workspace-service,ballerina-composer-web,testerina-core,connectors,ballerina
                             </includeArtifactIds>
                             <outputDirectory>${project.build.directory}/extracted-distributions
                             </outputDirectory>
@@ -114,7 +114,7 @@
                         <configuration>
                             <outputDir>${project.build.directory}/api-docs</outputDir>
                             <sourceDir>
-                                ${project.build.directory}/extracted-distributions/ballerina-run-time-${ballerina.runtime.version}-zip/ballerina-${ballerina.runtime.version}/src
+                                ${project.build.directory}/extracted-distributions/ballerina-${ballerina.runtime.version}-zip/ballerina-${ballerina.runtime.version}/src
                             </sourceDir>
                             <nativeCode>true</nativeCode>
                         </configuration>
@@ -172,7 +172,7 @@
 
         <resources>
             <resource>
-                <directory>../../ballerina-home/tool/bin/</directory>
+                <directory>bin/</directory>
                 <filtering>true</filtering>
                 <includes>
                     <include>**/version.txt</include>

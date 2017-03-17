@@ -28,7 +28,7 @@
 
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.ballerinalang.tools</groupId>
-    <artifactId>ballerina-tools</artifactId>
+    <artifactId>tools-distribution</artifactId>
     <packaging>pom</packaging>
     <version>0.8.3-SNAPSHOT</version>
     <name>Ballerina - Tools</name>
@@ -105,9 +105,9 @@
     </dependencyManagement>
 
     <modules>
-        <module>modules/ballerina-run-time</module>
+        <module>modules/ballerina</module>
         <module>modules/tests/test-integration</module>
-        <module>modules/ballerina-tooling</module>
+        <module>modules/ballerina-tools</module>
     </modules>
 
     <properties>
