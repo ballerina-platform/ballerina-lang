@@ -114,7 +114,7 @@
                         <configuration>
                             <outputDir>${project.build.directory}/api-docs</outputDir>
                             <sourceDir>
-                                ${project.build.directory}/extracted-distributions/ballerina-run-time-${ballerina.runtime.version}-zip/ballerina-${ballerina.runtime.version}/src
+                                ${project.build.directory}/extracted-distributions/ballerina-${ballerina.runtime.version}-zip/ballerina-${ballerina.runtime.version}/src
                             </sourceDir>
                             <nativeCode>true</nativeCode>
                         </configuration>
