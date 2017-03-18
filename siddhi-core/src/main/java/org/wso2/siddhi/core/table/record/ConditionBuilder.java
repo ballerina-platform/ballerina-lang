@@ -304,7 +304,7 @@ public class ConditionBuilder {
         }
         conditionVisitor.beginVisitStreamVariable(variable, id, type);
         if (!variableExpressionExecutorMap.containsKey(id)) {
-            ExpressionExecutor variableExpressionExecutor = ExpressionParser.parseExpression(expression, matchingMetaInfoHolder.getMetaStateEvent(), streamEventChainIndex, eventTableMap, variableExpressionExecutors, executionPlanContext, false, matchingMetaInfoHolder.getStreamEventIndex(), queryName);
+            ExpressionExecutor variableExpressionExecutor = ExpressionParser.parseExpression(expression, matchingMetaInfoHolder.getMetaStateEvent(), streamEventChainIndex, eventTableMap, variableExpressionExecutors, executionPlanContext, false, 0, queryName);
             variableExpressionExecutorMap.put(id, variableExpressionExecutor);
         }
         conditionVisitor.endVisitStreamVariable(variable, id, type);

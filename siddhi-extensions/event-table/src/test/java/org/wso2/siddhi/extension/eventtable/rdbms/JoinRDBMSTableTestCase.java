@@ -218,7 +218,7 @@ public class JoinRDBMSTableTestCase {
 
                 String streams = "" +
                         "define stream StockStream (symbol string, price float, volume long); " +
-                        "define stream CheckStockStream (symbol string); " +
+                        "define stream CheckStockStream (symbol1 string); " +
                         "@from(eventtable = 'rdbms' ,datasource.name = '" + RDBMSTestConstants.DATA_SOURCE_NAME + "' , table.name = '" + RDBMSTestConstants.TABLE_NAME + "') " +
                         "define table StockTable (symbol string, price float, volume long); ";
                 String query = "" +
@@ -228,8 +228,8 @@ public class JoinRDBMSTableTestCase {
                         "" +
                         "@info(name = 'query2') " +
                         "from CheckStockStream#window.length(1) join StockTable " +
-                        " on CheckStockStream.symbol==symbol " +
-                        "select CheckStockStream.symbol as checkSymbol, StockTable.symbol as symbol, StockTable.volume as volume  " +
+                        " on symbol1== symbol " +
+                        "select symbol1 as checkSymbol, symbol as symbol, volume as volume  " +
                         "insert into OutputStream ;";
 
                 ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);

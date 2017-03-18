@@ -279,7 +279,7 @@ public class ExpressionParser {
             EventTable eventTable = eventTableMap.get(((In) expression).getSourceId());
             MatchingMetaInfoHolder matchingMetaInfoHolder = MatcherParser.constructMatchingMetaStateHolder(metaEvent, defaultStreamEventIndex, eventTable.getTableDefinition(), defaultStreamEventIndex);
             CompiledCondition compiledCondition = eventTable.compileCondition(((In) expression).getExpression(), matchingMetaInfoHolder, executionPlanContext, executorList, eventTableMap, queryName);
-            return new InConditionExpressionExecutor(eventTable, compiledCondition, matchingMetaInfoHolder.getMetaStateEvent().getMetaStreamEvents().length, metaEvent instanceof StateEvent, matchingMetaInfoHolder.getStreamEventIndex());
+            return new InConditionExpressionExecutor(eventTable, compiledCondition, matchingMetaInfoHolder.getMetaStateEvent().getMetaStreamEvents().length, metaEvent instanceof StateEvent, 0);
 
         } else if (expression instanceof IsNull) {
 
