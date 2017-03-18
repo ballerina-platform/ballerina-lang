@@ -109,7 +109,7 @@ public class CollectionOperator implements Operator {
                         updatingEvent.setEvent(storeEventPosition, storeEvent);
                         if ((Boolean) expressionExecutor.execute(updatingEvent)) {
                             for (UpdateAttributeMapper updateAttributeMapper : updateAttributeMappers) {
-                                updateAttributeMapper.mapOutputData(updatingEvent,storeEvent);
+                                updateAttributeMapper.mapOutputData(updatingEvent, storeEvent);
                             }
                         }
                     }

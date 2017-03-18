@@ -49,9 +49,9 @@ public class JoinTableTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String streams = "" +
-                "define stream StockStream (symbol string, price float, volume long); " +
-                "define stream CheckStockStream (symbol string); " +
-                "define table StockTable (symbol string, price float, volume long); ";
+                "define stream StockStream (symbol2 string, price2 float, volume2 long); " +
+                "define stream CheckStockStream (symbol1 string); " +
+                "define table StockTable (symbol2 string, price2 float, volume2 long); ";
         String query = "" +
                 "@info(name = 'query1') " +
                 "from StockStream " +
@@ -59,7 +59,7 @@ public class JoinTableTestCase {
                 "" +
                 "@info(name = 'query2') " +
                 "from CheckStockStream#window.length(1) join StockTable " +
-                "select CheckStockStream.symbol as checkSymbol, StockTable.symbol as symbol, StockTable.volume as volume  " +
+                "select symbol1, symbol2, volume2  " +
                 "insert into OutputStream ;";
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
@@ -450,6 +450,73 @@ public class JoinTableTestCase {
 
         executionPlanRuntime.shutdown();
         Assert.assertTrue("Events arrived", eventArrived);
+
+    }
+
+    @Test
+    public void testTableJoinQuery7() throws InterruptedException {
+        log.info("testTableJoinQuery7 - OUT 1");
+
+        SiddhiManager siddhiManager = new SiddhiManager();
+
+        String streams = "" +
+                "define stream StockStream (symbol2 string, price2 float, volume2 long); " +
+                "define stream CheckStockStream (symbol1 string); " +
+                "define table StockTable (symbol2 string, price2 float, volume2 long); ";
+        String query = "" +
+                "@info(name = 'query1') " +
+                "from StockStream " +
+                "insert into StockTable ;" +
+                "" +
+                "@info(name = 'query2') " +
+                "from CheckStockStream#window.length(1) join StockTable " +
+                "   on symbol1 == symbol2 " +
+                "select symbol1, symbol2, volume2  " +
+                "insert into OutputStream ;";
+
+        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
+
+        executionPlanRuntime.addCallback("query2", new QueryCallback() {
+            @Override
+            public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
+                EventPrinter.print(timeStamp, inEvents, removeEvents);
+                if (inEvents != null) {
+                    for (Event event : inEvents) {
+                        inEventCount++;
+                        switch (inEventCount) {
+                            case 1:
+                                Assert.assertArrayEquals(new Object[]{"WSO2", "WSO2", 100l}, event.getData());
+                                break;
+                            default:
+                                Assert.assertSame(1, inEventCount);
+                        }
+                    }
+                    eventArrived = true;
+                }
+                if (removeEvents != null) {
+                    removeEventCount = removeEventCount + removeEvents.length;
+                }
+                eventArrived = true;
+            }
+
+        });
+
+        InputHandler stockStream = executionPlanRuntime.getInputHandler("StockStream");
+        InputHandler checkStockStream = executionPlanRuntime.getInputHandler("CheckStockStream");
+
+        executionPlanRuntime.start();
+
+        stockStream.send(new Object[]{"WSO2", 55.6f, 100l});
+        stockStream.send(new Object[]{"IBM", 75.6f, 10l});
+        checkStockStream.send(new Object[]{"WSO2"});
+
+        Thread.sleep(500);
+
+        Assert.assertEquals("Number of success events", 1, inEventCount);
+        Assert.assertEquals("Number of remove events", 0, removeEventCount);
+        Assert.assertEquals("Event arrived", true, eventArrived);
+
+        executionPlanRuntime.shutdown();
 
     }
 

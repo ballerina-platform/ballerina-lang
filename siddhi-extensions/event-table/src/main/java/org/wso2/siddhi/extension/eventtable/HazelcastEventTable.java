@@ -263,7 +263,7 @@ public class HazelcastEventTable implements EventTable {
     public CompiledCondition compileCondition(Expression expression, MatchingMetaInfoHolder matchingMetaInfoHolder,
                                               ExecutionPlanContext executionPlanContext,
                                               List<VariableExpressionExecutor> variableExpressionExecutors,
-                                              Map<String, EventTable> eventTableMap) {
+                                              Map<String, EventTable> eventTableMap, String queryName) {
         return HazelcastOperatorParser.constructOperator(eventHolder, expression, matchingMetaInfoHolder,
                 executionPlanContext, variableExpressionExecutors, eventTableMap, tableDefinition.getId());
     }

@@ -28,9 +28,11 @@ import org.wso2.siddhi.query.api.definition.Attribute;
 
 import java.util.List;
 
+import static org.wso2.siddhi.core.util.SiddhiConstants.UNKNOWN_STATE;
+
 public class MatcherParser {
 
-    public static MatchingMetaInfoHolder constructMatchingMetaStateHolder(MetaComplexEvent matchingMetaComplexEvent, int defaultStreamEventIndex, AbstractDefinition candsidateDefinition) {
+    public static MatchingMetaInfoHolder constructMatchingMetaStateHolder(MetaComplexEvent matchingMetaComplexEvent, int defaultStreamEventIndex, AbstractDefinition candsidateDefinition, int currentState) {
         int storeEventIndex = 0;
 
         MetaStreamEvent eventTableStreamEvent = new MetaStreamEvent();
@@ -47,6 +49,9 @@ public class MatcherParser {
             metaStateEvent.addEvent(eventTableStreamEvent);
             storeEventIndex = 1;
             defaultStreamEventIndex = 0;
+            if (currentState == UNKNOWN_STATE) {
+                currentState = defaultStreamEventIndex;
+            }
         } else {
 
             MetaStreamEvent[] metaStreamEvents = ((MetaStateEvent) matchingMetaComplexEvent).getMetaStreamEvents();
@@ -69,14 +74,20 @@ public class MatcherParser {
                 storeEventIndex = metaStreamEvents.length;
             }
         }
-        return new MatchingMetaInfoHolder(metaStateEvent, defaultStreamEventIndex, storeEventIndex, metaStateEvent.getMetaStreamEvent(defaultStreamEventIndex).getLastInputDefinition(), candsidateDefinition);
+        return new MatchingMetaInfoHolder(metaStateEvent, defaultStreamEventIndex, storeEventIndex,
+                metaStateEvent.getMetaStreamEvent(defaultStreamEventIndex).getLastInputDefinition(),
+                candsidateDefinition, currentState);
     }
 
-    public static UpdateAttributeMapper[] constructUpdateAttributeMapper(AbstractDefinition tableDefinition, List<Attribute> updatingStreamDefinition, int matchingStreamEventPosition) {
+    public static UpdateAttributeMapper[] constructUpdateAttributeMapper(AbstractDefinition tableDefinition,
+                                                                         List<Attribute> updatingStreamDefinition,
+                                                                         int matchingStreamEventPosition) {
         UpdateAttributeMapper[] updateAttributeMappers = new UpdateAttributeMapper[updatingStreamDefinition.size()];
         for (int i = 0; i < updatingStreamDefinition.size(); i++) {
             Attribute streamAttribute = updatingStreamDefinition.get(i);
-            updateAttributeMappers[i] = new UpdateAttributeMapper(i, tableDefinition.getAttributePosition(streamAttribute.getName()), matchingStreamEventPosition);
+            updateAttributeMappers[i] = new UpdateAttributeMapper(i,
+                    tableDefinition.getAttributePosition(streamAttribute.getName()), streamAttribute.getName(),
+                    matchingStreamEventPosition);
         }
         return updateAttributeMappers;
     }

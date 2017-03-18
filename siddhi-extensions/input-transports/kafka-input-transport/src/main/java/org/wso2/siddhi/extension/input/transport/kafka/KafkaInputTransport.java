@@ -34,7 +34,7 @@ import java.util.concurrent.*;
         namespace = "inputtransport",
         description = ""
 )
-public class KafkaInputTransport extends InputTransport {
+public class KafkaInputTransport extends InputTransport{
 
     private SourceEventListener sourceEventListener;
     private ScheduledExecutorService executorService;

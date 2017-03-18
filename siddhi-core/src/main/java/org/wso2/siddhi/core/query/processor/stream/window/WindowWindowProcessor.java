@@ -72,8 +72,8 @@ public class WindowWindowProcessor extends WindowProcessor implements FindablePr
     }
 
     @Override
-    public CompiledCondition compileCondition(Expression expression, MatchingMetaInfoHolder matchingMetaInfoHolder, ExecutionPlanContext executionPlanContext, List<VariableExpressionExecutor> variableExpressionExecutors, Map<String, EventTable> eventTableMap) {
-        return eventWindow.compileCondition(expression, matchingMetaInfoHolder, executionPlanContext, variableExpressionExecutors, eventTableMap);
+    public CompiledCondition compileCondition(Expression expression, MatchingMetaInfoHolder matchingMetaInfoHolder, ExecutionPlanContext executionPlanContext, List<VariableExpressionExecutor> variableExpressionExecutors, Map<String, EventTable> eventTableMap, String queryName) {
+        return eventWindow.compileCondition(expression, matchingMetaInfoHolder, executionPlanContext, variableExpressionExecutors, eventTableMap, queryName);
     }
 
     @Override

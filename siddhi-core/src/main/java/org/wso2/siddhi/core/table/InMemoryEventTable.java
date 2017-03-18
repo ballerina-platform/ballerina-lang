@@ -149,7 +149,7 @@ public class InMemoryEventTable implements EventTable, Snapshotable {
     public CompiledCondition compileCondition(Expression expression, MatchingMetaInfoHolder matchingMetaInfoHolder,
                                               ExecutionPlanContext executionPlanContext,
                                               List<VariableExpressionExecutor> variableExpressionExecutors,
-                                              Map<String, EventTable> eventTableMap) {
+                                              Map<String, EventTable> eventTableMap, String queryName) {
         return OperatorParser.constructOperator(eventHolder, expression, matchingMetaInfoHolder,
                 executionPlanContext, variableExpressionExecutors, eventTableMap, tableDefinition.getId());
     }

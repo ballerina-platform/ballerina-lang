@@ -52,15 +52,15 @@ public class OperatorParser {
             return new IndexOperator(collectionExecutor);
         } else if (storeEvents instanceof ComplexEventChunk) {
             ExpressionExecutor expressionExecutor = ExpressionParser.parseExpression(expression,
-                    matchingMetaInfoHolder.getMetaStateEvent(), matchingMetaInfoHolder.getStreamEventIndex(), eventTableMap, variableExpressionExecutors, executionPlanContext, false, 0, queryName);
+                    matchingMetaInfoHolder.getMetaStateEvent(), matchingMetaInfoHolder.getCurrentState(), eventTableMap, variableExpressionExecutors, executionPlanContext, false, matchingMetaInfoHolder.getStreamEventIndex(), queryName);
             return new EventChunkOperator(expressionExecutor, matchingMetaInfoHolder.getStoreEventIndex());
         } else if (storeEvents instanceof Map) {
             ExpressionExecutor expressionExecutor = ExpressionParser.parseExpression(expression,
-                    matchingMetaInfoHolder.getMetaStateEvent(), matchingMetaInfoHolder.getStreamEventIndex(), eventTableMap, variableExpressionExecutors, executionPlanContext, false, 0, queryName);
+                    matchingMetaInfoHolder.getMetaStateEvent(), matchingMetaInfoHolder.getCurrentState(), eventTableMap, variableExpressionExecutors, executionPlanContext, false, matchingMetaInfoHolder.getStreamEventIndex(), queryName);
             return new MapOperator(expressionExecutor, matchingMetaInfoHolder.getStoreEventIndex());
         } else if (storeEvents instanceof Collection) {
             ExpressionExecutor expressionExecutor = ExpressionParser.parseExpression(expression,
-                    matchingMetaInfoHolder.getMetaStateEvent(), matchingMetaInfoHolder.getStreamEventIndex(), eventTableMap, variableExpressionExecutors, executionPlanContext, false, 0, queryName);
+                    matchingMetaInfoHolder.getMetaStateEvent(), matchingMetaInfoHolder.getCurrentState(), eventTableMap, variableExpressionExecutors, executionPlanContext, false, matchingMetaInfoHolder.getStreamEventIndex(), queryName);
             return new CollectionOperator(expressionExecutor, matchingMetaInfoHolder.getStoreEventIndex());
         } else {
             throw new OperationNotSupportedException(storeEvents.getClass() + " is not supported by OperatorParser!");

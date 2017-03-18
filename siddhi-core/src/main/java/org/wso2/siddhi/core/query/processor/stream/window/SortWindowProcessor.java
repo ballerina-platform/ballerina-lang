@@ -178,8 +178,8 @@ public class SortWindowProcessor extends WindowProcessor implements FindableProc
 
     @Override
     public CompiledCondition compileCondition(Expression expression, MatchingMetaInfoHolder matchingMetaInfoHolder, ExecutionPlanContext executionPlanContext,
-                                              List<VariableExpressionExecutor> variableExpressionExecutors, Map<String, EventTable> eventTableMap) {
-        return OperatorParser.constructOperator(sortedWindow, expression, matchingMetaInfoHolder, executionPlanContext, variableExpressionExecutors, eventTableMap, queryName);
+                                              List<VariableExpressionExecutor> variableExpressionExecutors, Map<String, EventTable> eventTableMap, String queryName) {
+        return OperatorParser.constructOperator(sortedWindow, expression, matchingMetaInfoHolder, executionPlanContext, variableExpressionExecutors, eventTableMap, this.queryName);
     }
 
     private class EventComparator implements Comparator<StreamEvent> {

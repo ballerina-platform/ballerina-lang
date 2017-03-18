@@ -36,9 +36,9 @@ public final class SiddhiConstants {
     public static final int STATE_OUTPUT_DATA_INDEX = 3;
 
     public static final int STREAM_EVENT_CHAIN_INDEX = 0;
-    public static final int STREAM_EVENT_INDEX = 1;
+    public static final int STREAM_EVENT_INDEX_IN_CHAIN = 1;
     public static final int STREAM_ATTRIBUTE_TYPE_INDEX = 2;
-    public static final int STREAM_ATTRIBUTE_INDEX = 3;
+    public static final int STREAM_ATTRIBUTE_INDEX_IN_TYPE = 3;
 
     public static final String ANNOTATION_NAME = "Name";
     public static final String ANNOTATION_PLAYBACK = "Playback";

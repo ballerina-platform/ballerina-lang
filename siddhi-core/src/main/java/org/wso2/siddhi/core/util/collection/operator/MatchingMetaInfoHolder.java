@@ -21,19 +21,23 @@ package org.wso2.siddhi.core.util.collection.operator;
 import org.wso2.siddhi.core.event.state.MetaStateEvent;
 import org.wso2.siddhi.query.api.definition.AbstractDefinition;
 
+import static org.wso2.siddhi.core.util.SiddhiConstants.UNKNOWN_STATE;
+
 public class MatchingMetaInfoHolder {
     private int streamEventIndex;
-    private final int storeEventIndex;
+    private int storeEventIndex;
     private AbstractDefinition streamDefinition;
     private AbstractDefinition storeDefinition;
     private MetaStateEvent metaStateEvent;
+    private int currentState = UNKNOWN_STATE;
 
-    public MatchingMetaInfoHolder(MetaStateEvent metaStateEvent, int streamEventIndex, int storeEventIndex, AbstractDefinition streamDefinition, AbstractDefinition storeDefinition) {
+    public MatchingMetaInfoHolder(MetaStateEvent metaStateEvent, int streamEventIndex, int storeEventIndex, AbstractDefinition streamDefinition, AbstractDefinition storeDefinition, int currentState) {
         this.metaStateEvent = metaStateEvent;
         this.streamEventIndex = streamEventIndex;
         this.storeEventIndex = storeEventIndex;
         this.streamDefinition = streamDefinition;
         this.storeDefinition = storeDefinition;
+        this.currentState = currentState;
     }
 
     public int getStreamEventIndex() {
@@ -54,6 +58,10 @@ public class MatchingMetaInfoHolder {
 
     public AbstractDefinition getStoreDefinition() {
         return storeDefinition;
+    }
+
+    public int getCurrentState() {
+        return currentState;
     }
 }
 

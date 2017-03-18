@@ -53,19 +53,19 @@ public class SelectiveComplexEventPopulater implements ComplexEventPopulater {
             streamEvent = (StreamEvent) complexEvent;
         } else {
             streamEvent = ((StateEvent) complexEvent).getStreamEvent(toPosition[STREAM_EVENT_CHAIN_INDEX]);
-            for (int i = 0; i <= toPosition[STREAM_EVENT_INDEX]; i++) {
+            for (int i = 0; i <= toPosition[STREAM_EVENT_INDEX_IN_CHAIN]; i++) {
                 streamEvent = streamEvent.getNext();
             }
         }
         switch (toPosition[STREAM_ATTRIBUTE_TYPE_INDEX]) {
             case 0:
-                streamEvent.setBeforeWindowData(data, toPosition[STREAM_ATTRIBUTE_INDEX]);
+                streamEvent.setBeforeWindowData(data, toPosition[STREAM_ATTRIBUTE_INDEX_IN_TYPE]);
                 break;
             case 1:
-                streamEvent.setOnAfterWindowData(data, toPosition[STREAM_ATTRIBUTE_INDEX]);
+                streamEvent.setOnAfterWindowData(data, toPosition[STREAM_ATTRIBUTE_INDEX_IN_TYPE]);
                 break;
             case 2:
-                complexEvent.setOutputData(data, toPosition[STREAM_ATTRIBUTE_INDEX]);
+                complexEvent.setOutputData(data, toPosition[STREAM_ATTRIBUTE_INDEX_IN_TYPE]);
                 break;
             default:
                 //will not happen

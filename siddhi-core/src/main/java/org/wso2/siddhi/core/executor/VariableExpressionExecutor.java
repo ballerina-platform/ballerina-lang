@@ -29,10 +29,10 @@ public class VariableExpressionExecutor implements ExpressionExecutor {
     //Position[stream event chain index, stream event index, stream attribute type index, stream attribute index]
     //stream attribute type index -> outData = 2; onAfterWindowData = 1; beforeWindowData = 0;
 
-    public VariableExpressionExecutor(Attribute attribute, int streamEventChainIndex, int streamEventIndex) {
+    public VariableExpressionExecutor(Attribute attribute, int streamEventChainIndex, int streamEventIndexInChain) {
         this.attribute = attribute;
         position[STREAM_EVENT_CHAIN_INDEX] = streamEventChainIndex;
-        position[STREAM_EVENT_INDEX] = streamEventIndex;
+        position[STREAM_EVENT_INDEX_IN_CHAIN] = streamEventIndexInChain;
     }
 
     @Override

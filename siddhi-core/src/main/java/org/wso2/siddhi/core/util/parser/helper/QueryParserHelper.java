@@ -38,11 +38,7 @@ import org.wso2.siddhi.core.query.processor.stream.AbstractStreamProcessor;
 import org.wso2.siddhi.core.util.lock.LockWrapper;
 import org.wso2.siddhi.query.api.definition.Attribute;
 
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
-import java.util.concurrent.locks.ReentrantLock;
 
 import static org.wso2.siddhi.core.util.SiddhiConstants.*;
 
@@ -101,7 +97,7 @@ public class QueryParserHelper {
                     variableExpressionExecutor.getPosition()[STREAM_ATTRIBUTE_TYPE_INDEX] = STATE_OUTPUT_DATA_INDEX;
                 }
                 variableExpressionExecutor.getPosition()[STREAM_EVENT_CHAIN_INDEX] = UNKNOWN_STATE;
-                variableExpressionExecutor.getPosition()[STREAM_ATTRIBUTE_INDEX] = metaComplexEvent.
+                variableExpressionExecutor.getPosition()[STREAM_ATTRIBUTE_INDEX_IN_TYPE] = metaComplexEvent.
                         getOutputStreamDefinition().getAttributeList().indexOf(variableExpressionExecutor.getAttribute());
                 continue;
             } else if (metaComplexEvent instanceof MetaStreamEvent && streamEventChainIndex >= 1) { //for VariableExpressionExecutor on Event table
@@ -120,17 +116,17 @@ public class QueryParserHelper {
             if (metaStreamEvent.getOutputData().contains(variableExpressionExecutor.getAttribute())) {
                 variableExpressionExecutor.getPosition()[STREAM_ATTRIBUTE_TYPE_INDEX] =
                         OUTPUT_DATA_INDEX;
-                variableExpressionExecutor.getPosition()[STREAM_ATTRIBUTE_INDEX] =
+                variableExpressionExecutor.getPosition()[STREAM_ATTRIBUTE_INDEX_IN_TYPE] =
                         metaStreamEvent.getOutputData().indexOf(variableExpressionExecutor.getAttribute());
             } else if (metaStreamEvent.getOnAfterWindowData().contains(variableExpressionExecutor.getAttribute())) {
                 variableExpressionExecutor.getPosition()[STREAM_ATTRIBUTE_TYPE_INDEX] =
                         ON_AFTER_WINDOW_DATA_INDEX;
-                variableExpressionExecutor.getPosition()[STREAM_ATTRIBUTE_INDEX] =
+                variableExpressionExecutor.getPosition()[STREAM_ATTRIBUTE_INDEX_IN_TYPE] =
                         metaStreamEvent.getOnAfterWindowData().indexOf(variableExpressionExecutor.getAttribute());
             } else if (metaStreamEvent.getBeforeWindowData().contains(variableExpressionExecutor.getAttribute())) {
                 variableExpressionExecutor.getPosition()[STREAM_ATTRIBUTE_TYPE_INDEX] =
                         BEFORE_WINDOW_DATA_INDEX;
-                variableExpressionExecutor.getPosition()[STREAM_ATTRIBUTE_INDEX] =
+                variableExpressionExecutor.getPosition()[STREAM_ATTRIBUTE_INDEX_IN_TYPE] =
                         metaStreamEvent.getBeforeWindowData().indexOf(variableExpressionExecutor.getAttribute());
             }
         }

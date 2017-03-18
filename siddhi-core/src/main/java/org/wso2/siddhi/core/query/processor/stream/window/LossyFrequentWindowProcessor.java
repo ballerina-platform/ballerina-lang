@@ -207,8 +207,8 @@ public class LossyFrequentWindowProcessor extends WindowProcessor implements Fin
 
     @Override
     public CompiledCondition compileCondition(Expression expression, MatchingMetaInfoHolder matchingMetaInfoHolder, ExecutionPlanContext executionPlanContext,
-                                              List<VariableExpressionExecutor> variableExpressionExecutors, Map<String, EventTable> eventTableMap) {
-        return OperatorParser.constructOperator(map.values(), expression, matchingMetaInfoHolder, executionPlanContext, variableExpressionExecutors, eventTableMap, queryName);
+                                              List<VariableExpressionExecutor> variableExpressionExecutors, Map<String, EventTable> eventTableMap, String queryName) {
+        return OperatorParser.constructOperator(map.values(), expression, matchingMetaInfoHolder, executionPlanContext, variableExpressionExecutors, eventTableMap, this.queryName);
     }
 
     public class LossyCount {

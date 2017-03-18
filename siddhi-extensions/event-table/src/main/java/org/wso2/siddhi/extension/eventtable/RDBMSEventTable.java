@@ -318,9 +318,9 @@ public class RDBMSEventTable implements EventTable {
     public CompiledCondition compileCondition(Expression expression, MatchingMetaInfoHolder matchingMetaInfoHolder,
                                               ExecutionPlanContext executionPlanContext,
                                               List<VariableExpressionExecutor> variableExpressionExecutors,
-                                              Map<String, EventTable> eventTableMap) {
+                                              Map<String, EventTable> eventTableMap, String queryName) {
         return RDBMSOperatorParser.parse(dbHandler, expression, matchingMetaInfoHolder, executionPlanContext,
-                variableExpressionExecutors, eventTableMap, tableDefinition, cachedTable, tableDefinition.getId());
+                variableExpressionExecutors, eventTableMap, tableDefinition, cachedTable, queryName);
     }
 
 

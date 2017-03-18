@@ -112,9 +112,9 @@ public class OutputParser {
                 if (outStream instanceof DeleteStream) {
                     try {
                         MatchingMetaInfoHolder matchingMetaInfoHolder =
-                                MatcherParser.constructMatchingMetaStateHolder(tableMetaStreamEvent, 0, eventTable.getTableDefinition());
+                                MatcherParser.constructMatchingMetaStateHolder(tableMetaStreamEvent, 0, eventTable.getTableDefinition(), 0);
                         CompiledCondition compiledCondition = eventTable.compileCondition((((DeleteStream) outStream).getOnDeleteExpression()),
-                                matchingMetaInfoHolder, executionPlanContext, null, eventTableMap);
+                                matchingMetaInfoHolder, executionPlanContext, null, eventTableMap, queryName);
                         StateEventPool stateEventPool = new StateEventPool(matchingMetaInfoHolder.getMetaStateEvent(), 10);
                         return new DeleteTableCallback(eventTable, compiledCondition, matchingMetaInfoHolder.getStreamEventIndex(),
                                 convertToStreamEvent, stateEventPool, streamEventPool, streamEventConverter);
@@ -124,9 +124,9 @@ public class OutputParser {
                 } else if (outStream instanceof UpdateStream) {
                     try {
                         MatchingMetaInfoHolder matchingMetaInfoHolder =
-                                MatcherParser.constructMatchingMetaStateHolder(tableMetaStreamEvent, 0, eventTable.getTableDefinition());
+                                MatcherParser.constructMatchingMetaStateHolder(tableMetaStreamEvent, 0, eventTable.getTableDefinition(), 0);
                         CompiledCondition compiledCondition = eventTable.compileCondition((((UpdateStream) outStream).getOnUpdateExpression()),
-                                matchingMetaInfoHolder, executionPlanContext, null, eventTableMap);
+                                matchingMetaInfoHolder, executionPlanContext, null, eventTableMap, queryName);
                         StateEventPool stateEventPool = new StateEventPool(matchingMetaInfoHolder.getMetaStateEvent(), 10);
                         return new UpdateTableCallback(eventTable, compiledCondition, outputStreamDefinition,
                                 matchingMetaInfoHolder.getStreamEventIndex(), convertToStreamEvent, stateEventPool,
@@ -138,9 +138,9 @@ public class OutputParser {
                     DefinitionParserHelper.validateOutputStream(outputStreamDefinition, eventTable.getTableDefinition());
                     try {
                         MatchingMetaInfoHolder matchingMetaInfoHolder =
-                                MatcherParser.constructMatchingMetaStateHolder(tableMetaStreamEvent, 0, eventTable.getTableDefinition());
+                                MatcherParser.constructMatchingMetaStateHolder(tableMetaStreamEvent, 0, eventTable.getTableDefinition(), 0);
                         CompiledCondition compiledCondition  = eventTable.compileCondition((((InsertOverwriteStream) outStream).getOnOverwriteExpression()),
-                                matchingMetaInfoHolder, executionPlanContext, null, eventTableMap);
+                                matchingMetaInfoHolder, executionPlanContext, null, eventTableMap, queryName);
                         StateEventPool stateEventPool = new StateEventPool(matchingMetaInfoHolder.getMetaStateEvent(), 10);
                         return new InsertOverwriteTableCallback(eventTable, compiledCondition, outputStreamDefinition,
                                 matchingMetaInfoHolder.getStreamEventIndex(), convertToStreamEvent, stateEventPool,

@@ -49,6 +49,8 @@ import org.wso2.siddhi.query.api.expression.constant.TimeConstant;
 import java.util.List;
 import java.util.Map;
 
+import static org.wso2.siddhi.core.util.SiddhiConstants.UNKNOWN_STATE;
+
 public class JoinInputStreamParser {
 
 
@@ -192,10 +194,10 @@ public class JoinInputStreamParser {
             throw new OperationNotSupportedException("within not support for joins, found withing time '" + ((TimeConstant) joinInputStream.getWithin()).getValue() + " ms'");
         }
 
-        MatchingMetaInfoHolder rightMatchingMetaInfoHolder = MatcherParser.constructMatchingMetaStateHolder(metaStateEvent, 0, rightMetaStreamEvent.getLastInputDefinition());
-        CompiledCondition leftCompiledCondition = rightFindableProcessor.compileCondition(compareCondition, rightMatchingMetaInfoHolder, executionPlanContext, executors, eventTableMap);
-        MatchingMetaInfoHolder leftMatchingMetaInfoHolder = MatcherParser.constructMatchingMetaStateHolder(metaStateEvent, 1, leftMetaStreamEvent.getLastInputDefinition());
-        CompiledCondition rightCompiledCondition = leftFindableProcessor.compileCondition(compareCondition, leftMatchingMetaInfoHolder, executionPlanContext, executors, eventTableMap);
+        MatchingMetaInfoHolder rightMatchingMetaInfoHolder = MatcherParser.constructMatchingMetaStateHolder(metaStateEvent, 0, rightMetaStreamEvent.getLastInputDefinition(), UNKNOWN_STATE);
+        CompiledCondition leftCompiledCondition = rightFindableProcessor.compileCondition(compareCondition, rightMatchingMetaInfoHolder, executionPlanContext, executors, eventTableMap, queryName);
+        MatchingMetaInfoHolder leftMatchingMetaInfoHolder = MatcherParser.constructMatchingMetaStateHolder(metaStateEvent, 1, leftMetaStreamEvent.getLastInputDefinition(), UNKNOWN_STATE);
+        CompiledCondition rightCompiledCondition = leftFindableProcessor.compileCondition(compareCondition, leftMatchingMetaInfoHolder, executionPlanContext, executors, eventTableMap, queryName);
 
         if (joinInputStream.getTrigger() != JoinInputStream.EventTrigger.LEFT) {
             rightPreJoinProcessor.setTrigger(false);    // Pre JoinProcessor does not process the events
