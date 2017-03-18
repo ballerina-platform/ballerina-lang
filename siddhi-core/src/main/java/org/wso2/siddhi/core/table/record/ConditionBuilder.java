@@ -238,7 +238,7 @@ public class ConditionBuilder {
                         }
                     }
                     if (streamEventChainIndex != UNKNOWN_STATE) {
-                        if (matchingMetaInfoHolder.getStreamEventIndex() == streamEventChainIndex) {
+                        if (matchingMetaInfoHolder.getMatchingStreamEventIndex() == streamEventChainIndex) {
                             buildStreamVariableExecutor(variable, streamEventChainIndex, conditionVisitor, type);
                         } else {
                             buildStoreVariableExecutor(variable, conditionVisitor, type);
@@ -255,7 +255,7 @@ public class ConditionBuilder {
                                 definition.getId() + " with " + "reference: " + metaStreamEvent.getInputReferenceId());
                     }
 
-                    if (matchingMetaInfoHolder.getCurrentState() == matchingMetaInfoHolder.getStreamEventIndex()) {
+                    if (matchingMetaInfoHolder.getCurrentState() == matchingMetaInfoHolder.getMatchingStreamEventIndex()) {
                         buildStreamVariableExecutor(variable, streamEventChainIndex, conditionVisitor, type);
                     } else {
                         buildStoreVariableExecutor(variable, conditionVisitor, type);
@@ -282,7 +282,7 @@ public class ConditionBuilder {
                         }
                     }
                 }
-                if (matchingMetaInfoHolder.getStreamEventIndex() == streamEventChainIndex) {
+                if (matchingMetaInfoHolder.getMatchingStreamEventIndex() == streamEventChainIndex) {
                     buildStreamVariableExecutor(variable, streamEventChainIndex, conditionVisitor, type);
                 } else {
                     buildStoreVariableExecutor(variable, conditionVisitor, type);

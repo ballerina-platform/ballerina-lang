@@ -116,7 +116,7 @@ public class OutputParser {
                         CompiledCondition compiledCondition = eventTable.compileCondition((((DeleteStream) outStream).getOnDeleteExpression()),
                                 matchingMetaInfoHolder, executionPlanContext, null, eventTableMap, queryName);
                         StateEventPool stateEventPool = new StateEventPool(matchingMetaInfoHolder.getMetaStateEvent(), 10);
-                        return new DeleteTableCallback(eventTable, compiledCondition, matchingMetaInfoHolder.getStreamEventIndex(),
+                        return new DeleteTableCallback(eventTable, compiledCondition, matchingMetaInfoHolder.getMatchingStreamEventIndex(),
                                 convertToStreamEvent, stateEventPool, streamEventPool, streamEventConverter);
                     } catch (ExecutionPlanValidationException e) {
                         throw new ExecutionPlanCreationException("Cannot create delete for table '" + outStream.getId() + "', " + e.getMessage(), e);
@@ -129,7 +129,7 @@ public class OutputParser {
                                 matchingMetaInfoHolder, executionPlanContext, null, eventTableMap, queryName);
                         StateEventPool stateEventPool = new StateEventPool(matchingMetaInfoHolder.getMetaStateEvent(), 10);
                         return new UpdateTableCallback(eventTable, compiledCondition, outputStreamDefinition,
-                                matchingMetaInfoHolder.getStreamEventIndex(), convertToStreamEvent, stateEventPool,
+                                matchingMetaInfoHolder.getMatchingStreamEventIndex(), convertToStreamEvent, stateEventPool,
                                 streamEventPool, streamEventConverter);
                     } catch (ExecutionPlanValidationException e) {
                         throw new ExecutionPlanCreationException("Cannot create update for table '" + outStream.getId() + "', " + e.getMessage(), e);
@@ -143,7 +143,7 @@ public class OutputParser {
                                 matchingMetaInfoHolder, executionPlanContext, null, eventTableMap, queryName);
                         StateEventPool stateEventPool = new StateEventPool(matchingMetaInfoHolder.getMetaStateEvent(), 10);
                         return new InsertOverwriteTableCallback(eventTable, compiledCondition, outputStreamDefinition,
-                                matchingMetaInfoHolder.getStreamEventIndex(), convertToStreamEvent, stateEventPool,
+                                matchingMetaInfoHolder.getMatchingStreamEventIndex(), convertToStreamEvent, stateEventPool,
                                 streamEventPool, streamEventConverter);
 
                     } catch (ExecutionPlanValidationException e) {
