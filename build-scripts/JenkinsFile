@@ -1,0 +1,432 @@
+#!groovy
+String BUILD = "Build", RELEASE = "Release";
+String YES = "Yes", NO = "No";
+def expectedAction;
+String yesNoString = "${NO}\n${YES}";
+
+String buildInputParams = "${BUILD}\n${RELEASE}";
+expectedAction = input(
+        id: 'userInput', message: 'Please choose Build Or Release option', parameters: [
+        [$class: 'ChoiceParameterDefinition', defaultValue: BUILD, choices: buildInputParams, description: 'Build Or Release', name: 'build-or-release'],
+        [$class: 'ChoiceParameterDefinition', defaultValue: YES, choices: yesNoString, description: 'Clean Or Keep dir', name: 'clean-dir']
+]);
+
+boolean isRelease = RELEASE.equals(expectedAction['build-or-release']);
+boolean needCleanUp = YES.equals(expectedAction['clean-dir']);
+
+String ballerinaVersion, ballerinaReleaseTag, ballerinaDevVersion, ballerinaSkipTests;
+String composerVersion, composerReleaseTag, composerDevVersion, composerSkipTests;
+String docerinaVersion, docerinaReleaseTag, docerinaDevVersion, docerinaSkipTests;
+String testerinaVersion, testerinaReleaseTag, testerinaDevVersion, testerinaSkipTests;
+String containerSupportVersion, containerSupportReleaseTag, containerSupportDevVersion, containerSupportSkipTests;
+String connectorsVersion, connectorsReleaseTag, connectorsDevVersion, connectorsSkipTests;
+String toolSwaggerVersion, toolSwaggerReleaseTag, toolSwaggerDevVersion, toolSwaggerSkipTests;
+String toolsDistVersion, toolsDistReleaseTag, toolsDistDevVersion, toolsDistSkipTests;
+String ballerinaParentVersion;
+
+def releaseParamInput, buildParamInput;
+
+String TEXT_PARAM_DEF_CLASS = "TextParameterDefinition";
+String CHOICE_PARAM_DEF_CLASS = "ChoiceParameterDefinition";
+
+if (isRelease) {
+    releaseParamInput = input(
+            id: 'userInput', message: 'Please provide following parameters', parameters: [
+            [$class: TEXT_PARAM_DEF_CLASS, description: 'Please provide Ballerina Parent Version', name: 'ballerina-parent-version'],
+
+            [$class: TEXT_PARAM_DEF_CLASS, description: 'Please provide Ballerina Release Version', name: 'ballerina-release-version'],
+            [$class: TEXT_PARAM_DEF_CLASS, description: 'Please provide Ballerina Release Tag', name: 'ballerina-release-tag'],
+            [$class: TEXT_PARAM_DEF_CLASS, description: 'Please provide Ballerina Next Development Version', name: 'ballerina-next-development-version'],
+            [$class: CHOICE_PARAM_DEF_CLASS, choices: yesNoString, description: 'Skip Tests', name: 'skip-ballerina-tests'],
+
+            [$class: TEXT_PARAM_DEF_CLASS, description: 'Please provide Composer Release Version', name: 'composer-release-version'],
+            [$class: TEXT_PARAM_DEF_CLASS, description: 'Please provide Composer Release Tag', name: 'composer-release-tag'],
+            [$class: TEXT_PARAM_DEF_CLASS, description: 'Please provide Composer Next Development Version', name: 'composer-next-development-version'],
+            [$class: CHOICE_PARAM_DEF_CLASS, choices: yesNoString, description: 'Skip Tests', name: 'skip-composer-tests'],
+
+            [$class: TEXT_PARAM_DEF_CLASS, description: 'Please provide Docerina Release Version', name: 'docerina-release-version'],
+            [$class: TEXT_PARAM_DEF_CLASS, description: 'Please provide Docerina Release Tag', name: 'docerina-release-tag'],
+            [$class: TEXT_PARAM_DEF_CLASS, description: 'Please provide Docerina Next Development Version', name: 'docerina-next-development-version'],
+            [$class: CHOICE_PARAM_DEF_CLASS, choices: yesNoString, description: 'Skip Tests', name: 'skip-docerina-tests'],
+
+            [$class: TEXT_PARAM_DEF_CLASS, description: 'Please provide Testerina Release Version', name: 'testerina-release-version'],
+            [$class: TEXT_PARAM_DEF_CLASS, description: 'Please provide Testerina Release Tag', name: 'testerina-release-tag'],
+            [$class: TEXT_PARAM_DEF_CLASS, description: 'Please provide Testerina Next Development Version', name: 'testerina-next-development-version'],
+            [$class: CHOICE_PARAM_DEF_CLASS, choices: yesNoString, description: 'Skip Tests', name: 'skip-testerina-tests'],
+
+            [$class: TEXT_PARAM_DEF_CLASS, description: 'Please provide container-support Release Version', name: 'container-support-release-version'],
+            [$class: TEXT_PARAM_DEF_CLASS, description: 'Please provide container-support Release Tag', name: 'container-support-release-tag'],
+            [$class: TEXT_PARAM_DEF_CLASS, description: 'Please provide container-support Next Development Version', name: 'container-support-next-development-version'],
+            [$class: CHOICE_PARAM_DEF_CLASS, choices: yesNoString, description: 'Skip Tests', name: 'skip-container-support-tests'],
+
+            [$class: TEXT_PARAM_DEF_CLASS, description: 'Please provide connectors Release Version', name: 'connectors-release-version'],
+            [$class: TEXT_PARAM_DEF_CLASS, description: 'Please provide connectors Release Tag', name: 'connectors-release-tag'],
+            [$class: TEXT_PARAM_DEF_CLASS, description: 'Please provide connectors Next Development Version', name: 'connectors-next-development-version'],
+            [$class: CHOICE_PARAM_DEF_CLASS, choices: yesNoString, description: 'Skip Tests', name: 'skip-connectors-tests'],
+
+            [$class: TEXT_PARAM_DEF_CLASS, description: 'Please provide tool-swagger-ballerina Release Version', name: 'tool-swagger-release-version'],
+            [$class: TEXT_PARAM_DEF_CLASS, description: 'Please provide tool-swagger-ballerina Release Tag', name: 'tool-swagger-release-tag'],
+            [$class: TEXT_PARAM_DEF_CLASS, description: 'Please provide tool-swagger-ballerina Next Development Version', name: 'tool-swagger-next-development-version'],
+            [$class: CHOICE_PARAM_DEF_CLASS, choices: yesNoString, description: 'Skip Tests', name: 'skip-tool-swagger-tests'],
+
+            [$class: TEXT_PARAM_DEF_CLASS, description: 'Please provide tools-distribution Release Version', name: 'tools-distribution-release-version'],
+            [$class: TEXT_PARAM_DEF_CLASS, description: 'Please provide tools-distribution Release Tag', name: 'tools-distribution-release-tag'],
+            [$class: TEXT_PARAM_DEF_CLASS, description: 'Please provide tools-distribution Next Development Version', name: 'tools-distribution-next-development-version'],
+            [$class: CHOICE_PARAM_DEF_CLASS, choices: yesNoString, description: 'Skip Tests', name: 'skip-tools-distrbution-tests'],
+    ]);
+    ballerinaParentVersion = releaseParamInput['ballerina-parent-version'];
+
+    ballerinaVersion = releaseParamInput['ballerina-release-version'];
+    ballerinaReleaseTag = releaseParamInput['ballerina-release-tag'];
+    ballerinaDevVersion = releaseParamInput['ballerina-next-development-version'];
+    ballerinaSkipTests = releaseParamInput['skip-ballerina-tests'];
+
+    composerVersion = releaseParamInput['composer-release-version'];
+    composerReleaseTag = releaseParamInput['composer-release-tag'];
+    composerDevVersion = releaseParamInput['composer-next-development-version'];
+    composerSkipTests = releaseParamInput['skip-composer-tests'];
+
+    docerinaVersion = releaseParamInput['docerina-release-version'];
+    docerinaReleaseTag = releaseParamInput['docerina-release-tag'];
+    docerinaDevVersion = releaseParamInput['docerina-next-development-version'];
+    docerinaSkipTests = releaseParamInput['skip-docerina-tests'];
+
+    testerinaVersion = releaseParamInput['testerina-release-version'];
+    testerinaReleaseTag = releaseParamInput['testerina-release-tag'];
+    testerinaDevVersion = releaseParamInput['testerina-next-development-version'];
+    testerinaSkipTests = releaseParamInput['skip-testerina-tests'];
+
+    containerSupportVersion = releaseParamInput['container-support-release-version'];
+    containerSupportReleaseTag = releaseParamInput['container-support-release-tag'];
+    containerSupportDevVersion = releaseParamInput['container-support-next-development-version'];
+    containerSupportSkipTests = releaseParamInput['skip-container-support-tests'];
+
+    connectorsVersion = releaseParamInput['connectors-release-version'];
+    connectorsReleaseTag = releaseParamInput['connectors-release-tag'];
+    connectorsDevVersion = releaseParamInput['connectors-next-development-version'];
+    connectorsSkipTests = releaseParamInput['skip-connectors-tests'];
+
+    toolSwaggerVersion = releaseParamInput['tool-swagger-release-version'];
+    toolSwaggerReleaseTag = releaseParamInput['tool-swagger-release-tag'];
+    toolSwaggerDevVersion = releaseParamInput['tool-swagger-next-development-version'];
+    toolSwaggerSkipTests = releaseParamInput['skip-tool-swagger-tests'];
+
+    toolsDistVersion = releaseParamInput['tools-distribution-release-version'];
+    toolsDistReleaseTag = releaseParamInput['tools-distribution-release-tag'];
+    toolsDistDevVersion = releaseParamInput['tools-distribution-next-development-version'];
+    toolsDistSkipTests = releaseParamInput['skip-tools-distrbution-tests'];
+
+} else {
+    buildParamInput = input(
+            id: 'userInput', message: 'Please provide following parameters', parameters: [
+            [$class: TEXT_PARAM_DEF_CLASS, description: 'Please provide Ballerina Parent Version', name: 'ballerina-parent-version'],
+            [$class: CHOICE_PARAM_DEF_CLASS, choices: yesNoString, description: 'Skip ballerina Tests', name: 'skip-ballerina-tests'],
+            [$class: CHOICE_PARAM_DEF_CLASS, choices: yesNoString, description: 'Skip composer Tests', name: 'skip-composer-tests'],
+            [$class: CHOICE_PARAM_DEF_CLASS, choices: yesNoString, description: 'Skip docerina Tests', name: 'skip-docerina-tests'],
+            [$class: CHOICE_PARAM_DEF_CLASS, choices: yesNoString, description: 'Skip testerina Tests', name: 'skip-testerina-tests'],
+            [$class: CHOICE_PARAM_DEF_CLASS, choices: yesNoString, description: 'Skip container-support Tests', name: 'skip-container-support-tests'],
+            [$class: CHOICE_PARAM_DEF_CLASS, choices: yesNoString, description: 'Skip connectors Tests', name: 'skip-connectors-tests'],
+            [$class: CHOICE_PARAM_DEF_CLASS, choices: yesNoString, description: 'Skip tool-swagger-ballerina Tests', name: 'skip-tool-swagger-tests'],
+            [$class: CHOICE_PARAM_DEF_CLASS, choices: yesNoString, description: 'Skip tools-distribution Tests', name: 'skip-tools-distrbution-tests'],
+    ]);
+
+    ballerinaParentVersion = buildParamInput['ballerina-parent-version'];
+    ballerinaSkipTests = buildParamInput['skip-ballerina-tests'];
+    composerSkipTests = buildParamInput['skip-composer-tests'];
+    docerinaSkipTests = buildParamInput['skip-docerina-tests'];
+    testerinaSkipTests = buildParamInput['skip-testerina-tests'];
+    containerSupportSkipTests = buildParamInput['skip-container-support-tests'];
+    connectorsSkipTests = buildParamInput['skip-connectors-tests'];
+    toolSwaggerSkipTests = buildParamInput['skip-tool-swagger-tests'];
+    toolsDistSkipTests = buildParamInput['skip-tools-distrbution-tests'];
+}
+
+node {
+    def tagMap = [];
+    String user = env.GIT_USER;
+    String gitCredentialsID = env.GIT_CREDENTIALS_ID;
+    String settingsXMLID = env.SETTINGS_XML_ID;
+    String ballerinaRepository = "ballerina";
+    String composerRepository = "composer";
+    String docerinaRepository = "docerina";
+    String testerinaRepository = "testerina";
+    String connectorsRepository = "connectors";
+    String containerSupportRepository = "container-support";
+    String toolsDistributionRepository = "tools-distribution";
+    String toolSwaggerBallerinaRepository = "tool-swagger-ballerina";
+    String ballerinaParentRepository = "ballerina-parent";
+    String ballerinaGroudId = "org.ballerinalang";
+    String ballerinaConnectorsGroupId = "org.wso2.ballerina.connectors"
+    String propertyUpdateCommitMessage = "Updating versions of org.ballerinalang.* dependencies";
+
+    try {
+        //  Building ballerina-parent. We need to figure out
+        // - Proper versioning of ballerina-parent
+        // - Are we going to release it to maven-central?
+        // Until then let's just build the expected version here
+        cloneRepository(ballerinaParentRepository, user, gitCredentialsID);
+        dir(ballerinaParentRepository) {
+            sh(
+                    script: "git checkout tags/v" + ballerinaParentVersion
+            )
+        }
+        build(settingsXMLID, ballerinaParentRepository, NO);
+
+        stage('Building ballerina') {
+            cloneRepository(ballerinaRepository, user, gitCredentialsID);
+            if (isRelease) {
+                tagMap.add([ballerinaRepository, ballerinaReleaseTag, ballerinaVersion]);
+                release(settingsXMLID, ballerinaRepository, ballerinaVersion, ballerinaReleaseTag, ballerinaDevVersion, ballerinaSkipTests);
+            } else {
+                build(settingsXMLID, ballerinaRepository, ballerinaSkipTests);
+            }
+        }
+
+        stage('Building composer, docerina, testerina, connectors, container-support, tool-swagger-ballerina') {
+            parallel composerBuild: {
+                cloneRepository(composerRepository, user, gitCredentialsID);
+                updateProperties(composerRepository, settingsXMLID, propertyUpdateCommitMessage,
+                        "${ballerinaGroudId}:*", !isRelease);
+                if (isRelease) {
+                    tagMap.add([composerRepository, composerReleaseTag, composerVersion]);
+                    release(settingsXMLID, composerRepository, composerVersion, composerReleaseTag, composerDevVersion, composerSkipTests);
+                } else {
+                    build(settingsXMLID, composerRepository, composerSkipTests);
+                }
+            }, docerinaBuild: {
+                cloneRepository(docerinaRepository, user, gitCredentialsID);
+                updateProperties(docerinaRepository, settingsXMLID, propertyUpdateCommitMessage,
+                        "${ballerinaGroudId}:*", !isRelease);
+                if (isRelease) {
+                    tagMap.add([docerinaRepository, docerinaReleaseTag, docerinaVersion]);
+                    release(settingsXMLID, docerinaRepository, docerinaVersion, docerinaReleaseTag, docerinaDevVersion, docerinaSkipTests);
+                } else {
+                    build(settingsXMLID, docerinaRepository, docerinaSkipTests);
+                }
+            }, testerinaBuild: {
+                cloneRepository(testerinaRepository, user, gitCredentialsID);
+                updateProperties(testerinaRepository, settingsXMLID, propertyUpdateCommitMessage,
+                        "${ballerinaGroudId}:*", !isRelease);
+                if (isRelease) {
+                    tagMap.add([testerinaRepository, testerinaReleaseTag, testerinaVersion]);
+                    release(settingsXMLID, testerinaRepository, testerinaVersion, testerinaReleaseTag, testerinaDevVersion, testerinaSkipTests);
+                } else {
+                    build(settingsXMLID, testerinaRepository, testerinaSkipTests);
+                }
+            }, connectorsBuild: {
+                cloneRepository(connectorsRepository, user, gitCredentialsID);
+                updateProperties(connectorsRepository, settingsXMLID, propertyUpdateCommitMessage,
+                        "${ballerinaGroudId}:*", !isRelease);
+                if (isRelease) {
+                    tagMap.add([connectorsRepository, connectorsReleaseTag, connectorsVersion]);
+                    release(settingsXMLID, connectorsRepository, connectorsVersion, connectorsReleaseTag, connectorsDevVersion, connectorsSkipTests);
+                } else {
+                    build(settingsXMLID, connectorsRepository, connectorsSkipTests);
+                }
+            }, containerSupportBuild: {
+                cloneRepository(containerSupportRepository, user, gitCredentialsID);
+                updateProperties(containerSupportRepository, settingsXMLID, propertyUpdateCommitMessage,
+                        "${ballerinaGroudId}:*", !isRelease);
+                if (isRelease) {
+                    tagMap.add([containerSupportRepository, containerSupportReleaseTag, containerSupportVersion]);
+                    release(settingsXMLID, containerSupportRepository, containerSupportVersion, containerSupportReleaseTag, containerSupportDevVersion, containerSupportSkipTests);
+                } else {
+                    build(settingsXMLID, containerSupportRepository, containerSupportSkipTests);
+                }
+            }, toolSwaggerBallerinaBuild: {
+                cloneRepository(toolSwaggerBallerinaRepository, user, gitCredentialsID);
+                updateProperties(toolSwaggerBallerinaRepository, settingsXMLID, propertyUpdateCommitMessage,
+                        "${ballerinaGroudId}:*", !isRelease);
+                if (isRelease) {
+                    tagMap.add([toolSwaggerBallerinaRepository, toolSwaggerReleaseTag, toolSwaggerVersion]);
+                    release(settingsXMLID, toolSwaggerBallerinaRepository, toolSwaggerVersion, toolSwaggerReleaseTag, toolSwaggerDevVersion, toolSwaggerSkipTests);
+                } else {
+                    build(settingsXMLID, toolSwaggerBallerinaRepository, toolSwaggerSkipTests);
+                }
+            }, failFast: true
+        }
+
+        stage('Building tools-distribution') {
+            cloneRepository(toolsDistributionRepository, user, gitCredentialsID);
+            updateProperties(toolsDistributionRepository, settingsXMLID, propertyUpdateCommitMessage,
+                    "${ballerinaGroudId}:*,${ballerinaConnectorsGroupId}:connectors", !isRelease);
+            if (isRelease) {
+                tagMap.add([toolsDistributionRepository, toolsDistReleaseTag, toolsDistVersion]);
+                release(settingsXMLID, toolsDistributionRepository, toolsDistVersion, toolsDistReleaseTag, toolsDistDevVersion, toolsDistSkipTests);
+            } else {
+                build(settingsXMLID, toolsDistributionRepository, toolsDistSkipTests);
+            }
+
+        }
+    } catch (Exception e) {
+        println("An exception has occurred in during the build process");
+        if (isRelease) {
+            for (entry in tagMap) {
+                cleanupRepositoryAfterFailure(entry[0].toString(), user, entry[1].toString(), entry[2].toString(), gitCredentialsID)
+            }
+        }
+        throw e;
+
+    } finally {
+        stage('Clean Up') {
+            if (needCleanUp) {
+                try {
+                    deleteDir();
+                } catch (Exception e) {
+                    println("Unable to delete directory. Please manually delete");
+                }
+            } else {
+                println("You have chosen not to clean the workspace");
+            }
+        }
+    }
+}
+
+
+/**
+ * This method clones a given repository from github.
+ *
+ * @param repositoryName The repository directory
+ * @param user The git user
+ * @param credentials GIT credentials ID to be used, in Jenkins credentials
+ */
+def cloneRepository(String repositoryName, String user, String credentials) {
+    checkout([
+            $class                           : 'GitSCM',
+            branches                         : [[name: '*/master']],
+            doGenerateSubmoduleConfigurations: false,
+            extensions                       : [[$class: 'LocalBranch', localBranch: 'master'],
+                                                [$class: 'RelativeTargetDirectory', relativeTargetDir: repositoryName]],
+            submoduleCfg                     : [],
+            userRemoteConfigs                :
+                    [[credentialsId: credentials,
+                      url          : "http://github.com/${user}/${repositoryName}.git"]]])
+}
+
+/**
+ * This method updates version properties of a given repository.
+ *
+ * @param repositoryName The repository directory
+ * @param settingsXml settingsXml ID of the settings.xml file to be used which is added under managed files in Jenkins
+ * @param commitMessage The message for the property update commit
+ * @param propertiesList GroupID:artifactID based filter for updating properties
+ * @param allowSnapshots Whether to consider snapshot versions when updating properties
+ */
+def updateProperties(String repositoryName, String settingsXml, String commitMessage, String propertiesList, boolean allowSnapshots) {
+    configFileProvider(
+            [configFile(fileId: settingsXml, variable: 'MAVEN_SETTINGS')]) {
+        dir(repositoryName) {
+            withEnv(["JAVA_HOME=${ tool env.JDK }", "PATH+MAVEN=${tool env.MAVEN_TOOL}/bin:${env.JAVA_HOME}/bin"]) {
+                if (!allowSnapshots) {
+                    sh "mvn -s $MAVEN_SETTINGS versions:update-properties -Dincludes=${propertiesList}"
+                } else {
+                    sh "mvn -s $MAVEN_SETTINGS versions:update-properties -Dincludes=${propertiesList} -DallowSnapshots=true"
+                }
+                boolean changesPresent = sh(
+                        script: "git diff-index --quiet HEAD",
+                        returnStatus: true
+                ) == 1
+                if (changesPresent) {
+                    sh("git add -u")
+                    sh("git commit -m '${commitMessage}'");
+                }
+            }
+        }
+    }
+}
+
+/**
+ * This method perform release prepare,perform on a given repository. Deployment is skipped therefore artifacts will be
+ * installed only in local m2 repository.
+ *
+ * @param settingsXml settingsXml ID of the settings.xml file to be used which is added under managed files in Jenkins
+ * @param repositoryDir The repository directory
+ * @param releaseVersion The release version
+ * @param releaseTag The release tag
+ * @param nextDevVersion The version for the next development iteration
+ * @param skipTests Whether to skip tests when releasing
+ */
+def release(String settingsXml, String repositoryDir, String releaseVersion, String releaseTag, String nextDevVersion, String skipTests) {
+    configFileProvider(
+            [configFile(fileId: settingsXml, variable: 'MAVEN_SETTINGS')]) {
+        dir(repositoryDir) {
+            sh("git checkout -b release-" + releaseVersion);
+            withEnv(["JAVA_HOME=${ tool env.JDK }", "M2_HOME=${tool env.MAVEN_TOOL}", "PATH+MVN=${ tool env.JDK }/bin:${tool env.MAVEN_TOOL}/bin"]) {
+                if ("Yes".equals(skipTests)) {
+                    sh 'mvn --version'
+                    sh 'mvn -s $MAVEN_SETTINGS release:prepare release:perform -B -Darguments="-Dmaven.deploy.skip=true -DskipTests=true" -DreleaseVersion=' + releaseVersion + ' -Dtag=' + releaseTag + ' -DdevelopmentVersion=' + nextDevVersion;
+                } else {
+                    sh 'mvn --version'
+                    sh 'mvn -s $MAVEN_SETTINGS release:prepare release:perform -B -Darguments="-Dmaven.deploy.skip=true" -DreleaseVersion=' + releaseVersion + ' -Dtag=' + releaseTag + ' -DdevelopmentVersion=' + nextDevVersion;
+
+                }
+            }
+        }
+    }
+}
+
+/**
+ * This method builds the provided repository.
+ *
+ * @param settingsXml ID of the settings.xml file to be used which is added under managed files in Jenkins
+ * @param repositoryDir The repository directory
+ * @param skipTests Whether to skip tests or not, when building
+ */
+def build(String settingsXml, String repositoryDir, String skipTests) {
+    configFileProvider(
+            [configFile(fileId: settingsXml, variable: 'MAVEN_SETTINGS')]) {
+        dir(repositoryDir) {
+            withEnv(["JAVA_HOME=${ tool env.JDK }", "M2_HOME=${tool env.MAVEN_TOOL}", "PATH+MVN=${ tool env.JDK }/bin:${tool env.MAVEN_TOOL}/bin"]) {
+                if ("Yes".equals(skipTests)) {
+                    sh 'mvn --version'
+                    sh 'mvn -s $MAVEN_SETTINGS clean install -DskipTests=true'
+                } else {
+                    sh 'mvn --version'
+                    sh 'mvn -s $MAVEN_SETTINGS clean install'
+                }
+            }
+        }
+    }
+}
+
+/**
+ * This method deletes any tags/branches created for the release.
+ *
+ * @param repositoryName The repository directory
+ * @param user The git user
+ * @param releaseTag The release tag to be deleted
+ * @param releaseVersion The release version
+ * @param credentials GIT credentials ID to be used, in Jenkins credentials
+ */
+def cleanupRepositoryAfterFailure(String repositoryName, String user, String releaseTag, String releaseVersion, String credentials) {
+    println("Cleaning up ${repositoryName} repository.");
+    dir(repositoryName) {
+        withCredentials(
+                [[$class          : 'UsernamePasswordMultiBinding',
+                  credentialsId   : credentials,
+                  usernameVariable: 'GIT_USERNAME',
+                  passwordVariable: 'GIT_PASSWORD']]) {
+            sh("git remote set-url origin https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/${user}/${repositoryName}.git")
+            println("Deleting tag ${releaseTag} of ${repositoryName}");
+            sh(
+                    script: "git push --delete origin ${releaseTag}",
+                    returnStatus: true
+            );
+            println("Deleting release branch of ${repositoryName}");
+            sh(
+                    script: "git push --delete origin release-" + releaseVersion,
+                    returnStatus: true
+            );
+        }
+    }
+}
+
+
+
+
+
+
+
+
+
+
