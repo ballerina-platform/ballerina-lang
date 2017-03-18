@@ -25,6 +25,7 @@ import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.stream.input.InputHandler;
 
 import javax.sql.DataSource;
+import java.sql.Connection;
 import java.sql.SQLException;
 
 public class DeleteFromRDBMSTestCase {
@@ -38,8 +39,9 @@ public class DeleteFromRDBMSTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
         siddhiManager.setDataSource(RDBMSTestConstants.DATA_SOURCE_NAME, dataSource);
-        try {
-            if (dataSource.getConnection() != null) {
+
+        try (Connection connection = dataSource.getConnection()) {
+            if (connection != null) {
                 DBConnectionHelper.getDBConnectionHelperInstance().clearDatabaseTable(dataSource,RDBMSTestConstants.TABLE_NAME);
 
                 String streams = "" +
@@ -92,8 +94,8 @@ public class DeleteFromRDBMSTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
         siddhiManager.setDataSource(RDBMSTestConstants.DATA_SOURCE_NAME, dataSource);
-        try {
-            if (dataSource.getConnection() != null) {
+        try (Connection connection = dataSource.getConnection()) {
+            if (connection != null) {
 
                 DBConnectionHelper.getDBConnectionHelperInstance().clearDatabaseTable(dataSource,RDBMSTestConstants.TABLE_NAME);
                 String streams = "" +
@@ -144,8 +146,8 @@ public class DeleteFromRDBMSTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
         siddhiManager.setDataSource(RDBMSTestConstants.DATA_SOURCE_NAME, dataSource);
-        try {
-            if (dataSource.getConnection() != null) {
+        try (Connection connection = dataSource.getConnection()) {
+            if (connection != null) {
 
                 DBConnectionHelper.getDBConnectionHelperInstance().clearDatabaseTable(dataSource,RDBMSTestConstants.TABLE_NAME);
                 String streams = "" +
@@ -194,8 +196,8 @@ public class DeleteFromRDBMSTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
         siddhiManager.setDataSource(RDBMSTestConstants.DATA_SOURCE_NAME, dataSource);
-        try {
-            if (dataSource.getConnection() != null) {
+        try (Connection connection = dataSource.getConnection()) {
+            if (connection != null) {
 
                 DBConnectionHelper.getDBConnectionHelperInstance().clearDatabaseTable(dataSource,RDBMSTestConstants.TABLE_NAME);
                 String streams = "" +
@@ -244,8 +246,8 @@ public class DeleteFromRDBMSTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
         siddhiManager.setDataSource(RDBMSTestConstants.DATA_SOURCE_NAME, dataSource);
-        try {
-            if (dataSource.getConnection() != null) {
+        try (Connection connection = dataSource.getConnection()) {
+            if (connection != null) {
 
                 DBConnectionHelper.getDBConnectionHelperInstance().clearDatabaseTable(dataSource,RDBMSTestConstants.TABLE_NAME);
                 String streams = "" +
@@ -294,8 +296,8 @@ public class DeleteFromRDBMSTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
         siddhiManager.setDataSource(RDBMSTestConstants.DATA_SOURCE_NAME, dataSource);
-        try {
-            if (dataSource.getConnection() != null) {
+        try (Connection connection = dataSource.getConnection()) {
+            if (connection != null) {
 
                 DBConnectionHelper.getDBConnectionHelperInstance().clearDatabaseTable(dataSource,RDBMSTestConstants.TABLE_NAME);
                 String streams = "" +
@@ -344,8 +346,8 @@ public class DeleteFromRDBMSTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
         siddhiManager.setDataSource(RDBMSTestConstants.DATA_SOURCE_NAME, dataSource);
-        try {
-            if (dataSource.getConnection() != null) {
+        try (Connection connection = dataSource.getConnection()) {
+            if (connection != null) {
 
                 DBConnectionHelper.getDBConnectionHelperInstance().clearDatabaseTable(dataSource,RDBMSTestConstants.TABLE_NAME);
                 String streams = "" +
@@ -393,8 +395,8 @@ public class DeleteFromRDBMSTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
         siddhiManager.setDataSource(RDBMSTestConstants.DATA_SOURCE_NAME, dataSource);
 
-        try {
-            if (dataSource.getConnection() != null) {
+        try (Connection connection = dataSource.getConnection()) {
+            if (connection != null) {
 
                 DBConnectionHelper.getDBConnectionHelperInstance().clearDatabaseTable(dataSource,RDBMSTestConstants.TABLE_NAME);
                 String streams = "" +
@@ -444,8 +446,8 @@ public class DeleteFromRDBMSTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
         siddhiManager.setDataSource(RDBMSTestConstants.DATA_SOURCE_NAME, dataSource);
-        try {
-            if (dataSource.getConnection() != null) {
+        try (Connection connection = dataSource.getConnection()) {
+            if (connection != null) {
                 DBConnectionHelper.getDBConnectionHelperInstance().clearDatabaseTable(dataSource,RDBMSTestConstants.TABLE_NAME);
 
                 String streams = "" +
@@ -496,8 +498,8 @@ public class DeleteFromRDBMSTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
         siddhiManager.setDataSource(RDBMSTestConstants.DATA_SOURCE_NAME, dataSource);
-        try {
-            if (dataSource.getConnection() != null) {
+        try (Connection connection = dataSource.getConnection()) {
+            if (connection != null) {
                 DBConnectionHelper.getDBConnectionHelperInstance().clearDatabaseTable(dataSource,RDBMSTestConstants.TABLE_NAME);
 
                 String streams = "" +
@@ -548,8 +550,8 @@ public class DeleteFromRDBMSTestCase {
 
         SiddhiManager siddhiManager = new SiddhiManager();
         siddhiManager.setDataSource(RDBMSTestConstants.DATA_SOURCE_NAME, dataSource);
-        try {
-            if (dataSource.getConnection() != null) {
+        try (Connection connection = dataSource.getConnection()) {
+            if (connection != null) {
                 DBConnectionHelper.getDBConnectionHelperInstance().clearDatabaseTable(dataSource,RDBMSTestConstants.TABLE_NAME);
 
                 String streams = "" +
