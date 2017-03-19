@@ -52,6 +52,7 @@ public class ServerConnectorMessageHandler {
         // Create the Ballerina Context
         Context balContext = new Context(cMsg);
         balContext.setServerConnectorProtocol(cMsg.getProperty("PROTOCOL"));
+        balContext.setBalCallback(new DefaultBalCallback(callback));
         try {
             String protocol = (String) cMsg.getProperty(org.wso2.carbon.messaging.Constants.PROTOCOL);
             if (protocol == null) {
@@ -94,10 +95,10 @@ public class ServerConnectorMessageHandler {
             }
 
             // Delegate the execution to the BalProgram Executor
-            BalProgramExecutor.execute(cMsg, callback, resource, service, balContext);
+            BalProgramExecutor.execute(cMsg, resource, service, balContext);
 
         } catch (Throwable throwable) {
-            handleErrorInboundPath(cMsg, callback, balContext, throwable);
+            handleError(cMsg, callback, balContext, throwable);
         }
     }
 
@@ -115,16 +116,16 @@ public class ServerConnectorMessageHandler {
 //        }
     }
 
-    public static void handleErrorInboundPath(CarbonMessage cMsg, CarbonCallback callback, Context balContext,
+    public static void handleError(CarbonMessage cMsg, CarbonCallback callback, Context balContext,
                                               Throwable throwable) {
         String errorMsg = ErrorHandlerUtils.getErrorMessage(throwable);
-        String stacktrace = ErrorHandlerUtils.getServiceStackTrace(balContext, throwable);
-        String errorWithTrace = errorMsg + "\n" + stacktrace;
+        String errorWithTrace = ErrorHandlerUtils.getErrorWithStackTrace(balContext, throwable);
+        // TODO : This shouldn't goto System err. Only for Service logger.
         outStream.println(errorWithTrace);
 
         // bre log should contain bre stack trace, not the ballerina stack trace
-        breLog.error("error: " + errorMsg + ", ballerina service stack trace: " + stacktrace, throwable);
-        Object protocol = cMsg.getProperty("PROTOCOL");
+        breLog.error("error: " + errorWithTrace, throwable);
+        Object protocol = balContext.getServerConnectorProtocol();
         Optional<ServerConnectorErrorHandler> optionalErrorHandler =
                 BallerinaConnectorManager.getInstance().getServerConnectorErrorHandler((String) protocol);
 
@@ -135,29 +136,5 @@ public class ServerConnectorMessageHandler {
         } catch (Exception e) {
             throw new BallerinaException("Cannot handle error using the error handler for: " + protocol, e);
         }
-
     }
-
-    public static void handleErrorFromOutbound(Context balContext, Throwable throwable) {
-        String errorMsg = ErrorHandlerUtils.getErrorMessage(throwable);
-        String stacktrace = ErrorHandlerUtils.getServiceStackTrace(balContext, throwable);
-        String errorWithTrace = errorMsg + "\n" + stacktrace;
-        outStream.println(errorWithTrace);
-
-        // bre log should contain bre stack trace, not the ballerina stack trace
-        breLog.error("error: " + errorMsg + ", ballerina service stack trace: " + stacktrace, throwable);
-
-        Object protocol = balContext.getServerConnectorProtocol();
-        Optional<ServerConnectorErrorHandler> optionalErrorHandler =
-                BallerinaConnectorManager.getInstance().getServerConnectorErrorHandler((String) protocol);
-        try {
-            optionalErrorHandler
-                    .orElseGet(DefaultServerConnectorErrorHandler::getInstance)
-                    .handleError(new BallerinaException(errorMsg, throwable.getCause(), balContext), null,
-                            balContext.getBalCallback());
-        } catch (Exception e) {
-            throw new BallerinaException("Cannot handle error using the error handler for: " + protocol, e);
-        }
-    }
-
 }

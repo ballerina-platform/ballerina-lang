@@ -42,7 +42,6 @@ import org.ballerinalang.model.values.BMessage;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.debugger.DebugManager;
-import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
 
 import java.util.Map;
@@ -54,14 +53,13 @@ import java.util.Map;
  */
 public class BalProgramExecutor {
 
-    public static void execute(CarbonMessage cMsg, CarbonCallback callback, Resource resource, Service service,
+    public static void execute(CarbonMessage cMsg, Resource resource, Service service,
                                Context balContext) {
         // TODO : Remove deprecated usages.
         balContext.setServiceInfo(
                 new CallableUnitInfo(service.getName(), service.getPackagePath(), service.getNodeLocation()));
         balContext.setServiceName(service.getName());
 
-        balContext.setBalCallback(new DefaultBalCallback(callback));
         Expression[] exprs = new Expression[resource.getParameterDefs().length];
 
         BValue[] argValues = new BValue[resource.getParameterDefs().length];

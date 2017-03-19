@@ -531,24 +531,7 @@ public abstract class BLangAbstractExecutionVisitor implements BLangExecutionVis
 
         Resource resource = resourceIExpr.getResource();
         BValue[] valueParams = new BValue[resource.getStackFrameSize()];
-        BMessage messageValue = new BMessage(bContext.getCarbonMessage());
-
-        valueParams[0] = messageValue;
-        int i = 0;
-        for (Expression arg : resourceIExpr.getArgExprs()) {
-            // Evaluate the argument expression
-            VariableRefExpr variableRefExpr = (VariableRefExpr) arg;
-            MemoryLocation memoryLocation = variableRefExpr.getVariableDef().getMemoryLocation();
-            BValue argValue = memoryLocation.access(this);
-            BType argType = arg.getType();
-            if (BTypes.isValueType(argType)) {
-                argValue = BValueUtils.clone(argType, argValue);
-            }
-            // Setting argument value in the stack frame
-            valueParams[i] = argValue;
-
-            i++;
-        }
+        populateArgumentValues(resourceIExpr.getArgExprs(), valueParams);
         BValue[] ret = new BValue[1];
         BValue[] cacheValues = new BValue[resource.getCacheFrameSize()];
         StackFrame stackFrame = new StackFrame(valueParams, ret, cacheValues, resource.getName());
@@ -642,7 +625,8 @@ public abstract class BLangAbstractExecutionVisitor implements BLangExecutionVis
         // Fist the get the BConnector object. In an action invocation first argument is always the connector
         BConnector bConnector = (BConnector) controlStack.getValue(0);
         if (bConnector == null) {
-            throw new BallerinaException("Connector argument value is null");
+            handleBException(new BException("Connector argument value is null"));
+            return null;
         }
 
         // Now get the connector variable value from the memory block allocated to the BConnector instance.
@@ -871,7 +855,9 @@ public abstract class BLangAbstractExecutionVisitor implements BLangExecutionVis
             logger.debug("Executing ThrowStmt - EndNode");
         }
         BException exception = (BException) getTempValue(throwStmtEndNode.getStatement().getExpr());
-        exception.value().setStackTrace(ErrorHandlerUtils.getStackTrace(bContext));
+        if ("".equals(exception.value().getStackTrace())) {
+            exception.value().setStackTrace(ErrorHandlerUtils.getStackTrace(bContext));
+        }
         this.handleBException(exception);
     }
 
@@ -1013,7 +999,8 @@ public abstract class BLangAbstractExecutionVisitor implements BLangExecutionVis
             BValue collectionValue = getTempValue(arrayVarRefExpr);
 
             if (collectionValue == null) {
-                throw new BallerinaException("variable '" + arrayVarRefExpr.getVarName() + "' is null");
+                handleBException(new BException("variable '" + arrayVarRefExpr.getVarName() + "' is null"));
+                return;
             }
 
             Expression indexExpr = arrayMapAccessExpr.getIndexExpr();
@@ -1034,7 +1021,8 @@ public abstract class BLangAbstractExecutionVisitor implements BLangExecutionVis
                 if (indexValue instanceof BString) {
                     result = ((BMap) collectionValue).get(indexValue);
                 } else {
-                    throw new IllegalStateException("Index of a map should be string type");
+                    handleBException(new BException("Index of a map should be string type"));
+                    return;
                 }
             }
             setTempValue(arrayMapAccessExpr.getTempOffset(), result);
@@ -1310,7 +1298,7 @@ public abstract class BLangAbstractExecutionVisitor implements BLangExecutionVis
                 next = invokeNativeActionNode.next;
             }
         } catch (RuntimeException e) {
-            BException bException = new BException(e.getMessage());
+            BException bException = new BException(e.getMessage(), invokeNativeActionNode.getCallableUnit().getName());
             handleBException(bException);
         }
     }
@@ -1320,8 +1308,14 @@ public abstract class BLangAbstractExecutionVisitor implements BLangExecutionVis
         if (logger.isDebugEnabled()) {
             logger.debug("Executing Native Function - " + invokeNativeFunctionNode.getCallableUnit().getName());
         }
-        invokeNativeFunctionNode.getCallableUnit().executeNative(bContext);
-        next = invokeNativeFunctionNode.next;
+        try {
+            invokeNativeFunctionNode.getCallableUnit().executeNative(bContext);
+            next = invokeNativeFunctionNode.next;
+        } catch (RuntimeException e) {
+            BException bException = new BException(e.getMessage(),
+                    invokeNativeFunctionNode.getCallableUnit().getName());
+            handleBException(bException);
+        }
     }
 
     @Override
@@ -1330,8 +1324,14 @@ public abstract class BLangAbstractExecutionVisitor implements BLangExecutionVis
             logger.debug("Executing Native TypeMapperNode - " + invokeNativeTypeMapperNode.getCallableUnit()
                     .getName());
         }
-        invokeNativeTypeMapperNode.getCallableUnit().convertNative(bContext);
-        next = invokeNativeTypeMapperNode.next;
+        try {
+            invokeNativeTypeMapperNode.getCallableUnit().convertNative(bContext);
+            next = invokeNativeTypeMapperNode.next;
+        } catch (RuntimeException e) {
+            BException bException = new BException(e.getMessage(),
+                    invokeNativeTypeMapperNode.getCallableUnit().getName());
+            handleBException(bException);
+        }
     }
 
     @Override
@@ -1527,7 +1527,9 @@ public abstract class BLangAbstractExecutionVisitor implements BLangExecutionVis
      */
     public void handleBException(BException bException) {
         // SaveStack current StackTrace.
-        bException.value().setStackTrace(ErrorHandlerUtils.getStackTrace(bContext));
+        if ("".equals(bException.value().getStackTrace())) {
+            bException.value().setStackTrace(ErrorHandlerUtils.getStackTrace(bContext));
+        }
         if (tryCatchStackRefs.size() == 0) {
             // There is no tryCatch block to handle this exception. Pass this to handle at root.
             throw new BallerinaException(bException.value().getMessage().stringValue());
@@ -1647,7 +1649,8 @@ public abstract class BLangAbstractExecutionVisitor implements BLangExecutionVis
             // Fist the get the BConnector object. In an action invocation first argument is always the connector
             BConnector bConnector = (BConnector) controlStack.getValue(0);
             if (bConnector == null) {
-                throw new BallerinaException("Connector argument value is null");
+                handleBException(new BException("Connector argument value is null"));
+                return;
             }
 
             int connectorMemOffset = ((ConnectorVarLocation) memoryLocation).getConnectorMemAddrOffset();
@@ -1686,8 +1689,9 @@ public abstract class BLangAbstractExecutionVisitor implements BLangExecutionVis
 
         if (fieldExpr.getFieldExpr() == null) {
             if (currentStructVal.value() == null) {
-                throw new BallerinaException("cannot set field '" + fieldExpr.getSymbolName().getName() +
-                        "' of non-initialized variable '" + fieldExpr.getParent().getSymbolName().getName() + "'.");
+                handleBException(new BException("cannot set field '" + fieldExpr.getSymbolName().getName() +
+                        "' of non-initialized variable '" + fieldExpr.getParent().getSymbolName().getName() + "'."));
+                return;
             }
             setUnitValue(rValue, currentStructVal, fieldLocation, fieldExpr);
             return;
@@ -1697,8 +1701,9 @@ public abstract class BLangAbstractExecutionVisitor implements BLangExecutionVis
         // and its field are both struct types.
 
         if (currentStructVal.value() == null) {
-            throw new BallerinaException("cannot set field '" + fieldExpr.getSymbolName().getName() +
-                    "' of non-initialized variable '" + fieldExpr.getParent().getSymbolName().getName() + "'.");
+            handleBException(new BException("cannot set field '" + fieldExpr.getSymbolName().getName() +
+                    "' of non-initialized variable '" + fieldExpr.getParent().getSymbolName().getName() + "'."));
+            return;
         }
 
         // get the unit value of the struct field,
@@ -1791,8 +1796,9 @@ public abstract class BLangAbstractExecutionVisitor implements BLangExecutionVis
         // If this is the last field, return the value from memory location
         if (fieldExpr.getFieldExpr() == null) {
             if (currentStructVal.value() == null) {
-                throw new BallerinaException("cannot access field '" + fieldExpr.getSymbolName().getName() +
-                        "' of non-initialized variable '" + fieldExpr.getParent().getSymbolName().getName() + "'.");
+                handleBException(new BException("cannot access field '" + fieldExpr.getSymbolName().getName() +
+                        "' of non-initialized variable '" + fieldExpr.getParent().getSymbolName().getName() + "'."));
+                return null;
             }
             // Value stored in the struct can be also an arrays. Hence if its an arrray access,
             // get the aray element value
@@ -1800,8 +1806,9 @@ public abstract class BLangAbstractExecutionVisitor implements BLangExecutionVis
         }
 
         if (currentStructVal.value() == null) {
-            throw new BallerinaException("cannot access field '" + fieldExpr.getSymbolName().getName() +
-                    "' of non-initialized variable '" + fieldExpr.getParent().getSymbolName().getName() + "'.");
+            handleBException(new BException("cannot access field '" + fieldExpr.getSymbolName().getName() +
+                    "' of non-initialized variable '" + fieldExpr.getParent().getSymbolName().getName() + "'."));
+            return null;
         }
         BValue value = currentStructVal.getValue(fieldLocation);
 
@@ -1828,7 +1835,8 @@ public abstract class BLangAbstractExecutionVisitor implements BLangExecutionVis
     private BValue getUnitValue(BValue currentVal, StructFieldAccessExpr fieldExpr) {
         ReferenceExpr currentVarRefExpr = fieldExpr.getVarRef();
         if (currentVal == null) {
-            throw new BallerinaException("field '" + currentVarRefExpr.getVarName() + "' is null");
+            handleBException(new BException("field '" + currentVarRefExpr.getVarName() + "' is null"));
+            return null;
         }
 
         if (!(currentVal instanceof BArray || currentVal instanceof BMap<?, ?>)) {
@@ -1855,8 +1863,9 @@ public abstract class BLangAbstractExecutionVisitor implements BLangExecutionVis
         }
 
         if (unitVal == null) {
-            throw new BallerinaException("field '" + currentVarRefExpr.getSymbolName().getName() + "[" +
-                    indexValue.stringValue() + "]' is null");
+            handleBException(new BException("field '" + currentVarRefExpr.getSymbolName().getName() + "[" +
+                    indexValue.stringValue() + "]' is null"));
+            return null;
         }
 
         return unitVal;

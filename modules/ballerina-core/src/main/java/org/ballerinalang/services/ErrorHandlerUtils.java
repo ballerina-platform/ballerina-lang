@@ -53,6 +53,21 @@ public class ErrorHandlerUtils {
         return errorMsg;
     }
 
+    public static String getErrorWithStackTrace(Context bContext, Throwable throwable) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(getErrorMessage(throwable));
+        String cause = getCause(throwable);
+        if (!"".equals(cause)) {
+            sb.append("\n\t").append(cause);
+        }
+        String stackTrace = ErrorHandlerUtils.getStackTrace(bContext);
+        if (!"".equals(stackTrace)) {
+            sb.append("\n");
+            sb.append(stackTrace);
+        }
+        return sb.toString();
+    }
+
     /**
      * Get the stack trace from the context.
      *
@@ -105,8 +120,9 @@ public class ErrorHandlerUtils {
         if (t instanceof BallerinaException || t instanceof BLangRuntimeException) {
             return;
         }
-        sb.append("reason  ").append(t.getLocalizedMessage()).append(",");
+        sb.append("reason  ").append(makeFirstLetterLowerCase(t.getLocalizedMessage()));
         if (t.getCause() != null) {
+            sb.append(", ");
             getCause(t.getCause(), sb);
         }
     }

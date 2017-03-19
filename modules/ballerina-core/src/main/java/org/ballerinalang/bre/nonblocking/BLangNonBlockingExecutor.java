@@ -37,13 +37,12 @@ public class BLangNonBlockingExecutor extends BLangAbstractExecutionVisitor {
     }
 
     public void startExecution(LinkedNode linkedNode) {
-        linkedNode.accept(this);
-        while (next != null && execute) {
-            try {
-                next.accept(this);
-            } catch (RuntimeException e) {
-                handleBException(new BException(e.getMessage()));
-            }
+        try {
+            linkedNode.accept(this);
+            continueExecution();
+        } catch (RuntimeException e) {
+            handleBException(new BException(e.getMessage()));
+            continueExecution();
         }
         if (!execute) {
             notifyComplete();
@@ -52,12 +51,13 @@ public class BLangNonBlockingExecutor extends BLangAbstractExecutionVisitor {
     }
 
     public void continueExecution() {
-        while (next != null && execute) {
-            try {
+        try {
+            while (next != null && execute) {
                 next.accept(this);
-            } catch (RuntimeException e) {
-                handleBException(new BException(e.getMessage()));
             }
+        } catch (RuntimeException e) {
+            handleBException(new BException(e.getMessage()));
+            continueExecution();
         }
     }
 

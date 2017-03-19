@@ -116,15 +116,7 @@ public class BLangProgramRunner {
                 executor.getExecution().get();
             }
         } catch (Throwable ex) {
-            StringBuilder sb = new StringBuilder();
-            sb.append(ErrorHandlerUtils.getErrorMessage(ex));
-            String cause = ErrorHandlerUtils.getCause(ex);
-            if (!"".equals(cause)) {
-                sb.append("\n\t").append(cause);
-            }
-            sb.append("\n");
-            sb.append(ErrorHandlerUtils.getStackTrace(bContext));
-            throw new BLangRuntimeException(sb.toString());
+            throw new BLangRuntimeException(ErrorHandlerUtils.getErrorWithStackTrace(bContext, ex));
         }
     }
 }
