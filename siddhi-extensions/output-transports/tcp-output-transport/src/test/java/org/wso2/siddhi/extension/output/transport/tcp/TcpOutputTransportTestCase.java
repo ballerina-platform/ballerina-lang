@@ -52,7 +52,7 @@ public class TcpOutputTransportTestCase {
 
         String inStreamDefinition = "" +
                 "define stream inputStream (a string, b int, c float, d long, e double, f bool); " +
-                "@sink(type='tcp',streamId='foo', @map(type='passThrough')) " +
+                "@sink(type='tcp', tcp.stream,id='foo', @map(type='passThrough')) " +
                 "define stream outputStream (a string, b int, c float, d long, e double, f bool);";
         String query = ("@info(name = 'query1') " +
                 "from inputStream " +

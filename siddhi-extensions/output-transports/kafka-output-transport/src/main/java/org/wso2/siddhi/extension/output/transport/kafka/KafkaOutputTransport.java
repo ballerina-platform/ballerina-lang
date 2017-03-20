@@ -24,12 +24,15 @@ import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.log4j.Logger;
 import org.wso2.siddhi.annotation.Extension;
+import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
 import org.wso2.siddhi.core.stream.output.sink.OutputTransport;
 import org.wso2.siddhi.core.util.transport.DynamicOptions;
 import org.wso2.siddhi.core.util.transport.Option;
 import org.wso2.siddhi.core.util.transport.OptionHolder;
+import org.wso2.siddhi.query.api.definition.StreamDefinition;
 
+import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.RejectedExecutionException;
@@ -70,7 +73,12 @@ public class KafkaOutputTransport extends OutputTransport {
     private Option partitionNumber;
 
     @Override
-    protected void init(OptionHolder optionHolder) {
+    public String[] getSupportedDynamicOptions() {
+        return new String[]{ADAPTOR_PUBLISH_TOPIC,KAFKA_PARTITION_NO};
+    }
+
+    @Override
+    protected void init(StreamDefinition outputStreamDefinition, OptionHolder optionHolder, ExecutionPlanContext executionPlanContext) {
         //ThreadPoolExecutor will be assigned  if it is null
         if (threadPoolExecutor == null) {
             int minThread;
@@ -153,6 +161,16 @@ public class KafkaOutputTransport extends OutputTransport {
     @Override
     public void destroy() {
         //not required
+    }
+
+    @Override
+    public Map<String, Object> currentState() {
+        return null;
+    }
+
+    @Override
+    public void restoreState(Map<String, Object> state) {
+
     }
 
     private class KafkaSender implements Runnable {

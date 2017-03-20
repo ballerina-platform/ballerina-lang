@@ -19,7 +19,9 @@
 package org.wso2.siddhi.core.stream.output.sink;
 
 import org.apache.log4j.Logger;
+import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
+import org.wso2.siddhi.core.util.snapshot.Snapshotable;
 import org.wso2.siddhi.core.util.transport.OptionHolder;
 import org.wso2.siddhi.query.api.definition.AbstractDefinition;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
@@ -30,7 +32,7 @@ import java.util.concurrent.ExecutorService;
  * This is a OutputTransport type. these let users to publish events according to
  * some type. this type can either be local, jms or ws (or any custom extension)
  */
-public abstract class OutputTransport implements OutputTransportListener {
+public abstract class OutputTransport implements OutputTransportListener, Snapshotable {
 
     private static final Logger log = Logger.getLogger(OutputTransport.class);
     private AbstractDefinition streamDefinition;
@@ -38,22 +40,34 @@ public abstract class OutputTransport implements OutputTransportListener {
     private OptionHolder optionHolder;
     private OutputMapper mapper;
     private boolean tryConnect = false;
+    private String elementId;
 
     public void init(StreamDefinition streamDefinition, String type, OptionHolder transportOptionHolder, OutputMapper outputMapper,
-                     String mapType, OptionHolder mapOptionHolder, String payload) {
+                     String mapType, OptionHolder mapOptionHolder, String payload, ExecutionPlanContext executionPlanContext) {
         this.type = type;
         this.optionHolder = transportOptionHolder;
         this.streamDefinition = streamDefinition;
-        init(transportOptionHolder);
+        this.elementId = executionPlanContext.getElementIdGenerator().createNewId();
+        init(streamDefinition, transportOptionHolder, executionPlanContext);
         outputMapper.init(streamDefinition, mapType, mapOptionHolder, payload, transportOptionHolder);
         this.mapper = outputMapper;
     }
 
     /**
-     * Will be called for initialing the {@link OutputTransport}
-     * @param optionHolder Option holder containing static and dynamic options related to the {@link OutputTransport}
+     * Supported dynamic options by the transport
+     *
+     * @return the list of supported dynamic option keys
      */
-    protected abstract void init(OptionHolder optionHolder);
+    public abstract String[] getSupportedDynamicOptions();
+
+    /**
+     * Will be called for initialing the {@link OutputTransport}
+     *
+     * @param outputStreamDefinition
+     * @param optionHolder         Option holder containing static and dynamic options related to the {@link OutputTransport}
+     * @param executionPlanContext
+     */
+    protected abstract void init(StreamDefinition outputStreamDefinition, OptionHolder optionHolder, ExecutionPlanContext executionPlanContext);
 
     /**
      * Will be called to connect to the backend before events are published
@@ -103,5 +117,10 @@ public abstract class OutputTransport implements OutputTransportListener {
         tryConnect = false;
         disconnect();
         destroy();
+    }
+
+    @Override
+    public String getElementId() {
+        return elementId;
     }
 }

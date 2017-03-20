@@ -40,6 +40,11 @@ public class TextOutputMapper extends OutputMapper {
     private static final String EVENT_ATTRIBUTE_SEPARATOR = ",";
     private static final String EVENT_ATTRIBUTE_VALUE_SEPARATOR = ":";
 
+    @Override
+    public String[] getSupportedDynamicOptions() {
+        return new String[0];
+    }
+
     /**
      * Initialize the mapper and the mapping configurations
      *
@@ -55,27 +60,27 @@ public class TextOutputMapper extends OutputMapper {
 
     @Override
     public void mapAndSend(Event[] events, OptionHolder optionHolder, TemplateBuilder payloadTemplateBuilder,
-                           OutputTransportListener outputTransportListener, DynamicOptions dynamicTransportOptions)
+                           OutputTransportListener outputTransportListener, DynamicOptions dynamicOptions)
             throws ConnectionUnavailableException {
         if (this.payloadTemplateBuilder != null) {
             for (Event event : events) {
-                outputTransportListener.publish(payloadTemplateBuilder.build(event), dynamicTransportOptions);
+                outputTransportListener.publish(payloadTemplateBuilder.build(event), dynamicOptions);
             }
         } else {
             for (Event event : events) {
-                outputTransportListener.publish(constructDefaultMapping(event), dynamicTransportOptions);
+                outputTransportListener.publish(constructDefaultMapping(event), dynamicOptions);
             }
         }
     }
 
     @Override
     public void mapAndSend(Event event, OptionHolder optionHolder, TemplateBuilder payloadTemplateBuilder,
-                           OutputTransportListener outputTransportListener, DynamicOptions dynamicTransportOptions)
+                           OutputTransportListener outputTransportListener, DynamicOptions dynamicOptions)
             throws ConnectionUnavailableException {
         if (this.payloadTemplateBuilder != null) {
-            outputTransportListener.publish(payloadTemplateBuilder.build(event), dynamicTransportOptions);
+            outputTransportListener.publish(payloadTemplateBuilder.build(event), dynamicOptions);
         } else {
-            outputTransportListener.publish(constructDefaultMapping(event), dynamicTransportOptions);
+            outputTransportListener.publish(constructDefaultMapping(event), dynamicOptions);
         }
     }
 

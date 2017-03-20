@@ -34,9 +34,9 @@ public abstract class InputTransport implements Snapshotable {
     private boolean tryConnect = false;
 
     public void init(OptionHolder transportOptionHolder, InputMapper inputMapper,
-                     ExecutionPlanContext executionPlanContext, String elementId) {
+                     ExecutionPlanContext executionPlanContext) {
         this.mapper = inputMapper;
-        this.elementId = elementId;
+        this.elementId = executionPlanContext.getElementIdGenerator().createNewId();
         init(inputMapper, transportOptionHolder, executionPlanContext);
     }
 

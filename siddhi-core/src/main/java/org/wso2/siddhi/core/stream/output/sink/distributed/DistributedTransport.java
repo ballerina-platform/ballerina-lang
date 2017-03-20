@@ -18,10 +18,12 @@
 
 package org.wso2.siddhi.core.stream.output.sink.distributed;
 
+import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
 import org.wso2.siddhi.core.stream.output.sink.OutputTransport;
 import org.wso2.siddhi.core.util.transport.DynamicOptions;
 import org.wso2.siddhi.core.util.transport.OptionHolder;
+import org.wso2.siddhi.query.api.definition.StreamDefinition;
 import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 
 import java.util.List;
@@ -46,7 +48,7 @@ public abstract class DistributedTransport extends OutputTransport {
     private OptionHolder sinkOptionHolder;
 
     @Override
-    public void init(OptionHolder optionHolder) {
+    public void init(StreamDefinition outputStreamDefinition, OptionHolder optionHolder, ExecutionPlanContext executionPlanContext) {
         this.sinkOptionHolder = optionHolder;
     }
 

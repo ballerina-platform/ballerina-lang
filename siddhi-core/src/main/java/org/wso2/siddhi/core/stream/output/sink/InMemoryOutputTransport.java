@@ -22,11 +22,15 @@ import org.apache.log4j.Logger;
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.annotation.Parameter;
 import org.wso2.siddhi.annotation.util.DataType;
+import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
 import org.wso2.siddhi.core.util.transport.InMemoryBroker;
 import org.wso2.siddhi.core.util.transport.Option;
 import org.wso2.siddhi.core.util.transport.OptionHolder;
 import org.wso2.siddhi.core.util.transport.DynamicOptions;
+import org.wso2.siddhi.query.api.definition.StreamDefinition;
+
+import java.util.Map;
 
 @Extension(
         name = "inMemory",
@@ -42,7 +46,12 @@ public class InMemoryOutputTransport extends OutputTransport {
     private Option topicOption;
 
     @Override
-    protected void init(OptionHolder optionHolder) {
+    public String[] getSupportedDynamicOptions() {
+        return new String[]{TOPIC_KEY};
+    }
+
+    @Override
+    protected void init(StreamDefinition outputStreamDefinition, OptionHolder optionHolder, ExecutionPlanContext executionPlanContext) {
         topicOption = optionHolder.validateAndGetOption(TOPIC_KEY);
     }
 
@@ -64,5 +73,15 @@ public class InMemoryOutputTransport extends OutputTransport {
     @Override
     public void publish(Object payload, DynamicOptions dynamicOptions) throws ConnectionUnavailableException {
         InMemoryBroker.publish(topicOption.getValue(dynamicOptions), payload);
+    }
+
+    @Override
+    public Map<String, Object> currentState() {
+        return null;
+    }
+
+    @Override
+    public void restoreState(Map<String, Object> state) {
+        // no state
     }
 }
