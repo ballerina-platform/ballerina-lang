@@ -166,20 +166,24 @@ var WorkspaceExplorer = Backbone.View.extend({
             _.get(self._options, 'command.shortcuts.other.label') + ') ').tooltip();
         }
 
+        this._verticalSeparator.draggable();
         this._verticalSeparator.on('drag', function(event){
-            if( event.originalEvent.clientX >= _.get(self._options, 'resizeLimits.minX')
-                && event.originalEvent.clientX <= _.get(self._options, 'resizeLimits.maxX')){
-                self._verticalSeparator.css('left', event.originalEvent.clientX);
+            if( event.clientX >= _.get(self._options, 'resizeLimits.minX')
+                && event.clientX <= _.get(self._options, 'resizeLimits.maxX')){
+                self._verticalSeparator.css('left', event.clientX);
                 self._verticalSeparator.css('cursor', 'ew-resize');
-                var newWidth = event.originalEvent.clientX;
+                var newWidth = event.clientX;
                 self._$parent_el.parent().width(newWidth);
-                self._containerToAdjust.css('padding-left', event.originalEvent.clientX);
+                self._containerToAdjust.css('padding-left', event.clientX);
                 self._lastWidth = newWidth;
                 self._isActive = true;
+            } else {
+                // cannot allow dragging vertical seperator since it reached resizeLimits
+                event.preventDefault();
+                event.stopPropagation();
             }
-            event.preventDefault();
-            event.stopPropagation();
         });
+        
         this._explorerContainer = explorerContainer;
 
         this._contextMenu = new ContextMenu({
