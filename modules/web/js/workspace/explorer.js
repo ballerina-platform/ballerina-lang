@@ -66,9 +66,14 @@ define(['log', 'jquery', 'backbone', 'lodash', './explorer-item', './service-cli
         },
 
         openFolder: function(folderPath){
-            this._openedFolders.push(folderPath);
-            this.createExplorerItem(folderPath);
-            this.persistState();
+            var exist = _.includes(this._openedFolders, folderPath);
+            if(!exist){
+                this._openedFolders.push(folderPath);
+                this.createExplorerItem(folderPath);
+                this.persistState();
+            }else{
+                // Do nothing
+            }
         },
 
         openFile: function(filePath){
