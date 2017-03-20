@@ -291,13 +291,13 @@ text-anchor: start;
 
 .property-pane-action-button-delete {
     opacity: 0.3;
-    fill: url(#deleteIcon);
+    fill: url(#statementDeleteIcon);
 }
 
 .property-pane-action-button-delete:hover {
     cursor: pointer;
     opacity: 1;
-    fill: url(#deleteIcon);
+    fill: url(#statementDeleteIcon);
 }
 
 .property-pane-action-button-breakpoint {
