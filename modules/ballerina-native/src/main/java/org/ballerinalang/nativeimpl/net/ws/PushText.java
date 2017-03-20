@@ -21,7 +21,6 @@ package org.ballerinalang.nativeimpl.net.ws;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeEnum;
-import org.ballerinalang.model.values.BMessage;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.AbstractNativeFunction;
 import org.ballerinalang.natives.annotations.Argument;
@@ -44,7 +43,6 @@ import javax.websocket.Session;
         packageName = "ballerina.net.ws",
         functionName = "pushText",
         args = {
-                @Argument(name = "m", type = TypeEnum.MESSAGE),
                 @Argument(name = "text", type = TypeEnum.STRING)
         },
         isPublic = true
@@ -53,19 +51,16 @@ import javax.websocket.Session;
                      attributes = { @Attribute(name = "value", value = "This pushes text from server to the the same " +
                              "client who sent the message.") })
 @BallerinaAnnotation(annotationName = "Param",
-                     attributes = { @Attribute(name = "message", value = "message") })
-@BallerinaAnnotation(annotationName = "Param",
                      attributes = { @Attribute(name = "text", value = "Text which should be sent") })
 public class PushText extends AbstractNativeFunction {
 
     @Override
     public BValue[] execute(Context context) {
         try {
-            BMessage bMessage = (BMessage) getArgument(context, 0);
-            CarbonMessage carbonMessage = bMessage.value();
+            CarbonMessage carbonMessage = context.getCarbonMessage();
             if (carbonMessage.getProperty(Constants.CHANNEL_ID) != null) {
-                Session session = (Session) bMessage.value().getProperty(Constants.WEBSOCKET_SESSION);
-                String text = getArgument(context, 1).stringValue();
+                Session session = (Session) carbonMessage.getProperty(Constants.WEBSOCKET_SESSION);
+                String text = getArgument(context, 0).stringValue();
                 session.getBasicRemote().sendText(text);
             }
         } catch (Throwable e) {

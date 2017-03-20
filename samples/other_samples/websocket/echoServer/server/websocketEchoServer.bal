@@ -13,7 +13,7 @@ service websocketEchoServer {
 
     @ws:OnTextMessage
     resource onTextMessage(message m) {
-        ws:pushText(m, messages:getStringPayload(m));
+        ws:pushText(messages:getStringPayload(m));
         system:println("client : " + messages:getStringPayload(m));
     }
 
