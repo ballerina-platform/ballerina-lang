@@ -35,12 +35,12 @@ public class BasicDataSource implements DataSource {
         try {
             return DriverManager.getConnection(RDBMSTestConstants.CONNECTION_URL, RDBMSTestConstants.USERNAME, RDBMSTestConstants.PASSWORD);
         } catch (Exception ex) {
-            Connection connection = DriverManager.getConnection(RDBMSTestConstants.CONNECTION_URL.replace("cepdb",""), RDBMSTestConstants.USERNAME, RDBMSTestConstants.PASSWORD);
-            Statement statement = connection.createStatement();
-            statement.executeUpdate("CREATE DATABASE cepdb");
-            statement.close();
-            return DriverManager.getConnection(RDBMSTestConstants.CONNECTION_URL, RDBMSTestConstants.USERNAME, RDBMSTestConstants.PASSWORD);
-
+            try (Connection connection = DriverManager.getConnection(RDBMSTestConstants.CONNECTION_URL.replace("cepdb",""), RDBMSTestConstants.USERNAME, RDBMSTestConstants.PASSWORD)) {
+                Statement statement = connection.createStatement();
+                statement.executeUpdate("CREATE DATABASE cepdb");
+                statement.close();
+                return DriverManager.getConnection(RDBMSTestConstants.CONNECTION_URL, RDBMSTestConstants.USERNAME, RDBMSTestConstants.PASSWORD);
+            }
         }
     }
 
