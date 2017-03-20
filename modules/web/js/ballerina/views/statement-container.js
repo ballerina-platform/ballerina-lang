@@ -92,11 +92,11 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
 
     /**
      * Finds the index in the lifeLine where a statement should be rendered based on managed statements
-     * and the parents current children and selects the relevant inner drop zone.
+     * and the parent's current children and selects the relevant inner drop zone if possible.
      * This is useful when a statement is added but not by dragging it in. Eg: By undoing a deletion
      * @param statement {Statement}
      */
-    StatementContainerView.prototype.selectInnderDropZone = function (statement) {
+    StatementContainerView.prototype.selectPossibleInnderDropZone = function (statement) {
         var children = statement.parent.children;
         var managedStatements = this._managedStatements;
         var index;
@@ -148,7 +148,7 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
         if (!_.isEmpty(this._managedStatements)) {
             // We have previously added statements, and adding a new one to them.
             if(!this.hasPendingInnerDropRender()) {
-                this.selectInnderDropZone(statement);
+                this.selectPossibleInnderDropZone(statement);
             }
 
             if(this.hasPendingInnerDropRender()){
