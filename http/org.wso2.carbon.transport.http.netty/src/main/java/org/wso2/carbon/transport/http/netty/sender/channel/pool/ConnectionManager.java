@@ -27,7 +27,9 @@ import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.exceptions.MessagingException;
+import org.wso2.carbon.transport.http.netty.common.Constants;
 import org.wso2.carbon.transport.http.netty.common.HttpRoute;
+import org.wso2.carbon.transport.http.netty.common.Util;
 import org.wso2.carbon.transport.http.netty.config.SenderConfiguration;
 import org.wso2.carbon.transport.http.netty.listener.SourceHandler;
 import org.wso2.carbon.transport.http.netty.sender.ClientRequestWorker;
@@ -65,7 +67,9 @@ public class ConnectionManager {
 
     private ExecutorService executorService;
 
-    private ConnectionManager(PoolConfiguration poolConfiguration) {
+    private EventLoopGroup clientEventGroup;
+
+    private ConnectionManager(PoolConfiguration poolConfiguration, Map<String, Object> transportProperties) {
         this.poolConfiguration = poolConfiguration;
         this.poolCount = poolConfiguration.getNumberOfPools();
         this.executorService = Executors.newFixedThreadPool(poolConfiguration.getExecutorServiceThreads());
@@ -82,6 +86,8 @@ public class ConnectionManager {
             poolList.add(map);
         }
 
+        clientEventGroup = new NioEventLoopGroup(
+                Util.getIntProperty(transportProperties, Constants.CLIENT_BOOTSTRAP_WORKER_GROUP_SIZE, 4));
     }
 
     private GenericObjectPool createPoolForRoute(HttpRoute httpRoute, EventLoopGroup eventLoopGroup,
@@ -110,7 +116,7 @@ public class ConnectionManager {
                         PoolConfiguration.createPoolConfiguration(transportProperties);
                         poolConfiguration = PoolConfiguration.getInstance();
                     }
-                    connectionManager = new ConnectionManager(poolConfiguration);
+                    connectionManager = new ConnectionManager(poolConfiguration, transportProperties);
                 }
             }
 
@@ -144,7 +150,7 @@ public class ConnectionManager {
             cl = ctx.channel().getClass();
         } else {
             cl = NioSocketChannel.class;
-            group = new NioEventLoopGroup(Integer.parseInt(senderConfiguration.getSenderWorkerThreads()));
+            group = clientEventGroup;
             poolManagementPolicy = PoolManagementPolicy.DEFAULT_POOLING;
         }
 
