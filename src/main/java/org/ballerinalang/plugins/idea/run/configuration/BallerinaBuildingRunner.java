@@ -22,6 +22,8 @@ import com.intellij.execution.RunProfileStarter;
 import com.intellij.execution.RunnerAndConfigurationSettings;
 import com.intellij.execution.configurations.RunProfile;
 import com.intellij.execution.configurations.RunProfileState;
+import com.intellij.execution.executors.DefaultDebugExecutor;
+import com.intellij.execution.executors.DefaultRunExecutor;
 import com.intellij.execution.process.ProcessAdapter;
 import com.intellij.execution.process.ProcessEvent;
 import com.intellij.execution.runners.AsyncGenericProgramRunner;
@@ -32,6 +34,7 @@ import com.intellij.internal.statistic.UsageTrigger;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.util.text.StringUtil;
+import org.ballerinalang.plugins.idea.run.configuration.application.BallerinaApplicationConfiguration;
 import org.ballerinalang.plugins.idea.run.configuration.application.BallerinaApplicationRunningState;
 import org.ballerinalang.plugins.idea.sdk.BallerinaEnvironmentUtil;
 import org.ballerinalang.plugins.idea.util.BallerinaHistoryProcessListener;
@@ -56,11 +59,11 @@ public class BallerinaBuildingRunner extends AsyncGenericProgramRunner {
 
     @Override
     public boolean canRun(@NotNull String executorId, @NotNull RunProfile profile) {
-        //        if (profile instanceof BallerinaApplicationConfiguration) {
-        //            return DefaultRunExecutor.EXECUTOR_ID.equals(executorId)
-        //                    || DefaultDebugExecutor.EXECUTOR_ID.equals(executorId);
-        //            //                    && !DlvDebugProcess.IS_DLV_DISABLED;
-        //        }
+        if (profile instanceof BallerinaApplicationConfiguration) {
+            return DefaultRunExecutor.EXECUTOR_ID.equals(executorId);
+            //                    || DefaultDebugExecutor.EXECUTOR_ID.equals(executorId);
+            //            //                    && !DlvDebugProcess.IS_DLV_DISABLED;
+        }
         return false;
     }
 
@@ -69,6 +72,7 @@ public class BallerinaBuildingRunner extends AsyncGenericProgramRunner {
     protected Promise<RunProfileStarter> prepare(@NotNull ExecutionEnvironment environment,
                                                  @NotNull RunProfileState state) throws ExecutionException {
         File outputFile = getOutputFile(environment, (BallerinaApplicationRunningState) state);
+        outputFile.delete();
         FileDocumentManager.getInstance().saveAllDocuments();
 
         AsyncPromise<RunProfileStarter> buildingPromise = new AsyncPromise<>();
@@ -81,11 +85,12 @@ public class BallerinaBuildingRunner extends AsyncGenericProgramRunner {
                 //                .withParameters(((BallerinaApplicationRunningState) state).isDebug() ?
                 //                        new String[]{"-gcflags", "-N -l"} : ArrayUtil.EMPTY_STRING_ARRAY)
                 .withParameters(((BallerinaApplicationRunningState) state).getTarget())
-                //                .withParameters("-o", outputFile.getAbsolutePath())
+                .withParameters("-o", outputFile.getName())
 
                 .disablePty()
                 .withPresentableName("ballerina build")
                 .withProcessListener(historyProcessListener)
+
                 .withProcessListener(new ProcessAdapter() {
 
                     @Override
@@ -100,7 +105,8 @@ public class BallerinaBuildingRunner extends AsyncGenericProgramRunner {
                                     historyProcessListener, compilationFailed));
                         }
                     }
-                }).executeWithProgress(false);
+                })
+                .executeWithProgress(false);
         return buildingPromise;
     }
 
@@ -121,7 +127,7 @@ public class BallerinaBuildingRunner extends AsyncGenericProgramRunner {
             File outputDirectory = new File(outputDirectoryPath);
             if (outputDirectory.isDirectory() || !outputDirectory.exists() && outputDirectory.mkdirs()) {
                 outputFile = new File(outputDirectoryPath,
-                        BallerinaEnvironmentUtil.getBinaryFileNameForPath(configurationName));
+                        BallerinaEnvironmentUtil.getBinaryFileName(configurationName));
                 try {
                     if (!outputFile.exists() && !outputFile.createNewFile()) {
                         throw new ExecutionException("Cannot create output file " + outputFile.getAbsolutePath());

@@ -31,4 +31,9 @@ public class BallerinaEnvironmentUtil {
         String resultBinaryName = FileUtil.getNameWithoutExtension(PathUtil.getFileName(path));
         return SystemInfo.isWindows ? resultBinaryName + ".exe" : resultBinaryName;
     }
+
+    @NotNull
+    public static String getBinaryFileName(@NotNull String path) {
+        return path + ".bmz";
+    }
 }

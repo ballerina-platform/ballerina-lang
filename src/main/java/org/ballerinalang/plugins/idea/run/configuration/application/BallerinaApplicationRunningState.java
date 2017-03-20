@@ -47,6 +47,7 @@ public class BallerinaApplicationRunningState extends BallerinaRunningState<Ball
 
     @NotNull
     public String getTarget() {
+        // Todo - Change
         return myConfiguration.getKind() == BallerinaApplicationConfiguration.Kind.MAIN
                 ? myConfiguration.getPackage() : myConfiguration.getFilePath();
     }
@@ -90,17 +91,21 @@ public class BallerinaApplicationRunningState extends BallerinaRunningState<Ball
 
     @Override
     protected BallerinaExecutor patchExecutor(@NotNull BallerinaExecutor executor) throws ExecutionException {
-//        if (isDebug()) {
-//            File dlv = dlv();
-//            if (dlv.exists() && !dlv.canExecute()) {
-//                //noinspection ResultOfMethodCallIgnored
-//                dlv.setExecutable(true, false);
-//            }
-//            return executor.withExePath(dlv.getAbsolutePath())
-//                    .withParameters("--listen=localhost:" + myDebugPort, "--headless=true", "exec", myOutputFilePath,
-//                            "--");
-//        }
-        return executor.showGoEnvVariables(false).withExePath(myOutputFilePath);
+        //        if (isDebug()) {
+        //            File dlv = dlv();
+        //            if (dlv.exists() && !dlv.canExecute()) {
+        //                //noinspection ResultOfMethodCallIgnored
+        //                dlv.setExecutable(true, false);
+        //            }
+        //            return executor.withExePath(dlv.getAbsolutePath())
+        //                    .withParameters("--listen=localhost:" + myDebugPort, "--headless=true", "exec",
+        // myOutputFilePath,
+        //                            "--");
+        //        }
+        return executor
+                .withParameters("run")
+                .withParameters("main")
+                .withParameters(myOutputFilePath);
     }
 
     @NotNull

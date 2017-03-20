@@ -347,8 +347,8 @@ public class BallerinaExecutor {
         });
     }
 
-    private void showOutput(@NotNull OSProcessHandler originalHandler, @NotNull BallerinaHistoryProcessListener
-            historyProcessListener) {
+    private void showOutput(@NotNull OSProcessHandler originalHandler,
+                            @NotNull BallerinaHistoryProcessListener historyProcessListener) {
         if (myShowOutputOnError) {
             BaseOSProcessHandler outputHandler = new KillableColoredProcessHandler(originalHandler.getProcess(), null);
             RunContentExecutor runContentExecutor = new RunContentExecutor(myProject, outputHandler)
@@ -399,6 +399,6 @@ public class BallerinaExecutor {
 
     @NotNull
     private String getPresentableName() {
-        return ObjectUtils.notNull(myPresentableName, "Ballerina");
+        return ObjectUtils.notNull(myPresentableName, "Ballerina Executor");
     }
 }
