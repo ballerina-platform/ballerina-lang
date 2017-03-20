@@ -7,7 +7,7 @@ grammar Ballerina;
 compilationUnit
     :   packageDeclaration?
         importDeclaration*
-        (annotation* definition)*
+        (annotationAttachment* definition)*
         EOF
     ;
 
@@ -42,7 +42,7 @@ serviceBody
     ;
 
 resourceDefinition
-    :   annotation* 'resource' Identifier '(' parameterList ')' callableUnitBody
+    :   annotationAttachment* 'resource' Identifier '(' parameterList ')' callableUnitBody
     ;
 
 callableUnitBody
@@ -67,8 +67,8 @@ connectorBody
     ;
 
 actionDefinition
-    :   annotation* 'native' 'action'  callableUnitSignature ';'
-    |   annotation* 'action' callableUnitSignature callableUnitBody
+    :   annotationAttachment* 'native' 'action'  callableUnitSignature ';'
+    |   annotationAttachment* 'action' callableUnitSignature callableUnitBody
     ;
 
 structDefinition
@@ -113,7 +113,7 @@ typeMapperBody
     ;
 
 constantDefinition
-    :   'const' valueTypeName Identifier '=' literalValue ';'
+    :   'const' valueTypeName Identifier '=' simpleLiteral ';'
     ;
 
 workerDeclaration
@@ -157,29 +157,26 @@ xmlLocalName
     :   Identifier
     ;
 
- //============================================================================================================
- // ANNOTATIONS
-
- annotation
-     :   '@' nameReference ( '(' ( nameValuePairs | nameValue )? ')' )?
+ annotationAttachment
+     :   '@' nameReference '{' annotationAttributeList? '}'
      ;
 
- nameValuePairs
-     :   elementValuePair (',' elementValuePair)*
+ annotationAttributeList
+     :   annotationAttribute (',' annotationAttribute)*
      ;
 
- elementValuePair
-     :    Identifier ':' nameValue
+ annotationAttribute
+     :    Identifier ':' annotationAttributeValue
      ;
 
- nameValue
-     :   expression
-     |   annotation
-     |   elementValueArrayInitializer
+ annotationAttributeValue
+     :   simpleLiteral
+     |   annotationAttachment
+     |   annotationAttributeArray
      ;
 
- elementValueArrayInitializer
-     :   '{' (nameValue (',' nameValue)*)? (',')? '}'
+ annotationAttributeArray
+     :   '[' (annotationAttributeValue (',' annotationAttributeValue)*)? ']'
      ;
 
  //============================================================================================================
@@ -205,12 +202,7 @@ statement
     ;
 
 variableDefinitionStatement
-    :   typeName Identifier ('=' (initializerExpression | connectorInitExpression | actionInvocation | expression) )? ';'
-    ;
-
-initializerExpression
-    :   arrayLiteral
-    |   mapStructLiteral
+    :   typeName Identifier ('=' (connectorInitExpression | actionInvocation | expression) )? ';'
     ;
 
 mapStructLiteral
@@ -218,7 +210,7 @@ mapStructLiteral
     ;
 
 mapStructKeyValue
-    :   expression ':' (initializerExpression | expression)
+    :   expression ':' expression
     ;
 
 arrayLiteral
@@ -230,7 +222,7 @@ connectorInitExpression
     ;
 
 assignmentStatement
-    :   variableReferenceList '=' (initializerExpression | connectorInitExpression | actionInvocation | expression) ';'
+    :   variableReferenceList '=' (connectorInitExpression | actionInvocation | expression) ';'
     ;
 
 variableReferenceList
@@ -358,7 +350,11 @@ backtickString
     ;
 
 expression
-    :   literalValue                                    # literalExpression
+    :   simpleLiteral                                   # simpleLiteralExpression
+    |   arrayLiteral                                    # arrayLiteralExpression
+    |   mapStructLiteral                                # mapStructLiteralExpression
+    |   valueTypeName '.' Identifier                    # valueTypeTypeExpression
+    |   builtInReferenceTypeName '.' Identifier         # builtInReferenceTypeTypeExpression
     |   variableReference                               # variableReferenceExpression
     |   backtickString                                  # templateExpression
     |   nameReference '(' expressionList? ')'           # functionInvocationExpression
@@ -393,14 +389,14 @@ parameterList
     ;
 
 parameter
-    :   annotation* typeName Identifier
+    :   annotationAttachment* typeName Identifier
     ;
 
 fieldDefinition
-    :   typeName Identifier ('=' literalValue)? ';'
+    :   typeName Identifier ('=' simpleLiteral)? ';'
     ;
 
-literalValue
+simpleLiteral
     :   IntegerLiteral
     |   FloatingPointLiteral
     |   QuotedStringLiteral
