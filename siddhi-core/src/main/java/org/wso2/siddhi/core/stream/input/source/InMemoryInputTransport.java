@@ -22,9 +22,12 @@ import org.apache.log4j.Logger;
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.annotation.Parameter;
 import org.wso2.siddhi.annotation.util.DataType;
+import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
 import org.wso2.siddhi.core.util.transport.InMemoryBroker;
 import org.wso2.siddhi.core.util.transport.OptionHolder;
+
+import java.util.Map;
 
 @Extension(
         name = "inMemory",
@@ -41,9 +44,9 @@ public class InMemoryInputTransport extends InputTransport {
     private InMemoryBroker.Subscriber subscriber;
 
     @Override
-    public void init(SourceEventListener sourceEventListener, OptionHolder optionHolder) {
+    public void init(SourceEventListener sourceEventListener, OptionHolder optionHolder, ExecutionPlanContext executionPlanContext) {
         this.sourceEventListener = sourceEventListener;
-        String topic = optionHolder.validateAndGetStaticValue(TOPIC_KEY,"input inMemory transport");
+        String topic = optionHolder.validateAndGetStaticValue(TOPIC_KEY, "input inMemory transport");
         this.subscriber = new InMemoryBroker.Subscriber() {
             @Override
             public void onMessage(Object event) {
@@ -72,4 +75,13 @@ public class InMemoryInputTransport extends InputTransport {
         // do nothing
     }
 
+    @Override
+    public Map<String, Object> currentState() {
+        return null;
+    }
+
+    @Override
+    public void restoreState(Map<String, Object> state) {
+        // no state
+    }
 }

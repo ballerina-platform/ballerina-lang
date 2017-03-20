@@ -19,23 +19,28 @@
 package org.wso2.siddhi.core.stream.input.source;
 
 import org.apache.log4j.Logger;
+import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
+import org.wso2.siddhi.core.util.snapshot.Snapshotable;
 import org.wso2.siddhi.core.util.transport.OptionHolder;
 
 import java.util.concurrent.ExecutorService;
 
 
-public abstract class InputTransport {
+public abstract class InputTransport implements Snapshotable {
     private static final Logger log = Logger.getLogger(InputTransport.class);
     private InputMapper mapper;
+    private String elementId;
     private boolean tryConnect = false;
 
-    public void init(OptionHolder transportOptionHolder, InputMapper inputMapper) {
+    public void init(OptionHolder transportOptionHolder, InputMapper inputMapper,
+                     ExecutionPlanContext executionPlanContext, String elementId) {
         this.mapper = inputMapper;
-        init(inputMapper, transportOptionHolder);
+        this.elementId = elementId;
+        init(inputMapper, transportOptionHolder, executionPlanContext);
     }
 
-    public abstract void init(SourceEventListener sourceEventListener, OptionHolder optionHolder);
+    public abstract void init(SourceEventListener sourceEventListener, OptionHolder optionHolder, ExecutionPlanContext executionPlanContext);
 
     public abstract void connect() throws ConnectionUnavailableException;
 
@@ -61,5 +66,10 @@ public abstract class InputTransport {
         tryConnect = false;
         disconnect();
         destroy();
+    }
+
+    @Override
+    public String getElementId() {
+        return elementId;
     }
 }

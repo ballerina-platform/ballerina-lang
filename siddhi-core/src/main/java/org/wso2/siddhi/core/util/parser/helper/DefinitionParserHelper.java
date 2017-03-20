@@ -238,7 +238,7 @@ public class DefinitionParserHelper {
                                 inputMapper.getClass().getAnnotation(org.wso2.siddhi.annotation.Extension.class));
 
                         inputMapper.init(streamDefinition, mapType, mapOptionHolder, getAttributeMappings(mapAnnotation));
-                        inputTransport.init(sourceOptionHolder, inputMapper);
+                        inputTransport.init(sourceOptionHolder, inputMapper, executionPlanContext, executionPlanContext.getElementIdGenerator().createNewId());
 
                         List<InputTransport> eventSources = eventSourceMap.get(streamDefinition.getId());
                         if (eventSources == null) {
