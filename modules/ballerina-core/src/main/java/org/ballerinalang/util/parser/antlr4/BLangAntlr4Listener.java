@@ -26,7 +26,37 @@ import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.builder.BLangModelBuilder;
 import org.ballerinalang.util.parser.BallerinaListener;
 import org.ballerinalang.util.parser.BallerinaParser;
-import org.ballerinalang.util.parser.BallerinaParser.AnnotationContext;
+import org.ballerinalang.util.parser.BallerinaParser.ActionDefinitionContext;
+import org.ballerinalang.util.parser.BallerinaParser.AnnotationAttachmentContext;
+import org.ballerinalang.util.parser.BallerinaParser.AnnotationAttributeArrayContext;
+import org.ballerinalang.util.parser.BallerinaParser.AnnotationAttributeContext;
+import org.ballerinalang.util.parser.BallerinaParser.AnnotationAttributeListContext;
+import org.ballerinalang.util.parser.BallerinaParser.AnnotationAttributeValueContext;
+import org.ballerinalang.util.parser.BallerinaParser.AnnotationBodyContext;
+import org.ballerinalang.util.parser.BallerinaParser.AnnotationDefinitionContext;
+import org.ballerinalang.util.parser.BallerinaParser.ArrayLiteralContext;
+import org.ballerinalang.util.parser.BallerinaParser.ArrayLiteralExpressionContext;
+import org.ballerinalang.util.parser.BallerinaParser.AttachmentPointContext;
+import org.ballerinalang.util.parser.BallerinaParser.BuiltInReferenceTypeNameContext;
+import org.ballerinalang.util.parser.BallerinaParser.BuiltInReferenceTypeTypeExpressionContext;
+import org.ballerinalang.util.parser.BallerinaParser.CallableUnitBodyContext;
+import org.ballerinalang.util.parser.BallerinaParser.CallableUnitSignatureContext;
+import org.ballerinalang.util.parser.BallerinaParser.ContinueStatementContext;
+import org.ballerinalang.util.parser.BallerinaParser.DefinitionContext;
+import org.ballerinalang.util.parser.BallerinaParser.FieldDefinitionContext;
+import org.ballerinalang.util.parser.BallerinaParser.MapStructKeyValueContext;
+import org.ballerinalang.util.parser.BallerinaParser.MapStructLiteralContext;
+import org.ballerinalang.util.parser.BallerinaParser.MapStructLiteralExpressionContext;
+import org.ballerinalang.util.parser.BallerinaParser.NameReferenceContext;
+import org.ballerinalang.util.parser.BallerinaParser.ReferenceTypeNameContext;
+import org.ballerinalang.util.parser.BallerinaParser.SimpleLiteralContext;
+import org.ballerinalang.util.parser.BallerinaParser.SimpleLiteralExpressionContext;
+import org.ballerinalang.util.parser.BallerinaParser.StructBodyContext;
+import org.ballerinalang.util.parser.BallerinaParser.TypeMapperSignatureContext;
+import org.ballerinalang.util.parser.BallerinaParser.ValueTypeNameContext;
+import org.ballerinalang.util.parser.BallerinaParser.ValueTypeTypeExpressionContext;
+import org.ballerinalang.util.parser.BallerinaParser.XmlLocalNameContext;
+import org.ballerinalang.util.parser.BallerinaParser.XmlNamespaceNameContext;
 
 import java.nio.file.Path;
 import java.util.List;
@@ -1671,5 +1701,317 @@ public class BLangAntlr4Listener implements BallerinaListener {
         // Here childCount is always an odd number.
         // noOfArguments = childCount mod 2 + 1
         return childCountExprList / 2 + 1;
+    }
+
+    @Override
+    public void enterDefinition(DefinitionContext ctx) {
+        // TODO
+    }
+
+    @Override
+    public void exitDefinition(DefinitionContext ctx) {
+        // TODO
+        
+    }
+
+    @Override
+    public void enterCallableUnitBody(CallableUnitBodyContext ctx) {
+        // TODO
+    }
+
+    @Override
+    public void exitCallableUnitBody(CallableUnitBodyContext ctx) {
+        // TODO
+        
+    }
+
+    @Override
+    public void enterCallableUnitSignature(CallableUnitSignatureContext ctx) {
+        // TODO
+    }
+
+    @Override
+    public void exitCallableUnitSignature(CallableUnitSignatureContext ctx) {
+        // TODO
+    }
+
+    @Override
+    public void enterActionDefinition(ActionDefinitionContext ctx) {
+        // TODO
+    }
+
+    @Override
+    public void exitActionDefinition(ActionDefinitionContext ctx) {
+        // TODO
+    }
+
+    @Override
+    public void enterStructBody(StructBodyContext ctx) {
+        // TODO
+    }
+
+    @Override
+    public void exitStructBody(StructBodyContext ctx) {
+        // TODO
+    }
+
+    @Override
+    public void enterAnnotationDefinition(AnnotationDefinitionContext ctx) {
+        // TODO
+    }
+
+    @Override
+    public void exitAnnotationDefinition(AnnotationDefinitionContext ctx) {
+        // TODO
+    }
+
+    @Override
+    public void enterAttachmentPoint(AttachmentPointContext ctx) {
+        // TODO
+    }
+
+    @Override
+    public void exitAttachmentPoint(AttachmentPointContext ctx) {
+        // TODO
+    }
+
+    @Override
+    public void enterAnnotationBody(AnnotationBodyContext ctx) {
+        // TODO
+    }
+
+    @Override
+    public void exitAnnotationBody(AnnotationBodyContext ctx) {
+        // TODO
+    }
+
+    @Override
+    public void enterTypeMapperSignature(TypeMapperSignatureContext ctx) {
+        // TODO
+    }
+
+    @Override
+    public void exitTypeMapperSignature(TypeMapperSignatureContext ctx) {
+        // TODO
+    }
+
+    @Override
+    public void enterReferenceTypeName(ReferenceTypeNameContext ctx) {
+        // TODO
+    }
+
+    @Override
+    public void exitReferenceTypeName(ReferenceTypeNameContext ctx) {
+        // TODO
+    }
+
+    @Override
+    public void enterValueTypeName(ValueTypeNameContext ctx) {
+        // TODO
+    }
+
+    @Override
+    public void exitValueTypeName(ValueTypeNameContext ctx) {
+        // TODO
+    }
+
+    @Override
+    public void enterBuiltInReferenceTypeName(BuiltInReferenceTypeNameContext ctx) {
+        // TODO
+    }
+
+    @Override
+    public void exitBuiltInReferenceTypeName(BuiltInReferenceTypeNameContext ctx) {
+        // TODO
+    }
+
+    @Override
+    public void enterXmlNamespaceName(XmlNamespaceNameContext ctx) {
+        // TODO
+    }
+
+    @Override
+    public void exitXmlNamespaceName(XmlNamespaceNameContext ctx) {
+        // TODO
+    }
+
+    @Override
+    public void enterXmlLocalName(XmlLocalNameContext ctx) {
+        // TODO
+    }
+
+    @Override
+    public void exitXmlLocalName(XmlLocalNameContext ctx) {
+        // TODO
+    }
+
+    @Override
+    public void enterAnnotationAttachment(AnnotationAttachmentContext ctx) {
+        // TODO
+    }
+
+    @Override
+    public void exitAnnotationAttachment(AnnotationAttachmentContext ctx) {
+        // TODO
+    }
+
+    @Override
+    public void enterAnnotationAttributeList(AnnotationAttributeListContext ctx) {
+        // TODO
+    }
+
+    @Override
+    public void exitAnnotationAttributeList(AnnotationAttributeListContext ctx) {
+        // TODO
+    }
+
+    @Override
+    public void enterAnnotationAttribute(AnnotationAttributeContext ctx) {
+        // TODO
+    }
+
+    @Override
+    public void exitAnnotationAttribute(AnnotationAttributeContext ctx) {
+        // TODO
+    }
+
+    @Override
+    public void enterAnnotationAttributeValue(AnnotationAttributeValueContext ctx) {
+        // TODO
+    }
+
+    @Override
+    public void exitAnnotationAttributeValue(AnnotationAttributeValueContext ctx) {
+        // TODO
+    }
+
+    @Override
+    public void enterAnnotationAttributeArray(AnnotationAttributeArrayContext ctx) {
+        // TODO
+    }
+
+    @Override
+    public void exitAnnotationAttributeArray(AnnotationAttributeArrayContext ctx) {
+        // TODO
+    }
+
+    @Override
+    public void enterMapStructLiteral(MapStructLiteralContext ctx) {
+        // TODO
+    }
+
+    @Override
+    public void exitMapStructLiteral(MapStructLiteralContext ctx) {
+        // TODO
+    }
+
+    @Override
+    public void enterMapStructKeyValue(MapStructKeyValueContext ctx) {
+        // TODO
+    }
+
+    @Override
+    public void exitMapStructKeyValue(MapStructKeyValueContext ctx) {
+        // TODO
+    }
+
+    @Override
+    public void enterArrayLiteral(ArrayLiteralContext ctx) {
+        // TODO
+    }
+
+    @Override
+    public void exitArrayLiteral(ArrayLiteralContext ctx) {
+        // TODO
+    }
+
+    @Override
+    public void enterContinueStatement(ContinueStatementContext ctx) {
+        // TODO
+    }
+
+    @Override
+    public void exitContinueStatement(ContinueStatementContext ctx) {
+        // TODO
+    }
+
+    @Override
+    public void enterValueTypeTypeExpression(ValueTypeTypeExpressionContext ctx) {
+        // TODO
+    }
+
+    @Override
+    public void exitValueTypeTypeExpression(ValueTypeTypeExpressionContext ctx) {
+        // TODO
+    }
+
+    @Override
+    public void enterSimpleLiteralExpression(SimpleLiteralExpressionContext ctx) {
+        // TODO
+    }
+
+    @Override
+    public void exitSimpleLiteralExpression(SimpleLiteralExpressionContext ctx) {
+        // TODO
+    }
+
+    @Override
+    public void enterArrayLiteralExpression(ArrayLiteralExpressionContext ctx) {
+        // TODO
+    }
+
+    @Override
+    public void exitArrayLiteralExpression(ArrayLiteralExpressionContext ctx) {
+        // TODO
+    }
+
+    @Override
+    public void enterMapStructLiteralExpression(MapStructLiteralExpressionContext ctx) {
+        // TODO
+    }
+
+    @Override
+    public void exitMapStructLiteralExpression(MapStructLiteralExpressionContext ctx) {
+        // TODO
+    }
+
+    @Override
+    public void enterBuiltInReferenceTypeTypeExpression(BuiltInReferenceTypeTypeExpressionContext ctx) {
+        // TODO
+    }
+
+    @Override
+    public void exitBuiltInReferenceTypeTypeExpression(BuiltInReferenceTypeTypeExpressionContext ctx) {
+        // TODO
+    }
+
+    @Override
+    public void enterNameReference(NameReferenceContext ctx) {
+        // TODO
+    }
+
+    @Override
+    public void exitNameReference(NameReferenceContext ctx) {
+        // TODO
+    }
+
+    @Override
+    public void enterFieldDefinition(FieldDefinitionContext ctx) {
+        // TODO
+    }
+
+    @Override
+    public void exitFieldDefinition(FieldDefinitionContext ctx) {
+        // TODO
+    }
+
+    @Override
+    public void enterSimpleLiteral(SimpleLiteralContext ctx) {
+        // TODO
+    }
+
+    @Override
+    public void exitSimpleLiteral(SimpleLiteralContext ctx) {
+        // TODO
     }
 }
