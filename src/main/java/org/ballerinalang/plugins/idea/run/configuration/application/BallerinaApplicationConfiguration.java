@@ -34,7 +34,6 @@ import org.ballerinalang.plugins.idea.run.configuration.BallerinaModuleBasedConf
 import org.ballerinalang.plugins.idea.run.configuration.BallerinaRunConfigurationWithMain;
 import org.ballerinalang.plugins.idea.run.configuration.BallerinaRunUtil;
 import org.ballerinalang.plugins.idea.run.configuration.ui.BallerinaApplicationSettingsEditor;
-import org.ballerinalang.plugins.idea.sdk.BallerinaPackageUtil;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 
@@ -48,7 +47,7 @@ public class BallerinaApplicationConfiguration extends
     private String myPackage = "";
 
     @NotNull
-    private Kind myKind = Kind.APPLICATION;
+    private Kind myKind = Kind.MAIN;
 
     public BallerinaApplicationConfiguration(Project project, String name, @NotNull ConfigurationType
             configurationType) {
@@ -62,9 +61,9 @@ public class BallerinaApplicationConfiguration extends
                 PACKAGE_ATTRIBUTE_NAME));
         try {
             String kindName = JDOMExternalizerUtil.getFirstChildValueAttribute(element, KIND_ATTRIBUTE_NAME);
-            myKind = kindName != null ? Kind.valueOf(kindName) : Kind.APPLICATION;
+            myKind = kindName != null ? Kind.valueOf(kindName) : Kind.MAIN;
         } catch (IllegalArgumentException e) {
-            myKind = !myPackage.isEmpty() ? Kind.APPLICATION : Kind.SERVICE;
+            myKind = !myPackage.isEmpty() ? Kind.MAIN : Kind.SERVICE;
         }
     }
 
@@ -100,27 +99,26 @@ public class BallerinaApplicationConfiguration extends
     @Override
     public void checkConfiguration() throws RuntimeConfigurationException {
         checkBaseConfiguration();
-        switch (myKind) {
-            case APPLICATION:
-                Module module = getConfigurationModule().getModule();
-                assert module != null;
+        Module module = getConfigurationModule().getModule();
+        assert module != null;
 
-                if (StringUtil.isEmptyOrSpaces(myPackage)) {
-                    throw new RuntimeConfigurationError("Package is not specified");
-                }
-                VirtualFile packageDirectory = BallerinaPackageUtil.findByImportPath(myPackage, module.getProject(),
-                        module);
-                if (packageDirectory == null || !packageDirectory.isDirectory()) {
-                    throw new RuntimeConfigurationError("Cannot find package '" + myPackage + "'");
-                }
+        if (StringUtil.isEmptyOrSpaces(myPackage)) {
+            throw new RuntimeConfigurationError("Package is not specified");
+        }
+        VirtualFile packageDirectory = BallerinaRunUtil.findByPath(myPackage, module.getProject(), module);
+        if (packageDirectory == null || !packageDirectory.isDirectory()) {
+            throw new RuntimeConfigurationError("Cannot find package '" + myPackage + "'");
+        }
+        switch (myKind) {
+            case MAIN:
                 if (BallerinaRunUtil.findMainFileInDirectory(packageDirectory, getProject()) == null) {
                     throw new RuntimeConfigurationError("Cannot find Ballerina file with main in '" +
                             myPackage + "'");
                 }
                 break;
-            case SERVICE:
-                checkFileConfiguration();
-                break;
+            //            case SERVICE:
+            //                checkFileConfiguration();
+            //                break;
         }
     }
 
@@ -143,6 +141,6 @@ public class BallerinaApplicationConfiguration extends
     }
 
     public enum Kind {
-        APPLICATION, SERVICE
+        MAIN, SERVICE
     }
 }

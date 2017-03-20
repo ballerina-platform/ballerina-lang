@@ -56,11 +56,11 @@ public class BallerinaBuildingRunner extends AsyncGenericProgramRunner {
 
     @Override
     public boolean canRun(@NotNull String executorId, @NotNull RunProfile profile) {
-//        if (profile instanceof BallerinaApplicationConfiguration) {
-//            return DefaultRunExecutor.EXECUTOR_ID.equals(executorId)
-//                    || DefaultDebugExecutor.EXECUTOR_ID.equals(executorId);
-//            //                    && !DlvDebugProcess.IS_DLV_DISABLED;
-//        }
+        //        if (profile instanceof BallerinaApplicationConfiguration) {
+        //            return DefaultRunExecutor.EXECUTOR_ID.equals(executorId)
+        //                    || DefaultDebugExecutor.EXECUTOR_ID.equals(executorId);
+        //            //                    && !DlvDebugProcess.IS_DLV_DISABLED;
+        //        }
         return false;
     }
 
@@ -74,14 +74,14 @@ public class BallerinaBuildingRunner extends AsyncGenericProgramRunner {
         AsyncPromise<RunProfileStarter> buildingPromise = new AsyncPromise<>();
         BallerinaHistoryProcessListener historyProcessListener = new BallerinaHistoryProcessListener();
         ((BallerinaApplicationRunningState) state).createCommonExecutor()
-                .withParameters("run")
+                .withParameters("build")
                 .withParameters("main")
                 .withParameterString(((BallerinaApplicationRunningState) state).getGoBuildParams())
 
                 //                .withParameters(((BallerinaApplicationRunningState) state).isDebug() ?
                 //                        new String[]{"-gcflags", "-N -l"} : ArrayUtil.EMPTY_STRING_ARRAY)
                 .withParameters(((BallerinaApplicationRunningState) state).getTarget())
-//                .withParameters("-o", outputFile.getAbsolutePath())
+                //                .withParameters("-o", outputFile.getAbsolutePath())
 
                 .disablePty()
                 .withPresentableName("ballerina build")

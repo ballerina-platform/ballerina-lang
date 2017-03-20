@@ -50,6 +50,7 @@ public class BallerinaApplicationRunConfigurationProducer extends BallerinaRunCo
         //            configuration.setName("Build " + importPath + " and run");
         //            return true;
         //        }
+        // Todo - change
         if (super.setupConfigurationFromContext(configuration, context, sourceElement)) {
             configuration.setKind(BallerinaApplicationConfiguration.Kind.SERVICE);
             return true;
@@ -74,13 +75,14 @@ public class BallerinaApplicationRunConfigurationProducer extends BallerinaRunCo
     @Override
     public boolean isConfigurationFromContext(@NotNull BallerinaApplicationConfiguration configuration,
                                               ConfigurationContext context) {
+        // Todo - Change
         PsiElement contextElement = BallerinaRunUtil.getContextElement(context);
         if (contextElement == null) return false;
 
         Module module = ModuleUtilCore.findModuleForPsiElement(contextElement);
         if (!Comparing.equal(module, configuration.getConfigurationModule().getModule())) return false;
 
-        if (configuration.getKind() == BallerinaApplicationConfiguration.Kind.APPLICATION) {
+        if (configuration.getKind() == BallerinaApplicationConfiguration.Kind.MAIN) {
             return Comparing.equal(getImportPathFromContext(contextElement), configuration.getPackage());
         }
 

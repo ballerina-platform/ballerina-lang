@@ -184,7 +184,7 @@ public class BallerinaConsoleFilter implements Filter {
 
     @Nullable
     private VirtualFile findInGoPath(@NotNull String fileName) {
-        //        return GoPackageUtil.findByImportPath(fileName, myProject, myModule);
+        //        return GoPackageUtil.findByPath(fileName, myProject, myModule);
         return null;
     }
 

@@ -60,7 +60,7 @@ public abstract class BallerinaRunConfigurationBase<RunningState extends Balleri
     @NotNull
     private String myWorkingDirectory = "";
     @NotNull
-    private String myGoParams = "";
+    private String myBallerinaParams = "";
     @NotNull
     private String myParams = "";
     @NotNull
@@ -69,9 +69,7 @@ public abstract class BallerinaRunConfigurationBase<RunningState extends Balleri
 
     public BallerinaRunConfigurationBase(String name, BallerinaModuleBasedConfiguration configurationModule,
                                          ConfigurationFactory factory) {
-
         super(name, configurationModule, factory);
-
         Module module = configurationModule.getModule();
         if (module == null) {
             Collection<Module> modules = getValidModules();
@@ -109,8 +107,8 @@ public abstract class BallerinaRunConfigurationBase<RunningState extends Balleri
         Module module = configurationModule.getModule();
         if (module != null) {
             if (BallerinaSdkService.getInstance(module.getProject()).getSdkHomePath(module) == null) {
-                throw new RuntimeConfigurationError("Go SDK is not specified for module '" + module
-                        .getName() + "'");
+                throw new RuntimeConfigurationError("Ballerina SDK is not specified for module '" +
+                        module.getName() + "'");
             }
         } else {
             String moduleName = configurationModule.getModuleName();
@@ -130,7 +128,7 @@ public abstract class BallerinaRunConfigurationBase<RunningState extends Balleri
         super.writeExternal(element);
         writeModule(element);
         addNonEmptyElement(element, WORKING_DIRECTORY_NAME, myWorkingDirectory);
-        addNonEmptyElement(element, BALLERINA_PARAMETERS_NAME, myGoParams);
+        addNonEmptyElement(element, BALLERINA_PARAMETERS_NAME, myBallerinaParams);
         addNonEmptyElement(element, PARAMETERS_NAME, myParams);
         if (!myCustomEnvironment.isEmpty()) {
             EnvironmentVariablesComponent.writeExternal(element, myCustomEnvironment);
@@ -150,7 +148,7 @@ public abstract class BallerinaRunConfigurationBase<RunningState extends Balleri
     public void readExternal(@NotNull Element element) throws InvalidDataException {
         super.readExternal(element);
         readModule(element);
-        myGoParams = StringUtil.notNullize(JDOMExternalizerUtil.getFirstChildValueAttribute(element,
+        myBallerinaParams = StringUtil.notNullize(JDOMExternalizerUtil.getFirstChildValueAttribute(element,
                 BALLERINA_PARAMETERS_NAME));
         myParams = StringUtil.notNullize(JDOMExternalizerUtil.getFirstChildValueAttribute(element, PARAMETERS_NAME));
 
@@ -190,7 +188,7 @@ public abstract class BallerinaRunConfigurationBase<RunningState extends Balleri
 
     @NotNull
     public String getBallerinaToolParams() {
-        return myGoParams;
+        return myBallerinaParams;
     }
 
     @NotNull
@@ -199,7 +197,7 @@ public abstract class BallerinaRunConfigurationBase<RunningState extends Balleri
     }
 
     public void setGoParams(@NotNull String params) {
-        myGoParams = params;
+        myBallerinaParams = params;
     }
 
     public void setParams(@NotNull String params) {

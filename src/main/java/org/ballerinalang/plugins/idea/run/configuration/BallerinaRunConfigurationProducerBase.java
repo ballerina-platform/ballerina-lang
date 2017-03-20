@@ -47,38 +47,54 @@ public abstract class BallerinaRunConfigurationProducerBase<T extends BallerinaR
     protected boolean setupConfigurationFromContext(@NotNull T configuration, @NotNull ConfigurationContext context,
                                                     Ref<PsiElement> sourceElement) {
         PsiFile file = getFileFromContext(context);
+        // Get the element. This will be an identifier element.
         PsiElement element = sourceElement.get();
-
+        // Get the FunctionNode parent from element
         FunctionNode functionNode = PsiTreeUtil.getParentOfType(element, FunctionNode.class);
+        // If FunctionNode parent is available, that means that the sourceElement is within a function. We need to
+        // check whether this is a main function or not as well.
         if (BallerinaRunUtil.hasMainFunction(file) && functionNode != null) {
-
+            // Set the configuration info.
             configuration.setName(getConfigurationName(file));
             configuration.setFilePath(file.getVirtualFile().getPath());
             Module module = context.getModule();
             if (module != null) {
                 configuration.setModule(module);
             }
+            // We need to set/change the current configuration's kind as well. We need to check for the configuration
+            // type here before doing anything else because the configuration might be an application configuration.
             if (configuration instanceof BallerinaRunFileConfiguration) {
+                // Set the run kind to APPLICATION because we are in a main function.
                 configuration.setRunKind(BallerinaRunFileConfiguration.Kind.APPLICATION);
-
+                // There can be an existing configuration for the current context as well. If that is the case, this
+                // config will be used to run the file. If there is an existing config for the context, we change the
+                // run kind of that config. Otherwise we change the current selected run configs kind.
                 RunnerAndConfigurationSettings existingConfigurations = context.findExisting();
                 if (existingConfigurations != null) {
+                    // Get the RunConfiguration.
                     RunConfiguration existingConfiguration = existingConfigurations.getConfiguration();
+                    // Run configuration might be an application configuration. So we need to check the type.
                     if (existingConfiguration instanceof BallerinaRunFileConfiguration) {
+                        // If it is a BallerinaRunFileConfiguration, set the kind to APPLICATION.
                         ((BallerinaRunFileConfiguration) existingConfiguration).setRunKind(
                                 BallerinaRunFileConfiguration.Kind.APPLICATION);
                     }
                 } else {
-
+                    // Get the project.
                     Project project = context.getProject();
+                    // Get the RunManger. This has details about all run configs.
                     RunManager runManager = RunManager.getInstance(project);
-
+                    // Get the current selected run config.
                     RunnerAndConfigurationSettings selectedConfigurationSettings =
                             runManager.getSelectedConfiguration();
+                    // If there is run configs available, IDEA will create a config using createTemplateConfiguration
+                    // in BallerinaRunServiceFileConfigurationType class.
                     if (selectedConfigurationSettings != null) {
-
+                        // Get the configuration.
                         RunConfiguration currentRunConfiguration = selectedConfigurationSettings.getConfiguration();
+                        // Check the type.
                         if (currentRunConfiguration instanceof BallerinaRunFileConfiguration) {
+                            // Set the kind to APPLICATION.
                             ((BallerinaRunFileConfiguration) currentRunConfiguration).setRunKind
                                     (BallerinaRunFileConfiguration.Kind.APPLICATION);
                         }

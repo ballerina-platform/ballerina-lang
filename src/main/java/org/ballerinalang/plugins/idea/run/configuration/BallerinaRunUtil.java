@@ -22,6 +22,7 @@ import com.intellij.execution.process.ProcessHandler;
 import com.intellij.ide.scratch.ScratchFileType;
 import com.intellij.openapi.fileChooser.FileChooserDescriptor;
 import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory;
+import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.FileIndexFacade;
 import com.intellij.openapi.ui.ComponentWithBrowseButton;
@@ -29,6 +30,7 @@ import com.intellij.openapi.ui.TextBrowseFolderListener;
 import com.intellij.openapi.ui.TextComponentAccessor;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
 import com.intellij.openapi.util.Condition;
+import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
@@ -189,5 +191,15 @@ public class BallerinaRunUtil {
         // '\n', ProcessOutputTypes.SYSTEM);
         //        handler.notifyTextAvailable("GOPATH=" + StringUtil.nullize(environment.get(GoConstants.GO_PATH)) +
         // '\n', ProcessOutputTypes.SYSTEM);
+    }
+
+    @Nullable
+    public static VirtualFile findByPath(@NotNull String path, @NotNull Project project, @Nullable Module module) {
+        path = FileUtil.toSystemIndependentName(path);
+        VirtualFile projectBaseDir = project.getBaseDir();
+        if (path.isEmpty()) {
+            return projectBaseDir;
+        }
+        return projectBaseDir.findFileByRelativePath(path);
     }
 }

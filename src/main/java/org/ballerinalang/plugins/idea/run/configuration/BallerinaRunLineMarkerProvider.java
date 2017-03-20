@@ -37,34 +37,47 @@ public class BallerinaRunLineMarkerProvider extends RunLineMarkerContributor {
 
     @Nullable
     @Override
-    public Info getInfo(PsiElement e) {
-        if (e != null && e.getNode().getElementType() == BallerinaTypes.IDENTIFIER) {
-            PsiElement parent = e.getParent();
+    public Info getInfo(PsiElement element) {
+        // We only need to add Run line marker to functions and services. So we check whether the element is an
+        // identifier.
+        if (element != null && element.getNode().getElementType() == BallerinaTypes.IDENTIFIER) {
+            // Get the parent element.
+            PsiElement parent = element.getParent();
             if (parent instanceof FunctionNode) {
-                if (BallerinaConstants.MAIN.equals(e.getText())) {
+                // Check whether the current function is a main function.
+                if (BallerinaConstants.MAIN.equals(element.getText())) {
+                    // Get the parameter list.
                     ParameterListNode parameterListNode = PsiTreeUtil.getChildOfType(parent, ParameterListNode.class);
                     if (parameterListNode == null) {
                         return null;
                     }
+                    // There should be only one argument in the main function.
                     PsiElement[] children = parameterListNode.getChildren();
                     if (children.length != 1) {
                         return null;
                     }
+                    // Argument type must be SimpleTypeArrayNode because it is a string array.
                     SimpleTypeArrayNode simpleTypeArrayNode =
                             PsiTreeUtil.findChildOfType(children[0], SimpleTypeArrayNode.class);
                     if (simpleTypeArrayNode == null) {
                         return null;
                     }
+                    // Get the type.
                     PsiElement nameIdentifier = simpleTypeArrayNode.getNameIdentifier();
                     if (nameIdentifier == null) {
                         return null;
                     }
+                    // Type must be string.
                     if ("string".equals(nameIdentifier.getText())) {
+                        // If all tests are passed, that means the current element is the identifier of a main
+                        // function. So we return a new Info object.
                         return new Info(AllIcons.RunConfigurations.TestState.Run, APPLICATION_TOOLTIP_PROVIDER,
                                 ExecutorAction.getActions(0));
                     }
                 }
             } else if (parent instanceof ServiceDefinitionNode) {
+                // We don't need to check anything specific in services. If there is a ServiceDefinitionNode, that
+                // means there is a service. We just return a new Info object.
                 return new Info(AllIcons.RunConfigurations.TestState.Run, SERVICE_TOOLTIP_PROVIDER,
                         ExecutorAction.getActions(0));
             }
