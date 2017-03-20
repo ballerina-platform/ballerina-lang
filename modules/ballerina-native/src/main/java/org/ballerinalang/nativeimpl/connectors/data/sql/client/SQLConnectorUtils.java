@@ -59,7 +59,11 @@ public class SQLConnectorUtils {
         if (value != null) {
             String strValue = value.stringValue();
             if (!strValue.isEmpty()) {
-                val = Integer.parseInt(strValue);
+                try {
+                    val = Integer.parseInt(strValue);
+                } catch (NumberFormatException e) {
+                    throw new BallerinaException("invalid value for integer: " + strValue);
+                }
             }
         }
         try {
@@ -116,7 +120,11 @@ public class SQLConnectorUtils {
         if (value != null) {
             String strValue = value.stringValue();
             if (!strValue.isEmpty()) {
-                val = Double.parseDouble(strValue);
+                try {
+                    val = Double.parseDouble(strValue);
+                } catch (NumberFormatException e) {
+                    throw new BallerinaException("invalid value for double: " + strValue);
+                }
             }
         }
         try {
@@ -148,7 +156,11 @@ public class SQLConnectorUtils {
         if (value != null) {
             String strValue = value.stringValue();
             if (!strValue.isEmpty()) {
-                val = new BigDecimal(strValue);
+                try {
+                    val = new BigDecimal(strValue);
+                } catch (NumberFormatException e) {
+                    throw new BallerinaException("invalid value for numeric: " + strValue);
+                }
             }
         }
         try {
@@ -212,7 +224,11 @@ public class SQLConnectorUtils {
         if (value != null) {
             String strValue = value.stringValue();
             if (!strValue.isEmpty()) {
-                val = Byte.valueOf(strValue);
+                try {
+                    val = Byte.valueOf(strValue);
+                } catch (NumberFormatException e) {
+                    throw new BallerinaException("invalid value for byte: " + strValue);
+                }
             }
         }
         try {
@@ -244,7 +260,11 @@ public class SQLConnectorUtils {
         if (value != null) {
             String strValue = value.stringValue();
             if (!strValue.isEmpty()) {
-                val = Short.parseShort(strValue);
+                try {
+                    val = Short.parseShort(strValue);
+                } catch (NumberFormatException e) {
+                    throw new BallerinaException("invalid value for short: " + strValue);
+                }
             }
         }
         try {
@@ -276,7 +296,11 @@ public class SQLConnectorUtils {
         if (value != null) {
             String strValue = value.stringValue();
             if (!strValue.isEmpty()) {
-                val = Long.parseLong(strValue);
+                try {
+                    val = Long.parseLong(strValue);
+                } catch (NumberFormatException e) {
+                    throw new BallerinaException("invalid value for bigint: " + strValue);
+                }
             }
         }
         try {
@@ -308,7 +332,11 @@ public class SQLConnectorUtils {
         if (value != null) {
             String strValue = value.stringValue();
             if (!strValue.isEmpty()) {
-                val = Float.parseFloat(strValue);
+                try {
+                    val = Float.parseFloat(strValue);
+                } catch (NumberFormatException e) {
+                    throw new BallerinaException("invalid value for float: " + strValue);
+                }
             }
         }
         try {
@@ -340,7 +368,11 @@ public class SQLConnectorUtils {
         if (value != null) {
             String strValue = value.stringValue();
             if (!strValue.isEmpty()) {
-                val = new Date(Long.parseLong(strValue));
+                try {
+                    val = new Date(Long.parseLong(strValue));
+                } catch (NumberFormatException e) {
+                    throw new BallerinaException("invalid value for long: " + strValue);
+                }
             }
         }
         try {
@@ -372,7 +404,11 @@ public class SQLConnectorUtils {
         if (value != null) {
             String strValue = value.stringValue();
             if (!strValue.isEmpty()) {
-                val = new Timestamp(Long.parseLong(strValue));
+                try {
+                    val = new Timestamp(Long.parseLong(strValue));
+                } catch (NumberFormatException e) {
+                    throw new BallerinaException("invalid value for long: " + strValue);
+                }
             }
         }
         try {
@@ -404,7 +440,11 @@ public class SQLConnectorUtils {
         if (value != null) {
             String strValue = value.stringValue();
             if (!strValue.isEmpty()) {
-                val = new Time(Long.parseLong(strValue));
+                try {
+                    val = new Time(Long.parseLong(strValue));
+                } catch (NumberFormatException e) {
+                    throw new BallerinaException("invalid value for long: " + strValue);
+                }
             }
         }
         try {
