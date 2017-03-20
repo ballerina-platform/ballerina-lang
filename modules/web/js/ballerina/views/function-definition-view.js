@@ -286,7 +286,8 @@ define(['lodash', 'log', 'event_channel',  'alerts', './svg-canvas', './../ast/f
                 });
 
                 workerDeclarationView.listenTo(statementContainer, 'statement-container-height-adjusted', function (dh) {
-                    var deltaMove = self.getDeltaMove(self.getDeepestChild(self, dh), dh);
+                    var childrenLength = workerDeclarationView.getStatementContainer().getManagedStatements().length;
+                    var deltaMove = self.getDeltaMove(self.getDeepestChild(self, dh), dh, childrenLength);
                     self.getHorizontalMargin().setPosition(self.getHorizontalMargin().getPosition() + deltaMove);
                 });
 
@@ -584,7 +585,8 @@ define(['lodash', 'log', 'event_channel',  'alerts', './svg-canvas', './../ast/f
             var self = this;
 
             this.listenTo(this.getStatementContainer(), 'statement-container-height-adjusted', function (dh) {
-                var deltaMove = self.getDeltaMove(self.getDeepestChild(self, dh), dh);
+                var childrenLength = self.getStatementContainer().getManagedStatements().length;
+                var deltaMove = self.getDeltaMove(self.getDeepestChild(self, dh), dh, childrenLength);
                 self.getHorizontalMargin().setPosition(self.getHorizontalMargin().getPosition() + deltaMove);
             });
             this._statementContainer.render(this.diagramRenderingContext);
@@ -789,17 +791,17 @@ define(['lodash', 'log', 'event_channel',  'alerts', './svg-canvas', './../ast/f
             return index;
         };
 
-        FunctionDefinitionView.prototype.getDeltaMove = function (deepestChild, dy) {
+        FunctionDefinitionView.prototype.getDeltaMove = function (deepestChild, dy, childrenLength) {
             var deltaMove = 0;
-            if (dy > 0) {
-                deltaMove = dy;
-            } else {
-                if (_.isNil(deepestChild)) {
+            if (dy < 0) {
+                if (_.isNil(deepestChild) || childrenLength === 1) {
                     deltaMove = dy;
                 } else {
                     deltaMove = -(this.getHorizontalMargin().getPosition() -
                     this.getDiagramRenderingContext().getViewOfModel(deepestChild).getBoundingBox().getBottom() - this._offsetLastStatementGap);
                 }
+            } else {
+                deltaMove = dy;
             }
             return deltaMove;
         };
