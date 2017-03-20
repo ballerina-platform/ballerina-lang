@@ -32,12 +32,16 @@ import org.wso2.carbon.messaging.ControlCarbonMessage;
 import org.wso2.carbon.messaging.StatusCarbonMessage;
 import org.wso2.carbon.messaging.TextCarbonMessage;
 
+import javax.websocket.Session;
+
 /**
  * Resource Dispatcher for WebSocket Endpoint.
  *
  * @since 0.8.0
  */
 public class WebSocketResourceDispatcher implements ResourceDispatcher {
+
+    private WebSocketConnectionManager connectionManager = WebSocketConnectionManager.getInstance();
 
     @Override
     public Resource findResource(Service service, CarbonMessage cMsg, CarbonCallback callback, Context balContext)
@@ -61,6 +65,8 @@ public class WebSocketResourceDispatcher implements ResourceDispatcher {
                     /* If the connection is WebSocket upgrade, this block will be executed */
                     if (connection != null && upgrade != null &&
                             Constants.UPGRADE.equals(connection) && Constants.WEBSOCKET_UPGRADE.equals(upgrade)) {
+                        Session session = (Session) statusMessage.getProperty(Constants.WEBSOCKET_SESSION);
+                        connectionManager.addConnectionToBroadcast(service.getName(), session);
                         return getResource(service, Constants.ANNOTATION_NAME_ON_OPEN);
                     }
                 }
