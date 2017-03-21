@@ -42,11 +42,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.LinkedHashSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import static com.intellij.util.containers.ContainerUtil.newLinkedHashSet;
 
 public class BallerinaSdkUtil {
 
@@ -173,7 +170,7 @@ public class BallerinaSdkUtil {
     public static Collection<Module> getBallerinaModules(@NotNull Project project) {
         if (project.isDefault()) return Collections.emptyList();
         BallerinaSdkService sdkService = BallerinaSdkService.getInstance(project);
-        return ContainerUtil.filter(ModuleManager.getInstance(project).getModules(), sdkService::isGoModule);
+        return ContainerUtil.filter(ModuleManager.getInstance(project).getModules(), sdkService::isBallerinaModule);
     }
 
     @Nullable
@@ -196,32 +193,4 @@ public class BallerinaSdkUtil {
         String sdkVersionString = sdkService.getSdkVersion(module);
         return sdkHomePath != null && sdkVersionString != null ? getSdkSrcDir(sdkHomePath, sdkVersionString) : null;
     }
-
-
-    @NotNull
-    public static LinkedHashSet<VirtualFile> getSourcesPathsToLookup(@NotNull Project project, @Nullable Module module) {
-        LinkedHashSet<VirtualFile> sdkAndGoPath = newLinkedHashSet();
-        ContainerUtil.addIfNotNull(sdkAndGoPath, getSdkSrcDir(project, module));
-//        ContainerUtil.addAllNotNull(sdkAndGoPath, getGoPathSources(project, module));
-        return sdkAndGoPath;
-    }
-
-//    @NotNull
-//    public static Collection<VirtualFile> getGoPathSources(@NotNull Project project, @Nullable Module module) {
-//        if (module != null) {
-//            return CachedValuesManager.getManager(project).getCachedValue(module, () -> {
-//                Collection<VirtualFile> result = newLinkedHashSet();
-//                Project project1 = module.getProject();
-//                BallerinaSdkService sdkService = BallerinaSdkService.getInstance(project1);
-//
-//                result.addAll(getInnerGoPathSources(project1, module));
-//                return CachedValueProvider.Result
-//                        .create(result, getSdkAndLibrariesCacheDependencies(project1, module, YamlFilesModificationTracker.getInstance(project1)));
-//            });
-//        }
-//        return CachedValuesManager.getManager(project).getCachedValue(project,
-//                (CachedValueProvider<Collection<VirtualFile>>)() -> CachedValueProvider.Result
-//                        .create(getInnerGoPathSources(project, null),
-//                                getSdkAndLibrariesCacheDependencies(project, null, YamlFilesModificationTracker.getInstance(project))));
-//    }
 }

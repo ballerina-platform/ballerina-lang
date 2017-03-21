@@ -88,7 +88,7 @@ public class BallerinaSdkService {
     }
 
     @Contract("null -> false")
-    public boolean isGoModule(@Nullable Module module) {
+    public boolean isBallerinaModule(@Nullable Module module) {
         return module != null && !module.isDisposed();
     }
 

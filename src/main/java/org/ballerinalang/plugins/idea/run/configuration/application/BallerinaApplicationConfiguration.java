@@ -47,11 +47,8 @@ public class BallerinaApplicationConfiguration extends
     @NotNull
     private String myPackage = "";
 
-//    @NotNull
-//    private RunConfigurationKind myRunKind = RunConfigurationKind.MAIN;
-
-    public BallerinaApplicationConfiguration(Project project, String name, @NotNull ConfigurationType
-            configurationType) {
+    public BallerinaApplicationConfiguration(Project project, String name,
+                                             @NotNull ConfigurationType configurationType) {
         super(name, new BallerinaModuleBasedConfiguration(project), configurationType.getConfigurationFactories()[0]);
     }
 
@@ -92,8 +89,8 @@ public class BallerinaApplicationConfiguration extends
 
     @NotNull
     @Override
-    protected BallerinaApplicationRunningState newRunningState(@NotNull ExecutionEnvironment env, @NotNull Module
-            module) {
+    protected BallerinaApplicationRunningState newRunningState(@NotNull ExecutionEnvironment env,
+                                                               @NotNull Module module) {
         return new BallerinaApplicationRunningState(env, module, this);
     }
 
@@ -117,9 +114,6 @@ public class BallerinaApplicationConfiguration extends
                             myPackage + "'");
                 }
                 break;
-            //            case SERVICE:
-            //                checkFileConfiguration();
-            //                break;
         }
     }
 
@@ -131,13 +125,4 @@ public class BallerinaApplicationConfiguration extends
     public void setPackage(@NotNull String aPackage) {
         myPackage = aPackage;
     }
-
-//    @NotNull
-//    public RunConfigurationKind getRunKind() {
-//        return myRunKind;
-//    }
-//
-//    public void setRunKind(@NotNull RunConfigurationKind runKind) {
-//        myRunKind = runKind;
-//    }
 }

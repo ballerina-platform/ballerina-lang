@@ -45,8 +45,6 @@ public class BallerinaConsoleFilter implements Filter {
 
     private static final Pattern MESSAGE_PATTERN = Pattern.compile("(?:^|\\s)(\\S+\\.\\w+):(\\d+)(:(\\d+))?" +
             "(?=[:\\s]|$).*");
-    private static final Pattern BALLERINA_GET_MESSAGE_PATTERN = Pattern.compile("^[ \t]*(go get (.*))\n?$");
-    private static final Pattern APP_ENGINE_PATH_PATTERN = Pattern.compile("/tmp[A-z0-9]+appengine-go-bin/");
     private static final Pattern BALLERINA_FILE_PATTERN = Pattern.compile("\\((\\w+\\.bal)\\)");
 
     @NotNull
@@ -65,19 +63,12 @@ public class BallerinaConsoleFilter implements Filter {
                                   @Nullable String workingDirectoryUrl) {
         myProject = project;
         myModule = module;
-        myWorkingDirectoryUrl = ObjectUtils.chooseNotNull(workingDirectoryUrl, VfsUtilCore.pathToUrl(System
-                .getProperty("user.dir")));
+        myWorkingDirectoryUrl = ObjectUtils.chooseNotNull(workingDirectoryUrl,
+                VfsUtilCore.pathToUrl(System.getProperty("user.dir")));
     }
 
     @Override
     public Result applyFilter(@NotNull String line, int entireLength) {
-        Matcher ballerinaGetMatcher = BALLERINA_GET_MESSAGE_PATTERN.matcher(line);
-        if (ballerinaGetMatcher.find() && myModule != null) {
-            String packageName = ballerinaGetMatcher.group(2).trim();
-            HyperlinkInfo hyperlinkInfo = new BallerinaGetHyperlinkInfo(packageName, myModule);
-            int lineStart = entireLength - line.length();
-            return new Result(lineStart + ballerinaGetMatcher.start(1), lineStart + ballerinaGetMatcher.end(2), hyperlinkInfo);
-        }
         Matcher matcher = MESSAGE_PATTERN.matcher(line);
         if (!matcher.find()) {
             Matcher fileMatcher = BALLERINA_FILE_PATTERN.matcher(line);
@@ -107,11 +98,6 @@ public class BallerinaConsoleFilter implements Filter {
             endOffset = Math.max(endOffset, matcher.end(4));
         }
 
-        Matcher appEnginePathMatcher = APP_ENGINE_PATH_PATTERN.matcher(fileName);
-        if (appEnginePathMatcher.find()) {
-            fileName = fileName.substring(appEnginePathMatcher.end());
-        }
-
         VirtualFile virtualFile = null;
         if (FileUtil.isAbsolutePlatformIndependent(fileName)) {
             virtualFile = ApplicationManager.getApplication().isUnitTestMode()
@@ -123,9 +109,9 @@ public class BallerinaConsoleFilter implements Filter {
                         fileName);
             }
             if (virtualFile == null && myModule != null) {
-                virtualFile = findInGoPath(fileName);
-                if (virtualFile == null && fileName.startsWith("src/")) {
-                    virtualFile = findInGoPath(StringUtil.trimStart(fileName, "src/"));
+                virtualFile = findInBallerinaPath(fileName);
+                if (fileName.startsWith("src/")) {
+                    virtualFile = findInBallerinaPath(StringUtil.trimStart(fileName, "src/"));
                 }
             }
             if (virtualFile == null) {
@@ -164,27 +150,13 @@ public class BallerinaConsoleFilter implements Filter {
             if (files.size() == 1) {
                 return ContainerUtil.getFirstItem(files);
             }
-            //            if (!files.isEmpty()) {
-            //                GlobalSearchScope goPathScope = GoPathResolveScope.create(myProject, myModule, null);
-            //                files = ContainerUtil.filter(files, goPathScope::accept);
-            //                if (files.size() == 1) {
-            //                    return ContainerUtil.getFirstItem(files);
-            //                }
-            //            }
-            //            if (!files.isEmpty()) {
-            //                GlobalSearchScope smallerScope = GoUtil.moduleScopeWithoutLibraries(myProject, myModule);
-            //                files = ContainerUtil.filter(files, smallerScope::accept);
-            //                if (files.size() == 1) {
-            //                    return ContainerUtil.getFirstItem(files);
-            //                }
-            //            }
         }
         return null;
     }
 
     @Nullable
-    private VirtualFile findInGoPath(@NotNull String fileName) {
-        //        return GoPackageUtil.findByPath(fileName, myProject, myModule);
+    private VirtualFile findInBallerinaPath(@NotNull String fileName) {
+        //Todo - Implement search logic
         return null;
     }
 
@@ -205,7 +177,7 @@ public class BallerinaConsoleFilter implements Filter {
 
         @Override
         public void navigate(Project project) {
-            //            GoGetPackageFix.applyFix(project, myModule, myPackageName, false);
+            //Todo
         }
     }
 }

@@ -39,7 +39,7 @@ import org.jetbrains.annotations.NotNull;
 import java.io.IOException;
 import java.util.UUID;
 
-public  class BallerinaRunFileConfiguration extends BallerinaRunConfigurationWithMain<BallerinaRunningState> {
+public class BallerinaRunFileConfiguration extends BallerinaRunConfigurationWithMain<BallerinaRunningState> {
 
     public BallerinaRunFileConfiguration(Project project, String name, @NotNull ConfigurationType configurationType) {
         super(name, new BallerinaModuleBasedConfiguration(project), configurationType.getConfigurationFactories()[0]);
@@ -62,12 +62,12 @@ public  class BallerinaRunFileConfiguration extends BallerinaRunConfigurationWit
     public void checkConfiguration() throws RuntimeConfigurationException {
         super.checkBaseConfiguration();
         super.checkFileConfiguration();
-        //Todo - Check for application function
     }
 
     @NotNull
     @Override
-    protected BallerinaRunServiceFileRunningState newRunningState(@NotNull ExecutionEnvironment env, @NotNull Module module) {
+    protected BallerinaRunServiceFileRunningState newRunningState(@NotNull ExecutionEnvironment env,
+                                                                  @NotNull Module module) {
         String path = getFilePath();
         if (!"bal".equals(PathUtil.getFileExtension(path))) {
             VirtualFile f = LocalFileSystem.getInstance().refreshAndFindFileByPath(path);

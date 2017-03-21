@@ -13,81 +13,18 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
+
 package org.ballerinalang.plugins.idea.run.configuration.application;
 
-import com.intellij.execution.actions.ConfigurationContext;
-import com.intellij.openapi.module.Module;
-import com.intellij.openapi.module.ModuleUtilCore;
-import com.intellij.openapi.util.Comparing;
-import com.intellij.openapi.util.Ref;
-import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import org.ballerinalang.plugins.idea.run.configuration.BallerinaRunConfigurationProducerBase;
-import org.ballerinalang.plugins.idea.run.configuration.BallerinaRunUtil;
-import org.ballerinalang.plugins.idea.run.configuration.RunConfigurationKind;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
-public class BallerinaApplicationRunConfigurationProducer extends BallerinaRunConfigurationProducerBase<BallerinaApplicationConfiguration>
-        implements Cloneable {
+public class BallerinaApplicationRunConfigurationProducer
+        extends BallerinaRunConfigurationProducerBase<BallerinaApplicationConfiguration> implements Cloneable {
 
     public BallerinaApplicationRunConfigurationProducer() {
         super(BallerinaApplicationRunConfigurationType.getInstance());
-    }
-
-    @Override
-    protected boolean setupConfigurationFromContext(@NotNull BallerinaApplicationConfiguration configuration,
-                                                    @NotNull ConfigurationContext context,
-                                                    Ref<PsiElement> sourceElement) {
-        //        PsiElement contextElement = BallerinaRunUtil.getContextElement(context);
-        //        if (contextElement != null && GoTestFinder.isTestFile(contextElement.getContainingFile())) {
-        //            return false;
-        //        }
-        //        String importPath = getImportPathFromContext(contextElement);
-        //        if (StringUtil.isNotEmpty(importPath)) {
-        //            configuration.setModule(context.getModule());
-        //            configuration.setRunKind(BallerinaApplicationConfiguration.Kind.PACKAGE);
-        //            configuration.setPackage(importPath);
-        //            configuration.setName("Build " + importPath + " and run");
-        //            return true;
-        //        }
-        // Todo - change
-        if (super.setupConfigurationFromContext(configuration, context, sourceElement)) {
-            configuration.setRunKind(RunConfigurationKind.SERVICE);
-            return true;
-        }
-        return false;
-    }
-
-    @Nullable
-    private static String getImportPathFromContext(@Nullable PsiElement contextElement) {
-        //        if (BallerinaRunUtil.isPackageContext(contextElement)) {
-        //            PsiFile file = contextElement.getContainingFile();
-        //            if (file instanceof BallerinaFile) {
-        //                return ((BallerinaFile)file).getImportPath(false);
-        //            }
-        //        }
-        //        else if (contextElement instanceof PsiDirectory) {
-        //            return GoSdkUtil.getImportPath((PsiDirectory)contextElement, false);
-        //        }
-        return null;
-    }
-
-    @Override
-    public boolean isConfigurationFromContext(@NotNull BallerinaApplicationConfiguration configuration,
-                                              ConfigurationContext context) {
-        // Todo - Change
-        PsiElement contextElement = BallerinaRunUtil.getContextElement(context);
-        if (contextElement == null) return false;
-
-        Module module = ModuleUtilCore.findModuleForPsiElement(contextElement);
-        if (!Comparing.equal(module, configuration.getConfigurationModule().getModule())) return false;
-
-        if (configuration.getRunKind() == RunConfigurationKind.MAIN) {
-            return Comparing.equal(getImportPathFromContext(contextElement), configuration.getPackage());
-        }
-
-        return super.isConfigurationFromContext(configuration, context);
     }
 
     @NotNull

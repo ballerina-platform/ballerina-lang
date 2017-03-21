@@ -34,13 +34,13 @@ public class BallerinaRunServiceFileRunningState extends BallerinaRunningState<B
     @Override
     protected BallerinaExecutor patchExecutor(@NotNull BallerinaExecutor executor) throws ExecutionException {
         RunConfigurationKind kind = getConfiguration().getRunKind();
-        String command = "main";
+        String type = "main";
         if (kind == RunConfigurationKind.SERVICE) {
-            command = "service";
+            type = "service";
         }
         return executor
                 .withParameters("run")
-                .withParameters(command)
+                .withParameters(kind.name().toLowerCase())
                 .withParameterString(myConfiguration.getBallerinaToolParams())
                 .withParameters(myConfiguration.getFilePath());
     }

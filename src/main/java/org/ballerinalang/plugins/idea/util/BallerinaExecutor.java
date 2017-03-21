@@ -51,6 +51,7 @@ import com.intellij.util.ObjectUtils;
 import com.intellij.util.containers.ContainerUtil;
 import org.ballerinalang.plugins.idea.BallerinaConstants;
 import org.ballerinalang.plugins.idea.run.configuration.BallerinaConsoleFilter;
+import org.ballerinalang.plugins.idea.run.configuration.BallerinaRunUtil;
 import org.ballerinalang.plugins.idea.sdk.BallerinaSdkUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -72,13 +73,9 @@ public class BallerinaExecutor {
     @NotNull
     private final Project myProject;
     @Nullable
-    private Boolean myVendoringEnabled;
-    @Nullable
     private final Module myModule;
     @Nullable
-    private String myGoRoot;
-    @Nullable
-    private String myGoPath;
+    private String myBallerinaPath;
     @Nullable
     private String myEnvPath;
     @Nullable
@@ -86,7 +83,7 @@ public class BallerinaExecutor {
     private boolean myShowOutputOnError;
     private boolean myShowNotificationsOnError;
     private boolean myShowNotificationsOnSuccess;
-    private boolean myShowGoEnvVariables = true;
+    private boolean myShowBallerinaEnvVariables = true;
     private GeneralCommandLine.ParentEnvironmentType myParentEnvironmentType =
             GeneralCommandLine.ParentEnvironmentType.CONSOLE;
     private boolean myPtyDisabled;
@@ -108,24 +105,13 @@ public class BallerinaExecutor {
 
     @NotNull
     private static BallerinaExecutor in(@NotNull Project project) {
-        return new BallerinaExecutor(project, null)
-                //                .withGoRoot(GoSdkService.getInstance(project).getSdkHomePath(null))
-                //                .withGoPath(GoSdkUtil.retrieveGoPath(project, null))
-                //                .withGoPath(GoSdkUtil.retrieveEnvironmentPathForGo(project, null))
-                ;
+        return new BallerinaExecutor(project, null);
     }
 
     @NotNull
     public static BallerinaExecutor in(@NotNull Module module) {
         Project project = module.getProject();
-        //        ThreeState vendoringEnabled = GoModuleSettings.getInstance(module).getVendoringEnabled();
-        return new BallerinaExecutor(project, module)
-                //                .withGoRoot(GoSdkService.getInstance(project).getSdkHomePath(module))
-                //                .withGoPath(GoSdkUtil.retrieveGoPath(project, module))
-                //                .withEnvPath(GoSdkUtil.retrieveEnvironmentPathForGo(project, module))
-                //                .withVendoring(vendoringEnabled != ThreeState.UNSURE ? vendoringEnabled.toBoolean()
-                // : null)
-                ;
+        return new BallerinaExecutor(project, module);
     }
 
     @NotNull
@@ -146,27 +132,16 @@ public class BallerinaExecutor {
         return this;
     }
 
-    @NotNull
-    public BallerinaExecutor withGoRoot(@Nullable String goRoot) {
-        myGoRoot = goRoot;
-        return this;
-    }
 
     @NotNull
-    public BallerinaExecutor withGoPath(@Nullable String goPath) {
-        myGoPath = goPath;
+    public BallerinaExecutor withBallerinaPath(@Nullable String ballerinaPath) {
+        myBallerinaPath = ballerinaPath;
         return this;
     }
 
     @NotNull
     public BallerinaExecutor withEnvPath(@Nullable String envPath) {
         myEnvPath = envPath;
-        return this;
-    }
-
-    @NotNull
-    public BallerinaExecutor withVendoring(@Nullable Boolean enabled) {
-        myVendoringEnabled = enabled;
         return this;
     }
 
@@ -200,8 +175,8 @@ public class BallerinaExecutor {
         return this;
     }
 
-    public BallerinaExecutor showGoEnvVariables(boolean show) {
-        myShowGoEnvVariables = show;
+    public BallerinaExecutor showBallerinaEnvVariables(boolean show) {
+        myShowBallerinaEnvVariables = show;
         return this;
     }
 
@@ -227,8 +202,8 @@ public class BallerinaExecutor {
     public boolean execute() {
         Logger.getInstance(getClass()).assertTrue(!ApplicationManager.getApplication().isDispatchThread(),
                 "It's bad idea to run external tool on EDT");
-        Logger.getInstance(getClass()).assertTrue(myProcessHandler == null, "Process has already run with this " +
-                "executor instance");
+        Logger.getInstance(getClass()).assertTrue(myProcessHandler == null,
+                "Process has already run with this executor instance");
         Ref<Boolean> result = Ref.create(false);
         GeneralCommandLine commandLine = null;
         try {
@@ -237,8 +212,8 @@ public class BallerinaExecutor {
             myProcessHandler = new KillableColoredProcessHandler(finalCommandLine, true) {
                 @Override
                 public void startNotify() {
-                    if (myShowGoEnvVariables) {
-                        //                        BallerinaRunUtil.printGoEnvVariables(finalCommandLine, this);
+                    if (myShowBallerinaEnvVariables) {
+                        BallerinaRunUtil.printBallerinaEnvVariables(finalCommandLine, this);
                     }
                     super.startNotify();
                 }
@@ -254,8 +229,8 @@ public class BallerinaExecutor {
                 public void processTerminated(@NotNull ProcessEvent event) {
                     super.processTerminated(event);
                     boolean success = event.getExitCode() == 0 && myProcessOutput.getStderr().isEmpty();
-                    boolean nothingToShow = myProcessOutput.getStdout().isEmpty() && myProcessOutput.getStderr()
-                            .isEmpty();
+                    boolean nothingToShow = myProcessOutput.getStdout().isEmpty()
+                            && myProcessOutput.getStderr().isEmpty();
                     boolean cancelledByUser = (event.getExitCode() == -1 || event.getExitCode() == 2) && nothingToShow;
                     result.set(success);
                     if (success) {
@@ -302,6 +277,7 @@ public class BallerinaExecutor {
 
     public void executeWithProgress(boolean modal, @NotNull Consumer<Boolean> consumer) {
         ProgressManager.getInstance().run(new Task.Backgroundable(myProject, getPresentableName(), true) {
+
             private boolean doNotStart;
 
             @Override
@@ -354,8 +330,8 @@ public class BallerinaExecutor {
             RunContentExecutor runContentExecutor = new RunContentExecutor(myProject, outputHandler)
                     .withTitle(getPresentableName())
                     .withActivateToolWindow(myShowOutputOnError)
-                    .withFilter(new BallerinaConsoleFilter(myProject, myModule, myWorkDirectory != null ? VfsUtilCore
-                            .pathToUrl(myWorkDirectory) : null));
+                    .withFilter(new BallerinaConsoleFilter(myProject, myModule, myWorkDirectory != null ?
+                            VfsUtilCore.pathToUrl(myWorkDirectory) : null));
             Disposer.register(myProject, runContentExecutor);
             runContentExecutor.run();
             historyProcessListener.apply(outputHandler);
@@ -371,17 +347,13 @@ public class BallerinaExecutor {
         //            throw new ExecutionException("Sdk is not set or Sdk home path is empty for module");
         //        }
 
-        GeneralCommandLine commandLine = !myPtyDisabled && PtyCommandLine.isEnabled() ? new PtyCommandLine() : new
-                GeneralCommandLine();
+        GeneralCommandLine commandLine = !myPtyDisabled && PtyCommandLine.isEnabled() ?
+                new PtyCommandLine() : new GeneralCommandLine();
         commandLine.setExePath(ObjectUtils.notNull(myExePath, ObjectUtils.notNull(BallerinaSdkUtil
                 .getBallerinaExecutablePath(myProject))));
         commandLine.getEnvironment().putAll(myExtraEnvironment);
-        //        commandLine.getEnvironment().put(GoConstants.GO_ROOT, StringUtil.notNullize(myGoRoot));
-        //        commandLine.getEnvironment().put(GoConstants.GO_PATH, StringUtil.notNullize(myGoPath));
-        //        if (myVendoringEnabled != null) {
-        //            commandLine.getEnvironment().put(GoConstants.GO_VENDORING_EXPERIMENT, myVendoringEnabled ? "1"
-        // : "0");
-        //        }
+        //        commandLine.getEnvironment().put(BallerinaConstants.BALLERINA_REPOSIOTRY, StringUtil.notNullize
+        // (myBallerinaPath));
 
         Collection<String> paths = ContainerUtil.newArrayList();
         ContainerUtil.addIfNotNull(paths, StringUtil.nullize(commandLine.getEnvironment().get(

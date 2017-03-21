@@ -20,7 +20,6 @@ import com.intellij.execution.lineMarker.ExecutorAction;
 import com.intellij.execution.lineMarker.RunLineMarkerContributor;
 import com.intellij.icons.AllIcons;
 import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiField;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.util.Function;
 import org.ballerinalang.plugins.idea.BallerinaConstants;

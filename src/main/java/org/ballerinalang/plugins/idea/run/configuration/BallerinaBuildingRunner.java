@@ -30,7 +30,6 @@ import com.intellij.execution.runners.AsyncGenericProgramRunner;
 import com.intellij.execution.runners.ExecutionEnvironment;
 import com.intellij.execution.runners.RunContentBuilder;
 import com.intellij.execution.ui.RunContentDescriptor;
-import com.intellij.internal.statistic.UsageTrigger;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.util.text.StringUtil;
@@ -45,7 +44,6 @@ import org.jetbrains.concurrency.Promise;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.ServerSocket;
 
 public class BallerinaBuildingRunner extends AsyncGenericProgramRunner {
 
@@ -61,8 +59,6 @@ public class BallerinaBuildingRunner extends AsyncGenericProgramRunner {
     public boolean canRun(@NotNull String executorId, @NotNull RunProfile profile) {
         if (profile instanceof BallerinaApplicationConfiguration) {
             return DefaultRunExecutor.EXECUTOR_ID.equals(executorId);
-            //                    || DefaultDebugExecutor.EXECUTOR_ID.equals(executorId);
-            //            //                    && !DlvDebugProcess.IS_DLV_DISABLED;
         }
         return false;
     }
@@ -72,49 +68,38 @@ public class BallerinaBuildingRunner extends AsyncGenericProgramRunner {
     protected Promise<RunProfileStarter> prepare(@NotNull ExecutionEnvironment environment,
                                                  @NotNull RunProfileState state) throws ExecutionException {
         RunnerAndConfigurationSettings configurationSettings = environment.getRunnerAndConfigurationSettings();
+        assert configurationSettings != null;
         RunConfiguration configuration = configurationSettings.getConfiguration();
-        String type = "main";
-        if (configuration instanceof BallerinaApplicationConfiguration) {
-            RunConfigurationKind kind = ((BallerinaApplicationConfiguration) configuration).getRunKind();
-            if (kind == RunConfigurationKind.SERVICE) {
-                type = "service";
-            }
-        }
+        RunConfigurationKind kind = ((BallerinaApplicationConfiguration) configuration).getRunKind();
 
-        File outputFile = getOutputFile(environment, (BallerinaApplicationRunningState) state, type);
+        File outputFile = getOutputFile(environment, (BallerinaApplicationRunningState) state,
+                kind.name().toLowerCase());
+        // Todo - Remove this deletion
         outputFile.delete();
         FileDocumentManager.getInstance().saveAllDocuments();
 
-        final String myKind=type;
         AsyncPromise<RunProfileStarter> buildingPromise = new AsyncPromise<>();
         BallerinaHistoryProcessListener historyProcessListener = new BallerinaHistoryProcessListener();
         ((BallerinaApplicationRunningState) state).createCommonExecutor()
                 .withParameters("build")
-                .withParameters(type)
-                .withParameterString(((BallerinaApplicationRunningState) state).getGoBuildParams())
-
-                //                .withParameters(((BallerinaApplicationRunningState) state).isDebug() ?
-                //                        new String[]{"-gcflags", "-N -l"} : ArrayUtil.EMPTY_STRING_ARRAY)
+                .withParameters(kind.name().toLowerCase())
+                .withParameterString(((BallerinaApplicationRunningState) state).getBallerinaBuildParams())
+                //Todo - Add debug flags
                 .withParameters(((BallerinaApplicationRunningState) state).getTarget())
                 .withParameters("-o", outputFile.getName())
-
                 .disablePty()
                 .withPresentableName("ballerina build")
                 .withProcessListener(historyProcessListener)
-
                 .withProcessListener(new ProcessAdapter() {
 
                     @Override
                     public void processTerminated(ProcessEvent event) {
                         super.processTerminated(event);
                         boolean compilationFailed = event.getExitCode() != 0;
-                        if (((BallerinaApplicationRunningState) state).isDebug()) {
-                            buildingPromise.setResult(new MyDebugStarter(outputFile.getAbsolutePath(),
-                                    historyProcessListener, compilationFailed));
-                        } else {
-                            buildingPromise.setResult(new MyRunStarter(outputFile.getAbsolutePath(),
-                                    historyProcessListener, compilationFailed, myKind));
-                        }
+                        //Todo - Check for debug
+                        buildingPromise.setResult(new MyRunStarter(outputFile.getAbsolutePath(),
+                                historyProcessListener, compilationFailed, kind));
+
                     }
                 })
                 .executeWithProgress(false);
@@ -172,76 +157,20 @@ public class BallerinaBuildingRunner extends AsyncGenericProgramRunner {
         return file.setExecutable(true);
     }
 
-    private class MyDebugStarter extends RunProfileStarter {
-
-        private final String myOutputFilePath;
-        private final BallerinaHistoryProcessListener myHistoryProcessListener;
-        private final boolean myCompilationFailed;
-
-        private MyDebugStarter(@NotNull String outputFilePath,
-                               @NotNull BallerinaHistoryProcessListener historyProcessListener,
-                               boolean compilationFailed) {
-            myOutputFilePath = outputFilePath;
-            myHistoryProcessListener = historyProcessListener;
-            myCompilationFailed = compilationFailed;
-        }
-
-        @Nullable
-        @Override
-        public RunContentDescriptor execute(@NotNull RunProfileState state, @NotNull ExecutionEnvironment env)
-                throws ExecutionException {
-            if (state instanceof BallerinaApplicationRunningState) {
-                int port = findFreePort();
-                FileDocumentManager.getInstance().saveAllDocuments();
-                ((BallerinaApplicationRunningState) state).setHistoryProcessHandler(myHistoryProcessListener);
-                ((BallerinaApplicationRunningState) state).setOutputFilePath(myOutputFilePath);
-                ((BallerinaApplicationRunningState) state).setDebugPort(port);
-                ((BallerinaApplicationRunningState) state).setCompilationFailed(myCompilationFailed);
-
-                // start debugger
-                ExecutionResult executionResult = state.execute(env.getExecutor(), BallerinaBuildingRunner.this);
-                if (executionResult == null) {
-                    throw new ExecutionException("Cannot run debugger");
-                }
-
-                UsageTrigger.trigger("go.dlv.debugger");
-
-                //                return XDebuggerManager.getInstance(env.getProject()).startSession(env, new
-                // XDebugProcessStarter() {
-                //                    @NotNull
-                //                    @Override
-                //                    public XDebugProcess start(@NotNull XDebugSession session) throws
-                // ExecutionException {
-                //                        RemoteVmConnection connection = new DlvRemoteVmConnection();
-                //                        DlvDebugProcess process = new DlvDebugProcess(session, connection,
-                // executionResult);
-                //                        connection.open(new InetSocketAddress(NetUtils.getLoopbackAddress(), port));
-                //                        return process;
-                //                    }
-                //                }).getRunContentDescriptor();
-            }
-            return null;
-        }
-    }
-
     private class MyRunStarter extends RunProfileStarter {
 
         private final String myOutputFilePath;
         private final BallerinaHistoryProcessListener myHistoryProcessListener;
         private final boolean myCompilationFailed;
-        private final RunConfigurationKind myKind;
+        private final RunConfigurationKind myRunKind;
 
         private MyRunStarter(@NotNull String outputFilePath,
                              @NotNull BallerinaHistoryProcessListener historyProcessListener,
-                             boolean compilationFailed, String type) {
+                             boolean compilationFailed, RunConfigurationKind runKind) {
             myOutputFilePath = outputFilePath;
             myHistoryProcessListener = historyProcessListener;
             myCompilationFailed = compilationFailed;
-            RunConfigurationKind kind = RunConfigurationKind.MAIN;
-            if ("service".equals(type)) {
-                kind = RunConfigurationKind.SERVICE;
-            }
-            myKind = kind;
+            myRunKind = runKind;
         }
 
         @Nullable
@@ -253,7 +182,7 @@ public class BallerinaBuildingRunner extends AsyncGenericProgramRunner {
                 ((BallerinaApplicationRunningState) state).setHistoryProcessHandler(myHistoryProcessListener);
                 ((BallerinaApplicationRunningState) state).setOutputFilePath(myOutputFilePath);
                 ((BallerinaApplicationRunningState) state).setCompilationFailed(myCompilationFailed);
-                ((BallerinaApplicationRunningState) state).setKind(myKind);
+                ((BallerinaApplicationRunningState) state).setKind(myRunKind);
                 ExecutionResult executionResult = state.execute(env.getExecutor(), BallerinaBuildingRunner.this);
                 return executionResult != null ?
                         new RunContentBuilder(executionResult, env).showRunContent(env.getContentToReuse()) : null;
@@ -261,14 +190,4 @@ public class BallerinaBuildingRunner extends AsyncGenericProgramRunner {
             return null;
         }
     }
-
-    private static int findFreePort() {
-        try (ServerSocket socket = new ServerSocket(0)) {
-            socket.setReuseAddress(true);
-            return socket.getLocalPort();
-        } catch (Exception ignore) {
-        }
-        throw new IllegalStateException("Could not find a free TCP/IP port to start dlv");
-    }
 }
-

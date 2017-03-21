@@ -197,7 +197,7 @@ public abstract class BallerinaRunConfigurationBase<RunningState extends Balleri
         return myParams;
     }
 
-    public void setGoParams(@NotNull String params) {
+    public void setBallerinaParams(@NotNull String params) {
         myBallerinaParams = params;
     }
 

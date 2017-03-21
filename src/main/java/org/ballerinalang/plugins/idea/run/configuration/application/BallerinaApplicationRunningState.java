@@ -39,7 +39,6 @@ public class BallerinaApplicationRunningState extends BallerinaRunningState<Ball
     private RunConfigurationKind myRunKind;
     @Nullable
     private BallerinaHistoryProcessListener myHistoryProcessHandler;
-    private int myDebugPort = 59090;
     private boolean myCompilationFailed;
 
     public BallerinaApplicationRunningState(@NotNull ExecutionEnvironment env, @NotNull Module module,
@@ -49,14 +48,11 @@ public class BallerinaApplicationRunningState extends BallerinaRunningState<Ball
 
     @NotNull
     public String getTarget() {
-        // Todo - Change
-        //        return myConfiguration.getKind() == BallerinaApplicationConfiguration.Kind.MAIN
-        //                ? myConfiguration.getPackage() : myConfiguration.getFilePath();
         return myConfiguration.getPackage();
     }
 
     @NotNull
-    public String getGoBuildParams() {
+    public String getBallerinaBuildParams() {
         return myConfiguration.getBallerinaToolParams();
     }
 
@@ -94,36 +90,10 @@ public class BallerinaApplicationRunningState extends BallerinaRunningState<Ball
 
     @Override
     protected BallerinaExecutor patchExecutor(@NotNull BallerinaExecutor executor) throws ExecutionException {
-        //        if (isDebug()) {
-        //            File dlv = dlv();
-        //            if (dlv.exists() && !dlv.canExecute()) {
-        //                //noinspection ResultOfMethodCallIgnored
-        //                dlv.setExecutable(true, false);
-        //            }
-        //            return executor.withExePath(dlv.getAbsolutePath())
-        //                    .withParameters("--listen=localhost:" + myDebugPort, "--headless=true", "exec",
-        // myOutputFilePath,
-        //                            "--");
-        //        }
-
-        String type = "main";
-        if (myRunKind == RunConfigurationKind.SERVICE) {
-            type = "service";
-        }
         return executor
                 .withParameters("run")
-                .withParameters(type)
+                .withParameters(myRunKind.name().toLowerCase())
                 .withParameters(myOutputFilePath);
-    }
-
-    @NotNull
-    private static File dlv() {
-        String dlvPath = System.getProperty("dlv.path");
-        if (StringUtil.isNotEmpty(dlvPath)) return new File(dlvPath);
-        //        return new File(GoUtil.getPlugin().getPath(),
-        //                "lib/dlv/" + (SystemInfo.isMac ? "mac" : SystemInfo.isWindows ? "windows" : "linux") + "/"
-        //                        + GoConstants.DELVE_EXECUTABLE_NAME + (SystemInfo.isWindows ? ".exe" : ""));
-        return null;
     }
 
     public void setOutputFilePath(@NotNull String outputFilePath) {
@@ -136,10 +106,6 @@ public class BallerinaApplicationRunningState extends BallerinaRunningState<Ball
 
     public void setHistoryProcessHandler(@Nullable BallerinaHistoryProcessListener historyProcessHandler) {
         myHistoryProcessHandler = historyProcessHandler;
-    }
-
-    public void setDebugPort(int debugPort) {
-        myDebugPort = debugPort;
     }
 
     public void setCompilationFailed(boolean compilationFailed) {

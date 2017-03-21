@@ -19,6 +19,7 @@ package org.ballerinalang.plugins.idea.run.configuration;
 import com.intellij.execution.actions.ConfigurationContext;
 import com.intellij.execution.configurations.GeneralCommandLine;
 import com.intellij.execution.process.ProcessHandler;
+import com.intellij.execution.process.ProcessOutputTypes;
 import com.intellij.ide.scratch.ScratchFileType;
 import com.intellij.openapi.fileChooser.FileChooserDescriptor;
 import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory;
@@ -31,12 +32,14 @@ import com.intellij.openapi.ui.TextComponentAccessor;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
 import com.intellij.openapi.util.Condition;
 import com.intellij.openapi.util.io.FileUtil;
+import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiFileSystemItem;
 import com.intellij.psi.PsiManager;
 import com.intellij.psi.util.PsiTreeUtil;
+import org.ballerinalang.plugins.idea.BallerinaConstants;
 import org.ballerinalang.plugins.idea.BallerinaFileType;
 import org.ballerinalang.plugins.idea.psi.FunctionNode;
 import org.ballerinalang.plugins.idea.psi.ParameterListNode;
@@ -52,12 +55,8 @@ import java.util.Map;
 public class BallerinaRunUtil {
 
     private BallerinaRunUtil() {
-    }
 
-    //    @Contract("null -> false")
-    //    public static boolean isPackageContext(@Nullable PsiElement contextElement) {
-    //        return PsiTreeUtil.getNonStrictParentOfType(contextElement, GoPackageClause.class) != null;
-    //    }
+    }
 
     @Nullable
     public static PsiFile findMainFileInDirectory(@NotNull VirtualFile packageDirectory, @NotNull Project project) {
@@ -106,16 +105,6 @@ public class BallerinaRunUtil {
 
     @Contract("null -> false")
     public static boolean isMainBallerinaFile(@Nullable PsiFile psiFile) {
-        //        if (/*!GoTestFinder.isTestFile(psiFile) &&*/ psiFile instanceof BallerinaFile) {
-        //            //            return BallerinaConstants.MAIN.equals(((BallerinaFile)psiFile).getPackageName())
-        // && (
-        //            // (BallerinaFile)psiFile)
-        //            //                    .hasMainFunction();
-        //            //            return true;
-        //            return hasMainFunction(psiFile) || hasServices(psiFile);
-        //        }
-        //        return false;
-
         return hasMainFunction(psiFile);
     }
 
@@ -185,12 +174,12 @@ public class BallerinaRunUtil {
         }
     }
 
-    public static void printGoEnvVariables(@NotNull GeneralCommandLine commandLine, @NotNull ProcessHandler handler) {
+    public static void printBallerinaEnvVariables(@NotNull GeneralCommandLine commandLine,
+                                                  @NotNull ProcessHandler handler) {
         Map<String, String> environment = commandLine.getEnvironment();
-        //        handler.notifyTextAvailable("GOROOT=" + StringUtil.nullize(environment.get(GoConstants.GO_ROOT)) +
-        // '\n', ProcessOutputTypes.SYSTEM);
-        //        handler.notifyTextAvailable("GOPATH=" + StringUtil.nullize(environment.get(GoConstants.GO_PATH)) +
-        // '\n', ProcessOutputTypes.SYSTEM);
+        //Todo
+//        handler.notifyTextAvailable("BALLERINA_REPOSIOTRY=" + StringUtil.nullize(environment.get
+//                (BallerinaConstants.BALLERINA_REPOSIOTRY)) + '\n', ProcessOutputTypes.SYSTEM);
     }
 
     @Nullable
