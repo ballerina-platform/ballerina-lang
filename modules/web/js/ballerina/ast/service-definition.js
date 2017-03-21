@@ -321,7 +321,7 @@ define(['lodash', './node', 'log', '../utils/common-utils'],
 
     /**
      * Get all the connector references in the immediate scope
-     * @return {Array} connectorReferences
+     * @return {ConnectorDeclaration[]} connectorReferences
      */
     ServiceDefinition.prototype.getConnectorsInImmediateScope = function () {
         var factory = this.getFactory();
