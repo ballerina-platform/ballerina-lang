@@ -21,8 +21,6 @@ package org.wso2.siddhi.core.util;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
-import org.wso2.siddhi.core.SiddhiManager;
-import org.wso2.siddhi.core.SiddhiManagerService;
 
 /**
  * Siddhi Manager Service which is
@@ -32,8 +30,7 @@ import org.wso2.siddhi.core.SiddhiManagerService;
 @Component(
         immediate = true
 )
-public class SiddhiManagerServiceComponent {
-    private static SiddhiManager siddhiManager;
+public class SiddhiManagerComponent {
     private static BundleContext bundleContext;
 
     /**
@@ -45,9 +42,7 @@ public class SiddhiManagerServiceComponent {
      */
     @Activate
     protected void start(BundleContext bundleContext) throws Exception {
-        SiddhiManagerServiceComponent.bundleContext = bundleContext;
-        siddhiManager = new SiddhiManager();
-        bundleContext.registerService(SiddhiManagerService.class, siddhiManager, null);
+        SiddhiManagerComponent.bundleContext = bundleContext;
     }
 
     /**
