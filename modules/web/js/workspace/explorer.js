@@ -71,8 +71,6 @@ define(['log', 'jquery', 'backbone', 'lodash', './explorer-item', './service-cli
                 this._openedFolders.push(folderPath);
                 this.createExplorerItem(folderPath);
                 this.persistState();
-            }else{
-                // Do nothing
             }
         },
 
