@@ -20,12 +20,13 @@ $ ballerina doc --help
 generate Ballerina API documentation
 
 Usage:
-ballerina doc <sourcepath>... [-o outputdir] [-n] [-e excludedpackages] [-v]
+ballerina doc <sourcepath>... [-t templatesdir] [-o outputdir] [-n] [-e excludedpackages] [-v]
   sourcepath:
   Paths to the directories where Ballerina source files reside or a path to
   a Ballerina file which does not belong to a package
 
 Flags:
+  --template, -t   path to a custom templates directory to be used for API documentation generation
   --output, -o     path to the output directory where the API documentation will be written to
   --native, -n     read the source as native ballerina code
   --exclude, -e    a comma separated list of package names to be filtered from the documentation
@@ -53,6 +54,10 @@ $ ballerina doc ../../../connectors/twitter/src/ ../../../connectors/soap/src/ t
 **Example 5:** Generate API documentation for the given native Ballerina source directories:
 ```sh
 $ ballerina doc ../../../connectors/twitter/src/ ../../../connectors/soap/src/ -n
+```
+**Example 6:** Generate API documentation using a custom templates folder:
+```sh
+$ ballerina doc ../../../connectors/twitter/src/ ../../../connectors/soap/src/ -t custom-templates
 ```
 
 ## Using Docerina Maven Plugin
@@ -86,6 +91,7 @@ A sample pom.xml file configuration of the docerina Maven goal is shown below.
                         <configuration>
                             <outputDir>${output.dir}</outputDir>
                             <sourceDir>${generated.ballerina.source.directory}</sourceDir>
+                            <templatesDir>/home/docerina/templates</templatesDir>
                             <packageFilter>org.ballerinalang.xyz</packageFilter>
                             <debugDocerina>false</debugDocerina>
                             <nativeCode>false</nativeCode>
@@ -109,6 +115,12 @@ paths to Ballerina files which does not belong to a package.
  OPTIONAL property.
  DEFAULT value is the ${project.build.directory} which is the target directory.
  Example: `<outputDir>/home/docerina/output</outputDir>`
+ 
+* `templatesDir`: Points to a custom templates directory.
+
+ OPTIONAL property.
+ DEFAULT value is the embedded templates folder.
+ Example: `<templatesDir>/home/docerina/templates</templatesDir>`
 
 * `packageFilter`: Comma separated list of package names to be filtered from the documentation.
 
