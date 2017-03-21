@@ -69,6 +69,17 @@ define(
             });
 
             this.getDiagramRenderingContext().setViewOfModel(this.getModel(), this);
+
+
+            this.listenTo(this.getBoundingBox(), 'height-changed', function (dh) {
+                window.console.log("***********************");
+                window.console.log(this.getBoundingBox().h());
+                if (this.getBoundingBox().h() === 340) {
+                    debugger;
+                }
+                window.console.log("***********************");
+            }, this);
+
             model.accept(this);
         };
 
@@ -124,10 +135,6 @@ define(
                 });
             }
 
-            this.listenTo(childStatementView.getBoundingBox(), 'height-changed', function (dh) {
-                boundingBox.h(boundingBox.h() + dh);
-            });
-
             this.listenTo(childStatementView.getBoundingBox(), 'width-changed', function (dw) {
                 if (!childStatementView.onForcedWidthChanged()) {
                     var widestChildOfChildBlock = self.getWidestChildOfChildBlock();
@@ -150,6 +157,13 @@ define(
 
             childStatementViews.push(childStatementView);
             childStatementView.render(renderingContext);
+
+            // Height changed event is positioned after the rendering. This is because when we open a file then the
+            // height change events are fired for the statements inside the second block statement, which will change the
+            // height of the compound statement
+            this.listenTo(childStatementView.getBoundingBox(), 'height-changed', function (dh) {
+                boundingBox.h(boundingBox.h() + dh);
+            });
 
             childrenViewsActualWidths.push(childStatementView.getBoundingBox().w());
 
