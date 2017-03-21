@@ -276,8 +276,8 @@ public class DefinitionParserHelper {
                         // the actual underlying transport is instantiated inside the generalized extensions depending on the 'type' parameter
                         // in Sink options.
                         sinkType = (distributionAnnotation.getElement("channels") == null) ?
-                                SiddhiConstants.EXTENSION_MULTI_ENDPOINT_TRANSPORT :
-                                SiddhiConstants.EXTENSION_PARTITIONED_TRANSPORT;
+                                SiddhiConstants.EXTENSION_MULTI_DESTINATION_TRANSPORT :
+                                SiddhiConstants.EXTENSION_SINGLE_DESTINATION_TRANSPORT;
                     } else {
                         sinkType = sinkAnnotation.getElement(SiddhiConstants.ANNOTATION_ELEMENT_TYPE);
                     }
@@ -302,7 +302,7 @@ public class DefinitionParserHelper {
                                 outputMapper.getClass().getAnnotation(org.wso2.siddhi.annotation.Extension.class));
                         String payload = getPayload(mapAnnotation);
 
-                        outputTransport.init(streamDefinition, sinkType, transportOptionHolder, outputMapper, mapType,
+                        outputTransport.configure(streamDefinition, sinkType, transportOptionHolder, outputMapper, mapType,
                                 mapOptionHolder, payload);
 
                         // Initializing output transport with distributed configurations
@@ -316,7 +316,7 @@ public class DefinitionParserHelper {
 
                             distributionAnnotation.getAnnotations().stream()
                                     .filter(annotation ->
-                                            SiddhiConstants.ANNOTATION_ENDPOINT.equalsIgnoreCase(annotation.getName()))
+                                            SiddhiConstants.ANNOTATION_DESTINATION.equalsIgnoreCase(annotation.getName()))
                                     .forEach(annotation ->
                                             endpointOptionHolders
                                                     .add(constructOptionProcessor(streamDefinition, annotation,
@@ -325,7 +325,8 @@ public class DefinitionParserHelper {
                                                             .getAnnotation(org.wso2.siddhi.annotation.Extension.class))));
 
                            ((DistributedTransport)outputTransport).
-                                   initDistributedTransportOptions(distributionOptionHolder, endpointOptionHolders);
+                                   initDistributedTransportOptions(distributionOptionHolder, endpointOptionHolders,
+                                           sinkAnnotation, executionPlanContext);
                         }
 
                         OutputGroupDeterminer groupDeterminer = constructOutputGroupDeterminer(transportOptionHolder,
@@ -336,7 +337,7 @@ public class DefinitionParserHelper {
 
                         List<OutputTransport> eventSinks = eventSinkMap.get(streamDefinition.getId());
                         if (eventSinks == null) {
-                            eventSinks = new ArrayList<OutputTransport>();
+                            eventSinks = new ArrayList<>();
                             eventSinks.add(outputTransport);
                             eventSinkMap.put(streamDefinition.getId(), eventSinks);
                         } else {
@@ -387,7 +388,7 @@ public class DefinitionParserHelper {
         return groupDeterminer;
     }
 
-    private static Extension constructExtension(StreamDefinition streamDefinition, String typeName, String typeValue,
+    public static Extension constructExtension(StreamDefinition streamDefinition, String typeName, String typeValue,
                                                 Annotation annotation, String defaultNamespace) {
         String[] namespaceAndName = typeValue.split(SiddhiConstants.EXTENSION_SEPARATOR);
         String namespace;

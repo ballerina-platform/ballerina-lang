@@ -18,6 +18,7 @@
 
 package org.wso2.siddhi.core.stream.output.sink.distributed;
 
+import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
 import org.wso2.siddhi.core.util.transport.DynamicOptions;
 
 /**
@@ -25,6 +26,7 @@ import org.wso2.siddhi.core.util.transport.DynamicOptions;
  * Each distributed transport implementation must return an instance of a implementation of this interface through
  * the accessor methods (e.g., getRoundRobinPublisher).
  */
+@FunctionalInterface
 public interface DistributedPublishingAlgorithm {
-    void publish(Object payload, DynamicOptions optionHolder);
+    void publish(Object payload, DynamicOptions optionHolder) throws ConnectionUnavailableException;
 }

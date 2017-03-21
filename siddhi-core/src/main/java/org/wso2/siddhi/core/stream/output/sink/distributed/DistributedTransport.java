@@ -18,13 +18,16 @@
 
 package org.wso2.siddhi.core.stream.output.sink.distributed;
 
+import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
 import org.wso2.siddhi.core.stream.output.sink.OutputTransport;
 import org.wso2.siddhi.core.util.transport.DynamicOptions;
 import org.wso2.siddhi.core.util.transport.OptionHolder;
+import org.wso2.siddhi.query.api.annotation.Annotation;
 import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * This is the base class for Distributed transports. All distributed transport types must inherit from this class
@@ -36,33 +39,28 @@ public abstract class DistributedTransport extends OutputTransport {
     public static final String PARTITION_KEY_FIELD_KEY = "partitionKey";
 
     public static final String DISTRIBUTION_STRATEGY_ROUND_ROBIN = "roundRobin";
-    public static final String DISTRIBUTION_STRATEGY_DUPLICATE = "duplicate";
+    public static final String DISTRIBUTION_STRATEGY_ALL = "all";
     public static final String DISTRIBUTION_STRATEGY_PARTITIONED = "partitioned";
 
-    private String distributionStrategy;
     private int channelCount = -1;
-    private int partitionFiledIndex = -1;
-    private DistributedPublishingAlgorithm publisher;
     private OptionHolder sinkOptionHolder;
+    protected DistributedPublishingStrategy strategy;
 
     @Override
-    public void init(OptionHolder optionHolder) {
+    public void configure(OptionHolder optionHolder) {
         this.sinkOptionHolder = optionHolder;
     }
 
     @Override
     public void publish(Object payload, DynamicOptions transportOptions) throws ConnectionUnavailableException {
-        publisher.publish(payload, transportOptions);
+        Set<Integer> destinationsToPublish = strategy.getDestinationsToPublish(payload, transportOptions);
+        destinationsToPublish.forEach(destinationId -> publish(payload, transportOptions, destinationId));
     }
 
-    public void initDistributedTransportOptions(OptionHolder distributedOptionHolder,
-                                                List<OptionHolder> endpointOptionHolders) {
-        distributionStrategy = distributedOptionHolder.validateAndGetStaticValue(DISTRIBUTION_STRATEGY_KEY);
-
-        if (distributionStrategy == null || distributionStrategy.isEmpty()) {
-            throw new ExecutionPlanValidationException("Distribution strategy is not specified.");
-        }
-
+    public void initDistributedTransportOptions(OptionHolder distributedOptionHolder,List<OptionHolder> endpointOptionHolders,
+                                                Annotation sinkAnnotation, ExecutionPlanContext executionPlanContext,
+                                                DistributedPublishingStrategy strategy) {
+        this.strategy = strategy;
         if (distributedOptionHolder.isOptionExists(DISTRIBUTION_CHANNELS_KEY)) {
             channelCount = Integer.parseInt(distributedOptionHolder
                     .validateAndGetStaticValue(DISTRIBUTION_CHANNELS_KEY));
@@ -75,22 +73,9 @@ public abstract class DistributedTransport extends OutputTransport {
             }
         }
 
-        if (distributionStrategy.equals(DISTRIBUTION_STRATEGY_ROUND_ROBIN)) {
-            publisher = getRoundRobinPublisher();
-        } else if (distributionStrategy.equals(DISTRIBUTION_STRATEGY_DUPLICATE)) {
-            publisher = getAllEndpointsPublisher();
-        } else if (distributionStrategy.equals(DISTRIBUTION_STRATEGY_PARTITIONED)) {
-            publisher = getPartitionedPublisher();
-        } else {
-            throw new ExecutionPlanValidationException("Unknown distribution strategy '" + distributionStrategy + "'.");
-        }
-
-        initTransport(sinkOptionHolder, endpointOptionHolders);
+        initTransport(sinkOptionHolder, endpointOptionHolders, sinkAnnotation, executionPlanContext);
     }
 
-    public String getDistributionStrategy() {
-        return distributionStrategy;
-    }
 
     public int getChannelCount() {
         if (channelCount == -1) {
@@ -100,16 +85,11 @@ public abstract class DistributedTransport extends OutputTransport {
         return channelCount;
     }
 
-    public int getPartitionFiledIndex() {
-        return partitionFiledIndex;
-    }
 
-    public abstract DistributedPublishingAlgorithm getRoundRobinPublisher();
+    public abstract void publish(Object payload, DynamicOptions transportOptions, int partitionId) throws ConnectionUnavailableException;
 
-    public abstract DistributedPublishingAlgorithm getAllEndpointsPublisher();
 
-    public abstract DistributedPublishingAlgorithm getPartitionedPublisher();
-
-    public abstract void initTransport(OptionHolder sinkOptionHolder, List<OptionHolder> nodeOptionHolders);
+    public abstract void initTransport(OptionHolder sinkOptionHolder, List<OptionHolder> nodeOptionHolders, Annotation
+            sinkAnnotation, ExecutionPlanContext executionPlanContext);
 
 }
