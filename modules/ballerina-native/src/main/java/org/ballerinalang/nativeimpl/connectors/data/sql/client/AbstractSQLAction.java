@@ -155,6 +155,10 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
         }
     }
 
+    protected void closeConnections(SQLConnector connector) {
+        connector.closeConnectionPool();
+    }
+
     private PreparedStatement getPreparedStatement(Connection conn, SQLConnector connector, String query)
             throws SQLException {
         PreparedStatement stmt;
@@ -384,9 +388,12 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
                 stringValue = elementValue == null ? "" : SQLConnectorUtils.getString((Clob) elementValue);
                 break;
             case Constants.SQLDataTypes.BLOB:
-            case Constants.SQLDataTypes.BINARY:
                 elementValue = stmt.getBlob(index + 1);
                 stringValue = elementValue == null ? "" : SQLConnectorUtils.getString((Blob) elementValue);
+                break;
+            case Constants.SQLDataTypes.BINARY:
+                elementValue = stmt.getBytes(index + 1);
+                stringValue = elementValue == null ? "" : SQLConnectorUtils.getString((byte[]) elementValue);
                 break;
             case Constants.SQLDataTypes.DATE:
                 elementValue = stmt.getDate(index + 1);

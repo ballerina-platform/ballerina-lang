@@ -94,6 +94,10 @@ public class SQLConnector extends AbstractNativeConnector {
         }
     }
 
+    public void closeConnectionPool() {
+        hikariDataSource.close();
+    }
+
     @SuppressWarnings("unchecked")
     private void buildDataSource(BMap options) {
         try {

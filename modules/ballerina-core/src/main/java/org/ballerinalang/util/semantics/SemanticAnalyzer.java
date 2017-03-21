@@ -37,6 +37,7 @@ import org.ballerinalang.model.CallableUnit;
 import org.ballerinalang.model.CompilationUnit;
 import org.ballerinalang.model.ConstDef;
 import org.ballerinalang.model.Function;
+import org.ballerinalang.model.FunctionSymbolName;
 import org.ballerinalang.model.ImportPackage;
 import org.ballerinalang.model.NativeUnit;
 import org.ballerinalang.model.NodeLocation;
@@ -134,6 +135,7 @@ import org.ballerinalang.util.exceptions.SemanticException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -1932,8 +1934,14 @@ public class SemanticAnalyzer implements NodeVisitor {
             paramTypes[i] = exprs[i].getType();
         }
 
-        SymbolName symbolName = LangModelUtils.getSymNameWithParams(funcIExpr.getName(), pkgPath, paramTypes);
+        FunctionSymbolName symbolName = LangModelUtils.getFuncSymNameWithParams(funcIExpr.getName(),
+                                                                                pkgPath, paramTypes);
         BLangSymbol functionSymbol = currentScope.resolve(symbolName);
+
+        if (functionSymbol == null) {
+            functionSymbol = findBestMatchForFunctionSymbol(funcIExpr, symbolName);
+        }
+
         if (functionSymbol == null) {
             String funcName = (funcIExpr.getPackageName() != null) ? funcIExpr.getPackageName() + ":" +
                     funcIExpr.getName() : funcIExpr.getName();
@@ -1969,6 +1977,90 @@ public class SemanticAnalyzer implements NodeVisitor {
 
         // Link the function with the function invocation expression
         funcIExpr.setCallableUnit(function);
+    }
+
+    /**
+     * Helper method to find the best function match when there is no direct match.
+     *
+     * @param symbolName
+     * @return bLangSymbol
+     */
+    private BLangSymbol findBestMatchForFunctionSymbol(FunctionInvocationExpr funcIExpr, SymbolName symbolName) {
+        BLangSymbol functionSymbol = null;
+        BLangSymbol pkgSymbol = null;
+        if (symbolName.getPkgPath() == null) {
+            pkgSymbol = (BLangPackage) getCurrentPackageScope(currentScope);
+        } else {
+            SymbolName pkgSymbolName = new SymbolName(symbolName.getPkgPath());
+            pkgSymbol = currentScope.resolve(pkgSymbolName);
+        }
+        //pkgSymbol should be a instance of SymbolScope, hence doesn't do the check here
+        if (pkgSymbol == null) {
+            return null;
+        }
+        for (Map.Entry entry : ((SymbolScope) pkgSymbol).getSymbolMap().entrySet()) {
+            if (!(entry.getKey() instanceof FunctionSymbolName)) {
+                continue;
+            }
+            FunctionSymbolName funcSymName = (FunctionSymbolName) entry.getKey();
+            if (!funcSymName.isNameAndParamCountMatch((FunctionSymbolName) symbolName)) {
+                continue;
+            }
+
+            boolean implicitCastPossible = true;
+            Expression[] exprs = funcIExpr.getArgExprs();
+            for (int i = 0; i < exprs.length; i++) {
+                BType lhsType = ((Function) entry.getValue()).getParameterDefs()[i].getType();
+
+                BType rhsType = exprs[i].getType();
+                if (rhsType != null && lhsType.equals(rhsType)) {
+                    continue;
+                }
+                TypeCastExpression newExpr = checkWideningPossible(lhsType, exprs[i]);
+                if (newExpr != null) {
+                    exprs[i] = newExpr;
+                } else {
+                    implicitCastPossible = false;
+                    break;
+                }
+            }
+            if (implicitCastPossible) {
+                if (functionSymbol == null) {
+                    functionSymbol = (BLangSymbol) entry.getValue();
+                } else {
+                    /**
+                     * This way second ambiguous function will cause this method to throw semantic error, so in a
+                     * scenario where there are more than two ambiguous functions, then this will show only the
+                     * first two.
+                     */
+                    SymbolName matchingFuncSym = functionSymbol.getSymbolName();
+                    String ambiguousFunc1 = (matchingFuncSym.getPkgPath() != null) ?
+                                            matchingFuncSym.getPkgPath() + ":" + matchingFuncSym.getName() :
+                                            matchingFuncSym.getName();
+                    String ambiguousFunc2 = (funcSymName.getPkgPath() != null) ?
+                                            funcSymName.getPkgPath() + ":" + funcSymName.getName()
+                                                                               : funcSymName.getName();
+                    BLangExceptionHelper.throwSemanticError(funcIExpr, SemanticErrors.AMBIGUOUS_FUNCTIONS,
+                                                            funcSymName.getFuncName(), ambiguousFunc1, ambiguousFunc2);
+                    break;
+                }
+            }
+        }
+        return functionSymbol;
+    }
+
+    /**
+     * Get current package Scope.
+     *
+     * @param scope
+     * @return scope
+     */
+    private SymbolScope getCurrentPackageScope(SymbolScope scope) {
+        if (scope instanceof BLangPackage) {
+            return scope;
+        } else {
+            return getCurrentPackageScope(scope.getEnclosingScope());
+        }
     }
 
     private void linkAction(ActionInvocationExpr actionIExpr) {
@@ -2269,8 +2361,8 @@ public class SemanticAnalyzer implements NodeVisitor {
             }
 
             function.setParameterTypes(paramTypes);
-            SymbolName symbolName = LangModelUtils.getSymNameWithParams(function.getName(),
-                    function.getPackagePath(), paramTypes);
+            FunctionSymbolName symbolName = LangModelUtils.getFuncSymNameWithParams(function.getName(),
+                                                                            function.getPackagePath(), paramTypes);
             function.setSymbolName(symbolName);
 
             BLangSymbol functionSymbol = currentScope.resolve(symbolName);
