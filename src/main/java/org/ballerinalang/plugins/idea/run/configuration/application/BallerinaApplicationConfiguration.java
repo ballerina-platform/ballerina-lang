@@ -33,6 +33,7 @@ import com.intellij.openapi.vfs.VirtualFile;
 import org.ballerinalang.plugins.idea.run.configuration.BallerinaModuleBasedConfiguration;
 import org.ballerinalang.plugins.idea.run.configuration.BallerinaRunConfigurationWithMain;
 import org.ballerinalang.plugins.idea.run.configuration.BallerinaRunUtil;
+import org.ballerinalang.plugins.idea.run.configuration.RunConfigurationKind;
 import org.ballerinalang.plugins.idea.run.configuration.ui.BallerinaApplicationSettingsEditor;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
@@ -46,8 +47,8 @@ public class BallerinaApplicationConfiguration extends
     @NotNull
     private String myPackage = "";
 
-    @NotNull
-    private Kind myKind = Kind.MAIN;
+//    @NotNull
+//    private RunConfigurationKind myRunKind = RunConfigurationKind.MAIN;
 
     public BallerinaApplicationConfiguration(Project project, String name, @NotNull ConfigurationType
             configurationType) {
@@ -61,16 +62,16 @@ public class BallerinaApplicationConfiguration extends
                 PACKAGE_ATTRIBUTE_NAME));
         try {
             String kindName = JDOMExternalizerUtil.getFirstChildValueAttribute(element, KIND_ATTRIBUTE_NAME);
-            myKind = kindName != null ? Kind.valueOf(kindName) : Kind.MAIN;
+            myRunKind = kindName != null ? RunConfigurationKind.valueOf(kindName) : RunConfigurationKind.MAIN;
         } catch (IllegalArgumentException e) {
-            myKind = !myPackage.isEmpty() ? Kind.MAIN : Kind.SERVICE;
+            myRunKind = RunConfigurationKind.MAIN;
         }
     }
 
     @Override
     public void writeExternal(Element element) throws WriteExternalException {
         super.writeExternal(element);
-        JDOMExternalizerUtil.addElementWithValueAttribute(element, KIND_ATTRIBUTE_NAME, myKind.name());
+        JDOMExternalizerUtil.addElementWithValueAttribute(element, KIND_ATTRIBUTE_NAME, myRunKind.name());
         if (!myPackage.isEmpty()) {
             JDOMExternalizerUtil.addElementWithValueAttribute(element, PACKAGE_ATTRIBUTE_NAME, myPackage);
         }
@@ -109,7 +110,7 @@ public class BallerinaApplicationConfiguration extends
         if (packageDirectory == null || !packageDirectory.isDirectory()) {
             throw new RuntimeConfigurationError("Cannot find package '" + myPackage + "'");
         }
-        switch (myKind) {
+        switch (myRunKind) {
             case MAIN:
                 if (BallerinaRunUtil.findMainFileInDirectory(packageDirectory, getProject()) == null) {
                     throw new RuntimeConfigurationError("Cannot find Ballerina file with main in '" +
@@ -131,16 +132,12 @@ public class BallerinaApplicationConfiguration extends
         myPackage = aPackage;
     }
 
-    @NotNull
-    public Kind getKind() {
-        return myKind;
-    }
-
-    public void setKind(@NotNull Kind aKind) {
-        myKind = aKind;
-    }
-
-    public enum Kind {
-        MAIN, SERVICE
-    }
+//    @NotNull
+//    public RunConfigurationKind getRunKind() {
+//        return myRunKind;
+//    }
+//
+//    public void setRunKind(@NotNull RunConfigurationKind runKind) {
+//        myRunKind = runKind;
+//    }
 }

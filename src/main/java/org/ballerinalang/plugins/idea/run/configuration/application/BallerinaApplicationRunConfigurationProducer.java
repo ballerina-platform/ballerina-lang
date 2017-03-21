@@ -24,6 +24,7 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import org.ballerinalang.plugins.idea.run.configuration.BallerinaRunConfigurationProducerBase;
 import org.ballerinalang.plugins.idea.run.configuration.BallerinaRunUtil;
+import org.ballerinalang.plugins.idea.run.configuration.RunConfigurationKind;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -52,7 +53,7 @@ public class BallerinaApplicationRunConfigurationProducer extends BallerinaRunCo
         //        }
         // Todo - change
         if (super.setupConfigurationFromContext(configuration, context, sourceElement)) {
-            configuration.setKind(BallerinaApplicationConfiguration.Kind.SERVICE);
+            configuration.setRunKind(RunConfigurationKind.SERVICE);
             return true;
         }
         return false;
@@ -82,7 +83,7 @@ public class BallerinaApplicationRunConfigurationProducer extends BallerinaRunCo
         Module module = ModuleUtilCore.findModuleForPsiElement(contextElement);
         if (!Comparing.equal(module, configuration.getConfigurationModule().getModule())) return false;
 
-        if (configuration.getKind() == BallerinaApplicationConfiguration.Kind.MAIN) {
+        if (configuration.getRunKind() == RunConfigurationKind.MAIN) {
             return Comparing.equal(getImportPathFromContext(contextElement), configuration.getPackage());
         }
 

@@ -75,8 +75,8 @@ public class BallerinaBuildingRunner extends AsyncGenericProgramRunner {
         RunConfiguration configuration = configurationSettings.getConfiguration();
         String type = "main";
         if (configuration instanceof BallerinaApplicationConfiguration) {
-            BallerinaApplicationConfiguration.Kind kind = ((BallerinaApplicationConfiguration) configuration).getKind();
-            if (kind == BallerinaApplicationConfiguration.Kind.SERVICE) {
+            RunConfigurationKind kind = ((BallerinaApplicationConfiguration) configuration).getRunKind();
+            if (kind == RunConfigurationKind.SERVICE) {
                 type = "service";
             }
         }
@@ -85,7 +85,7 @@ public class BallerinaBuildingRunner extends AsyncGenericProgramRunner {
         outputFile.delete();
         FileDocumentManager.getInstance().saveAllDocuments();
 
-        final String mykind=type;
+        final String myKind=type;
         AsyncPromise<RunProfileStarter> buildingPromise = new AsyncPromise<>();
         BallerinaHistoryProcessListener historyProcessListener = new BallerinaHistoryProcessListener();
         ((BallerinaApplicationRunningState) state).createCommonExecutor()
@@ -113,7 +113,7 @@ public class BallerinaBuildingRunner extends AsyncGenericProgramRunner {
                                     historyProcessListener, compilationFailed));
                         } else {
                             buildingPromise.setResult(new MyRunStarter(outputFile.getAbsolutePath(),
-                                    historyProcessListener, compilationFailed, mykind));
+                                    historyProcessListener, compilationFailed, myKind));
                         }
                     }
                 })
@@ -229,7 +229,7 @@ public class BallerinaBuildingRunner extends AsyncGenericProgramRunner {
         private final String myOutputFilePath;
         private final BallerinaHistoryProcessListener myHistoryProcessListener;
         private final boolean myCompilationFailed;
-        private final BallerinaApplicationConfiguration.Kind myKind;
+        private final RunConfigurationKind myKind;
 
         private MyRunStarter(@NotNull String outputFilePath,
                              @NotNull BallerinaHistoryProcessListener historyProcessListener,
@@ -237,9 +237,9 @@ public class BallerinaBuildingRunner extends AsyncGenericProgramRunner {
             myOutputFilePath = outputFilePath;
             myHistoryProcessListener = historyProcessListener;
             myCompilationFailed = compilationFailed;
-            BallerinaApplicationConfiguration.Kind kind = BallerinaApplicationConfiguration.Kind.MAIN;
+            RunConfigurationKind kind = RunConfigurationKind.MAIN;
             if ("service".equals(type)) {
-                kind = BallerinaApplicationConfiguration.Kind.SERVICE;
+                kind = RunConfigurationKind.SERVICE;
             }
             myKind = kind;
         }

@@ -25,6 +25,7 @@ import com.intellij.execution.runners.ExecutionEnvironment;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.util.text.StringUtil;
 import org.ballerinalang.plugins.idea.run.configuration.BallerinaRunningState;
+import org.ballerinalang.plugins.idea.run.configuration.RunConfigurationKind;
 import org.ballerinalang.plugins.idea.util.BallerinaExecutor;
 import org.ballerinalang.plugins.idea.util.BallerinaHistoryProcessListener;
 import org.jetbrains.annotations.NotNull;
@@ -35,7 +36,7 @@ import java.io.File;
 public class BallerinaApplicationRunningState extends BallerinaRunningState<BallerinaApplicationConfiguration> {
 
     private String myOutputFilePath;
-    private BallerinaApplicationConfiguration.Kind myRunKind;
+    private RunConfigurationKind myRunKind;
     @Nullable
     private BallerinaHistoryProcessListener myHistoryProcessHandler;
     private int myDebugPort = 59090;
@@ -106,7 +107,7 @@ public class BallerinaApplicationRunningState extends BallerinaRunningState<Ball
         //        }
 
         String type = "main";
-        if (myRunKind == BallerinaApplicationConfiguration.Kind.SERVICE) {
+        if (myRunKind == RunConfigurationKind.SERVICE) {
             type = "service";
         }
         return executor
@@ -129,7 +130,7 @@ public class BallerinaApplicationRunningState extends BallerinaRunningState<Ball
         myOutputFilePath = outputFilePath;
     }
 
-    public void setKind(BallerinaApplicationConfiguration.Kind runKind) {
+    public void setKind(RunConfigurationKind runKind) {
         myRunKind = runKind;
     }
 

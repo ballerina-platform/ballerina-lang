@@ -65,7 +65,7 @@ public abstract class BallerinaRunConfigurationProducerBase<T extends BallerinaR
             // type here before doing anything else because the configuration might be an application configuration.
             if (configuration instanceof BallerinaRunFileConfiguration) {
                 // Set the run kind to APPLICATION because we are in a main function.
-                configuration.setRunKind(BallerinaRunFileConfiguration.Kind.MAIN);
+                configuration.setRunKind(RunConfigurationKind.MAIN);
                 // There can be an existing configuration for the current context as well. If that is the case, this
                 // config will be used to run the file. If there is an existing config for the context, we change the
                 // run kind of that config. Otherwise we change the current selected run configs kind.
@@ -77,7 +77,7 @@ public abstract class BallerinaRunConfigurationProducerBase<T extends BallerinaR
                     if (existingConfiguration instanceof BallerinaRunFileConfiguration) {
                         // If it is a BallerinaRunFileConfiguration, set the kind to APPLICATION.
                         ((BallerinaRunFileConfiguration) existingConfiguration).setRunKind(
-                                BallerinaRunFileConfiguration.Kind.MAIN);
+                                RunConfigurationKind.MAIN);
                     }
                 } else {
                     // Get the project.
@@ -96,7 +96,7 @@ public abstract class BallerinaRunConfigurationProducerBase<T extends BallerinaR
                         if (currentRunConfiguration instanceof BallerinaRunFileConfiguration) {
                             // Set the kind to APPLICATION.
                             ((BallerinaRunFileConfiguration) currentRunConfiguration).setRunKind
-                                    (BallerinaRunFileConfiguration.Kind.MAIN);
+                                    (RunConfigurationKind.MAIN);
                         }
                     }
                 }
@@ -113,14 +113,14 @@ public abstract class BallerinaRunConfigurationProducerBase<T extends BallerinaR
                 configuration.setModule(module);
             }
             if (configuration instanceof BallerinaRunFileConfiguration) {
-                configuration.setRunKind(BallerinaRunFileConfiguration.Kind.SERVICE);
+                configuration.setRunKind(RunConfigurationKind.SERVICE);
 
                 RunnerAndConfigurationSettings existingConfigurations = context.findExisting();
                 if (existingConfigurations != null) {
                     RunConfiguration existingConfiguration = existingConfigurations.getConfiguration();
                     if (existingConfiguration instanceof BallerinaRunFileConfiguration) {
                         ((BallerinaRunFileConfiguration) existingConfiguration).setRunKind(
-                                BallerinaRunFileConfiguration.Kind.SERVICE);
+                                RunConfigurationKind.SERVICE);
                     }
 
                 } else {
@@ -133,7 +133,7 @@ public abstract class BallerinaRunConfigurationProducerBase<T extends BallerinaR
                         RunConfiguration currentRunConfiguration = selectedConfigurationSettings.getConfiguration();
                         if (currentRunConfiguration instanceof BallerinaRunFileConfiguration) {
                             ((BallerinaRunFileConfiguration) currentRunConfiguration).setRunKind
-                                    (BallerinaRunFileConfiguration.Kind.SERVICE);
+                                    (RunConfigurationKind.SERVICE);
                         }
                     }
                 }

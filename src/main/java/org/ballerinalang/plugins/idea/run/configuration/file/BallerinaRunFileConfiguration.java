@@ -92,8 +92,4 @@ public  class BallerinaRunFileConfiguration extends BallerinaRunConfigurationWit
         }
         return new BallerinaRunServiceFileRunningState(env, module, this);
     }
-
-    public enum Kind {
-        MAIN, SERVICE
-    }
 }

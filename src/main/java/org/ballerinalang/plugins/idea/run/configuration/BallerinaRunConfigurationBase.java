@@ -86,6 +86,7 @@ public abstract class BallerinaRunConfigurationBase<RunningState extends Balleri
         } else {
             myWorkingDirectory = StringUtil.notNullize(configurationModule.getProject().getBasePath());
         }
+        setFileOutputPath(myWorkingDirectory);
     }
 
     @Nullable

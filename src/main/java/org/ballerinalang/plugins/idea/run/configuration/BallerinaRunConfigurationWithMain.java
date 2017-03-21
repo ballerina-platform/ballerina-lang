@@ -27,7 +27,6 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
 import org.ballerinalang.plugins.idea.psi.BallerinaFile;
-import org.ballerinalang.plugins.idea.run.configuration.file.BallerinaRunFileConfiguration;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 
@@ -35,12 +34,12 @@ public abstract class BallerinaRunConfigurationWithMain<T extends BallerinaRunni
         BallerinaRunConfigurationBase<T> {
 
     private static final String FILE_PATH_ATTRIBUTE_NAME = "filePath";
-    private static final String KIND_ATTRIBUTE_NAME = "kind";
+    private static final String KIND_ATTRIBUTE_NAME = "myRunKind";
 
     @NotNull
     private String myFilePath = "";
     @NotNull
-    private BallerinaRunFileConfiguration.Kind kind = BallerinaRunFileConfiguration.Kind.MAIN;
+    protected RunConfigurationKind myRunKind = RunConfigurationKind.MAIN;
 
     public BallerinaRunConfigurationWithMain(String name, BallerinaModuleBasedConfiguration configurationModule,
                                              ConfigurationFactory factory) {
@@ -53,7 +52,7 @@ public abstract class BallerinaRunConfigurationWithMain<T extends BallerinaRunni
         super.readExternal(element);
         myFilePath = StringUtil.notNullize(JDOMExternalizerUtil.getFirstChildValueAttribute(element,
                 FILE_PATH_ATTRIBUTE_NAME));
-        kind = BallerinaRunFileConfiguration.Kind.valueOf(StringUtil.notNullize(
+        myRunKind = RunConfigurationKind.valueOf(StringUtil.notNullize(
                 JDOMExternalizerUtil.getFirstChildValueAttribute(element, KIND_ATTRIBUTE_NAME)));
     }
 
@@ -61,7 +60,7 @@ public abstract class BallerinaRunConfigurationWithMain<T extends BallerinaRunni
     public void writeExternal(Element element) throws WriteExternalException {
         super.writeExternal(element);
         addNonEmptyElement(element, FILE_PATH_ATTRIBUTE_NAME, myFilePath);
-        addNonEmptyElement(element, KIND_ATTRIBUTE_NAME, kind.toString());
+        addNonEmptyElement(element, KIND_ATTRIBUTE_NAME, myRunKind.toString());
     }
 
     protected void checkFileConfiguration() throws RuntimeConfigurationError {
@@ -74,11 +73,11 @@ public abstract class BallerinaRunConfigurationWithMain<T extends BallerinaRunni
             throw new RuntimeConfigurationError("Main file is invalid");
         }
 
-        if (kind == BallerinaRunFileConfiguration.Kind.MAIN &&
+        if (myRunKind == RunConfigurationKind.MAIN &&
                 !BallerinaRunUtil.hasMainFunction(psiFile)) {
             throw new RuntimeConfigurationError("Main file does not contain a main function.");
         }
-        if (kind == BallerinaRunFileConfiguration.Kind.SERVICE && !BallerinaRunUtil.hasServices(psiFile)) {
+        if (myRunKind == RunConfigurationKind.SERVICE && !BallerinaRunUtil.hasServices(psiFile)) {
             throw new RuntimeConfigurationError("Main file does not contain any service.");
         }
     }
@@ -96,11 +95,11 @@ public abstract class BallerinaRunConfigurationWithMain<T extends BallerinaRunni
         myFilePath = filePath;
     }
 
-    public BallerinaRunFileConfiguration.Kind getRunKind() {
-        return kind;
+    public RunConfigurationKind getRunKind() {
+        return myRunKind;
     }
 
-    public void setRunKind(BallerinaRunFileConfiguration.Kind kind) {
-        this.kind = kind;
+    public void setRunKind(RunConfigurationKind runKind) {
+        this.myRunKind = runKind;
     }
 }

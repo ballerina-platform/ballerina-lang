@@ -20,6 +20,7 @@ import com.intellij.execution.ExecutionException;
 import com.intellij.execution.runners.ExecutionEnvironment;
 import com.intellij.openapi.module.Module;
 import org.ballerinalang.plugins.idea.run.configuration.BallerinaRunningState;
+import org.ballerinalang.plugins.idea.run.configuration.RunConfigurationKind;
 import org.ballerinalang.plugins.idea.util.BallerinaExecutor;
 import org.jetbrains.annotations.NotNull;
 
@@ -32,9 +33,9 @@ public class BallerinaRunServiceFileRunningState extends BallerinaRunningState<B
 
     @Override
     protected BallerinaExecutor patchExecutor(@NotNull BallerinaExecutor executor) throws ExecutionException {
-        BallerinaRunFileConfiguration.Kind kind = getConfiguration().getRunKind();
+        RunConfigurationKind kind = getConfiguration().getRunKind();
         String command = "main";
-        if (kind == BallerinaRunFileConfiguration.Kind.SERVICE) {
+        if (kind == RunConfigurationKind.SERVICE) {
             command = "service";
         }
         return executor
