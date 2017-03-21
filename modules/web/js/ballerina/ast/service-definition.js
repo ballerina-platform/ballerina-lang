@@ -319,6 +319,19 @@ define(['lodash', './node', 'log', '../utils/common-utils'],
         return connectorReference;
     };
 
+    /**
+     * Get all the connector references in the immediate scope
+     * @return {Array} connectorReferences
+     */
+    ServiceDefinition.prototype.getConnectorsInImmediateScope = function () {
+        var factory = this.getFactory();
+        var connectorReferences = _.filter(this.getChildren(), function (child) {
+            return factory.isConnectorDeclaration(child);
+        });
+
+        return connectorReferences;
+    };
+
     return ServiceDefinition;
 
 });

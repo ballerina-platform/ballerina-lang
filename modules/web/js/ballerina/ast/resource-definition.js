@@ -464,5 +464,18 @@ define(['lodash', 'require', 'log', './node', '../utils/common-utils'],
         return !_.isNil(connectorReference) ? connectorReference : this.getParent(). getConnectorByName(connectorName);
     };
 
+    /**
+     * Get all the connector references in the immediate scope
+     * @return {Array} connectorReferences
+     */
+    ResourceDefinition.prototype.getConnectorsInImmediateScope = function () {
+        var factory = this.getFactory();
+        var connectorReferences = _.filter(this.getChildren(), function (child) {
+            return factory.isConnectorDeclaration(child);
+        });
+
+        return !_.isEmpty(connectorReferences) ? connectorReferences : this.getParent().getConnectorsInImmediateScope();
+    };
+
     return ResourceDefinition;
 });

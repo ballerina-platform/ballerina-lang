@@ -459,6 +459,19 @@ define(['lodash', 'log', './node', './callable-definition', '../utils/common-uti
     };
 
     /**
+     * Get all the connector references in the immediate scope
+     * @return {Array} connectorReferences
+     */
+    FunctionDefinition.prototype.getConnectorsInImmediateScope = function () {
+        var factory = this.getFactory();
+        var connectorReferences = _.filter(this.getChildren(), function (child) {
+            return factory.isConnectorDeclaration(child);
+        });
+
+        return connectorReferences;
+    };
+
+    /**
      * Checks if the current method a main method.
      * @return {boolean} - true if main method, else false.
      */

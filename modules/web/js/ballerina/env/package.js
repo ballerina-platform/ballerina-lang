@@ -251,8 +251,8 @@ define(['log', 'lodash', 'require', 'event_channel', './../ast/service-definitio
         };
 
         /**
-         * returns function definition
-         * @param {string} functionName - name of the function to be retrieved
+         * returns connector definition
+         * @param {string} connectorName - name of the connector to be retrieved
          */
         Package.prototype.getConnectorByName = function (connectorName) {
             return _.find(this.getConnectors(), function (connector) {
