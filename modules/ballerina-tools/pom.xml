@@ -67,7 +67,7 @@
         <dependency>
             <groupId>org.ballerinalang.tools</groupId>
             <artifactId>ballerina</artifactId>
-            <version>${ballerina.runtime.version}</version>
+            <version>${project.version}</version>
             <type>zip</type>
         </dependency>
     </dependencies>
