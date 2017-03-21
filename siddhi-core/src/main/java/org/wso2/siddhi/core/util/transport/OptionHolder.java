@@ -105,22 +105,4 @@ public class OptionHolder {
         return staticOptionsKeys;
     }
 
-    //    public void validate(String key, boolean optional) {
-//        Option option = options.get(key);
-//        if (option == null) {
-//            if (!optional) {
-//                throw new ExecutionPlanValidationException("'" + key + "' is not provided in the configuration.");
-//            }
-//        }
-//    }
-
-//    public String getOptionValue(String optionKey, Event event) {
-//        Option option = options.get(optionKey);
-//        if (option != null) {
-//            return option.getValue(event);
-//        } else {
-//            return null;
-//        }
-//    }
-
 }

@@ -58,7 +58,7 @@ public abstract class StreamProcessor extends AbstractStreamProcessor {
                                     StreamEventCloner streamEventCloner, ComplexEventPopulater complexEventPopulater);
 
     /**
-     * The init method of the StreamProcessor, this method will be called before other methods
+     * The configure method of the StreamProcessor, this method will be called before other methods
      *
      * @param inputDefinition              the incoming stream definition
      * @param attributeExpressionExecutors the executors of each function parameters

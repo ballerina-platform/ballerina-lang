@@ -21,11 +21,13 @@ package org.wso2.siddhi.extension.input.transport.kafka;
 import kafka.consumer.ConsumerConfig;
 import org.apache.log4j.Logger;
 import org.wso2.siddhi.annotation.Extension;
+import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
 import org.wso2.siddhi.core.stream.input.source.SourceEventListener;
 import org.wso2.siddhi.core.stream.input.source.InputTransport;
 import org.wso2.siddhi.core.util.transport.OptionHolder;
 
+import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.*;
 
@@ -34,7 +36,7 @@ import java.util.concurrent.*;
         namespace = "inputtransport",
         description = ""
 )
-public class KafkaInputTransport extends InputTransport {
+public class KafkaInputTransport extends InputTransport{
 
     private SourceEventListener sourceEventListener;
     private ScheduledExecutorService executorService;
@@ -58,7 +60,7 @@ public class KafkaInputTransport extends InputTransport {
     private static final Logger log = Logger.getLogger(KafkaInputTransport.class);
 
     @Override
-    public void init(SourceEventListener sourceEventListener, OptionHolder optionHolder) {
+    public void init(SourceEventListener sourceEventListener, OptionHolder optionHolder, ExecutionPlanContext executionPlanContext) {
         this.sourceEventListener = sourceEventListener;
         this.optionHolder = optionHolder;
     }
@@ -132,5 +134,15 @@ public class KafkaInputTransport extends InputTransport {
         } catch (NoClassDefFoundError e) {
             throw new ConnectionUnavailableException("Cannot access kafka context due to missing jars", e);
         }
+    }
+
+    @Override
+    public Map<String, Object> currentState() {
+        return null;
+    }
+
+    @Override
+    public void restoreState(Map<String, Object> state) {
+
     }
 }

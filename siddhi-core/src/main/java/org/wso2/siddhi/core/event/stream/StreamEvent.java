@@ -122,11 +122,11 @@ public class StreamEvent implements ComplexEvent {
     public Object getAttribute(int[] position) {
         switch (position[STREAM_ATTRIBUTE_TYPE_INDEX]) {
             case BEFORE_WINDOW_DATA_INDEX:
-                return beforeWindowData[position[STREAM_ATTRIBUTE_INDEX]];
+                return beforeWindowData[position[STREAM_ATTRIBUTE_INDEX_IN_TYPE]];
             case OUTPUT_DATA_INDEX:
-                return outputData[position[STREAM_ATTRIBUTE_INDEX]];
+                return outputData[position[STREAM_ATTRIBUTE_INDEX_IN_TYPE]];
             case ON_AFTER_WINDOW_DATA_INDEX:
-                return onAfterWindowData[position[STREAM_ATTRIBUTE_INDEX]];
+                return onAfterWindowData[position[STREAM_ATTRIBUTE_INDEX_IN_TYPE]];
             default:
                 throw new IllegalStateException("STREAM_ATTRIBUTE_TYPE_INDEX cannot be " +
                         position[STREAM_ATTRIBUTE_TYPE_INDEX]);
@@ -138,13 +138,13 @@ public class StreamEvent implements ComplexEvent {
     public void setAttribute(Object object, int[] position) {
         switch (position[STREAM_ATTRIBUTE_TYPE_INDEX]) {
             case BEFORE_WINDOW_DATA_INDEX:
-                beforeWindowData[position[STREAM_ATTRIBUTE_INDEX]] = object;
+                beforeWindowData[position[STREAM_ATTRIBUTE_INDEX_IN_TYPE]] = object;
                 break;
             case OUTPUT_DATA_INDEX:
-                outputData[position[STREAM_ATTRIBUTE_INDEX]] = object;
+                outputData[position[STREAM_ATTRIBUTE_INDEX_IN_TYPE]] = object;
                 break;
             case ON_AFTER_WINDOW_DATA_INDEX:
-                onAfterWindowData[position[STREAM_ATTRIBUTE_INDEX]] = object;
+                onAfterWindowData[position[STREAM_ATTRIBUTE_INDEX_IN_TYPE]] = object;
                 break;
             default:
                 throw new IllegalStateException("STREAM_ATTRIBUTE_TYPE_INDEX cannot be " +

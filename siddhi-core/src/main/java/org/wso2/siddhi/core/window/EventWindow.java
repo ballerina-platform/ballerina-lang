@@ -231,9 +231,9 @@ public class EventWindow implements FindableProcessor, Snapshotable {
      * {@inheritDoc}
      */
     @Override
-    public CompiledCondition compileCondition(Expression expression, MatchingMetaInfoHolder matchingMetaInfoHolder, ExecutionPlanContext executionPlanContext, List<VariableExpressionExecutor> variableExpressionExecutors, Map<String, EventTable> eventTableMap) {
+    public CompiledCondition compileCondition(Expression expression, MatchingMetaInfoHolder matchingMetaInfoHolder, ExecutionPlanContext executionPlanContext, List<VariableExpressionExecutor> variableExpressionExecutors, Map<String, EventTable> eventTableMap, String queryName) {
         if (this.internalWindowProcessor instanceof FindableProcessor) {
-            return ((FindableProcessor) this.internalWindowProcessor).compileCondition(expression, matchingMetaInfoHolder, executionPlanContext, variableExpressionExecutors, eventTableMap);
+            return ((FindableProcessor) this.internalWindowProcessor).compileCondition(expression, matchingMetaInfoHolder, executionPlanContext, variableExpressionExecutors, eventTableMap, queryName);
         } else {
             throw new OperationNotSupportedException("Cannot construct finder for the window " + this.windowDefinition.getWindow());
         }

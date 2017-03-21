@@ -19,6 +19,7 @@
 package org.wso2.siddhi.extension.input.transport.tcp;
 
 import org.wso2.siddhi.annotation.Extension;
+import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
 import org.wso2.siddhi.core.stream.input.source.InputTransport;
@@ -28,6 +29,8 @@ import org.wso2.siddhi.query.api.definition.StreamDefinition;
 import org.wso2.siddhi.tcp.transport.TcpNettyServer;
 import org.wso2.siddhi.tcp.transport.callback.StreamListener;
 import org.wso2.siddhi.tcp.transport.config.ServerConfig;
+
+import java.util.Map;
 
 @Extension(
         name = "tcp",
@@ -45,7 +48,7 @@ public class TcpInputTransport extends InputTransport {
     private SourceEventListener sourceEventListener;
 
     @Override
-    public void init(SourceEventListener sourceEventListener, OptionHolder optionHolder) {
+    public void init(SourceEventListener sourceEventListener, OptionHolder optionHolder, ExecutionPlanContext executionPlanContext) {
         this.sourceEventListener = sourceEventListener;
         serverConfig = new ServerConfig();
         serverConfig.setHost(optionHolder.validateAndGetStaticValue(HOST, serverConfig.getHost()));
@@ -88,5 +91,15 @@ public class TcpInputTransport extends InputTransport {
     public void destroy() {
         tcpNettyServer.removeStreamListener(sourceEventListener.getStreamDefinition().getId());
         tcpNettyServer = null;
+    }
+
+    @Override
+    public Map<String, Object> currentState() {
+        return null;
+    }
+
+    @Override
+    public void restoreState(Map<String, Object> state) {
+        //no state
     }
 }

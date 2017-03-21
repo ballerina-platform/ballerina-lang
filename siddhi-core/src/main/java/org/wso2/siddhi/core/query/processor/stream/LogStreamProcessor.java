@@ -56,7 +56,7 @@ public class LogStreamProcessor extends StreamProcessor {
     private String logPrefix;
 
     /**
-     * The init method of the StreamFunction
+     * The configure method of the StreamFunction
      *
      * @param inputDefinition              the incoming stream definition
      * @param attributeExpressionExecutors the executors for the function parameters

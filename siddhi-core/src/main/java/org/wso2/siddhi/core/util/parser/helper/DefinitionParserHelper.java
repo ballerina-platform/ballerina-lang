@@ -50,10 +50,7 @@ import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 import org.wso2.siddhi.query.api.extension.Extension;
 import org.wso2.siddhi.query.api.util.AnnotationHelper;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentMap;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -233,12 +230,12 @@ public class DefinitionParserHelper {
                                 mapper, InputMapperExecutorExtensionHolder.getInstance(executionPlanContext));
 
                         OptionHolder sourceOptionHolder = constructOptionProcessor(streamDefinition, sourceAnnotation,
-                                inputTransport.getClass().getAnnotation(org.wso2.siddhi.annotation.Extension.class));
+                                inputTransport.getClass().getAnnotation(org.wso2.siddhi.annotation.Extension.class), null);
                         OptionHolder mapOptionHolder = constructOptionProcessor(streamDefinition, mapAnnotation,
-                                inputMapper.getClass().getAnnotation(org.wso2.siddhi.annotation.Extension.class));
+                                inputMapper.getClass().getAnnotation(org.wso2.siddhi.annotation.Extension.class), null);
 
                         inputMapper.init(streamDefinition, mapType, mapOptionHolder, getAttributeMappings(mapAnnotation));
-                        inputTransport.init(sourceOptionHolder, inputMapper);
+                        inputTransport.init(sourceOptionHolder, inputMapper, executionPlanContext);
 
                         List<InputTransport> eventSources = eventSourceMap.get(streamDefinition.getId());
                         if (eventSources == null) {
@@ -271,7 +268,7 @@ public class DefinitionParserHelper {
                     boolean isDistributedTransport = (distributionAnnotation != null);
                     String sinkType;
 
-                    if (isDistributedTransport){
+                    if (isDistributedTransport) {
                         // All distributed transports falls under two generalized extensions. Here we instantiate the generalised extension and
                         // the actual underlying transport is instantiated inside the generalized extensions depending on the 'type' parameter
                         // in Sink options.
@@ -297,22 +294,24 @@ public class DefinitionParserHelper {
                                 mapper, OutputMapperExecutorExtensionHolder.getInstance(executionPlanContext));
 
                         OptionHolder transportOptionHolder = constructOptionProcessor(streamDefinition, sinkAnnotation,
-                                outputTransport.getClass().getAnnotation(org.wso2.siddhi.annotation.Extension.class));
+                                outputTransport.getClass().getAnnotation(org.wso2.siddhi.annotation.Extension.class),
+                                outputTransport.getSupportedDynamicOptions());
                         OptionHolder mapOptionHolder = constructOptionProcessor(streamDefinition, mapAnnotation,
-                                outputMapper.getClass().getAnnotation(org.wso2.siddhi.annotation.Extension.class));
+                                outputMapper.getClass().getAnnotation(org.wso2.siddhi.annotation.Extension.class),
+                                outputMapper.getSupportedDynamicOptions());
                         String payload = getPayload(mapAnnotation);
 
-                        outputTransport.configure(streamDefinition, sinkType, transportOptionHolder, outputMapper, mapType,
-                                mapOptionHolder, payload);
+                        outputTransport.init(streamDefinition, sinkType, transportOptionHolder, outputMapper, mapType,
+                                mapOptionHolder, payload, executionPlanContext);
 
                         // Initializing output transport with distributed configurations
                         OptionHolder distributionOptionHolder = null;
                         List<OptionHolder> endpointOptionHolders = new ArrayList<>();
-                        if (isDistributedTransport){
+                        if (isDistributedTransport) {
                             distributionOptionHolder = constructOptionProcessor(streamDefinition,
                                     distributionAnnotation,
                                     outputTransport.getClass().
-                                            getAnnotation(org.wso2.siddhi.annotation.Extension.class));
+                                            getAnnotation(org.wso2.siddhi.annotation.Extension.class), outputTransport.getSupportedDynamicOptions());
 
                             distributionAnnotation.getAnnotations().stream()
                                     .filter(annotation ->
@@ -321,8 +320,8 @@ public class DefinitionParserHelper {
                                             endpointOptionHolders
                                                     .add(constructOptionProcessor(streamDefinition, annotation,
                                                             outputTransport
-                                                            .getClass()
-                                                            .getAnnotation(org.wso2.siddhi.annotation.Extension.class))));
+                                                                    .getClass()
+                                                                    .getAnnotation(org.wso2.siddhi.annotation.Extension.class), outputTransport.getSupportedDynamicOptions())));
 
                            ((DistributedTransport)outputTransport).
                                    initDistributedTransportOptions(distributionOptionHolder, endpointOptionHolders,
@@ -352,20 +351,20 @@ public class DefinitionParserHelper {
     }
 
     private static OutputGroupDeterminer constructOutputGroupDeterminer(OptionHolder transportOptionHolder, OptionHolder distributedOptHolder,
-                                                                        StreamDefinition streamDefinition, int endpointCount){
+                                                                        StreamDefinition streamDefinition, int endpointCount) {
 
         OutputGroupDeterminer groupDeterminer = null;
-        if (distributedOptHolder != null){
+        if (distributedOptHolder != null) {
             int partitionCount = endpointCount;
             String strategy = distributedOptHolder
                     .validateAndGetStaticValue(DistributedTransport.DISTRIBUTION_STRATEGY_KEY);
 
-            if (strategy.equalsIgnoreCase(DistributedTransport.DISTRIBUTION_STRATEGY_PARTITIONED)){
+            if (strategy.equalsIgnoreCase(DistributedTransport.DISTRIBUTION_STRATEGY_PARTITIONED)) {
                 String partitionKeyField = distributedOptHolder
                         .validateAndGetStaticValue(DistributedTransport.PARTITION_KEY_FIELD_KEY);
                 int partitioningFieldIndex = streamDefinition.getAttributePosition(partitionKeyField);
 
-                if (distributedOptHolder.isOptionExists(DistributedTransport.DISTRIBUTION_CHANNELS_KEY)){
+                if (distributedOptHolder.isOptionExists(DistributedTransport.DISTRIBUTION_CHANNELS_KEY)) {
                     partitionCount = Integer.parseInt(distributedOptHolder
                             .validateAndGetStaticValue(DistributedTransport.DISTRIBUTION_CHANNELS_KEY));
                 }
@@ -373,14 +372,14 @@ public class DefinitionParserHelper {
             }
         }
 
-        if (groupDeterminer == null){
+        if (groupDeterminer == null) {
             List<Option> dynamicTransportOptions = new ArrayList<Option>(transportOptionHolder
                     .getDynamicOptionsKeys().size());
 
             transportOptionHolder.getDynamicOptionsKeys().
                     forEach(option -> dynamicTransportOptions.add(transportOptionHolder.validateAndGetOption(option)));
 
-            if (dynamicTransportOptions.size() > 0){
+            if (dynamicTransportOptions.size() > 0) {
                 groupDeterminer = new DynamicOptionGroupDeterminer(dynamicTransportOptions);
             }
         }
@@ -450,13 +449,26 @@ public class DefinitionParserHelper {
     }
 
     private static OptionHolder constructOptionProcessor(StreamDefinition streamDefinition, Annotation annotation,
-                                                         org.wso2.siddhi.annotation.Extension extension) {
-        // returns [options, dynamicOptions]
+                                                         org.wso2.siddhi.annotation.Extension extension,
+                                                         String[] supportedDynamicOptions) {
+
+
+        List<String> supportedDynamicOptionList = new ArrayList<>();
+        if (supportedDynamicOptions != null) {
+            supportedDynamicOptionList = Arrays.asList(supportedDynamicOptions);
+        }
+
         Map<String, String> options = new HashMap<String, String>();
         Map<String, String> dynamicOptions = new HashMap<String, String>();
         for (Element element : annotation.getElements()) {
             if (Pattern.matches("\\{\\{.*?}}", element.getValue())) {
-                dynamicOptions.put(element.getKey(), element.getValue());
+                if (supportedDynamicOptionList.contains(element.getKey())) {
+                    dynamicOptions.put(element.getKey(), element.getValue());
+                } else {
+                    throw new ExecutionPlanCreationException("'" + element.getKey() + "' is not a supported DynamicOption " +
+                            "for the Extension '" + extension.namespace() + ":" + extension.name() + "', it only supports " +
+                            "following as its DynamicOptions: " + supportedDynamicOptionList);
+                }
             } else {
                 options.put(element.getKey(), element.getValue());
             }

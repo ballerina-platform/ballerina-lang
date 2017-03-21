@@ -44,7 +44,7 @@ public abstract class WindowProcessor extends AbstractStreamProcessor {
     }
 
     /**
-     * The init method of the WindowProcessor, this method will be called before other methods
+     * The configure method of the WindowProcessor, this method will be called before other methods
      *
      * @param attributeExpressionExecutors the executors of each function parameters
      * @param executionPlanContext         the context of the execution plan

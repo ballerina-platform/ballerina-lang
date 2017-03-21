@@ -24,12 +24,14 @@ import org.wso2.siddhi.core.event.stream.StreamEvent;
 public class UpdateAttributeMapper {
     private final int updatingAttributePosition;
     private final int storeEventAttributePosition;
+    private String storeEventAttributeName;
     private int matchingStreamEventPosition;
 
-    public UpdateAttributeMapper(int updatingAttributePosition, int storeEventAttributePosition, int matchingStreamEventPosition) {
+    public UpdateAttributeMapper(int updatingAttributePosition, int storeEventAttributePosition, String storeEventAttributeName, int matchingStreamEventPosition) {
 
         this.updatingAttributePosition = updatingAttributePosition;
         this.storeEventAttributePosition = storeEventAttributePosition;
+        this.storeEventAttributeName = storeEventAttributeName;
         this.matchingStreamEventPosition = matchingStreamEventPosition;
     }
 
@@ -45,6 +47,10 @@ public class UpdateAttributeMapper {
         storeEvent.setOutputData(
                 updatingEvent.getStreamEvent(matchingStreamEventPosition).getOutputData()[updatingAttributePosition],
                 storeEventAttributePosition);
+    }
+
+    public String getStoreEventAttributeName() {
+        return storeEventAttributeName;
     }
 }
 

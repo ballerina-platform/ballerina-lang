@@ -33,6 +33,12 @@ import org.wso2.siddhi.query.api.definition.StreamDefinition;
 )
 public class PassThroughOutputMapper extends OutputMapper {
 
+
+    @Override
+    public String[] getSupportedDynamicOptions() {
+        return new String[0];
+    }
+
     @Override
     public void init(StreamDefinition streamDefinition, OptionHolder optionHolder, TemplateBuilder payloadTemplateBuilder) {
         // do nothing
@@ -40,14 +46,14 @@ public class PassThroughOutputMapper extends OutputMapper {
 
     @Override
     public void mapAndSend(Event[] events, OptionHolder optionHolder, TemplateBuilder payloadTemplateBuilder,
-                           OutputTransportListener outputTransportListener, DynamicOptions dynamicTransportOptions) throws ConnectionUnavailableException {
-        outputTransportListener.publish(events, dynamicTransportOptions);
+                           OutputTransportListener outputTransportListener, DynamicOptions dynamicOptions) throws ConnectionUnavailableException {
+        outputTransportListener.publish(events, dynamicOptions);
     }
 
     @Override
     public void mapAndSend(Event event, OptionHolder optionHolder, TemplateBuilder payloadTemplateBuilder,
-                           OutputTransportListener outputTransportListener, DynamicOptions dynamicTransportOptions) throws ConnectionUnavailableException {
-        outputTransportListener.publish(event, dynamicTransportOptions);
+                           OutputTransportListener outputTransportListener, DynamicOptions dynamicOptions) throws ConnectionUnavailableException {
+        outputTransportListener.publish(event, dynamicOptions);
 
     }
 

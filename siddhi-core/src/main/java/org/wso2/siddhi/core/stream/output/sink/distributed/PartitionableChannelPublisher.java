@@ -18,7 +18,7 @@
 
 package org.wso2.siddhi.core.stream.output.sink.distributed;
 
-import org.wso2.siddhi.core.event.Event;
+import org.wso2.siddhi.core.util.transport.DynamicOptions;
 
 /**
  * This interface is for output transports which can partition a single channel/connection into several
@@ -26,6 +26,6 @@ import org.wso2.siddhi.core.event.Event;
  */
 public interface PartitionableChannelPublisher {
 
-    void publish(Object payload, Event event, Object partitionId);
+    void publish(Object payload, DynamicOptions options, Object partitionId);
 
 }

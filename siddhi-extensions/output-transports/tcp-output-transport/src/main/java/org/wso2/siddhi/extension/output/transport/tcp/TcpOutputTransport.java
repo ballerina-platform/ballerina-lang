@@ -20,13 +20,17 @@ package org.wso2.siddhi.extension.output.transport.tcp;
 
 import org.apache.log4j.Logger;
 import org.wso2.siddhi.annotation.Extension;
+import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
 import org.wso2.siddhi.core.stream.output.sink.OutputTransport;
+import org.wso2.siddhi.core.util.transport.DynamicOptions;
 import org.wso2.siddhi.core.util.transport.Option;
 import org.wso2.siddhi.core.util.transport.OptionHolder;
-import org.wso2.siddhi.core.util.transport.DynamicOptions;
+import org.wso2.siddhi.query.api.definition.StreamDefinition;
 import org.wso2.siddhi.tcp.transport.TcpNettyClient;
+
+import java.util.Map;
 
 @Extension(
         name = "tcp",
@@ -37,7 +41,7 @@ public class TcpOutputTransport extends OutputTransport {
 
     public static final String HOST = "host";
     public static final String PORT = "port";
-    public static final String STREAM_ID = "streamId";
+    public static final String TCP_STREAM_ID = "tcp.stream.id";
     private static final Logger log = Logger.getLogger(TcpOutputTransport.class);
     private TcpNettyClient tcpNettyClient;
     private String host;
@@ -45,11 +49,16 @@ public class TcpOutputTransport extends OutputTransport {
     private Option streamIdOption;
 
     @Override
-    protected void init(OptionHolder optionHolder) {
+    public String[] getSupportedDynamicOptions() {
+        return new String[]{TCP_STREAM_ID};
+    }
+
+    @Override
+    protected void init(StreamDefinition outputStreamDefinition, OptionHolder optionHolder, ExecutionPlanContext executionPlanContext) {
         tcpNettyClient = new TcpNettyClient();
         host = optionHolder.validateAndGetStaticValue(HOST, "localhost");
         port = Integer.parseInt(optionHolder.validateAndGetStaticValue(PORT, "8080"));
-        streamIdOption = optionHolder.validateAndGetOption(STREAM_ID);
+        streamIdOption = optionHolder.getOrCreateOption(TCP_STREAM_ID, outputStreamDefinition.getId());
     }
 
     @Override
@@ -80,4 +89,13 @@ public class TcpOutputTransport extends OutputTransport {
     }
 
 
+    @Override
+    public Map<String, Object> currentState() {
+        return null;
+    }
+
+    @Override
+    public void restoreState(Map<String, Object> state) {
+        // no state
+    }
 }

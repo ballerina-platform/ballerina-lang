@@ -72,7 +72,7 @@ public class RDBMSOperatorParser {
         List<Attribute> conditionAttributeList = new ArrayList<Attribute>();
 
         List<Attribute> updateConditionAttributeList = new ArrayList<Attribute>();
-        updateConditionAttributeList.addAll(matchingMetaInfoHolder.getStreamDefinition().getAttributeList());
+        updateConditionAttributeList.addAll(matchingMetaInfoHolder.getMatchingStreamDefinition().getAttributeList());
 
         List<ExpressionExecutor> expressionExecutorList = new ArrayList<ExpressionExecutor>();
 
@@ -99,7 +99,7 @@ public class RDBMSOperatorParser {
 
         }
 
-        buildConditionQuery(isTableStreamMap, expression, conditionBuilder, conditionAttributeList, expressionExecutorList, dbHandler, elementMappings, matchingMetaInfoHolder.getMetaStateEvent(), matchingMetaInfoHolder.getStreamEventIndex(), eventTableMap, variableExpressionExecutors, executionPlanContext, executionInfo, queryName);
+        buildConditionQuery(isTableStreamMap, expression, conditionBuilder, conditionAttributeList, expressionExecutorList, dbHandler, elementMappings, matchingMetaInfoHolder.getMetaStateEvent(), matchingMetaInfoHolder.getMatchingStreamEventIndex(), eventTableMap, variableExpressionExecutors, executionPlanContext, executionInfo, queryName);
 
         //Constructing query to delete a table row
         String deleteTableRowQuery = dbHandler.constructQuery(tableName, elementMappings.get(RDBMSEventTableConstants.EVENT_TABLE_GENERIC_RDBMS_DELETE_TABLE), null, null, null, null, conditionBuilder);
@@ -140,7 +140,7 @@ public class RDBMSOperatorParser {
             inMemoryEventTableOperator = OperatorParser.constructOperator(cachingTable.getCacheList(), expression, matchingMetaInfoHolder,
                     executionPlanContext, variableExpressionExecutors, eventTableMap, queryName);
         }
-        return new RDBMSOperator(executionInfo, expressionExecutorList, dbHandler, inMemoryEventTableOperator, matchingMetaInfoHolder.getStreamDefinition().getAttributeList().size());
+        return new RDBMSOperator(executionInfo, expressionExecutorList, dbHandler, inMemoryEventTableOperator, matchingMetaInfoHolder.getMatchingStreamDefinition().getAttributeList().size());
     }
 
 

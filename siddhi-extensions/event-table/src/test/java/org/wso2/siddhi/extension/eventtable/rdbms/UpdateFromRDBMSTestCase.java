@@ -29,6 +29,7 @@ import org.wso2.siddhi.core.stream.input.InputHandler;
 import org.wso2.siddhi.core.util.EventPrinter;
 
 import javax.sql.DataSource;
+import java.sql.Connection;
 import java.sql.SQLException;
 
 public class UpdateFromRDBMSTestCase {
@@ -53,8 +54,8 @@ public class UpdateFromRDBMSTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
         siddhiManager.setDataSource(RDBMSTestConstants.DATA_SOURCE_NAME, dataSource);
 
-        try {
-            if (dataSource.getConnection() != null) {
+        try (Connection connection = dataSource.getConnection()) {
+            if (connection != null) {
 
                 DBConnectionHelper.getDBConnectionHelperInstance().clearDatabaseTable(dataSource, RDBMSTestConstants.TABLE_NAME);
                 String streams = "" +
@@ -104,8 +105,8 @@ public class UpdateFromRDBMSTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
         siddhiManager.setDataSource(RDBMSTestConstants.DATA_SOURCE_NAME, dataSource);
 
-        try {
-            if (dataSource.getConnection() != null) {
+        try (Connection connection = dataSource.getConnection()) {
+            if (connection != null) {
 
                 DBConnectionHelper.getDBConnectionHelperInstance().clearDatabaseTable(dataSource, RDBMSTestConstants.TABLE_NAME);
                 String streams = "" +
@@ -154,8 +155,8 @@ public class UpdateFromRDBMSTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
         siddhiManager.setDataSource(RDBMSTestConstants.DATA_SOURCE_NAME, dataSource);
 
-        try {
-            if (dataSource.getConnection() != null) {
+        try (Connection connection = dataSource.getConnection()) {
+            if (connection != null) {
                 DBConnectionHelper.getDBConnectionHelperInstance().clearDatabaseTable(dataSource, RDBMSTestConstants.TABLE_NAME);
 
                 String streams = "" +
@@ -222,8 +223,8 @@ public class UpdateFromRDBMSTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
         siddhiManager.setDataSource(RDBMSTestConstants.DATA_SOURCE_NAME, dataSource);
 
-        try {
-            if (dataSource.getConnection() != null) {
+        try (Connection connection = dataSource.getConnection()) {
+            if (connection != null) {
                 DBConnectionHelper.getDBConnectionHelperInstance().clearDatabaseTable(dataSource, RDBMSTestConstants.TABLE_NAME);
 
                 String streams = "" +
@@ -291,8 +292,8 @@ public class UpdateFromRDBMSTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
         siddhiManager.setDataSource(RDBMSTestConstants.DATA_SOURCE_NAME, dataSource);
 
-        try {
-            if (dataSource.getConnection() != null) {
+        try (Connection connection = dataSource.getConnection()) {
+            if (connection != null) {
                 DBConnectionHelper.getDBConnectionHelperInstance().clearDatabaseTable(dataSource, RDBMSTestConstants.TABLE_NAME);
 
                 String streams = "" +
@@ -359,8 +360,8 @@ public class UpdateFromRDBMSTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
         siddhiManager.setDataSource(RDBMSTestConstants.DATA_SOURCE_NAME, dataSource);
 
-        try {
-            if (dataSource.getConnection() != null) {
+        try (Connection connection = dataSource.getConnection()) {
+            if (connection != null) {
                 DBConnectionHelper.getDBConnectionHelperInstance().clearDatabaseTable(dataSource, RDBMSTestConstants.TABLE_NAME);
 
                 String streams = "" +
@@ -428,8 +429,8 @@ public class UpdateFromRDBMSTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
         siddhiManager.setDataSource(RDBMSTestConstants.DATA_SOURCE_NAME, dataSource);
 
-        try {
-            if (dataSource.getConnection() != null) {
+        try (Connection connection = dataSource.getConnection()) {
+            if (connection != null) {
                 DBConnectionHelper.getDBConnectionHelperInstance().clearDatabaseTable(dataSource, RDBMSTestConstants.TABLE_NAME);
 
                 String streams = "" +

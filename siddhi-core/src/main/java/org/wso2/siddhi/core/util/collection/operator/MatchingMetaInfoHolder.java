@@ -21,23 +21,27 @@ package org.wso2.siddhi.core.util.collection.operator;
 import org.wso2.siddhi.core.event.state.MetaStateEvent;
 import org.wso2.siddhi.query.api.definition.AbstractDefinition;
 
+import static org.wso2.siddhi.core.util.SiddhiConstants.UNKNOWN_STATE;
+
 public class MatchingMetaInfoHolder {
-    private int streamEventIndex;
-    private final int storeEventIndex;
-    private AbstractDefinition streamDefinition;
+    private int matchingStreamEventIndex;
+    private int storeEventIndex;
+    private AbstractDefinition matchingStreamDefinition;
     private AbstractDefinition storeDefinition;
     private MetaStateEvent metaStateEvent;
+    private int currentState = UNKNOWN_STATE;
 
-    public MatchingMetaInfoHolder(MetaStateEvent metaStateEvent, int streamEventIndex, int storeEventIndex, AbstractDefinition streamDefinition, AbstractDefinition storeDefinition) {
+    public MatchingMetaInfoHolder(MetaStateEvent metaStateEvent, int matchingStreamEventIndex, int storeEventIndex, AbstractDefinition matchingStreamDefinition, AbstractDefinition storeDefinition, int currentState) {
         this.metaStateEvent = metaStateEvent;
-        this.streamEventIndex = streamEventIndex;
+        this.matchingStreamEventIndex = matchingStreamEventIndex;
         this.storeEventIndex = storeEventIndex;
-        this.streamDefinition = streamDefinition;
+        this.matchingStreamDefinition = matchingStreamDefinition;
         this.storeDefinition = storeDefinition;
+        this.currentState = currentState;
     }
 
-    public int getStreamEventIndex() {
-        return streamEventIndex;
+    public int getMatchingStreamEventIndex() {
+        return matchingStreamEventIndex;
     }
 
     public int getStoreEventIndex() {
@@ -48,12 +52,16 @@ public class MatchingMetaInfoHolder {
         return metaStateEvent;
     }
 
-    public AbstractDefinition getStreamDefinition() {
-        return streamDefinition;
+    public AbstractDefinition getMatchingStreamDefinition() {
+        return matchingStreamDefinition;
     }
 
     public AbstractDefinition getStoreDefinition() {
         return storeDefinition;
+    }
+
+    public int getCurrentState() {
+        return currentState;
     }
 }
 

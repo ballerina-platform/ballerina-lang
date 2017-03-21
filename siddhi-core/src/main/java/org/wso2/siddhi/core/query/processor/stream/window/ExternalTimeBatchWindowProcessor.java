@@ -437,13 +437,16 @@ public class ExternalTimeBatchWindowProcessor extends WindowProcessor implements
     }
 
     @Override
-    public CompiledCondition compileCondition(Expression expression, MatchingMetaInfoHolder matchingMetaInfoHolder, ExecutionPlanContext executionPlanContext,
-                                              List<VariableExpressionExecutor> variableExpressionExecutors, Map<String, EventTable> eventTableMap) {
+    public CompiledCondition compileCondition(Expression expression, MatchingMetaInfoHolder matchingMetaInfoHolder,
+                                              ExecutionPlanContext executionPlanContext,
+                                              List<VariableExpressionExecutor> variableExpressionExecutors,
+                                              Map<String, EventTable> eventTableMap, String queryName) {
         if (expiredEventChunk == null) {
             expiredEventChunk = new ComplexEventChunk<StreamEvent>(false);
             storeExpiredEvents = true;
         }
-        return OperatorParser.constructOperator(expiredEventChunk, expression, matchingMetaInfoHolder, executionPlanContext, variableExpressionExecutors, eventTableMap, queryName);
+        return OperatorParser.constructOperator(expiredEventChunk, expression, matchingMetaInfoHolder,
+                executionPlanContext, variableExpressionExecutors, eventTableMap, this.queryName);
     }
 
     @Override

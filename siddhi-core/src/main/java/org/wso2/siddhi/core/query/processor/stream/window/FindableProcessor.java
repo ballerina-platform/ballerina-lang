@@ -51,10 +51,11 @@ public interface FindableProcessor {
      * @param executionPlanContext        current execution plan context
      * @param variableExpressionExecutors the list of variable ExpressionExecutors already created
      * @param eventTableMap               map of event tables
+     * @param queryName
      * @return compiled Condition having the capability of matching events against the incoming matchingEvent
      */
     CompiledCondition compileCondition(Expression expression, MatchingMetaInfoHolder matchingMetaInfoHolder,
                                        ExecutionPlanContext executionPlanContext,
                                        List<VariableExpressionExecutor> variableExpressionExecutors,
-                                       Map<String, EventTable> eventTableMap);
+                                       Map<String, EventTable> eventTableMap, String queryName);
 }

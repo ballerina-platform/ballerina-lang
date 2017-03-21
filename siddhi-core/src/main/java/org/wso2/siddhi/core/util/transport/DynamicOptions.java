@@ -27,7 +27,7 @@ public class DynamicOptions {
         this.event = event;
     }
 
-    Event getEvent() {
+    public Event getEvent() {
         return event;
     }
 }

@@ -32,6 +32,7 @@ import org.wso2.siddhi.core.util.EventPrinter;
 import org.wso2.siddhi.query.api.exception.DuplicateDefinitionException;
 
 import javax.sql.DataSource;
+import java.sql.Connection;
 import java.sql.SQLException;
 
 public class InsertOverwriteTableTestCase {
@@ -55,8 +56,8 @@ public class InsertOverwriteTableTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
         siddhiManager.setDataSource(RDBMSTestConstants.DATA_SOURCE_NAME, dataSource);
 
-        try {
-            if (dataSource.getConnection() != null) {
+        try (Connection connection = dataSource.getConnection()) {
+            if (connection != null) {
                 DBConnectionHelper.getDBConnectionHelperInstance().clearDatabaseTable(dataSource, RDBMSTestConstants.TABLE_NAME);
                 String streams = "" +
                         "define stream StockStream (symbol string, price float, volume long); " +
@@ -101,8 +102,8 @@ public class InsertOverwriteTableTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
         siddhiManager.setDataSource(RDBMSTestConstants.DATA_SOURCE_NAME, dataSource);
 
-        try {
-            if (dataSource.getConnection() != null) {
+        try (Connection connection = dataSource.getConnection()) {
+            if (connection != null) {
                 DBConnectionHelper.getDBConnectionHelperInstance().clearDatabaseTable(dataSource, RDBMSTestConstants.TABLE_NAME);
                 String streams = "" +
                         "define stream StockStream (symbol string, price float, volume long); " +
@@ -140,8 +141,8 @@ public class InsertOverwriteTableTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
         siddhiManager.setDataSource(RDBMSTestConstants.DATA_SOURCE_NAME, dataSource);
 
-        try {
-            if (dataSource.getConnection() != null) {
+        try (Connection connection = dataSource.getConnection()) {
+            if (connection != null) {
                 DBConnectionHelper.getDBConnectionHelperInstance().clearDatabaseTable(dataSource, RDBMSTestConstants.TABLE_NAME);
 
                 String streams = "" +
@@ -233,8 +234,8 @@ public class InsertOverwriteTableTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
         siddhiManager.setDataSource(RDBMSTestConstants.DATA_SOURCE_NAME, dataSource);
 
-        try {
-            if (dataSource.getConnection() != null) {
+        try (Connection connection = dataSource.getConnection()) {
+            if (connection != null) {
                 DBConnectionHelper.getDBConnectionHelperInstance().clearDatabaseTable(dataSource, RDBMSTestConstants.TABLE_NAME);
 
                 String streams = "" +
@@ -322,8 +323,8 @@ public class InsertOverwriteTableTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
         siddhiManager.setDataSource(RDBMSTestConstants.DATA_SOURCE_NAME, dataSource);
 
-        try {
-            if (dataSource.getConnection() != null) {
+        try (Connection connection = dataSource.getConnection()) {
+            if (connection != null) {
                 DBConnectionHelper.getDBConnectionHelperInstance().clearDatabaseTable(dataSource, RDBMSTestConstants.TABLE_NAME);
 
                 String streams = "" +
@@ -391,8 +392,8 @@ public class InsertOverwriteTableTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
         siddhiManager.setDataSource(RDBMSTestConstants.DATA_SOURCE_NAME, dataSource);
 
-        try {
-            if (dataSource.getConnection() != null) {
+        try (Connection connection = dataSource.getConnection()) {
+            if (connection != null) {
                 DBConnectionHelper.getDBConnectionHelperInstance().clearDatabaseTable(dataSource, RDBMSTestConstants.TABLE_NAME);
 
                 String streams = "" +
@@ -487,8 +488,8 @@ public class InsertOverwriteTableTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
         siddhiManager.setDataSource(RDBMSTestConstants.DATA_SOURCE_NAME, dataSource);
 
-        try {
-            if (dataSource.getConnection() != null) {
+        try (Connection connection = dataSource.getConnection()) {
+            if (connection != null) {
                 DBConnectionHelper.getDBConnectionHelperInstance().clearDatabaseTable(dataSource, RDBMSTestConstants.TABLE_NAME);
 
                 String streams = "" +
@@ -578,8 +579,8 @@ public class InsertOverwriteTableTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
         siddhiManager.setDataSource(RDBMSTestConstants.DATA_SOURCE_NAME, dataSource);
 
-        try {
-            if (dataSource.getConnection() != null) {
+        try (Connection connection = dataSource.getConnection()) {
+            if (connection != null) {
                 DBConnectionHelper.getDBConnectionHelperInstance().clearDatabaseTable(dataSource, RDBMSTestConstants.TABLE_NAME);
 
                 String streams = "" +
@@ -663,8 +664,8 @@ public class InsertOverwriteTableTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
         siddhiManager.setDataSource(RDBMSTestConstants.DATA_SOURCE_NAME, dataSource);
 
-        try {
-            if (dataSource.getConnection() != null) {
+        try (Connection connection = dataSource.getConnection()) {
+            if (connection != null) {
                 DBConnectionHelper.getDBConnectionHelperInstance().clearDatabaseTable(dataSource, RDBMSTestConstants.TABLE_NAME);
 
                 String streams = "" +
@@ -755,8 +756,8 @@ public class InsertOverwriteTableTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
         siddhiManager.setDataSource(RDBMSTestConstants.DATA_SOURCE_NAME, dataSource);
 
-        try {
-            if (dataSource.getConnection() != null) {
+        try (Connection connection = dataSource.getConnection()) {
+            if (connection != null) {
                 DBConnectionHelper.getDBConnectionHelperInstance().clearDatabaseTable(dataSource, RDBMSTestConstants.TABLE_NAME);
 
                 String streams = "" +
