@@ -22,7 +22,8 @@ String containerSupportVersion, containerSupportReleaseTag, containerSupportDevV
 String connectorsVersion, connectorsReleaseTag, connectorsDevVersion, connectorsSkipTests;
 String toolSwaggerVersion, toolSwaggerReleaseTag, toolSwaggerDevVersion, toolSwaggerSkipTests;
 String toolsDistVersion, toolsDistReleaseTag, toolsDistDevVersion, toolsDistSkipTests;
-String ballerinaParentVersion;
+String pluginMavenVersion, pluginMavenReleaseTag, pluginMavenDevVersion, pluginMavenSkipTests;
+String ballerinaParentVersion, ballerinaParentReleaseTag, ballerinaParentDevVersion;
 
 def releaseParamInput, buildParamInput;
 
@@ -33,6 +34,8 @@ if (isRelease) {
     releaseParamInput = input(
             id: 'userInput', message: 'Please provide following parameters', parameters: [
             [$class: TEXT_PARAM_DEF_CLASS, description: 'Please provide Ballerina Parent Version', name: 'ballerina-parent-version'],
+            [$class: TEXT_PARAM_DEF_CLASS, description: 'Please provide Ballerina Parent Release Tag', name: 'ballerina-parent-release-tag'],
+            [$class: TEXT_PARAM_DEF_CLASS, description: 'Please provide Ballerina Next Development Version', name: 'ballerina-parent-next-development-version'],
 
             [$class: TEXT_PARAM_DEF_CLASS, description: 'Please provide Ballerina Release Version', name: 'ballerina-release-version'],
             [$class: TEXT_PARAM_DEF_CLASS, description: 'Please provide Ballerina Release Tag', name: 'ballerina-release-tag'],
@@ -73,8 +76,15 @@ if (isRelease) {
             [$class: TEXT_PARAM_DEF_CLASS, description: 'Please provide tools-distribution Release Tag', name: 'tools-distribution-release-tag'],
             [$class: TEXT_PARAM_DEF_CLASS, description: 'Please provide tools-distribution Next Development Version', name: 'tools-distribution-next-development-version'],
             [$class: CHOICE_PARAM_DEF_CLASS, choices: yesNoString, description: 'Skip Tests', name: 'skip-tools-distrbution-tests'],
+
+            [$class: TEXT_PARAM_DEF_CLASS, description: 'Please provide plugin-maven Release Version', name: 'plugin-maven-release-version'],
+            [$class: TEXT_PARAM_DEF_CLASS, description: 'Please provide plugin-maven Release Tag', name: 'plugin-maven-release-tag'],
+            [$class: TEXT_PARAM_DEF_CLASS, description: 'Please provide plugin-maven Next Development Version', name: 'plugin-maven-next-development-version'],
+            [$class: CHOICE_PARAM_DEF_CLASS, choices: yesNoString, description: 'Skip Tests', name: 'skip-plugin-maven-tests']
     ]);
     ballerinaParentVersion = releaseParamInput['ballerina-parent-version'];
+    ballerinaParentReleaseTag = releaseParamInput['ballerina-parent-release-tag'];
+    ballerinaParentDevVersion = releaseParamInput['ballerina-parent-next-development-version'];
 
     ballerinaVersion = releaseParamInput['ballerina-release-version'];
     ballerinaReleaseTag = releaseParamInput['ballerina-release-tag'];
@@ -116,10 +126,14 @@ if (isRelease) {
     toolsDistDevVersion = releaseParamInput['tools-distribution-next-development-version'];
     toolsDistSkipTests = releaseParamInput['skip-tools-distrbution-tests'];
 
+    pluginMavenVersion = releaseParamInput['plugin-maven-release-version'];
+    pluginMavenReleaseTag = releaseParamInput['plugin-maven-release-tag'];
+    pluginMavenDevVersion = releaseParamInput['plugin-maven-next-development-version'];
+    pluginMavenSkipTests = releaseParamInput['skip-plugin-maven-tests'];
+
 } else {
     buildParamInput = input(
             id: 'userInput', message: 'Please provide following parameters', parameters: [
-            [$class: TEXT_PARAM_DEF_CLASS, description: 'Please provide Ballerina Parent Version', name: 'ballerina-parent-version'],
             [$class: CHOICE_PARAM_DEF_CLASS, choices: yesNoString, description: 'Skip ballerina Tests', name: 'skip-ballerina-tests'],
             [$class: CHOICE_PARAM_DEF_CLASS, choices: yesNoString, description: 'Skip composer Tests', name: 'skip-composer-tests'],
             [$class: CHOICE_PARAM_DEF_CLASS, choices: yesNoString, description: 'Skip docerina Tests', name: 'skip-docerina-tests'],
@@ -128,9 +142,9 @@ if (isRelease) {
             [$class: CHOICE_PARAM_DEF_CLASS, choices: yesNoString, description: 'Skip connectors Tests', name: 'skip-connectors-tests'],
             [$class: CHOICE_PARAM_DEF_CLASS, choices: yesNoString, description: 'Skip tool-swagger-ballerina Tests', name: 'skip-tool-swagger-tests'],
             [$class: CHOICE_PARAM_DEF_CLASS, choices: yesNoString, description: 'Skip tools-distribution Tests', name: 'skip-tools-distrbution-tests'],
+            [$class: CHOICE_PARAM_DEF_CLASS, choices: yesNoString, description: 'Skip plugin-maven Tests', name: 'skip-plugin-maven-tests']
     ]);
 
-    ballerinaParentVersion = buildParamInput['ballerina-parent-version'];
     ballerinaSkipTests = buildParamInput['skip-ballerina-tests'];
     composerSkipTests = buildParamInput['skip-composer-tests'];
     docerinaSkipTests = buildParamInput['skip-docerina-tests'];
@@ -139,6 +153,7 @@ if (isRelease) {
     connectorsSkipTests = buildParamInput['skip-connectors-tests'];
     toolSwaggerSkipTests = buildParamInput['skip-tool-swagger-tests'];
     toolsDistSkipTests = buildParamInput['skip-tools-distrbution-tests'];
+    pluginMavenSkipTests = buildParamInput['skip-plugin-maven-tests'];
 }
 
 node {
@@ -154,23 +169,22 @@ node {
     String containerSupportRepository = "container-support";
     String toolsDistributionRepository = "tools-distribution";
     String toolSwaggerBallerinaRepository = "tool-swagger-ballerina";
+    String pluginMavenRepository = "plugin-maven";
     String ballerinaParentRepository = "ballerina-parent";
     String ballerinaGroudId = "org.ballerinalang";
     String ballerinaConnectorsGroupId = "org.wso2.ballerina.connectors"
     String propertyUpdateCommitMessage = "Updating versions of org.ballerinalang.* dependencies";
 
     try {
-        //  Building ballerina-parent. We need to figure out
-        // - Proper versioning of ballerina-parent
-        // - Are we going to release it to maven-central?
-        // Until then let's just build the expected version here
-        cloneRepository(ballerinaParentRepository, user, gitCredentialsID);
-        dir(ballerinaParentRepository) {
-            sh(
-                    script: "git checkout tags/v" + ballerinaParentVersion
-            )
+        stage('Building ballerina-parent') {
+            cloneRepository(ballerinaParentRepository, user, gitCredentialsID);
+            if (isRelease) {
+                tagMap.add([ballerinaParentRepository, ballerinaParentReleaseTag, ballerinaParentVersion]);
+                release(settingsXMLID, ballerinaParentRepository, ballerinaParentVersion, ballerinaParentReleaseTag, ballerinaParentDevVersion, YES);
+            } else {
+                build(settingsXMLID, ballerinaParentRepository, YES);
+            }
         }
-        build(settingsXMLID, ballerinaParentRepository, NO);
 
         stage('Building ballerina') {
             cloneRepository(ballerinaRepository, user, gitCredentialsID);
@@ -182,7 +196,31 @@ node {
             }
         }
 
-        stage('Building composer, docerina, testerina, connectors, container-support, tool-swagger-ballerina') {
+        stage('Building docerina') {
+            cloneRepository(docerinaRepository, user, gitCredentialsID);
+            updateProperties(docerinaRepository, settingsXMLID, propertyUpdateCommitMessage,
+                    "${ballerinaGroudId}:*", !isRelease);
+            if (isRelease) {
+                tagMap.add([docerinaRepository, docerinaReleaseTag, docerinaVersion]);
+                release(settingsXMLID, docerinaRepository, docerinaVersion, docerinaReleaseTag, docerinaDevVersion, docerinaSkipTests);
+            } else {
+                build(settingsXMLID, docerinaRepository, docerinaSkipTests);
+            }
+        }
+
+        stage('Building plugin-maven') {
+            cloneRepository(pluginMavenRepository, user, gitCredentialsID);
+            updateProperties(pluginMavenRepository, settingsXMLID, propertyUpdateCommitMessage,
+                    "${ballerinaGroudId}:docerina", !isRelease);
+            if (isRelease) {
+                tagMap.add([pluginMavenRepository, pluginMavenReleaseTag, pluginMavenVersion]);
+                release(settingsXMLID, pluginMavenRepository, pluginMavenVersion, pluginMavenReleaseTag, pluginMavenDevVersion, pluginMavenSkipTests);
+            } else {
+                build(settingsXMLID, pluginMavenRepository, pluginMavenSkipTests);
+            }
+        }
+
+        stage('Building composer, testerina, connectors, container-support, tool-swagger-ballerina') {
             parallel composerBuild: {
                 cloneRepository(composerRepository, user, gitCredentialsID);
                 updateProperties(composerRepository, settingsXMLID, propertyUpdateCommitMessage,
@@ -192,16 +230,6 @@ node {
                     release(settingsXMLID, composerRepository, composerVersion, composerReleaseTag, composerDevVersion, composerSkipTests);
                 } else {
                     build(settingsXMLID, composerRepository, composerSkipTests);
-                }
-            }, docerinaBuild: {
-                cloneRepository(docerinaRepository, user, gitCredentialsID);
-                updateProperties(docerinaRepository, settingsXMLID, propertyUpdateCommitMessage,
-                        "${ballerinaGroudId}:*", !isRelease);
-                if (isRelease) {
-                    tagMap.add([docerinaRepository, docerinaReleaseTag, docerinaVersion]);
-                    release(settingsXMLID, docerinaRepository, docerinaVersion, docerinaReleaseTag, docerinaDevVersion, docerinaSkipTests);
-                } else {
-                    build(settingsXMLID, docerinaRepository, docerinaSkipTests);
                 }
             }, testerinaBuild: {
                 cloneRepository(testerinaRepository, user, gitCredentialsID);
