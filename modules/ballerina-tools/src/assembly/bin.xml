@@ -26,7 +26,7 @@
     <fileSets>
         <fileSet>
             <directory>
-                ${project.build.directory}/extracted-distributions/ballerina-${ballerina.runtime.version}-zip/ballerina-${ballerina.runtime.version}
+                ${project.build.directory}/extracted-distributions/ballerina-${project.version}-zip/ballerina-${project.version}
             </directory>
             <outputDirectory>.</outputDirectory>
         </fileSet>
