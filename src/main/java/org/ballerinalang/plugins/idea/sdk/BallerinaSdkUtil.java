@@ -47,7 +47,7 @@ import java.util.regex.Pattern;
 
 public class BallerinaSdkUtil {
 
-    private static final Pattern BALLERINA_VERSION_PATTERN = Pattern.compile("(\\d+\\.\\d+\\.\\d+(-.+)?)");
+    private static final Pattern BALLERINA_VERSION_PATTERN = Pattern.compile("(\\d+\\.\\d+(\\.\\d+)?(-.+)?)");
     private static final Key<String> VERSION_DATA_KEY = Key.create("BALLERINA_VERSION_KEY");
 
     @Nullable
