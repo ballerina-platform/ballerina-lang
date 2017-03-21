@@ -16,7 +16,8 @@ import java.util.List;
 
 public class AggregationParser {
 
-    public static AggregationRuntime parse(AggregationDefinition definition) {
+    public static AggregationRuntime parse(AggregationDefinition definition,
+                                           ExecutionPlanContext executionPlanContext) {
 
         // Read group by attribute
         // Check whether this is an INTERVAL or RANGE operation

@@ -104,7 +104,6 @@ public class DefinitionParserHelper {
     }
 
     public static void addEventTable(TableDefinition tableDefinition, ConcurrentMap<String, EventTable> eventTableMap, ExecutionPlanContext executionPlanContext) {
-
         if (!eventTableMap.containsKey(tableDefinition.getId())) {
 
             MetaStreamEvent tableMetaStreamEvent = new MetaStreamEvent();
