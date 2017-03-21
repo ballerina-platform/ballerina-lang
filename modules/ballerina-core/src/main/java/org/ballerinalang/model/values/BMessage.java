@@ -17,6 +17,8 @@
 */
 package org.ballerinalang.model.values;
 
+import org.ballerinalang.model.types.BType;
+import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.util.MessageUtils;
 import org.ballerinalang.runtime.Constants;
 import org.ballerinalang.runtime.message.BallerinaMessageDataSource;
@@ -224,6 +226,11 @@ public final class BMessage implements BRefType<CarbonMessage> {
             return this.value.getMessageDataSource().getMessageAsString();
         }
         return MessageUtils.getStringFromInputStream(this.value.getInputStream());
+    }
+
+    @Override
+    public BType getType() {
+        return BTypes.typeMessage;
     }
 
     public BMessage clone() {

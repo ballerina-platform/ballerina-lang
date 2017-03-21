@@ -17,6 +17,8 @@
 */
 package org.ballerinalang.model.values;
 
+import org.ballerinalang.model.types.BType;
+import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 /**
@@ -84,6 +86,11 @@ public final class BString extends BValueType {
     @Override
     public String stringValue() {
         return this.value;
+    }
+
+    @Override
+    public BType getType() {
+        return BTypes.typeString;
     }
 
     @Override

@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.natives.typemappers;
 
+import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BDouble;
 import org.ballerinalang.model.values.BFloat;
@@ -24,6 +25,8 @@ import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BLong;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValueType;
+import org.ballerinalang.util.exceptions.BLangExceptionHelper;
+import org.ballerinalang.util.exceptions.RuntimeErrors;
 
 import java.util.function.Function;
 
@@ -133,5 +136,86 @@ public class NativeCastMapper {
 
     public static final Function<BValueType, BValueType> XML_TO_STRING_FUNC =
             (rVal) -> new BString(rVal.stringValue());
+
+
+    public static final Function<BValueType, BValueType> ANY_TO_INT_FUNC =
+            (rVal) -> {
+                if (rVal.getType() == BTypes.typeInt) {
+                    return rVal;
+                }
+                BLangExceptionHelper.throwRuntimeError(RuntimeErrors.CASTING_ANY_TYPE_TO_WRONG_VALUE_TYPE,
+                                                       rVal.getType(), BTypes.typeInt);
+                return null; //this is unreachable practically, because above line throws an exception
+            };
+
+    public static final Function<BValueType, BValueType> ANY_TO_LONG_FUNC =
+            (rVal) -> {
+                if (rVal.getType() == BTypes.typeLong) {
+                    return rVal;
+                }
+                BLangExceptionHelper.throwRuntimeError(RuntimeErrors.CASTING_ANY_TYPE_TO_WRONG_VALUE_TYPE,
+                                                       rVal.getType(), BTypes.typeLong);
+                return null; //this is unreachable practically, because above line throws an exception
+            };
+
+    public static final Function<BValueType, BValueType> ANY_TO_FLOAT_FUNC =
+            (rVal) -> {
+                if (rVal.getType() == BTypes.typeFloat) {
+                    return rVal;
+                }
+                BLangExceptionHelper.throwRuntimeError(RuntimeErrors.CASTING_ANY_TYPE_TO_WRONG_VALUE_TYPE,
+                                                       rVal.getType(), BTypes.typeFloat);
+                return null; //this is unreachable practically, because above line throws an exception
+            };
+
+    public static final Function<BValueType, BValueType> ANY_TO_DOUBLE_FUNC =
+            (rVal) -> {
+                if (rVal.getType() == BTypes.typeDouble) {
+                    return rVal;
+                }
+                BLangExceptionHelper.throwRuntimeError(RuntimeErrors.CASTING_ANY_TYPE_TO_WRONG_VALUE_TYPE,
+                                                       rVal.getType(), BTypes.typeDouble);
+                return null; //this is unreachable practically, because above line throws an exception
+            };
+
+    public static final Function<BValueType, BValueType> ANY_TO_STRING_FUNC =
+            (rVal) -> {
+                if (rVal.getType() == BTypes.typeString) {
+                    return rVal;
+                }
+                BLangExceptionHelper.throwRuntimeError(RuntimeErrors.CASTING_ANY_TYPE_TO_WRONG_VALUE_TYPE,
+                                                       rVal.getType(), BTypes.typeString);
+                return null; //this is unreachable practically, because above line throws an exception
+            };
+
+    public static final Function<BValueType, BValueType> ANY_TO_BOOLEAN_FUNC =
+            (rVal) -> {
+                if (rVal.getType() == BTypes.typeBoolean) {
+                    return rVal;
+                }
+                BLangExceptionHelper.throwRuntimeError(RuntimeErrors.CASTING_ANY_TYPE_TO_WRONG_VALUE_TYPE,
+                                                       rVal.getType(), BTypes.typeBoolean);
+                return null; //this is unreachable practically, because above line throws an exception
+            };
+
+    public static final Function<BValueType, BValueType> ANY_TO_JSON_FUNC =
+            (rVal) -> {
+                if (rVal.getType() == BTypes.typeJSON) {
+                    return rVal;
+                }
+                BLangExceptionHelper.throwRuntimeError(RuntimeErrors.CASTING_ANY_TYPE_TO_WRONG_VALUE_TYPE,
+                                                       rVal.getType(), BTypes.typeJSON);
+                return null; //this is unreachable practically, because above line throws an exception
+            };
+
+    public static final Function<BValueType, BValueType> ANY_TO_XML_FUNC =
+            (rVal) -> {
+                if (rVal.getType() == BTypes.typeXML) {
+                    return rVal;
+                }
+                BLangExceptionHelper.throwRuntimeError(RuntimeErrors.CASTING_ANY_TYPE_TO_WRONG_VALUE_TYPE,
+                                                       rVal.getType(), BTypes.typeXML);
+                return null; //this is unreachable practically, because above line throws an exception
+            };
 
 }
