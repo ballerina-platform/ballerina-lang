@@ -17,6 +17,9 @@
 */
 package org.ballerinalang.model.values;
 
+import org.ballerinalang.model.types.BType;
+import org.ballerinalang.model.types.BTypes;
+
 /**
  * The {@code BBoolean} represents a boolean value in Ballerina.
  *
@@ -73,7 +76,13 @@ public final class BBoolean extends BValueType {
     }
 
     @Override
+    public BType getType() {
+        return BTypes.typeBoolean;
+    }
+
+    @Override
     public boolean equals(Object obj) {
         return ((BBoolean) obj).booleanValue() == value;
     }
+
 }

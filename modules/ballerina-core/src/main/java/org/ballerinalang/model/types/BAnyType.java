@@ -17,37 +17,28 @@
 */
 package org.ballerinalang.model.types;
 
+import org.ballerinalang.model.SymbolScope;
+import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueType;
+
 /**
- * {@code TypeEnum} represents all the types names in Ballerina.
+ * {@code BAnyType} represents a Any type.
  *
- * @since 0.8.0
+ * @since 0.85
  */
-public enum TypeEnum {
-    INT("int"),
-    LONG("long"),
-    FLOAT("float"),
-    DOUBLE("double"),
-    BOOLEAN("boolean"),
-    STRING("string"),
-    MESSAGE("message"),
-    XML("xml"),
-    JSON("json"),
-    MAP("map"),
-    ARRAY("arrays"),
-    CONNECTOR("connector"),
-    EXCEPTION("exception"),
-    DATATABLE("datatable"),
-    STRUCT("struct"),
-    EMPTY(""),
-    ANY("var");
+public class BAnyType extends BType {
 
-    private String name;
-
-    TypeEnum(String name) {
-        this.name = name;
+    /**
+     * Create a {@code BAnyType} which represents the any type.
+     *
+     * @param typeName string name of the type
+     */
+    BAnyType(String typeName, String pkgPath, SymbolScope symbolScope) {
+        super(typeName, pkgPath, symbolScope, BValueType.class);
     }
 
-    public String getName() {
-        return name;
+    @SuppressWarnings("unchecked")
+    public <V extends BValue> V getDefaultValue() {
+        return (V) null;
     }
 }

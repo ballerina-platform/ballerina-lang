@@ -798,6 +798,8 @@ public class SemanticAnalyzer implements NodeVisitor {
             if (returnTypes.length != 1) {
                 BLangExceptionHelper.throwSemanticError(varDefStmt, SemanticErrors.ASSIGNMENT_COUNT_MISMATCH, "1",
                         returnTypes.length);
+            } else if (varBType == BTypes.typeAny) {
+                return;
             } else if ((varBType != BTypes.typeMap) && (returnTypes[0] != BTypes.typeMap) &&
                     (!varBType.equals(returnTypes[0]))) {
 
@@ -1188,7 +1190,8 @@ public class SemanticAnalyzer implements NodeVisitor {
             }
 
             for (int i = 0; i < returnParamsOfCU.length; i++) {
-                if (!funcIExprReturnTypes[i].equals(returnParamsOfCU[i].getType())) {
+                if (returnParamsOfCU[i].getType() != BTypes.typeAny &&
+                    !funcIExprReturnTypes[i].equals(returnParamsOfCU[i].getType())) {
                     BLangExceptionHelper.throwSemanticError(returnStmt,
                             SemanticErrors.CANNOT_USE_TYPE_IN_RETURN_STATEMENT, funcIExprReturnTypes[i],
                             returnParamsOfCU[i].getType());
@@ -1225,7 +1228,8 @@ public class SemanticAnalyzer implements NodeVisitor {
                     }
                 }
 
-                if (!typesOfReturnExprs[i].equals(returnParamsOfCU[i].getType())) {
+                if (returnParamsOfCU[i].getType() != BTypes.typeAny &&
+                    !typesOfReturnExprs[i].equals(returnParamsOfCU[i].getType())) {
                     BLangExceptionHelper.throwSemanticError(returnStmt,
                             SemanticErrors.CANNOT_USE_TYPE_IN_RETURN_STATEMENT, typesOfReturnExprs[i],
                             returnParamsOfCU[i].getType());
@@ -1839,8 +1843,8 @@ public class SemanticAnalyzer implements NodeVisitor {
             typeCastExpression.setTargetType(targetType);
         }
         // Check whether this is a native conversion
-        if (BTypes.isValueType(sourceType) &&
-                BTypes.isValueType(targetType)) {
+        if (sourceType == BTypes.typeAny || targetType == BTypes.typeAny || (BTypes.isValueType(sourceType) &&
+                BTypes.isValueType(targetType))) {
             TypeEdge newEdge = null;
             newEdge = TypeLattice.getExplicitCastLattice().getEdgeFromTypes(sourceType, targetType, null);
             typeCastExpression.setEvalFunc(newEdge.getTypeMapperFunction());

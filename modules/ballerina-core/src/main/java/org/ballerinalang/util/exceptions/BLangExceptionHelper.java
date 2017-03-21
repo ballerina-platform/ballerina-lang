@@ -51,4 +51,9 @@ public class BLangExceptionHelper {
         return  location + errorMsg;
 
     }
+
+    public static void throwRuntimeError(RuntimeErrors runtimeErrors, Object... params) throws BLangRuntimeException {
+        String errorMsg = MessageFormat.format(messageBundle.getString(runtimeErrors.getErrorMsgKey()), params);
+        throw new BLangRuntimeException(errorMsg);
+    }
 }

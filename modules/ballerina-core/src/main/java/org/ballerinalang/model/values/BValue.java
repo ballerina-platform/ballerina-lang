@@ -17,6 +17,8 @@
 */
 package org.ballerinalang.model.values;
 
+import org.ballerinalang.model.types.BType;
+
 /**
  * {@code BValue} represents any value in Ballerina.
  *
@@ -25,5 +27,7 @@ package org.ballerinalang.model.values;
 public interface BValue {
 
     String stringValue();
+
+    BType getType();
 
 }
