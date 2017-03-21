@@ -118,7 +118,8 @@ public abstract class AbstractRecordTable implements EventTable {
      * @param compiledCondition         the compiledCondition against which records should be matched
      * @return List of matching records
      */
-    protected abstract List<Object[]> find(Map<String, Object> findConditionParameterMap, Object compiledCondition);
+    protected abstract List<Object[]> find(Map<String, Object> findConditionParameterMap,
+                                           CompiledCondition compiledCondition);
 
     @Override
     public boolean contains(StateEvent matchingEvent, CompiledCondition compiledCondition) {
@@ -140,7 +141,8 @@ public abstract class AbstractRecordTable implements EventTable {
      * @param compiledCondition             the compiledCondition against which records should be matched
      * @return if matching record found or not
      */
-    protected abstract boolean contains(Map<String, Object> containsConditionParameterMap, Object compiledCondition);
+    protected abstract boolean contains(Map<String, Object> containsConditionParameterMap,
+                                        CompiledCondition compiledCondition);
 
     @Override
     public void delete(ComplexEventChunk<StateEvent> deletingEventChunk, CompiledCondition compiledCondition) {
@@ -168,7 +170,8 @@ public abstract class AbstractRecordTable implements EventTable {
      *                                     compiled condition
      * @param compiledCondition            the compiledCondition against which records should be matched for deletion
      */
-    protected abstract void delete(List<Map<String, Object>> deleteConditionParameterMaps, Object compiledCondition);
+    protected abstract void delete(List<Map<String, Object>> deleteConditionParameterMaps,
+                                   CompiledCondition compiledCondition);
 
     @Override
     public void update(ComplexEventChunk<StateEvent> updatingEventChunk, CompiledCondition compiledCondition,
@@ -205,7 +208,8 @@ public abstract class AbstractRecordTable implements EventTable {
      * @param compiledCondition            the compiledCondition against which records should be matched for update
      * @param updateValues                 the attributes and values that should be updated for the matching records
      */
-    protected abstract void update(List<Map<String, Object>> updateConditionParameterMaps, Object compiledCondition,
+    protected abstract void update(List<Map<String, Object>> updateConditionParameterMaps,
+                                   CompiledCondition compiledCondition,
                                    List<Map<String, Object>> updateValues);
 
     @Override
@@ -250,7 +254,7 @@ public abstract class AbstractRecordTable implements EventTable {
      * @param overwritingRecords           the values for adding new records if the update condition did not match
      */
     protected abstract void overwriteOrAdd(List<Map<String, Object>> updateConditionParameterMaps,
-                                           Object compiledCondition,
+                                           CompiledCondition compiledCondition,
                                            List<Map<String, Object>> updateValues,
                                            List<Object[]> overwritingRecords);
 
