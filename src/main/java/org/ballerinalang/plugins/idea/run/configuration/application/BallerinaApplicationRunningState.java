@@ -35,6 +35,7 @@ import java.io.File;
 public class BallerinaApplicationRunningState extends BallerinaRunningState<BallerinaApplicationConfiguration> {
 
     private String myOutputFilePath;
+    private BallerinaApplicationConfiguration.Kind myRunKind;
     @Nullable
     private BallerinaHistoryProcessListener myHistoryProcessHandler;
     private int myDebugPort = 59090;
@@ -48,8 +49,9 @@ public class BallerinaApplicationRunningState extends BallerinaRunningState<Ball
     @NotNull
     public String getTarget() {
         // Todo - Change
-        return myConfiguration.getKind() == BallerinaApplicationConfiguration.Kind.MAIN
-                ? myConfiguration.getPackage() : myConfiguration.getFilePath();
+        //        return myConfiguration.getKind() == BallerinaApplicationConfiguration.Kind.MAIN
+        //                ? myConfiguration.getPackage() : myConfiguration.getFilePath();
+        return myConfiguration.getPackage();
     }
 
     @NotNull
@@ -102,9 +104,14 @@ public class BallerinaApplicationRunningState extends BallerinaRunningState<Ball
         // myOutputFilePath,
         //                            "--");
         //        }
+
+        String type = "main";
+        if (myRunKind == BallerinaApplicationConfiguration.Kind.SERVICE) {
+            type = "service";
+        }
         return executor
                 .withParameters("run")
-                .withParameters("main")
+                .withParameters(type)
                 .withParameters(myOutputFilePath);
     }
 
@@ -120,6 +127,10 @@ public class BallerinaApplicationRunningState extends BallerinaRunningState<Ball
 
     public void setOutputFilePath(@NotNull String outputFilePath) {
         myOutputFilePath = outputFilePath;
+    }
+
+    public void setKind(BallerinaApplicationConfiguration.Kind runKind) {
+        myRunKind = runKind;
     }
 
     public void setHistoryProcessHandler(@Nullable BallerinaHistoryProcessListener historyProcessHandler) {

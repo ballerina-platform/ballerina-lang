@@ -20,9 +20,9 @@ import com.intellij.execution.ExecutionException;
 import com.intellij.execution.ExecutionResult;
 import com.intellij.execution.RunProfileStarter;
 import com.intellij.execution.RunnerAndConfigurationSettings;
+import com.intellij.execution.configurations.RunConfiguration;
 import com.intellij.execution.configurations.RunProfile;
 import com.intellij.execution.configurations.RunProfileState;
-import com.intellij.execution.executors.DefaultDebugExecutor;
 import com.intellij.execution.executors.DefaultRunExecutor;
 import com.intellij.execution.process.ProcessAdapter;
 import com.intellij.execution.process.ProcessEvent;
@@ -71,15 +71,26 @@ public class BallerinaBuildingRunner extends AsyncGenericProgramRunner {
     @Override
     protected Promise<RunProfileStarter> prepare(@NotNull ExecutionEnvironment environment,
                                                  @NotNull RunProfileState state) throws ExecutionException {
-        File outputFile = getOutputFile(environment, (BallerinaApplicationRunningState) state);
+        RunnerAndConfigurationSettings configurationSettings = environment.getRunnerAndConfigurationSettings();
+        RunConfiguration configuration = configurationSettings.getConfiguration();
+        String type = "main";
+        if (configuration instanceof BallerinaApplicationConfiguration) {
+            BallerinaApplicationConfiguration.Kind kind = ((BallerinaApplicationConfiguration) configuration).getKind();
+            if (kind == BallerinaApplicationConfiguration.Kind.SERVICE) {
+                type = "service";
+            }
+        }
+
+        File outputFile = getOutputFile(environment, (BallerinaApplicationRunningState) state, type);
         outputFile.delete();
         FileDocumentManager.getInstance().saveAllDocuments();
 
+        final String mykind=type;
         AsyncPromise<RunProfileStarter> buildingPromise = new AsyncPromise<>();
         BallerinaHistoryProcessListener historyProcessListener = new BallerinaHistoryProcessListener();
         ((BallerinaApplicationRunningState) state).createCommonExecutor()
                 .withParameters("build")
-                .withParameters("main")
+                .withParameters(type)
                 .withParameterString(((BallerinaApplicationRunningState) state).getGoBuildParams())
 
                 //                .withParameters(((BallerinaApplicationRunningState) state).isDebug() ?
@@ -102,7 +113,7 @@ public class BallerinaBuildingRunner extends AsyncGenericProgramRunner {
                                     historyProcessListener, compilationFailed));
                         } else {
                             buildingPromise.setResult(new MyRunStarter(outputFile.getAbsolutePath(),
-                                    historyProcessListener, compilationFailed));
+                                    historyProcessListener, compilationFailed, mykind));
                         }
                     }
                 })
@@ -112,14 +123,21 @@ public class BallerinaBuildingRunner extends AsyncGenericProgramRunner {
 
     @NotNull
     private static File getOutputFile(@NotNull ExecutionEnvironment environment,
-                                      @NotNull BallerinaApplicationRunningState state) throws ExecutionException {
+                                      @NotNull BallerinaApplicationRunningState state, String type)
+            throws ExecutionException {
         File outputFile;
         String outputDirectoryPath = state.getConfiguration().getOutputFilePath();
         RunnerAndConfigurationSettings settings = environment.getRunnerAndConfigurationSettings();
         String configurationName = settings != null ? settings.getName() : "application";
         if (StringUtil.isEmpty(outputDirectoryPath)) {
             try {
-                outputFile = FileUtil.createTempFile(configurationName, ".bmz", true);
+                String suffix = null;
+                if ("main".equals(type)) {
+                    suffix = ".bmz";
+                } else if ("service".equals(type)) {
+                    suffix = ".bsz";
+                }
+                outputFile = FileUtil.createTempFile(configurationName, suffix, true);
             } catch (IOException e) {
                 throw new ExecutionException("Cannot create temporary output file", e);
             }
@@ -127,7 +145,7 @@ public class BallerinaBuildingRunner extends AsyncGenericProgramRunner {
             File outputDirectory = new File(outputDirectoryPath);
             if (outputDirectory.isDirectory() || !outputDirectory.exists() && outputDirectory.mkdirs()) {
                 outputFile = new File(outputDirectoryPath,
-                        BallerinaEnvironmentUtil.getBinaryFileName(configurationName));
+                        BallerinaEnvironmentUtil.getFullBinaryFileName(configurationName, type));
                 try {
                     if (!outputFile.exists() && !outputFile.createNewFile()) {
                         throw new ExecutionException("Cannot create output file " + outputFile.getAbsolutePath());
@@ -155,10 +173,10 @@ public class BallerinaBuildingRunner extends AsyncGenericProgramRunner {
     }
 
     private class MyDebugStarter extends RunProfileStarter {
+
         private final String myOutputFilePath;
         private final BallerinaHistoryProcessListener myHistoryProcessListener;
         private final boolean myCompilationFailed;
-
 
         private MyDebugStarter(@NotNull String outputFilePath,
                                @NotNull BallerinaHistoryProcessListener historyProcessListener,
@@ -207,17 +225,23 @@ public class BallerinaBuildingRunner extends AsyncGenericProgramRunner {
     }
 
     private class MyRunStarter extends RunProfileStarter {
+
         private final String myOutputFilePath;
         private final BallerinaHistoryProcessListener myHistoryProcessListener;
         private final boolean myCompilationFailed;
-
+        private final BallerinaApplicationConfiguration.Kind myKind;
 
         private MyRunStarter(@NotNull String outputFilePath,
                              @NotNull BallerinaHistoryProcessListener historyProcessListener,
-                             boolean compilationFailed) {
+                             boolean compilationFailed, String type) {
             myOutputFilePath = outputFilePath;
             myHistoryProcessListener = historyProcessListener;
             myCompilationFailed = compilationFailed;
+            BallerinaApplicationConfiguration.Kind kind = BallerinaApplicationConfiguration.Kind.MAIN;
+            if ("service".equals(type)) {
+                kind = BallerinaApplicationConfiguration.Kind.SERVICE;
+            }
+            myKind = kind;
         }
 
         @Nullable
@@ -229,6 +253,7 @@ public class BallerinaBuildingRunner extends AsyncGenericProgramRunner {
                 ((BallerinaApplicationRunningState) state).setHistoryProcessHandler(myHistoryProcessListener);
                 ((BallerinaApplicationRunningState) state).setOutputFilePath(myOutputFilePath);
                 ((BallerinaApplicationRunningState) state).setCompilationFailed(myCompilationFailed);
+                ((BallerinaApplicationRunningState) state).setKind(myKind);
                 ExecutionResult executionResult = state.execute(env.getExecutor(), BallerinaBuildingRunner.this);
                 return executionResult != null ?
                         new RunContentBuilder(executionResult, env).showRunContent(env.getContentToReuse()) : null;

@@ -33,7 +33,12 @@ public class BallerinaEnvironmentUtil {
     }
 
     @NotNull
-    public static String getBinaryFileName(@NotNull String path) {
-        return path + ".bmz";
+    public static String getFullBinaryFileName(@NotNull String filename, String type) {
+        if ("main".equals(type)) {
+            return filename + ".bmz";
+        } else if ("service".equals(type)) {
+            return filename + ".bsz";
+        }
+        return filename;
     }
 }

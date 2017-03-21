@@ -40,7 +40,7 @@ public abstract class BallerinaRunConfigurationWithMain<T extends BallerinaRunni
     @NotNull
     private String myFilePath = "";
     @NotNull
-    private BallerinaRunFileConfiguration.Kind kind = BallerinaRunFileConfiguration.Kind.APPLICATION;
+    private BallerinaRunFileConfiguration.Kind kind = BallerinaRunFileConfiguration.Kind.MAIN;
 
     public BallerinaRunConfigurationWithMain(String name, BallerinaModuleBasedConfiguration configurationModule,
                                              ConfigurationFactory factory) {
@@ -74,7 +74,7 @@ public abstract class BallerinaRunConfigurationWithMain<T extends BallerinaRunni
             throw new RuntimeConfigurationError("Main file is invalid");
         }
 
-        if (kind == BallerinaRunFileConfiguration.Kind.APPLICATION &&
+        if (kind == BallerinaRunFileConfiguration.Kind.MAIN &&
                 !BallerinaRunUtil.hasMainFunction(psiFile)) {
             throw new RuntimeConfigurationError("Main file does not contain a main function.");
         }

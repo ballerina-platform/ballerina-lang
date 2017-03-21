@@ -94,6 +94,6 @@ public  class BallerinaRunFileConfiguration extends BallerinaRunConfigurationWit
     }
 
     public enum Kind {
-        APPLICATION, SERVICE
+        MAIN, SERVICE
     }
 }
