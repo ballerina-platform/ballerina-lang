@@ -508,7 +508,7 @@
 }
 
 .action-import-wrapper-heading .tt-menu {
-    margin-top: 18px;
+    /** margin-top: 18px; **/
     background-color: #fff;
     border: 1px solid #ccc;
     border: 1px solid rgba(0, 0, 0, 0.2);
