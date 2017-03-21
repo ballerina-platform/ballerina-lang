@@ -28,7 +28,7 @@
     <groupId>org.ballerinalang</groupId>
     <artifactId>ballerina-parent</artifactId>
     <packaging>pom</packaging>
-    <version>0.8.3-SNAPSHOT</version>
+    <version>0.85-SNAPSHOT</version>
     <name>Ballerina - Parent</name>
 
     <url>http://ballerinalang.org</url>
@@ -164,7 +164,7 @@
     </build>
 
     <properties>
-        <ballerina.version>0.8.3-SNAPSHOT</ballerina.version>
+        <ballerina.version>0.85-SNAPSHOT</ballerina.version>
         <ballerina.package.export.version>0.8.0</ballerina.package.export.version>
         <maven.findbugsplugin.version.exclude>findbugs-exclude.xml</maven.findbugsplugin.version.exclude>
         <commons-net.version>3.6</commons-net.version>
