@@ -18,7 +18,11 @@
 package org.ballerinalang.nativeimpl.connectors;
 
 import org.ballerinalang.model.BLangProgram;
+import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BDouble;
 import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BLong;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.util.BTestUtils;
@@ -235,6 +239,107 @@ public class SQLConnectorTest {
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "testEmptySQLType");
         BInteger retValue = (BInteger) returns[0];
         Assert.assertEquals(retValue.intValue(), 1);
+    }
+
+    @Test
+    public void testArrayInParameters() {
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testArrayInParameters");
+        BInteger retValue = (BInteger) returns[0];
+        Assert.assertEquals(retValue.intValue(), 1);
+
+        Assert.assertTrue(returns[1] instanceof BMap);
+        BMap<BString, BInteger> intArray = (BMap) returns[1];
+        Assert.assertEquals(intArray.get(new BString("0")).intValue(), 1);
+
+        Assert.assertTrue(returns[2] instanceof BMap);
+        BMap<BString, BLong> longArray = (BMap) returns[2];
+        Assert.assertEquals(longArray.get(new BString("0")).longValue(), 10000000);
+        Assert.assertEquals(longArray.get(new BString("1")).longValue(), 20000000);
+        Assert.assertEquals(longArray.get(new BString("2")).longValue(), 30000000);
+
+        Assert.assertTrue(returns[3] instanceof BMap);
+        BMap<BString, BDouble> doubleArray = (BMap) returns[3];
+        Assert.assertEquals(doubleArray.get(new BString("0")).doubleValue(), 245.23);
+        Assert.assertEquals(doubleArray.get(new BString("1")).doubleValue(), 5559.49);
+        Assert.assertEquals(doubleArray.get(new BString("2")).doubleValue(), 8796.123);
+
+        Assert.assertTrue(returns[4] instanceof BMap);
+        BMap<BString, BString> stringArray = (BMap) returns[4];
+        Assert.assertEquals(stringArray.get(new BString("0")).stringValue(), "Hello");
+        Assert.assertEquals(stringArray.get(new BString("1")).stringValue(), "Ballerina");
+
+        Assert.assertTrue(returns[5] instanceof BMap);
+        BMap<BString, BBoolean> booleanArray = (BMap) returns[5];
+        Assert.assertEquals(booleanArray.get(new BString("0")).booleanValue(), true);
+        Assert.assertEquals(booleanArray.get(new BString("1")).booleanValue(), false);
+        Assert.assertEquals(booleanArray.get(new BString("2")).booleanValue(), true);
+
+        Assert.assertTrue(returns[6] instanceof BMap);
+        BMap<BString, BDouble> floatArray = (BMap) returns[6];
+        Assert.assertEquals(floatArray.get(new BString("0")).doubleValue(), 245.23);
+        Assert.assertEquals(floatArray.get(new BString("1")).doubleValue(), 5559.49);
+        Assert.assertEquals(floatArray.get(new BString("2")).doubleValue(), 8796.123);
+    }
+
+    @Test(groups = "ConnectorTest")
+    public void testArrayOutParameters() {
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testArrayOutParameters");
+        BString retValue = (BString) returns[0];
+        String expected = "[1,2,3]";
+        Assert.assertEquals(retValue.stringValue(), expected);
+
+        retValue = (BString) returns[1];
+        expected = "[100000000,200000000,300000000]";
+        Assert.assertEquals(retValue.stringValue(), expected);
+
+        retValue = (BString) returns[2];
+        expected = "[245.23,5559.49,8796.123]";
+        Assert.assertEquals(retValue.stringValue(), expected);
+
+        retValue = (BString) returns[3];
+        expected = "[245.23,5559.49,8796.123]";
+        Assert.assertEquals(retValue.stringValue(), expected);
+
+        retValue = (BString) returns[4];
+        expected = "[true,false,true]";
+        Assert.assertEquals(retValue.stringValue(), expected);
+
+        retValue = (BString) returns[5];
+        expected = "[Hello,Ballerina]";
+        Assert.assertEquals(retValue.stringValue(), expected);
+    }
+
+    @Test(groups = "ConnectorTest")
+    public void testArrayInOutParameters() {
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "testArrayInOutParameters");
+
+        BString retValue = (BString) returns[0];
+        String expected = "1";
+        Assert.assertEquals(retValue.stringValue(), expected);
+
+        retValue = (BString) returns[1];
+        expected = "[1,2,3]";
+        Assert.assertEquals(retValue.stringValue(), expected);
+
+        retValue = (BString) returns[2];
+        expected = "[100000000,200000000,300000000]";
+        Assert.assertEquals(retValue.stringValue(), expected);
+
+        retValue = (BString) returns[3];
+        expected = "[245.23,5559.49,8796.123]";
+        Assert.assertEquals(retValue.stringValue(), expected);
+
+        retValue = (BString) returns[4];
+        expected = "[245.23,5559.49,8796.123]";
+        Assert.assertEquals(retValue.stringValue(), expected);
+
+        retValue = (BString) returns[5];
+        expected = "[true,false,true]";
+        Assert.assertEquals(retValue.stringValue(), expected);
+
+        retValue = (BString) returns[6];
+        expected = "[Hello,Ballerina]";
+        Assert.assertEquals(retValue.stringValue(), expected);
     }
 
     @AfterSuite
