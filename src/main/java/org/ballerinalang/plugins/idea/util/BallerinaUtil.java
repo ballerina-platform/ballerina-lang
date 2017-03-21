@@ -97,12 +97,7 @@ public class BallerinaUtil {
                 trimmedPath = trimmedPath.replaceFirst(File.separator, "");
                 // Replace all other separators with . to get the package path
                 trimmedPath = trimmedPath.replaceAll(File.separator, ".");
-                // If the path is not empty, return the path
-                if (!trimmedPath.isEmpty()) {
-                    return trimmedPath;
-                }
-                // If the path is empty, return the project base directory name
-                return project.getBaseDir().getName().replaceAll(" ", "_");
+                return trimmedPath;
             }
             // If the package name cannot be constructed, return empty string
             return "";
