@@ -380,7 +380,7 @@ div[class*="col-sm-"] {
     max-width: none;
 }
 
-/* Prevent the text contents of draggable elements from being selectable. */
+/* Prevent the text contents of draggable elements from being selectable. (for safari and firefox)*/
 [draggable] {
   -moz-user-select: none;
   -khtml-user-select: none;
