@@ -27,7 +27,7 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>ballerina-composer-parent</artifactId>
     <packaging>pom</packaging>
-    <version>0.84-SNAPSHOT</version>
+    <version>0.85-SNAPSHOT</version>
     <name>Ballerina Composer - Parent</name>
 
     <scm>
