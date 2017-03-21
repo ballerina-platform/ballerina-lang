@@ -41,6 +41,11 @@ public class WhileStmtTest {
         bLangProgram = BTestUtils.parseBalFile("lang/statements/while-stmt.bal");
     }
 
+    public static void main(String[] args) {
+        WhileStmtTest test = new WhileStmtTest();
+        test.setup();
+    }
+
     @Test(description = "Test while loop with a condition which evaluates to true")
     public void testWhileStmtConditionTrue() {
         BValue[] args = {new BInteger(10), new BInteger(1)};

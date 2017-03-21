@@ -83,7 +83,6 @@ import org.ballerinalang.model.statements.WhileStmt;
 import org.ballerinalang.model.statements.WorkerInvocationStmt;
 import org.ballerinalang.model.statements.WorkerReplyStmt;
 import org.ballerinalang.model.symbols.BLangSymbol;
-import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.SimpleTypeName;
 import org.ballerinalang.model.types.TypeConstants;
 import org.ballerinalang.model.values.BBoolean;
@@ -128,7 +127,7 @@ public class BLangModelBuilder {
 
     // Keep the parent CUBuilder for worker
     protected CallableUnitBuilder parentCUBuilder;
-    
+
     // Builds user defined structs.
     protected StructDef.StructBuilder currentStructBuilder;
 
@@ -192,7 +191,7 @@ public class BLangModelBuilder {
         if (errorMsgs.size() > 0) {
             throw new SemanticException(errorMsgs.get(0));
         }
-        
+
         return bFileBuilder.build();
     }
 
@@ -263,6 +262,7 @@ public class BLangModelBuilder {
 
     /**
      * Start a struct builder.
+     *
      * @param location Location of the struct definition in the source bal file
      */
     public void startStructDef(NodeLocation location) {
@@ -309,7 +309,7 @@ public class BLangModelBuilder {
      */
     public void addStructDef(NodeLocation location, String name) {
         currentStructBuilder.setName(name);
-        
+
         List<Annotation> annotationList = annotationListStack.pop();
         annotationList.forEach(currentStructBuilder::addAnnotation);
 
@@ -370,6 +370,7 @@ public class BLangModelBuilder {
         annotationList.add(annotation);
     }
 
+
     // Function/action input and out parameters
     public void startParamList() {
         annotationListStack.push(new ArrayList<>());
@@ -390,17 +391,11 @@ public class BLangModelBuilder {
      * @param paramName name of the function parameter
      * @param location  Location of the parameter in the source file
      */
-    public void addParam(String paramName, NodeLocation location) {
-        // Check the name against the type names
-        if (BTypes.isBuiltInTypeName(paramName)) {
-            String errMsg = BLangExceptionHelper.constructSemanticError(location,
-                    SemanticErrors.BUILT_IN_TYPE_NAMES_NOT_ALLOWED_AS_IDENTIFIER, paramName);
-            errorMsgs.add(errMsg);
-            return;
-        }
+    public void addParam(NodeLocation location, SimpleTypeName typeName, String paramName, boolean isReturnParam) {
+        validateAndSetPackagePath(location, typeName);
         SymbolName symbolName = new SymbolName(paramName);
 
-        // Check whether this constant is already defined.
+        // Check whether this parameter is already defined.
         BLangSymbol paramSymbol = currentScope.resolve(symbolName);
         if (paramSymbol != null && paramSymbol.getSymbolScope().getScopeName() == SymbolScope.ScopeName.LOCAL) {
             String errMsg = BLangExceptionHelper.constructSemanticError(location,
@@ -408,7 +403,6 @@ public class BLangModelBuilder {
             errorMsgs.add(errMsg);
         }
 
-        SimpleTypeName typeName = typeNameStack.pop();
         ParameterDef paramDef = new ParameterDef(location, paramName, typeName, symbolName, currentScope);
 
         // Annotation list is maintained for each parameter
@@ -420,7 +414,12 @@ public class BLangModelBuilder {
 
         if (currentCUBuilder != null) {
             // Add the parameter to callableUnitBuilder.
-            currentCUBuilder.addParameter(paramDef);
+            if (isReturnParam) {
+                currentCUBuilder.addReturnParameter(paramDef);
+            } else {
+                currentCUBuilder.addParameter(paramDef);
+            }
+
         } else {
             currentCUGroupBuilder.addParameter(paramDef);
         }
@@ -428,38 +427,14 @@ public class BLangModelBuilder {
         currentScope.define(symbolName, paramDef);
     }
 
-    public void createReturnTypes(NodeLocation location) {
-        // TODO This implement is inefficient. Refactor this ASAP
-        List<SimpleTypeName> typeNameList = new ArrayList<>(typeNameStack.size());
-        while (!typeNameStack.isEmpty()) {
-            typeNameList.add(typeNameStack.pop());
-        }
-        Collections.reverse(typeNameList);
-
-        for (SimpleTypeName typeName : typeNameList) {
+    public void addReturnTypes(NodeLocation location, SimpleTypeName[] returnTypeNames) {
+        for (SimpleTypeName typeName : returnTypeNames) {
+            validateAndSetPackagePath(location, typeName);
             ParameterDef paramDef = new ParameterDef(location, null, typeName, null, currentScope);
             currentCUBuilder.addReturnParameter(paramDef);
         }
     }
-
-    public void createNamedReturnParam(NodeLocation location, String paramName) {
-        SymbolName symbolName = new SymbolName(paramName);
-
-        // Check whether this constant is already defined.
-        BLangSymbol paramSymbol = currentScope.resolve(symbolName);
-        if (paramSymbol != null && paramSymbol.getSymbolScope().getScopeName() == SymbolScope.ScopeName.LOCAL) {
-            String errMsg = BLangExceptionHelper.constructSemanticError(location,
-                    SemanticErrors.REDECLARED_SYMBOL, paramName);
-            errorMsgs.add(errMsg);
-        }
-
-        SimpleTypeName typeName = typeNameStack.pop();
-        ParameterDef paramDef = new ParameterDef(location, paramName, typeName, symbolName, currentScope);
-        currentCUBuilder.addReturnParameter(paramDef);
-
-        currentScope.define(symbolName, paramDef);
-    }
-
+    
 
     // Expressions
 
@@ -480,9 +455,9 @@ public class BLangModelBuilder {
      * <li> Map or arrays access a[1], m["key"]</li>
      * <li> Struct field access  Person.name</li>
      * </ol>
-     * 
+     *
      * @param location Location of the variable reference expression in the source file
-     * @param varName name of the variable
+     * @param varName  name of the variable
      */
     public void createVarRefExpr(NodeLocation location, String varName) {
         VariableRefExpr variableRefExpr = new VariableRefExpr(location, varName);
@@ -783,12 +758,11 @@ public class BLangModelBuilder {
         annotationListStack.push(new ArrayList<>());
     }
 
-    public void addFunction(NodeLocation location, String name, boolean isPublic,  boolean isNative) {
+    public void addFunction(NodeLocation location, String name, boolean isNative) {
         currentCUBuilder.setNodeLocation(location);
         currentCUBuilder.setName(name);
-        currentCUBuilder.setPublic(isPublic);
         currentCUBuilder.setNative(isNative);
-        
+
         List<Annotation> annotationList = annotationListStack.pop();
         annotationList.forEach(currentCUBuilder::addAnnotation);
 
@@ -808,7 +782,7 @@ public class BLangModelBuilder {
     }
 
     public void addTypeMapper(String source, String target, String name,
-            NodeLocation location, boolean isPublic, boolean isNative) {
+                              NodeLocation location, boolean isPublic, boolean isNative) {
         currentCUBuilder.setNodeLocation(location);
         currentCUBuilder.setName(name);
         currentCUBuilder.setPkgPath(currentPackagePath);
@@ -899,7 +873,7 @@ public class BLangModelBuilder {
         currentCUBuilder.setNodeLocation(location);
         currentCUBuilder.setName(name);
         currentCUBuilder.setNative(isNative);
-        
+
         List<Annotation> annotationList = annotationListStack.pop();
         annotationList.forEach(currentCUBuilder::addAnnotation);
 
@@ -964,13 +938,13 @@ public class BLangModelBuilder {
     // Statements
 
     public void addVariableDefinitionStmt(NodeLocation location, String varName, boolean exprAvailable) {
-        // Check the name against the type names
-        if (BTypes.isBuiltInTypeName(varName)) {
-            String errMsg = BLangExceptionHelper.constructSemanticError(location,
-                    SemanticErrors.BUILT_IN_TYPE_NAMES_NOT_ALLOWED_AS_IDENTIFIER, varName);
-            errorMsgs.add(errMsg);
-            return;
-        }
+//        // Check the name against the type names
+//        if (BTypes.isBuiltInTypeName(varName)) {
+//            String errMsg = BLangExceptionHelper.constructSemanticError(location,
+//                    SemanticErrors.BUILT_IN_TYPE_NAMES_NOT_ALLOWED_AS_IDENTIFIER, varName);
+//            errorMsgs.add(errMsg);
+//            return;
+//        }
         SimpleTypeName typeName = typeNameStack.pop();
         VariableRefExpr variableRefExpr = new VariableRefExpr(location, varName);
 
@@ -1245,7 +1219,7 @@ public class BLangModelBuilder {
         // Check whether this constant is already defined.
         BLangSymbol paramSymbol = currentScope.resolve(symbolName);
         if (paramSymbol != null && paramSymbol.getSymbolScope().getScopeName() == SymbolScope.ScopeName.LOCAL) {
-            String errMsg =  BLangExceptionHelper.constructSemanticError(location,
+            String errMsg = BLangExceptionHelper.constructSemanticError(location,
                     SemanticErrors.REDECLARED_SYMBOL, paramName);
             errorMsgs.add(errMsg);
         }
@@ -1262,7 +1236,7 @@ public class BLangModelBuilder {
 
         forkJoinStmtBuilder.setJoinType(joinType);
         if (Integer.parseInt(joinCount) != 1) {
-            String errMsg =  BLangExceptionHelper.constructSemanticError(location,
+            String errMsg = BLangExceptionHelper.constructSemanticError(location,
                     SemanticErrors.ONLY_COUNT_1_ALLOWED_THIS_VERSION);
             errorMsgs.add(errMsg);
         }
@@ -1295,7 +1269,7 @@ public class BLangModelBuilder {
         // Check whether this constant is already defined.
         BLangSymbol paramSymbol = currentScope.resolve(symbolName);
         if (paramSymbol != null && paramSymbol.getSymbolScope().getScopeName() == SymbolScope.ScopeName.LOCAL) {
-            String errMsg =  BLangExceptionHelper.constructSemanticError(location,
+            String errMsg = BLangExceptionHelper.constructSemanticError(location,
                     SemanticErrors.REDECLARED_SYMBOL, paramName);
             errorMsgs.add(errMsg);
         }
@@ -1526,9 +1500,9 @@ public class BLangModelBuilder {
     }
 
     protected void checkForUndefinedPackagePath(NodeLocation location,
-                                              String pkgName,
-                                              ImportPackage importPackage,
-                                              Supplier<String> symbolNameSupplier) {
+                                                String pkgName,
+                                                ImportPackage importPackage,
+                                                Supplier<String> symbolNameSupplier) {
         if (pkgName != null && importPackage == null) {
             String errMsg = BLangExceptionHelper.constructSemanticError(location,
                     SemanticErrors.UNDEFINED_PACKAGE_NAME, pkgName, symbolNameSupplier.get());
@@ -1568,6 +1542,20 @@ public class BLangModelBuilder {
         if (errMsg != null) {
             errorMsgs.add(errMsg);
         }
+    }
+
+    protected void validateAndSetPackagePath(NodeLocation location, SimpleTypeName typeName) {
+        String name = typeName.getName();
+        String pkgName = typeName.getPackageName();
+        ImportPackage importPkg = getImportPackage(pkgName);
+        checkForUndefinedPackagePath(location, pkgName, importPkg, () -> pkgName + ":" + name);
+
+        if (importPkg == null) {
+            return;
+        }
+
+        importPkg.markUsed();
+        typeName.setPkgPath(importPkg.getPath());
     }
 
 
