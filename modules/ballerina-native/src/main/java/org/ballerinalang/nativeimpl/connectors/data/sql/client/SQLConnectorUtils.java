@@ -41,11 +41,13 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Struct;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.sql.Types;
 import java.util.Base64;
 import java.util.Calendar;
+import java.util.Locale;
 import java.util.StringJoiner;
 import java.util.TimeZone;
 
@@ -553,6 +555,41 @@ public class SQLConnectorUtils {
         }
     }
 
+    public static void setUserDefinedValue(Connection conn, PreparedStatement stmt, BValue value, int index,
+            int direction, int sqlType, String structuredSQLType) {
+        structuredSQLType = structuredSQLType.toUpperCase(Locale.getDefault());
+        Object[] val = null;
+        if (value != null) {
+            val = value.stringValue().split(",");
+        }
+
+        try {
+            if (Constants.QueryParamDirection.IN == direction) {
+                if (value == null) {
+                    stmt.setNull(index + 1, sqlType);
+                } else {
+                    Struct struct = conn.createStruct(structuredSQLType, val);
+                    stmt.setObject(index + 1, struct);
+                }
+            } else if (Constants.QueryParamDirection.INOUT == direction) {
+                if (value == null) {
+                    stmt.setNull(index + 1, sqlType);
+                } else {
+                    Struct struct = conn.createStruct(structuredSQLType, val);
+                    stmt.setObject(index + 1, struct);
+                }
+                ((CallableStatement) stmt)
+                        .registerOutParameter(index + 1, sqlType, structuredSQLType);
+            } else if (Constants.QueryParamDirection.OUT == direction) {
+                ((CallableStatement) stmt).registerOutParameter(index + 1, sqlType, structuredSQLType);
+            } else {
+                throw new BallerinaException("invalid direction for the parameter with index: " + index);
+            }
+        } catch (SQLException e) {
+            throw new BallerinaException("error in set struct value to statement: " + e.getMessage(), e);
+        }
+    }
+
     /**
      * This will close Database connection, statement and the resultset.
      *
@@ -736,6 +773,18 @@ public class SQLConnectorUtils {
             sj.add(val);
         }
         return sj.toString();
+    }
+
+    public static String getString(Struct udt) throws SQLException {
+        if (udt.getAttributes() != null) {
+            StringJoiner sj = new StringJoiner(",", "{", "}");
+            Object[] udtValues = udt.getAttributes();
+            for (int i = 0; i < udtValues.length; i++) {
+                sj.add(String.valueOf(udtValues[i]));
+            }
+            return sj.toString();
+        }
+        return null;
     }
 
     private static byte[] getBytesFromBase64String(String base64Str) {

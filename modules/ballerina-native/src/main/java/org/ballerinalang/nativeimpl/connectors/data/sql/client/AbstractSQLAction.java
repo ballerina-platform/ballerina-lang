@@ -43,6 +43,7 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Struct;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.sql.Types;
@@ -326,6 +327,10 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
             case Constants.SQLDataTypes.ARRAY:
                 SQLConnectorUtils.setArrayValue(conn, stmt, value, index, direction, Types.ARRAY, structuredSQLType);
                 break;
+            case Constants.SQLDataTypes.STRUCT:
+                SQLConnectorUtils
+                        .setUserDefinedValue(conn, stmt, value, index, direction, Types.STRUCT, structuredSQLType);
+                break;
             default:
                 throw new BallerinaException("unsupported datatype as parameter: " + sqlType + " index:" + index);
             }
@@ -416,6 +421,16 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
             case Constants.SQLDataTypes.ARRAY:
                 elementValue = stmt.getArray(index + 1);
                 stringValue = elementValue == null ? "" : SQLConnectorUtils.getString((Array) elementValue);
+                break;
+            case Constants.SQLDataTypes.STRUCT:
+                elementValue = stmt.getObject(index + 1);
+                if (elementValue != null) {
+                    if (elementValue instanceof Struct) {
+                        stringValue = SQLConnectorUtils.getString((Struct) elementValue);
+                    } else {
+                        stringValue = elementValue.toString();
+                    }
+                }
                 break;
             default:
                 throw new BallerinaException(
