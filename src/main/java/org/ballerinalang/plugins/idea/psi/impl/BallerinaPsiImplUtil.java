@@ -645,19 +645,18 @@ public class BallerinaPsiImplUtil {
      * @return all functions in the given directory(package)
      */
     public static List<PsiElement> getAllMatchingElementsFromPackage(PsiDirectory directory, String xpath) {
-
         Project project = directory.getProject();
-
         List<PsiElement> results = new ArrayList<>();
-
         VirtualFile virtualFile = directory.getVirtualFile();
         VirtualFile[] children = virtualFile.getChildren();
-
         for (VirtualFile child : children) {
             if (child.isDirectory()) {
                 continue;
             }
             PsiFile psiFile = PsiManager.getInstance(project).findFile(child);
+            if(!(psiFile instanceof BallerinaLanguage)){
+                continue;
+            }
             Collection<? extends PsiElement> functions =
                     XPath.findAll(BallerinaLanguage.INSTANCE, psiFile, xpath);
 
