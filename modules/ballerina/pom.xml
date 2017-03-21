@@ -16,14 +16,12 @@
   ~ * limitations under the License.
   ~ */
   -->
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <parent>
         <groupId>org.ballerinalang.tools</groupId>
         <artifactId>tools-distribution</artifactId>
-        <version>0.8.3-SNAPSHOT</version>
+        <version>0.85-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
@@ -177,8 +175,7 @@
                         </goals>
                         <configuration>
                             <target>
-                                <delete dir="${project.build.directory}/extracted-distributions"
-                                        includeemptydirs="true"/>
+                                <delete dir="${project.build.directory}/extracted-distributions" includeemptydirs="true" />
                             </target>
                         </configuration>
                     </execution>
