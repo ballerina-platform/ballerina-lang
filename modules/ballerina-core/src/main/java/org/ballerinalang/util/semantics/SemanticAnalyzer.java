@@ -121,6 +121,7 @@ import org.ballerinalang.model.types.TypeEdge;
 import org.ballerinalang.model.types.TypeLattice;
 import org.ballerinalang.model.types.TypeVertex;
 import org.ballerinalang.model.util.LangModelUtils;
+import org.ballerinalang.model.values.BArray;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.natives.NativeUnitProxy;
@@ -1465,7 +1466,24 @@ public class SemanticAnalyzer implements NodeVisitor {
             visitSingleValueExpr(argExprs[i]);
 
             // Types are defined only once, hence the following object equal should work.
-            if (argExprs[i].getType() != expectedElementType) {
+
+            boolean isExpectedElementType = false;
+            if (argExprs[i].getType() instanceof BArrayType) {
+                BArrayType bArrayType = (BArrayType) argExprs[i].getType();
+                if (bArrayType.getElementType() != expectedElementType
+                        || ((VariableRefExpr) argExprs[i]).getVariableDef().getTypeName().getDimensions()
+                        != arrayInitExpr.getDimensions() -1) {
+                    BLangExceptionHelper.throwSemanticError(arrayInitExpr,
+                            SemanticErrors.INCOMPATIBLE_TYPES_CANNOT_CONVERT,
+                            argExprs[i].getType(), expectedElementType);
+                } else {
+                    isExpectedElementType = true;
+                }
+            } else {
+                isExpectedElementType = argExprs[i].getType() == expectedElementType;
+            }
+
+            if (!isExpectedElementType) {
                 TypeCastExpression typeCastExpr = checkWideningPossible(expectedElementType, argExprs[i]);
                 if (typeCastExpr == null) {
                     BLangExceptionHelper.throwSemanticError(arrayInitExpr,
@@ -1600,7 +1618,8 @@ public class SemanticAnalyzer implements NodeVisitor {
 
                 builder.setArrayMapVarRefExpr(arrayMapVarRefExpr);
                 builder.setVarName(mapOrArrName);
-                builder.setIndexExpr(indexExpr);
+                Expression[] exprs = {indexExpr};
+                builder.setIndexExpr(exprs);
                 ArrayMapAccessExpr arrayMapAccessExpr = builder.build();
                 visit(arrayMapAccessExpr);
                 argExprList.add(arrayMapAccessExpr);
@@ -1720,11 +1739,12 @@ public class SemanticAnalyzer implements NodeVisitor {
         if (arrayMapVarRefExpr.getType() instanceof BArrayType) {
 
             // Check the type of the index expression
-            Expression indexExpr = arrayMapAccessExpr.getIndexExpr();
-            visitSingleValueExpr(indexExpr);
-            if (indexExpr.getType() != BTypes.typeInt) {
-                BLangExceptionHelper.throwSemanticError(arrayMapAccessExpr, SemanticErrors.NON_INTEGER_ARRAY_INDEX,
-                        indexExpr.getType());
+            for (Expression indexExpr : arrayMapAccessExpr.getIndexExpr()) {
+                visitSingleValueExpr(indexExpr);
+                if (indexExpr.getType() != BTypes.typeInt) {
+                    BLangExceptionHelper.throwSemanticError(arrayMapAccessExpr, SemanticErrors.NON_INTEGER_ARRAY_INDEX,
+                            indexExpr.getType());
+                }
             }
 
             // Set type of the arrays access expression
@@ -1734,7 +1754,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         } else if (arrayMapVarRefExpr.getType() instanceof BMapType) {
 
             // Check the type of the index expression
-            Expression indexExpr = arrayMapAccessExpr.getIndexExpr();
+            Expression indexExpr = arrayMapAccessExpr.getIndexExpr()[0];
             visitSingleValueExpr(indexExpr);
             if (indexExpr.getType() != BTypes.typeString) {
                 BLangExceptionHelper.throwSemanticError(arrayMapAccessExpr, SemanticErrors.NON_STRING_MAP_INDEX,

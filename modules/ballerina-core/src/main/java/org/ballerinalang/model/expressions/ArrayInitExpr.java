@@ -34,8 +34,15 @@ import org.ballerinalang.model.values.BValue;
  */
 public class ArrayInitExpr extends RefTypeInitExpr {
 
+    private int dimensions = 1;
+
     public ArrayInitExpr(NodeLocation location, Expression[] argExprs) {
         super(location, argExprs);
+    }
+
+    public ArrayInitExpr(NodeLocation location, Expression[] argExprs, int dimentions) {
+        super(location, argExprs);
+        this.dimensions = dimentions;
     }
 
     @Override
@@ -48,4 +55,11 @@ public class ArrayInitExpr extends RefTypeInitExpr {
         return executor.visit(this);
     }
 
+    public int getDimensions() {
+        return this.dimensions;
+    }
+
+    public void setDimensions(int dimensions) {
+        this.dimensions = dimensions;
+    }
 }

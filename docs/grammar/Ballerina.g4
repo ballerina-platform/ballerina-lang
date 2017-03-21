@@ -165,7 +165,7 @@ simpleType
     ;
 
 simpleTypeArray
-    :   Identifier '[]'
+    :   Identifier '[]'+
     ;
 
 simpleTypeIterate
@@ -387,7 +387,7 @@ actionInvocationStatement
 
 variableReference
     :   Identifier                                  # simpleVariableIdentifier// simple identifier
-    |   Identifier '['expression']'                 # mapArrayVariableIdentifier// arrays and map reference
+    |   Identifier ('['expression']')+              # mapArrayVariableIdentifier// arrays and map reference
     |   variableReference ('.' variableReference)+  # structFieldIdentifier// struct field reference
     ;
 
@@ -435,8 +435,8 @@ expression
     |   expression ('==' | '!=') expression             # binaryEqualExpression
     |   expression '&&' expression                      # binaryAndExpression
     |   expression '||' expression                      # binaryOrExpression
-    |   '[]'                                            # arrayInitExpression
-    |   '[' expressionList ']'                          # arrayInitExpression // couldn't match empty arrays with:  '[' expressionList? ']' hence writing in two branches
+    |   '[]'+                                           # arrayInitExpression
+    |   ('[' expressionList ']')+                       # arrayInitExpression // couldn't match empty arrays with:  '[' expressionList? ']' hence writing in two branches
     |   '{' mapStructInitKeyValueList? '}'              # refTypeInitExpression
     |   'create' typeName argumentList                  # connectorInitExpression
     ;

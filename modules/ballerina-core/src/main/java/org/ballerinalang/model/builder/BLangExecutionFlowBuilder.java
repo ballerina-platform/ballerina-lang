@@ -1028,7 +1028,8 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
         // Handle this as non-blocking manner.
         ArrayMapAccessExprEndNode endNode = new ArrayMapAccessExprEndNode(arrayMapAccessExpr);
         Expression rExp = arrayMapAccessExpr.getRExpr();
-        Expression indexExpr = arrayMapAccessExpr.getIndexExpr();
+        // ToDo: Talk to hasitha
+        Expression indexExpr = arrayMapAccessExpr.getIndexExpr()[0];
         arrayMapAccessExpr.setNext(rExp);
         rExp.setParent(arrayMapAccessExpr);
         indexExpr.setParent(arrayMapAccessExpr);
@@ -1056,7 +1057,8 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
             calculateTempOffSet(current);
             ReferenceExpr varRefExpr = current.getVarRef();
             if (varRefExpr instanceof ArrayMapAccessExpr) {
-                Expression indexExpr = ((ArrayMapAccessExpr) varRefExpr).getIndexExpr();
+                // ToDo: Talk to Supun
+                Expression indexExpr = ((ArrayMapAccessExpr) varRefExpr).getIndexExpr()[0];
                 lastLinkedNode.setNext(indexExpr);
                 indexExpr.setParent(structFieldAccessExpr);
                 if (current.getFieldExpr() != null) {

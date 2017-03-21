@@ -30,6 +30,7 @@ public class SimpleTypeName {
     protected String pkgPath;
     protected SymbolName symbolName;
     protected boolean isArrayType;
+    protected int dimensions;
 
     public SimpleTypeName(String name, String pkgName, String pkgPath) {
         this.name = name;
@@ -91,5 +92,13 @@ public class SimpleTypeName {
     @Override
     public String toString() {
         return getNameWithArray(getNameWithPkg());
+    }
+
+    public int getDimensions() {
+        return dimensions;
+    }
+
+    public void setDimensions(int dimensions) {
+        this.dimensions = dimensions;
     }
 }

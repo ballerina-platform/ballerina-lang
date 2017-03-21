@@ -98,6 +98,7 @@ import org.ballerinalang.util.exceptions.SemanticErrors;
 import org.ballerinalang.util.exceptions.SemanticException;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -227,7 +228,7 @@ public class BLangModelBuilder {
 
     // Add types. SimpleTypes, Types with full scheme, schema URL or schema ID
 
-    public void addSimpleTypeName(NodeLocation location, String name, String pkgName, boolean isArrayType) {
+    public void addSimpleTypeName(NodeLocation location, String name, String pkgName, boolean isArrayType, int dimensions) {
         SimpleTypeName typeName = null;
         ImportPackage importPkg = getImportPackage(pkgName);
         checkForUndefinedPackagePath(location, pkgName, importPkg, () -> pkgName + ":" + name);
@@ -242,6 +243,7 @@ public class BLangModelBuilder {
         }
 
         typeName.setArrayType(isArrayType);
+        typeName.setDimensions(dimensions);
         typeNameStack.add(typeName);
     }
 
@@ -493,12 +495,16 @@ public class BLangModelBuilder {
         SymbolName symName = new SymbolName(varName);
         VariableRefExpr arrayVarRefExpr = new VariableRefExpr(location, varName);
 
-        Expression indexExpr = exprStack.pop();
-        checkArgExprValidity(location, indexExpr);
+        Expression[] indexExprs = new Expression[exprStack.size()];
+        int i = 0;
+        while (exprStack.size() > 0) {
+            indexExprs[i++] = exprStack.pop();
+        }
+        checkArgExprValidity(location, Arrays.asList(indexExprs));
 
         ArrayMapAccessExpr.ArrayMapAccessExprBuilder builder = new ArrayMapAccessExpr.ArrayMapAccessExprBuilder();
         builder.setVarName(symName);
-        builder.setIndexExpr(indexExpr);
+        builder.setIndexExpr(indexExprs);
         builder.setArrayMapVarRefExpr(arrayVarRefExpr);
         builder.setNodeLocation(location);
 
@@ -685,7 +691,7 @@ public class BLangModelBuilder {
         exprStack.push(typeCastExpression);
     }
 
-    public void createArrayInitExpr(NodeLocation location, boolean argsAvailable) {
+    public void createArrayInitExpr(NodeLocation location, boolean argsAvailable, int dimentions) {
         List<Expression> argExprList;
         if (argsAvailable) {
             argExprList = exprListStack.pop();
@@ -696,7 +702,7 @@ public class BLangModelBuilder {
         checkArgExprValidity(location, argExprList);
 
         ArrayInitExpr arrayInitExpr = new ArrayInitExpr(location,
-                argExprList.toArray(new Expression[argExprList.size()]));
+                argExprList.toArray(new Expression[argExprList.size()]), dimentions);
         exprStack.push(arrayInitExpr);
     }
 
@@ -979,6 +985,9 @@ public class BLangModelBuilder {
         variableRefExpr.setVariableDef(variableDef);
 
         Expression rhsExpr = exprAvailable ? exprStack.pop() : null;
+        if (rhsExpr instanceof ArrayInitExpr) {
+            ((ArrayInitExpr) rhsExpr).setDimensions(variableDef.getTypeName().getDimensions());
+        }
         VariableDefStmt variableDefStmt = new VariableDefStmt(location, variableDef, variableRefExpr, rhsExpr);
 
         if (blockStmtBuilderStack.size() == 0 && currentCUGroupBuilder != null) {

@@ -747,7 +747,11 @@ public class BLangAntlr4Listener implements BallerinaListener {
         }
 
         if (isSimpleType) {
-            modelBuilder.addSimpleTypeName(getCurrentLocation(ctx), typeName, currentPkgName, isArrayType);
+            int dimensions = 1;
+            if (isArrayType) {
+                dimensions = ctx.getChild(0).getChild(0).getChildCount() -1;
+            }
+            modelBuilder.addSimpleTypeName(getCurrentLocation(ctx), typeName, currentPkgName, isArrayType, dimensions);
             typeName = null;
             currentPkgName = null;
             isArrayType = false;
@@ -1440,11 +1444,14 @@ public class BLangAntlr4Listener implements BallerinaListener {
         }
 
         boolean argsAvailable = false;
-        if (ctx.expressionList() != null) {
+        int dimensions = 1;
+        if (ctx.expressionList() != null && ctx.expressionList().size() > 0) {
             argsAvailable = true;
+        } else {
+            dimensions = ctx.getChildCount();
         }
 
-        modelBuilder.createArrayInitExpr(getCurrentLocation(ctx), argsAvailable);
+        modelBuilder.createArrayInitExpr(getCurrentLocation(ctx), argsAvailable, dimensions);
     }
 
     @Override
