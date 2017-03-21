@@ -4,4 +4,5 @@ struct Parameter {
 	string sqlType;
 	string value;
 	int direction;
+	string structuredType;
 }

@@ -32,6 +32,7 @@ import org.ballerinalang.natives.connectors.AbstractNativeAction;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.math.BigDecimal;
+import java.sql.Array;
 import java.sql.Blob;
 import java.sql.CallableStatement;
 import java.sql.Clob;
@@ -64,7 +65,7 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
         try {
             conn = connector.getSQLConnection();
             stmt = getPreparedStatement(conn, connector, query);
-            createProcessedStatement(stmt, parameters);
+            createProcessedStatement(conn, stmt, parameters);
             rs = stmt.executeQuery();
             BDataTable dataTable = new BDataTable(new SQLDataIterator(conn, stmt, rs), new HashMap<>(),
                     getColumnDefinitions(rs));
@@ -82,7 +83,7 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
         try {
             conn = connector.getSQLConnection();
             stmt = conn.prepareStatement(query);
-            createProcessedStatement(stmt, parameters);
+            createProcessedStatement(conn, stmt, parameters);
             int count = stmt.executeUpdate();
             BInteger updatedCount = new BInteger(count);
             context.getControlStack().setReturnValue(0, updatedCount);
@@ -113,7 +114,7 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
             } else {
                 stmt = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
             }
-            createProcessedStatement(stmt, parameters);
+            createProcessedStatement(conn, stmt, parameters);
             int count = stmt.executeUpdate();
             BInteger updatedCount = new BInteger(count);
             context.getControlStack().setReturnValue(0, updatedCount);
@@ -139,7 +140,7 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
         try {
             conn = connector.getSQLConnection();
             stmt = getPreparedCall(conn, connector, query, parameters);
-            createProcessedStatement(stmt, parameters);
+            createProcessedStatement(conn, stmt, parameters);
             rs = executeStoredProc(stmt);
             setOutParameters(stmt, parameters);
             if (rs != null) {
@@ -255,18 +256,20 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
         return generatedKeys;
     }
 
-    private void createProcessedStatement(PreparedStatement stmt, BArray params) {
+    private void createProcessedStatement(Connection conn, PreparedStatement stmt, BArray params) {
         int paramCount = params.size();
         for (int index = 0; index < paramCount; index++) {
             BStruct paramValue = (BStruct) params.get(index);
             String sqlType = paramValue.getValue(0).stringValue();
             BValue value = paramValue.getValue(1);
             int direction = Integer.parseInt(paramValue.getValue(2).stringValue());
-            setParameter(stmt, sqlType, value, direction, index);
+            String structuredSQLType = paramValue.getValue(3).stringValue();
+            setParameter(conn, stmt, sqlType, value, direction, index, structuredSQLType);
         }
     }
 
-    private void setParameter(PreparedStatement stmt, String sqlType, BValue value, int direction, int index) {
+    private void setParameter(Connection conn, PreparedStatement stmt, String sqlType, BValue value, int direction,
+            int index, String structuredSQLType) {
         if (sqlType == null || sqlType.isEmpty()) {
             SQLConnectorUtils.setStringValue(stmt, value, index, direction, Types.VARCHAR);
         } else {
@@ -319,6 +322,9 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
                 break;
             case Constants.SQLDataTypes.CLOB:
                 SQLConnectorUtils.setClobValue(stmt, value, index, direction, Types.CLOB);
+                break;
+            case Constants.SQLDataTypes.ARRAY:
+                SQLConnectorUtils.setArrayValue(conn, stmt, value, index, direction, Types.ARRAY, structuredSQLType);
                 break;
             default:
                 throw new BallerinaException("unsupported datatype as parameter: " + sqlType + " index:" + index);
@@ -406,6 +412,10 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
             case Constants.SQLDataTypes.TIME:
                 elementValue = stmt.getTime(index + 1);
                 stringValue = elementValue == null ? "" : SQLConnectorUtils.getString((Time) elementValue);
+                break;
+            case Constants.SQLDataTypes.ARRAY:
+                elementValue = stmt.getArray(index + 1);
+                stringValue = elementValue == null ? "" : SQLConnectorUtils.getString((Array) elementValue);
                 break;
             default:
                 throw new BallerinaException(
