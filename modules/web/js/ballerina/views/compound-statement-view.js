@@ -70,16 +70,6 @@ define(
 
             this.getDiagramRenderingContext().setViewOfModel(this.getModel(), this);
 
-
-            this.listenTo(this.getBoundingBox(), 'height-changed', function (dh) {
-                window.console.log("***********************");
-                window.console.log(this.getBoundingBox().h());
-                if (this.getBoundingBox().h() === 340) {
-                    debugger;
-                }
-                window.console.log("***********************");
-            }, this);
-
             model.accept(this);
         };
 
