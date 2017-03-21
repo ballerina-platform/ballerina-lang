@@ -46,7 +46,6 @@ public class BallerinaApplicationSettingsEditor extends SettingsEditor<Ballerina
     private LabeledComponent<RawCommandLineEditor> myParamsField;
     private LabeledComponent<JComboBox<RunConfigurationKind>> myRunKindComboBox;
     private LabeledComponent<EditorTextField> myPackageField;
-    private LabeledComponent<TextFieldWithBrowseButton> myOutputFilePathField;
     private LabeledComponent<ModulesComboBox> myModulesComboBox;
     private LabeledComponent<TextFieldWithBrowseButton> myWorkingDirectoryField;
     private Project myProject;
@@ -55,7 +54,6 @@ public class BallerinaApplicationSettingsEditor extends SettingsEditor<Ballerina
         myProject = project;
         installRunKindComboBox();
         BallerinaRunUtil.installBallerinaWithMainFileChooser(project, myFileField.getComponent());
-        BallerinaRunUtil.installFileChooser(myProject, myOutputFilePathField.getComponent(), true, true);
     }
 
     @Override
@@ -63,7 +61,6 @@ public class BallerinaApplicationSettingsEditor extends SettingsEditor<Ballerina
         myFileField.getComponent().setText(configuration.getFilePath());
         myPackageField.getComponent().setText(configuration.getPackage());
         myRunKindComboBox.getComponent().setSelectedItem(configuration.getRunKind());
-        myOutputFilePathField.getComponent().setText(StringUtil.notNullize(configuration.getOutputFilePath()));
 
         myModulesComboBox.getComponent().setModules(configuration.getValidModules());
         myModulesComboBox.getComponent().setSelectedModule(configuration.getConfigurationModule().getModule());
@@ -78,7 +75,6 @@ public class BallerinaApplicationSettingsEditor extends SettingsEditor<Ballerina
         configuration.setFilePath(myFileField.getComponent().getText());
         configuration.setPackage(myPackageField.getComponent().getText());
         configuration.setRunKind((RunConfigurationKind) myRunKindComboBox.getComponent().getSelectedItem());
-        configuration.setFileOutputPath(StringUtil.nullize(myOutputFilePathField.getComponent().getText()));
 
         configuration.setModule(myModulesComboBox.getComponent().getSelectedModule());
         configuration.setParams(myParamsField.getComponent().getText());
@@ -101,9 +97,6 @@ public class BallerinaApplicationSettingsEditor extends SettingsEditor<Ballerina
 
         myFileField = new LabeledComponent<>();
         myFileField.setComponent(new TextFieldWithBrowseButton());
-
-        myOutputFilePathField = new LabeledComponent<>();
-        myOutputFilePathField.setComponent(new TextFieldWithBrowseButton());
 
         myWorkingDirectoryField = new LabeledComponent<>();
         myWorkingDirectoryField.setComponent(new TextFieldWithBrowseButton());
