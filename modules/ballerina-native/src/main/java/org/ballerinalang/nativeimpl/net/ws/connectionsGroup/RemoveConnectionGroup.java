@@ -16,7 +16,7 @@
  *  under the License.
  */
 
-package org.ballerinalang.nativeimpl.net.ws.connectionGroup;
+package org.ballerinalang.nativeimpl.net.ws.connectionsGroup;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeEnum;
@@ -27,46 +27,27 @@ import org.ballerinalang.natives.annotations.Attribute;
 import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.services.dispatchers.websocket.WebSocketConnectionManager;
-import org.ballerinalang.util.exceptions.BallerinaException;
-
-import java.io.IOException;
-import java.util.List;
-import javax.websocket.Session;
 
 /**
- * This pushes text to a group which is previously define.
+ * Remove a connection group from {@link org.ballerinalang.services.dispatchers.websocket.WebSocketConnectionManager}
  */
 @BallerinaFunction(
         packageName = "ballerina.net.ws",
-        functionName = "pushTextToGroup",
+        functionName = "removeConnectionGroup",
         args = {
-                @Argument(name = "connectionGroupName", type = TypeEnum.STRING),
-                @Argument(name = "text", type = TypeEnum.STRING)
+                @Argument(name = "connectionGroupName", type = TypeEnum.STRING)
         },
         isPublic = true
 )
 @BallerinaAnnotation(annotationName = "Description",
-                     attributes = { @Attribute(name = "value", value = "This pushes text from server to all the " +
-                             "connected clients of the service.") })
+                     attributes = { @Attribute(name = "value", value = "Removes connection from a connection group")})
 @BallerinaAnnotation(annotationName = "Param",
-                     attributes = { @Attribute(name = "connectionGroupName", value = "name of the connection group") })
-@BallerinaAnnotation(annotationName = "Param",
-                     attributes = { @Attribute(name = "text", value = "Text which should be sent") })
-public class PushTextToGroup extends AbstractNativeFunction {
+                     attributes = { @Attribute(name = "connectionGroupName", value = "name of the connection group")})
+public class RemoveConnectionGroup extends AbstractNativeFunction {
     @Override
     public BValue[] execute(Context context) {
         String connectionGroupName = getArgument(context, 0).stringValue();
-        String text = getArgument(context, 1).stringValue();
-        List<Session> sessions = WebSocketConnectionManager.getInstance().getConnectionGroup(connectionGroupName);
-        sessions.forEach(
-                session -> {
-                    try {
-                        session.getBasicRemote().sendText(text);
-                    } catch (IOException e) {
-                        throw new BallerinaException("IO exception occurred during broadcasting text", e, context);
-                    }
-                }
-        );
+        WebSocketConnectionManager.getInstance().removeConnectionGroup(connectionGroupName);
         return VOID_RETURN;
     }
 }

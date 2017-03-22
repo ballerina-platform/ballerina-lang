@@ -46,18 +46,17 @@ public class WebSocketResourceDispatcher implements ResourceDispatcher {
     @Override
     public Resource findResource(Service service, CarbonMessage cMsg, CarbonCallback callback, Context balContext)
             throws BallerinaException {
-
         try {
             if (cMsg instanceof TextCarbonMessage) {
-                return getResource(service, Constants.ANNOTATION_NAME_ON_TEXT_MESSAGE);
+                return findResource(service, Constants.ANNOTATION_NAME_ON_TEXT_MESSAGE);
             } else if (cMsg instanceof BinaryCarbonMessage) {
-                return getResource(service, Constants.ANNOTATION_NAME_ON_BINARY_MESSAGE);
+                return findResource(service, Constants.ANNOTATION_NAME_ON_BINARY_MESSAGE);
             } else if (cMsg instanceof ControlCarbonMessage) {
-                return getResource(service, Constants.ANNOTATION_NAME_ON_PONG_MESSAGE);
+                return findResource(service, Constants.ANNOTATION_NAME_ON_PONG_MESSAGE);
             } else if (cMsg instanceof StatusCarbonMessage) {
                 StatusCarbonMessage statusMessage = (StatusCarbonMessage) cMsg;
                 if (org.wso2.carbon.messaging.Constants.STATUS_CLOSE.equals(statusMessage.getStatus())) {
-                    return getResource(service, Constants.ANNOTATION_NAME_ON_CLOSE);
+                    return findResource(service, Constants.ANNOTATION_NAME_ON_CLOSE);
                 } else if (org.wso2.carbon.messaging.Constants.STATUS_OPEN.equals(statusMessage.getStatus())) {
                     String connection = (String) cMsg.getProperty(Constants.CONNECTION);
                     String upgrade = (String) cMsg.getProperty(Constants.UPGRADE);
@@ -67,7 +66,7 @@ public class WebSocketResourceDispatcher implements ResourceDispatcher {
                             Constants.UPGRADE.equals(connection) && Constants.WEBSOCKET_UPGRADE.equals(upgrade)) {
                         Session session = (Session) statusMessage.getProperty(Constants.WEBSOCKET_SESSION);
                         connectionManager.addConnectionToBroadcast(service.getName(), session);
-                        return getResource(service, Constants.ANNOTATION_NAME_ON_OPEN);
+                        return findResource(service, Constants.ANNOTATION_NAME_ON_OPEN);
                     }
                 }
             }
@@ -83,7 +82,7 @@ public class WebSocketResourceDispatcher implements ResourceDispatcher {
         return Constants.PROTOCOL_WEBSOCKET;
     }
 
-    private Resource getResource(Service service, String annotationName) {
+    private Resource findResource(Service service, String annotationName) {
         for (Resource resource: service.getResources()) {
             if (resource.getAnnotation(Constants.PROTOCOL_WEBSOCKET, annotationName) != null) {
                 return resource;

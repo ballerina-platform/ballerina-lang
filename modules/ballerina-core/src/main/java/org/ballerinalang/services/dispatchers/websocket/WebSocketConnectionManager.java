@@ -31,11 +31,11 @@ import javax.websocket.Session;
  */
 public class WebSocketConnectionManager {
 
-    // Map <serviceName, Map<sessionId, session>>
+    // Map<serviceName, Map<sessionId, session>>
     private final Map<String, Map<String, Session>> broadcastSessions = new ConcurrentHashMap<>();
-    // Map <groupName, Map<sessionId, session>>
+    // Map<groupName, Map<sessionId, session>>
     private final Map<String, Map<String, Session>> connectionGroups = new ConcurrentHashMap<>();
-    // Map <NameToStoreConnection, Session>
+    // Map<NameToStoreConnection, Session>
     private final Map<String, Session> connectionStore = new ConcurrentHashMap<>();
 
     private static final WebSocketConnectionManager sessionManager = new WebSocketConnectionManager();
@@ -87,8 +87,9 @@ public class WebSocketConnectionManager {
             return broadcastSessions.get(serviceName).entrySet().stream()
                     .map(Map.Entry::getValue)
                     .collect(Collectors.toList());
+        } else {
+            return null;
         }
-        throw new BallerinaException("Cannot find a broadcast list for the service: " + serviceName);
     }
 
     /**
@@ -140,8 +141,9 @@ public class WebSocketConnectionManager {
             return connectionGroups.get(groupName).entrySet().stream()
                     .map(Map.Entry::getValue)
                     .collect(Collectors.toList());
+        } else {
+            return null;
         }
-        throw new BallerinaException("Cannot find the connection group: " + groupName);
     }
 
     /**
@@ -165,15 +167,12 @@ public class WebSocketConnectionManager {
 
     /**
      * Get the stored connection from the connection store.
+     *
      * @param connectionName name of the connection which should be removed.
-     * @return
+     * @return Session of the stored connection if connections is found else return null.
      */
     public Session getStoredConnection(String connectionName) {
-        if (connectionStore.containsKey(connectionName)) {
-            return connectionStore.get(connectionName);
-        }
-        throw new BallerinaException("Cannot find the stored connection for a given connection name: " +
-                                             connectionName);
+        return connectionStore.get(connectionName);
     }
 
     /**

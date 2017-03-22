@@ -16,7 +16,7 @@
  *  under the License.
  */
 
-package org.ballerinalang.nativeimpl.net.ws.connectionGroup;
+package org.ballerinalang.nativeimpl.net.ws.connectionsGroup;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeEnum;
@@ -26,14 +26,18 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.Attribute;
 import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
+import org.ballerinalang.services.dispatchers.http.Constants;
 import org.ballerinalang.services.dispatchers.websocket.WebSocketConnectionManager;
+import org.wso2.carbon.messaging.CarbonMessage;
+
+import javax.websocket.Session;
 
 /**
- * Remove a connection group from {@link org.ballerinalang.services.dispatchers.websocket.WebSocketConnectionManager}
+ * Remove a connection from a group if needed.
  */
 @BallerinaFunction(
         packageName = "ballerina.net.ws",
-        functionName = "removeConnectionGroup",
+        functionName = "removeConnectionFromGroup",
         args = {
                 @Argument(name = "connectionGroupName", type = TypeEnum.STRING)
         },
@@ -43,11 +47,13 @@ import org.ballerinalang.services.dispatchers.websocket.WebSocketConnectionManag
                      attributes = { @Attribute(name = "value", value = "Removes connection from a connection group")})
 @BallerinaAnnotation(annotationName = "Param",
                      attributes = { @Attribute(name = "connectionGroupName", value = "name of the connection group")})
-public class RemoveConnectionGroup extends AbstractNativeFunction {
+public class RemoveConnectionFromGroup extends AbstractNativeFunction {
     @Override
     public BValue[] execute(Context context) {
-        String connectionGroupName = getArgument(context, 0).stringValue();
-        WebSocketConnectionManager.getInstance().removeConnectionGroup(connectionGroupName);
+        String connectionGroupName = getArgument(context, 0).toString();
+        CarbonMessage carbonMessage = context.getCarbonMessage();
+        Session session = (Session) carbonMessage.getProperty(Constants.WEBSOCKET_SESSION);
+        WebSocketConnectionManager.getInstance().removeConnectionFromGroup(connectionGroupName, session);
         return VOID_RETURN;
     }
 }
