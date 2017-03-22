@@ -44,7 +44,7 @@ import ImportDeclarationView from './import-declaration-view';
 import TypeMapperDefinitionView from './type-mapper-definition-view';
 import alerts from 'alerts';
 import typeahead from 'typeahead.js';
-import $____constant_definition_view from './constant-definition-view';
+import ConstantDefinitionView from './constant-definition-view';
 
 /**
  * The view to represent a ballerina file editor which is an AST visitor.
@@ -243,7 +243,6 @@ class BallerinaFileEditor extends BallerinaView {
 
     visitConstantDefinition(constantDefinition) {
        var container = this._constantDefinitionsPane.getConstantDefViewsContainer(),
-           ConstantDefinitionView = $____constant_definition_view;
 
        var constantDefinitionView = new ConstantDefinitionView({
            parent: this._model,
@@ -1079,4 +1078,3 @@ class BallerinaFileEditor extends BallerinaView {
 
 
 export default BallerinaFileEditor;
-    

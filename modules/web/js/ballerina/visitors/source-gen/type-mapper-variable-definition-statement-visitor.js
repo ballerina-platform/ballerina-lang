@@ -20,7 +20,7 @@ import log from 'log';
 import EventChannel from 'event_channel';
 import AbstractStatementSourceGenVisitor from './abstract-statement-source-gen-visitor';
 import VariableDefinitionStatement from '../../ast/statements/variable-definition-statement';
-import $____type_mapper_statement_visitor_factory from './type-mapper-statement-visitor-factory';
+import StatementVisitorFactory from './type-mapper-statement-visitor-factory';
 
 class TypeMapperVariableDefinitionStatementVisitor extends AbstractStatementSourceGenVisitor {
     constructor(parent) {
@@ -42,7 +42,6 @@ class TypeMapperVariableDefinitionStatementVisitor extends AbstractStatementSour
     }
 
     visitRightOperandExpression(expression) {
-        var StatementVisitorFactory = $____type_mapper_statement_visitor_factory;
         var statementVisitorFactory = new StatementVisitorFactory();
         var statementVisitor = statementVisitorFactory.getStatementVisitor(expression, this);
         expression.accept(statementVisitor);

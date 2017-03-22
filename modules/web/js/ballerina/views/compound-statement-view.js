@@ -22,7 +22,7 @@ import BallerinaStatementView from './ballerina-statement-view';
 import D3Utils from 'd3utils';
 import d3 from 'd3';
 import Point from './point';
-import $____statement_view_factory from './statement-view-factory';
+import StatementViewFactory from './statement-view-factory';
 
 /**
  * Super view class for all compound statements e.g. if-else, try-catch etc.
@@ -106,7 +106,6 @@ class CompoundStatementView extends BallerinaStatementView {
             toolPalette: this.getToolPalette(),
             isChildOfWorker: childStatement.parent._isChildOfWorker
         };
-        var StatementViewFactory = $____statement_view_factory;
         var statementViewFactory = new StatementViewFactory();
         /** @type {BlockStatementView} */
         var childStatementView = statementViewFactory.getStatementView(childStatementViewArgs);

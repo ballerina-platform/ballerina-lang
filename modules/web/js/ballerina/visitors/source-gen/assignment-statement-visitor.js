@@ -20,7 +20,7 @@ import log from 'log';
 import EventChannel from 'event_channel';
 import AbstractStatementSourceGenVisitor from './abstract-statement-source-gen-visitor';
 import AssignmentStatement from '../../ast/statements/assignment-statement';
-import $____statement_visitor_factory from './statement-visitor-factory';
+import StatementVisitorFactory from './statement-visitor-factory';
 
 class AssignmentStatementVisitor extends AbstractStatementSourceGenVisitor {
     constructor(parent) {
@@ -36,14 +36,12 @@ class AssignmentStatementVisitor extends AbstractStatementSourceGenVisitor {
     }
 
     visitLeftOperandExpression(expression) {
-        var StatementVisitorFactory = $____statement_visitor_factory;
         var statementVisitorFactory = new StatementVisitorFactory();
         var statementVisitor = statementVisitorFactory.getStatementVisitor(expression, this);
         expression.accept(statementVisitor);
     }
 
     visitRightOperandExpression(expression) {
-        var StatementVisitorFactory = $____statement_visitor_factory;
         var statementVisitorFactory = new StatementVisitorFactory();
         var statementVisitor = statementVisitorFactory.getStatementVisitor(expression, this);
         expression.accept(statementVisitor);

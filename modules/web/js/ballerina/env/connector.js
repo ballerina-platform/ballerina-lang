@@ -20,7 +20,7 @@ import _ from 'lodash';
 import require from 'require';
 import EventChannel from 'event_channel';
 import BallerinaASTFactory from './../ast/ballerina-ast-factory';
-import $____ballerina_env_factory from './ballerina-env-factory';
+import BallerinaEnvFactory from './ballerina-env-factory';
 
 /**
  * @class Connector
@@ -35,7 +35,6 @@ class Connector extends EventChannel {
         this._id = _.get(args, 'id', '');
         this._actions = _.get(args, 'actions', []);
         this._params = _.get(args, 'params', []);
-        this.BallerinaEnvFactory = $____ballerina_env_factory;
     }
 
     setName(name) {
@@ -122,7 +121,7 @@ class Connector extends EventChannel {
         this.setName(jsonNode.name);
 
         _.each(jsonNode.actions, function (actionNode) {
-            var action = self.BallerinaEnvFactory.createConnectorAction();
+            var action = BallerinaEnvFactory.createConnectorAction();
             action.initFromJson(actionNode);
             self.addAction(action);
         });
@@ -130,4 +129,3 @@ class Connector extends EventChannel {
 }
 
 export default Connector;
-    

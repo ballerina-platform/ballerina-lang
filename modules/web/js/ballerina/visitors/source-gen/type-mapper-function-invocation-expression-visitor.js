@@ -21,7 +21,7 @@ import EventChannel from 'event_channel';
 import AbstractStatementSourceGenVisitor from './abstract-statement-source-gen-visitor';
 import FunctionInvocationExpression from '../../ast/expressions/function-invocation-expression';
 import StructFieldAccessExpression from '../../ast/expressions/struct-field-access-expression';
-import $____type_mapper_expression_visitor_factory from './type-mapper-expression-visitor-factory';
+import ExpressionVisitorFactory from './type-mapper-expression-visitor-factory';
 
 /**
  * Constructor for Function invocation expression visitor
@@ -89,7 +89,6 @@ class TypeMapperFunctionInvocationExpressionVisitor extends AbstractStatementSou
         if (index !== 0) {
             this.appendSource(',');
         }
-        var ExpressionVisitorFactory = $____type_mapper_expression_visitor_factory;
         var expressionVisitorFactory = new ExpressionVisitorFactory();
         var expressionVisitor = expressionVisitorFactory.getExpressionVisitor({model: expression, parent: this});
         expression.accept(expressionVisitor);
