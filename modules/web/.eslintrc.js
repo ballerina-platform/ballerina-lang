@@ -10,29 +10,25 @@ module.exports = {
             "error",
             "unix"
         ],
-
-        // TODO: Fix all breaks of following rules and turn them on
-        "no-unused-vars": "off",
-        "no-undef": "off",
-        "no-mixed-spaces-and-tabs": "off",
-        "no-redeclare": "off",
-
-        // TODO: Fix all breaks of following rules and uncomment to turn them on
-        // "indent": [
-        //     "error",
-        //     4
-        // ],
-        // "quotes": [
-        //     "error",
-        //     "single"
-        // ],
-        // "semi": [
-        //     "error",
-        //     "always"
-        // ]
-        // "eqeqeq": [
-        //     "error",
-        //     "always"
-        // ]
+        "no-unused-vars": "error",
+        "no-undef": "error",
+        "no-mixed-spaces-and-tabs": "error",
+        "no-redeclare": "error",
+        "indent": [
+            "error",
+            4
+        ],
+        "quotes": [
+            "error",
+            "single"
+        ],
+        "semi": [
+            "error",
+            "always"
+        ],
+        "eqeqeq": [
+            "error",
+            "always"
+        ]
     }
 };
