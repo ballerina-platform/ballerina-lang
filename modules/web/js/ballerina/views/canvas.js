@@ -33,7 +33,7 @@ class Canvas extends BallerinaView {
      * @param {Object} args={} - Argument for a canvas.
      */
     constructor(args) {
-        super();
+        super(args);
         var mMArgs = {'canvas': this};
         args.messageManager = new MessageManager(mMArgs);
 
@@ -236,4 +236,3 @@ class Canvas extends BallerinaView {
 }
 
 export default Canvas;
-
