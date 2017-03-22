@@ -20,7 +20,7 @@ import log from 'log';
 import ReturnStatement from '../ast/statements/return-statement';
 import SimpleStatementView from './simple-statement-view';
 import D3Utils from 'd3utils';
-import d3 from 'd3';
+import * as d3 from 'd3';
 
 /**
  * The view to represent a return statement which is an AST visitor.

@@ -18,7 +18,7 @@
 
 import _ from 'lodash';
 import $ from 'jquery';
-import d3 from 'd3';
+import * as d3 from 'd3';
 import log from 'log';
 import D3Utils from 'd3utils';
 import Point from './point';

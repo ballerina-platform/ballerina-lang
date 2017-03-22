@@ -17,7 +17,7 @@
  */
 import _ from 'lodash';
 import log from 'log';
-import d3 from 'd3';
+import * as d3 from 'd3';
 import Alerts from 'alerts';
 import BallerinaView from './ballerina-view';
 import BallerinaASTFactory from 'ballerina/ast/ballerina-ast-factory';

@@ -17,7 +17,7 @@
  */
 
 import _ from 'lodash';
-import d3 from 'd3';
+import * as d3 from 'd3';
 import D3Utils from 'd3utils';
 import BallerinaView from './ballerina-view';
 

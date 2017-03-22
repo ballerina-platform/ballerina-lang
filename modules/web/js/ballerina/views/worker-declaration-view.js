@@ -23,7 +23,7 @@ import WorkerDeclaration from './../ast/worker-declaration';
 import log from 'log';
 import D3Utils from 'd3utils';
 import LifeLine from './life-line';
-import d3 from 'd3';
+import * as d3 from 'd3';
 import StatementContainer from './statement-container';
 import BallerinaASTFactory from 'ballerina/ast/ballerina-ast-factory';
 

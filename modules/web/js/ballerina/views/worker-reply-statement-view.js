@@ -16,7 +16,7 @@
  * under the License.
  */
 import _ from 'lodash';
-import d3 from 'd3';
+import * as d3 from 'd3';
 import log from 'log';
 import SimpleStatementView from './simple-statement-view';
 import Point from './point';

@@ -18,7 +18,7 @@
 
 import _ from 'lodash';
 import $ from 'jquery';
-import d3 from 'd3';
+import * as d3 from 'd3';
 import log from 'log';
     /**
      * Adding the generic util functions for rendering basic shapes
