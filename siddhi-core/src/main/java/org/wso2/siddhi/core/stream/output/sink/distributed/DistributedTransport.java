@@ -23,81 +23,55 @@ import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
 import org.wso2.siddhi.core.stream.output.sink.OutputTransport;
 import org.wso2.siddhi.core.util.transport.DynamicOptions;
 import org.wso2.siddhi.core.util.transport.OptionHolder;
-<<<<<<< HEAD
 import org.wso2.siddhi.query.api.annotation.Annotation;
-=======
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
->>>>>>> 1e72efdb2157010c8f0ac997bb80eb5535c4615e
-import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 
 import java.util.List;
-import java.util.Set;
 
 /**
  * This is the base class for Distributed transports. All distributed transport types must inherit from this class
  */
 public abstract class DistributedTransport extends OutputTransport {
 
-    public static final String DISTRIBUTION_STRATEGY_KEY = "strategy";
-    public static final String DISTRIBUTION_CHANNELS_KEY = "channels";
-    public static final String PARTITION_KEY_FIELD_KEY = "partitionKey";
-
-    public static final String DISTRIBUTION_STRATEGY_ROUND_ROBIN = "roundRobin";
-    public static final String DISTRIBUTION_STRATEGY_ALL = "all";
-    public static final String DISTRIBUTION_STRATEGY_PARTITIONED = "partitioned";
-
     private int channelCount = -1;
     private OptionHolder sinkOptionHolder;
-    protected DistributedPublishingStrategy strategy;
+    protected PublishingStrategy strategy;
+    protected StreamDefinition streamDefinition;
+    protected ExecutionPlanContext executionPlanContext;
 
+    /**
+     * Will be called for initialing the {@link OutputTransport}
+     *
+     * @param outputStreamDefinition
+     * @param optionHolder           Option holder containing static and dynamic options related to the {@link OutputTransport}
+     * @param executionPlanContext
+     */
     @Override
-<<<<<<< HEAD
-    public void configure(OptionHolder optionHolder) {
-=======
-    public void init(StreamDefinition outputStreamDefinition, OptionHolder optionHolder, ExecutionPlanContext executionPlanContext) {
->>>>>>> 1e72efdb2157010c8f0ac997bb80eb5535c4615e
+    protected void init(StreamDefinition outputStreamDefinition, OptionHolder optionHolder, ExecutionPlanContext executionPlanContext) {
+        this.streamDefinition = outputStreamDefinition;
         this.sinkOptionHolder = optionHolder;
+        this.executionPlanContext = executionPlanContext;
     }
 
     @Override
     public void publish(Object payload, DynamicOptions transportOptions) throws ConnectionUnavailableException {
-        Set<Integer> destinationsToPublish = strategy.getDestinationsToPublish(payload, transportOptions);
-        destinationsToPublish.forEach(destinationId -> publish(payload, transportOptions, destinationId));
+        //Set<Integer> destinationsToPublish = strategy.getDestinationsToPublish(payload, transportOptions);
+        //destinationsToPublish.forEach(destinationId -> publish(payload, transportOptions, destinationId));
     }
 
-    public void initDistributedTransportOptions(OptionHolder distributedOptionHolder,List<OptionHolder> endpointOptionHolders,
-                                                Annotation sinkAnnotation, ExecutionPlanContext executionPlanContext,
-                                                DistributedPublishingStrategy strategy) {
+    public void initDistributedTransportOptions(OptionHolder distributedOptionHolder,
+                                                List<OptionHolder> endpointOptionHolders,
+                                                Annotation sinkAnnotation,
+                                                PublishingStrategy strategy) {
         this.strategy = strategy;
-        if (distributedOptionHolder.isOptionExists(DISTRIBUTION_CHANNELS_KEY)) {
-            channelCount = Integer.parseInt(distributedOptionHolder
-                    .validateAndGetStaticValue(DISTRIBUTION_CHANNELS_KEY));
-            if (channelCount <= 0) {
-                throw new ExecutionPlanValidationException("There must be at least one channel.");
-            }
-        } else {
-            if (endpointOptionHolders.size() <= 0) {
-                throw new ExecutionPlanValidationException("There must be at least one endpoint.");
-            }
-        }
-
         initTransport(sinkOptionHolder, endpointOptionHolders, sinkAnnotation, executionPlanContext);
     }
-
-
-    public int getChannelCount() {
-        if (channelCount == -1) {
-            throw new ExecutionPlanValidationException("Channel count not specified.");
-        }
-
-        return channelCount;
-    }
-
 
     public abstract void publish(Object payload, DynamicOptions transportOptions, int partitionId) throws ConnectionUnavailableException;
 
 
     public abstract void initTransport(OptionHolder sinkOptionHolder, List<OptionHolder> nodeOptionHolders, Annotation
             sinkAnnotation, ExecutionPlanContext executionPlanContext);
+
 
 }

@@ -27,8 +27,11 @@ public final class SiddhiConstants {
     public static final String NAMESPACE_OUTPUT_TRANSPORT = "outputtransport";
     public static final String NAMESPACE_OUTPUT_MAPPER = "outputmapper";
 
-    public static final String EXTENSION_MULTI_DESTINATION_TRANSPORT = "multiDestination";
-    public static final String EXTENSION_SINGLE_DESTINATION_TRANSPORT = "singleDestination";
+    public static final String NAMESPACE_DISTRIBUTED_PUBLISHING_STRATEGY = "distributionstrategy";
+    public static final String DISTRIBUTION_STRATEGY_PARTITIONED = "partitioned";
+
+    public static final String EXTENSION_MULTI_CLIENT_DISTRIBUTED_TRANSPORT = "multiClient";
+    public static final String EXTENSION_SINGLE_CLIENT_DISTRIBUTED_TRANSPORT = "singleClient";
 
     public static final int BEFORE_WINDOW_DATA_INDEX = 0;
     public static final int ON_AFTER_WINDOW_DATA_INDEX = 1;
@@ -69,6 +72,9 @@ public final class SiddhiConstants {
     public static final int CURRENT = -1;
     public static final int LAST = -2;
     public static final int ANY = -1;
+
+    public static final String DISTRIBUTION_STRATEGY_KEY = "strategy";
+    public static final String PARTITION_KEY_FIELD_KEY = "partitionKey";
 
     public static final String METRIC_INFIX_EXECUTION_PLANS = "ExecutionPlans";
     public static final String METRIC_INFIX_STREAMS = "Streams";
