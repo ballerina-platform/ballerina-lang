@@ -110,8 +110,8 @@ public class BallerinaApplicationConfiguration
         switch (myRunKind) {
             case MAIN:
                 if (BallerinaRunUtil.findMainFileInDirectory(packageDirectory, getProject()) == null) {
-                    throw new RuntimeConfigurationError("Cannot find Ballerina file with main in '" +
-                            myPackage + "'");
+                    throw new RuntimeConfigurationError("Cannot find a Ballerina file with main in '" +
+                            myPackage + "' package");
                 }
                 break;
         }

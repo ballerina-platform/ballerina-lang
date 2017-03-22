@@ -24,9 +24,7 @@ import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.util.Function;
 import org.ballerinalang.plugins.idea.BallerinaConstants;
 import org.ballerinalang.plugins.idea.BallerinaTypes;
-import org.ballerinalang.plugins.idea.psi.BallerinaFile;
 import org.ballerinalang.plugins.idea.psi.FunctionNode;
-import org.ballerinalang.plugins.idea.psi.PackageDeclarationNode;
 import org.ballerinalang.plugins.idea.psi.ParameterListNode;
 import org.ballerinalang.plugins.idea.psi.ServiceDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.SimpleTypeArrayNode;
@@ -48,17 +46,6 @@ public class BallerinaRunLineMarkerProvider extends RunLineMarkerContributor {
             if (parent instanceof FunctionNode) {
                 // Check whether the current function is a main function.
                 if (BallerinaConstants.MAIN.equals(element.getText())) {
-                    // If the current file has a package declaration, it should not be runnable.
-                    // Get the BallerinaFile which contains the element.
-                    BallerinaFile parentFile = PsiTreeUtil.getParentOfType(element, BallerinaFile.class);
-                    if (parentFile != null) {
-                        // Get the PackageDeclarationNode if available.
-                        PackageDeclarationNode packageDeclarationNode = PsiTreeUtil.findChildOfType(parentFile,
-                                PackageDeclarationNode.class);
-                        if (packageDeclarationNode != null) {
-                            return null;
-                        }
-                    }
                     // Get the parameter list.
                     ParameterListNode parameterListNode = PsiTreeUtil.getChildOfType(parent, ParameterListNode.class);
                     if (parameterListNode == null) {
@@ -89,17 +76,6 @@ public class BallerinaRunLineMarkerProvider extends RunLineMarkerContributor {
                     }
                 }
             } else if (parent instanceof ServiceDefinitionNode) {
-                // If the current file has a package declaration, it should not be runnable.
-                // Get the BallerinaFile which contains the element.
-                BallerinaFile parentFile = PsiTreeUtil.getParentOfType(element, BallerinaFile.class);
-                if (parentFile != null) {
-                    // Get the PackageDeclarationNode if available.
-                    PackageDeclarationNode packageDeclarationNode = PsiTreeUtil.findChildOfType(parentFile,
-                            PackageDeclarationNode.class);
-                    if (packageDeclarationNode != null) {
-                        return null;
-                    }
-                }
                 // We don't need to check anything specific in services. If there is a ServiceDefinitionNode, that
                 // means there is a service. We just return a new Info object.
                 return new Info(AllIcons.RunConfigurations.TestState.Run, SERVICE_TOOLTIP_PROVIDER,

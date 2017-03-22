@@ -30,6 +30,6 @@ public class BallerinaApplicationRunConfigurationProducer
     @NotNull
     @Override
     protected String getConfigurationName(@NotNull PsiFile file) {
-        return "Build " + file.getName() + " and run";
+        return file.getName();
     }
 }

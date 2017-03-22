@@ -39,7 +39,7 @@
         </constraints>
         <properties>
           <labelLocation value="West"/>
-          <text value="Kind"/>
+          <text value="Run Kind"/>
         </properties>
       </component>
     </children>

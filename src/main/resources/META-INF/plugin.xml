@@ -135,7 +135,6 @@
         <runConfigurationProducer implementation="org.ballerinalang.plugins.idea.run.configuration.file.BallerinaRunServiceFileConfigurationProducer"/>
 
         <!-- run application -->
-        <programRunner implementation="org.ballerinalang.plugins.idea.run.configuration.BallerinaBuildingRunner" order="before ballerinaRunner"/>
         <programRunner id="ballerinaRunner" implementation="org.ballerinalang.plugins.idea.run.configuration.BallerinaRunner"/>
 
         <configurationType implementation="org.ballerinalang.plugins.idea.run.configuration.application.BallerinaApplicationRunConfigurationType"/>
