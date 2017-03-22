@@ -166,17 +166,12 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void exitServiceDefinition(BallerinaParser.ServiceDefinitionContext ctx) {
-        if (ctx.exception == null) {
-            // Set the location info needed to generate the stack trace
-            TerminalNode identifier = ctx.Identifier();
-            if (identifier != null) {
-                String fileName = identifier.getSymbol().getInputStream().getSourceName();
-                int lineNo = identifier.getSymbol().getLine();
-                NodeLocation serviceLocation = new NodeLocation(fileName, lineNo);
-
-                modelBuilder.createService(serviceLocation, identifier.getText());
-            }
+        if (ctx.exception != null) {
+            return;
         }
+
+        String serviceName = ctx.Identifier().getText();
+        modelBuilder.createService(serviceName);
     }
 
     @Override
@@ -199,17 +194,13 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void exitResourceDefinition(BallerinaParser.ResourceDefinitionContext ctx) {
-        if (ctx.exception == null) {
-            // Set the location info needed to generate the stack trace
-            TerminalNode identifier = ctx.Identifier();
-            if (identifier != null) {
-                String fileName = identifier.getSymbol().getInputStream().getSourceName();
-                int lineNo = identifier.getSymbol().getLine();
-                NodeLocation resourceLocation = new NodeLocation(fileName, lineNo);
-
-                modelBuilder.addResource(resourceLocation, identifier.getText());
-            }
+        if (ctx.exception != null) {
+            return;
         }
+
+        String resourceName = ctx.Identifier().getText();
+        modelBuilder.addResource(getCurrentLocation(ctx), resourceName);
+
     }
 
     @Override
@@ -236,7 +227,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
             return;
         }
 
-        modelBuilder.startFunctionDef();
+        modelBuilder.startFunctionDef(getCurrentLocation(ctx));
     }
 
     @Override
@@ -247,7 +238,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
         boolean isNative = B_KEYWORD_NATIVE.equals(ctx.getChild(0).getText());
         String functionName = ctx.callableUnitSignature().Identifier(0).getText();
-        modelBuilder.addFunction(getCurrentLocation(ctx), functionName, isNative);
+        modelBuilder.addFunction(functionName, isNative);
     }
 
     @Override
@@ -262,19 +253,25 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void enterConnectorDefinition(BallerinaParser.ConnectorDefinitionContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
 
+        modelBuilder.startConnectorDef(getCurrentLocation(ctx));
     }
 
     @Override
     public void exitConnectorDefinition(BallerinaParser.ConnectorDefinitionContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
 
+        String connectorName = ctx.Identifier().getText();
+        modelBuilder.createConnector(connectorName);
     }
 
     @Override
     public void enterConnectorBody(BallerinaParser.ConnectorBodyContext ctx) {
-//        if (ctx.exception == null) {
-//            modelBuilder.registerConnectorType(ctx.getParent().getChild(1).getText());
-//        }
     }
 
     @Override
@@ -283,12 +280,22 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void enterActionDefinition(ActionDefinitionContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
 
+        modelBuilder.startActionDef(getCurrentLocation(ctx));
     }
 
     @Override
     public void exitActionDefinition(ActionDefinitionContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
 
+        boolean isNative = B_KEYWORD_NATIVE.equals(ctx.getChild(0).getText());
+        String actionName = ctx.callableUnitSignature().Identifier(0).getText();
+        modelBuilder.addAction(actionName, isNative);
     }
 
     @Override
@@ -306,7 +313,8 @@ public class BLangAntlr4Listener implements BallerinaListener {
             return;
         }
 
-        modelBuilder.addStructDef(getCurrentLocation(ctx), ctx.Identifier().getText());
+        String structName = ctx.Identifier().getText();
+        modelBuilder.addStructDef(structName);
     }
 
     @Override
@@ -351,12 +359,23 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void enterTypeMapperDefinition(BallerinaParser.TypeMapperDefinitionContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
 
+        modelBuilder.startTypeMapperDef(getCurrentLocation(ctx));
     }
 
     @Override
     public void exitTypeMapperDefinition(BallerinaParser.TypeMapperDefinitionContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
 
+        boolean isNative = B_KEYWORD_NATIVE.equals(ctx.getChild(0).getText());
+        String typeMapperName = ctx.typeMapperSignature().Identifier().getText();
+        SimpleTypeName returnTypeName = typeNameStack.pop();
+        modelBuilder.addTypeMapper(getCurrentLocation(ctx), typeMapperName, returnTypeName, isNative);
     }
 
     @Override
@@ -393,14 +412,10 @@ public class BLangAntlr4Listener implements BallerinaListener {
             return;
         }
 
-        boolean isPublic = false;
-        String tokenStr = ctx.getChild(0).getText();
-        if (B_KEYWORD_PUBLIC.equals(tokenStr)) {
-            isPublic = true;
-        }
+        SimpleTypeName typeName = typeNameStack.pop();
+        String constName = ctx.Identifier().getText();
 
-        createBasicLiteral(ctx.simpleLiteral());
-        modelBuilder.addConstantDef(getCurrentLocation(ctx), ctx.Identifier().getText(), isPublic);
+        modelBuilder.addConstantDef(getCurrentLocation(ctx), typeName, constName);
     }
 
     @Override
@@ -458,11 +473,11 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void exitReferenceTypeName(ReferenceTypeNameContext ctx) {
-        if(ctx.exception != null) {
+        if (ctx.exception != null) {
             return;
         }
 
-        if(ctx.nameReference() != null) {
+        if (ctx.nameReference() != null) {
             String[] nameReference = nameReferenceStack.pop();
             SimpleTypeName typeName = new SimpleTypeName(nameReference[1], nameReference[0], null);
             typeNameStack.push(typeName);
@@ -590,19 +605,30 @@ public class BLangAntlr4Listener implements BallerinaListener {
             return;
         }
 
+        SimpleTypeName typeName = typeNameStack.pop();
         String varName = ctx.Identifier().getText();
         boolean exprAvailable = ctx.expression() != null;
-        modelBuilder.addVariableDefinitionStmt(getCurrentLocation(ctx), varName, exprAvailable);
+        modelBuilder.addVariableDefinitionStmt(getCurrentLocation(ctx), typeName, varName, exprAvailable);
     }
 
     @Override
     public void enterMapStructLiteral(MapStructLiteralContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        modelBuilder.startMapStructLiteral();
+
 
     }
 
     @Override
     public void exitMapStructLiteral(MapStructLiteralContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
 
+        modelBuilder.createMapStructLiteral(getCurrentLocation(ctx));
     }
 
     @Override
@@ -612,7 +638,11 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void exitMapStructKeyValue(MapStructKeyValueContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
 
+        modelBuilder.addMapStructKeyValue(getCurrentLocation(ctx));
     }
 
     @Override
@@ -622,7 +652,12 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void exitArrayLiteral(ArrayLiteralContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
 
+        boolean argsAvailable = ctx.expressionList() != null;
+        modelBuilder.createArrayInitExpr(getCurrentLocation(ctx), argsAvailable);
     }
 
     @Override
@@ -1268,7 +1303,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
         if (ctx.Identifier().size() == 2) {
             nameReference[0] = ctx.Identifier(0).getText();
             nameReference[1] = ctx.Identifier(1).getText();
-        }  else {
+        } else {
             nameReference[1] = ctx.Identifier(0).getText();
         }
 
@@ -1332,7 +1367,18 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void exitFieldDefinition(FieldDefinitionContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
 
+        SimpleTypeName typeName = typeNameStack.pop();
+        String fieldName = ctx.Identifier().getText();
+
+        if (ctx.simpleLiteral() != null) {
+            modelBuilder.addStructField(getCurrentLocation(ctx), typeName, fieldName, true);
+        } else {
+            modelBuilder.addStructField(getCurrentLocation(ctx), typeName, fieldName, false);
+        }
     }
 
     @Override
@@ -1342,7 +1388,11 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void exitSimpleLiteral(SimpleLiteralContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
 
+        createBasicLiteral(ctx);
     }
 
     @Override
@@ -1369,46 +1419,40 @@ public class BLangAntlr4Listener implements BallerinaListener {
     }
 
     protected void createBasicLiteral(BallerinaParser.SimpleLiteralContext ctx) {
-        if (ctx.exception == null) {
-            TerminalNode terminalNode = ctx.IntegerLiteral();
-            if (terminalNode != null) {
-                if (terminalNode.getText().endsWith("l") || terminalNode.getText().endsWith("L")) {
-                    //dropping the last character L
-                    String longValue = terminalNode.getText().substring(0, terminalNode.getText().length() - 1);
-                    modelBuilder.createLongLiteral(longValue, getCurrentLocation(ctx));
-                } else {
-                    modelBuilder.createIntegerLiteral(terminalNode.getText(), getCurrentLocation(ctx));
-                }
-            }
+        if (ctx.exception != null) {
+            return;
+        }
 
-            terminalNode = ctx.FloatingPointLiteral();
-            if (terminalNode != null) {
-                if (terminalNode.getText().endsWith("d") || terminalNode.getText().endsWith("D")) {
-                    //dropping the last character D
-                    String doubleValue = terminalNode.getText().substring(0, terminalNode.getText().length() - 1);
-                    modelBuilder.createDoubleLiteral(doubleValue, getCurrentLocation(ctx));
-                } else {
-                    modelBuilder.createFloatLiteral(terminalNode.getText(), getCurrentLocation(ctx));
-                }
-            }
+        TerminalNode terminalNode = ctx.IntegerLiteral();
+        if (terminalNode != null) {
+            modelBuilder.createIntegerLiteral(getCurrentLocation(ctx), terminalNode.getText());
+            return;
+        }
 
-            terminalNode = ctx.QuotedStringLiteral();
-            if (terminalNode != null) {
-                String stringLiteral = terminalNode.getText();
-                stringLiteral = stringLiteral.substring(1, stringLiteral.length() - 1);
-                stringLiteral = StringEscapeUtils.unescapeJava(stringLiteral);
-                modelBuilder.createStringLiteral(stringLiteral, getCurrentLocation(ctx));
-            }
+        terminalNode = ctx.FloatingPointLiteral();
+        if (terminalNode != null) {
+            modelBuilder.createFloatLiteral(getCurrentLocation(ctx), terminalNode.getText());
+            return;
+        }
 
-            terminalNode = ctx.BooleanLiteral();
-            if (terminalNode != null) {
-                modelBuilder.createBooleanLiteral(terminalNode.getText(), getCurrentLocation(ctx));
-            }
+        terminalNode = ctx.QuotedStringLiteral();
+        if (terminalNode != null) {
+            String stringLiteral = terminalNode.getText();
+            stringLiteral = stringLiteral.substring(1, stringLiteral.length() - 1);
+            stringLiteral = StringEscapeUtils.unescapeJava(stringLiteral);
+            modelBuilder.createStringLiteral(getCurrentLocation(ctx), stringLiteral);
+            return;
+        }
 
-            terminalNode = ctx.NullLiteral();
-            if (terminalNode != null) {
-                modelBuilder.createNullLiteral(terminalNode.getText(), getCurrentLocation(ctx));
-            }
+        terminalNode = ctx.BooleanLiteral();
+        if (terminalNode != null) {
+            modelBuilder.createBooleanLiteral(getCurrentLocation(ctx), terminalNode.getText());
+            return;
+        }
+
+        terminalNode = ctx.NullLiteral();
+        if (terminalNode != null) {
+            modelBuilder.createNullLiteral(getCurrentLocation(ctx), terminalNode.getText());
         }
     }
 
