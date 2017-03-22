@@ -27,6 +27,7 @@ import EventChannel from 'event_channel';
  */
 class Axis extends EventChannel {
  constructor(position, isHorizontal) {
+     super();
      this._isHorizontal = isHorizontal || false;
      this._position = position || 0;
  }

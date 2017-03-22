@@ -25,9 +25,8 @@ import ASTNode from './node';
  */
 class PackageDefinition extends ASTNode {
     constructor(args) {
-        this._packageName = _.get(args, 'packageName');
-
         super("PackageDefinition");
+        this._packageName = _.get(args, 'packageName');
     }
 
     /**

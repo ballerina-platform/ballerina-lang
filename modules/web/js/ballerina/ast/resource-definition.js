@@ -16,7 +16,6 @@
  * under the License.
  */
 import _ from 'lodash';
-import require from 'require';
 import log from 'log';
 import ASTNode from './node';
 import CommonUtils from '../utils/common-utils';
@@ -32,6 +31,8 @@ import CommonUtils from '../utils/common-utils';
  */
 class ResourceDefinition extends ASTNode {
     constructor(args) {
+        // TODO: All the types should be referred from the global constants
+        super('Resource', 'resource {', '}');
         this._resourceName = _.get(args, 'resourceName');
         this._annotations = _.get(args, 'annotations', []);
 
@@ -71,9 +72,6 @@ class ResourceDefinition extends ASTNode {
                 value: ""
             });
         }
-
-        // TODO: All the types should be referred from the global constants
-        super('Resource', 'resource {', '}');
 
         this.BallerinaASTFactory = this.getFactory();
 

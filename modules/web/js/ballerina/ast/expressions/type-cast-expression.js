@@ -20,10 +20,10 @@ import Expression from './expression';
 
 class TypeCastExpression extends Expression {
     constructor(args) {
+        super('TypeCastExpression');
         this._name = _.get(args, 'name', 'newTypeCastName');
         this._pkgName = _.get(args, 'pkgName', 'newPkgName');
         this._pkgPath = _.get(args, 'pkgPath', 'newPkgPath');
-        super('TypeCastExpression');
     }
 
     /**

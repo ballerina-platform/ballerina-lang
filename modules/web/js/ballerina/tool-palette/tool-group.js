@@ -15,7 +15,6 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import require from 'require';
 import $ from 'jquery';
 import Backbone from 'backbone';
 import Tool from './tool';

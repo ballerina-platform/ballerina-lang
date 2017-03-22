@@ -33,9 +33,9 @@ import MessageManager from './message-manager';
     */
 class Canvas extends BallerinaView {
     constructor(args) {
+        super(args);
         var mMArgs = {'canvas': this};
         args.messageManager = new MessageManager(mMArgs);
-        super(args);
 
         /**
          * The icon of the icon position at top left corner.

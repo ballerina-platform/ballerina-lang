@@ -23,14 +23,18 @@ import AbstractSourceGenVisitor from './abstract-source-gen-visitor';
 
 /**
  * Constructor for the Abstract Source Generation Visitor for the statements
- * @param parent
- * @constructor
+ * @class
  */
 class AbstractStatementSourceGenVisitor extends StatementVisitor {
+    /**
+     * Constructor for the Abstract Source Generation Visitor for the statements
+     * @param parent
+     * @constructor
+     */
     constructor(parent) {
+        super();
         this._generatedSource = '';
         this.parent = parent;
-        super();
     }
 
     getGeneratedSource() {

@@ -17,7 +17,6 @@
  */
 
 import _ from 'lodash';
-import require from 'require';
 import Backbone from 'backbone';
 
     var tool = Backbone.Model.extend({

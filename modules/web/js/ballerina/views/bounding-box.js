@@ -29,6 +29,7 @@ import EventChannel from 'event_channel';
  */
 class BBox extends EventChannel {
     constructor(x, y, w, h) {
+        super();
         this._x = x || 0;
         this._y = y || 0;
         this._w = w || 0;

@@ -37,6 +37,7 @@ import BallerinaASTFactory from 'ballerina/ast/ballerina-ast-factory';
  */
 class WorkerDeclarationView extends LifeLine {
     constructor(args) {
+        super(args);
         this._totalHeightGap = 50;
         this._parent = _.get(args, "parent");
         this._LifeLineCenterGap = 180;
@@ -60,7 +61,6 @@ class WorkerDeclarationView extends LifeLine {
         _.set(args, 'cssClass.bottomPolygon', _.get(args, 'cssClass.bottomPolygon', 'connector-life-line-top-polygon worker-lifeline-grayed'));
         _.set(args, 'line.height',  _.get(args, 'line.height', 290));
         _.set(args, 'content.offset',  {top: 10, bottom: 10});
-        super(args);
 
         if (_.isNil(this._model) || !(this._model instanceof WorkerDeclaration)) {
             log.error("Worker declaration is undefined or is of different type." + this._model);

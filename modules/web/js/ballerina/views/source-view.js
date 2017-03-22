@@ -52,6 +52,7 @@ var mode = ace.require('ace/mode/ballerina')
  */
 class SourceView extends EventChannel {
     constructor(args) {
+        super();
         this._options = args;
         if(!_.has(args, 'container')){
             log.error('container is not specified for rendering source view.')

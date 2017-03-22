@@ -30,6 +30,7 @@ import CommonUtils from '../utils/common-utils';
  */
 class ServiceDefinition extends ASTNode {
     constructor(args) {
+        super('Service');
         this._serviceName = _.get(args, 'serviceName');
         this._annotations = _.get(args, 'annotations', []);
 
@@ -62,7 +63,6 @@ class ServiceDefinition extends ASTNode {
         }
 
         // TODO: All the types should be referred from the global constants
-        super('Service');
         this.BallerinaASTFactory = this.getFactory();
     }
 

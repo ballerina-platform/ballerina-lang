@@ -17,7 +17,6 @@
  */
 $____type_mapper_css;
 
-import require from 'require';
 import _ from 'lodash';
 import $ from 'jquery';
 import jsPlumbLib from 'jsplumb';

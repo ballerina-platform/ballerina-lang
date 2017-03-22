@@ -17,7 +17,6 @@
  */
 $____tool_palette_css;
 
-import require from 'require';
 import log from 'log';
 import $ from 'jquery';
 import Backbone from 'backbone';

@@ -56,9 +56,9 @@ import $____constant_definition_view from './constant-definition-view';
  */
 class BallerinaFileEditor extends BallerinaView {
     constructor(args) {
+        super(args);
         // need to set this before super constructor invoke
         this._parseFailed = _.get(args, "parseFailed");
-        super(args);
         this._canvasList = _.get(args, 'canvasList', []);
         this._debugger = _.get(args, 'debugger');
         this._file = _.get(args, 'file');
