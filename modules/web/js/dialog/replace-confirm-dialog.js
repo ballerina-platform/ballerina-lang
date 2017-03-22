@@ -19,15 +19,13 @@
 import $ from 'jquery';
 import ModalDialog from './modal-dialog';
 
-    var ReplaceConfirmDialog = function (options) {
+class ReplaceConfirmDialog extends ModalDialog {
+    constructor(options) {
         this._options = options;
         this._$container = $(_.get(options, 'container', 'body'));
-    };
+    }
 
-    ReplaceConfirmDialog.prototype = Object.create(ModalDialog.prototype);
-    ReplaceConfirmDialog.prototype.constructor = ReplaceConfirmDialog;
-
-    ReplaceConfirmDialog.prototype.askConfirmation = function (options) {
+    askConfirmation(options) {
         var self = this;
 
         this.setSubmitBtnText('Replace');
@@ -51,6 +49,7 @@ import ModalDialog from './modal-dialog';
 
         this.show();
     }
+}
 
-    export default ReplaceConfirmDialog;
+export default ReplaceConfirmDialog;
 

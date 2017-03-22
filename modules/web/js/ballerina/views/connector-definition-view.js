@@ -31,7 +31,6 @@ import Axis from './axis';
 import ConnectorDeclarationView from './connector-declaration-view';
 import VariableDeclaration from './../ast/variable-declaration';
 import VariableDefinitionsPaneView from './variable-definitions-pane-view';
-import AnnotationView from './annotation-view';
 import ArgumentsView from './function-arguments-view';
 
 /**
@@ -571,4 +570,3 @@ class ConnectorDefinitionView extends SVGCanvas {
 }
 
 export default ConnectorDefinitionView;
-    

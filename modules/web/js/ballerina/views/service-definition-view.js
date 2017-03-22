@@ -17,19 +17,15 @@
  */
 import _ from 'lodash';
 import log from 'log';
-import d3 from 'd3';
-import D3utils from 'd3utils';
 import $ from 'jquery';
 import Alerts from 'alerts';
 import SVGCanvas from './svg-canvas';
 import Point from './point';
 import ServiceDefinition from './../ast/service-definition';
-import ClientLifeLine from './client-life-line';
 import ResourceDefinitionView from './resource-definition-view';
 import BallerinaASTFactory from 'ballerina/ast/ballerina-ast-factory';
 import Axis from './axis';
 import ConnectorDeclarationView from './connector-declaration-view';
-import VariableDeclaration from './../ast/variable-declaration';
 import VariableDefinitionsPaneView from './variable-definitions-pane-view';
 import AnnotationView from './annotation-view';
 
@@ -46,27 +42,27 @@ class ServiceDefinitionView extends SVGCanvas {
     constructor(args) {
         super(args);
 
-        this._connectorViewList =  _.get(args, "connectorViewList", []);
+        this._connectorViewList =  _.get(args, 'connectorViewList', []);
         this._viewOptions.LifeLineCenterGap = 180;
-        this._resourceViewList = _.get(args, "resourceViewList", []);
-        this._parentView = _.get(args, "parentView");
-        this._viewOptions.offsetTop = _.get(args, "viewOptionsOffsetTop", 50);
-        this._viewOptions.topBottomTotalGap = _.get(args, "viewOptionsTopBottomTotalGap", 100);
-        this._viewOptions.panelIcon = _.get(args.viewOptions, "cssClass.service_icon");
-        this._viewOptions.minHeight = _.get(args, "minHeight", 300);
+        this._resourceViewList = _.get(args, 'resourceViewList', []);
+        this._parentView = _.get(args, 'parentView');
+        this._viewOptions.offsetTop = _.get(args, 'viewOptionsOffsetTop', 50);
+        this._viewOptions.topBottomTotalGap = _.get(args, 'viewOptionsTopBottomTotalGap', 100);
+        this._viewOptions.panelIcon = _.get(args.viewOptions, 'cssClass.service_icon');
+        this._viewOptions.minHeight = _.get(args, 'minHeight', 300);
         //set initial height for the service container svg
         this._totalHeight = 170;
         //set initial connector margin for the service
         this._lifelineMargin = new Axis(0, false);
 
         if (_.isNil(this._model) || !(this._model instanceof ServiceDefinition)) {
-            log.error("Service definition is undefined or is of different type." + this._model);
-            throw "Service definition is undefined or is of different type." + this._model;
+            log.error('Service definition is undefined or is of different type.' + this._model);
+            throw 'Service definition is undefined or is of different type.' + this._model;
         }
 
         if (_.isNil(this._container)) {
-            log.error("Container for service definition is undefined." + this._container);
-            throw "Container for service definition is undefined." + this._container;
+            log.error('Container for service definition is undefined.' + this._container);
+            throw 'Container for service definition is undefined.' + this._container;
         }
     }
 
@@ -74,8 +70,8 @@ class ServiceDefinitionView extends SVGCanvas {
         if (!_.isNil(model) && model instanceof ServiceDefinition) {
             this._model = model;
         } else {
-            log.error("Service definition is undefined or is of different type." + model);
-            throw "Service definition is undefined or is of different type." + model;
+            log.error('Service definition is undefined or is of different type.' + model);
+            throw 'Service definition is undefined or is of different type.' + model;
         }
     }
 
@@ -83,8 +79,8 @@ class ServiceDefinitionView extends SVGCanvas {
         if (!_.isNil(container)) {
             this._container = container;
         } else {
-            log.error("Container for service definition is undefined." + container);
-            throw "Container for service definition is undefined." + container;
+            log.error('Container for service definition is undefined.' + container);
+            throw 'Container for service definition is undefined.' + container;
         }
     }
 
@@ -97,7 +93,7 @@ class ServiceDefinitionView extends SVGCanvas {
                 // make new view adjust y on last view's bottom edge move
                 _.last(this._resourceViewList).getBoundingBox().on('bottom-edge-moved', function(dy){
                     view.getBoundingBox().move(0, dy);
-                })
+                });
             }
             this._resourceViewList.push(view);
 
@@ -113,9 +109,9 @@ class ServiceDefinitionView extends SVGCanvas {
     }
 
     setChildContainer(svg) {
-       if (!_.isNil(svg)) {
-           this._childContainer = svg;
-       }
+        if (!_.isNil(svg)) {
+            this._childContainer = svg;
+        }
     }
 
     setViewOptions(viewOptions) {
@@ -153,7 +149,7 @@ class ServiceDefinitionView extends SVGCanvas {
         this.drawAccordionCanvas(this._viewOptions, this.getModel().getID(), this.getModel().type.toLowerCase(), this.getModel().getServiceName());
 
         // Setting the styles for the canvas icon.
-        this.getPanelIcon().addClass(_.get(this._viewOptions, "cssClass.service_icon", ""));
+        this.getPanelIcon().addClass(_.get(this._viewOptions, 'cssClass.service_icon', ''));
 
         var currentContainer = $('#' + this.getModel().getID());
         this._container = currentContainer;
@@ -161,22 +157,22 @@ class ServiceDefinitionView extends SVGCanvas {
         var self = this;
 
         //Scroll to the added position and highlight the heading
-        $(_.get(this._viewOptions, "design_view.container", "")).scrollTop(currentContainer.parent().position().top);
-        var hadingBox = $('#' + this.getModel().getID() + "_heading");
-        var canvas_heading_new = _.get(this._viewOptions, "cssClass.canvas_heading_new", "");
-        var new_drop_timeout = _.get(this._viewOptions, "design_view.new_drop_timeout", "");
+        $(_.get(this._viewOptions, 'design_view.container', '')).scrollTop(currentContainer.parent().position().top);
+        var hadingBox = $('#' + this.getModel().getID() + '_heading');
+        var canvas_heading_new = _.get(this._viewOptions, 'cssClass.canvas_heading_new', '');
+        var new_drop_timeout = _.get(this._viewOptions, 'design_view.new_drop_timeout', '');
         hadingBox.addClass(canvas_heading_new);
-        setTimeout(function(){hadingBox.removeClass(canvas_heading_new)}, new_drop_timeout);
+        setTimeout(function(){hadingBox.removeClass(canvas_heading_new);}, new_drop_timeout);
 
         $(this.getTitle()).text(this.getModel().getServiceName())
-            .on("change paste keyup", function () {
+            .on('change paste keyup', function () {
                 self.getModel().setServiceName($(this).text());
-            }).on("click", function (event) {
+            }).on('click', function (event) {
                 event.stopPropagation();
             }).keypress(function (e) {
                 /* Ignore Delete and Backspace keypress in firefox and capture other keypress events.
                  (Chrome and IE ignore keypress event of these keys in browser level)*/
-                if (!_.isEqual(e.key, "Delete") && !_.isEqual(e.key, "Backspace")) {
+                if (!_.isEqual(e.key, 'Delete') && !_.isEqual(e.key, 'Backspace')) {
                     var enteredKey = e.which || e.charCode || e.keyCode;
                     // Disabling enter key
                     if (_.isEqual(enteredKey, 13)) {
@@ -198,7 +194,7 @@ class ServiceDefinitionView extends SVGCanvas {
 
         this.getModel().on('child-added', function (child) {
             self.visit(child);
-            self.getModel().trigger("child-visited", child);
+            self.getModel().trigger('child-visited', child);
 
             // Show/Hide scrolls.
             self._showHideScrolls(self._container, self.getChildContainer().node().ownerSVGElement);
@@ -207,9 +203,9 @@ class ServiceDefinitionView extends SVGCanvas {
         var operationsPane = this.getOperationsPane();
 
         // Creating annotation icon.
-        var panelAnnotationIcon = $("<i/>", {
-            class: "fw fw-annotation pull-right right-icon-clickable hoverable",
-            title: "Annotations"
+        var panelAnnotationIcon = $('<i/>', {
+            class: 'fw fw-annotation pull-right right-icon-clickable hoverable',
+            title: 'Annotations'
         }).appendTo(operationsPane).tooltip();
 
         // Stopping event propagation to the elements behind.
@@ -218,7 +214,7 @@ class ServiceDefinitionView extends SVGCanvas {
         });
 
         // Adding separator for annotation icon.
-        $("<span class='pull-right canvas-operations-separator'>|</span>").appendTo(operationsPane);
+        $('<span class=\'pull-right canvas-operations-separator\'>|</span>').appendTo(operationsPane);
 
         var annotationProperties = {
             model: this._model,
@@ -249,7 +245,7 @@ class ServiceDefinitionView extends SVGCanvas {
         variableDefinitionsPaneView.createVariablePane();
 
         this.setSVGWidth(this._container.width());
-        AnnotationView.createAnnotationPane(annotationProperties);
+        new AnnotationView().createAnnotationPane(annotationProperties);
         this.getModel().accept(this);
     }
 
@@ -261,17 +257,17 @@ class ServiceDefinitionView extends SVGCanvas {
     _showHideScrolls(container, svgElement) {
         // Creating scroll panes.
         var leftScroll = $(this.getChildContainer().node().ownerSVGElement.parentElement)
-            .find(".service-left-scroll").get(0);
+            .find('.service-left-scroll').get(0);
         var rightScroll = $(this.getChildContainer().node().ownerSVGElement.parentElement)
-            .find(".service-right-scroll").get(0);
+            .find('.service-right-scroll').get(0);
 
         // Setting heights of the scrolls.
         $(leftScroll).height($(container).height());
         $(rightScroll).height($(container).height());
 
         // Positioning the arrows of the scrolls to the middle.
-        $(leftScroll).find("i").css("padding-top", ($(container).height() / 2) - (parseInt($(leftScroll).find("i").css("font-size"), 10) / 2) + "px");
-        $(rightScroll).find("i").css("padding-top", ($(container).height() / 2) - (parseInt($(rightScroll).find("i").css("font-size"), 10) / 2) + "px");
+        $(leftScroll).find('i').css('padding-top', ($(container).height() / 2) - (parseInt($(leftScroll).find('i').css('font-size'), 10) / 2) + 'px');
+        $(rightScroll).find('i').css('padding-top', ($(container).height() / 2) - (parseInt($(rightScroll).find('i').css('font-size'), 10) / 2) + 'px');
 
         // Showing/Hiding scrolls.
         if (Math.abs($(container).width() - $(svgElement).width()) < 5) {
@@ -280,7 +276,7 @@ class ServiceDefinitionView extends SVGCanvas {
             $(rightScroll).hide();
         } else {
             // If the svg width is greater than the width of the container...
-            if ($(container).scrollLeft() == 0) {
+            if (_.isEqual($(container).scrollLeft(), 0)) {
                 // When scrollLeft is 0, means that it is already scrolled to the left corner.
                 $(rightScroll).show();
                 $(leftScroll).hide();
@@ -313,7 +309,7 @@ class ServiceDefinitionView extends SVGCanvas {
      * @param {ResourceDefinition} resourceDefinition - The resource definition model.
      */
     visitResourceDefinition(resourceDefinition) {
-        log.debug("Visiting resource definition");
+        log.debug('Visiting resource definition');
         var self = this;
         var resourceContainer = this.getChildContainer();
         // If more than 1 resource
@@ -351,7 +347,7 @@ class ServiceDefinitionView extends SVGCanvas {
         this.setLifelineMargin(resourceDefinitionView.getBoundingBox().getRight());
         // If the lifeline margin is changed then accordingly the resource should move the bounding box
         resourceDefinitionView.listenTo(this.getLifeLineMargin(), 'moved', function (offset) {
-            resourceDefinitionView.getBoundingBox().w(resourceDefinitionView.getBoundingBox().w() + offset)
+            resourceDefinitionView.getBoundingBox().w(resourceDefinitionView.getBoundingBox().w() + offset);
         });
 
         //setting height of the service view
@@ -518,7 +514,7 @@ class ServiceDefinitionView extends SVGCanvas {
                     this._connectorViewList[childViewIndex + 1].stopListening(this._connectorViewList[childViewIndex].getBoundingBox());
                     this._connectorViewList[childViewIndex + 1].listenTo(this.getLifeLineMargin(), 'moved', function (offset) {
                         self.moveServiceLevelConnector(this, offset);
-                    })
+                    });
                 }
             } else if (this._connectorViewList.length - 1 === childViewIndex){
                 // We are deleting the last child
@@ -557,4 +553,3 @@ class ServiceDefinitionView extends SVGCanvas {
 }
 
 export default ServiceDefinitionView;
-    

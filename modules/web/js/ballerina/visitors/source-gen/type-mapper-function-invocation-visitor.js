@@ -20,7 +20,7 @@ import log from 'log';
 import EventChannel from 'event_channel';
 import AbstractStatementSourceGenVisitor from './abstract-statement-source-gen-visitor';
 import FunctionInvocation from '../../ast/statements/function-invocation-statement';
-import $____type_mapper_statement_visitor_factory from './type-mapper-statement-visitor-factory';
+import TypeMapperStatementVisitorFactory from './type-mapper-statement-visitor-factory';
 
 class TypeMapperFunctionInvocationVisitor extends AbstractStatementSourceGenVisitor {
     constructor(parent) {
@@ -32,7 +32,6 @@ class TypeMapperFunctionInvocationVisitor extends AbstractStatementSourceGenVisi
     }
 
     visitFuncInvocationExpression(expression) {
-        var TypeMapperStatementVisitorFactory = $____type_mapper_statement_visitor_factory;
         var statementVisitorFactory = new TypeMapperStatementVisitorFactory();
         var statementVisitor = statementVisitorFactory.getStatementVisitor(expression, this);
         expression.accept(statementVisitor);

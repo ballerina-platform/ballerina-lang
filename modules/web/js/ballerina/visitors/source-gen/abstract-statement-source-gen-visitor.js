@@ -54,6 +54,4 @@ class AbstractStatementSourceGenVisitor extends StatementVisitor {
     }
 }
 
-AbstractStatementSourceGenVisitor.prototype.constructor = AbstractSourceGenVisitor;
-
 export default AbstractStatementSourceGenVisitor;

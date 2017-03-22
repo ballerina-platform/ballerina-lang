@@ -15,12 +15,12 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-$____welcome_page_css;
 
 import FirstLaunchWelcomePage from './first-launch-welcome';
 import RegularWelcomePage from './regular-welcome';
-import $____welcome_page_css from './welcome-page.css';
-        export default  {
-            FirstLaunchWelcomePage: FirstLaunchWelcomePage,
-            RegularWelcomePage: RegularWelcomePage
-        }
+import './welcome-page.css';
+
+export default  {
+    FirstLaunchWelcomePage: FirstLaunchWelcomePage,
+    RegularWelcomePage: RegularWelcomePage
+}
