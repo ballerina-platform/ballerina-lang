@@ -480,4 +480,3 @@ class Package extends EventChannel {
 }
 
 export default Package;
-    

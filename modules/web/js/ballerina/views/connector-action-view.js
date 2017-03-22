@@ -25,11 +25,8 @@ import ConnectorAction from './../ast/connector-action';
 import DefaultWorkerView from './default-worker';
 import Point from './point';
 import ConnectorDeclarationView from './connector-declaration-view';
-import StatementViewFactory from './statement-view-factory';
 import BallerinaASTFactory from 'ballerina/ast/ballerina-ast-factory';
-import MessageView from './message';
 import StatementContainer from './statement-container';
-import VariableDeclaration from './../ast/variable-declaration';
 import AnnotationView from './annotation-view';
 import ArgumentsView from './function-arguments-view';
 import ReturnTypesPaneView from './return-types-pane-view';
@@ -51,43 +48,43 @@ class ConnectorActionView extends BallerinaView {
         this._defaultWorker = undefined;
         this._statementExpressionViewList = [];
         // TODO: Instead of using the parentView use the parent. Fix this from BallerinaView.js and bellow
-        this._parentView = _.get(args, "parentView");
+        this._parentView = _.get(args, 'parentView');
 
         if (_.isNil(this._model) || !(this._model instanceof ConnectorAction)) {
-            log.error("Connector Action is undefined or is of different type." + this._model);
-            throw "Connector Action is undefined or is of different type." + this._model;
+            log.error('Connector Action is undefined or is of different type.' + this._model);
+            throw 'Connector Action is undefined or is of different type.' + this._model;
         }
 
         if (_.isNil(this._container)) {
-            log.error("Container for connector action is undefined." + this._container);
-            throw "Container for connector action is undefined." + this._container;
+            log.error('Container for connector action is undefined.' + this._container);
+            throw 'Container for connector action is undefined.' + this._container;
         }
 
         // Center point of the connector action view
-        this._viewOptions.topLeft = _.get(args, "viewOptions.topLeft", new Point(50, 100));
-        this._viewOptions.startActionOffSet = _.get(args, "viewOptions.startActionOffSet", 60);
+        this._viewOptions.topLeft = _.get(args, 'viewOptions.topLeft', new Point(50, 100));
+        this._viewOptions.startActionOffSet = _.get(args, 'viewOptions.startActionOffSet', 60);
 
         // Center point of the default worker
-        this._viewOptions.defaultWorker = _.get(args, "viewOptions.defaultWorker", {});
-        this._viewOptions.defaultWorker.offsetTop = _.get(args, "viewOptions.defaultWorker.offsetTop", 50);
-        this._viewOptions.defaultWorker.center = _.get(args, "viewOptions.defaultWorker.centerPoint",
+        this._viewOptions.defaultWorker = _.get(args, 'viewOptions.defaultWorker', {});
+        this._viewOptions.defaultWorker.offsetTop = _.get(args, 'viewOptions.defaultWorker.offsetTop', 50);
+        this._viewOptions.defaultWorker.center = _.get(args, 'viewOptions.defaultWorker.centerPoint',
             this._viewOptions.topLeft.clone().move(100, 150));
 
         // View options for height and width of the heading box.
-        this._viewOptions.heading = _.get(args, "viewOptions.heading", {});
-        this._viewOptions.heading.height = _.get(args, "viewOptions.heading.height", 25);
-        this._viewOptions.heading.width = _.get(args, "viewOptions.heading.width", this._container.node().ownerSVGElement.parentElement.offsetWidth - 100);
+        this._viewOptions.heading = _.get(args, 'viewOptions.heading', {});
+        this._viewOptions.heading.height = _.get(args, 'viewOptions.heading.height', 25);
+        this._viewOptions.heading.width = _.get(args, 'viewOptions.heading.width', this._container.node().ownerSVGElement.parentElement.offsetWidth - 100);
 
         // View options for height and width of the connector action icon in the heading box.
-        this._viewOptions.heading.icon = _.get(args, "viewOptions.heading.icon", {});
-        this._viewOptions.heading.icon.height = _.get(args, "viewOptions.heading.icon.height", 25);
-        this._viewOptions.heading.icon.width = _.get(args, "viewOptions.heading.icon.width", 25);
+        this._viewOptions.heading.icon = _.get(args, 'viewOptions.heading.icon', {});
+        this._viewOptions.heading.icon.height = _.get(args, 'viewOptions.heading.icon.height', 25);
+        this._viewOptions.heading.icon.width = _.get(args, 'viewOptions.heading.icon.width', 25);
 
-        this._viewOptions.contentCollapsed = _.get(args, "viewOptions.contentCollapsed", false);
-        this._viewOptions.contentWidth = _.get(args, "viewOptions.contentWidth", this._container.node().ownerSVGElement.parentElement.offsetWidth - 100);
-        this._viewOptions.contentHeight = _.get(args, "viewOptions.contentHeight", 470);
-        this._viewOptions.collapseIconWidth = _.get(args, "viewOptions.collaspeIconWidth", this._container.node().ownerSVGElement.parentElement.offsetWidth - 95);
-        this._viewOptions.deleteIconWidth = _.get(args, "viewOptions.deleteIconWidth", this._container.node().ownerSVGElement.parentElement.offsetWidth - 125);
+        this._viewOptions.contentCollapsed = _.get(args, 'viewOptions.contentCollapsed', false);
+        this._viewOptions.contentWidth = _.get(args, 'viewOptions.contentWidth', this._container.node().ownerSVGElement.parentElement.offsetWidth - 100);
+        this._viewOptions.contentHeight = _.get(args, 'viewOptions.contentHeight', 470);
+        this._viewOptions.collapseIconWidth = _.get(args, 'viewOptions.collaspeIconWidth', this._container.node().ownerSVGElement.parentElement.offsetWidth - 95);
+        this._viewOptions.deleteIconWidth = _.get(args, 'viewOptions.deleteIconWidth', this._container.node().ownerSVGElement.parentElement.offsetWidth - 125);
 
         this._viewOptions.heading.minWidth = 700;
         this._viewOptions.contentMinWidth = 700;
@@ -95,7 +92,7 @@ class ConnectorActionView extends BallerinaView {
         this._viewOptions.totalHeightGap = 50;
         this._viewOptions.LifeLineCenterGap = 120;
         this._viewOptions.defua = 180;
-        this._viewOptions.hoverClass = _.get(args, "viewOptions.cssClass.hover_svg", 'design-view-hover-svg');
+        this._viewOptions.hoverClass = _.get(args, 'viewOptions.cssClass.hover_svg', 'design-view-hover-svg');
 
         //setting initial height for connector action container
         this._totalHeight = 230;
@@ -123,7 +120,7 @@ class ConnectorActionView extends BallerinaView {
     }
 
     onBeforeModelRemove() {
-        d3.select("#_" +this._model.id).remove();
+        d3.select('#_' +this._model.id).remove();
         $(this._nameDiv).remove();
         this.getBoundingBox().move(0, -this.getBoundingBox().h() - 25);
     }
@@ -243,8 +240,8 @@ class ConnectorActionView extends BallerinaView {
         if (!_.isNil(model) && model instanceof ConnectorAction) {
             this._model = model;
         } else {
-            log.error("Connector Action is undefined or is of different type." + model);
-            throw "Connector Action is definition undefined or is of different type." + model;
+            log.error('Connector Action is undefined or is of different type.' + model);
+            throw 'Connector Action is definition undefined or is of different type.' + model;
         }
     }
 
@@ -256,8 +253,8 @@ class ConnectorActionView extends BallerinaView {
         if (!_.isNil(container)) {
             this._container = container;
         } else {
-            log.error("Container for connector action is undefined." + this._container);
-            throw "Container for connector action is undefined." + this._container;
+            log.error('Container for connector action is undefined.' + this._container);
+            throw 'Container for connector action is undefined.' + this._container;
         }
     }
 
@@ -317,143 +314,143 @@ class ConnectorActionView extends BallerinaView {
         //Main container for a connector action
         var connectorActionGroup = D3utils.group(svgContainer);
         this._connectorActionGroup = connectorActionGroup;
-        connectorActionGroup.attr("id", "_" +this._model.id);
-        connectorActionGroup.attr("width", this._viewOptions.heading.width)
-            .attr("height", this._viewOptions.heading.height + this._viewOptions.contentHeight);
-        connectorActionGroup.attr("x", headingStart.x()).attr("y", contentStart.y());
+        connectorActionGroup.attr('id', '_' +this._model.id);
+        connectorActionGroup.attr('width', this._viewOptions.heading.width)
+            .attr('height', this._viewOptions.heading.height + this._viewOptions.contentHeight);
+        connectorActionGroup.attr('x', headingStart.x()).attr('y', contentStart.y());
 
         // Creating SVG definitions group for icons.
-        var def = connectorActionGroup.append("defs");
+        var def = connectorActionGroup.append('defs');
         var iconSizeSideLength = 14;
 
         // Creating collapsed icon for SVG definitions.
-        var collapsedIconSVGPattern = def.append("pattern").attr("id", "collapsedIcon").attr("width", "100%")
-            .attr("height", "100%");
-        collapsedIconSVGPattern.append("image").attr("xlink:href", "images/down.svg").attr("x", 0)
-            .attr("y", 0).attr("width", iconSizeSideLength).attr("height", iconSizeSideLength);
+        var collapsedIconSVGPattern = def.append('pattern').attr('id', 'collapsedIcon').attr('width', '100%')
+            .attr('height', '100%');
+        collapsedIconSVGPattern.append('image').attr('xlink:href', 'images/down.svg').attr('x', 0)
+            .attr('y', 0).attr('width', iconSizeSideLength).attr('height', iconSizeSideLength);
 
-        var expandIconSVGPattern = def.append("pattern").attr("id", "expandIcon").attr("width", "100%")
-            .attr("height", "100%");
-        expandIconSVGPattern.append("image").attr("xlink:href", "images/up.svg").attr("x", 0)
-            .attr("y", 0).attr("width", iconSizeSideLength).attr("height", iconSizeSideLength);
+        var expandIconSVGPattern = def.append('pattern').attr('id', 'expandIcon').attr('width', '100%')
+            .attr('height', '100%');
+        expandIconSVGPattern.append('image').attr('xlink:href', 'images/up.svg').attr('x', 0)
+            .attr('y', 0).attr('width', iconSizeSideLength).attr('height', iconSizeSideLength);
 
         // Creating connector action icon for SVG definitions.
-        var connectorActionIconSVGPattern = def.append("pattern").attr("id", "connectorActionIcon").attr("width", "100%")
-            .attr("height", "100%");
+        var connectorActionIconSVGPattern = def.append('pattern').attr('id', 'connectorActionIcon').attr('width', '100%')
+            .attr('height', '100%');
         // Connector action icon
-        connectorActionIconSVGPattern.append("image").attr("xlink:href", "images/action.svg").attr("x", 5)
-            .attr("y", 5).attr("width", iconSizeSideLength).attr("height", iconSizeSideLength);
+        connectorActionIconSVGPattern.append('image').attr('xlink:href', 'images/action.svg').attr('x', 5)
+            .attr('y', 5).attr('width', iconSizeSideLength).attr('height', iconSizeSideLength);
 
         // Creating delete icon for SVG definitions.
-        var deleteIconSVGPattern = def.append("pattern").attr("id", "deleteIcon").attr("width", "100%")
-            .attr("height", "100%");
-        deleteIconSVGPattern.append("image").attr("xlink:href", "images/delete.svg").attr("x", 0).attr("y", 0)
-            .attr("width", iconSizeSideLength).attr("height", iconSizeSideLength);
+        var deleteIconSVGPattern = def.append('pattern').attr('id', 'deleteIcon').attr('width', '100%')
+            .attr('height', '100%');
+        deleteIconSVGPattern.append('image').attr('xlink:href', 'images/delete.svg').attr('x', 0).attr('y', 0)
+            .attr('width', iconSizeSideLength).attr('height', iconSizeSideLength);
 
-        var deleteRedIconSVGPattern = def.append("pattern").attr("id", "deleteRedIcon").attr("width", "100%")
-            .attr("height", "100%");
-        deleteRedIconSVGPattern.append("image").attr("xlink:href", "images/delete-red.svg").attr("x", 0).attr("y", 0)
-            .attr("width", iconSizeSideLength).attr("height", iconSizeSideLength);
+        var deleteRedIconSVGPattern = def.append('pattern').attr('id', 'deleteRedIcon').attr('width', '100%')
+            .attr('height', '100%');
+        deleteRedIconSVGPattern.append('image').attr('xlink:href', 'images/delete-red.svg').attr('x', 0).attr('y', 0)
+            .attr('width', iconSizeSideLength).attr('height', iconSizeSideLength);
 
         // Creating annotations icon for SVG definitions.
-        var annotationIconSVGPattern = def.append("pattern").attr("id", "annotationIcon").attr("width", "100%")
-            .attr("height", "100%");
-        annotationIconSVGPattern.append("image").attr("xlink:href", "images/annotation.svg").attr("x", 0)
-            .attr("y", 0).attr("width", iconSizeSideLength).attr("height", iconSizeSideLength);
+        var annotationIconSVGPattern = def.append('pattern').attr('id', 'annotationIcon').attr('width', '100%')
+            .attr('height', '100%');
+        annotationIconSVGPattern.append('image').attr('xlink:href', 'images/annotation.svg').attr('x', 0)
+            .attr('y', 0).attr('width', iconSizeSideLength).attr('height', iconSizeSideLength);
 
-        var annotationBlackIconSVGPattern = def.append("pattern").attr("id", "annotationBlackIcon").attr("width", "100%")
-            .attr("height", "100%");
-        annotationBlackIconSVGPattern.append("image").attr("xlink:href", "images/annotation-black.svg").attr("x", 0)
-            .attr("y", 0).attr("width", iconSizeSideLength).attr("height", iconSizeSideLength);
+        var annotationBlackIconSVGPattern = def.append('pattern').attr('id', 'annotationBlackIcon').attr('width', '100%')
+            .attr('height', '100%');
+        annotationBlackIconSVGPattern.append('image').attr('xlink:href', 'images/annotation-black.svg').attr('x', 0)
+            .attr('y', 0).attr('width', iconSizeSideLength).attr('height', iconSizeSideLength);
 
         // Creating arguments icon for SVG definitions.
-        var argumentsIconSVGPattern = def.append("pattern").attr("id", "argumentsIcon").attr("width", "100%")
-            .attr("height", "100%");
-        argumentsIconSVGPattern.append("image").attr("xlink:href", "images/import.svg").attr("x", 0)
-            .attr("y", 0).attr("width", iconSizeSideLength).attr("height", iconSizeSideLength);
+        var argumentsIconSVGPattern = def.append('pattern').attr('id', 'argumentsIcon').attr('width', '100%')
+            .attr('height', '100%');
+        argumentsIconSVGPattern.append('image').attr('xlink:href', 'images/import.svg').attr('x', 0)
+            .attr('y', 0).attr('width', iconSizeSideLength).attr('height', iconSizeSideLength);
 
-        var argumentsBlackIconSVGPattern = def.append("pattern").attr("id", "argumentsBlackIcon").attr("width", "100%")
-            .attr("height", "100%");
-        argumentsBlackIconSVGPattern.append("image").attr("xlink:href", "images/import-black.svg").attr("x", 0)
-            .attr("y", 0).attr("width", iconSizeSideLength).attr("height", iconSizeSideLength);
+        var argumentsBlackIconSVGPattern = def.append('pattern').attr('id', 'argumentsBlackIcon').attr('width', '100%')
+            .attr('height', '100%');
+        argumentsBlackIconSVGPattern.append('image').attr('xlink:href', 'images/import-black.svg').attr('x', 0)
+            .attr('y', 0).attr('width', iconSizeSideLength).attr('height', iconSizeSideLength);
 
         // Creating return type icon for SVG definitions.
-        var returnTypeIconSVGPattern = def.append("pattern").attr("id", "returnTypeIcon").attr("width", "100%")
-            .attr("height", "100%");
-        returnTypeIconSVGPattern.append("image").attr("xlink:href", "images/export.svg").attr("x", 0)
-            .attr("y", 0).attr("width", iconSizeSideLength).attr("height", iconSizeSideLength);
+        var returnTypeIconSVGPattern = def.append('pattern').attr('id', 'returnTypeIcon').attr('width', '100%')
+            .attr('height', '100%');
+        returnTypeIconSVGPattern.append('image').attr('xlink:href', 'images/export.svg').attr('x', 0)
+            .attr('y', 0).attr('width', iconSizeSideLength).attr('height', iconSizeSideLength);
 
-        var returnTypeBlackIconSVGPattern = def.append("pattern").attr("id", "returnTypeBlackIcon").attr("width", "100%")
-            .attr("height", "100%");
-        returnTypeBlackIconSVGPattern.append("image").attr("xlink:href", "images/export-black.svg").attr("x", 0)
-            .attr("y", 0).attr("width", iconSizeSideLength).attr("height", iconSizeSideLength);
+        var returnTypeBlackIconSVGPattern = def.append('pattern').attr('id', 'returnTypeBlackIcon').attr('width', '100%')
+            .attr('height', '100%');
+        returnTypeBlackIconSVGPattern.append('image').attr('xlink:href', 'images/export-black.svg').attr('x', 0)
+            .attr('y', 0).attr('width', iconSizeSideLength).attr('height', iconSizeSideLength);
 
         // Connector action header container
         var headerGroup = D3utils.group(connectorActionGroup);
-        headerGroup.attr("id", "headerGroup");
+        headerGroup.attr('id', 'headerGroup');
 
         var headingRect = D3utils.rect(headingStart.x(), headingStart.y(),
             this._viewOptions.heading.width, this._viewOptions.heading.height,
-            0, 0, headerGroup).classed("headingRect", true);
+            0, 0, headerGroup).classed('headingRect', true);
         this._headingRect = headingRect;
 
         var headingIconsGroup = D3utils.group(headerGroup);
-        headingIconsGroup.attr("transform", "translate(0,0)");
+        headingIconsGroup.attr('transform', 'translate(0,0)');
         this._headerIconGroup = headingIconsGroup;
 
         // Drawing connector action icon
         var headingRectIconHolder = D3utils.rect(headingStart.x(),
             headingStart.y(), this._viewOptions.heading.icon.width,
-            this._viewOptions.heading.icon.height, 0, 0, headerGroup).classed("connectorActionHeadingIconHolder",true);
+            this._viewOptions.heading.icon.height, 0, 0, headerGroup).classed('connectorActionHeadingIconHolder',true);
 
         var actionHeadingRectIcon = D3utils.rect(headingStart.x(), headingStart.y(), this._viewOptions.heading.icon.width,
-            this._viewOptions.heading.icon.height, 0, 0, headerGroup).classed("actionHeadingRectIcon", true);
+            this._viewOptions.heading.icon.height, 0, 0, headerGroup).classed('actionHeadingRectIcon', true);
 
-        var xEndOfHeadingRect = parseFloat(headingRect.attr("x")) + parseFloat(headingRect.attr("width")) ;
-        var yForIcons = parseFloat(headingRect.attr("y")) + (((this._viewOptions.heading.icon.height) / 2) - (14 / 2));
+        var xEndOfHeadingRect = parseFloat(headingRect.attr('x')) + parseFloat(headingRect.attr('width')) ;
+        var yForIcons = parseFloat(headingRect.attr('y')) + (((this._viewOptions.heading.icon.height) / 2) - (14 / 2));
 
         // Creating wrapper for collpase icon.
         var headingCollapseIconWrapper = D3utils.rect(
             xEndOfHeadingRect - this._viewOptions.heading.icon.width, headingStart.y() + 1,
             this._viewOptions.heading.icon.width - 1, this._viewOptions.heading.icon.height - 1, 0, 0, headingIconsGroup)
-            .classed("heading-icon-wrapper hoverable heading-icon-collpase-wrapper", true);
+            .classed('heading-icon-wrapper hoverable heading-icon-collpase-wrapper', true);
 
         var xForCollpaseIcon = xEndOfHeadingRect - this._viewOptions.heading.icon.width + (((this._viewOptions.heading.icon.width) / 2) - (14 / 2));
 
         // Creating connector action heading collapse icon.
         var headingCollapseIcon = D3utils.rect(xForCollpaseIcon, yForIcons,
-            iconSizeSideLength, iconSizeSideLength, 0, 0, headingIconsGroup).attr("title", "Collapse Pane")
-            .classed("headingExpandIcon", true).attr("style", "opacity: 0.4");
+            iconSizeSideLength, iconSizeSideLength, 0, 0, headingIconsGroup).attr('title', 'Collapse Pane')
+            .classed('headingExpandIcon', true).attr('style', 'opacity: 0.4');
 
         // Creating separator for collapse icon.
-        D3utils.line(xEndOfHeadingRect - this._viewOptions.heading.icon.width, parseFloat(headingRect.attr("y")) + 5,
+        D3utils.line(xEndOfHeadingRect - this._viewOptions.heading.icon.width, parseFloat(headingRect.attr('y')) + 5,
             xEndOfHeadingRect - this._viewOptions.heading.icon.width,
-            parseFloat(headingRect.attr("y")) + parseFloat(headingRect.attr("height")) - 5, headingIconsGroup)
-            .classed("operations-separator", true);
+            parseFloat(headingRect.attr('y')) + parseFloat(headingRect.attr('height')) - 5, headingIconsGroup)
+            .classed('operations-separator', true);
 
         // Creating separator for delete icon.
         D3utils.line(xEndOfHeadingRect - (2 * this._viewOptions.heading.icon.width),
-            parseFloat(headingRect.attr("y")) + 5, xEndOfHeadingRect - (2 * this._viewOptions.heading.icon.width),
-            parseFloat(headingRect.attr("y")) + parseFloat(headingRect.attr("height")) - 5, headingIconsGroup)
-            .classed("operations-separator", true);
+            parseFloat(headingRect.attr('y')) + 5, xEndOfHeadingRect - (2 * this._viewOptions.heading.icon.width),
+            parseFloat(headingRect.attr('y')) + parseFloat(headingRect.attr('height')) - 5, headingIconsGroup)
+            .classed('operations-separator', true);
 
         // Creating separator for annotation icon.
         D3utils.line(xEndOfHeadingRect - (3 * this._viewOptions.heading.icon.width),
-            parseFloat(headingRect.attr("y")) + 5, xEndOfHeadingRect - (3 * this._viewOptions.heading.icon.width),
-            parseFloat(headingRect.attr("y")) + parseFloat(headingRect.attr("height")) - 5, headingIconsGroup)
-            .classed("operations-separator", true);
+            parseFloat(headingRect.attr('y')) + 5, xEndOfHeadingRect - (3 * this._viewOptions.heading.icon.width),
+            parseFloat(headingRect.attr('y')) + parseFloat(headingRect.attr('height')) - 5, headingIconsGroup)
+            .classed('operations-separator', true);
 
         // Creating separator for annotation icon.
         D3utils.line(xEndOfHeadingRect - (4 * this._viewOptions.heading.icon.width),
-            parseFloat(headingRect.attr("y")) + 5, xEndOfHeadingRect - (4 * this._viewOptions.heading.icon.width),
-            parseFloat(headingRect.attr("y")) + parseFloat(headingRect.attr("height")) - 5, headingIconsGroup)
-            .classed("operations-separator", true);
+            parseFloat(headingRect.attr('y')) + 5, xEndOfHeadingRect - (4 * this._viewOptions.heading.icon.width),
+            parseFloat(headingRect.attr('y')) + parseFloat(headingRect.attr('height')) - 5, headingIconsGroup)
+            .classed('operations-separator', true);
 
         // Creating wrapper for delete icon.
         var headingDeleteIconWrapper = D3utils.rect(
             xEndOfHeadingRect - (2 * this._viewOptions.heading.icon.width), headingStart.y() + 1,
             this._viewOptions.heading.icon.width - 1, this._viewOptions.heading.icon.height - 2, 0, 0, headingIconsGroup)
-            .classed("heading-icon-wrapper heading-icon-delete-wrapper", true);
+            .classed('heading-icon-wrapper heading-icon-delete-wrapper', true);
 
         var xForDeleteIcon = xEndOfHeadingRect - (2 * this._viewOptions.heading.icon.width) + (((this._viewOptions.heading.icon.width) / 2) - (14 / 2));
 
@@ -461,74 +458,74 @@ class ConnectorActionView extends BallerinaView {
         // TODO: removed the tooltip temporarily
         var headingDeleteIcon = D3utils.rect(xForDeleteIcon, yForIcons,
             iconSizeSideLength, iconSizeSideLength, 0, 0, headingIconsGroup)
-            .classed("headingDeleteIcon", true).attr("style", "opacity: 0.4");
+            .classed('headingDeleteIcon', true).attr('style', 'opacity: 0.4');
 
         // Creating wrapper for annotation icon.
         var headingAnnotationIconWrapper = D3utils.rect(
             xEndOfHeadingRect - (3 * this._viewOptions.heading.icon.width), headingStart.y() + 1,
             this._viewOptions.heading.icon.width - 1, this._viewOptions.heading.icon.height - 2, 0, 0, headingIconsGroup)
-            .classed("heading-icon-wrapper heading-icon-annotation-wrapper", true);
+            .classed('heading-icon-wrapper heading-icon-annotation-wrapper', true);
 
         var xForAnnotationIcon = xEndOfHeadingRect - (3 * this._viewOptions.heading.icon.width) + (((this._viewOptions.heading.icon.width) / 2) - (14 / 2));
 
         // Connector Action heading annotation icon
         var headingAnnotationIcon = D3utils.rect(xForAnnotationIcon, yForIcons,
-            iconSizeSideLength, iconSizeSideLength, 0, 0, headingIconsGroup).attr("title", "Annotations")
-            .classed("headingAnnotationBlackIcon", true).attr("style", "opacity: 0.4");
+            iconSizeSideLength, iconSizeSideLength, 0, 0, headingIconsGroup).attr('title', 'Annotations')
+            .classed('headingAnnotationBlackIcon', true).attr('style', 'opacity: 0.4');
 
         // Creating wrapper for arguments icon.
         var headingArgumentsIconWrapper = D3utils.rect(
             xEndOfHeadingRect - (5 * this._viewOptions.heading.icon.width), headingStart.y() + 1,
             this._viewOptions.heading.icon.width - 1, this._viewOptions.heading.icon.height - 2, 0, 0, headingIconsGroup)
-            .classed("heading-icon-wrapper heading-icon-arguments-wrapper", true);
+            .classed('heading-icon-wrapper heading-icon-arguments-wrapper', true);
 
         var xForArgumentsIcon = xEndOfHeadingRect - (5 * this._viewOptions.heading.icon.width) + (((this._viewOptions.heading.icon.width) / 2) - (14 / 2));
 
         // Connector Action heading arguments icon.
         var headingArgumentsIcon = D3utils.rect(xForArgumentsIcon, yForIcons,
-            iconSizeSideLength, iconSizeSideLength, 0, 0, headingIconsGroup).attr("title", "Arguments")
-            .classed("headingArgumentsBlackIcon", true).attr("style", "opacity: 0.4");
+            iconSizeSideLength, iconSizeSideLength, 0, 0, headingIconsGroup).attr('title', 'Arguments')
+            .classed('headingArgumentsBlackIcon', true).attr('style', 'opacity: 0.4');
 
         // Creating wrapper for Return Types icon.
         var headingReturnTypesIconWrapper = D3utils.rect(
             xEndOfHeadingRect - (4 * this._viewOptions.heading.icon.width), headingStart.y() + 1,
             this._viewOptions.heading.icon.width - 1, this._viewOptions.heading.icon.height - 2, 0, 0, headingIconsGroup)
-            .classed("heading-icon-wrapper heading-icon-return-type-wrapper", true);
+            .classed('heading-icon-wrapper heading-icon-return-type-wrapper', true);
 
         var xForReturnTypesIcon = xEndOfHeadingRect - (4 * this._viewOptions.heading.icon.width) + (((this._viewOptions.heading.icon.width) / 2) - (14 / 2));
 
         // Connector Action heading Return Types icon.
         var headingReturnTypesIcon = D3utils.rect(xForReturnTypesIcon, yForIcons,
-            iconSizeSideLength, iconSizeSideLength, 0, 0, headingIconsGroup).attr("title", "Return Types")
-            .classed("headingReturnTypeBlackIcon", true).attr("style", "opacity: 0.4");
+            iconSizeSideLength, iconSizeSideLength, 0, 0, headingIconsGroup).attr('title', 'Return Types')
+            .classed('headingReturnTypeBlackIcon', true).attr('style', 'opacity: 0.4');
 
         // UI changes when the annotation button is clicked.
         $(headingAnnotationIcon.node()).click(function () {
-            if ($(this).data("showing") === "true") {
-                $(this).data("showing", "false");
-                headingAnnotationIcon.classed("headingAnnotationBlackIcon", true);
-                headingAnnotationIcon.classed("headingAnnotationIcon", false);
-                headingAnnotationIconWrapper.classed("heading-icon-annotation-wrapper-clicked", false);
+            if ($(this).data('showing') === 'true') {
+                $(this).data('showing', 'false');
+                headingAnnotationIcon.classed('headingAnnotationBlackIcon', true);
+                headingAnnotationIcon.classed('headingAnnotationIcon', false);
+                headingAnnotationIconWrapper.classed('heading-icon-annotation-wrapper-clicked', false);
             } else {
-                $(this).data("showing", "true");
-                headingAnnotationIcon.classed("headingAnnotationBlackIcon", false);
-                headingAnnotationIcon.classed("headingAnnotationIcon", true);
-                headingAnnotationIconWrapper.classed("heading-icon-annotation-wrapper-clicked", true);
+                $(this).data('showing', 'true');
+                headingAnnotationIcon.classed('headingAnnotationBlackIcon', false);
+                headingAnnotationIcon.classed('headingAnnotationIcon', true);
+                headingAnnotationIconWrapper.classed('heading-icon-annotation-wrapper-clicked', true);
             }
         });
 
         // UI changes when the arguments button is clicked.
         $(headingArgumentsIcon.node()).click(function () {
-            if ($(this).data("showing") === "true") {
-                $(this).data("showing", "false");
-                headingArgumentsIcon.classed("headingArgumentsBlackIcon", true);
-                headingArgumentsIcon.classed("headingArgumentsIcon", false);
-                headingArgumentsIconWrapper.classed("heading-icon-arguments-wrapper-clicked", false);
+            if ($(this).data('showing') === 'true') {
+                $(this).data('showing', 'false');
+                headingArgumentsIcon.classed('headingArgumentsBlackIcon', true);
+                headingArgumentsIcon.classed('headingArgumentsIcon', false);
+                headingArgumentsIconWrapper.classed('heading-icon-arguments-wrapper-clicked', false);
             } else {
-                $(this).data("showing", "true");
-                headingArgumentsIcon.classed("headingArgumentsBlackIcon", false);
-                headingArgumentsIcon.classed("headingArgumentsIcon", true);
-                headingArgumentsIconWrapper.classed("heading-icon-arguments-wrapper-clicked", true);
+                $(this).data('showing', 'true');
+                headingArgumentsIcon.classed('headingArgumentsBlackIcon', false);
+                headingArgumentsIcon.classed('headingArgumentsIcon', true);
+                headingArgumentsIconWrapper.classed('heading-icon-arguments-wrapper-clicked', true);
             }
         });
 
@@ -537,43 +534,43 @@ class ConnectorActionView extends BallerinaView {
 
         // UI changes when the return Types button is clicked.
         $(headingReturnTypesIcon.node()).click(function () {
-            if ($(this).data("showing") === "true") {
-                $(this).data("showing", "false");
-                headingReturnTypesIcon.classed("headingReturnTypeBlackIcon", true);
-                headingReturnTypesIcon.classed("headingReturnTypeIcon", false);
-                headingReturnTypesIconWrapper.classed("heading-icon-return-type-wrapper-clicked", false);
+            if ($(this).data('showing') === 'true') {
+                $(this).data('showing', 'false');
+                headingReturnTypesIcon.classed('headingReturnTypeBlackIcon', true);
+                headingReturnTypesIcon.classed('headingReturnTypeIcon', false);
+                headingReturnTypesIconWrapper.classed('heading-icon-return-type-wrapper-clicked', false);
             } else {
-                $(this).data("showing", "true");
-                headingReturnTypesIcon.classed("headingReturnTypeBlackIcon", false);
-                headingReturnTypesIcon.classed("headingReturnTypeIcon", true);
-                headingReturnTypesIconWrapper.classed("heading-icon-return-type-wrapper-clicked", true);
+                $(this).data('showing', 'true');
+                headingReturnTypesIcon.classed('headingReturnTypeBlackIcon', false);
+                headingReturnTypesIcon.classed('headingReturnTypeIcon', true);
+                headingReturnTypesIconWrapper.classed('heading-icon-return-type-wrapper-clicked', true);
             }
         });
 
         // Add the connector action name editable html area
         var svgWrappingHtml = this.getChildContainer().node().ownerSVGElement.parentElement;
-        this._nameDiv = $("<div></div>");
-        this._nameDiv.css('left', (parseInt(headingStart.x()) + 30) + "px");
-        this._nameDiv.css('top', parseInt(headingStart.y()) + "px");
-        this._nameDiv.css('width',"100px");
-        this._nameDiv.css('height',"25px");
-        this._nameDiv.addClass("name-container-div");
-        var nameSpan = $("<span></span>");
+        this._nameDiv = $('<div></div>');
+        this._nameDiv.css('left', (parseInt(headingStart.x()) + 30) + 'px');
+        this._nameDiv.css('top', parseInt(headingStart.y()) + 'px');
+        this._nameDiv.css('width','100px');
+        this._nameDiv.css('height','25px');
+        this._nameDiv.addClass('name-container-div');
+        var nameSpan = $('<span></span>');
         nameSpan.text(self._model.getActionName());
-        nameSpan.addClass("name-span");
-        nameSpan.attr("contenteditable", "true");
-        nameSpan.attr("spellcheck", "false");
+        nameSpan.addClass('name-span');
+        nameSpan.attr('contenteditable', 'true');
+        nameSpan.attr('spellcheck', 'false');
         nameSpan.focus();
         nameSpan.blur();
         this._nameDiv.append(nameSpan);
         $(svgWrappingHtml).append(this._nameDiv);
         // Container for connector action body
         var contentGroup = D3utils.group(connectorActionGroup);
-        contentGroup.attr('id', "contentGroup");
+        contentGroup.attr('id', 'contentGroup');
 
-        nameSpan.on("change paste keyup", function (e) {
+        nameSpan.on('change paste keyup', function (e) {
             self._model.setActionName($(this).text());
-        }).on("keydown", function (e) {
+        }).on('keydown', function (e) {
             // Check whether the Enter key has been pressed. If so return false. Won't type the character
             if (e.keyCode === 13) {
                 return false;
@@ -584,42 +581,42 @@ class ConnectorActionView extends BallerinaView {
 
         var contentRect = D3utils.rect(contentStart.x(), contentStart.y(),
             this._viewOptions.contentWidth, this._viewOptions.contentHeight, 0, 0,
-            contentGroup).classed("connector-action-content", true);
+            contentGroup).classed('connector-action-content', true);
 
         this._contentRect = contentRect;
-        contentRect.attr("fill", "#fff");
+        contentRect.attr('fill', '#fff');
 
         var onExpandCollapse = function () {
             var connectorActionBBox = self.getBoundingBox();
-            var visibility = contentGroup.node().getAttribute("display");
-            if (visibility == "none") {
-                contentGroup.attr("display", "inline");
+            var visibility = contentGroup.node().getAttribute('display');
+            if (visibility == 'none') {
+                contentGroup.attr('display', 'inline');
                 // connector action content is expanded. Hence expand connector action BBox
                 connectorActionBBox.h(connectorActionBBox.h() + self._minizedHeight);
 
                 // Changing icon if the collapse.
-                headingCollapseIcon.classed("headingExpandIcon", true);
-                headingCollapseIcon.classed("headingCollapsedIcon", false);
+                headingCollapseIcon.classed('headingExpandIcon', true);
+                headingCollapseIcon.classed('headingCollapsedIcon', false);
             }
             else {
-                contentGroup.attr("display", "none");
+                contentGroup.attr('display', 'none');
                 // connector action content is folded. Hence decrease connector action BBox height and keep the minimized size
                 self._minizedHeight =  parseFloat(contentRect.attr('height'));
                 connectorActionBBox.h(connectorActionBBox.h() - self._minizedHeight);
 
                 // Changing icon if the collapse.
-                headingCollapseIcon.classed("headingExpandIcon", false);
-                headingCollapseIcon.classed("headingCollapsedIcon", true);
+                headingCollapseIcon.classed('headingExpandIcon', false);
+                headingCollapseIcon.classed('headingCollapsedIcon', true);
             }
         };
 
         // On click of collapse icon hide/show connector action body
-        headingCollapseIcon.on("click", onExpandCollapse);
-        headingRect.on("click", onExpandCollapse);
+        headingCollapseIcon.on('click', onExpandCollapse);
+        headingRect.on('click', onExpandCollapse);
 
         // On click of delete icon
-        headingDeleteIcon.on("click", function () {
-            log.debug("Clicked delete button");
+        headingDeleteIcon.on('click', function () {
+            log.debug('Clicked delete button');
             self._model.remove();
         });
 
@@ -630,14 +627,14 @@ class ConnectorActionView extends BallerinaView {
             viewOptions: {
                 position: {
                     // "-1" to remove the svg stroke line
-                    left: parseFloat(this.getChildContainer().attr("x")) + parseFloat(this.getChildContainer().attr("width")) - 1,
-                    top: this.getChildContainer().attr("y")
+                    left: parseFloat(this.getChildContainer().attr('x')) + parseFloat(this.getChildContainer().attr('width')) - 1,
+                    top: this.getChildContainer().attr('y')
                 }
             },
             view: this
         };
 
-        this._annotationView = AnnotationView.createAnnotationPane(annotationProperties);
+        this._annotationView = new AnnotationView().createAnnotationPane(annotationProperties);
 
         var argumentsProperties = {
             model: this._model,
@@ -646,8 +643,8 @@ class ConnectorActionView extends BallerinaView {
             viewOptions: {
                 position: {
                     // "-1" to remove the svg stroke line
-                    left: parseFloat(this.getChildContainer().attr("x")) + parseFloat(this.getChildContainer().attr("width")) - 1,
-                    top: this.getChildContainer().attr("y")
+                    left: parseFloat(this.getChildContainer().attr('x')) + parseFloat(this.getChildContainer().attr('width')) - 1,
+                    top: this.getChildContainer().attr('y')
                 }
             },
             view: this
@@ -661,8 +658,8 @@ class ConnectorActionView extends BallerinaView {
             activatorElement: headingReturnTypesIcon.node(),
             paneAppendElement: this.getChildContainer().node().ownerSVGElement.parentElement,
             viewOptions: {
-                position: new Point(parseFloat(this.getChildContainer().attr("x")) + parseFloat(this.getChildContainer().attr("width")) - 1,
-                    this.getChildContainer().attr("y"))
+                position: new Point(parseFloat(this.getChildContainer().attr('x')) + parseFloat(this.getChildContainer().attr('width')) - 1,
+                    this.getChildContainer().attr('y'))
             },
             view: this
         };
@@ -670,12 +667,12 @@ class ConnectorActionView extends BallerinaView {
         this._returnTypePaneView = new ReturnTypesPaneView(returnTypeProperties);
         this._returnTypePaneView.createReturnTypePane(diagramRenderingContext);
 
-        this.getBoundingBox().on("height-changed", function(dh){
+        this.getBoundingBox().on('height-changed', function(dh){
             var newHeight = parseFloat(this._contentRect.attr('height')) + dh;
             this._contentRect.attr('height', (newHeight < 0 ? 0 : newHeight));
         }, this);
 
-        this.getBoundingBox().on("right-edge-moved", function(dw){
+        this.getBoundingBox().on('right-edge-moved', function(dw){
             var transformX = this._headerIconGroup.node().transform.baseVal.consolidate().matrix.e;
             var transformY = this._headerIconGroup.node().transform.baseVal.consolidate().matrix.f;
             this._headerIconGroup.node().transform.baseVal.getItem(0).setTranslate(transformX + dw, transformY);
@@ -716,7 +713,7 @@ class ConnectorActionView extends BallerinaView {
             self.getBoundingBox().h(this.getBoundingBox().h() + dy);
         });
 
-        this.trigger("defaultWorkerViewAddedEvent", this._defaultWorker);
+        this.trigger('defaultWorkerViewAddedEvent', this._defaultWorker);
         this.initActionLevelDropTarget();
         this.renderStatementContainer();
 
@@ -730,7 +727,7 @@ class ConnectorActionView extends BallerinaView {
             self.getWorkerLifeLineMargin().setPosition(self.getWorkerLifeLineMargin().getPosition() + dx);
         });
 
-        log.debug("Rendering Connector Action View");
+        log.debug('Rendering Connector Action View');
         this.getModel().accept(this);
         //Removing all the registered 'child-added' event listeners for this model.
         //This is needed because we are not unregistering registered event while the diagram element deletion.
@@ -753,21 +750,21 @@ class ConnectorActionView extends BallerinaView {
 
             $(button).click(function () {
                 _.forEach(operationButtons, function (buttonToClick) {
-                    if (button !== buttonToClick && $(buttonToClick).data("showing-pane") == "true") {
+                    if (button !== buttonToClick && $(buttonToClick).data('showing-pane') == 'true') {
                         $(buttonToClick).click();
                     }
                 });
             });
         });
 
-        this.getBoundingBox().on("moved", function(offset){
-            var currentTransform = this._connectorActionGroup.attr("transform");
-            this._connectorActionGroup.attr("transform", (!_.isNil(currentTransform) ? currentTransform : "") +
-                " translate(" + offset.dx + ", " + offset.dy + ")");
+        this.getBoundingBox().on('moved', function(offset){
+            var currentTransform = this._connectorActionGroup.attr('transform');
+            this._connectorActionGroup.attr('transform', (!_.isNil(currentTransform) ? currentTransform : '') +
+                ' translate(' + offset.dx + ', ' + offset.dy + ')');
 
             // Reposition the connector action name container
-            var newDivPositionVertical = parseInt(this._nameDiv.css("top")) + offset.dy;
-            this._nameDiv.css("top", newDivPositionVertical + "px");
+            var newDivPositionVertical = parseInt(this._nameDiv.css('top')) + offset.dy;
+            this._nameDiv.css('top', newDivPositionVertical + 'px');
         }, this);
     }
 
@@ -778,16 +775,16 @@ class ConnectorActionView extends BallerinaView {
      */
     _showHideScrolls(container, svgElement) {
         // Creating scroll panes.
-        var leftScroll = $(container).find(".service-left-scroll").get(0);
-        var rightScroll = $(container).find(".service-right-scroll").get(0);
+        var leftScroll = $(container).find('.service-left-scroll').get(0);
+        var rightScroll = $(container).find('.service-right-scroll').get(0);
 
         // Setting heights of the scrolls.
         $(leftScroll).height($(container).height());
         $(rightScroll).height($(container).height());
 
         // Positioning the arrows of the scrolls.
-        $(leftScroll).find("i").css("padding-top", ($(container).height() / 2) - (parseInt($(leftScroll).find("i").css("font-size"), 10) / 2) + "px");
-        $(rightScroll).find("i").css("padding-top", ($(container).height() / 2) - (parseInt($(rightScroll).find("i").css("font-size"), 10) / 2) + "px");
+        $(leftScroll).find('i').css('padding-top', ($(container).height() / 2) - (parseInt($(leftScroll).find('i').css('font-size'), 10) / 2) + 'px');
+        $(rightScroll).find('i').css('padding-top', ($(container).height() / 2) - (parseInt($(rightScroll).find('i').css('font-size'), 10) / 2) + 'px');
 
         // Showing/Hiding scrolls.
         if (Math.abs($(container).width() - $(svgElement).width()) < 5) {
@@ -863,7 +860,7 @@ class ConnectorActionView extends BallerinaView {
                 self._headingRect.classed(hoverClass, true);
 
                 // reset ui feed back on drop target change
-                self.toolPalette.dragDropManager.once("drop-target-changed", function(){
+                self.toolPalette.dragDropManager.once('drop-target-changed', function(){
                     self._contentRect.classed(hoverClass, false);
                     self._headingRect.classed(hoverClass, false);
                 });
@@ -885,10 +882,10 @@ class ConnectorActionView extends BallerinaView {
             d3.event.stopPropagation();
 
         };
-        this._contentRect.on("mouseover", mouseOverHandler);
-        this._headingRect.on("mouseover", mouseOverHandler);
-        this._contentRect.on("mouseout", mouseOutHandler);
-        this._headingRect.on("mouseout", mouseOutHandler);
+        this._contentRect.on('mouseover', mouseOverHandler);
+        this._headingRect.on('mouseover', mouseOverHandler);
+        this._contentRect.on('mouseout', mouseOutHandler);
+        this._headingRect.on('mouseout', mouseOutHandler);
     }
 
     getConnectorWorkerViewList() {
@@ -923,12 +920,12 @@ class ConnectorActionView extends BallerinaView {
         centerPoint.move(this._viewOptions.LifeLineCenterGap, 0);
         var connectorContainer = this._contentGroup.node();
         var connectorDeclarationView = new ConnectorDeclarationView({
-                model: connectorDeclaration,
-                container: connectorContainer,
-                parentView: this,
-                messageManager: this.messageManager,
-                lineHeight: this._defaultWorker.getTopCenter().absDistInYFrom(this._defaultWorker.getBottomCenter()),
-                centerPoint: centerPoint
+            model: connectorDeclaration,
+            container: connectorContainer,
+            parentView: this,
+            messageManager: this.messageManager,
+            lineHeight: this._defaultWorker.getTopCenter().absDistInYFrom(this._defaultWorker.getBottomCenter()),
+            centerPoint: centerPoint
         });
         this.diagramRenderingContext.getViewModelMap()[connectorDeclaration.id] = connectorDeclarationView;
 
@@ -937,8 +934,8 @@ class ConnectorActionView extends BallerinaView {
 
         // Creating property pane
         var editableProperty = {
-            propertyType: "text",
-            key: "ConnectorDeclaration",
+            propertyType: 'text',
+            key: 'ConnectorDeclaration',
             model: connectorDeclarationView._model,
             getterMethod: connectorDeclarationView._model.getConnectorExpression,
             setterMethod: connectorDeclarationView._model.setConnectorExpression,
@@ -988,7 +985,7 @@ class ConnectorActionView extends BallerinaView {
         });
 
         this._connectorWorkerViewList.push(connectorDeclarationView);
-        this.trigger("childConnectorViewAddedEvent", connectorDeclarationView);
+        this.trigger('childConnectorViewAddedEvent', connectorDeclarationView);
     }
 
     /**
@@ -1030,8 +1027,8 @@ class ConnectorActionView extends BallerinaView {
 
             // Creating Expression Editor
             var editableProperty = {
-                propertyType: "text",
-                key: "WorkerDeclaration",
+                propertyType: 'text',
+                key: 'WorkerDeclaration',
                 model: workerDeclarationView._model,
                 getterMethod: workerDeclarationView._model.getWorkerDeclarationStatement,
                 setterMethod: workerDeclarationView._model.setWorkerDeclarationStatement,
@@ -1103,8 +1100,8 @@ class ConnectorActionView extends BallerinaView {
      * @param height
      */
     setConnectorActionContainerHeight(height) {
-        this._connectorActionGroup.attr("height", height);
-        this._contentRect.attr("height", height);
+        this._connectorActionGroup.attr('height', height);
+        this._contentRect.attr('height', height);
         this._defaultWorker.setHeight(height - this._viewOptions.totalHeightGap);
         this.getBoundingBox().h(height);
     }
@@ -1342,5 +1339,3 @@ class ConnectorActionView extends BallerinaView {
 var variableTypes = ['message', 'boolean', 'string', 'int', 'float', 'long', 'double', 'json', 'xml'];
 
 export default ConnectorActionView;
-    
-
