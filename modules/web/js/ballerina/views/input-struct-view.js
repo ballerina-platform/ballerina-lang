@@ -62,13 +62,13 @@ class InputStructView extends BallerinaView {
         }
 
         if (!_.isUndefined(previousSelection) && previousSelection != TYPE_MAPPER_COMBOBOX_DEFAULT_SELECTION) {
-            mapper.removeStruct(previousSelection);
+            mapper.removeType(previousSelection);
         }
         if (!_.isUndefined(isAlreadtRenderedInTarget)) {
-            mapper.removeStruct(typeStructName);
+            mapper.removeType(typeStructName);
         }
         if (typeStructSchema) {
-            mapper.addSourceStruct(typeStructSchema.getAttributesArray(), this.getModel());
+            mapper.addSourceType(typeStructSchema.getAttributesArray(), this.getModel());
         }
     }
 

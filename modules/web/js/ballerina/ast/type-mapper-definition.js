@@ -21,8 +21,8 @@ import CommonUtils from '../utils/common-utils';
 
 class TypeMapperDefinition extends ASTNode {
     constructor(args) {
-        this._typeMapperName = _.get(args, 'typeMapperName');
         super('TypeMapperDefinition');
+        this._typeMapperName = _.get(args, 'typeMapperName');
     }
 
     /**
