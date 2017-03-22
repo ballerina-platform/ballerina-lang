@@ -16,36 +16,35 @@
  * under the License.
  */
 import _ from 'lodash';
-import log from 'log';
-import $ from 'jquery';
-import d3 from 'd3';
-import D3Utils from 'd3utils';
 import ASTVisitor from './../visitors/ast-visitor';
 import BBox from './bounding-box';
 
 /**
  * An abstract class which consists functions of moving or resizing views.
- * @param {Object} args - Arguments for creating the view.
- * @param {ASTNode} args.model - Any ASTNode as the model.
- * @param {Object} args.container - The HTML container to which the view should be added to.
- * @param {Object} [args.viewOptions={}] - Configuration values for the view.
- * @param {ToolPalette} args.toolPalette - reference for tool palette
- * @param {DiagramRenderContext} args.diagramRenderingContext - Diagram rendering context for the view.
- * @constructor
- * @augments ASTVisitor
+ * @class BallerinaView
+ * @extends ASTVisitor
  */
 class BallerinaView extends ASTVisitor {
+    /**
+     * @param {Object} args - Arguments for creating the view.
+     * @param {ASTNode} args.model - Any ASTNode as the model.
+     * @param {Object} args.container - The HTML container to which the view should be added to.
+     * @param {Object} [args.viewOptions={}] - Configuration values for the view.
+     * @param {ToolPalette} args.toolPalette - reference for tool palette
+     * @param {DiagramRenderContext} args.diagramRenderingContext - Diagram rendering context for the view.
+     * @constructor
+     */
     constructor(args) {
         super(args);
-        this._parent = _.get(args, "parent");
-        this.setModel(_.get(args, "model"));
-        this._container = _.get(args, "container");
-        this._viewOptions = _.get(args, "viewOptions", {});
-        this._backendEndpointsOptions = _.get(args, "backendEndpointsOptions", {});
+        this._parent = _.get(args, 'parent');
+        this.setModel(_.get(args, 'model'));
+        this._container = _.get(args, 'container');
+        this._viewOptions = _.get(args, 'viewOptions', {});
+        this._backendEndpointsOptions = _.get(args, 'backendEndpointsOptions', {});
         this._boundingBox = new BBox();
-        this.toolPalette = _.get(args, "toolPalette");
-        this.messageManager =  _.get(args, "messageManager");
-        this.diagramRenderingContext = _.get(args, "diagramRenderContext");
+        this.toolPalette = _.get(args, 'toolPalette');
+        this.messageManager =  _.get(args, 'messageManager');
+        this.diagramRenderingContext = _.get(args, 'diagramRenderContext');
         this.id = uuid();
     }
 
@@ -106,7 +105,7 @@ class BallerinaView extends ASTVisitor {
      * @abstract
      */
     render() {
-        throw "Method not implemented";
+        throw 'Method not implemented';
     }
 }
 

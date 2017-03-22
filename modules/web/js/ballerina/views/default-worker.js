@@ -17,33 +17,30 @@
  */
 
 import _ from 'lodash';
-import $ from 'jquery';
-import d3 from 'd3';
-import log from 'log';
-import D3Utils from 'd3utils';
-import Point from './point';
 import LifeLine from './life-line';
 
 /**
  * View for  the Default Worker lifeline
- * @param args {object} - config
- * @param args.container {SVGGElement} - SVG group element to draw the life line
- * @param args.centerPoint {Point} - center point to draw the life line.
- * @param args.cssClass {object} - css classes for the lifeline
- * @param args.cssClass.group {string} - css class for root group
- * @param args.cssClass.title {string} - css class for the title
- * @param args.title {string} - title
  * @class DefaultWorkerView
- * @augments LifeLineView
  * @constructor
  */
 class DefaultWorkerView extends LifeLine {
- constructor(args) {
-     _.set(args, 'title',  _.get(args, 'title', 'ResourceWorker'));
-     _.set(args, 'cssClass.group',  _.get(args, 'cssClass.group', 'default-worker-life-line'));
-     _.set(args, 'line.height',  _.get(args, 'line.height', 290));
-     super(args);
- }
+    /**
+     * @param args {object} - config
+     * @param args.container {SVGGElement} - SVG group element to draw the life line
+     * @param args.centerPoint {Point} - center point to draw the life line.
+     * @param args.cssClass {object} - css classes for the lifeline
+     * @param args.cssClass.group {string} - css class for root group
+     * @param args.cssClass.title {string} - css class for the title
+     * @param args.title {string} - title
+     * @constructor
+     */
+    constructor(args) {
+        _.set(args, 'title',  _.get(args, 'title', 'ResourceWorker'));
+        _.set(args, 'cssClass.group',  _.get(args, 'cssClass.group', 'default-worker-life-line'));
+        _.set(args, 'line.height',  _.get(args, 'line.height', 290));
+        super(args);
+    }
 }
 
 export default DefaultWorkerView;

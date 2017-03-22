@@ -35,13 +35,17 @@ import WorkerDeclarationView from './worker-declaration-view';
 
 /**
  * The view to represent a connector action which is an AST visitor.
- * @param {Object} args - Arguments for creating the view.
- * @param {ConnectorAction} args.model - The connector action model.
- * @param {Object} args.container - The HTML container to which the view should be added to.
- * @param {Object} [args.viewOptions={}] - Configuration values for the view.
- * @constructor
+ * @class ConnectorActionView
+ * @extends BallerinaView
  */
 class ConnectorActionView extends BallerinaView {
+    /**
+     * @param {Object} args - Arguments for creating the view.
+     * @param {ConnectorAction} args.model - The connector action model.
+     * @param {Object} args.container - The HTML container to which the view should be added to.
+     * @param {Object} [args.viewOptions={}] - Configuration values for the view.
+     * @constructor
+     */
     constructor(args) {
         super(args);
         this._connectorWorkerViewList = [];
@@ -228,12 +232,8 @@ class ConnectorActionView extends BallerinaView {
         return this._connectorActionGroup;
     }
 
-    canVisitConnectorAction(connectorAction) {
-        return true;
-    }
-
     /**
-     * Set the connctor acton view's corresponding model
+     * Set the connector acton view's corresponding model
      * @param model
      */
     setModel(model) {
@@ -409,7 +409,7 @@ class ConnectorActionView extends BallerinaView {
         var xEndOfHeadingRect = parseFloat(headingRect.attr('x')) + parseFloat(headingRect.attr('width')) ;
         var yForIcons = parseFloat(headingRect.attr('y')) + (((this._viewOptions.heading.icon.height) / 2) - (14 / 2));
 
-        // Creating wrapper for collpase icon.
+        // Creating wrapper for collapse icon.
         var headingCollapseIconWrapper = D3utils.rect(
             xEndOfHeadingRect - this._viewOptions.heading.icon.width, headingStart.y() + 1,
             this._viewOptions.heading.icon.width - 1, this._viewOptions.heading.icon.height - 1, 0, 0, headingIconsGroup)
@@ -568,7 +568,7 @@ class ConnectorActionView extends BallerinaView {
         var contentGroup = D3utils.group(connectorActionGroup);
         contentGroup.attr('id', 'contentGroup');
 
-        nameSpan.on('change paste keyup', function (e) {
+        nameSpan.on('change paste keyup', function () {
             self._model.setActionName($(this).text());
         }).on('keydown', function (e) {
             // Check whether the Enter key has been pressed. If so return false. Won't type the character
@@ -589,7 +589,7 @@ class ConnectorActionView extends BallerinaView {
         var onExpandCollapse = function () {
             var connectorActionBBox = self.getBoundingBox();
             var visibility = contentGroup.node().getAttribute('display');
-            if (visibility == 'none') {
+            if (visibility === 'none') {
                 contentGroup.attr('display', 'inline');
                 // connector action content is expanded. Hence expand connector action BBox
                 connectorActionBBox.h(connectorActionBBox.h() + self._minizedHeight);
@@ -750,7 +750,7 @@ class ConnectorActionView extends BallerinaView {
 
             $(button).click(function () {
                 _.forEach(operationButtons, function (buttonToClick) {
-                    if (button !== buttonToClick && $(buttonToClick).data('showing-pane') == 'true') {
+                    if (button !== buttonToClick && $(buttonToClick).data('showing-pane') === 'true') {
                         $(buttonToClick).click();
                     }
                 });
@@ -793,11 +793,11 @@ class ConnectorActionView extends BallerinaView {
             $(rightScroll).hide();
         } else {
             // If the svg width is greater than the width of the container...
-            if ($(container).scrollLeft() == 0) {
+            if ($(container).scrollLeft() === 0) {
                 // When scrollLeft is 0, means that it is already scrolled to the left corner.
                 $(rightScroll).show();
                 $(leftScroll).hide();
-            } else if ($(container).scrollLeft() == parseInt($(svgElement).width(), 10) -
+            } else if ($(container).scrollLeft() === parseInt($(svgElement).width(), 10) -
                 parseInt($(container).width(), 10)) {
                 // When scrolled all the way to the right.
                 $(leftScroll).show();
@@ -900,11 +900,11 @@ class ConnectorActionView extends BallerinaView {
         return this._defaultWorker;
     }
 
-    canVisitConnectorAction(connectorAction) {
+    canVisitConnectorAction() {
         return true;
     }
 
-    canVisitConnectorDeclaration(connectorDeclaration) {
+    canVisitConnectorDeclaration() {
         return true;
     }
 
@@ -972,7 +972,7 @@ class ConnectorActionView extends BallerinaView {
         }
 
         var connectorBBox = connectorDeclarationView.getBoundingBox();
-        connectorDeclarationView.listenTo(connectorBBox, 'right-edge-moved', function (offset) {
+        connectorDeclarationView.listenTo(connectorBBox, 'right-edge-moved', function () {
             if (connectorBBox.getRight() > self.getBoundingBox().getRight()) {
                 self._parentView.getLifeLineMargin().setPosition(self._parentView.getLifeLineMargin().getPosition() + self._viewOptions.LifeLineCenterGap);
                 self.setContentMinWidth(connectorBBox.getRight());
@@ -1251,7 +1251,7 @@ class ConnectorActionView extends BallerinaView {
         return this._horizontalMargin;
     }
 
-    getDeepestChild(currentWorker, dy) {
+    getDeepestChild() {
         var self = this;
         var lastChildArr = [];
 
@@ -1334,8 +1334,5 @@ class ConnectorActionView extends BallerinaView {
         return connectors;
     }
 }
-
-// TODO move variable types into constant class
-var variableTypes = ['message', 'boolean', 'string', 'int', 'float', 'long', 'double', 'json', 'xml'];
 
 export default ConnectorActionView;

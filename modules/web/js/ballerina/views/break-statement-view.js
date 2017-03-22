@@ -22,21 +22,22 @@ import BreakStatement from '../ast/statements/break-statement';
 
 /**
  * The view to represent a break definition which is an AST visitor.
- * @param {Object} args - Arguments for creating the view.
- * @param {Assignment} args.model - The assignment statement model.
- * @param {Object} args.container - The HTML container to which the view should be added to.
- * @param {Object} [args.viewOptions={}] - Configuration values for the view.
  * @class BreakStatementView
- * @constructor
  * @extends SimpleStatementView
  */
 class BreakStatementView extends SimpleStatementView {
+    /**
+     * @param {Object} args - Arguments for creating the view.
+     * @param {Assignment} args.model - The assignment statement model.
+     * @param {Object} args.container - The HTML container to which the view should be added to.
+     * @param {Object} [args.viewOptions={}] - Configuration values for the view.
+     * @constructor
+     */
     constructor(args) {
         super(args);
-
         if (_.isNil(this._container)) {
-            log.error("Container for Break statement is undefined." + this._container);
-            throw "Container for Break statement is undefined." + this._container;
+            log.error('Container for Break statement is undefined.' + this._container);
+            throw 'Container for Break statement is undefined.' + this._container;
         }
     }
 
@@ -52,8 +53,8 @@ class BreakStatementView extends SimpleStatementView {
         if (!_.isNil(model) && model instanceof BreakStatement) {
             (this.__proto__.__proto__).setModel(model);
         } else {
-            log.error("Break statement undefined or is of different type." + model);
-            throw "Break statement undefined or is of different type." + model;
+            log.error('Break statement undefined or is of different type.' + model);
+            throw 'Break statement undefined or is of different type.' + model;
         }
     }
 
