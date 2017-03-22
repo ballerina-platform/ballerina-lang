@@ -16,7 +16,7 @@
  *  under the License.
  */
 
-package org.ballerinalang.nativeimpl.net.ws;
+package org.ballerinalang.nativeimpl.net.ws.connectionsGroup;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeEnum;
@@ -34,12 +34,13 @@ import java.util.List;
 import javax.websocket.Session;
 
 /**
- * Broadcasts text to all the clients connected to a given endpoint.
+ * This pushes text to a group which is previously define.
  */
 @BallerinaFunction(
         packageName = "ballerina.net.ws",
-        functionName = "broadcastText",
+        functionName = "pushTextToGroup",
         args = {
+                @Argument(name = "connectionGroupName", type = TypeEnum.STRING),
                 @Argument(name = "text", type = TypeEnum.STRING)
         },
         isPublic = true
@@ -48,16 +49,17 @@ import javax.websocket.Session;
                      attributes = { @Attribute(name = "value", value = "This pushes text from server to all the " +
                              "connected clients of the service.") })
 @BallerinaAnnotation(annotationName = "Param",
+                     attributes = { @Attribute(name = "connectionGroupName", value = "name of the connection group") })
+@BallerinaAnnotation(annotationName = "Param",
                      attributes = { @Attribute(name = "text", value = "Text which should be sent") })
-public class BroadcastText extends AbstractNativeFunction {
-
+public class PushTextToGroup extends AbstractNativeFunction {
     @Override
     public BValue[] execute(Context context) {
-        String text = getArgument(context, 0).stringValue();
-        String serviceName = context.getServiceInfo().getName();
-        List<Session> sessions = WebSocketConnectionManager.getInstance().getBroadcastConnectionList(serviceName);
+        String connectionGroupName = getArgument(context, 0).stringValue();
+        String text = getArgument(context, 1).stringValue();
+        List<Session> sessions = WebSocketConnectionManager.getInstance().getConnectionGroup(connectionGroupName);
         if (sessions == null) {
-            throw new BallerinaException("Cannot find a broadcast list for the service: " + serviceName);
+            throw new BallerinaException("Cannot find the connection group: " + connectionGroupName);
         }
         sessions.forEach(
                 session -> {
