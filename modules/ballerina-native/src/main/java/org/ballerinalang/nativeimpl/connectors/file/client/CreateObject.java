@@ -21,26 +21,26 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Delete
+ * Create Object
  */
 @BallerinaAction(
         packageName = "ballerina.net.file",
-        actionName = "delete",
+        actionName = "createObject",
         connectorName = ClientConnector.CONNECTOR_NAME,
         args = { @Argument(name = "fileClientConnector", type = TypeEnum.CONNECTOR),
                  @Argument(name = "path", type = TypeEnum.STRING)/*,
                  @Argument(name = "properties", type = TypeEnum.MAP)*/ },
         returnType = {@ReturnType(type = TypeEnum.BOOLEAN)})
 @BallerinaAnnotation(annotationName = "Description", attributes = { @Attribute(name = "value",
-        value = "DELETE action implementation of the File Connector") })
+        value = "SEND action implementation of the File Connector") })
 @BallerinaAnnotation(annotationName = "Param", attributes = { @Attribute(name = "connector",
-        value = "File Connector") })
+        value = "File connector") })
 @BallerinaAnnotation(annotationName = "Param", attributes = { @Attribute(name = "path",
-        value = "Path of the File") })
+        value = "Path of the file") })
 //@BallerinaAnnotation(annotationName = "Param", attributes = { @Attribute(name = "properties",
       //  value = "Properties") })
-public class Delete extends AbstractFileAction {
-    private static final Logger log = LoggerFactory.getLogger(Delete.class);
+public class CreateObject extends AbstractFileAction {
+    private static final Logger log = LoggerFactory.getLogger(CreateObject.class);
     @Override public BValue execute(Context context) {
 
         // Extracting Argument values
@@ -50,16 +50,15 @@ public class Delete extends AbstractFileAction {
             throw new BallerinaException("Need to use a FileConnector as the first argument", context);
         }
         //Getting ballerina message and extract carbon message.
-        BString path = (BString) getArgument(context, 1);
 
+        BString path = (BString) getArgument(context, 1);
         //Create property map to send to transport.
         Map<String, String> propertyMap = new HashMap<>();
         //Getting the map of properties.
         //BMap properties = (BMap) getArgument(context, 2);
-
         String pathString = path.stringValue();
         propertyMap.put("uri", pathString);
-            propertyMap.put("action", "delete");
+        propertyMap.put("action", "create");
         try {
             //Getting the sender instance and sending the message.
             BallerinaConnectorManager.getInstance().getClientConnector("file")

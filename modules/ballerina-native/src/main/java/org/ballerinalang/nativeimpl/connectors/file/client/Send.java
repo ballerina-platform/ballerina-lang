@@ -37,38 +37,37 @@ import java.util.Map;
 @BallerinaAnnotation(annotationName = "Description", attributes = { @Attribute(name = "value",
         value = "SEND action implementation of the File Connector") })
 @BallerinaAnnotation(annotationName = "Param", attributes = { @Attribute(name = "connector",
-        value = "Message Type") })
+        value = "File connector") })
 @BallerinaAnnotation(annotationName = "Param", attributes = { @Attribute(name = "message",
         value = "Message") })
 @BallerinaAnnotation(annotationName = "Param", attributes = { @Attribute(name = "path",
-        value = "Message") })
+        value = "Path of the file") })
 //@BallerinaAnnotation(annotationName = "Param", attributes = { @Attribute(name = "properties",
       //  value = "Properties") })
 public class Send extends AbstractFileAction {
     private static final Logger log = LoggerFactory.getLogger(Send.class);
     @Override public BValue execute(Context context) {
 
-            // Extracting Argument values
-            BConnector bConnector = (BConnector) getArgument(context, 0);
-            Connector connector = bConnector.value();
-            if (!(connector instanceof ClientConnector)) {
-                throw new BallerinaException("Need to use a FileConnector as the first argument", context);
-            }
-            //Getting ballerina message and extract carbon message.
-            BMessage bMessage = (BMessage) getArgument(context, 1);
-            if (bMessage == null) {
-                throw new BallerinaException("Ballerina message not found", context);
-            }
-            CarbonMessage message = bMessage.value();
+        // Extracting Argument values
+        BConnector bConnector = (BConnector) getArgument(context, 0);
+        Connector connector = bConnector.value();
+        if (!(connector instanceof ClientConnector)) {
+            throw new BallerinaException("Need to use a FileConnector as the first argument", context);
+        }
+        //Getting ballerina message and extract carbon message.
+        BMessage bMessage = (BMessage) getArgument(context, 1);
+        if (bMessage == null) {
+            throw new BallerinaException("Ballerina message not found", context);
+        }
+        CarbonMessage message = bMessage.value();
         BString path = (BString) getArgument(context, 2);
         //Create property map to send to transport.
-            Map<String, String> propertyMap = new HashMap<>();
-            //Getting the map of properties.
-            //BMap properties = (BMap) getArgument(context, 2);
-        String baseString = ((ClientConnector) connector).getURI();
+        Map<String, String> propertyMap = new HashMap<>();
+        //Getting the map of properties.
+        //BMap properties = (BMap) getArgument(context, 2);
         String pathString = path.stringValue();
-        propertyMap.put("uri", baseString + pathString);
-            propertyMap.put("action", "send");
+        propertyMap.put("uri", pathString);
+        propertyMap.put("action", "send");
         try {
             //Getting the sender instance and sending the message.
             BallerinaConnectorManager.getInstance().getClientConnector("file")

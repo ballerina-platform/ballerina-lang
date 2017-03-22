@@ -21,26 +21,31 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Delete
+ * Send
  */
 @BallerinaAction(
         packageName = "ballerina.net.file",
-        actionName = "delete",
+        actionName = "move",
         connectorName = ClientConnector.CONNECTOR_NAME,
         args = { @Argument(name = "fileClientConnector", type = TypeEnum.CONNECTOR),
-                 @Argument(name = "path", type = TypeEnum.STRING)/*,
+                 @Argument(name = "originalFile", type = TypeEnum.STRING),
+                 @Argument(name = "newFile", type = TypeEnum.STRING)/*,
                  @Argument(name = "properties", type = TypeEnum.MAP)*/ },
         returnType = {@ReturnType(type = TypeEnum.BOOLEAN)})
 @BallerinaAnnotation(annotationName = "Description", attributes = { @Attribute(name = "value",
-        value = "DELETE action implementation of the File Connector") })
+        value = "SEND action implementation of the File Connector") })
 @BallerinaAnnotation(annotationName = "Param", attributes = { @Attribute(name = "connector",
-        value = "File Connector") })
-@BallerinaAnnotation(annotationName = "Param", attributes = { @Attribute(name = "path",
-        value = "Path of the File") })
+        value = "File connector") })
+@BallerinaAnnotation(annotationName = "Param", attributes = { @Attribute(name = "message",
+        value = "Message") })
+@BallerinaAnnotation(annotationName = "Param", attributes = { @Attribute(name = "originalFile",
+        value = "Path of the file") })
+@BallerinaAnnotation(annotationName = "Param", attributes = { @Attribute(name = "newFile",
+        value = "Path of the file") })
 //@BallerinaAnnotation(annotationName = "Param", attributes = { @Attribute(name = "properties",
       //  value = "Properties") })
-public class Delete extends AbstractFileAction {
-    private static final Logger log = LoggerFactory.getLogger(Delete.class);
+public class Move extends AbstractFileAction {
+    private static final Logger log = LoggerFactory.getLogger(Move.class);
     @Override public BValue execute(Context context) {
 
         // Extracting Argument values
@@ -50,16 +55,17 @@ public class Delete extends AbstractFileAction {
             throw new BallerinaException("Need to use a FileConnector as the first argument", context);
         }
         //Getting ballerina message and extract carbon message.
-        BString path = (BString) getArgument(context, 1);
-
+        BString originalPath = (BString) getArgument(context, 1);
+        BString newPath = (BString) getArgument(context, 2);
         //Create property map to send to transport.
         Map<String, String> propertyMap = new HashMap<>();
         //Getting the map of properties.
         //BMap properties = (BMap) getArgument(context, 2);
-
-        String pathString = path.stringValue();
-        propertyMap.put("uri", pathString);
-            propertyMap.put("action", "delete");
+        String originalString = originalPath.stringValue();
+        String newString = newPath.stringValue();
+        propertyMap.put("uri", originalString);
+        propertyMap.put("destination", newString);
+        propertyMap.put("action", "move");
         try {
             //Getting the sender instance and sending the message.
             BallerinaConnectorManager.getInstance().getClientConnector("file")

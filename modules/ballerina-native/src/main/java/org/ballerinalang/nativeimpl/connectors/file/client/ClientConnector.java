@@ -16,14 +16,11 @@
 package org.ballerinalang.nativeimpl.connectors.file.client;
 
 import org.ballerinalang.model.SymbolScope;
-import org.ballerinalang.model.types.TypeEnum;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.Attribute;
 import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaConnector;
 import org.ballerinalang.natives.connectors.AbstractNativeConnector;
-import org.ballerinalang.util.exceptions.BallerinaException;
 import org.osgi.service.component.annotations.Component;
 
 
@@ -33,7 +30,7 @@ import org.osgi.service.component.annotations.Component;
 @BallerinaConnector(
         packageName = "ballerina.net.file",
         connectorName = ClientConnector.CONNECTOR_NAME,
-        args = { @Argument(name = "uri", type = TypeEnum.STRING)})
+        args = {})
 @Component(
         name = "ballerina.net.connectors.file",
         immediate = true,
@@ -43,7 +40,7 @@ import org.osgi.service.component.annotations.Component;
 public class ClientConnector extends AbstractNativeConnector {
 
     public static final String CONNECTOR_NAME = "ClientConnector";
-    private String uri;
+
 
     public ClientConnector(SymbolScope enclosingScope) {
         super(enclosingScope);
@@ -51,11 +48,6 @@ public class ClientConnector extends AbstractNativeConnector {
 
     @Override
     public boolean init(BValue[] bValueRefs) {
-        if (bValueRefs != null && bValueRefs.length == 1 && !bValueRefs[0].stringValue().equals("")) {
-            uri = bValueRefs[0].stringValue();
-        } else {
-            throw new BallerinaException("Connector parameters not defined correctly.");
-        }
         return true;
     }
 
@@ -64,9 +56,7 @@ public class ClientConnector extends AbstractNativeConnector {
         return new ClientConnector(symbolScope);
     }
 
-    String getURI() {
-        return uri;
-    }
+
 
     public boolean equals(Object obj) {
         return super.equals(obj);
