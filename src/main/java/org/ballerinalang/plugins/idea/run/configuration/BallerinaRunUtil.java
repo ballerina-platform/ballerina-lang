@@ -177,9 +177,9 @@ public class BallerinaRunUtil {
     public static void printBallerinaEnvVariables(@NotNull GeneralCommandLine commandLine,
                                                   @NotNull ProcessHandler handler) {
         Map<String, String> environment = commandLine.getEnvironment();
-        //Todo
-//        handler.notifyTextAvailable("BALLERINA_REPOSIOTRY=" + StringUtil.nullize(environment.get
-//                (BallerinaConstants.BALLERINA_REPOSIOTRY)) + '\n', ProcessOutputTypes.SYSTEM);
+        // Todo - Add BALLERINA_REPOSITORY
+        //        handler.notifyTextAvailable("BALLERINA_REPOSITORY=" + StringUtil.nullize(environment.get
+        //                (BallerinaConstants.BALLERINA_REPOSITORY)) + '\n', ProcessOutputTypes.SYSTEM);
     }
 
     @Nullable

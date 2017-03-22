@@ -343,17 +343,14 @@ public class BallerinaExecutor {
 
     @NotNull
     public GeneralCommandLine createCommandLine() throws ExecutionException {
-        //        if (myGoRoot == null) {
-        //            throw new ExecutionException("Sdk is not set or Sdk home path is empty for module");
-        //        }
-
         GeneralCommandLine commandLine = !myPtyDisabled && PtyCommandLine.isEnabled() ?
                 new PtyCommandLine() : new GeneralCommandLine();
         commandLine.setExePath(ObjectUtils.notNull(myExePath, ObjectUtils.notNull(BallerinaSdkUtil
                 .getBallerinaExecutablePath(myProject))));
         commandLine.getEnvironment().putAll(myExtraEnvironment);
-        //        commandLine.getEnvironment().put(BallerinaConstants.BALLERINA_REPOSIOTRY, StringUtil.notNullize
-        // (myBallerinaPath));
+        //Todo - Add BALLERINA_REPOSITORY
+        //        commandLine.getEnvironment().put(BallerinaConstants.BALLERINA_REPOSITORY,
+        //                StringUtil.notNullize(myBallerinaPath));
 
         Collection<String> paths = ContainerUtil.newArrayList();
         ContainerUtil.addIfNotNull(paths, StringUtil.nullize(commandLine.getEnvironment().get(

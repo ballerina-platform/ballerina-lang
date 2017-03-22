@@ -99,7 +99,6 @@ public class BallerinaBuildingRunner extends AsyncGenericProgramRunner {
                         //Todo - Check for debug
                         buildingPromise.setResult(new MyRunStarter(outputFile.getAbsolutePath(),
                                 historyProcessListener, compilationFailed, kind));
-
                     }
                 })
                 .executeWithProgress(false);

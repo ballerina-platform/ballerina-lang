@@ -38,8 +38,8 @@ import org.ballerinalang.plugins.idea.run.configuration.ui.BallerinaApplicationS
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 
-public class BallerinaApplicationConfiguration extends
-        BallerinaRunConfigurationWithMain<BallerinaApplicationRunningState> {
+public class BallerinaApplicationConfiguration
+        extends BallerinaRunConfigurationWithMain<BallerinaApplicationRunningState> {
 
     private static final String PACKAGE_ATTRIBUTE_NAME = "package";
     private static final String KIND_ATTRIBUTE_NAME = "kind";

@@ -655,11 +655,10 @@ public class BallerinaPsiImplUtil {
                 continue;
             }
             PsiFile psiFile = PsiManager.getInstance(project).findFile(child);
-            if(!(psiFile instanceof BallerinaFile)){
+            if (!(psiFile instanceof BallerinaFile)) {
                 continue;
             }
-            Collection<? extends PsiElement> functions =
-                    XPath.findAll(BallerinaLanguage.INSTANCE, psiFile, xpath);
+            Collection<? extends PsiElement> functions = XPath.findAll(BallerinaLanguage.INSTANCE, psiFile, xpath);
 
             results.addAll(functions);
         }

@@ -76,8 +76,7 @@ public abstract class BallerinaRunConfigurationProducerBase<T extends BallerinaR
                     // Run configuration might be an application configuration. So we need to check the type.
                     if (existingConfiguration instanceof BallerinaRunFileConfiguration) {
                         // If it is a BallerinaRunFileConfiguration, set the kind to APPLICATION.
-                        ((BallerinaRunFileConfiguration) existingConfiguration).setRunKind(
-                                RunConfigurationKind.MAIN);
+                        ((BallerinaRunFileConfiguration) existingConfiguration).setRunKind(RunConfigurationKind.MAIN);
                     }
                 } else {
                     // Get the project.
@@ -95,8 +94,8 @@ public abstract class BallerinaRunConfigurationProducerBase<T extends BallerinaR
                         // Check the type.
                         if (currentRunConfiguration instanceof BallerinaRunFileConfiguration) {
                             // Set the kind to APPLICATION.
-                            ((BallerinaRunFileConfiguration) currentRunConfiguration).setRunKind
-                                    (RunConfigurationKind.MAIN);
+                            ((BallerinaRunFileConfiguration) currentRunConfiguration).setRunKind(
+                                    RunConfigurationKind.MAIN);
                         }
                     }
                 }
@@ -132,8 +131,8 @@ public abstract class BallerinaRunConfigurationProducerBase<T extends BallerinaR
 
                         RunConfiguration currentRunConfiguration = selectedConfigurationSettings.getConfiguration();
                         if (currentRunConfiguration instanceof BallerinaRunFileConfiguration) {
-                            ((BallerinaRunFileConfiguration) currentRunConfiguration).setRunKind
-                                    (RunConfigurationKind.SERVICE);
+                            ((BallerinaRunFileConfiguration) currentRunConfiguration).setRunKind(
+                                    RunConfigurationKind.SERVICE);
                         }
                     }
                 }
