@@ -180,7 +180,7 @@ public class WebSocketConnectionManager {
      *
      * @param session {@link Session} which should be removed from all the places.
      */
-    public void removeConnectionFromAll(Session session) {
+    void removeConnectionFromAll(Session session) {
         // Removing session from broadcast sessions map
         broadcastSessions.entrySet().forEach(
                 entry -> entry.getValue().entrySet().removeIf(
