@@ -24,25 +24,28 @@ import * as d3 from 'd3';
 
 /**
  * Super view class for all simple statements e.g. assignment, variable definition, functional invocation etc.
- * @param args {*} arguments for the creating view
  * @class SimpleStatementView
- * @constructor
  * @extends BallerinaStatementView
  */
 class SimpleStatementView extends BallerinaStatementView {
+
+    /**
+     * Constructor for SimpleStatementView
+     * @param args {*} arguments for the creating view
+     * @constructor
+     */
     constructor(args) {
         super(args);
-
         var viewOptions = this.getViewOptions();
-        viewOptions.height = _.get(args, "viewOptions.height", 30);
-        viewOptions.width = _.get(args, "viewOptions.width", 120); // starting width
-        viewOptions.minWidth = _.get(args, "viewOptions.minWidth", 120); // minimum width
-        viewOptions.maxWidth = _.get(args, "viewOptions.maxWidth", 300); // maximum width
-        viewOptions.textPadding = _.get(args, "viewOptions.textPadding", {left: 5, right: 5, top: 0, bottom: 0});
+        viewOptions.height = _.get(args, 'viewOptions.height', 30);
+        viewOptions.width = _.get(args, 'viewOptions.width', 120); // starting width
+        viewOptions.minWidth = _.get(args, 'viewOptions.minWidth', 120); // minimum width
+        viewOptions.maxWidth = _.get(args, 'viewOptions.maxWidth', 300); // maximum width
+        viewOptions.textPadding = _.get(args, 'viewOptions.textPadding', {left: 5, right: 5, top: 0, bottom: 0});
 
         this.getBoundingBox().fromTopCenter(this.getTopCenter(), viewOptions.width, viewOptions.height);
         this._svgRect = undefined;
-        this._svgText = undefined
+        this._svgText = undefined;
     }
 
     render(renderingContext) {
@@ -53,10 +56,10 @@ class SimpleStatementView extends BallerinaStatementView {
         // Creating statement group.
         var statementGroup = D3Utils.group(d3.select(this._container));
         // "id" is prepend with a "_" to be compatible with HTML4
-        statementGroup.attr("id", "_" + this.getModel().id);
+        statementGroup.attr('id', '_' + this.getModel().id);
         this._svgRect = D3Utils.rect(bBox.getLeft(), bBox.getTop(), bBox.w(), bBox.h(), 0, 0, statementGroup)
                              .classed('statement-rect', true);
-        this._svgText = D3Utils.textElement(bBox.getCenterX(), bBox.getCenterY(), "", statementGroup)
+        this._svgText = D3Utils.textElement(bBox.getCenterX(), bBox.getCenterY(), '', statementGroup)
                              .classed('statement-text', true);
         statementGroup.outerRectElement = this._svgRect;
         statementGroup.displayTextElement = this._svgText;
@@ -105,7 +108,7 @@ class SimpleStatementView extends BallerinaStatementView {
                 boundingBox.w(displayTextWidth);
             } else {
                 // We need to truncate displayText and show an ellipses at the end.
-                var ellipses = "...";
+                var ellipses = '...';
                 var possibleCharactersCount = 0;
                 for (var i = (displayText.length - 1); 1 < i; i--) {
                     if ((leftTextPadding + textElement.getSubStringLength(0, i) + rightTextPadding) < maxWidth) {
@@ -126,7 +129,7 @@ class SimpleStatementView extends BallerinaStatementView {
 
     setModel(model) {
         if (_.isNil(model)) {
-            var message = "Model of a simple statement cannot be null.";
+            var message = 'Model of a simple statement cannot be null.';
             log.error(message);
             throw new Error(message);
         } else {
@@ -140,7 +143,7 @@ class SimpleStatementView extends BallerinaStatementView {
 
     setContainer(container) {
         if (_.isNil(container)) {
-            var message = "Container of a simple statement cannot be null.";
+            var message = 'Container of a simple statement cannot be null.';
             log.error(message);
             throw new Error(message);
         } else {
@@ -187,11 +190,9 @@ class SimpleStatementView extends BallerinaStatementView {
 
     /**
      * Remove statement view callback
-     * @param {ASTNode} parent - Parent model
-     * @param {ASTNode} child - child model
      */
     onBeforeModelRemove() {
-        d3.select("#_" +this.getModel().getID()).remove();
+        d3.select('#_' +this.getModel().getID()).remove();
         // resize the bounding box in order to the other objects to resize
         var gap = this.getParent().getStatementContainer().getInnerDropZoneHeight();
         this.getBoundingBox().move(0, -this.getBoundingBox().h() - gap).w(0);

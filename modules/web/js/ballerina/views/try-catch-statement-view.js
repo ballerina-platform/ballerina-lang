@@ -24,16 +24,20 @@ import Point from './point';
 
 /**
  * The view to represent a Try Catch statement which is an AST visitor.
- * @param {Object} args - Arguments for creating the view.
- * @param {TryCatchStatement} args.model - The Try Catch statement model.
- * @param {Object} args.container - The HTML container to which the view should be added to.
- * @param {Object} args.parent - Parent View (Resource, Worker, etc)
- * @param {Object} [args.viewOptions={}] - Configuration values for the view.
  * @class TryCatchStatementView
- * @constructor
  * @extends CompoundStatementView
  */
 class TryCatchStatementView extends CompoundStatementView {
+
+    /**
+     * Constructor for TryCatchStatementView
+     * @param {Object} args - Arguments for creating the view.
+     * @param {TryCatchStatement} args.model - The Try Catch statement model.
+     * @param {Object} args.container - The HTML container to which the view should be added to.
+     * @param {Object} args.parent - Parent View (Resource, Worker, etc)
+     * @param {Object} [args.viewOptions={}] - Configuration values for the view.
+     * @constructor
+     */
     constructor(args) {
         super(args);
 
@@ -42,13 +46,13 @@ class TryCatchStatementView extends CompoundStatementView {
         this.getModel()._isChildOfWorker = args.isChildOfWorker;
 
         if (_.isNil(this._model) || !(this._model instanceof TryCatchStatement)) {
-            log.error("Try Catch statement definition is undefined or is of different type." + this._model);
-            throw "Try Catch statement definition is undefined or is of different type." + this._model;
+            log.error('Try Catch statement definition is undefined or is of different type.' + this._model);
+            throw 'Try Catch statement definition is undefined or is of different type.' + this._model;
         }
 
         if (_.isNil(this._container)) {
-            log.error("Container for Try Catch statement is undefined." + this._container);
-            throw "Container for Try Catch statement is undefined." + this._container;
+            log.error('Container for Try Catch statement is undefined.' + this._container);
+            throw 'Container for Try Catch statement is undefined.' + this._container;
         }
     }
 
@@ -79,11 +83,11 @@ class TryCatchStatementView extends CompoundStatementView {
         // Creating property pane
         var model = this.getModel();
         var editableProperty = {};
-        _.forEach(model.getChildren(), function (childStatement, index) {
+        _.forEach(model.getChildren(), function (childStatement) {
             if (childStatement instanceof CatchStatement) {
                 editableProperty = {
-                    propertyType: "text",
-                    key: "Catch parameter",
+                    propertyType: 'text',
+                    key: 'Catch parameter',
                     model: childStatement,
                     getterMethod: childStatement.getParameter
                 };
@@ -91,13 +95,13 @@ class TryCatchStatementView extends CompoundStatementView {
             }
         });
         this._createPropertyPane({
-                                     model: model,
-                                     statementGroup: this.getStatementGroup(),
-                                     editableProperties: editableProperty
-                                 });
+            model: model,
+            statementGroup: this.getStatementGroup(),
+            editableProperties: editableProperty
+        });
         this._createDebugIndicator({
-                                       statementGroup: this.getStatementGroup()
-                                   });
+            statementGroup: this.getStatementGroup()
+        });
     }
 
     /**
@@ -108,8 +112,8 @@ class TryCatchStatementView extends CompoundStatementView {
         if (!_.isNil(model) && model instanceof TryCatchStatement) {
             (this.__proto__.__proto__).setModel(model);
         } else {
-            log.error("Try Catch statement definition is undefined or is of different type." + model);
-            throw "Try Catch statement definition is undefined or is of different type." + model;
+            log.error('Try Catch statement definition is undefined or is of different type.' + model);
+            throw 'Try Catch statement definition is undefined or is of different type.' + model;
         }
     }
 

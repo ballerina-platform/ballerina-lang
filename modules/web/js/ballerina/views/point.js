@@ -15,7 +15,6 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import _ from 'lodash';
 import EventChannel from 'event_channel';
 
 class Point extends EventChannel {
@@ -75,7 +74,7 @@ class Point extends EventChannel {
      * @returns {number} Absolute distance in X axis.
      */
     absDistInXFrom(refPoint) {
-        return Math.abs(this.distInXFrom(refPoint))
+        return Math.abs(this.distInXFrom(refPoint));
     }
 
     /**
@@ -84,7 +83,7 @@ class Point extends EventChannel {
      * @returns {number} Absolute distance in Y axis.
      */
     absDistInYFrom(refPoint) {
-        return Math.abs(this.distInYFrom(refPoint))
+        return Math.abs(this.distInYFrom(refPoint));
     }
 
     /**

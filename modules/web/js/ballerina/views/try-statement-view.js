@@ -22,18 +22,22 @@ import TryStatement from '../ast/statements/try-statement';
 
 /**
  * The view to represent a Try statement which is an AST visitor.
- * @param {Object} args - Arguments for creating the view.
- * @param {TryStatement} args.model - The If statement model.
- * @param {Object} args.container - The HTML container to which the view should be added to.
- * @param {Object} args.parent - Parent Statement View, which in this case the try-catch statement
- * @param {Object} [args.viewOptions={}] - Configuration values for the view.
  * @class TryStatementView
- * @constructor
  * @extends BlockStatementView
  */
 class TryStatementView extends BlockStatementView {
+
+    /**
+     * Constructor for TryStatementView
+     * @param {Object} args - Arguments for creating the view.
+     * @param {TryStatement} args.model - The If statement model.
+     * @param {Object} args.container - The HTML container to which the view should be added to.
+     * @param {Object} args.parent - Parent Statement View, which in this case the try-catch statement
+     * @param {Object} [args.viewOptions={}] - Configuration values for the view.
+     * @constructor
+     */
     constructor(args) {
-        _.set(args, "viewOptions.title.text", "Try");
+        _.set(args, 'viewOptions.title.text', 'Try');
         super(args);
         this.getModel()._isChildOfWorker = args.isChildOfWorker;
     }
@@ -50,8 +54,8 @@ class TryStatementView extends BlockStatementView {
         if (!_.isNil(model) && model instanceof TryStatement) {
             (this.__proto__.__proto__).setModel(model);
         } else {
-            log.error("If statement definition is undefined or is of different type." + model);
-            throw "If statement definition is undefined or is of different type." + model;
+            log.error('If statement definition is undefined or is of different type.' + model);
+            throw 'If statement definition is undefined or is of different type.' + model;
         }
     }
 

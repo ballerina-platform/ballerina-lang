@@ -15,7 +15,6 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import log from 'log';
 import _ from 'lodash';
 import $ from 'jquery';
 import * as d3 from 'd3';
@@ -24,11 +23,16 @@ import Canvas from './canvas';
 
 /**
  * Creates a canvas with an SVG.
- * @param {Object} args - arguments for creating an SVG canvas.
- * @constructor
- * @augments Canvas
+ * @class SVGCanvas
+ * @extends Canvas
  */
 class SVGCanvas extends Canvas {
+
+    /**
+     * Constructor for SVGCanvas
+     * @param {Object} args - arguments for creating an SVG canvas.
+     * @constructor
+     */
     constructor(args) {
         super(args);
 
@@ -66,7 +70,7 @@ class SVGCanvas extends Canvas {
         super.drawAccordionCanvas(options, id, name, title);
 
         //// Creating the SVG.
-        this._svg = $("<svg class='" + _.get(options, "cssClass.svg_container", "") + "'></svg>")
+        this._svg = $('<svg class=\'' + _.get(options, 'cssClass.svg_container', '') + '\'></svg>')
             .appendTo(this.getBodyWrapper());
 
         this._rootGroup = D3Utils.group(d3.select(this._svg.get(0)));
@@ -75,8 +79,8 @@ class SVGCanvas extends Canvas {
         this.setSVGHeight(this._minSVGHeight);
 
         $(this.getBodyWrapper()).mCustomScrollbar({
-            theme: "dark",
-            axis: "x",
+            theme: 'dark',
+            axis: 'x',
             scrollInertia: 0,
             autoHideScrollbar: true,
             mouseWheel: {
@@ -96,17 +100,17 @@ class SVGCanvas extends Canvas {
 
         // If service container's height is lesser than the height of the svg
         // Increase the height of the service container and the inner div
-        if ($(this._container).closest("svg").attr('height')) {
-            if ($(this._container).closest(".panel-body").height() < $(this._container).closest("svg")
+        if ($(this._container).closest('svg').attr('height')) {
+            if ($(this._container).closest('.panel-body').height() < $(this._container).closest('svg')
                     .attr('height')) {
-                $(this._container).closest(".panel-body").height($(this._container).closest("svg").attr("height"));
-                $(this._container).closest(".panel-body").find("#" + $(this._container).closest(".panel-body")
-                        .attr("id")).height($(this._container).closest("svg").attr('height'));
+                $(this._container).closest('.panel-body').height($(this._container).closest('svg').attr('height'));
+                $(this._container).closest('.panel-body').find('#' + $(this._container).closest('.panel-body')
+                        .attr('id')).height($(this._container).closest('svg').attr('height'));
             }
         } else {
             if ($(this._container).height() < $(this._container).find('svg').attr('height')) {
                 $(this._container).height($(this._container).find('svg').attr('height'));
-                $(this._container).find("#" + $(this._container).attr('id')).height($(this._container).find('svg')
+                $(this._container).find('#' + $(this._container).attr('id')).height($(this._container).find('svg')
                     .attr('height'));
             }
         }
@@ -119,7 +123,7 @@ class SVGCanvas extends Canvas {
     setSVGWidth(newWidth) {
         this._svg.attr('width', newWidth);
         this.getBoundingBox().w(newWidth);
-        $(this._container).closest(".panel-body").find(".outer-box").mCustomScrollbar("update");
+        $(this._container).closest('.panel-body').find('.outer-box').mCustomScrollbar('update');
     }
 
     getSVG() {

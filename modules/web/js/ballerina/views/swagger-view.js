@@ -23,23 +23,27 @@ import YAML from 'js-yaml';
 import BallerinaASTDeserializer from './../ast/ballerina-ast-deserializer';
 
 /**
+ * Wraps the Swagger Editor for swagger view
  * @class SwaggerView
- * @augments EventChannel
- * @constructor
- * @class SwaggerView  Wraps the Swagger Editor for swagger view
- * @param {Object} args - Rendering args for the view
- * @param {String} args.container - selector for div element to render ace editor
- * @param {String} [args.content] - initial content for the editor
+ * @extends EventChannel
  */
 class SwaggerView extends EventChannel {
+
+    /**
+     * Constructor for SwaggerView
+     * @param {Object} args - Rendering args for the view
+     * @param {String} args.container - selector for div element to render ace editor
+     * @param {String} [args.content] - initial content for the editor
+     * @constructor
+     */
     constructor(args) {
         super();
         this._options = args;
         if(!_.has(args, 'container')){
-            log.error('container is not specified for rendering swagger view.')
+            log.error('container is not specified for rendering swagger view.');
         }
         if(!_.has(args, 'backend')){
-            log.error('backend is not specified for rendering swagger view.')
+            log.error('backend is not specified for rendering swagger view.');
         }
         this._container = _.get(args, 'container');
         this._content = _.get(args, 'content');
@@ -48,7 +52,7 @@ class SwaggerView extends EventChannel {
     }
 
     render() {
-        initSwaggerEditor(this, "{swagger: '2.0', info: {version: '1.0.0', title: 'Swagger Resource'}, paths: {}}");
+        initSwaggerEditor(this, '{swagger: \'2.0\', info: {version: \'1.0.0\', title: \'Swagger Resource\'}, paths: {}}');
     }
 
     /**
@@ -58,27 +62,27 @@ class SwaggerView extends EventChannel {
      */
     setContent(content) {
         this._generatedSource = content;
-        var generatedSwagger = "{swagger: '2.0', info: {version: '1.0.0', title: 'Swagger Resource'}, paths: {}}";
+        var generatedSwagger = '{swagger: \'2.0\', info: {version: \'1.0.0\', title: \'Swagger Resource\'}, paths: {}}';
         if (content) {
-            var response = this._backend.call("convert-ballerina", "POST", {
-                "name": "CalculatorService",
-                "description": "null",
-                "swaggerDefinition": "null",
-                "ballerinaDefinition": content
-            }, [{name: "expectedType", value: "ballerina"}]);
+            var response = this._backend.call('convert-ballerina', 'POST', {
+                'name': 'CalculatorService',
+                'description': 'null',
+                'swaggerDefinition': 'null',
+                'ballerinaDefinition': content
+            }, [{name: 'expectedType', value: 'ballerina'}]);
 
             if (!response.error && !response.message) {
                 if(response.swaggerDefinition){
                     generatedSwagger = response.swaggerDefinition;
                 } else {
-                    throw new Error("Swagger needs at least one service");
+                    throw new Error('Swagger needs at least one service');
                 }
             } else {
-                throw new Error("Cannot switch to swagger view due to parser error");
+                throw new Error('Cannot switch to swagger view due to parser error');
             }
         }
         if (!this._swaggerEditorWindow.setSwaggerEditorValue) {
-            throw new Error("Couldn't hookup swagger editor view. Please retry!");
+            throw new Error('Couldn\'t hookup swagger editor view. Please retry!');
         }
         this._swaggerEditorWindow.setSwaggerEditorValue(YAML.safeDump(YAML.safeLoad(generatedSwagger)));
     }
@@ -94,20 +98,20 @@ class SwaggerView extends EventChannel {
 
     getContent() {
         var content = this._swaggerEditorWindow.getSwaggerEditorValue();
-        if (content && content != "null" && this._generatedSource) {
-            var response = this._backend.call("convert-swagger", "POST", {
-                "name": "CalculatorService",
-                "description": "null",
-                "swaggerDefinition": content,
-                "ballerinaDefinition": this._generatedSource
-            }, [{name: "expectedType", value: "ballerina"}]);
+        if (content && content !== 'null' && this._generatedSource) {
+            var response = this._backend.call('convert-swagger', 'POST', {
+                'name': 'CalculatorService',
+                'description': 'null',
+                'swaggerDefinition': content,
+                'ballerinaDefinition': this._generatedSource
+            }, [{name: 'expectedType', value: 'ballerina'}]);
 
             if (!response.error && !response.errorMessage) {
                 try {
                     this._generatedNodeTree = this.deserializer.getASTModel(JSON.parse(response.ballerinaDefinition));
                 } catch (err) {
-                    log.error("Invalid response received for swagger-to-ballerina conversion : '"
-                              + response.ballerinaDefinition + "'");
+                    log.error('Invalid response received for swagger-to-ballerina conversion : \''
+                              + response.ballerinaDefinition + '\'');
                 }
             }
         }
@@ -123,14 +127,14 @@ class SwaggerView extends EventChannel {
     }
 
     isVisible() {
-        return  $(this._container).is(':visible')
+        return  $(this._container).is(':visible');
     }
 }
 
 var initSwaggerEditor = function(self, content){
     var swaggerEditor = $(self._container).find('div.swaggerEditor');
     swaggerEditor.html('<iframe class="se-iframe" width=100% height="100%"></iframe>');
-    swaggerEditor.find('iframe.se-iframe').attr("src", swaggerEditor.data("editor-url"));
+    swaggerEditor.find('iframe.se-iframe').attr('src', swaggerEditor.data('editor-url'));
     var swaggerEditorWindow = $(self._container).find('div.swaggerEditor').find('iframe.se-iframe')[0].contentWindow;
     self._swaggerEditorWindow = swaggerEditorWindow;
     swaggerEditor.ready(function () {
