@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import './type-mapper.css';
+require('./type-mapper.css');
 
 define(['require', 'lodash', 'jquery', 'jsplumb', 'dagre', 'alerts'], function (require, _, $, jsPlumbLib, dagre, alerts) {
     /**

@@ -294,7 +294,7 @@ define(['require', 'lodash', 'jquery'],
             var dy = _.get(args, "dy", 0);
             this._annotationEditorWrapper.css("left", (parseInt(this._annotationEditorWrapper.css("left"), 10)  + dx));
             this._annotationEditorWrapper.css("top", (parseInt(this._annotationEditorWrapper.css("top"), 10) + dy));
-        };
+        }
 
         var annotationView = {};
 

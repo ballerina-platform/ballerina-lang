@@ -34,7 +34,8 @@ The build process of the composer works on Maven and Node Package Manager(npm).
 *   `npm run clean` - Deletes the `/dist`(distribution folder) in the web module.  
 *   `npm run build` or `npm run webpack` - To build the web module.  
 *   `npm run dev` - To start development server with hot deployment. Go to [http://localhost:8080](http://localhost:8080) or [http://127.0.0.1:8080](http://127.0.0.1:8080) afterwards.
-*   `npm run test` - Executes tests. The tests requires the composer service to run.    
+*   `npm run test` - Executes tests. The tests requires the composer service to run.
+*   `npm run lint` - Run [eslint](http://eslint.org/) on the code to find potential problems in the code.
 
 ## Running the Composer
 

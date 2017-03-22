@@ -15,6 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+/* eslint-env es6 */
+
 import log from 'log';
 import $ from 'jquery';
 import _ from 'lodash';
