@@ -18,8 +18,6 @@
 
 package org.ballerinalang.services.dispatchers.websocket;
 
-import org.ballerinalang.util.exceptions.BallerinaException;
-
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;

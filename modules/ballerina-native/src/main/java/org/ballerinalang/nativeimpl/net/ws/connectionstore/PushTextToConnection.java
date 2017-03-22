@@ -16,7 +16,7 @@
  *  under the License.
  */
 
-package org.ballerinalang.nativeimpl.net.ws.connectionsGroup;
+package org.ballerinalang.nativeimpl.net.ws.connectionstore;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeEnum;
@@ -26,36 +26,46 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.Attribute;
 import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.services.dispatchers.http.Constants;
 import org.ballerinalang.services.dispatchers.websocket.WebSocketConnectionManager;
-import org.wso2.carbon.messaging.CarbonMessage;
+import org.ballerinalang.util.exceptions.BallerinaException;
 
+import java.io.IOException;
 import javax.websocket.Session;
 
 /**
- * This adds connection to a connection group so those connections become global and can be used in other services
- * as well.
+ * Push text to the connection chose by the user from the connection store.
  */
 @BallerinaFunction(
         packageName = "ballerina.net.ws",
-        functionName = "addConnectionToGroup",
+        functionName = "pushTextToConnection",
         args = {
-                @Argument(name = "connectionGroupName", type = TypeEnum.STRING)
+                @Argument(name = "connectionName", type = TypeEnum.STRING),
+                @Argument(name = "text", type = TypeEnum.STRING)
         },
         isPublic = true
 )
 @BallerinaAnnotation(annotationName = "Description",
-                     attributes = { @Attribute(name = "value", value = "This pushes text from server to all the " +
-                             "connected clients of the service.") })
+                     attributes = { @Attribute(name = "value", value = "TPush text to the connection chose by " +
+                             "the user from the connection store.") })
 @BallerinaAnnotation(annotationName = "Param",
-                     attributes = { @Attribute(name = "connectionGroupName", value = "name of the connection group") })
-public class AddConnectionToGroup extends AbstractNativeFunction {
+                     attributes = { @Attribute(name = "connectionName", value = "name of the stored connection") })
+@BallerinaAnnotation(annotationName = "Param",
+                     attributes = { @Attribute(name = "text", value = "Text which should be sent") })
+
+public class PushTextToConnection extends AbstractNativeFunction {
     @Override
     public BValue[] execute(Context context) {
-        CarbonMessage carbonMessage = context.getCarbonMessage();
-        Session session = (Session) carbonMessage.getProperty(Constants.WEBSOCKET_SESSION);
-        String connectionGroupName = getArgument(context, 0).stringValue();
-        WebSocketConnectionManager.getInstance().addConnectionToGroup(connectionGroupName, session);
+        String connectionName = getArgument(context, 0).stringValue();
+        String text = getArgument(context, 1).stringValue();
+        Session session = WebSocketConnectionManager.getInstance().getStoredConnection(connectionName);
+        if (session == null) {
+            throw new BallerinaException("Cannot find a connection for the connection name: " + connectionName);
+        }
+        try {
+            session.getBasicRemote().sendText(text);
+        } catch (IOException e) {
+            throw new BallerinaException("IO exception occurred during pushing text to client", e, context);
+        }
         return VOID_RETURN;
     }
 }

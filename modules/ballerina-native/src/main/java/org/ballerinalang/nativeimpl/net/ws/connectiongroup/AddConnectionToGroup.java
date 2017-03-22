@@ -16,7 +16,7 @@
  *  under the License.
  */
 
-package org.ballerinalang.nativeimpl.net.ws.connectionsGroup;
+package org.ballerinalang.nativeimpl.net.ws.connectiongroup;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeEnum;
@@ -33,27 +33,29 @@ import org.wso2.carbon.messaging.CarbonMessage;
 import javax.websocket.Session;
 
 /**
- * Remove a connection from a group if needed.
+ * This adds connection to a connection group so those connections become global and can be used in other services
+ * as well.
  */
 @BallerinaFunction(
         packageName = "ballerina.net.ws",
-        functionName = "removeConnectionFromGroup",
+        functionName = "addConnectionToGroup",
         args = {
                 @Argument(name = "connectionGroupName", type = TypeEnum.STRING)
         },
         isPublic = true
 )
 @BallerinaAnnotation(annotationName = "Description",
-                     attributes = { @Attribute(name = "value", value = "Removes connection from a connection group")})
+                     attributes = { @Attribute(name = "value", value = "This pushes text from server to all the " +
+                             "connected clients of the service.") })
 @BallerinaAnnotation(annotationName = "Param",
-                     attributes = { @Attribute(name = "connectionGroupName", value = "name of the connection group")})
-public class RemoveConnectionFromGroup extends AbstractNativeFunction {
+                     attributes = { @Attribute(name = "connectionGroupName", value = "name of the connection group") })
+public class AddConnectionToGroup extends AbstractNativeFunction {
     @Override
     public BValue[] execute(Context context) {
-        String connectionGroupName = getArgument(context, 0).toString();
         CarbonMessage carbonMessage = context.getCarbonMessage();
         Session session = (Session) carbonMessage.getProperty(Constants.WEBSOCKET_SESSION);
-        WebSocketConnectionManager.getInstance().removeConnectionFromGroup(connectionGroupName, session);
+        String connectionGroupName = getArgument(context, 0).stringValue();
+        WebSocketConnectionManager.getInstance().addConnectionToGroup(connectionGroupName, session);
         return VOID_RETURN;
     }
 }

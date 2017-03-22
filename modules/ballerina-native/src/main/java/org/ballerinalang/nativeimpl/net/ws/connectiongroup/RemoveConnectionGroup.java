@@ -16,7 +16,7 @@
  *  under the License.
  */
 
-package org.ballerinalang.nativeimpl.net.ws.connectionsGroup;
+package org.ballerinalang.nativeimpl.net.ws.connectiongroup;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeEnum;
