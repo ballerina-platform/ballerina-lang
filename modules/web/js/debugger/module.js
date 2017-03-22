@@ -15,7 +15,6 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-$____debugger_css;
 
 import $ from 'jquery';
 import Backbone from 'backbone';
@@ -24,7 +23,7 @@ import log from 'log';
 import DebugManager from './debug-manager';
 import Tools from './tools';
 import Frames from './frames';
-import $____debugger_css from './debugger.css';
+import './debugger.css';
     var Debugger = Backbone.View.extend({
         initialize: function(config) {
             var errMsg;
@@ -159,4 +158,3 @@ import $____debugger_css from './debugger.css';
     });
 
     export default Debugger;
-

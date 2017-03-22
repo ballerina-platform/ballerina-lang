@@ -19,15 +19,12 @@ import log from 'log';
 import _ from 'lodash';
 import $ from 'jquery';
 import EventChannel from 'event_channel';
-import $__ace_ace from 'ace/ace';
-import $__ace_ext_language_tools from 'ace/ext-language_tools';
-import $__ace_ext_searchbox from 'ace/ext-searchbox';
-import $_____utils_ace_mode from '../utils/ace-mode';
-import $__ballerina from 'ballerina';
+import 'ace/ace';
+import 'ace/ext-language_tools';
+import 'ace/ext-searchbox';
+import '../utils/ace-mode';
+import ballerina from 'ballerina';
 
-$__ace_ace;
-$__ace_ext_language_tools;
-$__ace_ext_searchbox;
 var language_tools = ace.require('ace/ext/language_tools');
 var Range = ace.require('ace/range');
 
@@ -38,7 +35,6 @@ function requireAll(requireContext) {
 requireAll(require.context('ace', false, /theme-/));
 
 // require ballerina mode
-$_____utils_ace_mode;
 var mode = ace.require('ace/mode/ballerina')
 
 /**
@@ -61,7 +57,7 @@ class SourceView extends EventChannel {
         this._debugger = _.get(args, 'debugger', undefined);
         this._markers = {};
         this._gutter = 25;
-        this._fomatter = $__ballerina.utils.AceFormatter;
+        this._fomatter = ballerina.utils.AceFormatter;
         this._storage = _.get(args, 'storage');
     }
 
@@ -198,20 +194,20 @@ class SourceView extends EventChannel {
         }
     }
 
-    //dbeugger related functions. 
+    //dbeugger related functions.
 
     toggleDebugPoints(e) {
-        var target = e.domEvent.target; 
+        var target = e.domEvent.target;
         if (target.className.indexOf("ace_gutter-cell") == -1)
-            return; 
-        if (!this._editor.isFocused()) 
-            return; 
-        if (e.clientX > this._gutter + target.getBoundingClientRect().left) 
-            return; 
+            return;
+        if (!this._editor.isFocused())
+            return;
+        if (e.clientX > this._gutter + target.getBoundingClientRect().left)
+            return;
 
 
         var breakpoints = e.editor.session.getBreakpoints(row, 0);
-        var row = e.getDocumentPosition().row;        
+        var row = e.getDocumentPosition().row;
         if(_.isUndefined(breakpoints[row])){
             //this._markers[row] = this._editor.getSession().addMarker(new Range.Range(row, 0, row, 2000), "debug-point", "line", true);
             e.editor.session.setBreakpoint(row);
@@ -254,5 +250,3 @@ class SourceView extends EventChannel {
 }
 
 export default SourceView;
-
-

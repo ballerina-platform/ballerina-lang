@@ -27,19 +27,17 @@ import UndoableOperation from './undoable-operation';
  * @constructor
  */
 class ASTManipulationOperation extends UndoableOperation {
- constructor(args) {
-     super(args);
-     if(!_.has(args, 'origin')){
-         log.error('Origin node is not provided. Event: ' +  JSON.stringify(args));
-     }
-     this._originNode = _.get(args, 'origin');
-     this._data = _.get(args, 'data');
- }
+    constructor(args) {
+        super(args);
+        if(!_.has(args, 'origin')){
+            log.error('Origin node is not provided. Event: ' +  JSON.stringify(args));
+        }
+        this._originNode = _.get(args, 'origin');
+        this._data = _.get(args, 'data');
+    }
 
- undo() {}
- redo() {}
+    undo() {}
+    redo() {}
 }
 
 export default ASTManipulationOperation;
-    
-

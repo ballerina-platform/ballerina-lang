@@ -15,7 +15,6 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-$____dialog_css;
 
 import SaveToFileDialog from './save-to-file-dialog';
 import OpenFileDialog from './open-file-dialog';
@@ -25,15 +24,15 @@ import FolderOpenDialog from './folder-open-dialog';
 import CloseConfirmDialog from './close-confirm-dialog';
 import ReplaceConfirmDialog from './replace-confirm-dialog';
 import SettingsDialog from './settings-dialog';
-import $____dialog_css from './dialog.css';
-    export default {
-        save_to_file_dialog: SaveToFileDialog,
-        FolderOpenDialog: FolderOpenDialog,
-        NewItemDialog: NewItemDialog,
-        DeleteItemDialog: DeleteItemDialog,
-        open_file_dialog: OpenFileDialog,
-        CloseConfirmDialog: CloseConfirmDialog,
-        ReplaceConfirmDialog: ReplaceConfirmDialog,
-        SettingsDialog: SettingsDialog
-    };
+import './dialog.css';
 
+export default {
+    save_to_file_dialog: SaveToFileDialog,
+    FolderOpenDialog: FolderOpenDialog,
+    NewItemDialog: NewItemDialog,
+    DeleteItemDialog: DeleteItemDialog,
+    open_file_dialog: OpenFileDialog,
+    CloseConfirmDialog: CloseConfirmDialog,
+    ReplaceConfirmDialog: ReplaceConfirmDialog,
+    SettingsDialog: SettingsDialog
+};

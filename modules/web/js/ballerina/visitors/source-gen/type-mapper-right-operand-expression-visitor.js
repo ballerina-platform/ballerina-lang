@@ -22,7 +22,7 @@ import AbstractStatementSourceGenVisitor from './abstract-statement-source-gen-v
 import AST from '../../ast/module';
 import TypeMapperExpressionVisitorFactory from './type-mapper-expression-visitor-factory';
 import FunctionInvocationExpressionVisitor from './type-mapper-function-invocation-expression-visitor';
-import $____type_mapper_statement_visitor_factory from './type-mapper-statement-visitor-factory';
+import StatementVisitorFactory from './type-mapper-statement-visitor-factory';
 
 class TypeMapperRightOperandExpressionVisitor extends AbstractStatementSourceGenVisitor {
     constructor(parent) {
@@ -44,7 +44,6 @@ class TypeMapperRightOperandExpressionVisitor extends AbstractStatementSourceGen
     }
 
     visitFuncInvocationStatement(statement) {
-        var StatementVisitorFactory = $____type_mapper_statement_visitor_factory;
         var statementVisitorFactory = new StatementVisitorFactory();
         var statementVisitor = statementVisitorFactory.getStatementVisitor(statement, this);
         statement.accept(statementVisitor);

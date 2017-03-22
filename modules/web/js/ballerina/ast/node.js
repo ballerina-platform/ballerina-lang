@@ -19,7 +19,7 @@ import log from 'log';
 import require from 'require';
 import EventChannel from 'event_channel';
 import _ from 'lodash';
-import $____ballerina_ast_factory from './ballerina-ast-factory';
+import BallerinaAstFactory from './ballerina-ast-factory';
 
 /**
  * Constructor for the ASTNode
@@ -219,7 +219,7 @@ class ASTNode extends EventChannel {
      * @return {BallerinaASTFactory}
      */
     getFactory() {
-        return $____ballerina_ast_factory;
+        return BallerinaAstFactory;
     }
 
     /**
@@ -454,5 +454,3 @@ var uuid =  function (){
 };
 
 export default ASTNode;
-
-

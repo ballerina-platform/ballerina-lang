@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import _ from 'lodash';
+
 import UndoableOperation from './undoable-operation';
 
 /**
@@ -46,11 +46,9 @@ class SourceModifyOperation extends UndoableOperation {
         return  this.getEditor().isInSourceView();
     }
 
-    canUndo() {
+    canRedo() {
         return this.getEditor().isInSourceView();
     }
 }
 
 export default SourceModifyOperation;
-    
-

@@ -777,7 +777,7 @@ class ResourceDefinitionView extends BallerinaView {
             }
         };
 
-        this._annotationView = AnnotationView.createAnnotationPane(annotationProperties);
+        this._annotationView = new AnnotationView().createAnnotationPane(annotationProperties);
 
         this._createParametersView(headingArgumentsIcon.node(), diagramRenderingContext);
 
@@ -1369,5 +1369,3 @@ class ResourceDefinitionView extends BallerinaView {
 var variableTypes = ['message', 'boolean', 'string', 'int', 'float', 'long', 'double', 'json', 'xml'];
 
 export default ResourceDefinitionView;
-
-    

@@ -34,9 +34,9 @@ class CustomUndoableOperation extends UndoableOperation {
     }
 
     undo() {
-       if(this.canUndo()){
-           this._undoCallBack.call(this._callBackContext);
-       }
+        if(this.canUndo()){
+            this._undoCallBack.call(this._callBackContext);
+        }
     }
 
     redo() {

@@ -29,7 +29,7 @@ class ASTNodeModifyOperation extends ASTManipulationOperation {
     constructor(args) {
         super(args);
         if(_.isNil(this.getTitle())){
-            this.setTitle("Modify " + this._data.child.getType())
+            this.setTitle('Modify ' + this._data.child.getType());
         }
         this._clonedOriginNode = _.cloneDeep(this._originNode);
         this._parentOfOriginNode = this._originNode.getParent();

@@ -19,7 +19,7 @@ import _ from 'lodash';
 import log from 'log';
 import EventChannel from 'event_channel';
 import AbstractStatementSourceGenVisitor from './abstract-statement-source-gen-visitor';
-import $____statement_visitor_factory from './statement-visitor-factory';
+import StatementVisitorFactory from './statement-visitor-factory';
 
 class ElseStatementVisitor extends AbstractStatementSourceGenVisitor {
     constructor(parent) {
@@ -51,7 +51,6 @@ class ElseStatementVisitor extends AbstractStatementSourceGenVisitor {
     }
 
     visitStatement(statement) {
-        var StatementVisitorFactory = $____statement_visitor_factory;
         var statementVisitorFactory = new StatementVisitorFactory();
         var statementVisitor = statementVisitorFactory.getStatementVisitor(statement, this);
         statement.accept(statementVisitor);

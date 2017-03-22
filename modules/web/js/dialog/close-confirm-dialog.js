@@ -19,16 +19,14 @@
 import $ from 'jquery';
 import ModalDialog from './modal-dialog';
 
-    var CloseConfirmDialog = function (options) {
+class CloseConfirmDialog extends ModalDialog {
+    constructor(options) {
         this._options = options;
         this._$container = $(_.get(options, 'container', 'body'));
         this._initialized = false;
-    };
+    }
 
-    CloseConfirmDialog.prototype = Object.create(ModalDialog.prototype);
-    CloseConfirmDialog.prototype.constructor = CloseConfirmDialog;
-
-    CloseConfirmDialog.prototype.init = function () {
+    init() {
         if(this._initialized) {
             return;
         }
@@ -49,7 +47,7 @@ import ModalDialog from './modal-dialog';
         this._$modalContainer.addClass("close-confirm-dialog");
     }
 
-    CloseConfirmDialog.prototype.askConfirmation = function (options) {
+    askConfirmation(options) {
         var self = this;
         this.init();
 
@@ -79,6 +77,7 @@ import ModalDialog from './modal-dialog';
 
         this.show();
     }
+}
 
-    export default CloseConfirmDialog;
+export default CloseConfirmDialog;
 

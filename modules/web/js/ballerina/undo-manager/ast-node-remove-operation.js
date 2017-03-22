@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import log from 'log';
+
 import _ from 'lodash';
 import ASTManipulationOperation from './ast-manipulation-operation';
 
@@ -30,7 +30,7 @@ class ASTNodeRemoveOperation extends ASTManipulationOperation {
     constructor(args) {
         super(args);
         if(_.isNil(this.getTitle())){
-            this.setTitle("Remove " + this._data.child.getType())
+            this.setTitle('Remove ' + this._data.child.getType());
         }
     }
 
@@ -48,5 +48,3 @@ class ASTNodeRemoveOperation extends ASTManipulationOperation {
 }
 
 export default ASTNodeRemoveOperation;
-    
-
