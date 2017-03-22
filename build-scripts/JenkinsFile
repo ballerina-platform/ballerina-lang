@@ -156,7 +156,7 @@ if (isRelease) {
     pluginMavenSkipTests = buildParamInput['skip-plugin-maven-tests'];
 }
 
-node {
+node ('US01') {
     def tagMap = [];
     String user = env.GIT_USER;
     String gitCredentialsID = env.GIT_CREDENTIALS_ID;
