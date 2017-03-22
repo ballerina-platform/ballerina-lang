@@ -29,6 +29,7 @@ var instance;
 
 class Tools extends EventChannel {
     constructor() {
+        super();
         this.compiled = _.template('<% if (!active) { %>'
             + '<div class="debug-panel-header">'
             + '     <span class="tool-group-header-title">Debug</span>'

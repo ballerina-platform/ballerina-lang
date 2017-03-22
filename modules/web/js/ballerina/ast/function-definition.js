@@ -31,8 +31,8 @@ import CommonUtils from '../utils/common-utils';
  */
 class FunctionDefinition extends CallableDefinition {
     constructor(args) {
-        this.id = autoGenerateId();
         super('Function');
+        this.id = autoGenerateId();
         this._functionName = _.get(args, 'functionName');
         this._isPublic = _.get(args, "isPublic") || false;
         this._annotations = _.get(args, 'annotations', []);
@@ -484,5 +484,3 @@ function autoGenerateId(){
 }
 
 export default FunctionDefinition;
-
-

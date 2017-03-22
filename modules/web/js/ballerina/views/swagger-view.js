@@ -33,6 +33,7 @@ import BallerinaASTDeserializer from './../ast/ballerina-ast-deserializer';
  */
 class SwaggerView extends EventChannel {
     constructor(args) {
+        super();
         this._options = args;
         if(!_.has(args, 'container')){
             log.error('container is not specified for rendering swagger view.')
@@ -144,4 +145,3 @@ var initSwaggerEditor = function(self, content){
 };
 
 export default SwaggerView;
-   

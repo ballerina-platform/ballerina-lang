@@ -21,6 +21,7 @@ import ModalDialog from './modal-dialog';
 
 class CloseConfirmDialog extends ModalDialog {
     constructor(options) {
+        super();
         this._options = options;
         this._$container = $(_.get(options, 'container', 'body'));
         this._initialized = false;
@@ -80,4 +81,3 @@ class CloseConfirmDialog extends ModalDialog {
 }
 
 export default CloseConfirmDialog;
-
