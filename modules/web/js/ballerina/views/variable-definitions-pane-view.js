@@ -21,22 +21,26 @@ import $ from 'jquery';
 import Alerts from 'alerts';
 import VariableDefinitionView from './variable-definition-view';
 import ASTNode from './../ast/node';
-import select2 from 'select2';
 
 /**
  * Creates a new instance for a constant definition pane view.
- * @param args - Arguments for creating the constant definitions pane.
- * @param {ServiceDefinition} args.model - The Ballerina AST root model.
- * @param {HTMLElement} args.paneAppendElement - The element to which the pane to be appended.
- * @param {BallerinaFileEditor} args.view - The ballerina filed editor view.
- * @constructor
+ * @class VariableDeclarationsPaneView
  */
 class VariableDeclarationsPaneView {
+
+    /**
+     * Constructor for VariableDeclarationsPaneView
+     * @param args - Arguments for creating the constant definitions pane.
+     * @param {ServiceDefinition} args.model - The Ballerina AST root model.
+     * @param {HTMLElement} args.paneAppendElement - The element to which the pane to be appended.
+     * @param {BallerinaFileEditor} args.view - The ballerina filed editor view.
+     * @constructor
+     */
     constructor(args) {
-        this._model = _.get(args, "model");
-        this._paneAppendElement = _.get(args, "paneAppendElement");
-        this._viewOfModel = _.get(args, "viewOfModel");
-        this._viewOptions = _.get(args, "viewOptions");
+        this._model = _.get(args, 'model');
+        this._paneAppendElement = _.get(args, 'paneAppendElement');
+        this._viewOfModel = _.get(args, 'viewOfModel');
+        this._viewOptions = _.get(args, 'viewOptions');
 
         this._constantDefinitionsButton = undefined;
         this._constantsDefinitionsMainWrapper = undefined;
@@ -47,49 +51,49 @@ class VariableDeclarationsPaneView {
         var self = this;
 
         // Creating variable button.
-        var variableButton = $("<div class='variable-btn' data-toggle='tooltip' title='Variables' " +
-            "data-placement='bottom'></div>")
+        var variableButton = $('<div class=\'variable-btn\' data-toggle=\'tooltip\' title=\'Variables\' ' +
+            'data-placement=\'bottom\'></div>')
             .appendTo(this._paneAppendElement).tooltip();
 
         // Positioning the variable button.
-        variableButton.css("left", parseInt(this._viewOptions.position.x) + "px");
-        variableButton.css("top", parseInt(this._viewOptions.position.y) + "px");
+        variableButton.css('left', parseInt(this._viewOptions.position.x) + 'px');
+        variableButton.css('top', parseInt(this._viewOptions.position.y) + 'px');
 
 
-        $("<span class='btn-icon'> Variables </span>").appendTo(variableButton);
+        $('<span class=\'btn-icon\'> Variables </span>').appendTo(variableButton);
 
-        var variablePaneWrapper = $("<div class='variable-pane'/>").appendTo($(this._paneAppendElement));
+        var variablePaneWrapper = $('<div class=\'variable-pane\'/>').appendTo($(this._paneAppendElement));
         // Positioning the variable pane from the left border of the container(service, resource, etc).
-        variablePaneWrapper.css("left", (this._viewOptions.position.x + 69) + "px");
+        variablePaneWrapper.css('left', (this._viewOptions.position.x + 69) + 'px');
         // Positioning the variable pane from the top border of the container(service, resource, etc).
-        variablePaneWrapper.css("top", (this._viewOptions.position.y - 0) + "px");
+        variablePaneWrapper.css('top', (this._viewOptions.position.y - 0) + 'px');
         // Setting max-width of the variable wrapper.
-        variablePaneWrapper.css("max-width", this._viewOptions.width + "px");
+        variablePaneWrapper.css('max-width', this._viewOptions.width + 'px');
 
-        var variablesContentWrapper = $("<div class='variables-content-wrapper'/>").appendTo(variablePaneWrapper);
+        var variablesContentWrapper = $('<div class=\'variables-content-wrapper\'/>').appendTo(variablePaneWrapper);
 
-        var collapserWrapper = $("<div class='variable-pane-collapser-wrapper'/>")
-            .data("collapsed", "true")
+        var collapserWrapper = $('<div class=\'variable-pane-collapser-wrapper\'/>')
+            .data('collapsed', 'true')
             .appendTo(variablePaneWrapper);
-        $("<i class='fw fw-left'></i>").appendTo(collapserWrapper);
+        $('<i class=\'fw fw-left\'></i>').appendTo(collapserWrapper);
 
-        var variablesActionWrapper = $("<div class='variables-action-wrapper'/>").appendTo(variablesContentWrapper);
+        var variablesActionWrapper = $('<div class=\'variables-action-wrapper\'/>').appendTo(variablesContentWrapper);
 
         // Creating add variable editor button.
-        var addVariableButton = $("<div class='action-icon-wrapper variable-add-icon-wrapper' " +
-            "data-toggle='tooltip' title='Add variable' data-placement='bottom'/>")
+        var addVariableButton = $('<div class=\'action-icon-wrapper variable-add-icon-wrapper\' ' +
+            'data-toggle=\'tooltip\' title=\'Add variable\' data-placement=\'bottom\'/>')
             .appendTo(variablesActionWrapper).tooltip();
-        $("<i class='fw fw-add'></i>").appendTo(addVariableButton);
+        $('<i class=\'fw fw-add\'></i>').appendTo(addVariableButton);
 
-        var variableAddPane = $("<div class='action-content-wrapper-heading variable-add-action-wrapper'/>")
+        var variableAddPane = $('<div class=\'action-content-wrapper-heading variable-add-action-wrapper\'/>')
             .appendTo(variablesActionWrapper);
 
         // Creating the variable type dropdown.
         var typeDropdownWrapper = $('<div class="type-drop-wrapper service"/>').appendTo(variableAddPane);
-        var variableSelect = $("<select/>").appendTo(typeDropdownWrapper);
+        var variableSelect = $('<select/>').appendTo(typeDropdownWrapper);
 
-        var variableIdentifier = $("<input id='text' placeholder='Identifier'/>").appendTo(variableAddPane);
-        var variableValueExpression = $("<input id='text' placeholder='Value'/>").appendTo(variableAddPane);
+        var variableIdentifier = $('<input id=\'text\' placeholder=\'Identifier\'/>').appendTo(variableAddPane);
+        var variableValueExpression = $('<input id=\'text\' placeholder=\'Value\'/>').appendTo(variableAddPane);
 
         $(variableSelect).select2({
             data: this._getTypeDropdownValues(),
@@ -99,7 +103,7 @@ class VariableDeclarationsPaneView {
 
         $(document).ready(function() {
             $(typeDropdownWrapper).empty();
-            variableSelect = $("<select/>").appendTo(typeDropdownWrapper);
+            variableSelect = $('<select/>').appendTo(typeDropdownWrapper);
             $(variableSelect).select2({
                 tags: true,
                 selectOnClose: true,
@@ -119,14 +123,14 @@ class VariableDeclarationsPaneView {
                 }
             });
 
-            $(variableSelect).on("select2:open", function() {
-                $(".select2-search__field").attr("placeholder", "Search");
+            $(variableSelect).on('select2:open', function() {
+                $('.select2-search__field').attr('placeholder', 'Search');
             });
         });
 
 
         // Add new variable upon enter key.
-        $(variableIdentifier).on("change paste keydown", function (e) {
+        $(variableIdentifier).on('change paste keydown', function (e) {
             if (_.isEqual(e.which, 13)) {
                 variableAddCompleteButtonPane.click();
             }
@@ -143,7 +147,7 @@ class VariableDeclarationsPaneView {
 
             // Validation the identifier against grammar.
             if (!ASTNode.isValidIdentifier(newIdentifier)) {
-                var errorString = "Invalid identifier for a variable: " + newIdentifier;
+                var errorString = 'Invalid identifier for a variable: ' + newIdentifier;
                 log.error(errorString);
                 Alerts.error(errorString);
                 e.stopPropagation();
@@ -152,22 +156,22 @@ class VariableDeclarationsPaneView {
         });
 
         // Add new variable upon enter key.
-        $(variableValueExpression).on("change paste keydown", function (e) {
-            if (e.which == 13) {
+        $(variableValueExpression).on('change paste keydown', function (e) {
+            if (e.which === 13) {
                 variableAddCompleteButtonPane.click();
             }
         });
 
         // Creating cancelling add new variable button.
-        var variableAddCancelButtonPane = $("<div class='action-icon-wrapper variable-add-cancel-action-wrapper'/>")
+        var variableAddCancelButtonPane = $('<div class=\'action-icon-wrapper variable-add-cancel-action-wrapper\'/>')
             .appendTo(variableAddPane);
-        $("<span class='fw-stack fw-lg'><i class='fw fw-square fw-stack-2x'></i>" +
-            "<i class='fw fw-cancel fw-stack-1x fw-inverse'></i></span>").appendTo(variableAddCancelButtonPane);
+        $('<span class=\'fw-stack fw-lg\'><i class=\'fw fw-square fw-stack-2x\'></i>' +
+            '<i class=\'fw fw-cancel fw-stack-1x fw-inverse\'></i></span>').appendTo(variableAddCancelButtonPane);
         // Creating add new variable button.
-        var variableAddCompleteButtonPane = $("<div class='action-icon-wrapper " +
-            "variable-add-complete-action-wrapper'/>").appendTo(variableAddPane);
-        $("<span class='fw-stack fw-lg'><i class='fw fw-square fw-stack-2x'></i>" +
-            "<i class='fw fw-check fw-stack-1x fw-inverse'></i></span>").appendTo(variableAddCompleteButtonPane);
+        var variableAddCompleteButtonPane = $('<div class=\'action-icon-wrapper ' +
+            'variable-add-complete-action-wrapper\'/>').appendTo(variableAddPane);
+        $('<span class=\'fw-stack fw-lg\'><i class=\'fw fw-square fw-stack-2x\'></i>' +
+            '<i class=\'fw fw-check fw-stack-1x fw-inverse\'></i></span>').appendTo(variableAddCompleteButtonPane);
 
         // Add new variable activate button.
         $(addVariableButton).click(function () {
@@ -200,13 +204,13 @@ class VariableDeclarationsPaneView {
 
                 // Changing the content of the collapser.
                 collapserWrapper.empty();
-                collapserWrapper.data("collapsed", "false");
-                $("<i class='fw fw-left'></i>").appendTo(collapserWrapper);
+                collapserWrapper.data('collapsed', 'false');
+                $('<i class=\'fw fw-left\'></i>').appendTo(collapserWrapper);
                 variablesContentWrapper.show();
 
                 // Clearing values in inputs.
-                variableIdentifier.val("");
-                variableValueExpression.val("");
+                variableIdentifier.val('');
+                variableValueExpression.val('');
             } catch (error) {
                 log.error(error);
                 Alerts.error(error);
@@ -214,43 +218,43 @@ class VariableDeclarationsPaneView {
         });
 
         // Hiding/showing the variables depending on the default "collapsed" value of collapserWrapper.
-        if (_.isEqual(collapserWrapper.data("collapsed"), "false")) {
+        if (_.isEqual(collapserWrapper.data('collapsed'), 'false')) {
             $(collapserWrapper).empty();
-            $("<i class='fw fw-left'></i>").appendTo(collapserWrapper);
-            variablesContentWrapper.find(".variable-wrapper").show();
+            $('<i class=\'fw fw-left\'></i>').appendTo(collapserWrapper);
+            variablesContentWrapper.find('.variable-wrapper').show();
         } else {
             $(collapserWrapper).empty();
-            $("<i class='fw fw-right'></i>").appendTo(collapserWrapper);
-            variablesContentWrapper.find(".variable-wrapper").hide();
+            $('<i class=\'fw fw-right\'></i>').appendTo(collapserWrapper);
+            variablesContentWrapper.find('.variable-wrapper').hide();
         }
 
         // The click event for hiding and showing variables.
         collapserWrapper.click(function () {
             $(this).empty();
-            if ($(this).data("collapsed") === "false") {
-                $(this).data("collapsed", "true");
-                $("<i class='fw fw-right'></i>").appendTo(this);
-                variablesContentWrapper.find(".variable-wrapper").hide();
+            if ($(this).data('collapsed') === 'false') {
+                $(this).data('collapsed', 'true');
+                $('<i class=\'fw fw-right\'></i>').appendTo(this);
+                variablesContentWrapper.find('.variable-wrapper').hide();
             } else {
-                $(this).data("collapsed", "false");
-                $("<i class='fw fw-left'></i>").appendTo(this);
-                variablesContentWrapper.find(".variable-wrapper").show();
+                $(this).data('collapsed', 'false');
+                $('<i class=\'fw fw-left\'></i>').appendTo(this);
+                variablesContentWrapper.find('.variable-wrapper').show();
             }
         });
 
         // By default the variable pane is shown on pane load.
-        $(variableButton).css("opacity", 1);
+        $(variableButton).css('opacity', 1);
 
         // When the variable button is clicked we show and hide the variable pane.
         $(variableButton).click(function () {
-            if ($(variablePaneWrapper).is(":visible")) {
+            if ($(variablePaneWrapper).is(':visible')) {
                 // Variable pane is already shown.
                 $(this).css({opacity: ''});
                 variablePaneWrapper.hide();
 
             } else {
                 // Variable pane is hidden.
-                $(this).css("opacity", 1);
+                $(this).css('opacity', 1);
                 variablePaneWrapper.show();
             }
         });
@@ -271,7 +275,7 @@ class VariableDeclarationsPaneView {
      */
     _renderVariables(variablePaneWrapper, collapserWrapper) {
         // Clear existing variables on UI.
-        $(variablePaneWrapper).find(".variable-wrapper").remove();
+        $(variablePaneWrapper).find('.variable-wrapper').remove();
 
         var self = this;
 
