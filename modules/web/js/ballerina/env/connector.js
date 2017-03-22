@@ -17,7 +17,7 @@
  */
 import log from 'log';
 import _ from 'lodash';
-import require from 'require';
+
 import EventChannel from 'event_channel';
 import BallerinaASTFactory from './../ast/ballerina-ast-factory';
 import BallerinaEnvFactory from './ballerina-env-factory';

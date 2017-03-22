@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import require from 'require';
+
 import _ from 'lodash';
 import $ from 'jquery';
 import log from 'log';
