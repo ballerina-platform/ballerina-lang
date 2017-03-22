@@ -20,64 +20,64 @@ import _ from 'lodash';
 import log from 'backbone';
 import 'log';
 
+class BrowserStorage {
+  
+    constuctor(name) {
+        this.name = name;
+    }
+
     // Generate four random hex digits.
-    function S4() {
-        return (((1+Math.random())*0x10000)|0).toString(16).substring(1);
+    S4() {
+        return (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1);
     }
 
     // Generate a pseudo-GUID by concatenating random hexadecimal.
-    function guid() {
-        return (S4()+S4()+"-"+S4()+"-"+S4()+"-"+S4()+"-"+S4()+S4()+S4());
+    guid() {
+        return (S4() + S4() + "-" + S4() + "-" + S4() + "-" + S4() + "-" + S4() + S4() + S4());
     }
 
-    var BrowserStorage = function(name) {
-        this.name = name;
-    };
 
-    _.extend(BrowserStorage.prototype, {
+    put: function(key, value) {
+        this.localStorage().setItem(this.name + "-" + key, JSON.stringify(value));
+    }
 
-        put: function(key, value){
-            this.localStorage().setItem(this.name+"-"+key, JSON.stringify(value));
-        },
+    get: function(key) {
+        return this.jsonData(this.localStorage().getItem(this.name + "-" + key));
+    }
 
-        get: function(key){
-            return this.jsonData(this.localStorage().getItem(this.name+"-"+key));
-        },
-
-        create: function(model) {
-            if (!model.id) {
-                model.id = guid();
-                model.set(model.idAttribute, model.id);
-            }
-            this.localStorage().setItem(this.name+"-"+model.id, JSON.stringify(model));
-            return this.find(model);
-        },
-
-        update: function(model) {
-            this.localStorage().setItem(this.name+"-"+model.id, JSON.stringify(model));
-            return this.find(model);
-        },
-
-        find: function(model) {
-            return this.jsonData(this.localStorage().getItem(this.name+"-"+model.id));
-        },
-
-        destroy: function(model) {
-            if (model.isNew())
-                return false;
-            this.localStorage().removeItem(this.name+"-"+model.id);
-            return model;
-        },
-
-        localStorage: function() {
-            return localStorage;
-        },
-
-        jsonData: function (data) {
-            return data && JSON.parse(data);
+    create: function(model) {
+        if (!model.id) {
+            model.id = guid();
+            model.set(model.idAttribute, model.id);
         }
+        this.localStorage().setItem(this.name + "-" + model.id, JSON.stringify(model));
+        return this.find(model);
+    }
 
-    });
+    update: function(model) {
+        this.localStorage().setItem(this.name + "-" + model.id, JSON.stringify(model));
+        return this.find(model);
+    }
 
-    export default BrowserStorage;
+    find: function(model) {
+        return this.jsonData(this.localStorage().getItem(this.name + "-" + model.id));
+    }
 
+    destroy: function(model) {
+        if (model.isNew())
+            return false;
+        this.localStorage().removeItem(this.name + "-" + model.id);
+        return model;
+    }
+
+    localStorage: function() {
+        return localStorage;
+    }
+
+    jsonData: function(data) {
+        return data && JSON.parse(data);
+    }
+
+};
+
+export default BrowserStorage;
