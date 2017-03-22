@@ -15,7 +15,6 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-$____tool_palette_css;
 
 import require from 'require';
 import log from 'log';
@@ -28,7 +27,7 @@ import Search from './../search/search';
 import ImportSearchAdapter from './../search/import-search-adapter';
 import Mousetrap from 'mousetrap';
 import mcustomScroller from 'mcustom_scroller';
-import $____tool_palette_css from './tool-palette.css';
+import './tool-palette.css';
 
     var ToolPalette = Backbone.View.extend({
         initialize: function (options) {
@@ -264,4 +263,3 @@ import $____tool_palette_css from './tool-palette.css';
     });
 
     export default ToolPalette;
-

@@ -21,7 +21,7 @@ import EventChannel from 'event_channel';
 import AbstractExpressionSourceGenVisitor from './abstract-expression-source-gen-visitor';
 import StructFieldAccessExpression from '../../ast/expressions/struct-field-access-expression';
 import LeftOperandExpression from '../../ast/statements/left-operand-expression';
-import $____type_mapper_expression_visitor_factory from './type-mapper-expression-visitor-factory';
+import ExpressionVisitorFactory from './type-mapper-expression-visitor-factory';
 
 class TypeMapperSructFieldAccessExpressionVisitor extends AbstractExpressionSourceGenVisitor {
     constructor(parent) {
@@ -49,7 +49,6 @@ class TypeMapperSructFieldAccessExpressionVisitor extends AbstractExpressionSour
     }
 
     visitExpression(expression) {
-        var ExpressionVisitorFactory = $____type_mapper_expression_visitor_factory;
         var expressionVisitorFactory = new ExpressionVisitorFactory();
         var expressionVisitor = expressionVisitorFactory.getExpressionVisitor({model:expression, parent:this});
         expression.accept(expressionVisitor);

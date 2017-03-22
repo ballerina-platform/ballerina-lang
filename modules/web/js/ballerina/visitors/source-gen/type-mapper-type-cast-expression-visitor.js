@@ -19,7 +19,7 @@ import _ from 'lodash';
 import log from 'log';
 import EventChannel from 'event_channel';
 import AbstractExpressionSourceGenVisitor from './abstract-expression-source-gen-visitor';
-import $____type_mapper_expression_visitor_factory from './type-mapper-expression-visitor-factory';
+import TypeMapperExpressionVisitorFactory from './type-mapper-expression-visitor-factory';
 
 class TypeMapperTypeCastExpressionVisitor extends AbstractExpressionSourceGenVisitor {
     constructor(parent) {
@@ -45,7 +45,6 @@ class TypeMapperTypeCastExpressionVisitor extends AbstractExpressionSourceGenVis
     }
 
     visitExpression(expression) {
-        var TypeMapperExpressionVisitorFactory = $____type_mapper_expression_visitor_factory;
         var expressionVisitorFactory = new TypeMapperExpressionVisitorFactory();
         var expressionVisitor = expressionVisitorFactory.getExpressionVisitor({model:expression, parent:this});
         expression.accept(expressionVisitor);

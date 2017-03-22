@@ -15,7 +15,6 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-$____type_mapper_css;
 
 import require from 'require';
 import _ from 'lodash';
@@ -23,7 +22,7 @@ import $ from 'jquery';
 import jsPlumbLib from 'jsplumb';
 import dagre from 'dagre';
 import alerts from 'alerts';
-import $____type_mapper_css from './type-mapper.css';
+import './type-mapper.css';
     /**
      * Renderer constructor for TypeMapper
      * @param {object} onConnectionCallback call back function when connection made
@@ -1003,4 +1002,3 @@ import $____type_mapper_css from './type-mapper.css';
     }
 
     export default TypeMapperRenderer;
-

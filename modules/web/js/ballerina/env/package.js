@@ -25,7 +25,7 @@ import TypeDefinition from './../ast/type-definition';
 import TypeMapperDefinition from './../ast/type-mapper-definition';
 import ConstantDefinition from './../ast/constant-definition';
 import StructDefinition from './../ast/struct-definition';
-import $____ballerina_env_factory from './ballerina-env-factory';
+import BallerinaEnvFactory from './ballerina-env-factory';
 
 /**
  * @class Package
@@ -43,7 +43,6 @@ class Package extends EventChannel {
         this.addTypeDefinitions(_.get(args, 'typeDefinitions', []));
         this.addTypeMapperDefinitions(_.get(args, 'typeMapperDefinitions', []));
         this.addConstantDefinitions(_.get(args, 'constantDefinitions', []));
-        this.BallerinaEnvFactory = $____ballerina_env_factory;
     }
 
     setName(name) {
@@ -220,7 +219,7 @@ class Package extends EventChannel {
     addConnectors(connectors) {
         var self = this;
         var err;
-        if(!_.isArray(connectors) && !(self.BallerinaEnvFactory.isConnector(connectors))){
+        if(!_.isArray(connectors) && !(BallerinaEnvFactory.isConnector(connectors))){
             err = "Adding connector failed. Not an instance of connector " + connectors;
             log.error(err);
             throw err;
@@ -228,7 +227,7 @@ class Package extends EventChannel {
         if(_.isArray(connectors)){
             if(!_.isEmpty(connectors)){
                 _.each(connectors, function(connector){
-                    if(!self.BallerinaEnvFactory.isConnector(connector)){
+                    if(!BallerinaEnvFactory.isConnector(connector)){
                         err = "Adding connector failed. Not an instance of connector" + connector;
                         log.error(err);
                         throw err;
@@ -320,7 +319,7 @@ class Package extends EventChannel {
     addFunctionDefinitions(functionDefinitions) {
         var self = this;
         var err;
-        if(!_.isArray(functionDefinitions) && !(self.BallerinaEnvFactory.isFunction(functionDefinitions))){
+        if(!_.isArray(functionDefinitions) && !(BallerinaEnvFactory.isFunction(functionDefinitions))){
             err = "Adding function def failed. Not an instance of FunctionDefinition" + functionDefinitions;
             log.error(err);
             throw err;
@@ -465,13 +464,13 @@ class Package extends EventChannel {
         this.setName(jsonNode.name);
 
         _.each(jsonNode.connectors, function (connectorNode) {
-            var connector = self.BallerinaEnvFactory.createConnector();
+            var connector = BallerinaEnvFactory.createConnector();
             connector.initFromJson(connectorNode);
             self.addConnectors(connector);
         });
 
         _.each(jsonNode.functions, function(functionNode){
-            var functionDef = self.BallerinaEnvFactory.createFunction();
+            var functionDef = BallerinaEnvFactory.createFunction();
             functionDef.initFromJson(functionNode);
             self.addFunctionDefinitions(functionDef);
         });
@@ -480,4 +479,3 @@ class Package extends EventChannel {
 }
 
 export default Package;
-    

@@ -22,7 +22,7 @@ import BallerinaStatementView from './ballerina-statement-view';
 import D3Utils from 'd3utils';
 import d3 from 'd3';
 import BallerinaASTFactory from 'ballerina/ast/ballerina-ast-factory';
-import $____statement_container from './statement-container';
+import StatementContainer from './statement-container';
 
 /**
  * Super view class for all block statements e.g. while, if, else etc.
@@ -131,7 +131,6 @@ class BlockStatementView extends BallerinaStatementView {
         _.set(statementContainerOpts, 'toolPalette', this.getToolPalette());
 
         // Creating new statement container.
-        var StatementContainer = $____statement_container;
         var statementContainer = new StatementContainer(statementContainerOpts);
         this.setStatementContainer(statementContainer);
 
