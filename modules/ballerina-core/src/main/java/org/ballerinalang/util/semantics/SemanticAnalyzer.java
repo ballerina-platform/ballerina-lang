@@ -1703,7 +1703,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             Expression valueExpr = keyValueExpr.getValueExpr();
             visitSingleValueExpr(valueExpr);
 
-            if (!valueExpr.getType().equals(varDef.getType())) {
+            if (!valueExpr.getType().equals(varDef.getType()) && (varDef.getType() != BTypes.typeAny)) {
                 BLangExceptionHelper.throwSemanticError(keyExpr, SemanticErrors.INCOMPATIBLE_TYPES,
                         varDef.getType(), valueExpr.getType());
             }
