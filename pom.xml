@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <groupId>org.ballerinalang</groupId>
         <artifactId>ballerinalang</artifactId>
@@ -11,7 +9,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.ballerinalang</groupId>
     <artifactId>ballerina-container-support</artifactId>
-    <version>0.8.1-SNAPSHOT</version>
+    <version>0.85-SNAPSHOT</version>
     <name>Ballerina - Container Support</name>
     <packaging>jar</packaging>
 
@@ -122,8 +120,7 @@
                     </filters>
                     <shadedArtifactAttached>false</shadedArtifactAttached>
                     <transformers>
-                        <transformer
-                                implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                        <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                         </transformer>
                     </transformers>
                 </configuration>
@@ -228,7 +225,7 @@
 
     <properties>
         <maven.findbugsplugin.version.exclude>findbugs-exclude.xml</maven.findbugsplugin.version.exclude>
-        <ballerina.launcher.version>0.8.3-SNAPSHOT</ballerina.launcher.version>
+        <ballerina.launcher.version>0.84</ballerina.launcher.version>
         <surefireArgLine>-Dfile.encoding=UTF-8</surefireArgLine>
         <jackson.version>2.6.1</jackson.version>
     </properties>
