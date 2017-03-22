@@ -22,6 +22,7 @@ var instance;
 
 class Console extends EventChannel {
     constructor(args) {
+        super();
         this.container = $('#console-container');
         this.console = $('#console');
 

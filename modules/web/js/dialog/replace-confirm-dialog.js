@@ -21,6 +21,7 @@ import ModalDialog from './modal-dialog';
 
 class ReplaceConfirmDialog extends ModalDialog {
     constructor(options) {
+        super();
         this._options = options;
         this._$container = $(_.get(options, 'container', 'body'));
     }
@@ -52,4 +53,3 @@ class ReplaceConfirmDialog extends ModalDialog {
 }
 
 export default ReplaceConfirmDialog;
-

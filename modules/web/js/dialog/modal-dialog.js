@@ -22,6 +22,7 @@ import 'bootstrap';
 
 class ModalDialog extends EventChannel {
     constructor(options) {
+        super();
         this._options = options;
         this._application = _.get(options, "application");
         this._$container = $(_.get(options, 'container', 'body'));
