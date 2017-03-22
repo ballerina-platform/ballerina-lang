@@ -17,11 +17,6 @@
 package org.ballerinalang.composer.service.workspace.launcher;
 
 import io.netty.channel.Channel;
-import io.netty.channel.ChannelPipeline;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
 
 /**
  * Launch session which holds the client information.

@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import './debugger.css';
+require('./debugger.css');
 
 define(['jquery', 'backbone', 'lodash', 'log', './debug-manager', './tools', './frames'], function ($, Backbone, _, log, DebugManager, Tools, Frames) {
     var Debugger = Backbone.View.extend({
@@ -128,8 +128,7 @@ define(['jquery', 'backbone', 'lodash', 'log', './debug-manager', './tools', './
         renderContent: function () {
             var debuggerContainer = $('<div>'
                                     + '<div class="debug-tools-container"></div>'
-                                    + '<div class="debug-frams-container"></div>'
-                                    + '<div class="debug-variables-container"></div>'
+                                    + '<div class="debug-frames-container"></div>'
                                     + '</div>');
             debuggerContainer.addClass(_.get(this._options, 'cssClass.container'));
             debuggerContainer.attr('id', _.get(this._options, ('containerId')));
@@ -137,10 +136,11 @@ define(['jquery', 'backbone', 'lodash', 'log', './debug-manager', './tools', './
 
             Tools.setArgs({ container : debuggerContainer.find('.debug-tools-container') ,
                             launchManager: this.launchManager,
-                            application: this.application });
+                            application: this.application,
+                            toolbarShortcuts: _.get(this._options, 'toolbarShortcuts')});
             Tools.render();
 
-            Frames.setContainer(debuggerContainer.find('.debug-frams-container'));
+            Frames.setContainer(debuggerContainer.find('.debug-frames-container'));
 
             this._debuggerContainer = debuggerContainer;
             debuggerContainer.mCustomScrollbar({

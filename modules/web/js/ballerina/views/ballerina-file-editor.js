@@ -222,6 +222,24 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
             importDeclarationView.render(this.diagramRenderingContext);
         };
 
+       BallerinaFileEditor.prototype.visitConstantDefinition = function(constantDefinition) {
+          var container = this._constantDefinitionsPane.getConstantDefViewsContainer(),
+              ConstantDefinitionView = require('./constant-definition-view');
+
+          var constantDefinitionView = new ConstantDefinitionView({
+              parent: this._model,
+              model: constantDefinition,
+              container: container,
+              toolPalette: this.getToolPalette(),
+              messageManager: this.getMessageManager(),
+              parentView: this
+          });
+
+          this.getDiagramRenderingContext().getViewModelMap()[constantDefinition.id] = constantDefinitionView;
+
+          constantDefinitionView.render(this.getDiagramRenderingContext());
+       };
+
         /**
          * Creates a service definition view for a service definition model and calls it's render.
          * @param serviceDefinition
@@ -442,6 +460,7 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
             });
 
             this._debugger.on("resume-execution", _.bind(this._clearExistingDebugHit, this));
+            this._debugger.on("session-completed", _.bind(this._clearExistingDebugHit, this));
 
             this._sourceView.render();
 

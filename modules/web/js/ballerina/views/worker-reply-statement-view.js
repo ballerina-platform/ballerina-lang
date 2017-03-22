@@ -148,43 +148,6 @@ define(['lodash', 'd3','log', './simple-statement-view', './point', 'd3utils', '
             this.listenTo(model, 'update-property-text', this.updateStatementText);
         };
 
-        WorkerReplyStatementView.prototype.renderArrows = function (context) {
-            this.setDiagramRenderingContext(context);
-
-            var destination = this.getModel().getDestination();
-            if(!_.isUndefined(destination)) {
-                var parent = this.getStatementGroup();
-                this._arrowGroup = D3Utils.group(parent).attr("transform", "translate(0,0)");
-                var width = this.getBoundingBox().w();
-                var height = this.getBoundingBox().h();
-                var x = this.getBoundingBox().getLeft();
-                var y = this.getBoundingBox().getTop();
-                var sourcePointX = x + width;
-                var sourcePointY = y + height / 2;
-
-                var startPoint = new Point(sourcePointX, sourcePointY);
-                var connectorCenterPointX = this.connector.getMiddleLineCenter().x();
-                var connectorCenterPointY = this.connector.getMiddleLineCenter().y();
-                var startX = Math.round(startPoint.x());
-                this._processorConnector = D3Utils.line(Math.round(startPoint.x()), Math.round(startPoint.y()), Math.round(connectorCenterPointX),
-                    Math.round(startPoint.y()), this._arrowGroup).classed("action-line", true);
-                this._forwardArrowHead = D3Utils.inputTriangle(Math.round(connectorCenterPointX) - 5, Math.round(startPoint.y()), this._arrowGroup).classed("action-arrow", true);
-
-                this.getBoundingBox().on('moved', function (offset) {
-                    var transformX = this._arrowGroup.node().transform.baseVal.consolidate().matrix.e;
-                    var transformY = this._arrowGroup.node().transform.baseVal.consolidate().matrix.f;
-                    this._arrowGroup.node().transform.baseVal.getItem(0).setTranslate(transformX + offset.dx, transformY + offset.dy);
-                }, this);
-
-                this.processorConnectPoint.style("display", "none");
-
-                var arrowHeadEnd = D3Utils.circle(Math.round(connectorCenterPointX) - 5, Math.round(startPoint.y()), 10, parent);
-                arrowHeadEnd
-                    .attr("fill-opacity", 0.01)
-                    .style("fill", "#444");
-            }
-        };
-
         WorkerReplyStatementView.prototype.renderProcessorConnectPoint = function (renderingContext) {
             var boundingBox = this.getBoundingBox();
             var width = boundingBox.w();
@@ -250,7 +213,7 @@ define(['lodash', 'd3','log', './simple-statement-view', './point', 'd3utils', '
             this._arrowGroup = D3Utils.group(d3.select(this._container));
             var destinationView = this.getDiagramRenderingContext().getViewOfModel(this.getModel().getDestination());
             var destinationStatementContainer = destinationView.getStatementContainer();
-            var startX = destinationView.getBoundingBox().getLeft();
+            var startX = 0;
             var endX = this.getBoundingBox().getRight();
             var endY = 0;
             var startY = 0;
@@ -280,6 +243,7 @@ define(['lodash', 'd3','log', './simple-statement-view', './point', 'd3utils', '
                     startY =  this._destinationReplyStatementView.getBoundingBox().getTop() + this.getBoundingBox().h()/2;
                     this.getBoundingBox().y(this._destinationReplyStatementView.getBoundingBox().getTop())
                 }
+                startX = this._destinationReplyStatementView.getBoundingBox().getLeft();
                 endY = startY;
                 var messageStart = new Point(startX, startY);
                 var messageEnd = new Point(endX, endY);
@@ -289,8 +253,8 @@ define(['lodash', 'd3','log', './simple-statement-view', './point', 'd3utils', '
                 // Set the reply receiver for the destination
                 destinationView.getModel().setReplyReceiver(this.getModel());
 
-                this.listenTo(destinationView.getStatementContainer().getBoundingBox(), 'center-x-moved', function (dx) {
-                    this._messageView.getStart().move(dx, 0);
+                this.listenTo(destinationView.getStatementContainer().getBoundingBox(), 'width-changed', function (dw) {
+                    this._messageView.getStart().move(dw/2, 0);
                 });
             }
 

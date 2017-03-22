@@ -259,8 +259,11 @@ define(function (require) {
                             if(!skipBreakAfter){
                                 value += newLine;
                                 // indent
-                                for (var i = 0; i < indentation; i++) {
-                                    value += tab;
+                                if(token.type !== 'paren.lparen' || token.value !== '{' || nextToken.type !== 'paren.rparen' || nextToken.value !== '}') {
+                                    // if block has no content don't indent so the closing '{' is not unnecessarily indented
+                                    for (var i = 0; i < indentation; i++) {
+                                        value += tab;
+                                    }
                                 }
                             }
                         }

@@ -31,12 +31,13 @@ import javax.ws.rs.ext.ExceptionMapper;
  */
 public class DefaultExceptionMapper implements ExceptionMapper<Exception> {
     private static final Logger logger = LoggerFactory.getLogger(DefaultExceptionMapper.class);
-
+    
     @Override
     public Response toResponse(Exception exception) {
         logger.error("Error in BLang parser rest service for composer", exception.getMessage());
         JsonObject entity = new JsonObject();
-        entity.addProperty("errorMessage", "Error in BLang parser rest service for composer: " + exception.getMessage());
+        entity.addProperty("errorMessage", "Error in BLang parser rest service for composer: " +
+                                           exception.getMessage());
         return Response.status(Response.Status.OK)
                 .entity(entity)
                 .header("Access-Control-Allow-Origin", '*')

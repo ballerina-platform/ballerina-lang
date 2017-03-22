@@ -15,16 +15,27 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-var BallerinaListener = require('./BallerinaListener');
+/*jshint esversion: 6 */
+import { ErrorListener } from 'antlr4/error/ErrorListener';
 
-var BLangListener = function() {
+class BLangParserErrorListener extends ErrorListener{
+    constructor(){
+        super();
+        this._errors = [];
+    }
 
-};
+    getErrors(){
+        return this._errors;
+    }
 
-BLangListener.prototype = Object.create(BallerinaListener.prototype);
-BLangListener.prototype.constructor = BLangListener;
+    syntaxError(recognizer, offendingSymbol, line, column, msg, e){
+        this._errors.push({
+            row: line,
+            column: column,
+            text: msg,
+            type: 'error'
+        });
+    }
+}
 
-
-BLangListener.prototype.enterCompilationUnit = function(ctx) {
-    console.log(ctx);
-};
+export default BLangParserErrorListener;

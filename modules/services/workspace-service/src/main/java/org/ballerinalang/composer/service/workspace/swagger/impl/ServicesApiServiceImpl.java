@@ -17,13 +17,8 @@ package org.ballerinalang.composer.service.workspace.swagger.impl;
 
 import com.google.gson.JsonObject;
 import io.swagger.annotations.ApiParam;
-import org.ballerinalang.composer.service.workspace.rest.datamodel.BLangJSONModelBuilder;
 import org.ballerinalang.composer.service.workspace.swagger.SwaggerConverterUtils;
-import org.ballerinalang.composer.service.workspace.swagger.SwaggerServiceMapper;
-import org.ballerinalang.composer.service.workspace.swagger.api.NotFoundException;
 import org.ballerinalang.composer.service.workspace.swagger.model.Service;
-import org.ballerinalang.model.BallerinaFile;
-import org.ballerinalang.model.CompilationUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,14 +32,14 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-@Path("/service/swagger")
-@Consumes({"application/json"})
-@Produces({"application/json"})
-@io.swagger.annotations.Api(description = "the services API")
 /**
  * Service implementation class for convert both swagger to ballerina service definitions and
  * ballerina to swagger service definitions
  */
+@Path("/service/swagger")
+@Consumes({"application/json"})
+@Produces({"application/json"})
+@io.swagger.annotations.Api(description = "the services API")
 public class ServicesApiServiceImpl {
     private static final Logger logger = LoggerFactory.getLogger(ServicesApiServiceImpl.class);
 
@@ -65,7 +60,7 @@ public class ServicesApiServiceImpl {
             "Convert swagger to ballerina service definitions",
             notes = "This operation can be used to convert service definitions between " +
                     "ballerina and swagger ",
-            response = void.class, tags = {"swagger",})
+            response = void.class, tags = {"swagger"})
     @io.swagger.annotations.ApiResponses(value = {
             @io.swagger.annotations.ApiResponse(code = 200,
                     message =
@@ -74,8 +69,9 @@ public class ServicesApiServiceImpl {
                                     "Location header contains URL of newly created API. ",
                     response = void.class)})
     public Response servicesConvertSwaggerPost(@ApiParam(value = "Type to be convert", required = true)
-                                               @QueryParam("expectedType") String expectedType
-            , @ApiParam(value = "Service definition to be convert ", required = true) Service serviceDefinition) {
+                                               @QueryParam("expectedType") String expectedType,
+                                               @ApiParam(value = "Service definition to be convert ", required = true)
+                                                       Service serviceDefinition) {
         try {
             //If ballerina definition is not null then only should process
             String ballerinaDefinition = serviceDefinition.getBallerinaDefinition();
@@ -107,14 +103,15 @@ public class ServicesApiServiceImpl {
     @io.swagger.annotations.ApiOperation(value = "Convert swagger to ballerina service definitions",
             notes = "This operation can be used to convert service definitions between " +
                     "ballerina and swagger ",
-            response = void.class, tags = {"swagger",})
+            response = void.class, tags = {"swagger"})
     @io.swagger.annotations.ApiResponses(value = {
             @io.swagger.annotations.ApiResponse(code = 200, message = "Created.  " +
                     "Successful response with ballerina JSON representation. " +
                     "This should directly use from composer to build models. ", response = void.class)})
     public Response servicesConvertBallerinaPost(@ApiParam(value = "Type to be convert", required = true)
-                                                 @QueryParam("expectedType") String expectedType
-            , @ApiParam(value = "Service definition to be convert ", required = true) Service serviceDefinition) {
+                                                 @QueryParam("expectedType") String expectedType,
+                                                 @ApiParam(value = "Service definition to be convert ", required = true)
+                                                         Service serviceDefinition) {
         String ballerinaDefinition = serviceDefinition.getBallerinaDefinition();
         if (expectedType.equalsIgnoreCase("ballerina")) {
             try {

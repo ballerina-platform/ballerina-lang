@@ -33,6 +33,9 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
 
+/**
+ * Packages API.
+ */
 @Path("/service/packages")
 @Consumes({"application/json"})
 @Produces({"application/json"})
@@ -48,7 +51,7 @@ public class PackagesApi {
     @io.swagger.annotations.ApiOperation(value = "Get a list of packages existing in the environment. ",
                                          notes = "This operation provides you a list of available Packages in the " +
                                                  "customers developer environment. ",
-                                         response = PackageList.class, tags = {"Packages",})
+                                         response = PackageList.class, tags = {"Packages"})
     @io.swagger.annotations.ApiResponses(value = {
             @io.swagger.annotations.ApiResponse(code = 200, message = "OK. List of qualifying Packages are returned. ",
                                                 response = PackageList.class),
@@ -87,7 +90,7 @@ public class PackagesApi {
                                          notes = "Using this operation, you can retrieve complete details of a single" +
                                                  " Package. You need to provide the Name of the Package to retrive it" +
                                                  ". ",
-                                         response = ModelPackage.class, tags = {"Package (Individual)",})
+                                         response = ModelPackage.class, tags = {"Package (Individual)"})
     @io.swagger.annotations.ApiResponses(value = {
             @io.swagger.annotations.ApiResponse(code = 200, message = "OK. Requested Package is returned ",
                                                 response = ModelPackage.class),
@@ -127,7 +130,7 @@ public class PackagesApi {
     @io.swagger.annotations.ApiOperation(value = "Import a package in to the Ballerina environment ",
                                          notes = "This operation can be used to import a new package in to the " +
                                                  "environment.  ",
-                                         response = ModelPackage.class, tags = {"Package (Individual)",})
+                                         response = ModelPackage.class, tags = {"Package (Individual)"})
     @io.swagger.annotations.ApiResponses(value = {
             @io.swagger.annotations.ApiResponse(code = 201,
                                                 message = "Created. Successful response with the newly created " +
@@ -155,13 +158,13 @@ public class PackagesApi {
     }
 
     @OPTIONS
-    public Response packagesSendCORS(){
+    public Response packagesSendCORS() {
         return delegate.packagesSendCORS();
     }
 
     @OPTIONS
     @Path("/{packageName}")
-    public Response packagesPackageNameSendCORS(){
+    public Response packagesPackageNameSendCORS() {
         return delegate.packagesSendCORS();
     }
 }

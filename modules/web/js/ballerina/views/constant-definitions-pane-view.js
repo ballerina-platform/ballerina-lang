@@ -181,9 +181,7 @@ define(['require', 'lodash', 'jquery', 'log', 'd3utils', 'd3', 'alerts', './poin
 
             var constantsDefinitionsContentWrapper = $("<div class='constants-content-wrapper'/>")
                 .appendTo(constantsWrapper);
-
-            // Rendering the variables
-            this._renderConstantDefinitions(constantsDefinitionsContentWrapper, collapserWrapper);
+            this._constantsDefViewsContainer = constantsDefinitionsContentWrapper;
 
             // When a new variable is created.
             $(constantAddCompleteButtonPane).click(function () {
@@ -198,8 +196,6 @@ define(['require', 'lodash', 'jquery', 'log', 'd3utils', 'd3', 'alerts', './poin
                     constantIdentifierText.val("");
                     constantValueText.val("");
 
-                    // Recreating the arguments details view.
-                    self._renderConstantDefinitions(constantsDefinitionsContentWrapper, collapserWrapper);
 
                     // Changing the content of the collapser.
                     collapserWrapper.empty();
@@ -236,36 +232,8 @@ define(['require', 'lodash', 'jquery', 'log', 'd3utils', 'd3', 'alerts', './poin
             });
         };
 
-        /**
-         * Renders the view for the created constant definitions.
-         * @param {HTMLElement} wrapper - The container of the constant definition views.
-         * @param {HTMLElement} collapserWrapper - The collapsible arrow.
-         * @private
-         */
-        ConstantDefinitionPaneView.prototype._renderConstantDefinitions = function(wrapper, collapserWrapper) {
-            $(wrapper).empty();
-            var self = this;
-
-            _.forEach(this._model.getConstantDefinitions(), function(constantDefinition) {
-
-                var constantDefinitionView = new ConstantDefinitionView({
-                    parent: self._model,
-                    model: constantDefinition,
-                    container: wrapper,
-                    toolPalette: self._viewOfModel.getToolPalette(),
-                    messageManager: self._viewOfModel.getMessageManager(),
-                    parentView: self._viewOfModel
-                });
-
-                self._viewOfModel.getDiagramRenderingContext().getViewModelMap()[constantDefinition.id] = constantDefinitionView;
-
-                constantDefinitionView.render(self._viewOfModel.getDiagramRenderingContext());
-
-                $(constantDefinitionView.getDeleteButton()).click(function () {
-                    self._renderConstantDefinitions(wrapper, collapserWrapper);
-                });
-            });
-
+        ConstantDefinitionPaneView.prototype.getConstantDefViewsContainer = function() {
+            return  this._constantsDefViewsContainer;
         };
 
         /**

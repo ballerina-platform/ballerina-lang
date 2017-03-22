@@ -24,8 +24,8 @@ import org.ballerinalang.services.dispatchers.http.Constants;
 public class SwaggerBallerinaConstants {
     public static final String RESOURCE_UUID_NAME = "x-UniqueResourceKey";
     public static final String VARIABLE_UUID_NAME = "x-UniqueVariableKey";
-    public final static String HTTP_PACKAGE_PREFIX = "http:";
-    public final static String HTTP_VERB_MATCHING_PATTERN = "(?i)|" +
+    public static final  String HTTP_PACKAGE_PREFIX = "http:";
+    public static final String HTTP_VERB_MATCHING_PATTERN = "(?i)|" +
             HTTP_PACKAGE_PREFIX + Constants.ANNOTATION_METHOD_GET + "|" +
             HTTP_PACKAGE_PREFIX + Constants.ANNOTATION_METHOD_PUT + "|" +
             HTTP_PACKAGE_PREFIX + Constants.ANNOTATION_METHOD_POST + "|" +

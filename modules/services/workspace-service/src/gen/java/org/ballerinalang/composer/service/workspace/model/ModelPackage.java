@@ -24,9 +24,10 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * ModelPackage
+ * ModelPackage.
  */
-@javax.annotation.Generated(value = "io.swagger.codegen.languages.JavaMSF4JServerCodegen", date = "2017-01-27T07:45:46.625Z")
+@javax.annotation.Generated(value = "io.swagger.codegen.languages.JavaMSF4JServerCodegen",
+        date = "2017-01-27T07:45:46.625Z")
 public class ModelPackage   {
   @JsonProperty("name")
   private String name = null;
@@ -52,7 +53,7 @@ public class ModelPackage   {
   }
 
    /**
-   * Get name
+   * Get name.
    * @return name
   **/
   @ApiModelProperty(example = "CalculatorAPI", required = true, value = "")
@@ -70,7 +71,7 @@ public class ModelPackage   {
   }
 
    /**
-   * Get description
+   * Get description.
    * @return description
   **/
   @ApiModelProperty(example = "A calculator API that supports basic operations", value = "")
@@ -88,7 +89,7 @@ public class ModelPackage   {
   }
 
    /**
-   * Get version
+   * Get version.
    * @return version
   **/
   @ApiModelProperty(example = "1.0.0", value = "")
@@ -111,7 +112,7 @@ public class ModelPackage   {
   }
 
    /**
-   * List of connectors available in the package
+   * List of connectors available in the package.
    * @return connectors
   **/
   @ApiModelProperty(value = "List of connectors available in the package")
@@ -134,7 +135,7 @@ public class ModelPackage   {
   }
 
    /**
-   * List of **public** functions available in the package
+   * List of **public** functions available in the package.
    * @return functions
   **/
   @ApiModelProperty(value = "List of **public** functions available in the package")
@@ -147,11 +148,11 @@ public class ModelPackage   {
   }
 
   @ApiModelProperty(value = "List of **public** structs avaialble in the package")
-  public List<Struct> getStructs(){
+  public List<Struct> getStructs() {
     return structs;
   }
 
-  public void setStructs(List<Struct> structs){
+  public void setStructs(List<Struct> structs) {
     this.structs = structs;
   }
 
@@ -163,12 +164,12 @@ public class ModelPackage   {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    ModelPackage _package = (ModelPackage) o;
-    return Objects.equals(this.name, _package.name) &&
-        Objects.equals(this.description, _package.description) &&
-        Objects.equals(this.version, _package.version) &&
-        Objects.equals(this.connectors, _package.connectors) &&
-        Objects.equals(this.functions, _package.functions);
+    ModelPackage modelPackage = (ModelPackage) o;
+    return Objects.equals(this.name, modelPackage.name) &&
+        Objects.equals(this.description, modelPackage.description) &&
+        Objects.equals(this.version, modelPackage.version) &&
+        Objects.equals(this.connectors, modelPackage.connectors) &&
+        Objects.equals(this.functions, modelPackage.functions);
   }
 
   @Override

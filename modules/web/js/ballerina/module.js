@@ -23,6 +23,5 @@ define(['./ast/module', './env/module', './views/module', './visitors/module', '
             views: viewsModule,
             visitors: visitorsModule,
             utils: utilsModule
-        }
+        };
     });
-

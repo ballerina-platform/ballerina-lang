@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.ballerinalang</groupId>
         <artifactId>ballerina-composer-parent</artifactId>
-        <version>0.8.15-SNAPSHOT</version>
+        <version>0.85-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
@@ -65,7 +65,7 @@
                         </goals>
                         <phase>initialize</phase>
                         <configuration>
-                            <executable>npm</executable>
+                            <executable>${npm.executable}</executable>
                             <arguments>
                                 <argument>install</argument>
                             </arguments>
@@ -80,7 +80,7 @@
                       </goals>
                       <phase>pre-clean</phase>
                       <configuration>
-                        <executable>npm</executable>
+                        <executable>${npm.executable}</executable>
                         <arguments>
                           <argument>install</argument>
                           <argument>rimraf</argument>
@@ -94,7 +94,7 @@
                         </goals>
                         <phase>clean</phase>
                         <configuration>
-                            <executable>npm</executable>
+                            <executable>${npm.executable}</executable>
                             <arguments>
                                 <argument>run</argument>
                                 <argument>clean</argument>
@@ -108,7 +108,7 @@
                         </goals>
                         <phase>compile</phase>
                         <configuration>
-                            <executable>npm</executable>
+                            <executable>${npm.executable}</executable>
                             <arguments>
                                 <argument>run</argument>
                                 <argument>build</argument>
@@ -136,8 +136,24 @@
             </plugin>
         </plugins>
     </build>
+    
+    <profiles>
+        <profile>
+            <id>platform-windows</id>
+            <activation>
+                <os>
+                    <family>windows</family>
+                </os>
+            </activation>
+            <properties>
+                <!-- Override the executable names for Windows -->
+                <npm.executable>npm.cmd</npm.executable>
+            </properties>
+        </profile>
+    </profiles>
 
     <properties>
         <maven.test.skip>false</maven.test.skip>
+        <npm.executable>npm</npm.executable>
     </properties>
 </project>

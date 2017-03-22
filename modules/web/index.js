@@ -281,7 +281,74 @@ var config = {
                     label: "Ctrl+Shift+d"
                 }
             }
-        }
+        },
+        toolbarShortcuts: [
+            {
+                id: "StepOver",
+                shortcuts: {
+                   mac: {
+                       key: "alt+o",
+                       label: "alt+o"
+                   },
+                   other: {
+                       key: "alt+o",
+                       label: "alt+o"
+                   }
+                }
+            },
+            {
+                id: "Resume",
+                shortcuts: {
+                   mac: {
+                       key: "alt+r",
+                       label: "alt+r"
+                   },
+                   other: {
+                       key: "alt+r",
+                       label: "alt+r"
+                   }
+                }
+            },
+            {
+                id: "StepIn",
+                shortcuts: {
+                   mac: {
+                       key: "alt+i",
+                       label: "alt+i"
+                   },
+                   other: {
+                       key: "alt+i",
+                       label: "alt+i"
+                   }
+                }
+            },
+            {
+                id: "StepOut",
+                shortcuts: {
+                   mac: {
+                       key: "alt+u",
+                       label: "alt+u"
+                   },
+                   other: {
+                       key: "alt+u",
+                       label: "alt+u"
+                   }
+                }
+            },
+            {
+                id: "Stop",
+                shortcuts: {
+                   mac: {
+                       key: "alt+p",
+                       label: "alt+p"
+                   },
+                   other: {
+                       key: "alt+p",
+                       label: "alt+p"
+                   }
+                }
+            }
+        ]
     },
     launcher : {
         container: ".sidebar-left",

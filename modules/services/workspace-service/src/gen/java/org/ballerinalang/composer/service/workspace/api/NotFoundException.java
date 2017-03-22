@@ -16,6 +16,9 @@
 
 package org.ballerinalang.composer.service.workspace.api;
 
+/**
+ * API not found exception.
+ */
 @javax.annotation.Generated(value = "io.swagger.codegen.languages.JavaMSF4JServerCodegen",
                             date = "2017-01-27T07:45:46.625Z")
 public class NotFoundException extends ApiException {

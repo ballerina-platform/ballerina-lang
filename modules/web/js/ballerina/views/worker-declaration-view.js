@@ -113,6 +113,7 @@ define(['lodash', 'jquery', './ballerina-view', './../ast/worker-declaration', '
          */
         WorkerDeclarationView.prototype.renderStatementContainer = function (args) {
             var statementContainerOpts = {};
+            var self = this;
             _.set(statementContainerOpts, 'model', this._model);
             _.set(statementContainerOpts, 'topCenter', this.getTopCenter());
             _.set(statementContainerOpts, 'bottomCenter', this.getBottomCenter());
@@ -122,6 +123,11 @@ define(['lodash', 'jquery', './ballerina-view', './../ast/worker-declaration', '
             _.set(statementContainerOpts, 'offset', _.get(args, 'offset', {top: 100, bottom: 100}));
             this._statementContainer = new StatementContainer(statementContainerOpts);
             this._statementContainer.render(this.diagramRenderingContext);
+            // If the statement container's width changed, we move the worker accordingly
+            this.listenTo(this.getStatementContainer().getBoundingBox(), 'width-changed', function (dw) {
+                self.getBoundingBox().w(self.getBoundingBox().w() + dw);
+                self.move(dw/2, 0);
+            });
             this.getModel().accept(this);
             return this._statementContainer;
         };
@@ -133,9 +139,6 @@ define(['lodash', 'jquery', './ballerina-view', './../ast/worker-declaration', '
             var args = {model: statement, container: this.getContentArea().node(), viewOptions: {},
                 toolPalette: this._toolPalette, messageManager: this._messageManager, parent: this, isChildOfWorker: true};
             var statementView = this._statementContainer.renderStatement(statement, args);
-            statementView.listenTo(this.getBoundingBox(), 'right-edge-moved', function (dx) {
-                statementView.getBoundingBox().move(dx, 0);
-            });
         };
 
         /**
