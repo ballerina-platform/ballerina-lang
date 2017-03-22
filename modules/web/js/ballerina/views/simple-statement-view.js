@@ -20,7 +20,7 @@ import _ from 'lodash';
 import log from 'log';
 import BallerinaStatementView from './ballerina-statement-view';
 import D3Utils from 'd3utils';
-import d3 from 'd3';
+import * as d3 from 'd3';
 
 /**
  * Super view class for all simple statements e.g. assignment, variable definition, functional invocation etc.
@@ -199,4 +199,3 @@ class SimpleStatementView extends BallerinaStatementView {
 }
 
 export default SimpleStatementView;
-    

@@ -17,7 +17,7 @@
  */
 
 import _ from 'lodash';
-import d3 from 'd3';
+import * as d3 from 'd3';
 import ConnectorDeclaration from '../ast/connector-declaration';
 import log from 'log';
 import D3utils from 'd3utils';

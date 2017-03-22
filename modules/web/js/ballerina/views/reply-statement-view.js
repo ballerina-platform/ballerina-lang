@@ -20,7 +20,7 @@ import log from 'log';
 import SimpleStatementView from './simple-statement-view';
 import ReplyStatement from '../ast/statements/reply-statement';
 import D3Utils from 'd3utils';
-import d3 from 'd3';
+import * as d3 from 'd3';
 import Point from './point';
 import BallerinaASTFactory from './../ast/ballerina-ast-factory';
 

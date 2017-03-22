@@ -17,7 +17,7 @@
  */
 import log from 'log';
 import _ from 'lodash';
-import d3 from 'd3';
+import * as d3 from 'd3';
 import Point from './point';
 import EventChannel from 'event_channel';
 

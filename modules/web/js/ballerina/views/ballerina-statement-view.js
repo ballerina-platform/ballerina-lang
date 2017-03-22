@@ -18,7 +18,7 @@
 import _ from 'lodash';
 import log from 'log';
 import StatementVisitor from './../visitors/statement-visitor';
-import d3 from 'd3';
+import * as d3 from 'd3';
 import D3Utils from 'd3utils';
 import Point from './point';
 import BBox from './bounding-box';

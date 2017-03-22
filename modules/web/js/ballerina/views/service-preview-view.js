@@ -17,7 +17,7 @@
  */
 
 import $ from 'jquery';
-import d3 from 'd3';
+import * as d3 from 'd3';
 import D3Utils from 'd3utils';
 import Backbone from 'backbone';
 import _ from 'lodash';
