@@ -242,8 +242,7 @@ class BallerinaFileEditor extends BallerinaView {
     }
 
     visitConstantDefinition(constantDefinition) {
-       var container = this._constantDefinitionsPane.getConstantDefViewsContainer(),
-
+       var container = this._constantDefinitionsPane.getConstantDefViewsContainer();
        var constantDefinitionView = new ConstantDefinitionView({
            parent: this._model,
            model: constantDefinition,
