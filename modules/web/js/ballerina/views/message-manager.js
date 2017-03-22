@@ -25,6 +25,7 @@ import BallerinaASTFactory from 'ballerina/ast/ballerina-ast-factory';
 
 class MessageManager extends EventChannel {
     constructor(args) {
+        super();
         log.debug("Initialising Message Manager");
         this.typeBeingDragged = undefined;
         this._canvas = _.get(args, 'canvas');

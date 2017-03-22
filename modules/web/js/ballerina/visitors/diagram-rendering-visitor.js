@@ -15,7 +15,6 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import require from 'require';
 import _ from 'lodash';
 import log from 'log';
 import ASTVisitor from './ast-visitor';
@@ -26,6 +25,7 @@ import FunctionDefinitionView from './../views/function-definition-view';
 
 class DiagramRenderingVisitor extends ASTVisitor {
     constructor(containerView) {
+        super();
         this.containerView = containerView;
         this._viewsList = [];
     }

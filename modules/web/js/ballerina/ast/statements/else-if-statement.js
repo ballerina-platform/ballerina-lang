@@ -25,11 +25,11 @@ import ConditionalStatement from './conditional-statement';
  */
 class ElseIfStatement extends ConditionalStatement {
     constructor(condition, statements) {
+        super();
         if(!_.isNil(condition)){
             this._condition = condition;
         }
         this._statements = statements || [];
-        super();
         this.type = "ElseIfStatement";
     }
 

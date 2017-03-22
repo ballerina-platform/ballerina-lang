@@ -15,7 +15,6 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import require from 'require';
 import log from 'log';
 import $ from 'jquery';
 import d3 from 'd3';

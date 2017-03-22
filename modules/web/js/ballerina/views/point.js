@@ -20,6 +20,7 @@ import EventChannel from 'event_channel';
 
 class Point extends EventChannel {
     constructor(x, y) {
+        super();
         this._x = x || 0;
         this._y = y || 0;
     }

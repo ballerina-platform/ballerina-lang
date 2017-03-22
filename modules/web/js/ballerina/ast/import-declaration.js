@@ -26,11 +26,10 @@ import ASTNode from './node';
  */
 class ImportDeclaration extends ASTNode {
     constructor(args) {
+        super("ImportDeclaration");
         this._packageName = _.get(args, 'packageName');
         this._importVersionNumber = _.get(args, 'importVersionName', "1.0.0");
         this._identifier = _.get(args, 'identifier', "");
-
-        super("ImportDeclaration");
     }
 
     /**

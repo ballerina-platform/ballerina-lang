@@ -26,9 +26,9 @@ import ASTVisitor from '../ast-visitor';
  */
 class AbstractSourceGenVisitor extends ASTVisitor {
     constructor(parent) {
+        super();
         this._generatedSource = '';
         this.parent = parent;
-        super();
     }
 
     getGeneratedSource() {
