@@ -65,7 +65,9 @@ public class DefinitionParserHelper {
 
 
     public static void validateDefinition(AbstractDefinition definition, ConcurrentMap<String, AbstractDefinition> streamDefinitionMap,
-                                          ConcurrentMap<String, AbstractDefinition> tableDefinitionMap, ConcurrentMap<String, AbstractDefinition> windowDefinitionMap) {
+                                          ConcurrentMap<String, AbstractDefinition> tableDefinitionMap,
+                                          ConcurrentMap<String, AbstractDefinition> windowDefinitionMap,
+                                          ConcurrentMap<String, AbstractDefinition> aggregationDefinitionMap) {
         AbstractDefinition existingTableDefinition = tableDefinitionMap.get(definition.getId());
         if (existingTableDefinition != null && (!existingTableDefinition.equals(definition) || definition instanceof StreamDefinition)) {
             throw new DuplicateDefinitionException("Table Definition with same Stream Id '" +
@@ -84,6 +86,13 @@ public class DefinitionParserHelper {
                     definition.getId() + "' already exist : " + existingWindowDefinition +
                     ", hence cannot add " + definition);
         }
+        AbstractDefinition existingAggregationDefinition = aggregationDefinitionMap.get(definition.getId());
+        if (existingAggregationDefinition != null && (!existingAggregationDefinition.equals(definition) || definition instanceof AggregationDefinition)){
+            throw new DuplicateDefinitionException("Aggregation Definition with same Aggregation Id '" +
+                    definition.getId() + "' already exist : " + existingWindowDefinition +
+                    ", hence cannot add " + definition);
+        }
+
         // TODO: 1/29/17 add source / sink both validation here
     }
 

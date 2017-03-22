@@ -1,23 +1,40 @@
 package org.wso2.siddhi.core.util.parser;
 
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
+import org.wso2.siddhi.core.event.MetaComplexEvent;
+import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
 import org.wso2.siddhi.core.query.selector.attribute.aggregator.incremental.IncrementalCalculator;
+import org.wso2.siddhi.core.stream.input.source.InputTransport;
+import org.wso2.siddhi.core.stream.output.sink.OutputTransport;
+import org.wso2.siddhi.core.table.EventTable;
+import org.wso2.siddhi.core.util.SiddhiConstants;
+import org.wso2.siddhi.core.util.lock.LockSynchronizer;
+import org.wso2.siddhi.core.util.statistics.LatencyTracker;
+import org.wso2.siddhi.core.window.EventWindow;
 import org.wso2.siddhi.query.api.aggregation.TimePeriod;
+import org.wso2.siddhi.query.api.annotation.Element;
+import org.wso2.siddhi.query.api.definition.AbstractDefinition;
 import org.wso2.siddhi.query.api.definition.AggregationDefinition;
+import org.wso2.siddhi.query.api.execution.query.input.stream.InputStream;
 import org.wso2.siddhi.query.api.execution.query.selection.OutputAttribute;
 import org.wso2.siddhi.query.api.execution.query.selection.Selector;
 import org.wso2.siddhi.query.api.expression.AttributeFunction;
 import org.wso2.siddhi.query.api.expression.Variable;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 
 public class AggregationParser {
 
     public static AggregationRuntime parse(AggregationDefinition definition,
-                                           ExecutionPlanContext executionPlanContext) {
+                                           ExecutionPlanContext executionPlanContext,
+                                           Map<String, AbstractDefinition> streamDefinitionMap,
+                                           Map<String, AbstractDefinition> tableDefinitionMap,
+                                           Map<String, AbstractDefinition> windowDefinitionMap,
+                                           Map<String, EventTable> eventTableMap,
+                                           Map<String, EventWindow> eventWindowMap,
+                                           Map<String, List<InputTransport>> eventSourceMap,
+                                           Map<String, List<OutputTransport>> eventSinkMap,
+                                           LockSynchronizer lockSynchronizer) {
 
         // Read group by attribute
         // Check whether this is an INTERVAL or RANGE operation
@@ -51,22 +68,68 @@ public class AggregationParser {
         //for(int i=1; i<incrementalDurations.size(); i++){
 
         //}
-        IncrementalCalculator child = build(functionsAttributes, incrementalDurations.get(incrementalDurations.size() - 1), null);
+        InputStream inputStream = definition.getInputStream();
+        Element nameElement = null;
+        LatencyTracker latencyTracker = null;
+        String queryName = null;
+        if (nameElement != null) {
+            queryName = nameElement.getValue();
+        } else {
+            queryName = "query_" + UUID.randomUUID().toString();
+        }
+
+        if (executionPlanContext.isStatsEnabled() && executionPlanContext.getStatisticsManager() != null) {
+            if (nameElement != null) {
+                String metricName =
+                        executionPlanContext.getSiddhiContext().getStatisticsConfiguration().getMatricPrefix() +
+                                SiddhiConstants.METRIC_DELIMITER + SiddhiConstants.METRIC_INFIX_EXECUTION_PLANS +
+                                SiddhiConstants.METRIC_DELIMITER + executionPlanContext.getName() +
+                                SiddhiConstants.METRIC_DELIMITER + SiddhiConstants.METRIC_INFIX_SIDDHI +
+                                SiddhiConstants.METRIC_DELIMITER + SiddhiConstants.METRIC_INFIX_QUERIES +
+                                SiddhiConstants.METRIC_DELIMITER + queryName;
+                latencyTracker = executionPlanContext.getSiddhiContext()
+                        .getStatisticsConfiguration()
+                        .getFactory()
+                        .createLatencyTracker(metricName, executionPlanContext.getStatisticsManager());
+            }
+        }
+        List<VariableExpressionExecutor> executors = new ArrayList<VariableExpressionExecutor>();
+        MetaComplexEvent metaComplexEvent = InputStreamParser.parse(inputStream,executionPlanContext,
+                streamDefinitionMap,tableDefinitionMap,windowDefinitionMap,eventTableMap,eventWindowMap,
+                executors,latencyTracker, false, queryName).getMetaComplexEvent();
+        //InputStreamParser.parse(definition.getInputStream())
+
+        IncrementalCalculator child = build(functionsAttributes, incrementalDurations.get(incrementalDurations.size() - 1), null,
+                metaComplexEvent, 0, eventTableMap, executors, executionPlanContext, true, 0, queryName);
         IncrementalCalculator root = child;
         for(int i= incrementalDurations.size()-2; i>=0; i--){
-            root = build(functionsAttributes, incrementalDurations.get(i), child);
+            root = build(functionsAttributes, incrementalDurations.get(i), child, metaComplexEvent, 0,
+                    eventTableMap, executors, executionPlanContext, true, 0, queryName);
             child = root;
         }
+
         return null;
     }
 
+
+
+//    private static MetaComplexEvent getMetaComplexEvent(InputStream inputStream, Exe){
+//        InputStreamParser.parse(inputStream, )
+//    }
+
     private static IncrementalCalculator build(List<AttributeFunction> functionsAttributes,
-                                               TimePeriod.Duration duration, IncrementalCalculator child){
+                                               TimePeriod.Duration duration, IncrementalCalculator child,MetaComplexEvent metaEvent,
+                                               int currentState, Map<String, EventTable> eventTableMap,
+                                               List<VariableExpressionExecutor> executorList,
+                                               ExecutionPlanContext executionPlanContext, boolean groupBy,
+                                               int defaultStreamEventIndex, String queryName){
         switch (duration){
             case SECONDS:
-                return IncrementalCalculator.second(functionsAttributes, child);
+                return IncrementalCalculator.second(functionsAttributes, child, metaEvent, currentState, eventTableMap,
+                        executorList, executionPlanContext, groupBy, defaultStreamEventIndex, queryName);
             case MINUTES:
-                return IncrementalCalculator.minute(functionsAttributes, child);
+                return IncrementalCalculator.minute(functionsAttributes, child, metaEvent, currentState, eventTableMap,
+                        executorList, executionPlanContext, groupBy, defaultStreamEventIndex, queryName);
             default:
                 // TODO: 3/15/17 Throws an exception
                 return null;

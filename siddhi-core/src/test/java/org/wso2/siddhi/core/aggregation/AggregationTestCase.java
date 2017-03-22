@@ -47,12 +47,12 @@ public class AggregationTestCase {
         SiddhiManager siddhiManager = new SiddhiManager();
 
         String cseEventStream = "define stream cseEventStream (symbol string, price1 float, price2 float, volume long , quantity int);";
-//        String query = "define aggregation test " +
-//                "from cseEventStream " +
-//                "select symbol, avg(price1) as avgPrice " +
-//                "group by symbol " +
-//                "aggregate every sec, min ;";
-        String query = " from cseEventStream select symbol, sum(volume) as vol group by symbol insert into outputStream; ";
+        String query = "define aggregation test " +
+                "from cseEventStream " +
+                "select symbol, avg(price1) as avgPrice " +
+                "group by symbol " +
+                "aggregate every sec, min ;";
+        //String query = " from cseEventStream select symbol, sum(volume) as vol group by symbol insert into outputStream; ";
 
 
         ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(cseEventStream + query);
