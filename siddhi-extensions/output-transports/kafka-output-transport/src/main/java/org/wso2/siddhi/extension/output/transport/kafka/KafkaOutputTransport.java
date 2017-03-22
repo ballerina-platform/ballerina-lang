@@ -18,6 +18,7 @@
 
 package org.wso2.siddhi.extension.output.transport.kafka;
 
+import org.apache.kafka.clients.producer.Producer;
 import kafka.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
@@ -25,6 +26,7 @@ import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.log4j.Logger;
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
+import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
 import org.wso2.siddhi.core.stream.output.sink.OutputTransport;
 import org.wso2.siddhi.core.util.transport.DynamicOptions;
@@ -34,10 +36,7 @@ import org.wso2.siddhi.query.api.definition.StreamDefinition;
 
 import java.util.Map;
 import java.util.Properties;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.RejectedExecutionException;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 @Extension(
         name = "kafka",
@@ -46,73 +45,33 @@ import java.util.concurrent.TimeUnit;
 )
 public class KafkaOutputTransport extends OutputTransport {
 
-    public static final String ADAPTER_MIN_THREAD_POOL_SIZE = "8";
-    public static final String ADAPTER_MAX_THREAD_POOL_SIZE = "100";
-    public static final String ADAPTER_EXECUTOR_JOB_QUEUE_SIZE = "2000";
-    public static final String DEFAULT_KEEP_ALIVE_TIME_IN_MILLIS = "20000";
-    public static final String ADAPTER_MIN_THREAD_POOL_SIZE_NAME = "minThread";
-    public static final String ADAPTER_MAX_THREAD_POOL_SIZE_NAME = "maxThread";
-    public static final String ADAPTER_KEEP_ALIVE_TIME_NAME = "keepAliveTimeInMillis";
-    public static final String ADAPTER_EXECUTOR_JOB_QUEUE_SIZE_NAME = "jobQueueSize";
-    public final static String ADAPTOR_PUBLISH_TOPIC = "topic";
-    public final static String ADAPTOR_META_BROKER_LIST = "bootstrap.servers";
-    public final static String ADAPTOR_OPTIONAL_CONFIGURATION_PROPERTIES = "optional.configuration";
-    public static final String HEADER_SEPARATOR = ",";
-    public static final String ENTRY_SEPARATOR = ":";
-    public static final String KAFKA_PARTITION_NO = "partition.no";
-
-    private static final Logger log = Logger.getLogger(KafkaOutputTransport.class);
-
-    private static ThreadPoolExecutor threadPoolExecutor;
-    private ProducerConfig config;
+    private ScheduledExecutorService executorService;
     private Producer<String, String>  producer;
-    private OptionHolder optionHolder;
     private Option topicOption = null;
     private String kafkaConnect;
     private String optionalConfigs;
-    private Option partitionNumber;
+    private Option partitionOption;
 
-    @Override
-    public String[] getSupportedDynamicOptions() {
-        return new String[]{ADAPTOR_PUBLISH_TOPIC,KAFKA_PARTITION_NO};
-    }
+    private final static String ADAPTOR_PUBLISH_TOPIC = "topic";
+    private final static String ADAPTOR_META_BROKER_LIST = "bootstrap.servers";
+    private final static String ADAPTOR_OPTIONAL_CONFIGURATION_PROPERTIES = "optional.configuration";
+    private static final String HEADER_SEPARATOR = ",";
+    private static final String ENTRY_SEPARATOR = ":";
+    private static final String KAFKA_PARTITION_NO = "partition.no";
+
+    private static final Logger log = Logger.getLogger(KafkaOutputTransport.class);
 
     @Override
     protected void init(StreamDefinition outputStreamDefinition, OptionHolder optionHolder, ExecutionPlanContext executionPlanContext) {
-        //ThreadPoolExecutor will be assigned  if it is null
-        if (threadPoolExecutor == null) {
-            int minThread;
-            int maxThread;
-            int jobQueSize;
-            long defaultKeepAliveTime;
-            this.optionHolder = optionHolder;
-            //If global properties are available those will be assigned else constant values will be assigned
-            minThread = Integer.parseInt(optionHolder.validateAndGetStaticValue(ADAPTER_MIN_THREAD_POOL_SIZE_NAME,
-                    ADAPTER_MIN_THREAD_POOL_SIZE));
-
-            maxThread = Integer.parseInt(optionHolder.validateAndGetStaticValue(ADAPTER_MAX_THREAD_POOL_SIZE_NAME,
-                    ADAPTER_MAX_THREAD_POOL_SIZE));
-
-            defaultKeepAliveTime = Integer.parseInt(optionHolder.validateAndGetStaticValue(ADAPTER_KEEP_ALIVE_TIME_NAME,
-                    DEFAULT_KEEP_ALIVE_TIME_IN_MILLIS));
-
-            jobQueSize = Integer.parseInt(optionHolder.validateAndGetStaticValue(ADAPTER_EXECUTOR_JOB_QUEUE_SIZE_NAME,
-                    ADAPTER_EXECUTOR_JOB_QUEUE_SIZE));
-
-            kafkaConnect = optionHolder.validateAndGetStaticValue(ADAPTOR_META_BROKER_LIST);
-            optionalConfigs = optionHolder.validateAndGetStaticValue(ADAPTOR_OPTIONAL_CONFIGURATION_PROPERTIES,
-                    null);
-            topicOption = optionHolder.validateAndGetOption(ADAPTOR_PUBLISH_TOPIC);
-            partitionNumber = optionHolder.validateAndGetOption(KAFKA_PARTITION_NO);
-
-            threadPoolExecutor = new ThreadPoolExecutor(minThread, maxThread, defaultKeepAliveTime,
-                    TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>(jobQueSize));
-        }
+        kafkaConnect = optionHolder.validateAndGetStaticValue(ADAPTOR_META_BROKER_LIST);
+        optionalConfigs = optionHolder.validateAndGetStaticValue(ADAPTOR_OPTIONAL_CONFIGURATION_PROPERTIES, null);
+        topicOption = optionHolder.validateAndGetOption(ADAPTOR_PUBLISH_TOPIC);
+        partitionOption = optionHolder.validateAndGetOption(KAFKA_PARTITION_NO);
+        executorService = executionPlanContext.getScheduledExecutorService();
     }
 
     @Override
     public void connect() throws ConnectionUnavailableException {
-        log.info("KafkaOutputTransport:testConnect()");
         Properties props = new Properties();
         props.put("bootstrap.servers", kafkaConnect);
         props.put("acks", "all");
@@ -136,15 +95,16 @@ public class KafkaOutputTransport extends OutputTransport {
                 }
             }
         }
-        producer = new KafkaProducer<String, String>(props);
+        producer = new KafkaProducer<>(props);
+        log.info("Kafka producer created.");
     }
 
     @Override
-    public void publish(Object payload, DynamicOptions dynamicOptions) throws ConnectionUnavailableException {
-        String topic = topicOption.getValue(dynamicOptions);
-        int partitionNo = Integer.parseInt(partitionNumber.getValue(dynamicOptions));
+    public void publish(Object payload, DynamicOptions transportOptions) throws ConnectionUnavailableException {
+        String topic = topicOption.getValue(transportOptions);
+        String partitionNo = partitionOption.getValue(transportOptions);
         try {
-            threadPoolExecutor.submit(new KafkaSender(topic, partitionNo, payload));
+            executorService.submit(new KafkaSender(topic, partitionNo, transportOptions));
         } catch (RejectedExecutionException e) {
             log.error("Job queue is full : " + e.getMessage(), e);
         }
@@ -164,6 +124,11 @@ public class KafkaOutputTransport extends OutputTransport {
     }
 
     @Override
+    public String[] getSupportedDynamicOptions() {
+        return new String[0];
+    }
+
+    @Override
     public Map<String, Object> currentState() {
         return null;
     }
@@ -177,9 +142,9 @@ public class KafkaOutputTransport extends OutputTransport {
 
         String topic;
         Object message;
-        int partitionNo;
+        String partitionNo;
 
-        KafkaSender(String topic, int partitionNo, Object message) {
+        KafkaSender(String topic, String partitionNo, Object message) {
             this.topic = topic;
             this.message = message;
             this.partitionNo = partitionNo;
@@ -188,7 +153,12 @@ public class KafkaOutputTransport extends OutputTransport {
         @Override
         public void run() {
             try {
-                producer.send(new ProducerRecord<>(topic, Integer.toString(partitionNo), message.toString()));
+                System.out.println(message.toString() + " partition: " + partitionNo);
+                if(null == partitionNo) {
+                    producer.send(new ProducerRecord<>(topic, message.toString()));
+                } else {
+                    producer.send(new ProducerRecord<>(topic, partitionNo, message.toString()));
+                }
             } catch (Throwable e) {
                 log.error("Unexpected error when sending event via Kafka Output Adapter:" + e.getMessage(), e);
             }
