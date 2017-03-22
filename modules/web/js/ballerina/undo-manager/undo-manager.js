@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import log from 'log';
+
 import _ from 'lodash';
 import EventChannel from 'event_channel';
 import UndoableOperationFactory from './undoable-operation-factory';
@@ -29,6 +29,7 @@ import UndoableOperationFactory from './undoable-operation-factory';
  */
 class UndoManager extends EventChannel {
     constructor(args) {
+        super();
         this._limit = _.get(args, 'limit', 20);
         this._undoStack = [];
         this._redoStack = [];
@@ -88,5 +89,3 @@ class UndoManager extends EventChannel {
 }
 
 export default UndoManager;
-    
-

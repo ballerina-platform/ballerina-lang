@@ -27,6 +27,7 @@ import EventChannel from 'event_channel';
  */
 class UndoableOperation extends EventChannel {
     constructor(args) {
+        super();
         this.setTitle(_.get(args, 'title', undefined));
         this.setEditor(_.get(args, 'editor', undefined));
         this.setSkipInSourceView(_.get(args, 'skipInSourceView', false));
@@ -69,5 +70,3 @@ class UndoableOperation extends EventChannel {
 }
 
 export default UndoableOperation;
-    
-
