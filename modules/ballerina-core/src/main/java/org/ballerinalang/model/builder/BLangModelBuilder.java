@@ -491,13 +491,13 @@ public class BLangModelBuilder {
         exprStack.push(variableRefExpr);
     }
 
-    public void createMapArrayVarRefExpr(NodeLocation location, String varName) {
+    public void createMapArrayVarRefExpr(NodeLocation location, String varName, int dimensions) {
         SymbolName symName = new SymbolName(varName);
         VariableRefExpr arrayVarRefExpr = new VariableRefExpr(location, varName);
 
-        Expression[] indexExprs = new Expression[exprStack.size()];
+        Expression[] indexExprs = new Expression[dimensions];
         int i = 0;
-        while (exprStack.size() > 0) {
+        while (i < dimensions) {
             indexExprs[i++] = exprStack.pop();
         }
         checkArgExprValidity(location, Arrays.asList(indexExprs));

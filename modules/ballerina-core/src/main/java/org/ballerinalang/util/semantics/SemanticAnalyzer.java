@@ -695,16 +695,32 @@ public class SemanticAnalyzer implements NodeVisitor {
         }
 
         // TODO Remove the MAP related logic when type casting is implemented
-        if ((lExprType != BTypes.typeMap) && (rType != BTypes.typeMap) &&
-                (!lExprType.equals(rType))) {
-
-            TypeCastExpression newExpr = checkWideningPossible(lExpr.getType(), rExpr);
-            if (newExpr != null) {
-                newExpr.accept(this);
-                assignStmt.setRhsExpr(newExpr);
+        if (rType instanceof BArrayType) {
+            int leftDimensions = ((VariableRefExpr) ((ArrayMapAccessExpr) lExpr).getRExpr()).
+                    getVariableDef().getTypeName().getDimensions();
+            int leftIndexes = ((ArrayMapAccessExpr) lExpr).getIndexExpr().length;
+            int rightDimensions = ((VariableRefExpr) rExpr).getVariableDef().getTypeName().getDimensions();
+            if ((leftDimensions - leftIndexes) == rightDimensions) {
+                if (!((BArrayType) rType).getElementType().equals(lExprType)) {
+                    BLangExceptionHelper.throwSemanticError(lExpr, SemanticErrors.INCOMPATIBLE_TYPES_CANNOT_CONVERT,
+                            rExpr.getType(), lExpr.getType());
+                }
             } else {
-                BLangExceptionHelper.throwSemanticError(lExpr, SemanticErrors.INCOMPATIBLE_TYPES_CANNOT_CONVERT,
-                        rExpr.getType(), lExpr.getType());
+                BLangExceptionHelper.throwSemanticError(lExpr, SemanticErrors.INCOMPATIBLE_TYPES_CANNOT_CONVERT, rExpr.getType(),
+                        lExpr.getType());
+            }
+        } else {
+            if ((lExprType != BTypes.typeMap) && (rType != BTypes.typeMap) &&
+                    (!lExprType.equals(rType))) {
+
+                TypeCastExpression newExpr = checkWideningPossible(lExpr.getType(), rExpr);
+                if (newExpr != null) {
+                    newExpr.accept(this);
+                    assignStmt.setRhsExpr(newExpr);
+                } else {
+                    BLangExceptionHelper.throwSemanticError(lExpr, SemanticErrors.INCOMPATIBLE_TYPES_CANNOT_CONVERT,
+                            rExpr.getType(), lExpr.getType());
+                }
             }
         }
     }
