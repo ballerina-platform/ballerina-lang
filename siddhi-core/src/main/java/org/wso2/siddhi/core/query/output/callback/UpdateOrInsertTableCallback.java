@@ -24,16 +24,16 @@ import org.wso2.siddhi.core.event.state.StateEventPool;
 import org.wso2.siddhi.core.event.stream.StreamEventPool;
 import org.wso2.siddhi.core.event.stream.converter.StreamEventConverter;
 import org.wso2.siddhi.core.table.EventTable;
-import org.wso2.siddhi.core.util.collection.OverwritingStreamEventExtractor;
+import org.wso2.siddhi.core.util.collection.AddingStreamEventExtractor;
 import org.wso2.siddhi.core.util.collection.UpdateAttributeMapper;
 import org.wso2.siddhi.core.util.collection.operator.CompiledCondition;
 import org.wso2.siddhi.core.util.parser.MatcherParser;
 import org.wso2.siddhi.query.api.definition.AbstractDefinition;
 
-public class InsertOverwriteTableCallback extends OutputCallback {
+public class UpdateOrInsertTableCallback extends OutputCallback {
     private final int matchingStreamIndex;
     private final UpdateAttributeMapper[] updateAttributeMappers;
-    private final OverwritingStreamEventExtractor overwritingStreamEventExtractor;
+    private final AddingStreamEventExtractor addingStreamEventExtractor;
     private EventTable eventTable;
     private CompiledCondition compiledCondition;
     private boolean convertToStreamEvent;
@@ -41,9 +41,9 @@ public class InsertOverwriteTableCallback extends OutputCallback {
     private StreamEventPool streamEventPool;
     private StreamEventConverter streamEventConvertor;
 
-    public InsertOverwriteTableCallback(EventTable eventTable, CompiledCondition compiledCondition, AbstractDefinition updatingStreamDefinition,
-                                        int matchingStreamIndex, boolean convertToStreamEvent, StateEventPool stateEventPool,
-                                        StreamEventPool streamEventPool, StreamEventConverter streamEventConvertor) {
+    public UpdateOrInsertTableCallback(EventTable eventTable, CompiledCondition compiledCondition, AbstractDefinition updatingStreamDefinition,
+                                       int matchingStreamIndex, boolean convertToStreamEvent, StateEventPool stateEventPool,
+                                       StreamEventPool streamEventPool, StreamEventConverter streamEventConvertor) {
         this.matchingStreamIndex = matchingStreamIndex;
         this.eventTable = eventTable;
         this.compiledCondition = compiledCondition;
@@ -53,17 +53,17 @@ public class InsertOverwriteTableCallback extends OutputCallback {
         this.streamEventConvertor = streamEventConvertor;
         this.updateAttributeMappers = MatcherParser.constructUpdateAttributeMapper(eventTable.getTableDefinition(),
                 updatingStreamDefinition.getAttributeList(), matchingStreamIndex);
-        this.overwritingStreamEventExtractor = new OverwritingStreamEventExtractor(matchingStreamIndex);
+        this.addingStreamEventExtractor = new AddingStreamEventExtractor(matchingStreamIndex);
     }
 
     @Override
-    public void send(ComplexEventChunk overwriteOrAddEventChunk) {
-        overwriteOrAddEventChunk.reset();
-        if (overwriteOrAddEventChunk.hasNext()) {
-            ComplexEventChunk<StateEvent> overwriteOrAddStateEventChunk = constructMatchingStateEventChunk(overwriteOrAddEventChunk,
+    public void send(ComplexEventChunk updateOrAddEventChunk) {
+        updateOrAddEventChunk.reset();
+        if (updateOrAddEventChunk.hasNext()) {
+            ComplexEventChunk<StateEvent> updateOrAddStateEventChunk = constructMatchingStateEventChunk(updateOrAddEventChunk,
                     convertToStreamEvent, stateEventPool, matchingStreamIndex, streamEventPool, streamEventConvertor);
-            constructMatchingStateEventChunk(overwriteOrAddEventChunk, convertToStreamEvent, stateEventPool, matchingStreamIndex, streamEventPool, streamEventConvertor);
-            eventTable.overwriteOrAdd(overwriteOrAddStateEventChunk, compiledCondition, updateAttributeMappers, overwritingStreamEventExtractor);
+            constructMatchingStateEventChunk(updateOrAddEventChunk, convertToStreamEvent, stateEventPool, matchingStreamIndex, streamEventPool, streamEventConvertor);
+            eventTable.updateOrAdd(updateOrAddStateEventChunk, compiledCondition, updateAttributeMappers, addingStreamEventExtractor);
         }
     }
 

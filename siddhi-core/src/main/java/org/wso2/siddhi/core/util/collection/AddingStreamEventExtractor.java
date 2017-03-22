@@ -21,15 +21,15 @@ package org.wso2.siddhi.core.util.collection;
 import org.wso2.siddhi.core.event.state.StateEvent;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
 
-public class OverwritingStreamEventExtractor {
+public class AddingStreamEventExtractor {
     private int matchingStreamEventPosition;
 
-    public OverwritingStreamEventExtractor(int matchingStreamEventPosition) {
+    public AddingStreamEventExtractor(int matchingStreamEventPosition) {
         this.matchingStreamEventPosition = matchingStreamEventPosition;
     }
 
-    public StreamEvent getOverwritingStreamEvent(StateEvent updatingEvent) {
-        return updatingEvent.getStreamEvent(matchingStreamEventPosition);
+    public StreamEvent getAddingStreamEvent(StateEvent updateOrAddingEvent) {
+        return updateOrAddingEvent.getStreamEvent(matchingStreamEventPosition);
     }
 }
 

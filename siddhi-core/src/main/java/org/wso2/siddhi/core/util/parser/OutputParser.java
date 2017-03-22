@@ -97,10 +97,10 @@ public class OutputParser {
             } else {
                 return new InsertIntoStreamCallback(outputStreamDefinition, queryName);
             }
-        } else if (outStream instanceof DeleteStream || outStream instanceof UpdateStream || outStream instanceof InsertOverwriteStream) {
+        } else if (outStream instanceof DeleteStream || outStream instanceof UpdateStream || outStream instanceof UpdateOrInsertStream) {
             if (eventTable != null) {
 
-                if (outStream instanceof UpdateStream || outStream instanceof InsertOverwriteStream) {
+                if (outStream instanceof UpdateStream || outStream instanceof UpdateOrInsertStream) {
                     TableDefinition eventTableDefinition = eventTable.getTableDefinition();
                     for (Attribute attribute : outputStreamDefinition.getAttributeList()) {
                         if (!eventTableDefinition.getAttributeList().contains(attribute)) {
@@ -139,15 +139,15 @@ public class OutputParser {
                     try {
                         MatchingMetaInfoHolder matchingMetaInfoHolder =
                                 MatcherParser.constructMatchingMetaStateHolder(tableMetaStreamEvent, 0, eventTable.getTableDefinition(), 0);
-                        CompiledCondition compiledCondition  = eventTable.compileCondition((((InsertOverwriteStream) outStream).getOnOverwriteExpression()),
+                        CompiledCondition compiledCondition  = eventTable.compileCondition((((UpdateOrInsertStream) outStream).getOnUpdateExpression()),
                                 matchingMetaInfoHolder, executionPlanContext, null, eventTableMap, queryName);
                         StateEventPool stateEventPool = new StateEventPool(matchingMetaInfoHolder.getMetaStateEvent(), 10);
-                        return new InsertOverwriteTableCallback(eventTable, compiledCondition, outputStreamDefinition,
+                        return new UpdateOrInsertTableCallback(eventTable, compiledCondition, outputStreamDefinition,
                                 matchingMetaInfoHolder.getMatchingStreamEventIndex(), convertToStreamEvent, stateEventPool,
                                 streamEventPool, streamEventConverter);
 
                     } catch (ExecutionPlanValidationException e) {
-                        throw new ExecutionPlanCreationException("Cannot create insert overwrite for table '" + outStream.getId() + "', " + e.getMessage(), e);
+                        throw new ExecutionPlanCreationException("Cannot create update or insert into for table '" + outStream.getId() + "', " + e.getMessage(), e);
                     }
                 }
             } else {

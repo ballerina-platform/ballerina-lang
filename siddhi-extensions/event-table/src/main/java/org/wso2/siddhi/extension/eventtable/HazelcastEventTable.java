@@ -41,7 +41,7 @@ import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
 import org.wso2.siddhi.core.table.EventTable;
 import org.wso2.siddhi.core.table.holder.EventHolder;
 import org.wso2.siddhi.core.util.SiddhiConstants;
-import org.wso2.siddhi.core.util.collection.OverwritingStreamEventExtractor;
+import org.wso2.siddhi.core.util.collection.AddingStreamEventExtractor;
 import org.wso2.siddhi.core.util.collection.UpdateAttributeMapper;
 import org.wso2.siddhi.core.util.collection.operator.CompiledCondition;
 import org.wso2.siddhi.core.util.collection.operator.MatchingMetaInfoHolder;
@@ -240,11 +240,11 @@ public class HazelcastEventTable implements EventTable {
     }
 
     @Override
-    public synchronized void overwriteOrAdd(ComplexEventChunk<StateEvent> overwritingOrAddingEventChunk,
-                                            CompiledCondition compiledCondition, UpdateAttributeMapper[] updateAttributeMappers,
-                                            OverwritingStreamEventExtractor overwritingStreamEventExtractor) {
-        ComplexEventChunk<StreamEvent> failedEvents = ((Operator) compiledCondition).overwrite(overwritingOrAddingEventChunk,
-                eventHolder, updateAttributeMappers, overwritingStreamEventExtractor);
+    public synchronized void updateOrAdd(ComplexEventChunk<StateEvent> updateOrAddingEventChunk,
+                                         CompiledCondition compiledCondition, UpdateAttributeMapper[] updateAttributeMappers,
+                                         AddingStreamEventExtractor addingStreamEventExtractor) {
+        ComplexEventChunk<StreamEvent> failedEvents = ((Operator) compiledCondition).tryUpdate(updateOrAddingEventChunk,
+                eventHolder, updateAttributeMappers, addingStreamEventExtractor);
         eventHolder.add(failedEvents);
 
     }

@@ -35,8 +35,8 @@ import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
 
-public class InsertOverwriteTableTestCase {
-    private static final Logger log = Logger.getLogger(InsertOverwriteTableTestCase.class);
+public class UpdateOrInsertTableTestCase {
+    private static final Logger log = Logger.getLogger(UpdateOrInsertTableTestCase.class);
     private int inEventCount;
     private int removeEventCount;
     private boolean eventArrived;
@@ -50,8 +50,8 @@ public class InsertOverwriteTableTestCase {
     }
 
     @Test
-    public void insertOverwriteTableTest1() throws InterruptedException {
-        log.info("insertOverwriteTableTest1");
+    public void updateOrInsertTableTest1() throws InterruptedException {
+        log.info("updateOrInsertTableTest1");
 
         SiddhiManager siddhiManager = new SiddhiManager();
         siddhiManager.setDataSource(RDBMSTestConstants.DATA_SOURCE_NAME, dataSource);
@@ -71,7 +71,7 @@ public class InsertOverwriteTableTestCase {
                         "" +
                         "@info(name = 'query2') " +
                         "from UpdateStockStream " +
-                        "insert overwrite StockTable " +
+                        "update or insert into StockTable " +
                         "   on StockTable.symbol=='IBM' ;";
 
                 ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
@@ -96,8 +96,8 @@ public class InsertOverwriteTableTestCase {
     }
 
     @Test
-    public void insertOverwriteTableTest2() throws InterruptedException {
-        log.info("insertOverwriteTableTest2");
+    public void updateOrInsertTableTest2() throws InterruptedException {
+        log.info("updateOrInsertTableTest2");
 
         SiddhiManager siddhiManager = new SiddhiManager();
         siddhiManager.setDataSource(RDBMSTestConstants.DATA_SOURCE_NAME, dataSource);
@@ -112,7 +112,7 @@ public class InsertOverwriteTableTestCase {
                 String query = "" +
                         "@info(name = 'query2') " +
                         "from StockStream " +
-                        "insert overwrite StockTable " +
+                        "update or insert into StockTable " +
                         "   on StockTable.symbol==symbol ;";
 
                 ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
@@ -135,8 +135,8 @@ public class InsertOverwriteTableTestCase {
     }
 
     @Test
-    public void insertOverwriteTableTest3() throws InterruptedException {
-        log.info("insertOverwriteTableTest3");
+    public void updateOrInsertTableTest3() throws InterruptedException {
+        log.info("updateOrInsertTableTest3");
 
         SiddhiManager siddhiManager = new SiddhiManager();
         siddhiManager.setDataSource(RDBMSTestConstants.DATA_SOURCE_NAME, dataSource);
@@ -158,7 +158,7 @@ public class InsertOverwriteTableTestCase {
                         "" +
                         "@info(name = 'query2') " +
                         "from UpdateStockStream " +
-                        "insert overwrite StockTable " +
+                        "update or insert into StockTable " +
                         "   on StockTable.symbol==symbol;" +
                         "" +
                         "@info(name = 'query3') " +
@@ -228,8 +228,8 @@ public class InsertOverwriteTableTestCase {
     }
 
     @Test
-    public void insertOverwriteTableTest4() throws InterruptedException {
-        log.info("insertOverwriteTableTest4");
+    public void updateOrInsertTableTest4() throws InterruptedException {
+        log.info("updateOrInsertTableTest4");
 
         SiddhiManager siddhiManager = new SiddhiManager();
         siddhiManager.setDataSource(RDBMSTestConstants.DATA_SOURCE_NAME, dataSource);
@@ -246,7 +246,7 @@ public class InsertOverwriteTableTestCase {
                 String query = "" +
                         "@info(name = 'query2') " +
                         "from StockStream " +
-                        "insert overwrite StockTable " +
+                        "update or insert into StockTable " +
                         "   on StockTable.symbol==symbol;" +
                         "" +
                         "@info(name = 'query3') " +
@@ -317,8 +317,8 @@ public class InsertOverwriteTableTestCase {
 
     @Ignore
     @Test(expected = DuplicateDefinitionException.class)
-    public void insertOverwriteTableTest5() throws InterruptedException {
-        log.info("insertOverwriteTableTest5");
+    public void updateOrInsertTableTest5() throws InterruptedException {
+        log.info("updateOrInsertTableTest5");
 
         SiddhiManager siddhiManager = new SiddhiManager();
         siddhiManager.setDataSource(RDBMSTestConstants.DATA_SOURCE_NAME, dataSource);
@@ -341,7 +341,7 @@ public class InsertOverwriteTableTestCase {
                         "@info(name = 'query2') " +
                         "from UpdateStockStream " +
                         "select comp as symbol, vol as volume " +
-                        "insert overwrite StockTable " +
+                        "update or insert into StockTable " +
                         "   on StockTable.symbol==symbol;";
 
                 ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(streams + query);
@@ -386,8 +386,8 @@ public class InsertOverwriteTableTestCase {
     }
 
     @Test
-    public void insertOverwriteTableTest6() throws InterruptedException {
-        log.info("insertOverwriteTableTest6");
+    public void updateOrInsertTableTest6() throws InterruptedException {
+        log.info("updateOrInsertTableTest6");
 
         SiddhiManager siddhiManager = new SiddhiManager();
         siddhiManager.setDataSource(RDBMSTestConstants.DATA_SOURCE_NAME, dataSource);
@@ -405,13 +405,13 @@ public class InsertOverwriteTableTestCase {
                 String query = "" +
                         "@info(name = 'query1') " +
                         "from StockStream " +
-                        "insert overwrite StockTable " +
+                        "update or insert into StockTable " +
                         "   on StockTable.symbol==symbol;" +
                         "" +
                         "@info(name = 'query2') " +
                         "from UpdateStockStream " +
                         "select comp as symbol, 0f as price, vol as volume " +
-                        "insert overwrite StockTable " +
+                        "update or insert into StockTable " +
                         "   on StockTable.symbol==symbol;" +
                         "" +
                         "@info(name = 'query3') " +
@@ -482,8 +482,8 @@ public class InsertOverwriteTableTestCase {
 
 
     @Test
-    public void insertOverwriteTableTest7() throws InterruptedException {
-        log.info("insertOverwriteTableTest7");
+    public void updateOrInsertTableTest7() throws InterruptedException {
+        log.info("updateOrInsertTableTest7");
 
         SiddhiManager siddhiManager = new SiddhiManager();
         siddhiManager.setDataSource(RDBMSTestConstants.DATA_SOURCE_NAME, dataSource);
@@ -506,7 +506,7 @@ public class InsertOverwriteTableTestCase {
                         "@info(name = 'query2') " +
                         "from UpdateStockStream " +
                         "select comp as symbol,  5f as price, vol as volume " +
-                        "insert overwrite StockTable " +
+                        "update or insert into StockTable " +
                         "   on StockTable.symbol==symbol;" +
                         "" +
                         "@info(name = 'query3') " +
@@ -573,8 +573,8 @@ public class InsertOverwriteTableTestCase {
     }
 
     @Test
-    public void insertOverwriteTableTest8() throws InterruptedException {
-        log.info("insertOverwriteTableTest8");
+    public void updateOrInsertTableTest8() throws InterruptedException {
+        log.info("updateOrInsertTableTest8");
 
         SiddhiManager siddhiManager = new SiddhiManager();
         siddhiManager.setDataSource(RDBMSTestConstants.DATA_SOURCE_NAME, dataSource);
@@ -592,7 +592,7 @@ public class InsertOverwriteTableTestCase {
                         "@info(name = 'query2') " +
                         "from StockStream " +
                         "select symbol, price, volume " +
-                        "insert overwrite StockTable " +
+                        "update or insert into StockTable " +
                         "   on StockTable.symbol==symbol;" +
                         "" +
                         "@info(name = 'query3') " +
@@ -658,8 +658,8 @@ public class InsertOverwriteTableTestCase {
     }
 
     @Test
-    public void insertOverwriteTableTest9() throws InterruptedException {
-        log.info("insertOverwriteTableTest9");
+    public void updateOrInsertTableTest9() throws InterruptedException {
+        log.info("updateOrInsertTableTest9");
 
         SiddhiManager siddhiManager = new SiddhiManager();
         siddhiManager.setDataSource(RDBMSTestConstants.DATA_SOURCE_NAME, dataSource);
@@ -683,7 +683,7 @@ public class InsertOverwriteTableTestCase {
                         "from UpdateStockStream left outer join StockTable " +
                         "   on UpdateStockStream.comp == StockTable.symbol " +
                         "select  symbol, ifThenElse(price is null,0f,price) as price, vol as volume " +
-                        "insert overwrite StockTable " +
+                        "update or insert into StockTable " +
                         "   on StockTable.symbol==symbol;" +
                         "" +
                         "@info(name = 'query3') " +
@@ -750,8 +750,8 @@ public class InsertOverwriteTableTestCase {
     }
 
     @Test
-    public void insertOverwriteTableTest10() throws InterruptedException {
-        log.info("insertOverwriteTableTest10");
+    public void updateOrInsertTableTest10() throws InterruptedException {
+        log.info("updateOrInsertTableTest10");
 
         SiddhiManager siddhiManager = new SiddhiManager();
         siddhiManager.setDataSource(RDBMSTestConstants.DATA_SOURCE_NAME, dataSource);
@@ -775,7 +775,7 @@ public class InsertOverwriteTableTestCase {
                         "from UpdateStockStream left outer join StockTable " +
                         "   on UpdateStockStream.comp == StockTable.symbol " +
                         "select comp as symbol, ifThenElse(price is null,5f,price) as price, vol as volume " +
-                        "insert overwrite StockTable " +
+                        "update or insert into StockTable " +
                         "   on StockTable.symbol==symbol;" +
                         "" +
                         "@info(name = 'query3') " +

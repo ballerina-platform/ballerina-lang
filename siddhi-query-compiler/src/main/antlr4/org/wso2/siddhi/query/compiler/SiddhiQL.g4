@@ -255,8 +255,8 @@ having
 query_output
     :INSERT output_event_type? INTO target
     |DELETE target (FOR output_event_type)? ON expression
+    |UPDATE OR INSERT INTO target (FOR output_event_type)? ON expression
     |UPDATE target (FOR output_event_type)? ON expression
-    |INSERT OVERWRITE target (FOR output_event_type)? ON expression
     |RETURN output_event_type?
     ;
 
@@ -436,7 +436,6 @@ keyword
     | BY
     | HAVING
     | INSERT
-    | OVERWRITE
     | DELETE
     | UPDATE
     | RETURN
@@ -611,7 +610,6 @@ GROUP:    G R O U P;
 BY:       B Y;
 HAVING:   H A V I N G;
 INSERT:   I N S E R T;
-OVERWRITE:    O V E R W R I T E;
 DELETE:   D E L E T E;
 UPDATE:   U P D A T E;
 RETURN:   R E T U R N;
