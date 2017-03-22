@@ -277,7 +277,7 @@ public class BallerinaModuleLibrariesInitializer implements ModuleComponent {
         @Override
         public void run() {
             Project project = myModule.getProject();
-            if (BallerinaSdkService.isBallerinaModule(myModule)) {
+            if (BallerinaSdkService.getInstance(project).isBallerinaModule(myModule)) {
                 synchronized (myLastHandledBallerinaPathSourcesRoots) {
                     Collection<VirtualFile> ballerinaPathSourcesRoots = BallerinaSdkUtil.getBallerinaPathRoots(project,
                             myModule);
@@ -287,7 +287,8 @@ public class BallerinaModuleLibrariesInitializer implements ModuleComponent {
 
                     Collection<VirtualFile> includeRoots = gatherIncludeRoots(ballerinaPathSourcesRoots, excludeRoots);
                     ApplicationManager.getApplication().invokeLater(() -> {
-                        if (!myModule.isDisposed() && BallerinaSdkService.isBallerinaModule(myModule)) {
+                        if (!myModule.isDisposed() && BallerinaSdkService.getInstance(project)
+                                .isBallerinaModule(myModule)) {
                             attachLibraries(includeRoots, excludeRoots);
                         }
                     });
@@ -308,7 +309,8 @@ public class BallerinaModuleLibrariesInitializer implements ModuleComponent {
                     myLastHandledBallerinaPathSourcesRoots.clear();
                     myLastHandledExclusions.clear();
                     ApplicationManager.getApplication().invokeLater(() -> {
-                        if (!myModule.isDisposed() && BallerinaSdkService.isBallerinaModule(myModule)) {
+                        if (!myModule.isDisposed() && BallerinaSdkService.getInstance(project).
+                                isBallerinaModule(myModule)) {
                             removeLibraryIfNeeded();
                         }
                     });
