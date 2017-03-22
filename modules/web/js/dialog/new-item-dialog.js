@@ -21,16 +21,14 @@ import _ from 'lodash';
 import ModalDialog from './modal-dialog';
 import log from 'log';
 
-    var NewItemDialog = function (options) {
+class NewItemDialog extends ModalDialog {
+    constructor(options) {
         _.set(options, 'class', 'create-new-item-wizard');
-        ModalDialog.call(this, options);
+        super(options);
         this._serviceClient = _.get(options, 'application.workspaceManager').getServiceClient();
-    };
+    }
 
-    NewItemDialog.prototype = Object.create(ModalDialog.prototype);
-    NewItemDialog.prototype.constructor = NewItemDialog;
-
-    NewItemDialog.prototype.onSubmit = function (data, itemName) {
+    onSubmit(data, itemName) {
         var app = this._options.application,
             path = data.path + app.getPathSeperator() + itemName,
             existsResponse = this._serviceClient.exists(path);
@@ -54,9 +52,9 @@ import log from 'log';
                 }
             }
         }
-    };
+    }
 
-    NewItemDialog.prototype.displayWizard = function (data) {
+    displayWizard(data) {
         this.setTitle("new "+ data.type);
         this.setSubmitBtnText("create");
         var body = this.getBody();
@@ -93,8 +91,9 @@ import log from 'log';
                 self.clearError();
             }
         });
-    };
+    }
+}
 
 
 
-    export default NewItemDialog;
+export default NewItemDialog;
