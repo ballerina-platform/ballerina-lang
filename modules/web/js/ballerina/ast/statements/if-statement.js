@@ -15,35 +15,36 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', './conditional-statement'], function (_, log, ConditionalStatement) {
+import _ from 'lodash';
+import log from 'log';
+import ConditionalStatement from './conditional-statement';
 
-    /**
-     * Class for if conditions in ballerina. Extended from Conditional-Statement
-     * @param {Object} args - Argument object for creating an if statement.
-     * @param {string} [args.condition="true"] - The condition for "if".
-     * @param {Statement} [args.statements="[]] - Statements of the "if".
-     * @constructor
-     * @augments ConditionalStatement
-     */
-    var IfStatement = function (args) {
-        ConditionalStatement.call(this);
+/**
+ * Class for if conditions in ballerina. Extended from Conditional-Statement
+ * @param {Object} args - Argument object for creating an if statement.
+ * @param {string} [args.condition="true"] - The condition for "if".
+ * @param {Statement} [args.statements="[]] - Statements of the "if".
+ * @constructor
+ * @augments ConditionalStatement
+ */
+class IfStatement extends ConditionalStatement {
+    constructor(args) {
+        super();
         this._condition = _.get(args, "condition", "true");
         this._statements = _.get(args, "statements", []);
         this.type = "IfStatement";
-    };
+    }
 
-    IfStatement.prototype = Object.create(ConditionalStatement.prototype);
-    IfStatement.prototype.constructor = IfStatement;
-
-    IfStatement.prototype.setCondition = function(condition, options){
+    setCondition(condition, options) {
         if(!_.isNil(condition)){
             this.setAttribute('_condition', condition, options);
         }
-    };
+    }
 
-    IfStatement.prototype.getCondition = function() {
+    getCondition() {
         return this._condition;
-    };
+    }
+}
 
-    return IfStatement;
-});
+export default IfStatement;
+

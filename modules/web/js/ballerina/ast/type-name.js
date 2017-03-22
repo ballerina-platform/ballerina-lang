@@ -15,34 +15,33 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', './node'], function (_, ASTNode) {
+import _ from 'lodash';
+import ASTNode from './node';
 
-    var TypeName = function (type) {
+class TypeName extends ASTNode {
+    constructor(type) {
         this.typename = type;
         this.type = "TypeName";
-    };
+    }
 
-    TypeName.prototype = Object.create(ASTNode.prototype);
-    TypeName.prototype.constructor = TypeName;
-
-
-    TypeName.prototype.setTypeName = function (typename, options) {
+    setTypeName(typename, options) {
         if (!_.isNil(typename)) {
             this.setAttribute('typename', typename, options);
         }
-    };
+    }
 
-    TypeName.prototype.getType = function () {
+    getType() {
         return this.typename;
-    };
+    }
 
     /**
      * initialize from json
      * @param jsonNode
      */
-    TypeName.prototype.initFromJson = function (jsonNode) {
+    initFromJson(jsonNode) {
         this.setTypeName(jsonNode.variable_reference_name, {doSilently: true});
-    };
+    }
+}
 
-    return TypeName;
-});
+export default TypeName;
+

@@ -15,25 +15,24 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', './expression'], function (_, Expression) {
+import _ from 'lodash';
+import Expression from './expression';
 
-    /**
-     * Constructor for ArrayInitExpression
-     * @param {Object} args - Arguments to create the ArrayInitExpression
-     * @constructor
-     */
-    var ArrayInitExpression = function (args) {
-        Expression.call(this, 'ArrayInitExpression');
-    };
-
-    ArrayInitExpression.prototype = Object.create(Expression.prototype);
-    ArrayInitExpression.prototype.constructor = ArrayInitExpression;
+/**
+ * Constructor for ArrayInitExpression
+ * @param {Object} args - Arguments to create the ArrayInitExpression
+ * @constructor
+ */
+class ArrayInitExpression extends Expression {
+    constructor(args) {
+        super('ArrayInitExpression');
+    }
 
     /**
      * initialize ArrayInitExpression from json object
      * @param {Object} jsonNode to initialize from
      */
-    ArrayInitExpression.prototype.initFromJson = function (jsonNode) {
+    initFromJson(jsonNode) {
         var self = this;
         var generatedExpression = '[';
         _.each(jsonNode.children, function (childNode) {
@@ -43,11 +42,12 @@ define(['lodash', './expression'], function (_, Expression) {
             generatedExpression += child.getExpression() + ",";
         });
         this.setExpression(generatedExpression.replace(/,\s*$/, "") + ']', {doSilently: true});
-    };
+    }
 
-    ArrayInitExpression.prototype.generateExpression = function () {
+    generateExpression() {
         this._expression = this.getVariableReferenceName()
-    };
+    }
+}
 
-    return ArrayInitExpression;
-});
+export default ArrayInitExpression;
+

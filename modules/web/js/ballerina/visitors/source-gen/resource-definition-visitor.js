@@ -15,28 +15,30 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', 'event_channel', './abstract-source-gen-visitor', './statement-visitor-factory',
-        './expression-visitor-factory', './connector-declaration-visitor', './variable-declaration-visitor',
-        './worker-declaration-visitor'],
-    function (_, log, EventChannel, AbstractSourceGenVisitor, StatementVisitorFactory, ExpressionVisitorFactory,
-              ConnectorDeclarationVisitor,VariableDeclarationVisitor, WorkerDeclarationVisitor) {
+import _ from 'lodash';
+import log from 'log';
+import EventChannel from 'event_channel';
+import AbstractSourceGenVisitor from './abstract-source-gen-visitor';
+import StatementVisitorFactory from './statement-visitor-factory';
+import ExpressionVisitorFactory from './expression-visitor-factory';
+import ConnectorDeclarationVisitor from './connector-declaration-visitor';
+import VariableDeclarationVisitor from './variable-declaration-visitor';
+import WorkerDeclarationVisitor from './worker-declaration-visitor';
 
-    /**
-     * @param parent
-     * @constructor
-     */
-    var ResourceDefinitionVisitor = function (parent) {
-        AbstractSourceGenVisitor.call(this, parent);
-    };
+/**
+ * @param parent
+ * @constructor
+ */
+class ResourceDefinitionVisitor extends AbstractSourceGenVisitor {
+    constructor(parent) {
+        super(parent);
+    }
 
-    ResourceDefinitionVisitor.prototype = Object.create(AbstractSourceGenVisitor.prototype);
-    ResourceDefinitionVisitor.prototype.constructor = ResourceDefinitionVisitor;
-
-    ResourceDefinitionVisitor.prototype.canVisitResourceDefinition = function (resourceDefinition) {
+    canVisitResourceDefinition(resourceDefinition) {
         return true;
-    };
+    }
 
-    ResourceDefinitionVisitor.prototype.beginVisitResourceDefinition = function (resourceDefinition) {
+    beginVisitResourceDefinition(resourceDefinition) {
         /**
          * set the configuration start for the resource definition language construct
          * If we need to add additional parameters which are dynamically added to the configuration start
@@ -78,44 +80,45 @@ define(['lodash', 'log', 'event_channel', './abstract-source-gen-visitor', './st
         constructedSourceSegment += resourceDefinition.getParametersAsString() + ') {';
         this.appendSource(constructedSourceSegment);
         log.debug('Begin Visit ResourceDefinition');
-    };
+    }
 
-    ResourceDefinitionVisitor.prototype.visitResourceDefinition = function (resourceDefinition) {
+    visitResourceDefinition(resourceDefinition) {
         log.debug('Visit ResourceDefinition');
-    };
+    }
 
-    ResourceDefinitionVisitor.prototype.endVisitResourceDefinition = function (resourceDefinition) {
+    endVisitResourceDefinition(resourceDefinition) {
         this.appendSource("}\n");
         this.getParent().appendSource(this.getGeneratedSource());
         log.debug('End Visit ResourceDefinition');
-    };
+    }
 
-    ResourceDefinitionVisitor.prototype.visitStatement = function (statement) {
+    visitStatement(statement) {
         var statementVisitorFactory = new StatementVisitorFactory();
         var statementVisitor = statementVisitorFactory.getStatementVisitor(statement, this);
         statement.accept(statementVisitor);
-    };
+    }
 
-    ResourceDefinitionVisitor.prototype.visitExpression = function(expression){
+    visitExpression(expression) {
         var expressionViewFactory = new ExpressionVisitorFactory();
         var expressionView = expressionViewFactory.getExpressionView({model:expression, parent:this});
         expression.accept(expressionView);
-    };
+    }
 
-    ResourceDefinitionVisitor.prototype.visitConnectorDeclaration = function(connectorDeclaration){
+    visitConnectorDeclaration(connectorDeclaration) {
         var connectorDeclarationVisitor = new ConnectorDeclarationVisitor(this);
         connectorDeclaration.accept(connectorDeclarationVisitor);
-    };
+    }
 
-    ResourceDefinitionVisitor.prototype.visitVariableDeclaration = function(variableDeclaration){
+    visitVariableDeclaration(variableDeclaration) {
         var varialeDeclarationVisitor = new VariableDeclarationVisitor(this);
         variableDeclaration.accept(varialeDeclarationVisitor);
-    };
+    }
 
-    ResourceDefinitionVisitor.prototype.visitWorkerDeclaration = function(workerDeclaration){
+    visitWorkerDeclaration(workerDeclaration) {
         var workerDeclarationVisitor = new WorkerDeclarationVisitor(this);
         workerDeclaration.accept(workerDeclarationVisitor);
-    };
+    }
+}
 
-    return ResourceDefinitionVisitor;
-});
+export default ResourceDefinitionVisitor;
+

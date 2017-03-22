@@ -15,37 +15,37 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', 'event_channel', '../ast-visitor'], function(_, log, EventChannel, ASTVisitor) {
+import log from 'log';
+import EventChannel from 'event_channel';
+import ASTVisitor from '../ast-visitor';
 
-    /**
-     * Constructor for the Abstract Source Generation Visitor
-     * @param parent
-     * @constructor
-     */
-    var AbstractSourceGenVisitor = function(parent) {
+/**
+ * Constructor for the Abstract Source Generation Visitor
+ * @param parent
+ * @constructor
+ */
+class AbstractSourceGenVisitor extends ASTVisitor {
+    constructor(parent) {
         this._generatedSource = '';
         this.parent = parent;
-        ASTVisitor.call(this);
-    };
+        super();
+    }
 
-    AbstractSourceGenVisitor.prototype = Object.create(ASTVisitor.prototype);
-    AbstractSourceGenVisitor.prototype.constructor = AbstractSourceGenVisitor;
-
-    AbstractSourceGenVisitor.prototype.getGeneratedSource = function () {
+    getGeneratedSource() {
         return this._generatedSource;
-    };
+    }
 
-    AbstractSourceGenVisitor.prototype.setGeneratedSource = function (generatedSource) {
+    setGeneratedSource(generatedSource) {
         this._generatedSource = generatedSource;
-    };
+    }
 
-    AbstractSourceGenVisitor.prototype.appendSource = function (source) {
+    appendSource(source) {
         this._generatedSource += source;
-    };
+    }
 
-    AbstractSourceGenVisitor.prototype.getParent = function () {
+    getParent() {
         return this.parent;
-    };
+    }
+}
 
-    return AbstractSourceGenVisitor;
-});
+export default AbstractSourceGenVisitor;

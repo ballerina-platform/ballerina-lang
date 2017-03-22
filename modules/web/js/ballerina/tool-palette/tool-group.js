@@ -15,7 +15,10 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require', 'jquery', 'backbone', './tool'], function (require, $, Backbone, Tool) {
+import require from 'require';
+import $ from 'jquery';
+import Backbone from 'backbone';
+import Tool from './tool';
 
     var toolGroup = Backbone.Model.extend({
         initialize: function (attributes) {
@@ -94,6 +97,6 @@ define(['require', 'jquery', 'backbone', './tool'], function (require, $, Backbo
         }
     });
 
-    return toolGroup;
-});
+    export default toolGroup;
+
 

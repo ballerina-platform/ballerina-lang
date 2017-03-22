@@ -16,8 +16,9 @@
  * under the License.
  */
 
-define(['lodash', 'event_channel', 'log'],
-    function (_, EventChannel, log){
+import _ from 'lodash';
+import EventChannel from 'event_channel';
+import log from 'log';
 
         var LaunchChannel = function(args){
             if(_.isNil(args.endpoint)){
@@ -83,5 +84,5 @@ define(['lodash', 'event_channel', 'log'],
             this.trigger("connected");
         };        
 
-        return LaunchChannel;
-    });
+        export default LaunchChannel;
+    

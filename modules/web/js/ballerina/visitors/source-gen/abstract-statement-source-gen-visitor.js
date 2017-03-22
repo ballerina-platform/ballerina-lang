@@ -15,37 +15,41 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', 'event_channel', '../statement-visitor', './abstract-source-gen-visitor'], function(_, log, EventChannel, StatementVisitor, AbstractSourceGenVisitor) {
+import _ from 'lodash';
+import log from 'log';
+import EventChannel from 'event_channel';
+import StatementVisitor from '../statement-visitor';
+import AbstractSourceGenVisitor from './abstract-source-gen-visitor';
 
-    /**
-     * Constructor for the Abstract Source Generation Visitor for the statements
-     * @param parent
-     * @constructor
-     */
-    var AbstractStatementSourceGenVisitor = function(parent) {
+/**
+ * Constructor for the Abstract Source Generation Visitor for the statements
+ * @param parent
+ * @constructor
+ */
+class AbstractStatementSourceGenVisitor extends StatementVisitor {
+    constructor(parent) {
         this._generatedSource = '';
         this.parent = parent;
-        StatementVisitor.call(this);
-    };
+        super();
+    }
 
-    AbstractStatementSourceGenVisitor.prototype = Object.create(StatementVisitor.prototype);
-    AbstractStatementSourceGenVisitor.prototype.constructor = AbstractSourceGenVisitor;
-
-    AbstractStatementSourceGenVisitor.prototype.getGeneratedSource = function () {
+    getGeneratedSource() {
         return this._generatedSource;
-    };
+    }
 
-    AbstractStatementSourceGenVisitor.prototype.setGeneratedSource = function (generatedSource) {
+    setGeneratedSource(generatedSource) {
         this._generatedSource = generatedSource;
-    };
+    }
 
-    AbstractStatementSourceGenVisitor.prototype.appendSource = function (source) {
+    appendSource(source) {
         this._generatedSource += source;
-    };
+    }
 
-    AbstractStatementSourceGenVisitor.prototype.getParent = function () {
+    getParent() {
         return this.parent;
-    };
+    }
+}
 
-    return AbstractStatementSourceGenVisitor;
-});
+AbstractStatementSourceGenVisitor.prototype.constructor = AbstractSourceGenVisitor;
+
+export default AbstractStatementSourceGenVisitor;

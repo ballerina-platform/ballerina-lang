@@ -15,21 +15,22 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require', 'lodash', 'log', 'event_channel', './abstract-statement-source-gen-visitor'],
-function (require, _, log, EventChannel, AbstractStatementSourceGenVisitor) {
+import _ from 'lodash';
+import log from 'log';
+import EventChannel from 'event_channel';
+import AbstractStatementSourceGenVisitor from './abstract-statement-source-gen-visitor';
+import $____statement_visitor_factory from './statement-visitor-factory';
 
-    var ElseStatementVisitor = function(parent){
-        AbstractStatementSourceGenVisitor.call(this,parent);
-    };
+class ElseStatementVisitor extends AbstractStatementSourceGenVisitor {
+    constructor(parent) {
+        super(parent);
+    }
 
-    ElseStatementVisitor.prototype = Object.create(AbstractStatementSourceGenVisitor.prototype);
-    ElseStatementVisitor.prototype.constructor = ElseStatementVisitor;
-
-    ElseStatementVisitor.prototype.canVisitElseStatement = function(elseStatement){
+    canVisitElseStatement(elseStatement) {
         return true;
-    };
+    }
 
-    ElseStatementVisitor.prototype.beginVisitElseStatement = function(elseStatement){
+    beginVisitElseStatement(elseStatement) {
         /**
         * set the configuration start for the if statement definition language construct
         * If we need to add additional parameters which are dynamically added to the configuration start
@@ -37,24 +38,24 @@ function (require, _, log, EventChannel, AbstractStatementSourceGenVisitor) {
         */
         this.appendSource('else {');
         log.debug('Begin visit Else Statement Definition');
-    };
+    }
 
-    ElseStatementVisitor.prototype.visitElseStatement = function(elseStatement){
+    visitElseStatement(elseStatement) {
         log.debug('Visit Else Statement Definition');
-    };
+    }
 
-    ElseStatementVisitor.prototype.endVisitElseStatement = function(elseStatement){
+    endVisitElseStatement(elseStatement) {
         this.appendSource("}\n");
         this.getParent().appendSource(this.getGeneratedSource());
         log.debug('End Visit Else Statement Definition');
-    };
+    }
 
-    ElseStatementVisitor.prototype.visitStatement = function(statement){
-        var StatementVisitorFactory = require('./statement-visitor-factory');
+    visitStatement(statement) {
+        var StatementVisitorFactory = $____statement_visitor_factory;
         var statementVisitorFactory = new StatementVisitorFactory();
         var statementVisitor = statementVisitorFactory.getStatementVisitor(statement, this);
         statement.accept(statementVisitor);
-    };
+    }
+}
 
-    return ElseStatementVisitor;
-});
+export default ElseStatementVisitor;

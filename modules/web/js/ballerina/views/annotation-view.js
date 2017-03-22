@@ -15,8 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require', 'lodash', 'jquery'],
-    function (require, _, $) {
+import _ from 'lodash';
+import $ from 'jquery';
 
         /**
          * Creates the variable pane
@@ -301,5 +301,4 @@ define(['require', 'lodash', 'jquery'],
         annotationView.createAnnotationPane = createAnnotationPane;
         annotationView.move = move;
 
-        return annotationView;
-    });
+        export default annotationView;

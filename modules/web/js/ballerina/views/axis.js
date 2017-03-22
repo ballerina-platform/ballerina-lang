@@ -15,47 +15,46 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define([ 'lodash', 'event_channel'], function ( _, EventChannel) {
+import _ from 'lodash';
+import EventChannel from 'event_channel';
 
-    /**
-     * @class Axis
-     * @augments EventChannel
-     * @param position position
-     * @param isHorizontal indicate whether a vertical or horizontal axis
-     * @constructor
-     */
-    var Axis = function (position, isHorizontal) {
-        this._isHorizontal = isHorizontal || false;
-        this._position = position || 0;
-    };
+/**
+ * @class Axis
+ * @augments EventChannel
+ * @param position position
+ * @param isHorizontal indicate whether a vertical or horizontal axis
+ * @constructor
+ */
+class Axis extends EventChannel {
+ constructor(position, isHorizontal) {
+     this._isHorizontal = isHorizontal || false;
+     this._position = position || 0;
+ }
 
-    Axis.prototype = Object.create(EventChannel.prototype);
-    Axis.prototype.constructor = Axis;
+ /**
+  * Indicate Whether a horizontal or vertical
+  * @returns {boolean}
+  */
+ isHorizontal() {
+    return this._isHorizontal;
+ }
 
-    /**
-     * Indicate Whether a horizontal or vertical
-     * @returns {boolean}
-     */
-    Axis.prototype.isHorizontal =  function () {
-       return this._isHorizontal;
-    };
+ /**
+  * set position
+  * @param {number} position
+  */
+ setPosition(position) {
+    var offset = position - this._position;
+    this._position = position;
+    this.trigger("moved", offset);
+ }
 
-    /**
-     * set position
-     * @param {number} position
-     */
-    Axis.prototype.setPosition =  function (position) {
-       var offset = position - this._position;
-       this._position = position;
-       this.trigger("moved", offset);
-    };
+ /**
+  * get position
+  */
+ getPosition() {
+    return this._position;
+ }
+}
 
-    /**
-     * get position
-     */
-    Axis.prototype.getPosition =  function () {
-       return this._position;
-    };
-
-    return Axis;
-});
+export default Axis;

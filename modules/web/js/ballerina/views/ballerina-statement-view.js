@@ -15,16 +15,23 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require', 'lodash', 'log', './../visitors/statement-visitor', 'd3', 'd3utils', './point',
-        './bounding-box', 'expression_editor_utils', 'debugger/debug-manager'],
-    function (require, _, log, StatementVisitor, d3, D3Utils, Point, BBox, expressionEditor, DebugManager) {
+import _ from 'lodash';
+import log from 'log';
+import StatementVisitor from './../visitors/statement-visitor';
+import d3 from 'd3';
+import D3Utils from 'd3utils';
+import Point from './point';
+import BBox from './bounding-box';
+import expressionEditor from 'expression_editor_utils';
+import DebugManager from 'debugger/debug-manager';
 
-    /**
-     * A common class which consists functions of moving or resizing views.
-     * @constructor
-     */
-    var BallerinaStatementView = function (args) {
-        StatementVisitor.call(this, args);
+/**
+ * A common class which consists functions of moving or resizing views.
+ * @constructor
+ */
+class BallerinaStatementView extends StatementVisitor {
+    constructor(args) {
+        super(args);
         this._parent = _.get(args, "parent");
         this._model = _.get(args, "model");
         this._container = _.get(args, "container");
@@ -45,69 +52,71 @@ define(['require', 'lodash', 'log', './../visitors/statement-visitor', 'd3', 'd3
             self._bottomCenter(offset.dx, offset.dy);
         });
         this.init();
-    };
+    }
 
-    BallerinaStatementView.prototype = Object.create(StatementVisitor.prototype);
-    BallerinaStatementView.prototype.constructor = BallerinaStatementView;
-
-    BallerinaStatementView.prototype.init = function(){
+    init() {
         //Registering event listeners
         this._parent.on('changeStatementMetricsEvent', this.changeMetricsCallback, this);
         this._model.on('child-removed', this.childRemovedCallback, this);
         this._model.on('before-remove', this.onBeforeModelRemove, this);
-    };
+    }
 
     /**
      * Remove statement view callback
      * @param {ASTNode} parent - Parent model
      * @param {ASTNode} child - child model
      */
-    BallerinaStatementView.prototype.onBeforeModelRemove = function () {
+    onBeforeModelRemove() {
         d3.select("#_" +this._model.id).remove();
         // resize the bounding box in order to the other objects to resize
         this.getBoundingBox().h(0).w(0);
-    };
+    }
 
     /**
      * Child remove callback
      * @param {ASTNode} child - removed child
      */
-    BallerinaStatementView.prototype.childRemovedCallback = function (child) {
-    };
+    childRemovedCallback(child) {
+    }
 
-    BallerinaStatementView.prototype.setParent = function (parent) {
+    setParent(parent) {
         this._parent = parent;
-    };
-    BallerinaStatementView.prototype.getParent = function () {
-        return this._parent;
-    };
+    }
 
-    BallerinaStatementView.prototype.getStatementGroup = function () {
+    getParent() {
+        return this._parent;
+    }
+
+    getStatementGroup() {
         return this._statementGroup;
-    };
+    }
 
     /**
      * Sets the statement group of this view.
      * @param statementGroup {object} statement group to be set
      */
-    BallerinaStatementView.prototype.setStatementGroup = function (statementGroup) {
+    setStatementGroup(statementGroup) {
         this._statementGroup = statementGroup;
-    };
+    }
 
-    BallerinaStatementView.prototype.getChildrenViewsList = function () {
+    getChildrenViewsList() {
         return this._childrenViewsList;
-    };
-    BallerinaStatementView.prototype.changeWidth = function (dw) {
-    };
-    BallerinaStatementView.prototype.changeHeight = function (dh) {
-    };
-    BallerinaStatementView.prototype.changeMetricsCallback = function (baseMetrics) {
-    };
-    BallerinaStatementView.prototype.getDiagramRenderingContext = function () {
-        return this._diagramRenderingContext;
-    };
+    }
 
-    BallerinaStatementView.prototype.renderEditView = function (editableProperties, statementGroup, viewOptions) {
+    changeWidth(dw) {
+    }
+
+    changeHeight(dh) {
+    }
+
+    changeMetricsCallback(baseMetrics) {
+    }
+
+    getDiagramRenderingContext() {
+        return this._diagramRenderingContext;
+    }
+
+    renderEditView(editableProperties, statementGroup, viewOptions) {
         var self = this;
 
         // Get the bounding box of the if else view.
@@ -263,14 +272,14 @@ define(['require', 'lodash', 'log', './../visitors/statement-visitor', 'd3', 'd3
             this._isEditControlsActive = false;
         })
 
-    };
+    }
 
-    BallerinaStatementView.prototype._getEditPaneLocation = function () {
+    _getEditPaneLocation() {
         var statementBoundingBox = this.getBoundingBox();
         return new Point((statementBoundingBox.x() - 1), (statementBoundingBox.y() - 1));
-    };
+    }
 
-    BallerinaStatementView.prototype._createPropertyPane = function (args) {
+    _createPropertyPane(args) {
         var viewOptions = _.get(args, "viewOptions", {});
         var statementGroup = _.get(args, "statementGroup", null);
         var editableProperties = _.get(args, "editableProperties", []);
@@ -317,125 +326,123 @@ define(['require', 'lodash', 'log', './../visitors/statement-visitor', 'd3', 'd3
             }
             self.renderEditView(editableProperties, statementGroup, viewOptions);
         });
-    };
+    }
 
+    /**
+     * create view to indicate a debug point in view.  call showDebugIndicator/hideDebugIndicator to toggle this
+     * indicator
+    */
+    _createDebugIndicator(args) {
+        var self = this;
+        var model = this._model;
+        var viewOptions = _.get(args, "viewOptions", {});
+        var statementGroup = _.get(args, "statementGroup", null);
 
-     /**
-      * create view to indicate a debug point in view.  call showDebugIndicator/hideDebugIndicator to toggle this
-      * indicator
-     */
-     BallerinaStatementView.prototype._createDebugIndicator = function (args) {
-         var self = this;
-         var model = this._model;
-         var viewOptions = _.get(args, "viewOptions", {});
-         var statementGroup = _.get(args, "statementGroup", null);
+        viewOptions.breakpointIndicator = _.get(args, "viewOptions.breakpointIndicator", {});
+        viewOptions.breakpointIndicator.width = _.get(args, "viewOptions.breakpoint.width", 22);
+        viewOptions.breakpointIndicator.height = _.get(args, "viewOptions.breakpoint.height", 22);
+        viewOptions.breakpointIndicator.class = _.get(args, "breakpointIndicator.class", "statement-view-breakpoint-indicator");
 
-         viewOptions.breakpointIndicator = _.get(args, "viewOptions.breakpointIndicator", {});
-         viewOptions.breakpointIndicator.width = _.get(args, "viewOptions.breakpoint.width", 22);
-         viewOptions.breakpointIndicator.height = _.get(args, "viewOptions.breakpoint.height", 22);
-         viewOptions.breakpointIndicator.class = _.get(args, "breakpointIndicator.class", "statement-view-breakpoint-indicator");
+        var debugIndicatorGroup = D3Utils.group(statementGroup);
 
-         var debugIndicatorGroup = D3Utils.group(statementGroup);
+        // Adding svg definitions needed for styling delete button.
+        var svgDefinitions = debugIndicatorGroup.append("defs");
 
-         // Adding svg definitions needed for styling delete button.
-         var svgDefinitions = debugIndicatorGroup.append("defs");
+        var debugIndicatorPattern = svgDefinitions.append("pattern")
+            .attr("id", "debugIcon")
+            .attr("width", "100%")
+            .attr("height", "100%");
 
-         var debugIndicatorPattern = svgDefinitions.append("pattern")
-             .attr("id", "debugIcon")
+        debugIndicatorPattern.append("image")
+            .attr("xlink:href", "images/debug-point.svg")
+            .attr("x", (viewOptions.breakpointIndicator.width) - (36 / 2))
+            .attr("y", (viewOptions.breakpointIndicator.height / 2) - (14 / 2))
+            .attr("width", "14")
+            .attr("height", "14");
+
+         var removeBreakpoint = svgDefinitions.append("pattern")
+             .attr("id", "debugRemoveIcon")
              .attr("width", "100%")
              .attr("height", "100%");
 
-         debugIndicatorPattern.append("image")
-             .attr("xlink:href", "images/debug-point.svg")
+         removeBreakpoint.append("image")
+             .attr("xlink:href", "images/debug-point-remove.svg")
              .attr("x", (viewOptions.breakpointIndicator.width) - (36 / 2))
              .attr("y", (viewOptions.breakpointIndicator.height / 2) - (14 / 2))
              .attr("width", "14")
              .attr("height", "14");
 
-          var removeBreakpoint = svgDefinitions.append("pattern")
-              .attr("id", "debugRemoveIcon")
-              .attr("width", "100%")
-              .attr("height", "100%");
+        var statementBoundingBox = this.getBoundingBox();
+        var pointX = statementBoundingBox.x() + statementBoundingBox.w() - viewOptions.breakpointIndicator.width +
+            (viewOptions.breakpointIndicator.width /2);
+        var pointY = statementBoundingBox.y() - (viewOptions.breakpointIndicator.height/2)
 
-          removeBreakpoint.append("image")
-              .attr("xlink:href", "images/debug-point-remove.svg")
-              .attr("x", (viewOptions.breakpointIndicator.width) - (36 / 2))
-              .attr("y", (viewOptions.breakpointIndicator.height / 2) - (14 / 2))
-              .attr("width", "14")
-              .attr("height", "14");
+        var removeBreakpointButton = D3Utils.rect(pointX, pointY,
+            viewOptions.breakpointIndicator.width, viewOptions.breakpointIndicator.height, 0, 0, debugIndicatorGroup)
+            .classed(viewOptions.breakpointIndicator.class, true).classed(viewOptions.breakpointIndicator.class, true);
 
-         var statementBoundingBox = this.getBoundingBox();
-         var pointX = statementBoundingBox.x() + statementBoundingBox.w() - viewOptions.breakpointIndicator.width +
-             (viewOptions.breakpointIndicator.width /2);
-         var pointY = statementBoundingBox.y() - (viewOptions.breakpointIndicator.height/2)
+        $(removeBreakpointButton.node()).click(function(event){
+            event.stopPropagation();
+            var fileName = self.getDiagramRenderingContext().ballerinaFileEditor._file.getName();
+            DebugManager.removeBreakPoint(model.getLineNumber(), fileName);
+        });
 
-         var removeBreakpointButton = D3Utils.rect(pointX, pointY,
-             viewOptions.breakpointIndicator.width, viewOptions.breakpointIndicator.height, 0, 0, debugIndicatorGroup)
-             .classed(viewOptions.breakpointIndicator.class, true).classed(viewOptions.breakpointIndicator.class, true);
+        this._debugIndicator = removeBreakpointButton;
 
-         $(removeBreakpointButton.node()).click(function(event){
-             event.stopPropagation();
-             var fileName = self.getDiagramRenderingContext().ballerinaFileEditor._file.getName();
-             DebugManager.removeBreakPoint(model.getLineNumber(), fileName);
-         });
+        this.getBoundingBox().on('left-edge-moved', function(dx) {
+           removeBreakpointButton.attr('x', parseFloat(removeBreakpointButton.attr('x')) + dx);
+        });
 
-         this._debugIndicator = removeBreakpointButton;
+        this.getBoundingBox().on('top-edge-moved', function (dy) {
+            removeBreakpointButton.attr('y', parseFloat(removeBreakpointButton.attr('y')) + dy);
+        });
 
-         this.getBoundingBox().on('left-edge-moved', function(dx) {
-            removeBreakpointButton.attr('x', parseFloat(removeBreakpointButton.attr('x')) + dx);
-         });
+        // resume state on rerendering
+        var file = self.getDiagramRenderingContext().ballerinaFileEditor._file.getName();
+        var hasBreakPoint = DebugManager.hasBreakPoint(model.getLineNumber(), file);
+        if(hasBreakPoint) {
+           this.showDebugIndicator();
+        } else {
+           this.hideDebugIndicator();
+        }
+    }
 
-         this.getBoundingBox().on('top-edge-moved', function (dy) {
-             removeBreakpointButton.attr('y', parseFloat(removeBreakpointButton.attr('y')) + dy);
-         });
+    showDebugIndicator() {
+        $(this._debugIndicator.node()).show();
+    }
 
-         // resume state on rerendering
-         var file = self.getDiagramRenderingContext().ballerinaFileEditor._file.getName();
-         var hasBreakPoint = DebugManager.hasBreakPoint(model.getLineNumber(), file);
-         if(hasBreakPoint) {
-            this.showDebugIndicator();
-         } else {
-            this.hideDebugIndicator();
-         }
-     };
+    hideDebugIndicator() {
+        $(this._debugIndicator.node()).hide();
+    }
 
-     BallerinaStatementView.prototype.showDebugIndicator = function () {
-         $(this._debugIndicator.node()).show();
-     };
-
-     BallerinaStatementView.prototype.hideDebugIndicator = function () {
-         $(this._debugIndicator.node()).hide();
-     };
-
-
-    BallerinaStatementView.prototype.getTopCenter = function () {
+    getTopCenter() {
         return this._topCenter;
-    };
+    }
 
-    BallerinaStatementView.prototype.getViewOptions = function () {
+    getViewOptions() {
         return this._viewOptions;
-    };
+    }
 
     /**
      * Returns the bounding box of this view.
      * @return {BBox}
      */
-    BallerinaStatementView.prototype.getBoundingBox = function () {
+    getBoundingBox() {
         return this._boundingBox;
-    };
+    }
 
-    BallerinaStatementView.prototype.repositionStatement = function (options) {
+    repositionStatement(options) {
         this.getBoundingBox().y(this.getBoundingBox().y() + options.dy);
         this.getStatementGroup().attr('transform', ('translate(0,' + options.dy + ')'));
-    };
+    }
 
     /**
      * Set the diagram rendering context
      * @param {object} diagramRenderingContext
      */
-    BallerinaStatementView.prototype.setDiagramRenderingContext = function (diagramRenderingContext) {
+    setDiagramRenderingContext(diagramRenderingContext) {
         this._diagramRenderingContext = diagramRenderingContext;
-    };
+    }
+}
 
-    return BallerinaStatementView;
-});
+export default BallerinaStatementView;

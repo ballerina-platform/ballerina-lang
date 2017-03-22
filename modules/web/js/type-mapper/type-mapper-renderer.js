@@ -15,9 +15,15 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-require('./type-mapper.css');
+$____type_mapper_css;
 
-define(['require', 'lodash', 'jquery', 'jsplumb', 'dagre', 'alerts'], function (require, _, $, jsPlumbLib, dagre, alerts) {
+import require from 'require';
+import _ from 'lodash';
+import $ from 'jquery';
+import jsPlumbLib from 'jsplumb';
+import dagre from 'dagre';
+import alerts from 'alerts';
+import $____type_mapper_css from './type-mapper.css';
     /**
      * Renderer constructor for TypeMapper
      * @param {object} onConnectionCallback call back function when connection made
@@ -996,5 +1002,5 @@ define(['require', 'lodash', 'jquery', 'jsplumb', 'dagre', 'alerts'], function (
         }]
     }
 
-    return TypeMapperRenderer;
-});
+    export default TypeMapperRenderer;
+

@@ -15,34 +15,35 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require','lodash', 'log', 'event_channel', './abstract-source-gen-visitor', '../../ast/module'],
-    function(require, _, log, EventChannel, AbstractSourceGenVisitor, AST) {
+import _ from 'lodash';
+import log from 'log';
+import EventChannel from 'event_channel';
+import AbstractSourceGenVisitor from './abstract-source-gen-visitor';
+import AST from '../../ast/module';
 
-        var VariableDeclarationVisitor = function(parent){
-            AbstractSourceGenVisitor.call(this,parent);
-        };
+class VariableDeclarationVisitor extends AbstractSourceGenVisitor {
+    constructor(parent) {
+        super(parent);
+    }
 
-        VariableDeclarationVisitor.prototype = Object.create(AbstractSourceGenVisitor.prototype);
-        VariableDeclarationVisitor.prototype.constructor = VariableDeclarationVisitor;
+    canVisitVariableDeclaration(variableDeclaration) {
+        return true;
+    }
 
-        VariableDeclarationVisitor.prototype.canVisitVariableDeclaration = function (variableDeclaration) {
-            return true;
-        };
+    beginVisitVariableDeclaration(variableDeclaration) {
+        this.appendSource(variableDeclaration.getType() + " " +variableDeclaration.getIdentifier());
+        log.debug('Begin Visit Variable Declaration');
+    }
 
-        VariableDeclarationVisitor.prototype.beginVisitVariableDeclaration = function (variableDeclaration) {
-            this.appendSource(variableDeclaration.getType() + " " +variableDeclaration.getIdentifier());
-            log.debug('Begin Visit Variable Declaration');
-        };
+    visitVariableDeclaration(variableDeclaration) {
+        log.debug('Visit Variable Declaration');
+    }
 
-        VariableDeclarationVisitor.prototype.visitVariableDeclaration = function (variableDeclaration) {
-            log.debug('Visit Variable Declaration');
-        };
+    endVisitVariableDeclaration(variableDeclaration) {
+        this.appendSource(";\n");
+        this.getParent().appendSource(this.getGeneratedSource());
+        log.debug('End Visit Variable Declaration');
+    }
+}
 
-        VariableDeclarationVisitor.prototype.endVisitVariableDeclaration = function (variableDeclaration) {
-            this.appendSource(";\n");
-            this.getParent().appendSource(this.getGeneratedSource());
-            log.debug('End Visit Variable Declaration');
-        };
-        
-        return VariableDeclarationVisitor;
-    });
+export default VariableDeclarationVisitor;

@@ -15,33 +15,33 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require', 'lodash', 'log', 'event_channel', './abstract-expression-source-gen-visitor'],
-    function (require, _, log, EventChannel, AbstractExpressionSourceGenVisitor) {
+import _ from 'lodash';
+import log from 'log';
+import EventChannel from 'event_channel';
+import AbstractExpressionSourceGenVisitor from './abstract-expression-source-gen-visitor';
 
-        var SructFieldAccessExpressionVisitor = function (parent) {
-            AbstractExpressionSourceGenVisitor.call(this, parent);
-        };
+class SructFieldAccessExpressionVisitor extends AbstractExpressionSourceGenVisitor {
+    constructor(parent) {
+        super(parent);
+    }
 
-        SructFieldAccessExpressionVisitor.prototype = Object.create(AbstractExpressionSourceGenVisitor.prototype);
-        SructFieldAccessExpressionVisitor.prototype.constructor = SructFieldAccessExpressionVisitor;
+    canVisitStructFieldAccessExpression(structFieldAccessExpression) {
+        return true;
+    }
 
-        SructFieldAccessExpressionVisitor.prototype.canVisitStructFieldAccessExpression = function (structFieldAccessExpression) {
-            return true;
-        };
+    beginVisitStructFieldAccessExpression(structFieldAccessExpression) {
+        this.appendSource(structFieldAccessExpression.getExpression());
+        log.debug('Begin Visit Struct Field Access Expression');
+    }
 
-        SructFieldAccessExpressionVisitor.prototype.beginVisitStructFieldAccessExpression = function (structFieldAccessExpression) {
-            this.appendSource(structFieldAccessExpression.getExpression());
-            log.debug('Begin Visit Struct Field Access Expression');
-        };
+    visitStructFieldAccessExpression(structFieldAccessExpression) {
+        log.debug('Visit Struct Field Access Expression');
+    }
 
-        SructFieldAccessExpressionVisitor.prototype.visitStructFieldAccessExpression = function (structFieldAccessExpression) {
-            log.debug('Visit Struct Field Access Expression');
-        };
+    endVisitStructFieldAccessExpression(structFieldAccessExpression) {
+        this.getParent().appendSource(this.getGeneratedSource());
+        log.debug('End Visit Struct Field Access Expression');
+    }
+}
 
-        SructFieldAccessExpressionVisitor.prototype.endVisitStructFieldAccessExpression = function (structFieldAccessExpression) {
-            this.getParent().appendSource(this.getGeneratedSource());
-            log.debug('End Visit Struct Field Access Expression');
-        };
-
-        return SructFieldAccessExpressionVisitor;
-    });
+export default SructFieldAccessExpressionVisitor;

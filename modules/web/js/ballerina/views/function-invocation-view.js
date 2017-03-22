@@ -15,87 +15,90 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', './simple-statement-view', '../ast/statements/function-invocation-statement', 'd3utils', 'd3'],
-    function (_, log, SimpleStatementView, FunctionInvocationStatement, D3Utils, d3) {
+import _ from 'lodash';
+import log from 'log';
+import SimpleStatementView from './simple-statement-view';
+import FunctionInvocationStatement from '../ast/statements/function-invocation-statement';
+import D3Utils from 'd3utils';
+import d3 from 'd3';
 
-        /**
-         * The view to represent a function invocation which is an AST visitor.
-         * @param {Object} args - Arguments for creating the view.
-         * @param {FunctionInvocation} args.model - The function invocation statement model.
-         * @param {Object} args.container - The HTML container to which the view should be added to.
-         * @param {Object} [args.viewOptions={}] - Configuration values for the view.
-         * @class FunctionInvocationStatementView
-         * @constructor
-         * @extends SimpleStatementView
-         */
-        var FunctionInvocationStatementView = function (args) {
-            SimpleStatementView.call(this, args);
+/**
+ * The view to represent a function invocation which is an AST visitor.
+ * @param {Object} args - Arguments for creating the view.
+ * @param {FunctionInvocation} args.model - The function invocation statement model.
+ * @param {Object} args.container - The HTML container to which the view should be added to.
+ * @param {Object} [args.viewOptions={}] - Configuration values for the view.
+ * @class FunctionInvocationStatementView
+ * @constructor
+ * @extends SimpleStatementView
+ */
+class FunctionInvocationStatementView extends SimpleStatementView {
+    constructor(args) {
+        super(args);
 
-            if (_.isNil(this._model) || !(this._model instanceof FunctionInvocationStatement)) {
-                log.error("function invocation statement undefined or is of different type." + this._model);
-                throw "function invocation statement undefined or is of different type." + this._model;
-            }
+        if (_.isNil(this._model) || !(this._model instanceof FunctionInvocationStatement)) {
+            log.error("function invocation statement undefined or is of different type." + this._model);
+            throw "function invocation statement undefined or is of different type." + this._model;
+        }
 
-            if (_.isNil(this._container)) {
-                log.error("Container for function invocation statement is undefined." + this._container);
-                throw "Container for function invocation statement is undefined." + this._container;
-            }
+        if (_.isNil(this._container)) {
+            log.error("Container for function invocation statement is undefined." + this._container);
+            throw "Container for function invocation statement is undefined." + this._container;
+        }
+    }
+
+    setModel(model) {
+        if (!_.isNil(model) && model instanceof FunctionInvocationStatement) {
+            (this.__proto__.__proto__).setModel(model);
+        } else {
+            log.error("function invocation statement undefined or is of different type." + model);
+            throw "function invocation statement undefined or is of different type." + model;
+        }
+    }
+
+    /**
+     * Renders the view for function invocation statement.
+     * @returns {group} - The SVG group which holds the elements of the function invocation statement.
+     */
+    render(renderingContext) {
+        log.debug("Rendering Function Invocation Statement started.");
+        // Calling super class's render function.
+        (this.__proto__.__proto__).render.call(this, renderingContext);
+        var model = this.getModel().getChildren()[0];
+        // Setting display text.
+        this.renderDisplayText(model.getFunctionalExpression());
+        // Setting group ID.
+        var statementGroup = this.getStatementGroup();
+
+        // Creating property pane.
+        var editableProperty = {
+            propertyType: "text",
+            key: "Function",
+            model: model,
+            getterMethod: model.getFunctionalExpression,
+            setterMethod: model.setFunctionalExpression
         };
+        this._createPropertyPane({
+            model: model,
+            statementGroup: statementGroup,
+            editableProperties: editableProperty
+        });
+        this.listenTo(model, 'update-property-text', this.updateFunctionalExpression);
 
-        FunctionInvocationStatementView.prototype = Object.create(SimpleStatementView.prototype);
-        FunctionInvocationStatementView.prototype.constructor = FunctionInvocationStatementView;
+        this._createDebugIndicator({
+            statementGroup: statementGroup
+        });
 
-        FunctionInvocationStatementView.prototype.setModel = function (model) {
-            if (!_.isNil(model) && model instanceof FunctionInvocationStatement) {
-                (this.__proto__.__proto__).setModel(model);
-            } else {
-                log.error("function invocation statement undefined or is of different type." + model);
-                throw "function invocation statement undefined or is of different type." + model;
-            }
-        };
+        log.debug("Rendering Function Invocation Statement finished.");
+        return statementGroup;
+    }
 
-        /**
-         * Renders the view for function invocation statement.
-         * @returns {group} - The SVG group which holds the elements of the function invocation statement.
-         */
-        FunctionInvocationStatementView.prototype.render = function (renderingContext) {
-            log.debug("Rendering Function Invocation Statement started.");
-            // Calling super class's render function.
-            (this.__proto__.__proto__).render.call(this, renderingContext);
-            var model = this.getModel().getChildren()[0];
-            // Setting display text.
-            this.renderDisplayText(model.getFunctionalExpression());
-            // Setting group ID.
-            var statementGroup = this.getStatementGroup();
+    updateFunctionalExpression(newExpression, propertyKey) {
+        this._model.getChildren()[0].setFunctionalExpression(newExpression); // Set property value.
+        var displayText = this._model.getChildren()[0].getFunctionalExpression();
+        this.renderDisplayText(displayText);// Set display text.
+    }
+}
 
-            // Creating property pane.
-            var editableProperty = {
-                propertyType: "text",
-                key: "Function",
-                model: model,
-                getterMethod: model.getFunctionalExpression,
-                setterMethod: model.setFunctionalExpression
-            };
-            this._createPropertyPane({
-                model: model,
-                statementGroup: statementGroup,
-                editableProperties: editableProperty
-            });
-            this.listenTo(model, 'update-property-text', this.updateFunctionalExpression);
-
-            this._createDebugIndicator({
-                statementGroup: statementGroup
-            });
-
-            log.debug("Rendering Function Invocation Statement finished.");
-            return statementGroup;
-        };
-
-        FunctionInvocationStatementView.prototype.updateFunctionalExpression = function (newExpression, propertyKey) {
-            this._model.getChildren()[0].setFunctionalExpression(newExpression); // Set property value.
-            var displayText = this._model.getChildren()[0].getFunctionalExpression();
-            this.renderDisplayText(displayText);// Set display text.
-        };
-
-        return FunctionInvocationStatementView;
-    });
+export default FunctionInvocationStatementView;
+    

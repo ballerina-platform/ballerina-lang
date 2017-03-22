@@ -15,44 +15,44 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', './expression'], function (_, Expression) {
+import _ from 'lodash';
+import Expression from './expression';
 
-    /**
-     * Constructor for InstanceCreationExpression
-     * @param {Object} args - Arguments to create the InstanceCreationExpression
-     * @param {Object} args.typeName - Type of the instance creation.
-     * @constructor
-     * @augments Expression
-     */
-    var InstanceCreationExpression = function (args) {
-        Expression.call(this, 'InstanceCreationExpression');
+/**
+ * Constructor for InstanceCreationExpression
+ * @param {Object} args - Arguments to create the InstanceCreationExpression
+ * @param {Object} args.typeName - Type of the instance creation.
+ * @constructor
+ * @augments Expression
+ */
+class InstanceCreationExpression extends Expression {
+    constructor(args) {
+        super('InstanceCreationExpression');
         this._typeName = _.get(args, 'typeName', 'newType');
-    };
+    }
 
-    InstanceCreationExpression.prototype = Object.create(Expression.prototype);
-    InstanceCreationExpression.prototype.constructor = InstanceCreationExpression;
-
-    InstanceCreationExpression.prototype.setTypeName = function (typeName, options) {
+    setTypeName(typeName, options) {
         this.setAttribute('_typeName', typeName, options);
-    };
+    }
 
-    InstanceCreationExpression.prototype.getTypeName = function () {
+    getTypeName() {
         return this._typeName;
-    };
+    }
 
     /**
      * initialize InstanceCreationExpression from json object
      * @param {Object} jsonNode to initialize from
      * @param {string} [jsonNode.instance_type] - instance type
      */
-    InstanceCreationExpression.prototype.initFromJson = function (jsonNode) {
+    initFromJson(jsonNode) {
         this.setTypeName(jsonNode.instance_type, {doSilently: true});
         this.setExpression(this.generateExpression(), {doSilently: true});
-    };
+    }
 
-    InstanceCreationExpression.prototype.generateExpression = function () {
+    generateExpression() {
         this._expression = 'new ' + this.getTypeName();
-    };
+    }
+}
 
-    return InstanceCreationExpression;
-});
+export default InstanceCreationExpression;
+

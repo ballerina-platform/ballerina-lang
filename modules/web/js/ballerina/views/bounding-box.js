@@ -15,32 +15,31 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define([ 'lodash', 'event_channel'], function ( _, EventChannel) {
+import _ from 'lodash';
+import EventChannel from 'event_channel';
 
-    /**
-     * @class BBox
-     * @augments EventChannel
-     * @param x
-     * @param y
-     * @param w
-     * @param h
-     * @constructor
-     */
-    var BBox = function (x, y, w, h) {
+/**
+ * @class BBox
+ * @augments EventChannel
+ * @param x
+ * @param y
+ * @param w
+ * @param h
+ * @constructor
+ */
+class BBox extends EventChannel {
+    constructor(x, y, w, h) {
         this._x = x || 0;
         this._y = y || 0;
         this._w = w || 0;
         this._h = h || 0;
-    };
-
-    BBox.prototype = Object.create(EventChannel.prototype);
-    BBox.prototype.constructor = BBox;
+    }
 
     /**
      * Gets or sets X
      * @returns {number|BBox} X
      */
-    BBox.prototype.x =  function (newX) {
+    x(newX) {
         if (newX === undefined) {
             return this._x;
         }
@@ -50,13 +49,13 @@ define([ 'lodash', 'event_channel'], function ( _, EventChannel) {
         this.trigger('left-edge-moved', offset);
         this.trigger('right-edge-moved', offset);
         return this;
-    };
+    }
 
     /**
      * Gets or sets y
      * @returns {number|BBox} y
      */
-    BBox.prototype.y =  function (newY) {
+    y(newY) {
         if (newY === undefined) {
             return this._y;
         }
@@ -66,13 +65,13 @@ define([ 'lodash', 'event_channel'], function ( _, EventChannel) {
         this.trigger('top-edge-moved', offset);
         this.trigger('bottom-edge-moved', offset);
         return this;
-    };
+    }
 
     /**
      * Gets or sets w
      * @returns {number|BBox} w
      */
-    BBox.prototype.w =  function (newW) {
+    w(newW) {
         if (newW === undefined) {
             return this._w;
         }
@@ -81,13 +80,13 @@ define([ 'lodash', 'event_channel'], function ( _, EventChannel) {
         this.trigger('right-edge-moved', deltaW);
         this.trigger('width-changed', deltaW);
         return this;
-    };
+    }
 
     /**
      * Gets or sets h
      * @returns {number|BBox} h
      */
-    BBox.prototype.h = function (newH, silent) {
+    h(newH, silent) {
         if (newH === undefined) {
             return this._h;
         }
@@ -98,13 +97,13 @@ define([ 'lodash', 'event_channel'], function ( _, EventChannel) {
             this.trigger('height-changed', deltaH);
         }
         return this;
-    };
+    }
 
     /**
      * move
      * @returns {BBox}
      */
-    BBox.prototype.move =  function (dx, dy, silent) {
+    move(dx, dy, silent) {
         if(silent){
             this._x = this.x() + dx;
             this._y = this.y() + dy;
@@ -113,7 +112,7 @@ define([ 'lodash', 'event_channel'], function ( _, EventChannel) {
         this.x(this.x() + dx);
         this.y(this.y() + dy);
         return this;
-    };
+    }
 
     /**
      * init from a top center
@@ -121,12 +120,12 @@ define([ 'lodash', 'event_channel'], function ( _, EventChannel) {
      * @param w
      * @param h
      */
-    BBox.prototype.fromTopCenter =  function (topCenter, w, h) {
+    fromTopCenter(topCenter, w, h) {
         this.x(topCenter.x() - w/2);
         this.y(topCenter.y());
         this.w(w);
         this.h(h);
-    };
+    }
 
     /**
      * init from a top left point
@@ -134,56 +133,56 @@ define([ 'lodash', 'event_channel'], function ( _, EventChannel) {
      * @param w
      * @param h
      */
-    BBox.prototype.fromTopLeft =  function (topLeft, w, h) {
+    fromTopLeft(topLeft, w, h) {
         this.x(topLeft.x());
         this.y(topLeft.y());
         this.w(w);
         this.h(h);
-    };
+    }
 
-    BBox.prototype.getTop =  function () {
+    getTop() {
         return this._y;
-    };
+    }
 
-    BBox.prototype.getBottom =  function () {
+    getBottom() {
         return this._y + this._h;
-    };
+    }
 
-    BBox.prototype.getLeft =  function () {
+    getLeft() {
         return this._x;
-    };
+    }
 
-    BBox.prototype.getRight =  function () {
+    getRight() {
         return this._x + this._w;
-    };
+    }
 
-    BBox.prototype.getTopCenterX = function () {
+    getTopCenterX() {
         return this.getLeft() + this.w()/2;
-    };
+    }
 
     /**
      * Returns the center point of this bounding box.
      * @return {{x: number, y: number}} center poin
      */
-    BBox.prototype.getCenter = function () {
+    getCenter() {
         return {x: this.getCenterX(), y: this.getCenterY()};
-    };
+    }
 
     /**
      * Returns X coordinate of the center point of this bounding box.
      * @return {number} X coordinate
      */
-    BBox.prototype.getCenterX = function () {
+    getCenterX() {
         return this._x + (this._w / 2);
-    };
+    }
 
     /**
      * Returns Y coordinate of the center point of this bounding box.
      * @return {number} Y coordinate
      */
-    BBox.prototype.getCenterY = function () {
+    getCenterY() {
         return this._y + (this._h / 2);
-    };
+    }
+}
 
-    return BBox;
-});
+export default BBox;

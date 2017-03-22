@@ -15,13 +15,18 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', './packageScope', './ballerinaSDK'], function (_, log, PackageScope, BallerinaSDK) {
-    /**
-     * Represents Environment
-     * @param args
-     * @constructor
-     */
-    var Environment = function (args) {
+import _ from 'lodash';
+import log from 'log';
+import PackageScope from './packageScope';
+import BallerinaSDK from './ballerinaSDK';
+
+/**
+ * Represents Environment
+ * @param args
+ * @constructor
+ */
+class Environment {
+    constructor(args) {
         if (!_.has(args, 'packageScope')) {
             this._packageScope = new PackageScope();
         } else {
@@ -32,36 +37,36 @@ define(['lodash', 'log', './packageScope', './ballerinaSDK'], function (_, log, 
         } else {
             this._ballerinaSDK = _.get(args, 'ballerinaSDK');
         }
-    };
+    }
 
-    Environment.prototype.init = function () {
+    init() {
         this._structs = _.union(this.getBallerinaSDK().getStructs(), this.getPackageScope().getStructs());
-    };
+    }
 
-    Environment.prototype.setStructs = function (structs) {
+    setStructs(structs) {
         this._structs = structs;
-    };
+    }
 
-    Environment.prototype.getStructs = function () {
+    getStructs() {
         return this._structs;
-    };
+    }
 
-    Environment.prototype.setBallerinaSDK = function (ballerinaSDK) {
+    setBallerinaSDK(ballerinaSDK) {
         this._ballerinaSDK = ballerinaSDK;
-    };
+    }
 
-    Environment.prototype.getBallerinaSDK = function () {
+    getBallerinaSDK() {
         return this._ballerinaSDK;
-    };
+    }
 
-    Environment.prototype.setPackageScope = function (packageScope) {
+    setPackageScope(packageScope) {
         this._packageScope = packageScope;
-    };
+    }
 
-    Environment.prototype.getPackageScope = function () {
+    getPackageScope() {
         return this._packageScope;
-    };
+    }
+}
 
-    return Environment;
+export default Environment;
 
-});

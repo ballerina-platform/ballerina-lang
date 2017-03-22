@@ -15,80 +15,82 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', './ballerina-view', './../ast/action-definition', 'd3utils'],
-    function (_, log, BallerinaView, ActionDefinition, D3Utils) {
+import _ from 'lodash';
+import log from 'log';
+import BallerinaView from './ballerina-view';
+import ActionDefinition from './../ast/action-definition';
+import D3Utils from 'd3utils';
 
-        /**
-         * The view to represent a action definition which is an AST visitor.
-         * @param {Object} args - Arguments for creating the view.
-         * @param {ActionDefinition} args.model - The action statement model.
-         * @param {Object} args.container - The HTML container to which the view should be added to.
-         * @param {Object} [args.viewOptions={}] - Configuration values for the view.
-         * @constructor
-         */
-        var ActionDefinitionView = function (args) {
+/**
+ * The view to represent a action definition which is an AST visitor.
+ * @param {Object} args - Arguments for creating the view.
+ * @param {ActionDefinition} args.model - The action statement model.
+ * @param {Object} args.container - The HTML container to which the view should be added to.
+ * @param {Object} [args.viewOptions={}] - Configuration values for the view.
+ * @constructor
+ */
+class ActionDefinitionView extends BallerinaView {
+    constructor(args) {
 
-            BallerinaView.call(this, args);
+        super(args);
 
-            if (_.isNil(this._model) || !(this._model instanceof ActionDefinition)) {
-                log.error("Action definition undefined or is of different type." + this._model);
-                throw "Action definition undefined or is of different type." + this._model;
-            }
+        if (_.isNil(this._model) || !(this._model instanceof ActionDefinition)) {
+            log.error("Action definition undefined or is of different type." + this._model);
+            throw "Action definition undefined or is of different type." + this._model;
+        }
 
-            if (_.isNil(this._container)) {
-                log.error("Container for action definition is undefined." + this._container);
-                throw "Container for action definition is undefined." + this._container;
-            }
+        if (_.isNil(this._container)) {
+            log.error("Container for action definition is undefined." + this._container);
+            throw "Container for action definition is undefined." + this._container;
+        }
 
-        };
+    }
 
-        ActionDefinitionView.prototype = Object.create(BallerinaView.prototype);
-        ActionDefinitionView.prototype.constructor = ActionDefinitionView;
+    setModel(model) {
+        if (!_.isNil(model) && model instanceof ActionDefinition) {
+            this._model = model;
+        } else {
+            log.error("Action definition undefined or is of different type." + model);
+            throw "Action definition undefined or is of different type." + model;
+        }
+    }
 
-        ActionDefinitionView.prototype.setModel = function (model) {
-            if (!_.isNil(model) && model instanceof ActionDefinition) {
-                this._model = model;
-            } else {
-                log.error("Action definition undefined or is of different type." + model);
-                throw "Action definition undefined or is of different type." + model;
-            }
-        };
+    setContainer(container) {
+        if (!_.isNil(container)) {
+            this._container = container;
+        } else {
+            log.error("Container for action definition is undefined." + container);
+            throw "Container for action definition is undefined." + container;
+        }
+    }
 
-        ActionDefinitionView.prototype.setContainer = function (container) {
-            if (!_.isNil(container)) {
-                this._container = container;
-            } else {
-                log.error("Container for action definition is undefined." + container);
-                throw "Container for action definition is undefined." + container;
-            }
-        };
+    setViewOptions(viewOptions) {
+        this._viewOptions = viewOptions;
+    }
 
-        ActionDefinitionView.prototype.setViewOptions = function (viewOptions) {
-            this._viewOptions = viewOptions;
-        };
+    getModel() {
+        return this._model;
+    }
 
-        ActionDefinitionView.prototype.getModel = function () {
-            return this._model;
-        };
+    getContainer() {
+        return this._container;
+    }
 
-        ActionDefinitionView.prototype.getContainer = function () {
-            return this._container;
-        };
+    getViewOptions() {
+        return this._viewOptions;
+    }
 
-        ActionDefinitionView.prototype.getViewOptions = function () {
-            return this._viewOptions;
-        };
+    /**
+     * Renders the view for action definition.
+     * @returns {group} - The SVG group which holds the elements of the action definition.
+     */
+    render() {
+        var group = D3Utils.group(this._container);
+        // TODO : Draw the view of the action definition and add it to the above svg group.
+        log.debug("Rendering action view.");
+        return group;
+    }
+}
 
-        /**
-         * Renders the view for action definition.
-         * @returns {group} - The SVG group which holds the elements of the action definition.
-         */
-        ActionDefinitionView.prototype.render = function () {
-            var group = D3Utils.group(this._container);
-            // TODO : Draw the view of the action definition and add it to the above svg group.
-            log.debug("Rendering action view.");
-            return group;
-        };
-
-        return ActionDefinitionView;
-    });
+export default ActionDefinitionView;
+    

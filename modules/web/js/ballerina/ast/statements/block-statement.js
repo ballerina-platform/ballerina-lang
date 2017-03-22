@@ -15,20 +15,19 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', '../node'], function (_, ASTNode) {
+import _ from 'lodash';
+import ASTNode from '../node';
 
-    /**
-     * Class to represent a block statement in ballerina.
-     * @constructor
-     */
-    var BlockStatement = function () {
-        ASTNode.call(this, 'BlockStatement');
-    };
+/**
+ * Class to represent a block statement in ballerina.
+ * @constructor
+ */
+class BlockStatement extends ASTNode {
+    constructor() {
+        super('BlockStatement');
+    }
 
-    BlockStatement.prototype = Object.create(ASTNode.prototype);
-    BlockStatement.prototype.constructor = BlockStatement;
-
-    BlockStatement.prototype.addVariableDeclaration = function (name, type) {
+    addVariableDeclaration(name, type) {
         var self = this;
         var ballerinaASTFactory = this.getFactory();
         var leftExpression = type + ' ' + name;
@@ -51,27 +50,27 @@ define(['lodash', '../node'], function (_, ASTNode) {
             return ballerinaASTFactory.isVariableDefinitionStatement(child);
         });
         this.addChild(variableDefStmt, index + 1);
-    };
+    }
 
     /**
      * Initialize BlockStatement from json object
      * @param {Object} jsonNode - JSON object for initialization.
      */
-    BlockStatement.prototype.initFromJson = function (jsonNode) {
+    initFromJson(jsonNode) {
         var self = this;
         _.each(jsonNode.children, function (childNode) {
             var child = self.getFactory().createFromJson(childNode);
             self.addChild(child);
             child.initFromJson(childNode);
         });
-    };
+    }
 
     /**
      * Override the super call to addChild
      * @param {ASTNode} child
      * @param {number} index
      */
-    BlockStatement.prototype.addChild = function (child, index,isModified,willVisit) {
+    addChild(child, index, isModified, willVisit) {
         var self = this;
 
         if(self.getFactory().isAssignmentStatement(child)){
@@ -90,9 +89,9 @@ define(['lodash', '../node'], function (_, ASTNode) {
         }else{
             Object.getPrototypeOf(this.constructor.prototype).addChild.call(this, child,index);
         }
-    };
+    }
 
-    BlockStatement.prototype.removeChild = function (child, ignoreModifiedTreeEvent, willVisit) {
+    removeChild(child, ignoreModifiedTreeEvent, willVisit) {
         if (!_.isUndefined(willVisit) && willVisit != true) {
             var parentModelChildren = this.children;
             for (var itr = 0; itr < parentModelChildren.length; itr++) {
@@ -104,7 +103,8 @@ define(['lodash', '../node'], function (_, ASTNode) {
         } else {
             Object.getPrototypeOf(this.constructor.prototype).removeChild.call(this, child, ignoreModifiedTreeEvent);
         }
-    };
+    }
+}
 
-    return BlockStatement;
-});
+export default BlockStatement;
+

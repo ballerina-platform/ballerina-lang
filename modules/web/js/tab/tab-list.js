@@ -15,7 +15,12 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['log', 'jquery', 'lodash', 'backbone', './tab', 'bootstrap'], function (log, $, _, Backbone, Tab) {
+import log from 'log';
+import $ from 'jquery';
+import _ from 'lodash';
+import Backbone from 'backbone';
+import Tab from './tab';
+import 'bootstrap';
 
     var TabList = Backbone.View.extend(
         /** @lends TabList.prototype */
@@ -297,5 +302,5 @@ define(['log', 'jquery', 'lodash', 'backbone', './tab', 'bootstrap'], function (
             }
         });
 
-    return TabList;
-});
+    export default TabList;
+

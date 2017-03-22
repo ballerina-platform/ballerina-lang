@@ -15,34 +15,62 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['./ballerina-ast-factory', './ballerina-ast-root', './statements/conditional-statement', './connector-declaration',
-        './connector-definition', './constant-definition', './expressions/expression', './function-definition',
-        './statements/if-else-statement', './statements/if-statement', './statements/else-statement', './statements/else-if-statement', './statements/trycatch-statement',
-        './statements/try-statement', './statements/catch-statement', './node', './statements/reply-statement', './resource-definition',
-        './statements/return-statement', './service-definition', './statements/statement', './statements/throw-statement', './type-definition',
-        './type-mapper-definition', './type-element', './variable-declaration', './statements/while-statement',
-        './worker-declaration', './package-definition', './import-declaration', './assignment',
-        './statements/assignment-statement', './statements/function-invocation-statement', './expressions/action-invocation-expression',
-        './ballerina-ast-deserializer', './expressions/function-invocation-expression',
-        './statements/left-operand-expression', './statements/right-operand-expression', './connector-action', './struct-definition',
-        './statements/action-invocation-statement', './statements/variable-definition-statement','./resource-parameter',
-        './return-type','./statements/worker-invocation-statement','./statements/worker-reply-statement','./statements/block-statement','./expressions/struct-field-access-expression',
-        './expressions/variable-reference-expression','./expressions/reference-type-init-expression','./variable-definition', './statements/break-statement',
-        './statements/comment-statement', './expressions/type-cast-expression'],
-    function (BallerinaASTFactory, BallerinaASTRoot, ConditionalStatement, ConnectorDeclaration, ConnectorDefinition,
-              ConstantDefinition, Expression, FunctionDefinition, IfElseStatement, IfStatement, ElseStatement,
-              ElseIfStatement, TryCatchStatement, TryStatement, CatchStatement, ASTNode, ReplyStatement,
-              ResourceDefinition, ReturnStatement, ServiceDefinition, Statement, ThrowStatement,
-              TypeDefinition, TypeMapperDefinition, TypeElement, VariableDeclaration, WhileStatement,
-              WorkerDeclaration, PackageDefinition, ImportDeclaration, Assignment, AssignmentStatement,
-              FunctionInvocation, ActionInvocationExpression, BallerinaASTDeserializer, FunctionInvocationExpression,
-              LeftOperandExpression, RightOperandExpression, ConnectorAction, StructDefinition,
-              ActionInvocationStatement, VariableDefinitionStatement, ResourceParameter, ReturnType,
-              WorkerInvocationStatement, WorkerReplyStatement, BlockStatement, StructFieldAccessExpression,
-              VariableReferenceExpression, ReferenceTypeInitExpression, VariableDefinition, BreakStatement,
-              CommentStatement, TypeCastExpression) {
+import BallerinaASTFactory from './ballerina-ast-factory';
+import BallerinaASTRoot from './ballerina-ast-root';
+import ConditionalStatement from './statements/conditional-statement';
+import ConnectorDeclaration from './connector-declaration';
+import ConnectorDefinition from './connector-definition';
+import ConstantDefinition from './constant-definition';
+import Expression from './expressions/expression';
+import FunctionDefinition from './function-definition';
+import IfElseStatement from './statements/if-else-statement';
+import IfStatement from './statements/if-statement';
+import ElseStatement from './statements/else-statement';
+import ElseIfStatement from './statements/else-if-statement';
+import TryCatchStatement from './statements/trycatch-statement';
+import TryStatement from './statements/try-statement';
+import CatchStatement from './statements/catch-statement';
+import ASTNode from './node';
+import ReplyStatement from './statements/reply-statement';
+import ResourceDefinition from './resource-definition';
+import ReturnStatement from './statements/return-statement';
+import ServiceDefinition from './service-definition';
+import Statement from './statements/statement';
+import ThrowStatement from './statements/throw-statement';
+import TypeDefinition from './type-definition';
+import TypeMapperDefinition from './type-mapper-definition';
+import TypeElement from './type-element';
+import VariableDeclaration from './variable-declaration';
+import WhileStatement from './statements/while-statement';
+import WorkerDeclaration from './worker-declaration';
+import PackageDefinition from './package-definition';
+import ImportDeclaration from './import-declaration';
+import Assignment from './assignment';
+import AssignmentStatement from './statements/assignment-statement';
+import FunctionInvocation from './statements/function-invocation-statement';
+import ActionInvocationExpression from './expressions/action-invocation-expression';
+import BallerinaASTDeserializer from './ballerina-ast-deserializer';
+import FunctionInvocationExpression from './expressions/function-invocation-expression';
+import LeftOperandExpression from './statements/left-operand-expression';
+import RightOperandExpression from './statements/right-operand-expression';
+import ConnectorAction from './connector-action';
+import StructDefinition from './struct-definition';
+import ActionInvocationStatement from './statements/action-invocation-statement';
+import VariableDefinitionStatement from './statements/variable-definition-statement';
+import ResourceParameter from './resource-parameter';
+import ReturnType from './return-type';
+import WorkerInvocationStatement from './statements/worker-invocation-statement';
+import WorkerReplyStatement from './statements/worker-reply-statement';
+import BlockStatement from './statements/block-statement';
+import StructFieldAccessExpression from './expressions/struct-field-access-expression';
+import VariableReferenceExpression from './expressions/variable-reference-expression';
+import ReferenceTypeInitExpression from './expressions/reference-type-init-expression';
+import VariableDefinition from './variable-definition';
+import BreakStatement from './statements/break-statement';
+import CommentStatement from './statements/comment-statement';
+import TypeCastExpression from './expressions/type-cast-expression';
 
-        return  {
+        export default  {
             BallerinaASTFactory: BallerinaASTFactory,
             BallerinaASTRoot: BallerinaASTRoot,
             ConditionalStatement: ConditionalStatement,
@@ -98,5 +126,5 @@ define(['./ballerina-ast-factory', './ballerina-ast-root', './statements/conditi
             CommentStatement : CommentStatement,
             TypeCastExpression : TypeCastExpression
         }
-    });
+    
 

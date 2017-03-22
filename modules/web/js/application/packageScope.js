@@ -15,42 +15,44 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log'], function (_, log) {
+import _ from 'lodash';
+import log from 'log';
 
-    /**
-     * Represents the constructs elements of a package
-     * @param {Object} args - Constructs elements of a package
-     * @param {Object} args.functions - functions
-     * @param {Object} args.connectorDefinitions - connectorDefinitions;
-     * @param {Object} args.structs - structs;
-     * @param {Object} args.nativetype - nativetype;
-     * @param {Object} args.type - type;
-     * @constructor
-     */
-    var PackageScope = function (args) {
+/**
+ * Represents the constructs elements of a package
+ * @param {Object} args - Constructs elements of a package
+ * @param {Object} args.functions - functions
+ * @param {Object} args.connectorDefinitions - connectorDefinitions;
+ * @param {Object} args.structs - structs;
+ * @param {Object} args.nativetype - nativetype;
+ * @param {Object} args.type - type;
+ * @constructor
+ */
+class PackageScope {
+    constructor(args) {
         this._functions = _.get(args, 'functions', []);
         this._connectorDefinitions = _.get(args, 'connectorDefinitions', {});
         this._structs = _.get(args, 'structs', []);
         this._nativetype = _.get(args, 'nativeTypes', []);
         this._type = _.get(args, 'types', []);
-    };
+    }
 
-    PackageScope.prototype.setStructs = function (structs) {
+    setStructs(structs) {
         this._structs = structs;
-    };
+    }
 
-    PackageScope.prototype.getStructs = function () {
+    getStructs() {
         return this._structs;
-    };
+    }
 
-    PackageScope.prototype.setTypes = function (type) {
+    setTypes(type) {
         this._type = type;
-    };
+    }
 
-    PackageScope.prototype.getTypes =function () {
+    getTypes() {
         return this._type;
-    };
+    }
+}
 
-    return PackageScope;
+export default PackageScope;
 
-});

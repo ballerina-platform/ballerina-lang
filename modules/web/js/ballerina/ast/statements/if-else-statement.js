@@ -15,15 +15,21 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log','./statement', './else-statement', './else-if-statement', './if-statement'], function (_, log, Statement, ElseStatement, ElseIfStatement, IfStatement) {
+import _ from 'lodash';
+import log from 'log';
+import Statement from './statement';
+import ElseStatement from './else-statement';
+import ElseIfStatement from './else-if-statement';
+import IfStatement from './if-statement';
 
-    /**
-     * Class for if conditions in ballerina.
-     * @constructor
-     */
+/**
+ * Class for if conditions in ballerina.
+ * @constructor
+ */
 
-    var IfElseStatement = function (args) {
-        Statement.call(this);
+class IfElseStatement extends Statement {
+    constructor(args) {
+        super();
 
         var ifStatement = new IfStatement(args);
         this.addChild(ifStatement);
@@ -35,48 +41,45 @@ define(['lodash', 'log','./statement', './else-statement', './else-if-statement'
 
         this._elseIfStatements = [];
         this.type = "IfElseStatement";
-    };
+    }
 
-    IfElseStatement.prototype = Object.create(Statement.prototype);
-    IfElseStatement.prototype.constructor = IfElseStatement;
-
-    IfElseStatement.prototype.getIfStatement = function () {
+    getIfStatement() {
         return this._ifStatement;
-    };
+    }
 
-    IfElseStatement.prototype.getElseStatement = function () {
+    getElseStatement() {
         return this._elseStatement;
-    };
+    }
 
-    IfElseStatement.prototype.getElseIfStatement = function () {
+    getElseIfStatement() {
         return this._elseIfStatements;
-    };
+    }
 
-    IfElseStatement.prototype.setIfStatement = function (ifStatement, options) {
+    setIfStatement(ifStatement, options) {
         this.setAttribute('_ifStatement', ifStatement, options);
-    };
+    }
 
     /**
      * creates Else Statement
      * @param args
      */
-    IfElseStatement.prototype.createElseStatement = function (args) {
+    createElseStatement(args) {
         var newElseStatement = new ElseStatement(args);
         this._elseStatement = newElseStatement;
         this.addChild(newElseStatement);
         return newElseStatement;
-    };
+    }
 
     /**
      * creates Else If Statement
      * @param args
      */
-    IfElseStatement.prototype.createElseIfStatement = function (args) {
+    createElseIfStatement(args) {
         var newElseIfStatement = new ElseIfStatement(args);
         this._elseIfStatements.push(newElseIfStatement);
         this.addChild(newElseIfStatement);
         return newElseIfStatement;
-    };
+    }
 
     /**
      * initialize IfElseStatement from json object
@@ -84,7 +87,7 @@ define(['lodash', 'log','./statement', './else-statement', './else-if-statement'
      * @param {Object} [jsonNode.if_statement] - If statement block
      * @param {Object} [jsonNode.else_statement] - Else statement block
      */
-    IfElseStatement.prototype.initFromJson = function (jsonNode) {
+    initFromJson(jsonNode) {
 
         var self = this;
 
@@ -124,7 +127,8 @@ define(['lodash', 'log','./statement', './else-statement', './else-if-statement'
             self._elseStatement.addChild(child);
             child.initFromJson(childNodeTemp);
         });
-    };
+    }
+}
 
-    return IfElseStatement;
-});
+export default IfElseStatement;
+

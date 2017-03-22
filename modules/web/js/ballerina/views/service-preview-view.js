@@ -16,15 +16,19 @@
  * under the License.
  */
 
-define(['require', 'jquery', 'd3', 'd3utils', 'backbone', 'lodash','log'], function (require, $, d3, D3Utils, Backbone,  _,log) {
+import $ from 'jquery';
+import d3 from 'd3';
+import D3Utils from 'd3utils';
+import Backbone from 'backbone';
+import _ from 'lodash';
+import log from 'log';
 
-    var ServicePreviewView = function(config){
+class ServicePreviewView {
+    constructor(config) {
         this._config = config;
-    };
+    }
 
-    ServicePreviewView.prototype.constructor = ServicePreviewView;
-
-    ServicePreviewView.prototype.render = function () {
+    render() {
         var config = this._config;
         var errMsg;
         if (!_.has(config, 'parentContainer')) {
@@ -66,8 +70,9 @@ define(['require', 'jquery', 'd3', 'd3utils', 'backbone', 'lodash','log'], funct
         previewParent.append(previewName);
         listItem.append(previewParent);
         parentContainer.append(listItem);
-    };
+    }
+}
 
-    return ServicePreviewView;
+ServicePreviewView.prototype.constructor = ServicePreviewView;
 
-});
+export default ServicePreviewView;

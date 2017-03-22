@@ -15,9 +15,12 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', './node', '../utils/common-utils'], function (_, ASTNode, CommonUtils) {
+import _ from 'lodash';
+import ASTNode from './node';
+import CommonUtils from '../utils/common-utils';
 
-    var WorkerDeclaration = function (args) {
+class WorkerDeclaration extends ASTNode {
+    constructor(args) {
         this._isDefaultWorker = _.get(args, "isDefaultWorker", false);
         this._reply = _.get(args, "replyStatement", null);
         this._workerDeclarationStatement = _.get(args, 'declarationStatement', '');
@@ -26,101 +29,99 @@ define(['lodash', './node', '../utils/common-utils'], function (_, ASTNode, Comm
         this._workerName = undefined;
         this._argumentsList = [];
 
-        ASTNode.call(this, "WorkerDeclaration");
-    };
+        super("WorkerDeclaration");
+    }
 
-    WorkerDeclaration.prototype = Object.create(ASTNode.prototype);
-    WorkerDeclaration.prototype.constructor = WorkerDeclaration;
-
-    WorkerDeclaration.prototype.setIsDefaultWorker = function (isDefaultWorker, options) {
+    setIsDefaultWorker(isDefaultWorker, options) {
         if (!_.isNil(isDefaultWorker)) {
             this.setAttribute('_isDefaultWorker', isDefaultWorker, options);
         }
-    };
+    }
 
-    WorkerDeclaration.prototype.getReply = function () {
+    getReply() {
         return this._reply;
-    };
+    }
 
-    WorkerDeclaration.prototype.isDefaultWorker = function () {
+    isDefaultWorker() {
         return this._isDefaultWorker;
-    };
+    }
 
     /**
      * Set the worker declaration statement [workerName(message m)]
      * @param {string} declarationStatement
      */
-    WorkerDeclaration.prototype.setWorkerDeclarationStatement = function (declarationStatement, options) {
+    setWorkerDeclarationStatement(declarationStatement, options) {
         this.setAttribute('_workerDeclarationStatement', declarationStatement, options);
         var tokens = this._workerDeclarationStatement.split("(");
         this.setWorkerName(tokens[0].trim());
-    };
+    }
 
     /**
      * Get the worker declaration statement
      * @return {string} _workerDeclarationStatement
      */
-    WorkerDeclaration.prototype.getWorkerDeclarationStatement = function () {
+    getWorkerDeclarationStatement() {
         if (this._workerDeclarationStatement === '') {
             return this.getWorkerName() + "(message m)";
         } else {
             return this._workerDeclarationStatement;
         }
-    };
+    }
 
-    WorkerDeclaration.prototype.getWorkerName = function () {
+    getWorkerName() {
         return this._workerName;
-    };
+    }
 
-    WorkerDeclaration.prototype.setWorkerName = function (workerName, options) {
+    setWorkerName(workerName, options) {
         this.setAttribute('_workerName', workerName, options);
-    };
+    }
 
     /**
      * Get the invoker statement
      * @return {ASTNode} invoker statement
      */
-    WorkerDeclaration.prototype.getInvoker = function () {
+    getInvoker() {
         return this._invoker;
-    };
+    }
 
     /**
      * Set the invoker statement
      * @param {ASTNode} invoker
      * @param {object} options
      */
-    WorkerDeclaration.prototype.setInvoker = function (invoker, options) {
+    setInvoker(invoker, options) {
         this.setAttribute('_invoker', invoker, options);
-    };
+    }
 
     /**
      * Get the invoker statement
      * @return {ASTNode} reply receiver statement
      */
-    WorkerDeclaration.prototype.getReplyReceiver = function () {
+    getReplyReceiver() {
         return this._replyReceiver;
-    };
+    }
 
     /**
      * Set the reply receiver statement
      * @param {ASTNode} replyReceiver
      * @param {object} options
      */
-    WorkerDeclaration.prototype.setReplyReceiver = function (replyReceiver, options) {
+    setReplyReceiver(replyReceiver, options) {
         this.setAttribute('_replyReceiver', replyReceiver, options);
-    };
-    
-    WorkerDeclaration.prototype.addArgument = function (paramType, paramName) {
+    }
+
+    addArgument(paramType, paramName) {
         this.getArgumentsList().push({
             parameter_type: paramType,
             parameter_name: paramName
         });
-    };
+    }
 
-    WorkerDeclaration.prototype.getArgumentsList = function () {
+    getArgumentsList() {
         return this._argumentsList;
-    };
-    WorkerDeclaration.prototype.initFromJson = function (jsonNode) {
+    }
+
+    initFromJson(jsonNode) {
         var self = this;
         var BallerinaASTFactory = this.getFactory();
         this.setWorkerName(jsonNode.worker_name);
@@ -146,13 +147,13 @@ define(['lodash', './node', '../utils/common-utils'], function (_, ASTNode, Comm
             self.addChild(child);
             child.initFromJson(childNodeTemp);
         });
-    };
+    }
 
     /**
      * @inheritDoc
      * @override
      */
-    WorkerDeclaration.prototype.generateUniqueIdentifiers = function () {
+    generateUniqueIdentifiers() {
         CommonUtils.generateUniqueIdentifier({
             node: this,
             attributes: [{
@@ -167,13 +168,13 @@ define(['lodash', './node', '../utils/common-utils'], function (_, ASTNode, Comm
                 }]
             }]
         });
-    };
+    }
 
     /**
      * Returns the list of arguments as a string separated by commas.
      * @return {string} - Arguments as string.
      */
-    WorkerDeclaration.prototype.getArgumentsAsString = function () {
+    getArgumentsAsString() {
         var argsAsString = "";
         var args = this.getArgumentsList();
         _.forEach(args, function(argument, index){
@@ -184,7 +185,8 @@ define(['lodash', './node', '../utils/common-utils'], function (_, ASTNode, Comm
             }
         });
         return argsAsString;
-    };
+    }
+}
 
-    return WorkerDeclaration;
-});
+export default WorkerDeclaration;
+

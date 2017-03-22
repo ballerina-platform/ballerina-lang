@@ -16,8 +16,9 @@
  * under the License.
  */
 
-define(['lodash', 'event_channel', 'log'],
-    function (_, EventChannel, log){
+import _ from 'lodash';
+import EventChannel from 'event_channel';
+import log from 'log';
 
         var Channel = function(args){
             if(_.isNil(args.endpoint)){
@@ -82,5 +83,5 @@ define(['lodash', 'event_channel', 'log'],
             this.debugger.trigger("session-started");
         };        
 
-        return Channel;
-    });
+        export default Channel;
+    

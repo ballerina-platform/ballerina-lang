@@ -16,7 +16,8 @@
  * under the License.
  */
 
-define(['jquery', './modal-dialog'], function ($, ModalDialog) {
+import $ from 'jquery';
+import ModalDialog from './modal-dialog';
 
     var CloseConfirmDialog = function (options) {
         this._options = options;
@@ -79,5 +80,5 @@ define(['jquery', './modal-dialog'], function ($, ModalDialog) {
         this.show();
     }
 
-    return CloseConfirmDialog;
-});
+    export default CloseConfirmDialog;
+

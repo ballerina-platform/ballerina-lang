@@ -16,7 +16,10 @@
  * under the License.
  */
 
-define(['require', 'jquery', 'lodash', './modal-dialog', 'log'], function (require, $, _, ModalDialog, log) {
+import $ from 'jquery';
+import _ from 'lodash';
+import ModalDialog from './modal-dialog';
+import log from 'log';
 
     var DeleteItemDialog = function (options) {
         _.set(options, 'class', 'delete-item-wizard');
@@ -68,5 +71,4 @@ define(['require', 'jquery', 'lodash', './modal-dialog', 'log'], function (requi
         });
     };
 
-    return DeleteItemDialog;
-});
+    export default DeleteItemDialog;

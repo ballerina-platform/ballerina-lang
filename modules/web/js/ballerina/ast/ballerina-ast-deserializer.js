@@ -16,32 +16,30 @@
  * under the License.
  */
 
-define(['lodash', './ballerina-ast-factory'], function (_, BallerinaASTFactory) {
+import _ from 'lodash';
+import BallerinaASTFactory from './ballerina-ast-factory';
 
-    var BallerinaASTDeserializer = function () {
-
-    };
-
+class BallerinaASTDeserializer {
     /**
      * deserialize to the AST model from source
      * @returns {{}|*}
      */
-    BallerinaASTDeserializer.getASTModel = function (data) {
+    static getASTModel(data) {
         var astRoot = deserializeNode(data.root);
         return astRoot;
-    };
-
-    function deserializeNode(node) {
-        var astRoot = BallerinaASTFactory.createBallerinaAstRoot();
-
-        _.each(node, function (childNode) {
-            var child = BallerinaASTFactory.createFromJson(childNode);
-            astRoot.addChild(child);
-            child.initFromJson(childNode);
-        });
-        return astRoot;
     }
+}
+
+function deserializeNode(node) {
+    var astRoot = BallerinaASTFactory.createBallerinaAstRoot();
+
+    _.each(node, function (childNode) {
+        var child = BallerinaASTFactory.createFromJson(childNode);
+        astRoot.addChild(child);
+        child.initFromJson(childNode);
+    });
+    return astRoot;
+}
 
 
-    return BallerinaASTDeserializer;
-});
+export default BallerinaASTDeserializer;

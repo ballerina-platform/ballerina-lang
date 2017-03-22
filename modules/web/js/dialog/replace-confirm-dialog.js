@@ -16,7 +16,8 @@
  * under the License.
  */
 
-define(['jquery', './modal-dialog'], function ($, ModalDialog) {
+import $ from 'jquery';
+import ModalDialog from './modal-dialog';
 
     var ReplaceConfirmDialog = function (options) {
         this._options = options;
@@ -51,5 +52,5 @@ define(['jquery', './modal-dialog'], function ($, ModalDialog) {
         this.show();
     }
 
-    return ReplaceConfirmDialog;
-});
+    export default ReplaceConfirmDialog;
+

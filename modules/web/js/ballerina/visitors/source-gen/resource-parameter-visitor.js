@@ -15,34 +15,37 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require','lodash', 'log', 'event_channel', './abstract-source-gen-visitor', '../../ast/module'],
-    function(require, _, log, EventChannel, AbstractSourceGenVisitor, AST ) {
+import require from 'require';
+import _ from 'lodash';
+import log from 'log';
+import EventChannel from 'event_channel';
+import AbstractSourceGenVisitor from './abstract-source-gen-visitor';
+import AST from '../../ast/module';
 
-        var ResourceParameterVisitor = function(parent){
-            AbstractSourceGenVisitor.call(this,parent);
-        };
+class ResourceParameterVisitor extends AbstractSourceGenVisitor {
+    constructor(parent) {
+        super(parent);
+    }
 
-        ResourceParameterVisitor.prototype = Object.create(AbstractSourceGenVisitor.prototype);
-        ResourceParameterVisitor.prototype.constructor = ResourceParameterVisitor;
+    canVisitResourceParameter(resourceParameter) {
+        return true;
+    }
 
-        ResourceParameterVisitor.prototype.canVisitResourceParameter = function (resourceParameter) {
-            return true;
-        };
+    beginVisitResourceParameter(resourceParameter) {
+       this.appendSource('(');
+       log.debug('Begin Visit Resource Parameter');
+    }
 
-        ResourceParameterVisitor.prototype.beginVisitResourceParameter = function (resourceParameter) {
-           this.appendSource('(');
-           log.debug('Begin Visit Resource Parameter');
-        };
+    visitResourceParameter(resourceParameter) {
+        log.debug('Visit Resource Parameter');
+    }
 
-        ResourceParameterVisitor.prototype.visitResourceParameter = function (resourceParameter) {
-            log.debug('Visit Resource Parameter');
-        };
+    endVisitResourceParameter(resourceParameter) {
+       this.appendSource(' ' + resourceParameter.getIdentifier() + ')');
+       this.getParent().appendSource(this.getGeneratedSource());
+       log.debug('End Visit Resource Parameter');
+    }
+}
 
-        ResourceParameterVisitor.prototype.endVisitResourceParameter = function (resourceParameter) {
-           this.appendSource(' ' + resourceParameter.getIdentifier() + ')');
-           this.getParent().appendSource(this.getGeneratedSource());
-           log.debug('End Visit Resource Parameter');
-        };
-
-        return ResourceParameterVisitor;
-    });
+export default ResourceParameterVisitor;
+    

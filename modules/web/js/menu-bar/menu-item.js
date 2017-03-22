@@ -16,8 +16,8 @@
  * under the License.
  */
 
-define(['lodash', 'event_channel'],
-    function (_, EventChannel){
+import _ from 'lodash';
+import EventChannel from 'event_channel';
 
     var MenuItem = function(args){
         _.assign(this, args);
@@ -98,6 +98,5 @@ define(['lodash', 'event_channel'],
         this._title.text(_.get(this, 'definition.label'));
     };
 
-    return MenuItem;
+    export default MenuItem;
         
-});

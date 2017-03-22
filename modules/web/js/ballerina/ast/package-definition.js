@@ -15,27 +15,26 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', './node'], function (_, ASTNode) {
+import _ from 'lodash';
+import ASTNode from './node';
 
-    /**
-     * constructs PackageDefinition
-     * @param args
-     * @constructor
-     */
-    var PackageDefinition = function (args) {
+/**
+ * constructs PackageDefinition
+ * @param args
+ * @constructor
+ */
+class PackageDefinition extends ASTNode {
+    constructor(args) {
         this._packageName = _.get(args, 'packageName');
 
-        ASTNode.call(this, "PackageDefinition");
-    };
-
-    PackageDefinition.prototype = Object.create(ASTNode.prototype);
-    PackageDefinition.prototype.constructor = PackageDefinition;
+        super("PackageDefinition");
+    }
 
     /**
      * setter for package name
      * @param name
      */
-    PackageDefinition.prototype.setPackageName = function (packageName, options) {
+    setPackageName(packageName, options) {
       if(!_.isNil(packageName)){
           var self = this,
               changeCallBack = function() {
@@ -48,28 +47,29 @@ define(['lodash', './node'], function (_, ASTNode) {
 
           this.setAttribute('_packageName', packageName, options);
       }
-    };
+    }
 
     /**
      * getter for package name
      * @returns {String}
      */
-    PackageDefinition.prototype.getPackageName = function () {
+    getPackageName() {
       return this._packageName;
-    };
+    }
 
     /**
      * initialize from json
      * @param jsonNode
      */
-    PackageDefinition.prototype.initFromJson = function (jsonNode) {
+    initFromJson(jsonNode) {
         //TODO : avoid check for . (current package)
         if (!_.isEqual(jsonNode.package_name, '.')) {
             this.setPackageName(jsonNode.package_name, {doSilently: true});
         }
 
-    };
+    }
+}
 
-    return PackageDefinition;
+export default PackageDefinition;
 
-});
+

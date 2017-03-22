@@ -16,28 +16,36 @@
  * under the License.
  */
 
-define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view', './statement-view-factory', 'event_channel'],
-    function (_, $, d3, log, D3Utils, Point, BallerinaView, StatementViewFactory, EventChannel) {
+import _ from 'lodash';
+import $ from 'jquery';
+import d3 from 'd3';
+import log from 'log';
+import D3Utils from 'd3utils';
+import Point from './point';
+import BallerinaView from './ballerina-view';
+import StatementViewFactory from './statement-view-factory';
+import EventChannel from 'event_channel';
 
-    /**
-     * View to represent a collection of statements
-     * @param args {object} - config
-     * @param args.statements {ASTNode[]} - a collection of statement
-     * @param args.container {SVGGElement} - SVG group element to draw the container
-     * @param args.topCenter {Point} - top center point
-     * @param args.bottomCenter {Point} - bottom center point
-     * @param args.width {number} - width
-     * @param args.height {number} - initial height
-     * @param args.padding {number} - padding
-     * @param args.cssClass {object} - css classes
-     * @param args.cssClass.group {string} - css class for the group
-     *
-     * @class StatementContainerView
-     * @constructor
-     * @extends BallerinaView
-     */
-    var StatementContainerView = function (args) {
-        BallerinaView.call(this, args);
+/**
+ * View to represent a collection of statements
+ * @param args {object} - config
+ * @param args.statements {ASTNode[]} - a collection of statement
+ * @param args.container {SVGGElement} - SVG group element to draw the container
+ * @param args.topCenter {Point} - top center point
+ * @param args.bottomCenter {Point} - bottom center point
+ * @param args.width {number} - width
+ * @param args.height {number} - initial height
+ * @param args.padding {number} - padding
+ * @param args.cssClass {object} - css classes
+ * @param args.cssClass.group {string} - css class for the group
+ *
+ * @class StatementContainerView
+ * @constructor
+ * @extends BallerinaView
+ */
+class StatementContainerView extends BallerinaView {
+    constructor(args) {
+        super(args);
         this._containerD3 = d3.select(this._container);
         this._viewOptions = args;
         this._managedStatements = [];
@@ -80,15 +88,11 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
             this._bottomCenter.absDistInYFrom(this._topCenter));
         // a flag to indicate a whole container move - so that we can avoid resizing on container move
         this.isOnWholeContainerMove = false;
-    };
+    }
 
-    StatementContainerView.prototype = Object.create(BallerinaView.prototype);
-    StatementContainerView.prototype.constructor = StatementContainerView;
-
-    StatementContainerView.prototype.translate = function (x, y) {
+    translate(x, y) {
         this._rootGroup.attr("transform", "translate(" + x + "," + y + ")");
-    };
-
+    }
 
     /**
      * Finds the index in the lifeLine where a statement should be rendered based on managed statements
@@ -96,7 +100,7 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
      * This is useful when a statement is added but not by dragging it in. Eg: By undoing a deletion
      * @param statement {Statement}
      */
-    StatementContainerView.prototype.selectPossibleInnderDropZone = function (statement) {
+    selectPossibleInnderDropZone(statement) {
         var children = statement.parent.children;
         var managedStatements = this._managedStatements;
         var index;
@@ -126,17 +130,16 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
      * possible statement
      * @returns {Boolean}
      */
-    StatementContainerView.prototype.hasPendingInnerDropRender = function () {
+    hasPendingInnerDropRender() {
         return _.gte(this._selectedInnerDropZoneIndex, 0);
     }
-
 
     /**
      * Render a given statement
      * @param statement {Statement}
      * @param args {Object}
      */
-    StatementContainerView.prototype.renderStatement = function (statement, args) {
+    renderStatement(statement, args) {
         var topCenter, statementView, newDropZoneTopCenter,  dropZoneOptions = {width: 120, height: this._gap};
         var self = this;
 
@@ -328,17 +331,17 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
         this.trigger('statement-added');
 
         return statementView;
-    };
+    }
 
-    StatementContainerView.prototype._updateContainerWidth = function (newWidth) {
+    _updateContainerWidth(newWidth) {
         var viewOptions = this._viewOptions;
         if (newWidth < _.get(viewOptions, 'minWidth')) {
             newWidth = _.get(this._viewOptions, 'minWidth') - _.get(viewOptions, 'widthGap');
         }
         this.getBoundingBox().w(newWidth + _.get(viewOptions, 'widthGap'));
-    };
+    }
 
-    StatementContainerView.prototype.setLastStatementView = function(lastStatementView){
+    setLastStatementView(lastStatementView) {
         if(!_.isNil(this._lastStatementView)){
             this._lastStatementView.getBoundingBox().off('bottom-edge-moved');
         }
@@ -362,9 +365,9 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
                 }
                 this.isOnWholeContainerMove = false;
         }, this);
-    };
+    }
 
-    StatementContainerView.prototype.render = function (diagramRenderingContext) {
+    render(diagramRenderingContext) {
         this.diagramRenderingContext = diagramRenderingContext;
         var self = this;
         this._mainDropZone = D3Utils.rect((this._topCenter.x() - (this._viewOptions.width / 2)), this._topCenter.y(),
@@ -394,9 +397,9 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
         };
         this.initDropZone(dropZoneOptions);
         return this;
-    };
+    }
 
-    StatementContainerView.prototype._createNextInnerDropZone = function(options, index){
+    _createNextInnerDropZone(options, index) {
         var innerDZone = D3Utils.rect(options.topCenter.x() - options.width/2,
             options.topCenter.y(), options.width,
             options.height, 0, 0, this._rootGroup)
@@ -425,9 +428,9 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
             this._managedInnerDropzones.push(innerDropZoneObj);
         }
         return innerDropZoneObj;
-    };
+    }
 
-    StatementContainerView.prototype.initDropZone = function (options) {
+    initDropZone(options) {
         var dropZone = _.get(options, 'dropZone'),
             hoverClass = _.get(options, 'hoverClass'),
             self = this;
@@ -513,13 +516,13 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
         dropZone.on("mouseover", mouseOverHandler);
         dropZone.on("mouseout", mouseOutHandler);
         // dropZone.on("mouseup", mouseUpHandler);
-    };
+    }
 
     /**
      * Callback function for statement removing
      * @param {ASTNode} childStatement - removed child statement
      */
-    StatementContainerView.prototype.childStatementRemovedCallback = function (childStatement) {
+    childStatementRemovedCallback(childStatement) {
         var childStatementView = this.diagramRenderingContext.getViewModelMap()[childStatement.id];
         var childStatementIndex = _.findIndex(this._managedStatements, function (child) {
             return child.id === childStatement.id;
@@ -577,42 +580,42 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
                 this._updateContainerWidth(this._widestStatementView.getBoundingBox().w());
             }
         }
-    };
+    }
 
-        /**
-         * Get the managed statements array
-         * @return {Array}
-         */
-    StatementContainerView.prototype.getManagedStatements = function () {
+    /**
+     * Get the managed statements array
+     * @return {Array}
+     */
+    getManagedStatements() {
         return this._managedStatements;
-    };
+    }
 
-    StatementContainerView.prototype.changeDropZoneHeight = function (newH) {
+    changeDropZoneHeight(newH) {
         this._mainDropZone.attr('height', newH);
-    };
+    }
 
-    StatementContainerView.prototype.changeHeightSilent = function (h) {
+    changeHeightSilent(h) {
         this.getBoundingBox().h(h, true);
         this._mainDropZone.attr('height', h);
-    };
+    }
 
-    StatementContainerView.prototype.getInnerDropZoneHeight = function () {
+    getInnerDropZoneHeight() {
         return this._gap;
-    };
+    }
 
     /**
      * Get the widest statement view of the statement container
      * @return {BallerinaStatementView} ballerina statement view
      */
-    StatementContainerView.prototype.getWidestStatementView = function () {
+    getWidestStatementView() {
         return this._widestStatementView;
-    };
+    }
 
-    StatementContainerView.prototype.getWidthGap = function () {
+    getWidthGap() {
         return _.get(this._viewOptions, 'widthGap');
-    };
+    }
 
-    StatementContainerView.prototype.initInnerDropZoneMoveListeners = function (statementView, statementModel) {
+    initInnerDropZoneMoveListeners(statementView, statementModel) {
         var self = this;
         // When the bounding box moved, we move the statement view as well
         statementView.listenTo(statementView.getBoundingBox(), 'left-edge-moved', function (dx) {
@@ -628,20 +631,21 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
             });
             self._managedInnerDropzones[statementViewIndex].onLastStatementMovedHorizontally(dw/2);
         });
-    };
-
-    /**
-     * Returns the widest statement view of the given statements.
-     * @param statements {Statement[]} statements
-     * @param diagramRenderingContext {DiagramRenderContext} diagram rendering context
-     * @return {BallerinaStatementView} widest statement view
-     */
-    function computeWidestStatementView(statements, diagramRenderingContext) {
-        var widestStatement = _.maxBy(statements, function (statement) {
-            return diagramRenderingContext.getViewOfModel(statement).getBoundingBox().w();
-        });
-        return diagramRenderingContext.getViewOfModel(widestStatement);
     }
+}
 
-    return StatementContainerView;
-});
+/**
+ * Returns the widest statement view of the given statements.
+ * @param statements {Statement[]} statements
+ * @param diagramRenderingContext {DiagramRenderContext} diagram rendering context
+ * @return {BallerinaStatementView} widest statement view
+ */
+function computeWidestStatementView(statements, diagramRenderingContext) {
+    var widestStatement = _.maxBy(statements, function (statement) {
+        return diagramRenderingContext.getViewOfModel(statement).getBoundingBox().w();
+    });
+    return diagramRenderingContext.getViewOfModel(widestStatement);
+}
+
+export default StatementContainerView;
+

@@ -15,45 +15,46 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require','lodash', 'log', 'event_channel', './abstract-expression-source-gen-visitor', 
-        '../../ast/expressions/struct-field-access-expression', '../../ast/statements/left-operand-expression'],
-    function(require, _, log, EventChannel, AbstractExpressionSourceGenVisitor, StructFieldAccessExpression,
-             LeftOperandExpression) {
+import _ from 'lodash';
+import log from 'log';
+import EventChannel from 'event_channel';
+import AbstractExpressionSourceGenVisitor from './abstract-expression-source-gen-visitor';
+import StructFieldAccessExpression from '../../ast/expressions/struct-field-access-expression';
+import LeftOperandExpression from '../../ast/statements/left-operand-expression';
+import $____type_mapper_expression_visitor_factory from './type-mapper-expression-visitor-factory';
 
-        var TypeMapperSructFieldAccessExpressionVisitor = function(parent){
-            AbstractExpressionSourceGenVisitor.call(this,parent);
-        };
+class TypeMapperSructFieldAccessExpressionVisitor extends AbstractExpressionSourceGenVisitor {
+    constructor(parent) {
+        super(parent);
+    }
 
-        TypeMapperSructFieldAccessExpressionVisitor.prototype = Object.create(AbstractExpressionSourceGenVisitor.prototype);
-        TypeMapperSructFieldAccessExpressionVisitor.prototype.constructor = TypeMapperSructFieldAccessExpressionVisitor;
+    canVisitStructFieldAccessExpression(expression) {
+        return expression instanceof StructFieldAccessExpression && this._generatedSource === "";
+    }
 
-        TypeMapperSructFieldAccessExpressionVisitor.prototype.canVisitStructFieldAccessExpression = function(expression){
-            return expression instanceof StructFieldAccessExpression && this._generatedSource === "";
-        };
+    beginVisitStructFieldAccessExpression(expression) {
+        if(expression.getParent() instanceof StructFieldAccessExpression){
+            this.appendSource('.');
+        }
+        log.debug('Begin Visit Type Mapper Struct Field Access Expression');
+    }
 
-        TypeMapperSructFieldAccessExpressionVisitor.prototype.beginVisitStructFieldAccessExpression = function(expression){
-            if(expression.getParent() instanceof StructFieldAccessExpression){
-                this.appendSource('.');
-            }
-            log.debug('Begin Visit Type Mapper Struct Field Access Expression');
-        };
+    visitStructFieldAccessExpression(expression) {
+        log.debug('Visit Type Mapper Struct Field Access Expression');
+    }
 
-        TypeMapperSructFieldAccessExpressionVisitor.prototype.visitStructFieldAccessExpression = function(expression){
-            log.debug('Visit Type Mapper Struct Field Access Expression');
-        };
+    endVisitStructFieldAccessExpression(expression) {
+        this.getParent().appendSource(this.getGeneratedSource());
+        log.debug('End Visit Type Mapper Struct Field Access Expression');
+    }
 
-        TypeMapperSructFieldAccessExpressionVisitor.prototype.endVisitStructFieldAccessExpression = function(expression){
-            this.getParent().appendSource(this.getGeneratedSource());
-            log.debug('End Visit Type Mapper Struct Field Access Expression');
-        };
+    visitExpression(expression) {
+        var ExpressionVisitorFactory = $____type_mapper_expression_visitor_factory;
+        var expressionVisitorFactory = new ExpressionVisitorFactory();
+        var expressionVisitor = expressionVisitorFactory.getExpressionVisitor({model:expression, parent:this});
+        expression.accept(expressionVisitor);
+        log.debug('Visit Type Mapper Expression');
+    }
+}
 
-        TypeMapperSructFieldAccessExpressionVisitor.prototype.visitExpression = function (expression) {
-            var ExpressionVisitorFactory = require('./type-mapper-expression-visitor-factory');
-            var expressionVisitorFactory = new ExpressionVisitorFactory();
-            var expressionVisitor = expressionVisitorFactory.getExpressionVisitor({model:expression, parent:this});
-            expression.accept(expressionVisitor);
-            log.debug('Visit Type Mapper Expression');
-        };
-
-        return TypeMapperSructFieldAccessExpressionVisitor;
-    });
+export default TypeMapperSructFieldAccessExpressionVisitor;

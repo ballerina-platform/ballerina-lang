@@ -15,8 +15,12 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['jquery', 'backbone', 'lodash', 'log', 'event_channel', './debug-manager'], 
-    function ($, Backbone, _, log, EventChannel, DebugManager) {
+import $ from 'jquery';
+import Backbone from 'backbone';
+import _ from 'lodash';
+import log from 'log';
+import EventChannel from 'event_channel';
+import DebugManager from './debug-manager';
 
     var instance;
 
@@ -180,5 +184,4 @@ define(['jquery', 'backbone', 'lodash', 'log', 'event_channel', './debug-manager
     };
 
 
-    return (instance = (instance || new Frames() ));
-});
+    export default (instance = (instance || new Frames() ));

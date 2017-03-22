@@ -15,24 +15,25 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', 'event_channel', './abstract-source-gen-visitor'], function (_, log, EventChannel, AbstractSourceGenVisitor) {
+import _ from 'lodash';
+import log from 'log';
+import EventChannel from 'event_channel';
+import AbstractSourceGenVisitor from './abstract-source-gen-visitor';
 
-    /**
-     * @param parent
-     * @constructor
-     */
-    var ImportDeclarationVisitor = function (parent) {
-        AbstractSourceGenVisitor.call(this, parent);
-    };
+/**
+ * @param parent
+ * @constructor
+ */
+class ImportDeclarationVisitor extends AbstractSourceGenVisitor {
+    constructor(parent) {
+        super(parent);
+    }
 
-    ImportDeclarationVisitor.prototype = Object.create(AbstractSourceGenVisitor.prototype);
-    ImportDeclarationVisitor.prototype.constructor = ImportDeclarationVisitor;
-
-    ImportDeclarationVisitor.prototype.canVisitImportDeclaration = function (importDeclaration) {
+    canVisitImportDeclaration(importDeclaration) {
         return true;
-    };
+    }
 
-    ImportDeclarationVisitor.prototype.beginVisitImportDeclaration = function (importDeclaration) {
+    beginVisitImportDeclaration(importDeclaration) {
         /**
          * set the configuration start for the package definition language construct
          * If we need to add additional parameters which are dynamically added to the configuration start
@@ -41,17 +42,17 @@ define(['lodash', 'log', 'event_channel', './abstract-source-gen-visitor'], func
         var constructedSourceSegment = 'import ' + importDeclaration.getPackageName();
         this.appendSource(constructedSourceSegment);
         log.debug('Begin Visit ImportDeclaration');
-    };
+    }
 
-    ImportDeclarationVisitor.prototype.visitImportDeclaration = function (importDeclaration) {
+    visitImportDeclaration(importDeclaration) {
         log.debug('Visit ImportDeclaration');
-    };
+    }
 
-    ImportDeclarationVisitor.prototype.endVisitImportDeclaration = function (importDeclaration) {
+    endVisitImportDeclaration(importDeclaration) {
         this.appendSource(";\n");
         this.getParent().appendSource(this.getGeneratedSource());
         log.debug('End Visit ImportDeclaration');
-    };
+    }
+}
 
-    return ImportDeclarationVisitor;
-});
+export default ImportDeclarationVisitor;

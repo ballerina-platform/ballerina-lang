@@ -16,9 +16,14 @@
  * under the License.
  */
 
-define(['log', 'jquery', 'backbone', 'lodash', 'context_menu', 'mcustom_scroller', './launch-manager', 'alerts'],
-
-    function (log, $, Backbone, _, ContextMenu, mcustomScroller, LaunchManager, alerts) {
+import log from 'log';
+import $ from 'jquery';
+import Backbone from 'backbone';
+import _ from 'lodash';
+import ContextMenu from 'context_menu';
+import mcustomScroller from 'mcustom_scroller';
+import LaunchManager from './launch-manager';
+import alerts from 'alerts';
 
     var Launcher = Backbone.View.extend({
 
@@ -215,7 +220,7 @@ define(['log', 'jquery', 'backbone', 'lodash', 'context_menu', 'mcustom_scroller
         }
     });
 
-    return Launcher;
+    export default Launcher;
 
-});
+
 

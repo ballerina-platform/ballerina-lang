@@ -15,42 +15,44 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', 'event_channel', './abstract-source-gen-visitor', './variable-declaration-visitor'],
-    function (_, log, EventChannel, AbstractSourceGenVisitor, VariableDeclarationVisitor) {
+import _ from 'lodash';
+import log from 'log';
+import EventChannel from 'event_channel';
+import AbstractSourceGenVisitor from './abstract-source-gen-visitor';
+import VariableDeclarationVisitor from './variable-declaration-visitor';
 
-        /**
-         * @param parent
-         * @constructor
-         */
-        var StructDefinitionVisitor = function (parent) {
-            AbstractSourceGenVisitor.call(this, parent);
-        };
+/**
+ * @param parent
+ * @constructor
+ */
+class StructDefinitionVisitor extends AbstractSourceGenVisitor {
+    constructor(parent) {
+        super(parent);
+    }
 
-        StructDefinitionVisitor.prototype = Object.create(AbstractSourceGenVisitor.prototype);
-        StructDefinitionVisitor.prototype.constructor = StructDefinitionVisitor;
+    canVisitStructDefinition(structDefinition) {
+        return true;
+    }
 
-        StructDefinitionVisitor.prototype.canVisitStructDefinition = function (structDefinition) {
-            return true;
-        };
+    beginVisitStructDefinition(structDefinition) {
+        var constructedSourceSegment = 'struct ' + structDefinition.getStructName() + "{ \n";
+        _.forEach(structDefinition.getVariableDefinitions(), function (variable) {
+            constructedSourceSegment = constructedSourceSegment + variable.getVariableDefinitionAsString() + "\n";
+        });
+        this.appendSource(constructedSourceSegment);
+        log.debug('Begin Visit FunctionDefinition');
+    }
 
-        StructDefinitionVisitor.prototype.beginVisitStructDefinition = function (structDefinition) {
-            var constructedSourceSegment = 'struct ' + structDefinition.getStructName() + "{ \n";
-            _.forEach(structDefinition.getVariableDefinitions(), function (variable) {
-                constructedSourceSegment = constructedSourceSegment + variable.getVariableDefinitionAsString() + "\n";
-            });
-            this.appendSource(constructedSourceSegment);
-            log.debug('Begin Visit FunctionDefinition');
-        };
+    visitStructDefinition(structDefinition) {
+        log.debug('Visit FunctionDefinition');
+    }
 
-        StructDefinitionVisitor.prototype.visitStructDefinition = function (structDefinition) {
-            log.debug('Visit FunctionDefinition');
-        };
+    endVisitStructDefinition(structDefinition) {
+        this.appendSource("} \n");
+        this.getParent().appendSource(this.getGeneratedSource());
+        log.debug('End Visit FunctionDefinition');
+    }
+}
 
-        StructDefinitionVisitor.prototype.endVisitStructDefinition = function (structDefinition) {
-            this.appendSource("} \n");
-            this.getParent().appendSource(this.getGeneratedSource());
-            log.debug('End Visit FunctionDefinition');
-        };
-
-        return StructDefinitionVisitor;
-    });
+export default StructDefinitionVisitor;
+    

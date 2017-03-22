@@ -15,76 +15,80 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', 'event_channel', './abstract-source-gen-visitor', './service-definition-visitor',
-        './function-definition-visitor', './package-definition-visitor', './import-declaration-visitor',
-        './connector-definition-visitor', './struct-definition-visitor', './constant-definition-visitor',
-        './type-mapper-definition-visitor'],
-    function (_, log, EventChannel, AbstractSourceGenVisitor, ServiceDefinitionVisitor, FunctionDefinitionVisitor,
-              PackageDefinitionVisitor, ImportDeclarationVisitor, ConnectorDefinitionVisitor, StructDefinitionVisitor,
-              ConstantDefinitionVisitor, TypeMapperDefinitionVisitor) {
+import _ from 'lodash';
+import log from 'log';
+import EventChannel from 'event_channel';
+import AbstractSourceGenVisitor from './abstract-source-gen-visitor';
+import ServiceDefinitionVisitor from './service-definition-visitor';
+import FunctionDefinitionVisitor from './function-definition-visitor';
+import PackageDefinitionVisitor from './package-definition-visitor';
+import ImportDeclarationVisitor from './import-declaration-visitor';
+import ConnectorDefinitionVisitor from './connector-definition-visitor';
+import StructDefinitionVisitor from './struct-definition-visitor';
+import ConstantDefinitionVisitor from './constant-definition-visitor';
+import TypeMapperDefinitionVisitor from './type-mapper-definition-visitor';
 
-        var BallerinaASTRootVisitor = function () {
-            AbstractSourceGenVisitor.call(this);
-        };
+class BallerinaASTRootVisitor extends AbstractSourceGenVisitor {
+    constructor() {
+        super();
+    }
 
-        BallerinaASTRootVisitor.prototype = Object.create(AbstractSourceGenVisitor.prototype);
-        BallerinaASTRootVisitor.prototype.constructor = BallerinaASTRootVisitor;
+    canVisitBallerinaASTRoot(serviceDefinition) {
+        return true;
+    }
 
-        BallerinaASTRootVisitor.prototype.canVisitBallerinaASTRoot = function (serviceDefinition) {
-            return true;
-        };
+    beginVisitBallerinaASTRoot(serviceDefinition) {
+        log.debug('Begin Visit BallerinaASTRoot');
+    }
 
-        BallerinaASTRootVisitor.prototype.beginVisitBallerinaASTRoot = function (serviceDefinition) {
-            log.debug('Begin Visit BallerinaASTRoot');
-        };
+    visitBallerinaASTRoot(serviceDefinition) {
+        log.debug('Visit BallerinaASTRoot');
+    }
 
-        BallerinaASTRootVisitor.prototype.visitBallerinaASTRoot = function (serviceDefinition) {
-            log.debug('Visit BallerinaASTRoot');
-        };
+    endVisitBallerinaASTRoot(serviceDefinition) {
+        log.debug('End Visit BallerinaASTRoot');
+    }
 
-        BallerinaASTRootVisitor.prototype.endVisitBallerinaASTRoot = function (serviceDefinition) {
-            log.debug('End Visit BallerinaASTRoot');
-        };
+    visitServiceDefinition(serviceDefinition) {
+        var serviceDefinitionVisitor = new ServiceDefinitionVisitor(this);
+        serviceDefinition.accept(serviceDefinitionVisitor);
+    }
 
-        BallerinaASTRootVisitor.prototype.visitServiceDefinition = function (serviceDefinition) {
-            var serviceDefinitionVisitor = new ServiceDefinitionVisitor(this);
-            serviceDefinition.accept(serviceDefinitionVisitor);
-        };
+    visitConnectorDefinition(connectorDefinition) {
+        var connectorDefinitionVisitor = new ConnectorDefinitionVisitor(this);
+        connectorDefinition.accept(connectorDefinitionVisitor);
+    }
 
-        BallerinaASTRootVisitor.prototype.visitConnectorDefinition = function (connectorDefinition) {
-            var connectorDefinitionVisitor = new ConnectorDefinitionVisitor(this);
-            connectorDefinition.accept(connectorDefinitionVisitor);
-        };
+    visitFunctionDefinition(functionDefinition) {
+        var functionDefinitionVisitor = new FunctionDefinitionVisitor(this);
+        functionDefinition.accept(functionDefinitionVisitor);
+    }
 
-        BallerinaASTRootVisitor.prototype.visitFunctionDefinition = function (functionDefinition) {
-            var functionDefinitionVisitor = new FunctionDefinitionVisitor(this);
-            functionDefinition.accept(functionDefinitionVisitor);
-        };
+    visitStructDefinition(structDefinition) {
+        var structDefinitionVisitor = new StructDefinitionVisitor(this);
+        structDefinition.accept(structDefinitionVisitor);
+    }
 
-        BallerinaASTRootVisitor.prototype.visitStructDefinition = function (structDefinition) {
-            var structDefinitionVisitor = new StructDefinitionVisitor(this);
-            structDefinition.accept(structDefinitionVisitor);
-        };
+    visitTypeMapperDefinition(typeMapperDefinition) {
+        var typeMapperDefinitionVisitor = new TypeMapperDefinitionVisitor(this);
+        typeMapperDefinition.accept(typeMapperDefinitionVisitor);
+    }
 
-        BallerinaASTRootVisitor.prototype.visitTypeMapperDefinition = function (typeMapperDefinition) {
-            var typeMapperDefinitionVisitor = new TypeMapperDefinitionVisitor(this);
-            typeMapperDefinition.accept(typeMapperDefinitionVisitor);
-        };
+    visitPackageDefinition(packageDefinition) {
+        var packageDefinitionVisitor = new PackageDefinitionVisitor(this);
+        packageDefinition.accept(packageDefinitionVisitor);
+    }
 
-        BallerinaASTRootVisitor.prototype.visitPackageDefinition = function (packageDefinition) {
-            var packageDefinitionVisitor = new PackageDefinitionVisitor(this);
-            packageDefinition.accept(packageDefinitionVisitor);
-        };
+    visitImportDeclaration(importDeclaration) {
+        var importDeclarationVisitor = new ImportDeclarationVisitor(this);
+        importDeclaration.accept(importDeclarationVisitor);
+    }
 
-        BallerinaASTRootVisitor.prototype.visitImportDeclaration = function (importDeclaration) {
-            var importDeclarationVisitor = new ImportDeclarationVisitor(this);
-            importDeclaration.accept(importDeclarationVisitor);
-        };
+    visitConstantDefinition(constantDefinition) {
+        var constantDefinitionVisitor = new ConstantDefinitionVisitor(this);
+        constantDefinition.accept(constantDefinitionVisitor);
+    }
+}
 
-        BallerinaASTRootVisitor.prototype.visitConstantDefinition = function (constantDefinition) {
-            var constantDefinitionVisitor = new ConstantDefinitionVisitor(this);
-            constantDefinition.accept(constantDefinitionVisitor);
-        };
-
-        return BallerinaASTRootVisitor;
-    });
+export default BallerinaASTRootVisitor;
+    

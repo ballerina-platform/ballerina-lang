@@ -16,8 +16,14 @@
  * under the License.
  */
 
-define(['require', 'jquery', 'backbone', 'lodash', 'event_channel', './channel', './debug-point', 'mousetrap', 'log'],
-    function (require, $, Backbone, _ ,EventChannel, Channel, DebugPoint, Mousetrap, log) {
+import $ from 'jquery';
+import Backbone from 'backbone';
+import _ from 'lodash';
+import EventChannel from 'event_channel';
+import Channel from './channel';
+import DebugPoint from './debug-point';
+import Mousetrap from 'mousetrap';
+import log from 'log';
 	var instance;
 
     var DebugManager = function(args) {
@@ -83,7 +89,7 @@ define(['require', 'jquery', 'backbone', 'lodash', 'event_channel', './channel',
         }
         if(message.code == "EXIT"){
             this.active = false;
-            this.trigger("session-ended");            
+            this.trigger("session-ended");
         }
         if(message.code == "COMPLETE") {
             this.active = false;
@@ -91,23 +97,23 @@ define(['require', 'jquery', 'backbone', 'lodash', 'event_channel', './channel',
         }
     };
 
-    DebugManager.prototype.connect = function(url){        
+    DebugManager.prototype.connect = function(url){
         if(url != undefined || url != ""){
             this.channel = new Channel({ endpoint: "ws://" + url + "/debug" , debugger: this});
             this.channel.connect();
         }
     };
 
-    DebugManager.prototype.startDebugger = function(port){ 
+    DebugManager.prototype.startDebugger = function(port){
         var url =  "localhost:" + port;
         this.connect(url);
-    };    
+    };
 
     DebugManager.prototype.init = function(options){
-        this.enable = true;    
+        this.enable = true;
         this.launchManager = options.launchManager;
         this.launchManager.on("debug-active", _.bindKey(this, 'startDebugger'))
-    }; 
+    };
 
     DebugManager.prototype.addBreakPoint = function(lineNumber, fileName){
         log.debug('debug point added', lineNumber, fileName);
@@ -123,7 +129,7 @@ define(['require', 'jquery', 'backbone', 'lodash', 'event_channel', './channel',
             return item.fileName == point.fileName && item.lineNumber == point.lineNumber ;
         });
         this.trigger("breakpoint-removed", fileName);
-    };    
+    };
 
     DebugManager.prototype.publishBreakPoints = function(){
         try{
@@ -165,5 +171,4 @@ define(['require', 'jquery', 'backbone', 'lodash', 'event_channel', './channel',
         return new DebugPoint({ "fileName": fileName , "lineNumber": lineNumber});
     };
 
-    return (instance = (instance || new DebugManager()));
-});
+    export default (instance = (instance || new DebugManager()));

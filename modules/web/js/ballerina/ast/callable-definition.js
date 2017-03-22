@@ -15,69 +15,69 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', './node'], function (_, ASTNode) {
+import _ from 'lodash';
+import ASTNode from './node';
 
-    /**
-     * @param connectionDeclarations
-     * @param variableDeclarations
-     * @param workerDeclarations
-     * @param statements
-     * @param configStart
-     * @param configEnd
-     * @constructor
-     */
-    var CallableDefinition = function (type) {
+/**
+ * @param connectionDeclarations
+ * @param variableDeclarations
+ * @param workerDeclarations
+ * @param statements
+ * @param configStart
+ * @param configEnd
+ * @constructor
+ */
+class CallableDefinition extends ASTNode {
+    constructor(type) {
         this.connectionDeclarations = [];
         this.variableDeclarations = [];
         this.workerDeclarations = [];
         this.statements = [];
 
-        ASTNode.call(this, type);
-    };
+        super(type);
+    }
 
-    CallableDefinition .prototype = Object.create(ASTNode.prototype);
-    CallableDefinition .prototype.constructor = CallableDefinition ;
-
-    CallableDefinition.prototype.setConnectionDeclarations = function (connectionDeclarations, options) {
+    setConnectionDeclarations(connectionDeclarations, options) {
         if (!_.isNil(connectionDeclarations)) {
             this.setAttribute('connectionDeclarations', connectionDeclarations, options);
         }
-    };
+    }
 
-    CallableDefinition.prototype.setVariableDeclarations = function (variableDeclarations, options) {
+    setVariableDeclarations(variableDeclarations, options) {
         if (!_.isNil(variableDeclarations)) {
             this.setAttribute('variableDeclarations', variableDeclarations, options);
         }
-    };
+    }
 
-    CallableDefinition.prototype.setWorkerDeclarations = function (workerDeclarations, options) {
+    setWorkerDeclarations(workerDeclarations, options) {
         if (!_.isNil(workerDeclarations)) {
             this.setAttribute('workerDeclarations', workerDeclarations, options);
         }
-    };
+    }
 
-    CallableDefinition.prototype.setStatements = function (statements, options) {
+    setStatements(statements, options) {
         if (!_.isNil(statements)) {
             this.setAttribute('statements', statements, options);
         }
-    };
+    }
 
-    CallableDefinition.prototype.getConnectionDeclarations = function () {
+    getConnectionDeclarations() {
         return this.connectionDeclarations;
-    };
+    }
 
-    CallableDefinition.prototype.getVariableDeclarations = function () {
+    getVariableDeclarations() {
         return this.variableDeclarations;
-    };
+    }
 
-    CallableDefinition.prototype.getWorkerDeclarations = function () {
+    getWorkerDeclarations() {
        return this.workerDeclarations;
-    };
+    }
 
-    CallableDefinition.prototype.getStatements = function () {
+    getStatements() {
         return this.statements;
-    };
+    }
+}
 
-    return CallableDefinition;
+export default CallableDefinition;
 
-});
+

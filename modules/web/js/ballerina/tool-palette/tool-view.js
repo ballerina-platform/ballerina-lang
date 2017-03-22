@@ -16,7 +16,12 @@
  * under the License.
  */
 
-define(['log', 'jquery', 'd3', 'backbone', 'lodash', 'd3utils'], function (log, $, d3, Backbone, _, D3Utils) {
+import log from 'log';
+import $ from 'jquery';
+import d3 from 'd3';
+import Backbone from 'backbone';
+import _ from 'lodash';
+import D3Utils from 'd3utils';
 
     var toolView = Backbone.View.extend({
 
@@ -160,5 +165,5 @@ define(['log', 'jquery', 'd3', 'backbone', 'lodash', 'd3utils'], function (log, 
         }
     });
 
-    return toolView;
-});
+    export default toolView;
+

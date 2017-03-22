@@ -16,7 +16,9 @@
  * under the License.
  */
 
-define(['require', 'jquery', 'event_channel', 'bootstrap'], function (require, $, EventChannel) {
+import $ from 'jquery';
+import EventChannel from 'event_channel';
+import 'bootstrap';
 
     var ModalDialog = function (options) {
         this._options = options;
@@ -139,5 +141,4 @@ define(['require', 'jquery', 'event_channel', 'bootstrap'], function (require, $
         return modalContainer;
     };
 
-    return ModalDialog;
-});
+    export default ModalDialog;

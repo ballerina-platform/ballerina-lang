@@ -19,8 +19,11 @@
 /**
  * A module representing the factory for Ballerina Env
  */
-define(['./package', './connector', './connector-action', './function','./type-mapper'],
-    function (Package, Connector, ConnectorAction, Function, TypeMapper ) {
+import Package from './package';
+import Connector from './connector';
+import ConnectorAction from './connector-action';
+import Function from './function';
+import TypeMapper from './type-mapper';
 
         /**
          * @class BallerinaEnvFactory
@@ -93,6 +96,6 @@ define(['./package', './connector', './connector-action', './function','./type-m
             return (typeMapperDef instanceof TypeMapper);
         };
 
-        return BallerinaEnvFactory;
+        export default BallerinaEnvFactory;
 
-    });
+    

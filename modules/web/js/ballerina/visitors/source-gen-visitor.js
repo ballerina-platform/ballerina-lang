@@ -15,13 +15,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', './ast-visitor'], function(_, log, ASTVisitor) {
+import _ from 'lodash';
+import log from 'log';
+import ASTVisitor from './ast-visitor';
 
-    var SourceGenVisitor = function() {
+class SourceGenVisitor extends ASTVisitor {}
 
-    };
-
-    SourceGenVisitor.prototype = Object.create(ASTVisitor.prototype);
-    SourceGenVisitor.prototype.constructor = SourceGenVisitor;
-
-});

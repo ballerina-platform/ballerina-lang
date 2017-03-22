@@ -15,42 +15,44 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require','lodash', 'log', 'event_channel', './abstract-statement-source-gen-visitor', '../../ast/statements/assignment-statement'],
-    function(require, _, log, EventChannel, AbstractStatementSourceGenVisitor, AssignmentStatement) {
+import _ from 'lodash';
+import log from 'log';
+import EventChannel from 'event_channel';
+import AbstractStatementSourceGenVisitor from './abstract-statement-source-gen-visitor';
+import AssignmentStatement from '../../ast/statements/assignment-statement';
+import $____statement_visitor_factory from './statement-visitor-factory';
 
-        var AssignmentStatementVisitor = function(parent){
-            AbstractStatementSourceGenVisitor.call(this,parent);
-        };
+class AssignmentStatementVisitor extends AbstractStatementSourceGenVisitor {
+    constructor(parent) {
+        super(parent);
+    }
 
-        AssignmentStatementVisitor.prototype = Object.create(AbstractStatementSourceGenVisitor.prototype);
-        AssignmentStatementVisitor.prototype.constructor = AssignmentStatementVisitor;
+    canVisitAssignmentStatement(assignmentStatement) {
+        return assignmentStatement instanceof AssignmentStatement;
+    }
 
-        AssignmentStatementVisitor.prototype.canVisitAssignmentStatement = function(assignmentStatement){
-            return assignmentStatement instanceof AssignmentStatement;
-        };
+    beginVisitAssignmentStatement(assignmentStatement) {
+        log.debug('Begin Visit Assignment Statement');
+    }
 
-        AssignmentStatementVisitor.prototype.beginVisitAssignmentStatement = function(assignmentStatement){
-            log.debug('Begin Visit Assignment Statement');
-        };
+    visitLeftOperandExpression(expression) {
+        var StatementVisitorFactory = $____statement_visitor_factory;
+        var statementVisitorFactory = new StatementVisitorFactory();
+        var statementVisitor = statementVisitorFactory.getStatementVisitor(expression, this);
+        expression.accept(statementVisitor);
+    }
 
-        AssignmentStatementVisitor.prototype.visitLeftOperandExpression = function(expression){
-            var StatementVisitorFactory = require('./statement-visitor-factory');
-            var statementVisitorFactory = new StatementVisitorFactory();
-            var statementVisitor = statementVisitorFactory.getStatementVisitor(expression, this);
-            expression.accept(statementVisitor);
-        };
+    visitRightOperandExpression(expression) {
+        var StatementVisitorFactory = $____statement_visitor_factory;
+        var statementVisitorFactory = new StatementVisitorFactory();
+        var statementVisitor = statementVisitorFactory.getStatementVisitor(expression, this);
+        expression.accept(statementVisitor);
+    }
 
-        AssignmentStatementVisitor.prototype.visitRightOperandExpression = function(expression){
-            var StatementVisitorFactory = require('./statement-visitor-factory');
-            var statementVisitorFactory = new StatementVisitorFactory();
-            var statementVisitor = statementVisitorFactory.getStatementVisitor(expression, this);
-            expression.accept(statementVisitor);
-        };
+    endVisitAssignmentStatement(assignmentStatement) {
+        this.getParent().appendSource(this.getGeneratedSource() + ";\n");
+        log.debug('End Visit Assignment Statement');
+    }
+}
 
-        AssignmentStatementVisitor.prototype.endVisitAssignmentStatement = function(assignmentStatement){
-            this.getParent().appendSource(this.getGeneratedSource() + ";\n");
-            log.debug('End Visit Assignment Statement');
-        };
-
-        return AssignmentStatementVisitor;
-    });
+export default AssignmentStatementVisitor;

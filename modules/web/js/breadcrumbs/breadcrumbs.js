@@ -15,9 +15,11 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require', 'log', 'jquery', 'lodash', 'backbone', /* void modules */ 'jquery-ui'],
-
-    function (require, log, $, _, Backbone) {
+import log from 'log';
+import $ from 'jquery';
+import _ from 'lodash';
+import Backbone from 'backbone';
+import 'jquery-ui';
 
         var BreadcrumbControl = Backbone.View.extend(
         /** @lends BreadcrumbControl.prototype */
@@ -80,5 +82,4 @@ define(['require', 'log', 'jquery', 'lodash', 'backbone', /* void modules */ 'jq
             }
         });
 
-        return BreadcrumbControl;
-});
+        export default BreadcrumbControl;

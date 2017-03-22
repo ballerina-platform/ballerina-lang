@@ -15,36 +15,38 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require','lodash', 'log', 'event_channel', './abstract-statement-source-gen-visitor', '../../ast/statements/variable-definition-statement'],
-    function(require, _, log, EventChannel, AbstractStatementSourceGenVisitor, VariableDefinitionStatement) {
+import _ from 'lodash';
+import log from 'log';
+import EventChannel from 'event_channel';
+import AbstractStatementSourceGenVisitor from './abstract-statement-source-gen-visitor';
+import VariableDefinitionStatement from '../../ast/statements/variable-definition-statement';
+import $____type_mapper_statement_visitor_factory from './type-mapper-statement-visitor-factory';
 
-        var TypeMapperVariableDefinitionStatementVisitor = function(parent){
-            AbstractStatementSourceGenVisitor.call(this,parent);
-        };
+class TypeMapperVariableDefinitionStatementVisitor extends AbstractStatementSourceGenVisitor {
+    constructor(parent) {
+        super(parent);
+    }
 
-        TypeMapperVariableDefinitionStatementVisitor.prototype = Object.create(AbstractStatementSourceGenVisitor.prototype);
-        TypeMapperVariableDefinitionStatementVisitor.prototype.constructor = TypeMapperVariableDefinitionStatementVisitor;
+    canVisitVariableDefinitionStatement(variableDefinitionStatement) {
+        return variableDefinitionStatement instanceof VariableDefinitionStatement;
+    }
 
-        TypeMapperVariableDefinitionStatementVisitor.prototype.canVisitVariableDefinitionStatement = function(variableDefinitionStatement){
-            return variableDefinitionStatement instanceof VariableDefinitionStatement;
-        };
+    beginVisitVariableDefinitionStatement(variableDefinitionStatement) {
+        this.appendSource(variableDefinitionStatement.getLeftExpression());
+        log.debug('Begin Visit Type Mapper Variable Definition Statement');
+    }
 
-        TypeMapperVariableDefinitionStatementVisitor.prototype.beginVisitVariableDefinitionStatement = function(variableDefinitionStatement){
-            this.appendSource(variableDefinitionStatement.getLeftExpression());
-            log.debug('Begin Visit Type Mapper Variable Definition Statement');
-        };
+    endVisitVariableDefinitionStatement(variableDefinitionStatement) {
+        this.getParent().appendSource(this.getGeneratedSource() + ";\n");
+        log.debug('End Visit Type Mapper Variable Definition Statement');
+    }
 
-        TypeMapperVariableDefinitionStatementVisitor.prototype.endVisitVariableDefinitionStatement = function(variableDefinitionStatement){
-            this.getParent().appendSource(this.getGeneratedSource() + ";\n");
-            log.debug('End Visit Type Mapper Variable Definition Statement');
-        };
+    visitRightOperandExpression(expression) {
+        var StatementVisitorFactory = $____type_mapper_statement_visitor_factory;
+        var statementVisitorFactory = new StatementVisitorFactory();
+        var statementVisitor = statementVisitorFactory.getStatementVisitor(expression, this);
+        expression.accept(statementVisitor);
+    }
+}
 
-        TypeMapperVariableDefinitionStatementVisitor.prototype.visitRightOperandExpression = function(expression){
-            var StatementVisitorFactory = require('./type-mapper-statement-visitor-factory');
-            var statementVisitorFactory = new StatementVisitorFactory();
-            var statementVisitor = statementVisitorFactory.getStatementVisitor(expression, this);
-            expression.accept(statementVisitor);
-        };
-
-        return TypeMapperVariableDefinitionStatementVisitor;
-    });
+export default TypeMapperVariableDefinitionStatementVisitor;

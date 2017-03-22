@@ -15,77 +15,78 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['log', 'lodash', 'event_channel', './undoable-operation-factory'],
-    function (log, _, EventChannel, UndoableOperationFactory) {
+import log from 'log';
+import _ from 'lodash';
+import EventChannel from 'event_channel';
+import UndoableOperationFactory from './undoable-operation-factory';
 
-        /**
-         * Class to represent undo/redo manager
-         * @class UndoManager
-         * @augments EventChannel
-         * @param args
-         * @constructor
-         */
-        var UndoManager = function(args){
-            this._limit = _.get(args, 'limit', 20);
-            this._undoStack = [];
-            this._redoStack = [];
-        };
+/**
+ * Class to represent undo/redo manager
+ * @class UndoManager
+ * @augments EventChannel
+ * @param args
+ * @constructor
+ */
+class UndoManager extends EventChannel {
+    constructor(args) {
+        this._limit = _.get(args, 'limit', 20);
+        this._undoStack = [];
+        this._redoStack = [];
+    }
 
-        UndoManager.prototype = Object.create(EventChannel.prototype);
-        UndoManager.prototype.constructor = UndoManager;
+    reset() {
+        this._undoStack = [];
+        this._redoStack = [];
+        this.trigger('reset');
+    }
 
-        UndoManager.prototype.reset = function(){
-            this._undoStack = [];
-            this._redoStack = [];
-            this.trigger('reset');
-        };
+    _push(undoableOperation) {
+        if(this._undoStack.length === this._limit){
+            // remove oldest undoable operation
+            this._undoStack.splice(0, 1);
+        }
+        this._undoStack.push(undoableOperation);
+        this.trigger('undoable-operation-added', undoableOperation);
+    }
 
-        UndoManager.prototype._push = function(undoableOperation){
-            if(this._undoStack.length === this._limit){
-                // remove oldest undoable operation
-                this._undoStack.splice(0, 1);
-            }
-            this._undoStack.push(undoableOperation);
-            this.trigger('undoable-operation-added', undoableOperation);
-        };
+    hasUndo() {
+        return !_.isEmpty(this._undoStack);
+    }
 
-        UndoManager.prototype.hasUndo = function(){
-            return !_.isEmpty(this._undoStack);
-        };
+    undoStackTop() {
+        return _.last(this._undoStack);
+    }
 
-        UndoManager.prototype.undoStackTop = function(){
-            return _.last(this._undoStack);
-        };
+    redoStackTop() {
+        return _.last(this._redoStack);
+    }
 
-        UndoManager.prototype.redoStackTop = function(){
-            return _.last(this._redoStack);
-        };
+    undo() {
+        var taskToUndo = this._undoStack.pop();
+        taskToUndo.undo();
+        this._redoStack.push(taskToUndo);
+    }
 
-        UndoManager.prototype.undo = function(){
-            var taskToUndo = this._undoStack.pop();
-            taskToUndo.undo();
-            this._redoStack.push(taskToUndo);
-        };
+    hasRedo() {
+        return !_.isEmpty(this._redoStack);
+    }
 
-        UndoManager.prototype.hasRedo = function(){
-            return !_.isEmpty(this._redoStack);
-        };
+    redo() {
+        var taskToRedo = this._redoStack.pop();
+        taskToRedo.redo();
+        this._undoStack.push(taskToRedo);
+    }
 
-        UndoManager.prototype.redo = function(){
-            var taskToRedo = this._redoStack.pop();
-            taskToRedo.redo();
-            this._undoStack.push(taskToRedo);
-        };
+    getOperationFactory() {
+        return UndoableOperationFactory;
+    }
 
-        UndoManager.prototype.getOperationFactory = function(){
-            return UndoableOperationFactory;
-        };
+    onUndoableOperation(event) {
+        var undoableOperation = UndoableOperationFactory.getOperation(event);
+        this._push(undoableOperation);
+    }
+}
 
-        UndoManager.prototype.onUndoableOperation = function(event){
-            var undoableOperation = UndoableOperationFactory.getOperation(event);
-            this._push(undoableOperation);
-        };
-
-        return UndoManager;
-    });
+export default UndoManager;
+    
 

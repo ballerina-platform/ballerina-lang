@@ -16,8 +16,14 @@
  * under the License.
  */
 
-define(['jquery', 'backbone', 'lodash', 'log', 'event_channel', './debug-manager', 'alerts', 'mousetrap'],
-    function ($, Backbone, _, log, EventChannel, DebugManager, alerts, Mousetrap) {
+import $ from 'jquery';
+import Backbone from 'backbone';
+import _ from 'lodash';
+import log from 'log';
+import EventChannel from 'event_channel';
+import DebugManager from './debug-manager';
+import alerts from 'alerts';
+import Mousetrap from 'mousetrap';
 
     var instance;
 
@@ -239,5 +245,4 @@ define(['jquery', 'backbone', 'lodash', 'log', 'event_channel', './debug-manager
         this.render();
     };
 
-    return (instance = (instance || new Tools() ));
-});
+    export default (instance = (instance || new Tools() ));

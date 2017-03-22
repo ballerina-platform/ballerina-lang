@@ -15,7 +15,10 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['jquery', 'lodash', 'backbone', 'log'], function ($, _, Backbone, log) {
+import $ from 'jquery';
+import _ from 'lodash';
+import Backbone from 'backbone';
+import log from 'log';
 
     var File = Backbone.Model.extend(
         {
@@ -113,5 +116,4 @@ define(['jquery', 'lodash', 'backbone', 'log'], function ($, _, Backbone, log) {
 
         });
 
-    return File;
-});
+    export default File;

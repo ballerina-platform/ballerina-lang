@@ -15,13 +15,16 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'backbone', 'log', 'mousetrap'], function (_, Backbone, log, Mousetrap) {
+import _ from 'lodash';
+import Backbone from 'backbone';
+import log from 'log';
+import Mousetrap from 'mousetrap';
 
     // command manager constructor
     /**
      * Arg: application instance
      */
-    return function(app) {
+    export default function(app) {
 
         // not reinventing the wheel - reusing event-bus impl provided in backbone models
         var CommandBus = Backbone.Model.extend({}),
@@ -127,5 +130,5 @@ define(['lodash', 'backbone', 'log', 'mousetrap'], function (_, Backbone, log, M
             return commands;
         }
     }
-});
+
 

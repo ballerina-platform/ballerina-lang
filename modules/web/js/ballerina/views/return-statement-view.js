@@ -15,87 +15,90 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', '../ast/statements/return-statement', './simple-statement-view', 'd3utils', 'd3'],
-    function (_, log, ReturnStatement, SimpleStatementView, D3Utils, d3) {
+import _ from 'lodash';
+import log from 'log';
+import ReturnStatement from '../ast/statements/return-statement';
+import SimpleStatementView from './simple-statement-view';
+import D3Utils from 'd3utils';
+import d3 from 'd3';
 
-        /**
-         * The view to represent a return statement which is an AST visitor.
-         * @param {Object} args - Arguments for creating the view.
-         * @param {ReturnStatement} args.model - The return statement model.
-         * @param {Object} args.container - The HTML container to which the view should be added to.
-         * @param {Object} [args.viewOptions={}] - Configuration values for the view.
-         * @class ReturnStatementView
-         * @constructor
-         * @extends SimpleStatementView
-         */
-        var ReturnStatementView = function (args) {
-            SimpleStatementView.call(this, args);
+/**
+ * The view to represent a return statement which is an AST visitor.
+ * @param {Object} args - Arguments for creating the view.
+ * @param {ReturnStatement} args.model - The return statement model.
+ * @param {Object} args.container - The HTML container to which the view should be added to.
+ * @param {Object} [args.viewOptions={}] - Configuration values for the view.
+ * @class ReturnStatementView
+ * @constructor
+ * @extends SimpleStatementView
+ */
+class ReturnStatementView extends SimpleStatementView {
+    constructor(args) {
+        super(args);
 
-            if (_.isNil(this._model) || !(this._model instanceof ReturnStatement)) {
-                log.error("Return statement definition is undefined or is of different type." + this._model);
-                throw "Return statement definition is undefined or is of different type." + this._model;
-            }
+        if (_.isNil(this._model) || !(this._model instanceof ReturnStatement)) {
+            log.error("Return statement definition is undefined or is of different type." + this._model);
+            throw "Return statement definition is undefined or is of different type." + this._model;
+        }
 
-            if (_.isNil(this._container)) {
-                log.error("Container for return statement is undefined." + this._container);
-                throw "Container for return statement is undefined." + this._container;
-            }
+        if (_.isNil(this._container)) {
+            log.error("Container for return statement is undefined." + this._container);
+            throw "Container for return statement is undefined." + this._container;
+        }
+    }
+
+    setModel(model) {
+        if (!_.isNil(model) && model instanceof ReturnStatement) {
+            (this.__proto__.__proto__).setModel(model);
+        } else {
+            log.error("Return statement definition is undefined or is of different type." + model);
+            throw "Return statement definition is undefined or is of different type." + model;
+        }
+    }
+
+    /**
+     * Rendering the view of the return statement.
+     * @returns {Object} - The svg group which the return statement view resides in.
+     */
+    render(diagramRenderingContext) {
+        // Calling super class's render function.
+        (this.__proto__.__proto__).render.call(this, diagramRenderingContext);
+        // Update model.
+        var model = this.getModel();
+        model.accept(this);
+        // Setting display text.
+        this.renderDisplayText(model.getReturnExpression());
+
+        var statementGroup = this.getStatementGroup();
+        // Creating property pane.
+        var editableProperty = {
+            propertyType: "text",
+            key: "Expression",
+            model: model,
+            getterMethod: model.getExpression,
+            setterMethod: model.setExpression
         };
 
-        ReturnStatementView.prototype = Object.create(SimpleStatementView.prototype);
-        ReturnStatementView.prototype.constructor = ReturnStatementView;
+        this._createDebugIndicator({
+            statementGroup: statementGroup
+        });
 
-        ReturnStatementView.prototype.setModel = function (model) {
-            if (!_.isNil(model) && model instanceof ReturnStatement) {
-                (this.__proto__.__proto__).setModel(model);
-            } else {
-                log.error("Return statement definition is undefined or is of different type." + model);
-                throw "Return statement definition is undefined or is of different type." + model;
-            }
-        };
+        this._createPropertyPane({
+                                     model: model,
+                                     statementGroup: statementGroup,
+                                     editableProperties: editableProperty
+                                 });
+        this.listenTo(model, 'update-property-text', this.updateReturnExpression);
 
-        /**
-         * Rendering the view of the return statement.
-         * @returns {Object} - The svg group which the return statement view resides in.
-         */
-        ReturnStatementView.prototype.render = function (diagramRenderingContext) {
-            // Calling super class's render function.
-            (this.__proto__.__proto__).render.call(this, diagramRenderingContext);
-            // Update model.
-            var model = this.getModel();
-            model.accept(this);
-            // Setting display text.
-            this.renderDisplayText(model.getReturnExpression());
+        return statementGroup;
+    }
 
-            var statementGroup = this.getStatementGroup();
-            // Creating property pane.
-            var editableProperty = {
-                propertyType: "text",
-                key: "Expression",
-                model: model,
-                getterMethod: model.getExpression,
-                setterMethod: model.setExpression
-            };
+    updateReturnExpression(newReturnExpression, propertyKey) {
+        this._model.setExpression(newReturnExpression);
+        var displayText = this._model.getReturnExpression();
+        this.renderDisplayText(displayText);
+    }
+}
 
-            this._createDebugIndicator({
-                statementGroup: statementGroup
-            });
-
-            this._createPropertyPane({
-                                         model: model,
-                                         statementGroup: statementGroup,
-                                         editableProperties: editableProperty
-                                     });
-            this.listenTo(model, 'update-property-text', this.updateReturnExpression);
-
-            return statementGroup;
-        };
-
-        ReturnStatementView.prototype.updateReturnExpression = function (newReturnExpression, propertyKey) {
-            this._model.setExpression(newReturnExpression);
-            var displayText = this._model.getReturnExpression();
-            this.renderDisplayText(displayText);
-        };
-
-        return ReturnStatementView;
-    });
+export default ReturnStatementView;
+    

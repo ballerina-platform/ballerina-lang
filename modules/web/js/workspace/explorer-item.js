@@ -16,8 +16,12 @@
  * under the License.
  */
 
-define(['lodash', 'log', 'file_browser', 'event_channel', 'context_menu', 'bootstrap'],
-    function (_, log, FileBrowser, EventChannel, ContextMenu){
+import _ from 'lodash';
+import log from 'log';
+import FileBrowser from 'file_browser';
+import EventChannel from 'event_channel';
+import ContextMenu from 'context_menu';
+import 'bootstrap';
 
     var ExplorerItem = function(args){
         _.assign(this, args);
@@ -186,6 +190,5 @@ define(['lodash', 'log', 'file_browser', 'event_channel', 'context_menu', 'boots
         };
     };
 
-    return ExplorerItem;
+    export default ExplorerItem;
         
-});

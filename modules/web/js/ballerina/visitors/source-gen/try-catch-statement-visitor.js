@@ -15,32 +15,34 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require', 'lodash', 'log', 'event_channel', './abstract-statement-source-gen-visitor'], function(require, _, log, EventChannel, AbstractStatementSourceGenVisitor) {
+import _ from 'lodash';
+import log from 'log';
+import EventChannel from 'event_channel';
+import AbstractStatementSourceGenVisitor from './abstract-statement-source-gen-visitor';
+import $____statement_visitor_factory from './statement-visitor-factory';
 
-    var TryCatchStatementVisitor = function(parent){
-        AbstractStatementSourceGenVisitor.call(this, parent);
-    };
+class TryCatchStatementVisitor extends AbstractStatementSourceGenVisitor {
+    constructor(parent) {
+        super(parent);
+    }
 
-    TryCatchStatementVisitor.prototype = Object.create(AbstractStatementSourceGenVisitor.prototype);
-    TryCatchStatementVisitor.prototype.constructor = TryCatchStatementVisitor;
-
-    TryCatchStatementVisitor.prototype.canVisitStatement = function(statement){
+    canVisitStatement(statement) {
         return true;
-    };
+    }
 
-    TryCatchStatementVisitor.prototype.visitTryStatement = function(statement){
-        var StatementVisitorFactory = require('./statement-visitor-factory');
+    visitTryStatement(statement) {
+        var StatementVisitorFactory = $____statement_visitor_factory;
         var statementVisitorFactory = new StatementVisitorFactory();
         var statementVisitor = statementVisitorFactory.getStatementVisitor(statement, this);
         statement.accept(statementVisitor);
-    };
+    }
 
-    TryCatchStatementVisitor.prototype.visitCatchStatement = function(statement){
-        var StatementVisitorFactory = require('./statement-visitor-factory');
+    visitCatchStatement(statement) {
+        var StatementVisitorFactory = $____statement_visitor_factory;
         var statementVisitorFactory = new StatementVisitorFactory();
         var statementVisitor = statementVisitorFactory.getStatementVisitor(statement, this);
         statement.accept(statementVisitor);
-    };
+    }
+}
 
-    return TryCatchStatementVisitor;
-});
+export default TryCatchStatementVisitor;

@@ -15,25 +15,25 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', './statement', '../../utils/common-utils', './../variable-declaration'],
-    function (_, Statement, CommonUtils, VariableDeclaration) {
+import _ from 'lodash';
+import Statement from './statement';
+import CommonUtils from '../../utils/common-utils';
+import VariableDeclaration from './../variable-declaration';
 
-    /**
-     * Class to represent an Variable Definition statement.
-     * @param {Object} [args] - Arguments for creating a variable definition statement.
-     * @param {string} [args.leftExpression] - The left hand expression.
-     * @param {string|undefined} [args.rightExpression] - The right hand expression.
-     * @constructor
-     * @augments Statement
-     */
-    var VariableDefinitionStatement = function (args) {
-        Statement.call(this, 'VariableDefinitionStatement');
+/**
+ * Class to represent an Variable Definition statement.
+ * @param {Object} [args] - Arguments for creating a variable definition statement.
+ * @param {string} [args.leftExpression] - The left hand expression.
+ * @param {string|undefined} [args.rightExpression] - The right hand expression.
+ * @constructor
+ * @augments Statement
+ */
+class VariableDefinitionStatement extends Statement {
+    constructor(args) {
+        super('VariableDefinitionStatement');
         this._leftExpression = _.get(args, 'leftExpression', "string str");
         this._rightExpression = _.get(args, 'rightExpression');
-    };
-
-    VariableDefinitionStatement.prototype = Object.create(Statement.prototype);
-    VariableDefinitionStatement.prototype.constructor = VariableDefinitionStatement;
+    }
 
     /**
      * initialize VariableDefinitionStatement from json object
@@ -41,7 +41,7 @@ define(['lodash', './statement', '../../utils/common-utils', './../variable-decl
         this._rightExpression = _.get(args, 'rightExpression');
      * @param {Object} jsonNode to initialize from
      */
-    VariableDefinitionStatement.prototype.initFromJson = function (jsonNode) {
+    initFromJson(jsonNode) {
         var self = this;
 
         // TODO: need to refactor based on the backend response
@@ -50,29 +50,29 @@ define(['lodash', './statement', '../../utils/common-utils', './../variable-decl
             self.addChild(child);
             child.initFromJson(childNode);
         });
-    };
+    }
 
     /**
      * Get the left expression
      * @return {string} _leftExpression - Left expression
      */
-    VariableDefinitionStatement.prototype.getLeftExpression = function () {
+    getLeftExpression() {
         return this._leftExpression;
-    };
+    }
 
     /**
      * Get the right expression
      * @return {string} _rightExpression - Right expression
      */
-    VariableDefinitionStatement.prototype.getRightExpression = function () {
+    getRightExpression() {
         return this._rightExpression;
-    };
+    }
 
     /**
      * Get the variable definition statement string
      * @return {string} - Variable definition expression string
      */
-    VariableDefinitionStatement.prototype.getStatementString = function () {
+    getStatementString() {
         var variableDefinitionStatementString;
         if(_.isNil(this._rightExpression) || _.isEmpty(this._rightExpression)){
             variableDefinitionStatementString = this._leftExpression;
@@ -80,49 +80,49 @@ define(['lodash', './statement', '../../utils/common-utils', './../variable-decl
             variableDefinitionStatementString = this._leftExpression + " = " + this._rightExpression;
         }
         return variableDefinitionStatementString;
-    };
+    }
 
     /**
      * Set the left expression
      * @param {string} leftExpression - Left expression
      */
-    VariableDefinitionStatement.prototype.setLeftExpression = function (leftExpression) {
+    setLeftExpression(leftExpression) {
         this.setAttribute("_leftExpression", leftExpression.trim());
-    };
+    }
 
     /**
      * Set the right expression
      * @param {string} rightExpression - Right expression
      */
-    VariableDefinitionStatement.prototype.setRightExpression = function (rightExpression) {
+    setRightExpression(rightExpression) {
         this.setAttribute("_rightExpression", rightExpression.trim());
-    };
+    }
 
     /**
      * Gets the ballerina type of the variable definition statement.
      * @return {string} - The ballerina type.
      */
-    VariableDefinitionStatement.prototype.getBType = function() {
+    getBType() {
         return (this._leftExpression.split(" ")[0]).trim();
-    };
+    }
 
     /**
      * Gets the identifier of the variable definition statement.
      * @return {string} - The identifier.
      */
-    VariableDefinitionStatement.prototype.getIdentifier = function() {
+    getIdentifier() {
         return (this._leftExpression.split(" ")[1]).trim();
-    };
+    }
 
-    VariableDefinitionStatement.prototype.setIdentifier = function(identifier) {
+    setIdentifier(identifier) {
         this.setLeftExpression(this.getBType() + " " + identifier);
-    };
+    }
 
     /**
      * Set the variable definition expression string
      * @param {string} variableDefinitionStatementString - variable definition expression string
      */
-    VariableDefinitionStatement.prototype.setStatementString = function (variableDefinitionStatementString) {
+    setStatementString(variableDefinitionStatementString) {
         var equalIndex = _.indexOf(variableDefinitionStatementString, '=');
         if (equalIndex === -1) {
             var leftOperand = variableDefinitionStatementString;
@@ -133,13 +133,13 @@ define(['lodash', './statement', '../../utils/common-utils', './../variable-decl
 
         this.setLeftExpression(!_.isNil(leftOperand) ? leftOperand.trim() : "");
         this.setRightExpression(!_.isNil(rightOperand) ? rightOperand.trim() : "");
-    };
+    }
 
     /**
      * @inheritDoc
      * @override
      */
-    VariableDefinitionStatement.prototype.generateUniqueIdentifiers = function () {
+    generateUniqueIdentifiers() {
         if (this.getFactory().isResourceDefinition(this.parent) || this.getFactory().isConnectorAction(this.parent)) {
             CommonUtils.generateUniqueIdentifier({
                 node: this,
@@ -167,9 +167,9 @@ define(['lodash', './statement', '../../utils/common-utils', './../variable-decl
                 }]
             });
         }
-    };
+    }
 
-    VariableDefinitionStatement.prototype.initFromJson = function (jsonNode) {
+    initFromJson(jsonNode) {
         var self = this;
         var lhs = jsonNode.children[0];
         var rhs = jsonNode.children[1];
@@ -213,7 +213,8 @@ define(['lodash', './statement', '../../utils/common-utils', './../variable-decl
                 this.setRightExpression(rightExpressionChild.getExpression());
             }
         }
-    };
+    }
+}
 
-    return VariableDefinitionStatement;
-});
+export default VariableDefinitionStatement;
+

@@ -15,31 +15,31 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', './undoable-operation'],
-    function (_, log, UndoableOperation) {
+import _ from 'lodash';
+import log from 'log';
+import UndoableOperation from './undoable-operation';
 
-        /**
-         * Class to represent undoable operations done to ballerina AST
-         * @class ASTManipulationOperation
-         * @augments UndoableOperation
-         * @param args
-         * @constructor
-         */
-        var ASTManipulationOperation = function(args){
-            UndoableOperation.call(this, args);
-            if(!_.has(args, 'origin')){
-                log.error('Origin node is not provided. Event: ' +  JSON.stringify(args));
-            }
-            this._originNode = _.get(args, 'origin');
-            this._data = _.get(args, 'data');
-        };
+/**
+ * Class to represent undoable operations done to ballerina AST
+ * @class ASTManipulationOperation
+ * @augments UndoableOperation
+ * @param args
+ * @constructor
+ */
+class ASTManipulationOperation extends UndoableOperation {
+ constructor(args) {
+     super(args);
+     if(!_.has(args, 'origin')){
+         log.error('Origin node is not provided. Event: ' +  JSON.stringify(args));
+     }
+     this._originNode = _.get(args, 'origin');
+     this._data = _.get(args, 'data');
+ }
 
-        ASTManipulationOperation.prototype = Object.create(UndoableOperation.prototype);
-        ASTManipulationOperation.prototype.constructor = ASTManipulationOperation;
+ undo() {}
+ redo() {}
+}
 
-        ASTManipulationOperation.prototype.undo = function(){};
-        ASTManipulationOperation.prototype.redo = function(){};
-
-        return ASTManipulationOperation;
-    });
+export default ASTManipulationOperation;
+    
 

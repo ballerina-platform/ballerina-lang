@@ -15,26 +15,36 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', 'event_channel', '../../ast/module', './try-catch-statement-visitor',
-        './try-statement-visitor', './catch-statement-visitor', './if-else-statement-visitor', './if-statement-visitor',
-        './else-statement-visitor', './else-if-statement-visitor', './while-statement-visitor',
-        './assignment-statement-visitor', './action-invocation-statement-visitor', './reply-statement-visitor',
-        './return-statement-visitor', './function-invocation-visitor', './function-invocation-expression-visitor',
-        './assignment-visitor', './left-operand-expression-visitor', './right-operand-expression-visitor',
-        './variable-definition-statement-visitor', './worker-invocation-statement-visitor', './worker-reply-statement-visitor',
-        './break-statement-visitor', './throw-statement-visitor', './comment-statement-visitor'],
-function (_, log, EventChannel, AST, TryCatchStatementVisitor, TryStatementVisitor, CatchStatementVisitor,
-          IfElseStatementVisitor, IfStatementVisitor, ElseStatementVisitor, ElseIfStatementVisitor,
-          WhileStatementVisitor, AssignmentStatementVisitor, ActionInvocationStatementVisitor, ReplyStatementVisitor,
-          ReturnStatementVisitor, FunctionInvocationVisitor, FunctionInvocationExpressionVisitor, AssignmentVisitor,
-          LeftOperandExpressionVisitor, RightOperandExpressionVisitor, VariableDefinitionStatement,
-          WorkerInvocationStatementVisitor, WorkerReplyStatementVisitor, BreakStatementVisitor, ThrowStatementVisitor,
-          CommentStatementVisitor) {
+import _ from 'lodash';
+import log from 'log';
+import EventChannel from 'event_channel';
+import AST from '../../ast/module';
+import TryCatchStatementVisitor from './try-catch-statement-visitor';
+import TryStatementVisitor from './try-statement-visitor';
+import CatchStatementVisitor from './catch-statement-visitor';
+import IfElseStatementVisitor from './if-else-statement-visitor';
+import IfStatementVisitor from './if-statement-visitor';
+import ElseStatementVisitor from './else-statement-visitor';
+import ElseIfStatementVisitor from './else-if-statement-visitor';
+import WhileStatementVisitor from './while-statement-visitor';
+import AssignmentStatementVisitor from './assignment-statement-visitor';
+import ActionInvocationStatementVisitor from './action-invocation-statement-visitor';
+import ReplyStatementVisitor from './reply-statement-visitor';
+import ReturnStatementVisitor from './return-statement-visitor';
+import FunctionInvocationVisitor from './function-invocation-visitor';
+import FunctionInvocationExpressionVisitor from './function-invocation-expression-visitor';
+import AssignmentVisitor from './assignment-visitor';
+import LeftOperandExpressionVisitor from './left-operand-expression-visitor';
+import RightOperandExpressionVisitor from './right-operand-expression-visitor';
+import VariableDefinitionStatement from './variable-definition-statement-visitor';
+import WorkerInvocationStatementVisitor from './worker-invocation-statement-visitor';
+import WorkerReplyStatementVisitor from './worker-reply-statement-visitor';
+import BreakStatementVisitor from './break-statement-visitor';
+import ThrowStatementVisitor from './throw-statement-visitor';
+import CommentStatementVisitor from './comment-statement-visitor';
 
-    var StatementVisitorFactor = function () {
-    };
-
-    StatementVisitorFactor.prototype.getStatementVisitor = function (statement, parent) {
+class StatementVisitorFactor {
+    getStatementVisitor(statement, parent) {
         if (statement instanceof AST.TryCatchStatement) {
             return new TryCatchStatementVisitor(parent);
         } else if (statement instanceof AST.TryStatement) {
@@ -80,7 +90,8 @@ function (_, log, EventChannel, AST, TryCatchStatementVisitor, TryStatementVisit
         } else if (statement instanceof AST.CommentStatement) {
             return new CommentStatementVisitor(parent);
         }
-    };
+    }
+}
 
-    return StatementVisitorFactor;
-});
+export default StatementVisitorFactor;
+

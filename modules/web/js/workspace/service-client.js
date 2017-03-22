@@ -15,8 +15,11 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['log', 'lodash', 'jquery', 'event_channel', './file'],
-    function(log, _, $, EventChannel, File) {
+import log from 'log';
+import _ from 'lodash';
+import $ from 'jquery';
+import EventChannel from 'event_channel';
+import File from './file';
 
         /**
          * @class ServiceClient
@@ -221,5 +224,5 @@ define(['log', 'lodash', 'jquery', 'event_channel', './file'],
             return data;
         };
 
-        return ServiceClient;
-    });
+        export default ServiceClient;
+    
