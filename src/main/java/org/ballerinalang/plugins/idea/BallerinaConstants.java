@@ -30,8 +30,10 @@ public class BallerinaConstants {
     public static final String MAIN = "main";
     public static final String PATH = "PATH";
     public static final String MODULE_TYPE_ID = "BALLERINA_MODULE";
+
     @NonNls
     public static final String BALLERINA_EXECUTABLE_NAME = "ballerina";
+
     @NonNls
     public static final String BALLERINA_VERSION_FILE_PATH = "bin/version.txt";
 
@@ -41,4 +43,8 @@ public class BallerinaConstants {
     public static final NotificationGroup BALLERINA_EXECUTION_NOTIFICATION_GROUP =
             NotificationGroup.toolWindowGroup("Ballerina Execution", ToolWindowId.RUN);
 
+    public static final String BALLERINA_REPOSITORY = "BALLERINA_REPOSITORY";
+    public static final String BALLERINA_LIBRARIES_SERVICE_NAME = "BallerinaLibraries";
+    public static final String BALLERINA_LIBRARIES_CONFIG_FILE = "BallerinaLibraries.xml";
+    public static final String BALLERINA_MODULE_SESTTINGS_SERVICE_NAME = "Ballerina";
 }

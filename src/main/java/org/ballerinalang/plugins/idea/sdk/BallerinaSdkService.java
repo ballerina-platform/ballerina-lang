@@ -21,6 +21,7 @@ import com.intellij.openapi.components.ComponentManager;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.module.Module;
+import com.intellij.openapi.module.ModuleUtil;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.projectRoots.Sdk;
 import com.intellij.openapi.roots.ModuleRootManager;
@@ -32,6 +33,7 @@ import com.intellij.psi.util.CachedValuesManager;
 import com.intellij.util.ObjectUtils;
 import com.intellij.util.containers.ContainerUtil;
 import org.ballerinalang.plugins.idea.BallerinaConstants;
+import org.ballerinalang.plugins.idea.BallerinaModuleType;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -39,7 +41,7 @@ import org.jetbrains.annotations.Nullable;
 import java.io.File;
 import java.util.Set;
 
-public class BallerinaSdkService {
+public class BallerinaSdkService extends SimpleModificationTracker {
 
     public static final Logger LOG = Logger.getInstance(BallerinaSdkService.class);
     private static final Set<String> FEDORA_SUBDIRECTORIES = ContainerUtil.newHashSet("linux_amd64", "linux_386",
@@ -89,7 +91,7 @@ public class BallerinaSdkService {
 
     @Contract("null -> false")
     public boolean isBallerinaModule(@Nullable Module module) {
-        return module != null && !module.isDisposed();
+        return module != null && ModuleUtil.getModuleType(module) == BallerinaModuleType.getInstance();
     }
 
     public String getSdkHomePath(@Nullable Module module) {
