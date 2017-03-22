@@ -23,8 +23,10 @@ import org.apache.log4j.Logger;
 import org.junit.Test;
 import org.wso2.siddhi.core.ExecutionPlanRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
+import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.stream.input.InputHandler;
-import org.wso2.siddhi.core.stream.output.sink.PassThroughOutputMapper;
+import org.wso2.siddhi.core.stream.output.StreamCallback;
+import org.wso2.siddhi.core.util.EventPrinter;
 import org.wso2.siddhi.extension.output.mapper.text.TextOutputMapper;
 import org.wso2.siddhi.query.api.ExecutionPlan;
 import org.wso2.siddhi.query.api.annotation.Annotation;
@@ -41,46 +43,22 @@ public class KafkaOutputTransportTestCase {
     @Test
     public void testPublisherWithKafkaTransport() throws InterruptedException {
         try {
-            StreamDefinition streamDefinition = StreamDefinition.id("FooStream")
-                    .attribute("symbol", Attribute.Type.STRING)
-                    .attribute("price", Attribute.Type.FLOAT)
-                    .attribute("volume", Attribute.Type.INT);
-
-            StreamDefinition outputDefinition = StreamDefinition.id("BarStream")
-                    .attribute("symbol", Attribute.Type.STRING)
-                    .attribute("price", Attribute.Type.FLOAT)
-                    .attribute("volume", Attribute.Type.INT)
-                    .annotation(Annotation.annotation("sink")
-                            .element("type", "kafka")
-                            .element("topic", "kafka_topic")
-                            .element("partition.no", "0")
-                            .element("bootstrap.servers", "localhost:9092")
-                            .annotation(Annotation.annotation("map")
-                                    .element("type", "text")));
-
-            Query query = Query.query();
-            query.from(
-                    InputStream.stream("FooStream")
-            );
-            query.select(
-                    Selector.selector().select(new Variable("symbol")).select(new Variable("price")).select(new Variable("volume"))
-            );
-            query.insertInto("BarStream");
-
             SiddhiManager siddhiManager = new SiddhiManager();
             siddhiManager.setExtension("outputmapper:text", TextOutputMapper.class);
+            ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(
+                    "@Plan:name('TestExecutionPlan') " +
+                    "define stream FooStream (symbol string, price float, volume long); " +
+                    "@info(name = 'query1') " +
+                        "@sink(type='kafka', topic='kafka_topic', bootstrap.servers='localhost:9092', partition.no='0', " +
+                              "@map(type='text'))" +
+                                    "Define stream BarStream (symbol string, price float, volume long);" +
+                    "from FooStream select symbol, price, volume insert into BarStream;");
 
-            ExecutionPlan executionPlan = new ExecutionPlan("ep1");
-            executionPlan.defineStream(streamDefinition);
-            executionPlan.defineStream(outputDefinition);
-            executionPlan.addQuery(query);
-            ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(executionPlan);
-            InputHandler stockStream = executionPlanRuntime.getInputHandler("FooStream");
-
+            InputHandler fooStream = executionPlanRuntime.getInputHandler("FooStream");
             executionPlanRuntime.start();
-            stockStream.send(new Object[]{"WSO2", 55.6f, 100L});
-            stockStream.send(new Object[]{"IBM", 75.6f, 100L});
-            stockStream.send(new Object[]{"WSO2", 57.6f, 100L});
+            fooStream.send(new Object[]{"WSO2", 55.6f, 100L});
+            fooStream.send(new Object[]{"IBM", 75.6f, 100L});
+            fooStream.send(new Object[]{"WSO2", 57.6f, 100L});
             Thread.sleep(10000);
             executionPlanRuntime.shutdown();
         } catch (ZkTimeoutException ex) {

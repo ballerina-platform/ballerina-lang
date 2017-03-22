@@ -21,40 +21,73 @@ package org.wso2.siddhi.extension.input.transport.kafka;
 import org.apache.log4j.Logger;
 import org.wso2.siddhi.core.stream.input.source.SourceEventListener;
 
-import java.util.Properties;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.*;
+import java.util.concurrent.*;
 
 public class ConsumerKafkaGroup {
-    private final String topic;
-    private final String partitionList;
+    private final String topics[];
+    private final String partitions[];
     private final Properties props;
-    private ExecutorService executor;
+    private List<KafkaConsumerThread> kafkaConsumerThreadList = new ArrayList<>();
+    private HashMap<String, HashMap<Integer, Long>> topicOffsetMap = new HashMap<>();
+    private ScheduledExecutorService executorService;
+    private String threadingOption;
     private static final Logger log = Logger.getLogger(ConsumerKafkaGroup.class);
 
-    public ConsumerKafkaGroup(String topic, String partitionList, Properties props) {
-        this.topic = topic;
-        this.partitionList = partitionList;
+    public ConsumerKafkaGroup(String topics[], String partitions[], Properties props, HashMap<String,
+                              HashMap<Integer, Long>> topicOffsetMap, String threadingOption,
+                              ScheduledExecutorService executorService) {
+        this.threadingOption = threadingOption;
+        this.topicOffsetMap = topicOffsetMap;
+        this.topics = topics;
+        this.partitions = partitions;
         this.props = props;
+        this.executorService = executorService;
     }
 
     public void shutdown() {
-        if (executor != null) {
-            executor.shutdown();
+        kafkaConsumerThreadList.forEach(KafkaConsumerThread::shutdownConsumer);
+    }
+
+    public void run(SourceEventListener sourceEventListener) {
+        try {
+            if(KafkaInputTransport.SINGLE_THREADED.equals(threadingOption)) {
+                KafkaConsumerThread kafkaConsumerThread =
+                        new KafkaConsumerThread(sourceEventListener, topics, partitions, props, topicOffsetMap);
+                kafkaConsumerThreadList.add(kafkaConsumerThread);
+                kafkaConsumerThread.run();
+            } else if (KafkaInputTransport.TOPIC_WISE.equals(threadingOption)) {
+                for (String topic : topics) {
+                    KafkaConsumerThread kafkaConsumerThread =
+                            new KafkaConsumerThread(sourceEventListener, new String[]{topic}, partitions, props, topicOffsetMap);
+                    kafkaConsumerThreadList.add(kafkaConsumerThread);
+                    executorService.submit(kafkaConsumerThread);
+                }
+            } else if (KafkaInputTransport.PARTITION_WISE.equals(threadingOption)) {
+                for (String topic : topics) {
+                    for (String partition : partitions) {
+                        KafkaConsumerThread kafkaConsumerThread =
+                                new KafkaConsumerThread(sourceEventListener, new String[]{topic}, new String[]{partition},
+                                                        props, topicOffsetMap);
+                        kafkaConsumerThreadList.add(kafkaConsumerThread);
+                        executorService.submit(kafkaConsumerThread);
+                    }
+                }
+            }
+            log.info("Kafka Consumer thread/s starting to listen on topic/s: " + Arrays.toString(topics));
+        } catch (Throwable t) {
+            log.error("Error while creating KafkaConsumerThread for topic/s: " + Arrays.toString(topics), t);
         }
     }
 
-    public void run(int numThreads, SourceEventListener sourceEventListener) {
-        try {
-            // now launch all the threads
-            executor = Executors.newFixedThreadPool(numThreads);
-            // now create consumers to consume the messages
-            for (int i = 0; i < numThreads; i++) {
-                executor.submit(new KafkaConsumerThread(sourceEventListener, topic, partitionList, props));
+    public HashMap<String, HashMap<Integer, Long>> getTopicOffsetMap() {
+        HashMap<String, HashMap<Integer, Long>> topicOffsetMap = new HashMap<>();
+        for (KafkaConsumerThread kafkaConsumerThread : kafkaConsumerThreadList) {
+            HashMap<String, HashMap<Integer, Long>> topicOffsetMapTemp = kafkaConsumerThread.getTopicOffsetMap();
+            for (Map.Entry<String, HashMap<Integer, Long>> entry : topicOffsetMapTemp.entrySet()) {
+                topicOffsetMap.put(entry.getKey(), entry.getValue());
             }
-            log.info("Kafka Consumer started listening on topic: " + topic);
-        } catch (Throwable t) {
-            log.error("Error while creating KafkaConsumerThread for topic: " + topic, t);
         }
+        return topicOffsetMap;
     }
 }
