@@ -19,26 +19,27 @@ import _ from 'lodash';
 import d3 from 'd3';
 import log from 'log';
 import SimpleStatementView from './simple-statement-view';
-import ActionInvocationExpression from '../ast/expressions/action-invocation-expression';
 import Point from './point';
 import D3Utils from 'd3utils';
 import BallerinaASTFactory from './../ast/ballerina-ast-factory';
 
 /**
  * Action invocation statement view.
- * @param args {*} constructor arguments
  * @class ActionInvocationStatementView
- * @constructor
  * @extends SimpleStatementView
  */
 class ActionInvocationStatementView extends SimpleStatementView {
+    /**
+     * @param args {*} constructor arguments
+     * @constructor
+     */
     constructor(args) {
         super(args);
         this._connectorView = {};
 
         if (_.isNil(this._container)) {
-            log.error("Container for action statement is undefined." + this._container);
-            throw "Container for action statement is undefined." + this._container;
+            log.error('Container for action statement is undefined.' + this._container);
+            throw 'Container for action statement is undefined.' + this._container;
         }
 
         this.getBoundingBox().fromTopCenter(this._topCenter, this._viewOptions.width, this._viewOptions.height);
@@ -51,7 +52,7 @@ class ActionInvocationStatementView extends SimpleStatementView {
     }
 
     init() {
-        this.getModel().on("drawConnectionForAction", this.drawActionConnections, this);
+        this.getModel().on('drawConnectionForAction', this.drawActionConnections, this);
         Object.getPrototypeOf(this.constructor.prototype).init.call(this);
     }
 
@@ -63,7 +64,7 @@ class ActionInvocationStatementView extends SimpleStatementView {
         return this._diagramRenderingContext;
     }
 
-    drawActionConnections(startPoint) {
+    drawActionConnections() {
         var actionInvocationModel = this.getActionInvocationExpressionModel();
         if(this.isAtValidDropTarget()){
             this.updateActivatedTarget(this.messageManager.getActivatedDropTarget(), actionInvocationModel);
@@ -116,11 +117,11 @@ class ActionInvocationStatementView extends SimpleStatementView {
 
         // Creating property pane
         var editableProperty = {
-                propertyType: "text",
-                key: "Action Invocation",
-                model: model,
-                getterMethod: model.getStatementString,
-                setterMethod: model.setStatementString
+            propertyType: 'text',
+            key: 'Action Invocation',
+            model: model,
+            getterMethod: model.getStatementString,
+            setterMethod: model.setStatementString
         };
 
         this._createPropertyPane({
@@ -153,7 +154,7 @@ class ActionInvocationStatementView extends SimpleStatementView {
             this.stopListening(this.getBoundingBox(), 'right-edge-moved', self.onRightEdgeMoveCallback);
 
             var parent = this.getStatementGroup();
-            this._arrowGroup = D3Utils.group(parent).attr("transform", "translate(0,0)");
+            this._arrowGroup = D3Utils.group(parent).attr('transform', 'translate(0,0)');
             var width = this.getBoundingBox().w();
             var height = this.getBoundingBox().h();
             var x = this.getBoundingBox().getLeft();
@@ -168,13 +169,13 @@ class ActionInvocationStatementView extends SimpleStatementView {
             this._processorConnectPoint.attr('cx', connectorCenterPointX);
 
             this._processorConnector = D3Utils.line(Math.round(startPoint.x()), Math.round(startPoint.y()), Math.round(connectorCenterPointX),
-                Math.round(startPoint.y()), this._arrowGroup).classed("action-line", true);
-            this._forwardArrowHead = D3Utils.inputTriangle(Math.round(connectorCenterPointX) - 5, Math.round(startPoint.y()), this._arrowGroup).classed("action-arrow", true);
-            this._forwardArrowHead.attr("transform", "translate(0,0)");
+                Math.round(startPoint.y()), this._arrowGroup).classed('action-line', true);
+            this._forwardArrowHead = D3Utils.inputTriangle(Math.round(connectorCenterPointX) - 5, Math.round(startPoint.y()), this._arrowGroup).classed('action-arrow', true);
+            this._forwardArrowHead.attr('transform', 'translate(0,0)');
             this._processorConnector2 = D3Utils.line(Math.round(startPoint.x()), Math.round(startPoint.y()) + 8, Math.round(connectorCenterPointX),
-                Math.round(startPoint.y()) + 8, this._arrowGroup).classed("action-dash-line", true);
-            this._backArrowHead = D3Utils.outputTriangle(Math.round(startPoint.x()), Math.round(startPoint.y()) + 8, this._arrowGroup).classed("action-arrow", true);
-            this._backArrowHead.attr("transform", "translate(0,0)");
+                Math.round(startPoint.y()) + 8, this._arrowGroup).classed('action-dash-line', true);
+            this._backArrowHead = D3Utils.outputTriangle(Math.round(startPoint.x()), Math.round(startPoint.y()) + 8, this._arrowGroup).classed('action-arrow', true);
+            this._backArrowHead.attr('transform', 'translate(0,0)');
 
             this.listenTo(this.getBoundingBox(), 'top-edge-moved', self.topEdgeMoveArrowPositionCallback, this);
 
@@ -201,7 +202,7 @@ class ActionInvocationStatementView extends SimpleStatementView {
         var y = boundingBox.getTop();
         var height = boundingBox.h();
         var processorConnectPoint = D3Utils.circle(x, ((y + height / 2)), 10, d3.select(this.getStatementGroup().node().ownerSVGElement));
-        processorConnectPoint.attr("fill-opacity", 0.01);
+        processorConnectPoint.attr('fill-opacity', 0.01);
         this._processorConnectPoint = processorConnectPoint;
     }
 
@@ -245,14 +246,14 @@ class ActionInvocationStatementView extends SimpleStatementView {
      */
     onBeforeModelRemove() {
         this.stopListening(this.getBoundingBox());
-        d3.select("#_" +this._model.id).remove();
+        d3.select('#_' +this._model.id).remove();
         this.removeArrows();
         // resize the bounding box in order to the other objects to resize
         var gap = this.getParent().getStatementContainer().getInnerDropZoneHeight();
         this.getBoundingBox().move(0, -this.getBoundingBox().h() - gap).w(0);
     }
 
-    updateStatementText(newStatementText, propertyKey) {
+    updateStatementText(newStatementText) {
         var connectorName = newStatementText.match(/\((.*)\)/)[1];
         var self = this;
         var actionInvocationExpressionModel = this.getActionInvocationExpressionModel();
@@ -266,14 +267,14 @@ class ActionInvocationStatementView extends SimpleStatementView {
             this.stopListening(currentConnectorView.getBoundingBox(), 'moved');
         }
 
-        connectorName = connectorName.split(",")[0].trim();
+        connectorName = connectorName.split(',')[0].trim();
         var connector = this.getParent().getModel().getConnectorByName(connectorName);
 
         this.getModel().setStatementString(newStatementText);
         this.renderDisplayText(newStatementText);
 
         self.removeArrows();
-        self._processorConnectPoint.style("display", "block");
+        self._processorConnectPoint.style('display', 'block');
 
         if (!_.isNil(connector)) {
             self.getActionInvocationExpressionModel().setConnector(connector);
@@ -284,18 +285,19 @@ class ActionInvocationStatementView extends SimpleStatementView {
     }
 
     getActionInvocationExpressionModel() {
+        var actionExpression;
         if (BallerinaASTFactory.isActionInvocationStatement(this.getModel())) {
-            var actionExpression = this.getModel().getChildren()[0];
+            actionExpression = this.getModel().getChildren()[0];
             if(BallerinaASTFactory.isActionInvocationExpression(actionExpression)){
                 return actionExpression;
             }
         } else if (BallerinaASTFactory.isAssignmentStatement(this.getModel())) {
-            var actionExpression = this.getModel().getChildren()[1].getChildren()[0];
+            actionExpression = this.getModel().getChildren()[1].getChildren()[0];
             if (BallerinaASTFactory.isActionInvocationExpression(actionExpression)) {
                 return actionExpression;
             }
         } else if (BallerinaASTFactory.isVariableDefinitionStatement(this.getModel())) {
-            var actionExpression = this.getModel().getChildren()[0];
+            actionExpression = this.getModel().getChildren()[0];
             if (BallerinaASTFactory.isActionInvocationExpression(actionExpression)) {
                 return actionExpression;
             }
@@ -346,7 +348,7 @@ class ActionInvocationStatementView extends SimpleStatementView {
     processorConnectPointOnMouseEvents() {
         var self = this;
         var model = this.getModel();
-        this._processorConnectPoint.on("mousedown", function () {
+        this._processorConnectPoint.on('mousedown', function () {
             d3.event.preventDefault();
             d3.event.stopPropagation();
             var x =  self.getBoundingBox().getRight();
@@ -371,15 +373,15 @@ class ActionInvocationStatementView extends SimpleStatementView {
             self.messageManager.setTypeBeingDragged(true);
         });
 
-        this._processorConnectPoint.on("mouseover", function () {
+        this._processorConnectPoint.on('mouseover', function () {
             self._processorConnectPoint
-                .style("fill", "#444")
-                .style("fill-opacity", 0.5)
-                .style("cursor", 'url(images/BlackHandwriting.cur), pointer');
+                .style('fill', '#444')
+                .style('fill-opacity', 0.5)
+                .style('cursor', 'url(images/BlackHandwriting.cur), pointer');
         });
 
-        this._processorConnectPoint.on("mouseout", function () {
-            self._processorConnectPoint.style("fill-opacity", 0.01);
+        this._processorConnectPoint.on('mouseout', function () {
+            self._processorConnectPoint.style('fill-opacity', 0.01);
         });
     }
 
@@ -427,5 +429,3 @@ class ActionInvocationStatementView extends SimpleStatementView {
 }
 
 export default ActionInvocationStatementView;
-
-    

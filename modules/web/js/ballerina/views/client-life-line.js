@@ -17,27 +17,25 @@
  */
 
 import _ from 'lodash';
-import $ from 'jquery';
-import d3 from 'd3';
-import log from 'log';
 import D3Utils from 'd3utils';
-import Point from './point';
 import LifeLine from './life-line';
 
 /**
  * View for  the Client lifeline
- * @param args {object} - config
- * @param args.container {SVGGElement} - SVG group element to draw the life line
- * @param args.centerPoint {Point} - center point to draw the life line.
- * @param args.cssClass {object} - css classes for the lifeline
- * @param args.cssClass.group {string} - css class for root group
- * @param args.cssClass.title {string} - css class for the title
- * @param args.title {string} - title
  * @class ClientLifeLineView
- * @augments LifeLineView
- * @constructor
+ * @extends LifeLine
  */
 class ClientLifeLineView extends LifeLine {
+    /**
+     * @param args {object} - config
+     * @param args.container {SVGGElement} - SVG group element to draw the life line
+     * @param args.centerPoint {Point} - center point to draw the life line.
+     * @param args.cssClass {object} - css classes for the lifeline
+     * @param args.cssClass.group {string} - css class for root group
+     * @param args.cssClass.title {string} - css class for the title
+     * @param args.title {string} - title
+     * @constructor
+     */
     constructor(args) {
         _.set(args, 'title',  _.get(args, 'title', 'client'));
         _.set(args, 'line.height', _.get(args, 'line.height', 290));
@@ -48,20 +46,20 @@ class ClientLifeLineView extends LifeLine {
     renderTopPolygon() {
         var self = this;
         this._topPolygon = D3Utils.polygon(this._calculatePolygonPoints(this._topCenter), this._rootGroup);
-        this._topPolygon.attr("stroke-linejoin", "round");
+        this._topPolygon.attr('stroke-linejoin', 'round');
 
-        this._topCenter.on('moved', function (offset) {
-           self._topPolygon.attr('points',  self._calculatePolygonPoints(self._topCenter));
+        this._topCenter.on('moved', function () {
+            self._topPolygon.attr('points',  self._calculatePolygonPoints(self._topCenter));
         });
     }
 
     renderBottomPolygon() {
         var self = this;
         this._bottomPolygon = D3Utils.polygon(this._calculatePolygonPoints(this._bottomCenter), this._rootGroup);
-        this._bottomPolygon.attr("stroke-linejoin", "round");
+        this._bottomPolygon.attr('stroke-linejoin', 'round');
 
-        this._bottomCenter.on('moved', function (offset) {
-           self._bottomPolygon.attr('points',  self._calculatePolygonPoints(self._bottomCenter));
+        this._bottomCenter.on('moved', function () {
+            self._bottomPolygon.attr('points',  self._calculatePolygonPoints(self._bottomCenter));
         });
     }
 
@@ -76,13 +74,13 @@ class ClientLifeLineView extends LifeLine {
             polygonXOffset = 32;
         var topPolygonPoints =
             // Bottom point of the polygon.
-            " " + point.x() + "," + (point.y() + polygonYOffset) +
+            ' ' + point.x() + ',' + (point.y() + polygonYOffset) +
                 // Right point of the polygon
-            " " + (point.x() + polygonXOffset) + "," + point.y() +
+            ' ' + (point.x() + polygonXOffset) + ',' + point.y() +
                 // Top point of the polygon.
-            " " + point.x() + "," + (point.y() - polygonYOffset) +
+            ' ' + point.x() + ',' + (point.y() - polygonYOffset) +
                 // Left point of the polygon.
-            " " + (point.x() - polygonXOffset) + "," + point.y();
+            ' ' + (point.x() - polygonXOffset) + ',' + point.y();
 
         return topPolygonPoints;
 

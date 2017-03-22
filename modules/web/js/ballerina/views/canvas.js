@@ -19,21 +19,21 @@
 import log from 'log';
 import _ from 'lodash';
 import $ from 'jquery';
-import d3 from 'd3';
-import D3Utils from 'd3utils';
-import AstVisitor from './../visitors/ast-visitor';
 import BallerinaView from './ballerina-view';
 import MessageManager from './message-manager';
 
 /**
-    * Generic class for a canvas. i.e Services, Functions.
-    * @param {Object} args={} - Argument for a canvas.
-    * @constructor
-    * @augments BallerinaView
-    */
+ * Generic class for a canvas. i.e Services, Functions.
+ * @class Canvas
+ * @extends BallerinaView
+ */
 class Canvas extends BallerinaView {
+
+    /**
+     * @param {Object} args={} - Argument for a canvas.
+     */
     constructor(args) {
-        super(args);
+        super();
         var mMArgs = {'canvas': this};
         args.messageManager = new MessageManager(mMArgs);
 
@@ -82,7 +82,7 @@ class Canvas extends BallerinaView {
      * @param node {ASTNode} node which is being dragged ATM
      * @return {boolean}
      */
-    isAValidNodeForCanvasDropArea(node) {
+    isAValidNodeForCanvasDropArea() {
         return true;
     }
 
@@ -95,55 +95,55 @@ class Canvas extends BallerinaView {
      */
     drawAccordionCanvas(options, id, name, title) {
         // The main wrapper of the canvas.
-        var outerDiv = $("<div/>", {
-            id: "_" + id,
-            class: _.get(options, "cssClass.outer_div", "")
+        var outerDiv = $('<div/>', {
+            id: '_' + id,
+            class: _.get(options, 'cssClass.outer_div', '')
         }).appendTo(this.getContainer());
 
         //// Creating the heading of the canvas.
 
         // Creating the wrapper for the heading.
-        var panelHeading = $("<div/>", {
-            id: id + "_heading",
-            "data-toggle": "collapse",
-            "data-target": "#" + id + "_body",
-            class: _.get(options, "cssClass.head_div", "")
+        var panelHeading = $('<div/>', {
+            id: id + '_heading',
+            'data-toggle': 'collapse',
+            'data-target': '#' + id + '_body',
+            class: _.get(options, 'cssClass.head_div', '')
         }).appendTo(outerDiv);
 
         // The title element of the heading.
-        var panelTitle = $("<h4/>", {
-            class: _.get(options, "cssClass.panel_title", "")
+        var panelTitle = $('<h4/>', {
+            class: _.get(options, 'cssClass.panel_title', '')
         }).appendTo(panelHeading);
 
         // The icon of the canvas positioned in the heading.
-        this._panelIcon = $("<i/>", {
-            class: _.get(options, "cssClass.panel_icon", "")
+        this._panelIcon = $('<i/>', {
+            class: _.get(options, 'cssClass.panel_icon', '')
         }).appendTo(panelTitle);
 
-        this._titleLink = $("<a/>", {
-            class: _.get(options, "cssClass.title_link", ""),
-            "contenteditable": "true",
-            "spellcheck": "false",
-            text: _.isUndefined(title) ? "" : title
+        this._titleLink = $('<a/>', {
+            class: _.get(options, 'cssClass.title_link', ''),
+            'contenteditable': 'true',
+            'spellcheck': 'false',
+            text: _.isUndefined(title) ? '' : title
         }).appendTo(panelTitle);
 
-        this._canvasOperationsWrapper = $("<div class='canvas-operations-wrapper'/>").appendTo(panelTitle);
+        this._canvasOperationsWrapper = $('<div class=\'canvas-operations-wrapper\'/>').appendTo(panelTitle);
 
         // Creating collapsable icon.
-        var panelCollapsibleIcon = $("<i/>", {
+        var panelCollapsibleIcon = $('<i/>', {
             class: _.get(options, 'cssClass.panel_right_icon'),
-            title:"Collapse Pane"
+            title:'Collapse Pane'
         }).appendTo(this._canvasOperationsWrapper).tooltip();
 
-        $("<span class='pull-right canvas-operations-separator'>|</span>").appendTo(this._canvasOperationsWrapper);
+        $('<span class=\'pull-right canvas-operations-separator\'>|</span>').appendTo(this._canvasOperationsWrapper);
 
         // Creating delete icon.
-        var panelDeleteIcon = $("<i/>", {
+        var panelDeleteIcon = $('<i/>', {
             class: _.get(options, 'cssClass.panel_delete_icon'),
-            title:"Delete"
+            title:'Delete'
         }).appendTo(this._canvasOperationsWrapper).tooltip();
 
-        $("<span class='pull-right canvas-operations-separator'>|</span>").appendTo(this._canvasOperationsWrapper);
+        $('<span class=\'pull-right canvas-operations-separator\'>|</span>').appendTo(this._canvasOperationsWrapper);
 
         panelHeading.append(panelTitle);
 
@@ -154,15 +154,15 @@ class Canvas extends BallerinaView {
         //// Creating the body of the canvas.
 
         // The wrapper for the body of the canvas.
-        var bodyContainer = $("<div/>", {
-            id: id + "_body",
-            class: _.get(options, "cssClass.canvas", "")
+        var bodyContainer = $('<div/>', {
+            id: id + '_body',
+            class: _.get(options, 'cssClass.canvas', '')
         }).appendTo(outerDiv);
 
-        this._bodyWrapper = $("<div/>", {
+        this._bodyWrapper = $('<div/>', {
             id: id,
             name: name,
-            class: _.get(options, "cssClass.outer_box", "")
+            class: _.get(options, 'cssClass.outer_box', '')
         }).appendTo(bodyContainer);
 
         var self = this,
@@ -186,7 +186,7 @@ class Canvas extends BallerinaView {
                 outerDiv.addClass(dropActiveClass);
 
                 // reset ui feed back on drop target change
-                self.toolPalette.dragDropManager.once("drop-target-changed", function(){
+                self.toolPalette.dragDropManager.once('drop-target-changed', function(){
                     outerDiv.removeClass(dropActiveClass);
                 });
             }
@@ -202,7 +202,7 @@ class Canvas extends BallerinaView {
         });
 
         panelDeleteIcon.click(function (event) {
-            log.debug("Clicked delete button");
+            log.debug('Clicked delete button');
 
             event.stopPropagation();
             self._model.remove();
@@ -213,7 +213,7 @@ class Canvas extends BallerinaView {
      * Override the remove view callback
      */
     onBeforeModelRemove() {
-        $("#_" + this.getModel().getID()).remove();
+        $('#_' + this.getModel().getID()).remove();
         // resize the bounding box in order to the other objects to resize
         this.getBoundingBox().h(0).w(0);
     }

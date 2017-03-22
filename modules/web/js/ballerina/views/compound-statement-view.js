@@ -26,12 +26,14 @@ import StatementViewFactory from './statement-view-factory';
 
 /**
  * Super view class for all compound statements e.g. if-else, try-catch etc.
- * @param args {*} arguments for the creating view
  * @class CompoundStatementView
- * @constructor
  * @extends BallerinaStatementView
  */
 class CompoundStatementView extends BallerinaStatementView {
+    /**
+     * @param args {*} arguments for the creating view
+     * @constructor
+     */
     constructor(args) {
         super(args);
 
@@ -43,8 +45,8 @@ class CompoundStatementView extends BallerinaStatementView {
         this._childrenViewsActualWidths = [];
 
         var viewOptions = this.getViewOptions();
-        viewOptions.width = _.get(args, "viewOptions.width", 120);
-        viewOptions.height = _.get(args, "viewOptions.height", 0);
+        viewOptions.width = _.get(args, 'viewOptions.width', 120);
+        viewOptions.height = _.get(args, 'viewOptions.height', 0);
         this._childStatementDefaultWidth = 120;
         this._onWholeContainerMove = false;
 
@@ -60,10 +62,10 @@ class CompoundStatementView extends BallerinaStatementView {
         // Creating statement group.
         var statementGroup = D3Utils.group(d3.select(this.getContainer()));
         // "id" is prepend with a "_" to be compatible with HTML4
-        statementGroup.attr("id", "_" + model.id);
+        statementGroup.attr('id', '_' + model.id);
         this.setStatementGroup(statementGroup);
 
-        this.listenTo(bBox, 'width-changed', function (dw) {
+        this.listenTo(bBox, 'width-changed', function () {
             if (parentStatementContainerBBox.w() > bBox.w()) {
                 bBox.x(parentStatementContainerBBox.x() + (parentStatementContainerBBox.w() - bBox.w())/2);
             }
@@ -75,7 +77,6 @@ class CompoundStatementView extends BallerinaStatementView {
     }
 
     /**
-     *
      * @param childStatement
      * @return {BlockStatementView}
      */
@@ -110,7 +111,7 @@ class CompoundStatementView extends BallerinaStatementView {
         /** @type {BlockStatementView} */
         var childStatementView = statementViewFactory.getStatementView(childStatementViewArgs);
 
-        childStatementView.listenTo(boundingBox, 'left-edge-moved', function (offset) {
+        childStatementView.listenTo(boundingBox, 'left-edge-moved', function () {
             childStatementView.getBoundingBox().x(boundingBox.x());
         });
 
@@ -125,7 +126,7 @@ class CompoundStatementView extends BallerinaStatementView {
             });
         }
 
-        this.listenTo(childStatementView.getBoundingBox(), 'width-changed', function (dw) {
+        this.listenTo(childStatementView.getBoundingBox(), 'width-changed', function () {
             if (!childStatementView.onForcedWidthChanged()) {
                 var widestChildOfChildBlock = self.getWidestChildOfChildBlock();
                 var newWidth = !_.isNil(widestChildOfChildBlock) ? widestChildOfChildBlock.getBoundingBox().w() +
@@ -175,7 +176,7 @@ class CompoundStatementView extends BallerinaStatementView {
 
     setModel(model) {
         if (_.isNil(model)) {
-            var message = "Model of a compound statement cannot be null.";
+            var message = 'Model of a compound statement cannot be null.';
             log.error(message);
             throw new Error(message);
         } else {
@@ -189,7 +190,7 @@ class CompoundStatementView extends BallerinaStatementView {
 
     setContainer(container) {
         if (_.isNil(container)) {
-            var message = "Container of a compound statement cannot be null.";
+            var message = 'Container of a compound statement cannot be null.';
             log.error(message);
             throw new Error(message);
         } else {
@@ -232,11 +233,11 @@ class CompoundStatementView extends BallerinaStatementView {
     }
 
     showDebugHit() {
-        this.getChildrenViewsList()[0]._titleRect.classed('highlight-statement', true)
+        this.getChildrenViewsList()[0]._titleRect.classed('highlight-statement', true);
     }
 
     clearDebugHit() {
-        this.getChildrenViewsList()[0]._titleRect.classed('highlight-statement', false)
+        this.getChildrenViewsList()[0]._titleRect.classed('highlight-statement', false);
     }
 
     /**

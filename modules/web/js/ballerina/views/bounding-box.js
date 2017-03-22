@@ -15,19 +15,20 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import _ from 'lodash';
 import EventChannel from 'event_channel';
 
 /**
  * @class BBox
- * @augments EventChannel
- * @param x
- * @param y
- * @param w
- * @param h
- * @constructor
+ * @extends EventChannel
  */
 class BBox extends EventChannel {
+    /**
+     * @param x
+     * @param y
+     * @param w
+     * @param h
+     * @constructor
+     */
     constructor(x, y, w, h) {
         super();
         this._x = x || 0;

@@ -16,24 +16,25 @@
  * under the License.
  */
 import _ from 'lodash';
-import log from 'log';
 import BlockStatementView from './block-statement-view';
-import ElseStatement from '../ast/statements/else-statement';
 
 /**
  * The view to represent a Else statement which is an AST visitor.
- * @param {Object} args - Arguments for creating the view.
- * @param {ElseStatement} args.model - The Else statement model.
- * @param {Object} args.container - The HTML container to which the view should be added to.
- * @param {Object} args.parent - Parent Statement View, which in this case the if-else statement
- * @param {Object} [args.viewOptions={}] - Configuration values for the view.
  * @class ElseStatementView
- * @constructor
  * @extends BlockStatementView
  */
 class ElseStatementView extends BlockStatementView {
+
+    /**
+     * @param {Object} args - Arguments for creating the view.
+     * @param {ElseStatement} args.model - The Else statement model.
+     * @param {Object} args.container - The HTML container to which the view should be added to.
+     * @param {Object} args.parent - Parent Statement View, which in this case the if-else statement
+     * @param {Object} [args.viewOptions={}] - Configuration values for the view.
+     * @constructor
+     */
     constructor(args) {
-        _.set(args, "viewOptions.title.text", "Else");
+        _.set(args, 'viewOptions.title.text', 'Else');
         super(args);
         this.getModel()._isChildOfWorker = args.isChildOfWorker;
     }
@@ -44,7 +45,7 @@ class ElseStatementView extends BlockStatementView {
 
     render(diagramRenderingContext) {
         super.render(diagramRenderingContext);
-        this.listenTo(this._model, 'update-property-text', function(value, key){
+        this.listenTo(this._model, 'update-property-text', function(value){
             this._model.setCondition(value);
         });
     }
