@@ -346,10 +346,10 @@ def updateProperties(String repositoryName, String settingsXml, String commitMes
         dir(repositoryName) {
             withEnv(["JAVA_HOME=${ tool env.JDK }", "PATH+MAVEN=${tool env.MAVEN_TOOL}/bin:${env.JAVA_HOME}/bin"]) {
                 if (!allowSnapshots) {
-                    sh 'mvn versions:update-parent';
+                    sh "mvn -s $MAVEN_SETTINGS versions:update-parent";
                     sh "mvn -s $MAVEN_SETTINGS versions:update-properties -Dincludes=${propertiesList}"
                 } else {
-                    sh 'mvn versions:update-parent -DallowSnapshots=true';
+                    sh "mvn -s $MAVEN_SETTINGS versions:update-parent -DallowSnapshots=true";
                     sh "mvn -s $MAVEN_SETTINGS versions:update-properties -Dincludes=${propertiesList} -DallowSnapshots=true"
                 }
                 boolean changesPresent = sh(
