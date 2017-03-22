@@ -40,6 +40,7 @@ import org.antlr.jetbrains.adaptor.xpath.XPath;
 import org.ballerinalang.plugins.idea.BallerinaFileType;
 import org.ballerinalang.plugins.idea.BallerinaLanguage;
 import org.ballerinalang.plugins.idea.psi.AliasNode;
+import org.ballerinalang.plugins.idea.psi.BallerinaFile;
 import org.ballerinalang.plugins.idea.psi.ConnectorDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.ExpressionNode;
 import org.ballerinalang.plugins.idea.psi.FunctionInvocationStatementNode;
@@ -654,7 +655,7 @@ public class BallerinaPsiImplUtil {
                 continue;
             }
             PsiFile psiFile = PsiManager.getInstance(project).findFile(child);
-            if(!(psiFile instanceof BallerinaLanguage)){
+            if(!(psiFile instanceof BallerinaFile)){
                 continue;
             }
             Collection<? extends PsiElement> functions =
