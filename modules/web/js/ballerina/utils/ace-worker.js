@@ -15,12 +15,12 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
+import backends from 'bal_configs/backends';
+// This import defines ace/worker/mirror so we can ace.require ace/worker/mirror later
+import './ace-mirror-worker';
 ace.define('ace/worker/ballerina', ['require', 'exports', 'module'], function(acequire, exports, module) {
     var oop = acequire("ace/lib/oop");
-    var backends = require("bal_configs/backends");
-
-    // This require defines ace/worker/mirror so we can ace.require ace/worker/mirror later
-    require('./ace-mirror-worker');
 
     var Mirror = acequire("ace/worker/mirror").Mirror;
 
