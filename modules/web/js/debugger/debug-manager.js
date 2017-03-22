@@ -24,9 +24,10 @@ import Channel from './channel';
 import DebugPoint from './debug-point';
 import Mousetrap from 'mousetrap';
 import log from 'log';
-	var instance;
+var instance;
 
-    var DebugManager = function(args) {
+class DebugManager extends EventChannel {
+    constructor(args) {
         var self = this;
     	this.debugPoints = [];
         this.enable = false;
@@ -35,24 +36,21 @@ import log from 'log';
 
     	this.on("breakpoint-added",_.bind(this.publishBreakPoints, this));
         this.on("breakpoint-removed",_.bind(this.publishBreakPoints, this));
-    };
+    }
 
-    DebugManager.prototype = Object.create(EventChannel.prototype);
-    DebugManager.prototype.constructor = DebugManager;
-
-    DebugManager.prototype.stepIn = function(){
+    stepIn() {
         var message = { "command": "STEP_IN" };
         this.channel.sendMessage(message);
         this.trigger("resume-execution");
-    };
+    }
 
-    DebugManager.prototype.stepOut = function(){
+    stepOut() {
         var message = { "command": "STEP_OUT" };
         this.channel.sendMessage(message);
         this.trigger("resume-execution");
-    };
+    }
 
-    DebugManager.prototype.stop = function(){
+    stop() {
         var message = { "command": "STOP" };
         if(this.launchManager.active){
             this.launchManager.stopProgram();
@@ -62,27 +60,27 @@ import log from 'log';
             this.channel.sendMessage(message);
             this.trigger("resume-execution");
         }
-    };
+    }
 
-    DebugManager.prototype.stepOver = function(){
+    stepOver() {
         var message = { "command": "STEP_OVER" };
         this.channel.sendMessage(message);
         this.trigger("resume-execution");
-    };
+    }
 
-    DebugManager.prototype.resume = function(){
+    resume() {
         var message = { "command": "RESUME" };
         this.channel.sendMessage(message);
         this.trigger("resume-execution");
-    };
+    }
 
-    DebugManager.prototype.startDebug = function(){
+    startDebug() {
         var message = { "command": "START" };
         this.channel.sendMessage(message);
         this.trigger("resume-execution");
-    };
+    }
 
-    DebugManager.prototype.processMesssage = function(message){
+    processMesssage(message) {
         if(message.code == "DEBUG_HIT"){
             this.active = true;
             this.trigger("debug-hit", message);
@@ -95,60 +93,60 @@ import log from 'log';
             this.active = false;
             this.trigger("session-completed");
         }
-    };
+    }
 
-    DebugManager.prototype.connect = function(url){
+    connect(url) {
         if(url != undefined || url != ""){
             this.channel = new Channel({ endpoint: "ws://" + url + "/debug" , debugger: this});
             this.channel.connect();
         }
-    };
+    }
 
-    DebugManager.prototype.startDebugger = function(port){
+    startDebugger(port) {
         var url =  "localhost:" + port;
         this.connect(url);
-    };
+    }
 
-    DebugManager.prototype.init = function(options){
+    init(options) {
         this.enable = true;
         this.launchManager = options.launchManager;
         this.launchManager.on("debug-active", _.bindKey(this, 'startDebugger'))
-    };
+    }
 
-    DebugManager.prototype.addBreakPoint = function(lineNumber, fileName){
+    addBreakPoint(lineNumber, fileName) {
         log.debug('debug point added', lineNumber, fileName);
         var point = new DebugPoint({ "fileName": fileName , "lineNumber": lineNumber});
     	this.debugPoints.push(point);
     	this.trigger("breakpoint-added", fileName);
-    };
+    }
 
-    DebugManager.prototype.removeBreakPoint = function(lineNumber, fileName){
+    removeBreakPoint(lineNumber, fileName) {
         log.debug('debug point removed', lineNumber, fileName);
         var point = new DebugPoint({ "fileName": fileName , "lineNumber": lineNumber});
         _.remove(this.debugPoints, function(item) {
             return item.fileName == point.fileName && item.lineNumber == point.lineNumber ;
         });
         this.trigger("breakpoint-removed", fileName);
-    };
+    }
 
-    DebugManager.prototype.publishBreakPoints = function(){
+    publishBreakPoints() {
         try{
             var message = { "command": "SET_POINTS", points: this.debugPoints };
             this.channel.sendMessage(message);
         }catch(e){
             //@todo log
         }
-    };
+    }
 
-    DebugManager.prototype.hasBreakPoint = function (lineNumber, fileName) {
+    hasBreakPoint(lineNumber, fileName) {
         return !!_.find(this.debugPoints, {lineNumber: lineNumber, fileName: fileName});
-    };
+    }
 
-    DebugManager.prototype.isEnabled = function(){
+    isEnabled() {
         return this.enable;
-    };
+    }
 
-    DebugManager.prototype.getDebugPoints = function (fileName) {
+    getDebugPoints(fileName) {
         var breakpoints = _.filter(this.debugPoints, function(breakpoint) {
             return breakpoint.fileName === fileName;
         });
@@ -157,9 +155,9 @@ import log from 'log';
              return breakpoint.lineNumber;
         });
         return breakpointsLineNumbers;
-    };
+    }
 
-    DebugManager.prototype.removeAllBreakpoints = function(fileName) {
+    removeAllBreakpoints(fileName) {
         _.remove(this.debugPoints, function(item) {
             return item.fileName == fileName;
         });
@@ -167,8 +165,9 @@ import log from 'log';
         this.publishBreakPoints();
     }
 
-    DebugManager.prototype.createDebugPoint = function(lineNumber, fileName){
+    createDebugPoint(lineNumber, fileName) {
         return new DebugPoint({ "fileName": fileName , "lineNumber": lineNumber});
-    };
+    }
+}
 
-    export default (instance = (instance || new DebugManager()));
+export default new DebugManager();
