@@ -51,7 +51,6 @@ import javax.websocket.Session;
                      attributes = { @Attribute(name = "connectionName", value = "name of the stored connection") })
 @BallerinaAnnotation(annotationName = "Param",
                      attributes = { @Attribute(name = "text", value = "Text which should be sent") })
-
 public class PushTextToConnection extends AbstractNativeFunction {
     @Override
     public BValue[] execute(Context context) {

@@ -35,8 +35,6 @@ import org.wso2.carbon.messaging.CarbonMessage;
 
 /**
  * Service Dispatcher for WebSocket Endpoint.
- *
- * @since 0.8.0
  */
 public class WebSocketServiceDispatcher extends HTTPServiceDispatcher {
 
