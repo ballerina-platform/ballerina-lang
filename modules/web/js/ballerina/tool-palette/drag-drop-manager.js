@@ -21,7 +21,6 @@ import Backbone from 'backbone';
     var DragDropManager = Backbone.Model.extend(
     /** @lends DragDropManager.prototype */
     {
-        // idAttribute: this.cid,
         modelName: "DragDropManager",
         /**
          * @augments Backbone.Model
