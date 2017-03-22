@@ -38,7 +38,7 @@ public class BTypeMapper implements TypeMapper, SymbolScope, CompilationUnit {
     // BLangSymbol related attributes
     protected String name;
     protected String pkgPath;
-    protected boolean isPublic;
+    protected boolean isNative;
     protected SymbolName symbolName;
 
     private Annotation[] annotations;
@@ -178,12 +178,12 @@ public class BTypeMapper implements TypeMapper, SymbolScope, CompilationUnit {
 
     @Override
     public boolean isPublic() {
-        return isPublic;
+        return false;
     }
 
     @Override
     public boolean isNative() {
-        return false;
+        return isNative;
     }
 
     @Override
@@ -249,6 +249,7 @@ public class BTypeMapper implements TypeMapper, SymbolScope, CompilationUnit {
             bTypeCon.location = this.location;
             bTypeCon.name = this.name;
             bTypeCon.pkgPath = this.pkgPath;
+            bTypeCon.isNative = this.isNative;
 
             bTypeCon.annotations = this.annotationList.toArray(new Annotation[this.annotationList.size()]);
             bTypeCon.parameterDefs = this.parameterDefList.toArray(new ParameterDef[this.parameterDefList.size()]);

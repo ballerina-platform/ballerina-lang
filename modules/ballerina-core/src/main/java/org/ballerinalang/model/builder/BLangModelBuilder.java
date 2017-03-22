@@ -86,10 +86,8 @@ import org.ballerinalang.model.symbols.BLangSymbol;
 import org.ballerinalang.model.types.SimpleTypeName;
 import org.ballerinalang.model.types.TypeConstants;
 import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BDouble;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BLong;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValueType;
 import org.ballerinalang.util.exceptions.BLangExceptionHelper;
@@ -97,7 +95,6 @@ import org.ballerinalang.util.exceptions.SemanticErrors;
 import org.ballerinalang.util.exceptions.SemanticException;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -147,8 +144,8 @@ public class BLangModelBuilder {
     // Holds ExpressionLists required for return statements, function/action invocations and connector declarations
     protected Stack<List<Expression>> exprListStack = new Stack<>();
     protected Stack<List<Annotation>> annotationListStack = new Stack<>();
-    protected Stack<MapStructInitKeyValueExpr> mapStructInitKVStack = new Stack<>();
-    protected Stack<List<MapStructInitKeyValueExpr>> mapStructInitKVListStack = new Stack<>();
+    protected Stack<MapStructInitKeyValueExpr> mapStructKVStack = new Stack<>();
+    protected Stack<List<MapStructInitKeyValueExpr>> mapStructKVListStack = new Stack<>();
 
     // This variable keeps the package scope so that workers (and any global things) can be added to package scope
     protected SymbolScope packageScope = null;
@@ -170,8 +167,6 @@ public class BLangModelBuilder {
         this.packageScope = currentScope;
         bFileBuilder = new BallerinaFile.BFileBuilder(bFileName, packageBuilder);
 
-        // TODO Add a description why.
-        startRefTypeInitExpr();
     }
 
     public BallerinaFile build() {
@@ -224,34 +219,12 @@ public class BLangModelBuilder {
     }
 
 
-    // Add types. SimpleTypes, Types with full scheme, schema URL or schema ID
-
-    public void addSimpleTypeName(NodeLocation location, String name, String pkgName, boolean isArrayType) {
-        SimpleTypeName typeName = null;
-        ImportPackage importPkg = getImportPackage(pkgName);
-        checkForUndefinedPackagePath(location, pkgName, importPkg, () -> pkgName + ":" + name);
-
-        if (importPkg != null) {
-            importPkg.markUsed();
-            typeName = new SimpleTypeName(name, pkgName, importPkg.getPath());
-        }
-
-        if (typeName == null) {
-            typeName = new SimpleTypeName(name);
-        }
-
-        typeName.setArrayType(isArrayType);
-        typeNameStack.add(typeName);
-    }
-
-
     // Add constant definitions;
 
-    public void addConstantDef(NodeLocation location, String name, boolean isPublic) {
-        SymbolName symbolName = new SymbolName(name);
-        SimpleTypeName typeName = typeNameStack.pop();
-        ConstDef constantDef = new ConstDef(location, name, typeName, currentPackagePath,
-                isPublic, symbolName, currentScope, exprStack.pop());
+    public void addConstantDef(NodeLocation location, SimpleTypeName typeName, String constName) {
+        SymbolName symbolName = new SymbolName(constName);
+        ConstDef constantDef = new ConstDef(location, constName, typeName, currentPackagePath,
+                symbolName, currentScope, exprStack.pop());
 
         // Add constant definition to current file;
         bFileBuilder.addConst(constantDef);
@@ -272,13 +245,13 @@ public class BLangModelBuilder {
     }
 
     /**
-     * Add an field of the {@link StructDef}.
+     * Add a field of the {@link StructDef}.
      *
      * @param location  Location of the field in the source file
      * @param fieldName Name of the field in the {@link StructDef}
      */
-    public void addStructField(NodeLocation location, String fieldName) {
-        // TODO: add currentPackagePath path to symbol name. i.e:  new SymbolName(fieldName, currentPackagePath);
+    public void addStructField(NodeLocation location, SimpleTypeName typeName, String fieldName, boolean defaultValueAvailable) {
+        validateAndSetPackagePath(location, typeName);
         SymbolName symbolName = new SymbolName(fieldName);
 
         // Check whether this constant is already defined.
@@ -290,8 +263,12 @@ public class BLangModelBuilder {
             errorMsgs.add(errMsg);
         }
 
-        // TODO Fix this..
-        SimpleTypeName typeName = typeNameStack.remove(0);
+        // TODO Implement default value support for struct fields
+        if (defaultValueAvailable) {
+            // Expression ignored = exprStack.pop();
+            exprStack.pop();
+        }
+
         VariableDef variableDef = new VariableDef(location, fieldName, typeName, symbolName, currentScope);
 
         // Define the variableRef symbol in the current scope
@@ -304,10 +281,9 @@ public class BLangModelBuilder {
     /**
      * Creates a {@link StructDef}.
      *
-     * @param location Location of this {@link StructDef} in the source file
-     * @param name     Name of the {@link StructDef}
+     * @param name Name of the {@link StructDef}
      */
-    public void addStructDef(NodeLocation location, String name) {
+    public void addStructDef(String name) {
         currentStructBuilder.setName(name);
 
         List<Annotation> annotationList = annotationListStack.pop();
@@ -434,7 +410,7 @@ public class BLangModelBuilder {
             currentCUBuilder.addReturnParameter(paramDef);
         }
     }
-    
+
 
     // Expressions
 
@@ -675,21 +651,20 @@ public class BLangModelBuilder {
         exprStack.push(arrayInitExpr);
     }
 
-    public void createMapStructInitKeyValue(NodeLocation location) {
-        // TODO Validate key/value expressions. e.g. key can't be an arrays init expression.
+    public void addMapStructKeyValue(NodeLocation location) {
         Expression valueExpr = exprStack.pop();
         Expression keyExpr = exprStack.pop();
 
-        mapStructInitKVStack.push(new MapStructInitKeyValueExpr(location, keyExpr, valueExpr));
+        List<MapStructInitKeyValueExpr> keyValueList = mapStructKVListStack.peek();
+        keyValueList.add(new MapStructInitKeyValueExpr(location, keyExpr, valueExpr));
     }
 
-    public void endMapStructInitKeyValueList(int exprCount) {
-        List<MapStructInitKeyValueExpr> keyValueList = mapStructInitKVListStack.peek();
-        addKeyValueToList(keyValueList, exprCount);
+    public void startMapStructLiteral() {
+        mapStructKVListStack.push(new ArrayList<>());
     }
 
-    public void createRefTypeInitExpr(NodeLocation location) {
-        List<MapStructInitKeyValueExpr> keyValueExprList = mapStructInitKVListStack.pop();
+    public void createMapStructLiteral(NodeLocation location) {
+        List<MapStructInitKeyValueExpr> keyValueExprList = mapStructKVListStack.pop();
         for (MapStructInitKeyValueExpr argExpr : keyValueExprList) {
             checkArgExprValidity(location, argExpr.getKeyExpr());
             checkArgExprValidity(location, argExpr.getValueExpr());
@@ -704,8 +679,6 @@ public class BLangModelBuilder {
 
         RefTypeInitExpr refTypeInitExpr = new RefTypeInitExpr(location, argExprs);
         exprStack.push(refTypeInitExpr);
-
-        startRefTypeInitExpr();
     }
 
     public void createConnectorInitExpr(NodeLocation location) {
@@ -739,8 +712,9 @@ public class BLangModelBuilder {
         currentScope = blockStmt.getEnclosingScope();
     }
 
-    public void startFunctionDef() {
+    public void startFunctionDef(NodeLocation location) {
         currentCUBuilder = new BallerinaFunction.BallerinaFunctionBuilder(currentScope);
+        currentCUBuilder.setNodeLocation(location);
         currentScope = currentCUBuilder.getCurrentScope();
         annotationListStack.push(new ArrayList<>());
     }
@@ -758,8 +732,7 @@ public class BLangModelBuilder {
         annotationListStack.push(new ArrayList<>());
     }
 
-    public void addFunction(NodeLocation location, String name, boolean isNative) {
-        currentCUBuilder.setNodeLocation(location);
+    public void addFunction(String name, boolean isNative) {
         currentCUBuilder.setName(name);
         currentCUBuilder.setNative(isNative);
 
@@ -775,19 +748,18 @@ public class BLangModelBuilder {
         currentCUBuilder = null;
     }
 
-    public void startTypeMapperDef() {
+    public void startTypeMapperDef(NodeLocation location) {
         currentCUBuilder = new BTypeMapper.BTypeMapperBuilder(currentScope);
+        currentCUBuilder.setNodeLocation(location);
         currentScope = currentCUBuilder.getCurrentScope();
         annotationListStack.push(new ArrayList<>());
     }
 
-    public void addTypeMapper(String source, String target, String name,
-                              NodeLocation location, boolean isPublic, boolean isNative) {
-        currentCUBuilder.setNodeLocation(location);
+    public void addTypeMapper(NodeLocation location, String name, SimpleTypeName returnTypeName, boolean isNative) {
         currentCUBuilder.setName(name);
         currentCUBuilder.setPkgPath(currentPackagePath);
-        currentCUBuilder.setPublic(isPublic);
         currentCUBuilder.setNative(isNative);
+        addReturnTypes(location, new SimpleTypeName[]{returnTypeName});
 
         List<Annotation> annotationList = annotationListStack.pop();
         annotationList.forEach(currentCUBuilder::addAnnotation);
@@ -795,9 +767,6 @@ public class BLangModelBuilder {
         BTypeMapper typeMapper = currentCUBuilder.buildTypeMapper();
 
         bFileBuilder.addTypeMapper(typeMapper);
-
-        // Define type mapper is delayed due to missing type info of Parameters.
-
         currentScope = typeMapper.getEnclosingScope();
         currentCUBuilder = null;
     }
@@ -859,18 +828,19 @@ public class BLangModelBuilder {
 //        }
     }
 
-    public void startActionDef() {
+    public void startActionDef(NodeLocation location) {
+        // TODO Check whether the following if block is needed anymore.
         if (currentScope instanceof BlockStmt) {
             endCallableUnitBody();
         }
 
         currentCUBuilder = new BallerinaAction.BallerinaActionBuilder(currentScope);
+        currentCUBuilder.setNodeLocation(location);
         currentScope = currentCUBuilder.getCurrentScope();
         annotationListStack.push(new ArrayList<>());
     }
 
-    public void addAction(NodeLocation location, String name, boolean isNative) {
-        currentCUBuilder.setNodeLocation(location);
+    public void addAction(String name, boolean isNative) {
         currentCUBuilder.setName(name);
         currentCUBuilder.setNative(isNative);
 
@@ -903,8 +873,7 @@ public class BLangModelBuilder {
         annotationListStack.push(new ArrayList<>());
     }
 
-    public void createService(NodeLocation location, String name) {
-        currentCUGroupBuilder.setNodeLocation(location);
+    public void createService(String name) {
         currentCUGroupBuilder.setName(name);
         currentCUGroupBuilder.setPkgPath(currentPackagePath);
 
@@ -918,11 +887,9 @@ public class BLangModelBuilder {
         currentCUGroupBuilder = null;
     }
 
-    public void createConnector(NodeLocation location, String name, boolean isNative) {
-        currentCUGroupBuilder.setNodeLocation(location);
+    public void createConnector(String name) {
         currentCUGroupBuilder.setName(name);
         currentCUGroupBuilder.setPkgPath(currentPackagePath);
-        currentCUGroupBuilder.setNative(isNative);
 
         List<Annotation> annotationList = annotationListStack.pop();
         annotationList.forEach(currentCUGroupBuilder::addAnnotation);
@@ -937,18 +904,12 @@ public class BLangModelBuilder {
 
     // Statements
 
-    public void addVariableDefinitionStmt(NodeLocation location, String varName, boolean exprAvailable) {
-//        // Check the name against the type names
-//        if (BTypes.isBuiltInTypeName(varName)) {
-//            String errMsg = BLangExceptionHelper.constructSemanticError(location,
-//                    SemanticErrors.BUILT_IN_TYPE_NAMES_NOT_ALLOWED_AS_IDENTIFIER, varName);
-//            errorMsgs.add(errMsg);
-//            return;
-//        }
-        SimpleTypeName typeName = typeNameStack.pop();
-        VariableRefExpr variableRefExpr = new VariableRefExpr(location, varName);
+    public void addVariableDefinitionStmt(NodeLocation location, SimpleTypeName typeName,
+                                          String varName, boolean exprAvailable) {
 
+        VariableRefExpr variableRefExpr = new VariableRefExpr(location, varName);
         SymbolName symbolName = new SymbolName(varName);
+
         VariableDef variableDef = new VariableDef(location, varName, typeName, symbolName, currentScope);
         variableRefExpr.setVariableDef(variableDef);
 
@@ -1365,37 +1326,27 @@ public class BLangModelBuilder {
 
     // Literal Values
 
-    public void createIntegerLiteral(String value, NodeLocation location) {
+    public void createIntegerLiteral(NodeLocation location, String value) {
         BValueType bValue = new BInteger(Integer.parseInt(value));
         createLiteral(location, new SimpleTypeName(TypeConstants.INT_TNAME), bValue);
     }
 
-    public void createLongLiteral(String value, NodeLocation location) {
-        BValueType bValue = new BLong(Long.parseLong(value));
-        createLiteral(location, new SimpleTypeName(TypeConstants.LONG_TNAME), bValue);
-    }
-
-    public void createFloatLiteral(String value, NodeLocation location) {
+    public void createFloatLiteral(NodeLocation location, String value) {
         BValueType bValue = new BFloat(Float.parseFloat(value));
         createLiteral(location, new SimpleTypeName(TypeConstants.FLOAT_TNAME), bValue);
     }
 
-    public void createDoubleLiteral(String value, NodeLocation location) {
-        BValueType bValue = new BDouble(Double.parseDouble(value));
-        createLiteral(location, new SimpleTypeName(TypeConstants.DOUBLE_TNAME), bValue);
-    }
-
-    public void createStringLiteral(String value, NodeLocation location) {
+    public void createStringLiteral(NodeLocation location, String value) {
         BValueType bValue = new BString(value);
         createLiteral(location, new SimpleTypeName(TypeConstants.STRING_TNAME), bValue);
     }
 
-    public void createBooleanLiteral(String value, NodeLocation location) {
+    public void createBooleanLiteral(NodeLocation location, String value) {
         BValueType bValue = new BBoolean(Boolean.parseBoolean(value));
         createLiteral(location, new SimpleTypeName(TypeConstants.BOOLEAN_TNAME), bValue);
     }
 
-    public void createNullLiteral(String value, NodeLocation location) {
+    public void createNullLiteral(NodeLocation location, String value) {
         throw new RuntimeException("null values are not yet supported in Ballerina in " + location.getFileName()
                 + ":" + location.getLineNumber());
     }
@@ -1430,26 +1381,6 @@ public class BLangModelBuilder {
             Expression expr = exprStack.pop();
             addExprToList(exprList, n - 1);
             exprList.add(expr);
-        }
-    }
-
-    /**
-     * @param keyValueDataHolderList List<KeyValueDataHolder>
-     * @param n                      number of expression to be added the given list
-     */
-    private void addKeyValueToList(List<MapStructInitKeyValueExpr> keyValueDataHolderList, int n) {
-
-        if (mapStructInitKVStack.isEmpty()) {
-            throw new IllegalStateException("KeyValue stack cannot be empty in processing a KeyValueList");
-        }
-
-        if (n == 1) {
-            MapStructInitKeyValueExpr keyValue = mapStructInitKVStack.pop();
-            keyValueDataHolderList.add(keyValue);
-        } else {
-            MapStructInitKeyValueExpr keyValue = mapStructInitKVStack.pop();
-            addKeyValueToList(keyValueDataHolderList, n - 1);
-            keyValueDataHolderList.add(keyValue);
         }
     }
 
@@ -1489,10 +1420,6 @@ public class BLangModelBuilder {
         StructFieldAccessExpr parentExpr = new StructFieldAccessExpr(location, parent, fieldExpr);
 
         exprStack.push(parentExpr);
-    }
-
-    protected void startRefTypeInitExpr() {
-        mapStructInitKVListStack.push(new ArrayList<>());
     }
 
     protected ImportPackage getImportPackage(String pkgName) {
