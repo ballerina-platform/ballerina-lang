@@ -404,8 +404,7 @@ import './type-mapper.css';
 
     /**
      * Add a source type in the mapper UI
-     * @param {object} type definition with paramet
-     * ers to be mapped
+     * @param {object} type definition with parameters to be mapped
      * @param {object} reference AST model reference
      */
     TypeMapperRenderer.prototype.addSourceType = function (struct, reference) {
