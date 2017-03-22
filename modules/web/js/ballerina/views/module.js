@@ -15,17 +15,27 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['./ballerina-file-editor', './ballerina-view', './message-manager', './canvas',
-        './connector-declaration-view', './function-definition-view', './reply-statement-view',
-        './resource-definition-view', './return-statement-view', './service-definition-view', './throw-statement-view',
-        './while-statement-view', './worker-declaration-view', './source-view', './action-invocation-statement-view',
-        './service-preview-view', './simple-statement-view', './block-statement-view', './compound-statement-view', './backend'],
-    function (BallerinaFileEditor, BallerinaView, Canvas,MessageManager,
-              ConnectorDeclarationView, FunctionDefinitionView, ReplyStatementView,
-              ResourceDefinitionView, ReturnStatementView, ServiceDefinitionView, ThrowStatementView,
-              WhileStatementView, WorkerDeclarationView, SourceView, ActionInvocationStatementView,
-              ServicePreviewView, SimpleStatementView, BlockStatementView, CompoundStatementView, Backend) {
-        return  {
+import BallerinaFileEditor from './ballerina-file-editor';
+import BallerinaView from './ballerina-view';
+import Canvas from './message-manager';
+import MessageManager from './canvas';
+import ConnectorDeclarationView from './connector-declaration-view';
+import FunctionDefinitionView from './function-definition-view';
+import ReplyStatementView from './reply-statement-view';
+import ResourceDefinitionView from './resource-definition-view';
+import ReturnStatementView from './return-statement-view';
+import ServiceDefinitionView from './service-definition-view';
+import ThrowStatementView from './throw-statement-view';
+import WhileStatementView from './while-statement-view';
+import WorkerDeclarationView from './worker-declaration-view';
+import SourceView from './source-view';
+import ActionInvocationStatementView from './action-invocation-statement-view';
+import ServicePreviewView from './service-preview-view';
+import SimpleStatementView from './simple-statement-view';
+import BlockStatementView from './block-statement-view';
+import CompoundStatementView from './compound-statement-view';
+import Backend from './backend';
+        export default  {
             BallerinaView: BallerinaView,
             BallerinaFileEditor: BallerinaFileEditor,
             MessageManager: MessageManager,
@@ -47,5 +57,5 @@ define(['./ballerina-file-editor', './ballerina-view', './message-manager', './c
             CompoundStatementView: CompoundStatementView,
             Backend : Backend
         }
-    });
+    
 

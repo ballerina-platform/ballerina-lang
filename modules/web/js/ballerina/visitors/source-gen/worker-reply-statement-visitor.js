@@ -15,29 +15,30 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require','lodash', 'log', 'event_channel', './abstract-statement-source-gen-visitor', '../../ast/statements/worker-reply-statement'],
-    function(require, _, log, EventChannel, AbstractStatementSourceGenVisitor, WorkerReplyStatement) {
+import _ from 'lodash';
+import log from 'log';
+import EventChannel from 'event_channel';
+import AbstractStatementSourceGenVisitor from './abstract-statement-source-gen-visitor';
+import WorkerReplyStatement from '../../ast/statements/worker-reply-statement';
 
-        var WorkerReplyStatementVisitor = function(parent){
-            AbstractStatementSourceGenVisitor.call(this,parent);
-        };
+class WorkerReplyStatementVisitor extends AbstractStatementSourceGenVisitor {
+    constructor(parent) {
+        super(parent);
+    }
 
-        WorkerReplyStatementVisitor.prototype = Object.create(AbstractStatementSourceGenVisitor.prototype);
-        WorkerReplyStatementVisitor.prototype.constructor = WorkerReplyStatementVisitor;
+    canVisitWorkerReplyStatement(workerReplyStatement) {
+        return workerReplyStatement instanceof WorkerReplyStatement;
+    }
 
-        WorkerReplyStatementVisitor.prototype.canVisitWorkerReplyStatement = function(workerReplyStatement){
-            return workerReplyStatement instanceof WorkerReplyStatement;
-        };
+    beginVisitWorkerReplyStatement(workerReplyStatement) {
+        this.appendSource(workerReplyStatement.getReplyStatement());
+        log.debug('Begin Visit Worker Receive Statement');
+    }
 
-        WorkerReplyStatementVisitor.prototype.beginVisitWorkerReplyStatement = function(workerReplyStatement){
-            this.appendSource(workerReplyStatement.getReplyStatement());
-            log.debug('Begin Visit Worker Receive Statement');
-        };
+    endVisitWorkerReplyStatement(workerReplyStatement) {
+        this.getParent().appendSource(this.getGeneratedSource() + ";\n");
+        log.debug('End Visit Worker Receive Statement');
+    }
+}
 
-        WorkerReplyStatementVisitor.prototype.endVisitWorkerReplyStatement = function(workerReplyStatement){
-            this.getParent().appendSource(this.getGeneratedSource() + ";\n");
-            log.debug('End Visit Worker Receive Statement');
-        };
-
-        return WorkerReplyStatementVisitor;
-    });
+export default WorkerReplyStatementVisitor;

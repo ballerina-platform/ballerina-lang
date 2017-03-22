@@ -15,33 +15,33 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require','lodash', 'log', 'event_channel', './abstract-expression-source-gen-visitor'],
-    function(require, _, log, EventChannel, AbstractExpressionSourceGenVisitor) {
+import _ from 'lodash';
+import log from 'log';
+import EventChannel from 'event_channel';
+import AbstractExpressionSourceGenVisitor from './abstract-expression-source-gen-visitor';
 
-        var RefTypeInitExpressionVisitor = function(parent){
-            AbstractExpressionSourceGenVisitor.call(this,parent);
-        };
+class RefTypeInitExpressionVisitor extends AbstractExpressionSourceGenVisitor {
+    constructor(parent) {
+        super(parent);
+    }
 
-        RefTypeInitExpressionVisitor.prototype = Object.create(AbstractExpressionSourceGenVisitor.prototype);
-        RefTypeInitExpressionVisitor.prototype.constructor = RefTypeInitExpressionVisitor;
+    canVisitReferenceTypeInitExpression(expression) {
+        return true;
+    }
 
-        RefTypeInitExpressionVisitor.prototype.canVisitReferenceTypeInitExpression = function(expression){
-            return true;
-        };
+    beginVisitReferenceTypeInitExpression(expression) {
+        this.appendSource("{}");
+        log.debug('Begin Visit Ref Type Init Expression');
+    }
 
-        RefTypeInitExpressionVisitor.prototype.beginVisitReferenceTypeInitExpression = function(expression){
-            this.appendSource("{}");
-            log.debug('Begin Visit Ref Type Init Expression');
-        };
+    visitReferenceTypeInitExpression(expression) {
+        log.debug('Visit Ref Type Init  Expression');
+    }
 
-        RefTypeInitExpressionVisitor.prototype.visitReferenceTypeInitExpression = function(expression){
-            log.debug('Visit Ref Type Init  Expression');
-        };
+    endVisitReferenceTypeInitExpression(expression) {
+        this.getParent().appendSource(this.getGeneratedSource());
+        log.debug('End Visit Ref Type Init  Expression');
+    }
+}
 
-        RefTypeInitExpressionVisitor.prototype.endVisitReferenceTypeInitExpression = function(expression){
-            this.getParent().appendSource(this.getGeneratedSource());
-            log.debug('End Visit Ref Type Init  Expression');
-        };
-
-        return RefTypeInitExpressionVisitor;
-    });
+export default RefTypeInitExpressionVisitor;

@@ -15,113 +15,117 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require', 'lodash', 'jquery', 'log', './ballerina-statement-view', '../ast/statements/else-if-statement', 'd3utils', 'd3', './point'],
-    function (require, _, $, log, BallerinaStatementView, ElseIfStatement, D3Utils, d3, Point) {
+import _ from 'lodash';
+import $ from 'jquery';
+import log from 'log';
+import BallerinaStatementView from './ballerina-statement-view';
+import ElseIfStatement from '../ast/statements/else-if-statement';
+import D3Utils from 'd3utils';
+import d3 from 'd3';
+import Point from './point';
 
-        // TODO: 14/02/17 this class should extend from BlockStatementView class
+// TODO: 14/02/17 this class should extend from BlockStatementView class
 
-        /**
-         * The view to represent a Else-If statement which is an AST visitor.
-         * @param {Object} args - Arguments for creating the view.
-         * @param {ElseIfStatement} args.model - The Else-If statement model.
-         * @param {Object} args.container - The HTML container to which the view should be added to.
-         * @param {Object} args.parent - Parent Statement View, which in this case the if-else statement
-         * @param {Object} [args.viewOptions={}] - Configuration values for the view.
-         * @constructor
-         */
-        var ElseIfStatementView = function (args) {
-            BallerinaStatementView.call(this, args);
-            this.getModel()._isChildOfWorker = args.isChildOfWorker;
-            _.set(this._viewOptions, 'width', _.get(this._viewOptions, 'width', 120));
-            _.set(this._viewOptions, 'height', _.get(this._viewOptions, 'height', 60));
-            // Initialize the bounding box
-            this.getBoundingBox().fromTopCenter(this.getTopCenter(),
-                _.get(this._viewOptions, 'width'),  _.get(this._viewOptions, 'height'));
-            this.init();
-        };
+/**
+ * The view to represent a Else-If statement which is an AST visitor.
+ * @param {Object} args - Arguments for creating the view.
+ * @param {ElseIfStatement} args.model - The Else-If statement model.
+ * @param {Object} args.container - The HTML container to which the view should be added to.
+ * @param {Object} args.parent - Parent Statement View, which in this case the if-else statement
+ * @param {Object} [args.viewOptions={}] - Configuration values for the view.
+ * @constructor
+ */
+class ElseIfStatementView extends BallerinaStatementView {
+    constructor(args) {
+        super(args);
+        this.getModel()._isChildOfWorker = args.isChildOfWorker;
+        _.set(this._viewOptions, 'width', _.get(this._viewOptions, 'width', 120));
+        _.set(this._viewOptions, 'height', _.get(this._viewOptions, 'height', 60));
+        // Initialize the bounding box
+        this.getBoundingBox().fromTopCenter(this.getTopCenter(),
+            _.get(this._viewOptions, 'width'),  _.get(this._viewOptions, 'height'));
+        this.init();
+    }
 
-        ElseIfStatementView.prototype = Object.create(BallerinaStatementView.prototype);
-        ElseIfStatementView.prototype.constructor = ElseIfStatementView;
+    canVisitElseIfStatement() {
+        return true;
+    }
 
-        ElseIfStatementView.prototype.canVisitElseIfStatement = function(){
-            return true;
-        };
+    init() {
+    }
 
-        ElseIfStatementView.prototype.init = function () {
-        };
+    /**
+     * Render the else-if statement
+     */
+    render(diagramRenderingContext) {
+        this._diagramRenderingContext = diagramRenderingContext;
+        var elseIfGroup = D3Utils.group(this._container);
+        elseIfGroup.attr("id","_" +this._model.id);
 
-        /**
-         * Render the else-if statement
-         */
-        ElseIfStatementView.prototype.render = function (diagramRenderingContext) {
-            this._diagramRenderingContext = diagramRenderingContext;
-            var elseIfGroup = D3Utils.group(this._container);
-            elseIfGroup.attr("id","_" +this._model.id);
+        var outer_rect = D3Utils.rect(this.getBoundingBox().x(), this.getBoundingBox().y(),
+            this.getBoundingBox().w(), this.getBoundingBox().h(), 0, 0, elseIfGroup).classed('statement-rect', true);
+        var title_rect = D3Utils.rect(this.getBoundingBox().x(), this.getBoundingBox().y(), 40, 20, 0, 0, elseIfGroup).classed('statement-rect', true);
+        var title_text = D3Utils.textElement(this.getBoundingBox().x() + 20, this.getBoundingBox().y() + 10, 'ElseIf', elseIfGroup).classed('statement-text', true);
+        elseIfGroup.outerRect = outer_rect;
+        elseIfGroup.titleRect = title_rect;
+        elseIfGroup.titleText = title_text;
+        this.getBoundingBox().on('top-edge-moved', function(dy){
+            outer_rect.attr("y", parseFloat(outer_rect.attr('y')) + dy);
+            title_rect.attr("y", parseFloat(title_rect.attr('y')) + dy);
+            title_text.attr("y", parseFloat(title_text.attr('y')) + dy);
+        });
+        this.setStatementGroup(elseIfGroup);
+        this._model.accept(this);
+    }
 
-            var outer_rect = D3Utils.rect(this.getBoundingBox().x(), this.getBoundingBox().y(),
-                this.getBoundingBox().w(), this.getBoundingBox().h(), 0, 0, elseIfGroup).classed('statement-rect', true);
-            var title_rect = D3Utils.rect(this.getBoundingBox().x(), this.getBoundingBox().y(), 40, 20, 0, 0, elseIfGroup).classed('statement-rect', true);
-            var title_text = D3Utils.textElement(this.getBoundingBox().x() + 20, this.getBoundingBox().y() + 10, 'ElseIf', elseIfGroup).classed('statement-text', true);
-            elseIfGroup.outerRect = outer_rect;
-            elseIfGroup.titleRect = title_rect;
-            elseIfGroup.titleText = title_text;
-            this.getBoundingBox().on('top-edge-moved', function(dy){
-                outer_rect.attr("y", parseFloat(outer_rect.attr('y')) + dy);
-                title_rect.attr("y", parseFloat(title_rect.attr('y')) + dy);
-                title_text.attr("y", parseFloat(title_text.attr('y')) + dy);
-            });
-            this.setStatementGroup(elseIfGroup);
-            this._model.accept(this);
-        };
+    /**
+     * Set the else-if statement model
+     * @param {ElseIfStatement} model
+     */
+    setModel(model) {
+        if (!_.isNil(model) && model instanceof IfStatement) {
+            this._model = model;
+        } else {
+            log.error("Else If statement definition is undefined or is of different type." + model);
+            throw "Else If statement definition is undefined or is of different type." + model;
+        }
+    }
 
-        /**
-         * Set the else-if statement model
-         * @param {ElseIfStatement} model
-         */
-        ElseIfStatementView.prototype.setModel = function (model) {
-            if (!_.isNil(model) && model instanceof IfStatement) {
-                this._model = model;
-            } else {
-                log.error("Else If statement definition is undefined or is of different type." + model);
-                throw "Else If statement definition is undefined or is of different type." + model;
-            }
-        };
+    /**
+     * Set the container to draw the if statement
+     * @param container
+     */
+    setContainer(container) {
+        if (!_.isNil(container)) {
+            this._container = container;
+        } else {
+            log.error("Container for Else If statement is undefined." + container);
+            throw "Container for Else If statement is undefined." + container;
+        }
+    }
 
-        /**
-         * Set the container to draw the if statement
-         * @param container
-         */
-        ElseIfStatementView.prototype.setContainer = function (container) {
-            if (!_.isNil(container)) {
-                this._container = container;
-            } else {
-                log.error("Container for Else If statement is undefined." + container);
-                throw "Container for Else If statement is undefined." + container;
-            }
-        };
+    setViewOptions(viewOptions) {
+        this._viewOptions = viewOptions;
+    }
 
-        ElseIfStatementView.prototype.setViewOptions = function (viewOptions) {
-            this._viewOptions = viewOptions;
-        };
+    getModel() {
+        return this._model;
+    }
 
-        ElseIfStatementView.prototype.getModel = function () {
-            return this._model;
-        };
+    getContainer() {
+        return this._container;
+    }
 
-        ElseIfStatementView.prototype.getContainer = function () {
-            return this._container;
-        };
+    getViewOptions() {
+        return this._viewOptions;
+    }
 
-        ElseIfStatementView.prototype.getViewOptions = function () {
-            return this._viewOptions;
-        };
+    render(diagramRenderingContext) {
+        BlockStatementView.prototype.render.call(this, diagramRenderingContext);
+        this.listenTo(this._model, 'update-property-text', function(value, key){
+            this._model.setCondition(value);
+        });
+    }
+}
 
-        ElseIfStatementView.prototype.render = function (diagramRenderingContext) {
-            BlockStatementView.prototype.render.call(this, diagramRenderingContext);
-            this.listenTo(this._model, 'update-property-text', function(value, key){
-                this._model.setCondition(value);
-            });
-        };
-
-        return ElseIfStatementView;
-    });
+export default ElseIfStatementView;

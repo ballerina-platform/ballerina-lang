@@ -15,50 +15,49 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', './statement'], function (_, Statement) {
+import _ from 'lodash';
+import Statement from './statement';
 
-    /**
-     * Constructor for RightOperandExpression
-     * @param {Object} args - Arguments to create the RightOperandExpression
-     * @constructor
-     */
-    var RightOperandExpression = function (args) {
-        Statement.call(this, 'RightOperandExpression');
+/**
+ * Constructor for RightOperandExpression
+ * @param {Object} args - Arguments to create the RightOperandExpression
+ * @constructor
+ */
+class RightOperandExpression extends Statement {
+    constructor(args) {
+        super('RightOperandExpression');
         this._right_operand_expression_string = undefined;
-    };
-
-    RightOperandExpression.prototype = Object.create(Statement.prototype);
-    RightOperandExpression.prototype.constructor = RightOperandExpression;
+    }
 
     /**
      * Get Right Operand Expression String
      * @returns {string} - The expression
      */
-    RightOperandExpression.prototype.getRightOperandExpressionString = function () {
+    getRightOperandExpressionString() {
         return this._right_operand_expression_string;
-    };
+    }
 
     /**
      * Set Right Operand Expression String
      * @param {string} rightOperandExpStr - The expression
      */
-    RightOperandExpression.prototype.setRightOperandExpressionString = function (rightOperandExpStr, options) {
+    setRightOperandExpressionString(rightOperandExpStr, options) {
         this.setAttribute('_right_operand_expression_string', rightOperandExpStr, options);
-    };
+    }
 
     /**
      * Override the removeChild function
      * @param {ASTNode} child - child node
      */
-    RightOperandExpression.prototype.removeChild = function (child) {
+    removeChild(child) {
         this.getParent().removeChild(this);
-    };
+    }
 
     /**
      * setting parameters from json
      * @param jsonNode
      */
-    RightOperandExpression.prototype.initFromJson = function (jsonNode) {
+    initFromJson(jsonNode) {
         var self = this;
         _.each(jsonNode.children, function (childNode) {
             var child = self.getFactory().createFromJson(childNode);
@@ -66,7 +65,8 @@ define(['lodash', './statement'], function (_, Statement) {
             child.initFromJson(childNode);
             self.setRightOperandExpressionString(child.getExpression(), {doSilently: true});
         });
-    };
+    }
+}
 
-    return RightOperandExpression;
-});
+export default RightOperandExpression;
+

@@ -15,8 +15,13 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require', 'lodash', 'log', 'jquery', 'backbone', 'command', 'ballerina', 'alerts'],
-    function (require, _, log, $, Backbone, CommandManager, Ballerina, alerts) {
+import _ from 'lodash';
+import log from 'log';
+import $ from 'jquery';
+import Backbone from 'backbone';
+import CommandManager from 'command';
+import Ballerina from 'ballerina';
+import alerts from 'alerts';
 
         var FirstLaunchWelcomePage = Backbone.View.extend({
             initialize: function (options) {
@@ -65,7 +70,7 @@ define(['require', 'lodash', 'log', 'jquery', 'backbone', 'command', 'ballerina'
                 var bodyDiv = $('<div></div>');
                 var newButton = $('<button></button>');
                 var openButton = $('<button></button>');
-                var buttonGroup1 = $('<div></div>');                
+                var buttonGroup1 = $('<div></div>');
 
                 var bodyTitleSpan = $('<span></span>');
                 var samplesDiv = $('<div></div>');
@@ -80,7 +85,7 @@ define(['require', 'lodash', 'log', 'jquery', 'backbone', 'command', 'ballerina'
                 openButton.addClass(_.get(this._options, 'cssClass.buttonOpen'));
                 headingGroup1.addClass(_.get(this._options, 'cssClass.headingTop'));
                 buttonGroup1.addClass(_.get(this._options, 'cssClass.btnWrap1'));
-                
+
 
                 bodyDiv.addClass(_.get(this._options, 'cssClass.body'));
                 bodyTitleSpan.addClass(_.get(this._options, 'cssClass.bodyTitle'));
@@ -102,7 +107,7 @@ define(['require', 'lodash', 'log', 'jquery', 'backbone', 'command', 'ballerina'
                 buttonGroup1.append(openButton);
 
                 headingDiv.append(headingGroup1);
-                headingDiv.append(buttonGroup1);                
+                headingDiv.append(buttonGroup1);
 
                 bodyDiv.append(bodyTitleSpan);
                 bodyDiv.append(samplesDiv);
@@ -122,7 +127,7 @@ define(['require', 'lodash', 'log', 'jquery', 'backbone', 'command', 'ballerina'
                 var browserStorage = this._options.application.browserStorage;
 
                 var samples = _.get(this._options, "samples", []);
-                
+
                 var config;
                 var servicePreview;
 
@@ -203,7 +208,4 @@ define(['require', 'lodash', 'log', 'jquery', 'backbone', 'command', 'ballerina'
             }
         });
 
-        return FirstLaunchWelcomePage;
-
-    });
-
+        export default FirstLaunchWelcomePage;

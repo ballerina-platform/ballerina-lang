@@ -15,28 +15,31 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['log', 'lodash', 'jquery', 'event_channel'],
-    function(log, _, $, EventChannel ) {
+import log from 'log';
+import _ from 'lodash';
+import $ from 'jquery';
+import EventChannel from 'event_channel';
 
-    /**
-     * @class Backend
-     * @param {Object} args - Arguments for creating the view.
-     * @constructor
-     */
-    var Backend = function (args) {
+/**
+ * @class Backend
+ * @param {Object} args - Arguments for creating the view.
+ * @constructor
+ */
+class Backend {
+    constructor(args) {
         this._options = args;
         if(!_.has(args, 'url')){
             log.error('url is not given for backend.');
         }else{
             this._url = _.get(args, 'url');
         }        
-    };
+    }
 
     /**
      * validate source
      * @param functionDefinition
      */
-    Backend.prototype.parse = function (source) {
+    parse(source) {
         var content = { "content": source };  
         var data = {};
         $.ajax({
@@ -58,53 +61,54 @@ define(['log', 'lodash', 'jquery', 'event_channel'],
             }
         });
         return data;
-    };
+    }
 
-       /**
-        * Does a backend call
-        * @param uri resource path
-        * @param method http method
-        * @param content payload
-        * @param queryParams query parameters in [{name: "foo", value: "bar"}, ...]
-        */
-       Backend.prototype.call = function (uri, method, content, queryParams) {
-           var response = {};
-           var queryParamsStr = "";
-           if (queryParams) {
-               try {
-                   queryParamsStr = "?" + (queryParams.map(
-                           function (elem) {
-                               if (!elem.name || !elem.value) {
-                                   throw new Error("Invalid query params!");
-                               }
-                               return encodeURIComponent(elem.name) + "=" + encodeURIComponent(elem.value);
-                           }).join("&"));
-               } catch (err) {
-                   //do nothing
-               }
-           }
+    /**
+     * Does a backend call
+     * @param uri resource path
+     * @param method http method
+     * @param content payload
+     * @param queryParams query parameters in [{name: "foo", value: "bar"}, ...]
+     */
+    call(uri, method, content, queryParams) {
+        var response = {};
+        var queryParamsStr = "";
+        if (queryParams) {
+            try {
+                queryParamsStr = "?" + (queryParams.map(
+                        function (elem) {
+                            if (!elem.name || !elem.value) {
+                                throw new Error("Invalid query params!");
+                            }
+                            return encodeURIComponent(elem.name) + "=" + encodeURIComponent(elem.value);
+                        }).join("&"));
+            } catch (err) {
+                //do nothing
+            }
+        }
 
-           $.ajax({
-                      type: method,
-                      context: this,
-                      url: this._url + uri + queryParamsStr,
-                      data: JSON.stringify(content),
-                      contentType: "application/json; charset=utf-8",
-                      async: false,
-                      dataType: "json",
-                      success: function (data) {
-                          if(data.errorMessage){
-                              response = {"error": true, "message": "Unable to parse source:" + data.errorMessage + "."};
-                          } else {
-                              response = data;
-                          }
-                      },
-                      error: function (xhr, textStatus, errorThrown) {
-                          response = {"error": true, "message": "Unable to render design view due to parser errors."};
-                      }
-                  });
-           return response;
-       };
+        $.ajax({
+                   type: method,
+                   context: this,
+                   url: this._url + uri + queryParamsStr,
+                   data: JSON.stringify(content),
+                   contentType: "application/json; charset=utf-8",
+                   async: false,
+                   dataType: "json",
+                   success: function (data) {
+                       if(data.errorMessage){
+                           response = {"error": true, "message": "Unable to parse source:" + data.errorMessage + "."};
+                       } else {
+                           response = data;
+                       }
+                   },
+                   error: function (xhr, textStatus, errorThrown) {
+                       response = {"error": true, "message": "Unable to render design view due to parser errors."};
+                   }
+               });
+        return response;
+    }
+}
 
-       return Backend;
-   });
+export default Backend;
+   

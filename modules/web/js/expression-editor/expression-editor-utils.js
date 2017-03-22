@@ -13,7 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-define(['require', 'lodash', 'jquery'], function (require, _, $) {
+import _ from 'lodash';
+import $ from 'jquery';
     var expressionEditorUtil = {};
     expressionEditorUtil.createEditor = function (editorWrapper, wrapperClass, property, callback) {
         var propertyWrapper = $("<div/>", {
@@ -56,5 +57,4 @@ define(['require', 'lodash', 'jquery'], function (require, _, $) {
             property.model.trigger('update-property-text', $(this).val(), property.key);
         });
     };
-    return expressionEditorUtil;
-});
+    export default expressionEditorUtil;

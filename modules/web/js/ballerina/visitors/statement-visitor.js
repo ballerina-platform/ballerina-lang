@@ -15,259 +15,332 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', './ast-visitor', '../ast/module'], function (_, log, ASTVisitor, AST) {
+import _ from 'lodash';
+import log from 'log';
+import ASTVisitor from './ast-visitor';
+import AST from '../ast/module';
 
-    var StatementVisitor = function (args) {
-        ASTVisitor.call(this, args);
-    };
+class StatementVisitor extends ASTVisitor {
+    constructor(args) {
+        super(args);
+    }
 
-    StatementVisitor.prototype = Object.create(ASTVisitor.prototype);
-    StatementVisitor.prototype.constructor = StatementVisitor;
-
-    StatementVisitor.prototype.canVisitIfStatement = function (statement) {
+    canVisitIfStatement(statement) {
         return false;
-    };
-    StatementVisitor.prototype.beginVisitIfStatement = function (statement) {
-    };
-    StatementVisitor.prototype.visitIfStatement = function (statement) {
-    };
-    StatementVisitor.prototype.endVisitIfStatement = function (statement) {
-    };
+    }
 
-    StatementVisitor.prototype.canVisitElseStatement = function (statement) {
-        return false;
-    };
-    StatementVisitor.prototype.beginVisitElseStatement = function (statement) {
-    };
-    StatementVisitor.prototype.visitElseStatement = function (statement) {
-    };
-    StatementVisitor.prototype.endVisitElseStatement = function (statement) {
-    };
+    beginVisitIfStatement(statement) {
+    }
 
-    StatementVisitor.prototype.canVisitElseIfStatement = function (statement) {
-        return false;
-    };
-    StatementVisitor.prototype.beginVisitElseIfStatement = function (statement) {
-    };
-    StatementVisitor.prototype.visitElseIfStatement = function (statement) {
-    };
-    StatementVisitor.prototype.endVisitElseIfStatement = function (statement) {
-    };
+    visitIfStatement(statement) {
+    }
 
-    StatementVisitor.prototype.canVisitTryStatement = function (statement) {
-        return false;
-    };
-    StatementVisitor.prototype.beginVisitTryStatement = function (statement) {
-    };
-    StatementVisitor.prototype.visitTryStatement = function (statement) {
-    };
-    StatementVisitor.prototype.endVisitTryStatement = function (statement) {
-    };
+    endVisitIfStatement(statement) {
+    }
 
-    StatementVisitor.prototype.canVisitCatchStatement = function (statement) {
+    canVisitElseStatement(statement) {
         return false;
-    };
-    StatementVisitor.prototype.beginVisitCatchStatement = function (statement) {
-    };
-    StatementVisitor.prototype.visitCatchStatement = function (statement) {
-    };
-    StatementVisitor.prototype.endVisitCatchStatement = function (statement) {
-    };
+    }
 
-    StatementVisitor.prototype.canVisitStatement = function (statement) {
-        return false;
-    };
-    StatementVisitor.prototype.beginVisitStatement = function (statement) {
-    };
-    StatementVisitor.prototype.visitStatement = function (statement) {
-    };
-    StatementVisitor.prototype.endVisitStatement = function (statement) {
-    };
+    beginVisitElseStatement(statement) {
+    }
 
-    StatementVisitor.prototype.canVisitIfElseStatement = function (statement) {
-        return false;
-    };
-    StatementVisitor.prototype.beginVisitIfElseStatement = function (statement) {
-    };
-    StatementVisitor.prototype.visitIfElseStatement = function (statement) {
-    };
-    StatementVisitor.prototype.endVisitIfElseStatement = function (statement) {
-    };
+    visitElseStatement(statement) {
+    }
 
-    StatementVisitor.prototype.canVisitReplyStatement = function (statement) {
-        return false;
-    };
-    StatementVisitor.prototype.beginVisitReplyStatement = function (statement) {
-    };
-    StatementVisitor.prototype.visitReplyStatement = function (statement) {
-    };
-    StatementVisitor.prototype.endVisitReplyStatement = function (statement) {
-    };
+    endVisitElseStatement(statement) {
+    }
 
-    StatementVisitor.prototype.canVisitReturnStatement = function (statement) {
+    canVisitElseIfStatement(statement) {
         return false;
-    };
-    StatementVisitor.prototype.beginVisitReturnStatement = function (statement) {
-    };
-    StatementVisitor.prototype.visitReturnStatement = function (statement) {
-    };
-    StatementVisitor.prototype.endVisitReturnStatement = function (statement) {
-    };
+    }
 
-    StatementVisitor.prototype.canVisitActionInvocationStatement = function (statement) {
-        return false;
-    };
-    StatementVisitor.prototype.beginVisitActionInvocationStatement = function (statement) {
-    };
-    StatementVisitor.prototype.visitActionInvocationStatement = function (statement) {
-    };
-    StatementVisitor.prototype.endVisitActionInvocationStatement = function (statement) {
-    };
+    beginVisitElseIfStatement(statement) {
+    }
 
-    StatementVisitor.prototype.canVisitExpression = function (statement) {
-        return false;
-    };
-    StatementVisitor.prototype.beginVisitExpression = function (statement) {
-    };
-    StatementVisitor.prototype.visitExpression = function (statement) {
-    };
-    StatementVisitor.prototype.endVisitExpression = function (statement) {
-    };
+    visitElseIfStatement(statement) {
+    }
 
-    StatementVisitor.prototype.canVisitFuncInvocationStatement = function (statement) {
-        return false;
-    };
-    StatementVisitor.prototype.beginVisitFuncInvocationStatement = function (statement) {
-    };
-    StatementVisitor.prototype.visitFuncInvocationStatement= function (statement) {
-    };
-    StatementVisitor.prototype.endVisitFuncInvocationStatement = function (statement) {
-    };
+    endVisitElseIfStatement(statement) {
+    }
 
-    StatementVisitor.prototype.canVisitFuncInvocationExpression = function (expression) {
+    canVisitTryStatement(statement) {
         return false;
-    };
-    StatementVisitor.prototype.beginVisitFuncInvocationExpression = function (expression) {
-    };
-    StatementVisitor.prototype.visitFuncInvocationExpression= function (expression) {
-    };
-    StatementVisitor.prototype.endVisitFuncInvocationExpression = function (expression) {
-    };
+    }
 
-    StatementVisitor.prototype.canVisitTryCatchStatement = function (statement) {
-        return false;
-    };
-    StatementVisitor.prototype.beginVisitTryCatchStatement = function (statement) {
-    };
-    StatementVisitor.prototype.visitTryCatchStatement= function (statement) {
-    };
-    StatementVisitor.prototype.endVisitTryCatchStatement = function (statement) {
-    };
+    beginVisitTryStatement(statement) {
+    }
 
-    StatementVisitor.prototype.canVisitAssignmentStatement = function (statement) {
-        return false;
-    };
-    StatementVisitor.prototype.beginVisitAssignmentStatement = function (statement) {
-    };
-    StatementVisitor.prototype.visitAssignmentStatement= function (statement) {
-    };
-    StatementVisitor.prototype.endVisitAssignmentStatement = function (statement) {
-    };
+    visitTryStatement(statement) {
+    }
 
-    StatementVisitor.prototype.canVisitWhileStatement = function (statement) {
-        return false;
-    };
-    StatementVisitor.prototype.beginVisitWhileStatement = function (statement) {
-    };
-    StatementVisitor.prototype.visitWhileStatement= function (statement) {
-    };
-    StatementVisitor.prototype.endVisitWhileStatement = function (statement) {
-    };
+    endVisitTryStatement(statement) {
+    }
 
-    StatementVisitor.prototype.canVisitBreakStatement = function (statement) {
+    canVisitCatchStatement(statement) {
         return false;
-    };
-    StatementVisitor.prototype.beginVisitBreakStatement = function (statement) {
-    };
-    StatementVisitor.prototype.visitBreakStatement= function (statement) {
-    };
-    StatementVisitor.prototype.endVisitBreakStatement = function (statement) {
-    };
+    }
 
-    StatementVisitor.prototype.canVisitLeftOperandExpression = function (statement) {
-        return false;
-    };
-    StatementVisitor.prototype.beginVisitLeftOperandExpression = function (statement) {
-    };
-    StatementVisitor.prototype.visitLeftOperandExpression = function (statement) {
-    };
-    StatementVisitor.prototype.endVisitLeftOperandExpression = function (statement) {
-    };
+    beginVisitCatchStatement(statement) {
+    }
 
-    StatementVisitor.prototype.canVisitRightOperandExpression = function (statement) {
-        return false;
-    };
-    StatementVisitor.prototype.beginVisitRightOperandExpression = function (statement) {
-    };
-    StatementVisitor.prototype.visitRightOperandExpression = function (statement) {
-    };
-    StatementVisitor.prototype.endVisitRightOperandExpression = function (statement) {
-    };
+    visitCatchStatement(statement) {
+    }
 
-    StatementVisitor.prototype.canVisitVariableDefinitionStatement = function (statement) {
-        return false;
-    };
-    StatementVisitor.prototype.beginVisitVariableDefinitionStatement = function (statement) {
-    };
-    StatementVisitor.prototype.visitVariableDefinitionStatement = function (statement) {
-    };
-    StatementVisitor.prototype.endVisitVariableDefinitionStatement = function (statement) {
-    };
+    endVisitCatchStatement(statement) {
+    }
 
-    StatementVisitor.prototype.canVisitWorkerInvocationStatement = function () {
+    canVisitStatement(statement) {
         return false;
-    };
-    StatementVisitor.prototype.beginVisitWorkerInvocationStatement = function (statement) {
-    };
-    StatementVisitor.prototype.visitWorkerInvocationStatement = function (statement) {
-    };
-    StatementVisitor.prototype.endVisitWorkerInvocationStatement = function (statement) {
-    };
+    }
 
-    StatementVisitor.prototype.canVisitWorkerReplyStatement = function () {
-        return false;
-    };
-    StatementVisitor.prototype.beginVisitWorkerReplyStatement = function (statement) {
-    };
-    StatementVisitor.prototype.visitWorkerReplyStatement = function (statement) {
-    };
-    StatementVisitor.prototype.endVisitWorkerReplyStatement = function (statement) {
-    };
+    beginVisitStatement(statement) {
+    }
 
-    StatementVisitor.prototype.canVisitThrowStatement = function (statement) {
-        return false;
-    };
-    StatementVisitor.prototype.beginVisitThrowStatement = function (statement) {
-    };
-    StatementVisitor.prototype.visitThrowStatement = function (statement) {
-    };
-    StatementVisitor.prototype.endVisitThrowStatement = function (statement) {
-    };
+    visitStatement(statement) {
+    }
 
-    StatementVisitor.prototype.canVisitCommentStatement = function (statement) {
+    endVisitStatement(statement) {
+    }
+
+    canVisitIfElseStatement(statement) {
         return false;
-    };
-    StatementVisitor.prototype.beginVisitCommentStatement = function (statement) {
-    };
-    StatementVisitor.prototype.visitCommentStatement = function (statement) {
-    };
-    StatementVisitor.prototype.endVisitCommentStatement = function (statement) {
-    };
+    }
+
+    beginVisitIfElseStatement(statement) {
+    }
+
+    visitIfElseStatement(statement) {
+    }
+
+    endVisitIfElseStatement(statement) {
+    }
+
+    canVisitReplyStatement(statement) {
+        return false;
+    }
+
+    beginVisitReplyStatement(statement) {
+    }
+
+    visitReplyStatement(statement) {
+    }
+
+    endVisitReplyStatement(statement) {
+    }
+
+    canVisitReturnStatement(statement) {
+        return false;
+    }
+
+    beginVisitReturnStatement(statement) {
+    }
+
+    visitReturnStatement(statement) {
+    }
+
+    endVisitReturnStatement(statement) {
+    }
+
+    canVisitActionInvocationStatement(statement) {
+        return false;
+    }
+
+    beginVisitActionInvocationStatement(statement) {
+    }
+
+    visitActionInvocationStatement(statement) {
+    }
+
+    endVisitActionInvocationStatement(statement) {
+    }
+
+    canVisitExpression(statement) {
+        return false;
+    }
+
+    beginVisitExpression(statement) {
+    }
+
+    visitExpression(statement) {
+    }
+
+    endVisitExpression(statement) {
+    }
+
+    canVisitFuncInvocationStatement(statement) {
+        return false;
+    }
+
+    beginVisitFuncInvocationStatement(statement) {
+    }
+
+    visitFuncInvocationStatement(statement) {
+    }
+
+    endVisitFuncInvocationStatement(statement) {
+    }
+
+    canVisitFuncInvocationExpression(expression) {
+        return false;
+    }
+
+    beginVisitFuncInvocationExpression(expression) {
+    }
+
+    visitFuncInvocationExpression(expression) {
+    }
+
+    endVisitFuncInvocationExpression(expression) {
+    }
+
+    canVisitTryCatchStatement(statement) {
+        return false;
+    }
+
+    beginVisitTryCatchStatement(statement) {
+    }
+
+    visitTryCatchStatement(statement) {
+    }
+
+    endVisitTryCatchStatement(statement) {
+    }
+
+    canVisitAssignmentStatement(statement) {
+        return false;
+    }
+
+    beginVisitAssignmentStatement(statement) {
+    }
+
+    visitAssignmentStatement(statement) {
+    }
+
+    endVisitAssignmentStatement(statement) {
+    }
+
+    canVisitWhileStatement(statement) {
+        return false;
+    }
+
+    beginVisitWhileStatement(statement) {
+    }
+
+    visitWhileStatement(statement) {
+    }
+
+    endVisitWhileStatement(statement) {
+    }
+
+    canVisitBreakStatement(statement) {
+        return false;
+    }
+
+    beginVisitBreakStatement(statement) {
+    }
+
+    visitBreakStatement(statement) {
+    }
+
+    endVisitBreakStatement(statement) {
+    }
+
+    canVisitLeftOperandExpression(statement) {
+        return false;
+    }
+
+    beginVisitLeftOperandExpression(statement) {
+    }
+
+    visitLeftOperandExpression(statement) {
+    }
+
+    endVisitLeftOperandExpression(statement) {
+    }
+
+    canVisitRightOperandExpression(statement) {
+        return false;
+    }
+
+    beginVisitRightOperandExpression(statement) {
+    }
+
+    visitRightOperandExpression(statement) {
+    }
+
+    endVisitRightOperandExpression(statement) {
+    }
+
+    canVisitVariableDefinitionStatement(statement) {
+        return false;
+    }
+
+    beginVisitVariableDefinitionStatement(statement) {
+    }
+
+    visitVariableDefinitionStatement(statement) {
+    }
+
+    endVisitVariableDefinitionStatement(statement) {
+    }
+
+    canVisitWorkerInvocationStatement() {
+        return false;
+    }
+
+    beginVisitWorkerInvocationStatement(statement) {
+    }
+
+    visitWorkerInvocationStatement(statement) {
+    }
+
+    endVisitWorkerInvocationStatement(statement) {
+    }
+
+    canVisitWorkerReplyStatement() {
+        return false;
+    }
+
+    beginVisitWorkerReplyStatement(statement) {
+    }
+
+    visitWorkerReplyStatement(statement) {
+    }
+
+    endVisitWorkerReplyStatement(statement) {
+    }
+
+    canVisitThrowStatement(statement) {
+        return false;
+    }
+
+    beginVisitThrowStatement(statement) {
+    }
+
+    visitThrowStatement(statement) {
+    }
+
+    endVisitThrowStatement(statement) {
+    }
+
+    canVisitCommentStatement(statement) {
+        return false;
+    }
+
+    beginVisitCommentStatement(statement) {
+    }
+
+    visitCommentStatement(statement) {
+    }
+
+    endVisitCommentStatement(statement) {
+    }
 
     /**
      * @param node {ASTNode}
      */
-    StatementVisitor.prototype.visitStatement = function (node) {
+    visitStatement(node) {
         if (node instanceof AST.WhileStatement) {
             return this.visitWhileStatement(node);
         } else if (node instanceof AST.BreakStatement) {
@@ -317,12 +390,12 @@ define(['lodash', 'log', './ast-visitor', '../ast/module'], function (_, log, AS
         }  else if (node instanceof AST.CommentStatement) {
             return this.visitCommentStatement(node);
         }
-    };
+    }
 
     /**
      * @param node {ASTNode}
      */
-    StatementVisitor.prototype.canVisitStatement = function (node) {
+    canVisitStatement(node) {
         if (node instanceof AST.WhileStatement) {
             return this.canVisitWhileStatement(node);
         } else if (node instanceof AST.BreakStatement) {
@@ -372,12 +445,12 @@ define(['lodash', 'log', './ast-visitor', '../ast/module'], function (_, log, AS
         }  else if (node instanceof AST.CommentStatement) {
             return this.canVisitCommentStatement(node);
         }
-    };
+    }
 
     /**
      * @param node {ASTNode}
      */
-    StatementVisitor.prototype.beginVisitStatement = function (node) {
+    beginVisitStatement(node) {
         if (node instanceof AST.WhileStatement) {
             this.beginVisitWhileStatement(node);
         } else if (node instanceof AST.BreakStatement) {
@@ -427,12 +500,12 @@ define(['lodash', 'log', './ast-visitor', '../ast/module'], function (_, log, AS
         }  else if (node instanceof AST.CommentStatement) {
             return this.beginVisitCommentStatement(node);
         }
-    };
+    }
 
     /**
      * @param node {ASTNode}
      */
-    StatementVisitor.prototype.endVisitStatement = function (node) {
+    endVisitStatement(node) {
         if (node instanceof AST.WhileStatement) {
             return this.endVisitWhileStatement(node);
         } else if (node instanceof AST.BreakStatement) {
@@ -482,7 +555,8 @@ define(['lodash', 'log', './ast-visitor', '../ast/module'], function (_, log, AS
         }  else if (node instanceof AST.CommentStatement) {
             return this.endVisitCommentStatement(node);
         }
-    };
+    }
+}
 
-    return StatementVisitor;
-});
+export default StatementVisitor;
+

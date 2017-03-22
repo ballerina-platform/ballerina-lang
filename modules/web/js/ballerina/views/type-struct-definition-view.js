@@ -15,33 +15,35 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', 'd3', './variables-view', 'ballerina/ast/ballerina-ast-factory', 'typeMapper',
-        './ballerina-view'],
-    function (_, log, d3, VariablesView, BallerinaASTFactory, TypeMapper, BallerinaView) {
+import _ from 'lodash';
+import log from 'log';
+import d3 from 'd3';
+import VariablesView from './variables-view';
+import BallerinaASTFactory from 'ballerina/ast/ballerina-ast-factory';
+import TypeMapper from 'typeMapper';
+import BallerinaView from './ballerina-view';
 
-        var TypeStructDefinitionView = function (args) {
-            BallerinaView.call(this, args);
-            this._parentView = _.get(args, "parentView");
+class TypeStructDefinitionView extends BallerinaView {
+    constructor(args) {
+        super(args);
+        this._parentView = _.get(args, "parentView");
 
-            if (_.isNil(this.getModel()) || !(BallerinaASTFactory.isTypeStructDefinition(this.getModel()))) {
-                log.error("Type Struct definition is undefined or is of different type." + this.getModel());
-                throw "Type Struct definition is undefined or is of different type." + this.getModel();
-            }
+        if (_.isNil(this.getModel()) || !(BallerinaASTFactory.isTypeStructDefinition(this.getModel()))) {
+            log.error("Type Struct definition is undefined or is of different type." + this.getModel());
+            throw "Type Struct definition is undefined or is of different type." + this.getModel();
+        }
 
-        };
+    }
 
-        TypeStructDefinitionView.prototype = Object.create(BallerinaView.prototype);
-        TypeStructDefinitionView.prototype.constructor = TypeStructDefinitionView;
-
-        TypeStructDefinitionView.prototype.canVisitTypeStructDefinition = function (typeStructDefinition) {
-            return true;
-        };
+    canVisitTypeStructDefinition(typeStructDefinition) {
+        return true;
+    }
 
     /**
      * Rendering the view of the Type struct definition.
      * @param {Object} diagramRenderingContext - the object which is carrying data required for rendering
      */
-    TypeStructDefinitionView.prototype.render = function (diagramRenderingContext, mapper) {
+    render(diagramRenderingContext, mapper) {
         this._diagramRenderingContext = diagramRenderingContext;
         var struct = this.getModel().getSchemaPropertyObj();
         var category = this.getModel().getCategory();
@@ -56,7 +58,7 @@ define(['lodash', 'log', 'd3', './variables-view', 'ballerina/ast/ballerina-ast-
         } else{
             mapper.addTargetType(struct,this.getModel());
         }
-    };
+    }
+}
 
-        return TypeStructDefinitionView;
-});
+export default TypeStructDefinitionView;

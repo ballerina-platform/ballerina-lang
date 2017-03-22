@@ -15,13 +15,17 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require', 'log', 'jquery', 'backbone' ,'event_channel'],
-    function (require, log, $, Backbone , EventChannel) {
+import require from 'require';
+import log from 'log';
+import $ from 'jquery';
+import Backbone from 'backbone';
+import EventChannel from 'event_channel';
 
-    var instance = null;
+var instance = null;
 
 
-    var Search = function() {
+class Search extends EventChannel {
+    constructor() {
         _.extend(this, Backbone.Events);
         var self = this;        
         this.el = $("#modalSearch");
@@ -37,58 +41,53 @@ define(['require', 'log', 'jquery', 'backbone' ,'event_channel'],
 
         this.search_box.on("keydown keyup paste", _.bindKey(this, 'search'));
         this.list.on("click", 'li', _.bindKey(this, 'select'));
-    };
+    }
 
-    Search.prototype = Object.create(EventChannel.prototype);
-    Search.prototype.constructor = Search;    
+    show() {
+        this.search_box.val('');
+        this.result = this.adapter.search("");
+        this.render(this.result);            
+        this.el.modal();      
+    }
 
-    Search.prototype = {
+    hide() {
+        this.el.modal('hide');
+    }
 
-        show: function () {
-            this.search_box.val('');
-            this.result = this.adapter.search("");
-            this.render(this.result);            
-            this.el.modal();      
-        },
+    search(e) {
+        var text = this.search_box.val();
+        this.result = this.adapter.search(text);
+        this.render(this.result);
+    }
 
-        hide: function () {
-            this.el.modal('hide');
-        },
+    setAdapter(a) {
+        this.adapter = a;
+    }
 
-        search: function(e){
-            var text = this.search_box.val();
-            this.result = this.adapter.search(text);
-            this.render(this.result);
-        },
+    render(result) {
+        var html = "";
+        var adapter = this.adapter;
+        var self = this;
+        _.forEach(this.result , function(value, key){
+            var item = adapter.render(value);
+            html = html + self.template({ 'item':item, 'key':key });
+        });
+        this.list.html(html);
+    }
 
-        setAdapter: function(a){
-            this.adapter = a;
-        },
+    select(e) {
+        var key = $(e.target).attr('data-key');
+        this.trigger("select", this.result[key]);
+        this.hide();
+    }
+}
 
-        render: function(result){
-            var html = "";
-            var adapter = this.adapter;
-            var self = this;
-            _.forEach(this.result , function(value, key){
-                var item = adapter.render(value);
-                html = html + self.template({ 'item':item, 'key':key });
-            });
-            this.list.html(html);
-        },
+export default function getSearch(adapter) {
+    if(adapter == undefined){
+        throw "Undefined adapter passed for search box.";
+    }
+    var i = (instance || new Search());
+    i.setAdapter(adapter);        
+    return i;
+}
 
-        select: function(e){
-            var key = $(e.target).attr('data-key');
-            this.trigger("select", this.result[key]);
-            this.hide();
-        }
-    };
- 
-    return function getSearch(adapter) {
-        if(adapter == undefined){
-            throw "Undefined adapter passed for search box.";
-        }
-        var i = (instance || new Search());
-        i.setAdapter(adapter);        
-        return i;
-    };
-});

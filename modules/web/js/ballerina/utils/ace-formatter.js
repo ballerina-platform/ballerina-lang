@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(function (require) {
+
 
         var TokenIterator = ace.require("ace/token_iterator").TokenIterator;
 
@@ -288,5 +288,5 @@ define(function (require) {
             return code;
         };
 
-        return BallerinaFormatter;
-    });
+        export default BallerinaFormatter;
+    

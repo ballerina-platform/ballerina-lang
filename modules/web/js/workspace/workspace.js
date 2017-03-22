@@ -15,14 +15,22 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['jquery', 'lodash', 'backbone', 'log', 'dialog/module', 'welcome-page/module', 'tab/module','alerts', './service-client', 'bootstrap'],
-    function ($, _, Backbone, log, Dialogs, WelcomePages, Tab, alerts, ServiceClient) {
+import $ from 'jquery';
+import _ from 'lodash';
+import Backbone from 'backbone';
+import log from 'log';
+import Dialogs from 'dialog/module';
+import WelcomePages from 'welcome-page/module';
+import Tab from 'tab/module';
+import alerts from 'alerts';
+import ServiceClient from './service-client';
+import 'bootstrap';
 
     // workspace manager constructor
     /**
      * Arg: application instance
      */
-    return function (app) {
+    export default function (app) {
         var self = this;
 
         this._serviceClient = new ServiceClient({application: app});
@@ -382,5 +390,5 @@ define(['jquery', 'lodash', 'backbone', 'log', 'dialog/module', 'welcome-page/mo
 
     }
 
-});
+
 

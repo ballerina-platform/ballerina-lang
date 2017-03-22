@@ -15,41 +15,42 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require','lodash', 'log', 'event_channel', './abstract-statement-source-gen-visitor'],
-function(require, _, log, EventChannel, AbstractStatementSourceGenVisitor) {
+import _ from 'lodash';
+import log from 'log';
+import EventChannel from 'event_channel';
+import AbstractStatementSourceGenVisitor from './abstract-statement-source-gen-visitor';
+import $____statement_visitor_factory from './statement-visitor-factory';
 
-    var IfStatementVisitor = function(parent){
-        AbstractStatementSourceGenVisitor.call(this,parent);
-    };
+class IfStatementVisitor extends AbstractStatementSourceGenVisitor {
+    constructor(parent) {
+        super(parent);
+    }
 
-    IfStatementVisitor.prototype = Object.create(AbstractStatementSourceGenVisitor.prototype);
-    IfStatementVisitor.prototype.constructor = IfStatementVisitor;
-
-    IfStatementVisitor.prototype.canVisitIfStatement = function(ifStatement){
+    canVisitIfStatement(ifStatement) {
         return true;
-    };
+    }
 
-    IfStatementVisitor.prototype.beginVisitIfStatement = function(ifStatement){
+    beginVisitIfStatement(ifStatement) {
         this.appendSource('if(' + ifStatement.getCondition() + '){');
         log.debug('Begin Visit If Statement Definition');
-    };
+    }
 
-    IfStatementVisitor.prototype.visitIfStatement = function(ifStatement){
+    visitIfStatement(ifStatement) {
         log.debug('Visit If Statement Definition');
-    };
+    }
 
-    IfStatementVisitor.prototype.endVisitIfStatement = function(ifStatement){
+    endVisitIfStatement(ifStatement) {
         this.appendSource("}\n");
         this.getParent().appendSource(this.getGeneratedSource());
         log.debug('End Visit If Statement Definition');
-    };
+    }
 
-    IfStatementVisitor.prototype.visitStatement = function (statement) {
-        var StatementVisitorFactory = require('./statement-visitor-factory');
+    visitStatement(statement) {
+        var StatementVisitorFactory = $____statement_visitor_factory;
         var statementVisitorFactory = new StatementVisitorFactory();
         var statementVisitor = statementVisitorFactory.getStatementVisitor(statement, this);
         statement.accept(statementVisitor);
-    };
+    }
+}
 
-    return IfStatementVisitor;
-});
+export default IfStatementVisitor;

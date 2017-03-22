@@ -15,35 +15,36 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require', 'lodash', 'log', 'event_channel', './abstract-source-gen-visitor', '../../ast/module'],
-    function (require, _, log, EventChannel, AbstractSourceGenVisitor, AST) {
+import _ from 'lodash';
+import log from 'log';
+import EventChannel from 'event_channel';
+import AbstractSourceGenVisitor from './abstract-source-gen-visitor';
+import AST from '../../ast/module';
 
-        var TypeMapperVariableDefinitionVisitor = function (parent) {
-            AbstractSourceGenVisitor.call(this, parent);
-        };
+class TypeMapperVariableDefinitionVisitor extends AbstractSourceGenVisitor {
+    constructor(parent) {
+        super(parent);
+    }
 
-        TypeMapperVariableDefinitionVisitor.prototype = Object.create(AbstractSourceGenVisitor.prototype);
-        TypeMapperVariableDefinitionVisitor.prototype.constructor = TypeMapperVariableDefinitionVisitor;
+    canVisitVariableDefinition(variableDefinition) {
+        return true;
+    }
 
-        TypeMapperVariableDefinitionVisitor.prototype.canVisitVariableDefinition = function (variableDefinition) {
-            return true;
-        };
+    beginVisitVariableDefinition(variableDefinition) {
+        if (variableDefinition.getType()) {
+            this.appendSource(variableDefinition.getTypeName() + ' ');
+        }
+        log.debug('Begin Visit Type Mapper Variable Definition');
+    }
 
-        TypeMapperVariableDefinitionVisitor.prototype.beginVisitVariableDefinition = function (variableDefinition) {
-            if (variableDefinition.getType()) {
-                this.appendSource(variableDefinition.getTypeName() + ' ');
-            }
-            log.debug('Begin Visit Type Mapper Variable Definition');
-        };
+    visitVariableDefinition(variableDefinition) {
+        log.debug('Visit Type Mapper Variable Definition');
+    }
 
-        TypeMapperVariableDefinitionVisitor.prototype.visitVariableDefinition = function (variableDefinition) {
-            log.debug('Visit Type Mapper Variable Definition');
-        };
+    endVisitVariableDefinition(variableDefinition) {
+        this.getParent().appendSource(this.getGeneratedSource());
+        log.debug('End Visit Type Mapper Variable Definition');
+    }
+}
 
-        TypeMapperVariableDefinitionVisitor.prototype.endVisitVariableDefinition = function (variableDefinition) {
-            this.getParent().appendSource(this.getGeneratedSource());
-            log.debug('End Visit Type Mapper Variable Definition');
-        };
-
-        return TypeMapperVariableDefinitionVisitor;
-    });
+export default TypeMapperVariableDefinitionVisitor;

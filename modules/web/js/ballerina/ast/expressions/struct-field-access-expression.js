@@ -15,23 +15,22 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', './expression'], function (_, Expression) {
+import _ from 'lodash';
+import Expression from './expression';
 
-    var StructFieldAccessExpression = function (args) {
-        Expression.call(this, 'StructFieldAccessExpression');
+class StructFieldAccessExpression extends Expression {
+    constructor(args) {
+        super('StructFieldAccessExpression');
         this._isLHSExpr = _.get(args, 'isLHSExpr', false);
-    };
-
-    StructFieldAccessExpression.prototype = Object.create(Expression.prototype);
-    StructFieldAccessExpression.prototype.constructor = StructFieldAccessExpression;
+    }
 
     /**
      * Flag indicating whether the entire expression is a left hand side expression
      * @returns {boolean}
      */
-    StructFieldAccessExpression.prototype.isLHSExpression = function () {
+    isLHSExpression() {
        return this._isLHSExpr;
-    };
+    }
 
     /**
      * A StructFieldAccessExpression can have either 1 or 2 child/children. First one being a
@@ -39,7 +38,7 @@ define(['lodash', './expression'], function (_, Expression) {
      * such as {@link FunctionInvocationExpression}. Hence if 2nd child exists, we call getExpression() on that child.
      * @return {string}
      */
-    StructFieldAccessExpression.prototype.getExpression = function () {
+    getExpression() {
         var variableReferenceExpression = "";
           if (_.isEqual(_.size(this.getChildren()), 2)) {
               variableReferenceExpression = this.getChildren()[0].generateExpression();
@@ -49,13 +48,13 @@ define(['lodash', './expression'], function (_, Expression) {
               variableReferenceExpression = this.getChildren()[0].generateExpression();
               return variableReferenceExpression;
           }
-    };
+    }
 
     /**
      * initialize StructFieldAccessExpression from json object
      * @param {Object} jsonNode to initialize from
      */
-    StructFieldAccessExpression.prototype.initFromJson = function (jsonNode) {
+    initFromJson(jsonNode) {
         var self = this;
 
         _.each(jsonNode.children, function (childNode) {
@@ -63,7 +62,7 @@ define(['lodash', './expression'], function (_, Expression) {
             self.addChild(child);
             child.initFromJson(childNode);
         });
-    };
-    
-    return StructFieldAccessExpression;
-});
+    }
+}
+
+export default StructFieldAccessExpression;

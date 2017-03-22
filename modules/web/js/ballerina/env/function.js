@@ -15,104 +15,104 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['log', 'lodash', 'event_channel'],
-    function (log, _, EventChannel) {
+import log from 'log';
+import _ from 'lodash';
+import EventChannel from 'event_channel';
 
-        /**
-         * @class Function
-         * @augments
-         * @param {Object} args - data to create the Function
-         * @param {string} args.name - name of function
-         * @param {string} args.id - id of function
-         * @constructor
-         */
-        var Function = function (args) {
-            EventChannel.call(this, args);
-            this._name = _.get(args, 'name', '');
-            this._id = _.get(args, 'id', '');
-            this._parameters = _.get(args, 'parameters', []);
-            this._returnParams = _.get(args, 'returnParams', []);
-        };
+/**
+ * @class Function
+ * @augments
+ * @param {Object} args - data to create the Function
+ * @param {string} args.name - name of function
+ * @param {string} args.id - id of function
+ * @constructor
+ */
+class Function extends EventChannel {
+ constructor(args) {
+     super(args);
+     this._name = _.get(args, 'name', '');
+     this._id = _.get(args, 'id', '');
+     this._parameters = _.get(args, 'parameters', []);
+     this._returnParams = _.get(args, 'returnParams', []);
+ }
 
-        Function.prototype = Object.create(EventChannel.prototype);
-        Function.prototype.constructor = Function;
+ /**
+  * sets the name
+  * @param {string} name
+  */
+ setName(name) {
+     var oldName = this._name;
+     this._name = name;
+     this.trigger("name-modified", name, oldName);
+ }
 
-        /**
-         * sets the name
-         * @param {string} name
-         */
-        Function.prototype.setName = function (name) {
-            var oldName = this._name;
-            this._name = name;
-            this.trigger("name-modified", name, oldName);
-        };
+ /**
+  * returns the name
+  * @returns {string}
+  */
+ getName() {
+     return this._name;
+ }
 
-        /**
-         * returns the name
-         * @returns {string}
-         */
-        Function.prototype.getName = function () {
-            return this._name;
-        };
+ /**
+  * sets the id
+  * @param {string} id
+  */
+ setId(id) {
+     this._id = id;
+ }
 
-        /**
-         * sets the id
-         * @param {string} id
-         */
-        Function.prototype.setId = function (id) {
-            this._id = id;
-        };
+ /**
+  * returns the id
+  * @returns {string}
+  */
+ getId() {
+     return this._id;
+ }
 
-        /**
-         * returns the id
-         * @returns {string}
-         */
-        Function.prototype.getId = function () {
-            return this._id;
-        };
+ /**
+  * sets the parameters
+  * @param [object] parameters
+  */
+ setParameters(parameters) {
+     this._parameters = parameters;
+ }
 
-        /**
-         * sets the parameters
-         * @param [object] parameters
-         */
-        Function.prototype.setParameters = function (parameters) {
-            this._parameters = parameters;
-        };
+ /**
+  * returns the parameters
+  * @returns [object]
+  */
+ getParameters() {
+     return this._parameters;
+ }
 
-        /**
-         * returns the parameters
-         * @returns [object]
-         */
-        Function.prototype.getParameters = function () {
-            return this._parameters;
-        };
+ /**
+  * sets the returnParams
+  * @param [object] returnParams
+  */
+ setReturnParams(returnParams) {
+     this._returnParams = returnParams;
+ }
 
-        /**
-         * sets the returnParams
-         * @param [object] returnParams
-         */
-        Function.prototype.setReturnParams = function (returnParams) {
-            this._returnParams = returnParams;
-        };
+ /**
+  * returns the returnParams
+  * @returns [object]
+  */
+ getReturnParams() {
+     return this._returnParams;
+ }
 
-        /**
-         * returns the returnParams
-         * @returns [object]
-         */
-        Function.prototype.getReturnParams = function () {
-            return this._returnParams;
-        };
+ /**
+  * sets values from a json object
+  * @param {Object} jsonNode
+  */
+ initFromJson(jsonNode) {
+     this.setName(jsonNode.name);
+     this.setId(jsonNode.name);
+     this.setParameters(jsonNode.parameters);
+     this.setReturnParams(jsonNode.returnParams);
+ }
+}
 
-        /**
-         * sets values from a json object
-         * @param {Object} jsonNode
-         */
-        Function.prototype.initFromJson = function (jsonNode) {
-            this.setName(jsonNode.name);
-            this.setId(jsonNode.name);
-            this.setParameters(jsonNode.parameters);
-            this.setReturnParams(jsonNode.returnParams);
-        };
-
-        return Function;
-    });
+export default Function;
+    

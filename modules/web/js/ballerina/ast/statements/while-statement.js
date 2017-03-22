@@ -15,41 +15,41 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', './conditional-statement'], function (_, log, ConditionalStatement) {
+import _ from 'lodash';
+import log from 'log';
+import ConditionalStatement from './conditional-statement';
 
-    /**
-     * Class for while statement in ballerina.
-     * @param {Object} args - Argument object for creating an if statement.
-     * @param {string} [args.condition="true"] - The condition for "while".
-     * @param {Statement} [args.statements="[]] - Statements of the "while".
-     * @constructor
-     * @augments ConditionalStatement
-     */
-    var WhileStatement = function (args) {
-        ConditionalStatement.call(this);
+/**
+ * Class for while statement in ballerina.
+ * @param {Object} args - Argument object for creating an if statement.
+ * @param {string} [args.condition="true"] - The condition for "while".
+ * @param {Statement} [args.statements="[]] - Statements of the "while".
+ * @constructor
+ * @augments ConditionalStatement
+ */
+class WhileStatement extends ConditionalStatement {
+    constructor(args) {
+        super();
         this._condition = _.get(args, "condition", "true");
         this._statements = _.get(args, "statements", []);
         this.type = "WhileStatement";
-    };
+    }
 
-    WhileStatement.prototype = Object.create(ConditionalStatement.prototype);
-    WhileStatement.prototype.constructor = WhileStatement;
-
-    WhileStatement.prototype.setCondition = function(condition, options){
+    setCondition(condition, options) {
         if(!_.isNil(condition)){
             this.setAttribute('_condition', condition, options);
         }
-    };
+    }
 
-    WhileStatement.prototype.getCondition = function(){
+    getCondition() {
         return this._condition;
-    };
+    }
 
     /**
      * initialize from json
      * @param jsonNode
      */
-    WhileStatement.prototype.initFromJson = function (jsonNode) {
+    initFromJson(jsonNode) {
         var self = this;
         _.each(jsonNode.children, function (childNode) {
             var child = self.getFactory().createFromJson(childNode);
@@ -71,7 +71,8 @@ define(['lodash', 'log', './conditional-statement'], function (_, log, Condition
                 child.initFromJson(childNodeTemp);
             }
         });
-    };
+    }
+}
 
-    return WhileStatement;
-});
+export default WhileStatement;
+

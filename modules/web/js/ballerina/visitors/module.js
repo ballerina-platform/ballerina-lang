@@ -15,14 +15,17 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['./ast-visitor', './diagram-rendering-visitor', './source-gen/module', './statement-visitor','./expression-visitor'],
-    function (ASTVisitor, DiagramRenderingVisitor, SourceGenModule, StatementVisitor, ExpressionVisitor) {
-        return  {
+import ASTVisitor from './ast-visitor';
+import DiagramRenderingVisitor from './diagram-rendering-visitor';
+import SourceGenModule from './source-gen/module';
+import StatementVisitor from './statement-visitor';
+import ExpressionVisitor from './expression-visitor';
+        export default  {
             ASTVisitor: ASTVisitor,
             DiagramRenderingVisitor: DiagramRenderingVisitor,
             SourceGen: SourceGenModule,
             StatementVisitor: StatementVisitor,
             ExpressionVisitor: ExpressionVisitor
         }
-    });
+    
 

@@ -15,86 +15,87 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', './simple-statement-view', '../ast/statements/variable-definition-statement'],
-    function (_, log, SimpleStatementView, VariableDefinitionStatement) {
+import _ from 'lodash';
+import log from 'log';
+import SimpleStatementView from './simple-statement-view';
+import VariableDefinitionStatement from '../ast/statements/variable-definition-statement';
 
-        /**
-         * The view to represent a assignment definition which is an AST visitor.
-         * @param {Object} args - Arguments for creating the view.
-         * @param {VariableDefinitionStatement} args.model - The variable definition statement model.
-         * @param {Object} args.container - The HTML container to which the view should be added to.
-         * @param {Object} [args.viewOptions={}] - Configuration values for the view.
-         * @class VariableDefinitionStatementView
-         * @constructor
-         * @extends SimpleStatementView
-         */
-        var VariableDefinitionStatementView = function (args) {
-            SimpleStatementView.call(this, args);
+/**
+ * The view to represent a assignment definition which is an AST visitor.
+ * @param {Object} args - Arguments for creating the view.
+ * @param {VariableDefinitionStatement} args.model - The variable definition statement model.
+ * @param {Object} args.container - The HTML container to which the view should be added to.
+ * @param {Object} [args.viewOptions={}] - Configuration values for the view.
+ * @class VariableDefinitionStatementView
+ * @constructor
+ * @extends SimpleStatementView
+ */
+class VariableDefinitionStatementView extends SimpleStatementView {
+    constructor(args) {
+        super(args);
 
-            if (_.isNil(this._container)) {
-                log.error("Container for Variable Definition statement is undefined." + this._container);
-                throw "Container for Variable Definition statement is undefined." + this._container;
-            }
+        if (_.isNil(this._container)) {
+            log.error("Container for Variable Definition statement is undefined." + this._container);
+            throw "Container for Variable Definition statement is undefined." + this._container;
+        }
+    }
+
+    canVisitStatement() {
+        return true;
+    }
+
+    setModel(model) {
+        if (!_.isNil(model) && model instanceof VariableDefinitionStatement) {
+            (this.__proto__.__proto__).setModel(model);
+        } else {
+            log.error("Variable Definition statement undefined or is of different type." + model);
+            throw "Variable Definition statement undefined or is of different type." + model;
+        }
+    }
+
+    /**
+     * Renders the view for Variable Definition statement.
+     * @returns {group} - The SVG group which holds the elements of the Variable Definition statement.
+     */
+    render(renderingContext) {
+        // Calling super class's render function.
+        (this.__proto__.__proto__).render.call(this, renderingContext);
+        // Setting display text.
+        var model = this.getModel();
+        this.renderDisplayText(model.getStatementString());
+
+        model.accept(this);
+
+        // Creating property pane
+        var editableProperties = [];
+        var editableProperty = {
+            propertyType: "text",
+            key: "VariableDefinition",
+            model: model,
+            getterMethod: model.getStatementString,
+            setterMethod: model.setStatementString
         };
+        editableProperties.push(editableProperty);
+        this._createPropertyPane({
+            model: model,
+            statementGroup:this.getStatementGroup(),
+            editableProperties: editableProperty
+        });
+        this._createDebugIndicator({
+            statementGroup: this.getStatementGroup()
+        });
+        this.listenTo(model, 'update-property-text', this.updateStatementText);
+    }
 
-        VariableDefinitionStatementView.prototype = Object.create(SimpleStatementView.prototype);
-        VariableDefinitionStatementView.prototype.constructor = VariableDefinitionStatementView;
-
-        VariableDefinitionStatementView.prototype.canVisitStatement = function(){
-            return true;
-        };
-
-        VariableDefinitionStatementView.prototype.setModel = function (model) {
-            if (!_.isNil(model) && model instanceof VariableDefinitionStatement) {
-                (this.__proto__.__proto__).setModel(model);
-            } else {
-                log.error("Variable Definition statement undefined or is of different type." + model);
-                throw "Variable Definition statement undefined or is of different type." + model;
-            }
-        };
-
-        /**
-         * Renders the view for Variable Definition statement.
-         * @returns {group} - The SVG group which holds the elements of the Variable Definition statement.
-         */
-        VariableDefinitionStatementView.prototype.render = function (renderingContext) {
-            // Calling super class's render function.
-            (this.__proto__.__proto__).render.call(this, renderingContext);
-            // Setting display text.
+    updateStatementText(updatedText) {
+        if (!_.isUndefined(updatedText) && updatedText !== '') {
+            // Updating variable definition statement model.
             var model = this.getModel();
-            this.renderDisplayText(model.getStatementString());
+            model.setStatementString(updatedText);
+            this.renderDisplayText(model.getStatementString());// Set display text.
+        }
+    }
+}
 
-            model.accept(this);
-
-            // Creating property pane
-            var editableProperties = [];
-            var editableProperty = {
-                propertyType: "text",
-                key: "VariableDefinition",
-                model: model,
-                getterMethod: model.getStatementString,
-                setterMethod: model.setStatementString
-            };
-            editableProperties.push(editableProperty);
-            this._createPropertyPane({
-                model: model,
-                statementGroup:this.getStatementGroup(),
-                editableProperties: editableProperty
-            });
-            this._createDebugIndicator({
-                statementGroup: this.getStatementGroup()
-            });
-            this.listenTo(model, 'update-property-text', this.updateStatementText);
-        };
-
-        VariableDefinitionStatementView.prototype.updateStatementText = function (updatedText) {
-            if (!_.isUndefined(updatedText) && updatedText !== '') {
-                // Updating variable definition statement model.
-                var model = this.getModel();
-                model.setStatementString(updatedText);
-                this.renderDisplayText(model.getStatementString());// Set display text.
-            }
-        };
-
-        return VariableDefinitionStatementView;
-    });
+export default VariableDefinitionStatementView;
+    

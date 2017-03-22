@@ -16,7 +16,10 @@
  * under the License.
  */
 
-define(['require', 'jquery', 'lodash', './modal-dialog', 'log'], function (require, $, _, ModalDialog, log) {
+import $ from 'jquery';
+import _ from 'lodash';
+import ModalDialog from './modal-dialog';
+import log from 'log';
 
     var NewItemDialog = function (options) {
         _.set(options, 'class', 'create-new-item-wizard');
@@ -94,5 +97,4 @@ define(['require', 'jquery', 'lodash', './modal-dialog', 'log'], function (requi
 
 
 
-    return NewItemDialog;
-});
+    export default NewItemDialog;

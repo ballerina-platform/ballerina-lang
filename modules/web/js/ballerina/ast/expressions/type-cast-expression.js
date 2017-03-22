@@ -15,85 +15,84 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', './expression'], function (_, Expression) {
+import _ from 'lodash';
+import Expression from './expression';
 
-    var TypeCastExpression = function (args) {
+class TypeCastExpression extends Expression {
+    constructor(args) {
         this._name = _.get(args, 'name', 'newTypeCastName');
         this._pkgName = _.get(args, 'pkgName', 'newPkgName');
         this._pkgPath = _.get(args, 'pkgPath', 'newPkgPath');
-        Expression.call(this, 'TypeCastExpression');
-    };
-
-    TypeCastExpression.prototype = Object.create(Expression.prototype);
-    TypeCastExpression.prototype.constructor = TypeCastExpression;
+        super('TypeCastExpression');
+    }
 
     /**
      * set the name of the Type Cast Expression
      * @param name
      * @param options
      */
-    TypeCastExpression.prototype.setName = function (name, options) {
+    setName(name, options) {
         if (!_.isNil(name)) {
             this.setAttribute('_name', name, options);
         } else {
             log.error('Invalid Name [' + name + '] Provided');
             throw 'Invalid Name [' + name + '] Provided';
         }
-    };
+    }
 
     /**
      * returns the  name
      * @returns {*}
      */
-    TypeCastExpression.prototype.getName = function () {
+    getName() {
         return this._name;
-    };
+    }
 
     /**
      * set the Pkg Name of the Type Cast Expression
      * @param pkgName
      * @param options
      */
-    TypeCastExpression.prototype.setPkgName = function (pkgName, options) {
+    setPkgName(pkgName, options) {
         if (!_.isNil(pkgName)) {
             this.setAttribute('_pkgName', pkgName, options);
         } else {
             log.error('Invalid Name [' + pkgName + '] Provided');
             throw 'Invalid Name [' + pkgName + '] Provided';
         }
-    };
+    }
 
     /**
      * returns the  pkgName
      * @returns {string}
      */
-    TypeCastExpression.prototype.getPkgName = function () {
+    getPkgName() {
         return this._pkgName;
-    };
+    }
 
     /**
      * set the pkg path of the Type Cast Expression
      * @param pkgPath
      * @param options
      */
-    TypeCastExpression.prototype.setPkgPath = function (pkgPath, options) {
+    setPkgPath(pkgPath, options) {
         if (!_.isNil(pkgPath)) {
             this.setAttribute('_pkgPath', pkgPath, options);
         } else {
             log.error('Invalid pkg path [' + pkgPath + '] Provided');
             throw 'Invalid pkg path [' + pkgPath + '] Provided';
         }
-    };
+    }
 
     /**
      * returns the  Pkg path
      * @returns {string}
      */
-    TypeCastExpression.prototype.getPkgPath = function () {
+    getPkgPath() {
         return this._pkgPath;
-    };
+    }
 
-    TypeCastExpression.prototype.initFromJson = function (jsonNode) {
+    initFromJson(jsonNode) {
         var self = this;
         this.setName(jsonNode.target_type, {doSilently: true});
         this.setExpression(this.generateExpressionString(jsonNode), {doSilently: true});
@@ -103,9 +102,9 @@ define(['lodash', './expression'], function (_, Expression) {
             self.addChild(child);
             child.initFromJson(childNode);
         });
-    };
+    }
 
-    TypeCastExpression.prototype.generateExpressionString = function (jsonNode) {
+    generateExpressionString(jsonNode) {
         var self = this;
         var expString = "";
         var targetType = jsonNode.target_type;
@@ -113,7 +112,7 @@ define(['lodash', './expression'], function (_, Expression) {
         child.initFromJson(jsonNode.children[0]);
         expString += "(" + targetType + ")" + child.getExpression();
         return expString;
-    };
-    
-    return TypeCastExpression;
-});
+    }
+}
+
+export default TypeCastExpression;

@@ -15,65 +15,64 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', './statement'], function (_, Statement) {
+import _ from 'lodash';
+import Statement from './statement';
 
-    /**
-     * Constructor for LeftOperandExpression
-     * @param {Object} args - Arguments to create the LeftOperandExpression
-     * @constructor
-     */
-    var LeftOperandExpression = function (args) {
-        Statement.call(this, 'LeftOperandExpression');
+/**
+ * Constructor for LeftOperandExpression
+ * @param {Object} args - Arguments to create the LeftOperandExpression
+ * @constructor
+ */
+class LeftOperandExpression extends Statement {
+    constructor(args) {
+        super('LeftOperandExpression');
         this._operand_type = _.get(args, "operandType", "");
         this._left_operand_expression_string = _.get(args, "variableReferenceName", "var1");
-    };
-
-    LeftOperandExpression.prototype = Object.create(Statement.prototype);
-    LeftOperandExpression.prototype.constructor = LeftOperandExpression;
+    }
 
     /**
      * Get Variable Reference Name
      * @returns {undefined|string}
      */
-    LeftOperandExpression.prototype.getLeftOperandExpressionString = function () {
+    getLeftOperandExpressionString() {
         return this._left_operand_expression_string;
-    };
+    }
 
     /**
      * Set Variable Reference Name
      * @param {string} leftOperandExpStr left operand expression string
      * @param {Object} options
      */
-    LeftOperandExpression.prototype.setLeftOperandExpressionString = function (leftOperandExpStr, options) {
+    setLeftOperandExpressionString(leftOperandExpStr, options) {
         this.setAttribute('_left_operand_expression_string', leftOperandExpStr, options);
-    };
+    }
 
     /**
      * Get operand type
      * @return {String} operand type
      * */
-    LeftOperandExpression.prototype.getOperandType = function () {
+    getOperandType() {
         return this._operand_type;
-    };
+    }
 
     /**
      * Set operandType
      * @param {String} operandType
      * @param {Object} options
      * */
-    LeftOperandExpression.prototype.setOperandType = function (operandType, options) {
+    setOperandType(operandType, options) {
         this.setAttribute('_operand_type', operandType, options);
-    };
+    }
 
-    LeftOperandExpression.prototype.setLeftOperandType = function (operandType, options) {
+    setLeftOperandType(operandType, options) {
         this.setAttribute('_operand_type', operandType.trim(), options);
-    };
+    }
 
     /**
      * setting parameters from json
      * @param jsonNode
      */
-    LeftOperandExpression.prototype.initFromJson = function (jsonNode) {
+    initFromJson(jsonNode) {
         var self = this;
         var expression = "";
         for (var itr = 0; itr < jsonNode.children.length; itr++) {
@@ -91,7 +90,8 @@ define(['lodash', './statement'], function (_, Statement) {
             }
         }
         this.setLeftOperandExpressionString(expression, {doSilently: true});
-    };
+    }
+}
 
-    return LeftOperandExpression;
-});
+export default LeftOperandExpression;
+

@@ -15,31 +15,28 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['./../env/environment'],
-    function (BallerinaEnvironment ) {
+import BallerinaEnvironment from './../env/environment';
 
-    var ImportSearchAdapter = function(){
+class ImportSearchAdapter {
+    constructor() {
         this._excludes = [];
-    };
+    }
 
-    ImportSearchAdapter.prototype = {
+    search(query) {
+        return BallerinaEnvironment.searchPackage(query, this._excludes);
+    }
 
-        search: function (query) {
-            return BallerinaEnvironment.searchPackage(query, this._excludes);
-        },
+    render(item) {
+        return item.getName();
+    }
 
-        render: function (item){
-            return item.getName();
-        },
+    setExcludes(excludes) {
+        var self = this;
+        _.forEach(excludes,function(exclude){
+            self._excludes.push(exclude.getName());
+        });
+    }
+}
 
-        setExcludes: function(excludes){
-            var self = this;
-            _.forEach(excludes,function(exclude){
-                self._excludes.push(exclude.getName());
-            });
-        }
+export default ImportSearchAdapter;
 
-    };
- 
-    return ImportSearchAdapter;
-});

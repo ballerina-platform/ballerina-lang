@@ -15,24 +15,25 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', 'event_channel', '../ast-visitor'], function(_, log, EventChannel, ASTVisitor) {
+import _ from 'lodash';
+import log from 'log';
+import EventChannel from 'event_channel';
+import ASTVisitor from '../ast-visitor';
 
-    /**
-     * Constructor for the Abstract Source Generation Visitor
-     * @param parent
-     * @constructor
-     */
-    var AbstractSymbolTableGenVisitor = function(pckg) {
-        ASTVisitor.call(this);
+/**
+ * Constructor for the Abstract Source Generation Visitor
+ * @param parent
+ * @constructor
+ */
+class AbstractSymbolTableGenVisitor extends ASTVisitor {
+    constructor(pckg) {
+        super();
         this._package = pckg;
-    };
+    }
 
-    AbstractSymbolTableGenVisitor.prototype = Object.create(ASTVisitor.prototype);
-    AbstractSymbolTableGenVisitor.prototype.constructor = AbstractSymbolTableGenVisitor;
-
-    AbstractSymbolTableGenVisitor.prototype.getPackage = function () {
+    getPackage() {
         return this._package;
-    };
+    }
+}
 
-    return AbstractSymbolTableGenVisitor;
-});
+export default AbstractSymbolTableGenVisitor;

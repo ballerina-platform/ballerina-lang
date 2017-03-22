@@ -15,43 +15,43 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', 'event_channel', './abstract-source-gen-visitor'],
-    function (_, log, EventChannel, AbstractSourceGenVisitor) {
+import _ from 'lodash';
+import log from 'log';
+import EventChannel from 'event_channel';
+import AbstractSourceGenVisitor from './abstract-source-gen-visitor';
 
-    /**
-     * Visitor for a constant definition.
-     * @param {ASTVisitor} parent - Parent visitor.
-     * @constructor
-     */
-    var ConstantDefinitionVisitor = function (parent) {
-        AbstractSourceGenVisitor.call(this, parent);
-    };
+/**
+ * Visitor for a constant definition.
+ * @param {ASTVisitor} parent - Parent visitor.
+ * @constructor
+ */
+class ConstantDefinitionVisitor extends AbstractSourceGenVisitor {
+    constructor(parent) {
+        super(parent);
+    }
 
-    ConstantDefinitionVisitor.prototype = Object.create(AbstractSourceGenVisitor.prototype);
-    ConstantDefinitionVisitor.prototype.constructor = ConstantDefinitionVisitor;
-
-    ConstantDefinitionVisitor.prototype.canVisitConstantDefinition = function (constantDefinition) {
+    canVisitConstantDefinition(constantDefinition) {
         return true;
-    };
+    }
 
     /**
      * @param {ConstantDefinition} constantDefinition - The constant definition to start visiting.
      */
-    ConstantDefinitionVisitor.prototype.beginVisitConstantDefinition = function (constantDefinition) {
+    beginVisitConstantDefinition(constantDefinition) {
         var constructedSourceSegment = constantDefinition.getConstantDefinitionAsString();
         this.appendSource(constructedSourceSegment);
         log.debug('Begin Visit ConstantDefinition');
-    };
+    }
 
-    ConstantDefinitionVisitor.prototype.visitConstantDefinition = function (constantDefinition) {
+    visitConstantDefinition(constantDefinition) {
         log.debug('Visit ConstantDefinition');
-    };
+    }
 
-    ConstantDefinitionVisitor.prototype.endVisitConstantDefinition = function (constantDefinition) {
+    endVisitConstantDefinition(constantDefinition) {
         this.appendSource(";\n");
         this.getParent().appendSource(this.getGeneratedSource());
         log.debug('End Visit ConstantDefinition');
-    };
+    }
+}
 
-    return ConstantDefinitionVisitor;
-});
+export default ConstantDefinitionVisitor;

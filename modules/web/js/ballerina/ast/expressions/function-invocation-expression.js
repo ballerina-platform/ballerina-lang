@@ -15,16 +15,18 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', './expression'], function (_, Expression) {
+import _ from 'lodash';
+import Expression from './expression';
 
-    /**
-     * Constructor for FunctionInvocationExpression
-     * @param {Object} args - Arguments to create the FunctionInvocationExpression
-     * @constructor
-     * @augments Expression
-     */
-    var FunctionInvocationExpression = function (args) {
-        Expression.call(this, 'FunctionInvocationExpression');
+/**
+ * Constructor for FunctionInvocationExpression
+ * @param {Object} args - Arguments to create the FunctionInvocationExpression
+ * @constructor
+ * @augments Expression
+ */
+class FunctionInvocationExpression extends Expression {
+    constructor(args) {
+        super('FunctionInvocationExpression');
         this._packageName = _.get(args, 'packageName', '');
         this._functionName = _.get(args, 'functionName', 'callFunction');
         this._params = _.get(args, 'params', '');
@@ -32,40 +34,37 @@ define(['lodash', './expression'], function (_, Expression) {
 
         //create the default expression for action invocation
         this.setExpression(this.generateExpression());
-    };
+    }
 
-    FunctionInvocationExpression.prototype = Object.create(Expression.prototype);
-    FunctionInvocationExpression.prototype.constructor = FunctionInvocationExpression;
-
-    FunctionInvocationExpression.prototype.setFunctionName = function (functionName, options) {
+    setFunctionName(functionName, options) {
         this.setAttribute('_functionName', functionName, options);
-    };
+    }
 
-    FunctionInvocationExpression.prototype.getFunctionName = function () {
+    getFunctionName() {
         return this._functionName;
-    };
+    }
 
-    FunctionInvocationExpression.prototype.setFullPackageName = function (packageName, options) {
+    setFullPackageName(packageName, options) {
         this.setAttribute('_fullPackageName', packageName, options);
-    };
+    }
 
-    FunctionInvocationExpression.prototype.getFullPackageName = function () {
+    getFullPackageName() {
         return this._fullPackageName;
-    };
+    }
 
-    FunctionInvocationExpression.prototype.setPackageName = function (packageName, options) {
+    setPackageName(packageName, options) {
         this.setAttribute('_packageName', packageName, options);
-    };
+    }
 
-    FunctionInvocationExpression.prototype.getPackageName = function () {
+    getPackageName() {
         return this._packageName;
-    };
+    }
 
-    FunctionInvocationExpression.prototype.setParams = function (params, options) {
+    setParams(params, options) {
         this.setAttribute('_params', params, options);
-    };
+    }
 
-    FunctionInvocationExpression.prototype.getParams = function () {
+    getParams() {
         var params;
         if(!_.isUndefined(this._params)) {
             params = this._params.split(',');
@@ -73,9 +72,9 @@ define(['lodash', './expression'], function (_, Expression) {
         }
         else params = "";
         return params;
-    };
+    }
 
-    FunctionInvocationExpression.prototype.setFunctionalExpression = function(expression, options){
+    setFunctionalExpression(expression, options) {
         if(!_.isNil(expression) && expression !== "") {
             var splittedText = expression.split("(",1)[0].split(":", 2);
 
@@ -92,16 +91,16 @@ define(['lodash', './expression'], function (_, Expression) {
 
             this.setParams(params, options);
         }
-    };
+    }
 
-    FunctionInvocationExpression.prototype.getFunctionalExpression = function(){
+    getFunctionalExpression() {
         var text = "";
         if (!_.isNil(this._packageName) && !_.isEmpty(this._packageName) && !_.isEqual(this._packageName, 'Current Package')) {
             text += this._packageName + ":";
         }
         text += this._functionName + '('+ (this._params? this._params:'') +')';
         return text;
-    };
+    }
 
     /**
      * Creating the function invocation statement which invoked by the parsed code.
@@ -112,7 +111,7 @@ define(['lodash', './expression'], function (_, Expression) {
      * @param {string} jsonNode.function_name - The body of the function information. Example : "println".
      * @param {Object[]} jsonNode.children - The arguments of the function invocation.
      */
-    FunctionInvocationExpression.prototype.initFromJson = function (jsonNode) {
+    initFromJson(jsonNode) {
         var self = this;
         this.setPackageName(jsonNode.package_name, {doSilently: true});
         this.setFunctionName(jsonNode.function_name, {doSilently: true});
@@ -123,7 +122,7 @@ define(['lodash', './expression'], function (_, Expression) {
             self.addChild(child);
             child.initFromJson(childNode);
         });
-    };
+    }
 
     /**
      * Generates the arguments passed to a function as a string.
@@ -133,7 +132,7 @@ define(['lodash', './expression'], function (_, Expression) {
      * @return {string} - Arguments as a string.
      * @private
      */
-    FunctionInvocationExpression.prototype._generateArgsString = function (jsonNode) {
+    _generateArgsString(jsonNode) {
         var self = this;
         var argsString = "";
 
@@ -148,13 +147,13 @@ define(['lodash', './expression'], function (_, Expression) {
             }
         }
         return argsString;
-    };
+    }
 
     /**
      * Get the action invocation statement
      * @return {string} action invocation statement
      */
-    FunctionInvocationExpression.prototype.generateExpression = function () {
+    generateExpression() {
         var argsString = "";
         var children = this.getChildren();
 
@@ -169,7 +168,8 @@ define(['lodash', './expression'], function (_, Expression) {
             : this.getPackageName() + ":" + this.getFunctionName();
 
         return functionName + '(' + this._params +  ')';
-    };
+    }
+}
 
-    return FunctionInvocationExpression;
-});
+export default FunctionInvocationExpression;
+

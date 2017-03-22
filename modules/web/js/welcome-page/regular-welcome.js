@@ -15,7 +15,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require', 'backbone', 'lodash','ballerina'], function ( require, Backbone, _, Ballerina) {
+import Backbone from 'backbone';
+import _ from 'lodash';
+import Ballerina from 'ballerina';
 
     var RegularWelcomePage = Backbone.View.extend(
         /** @lends RegularWelcomePage.prototype */
@@ -178,6 +180,4 @@ define(['require', 'backbone', 'lodash','ballerina'], function ( require, Backbo
             }
         });
 
-    return RegularWelcomePage;
-});
-
+    export default RegularWelcomePage;

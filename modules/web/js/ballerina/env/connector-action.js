@@ -15,105 +15,106 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require', 'log', 'lodash', 'event_channel'],
-    function (require, log, _, EventChannel) {
+import require from 'require';
+import log from 'log';
+import _ from 'lodash';
+import EventChannel from 'event_channel';
 
-        /**
-         * @class ConnectorAction
-         * @augments EventChannel
-         * @param args {Object} - args.name: name of the package
-         * @constructor
-         */
-        var ConnectorAction = function (args) {
-            this._name = _.get(args, 'name', '');
-            this._id = _.get(args, 'id', '');
-            this.action = _.get(args, 'action', '');
-            this._parameters = _.get(args, 'parameters', []);
-            this._returnParams = _.get(args, 'returnParams', []);
-        };
+/**
+ * @class ConnectorAction
+ * @augments EventChannel
+ * @param args {Object} - args.name: name of the package
+ * @constructor
+ */
+class ConnectorAction extends EventChannel {
+    constructor(args) {
+        this._name = _.get(args, 'name', '');
+        this._id = _.get(args, 'id', '');
+        this.action = _.get(args, 'action', '');
+        this._parameters = _.get(args, 'parameters', []);
+        this._returnParams = _.get(args, 'returnParams', []);
+    }
 
-        ConnectorAction.prototype = Object.create(EventChannel.prototype);
-        ConnectorAction.prototype.constructor = ConnectorAction;
+    setName(name) {
+        var oldName = this._name;
+        this._name = name;
+        this.trigger("name-modified", name, oldName);
+    }
 
-        ConnectorAction.prototype.setName = function (name) {
-            var oldName = this._name;
-            this._name = name;
-            this.trigger("name-modified", name, oldName);
-        };
+    getName() {
+        return this._name;
+    }
 
-        ConnectorAction.prototype.getName = function () {
-            return this._name;
-        };
+    /**
+     * sets the id
+     * @param {string} id
+     */
+    setId(id) {
+        this._id = id;
+    }
 
-        /**
-         * sets the id
-         * @param {string} id
-         */
-        ConnectorAction.prototype.setId = function (id) {
-            this._id = id;
-        };
+    /**
+     * returns the id
+     * @returns {string}
+     */
+    getId() {
+        return this._id;
+    }
 
-        /**
-         * returns the id
-         * @returns {string}
-         */
-        ConnectorAction.prototype.getId = function () {
-            return this._id;
-        };
+    setAction(action) {
+        this.action = action;
+    }
 
-        ConnectorAction.prototype.setAction = function (action) {
-            this.action = action;
-        };
+    getAction() {
+        return this.action;
+    }
 
-        ConnectorAction.prototype.getAction = function () {
-            return this.action;
-        };
+    /**
+     * sets the parameters
+     * @param [object] parameters
+     */
+    setParameters(parameters) {
+        this._parameters = parameters;
+    }
 
-        /**
-         * sets the parameters
-         * @param [object] parameters
-         */
-        ConnectorAction.prototype.setParameters = function (parameters) {
-            this._parameters = parameters;
-        };
+    /**
+     * returns the parameters
+     * @returns [object]
+     */
+    getParameters() {
+        return this._parameters;
+    }
 
-        /**
-         * returns the parameters
-         * @returns [object]
-         */
-        ConnectorAction.prototype.getParameters = function () {
-            return this._parameters;
-        };
+    /**
+     * sets the returnParams
+     * @param [object] returnParams
+     */
+    setReturnParams(returnParams) {
+        this._returnParams = returnParams;
+    }
 
-        /**
-         * sets the returnParams
-         * @param [object] returnParams
-         */
-        ConnectorAction.prototype.setReturnParams = function (returnParams) {
-            this._returnParams = returnParams;
-        };
+    /**
+     * returns the returnParams
+     * @returns [object]
+     */
+    getReturnParams() {
+        return this._returnParams;
+    }
 
-        /**
-         * returns the returnParams
-         * @returns [object]
-         */
-        ConnectorAction.prototype.getReturnParams = function () {
-            return this._returnParams;
-        };
+    initFromJson(jsonNode) {
+        this.setName(jsonNode.name);
+        this.setAction(jsonNode.name);
+        this.setReturnParams(jsonNode.returnParams);
+        this.setParameters(jsonNode.parameters);
+    }
 
-        ConnectorAction.prototype.initFromJson = function (jsonNode) {
-            this.setName(jsonNode.name);
-            this.setAction(jsonNode.name);
-            this.setReturnParams(jsonNode.returnParams);
-            this.setParameters(jsonNode.parameters);
-        };
+    initFromASTModel(connectorActionModel) {
+        this.setName(connectorActionModel.getActionName());
+        this.setId(connectorActionModel.getParent().getConnectorName() + '-' + connectorActionModel.getActionName());
+        this.setParameters(connectorActionModel.getArguments());
+        this.setReturnParams(connectorActionModel.getReturnTypes());
+    }
+}
 
-        ConnectorAction.prototype.initFromASTModel = function (connectorActionModel) {
-            this.setName(connectorActionModel.getActionName());
-            this.setId(connectorActionModel.getParent().getConnectorName() + '-' + connectorActionModel.getActionName());
-            this.setParameters(connectorActionModel.getArguments());
-            this.setReturnParams(connectorActionModel.getReturnTypes());
-        };
-
-        return ConnectorAction;
-    });
+export default ConnectorAction;
+    

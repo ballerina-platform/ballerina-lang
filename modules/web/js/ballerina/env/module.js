@@ -15,11 +15,11 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['./environment', './package'],
-    function (Environment, Package) {
-        return  {
+import Environment from './environment';
+import Package from './package';
+        export default  {
             Environment: Environment,
             Package: Package
         }
-    });
+    
 

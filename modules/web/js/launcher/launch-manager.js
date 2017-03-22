@@ -15,8 +15,14 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require', 'jquery', 'backbone', 'lodash', 'event_channel', './launch-manager', './launch-channel', 'console' ],
-    function (require, $, Backbone, _ ,EventChannel, LaunchManager, LaunchChannel, Console) {
+import require from 'require';
+import $ from 'jquery';
+import Backbone from 'backbone';
+import _ from 'lodash';
+import EventChannel from 'event_channel';
+import LaunchManager from './launch-manager';
+import LaunchChannel from './launch-channel';
+import Console from 'console';
 	var instance;
 
     var LaunchManager = function(args) {
@@ -140,5 +146,4 @@ define(['require', 'jquery', 'backbone', 'lodash', 'event_channel', './launch-ma
         return args || "";
     };
 
-    return (instance = (instance || new LaunchManager()));
-});
+    export default (instance = (instance || new LaunchManager()));

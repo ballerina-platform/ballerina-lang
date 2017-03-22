@@ -15,38 +15,39 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require','lodash', 'log', 'event_channel', './abstract-source-gen-visitor', './type-mapper-statement-visitor-factory'],
-    function(require, _, log, EventChannel, AbstractSourceGenVisitor, TypeMapperStatementVisitorFactory) {
+import _ from 'lodash';
+import log from 'log';
+import EventChannel from 'event_channel';
+import AbstractSourceGenVisitor from './abstract-source-gen-visitor';
+import TypeMapperStatementVisitorFactory from './type-mapper-statement-visitor-factory';
 
-        var TypeMapperBlockStatementVisitor = function(parent){
-            AbstractSourceGenVisitor.call(this, parent);
-        };
+class TypeMapperBlockStatementVisitor extends AbstractSourceGenVisitor {
+    constructor(parent) {
+        super(parent);
+    }
 
-        TypeMapperBlockStatementVisitor.prototype = Object.create(AbstractSourceGenVisitor.prototype);
-        TypeMapperBlockStatementVisitor.prototype.constructor = TypeMapperBlockStatementVisitor;
+    canVisitBlockStatement(blockStatement) {
+        return true;
+    }
 
-        TypeMapperBlockStatementVisitor.prototype.canVisitBlockStatement = function(blockStatement){
-            return true;
-        };
+    beginVisitBlockStatement(blockStatement) {
+        log.debug('Begin Visit Type Mapper Block Statement Definition');
+    }
 
-        TypeMapperBlockStatementVisitor.prototype.beginVisitBlockStatement = function(blockStatement){
-            log.debug('Begin Visit Type Mapper Block Statement Definition');
-        };
+    visitBlockStatement(blockStatement) {
+        log.debug('Visit Type Mapper Block Statement Definition');
+    }
 
-        TypeMapperBlockStatementVisitor.prototype.visitBlockStatement = function(blockStatement){
-            log.debug('Visit Type Mapper Block Statement Definition');
-        };
+    endVisitBlockStatement(blockStatement) {
+        this.getParent().appendSource(this.getGeneratedSource());
+        log.debug('End Visit Type Mapper Block Statement Definition');
+    }
 
-        TypeMapperBlockStatementVisitor.prototype.endVisitBlockStatement = function(blockStatement){
-            this.getParent().appendSource(this.getGeneratedSource());
-            log.debug('End Visit Type Mapper Block Statement Definition');
-        };
+    visitStatement(statement) {
+       var statementVisitorFactory = new TypeMapperStatementVisitorFactory();
+       var statementVisitor = statementVisitorFactory.getStatementVisitor(statement, this);
+       statement.accept(statementVisitor);
+   }
+}
 
-        TypeMapperBlockStatementVisitor.prototype.visitStatement = function (statement) {
-           var statementVisitorFactory = new TypeMapperStatementVisitorFactory();
-           var statementVisitor = statementVisitorFactory.getStatementVisitor(statement, this);
-           statement.accept(statementVisitor);
-       };
-
-        return TypeMapperBlockStatementVisitor;
-    });
+export default TypeMapperBlockStatementVisitor;

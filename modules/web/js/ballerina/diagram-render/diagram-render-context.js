@@ -16,58 +16,60 @@
  * under the License.
  */
 
-define(['ballerina/env/environment','ballerina/env/package-scoped-environment'], function (Environment,PackageScopedEnvironemnt) {
+import Environment from 'ballerina/env/environment';
+import PackageScopedEnvironemnt from 'ballerina/env/package-scoped-environment';
 
-    /**
-     * Context data conveyor for diagram rendering.
-     * @constructor
-     */
-    var DiagramRenderContext = function () {
-        // map object for storing view references against models
-        this.viewModelMap = {};
-        this.environment = Environment;
-        this.packagedScopedEnvironemnt = PackageScopedEnvironemnt;
-    };
+/**
+ * Context data conveyor for diagram rendering.
+ * @constructor
+ */
+class DiagramRenderContext {
+ constructor() {
+     // map object for storing view references against models
+     this.viewModelMap = {};
+     this.environment = Environment;
+     this.packagedScopedEnvironemnt = PackageScopedEnvironemnt;
+ }
 
-    /**
-     * getter for viewModelMap
-     * @returns {{}|*}
-     */
-    DiagramRenderContext.prototype.getViewModelMap = function () {
-        return this.viewModelMap;
-    };
+ /**
+  * getter for viewModelMap
+  * @returns {{}|*}
+  */
+ getViewModelMap() {
+     return this.viewModelMap;
+ }
 
-    /**
-     * get view for node
-     * @returns {{}|*}
-     */
-    DiagramRenderContext.prototype.getViewOfModel = function (model) {
-        return _.get(this.viewModelMap, model.id);
-    };
+ /**
+  * get view for node
+  * @returns {{}|*}
+  */
+ getViewOfModel(model) {
+     return _.get(this.viewModelMap, model.id);
+ }
 
-    /**
-     * set view of node
-     * @returns {{}|*}
-     */
-    DiagramRenderContext.prototype.setViewOfModel = function (model, view) {
-        return _.set(this.viewModelMap, model.id, view);
-    };
+ /**
+  * set view of node
+  * @returns {{}|*}
+  */
+ setViewOfModel(model, view) {
+     return _.set(this.viewModelMap, model.id, view);
+ }
 
-    /**
-     * get environment
-     * @returns {*}
-     */
-    DiagramRenderContext.prototype.getEnvironment = function () {
-        return this.environment;
-    };
+ /**
+  * get environment
+  * @returns {*}
+  */
+ getEnvironment() {
+     return this.environment;
+ }
 
-    /**
-     * get packageScopedEnvironment
-     * @returns {*}
-     */
-    DiagramRenderContext.prototype.getPackagedScopedEnvironment = function () {
-        return this.packagedScopedEnvironemnt;
-    };
+ /**
+  * get packageScopedEnvironment
+  * @returns {*}
+  */
+ getPackagedScopedEnvironment() {
+     return this.packagedScopedEnvironemnt;
+ }
+}
 
-    return DiagramRenderContext;
-});
+export default DiagramRenderContext;

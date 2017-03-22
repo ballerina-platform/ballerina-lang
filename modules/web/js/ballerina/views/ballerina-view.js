@@ -15,107 +15,111 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', 'jquery', 'd3', 'd3utils', './../visitors/ast-visitor', './bounding-box'],
-    function (_, log, $, d3, D3Utils, ASTVisitor, BBox) {
+import _ from 'lodash';
+import log from 'log';
+import $ from 'jquery';
+import d3 from 'd3';
+import D3Utils from 'd3utils';
+import ASTVisitor from './../visitors/ast-visitor';
+import BBox from './bounding-box';
 
-        /**
-         * An abstract class which consists functions of moving or resizing views.
-         * @param {Object} args - Arguments for creating the view.
-         * @param {ASTNode} args.model - Any ASTNode as the model.
-         * @param {Object} args.container - The HTML container to which the view should be added to.
-         * @param {Object} [args.viewOptions={}] - Configuration values for the view.
-         * @param {ToolPalette} args.toolPalette - reference for tool palette
-         * @param {DiagramRenderContext} args.diagramRenderingContext - Diagram rendering context for the view.
-         * @constructor
-         * @augments ASTVisitor
-         */
-        var BallerinaView = function (args) {
-            ASTVisitor.call(this, args);
-            this._parent = _.get(args, "parent");
-            this.setModel(_.get(args, "model"));
-            this._container = _.get(args, "container");
-            this._viewOptions = _.get(args, "viewOptions", {});
-            this._backendEndpointsOptions = _.get(args, "backendEndpointsOptions", {});
-            this._boundingBox = new BBox();
-            this.toolPalette = _.get(args, "toolPalette");
-            this.messageManager =  _.get(args, "messageManager");
-            this.diagramRenderingContext = _.get(args, "diagramRenderContext");
-            this.id = uuid();
-        };
+/**
+ * An abstract class which consists functions of moving or resizing views.
+ * @param {Object} args - Arguments for creating the view.
+ * @param {ASTNode} args.model - Any ASTNode as the model.
+ * @param {Object} args.container - The HTML container to which the view should be added to.
+ * @param {Object} [args.viewOptions={}] - Configuration values for the view.
+ * @param {ToolPalette} args.toolPalette - reference for tool palette
+ * @param {DiagramRenderContext} args.diagramRenderingContext - Diagram rendering context for the view.
+ * @constructor
+ * @augments ASTVisitor
+ */
+class BallerinaView extends ASTVisitor {
+    constructor(args) {
+        super(args);
+        this._parent = _.get(args, "parent");
+        this.setModel(_.get(args, "model"));
+        this._container = _.get(args, "container");
+        this._viewOptions = _.get(args, "viewOptions", {});
+        this._backendEndpointsOptions = _.get(args, "backendEndpointsOptions", {});
+        this._boundingBox = new BBox();
+        this.toolPalette = _.get(args, "toolPalette");
+        this.messageManager =  _.get(args, "messageManager");
+        this.diagramRenderingContext = _.get(args, "diagramRenderContext");
+        this.id = uuid();
+    }
 
-        BallerinaView.prototype = Object.create(ASTVisitor.prototype);
-        BallerinaView.prototype.constructor = BallerinaView;
+    setParent(parent) {
+        this._parent = parent;
+    }
 
-        BallerinaView.prototype.setParent = function (parent) {
-            this._parent = parent;
-        };
+    getParent() {
+        return this._parent;
+    }
 
-        BallerinaView.prototype.getParent = function () {
-            return this._parent;
-        };
+    setModel(model) {
+        this._model = model;
+    }
 
-        BallerinaView.prototype.setModel = function (model) {
-            this._model = model;
-        };
+    getModel() {
+        return this._model;
+    }
 
-        BallerinaView.prototype.getModel = function () {
-            return this._model;
-        };
+    setContainer(container) {
+        this._container = container;
+    }
 
-        BallerinaView.prototype.setContainer = function (container) {
-            this._container = container;
-        };
+    getContainer() {
+        return this._container;
+    }
 
-        BallerinaView.prototype.getContainer = function () {
-            return this._container;
-        };
+    getBoundingBox() {
+        return this._boundingBox;
+    }
 
-        BallerinaView.prototype.getBoundingBox = function () {
-            return this._boundingBox;
-        };
+    setToolPalette(toolPalette) {
+        this.toolPalette = toolPalette;
+    }
 
-        BallerinaView.prototype.setToolPalette = function (toolPalette) {
-            this.toolPalette = toolPalette;
-        };
+    getToolPalette() {
+        return this.toolPalette;
+    }
 
-        BallerinaView.prototype.getToolPalette = function () {
-            return this.toolPalette;
-        };
+    setMessageManager(messageManager) {
+        this.messageManager = messageManager;
+    }
 
-        BallerinaView.prototype.setMessageManager = function (messageManager) {
-            this.messageManager = messageManager;
-        };
+    getMessageManager() {
+        return this.messageManager;
+    }
 
-        BallerinaView.prototype.getMessageManager = function () {
-            return this.messageManager;
-        };
+    setDiagramRenderingContext(diagramRenderContext) {
+        this.diagramRenderingContext = diagramRenderContext;
+    }
 
-        BallerinaView.prototype.setDiagramRenderingContext = function (diagramRenderContext) {
-            this.diagramRenderingContext = diagramRenderContext;
-        };
+    getDiagramRenderingContext() {
+        return this.diagramRenderingContext;
+    }
 
-        BallerinaView.prototype.getDiagramRenderingContext = function () {
-            return this.diagramRenderingContext;
-        };
+    /**
+     * Renders/Draws the view for a specific model(i.e {@link BallerinaView#_model}).
+     * @abstract
+     */
+    render() {
+        throw "Method not implemented";
+    }
+}
 
-        /**
-         * Renders/Draws the view for a specific model(i.e {@link BallerinaView#_model}).
-         * @abstract
-         */
-        BallerinaView.prototype.render = function() {
-            throw "Method not implemented";
-        };
+// Auto generated Id for service definitions (for accordion views)
+var uuid =  function (){
+    function s4() {
+        return Math.floor((1 + Math.random()) * 0x10000)
+            .toString(16)
+            .substring(1);
+    }
+    return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
+        s4() + '-' + s4() + s4() + s4();
+};
 
-        // Auto generated Id for service definitions (for accordion views)
-        var uuid =  function (){
-            function s4() {
-                return Math.floor((1 + Math.random()) * 0x10000)
-                    .toString(16)
-                    .substring(1);
-            }
-            return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
-                s4() + '-' + s4() + s4() + s4();
-        };
-
-        return BallerinaView;
-    });
+export default BallerinaView;
+    

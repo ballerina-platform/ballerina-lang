@@ -15,41 +15,40 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', './ast-manipulation-operation'],
-    function (_, ASTManipulationOperation) {
+import _ from 'lodash';
+import ASTManipulationOperation from './ast-manipulation-operation';
 
-        /**
-         * Class to represent ast node modify operation
-         * @class ASTNodeModifyOperation
-         * @augments ASTManipulationOperation
-         * @param args
-         * @constructor
-         */
-        var ASTNodeModifyOperation = function(args){
-            ASTManipulationOperation.call(this, args);
-            if(_.isNil(this.getTitle())){
-                this.setTitle("Modify " + this._data.child.getType())
-            }
-            this._clonedOriginNode = _.cloneDeep(this._originNode);
-            this._parentOfOriginNode = this._originNode.getParent();
-            this._originNodeIndex = this._parentOfOriginNode.getIndexOfChild(this._originNode);
-        };
+/**
+ * Class to represent ast node modify operation
+ * @class ASTNodeModifyOperation
+ * @augments ASTManipulationOperation
+ * @param args
+ * @constructor
+ */
+class ASTNodeModifyOperation extends ASTManipulationOperation {
+    constructor(args) {
+        super(args);
+        if(_.isNil(this.getTitle())){
+            this.setTitle("Modify " + this._data.child.getType())
+        }
+        this._clonedOriginNode = _.cloneDeep(this._originNode);
+        this._parentOfOriginNode = this._originNode.getParent();
+        this._originNodeIndex = this._parentOfOriginNode.getIndexOfChild(this._originNode);
+    }
 
-        ASTNodeModifyOperation.prototype = Object.create(ASTManipulationOperation.prototype);
-        ASTNodeModifyOperation.prototype.constructor = ASTNodeModifyOperation;
+    redo() {
+        if(this.canRedo()) {
+            this._parentOfOriginNode.addChild(this._clonedOriginNode, this._originNodeIndex, true);
+        }
+    }
 
-        ASTNodeModifyOperation.prototype.redo = function(){
-            if(this.canRedo()) {
-                this._parentOfOriginNode.addChild(this._clonedOriginNode, this._originNodeIndex, true);
-            }
-        };
+    undo() {
+        if(this.canUndo()) {
+            this._originNode.remove({ignoreTreeModifiedEvent: true});
+        }
+    }
+}
 
-        ASTNodeModifyOperation.prototype.undo = function(){
-            if(this.canUndo()) {
-                this._originNode.remove({ignoreTreeModifiedEvent: true});
-            }
-        };
-
-        return ASTNodeModifyOperation;
-    });
+export default ASTNodeModifyOperation;
+    
 

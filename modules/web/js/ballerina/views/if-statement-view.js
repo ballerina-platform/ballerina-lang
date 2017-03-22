@@ -15,39 +15,39 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require', 'lodash', 'log', './block-statement-view', '../ast/statements/if-statement'],
-    function (require, _, log, BlockStatementView, IfStatement) {
+import _ from 'lodash';
+import log from 'log';
+import BlockStatementView from './block-statement-view';
+import IfStatement from '../ast/statements/if-statement';
 
-        /**
-         * The view to represent a If statement which is an AST visitor.
-         * @param {Object} args - Arguments for creating the view.
-         * @param {IfStatement} args.model - The If statement model.
-         * @param {Object} args.container - The HTML container to which the view should be added to.
-         * @param {Object} args.parent - Parent Statement View, which in this case the if-else statement
-         * @param {Object} [args.viewOptions={}] - Configuration values for the view.
-         * @class IfStatementView
-         * @constructor
-         * @extends BlockStatementView
-         */
-        var IfStatementView = function (args) {
-            _.set(args, "viewOptions.title.text", "If");
-            BlockStatementView.call(this, args);
-            this.getModel()._isChildOfWorker = args.isChildOfWorker;
-        };
+/**
+ * The view to represent a If statement which is an AST visitor.
+ * @param {Object} args - Arguments for creating the view.
+ * @param {IfStatement} args.model - The If statement model.
+ * @param {Object} args.container - The HTML container to which the view should be added to.
+ * @param {Object} args.parent - Parent Statement View, which in this case the if-else statement
+ * @param {Object} [args.viewOptions={}] - Configuration values for the view.
+ * @class IfStatementView
+ * @constructor
+ * @extends BlockStatementView
+ */
+class IfStatementView extends BlockStatementView {
+    constructor(args) {
+        _.set(args, "viewOptions.title.text", "If");
+        super(args);
+        this.getModel()._isChildOfWorker = args.isChildOfWorker;
+    }
 
-        IfStatementView.prototype = Object.create(BlockStatementView.prototype);
-        IfStatementView.prototype.constructor = IfStatementView;
+    canVisitIfStatement() {
+        return true;
+    }
 
-        IfStatementView.prototype.canVisitIfStatement = function(){
-            return true;
-        };
+    render(diagramRenderingContext) {
+        super.render(diagramRenderingContext);
+        this.listenTo(this._model, 'update-property-text', function(value, key){
+            this._model.setCondition(value);
+        });
+    }
+}
 
-        IfStatementView.prototype.render = function (diagramRenderingContext) {
-            BlockStatementView.prototype.render.call(this, diagramRenderingContext);
-            this.listenTo(this._model, 'update-property-text', function(value, key){
-                this._model.setCondition(value);
-            });
-        };
-
-        return IfStatementView;
-    });
+export default IfStatementView;

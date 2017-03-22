@@ -15,42 +15,43 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', './conditional-statement'], function (_, log, ConditionalStatement) {
+import _ from 'lodash';
+import log from 'log';
+import ConditionalStatement from './conditional-statement';
 
-    /**
-     * Class for catch statement in ballerina.
-     * @class CatchStatement
-     * @constructor
-     * @extends ConditionalStatement
-     */
-    var CatchStatement = function (args) {
-        ConditionalStatement.call(this);
+/**
+ * Class for catch statement in ballerina.
+ * @class CatchStatement
+ * @constructor
+ * @extends ConditionalStatement
+ */
+class CatchStatement extends ConditionalStatement {
+    constructor(args) {
+        super();
         this._parameter = _.get(args, "parameter", "exception e");
 
         this.type = "CatchStatement";
-    };
+    }
 
-    CatchStatement.prototype = Object.create(ConditionalStatement.prototype);
-    CatchStatement.prototype.constructor = CatchStatement;
-
-    CatchStatement.prototype.setParameter = function (parameter, options) {
+    setParameter(parameter, options) {
         if (!_.isNil(parameter)) {
             this.setAttribute('_parameter', parameter, options);
         }
-    };
+    }
 
-    CatchStatement.prototype.getParameter = function () {
+    getParameter() {
         return this._parameter;
-    };
+    }
 
-    CatchStatement.prototype.initFromJson = function (jsonNode) {
+    initFromJson(jsonNode) {
         var self = this;
         _.each(jsonNode.children, function (childNode) {
             var child = self.getFactory().createFromJson(childNode);
             self.addChild(child);
             child.initFromJson(childNode);
         });
-    };
+    }
+}
 
-    return CatchStatement;
-});
+export default CatchStatement;
+

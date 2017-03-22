@@ -15,30 +15,31 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', 'event_channel', './abstract-statement-source-gen-visitor'], function(_, log, EventChannel, AbstractStatementSourceGenVisitor) {
+import _ from 'lodash';
+import log from 'log';
+import EventChannel from 'event_channel';
+import AbstractStatementSourceGenVisitor from './abstract-statement-source-gen-visitor';
 
-    var IterateStatementVisitor = function(){
-        AbstractStatementSourceGenVisitor.call(this);
-    };
+class IterateStatementVisitor extends AbstractStatementSourceGenVisitor {
+    constructor() {
+        super();
+    }
 
-    IterateStatementVisitor.prototype = Object.create(AbstractStatementSourceGenVisitor.prototype);
-    IterateStatementVisitor.prototype.constructor = IterateStatementVisitor;
-
-    IterateStatementVisitor.prototype.canVisitIterateStatement = function(iterateStatement){
+    canVisitIterateStatement(iterateStatement) {
         return true;
-    };
+    }
 
-    IterateStatementVisitor.prototype.beginVisitIterateStatement = function(iterateStatement){
+    beginVisitIterateStatement(iterateStatement) {
         log.debug('Begin Visit Iterate Statement Definition');
-    };
+    }
 
-    IterateStatementVisitor.prototype.visitIterateStatement = function(iterateStatement){
+    visitIterateStatement(iterateStatement) {
         log.debug('Visit Iterate Statement Definition');
-    };
+    }
 
-    IterateStatementVisitor.prototype.endVisitIterateStatement = function(iterateStatement){
+    endVisitIterateStatement(iterateStatement) {
         log.debug('End Visit Iterate Statement Definition');
-    };
+    }
+}
 
-    return IterateStatementVisitor;
-});
+export default IterateStatementVisitor;

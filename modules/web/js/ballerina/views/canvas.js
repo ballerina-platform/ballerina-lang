@@ -16,19 +16,26 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['log', 'lodash', 'jquery', 'd3', 'd3utils', './../visitors/ast-visitor', './ballerina-view', './message-manager'],
-    function(log, _, $, d3, D3Utils, AstVisitor, BallerinaView, MessageManager){
+import log from 'log';
+import _ from 'lodash';
+import $ from 'jquery';
+import d3 from 'd3';
+import D3Utils from 'd3utils';
+import AstVisitor from './../visitors/ast-visitor';
+import BallerinaView from './ballerina-view';
+import MessageManager from './message-manager';
 
-    /**
-        * Generic class for a canvas. i.e Services, Functions.
-        * @param {Object} args={} - Argument for a canvas.
-        * @constructor
-        * @augments BallerinaView
-        */
-    var Canvas = function(args) {
+/**
+    * Generic class for a canvas. i.e Services, Functions.
+    * @param {Object} args={} - Argument for a canvas.
+    * @constructor
+    * @augments BallerinaView
+    */
+class Canvas extends BallerinaView {
+    constructor(args) {
         var mMArgs = {'canvas': this};
         args.messageManager = new MessageManager(mMArgs);
-        BallerinaView.call(this, args);
+        super(args);
 
         /**
          * The icon of the icon position at top left corner.
@@ -59,15 +66,12 @@ define(['log', 'lodash', 'jquery', 'd3', 'd3utils', './../visitors/ast-visitor',
         this._bodyWrapper = undefined;
 
         this.bindEvents();
-    };
+    }
 
-    Canvas.prototype = Object.create(BallerinaView.prototype);
-    Canvas.prototype.constructor = Canvas;
-
-    Canvas.prototype.bindEvents = function () {
+    bindEvents() {
         this._model.on('child-removed', this.childRemovedCallback, this);
         this._model.on('before-remove', this.onBeforeModelRemove, this);
-    };
+    }
 
     /**
      * Since canvas by default init a drop area within content area. Hence, all the subclasses need a way to override
@@ -78,9 +82,9 @@ define(['log', 'lodash', 'jquery', 'd3', 'd3utils', './../visitors/ast-visitor',
      * @param node {ASTNode} node which is being dragged ATM
      * @return {boolean}
      */
-    Canvas.prototype.isAValidNodeForCanvasDropArea = function (node) {
+    isAValidNodeForCanvasDropArea(node) {
         return true;
-    };
+    }
 
     /**
      * Draws the main body of the model
@@ -89,7 +93,7 @@ define(['log', 'lodash', 'jquery', 'd3', 'd3utils', './../visitors/ast-visitor',
      * @param {string} name - The type of model.
      * @param {string} title - The identifier of the model.
      */
-    Canvas.prototype.drawAccordionCanvas = function (options, id, name, title) {
+    drawAccordionCanvas(options, id, name, title) {
         // The main wrapper of the canvas.
         var outerDiv = $("<div/>", {
             id: "_" + id,
@@ -203,33 +207,33 @@ define(['log', 'lodash', 'jquery', 'd3', 'd3utils', './../visitors/ast-visitor',
             event.stopPropagation();
             self._model.remove();
         });
-    };
+    }
 
     /**
      * Override the remove view callback
      */
-    Canvas.prototype.onBeforeModelRemove = function () {
+    onBeforeModelRemove() {
         $("#_" + this.getModel().getID()).remove();
         // resize the bounding box in order to the other objects to resize
         this.getBoundingBox().h(0).w(0);
-    };
+    }
 
-    Canvas.prototype.getOperationsPane = function () {
+    getOperationsPane() {
         return this._canvasOperationsWrapper;
-    };
+    }
 
-    Canvas.prototype.getPanelIcon = function () {
+    getPanelIcon() {
         return this._panelIcon;
-    };
+    }
 
-    Canvas.prototype.getTitle = function () {
+    getTitle() {
         return this._titleLink;
-    };
+    }
 
-    Canvas.prototype.getBodyWrapper = function() {
+    getBodyWrapper() {
         return this._bodyWrapper;
-    };
+    }
+}
 
-    return Canvas;
+export default Canvas;
 
-});

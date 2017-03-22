@@ -15,34 +15,37 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require','lodash', 'log', 'event_channel', './abstract-source-gen-visitor', '../../ast/module',],
-    function(require, _, log, EventChannel, AbstractSourceGenVisitor, AST) {
+import require from 'require';
+import _ from 'lodash';
+import log from 'log';
+import EventChannel from 'event_channel';
+import AbstractSourceGenVisitor from './abstract-source-gen-visitor';
+import AST from '../../ast/module';
 
-        var ReturnTypeVisitor = function(parent){
-            AbstractSourceGenVisitor.call(this,parent);
-        };
+class ReturnTypeVisitor extends AbstractSourceGenVisitor {
+    constructor(parent) {
+        super(parent);
+    }
 
-        ReturnTypeVisitor.prototype = Object.create(AbstractSourceGenVisitor.prototype);
-        ReturnTypeVisitor.prototype.constructor = ReturnTypeVisitor;
+    canVisitReturnType(returnType) {
+        return true;
+    }
 
-        ReturnTypeVisitor.prototype.canVisitReturnType = function (returnType) {
-            return true;
-        };
+    beginVisitReturnType(returnType) {
+       this.appendSource('( ');
+       log.debug('Begin Visit Return Type');
+    }
 
-        ReturnTypeVisitor.prototype.beginVisitReturnType = function (returnType) {
-           this.appendSource('( ');
-           log.debug('Begin Visit Return Type');
-        };
+    visitReturnType(returnType) {
+        log.debug('Visit Return Type');
+    }
 
-        ReturnTypeVisitor.prototype.visitReturnType = function (returnType) {
-            log.debug('Visit Return Type');
-        };
+    endVisitReturnType(returnType) {
+       this.appendSource(' )');
+       this.getParent().appendSource(this.getGeneratedSource());
+       log.debug('End Visit Return Type');
+    }
+}
 
-        ReturnTypeVisitor.prototype.endVisitReturnType = function (returnType) {
-           this.appendSource(' )');
-           this.getParent().appendSource(this.getGeneratedSource());
-           log.debug('End Visit Return Type');
-        };
-
-        return ReturnTypeVisitor;
-    });
+export default ReturnTypeVisitor;
+    

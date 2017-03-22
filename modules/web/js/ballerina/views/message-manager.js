@@ -15,58 +15,62 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['log', 'lodash','d3','./point', 'backbone','event_channel', 'ballerina/ast/ballerina-ast-factory'],
-    function (log, _, d3,Point, Backbone, EventChannel, BallerinaASTFactory) {
+import log from 'log';
+import _ from 'lodash';
+import d3 from 'd3';
+import Point from './point';
+import Backbone from 'backbone';
+import EventChannel from 'event_channel';
+import BallerinaASTFactory from 'ballerina/ast/ballerina-ast-factory';
 
-    var MessageManager = function(args) {
+class MessageManager extends EventChannel {
+    constructor(args) {
         log.debug("Initialising Message Manager");
         this.typeBeingDragged = undefined;
         this._canvas = _.get(args, 'canvas');
-    };
+    }
 
-    MessageManager.prototype = Object.create(EventChannel.prototype);
-    MessageManager.prototype.constructor = MessageManager;
-
-    MessageManager.prototype.setMessageSource = function(source){
+    setMessageSource(source) {
          if (!_.isUndefined(source)) {
              this.messageSource = source;
          }
-    };
+    }
 
-    MessageManager.prototype.getMessageSource = function(){
+    getMessageSource() {
        return this.messageSource;
-    };
+    }
 
-    MessageManager.prototype.setMessageTarget = function(destination){
+    setMessageTarget(destination) {
         if (!_.isUndefined(destination)) {
             this.messageTarget = destination;
         }
-    };
-    MessageManager.prototype.getMessageTarget = function(){
-        return this.messageTarget;
-    };
+    }
 
-    MessageManager.prototype.setActivatedDropTarget = function (dropTarget) {
+    getMessageTarget() {
+        return this.messageTarget;
+    }
+
+    setActivatedDropTarget(dropTarget) {
         if (!_.isUndefined(dropTarget)) {
             this.activatedDropTarget = dropTarget;
         }
-    };
+    }
 
-    MessageManager.prototype.getActivatedDropTarget = function () {
+    getActivatedDropTarget() {
         return this.activatedDropTarget;
-    };
+    }
 
-    MessageManager.prototype.setValidateCallBack = function (callBackMethod) {
+    setValidateCallBack(callBackMethod) {
         if (!_.isUndefined(callBackMethod)) {
             this.validateCallBack = callBackMethod;
         }
-    };
+    }
 
-    MessageManager.prototype.getValidateCallBack = function () {
+    getValidateCallBack() {
         return this.validateCallBack;
-    };
+    }
 
-    MessageManager.prototype.setActivatedDropTarget = function (activatedDropTarget,validateCallBack) {
+    setActivatedDropTarget(activatedDropTarget, validateCallBack) {
         if (!_.isUndefined(activatedDropTarget)) {
             if (!_.isEqual(activatedDropTarget, this.getActivatedDropTarget())){
                 /**
@@ -80,7 +84,7 @@ define(['log', 'lodash','d3','./point', 'backbone','event_channel', 'ballerina/a
         if (!_.isUndefined(validateCallBack)) {
             this.setValidateCallBack(validateCallBack);
         }
-    };
+    }
 
     /**
      * Set the type being dragged at a given moment.
@@ -88,28 +92,28 @@ define(['log', 'lodash','d3','./point', 'backbone','event_channel', 'ballerina/a
      * @param validateDropTargetCallback {DragDropManager~validateDropTargetCallback} - call back to do additional validations on drop target
      *
      */
-    MessageManager.prototype.setTypeBeingDragged = function (type, validateDropTargetCallback) {
+    setTypeBeingDragged(type, validateDropTargetCallback) {
         if (!_.isUndefined(type)) {
             this.typeBeingDragged = type;
         }
         if (!_.isUndefined(validateDropTargetCallback)) {
             this.validateDropTargetCallback = validateDropTargetCallback;
         }
-    };
+    }
 
     /**
      * Gets the type which is being dragged at a given moment - if any.
      * @return type
      */
-    MessageManager.prototype.getTypeBeingDragged = function () {
+    getTypeBeingDragged() {
         return this.typeBeingDragged;
-    };
+    }
 
-    MessageManager.prototype.isOnDrag = function () {
+    isOnDrag() {
         return !_.isNil(this.typeBeingDragged);
-    };
+    }
 
-    MessageManager.prototype.reset = function(){
+    reset() {
         /**
          * @event MessageManager#drag-stop
          * @type {ASTNode}
@@ -118,9 +122,9 @@ define(['log', 'lodash','d3','./point', 'backbone','event_channel', 'ballerina/a
         this.setValidateCallBack( undefined);
         this.setActivatedDropTarget(undefined);
         this.typeBeingDragged = undefined;
-    };
+    }
 
-    MessageManager.prototype.startDrawMessage = function(source, actionInvocationModel, sourcePoint, connectorPoint){
+    startDrawMessage(source, actionInvocationModel, sourcePoint, connectorPoint) {
         var connectorStartPoint,
             connectorEndPoint;
 
@@ -172,7 +176,7 @@ define(['log', 'lodash','d3','./point', 'backbone','event_channel', 'ballerina/a
             self.trigger('drop-target-changed', undefined);
             self.reset();
         });
-    };
+    }
+}
 
-    return MessageManager;
-});
+export default MessageManager;

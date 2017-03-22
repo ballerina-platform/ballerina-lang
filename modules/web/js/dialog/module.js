@@ -15,13 +15,18 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-require('./dialog.css');
+$____dialog_css;
 
-define(['./save-to-file-dialog', './open-file-dialog', './new-item-dialog', './delete-item-dialog',
-        './folder-open-dialog', './close-confirm-dialog', './replace-confirm-dialog', './settings-dialog'],
-    function (SaveToFileDialog, OpenFileDialog, NewItemDialog, DeleteItemDialog,
-              FolderOpenDialog, CloseConfirmDialog, ReplaceConfirmDialog, SettingsDialog) {
-    return {
+import SaveToFileDialog from './save-to-file-dialog';
+import OpenFileDialog from './open-file-dialog';
+import NewItemDialog from './new-item-dialog';
+import DeleteItemDialog from './delete-item-dialog';
+import FolderOpenDialog from './folder-open-dialog';
+import CloseConfirmDialog from './close-confirm-dialog';
+import ReplaceConfirmDialog from './replace-confirm-dialog';
+import SettingsDialog from './settings-dialog';
+import $____dialog_css from './dialog.css';
+    export default {
         save_to_file_dialog: SaveToFileDialog,
         FolderOpenDialog: FolderOpenDialog,
         NewItemDialog: NewItemDialog,
@@ -31,4 +36,4 @@ define(['./save-to-file-dialog', './open-file-dialog', './new-item-dialog', './d
         ReplaceConfirmDialog: ReplaceConfirmDialog,
         SettingsDialog: SettingsDialog
     };
-});
+

@@ -15,37 +15,38 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['log', 'lodash', './ast-manipulation-operation'],
-    function (log, _, ASTManipulationOperation) {
+import log from 'log';
+import _ from 'lodash';
+import ASTManipulationOperation from './ast-manipulation-operation';
 
-        /**
-         * Class to represent ast node remove operation
-         * @class ASTNodeRemoveOperation
-         * @augments ASTManipulationOperation
-         * @param args
-         * @constructor
-         */
-        var ASTNodeRemoveOperation = function(args){
-            ASTManipulationOperation.call(this, args);
-            if(_.isNil(this.getTitle())){
-                this.setTitle("Remove " + this._data.child.getType())
-            }
-        };
+/**
+ * Class to represent ast node remove operation
+ * @class ASTNodeRemoveOperation
+ * @augments ASTManipulationOperation
+ * @param args
+ * @constructor
+ */
+class ASTNodeRemoveOperation extends ASTManipulationOperation {
+    constructor(args) {
+        super(args);
+        if(_.isNil(this.getTitle())){
+            this.setTitle("Remove " + this._data.child.getType())
+        }
+    }
 
-        ASTNodeRemoveOperation.prototype = Object.create(ASTManipulationOperation.prototype);
-        ASTNodeRemoveOperation.prototype.constructor = ASTNodeRemoveOperation;
+    undo() {
+        if(this.canUndo()) {
+            this._originNode.addChild(this._data.child, this._data.index, true);
+        }
+    }
 
-        ASTNodeRemoveOperation.prototype.undo = function(){
-            if(this.canUndo()) {
-                this._originNode.addChild(this._data.child, this._data.index, true);
-            }
-        };
-        ASTNodeRemoveOperation.prototype.redo = function(){
-            if(this.canRedo()) {
-                this._data.child.remove({ignoreTreeModifiedEvent: true});
-            }
-        };
+    redo() {
+        if(this.canRedo()) {
+            this._data.child.remove({ignoreTreeModifiedEvent: true});
+        }
+    }
+}
 
-        return ASTNodeRemoveOperation;
-    });
+export default ASTNodeRemoveOperation;
+    
 

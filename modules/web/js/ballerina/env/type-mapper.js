@@ -15,119 +15,119 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['log', 'lodash', 'event_channel'],
-    function (log, _, EventChannel) {
+import log from 'log';
+import _ from 'lodash';
+import EventChannel from 'event_channel';
 
-        /**
-         * @class TypeMapper
-         * @augments
-         * @param {Object} args - data to create the TypeMapper
-         * @param {string} args.name - name of TypeMapper
-         * @param {string} args.id - id of TypeMapper
-         * @param {string} args.title - title of TypeMapper
-         * @constructor
-         */
-        var TypeMapper = function (args) {
-            EventChannel.call(this, args);
-            this._name = _.get(args, 'name', '');
-            this._id = _.get(args, 'id', '');
-            this._title = _.get(args, 'title', '');
-            this._returnType = _.get(args, 'returnType', '');
-            this._sourceAndIdentifier = _.get(args, 'sourceAndIdentifier', '');
-        };
+/**
+ * @class TypeMapper
+ * @augments
+ * @param {Object} args - data to create the TypeMapper
+ * @param {string} args.name - name of TypeMapper
+ * @param {string} args.id - id of TypeMapper
+ * @param {string} args.title - title of TypeMapper
+ * @constructor
+ */
+class TypeMapper extends EventChannel {
+ constructor(args) {
+     super(args);
+     this._name = _.get(args, 'name', '');
+     this._id = _.get(args, 'id', '');
+     this._title = _.get(args, 'title', '');
+     this._returnType = _.get(args, 'returnType', '');
+     this._sourceAndIdentifier = _.get(args, 'sourceAndIdentifier', '');
+ }
 
-        TypeMapper.prototype = Object.create(EventChannel.prototype);
-        TypeMapper.prototype.constructor = TypeMapper;
+ /**
+  * sets the name
+  * @param {string} name
+  */
+ setName(name) {
+     this._name = name;
+ }
 
-        /**
-         * sets the name
-         * @param {string} name
-         */
-        TypeMapper.prototype.setName = function (name) {
-            this._name = name;
-        };
+ /**
+  * returns the name
+  * @returns {string}
+  */
+ getName() {
+     return this._name;
+ }
 
-        /**
-         * returns the name
-         * @returns {string}
-         */
-        TypeMapper.prototype.getName = function () {
-            return this._name;
-        };
+ /**
+  * sets the id
+  * @param {string} id
+  */
+ setId(id) {
+     this._id = id;
+ }
 
-        /**
-         * sets the id
-         * @param {string} id
-         */
-        TypeMapper.prototype.setId = function (id) {
-            this._id = id;
-        };
+ /**
+  * returns the id
+  * @returns {string}
+  */
+ getId() {
+     return this._id;
+ }
 
-        /**
-         * returns the id
-         * @returns {string}
-         */
-        TypeMapper.prototype.getId = function () {
-            return this._id;
-        };
+ /**
+  * sets the returnType
+  * @param {string} returnType
+  */
+ setReturnType(returnType) {
+     this._returnType = returnType;
+ }
 
-        /**
-         * sets the returnType
-         * @param {string} returnType
-         */
-        TypeMapper.prototype.setReturnType = function (returnType) {
-            this._returnType = returnType;
-        };
+ /**
+  * returns the returnType
+  * @returns {string}
+  */
+ getReturnType() {
+     return this._returnType;
+ }
 
-        /**
-         * returns the returnType
-         * @returns {string}
-         */
-        TypeMapper.prototype.getReturnType = function () {
-            return this._returnType;
-        };
+ /**
+  * sets the sourceAndIdentifier
+  * @param {string} sourceAndIdentifier
+  */
+ setSourceAndIdentifier(sourceAndIdentifier) {
+     this._sourceAndIdentifier = sourceAndIdentifier;
+ }
 
-        /**
-         * sets the sourceAndIdentifier
-         * @param {string} sourceAndIdentifier
-         */
-        TypeMapper.prototype.setSourceAndIdentifier = function (sourceAndIdentifier) {
-            this._sourceAndIdentifier = sourceAndIdentifier;
-        };
+ /**
+  * returns the sourceAndIdentifier
+  * @returns {string}
+  */
+ getSourceAndIdentifier() {
+     return this._sourceAndIdentifier;
+ }
 
-        /**
-         * returns the sourceAndIdentifier
-         * @returns {string}
-         */
-        TypeMapper.prototype.getSourceAndIdentifier = function () {
-            return this._sourceAndIdentifier;
-        };
+ /**
+  * sets the title
+  * @param {string} title
+  */
+ setTitle(title) {
+     this._title = title;
+ }
 
-        /**
-         * sets the title
-         * @param {string} title
-         */
-        TypeMapper.prototype.setTitle = function (title) {
-            this._title = title;
-        };
+ /**
+  * returns the title
+  * @returns {string}
+  */
+ getTitle() {
+     return this._title;
+ }
 
-        /**
-         * returns the title
-         * @returns {string}
-         */
-        TypeMapper.prototype.getTitle = function () {
-            return this._title;
-        };
+ /**
+  * sets values from a json object
+  * @param {Object} jsonNode
+  */
+ initFromJson(jsonNode) {
+     this.setName(jsonNode.name);
+     this.setId(jsonNode.name);
+     this.setTitle(jsonNode.name);
+ }
+}
 
-        /**
-         * sets values from a json object
-         * @param {Object} jsonNode
-         */
-        TypeMapper.prototype.initFromJson = function (jsonNode) {
-            this.setName(jsonNode.name);
-            this.setId(jsonNode.name);
-            this.setTitle(jsonNode.name);
-        };
-
-        return TypeMapper;
-    });
+export default TypeMapper;
+    

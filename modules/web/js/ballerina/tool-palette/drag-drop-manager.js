@@ -15,7 +15,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['log', 'lodash', 'backbone'], function (log, _, Backbone) {
+import log from 'log';
+import _ from 'lodash';
+import Backbone from 'backbone';
     var DragDropManager = Backbone.Model.extend(
     /** @lends DragDropManager.prototype */
     {
@@ -197,7 +199,7 @@ define(['log', 'lodash', 'backbone'], function (log, _, Backbone) {
         }
     });
 
-    return DragDropManager;
+    export default DragDropManager;
 
-});
+
 

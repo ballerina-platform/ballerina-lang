@@ -15,115 +15,118 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', 'event_channel', './abstract-source-gen-visitor', './connector-action-visitor',
-        './variable-declaration-visitor', './connector-declaration-visitor', './statement-visitor-factory'],
-    function(_, log, EventChannel, AbstractSourceGenVisitor, ConnectorActionVisitor,
-             VariableDeclarationVisitor, ConnectorDeclarationVisitor, StatementVisitorFactory) {
+import _ from 'lodash';
+import log from 'log';
+import EventChannel from 'event_channel';
+import AbstractSourceGenVisitor from './abstract-source-gen-visitor';
+import ConnectorActionVisitor from './connector-action-visitor';
+import VariableDeclarationVisitor from './variable-declaration-visitor';
+import ConnectorDeclarationVisitor from './connector-declaration-visitor';
+import StatementVisitorFactory from './statement-visitor-factory';
 
+/**
+ * @param {ASTVisitor} parent - parent visitor
+ * @constructor
+ */
+class ConnectorDefinitionVisitor extends AbstractSourceGenVisitor {
+    constructor(parent) {
+        super(parent);
+    }
+
+    canVisitConnectorDefinition(connectorDefinition) {
+        return true;
+    }
+
+    /**
+     * Begin the visit and generate the source
+     * @param {ConnectorDefinition} connectorDefinition - Connector Definition
+     */
+    beginVisitConnectorDefinition(connectorDefinition) {
         /**
-         * @param {ASTVisitor} parent - parent visitor
-         * @constructor
+         * set the configuration start for the connector definition language construct
+         * If we need to add additional parameters which are dynamically added to the configuration start
+         * that particular source generation has to be constructed here
          */
-        var ConnectorDefinitionVisitor = function (parent) {
-            AbstractSourceGenVisitor.call(this, parent);
-        };
-
-        ConnectorDefinitionVisitor.prototype = Object.create(AbstractSourceGenVisitor.prototype);
-        ConnectorDefinitionVisitor.prototype.constructor = ConnectorDefinitionVisitor;
-
-        ConnectorDefinitionVisitor.prototype.canVisitConnectorDefinition = function(connectorDefinition){
-            return true;
-        };
-
-        /**
-         * Begin the visit and generate the source
-         * @param {ConnectorDefinition} connectorDefinition - Connector Definition
-         */
-        ConnectorDefinitionVisitor.prototype.beginVisitConnectorDefinition = function(connectorDefinition){
-            /**
-             * set the configuration start for the connector definition language construct
-             * If we need to add additional parameters which are dynamically added to the configuration start
-             * that particular source generation has to be constructed here
-             */
-            var self = this;
-            var argumentsSrc = "";
-            _.forEach(connectorDefinition.getAnnotations(), function(annotation) {
-                if (!_.isEmpty(annotation.value)) {
-                    var constructedPathAnnotation;
-                    if (annotation.key.indexOf(":") === -1) {
-                        constructedPathAnnotation = '@' + annotation.key + '("' + annotation.value + '")\n';
-                    } else {
-                        constructedPathAnnotation = '@' + annotation.key.split(":")[0] + '(' + annotation.key.split(":")[1] +
-                            ' = "' + annotation.value + '")\n';
-                    }
-                    self.appendSource(constructedPathAnnotation);
+        var self = this;
+        var argumentsSrc = "";
+        _.forEach(connectorDefinition.getAnnotations(), function(annotation) {
+            if (!_.isEmpty(annotation.value)) {
+                var constructedPathAnnotation;
+                if (annotation.key.indexOf(":") === -1) {
+                    constructedPathAnnotation = '@' + annotation.key + '("' + annotation.value + '")\n';
+                } else {
+                    constructedPathAnnotation = '@' + annotation.key.split(":")[0] + '(' + annotation.key.split(":")[1] +
+                        ' = "' + annotation.value + '")\n';
                 }
-            });
+                self.appendSource(constructedPathAnnotation);
+            }
+        });
 
-            _.forEach(connectorDefinition.getArguments(), function(argument, index){
-                argumentsSrc += argument.type + " ";
-                argumentsSrc += argument.identifier;
-                if (connectorDefinition.getArguments().length - 1 != index) {
-                    argumentsSrc += ", ";
-                }
-            });
+        _.forEach(connectorDefinition.getArguments(), function(argument, index){
+            argumentsSrc += argument.type + " ";
+            argumentsSrc += argument.identifier;
+            if (connectorDefinition.getArguments().length - 1 != index) {
+                argumentsSrc += ", ";
+            }
+        });
 
-            var constructedSourceSegment = 'connector ' + connectorDefinition.getConnectorName() +
-                ' (' + argumentsSrc + ')' + ' {\n';
-            this.appendSource(constructedSourceSegment);
-            log.debug('Begin Visit Connector Definition');
-        };
+        var constructedSourceSegment = 'connector ' + connectorDefinition.getConnectorName() +
+            ' (' + argumentsSrc + ')' + ' {\n';
+        this.appendSource(constructedSourceSegment);
+        log.debug('Begin Visit Connector Definition');
+    }
 
-        ConnectorDefinitionVisitor.prototype.visitConnectorDefinition = function(connectorDefinition){
-            log.debug('Visit Connector Definition');
-        };
+    visitConnectorDefinition(connectorDefinition) {
+        log.debug('Visit Connector Definition');
+    }
 
-        /**
-         * End visiting the connector definition
-         * @param {ConnectorDefinition} connectorDefinition - Connector Definition
-         */
-        ConnectorDefinitionVisitor.prototype.endVisitConnectorDefinition = function(connectorDefinition){
-            this.appendSource("}\n");
-            this.getParent().appendSource(this.getGeneratedSource());
-            log.debug('End Visit Connector Definition');
-        };
+    /**
+     * End visiting the connector definition
+     * @param {ConnectorDefinition} connectorDefinition - Connector Definition
+     */
+    endVisitConnectorDefinition(connectorDefinition) {
+        this.appendSource("}\n");
+        this.getParent().appendSource(this.getGeneratedSource());
+        log.debug('End Visit Connector Definition');
+    }
 
-        /**
-         * Visit Connector Action
-         * @param {ConnectorAction} connectorAction
-         */
-        ConnectorDefinitionVisitor.prototype.visitConnectorAction = function(connectorAction){
-            var connectorActionVisitor = new ConnectorActionVisitor(this);
-            connectorAction.accept(connectorActionVisitor);
-        };
+    /**
+     * Visit Connector Action
+     * @param {ConnectorAction} connectorAction
+     */
+    visitConnectorAction(connectorAction) {
+        var connectorActionVisitor = new ConnectorActionVisitor(this);
+        connectorAction.accept(connectorActionVisitor);
+    }
 
-        /**
-         * Visit Connector Declaration
-         * @param {ConnectorDeclaration} connectorDeclaration
-         */
-        ConnectorDefinitionVisitor.prototype.visitConnectorDeclaration = function(connectorDeclaration){
-            var connectorDeclarationVisitor = new ConnectorDeclarationVisitor(this);
-            connectorDeclaration.accept(connectorDeclarationVisitor);
-        };
+    /**
+     * Visit Connector Declaration
+     * @param {ConnectorDeclaration} connectorDeclaration
+     */
+    visitConnectorDeclaration(connectorDeclaration) {
+        var connectorDeclarationVisitor = new ConnectorDeclarationVisitor(this);
+        connectorDeclaration.accept(connectorDeclarationVisitor);
+    }
 
-        /**
-         * Visit Variable Declaration
-         * @param {VariableDeclaration} variableDeclaration
-         */
-        ConnectorDefinitionVisitor.prototype.visitVariableDeclaration = function(variableDeclaration){
-            var variableDeclarationVisitor = new VariableDeclarationVisitor(this);
-            variableDeclaration.accept(variableDeclarationVisitor);
-        };
+    /**
+     * Visit Variable Declaration
+     * @param {VariableDeclaration} variableDeclaration
+     */
+    visitVariableDeclaration(variableDeclaration) {
+        var variableDeclarationVisitor = new VariableDeclarationVisitor(this);
+        variableDeclaration.accept(variableDeclarationVisitor);
+    }
 
-        /**
-         * Visit Statements
-         * @param {Statement} statement
-         */
-        ConnectorDefinitionVisitor.prototype.visitStatement = function (statement) {
-            var statementVisitorFactory = new StatementVisitorFactory();
-            var statementVisitor = statementVisitorFactory.getStatementVisitor(statement, this);
-            statement.accept(statementVisitor);
-        };
+    /**
+     * Visit Statements
+     * @param {Statement} statement
+     */
+    visitStatement(statement) {
+        var statementVisitorFactory = new StatementVisitorFactory();
+        var statementVisitor = statementVisitorFactory.getStatementVisitor(statement, this);
+        statement.accept(statementVisitor);
+    }
+}
 
-        return ConnectorDefinitionVisitor;
-    });
+export default ConnectorDefinitionVisitor;
+    

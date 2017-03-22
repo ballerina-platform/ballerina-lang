@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require', 'log4javascript'], function (require, log4javascript) {
+import log4javascript from 'log4javascript';
 
 
     var logger = log4javascript.getLogger("client-logger");
@@ -27,5 +27,4 @@ define(['require', 'log4javascript'], function (require, log4javascript) {
         logger.addAppender(ajaxAppender);
     };
 
-    return logger;
-});
+    export default logger;

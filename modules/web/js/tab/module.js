@@ -15,13 +15,15 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['./tab', './tab-list', './file-tab', './file-tab-list'],
-    function (Tab, TabList, FileTab, FileTabList) {
-        return  {
+import Tab from './tab';
+import TabList from './tab-list';
+import FileTab from './file-tab';
+import FileTabList from './file-tab-list';
+        export default  {
             Tab: Tab,
             TabList: TabList,
             FileTab: FileTab,
             FileTabList: FileTabList
         }
-    });
+    
 

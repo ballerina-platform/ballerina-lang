@@ -15,42 +15,42 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', './node', '../utils/common-utils'], function (_, ASTNode, CommonUtils) {
+import _ from 'lodash';
+import ASTNode from './node';
+import CommonUtils from '../utils/common-utils';
 
-    var TypeMapperDefinition = function (args) {
+class TypeMapperDefinition extends ASTNode {
+    constructor(args) {
         this._typeMapperName = _.get(args, 'typeMapperName');
-        ASTNode.call(this, 'TypeMapperDefinition');
-    };
-
-    TypeMapperDefinition.prototype = Object.create(ASTNode.prototype);
-    TypeMapperDefinition.prototype.constructor = TypeMapperDefinition;
+        super('TypeMapperDefinition');
+    }
 
     /**
      * Set the type mapper name
      * @param typeMapperName
      */
-    TypeMapperDefinition.prototype.setTypeMapperName = function (typeMapperName, options) {
+    setTypeMapperName(typeMapperName, options) {
         if (!_.isNil(typeMapperName)) {
             this.setAttribute('_typeMapperName', typeMapperName, options);
         } else {
             log.error('Invalid Type Mapper name [' + typeMapperName + '] Provided');
             throw 'Invalid Type Mapper name [' + typeMapperName + '] Provided';
         }
-    };
+    }
 
     /**
      * returns the type mapper name
      * @returns {string} type mapper name
      */
-    TypeMapperDefinition.prototype.getTypeMapperName = function () {
+    getTypeMapperName() {
         return this._typeMapperName;
-    };
+    }
 
     /**
      * return variable declarations
      * @returns {Array} variable declarations array
      */
-    TypeMapperDefinition.prototype.getVariableDeclarations = function () {
+    getVariableDeclarations() {
         var variableDeclarations = [];
         var self = this;
         var ballerinaASTFactory = this.getFactory();
@@ -61,13 +61,13 @@ define(['lodash', './node', '../utils/common-utils'], function (_, ASTNode, Comm
             }
         });
         return variableDeclarations;
-    };
+    }
 
     /**
      * Add variable declaration
      * @param newVariableDeclaration
      */
-    TypeMapperDefinition.prototype.addVariableDeclaration = function (newVariableDeclaration) {
+    addVariableDeclaration(newVariableDeclaration) {
         // Get the index of the last variable declaration.
         var self = this;
         var ballerinaASTFactory = this.getFactory();
@@ -77,13 +77,13 @@ define(['lodash', './node', '../utils/common-utils'], function (_, ASTNode, Comm
         });
 
         this.addChild(newVariableDeclaration, index + 1);
-    };
+    }
 
     /**
      * Remove variable declaration
      * @param variableDeclarationIdentifier
      */
-    TypeMapperDefinition.prototype.removeVariableDeclaration = function (variableDeclarationIdentifier) {
+    removeVariableDeclaration(variableDeclarationIdentifier) {
         var self = this;
         var ballerinaASTFactory = this.getFactory();
         // Removing the variable from the children.
@@ -92,13 +92,13 @@ define(['lodash', './node', '../utils/common-utils'], function (_, ASTNode, Comm
                 && child.getIdentifier() === variableDeclarationIdentifier;
         });
         this.removeChild(variableDeclarationChild);
-    };
+    }
 
     /**
      * Gets the return type
      * @return {string} - Return type.
      */
-    TypeMapperDefinition.prototype.getReturnType = function () {
+    getReturnType() {
         var returnType = 'ReturnType';
         var ballerinaASTFactory = this.getFactory();
 
@@ -108,13 +108,13 @@ define(['lodash', './node', '../utils/common-utils'], function (_, ASTNode, Comm
             }
         });
         return returnType;
-    };
+    }
 
     /**
      * returns the input parameter and its identifier
      * @returns {String} argument
      */
-    TypeMapperDefinition.prototype.getInputParamAndIdentifier = function () {
+    getInputParamAndIdentifier() {
         var inputParamAndIdentifier = 'InputType inputIdentifier';
         var ballerinaASTFactory = this.getFactory();
 
@@ -124,12 +124,12 @@ define(['lodash', './node', '../utils/common-utils'], function (_, ASTNode, Comm
             }
         });
         return inputParamAndIdentifier;
-    };
+    }
 
     /**
      * removes the already selected child before adding a new child
      */
-    TypeMapperDefinition.prototype.removeResourceParameter = function () {
+    removeResourceParameter() {
         var self = this;
         var ballerinaASTFactory = this.getFactory();
 
@@ -147,12 +147,12 @@ define(['lodash', './node', '../utils/common-utils'], function (_, ASTNode, Comm
         if (!_.isUndefined(previousInputType)) {
             this.removeChild(previousInputType);
         }
-    };
+    }
 
     /**
      * removes the already selected child before adding a new child
      */
-    TypeMapperDefinition.prototype.removeReturnType = function () {
+    removeReturnType() {
         var self = this;
         var ballerinaASTFactory = this.getFactory();
 
@@ -170,14 +170,14 @@ define(['lodash', './node', '../utils/common-utils'], function (_, ASTNode, Comm
         if (!_.isUndefined(previousOutputType)) {
             this.removeChild(previousOutputType);
         }
-    };
+    }
 
     /**
      * Adds new resource parameter.
      * @param {string} typeStructName
      * @param {string} identifier
      */
-    TypeMapperDefinition.prototype.addResourceParameterChild = function (typeStructName, identifier) {
+    addResourceParameterChild(typeStructName, identifier) {
 
         // Creating a new ResourceParameter.
         var newResourceParameter = this.getFactory().createResourceParameter();
@@ -186,14 +186,14 @@ define(['lodash', './node', '../utils/common-utils'], function (_, ASTNode, Comm
 
         var lastIndex = _.findLastIndex(this.getChildren());
         this.addChild(newResourceParameter, lastIndex - 1);
-    };
+    }
 
     /**
      * Adds new return type.
      * @param {string} typeStructName
      * @param {string} identifier
      */
-    TypeMapperDefinition.prototype.addReturnTypeChild = function (typeStructName, identifier) {
+    addReturnTypeChild(typeStructName, identifier) {
 
         // Creating a new ResourceParameter.
         var newReturnType = this.getFactory().createReturnType();
@@ -201,13 +201,13 @@ define(['lodash', './node', '../utils/common-utils'], function (_, ASTNode, Comm
 
         var lastIndex = _.findLastIndex(this.getChildren());
         this.addChild(newReturnType, lastIndex - 1);
-    };
+    }
 
     /**
      * fill return statement.
      * @param {string} identifier
      */
-    TypeMapperDefinition.prototype.fillReturnStatement = function (identifier) {
+    fillReturnStatement(identifier) {
 
         var self = this;
         var ballerinaASTFactory = this.getFactory();
@@ -224,13 +224,13 @@ define(['lodash', './node', '../utils/common-utils'], function (_, ASTNode, Comm
         });
 
         variableReferenceExpression.setVariableReferenceName(identifier);
-    };
+    }
 
     /**
      * fill return statement.
      * @param {string} identifier
      */
-    TypeMapperDefinition.prototype.fillVariableDefStatement = function (structName, identifier) {
+    fillVariableDefStatement(structName, identifier) {
 
         var self = this;
         var ballerinaASTFactory = this.getFactory();
@@ -244,14 +244,14 @@ define(['lodash', './node', '../utils/common-utils'], function (_, ASTNode, Comm
         });
 
         variableDefStatement.setLeftExpression(structName + " " + identifier);
-    };
+    }
 
     /**
      * Adds new variable definition statement.
      * @param {string} typeStructName
      * @param {string} identifier
      */
-    TypeMapperDefinition.prototype.addVariableDefinitionStatement = function (typeStructName, identifier) {
+    addVariableDefinitionStatement(typeStructName, identifier) {
 
         // Creating a new ResourceParameter.
         var newReturnType = this.getFactory().createReturnType();
@@ -262,7 +262,7 @@ define(['lodash', './node', '../utils/common-utils'], function (_, ASTNode, Comm
         newReturnType.addChild(newStructType);
         newReturnType.addChild(newSymbolName);
         this.addChild(newReturnType);
-    };
+    }
 
     /**
      * Constructs new assignment statement.
@@ -274,8 +274,14 @@ define(['lodash', './node', '../utils/common-utils'], function (_, ASTNode, Comm
      * @param targetCastValue
      * @returns {AssignmentStatement}
      */
-    TypeMapperDefinition.prototype.returnConstructedAssignmentStatement = function (sourceIdentifier, targetIdentifier, sourceValue, targetValue,
-                                                                                    isComplexMapping, targetCastValue) {
+    returnConstructedAssignmentStatement(
+        sourceIdentifier,
+        targetIdentifier,
+        sourceValue,
+        targetValue,
+        isComplexMapping,
+        targetCastValue
+    ) {
 
         // Creating a new Assignment Statement.
         var self = this;
@@ -346,8 +352,7 @@ define(['lodash', './node', '../utils/common-utils'], function (_, ASTNode, Comm
         newAssignmentStatement.addChild(rightOperandExpression);
 
         return newAssignmentStatement;
-    };
-
+    }
 
     /**
      *
@@ -355,7 +360,7 @@ define(['lodash', './node', '../utils/common-utils'], function (_, ASTNode, Comm
      * @param properties
      * @returns {*}
      */
-    TypeMapperDefinition.prototype.getStructFieldAccessExpression = function (identifier, properties) {
+    getStructFieldAccessExpression(identifier, properties) {
         var self = this;
         var structFieldAccessExpression = this.getFactory().createStructFieldAccessExpression();
         var variableReferenceExpression = this.getFactory().createVariableReferenceExpression();
@@ -380,13 +385,13 @@ define(['lodash', './node', '../utils/common-utils'], function (_, ASTNode, Comm
         structFieldAccessExpression.addChild(variableReferenceExpression);
         structFieldAccessExpression.addChild(targetFieldExpression);
         return structFieldAccessExpression;
-    };
+    }
 
     /**
      * Gets the reference of block statement child
      * @return {string} - String blockStatement.
      */
-    TypeMapperDefinition.prototype.getBlockStatement = function () {
+    getBlockStatement() {
         var blockStatement = undefined;
         var ballerinaASTFactory = this.getFactory();
 
@@ -397,13 +402,13 @@ define(['lodash', './node', '../utils/common-utils'], function (_, ASTNode, Comm
             }
         });
         return blockStatement;
-    };
+    }
 
     /**
      * @inheritDoc
      * @override
      */
-    TypeMapperDefinition.prototype.generateUniqueIdentifiers = function () {
+    generateUniqueIdentifiers() {
         CommonUtils.generateUniqueIdentifier({
             node: this,
             attributes: [{
@@ -417,14 +422,14 @@ define(['lodash', './node', '../utils/common-utils'], function (_, ASTNode, Comm
                 }]
             }]
         });
-    };
+    }
 
     /**
      * Initialize TypeMapperDefinition from json object
      * @param {Object} jsonNode - JSON object for initialization.
      * @param {string} jsonNode.type_mapper_name - Name of the type mapper definition.
      */
-    TypeMapperDefinition.prototype.initFromJson = function (jsonNode) {
+    initFromJson(jsonNode) {
         var ballerinaASTFactory = this.getFactory();
         var self = this;
         this.setTypeMapperName(jsonNode.type_mapper_name, {doSilently: true});
@@ -479,8 +484,8 @@ define(['lodash', './node', '../utils/common-utils'], function (_, ASTNode, Comm
         //     });
         // });
         self.addChild(blockStatementNode);
-    };
+    }
+}
 
 
-    return TypeMapperDefinition;
-});
+export default TypeMapperDefinition;

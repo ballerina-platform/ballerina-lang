@@ -15,37 +15,37 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', './ast-manipulation-operation'],
-    function (_, ASTManipulationOperation) {
+import _ from 'lodash';
+import ASTManipulationOperation from './ast-manipulation-operation';
 
-        /**
-         * Class to represent ast node add operation
-         * @class ASTNodeAddOperation
-         * @augments ASTManipulationOperation
-         * @param args
-         * @constructor
-         */
-        var ASTNodeAddOperation = function(args){
-            ASTManipulationOperation.call(this, args);
-            if(_.isNil(this.getTitle())){
-                this.setTitle("Add " + this._data.child.getType())
-            }
-        };
+/**
+ * Class to represent ast node add operation
+ * @class ASTNodeAddOperation
+ * @augments ASTManipulationOperation
+ * @param args
+ * @constructor
+ */
+class ASTNodeAddOperation extends ASTManipulationOperation {
+    constructor(args) {
+        super(args);
+        if(_.isNil(this.getTitle())){
+            this.setTitle("Add " + this._data.child.getType())
+        }
+    }
 
-        ASTNodeAddOperation.prototype = Object.create(ASTManipulationOperation.prototype);
-        ASTNodeAddOperation.prototype.constructor = ASTNodeAddOperation;
+    redo() {
+        if(this.canUndo()) {
+            this._originNode.addChild(this._data.child, this._data.index, true);
+        }
+    }
 
-        ASTNodeAddOperation.prototype.redo = function(){
-            if(this.canUndo()) {
-                this._originNode.addChild(this._data.child, this._data.index, true);
-            }
-        };
-        ASTNodeAddOperation.prototype.undo = function(){
-            if(this.canRedo()) {
-                this._data.child.remove({ignoreTreeModifiedEvent: true});
-            }
-        };
+    undo() {
+        if(this.canRedo()) {
+            this._data.child.remove({ignoreTreeModifiedEvent: true});
+        }
+    }
+}
 
-        return ASTNodeAddOperation;
-    });
+export default ASTNodeAddOperation;
+    
 

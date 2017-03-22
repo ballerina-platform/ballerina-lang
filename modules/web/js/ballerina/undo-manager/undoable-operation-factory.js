@@ -15,10 +15,12 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', './ast-node-add-operation', './ast-node-remove-operation', './ast-node-modify-operation',
-        './custom-undoable-operation', './source-modify-operation'],
-    function (_, ASTNodeAddOperation, ASTNodeRemoveOperation, ASTNodeModifyOperation, CustomUndoableOperation,
-                SourceModifyOperation) {
+import _ from 'lodash';
+import ASTNodeAddOperation from './ast-node-add-operation';
+import ASTNodeRemoveOperation from './ast-node-remove-operation';
+import ASTNodeModifyOperation from './ast-node-modify-operation';
+import CustomUndoableOperation from './custom-undoable-operation';
+import SourceModifyOperation from './source-modify-operation';
 
         var UndoableOperationFactory = {};
         /**
@@ -39,6 +41,6 @@ define(['lodash', './ast-node-add-operation', './ast-node-remove-operation', './
             return undoableOperation instanceof SourceModifyOperation;
         };
 
-        return UndoableOperationFactory;
-    });
+        export default UndoableOperationFactory;
+    
 

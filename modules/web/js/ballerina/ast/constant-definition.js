@@ -15,46 +15,46 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', './variable-declaration'], function (_, log, VariableDeclaration) {
+import _ from 'lodash';
+import log from 'log';
+import VariableDeclaration from './variable-declaration';
 
-    /**
-     * Constructor for constant declaration
-     * @param {Object} args - Arguments to create the Constant Declaration
-     * @constructor
-     * @augments VariableDeclaration
-     */
-    var ConstantDefinition = function(args) {
-        VariableDeclaration.call(this, {
+/**
+ * Constructor for constant declaration
+ * @param {Object} args - Arguments to create the Constant Declaration
+ * @constructor
+ * @augments VariableDeclaration
+ */
+class ConstantDefinition extends VariableDeclaration {
+    constructor(args) {
+        super({
             type: "Constant-Declaration",
             bType: _.get(args, "bType"),
             identifier: _.get(args, "identifier")
         });
         this._value = _.get(args, "value");
-    };
+    }
 
-    ConstantDefinition.prototype = Object.create(VariableDeclaration.prototype);
-    ConstantDefinition.prototype.constructor = ConstantDefinition;
-
-    ConstantDefinition.prototype.setValue = function (value, options) {
+    setValue(value, options) {
         if (_.isNil(value) || _.isEmpty(value)) {
             log.error("A constant requires to have a value.");
             throw "A constant requires to have a value.";
         } else {
             this.setAttribute('_value', value, options);
         }
-    };
+    }
 
-    ConstantDefinition.prototype.getValue = function () {
+    getValue() {
         return this._value;
-    };
+    }
 
-    ConstantDefinition.prototype.getConstantDefinitionAsString = function() {
+    getConstantDefinitionAsString() {
         if (this._type === "string") {
             return "const " + this._type + " " + this._identifier + " = \"" + this._value + "\"";
         } else {
             return "const " + this._type + " " + this._identifier + " = " + this._value;
         }
-    };
+    }
 
     /**
      * Initialize ConstantDefinition from json object for parsing.
@@ -63,11 +63,12 @@ define(['lodash', 'log', './variable-declaration'], function (_, log, VariableDe
      * @param {string} jsonNode.constant_definition_identifier - The identifier of the constant.
      * @param {string} jsonNode.constant_definition_value - The value of the constant.
      */
-    ConstantDefinition.prototype.initFromJson = function (jsonNode) {
+    initFromJson(jsonNode) {
         this.setType(jsonNode.constant_definition_btype, {doSilently: true});
         this.setIdentifier(jsonNode.constant_definition_identifier, {doSilently: true});
         this.setValue(jsonNode.constant_definition_value, {doSilently: true});
-    };
+    }
+}
 
-    return ConstantDefinition;
-});
+export default ConstantDefinition;
+

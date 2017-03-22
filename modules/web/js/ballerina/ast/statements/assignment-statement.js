@@ -15,25 +15,25 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', './statement'], function (_, Statement) {
-    /**
-     * Class to represent an Assignment statement.
-     * @constructor
-     */
-    var AssignmentStatement = function (args) {
-        Statement.call(this, 'AssignmentStatement');
+import _ from 'lodash';
+import Statement from './statement';
+
+/**
+ * Class to represent an Assignment statement.
+ * @constructor
+ */
+class AssignmentStatement extends Statement {
+    constructor(args) {
+        super('AssignmentStatement');
         this._variableAccessor = _.get(args, 'accessor', 'var1');
         this._fullPackageName = _.get(args, 'fullPackageName', '');
-    };
-
-    AssignmentStatement.prototype = Object.create(Statement.prototype);
-    AssignmentStatement.prototype.constructor = AssignmentStatement;
+    }
 
     /**
      * initialize AssignmentStatement from json object
      * @param {Object} jsonNode to initialize from
      */
-    AssignmentStatement.prototype.initFromJson = function (jsonNode) {
+    initFromJson(jsonNode) {
         var self = this;
 
         _.each(jsonNode.children, function (childNode) {
@@ -41,55 +41,56 @@ define(['lodash', './statement'], function (_, Statement) {
             self.addChild(child);
             child.initFromJson(childNode);
         });
-    };
+    }
 
     /**
      * Override the removeChild function
      * @param {ASTNode} child - child node
      */
-    AssignmentStatement.prototype.removeChild = function (child) {
+    removeChild(child) {
         this.getParent().removeChild(this);
-    };
+    }
 
     /**
      * Get the assignment statement string
      * @return {string} assignment statement string
      */
-    AssignmentStatement.prototype.getStatementString = function () {
+    getStatementString() {
         return (!_.isNil(this.getChildren()[0].getLeftOperandExpressionString())
                 ? this.getChildren()[0].getLeftOperandExpressionString() : "leftExpression") + " = " +
             (!_.isNil(this.getChildren()[1].getRightOperandExpressionString())
                 ? this.getChildren()[1].getRightOperandExpressionString() : "rightExpression");
-    };
+    }
 
     /**
      * Set the assignment statement string
      * @param {string} statementString
      */
-    AssignmentStatement.prototype.setStatementString = function (statementString, options) {
+    setStatementString(statementString, options) {
         var equalIndex = _.indexOf(statementString, '=');
         var leftOperand = statementString.substring(0, equalIndex);
         var rightOperand = statementString.substring(equalIndex + 1);
         this.getChildren()[0].setLeftOperandExpressionString(_.isNil(leftOperand) ? "leftExpression" : leftOperand, options);
         this.getChildren()[1].setRightOperandExpressionString(_.isNil(rightOperand) ? "rightExpression" : rightOperand, options);
-    };
+    }
 
     /**
      * Set the full package name.
      * @param {String} fullPkgName full package name
      * @param {Object} options
      * */
-    AssignmentStatement.prototype.setFullPackageName = function (fullPkgName, options) {
+    setFullPackageName(fullPkgName, options) {
         this.setAttribute('_fullPackageName', fullPkgName, options);
-    };
+    }
 
     /**
      * Get full package name.
      * @return {String} full package name
      * */
-    AssignmentStatement.prototype.getFullPackageName = function () {
+    getFullPackageName() {
         return this._fullPackageName;
-    };
+    }
+}
 
-    return AssignmentStatement;
-});
+export default AssignmentStatement;
+

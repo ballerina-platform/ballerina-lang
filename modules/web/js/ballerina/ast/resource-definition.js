@@ -15,19 +15,23 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'require', 'log', './node', '../utils/common-utils'],
-    function (_, require, log, ASTNode, CommonUtils) {
+import _ from 'lodash';
+import require from 'require';
+import log from 'log';
+import ASTNode from './node';
+import CommonUtils from '../utils/common-utils';
 
-    /**
-     * Constructor for ResourceDefinition
-     * @param {Object} args - The arguments to create the ServiceDefinition
-     * @param {string} [args.resourceName=newResource] - Service name
-     * @param {string[]} [args.annotations] - Resource annotations
-     * @param {string} [args.annotations.Method] - Resource annotation for Method
-     * @param {string} [args.annotations.Path] - Resource annotation for Path
-     * @constructor
-     */
-    var ResourceDefinition = function (args) {
+/**
+ * Constructor for ResourceDefinition
+ * @param {Object} args - The arguments to create the ServiceDefinition
+ * @param {string} [args.resourceName=newResource] - Service name
+ * @param {string[]} [args.annotations] - Resource annotations
+ * @param {string} [args.annotations.Method] - Resource annotation for Method
+ * @param {string} [args.annotations.Path] - Resource annotation for Path
+ * @constructor
+ */
+class ResourceDefinition extends ASTNode {
+    constructor(args) {
         this._resourceName = _.get(args, 'resourceName');
         this._annotations = _.get(args, 'annotations', []);
 
@@ -69,28 +73,25 @@ define(['lodash', 'require', 'log', './node', '../utils/common-utils'],
         }
 
         // TODO: All the types should be referred from the global constants
-        ASTNode.call(this, 'Resource', 'resource {', '}');
+        super('Resource', 'resource {', '}');
 
         this.BallerinaASTFactory = this.getFactory();
 
         // Adding the default worker declaration.
         var defaultWorker = this.BallerinaASTFactory.createWorkerDeclaration({isDefaultWorker: true});
         this.addChild(defaultWorker);
-    };
+    }
 
-    ResourceDefinition.prototype = Object.create(ASTNode.prototype);
-    ResourceDefinition.prototype.constructor = ResourceDefinition;
-
-    ResourceDefinition.prototype.setResourceName = function (resourceName, options) {
+    setResourceName(resourceName, options) {
         if (!_.isNil(resourceName)) {
             this.setAttribute('_resourceName', resourceName, options);
         } else {
             log.error('Invalid Resource name [' + resourceName + '] Provided');
             throw 'Invalid Resource name [' + resourceName + '] Provided';
         }
-    };
+    }
 
-    ResourceDefinition.prototype.getVariableDefinitionStatements = function () {
+    getVariableDefinitionStatements() {
         var variableDefinitionStatements = [];
         var self = this;
 
@@ -100,9 +101,9 @@ define(['lodash', 'require', 'log', './node', '../utils/common-utils'],
             }
         });
         return variableDefinitionStatements;
-    };
+    }
 
-    ResourceDefinition.prototype.getParameters = function () {
+    getParameters() {
         var resourceParameters = [];
         var self = this;
 
@@ -112,20 +113,20 @@ define(['lodash', 'require', 'log', './node', '../utils/common-utils'],
             }
         });
         return resourceParameters;
-    };
+    }
 
-    ResourceDefinition.prototype.getResourceName = function () {
+    getResourceName() {
         return this._resourceName;
-    };
+    }
 
-    ResourceDefinition.prototype.getAnnotations = function () {
+    getAnnotations() {
         return this._annotations;
-    };
+    }
 
     /**
      * Adds new variable declaration.
      */
-    ResourceDefinition.prototype.addVariableDeclaration = function (newVariableDeclaration) {
+    addVariableDeclaration(newVariableDeclaration) {
         var self = this;
         // Get the index of the last variable declaration.
         var index = _.findLastIndex(this.getChildren(), function (child) {
@@ -141,12 +142,12 @@ define(['lodash', 'require', 'log', './node', '../utils/common-utils'],
         }
 
         this.addChild(newVariableDeclaration, index + 1);
-    };
+    }
 
     /**
      * Adds new variable declaration.
      */
-    ResourceDefinition.prototype.removeVariableDeclaration = function (variableDeclarationIdentifier) {
+    removeVariableDeclaration(variableDeclarationIdentifier) {
         var self = this;
         // Removing the variable from the children.
         var variableDeclarationChild = _.find(this.getChildren(), function (child) {
@@ -154,13 +155,13 @@ define(['lodash', 'require', 'log', './node', '../utils/common-utils'],
                 && child.getIdentifier() === variableDeclarationIdentifier;
         });
         this.removeChild(variableDeclarationChild);
-    };
+    }
 
     /**
      * Returns the list of parameters as a string separated by commas.
      * @return {string} - Parameters as string.
      */
-    ResourceDefinition.prototype.getParametersAsString = function () {
+    getParametersAsString() {
         var paramsAsString = "";
         var params = this.getParameters();
 
@@ -172,7 +173,7 @@ define(['lodash', 'require', 'log', './node', '../utils/common-utils'],
         });
 
         return paramsAsString;
-    };
+    }
 
     /**
      * Adds new parameter to a resource.
@@ -181,7 +182,7 @@ define(['lodash', 'require', 'log', './node', '../utils/common-utils'],
      * @param {string} parameterType - The type of the parameter. Example : string, int.
      * @param {string} parameterIdentifier - Identifier for the parameter.
      */
-    ResourceDefinition.prototype.addParameter = function (annotationType, annotationText, parameterType, parameterIdentifier) {
+    addParameter(annotationType, annotationText, parameterType, parameterIdentifier) {
         // Check if already parameter exists with same identifier.
         var identifierAlreadyExists = _.findIndex(this.getParameters(), function (parameter) {
                 return parameter.getIdentifier() === parameterIdentifier;
@@ -209,13 +210,13 @@ define(['lodash', 'require', 'log', './node', '../utils/common-utils'],
 
             this.addChild(newParameter, index + 1);
         }
-    };
+    }
 
     /**
      * Removes a parameter from the resource definition.
      * @param {string} modelID - The id of the parameter model.
      */
-    ResourceDefinition.prototype.removeParameter = function(modelID) {
+    removeParameter(modelID) {
         var self = this;
         // Deleting the variable from the children.
         var resourceParameter = _.find(this.getChildren(), function (child) {
@@ -223,34 +224,35 @@ define(['lodash', 'require', 'log', './node', '../utils/common-utils'],
         });
 
         this.removeChild(resourceParameter);
-    };
+    }
 
-    ResourceDefinition.prototype.resourceParent = function (parent) {
+    resourceParent(parent) {
         if (!_.isUndefined(parent)) {
             this.parent = parent;
         } else {
             return this.parent;
         }
-    };
+    }
 
     /**
      * Override the super call to addChild
      * @param child
      * @param index
      */
-    ResourceDefinition.prototype.addChild = function (child, index) {
+    addChild(child, index) {
         if (this.BallerinaASTFactory.isConnectorDeclaration(child)) {
             Object.getPrototypeOf(this.constructor.prototype).addChild.call(this, child, 0);
         } else {
             Object.getPrototypeOf(this.constructor.prototype).addChild.call(this, child, index);
         }
-    };
+    }
+
     /**
      * Adding/Updating an annotation.
      * @param key - Annotation key
      * @param value - Value for the annotation.
      */
-    ResourceDefinition.prototype.addAnnotation = function (key, value) {
+    addAnnotation(key, value) {
         if (!_.isNil(key) && !_.isNil(value)) {
             var options = {
               predicate: {key: key}
@@ -261,9 +263,9 @@ define(['lodash', 'require', 'log', './node', '../utils/common-utils'],
             log.error(errorString);
             throw errorString;
         }
-    };
+    }
 
-    ResourceDefinition.prototype.getConnectionDeclarations = function () {
+    getConnectionDeclarations() {
         var connectorDeclaration = [];
         var self = this;
 
@@ -275,9 +277,9 @@ define(['lodash', 'require', 'log', './node', '../utils/common-utils'],
         return _.sortBy(connectorDeclaration, [function (connectorDeclaration) {
             return connectorDeclaration.getConnectorVariable();
         }]);
-    };
+    }
 
-    ResourceDefinition.prototype.getWorkerDeclarations = function () {
+    getWorkerDeclarations() {
         var workerDeclarations = [];
         var self = this;
 
@@ -289,7 +291,7 @@ define(['lodash', 'require', 'log', './node', '../utils/common-utils'],
         return _.sortBy(workerDeclarations, [function (workerDeclaration) {
             return workerDeclaration.getWorkerName();
         }]);
-    };
+    }
 
     /**
      * Validates possible immediate child types.
@@ -297,12 +299,12 @@ define(['lodash', 'require', 'log', './node', '../utils/common-utils'],
      * @param node
      * @return {boolean}
      */
-    ResourceDefinition.prototype.canBeParentOf = function (node) {
+    canBeParentOf(node) {
         return this.BallerinaASTFactory.isConnectorDeclaration(node)
             || this.BallerinaASTFactory.isVariableDeclaration(node)
             || this.BallerinaASTFactory.isWorkerDeclaration(node)
             || this.BallerinaASTFactory.isStatement(node);
-    };
+    }
 
     /**
      * initialize ResourceDefinition from json object
@@ -313,7 +315,7 @@ define(['lodash', 'require', 'log', './node', '../utils/common-utils'],
      * @param {string} jsonNode.annotations.annotation_value - The text of the annotation.
      * @param {Object[]} jsonNode.children - Children elements of the resource definition.
      */
-    ResourceDefinition.prototype.initFromJson = function (jsonNode) {
+    initFromJson(jsonNode) {
         this.setResourceName(jsonNode.resource_name, {doSilently: true});
         this._annotations = _.isNil(this._annotations) ? [] : this._annotations;
 
@@ -386,7 +388,7 @@ define(['lodash', 'require', 'log', './node', '../utils/common-utils'],
             self.addChild(child);
             child.initFromJson(childNodeTemp);
         });
-    };
+    }
 
     /**
      * Override the addChild method for ordering the child elements as
@@ -394,7 +396,7 @@ define(['lodash', 'require', 'log', './node', '../utils/common-utils'],
      * @param {ASTNode} child
      * @param {number|undefined} index
      */
-    ResourceDefinition.prototype.addChild = function (child, index) {
+    addChild(child, index) {
         var indexNew;
         var self = this;
         if (self.BallerinaASTFactory.isWorkerDeclaration(child)) {
@@ -427,13 +429,13 @@ define(['lodash', 'require', 'log', './node', '../utils/common-utils'],
         }
 
         Object.getPrototypeOf(this.constructor.prototype).addChild.call(this, child, indexNew);
-    };
+    }
 
     /**
      * @inheritDoc
      * @override
      */
-    ResourceDefinition.prototype.generateUniqueIdentifiers = function () {
+    generateUniqueIdentifiers() {
         CommonUtils.generateUniqueIdentifier({
             node: this,
             attributes: [{
@@ -448,34 +450,35 @@ define(['lodash', 'require', 'log', './node', '../utils/common-utils'],
                 }]
             }]
         });
-    };
+    }
 
     /**
      * Get the connector by name
      * @param {string} connectorName
      * @return {ConnectorDeclaration}
      */
-    ResourceDefinition.prototype.getConnectorByName = function (connectorName) {
+    getConnectorByName(connectorName) {
         var factory = this.getFactory();
         var connectorReference = _.find(this.getChildren(), function (child) {
             return (factory.isConnectorDeclaration(child) && (child.getConnectorVariable() === connectorName));
         });
 
         return !_.isNil(connectorReference) ? connectorReference : this.getParent(). getConnectorByName(connectorName);
-    };
+    }
 
     /**
      * Get all the connector references in the immediate scope
      * @return {ConnectorDeclaration[]} connectorReferences
      */
-    ResourceDefinition.prototype.getConnectorsInImmediateScope = function () {
+    getConnectorsInImmediateScope() {
         var factory = this.getFactory();
         var connectorReferences = _.filter(this.getChildren(), function (child) {
             return factory.isConnectorDeclaration(child);
         });
 
         return !_.isEmpty(connectorReferences) ? connectorReferences : this.getParent().getConnectorsInImmediateScope();
-    };
+    }
+}
 
-    return ResourceDefinition;
-});
+export default ResourceDefinition;
+

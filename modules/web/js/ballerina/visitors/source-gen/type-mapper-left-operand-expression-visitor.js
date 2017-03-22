@@ -15,35 +15,36 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require', 'lodash', 'log', 'event_channel', './abstract-statement-source-gen-visitor', './type-mapper-expression-visitor-factory'],
-    function (require, _, log, EventChannel, AbstractStatementSourceGenVisitor, TypeMapperExpressionVisitorFactory) {
+import _ from 'lodash';
+import log from 'log';
+import EventChannel from 'event_channel';
+import AbstractStatementSourceGenVisitor from './abstract-statement-source-gen-visitor';
+import TypeMapperExpressionVisitorFactory from './type-mapper-expression-visitor-factory';
 
-        var TypeMapperLeftOperandExpressionVisitor = function (parent) {
-            AbstractStatementSourceGenVisitor.call(this, parent);
-        };
+class TypeMapperLeftOperandExpressionVisitor extends AbstractStatementSourceGenVisitor {
+    constructor(parent) {
+        super(parent);
+    }
 
-        TypeMapperLeftOperandExpressionVisitor.prototype = Object.create(AbstractStatementSourceGenVisitor.prototype);
-        TypeMapperLeftOperandExpressionVisitor.prototype.constructor = TypeMapperLeftOperandExpressionVisitor;
+    canVisitLeftOperandExpression(leftOperandExpression) {
+        return true;
+    }
 
-        TypeMapperLeftOperandExpressionVisitor.prototype.canVisitLeftOperandExpression = function (leftOperandExpression) {
-            return true;
-        };
+    beginVisitLeftOperandExpression(leftOperandExpression) {
+        log.debug('Begin Visit Type Mapper Left Operand Expression');
+    }
 
-        TypeMapperLeftOperandExpressionVisitor.prototype.beginVisitLeftOperandExpression = function (leftOperandExpression) {
-            log.debug('Begin Visit Type Mapper Left Operand Expression');
-        };
+    endVisitLeftOperandExpression(leftOperandExpression) {
+        this.getParent().appendSource(this.getGeneratedSource());
+        log.debug('End Visit Type Mapper Left Operand Expression');
+    }
 
-        TypeMapperLeftOperandExpressionVisitor.prototype.endVisitLeftOperandExpression = function (leftOperandExpression) {
-            this.getParent().appendSource(this.getGeneratedSource());
-            log.debug('End Visit Type Mapper Left Operand Expression');
-        };
+    visitExpression(expression) {
+        var expressionVisitorFactory = new TypeMapperExpressionVisitorFactory();
+        var expressionVisitor = expressionVisitorFactory.getExpressionVisitor({model: expression, parent: this});
+        expression.accept(expressionVisitor);
+        log.debug('Visit Type Mapper Expression');
+    }
+}
 
-        TypeMapperLeftOperandExpressionVisitor.prototype.visitExpression = function (expression) {
-            var expressionVisitorFactory = new TypeMapperExpressionVisitorFactory();
-            var expressionVisitor = expressionVisitorFactory.getExpressionVisitor({model: expression, parent: this});
-            expression.accept(expressionVisitor);
-            log.debug('Visit Type Mapper Expression');
-        };
-
-        return TypeMapperLeftOperandExpressionVisitor;
-    });
+export default TypeMapperLeftOperandExpressionVisitor;

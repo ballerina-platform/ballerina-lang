@@ -15,20 +15,20 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', './statement'], function (_, log, Statement) {
+import _ from 'lodash';
+import log from 'log';
+import Statement from './statement';
 
-    /**
-     * Class for else node in ballerina.
-     * @param elseStatements The 'else' statements of an IF condition.
-     * @constructor
-     */
-    var ElseStatement = function () {
-        Statement.call(this);
-        this.type = "ElseStatement";
-    };
+/**
+ * Class for else node in ballerina.
+ * @param elseStatements The 'else' statements of an IF condition.
+ * @constructor
+ */
+class ElseStatement extends Statement {
+ constructor() {
+     super();
+     this.type = "ElseStatement";
+ }
+}
 
-    ElseStatement.prototype = Object.create(Statement.prototype);
-    ElseStatement.prototype.constructor = ElseStatement;
-
-    return ElseStatement;
-});
+export default ElseStatement;

@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash'], function(_){
+import _ from 'lodash';
 
     // A module that can be mixed in to *any object* in order to provide it with
     // a custom event channel. You may bind a callback to an event with `on` or
@@ -269,5 +269,4 @@ define(['lodash'], function(_){
         }
     };
 
-    return EventChannel;
-});
+    export default EventChannel;

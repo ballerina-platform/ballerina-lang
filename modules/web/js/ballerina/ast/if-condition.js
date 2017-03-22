@@ -15,34 +15,34 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', './node'], function(_, ASTNode){
+import _ from 'lodash';
+import ASTNode from './node';
 
-    /**
-     * Constructor for IfCondition
-     * @param {Object} args - Arguments to create the IfCondition
-     * @constructor
-     * @augments ASTNode
-     */
-    var IfCondition = function (args) {
-        ASTNode.call(this, 'IfCondition');
+/**
+ * Constructor for IfCondition
+ * @param {Object} args - Arguments to create the IfCondition
+ * @constructor
+ * @augments ASTNode
+ */
+class IfCondition extends ASTNode {
+    constructor(args) {
+        super('IfCondition');
     }
-
-    IfCondition.prototype = Object.create(ASTNode.prototype);
-    IfCondition.prototype.constructor = IfCondition;
 
     /**
      * setting parameters from json
      * @param {Object} jsonNode to initialize from
      * @param {Array} [jsonNode.children] - array which contains the if condition
      */
-    IfCondition.prototype.initFromJson = function (jsonNode) {
+    initFromJson(jsonNode) {
         var self = this;
         _.each(jsonNode.children, function (childNode) {
             var child = self.getFactory().createFromJson(childNode);
             self.addChild(child);
             child.initFromJson(childNode);
         });
-    };
+    }
+}
 
-    return IfCondition;
-});
+export default IfCondition;
+

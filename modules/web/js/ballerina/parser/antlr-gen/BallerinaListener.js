@@ -3,1011 +3,900 @@
 var antlr4 = require('antlr4/index');
 
 // This class defines a complete listener for a parse tree produced by BallerinaParser.
-function BallerinaListener() {
-	antlr4.tree.ParseTreeListener.call(this);
-	return this;
+class BallerinaListener extends antlr4.tree.ParseTreeListener {
+    constructor() {
+        super();
+        return this;
+    }
+
+    // Enter a parse tree produced by BallerinaParser#compilationUnit.
+    enterCompilationUnit(ctx) {
+    }
+
+    // Exit a parse tree produced by BallerinaParser#compilationUnit.
+    exitCompilationUnit(ctx) {
+    }
+
+    // Enter a parse tree produced by BallerinaParser#packageDeclaration.
+    enterPackageDeclaration(ctx) {
+    }
+
+    // Exit a parse tree produced by BallerinaParser#packageDeclaration.
+    exitPackageDeclaration(ctx) {
+    }
+
+    // Enter a parse tree produced by BallerinaParser#importDeclaration.
+    enterImportDeclaration(ctx) {
+    }
+
+    // Exit a parse tree produced by BallerinaParser#importDeclaration.
+    exitImportDeclaration(ctx) {
+    }
+
+    // Enter a parse tree produced by BallerinaParser#serviceDefinition.
+    enterServiceDefinition(ctx) {
+    }
+
+    // Exit a parse tree produced by BallerinaParser#serviceDefinition.
+    exitServiceDefinition(ctx) {
+    }
+
+    // Enter a parse tree produced by BallerinaParser#serviceBody.
+    enterServiceBody(ctx) {
+    }
+
+    // Exit a parse tree produced by BallerinaParser#serviceBody.
+    exitServiceBody(ctx) {
+    }
+
+    // Enter a parse tree produced by BallerinaParser#serviceBodyDeclaration.
+    enterServiceBodyDeclaration(ctx) {
+    }
+
+    // Exit a parse tree produced by BallerinaParser#serviceBodyDeclaration.
+    exitServiceBodyDeclaration(ctx) {
+    }
+
+    // Enter a parse tree produced by BallerinaParser#resourceDefinition.
+    enterResourceDefinition(ctx) {
+    }
+
+    // Exit a parse tree produced by BallerinaParser#resourceDefinition.
+    exitResourceDefinition(ctx) {
+    }
+
+    // Enter a parse tree produced by BallerinaParser#functionDefinition.
+    enterFunctionDefinition(ctx) {
+    }
+
+    // Exit a parse tree produced by BallerinaParser#functionDefinition.
+    exitFunctionDefinition(ctx) {
+    }
+
+    // Enter a parse tree produced by BallerinaParser#nativeFunction.
+    enterNativeFunction(ctx) {
+    }
+
+    // Exit a parse tree produced by BallerinaParser#nativeFunction.
+    exitNativeFunction(ctx) {
+    }
+
+    // Enter a parse tree produced by BallerinaParser#ballerinaFunction.
+    enterBallerinaFunction(ctx) {
+    }
+
+    // Exit a parse tree produced by BallerinaParser#ballerinaFunction.
+    exitBallerinaFunction(ctx) {
+    }
+
+    // Enter a parse tree produced by BallerinaParser#functionBody.
+    enterFunctionBody(ctx) {
+    }
+
+    // Exit a parse tree produced by BallerinaParser#functionBody.
+    exitFunctionBody(ctx) {
+    }
+
+    // Enter a parse tree produced by BallerinaParser#connectorDefinition.
+    enterConnectorDefinition(ctx) {
+    }
+
+    // Exit a parse tree produced by BallerinaParser#connectorDefinition.
+    exitConnectorDefinition(ctx) {
+    }
+
+    // Enter a parse tree produced by BallerinaParser#nativeConnector.
+    enterNativeConnector(ctx) {
+    }
+
+    // Exit a parse tree produced by BallerinaParser#nativeConnector.
+    exitNativeConnector(ctx) {
+    }
+
+    // Enter a parse tree produced by BallerinaParser#nativeConnectorBody.
+    enterNativeConnectorBody(ctx) {
+    }
+
+    // Exit a parse tree produced by BallerinaParser#nativeConnectorBody.
+    exitNativeConnectorBody(ctx) {
+    }
+
+    // Enter a parse tree produced by BallerinaParser#connector.
+    enterConnector(ctx) {
+    }
+
+    // Exit a parse tree produced by BallerinaParser#connector.
+    exitConnector(ctx) {
+    }
+
+    // Enter a parse tree produced by BallerinaParser#connectorBody.
+    enterConnectorBody(ctx) {
+    }
+
+    // Exit a parse tree produced by BallerinaParser#connectorBody.
+    exitConnectorBody(ctx) {
+    }
+
+    // Enter a parse tree produced by BallerinaParser#nativeAction.
+    enterNativeAction(ctx) {
+    }
+
+    // Exit a parse tree produced by BallerinaParser#nativeAction.
+    exitNativeAction(ctx) {
+    }
+
+    // Enter a parse tree produced by BallerinaParser#action.
+    enterAction(ctx) {
+    }
+
+    // Exit a parse tree produced by BallerinaParser#action.
+    exitAction(ctx) {
+    }
+
+    // Enter a parse tree produced by BallerinaParser#structDefinition.
+    enterStructDefinition(ctx) {
+    }
+
+    // Exit a parse tree produced by BallerinaParser#structDefinition.
+    exitStructDefinition(ctx) {
+    }
+
+    // Enter a parse tree produced by BallerinaParser#structDefinitionBody.
+    enterStructDefinitionBody(ctx) {
+    }
+
+    // Exit a parse tree produced by BallerinaParser#structDefinitionBody.
+    exitStructDefinitionBody(ctx) {
+    }
+
+    // Enter a parse tree produced by BallerinaParser#typeMapperDefinition.
+    enterTypeMapperDefinition(ctx) {
+    }
+
+    // Exit a parse tree produced by BallerinaParser#typeMapperDefinition.
+    exitTypeMapperDefinition(ctx) {
+    }
+
+    // Enter a parse tree produced by BallerinaParser#nativeTypeMapper.
+    enterNativeTypeMapper(ctx) {
+    }
+
+    // Exit a parse tree produced by BallerinaParser#nativeTypeMapper.
+    exitNativeTypeMapper(ctx) {
+    }
+
+    // Enter a parse tree produced by BallerinaParser#typeMapper.
+    enterTypeMapper(ctx) {
+    }
+
+    // Exit a parse tree produced by BallerinaParser#typeMapper.
+    exitTypeMapper(ctx) {
+    }
+
+    // Enter a parse tree produced by BallerinaParser#typeMapperBody.
+    enterTypeMapperBody(ctx) {
+    }
+
+    // Exit a parse tree produced by BallerinaParser#typeMapperBody.
+    exitTypeMapperBody(ctx) {
+    }
+
+    // Enter a parse tree produced by BallerinaParser#constantDefinition.
+    enterConstantDefinition(ctx) {
+    }
+
+    // Exit a parse tree produced by BallerinaParser#constantDefinition.
+    exitConstantDefinition(ctx) {
+    }
+
+    // Enter a parse tree produced by BallerinaParser#workerDeclaration.
+    enterWorkerDeclaration(ctx) {
+    }
+
+    // Exit a parse tree produced by BallerinaParser#workerDeclaration.
+    exitWorkerDeclaration(ctx) {
+    }
+
+    // Enter a parse tree produced by BallerinaParser#returnParameters.
+    enterReturnParameters(ctx) {
+    }
+
+    // Exit a parse tree produced by BallerinaParser#returnParameters.
+    exitReturnParameters(ctx) {
+    }
+
+    // Enter a parse tree produced by BallerinaParser#namedParameterList.
+    enterNamedParameterList(ctx) {
+    }
+
+    // Exit a parse tree produced by BallerinaParser#namedParameterList.
+    exitNamedParameterList(ctx) {
+    }
+
+    // Enter a parse tree produced by BallerinaParser#namedParameter.
+    enterNamedParameter(ctx) {
+    }
+
+    // Exit a parse tree produced by BallerinaParser#namedParameter.
+    exitNamedParameter(ctx) {
+    }
+
+    // Enter a parse tree produced by BallerinaParser#returnTypeList.
+    enterReturnTypeList(ctx) {
+    }
+
+    // Exit a parse tree produced by BallerinaParser#returnTypeList.
+    exitReturnTypeList(ctx) {
+    }
+
+    // Enter a parse tree produced by BallerinaParser#qualifiedTypeName.
+    enterQualifiedTypeName(ctx) {
+    }
+
+    // Exit a parse tree produced by BallerinaParser#qualifiedTypeName.
+    exitQualifiedTypeName(ctx) {
+    }
+
+    // Enter a parse tree produced by BallerinaParser#unqualifiedTypeName.
+    enterUnqualifiedTypeName(ctx) {
+    }
+
+    // Exit a parse tree produced by BallerinaParser#unqualifiedTypeName.
+    exitUnqualifiedTypeName(ctx) {
+    }
+
+    // Enter a parse tree produced by BallerinaParser#simpleType.
+    enterSimpleType(ctx) {
+    }
+
+    // Exit a parse tree produced by BallerinaParser#simpleType.
+    exitSimpleType(ctx) {
+    }
+
+    // Enter a parse tree produced by BallerinaParser#simpleTypeArray.
+    enterSimpleTypeArray(ctx) {
+    }
+
+    // Exit a parse tree produced by BallerinaParser#simpleTypeArray.
+    exitSimpleTypeArray(ctx) {
+    }
+
+    // Enter a parse tree produced by BallerinaParser#simpleTypeIterate.
+    enterSimpleTypeIterate(ctx) {
+    }
+
+    // Exit a parse tree produced by BallerinaParser#simpleTypeIterate.
+    exitSimpleTypeIterate(ctx) {
+    }
+
+    // Enter a parse tree produced by BallerinaParser#withFullSchemaType.
+    enterWithFullSchemaType(ctx) {
+    }
+
+    // Exit a parse tree produced by BallerinaParser#withFullSchemaType.
+    exitWithFullSchemaType(ctx) {
+    }
+
+    // Enter a parse tree produced by BallerinaParser#withFullSchemaTypeArray.
+    enterWithFullSchemaTypeArray(ctx) {
+    }
+
+    // Exit a parse tree produced by BallerinaParser#withFullSchemaTypeArray.
+    exitWithFullSchemaTypeArray(ctx) {
+    }
+
+    // Enter a parse tree produced by BallerinaParser#withFullSchemaTypeIterate.
+    enterWithFullSchemaTypeIterate(ctx) {
+    }
+
+    // Exit a parse tree produced by BallerinaParser#withFullSchemaTypeIterate.
+    exitWithFullSchemaTypeIterate(ctx) {
+    }
+
+    // Enter a parse tree produced by BallerinaParser#withScheamURLType.
+    enterWithScheamURLType(ctx) {
+    }
+
+    // Exit a parse tree produced by BallerinaParser#withScheamURLType.
+    exitWithScheamURLType(ctx) {
+    }
+
+    // Enter a parse tree produced by BallerinaParser#withSchemaURLTypeArray.
+    enterWithSchemaURLTypeArray(ctx) {
+    }
+
+    // Exit a parse tree produced by BallerinaParser#withSchemaURLTypeArray.
+    exitWithSchemaURLTypeArray(ctx) {
+    }
+
+    // Enter a parse tree produced by BallerinaParser#withSchemaURLTypeIterate.
+    enterWithSchemaURLTypeIterate(ctx) {
+    }
+
+    // Exit a parse tree produced by BallerinaParser#withSchemaURLTypeIterate.
+    exitWithSchemaURLTypeIterate(ctx) {
+    }
+
+    // Enter a parse tree produced by BallerinaParser#withSchemaIdType.
+    enterWithSchemaIdType(ctx) {
+    }
+
+    // Exit a parse tree produced by BallerinaParser#withSchemaIdType.
+    exitWithSchemaIdType(ctx) {
+    }
+
+    // Enter a parse tree produced by BallerinaParser#withScheamIdTypeArray.
+    enterWithScheamIdTypeArray(ctx) {
+    }
+
+    // Exit a parse tree produced by BallerinaParser#withScheamIdTypeArray.
+    exitWithScheamIdTypeArray(ctx) {
+    }
+
+    // Enter a parse tree produced by BallerinaParser#withScheamIdTypeIterate.
+    enterWithScheamIdTypeIterate(ctx) {
+    }
+
+    // Exit a parse tree produced by BallerinaParser#withScheamIdTypeIterate.
+    exitWithScheamIdTypeIterate(ctx) {
+    }
+
+    // Enter a parse tree produced by BallerinaParser#typeName.
+    enterTypeName(ctx) {
+    }
+
+    // Exit a parse tree produced by BallerinaParser#typeName.
+    exitTypeName(ctx) {
+    }
+
+    // Enter a parse tree produced by BallerinaParser#parameterList.
+    enterParameterList(ctx) {
+    }
+
+    // Exit a parse tree produced by BallerinaParser#parameterList.
+    exitParameterList(ctx) {
+    }
+
+    // Enter a parse tree produced by BallerinaParser#parameter.
+    enterParameter(ctx) {
+    }
+
+    // Exit a parse tree produced by BallerinaParser#parameter.
+    exitParameter(ctx) {
+    }
+
+    // Enter a parse tree produced by BallerinaParser#packageName.
+    enterPackageName(ctx) {
+    }
+
+    // Exit a parse tree produced by BallerinaParser#packageName.
+    exitPackageName(ctx) {
+    }
+
+    // Enter a parse tree produced by BallerinaParser#literalValue.
+    enterLiteralValue(ctx) {
+    }
+
+    // Exit a parse tree produced by BallerinaParser#literalValue.
+    exitLiteralValue(ctx) {
+    }
+
+    // Enter a parse tree produced by BallerinaParser#annotation.
+    enterAnnotation(ctx) {
+    }
+
+    // Exit a parse tree produced by BallerinaParser#annotation.
+    exitAnnotation(ctx) {
+    }
+
+    // Enter a parse tree produced by BallerinaParser#annotationName.
+    enterAnnotationName(ctx) {
+    }
+
+    // Exit a parse tree produced by BallerinaParser#annotationName.
+    exitAnnotationName(ctx) {
+    }
+
+    // Enter a parse tree produced by BallerinaParser#elementValuePairs.
+    enterElementValuePairs(ctx) {
+    }
+
+    // Exit a parse tree produced by BallerinaParser#elementValuePairs.
+    exitElementValuePairs(ctx) {
+    }
+
+    // Enter a parse tree produced by BallerinaParser#elementValuePair.
+    enterElementValuePair(ctx) {
+    }
+
+    // Exit a parse tree produced by BallerinaParser#elementValuePair.
+    exitElementValuePair(ctx) {
+    }
+
+    // Enter a parse tree produced by BallerinaParser#elementValue.
+    enterElementValue(ctx) {
+    }
+
+    // Exit a parse tree produced by BallerinaParser#elementValue.
+    exitElementValue(ctx) {
+    }
+
+    // Enter a parse tree produced by BallerinaParser#elementValueArrayInitializer.
+    enterElementValueArrayInitializer(ctx) {
+    }
+
+    // Exit a parse tree produced by BallerinaParser#elementValueArrayInitializer.
+    exitElementValueArrayInitializer(ctx) {
+    }
+
+    // Enter a parse tree produced by BallerinaParser#statement.
+    enterStatement(ctx) {
+    }
+
+    // Exit a parse tree produced by BallerinaParser#statement.
+    exitStatement(ctx) {
+    }
+
+    // Enter a parse tree produced by BallerinaParser#variableDefinitionStatement.
+    enterVariableDefinitionStatement(ctx) {
+    }
+
+    // Exit a parse tree produced by BallerinaParser#variableDefinitionStatement.
+    exitVariableDefinitionStatement(ctx) {
+    }
+
+    // Enter a parse tree produced by BallerinaParser#assignmentStatement.
+    enterAssignmentStatement(ctx) {
+    }
+
+    // Exit a parse tree produced by BallerinaParser#assignmentStatement.
+    exitAssignmentStatement(ctx) {
+    }
+
+    // Enter a parse tree produced by BallerinaParser#variableReferenceList.
+    enterVariableReferenceList(ctx) {
+    }
+
+    // Exit a parse tree produced by BallerinaParser#variableReferenceList.
+    exitVariableReferenceList(ctx) {
+    }
+
+    // Enter a parse tree produced by BallerinaParser#ifElseStatement.
+    enterIfElseStatement(ctx) {
+    }
+
+    // Exit a parse tree produced by BallerinaParser#ifElseStatement.
+    exitIfElseStatement(ctx) {
+    }
+
+    // Enter a parse tree produced by BallerinaParser#ifClause.
+    enterIfClause(ctx) {
+    }
+
+    // Exit a parse tree produced by BallerinaParser#ifClause.
+    exitIfClause(ctx) {
+    }
+
+    // Enter a parse tree produced by BallerinaParser#elseIfClause.
+    enterElseIfClause(ctx) {
+    }
+
+    // Exit a parse tree produced by BallerinaParser#elseIfClause.
+    exitElseIfClause(ctx) {
+    }
+
+    // Enter a parse tree produced by BallerinaParser#elseClause.
+    enterElseClause(ctx) {
+    }
+
+    // Exit a parse tree produced by BallerinaParser#elseClause.
+    exitElseClause(ctx) {
+    }
+
+    // Enter a parse tree produced by BallerinaParser#iterateStatement.
+    enterIterateStatement(ctx) {
+    }
+
+    // Exit a parse tree produced by BallerinaParser#iterateStatement.
+    exitIterateStatement(ctx) {
+    }
+
+    // Enter a parse tree produced by BallerinaParser#whileStatement.
+    enterWhileStatement(ctx) {
+    }
+
+    // Exit a parse tree produced by BallerinaParser#whileStatement.
+    exitWhileStatement(ctx) {
+    }
+
+    // Enter a parse tree produced by BallerinaParser#breakStatement.
+    enterBreakStatement(ctx) {
+    }
+
+    // Exit a parse tree produced by BallerinaParser#breakStatement.
+    exitBreakStatement(ctx) {
+    }
+
+    // Enter a parse tree produced by BallerinaParser#forkJoinStatement.
+    enterForkJoinStatement(ctx) {
+    }
+
+    // Exit a parse tree produced by BallerinaParser#forkJoinStatement.
+    exitForkJoinStatement(ctx) {
+    }
+
+    // Enter a parse tree produced by BallerinaParser#joinClause.
+    enterJoinClause(ctx) {
+    }
+
+    // Exit a parse tree produced by BallerinaParser#joinClause.
+    exitJoinClause(ctx) {
+    }
+
+    // Enter a parse tree produced by BallerinaParser#anyJoinCondition.
+    enterAnyJoinCondition(ctx) {
+    }
+
+    // Exit a parse tree produced by BallerinaParser#anyJoinCondition.
+    exitAnyJoinCondition(ctx) {
+    }
+
+    // Enter a parse tree produced by BallerinaParser#allJoinCondition.
+    enterAllJoinCondition(ctx) {
+    }
+
+    // Exit a parse tree produced by BallerinaParser#allJoinCondition.
+    exitAllJoinCondition(ctx) {
+    }
+
+    // Enter a parse tree produced by BallerinaParser#timeoutClause.
+    enterTimeoutClause(ctx) {
+    }
+
+    // Exit a parse tree produced by BallerinaParser#timeoutClause.
+    exitTimeoutClause(ctx) {
+    }
+
+    // Enter a parse tree produced by BallerinaParser#tryCatchStatement.
+    enterTryCatchStatement(ctx) {
+    }
+
+    // Exit a parse tree produced by BallerinaParser#tryCatchStatement.
+    exitTryCatchStatement(ctx) {
+    }
+
+    // Enter a parse tree produced by BallerinaParser#catchClause.
+    enterCatchClause(ctx) {
+    }
+
+    // Exit a parse tree produced by BallerinaParser#catchClause.
+    exitCatchClause(ctx) {
+    }
+
+    // Enter a parse tree produced by BallerinaParser#throwStatement.
+    enterThrowStatement(ctx) {
+    }
+
+    // Exit a parse tree produced by BallerinaParser#throwStatement.
+    exitThrowStatement(ctx) {
+    }
+
+    // Enter a parse tree produced by BallerinaParser#returnStatement.
+    enterReturnStatement(ctx) {
+    }
+
+    // Exit a parse tree produced by BallerinaParser#returnStatement.
+    exitReturnStatement(ctx) {
+    }
+
+    // Enter a parse tree produced by BallerinaParser#replyStatement.
+    enterReplyStatement(ctx) {
+    }
+
+    // Exit a parse tree produced by BallerinaParser#replyStatement.
+    exitReplyStatement(ctx) {
+    }
+
+    // Enter a parse tree produced by BallerinaParser#workerInteractionStatement.
+    enterWorkerInteractionStatement(ctx) {
+    }
+
+    // Exit a parse tree produced by BallerinaParser#workerInteractionStatement.
+    exitWorkerInteractionStatement(ctx) {
+    }
+
+    // Enter a parse tree produced by BallerinaParser#triggerWorker.
+    enterTriggerWorker(ctx) {
+    }
+
+    // Exit a parse tree produced by BallerinaParser#triggerWorker.
+    exitTriggerWorker(ctx) {
+    }
+
+    // Enter a parse tree produced by BallerinaParser#workerReply.
+    enterWorkerReply(ctx) {
+    }
+
+    // Exit a parse tree produced by BallerinaParser#workerReply.
+    exitWorkerReply(ctx) {
+    }
+
+    // Enter a parse tree produced by BallerinaParser#commentStatement.
+    enterCommentStatement(ctx) {
+    }
+
+    // Exit a parse tree produced by BallerinaParser#commentStatement.
+    exitCommentStatement(ctx) {
+    }
+
+    // Enter a parse tree produced by BallerinaParser#actionInvocationStatement.
+    enterActionInvocationStatement(ctx) {
+    }
+
+    // Exit a parse tree produced by BallerinaParser#actionInvocationStatement.
+    exitActionInvocationStatement(ctx) {
+    }
+
+    // Enter a parse tree produced by BallerinaParser#structFieldIdentifier.
+    enterStructFieldIdentifier(ctx) {
+    }
+
+    // Exit a parse tree produced by BallerinaParser#structFieldIdentifier.
+    exitStructFieldIdentifier(ctx) {
+    }
+
+    // Enter a parse tree produced by BallerinaParser#simpleVariableIdentifier.
+    enterSimpleVariableIdentifier(ctx) {
+    }
+
+    // Exit a parse tree produced by BallerinaParser#simpleVariableIdentifier.
+    exitSimpleVariableIdentifier(ctx) {
+    }
+
+    // Enter a parse tree produced by BallerinaParser#mapArrayVariableIdentifier.
+    enterMapArrayVariableIdentifier(ctx) {
+    }
+
+    // Exit a parse tree produced by BallerinaParser#mapArrayVariableIdentifier.
+    exitMapArrayVariableIdentifier(ctx) {
+    }
+
+    // Enter a parse tree produced by BallerinaParser#argumentList.
+    enterArgumentList(ctx) {
+    }
+
+    // Exit a parse tree produced by BallerinaParser#argumentList.
+    exitArgumentList(ctx) {
+    }
+
+    // Enter a parse tree produced by BallerinaParser#expressionList.
+    enterExpressionList(ctx) {
+    }
+
+    // Exit a parse tree produced by BallerinaParser#expressionList.
+    exitExpressionList(ctx) {
+    }
+
+    // Enter a parse tree produced by BallerinaParser#functionInvocationStatement.
+    enterFunctionInvocationStatement(ctx) {
+    }
+
+    // Exit a parse tree produced by BallerinaParser#functionInvocationStatement.
+    exitFunctionInvocationStatement(ctx) {
+    }
+
+    // Enter a parse tree produced by BallerinaParser#functionName.
+    enterFunctionName(ctx) {
+    }
+
+    // Exit a parse tree produced by BallerinaParser#functionName.
+    exitFunctionName(ctx) {
+    }
+
+    // Enter a parse tree produced by BallerinaParser#actionInvocation.
+    enterActionInvocation(ctx) {
+    }
+
+    // Exit a parse tree produced by BallerinaParser#actionInvocation.
+    exitActionInvocation(ctx) {
+    }
+
+    // Enter a parse tree produced by BallerinaParser#callableUnitName.
+    enterCallableUnitName(ctx) {
+    }
+
+    // Exit a parse tree produced by BallerinaParser#callableUnitName.
+    exitCallableUnitName(ctx) {
+    }
+
+    // Enter a parse tree produced by BallerinaParser#backtickString.
+    enterBacktickString(ctx) {
+    }
+
+    // Exit a parse tree produced by BallerinaParser#backtickString.
+    exitBacktickString(ctx) {
+    }
+
+    // Enter a parse tree produced by BallerinaParser#connectorInitExpression.
+    enterConnectorInitExpression(ctx) {
+    }
+
+    // Exit a parse tree produced by BallerinaParser#connectorInitExpression.
+    exitConnectorInitExpression(ctx) {
+    }
+
+    // Enter a parse tree produced by BallerinaParser#binaryDivMulModExpression.
+    enterBinaryDivMulModExpression(ctx) {
+    }
+
+    // Exit a parse tree produced by BallerinaParser#binaryDivMulModExpression.
+    exitBinaryDivMulModExpression(ctx) {
+    }
+
+    // Enter a parse tree produced by BallerinaParser#binaryOrExpression.
+    enterBinaryOrExpression(ctx) {
+    }
+
+    // Exit a parse tree produced by BallerinaParser#binaryOrExpression.
+    exitBinaryOrExpression(ctx) {
+    }
+
+    // Enter a parse tree produced by BallerinaParser#templateExpression.
+    enterTemplateExpression(ctx) {
+    }
+
+    // Exit a parse tree produced by BallerinaParser#templateExpression.
+    exitTemplateExpression(ctx) {
+    }
+
+    // Enter a parse tree produced by BallerinaParser#functionInvocationExpression.
+    enterFunctionInvocationExpression(ctx) {
+    }
+
+    // Exit a parse tree produced by BallerinaParser#functionInvocationExpression.
+    exitFunctionInvocationExpression(ctx) {
+    }
+
+    // Enter a parse tree produced by BallerinaParser#binaryEqualExpression.
+    enterBinaryEqualExpression(ctx) {
+    }
+
+    // Exit a parse tree produced by BallerinaParser#binaryEqualExpression.
+    exitBinaryEqualExpression(ctx) {
+    }
+
+    // Enter a parse tree produced by BallerinaParser#refTypeInitExpression.
+    enterRefTypeInitExpression(ctx) {
+    }
+
+    // Exit a parse tree produced by BallerinaParser#refTypeInitExpression.
+    exitRefTypeInitExpression(ctx) {
+    }
+
+    // Enter a parse tree produced by BallerinaParser#bracedExpression.
+    enterBracedExpression(ctx) {
+    }
+
+    // Exit a parse tree produced by BallerinaParser#bracedExpression.
+    exitBracedExpression(ctx) {
+    }
+
+    // Enter a parse tree produced by BallerinaParser#variableReferenceExpression.
+    enterVariableReferenceExpression(ctx) {
+    }
+
+    // Exit a parse tree produced by BallerinaParser#variableReferenceExpression.
+    exitVariableReferenceExpression(ctx) {
+    }
+
+    // Enter a parse tree produced by BallerinaParser#actionInvocationExpression.
+    enterActionInvocationExpression(ctx) {
+    }
+
+    // Exit a parse tree produced by BallerinaParser#actionInvocationExpression.
+    exitActionInvocationExpression(ctx) {
+    }
+
+    // Enter a parse tree produced by BallerinaParser#typeCastingExpression.
+    enterTypeCastingExpression(ctx) {
+    }
+
+    // Exit a parse tree produced by BallerinaParser#typeCastingExpression.
+    exitTypeCastingExpression(ctx) {
+    }
+
+    // Enter a parse tree produced by BallerinaParser#binaryAndExpression.
+    enterBinaryAndExpression(ctx) {
+    }
+
+    // Exit a parse tree produced by BallerinaParser#binaryAndExpression.
+    exitBinaryAndExpression(ctx) {
+    }
+
+    // Enter a parse tree produced by BallerinaParser#binaryAddSubExpression.
+    enterBinaryAddSubExpression(ctx) {
+    }
+
+    // Exit a parse tree produced by BallerinaParser#binaryAddSubExpression.
+    exitBinaryAddSubExpression(ctx) {
+    }
+
+    // Enter a parse tree produced by BallerinaParser#arrayInitExpression.
+    enterArrayInitExpression(ctx) {
+    }
+
+    // Exit a parse tree produced by BallerinaParser#arrayInitExpression.
+    exitArrayInitExpression(ctx) {
+    }
+
+    // Enter a parse tree produced by BallerinaParser#binaryCompareExpression.
+    enterBinaryCompareExpression(ctx) {
+    }
+
+    // Exit a parse tree produced by BallerinaParser#binaryCompareExpression.
+    exitBinaryCompareExpression(ctx) {
+    }
+
+    // Enter a parse tree produced by BallerinaParser#literalExpression.
+    enterLiteralExpression(ctx) {
+    }
+
+    // Exit a parse tree produced by BallerinaParser#literalExpression.
+    exitLiteralExpression(ctx) {
+    }
+
+    // Enter a parse tree produced by BallerinaParser#unaryExpression.
+    enterUnaryExpression(ctx) {
+    }
+
+    // Exit a parse tree produced by BallerinaParser#unaryExpression.
+    exitUnaryExpression(ctx) {
+    }
+
+    // Enter a parse tree produced by BallerinaParser#binaryPowExpression.
+    enterBinaryPowExpression(ctx) {
+    }
+
+    // Exit a parse tree produced by BallerinaParser#binaryPowExpression.
+    exitBinaryPowExpression(ctx) {
+    }
+
+    // Enter a parse tree produced by BallerinaParser#mapStructInitKeyValueList.
+    enterMapStructInitKeyValueList(ctx) {
+    }
+
+    // Exit a parse tree produced by BallerinaParser#mapStructInitKeyValueList.
+    exitMapStructInitKeyValueList(ctx) {
+    }
+
+    // Enter a parse tree produced by BallerinaParser#mapStructInitKeyValue.
+    enterMapStructInitKeyValue(ctx) {
+    }
+
+    // Exit a parse tree produced by BallerinaParser#mapStructInitKeyValue.
+    exitMapStructInitKeyValue(ctx) {
+    }
 }
-
-BallerinaListener.prototype = Object.create(antlr4.tree.ParseTreeListener.prototype);
-BallerinaListener.prototype.constructor = BallerinaListener;
-
-// Enter a parse tree produced by BallerinaParser#compilationUnit.
-BallerinaListener.prototype.enterCompilationUnit = function(ctx) {
-};
-
-// Exit a parse tree produced by BallerinaParser#compilationUnit.
-BallerinaListener.prototype.exitCompilationUnit = function(ctx) {
-};
-
-
-// Enter a parse tree produced by BallerinaParser#packageDeclaration.
-BallerinaListener.prototype.enterPackageDeclaration = function(ctx) {
-};
-
-// Exit a parse tree produced by BallerinaParser#packageDeclaration.
-BallerinaListener.prototype.exitPackageDeclaration = function(ctx) {
-};
-
-
-// Enter a parse tree produced by BallerinaParser#importDeclaration.
-BallerinaListener.prototype.enterImportDeclaration = function(ctx) {
-};
-
-// Exit a parse tree produced by BallerinaParser#importDeclaration.
-BallerinaListener.prototype.exitImportDeclaration = function(ctx) {
-};
-
-
-// Enter a parse tree produced by BallerinaParser#serviceDefinition.
-BallerinaListener.prototype.enterServiceDefinition = function(ctx) {
-};
-
-// Exit a parse tree produced by BallerinaParser#serviceDefinition.
-BallerinaListener.prototype.exitServiceDefinition = function(ctx) {
-};
-
-
-// Enter a parse tree produced by BallerinaParser#serviceBody.
-BallerinaListener.prototype.enterServiceBody = function(ctx) {
-};
-
-// Exit a parse tree produced by BallerinaParser#serviceBody.
-BallerinaListener.prototype.exitServiceBody = function(ctx) {
-};
-
-
-// Enter a parse tree produced by BallerinaParser#serviceBodyDeclaration.
-BallerinaListener.prototype.enterServiceBodyDeclaration = function(ctx) {
-};
-
-// Exit a parse tree produced by BallerinaParser#serviceBodyDeclaration.
-BallerinaListener.prototype.exitServiceBodyDeclaration = function(ctx) {
-};
-
-
-// Enter a parse tree produced by BallerinaParser#resourceDefinition.
-BallerinaListener.prototype.enterResourceDefinition = function(ctx) {
-};
-
-// Exit a parse tree produced by BallerinaParser#resourceDefinition.
-BallerinaListener.prototype.exitResourceDefinition = function(ctx) {
-};
-
-
-// Enter a parse tree produced by BallerinaParser#functionDefinition.
-BallerinaListener.prototype.enterFunctionDefinition = function(ctx) {
-};
-
-// Exit a parse tree produced by BallerinaParser#functionDefinition.
-BallerinaListener.prototype.exitFunctionDefinition = function(ctx) {
-};
-
-
-// Enter a parse tree produced by BallerinaParser#nativeFunction.
-BallerinaListener.prototype.enterNativeFunction = function(ctx) {
-};
-
-// Exit a parse tree produced by BallerinaParser#nativeFunction.
-BallerinaListener.prototype.exitNativeFunction = function(ctx) {
-};
-
-
-// Enter a parse tree produced by BallerinaParser#ballerinaFunction.
-BallerinaListener.prototype.enterBallerinaFunction = function(ctx) {
-};
-
-// Exit a parse tree produced by BallerinaParser#ballerinaFunction.
-BallerinaListener.prototype.exitBallerinaFunction = function(ctx) {
-};
-
-
-// Enter a parse tree produced by BallerinaParser#functionBody.
-BallerinaListener.prototype.enterFunctionBody = function(ctx) {
-};
-
-// Exit a parse tree produced by BallerinaParser#functionBody.
-BallerinaListener.prototype.exitFunctionBody = function(ctx) {
-};
-
-
-// Enter a parse tree produced by BallerinaParser#connectorDefinition.
-BallerinaListener.prototype.enterConnectorDefinition = function(ctx) {
-};
-
-// Exit a parse tree produced by BallerinaParser#connectorDefinition.
-BallerinaListener.prototype.exitConnectorDefinition = function(ctx) {
-};
-
-
-// Enter a parse tree produced by BallerinaParser#nativeConnector.
-BallerinaListener.prototype.enterNativeConnector = function(ctx) {
-};
-
-// Exit a parse tree produced by BallerinaParser#nativeConnector.
-BallerinaListener.prototype.exitNativeConnector = function(ctx) {
-};
-
-
-// Enter a parse tree produced by BallerinaParser#nativeConnectorBody.
-BallerinaListener.prototype.enterNativeConnectorBody = function(ctx) {
-};
-
-// Exit a parse tree produced by BallerinaParser#nativeConnectorBody.
-BallerinaListener.prototype.exitNativeConnectorBody = function(ctx) {
-};
-
-
-// Enter a parse tree produced by BallerinaParser#connector.
-BallerinaListener.prototype.enterConnector = function(ctx) {
-};
-
-// Exit a parse tree produced by BallerinaParser#connector.
-BallerinaListener.prototype.exitConnector = function(ctx) {
-};
-
-
-// Enter a parse tree produced by BallerinaParser#connectorBody.
-BallerinaListener.prototype.enterConnectorBody = function(ctx) {
-};
-
-// Exit a parse tree produced by BallerinaParser#connectorBody.
-BallerinaListener.prototype.exitConnectorBody = function(ctx) {
-};
-
-
-// Enter a parse tree produced by BallerinaParser#nativeAction.
-BallerinaListener.prototype.enterNativeAction = function(ctx) {
-};
-
-// Exit a parse tree produced by BallerinaParser#nativeAction.
-BallerinaListener.prototype.exitNativeAction = function(ctx) {
-};
-
-
-// Enter a parse tree produced by BallerinaParser#action.
-BallerinaListener.prototype.enterAction = function(ctx) {
-};
-
-// Exit a parse tree produced by BallerinaParser#action.
-BallerinaListener.prototype.exitAction = function(ctx) {
-};
-
-
-// Enter a parse tree produced by BallerinaParser#structDefinition.
-BallerinaListener.prototype.enterStructDefinition = function(ctx) {
-};
-
-// Exit a parse tree produced by BallerinaParser#structDefinition.
-BallerinaListener.prototype.exitStructDefinition = function(ctx) {
-};
-
-
-// Enter a parse tree produced by BallerinaParser#structDefinitionBody.
-BallerinaListener.prototype.enterStructDefinitionBody = function(ctx) {
-};
-
-// Exit a parse tree produced by BallerinaParser#structDefinitionBody.
-BallerinaListener.prototype.exitStructDefinitionBody = function(ctx) {
-};
-
-
-// Enter a parse tree produced by BallerinaParser#typeMapperDefinition.
-BallerinaListener.prototype.enterTypeMapperDefinition = function(ctx) {
-};
-
-// Exit a parse tree produced by BallerinaParser#typeMapperDefinition.
-BallerinaListener.prototype.exitTypeMapperDefinition = function(ctx) {
-};
-
-
-// Enter a parse tree produced by BallerinaParser#nativeTypeMapper.
-BallerinaListener.prototype.enterNativeTypeMapper = function(ctx) {
-};
-
-// Exit a parse tree produced by BallerinaParser#nativeTypeMapper.
-BallerinaListener.prototype.exitNativeTypeMapper = function(ctx) {
-};
-
-
-// Enter a parse tree produced by BallerinaParser#typeMapper.
-BallerinaListener.prototype.enterTypeMapper = function(ctx) {
-};
-
-// Exit a parse tree produced by BallerinaParser#typeMapper.
-BallerinaListener.prototype.exitTypeMapper = function(ctx) {
-};
-
-
-// Enter a parse tree produced by BallerinaParser#typeMapperBody.
-BallerinaListener.prototype.enterTypeMapperBody = function(ctx) {
-};
-
-// Exit a parse tree produced by BallerinaParser#typeMapperBody.
-BallerinaListener.prototype.exitTypeMapperBody = function(ctx) {
-};
-
-
-// Enter a parse tree produced by BallerinaParser#constantDefinition.
-BallerinaListener.prototype.enterConstantDefinition = function(ctx) {
-};
-
-// Exit a parse tree produced by BallerinaParser#constantDefinition.
-BallerinaListener.prototype.exitConstantDefinition = function(ctx) {
-};
-
-
-// Enter a parse tree produced by BallerinaParser#workerDeclaration.
-BallerinaListener.prototype.enterWorkerDeclaration = function(ctx) {
-};
-
-// Exit a parse tree produced by BallerinaParser#workerDeclaration.
-BallerinaListener.prototype.exitWorkerDeclaration = function(ctx) {
-};
-
-
-// Enter a parse tree produced by BallerinaParser#returnParameters.
-BallerinaListener.prototype.enterReturnParameters = function(ctx) {
-};
-
-// Exit a parse tree produced by BallerinaParser#returnParameters.
-BallerinaListener.prototype.exitReturnParameters = function(ctx) {
-};
-
-
-// Enter a parse tree produced by BallerinaParser#namedParameterList.
-BallerinaListener.prototype.enterNamedParameterList = function(ctx) {
-};
-
-// Exit a parse tree produced by BallerinaParser#namedParameterList.
-BallerinaListener.prototype.exitNamedParameterList = function(ctx) {
-};
-
-
-// Enter a parse tree produced by BallerinaParser#namedParameter.
-BallerinaListener.prototype.enterNamedParameter = function(ctx) {
-};
-
-// Exit a parse tree produced by BallerinaParser#namedParameter.
-BallerinaListener.prototype.exitNamedParameter = function(ctx) {
-};
-
-
-// Enter a parse tree produced by BallerinaParser#returnTypeList.
-BallerinaListener.prototype.enterReturnTypeList = function(ctx) {
-};
-
-// Exit a parse tree produced by BallerinaParser#returnTypeList.
-BallerinaListener.prototype.exitReturnTypeList = function(ctx) {
-};
-
-
-// Enter a parse tree produced by BallerinaParser#qualifiedTypeName.
-BallerinaListener.prototype.enterQualifiedTypeName = function(ctx) {
-};
-
-// Exit a parse tree produced by BallerinaParser#qualifiedTypeName.
-BallerinaListener.prototype.exitQualifiedTypeName = function(ctx) {
-};
-
-
-// Enter a parse tree produced by BallerinaParser#unqualifiedTypeName.
-BallerinaListener.prototype.enterUnqualifiedTypeName = function(ctx) {
-};
-
-// Exit a parse tree produced by BallerinaParser#unqualifiedTypeName.
-BallerinaListener.prototype.exitUnqualifiedTypeName = function(ctx) {
-};
-
-
-// Enter a parse tree produced by BallerinaParser#simpleType.
-BallerinaListener.prototype.enterSimpleType = function(ctx) {
-};
-
-// Exit a parse tree produced by BallerinaParser#simpleType.
-BallerinaListener.prototype.exitSimpleType = function(ctx) {
-};
-
-
-// Enter a parse tree produced by BallerinaParser#simpleTypeArray.
-BallerinaListener.prototype.enterSimpleTypeArray = function(ctx) {
-};
-
-// Exit a parse tree produced by BallerinaParser#simpleTypeArray.
-BallerinaListener.prototype.exitSimpleTypeArray = function(ctx) {
-};
-
-
-// Enter a parse tree produced by BallerinaParser#simpleTypeIterate.
-BallerinaListener.prototype.enterSimpleTypeIterate = function(ctx) {
-};
-
-// Exit a parse tree produced by BallerinaParser#simpleTypeIterate.
-BallerinaListener.prototype.exitSimpleTypeIterate = function(ctx) {
-};
-
-
-// Enter a parse tree produced by BallerinaParser#withFullSchemaType.
-BallerinaListener.prototype.enterWithFullSchemaType = function(ctx) {
-};
-
-// Exit a parse tree produced by BallerinaParser#withFullSchemaType.
-BallerinaListener.prototype.exitWithFullSchemaType = function(ctx) {
-};
-
-
-// Enter a parse tree produced by BallerinaParser#withFullSchemaTypeArray.
-BallerinaListener.prototype.enterWithFullSchemaTypeArray = function(ctx) {
-};
-
-// Exit a parse tree produced by BallerinaParser#withFullSchemaTypeArray.
-BallerinaListener.prototype.exitWithFullSchemaTypeArray = function(ctx) {
-};
-
-
-// Enter a parse tree produced by BallerinaParser#withFullSchemaTypeIterate.
-BallerinaListener.prototype.enterWithFullSchemaTypeIterate = function(ctx) {
-};
-
-// Exit a parse tree produced by BallerinaParser#withFullSchemaTypeIterate.
-BallerinaListener.prototype.exitWithFullSchemaTypeIterate = function(ctx) {
-};
-
-
-// Enter a parse tree produced by BallerinaParser#withScheamURLType.
-BallerinaListener.prototype.enterWithScheamURLType = function(ctx) {
-};
-
-// Exit a parse tree produced by BallerinaParser#withScheamURLType.
-BallerinaListener.prototype.exitWithScheamURLType = function(ctx) {
-};
-
-
-// Enter a parse tree produced by BallerinaParser#withSchemaURLTypeArray.
-BallerinaListener.prototype.enterWithSchemaURLTypeArray = function(ctx) {
-};
-
-// Exit a parse tree produced by BallerinaParser#withSchemaURLTypeArray.
-BallerinaListener.prototype.exitWithSchemaURLTypeArray = function(ctx) {
-};
-
-
-// Enter a parse tree produced by BallerinaParser#withSchemaURLTypeIterate.
-BallerinaListener.prototype.enterWithSchemaURLTypeIterate = function(ctx) {
-};
-
-// Exit a parse tree produced by BallerinaParser#withSchemaURLTypeIterate.
-BallerinaListener.prototype.exitWithSchemaURLTypeIterate = function(ctx) {
-};
-
-
-// Enter a parse tree produced by BallerinaParser#withSchemaIdType.
-BallerinaListener.prototype.enterWithSchemaIdType = function(ctx) {
-};
-
-// Exit a parse tree produced by BallerinaParser#withSchemaIdType.
-BallerinaListener.prototype.exitWithSchemaIdType = function(ctx) {
-};
-
-
-// Enter a parse tree produced by BallerinaParser#withScheamIdTypeArray.
-BallerinaListener.prototype.enterWithScheamIdTypeArray = function(ctx) {
-};
-
-// Exit a parse tree produced by BallerinaParser#withScheamIdTypeArray.
-BallerinaListener.prototype.exitWithScheamIdTypeArray = function(ctx) {
-};
-
-
-// Enter a parse tree produced by BallerinaParser#withScheamIdTypeIterate.
-BallerinaListener.prototype.enterWithScheamIdTypeIterate = function(ctx) {
-};
-
-// Exit a parse tree produced by BallerinaParser#withScheamIdTypeIterate.
-BallerinaListener.prototype.exitWithScheamIdTypeIterate = function(ctx) {
-};
-
-
-// Enter a parse tree produced by BallerinaParser#typeName.
-BallerinaListener.prototype.enterTypeName = function(ctx) {
-};
-
-// Exit a parse tree produced by BallerinaParser#typeName.
-BallerinaListener.prototype.exitTypeName = function(ctx) {
-};
-
-
-// Enter a parse tree produced by BallerinaParser#parameterList.
-BallerinaListener.prototype.enterParameterList = function(ctx) {
-};
-
-// Exit a parse tree produced by BallerinaParser#parameterList.
-BallerinaListener.prototype.exitParameterList = function(ctx) {
-};
-
-
-// Enter a parse tree produced by BallerinaParser#parameter.
-BallerinaListener.prototype.enterParameter = function(ctx) {
-};
-
-// Exit a parse tree produced by BallerinaParser#parameter.
-BallerinaListener.prototype.exitParameter = function(ctx) {
-};
-
-
-// Enter a parse tree produced by BallerinaParser#packageName.
-BallerinaListener.prototype.enterPackageName = function(ctx) {
-};
-
-// Exit a parse tree produced by BallerinaParser#packageName.
-BallerinaListener.prototype.exitPackageName = function(ctx) {
-};
-
-
-// Enter a parse tree produced by BallerinaParser#literalValue.
-BallerinaListener.prototype.enterLiteralValue = function(ctx) {
-};
-
-// Exit a parse tree produced by BallerinaParser#literalValue.
-BallerinaListener.prototype.exitLiteralValue = function(ctx) {
-};
-
-
-// Enter a parse tree produced by BallerinaParser#annotation.
-BallerinaListener.prototype.enterAnnotation = function(ctx) {
-};
-
-// Exit a parse tree produced by BallerinaParser#annotation.
-BallerinaListener.prototype.exitAnnotation = function(ctx) {
-};
-
-
-// Enter a parse tree produced by BallerinaParser#annotationName.
-BallerinaListener.prototype.enterAnnotationName = function(ctx) {
-};
-
-// Exit a parse tree produced by BallerinaParser#annotationName.
-BallerinaListener.prototype.exitAnnotationName = function(ctx) {
-};
-
-
-// Enter a parse tree produced by BallerinaParser#elementValuePairs.
-BallerinaListener.prototype.enterElementValuePairs = function(ctx) {
-};
-
-// Exit a parse tree produced by BallerinaParser#elementValuePairs.
-BallerinaListener.prototype.exitElementValuePairs = function(ctx) {
-};
-
-
-// Enter a parse tree produced by BallerinaParser#elementValuePair.
-BallerinaListener.prototype.enterElementValuePair = function(ctx) {
-};
-
-// Exit a parse tree produced by BallerinaParser#elementValuePair.
-BallerinaListener.prototype.exitElementValuePair = function(ctx) {
-};
-
-
-// Enter a parse tree produced by BallerinaParser#elementValue.
-BallerinaListener.prototype.enterElementValue = function(ctx) {
-};
-
-// Exit a parse tree produced by BallerinaParser#elementValue.
-BallerinaListener.prototype.exitElementValue = function(ctx) {
-};
-
-
-// Enter a parse tree produced by BallerinaParser#elementValueArrayInitializer.
-BallerinaListener.prototype.enterElementValueArrayInitializer = function(ctx) {
-};
-
-// Exit a parse tree produced by BallerinaParser#elementValueArrayInitializer.
-BallerinaListener.prototype.exitElementValueArrayInitializer = function(ctx) {
-};
-
-
-// Enter a parse tree produced by BallerinaParser#statement.
-BallerinaListener.prototype.enterStatement = function(ctx) {
-};
-
-// Exit a parse tree produced by BallerinaParser#statement.
-BallerinaListener.prototype.exitStatement = function(ctx) {
-};
-
-
-// Enter a parse tree produced by BallerinaParser#variableDefinitionStatement.
-BallerinaListener.prototype.enterVariableDefinitionStatement = function(ctx) {
-};
-
-// Exit a parse tree produced by BallerinaParser#variableDefinitionStatement.
-BallerinaListener.prototype.exitVariableDefinitionStatement = function(ctx) {
-};
-
-
-// Enter a parse tree produced by BallerinaParser#assignmentStatement.
-BallerinaListener.prototype.enterAssignmentStatement = function(ctx) {
-};
-
-// Exit a parse tree produced by BallerinaParser#assignmentStatement.
-BallerinaListener.prototype.exitAssignmentStatement = function(ctx) {
-};
-
-
-// Enter a parse tree produced by BallerinaParser#variableReferenceList.
-BallerinaListener.prototype.enterVariableReferenceList = function(ctx) {
-};
-
-// Exit a parse tree produced by BallerinaParser#variableReferenceList.
-BallerinaListener.prototype.exitVariableReferenceList = function(ctx) {
-};
-
-
-// Enter a parse tree produced by BallerinaParser#ifElseStatement.
-BallerinaListener.prototype.enterIfElseStatement = function(ctx) {
-};
-
-// Exit a parse tree produced by BallerinaParser#ifElseStatement.
-BallerinaListener.prototype.exitIfElseStatement = function(ctx) {
-};
-
-
-// Enter a parse tree produced by BallerinaParser#ifClause.
-BallerinaListener.prototype.enterIfClause = function(ctx) {
-};
-
-// Exit a parse tree produced by BallerinaParser#ifClause.
-BallerinaListener.prototype.exitIfClause = function(ctx) {
-};
-
-
-// Enter a parse tree produced by BallerinaParser#elseIfClause.
-BallerinaListener.prototype.enterElseIfClause = function(ctx) {
-};
-
-// Exit a parse tree produced by BallerinaParser#elseIfClause.
-BallerinaListener.prototype.exitElseIfClause = function(ctx) {
-};
-
-
-// Enter a parse tree produced by BallerinaParser#elseClause.
-BallerinaListener.prototype.enterElseClause = function(ctx) {
-};
-
-// Exit a parse tree produced by BallerinaParser#elseClause.
-BallerinaListener.prototype.exitElseClause = function(ctx) {
-};
-
-
-// Enter a parse tree produced by BallerinaParser#iterateStatement.
-BallerinaListener.prototype.enterIterateStatement = function(ctx) {
-};
-
-// Exit a parse tree produced by BallerinaParser#iterateStatement.
-BallerinaListener.prototype.exitIterateStatement = function(ctx) {
-};
-
-
-// Enter a parse tree produced by BallerinaParser#whileStatement.
-BallerinaListener.prototype.enterWhileStatement = function(ctx) {
-};
-
-// Exit a parse tree produced by BallerinaParser#whileStatement.
-BallerinaListener.prototype.exitWhileStatement = function(ctx) {
-};
-
-
-// Enter a parse tree produced by BallerinaParser#breakStatement.
-BallerinaListener.prototype.enterBreakStatement = function(ctx) {
-};
-
-// Exit a parse tree produced by BallerinaParser#breakStatement.
-BallerinaListener.prototype.exitBreakStatement = function(ctx) {
-};
-
-
-// Enter a parse tree produced by BallerinaParser#forkJoinStatement.
-BallerinaListener.prototype.enterForkJoinStatement = function(ctx) {
-};
-
-// Exit a parse tree produced by BallerinaParser#forkJoinStatement.
-BallerinaListener.prototype.exitForkJoinStatement = function(ctx) {
-};
-
-
-// Enter a parse tree produced by BallerinaParser#joinClause.
-BallerinaListener.prototype.enterJoinClause = function(ctx) {
-};
-
-// Exit a parse tree produced by BallerinaParser#joinClause.
-BallerinaListener.prototype.exitJoinClause = function(ctx) {
-};
-
-
-// Enter a parse tree produced by BallerinaParser#anyJoinCondition.
-BallerinaListener.prototype.enterAnyJoinCondition = function(ctx) {
-};
-
-// Exit a parse tree produced by BallerinaParser#anyJoinCondition.
-BallerinaListener.prototype.exitAnyJoinCondition = function(ctx) {
-};
-
-
-// Enter a parse tree produced by BallerinaParser#allJoinCondition.
-BallerinaListener.prototype.enterAllJoinCondition = function(ctx) {
-};
-
-// Exit a parse tree produced by BallerinaParser#allJoinCondition.
-BallerinaListener.prototype.exitAllJoinCondition = function(ctx) {
-};
-
-
-// Enter a parse tree produced by BallerinaParser#timeoutClause.
-BallerinaListener.prototype.enterTimeoutClause = function(ctx) {
-};
-
-// Exit a parse tree produced by BallerinaParser#timeoutClause.
-BallerinaListener.prototype.exitTimeoutClause = function(ctx) {
-};
-
-
-// Enter a parse tree produced by BallerinaParser#tryCatchStatement.
-BallerinaListener.prototype.enterTryCatchStatement = function(ctx) {
-};
-
-// Exit a parse tree produced by BallerinaParser#tryCatchStatement.
-BallerinaListener.prototype.exitTryCatchStatement = function(ctx) {
-};
-
-
-// Enter a parse tree produced by BallerinaParser#catchClause.
-BallerinaListener.prototype.enterCatchClause = function(ctx) {
-};
-
-// Exit a parse tree produced by BallerinaParser#catchClause.
-BallerinaListener.prototype.exitCatchClause = function(ctx) {
-};
-
-
-// Enter a parse tree produced by BallerinaParser#throwStatement.
-BallerinaListener.prototype.enterThrowStatement = function(ctx) {
-};
-
-// Exit a parse tree produced by BallerinaParser#throwStatement.
-BallerinaListener.prototype.exitThrowStatement = function(ctx) {
-};
-
-
-// Enter a parse tree produced by BallerinaParser#returnStatement.
-BallerinaListener.prototype.enterReturnStatement = function(ctx) {
-};
-
-// Exit a parse tree produced by BallerinaParser#returnStatement.
-BallerinaListener.prototype.exitReturnStatement = function(ctx) {
-};
-
-
-// Enter a parse tree produced by BallerinaParser#replyStatement.
-BallerinaListener.prototype.enterReplyStatement = function(ctx) {
-};
-
-// Exit a parse tree produced by BallerinaParser#replyStatement.
-BallerinaListener.prototype.exitReplyStatement = function(ctx) {
-};
-
-
-// Enter a parse tree produced by BallerinaParser#workerInteractionStatement.
-BallerinaListener.prototype.enterWorkerInteractionStatement = function(ctx) {
-};
-
-// Exit a parse tree produced by BallerinaParser#workerInteractionStatement.
-BallerinaListener.prototype.exitWorkerInteractionStatement = function(ctx) {
-};
-
-
-// Enter a parse tree produced by BallerinaParser#triggerWorker.
-BallerinaListener.prototype.enterTriggerWorker = function(ctx) {
-};
-
-// Exit a parse tree produced by BallerinaParser#triggerWorker.
-BallerinaListener.prototype.exitTriggerWorker = function(ctx) {
-};
-
-
-// Enter a parse tree produced by BallerinaParser#workerReply.
-BallerinaListener.prototype.enterWorkerReply = function(ctx) {
-};
-
-// Exit a parse tree produced by BallerinaParser#workerReply.
-BallerinaListener.prototype.exitWorkerReply = function(ctx) {
-};
-
-
-// Enter a parse tree produced by BallerinaParser#commentStatement.
-BallerinaListener.prototype.enterCommentStatement = function(ctx) {
-};
-
-// Exit a parse tree produced by BallerinaParser#commentStatement.
-BallerinaListener.prototype.exitCommentStatement = function(ctx) {
-};
-
-
-// Enter a parse tree produced by BallerinaParser#actionInvocationStatement.
-BallerinaListener.prototype.enterActionInvocationStatement = function(ctx) {
-};
-
-// Exit a parse tree produced by BallerinaParser#actionInvocationStatement.
-BallerinaListener.prototype.exitActionInvocationStatement = function(ctx) {
-};
-
-
-// Enter a parse tree produced by BallerinaParser#structFieldIdentifier.
-BallerinaListener.prototype.enterStructFieldIdentifier = function(ctx) {
-};
-
-// Exit a parse tree produced by BallerinaParser#structFieldIdentifier.
-BallerinaListener.prototype.exitStructFieldIdentifier = function(ctx) {
-};
-
-
-// Enter a parse tree produced by BallerinaParser#simpleVariableIdentifier.
-BallerinaListener.prototype.enterSimpleVariableIdentifier = function(ctx) {
-};
-
-// Exit a parse tree produced by BallerinaParser#simpleVariableIdentifier.
-BallerinaListener.prototype.exitSimpleVariableIdentifier = function(ctx) {
-};
-
-
-// Enter a parse tree produced by BallerinaParser#mapArrayVariableIdentifier.
-BallerinaListener.prototype.enterMapArrayVariableIdentifier = function(ctx) {
-};
-
-// Exit a parse tree produced by BallerinaParser#mapArrayVariableIdentifier.
-BallerinaListener.prototype.exitMapArrayVariableIdentifier = function(ctx) {
-};
-
-
-// Enter a parse tree produced by BallerinaParser#argumentList.
-BallerinaListener.prototype.enterArgumentList = function(ctx) {
-};
-
-// Exit a parse tree produced by BallerinaParser#argumentList.
-BallerinaListener.prototype.exitArgumentList = function(ctx) {
-};
-
-
-// Enter a parse tree produced by BallerinaParser#expressionList.
-BallerinaListener.prototype.enterExpressionList = function(ctx) {
-};
-
-// Exit a parse tree produced by BallerinaParser#expressionList.
-BallerinaListener.prototype.exitExpressionList = function(ctx) {
-};
-
-
-// Enter a parse tree produced by BallerinaParser#functionInvocationStatement.
-BallerinaListener.prototype.enterFunctionInvocationStatement = function(ctx) {
-};
-
-// Exit a parse tree produced by BallerinaParser#functionInvocationStatement.
-BallerinaListener.prototype.exitFunctionInvocationStatement = function(ctx) {
-};
-
-
-// Enter a parse tree produced by BallerinaParser#functionName.
-BallerinaListener.prototype.enterFunctionName = function(ctx) {
-};
-
-// Exit a parse tree produced by BallerinaParser#functionName.
-BallerinaListener.prototype.exitFunctionName = function(ctx) {
-};
-
-
-// Enter a parse tree produced by BallerinaParser#actionInvocation.
-BallerinaListener.prototype.enterActionInvocation = function(ctx) {
-};
-
-// Exit a parse tree produced by BallerinaParser#actionInvocation.
-BallerinaListener.prototype.exitActionInvocation = function(ctx) {
-};
-
-
-// Enter a parse tree produced by BallerinaParser#callableUnitName.
-BallerinaListener.prototype.enterCallableUnitName = function(ctx) {
-};
-
-// Exit a parse tree produced by BallerinaParser#callableUnitName.
-BallerinaListener.prototype.exitCallableUnitName = function(ctx) {
-};
-
-
-// Enter a parse tree produced by BallerinaParser#backtickString.
-BallerinaListener.prototype.enterBacktickString = function(ctx) {
-};
-
-// Exit a parse tree produced by BallerinaParser#backtickString.
-BallerinaListener.prototype.exitBacktickString = function(ctx) {
-};
-
-
-// Enter a parse tree produced by BallerinaParser#connectorInitExpression.
-BallerinaListener.prototype.enterConnectorInitExpression = function(ctx) {
-};
-
-// Exit a parse tree produced by BallerinaParser#connectorInitExpression.
-BallerinaListener.prototype.exitConnectorInitExpression = function(ctx) {
-};
-
-
-// Enter a parse tree produced by BallerinaParser#binaryDivMulModExpression.
-BallerinaListener.prototype.enterBinaryDivMulModExpression = function(ctx) {
-};
-
-// Exit a parse tree produced by BallerinaParser#binaryDivMulModExpression.
-BallerinaListener.prototype.exitBinaryDivMulModExpression = function(ctx) {
-};
-
-
-// Enter a parse tree produced by BallerinaParser#binaryOrExpression.
-BallerinaListener.prototype.enterBinaryOrExpression = function(ctx) {
-};
-
-// Exit a parse tree produced by BallerinaParser#binaryOrExpression.
-BallerinaListener.prototype.exitBinaryOrExpression = function(ctx) {
-};
-
-
-// Enter a parse tree produced by BallerinaParser#templateExpression.
-BallerinaListener.prototype.enterTemplateExpression = function(ctx) {
-};
-
-// Exit a parse tree produced by BallerinaParser#templateExpression.
-BallerinaListener.prototype.exitTemplateExpression = function(ctx) {
-};
-
-
-// Enter a parse tree produced by BallerinaParser#functionInvocationExpression.
-BallerinaListener.prototype.enterFunctionInvocationExpression = function(ctx) {
-};
-
-// Exit a parse tree produced by BallerinaParser#functionInvocationExpression.
-BallerinaListener.prototype.exitFunctionInvocationExpression = function(ctx) {
-};
-
-
-// Enter a parse tree produced by BallerinaParser#binaryEqualExpression.
-BallerinaListener.prototype.enterBinaryEqualExpression = function(ctx) {
-};
-
-// Exit a parse tree produced by BallerinaParser#binaryEqualExpression.
-BallerinaListener.prototype.exitBinaryEqualExpression = function(ctx) {
-};
-
-
-// Enter a parse tree produced by BallerinaParser#refTypeInitExpression.
-BallerinaListener.prototype.enterRefTypeInitExpression = function(ctx) {
-};
-
-// Exit a parse tree produced by BallerinaParser#refTypeInitExpression.
-BallerinaListener.prototype.exitRefTypeInitExpression = function(ctx) {
-};
-
-
-// Enter a parse tree produced by BallerinaParser#bracedExpression.
-BallerinaListener.prototype.enterBracedExpression = function(ctx) {
-};
-
-// Exit a parse tree produced by BallerinaParser#bracedExpression.
-BallerinaListener.prototype.exitBracedExpression = function(ctx) {
-};
-
-
-// Enter a parse tree produced by BallerinaParser#variableReferenceExpression.
-BallerinaListener.prototype.enterVariableReferenceExpression = function(ctx) {
-};
-
-// Exit a parse tree produced by BallerinaParser#variableReferenceExpression.
-BallerinaListener.prototype.exitVariableReferenceExpression = function(ctx) {
-};
-
-
-// Enter a parse tree produced by BallerinaParser#actionInvocationExpression.
-BallerinaListener.prototype.enterActionInvocationExpression = function(ctx) {
-};
-
-// Exit a parse tree produced by BallerinaParser#actionInvocationExpression.
-BallerinaListener.prototype.exitActionInvocationExpression = function(ctx) {
-};
-
-
-// Enter a parse tree produced by BallerinaParser#typeCastingExpression.
-BallerinaListener.prototype.enterTypeCastingExpression = function(ctx) {
-};
-
-// Exit a parse tree produced by BallerinaParser#typeCastingExpression.
-BallerinaListener.prototype.exitTypeCastingExpression = function(ctx) {
-};
-
-
-// Enter a parse tree produced by BallerinaParser#binaryAndExpression.
-BallerinaListener.prototype.enterBinaryAndExpression = function(ctx) {
-};
-
-// Exit a parse tree produced by BallerinaParser#binaryAndExpression.
-BallerinaListener.prototype.exitBinaryAndExpression = function(ctx) {
-};
-
-
-// Enter a parse tree produced by BallerinaParser#binaryAddSubExpression.
-BallerinaListener.prototype.enterBinaryAddSubExpression = function(ctx) {
-};
-
-// Exit a parse tree produced by BallerinaParser#binaryAddSubExpression.
-BallerinaListener.prototype.exitBinaryAddSubExpression = function(ctx) {
-};
-
-
-// Enter a parse tree produced by BallerinaParser#arrayInitExpression.
-BallerinaListener.prototype.enterArrayInitExpression = function(ctx) {
-};
-
-// Exit a parse tree produced by BallerinaParser#arrayInitExpression.
-BallerinaListener.prototype.exitArrayInitExpression = function(ctx) {
-};
-
-
-// Enter a parse tree produced by BallerinaParser#binaryCompareExpression.
-BallerinaListener.prototype.enterBinaryCompareExpression = function(ctx) {
-};
-
-// Exit a parse tree produced by BallerinaParser#binaryCompareExpression.
-BallerinaListener.prototype.exitBinaryCompareExpression = function(ctx) {
-};
-
-
-// Enter a parse tree produced by BallerinaParser#literalExpression.
-BallerinaListener.prototype.enterLiteralExpression = function(ctx) {
-};
-
-// Exit a parse tree produced by BallerinaParser#literalExpression.
-BallerinaListener.prototype.exitLiteralExpression = function(ctx) {
-};
-
-
-// Enter a parse tree produced by BallerinaParser#unaryExpression.
-BallerinaListener.prototype.enterUnaryExpression = function(ctx) {
-};
-
-// Exit a parse tree produced by BallerinaParser#unaryExpression.
-BallerinaListener.prototype.exitUnaryExpression = function(ctx) {
-};
-
-
-// Enter a parse tree produced by BallerinaParser#binaryPowExpression.
-BallerinaListener.prototype.enterBinaryPowExpression = function(ctx) {
-};
-
-// Exit a parse tree produced by BallerinaParser#binaryPowExpression.
-BallerinaListener.prototype.exitBinaryPowExpression = function(ctx) {
-};
-
-
-// Enter a parse tree produced by BallerinaParser#mapStructInitKeyValueList.
-BallerinaListener.prototype.enterMapStructInitKeyValueList = function(ctx) {
-};
-
-// Exit a parse tree produced by BallerinaParser#mapStructInitKeyValueList.
-BallerinaListener.prototype.exitMapStructInitKeyValueList = function(ctx) {
-};
-
-
-// Enter a parse tree produced by BallerinaParser#mapStructInitKeyValue.
-BallerinaListener.prototype.enterMapStructInitKeyValue = function(ctx) {
-};
-
-// Exit a parse tree produced by BallerinaParser#mapStructInitKeyValue.
-BallerinaListener.prototype.exitMapStructInitKeyValue = function(ctx) {
-};
 
 
 

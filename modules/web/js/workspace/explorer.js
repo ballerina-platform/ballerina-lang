@@ -16,9 +16,14 @@
  * under the License.
  */
 
-define(['log', 'jquery', 'backbone', 'lodash', './explorer-item', './service-client', 'context_menu', 'mcustom_scroller'],
-
-    function (log, $, Backbone, _, ExplorerItem, ServiceClient, ContextMenu, mcustomScroller) {
+import log from 'log';
+import $ from 'jquery';
+import Backbone from 'backbone';
+import _ from 'lodash';
+import ExplorerItem from './explorer-item';
+import ServiceClient from './service-client';
+import ContextMenu from 'context_menu';
+import mcustomScroller from 'mcustom_scroller';
 
     var WorkspaceExplorer = Backbone.View.extend({
 
@@ -202,6 +207,6 @@ define(['log', 'jquery', 'backbone', 'lodash', './explorer-item', './service-cli
         }
     });
 
-    return WorkspaceExplorer;
+    export default WorkspaceExplorer;
 
-});
+

@@ -15,41 +15,42 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require','lodash', 'log', 'event_channel', './abstract-statement-source-gen-visitor'],
-    function(require, _, log, EventChannel, AbstractStatementSourceGenVisitor) {
+import _ from 'lodash';
+import log from 'log';
+import EventChannel from 'event_channel';
+import AbstractStatementSourceGenVisitor from './abstract-statement-source-gen-visitor';
+import $____statement_visitor_factory from './statement-visitor-factory';
 
-        var ElseIfStatementVisitor = function(parent){
-            AbstractStatementSourceGenVisitor.call(this,parent);
-        };
+class ElseIfStatementVisitor extends AbstractStatementSourceGenVisitor {
+    constructor(parent) {
+        super(parent);
+    }
 
-        ElseIfStatementVisitor.prototype = Object.create(AbstractStatementSourceGenVisitor.prototype);
-        ElseIfStatementVisitor.prototype.constructor = ElseIfStatementVisitor;
+    canVisitElseIfStatement(elseIfStatement) {
+        return true;
+    }
 
-        ElseIfStatementVisitor.prototype.canVisitElseIfStatement = function(elseIfStatement){
-            return true;
-        };
+    beginVisitElseIfStatement(elseIfStatement) {
+        this.appendSource('elseIf(' + elseIfStatement.getCondition() + '){');
+        log.debug('Begin Visit Else If Statement Definition');
+    }
 
-        ElseIfStatementVisitor.prototype.beginVisitElseIfStatement = function(elseIfStatement){
-            this.appendSource('elseIf(' + elseIfStatement.getCondition() + '){');
-            log.debug('Begin Visit Else If Statement Definition');
-        };
+    visitElseIfStatement(elseIfStatement) {
+        log.debug('Visit Else If Statement Definition');
+    }
 
-        ElseIfStatementVisitor.prototype.visitElseIfStatement = function(elseIfStatement){
-            log.debug('Visit Else If Statement Definition');
-        };
+    endVisitElseIfStatement(elseIfStatement) {
+        this.appendSource("}\n");
+        this.getParent().appendSource(this.getGeneratedSource());
+        log.debug('End Visit Else If Statement Definition');
+    }
 
-        ElseIfStatementVisitor.prototype.endVisitElseIfStatement = function(elseIfStatement){
-            this.appendSource("}\n");
-            this.getParent().appendSource(this.getGeneratedSource());
-            log.debug('End Visit Else If Statement Definition');
-        };
+    visitStatement(statement) {
+        var StatementVisitorFactory = $____statement_visitor_factory;
+        var statementVisitorFactory = new StatementVisitorFactory();
+        var statementVisitor = statementVisitorFactory.getStatementVisitor(statement, this);
+        statement.accept(statementVisitor);
+    }
+}
 
-        ElseIfStatementVisitor.prototype.visitStatement = function (statement) {
-            var StatementVisitorFactory = require('./statement-visitor-factory');
-            var statementVisitorFactory = new StatementVisitorFactory();
-            var statementVisitor = statementVisitorFactory.getStatementVisitor(statement, this);
-            statement.accept(statementVisitor);
-        };
-
-        return ElseIfStatementVisitor;
-    });
+export default ElseIfStatementVisitor;

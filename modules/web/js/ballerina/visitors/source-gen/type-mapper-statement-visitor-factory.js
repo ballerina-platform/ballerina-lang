@@ -15,28 +15,35 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', 'event_channel', '../../ast/module', './try-catch-statement-visitor',
-        './try-statement-visitor', './catch-statement-visitor', './if-else-statement-visitor', './if-statement-visitor',
-        './else-statement-visitor', './else-if-statement-visitor', './while-statement-visitor',
-        './type-mapper-assignment-statement-visitor', './action-invocation-statement-visitor', './reply-statement-visitor',
-        './type-mapper-return-statement-visitor', './function-invocation-visitor',
-        './type-mapper-function-invocation-expression-visitor', './assignment-visitor',
-        './type-mapper-left-operand-expression-visitor', './type-mapper-right-operand-expression-visitor',
-        './type-mapper-variable-definition-statement-visitor', './worker-invocation-statement-visitor', './worker-reply-statement-visitor',
-        './break-statement-visitor', './throw-statement-visitor'],
-function (_, log, EventChannel, AST, TryCatchStatementVisitor,
-          TryStatementVisitor, CatchStatementVisitor, IfElseStatementVisitor, IfStatementVisitor,
-          ElseStatementVisitor, ElseIfStatementVisitor, WhileStatementVisitor,
-          TypeMapperAssignmentStatementVisitor, ActionInvocationStatementVisitor, ReplyStatementVisitor,
-          TypeMapperReturnStatementVisitor, FunctionInvocationVisitor, TypeMapperFunctionInvocationExpressionVisitor,
-          AssignmentVisitor, TypeMapperLeftOperandExpressionVisitor, TypeMapperRightOperandExpressionVisitor,
-          TypeMapperVariableDefinitionStatement, WorkerInvocationStatement, WorkerReplyStatement, BreakStatementVisitor,
-          ThrowStatementVisitor) {
+import _ from 'lodash';
+import log from 'log';
+import EventChannel from 'event_channel';
+import AST from '../../ast/module';
+import TryCatchStatementVisitor from './try-catch-statement-visitor';
+import TryStatementVisitor from './try-statement-visitor';
+import CatchStatementVisitor from './catch-statement-visitor';
+import IfElseStatementVisitor from './if-else-statement-visitor';
+import IfStatementVisitor from './if-statement-visitor';
+import ElseStatementVisitor from './else-statement-visitor';
+import ElseIfStatementVisitor from './else-if-statement-visitor';
+import WhileStatementVisitor from './while-statement-visitor';
+import TypeMapperAssignmentStatementVisitor from './type-mapper-assignment-statement-visitor';
+import ActionInvocationStatementVisitor from './action-invocation-statement-visitor';
+import ReplyStatementVisitor from './reply-statement-visitor';
+import TypeMapperReturnStatementVisitor from './type-mapper-return-statement-visitor';
+import FunctionInvocationVisitor from './function-invocation-visitor';
+import TypeMapperFunctionInvocationExpressionVisitor from './type-mapper-function-invocation-expression-visitor';
+import AssignmentVisitor from './assignment-visitor';
+import TypeMapperLeftOperandExpressionVisitor from './type-mapper-left-operand-expression-visitor';
+import TypeMapperRightOperandExpressionVisitor from './type-mapper-right-operand-expression-visitor';
+import TypeMapperVariableDefinitionStatement from './type-mapper-variable-definition-statement-visitor';
+import WorkerInvocationStatement from './worker-invocation-statement-visitor';
+import WorkerReplyStatement from './worker-reply-statement-visitor';
+import BreakStatementVisitor from './break-statement-visitor';
+import ThrowStatementVisitor from './throw-statement-visitor';
 
-    var TypeMapperStatementVisitorFactory = function () {
-    };
-
-    TypeMapperStatementVisitorFactory.prototype.getStatementVisitor = function (statement, parent) {
+class TypeMapperStatementVisitorFactory {
+    getStatementVisitor(statement, parent) {
         if (statement instanceof AST.TryCatchStatement) {
             return new TryCatchStatementVisitor(parent);
         } else if (statement instanceof AST.TryStatement) {
@@ -82,7 +89,8 @@ function (_, log, EventChannel, AST, TryCatchStatementVisitor,
         } else if (statement instanceof AST.ThrowStatement) {
             return new ThrowStatementVisitor(parent);
         }
-    };
+    }
+}
 
-    return TypeMapperStatementVisitorFactory;
-});
+export default TypeMapperStatementVisitorFactory;
+

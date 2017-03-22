@@ -16,34 +16,40 @@
  * under the License.
  */
 
-define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view',
-       'expression_editor_utils'],
-    function (_, $, d3, log, D3Utils, Point, BallerinaView, expressionEditor) {
+import _ from 'lodash';
+import $ from 'jquery';
+import d3 from 'd3';
+import log from 'log';
+import D3Utils from 'd3utils';
+import Point from './point';
+import BallerinaView from './ballerina-view';
+import expressionEditor from 'expression_editor_utils';
 
-    /**
-     * View for a generic lifeline
-     * @param args {object} - config
-     * @param args.container {SVGGElement} - SVG group element to draw the life line
-     * @param args.centerPoint {Point} - center point to draw the life line.
-     * @param args.cssClass {object} - css classes for the lifeline
-     * @param args.cssClass.group {string} - css class for root group
-     * @param args.cssClass.title {string} - css class for the title
-     * @param args.title {string} - title
-     * @param args.rect {Object} - top and bottom rectangle properties
-     * @param args.rect.width {number} - rect width
-     * @param args.rect.height {number} - rect height
-     * @param args.rect.round {number} - rx and ry
-     * @param args.content {Object} - properties for content area
-     * @param args.content.width {number} - width size
-     * @param args.content.offsetX {number} - offset in X from top and bottom center points
-     * @param args.content.offsetY {number} - offset from Y top and bottom center points
-     *
-     * @class LifeLineView
-     * @augments EventChannel
-     * @constructor
-     */
-    var LifeLineView = function (args) {
-        BallerinaView.call(this, args);
+/**
+ * View for a generic lifeline
+ * @param args {object} - config
+ * @param args.container {SVGGElement} - SVG group element to draw the life line
+ * @param args.centerPoint {Point} - center point to draw the life line.
+ * @param args.cssClass {object} - css classes for the lifeline
+ * @param args.cssClass.group {string} - css class for root group
+ * @param args.cssClass.title {string} - css class for the title
+ * @param args.title {string} - title
+ * @param args.rect {Object} - top and bottom rectangle properties
+ * @param args.rect.width {number} - rect width
+ * @param args.rect.height {number} - rect height
+ * @param args.rect.round {number} - rx and ry
+ * @param args.content {Object} - properties for content area
+ * @param args.content.width {number} - width size
+ * @param args.content.offsetX {number} - offset in X from top and bottom center points
+ * @param args.content.offsetY {number} - offset from Y top and bottom center points
+ *
+ * @class LifeLineView
+ * @augments EventChannel
+ * @constructor
+ */
+class LifeLineView extends BallerinaView {
+    constructor(args) {
+        super(args);
         this._containerD3 = d3.select(this._container);
         this._viewOptions = args;
         this._topCenter = this._viewOptions.centerPoint.clone();
@@ -77,46 +83,43 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
             .h(_.get(this._viewOptions, 'line.height') + _.get(this._viewOptions, 'rect.height'));
 
         this._editableProperties = [];
-    };
-
-    LifeLineView.prototype = Object.create(BallerinaView.prototype);
-    LifeLineView.prototype.constructor = LifeLineView;
+    }
 
     /**
      * Override remove view callback
      * @param {ASTNode} parent - parent node
      * @param {ASTNode} child - child node
      */
-    LifeLineView.prototype.onBeforeModelRemove = function (parent, child) {
+    onBeforeModelRemove(parent, child) {
         d3.select("#_" +this._model.id).remove();
         this.getBoundingBox().move(_.get(this._viewOptions, 'onDeleteMoveOffset'), 0).h(0);
-    };
+    }
 
-    LifeLineView.prototype.position = function (x, y) {
+    position(x, y) {
         this._rootGroup.attr("transform", "translate(" + x + "," + y + ")");
-    };
+    }
 
-    LifeLineView.prototype.getMidPoint = function () {
+    getMidPoint() {
         return this._topCenter.x();
-    };
+    }
 
-    LifeLineView.prototype.getMiddleLineCenter = function () {
+    getMiddleLineCenter() {
         return new Point(this.getMidPoint(), (this._topCenter.y()+ this._bottomCenter.y())/2);
-    };
+    }
 
-    LifeLineView.prototype.getMiddleLineHeight = function () {
+    getMiddleLineHeight() {
         return this._bottomCenter.y() - this._topCenter.y();
-    };
+    }
 
-    LifeLineView.prototype.width = function () {
+    width() {
         return this._topPolygon.attr('width');
-    };
+    }
 
-    LifeLineView.prototype._updateBoundingBox = function () {
+    _updateBoundingBox() {
 
-    };
+    }
 
-    LifeLineView.prototype.render = function () {
+    render() {
         var self = this;
         this.renderMiddleLine();
         this.renderTopPolygon();
@@ -130,31 +133,31 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
             self.move(offset.dx, offset.dy);
         });
         return this;
-    };
+    }
 
-    LifeLineView.prototype.move = function (dx, dy) {
+    move(dx, dy) {
         this._bottomCenter.move(dx, dy);
         this._topCenter.move(dx, dy);
-    };
+    }
 
-    LifeLineView.prototype.increaseHeight = function (dy) {
+    increaseHeight(dy) {
         this._bottomCenter.move(0, dy);
-    };
+    }
 
-    LifeLineView.prototype.setHeight = function (height) {
+    setHeight(height) {
         var newY = height - this._topCenter.y();
         this._bottomCenter.y(newY);
-    };
+    }
 
-    LifeLineView.prototype.getTopCenter = function () {
+    getTopCenter() {
         return this._topCenter;
-    };
+    }
 
-    LifeLineView.prototype.getBottomCenter = function () {
+    getBottomCenter() {
         return this._bottomCenter;
-    };
+    }
 
-    LifeLineView.prototype.renderTopPolygon = function () {
+    renderTopPolygon() {
         var self = this;
         this._topPolygon = D3Utils.centeredRect(this._topCenter,
             this._viewOptions.rect.width, this._viewOptions.rect.height, 0, 0, this._rootGroup).classed(_.get(this._viewOptions, 'cssClass.topPolygon'), true);
@@ -166,9 +169,9 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
                 .attr('x', x + offset.dx)
                 .attr('y', y + offset.dy)
         });
-    };
+    }
 
-    LifeLineView.prototype.renderBottomPolygon = function () {
+    renderBottomPolygon() {
         var self = this;
         this._bottomPolygon = D3Utils.centeredRect(this._bottomCenter,
             this._viewOptions.rect.width, this._viewOptions.rect.height, 0, 0, this._rootGroup).classed(_.get(this._viewOptions, 'cssClass.bottomPolygon'), true);
@@ -180,9 +183,9 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
                 .attr('x', x + offset.dx)
                 .attr('y', y + offset.dy)
         });
-    };
+    }
 
-    LifeLineView.prototype.renderTitle = function(){
+    renderTitle() {
         var self = this;
         var titleText = ((this._viewOptions.title.length) > 14 ? (this._viewOptions.title.substring(0,11) + '...') : this._viewOptions.title);
         this._topPolygonText = D3Utils.centeredText(this._topCenter,
@@ -209,9 +212,9 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
                 .attr('y', y + offset.dy)
         });
 
-    };
+    }
 
-    LifeLineView.prototype.renderMiddleLine = function () {
+    renderMiddleLine() {
         var self = this;
         this._middleLine = D3Utils.lineFromPoints(this._topCenter, this._bottomCenter, this._rootGroup);
 
@@ -231,23 +234,23 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
                 .attr('y2', y2 + offset.dy)
         });
 
-    };
+    }
 
-    LifeLineView.prototype.renderMiddleRectangle = function () {};
+    renderMiddleRectangle() {}
 
-    LifeLineView.prototype.renderContentArea = function () {
+    renderContentArea() {
         this._contentArea = D3Utils.group(this._rootGroup);
-    };
+    }
 
-    LifeLineView.prototype.getContentArea = function () {
+    getContentArea() {
         return this._contentArea;
-    };
+    }
 
-    LifeLineView.prototype.getContentOffset = function () {
+    getContentOffset() {
         return _.get(this._viewOptions, 'content.offset');
-    };
+    }
 
-    LifeLineView.prototype.createPropertyPane = function (args) {
+    createPropertyPane(args) {
         var model = _.get(args, "model", {});
         var viewOptions = _.get(args, "viewOptions", {});
         var lifeLineGroup = _.get(args, "lifeLineGroup", null);
@@ -437,9 +440,9 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
             });
 
         }.bind(lifeLineGroup.node(), this));
-    };
+    }
 
-    LifeLineView.prototype.updateTitleText = function (updatedText) {
+    updateTitleText(updatedText) {
         if (!_.isUndefined(updatedText) && updatedText !== '') {
             this._editableProperties.setterMethod.call(this._editableProperties.model, updatedText);
             var updatedText = this._editableProperties.getDisplayTitle.call(this._editableProperties.model);
@@ -451,16 +454,17 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
             this._topPolygonText.node().textContent = updatedText;
             this._bottomPolygonText.node().textContent = updatedText;
         }
-    };
+    }
 
-    LifeLineView.prototype.moveTopCenter = function (dx, dy) {
+    moveTopCenter(dx, dy) {
         this._topCenter.move(dx, dy);
-    };
+    }
 
-    LifeLineView.prototype.moveBottomCenter = function (dx, dy) {
+    moveBottomCenter(dx, dy) {
         this._bottomCenter.move(dx, dy);
-    };
+    }
+}
 
 
-    return LifeLineView;
-});
+export default LifeLineView;
+

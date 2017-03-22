@@ -15,7 +15,10 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['jquery', 'lodash', 'backbone', 'log'], function ($, _, log) {
+import $ from 'jquery';
+import _ from 'lodash';
+import log from 'backbone';
+import 'log';
 
     // Generate four random hex digits.
     function S4() {
@@ -76,5 +79,5 @@ define(['jquery', 'lodash', 'backbone', 'log'], function ($, _, log) {
 
     });
 
-    return BrowserStorage;
-});
+    export default BrowserStorage;
+

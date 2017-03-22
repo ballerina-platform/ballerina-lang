@@ -15,8 +15,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define([ 'jquery',  'lodash', 'event_channel' ],
-    function ( $, _ , EventChannel ) {
+import $ from 'jquery';
+import _ from 'lodash';
+import EventChannel from 'event_channel';
 	var instance;
 
     var Console = function(args) {
@@ -52,5 +53,5 @@ define([ 'jquery',  'lodash', 'event_channel' ],
         this.console.scrollTop(100000);
     };
 
-    return (instance = (instance || new Console()));
-});
+    export default (instance = (instance || new Console()));
+

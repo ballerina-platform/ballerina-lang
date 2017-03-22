@@ -15,38 +15,41 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require','lodash', 'log', 'event_channel', './abstract-source-gen-visitor', './statement-visitor-factory'],
-    function(require, _, log, EventChannel, AbstractSourceGenVisitor, StatementVisitorFactory) {
+import require from 'require';
+import _ from 'lodash';
+import log from 'log';
+import EventChannel from 'event_channel';
+import AbstractSourceGenVisitor from './abstract-source-gen-visitor';
+import StatementVisitorFactory from './statement-visitor-factory';
 
-        var BlockStatementVisitor = function(parent){
-            AbstractSourceGenVisitor.call(this, parent);
-        };
+class BlockStatementVisitor extends AbstractSourceGenVisitor {
+    constructor(parent) {
+        super(parent);
+    }
 
-        BlockStatementVisitor.prototype = Object.create(AbstractSourceGenVisitor.prototype);
-        BlockStatementVisitor.prototype.constructor = BlockStatementVisitor;
+    canVisitBlockStatement(blockStatement) {
+        return true;
+    }
 
-        BlockStatementVisitor.prototype.canVisitBlockStatement = function(blockStatement){
-            return true;
-        };
+    beginBlockStatement(blockStatement) {
+        log.debug('Begin Visit Block Statement Definition');
+    }
 
-        BlockStatementVisitor.prototype.beginBlockStatement = function(blockStatement){
-            log.debug('Begin Visit Block Statement Definition');
-        };
+    visitBlockStatement(blockStatement) {
+        log.debug('Visit Block Statement Definition');
+    }
 
-        BlockStatementVisitor.prototype.visitBlockStatement = function(blockStatement){
-            log.debug('Visit Block Statement Definition');
-        };
+    endVisitBlockStatement(blockStatement) {
+        this.getParent().appendSource(this.getGeneratedSource());
+        log.debug('End Visit Block Statement Definition');
+    }
 
-        BlockStatementVisitor.prototype.endVisitBlockStatement = function(blockStatement){
-            this.getParent().appendSource(this.getGeneratedSource());
-            log.debug('End Visit Block Statement Definition');
-        };
+    visitStatement(statement) {
+       var statementVisitorFactory = new StatementVisitorFactory();
+       var statementVisitor = statementVisitorFactory.getStatementVisitor(statement, this);
+       statement.accept(statementVisitor);
+   }
+}
 
-        BlockStatementVisitor.prototype.visitStatement = function (statement) {
-           var statementVisitorFactory = new StatementVisitorFactory();
-           var statementVisitor = statementVisitorFactory.getStatementVisitor(statement, this);
-           statement.accept(statementVisitor);
-       };
-
-        return BlockStatementVisitor;
-    });
+export default BlockStatementVisitor;
+    

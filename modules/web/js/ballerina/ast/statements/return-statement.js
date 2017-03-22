@@ -15,49 +15,49 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', './statement'], function (_, log, Statement) {
+import _ from 'lodash';
+import log from 'log';
+import Statement from './statement';
 
-    /**
-     * Class for return statement in ballerina.
-     * @param expression zero or many expressions for a return statement.
-     * @constructor
-     */
-    var ReturnStatement = function (args) {
-        Statement.call(this);
+/**
+ * Class for return statement in ballerina.
+ * @param expression zero or many expressions for a return statement.
+ * @constructor
+ */
+class ReturnStatement extends Statement {
+    constructor(args) {
+        super();
         this._expression = _.get(args, 'expression', '');
         this.type = "ReturnStatement";
-    };
+    }
 
-    ReturnStatement.prototype = Object.create(Statement.prototype);
-    ReturnStatement.prototype.constructor = ReturnStatement;
-
-    ReturnStatement.prototype.setExpression = function (expression, options) {
+    setExpression(expression, options) {
         if (!_.isNil(expression)) {
             this.setAttribute('_expression', expression, options);
         } else {
             log.error("Cannot set undefined to the return statement.");
         }
-    };
+    }
 
-    ReturnStatement.prototype.canBeAChildOf = function (node) {
+    canBeAChildOf(node) {
         return this.getFactory().isFunctionDefinition(node) ||
                this.getFactory().isConnectorAction(node) ||
             this.getFactory().isStatement(node);
-    };
+    }
 
-    ReturnStatement.prototype.getReturnExpression = function () {
+    getReturnExpression() {
         return "return " + this.getExpression();
-    };
+    }
 
-    ReturnStatement.prototype.getExpression = function () {
+    getExpression() {
         return this._expression;
-    };
+    }
 
     /**
      * initialize from json
      * @param jsonNode
      */
-    ReturnStatement.prototype.initFromJson = function (jsonNode) {
+    initFromJson(jsonNode) {
         var self = this;
         var expression = "";
 
@@ -72,7 +72,8 @@ define(['lodash', 'log', './statement'], function (_, log, Statement) {
             }
         }
         this.setExpression(expression, {doSilently: true});
-    };
+    }
+}
 
-    return ReturnStatement;
-});
+export default ReturnStatement;
+

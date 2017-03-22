@@ -15,13 +15,16 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['./ast/module', './env/module', './views/module', './visitors/module', './utils/module'],
-    function (astModule, envModule, viewsModule, visitorsModule, utilsModule) {
-        return  {
+import astModule from './ast/module';
+import envModule from './env/module';
+import viewsModule from './views/module';
+import visitorsModule from './visitors/module';
+import utilsModule from './utils/module';
+        export default  {
             ast: astModule,
             env: envModule,
             views: viewsModule,
             visitors: visitorsModule,
             utils: utilsModule
         };
-    });
+    

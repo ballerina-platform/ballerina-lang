@@ -15,7 +15,12 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require', 'log', 'jquery', 'd3', 'backbone', './tool-view'], function (require, log, $, d3, Backbone, ToolView) {
+import require from 'require';
+import log from 'log';
+import $ from 'jquery';
+import d3 from 'd3';
+import Backbone from 'backbone';
+import ToolView from './tool-view';
 
     var toolGroupView = Backbone.View.extend({
 
@@ -151,6 +156,6 @@ define(['require', 'log', 'jquery', 'd3', 'backbone', './tool-view'], function (
         }
     });
 
-    return toolGroupView;
+    export default toolGroupView;
 
-});
+

@@ -15,19 +15,22 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', './node'], function (_, log, ASTNode) {
+import _ from 'lodash';
+import log from 'log';
+import ASTNode from './node';
 
-    /**
-     * Constructor for Argument
-     * @param {Object} [args] - The arguments to create the Argument.
-     * @param {string} [args.type=undefined] - Type of the argument.
-     * @param {string} [args.identifier=undefined] - Identifier of the argument.
-     * @class Argument
-     * @constructor
-     * @extends ASTNode
-     */
-    var Argument = function (args) {
-        ASTNode.call(this, "Argument");
+/**
+ * Constructor for Argument
+ * @param {Object} [args] - The arguments to create the Argument.
+ * @param {string} [args.type=undefined] - Type of the argument.
+ * @param {string} [args.identifier=undefined] - Identifier of the argument.
+ * @class Argument
+ * @constructor
+ * @extends ASTNode
+ */
+class Argument extends ASTNode {
+    constructor(args) {
+        super("Argument");
         this.type = _.get(args, "type","ArgumentType");
         this.identifier = _.get(args, "identifier");
 
@@ -38,29 +41,26 @@ define(['lodash', 'log', './node'], function (_, log, ASTNode) {
             log.error(exceptionString);
             throw exceptionString;
         }
-    };
+    }
 
-    Argument.prototype = Object.create(ASTNode.prototype);
-    Argument.prototype.constructor = Argument;
-
-    Argument.prototype.setType = function (type, options) {
+    setType(type, options) {
         if (!_.isNil(type)) {
             this.setAttribute('type', type, options);
         }
-    };
+    }
 
-    Argument.prototype.getType = function () {
+    getType() {
         return this.type;
-    };
+    }
 
-    Argument.prototype.getArgumentAsString = function() {
+    getArgumentAsString() {
         var argAsString = "";
         argAsString += this.type;
         argAsString += !_.isUndefined(this.identifier) ? " " + this.identifier : "";
         return argAsString;
-    };
+    }
 
-    Argument.prototype.setIdentifier = function (identifier, options) {
+    setIdentifier(identifier, options) {
         if (_.isNil(identifier) || ASTNode.isValidIdentifier(identifier)) {
             this.setAttribute('identifier', identifier, options);
         } else {
@@ -69,15 +69,15 @@ define(['lodash', 'log', './node'], function (_, log, ASTNode) {
             log.error(exceptionString);
             throw exceptionString;
         }
-    };
+    }
 
-    Argument.prototype.getType = function () {
+    getType() {
         return this.type;
-    };
+    }
 
-    Argument.prototype.getIdentifier = function () {
+    getIdentifier() {
         return this.identifier;
-    };
+    }
 
     /**
      * initialize Argument from json object
@@ -85,14 +85,15 @@ define(['lodash', 'log', './node'], function (_, log, ASTNode) {
      * @param {string} jsonNode.parameter_type - Type of the argument
      * @param {string} jsonNode.parameter_name - Identifier of the argument
      */
-    Argument.prototype.initFromJson = function (jsonNode) {
+    initFromJson(jsonNode) {
         this.setType(jsonNode.parameter_type, {doSilently: true});
         this.setIdentifier(jsonNode.parameter_name, {doSilently: true});
-    };
+    }
 
-    Argument.prototype.toString = function () {
+    toString() {
         return this.getArgumentAsString();
-    };
+    }
+}
 
-    return Argument;
-});
+export default Argument;
+
