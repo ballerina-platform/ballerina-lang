@@ -9,7 +9,8 @@
     "dev": "webpack-dev-server --hot --inline --progress",
     "runTests": "cross-env NODE_ENV=test mocha-webpack --require ./js/tests/js/spec/setup.js --webpack-config ./webpack.config.js ./js/tests/js/spec/BallerinaTest.js;",
     "test": "node run-tests.js",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "lintfile": "eslint"
   },
   "repository": {
     "type": "git",
