@@ -28,7 +28,7 @@ var instance;
 
 class DebugManager extends EventChannel {
     constructor(args) {
-        var self = this;
+        super();
     	this.debugPoints = [];
         this.enable = false;
         this.channel = undefined;
