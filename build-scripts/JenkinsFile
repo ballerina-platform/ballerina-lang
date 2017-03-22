@@ -174,6 +174,7 @@ node ('US01') {
     String ballerinaGroudId = "org.ballerinalang";
     String ballerinaConnectorsGroupId = "org.wso2.ballerina.connectors"
     String propertyUpdateCommitMessage = "Updating versions of org.ballerinalang.* dependencies";
+    String parentUpdateCommitMessage = "Updating ballerina-parent version";
 
     try {
         stage('Building ballerina-parent') {
@@ -188,6 +189,7 @@ node ('US01') {
 
         stage('Building ballerina') {
             cloneRepository(ballerinaRepository, user, gitCredentialsID);
+            updateParent(ballerinaRepository, settingsXMLID, parentUpdateCommitMessage, !isRelease);
             if (isRelease) {
                 tagMap.add([ballerinaRepository, ballerinaReleaseTag, ballerinaVersion]);
                 release(settingsXMLID, ballerinaRepository, ballerinaVersion, ballerinaReleaseTag, ballerinaDevVersion, ballerinaSkipTests);
@@ -198,6 +200,7 @@ node ('US01') {
 
         stage('Building docerina') {
             cloneRepository(docerinaRepository, user, gitCredentialsID);
+            updateParent(docerinaRepository, settingsXMLID, parentUpdateCommitMessage, !isRelease);
             updateProperties(docerinaRepository, settingsXMLID, propertyUpdateCommitMessage,
                     "${ballerinaGroudId}:*", !isRelease);
             if (isRelease) {
@@ -210,6 +213,7 @@ node ('US01') {
 
         stage('Building plugin-maven') {
             cloneRepository(pluginMavenRepository, user, gitCredentialsID);
+            updateParent(pluginMavenRepository, settingsXMLID, parentUpdateCommitMessage, !isRelease);
             updateProperties(pluginMavenRepository, settingsXMLID, propertyUpdateCommitMessage,
                     "${ballerinaGroudId}:docerina", !isRelease);
             if (isRelease) {
@@ -223,6 +227,7 @@ node ('US01') {
         stage('Building composer, testerina, connectors, container-support, tool-swagger-ballerina') {
             parallel composerBuild: {
                 cloneRepository(composerRepository, user, gitCredentialsID);
+                updateParent(composerRepository, settingsXMLID, parentUpdateCommitMessage, !isRelease);
                 updateProperties(composerRepository, settingsXMLID, propertyUpdateCommitMessage,
                         "${ballerinaGroudId}:*", !isRelease);
                 if (isRelease) {
@@ -233,6 +238,7 @@ node ('US01') {
                 }
             }, testerinaBuild: {
                 cloneRepository(testerinaRepository, user, gitCredentialsID);
+                updateParent(testerinaRepository, settingsXMLID, parentUpdateCommitMessage, !isRelease);
                 updateProperties(testerinaRepository, settingsXMLID, propertyUpdateCommitMessage,
                         "${ballerinaGroudId}:*", !isRelease);
                 if (isRelease) {
@@ -243,6 +249,7 @@ node ('US01') {
                 }
             }, connectorsBuild: {
                 cloneRepository(connectorsRepository, user, gitCredentialsID);
+                updateParent(connectorsRepository, settingsXMLID, parentUpdateCommitMessage, !isRelease);
                 updateProperties(connectorsRepository, settingsXMLID, propertyUpdateCommitMessage,
                         "${ballerinaGroudId}:*", !isRelease);
                 if (isRelease) {
@@ -253,6 +260,7 @@ node ('US01') {
                 }
             }, containerSupportBuild: {
                 cloneRepository(containerSupportRepository, user, gitCredentialsID);
+                updateParent(containerSupportRepository, settingsXMLID, parentUpdateCommitMessage, !isRelease);
                 updateProperties(containerSupportRepository, settingsXMLID, propertyUpdateCommitMessage,
                         "${ballerinaGroudId}:*", !isRelease);
                 if (isRelease) {
@@ -263,6 +271,7 @@ node ('US01') {
                 }
             }, toolSwaggerBallerinaBuild: {
                 cloneRepository(toolSwaggerBallerinaRepository, user, gitCredentialsID);
+                updateParent(toolSwaggerBallerinaRepository, settingsXMLID, parentUpdateCommitMessage, !isRelease);
                 updateProperties(toolSwaggerBallerinaRepository, settingsXMLID, propertyUpdateCommitMessage,
                         "${ballerinaGroudId}:*", !isRelease);
                 if (isRelease) {
@@ -276,6 +285,7 @@ node ('US01') {
 
         stage('Building tools-distribution') {
             cloneRepository(toolsDistributionRepository, user, gitCredentialsID);
+            updateParent(toolsDistributionRepository, settingsXMLID, parentUpdateCommitMessage, !isRelease);
             updateProperties(toolsDistributionRepository, settingsXMLID, propertyUpdateCommitMessage,
                     "${ballerinaGroudId}:*,${ballerinaConnectorsGroupId}:connectors", !isRelease);
             if (isRelease) {
@@ -346,10 +356,8 @@ def updateProperties(String repositoryName, String settingsXml, String commitMes
         dir(repositoryName) {
             withEnv(["JAVA_HOME=${ tool env.JDK }", "PATH+MAVEN=${tool env.MAVEN_TOOL}/bin:${env.JAVA_HOME}/bin"]) {
                 if (!allowSnapshots) {
-                    sh "mvn -s $MAVEN_SETTINGS versions:update-parent";
                     sh "mvn -s $MAVEN_SETTINGS versions:update-properties -Dincludes=${propertiesList}"
                 } else {
-                    sh "mvn -s $MAVEN_SETTINGS versions:update-parent -DallowSnapshots=true";
                     sh "mvn -s $MAVEN_SETTINGS versions:update-properties -Dincludes=${propertiesList} -DallowSnapshots=true"
                 }
                 boolean changesPresent = sh(
@@ -364,6 +372,39 @@ def updateProperties(String repositoryName, String settingsXml, String commitMes
         }
     }
 }
+
+/**
+ * This method updates parent version of a given repository.
+ *
+ * @param repositoryName The repository directory
+ * @param settingsXml settingsXml ID of the settings.xml file to be used which is added under managed files in Jenkins
+ * @param commitMessage The message for the parent update commit
+ * @param allowSnapshots Whether to consider snapshot versions when updating parent
+ */
+def updateParent(String repositoryName, String settingsXml, String commitMessage, boolean allowSnapshots) {
+    configFileProvider(
+            [configFile(fileId: settingsXml, variable: 'MAVEN_SETTINGS')]) {
+        dir(repositoryName) {
+            withEnv(["JAVA_HOME=${ tool env.JDK }", "PATH+MAVEN=${tool env.MAVEN_TOOL}/bin:${env.JAVA_HOME}/bin"]) {
+                if (!allowSnapshots) {
+                    sh "mvn -s $MAVEN_SETTINGS versions:update-parent";
+                } else {
+                    sh "mvn -s $MAVEN_SETTINGS versions:update-parent -DallowSnapshots=true";
+                }
+                boolean changesPresent = sh(
+                        script: "git diff-index --quiet HEAD",
+                        returnStatus: true
+                ) == 1
+                if (changesPresent) {
+                    sh("git add -u")
+                    sh("git commit -m '${commitMessage}'");
+                }
+            }
+        }
+    }
+}
+
+
 
 /**
  * This method perform release prepare,perform on a given repository. Deployment is skipped therefore artifacts will be
