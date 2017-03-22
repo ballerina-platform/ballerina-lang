@@ -22,21 +22,25 @@ import VariableDefinitionStatement from '../ast/statements/variable-definition-s
 
 /**
  * The view to represent a assignment definition which is an AST visitor.
- * @param {Object} args - Arguments for creating the view.
- * @param {VariableDefinitionStatement} args.model - The variable definition statement model.
- * @param {Object} args.container - The HTML container to which the view should be added to.
- * @param {Object} [args.viewOptions={}] - Configuration values for the view.
  * @class VariableDefinitionStatementView
- * @constructor
  * @extends SimpleStatementView
  */
 class VariableDefinitionStatementView extends SimpleStatementView {
+
+    /**
+     * Constructor for VariableDefinitionStatementView
+     * @param {Object} args - Arguments for creating the view.
+     * @param {VariableDefinitionStatement} args.model - The variable definition statement model.
+     * @param {Object} args.container - The HTML container to which the view should be added to.
+     * @param {Object} [args.viewOptions={}] - Configuration values for the view.
+     * @constructor
+     */
     constructor(args) {
         super(args);
 
         if (_.isNil(this._container)) {
-            log.error("Container for Variable Definition statement is undefined." + this._container);
-            throw "Container for Variable Definition statement is undefined." + this._container;
+            log.error('Container for Variable Definition statement is undefined.' + this._container);
+            throw 'Container for Variable Definition statement is undefined.' + this._container;
         }
     }
 
@@ -48,8 +52,8 @@ class VariableDefinitionStatementView extends SimpleStatementView {
         if (!_.isNil(model) && model instanceof VariableDefinitionStatement) {
             (this.__proto__.__proto__).setModel(model);
         } else {
-            log.error("Variable Definition statement undefined or is of different type." + model);
-            throw "Variable Definition statement undefined or is of different type." + model;
+            log.error('Variable Definition statement undefined or is of different type.' + model);
+            throw 'Variable Definition statement undefined or is of different type.' + model;
         }
     }
 
@@ -69,8 +73,8 @@ class VariableDefinitionStatementView extends SimpleStatementView {
         // Creating property pane
         var editableProperties = [];
         var editableProperty = {
-            propertyType: "text",
-            key: "VariableDefinition",
+            propertyType: 'text',
+            key: 'VariableDefinition',
             model: model,
             getterMethod: model.getStatementString,
             setterMethod: model.setStatementString
