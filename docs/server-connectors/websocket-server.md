@@ -85,6 +85,14 @@ This function is used if the user needs to send a text message to the same clien
 
 For an example, see the simple echo server sample in `samples/websocket/echo-server/server/websocketEchoServer.bal`.
 
+### Pushing messages to all the clients connected to a given service
+#### ws:broadcastText(text)
+This function push text all the clients who have been connected to the currently this function declared service.
+
+|Parameter|Parameter Type|Description|Expected Values|
+|---------|--------------|-----------|---------------|
+|text|string|The text message to send|This can be any string|
+
 ### Storing and grouping WebSocket connections globally
 In Ballerina you can store the WebSocket connections and use them in other services too.
 There are 2 ways of using this feature.
@@ -121,3 +129,37 @@ store.
 |Parameter|Parameter Type|Description|Expected Values|
 |---------|--------------|-----------|---------------|
 |connectionName|string|Represent the name of the connection given by the user|Unique string of the connection|
+
+### Grouping WebSocket Connections
+#### ws:addConnectionToGroup(groupName)
+This will add the current WebSocket connection to group with the given group name.
+
+|Parameter|Parameter Type|Description|Expected Values|
+|---------|--------------|-----------|---------------|
+|groupName|string|Represent the name of the group which current connection is added|String name represents the group|
+
+#### ws:pushTextToGroup(groupName, text)
+This function can be used globally to access the connection groups defined by any of the services and send text to that
+specific group.
+
+|Parameter|Parameter Type|Description|Expected Values|
+|---------|--------------|-----------|---------------|
+|groupName|string|Represent the name of the group|String name represents the group|
+|text|string|The text message to send|This can be any string|
+
+#### ws:removeConnectionFromGroup(groupName)
+This function removes the current connection from the given group if that connection exists in the given group.
+
+|Parameter|Parameter Type|Description|Expected Values|
+|---------|--------------|-----------|---------------|
+|groupName|string|Represent the name of the group|String name represents the group|
+
+#### ws:removeConnectionGroup(groupName)
+This removes the whole connection group globally. So if the connection group is removed it cannot be used again.
+But it does not mean that individual connections are removed globally. Because same connection can be added to one or
+more groups. 
+
+|Parameter|Parameter Type|Description|Expected Values|
+|---------|--------------|-----------|---------------|
+|groupName|string|Represent the name of the group|String name represents the group|
+
