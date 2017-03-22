@@ -33,7 +33,7 @@ class BrowserStorage {
 
     // Generate a pseudo-GUID by concatenating random hexadecimal.
     guid() {
-        return (S4() + S4() + "-" + S4() + "-" + S4() + "-" + S4() + "-" + S4() + S4() + S4());
+        return (this.S4() + this.S4() + "-" + this.S4() + "-" + this.S4() + "-" + this.S4() + "-" + this.S4() + this.S4() + this.S4());
     }
 
 
@@ -47,7 +47,7 @@ class BrowserStorage {
 
     create(model) {
         if (!model.id) {
-            model.id = guid();
+            model.id = this.guid();
             model.set(model.idAttribute, model.id);
         }
         this.localStorage().setItem(this.name + "-" + model.id, JSON.stringify(model));

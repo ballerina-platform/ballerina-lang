@@ -42,7 +42,7 @@ import ImportDeclarationView from './import-declaration-view';
 import TypeMapperDefinitionView from './type-mapper-definition-view';
 import alerts from 'alerts';
 import ConstantDefinitionView from './constant-definition-view';
-
+import 'typeahead.js';
 /**
  * The view to represent a ballerina file editor which is an AST visitor.
  * @class BallerinaFileEditor
@@ -1075,4 +1075,3 @@ class BallerinaFileEditor extends BallerinaView {
 
 
 export default BallerinaFileEditor;
-

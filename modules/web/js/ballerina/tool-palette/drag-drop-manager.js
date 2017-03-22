@@ -21,7 +21,7 @@ import Backbone from 'backbone';
     var DragDropManager = Backbone.Model.extend(
     /** @lends DragDropManager.prototype */
     {
-        idAttribute: this.cid,
+        // idAttribute: this.cid,
         modelName: "DragDropManager",
         /**
          * @augments Backbone.Model
@@ -29,6 +29,7 @@ import Backbone from 'backbone';
          * @class Handles validations for drag and drop
          */
         initialize: function (attrs, options) {
+          this.idAttribute = this.cid;
         },
 
         /**
@@ -200,6 +201,3 @@ import Backbone from 'backbone';
     });
 
     export default DragDropManager;
-
-
-
