@@ -20,13 +20,13 @@ import $ from 'jquery';
 import Backbone from 'backbone';
 import _ from 'lodash';
 import EventChannel from 'event_channel';
-import LaunchManager from './launch-manager';
 import LaunchChannel from './launch-channel';
 import Console from 'console';
 var instance;
 
 class LaunchManager extends EventChannel {
     constructor(args) {
+        super();
         var self = this;
         this.enable = false;
         this.channel = undefined;

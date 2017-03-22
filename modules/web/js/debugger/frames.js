@@ -26,7 +26,7 @@ var instance;
 
 class Frames extends EventChannel {
   constructor() {
-
+      super();
       var template =
       '<div class="debug-panel-header debug-frame-header">'+
       '   <span><a class="tool-group-header-title">Frames</a></span>'+
@@ -183,4 +183,4 @@ class Frames extends EventChannel {
 }
 
 
-export new Frames();
+export default new Frames();
