@@ -107,4 +107,4 @@ class BallerinaEnvironment extends EventChannel {
     }
 }
 
-export default (instance = (instance || new BallerinaEnvironment()));
+export default new BallerinaEnvironment();

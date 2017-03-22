@@ -25,19 +25,20 @@ import DebugManager from './debug-manager';
 import alerts from 'alerts';
 import Mousetrap from 'mousetrap';
 
-    var instance;
+var instance;
 
-    var Tools = function(){
+class Tools extends EventChannel {
+    constructor() {
         this.compiled = _.template('<% if (!active) { %>'
             + '<div class="debug-panel-header">'
             + '     <span class="tool-group-header-title">Debug</span>'
-            + '</div>' 
-            + '<div class="btn-group col-xs-12">' 
+            + '</div>'
+            + '<div class="btn-group col-xs-12">'
             + '     <div type="button" class="btn btn-default text-left btn-debug-activate col-xs-12" id="debug_application" title="Start Debugging Application"><span class="launch-label">Application</span><button type="button" class="btn btn-default pull-right btn-config" title="Config"><i class="fw fw-configarations"></i></button></div>'
             + '     <button type="button" class="btn btn-default text-left btn-debug-activate col-xs-12" id="debug_service" title="Start Debugging Service">Service</button>'
             + '     <button type="button" class="btn btn-default text-left btn-debug-activate col-xs-12" id="remote_debug" title="Start Debugging Remotely">Debug Remotely</button>'
             + '</div>'
-            + '<% } %>' 
+            + '<% } %>'
             + '<% if (active) { %>'
             + '<div class="debug-panel-header">'
             + '     <span class="tool-group-header-title">Debugger Active</span></span>'
@@ -61,12 +62,9 @@ import Mousetrap from 'mousetrap';
         DebugManager.on("debug-hit",_.bindKey(this, 'enableNavigation'));
         DebugManager.on("resume-execution",_.bindKey(this, 'disableNavigation'));
         DebugManager.on("session-completed",_.bindKey(this, 'disableNavigation'));
-    };
+    }
 
-    Tools.prototype = Object.create(EventChannel.prototype);
-    Tools.prototype.constructor = Tools;
-
-    Tools.prototype.setArgs = function(args){
+    setArgs(args) {
         var self = this;
         this.container = args.container;
         this.launchManager = args.launchManager;
@@ -131,20 +129,20 @@ import Mousetrap from 'mousetrap';
         });
     }
 
-    Tools.prototype.render = function () {
+    render() {
         var context = {};
         context.active = DebugManager.active;
         context.navigation = this.navigation;
         this.container.html(this.compiled(context));
         $('.btn-debug-activate').tooltip();
-    };
+    }
 
-    Tools.prototype.handleMouseAction = function(event) {
+    handleMouseAction(event) {
         var actionName = $(event.currentTarget).data('action');
         this.application.commandManager.dispatch(actionName);
-    };
+    }
 
-    Tools.prototype.handleAction = function(actionName){
+    handleAction(actionName) {
         switch(actionName){
             case 'Resume':
                 var action = DebugManager.resume.bind(DebugManager);
@@ -172,21 +170,21 @@ import Mousetrap from 'mousetrap';
             }
         }
 
-    };
+    }
 
-    Tools.prototype.connect = function(){
+    connect() {
         $('.debug-connection-group').removeClass("has-error");
-        $('.debug-connection-error').addClass("hide");        
+        $('.debug-connection-error').addClass("hide");
         DebugManager.connect($("#debugUrl").val());
-    };
+    }
 
-    Tools.prototype.connectionError = function(){
+    connectionError() {
         $('.debug-connection-group').addClass("has-error");
         $('.debug-connection-error').removeClass("hide");
         this.render();
-    };
+    }
 
-    Tools.prototype.connectionStarted = function(){
+    connectionStarted() {
         var self = this;
         this.render();
 
@@ -198,9 +196,9 @@ import Mousetrap from 'mousetrap';
         this.connectionDialog.modal('hide');
         DebugManager.publishBreakPoints();
         DebugManager.startDebug();
-    };
+    }
 
-    Tools.prototype.debugApplication = function(){
+    debugApplication() {
         var activeTab = this.application.tabController.getActiveTab();
         if(this.isReadyToRun(activeTab)) {
             var file = activeTab.getFile();
@@ -208,9 +206,9 @@ import Mousetrap from 'mousetrap';
         } else {
             alerts.error("Save file before start debugging application");
         }
-    };
+    }
 
-    Tools.prototype.debugService = function() {
+    debugService() {
         var activeTab = this.application.tabController.getActiveTab();
         if(this.isReadyToRun(activeTab)) {
             var file = activeTab.getFile();
@@ -218,9 +216,9 @@ import Mousetrap from 'mousetrap';
         } else {
             alerts.error("Save file before start debugging service");
         }
-    };
+    }
 
-    Tools.prototype.isReadyToRun = function(tab) {
+    isReadyToRun(tab) {
        if (!typeof tab.getFile === "function") {
            return false;
        }
@@ -233,16 +231,17 @@ import Mousetrap from 'mousetrap';
 
        return true;
 
-    };
+    }
 
-    Tools.prototype.enableNavigation = function(message) {
+    enableNavigation(message) {
         this.navigation = true;
         this.render();
-    };
+    }
 
-    Tools.prototype.disableNavigation = function() {
+    disableNavigation() {
         this.navigation = false;
         this.render();
-    };
+    }
+}
 
-    export default (instance = (instance || new Tools() ));
+export default new Tools();
