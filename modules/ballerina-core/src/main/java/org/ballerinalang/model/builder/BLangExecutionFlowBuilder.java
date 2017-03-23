@@ -1032,7 +1032,7 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
         arrayMapAccessExpr.setNext(rExp);
         rExp.setParent(arrayMapAccessExpr);
         LinkedNode previous = rExp;
-        for(Expression indexExpr : indexExprs){
+        for (Expression indexExpr : indexExprs) {
             previous.setNextSibling(indexExpr);
             indexExpr.setParent(arrayMapAccessExpr);
             previous = indexExpr;
@@ -1042,7 +1042,7 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
 //        indexExpr.setParent(arrayMapAccessExpr);
 //        indexExpr.setNextSibling(endNode);
         rExp.accept(this);
-        for(Expression indexExpr : indexExprs) {
+        for (Expression indexExpr : indexExprs) {
             indexExpr.accept(this);
         }
         endNode.setNext(findNext(endNode));
