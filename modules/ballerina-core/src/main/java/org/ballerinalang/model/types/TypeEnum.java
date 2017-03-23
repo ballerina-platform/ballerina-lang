@@ -39,7 +39,7 @@ public enum TypeEnum {
     DATATABLE("datatable"),
     STRUCT("struct"),
     EMPTY(""),
-    ANY("var");
+    ANY("any");
 
     private String name;
 
