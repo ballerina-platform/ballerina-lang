@@ -850,7 +850,7 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
             var packageNames = _.map(packages, function(p){return p._name});
 
             importValueText.typeahead({
-                    hint: true,
+                    hint: false,
                     highlight: true,
                     minLength: 1
                 },
