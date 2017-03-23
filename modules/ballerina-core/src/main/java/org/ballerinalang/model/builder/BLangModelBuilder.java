@@ -624,8 +624,20 @@ public class BLangModelBuilder {
     public void createMapStructLiteral(NodeLocation location) {
         List<MapStructInitKeyValueExpr> keyValueExprList = mapStructKVListStack.pop();
         for (MapStructInitKeyValueExpr argExpr : keyValueExprList) {
-            checkArgExprValidity(location, argExpr.getKeyExpr());
-            checkArgExprValidity(location, argExpr.getValueExpr());
+
+            if (argExpr.getKeyExpr() instanceof BacktickExpr) {
+                String errMsg = BLangExceptionHelper.constructSemanticError(location,
+                        SemanticErrors.TEMPLATE_EXPRESSION_NOT_ALLOWED_HERE);
+                errorMsgs.add(errMsg);
+
+            }
+
+            if (argExpr.getValueExpr() instanceof BacktickExpr) {
+                String errMsg = BLangExceptionHelper.constructSemanticError(location,
+                        SemanticErrors.TEMPLATE_EXPRESSION_NOT_ALLOWED_HERE);
+                errorMsgs.add(errMsg);
+
+            }
         }
 
         Expression[] argExprs;
@@ -1348,31 +1360,23 @@ public class BLangModelBuilder {
     }
 
     protected void checkArgExprValidity(NodeLocation location, Expression argExpr) {
-//        String errMsg = null;
-//        if (argExpr instanceof BacktickExpr) {
-//            errMsg = BLangExceptionHelper.constructSemanticError(location,
-//                    SemanticErrors.TEMPLATE_EXPRESSION_NOT_ALLOWED_HERE);
-//
-//        } else if (argExpr instanceof ActionInvocationExpr) {
-//            errMsg = BLangExceptionHelper.constructSemanticError(location,
-//                    SemanticErrors.ACTION_INVOCATION_NOT_ALLOWED_HERE);
-//
-//        } else if (argExpr instanceof ArrayInitExpr) {
-//            errMsg = BLangExceptionHelper.constructSemanticError(location,
-//                    SemanticErrors.ARRAY_INIT_NOT_ALLOWED_HERE);
-//
-//        } else if (argExpr instanceof ConnectorInitExpr) {
-//            errMsg = BLangExceptionHelper.constructSemanticError(location,
-//                    SemanticErrors.CONNECTOR_INIT_NOT_ALLOWED_HERE);
-//
-//        } else if (argExpr instanceof RefTypeInitExpr) {
-//            errMsg = BLangExceptionHelper.constructSemanticError(location,
-//                    SemanticErrors.REF_TYPE_INTI_NOT_ALLOWED_HERE);
-//        }
-//
-//        if (errMsg != null) {
-//            errorMsgs.add(errMsg);
-//        }
+        String errMsg = null;
+        if (argExpr instanceof BacktickExpr) {
+            errMsg = BLangExceptionHelper.constructSemanticError(location,
+                    SemanticErrors.TEMPLATE_EXPRESSION_NOT_ALLOWED_HERE);
+
+        } else if (argExpr instanceof ArrayInitExpr) {
+            errMsg = BLangExceptionHelper.constructSemanticError(location,
+                    SemanticErrors.ARRAY_INIT_NOT_ALLOWED_HERE);
+
+        } else if (argExpr instanceof RefTypeInitExpr) {
+            errMsg = BLangExceptionHelper.constructSemanticError(location,
+                    SemanticErrors.REF_TYPE_INTI_NOT_ALLOWED_HERE);
+        }
+
+        if (errMsg != null) {
+            errorMsgs.add(errMsg);
+        }
     }
 
     protected List<AnnotationAttachment> getAnnotationAttachments() {
