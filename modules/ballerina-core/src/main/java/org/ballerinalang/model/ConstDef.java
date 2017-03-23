@@ -18,7 +18,6 @@
 package org.ballerinalang.model;
 
 import org.ballerinalang.model.expressions.Expression;
-import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.SimpleTypeName;
 import org.ballerinalang.model.values.BValue;
 

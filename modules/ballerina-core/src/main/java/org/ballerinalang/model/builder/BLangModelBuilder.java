@@ -96,10 +96,8 @@ import org.ballerinalang.util.exceptions.SemanticException;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Queue;
 import java.util.Stack;
 import java.util.function.Supplier;
 import java.util.regex.Matcher;
@@ -320,8 +318,8 @@ public class BLangModelBuilder {
     public void addAnnotationAttachment(NodeLocation location, NameReference nameReference, int attributesCount) {
         AnnotationAttachment.AnnotationBuilder annonAttachmentBuilder = annonAttachmentBuilderStack.pop();
 
-        // TODO FIXME Setting annotation name as pkgname:name
-        // TODO This is how current annotation processing code is written in the server connector frameworkad
+        // TODO Setting annotation name as pkgname:name
+        // TODO This is how current annotation processing code is written in the server connector frameworke
         annonAttachmentBuilder.setName(nameReference.getPackageName() + ":" + nameReference.getName());
         annonAttachmentBuilder.setPkgName(nameReference.getPackageName());
 

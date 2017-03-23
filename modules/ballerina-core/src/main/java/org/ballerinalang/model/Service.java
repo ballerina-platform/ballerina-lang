@@ -39,6 +39,7 @@ import java.util.Map;
  * ResourceDefinition;+
  * }
  * <br>
+ *
  * @since 0.8.0
  */
 public class Service implements CompilationUnit, SymbolScope, BLangSymbol {
@@ -206,7 +207,8 @@ public class Service implements CompilationUnit, SymbolScope, BLangSymbol {
             this.service.pkgPath = this.pkgPath;
             this.service.symbolName = new SymbolName(name, pkgPath);
 
-            this.service.annotations = this.annotationList.toArray(new AnnotationAttachment[this.annotationList.size()]);
+            this.service.annotations = this.annotationList.toArray(
+                    new AnnotationAttachment[this.annotationList.size()]);
             this.service.resources = this.resourceList.toArray(new Resource[this.resourceList.size()]);
             this.service.variableDefStmts = this.variableDefStmtList.toArray(
                     new VariableDefStmt[variableDefStmtList.size()]);

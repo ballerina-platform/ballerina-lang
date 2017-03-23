@@ -61,7 +61,7 @@ public class StructDef extends BType implements CompilationUnit, SymbolScope {
     public void setSymbolName(SymbolName symbolName) {
         this.symbolName = symbolName;
     }
-    
+
     /**
      * Get all the Annotations associated with this struct.
      *
@@ -188,7 +188,7 @@ public class StructDef extends BType implements CompilationUnit, SymbolScope {
         public void setPackagePath(String pkgPath) {
             this.pkgPath = pkgPath;
         }
-        
+
         public void addAnnotation(AnnotationAttachment annotation) {
             this.annotationList.add(annotation);
         }
@@ -211,7 +211,8 @@ public class StructDef extends BType implements CompilationUnit, SymbolScope {
             this.structDef.location = location;
             this.structDef.typeName = name;
             this.structDef.pkgPath = pkgPath;
-            this.structDef.annotations = this.annotationList.toArray(new AnnotationAttachment[this.annotationList.size()]);
+            this.structDef.annotations = this.annotationList.toArray(
+                    new AnnotationAttachment[this.annotationList.size()]);
             this.structDef.fields = fields.toArray(new VariableDef[fields.size()]);
             this.structDef.symbolName = new SymbolName(name, pkgPath);
 
