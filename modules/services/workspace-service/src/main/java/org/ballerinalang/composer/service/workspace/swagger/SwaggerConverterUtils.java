@@ -36,7 +36,7 @@ import org.ballerinalang.composer.service.workspace.rest.datamodel.BLangJSONMode
 import org.ballerinalang.composer.service.workspace.rest.datamodel.BallerinaComposerErrorStrategy;
 import org.ballerinalang.composer.service.workspace.rest.datamodel.BallerinaComposerModelBuilder;
 import org.ballerinalang.composer.service.workspace.swagger.generators.BallerinaCodeGenerator;
-import org.ballerinalang.model.Annotation;
+import org.ballerinalang.model.AnnotationAttachment;
 import org.ballerinalang.model.BLangPackage;
 import org.ballerinalang.model.BallerinaFile;
 import org.ballerinalang.model.CompilationUnit;
@@ -144,13 +144,13 @@ public class SwaggerConverterUtils {
         for (Map.Entry<String, List<CodegenOperation>> pathEntry : paths.entrySet()) {
             resources1 = mapSwaggerPathsToResources(pathEntry.getValue());
         }
-        List<Annotation> serviceAnnotationArrayList = new ArrayList<Annotation>();
-        serviceAnnotationArrayList.add(new Annotation(null, new SymbolName("http:BasePath"), swagger.getBasePath(),
+        List<AnnotationAttachment> serviceAnnotationArrayList = new ArrayList<AnnotationAttachment>();
+        serviceAnnotationArrayList.add(new AnnotationAttachment(null, "http:BasePath", swagger.getBasePath(),
                 null));
-        serviceAnnotationArrayList.add(new Annotation(null, new SymbolName("http:Host"), swagger.getHost(), null));
-        serviceAnnotationArrayList.add(new Annotation(null, new SymbolName("http:Info"), Json.pretty(swagger.getInfo()),
+        serviceAnnotationArrayList.add(new AnnotationAttachment(null, "http:Host", swagger.getHost(), null));
+        serviceAnnotationArrayList.add(new AnnotationAttachment(null, "http:Info", Json.pretty(swagger.getInfo()),
                 null));
-        service.setAnnotations(serviceAnnotationArrayList.toArray(new Annotation[serviceAnnotationArrayList.size()]));
+        service.setAnnotations(serviceAnnotationArrayList.toArray(new AnnotationAttachment[serviceAnnotationArrayList.size()]));
         //Iterate through paths and add them as resources
         service.setResources(resources1);
         return service;
@@ -195,27 +195,27 @@ public class SwaggerConverterUtils {
                     .getInstance()));
             resourceBuilder.setName(operationId);
             if (entry.hasConsumes) {
-                resourceBuilder.addAnnotation(new Annotation(null, new SymbolName("http:Consumes"), entry.consumes
+                resourceBuilder.addAnnotation(new AnnotationAttachment(null, "http:Consumes", entry.consumes
                         .get(0).get("mediaType"), null));
             }
             if (entry.hasProduces) {
-                resourceBuilder.addAnnotation(new Annotation(null, new SymbolName("http:Produces"),
+                resourceBuilder.addAnnotation(new AnnotationAttachment(null, "http:Produces",
                         entry.produces.get(0).get("mediaType"), null));
             }
             if (entry.summary != null) {
-                resourceBuilder.addAnnotation(new Annotation(null, new SymbolName("http:Summary"), entry.summary,
+                resourceBuilder.addAnnotation(new AnnotationAttachment(null, "http:Summary", entry.summary,
                         null));
             }
             if (entry.notes != null) {
-                resourceBuilder.addAnnotation(new Annotation(null, new SymbolName("http:Description"), entry.notes,
+                resourceBuilder.addAnnotation(new AnnotationAttachment(null, "http:Description", entry.notes,
                         null));
             }
             if (entry.path != null && entry.path.length() > 0) {
-                resourceBuilder.addAnnotation(new Annotation(null, new SymbolName("http:Path"), entry.path, null));
-            }
+                resourceBuilder.addAnnotation(new AnnotationAttachment(null, "http:Path", entry.path, null));
+            
             
             if (entry.httpMethod != null && entry.httpMethod.length() > 0) {
-                resourceBuilder.addAnnotation(new Annotation(null, new SymbolName("http:" + httpMethod), "", null));
+                resourceBuilder.addAnnotation(new AnnotationAttachment(null, "http:" + httpMethod, "", null));
             }
             //handle parameters
             if (entry.getHasQueryParams()) {
@@ -229,7 +229,7 @@ public class SwaggerConverterUtils {
                     ParameterDef parameterDef = new ParameterDef(new NodeLocation("<unknown>", 0), variableName, new
                             SimpleTypeName(codegenParameter.dataType), new SymbolName("m"), resourceBuilder
                             .buildResource());
-                    Annotation annotation = new Annotation(null, new SymbolName("http:QueryParam"), codegenParameter
+                    AnnotationAttachment annotation = new AnnotationAttachment(null, "http:QueryParam", codegenParameter
                             .baseName, null);
                     parameterDef.addAnnotation(annotation);
                     resourceBuilder.addParameter(parameterDef);
@@ -246,7 +246,7 @@ public class SwaggerConverterUtils {
                     ParameterDef parameterDef = new ParameterDef(new NodeLocation("<unknown>", 0), variableName, new
                             SimpleTypeName(codegenParameter.dataType), new SymbolName("m"), resourceBuilder
                             .buildResource());
-                    Annotation annotation = new Annotation(null, new SymbolName("http:PathParam"), codegenParameter
+                    AnnotationAttachment annotation = new AnnotationAttachment(null, "http:PathParam", codegenParameter
                             .baseName, null);
                     parameterDef.addAnnotation(annotation);
                     resourceBuilder.addParameter(parameterDef);
@@ -284,7 +284,7 @@ public class SwaggerConverterUtils {
             Resource.ResourceBuilder resourceBuilder = new Resource.ResourceBuilder(new BLangPackage(GlobalScope
                     .getInstance()));
             for (Map.Entry<HttpMethod, Operation> operationEntry : path.getOperationMap().entrySet()) {
-                resourceBuilder.addAnnotation(new Annotation(null, new SymbolName(operationEntry.getKey().toString())
+                resourceBuilder.addAnnotation(new AnnotationAttachment(null, operationEntry.getKey().toString()
                         , null, null));
                 
                 resourceBuilder.setSymbolName(new SymbolName(operationEntry.getKey().name()));
@@ -324,7 +324,7 @@ public class SwaggerConverterUtils {
                     resourceBuilder.setPkgPath(originalResource.getPackagePath());
                     resourceBuilder.setBody(originalResource.getResourceBody());
                     resourceBuilder.setNodeLocation(originalResource.getNodeLocation());
-                    for (Annotation annotation : mergeAnnotations(originalResource.getAnnotations(), resource
+                    for (AnnotationAttachment annotation : mergeAnnotations(originalResource.getAnnotations(), resource
                             .getAnnotations())) {
                         resourceBuilder.addAnnotation(annotation);
                     }
@@ -350,7 +350,7 @@ public class SwaggerConverterUtils {
         //Following have to do because we cannot assign service name directly when builder pattern used.
         Service.ServiceBuilder serviceBuilder = new Service.ServiceBuilder(ballerinaService.getEnclosingScope());
         serviceBuilder.setName(ballerinaService.getName());
-        for (Annotation annotation : ballerinaService.getAnnotations()) {
+        for (AnnotationAttachment annotation : ballerinaService.getAnnotations()) {
             serviceBuilder.addAnnotation(annotation);
         }
         for (Resource resource : ballerinaService.getResources()) {
@@ -369,7 +369,7 @@ public class SwaggerConverterUtils {
      * @param annotationsToMerge annotations array to merge
      * @return merged annotations
      */
-    public static Annotation[] mergeAnnotations(Annotation[] annotations, Annotation[] annotationsToMerge) {
+    public static AnnotationAttachment[] mergeAnnotations(AnnotationAttachment[] annotations, AnnotationAttachment[] annotationsToMerge) {
         //TODO this logic need to be reviewed and fix issues. This is temporary commit to test swagger UI flow
         if (annotations == null) {
             return clone(annotationsToMerge);
@@ -377,18 +377,18 @@ public class SwaggerConverterUtils {
             return clone(annotations);
         } else {
             //update annotations
-            Map<String, Annotation> annotationMap = new ConcurrentHashMap<>();
-            for (Annotation originalAnnotation : annotations) {
+            Map<String, AnnotationAttachment> annotationMap = new ConcurrentHashMap<>();
+            for (AnnotationAttachment originalAnnotation : annotations) {
                 //Add original annotations
                 if (!originalAnnotation.getName().matches(SwaggerBallerinaConstants.HTTP_VERB_MATCHING_PATTERN)) {
                     annotationMap.put(originalAnnotation.getName(), originalAnnotation);
                 }
             }
-            for (Annotation annotationToMerge : annotationsToMerge) {
+            for (AnnotationAttachment annotationToMerge : annotationsToMerge) {
                 //merge annotations
                 annotationMap.put(annotationToMerge.getName(), annotationToMerge);
             }
-            return annotationMap.values().toArray(new Annotation[annotationMap.size()]);
+            return annotationMap.values().toArray(new AnnotationAttachment[annotationMap.size()]);
         }
     }
     
@@ -398,8 +398,8 @@ public class SwaggerConverterUtils {
      * @param annotations annotation array
      * @return cloned annotation array
      */
-    private static Annotation[] clone(Annotation[] annotations) {
-        return annotations == null ? null : (Annotation[]) annotations.clone();
+    private static AnnotationAttachment[] clone(AnnotationAttachment[] annotations) {
+        return annotations == null ? null : (AnnotationAttachment[]) annotations.clone();
     }
     
     /**
@@ -412,7 +412,7 @@ public class SwaggerConverterUtils {
     public static boolean isResourceUUIDMatch(Resource swaggerResource, Resource ballerinaResource) {
         String path = "/";
         String verb = "";
-        for (Annotation annotation : ballerinaResource.getAnnotations()) {
+        for (AnnotationAttachment annotation : ballerinaResource.getAnnotations()) {
             if (annotation.getName().equalsIgnoreCase("http:Path")) {
                 path = annotation.getValue();
             } else if (annotation.getName().matches(SwaggerBallerinaConstants.HTTP_VERB_MATCHING_PATTERN)) {

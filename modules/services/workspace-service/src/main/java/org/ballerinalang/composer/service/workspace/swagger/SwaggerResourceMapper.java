@@ -21,7 +21,7 @@ import io.swagger.models.Path;
 import io.swagger.models.Response;
 import io.swagger.models.parameters.PathParameter;
 import io.swagger.models.parameters.QueryParameter;
-import org.ballerinalang.model.Annotation;
+import org.ballerinalang.model.AnnotationAttachment;
 import org.ballerinalang.model.ParameterDef;
 import org.ballerinalang.model.Resource;
 import org.ballerinalang.services.dispatchers.http.Constants;
@@ -135,7 +135,7 @@ public class SwaggerResourceMapper {
     private OperationAdaptor convertResourceToOperation(Resource resource) {
         OperationAdaptor op = new OperationAdaptor();
         if (resource != null) {
-            Annotation[] resourceAnnotations = resource.getResourceAnnotations();
+            AnnotationAttachment[] resourceAnnotations = resource.getResourceAnnotations();
             //Adding default response
             //TODO need to implement nested response support and then use response annotation.
             Response response = new Response()
@@ -181,7 +181,7 @@ public class SwaggerResourceMapper {
             }
             if (resourceAnnotations != null) {
                 //TODO add all supported annotation mapping after annotation model finalized.
-                for (Annotation annotation : resourceAnnotations) {
+                for (AnnotationAttachment annotation : resourceAnnotations) {
                     if (annotation.getName().equalsIgnoreCase("http:Consumes")) {
                         op.getOperation().consumes(annotation.getValue());
                     } else if (annotation.getName().equalsIgnoreCase("http:Produces")) {
