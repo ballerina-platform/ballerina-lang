@@ -2,7 +2,7 @@ package samples.parser;
 
 service HelloService {
 
-  @Path ("/tweet")
+  @Path {value:"/tweet"}
   resource {
       int b;
       reply m;

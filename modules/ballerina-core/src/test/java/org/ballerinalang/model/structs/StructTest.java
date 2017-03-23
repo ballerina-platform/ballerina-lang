@@ -24,6 +24,7 @@ import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.exceptions.BallerinaException;
+import org.ballerinalang.util.exceptions.ParserException;
 import org.ballerinalang.util.exceptions.SemanticException;
 import org.ballerinalang.util.program.BLangFunctions;
 import org.testng.Assert;
@@ -172,9 +173,9 @@ public class StructTest {
     }
     
     @Test(description = "Test defining a struct constant",
-            expectedExceptions = {SemanticException.class},
-            expectedExceptionsMessageRegExp = "lang[/\\\\]structs[/\\\\]constants[/\\\\]struct-constants.bal:3: " +
-            "invalid type 'Person'")
+            expectedExceptions = {ParserException.class},
+            expectedExceptionsMessageRegExp = "lang[/\\\\]structs[/\\\\]constants[/\\\\]struct-constants.bal:3:6: " +
+            "missing \\{'boolean', 'int', 'float', 'string'\\} before 'Person'")
     public void testStructConstant() {
         BTestUtils.parseBalFile("lang/structs/constants");
     }

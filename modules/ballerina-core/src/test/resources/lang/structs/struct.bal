@@ -10,10 +10,10 @@ struct Person {
     Family family;
 }
 
-@doc:Description("Family representation")
-@doc:Field("spouse: a spouse")
-@doc:Field("noOfChildren: number of children")
-@doc:Field("children: list of children")
+@Description {value:"Family representation"}
+@Field {value:"spouse: a spouse"}
+@Field {value:"noOfChildren: number of children"}
+@Field {value:"children: list of children"}
 struct Family {
     string spouse;
     int noOfChildren;

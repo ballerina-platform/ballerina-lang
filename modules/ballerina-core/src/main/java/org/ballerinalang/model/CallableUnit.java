@@ -43,7 +43,7 @@ public interface CallableUnit extends BLangSymbol, Node {
      *
      * @return an arrays of annotations
      */
-    Annotation[] getAnnotations();
+    AnnotationAttachment[] getAnnotations();
 
     /**
      * Returns an arrays of parameters of this callable unit.

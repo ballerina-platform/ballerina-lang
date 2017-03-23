@@ -2,11 +2,11 @@ package samples.parser.invalidSyntax;
 
 import ballerina.lang.system;
 
-@BasePath ("/samples")
+@BasePath {value:"/samples"}
 service SampleService {
 
-  @GET
-  @Path ("/resource")
+  @GET{}
+  @Path {value:"/resource"}
   resource sampleResource (message m) {
 	reply;
   }

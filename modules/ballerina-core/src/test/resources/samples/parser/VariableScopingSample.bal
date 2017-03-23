@@ -7,8 +7,8 @@ service HelloService {
 
   int a;
 
-  @POST
-  @Path ("/tweet")
+  @POST {}
+  @Path {value:"/tweet"}
   resource tweet (message m) {
       int b;
       a = 10;

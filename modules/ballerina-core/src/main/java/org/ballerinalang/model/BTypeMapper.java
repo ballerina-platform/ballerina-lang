@@ -41,7 +41,7 @@ public class BTypeMapper implements TypeMapper, SymbolScope, CompilationUnit {
     protected boolean isNative;
     protected SymbolName symbolName;
 
-    private Annotation[] annotations;
+    private AnnotationAttachment[] annotations;
     private ParameterDef[] parameterDefs;
     private BType[] parameterTypes;
     private ParameterDef[] returnParams;
@@ -73,7 +73,7 @@ public class BTypeMapper implements TypeMapper, SymbolScope, CompilationUnit {
      *
      * @return list of Annotations
      */
-    public Annotation[] getAnnotations() {
+    public AnnotationAttachment[] getAnnotations() {
         return annotations;
     }
 
@@ -251,7 +251,7 @@ public class BTypeMapper implements TypeMapper, SymbolScope, CompilationUnit {
             bTypeCon.pkgPath = this.pkgPath;
             bTypeCon.isNative = this.isNative;
 
-            bTypeCon.annotations = this.annotationList.toArray(new Annotation[this.annotationList.size()]);
+            bTypeCon.annotations = this.annotationList.toArray(new AnnotationAttachment[this.annotationList.size()]);
             bTypeCon.parameterDefs = this.parameterDefList.toArray(new ParameterDef[this.parameterDefList.size()]);
             bTypeCon.returnParams = this.returnParamList.toArray(new ParameterDef[this.returnParamList.size()]);
             bTypeCon.typeMapperBody = this.body;

@@ -29,19 +29,19 @@ import java.util.Map;
  * @see <a href="https://github.com/wso2/ballerina/blob/master/docs/SyntaxSummary.md">Ballerina Syntax Summary</a>
  * @since 0.8.0
  */
-public class Annotation implements Node {
+public class AnnotationAttachment implements Node {
 
-    // TODO Refactor these instance variables
     private String name;
-    private SymbolName symbolName;
+    private String pkgName;
+    private String pkgPath;
     private String value;
     private Map<String, String> keyValPairs = new HashMap<>();
     private Map<SymbolName, String> elementPair = new HashMap<>();
     private NodeLocation location;
 
-    public Annotation(NodeLocation location, SymbolName name, String value, Map<SymbolName, String> keyValPairs) {
+    public AnnotationAttachment(NodeLocation location, String name, String value, Map<SymbolName, String> keyValPairs) {
         this.location = location;
-        this.symbolName = name;
+        this.name = name;
         this.value = value;
         this.elementPair = keyValPairs;
     }
@@ -52,11 +52,15 @@ public class Annotation implements Node {
      * @return name of the annotation
      */
     public String getName() {
-        if (this.name != null) {
-            return name;
-        } else {
-            return this.symbolName.getName();
-        }
+        return name;
+    }
+
+    public String getPkgName() {
+        return pkgName;
+    }
+
+    public String getPkgPath() {
+        return pkgPath;
     }
 
     /**
@@ -122,7 +126,9 @@ public class Annotation implements Node {
      */
     public static class AnnotationBuilder {
         private NodeLocation location;
-        private SymbolName name;
+        private String name;
+        private String pkgName;
+        private String pkgPath;
         private String value;
         private Map<SymbolName, String> keyValPairs = new HashMap<>();
 
@@ -130,8 +136,16 @@ public class Annotation implements Node {
             this.location = location;
         }
 
-        public void setName(SymbolName name) {
+        public void setName(String name) {
             this.name = name;
+        }
+
+        public void setPkgName(String pkgName) {
+            this.pkgName = pkgName;
+        }
+
+        public void setPkgPath(String pkgPath) {
+            this.pkgPath = pkgPath;
         }
 
         public void setValue(String value) {
@@ -142,8 +156,8 @@ public class Annotation implements Node {
             this.keyValPairs.put(key, value);
         }
 
-        public Annotation build() {
-            return new Annotation(location, name, value, keyValPairs);
+        public AnnotationAttachment build() {
+            return new AnnotationAttachment(location, name, value, keyValPairs);
         }
     }
 }
