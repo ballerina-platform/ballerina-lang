@@ -1207,7 +1207,6 @@ public class BLangExecutor implements NodeExecutor {
 
         Expression[] exprs;
         if (fieldExpr.getVarRef() instanceof ArrayMapAccessExpr) {
-            // ToDo : TALK TO SUPUN : get the depth value
             exprs = ((ArrayMapAccessExpr) fieldExpr.getVarRef()).getIndexExpr();
         } else {
             // If the lExprValue value is not a struct arrays/map, then set the value to the struct
@@ -1292,7 +1291,6 @@ public class BLangExecutor implements NodeExecutor {
         // If the lExprValue value is not a struct arrays/map, then the unit value is same as the struct
         Expression[] indexExpr;
         if (currentVarRefExpr instanceof ArrayMapAccessExpr) {
-            // ToDo : Talk to SUPUN
             indexExpr = ((ArrayMapAccessExpr) currentVarRefExpr).getIndexExpr();
         } else {
             return currentVal;
