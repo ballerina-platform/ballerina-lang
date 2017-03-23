@@ -123,7 +123,6 @@ import org.ballerinalang.model.types.TypeEdge;
 import org.ballerinalang.model.types.TypeLattice;
 import org.ballerinalang.model.types.TypeVertex;
 import org.ballerinalang.model.util.LangModelUtils;
-import org.ballerinalang.model.values.BArray;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.natives.NativeUnitProxy;
@@ -1742,7 +1741,7 @@ public class SemanticAnalyzer implements NodeVisitor {
 
             // Set type of the arrays access expression
             String typeName = (arrayMapVarRefExpr.getType()).getName();
-            typeName = typeName.substring(0, typeName.length() - (arrayMapAccessExpr.getIndexExpr().length*2));
+            typeName = typeName.substring(0, typeName.length() - (arrayMapAccessExpr.getIndexExpr().length * 2));
             BType typeOfArray = BTypes.resolveType(new SimpleTypeName(typeName),
                     GlobalScope.getInstance(), arrayMapAccessExpr.getNodeLocation());
             arrayMapAccessExpr.setType(typeOfArray);

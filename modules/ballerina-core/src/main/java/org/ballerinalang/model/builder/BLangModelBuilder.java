@@ -228,7 +228,8 @@ public class BLangModelBuilder {
 
     // Add types. SimpleTypes, Types with full scheme, schema URL or schema ID
 
-    public void addSimpleTypeName(NodeLocation location, String name, String pkgName, boolean isArrayType, int dimensions) {
+    public void addSimpleTypeName(NodeLocation location, String name, String pkgName,
+            boolean isArrayType, int dimensions) {
         SimpleTypeName typeName = null;
         ImportPackage importPkg = getImportPackage(pkgName);
         checkForUndefinedPackagePath(location, pkgName, importPkg, () -> pkgName + ":" + name);

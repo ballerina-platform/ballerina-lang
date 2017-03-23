@@ -1012,7 +1012,7 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
                 // Get the value stored in the index
                 if (collectionValue instanceof BArray) {
                     BArray bArray = (BArray) collectionValue;
-                    for (int i = indexExpr.length -1; i >= 1; i--) {
+                    for (int i = indexExpr.length - 1; i >= 1; i--) {
                         BInteger indexVal = (BInteger) getTempValue(indexExpr[i]);
                         bArray = (BArray) bArray.get(indexVal.intValue());
                     }
@@ -1460,7 +1460,7 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
 
             Expression[] exprs = accessExpr.getIndexExpr();
             if (exprs.length > 1) {
-                for (int i = exprs.length -1; i >= 1; i--) {
+                for (int i = exprs.length - 1; i >= 1; i--) {
                     BInteger indexVal = (BInteger) getTempValue(accessExpr.getIndexExpr()[i]);
 
                     // Will have to dynamically populate

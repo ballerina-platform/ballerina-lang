@@ -69,7 +69,6 @@ import org.ballerinalang.model.statements.VariableDefStmt;
 import org.ballerinalang.model.statements.WhileStmt;
 import org.ballerinalang.model.statements.WorkerInvocationStmt;
 import org.ballerinalang.model.statements.WorkerReplyStmt;
-import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BMapType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
@@ -778,7 +777,7 @@ public class BLangExecutor implements NodeExecutor {
             bArray = new BArray<>(BArray.class);
             BArray currentBArray = bArray;
             for (int i = 1; i < arrayInitExpr.getDimensions(); i++) {
-                if (i == arrayInitExpr.getDimensions() -1) {
+                if (i == arrayInitExpr.getDimensions() - 1) {
                     BArray newbArray = arrayInitExpr.getType().getDefaultValue();
                     currentBArray.add(0, newbArray);
                 } else {
@@ -1338,7 +1337,7 @@ public class BLangExecutor implements NodeExecutor {
     }
 
     private BArray retrieveArray(BArray arrayVal, BValue rValue, Expression[] exprs) {
-        for (int i = exprs.length -1; i >= 1; i--) {
+        for (int i = exprs.length - 1; i >= 1; i--) {
             BInteger indexVal = (BInteger) exprs[i].execute(this);
 
             // Will have to dynamically populate
@@ -1359,7 +1358,7 @@ public class BLangExecutor implements NodeExecutor {
     }
 
     private BValue getValueFromArrray(BArray bArray, Expression[] indexExpr) {
-        for (int i = indexExpr.length -1; i >= 1; i--) {
+        for (int i = indexExpr.length - 1; i >= 1; i--) {
             BInteger indexVal = (BInteger) indexExpr[i].execute(this);
             bArray = (BArray) bArray.get(indexVal.intValue());
         }

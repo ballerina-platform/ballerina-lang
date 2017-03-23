@@ -749,7 +749,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
         if (isSimpleType) {
             int dimensions = 1;
             if (isArrayType) {
-                dimensions = ctx.getChild(0).getChild(0).getChildCount() -1;
+                dimensions = ctx.getChild(0).getChild(0).getChildCount() - 1;
             }
             modelBuilder.addSimpleTypeName(getCurrentLocation(ctx), typeName, currentPkgName, isArrayType, dimensions);
             typeName = null;
@@ -1232,7 +1232,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
     public void exitMapArrayVariableIdentifier(BallerinaParser.MapArrayVariableIdentifierContext ctx) {
         if (ctx.exception == null && ctx.Identifier() != null) {
             String mapArrayVarName = ctx.Identifier().getText();
-            int dimensions = (ctx.getChildCount() - 1)/3;
+            int dimensions = (ctx.getChildCount() - 1) / 3;
             modelBuilder.createMapArrayVarRefExpr(getCurrentLocation(ctx), mapArrayVarName, dimensions);
         }
     }
