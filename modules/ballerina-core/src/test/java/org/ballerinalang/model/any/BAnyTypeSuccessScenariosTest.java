@@ -69,4 +69,13 @@ public class BAnyTypeSuccessScenariosTest {
         Assert.assertEquals(bBoolean.booleanValue(), true, "Invalid boolean value returned.");
     }
 
+    @Test(description = "Test float value in any type get casted to int in two steps")
+    public void testFloatInAnyCastToInt() {
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "successfulIntCasting");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BInteger.class);
+        BInteger intVal = (BInteger) returns[0];
+        Assert.assertEquals(intVal.intValue(), 5, "Invalid int value returned.");
+    }
+
 }

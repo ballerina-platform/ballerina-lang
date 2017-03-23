@@ -25,7 +25,6 @@ import org.ballerinalang.model.TypeMapper;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.SimpleTypeName;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.model.values.BValueType;
 
 import java.util.function.Function;
 

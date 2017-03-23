@@ -32,3 +32,17 @@ struct Sample {
 }
 
 
+function successfulIntCasting()(int) {
+  any abc = floatReturn();
+  float floatVal = (float)abc;
+  int intVal = (int)floatVal;
+  return intVal;
+}
+
+function floatReturn()(float) {
+  float val = 5.6;
+  return val;
+}
+
+
+
