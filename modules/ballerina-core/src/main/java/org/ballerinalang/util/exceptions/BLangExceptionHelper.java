@@ -52,8 +52,8 @@ public class BLangExceptionHelper {
 
     }
 
-    public static void throwRuntimeError(RuntimeErrors runtimeErrors, Object... params) throws BLangRuntimeException {
+    public static BLangRuntimeException getRuntimeException(RuntimeErrors runtimeErrors, Object... params) {
         String errorMsg = MessageFormat.format(messageBundle.getString(runtimeErrors.getErrorMsgKey()), params);
-        throw new BLangRuntimeException(errorMsg);
+        return new BLangRuntimeException(errorMsg);
     }
 }

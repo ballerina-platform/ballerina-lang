@@ -19,10 +19,9 @@ package org.ballerinalang.model.types;
 
 import org.ballerinalang.model.SymbolScope;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.model.values.BValueType;
 
 /**
- * {@code BAnyType} represents a Any type.
+ * {@code BAnyType} represents any type in Ballerina. It is the root of the Ballerina type system.
  *
  * @since 0.85
  */
@@ -34,7 +33,7 @@ public class BAnyType extends BType {
      * @param typeName string name of the type
      */
     BAnyType(String typeName, String pkgPath, SymbolScope symbolScope) {
-        super(typeName, pkgPath, symbolScope, BValueType.class);
+        super(typeName, pkgPath, symbolScope, BValue.class);
     }
 
     @SuppressWarnings("unchecked")

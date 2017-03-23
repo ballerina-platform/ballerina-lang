@@ -19,6 +19,7 @@ package org.ballerinalang.model.values;
 
 import org.ballerinalang.model.ExceptionDef;
 import org.ballerinalang.model.types.BType;
+import org.ballerinalang.model.types.BTypes;
 
 /**
  * {@link BException} represents a exception value in Ballerina.
@@ -46,7 +47,7 @@ public class BException implements BRefType<ExceptionDef> {
 
     @Override
     public BType getType() {
-        return null; //todo
+        return BTypes.typeException;
     }
 
     @Override

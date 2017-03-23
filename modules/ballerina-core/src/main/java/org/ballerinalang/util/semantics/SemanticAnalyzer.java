@@ -2181,6 +2181,9 @@ public class SemanticAnalyzer implements NodeVisitor {
                 if (rhsType != null && lhsType.equals(rhsType)) {
                     continue;
                 }
+                if (lhsType == BTypes.typeAny) { //if left hand side is any, then no need for casting
+                    continue;
+                }
                 TypeCastExpression newExpr = checkWideningPossible(lhsType, exprs[i]);
                 if (newExpr != null) {
                     exprs[i] = newExpr;

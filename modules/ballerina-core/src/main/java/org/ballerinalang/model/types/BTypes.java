@@ -50,6 +50,7 @@ public class BTypes {
     public static BType typeException;
     public static BType typeDatatable;
     public static BType typeAny;
+    public static BType typeConnector;
 
     private static boolean initialized = false;
     private static Set<String> builtInTypeNames = new HashSet<>();
@@ -75,6 +76,7 @@ public class BTypes {
         globalScope.define(typeException.getSymbolName(), typeException);
         globalScope.define(typeDatatable.getSymbolName(), typeDatatable);
         globalScope.define(typeAny.getSymbolName(), typeAny);
+        globalScope.define(typeConnector.getSymbolName(), typeConnector);
 
         builtInTypeNames.add(TypeConstants.INT_TNAME);
         builtInTypeNames.add(TypeConstants.STRING_TNAME);
@@ -109,6 +111,7 @@ public class BTypes {
         typeException = new BExceptionType(TypeConstants.EXCEPTION_TNAME, null, globalScope);
         typeDatatable = new BDataTableType(TypeConstants.DATATABLE_TNAME, null, globalScope);
         typeAny = new BAnyType(TypeConstants.ANY_TNAME, null, globalScope);
+        typeConnector = new BConnectorType(TypeConstants.CONNECTOR_TNAME, null, globalScope);
         initialized = true;
     }
 
