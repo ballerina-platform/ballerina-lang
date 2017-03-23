@@ -23,16 +23,19 @@ import IfStatement from '../ast/statements/if-statement';
 
 /**
  * The view to represent a If Else statement which is an AST visitor.
- * @param {Object} args - Arguments for creating the view.
- * @param {IfElseStatement} args.model - The If Else statement model.
- * @param {Object} args.container - The HTML container to which the view should be added to.
- * @param {Object} args.parent - Parent View (Resource, Worker, etc)
- * @param {Object} [args.viewOptions={}] - Configuration values for the view.
  * @class IfElseStatementView
- * @constructor
  * @extends CompoundStatementView
  */
 class IfElseStatementView extends CompoundStatementView {
+
+    /**
+     * @param {Object} args - Arguments for creating the view.
+     * @param {IfElseStatement} args.model - The If Else statement model.
+     * @param {Object} args.container - The HTML container to which the view should be added to.
+     * @param {Object} args.parent - Parent View (Resource, Worker, etc)
+     * @param {Object} [args.viewOptions={}] - Configuration values for the view.
+     * @constructor
+     */
     constructor(args) {
         super(args);
 
@@ -43,13 +46,13 @@ class IfElseStatementView extends CompoundStatementView {
         this.getModel()._isChildOfWorker = args.isChildOfWorker;
 
         if (_.isNil(this._model) || !(this._model instanceof IfElseStatement)) {
-            log.error("If Else statement definition is undefined or is of different type." + this._model);
-            throw "If Else statement definition is undefined or is of different type." + this._model;
+            log.error('If Else statement definition is undefined or is of different type.' + this._model);
+            throw 'If Else statement definition is undefined or is of different type.' + this._model;
         }
 
         if (_.isNil(this._container)) {
-            log.error("Container for If Else statement is undefined." + this._container);
-            throw "Container for If Else statement is undefined." + this._container;
+            log.error('Container for If Else statement is undefined.' + this._container);
+            throw 'Container for If Else statement is undefined.' + this._container;
         }
     }
 
@@ -90,19 +93,19 @@ class IfElseStatementView extends CompoundStatementView {
         (this.__proto__.__proto__).render.call(this, diagramRenderingContext);
 
         var editableProperty = {};
-        _.forEach(this.getModel().getChildren(), function(child, index){
+        _.forEach(this.getModel().getChildren(), function(child){
             if (child instanceof IfStatement) {
                 editableProperty = {
-                    propertyType: "text",
-                    key: "If condition",
+                    propertyType: 'text',
+                    key: 'If condition',
                     model: child,
                     getterMethod: child.getCondition,
                     setterMethod: child.setCondition
                 };
             } else if(child instanceof IfElseStatement) {
                 editableProperty = {
-                    propertyType: "text",
-                    key: "Else If condition",
+                    propertyType: 'text',
+                    key: 'Else If condition',
                     model: child,
                     getterMethod: child.getCondition,
                     setterMethod: child.setCondition
@@ -129,8 +132,8 @@ class IfElseStatementView extends CompoundStatementView {
         if (!_.isNil(model) && model instanceof IfElseStatement) {
             (this.__proto__.__proto__).setModel(model);
         } else {
-            log.error("If Else statement definition is undefined or is of different type." + model);
-            throw "If Else statement definition is undefined or is of different type." + model;
+            log.error('If Else statement definition is undefined or is of different type.' + model);
+            throw 'If Else statement definition is undefined or is of different type.' + model;
         }
     }
 

@@ -16,7 +16,6 @@
  * under the License.
  */
 import log from 'log';
-import require from 'require';
 import EventChannel from 'event_channel';
 import _ from 'lodash';
 import BallerinaAstFactory from './ballerina-ast-factory';
@@ -31,6 +30,7 @@ import BallerinaAstFactory from './ballerina-ast-factory';
  */
 class ASTNode extends EventChannel {
     constructor(type) {
+        super();
         this.object = undefined;
         this.parent = undefined;
         this.children = [];

@@ -20,6 +20,7 @@ import ASTNode from './node';
 
 class TypeElement extends ASTNode {
     constructor(type, identifier) {
+        super();
         this.type = type;
         this.identifier = identifier;
         this.type = "TypeElement";

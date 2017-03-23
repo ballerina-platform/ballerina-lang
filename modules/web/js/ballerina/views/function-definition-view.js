@@ -17,41 +17,41 @@
  */
 import _ from 'lodash';
 import log from 'log';
-import EventChannel from 'event_channel';
 import Alerts from 'alerts';
 import SVGCanvas from './svg-canvas';
 import FunctionDefinition from './../ast/function-definition';
 import DefaultWorkerView from './default-worker';
-import D3Utils from 'd3utils';
-import d3 from 'd3';
 import WorkerDeclarationView from './worker-declaration-view';
-import StatementViewFactory from './statement-view-factory';
 import Point from './point';
 import Axis from './axis';
 import ConnectorDeclarationView from './connector-declaration-view';
 import StatementContainer from './statement-container';
-import VariablesView from './variable-definitions-pane-view';
 import ArgumentsView from './function-arguments-view';
 import ReturnTypePaneView from './return-types-pane-view';
 import BallerinaASTFactory from 'ballerina/ast/ballerina-ast-factory';
+import $ from 'jquery';
 
 /**
  * The view to represent a function definition which is an AST visitor.
- * @param {Object} args - Arguments for creating the view.
- * @param {FunctionDefinition} args.model - The function definition model.
- * @param {Object} args.container - The HTML container to which the view should be added to.
- * @param {Object} [args.viewOptions={}] - Configuration values for the view.
- * @constructor
- * @augments SVGCanvas
+ * @class FunctionDefinitionView
+ * @extends SVGCanvas
  */
 class FunctionDefinitionView extends SVGCanvas {
+
+    /**
+     * @param {Object} args - Arguments for creating the view.
+     * @param {FunctionDefinition} args.model - The function definition model.
+     * @param {Object} args.container - The HTML container to which the view should be added to.
+     * @param {Object} [args.viewOptions={}] - Configuration values for the view.
+     * @constructor
+     */
     constructor(args) {
         super(args);
         this._statementExpressionViewList = [];
         // TODO: Instead of using the parentView use the parent. Fix this from BallerinaView.js and bellow
-        this._parentView = _.get(args, "parentView");
+        this._parentView = _.get(args, 'parentView');
         //set panel icon for the function
-        this._viewOptions.panelIcon = _.get(args.viewOptions, "cssClass.function_icon");
+        this._viewOptions.panelIcon = _.get(args.viewOptions, 'cssClass.function_icon');
         //set initial height for the service container svg
         this._totalHeight = 170;
         this._statementContainer = undefined;
@@ -67,13 +67,13 @@ class FunctionDefinitionView extends SVGCanvas {
         this._offsetLastStatementGap = 100;
 
         if (_.isNil(this._model) || !(this._model instanceof FunctionDefinition)) {
-            log.error("Function definition is undefined or is of different type." + this._model);
-            throw "Function definition is undefined or is of different type." + this._model;
+            log.error('Function definition is undefined or is of different type.' + this._model);
+            throw 'Function definition is undefined or is of different type.' + this._model;
         }
 
         if (_.isNil(this._container)) {
-            log.error("Container for function definition is undefined." + this._container);
-            throw "Container for function definition is undefined." + this._container;
+            log.error('Container for function definition is undefined.' + this._container);
+            throw 'Container for function definition is undefined.' + this._container;
         }
     }
 
@@ -141,7 +141,7 @@ class FunctionDefinitionView extends SVGCanvas {
                 this.getWorkerLifeLineMargin().listenTo(this.getDefaultWorker().getBoundingBox(),
                     'right-edge-moved', function (offset) {
                         self.getWorkerLifeLineMargin().setPosition(self.getWorkerLifeLineMargin().getPosition() + offset);
-                });
+                    });
             } else if (workerViewIndex === workerViews.length - 1) {
                 // Deleted the last worker
                 this.getWorkerLifeLineMargin().stopListening(currentWorker.getBoundingBox());
@@ -176,8 +176,8 @@ class FunctionDefinitionView extends SVGCanvas {
         if (!_.isNil(model) && model instanceof FunctionDefinition) {
             this._model = model;
         } else {
-            log.error("Function definition undefined or is of different type." + model);
-            throw "Function definition undefined or is of different type." + model;
+            log.error('Function definition undefined or is of different type.' + model);
+            throw 'Function definition undefined or is of different type.' + model;
         }
     }
 
@@ -185,8 +185,8 @@ class FunctionDefinitionView extends SVGCanvas {
         if (!_.isNil(container)) {
             this._container = container;
         } else {
-            log.error("Container for function definition is undefined." + container);
-            throw "Container for function definition is undefined." + container;
+            log.error('Container for function definition is undefined.' + container);
+            throw 'Container for function definition is undefined.' + container;
         }
     }
 
@@ -271,8 +271,8 @@ class FunctionDefinitionView extends SVGCanvas {
 
             // Creating Expression Editor
             var editableProperty = {
-                propertyType: "text",
-                key: "WorkerDeclaration",
+                propertyType: 'text',
+                key: 'WorkerDeclaration',
                 model: workerDeclarationView._model,
                 getterMethod: workerDeclarationView._model.getWorkerDeclarationStatement,
                 setterMethod: workerDeclarationView._model.setWorkerDeclarationStatement,
@@ -351,9 +351,9 @@ class FunctionDefinitionView extends SVGCanvas {
 
         // Setting the styles for the canvas icon.
         if (!this.getModel().isMainFunction()) {
-            this.getPanelIcon().addClass(_.get(this._viewOptions, "cssClass.function_icon", ""));
+            this.getPanelIcon().addClass(_.get(this._viewOptions, 'cssClass.function_icon', ''));
         } else {
-            this.getPanelIcon().addClass(_.get(this._viewOptions, "cssClass.main_function_icon", ""));
+            this.getPanelIcon().addClass(_.get(this._viewOptions, 'cssClass.main_function_icon', ''));
         }
 
         var currentContainer = $('#' + this.getModel().getID());
@@ -362,23 +362,23 @@ class FunctionDefinitionView extends SVGCanvas {
         var self = this;
 
         //Scroll to the added position and highlight the heading
-        $(_.get(this._viewOptions, "design_view.container", "")).scrollTop(currentContainer.parent().position().top);
-        var hadingBox = $('#' + this.getModel().getID() + "_heading");
-        var canvas_heading_new = _.get(this._viewOptions, "cssClass.canvas_heading_new", "");
-        var new_drop_timeout = _.get(this._viewOptions, "design_view.new_drop_timeout", "");
+        $(_.get(this._viewOptions, 'design_view.container', '')).scrollTop(currentContainer.parent().position().top);
+        var hadingBox = $('#' + this.getModel().getID() + '_heading');
+        var canvas_heading_new = _.get(this._viewOptions, 'cssClass.canvas_heading_new', '');
+        var new_drop_timeout = _.get(this._viewOptions, 'design_view.new_drop_timeout', '');
         hadingBox.addClass(canvas_heading_new);
-        setTimeout(function(){hadingBox.removeClass(canvas_heading_new)}, new_drop_timeout);
+        setTimeout(function(){hadingBox.removeClass(canvas_heading_new);}, new_drop_timeout);
 
         if (!this.getModel().isMainFunction()) {
             $(this.getTitle()).text(this.getModel().getFunctionName())
-                .on("change paste keyup", function () {
+                .on('change paste keyup', function () {
                     self.getModel().setFunctionName($(this).text());
-                }).on("click", function (event) {
+                }).on('click', function (event) {
                     event.stopPropagation();
                 }).keypress(function (e) {
                     /* Ignore Delete and Backspace keypress in firefox and capture other keypress events.
                      (Chrome and IE ignore keypress event of these keys in browser level)*/
-                    if (!_.isEqual(e.key, "Delete") && !_.isEqual(e.key, "Backspace")) {
+                    if (!_.isEqual(e.key, 'Delete') && !_.isEqual(e.key, 'Backspace')) {
                         var enteredKey = e.which || e.charCode || e.keyCode;
                         // Disabling enter key
                         if (_.isEqual(enteredKey, 13)) {
@@ -399,7 +399,7 @@ class FunctionDefinitionView extends SVGCanvas {
                 });
         } else {
             // Making the main function title non editable.
-            $(this.getTitle()).removeAttr("contenteditable");
+            $(this.getTitle()).removeAttr('contenteditable');
         }
 
         // Creating default worker
@@ -446,7 +446,7 @@ class FunctionDefinitionView extends SVGCanvas {
         this.getModel().off('child-added');
         this.getModel().on('child-added', function (child) {
             self.visit(child);
-            self.getModel().trigger("child-visited", child);
+            self.getModel().trigger('child-visited', child);
 
             // Show/Hide scrolls.
             self._showHideScrolls(self._container, self.getChildContainer().node().ownerSVGElement);
@@ -460,9 +460,9 @@ class FunctionDefinitionView extends SVGCanvas {
 
         if (!this.getModel().isMainFunction()) {
             // Creating return type icon.
-            var panelReturnTypeIcon = $("<i/>", {
-                class: "fw fw-export pull-right right-icon-clickable hoverable",
-                title: "Return Types"
+            var panelReturnTypeIcon = $('<i/>', {
+                class: 'fw fw-export pull-right right-icon-clickable hoverable',
+                title: 'Return Types'
             }).appendTo(operationsPane).tooltip();
 
             $(panelReturnTypeIcon).click(function (event) {
@@ -472,7 +472,7 @@ class FunctionDefinitionView extends SVGCanvas {
             operationButtons.push(panelReturnTypeIcon);
 
             // Adding separator for return type icon.
-            $("<span class='pull-right canvas-operations-separator'>|</span>").appendTo(operationsPane);
+            $('<span class=\'pull-right canvas-operations-separator\'>|</span>').appendTo(operationsPane);
 
             var returnTypeProperties = {
                 model: this._model,
@@ -493,9 +493,9 @@ class FunctionDefinitionView extends SVGCanvas {
         }
 
         // Creating arguments icon.
-        var panelArgumentsIcon = $("<i/>", {
-            class: "fw fw-import pull-right right-icon-clickable hoverable",
-            title: "Arguments"
+        var panelArgumentsIcon = $('<i/>', {
+            class: 'fw fw-import pull-right right-icon-clickable hoverable',
+            title: 'Arguments'
         }).appendTo(operationsPane).tooltip();
 
         $(panelArgumentsIcon).click(function (event) {
@@ -505,7 +505,7 @@ class FunctionDefinitionView extends SVGCanvas {
         operationButtons.push(panelArgumentsIcon);
 
         // Adding separator for arguments icon.
-        $("<span class='pull-right canvas-operations-separator'>|</span>").appendTo(operationsPane);
+        $('<span class=\'pull-right canvas-operations-separator\'>|</span>').appendTo(operationsPane);
 
         var argumentsProperties = {
             model: this._model,
@@ -527,7 +527,7 @@ class FunctionDefinitionView extends SVGCanvas {
         _.forEach(operationButtons, function (button) {
             button.click(function () {
                 _.forEach(operationButtons, function (buttonToClick) {
-                    if (button !== buttonToClick && $(buttonToClick).data("showing-pane") == "true") {
+                    if (button !== buttonToClick && $(buttonToClick).data('showing-pane') === 'true') {
                         $(buttonToClick).click();
                     }
                 });
@@ -543,17 +543,17 @@ class FunctionDefinitionView extends SVGCanvas {
     _showHideScrolls(container, svgElement) {
         // Creating scroll panes.
         var leftScroll = $(this.getChildContainer().node().ownerSVGElement.parentElement)
-            .find(".service-left-scroll").get(0);
+            .find('.service-left-scroll').get(0);
         var rightScroll = $(this.getChildContainer().node().ownerSVGElement.parentElement)
-            .find(".service-right-scroll").get(0);
+            .find('.service-right-scroll').get(0);
 
         // Setting heights of the scrolls.
         $(leftScroll).height($(container).height());
         $(rightScroll).height($(container).height());
 
         // Positioning the arrows of the scrolls to the middle.
-        $(leftScroll).find("i").css("padding-top", ($(container).height() / 2) - (parseInt($(leftScroll).find("i").css("font-size"), 10) / 2) + "px");
-        $(rightScroll).find("i").css("padding-top", ($(container).height() / 2) - (parseInt($(rightScroll).find("i").css("font-size"), 10) / 2) + "px");
+        $(leftScroll).find('i').css('padding-top', ($(container).height() / 2) - (parseInt($(leftScroll).find('i').css('font-size'), 10) / 2) + 'px');
+        $(rightScroll).find('i').css('padding-top', ($(container).height() / 2) - (parseInt($(rightScroll).find('i').css('font-size'), 10) / 2) + 'px');
 
         // Showing/Hiding scrolls.
         if (parseInt($(container).width(), 10) >= parseInt($(svgElement).width(), 10)) {
@@ -562,7 +562,7 @@ class FunctionDefinitionView extends SVGCanvas {
             $(rightScroll).hide();
         } else {
             // If the svg width is greater than the width of the container...
-            if ($(container).scrollLeft() == 0) {
+            if ($(container).scrollLeft() === 0) {
                 // When scrollLeft is 0, means that it is already scrolled to the left corner.
                 $(rightScroll).show();
                 $(leftScroll).hide();
@@ -619,9 +619,8 @@ class FunctionDefinitionView extends SVGCanvas {
 
     /**
      * This function will skip comment views rendering
-     * @param commentStatement
      */
-    visitCommentStatement(commentStatement) {
+    visitCommentStatement() {
     }
 
     /**
@@ -676,7 +675,7 @@ class FunctionDefinitionView extends SVGCanvas {
         }
 
         var connectorBBox = connectorDeclarationView.getBoundingBox();
-        connectorDeclarationView.listenTo(connectorBBox, 'right-edge-moved', function (offset) {
+        connectorDeclarationView.listenTo(connectorBBox, 'right-edge-moved', function () {
             if (connectorBBox.getRight() >= self.getBoundingBox().getRight()) {
                 self.setSVGWidth(connectorDeclarationView.getBoundingBox().getRight() + self._lifeLineCenterGap);
             }
@@ -705,9 +704,10 @@ class FunctionDefinitionView extends SVGCanvas {
         return this._workerAndConnectorViews;
     }
 
-    getChildContainer() {
-        return this.getRootGroup();
-    }
+    // TODO: This method has been duplicated. Check whether if this is the correct method to
+    // getChildContainer() {
+    //     return this.getRootGroup();
+    // }
 
     /**
      * Return statement container
@@ -774,10 +774,6 @@ class FunctionDefinitionView extends SVGCanvas {
         return this._defaultWorkerLifeLine;
     }
 
-    getWorkerAndConnectorViews() {
-        return this._workerAndConnectorViews;
-    }
-
     /**
      * Set Minimum width of the content area
      * @param {number} minWidth - Minimum width
@@ -816,7 +812,7 @@ class FunctionDefinitionView extends SVGCanvas {
     }
 
     // TODO: Need to generalize this method, since functionDefinition, actionDefinition and resourceDefinition uses this
-    getDeepestChild(currentWorker, dy) {
+    getDeepestChild() {
         var self = this;
         var lastChildArr = [];
 

@@ -17,7 +17,7 @@
  */
 import _ from 'lodash';
 import log from 'log';
-import d3 from 'd3';
+import * as d3 from 'd3';
 import VariablesView from './variables-view';
 import BallerinaASTFactory from 'ballerina/ast/ballerina-ast-factory';
 import TypeMapper from 'typeMapper';

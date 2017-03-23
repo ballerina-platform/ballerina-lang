@@ -37,6 +37,7 @@ import DefaultBallerinaASTFactory from '../ast/default-ballerina-ast-factory';
  */
 class ToolPaletteItemProvider extends EventChannel {
     constructor(args) {
+        super();
         // array which contains initial tool groups
         this._initialToolGroups = _.get(args, 'initialToolGroups', []);
         // array which contains all the tool groups for a particular tool palette item provider
@@ -523,4 +524,3 @@ var getReturnParamString = function(args){
 };
 
 export default ToolPaletteItemProvider;
-    

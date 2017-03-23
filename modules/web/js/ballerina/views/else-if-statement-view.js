@@ -16,26 +16,28 @@
  * under the License.
  */
 import _ from 'lodash';
-import $ from 'jquery';
 import log from 'log';
 import BallerinaStatementView from './ballerina-statement-view';
 import ElseIfStatement from '../ast/statements/else-if-statement';
 import D3Utils from 'd3utils';
-import d3 from 'd3';
-import Point from './point';
 
 // TODO: 14/02/17 this class should extend from BlockStatementView class
 
 /**
  * The view to represent a Else-If statement which is an AST visitor.
- * @param {Object} args - Arguments for creating the view.
- * @param {ElseIfStatement} args.model - The Else-If statement model.
- * @param {Object} args.container - The HTML container to which the view should be added to.
- * @param {Object} args.parent - Parent Statement View, which in this case the if-else statement
- * @param {Object} [args.viewOptions={}] - Configuration values for the view.
- * @constructor
+ * @class ElseIfStatementView
+ * @extends BallerinaStatementView
  */
 class ElseIfStatementView extends BallerinaStatementView {
+
+    /**
+     * @param {Object} args - Arguments for creating the view.
+     * @param {ElseIfStatement} args.model - The Else-If statement model.
+     * @param {Object} args.container - The HTML container to which the view should be added to.
+     * @param {Object} args.parent - Parent Statement View, which in this case the if-else statement
+     * @param {Object} [args.viewOptions={}] - Configuration values for the view.
+     * @constructor
+     */
     constructor(args) {
         super(args);
         this.getModel()._isChildOfWorker = args.isChildOfWorker;
@@ -60,7 +62,7 @@ class ElseIfStatementView extends BallerinaStatementView {
     render(diagramRenderingContext) {
         this._diagramRenderingContext = diagramRenderingContext;
         var elseIfGroup = D3Utils.group(this._container);
-        elseIfGroup.attr("id","_" +this._model.id);
+        elseIfGroup.attr('id','_' +this._model.id);
 
         var outer_rect = D3Utils.rect(this.getBoundingBox().x(), this.getBoundingBox().y(),
             this.getBoundingBox().w(), this.getBoundingBox().h(), 0, 0, elseIfGroup).classed('statement-rect', true);
@@ -70,9 +72,9 @@ class ElseIfStatementView extends BallerinaStatementView {
         elseIfGroup.titleRect = title_rect;
         elseIfGroup.titleText = title_text;
         this.getBoundingBox().on('top-edge-moved', function(dy){
-            outer_rect.attr("y", parseFloat(outer_rect.attr('y')) + dy);
-            title_rect.attr("y", parseFloat(title_rect.attr('y')) + dy);
-            title_text.attr("y", parseFloat(title_text.attr('y')) + dy);
+            outer_rect.attr('y', parseFloat(outer_rect.attr('y')) + dy);
+            title_rect.attr('y', parseFloat(title_rect.attr('y')) + dy);
+            title_text.attr('y', parseFloat(title_text.attr('y')) + dy);
         });
         this.setStatementGroup(elseIfGroup);
         this._model.accept(this);
@@ -83,11 +85,11 @@ class ElseIfStatementView extends BallerinaStatementView {
      * @param {ElseIfStatement} model
      */
     setModel(model) {
-        if (!_.isNil(model) && model instanceof IfStatement) {
+        if (!_.isNil(model) && model instanceof ElseIfStatement) {
             this._model = model;
         } else {
-            log.error("Else If statement definition is undefined or is of different type." + model);
-            throw "Else If statement definition is undefined or is of different type." + model;
+            log.error('Else If statement definition is undefined or is of different type.' + model);
+            throw 'Else If statement definition is undefined or is of different type.' + model;
         }
     }
 
@@ -99,8 +101,8 @@ class ElseIfStatementView extends BallerinaStatementView {
         if (!_.isNil(container)) {
             this._container = container;
         } else {
-            log.error("Container for Else If statement is undefined." + container);
-            throw "Container for Else If statement is undefined." + container;
+            log.error('Container for Else If statement is undefined.' + container);
+            throw 'Container for Else If statement is undefined.' + container;
         }
     }
 
@@ -118,13 +120,6 @@ class ElseIfStatementView extends BallerinaStatementView {
 
     getViewOptions() {
         return this._viewOptions;
-    }
-
-    render(diagramRenderingContext) {
-        BlockStatementView.prototype.render.call(this, diagramRenderingContext);
-        this.listenTo(this._model, 'update-property-text', function(value, key){
-            this._model.setCondition(value);
-        });
     }
 }
 

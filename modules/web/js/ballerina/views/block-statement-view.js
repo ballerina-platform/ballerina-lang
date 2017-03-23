@@ -20,32 +20,34 @@ import _ from 'lodash';
 import log from 'log';
 import BallerinaStatementView from './ballerina-statement-view';
 import D3Utils from 'd3utils';
-import d3 from 'd3';
+import * as d3 from 'd3';
 import BallerinaASTFactory from 'ballerina/ast/ballerina-ast-factory';
 import StatementContainer from './statement-container';
 
 /**
  * Super view class for all block statements e.g. while, if, else etc.
- * @param args {*} arguments for the creating view
  * @class BlockStatementView
- * @constructor
  * @extends BallerinaStatementView
  */
 class BlockStatementView extends BallerinaStatementView {
+
+    /**
+     * @param args {*} arguments for the creating view
+     * @constructor
+     */
     constructor(args) {
         super(args);
-
         var viewOptions = this.getViewOptions();
-        viewOptions.height = _.get(args, "viewOptions.height", 100);
-        viewOptions.width = _.get(args, "viewOptions.width", 120); // starting width
-        viewOptions.minWidth = _.get(args, "viewOptions.minWidth", 120); // minimum width
-        _.set(viewOptions, "title.text", _.get(args, "viewOptions.title.text", "Statement"));
-        _.set(viewOptions, "title.width", _.get(args, "viewOptions.title.width", 40));
-        _.set(viewOptions, "title.height", _.get(args, "viewOptions.title.height", 25));
-        _.set(viewOptions, "padding.left", _.get(args, "viewOptions.padding.left", 7));
-        _.set(viewOptions, "padding.right", _.get(args, "viewOptions.padding.right", 7));
-        _.set(viewOptions, "padding.top", _.get(args, "viewOptions.padding.top", viewOptions.title.height));
-        _.set(viewOptions, "padding.bottom", _.get(args, "viewOptions.padding.bottom", 10));
+        viewOptions.height = _.get(args, 'viewOptions.height', 100);
+        viewOptions.width = _.get(args, 'viewOptions.width', 120); // starting width
+        viewOptions.minWidth = _.get(args, 'viewOptions.minWidth', 120); // minimum width
+        _.set(viewOptions, 'title.text', _.get(args, 'viewOptions.title.text', 'Statement'));
+        _.set(viewOptions, 'title.width', _.get(args, 'viewOptions.title.width', 40));
+        _.set(viewOptions, 'title.height', _.get(args, 'viewOptions.title.height', 25));
+        _.set(viewOptions, 'padding.left', _.get(args, 'viewOptions.padding.left', 7));
+        _.set(viewOptions, 'padding.right', _.get(args, 'viewOptions.padding.right', 7));
+        _.set(viewOptions, 'padding.top', _.get(args, 'viewOptions.padding.top', viewOptions.title.height));
+        _.set(viewOptions, 'padding.bottom', _.get(args, 'viewOptions.padding.bottom', 10));
         _.set(viewOptions, 'contentOffset', _.get(viewOptions, 'contentOffset', {top: 10, bottom: 10}));
 
         this.getBoundingBox().fromTopCenter(
@@ -62,7 +64,7 @@ class BlockStatementView extends BallerinaStatementView {
         // Creating statement group.
         var statementGroup = D3Utils.group(d3.select(this.getContainer()));
         // "id" is prepend with a "_" to be compatible with HTML4
-        statementGroup.attr("id", "_" + model.id);
+        statementGroup.attr('id', '_' + model.id);
 
         var outerRect = D3Utils.rect(bBox.x(), bBox.y(), bBox.w(), bBox.h(), 0, 0, statementGroup)
                                .classed('background-empty-rect', true);
@@ -86,22 +88,22 @@ class BlockStatementView extends BallerinaStatementView {
 
         // Registering event listeners.
         bBox.on('moved', function (offset) {
-            outerRect.attr("x", parseFloat(outerRect.attr('x')) + offset.dx);
-            outerRect.attr("y", parseFloat(outerRect.attr('y')) + offset.dy);
+            outerRect.attr('x', parseFloat(outerRect.attr('x')) + offset.dx);
+            outerRect.attr('y', parseFloat(outerRect.attr('y')) + offset.dy);
 
-            titleRect.attr("x", parseFloat(titleRect.attr('x')) + offset.dx);
-            titleRect.attr("y", parseFloat(titleRect.attr('y')) + offset.dy);
+            titleRect.attr('x', parseFloat(titleRect.attr('x')) + offset.dx);
+            titleRect.attr('y', parseFloat(titleRect.attr('y')) + offset.dy);
 
-            titleText.attr("y", parseFloat(titleText.attr('y')) + offset.dy);
-            titleText.attr("x", parseFloat(titleText.attr('x')) + offset.dx);
-            titleTextWrapperPolyline.attr("points", getTitlePolyLinePoints(bBox, titleViewOptions));
+            titleText.attr('y', parseFloat(titleText.attr('y')) + offset.dy);
+            titleText.attr('x', parseFloat(titleText.attr('x')) + offset.dx);
+            titleTextWrapperPolyline.attr('points', getTitlePolyLinePoints(bBox, titleViewOptions));
         });
-        bBox.on('width-changed', function (dw) {
-            outerRect.attr("width", bBox.w());
-            titleRect.attr("width", bBox.w());
+        bBox.on('width-changed', function () {
+            outerRect.attr('width', bBox.w());
+            titleRect.attr('width', bBox.w());
         });
-        bBox.on('height-changed', function (dh) {
-            outerRect.attr("height", bBox.h());
+        bBox.on('height-changed', function () {
+            outerRect.attr('height', bBox.h());
         });
 
         this.getDiagramRenderingContext().setViewOfModel(this.getModel(), this);
@@ -147,7 +149,7 @@ class BlockStatementView extends BallerinaStatementView {
             statementContainer.isOnWholeContainerMove = false;
         });
 
-        this.listenTo(statementContainer.getBoundingBox(), 'width-changed', function (dw) {
+        this.listenTo(statementContainer.getBoundingBox(), 'width-changed', function () {
             boundingBox.w(statementContainer.getBoundingBox().w());
         });
 
@@ -176,7 +178,7 @@ class BlockStatementView extends BallerinaStatementView {
 
     setModel(model) {
         if (_.isNil(model)) {
-            var message = "Model of a block statement cannot be null.";
+            var message = 'Model of a block statement cannot be null.';
             log.error(message);
             throw new Error(message);
         } else {
@@ -190,7 +192,7 @@ class BlockStatementView extends BallerinaStatementView {
 
     setContainer(container) {
         if (_.isNil(container)) {
-            var message = "Container of a block statement cannot be null.";
+            var message = 'Container of a block statement cannot be null.';
             log.error(message);
             throw new Error(message);
         } else {
@@ -264,9 +266,9 @@ function getTitlePolyLinePoints(boundingBox, titleViewOptions) {
     var x = boundingBox.x(), y = boundingBox.y();
     var titleWidth = titleViewOptions.width, titleHeight = titleViewOptions.height;
     var offset = 10;
-    return "" + x + "," + (y + titleHeight) + " " +
-           (x + titleWidth) + "," + (y + titleHeight) + " " +
-           (x + titleWidth + offset) + "," + y;
+    return '' + x + ',' + (y + titleHeight) + ' ' +
+           (x + titleWidth) + ',' + (y + titleHeight) + ' ' +
+           (x + titleWidth + offset) + ',' + y;
 }
 
 export default BlockStatementView;

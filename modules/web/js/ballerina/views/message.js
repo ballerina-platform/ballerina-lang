@@ -17,27 +17,26 @@
  */
 
 import _ from 'lodash';
-import $ from 'jquery';
-import d3 from 'd3';
-import log from 'log';
+import * as d3 from 'd3';
 import D3Utils from 'd3utils';
-import Point from './point';
 import BallerinaView from './ballerina-view';
 
 /**
  * View for a generic Message
- * @param args {object} - config
- * @param args.container {SVGGElement} - SVG group element to draw the Message
- * @param args.start {Point} - start point to draw the Message.
- * @param args.end {Point} - end point to draw the Message.
- * @param args.cssClass.line {object} - css classes for the Message
- * @param args.cssClass.group {object} - css classes for the Message
- *
  * @class MessageView
- * @augments BallerinaView
- * @constructor
+ * @extends BallerinaView
  */
 class MessageView extends BallerinaView {
+
+    /**
+     * @param args {object} - config
+     * @param args.container {SVGGElement} - SVG group element to draw the Message
+     * @param args.start {Point} - start point to draw the Message.
+     * @param args.end {Point} - end point to draw the Message.
+     * @param args.cssClass.line {object} - css classes for the Message
+     * @param args.cssClass.group {object} - css classes for the Message
+     * @constructor
+     */
     constructor(args) {
         super(args);
         this._containerD3 = d3.select(this._container);
@@ -55,7 +54,7 @@ class MessageView extends BallerinaView {
     }
 
     translate(x, y) {
-        this._rootGroup.attr("transform", "translate(" + x + "," + y + ")");
+        this._rootGroup.attr('transform', 'translate(' + x + ',' + y + ')');
     }
 
     getStart() {
@@ -73,9 +72,9 @@ class MessageView extends BallerinaView {
         var arrowHeadWidth = 5;
 
         if (this._isInputArrow) {
-            this._arrowHead = D3Utils.inputTriangle(this._end.x() - arrowHeadWidth, this._end.y(), this._rootGroup).classed("action-arrow", true);
+            this._arrowHead = D3Utils.inputTriangle(this._end.x() - arrowHeadWidth, this._end.y(), this._rootGroup).classed('action-arrow', true);
         } else {
-            this._arrowHead = D3Utils.outputTriangle(this._end.x() - arrowHeadWidth, this._end.y(), this._rootGroup).classed("action-arrow", true);
+            this._arrowHead = D3Utils.outputTriangle(this._end.x() - arrowHeadWidth, this._end.y(), this._rootGroup).classed('action-arrow', true);
         }
 
         this._start.on('moved', function(offset){
@@ -98,9 +97,9 @@ class MessageView extends BallerinaView {
             y2 = parseFloat(self._line.attr('y2'));
             var points = undefined;
             if (self._isInputArrow) {
-                points = "" + (x2 - 5) + "," + (y2 - 5) + " " + (x2) + "," + (y2) + " " + (x2 - 5) + "," + (y2 + 5);
+                points = '' + (x2 - 5) + ',' + (y2 - 5) + ' ' + (x2) + ',' + (y2) + ' ' + (x2 - 5) + ',' + (y2 + 5);
             } else {
-                points = "" + (x2 + 5) + "," + (y2 - 5) + " " + x2 + "," + (y2) + " " + (x2 + 5) + "," + (y2 + 5);
+                points = '' + (x2 + 5) + ',' + (y2 - 5) + ' ' + x2 + ',' + (y2) + ' ' + (x2 + 5) + ',' + (y2 + 5);
             }
             self._arrowHead.attr('points', points);
 

@@ -17,55 +17,54 @@
  */
 import _ from 'lodash';
 import log from 'log';
-import d3 from 'd3';
-import D3utils from 'd3utils';
 import $ from 'jquery';
 import Alerts from 'alerts';
 import SVGCanvas from './svg-canvas';
 import Point from './point';
 import ConnectorDefinition from './../ast/connector-definition';
-import ClientLifeLine from './client-life-line';
 import ConnectorActionView from './connector-action-view';
 import BallerinaASTFactory from 'ballerina/ast/ballerina-ast-factory';
 import Axis from './axis';
 import ConnectorDeclarationView from './connector-declaration-view';
-import VariableDeclaration from './../ast/variable-declaration';
 import VariableDefinitionsPaneView from './variable-definitions-pane-view';
 import ArgumentsView from './function-arguments-view';
 
 /**
  * The view to represent a connector definition which is an AST visitor.
- * @param {Object} args - Arguments for creating the view.
- * @param {ServiceDefinition} args.model - The service definition model.
- * @param {Object} args.container - The HTML container to which the view should be added to.
- * @param {Object} [args.viewOptions={}] - Configuration values for the view.
- * @constructor
- * @augments SVGCanvas
+ * @class ConnectorDefinitionView
+ * @extends SVGCanvas
  */
 class ConnectorDefinitionView extends SVGCanvas {
+    /**
+     * @param {Object} args - Arguments for creating the view.
+     * @param {ServiceDefinition} args.model - The service definition model.
+     * @param {Object} args.container - The HTML container to which the view should be added to.
+     * @param {Object} [args.viewOptions={}] - Configuration values for the view.
+     * @constructor
+     */
     constructor(args) {
         super(args);
-        this._connectorViewList =  _.get(args, "connectorViewList", []);
+        this._connectorViewList =  _.get(args, 'connectorViewList', []);
         this._viewOptions.LifeLineCenterGap = 180;
-        this._actionViewList = _.get(args, "actionViewList", []);
-        this._parentView = _.get(args, "parentView");
-        this._viewOptions.offsetTop = _.get(args, "viewOptionsOffsetTop", 50);
-        this._viewOptions.topBottomTotalGap = _.get(args, "viewOptionsTopBottomTotalGap", 100);
+        this._actionViewList = _.get(args, 'actionViewList', []);
+        this._parentView = _.get(args, 'parentView');
+        this._viewOptions.offsetTop = _.get(args, 'viewOptionsOffsetTop', 50);
+        this._viewOptions.topBottomTotalGap = _.get(args, 'viewOptionsTopBottomTotalGap', 100);
         //set panel icon for the connector
-        this._viewOptions.panelIcon = _.get(args.viewOptions, "cssClass.connector_icon");
+        this._viewOptions.panelIcon = _.get(args.viewOptions, 'cssClass.connector_icon');
         //set initial height for the connector definition container svg
         this._totalHeight = 170;
         //set initial connector margin for the connector definition
         this._lifelineMargin = new Axis(210, false);
 
         if (_.isNil(this._model) || !(this._model instanceof ConnectorDefinition)) {
-            log.error("Connector definition is undefined or is of different type." + this._model);
-            throw "Connector definition is undefined or is of different type." + this._model;
+            log.error('Connector definition is undefined or is of different type.' + this._model);
+            throw 'Connector definition is undefined or is of different type.' + this._model;
         }
 
         if (_.isNil(this._container)) {
-            log.error("Container for connector definition is undefined." + this._container);
-            throw "Container for connector definition is undefined." + this._container;
+            log.error('Container for connector definition is undefined.' + this._container);
+            throw 'Container for connector definition is undefined.' + this._container;
         }
     }
 
@@ -73,8 +72,8 @@ class ConnectorDefinitionView extends SVGCanvas {
         if (!_.isNil(model) && model instanceof ConnectorDefinition) {
             this._model = model;
         } else {
-            log.error("Connector definition is undefined or is of different type." + model);
-            throw "Connector definition is undefined or is of different type." + model;
+            log.error('Connector definition is undefined or is of different type.' + model);
+            throw 'Connector definition is undefined or is of different type.' + model;
         }
     }
 
@@ -82,8 +81,8 @@ class ConnectorDefinitionView extends SVGCanvas {
         if (!_.isNil(container)) {
             this._container = container;
         } else {
-            log.error("Container for connector definition is undefined." + container);
-            throw "Container for connector definition is undefined." + container;
+            log.error('Container for connector definition is undefined.' + container);
+            throw 'Container for connector definition is undefined.' + container;
         }
     }
 
@@ -100,7 +99,7 @@ class ConnectorDefinitionView extends SVGCanvas {
                 // make new view adjust y on last view's bottom edge move
                 _.last(this._actionViewList).getBoundingBox().on('bottom-edge-moved', function(dy){
                     view.getBoundingBox().move(0, dy);
-                })
+                });
             }
             this._actionViewList.push(view);
 
@@ -178,7 +177,7 @@ class ConnectorDefinitionView extends SVGCanvas {
         this.drawAccordionCanvas(this._viewOptions, this.getModel().getID(), this.getModel().type.toLowerCase(), this.getModel().getConnectorName());
 
         // Setting the styles for the canvas icon.
-        this.getPanelIcon().addClass(_.get(this._viewOptions, "cssClass.connector_icon", ""));
+        this.getPanelIcon().addClass(_.get(this._viewOptions, 'cssClass.connector_icon', ''));
 
         var currentContainer = $('#' + this.getModel().getID());
         this._container = currentContainer;
@@ -186,22 +185,22 @@ class ConnectorDefinitionView extends SVGCanvas {
         var self = this;
 
         //Scroll to the added position and highlight the heading
-        $(_.get(this._viewOptions, "design_view.container", "")).scrollTop(currentContainer.parent().position().top);
-        var hadingBox = $('#' + this.getModel().getID() + "_heading");
-        var canvas_heading_new = _.get(this._viewOptions, "cssClass.canvas_heading_new", "");
-        var new_drop_timeout = _.get(this._viewOptions, "design_view.new_drop_timeout", "");
+        $(_.get(this._viewOptions, 'design_view.container', '')).scrollTop(currentContainer.parent().position().top);
+        var hadingBox = $('#' + this.getModel().getID() + '_heading');
+        var canvas_heading_new = _.get(this._viewOptions, 'cssClass.canvas_heading_new', '');
+        var new_drop_timeout = _.get(this._viewOptions, 'design_view.new_drop_timeout', '');
         hadingBox.addClass(canvas_heading_new);
-        setTimeout(function(){hadingBox.removeClass(canvas_heading_new)}, new_drop_timeout);
+        setTimeout(function(){hadingBox.removeClass(canvas_heading_new);}, new_drop_timeout);
 
         $(this.getTitle()).text(this.getModel().getConnectorName())
-            .on("change paste keyup", function () {
+            .on('change paste keyup', function () {
                 self.getModel().setConnectorName($(this).text());
-            }).on("click", function (event) {
+            }).on('click', function (event) {
                 event.stopPropagation();
             }).keypress(function (e) {
                 /* Ignore Delete and Backspace keypress in firefox and capture other keypress events.
                  (Chrome and IE ignore keypress event of these keys in browser level)*/
-                if (!_.isEqual(e.key, "Delete") && !_.isEqual(e.key, "Backspace")) {
+                if (!_.isEqual(e.key, 'Delete') && !_.isEqual(e.key, 'Backspace')) {
                     var enteredKey = e.which || e.charCode || e.keyCode;
                     // Disabling enter key
                     if (_.isEqual(enteredKey, 13)) {
@@ -223,7 +222,7 @@ class ConnectorDefinitionView extends SVGCanvas {
 
         this.getModel().on('child-added', function (child) {
             self.visit(child);
-            self.getModel().trigger("child-visited", child);
+            self.getModel().trigger('child-visited', child);
 
             // Show/Hide scrolls.
             self._showHideScrolls(self._container, self.getChildContainer().node().ownerSVGElement);
@@ -232,9 +231,9 @@ class ConnectorDefinitionView extends SVGCanvas {
         var operationsPane = this.getOperationsPane();
 
         // Creating arguments icon.
-        var panelArgumentsIcon = $("<i/>", {
-            class: "fw fw-import pull-right right-icon-clickable hoverable",
-            title: "Arguments"
+        var panelArgumentsIcon = $('<i/>', {
+            class: 'fw fw-import pull-right right-icon-clickable hoverable',
+            title: 'Arguments'
         }).appendTo(operationsPane).tooltip();
 
         // Stopping event propagation to the elements behind.
@@ -243,7 +242,7 @@ class ConnectorDefinitionView extends SVGCanvas {
         });
 
         // Adding separator for arguments icon.
-        $("<span class='pull-right canvas-operations-separator'>|</span>").appendTo(operationsPane);
+        $('<span class=\'pull-right canvas-operations-separator\'>|</span>').appendTo(operationsPane);
 
         var variableProperties = {
             model: this._model,
@@ -287,17 +286,17 @@ class ConnectorDefinitionView extends SVGCanvas {
     _showHideScrolls(container, svgElement) {
         // Creating scroll panes.
         var leftScroll = $(this.getChildContainer().node().ownerSVGElement.parentElement)
-            .find(".service-left-scroll").get(0);
+            .find('.service-left-scroll').get(0);
         var rightScroll = $(this.getChildContainer().node().ownerSVGElement.parentElement)
-            .find(".service-right-scroll").get(0);
+            .find('.service-right-scroll').get(0);
 
         // Setting heights of the scrolls.
         $(leftScroll).height($(container).height());
         $(rightScroll).height($(container).height());
 
         // Positioning the arrows of the scrolls to the middle.
-        $(leftScroll).find("i").css("padding-top", ($(container).height() / 2) - (parseInt($(leftScroll).find("i").css("font-size"), 10) / 2) + "px");
-        $(rightScroll).find("i").css("padding-top", ($(container).height() / 2) - (parseInt($(rightScroll).find("i").css("font-size"), 10) / 2) + "px");
+        $(leftScroll).find('i').css('padding-top', ($(container).height() / 2) - (parseInt($(leftScroll).find('i').css('font-size'), 10) / 2) + 'px');
+        $(rightScroll).find('i').css('padding-top', ($(container).height() / 2) - (parseInt($(rightScroll).find('i').css('font-size'), 10) / 2) + 'px');
 
         // Showing/Hiding scrolls.
         if (Math.abs($(container).width() - $(svgElement).width()) < 5) {
@@ -306,7 +305,7 @@ class ConnectorDefinitionView extends SVGCanvas {
             $(rightScroll).hide();
         } else {
             // If the svg width is greater than the width of the container...
-            if ($(container).scrollLeft() == 0) {
+            if ($(container).scrollLeft() === 0) {
                 // When scrollLeft is 0, means that it is already scrolled to the left corner.
                 $(rightScroll).show();
                 $(leftScroll).hide();
@@ -322,7 +321,7 @@ class ConnectorDefinitionView extends SVGCanvas {
         }
     }
 
-    canVisitConnectorDefinition(serviceDefinition) {
+    canVisitConnectorDefinition() {
         return true;
     }
 
@@ -331,8 +330,7 @@ class ConnectorDefinitionView extends SVGCanvas {
      * @param {ConnectorAction} connectorAction - The connector action model.
      */
     visitConnectorAction(connectorAction) {
-        log.debug("Visiting connector action");
-        var self = this;
+        log.debug('Visiting connector action');
         var actionContainer = this.getChildContainer();
         var connectorActionView = undefined;
         // If more than one action
@@ -371,7 +369,7 @@ class ConnectorDefinitionView extends SVGCanvas {
         this.setLifelineMargin(connectorActionView.getBoundingBox().getRight());
         // If the lifeline margin is changed then accordingly the action should move the bounding box
         connectorActionView.listenTo(this.getLifeLineMargin(), 'moved', function (offset) {
-            connectorActionView.getBoundingBox().w(connectorActionView.getBoundingBox().w() + offset)
+            connectorActionView.getBoundingBox().w(connectorActionView.getBoundingBox().w() + offset);
         });
 
         //setting height of the connector definition view
@@ -381,7 +379,7 @@ class ConnectorDefinitionView extends SVGCanvas {
         this.setSVGHeight(this._totalHeight);
     }
 
-    canVisitConnectorDeclaration(connectorDeclaration) {
+    canVisitConnectorDeclaration() {
         return true;
     }
 
@@ -531,7 +529,7 @@ class ConnectorDefinitionView extends SVGCanvas {
                     this._connectorViewList[childViewIndex + 1].stopListening(this._connectorViewList[childViewIndex].getBoundingBox());
                     this._connectorViewList[childViewIndex + 1].listenTo(this.getLifeLineMargin(), 'moved', function (offset) {
                         self.moveConnectorDefinitionLevelConnector(this, offset);
-                    })
+                    });
                 }
             } else if (this._connectorViewList.length - 1 === childViewIndex){
                 // We are deleting the last child

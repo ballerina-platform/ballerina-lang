@@ -15,7 +15,6 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import require from 'require';
 import log from 'log';
 import _ from 'lodash';
 import EventChannel from 'event_channel';
@@ -28,6 +27,7 @@ import EventChannel from 'event_channel';
  */
 class ConnectorAction extends EventChannel {
     constructor(args) {
+        super();
         this._name = _.get(args, 'name', '');
         this._id = _.get(args, 'id', '');
         this.action = _.get(args, 'action', '');

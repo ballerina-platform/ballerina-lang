@@ -21,6 +21,7 @@ import CommonUtils from '../utils/common-utils';
 
 class WorkerDeclaration extends ASTNode {
     constructor(args) {
+        super("WorkerDeclaration");
         this._isDefaultWorker = _.get(args, "isDefaultWorker", false);
         this._reply = _.get(args, "replyStatement", null);
         this._workerDeclarationStatement = _.get(args, 'declarationStatement', '');
@@ -28,8 +29,6 @@ class WorkerDeclaration extends ASTNode {
         this._replyReceiver = undefined;
         this._workerName = undefined;
         this._argumentsList = [];
-
-        super("WorkerDeclaration");
     }
 
     setIsDefaultWorker(isDefaultWorker, options) {

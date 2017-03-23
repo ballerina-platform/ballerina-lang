@@ -19,31 +19,32 @@ import _ from 'lodash';
 import log from 'log';
 import SimpleStatementView from './simple-statement-view';
 import FunctionInvocationStatement from '../ast/statements/function-invocation-statement';
-import D3Utils from 'd3utils';
-import d3 from 'd3';
 
 /**
  * The view to represent a function invocation which is an AST visitor.
- * @param {Object} args - Arguments for creating the view.
- * @param {FunctionInvocation} args.model - The function invocation statement model.
- * @param {Object} args.container - The HTML container to which the view should be added to.
- * @param {Object} [args.viewOptions={}] - Configuration values for the view.
  * @class FunctionInvocationStatementView
- * @constructor
  * @extends SimpleStatementView
  */
 class FunctionInvocationStatementView extends SimpleStatementView {
+
+    /**
+     * @param {Object} args - Arguments for creating the view.
+     * @param {FunctionInvocation} args.model - The function invocation statement model.
+     * @param {Object} args.container - The HTML container to which the view should be added to.
+     * @param {Object} [args.viewOptions={}] - Configuration values for the view.
+     * @constructor
+     */
     constructor(args) {
         super(args);
 
         if (_.isNil(this._model) || !(this._model instanceof FunctionInvocationStatement)) {
-            log.error("function invocation statement undefined or is of different type." + this._model);
-            throw "function invocation statement undefined or is of different type." + this._model;
+            log.error('function invocation statement undefined or is of different type.' + this._model);
+            throw 'function invocation statement undefined or is of different type.' + this._model;
         }
 
         if (_.isNil(this._container)) {
-            log.error("Container for function invocation statement is undefined." + this._container);
-            throw "Container for function invocation statement is undefined." + this._container;
+            log.error('Container for function invocation statement is undefined.' + this._container);
+            throw 'Container for function invocation statement is undefined.' + this._container;
         }
     }
 
@@ -51,8 +52,8 @@ class FunctionInvocationStatementView extends SimpleStatementView {
         if (!_.isNil(model) && model instanceof FunctionInvocationStatement) {
             (this.__proto__.__proto__).setModel(model);
         } else {
-            log.error("function invocation statement undefined or is of different type." + model);
-            throw "function invocation statement undefined or is of different type." + model;
+            log.error('function invocation statement undefined or is of different type.' + model);
+            throw 'function invocation statement undefined or is of different type.' + model;
         }
     }
 
@@ -61,7 +62,7 @@ class FunctionInvocationStatementView extends SimpleStatementView {
      * @returns {group} - The SVG group which holds the elements of the function invocation statement.
      */
     render(renderingContext) {
-        log.debug("Rendering Function Invocation Statement started.");
+        log.debug('Rendering Function Invocation Statement started.');
         // Calling super class's render function.
         (this.__proto__.__proto__).render.call(this, renderingContext);
         var model = this.getModel().getChildren()[0];
@@ -72,8 +73,8 @@ class FunctionInvocationStatementView extends SimpleStatementView {
 
         // Creating property pane.
         var editableProperty = {
-            propertyType: "text",
-            key: "Function",
+            propertyType: 'text',
+            key: 'Function',
             model: model,
             getterMethod: model.getFunctionalExpression,
             setterMethod: model.setFunctionalExpression
@@ -89,11 +90,11 @@ class FunctionInvocationStatementView extends SimpleStatementView {
             statementGroup: statementGroup
         });
 
-        log.debug("Rendering Function Invocation Statement finished.");
+        log.debug('Rendering Function Invocation Statement finished.');
         return statementGroup;
     }
 
-    updateFunctionalExpression(newExpression, propertyKey) {
+    updateFunctionalExpression(newExpression) {
         this._model.getChildren()[0].setFunctionalExpression(newExpression); // Set property value.
         var displayText = this._model.getChildren()[0].getFunctionalExpression();
         this.renderDisplayText(displayText);// Set display text.
@@ -101,4 +102,3 @@ class FunctionInvocationStatementView extends SimpleStatementView {
 }
 
 export default FunctionInvocationStatementView;
-    

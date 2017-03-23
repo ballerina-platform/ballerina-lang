@@ -17,17 +17,21 @@
  */
 import _ from 'lodash';
 import $ from 'jquery';
-import log from 'log';
 import Alerts from 'alerts';
 import BallerinaView from './ballerina-view';
 import ASTNode from './../ast/node';
 
 /**
  * Arguments for creating a constant definition view.
- * @param args - See docs of {@link BallerinaView}.
- * @constructor
+ * @class ConstantDefinitionView
+ * @extends BallerinaView
  */
 class ConstantDefinitionView extends BallerinaView {
+
+    /**
+     * @param args - See docs of {@link BallerinaView}.
+     * @constructor
+     */
     constructor(args) {
         super(args);
         this._constantDefinitionWrapper = undefined;
@@ -43,33 +47,33 @@ class ConstantDefinitionView extends BallerinaView {
 
         var self = this;
 
-        var constantDefinitionWrapper = $("<div/>", {
+        var constantDefinitionWrapper = $('<div/>', {
             id: this.getModel().getID(),
-            class: "constant-declaration-wrapper"
-        }).data("model", this.getModel()).appendTo(this.getContainer());
+            class: 'constant-declaration-wrapper'
+        }).data('model', this.getModel()).appendTo(this.getContainer());
 
         this._constantDefinitionWrapper = constantDefinitionWrapper.get(0);
 
-        var constantDefinitionTypeWrapper = $("<div/>", {
+        var constantDefinitionTypeWrapper = $('<div/>', {
             text: this.getModel().getType(),
-            class: "constant-declaration-type"
+            class: 'constant-declaration-type'
         }).appendTo(constantDefinitionWrapper);
 
-        var constantDefinitionIdentifierWrapper = $("<span/>", {
+        var constantDefinitionIdentifierWrapper = $('<span/>', {
             text: this.getModel().getIdentifier(),
-            "contenteditable": true,
-            class: "constant-declaration-field"
+            'contenteditable': true,
+            class: 'constant-declaration-field'
         }).keypress(function (e) {
             /* Ignore Delete and Backspace keypress in firefox and capture other keypress events.
              (Chrome and IE ignore keypress event of these keys in browser level)*/
-            if (!_.isEqual(e.key, "Delete") && !_.isEqual(e.key, "Backspace")) {
+            if (!_.isEqual(e.key, 'Delete') && !_.isEqual(e.key, 'Backspace')) {
                 // Updating annotation text of the model on typing.
                 var enteredKey = e.which || e.charCode || e.keyCode;
                 var newIdentifier = $(this).text() + String.fromCharCode(enteredKey);
 
                 // Validation the identifier against grammar.
                 if (!ASTNode.isValidIdentifier(newIdentifier)) {
-                    var errorString = "Invalid identifier for a parameter: " + newIdentifier;
+                    var errorString = 'Invalid identifier for a parameter: ' + newIdentifier;
                     Alerts.error(errorString);
                     e.stopPropagation();
                     return false;
@@ -85,23 +89,23 @@ class ConstantDefinitionView extends BallerinaView {
             }
         }).appendTo(constantDefinitionWrapper);
 
-        $("<span/>", {
-            text: "=",
-            class: "constant-declaration-field constant-declaration-equals",
+        $('<span/>', {
+            text: '=',
+            class: 'constant-declaration-field constant-declaration-equals',
             click: function(e){
                 e.preventDefault();
                 return false;
             }
         }).appendTo(constantDefinitionWrapper);
 
-        var constantDefinitionValueWrapper = $("<span/>", {
+        var constantDefinitionValueWrapper = $('<span/>', {
             text: this.getModel().getValue(),
-            "contenteditable": true,
-            class: "constant-declaration-field"
+            'contenteditable': true,
+            class: 'constant-declaration-field'
         }).keypress(function (e) {
             /* Ignore Delete and Backspace keypress in firefox and capture other keypress events.
              (Chrome and IE ignore keypress event of these keys in browser level)*/
-            if (!_.isEqual(e.key, "Delete") && !_.isEqual(e.key, "Backspace")) {
+            if (!_.isEqual(e.key, 'Delete') && !_.isEqual(e.key, 'Backspace')) {
                 // Updating annotation text of the model on typing.
                 var enteredKey = e.which || e.charCode || e.keyCode;
                 // Disabling enter key
@@ -122,14 +126,14 @@ class ConstantDefinitionView extends BallerinaView {
             }
         }).keyup(function () {
             try {
-            self.getModel().setValue($(this).text());
+                self.getModel().setValue($(this).text());
             } catch (error) {
                 Alerts.error(error);
             }
         }).appendTo(constantDefinitionWrapper);
 
         // Creating delete button.
-        var deleteButton = $("<i class='fw fw-cancel'></i>").appendTo(constantDefinitionWrapper);
+        var deleteButton = $('<i class=\'fw fw-cancel\'></i>').appendTo(constantDefinitionWrapper);
 
         this._deleteButton = deleteButton.get(0);
 
@@ -139,8 +143,8 @@ class ConstantDefinitionView extends BallerinaView {
         });
 
         this.getModel().on('before-remove', function() {
-              $(constantDefinitionWrapper).remove();
-        })
+            $(constantDefinitionWrapper).remove();
+        });
     }
 
     getParameterWrapper() {
@@ -152,6 +156,4 @@ class ConstantDefinitionView extends BallerinaView {
     }
 }
 
-
 export default ConstantDefinitionView;
-    

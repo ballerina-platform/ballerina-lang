@@ -15,7 +15,6 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import require from 'require';
 import log from 'log';
 import $ from 'jquery';
 import Backbone from 'backbone';
@@ -26,6 +25,7 @@ var instance = null;
 
 class Search extends EventChannel {
     constructor() {
+        super();
         _.extend(this, Backbone.Events);
         var self = this;        
         this.el = $("#modalSearch");

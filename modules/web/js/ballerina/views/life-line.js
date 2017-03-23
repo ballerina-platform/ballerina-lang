@@ -18,7 +18,7 @@
 
 import _ from 'lodash';
 import $ from 'jquery';
-import d3 from 'd3';
+import * as d3 from 'd3';
 import log from 'log';
 import D3Utils from 'd3utils';
 import Point from './point';
@@ -27,27 +27,29 @@ import expressionEditor from 'expression_editor_utils';
 
 /**
  * View for a generic lifeline
- * @param args {object} - config
- * @param args.container {SVGGElement} - SVG group element to draw the life line
- * @param args.centerPoint {Point} - center point to draw the life line.
- * @param args.cssClass {object} - css classes for the lifeline
- * @param args.cssClass.group {string} - css class for root group
- * @param args.cssClass.title {string} - css class for the title
- * @param args.title {string} - title
- * @param args.rect {Object} - top and bottom rectangle properties
- * @param args.rect.width {number} - rect width
- * @param args.rect.height {number} - rect height
- * @param args.rect.round {number} - rx and ry
- * @param args.content {Object} - properties for content area
- * @param args.content.width {number} - width size
- * @param args.content.offsetX {number} - offset in X from top and bottom center points
- * @param args.content.offsetY {number} - offset from Y top and bottom center points
- *
  * @class LifeLineView
- * @augments EventChannel
- * @constructor
+ * @extends BallerinaView
  */
 class LifeLineView extends BallerinaView {
+
+    /**
+     * @param args {object} - config
+     * @param args.container {SVGGElement} - SVG group element to draw the life line
+     * @param args.centerPoint {Point} - center point to draw the life line.
+     * @param args.cssClass {object} - css classes for the lifeline
+     * @param args.cssClass.group {string} - css class for root group
+     * @param args.cssClass.title {string} - css class for the title
+     * @param args.title {string} - title
+     * @param args.rect {Object} - top and bottom rectangle properties
+     * @param args.rect.width {number} - rect width
+     * @param args.rect.height {number} - rect height
+     * @param args.rect.round {number} - rx and ry
+     * @param args.content {Object} - properties for content area
+     * @param args.content.width {number} - width size
+     * @param args.content.offsetX {number} - offset in X from top and bottom center points
+     * @param args.content.offsetY {number} - offset from Y top and bottom center points
+     * @constructor
+     */
     constructor(args) {
         super(args);
         this._containerD3 = d3.select(this._container);
@@ -73,7 +75,7 @@ class LifeLineView extends BallerinaView {
             .classed(_.get(this._viewOptions, 'cssClass.group'), true);
         // For the lifelines such as client life line we do not have a model id, although it is valid
         if (!_.isNil(this._model)) {
-            this._rootGroup.attr('id', "_" + this._model.id);
+            this._rootGroup.attr('id', '_' + this._model.id);
         }
 
         this.getBoundingBox()
@@ -87,16 +89,14 @@ class LifeLineView extends BallerinaView {
 
     /**
      * Override remove view callback
-     * @param {ASTNode} parent - parent node
-     * @param {ASTNode} child - child node
      */
-    onBeforeModelRemove(parent, child) {
-        d3.select("#_" +this._model.id).remove();
+    onBeforeModelRemove() {
+        d3.select('#_' +this._model.id).remove();
         this.getBoundingBox().move(_.get(this._viewOptions, 'onDeleteMoveOffset'), 0).h(0);
     }
 
     position(x, y) {
-        this._rootGroup.attr("transform", "translate(" + x + "," + y + ")");
+        this._rootGroup.attr('transform', 'translate(' + x + ',' + y + ')');
     }
 
     getMidPoint() {
@@ -165,9 +165,7 @@ class LifeLineView extends BallerinaView {
         this._topCenter.on('moved', function (offset) {
             var x = parseFloat(self._topPolygon.attr('x'));
             var y = parseFloat(self._topPolygon.attr('y'));
-            self._topPolygon
-                .attr('x', x + offset.dx)
-                .attr('y', y + offset.dy)
+            self._topPolygon .attr('x', x + offset.dx) .attr('y', y + offset.dy);
         });
     }
 
@@ -179,9 +177,7 @@ class LifeLineView extends BallerinaView {
         this._bottomCenter.on('moved', function (offset) {
             var x = parseFloat(self._bottomPolygon.attr('x'));
             var y = parseFloat(self._bottomPolygon.attr('y'));
-            self._bottomPolygon
-                .attr('x', x + offset.dx)
-                .attr('y', y + offset.dy)
+            self._bottomPolygon.attr('x', x + offset.dx).attr('y', y + offset.dy);
         });
     }
 
@@ -190,26 +186,22 @@ class LifeLineView extends BallerinaView {
         var titleText = ((this._viewOptions.title.length) > 14 ? (this._viewOptions.title.substring(0,11) + '...') : this._viewOptions.title);
         this._topPolygonText = D3Utils.centeredText(this._topCenter,
             titleText, this._rootGroup)
-            .classed(this._viewOptions.cssClass.title, true).classed("genericT", true);
+            .classed(this._viewOptions.cssClass.title, true).classed('genericT', true);
 
         this._topCenter.on('moved', function (offset) {
             var x = parseFloat(self._topPolygonText.attr('x'));
             var y = parseFloat(self._topPolygonText.attr('y'));
-            self._topPolygonText
-                .attr('x', x + offset.dx)
-                .attr('y', y + offset.dy)
+            self._topPolygonText.attr('x', x + offset.dx).attr('y', y + offset.dy);
         });
 
         this._bottomPolygonText = D3Utils.centeredText(this._bottomCenter,
             titleText, this._rootGroup)
-            .classed(this._viewOptions.cssClass.title, true).classed("genericT", true);
+            .classed(this._viewOptions.cssClass.title, true).classed('genericT', true);
 
         this._bottomCenter.on('moved', function (offset) {
             var x = parseFloat(self._bottomPolygonText.attr('x'));
             var y = parseFloat(self._bottomPolygonText.attr('y'));
-            self._bottomPolygonText
-                .attr('x', x + offset.dx)
-                .attr('y', y + offset.dy)
+            self._bottomPolygonText.attr('x', x + offset.dx).attr('y', y + offset.dy);
         });
 
     }
@@ -221,17 +213,13 @@ class LifeLineView extends BallerinaView {
         this._topCenter.on('moved', function (offset) {
             var x1 = parseFloat(self._middleLine.attr('x1'));
             var y1 = parseFloat(self._middleLine.attr('y1'));
-            self._middleLine
-                .attr('x1', x1 + offset.dx)
-                .attr('y1', y1 + offset.dy)
+            self._middleLine.attr('x1', x1 + offset.dx).attr('y1', y1 + offset.dy);
         });
 
         this._bottomCenter.on('moved', function (offset) {
             var x2 = parseFloat(self._middleLine.attr('x2'));
             var y2 = parseFloat(self._middleLine.attr('y2'));
-            self._middleLine
-                .attr('x2', x2 + offset.dx)
-                .attr('y2', y2 + offset.dy)
+            self._middleLine.attr('x2', x2 + offset.dx).attr('y2', y2 + offset.dy);
         });
 
     }
@@ -251,41 +239,41 @@ class LifeLineView extends BallerinaView {
     }
 
     createPropertyPane(args) {
-        var model = _.get(args, "model", {});
-        var viewOptions = _.get(args, "viewOptions", {});
-        var lifeLineGroup = _.get(args, "lifeLineGroup", null);
-        this._editableProperties = _.get(args, "editableProperties", []);
+        var model = _.get(args, 'model', {});
+        var viewOptions = _.get(args, 'viewOptions', {});
+        var lifeLineGroup = _.get(args, 'lifeLineGroup', null);
+        this._editableProperties = _.get(args, 'editableProperties', []);
 
-        viewOptions.actionButton = _.get(args, "viewOptions.actionButton", {});
-        viewOptions.actionButton.class = _.get(args, "actionButton.class", "property-pane-action-button");
-        viewOptions.actionButton.wrapper = _.get(args, "actionButton.wrapper", {});
-        viewOptions.actionButton.wrapper.class = _.get(args, "actionButton.wrapper.class", "property-pane-action-button-wrapper");
-        viewOptions.actionButton.disableClass = _.get(args, "viewOptions.actionButton.disableClass", "property-pane-action-button-disable");
-        viewOptions.actionButton.deleteClass = _.get(args, "viewOptions.actionButton.deleteClass", "property-pane-action-button-delete");
+        viewOptions.actionButton = _.get(args, 'viewOptions.actionButton', {});
+        viewOptions.actionButton.class = _.get(args, 'actionButton.class', 'property-pane-action-button');
+        viewOptions.actionButton.wrapper = _.get(args, 'actionButton.wrapper', {});
+        viewOptions.actionButton.wrapper.class = _.get(args, 'actionButton.wrapper.class', 'property-pane-action-button-wrapper');
+        viewOptions.actionButton.disableClass = _.get(args, 'viewOptions.actionButton.disableClass', 'property-pane-action-button-disable');
+        viewOptions.actionButton.deleteClass = _.get(args, 'viewOptions.actionButton.deleteClass', 'property-pane-action-button-delete');
 
-        viewOptions.actionButton.width = _.get(args, "viewOptions.action.button.width", 22);
-        viewOptions.actionButton.height = _.get(args, "viewOptions.action.button.height", 22);
+        viewOptions.actionButton.width = _.get(args, 'viewOptions.action.button.width', 22);
+        viewOptions.actionButton.height = _.get(args, 'viewOptions.action.button.height', 22);
 
-        viewOptions.propertyForm = _.get(args, "propertyForm", {});
-        viewOptions.propertyForm.wrapper = _.get(args, "propertyForm.wrapper", {});
-        viewOptions.propertyForm.wrapper.class = _.get(args, "propertyForm.wrapper", "expression-editor-form-wrapper");
-        viewOptions.propertyForm.heading = _.get(args, "propertyForm.heading", {});
-        viewOptions.propertyForm.body = _.get(args, "propertyForm.body", {});
-        viewOptions.propertyForm.body.class = _.get(args, "propertyForm.body.class", "expression-editor-form-body");
-        viewOptions.propertyForm.body.property = _.get(args, "propertyForm.body.property", {});
-        viewOptions.propertyForm.body.property.wrapper = _.get(args, "propertyForm.body.property.wrapper",
-            "expression-editor-form-body-property-wrapper");
+        viewOptions.propertyForm = _.get(args, 'propertyForm', {});
+        viewOptions.propertyForm.wrapper = _.get(args, 'propertyForm.wrapper', {});
+        viewOptions.propertyForm.wrapper.class = _.get(args, 'propertyForm.wrapper', 'expression-editor-form-wrapper');
+        viewOptions.propertyForm.heading = _.get(args, 'propertyForm.heading', {});
+        viewOptions.propertyForm.body = _.get(args, 'propertyForm.body', {});
+        viewOptions.propertyForm.body.class = _.get(args, 'propertyForm.body.class', 'expression-editor-form-body');
+        viewOptions.propertyForm.body.property = _.get(args, 'propertyForm.body.property', {});
+        viewOptions.propertyForm.body.property.wrapper = _.get(args, 'propertyForm.body.property.wrapper',
+            'expression-editor-form-body-property-wrapper');
 
         var self = this;
         // Adding click event for 'life-line' group.
         $(lifeLineGroup.node()).click(function (lifeLineView, event) {
-            log.debug("Clicked life-line group");
+            log.debug('Clicked life-line group');
 
             event.stopPropagation();
 
             // Not allowing to click the statement group multiple times.
-            if ($("." + viewOptions.actionButton.wrapper.class).length > 0) {
-                log.debug("life-line group is already clicked");
+            if ($('.' + viewOptions.actionButton.wrapper.class).length > 0) {
+                log.debug('life-line group is already clicked');
                 return;
             }
 
@@ -302,18 +290,18 @@ class LifeLineView extends BallerinaView {
             var deleteButtonPaneGroup = D3Utils.group(lifeLineGroup);
 
             // Adding svg definitions needed for styling edit and delete buttons.
-            var svgDefinitions = deleteButtonPaneGroup.append("defs");
-            var deleteButtonPattern = svgDefinitions.append("pattern")
-                .attr("id", "deleteIcon")
-                .attr("width", "100%")
-                .attr("height", "100%");
+            var svgDefinitions = deleteButtonPaneGroup.append('defs');
+            var deleteButtonPattern = svgDefinitions.append('pattern')
+                .attr('id', 'deleteIcon')
+                .attr('width', '100%')
+                .attr('height', '100%');
 
-            deleteButtonPattern.append("image")
-                .attr("xlink:href", "images/delete.svg")
-                .attr("x", (viewOptions.actionButton.width) - (14 / 2)) // Increasing the x so the delete button would be in middle
-                .attr("y", (viewOptions.actionButton.height / 2) - (14 / 2))
-                .attr("width", "14")
-                .attr("height", "14");
+            deleteButtonPattern.append('image')
+                .attr('xlink:href', 'images/delete.svg')
+                .attr('x', (viewOptions.actionButton.width) - (14 / 2)) // Increasing the x so the delete button would be in middle
+                .attr('y', (viewOptions.actionButton.height / 2) - (14 / 2))
+                .attr('width', '14')
+                .attr('height', '14');
 
             // Bottom center point.
             var centerPointX = lifeLineView._topCenter._x;
@@ -321,11 +309,11 @@ class LifeLineView extends BallerinaView {
 
             var smallArrowPoints =
                 // Bottom point of the polygon.
-                " " + centerPointX + "," + centerPointY +
+                ' ' + centerPointX + ',' + centerPointY +
                 // Left point of the polygon
-                " " + (centerPointX - 3) + "," + (centerPointY + 3) +
+                ' ' + (centerPointX - 3) + ',' + (centerPointY + 3) +
                 // Right point of the polygon.
-                " " + (centerPointX + 3) + "," + (centerPointY + 3);
+                ' ' + (centerPointX + 3) + ',' + (centerPointY + 3);
 
             var smallArrow = D3Utils.polygon(smallArrowPoints, lifeLineGroup);
 
@@ -345,14 +333,14 @@ class LifeLineView extends BallerinaView {
                 .classed(viewOptions.actionButton.class, true).classed(viewOptions.actionButton.deleteClass, true);
 
             // When the outside of the propertyButtonPaneRect is clicked.
-            $(window).click(function (event) {
-                log.debug("window click");
+            $(window).click(function () {
+                log.debug('window click');
                 $(propertyButtonPaneGroup.node()).remove();
                 $(deleteButtonPaneGroup.node()).remove();
                 $(smallArrow.node()).remove();
 
                 // Remove this handler.
-                $(this).unbind("click");
+                $(this).unbind('click');
             });
 
             var parentSVG = propertyButtonPaneGroup.node().ownerSVGElement;
@@ -361,11 +349,11 @@ class LifeLineView extends BallerinaView {
             
             // Hiding property button pane.
             $(propertyButtonPaneGroup.node()).remove();
-            var propertyPaneWrapper = $("<div/>", {
+            var propertyPaneWrapper = $('<div/>', {
                 class: viewOptions.propertyForm.wrapper.class,
                 css: {
-                    "width": (lifeLineBoundingBox.w() + 1), // Making the text box bit bigger
-                    "height": _.get(self._viewOptions, 'rect.height') + 2 // Make the expression editor bit bigger
+                    'width': (lifeLineBoundingBox.w() + 1), // Making the text box bit bigger
+                    'height': _.get(self._viewOptions, 'rect.height') + 2 // Make the expression editor bit bigger
                 },
                 click: function (event) {
                     event.stopPropagation();
@@ -373,14 +361,14 @@ class LifeLineView extends BallerinaView {
             }).appendTo(parentSVG.parentElement);
 
             // When the outside of the propertyPaneWrapper is clicked.
-            $(window).click(function (event) {
-                log.debug("window click");
+            $(window).click(function () {
+                log.debug('window click');
                 closeAllPopUps();
             });
 
             // Div which contains the form for the properties.
-            var propertyPaneBody = $("<div/>", {
-                "class": viewOptions.propertyForm.body.class
+            var propertyPaneBody = $('<div/>', {
+                'class': viewOptions.propertyForm.body.class
             }).appendTo(propertyPaneWrapper);
 
             // Creating the property form.
@@ -400,8 +388,8 @@ class LifeLineView extends BallerinaView {
 
             //Set the position of the text box wrapper
             propertyPaneWrapper.css({
-                top: self._topCenter.y() - (textBoxHeight / 2) - 1 + "px", // Get the pane to match connector's y.
-                left: textBoxX + "px" // Get the pane to match connector's x
+                top: self._topCenter.y() - (textBoxHeight / 2) - 1 + 'px', // Get the pane to match connector's y.
+                left: textBoxX + 'px' // Get the pane to match connector's x
             });
 
             //$('#edit-overlay').show();
@@ -426,7 +414,7 @@ class LifeLineView extends BallerinaView {
                     //Remove connected arrows
                     d3.select(actionInvocationView._arrowGroup.node()).remove();
                     //Enable arrow redraw point on action invocation
-                    d3.select(actionInvocationView.processorConnectPoint.node()).style("display", "block");
+                    d3.select(actionInvocationView.processorConnectPoint.node()).style('display', 'block');
                     //Remove message target from action invocation
                     actionInvocationView.messageManager.setMessageSource(actionInvocationView.getActionInvocationExpressionModel());
                     actionInvocationView.updateActivatedTarget();
@@ -442,15 +430,14 @@ class LifeLineView extends BallerinaView {
         }.bind(lifeLineGroup.node(), this));
     }
 
-    updateTitleText(updatedText) {
-        if (!_.isUndefined(updatedText) && updatedText !== '') {
-            this._editableProperties.setterMethod.call(this._editableProperties.model, updatedText);
+    updateTitleText(updatedTxt) {
+        if (!_.isUndefined(updatedTxt) && updatedTxt !== '') {
+            this._editableProperties.setterMethod.call(this._editableProperties.model, updatedTxt);
             var updatedText = this._editableProperties.getDisplayTitle.call(this._editableProperties.model);
             if(!_.isNil(updatedText)) {
                 // truncate if larger than 14 chars
                 updatedText = updatedText.length > 14 ? updatedText.substring(0,11) + '...' : updatedText;
             }
-
             this._topPolygonText.node().textContent = updatedText;
             this._bottomPolygonText.node().textContent = updatedText;
         }

@@ -28,9 +28,9 @@ import AbstractSourceGenVisitor from './abstract-source-gen-visitor';
  */
 class AbstractExpressionSourceGenVisitor extends ExpressionVisitor {
     constructor(parent) {
+        super();
         this._generatedSource = '';
         this.parent = parent;
-        super();
     }
 
     getGeneratedSource() {

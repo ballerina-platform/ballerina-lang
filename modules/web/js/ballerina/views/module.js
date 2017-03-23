@@ -35,27 +35,28 @@ import SimpleStatementView from './simple-statement-view';
 import BlockStatementView from './block-statement-view';
 import CompoundStatementView from './compound-statement-view';
 import Backend from './backend';
-        export default  {
-            BallerinaView: BallerinaView,
-            BallerinaFileEditor: BallerinaFileEditor,
-            MessageManager: MessageManager,
-            Canvas: Canvas,
-            ConnectionDeclarationView: ConnectorDeclarationView,
-            FunctionDefinitionView: FunctionDefinitionView,
-            ReplyStatementView: ReplyStatementView,
-            ResourceDefinitionView: ResourceDefinitionView,
-            ReturnStatementView: ReturnStatementView,
-            ServiceDefinitionView: ServiceDefinitionView,
-            ThrowStatementView: ThrowStatementView,
-            WhileStatementView: WhileStatementView,
-            WorkerDeclarationView: WorkerDeclarationView,
-            SourceView: SourceView,
-            ActionInvocationStatementView: ActionInvocationStatementView,
-            ServicePreviewView: ServicePreviewView,
-            SimpleStatementView: SimpleStatementView,
-            BlockStatementView: BlockStatementView,
-            CompoundStatementView: CompoundStatementView,
-            Backend : Backend
-        }
+
+export default  {
+    BallerinaView: BallerinaView,
+    BallerinaFileEditor: BallerinaFileEditor,
+    MessageManager: MessageManager,
+    Canvas: Canvas,
+    ConnectionDeclarationView: ConnectorDeclarationView,
+    FunctionDefinitionView: FunctionDefinitionView,
+    ReplyStatementView: ReplyStatementView,
+    ResourceDefinitionView: ResourceDefinitionView,
+    ReturnStatementView: ReturnStatementView,
+    ServiceDefinitionView: ServiceDefinitionView,
+    ThrowStatementView: ThrowStatementView,
+    WhileStatementView: WhileStatementView,
+    WorkerDeclarationView: WorkerDeclarationView,
+    SourceView: SourceView,
+    ActionInvocationStatementView: ActionInvocationStatementView,
+    ServicePreviewView: ServicePreviewView,
+    SimpleStatementView: SimpleStatementView,
+    BlockStatementView: BlockStatementView,
+    CompoundStatementView: CompoundStatementView,
+    Backend : Backend
+};
     
 

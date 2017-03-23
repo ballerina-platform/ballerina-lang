@@ -21,7 +21,7 @@ import log from 'backbone';
 import 'log';
 
 class BrowserStorage {
-  
+
     constuctor(name) {
         this.name = name;
     }
@@ -33,48 +33,48 @@ class BrowserStorage {
 
     // Generate a pseudo-GUID by concatenating random hexadecimal.
     guid() {
-        return (S4() + S4() + "-" + S4() + "-" + S4() + "-" + S4() + "-" + S4() + S4() + S4());
+        return (this.S4() + this.S4() + "-" + this.S4() + "-" + this.S4() + "-" + this.S4() + "-" + this.S4() + this.S4() + this.S4());
     }
 
 
-    put: function(key, value) {
+    put(key, value) {
         this.localStorage().setItem(this.name + "-" + key, JSON.stringify(value));
     }
 
-    get: function(key) {
+    get(key) {
         return this.jsonData(this.localStorage().getItem(this.name + "-" + key));
     }
 
-    create: function(model) {
+    create(model) {
         if (!model.id) {
-            model.id = guid();
+            model.id = this.guid();
             model.set(model.idAttribute, model.id);
         }
         this.localStorage().setItem(this.name + "-" + model.id, JSON.stringify(model));
         return this.find(model);
     }
 
-    update: function(model) {
+    update(model) {
         this.localStorage().setItem(this.name + "-" + model.id, JSON.stringify(model));
         return this.find(model);
     }
 
-    find: function(model) {
+    find(model) {
         return this.jsonData(this.localStorage().getItem(this.name + "-" + model.id));
     }
 
-    destroy: function(model) {
+    destroy(model) {
         if (model.isNew())
             return false;
         this.localStorage().removeItem(this.name + "-" + model.id);
         return model;
     }
 
-    localStorage: function() {
+    localStorage() {
         return localStorage;
     }
 
-    jsonData: function(data) {
+    jsonData(data) {
         return data && JSON.parse(data);
     }
 

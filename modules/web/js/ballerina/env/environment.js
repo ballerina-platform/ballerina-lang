@@ -30,6 +30,7 @@ var instance;
  */
 class BallerinaEnvironment extends EventChannel {
     constructor(args) {
+        super();
         this._packages = _.get(args, 'packages', []);
         this._types = _.get(args, 'types', ['message', 'string', 'boolean', 'int', 'double', 'float', 'long', 'exception', 'json', 'xml', 'map', 'string[]', 'int[]']);
         this.initializePackages();
@@ -107,4 +108,4 @@ class BallerinaEnvironment extends EventChannel {
     }
 }
 
-export default (instance = (instance || new BallerinaEnvironment()));
+export default new BallerinaEnvironment();

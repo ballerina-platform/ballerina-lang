@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import require from 'require';
+
 import _ from 'lodash';
 import log from 'log';
 import EventChannel from 'event_channel';

@@ -15,89 +15,87 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import require from 'require';
+
 import $ from 'jquery';
 import Backbone from 'backbone';
 import _ from 'lodash';
 import EventChannel from 'event_channel';
-import LaunchManager from './launch-manager';
 import LaunchChannel from './launch-channel';
 import Console from 'console';
-	var instance;
+var instance;
 
-    var LaunchManager = function(args) {
+class LaunchManager extends EventChannel {
+    constructor(args) {
+        super();
         var self = this;
         this.enable = false;
         this.channel = undefined;
         this.active = false;
-    };
+    }
 
-    LaunchManager.prototype = Object.create(EventChannel.prototype);
-    LaunchManager.prototype.constructor = LaunchManager;
-
-    LaunchManager.prototype.runApplication = function(file){
+    runApplication(file) {
         this.channel = new LaunchChannel({ endpoint : this.endpoint, launcher: this });
         this.openConsole();
-        this.channel.on('connected',_.bindKey(this,'sendRunApplicationMessage',file));        
-    };
+        this.channel.on('connected',_.bindKey(this,'sendRunApplicationMessage',file));
+    }
 
-    LaunchManager.prototype.runService = function(file){
+    runService(file) {
         this.channel = new LaunchChannel({ endpoint : this.endpoint, launcher: this });
         this.openConsole();
         this.channel.on('connected',_.bindKey(this,'sendRunServiceMessage',file));
-    };
+    }
 
-    LaunchManager.prototype.debugApplication = function(file){
+    debugApplication(file) {
         this.channel = new LaunchChannel({ endpoint : this.endpoint, launcher: this });
         this.openConsole();
         this.channel.on('connected',_.bindKey(this,'sendDebugApplicationMessage',file));
-    };
+    }
 
-    LaunchManager.prototype.debugService = function(file){
+    debugService(file) {
         this.channel = new LaunchChannel({ endpoint : this.endpoint, launcher: this });
         this.openConsole();
         this.channel.on('connected',_.bindKey(this,'sendDebugServiceMessage',file));
-    };    
+    }
 
-    LaunchManager.prototype.sendRunApplicationMessage = function(file){
-        var message = { 
+    sendRunApplicationMessage(file) {
+        var message = {
             "command": "RUN_PROGRAM",
             "fileName" : file.getName(),
             "filePath" : file.getPath(),
             "commandArgs": this.getApplicationConfigs(file)
         };
         this.channel.sendMessage(message);
-    };
+    }
 
-    LaunchManager.prototype.sendRunServiceMessage = function(file){
-        var message = { 
+    sendRunServiceMessage(file) {
+        var message = {
             "command": "RUN_SERVICE",
             "fileName" : file.getName(),
             "filePath" : file.getPath()
         };
         this.channel.sendMessage(message);
-    }; 
+    }
 
-    LaunchManager.prototype.sendDebugApplicationMessage = function(file){
-        var message = { 
+    sendDebugApplicationMessage(file) {
+        var message = {
             "command": "DEBUG_PROGRAM",
             "fileName" : file.getName(),
             "filePath" : file.getPath(),
             "commandArgs": this.getApplicationConfigs(file)
         };
         this.channel.sendMessage(message);
-    };
+    }
 
-    LaunchManager.prototype.sendDebugServiceMessage = function(file){
-        var message = { 
+    sendDebugServiceMessage(file) {
+        var message = {
             "command": "DEBUG_SERVICE",
             "fileName" : file.getName(),
             "filePath" : file.getPath()
         };
         this.channel.sendMessage(message);
-    };  
+    }
 
-    LaunchManager.prototype.processMesssage = function(message){
+    processMesssage(message) {
         if(message.code == "OUTPUT"){
             if(_.endsWith(message.message, this.debugPort)){
                 this.trigger("debug-active",this.debugPort);
@@ -111,39 +109,40 @@ import Console from 'console';
         if(message.code == "EXECUTION_STOPED" || message.code == "EXECUTION_TERMINATED"){
             this.active = false;
             this.trigger("execution-ended");
-        }                    
+        }
         if(message.code == "DEBUG_PORT"){
             this.debugPort = message.port;
-            return;           
-        }        
+            return;
+        }
         if(message.code == "EXIT"){
             this.active = false;
             this.trigger("session-ended");
         }
         Console.println(message);
-    };
+    }
 
-    LaunchManager.prototype.openConsole = function(){
+    openConsole() {
         Console.clear();
         Console.show();
-    };
+    }
 
-    LaunchManager.prototype.init = function(options){        
+    init(options) {
         this.endpoint = _.get(options, 'application.config.services.launcher.endpoint');
         this.enable = true;
         this.application = options.application;
-    };
+    }
 
-    LaunchManager.prototype.stopProgram = function(){        
-        var message = { 
+    stopProgram() {
+        var message = {
             "command": "TERMINATE",
         };
         this.channel.sendMessage(message);
-    };
+    }
 
-    LaunchManager.prototype.getApplicationConfigs = function(file) {
+    getApplicationConfigs(file) {
         var args = this.application.browserStorage.get('launcher-app-configs-' + file.id);
         return args || "";
-    };
+    }
+}
 
-    export default (instance = (instance || new LaunchManager()));
+export default new LaunchManager();

@@ -18,30 +18,34 @@
 import _ from 'lodash';
 import log from 'log';
 import SimpleStatementView from './simple-statement-view';
-import BallerinaView from './ballerina-view';
 import ThrowStatement from '../ast/statements/throw-statement';
-import D3Utils from 'd3utils';
 
 /**
  * The view to represent a throw statement which is an AST visitor.
- * @param {Object} args - Arguments for creating the view.
- * @param {ThrowStatement} args.model - The throw statement model.
- * @param {Object} args.container - The HTML container to which the view should be added to.
- * @param {Object} [args.viewOptions={}] - Configuration values for the view.
- * @constructor
+ * @class ThrowStatementView
+ * @extends SimpleStatementView
  */
 class ThrowStatementView extends SimpleStatementView {
+
+    /**
+     * Constructor for ThrowStatementView
+     * @param {Object} args - Arguments for creating the view.
+     * @param {ThrowStatement} args.model - The throw statement model.
+     * @param {Object} args.container - The HTML container to which the view should be added to.
+     * @param {Object} [args.viewOptions={}] - Configuration values for the view.
+     * @constructor
+     */
     constructor(args) {
         super(args);
 
         if (_.isNil(this._model) || !(this._model instanceof ThrowStatement)) {
-            log.error("Throw statement definition is undefined or is of different type." + this._model);
-            throw "Throw statement definition is undefined or is of different type." + this._model;
+            log.error('Throw statement definition is undefined or is of different type.' + this._model);
+            throw 'Throw statement definition is undefined or is of different type.' + this._model;
         }
 
         if (_.isNil(this._container)) {
-            log.error("Container for throw statement is undefined." + this._container);
-            throw "Container for throw statement is undefined." + this._container;
+            log.error('Container for throw statement is undefined.' + this._container);
+            throw 'Container for throw statement is undefined.' + this._container;
         }
 
     }
@@ -50,8 +54,8 @@ class ThrowStatementView extends SimpleStatementView {
         if (!_.isNil(model) && model instanceof ThrowStatement) {
             this._model = model;
         } else {
-            log.error("Throw statement definition is undefined or is of different type." + model);
-            throw "Throw statement definition is undefined or is of different type." + model;
+            log.error('Throw statement definition is undefined or is of different type.' + model);
+            throw 'Throw statement definition is undefined or is of different type.' + model;
         }
     }
 
@@ -59,8 +63,8 @@ class ThrowStatementView extends SimpleStatementView {
         if (!_.isNil(container)) {
             this._container = container;
         } else {
-            log.error("Container for throw statement is undefined." + container);
-            throw "Container for throw statement is undefined." + container;
+            log.error('Container for throw statement is undefined.' + container);
+            throw 'Container for throw statement is undefined.' + container;
         }
     }
 
@@ -80,15 +84,12 @@ class ThrowStatementView extends SimpleStatementView {
         return this._viewOptions;
     }
 
-    /**
-     * Rendering the view of the throw statement.
-     * @returns {Object} - The svg group which the throw statement view resides in.
-     */
-    render() {
-        var group = D3Utils.group(this._container);
-        log.debug("Rendering the throw Statement.");
-        return group;
-    }
+    // TODO: check whether which is the correct render method
+    // render() {
+    //     var group = D3Utils.group(this._container);
+    //     log.debug('Rendering the throw Statement.');
+    //     return group;
+    // }
 
     /**
      * Renders the view for assignment statement.
@@ -106,8 +107,8 @@ class ThrowStatementView extends SimpleStatementView {
         var statementGroup = this.getStatementGroup();
         // Creating property pane.
         var editableProperty = {
-            propertyType: "text",
-            key: "Assignment",
+            propertyType: 'text',
+            key: 'Assignment',
             model: model,
             getterMethod: model.getStatementString,
             setterMethod: model.setStatementString
@@ -126,7 +127,7 @@ class ThrowStatementView extends SimpleStatementView {
         return statementGroup;
     }
 
-    updateStatementText(newStatementText, propertyKey) {
+    updateStatementText(newStatementText) {
         this._model.setStatementString(newStatementText);
         var displayText = this._model.getStatementString();
         this.renderDisplayText(displayText);

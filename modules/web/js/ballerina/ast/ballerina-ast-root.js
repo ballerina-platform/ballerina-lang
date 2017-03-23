@@ -33,8 +33,8 @@ import ImportDeclaration from './import-declaration';
  */
 class BallerinaASTRoot extends ASTNode {
     constructor(args) {
-        this.packageDefinition = _.get(args, 'packageDefinition');
         super("BallerinaASTRoot");
+        this.packageDefinition = _.get(args, 'packageDefinition');
         var self = this;
         // Listener to tree modified event.
         this.on('tree-modified', function (e) {
@@ -367,7 +367,7 @@ class BallerinaASTRoot extends ASTNode {
         if (!_.isNil(existingMainFunction) && BallerinaASTFactory.isFunctionDefinition(node) && node.isMainFunction()) {
             return false;
         }
-        
+
         return BallerinaASTFactory.isServiceDefinition(node)
             || BallerinaASTFactory.isFunctionDefinition(node)
             || BallerinaASTFactory.isConnectorDefinition(node)
@@ -390,4 +390,3 @@ class BallerinaASTRoot extends ASTNode {
 }
 
 export default BallerinaASTRoot;
-

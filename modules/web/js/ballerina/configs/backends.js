@@ -34,6 +34,6 @@
                     endpoint: "http://localhost:8289/ballerina/validate"
                 }
             }
-        }
+        };
     
 

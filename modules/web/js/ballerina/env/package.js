@@ -17,7 +17,6 @@
  */
 import log from 'log';
 import _ from 'lodash';
-import require from 'require';
 import EventChannel from 'event_channel';
 import ServiceDefinition from './../ast/service-definition';
 import FunctionDefinition from './../ast/function-definition';
@@ -35,6 +34,7 @@ import BallerinaEnvFactory from './ballerina-env-factory';
  */
 class Package extends EventChannel {
     constructor(args) {
+        super();
         this.setName(_.get(args, 'name', ''));
         this.addServiceDefinitions(_.get(args, 'serviceDefinitions', []));
         this.addFunctionDefinitions(_.get(args, 'functionDefinitions', []));

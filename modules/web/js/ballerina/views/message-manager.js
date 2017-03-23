@@ -17,27 +17,36 @@
  */
 import log from 'log';
 import _ from 'lodash';
-import d3 from 'd3';
+import * as d3 from 'd3';
 import Point from './point';
-import Backbone from 'backbone';
 import EventChannel from 'event_channel';
-import BallerinaASTFactory from 'ballerina/ast/ballerina-ast-factory';
 
+/**
+ * View for MessageManager
+ * @class MessageManager
+ * @extends EventChannel
+ */
 class MessageManager extends EventChannel {
+    /**
+     * Constructor for MessageManager
+     * @param {args} args for constructor
+     * @constructor
+     */
     constructor(args) {
-        log.debug("Initialising Message Manager");
+        super();
+        log.debug('Initialising Message Manager');
         this.typeBeingDragged = undefined;
         this._canvas = _.get(args, 'canvas');
     }
 
     setMessageSource(source) {
-         if (!_.isUndefined(source)) {
-             this.messageSource = source;
-         }
+        if (!_.isUndefined(source)) {
+            this.messageSource = source;
+        }
     }
 
     getMessageSource() {
-       return this.messageSource;
+        return this.messageSource;
     }
 
     setMessageTarget(destination) {
@@ -70,21 +79,22 @@ class MessageManager extends EventChannel {
         return this.validateCallBack;
     }
 
-    setActivatedDropTarget(activatedDropTarget, validateCallBack) {
-        if (!_.isUndefined(activatedDropTarget)) {
-            if (!_.isEqual(activatedDropTarget, this.getActivatedDropTarget())){
-                /**
-                 * @eventMessageManager#drop-target-changed
-                 * @type ASTNode
-                 */
-                // this.trigger('drop-target-changed', activatedDropTarget);
-            }
-            this.activatedDropTarget = activatedDropTarget;
-        }
-        if (!_.isUndefined(validateCallBack)) {
-            this.setValidateCallBack(validateCallBack);
-        }
-    }
+    // TODO: This method has been duplicated since we need to check whether which is the correct
+    // setActivatedDropTarget(activatedDropTarget, validateCallBack) {
+    //     if (!_.isUndefined(activatedDropTarget)) {
+    //         if (!_.isEqual(activatedDropTarget, this.getActivatedDropTarget())){
+    //             /**
+    //              * @eventMessageManager#drop-target-changed
+    //              * @type ASTNode
+    //              */
+    //             // this.trigger('drop-target-changed', activatedDropTarget);
+    //         }
+    //         this.activatedDropTarget = activatedDropTarget;
+    //     }
+    //     if (!_.isUndefined(validateCallBack)) {
+    //         this.setValidateCallBack(validateCallBack);
+    //     }
+    // }
 
     /**
      * Set the type being dragged at a given moment.
@@ -142,37 +152,36 @@ class MessageManager extends EventChannel {
         var self = this,
             container = d3.select(this._canvas.getSVG().get(0));
 
-        var tempLine = container.append("line")
-            .attr("x1",connectorStartPoint )
-            .attr("y1",connectorEndPoint )
-            .attr("x2",sourcePoint.x() )
-            .attr("y2",sourcePoint.y() )
-            .attr("stroke","#9d9d9d");
-        var points = "" +  sourcePoint.x() + "," + (sourcePoint.y() - 5) + " " + ( sourcePoint.x() + 5) + ","
-            + (sourcePoint.y()) + " " + sourcePoint.x() + "," + (sourcePoint.y() + 5);
-        var arrowPoint = container.append("polyline")
-            .attr("points", points);
+        var tempLine = container.append('line')
+            .attr('x1',connectorStartPoint )
+            .attr('y1',connectorEndPoint )
+            .attr('x2',sourcePoint.x() )
+            .attr('y2',sourcePoint.y() )
+            .attr('stroke','#9d9d9d');
+        var points = '' +  sourcePoint.x() + ',' + (sourcePoint.y() - 5) + ' ' + ( sourcePoint.x() + 5) + ','
+            + (sourcePoint.y()) + ' ' + sourcePoint.x() + ',' + (sourcePoint.y() + 5);
+        var arrowPoint = container.append('polyline')
+            .attr('points', points);
 
-        container.on("mousemove", function () {
+        container.on('mousemove', function () {
             var m = d3.mouse(this);
             //setting an offset of 5 to avoid the mouse pointer overlapping with the arrow
-            tempLine.attr("x2", m[0] - 5);
-            tempLine.attr("y2", sourcePoint.y());
-            var newPoints = "" +  (m[0] - 5) + "," + (sourcePoint.y() - 5) + " " + ( m[0]) + ","
-                + (sourcePoint.y()) + " " +  (m[0]- 5) + "," + ( sourcePoint.y() + 5);
-            arrowPoint.attr("points", newPoints);
+            tempLine.attr('x2', m[0] - 5);
+            tempLine.attr('y2', sourcePoint.y());
+            var newPoints = '' +  (m[0] - 5) + ',' + (sourcePoint.y() - 5) + ' ' + ( m[0]) + ','
+                + (sourcePoint.y()) + ' ' +  (m[0]- 5) + ',' + ( sourcePoint.y() + 5);
+            arrowPoint.attr('points', newPoints);
         });
 
-        container.on("mouseup", function () {
+        container.on('mouseup', function () {
             // unbind current listeners
-            container.on("mousemove", null);
-            container.on("mouseup", null);
-            var startPoint = new Point(tempLine.attr("x1"),tempLine.attr("y1"));
-            var endPoint = new Point(tempLine.attr("x2"),tempLine.attr("y2"));
+            container.on('mousemove', null);
+            container.on('mouseup', null);
+            var startPoint = new Point(tempLine.attr('x1'),tempLine.attr('y1'));
 
             tempLine.remove();
             arrowPoint.remove();
-            self.getMessageSource().getModel().trigger("drawConnectionForAction", startPoint, container);
+            self.getMessageSource().getModel().trigger('drawConnectionForAction', startPoint, container);
             self.trigger('drop-target-changed', undefined);
             self.reset();
         });

@@ -16,8 +16,6 @@
  * under the License.
  */
 import _ from 'lodash';
-import log from 'log';
-import EventChannel from 'event_channel';
 import AST from '../ast/module';
 import TryCatchStatementView from './try-catch-statement-view';
 import TryStatementView from './try-statement-view';
@@ -40,7 +38,7 @@ import ThrowStatementView from './throw-statement-view';
 
 class StatementViewFactory {
     getStatementView(args) {
-        var statement  = _.get(args, "model");
+        var statement  = _.get(args, 'model');
         if (statement instanceof AST.TryCatchStatement) {
             return new TryCatchStatementView(args);
         } else if (statement instanceof AST.TryStatement) {
@@ -71,11 +69,11 @@ class StatementViewFactory {
             return new BreakStatementView(args);
         } else if (statement instanceof AST.AssignmentStatement){
             // TODO : This logic needs to be refactored.
-            var children  = _.get(statement, "children");
+            var children  = _.get(statement, 'children');
             var assignmentStatement = undefined;
             _.each(children, function (statementChild) {
                 if(AST.BallerinaASTFactory.isRightOperandExpression(statementChild)) {
-                    var operands  = _.get(statementChild, "children");
+                    var operands  = _.get(statementChild, 'children');
                     _.each(operands, function (child) {
                         if (AST.BallerinaASTFactory.isActionInvocationExpression(child)) {
                             _.set(args, 'model', statement);
@@ -88,10 +86,10 @@ class StatementViewFactory {
                 _.set(args, 'model', statement);
                 //If Operand type exist for the statement add it to the left operand expression.
                 var leftOperandExpression = children[0].getOperandType() ?
-                    children[0].getOperandType() + " " + children[0].getLeftOperandExpressionString() :
+                    children[0].getOperandType() + ' ' + children[0].getLeftOperandExpressionString() :
                     children[0].getLeftOperandExpressionString();
 
-                _.get(args, 'model').setStatementString(leftOperandExpression + " = "
+                _.get(args, 'model').setStatementString(leftOperandExpression + ' = '
                     + children[1].getRightOperandExpressionString());
                 assignmentStatement = new AssignmentStatementView(args);
             }

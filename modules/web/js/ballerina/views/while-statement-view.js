@@ -19,7 +19,7 @@ import _ from 'lodash';
 import log from 'log';
 import BlockStatementView from './block-statement-view';
 import WhileStatement from '../ast/statements/while-statement';
-import d3 from 'd3';
+import * as d3 from 'd3';
 
 /**
  * The view to represent a If statement which is an AST visitor.

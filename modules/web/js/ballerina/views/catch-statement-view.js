@@ -22,18 +22,20 @@ import CatchStatement from '../ast/statements/catch-statement';
 
 /**
  * The view to represent a Catch statement which is an AST visitor.
- * @param {Object} args - Arguments for creating the view.
- * @param {CatchStatement} args.model - The Try Catch statement model.
- * @param {Object} args.container - The HTML container to which the view should be added to.
- * @param {Object} args.parent - Parent Statement View, which in this case the try-catch statement
- * @param {Object} [args.viewOptions={}] - Configuration values for the view.
  * @class CatchStatementView
- * @constructor
  * @extends BlockStatementView
  */
 class CatchStatementView extends BlockStatementView {
+    /**
+     * @param {Object} args - Arguments for creating the view.
+     * @param {CatchStatement} args.model - The Try Catch statement model.
+     * @param {Object} args.container - The HTML container to which the view should be added to.
+     * @param {Object} args.parent - Parent Statement View, which in this case the try-catch statement
+     * @param {Object} [args.viewOptions={}] - Configuration values for the view.
+     * @constructor
+     */
     constructor(args) {
-        _.set(args, "viewOptions.title.text", "Catch");
+        _.set(args, 'viewOptions.title.text', 'Catch');
         super(args);
         this.getModel()._isChildOfWorker = args.isChildOfWorker;
     }
@@ -50,8 +52,8 @@ class CatchStatementView extends BlockStatementView {
         if (!_.isNil(model) && model instanceof CatchStatement) {
             (this.__proto__.__proto__).setModel(model);
         } else {
-            log.error("Try Catch statement definition is undefined or is of different type." + model);
-            throw "Try Catch statement definition is undefined or is of different type." + model;
+            log.error('Try Catch statement definition is undefined or is of different type.' + model);
+            throw 'Try Catch statement definition is undefined or is of different type.' + model;
         }
     }
 
@@ -59,7 +61,7 @@ class CatchStatementView extends BlockStatementView {
         // Calling super render.
         (this.__proto__.__proto__).render.call(this, diagramRenderingContext);
 
-        this.listenTo(this._model, 'update-property-text', function(value, key){
+        this.listenTo(this._model, 'update-property-text', function(value){
             this._model.setParameter(value);
         });
     }

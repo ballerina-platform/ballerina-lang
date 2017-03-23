@@ -15,18 +15,22 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import _ from 'lodash';
 import $ from 'jquery';
-import log from 'log';
 import Alerts from 'alerts';
 import BallerinaView from './ballerina-view';
 
 /**
  * Arguments for creating a constant definition view.
- * @param args - See docs of {@link BallerinaView}.
- * @constructor
+ * @class VariableDefinitionView
+ * @extends BallerinaView
  */
 class VariableDefinitionView extends BallerinaView {
+
+    /**
+     * Constructor for VariableDefinitionView
+     * @param args - See docs of {@link BallerinaView}.
+     * @constructor
+     */
     constructor(args) {
         super(args);
         this._variableDefinitionWrapper = undefined;
@@ -42,39 +46,39 @@ class VariableDefinitionView extends BallerinaView {
 
         var self = this;
 
-        var variableDefinitionWrapper = $("<div/>", {
+        var variableDefinitionWrapper = $('<div/>', {
             id: this.getModel().getID(),
-            class: "variable-wrapper variable-wrapper-message"
-        }).data("model", this.getModel()).appendTo(this.getContainer());
+            class: 'variable-wrapper variable-wrapper-message'
+        }).data('model', this.getModel()).appendTo(this.getContainer());
 
         this._variableDefinitionWrapper = variableDefinitionWrapper.get(0);
 
-        var variableDefinitionTypeWrapper = $("<div/>", {
+        var variableDefinitionTypeWrapper = $('<div/>', {
             text: this.getModel().getBType().trim(),
-            "contenteditable": true,
-            class: "variable-type variable-type-message"
+            'contenteditable': true,
+            class: 'variable-type variable-type-message'
         }).keyup(function() {
             try {
-                self.getModel().setStatementString($(this).text().trim() + " " + $(variableDefintionStatementWrapper).text().trim());
+                self.getModel().setStatementString($(this).text().trim() + ' ' + $(variableDefintionStatementWrapper).text().trim());
             } catch (error) {
                 Alerts.error(error);
             }
         }).appendTo(variableDefinitionWrapper);
 
-        var variableDefintionStatementWrapper = $("<span/>", {
-            text: this.getModel().getStatementString().replace(this.getModel().getBType().trim(), "").trim(),
-            "contenteditable": true,
-            class: "variable-identifier variable-identifier-message"
+        var variableDefintionStatementWrapper = $('<span/>', {
+            text: this.getModel().getStatementString().replace(this.getModel().getBType().trim(), '').trim(),
+            'contenteditable': true,
+            class: 'variable-identifier variable-identifier-message'
         }).keyup(function() {
             try {
-                self.getModel().setStatementString($(variableDefinitionTypeWrapper).text().trim() + " " + $(this).text().trim());
+                self.getModel().setStatementString($(variableDefinitionTypeWrapper).text().trim() + ' ' + $(this).text().trim());
             } catch (error) {
                 Alerts.error(error);
             }
         }).appendTo(variableDefinitionWrapper);
 
         // Creating delete button.
-        var deleteButton = $("<i class='fw fw-cancel'></i>").appendTo(variableDefinitionWrapper);
+        var deleteButton = $('<i class=\'fw fw-cancel\'></i>').appendTo(variableDefinitionWrapper);
 
         this._deleteButton = deleteButton.get(0);
 

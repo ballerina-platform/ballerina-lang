@@ -29,6 +29,7 @@ import ASTNode from './node';
  */
 class CallableDefinition extends ASTNode {
     constructor(type) {
+        super();
         this.connectionDeclarations = [];
         this.variableDeclarations = [];
         this.workerDeclarations = [];
@@ -79,5 +80,3 @@ class CallableDefinition extends ASTNode {
 }
 
 export default CallableDefinition;
-
-
