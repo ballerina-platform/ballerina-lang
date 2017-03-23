@@ -20,7 +20,9 @@ package org.wso2.carbon.transport.http.netty.internal;
 
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
+import org.wso2.carbon.messaging.ServerConnectorProvider;
 import org.wso2.carbon.messaging.handler.HandlerExecutor;
+import org.wso2.carbon.transport.http.netty.listener.HTTPServerConnectorProvider;
 
 /**
  * OSGi BundleActivator of the Netty transport component.
@@ -32,6 +34,8 @@ public class HTTPTransportActivator implements BundleActivator {
         HTTPTransportContextHolder.getInstance().setBundleContext(bundleContext);
         HandlerExecutor handlerExecutor = new HandlerExecutor();
         HTTPTransportContextHolder.getInstance().setHandlerExecutor(handlerExecutor);
+        bundleContext
+                .registerService(ServerConnectorProvider.class, new HTTPServerConnectorProvider(), null);
     }
 
     @Override
