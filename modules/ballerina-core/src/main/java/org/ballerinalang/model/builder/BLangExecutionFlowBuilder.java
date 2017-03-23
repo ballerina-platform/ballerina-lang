@@ -1065,22 +1065,28 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
             calculateTempOffSet(current);
             ReferenceExpr varRefExpr = current.getVarRef();
             if (varRefExpr instanceof ArrayMapAccessExpr) {
-                // ToDo: Talk to Supun
-                Expression indexExpr = ((ArrayMapAccessExpr) varRefExpr).getIndexExpr()[0];
-                lastLinkedNode.setNext(indexExpr);
-                indexExpr.setParent(structFieldAccessExpr);
+                Expression[] indexExprs = ((ArrayMapAccessExpr) varRefExpr).getIndexExpr();
+                lastLinkedNode.setNext(indexExprs[0]);
+                for(int i = 1; i < indexExprs.length; i++){
+                    indexExprs[i-1].setParent(structFieldAccessExpr);
+                    indexExprs[i-1].setNextSibling(indexExprs[i]);
+                }
+                // Last Index.
+                indexExprs[indexExprs.length -1].setParent(structFieldAccessExpr);
                 if (current.getFieldExpr() != null) {
-                    indexExpr.setNextSibling(current.getFieldExpr());
+                    indexExprs[indexExprs.length -1].setNextSibling(current.getFieldExpr());
                     lastLinkedNode = current.getFieldExpr();
                 } else {
                     if (structFieldAccessExpr.isLHSExpr()) {
                         lastLinkedNode = null;
                     } else {
-                        indexExpr.setNextSibling(endNode);
+                        indexExprs[indexExprs.length -1].setNextSibling(endNode);
                         lastLinkedNode = endNode;
                     }
                 }
-                indexExpr.accept(this);
+                for(Expression indexExpr: indexExprs) {
+                    indexExpr.accept(this);
+                }
             } else {
                 if (current.getFieldExpr() != null) {
                     lastLinkedNode.setNext(current.getFieldExpr());
