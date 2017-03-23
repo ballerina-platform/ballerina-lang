@@ -35,7 +35,6 @@ import org.ballerinalang.plugins.idea.psi.ResourceDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.StructDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.StructFieldNode;
 import org.ballerinalang.plugins.idea.psi.TypeMapperBodyNode;
-import org.ballerinalang.plugins.idea.psi.TypeMapperInputNode;
 import org.ballerinalang.plugins.idea.psi.TypeMapperNode;
 import org.ballerinalang.plugins.idea.psi.TypeMapperType;
 import org.ballerinalang.plugins.idea.psi.TypeNameNode;
@@ -55,8 +54,8 @@ public class VariableReference extends BallerinaElementReference {
     @Override
     public boolean isDefinitionNode(PsiElement def) {
         return def instanceof VariableDefinitionNode || def instanceof ParameterNode
-                || def instanceof NamedParameterNode || def instanceof TypeMapperInputNode
-                || def instanceof ConstantDefinitionNode || def instanceof StructFieldNode;
+                || def instanceof NamedParameterNode || def instanceof ConstantDefinitionNode
+                || def instanceof StructFieldNode;
     }
 
     @NotNull
@@ -111,8 +110,7 @@ public class VariableReference extends BallerinaElementReference {
                 // Now we need to get the struct type. So we get the parent element.
                 PsiElement parentNode = resolvedElement.getParent();
                 if (parentNode == null || !(parentNode instanceof VariableDefinitionNode
-                        || parentNode instanceof TypeMapperInputNode || parentNode instanceof ParameterNode
-                        || parentNode instanceof NamedParameterNode)) {
+                        || parentNode instanceof ParameterNode || parentNode instanceof NamedParameterNode)) {
                     continue;
                 }
                 // In a definition, the first child will be the type.
@@ -171,7 +169,8 @@ public class VariableReference extends BallerinaElementReference {
                 // definitionElement is defined in.
                 PsiElement commonContext = PsiTreeUtil.findCommonContext(definitionElement, myElement);
                 if (!(commonContext instanceof FunctionNode || commonContext instanceof ResourceDefinitionNode
-                        || commonContext instanceof ConnectorNode || commonContext instanceof ActionDefinitionNode)) {
+                        || commonContext instanceof ConnectorNode || commonContext instanceof ActionDefinitionNode
+                        || commonContext instanceof TypeMapperNode)) {
                     return false;
                 }
             } else if (definitionElement instanceof VariableDefinitionNode) {
@@ -193,11 +192,6 @@ public class VariableReference extends BallerinaElementReference {
                     return false;
                 }
                 return refName.equals(nameIdentifier.getText());
-            } else if (definitionElement instanceof TypeMapperInputNode) {
-                PsiElement commonContext = PsiTreeUtil.findCommonContext(definitionElement, myElement);
-                if (!(commonContext instanceof TypeMapperNode)) {
-                    return false;
-                }
             }
             return refName != null && defName != null && refName.equals(defName);
         }

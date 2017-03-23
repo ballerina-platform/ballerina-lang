@@ -35,10 +35,10 @@ public class TypeMapperNode extends ANTLRPsiNode implements ScopeNode {
     @Override
     public PsiElement resolve(PsiNamedElement element) {
         if (element.getParent() instanceof VariableReferenceNode) {
-            return BallerinaPsiImplUtil.resolveElement(this, element, "//typeMapperInput/Identifier");
-        } else if (element.getParent() instanceof SimpleTypeNode) {
+            return BallerinaPsiImplUtil.resolveElement(this, element, "//parameter/Identifier");
+        } else if (element.getParent() instanceof SimpleTypeNode || element.getParent() instanceof NameReferenceNode) {
             return BallerinaPsiImplUtil.resolveElement(this, element, "//functionDefinition/Identifier",
-                    "//connectorDefinition/Identifier");
+                    "//connectorDefinition/Identifier", "//structDefinition/Identifier");
         }
         return null;
     }

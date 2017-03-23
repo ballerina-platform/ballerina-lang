@@ -85,7 +85,6 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
                 .before(ARGUMENT_LIST).spaceIf(false)
                 .around(PARAMETER_LIST).spaceIf(false)
                 .around(RETURN_TYPE_LIST).spaceIf(false)
-                .around(TYPE_MAPPER_INPUT).spaceIf(false)
                 .between(TYPE_MAPPER_TYPE, IDENTIFIER).spaceIf(true)
                 .before(COMMA).spaceIf(false)
                 .after(COMMA).spaceIf(true)

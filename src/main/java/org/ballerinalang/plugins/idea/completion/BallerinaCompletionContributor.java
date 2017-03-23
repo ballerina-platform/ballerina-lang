@@ -50,6 +50,7 @@ import org.ballerinalang.plugins.idea.psi.ImportDeclarationNode;
 import org.ballerinalang.plugins.idea.psi.LiteralValueNode;
 import org.ballerinalang.plugins.idea.psi.MapStructInitKeyValueListNode;
 import org.ballerinalang.plugins.idea.psi.MapStructInitKeyValueNode;
+import org.ballerinalang.plugins.idea.psi.NameReferenceNode;
 import org.ballerinalang.plugins.idea.psi.PackageDeclarationNode;
 import org.ballerinalang.plugins.idea.psi.PackageNameNode;
 import org.ballerinalang.plugins.idea.psi.ParameterNode;
@@ -350,7 +351,7 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
             } else {
                 // Todo - Handle scenario
             }
-        } else if (parent instanceof SimpleTypeNode) {
+        } else if (parent instanceof SimpleTypeNode || parent instanceof NameReferenceNode) {
             PsiElement sibling = parent.getParent().getPrevSibling();
 
             if (sibling == null) {

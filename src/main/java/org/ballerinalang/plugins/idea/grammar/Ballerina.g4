@@ -96,23 +96,10 @@ annotationBody
     ;
 
 typeMapperDefinition
-    :   nativeTypeMapper
-    |   typeMapper
+    :   'native' 'typemapper' Identifier '(' parameter ')' '('typeName')' ';'
+    |   'typemapper' Identifier '(' parameter ')' '('typeName')' '{' typeMapperBody '}'
     ;
 
-nativeTypeMapper
-    :   'native' 'typemapper' Identifier '(' typeMapperInput ')' '('typeMapperType')' ';'
-    ;
-
-typeMapper
-    :   'typemapper' Identifier '(' typeMapperInput ')' '('typeMapperType')' '{' typeMapperBody '}'
-    ;
-
-typeMapperInput
-    :   typeMapperType Identifier
-    ;
-
-// cannot have conector declaration, need to validate at semantic analyzing
 typeMapperBody
     :   statement*
     ;
@@ -121,10 +108,8 @@ constantDefinition
     :   'const' typeName Identifier '=' literalValue ';'
     ;
 
-// cannot have conector declaration, need to validate at semantic analyzing
-// typeName below is only 'message' type
 workerDeclaration
-    :   'worker' Identifier '(' namedParameter ')'  '{' statement* '}'
+    :   'worker' Identifier '(' 'message' Identifier ')'  '{' statement* '}'
     ;
 
 returnParameters
@@ -218,16 +203,44 @@ withScheamIdTypeIterate
 	;
 
 typeName
-    :   unqualifiedTypeName
-    |   qualifiedTypeName
+    :   'any'
+    |   valueTypeName
+    |   referenceTypeName
+    |   typeName ('[' ']')+
+    ;
+
+referenceTypeName
+    :   builtInReferenceTypeName
+    |   nameReference
+    ;
+
+valueTypeName
+    :   'boolean'
+    |   'int'
+    |   'float'
+    |   'string'
+    ;
+
+builtInReferenceTypeName
+    :   'message'
+    |   'map' ('<' typeName '>')?
+    |   'exception'
+    |   'xml' ('<' ('{' xmlNamespaceName '}')? xmlLocalName '>')?
+    |   'xmlDocument' ('<' ('{' xmlNamespaceName '}')? xmlLocalName '>')?
+    |   'json' ('<' '{' QuotedStringLiteral '}' '>')?
+    |   'datatable'
+    ;
+
+xmlNamespaceName
+    :   QuotedStringLiteral
+    ;
+
+xmlLocalName
+    :   Identifier
     ;
 
 parameterList
     :   parameter (',' parameter)*
-    ;
-
-parameter
-    :   annotation* typeName Identifier
     ;
 
 packagePath
@@ -475,8 +488,14 @@ mapStructInitKeyValue
     :   expression ':' expression
     ;
 
+//reusable productions
+
 nameReference
     :   (Identifier ':')? Identifier
+    ;
+
+parameter
+    :   annotationAttachment* typeName Identifier
     ;
 
 fieldDefinition

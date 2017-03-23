@@ -60,6 +60,7 @@ import org.ballerinalang.plugins.idea.psi.ImportDeclarationNode;
 import org.ballerinalang.plugins.idea.psi.LiteralValueNode;
 import org.ballerinalang.plugins.idea.psi.MapStructInitKeyValueListNode;
 import org.ballerinalang.plugins.idea.psi.MapStructInitKeyValueNode;
+import org.ballerinalang.plugins.idea.psi.NameReferenceNode;
 import org.ballerinalang.plugins.idea.psi.NamedParameterNode;
 import org.ballerinalang.plugins.idea.psi.PackageDeclarationNode;
 import org.ballerinalang.plugins.idea.psi.PackageNameNode;
@@ -75,7 +76,6 @@ import org.ballerinalang.plugins.idea.psi.StatementNode;
 import org.ballerinalang.plugins.idea.psi.StructDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.StructFieldNode;
 import org.ballerinalang.plugins.idea.psi.TypeMapperBodyNode;
-import org.ballerinalang.plugins.idea.psi.TypeMapperInputNode;
 import org.ballerinalang.plugins.idea.psi.TypeMapperNode;
 import org.ballerinalang.plugins.idea.psi.TypeMapperType;
 import org.ballerinalang.plugins.idea.psi.TypeNameNode;
@@ -255,9 +255,7 @@ public class BallerinaParserDefinition implements ParserDefinition {
                 return new FunctionName(node);
             case BallerinaParser.RULE_typeName:
                 return new TypeNameNode(node);
-            case BallerinaParser.RULE_typeMapperInput:
-                return new TypeMapperInputNode(node);
-            case BallerinaParser.RULE_typeMapper:
+            case BallerinaParser.RULE_typeMapperDefinition:
                 return new TypeMapperNode(node);
             case BallerinaParser.RULE_typeMapperBody:
                 return new TypeMapperBodyNode(node);
@@ -267,6 +265,8 @@ public class BallerinaParserDefinition implements ParserDefinition {
                 return new TypeMapperType(node);
             case BallerinaParser.RULE_returnTypeList:
                 return new ReturnTypeListNode(node);
+            case BallerinaParser.RULE_nameReference:
+                return new NameReferenceNode(node);
             default:
                 return new ANTLRPsiNode(node);
         }

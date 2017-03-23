@@ -17,13 +17,12 @@
 package org.ballerinalang.plugins.idea.psi;
 
 import com.intellij.lang.ASTNode;
-import org.antlr.jetbrains.adaptor.psi.IdentifierDefSubtree;
-import org.ballerinalang.plugins.idea.BallerinaParserDefinition;
+import org.antlr.jetbrains.adaptor.psi.ANTLRPsiNode;
 import org.jetbrains.annotations.NotNull;
 
-public class TypeMapperInputNode extends IdentifierDefSubtree {
+public class NameReferenceNode extends ANTLRPsiNode {
 
-    public TypeMapperInputNode(@NotNull ASTNode node) {
-        super(node, BallerinaParserDefinition.ID);
+    public NameReferenceNode(@NotNull ASTNode node) {
+        super(node);
     }
 }

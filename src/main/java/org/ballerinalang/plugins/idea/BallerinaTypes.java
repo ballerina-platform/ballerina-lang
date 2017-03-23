@@ -73,7 +73,6 @@ public class BallerinaTypes {
     public static RuleIElementType ANNOTATION = ruleIElementTypes.get(BallerinaParser.RULE_annotation);
     public static RuleIElementType EXPRESSION = ruleIElementTypes.get(BallerinaParser.RULE_expression);
     public static RuleIElementType RETURN_PARAMETERS = ruleIElementTypes.get(BallerinaParser.RULE_returnParameters);
-    public static RuleIElementType TYPE_MAPPER_INPUT = ruleIElementTypes.get(BallerinaParser.RULE_typeMapperInput);
     public static RuleIElementType TYPE_MAPPER_TYPE = ruleIElementTypes.get(BallerinaParser.RULE_typeMapperType);
 
     public static RuleIElementType ELEMENT_VALUE_PAIRS = ruleIElementTypes.get(BallerinaParser.RULE_elementValuePairs);
