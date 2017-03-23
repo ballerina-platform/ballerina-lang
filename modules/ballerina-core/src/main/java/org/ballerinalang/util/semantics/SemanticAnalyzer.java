@@ -1978,7 +1978,8 @@ public class SemanticAnalyzer implements NodeVisitor {
      * @param symbolName
      * @return bLangSymbol
      */
-    private BLangSymbol findBestMatchForFunctionSymbol(FunctionInvocationExpr funcIExpr, SymbolName symbolName) {
+    private BLangSymbol findBestMatchForFunctionSymbol(FunctionInvocationExpr funcIExpr,
+                                                       FunctionSymbolName symbolName) {
         BLangSymbol functionSymbol = null;
         BLangSymbol pkgSymbol = null;
         if (symbolName.getPkgPath() == null) {
@@ -1996,7 +1997,7 @@ public class SemanticAnalyzer implements NodeVisitor {
                 continue;
             }
             FunctionSymbolName funcSymName = (FunctionSymbolName) entry.getKey();
-            if (!funcSymName.isNameAndParamCountMatch((FunctionSymbolName) symbolName)) {
+            if (!funcSymName.isNameAndParamCountMatch(symbolName)) {
                 continue;
             }
 
@@ -2026,13 +2027,8 @@ public class SemanticAnalyzer implements NodeVisitor {
                      * scenario where there are more than two ambiguous functions, then this will show only the
                      * first two.
                      */
-                    SymbolName matchingFuncSym = functionSymbol.getSymbolName();
-                    String ambiguousFunc1 = (matchingFuncSym.getPkgPath() != null) ?
-                                            matchingFuncSym.getPkgPath() + ":" + matchingFuncSym.getName() :
-                                            matchingFuncSym.getName();
-                    String ambiguousFunc2 = (funcSymName.getPkgPath() != null) ?
-                                            funcSymName.getPkgPath() + ":" + funcSymName.getName()
-                                                                               : funcSymName.getName();
+                    String ambiguousFunc1 = generateErrorMessage(funcIExpr, functionSymbol);
+                    String ambiguousFunc2 = generateErrorMessage(funcIExpr, (BLangSymbol) entry.getValue());
                     BLangExceptionHelper.throwSemanticError(funcIExpr, SemanticErrors.AMBIGUOUS_FUNCTIONS,
                                                             funcSymName.getFuncName(), ambiguousFunc1, ambiguousFunc2);
                     break;
@@ -2040,6 +2036,53 @@ public class SemanticAnalyzer implements NodeVisitor {
             }
         }
         return functionSymbol;
+    }
+
+    /**
+     * Helper method to generate error message for each ambiguous function.
+     *
+     * @param funcIExpr
+     * @param functionSymbol
+     * @return errorMsg
+     */
+    private static String generateErrorMessage(FunctionInvocationExpr funcIExpr, BLangSymbol functionSymbol) {
+        Function function;
+        //in future when native functions support implicit casting invocation, functionSymbol can be either
+        //NativeUnitProxy or a Function.
+        if (functionSymbol instanceof NativeUnitProxy) {
+            NativeUnit nativeUnit = ((NativeUnitProxy) functionSymbol).load();
+
+            if (!(nativeUnit instanceof Function)) {
+                BLangExceptionHelper.throwSemanticError(funcIExpr, SemanticErrors.INCOMPATIBLE_TYPES_UNKNOWN_FOUND,
+                                                        functionSymbol.getName());
+            }
+            function = (Function) nativeUnit;
+        } else {
+            if (!(functionSymbol instanceof Function)) {
+                BLangExceptionHelper.throwSemanticError(funcIExpr, SemanticErrors.INCOMPATIBLE_TYPES_UNKNOWN_FOUND,
+                                                        functionSymbol.getName());
+            }
+            function = (Function) functionSymbol;
+        }
+        //below getName should always return a valid String value, hence ArrayIndexOutOfBoundsException
+        // or NullPointerException cannot happen here.
+        String funcName = function.getSymbolName().getName().split("\\.")[0];
+        String firstPart = (function.getSymbolName().getPkgPath() != null) ?
+                           function.getSymbolName().getPkgPath() + ":" + funcName : funcName;
+
+        StringBuilder sBuilder = new StringBuilder(firstPart + "(");
+        String prefix = "";
+        for (ParameterDef parameterDef : function.getParameterDefs()) {
+            sBuilder.append(prefix);
+            prefix = ",";
+            String pkgPath = parameterDef.getTypeName().getPackagePath();
+            if (pkgPath != null) {
+                sBuilder.append(pkgPath).append(":");
+            }
+            sBuilder.append(parameterDef.getTypeName().getName());
+        }
+        sBuilder.append(")");
+        return sBuilder.toString();
     }
 
     /**

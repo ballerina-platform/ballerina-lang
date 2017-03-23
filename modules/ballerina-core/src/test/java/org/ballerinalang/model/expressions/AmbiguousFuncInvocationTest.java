@@ -39,8 +39,8 @@ public class AmbiguousFuncInvocationTest {
     @Test(description = "Test invoking ambiguous function",
           expectedExceptions = {SemanticException.class },
           expectedExceptionsMessageRegExp = "ambiguous-func-invocation.bal:3: function reference 'ambiguousFunc' " +
-                                            "is ambiguous, functions 'ambiguousFunc.(double|string)' and " +
-                                            "'ambiguousFunc.(double|string)' matches")
+                                            "is ambiguous, functions 'ambiguousFunc\\((double|string)\\)' and " +
+                                            "'ambiguousFunc\\((double|string)\\)' matches")
     public void testAmbiguousFuncInvocation() {
         BTestUtils.parseBalFile("lang/expressions/ambiguous-func-invocation.bal");
     }
