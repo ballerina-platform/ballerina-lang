@@ -143,21 +143,23 @@ string stringValue;
 stringValue = messages:getStringValue(m, “count”);
 ```
 
-### Package ballerina.net.jms
+**messages:getProperty**
 
-**jms:getMessageType**
-
-This function can be used get the JMS message type of the relevant message. This function accepts the relevant message as the argument. Return values will be “TextMessage”, “BytesMessage”, “MapMessage” or “ObjectMessage”.
+This function can be used to retrieve a property from the message.
 
 Example:
 
+Message type can be retrieved from the message as below.
+
 ```
-import ballerina.net.jms
+import ballerina.lang.messages;
 ---
 
-string messageType;
-messageType = jms:getMessageType(m);
+string msgType = messages:getProperty(m, "JMS_MESSAGE_TYPE");
+
 ```
+
+### Package ballerina.net.jms
 
 **jms:acknowledge**
 

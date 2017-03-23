@@ -8,8 +8,6 @@ function jmsClientConnectorTest() (boolean) {
 
     jms:ClientConnector jmsEP = create jms:ClientConnector(properties);
     message queueMessage = {};
-    map dataMap = {};
-    dataMap = {};
     messages:setStringPayload(queueMessage, "Hello from ballerina");
     jms:ClientConnector.send(jmsEP, "MyQueue", "TextMessage", queueMessage);
     return true;
@@ -23,8 +21,6 @@ function jmsSendNoMessageTest() (boolean) {
 
     jms:ClientConnector jmsEP = create jms:ClientConnector(properties);
     message queueMessage = {};
-    map dataMap = {};
-    dataMap = {};
     json jsonData = {};
     messages:setJsonPayload(queueMessage, jsonData);
     jms:ClientConnector.send(jmsEP, "MyQueue", "TextMessage", queueMessage);
@@ -39,8 +35,6 @@ function jmsSendMapMessageWithoutData() (boolean) {
 
     jms:ClientConnector jmsEP = create jms:ClientConnector(properties);
     message queueMessage = {};
-    map dataMap = {};
-    dataMap = {};
     messages:setStringPayload(queueMessage, "Hello from ballerina");
     jms:ClientConnector.send(jmsEP, "MyQueue", "MapMessage", queueMessage);
     return true;

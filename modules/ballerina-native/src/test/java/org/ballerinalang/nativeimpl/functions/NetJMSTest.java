@@ -48,29 +48,6 @@ public class NetJMSTest {
     }
 
     @Test
-    public void testGetMessageType() {
-        DefaultCarbonMessage cMsg = new DefaultCarbonMessage();
-        cMsg.setProperty(JMSConstants.JMS_MESSAGE_TYPE, JMSConstants.TEXT_MESSAGE_TYPE);
-        BMessage msg = new BMessage();
-        msg.setValue(cMsg);
-        Context ctx = new Context(cMsg);
-        BValue[] inputArgs = { msg };
-        BValue[] returnVals = BLangFunctions.invoke(bLangProgram, "testGetMessageType", inputArgs, ctx);
-        Assert.assertEquals(returnVals.length, 1);
-        BString sc = (BString) returnVals[0];
-        Assert.assertEquals(sc.stringValue(), JMSConstants.TEXT_MESSAGE_TYPE);
-        cMsg.setProperty(JMSConstants.JMS_MESSAGE_TYPE, JMSConstants.MAP_MESSAGE_TYPE);
-        msg = new BMessage();
-        msg.setValue(cMsg);
-        ctx = new Context(cMsg);
-        BValue[] inputArgs1 = { msg };
-        returnVals = BLangFunctions.invoke(bLangProgram, "testGetMessageType", inputArgs1, ctx);
-        Assert.assertEquals(returnVals.length, 1);
-        sc = (BString) returnVals[0];
-        Assert.assertEquals(sc.stringValue(), JMSConstants.MAP_MESSAGE_TYPE);
-    }
-
-    @Test
     public void testAcknowledge() {
         DefaultCarbonMessage cMsg = new DefaultCarbonMessage();
         cMsg.setProperty(JMSConstants.JMS_SESSION_ACKNOWLEDGEMENT_MODE, Session.CLIENT_ACKNOWLEDGE);
