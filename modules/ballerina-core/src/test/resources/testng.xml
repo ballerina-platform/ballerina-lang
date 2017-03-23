@@ -108,4 +108,10 @@ under the License.
             <class name="org.ballerinalang.core.interpreter.DebuggerTest"/>
         </classes>
     </test>
+
+    <test name="ballerina-any-type-test-suite" preserve-order="true" parallel="false">
+        <classes>
+            <class name="org.ballerinalang.model.any.BAnyTypeSuccessScenariosTest"/>
+        </classes>
+    </test>
 </suite>
