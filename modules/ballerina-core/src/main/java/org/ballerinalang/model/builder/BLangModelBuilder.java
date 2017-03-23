@@ -87,6 +87,7 @@ import org.ballerinalang.model.statements.WhileStmt;
 import org.ballerinalang.model.statements.WorkerInvocationStmt;
 import org.ballerinalang.model.statements.WorkerReplyStmt;
 import org.ballerinalang.model.symbols.BLangSymbol;
+import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.SimpleTypeName;
 import org.ballerinalang.model.types.TypeConstants;
 import org.ballerinalang.model.values.BBoolean;
@@ -834,10 +835,17 @@ public class BLangModelBuilder {
         currentCUBuilder = null;
     }
 
-    public void createWorker(NodeLocation sourceLocation, String name) {
+    public void createWorker(NodeLocation sourceLocation, String name, String paramName) {
         currentCUBuilder.setName(name);
         currentCUBuilder.setNodeLocation(sourceLocation);
 
+        // define worker parameter
+        SymbolName paramSymbolName = new SymbolName(paramName);
+        ParameterDef paramDef = new ParameterDef(sourceLocation, paramName,
+            new SimpleTypeName(BTypes.typeMessage.getName()), paramSymbolName, currentScope);
+        currentScope.define(paramSymbolName, paramDef);
+        currentCUBuilder.addParameter(paramDef);
+        
         Worker worker = currentCUBuilder.buildWorker();
         if (forkJoinStmtBuilderStack.isEmpty()) {
             parentCUBuilder.addWorker(worker);

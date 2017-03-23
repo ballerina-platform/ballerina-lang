@@ -17,7 +17,9 @@
 package org.ballerinalang.model;
 
 /**
- *
+ * {@code AttachmentPoint} represents places where an annotation can be attached.
+ * 
+ * @since 0.8.5
  */
 public enum AttachmentPoint {
     SERVICE("service"),
@@ -37,6 +39,11 @@ public enum AttachmentPoint {
         this.value = value;
     }
 
+    /**
+     * Get the string value of the attachment point.
+     * 
+     * @return string value of the attachment point
+     */
     public String getValue() {
         return value;
     }

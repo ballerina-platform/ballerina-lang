@@ -20,7 +20,9 @@ import org.ballerinalang.model.types.SimpleTypeName;
 import org.ballerinalang.model.values.BValue;
 
 /**
- * Holds the value of a ballerina annotation field.
+ * Holds the value of a ballerina annotation attribute.
+ * 
+ * @since 0.8.5
  */
 public class AnnotationAttributeValue {
     BValue bValue;
@@ -63,10 +65,6 @@ public class AnnotationAttributeValue {
     public NodeLocation getNodeLocation() {
         return location;
     }
-    
-/*    public void setType(SimpleTypeName type) {
-        this.type = type;
-    }*/
     
     public SimpleTypeName getType() {
         return type;

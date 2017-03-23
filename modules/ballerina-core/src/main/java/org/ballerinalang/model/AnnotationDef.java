@@ -27,12 +27,11 @@ import java.util.Map;
 /**
  * {@code AnnotationDef} represents a user-defined annotation in Ballerina.
  *
- * @since 0.8.4
+ * @since 0.8.5
  */
 public class AnnotationDef implements CompilationUnit, SymbolScope, BLangSymbol, StructuredUnit {
     private NodeLocation location;
     private String[] attachmentPoints;
-    private int annotationMemorySize;
     private SymbolName symbolName;
     private AnnotationAttributeDef[] attributes;
     
@@ -74,7 +73,12 @@ public class AnnotationDef implements CompilationUnit, SymbolScope, BLangSymbol,
         return attachmentPoints;
     }
 
-    public AnnotationAttributeDef[] getAttributeDef() {
+    /**
+     * Get attributes defined in this annotation definition.
+     * 
+     * @return array of attribute definitions in this annotation defintion
+     */
+    public AnnotationAttributeDef[] getAttributeDefs() {
         return attributes;
     }
 
@@ -256,9 +260,9 @@ public class AnnotationDef implements CompilationUnit, SymbolScope, BLangSymbol,
         }
 
         /**
-         * Build the annotation.
+         * Build the annotation definition.
          *
-         * @return annotation
+         * @return annotation definition 
          */
         public AnnotationDef build() {
             annotationDef.location = location;

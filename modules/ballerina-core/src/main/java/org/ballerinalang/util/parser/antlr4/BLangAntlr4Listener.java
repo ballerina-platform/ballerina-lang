@@ -449,10 +449,10 @@ public class BLangAntlr4Listener implements BallerinaListener {
             modelBuilder.endCallableUnitBody();
 
             String workerName = ctx.Identifier().get(0).getText();
-            modelBuilder.createWorker(getCurrentLocation(ctx), workerName);
+            String workerParamName = ctx.Identifier().get(1).getText();
+            modelBuilder.createWorker(getCurrentLocation(ctx), workerName, workerParamName);
             isWorkerStarted = false;
         }
-
     }
 
     @Override

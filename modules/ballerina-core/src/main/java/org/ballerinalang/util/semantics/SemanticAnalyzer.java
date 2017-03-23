@@ -723,7 +723,7 @@ public class SemanticAnalyzer implements NodeVisitor {
 
     @Override
     public void visit(AnnotationDef annotationDef) {
-        for (AnnotationAttributeDef fields : annotationDef.getAttributeDef()) {
+        for (AnnotationAttributeDef fields : annotationDef.getAttributeDefs()) {
             fields.accept(this);
         }
     }

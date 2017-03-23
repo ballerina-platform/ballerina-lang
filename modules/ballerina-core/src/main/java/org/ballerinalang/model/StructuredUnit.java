@@ -25,7 +25,8 @@ import org.ballerinalang.model.symbols.BLangSymbol;
  * <li>{@code StructDef}</li>
  * <li>{@code AnnotationDef}</li>
  * </ul>
- *
+ * 
+ * @since 0.8.5
  */
 public interface StructuredUnit {
     
