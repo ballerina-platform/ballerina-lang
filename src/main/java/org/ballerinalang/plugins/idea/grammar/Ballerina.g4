@@ -38,17 +38,20 @@ serviceBody
     ;
 
 resourceDefinition
-    :   'resource' Identifier '(' parameterList ')' '{' functionBody '}'
+    :   annotationAttachment* 'resource' Identifier '(' parameterList ')' '{' callableUnitBody '}'
+    ;
+
+callableUnitBody
+    :   workerDeclaration* statement*
     ;
 
 functionDefinition
     :   'native' 'function' Identifier '(' parameterList? ')' returnParameters? ('throws' Identifier)? ';'
-    |   'function' Identifier '(' parameterList? ')' returnParameters? ('throws' Identifier)? '{' functionBody '}'
+    |   'function' Identifier '(' parameterList? ')' returnParameters? ('throws' Identifier)? '{' callableUnitBody '}'
     ;
 
-//todo rename, this is used in resource, action and funtion
-functionBody
-    :   workerDeclaration* statement*
+callableUnitSignature
+    :   Identifier '(' parameterList? ')' returnParameters? ('throws' Identifier)?
     ;
 
 connectorDefinition
@@ -77,7 +80,7 @@ nativeAction
     ;
 
 action
-    :   'action' Identifier '(' parameterList ')' returnParameters?  ('throws' Identifier)? '{' functionBody '}'
+    :   'action' Identifier '(' parameterList ')' returnParameters?  ('throws' Identifier)? '{' callableUnitBody '}'
     ;
 
 structDefinition

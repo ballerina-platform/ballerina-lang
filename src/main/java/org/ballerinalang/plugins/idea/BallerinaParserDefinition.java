@@ -186,7 +186,7 @@ public class BallerinaParserDefinition implements ParserDefinition {
         switch (ruleElType.getRuleIndex()) {
             case BallerinaParser.RULE_functionDefinition:
                 return new FunctionNode(node);
-            case BallerinaParser.RULE_functionBody:
+            case BallerinaParser.RULE_callableUnitBody:
                 return new FunctionBodyNode(node);
             case BallerinaParser.RULE_callableUnitName:
                 return new CallableUnitNameNode(node);

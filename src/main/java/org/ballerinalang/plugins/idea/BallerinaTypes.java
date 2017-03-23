@@ -44,7 +44,7 @@ public class BallerinaTypes {
 
     public static RuleIElementType STATEMENT = ruleIElementTypes.get(BallerinaParser.RULE_statement);
 
-    public static RuleIElementType FUNCTION_BODY = ruleIElementTypes.get(BallerinaParser.RULE_functionBody);
+    public static RuleIElementType FUNCTION_BODY = ruleIElementTypes.get(BallerinaParser.RULE_callableUnitBody);
     public static RuleIElementType CONNECTOR_BODY = ruleIElementTypes.get(BallerinaParser.RULE_connectorBody);
     public static RuleIElementType SERVICE_BODY = ruleIElementTypes.get(BallerinaParser.RULE_serviceBody);
     public static RuleIElementType STRUCT_BODY = ruleIElementTypes.get(BallerinaParser.RULE_structDefinitionBody);

@@ -53,17 +53,23 @@ public interface BallerinaVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitResourceDefinition(BallerinaParser.ResourceDefinitionContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link BallerinaParser#callableUnitBody}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitCallableUnitBody(BallerinaParser.CallableUnitBodyContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link BallerinaParser#functionDefinition}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitFunctionDefinition(BallerinaParser.FunctionDefinitionContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link BallerinaParser#functionBody}.
+	 * Visit a parse tree produced by {@link BallerinaParser#callableUnitSignature}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitFunctionBody(BallerinaParser.FunctionBodyContext ctx);
+	T visitCallableUnitSignature(BallerinaParser.CallableUnitSignatureContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link BallerinaParser#connectorDefinition}.
 	 * @param ctx the parse tree
