@@ -1311,7 +1311,7 @@ public class BLangExecutor implements NodeExecutor {
                 bArray = (BArray) bArray.get(((BInteger) indexValue).intValue());
             }
             indexValue = indexExpr[0].execute(this);
-            unitVal = bArray.get(((BInteger) indexExpr[0].execute(this)).intValue());
+            unitVal = bArray.get(((BInteger) indexValue).intValue());
         }
 
         if (unitVal == null) {
