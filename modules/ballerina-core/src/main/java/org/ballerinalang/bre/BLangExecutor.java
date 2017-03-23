@@ -740,7 +740,7 @@ public class BLangExecutor implements NodeExecutor {
                 // Get the value stored in the index
                 if (collectionValue instanceof BArray) {
                     BArray bArray = (BArray) collectionValue;
-                    return getValueFromArrray(bArray, indexExpr);
+                    return getValueFromArray(bArray, indexExpr);
                 } else {
                     return collectionValue;
                 }
@@ -1307,7 +1307,7 @@ public class BLangExecutor implements NodeExecutor {
             unitVal = ((BMap) currentVal).get(indexValue);
         } else {
             BArray bArray = (BArray) currentVal;
-            unitVal = getValueFromArrray(bArray, indexExpr);
+            unitVal = getValueFromArray(bArray, indexExpr);
         }
 
         if (unitVal == null) {
@@ -1359,7 +1359,7 @@ public class BLangExecutor implements NodeExecutor {
         return arrayVal;
     }
 
-    private BValue getValueFromArrray(BArray bArray, Expression[] indexExpr) {
+    private BValue getValueFromArray(BArray bArray, Expression[] indexExpr) {
         for (int i = indexExpr.length - 1; i >= 1; i--) {
             BInteger indexVal = (BInteger) indexExpr[i].execute(this);
             bArray = (BArray) bArray.get(indexVal.intValue());
