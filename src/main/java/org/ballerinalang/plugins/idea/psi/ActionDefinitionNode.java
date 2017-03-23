@@ -45,7 +45,7 @@ public class ActionDefinitionNode extends IdentifierDefSubtree implements ScopeN
         }
         else if (element.getParent() instanceof SimpleTypeNode) {
             return SymtabUtils.resolve(this, BallerinaLanguage.INSTANCE, element,
-                    "//connectorDefinition/connector/Identifier");
+                    "//connectorDefinition/Identifier");
         }
         return null;
     }

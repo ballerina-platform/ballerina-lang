@@ -48,7 +48,6 @@ import org.ballerinalang.plugins.idea.psi.BallerinaFile;
 import org.ballerinalang.plugins.idea.psi.CallableUnitNameNode;
 import org.ballerinalang.plugins.idea.psi.CompilationUnitNode;
 import org.ballerinalang.plugins.idea.psi.ConnectorBodyNode;
-import org.ballerinalang.plugins.idea.psi.ConnectorDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.ConnectorNode;
 import org.ballerinalang.plugins.idea.psi.ConstantDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.ExpressionListNode;
@@ -196,12 +195,12 @@ public class BallerinaParserDefinition implements ParserDefinition {
                 return new VariableDefinitionNode(node);
             case BallerinaParser.RULE_parameter:
                 return new ParameterNode(node);
-            case BallerinaParser.RULE_action:
+            case BallerinaParser.RULE_actionDefinition:
                 return new ActionDefinitionNode(node);
             case BallerinaParser.RULE_connectorBody:
                 return new ConnectorBodyNode(node);
             case BallerinaParser.RULE_connectorDefinition:
-                return new ConnectorDefinitionNode(node);
+                return new ConnectorNode(node);
             case BallerinaParser.RULE_resourceDefinition:
                 return new ResourceDefinitionNode(node);
             case BallerinaParser.RULE_packageName:
@@ -244,16 +243,12 @@ public class BallerinaParserDefinition implements ParserDefinition {
                 return new NamedParameterNode(node);
             case BallerinaParser.RULE_literalValue:
                 return new LiteralValueNode(node);
-            case BallerinaParser.RULE_connector:
-                return new ConnectorNode(node);
             case BallerinaParser.RULE_alias:
                 return new AliasNode(node);
             case BallerinaParser.RULE_mapStructInitKeyValueList:
                 return new MapStructInitKeyValueListNode(node);
             case BallerinaParser.RULE_mapStructInitKeyValue:
                 return new MapStructInitKeyValueNode(node);
-//            case BallerinaParser.RULE_function:
-//                return new FunctionNode(node);
             case BallerinaParser.RULE_parameterList:
                 return new ParameterListNode(node);
             case BallerinaParser.RULE_functionName:

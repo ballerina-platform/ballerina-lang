@@ -41,12 +41,12 @@ public class ConnectorBodyNode extends ANTLRPsiNode implements ScopeNode {
                     "//variableDefinitionStatement/Identifier");
         } else if (element.getParent() instanceof CallableUnitNameNode) {
             return BallerinaPsiImplUtil.resolveElement(this, element,"//functionDefinition/Identifier",
-                    "//connector/Identifier");
+                    "//connectorDefinition/Identifier");
         } else if (element.getParent() instanceof PackageNameNode) {
             return BallerinaPsiImplUtil.findPackageNameReference(element);
         } else if (element.getParent() instanceof SimpleTypeNode) {
             return SymtabUtils.resolve(this, BallerinaLanguage.INSTANCE, element,
-                    "//connector/Identifier");
+                    "//connectorDefinition/Identifier");
         }
         return null;
     }

@@ -50,37 +50,17 @@ functionDefinition
     |   'function' Identifier '(' parameterList? ')' returnParameters? ('throws' Identifier)? '{' callableUnitBody '}'
     ;
 
-callableUnitSignature
-    :   Identifier '(' parameterList? ')' returnParameters? ('throws' Identifier)?
-    ;
-
 connectorDefinition
-    :   nativeConnector
-    |   connector
-    ;
-
-nativeConnector
-    :   'native' 'connector' Identifier '(' parameterList ')' '{' nativeConnectorBody '}'
-    ;
-
-nativeConnectorBody
-    :   nativeAction*
-    ;
-
-connector
-    :   'connector' Identifier '(' parameterList ')' '{' connectorBody '}'
+    :   'connector' Identifier '(' parameterList? ')' '{' connectorBody '}'
     ;
 
 connectorBody
-    :   variableDefinitionStatement* action*
+    :   variableDefinitionStatement* actionDefinition*
     ;
 
-nativeAction
-    :   'native' 'action' Identifier '(' parameterList ')' returnParameters?  ('throws' Identifier)? ';'
-    ;
-
-action
-    :   'action' Identifier '(' parameterList ')' returnParameters?  ('throws' Identifier)? '{' callableUnitBody '}'
+actionDefinition
+    :   annotationAttachment* 'native' 'action' Identifier '(' parameterList? ')' returnParameters? ('throws' Identifier)? ';'
+    |   annotationAttachment* 'action' Identifier '(' parameterList? ')' returnParameters? ('throws' Identifier)? '{' callableUnitBody '}'
     ;
 
 structDefinition

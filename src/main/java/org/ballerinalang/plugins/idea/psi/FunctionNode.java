@@ -33,7 +33,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 
-import javax.swing.*;
+import javax.swing.Icon;
 
 public class FunctionNode extends IdentifierDefSubtree implements ScopeNode {
 
@@ -52,7 +52,7 @@ public class FunctionNode extends IdentifierDefSubtree implements ScopeNode {
                     "//namedParameter/Identifier");
         } else if (element.getParent() instanceof SimpleTypeNode) {
             return SymtabUtils.resolve(this, BallerinaLanguage.INSTANCE, element,
-                    "//connector/Identifier");
+                    "//connectorDefinition/Identifier");
         }
         return null;
     }

@@ -50,7 +50,8 @@ public class BallerinaTypes {
     public static RuleIElementType STRUCT_BODY = ruleIElementTypes.get(BallerinaParser.RULE_structDefinitionBody);
 
     public static RuleIElementType FUNCTION_DEFINITION = ruleIElementTypes.get(BallerinaParser.RULE_functionDefinition);
-    public static RuleIElementType CONNECTOR_DEFINITION = ruleIElementTypes.get(BallerinaParser.RULE_connector);
+    public static RuleIElementType CONNECTOR_DEFINITION =
+            ruleIElementTypes.get(BallerinaParser.RULE_connectorDefinition);
     public static RuleIElementType SERVICE_DEFINITION = ruleIElementTypes.get(BallerinaParser.RULE_serviceDefinition);
     public static RuleIElementType STRUCT_DEFINITION = ruleIElementTypes.get(BallerinaParser.RULE_structDefinition);
 

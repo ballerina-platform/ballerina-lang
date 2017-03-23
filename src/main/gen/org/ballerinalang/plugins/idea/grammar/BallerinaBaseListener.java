@@ -124,18 +124,6 @@ public class BallerinaBaseListener implements BallerinaListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterCallableUnitSignature(BallerinaParser.CallableUnitSignatureContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitCallableUnitSignature(BallerinaParser.CallableUnitSignatureContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
 	@Override public void enterConnectorDefinition(BallerinaParser.ConnectorDefinitionContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -143,42 +131,6 @@ public class BallerinaBaseListener implements BallerinaListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitConnectorDefinition(BallerinaParser.ConnectorDefinitionContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterNativeConnector(BallerinaParser.NativeConnectorContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitNativeConnector(BallerinaParser.NativeConnectorContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterNativeConnectorBody(BallerinaParser.NativeConnectorBodyContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitNativeConnectorBody(BallerinaParser.NativeConnectorBodyContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterConnector(BallerinaParser.ConnectorContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitConnector(BallerinaParser.ConnectorContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -196,25 +148,13 @@ public class BallerinaBaseListener implements BallerinaListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterNativeAction(BallerinaParser.NativeActionContext ctx) { }
+	@Override public void enterActionDefinition(BallerinaParser.ActionDefinitionContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitNativeAction(BallerinaParser.NativeActionContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterAction(BallerinaParser.ActionContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitAction(BallerinaParser.ActionContext ctx) { }
+	@Override public void exitActionDefinition(BallerinaParser.ActionDefinitionContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

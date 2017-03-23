@@ -24,7 +24,7 @@ import com.intellij.psi.ResolveResult;
 import com.intellij.psi.util.PsiTreeUtil;
 import org.ballerinalang.plugins.idea.psi.ActionDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.ConnectorBodyNode;
-import org.ballerinalang.plugins.idea.psi.ConnectorDefinitionNode;
+import org.ballerinalang.plugins.idea.psi.ConnectorNode;
 import org.ballerinalang.plugins.idea.psi.ConstantDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.FunctionBodyNode;
 import org.ballerinalang.plugins.idea.psi.FunctionNode;
@@ -171,8 +171,7 @@ public class VariableReference extends BallerinaElementReference {
                 // definitionElement is defined in.
                 PsiElement commonContext = PsiTreeUtil.findCommonContext(definitionElement, myElement);
                 if (!(commonContext instanceof FunctionNode || commonContext instanceof ResourceDefinitionNode
-                        || commonContext instanceof ConnectorDefinitionNode
-                        || commonContext instanceof ActionDefinitionNode)) {
+                        || commonContext instanceof ConnectorNode || commonContext instanceof ActionDefinitionNode)) {
                     return false;
                 }
             } else if (definitionElement instanceof VariableDefinitionNode) {

@@ -40,7 +40,7 @@ import org.antlr.jetbrains.adaptor.xpath.XPath;
 import org.ballerinalang.plugins.idea.BallerinaFileType;
 import org.ballerinalang.plugins.idea.BallerinaLanguage;
 import org.ballerinalang.plugins.idea.psi.AliasNode;
-import org.ballerinalang.plugins.idea.psi.ConnectorDefinitionNode;
+import org.ballerinalang.plugins.idea.psi.ConnectorNode;
 import org.ballerinalang.plugins.idea.psi.ExpressionNode;
 import org.ballerinalang.plugins.idea.psi.FunctionInvocationStatementNode;
 import org.ballerinalang.plugins.idea.psi.ImportDeclarationNode;
@@ -82,7 +82,7 @@ public class BallerinaPsiImplUtil {
 
         if (resolvedElement == null) {
             declarations = XPath.findAll(BallerinaLanguage.INSTANCE, element.getContainingFile(),
-                    "//connectorDefinition/connector/Identifier");
+                    "//connectorDefinition/Identifier");
             resolvedElement = Trees.toMap(declarations).get(id);
         }
         return resolvedElement;
@@ -513,17 +513,9 @@ public class BallerinaPsiImplUtil {
                 }
 
                 // Todo - Use an util function to get values of multiple xpaths.
-                List<PsiElement> allConnecotrsInAPackage = getAllMatchingElementsFromPackage(((PsiDirectory) element1),
-                        "//connector/Identifier");
-                for (PsiElement psiElement : allConnecotrsInAPackage) {
-                    if (element.getText().equals(psiElement.getText())) {
-                        results.add(psiElement);
-                    }
-                }
-
-                List<PsiElement> allNativeConnecotrsInAPackage =
-                        getAllMatchingElementsFromPackage(((PsiDirectory) element1), "//nativeConnector/Identifier");
-                for (PsiElement psiElement : allNativeConnecotrsInAPackage) {
+                List<PsiElement> allConnectorsInAPackage = getAllMatchingElementsFromPackage(((PsiDirectory) element1),
+                        "//connectorDefinition/Identifier");
+                for (PsiElement psiElement : allConnectorsInAPackage) {
                     if (element.getText().equals(psiElement.getText())) {
                         results.add(psiElement);
                     }
@@ -541,17 +533,9 @@ public class BallerinaPsiImplUtil {
     public static List<PsiElement> getAllConnectorsInPackage(PsiDirectory packageElement) {
         List<PsiElement> results = new ArrayList<>();
         List<PsiElement> connectors = getAllMatchingElementsFromPackage(packageElement,
-                "//connectorDefinition/connector/Identifier");
+                "//connectorDefinition/Identifier");
         if (connectors != null) {
             for (PsiElement connector : connectors) {
-                results.add(connector);
-            }
-        }
-
-        List<PsiElement> nativeConnectors = getAllMatchingElementsFromPackage(packageElement,
-                "//connectorDefinition/nativeConnector/Identifier");
-        if (connectors != null) {
-            for (PsiElement connector : nativeConnectors) {
                 results.add(connector);
             }
         }
@@ -587,14 +571,6 @@ public class BallerinaPsiImplUtil {
                 "//functionDefinition/Identifier");
         if (functions != null) {
             for (PsiElement function : functions) {
-                results.add(function);
-            }
-        }
-
-        List<PsiElement> nativeFunctions = getAllMatchingElementsFromPackage(packageElement,
-                "//functionDefinition/Identifier");
-        if (nativeFunctions != null) {
-            for (PsiElement function : nativeFunctions) {
                 results.add(function);
             }
         }
@@ -692,10 +668,9 @@ public class BallerinaPsiImplUtil {
                     continue;
                 }
                 // Get the ConnectorDefinitionNode parent node. This is used to get all the actions/native actions.
-                ConnectorDefinitionNode connectorDefinitionNode = PsiTreeUtil.getParentOfType(resolvedElement,
-                        ConnectorDefinitionNode.class);
+                ConnectorNode connectorNode = PsiTreeUtil.getParentOfType(resolvedElement, ConnectorNode.class);
                 // Get all actions/native actions.
-                List<PsiElement> allActions = getAllActionsFromAConnector(connectorDefinitionNode);
+                List<PsiElement> allActions = getAllActionsFromAConnector(connectorNode);
                 for (PsiElement action : allActions) {
                     // Get the matching action/native action.
                     if (element.getText().equals(action.getText())) {
@@ -716,15 +691,9 @@ public class BallerinaPsiImplUtil {
     public static List<PsiElement> getAllActionsFromAConnector(PsiElement connectorDefinitionNode) {
         List<PsiElement> results = new ArrayList<>();
         // Get all actions
-        Collection<? extends PsiElement> allActions =
-                XPath.findAll(BallerinaLanguage.INSTANCE, connectorDefinitionNode, "//action/Identifier");
+        Collection<? extends PsiElement> allActions = XPath.findAll(BallerinaLanguage.INSTANCE, connectorDefinitionNode,
+                "//actionDefinition/Identifier");
         for (PsiElement action : allActions) {
-            results.add(action);
-        }
-        // Get all native actions
-        Collection<? extends PsiElement> allNativeActions =
-                XPath.findAll(BallerinaLanguage.INSTANCE, connectorDefinitionNode, "//nativeAction/Identifier");
-        for (PsiElement action : allNativeActions) {
             results.add(action);
         }
         return results;

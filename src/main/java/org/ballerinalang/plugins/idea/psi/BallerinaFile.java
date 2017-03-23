@@ -63,15 +63,12 @@ public class BallerinaFile extends PsiFileBase implements ScopeNode {
     @Nullable
     @Override
     public PsiElement resolve(PsiNamedElement element) {
-        //		System.out.println(getClass().getSimpleName()+
-        //		                   ".resolve("+element.getName()+
-        //		                   " at "+Integer.toHexString(element.hashCode())+")");
         if (element.getParent() instanceof CallableUnitNameNode) {
             return BallerinaPsiImplUtil.resolveElement(this, element, "//functionDefinition/Identifier",
-                    "//connector/Identifier");
+                    "//connectorDefinition/Identifier");
         } else if (element.getParent() instanceof SimpleTypeNode) {
             return BallerinaPsiImplUtil.resolveElement(this, element, "//functionDefinition/Identifier",
-                    "//connector/Identifier", "//structDefinition/Identifier");
+                    "//connectorDefinition/Identifier", "//structDefinition/Identifier");
         } else if (element.getParent() instanceof VariableReferenceNode) {
             return BallerinaPsiImplUtil.resolveElement(this, element, "//constantDefinition/Identifier");
         }

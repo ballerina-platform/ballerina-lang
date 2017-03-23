@@ -65,35 +65,11 @@ public interface BallerinaVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitFunctionDefinition(BallerinaParser.FunctionDefinitionContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link BallerinaParser#callableUnitSignature}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitCallableUnitSignature(BallerinaParser.CallableUnitSignatureContext ctx);
-	/**
 	 * Visit a parse tree produced by {@link BallerinaParser#connectorDefinition}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitConnectorDefinition(BallerinaParser.ConnectorDefinitionContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link BallerinaParser#nativeConnector}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitNativeConnector(BallerinaParser.NativeConnectorContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link BallerinaParser#nativeConnectorBody}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitNativeConnectorBody(BallerinaParser.NativeConnectorBodyContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link BallerinaParser#connector}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitConnector(BallerinaParser.ConnectorContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link BallerinaParser#connectorBody}.
 	 * @param ctx the parse tree
@@ -101,17 +77,11 @@ public interface BallerinaVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitConnectorBody(BallerinaParser.ConnectorBodyContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link BallerinaParser#nativeAction}.
+	 * Visit a parse tree produced by {@link BallerinaParser#actionDefinition}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitNativeAction(BallerinaParser.NativeActionContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link BallerinaParser#action}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitAction(BallerinaParser.ActionContext ctx);
+	T visitActionDefinition(BallerinaParser.ActionDefinitionContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link BallerinaParser#structDefinition}.
 	 * @param ctx the parse tree
