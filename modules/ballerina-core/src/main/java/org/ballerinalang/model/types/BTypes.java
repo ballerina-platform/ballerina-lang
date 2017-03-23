@@ -49,6 +49,8 @@ public class BTypes {
     public static BType typeMap;
     public static BType typeException;
     public static BType typeDatatable;
+    public static BType typeBufferedInputstream;
+    public static BType typeByteArrayOutputStream;
 
     private static boolean initialized = false;
     private static Set<String> builtInTypeNames = new HashSet<>();
@@ -73,6 +75,8 @@ public class BTypes {
         globalScope.define(typeMap.getSymbolName(), typeMap);
         globalScope.define(typeException.getSymbolName(), typeException);
         globalScope.define(typeDatatable.getSymbolName(), typeDatatable);
+        globalScope.define(typeBufferedInputstream.getSymbolName(), typeBufferedInputstream);
+        globalScope.define(typeByteArrayOutputStream.getSymbolName(), typeByteArrayOutputStream);
 
         builtInTypeNames.add(TypeConstants.INT_TNAME);
         builtInTypeNames.add(TypeConstants.STRING_TNAME);
@@ -86,7 +90,9 @@ public class BTypes {
         builtInTypeNames.add(TypeConstants.DATATABLE_TNAME);
         builtInTypeNames.add(TypeConstants.CONNECTOR_TNAME);
         builtInTypeNames.add(TypeConstants.STRUCT_TNAME);
-        
+        builtInTypeNames.add(TypeConstants.BUFFERED_INPUTSTREAM);
+        builtInTypeNames.add(TypeConstants.BYTE_ARRAY_OUTPUTSTREAM);
+
         TypeLattice.loadImplicitCastLattice(globalScope);
         TypeLattice.loadExplicitCastLattice(globalScope);
 
@@ -105,6 +111,9 @@ public class BTypes {
         typeMap = new BMapType(TypeConstants.MAP_TNAME, null, globalScope);
         typeException = new BExceptionType(TypeConstants.EXCEPTION_TNAME, null, globalScope);
         typeDatatable = new BDataTableType(TypeConstants.DATATABLE_TNAME, null, globalScope);
+        typeBufferedInputstream = new BBufferedInputstreamType(TypeConstants.BUFFERED_INPUTSTREAM, null, globalScope);
+        typeByteArrayOutputStream = new BByteArrayOutputStreamType(TypeConstants.BYTE_ARRAY_OUTPUTSTREAM,
+                null, globalScope);
         initialized = true;
     }
 

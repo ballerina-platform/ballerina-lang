@@ -38,6 +38,8 @@ public enum TypeEnum {
     EXCEPTION("exception"),
     DATATABLE("datatable"),
     STRUCT("struct"),
+    BUFFEREDINPUTSTREAM("bufferedinputstream"),
+    BYTEARRAYOUTPUTSTREAM("bytearrayoutputstream"),
     EMPTY("");
 
     private String name;

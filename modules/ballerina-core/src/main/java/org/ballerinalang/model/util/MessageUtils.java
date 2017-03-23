@@ -21,6 +21,7 @@ package org.ballerinalang.model.util;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.io.BufferedInputStream;
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -39,6 +40,8 @@ public class MessageUtils {
     public static String getStringFromInputStream(InputStream in) {
         BufferedInputStream bis = new BufferedInputStream(in);
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(new byte[10]);
+        byteArrayInputStream.read();
         String result;
         try {
             int data;
