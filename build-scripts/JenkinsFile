@@ -24,6 +24,8 @@ String toolSwaggerVersion, toolSwaggerReleaseTag, toolSwaggerDevVersion, toolSwa
 String toolsDistVersion, toolsDistReleaseTag, toolsDistDevVersion, toolsDistSkipTests;
 String pluginMavenVersion, pluginMavenReleaseTag, pluginMavenDevVersion, pluginMavenSkipTests;
 String ballerinaParentVersion, ballerinaParentReleaseTag, ballerinaParentDevVersion;
+String allowCleanUpAfterReleaseFailure = NO;
+String nodeLabel;
 
 def releaseParamInput, buildParamInput;
 
@@ -33,6 +35,10 @@ String CHOICE_PARAM_DEF_CLASS = "ChoiceParameterDefinition";
 if (isRelease) {
     releaseParamInput = input(
             id: 'userInput', message: 'Please provide following parameters', parameters: [
+            [$class: TEXT_PARAM_DEF_CLASS, description: 'Provide the node label to preform the release', name: 'node-label'],
+
+            [$class: CHOICE_PARAM_DEF_CLASS, choices: yesNoString, description: 'Delete newly created tags/branches after failure', name: 'clean-up-after-failure'],
+
             [$class: TEXT_PARAM_DEF_CLASS, description: 'Please provide Ballerina Parent Version', name: 'ballerina-parent-version'],
             [$class: TEXT_PARAM_DEF_CLASS, description: 'Please provide Ballerina Parent Release Tag', name: 'ballerina-parent-release-tag'],
             [$class: TEXT_PARAM_DEF_CLASS, description: 'Please provide Ballerina Next Development Version', name: 'ballerina-parent-next-development-version'],
@@ -82,6 +88,9 @@ if (isRelease) {
             [$class: TEXT_PARAM_DEF_CLASS, description: 'Please provide plugin-maven Next Development Version', name: 'plugin-maven-next-development-version'],
             [$class: CHOICE_PARAM_DEF_CLASS, choices: yesNoString, description: 'Skip Tests', name: 'skip-plugin-maven-tests']
     ]);
+    allowCleanUpAfterReleaseFailure = releaseParamInput['clean-up-after-failure'];
+    nodeLabel = releaseParamInput['node-label'];
+
     ballerinaParentVersion = releaseParamInput['ballerina-parent-version'];
     ballerinaParentReleaseTag = releaseParamInput['ballerina-parent-release-tag'];
     ballerinaParentDevVersion = releaseParamInput['ballerina-parent-next-development-version'];
@@ -134,6 +143,8 @@ if (isRelease) {
 } else {
     buildParamInput = input(
             id: 'userInput', message: 'Please provide following parameters', parameters: [
+            [$class: TEXT_PARAM_DEF_CLASS, description: 'Provide the node label to preform the build', name: 'node-label'],
+
             [$class: CHOICE_PARAM_DEF_CLASS, choices: yesNoString, description: 'Skip ballerina Tests', name: 'skip-ballerina-tests'],
             [$class: CHOICE_PARAM_DEF_CLASS, choices: yesNoString, description: 'Skip composer Tests', name: 'skip-composer-tests'],
             [$class: CHOICE_PARAM_DEF_CLASS, choices: yesNoString, description: 'Skip docerina Tests', name: 'skip-docerina-tests'],
@@ -145,6 +156,7 @@ if (isRelease) {
             [$class: CHOICE_PARAM_DEF_CLASS, choices: yesNoString, description: 'Skip plugin-maven Tests', name: 'skip-plugin-maven-tests']
     ]);
 
+    nodeLabel = buildParamInput['node-label'];
     ballerinaSkipTests = buildParamInput['skip-ballerina-tests'];
     composerSkipTests = buildParamInput['skip-composer-tests'];
     docerinaSkipTests = buildParamInput['skip-docerina-tests'];
@@ -156,7 +168,7 @@ if (isRelease) {
     pluginMavenSkipTests = buildParamInput['skip-plugin-maven-tests'];
 }
 
-node ('US01') {
+node ("${nodeLabel}") {
     def tagMap = [];
     String user = env.GIT_USER;
     String gitCredentialsID = env.GIT_CREDENTIALS_ID;
@@ -298,7 +310,7 @@ node ('US01') {
         }
     } catch (Exception e) {
         println("An exception has occurred in during the build process");
-        if (isRelease) {
+        if (isRelease && YES.equals(allowCleanUpAfterReleaseFailure)) {
             for (entry in tagMap) {
                 cleanupRepositoryAfterFailure(entry[0].toString(), user, entry[1].toString(), entry[2].toString(), gitCredentialsID)
             }
