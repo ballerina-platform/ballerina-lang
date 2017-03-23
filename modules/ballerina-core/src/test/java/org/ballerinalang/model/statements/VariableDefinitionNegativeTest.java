@@ -32,34 +32,35 @@ public class VariableDefinitionNegativeTest {
     /*
      * Negative tests.
      */
-    
-    @Test(expectedExceptions = {SemanticException.class },
+
+    @Test(expectedExceptions = {SemanticException.class},
             expectedExceptionsMessageRegExp = "duplicate-variables.bal:5: redeclared symbol 'b'")
     public void testDuplicateVariables() {
         BTestUtils.parseBalFile("lang/statements/duplicate-variables.bal");
     }
-    
-    @Test(expectedExceptions = {SemanticException.class },
+
+    @Test(expectedExceptions = {SemanticException.class},
             expectedExceptionsMessageRegExp = "undeclared-variables.bal:2: undefined symbol 'a'")
     public void testUndeclaredVariables() {
         BTestUtils.parseBalFile("lang/statements/undeclared-variables.bal");
     }
-    
-    @Test(expectedExceptions = {SemanticException.class },
+
+    @Test(expectedExceptions = {SemanticException.class},
             expectedExceptionsMessageRegExp = "unsupported-type-variable.bal:4: undefined type 'Foo'")
     public void testUnsupportedTypeVariable() {
         BTestUtils.parseBalFile("lang/statements/unsupported-type-variable.bal");
     }
 
     @Test(expectedExceptions = BallerinaException.class,
-          expectedExceptionsMessageRegExp = "duplicate-constant-variables.bal:2: redeclared symbol 'b'")
+            expectedExceptionsMessageRegExp = "duplicate-constant-variables.bal:2: redeclared symbol 'b'")
     public void testDuplicateConstantVariable() {
         BTestUtils.parseBalFile("lang/statements/duplicate-constant-variables.bal");
     }
-    
+
     @Test(description = "Test defining a constant from an arrays type",
             expectedExceptions = {ParserException.class},
-            expectedExceptionsMessageRegExp = "array-type-constants.bal:1:9: mismatched input '\\['. Expecting one of Identifier")
+            expectedExceptionsMessageRegExp = "array-type-constants.bal:1:9: " +
+                    "mismatched input '\\['. Expecting one of Identifier")
     public void testArrayTypeConstant() {
         BTestUtils.parseBalFile("lang/statements/array-type-constants.bal");
     }

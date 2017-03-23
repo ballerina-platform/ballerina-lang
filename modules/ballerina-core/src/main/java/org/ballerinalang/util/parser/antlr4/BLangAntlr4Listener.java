@@ -566,7 +566,9 @@ public class BLangAntlr4Listener implements BallerinaListener {
         if (ctx.exception != null) {
             return;
         }
-        int attribuesAvailable = ctx.annotationAttributeList() == null ? 0 : ctx.annotationAttributeList().annotationAttribute().size();
+
+        int attribuesAvailable = ctx.annotationAttributeList() == null ? 0 :
+                ctx.annotationAttributeList().annotationAttribute().size();
         modelBuilder.addAnnotationAttachment(getCurrentLocation(ctx), nameReferenceStack.pop(), attribuesAvailable);
     }
 
