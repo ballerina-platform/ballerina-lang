@@ -1,5 +1,3 @@
-import ballerina.lang.system;
-
 function valueAssignmentAndRetrieval() (int) {
     int[] x = [3];
     int[] y = [4, 5];
@@ -12,6 +10,6 @@ function arrayInitializationAndRetrieval() (int) {
     int[][] x = [];
     x[0][0] = 1;
 
-    return xx[0][0];
+    return x[0][0];
 }
 
