@@ -23,15 +23,16 @@ import org.wso2.siddhi.query.api.definition.StreamDefinition;
 import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
 public class OptionHolder {
 
-    private final Map<String, Option> options = new HashMap<>();
-    private final Extension extension;
-    private final Set<String> dynamicOptionsKeys;
-    private final Set<String> staticOptionsKeys;
+    private  Map<String, Option> options = new HashMap<>();
+    private  Extension extension;
+    private  Set<String> dynamicOptionsKeys = new HashSet<>();
+    private  Set<String> staticOptionsKeys = new HashSet<>();
 
 
     public OptionHolder(StreamDefinition streamDefinition, Map<String, String> staticOptions,
@@ -44,8 +45,9 @@ public class OptionHolder {
             options.put(entry.getKey(), new Option(entry.getKey(), null,
                     new TemplateBuilder(streamDefinition, entry.getValue())));
         }
-        staticOptionsKeys = staticOptions.keySet();
-        dynamicOptionsKeys = dynamicOptions.keySet();
+
+        staticOptions.keySet().forEach(key -> staticOptionsKeys.add(key));
+        dynamicOptions.keySet().forEach(key ->  dynamicOptionsKeys.add(key));
     }
 
     public Option validateAndGetOption(String optionKey) {
@@ -91,6 +93,22 @@ public class OptionHolder {
             throw new ExecutionPlanValidationException("'" + optionKey + "' 'static' option is not " +
                     "defined in the configuration of " + extension.namespace() + ":" + extension.name() + ".");
         }
+    }
+
+    public OptionHolder merge(OptionHolder optionHolderToMerge){
+        optionHolderToMerge.getDynamicOptionsKeys().forEach(key -> {
+            Option optionToMerge = optionHolderToMerge.validateAndGetOption(key);
+            options.put(key, optionToMerge);
+            dynamicOptionsKeys.add(key);
+        });
+
+        optionHolderToMerge.getStaticOptionsKeys().forEach(key ->{
+            Option optionToMerge = optionHolderToMerge.validateAndGetOption(key);
+            options.put(key, optionToMerge);
+            staticOptionsKeys.add(key);
+        });
+
+        return this;
     }
 
     public boolean isOptionExists(String optionKey) {
