@@ -39,6 +39,8 @@ public class AnnotationDef implements CompilationUnit, SymbolScope, BLangSymbol,
     // Scope related variables
     private SymbolScope enclosingScope;
     private Map<SymbolName, BLangSymbol> symbolMap;
+    private String pkgName;
+    private String pkgPath;
 
     /**
      * Create an annotation definition.
@@ -72,18 +74,28 @@ public class AnnotationDef implements CompilationUnit, SymbolScope, BLangSymbol,
         return attachmentPoints;
     }
 
-    public int getAnnotationMemorySize() {
-        return annotationMemorySize;
-    }
-
-    public void setAnnotationMemorySize(int annotationMemorySize) {
-        this.annotationMemorySize = annotationMemorySize;
-    }
-    
     public AnnotationAttributeDef[] getAttributeDef() {
         return attributes;
     }
 
+    /**
+     * Get the package name of the annotation definition.
+     * 
+     * @return Package name of the annotation definition
+     */
+    public String getPkgName() {
+        return pkgName;
+    }
+
+    /**
+     * Get the package path of the annotation definition.
+     * 
+     * @return Package path of the annotation definition
+     */
+    public String getPkgPath() {
+        return pkgPath;
+    }
+    
     @Override
     public BLangSymbol resolveMembers(SymbolName name) {
         return symbolMap.get(name);
@@ -173,6 +185,7 @@ public class AnnotationDef implements CompilationUnit, SymbolScope, BLangSymbol,
         private NodeLocation location;
         private String name;
         private String pkgPath;
+        private String pkgName;
         private List<String> attachmentPoints = new ArrayList<>();
         private AnnotationDef annotationDef;
         private List<AnnotationAttributeDef> attributes = new ArrayList<>();
@@ -216,6 +229,15 @@ public class AnnotationDef implements CompilationUnit, SymbolScope, BLangSymbol,
         }
         
         /**
+         * Set the package name of this annotation.
+         * 
+         * @param pkgName Package name of this annotation
+         */
+        public void setPackageName(String pkgName) {
+            this.pkgName = pkgName;
+        }
+        
+        /**
          * Add a field to the annotation.
          *
          * @param attachmentPoint Field in the annotation
@@ -242,6 +264,8 @@ public class AnnotationDef implements CompilationUnit, SymbolScope, BLangSymbol,
             annotationDef.location = location;
             annotationDef.attachmentPoints = attachmentPoints.toArray(new String[attachmentPoints.size()]);
             annotationDef.symbolName = new SymbolName(name, pkgPath);
+            annotationDef.pkgName = pkgName;
+            annotationDef.pkgPath = pkgPath;
             annotationDef.attributes = attributes.toArray(new AnnotationAttributeDef[attributes.size()]); 
             return annotationDef;
         }

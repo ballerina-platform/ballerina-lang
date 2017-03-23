@@ -16,6 +16,7 @@
  */
 package org.ballerinalang.model;
 
+import org.ballerinalang.model.types.SimpleTypeName;
 import org.ballerinalang.model.values.BValue;
 
 /**
@@ -26,17 +27,21 @@ public class AnnotationAttributeValue {
     AnnotationAttachment annotationValue;
     AnnotationAttributeValue[] valueArray;
     NodeLocation location;
+    SimpleTypeName type;
     
-    public AnnotationAttributeValue(BValue bValue) {
+    public AnnotationAttributeValue(BValue bValue, SimpleTypeName valueType) {
         this.bValue = bValue;
+        this.type = valueType;
     }
     
-    public AnnotationAttributeValue(AnnotationAttachment annotationValue) {
+    public AnnotationAttributeValue(AnnotationAttachment annotationValue, SimpleTypeName valueType) {
         this.annotationValue = annotationValue;
+        this.type = valueType;
     }
     
-    public AnnotationAttributeValue(AnnotationAttributeValue[] valueArray) {
+    public AnnotationAttributeValue(AnnotationAttributeValue[] valueArray, SimpleTypeName valueType) {
         this.valueArray = valueArray;
+        this.type = valueType;
     }
     
     public AnnotationAttachment getAnnotationValue() {
@@ -57,5 +62,26 @@ public class AnnotationAttributeValue {
     
     public NodeLocation getNodeLocation() {
         return location;
+    }
+    
+/*    public void setType(SimpleTypeName type) {
+        this.type = type;
+    }*/
+    
+    public SimpleTypeName getType() {
+        return type;
+    }
+    
+    @Override
+    public String toString() {
+        if (bValue != null) {
+            return bValue.stringValue();
+        }
+        
+        if (annotationValue != null) {
+            return annotationValue.toString();
+        }
+        
+        return null;
     }
 }

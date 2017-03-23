@@ -29,6 +29,7 @@ import org.ballerinalang.model.AnnotationAttachment;
 import org.ballerinalang.model.AnnotationDef;
 import org.ballerinalang.model.AttachmentPoint;
 import org.ballerinalang.model.AnnotationAttributeDef;
+import org.ballerinalang.model.AnnotationAttributeValue;
 import org.ballerinalang.model.BLangPackage;
 import org.ballerinalang.model.BLangProgram;
 import org.ballerinalang.model.BTypeMapper;
@@ -138,6 +139,7 @@ import org.ballerinalang.util.exceptions.SemanticException;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -264,6 +266,11 @@ public class SemanticAnalyzer implements NodeVisitor {
         // Open a new symbol scope
         openScope(service);
 
+        for (AnnotationAttachment annotationAttachment : service.getAnnotations()) {
+            annotationAttachment.setAttachedPoint(AttachmentPoint.SERVICE);
+            annotationAttachment.accept(this);
+        }
+        
         for (VariableDefStmt variableDefStmt : service.getVariableDefStmts()) {
             variableDefStmt.accept(this);
         }
@@ -282,6 +289,11 @@ public class SemanticAnalyzer implements NodeVisitor {
         // Open the connector namespace
         openScope(connector);
 
+        for (AnnotationAttachment annotationAttachment : connector.getAnnotations()) {
+            annotationAttachment.setAttachedPoint(AttachmentPoint.CONNECTOR);
+            annotationAttachment.accept(this);
+        }
+        
         for (ParameterDef parameterDef : connector.getParameterDefs()) {
             parameterDef.setMemoryLocation(new ConnectorVarLocation(++connectorMemAddrOffset));
             parameterDef.accept(this);
@@ -313,6 +325,11 @@ public class SemanticAnalyzer implements NodeVisitor {
         // TODO Check whether the reply statement is missing. Ignore if the function does not return anything.
         //checkForMissingReplyStmt(resource);
 
+        for (AnnotationAttachment annotationAttachment : resource.getAnnotations()) {
+            annotationAttachment.setAttachedPoint(AttachmentPoint.RESOURCE);
+            annotationAttachment.accept(this);
+        }
+        
         for (ParameterDef parameterDef : resource.getParameterDefs()) {
             parameterDef.setMemoryLocation(new StackVarLocation(++stackFrameOffset));
             parameterDef.accept(this);
@@ -567,29 +584,103 @@ public class SemanticAnalyzer implements NodeVisitor {
 
     @Override
     public void visit(AnnotationAttachment annotation) {
-        // FIXME: fix exceptions
         AttachmentPoint attachedPoint = annotation.getAttachedPoint();
-        BLangSymbol annotationSymbol = currentScope.resolve(annotation.getSymbolName());
+        SymbolName annotationSymName = new SymbolName(annotation.getName(), annotation.getPkgPath());
+        BLangSymbol annotationSymbol = currentScope.resolve(annotationSymName);
         
         if (!(annotationSymbol instanceof AnnotationDef)) {
-            throw new SemanticException("Annotation not found: " + annotation.getSymbolName());
+            BLangExceptionHelper.throwSemanticError(annotation, SemanticErrors.UNDEFINED_ANNOTATION, 
+                    annotationSymName);
         }
         
         AnnotationDef annotationDef = (AnnotationDef) annotationSymbol;
-        Optional<String> optional = Arrays.stream(annotationDef.getAttachmentPoints())
+        Optional<String> matchingAttachmentPoint = Arrays.stream(annotationDef.getAttachmentPoints())
                 .filter(x -> x.equals(attachedPoint.getValue()))
                 .findFirst();
-        
-        if (!optional.isPresent()) {
-            throw new SemanticException("Annotation '" + annotation.getSymbolName() + "' is not allowed in a " + 
-                    attachedPoint + " @" + annotation.getNodeLocation());
+        if (!matchingAttachmentPoint.isPresent()) {
+            BLangExceptionHelper.throwSemanticError(annotation, SemanticErrors.ANNOTATION_NOT_ALLOWED, 
+                    annotationSymName, attachedPoint);
         }
         
+        // Validate the attributes and their types
+        validateAttributes(annotation, annotationDef);
+        
+        populatedefaultvalues(annotation, annotationDef);
+    }
+
+    private void validateAttributes(AnnotationAttachment annotation, AnnotationDef annotationDef) {
+        annotation.getAttributeNameValuePairs().forEach((attributeName, attributeValue) -> {
+            // Check attribute existence
+            BLangSymbol attributeSymbol = annotationDef.resolveMembers(new SymbolName(attributeName));
+            if (attributeSymbol == null || !(attributeSymbol instanceof AnnotationAttributeDef)) {
+                BLangExceptionHelper.throwSemanticError(annotation, SemanticErrors.NO_SUCH_ATTRIBUTE, 
+                    attributeName, annotation.getName());
+            }
+            
+            // TODO: Check types
+            AnnotationAttributeDef attributeDef = ((AnnotationAttributeDef)attributeSymbol);
+            SimpleTypeName attributeType = attributeDef.getTypeName();
+            SimpleTypeName valueType = attributeValue.getType();
+        });
+    }
+    
+    
+    /**
+     * Populate default values to the annotation attributes.
+     * 
+     * @param annotation
+     * @param annotationDef
+     */
+    private void populatedefaultvalues(AnnotationAttachment annotation, AnnotationDef annotationDef) {
+        /*
+        Map<SymbolName, AnnotationAttributeValue> attributeValPairs = annotation.getAttributeNameValuePairs();
+        for(AnnotationAttributeDef attributeDef : annotationDef.getAttributeDef()) {
+            SymbolName attributeName = attributeDef.getSymbolName();
+            
+            // If the annotation attribute contains the key, and if the value is another annotationAttachment,
+            // then recursively populate its default values
+            if (attributeValPairs.containsKey(attributeName)) {
+                AnnotationAttributeValue attributeValue = attributeValPairs.get(attributeName);
+                AnnotationAttachment annotationTypeVal = attributeValue.getAnnotationValue();
+                if (annotationTypeVal == null) {
+                    continue;
+                }
+                
+                BLangSymbol attributeSymbol = currentScope.resolve(attributeDef.getTypeName().getSymbolName());
+                if (attributeSymbol instanceof AnnotationDef) {
+                    populatedefaultvalues(annotationTypeVal, (AnnotationDef) attributeSymbol);
+                }
+                continue;
+            }
+            
+            BasicLiteral defaultValue = attributeDef.getAttributeValue();
+            if (defaultValue != null) {
+                annotation.addAttributeNameValuePair(attributeName,
+                    new AnnotationAttributeValue(defaultValue.getBValue(), defaultValue.getTypeName()));
+                continue;
+            }
+
+            // If the default value null means, the attribute is an annotation.
+            // Hence, construct a new empty annotation with of given type
+            BLangSymbol attributeSymbol = currentScope.resolve(attributeDef.getTypeName().getSymbolName());
+            if (attributeSymbol instanceof AnnotationDef) {
+                AnnotationDef childAnnotationDef = (AnnotationDef) attributeSymbol;
+                AnnotationAttachment defaultAnnotation = new AnnotationAttachment(annotation.getNodeLocation(),
+                        childAnnotationDef.getName(), childAnnotationDef.getPkgName(),
+                        childAnnotationDef.getPkgPath(), new HashMap<SymbolName, AnnotationAttributeValue>());
+                populatedefaultvalues(defaultAnnotation, childAnnotationDef);
+
+                SimpleTypeName valueType = new SimpleTypeName(defaultAnnotation.getName(),
+                        defaultAnnotation.getPkgName(), defaultAnnotation.getPkgPath());
+                annotation.addAttributeNameValuePair(attributeName, 
+                        new AnnotationAttributeValue(defaultAnnotation, valueType));
+            }
+        }
+        */
     }
     
     @Override
     public void visit(AnnotationAttributeDef annotationAttributeDef) {
-        // FIXME: fix error messages
         SimpleTypeName fieldType = annotationAttributeDef.getTypeName();
         BasicLiteral fieldVal = annotationAttributeDef.getAttributeValue();
         
@@ -598,13 +689,13 @@ public class SemanticAnalyzer implements NodeVisitor {
             BType valueType = fieldVal.getType();
             
             if (!BTypes.isBuiltInTypeName(fieldType.getName())) {
-                throw new SemanticException("Only primitives can have default values");
+                BLangExceptionHelper.throwSemanticError(annotationAttributeDef, SemanticErrors.INVALID_DEFAULT_VALUE);
             }
             
             BLangSymbol typeSymbol = currentScope.resolve(fieldType.getSymbolName());
             BType fieldBType = (BType) typeSymbol;
             if (!BTypes.isValueType(fieldBType)) {
-                throw new SemanticException("Only primitives can have default values");
+                BLangExceptionHelper.throwSemanticError(annotationAttributeDef, SemanticErrors.INVALID_DEFAULT_VALUE);
             }
             
             if (fieldBType != valueType) {
@@ -622,7 +713,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             // Check whether the field type is a built in value type or an annotation.
             if (((typeSymbol instanceof BType) && !BTypes.isValueType((BType) typeSymbol)) || 
                     (!(typeSymbol instanceof BType) && !(typeSymbol instanceof AnnotationDef))) {
-                throw new SemanticException("Fields can be either a primtive or an annotation");
+                BLangExceptionHelper.throwSemanticError(annotationAttributeDef, SemanticErrors.INVALID_ATTRIBUTE_TYPE, fieldType);
             }
         }
     }
@@ -638,6 +729,11 @@ public class SemanticAnalyzer implements NodeVisitor {
     public void visit(ParameterDef paramDef) {
         BType bType = BTypes.resolveType(paramDef.getTypeName(), currentScope, paramDef.getNodeLocation());
         paramDef.setType(bType);
+        
+        for (AnnotationAttachment annotationAttachment : paramDef.getAnnotations()) {
+            annotationAttachment.setAttachedPoint(AttachmentPoint.PARAMETER);
+            annotationAttachment.accept(this);
+        }
     }
 
     @Override
@@ -2667,7 +2763,7 @@ public class SemanticAnalyzer implements NodeVisitor {
      */
     private void defineAnnotations(AnnotationDef[] annotationDefs) {
         for (AnnotationDef annotationDef : annotationDefs) {
-            SymbolName symbolName = annotationDef.getSymbolName();
+            SymbolName symbolName = new SymbolName(annotationDef.getName());
 
             // Check whether this annotation is already defined.
             if (currentScope.resolve(symbolName) != null) {

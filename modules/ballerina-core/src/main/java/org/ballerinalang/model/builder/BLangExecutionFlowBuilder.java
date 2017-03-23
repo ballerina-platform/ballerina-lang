@@ -24,27 +24,7 @@ import org.ballerinalang.bre.StackVarLocation;
 import org.ballerinalang.bre.StructVarLocation;
 import org.ballerinalang.bre.WorkerVarLocation;
 import org.ballerinalang.bre.nonblocking.ModeResolver;
-import org.ballerinalang.model.AnnotationAttachment;
-import org.ballerinalang.model.BLangPackage;
-import org.ballerinalang.model.BLangProgram;
-import org.ballerinalang.model.BTypeMapper;
-import org.ballerinalang.model.BallerinaAction;
-import org.ballerinalang.model.BallerinaConnectorDef;
-import org.ballerinalang.model.BallerinaFile;
-import org.ballerinalang.model.BallerinaFunction;
-import org.ballerinalang.model.Connector;
-import org.ballerinalang.model.ConnectorDcl;
-import org.ballerinalang.model.ConstDef;
-import org.ballerinalang.model.ImportPackage;
-import org.ballerinalang.model.LinkedNode;
-import org.ballerinalang.model.Node;
-import org.ballerinalang.model.NodeVisitor;
-import org.ballerinalang.model.ParameterDef;
-import org.ballerinalang.model.Resource;
-import org.ballerinalang.model.Service;
-import org.ballerinalang.model.StructDef;
-import org.ballerinalang.model.VariableDef;
-import org.ballerinalang.model.Worker;
+import org.ballerinalang.model.*;
 import org.ballerinalang.model.expressions.ActionInvocationExpr;
 import org.ballerinalang.model.expressions.AddExpression;
 import org.ballerinalang.model.expressions.AndExpression;
@@ -303,6 +283,16 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
 
     @Override
     public void visit(StructDef structDef) {
+    }
+
+    @Override
+    public void visit(AnnotationAttributeDef annotationAttributeDef) {
+        
+    }
+
+    @Override
+    public void visit(AnnotationDef annotationDef) {
+
     }
 
 

@@ -55,7 +55,7 @@ public class HTTPResourceDispatcher implements ResourceDispatcher {
                         Constants.ANNOTATION_NAME_PATH);
                 String subPathAnnotationVal;
                 if (subPathAnnotation != null) {
-                    subPathAnnotationVal = subPathAnnotation.getValue();
+                    subPathAnnotationVal = subPathAnnotation.getAttribute(Constants.VALUE_ATTRIBUTE).toString();
                 } else {
                     if (log.isDebugEnabled()) {
                         log.debug("Path not specified in the Resource, using default sub path");

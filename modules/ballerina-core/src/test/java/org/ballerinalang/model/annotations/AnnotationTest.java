@@ -30,7 +30,7 @@ public class AnnotationTest {
 
     @BeforeClass
     public void setup() {
-        bLangProgram = BTestUtils.parseBalFile("lang/annotations/annotations.bal");
+        bLangProgram = BTestUtils.parseBalFile("lang/annotations/");
     }
 
     @Test(description = "Test Basic annotation")

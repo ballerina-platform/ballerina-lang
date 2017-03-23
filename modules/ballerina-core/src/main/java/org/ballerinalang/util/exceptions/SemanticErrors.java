@@ -82,7 +82,12 @@ public enum SemanticErrors {
     BUILT_IN_TYPE_NAMES_NOT_ALLOWED_AS_IDENTIFIER("built.in.type.names.not.allowed.as.identifier", "SEMANTIC_0057"),
     INCOMPATIBLE_TYPES_CONNECTOR_EXPECTED("incompatible.types.connector.expected", "SEMANTIC_0058"),
     AMBIGUOUS_FUNCTIONS("ambiguous.functions", "SEMANTIC_0059"), 
-    UNSUPPORTED_ANNOTATION_ATTRIBUTE_VALUE("unsupported.annotation.attribute.value", "SEMANTIC_0060");
+    UNSUPPORTED_ANNOTATION_ATTRIBUTE_VALUE("unsupported.annotation.attribute.value", "SEMANTIC_0060"),
+    UNDEFINED_ANNOTATION("undefined.annotation", "SEMANTIC_0061"),
+    ANNOTATION_NOT_ALLOWED("annotation.not.allowed", "SEMANTIC_0062"),
+    NO_SUCH_ATTRIBUTE("no.such.attribute", "SEMANTIC_0063"),
+    INVALID_DEFAULT_VALUE("invalid.default.value", "SEMANTIC_0064"),
+    INVALID_ATTRIBUTE_TYPE("invalid.attribute.type", "SEMANTIC_0065");
 
     private String errorMsgKey;
     private String errorCode;

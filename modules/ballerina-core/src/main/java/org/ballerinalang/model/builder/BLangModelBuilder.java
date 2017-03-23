@@ -328,15 +328,16 @@ public class BLangModelBuilder {
 
     public void createAnnotationKeyValue(String key) {
         AnnotationAttachment.AnnotationBuilder annotationBuilder = annonAttachmentBuilderStack.peek();
-        annotationBuilder.addAttributeNameValuePair(new SymbolName(key), annotationAttributeValues.pop());
+        annotationBuilder.addAttributeNameValuePair(key, annotationAttributeValues.pop());
     }
 
     public void addAnnotationAttachment(NodeLocation location, NameReference nameReference, int attributesCount) {
         AnnotationAttachment.AnnotationBuilder annonAttachmentBuilder = annonAttachmentBuilderStack.pop();
 
         // FIXME This is how current annotation processing code is written in the server connector frameworkad
-        annonAttachmentBuilder.setName(new SymbolName(nameReference.getName(), nameReference.getPackageName()));
+        annonAttachmentBuilder.setName(nameReference.getName());
         annonAttachmentBuilder.setPkgName(nameReference.getPackageName());
+        annonAttachmentBuilder.setPkgPath(nameReference.getPackagePath());
         annonAttachmentBuilder.setNodeLocation(location);
         annonAttachmentStack.add(annonAttachmentBuilder.build());
     }
@@ -389,9 +390,9 @@ public class BLangModelBuilder {
                     SemanticErrors.UNSUPPORTED_ANNOTATION_ATTRIBUTE_VALUE);
             errorMsgs.add(errMsg);
         }
-        
-        BValue value = ((BasicLiteral) expr).getBValue();
-        annotationAttributeValues.push(new AnnotationAttributeValue(value));
+        BasicLiteral basicLiteral = (BasicLiteral) expr;
+        BValue value = basicLiteral.getBValue();
+        annotationAttributeValues.push(new AnnotationAttributeValue(value, basicLiteral.getTypeName()));
     }
     
     /**
@@ -399,15 +400,17 @@ public class BLangModelBuilder {
      */
     public void createAnnotationTypeAttributeValue(NodeLocation location) {
         AnnotationAttachment value = annonAttachmentStack.pop();
-        annotationAttributeValues.push(new AnnotationAttributeValue(value));
+        SimpleTypeName valueType = new SimpleTypeName(value.getName(), value.getPkgName(), value.getPkgPath());
+        annotationAttributeValues.push(new AnnotationAttributeValue(value, valueType));
     }
     
     /**
      * @param location
      */
     public void createArrayTypeAttributeValue(NodeLocation location) {
+        SimpleTypeName valueType = new SimpleTypeName(null, true);
         AnnotationAttributeValue arrayValue = new AnnotationAttributeValue(
-            annotationAttributeValues.toArray(new AnnotationAttributeValue[annotationAttributeValues.size()]));
+            annotationAttributeValues.toArray(new AnnotationAttributeValue[annotationAttributeValues.size()]), valueType);
         arrayValue.setNodeLocation(location);
         annotationAttributeValues.clear();
         annotationAttributeValues.push(arrayValue);

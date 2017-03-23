@@ -18,6 +18,8 @@
 
 package org.ballerinalang.model;
 
+import org.ballerinalang.model.values.BValue;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -34,15 +36,14 @@ public class AnnotationAttachment implements Node {
     private String name;
     private String pkgName;
     private String pkgPath;
-    private SymbolName symbolName;
-    private Map<SymbolName, AnnotationAttributeValue> attributeNameValPairs = new HashMap<>();
+    private Map<String, AnnotationAttributeValue> attributeNameValPairs = new HashMap<>();
     private NodeLocation location;
     AttachmentPoint attachedPoint;
     
-    public AnnotationAttachment(NodeLocation location, SymbolName name, String pkgName, String pkgPath,
-            Map<SymbolName, AnnotationAttributeValue> fieldValPairs) {
+    public AnnotationAttachment(NodeLocation location, String name, String pkgName, String pkgPath,
+            Map<String, AnnotationAttributeValue> fieldValPairs) {
         this.location = location;
-        this.symbolName = name;
+        this.name = name;
         this.pkgName = pkgName;
         this.pkgPath = pkgPath;
         this.attributeNameValPairs = fieldValPairs;
@@ -57,29 +58,30 @@ public class AnnotationAttachment implements Node {
         return name;
     }
 
+    /**
+     * Get the package name of the annotation.
+     * 
+     * @return Package name of the annotation
+     */
     public String getPkgName() {
         return pkgName;
     }
 
+    /**
+     * Get the package path of the annotation.
+     * 
+     * @return Package path of the annotation
+     */
     public String getPkgPath() {
         return pkgPath;
     }
     
     /**
-     * Get symbol name of the annotation.
-     *
-     * @return symbol name of the annotation
-     */
-    public SymbolName getSymbolName() {
-        return this.symbolName;
-    }
-
-    /**
      * Get Key-Value pairs of fields in the annotation.
      *
      * @return all Key-Value pairs
      */
-    public Map<SymbolName, AnnotationAttributeValue> getAttributeNameValuePairs() {
+    public Map<String, AnnotationAttributeValue> getAttributeNameValuePairs() {
         return attributeNameValPairs;
     }
 
@@ -89,7 +91,7 @@ public class AnnotationAttachment implements Node {
      * @param attributeName attribute name
      * @return value of the attribute
      */
-    public AnnotationAttributeValue getValue(String attributeName) {
+    public AnnotationAttributeValue getAttribute(String attributeName) {
         return attributeNameValPairs.get(attributeName);
     }
 
@@ -122,16 +124,32 @@ public class AnnotationAttachment implements Node {
     }
 
     /**
+     * Add a attribute name-value pair for the annotation.
+     * 
+     * @param name Name of the attribute
+     * @param value Value of the attribute
+     */
+    public void addAttributeNameValuePair(String name, AnnotationAttributeValue value) {
+        this.attributeNameValPairs.put(name, value);
+    }
+    
+    @Override
+    public String toString() {
+        return "@" + pkgName + ":" + name + "{" + attributeNameValPairs + "}";
+    }
+    
+    
+    /**
      * Builds an Annotation from parser events.
      *
      * @since 0.8.0
      */
     public static class AnnotationBuilder {
         private NodeLocation location;
-        private SymbolName name;
+        private String name;
         private String pkgName;
         private String pkgPath;
-        private Map<SymbolName, AnnotationAttributeValue> attributeNameValPairs = new HashMap<>();
+        private Map<String, AnnotationAttributeValue> attributeNameValPairs = new HashMap<>();
 
         /**
          * Set the source location of the annotation.
@@ -145,10 +163,10 @@ public class AnnotationAttachment implements Node {
         /**
          * Set the name of the annotation.
          * 
-         * @param name Name of the annotation
+         * @param string Name of the annotation
          */
-        public void setName(SymbolName name) {
-            this.name = name;
+        public void setName(String string) {
+            this.name = string;
         }
 
         /**
@@ -175,12 +193,34 @@ public class AnnotationAttachment implements Node {
          * @param name Name of the attribute
          * @param value Value of the attribute
          */
-        public void addAttributeNameValuePair(SymbolName name, AnnotationAttributeValue value) {
+        public void addAttributeNameValuePair(String name, AnnotationAttributeValue value) {
             this.attributeNameValPairs.put(name, value);
         }
 
         public AnnotationAttachment build() {
             return new AnnotationAttachment(location, name, pkgName, pkgPath, attributeNameValPairs);
         }
+    }
+
+
+    /**
+     * Get value of an annotation with a single literal attribute.
+     * @return string value of the only attribute of the annotation.
+     */
+    public String getValue() {
+        if (attributeNameValPairs.isEmpty()) {
+            return null;
+        }
+        
+        if (attributeNameValPairs.size() > 1) {
+            throw new IllegalAccessError("annotation contains multiple attributes");
+        }
+        
+        BValue listeralVal = attributeNameValPairs.values().toArray(new AnnotationAttributeValue[0])[0].getLiteralValue();
+        if (listeralVal != null) {
+            return listeralVal.stringValue();
+        }
+        
+        return null;
     }
 }

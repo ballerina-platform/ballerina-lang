@@ -90,7 +90,8 @@ public class WebSocketServiceDispatcher extends HTTPServiceDispatcher {
         AnnotationAttachment basePathAnnotation = null;
         AnnotationAttachment[] annotations = service.getAnnotations();
         for (AnnotationAttachment annotation: annotations) {
-            if (annotation.getName().equals(Constants.PROTOCOL_HTTP + ":" + Constants.ANNOTATION_NAME_BASE_PATH)) {
+            if (annotation.getPkgName().equals(Constants.PROTOCOL_HTTP) &&
+                annotation.getName().equals(Constants.ANNOTATION_NAME_BASE_PATH)) {
                 basePathAnnotation = annotation;
             } else if (annotation.getName().equals(
                     Constants.PROTOCOL_WEBSOCKET + ":" + Constants.ANNOTATION_NAME_WEBSOCKET_UPGRADE_PATH)) {
@@ -98,7 +99,7 @@ public class WebSocketServiceDispatcher extends HTTPServiceDispatcher {
             }
         }
         if (websocketUpgradePathAnnotation != null && websocketUpgradePathAnnotation.getValue() != null) {
-            if (basePathAnnotation == null) {
+            if (basePathAnnotation == null || basePathAnnotation.getValue() == null) {
                 throw new BallerinaException("Cannot define @WebSocketPathUpgrade without @BasePath");
             }
 

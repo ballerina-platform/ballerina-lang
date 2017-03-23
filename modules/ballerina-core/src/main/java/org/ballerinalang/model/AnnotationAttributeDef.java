@@ -16,7 +16,6 @@
  */
 package org.ballerinalang.model;
 
-import org.ballerinalang.bre.MemoryLocation;
 import org.ballerinalang.model.expressions.BasicLiteral;
 import org.ballerinalang.model.symbols.BLangSymbol;
 import org.ballerinalang.model.types.SimpleTypeName;
@@ -31,7 +30,6 @@ import org.ballerinalang.model.types.SimpleTypeName;
 public class AnnotationAttributeDef implements BLangSymbol, Node {
     protected NodeLocation location;
     protected SimpleTypeName typeName;
-    protected MemoryLocation memoryLocation;
     protected BasicLiteral annotationAttributeVal;
 
     // BLangSymbol related attributes
@@ -58,14 +56,6 @@ public class AnnotationAttributeDef implements BLangSymbol, Node {
 
     public SimpleTypeName getTypeName() {
         return typeName;
-    }
-
-    public MemoryLocation getMemoryLocation() {
-        return memoryLocation;
-    }
-
-    public void setMemoryLocation(MemoryLocation memoryLocation) {
-        this.memoryLocation = memoryLocation;
     }
     
     public BasicLiteral getAttributeValue() {
