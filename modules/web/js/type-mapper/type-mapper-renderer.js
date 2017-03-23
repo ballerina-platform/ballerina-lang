@@ -24,8 +24,8 @@ import alerts from 'alerts';
 import './type-mapper.css';
 /**
  * Renderer constructor for TypeMapper
- * @param {object} onConnectionCallback call back function when connection made
- * @param {object} onDisconnectCallback call back function when connection removed
+ * @param {function} onConnectionCallback call back function when connection made
+ * @param {function} onDisconnectCallback call back function when connection removed
  * @param {object} typeConverterView Type Mapper View reference object
  * @constructor
  */
@@ -992,7 +992,5 @@ class TypeMapperRenderer {
         }];
     }
 }
-
-TypeMapperRenderer.prototype.constructor = TypeMapperRenderer;
 
 export default TypeMapperRenderer;
