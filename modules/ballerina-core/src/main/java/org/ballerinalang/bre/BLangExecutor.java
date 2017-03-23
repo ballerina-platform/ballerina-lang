@@ -740,11 +740,7 @@ public class BLangExecutor implements NodeExecutor {
                 // Get the value stored in the index
                 if (collectionValue instanceof BArray) {
                     BArray bArray = (BArray) collectionValue;
-                    for (int i = indexExpr.length -1; i >= 1; i--) {
-                        BInteger indexVal = (BInteger) indexExpr[i].execute(this);
-                        bArray = (BArray) bArray.get(indexVal.intValue());
-                    }
-                    return bArray.get(((BInteger) indexExpr[0].execute(this)).intValue());
+                    return getValueFromArrray(bArray, indexExpr);
                 } else {
                     return collectionValue;
                 }
@@ -1039,22 +1035,7 @@ public class BLangExecutor implements NodeExecutor {
 
             Expression[] exprs = accessExpr.getIndexExpr();
             if (exprs.length > 1) {
-                for (int i = exprs.length -1; i >= 1; i--) {
-                    BInteger indexVal = (BInteger) exprs[i].execute(this);
-
-                    // Will have to dynamically populate
-                    while (arrayVal.size() <= indexVal.intValue()) {
-                        if (i != 1 || rValue instanceof BArray) {
-                            BArray newBArray = new BArray<>(BArray.class);
-                            arrayVal.add(arrayVal.size(), newBArray);
-                        } else {
-                            BArray bArray = new BArray<>(rValue.getClass());
-                            arrayVal.add(arrayVal.size(), bArray);
-                        }
-                    }
-
-                    arrayVal = (BArray) arrayVal.get(indexVal.intValue());
-                }
+                arrayVal = retrieveArray(arrayVal, rValue, exprs);
             }
 
             BInteger indexVal = (BInteger) exprs[0].execute(this);
@@ -1247,22 +1228,7 @@ public class BLangExecutor implements NodeExecutor {
         } else {
             BArray arrayVal = (BArray) arrayMapValue;
             if (exprs.length > 1) {
-                for (int i = exprs.length -1; i >= 1; i--) {
-                    BInteger indexVal = (BInteger) exprs[i].execute(this);
-
-                    // Will have to dynamically populate
-                    if (arrayVal.size() == indexVal.intValue()) {
-                        if (i != 1) {
-                            BArray newBArray = new BArray(BArray.class);
-                            arrayVal.add(indexVal.intValue(), newBArray);
-                        } else {
-                            BArray bArray = new BArray(rValue.getClass());
-                            arrayVal.add(indexVal.intValue(), bArray);
-                        }
-                    }
-
-                    arrayVal = (BArray) arrayVal.get(indexVal.intValue());
-                }
+                arrayVal = retrieveArray(arrayVal, rValue, exprs);
             }
 
             BInteger indexVal = (BInteger) exprs[0].execute(this);
@@ -1342,11 +1308,7 @@ public class BLangExecutor implements NodeExecutor {
             unitVal = ((BMap) currentVal).get(indexValue);
         } else {
             BArray bArray = (BArray) currentVal;
-            for (int i = indexExpr.length -1; i >= 1; i--) {
-                BInteger indexVal = (BInteger) indexExpr[i].execute(this);
-                bArray = (BArray) bArray.get(indexVal.intValue());
-            }
-            unitVal = bArray.get(((BInteger) indexExpr[0].execute(this)).intValue());
+            unitVal = getValueFromArrray(bArray, indexExpr);
         }
 
         if (unitVal == null) {
@@ -1375,5 +1337,34 @@ public class BLangExecutor implements NodeExecutor {
         controlStack.pushFrame(stackFrame);
         initFunction.getCallableUnitBody().execute(this);
         controlStack.popFrame();
+    }
+
+    private BArray retrieveArray(BArray arrayVal, BValue rValue, Expression[] exprs) {
+        for (int i = exprs.length -1; i >= 1; i--) {
+            BInteger indexVal = (BInteger) exprs[i].execute(this);
+
+            // Will have to dynamically populate
+            while (arrayVal.size() <= indexVal.intValue()) {
+                if (i != 1 || rValue instanceof BArray) {
+                    BArray newBArray = new BArray<>(BArray.class);
+                    arrayVal.add(arrayVal.size(), newBArray);
+                } else {
+                    BArray bArray = new BArray<>(rValue.getClass());
+                    arrayVal.add(arrayVal.size(), bArray);
+                }
+            }
+
+            arrayVal = (BArray) arrayVal.get(indexVal.intValue());
+        }
+
+        return arrayVal;
+    }
+
+    private BValue getValueFromArrray(BArray bArray, Expression[] indexExpr) {
+        for (int i = indexExpr.length -1; i >= 1; i--) {
+            BInteger indexVal = (BInteger) indexExpr[i].execute(this);
+            bArray = (BArray) bArray.get(indexVal.intValue());
+        }
+        return bArray.get(((BInteger) indexExpr[0].execute(this)).intValue());
     }
 }
