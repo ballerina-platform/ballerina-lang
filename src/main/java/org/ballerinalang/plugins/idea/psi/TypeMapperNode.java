@@ -19,7 +19,6 @@ package org.ballerinalang.plugins.idea.psi;
 import com.intellij.lang.ASTNode;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiNamedElement;
-import com.intellij.psi.ResolveResult;
 import org.antlr.jetbrains.adaptor.psi.ANTLRPsiNode;
 import org.antlr.jetbrains.adaptor.psi.ScopeNode;
 import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
@@ -38,7 +37,7 @@ public class TypeMapperNode extends ANTLRPsiNode implements ScopeNode {
         if (element.getParent() instanceof VariableReferenceNode) {
             return BallerinaPsiImplUtil.resolveElement(this, element, "//typeMapperInput/Identifier");
         } else if (element.getParent() instanceof SimpleTypeNode) {
-            return BallerinaPsiImplUtil.resolveElement(this, element, "//function/Identifier",
+            return BallerinaPsiImplUtil.resolveElement(this, element, "//functionDefinition/Identifier",
                     "//connector/Identifier");
         }
         return null;

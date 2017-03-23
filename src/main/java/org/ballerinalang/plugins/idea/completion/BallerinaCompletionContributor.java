@@ -44,7 +44,7 @@ import org.ballerinalang.plugins.idea.psi.AnnotationNameNode;
 import org.ballerinalang.plugins.idea.psi.CallableUnitNameNode;
 import org.ballerinalang.plugins.idea.psi.CompilationUnitNode;
 import org.ballerinalang.plugins.idea.psi.ExpressionNode;
-import org.ballerinalang.plugins.idea.psi.FunctionDefinitionNode;
+import org.ballerinalang.plugins.idea.psi.FunctionNode;
 import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
 import org.ballerinalang.plugins.idea.psi.ImportDeclarationNode;
 import org.ballerinalang.plugins.idea.psi.LiteralValueNode;
@@ -290,9 +290,8 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                     addKeyword(resultSet, REPLY, CONTEXT_KEYWORD_PRIORITY);
                 }
 
-                FunctionDefinitionNode functionBodyNode =
-                        PsiTreeUtil.getParentOfType(element, FunctionDefinitionNode.class);
-                if (functionBodyNode != null) {
+                FunctionNode functionNode = PsiTreeUtil.getParentOfType(element, FunctionNode.class);
+                if (functionNode != null) {
                     addKeyword(resultSet, RETURN, CONTEXT_KEYWORD_PRIORITY);
                 }
 
@@ -340,7 +339,7 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
                     addFileLevelKeywords(resultSet, CONTEXT_KEYWORD_PRIORITY, false, true);
                 }
             }
-        } else if (parent instanceof FunctionDefinitionNode || parent instanceof ParameterNode) {
+        } else if (parent instanceof FunctionNode || parent instanceof ParameterNode) {
             if (prevSibling != null) {
                 if ("(".equals(prevSibling.getText())) {
                     // Todo - Handle scenario

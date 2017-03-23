@@ -7,13 +7,7 @@ grammar Ballerina;
 compilationUnit
     :   packageDeclaration?
         importDeclaration*
-    (   serviceDefinition
-    |   functionDefinition
-    |   connectorDefinition
-    |   structDefinition
-    |   typeMapperDefinition
-    |   constantDefinition
-    )*
+        (annotationAttachment* definition)*
         EOF
     ;
 
@@ -25,8 +19,18 @@ importDeclaration
     :   'import' packagePath ('as' alias)? ';'
     ;
 
+definition
+    :   serviceDefinition
+    |   functionDefinition
+    |   connectorDefinition
+    |   structDefinition
+    |   typeMapperDefinition
+    |   constantDefinition
+    |   annotationDefinition
+    ;
+
 serviceDefinition
-    :   annotation* 'service' Identifier '{' serviceBody '}'
+    :   'service' Identifier '{' serviceBody '}'
     ;
 
 serviceBody
@@ -34,20 +38,12 @@ serviceBody
     ;
 
 resourceDefinition
-    :   annotation* 'resource' Identifier '(' parameterList ')' '{' functionBody '}'
+    :   'resource' Identifier '(' parameterList ')' '{' functionBody '}'
     ;
 
 functionDefinition
-    :   nativeFunction
-    |   function
-    ;
-
-nativeFunction
-    :   annotation* 'native' 'function' Identifier '(' parameterList? ')' returnParameters? ('throws' Identifier)? ';'
-    ;
-
-function
-    :   annotation* 'function' Identifier '(' parameterList? ')' returnParameters? ('throws' Identifier)? '{' functionBody '}'
+    :   'native' 'function' Identifier '(' parameterList? ')' returnParameters? ('throws' Identifier)? ';'
+    |   'function' Identifier '(' parameterList? ')' returnParameters? ('throws' Identifier)? '{' functionBody '}'
     ;
 
 //todo rename, this is used in resource, action and funtion
@@ -61,7 +57,7 @@ connectorDefinition
     ;
 
 nativeConnector
-    :   annotation* 'native' 'connector' Identifier '(' parameterList ')' '{' nativeConnectorBody '}'
+    :   'native' 'connector' Identifier '(' parameterList ')' '{' nativeConnectorBody '}'
     ;
 
 nativeConnectorBody
@@ -69,7 +65,7 @@ nativeConnectorBody
     ;
 
 connector
-    :   annotation* 'connector' Identifier '(' parameterList ')' '{' connectorBody '}'
+    :   'connector' Identifier '(' parameterList ')' '{' connectorBody '}'
     ;
 
 connectorBody
@@ -77,15 +73,15 @@ connectorBody
     ;
 
 nativeAction
-    :   annotation* 'native' 'action' Identifier '(' parameterList ')' returnParameters?  ('throws' Identifier)? ';'
+    :   'native' 'action' Identifier '(' parameterList ')' returnParameters?  ('throws' Identifier)? ';'
     ;
 
 action
-    :   annotation* 'action' Identifier '(' parameterList ')' returnParameters?  ('throws' Identifier)? '{' functionBody '}'
+    :   'action' Identifier '(' parameterList ')' returnParameters?  ('throws' Identifier)? '{' functionBody '}'
     ;
 
 structDefinition
-    :   annotation* 'struct' Identifier '{' structDefinitionBody '}'
+    :   'struct' Identifier '{' structDefinitionBody '}'
     ;
 
 structDefinitionBody
@@ -96,17 +92,37 @@ structField
     :   typeName Identifier ';'
     ;
 
+annotationDefinition
+    : 'annotation' Identifier ('attach' attachmentPoint (',' attachmentPoint)*)? annotationBody
+    ;
+
+attachmentPoint
+     : 'service'
+     | 'resource'
+     | 'connector'
+     | 'action'
+     | 'function'
+     | 'typemapper'
+     | 'struct'
+     | 'const'
+     | 'parameter'
+     ;
+
+annotationBody
+    :  '{' fieldDefinition* '}'
+    ;
+
 typeMapperDefinition
     :   nativeTypeMapper
     |   typeMapper
     ;
 
 nativeTypeMapper
-    :   annotation* 'native' 'typemapper' Identifier '(' typeMapperInput ')' '('typeMapperType')' ';'
+    :   'native' 'typemapper' Identifier '(' typeMapperInput ')' '('typeMapperType')' ';'
     ;
 
 typeMapper
-    :   annotation* 'typemapper' Identifier '(' typeMapperInput ')' '('typeMapperType')' '{' typeMapperBody '}'
+    :   'typemapper' Identifier '(' typeMapperInput ')' '('typeMapperType')' '{' typeMapperBody '}'
     ;
 
 typeMapperInput
@@ -242,6 +258,28 @@ packageName
 alias
     :   packageName
     ;
+
+ annotationAttachment
+     :   '@' nameReference '{' annotationAttributeList? '}'
+     ;
+
+ annotationAttributeList
+     :   annotationAttribute (',' annotationAttribute)*
+     ;
+
+ annotationAttribute
+     :    Identifier ':' annotationAttributeValue
+     ;
+
+ annotationAttributeValue
+     :   simpleLiteral
+     |   annotationAttachment
+     |   annotationAttributeArray
+     ;
+
+ annotationAttributeArray
+     :   '[' (annotationAttributeValue (',' annotationAttributeValue)*)? ']'
+     ;
 
 literalValue
     :   IntegerLiteral
@@ -452,6 +490,22 @@ mapStructInitKeyValueList
 
 mapStructInitKeyValue
     :   expression ':' expression
+    ;
+
+nameReference
+    :   (Identifier ':')? Identifier
+    ;
+
+fieldDefinition
+    :   typeName Identifier ('=' simpleLiteral)? ';'
+    ;
+
+simpleLiteral
+    :   IntegerLiteral
+    |   FloatingPointLiteral
+    |   QuotedStringLiteral
+    |   BooleanLiteral
+    |   NullLiteral
     ;
 
 // LEXER

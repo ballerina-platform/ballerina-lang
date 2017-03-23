@@ -85,32 +85,20 @@ public class BallerinaStructureViewElement implements StructureViewTreeElement, 
             List<TreeElement> treeElements = new ArrayList<>();
 
             Collection<? extends PsiElement> services = XPath.findAll(BallerinaLanguage.INSTANCE, element,
-                    "/compilationUnit/serviceDefinition/Identifier");
+                    "//serviceDefinition/Identifier");
             for (PsiElement el : services) {
                 treeElements.add(new BallerinaStructureViewElement(el));
             }
 
             Collection<? extends PsiElement> functions = XPath.findAll(BallerinaLanguage.INSTANCE, element,
-                    "/compilationUnit/functionDefinition/Identifier");
+                    "//functionDefinition/Identifier");
             for (PsiElement el : functions) {
                 treeElements.add(new BallerinaStructureViewElement(el));
             }
 
-            Collection<? extends PsiElement> nativeFunctions = XPath.findAll(BallerinaLanguage.INSTANCE, element,
-                    "/compilationUnit/nativeFunctionDefinition/Identifier");
-            for (PsiElement el : nativeFunctions) {
-                treeElements.add(new BallerinaStructureViewElement(el));
-            }
-
             Collection<? extends PsiElement> connectors = XPath.findAll(BallerinaLanguage.INSTANCE, element,
-                    "/compilationUnit/connectorDefinition/Identifier");
+                    "//connectorDefinition/Identifier");
             for (PsiElement el : connectors) {
-                treeElements.add(new BallerinaStructureViewElement(el));
-            }
-
-            Collection<? extends PsiElement> typeConverters = XPath.findAll(BallerinaLanguage.INSTANCE, element,
-                    "/compilationUnit/typeConvertorDefinition/Identifier");
-            for (PsiElement el : typeConverters) {
                 treeElements.add(new BallerinaStructureViewElement(el));
             }
 

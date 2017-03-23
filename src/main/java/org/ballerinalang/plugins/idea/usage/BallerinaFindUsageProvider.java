@@ -52,10 +52,8 @@ public class BallerinaFindUsageProvider implements FindUsagesProvider {
         RuleIElementType elType = (RuleIElementType) parent.getNode().getElementType();
         // Todo - Add more types
         switch (elType.getRuleIndex()) {
-            case RULE_function:
+            case RULE_functionDefinition:
                 return "Function";
-            case RULE_nativeFunction:
-                return "Native Function";
             case RULE_connector:
                 return "Connector";
             case RULE_nativeConnector:

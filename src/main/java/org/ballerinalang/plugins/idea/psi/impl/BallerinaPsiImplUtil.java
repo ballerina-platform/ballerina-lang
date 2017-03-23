@@ -168,7 +168,7 @@ public class BallerinaPsiImplUtil {
         //                PsiTreeUtil.findChildrenOfAnyType(file,
         //                        FunctionDefinitionNode.class);
         Collection<? extends PsiElement> all = XPath.findAll(BallerinaLanguage.INSTANCE, file,
-                "//functionDefinition/function/Identifier");
+                "//functionDefinition/Identifier");
 
         for (PsiElement psiElement : all) {
             if (!psiElement.getText().contains("IntellijIdeaRulezzz")) {
@@ -461,16 +461,8 @@ public class BallerinaPsiImplUtil {
 
                 // Todo - Use an util function to get values of multiple xpaths.
                 List<PsiElement> allFunctionsInAPackage = getAllMatchingElementsFromPackage(((PsiDirectory) element1),
-                        "//function/Identifier");
+                        "//functionDefinition/Identifier");
                 for (PsiElement psiElement : allFunctionsInAPackage) {
-                    if (element.getText().equals(psiElement.getText())) {
-                        results.add(psiElement);
-                    }
-                }
-
-                List<PsiElement> allNativeFunctionsInAPackage =
-                        getAllMatchingElementsFromPackage(((PsiDirectory) element1), "//nativeFunction/Identifier");
-                for (PsiElement psiElement : allNativeFunctionsInAPackage) {
                     if (element.getText().equals(psiElement.getText())) {
                         results.add(psiElement);
                     }
@@ -592,7 +584,7 @@ public class BallerinaPsiImplUtil {
     public static List<PsiElement> getAllFunctionsInPackage(PsiDirectory packageElement) {
         List<PsiElement> results = new ArrayList<>();
         List<PsiElement> functions = getAllMatchingElementsFromPackage(packageElement,
-                "//functionDefinition/function/Identifier");
+                "//functionDefinition/Identifier");
         if (functions != null) {
             for (PsiElement function : functions) {
                 results.add(function);
@@ -600,7 +592,7 @@ public class BallerinaPsiImplUtil {
         }
 
         List<PsiElement> nativeFunctions = getAllMatchingElementsFromPackage(packageElement,
-                "//functionDefinition/nativeFunction/Identifier");
+                "//functionDefinition/Identifier");
         if (nativeFunctions != null) {
             for (PsiElement function : nativeFunctions) {
                 results.add(function);

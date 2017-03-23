@@ -54,7 +54,6 @@ import org.ballerinalang.plugins.idea.psi.ConstantDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.ExpressionListNode;
 import org.ballerinalang.plugins.idea.psi.ExpressionNode;
 import org.ballerinalang.plugins.idea.psi.FunctionBodyNode;
-import org.ballerinalang.plugins.idea.psi.FunctionDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.FunctionInvocationStatementNode;
 import org.ballerinalang.plugins.idea.psi.FunctionName;
 import org.ballerinalang.plugins.idea.psi.FunctionNode;
@@ -186,7 +185,7 @@ public class BallerinaParserDefinition implements ParserDefinition {
         RuleIElementType ruleElType = (RuleIElementType) elementType;
         switch (ruleElType.getRuleIndex()) {
             case BallerinaParser.RULE_functionDefinition:
-                return new FunctionDefinitionNode(node);
+                return new FunctionNode(node);
             case BallerinaParser.RULE_functionBody:
                 return new FunctionBodyNode(node);
             case BallerinaParser.RULE_callableUnitName:
@@ -253,8 +252,8 @@ public class BallerinaParserDefinition implements ParserDefinition {
                 return new MapStructInitKeyValueListNode(node);
             case BallerinaParser.RULE_mapStructInitKeyValue:
                 return new MapStructInitKeyValueNode(node);
-            case BallerinaParser.RULE_function:
-                return new FunctionNode(node);
+//            case BallerinaParser.RULE_function:
+//                return new FunctionNode(node);
             case BallerinaParser.RULE_parameterList:
                 return new ParameterListNode(node);
             case BallerinaParser.RULE_functionName:

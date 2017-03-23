@@ -19,7 +19,6 @@ package org.ballerinalang.plugins.idea.psi;
 import com.intellij.lang.ASTNode;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiNamedElement;
-import com.intellij.psi.ResolveResult;
 import org.antlr.jetbrains.adaptor.SymtabUtils;
 import org.antlr.jetbrains.adaptor.psi.ANTLRPsiNode;
 import org.antlr.jetbrains.adaptor.psi.ScopeNode;
@@ -41,7 +40,7 @@ public class ConnectorBodyNode extends ANTLRPsiNode implements ScopeNode {
             return SymtabUtils.resolve(this, BallerinaLanguage.INSTANCE, element,
                     "//variableDefinitionStatement/Identifier");
         } else if (element.getParent() instanceof CallableUnitNameNode) {
-            return BallerinaPsiImplUtil.resolveElement(this, element,"//function/Identifier",
+            return BallerinaPsiImplUtil.resolveElement(this, element,"//functionDefinition/Identifier",
                     "//connector/Identifier");
         } else if (element.getParent() instanceof PackageNameNode) {
             return BallerinaPsiImplUtil.findPackageNameReference(element);

@@ -21,7 +21,6 @@ import com.intellij.lang.ASTNode;
 import com.intellij.navigation.ItemPresentation;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiNamedElement;
-import com.intellij.psi.ResolveResult;
 import com.intellij.psi.util.PsiTreeUtil;
 import org.antlr.jetbrains.adaptor.SymtabUtils;
 import org.antlr.jetbrains.adaptor.psi.IdentifierDefSubtree;
@@ -47,7 +46,7 @@ public class FunctionNode extends IdentifierDefSubtree implements ScopeNode {
     public PsiElement resolve(PsiNamedElement element) {
         if (element.getParent() instanceof CallableUnitNameNode) {
             return SymtabUtils.resolve(this, BallerinaLanguage.INSTANCE, element,
-                    "//function/Identifier");
+                    "//functionDefinition/Identifier");
         } else if (element.getParent() instanceof VariableReferenceNode) {
             return BallerinaPsiImplUtil.resolveElement(this, element, "//parameter/Identifier",
                     "//namedParameter/Identifier");
