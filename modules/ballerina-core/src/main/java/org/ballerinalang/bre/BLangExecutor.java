@@ -1043,13 +1043,13 @@ public class BLangExecutor implements NodeExecutor {
                     BInteger indexVal = (BInteger) exprs[i].execute(this);
 
                     // Will have to dynamically populate
-                    if (arrayVal.size() == indexVal.intValue()) {
+                    while (arrayVal.size() <= indexVal.intValue()) {
                         if (i != 1 || rValue instanceof BArray) {
                             BArray newBArray = new BArray<>(BArray.class);
-                            arrayVal.add(indexVal.intValue(), newBArray);
+                            arrayVal.add(arrayVal.size(), newBArray);
                         } else {
                             BArray bArray = new BArray<>(rValue.getClass());
-                            arrayVal.add(indexVal.intValue(), bArray);
+                            arrayVal.add(arrayVal.size(), bArray);
                         }
                     }
 
