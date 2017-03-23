@@ -334,11 +334,10 @@ public class BallerinaModuleLibrariesInitializer implements ModuleComponent {
             if (excludedRootIsAncestor) {
                 continue;
             }
-            for (VirtualFile file : ballerinaPathSourcesDirectory.getChildren()) {
-                ProgressIndicatorProvider.checkCanceled();
-                if (file.isDirectory() && !excludeRoots.contains(file)) {
-                    includeRoots.add(file);
-                }
+            ProgressIndicatorProvider.checkCanceled();
+            if (ballerinaPathSourcesDirectory.isDirectory() &&
+                    !excludeRoots.contains(ballerinaPathSourcesDirectory)) {
+                includeRoots.add(ballerinaPathSourcesDirectory);
             }
         }
         return includeRoots;
