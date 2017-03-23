@@ -15,19 +15,30 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.model.values;
+package org.ballerinalang.model.types;
 
-import org.ballerinalang.model.types.BType;
+import org.ballerinalang.model.SymbolScope;
+import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueType;
 
 /**
- * {@code BValue} represents any value in Ballerina.
+ * {@code BAnyType} represents a Any type.
  *
- * @since 0.8.0
+ * @since 0.85
  */
-public interface BValue {
+public class BAnyType extends BType {
 
-    String stringValue();
+    /**
+     * Create a {@code BAnyType} which represents the any type.
+     *
+     * @param typeName string name of the type
+     */
+    BAnyType(String typeName, String pkgPath, SymbolScope symbolScope) {
+        super(typeName, pkgPath, symbolScope, BValueType.class);
+    }
 
-    BType getType();
-
+    @SuppressWarnings("unchecked")
+    public <V extends BValue> V getDefaultValue() {
+        return (V) null;
+    }
 }

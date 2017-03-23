@@ -17,6 +17,7 @@
 package org.ballerinalang.model.values;
 
 import org.ballerinalang.model.Connector;
+import org.ballerinalang.model.types.BType;
 
 /**
  * The {@code BConnector} represents a Connector in Ballerina.
@@ -52,6 +53,11 @@ public final class BConnector implements BRefType<Connector> {
 
     @Override
     public String stringValue() {
+        return null;
+    }
+
+    @Override
+    public BType getType() {
         return null;
     }
 }

@@ -17,6 +17,9 @@
 */
 package org.ballerinalang.model.values;
 
+import org.ballerinalang.model.types.BType;
+import org.ballerinalang.model.types.BTypes;
+
 /**
  * The {@code BDouble} represents a double value in Ballerina.
  *
@@ -58,6 +61,11 @@ public final class BDouble extends BValueType {
     @Override
     public String stringValue() {
         return Double.toString(value);
+    }
+
+    @Override
+    public BType getType() {
+        return BTypes.typeDouble;
     }
 
     @Override
