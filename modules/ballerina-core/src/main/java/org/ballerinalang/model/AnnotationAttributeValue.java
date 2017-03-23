@@ -23,7 +23,7 @@ import org.ballerinalang.model.values.BValue;
  */
 public class AnnotationAttributeValue {
     BValue bValue;
-    Annotation annotationValue;
+    AnnotationAttachment annotationValue;
     AnnotationAttributeValue[] valueArray;
     NodeLocation location;
     
@@ -31,7 +31,7 @@ public class AnnotationAttributeValue {
         this.bValue = bValue;
     }
     
-    public AnnotationAttributeValue(Annotation annotationValue) {
+    public AnnotationAttributeValue(AnnotationAttachment annotationValue) {
         this.annotationValue = annotationValue;
     }
     
@@ -39,7 +39,7 @@ public class AnnotationAttributeValue {
         this.valueArray = valueArray;
     }
     
-    public Annotation getAnnotationValue() {
+    public AnnotationAttachment getAnnotationValue() {
         return annotationValue;
     }
     

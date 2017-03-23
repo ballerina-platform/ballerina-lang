@@ -29,17 +29,22 @@ import java.util.Map;
  * @see <a href="https://github.com/wso2/ballerina/blob/master/docs/SyntaxSummary.md">Ballerina Syntax Summary</a>
  * @since 0.8.0
  */
-public class Annotation implements Node {
+public class AnnotationAttachment implements Node {
 
     private String name;
+    private String pkgName;
+    private String pkgPath;
     private SymbolName symbolName;
     private Map<SymbolName, AnnotationAttributeValue> attributeNameValPairs = new HashMap<>();
     private NodeLocation location;
     AttachmentPoint attachedPoint;
     
-    public Annotation(NodeLocation location, SymbolName name, Map<SymbolName, AnnotationAttributeValue> fieldValPairs) {
+    public AnnotationAttachment(NodeLocation location, SymbolName name, String pkgName, String pkgPath,
+            Map<SymbolName, AnnotationAttributeValue> fieldValPairs) {
         this.location = location;
         this.symbolName = name;
+        this.pkgName = pkgName;
+        this.pkgPath = pkgPath;
         this.attributeNameValPairs = fieldValPairs;
     }
 
@@ -49,11 +54,15 @@ public class Annotation implements Node {
      * @return name of the annotation
      */
     public String getName() {
-        if (this.name != null) {
-            return name;
-        } else {
-            return this.symbolName.getName();
-        }
+        return name;
+    }
+
+    public String getPkgName() {
+        return pkgName;
+    }
+
+    public String getPkgPath() {
+        return pkgPath;
     }
     
     /**
@@ -93,6 +102,24 @@ public class Annotation implements Node {
     public NodeLocation getNodeLocation() {
         return location;
     }
+    
+    /**
+     * Set the construct where this annotation is attached.
+     * 
+     * @param attachedPoint 
+     */
+    public void setAttachedPoint(AttachmentPoint attachedPoint) {
+        this.attachedPoint = attachedPoint;
+    }
+    
+    /**
+     * Get the construct where this annotation is attached.
+     * 
+     * @return the attachedPoint
+     */
+    public AttachmentPoint getAttachedPoint() {
+        return attachedPoint;
+    }
 
     /**
      * Builds an Annotation from parser events.
@@ -102,37 +129,58 @@ public class Annotation implements Node {
     public static class AnnotationBuilder {
         private NodeLocation location;
         private SymbolName name;
+        private String pkgName;
+        private String pkgPath;
         private Map<SymbolName, AnnotationAttributeValue> attributeNameValPairs = new HashMap<>();
 
+        /**
+         * Set the source location of the annotation.
+         * 
+         * @param location Source location of the annotation
+         */
         public void setNodeLocation(NodeLocation location) {
             this.location = location;
         }
 
+        /**
+         * Set the name of the annotation.
+         * 
+         * @param name Name of the annotation
+         */
         public void setName(SymbolName name) {
             this.name = name;
         }
 
-        public void addAttributeNameValuePair(SymbolName key, AnnotationAttributeValue value) {
-            this.attributeNameValPairs.put(key, value);
+        /**
+         * Set the package name of the annotation.
+         * 
+         * @param pkgName Package name of the annotation
+         */
+        public void setPkgName(String pkgName) {
+            this.pkgName = pkgName;
         }
 
-        public Annotation build() {
-            return new Annotation(location, name, attributeNameValPairs);
+        /**
+         * Set the package path of the annotation.
+         * 
+         * @param pkgPath Package path of the annotation
+         */
+        public void setPkgPath(String pkgPath) {
+            this.pkgPath = pkgPath;
         }
-    }
+        
+        /**
+         * Add a attribute name-value pair for the annotation.
+         * 
+         * @param name Name of the attribute
+         * @param value Value of the attribute
+         */
+        public void addAttributeNameValuePair(SymbolName name, AnnotationAttributeValue value) {
+            this.attributeNameValPairs.put(name, value);
+        }
 
-    /**
-     * @param attachedPoint 
-     * 
-     */
-    public void setAttachedPoint(AttachmentPoint attachedPoint) {
-        this.attachedPoint = attachedPoint;
-    }
-    
-    /**
-     * @return the attachedPoint
-     */
-    public AttachmentPoint getAttachedPoint() {
-        return attachedPoint;
+        public AnnotationAttachment build() {
+            return new AnnotationAttachment(location, name, pkgName, pkgPath, attributeNameValPairs);
+        }
     }
 }

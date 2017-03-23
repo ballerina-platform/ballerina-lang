@@ -57,7 +57,7 @@ public class Worker implements SymbolScope, CompilationUnit, CallableUnit {
     protected boolean isPublic;
     protected SymbolName symbolName;
 
-    private Annotation[] annotations;
+    private AnnotationAttachment[] annotations;
     private ParameterDef[] parameterDefs;
     private BType[] parameterTypes;
     private Worker[] workers;
@@ -181,8 +181,8 @@ public class Worker implements SymbolScope, CompilationUnit, CallableUnit {
      * @return an arrays of annotations
      */
     @Override
-    public Annotation[] getAnnotations() {
-        return new Annotation[0];
+    public AnnotationAttachment[] getAnnotations() {
+        return new AnnotationAttachment[0];
     }
 
     /**

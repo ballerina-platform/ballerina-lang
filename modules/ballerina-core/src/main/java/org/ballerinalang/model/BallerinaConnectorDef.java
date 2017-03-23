@@ -49,7 +49,7 @@ public class BallerinaConnectorDef extends BType implements Connector, Compilati
     // BLangSymbol related attributes
     protected boolean isPublic;
     protected boolean isNative;
-    private Annotation[] annotations;
+    private AnnotationAttachment[] annotations;
     private ParameterDef[] parameterDefs;
     private BallerinaAction[] actions;
     private VariableDefStmt[] variableDefStmts;
@@ -70,7 +70,7 @@ public class BallerinaConnectorDef extends BType implements Connector, Compilati
      *
      * @return list of Annotations
      */
-    public Annotation[] getAnnotations() {
+    public AnnotationAttachment[] getAnnotations() {
         return annotations;
     }
 
@@ -209,7 +209,7 @@ public class BallerinaConnectorDef extends BType implements Connector, Compilati
             this.connectorDef.pkgPath = this.pkgPath;
             this.connectorDef.symbolName = new SymbolName(name, pkgPath);
 
-            this.connectorDef.annotations = this.annotationList.toArray(new Annotation[this.annotationList.size()]);
+            this.connectorDef.annotations = this.annotationList.toArray(new AnnotationAttachment[this.annotationList.size()]);
             this.connectorDef.parameterDefs = this.parameterDefList.toArray(
                     new ParameterDef[this.parameterDefList.size()]);
             this.connectorDef.actions = this.actionList.toArray(new BallerinaAction[this.actionList.size()]);

@@ -1,7 +1,7 @@
-@BasePath ("/hello")
+@BasePath {value:"/hello"}
 service helloWorld {
 
-    @GET
+    @GET{}
     resource sayHello(message m) {
         message response = {};
         return response;

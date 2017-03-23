@@ -25,7 +25,7 @@ import org.ballerinalang.bre.StackVarLocation;
 import org.ballerinalang.bre.StructVarLocation;
 import org.ballerinalang.bre.WorkerVarLocation;
 import org.ballerinalang.model.Action;
-import org.ballerinalang.model.Annotation;
+import org.ballerinalang.model.AnnotationAttachment;
 import org.ballerinalang.model.AnnotationDef;
 import org.ballerinalang.model.AttachmentPoint;
 import org.ballerinalang.model.AnnotationAttributeDef;
@@ -345,9 +345,9 @@ public class SemanticAnalyzer implements NodeVisitor {
         // TODO Define proper error message codes
         //checkForMissingReturnStmt(function, "missing return statement at end of function");
         
-        for (Annotation annotation : function.getAnnotations()) {
-            annotation.setAttachedPoint(AttachmentPoint.FUNCTION);
-            annotation.accept(this);
+        for (AnnotationAttachment annotationAttachment : function.getAnnotations()) {
+            annotationAttachment.setAttachedPoint(AttachmentPoint.FUNCTION);
+            annotationAttachment.accept(this);
         }
 
         for (ParameterDef parameterDef : function.getParameterDefs()) {
@@ -566,7 +566,7 @@ public class SemanticAnalyzer implements NodeVisitor {
     }
 
     @Override
-    public void visit(Annotation annotation) {
+    public void visit(AnnotationAttachment annotation) {
         // FIXME: fix exceptions
         AttachmentPoint attachedPoint = annotation.getAttachedPoint();
         BLangSymbol annotationSymbol = currentScope.resolve(annotation.getSymbolName());
@@ -581,11 +581,59 @@ public class SemanticAnalyzer implements NodeVisitor {
                 .findFirst();
         
         if (!optional.isPresent()) {
-            throw new SemanticException("Annotation '" + annotation.getSymbolName() + "' is not allowed in a " + attachedPoint + " @" + annotation.getNodeLocation());
+            throw new SemanticException("Annotation '" + annotation.getSymbolName() + "' is not allowed in a " + 
+                    attachedPoint + " @" + annotation.getNodeLocation());
         }
         
     }
+    
+    @Override
+    public void visit(AnnotationAttributeDef annotationAttributeDef) {
+        // FIXME: fix error messages
+        SimpleTypeName fieldType = annotationAttributeDef.getTypeName();
+        BasicLiteral fieldVal = annotationAttributeDef.getAttributeValue();
+        
+        if (fieldVal != null) {
+            fieldVal.accept(this);
+            BType valueType = fieldVal.getType();
+            
+            if (!BTypes.isBuiltInTypeName(fieldType.getName())) {
+                throw new SemanticException("Only primitives can have default values");
+            }
+            
+            BLangSymbol typeSymbol = currentScope.resolve(fieldType.getSymbolName());
+            BType fieldBType = (BType) typeSymbol;
+            if (!BTypes.isValueType(fieldBType)) {
+                throw new SemanticException("Only primitives can have default values");
+            }
+            
+            if (fieldBType != valueType) {
+                BLangExceptionHelper.throwSemanticError(annotationAttributeDef,
+                    SemanticErrors.INVALID_OPERATION_INCOMPATIBLE_TYPES, fieldType, fieldVal.getTypeName());
+            }
+        } else {
+            BLangSymbol typeSymbol;
+            if (fieldType.isArrayType()) {
+                typeSymbol = currentScope.resolve(new SymbolName(fieldType.getName(), fieldType.getPackagePath()));
+            } else {
+                typeSymbol = currentScope.resolve(fieldType.getSymbolName());
+            }
+            
+            // Check whether the field type is a built in value type or an annotation.
+            if (((typeSymbol instanceof BType) && !BTypes.isValueType((BType) typeSymbol)) || 
+                    (!(typeSymbol instanceof BType) && !(typeSymbol instanceof AnnotationDef))) {
+                throw new SemanticException("Fields can be either a primtive or an annotation");
+            }
+        }
+    }
 
+    @Override
+    public void visit(AnnotationDef annotationDef) {
+        for (AnnotationAttributeDef fields : annotationDef.getAttributeDef()) {
+            fields.accept(this);
+        }
+    }
+    
     @Override
     public void visit(ParameterDef paramDef) {
         BType bType = BTypes.resolveType(paramDef.getTypeName(), currentScope, paramDef.getNodeLocation());
@@ -2649,55 +2697,6 @@ public class SemanticAnalyzer implements NodeVisitor {
             } else {
                 BLangExceptionHelper.throwSemanticError(stmts[stmtIndex], SemanticErrors.UNREACHABLE_STATEMENT);
             }
-        }
-    }
-
-
-    
-    @Override
-    public void visit(AnnotationAttributeDef annotationAttributeDef) {
-        // FIXME: fix error messages
-        SimpleTypeName fieldType = annotationAttributeDef.getTypeName();
-        BasicLiteral fieldVal = annotationAttributeDef.getAttributeValue();
-        
-        if (fieldVal != null) {
-            fieldVal.accept(this);
-            BType valueType = fieldVal.getType();
-            
-            if (!BTypes.isBuiltInTypeName(fieldType.getName())) {
-                throw new SemanticException("Only primitives can have default values");
-            }
-            
-            BLangSymbol typeSymbol = currentScope.resolve(fieldType.getSymbolName());
-            BType fieldBType = (BType) typeSymbol;
-            if (!BTypes.isValueType(fieldBType)) {
-                throw new SemanticException("Only primitives can have default values");
-            }
-            
-            if (fieldBType != valueType) {
-                BLangExceptionHelper.throwSemanticError(annotationAttributeDef,
-                    SemanticErrors.INVALID_OPERATION_INCOMPATIBLE_TYPES, fieldType, fieldVal.getTypeName());
-            }
-        } else {
-            BLangSymbol typeSymbol;
-            if (fieldType.isArrayType()) {
-                typeSymbol = currentScope.resolve(new SymbolName(fieldType.getName(), fieldType.getPackagePath()));
-            } else {
-                typeSymbol = currentScope.resolve(fieldType.getSymbolName());
-            }
-            
-            // Check whether the field type is a built in value type or an annotation.
-            if (((typeSymbol instanceof BType) && !BTypes.isValueType((BType) typeSymbol)) || 
-                    (!(typeSymbol instanceof BType) && !(typeSymbol instanceof AnnotationDef))) {
-                throw new SemanticException("Fields can be either a primtive or an annotation");
-            }
-        }
-    }
-
-    @Override
-    public void visit(AnnotationDef annotationDef) {
-        for (AnnotationAttributeDef fields : annotationDef.getAttributeDef()) {
-            fields.accept(this);
         }
     }
 }

@@ -49,7 +49,7 @@ public class Service implements CompilationUnit, SymbolScope, BLangSymbol {
     protected String pkgPath;
     protected SymbolName symbolName;
 
-    private Annotation[] annotations;
+    private AnnotationAttachment[] annotations;
     private Resource[] resources;
     private VariableDefStmt[] variableDefStmts;
 
@@ -68,11 +68,11 @@ public class Service implements CompilationUnit, SymbolScope, BLangSymbol {
         this.symbolMap = new HashMap<>();
     }
 
-    public Annotation[] getAnnotations() {
+    public AnnotationAttachment[] getAnnotations() {
         return annotations;
     }
 
-    public void setAnnotations(Annotation[] annotations) {
+    public void setAnnotations(AnnotationAttachment[] annotations) {
         this.annotations = annotations;
     }
 
@@ -206,7 +206,7 @@ public class Service implements CompilationUnit, SymbolScope, BLangSymbol {
             this.service.pkgPath = this.pkgPath;
             this.service.symbolName = new SymbolName(name, pkgPath);
 
-            this.service.annotations = this.annotationList.toArray(new Annotation[this.annotationList.size()]);
+            this.service.annotations = this.annotationList.toArray(new AnnotationAttachment[this.annotationList.size()]);
             this.service.resources = this.resourceList.toArray(new Resource[this.resourceList.size()]);
             this.service.variableDefStmts = this.variableDefStmtList.toArray(
                     new VariableDefStmt[variableDefStmtList.size()]);

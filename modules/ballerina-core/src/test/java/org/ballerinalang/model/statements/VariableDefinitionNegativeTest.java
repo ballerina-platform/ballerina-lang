@@ -20,6 +20,7 @@ package org.ballerinalang.model.statements;
 
 import org.ballerinalang.core.utils.BTestUtils;
 import org.ballerinalang.util.exceptions.BallerinaException;
+import org.ballerinalang.util.exceptions.ParserException;
 import org.ballerinalang.util.exceptions.SemanticException;
 import org.testng.annotations.Test;
 
@@ -57,8 +58,8 @@ public class VariableDefinitionNegativeTest {
     }
     
     @Test(description = "Test defining a constant from an arrays type",
-            expectedExceptions = {SemanticException.class},
-            expectedExceptionsMessageRegExp = "array-type-constants.bal:1: invalid type 'int\\[\\]'")
+            expectedExceptions = {ParserException.class},
+            expectedExceptionsMessageRegExp = "array-type-constants.bal:1:9: mismatched input '\\['. Expecting one of Identifier")
     public void testArrayTypeConstant() {
         BTestUtils.parseBalFile("lang/statements/array-type-constants.bal");
     }
