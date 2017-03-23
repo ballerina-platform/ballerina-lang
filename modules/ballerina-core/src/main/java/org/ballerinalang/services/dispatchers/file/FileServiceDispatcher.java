@@ -19,7 +19,7 @@
 package org.ballerinalang.services.dispatchers.file;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.model.Annotation;
+import org.ballerinalang.model.AnnotationAttachment;
 import org.ballerinalang.model.Service;
 import org.ballerinalang.model.SymbolName;
 import org.ballerinalang.natives.connectors.BallerinaConnectorManager;
@@ -63,7 +63,7 @@ public class FileServiceDispatcher implements ServiceDispatcher {
 
     @Override
     public void serviceRegistered(Service service) {
-        for (Annotation annotation : service.getAnnotations()) {
+        for (AnnotationAttachment annotation : service.getAnnotations()) {
             if (annotation.getName().equals(Constants.ANNOTATION_NAME_SOURCE)) {
                 Map elementsMap = annotation.getElementPairs();
 

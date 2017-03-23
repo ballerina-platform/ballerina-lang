@@ -19,7 +19,7 @@
 
 package org.ballerinalang.services.dispatchers.http;
 
-import org.ballerinalang.model.Annotation;
+import org.ballerinalang.model.AnnotationAttachment;
 import org.ballerinalang.model.Service;
 import org.ballerinalang.model.SymbolName;
 import org.ballerinalang.natives.connectors.BallerinaConnectorManager;
@@ -83,7 +83,7 @@ public class HTTPServicesRegistry {
         }
         String listenerInterface = Constants.DEFAULT_INTERFACE;
         String basePath = service.getSymbolName().getName();
-        for (Annotation annotation : service.getAnnotations()) {
+        for (AnnotationAttachment annotation : service.getAnnotations()) {
             if (annotation.getName().equals(Constants.ANNOTATION_NAME_SOURCE)) {
                 String sourceInterfaceVal = annotation
                         .getValueOfElementPair(new SymbolName(Constants.ANNOTATION_SOURCE_KEY_INTERFACE));
@@ -137,7 +137,7 @@ public class HTTPServicesRegistry {
         // String basePath = Constants.DEFAULT_BASE_PATH;
         String basePath = service.getSymbolName().getName();
 
-        for (Annotation annotation : service.getAnnotations()) {
+        for (AnnotationAttachment annotation : service.getAnnotations()) {
             if (annotation.getName().equals(Constants.ANNOTATION_NAME_SOURCE)) {
                 String sourceInterfaceVal = annotation
                         .getValueOfElementPair(new SymbolName(Constants.ANNOTATION_SOURCE_KEY_INTERFACE));
@@ -182,7 +182,7 @@ public class HTTPServicesRegistry {
     public boolean serviceExists(Service service) {
         String listenerInterface = Constants.DEFAULT_INTERFACE;
         String basePath = service.getSymbolName().getName();
-        for (Annotation annotation : service.getAnnotations()) {
+        for (AnnotationAttachment annotation : service.getAnnotations()) {
             if (annotation.getName().equals(Constants.ANNOTATION_NAME_SOURCE)) {
                 String sourceInterfaceVal = annotation
                         .getValueOfElementPair(new SymbolName(Constants.ANNOTATION_SOURCE_KEY_INTERFACE));

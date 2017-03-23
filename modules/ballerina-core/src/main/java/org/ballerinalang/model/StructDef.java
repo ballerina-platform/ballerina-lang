@@ -36,7 +36,7 @@ import java.util.Map;
  */
 public class StructDef extends BType implements CompilationUnit, SymbolScope {
     private NodeLocation location;
-    private Annotation[] annotations;
+    private AnnotationAttachment[] annotations;
     private VariableDef[] fields;
     private int structMemorySize;
 
@@ -61,13 +61,13 @@ public class StructDef extends BType implements CompilationUnit, SymbolScope {
     public void setSymbolName(SymbolName symbolName) {
         this.symbolName = symbolName;
     }
-    
+
     /**
      * Get all the Annotations associated with this struct.
      *
      * @return list of Annotations
      */
-    public Annotation[] getAnnotations() {
+    public AnnotationAttachment[] getAnnotations() {
         return annotations;
     }
 
@@ -164,7 +164,7 @@ public class StructDef extends BType implements CompilationUnit, SymbolScope {
         private String name;
         private String pkgPath;
         private List<VariableDef> fields = new ArrayList<>();
-        private List<Annotation> annotationList = new ArrayList<>();
+        private List<AnnotationAttachment> annotationList = new ArrayList<>();
         private StructDef structDef;
 
         public StructBuilder(NodeLocation location, SymbolScope enclosingScope) {
@@ -188,8 +188,8 @@ public class StructDef extends BType implements CompilationUnit, SymbolScope {
         public void setPackagePath(String pkgPath) {
             this.pkgPath = pkgPath;
         }
-        
-        public void addAnnotation(Annotation annotation) {
+
+        public void addAnnotation(AnnotationAttachment annotation) {
             this.annotationList.add(annotation);
         }
 
@@ -211,7 +211,8 @@ public class StructDef extends BType implements CompilationUnit, SymbolScope {
             this.structDef.location = location;
             this.structDef.typeName = name;
             this.structDef.pkgPath = pkgPath;
-            this.structDef.annotations = this.annotationList.toArray(new Annotation[this.annotationList.size()]);
+            this.structDef.annotations = this.annotationList.toArray(
+                    new AnnotationAttachment[this.annotationList.size()]);
             this.structDef.fields = fields.toArray(new VariableDef[fields.size()]);
             this.structDef.symbolName = new SymbolName(name, pkgPath);
 

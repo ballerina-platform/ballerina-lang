@@ -27,7 +27,7 @@ import org.ballerinalang.bre.StackVarLocation;
 import org.ballerinalang.bre.nonblocking.BLangNonBlockingExecutor;
 import org.ballerinalang.bre.nonblocking.ModeResolver;
 import org.ballerinalang.bre.nonblocking.debugger.BLangExecutionDebugger;
-import org.ballerinalang.model.Annotation;
+import org.ballerinalang.model.AnnotationAttachment;
 import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.ParameterDef;
 import org.ballerinalang.model.Resource;
@@ -86,7 +86,7 @@ public class BalProgramExecutor {
                         (Map<String, String>) cMsg.getProperty(
                                 org.ballerinalang.runtime.Constants.RESOURCE_ARGS);
 
-                for (Annotation annotation : parameter.getAnnotations()) {
+                for (AnnotationAttachment annotation : parameter.getAnnotations()) {
                     if (resourceArgsMap.get(annotation.getValue()) != null) {
                         // ToDo Only String and Int param types are supported.
                         if (parameter.getType() == BTypes.typeString) {
