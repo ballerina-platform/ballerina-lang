@@ -69,7 +69,7 @@ under the License.
     </test>
 
     <!-- Worker Related Test Cases -->
-    <test name="ballerina-core-worker-unit-tests" preserve-order="true" parallel="false">
+    <!-- <test name="ballerina-core-worker-unit-tests" preserve-order="true" parallel="false">
         <parameter name="enableNonBlocking" value="false"/>
         <packages>
             <package name="org.ballerinalang.core.lang.worker"/>
@@ -86,7 +86,7 @@ under the License.
         <classes>
             <class name="org.ballerinalang.nativeimpl.util.TestConfigurationUtil"/>
         </classes>
-    </test>
+    </test> -->
 
 
     <!-- Service Related Test Cases -->

@@ -56,7 +56,7 @@ public class AnnotationAttributeValue {
         return valueArray;
     }
     
-    public void setNodeLocation(NodeLocation location){
+    public void setNodeLocation(NodeLocation location) {
         this.location = location;
     }
     

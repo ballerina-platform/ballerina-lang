@@ -47,10 +47,10 @@ public class AnnotationHolder {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append("@" + annotation.annotationName() + " (");
+        sb.append("@" + annotation.annotationName() + " {");
         List<Attribute> attributes = getAttributes();
-        sb.append(attributes.stream().map(p -> p.name() + "=\"" + p.value() + "\" ").collect(Collectors.joining(",")));
-        sb.append(")");
+        sb.append(attributes.stream().map(p -> p.name() + ":\"" + p.value() + "\" ").collect(Collectors.joining(",")));
+        sb.append("}");
         return sb.toString();
     }
 }

@@ -21,7 +21,6 @@ package org.ballerinalang.services.dispatchers.http;
 
 import org.ballerinalang.model.AnnotationAttachment;
 import org.ballerinalang.model.Service;
-import org.ballerinalang.model.SymbolName;
 import org.ballerinalang.natives.connectors.BallerinaConnectorManager;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;

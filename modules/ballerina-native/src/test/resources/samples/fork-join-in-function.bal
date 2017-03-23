@@ -53,7 +53,7 @@ function testForkJoinAny(message m)(message[]) {
                 messages:setJsonPayload(m, payload);
                 reply m;
             }
-        } join (any 1) (message[] airlineResponses) {
+        } join (some 1) (message[] airlineResponses) {
             system:println(messages:getStringPayload(airlineResponses[0]));
             return airlineResponses;
         } timeout (30000) (message[] airlineResponses) {
@@ -132,7 +132,7 @@ function testForkJoinAnyOfSpecific(message m)(message[]) {
                 messages:setJsonPayload(m, payload);
                 reply m;
             }
-        } join (any 1 ABC_Airline, XYZ_Airline) (message[] airlineResponses) {
+        } join (some 1 ABC_Airline, XYZ_Airline) (message[] airlineResponses) {
             system:println(messages:getStringPayload(airlineResponses[0]));
             return airlineResponses;
         } timeout (30000) (message[] airlineResponses) {

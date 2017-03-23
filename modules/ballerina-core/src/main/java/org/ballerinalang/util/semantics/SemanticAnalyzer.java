@@ -26,10 +26,9 @@ import org.ballerinalang.bre.StructVarLocation;
 import org.ballerinalang.bre.WorkerVarLocation;
 import org.ballerinalang.model.Action;
 import org.ballerinalang.model.AnnotationAttachment;
+import org.ballerinalang.model.AnnotationAttributeDef;
 import org.ballerinalang.model.AnnotationDef;
 import org.ballerinalang.model.AttachmentPoint;
-import org.ballerinalang.model.AnnotationAttributeDef;
-import org.ballerinalang.model.AnnotationAttributeValue;
 import org.ballerinalang.model.BLangPackage;
 import org.ballerinalang.model.BLangProgram;
 import org.ballerinalang.model.BTypeMapper;
@@ -117,7 +116,6 @@ import org.ballerinalang.model.types.BExceptionType;
 import org.ballerinalang.model.types.BJSONType;
 import org.ballerinalang.model.types.BMapType;
 import org.ballerinalang.model.types.BMessageType;
-import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.BXMLType;
@@ -129,7 +127,6 @@ import org.ballerinalang.model.types.TypeVertex;
 import org.ballerinalang.model.util.LangModelUtils;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.natives.NativeUnitProxy;
 import org.ballerinalang.natives.connectors.AbstractNativeConnector;
 import org.ballerinalang.util.exceptions.BLangExceptionHelper;
@@ -139,7 +136,6 @@ import org.ballerinalang.util.exceptions.SemanticException;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -595,7 +591,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         
         AnnotationDef annotationDef = (AnnotationDef) annotationSymbol;
         Optional<String> matchingAttachmentPoint = Arrays.stream(annotationDef.getAttachmentPoints())
-                .filter(x -> x.equals(attachedPoint.getValue()))
+                .filter(attachmentPoint -> attachmentPoint.equals(attachedPoint.getValue()))
                 .findFirst();
         if (!matchingAttachmentPoint.isPresent()) {
             BLangExceptionHelper.throwSemanticError(annotation, SemanticErrors.ANNOTATION_NOT_ALLOWED, 
@@ -608,6 +604,12 @@ public class SemanticAnalyzer implements NodeVisitor {
         populatedefaultvalues(annotation, annotationDef);
     }
 
+    /**
+     * Visit and validate attributes of the an annotation attachment.
+     * 
+     * @param annotation Annotation attachment to validate attributes
+     * @param annotationDef Definition of the annotation 
+     */
     private void validateAttributes(AnnotationAttachment annotation, AnnotationDef annotationDef) {
         annotation.getAttributeNameValuePairs().forEach((attributeName, attributeValue) -> {
             // Check attribute existence
@@ -618,7 +620,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             }
             
             // TODO: Check types
-            AnnotationAttributeDef attributeDef = ((AnnotationAttributeDef)attributeSymbol);
+            AnnotationAttributeDef attributeDef = ((AnnotationAttributeDef) attributeSymbol);
             SimpleTypeName attributeType = attributeDef.getTypeName();
             SimpleTypeName valueType = attributeValue.getType();
         });
@@ -713,7 +715,8 @@ public class SemanticAnalyzer implements NodeVisitor {
             // Check whether the field type is a built in value type or an annotation.
             if (((typeSymbol instanceof BType) && !BTypes.isValueType((BType) typeSymbol)) || 
                     (!(typeSymbol instanceof BType) && !(typeSymbol instanceof AnnotationDef))) {
-                BLangExceptionHelper.throwSemanticError(annotationAttributeDef, SemanticErrors.INVALID_ATTRIBUTE_TYPE, fieldType);
+                BLangExceptionHelper.throwSemanticError(annotationAttributeDef, SemanticErrors.INVALID_ATTRIBUTE_TYPE,
+                    fieldType);
             }
         }
     }
@@ -729,6 +732,10 @@ public class SemanticAnalyzer implements NodeVisitor {
     public void visit(ParameterDef paramDef) {
         BType bType = BTypes.resolveType(paramDef.getTypeName(), currentScope, paramDef.getNodeLocation());
         paramDef.setType(bType);
+        
+        if (paramDef.getAnnotations() == null) {
+            return;
+        }
         
         for (AnnotationAttachment annotationAttachment : paramDef.getAnnotations()) {
             annotationAttachment.setAttachedPoint(AttachmentPoint.PARAMETER);

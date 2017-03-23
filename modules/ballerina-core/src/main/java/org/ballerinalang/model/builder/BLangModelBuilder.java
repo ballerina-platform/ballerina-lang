@@ -150,9 +150,6 @@ public class BLangModelBuilder {
     // Holds ExpressionLists required for return statements, function/action invocations and connector declarations
     protected Stack<List<Expression>> exprListStack = new Stack<>();
     
-    // FIXME: remove
-//    protected Stack<Stack<AnnotationAttachment>> annotationsStack = new Stack<>();
-    
     protected Stack<List<MapStructInitKeyValueExpr>> mapStructKVListStack = new Stack<>();
     protected Stack<AnnotationAttachment> annonAttachmentStack = new Stack<>();
 
@@ -377,7 +374,9 @@ public class BLangModelBuilder {
     }
 
     /**
-     * @param location
+     * Create a literal type attribute value.
+     * 
+     * @param location Location of the value in the source file
      */
     public void createLiteralTypeAttributeValue(NodeLocation location) {
         Expression expr = exprStack.pop();
@@ -392,7 +391,9 @@ public class BLangModelBuilder {
     }
     
     /**
-     * @param location
+     * Create an annotation type attribute value.
+     * 
+     * @param location Location of the value in the source file
      */
     public void createAnnotationTypeAttributeValue(NodeLocation location) {
         AnnotationAttachment value = annonAttachmentStack.pop();
@@ -401,12 +402,15 @@ public class BLangModelBuilder {
     }
     
     /**
-     * @param location
+     * Create an array type attribute value.
+     * 
+     * @param location Location of the value in the source file
      */
     public void createArrayTypeAttributeValue(NodeLocation location) {
         SimpleTypeName valueType = new SimpleTypeName(null, true);
         AnnotationAttributeValue arrayValue = new AnnotationAttributeValue(
-            annotationAttributeValues.toArray(new AnnotationAttributeValue[annotationAttributeValues.size()]), valueType);
+            annotationAttributeValues.toArray(new AnnotationAttributeValue[annotationAttributeValues.size()]),
+            valueType);
         arrayValue.setNodeLocation(location);
         annotationAttributeValues.clear();
         annotationAttributeValues.push(arrayValue);
