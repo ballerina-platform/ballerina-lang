@@ -52,11 +52,11 @@ class TypeStructDefinitionView extends BallerinaView {
             mapper = new TypeMapper(this.getModel().getOnConnectInstance(), this.getModel().getOnDisconnectInstance(), this._parentView);
             this._parentView._typeMapper = mapper;
         }
-        mapper.removeStruct(selectedStructName);
+        mapper.removeType(selectedStructName);
         if (category == "SOURCE"){
-            mapper.addSourceStruct(struct,this.getModel());
+            mapper.addSourceType(struct,this.getModel());
         } else{
-            mapper.addTargetStruct(struct,this.getModel());
+            mapper.addTargetType(struct,this.getModel());
         }
     }
 }

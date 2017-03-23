@@ -63,13 +63,13 @@ class OutputStructView extends BallerinaView {
         }
 
         if (!_.isUndefined(previousSelection) && previousSelection != TYPE_MAPPER_COMBOBOX_DEFAULT_SELECTION) {
-            mapper.removeStruct(previousSelection);
+            mapper.removeType(previousSelection);
         }
         if (!_.isUndefined(isAlreadtRenderedInSource)) {
-            mapper.removeStruct(typeStructName);
+            mapper.removeType(typeStructName);
         }
         if (typeStructSchema) {
-            mapper.addTargetStruct(typeStructSchema.getAttributesArray(), this.getModel());
+            mapper.addTargetType(typeStructSchema.getAttributesArray(), this.getModel());
         }
     }
 
