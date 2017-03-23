@@ -18,6 +18,9 @@
 package org.ballerinalang.model.builder;
 
 import org.ballerinalang.model.Annotation;
+import org.ballerinalang.model.AnnotationAttributeDef;
+import org.ballerinalang.model.AnnotationAttributeValue;
+import org.ballerinalang.model.AnnotationDef;
 import org.ballerinalang.model.BLangPackage;
 import org.ballerinalang.model.BTypeMapper;
 import org.ballerinalang.model.BallerinaAction;
@@ -32,6 +35,7 @@ import org.ballerinalang.model.ParameterDef;
 import org.ballerinalang.model.Resource;
 import org.ballerinalang.model.Service;
 import org.ballerinalang.model.StructDef;
+import org.ballerinalang.model.StructuredUnit;
 import org.ballerinalang.model.SymbolName;
 import org.ballerinalang.model.SymbolScope;
 import org.ballerinalang.model.VariableDef;
@@ -89,6 +93,7 @@ import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueType;
 import org.ballerinalang.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.util.exceptions.SemanticErrors;
@@ -127,7 +132,10 @@ public class BLangModelBuilder {
 
     // Builds user defined structs.
     protected StructDef.StructBuilder currentStructBuilder;
-
+    
+    // Builds user defined annotations.
+    protected AnnotationDef.AnnotationDefBuilder annotationDefBuilder;
+    
     protected Stack<Annotation.AnnotationBuilder> annotationBuilderStack = new Stack<>();
     protected Stack<BlockStmt.BlockStmtBuilder> blockStmtBuilderStack = new Stack<>();
     protected Stack<IfElseStmt.IfElseStmtBuilder> ifElseStmtBuilderStack = new Stack<>();
@@ -143,7 +151,7 @@ public class BLangModelBuilder {
 
     // Holds ExpressionLists required for return statements, function/action invocations and connector declarations
     protected Stack<List<Expression>> exprListStack = new Stack<>();
-    protected Stack<List<Annotation>> annotationListStack = new Stack<>();
+    protected Stack<Stack<Annotation>> annotationsStack = new Stack<>();
     protected Stack<MapStructInitKeyValueExpr> mapStructKVStack = new Stack<>();
     protected Stack<List<MapStructInitKeyValueExpr>> mapStructKVListStack = new Stack<>();
 
@@ -160,6 +168,8 @@ public class BLangModelBuilder {
     // This is useful when analyzing import functions, actions and types.
     protected Map<String, ImportPackage> importPkgMap = new HashMap<>();
 
+    protected Stack<AnnotationAttributeValue> annotationAttributeValues;
+    
     protected List<String> errorMsgs = new ArrayList<>();
 
     public BLangModelBuilder(BLangPackage.PackageBuilder packageBuilder, String bFileName) {
@@ -241,21 +251,22 @@ public class BLangModelBuilder {
     public void startStructDef(NodeLocation location) {
         currentStructBuilder = new StructDef.StructBuilder(location, currentScope);
         currentScope = currentStructBuilder.getCurrentScope();
-        annotationListStack.push(new ArrayList<>());
+        annotationsStack.push(new Stack<>());
     }
 
     /**
-     * Add a field of the {@link StructDef}.
+     * Add a field definition. Field definition can be a child of {@code StructDef} or {@code AnnotationDef}.
      *
      * @param location  Location of the field in the source file
      * @param fieldName Name of the field in the {@link StructDef}
      */
-    public void addStructField(NodeLocation location, SimpleTypeName typeName, String fieldName, boolean defaultValueAvailable) {
+    public void addFieldDefinition(NodeLocation location, SimpleTypeName typeName, String fieldName, 
+            boolean defaultValueAvailable) {
         validateAndSetPackagePath(location, typeName);
         SymbolName symbolName = new SymbolName(fieldName);
 
         // Check whether this constant is already defined.
-        StructDef structScope = (StructDef) currentScope;
+        StructuredUnit structScope = (StructuredUnit) currentScope;
         BLangSymbol fieldSymbol = structScope.resolveMembers(symbolName);
         if (fieldSymbol != null) {
             String errMsg = BLangExceptionHelper
@@ -263,19 +274,23 @@ public class BLangModelBuilder {
             errorMsgs.add(errMsg);
         }
 
-        // TODO Implement default value support for struct fields
+        Expression expr = null;
         if (defaultValueAvailable) {
             // Expression ignored = exprStack.pop();
-            exprStack.pop();
+            expr = exprStack.pop();
         }
-
-        VariableDef variableDef = new VariableDef(location, fieldName, typeName, symbolName, currentScope);
-
-        // Define the variableRef symbol in the current scope
-        currentScope.define(symbolName, variableDef);
-
-        // Add Struct field to current Struct;
-        currentStructBuilder.addField(variableDef);
+        
+        if (currentScope instanceof StructDef) {
+            // TODO Implement default value support for struct fields
+            VariableDef variableDef = new VariableDef(location, fieldName, typeName, symbolName, currentScope);
+            currentScope.define(symbolName, variableDef);
+            currentStructBuilder.addField(variableDef);
+        } else if (currentScope instanceof AnnotationDef) {
+            AnnotationAttributeDef annotationField = new AnnotationAttributeDef(location, fieldName, typeName, 
+                (BasicLiteral) expr, symbolName, currentScope);
+            currentScope.define(symbolName, annotationField);
+            annotationDefBuilder.addAttributeDef(annotationField);
+        }
     }
 
     /**
@@ -286,7 +301,7 @@ public class BLangModelBuilder {
     public void addStructDef(String name) {
         currentStructBuilder.setName(name);
 
-        List<Annotation> annotationList = annotationListStack.pop();
+        List<Annotation> annotationList = annotationsStack.pop();
         annotationList.forEach(currentStructBuilder::addAnnotation);
 
         // TODO: Fix the package path
@@ -306,55 +321,14 @@ public class BLangModelBuilder {
     }
 
 
-    // Annotations
-
-    public void startAnnotation() {
-        annotationBuilderStack.push(new Annotation.AnnotationBuilder());
-    }
-
-    public void createAnnotationKeyValue(String key) {
-        Expression expr = exprStack.peek();
-        if (expr instanceof BasicLiteral &&
-                ((BasicLiteral) expr).getTypeName().getName().equals(TypeConstants.STRING_TNAME)) {
-            String value = ((BasicLiteral) expr).getBValue().stringValue();
-            Annotation.AnnotationBuilder annotationBuilder = annotationBuilderStack.peek();
-            annotationBuilder.addKeyValuePair(new SymbolName(key), value);
-        }
-    }
-
-    public void endAnnotation(String name, boolean valueAvailable, NodeLocation location) {
-        Annotation.AnnotationBuilder annotationBuilder = annotationBuilderStack.pop();
-        annotationBuilder.setNodeLocation(location);
-        annotationBuilder.setName(new SymbolName(name));
-
-        if (valueAvailable) {
-            Expression expr = exprStack.pop();
-
-            // Assuming the annotation value is a string literal
-            if (expr instanceof BasicLiteral &&
-                    ((BasicLiteral) expr).getTypeName().getName().equals(TypeConstants.STRING_TNAME)) {
-                String value = ((BasicLiteral) expr).getBValue().stringValue();
-                annotationBuilder.setValue(value);
-            } else {
-                throw new RuntimeException("Annotations with key/value pars are not support at the moment" + " in " +
-                        location.getFileName() + ":" + location.getLineNumber());
-            }
-        }
-
-        List<Annotation> annotationList = annotationListStack.peek();
-        Annotation annotation = annotationBuilder.build();
-        annotationList.add(annotation);
-    }
-
-
     // Function/action input and out parameters
     public void startParamList() {
-        annotationListStack.push(new ArrayList<>());
+        annotationsStack.push(new Stack<>());
     }
 
 
     public void endParamList() {
-        annotationListStack.pop();
+        annotationsStack.pop();
     }
 
     // Function parameters and types
@@ -382,10 +356,10 @@ public class BLangModelBuilder {
         ParameterDef paramDef = new ParameterDef(location, paramName, typeName, symbolName, currentScope);
 
         // Annotation list is maintained for each parameter
-        if (!annotationListStack.isEmpty() && !annotationListStack.peek().isEmpty()) {
-            annotationListStack.peek().forEach(paramDef::addAnnotation);
+        if (!annotationsStack.isEmpty() && !annotationsStack.peek().isEmpty()) {
+            annotationsStack.peek().forEach(paramDef::addAnnotation);
             // Clear all added annotations for the current parameter.
-            annotationListStack.peek().clear();
+            annotationsStack.peek().clear();
         }
 
         if (currentCUBuilder != null) {
@@ -716,7 +690,6 @@ public class BLangModelBuilder {
         currentCUBuilder = new BallerinaFunction.BallerinaFunctionBuilder(currentScope);
         currentCUBuilder.setNodeLocation(location);
         currentScope = currentCUBuilder.getCurrentScope();
-        annotationListStack.push(new ArrayList<>());
     }
 
     public void startWorkerUnit() {
@@ -729,14 +702,14 @@ public class BLangModelBuilder {
             workerOuterBlockScope = currentScope;
         }
         currentScope = currentCUBuilder.getCurrentScope();
-        annotationListStack.push(new ArrayList<>());
+        annotationsStack.push(new Stack<>());
     }
 
     public void addFunction(String name, boolean isNative) {
         currentCUBuilder.setName(name);
         currentCUBuilder.setNative(isNative);
 
-        List<Annotation> annotationList = annotationListStack.pop();
+        List<Annotation> annotationList = annotationsStack.pop();
         annotationList.forEach(currentCUBuilder::addAnnotation);
 
         BallerinaFunction function = currentCUBuilder.buildFunction();
@@ -745,6 +718,7 @@ public class BLangModelBuilder {
         // Define function is delayed due to missing type info of Parameters.
 
         currentScope = function.getEnclosingScope();
+        annotationsStack.push(new Stack<>());
         currentCUBuilder = null;
     }
 
@@ -752,7 +726,7 @@ public class BLangModelBuilder {
         currentCUBuilder = new BTypeMapper.BTypeMapperBuilder(currentScope);
         currentCUBuilder.setNodeLocation(location);
         currentScope = currentCUBuilder.getCurrentScope();
-        annotationListStack.push(new ArrayList<>());
+        annotationsStack.push(new Stack<>());
     }
 
     public void addTypeMapper(NodeLocation location, String name, SimpleTypeName returnTypeName, boolean isNative) {
@@ -761,7 +735,7 @@ public class BLangModelBuilder {
         currentCUBuilder.setNative(isNative);
         addReturnTypes(location, new SimpleTypeName[]{returnTypeName});
 
-        List<Annotation> annotationList = annotationListStack.pop();
+        List<Annotation> annotationList = annotationsStack.pop();
         annotationList.forEach(currentCUBuilder::addAnnotation);
 
         BTypeMapper typeMapper = currentCUBuilder.buildTypeMapper();
@@ -778,7 +752,7 @@ public class BLangModelBuilder {
 
         currentCUBuilder = new Resource.ResourceBuilder(currentScope);
         currentScope = currentCUBuilder.getCurrentScope();
-        annotationListStack.push(new ArrayList<>());
+        annotationsStack.push(new Stack<>());
     }
 
     public void addResource(NodeLocation location, String name) {
@@ -788,7 +762,7 @@ public class BLangModelBuilder {
         // TODO Figure out whether we need to support public type typemappers
 //        currentCUBuilder.setPublic(isPublic);
 
-        List<Annotation> annotationList = annotationListStack.pop();
+        List<Annotation> annotationList = annotationsStack.pop();
         annotationList.forEach(currentCUBuilder::addAnnotation);
 
         Resource resource = currentCUBuilder.buildResource();
@@ -804,7 +778,7 @@ public class BLangModelBuilder {
         currentCUBuilder.setName(name);
         currentCUBuilder.setNodeLocation(sourceLocation);
 
-        List<Annotation> annotationList = annotationListStack.pop();
+        List<Annotation> annotationList = annotationsStack.pop();
         annotationList.forEach(currentCUBuilder::addAnnotation);
 
         Worker worker = currentCUBuilder.buildWorker();
@@ -837,14 +811,14 @@ public class BLangModelBuilder {
         currentCUBuilder = new BallerinaAction.BallerinaActionBuilder(currentScope);
         currentCUBuilder.setNodeLocation(location);
         currentScope = currentCUBuilder.getCurrentScope();
-        annotationListStack.push(new ArrayList<>());
+        annotationsStack.push(new Stack<>());
     }
 
     public void addAction(String name, boolean isNative) {
         currentCUBuilder.setName(name);
         currentCUBuilder.setNative(isNative);
 
-        List<Annotation> annotationList = annotationListStack.pop();
+        List<Annotation> annotationList = annotationsStack.pop();
         annotationList.forEach(currentCUBuilder::addAnnotation);
 
         BallerinaAction action = currentCUBuilder.buildAction();
@@ -863,21 +837,21 @@ public class BLangModelBuilder {
         currentCUGroupBuilder = new Service.ServiceBuilder(currentScope);
         currentCUGroupBuilder.setNodeLocation(location);
         currentScope = currentCUGroupBuilder.getCurrentScope();
-        annotationListStack.push(new ArrayList<>());
+        annotationsStack.push(new Stack<>());
     }
 
     public void startConnectorDef(NodeLocation location) {
         currentCUGroupBuilder = new BallerinaConnectorDef.BallerinaConnectorDefBuilder(currentScope);
         currentCUGroupBuilder.setNodeLocation(location);
         currentScope = currentCUGroupBuilder.getCurrentScope();
-        annotationListStack.push(new ArrayList<>());
+        annotationsStack.push(new Stack<>());
     }
 
     public void createService(String name) {
         currentCUGroupBuilder.setName(name);
         currentCUGroupBuilder.setPkgPath(currentPackagePath);
 
-        List<Annotation> annotationList = annotationListStack.pop();
+        List<Annotation> annotationList = annotationsStack.pop();
         annotationList.forEach(currentCUGroupBuilder::addAnnotation);
 
         Service service = currentCUGroupBuilder.buildService();
@@ -891,7 +865,7 @@ public class BLangModelBuilder {
         currentCUGroupBuilder.setName(name);
         currentCUGroupBuilder.setPkgPath(currentPackagePath);
 
-        List<Annotation> annotationList = annotationListStack.pop();
+        List<Annotation> annotationList = annotationsStack.pop();
         annotationList.forEach(currentCUGroupBuilder::addAnnotation);
 
         BallerinaConnectorDef connector = currentCUGroupBuilder.buildConnector();
@@ -1499,5 +1473,112 @@ public class BLangModelBuilder {
             this.name = name;
             this.pkgName = pkgName;
         }
+    }
+
+    
+    // Annotations
+
+    public void startAnnotationAttachment() {
+        annotationBuilderStack.push(new Annotation.AnnotationBuilder());
+        annotationAttributeValues = new Stack<AnnotationAttributeValue>();
+//        annotationListStack.push(new ArrayList<>());
+    }
+
+    public void createAnnotationKeyValue(String key) {
+        Annotation.AnnotationBuilder annotationBuilder = annotationBuilderStack.peek();
+        annotationBuilder.addAttributeNameValuePair(new SymbolName(key), annotationAttributeValues.pop());
+    }
+
+    public void endAnnotationAttachment(String name, String pkgPath, boolean valueAvailable, NodeLocation location) {
+        Annotation.AnnotationBuilder annotationBuilder = annotationBuilderStack.pop();
+        annotationBuilder.setNodeLocation(location);
+        annotationBuilder.setName(new SymbolName(name, pkgPath));
+
+        Stack<Annotation> annotationList = annotationsStack.peek();
+        Annotation annotation = annotationBuilder.build();
+        annotationList.push(annotation);
+    }
+
+
+    /**
+     * Start an annotation definition.
+     * 
+     * @param location Location of the annotation definition in the source file
+     */
+    public void startAnnotationDef(NodeLocation location) {
+        annotationDefBuilder = new AnnotationDef.AnnotationDefBuilder(location, currentScope);
+        currentScope = annotationDefBuilder.getCurrentScope();
+        annotationsStack.push(new Stack<>());
+    }
+    
+    /**
+     * Creates a {@code AnnotationDef}.
+     * 
+     * @param location Location of this {@code AnnotationDef} in the source file
+     * @param name Name of the {@code AnnotationDef}
+     */
+    public void addAnnotationtDef(NodeLocation location, String name) {
+        annotationDefBuilder.setName(name);
+        annotationDefBuilder.setPackagePath(currentPackagePath);
+        
+        AnnotationDef annotationDef = annotationDefBuilder.build();
+        bFileBuilder.addAnnotationDef(annotationDef);
+        
+        // Close annotation scope
+        currentScope = annotationDef.getEnclosingScope();
+        currentStructBuilder = null;
+        
+        annotationsStack.pop();
+    }
+    
+    /**
+     * Add a target to the annotation.
+     * 
+     * @param location Location of the target in the source file
+     * @param attachmentPoint Point to which this annotation can be attached
+     */
+    public void addAnnotationtAttachmentPoint(NodeLocation location, String attachmentPoint) {
+        annotationDefBuilder.addAttachmentPoint(attachmentPoint);
+    }
+
+    /**
+     * @param location
+     */
+    public void createLiteralTypeAttributeValue(NodeLocation location) {
+        Expression expr = exprStack.pop();
+        if (!(expr instanceof BasicLiteral)) {
+            String errMsg = BLangExceptionHelper.constructSemanticError(expr.getNodeLocation(),
+                    SemanticErrors.UNSUPPORTED_ANNOTATION_ATTRIBUTE_VALUE);
+            errorMsgs.add(errMsg);
+        }
+        
+        BValue value = ((BasicLiteral) expr).getBValue();
+        annotationAttributeValues.push(new AnnotationAttributeValue(value));
+    }
+    
+    /**
+     * @param location
+     */
+    public void createAnnotationTypeAttributeValue(NodeLocation location) {
+        Annotation value = annotationsStack.peek().pop();
+        annotationAttributeValues.push(new AnnotationAttributeValue(value));
+    }
+    
+    /**
+     * @param location
+     */
+    public void createArrayTypeAttributeValue(NodeLocation location) {
+        AnnotationAttributeValue arrayValue = new AnnotationAttributeValue(
+            annotationAttributeValues.toArray(new AnnotationAttributeValue[annotationAttributeValues.size()]));
+        arrayValue.setNodeLocation(location);
+        annotationAttributeValues.clear();
+        annotationAttributeValues.push(arrayValue);
+    }
+
+    /**
+     * 
+     */
+    public void startCompilationUnit() {
+        annotationsStack.push(new Stack<>());
     }
 }

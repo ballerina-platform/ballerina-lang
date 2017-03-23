@@ -221,4 +221,14 @@ public interface NodeVisitor {
     void visit(MainInvoker mainInvoker);
 
     void visit(WorkerVarLocation workerVarLocation);
+
+    /**
+     * @param annotationAttributeDef
+     */
+    void visit(AnnotationAttributeDef annotationAttributeDef);
+
+    /**
+     * @param annotationDef
+     */
+    void visit(AnnotationDef annotationDef);
 }

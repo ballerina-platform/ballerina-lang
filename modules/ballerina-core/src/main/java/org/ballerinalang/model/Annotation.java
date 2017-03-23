@@ -31,19 +31,16 @@ import java.util.Map;
  */
 public class Annotation implements Node {
 
-    // TODO Refactor these instance variables
     private String name;
     private SymbolName symbolName;
-    private String value;
-    private Map<String, String> keyValPairs = new HashMap<>();
-    private Map<SymbolName, String> elementPair = new HashMap<>();
+    private Map<SymbolName, AnnotationAttributeValue> attributeNameValPairs = new HashMap<>();
     private NodeLocation location;
-
-    public Annotation(NodeLocation location, SymbolName name, String value, Map<SymbolName, String> keyValPairs) {
+    AttachmentPoint attachedPoint;
+    
+    public Annotation(NodeLocation location, SymbolName name, Map<SymbolName, AnnotationAttributeValue> fieldValPairs) {
         this.location = location;
         this.symbolName = name;
-        this.value = value;
-        this.elementPair = keyValPairs;
+        this.attributeNameValPairs = fieldValPairs;
     }
 
     /**
@@ -58,52 +55,34 @@ public class Annotation implements Node {
             return this.symbolName.getName();
         }
     }
-
+    
     /**
-     * Get the value of the annotation.
+     * Get symbol name of the annotation.
      *
-     * @return value of the annotation
+     * @return symbol name of the annotation
      */
-    public String getValue() {
-        return value;
+    public SymbolName getSymbolName() {
+        return this.symbolName;
     }
 
     /**
-     * Get Key-Value pairs in the annotation.
+     * Get Key-Value pairs of fields in the annotation.
      *
      * @return all Key-Value pairs
      */
-    public Map getKeyValuePairs() {
-        return keyValPairs;
+    public Map<SymbolName, AnnotationAttributeValue> getAttributeNameValuePairs() {
+        return attributeNameValPairs;
     }
 
     /**
      * Get the value of the Key-Value pair.
      *
-     * @param key key
-     * @return value of the Key-Value pair
+     * @param attributeName attribute name
+     * @return value of the attribute
      */
-    public String getValueOfKeyValuePair(String key) {
-        return keyValPairs.get(key);
+    public AnnotationAttributeValue getValue(String attributeName) {
+        return attributeNameValPairs.get(attributeName);
     }
-
-    /**
-     * Get all element pairs defined with an annotation.
-     * @return all element paris with key-values.
-     */
-    public Map getElementPairs() {
-        return elementPair;
-    }
-
-    /**
-     * Get the value of the symbol in an annotation.
-     * @param symbolName key of the element
-     * @return value of the element
-     */
-    public String getValueOfElementPair(SymbolName symbolName) {
-        return elementPair.get(symbolName);
-    }
-
 
     @Override
     public void accept(NodeVisitor visitor) {
@@ -123,8 +102,7 @@ public class Annotation implements Node {
     public static class AnnotationBuilder {
         private NodeLocation location;
         private SymbolName name;
-        private String value;
-        private Map<SymbolName, String> keyValPairs = new HashMap<>();
+        private Map<SymbolName, AnnotationAttributeValue> attributeNameValPairs = new HashMap<>();
 
         public void setNodeLocation(NodeLocation location) {
             this.location = location;
@@ -134,16 +112,27 @@ public class Annotation implements Node {
             this.name = name;
         }
 
-        public void setValue(String value) {
-            this.value = value;
-        }
-
-        public void addKeyValuePair(SymbolName key, String value) {
-            this.keyValPairs.put(key, value);
+        public void addAttributeNameValuePair(SymbolName key, AnnotationAttributeValue value) {
+            this.attributeNameValPairs.put(key, value);
         }
 
         public Annotation build() {
-            return new Annotation(location, name, value, keyValPairs);
+            return new Annotation(location, name, attributeNameValPairs);
         }
+    }
+
+    /**
+     * @param attachedPoint 
+     * 
+     */
+    public void setAttachedPoint(AttachmentPoint attachedPoint) {
+        this.attachedPoint = attachedPoint;
+    }
+    
+    /**
+     * @return the attachedPoint
+     */
+    public AttachmentPoint getAttachedPoint() {
+        return attachedPoint;
     }
 }

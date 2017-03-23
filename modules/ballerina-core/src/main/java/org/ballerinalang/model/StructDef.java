@@ -34,7 +34,7 @@ import java.util.Map;
  *
  * @since 0.8.0
  */
-public class StructDef extends BType implements CompilationUnit, SymbolScope {
+public class StructDef extends BType implements CompilationUnit, SymbolScope, StructuredUnit {
     private NodeLocation location;
     private Annotation[] annotations;
     private VariableDef[] fields;
@@ -135,6 +135,7 @@ public class StructDef extends BType implements CompilationUnit, SymbolScope {
         return Collections.unmodifiableMap(this.symbolMap);
     }
 
+    @Override
     public BLangSymbol resolveMembers(SymbolName name) {
         return symbolMap.get(name);
     }

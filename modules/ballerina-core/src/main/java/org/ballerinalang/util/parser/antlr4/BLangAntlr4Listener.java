@@ -18,7 +18,9 @@
 package org.ballerinalang.util.parser.antlr4;
 
 import org.antlr.v4.runtime.ParserRuleContext;
+import org.antlr.v4.runtime.RuleContext;
 import org.antlr.v4.runtime.tree.ErrorNode;
+import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.TerminalNode;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.ballerinalang.model.NodeLocation;
@@ -103,6 +105,11 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void enterCompilationUnit(BallerinaParser.CompilationUnitContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        modelBuilder.startCompilationUnit();
     }
 
     @Override
@@ -329,12 +336,20 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void enterAnnotationDefinition(AnnotationDefinitionContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
 
+        modelBuilder.startAnnotationDef(getCurrentLocation(ctx));
     }
 
     @Override
     public void exitAnnotationDefinition(AnnotationDefinitionContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
 
+        modelBuilder.addAnnotationtDef(getCurrentLocation(ctx), ctx.Identifier().getText());
     }
 
     @Override
@@ -344,7 +359,11 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void exitAttachmentPoint(AttachmentPointContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
 
+        modelBuilder.addAnnotationtAttachmentPoint(getCurrentLocation(ctx), ctx.getText());
     }
 
     @Override
@@ -538,12 +557,27 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void enterAnnotationAttachment(AnnotationAttachmentContext ctx) {
-
+        if (ctx.exception != null) {
+            return;
+        }
+        
+        modelBuilder.startAnnotationAttachment();
     }
 
     @Override
     public void exitAnnotationAttachment(AnnotationAttachmentContext ctx) {
-
+        if (ctx.exception != null) {
+            return;
+        }
+        
+        boolean valueAvailable = false;
+        int childCount = ctx.getChildCount();
+        if (childCount > 2) {
+            valueAvailable = true;
+        }
+        
+        String[] nameReference = nameReferenceStack.pop();
+        modelBuilder.endAnnotationAttachment(nameReference[1], nameReference[0], valueAvailable, getCurrentLocation(ctx));
     }
 
     @Override
@@ -563,17 +597,33 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
     @Override
     public void exitAnnotationAttribute(AnnotationAttributeContext ctx) {
-
+        if (ctx.exception != null) {
+            return;
+        }
+        
+        String key = ctx.Identifier().getText();
+        modelBuilder.createAnnotationKeyValue(key);
     }
 
     @Override
     public void enterAnnotationAttributeValue(AnnotationAttributeValueContext ctx) {
-
+        
     }
 
     @Override
     public void exitAnnotationAttributeValue(AnnotationAttributeValueContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
 
+        ParseTree childContext = ctx.getChild(0);
+        if (childContext instanceof SimpleLiteralContext) {
+            modelBuilder.createLiteralTypeAttributeValue(getCurrentLocation(ctx));
+        } else if (childContext instanceof AnnotationAttachmentContext) {
+            modelBuilder.createAnnotationTypeAttributeValue(getCurrentLocation(ctx));
+        } else if (childContext instanceof AnnotationAttributeArrayContext) {
+            modelBuilder.createArrayTypeAttributeValue(getCurrentLocation(ctx));
+        }
     }
 
     @Override
@@ -1373,12 +1423,8 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
         SimpleTypeName typeName = typeNameStack.pop();
         String fieldName = ctx.Identifier().getText();
-
-        if (ctx.simpleLiteral() != null) {
-            modelBuilder.addStructField(getCurrentLocation(ctx), typeName, fieldName, true);
-        } else {
-            modelBuilder.addStructField(getCurrentLocation(ctx), typeName, fieldName, false);
-        }
+        boolean isDefaultValueAvalibale = ctx.simpleLiteral() != null;
+        modelBuilder.addFieldDefinition(getCurrentLocation(ctx), typeName, fieldName, isDefaultValueAvalibale);
     }
 
     @Override
