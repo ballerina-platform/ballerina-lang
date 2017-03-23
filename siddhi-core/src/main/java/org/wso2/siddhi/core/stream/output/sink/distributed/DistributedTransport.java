@@ -33,9 +33,8 @@ import java.util.List;
  */
 public abstract class DistributedTransport extends OutputTransport {
 
-    private int channelCount = -1;
     private OptionHolder sinkOptionHolder;
-    protected PublishingStrategy strategy;
+    protected PublishingStrategy publishingStrategy;
     protected StreamDefinition streamDefinition;
     protected ExecutionPlanContext executionPlanContext;
 
@@ -55,22 +54,27 @@ public abstract class DistributedTransport extends OutputTransport {
 
     @Override
     public void publish(Object payload, DynamicOptions transportOptions) throws ConnectionUnavailableException {
-        //Set<Integer> destinationsToPublish = strategy.getDestinationsToPublish(payload, transportOptions);
-        //destinationsToPublish.forEach(destinationId -> publish(payload, transportOptions, destinationId));
+        List<Integer> destinationsToPublish = publishingStrategy.getDestinationsToPublish(payload, transportOptions);
+        destinationsToPublish.forEach(destinationId -> {
+            try {
+                publish(payload, transportOptions, destinationId);
+            } catch (ConnectionUnavailableException e) {
+                e.printStackTrace();
+            }
+        });
     }
 
-    public void initDistributedTransportOptions(OptionHolder distributedOptionHolder,
-                                                List<OptionHolder> endpointOptionHolders,
-                                                Annotation sinkAnnotation,
-                                                PublishingStrategy strategy) {
-        this.strategy = strategy;
-        initTransport(sinkOptionHolder, endpointOptionHolders, sinkAnnotation, executionPlanContext);
+    public void initDistributedTransport(List<OptionHolder> destinationOptionHolders,
+                                         Annotation sinkAnnotation,
+                                         PublishingStrategy strategy) {
+        this.publishingStrategy = strategy;
+        initTransport(sinkOptionHolder, destinationOptionHolders, sinkAnnotation, executionPlanContext);
     }
 
-    public abstract void publish(Object payload, DynamicOptions transportOptions, int partitionId) throws ConnectionUnavailableException;
+    public abstract void publish(Object payload, DynamicOptions transportOptions, int destinationId) throws ConnectionUnavailableException;
 
 
-    public abstract void initTransport(OptionHolder sinkOptionHolder, List<OptionHolder> nodeOptionHolders, Annotation
+    public abstract void initTransport(OptionHolder sinkOptionHolder, List<OptionHolder> destinationOptionHolders, Annotation
             sinkAnnotation, ExecutionPlanContext executionPlanContext);
 
 

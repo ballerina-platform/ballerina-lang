@@ -45,7 +45,7 @@ public class RoundRobinPublishingStrategy extends PublishingStrategy {
     private List<Integer> returnValue = new ArrayList<>();
 
     /**
-     * Initialize actual strategy implementations. Required information for strategy implementation can be fetched
+     * Initialize actual publishingStrategy implementations. Required information for publishingStrategy implementation can be fetched
      * inside this method
      */
     @Override
@@ -74,7 +74,7 @@ public class RoundRobinPublishingStrategy extends PublishingStrategy {
         }
 
         if (destinationCount > 0) {
-            returnValue.add(destinationIds.get(count % destinationCount));
+            returnValue.add(destinationIds.get(count++ % destinationCount));
         }
 
         return returnValue;

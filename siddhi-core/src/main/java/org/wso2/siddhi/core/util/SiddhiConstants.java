@@ -73,7 +73,7 @@ public final class SiddhiConstants {
     public static final int LAST = -2;
     public static final int ANY = -1;
 
-    public static final String DISTRIBUTION_STRATEGY_KEY = "strategy";
+    public static final String DISTRIBUTION_STRATEGY_KEY = "publishingStrategy";
     public static final String PARTITION_KEY_FIELD_KEY = "partitionKey";
 
     public static final String METRIC_INFIX_EXECUTION_PLANS = "ExecutionPlans";

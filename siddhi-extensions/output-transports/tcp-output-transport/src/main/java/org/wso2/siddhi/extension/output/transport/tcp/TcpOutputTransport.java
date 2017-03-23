@@ -63,7 +63,6 @@ public class TcpOutputTransport extends OutputTransport {
 
     @Override
     public void connect() throws ConnectionUnavailableException {
-        log.info("TcpOutputTransport:connect()");
         tcpNettyClient.connect(host, port);
     }
 
