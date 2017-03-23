@@ -23,7 +23,7 @@ import org.wso2.siddhi.core.event.state.StateEvent;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEventCloner;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
-import org.wso2.siddhi.core.util.collection.OverwritingStreamEventExtractor;
+import org.wso2.siddhi.core.util.collection.AddingStreamEventExtractor;
 import org.wso2.siddhi.core.util.collection.UpdateAttributeMapper;
 
 import java.util.Map;
@@ -63,12 +63,12 @@ public class MapOperator extends CollectionOperator {
     }
 
     @Override
-    public ComplexEventChunk<StreamEvent> overwrite(ComplexEventChunk<StateEvent> overwritingOrAddingEventChunk,
+    public ComplexEventChunk<StreamEvent> tryUpdate(ComplexEventChunk<StateEvent> updatingOrAddingEventChunk,
                                                     Object storeEvents,
                                                     UpdateAttributeMapper[] updateAttributeMappers,
-                                                    OverwritingStreamEventExtractor overwritingStreamEventExtractor) {
-        return super.overwrite(overwritingOrAddingEventChunk, ((Map<Object, StreamEvent>) storeEvents).values(),
-                updateAttributeMappers, overwritingStreamEventExtractor);
+                                                    AddingStreamEventExtractor addingStreamEventExtractor) {
+        return super.tryUpdate(updatingOrAddingEventChunk, ((Map<Object, StreamEvent>) storeEvents).values(),
+                updateAttributeMappers, addingStreamEventExtractor);
     }
 
 }

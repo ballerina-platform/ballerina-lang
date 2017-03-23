@@ -16,22 +16,20 @@
  * under the License.
  */
 
-package org.wso2.siddhi.core.exception;
+package org.wso2.siddhi.core.util.collection;
 
-public class OutputTransportException extends Exception {
-    public OutputTransportException() {
+import org.wso2.siddhi.core.event.state.StateEvent;
+import org.wso2.siddhi.core.event.stream.StreamEvent;
+
+public class AddingStreamEventExtractor {
+    private int matchingStreamEventPosition;
+
+    public AddingStreamEventExtractor(int matchingStreamEventPosition) {
+        this.matchingStreamEventPosition = matchingStreamEventPosition;
     }
 
-    public OutputTransportException(String message) {
-        super(message);
+    public StreamEvent getAddingStreamEvent(StateEvent updateOrAddingEvent) {
+        return updateOrAddingEvent.getStreamEvent(matchingStreamEventPosition);
     }
-
-    public OutputTransportException(String message, Throwable cause) {
-        super(message, cause);
-    }
-
-    public OutputTransportException(Throwable cause) {
-        super(cause);
-    }
-
 }
+

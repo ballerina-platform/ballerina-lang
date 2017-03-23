@@ -2,76 +2,72 @@ package org.wso2.siddhi.core.table.record;
 
 
 import org.wso2.siddhi.query.api.definition.Attribute;
-import org.wso2.siddhi.query.api.expression.AttributeFunction;
-import org.wso2.siddhi.query.api.expression.Expression;
-import org.wso2.siddhi.query.api.expression.Variable;
 import org.wso2.siddhi.query.api.expression.condition.*;
-import org.wso2.siddhi.query.api.expression.constant.Constant;
 
 public interface ConditionVisitor {
 
     enum MathOperator {ADD, DIVIDE, MULTIPLY, SUBTRACT, MOD}
 
     /*And*/
-    public void beginVisitAnd(And and);
-    public void endVisitAnd(And and);
-    public void beginVisitAndLeftOperand(Expression expression);
-    public void endVisitAndLeftOperand(Expression expression);
-    public void beginVisitAndRightOperand(Expression expression);
-    public void endVisitAndRightOperand(Expression expression);
+    void beginVisitAnd();
+    void endVisitAnd();
+    void beginVisitAndLeftOperand();
+    void endVisitAndLeftOperand();
+    void beginVisitAndRightOperand();
+    void endVisitAndRightOperand();
 
     /*Or*/
-    public void beginVisitOr(Or or);
-    public void endVisitOr(Or or);
-    public void beginVisitOrLeftOperand(Expression expression);
-    public void endVisitOrLeftOperand(Expression expression);
-    public void beginVisitOrRightOperand(Expression expression);
-    public void endVisitOrRightOperand(Expression expression);
+    void beginVisitOr();
+    void endVisitOr();
+    void beginVisitOrLeftOperand();
+    void endVisitOrLeftOperand();
+    void beginVisitOrRightOperand();
+    void endVisitOrRightOperand();
 
     /*Not*/
-    public void beginVisitNot(Not not);
-    public void endVisitNot(Not not);
+    void beginVisitNot();
+    void endVisitNot();
 
     /*Compare*/
-    public void beginVisitCompare(Compare compare, Compare.Operator operator);
-    public void endVisitCompare(Compare Compare, Compare.Operator operator);
-    public void beginVisitCompareLeftOperand(Expression expression, Compare.Operator operator);
-    public void endVisitCompareLeftOperand(Expression expression, Compare.Operator operator);
-    public void beginVisitCompareRightOperand(Expression expression, Compare.Operator operator);
-    public void endVisitCompareRightOperand(Expression expression, Compare.Operator operator);
+    void beginVisitCompare(Compare.Operator operator);
+    void endVisitCompare(Compare.Operator operator);
+    void beginVisitCompareLeftOperand(Compare.Operator operator);
+    void endVisitCompareLeftOperand(Compare.Operator operator);
+    void beginVisitCompareRightOperand(Compare.Operator operator);
+    void endVisitCompareRightOperand(Compare.Operator operator);
 
     /*IsNull*/
-    public void beginVisitIsNull(IsNull isNull, String streamId);
-    public void endVisitIsNull(IsNull isNull, String streamId);
+    void beginVisitIsNull(String streamId);
+    void endVisitIsNull(String streamId);
 
     /*In*/
-    public void beginVisitIn(In in, String storeId);
-    public void endVisitIn(In in, String storeId);
+    void beginVisitIn(String storeId);
+    void endVisitIn(String storeId);
 
     /*Constant*/
-    public void beginVisitConstant(Constant constant);
-    public void endVisitConstant(Constant constant);
+    void beginVisitConstant(Object value, Attribute.Type type);
+    void endVisitConstant(Object value, Attribute.Type type);
 
     /*Math*/
-    public void beginVisitMath(Expression expression, MathOperator mathOperator);
-    public void endVisitMath(Expression expression, MathOperator mathOperator);
-    public void beginVisitMathLeftOperand(Expression expression, MathOperator mathOperator);
-    public void endVisitMathLeftOperand(Expression expression, MathOperator mathOperator);
-    public void beginVisitMathRightOperand(Expression expression, MathOperator mathOperator);
-    public void endVisitMathRightOperand(Expression expression, MathOperator mathOperator);
+    void beginVisitMath(MathOperator mathOperator);
+    void endVisitMath(MathOperator mathOperator);
+    void beginVisitMathLeftOperand(MathOperator mathOperator);
+    void endVisitMathLeftOperand(MathOperator mathOperator);
+    void beginVisitMathRightOperand(MathOperator mathOperator);
+    void endVisitMathRightOperand(MathOperator mathOperator);
 
     /*AttributeFunction*/
-    public void beginVisitAttributeFunction(AttributeFunction attributeFunction);
-    public void endVisitAttributeFunction(AttributeFunction attributeFunction);
-    public void beginVisitParameterAttributeFunction(Expression expression, int index);
-    public void endVisitParameterAttributeFunction(Expression expression, int index);
+    void beginVisitAttributeFunction(String namespace, String functionName);
+    void endVisitAttributeFunction(String namespace, String functionName);
+    void beginVisitParameterAttributeFunction(int index);
+    void endVisitParameterAttributeFunction(int index);
 
     /*Variable*/
-    public void beginVisitStreamVariable(Variable variable, String id, Attribute.Type type);
-    public void endVisitStreamVariable(Variable variable, String id, Attribute.Type type);
+    void beginVisitStreamVariable(String id, String streamId, String attributeName, Attribute.Type type);
+    void endVisitStreamVariable(String id, String streamId, String attributeName, Attribute.Type type);
 
     /*Variable*/
-    public void beginVisitStoreVariable(Variable variable, Attribute.Type type);
-    public void endVisitStoreVariable(Variable variable, Attribute.Type type);
+    void beginVisitStoreVariable(String StoreId, String attributeName, Attribute.Type type);
+    void endVisitStoreVariable(String StoreId, String attributeName, Attribute.Type type);
 
 }

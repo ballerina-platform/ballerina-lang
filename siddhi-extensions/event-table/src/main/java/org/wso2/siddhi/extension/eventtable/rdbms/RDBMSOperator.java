@@ -26,7 +26,7 @@ import org.wso2.siddhi.core.event.state.StateEvent;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEventCloner;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
-import org.wso2.siddhi.core.util.collection.OverwritingStreamEventExtractor;
+import org.wso2.siddhi.core.util.collection.AddingStreamEventExtractor;
 import org.wso2.siddhi.core.util.collection.UpdateAttributeMapper;
 import org.wso2.siddhi.core.util.collection.operator.CompiledCondition;
 import org.wso2.siddhi.core.util.collection.operator.Operator;
@@ -118,12 +118,12 @@ public class RDBMSOperator implements Operator {
     }
 
     @Override
-    public ComplexEventChunk<StreamEvent> overwrite(ComplexEventChunk<StateEvent> overwritingOrAddingEventChunk, Object storeEvents, UpdateAttributeMapper[] updateAttributeMappers, OverwritingStreamEventExtractor overwritingStreamEventExtractor) {
-        overwritingOrAddingEventChunk.reset();
+    public ComplexEventChunk<StreamEvent> tryUpdate(ComplexEventChunk<StateEvent> updatingOrAddingEventChunk, Object storeEvents, UpdateAttributeMapper[] updateAttributeMappers, AddingStreamEventExtractor addingStreamEventExtractor) {
+        updatingOrAddingEventChunk.reset();
         List<Object[]> updateEventList = new ArrayList<Object[]>();
 
-        while (overwritingOrAddingEventChunk.hasNext()) {
-            StateEvent overwritingOrAddingEvent = overwritingOrAddingEventChunk.next();
+        while (updatingOrAddingEventChunk.hasNext()) {
+            StateEvent overwritingOrAddingEvent = updatingOrAddingEventChunk.next();
             Object[] incomingEvent = overwritingOrAddingEvent.getStreamEvent(0).getOutputData();
             Object[] obj = new Object[matchingEventOutputSize + expressionExecutorList.size()];
             System.arraycopy(incomingEvent, 0, obj, 0, matchingEventOutputSize);
@@ -135,7 +135,7 @@ public class RDBMSOperator implements Operator {
             }
             updateEventList.add(obj);
         }
-        dbHandler.overwriteOrAddEvent(updateEventList, executionInfo);
+        dbHandler.updateOrAddEvent(updateEventList, executionInfo);
         return null;
     }
 

@@ -23,7 +23,7 @@ import org.wso2.siddhi.core.event.state.StateEvent;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEventCloner;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
-import org.wso2.siddhi.core.util.collection.OverwritingStreamEventExtractor;
+import org.wso2.siddhi.core.util.collection.AddingStreamEventExtractor;
 import org.wso2.siddhi.core.util.collection.UpdateAttributeMapper;
 
 /**
@@ -125,13 +125,13 @@ public class EventChunkOperator implements Operator {
     }
 
     @Override
-    public ComplexEventChunk<StreamEvent> overwrite(ComplexEventChunk<StateEvent> overwritingOrAddingEventChunk, Object storeEvents,
-                                                    UpdateAttributeMapper[] updateAttributeMappers, OverwritingStreamEventExtractor overwritingStreamEventExtractor) {
+    public ComplexEventChunk<StreamEvent> tryUpdate(ComplexEventChunk<StateEvent> updatingOrAddingEventChunk, Object storeEvents,
+                                                    UpdateAttributeMapper[] updateAttributeMappers, AddingStreamEventExtractor addingStreamEventExtractor) {
         ComplexEventChunk<StreamEvent> storeEventChunk = (ComplexEventChunk<StreamEvent>) storeEvents;
-        overwritingOrAddingEventChunk.reset();
-        ComplexEventChunk<StreamEvent> failedEventChunk = new ComplexEventChunk<StreamEvent>(overwritingOrAddingEventChunk.isBatch());
-        while (overwritingOrAddingEventChunk.hasNext()) {
-            StateEvent overwritingOrAddingEvent = overwritingOrAddingEventChunk.next();
+        updatingOrAddingEventChunk.reset();
+        ComplexEventChunk<StreamEvent> failedEventChunk = new ComplexEventChunk<StreamEvent>(updatingOrAddingEventChunk.isBatch());
+        while (updatingOrAddingEventChunk.hasNext()) {
+            StateEvent overwritingOrAddingEvent = updatingOrAddingEventChunk.next();
             try {
                 boolean updated = false;
                 storeEventChunk.reset();
@@ -146,7 +146,7 @@ public class EventChunkOperator implements Operator {
                     }
                 }
                 if (!updated) {
-                    failedEventChunk.add(overwritingStreamEventExtractor.getOverwritingStreamEvent(overwritingOrAddingEvent));
+                    failedEventChunk.add(addingStreamEventExtractor.getAddingStreamEvent(overwritingOrAddingEvent));
                 }
             } finally {
                 overwritingOrAddingEvent.setEvent(storeEventPosition, null);

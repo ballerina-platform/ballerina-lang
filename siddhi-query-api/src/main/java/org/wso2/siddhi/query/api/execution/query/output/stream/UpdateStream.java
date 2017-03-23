@@ -45,7 +45,7 @@ public class UpdateStream extends OutputStream {
     @Override
     public String toString() {
         return "UpdateStream{" +
-                "onOverwriteExpression=" + onUpdateExpression +
+                "onUpdateExpression=" + onUpdateExpression +
                 "} " + super.toString();
     }
 

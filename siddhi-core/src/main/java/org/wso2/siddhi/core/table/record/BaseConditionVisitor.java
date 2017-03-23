@@ -10,205 +10,204 @@ import org.wso2.siddhi.query.api.expression.constant.Constant;
 
 public class BaseConditionVisitor implements ConditionVisitor {
 
+
     @Override
-    public void beginVisitAnd(And and) {
+    public void beginVisitAnd() {
 
     }
 
     @Override
-    public void endVisitAnd(And and) {
+    public void endVisitAnd() {
 
     }
 
     @Override
-    public void beginVisitAndLeftOperand(Expression expression) {
+    public void beginVisitAndLeftOperand() {
 
     }
 
     @Override
-    public void endVisitAndLeftOperand(Expression expression) {
+    public void endVisitAndLeftOperand() {
 
     }
 
     @Override
-    public void beginVisitAndRightOperand(Expression expression) {
+    public void beginVisitAndRightOperand() {
 
     }
 
     @Override
-    public void endVisitAndRightOperand(Expression expression) {
+    public void endVisitAndRightOperand() {
 
     }
 
     @Override
-    public void beginVisitOr(Or or) {
+    public void beginVisitOr() {
 
     }
 
     @Override
-    public void endVisitOr(Or or) {
+    public void endVisitOr() {
 
     }
 
     @Override
-    public void beginVisitOrLeftOperand(Expression expression) {
+    public void beginVisitOrLeftOperand() {
 
     }
 
     @Override
-    public void endVisitOrLeftOperand(Expression expression) {
+    public void endVisitOrLeftOperand() {
 
     }
 
     @Override
-    public void beginVisitOrRightOperand(Expression expression) {
+    public void beginVisitOrRightOperand() {
 
     }
 
     @Override
-    public void endVisitOrRightOperand(Expression expression) {
+    public void endVisitOrRightOperand() {
 
     }
 
     @Override
-    public void beginVisitNot(Not not) {
+    public void beginVisitNot() {
 
     }
 
     @Override
-    public void endVisitNot(Not not) {
+    public void endVisitNot() {
 
     }
 
     @Override
-    public void beginVisitCompare(Compare compare, Compare.Operator operator) {
+    public void beginVisitCompare(Compare.Operator operator) {
 
     }
 
     @Override
-    public void endVisitCompare(Compare Compare, Compare.Operator operator) {
+    public void endVisitCompare(Compare.Operator operator) {
 
     }
 
     @Override
-    public void beginVisitCompareLeftOperand(Expression expression, Compare.Operator operator) {
+    public void beginVisitCompareLeftOperand(Compare.Operator operator) {
 
     }
 
     @Override
-    public void endVisitCompareLeftOperand(Expression expression, Compare.Operator operator) {
+    public void endVisitCompareLeftOperand(Compare.Operator operator) {
 
     }
 
     @Override
-    public void beginVisitCompareRightOperand(Expression expression, Compare.Operator operator) {
+    public void beginVisitCompareRightOperand(Compare.Operator operator) {
 
     }
 
     @Override
-    public void endVisitCompareRightOperand(Expression expression, Compare.Operator operator) {
+    public void endVisitCompareRightOperand(Compare.Operator operator) {
 
     }
 
     @Override
-    public void beginVisitIsNull(IsNull isNull, String streamId) {
+    public void beginVisitIsNull(String streamId) {
 
     }
 
     @Override
-    public void endVisitIsNull(IsNull isNull, String streamId) {
+    public void endVisitIsNull(String streamId) {
 
     }
 
     @Override
-    public void beginVisitIn(In in, String storeId) {
+    public void beginVisitIn(String storeId) {
 
     }
 
     @Override
-    public void endVisitIn(In in, String storeId) {
+    public void endVisitIn(String storeId) {
 
     }
 
     @Override
-    public void beginVisitConstant(Constant constant) {
+    public void beginVisitConstant(Object value, Attribute.Type type) {
 
     }
 
     @Override
-    public void endVisitConstant(Constant constant) {
+    public void endVisitConstant(Object value, Attribute.Type type) {
 
     }
 
     @Override
-    public void beginVisitMath(Expression expression, MathOperator mathOperator) {
+    public void beginVisitMath(MathOperator mathOperator) {
 
     }
 
     @Override
-    public void endVisitMath(Expression expression, MathOperator mathOperator) {
+    public void endVisitMath(MathOperator mathOperator) {
 
     }
 
     @Override
-    public void beginVisitMathLeftOperand(Expression expression, MathOperator mathOperator) {
+    public void beginVisitMathLeftOperand(MathOperator mathOperator) {
 
     }
 
     @Override
-    public void endVisitMathLeftOperand(Expression expression, MathOperator mathOperator) {
+    public void endVisitMathLeftOperand(MathOperator mathOperator) {
 
     }
 
     @Override
-    public void beginVisitMathRightOperand(Expression expression, MathOperator mathOperator) {
+    public void beginVisitMathRightOperand(MathOperator mathOperator) {
 
     }
 
     @Override
-    public void endVisitMathRightOperand(Expression expression, MathOperator mathOperator) {
+    public void endVisitMathRightOperand(MathOperator mathOperator) {
 
     }
 
     @Override
-    public void beginVisitAttributeFunction(AttributeFunction attributeFunction) {
+    public void beginVisitAttributeFunction(String namespace, String functionName) {
 
     }
 
     @Override
-    public void endVisitAttributeFunction(AttributeFunction attributeFunction) {
+    public void endVisitAttributeFunction(String namespace, String functionName) {
 
     }
 
     @Override
-    public void beginVisitParameterAttributeFunction(Expression expression, int index) {
+    public void beginVisitParameterAttributeFunction(int index) {
 
     }
 
     @Override
-    public void endVisitParameterAttributeFunction(Expression expression, int index) {
+    public void endVisitParameterAttributeFunction(int index) {
 
     }
 
     @Override
-    public void beginVisitStreamVariable(Variable variable, String id, Attribute.Type type) {
+    public void beginVisitStreamVariable(String id, String streamId, String attributeName, Attribute.Type type) {
 
     }
 
     @Override
-    public void endVisitStreamVariable(Variable variable, String id, Attribute.Type type) {
+    public void endVisitStreamVariable(String id, String streamId, String attributeName, Attribute.Type type) {
 
     }
 
     @Override
-    public void beginVisitStoreVariable(Variable variable, Attribute.Type type) {
+    public void beginVisitStoreVariable(String StoreId, String attributeName, Attribute.Type type) {
 
     }
 
     @Override
-    public void endVisitStoreVariable(Variable variable, Attribute.Type type) {
+    public void endVisitStoreVariable(String StoreId, String attributeName, Attribute.Type type) {
 
     }
-
-
 }

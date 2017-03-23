@@ -22,7 +22,7 @@ import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.state.StateEvent;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEventCloner;
-import org.wso2.siddhi.core.util.collection.OverwritingStreamEventExtractor;
+import org.wso2.siddhi.core.util.collection.AddingStreamEventExtractor;
 import org.wso2.siddhi.core.util.collection.UpdateAttributeMapper;
 
 public interface Operator extends CompiledCondition {
@@ -36,8 +36,8 @@ public interface Operator extends CompiledCondition {
     void update(ComplexEventChunk<StateEvent> updatingEventChunk, Object storeEvents,
                 UpdateAttributeMapper[] updateAttributeMappers);
 
-    ComplexEventChunk<StreamEvent> overwrite(ComplexEventChunk<StateEvent> overwritingOrAddingEventChunk,
+    ComplexEventChunk<StreamEvent> tryUpdate(ComplexEventChunk<StateEvent> updatingOrAddingEventChunk,
                                              Object storeEvents,
                                              UpdateAttributeMapper[] updateAttributeMappers,
-                                             OverwritingStreamEventExtractor overwritingStreamEventExtractor);
+                                             AddingStreamEventExtractor addingStreamEventExtractor);
 }

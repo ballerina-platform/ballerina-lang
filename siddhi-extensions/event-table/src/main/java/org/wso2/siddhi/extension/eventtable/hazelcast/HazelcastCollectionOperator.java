@@ -22,7 +22,7 @@ import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.state.StateEvent;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
-import org.wso2.siddhi.core.util.collection.OverwritingStreamEventExtractor;
+import org.wso2.siddhi.core.util.collection.AddingStreamEventExtractor;
 import org.wso2.siddhi.core.util.collection.UpdateAttributeMapper;
 import org.wso2.siddhi.core.util.collection.operator.CollectionOperator;
 import org.wso2.siddhi.core.util.collection.operator.CompiledCondition;
@@ -92,12 +92,12 @@ public class HazelcastCollectionOperator extends CollectionOperator {
     }
 
     @Override
-    public ComplexEventChunk<StreamEvent> overwrite(ComplexEventChunk<StateEvent> overwritingOrAddingEventChunk, Object storeEvents,
-                                                    UpdateAttributeMapper[] updateAttributeMappers, OverwritingStreamEventExtractor overwritingStreamEventExtractor) {
-        overwritingOrAddingEventChunk.reset();
-        ComplexEventChunk<StreamEvent> failedEventChunk = new ComplexEventChunk<StreamEvent>(overwritingOrAddingEventChunk.isBatch());
-        while (overwritingOrAddingEventChunk.hasNext()) {
-            StateEvent overwritingOrAddingEvent = overwritingOrAddingEventChunk.next();
+    public ComplexEventChunk<StreamEvent> tryUpdate(ComplexEventChunk<StateEvent> updatingOrAddingEventChunk, Object storeEvents,
+                                                    UpdateAttributeMapper[] updateAttributeMappers, AddingStreamEventExtractor addingStreamEventExtractor) {
+        updatingOrAddingEventChunk.reset();
+        ComplexEventChunk<StreamEvent> failedEventChunk = new ComplexEventChunk<StreamEvent>(updatingOrAddingEventChunk.isBatch());
+        while (updatingOrAddingEventChunk.hasNext()) {
+            StateEvent overwritingOrAddingEvent = updatingOrAddingEventChunk.next();
             try {
                 boolean updated = false;
                 for (int i = 0; i < ((HazelcastCollectionEventHolder) storeEvents).size(); i++) {
@@ -112,7 +112,7 @@ public class HazelcastCollectionOperator extends CollectionOperator {
                     }
                 }
                 if (!updated) {
-                    failedEventChunk.add(overwritingStreamEventExtractor.getOverwritingStreamEvent(overwritingOrAddingEvent));
+                    failedEventChunk.add(addingStreamEventExtractor.getAddingStreamEvent(overwritingOrAddingEvent));
                 }
             } finally {
                 overwritingOrAddingEvent.setEvent(storeEventPosition, null);

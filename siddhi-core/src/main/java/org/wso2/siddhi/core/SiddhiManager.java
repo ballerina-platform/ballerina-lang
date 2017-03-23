@@ -36,7 +36,7 @@ import java.util.concurrent.ConcurrentMap;
 /**
  * This is the main interface class of Siddhi where users will interact when using Siddhi as a library.
  */
-public class SiddhiManager implements SiddhiManagerService {
+public class SiddhiManager {
 
     private static final Logger log = Logger.getLogger(SiddhiManager.class);
     private SiddhiContext siddhiContext;
@@ -50,7 +50,6 @@ public class SiddhiManager implements SiddhiManagerService {
         siddhiContext = new SiddhiContext();
     }
 
-    @Override
     public ExecutionPlanRuntime createExecutionPlanRuntime(ExecutionPlan executionPlan) {
         ExecutionPlanRuntimeBuilder executionPlanRuntimeBuilder = ExecutionPlanParser.parse(executionPlan, siddhiContext);
         executionPlanRuntimeBuilder.setExecutionPlanRuntimeMap(executionPlanRuntimeMap);
@@ -59,7 +58,6 @@ public class SiddhiManager implements SiddhiManagerService {
         return executionPlanRuntime;
     }
 
-    @Override
     public ExecutionPlanRuntime createExecutionPlanRuntime(String executionPlan) {
         return createExecutionPlanRuntime(SiddhiCompiler.parse(executionPlan));
     }
@@ -74,14 +72,12 @@ public class SiddhiManager implements SiddhiManagerService {
         return executionPlanRuntimeMap.get(executionPlanName);
     }
 
-    @Override
     public void validateExecutionPlan(ExecutionPlan executionPlan) {
         final ExecutionPlanRuntime executionPlanRuntime = ExecutionPlanParser.parse(executionPlan, siddhiContext).build();
         executionPlanRuntime.start();
         executionPlanRuntime.shutdown();
     }
 
-    @Override
     public void validateExecutionPlan(String executionPlan) {
         validateExecutionPlan(SiddhiCompiler.parse(executionPlan));
     }

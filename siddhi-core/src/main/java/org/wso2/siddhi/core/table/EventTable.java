@@ -25,7 +25,7 @@ import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEventCloner;
 import org.wso2.siddhi.core.event.stream.StreamEventPool;
 import org.wso2.siddhi.core.query.processor.stream.window.FindableProcessor;
-import org.wso2.siddhi.core.util.collection.OverwritingStreamEventExtractor;
+import org.wso2.siddhi.core.util.collection.AddingStreamEventExtractor;
 import org.wso2.siddhi.core.util.collection.UpdateAttributeMapper;
 import org.wso2.siddhi.core.util.collection.operator.CompiledCondition;
 import org.wso2.siddhi.query.api.definition.TableDefinition;
@@ -44,10 +44,10 @@ public interface EventTable extends FindableProcessor {
     void update(ComplexEventChunk<StateEvent> updatingEventChunk, CompiledCondition compiledCondition,
                 UpdateAttributeMapper[] updateAttributeMappers);
 
-    void overwriteOrAdd(ComplexEventChunk<StateEvent> overwritingOrAddingEventChunk,
-                        CompiledCondition compiledCondition,
-                        UpdateAttributeMapper[] updateAttributeMappers,
-                        OverwritingStreamEventExtractor overwritingStreamEventExtractor);
+    void updateOrAdd(ComplexEventChunk<StateEvent> updateOrAddingEventChunk,
+                     CompiledCondition compiledCondition,
+                     UpdateAttributeMapper[] updateAttributeMappers,
+                     AddingStreamEventExtractor addingStreamEventExtractor);
 
     boolean contains(StateEvent matchingEvent, CompiledCondition compiledCondition);
 
