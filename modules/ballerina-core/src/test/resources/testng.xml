@@ -113,6 +113,7 @@ under the License.
     <test name="ballerina-any-type-test-suite">
         <parameter name="enableNonBlocking" value="false" />
         <classes>
+            <class name="org.ballerinalang.TestConfigurationUtil" />
             <class name="org.ballerinalang.model.any.BAnyTypeSuccessScenariosTest"/>
             <class name="org.ballerinalang.model.any.BAnyTypeInvalidCastError"/>
             <class name="org.ballerinalang.model.any.BAnyTypeToIntImplicitCastError"/>
@@ -122,6 +123,7 @@ under the License.
     <test name="ballerina-any-type-test-suite-non-blocking">
         <parameter name="enableNonBlocking" value="true" />
         <classes>
+            <class name="org.ballerinalang.TestConfigurationUtil" />
             <class name="org.ballerinalang.model.any.BAnyTypeSuccessScenariosTest"/>
             <class name="org.ballerinalang.model.any.BAnyTypeInvalidCastError"/>
             <class name="org.ballerinalang.model.any.BAnyTypeToIntImplicitCastError"/>

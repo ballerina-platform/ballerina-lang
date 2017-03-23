@@ -52,8 +52,9 @@ public class BLangExceptionHelper {
 
     }
 
-    public static BLangRuntimeException getRuntimeException(RuntimeErrors runtimeErrors, Object... params) {
+    public static BallerinaException getRuntimeException(RuntimeErrors runtimeErrors, Object... params) {
         String errorMsg = MessageFormat.format(messageBundle.getString(runtimeErrors.getErrorMsgKey()), params);
-        return new BLangRuntimeException(errorMsg);
+        //todo change below exception to BLangRuntimeException later, for the time being using BallerinaException
+        return new BallerinaException(errorMsg);
     }
 }
