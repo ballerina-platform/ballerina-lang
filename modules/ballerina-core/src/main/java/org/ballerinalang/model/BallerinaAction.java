@@ -53,7 +53,7 @@ public class BallerinaAction implements Action, SymbolScope, Node {
     protected SymbolName symbolName;
     protected boolean isNative;
 
-    private Annotation[] annotations;
+    private AnnotationAttachment[] annotations;
     private ParameterDef[] parameterDefs;
     private BType[] parameterTypes;
     private Worker[] workers;
@@ -77,7 +77,7 @@ public class BallerinaAction implements Action, SymbolScope, Node {
     }
 
     @Override
-    public Annotation[] getAnnotations() {
+    public AnnotationAttachment[] getAnnotations() {
         return annotations;
     }
 
@@ -263,7 +263,7 @@ public class BallerinaAction implements Action, SymbolScope, Node {
             bAction.pkgPath = this.pkgPath;
             bAction.symbolName = new SymbolName(name, pkgPath);
 
-            bAction.annotations = this.annotationList.toArray(new Annotation[this.annotationList.size()]);
+            bAction.annotations = this.annotationList.toArray(new AnnotationAttachment[this.annotationList.size()]);
             bAction.parameterDefs = this.parameterDefList.toArray(new ParameterDef[this.parameterDefList.size()]);
             bAction.returnParams = this.returnParamList.toArray(new ParameterDef[this.returnParamList.size()]);
             bAction.workers = this.workerList.toArray(new Worker[this.workerList.size()]);

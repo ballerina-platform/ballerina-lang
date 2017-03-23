@@ -19,8 +19,8 @@ package org.ballerinalang.core.nativeimpl.functions;
 
 import org.ballerinalang.core.utils.BTestUtils;
 import org.ballerinalang.model.BLangProgram;
+import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BLong;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.exceptions.BallerinaException;
@@ -105,8 +105,8 @@ public class FunctionOverloadTest {
         Assert.assertEquals(actualResultStep2, b);
 
         // function testOverloading(long a)
-        long c = 5L;
-        BValue[] argsStep3 = {new BLong(c)};
+        float c = 5.0f;
+        BValue[] argsStep3 = {new BFloat(c)};
         BValue[] returnsStep3 = BLangFunctions.invoke(bLangProgram, overloadingFunctionName, argsStep3);
 
         Assert.assertEquals(returnsStep3.length, 0);

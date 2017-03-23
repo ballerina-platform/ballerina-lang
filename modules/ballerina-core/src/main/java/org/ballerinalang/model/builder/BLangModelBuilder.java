@@ -17,7 +17,7 @@
 */
 package org.ballerinalang.model.builder;
 
-import org.ballerinalang.model.Annotation;
+import org.ballerinalang.model.AnnotationAttachment;
 import org.ballerinalang.model.BLangPackage;
 import org.ballerinalang.model.BTypeMapper;
 import org.ballerinalang.model.BallerinaAction;
@@ -83,14 +83,11 @@ import org.ballerinalang.model.statements.WhileStmt;
 import org.ballerinalang.model.statements.WorkerInvocationStmt;
 import org.ballerinalang.model.statements.WorkerReplyStmt;
 import org.ballerinalang.model.symbols.BLangSymbol;
-import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.SimpleTypeName;
 import org.ballerinalang.model.types.TypeConstants;
 import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BDouble;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BLong;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValueType;
 import org.ballerinalang.util.exceptions.BLangExceptionHelper;
@@ -129,11 +126,11 @@ public class BLangModelBuilder {
 
     // Keep the parent CUBuilder for worker
     protected CallableUnitBuilder parentCUBuilder;
-    
+
     // Builds user defined structs.
     protected StructDef.StructBuilder currentStructBuilder;
 
-    protected Stack<Annotation.AnnotationBuilder> annotationBuilderStack = new Stack<>();
+    protected Stack<AnnotationAttachment.AnnotationBuilder> annonAttachmentBuilderStack = new Stack<>();
     protected Stack<BlockStmt.BlockStmtBuilder> blockStmtBuilderStack = new Stack<>();
     protected Stack<IfElseStmt.IfElseStmtBuilder> ifElseStmtBuilderStack = new Stack<>();
 
@@ -142,15 +139,12 @@ public class BLangModelBuilder {
     protected Stack<ForkJoinStmt.ForkJoinStmtBuilder> forkJoinStmtBuilderStack = new Stack<>();
     protected Stack<List<Worker>> workerStack = new Stack<>();
 
-    protected Stack<SimpleTypeName> typeNameStack = new Stack<>();
-    protected Stack<CallableUnitName> callableUnitNameStack = new Stack<>();
     protected Stack<Expression> exprStack = new Stack<>();
 
     // Holds ExpressionLists required for return statements, function/action invocations and connector declarations
     protected Stack<List<Expression>> exprListStack = new Stack<>();
-    protected Stack<List<Annotation>> annotationListStack = new Stack<>();
-    protected Stack<MapStructInitKeyValueExpr> mapStructInitKVStack = new Stack<>();
-    protected Stack<List<MapStructInitKeyValueExpr>> mapStructInitKVListStack = new Stack<>();
+    protected Stack<List<MapStructInitKeyValueExpr>> mapStructKVListStack = new Stack<>();
+    protected Stack<AnnotationAttachment> annonAttachmentStack = new Stack<>();
 
     // This variable keeps the package scope so that workers (and any global things) can be added to package scope
     protected SymbolScope packageScope = null;
@@ -172,8 +166,6 @@ public class BLangModelBuilder {
         this.packageScope = currentScope;
         bFileBuilder = new BallerinaFile.BFileBuilder(bFileName, packageBuilder);
 
-        // TODO Add a description why.
-        startRefTypeInitExpr();
     }
 
     public BallerinaFile build() {
@@ -193,7 +185,7 @@ public class BLangModelBuilder {
         if (errorMsgs.size() > 0) {
             throw new SemanticException(errorMsgs.get(0));
         }
-        
+
         return bFileBuilder.build();
     }
 
@@ -226,39 +218,18 @@ public class BLangModelBuilder {
     }
 
 
-    // Add types. SimpleTypes, Types with full scheme, schema URL or schema ID
-
-    public void addSimpleTypeName(NodeLocation location, String name, String pkgName,
-            boolean isArrayType, int dimensions) {
-        SimpleTypeName typeName = null;
-        ImportPackage importPkg = getImportPackage(pkgName);
-        checkForUndefinedPackagePath(location, pkgName, importPkg, () -> pkgName + ":" + name);
-
-        if (importPkg != null) {
-            importPkg.markUsed();
-            typeName = new SimpleTypeName(name, pkgName, importPkg.getPath());
-        }
-
-        if (typeName == null) {
-            typeName = new SimpleTypeName(name);
-        }
-
-        typeName.setArrayType(isArrayType);
-        typeName.setDimensions(dimensions);
-        typeNameStack.add(typeName);
-    }
-
-
     // Add constant definitions;
 
-    public void addConstantDef(NodeLocation location, String name, boolean isPublic) {
-        SymbolName symbolName = new SymbolName(name);
-        SimpleTypeName typeName = typeNameStack.pop();
-        ConstDef constantDef = new ConstDef(location, name, typeName, currentPackagePath,
-                isPublic, symbolName, currentScope, exprStack.pop());
+    public void addConstantDef(NodeLocation location, SimpleTypeName typeName, String constName) {
+        SymbolName symbolName = new SymbolName(constName);
+        ConstDef constantDef = new ConstDef(location, constName, typeName, currentPackagePath,
+                symbolName, currentScope, exprStack.pop());
 
         // Add constant definition to current file;
         bFileBuilder.addConst(constantDef);
+
+        // TODO Support annotations for Constants
+        getAnnotationAttachments();
     }
 
 
@@ -266,22 +237,22 @@ public class BLangModelBuilder {
 
     /**
      * Start a struct builder.
+     *
      * @param location Location of the struct definition in the source bal file
      */
     public void startStructDef(NodeLocation location) {
         currentStructBuilder = new StructDef.StructBuilder(location, currentScope);
         currentScope = currentStructBuilder.getCurrentScope();
-        annotationListStack.push(new ArrayList<>());
     }
 
     /**
-     * Add an field of the {@link StructDef}.
+     * Add a field of the {@link StructDef}.
      *
      * @param location  Location of the field in the source file
      * @param fieldName Name of the field in the {@link StructDef}
      */
-    public void addStructField(NodeLocation location, String fieldName) {
-        // TODO: add currentPackagePath path to symbol name. i.e:  new SymbolName(fieldName, currentPackagePath);
+    public void addStructField(NodeLocation location, SimpleTypeName typeName, String fieldName,
+                               boolean defaultValueAvailable) {
         SymbolName symbolName = new SymbolName(fieldName);
 
         // Check whether this constant is already defined.
@@ -293,8 +264,12 @@ public class BLangModelBuilder {
             errorMsgs.add(errMsg);
         }
 
-        // TODO Fix this..
-        SimpleTypeName typeName = typeNameStack.remove(0);
+        // TODO Implement default value support for struct fields
+        if (defaultValueAvailable) {
+            // Expression ignored = exprStack.pop();
+            exprStack.pop();
+        }
+
         VariableDef variableDef = new VariableDef(location, fieldName, typeName, symbolName, currentScope);
 
         // Define the variableRef symbol in the current scope
@@ -307,36 +282,29 @@ public class BLangModelBuilder {
     /**
      * Creates a {@link StructDef}.
      *
-     * @param location Location of this {@link StructDef} in the source file
-     * @param name     Name of the {@link StructDef}
+     * @param name Name of the {@link StructDef}
      */
-    public void addStructDef(NodeLocation location, String name) {
+    public void addStructDef(String name) {
         currentStructBuilder.setName(name);
-        
-        List<Annotation> annotationList = annotationListStack.pop();
-        annotationList.forEach(currentStructBuilder::addAnnotation);
-
-        // TODO: Fix the package path
         currentStructBuilder.setPackagePath(currentPackagePath);
+        getAnnotationAttachments().forEach(attachment -> currentStructBuilder.addAnnotation(attachment));
+
         StructDef structDef = currentStructBuilder.build();
 
         // Close Struct scope
         currentScope = structDef.getEnclosingScope();
         currentStructBuilder = null;
 
-        // Define StructDef Symbol in the package scope..
-        // TODO: add currentPackagePath when creating the SymbolName
-//        SymbolName symbolName = new SymbolName(name);
-
-//        currentScope.define(symbolName, structDef);
         bFileBuilder.addStruct(structDef);
     }
 
 
     // Annotations
 
-    public void startAnnotation() {
-        annotationBuilderStack.push(new Annotation.AnnotationBuilder());
+    public void startAnnotationAttachment(NodeLocation location) {
+        AnnotationAttachment.AnnotationBuilder annotationBuilder = new AnnotationAttachment.AnnotationBuilder();
+        annotationBuilder.setNodeLocation(location);
+        annonAttachmentBuilderStack.push(annotationBuilder);
     }
 
     public void createAnnotationKeyValue(String key) {
@@ -344,44 +312,32 @@ public class BLangModelBuilder {
         if (expr instanceof BasicLiteral &&
                 ((BasicLiteral) expr).getTypeName().getName().equals(TypeConstants.STRING_TNAME)) {
             String value = ((BasicLiteral) expr).getBValue().stringValue();
-            Annotation.AnnotationBuilder annotationBuilder = annotationBuilderStack.peek();
+            AnnotationAttachment.AnnotationBuilder annotationBuilder = annonAttachmentBuilderStack.peek();
             annotationBuilder.addKeyValuePair(new SymbolName(key), value);
         }
     }
 
-    public void endAnnotation(String name, boolean valueAvailable, NodeLocation location) {
-        Annotation.AnnotationBuilder annotationBuilder = annotationBuilderStack.pop();
-        annotationBuilder.setNodeLocation(location);
-        annotationBuilder.setName(new SymbolName(name));
+    public void addAnnotationAttachment(NodeLocation location, NameReference nameReference, int attributesCount) {
+        AnnotationAttachment.AnnotationBuilder annonAttachmentBuilder = annonAttachmentBuilderStack.pop();
 
-        if (valueAvailable) {
-            Expression expr = exprStack.pop();
+        // TODO Setting annotation name as pkgname:name
+        // TODO This is how current annotation processing code is written in the server connector frameworke
+        annonAttachmentBuilder.setName(nameReference.getPackageName() + ":" + nameReference.getName());
+        annonAttachmentBuilder.setPkgName(nameReference.getPackageName());
 
-            // Assuming the annotation value is a string literal
-            if (expr instanceof BasicLiteral &&
-                    ((BasicLiteral) expr).getTypeName().getName().equals(TypeConstants.STRING_TNAME)) {
-                String value = ((BasicLiteral) expr).getBValue().stringValue();
-                annotationBuilder.setValue(value);
-            } else {
-                throw new RuntimeException("Annotations with key/value pars are not support at the moment" + " in " +
-                        location.getFileName() + ":" + location.getLineNumber());
-            }
+        if (attributesCount == 1) {
+            Expression simpleLiteral = exprStack.pop();
+            String value = ((BasicLiteral) simpleLiteral).getBValue().stringValue();
+            annonAttachmentBuilder.setValue(value);
+
+        } else if (attributesCount > 1) {
+            throw new RuntimeException("Annotations with key/value pars are not support at the moment" + " in " +
+                    location.getFileName() + ":" + location.getLineNumber());
         }
 
-        List<Annotation> annotationList = annotationListStack.peek();
-        Annotation annotation = annotationBuilder.build();
-        annotationList.add(annotation);
+        annonAttachmentStack.add(annonAttachmentBuilder.build());
     }
 
-    // Function/action input and out parameters
-    public void startParamList() {
-        annotationListStack.push(new ArrayList<>());
-    }
-
-
-    public void endParamList() {
-        annotationListStack.pop();
-    }
 
     // Function parameters and types
 
@@ -393,17 +349,11 @@ public class BLangModelBuilder {
      * @param paramName name of the function parameter
      * @param location  Location of the parameter in the source file
      */
-    public void addParam(String paramName, NodeLocation location) {
-        // Check the name against the type names
-        if (BTypes.isBuiltInTypeName(paramName)) {
-            String errMsg = BLangExceptionHelper.constructSemanticError(location,
-                    SemanticErrors.BUILT_IN_TYPE_NAMES_NOT_ALLOWED_AS_IDENTIFIER, paramName);
-            errorMsgs.add(errMsg);
-            return;
-        }
+    public void addParam(NodeLocation location, SimpleTypeName typeName, String paramName,
+                         int annotationCount, boolean isReturnParam) {
         SymbolName symbolName = new SymbolName(paramName);
 
-        // Check whether this constant is already defined.
+        // Check whether this parameter is already defined.
         BLangSymbol paramSymbol = currentScope.resolve(symbolName);
         if (paramSymbol != null && paramSymbol.getSymbolScope().getScopeName() == SymbolScope.ScopeName.LOCAL) {
             String errMsg = BLangExceptionHelper.constructSemanticError(location,
@@ -411,19 +361,17 @@ public class BLangModelBuilder {
             errorMsgs.add(errMsg);
         }
 
-        SimpleTypeName typeName = typeNameStack.pop();
         ParameterDef paramDef = new ParameterDef(location, paramName, typeName, symbolName, currentScope);
-
-        // Annotation list is maintained for each parameter
-        if (!annotationListStack.isEmpty() && !annotationListStack.peek().isEmpty()) {
-            annotationListStack.peek().forEach(paramDef::addAnnotation);
-            // Clear all added annotations for the current parameter.
-            annotationListStack.peek().clear();
-        }
+        getAnnotationAttachments(annotationCount).forEach(attachment -> paramDef.addAnnotation(attachment));
 
         if (currentCUBuilder != null) {
             // Add the parameter to callableUnitBuilder.
-            currentCUBuilder.addParameter(paramDef);
+            if (isReturnParam) {
+                currentCUBuilder.addReturnParameter(paramDef);
+            } else {
+                currentCUBuilder.addParameter(paramDef);
+            }
+
         } else {
             currentCUGroupBuilder.addParameter(paramDef);
         }
@@ -431,36 +379,11 @@ public class BLangModelBuilder {
         currentScope.define(symbolName, paramDef);
     }
 
-    public void createReturnTypes(NodeLocation location) {
-        // TODO This implement is inefficient. Refactor this ASAP
-        List<SimpleTypeName> typeNameList = new ArrayList<>(typeNameStack.size());
-        while (!typeNameStack.isEmpty()) {
-            typeNameList.add(typeNameStack.pop());
-        }
-        Collections.reverse(typeNameList);
-
-        for (SimpleTypeName typeName : typeNameList) {
+    public void addReturnTypes(NodeLocation location, SimpleTypeName[] returnTypeNames) {
+        for (SimpleTypeName typeName : returnTypeNames) {
             ParameterDef paramDef = new ParameterDef(location, null, typeName, null, currentScope);
             currentCUBuilder.addReturnParameter(paramDef);
         }
-    }
-
-    public void createNamedReturnParam(NodeLocation location, String paramName) {
-        SymbolName symbolName = new SymbolName(paramName);
-
-        // Check whether this constant is already defined.
-        BLangSymbol paramSymbol = currentScope.resolve(symbolName);
-        if (paramSymbol != null && paramSymbol.getSymbolScope().getScopeName() == SymbolScope.ScopeName.LOCAL) {
-            String errMsg = BLangExceptionHelper.constructSemanticError(location,
-                    SemanticErrors.REDECLARED_SYMBOL, paramName);
-            errorMsgs.add(errMsg);
-        }
-
-        SimpleTypeName typeName = typeNameStack.pop();
-        ParameterDef paramDef = new ParameterDef(location, paramName, typeName, symbolName, currentScope);
-        currentCUBuilder.addReturnParameter(paramDef);
-
-        currentScope.define(symbolName, paramDef);
     }
 
 
@@ -483,9 +406,9 @@ public class BLangModelBuilder {
      * <li> Map or arrays access a[1], m["key"]</li>
      * <li> Struct field access  Person.name</li>
      * </ol>
-     * 
+     *
      * @param location Location of the variable reference expression in the source file
-     * @param varName name of the variable
+     * @param varName  name of the variable
      */
     public void createVarRefExpr(NodeLocation location, String varName) {
         VariableRefExpr variableRefExpr = new VariableRefExpr(location, varName);
@@ -632,59 +555,44 @@ public class BLangModelBuilder {
         addExprToList(exprList, exprCount);
     }
 
-    public void addFunctionInvocationExpr(NodeLocation location) {
+    public void addFunctionInvocationExpr(NodeLocation location, NameReference nameReference, boolean argsAvailable) {
         CallableUnitInvocationExprBuilder cIExprBuilder = new CallableUnitInvocationExprBuilder();
         cIExprBuilder.setNodeLocation(location);
 
-        List<Expression> argExprList = exprListStack.pop();
-        checkArgExprValidity(location, argExprList);
-        cIExprBuilder.setExpressionList(argExprList);
-
-        CallableUnitName callableUnitName = callableUnitNameStack.pop();
-        ImportPackage importPkg = getImportPackage(callableUnitName.pkgName);
-        checkForUndefinedPackagePath(location, callableUnitName.pkgName, importPkg,
-                () -> callableUnitName.pkgName + ":" + callableUnitName.name);
-
-        if (importPkg != null) {
-            importPkg.markUsed();
-            cIExprBuilder.setPkgPath(importPkg.getPath());
+        if (argsAvailable) {
+            List<Expression> argExprList = exprListStack.pop();
+            checkArgExprValidity(location, argExprList);
+            cIExprBuilder.setExpressionList(argExprList);
         }
 
-        cIExprBuilder.setName(callableUnitName.name);
-        cIExprBuilder.setPkgName(callableUnitName.pkgName);
+        cIExprBuilder.setName(nameReference.name);
+        cIExprBuilder.setPkgName(nameReference.pkgName);
+        cIExprBuilder.setPkgPath(nameReference.pkgPath);
         FunctionInvocationExpr invocationExpr = cIExprBuilder.buildFuncInvocExpr();
         exprStack.push(invocationExpr);
     }
 
-    public void addActionInvocationExpr(NodeLocation location, String actionName) {
+    public void addActionInvocationExpr(NodeLocation location, NameReference nameReference, String actionName,
+                                        boolean argsAvailable) {
         CallableUnitInvocationExprBuilder cIExprBuilder = new CallableUnitInvocationExprBuilder();
         cIExprBuilder.setNodeLocation(location);
 
-        List<Expression> argExprList = exprListStack.pop();
-        checkArgExprValidity(location, argExprList);
-        cIExprBuilder.setExpressionList(argExprList);
-
-        CallableUnitName callableUnitName = callableUnitNameStack.pop();
-        ImportPackage importPkg = getImportPackage(callableUnitName.pkgName);
-        checkForUndefinedPackagePath(location, callableUnitName.pkgName, importPkg,
-                () -> callableUnitName.pkgName + ":" + callableUnitName.name + "." + actionName);
-
-        if (importPkg != null) {
-            importPkg.markUsed();
-            cIExprBuilder.setPkgPath(importPkg.getPath());
+        if (argsAvailable) {
+            List<Expression> argExprList = exprListStack.pop();
+            checkArgExprValidity(location, argExprList);
+            cIExprBuilder.setExpressionList(argExprList);
         }
 
         cIExprBuilder.setName(actionName);
-        cIExprBuilder.setPkgName(callableUnitName.pkgName);
-        cIExprBuilder.setConnectorName(callableUnitName.name);
+        cIExprBuilder.setPkgName(nameReference.pkgName);
+        cIExprBuilder.setPkgPath(nameReference.pkgPath);
+        cIExprBuilder.setConnectorName(nameReference.name);
 
         ActionInvocationExpr invocationExpr = cIExprBuilder.buildActionInvocExpr();
         exprStack.push(invocationExpr);
     }
 
-    public void createTypeCastExpr(NodeLocation location) {
-        SimpleTypeName typeName = typeNameStack.pop();
-
+    public void createTypeCastExpr(NodeLocation location, SimpleTypeName typeName) {
         Expression rExpr = exprStack.pop();
         checkArgExprValidity(location, rExpr);
 
@@ -707,24 +615,35 @@ public class BLangModelBuilder {
         exprStack.push(arrayInitExpr);
     }
 
-    public void createMapStructInitKeyValue(NodeLocation location) {
-        // TODO Validate key/value expressions. e.g. key can't be an arrays init expression.
+    public void addMapStructKeyValue(NodeLocation location) {
         Expression valueExpr = exprStack.pop();
         Expression keyExpr = exprStack.pop();
 
-        mapStructInitKVStack.push(new MapStructInitKeyValueExpr(location, keyExpr, valueExpr));
+        List<MapStructInitKeyValueExpr> keyValueList = mapStructKVListStack.peek();
+        keyValueList.add(new MapStructInitKeyValueExpr(location, keyExpr, valueExpr));
     }
 
-    public void endMapStructInitKeyValueList(int exprCount) {
-        List<MapStructInitKeyValueExpr> keyValueList = mapStructInitKVListStack.peek();
-        addKeyValueToList(keyValueList, exprCount);
+    public void startMapStructLiteral() {
+        mapStructKVListStack.push(new ArrayList<>());
     }
 
-    public void createRefTypeInitExpr(NodeLocation location) {
-        List<MapStructInitKeyValueExpr> keyValueExprList = mapStructInitKVListStack.pop();
+    public void createMapStructLiteral(NodeLocation location) {
+        List<MapStructInitKeyValueExpr> keyValueExprList = mapStructKVListStack.pop();
         for (MapStructInitKeyValueExpr argExpr : keyValueExprList) {
-            checkArgExprValidity(location, argExpr.getKeyExpr());
-            checkArgExprValidity(location, argExpr.getValueExpr());
+
+            if (argExpr.getKeyExpr() instanceof BacktickExpr) {
+                String errMsg = BLangExceptionHelper.constructSemanticError(location,
+                        SemanticErrors.TEMPLATE_EXPRESSION_NOT_ALLOWED_HERE);
+                errorMsgs.add(errMsg);
+
+            }
+
+            if (argExpr.getValueExpr() instanceof BacktickExpr) {
+                String errMsg = BLangExceptionHelper.constructSemanticError(location,
+                        SemanticErrors.TEMPLATE_EXPRESSION_NOT_ALLOWED_HERE);
+                errorMsgs.add(errMsg);
+
+            }
         }
 
         Expression[] argExprs;
@@ -736,23 +655,20 @@ public class BLangModelBuilder {
 
         RefTypeInitExpr refTypeInitExpr = new RefTypeInitExpr(location, argExprs);
         exprStack.push(refTypeInitExpr);
-
-        startRefTypeInitExpr();
     }
 
-    public void createConnectorInitExpr(NodeLocation location) {
-        List<Expression> argExprList = exprListStack.pop();
-        checkArgExprValidity(location, argExprList);
-        SimpleTypeName typeName = typeNameStack.pop();
+    public void createConnectorInitExpr(NodeLocation location, SimpleTypeName typeName, boolean argsAvailable) {
+        List<Expression> argExprList;
+        if (argsAvailable) {
+            argExprList = exprListStack.pop();
+            checkArgExprValidity(location, argExprList);
+        } else {
+            argExprList = new ArrayList<>(0);
+        }
 
         ConnectorInitExpr connectorInitExpr = new ConnectorInitExpr(location, typeName,
                 argExprList.toArray(new Expression[argExprList.size()]));
         exprStack.push(connectorInitExpr);
-    }
-
-    public void addCallableUnitName(String pkgName, String name) {
-        CallableUnitName callableUnitName = new CallableUnitName(pkgName, name);
-        callableUnitNameStack.push(callableUnitName);
     }
 
 
@@ -771,10 +687,10 @@ public class BLangModelBuilder {
         currentScope = blockStmt.getEnclosingScope();
     }
 
-    public void startFunctionDef() {
+    public void startFunctionDef(NodeLocation location) {
         currentCUBuilder = new BallerinaFunction.BallerinaFunctionBuilder(currentScope);
+        currentCUBuilder.setNodeLocation(location);
         currentScope = currentCUBuilder.getCurrentScope();
-        annotationListStack.push(new ArrayList<>());
     }
 
     public void startWorkerUnit() {
@@ -787,50 +703,37 @@ public class BLangModelBuilder {
             workerOuterBlockScope = currentScope;
         }
         currentScope = currentCUBuilder.getCurrentScope();
-        annotationListStack.push(new ArrayList<>());
     }
 
-    public void addFunction(NodeLocation location, String name, boolean isPublic,  boolean isNative) {
-        currentCUBuilder.setNodeLocation(location);
+    public void addFunction(String name, boolean isNative) {
         currentCUBuilder.setName(name);
-        currentCUBuilder.setPublic(isPublic);
         currentCUBuilder.setNative(isNative);
-        
-        List<Annotation> annotationList = annotationListStack.pop();
-        annotationList.forEach(currentCUBuilder::addAnnotation);
+
+        getAnnotationAttachments().forEach(attachment -> currentCUBuilder.addAnnotation(attachment));
 
         BallerinaFunction function = currentCUBuilder.buildFunction();
         bFileBuilder.addFunction(function);
-
-        // Define function is delayed due to missing type info of Parameters.
 
         currentScope = function.getEnclosingScope();
         currentCUBuilder = null;
     }
 
-    public void startTypeMapperDef() {
+    public void startTypeMapperDef(NodeLocation location) {
         currentCUBuilder = new BTypeMapper.BTypeMapperBuilder(currentScope);
+        currentCUBuilder.setNodeLocation(location);
         currentScope = currentCUBuilder.getCurrentScope();
-        annotationListStack.push(new ArrayList<>());
     }
 
-    public void addTypeMapper(String source, String target, String name,
-            NodeLocation location, boolean isPublic, boolean isNative) {
-        currentCUBuilder.setNodeLocation(location);
+    public void addTypeMapper(NodeLocation location, String name, SimpleTypeName returnTypeName, boolean isNative) {
         currentCUBuilder.setName(name);
         currentCUBuilder.setPkgPath(currentPackagePath);
-        currentCUBuilder.setPublic(isPublic);
         currentCUBuilder.setNative(isNative);
+        addReturnTypes(location, new SimpleTypeName[]{returnTypeName});
 
-        List<Annotation> annotationList = annotationListStack.pop();
-        annotationList.forEach(currentCUBuilder::addAnnotation);
+        getAnnotationAttachments().forEach(attachment -> currentCUBuilder.addAnnotation(attachment));
 
         BTypeMapper typeMapper = currentCUBuilder.buildTypeMapper();
-
         bFileBuilder.addTypeMapper(typeMapper);
-
-        // Define type mapper is delayed due to missing type info of Parameters.
-
         currentScope = typeMapper.getEnclosingScope();
         currentCUBuilder = null;
     }
@@ -842,34 +745,25 @@ public class BLangModelBuilder {
 
         currentCUBuilder = new Resource.ResourceBuilder(currentScope);
         currentScope = currentCUBuilder.getCurrentScope();
-        annotationListStack.push(new ArrayList<>());
     }
 
-    public void addResource(NodeLocation location, String name) {
+    public void addResource(NodeLocation location, String name, int annotationCount) {
         currentCUBuilder.setNodeLocation(location);
         currentCUBuilder.setName(name);
         currentCUBuilder.setPkgPath(currentPackagePath);
-        // TODO Figure out whether we need to support public type typemappers
-//        currentCUBuilder.setPublic(isPublic);
 
-        List<Annotation> annotationList = annotationListStack.pop();
-        annotationList.forEach(currentCUBuilder::addAnnotation);
+        getAnnotationAttachments(annotationCount).forEach(attachment -> currentCUBuilder.addAnnotation(attachment));
 
         Resource resource = currentCUBuilder.buildResource();
         currentCUGroupBuilder.addResource(resource);
-
-        // Define resource is delayed due to missing type info of Parameters.
 
         currentScope = resource.getEnclosingScope();
         currentCUBuilder = null;
     }
 
-    public void createWorker(String name, NodeLocation sourceLocation) {
+    public void createWorker(NodeLocation sourceLocation, String name) {
         currentCUBuilder.setName(name);
         currentCUBuilder.setNodeLocation(sourceLocation);
-
-        List<Annotation> annotationList = annotationListStack.pop();
-        annotationList.forEach(currentCUBuilder::addAnnotation);
 
         Worker worker = currentCUBuilder.buildWorker();
         if (forkJoinStmtBuilderStack.isEmpty()) {
@@ -884,36 +778,27 @@ public class BLangModelBuilder {
         currentCUBuilder = parentCUBuilder;
         parentCUBuilder = null;
         workerOuterBlockScope = null;
-//        // Take the function body and set that as the CUBuilder body
-//        if (!blockStmtBuilderStack.empty()) {
-//            BlockStmt.BlockStmtBuilder blockStmtBuilder = blockStmtBuilderStack.pop();
-//            BlockStmt blockStmt = blockStmtBuilder.build();
-//            currentCUBuilder.setBody(blockStmt);
-//        }
     }
 
-    public void startActionDef() {
+    public void startActionDef(NodeLocation location) {
+        // TODO Check whether the following if block is needed anymore.
         if (currentScope instanceof BlockStmt) {
             endCallableUnitBody();
         }
 
         currentCUBuilder = new BallerinaAction.BallerinaActionBuilder(currentScope);
+        currentCUBuilder.setNodeLocation(location);
         currentScope = currentCUBuilder.getCurrentScope();
-        annotationListStack.push(new ArrayList<>());
     }
 
-    public void addAction(NodeLocation location, String name, boolean isNative) {
-        currentCUBuilder.setNodeLocation(location);
+    public void addAction(String name, boolean isNative, int annotationCount) {
         currentCUBuilder.setName(name);
         currentCUBuilder.setNative(isNative);
-        
-        List<Annotation> annotationList = annotationListStack.pop();
-        annotationList.forEach(currentCUBuilder::addAnnotation);
+
+        getAnnotationAttachments(annotationCount).forEach(attachment -> currentCUBuilder.addAnnotation(attachment));
 
         BallerinaAction action = currentCUBuilder.buildAction();
         currentCUGroupBuilder.addAction(action);
-
-        // Define action is delayed due to missing type info of Parameters.
 
         currentScope = action.getEnclosingScope();
         currentCUBuilder = null;
@@ -926,23 +811,19 @@ public class BLangModelBuilder {
         currentCUGroupBuilder = new Service.ServiceBuilder(currentScope);
         currentCUGroupBuilder.setNodeLocation(location);
         currentScope = currentCUGroupBuilder.getCurrentScope();
-        annotationListStack.push(new ArrayList<>());
     }
 
     public void startConnectorDef(NodeLocation location) {
         currentCUGroupBuilder = new BallerinaConnectorDef.BallerinaConnectorDefBuilder(currentScope);
         currentCUGroupBuilder.setNodeLocation(location);
         currentScope = currentCUGroupBuilder.getCurrentScope();
-        annotationListStack.push(new ArrayList<>());
     }
 
-    public void createService(NodeLocation location, String name) {
-        currentCUGroupBuilder.setNodeLocation(location);
+    public void createService(String name) {
         currentCUGroupBuilder.setName(name);
         currentCUGroupBuilder.setPkgPath(currentPackagePath);
 
-        List<Annotation> annotationList = annotationListStack.pop();
-        annotationList.forEach(currentCUGroupBuilder::addAnnotation);
+        getAnnotationAttachments().forEach(attachment -> currentCUGroupBuilder.addAnnotation(attachment));
 
         Service service = currentCUGroupBuilder.buildService();
         bFileBuilder.addService(service);
@@ -951,14 +832,11 @@ public class BLangModelBuilder {
         currentCUGroupBuilder = null;
     }
 
-    public void createConnector(NodeLocation location, String name, boolean isNative) {
-        currentCUGroupBuilder.setNodeLocation(location);
+    public void createConnector(String name) {
         currentCUGroupBuilder.setName(name);
         currentCUGroupBuilder.setPkgPath(currentPackagePath);
-        currentCUGroupBuilder.setNative(isNative);
 
-        List<Annotation> annotationList = annotationListStack.pop();
-        annotationList.forEach(currentCUGroupBuilder::addAnnotation);
+        getAnnotationAttachments().forEach(attachment -> currentCUGroupBuilder.addAnnotation(attachment));
 
         BallerinaConnectorDef connector = currentCUGroupBuilder.buildConnector();
         bFileBuilder.addConnector(connector);
@@ -970,18 +848,12 @@ public class BLangModelBuilder {
 
     // Statements
 
-    public void addVariableDefinitionStmt(NodeLocation location, String varName, boolean exprAvailable) {
-        // Check the name against the type names
-        if (BTypes.isBuiltInTypeName(varName)) {
-            String errMsg = BLangExceptionHelper.constructSemanticError(location,
-                    SemanticErrors.BUILT_IN_TYPE_NAMES_NOT_ALLOWED_AS_IDENTIFIER, varName);
-            errorMsgs.add(errMsg);
-            return;
-        }
-        SimpleTypeName typeName = typeNameStack.pop();
-        VariableRefExpr variableRefExpr = new VariableRefExpr(location, varName);
+    public void addVariableDefinitionStmt(NodeLocation location, SimpleTypeName typeName,
+                                          String varName, boolean exprAvailable) {
 
+        VariableRefExpr variableRefExpr = new VariableRefExpr(location, varName);
         SymbolName symbolName = new SymbolName(varName);
+
         VariableDef variableDef = new VariableDef(location, varName, typeName, symbolName, currentScope);
         variableRefExpr.setVariableDef(variableDef);
 
@@ -1198,10 +1070,9 @@ public class BLangModelBuilder {
         currentScope = catchBlockBuilder.getCurrentScope();
     }
 
-    public void addCatchClause(NodeLocation location, String argName) {
+    public void addCatchClause(NodeLocation location, SimpleTypeName exceptionType, String argName) {
         TryCatchStmt.TryCatchStmtBuilder tryCatchStmtBuilder = tryCatchStmtBuilderStack.peek();
 
-        SimpleTypeName exceptionType = typeNameStack.pop();
         if (!TypeConstants.EXCEPTION_TNAME.equals(exceptionType.getName())) {
             String errMsg = BLangExceptionHelper.constructSemanticError(location,
                     SemanticErrors.ONLY_EXCEPTION_TYPE_HERE);
@@ -1253,7 +1124,7 @@ public class BLangModelBuilder {
         blockStmtBuilderStack.push(new BlockStmt.BlockStmtBuilder(nodeLocation, currentScope));
     }
 
-    public void endJoinClause(String paramName, NodeLocation location) {
+    public void endJoinClause(NodeLocation location, SimpleTypeName typeName, String paramName) {
         ForkJoinStmt.ForkJoinStmtBuilder forkJoinStmtBuilder = forkJoinStmtBuilderStack.peek();
         BlockStmt.BlockStmtBuilder blockStmtBuilder = blockStmtBuilderStack.pop();
         BlockStmt forkJoinStmt = blockStmtBuilder.build();
@@ -1262,12 +1133,11 @@ public class BLangModelBuilder {
         // Check whether this constant is already defined.
         BLangSymbol paramSymbol = currentScope.resolve(symbolName);
         if (paramSymbol != null && paramSymbol.getSymbolScope().getScopeName() == SymbolScope.ScopeName.LOCAL) {
-            String errMsg =  BLangExceptionHelper.constructSemanticError(location,
+            String errMsg = BLangExceptionHelper.constructSemanticError(location,
                     SemanticErrors.REDECLARED_SYMBOL, paramName);
             errorMsgs.add(errMsg);
         }
 
-        SimpleTypeName typeName = typeNameStack.pop();
         ParameterDef paramDef = new ParameterDef(location, paramName, typeName, symbolName, currentScope);
         forkJoinStmtBuilder.setJoinBlock(forkJoinStmt);
         forkJoinStmtBuilder.setJoinResult(paramDef);
@@ -1279,7 +1149,7 @@ public class BLangModelBuilder {
 
         forkJoinStmtBuilder.setJoinType(joinType);
         if (Integer.parseInt(joinCount) != 1) {
-            String errMsg =  BLangExceptionHelper.constructSemanticError(location,
+            String errMsg = BLangExceptionHelper.constructSemanticError(location,
                     SemanticErrors.ONLY_COUNT_1_ALLOWED_THIS_VERSION);
             errorMsgs.add(errMsg);
         }
@@ -1301,7 +1171,7 @@ public class BLangModelBuilder {
         blockStmtBuilderStack.push(new BlockStmt.BlockStmtBuilder(nodeLocation, currentScope));
     }
 
-    public void endTimeoutClause(String paramName, NodeLocation location) {
+    public void endTimeoutClause(NodeLocation location, SimpleTypeName typeName, String paramName) {
         ForkJoinStmt.ForkJoinStmtBuilder forkJoinStmtBuilder = forkJoinStmtBuilderStack.peek();
         BlockStmt.BlockStmtBuilder blockStmtBuilder = blockStmtBuilderStack.pop();
         BlockStmt timeoutStmt = blockStmtBuilder.build();
@@ -1312,12 +1182,11 @@ public class BLangModelBuilder {
         // Check whether this constant is already defined.
         BLangSymbol paramSymbol = currentScope.resolve(symbolName);
         if (paramSymbol != null && paramSymbol.getSymbolScope().getScopeName() == SymbolScope.ScopeName.LOCAL) {
-            String errMsg =  BLangExceptionHelper.constructSemanticError(location,
+            String errMsg = BLangExceptionHelper.constructSemanticError(location,
                     SemanticErrors.REDECLARED_SYMBOL, paramName);
             errorMsgs.add(errMsg);
         }
 
-        SimpleTypeName typeName = typeNameStack.pop();
         ParameterDef paramDef = new ParameterDef(location, paramName, typeName, symbolName, currentScope);
         forkJoinStmtBuilder.setTimeoutResult(paramDef);
         currentScope = forkJoinStmtBuilder.getTimeout().getEnclosingScope();
@@ -1337,27 +1206,13 @@ public class BLangModelBuilder {
 
     }
 
-    public void createFunctionInvocationStmt(NodeLocation location) {
-        CallableUnitInvocationExprBuilder cIExprBuilder = new CallableUnitInvocationExprBuilder();
-        cIExprBuilder.setNodeLocation(location);
-        List<Expression> argExprList = exprListStack.pop();
-        checkArgExprValidity(location, argExprList);
-        cIExprBuilder.setExpressionList(argExprList);
+    public void createFunctionInvocationStmt(NodeLocation location, NameReference nameReference,
+                                             boolean argsAvailable) {
 
-        CallableUnitName callableUnitName = callableUnitNameStack.pop();
-        ImportPackage importPkg = getImportPackage(callableUnitName.pkgName);
-        checkForUndefinedPackagePath(location, callableUnitName.pkgName, importPkg,
-                () -> callableUnitName.pkgName + ":" + callableUnitName.name);
+        addFunctionInvocationExpr(location, nameReference, argsAvailable);
+        FunctionInvocationExpr invocationExpr = (FunctionInvocationExpr) exprStack.pop();
 
-        if (importPkg != null) {
-            importPkg.markUsed();
-            cIExprBuilder.setPkgPath(importPkg.getPath());
-        }
 
-        cIExprBuilder.setName(callableUnitName.name);
-        cIExprBuilder.setPkgName(callableUnitName.pkgName);
-
-        FunctionInvocationExpr invocationExpr = cIExprBuilder.buildFuncInvocExpr();
         FunctionInvocationStmt functionInvocationStmt = new FunctionInvocationStmt(location, invocationExpr);
         blockStmtBuilderStack.peek().addStmt(functionInvocationStmt);
     }
@@ -1377,29 +1232,10 @@ public class BLangModelBuilder {
         blockStmtBuilderStack.peek().addStmt(workerReplyStmt);
     }
 
-    public void createActionInvocationStmt(NodeLocation location, String actionName) {
-        CallableUnitInvocationExprBuilder cIExprBuilder = new CallableUnitInvocationExprBuilder();
-        cIExprBuilder.setNodeLocation(location);
-
-        List<Expression> argExprList = exprListStack.pop();
-        checkArgExprValidity(location, argExprList);
-        cIExprBuilder.setExpressionList(argExprList);
-
-        CallableUnitName callableUnitName = callableUnitNameStack.pop();
-        ImportPackage importPkg = getImportPackage(callableUnitName.pkgName);
-        checkForUndefinedPackagePath(location, callableUnitName.pkgName, importPkg,
-                () -> callableUnitName.pkgName + ":" + callableUnitName.name + "." + actionName);
-
-        if (importPkg != null) {
-            importPkg.markUsed();
-            cIExprBuilder.setPkgPath(importPkg.getPath());
-        }
-
-        cIExprBuilder.setName(actionName);
-        cIExprBuilder.setPkgName(callableUnitName.pkgName);
-        cIExprBuilder.setConnectorName(callableUnitName.name);
-
-        ActionInvocationExpr invocationExpr = cIExprBuilder.buildActionInvocExpr();
+    public void createActionInvocationStmt(NodeLocation location, NameReference nameReference, String actionName,
+                                           boolean argsAvailable) {
+        addActionInvocationExpr(location, nameReference, actionName, argsAvailable);
+        ActionInvocationExpr invocationExpr = (ActionInvocationExpr) exprStack.pop();
 
         ActionInvocationStmt actionInvocationStmt = new ActionInvocationStmt(location, invocationExpr);
         blockStmtBuilderStack.peek().addStmt(actionInvocationStmt);
@@ -1408,39 +1244,43 @@ public class BLangModelBuilder {
 
     // Literal Values
 
-    public void createIntegerLiteral(String value, NodeLocation location) {
+    public void createIntegerLiteral(NodeLocation location, String value) {
         BValueType bValue = new BInteger(Integer.parseInt(value));
         createLiteral(location, new SimpleTypeName(TypeConstants.INT_TNAME), bValue);
     }
 
-    public void createLongLiteral(String value, NodeLocation location) {
-        BValueType bValue = new BLong(Long.parseLong(value));
-        createLiteral(location, new SimpleTypeName(TypeConstants.LONG_TNAME), bValue);
-    }
-
-    public void createFloatLiteral(String value, NodeLocation location) {
+    public void createFloatLiteral(NodeLocation location, String value) {
         BValueType bValue = new BFloat(Float.parseFloat(value));
         createLiteral(location, new SimpleTypeName(TypeConstants.FLOAT_TNAME), bValue);
     }
 
-    public void createDoubleLiteral(String value, NodeLocation location) {
-        BValueType bValue = new BDouble(Double.parseDouble(value));
-        createLiteral(location, new SimpleTypeName(TypeConstants.DOUBLE_TNAME), bValue);
-    }
-
-    public void createStringLiteral(String value, NodeLocation location) {
+    public void createStringLiteral(NodeLocation location, String value) {
         BValueType bValue = new BString(value);
         createLiteral(location, new SimpleTypeName(TypeConstants.STRING_TNAME), bValue);
     }
 
-    public void createBooleanLiteral(String value, NodeLocation location) {
+    public void createBooleanLiteral(NodeLocation location, String value) {
         BValueType bValue = new BBoolean(Boolean.parseBoolean(value));
         createLiteral(location, new SimpleTypeName(TypeConstants.BOOLEAN_TNAME), bValue);
     }
 
-    public void createNullLiteral(String value, NodeLocation location) {
+    public void createNullLiteral(NodeLocation location, String value) {
         throw new RuntimeException("null values are not yet supported in Ballerina in " + location.getFileName()
                 + ":" + location.getLineNumber());
+    }
+
+    public void validateAndSetPackagePath(NodeLocation location, NameReference nameReference) {
+        String name = nameReference.getName();
+        String pkgName = nameReference.getPackageName();
+        ImportPackage importPkg = getImportPackage(pkgName);
+        checkForUndefinedPackagePath(location, pkgName, importPkg, () -> pkgName + ":" + name);
+
+        if (importPkg == null) {
+            return;
+        }
+
+        importPkg.markUsed();
+        nameReference.setPkgPath(importPkg.getPath());
     }
 
 
@@ -1473,26 +1313,6 @@ public class BLangModelBuilder {
             Expression expr = exprStack.pop();
             addExprToList(exprList, n - 1);
             exprList.add(expr);
-        }
-    }
-
-    /**
-     * @param keyValueDataHolderList List<KeyValueDataHolder>
-     * @param n                      number of expression to be added the given list
-     */
-    private void addKeyValueToList(List<MapStructInitKeyValueExpr> keyValueDataHolderList, int n) {
-
-        if (mapStructInitKVStack.isEmpty()) {
-            throw new IllegalStateException("KeyValue stack cannot be empty in processing a KeyValueList");
-        }
-
-        if (n == 1) {
-            MapStructInitKeyValueExpr keyValue = mapStructInitKVStack.pop();
-            keyValueDataHolderList.add(keyValue);
-        } else {
-            MapStructInitKeyValueExpr keyValue = mapStructInitKVStack.pop();
-            addKeyValueToList(keyValueDataHolderList, n - 1);
-            keyValueDataHolderList.add(keyValue);
         }
     }
 
@@ -1534,18 +1354,14 @@ public class BLangModelBuilder {
         exprStack.push(parentExpr);
     }
 
-    protected void startRefTypeInitExpr() {
-        mapStructInitKVListStack.push(new ArrayList<>());
-    }
-
     protected ImportPackage getImportPackage(String pkgName) {
         return (pkgName != null) ? importPkgMap.get(pkgName) : null;
     }
 
     protected void checkForUndefinedPackagePath(NodeLocation location,
-                                              String pkgName,
-                                              ImportPackage importPackage,
-                                              Supplier<String> symbolNameSupplier) {
+                                                String pkgName,
+                                                ImportPackage importPackage,
+                                                Supplier<String> symbolNameSupplier) {
         if (pkgName != null && importPackage == null) {
             String errMsg = BLangExceptionHelper.constructSemanticError(location,
                     SemanticErrors.UNDEFINED_PACKAGE_NAME, pkgName, symbolNameSupplier.get());
@@ -1565,17 +1381,9 @@ public class BLangModelBuilder {
             errMsg = BLangExceptionHelper.constructSemanticError(location,
                     SemanticErrors.TEMPLATE_EXPRESSION_NOT_ALLOWED_HERE);
 
-        } else if (argExpr instanceof ActionInvocationExpr) {
-            errMsg = BLangExceptionHelper.constructSemanticError(location,
-                    SemanticErrors.ACTION_INVOCATION_NOT_ALLOWED_HERE);
-
         } else if (argExpr instanceof ArrayInitExpr) {
             errMsg = BLangExceptionHelper.constructSemanticError(location,
                     SemanticErrors.ARRAY_INIT_NOT_ALLOWED_HERE);
-
-        } else if (argExpr instanceof ConnectorInitExpr) {
-            errMsg = BLangExceptionHelper.constructSemanticError(location,
-                    SemanticErrors.CONNECTOR_INIT_NOT_ALLOWED_HERE);
 
         } else if (argExpr instanceof RefTypeInitExpr) {
             errMsg = BLangExceptionHelper.constructSemanticError(location,
@@ -1587,19 +1395,59 @@ public class BLangModelBuilder {
         }
     }
 
+    protected List<AnnotationAttachment> getAnnotationAttachments() {
+        return getAnnotationAttachments(annonAttachmentStack.size());
+    }
+
+    protected List<AnnotationAttachment> getAnnotationAttachments(int count) {
+        if (count == 0) {
+            return new ArrayList<>(0);
+        }
+
+        int depth = annonAttachmentStack.size() - (count - 1);
+        List<AnnotationAttachment> annotationAttachmentList = new ArrayList<>();
+        collectAnnotationAttachments(annotationAttachmentList, depth, annonAttachmentStack.size());
+        return annotationAttachmentList;
+    }
+
+    private void collectAnnotationAttachments(List<AnnotationAttachment> annonAttachmentList, int depth, int index) {
+        if (index == depth) {
+            annonAttachmentList.add(annonAttachmentStack.pop());
+        } else {
+            AnnotationAttachment attachment = annonAttachmentStack.pop();
+            collectAnnotationAttachments(annonAttachmentList, depth, index - 1);
+            annonAttachmentList.add(attachment);
+        }
+    }
+
 
     /**
      * This class represents CallableUnitName used in function and action invocation expressions.
      */
-    protected static class CallableUnitName {
-        String pkgName;
+    public static class NameReference {
+        private String pkgName;
+        private String name;
+        private String pkgPath;
 
-        // This used in function/action invocation expressions
-        String name;
-
-        CallableUnitName(String pkgName, String name) {
+        public NameReference(String pkgName, String name) {
             this.name = name;
             this.pkgName = pkgName;
+        }
+
+        public String getPackageName() {
+            return pkgName;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public String getPackagePath() {
+            return pkgPath;
+        }
+
+        public void setPkgPath(String pkgPath) {
+            this.pkgPath = pkgPath;
         }
     }
 }

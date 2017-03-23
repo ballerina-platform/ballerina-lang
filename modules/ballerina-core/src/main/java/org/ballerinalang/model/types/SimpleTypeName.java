@@ -65,6 +65,10 @@ public class SimpleTypeName {
         return pkgPath;
     }
 
+    public void setPkgPath(String pkgPath) {
+        this.pkgPath = pkgPath;
+    }
+
     public SymbolName getSymbolName() {
         if (symbolName == null) {
             this.symbolName = new SymbolName(getNameWithArray(name), pkgPath);

@@ -102,7 +102,7 @@ public interface NodeVisitor {
 
     void visit(Worker worker);
 
-    void visit(Annotation annotation);
+    void visit(AnnotationAttachment annotation);
 
     void visit(ParameterDef parameterDef);
 

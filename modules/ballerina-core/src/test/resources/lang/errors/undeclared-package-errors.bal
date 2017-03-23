@@ -1,7 +1,7 @@
-@BasePath ("/test")
+@BasePath {value:"/test"}
 service echo {
-    @GET
-    @Path ("/error")
+    @GET{}
+    @Path {value:"/error"}
     resource echo (message m) {
         testStackTrace();
         reply m;

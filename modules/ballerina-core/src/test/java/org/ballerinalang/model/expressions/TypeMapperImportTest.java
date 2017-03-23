@@ -39,7 +39,7 @@ public class TypeMapperImportTest {
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "testStructMapper");
         Assert.assertTrue(returns[0] instanceof BString);
         String expected = "Jack";
-        Assert.assertEquals(expected, returns[0].stringValue());
+        Assert.assertEquals(returns[0].stringValue(), expected);
     }
 
     @Test

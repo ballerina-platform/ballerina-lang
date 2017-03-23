@@ -19,7 +19,7 @@ package org.ballerinalang.model.statements;
 
 import org.ballerinalang.core.utils.BTestUtils;
 import org.ballerinalang.model.BLangProgram;
-import org.ballerinalang.model.values.BDouble;
+import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.exceptions.SemanticException;
@@ -89,10 +89,10 @@ public class WhileStmtTest {
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "testWhileScopeWithIf");
         Assert.assertEquals(returns.length, 2);
         Assert.assertSame(returns[0].getClass(), BInteger.class, "Class type of return param1 mismatched");
-        Assert.assertSame(returns[1].getClass(), BDouble.class, "Class type of return param2 mismatched");
+        Assert.assertSame(returns[1].getClass(), BFloat.class, "Class type of return param2 mismatched");
         BInteger actual = (BInteger) returns[0];
         Assert.assertEquals(actual.intValue(), 2, "mismatched output value");
-        BDouble sum = (BDouble) returns[1];
+        BFloat sum = (BFloat) returns[1];
         Assert.assertEquals(sum.doubleValue(), 30.0, "mismatched output value");
     }
 
