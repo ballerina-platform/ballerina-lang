@@ -33,7 +33,7 @@ import java.util.List;
  * @since 0.8.0
  */
 public class ParameterDef extends VariableDef implements Node {
-    private List<Annotation> annotations;
+    private List<AnnotationAttachment> annotations;
 
     public ParameterDef(BType type, SymbolName symbolName) {
         super(null, null, null, null, null);
@@ -50,11 +50,11 @@ public class ParameterDef extends VariableDef implements Node {
         super(location, name, typeName, symbolName, symbolScope);
     }
 
-    public List<Annotation> getAnnotations() {
+    public List<AnnotationAttachment> getAnnotations() {
         return annotations;
     }
 
-    public void setAnnotations(List<Annotation> annotations) {
+    public void setAnnotations(List<AnnotationAttachment> annotations) {
         this.annotations = annotations;
     }
 
@@ -63,7 +63,7 @@ public class ParameterDef extends VariableDef implements Node {
      *
      * @param annotation Annotation to be added to the Argument
      */
-    public void addAnnotation(Annotation annotation) {
+    public void addAnnotation(AnnotationAttachment annotation) {
         if (annotations == null) {
             annotations = new ArrayList<>();
         }

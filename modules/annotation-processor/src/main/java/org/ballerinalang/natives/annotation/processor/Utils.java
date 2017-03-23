@@ -45,7 +45,7 @@ public class Utils {
     static enum DocAnnotations {
         Description, Param, Return
     }
-
+    
     /**
      * Appends input parameters.
      * 
@@ -163,13 +163,14 @@ public class Utils {
      */
     private static String getDocAnnotation(AnnotationHolder annotation) {
         StringBuilder sb = new StringBuilder();
-        sb.append("@doc:" + annotation.getName() + " (");
+        sb.append("@doc:" + annotation.getName() + " { ");
         List<Attribute> attributes = annotation.getAttributes();
 
+        sb.append(Constants.DOC_ANNOTATION_DEFAULT_ATTRIBUTE + ":");
         sb.append(DocAnnotations.Description.name().equals(annotation.getName()) ? "\"" + attributes.get(0).value()
                 + "\"" : attributes.stream().map(p -> "\"" + p.name() + ": " + p.value() + "\" ")
                 .collect(Collectors.joining(",")));
-        sb.append(")");
+        sb.append("}");
         return sb.toString();
     }
     

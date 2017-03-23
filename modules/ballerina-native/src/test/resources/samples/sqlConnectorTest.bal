@@ -286,6 +286,7 @@ function testINParameters() (int) {
     int insertCount = sql:ClientConnector.update(testDB, "INSERT INTO DataTypeTable (row_id,int_type, long_type,
             float_type, double_type, boolean_type, string_type, numeric_type, decimal_type, real_type, tinyint_type,
             smallint_type, clob_type, blob_type, binary_type) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", parameters);
+    sql:ClientConnector.close(testDB);
     return insertCount;
 }
 
@@ -313,6 +314,7 @@ function testNullINParameters() (int) {
     int insertCount = sql:ClientConnector.update(testDB, "INSERT INTO DataTypeTable (row_id, int_type, long_type,
             float_type, double_type, boolean_type, string_type, numeric_type, decimal_type, real_type, tinyint_type,
             smallint_type, clob_type) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)", parameters);
+    sql:ClientConnector.close(testDB);
     return insertCount;
 }
 
@@ -341,6 +343,7 @@ function testINOutParameters()
     sql:Parameter[] parameters = [paraID, paraInt, paraLong, paraFloat, paraDouble, paraBool, paraString, paraNumeric,
         paraDecimal, paraReal, paraTinyInt, paraSmallInt, paraClob, paraBlob, paraBinary];
     sql:ClientConnector.call(testDB, "{call TestINOUTParams(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)}", parameters);
+    sql:ClientConnector.close(testDB);
     return paraInt.value, paraLong.value, paraFloat.value, paraDouble.value, paraBool.value, paraString.value,
         paraNumeric.value, paraDecimal.value, paraReal.value, paraTinyInt.value, paraSmallInt.value, paraClob.value,
         paraBlob.value, paraBinary.value;
@@ -371,6 +374,7 @@ function testNullINOutParameters()
     sql:Parameter[] parameters = [paraID, paraInt, paraLong, paraFloat, paraDouble, paraBool, paraString, paraNumeric,
         paraDecimal, paraReal, paraTinyInt, paraSmallInt, paraClob, paraBlob, paraBinary];
     sql:ClientConnector.call(testDB, "{call TestINOUTParams(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)}", parameters);
+    sql:ClientConnector.close(testDB);
     return paraInt.value, paraLong.value, paraFloat.value, paraDouble.value, paraBool.value, paraString.value,
         paraNumeric.value, paraDecimal.value, paraReal.value, paraTinyInt.value, paraSmallInt.value, paraClob.value;
 }
@@ -383,9 +387,26 @@ function testEmptySQLType() (int) {
     sql:Parameter para1 = {value:"Anne", direction:0};
     sql:Parameter[] parameters = [para1];
     int insertCount = sql:ClientConnector.update(testDB, "Insert into Customers (firstName) values (?)", parameters);
+    sql:ClientConnector.close(testDB);
     return insertCount;
 }
 
+function testCloseConnectionPool () (int) {
+    map propertiesMap = {"jdbcUrl":"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
+                         "username":"SA", "password":"", "maximumPoolSize":1};
+    sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
+
+    int count;
+    sql:Parameter[] parameters = [];
+    datatable dt = sql:ClientConnector.select(testDB, "SELECT COUNT(*) FROM INFORMATION_SCHEMA.SYSTEM_SESSIONS",
+                                              parameters);
+    while (datatables:next(dt)) {
+        count = datatables:getInt(dt, 1);
+    }
+    datatables:close(dt);
+    sql:ClientConnector.close(testDB);
+    return count;
+}
 function testArrayInParameters() (int insertCount, map int_arr, map long_arr, map double_arr, map string_arr,
                                        map boolean_arr, map float_arr) {
     map propertiesMap = {"jdbcUrl":"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",

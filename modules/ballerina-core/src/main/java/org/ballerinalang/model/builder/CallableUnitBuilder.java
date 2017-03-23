@@ -17,7 +17,7 @@
 */
 package org.ballerinalang.model.builder;
 
-import org.ballerinalang.model.Annotation;
+import org.ballerinalang.model.AnnotationAttachment;
 import org.ballerinalang.model.BTypeMapper;
 import org.ballerinalang.model.BallerinaAction;
 import org.ballerinalang.model.BallerinaFunction;
@@ -50,7 +50,7 @@ public class CallableUnitBuilder {
     protected SymbolName symbolName;
     protected boolean isNative;
 
-    protected List<Annotation> annotationList = new ArrayList<>();
+    protected List<AnnotationAttachment> annotationList = new ArrayList<>();
     protected List<ParameterDef> parameterDefList = new ArrayList<>();
     protected List<ParameterDef> returnParamList = new ArrayList<>();
     protected List<Worker> workerList = new ArrayList<>();
@@ -80,7 +80,7 @@ public class CallableUnitBuilder {
         this.symbolName = symbolName;
     }
 
-    public void addAnnotation(Annotation annotation) {
+    public void addAnnotation(AnnotationAttachment annotation) {
         this.annotationList.add(annotation);
     }
 
