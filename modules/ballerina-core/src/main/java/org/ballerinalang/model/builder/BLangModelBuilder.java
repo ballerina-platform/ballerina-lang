@@ -96,7 +96,6 @@ import org.ballerinalang.util.exceptions.SemanticException;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -859,14 +858,15 @@ public class BLangModelBuilder {
 
         Expression rhsExpr = exprAvailable ? exprStack.pop() : null;
         if (rhsExpr instanceof ArrayInitExpr) {
-            if (((ArrayInitExpr) rhsExpr).getArgExprs().length == 0
-                    && variableDef.getTypeName().getDimensions() != ((ArrayInitExpr) rhsExpr).getDimensions()) {
-                String errMsg = BLangExceptionHelper.constructSemanticError(location,
-                        SemanticErrors.ARRAY_INITIALIZATION_INCORRECT);
-                errorMsgs.add(errMsg);
-            } else {
-                ((ArrayInitExpr) rhsExpr).setDimensions(variableDef.getTypeName().getDimensions());
-            }
+//            if (((ArrayInitExpr) rhsExpr).getArgExprs().length == 0
+//                    && variableDef.getTypeName().getDimensions() != ((ArrayInitExpr) rhsExpr).getDimensions()) {
+//                String errMsg = BLangExceptionHelper.constructSemanticError(location,
+//                        SemanticErrors.ARRAY_INITIALIZATION_INCORRECT);
+//                errorMsgs.add(errMsg);
+//            } else {
+//                ((ArrayInitExpr) rhsExpr).setDimensions(variableDef.getTypeName().getDimensions());
+//            }
+//            ((ArrayInitExpr) rhsExpr).setDimensions(variableDef.getTypeName().getDimensions());
         }
         VariableDefStmt variableDefStmt = new VariableDefStmt(location, variableDef, variableRefExpr, rhsExpr);
 

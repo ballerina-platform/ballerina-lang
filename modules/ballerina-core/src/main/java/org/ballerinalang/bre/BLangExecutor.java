@@ -69,6 +69,7 @@ import org.ballerinalang.model.statements.VariableDefStmt;
 import org.ballerinalang.model.statements.WhileStmt;
 import org.ballerinalang.model.statements.WorkerInvocationStmt;
 import org.ballerinalang.model.statements.WorkerReplyStmt;
+import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BMapType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
@@ -763,7 +764,8 @@ public class BLangExecutor implements NodeExecutor {
 
         // Creating a new arrays
         BArray bArray;
-        if (arrayInitExpr.getDimensions() <= 1 || argExprs.length > 0) {
+        int diemnsions = ((BArrayType) arrayInitExpr.getType()).getDimensions();
+        if (diemnsions <= 1 || argExprs.length > 0) {
             bArray = arrayInitExpr.getType().getDefaultValue();
             for (int i = 0; i < argExprs.length; i++) {
                 Expression expr = argExprs[i];
@@ -776,8 +778,8 @@ public class BLangExecutor implements NodeExecutor {
         } else {
             bArray = new BArray<>(BArray.class);
             BArray currentBArray = bArray;
-            for (int i = 1; i < arrayInitExpr.getDimensions(); i++) {
-                if (i == arrayInitExpr.getDimensions() - 1) {
+            for (int i = 1; i < diemnsions; i++) {
+                if (i == diemnsions - 1) {
                     BArray newbArray = arrayInitExpr.getType().getDefaultValue();
                     currentBArray.add(0, newbArray);
                 } else {

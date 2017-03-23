@@ -456,6 +456,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
             // This is an array type
             SimpleTypeName typeName = typeNameStack.peek();
             typeName.setArrayType(true);
+            typeName.setDimensions((ctx.getChildCount() - 1) / 2);
             return;
         }
 
@@ -465,7 +466,6 @@ public class BLangAntlr4Listener implements BallerinaListener {
 
         // This is 'any' type
         SimpleTypeName typeName = new SimpleTypeName(ctx.getChild(0).getText());
-        typeName.setDimensions(9999);
         typeNameStack.push(typeName);
     }
 
@@ -681,7 +681,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
         if (ctx.expressionList() != null /*&& ctx.expressionList().size() > 0*/) {
             argsAvailable = true;
         } else {
-            dimensions = ctx.getChildCount();
+            dimensions = ctx.getChildCount() / 2;
         }
 
 //        boolean argsAvailable = ctx.expressionList() != null;

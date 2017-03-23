@@ -1464,7 +1464,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         }
 
         BType expectedElementType = ((BArrayType) inheritedType).getElementType();
-        if (arrayInitExpr.getDimensions() > 1) {
+        if (((BArrayType) arrayInitExpr.getType()).getDimensions() > 1) {
             String name = inheritedType.getName();
             expectedElementType = BTypes.resolveType(
                     new SimpleTypeName(name.substring(0, name.length() - 2)),

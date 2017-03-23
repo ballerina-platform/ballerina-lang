@@ -139,7 +139,7 @@ public class BTypes {
         // We should define the arrays type here.
         if (bType != null) {
             BArrayType bArrayType = new BArrayType(typeName.getSymbolName().getName(),
-                    bType, typeName.getPackagePath(), bType.getSymbolScope());
+                    bType, typeName.getPackagePath(), bType.getSymbolScope(), typeName.getDimensions());
             bType.getSymbolScope().define(typeName.getSymbolName(), bArrayType);
 
             SimpleTypeName newSimpleTypeName = new SimpleTypeName(typeName.getName(), true);
