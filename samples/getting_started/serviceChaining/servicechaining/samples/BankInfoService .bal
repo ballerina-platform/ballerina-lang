@@ -2,11 +2,12 @@ package servicechaining.samples;
 
 import ballerina.lang.messages;
 import ballerina.lang.jsons;
+import ballerina.net.http;
 
-@http:BasePath ("/bankinfo")
+@http:BasePath {value:"/bankinfo"}
 service Bankinfo {
     
-    @http:POST
+    @http:POST{}
     resource product (message m) {
         message response = {};
         json jsonRequest = messages:getJsonPayload(m);

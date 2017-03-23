@@ -1,12 +1,14 @@
 package restfulservice.samples;
+
 import ballerina.lang.messages;
 import ballerina.lang.strings;
 import ballerina.net.http;
-@http:BasePath("/customerservice")
+
+@http:BasePath{value:"/customerservice"}
 service CustomerMgtService {
 
-    @http:GET
-    @http:POST
+    @http:GET{}
+    @http:POST{}
     resource customers (message m) {
         json payload = {};
         string httpMethod = http:getMethod(m);
