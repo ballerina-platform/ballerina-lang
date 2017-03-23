@@ -26,7 +26,7 @@ import org.ballerinalang.bre.ServiceVarLocation;
 import org.ballerinalang.bre.StackVarLocation;
 import org.ballerinalang.bre.StructVarLocation;
 import org.ballerinalang.bre.WorkerVarLocation;
-import org.ballerinalang.model.Annotation;
+import org.ballerinalang.model.AnnotationAttachment;
 import org.ballerinalang.model.BLangPackage;
 import org.ballerinalang.model.BLangProgram;
 import org.ballerinalang.model.BTypeMapper;
@@ -211,7 +211,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         }
         tempJsonArrayRef.push(new JsonArray());
         if (service.getAnnotations() != null) {
-            for (Annotation annotation : service.getAnnotations()) {
+            for (AnnotationAttachment annotation : service.getAnnotations()) {
                 annotation.accept(this);
             }
         }
@@ -242,7 +242,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         tempJsonArrayRef.push(new JsonArray());
         tempJsonArrayRef.push(new JsonArray());
         if (connector.getAnnotations() != null) {
-            for (Annotation annotation : connector.getAnnotations()) {
+            for (AnnotationAttachment annotation : connector.getAnnotations()) {
                 annotation.accept(this);
             }
         }
@@ -282,7 +282,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         tempJsonArrayRef.push(new JsonArray());
         tempJsonArrayRef.push(new JsonArray());
         if (resource.getResourceAnnotations() != null) {
-            for (Annotation annotation : resource.getResourceAnnotations()) {
+            for (AnnotationAttachment annotation : resource.getResourceAnnotations()) {
                 annotation.accept(this);
             }
         }
@@ -326,7 +326,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         this.tempJsonArrayRef.push(new JsonArray());
         this.tempJsonArrayRef.push(new JsonArray());
         if (function.getAnnotations() != null) {
-            for (Annotation annotation : function.getAnnotations()) {
+            for (AnnotationAttachment annotation : function.getAnnotations()) {
                 annotation.accept(this);
             }
         }
@@ -384,7 +384,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         this.tempJsonArrayRef.push(new JsonArray());
         this.tempJsonArrayRef.push(new JsonArray());
         if (typeMapper.getAnnotations() != null) {
-            for (Annotation annotation : typeMapper.getAnnotations()) {
+            for (AnnotationAttachment annotation : typeMapper.getAnnotations()) {
                 annotation.accept(this);
             }
         }
@@ -410,7 +410,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
                         ().getName());
                 this.tempJsonArrayRef.push(new JsonArray());
                 if (parameterDef.getAnnotations() != null) {
-                    for (Annotation annotation : parameterDef.getAnnotations()) {
+                    for (AnnotationAttachment annotation : parameterDef.getAnnotations()) {
                         annotation.accept(this);
                     }
                 }
@@ -434,7 +434,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         tempJsonArrayRef.push(new JsonArray());
         tempJsonArrayRef.push(new JsonArray());
         if (action.getAnnotations() != null) {
-            for (Annotation annotation : action.getAnnotations()) {
+            for (AnnotationAttachment annotation : action.getAnnotations()) {
                 annotation.accept(this);
             }
         }
@@ -515,10 +515,10 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         tempJsonArrayRef.pop();
         tempJsonArrayRef.peek().add(jsonWorker);
     }
-    
+
     @SuppressWarnings("unchecked")
     @Override
-    public void visit(Annotation annotation) {
+    public void visit(AnnotationAttachment annotation) {
         JsonObject jsonAnnotation = new JsonObject();
         jsonAnnotation.addProperty(BLangJSONModelConstants.DEFINITION_TYPE, BLangJSONModelConstants
                 .ANNOTATION_DEFINITION);
@@ -551,7 +551,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         this.addPosition(paramObj, parameterDef.getNodeLocation());
         this.tempJsonArrayRef.push(new JsonArray());
         if (parameterDef.getAnnotations() != null) {
-            for (Annotation annotation : parameterDef.getAnnotations()) {
+            for (AnnotationAttachment annotation : parameterDef.getAnnotations()) {
                 annotation.accept(this);
             }
         }
