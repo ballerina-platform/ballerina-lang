@@ -38,6 +38,7 @@ import org.ballerinalang.model.CompilationUnit;
 import org.ballerinalang.model.ConstDef;
 import org.ballerinalang.model.Function;
 import org.ballerinalang.model.FunctionSymbolName;
+import org.ballerinalang.model.GlobalScope;
 import org.ballerinalang.model.ImportPackage;
 import org.ballerinalang.model.NativeUnit;
 import org.ballerinalang.model.NodeLocation;
@@ -695,32 +696,16 @@ public class SemanticAnalyzer implements NodeVisitor {
         }
 
         // TODO Remove the MAP related logic when type casting is implemented
-        if (rType instanceof BArrayType) {
-            int leftDimensions = ((VariableRefExpr) ((ArrayMapAccessExpr) lExpr).getRExpr()).
-                    getVariableDef().getTypeName().getDimensions();
-            int leftIndexes = ((ArrayMapAccessExpr) lExpr).getIndexExpr().length;
-            int rightDimensions = ((VariableRefExpr) rExpr).getVariableDef().getTypeName().getDimensions();
-            if ((leftDimensions - leftIndexes) == rightDimensions) {
-                if (!((BArrayType) rType).getElementType().equals(lExprType)) {
-                    BLangExceptionHelper.throwSemanticError(lExpr, SemanticErrors.INCOMPATIBLE_TYPES_CANNOT_CONVERT,
-                            rExpr.getType(), lExpr.getType());
-                }
-            } else {
-                BLangExceptionHelper.throwSemanticError(lExpr, SemanticErrors.INCOMPATIBLE_TYPES_CANNOT_CONVERT, rExpr.getType(),
-                        lExpr.getType());
-            }
-        } else {
-            if ((lExprType != BTypes.typeMap) && (rType != BTypes.typeMap) &&
-                    (!lExprType.equals(rType))) {
+        if ((lExprType != BTypes.typeMap) && (rType != BTypes.typeMap) &&
+                (!lExprType.equals(rType))) {
 
-                TypeCastExpression newExpr = checkWideningPossible(lExpr.getType(), rExpr);
-                if (newExpr != null) {
-                    newExpr.accept(this);
-                    assignStmt.setRhsExpr(newExpr);
-                } else {
-                    BLangExceptionHelper.throwSemanticError(lExpr, SemanticErrors.INCOMPATIBLE_TYPES_CANNOT_CONVERT,
-                            rExpr.getType(), lExpr.getType());
-                }
+            TypeCastExpression newExpr = checkWideningPossible(lExpr.getType(), rExpr);
+            if (newExpr != null) {
+                newExpr.accept(this);
+                assignStmt.setRhsExpr(newExpr);
+            } else {
+                BLangExceptionHelper.throwSemanticError(lExpr, SemanticErrors.INCOMPATIBLE_TYPES_CANNOT_CONVERT,
+                        rExpr.getType(), lExpr.getType());
             }
         }
     }
@@ -1480,28 +1465,18 @@ public class SemanticAnalyzer implements NodeVisitor {
         }
 
         BType expectedElementType = ((BArrayType) inheritedType).getElementType();
+        if (arrayInitExpr.getDimensions() > 1) {
+            String name = inheritedType.getName();
+            expectedElementType = BTypes.resolveType(
+                    new SimpleTypeName(name.substring(0, name.length() - 2)),
+                    GlobalScope.getInstance(), arrayInitExpr.getNodeLocation());
+        }
+
         for (int i = 0; i < argExprs.length; i++) {
             visitSingleValueExpr(argExprs[i]);
 
             // Types are defined only once, hence the following object equal should work.
-
-            boolean isExpectedElementType = false;
-            if (argExprs[i].getType() instanceof BArrayType) {
-                BArrayType bArrayType = (BArrayType) argExprs[i].getType();
-                if (bArrayType.getElementType() != expectedElementType
-                        || ((VariableRefExpr) argExprs[i]).getVariableDef().getTypeName().getDimensions()
-                        != arrayInitExpr.getDimensions() -1) {
-                    BLangExceptionHelper.throwSemanticError(arrayInitExpr,
-                            SemanticErrors.INCOMPATIBLE_TYPES_CANNOT_CONVERT,
-                            argExprs[i].getType(), expectedElementType);
-                } else {
-                    isExpectedElementType = true;
-                }
-            } else {
-                isExpectedElementType = argExprs[i].getType() == expectedElementType;
-            }
-
-            if (!isExpectedElementType) {
+            if (argExprs[i].getType() != expectedElementType) {
                 TypeCastExpression typeCastExpr = checkWideningPossible(expectedElementType, argExprs[i]);
                 if (typeCastExpr == null) {
                     BLangExceptionHelper.throwSemanticError(arrayInitExpr,
@@ -1766,7 +1741,10 @@ public class SemanticAnalyzer implements NodeVisitor {
             }
 
             // Set type of the arrays access expression
-            BType typeOfArray = ((BArrayType) arrayMapVarRefExpr.getType()).getElementType();
+            String typeName = (arrayMapVarRefExpr.getType()).getName();
+            typeName = typeName.substring(0, typeName.length() - (arrayMapAccessExpr.getIndexExpr().length*2));
+            BType typeOfArray = BTypes.resolveType(new SimpleTypeName(typeName),
+                    GlobalScope.getInstance(), arrayMapAccessExpr.getNodeLocation());
             arrayMapAccessExpr.setType(typeOfArray);
 
         } else if (arrayMapVarRefExpr.getType() instanceof BMapType) {

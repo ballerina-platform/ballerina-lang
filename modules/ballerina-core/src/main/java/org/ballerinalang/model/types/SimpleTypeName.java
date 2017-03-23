@@ -86,7 +86,15 @@ public class SimpleTypeName {
     }
 
     protected String getNameWithArray(String name) {
-        return isArrayType ? name + TypeConstants.ARRAY_TNAME : name;
+        if (isArrayType) {
+            String newName = name;
+            for (int i = 0; i < getDimensions(); i++) {
+                newName = newName + TypeConstants.ARRAY_TNAME;
+            }
+            return newName;
+        } else {
+            return name;
+        }
     }
 
     @Override

@@ -691,7 +691,7 @@ public class BLangModelBuilder {
         exprStack.push(typeCastExpression);
     }
 
-    public void createArrayInitExpr(NodeLocation location, boolean argsAvailable, int dimentions) {
+    public void createArrayInitExpr(NodeLocation location, boolean argsAvailable, int dimensions) {
         List<Expression> argExprList;
         if (argsAvailable) {
             argExprList = exprListStack.pop();
@@ -702,7 +702,7 @@ public class BLangModelBuilder {
         checkArgExprValidity(location, argExprList);
 
         ArrayInitExpr arrayInitExpr = new ArrayInitExpr(location,
-                argExprList.toArray(new Expression[argExprList.size()]), dimentions);
+                argExprList.toArray(new Expression[argExprList.size()]), dimensions);
         exprStack.push(arrayInitExpr);
     }
 
@@ -986,7 +986,14 @@ public class BLangModelBuilder {
 
         Expression rhsExpr = exprAvailable ? exprStack.pop() : null;
         if (rhsExpr instanceof ArrayInitExpr) {
-            ((ArrayInitExpr) rhsExpr).setDimensions(variableDef.getTypeName().getDimensions());
+            if (((ArrayInitExpr) rhsExpr).getArgExprs().length == 0
+                    && variableDef.getTypeName().getDimensions() != ((ArrayInitExpr) rhsExpr).getDimensions()) {
+                String errMsg = BLangExceptionHelper.constructSemanticError(location,
+                        SemanticErrors.ARRAY_INITIALIZATION_INCORRECT);
+                errorMsgs.add(errMsg);
+            } else {
+                ((ArrayInitExpr) rhsExpr).setDimensions(variableDef.getTypeName().getDimensions());
+            }
         }
         VariableDefStmt variableDefStmt = new VariableDefStmt(location, variableDef, variableRefExpr, rhsExpr);
 

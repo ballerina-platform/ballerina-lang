@@ -141,6 +141,11 @@ public class BTypes {
             BArrayType bArrayType = new BArrayType(typeName.getSymbolName().getName(),
                     bType, typeName.getPackagePath(), bType.getSymbolScope());
             bType.getSymbolScope().define(typeName.getSymbolName(), bArrayType);
+
+            SimpleTypeName newSimpleTypeName = new SimpleTypeName(typeName.getName(), true);
+            newSimpleTypeName.setDimensions(typeName.getDimensions() - 1);
+            BTypes.resolveType(newSimpleTypeName, symbolScope, location);
+
             return bArrayType;
         }
 
