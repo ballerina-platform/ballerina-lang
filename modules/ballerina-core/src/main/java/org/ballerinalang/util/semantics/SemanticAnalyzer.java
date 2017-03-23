@@ -38,7 +38,6 @@ import org.ballerinalang.model.CompilationUnit;
 import org.ballerinalang.model.ConstDef;
 import org.ballerinalang.model.Function;
 import org.ballerinalang.model.FunctionSymbolName;
-import org.ballerinalang.model.GlobalScope;
 import org.ballerinalang.model.ImportPackage;
 import org.ballerinalang.model.NativeUnit;
 import org.ballerinalang.model.NodeLocation;
@@ -1468,7 +1467,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             String name = inheritedType.getName();
             expectedElementType = BTypes.resolveType(
                     new SimpleTypeName(name.substring(0, name.length() - 2)),
-                    GlobalScope.getInstance(), arrayInitExpr.getNodeLocation());
+                    currentScope, arrayInitExpr.getNodeLocation());
         }
 
         for (int i = 0; i < argExprs.length; i++) {
@@ -1743,7 +1742,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             String typeName = (arrayMapVarRefExpr.getType()).getName();
             typeName = typeName.substring(0, typeName.length() - (arrayMapAccessExpr.getIndexExpr().length * 2));
             BType typeOfArray = BTypes.resolveType(new SimpleTypeName(typeName),
-                    GlobalScope.getInstance(), arrayMapAccessExpr.getNodeLocation());
+                    currentScope, arrayMapAccessExpr.getNodeLocation());
             arrayMapAccessExpr.setType(typeOfArray);
 
         } else if (arrayMapVarRefExpr.getType() instanceof BMapType) {

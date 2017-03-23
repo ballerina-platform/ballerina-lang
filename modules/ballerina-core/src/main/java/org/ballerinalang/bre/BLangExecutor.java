@@ -1298,21 +1298,25 @@ public class BLangExecutor implements NodeExecutor {
         }
 
         // Evaluate the index expression and get the value
-//        BValue indexValue = indexExpr.execute(this);
-
+        BValue indexValue;
         BValue unitVal;
         // Get the value from arrays/map's index location
         if (fieldExpr.getRefVarType() instanceof BMapType) {
-            BValue indexValue = indexExpr[0].execute(this);
+            indexValue = indexExpr[0].execute(this);
             unitVal = ((BMap) currentVal).get(indexValue);
         } else {
             BArray bArray = (BArray) currentVal;
-            unitVal = getValueFromArray(bArray, indexExpr);
+            for (int i = indexExpr.length - 1; i >= 1; i--) {
+                indexValue = indexExpr[i].execute(this);
+                bArray = (BArray) bArray.get(((BInteger) indexValue).intValue());
+            }
+            indexValue = indexExpr[0].execute(this);
+            unitVal = bArray.get(((BInteger) indexExpr[0].execute(this)).intValue());
         }
 
         if (unitVal == null) {
             throw new BallerinaException("field '" + currentVarRefExpr.getSymbolName().getName() + "[" +
-                    "supun" + "]' is null");
+                    indexValue.stringValue() + "]' is null");
         }
 
         return unitVal;
