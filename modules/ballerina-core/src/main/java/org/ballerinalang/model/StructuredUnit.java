@@ -14,14 +14,27 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.natives.annotation.processor;
+package org.ballerinalang.model;
+
+import org.ballerinalang.model.symbols.BLangSymbol;
 
 /**
- * Constants related to annotation processor.
+ * Represents a construct that have a predefined structure in ballerina.
+ * Known Implementations are:
+ * <ul>
+ * <li>{@code StructDef}</li>
+ * <li>{@code AnnotationDef}</li>
+ * </ul>
+ * 
+ * @since 0.8.5
  */
-public class Constants {
+public interface StructuredUnit {
     
-    public static final String BAL_FILES_DIR = "ballerina";
-    public static final String DOC_ANNOTATION_DEFAULT_ATTRIBUTE = "value";
-    public static final String DOC_PACKAGE_NAME = "ballerina.doc";
+    /**
+     * Resolve a symbol name in the current scope only.
+     * 
+     * @param name SymbolName to be resolved
+     * @return Symbol with having the given symbol name in the current scope.
+     */
+    public BLangSymbol resolveMembers(SymbolName name);
 }

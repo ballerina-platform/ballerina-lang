@@ -109,7 +109,10 @@ public interface NodeVisitor {
     void visit(VariableDef variableDef);
 
     void visit(StructDef structDef);
+    
+    void visit(AnnotationAttributeDef annotationAttributeDef);
 
+    void visit(AnnotationDef annotationDef);
 
     // Statements
 
@@ -221,4 +224,5 @@ public interface NodeVisitor {
     void visit(MainInvoker mainInvoker);
 
     void visit(WorkerVarLocation workerVarLocation);
+
 }

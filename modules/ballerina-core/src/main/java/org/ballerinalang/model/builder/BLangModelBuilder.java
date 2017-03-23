@@ -18,6 +18,9 @@
 package org.ballerinalang.model.builder;
 
 import org.ballerinalang.model.AnnotationAttachment;
+import org.ballerinalang.model.AnnotationAttributeDef;
+import org.ballerinalang.model.AnnotationAttributeValue;
+import org.ballerinalang.model.AnnotationDef;
 import org.ballerinalang.model.BLangPackage;
 import org.ballerinalang.model.BTypeMapper;
 import org.ballerinalang.model.BallerinaAction;
@@ -32,6 +35,7 @@ import org.ballerinalang.model.ParameterDef;
 import org.ballerinalang.model.Resource;
 import org.ballerinalang.model.Service;
 import org.ballerinalang.model.StructDef;
+import org.ballerinalang.model.StructuredUnit;
 import org.ballerinalang.model.SymbolName;
 import org.ballerinalang.model.SymbolScope;
 import org.ballerinalang.model.VariableDef;
@@ -83,12 +87,14 @@ import org.ballerinalang.model.statements.WhileStmt;
 import org.ballerinalang.model.statements.WorkerInvocationStmt;
 import org.ballerinalang.model.statements.WorkerReplyStmt;
 import org.ballerinalang.model.symbols.BLangSymbol;
+import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.SimpleTypeName;
 import org.ballerinalang.model.types.TypeConstants;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueType;
 import org.ballerinalang.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.util.exceptions.SemanticErrors;
@@ -128,6 +134,9 @@ public class BLangModelBuilder {
     // Builds user defined structs.
     protected StructDef.StructBuilder currentStructBuilder;
 
+    // Builds user defined annotations.
+    protected AnnotationDef.AnnotationDefBuilder annotationDefBuilder;
+    
     protected Stack<AnnotationAttachment.AnnotationBuilder> annonAttachmentBuilderStack = new Stack<>();
     protected Stack<BlockStmt.BlockStmtBuilder> blockStmtBuilderStack = new Stack<>();
     protected Stack<IfElseStmt.IfElseStmtBuilder> ifElseStmtBuilderStack = new Stack<>();
@@ -141,6 +150,7 @@ public class BLangModelBuilder {
 
     // Holds ExpressionLists required for return statements, function/action invocations and connector declarations
     protected Stack<List<Expression>> exprListStack = new Stack<>();
+    
     protected Stack<List<MapStructInitKeyValueExpr>> mapStructKVListStack = new Stack<>();
     protected Stack<AnnotationAttachment> annonAttachmentStack = new Stack<>();
 
@@ -157,6 +167,8 @@ public class BLangModelBuilder {
     // This is useful when analyzing import functions, actions and types.
     protected Map<String, ImportPackage> importPkgMap = new HashMap<>();
 
+    protected Stack<AnnotationAttributeValue> annotationAttributeValues;
+    
     protected List<String> errorMsgs = new ArrayList<>();
 
     public BLangModelBuilder(BLangPackage.PackageBuilder packageBuilder, String bFileName) {
@@ -244,17 +256,17 @@ public class BLangModelBuilder {
     }
 
     /**
-     * Add a field of the {@link StructDef}.
+     * Add a field definition. Field definition can be a child of {@code StructDef} or {@code AnnotationDef}.
      *
      * @param location  Location of the field in the source file
      * @param fieldName Name of the field in the {@link StructDef}
      */
-    public void addStructField(NodeLocation location, SimpleTypeName typeName, String fieldName,
-                               boolean defaultValueAvailable) {
+    public void addFieldDefinition(NodeLocation location, SimpleTypeName typeName, String fieldName, 
+            boolean defaultValueAvailable) {
         SymbolName symbolName = new SymbolName(fieldName);
 
         // Check whether this constant is already defined.
-        StructDef structScope = (StructDef) currentScope;
+        StructuredUnit structScope = (StructuredUnit) currentScope;
         BLangSymbol fieldSymbol = structScope.resolveMembers(symbolName);
         if (fieldSymbol != null) {
             String errMsg = BLangExceptionHelper
@@ -262,19 +274,23 @@ public class BLangModelBuilder {
             errorMsgs.add(errMsg);
         }
 
-        // TODO Implement default value support for struct fields
+        Expression expr = null;
         if (defaultValueAvailable) {
             // Expression ignored = exprStack.pop();
-            exprStack.pop();
+            expr = exprStack.pop();
         }
-
-        VariableDef variableDef = new VariableDef(location, fieldName, typeName, symbolName, currentScope);
-
-        // Define the variableRef symbol in the current scope
-        currentScope.define(symbolName, variableDef);
-
-        // Add Struct field to current Struct;
-        currentStructBuilder.addField(variableDef);
+        
+        if (currentScope instanceof StructDef) {
+            // TODO Implement default value support for struct fields
+            VariableDef variableDef = new VariableDef(location, fieldName, typeName, symbolName, currentScope);
+            currentScope.define(symbolName, variableDef);
+            currentStructBuilder.addField(variableDef);
+        } else if (currentScope instanceof AnnotationDef) {
+            AnnotationAttributeDef annotationField = new AnnotationAttributeDef(location, fieldName, typeName, 
+                (BasicLiteral) expr, symbolName, currentScope);
+            currentScope.define(symbolName, annotationField);
+            annotationDefBuilder.addAttributeDef(annotationField);
+        }
     }
 
     /**
@@ -303,39 +319,103 @@ public class BLangModelBuilder {
         AnnotationAttachment.AnnotationBuilder annotationBuilder = new AnnotationAttachment.AnnotationBuilder();
         annotationBuilder.setNodeLocation(location);
         annonAttachmentBuilderStack.push(annotationBuilder);
+        annotationAttributeValues = new Stack<AnnotationAttributeValue>();
     }
 
     public void createAnnotationKeyValue(String key) {
-        Expression expr = exprStack.peek();
-        if (expr instanceof BasicLiteral &&
-                ((BasicLiteral) expr).getTypeName().getName().equals(TypeConstants.STRING_TNAME)) {
-            String value = ((BasicLiteral) expr).getBValue().stringValue();
-            AnnotationAttachment.AnnotationBuilder annotationBuilder = annonAttachmentBuilderStack.peek();
-            annotationBuilder.addKeyValuePair(new SymbolName(key), value);
-        }
+        AnnotationAttachment.AnnotationBuilder annotationBuilder = annonAttachmentBuilderStack.peek();
+        annotationBuilder.addAttributeNameValuePair(key, annotationAttributeValues.pop());
     }
 
     public void addAnnotationAttachment(NodeLocation location, NameReference nameReference, int attributesCount) {
         AnnotationAttachment.AnnotationBuilder annonAttachmentBuilder = annonAttachmentBuilderStack.pop();
-
-        // TODO Setting annotation name as pkgname:name
-        // TODO This is how current annotation processing code is written in the server connector frameworke
-        annonAttachmentBuilder.setName(nameReference.getPackageName() + ":" + nameReference.getName());
+        annonAttachmentBuilder.setName(nameReference.getName());
         annonAttachmentBuilder.setPkgName(nameReference.getPackageName());
-
-        if (attributesCount == 1) {
-            Expression simpleLiteral = exprStack.pop();
-            String value = ((BasicLiteral) simpleLiteral).getBValue().stringValue();
-            annonAttachmentBuilder.setValue(value);
-
-        } else if (attributesCount > 1) {
-            throw new RuntimeException("Annotations with key/value pars are not support at the moment" + " in " +
-                    location.getFileName() + ":" + location.getLineNumber());
-        }
-
+        annonAttachmentBuilder.setPkgPath(nameReference.getPackagePath());
+        annonAttachmentBuilder.setNodeLocation(location);
         annonAttachmentStack.add(annonAttachmentBuilder.build());
     }
 
+    /**
+     * Start an annotation definition.
+     * 
+     * @param location Location of the annotation definition in the source file
+     */
+    public void startAnnotationDef(NodeLocation location) {
+        annotationDefBuilder = new AnnotationDef.AnnotationDefBuilder(location, currentScope);
+        currentScope = annotationDefBuilder.getCurrentScope();
+    }
+    
+    /**
+     * Creates a {@code AnnotationDef}.
+     * 
+     * @param location Location of this {@code AnnotationDef} in the source file
+     * @param name Name of the {@code AnnotationDef}
+     */
+    public void addAnnotationtDef(NodeLocation location, String name) {
+        annotationDefBuilder.setName(name);
+        annotationDefBuilder.setPackagePath(currentPackagePath);
+        
+        AnnotationDef annotationDef = annotationDefBuilder.build();
+        bFileBuilder.addAnnotationDef(annotationDef);
+        
+        // Close annotation scope
+        currentScope = annotationDef.getEnclosingScope();
+        currentStructBuilder = null;
+    }
+    
+    /**
+     * Add a target to the annotation.
+     * 
+     * @param location Location of the target in the source file
+     * @param attachmentPoint Point to which this annotation can be attached
+     */
+    public void addAnnotationtAttachmentPoint(NodeLocation location, String attachmentPoint) {
+        annotationDefBuilder.addAttachmentPoint(attachmentPoint);
+    }
+
+    /**
+     * Create a literal type attribute value.
+     * 
+     * @param location Location of the value in the source file
+     */
+    public void createLiteralTypeAttributeValue(NodeLocation location) {
+        Expression expr = exprStack.pop();
+        if (!(expr instanceof BasicLiteral)) {
+            String errMsg = BLangExceptionHelper.constructSemanticError(expr.getNodeLocation(),
+                    SemanticErrors.UNSUPPORTED_ANNOTATION_ATTRIBUTE_VALUE);
+            errorMsgs.add(errMsg);
+        }
+        BasicLiteral basicLiteral = (BasicLiteral) expr;
+        BValue value = basicLiteral.getBValue();
+        annotationAttributeValues.push(new AnnotationAttributeValue(value, basicLiteral.getTypeName()));
+    }
+    
+    /**
+     * Create an annotation type attribute value.
+     * 
+     * @param location Location of the value in the source file
+     */
+    public void createAnnotationTypeAttributeValue(NodeLocation location) {
+        AnnotationAttachment value = annonAttachmentStack.pop();
+        SimpleTypeName valueType = new SimpleTypeName(value.getName(), value.getPkgName(), value.getPkgPath());
+        annotationAttributeValues.push(new AnnotationAttributeValue(value, valueType));
+    }
+    
+    /**
+     * Create an array type attribute value.
+     * 
+     * @param location Location of the value in the source file
+     */
+    public void createArrayTypeAttributeValue(NodeLocation location) {
+        SimpleTypeName valueType = new SimpleTypeName(null, true);
+        AnnotationAttributeValue arrayValue = new AnnotationAttributeValue(
+            annotationAttributeValues.toArray(new AnnotationAttributeValue[annotationAttributeValues.size()]),
+            valueType);
+        arrayValue.setNodeLocation(location);
+        annotationAttributeValues.clear();
+        annotationAttributeValues.push(arrayValue);
+    }
 
     // Function parameters and types
 
@@ -755,10 +835,17 @@ public class BLangModelBuilder {
         currentCUBuilder = null;
     }
 
-    public void createWorker(NodeLocation sourceLocation, String name) {
+    public void createWorker(NodeLocation sourceLocation, String name, String paramName) {
         currentCUBuilder.setName(name);
         currentCUBuilder.setNodeLocation(sourceLocation);
 
+        // define worker parameter
+        SymbolName paramSymbolName = new SymbolName(paramName);
+        ParameterDef paramDef = new ParameterDef(sourceLocation, paramName,
+            new SimpleTypeName(BTypes.typeMessage.getName()), paramSymbolName, currentScope);
+        currentScope.define(paramSymbolName, paramDef);
+        currentCUBuilder.addParameter(paramDef);
+        
         Worker worker = currentCUBuilder.buildWorker();
         if (forkJoinStmtBuilderStack.isEmpty()) {
             parentCUBuilder.addWorker(worker);

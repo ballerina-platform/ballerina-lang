@@ -82,10 +82,8 @@ public class Resource implements Node, SymbolScope, CallableUnit {
      */
     public AnnotationAttachment getAnnotation(String packageName, String name) {
         /* ToDo : Annotations should be a map. */
-
-        String annotationFqn = packageName.concat(":").concat(name);
         for (AnnotationAttachment annotation : annotations) {
-            if (annotation.getName().equals(annotationFqn)) {
+            if (annotation.getPkgName().equals(packageName) && annotation.getName().equals(name)) {
                 return annotation;
             }
         }

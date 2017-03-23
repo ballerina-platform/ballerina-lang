@@ -14,14 +14,28 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.natives.annotation.processor;
+package org.ballerinalang.model.annotations;
+
+import org.ballerinalang.core.utils.BTestUtils;
+import org.ballerinalang.model.BLangProgram;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
 
 /**
- * Constants related to annotation processor.
+ * Test cases for user defined annotations in ballerina.
  */
-public class Constants {
-    
-    public static final String BAL_FILES_DIR = "ballerina";
-    public static final String DOC_ANNOTATION_DEFAULT_ATTRIBUTE = "value";
-    public static final String DOC_PACKAGE_NAME = "ballerina.doc";
+public class AnnotationTest {
+
+    private BLangProgram bLangProgram;
+
+    @BeforeClass
+    public void setup() {
+        bLangProgram = BTestUtils.parseBalFile("lang/annotations/");
+    }
+
+    @Test(description = "Test Basic annotation")
+    public void testBasicAnnotation() {
+
+    }
+
 }

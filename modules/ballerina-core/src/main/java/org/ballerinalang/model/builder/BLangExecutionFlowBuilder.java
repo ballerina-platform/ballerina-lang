@@ -25,6 +25,8 @@ import org.ballerinalang.bre.StructVarLocation;
 import org.ballerinalang.bre.WorkerVarLocation;
 import org.ballerinalang.bre.nonblocking.ModeResolver;
 import org.ballerinalang.model.AnnotationAttachment;
+import org.ballerinalang.model.AnnotationAttributeDef;
+import org.ballerinalang.model.AnnotationDef;
 import org.ballerinalang.model.BLangPackage;
 import org.ballerinalang.model.BLangProgram;
 import org.ballerinalang.model.BTypeMapper;
@@ -303,6 +305,16 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
 
     @Override
     public void visit(StructDef structDef) {
+    }
+
+    @Override
+    public void visit(AnnotationAttributeDef annotationAttributeDef) {
+        
+    }
+
+    @Override
+    public void visit(AnnotationDef annotationDef) {
+
     }
 
 

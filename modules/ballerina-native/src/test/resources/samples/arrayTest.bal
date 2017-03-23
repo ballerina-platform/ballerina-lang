@@ -2,8 +2,8 @@ import ballerina.lang.arrays;
 
 function testDoubleArrayLength(double[] arg)(int, int){
     double[] defined;
-    defined = [ 10.1d, 11.1d];
-    defined[2] = 12.1d;
+    defined = [ 10.1, 11.1];
+    defined[2] = 12.1;
     return arrays:length(arg) , arrays:length(defined);
 }
 
@@ -23,8 +23,8 @@ function testIntArrayLength(int[] arg)(int, int){
 
 function testLongArrayLength(long[] arg)(int, int){
     long[] defined;
-    defined = [ 1l, 2l, 3l];
-    defined[3] = 4l;
+    defined = [ 1, 2, 3];
+    defined[3] = 4;
     return arrays:length(arg) , arrays:length(defined);
 }
 
@@ -71,18 +71,18 @@ function testMessageArrayLength(message[] arg)(int, int){
 function testDoubleArrayCopy(double[] arg)(double[]){
     double[] defined;
     defined = arrays:copyOf(arg);
-    defined[0] = 1d;
-    defined[1] = 1.1d;
-    defined[2] = 1.2d;
+    defined[0] = 1;
+    defined[1] = 1.1;
+    defined[2] = 1.2;
     return defined;
 }
 
 function testFloatArrayCopy(float[] arg)(float[]){
     float[] defined;
     defined = arrays:copyOf(arg);
-    defined[0] = 1f;
-    defined[1] = 1.1f;
-    defined[2] = 1.2f;
+    defined[0] = 1;
+    defined[1] = 1.1;
+    defined[2] = 1.2;
     return defined;
 }
 
@@ -98,9 +98,9 @@ function testIntArrayCopy(int[] arg)(int[]){
 function testLongArrayCopy(long[] arg)(long[]){
     long[] defined;
     defined = arrays:copyOf(arg);
-    defined[0] = 1l;
-    defined[1] = 2l;
-    defined[2] = 3l;
+    defined[0] = 1;
+    defined[1] = 2;
+    defined[2] = 3;
     return defined;
 }
 
