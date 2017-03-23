@@ -37,15 +37,17 @@ class ConnectorDeclarationView extends LifeLine {
      * @constructor
      */
     constructor(args) {
-        super(args);
-        this._totalHeightGap = 50;
-        this._parentView = _.get(args, 'parentView');
-        this.messageManager =  _.get(args, 'messageManager');
-        this._LifeLineCenterGap = 180;
         // At the moment we consider by default the connector is HTTP
         _.set(args, 'title',  _.get(args, 'model').getConnectorVariable() || 'HTTP');
         _.set(args, 'cssClass.group',  _.get(args, 'cssClass.group', 'connector-life-line'));
         _.set(args, 'line.height',  _.get(args, 'lineHeight', 290));
+
+        super(args);
+
+        this._totalHeightGap = 50;
+        this._parentView = _.get(args, 'parentView');
+        this.messageManager =  _.get(args, 'messageManager');
+        this._LifeLineCenterGap = 180;
 
         if (_.isNil(this._model) || !(this._model instanceof ConnectorDeclaration)) {
             log.error('Connection declaration is undefined or is of different type.' + this._model);
@@ -200,4 +202,3 @@ class ConnectorDeclarationView extends LifeLine {
 ConnectorDeclarationView.prototype.constructor = ConnectorDeclaration;
 
 export default ConnectorDeclarationView;
-    
