@@ -22,16 +22,17 @@ import jsPlumbLib from 'jsplumb';
 import dagre from 'dagre';
 import alerts from 'alerts';
 import './type-mapper.css';
-    /**
-     * Renderer constructor for TypeMapper
-     * @param {object} onConnectionCallback call back function when connection made
-     * @param {object} onDisconnectCallback call back function when connection removed
-     * @param {object} typeConverterView Type Mapper View reference object
-     * @constructor
-     */
-    var jsPlumb = jsPlumbLib.jsPlumb;
+/**
+ * Renderer constructor for TypeMapper
+ * @param {object} onConnectionCallback call back function when connection made
+ * @param {object} onDisconnectCallback call back function when connection removed
+ * @param {object} typeConverterView Type Mapper View reference object
+ * @constructor
+ */
+var jsPlumb = jsPlumbLib.jsPlumb;
 
-    var TypeMapperRenderer = function (onConnectionCallback, onDisconnectCallback, typeConverterView) {
+class TypeMapperRenderer {
+    constructor(onConnectionCallback, onDisconnectCallback, typeConverterView) {
         this.references = [];
         this.viewId = typeConverterView._model.id;
         this.contextMenu = "typeMapperContextMenu";
@@ -88,18 +89,18 @@ import './type-mapper.css';
         });
 
         $('#' + self.contextMenu).hide();
-        this.jsPlumbInstance.bind('contextmenu', function (connection, e) {
+        this.jsPlumbInstance.bind('contextmenu', (connection, e) => {
             var contextMenuDiv = $('#' + self.contextMenu);
             var anchorTag = $('<a>').attr('id', 'typeMapperConRemove');
             anchorTag.html($('<i>').addClass('fw fw-delete'));
             anchorTag.html( anchorTag.html() + " Remove");
             contextMenuDiv.html(anchorTag);
 
-            document.addEventListener('click', function() {
+            document.addEventListener('click', () => {
                 $('#' + self.contextMenu).hide();
             }, false);
 
-            $("#typeMapperConRemove").click(function() {
+            $("#typeMapperConRemove").click(() => {
                 self.disconnect(connection);
                 $('#' + self.contextMenu).hide();
             });
@@ -115,21 +116,19 @@ import './type-mapper.css';
         });
 
 
-        this.jsPlumbInstance.bind('connection', function (info, ev) {
+        this.jsPlumbInstance.bind('connection', (info, ev) => {
             self.dagrePosition(self);
             //TODO: for multiple type mappers
             // self.processTypeMapperDropdown(info);
         });
-    };
-
-    TypeMapperRenderer.prototype.constructor = TypeMapperRenderer;
+    }
 
     /**
      * Disconnects the connection created.
      *
      * @param connection
      */
-    TypeMapperRenderer.prototype.disconnect = function (connection) {
+    disconnect(connection) {
         var self = this;
         var propertyConnection = this.getConnectionObject(connection.getParameter("id"),
             connection.sourceId, connection.targetId);
@@ -140,7 +139,7 @@ import './type-mapper.css';
         this.disconnectCallback(propertyConnection);
         // this.enableParentsJsTree(connection.sourceId, this, this.jsPlumbInstance.getAllConnections(), true);
         // this.enableParentsJsTree(connection.targetId, this, this.jsPlumbInstance.getAllConnections(), false);
-    };
+    }
 
     /**
      * Created the connection object from the sourceId and targetId of the connection elements
@@ -148,7 +147,7 @@ import './type-mapper.css';
      * @param targetId Id of the target element of the connection
      * @returns connectionObject
      */
-    TypeMapperRenderer.prototype.getConnectionObject = function (id, sourceId, targetId) {
+    getConnectionObject(id, sourceId, targetId) {
         var sourceName = this.getStructId(sourceId);
         var targetName = this.getStructId(targetId);
 
@@ -176,59 +175,59 @@ import './type-mapper.css';
             isComplexMapping: false,
             complexMapperName: null
         };
-    };
+    }
 
     /**
      * Get the id of the struct from the propertyId
      * @param propertyId Id of the property
      * @returns {*}
      */
-    TypeMapperRenderer.prototype.getStructId = function (propertyId) {
+    getStructId(propertyId) {
         var id = propertyId.replace(this.jsTreePrefix + this.viewIdSeperator, "");
         return id.split(this.idNameSeperator)[0]
-    };
+    }
 
     /**
      * Get the struct name from the id of the struct
      * @param structId
      * @returns {*}
      */
-    TypeMapperRenderer.prototype.getStructName = function (structId) {
+    getStructName(structId) {
         return structId.split(this.viewIdSeperator)[0];
-    };
+    }
 
     /**
      * Get the type of the property from the property ID
      * @param propertyId
      * @returns {*}
      */
-    TypeMapperRenderer.prototype.getPropertyType = function (propertyId) {
+    getPropertyType(propertyId) {
         var parts = propertyId.split(this.idNameSeperator);
         return parts[parts.length - 1].split(this.nameTypeSeperator)[1].replace('_anchor', "");
-    };
+    }
 
     /**
      * Get the name of the property from the property id
      * @param propertyId
      * @returns {*}
      */
-    TypeMapperRenderer.prototype.getPropertyName = function (propertyId) {
+    getPropertyName(propertyId) {
         var parts = propertyId.split(this.idNameSeperator);
         return parts[parts.length - 1].split(this.nameTypeSeperator)[0];
-    };
+    }
 
     /**
      * Populate the attribute properties stack from the propertyId
      * @param propertyId
      * @returns {Array}
      */
-    TypeMapperRenderer.prototype.getPropertyNameStack = function (propertyId) {
+    getPropertyNameStack(propertyId) {
         var id = propertyId.replace(this.jsTreePrefix + this.viewIdSeperator, "");
         var parts = id.split(this.idNameSeperator);
         var propertyNames = [];
         var self = this;
         var elementId = 0;
-        _.forEach(parts, function (aPart) {
+        _.forEach(parts, aPart => {
             if (elementId != 0) {
                 propertyNames.push(aPart.split(self.nameTypeSeperator)[0])
             } else {
@@ -236,13 +235,13 @@ import './type-mapper.css';
             }
         });
         return propertyNames;
-    };
+    }
 
     /**
      * Process the connection and determines whether to show/hide the dropdown from the connection.
      * @param info connection object.
      */
-    TypeMapperRenderer.prototype.processTypeMapperDropdown = function (info) {
+    processTypeMapperDropdown(info) {
         var sourceType = this.getPropertyType(info.sourceId);
         var targetType = this.getPropertyType(info.targetId);
         var isValidTypes = sourceType == targetType;
@@ -254,21 +253,20 @@ import './type-mapper.css';
             var updatedTypeMapperId = "typeMapperList" + this.viewIdSeperator + connection.sourceId
                 + this.sourceTargetSeperator + connection.targetId;
             var typeMappers = this.getExistingTypeMappers(this.typeConverterView, sourceType, targetType);
-            $.each(typeMappers, function (i, item) {
+            $.each(typeMappers, (i, item) => {
                 $(typeMapperId).append($('<option>', {
                     value: item,
                     text: item
                 }));
             });
             $(typeMapperId).attr("id", updatedTypeMapperId);
-            $("#" + updatedTypeMapperId).change(function () {
+            $("#" + updatedTypeMapperId).change(() => {
                 self.onChangeTypeMapper(updatedTypeMapperId)
             });
         } else {
             info.connection.getOverlay("typeMapperDropdown").hide();
         }
-    };
-
+    }
 
     /**
      * Finds the existing type mappers defined.
@@ -277,10 +275,10 @@ import './type-mapper.css';
      * @param targetType
      * @returns {Array}
      */
-    TypeMapperRenderer.prototype.getExistingTypeMappers = function (typeConverterObj, sourceType, targetType) {
+    getExistingTypeMappers(typeConverterObj, sourceType, targetType) {
         var compatibleTypeConverters = [];
         var typeConverters = typeConverterObj.getPackage().getTypeMapperDefinitions();
-        _.forEach(typeConverters, function (typeConverter) {
+        _.forEach(typeConverters, typeConverter => {
             if (typeConverterObj.getModel().getTypeMapperName() !== typeConverter.getTypeMapperName()) {
                 if (sourceType == typeConverter.getInputParamAndIdentifier().split(" ")[0] &&
                     targetType == typeConverter.getReturnType()) {
@@ -289,7 +287,7 @@ import './type-mapper.css';
             }
         });
         return compatibleTypeConverters;
-    };
+    }
 
     /**
      * The integrates the source manipluation trigger for the change in the
@@ -297,7 +295,7 @@ import './type-mapper.css';
      *
      * @param listId Id of the dropdown.
      */
-    TypeMapperRenderer.prototype.onChangeTypeMapper = function (listId) {
+    onChangeTypeMapper(listId) {
         var id = listId.replace("typeMapperList" + this.viewIdSeperator, "");
         var sourceId = id.split(this.sourceTargetSeperator)[0];
         var targetId = id.split(this.sourceTargetSeperator)[1];
@@ -306,13 +304,13 @@ import './type-mapper.css';
         connection.isComplexMapping = true;
         connection.complexMapperName = $("#" + listId + " option:selected").val();
         this.connectCallback(connection);
-    };
+    }
 
     /**
      * Remove a type from the mapper UI
      * @param {string} name identifier of the type
      */
-    TypeMapperRenderer.prototype.removeType = function (name) {
+    removeType(name) {
         var typeId = name + this.viewIdSeperator + this.viewId;
         if ($("#" + typeId).attr('class') != null) {
             var typeConns;
@@ -327,7 +325,7 @@ import './type-mapper.css';
             }
 
             var self = this;
-            _.forEach(typeConns, function (structCon) {
+            _.forEach(typeConns, structCon => {
                 if (_.includes(structCon.className, lookupClass)) {
                     self.jsPlumbInstance.remove(structCon.id);
                 }
@@ -335,13 +333,13 @@ import './type-mapper.css';
             $("#" + typeId).remove();
             this.dagrePosition(this);
         }
-    };
+    }
 
     /**
      * Add a connection arrow in the mapper UI
      * @param {object} connection connection object which specified source and target
      */
-    TypeMapperRenderer.prototype.addConnection = function (connection) {
+    addConnection(connection) {
         var anchorEnd = '_anchor';
         var sourceId = this.jsTreePrefix + this.viewIdSeperator + connection.sourceStruct
             + this.viewIdSeperator + this.viewId;
@@ -399,22 +397,21 @@ import './type-mapper.css';
                 connected: false
             });
         }
-    };
+    }
 
     /**
      * Add a source type in the mapper UI
      * @param {object} type definition with parameters to be mapped
      * @param {object} reference AST model reference
      */
-    TypeMapperRenderer.prototype.addSourceType = function (struct, reference) {
+    addSourceType(struct, reference) {
         var id = struct.name + this.viewIdSeperator + this.viewId;
         struct.id = id;
         this.makeType(struct, 50, 50, reference, "source");
         var jsTreeId = this.jsTreePrefix + this.viewIdSeperator + id;
         this.addComplexProperty(jsTreeId, struct);
         this.processJSTree(jsTreeId, id, this.addSource)
-    };
-
+    }
 
     /**
      * Manipulates the jstree structure and the jsPlumb connections
@@ -423,17 +420,17 @@ import './type-mapper.css';
      * @param structId
      * @param createCallback
      */
-    TypeMapperRenderer.prototype.processJSTree = function (jsTreeId, structId, createCallback) {
+    processJSTree(jsTreeId, structId, createCallback) {
         var self = this;
-        $("#" + jsTreeId).jstree().on('ready.jstree', function () {
+        $("#" + jsTreeId).jstree().on('ready.jstree', () => {
             var sourceElements = $("#" + structId).find('.jstree-anchor');
-            _.forEach(sourceElements, function (element) {
+            _.forEach(sourceElements, element => {
                 createCallback(element, self);
             });
             $("#" + jsTreeId).jstree('open_all');
             self.existingJsTrees.push(structId);
             self.dagrePosition(self);
-            _.forEach(self.connectionPool, function (conPoolObj) {
+            _.forEach(self.connectionPool, conPoolObj => {
                 if (!conPoolObj.connected && structId ==
                     conPoolObj.connection.sourceStruct + self.viewIdSeperator + self.viewId) {
                     conPoolObj.isSourceExists = true;
@@ -446,28 +443,28 @@ import './type-mapper.css';
                     conPoolObj.connected = true;
                 }
             });
-        }).on('after_open.jstree', function (event, data) {
+        }).on('after_open.jstree', (event, data) => {
             self.dagrePosition(self);
             var parentId = data.node.id;
             var sourceElements = $("#" + parentId).find('.jstree-anchor');
-            _.forEach(sourceElements, function (element) {
+            _.forEach(sourceElements, element => {
                 createCallback(element, self);
             });
             self.jsPlumbInstance.repaintEverything();
-        }).on('after_close.jstree', function (event, data) {
+        }).on('after_close.jstree', (event, data) => {
             self.dagrePosition(self);
             self.jsPlumbInstance.repaintEverything();
-        }).on('select_node.jstree', function (event, data) {
+        }).on('select_node.jstree', (event, data) => {
             data.instance.deselect_node(data.node);
         });
-    };
+    }
 
-    TypeMapperRenderer.prototype.repaintAll = function (jsTreeId) {
+    repaintAll(jsTreeId) {
         var children = $("#" + jsTreeId).jstree().get_node('#').children_d;
-        _forEach(children, function (child) {
+        _forEach(children, child => {
             self.jsPlumbInstance.repaint(child.id + "_anchor");
         });
-    };
+    }
 
     /**
      * Handles the complex struct properties.
@@ -475,29 +472,27 @@ import './type-mapper.css';
      * @param parentId Id of the parentElement where the element needs to be added.
      * @param struct  Object which specifies the id, name, and type of the struct.
      */
-    TypeMapperRenderer.prototype.addComplexProperty = function (parentId, struct) {
+    addComplexProperty(parentId, struct) {
         var self = this;
-        _.forEach(struct.properties, function (property) {
+        _.forEach(struct.properties, property => {
             var buildInTypes = self.typeConverterView.getTypes();
             if (buildInTypes.includes(property.type)) {
                 self.makeProperty($('#' + parentId), property.name, property.type);
             } else {
                 var complexStructEl = self.makeProperty($('#' + parentId), property.name, property.type);
                 var allStructDefn = self.typeConverterView.getPackage().getStructDefinitions();
-                var structIndex = _.findIndex(allStructDefn, function (aStruct) {
-                    return aStruct.getStructName() === property.type;
-                });
+                var structIndex = _.findIndex(allStructDefn, aStruct => aStruct.getStructName() === property.type);
                 self.addComplexProperty(complexStructEl.attr('id'), allStructDefn[structIndex].getAttributesArray())
             }
         });
-    };
+    }
 
     /**
      * Add a target struct in the mapper UI
      * @param {object} struct definition with parameters to be mapped
      * @param {object} reference AST model reference
      */
-    TypeMapperRenderer.prototype.addTargetType = function (struct, reference) {
+    addTargetType(struct, reference) {
         var id = struct.name + this.viewIdSeperator + this.viewId;
         struct.id = id;
         var placeHolderWidth = document.getElementById(this.placeHolderName).offsetWidth;
@@ -506,7 +501,7 @@ import './type-mapper.css';
         var jsTreeId = this.jsTreePrefix + this.viewIdSeperator + id;
         this.addComplexProperty(jsTreeId, struct);
         this.processJSTree(jsTreeId, id, this.addTarget);
-    };
+    }
 
     /**
      * Make generic struct div element in the UI
@@ -515,7 +510,7 @@ import './type-mapper.css';
      * @param {int} posY Y position cordinate
      * @param {object} reference
      */
-    TypeMapperRenderer.prototype.makeType = function (struct, posX, posY, reference, type) {
+    makeType(struct, posX, posY, reference, type) {
         this.references.push({name: struct.id, refObj: reference});
         var newStruct = $('<div>').attr('id', struct.id).attr('type', type).addClass('struct');
         var structIcon = $('<i>').addClass('type-mapper-icon fw fw-struct fw-inverse');
@@ -532,14 +527,14 @@ import './type-mapper.css';
             .addClass('tree-container');
         newStruct.append(jsTreeContainer);
         $("#" + this.placeHolderName).append(newStruct);
-    };
+    }
 
     /**
      * Add a function in the mapper UI
      * @param {object} function definition with parameters to be mapped
      * @param {object} reference AST model reference
      */
-    TypeMapperRenderer.prototype.addFunction = function (func, reference, onFunctionRemove) {
+    addFunction(func, reference, onFunctionRemove) {
         var funcText = func.name;
         //Allow multiple functions to drag and drop without conflicting
         var functionInvocationModelId = reference.model.getChildren()[1].getChildren()[0].getID();
@@ -572,12 +567,12 @@ import './type-mapper.css';
             $("#" + this.placeHolderName).append(newFunc);
 
             //Remove button functionality
-            $("#" + id + "-button").on("click", function () {
+            $("#" + id + "-button").on("click", () => {
                 var removedFunction = {name: func.name};
                 removedFunction.incomingConnections = [];
                 removedFunction.outgoingConnections = [];
 
-                _.forEach(self.jsPlumbInstance.getAllConnections(), function (connection) {
+                _.forEach(self.jsPlumbInstance.getAllConnections(), connection => {
                     if (connection.target.id.includes(id)) {
                         removedFunction.incomingConnections.push(
                             self.getConnectionObject(connection.getParameter("id"),
@@ -599,21 +594,21 @@ import './type-mapper.css';
                 onFunctionRemove(removedFunction);
             });
 
-            _.forEach(func.parameters, function (parameter) {
+            _.forEach(func.parameters, parameter => {
                 var property = self.makeFunctionAttribute($('#' + id), parameter.name, parameter.type, true);
                 self.addTarget(property, self);
             });
 
-            _.forEach(func.returnType, function (parameter) {
+            _.forEach(func.returnType, parameter => {
                 var property = self.makeFunctionAttribute($('#' + id), parameter.name, parameter.type, false);
                 self.addSource(property, self, true);
             });
 
             self.dagrePosition(this);
         }
-    };
+    }
 
-    TypeMapperRenderer.prototype.makeFunctionAttribute = function (parentId, name, type, input) {
+    makeFunctionAttribute(parentId, name, type, input) {
         var id = parentId.selector.replace("#", "") + this.idNameSeperator + name + this.nameTypeSeperator + type;
         var property;
         if (input) {
@@ -630,7 +625,7 @@ import './type-mapper.css';
         property.append(propertyType);
         $(parentId).append(property);
         return property;
-    };
+    }
 
     /**
      * Make Property DIV element
@@ -639,14 +634,14 @@ import './type-mapper.css';
      * @param {string} type property type
      * @returns {*|jQuery}
      */
-    TypeMapperRenderer.prototype.makeProperty = function (parentId, name, type) {
+    makeProperty(parentId, name, type) {
         var id = parentId.selector.replace("#", "") + this.idNameSeperator + name + this.nameTypeSeperator + type;
         var ul = $('<ul class="property">');
         var li = $('<li class="property">').attr('id', id).text(name + " : " + type);
         ul.append(li);
         $(parentId).append(ul);
         return li;
-    };
+    }
 
     /**
      * Make source property
@@ -654,7 +649,7 @@ import './type-mapper.css';
      * @param element
      * @param self
      */
-    TypeMapperRenderer.prototype.addSource = function (element, self, maxConnections) {
+    addSource(element, self, maxConnections) {
         var connectionConfig = {
             anchor: ["Continuous", {faces: ["right"]}]
         };
@@ -662,7 +657,7 @@ import './type-mapper.css';
             connectionConfig.maxConnections = 1;
         }
         self.jsPlumbInstance.makeSource(element, connectionConfig);
-    };
+    }
 
     /**
      * Remove the source element
@@ -670,16 +665,16 @@ import './type-mapper.css';
      * @param elements
      * @param self
      */
-    TypeMapperRenderer.prototype.removeSource = function (elements, self) {
+    removeSource(elements, self) {
         self.jsPlumbInstance.unmakeSource(elements);
-    };
+    }
 
     /**
      * Specifies connection has a function
      * @param {object} connection
      * @returns {boolean} has a connection or not
      */
-    TypeMapperRenderer.prototype.hasFunction = function (connection, self) {
+    hasFunction(connection, self) {
         return $("#" + connection.sourceStruct + self.viewIdSeperator + self.viewId).attr('class').includes("func")
             || $("#" + connection.targetStruct + self.viewIdSeperator + self.viewId).attr('class').includes("func");
     }
@@ -689,7 +684,7 @@ import './type-mapper.css';
      * @param element
      * @param self
      */
-    TypeMapperRenderer.prototype.addTarget = function (element, self) {
+    addTarget(element, self) {
         self.jsPlumbInstance.makeTarget(element, {
             maxConnections: 1,
             anchor: ["Continuous", {faces: ["left"]}],
@@ -728,25 +723,25 @@ import './type-mapper.css';
             }
         })
         ;
-    };
+    }
 
-    TypeMapperRenderer.prototype.disableParentsJsTree = function (connectionId, self) {
+    disableParentsJsTree(connectionId, self) {
         var sourceJsTreeId = this.jsTreePrefix + self.viewIdSeperator + self.getStructId(connectionId);
         var sourceJsTree = $("#" + sourceJsTreeId).jstree(true);
         var node = sourceJsTree.get_node(connectionId.replace('_anchor', ''));
-        _.forEach(node.parents, function (parentNodeId) {
+        _.forEach(node.parents, parentNodeId => {
             if (parentNodeId !== '#') {
                 var parentNode = sourceJsTree.get_node(parentNodeId);
                 parentNode.state = 'leaf';
             }
         });
-    };
+    }
 
-    TypeMapperRenderer.prototype.enableParentsJsTree = function (connectionId, self, connections, isSource) {
+    enableParentsJsTree(connectionId, self, connections, isSource) {
         var sourceJsTreeId = this.jsTreePrefix + self.viewIdSeperator + self.getStructId(connectionId);
         var sourceJsTree = $("#" + sourceJsTreeId).jstree(true);
         var node = sourceJsTree.get_node(connectionId.replace('_anchor', ''));
-        _.forEach(node.parents, function (parentNodeId) {
+        _.forEach(node.parents, parentNodeId => {
             if (parentNodeId !== '#' && !self.isChildConnectionExists(sourceJsTree, self, connections, isSource)) {
                 var parentNode = sourceJsTree.get_node(parentNodeId);
                 parentNode.state = {
@@ -757,12 +752,12 @@ import './type-mapper.css';
                 };
             }
         });
-    };
+    }
 
-    TypeMapperRenderer.prototype.isChildConnectionExists = function (jsTreeNode, self, connections, isSource) {
+    isChildConnectionExists(jsTreeNode, self, connections, isSource) {
         var childNodes = jsTreeNode.children_d;
-        var child = _.find(childNodes, function (childId) {
-            var connection = _.find(connections, function (connection) {
+        var child = _.find(childNodes, childId => {
+            var connection = _.find(connections, connection => {
                 if (isSource) {
                     return childId.includes(connection.sourceId);
                 } else {
@@ -774,11 +769,11 @@ import './type-mapper.css';
             }
         });
         return !_.isUndefined(child);
-    };
+    }
 
-    TypeMapperRenderer.prototype.removeTarget = function (element, self) {
+    removeTarget(element, self) {
         self.jsPlumbInstance.unmakeTarget(element);
-    };
+    }
 
     /**
      * Get list of connections for provided property of a source struct
@@ -786,11 +781,11 @@ import './type-mapper.css';
      * @param {Array} property name hierarchy of the property
      * @returns {Array} List of connections
      */
-    TypeMapperRenderer.prototype.getSourceConnectionsByProperty = function(structName, property, type) {
+    getSourceConnectionsByProperty(structName, property, type) {
         var self = this;
         var connections = [];
         for (var i = 0; i < property.length; i++) {
-            _.forEach(self.jsPlumbInstance.getAllConnections(), function (connection) {
+            _.forEach(self.jsPlumbInstance.getAllConnections(), connection => {
                 if (connection.sourceId.includes(structName + self.viewIdSeperator + self.viewId
                     + self.idNameSeperator + property[i] + self.nameTypeSeperator + type[i])) {
                     connections.push(self.getConnectionObject(connection.getParameter("id"),
@@ -798,13 +793,13 @@ import './type-mapper.css';
                 }
             });
 
-            _.forEach(connections, function (connection) {
+            _.forEach(connections, connection => {
                 self.jsPlumbInstance.detach(connection);
             });
         }
 
         return connections;
-    };
+    }
 
     /**
      * Get list of connections for provided property of a target struct
@@ -812,11 +807,11 @@ import './type-mapper.css';
      * @param {Array} property name hierarchy of the property
      * @returns {Array} List of connections
      */
-    TypeMapperRenderer.prototype.getTargetConnectionsByProperty = function(structName, property, type) {
+    getTargetConnectionsByProperty(structName, property, type) {
         var self = this;
         var connections = [];
         for (var i = 0; i < property.length; i++) {
-            _.forEach(self.jsPlumbInstance.getAllConnections(), function (connection) {
+            _.forEach(self.jsPlumbInstance.getAllConnections(), connection => {
                 if (connection.targetId.includes(structName + self.viewIdSeperator + self.viewId
                     + self.idNameSeperator + property[i] + self.nameTypeSeperator + type[i])) {
                     connections.push(self.getConnectionObject(connection.getParameter("id"),
@@ -824,64 +819,63 @@ import './type-mapper.css';
                 }
             });
 
-            _.forEach(connections, function (connection) {
+            _.forEach(connections, connection => {
                 self.jsPlumbInstance.detach(connection);
             });
         }
         return connections;
-    };
+    }
 
     /**
      * Get list of connections for provided source struct
      * @param {string} structName
      * @returns {Array} List of connections
      */
-    TypeMapperRenderer.prototype.getSourceConnectionsByStruct = function(structName) {
+    getSourceConnectionsByStruct(structName) {
         var self = this;
         var connections = [];
-        _.forEach(self.jsPlumbInstance.getAllConnections(), function (connection) {
+        _.forEach(self.jsPlumbInstance.getAllConnections(), connection => {
             if (connection.sourceId.includes(structName)) {
                 connections.push(self.getConnectionObject(connection.getParameter("id"),
                     connection.sourceId, connection.targetId));
             }
         });
 
-        _.forEach(connections, function (connection) {
+        _.forEach(connections, connection => {
             self.jsPlumbInstance.detach(connection);
         });
 
         return connections;
-    };
+    }
 
     /**
      * Get list of connections for provided target struct
      * @param {string} structName
      * @returns {Array} List of connections
      */
-    TypeMapperRenderer.prototype.getTargetConnectionsByStruct = function(structName) {
+    getTargetConnectionsByStruct(structName) {
         var self = this;
         var connections = [];
-           _.forEach(self.jsPlumbInstance.getAllConnections(), function (connection) {
+           _.forEach(self.jsPlumbInstance.getAllConnections(), connection => {
                 if (connection.targetId.includes(structName)) {
                     connections.push(self.getConnectionObject(connection.getParameter("id"),
                         connection.sourceId, connection.targetId));
                 }
             });
 
-        _.forEach(connections, function (connection) {
+        _.forEach(connections, connection => {
             self.jsPlumbInstance.detach(connection);
         });
 
         return connections;
-    };
-
+    }
 
     /**
      * Position Nodes with dagre
      * @param {string} viewId type mapper view identifier
      * @param jsPlumbInstance jsPlumb instance of the type mapper to be repositioned
      */
-    TypeMapperRenderer.prototype.dagrePosition = function (self) {
+    dagrePosition(self) {
         // construct dagre graph from this.jsPlumbInstance graph
         var graph = new dagre.graphlib.Graph();
         var alignment = 'LR';
@@ -895,9 +889,7 @@ import './type-mapper.css';
         }
 
         graph.setGraph({ranksep: '100', rankdir: alignment, edgesep: '100', marginx: '0'});
-        graph.setDefaultEdgeLabel(function () {
-            return {};
-        });
+        graph.setDefaultEdgeLabel(() => ({}));
 
         if (structs.length > 1) {
             if ($(structs[0]).attr("type") == "source") {
@@ -909,7 +901,7 @@ import './type-mapper.css';
             }
 
             nodes.push(structs[sourceIndex]);
-            _.forEach(funcs, function (func) {
+            _.forEach(funcs, func => {
                 nodes.push(func);
             });
             nodes.push(structs[targetIndex]);
@@ -917,7 +909,7 @@ import './type-mapper.css';
             if (structs != null) {
                 nodes = structs;
             }
-            _.forEach(funcs, function (func) {
+            _.forEach(funcs, func => {
                 nodes.push(func);
             });
         }
@@ -926,7 +918,7 @@ import './type-mapper.css';
             var maxTypeHeight = 0;
             var maxYPosition = 0;
 
-            _.forEach(nodes, function (n) {
+            _.forEach(nodes, n => {
                 var nodeContent = $("#" + n.id);
                 var height = nodeContent.height();
 
@@ -942,7 +934,7 @@ import './type-mapper.css';
             });
             var edges = self.jsPlumbInstance.getAllConnections();
 
-            _.forEach(edges, function (edge) {
+            _.forEach(edges, edge => {
                 var source = edge.source.id.split(self.idNameSeperator)[0];
                 var target = edge.target.id.split(self.idNameSeperator)[0];
                 var sourceId;
@@ -969,7 +961,7 @@ import './type-mapper.css';
             dagre.layout(graph);
 
             // Applying the calculated layout
-            _.forEach(graph.nodes(), function (dagreNode) {
+            _.forEach(graph.nodes(), dagreNode => {
                 if (funcs.length > 0) {
                     var node = $("#" + dagreNode);
                     node.css("left", graph.node(dagreNode).x + "px");
@@ -986,18 +978,21 @@ import './type-mapper.css';
             self.jsPlumbInstance.repaintEverything();
             $(self.viewId).closest(".panel-body").find(".outer-box").mCustomScrollbar("update");
         }
-    };
+    }
 
     /**
      * Give the flow chart object array for given midpoint
      * @param {int} midPoint point which flow chart connection should bend
      * @returns {*[]} flow chart object array
      */
-    TypeMapperRenderer.prototype.getConnectorConfig = function (midPoint) {
+    getConnectorConfig(midPoint) {
         return ["Flowchart", {
             midpoint: midPoint,
             stub: [40, 60], cornerRadius: 5, alwaysRespectStubs: true
-        }]
+        }];
     }
+}
 
-    export default TypeMapperRenderer;
+TypeMapperRenderer.prototype.constructor = TypeMapperRenderer;
+
+export default TypeMapperRenderer;
