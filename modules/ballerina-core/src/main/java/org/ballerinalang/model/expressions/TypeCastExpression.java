@@ -44,7 +44,7 @@ public class TypeCastExpression extends AbstractExpression implements CallableUn
     private String packageName;
     private SymbolName typeMapperName;
     private TypeMapper typeMapper;
-    protected Function<BValueType, BValueType> evalFuncNewNew;
+    protected Function<BValue, BValue> evalFuncNewNew;
     private int retuningBranchID;
     private boolean hasReturningBranch;
 
@@ -60,11 +60,11 @@ public class TypeCastExpression extends AbstractExpression implements CallableUn
         this.typeName = typeName;
     }
 
-    public Function<BValueType, BValueType> getEvalFunc() {
+    public Function<BValue, BValue> getEvalFunc() {
         return evalFuncNewNew;
     }
 
-    public void setEvalFunc(Function<BValueType, BValueType> evalFuncNewNew) {
+    public void setEvalFunc(Function<BValue, BValue> evalFuncNewNew) {
         this.evalFuncNewNew = evalFuncNewNew;
     }
 

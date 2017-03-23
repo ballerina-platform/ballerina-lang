@@ -1158,7 +1158,7 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
         next = typeCastExpressionEndNode.next;
         // Check for native type casting
         if (typeCastExpression.getEvalFunc() != null) {
-            BValueType result = (BValueType) getTempValue(typeCastExpression.getRExpr());
+            BValue result = (BValue) getTempValue(typeCastExpression.getRExpr());
             setTempValue(typeCastExpression.getTempOffset(), typeCastExpression.getEvalFunc().apply(result));
         } else {
             TypeMapper typeMapper = typeCastExpression.getCallableUnit();
