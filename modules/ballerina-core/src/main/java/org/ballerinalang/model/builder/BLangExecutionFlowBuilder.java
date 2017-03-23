@@ -1028,15 +1028,23 @@ public class BLangExecutionFlowBuilder implements NodeVisitor {
         // Handle this as non-blocking manner.
         ArrayMapAccessExprEndNode endNode = new ArrayMapAccessExprEndNode(arrayMapAccessExpr);
         Expression rExp = arrayMapAccessExpr.getRExpr();
-        // ToDo: Talk to hasitha
-        Expression indexExpr = arrayMapAccessExpr.getIndexExpr()[0];
+        Expression[] indexExprs = arrayMapAccessExpr.getIndexExpr();
         arrayMapAccessExpr.setNext(rExp);
         rExp.setParent(arrayMapAccessExpr);
-        indexExpr.setParent(arrayMapAccessExpr);
-        rExp.setNextSibling(indexExpr);
-        indexExpr.setNextSibling(endNode);
+        LinkedNode previous = rExp;
+        for(Expression indexExpr : indexExprs){
+            previous.setNextSibling(indexExpr);
+            indexExpr.setParent(arrayMapAccessExpr);
+            previous = indexExpr;
+        }
+        previous.setNextSibling(endNode);
+//        rExp.setNextSibling(indexExpr);
+//        indexExpr.setParent(arrayMapAccessExpr);
+//        indexExpr.setNextSibling(endNode);
         rExp.accept(this);
-        indexExpr.accept(this);
+        for(Expression indexExpr : indexExprs) {
+            indexExpr.accept(this);
+        }
         endNode.setNext(findNext(endNode));
     }
 
