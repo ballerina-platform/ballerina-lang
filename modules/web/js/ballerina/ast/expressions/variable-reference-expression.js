@@ -15,51 +15,51 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', './expression'], function (_, Expression) {
+import _ from 'lodash';
+import Expression from './expression';
 
-    /**
-     * Constructor for VariableReferenceExpression
-     * @param {Object} args - Arguments to create the VariableReferenceExpression
-     * @constructor
-     */
-    var VariableReferenceExpression = function (args) {
-        Expression.call(this, 'VariableReferenceExpression');
+/**
+ * Constructor for VariableReferenceExpression
+ * @param {Object} args - Arguments to create the VariableReferenceExpression
+ * @constructor
+ */
+class VariableReferenceExpression extends Expression {
+    constructor(args) {
+        super('VariableReferenceExpression');
         this._variableReferenceName = _.get(args, 'variableReferenceName');
         this.setExpression(this.generateExpression(), {doSilently: true});
-    };
-
-    VariableReferenceExpression.prototype = Object.create(Expression.prototype);
-    VariableReferenceExpression.prototype.constructor = VariableReferenceExpression;
+    }
 
     /**
      * Setter for Variable Reference
      * @param variableReference
      */
-    VariableReferenceExpression.prototype.setVariableReferenceName = function (variableReferenceName, options) {
+    setVariableReferenceName(variableReferenceName, options) {
         this.setAttribute('_variableReferenceName', variableReferenceName, options);
-    };
+    }
 
     /**
      * Getter for VariableReference
      * @returns variableReference
      */
-    VariableReferenceExpression.prototype.getVariableReferenceName = function () {
+    getVariableReferenceName() {
         return this._variableReferenceName;
-    };
+    }
 
     /**
      * initialize VariableReferenceExpression from json object
      * @param {Object} jsonNode to initialize from
      * @param {string} [jsonNode.variable_reference_name] - Symbol name of the VariableReferenceExpression
      */
-    VariableReferenceExpression.prototype.initFromJson = function (jsonNode) {
+    initFromJson(jsonNode) {
         this.setVariableReferenceName(jsonNode.variable_reference_name, {doSilently: true});
         this.setExpression(this.generateExpression(), {doSilently: true});
-    };
+    }
 
-    VariableReferenceExpression.prototype.generateExpression = function () {
+    generateExpression() {
         return this.getVariableReferenceName();
-    };
+    }
+}
 
-    return VariableReferenceExpression;
-});
+export default VariableReferenceExpression;
+

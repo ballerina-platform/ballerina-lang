@@ -15,27 +15,27 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require','lodash', 'log', 'event_channel', './abstract-statement-source-gen-visitor'],
-    function(require, _, log, EventChannel, AbstractStatementSourceGenVisitor) {
+import _ from 'lodash';
+import log from 'log';
+import EventChannel from 'event_channel';
+import AbstractStatementSourceGenVisitor from './abstract-statement-source-gen-visitor';
 
-        var ActionInvocationStatementVisitor = function(parent){
-            AbstractStatementSourceGenVisitor.call(this,parent);
-        };
+class ActionInvocationStatementVisitor extends AbstractStatementSourceGenVisitor {
+    constructor(parent) {
+        super(parent);
+    }
 
-        ActionInvocationStatementVisitor.prototype = Object.create(AbstractStatementSourceGenVisitor.prototype);
-        ActionInvocationStatementVisitor.prototype.constructor = ActionInvocationStatementVisitor;
+    canVisitActionInvocationStatement(actionInvocationStatement) {
+        return true;
+    }
 
-        ActionInvocationStatementVisitor.prototype.canVisitActionInvocationStatement = function(actionInvocationStatement){
-            return true;
-        };
+    beginVisitActionInvocationExpression(actionInvocationStatement) {
+        this.appendSource(actionInvocationStatement.getExpression());
+    }
 
-        ActionInvocationStatementVisitor.prototype.beginVisitActionInvocationExpression = function(actionInvocationStatement){
-            this.appendSource(actionInvocationStatement.getExpression());
-        };
+    endVisitActionInvocationStatement(action) {
+        this.getParent().appendSource(this.getGeneratedSource() + ";");
+    }
+}
 
-        ActionInvocationStatementVisitor.prototype.endVisitActionInvocationStatement = function(action){
-            this.getParent().appendSource(this.getGeneratedSource() + ";");
-        };
-
-        return ActionInvocationStatementVisitor;
-    });
+export default ActionInvocationStatementVisitor;

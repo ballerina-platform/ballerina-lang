@@ -15,9 +15,15 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-require('./debugger.css');
 
-define(['jquery', 'backbone', 'lodash', 'log', './debug-manager', './tools', './frames'], function ($, Backbone, _, log, DebugManager, Tools, Frames) {
+import $ from 'jquery';
+import Backbone from 'backbone';
+import _ from 'lodash';
+import log from 'log';
+import DebugManager from './debug-manager';
+import Tools from './tools';
+import Frames from './frames';
+import './debugger.css';
     var Debugger = Backbone.View.extend({
         initialize: function(config) {
             var errMsg;
@@ -151,5 +157,4 @@ define(['jquery', 'backbone', 'lodash', 'log', './debug-manager', './tools', './
 
     });
 
-    return Debugger;
-});
+    export default Debugger;

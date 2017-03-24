@@ -16,7 +16,8 @@
  * under the License.
  */
 
-define(['lodash', './ballerina-ast-factory'], function (_, BallerinaASTFactory) {
+import _ from 'lodash';
+import BallerinaASTFactory from './ballerina-ast-factory';
 
     /**
      * @class DefaultBallerinaASTFactory
@@ -223,5 +224,4 @@ define(['lodash', './ballerina-ast-factory'], function (_, BallerinaASTFactory) 
         return funcInvocationStatement;
     };
 
-    return DefaultBallerinaASTFactory;
-});
+    export default DefaultBallerinaASTFactory;

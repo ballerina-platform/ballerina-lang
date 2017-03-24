@@ -15,52 +15,55 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require', 'lodash', 'log', './ast-visitor', './../views/ballerina-file-editor', './../views/service-definition-view',
-    './../views/resource-definition-view', './../views/function-definition-view'],
-    function(require, _, log, ASTVisitor, FileEditor, ServiceDefinitionView, ResourceDefinitionView, FunctionDefinitionView) {
+import _ from 'lodash';
+import log from 'log';
+import ASTVisitor from './ast-visitor';
+import FileEditor from './../views/ballerina-file-editor';
+import ServiceDefinitionView from './../views/service-definition-view';
+import ResourceDefinitionView from './../views/resource-definition-view';
+import FunctionDefinitionView from './../views/function-definition-view';
 
-    var DiagramRenderingVisitor = function(containerView) {
+class DiagramRenderingVisitor extends ASTVisitor {
+    constructor(containerView) {
+        super();
         this.containerView = containerView;
         this._viewsList = [];
-    };
+    }
 
-    DiagramRenderingVisitor.prototype = Object.create(ASTVisitor.prototype);
-    DiagramRenderingVisitor.prototype.constructor = DiagramRenderingVisitor;
-
-    DiagramRenderingVisitor.prototype.visitBallerinaASTRoot = function (astNode) {
+    visitBallerinaASTRoot(astNode) {
         log.debug("Visiting BallerinaASTRoot");
         var fileEditor = new FileEditor(null, astNode);
         fileEditor.init(astNode, this.containerView);
         this._viewsList.push(fileEditor);
         return true;
-    };
+    }
 
-    DiagramRenderingVisitor.prototype.visitReplyStatement = function (astNode) {
+    visitReplyStatement(astNode) {
         log.debug("Visiting ReplyStatement");
         var parent = astNode.getParent();
         var parentView  = _.find(this._viewsList, ['_model',parent]);
         //TODO create new reply statement view and call render
         return false;
-    };
+    }
 
-    DiagramRenderingVisitor.prototype.visitConnectionDeclaration = function () {
+    visitConnectionDeclaration() {
         log.debug("Visiting ConnectionDefinition");
         return false;
-    };
+    }
 
-    DiagramRenderingVisitor.prototype.visitWorkerDeclaration = function () {
+    visitWorkerDeclaration() {
         return false;
-    };
+    }
 
-    DiagramRenderingVisitor.prototype.visitReturnStatement = function (astNode) {
+    visitReturnStatement(astNode) {
         log.debug("Visiting ReturnStatement");
         var parent = astNode.getParent();
         var parentView  = _.find(this._viewsList, ['_model',parent]);
         //TODO create new return statement view and call render
         return false;
-    };
+    }
 
-    DiagramRenderingVisitor.prototype.visitServiceDefinition = function (astNode) {
+    visitServiceDefinition(astNode) {
         //modelView.render();
         log.debug("Visiting ServiceDefinition");
         var parent = astNode.getParent();
@@ -73,9 +76,9 @@ define(['require', 'lodash', 'log', './ast-visitor', './../views/ballerina-file-
             serviceDefinitionView.render();
         }
         return true;
-    };
+    }
 
-    DiagramRenderingVisitor.prototype.visitResourceDefinition = function (astNode) {
+    visitResourceDefinition(astNode) {
         //modelView.render();
         var parent = astNode.resourceParent();
         var parentView = _.find(this._viewsList, ['_model',parent]);
@@ -95,25 +98,25 @@ define(['require', 'lodash', 'log', './ast-visitor', './../views/ballerina-file-
         }
         log.debug("VISIT RESOURCE DEFINITION");
         return false;
-    };
+    }
 
-    DiagramRenderingVisitor.prototype.visitThrowStatement = function (astNode) {
+    visitThrowStatement(astNode) {
         log.debug("Visiting ThrowStatement");
         var parent = astNode.getParent();
         var parentView  = _.find(this._viewsList, ['_model',parent]);
         //TODO create new throw statement view and call render
         return false;
-    };
+    }
 
-    DiagramRenderingVisitor.prototype.visitWhileStatement = function (astNode) {
+    visitWhileStatement(astNode) {
         log.debug("Visiting WhileStatement");
         var parent = astNode.getParent();
         var parentView  = _.find(this._viewsList, ['_model',parent]);
         //TODO create new while statement view and call render
         return true;
-    };
+    }
 
-    DiagramRenderingVisitor.prototype.visitFunctionDefinition = function(astNode) {
+    visitFunctionDefinition(astNode) {
         log.debug("Visiting FunctionDefinition");
         var parent = astNode.getParent();
         var parentView  = _.find(this._viewsList, ['_model',parent]);
@@ -125,11 +128,11 @@ define(['require', 'lodash', 'log', './ast-visitor', './../views/ballerina-file-
             functionDefinitionView.render();
         }
         return true;
-    };
+    }
 
-    DiagramRenderingVisitor.prototype.visitActionDefinition = function(astNode) {
+    visitActionDefinition(astNode) {
         return false;
-    };
+    }
+}
 
-    return DiagramRenderingVisitor;
-});
+export default DiagramRenderingVisitor;

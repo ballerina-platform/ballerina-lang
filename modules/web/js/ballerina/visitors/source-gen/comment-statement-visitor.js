@@ -15,32 +15,33 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', 'event_channel', './abstract-statement-source-gen-visitor'], function(_, log, EventChannel, AbstractStatementSourceGenVisitor) {
+import _ from 'lodash';
+import log from 'log';
+import EventChannel from 'event_channel';
+import AbstractStatementSourceGenVisitor from './abstract-statement-source-gen-visitor';
 
-    var CommentStatementVisitor = function(parent){
-        AbstractStatementSourceGenVisitor.call(this, parent);
-    };
+class CommentStatementVisitor extends AbstractStatementSourceGenVisitor {
+    constructor(parent) {
+        super(parent);
+    }
 
-    CommentStatementVisitor.prototype = Object.create(AbstractStatementSourceGenVisitor.prototype);
-    CommentStatementVisitor.prototype.constructor = CommentStatementVisitor;
-
-    CommentStatementVisitor.prototype.canVisitCommentStatement = function(commentStatement){
+    canVisitCommentStatement(commentStatement) {
         return true;
-    };
+    }
 
-    CommentStatementVisitor.prototype.beginVisitCommentStatement = function(commentStatement){
+    beginVisitCommentStatement(commentStatement) {
         log.debug('Begin Visit Comment Statement Definition');
-    };
+    }
 
-    CommentStatementVisitor.prototype.visitCommentStatement = function(commentStatement){
+    visitCommentStatement(commentStatement) {
         log.debug('Visit Comment Statement Definition');
-    };
+    }
 
-    CommentStatementVisitor.prototype.endVisitCommentStatement = function(commentStatement){
+    endVisitCommentStatement(commentStatement) {
         this.appendSource(commentStatement.getCommentString() + ";\n");
         this.getParent().appendSource(this.getGeneratedSource());
         log.debug('End Visit Comment Statement Definition');
-    };
+    }
+}
 
-    return CommentStatementVisitor;
-});
+export default CommentStatementVisitor;

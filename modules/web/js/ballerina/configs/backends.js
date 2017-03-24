@@ -15,9 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define([],
-    function () {
-        return  {
+
+        export default  {
             services:   {
                 workspace:  {
                     endpoint: "http://localhost:8289/service/workspace"
@@ -35,6 +34,6 @@ define([],
                     endpoint: "http://localhost:8289/ballerina/validate"
                 }
             }
-        }
-    });
+        };
+    
 

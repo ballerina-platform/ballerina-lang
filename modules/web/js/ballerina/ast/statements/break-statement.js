@@ -15,36 +15,37 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', './statement'], function (_, log, Statement) {
+import _ from 'lodash';
+import log from 'log';
+import Statement from './statement';
 
-    /**
-     * Class for break statement in ballerina.
-     * @constructor
-     * @augments Statement
-     */
-    var BreakStatement = function () {
-        Statement.call(this);
+/**
+ * Class for break statement in ballerina.
+ * @constructor
+ * @augments Statement
+ */
+class BreakStatement extends Statement {
+    constructor() {
+        super();
         this.type = "BreakStatement";
-    };
+    }
 
-    BreakStatement.prototype = Object.create(Statement.prototype);
-    BreakStatement.prototype.constructor = BreakStatement;
-
-    BreakStatement.prototype.canBeAChildOf = function (node) {
+    canBeAChildOf(node) {
         return this.getFactory().isStatement(node);
-    };
+    }
 
     /**
      * initialize from json
      * @param jsonNode
      */
-    BreakStatement.prototype.initFromJson = function (jsonNode) {
+    initFromJson(jsonNode) {
 
-    };
+    }
 
-    BreakStatement.prototype.getStatement = function () {
+    getStatement() {
         return "break";
-    };
+    }
+}
 
-    return BreakStatement;
-});
+export default BreakStatement;
+

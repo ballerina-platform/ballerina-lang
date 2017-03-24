@@ -15,29 +15,31 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require','lodash', 'log', 'event_channel', './abstract-statement-source-gen-visitor', '../../ast/statements/variable-definition-statement'],
-    function(require, _, log, EventChannel, AbstractStatementSourceGenVisitor, VariableDefinitionStatement) {
+import _ from 'lodash';
+import log from 'log';
+import EventChannel from 'event_channel';
+import AbstractStatementSourceGenVisitor from './abstract-statement-source-gen-visitor';
+import VariableDefinitionStatement from '../../ast/statements/variable-definition-statement';
 
-        var VariableDefinitionStatementVisitor = function(parent){
-            AbstractStatementSourceGenVisitor.call(this,parent);
-        };
+class VariableDefinitionStatementVisitor extends AbstractStatementSourceGenVisitor {
+    constructor(parent) {
+        super(parent);
+    }
 
-        VariableDefinitionStatementVisitor.prototype = Object.create(AbstractStatementSourceGenVisitor.prototype);
-        VariableDefinitionStatementVisitor.prototype.constructor = VariableDefinitionStatementVisitor;
+    canVisitVariableDefinitionStatement(variableDefinitionStatement) {
+        return variableDefinitionStatement instanceof VariableDefinitionStatement;
+    }
 
-        VariableDefinitionStatementVisitor.prototype.canVisitVariableDefinitionStatement = function(variableDefinitionStatement){
-            return variableDefinitionStatement instanceof VariableDefinitionStatement;
-        };
+    beginVisitVariableDefinitionStatement(variableDefinitionStatement) {
+        var constructedSource = variableDefinitionStatement.getStatementString();
+        this.appendSource(constructedSource);
+        log.debug('Begin Visit Variable Definition Statement');
+    }
 
-        VariableDefinitionStatementVisitor.prototype.beginVisitVariableDefinitionStatement = function(variableDefinitionStatement){
-            var constructedSource = variableDefinitionStatement.getStatementString();
-            this.appendSource(constructedSource);
-            log.debug('Begin Visit Variable Definition Statement');
-        };
+    endVisitVariableDefinitionStatement(variableDefinitionStatement) {
+        this.getParent().appendSource(this.getGeneratedSource() + ";\n");
+        log.debug('End Visit Variable Definition Statement');
+    }
+}
 
-        VariableDefinitionStatementVisitor.prototype.endVisitVariableDefinitionStatement = function(variableDefinitionStatement){
-            this.getParent().appendSource(this.getGeneratedSource() + ";\n");
-            log.debug('End Visit Variable Definition Statement');
-        };
-        return VariableDefinitionStatementVisitor;
-    });
+export default VariableDefinitionStatementVisitor;

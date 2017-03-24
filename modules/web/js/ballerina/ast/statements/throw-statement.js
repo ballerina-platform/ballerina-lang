@@ -15,57 +15,58 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', './statement'], function (_, log, Statement) {
+import _ from 'lodash';
+import log from 'log';
+import Statement from './statement';
 
-    /**
-     * Class for throw statement in ballerina.
-     * @param expression one expression for a throw statement.
-     * @constructor
-     */
-    var ThrowStatement = function (args) {
-        Statement.call(this, 'ThrowStatement');
+/**
+ * Class for throw statement in ballerina.
+ * @param expression one expression for a throw statement.
+ * @constructor
+ */
+class ThrowStatement extends Statement {
+    constructor(args) {
+        super('ThrowStatement');
         this.type = "ThrowStatement";
-    };
+    }
 
-    ThrowStatement.prototype = Object.create(Statement.prototype);
-    ThrowStatement.prototype.constructor = ThrowStatement;
-
-    ThrowStatement.prototype.setExpression = function (expression, options) {
+    setExpression(expression, options) {
         if (!_.isNil(expression)) {
             this.setAttribute('_expression', expression, options);
         } else {
             log.error("Cannot set undefined to the throw statement.");
         }
-    };
+    }
 
     /**
      * Set the throw statement string
      * @param {string} throwString
      */
-    ThrowStatement.prototype.setStatementString = function (statementString, options) {
+    setStatementString(statementString, options) {
         this.getChildren()[0].setExpression(statementString.split('throw ')[1]);
-    };
+    }
 
     /**
      * Get the throw statement string
      * @return {string} throw statement string
      */
-    ThrowStatement.prototype.getStatementString = function () {
+    getStatementString() {
         return 'throw ' + this.getChildren()[0].getExpression();
-    };
+    }
 
     /**
      * initialize ThrowStatement from json object
      * @param {Object} jsonNode to initialize from
      */
-    ThrowStatement.prototype.initFromJson = function (jsonNode) {
+    initFromJson(jsonNode) {
         var self = this;
         _.each(jsonNode.children, function (childNode) {
             var child = self.getFactory().createFromJson(childNode);
             self.addChild(child);
             child.initFromJson(childNode);
         });
-    };
+    }
+}
 
-    return ThrowStatement;
-});
+export default ThrowStatement;
+

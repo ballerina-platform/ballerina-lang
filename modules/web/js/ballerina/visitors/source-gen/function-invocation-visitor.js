@@ -15,29 +15,30 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require','lodash', 'log', 'event_channel', './abstract-statement-source-gen-visitor', '../../ast/statements/function-invocation-statement'],
-    function(require, _, log, EventChannel, AbstractStatementSourceGenVisitor, FunctionInvocation) {
+import _ from 'lodash';
+import log from 'log';
+import EventChannel from 'event_channel';
+import AbstractStatementSourceGenVisitor from './abstract-statement-source-gen-visitor';
+import FunctionInvocation from '../../ast/statements/function-invocation-statement';
 
-        var FunctionInvocationVisitor = function(parent){
-            AbstractStatementSourceGenVisitor.call(this,parent);
-        };
+class FunctionInvocationVisitor extends AbstractStatementSourceGenVisitor {
+    constructor(parent) {
+        super(parent);
+    }
 
-        FunctionInvocationVisitor.prototype = Object.create(AbstractStatementSourceGenVisitor.prototype);
-        FunctionInvocationVisitor.prototype.constructor = FunctionInvocationVisitor;
+    canVisitFuncInvocationStatement(functionInvocation) {
+        return true;
+    }
 
-        FunctionInvocationVisitor.prototype.canVisitFuncInvocationStatement = function(functionInvocation){
-            return true;
-        };
+    visitFuncInvocationExpression(functionInvocation) {
+        this.appendSource(functionInvocation.getFunctionalExpression());
+    }
 
-        FunctionInvocationVisitor.prototype.visitFuncInvocationExpression = function (functionInvocation) {
-            this.appendSource(functionInvocation.getFunctionalExpression());
-        };
+    endVisitFuncInvocationStatement(functionInvocation) {
+        this.appendSource(";\n");
+        this.getParent().appendSource(this.getGeneratedSource());
+        log.debug('End Visit Function Invocation Statement');
+    }
+}
 
-        FunctionInvocationVisitor.prototype.endVisitFuncInvocationStatement = function(functionInvocation){
-            this.appendSource(";\n");
-            this.getParent().appendSource(this.getGeneratedSource());
-            log.debug('End Visit Function Invocation Statement');
-        };
-
-        return FunctionInvocationVisitor;
-    });
+export default FunctionInvocationVisitor;

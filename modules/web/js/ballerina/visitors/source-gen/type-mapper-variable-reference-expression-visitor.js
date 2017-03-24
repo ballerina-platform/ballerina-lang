@@ -15,40 +15,41 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require','lodash', 'log', 'event_channel', './abstract-expression-source-gen-visitor','./type-mapper-variable-definition-visitor'],
-    function(require, _, log, EventChannel, AbstractExpressionSourceGenVisitor, TypeMapperVariableDefinitionVisitor) {
+import _ from 'lodash';
+import log from 'log';
+import EventChannel from 'event_channel';
+import AbstractExpressionSourceGenVisitor from './abstract-expression-source-gen-visitor';
+import TypeMapperVariableDefinitionVisitor from './type-mapper-variable-definition-visitor';
 
-        var TypeMapperVariableReferenceExpressionVisitor = function(parent){
-            AbstractExpressionSourceGenVisitor.call(this,parent);
-        };
+class TypeMapperVariableReferenceExpressionVisitor extends AbstractExpressionSourceGenVisitor {
+    constructor(parent) {
+        super(parent);
+    }
 
-        TypeMapperVariableReferenceExpressionVisitor.prototype = Object.create(AbstractExpressionSourceGenVisitor.prototype);
-        TypeMapperVariableReferenceExpressionVisitor.prototype.constructor = TypeMapperVariableReferenceExpressionVisitor;
+    canVisitVariableReferenceExpression(expression) {
+        return true;
+    }
 
-        TypeMapperVariableReferenceExpressionVisitor.prototype.canVisitVariableReferenceExpression = function(expression){
-            return true;
-        };
+    beginVisitVariableReferenceExpression(expression) {
+       log.debug('Begin Visit Type Mapper Variable Reference Expression');
+    }
 
-        TypeMapperVariableReferenceExpressionVisitor.prototype.beginVisitVariableReferenceExpression = function(expression){
-           log.debug('Begin Visit Type Mapper Variable Reference Expression');
-        };
+    visitVariableReferenceExpression(expression) {
+        log.debug('Visit Type Mapper Variable Reference Expression');
+    }
 
-        TypeMapperVariableReferenceExpressionVisitor.prototype.visitVariableReferenceExpression = function(expression){
-            log.debug('Visit Type Mapper Variable Reference Expression');
-        };
+    endVisitVariableReferenceExpression(expression) {
+        if (expression.getVariableReferenceName()) {
+            this.appendSource(expression.getVariableReferenceName());
+        }
+        this.getParent().appendSource(this.getGeneratedSource());
+        log.debug('End Visit Type Mapper Variable Reference Expression');
+    }
 
-        TypeMapperVariableReferenceExpressionVisitor.prototype.endVisitVariableReferenceExpression = function(expression){
-            if (expression.getVariableReferenceName()) {
-                this.appendSource(expression.getVariableReferenceName());
-            }
-            this.getParent().appendSource(this.getGeneratedSource());
-            log.debug('End Visit Type Mapper Variable Reference Expression');
-        };
+    visitVariableDefinition(variableDefinition) {
+        var variableDefinitionVisitor = new TypeMapperVariableDefinitionVisitor(this);
+        variableDefinition.accept(variableDefinitionVisitor);
+    }
+}
 
-        TypeMapperVariableReferenceExpressionVisitor.prototype.visitVariableDefinition = function(variableDefinition){
-            var variableDefinitionVisitor = new TypeMapperVariableDefinitionVisitor(this);
-            variableDefinition.accept(variableDefinitionVisitor);
-        };
-
-        return TypeMapperVariableReferenceExpressionVisitor;
-    });
+export default TypeMapperVariableReferenceExpressionVisitor;

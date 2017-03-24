@@ -15,59 +15,72 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', './ast-visitor', '../ast/module'], function (_, log, ASTVisitor, AST) {
+import _ from 'lodash';
+import log from 'log';
+import ASTVisitor from './ast-visitor';
+import AST from '../ast/module';
 
-    var ExpressionVisitor = function (args) {
-        ASTVisitor.call(this, args);
-    };
+class ExpressionVisitor extends ASTVisitor {
+    constructor(args) {
+        super(args);
+    }
 
-    ExpressionVisitor.prototype = Object.create(ASTVisitor.prototype);
-    ExpressionVisitor.prototype.constructor = ExpressionVisitor;
-
-    ExpressionVisitor.prototype.canVisitStructFieldAccessExpression = function (expression) {
+    canVisitStructFieldAccessExpression(expression) {
         return false;
-    };
-    ExpressionVisitor.prototype.beginVisitStructFieldAccessExpression = function (expression) {
-    };
-    ExpressionVisitor.prototype.visitStructFieldAccessExpression = function (expression) {
-    };
-    ExpressionVisitor.prototype.endVisitStructFieldAccessExpression = function (expression) {
-    };
+    }
 
-    ExpressionVisitor.prototype.canVisitVariableReferenceExpression = function (expression) {
-        return false;
-    };
-    ExpressionVisitor.prototype.beginVisitVariableReferenceExpression = function (expression) {
-    };
-    ExpressionVisitor.prototype.visitVariableReferenceExpression = function (expression) {
-    };
-    ExpressionVisitor.prototype.endVisitVariableReferenceExpression = function (expression) {
-    };
+    beginVisitStructFieldAccessExpression(expression) {
+    }
 
-    ExpressionVisitor.prototype.canVisitReferenceTypeInitExpression = function (expression) {
-        return false;
-    };
-    ExpressionVisitor.prototype.beginVisitReferenceTypeInitExpression = function (expression) {
-    };
-    ExpressionVisitor.prototype.visitReferenceTypeInitExpression= function (expression) {
-    };
-    ExpressionVisitor.prototype.endVisitReferenceTypeInitExpression = function (expression) {
-    };
+    visitStructFieldAccessExpression(expression) {
+    }
 
-    ExpressionVisitor.prototype.canVisitTypeCastExpression = function (expression) {
+    endVisitStructFieldAccessExpression(expression) {
+    }
+
+    canVisitVariableReferenceExpression(expression) {
         return false;
-    };
-    ExpressionVisitor.prototype.beginVisitTypeCastExpression = function (expression) {
-    };
-    ExpressionVisitor.prototype.visitTypeCastExpression= function (expression) {
-    };
-    ExpressionVisitor.prototype.endVisitTypeCastExpression = function (expression) {
-    };
-    
+    }
+
+    beginVisitVariableReferenceExpression(expression) {
+    }
+
+    visitVariableReferenceExpression(expression) {
+    }
+
+    endVisitVariableReferenceExpression(expression) {
+    }
+
+    canVisitReferenceTypeInitExpression(expression) {
+        return false;
+    }
+
+    beginVisitReferenceTypeInitExpression(expression) {
+    }
+
+    visitReferenceTypeInitExpression(expression) {
+    }
+
+    endVisitReferenceTypeInitExpression(expression) {
+    }
+
+    canVisitTypeCastExpression(expression) {
+        return false;
+    }
+
+    beginVisitTypeCastExpression(expression) {
+    }
+
+    visitTypeCastExpression(expression) {
+    }
+
+    endVisitTypeCastExpression(expression) {
+    }
+
     /**
      * @param node {ASTNode}
      */
-    ExpressionVisitor.prototype.visitExpression = function (node) {
+    visitExpression(node) {
         if (node instanceof AST.StructFieldAccessExpression) {
             return this.visitStructFieldAccessExpression(node);
         } else if (node instanceof AST.VariableReferenceExpression) {
@@ -77,12 +90,12 @@ define(['lodash', 'log', './ast-visitor', '../ast/module'], function (_, log, AS
         } else if (node instanceof AST.TypeCastExpression) {
             return this.visitTypeCastExpression(node);
         }
-    };
+    }
 
     /**
      * @param node {ASTNode}
      */
-    ExpressionVisitor.prototype.canVisitExpression = function (node) {
+    canVisitExpression(node) {
         if (node instanceof AST.StructFieldAccessExpression) {
             return this.canVisitStructFieldAccessExpression(node);
         } else if (node instanceof AST.VariableReferenceExpression) {
@@ -92,12 +105,12 @@ define(['lodash', 'log', './ast-visitor', '../ast/module'], function (_, log, AS
         } else if (node instanceof AST.TypeCastExpression) {
             return this.canVisitTypeCastExpression(node);
         }
-    };
+    }
 
     /**
      * @param node {ASTNode}
      */
-    ExpressionVisitor.prototype.beginVisitExpression= function (node) {
+    beginVisitExpression(node) {
         if (node instanceof AST.StructFieldAccessExpression) {
             this.beginVisitStructFieldAccessExpression(node);
         } else if (node instanceof AST.VariableReferenceExpression) {
@@ -107,12 +120,12 @@ define(['lodash', 'log', './ast-visitor', '../ast/module'], function (_, log, AS
         } else if (node instanceof AST.TypeCastExpression) {
             this.beginVisitTypeCastExpression(node);
         }
-    };
+    }
 
     /**
      * @param node {ASTNode}
      */
-    ExpressionVisitor.prototype.endVisitExpression = function (node) {
+    endVisitExpression(node) {
         if (node instanceof AST.StructFieldAccessExpression) {
             return this.endVisitStructFieldAccessExpression(node);
         } else if (node instanceof AST.VariableReferenceExpression) {
@@ -122,7 +135,8 @@ define(['lodash', 'log', './ast-visitor', '../ast/module'], function (_, log, AS
         } else if (node instanceof AST.TypeCastExpression) {
             return this.endVisitTypeCastExpression(node);
         }
-    };
+    }
+}
 
-    return ExpressionVisitor;
-});
+export default ExpressionVisitor;
+

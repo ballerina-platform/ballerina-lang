@@ -15,30 +15,32 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', 'event_channel', '../../ast/module', './type-mapper-function-invocation-visitor',
-        './type-mapper-struct-field-access-expression-visitor', './type-mapper-variable-reference-expression-visitor',
-        './type-mapper-reference-type-init-expression-visitor', './type-mapper-type-cast-expression-visitor'],
-    function (_, log, EventChannel, AST, TypeMapperFunctionInvocationVisitor,
-              TypeMapperStructFieldAccessExpressionVisitor, TypeMapperVariableReferenceExpressionVisitor,
-              TypeMapperReferenceTypeInitExpressionVisitor, TypeMapperTypeCastExpressionVisitor) {
+import _ from 'lodash';
+import log from 'log';
+import EventChannel from 'event_channel';
+import AST from '../../ast/module';
+import TypeMapperFunctionInvocationVisitor from './type-mapper-function-invocation-visitor';
+import TypeMapperStructFieldAccessExpressionVisitor from './type-mapper-struct-field-access-expression-visitor';
+import TypeMapperVariableReferenceExpressionVisitor from './type-mapper-variable-reference-expression-visitor';
+import TypeMapperReferenceTypeInitExpressionVisitor from './type-mapper-reference-type-init-expression-visitor';
+import TypeMapperTypeCastExpressionVisitor from './type-mapper-type-cast-expression-visitor';
 
-        var TypeMapperExpressionFactory = function () {
-        };
+class TypeMapperExpressionFactory {
+    getExpressionVisitor(args) {
+        var expression  = _.get(args, "model");
+        if (expression instanceof AST.FunctionInvocation) {
+            return new TypeMapperFunctionInvocationVisitor(_.get(args, "parent"));
+        } else if (expression instanceof AST.StructFieldAccessExpression) {
+            return new TypeMapperStructFieldAccessExpressionVisitor(_.get(args, "parent"));
+        } else if (expression instanceof AST.VariableReferenceExpression) {
+            return new TypeMapperVariableReferenceExpressionVisitor(_.get(args, "parent"));
+        } else if (expression instanceof AST.ReferenceTypeInitExpression) {
+            return new TypeMapperReferenceTypeInitExpressionVisitor(_.get(args, "parent"));
+        } else if (expression instanceof AST.TypeCastExpression) {
+            return new TypeMapperTypeCastExpressionVisitor(_.get(args, "parent"));
+        }
+    }
+}
 
-        TypeMapperExpressionFactory.prototype.getExpressionVisitor = function (args) {
-            var expression  = _.get(args, "model");
-            if (expression instanceof AST.FunctionInvocation) {
-                return new TypeMapperFunctionInvocationVisitor(_.get(args, "parent"));
-            } else if (expression instanceof AST.StructFieldAccessExpression) {
-                return new TypeMapperStructFieldAccessExpressionVisitor(_.get(args, "parent"));
-            } else if (expression instanceof AST.VariableReferenceExpression) {
-                return new TypeMapperVariableReferenceExpressionVisitor(_.get(args, "parent"));
-            } else if (expression instanceof AST.ReferenceTypeInitExpression) {
-                return new TypeMapperReferenceTypeInitExpressionVisitor(_.get(args, "parent"));
-            } else if (expression instanceof AST.TypeCastExpression) {
-                return new TypeMapperTypeCastExpressionVisitor(_.get(args, "parent"));
-            }
-        };
-
-        return TypeMapperExpressionFactory;
-    });
+export default TypeMapperExpressionFactory;
+    

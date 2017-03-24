@@ -15,97 +15,105 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', 'event_channel', '../ast/module', './try-catch-statement-view', './try-statement-view',
-        './catch-statement-view', './if-else-statement-view', './if-statement-view', './else-statement-view',
-        './else-if-statement-view', './assignment-view', './function-invocation-view',
-        './action-invocation-statement-view', './while-statement-view', './reply-statement-view',
-        './return-statement-view', './variable-definition-statement-view', './worker-invocation-view',
-        './worker-reply-statement-view', './break-statement-view', './throw-statement-view'],
-    function (_, log, EventChannel, AST, TryCatchStatementView, TryStatementView, CatchStatementView,
-              IfElseStatementView, IfStatementView, ElseStatementView, ElseIfStatementView, AssignmentStatementView,
-              FunctionInvocationStatementView, ActionInvocationStatementView, WhileStatementView, ReplyStatementView,
-              ReturnStatement, VariableDefinitionStatementView, WorkerInvocationView, WorkerReplyStatementView,
-              BreakStatementView, ThrowStatementView) {
+import _ from 'lodash';
+import AST from '../ast/module';
+import TryCatchStatementView from './try-catch-statement-view';
+import TryStatementView from './try-statement-view';
+import CatchStatementView from './catch-statement-view';
+import IfElseStatementView from './if-else-statement-view';
+import IfStatementView from './if-statement-view';
+import ElseStatementView from './else-statement-view';
+import ElseIfStatementView from './else-if-statement-view';
+import AssignmentStatementView from './assignment-view';
+import FunctionInvocationStatementView from './function-invocation-view';
+import ActionInvocationStatementView from './action-invocation-statement-view';
+import WhileStatementView from './while-statement-view';
+import ReplyStatementView from './reply-statement-view';
+import ReturnStatement from './return-statement-view';
+import VariableDefinitionStatementView from './variable-definition-statement-view';
+import WorkerInvocationView from './worker-invocation-view';
+import WorkerReplyStatementView from './worker-reply-statement-view';
+import BreakStatementView from './break-statement-view';
+import ThrowStatementView from './throw-statement-view';
 
-        var StatementViewFactory = function () {
-        };
-
-        StatementViewFactory.prototype.getStatementView = function (args) {
-            var statement  = _.get(args, "model");
-            if (statement instanceof AST.TryCatchStatement) {
-                return new TryCatchStatementView(args);
-            } else if (statement instanceof AST.TryStatement) {
-                return new TryStatementView(args);
-            } else if (statement instanceof AST.CatchStatement) {
-                return new CatchStatementView(args);
-            } else if (statement instanceof AST.IfElseStatement) {
-                return new IfElseStatementView(args);
-            } else if (statement instanceof AST.IfStatement) {
-                return new IfStatementView(args);
-            } else if (statement instanceof AST.ElseStatement) {
-                return new ElseStatementView(args);
-            }  else if (statement instanceof AST.ElseIfStatement) {
-                return new ElseIfStatementView(args);
-            } else if (statement instanceof AST.Assignment) {
-                return new AssignmentStatementView(args);
-            } else if (statement instanceof AST.FunctionInvocation) {
-                return new FunctionInvocationStatementView(args);
-            } else if (statement instanceof AST.WhileStatement) {
-                return new WhileStatementView(args);
-            } else if (statement instanceof AST.ActionInvocationStatement) {
-                return new ActionInvocationStatementView(args);
-            } else if (statement instanceof AST.ReplyStatement) {
-                return new ReplyStatementView(args);
-            } else if (statement instanceof AST.ReturnStatement) {
-                return new ReturnStatement(args);
-            } else if (statement instanceof AST.BreakStatement) {
-                return new BreakStatementView(args);
-            } else if (statement instanceof AST.AssignmentStatement){
-                // TODO : This logic needs to be refactored.
-                var children  = _.get(statement, "children");
-                var assignmentStatement = undefined;
-                _.each(children, function (statementChild) {
-                    if(AST.BallerinaASTFactory.isRightOperandExpression(statementChild)) {
-                        var operands  = _.get(statementChild, "children");
-                        _.each(operands, function (child) {
-                            if (AST.BallerinaASTFactory.isActionInvocationExpression(child)) {
-                                _.set(args, 'model', statement);
-                                assignmentStatement = new ActionInvocationStatementView(args);
-                            }
-                        });
-                    }
-                });
-                if (_.isUndefined(assignmentStatement)) {
-                    _.set(args, 'model', statement);
-                    //If Operand type exist for the statement add it to the left operand expression.
-                    var leftOperandExpression = children[0].getOperandType() ?
-                        children[0].getOperandType() + " " + children[0].getLeftOperandExpressionString() :
-                        children[0].getLeftOperandExpressionString();
-
-                    _.get(args, 'model').setStatementString(leftOperandExpression + " = "
-                        + children[1].getRightOperandExpressionString());
-                    assignmentStatement = new AssignmentStatementView(args);
+class StatementViewFactory {
+    getStatementView(args) {
+        var statement  = _.get(args, 'model');
+        if (statement instanceof AST.TryCatchStatement) {
+            return new TryCatchStatementView(args);
+        } else if (statement instanceof AST.TryStatement) {
+            return new TryStatementView(args);
+        } else if (statement instanceof AST.CatchStatement) {
+            return new CatchStatementView(args);
+        } else if (statement instanceof AST.IfElseStatement) {
+            return new IfElseStatementView(args);
+        } else if (statement instanceof AST.IfStatement) {
+            return new IfStatementView(args);
+        } else if (statement instanceof AST.ElseStatement) {
+            return new ElseStatementView(args);
+        }  else if (statement instanceof AST.ElseIfStatement) {
+            return new ElseIfStatementView(args);
+        } else if (statement instanceof AST.Assignment) {
+            return new AssignmentStatementView(args);
+        } else if (statement instanceof AST.FunctionInvocation) {
+            return new FunctionInvocationStatementView(args);
+        } else if (statement instanceof AST.WhileStatement) {
+            return new WhileStatementView(args);
+        } else if (statement instanceof AST.ActionInvocationStatement) {
+            return new ActionInvocationStatementView(args);
+        } else if (statement instanceof AST.ReplyStatement) {
+            return new ReplyStatementView(args);
+        } else if (statement instanceof AST.ReturnStatement) {
+            return new ReturnStatement(args);
+        } else if (statement instanceof AST.BreakStatement) {
+            return new BreakStatementView(args);
+        } else if (statement instanceof AST.AssignmentStatement){
+            // TODO : This logic needs to be refactored.
+            var children  = _.get(statement, 'children');
+            var assignmentStatement = undefined;
+            _.each(children, function (statementChild) {
+                if(AST.BallerinaASTFactory.isRightOperandExpression(statementChild)) {
+                    var operands  = _.get(statementChild, 'children');
+                    _.each(operands, function (child) {
+                        if (AST.BallerinaASTFactory.isActionInvocationExpression(child)) {
+                            _.set(args, 'model', statement);
+                            assignmentStatement = new ActionInvocationStatementView(args);
+                        }
+                    });
                 }
-                return assignmentStatement;
-            } else if (statement instanceof AST.VariableDefinitionStatement) {
-                var variableStatement = undefined;
-                _.each(statement.getChildren(), function (statementChild) {
-                    if(AST.BallerinaASTFactory.isActionInvocationExpression(statementChild)) {
-                        variableStatement = new ActionInvocationStatementView(args);
-                    }
-                });
-                if (_.isUndefined(variableStatement)) {
-                    variableStatement = new VariableDefinitionStatementView(args);
-                }
-                return variableStatement;
-            } else if (statement instanceof AST.WorkerInvocationStatement) {
-                return new WorkerInvocationView(args);
-            } else if (statement instanceof AST.WorkerReplyStatement) {
-                return new WorkerReplyStatementView(args);
-            } else if (statement instanceof AST.ThrowStatement) {
-                return new ThrowStatementView(args);
+            });
+            if (_.isUndefined(assignmentStatement)) {
+                _.set(args, 'model', statement);
+                //If Operand type exist for the statement add it to the left operand expression.
+                var leftOperandExpression = children[0].getOperandType() ?
+                    children[0].getOperandType() + ' ' + children[0].getLeftOperandExpressionString() :
+                    children[0].getLeftOperandExpressionString();
+
+                _.get(args, 'model').setStatementString(leftOperandExpression + ' = '
+                    + children[1].getRightOperandExpressionString());
+                assignmentStatement = new AssignmentStatementView(args);
             }
-        };
+            return assignmentStatement;
+        } else if (statement instanceof AST.VariableDefinitionStatement) {
+            var variableStatement = undefined;
+            _.each(statement.getChildren(), function (statementChild) {
+                if(AST.BallerinaASTFactory.isActionInvocationExpression(statementChild)) {
+                    variableStatement = new ActionInvocationStatementView(args);
+                }
+            });
+            if (_.isUndefined(variableStatement)) {
+                variableStatement = new VariableDefinitionStatementView(args);
+            }
+            return variableStatement;
+        } else if (statement instanceof AST.WorkerInvocationStatement) {
+            return new WorkerInvocationView(args);
+        } else if (statement instanceof AST.WorkerReplyStatement) {
+            return new WorkerReplyStatementView(args);
+        } else if (statement instanceof AST.ThrowStatement) {
+            return new ThrowStatementView(args);
+        }
+    }
+}
 
-        return StatementViewFactory;
-    });
+export default StatementViewFactory;
+    

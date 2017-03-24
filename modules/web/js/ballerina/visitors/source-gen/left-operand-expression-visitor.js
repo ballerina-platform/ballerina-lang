@@ -15,31 +15,32 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require','lodash', 'log', 'event_channel', './abstract-statement-source-gen-visitor','./expression-visitor-factory'],
-    function(require, _, log, EventChannel, AbstractStatementSourceGenVisitor,ExpressionVisitorFactory) {
+import _ from 'lodash';
+import log from 'log';
+import EventChannel from 'event_channel';
+import AbstractStatementSourceGenVisitor from './abstract-statement-source-gen-visitor';
+import ExpressionVisitorFactory from './expression-visitor-factory';
 
-    var LeftOperandExpressionVisitor = function(parent){
-        AbstractStatementSourceGenVisitor.call(this,parent);
-    };
+class LeftOperandExpressionVisitor extends AbstractStatementSourceGenVisitor {
+    constructor(parent) {
+        super(parent);
+    }
 
-    LeftOperandExpressionVisitor.prototype = Object.create(AbstractStatementSourceGenVisitor.prototype);
-    LeftOperandExpressionVisitor.prototype.constructor = LeftOperandExpressionVisitor;
-
-    LeftOperandExpressionVisitor.prototype.canVisitLeftOperandExpression = function(leftOperandExpression){
+    canVisitLeftOperandExpression(leftOperandExpression) {
         return true;
-    };
+    }
 
-    LeftOperandExpressionVisitor.prototype.beginVisitLeftOperandExpression = function(leftOperandExpression){
+    beginVisitLeftOperandExpression(leftOperandExpression) {
         if (!_.isUndefined(leftOperandExpression.getLeftOperandExpressionString())) {
             this.appendSource(leftOperandExpression.getLeftOperandExpressionString());
         }
         log.debug('Begin Visit Left Operand Expression');
-    };
+    }
 
-    LeftOperandExpressionVisitor.prototype.endVisitLeftOperandExpression = function(leftOperandExpression){
+    endVisitLeftOperandExpression(leftOperandExpression) {
         this.getParent().appendSource(this.getGeneratedSource());
         log.debug('End Visit Left Operand Expression');
-    };
+    }
+}
 
-    return LeftOperandExpressionVisitor;
-});
+export default LeftOperandExpressionVisitor;

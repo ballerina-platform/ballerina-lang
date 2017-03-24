@@ -16,8 +16,11 @@
  * under the License.
  */
 
-define(['jquery', 'lodash', 'log', 'event_channel', 'jquery-contextmenu'],
-    function ($, _, log, EventChannel) {
+import $ from 'jquery';
+import _ from 'lodash';
+import log from 'log';
+import EventChannel from 'event_channel';
+import 'jquery-contextmenu';
 
         /**
          * @class ContextMenu
@@ -50,6 +53,6 @@ define(['jquery', 'lodash', 'log', 'event_channel', 'jquery-contextmenu'],
             }
         };
 
-        return ContextMenu;
+        export default ContextMenu;
 
-    });
+    

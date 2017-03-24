@@ -15,47 +15,49 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define([ 'lodash', 'event_channel'], function ( _, EventChannel) {
+import EventChannel from 'event_channel';
+
+/**
+ * @class Axis
+ * @extends EventChannel
+ */
+class Axis extends EventChannel {
 
     /**
-     * @class Axis
-     * @augments EventChannel
      * @param position position
      * @param isHorizontal indicate whether a vertical or horizontal axis
      * @constructor
      */
-    var Axis = function (position, isHorizontal) {
+    constructor(position, isHorizontal) {
+        super();
         this._isHorizontal = isHorizontal || false;
         this._position = position || 0;
-    };
-
-    Axis.prototype = Object.create(EventChannel.prototype);
-    Axis.prototype.constructor = Axis;
+    }
 
     /**
      * Indicate Whether a horizontal or vertical
      * @returns {boolean}
      */
-    Axis.prototype.isHorizontal =  function () {
-       return this._isHorizontal;
-    };
+    isHorizontal() {
+        return this._isHorizontal;
+    }
 
     /**
      * set position
      * @param {number} position
      */
-    Axis.prototype.setPosition =  function (position) {
-       var offset = position - this._position;
-       this._position = position;
-       this.trigger("moved", offset);
-    };
+    setPosition(position) {
+        var offset = position - this._position;
+        this._position = position;
+        this.trigger('moved', offset);
+    }
 
     /**
      * get position
      */
-    Axis.prototype.getPosition =  function () {
-       return this._position;
-    };
+    getPosition() {
+        return this._position;
+    }
+}
 
-    return Axis;
-});
+export default Axis;

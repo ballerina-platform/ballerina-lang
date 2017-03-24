@@ -15,37 +15,37 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', './node'], function (_, ASTNode) {
+import _ from 'lodash';
+import ASTNode from './node';
 
-    var TypeElement = function (type, identifier) {
+class TypeElement extends ASTNode {
+    constructor(type, identifier) {
+        super();
         this.type = type;
         this.identifier = identifier;
         this.type = "TypeElement";
-    };
+    }
 
-    TypeElement.prototype = Object.create(ASTNode.prototype);
-    TypeElement.prototype.constructor = TypeElement;
-
-
-    TypeElement.prototype.setType = function (type, options) {
+    setType(type, options) {
         if (!_.isNil(type)) {
             this.setAttribute('type', type, options);
         }
-    };
+    }
 
-    TypeElement.prototype.setIdentifier = function (identifier, options) {
+    setIdentifier(identifier, options) {
         if (!_.isNil(identifier)) {
             this.setAttribute('identifier', identifier, options);
         }
-    };
+    }
 
-    TypeElement.prototype.getType = function () {
+    getType() {
         return this.type;
-    };
+    }
 
-    TypeElement.prototype.getIdentifier = function () {
+    getIdentifier() {
         return this.identifier;
-    };
+    }
+}
 
-    return TypeElement;
-});
+export default TypeElement;
+

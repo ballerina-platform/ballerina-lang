@@ -19,34 +19,71 @@
 /**
  * A module representing the factory for Ballerina AST
  */
-define(['lodash', './ballerina-ast-root', './service-definition', './function-definition', './connector-definition',
-        './resource-definition', './worker-declaration', './statements/statement', './statements/conditional-statement', './connector-declaration',
-        './expressions/expression', './statements/if-else-statement', './statements/if-statement', './statements/else-statement', './statements/else-if-statement', './statements/trycatch-statement',
-        './statements/try-statement', './statements/catch-statement', './statements/reply-statement', './statements/while-statement', './statements/return-statement',
-        './type-mapper-definition', './type-definition', './type-element', './variable-declaration',
-        './package-definition', './import-declaration', './resource-parameter', './assignment', './statements/assignment-statement',
-        './statements/function-invocation-statement', './expressions/function-invocation-expression', './expressions/variable-reference-expression',
-        './statements/action-invocation-statement', './expressions/action-invocation-expression',
-        './return-type', './type-name', './argument', './expressions/back-tick-expression', './expressions/basic-literal-expression',
-        './statements/left-operand-expression', './statements/right-operand-expression', './expressions/instance-creation-expression', './then-body',
-        './if-condition', './expressions/array-map-access-expression', './expressions/key-value-expression',
-        './expressions/binary-expression', './expressions/unary-expression','./connector-action', './struct-definition', './constant-definition',
-        './statements/variable-definition-statement', './statements/worker-invocation-statement', './expressions/reference-type-init-expression',
-        './expressions/array-init-expression', './statements/worker-reply-statement','./struct-type','./expressions/struct-field-access-expression',
-        './statements/block-statement','./expressions/type-cast-expression','./variable-definition', './statements/break-statement', './statements/throw-statement', './statements/comment-statement'],
-    function (_, ballerinaAstRoot, serviceDefinition, functionDefinition, connectorDefinition, resourceDefinition,
-              workerDeclaration, statement, conditionalStatement, connectorDeclaration, expression, ifElseStatement,
-              ifStatement, elseStatement, elseIfStatement, tryCatchStatement, tryStatement, catchStatement, replyStatement,
-              whileStatement, returnStatement, typeMapperDefinition, typeDefinition, typeElement, variableDeclaration,
-              packageDefinition, importDeclaration, resourceParameter, assignment, assignmentStatement,
-              functionInvocationStatement, functionInvocationExpression, variableReferenceExpression,
-              actionInvocationStatement, actionInvocationExpression, returnType, typeName, argument, backTickExpression,
-              basicLiteralExpression, leftOperandExpression, rightOperandExpression, instanceCreationExpression,
-              thenBody, ifCondition, arrayMapAccessExpression, keyValueExpression, binaryExpression,
-              unaryExpression, connectorAction, structDefinition, constantDefinition, variableDefinitionStatement,
-              workerInvocationStatement, referenceTypeInitExpression, arrayInitExpression, workerReplyStatement,
-              structType, structFieldAccessExpression,blockStatement,typeCastExpression,variableDefinition,
-              breakStatement, throwStatement, commentStatement) {
+import _ from 'lodash';
+import ballerinaAstRoot from './ballerina-ast-root';
+import serviceDefinition from './service-definition';
+import functionDefinition from './function-definition';
+import connectorDefinition from './connector-definition';
+import resourceDefinition from './resource-definition';
+import workerDeclaration from './worker-declaration';
+import statement from './statements/statement';
+import conditionalStatement from './statements/conditional-statement';
+import connectorDeclaration from './connector-declaration';
+import expression from './expressions/expression';
+import ifElseStatement from './statements/if-else-statement';
+import ifStatement from './statements/if-statement';
+import elseStatement from './statements/else-statement';
+import elseIfStatement from './statements/else-if-statement';
+import tryCatchStatement from './statements/trycatch-statement';
+import tryStatement from './statements/try-statement';
+import catchStatement from './statements/catch-statement';
+import replyStatement from './statements/reply-statement';
+import whileStatement from './statements/while-statement';
+import returnStatement from './statements/return-statement';
+import typeMapperDefinition from './type-mapper-definition';
+import typeDefinition from './type-definition';
+import typeElement from './type-element';
+import variableDeclaration from './variable-declaration';
+import packageDefinition from './package-definition';
+import importDeclaration from './import-declaration';
+import resourceParameter from './resource-parameter';
+import assignment from './assignment';
+import assignmentStatement from './statements/assignment-statement';
+import functionInvocationStatement from './statements/function-invocation-statement';
+import functionInvocationExpression from './expressions/function-invocation-expression';
+import variableReferenceExpression from './expressions/variable-reference-expression';
+import actionInvocationStatement from './statements/action-invocation-statement';
+import actionInvocationExpression from './expressions/action-invocation-expression';
+import returnType from './return-type';
+import typeName from './type-name';
+import argument from './argument';
+import backTickExpression from './expressions/back-tick-expression';
+import basicLiteralExpression from './expressions/basic-literal-expression';
+import leftOperandExpression from './statements/left-operand-expression';
+import rightOperandExpression from './statements/right-operand-expression';
+import instanceCreationExpression from './expressions/instance-creation-expression';
+import thenBody from './then-body';
+import ifCondition from './if-condition';
+import arrayMapAccessExpression from './expressions/array-map-access-expression';
+import keyValueExpression from './expressions/key-value-expression';
+import binaryExpression from './expressions/binary-expression';
+import unaryExpression from './expressions/unary-expression';
+import connectorAction from './connector-action';
+import structDefinition from './struct-definition';
+import constantDefinition from './constant-definition';
+import variableDefinitionStatement from './statements/variable-definition-statement';
+import workerInvocationStatement from './statements/worker-invocation-statement';
+import referenceTypeInitExpression from './expressions/reference-type-init-expression';
+import arrayInitExpression from './expressions/array-init-expression';
+import workerReplyStatement from './statements/worker-reply-statement';
+import structType from './struct-type';
+import structFieldAccessExpression from './expressions/struct-field-access-expression';
+import blockStatement from './statements/block-statement';
+import typeCastExpression from './expressions/type-cast-expression';
+import variableDefinition from './variable-definition';
+import breakStatement from './statements/break-statement';
+import throwStatement from './statements/throw-statement';
+import commentStatement from './statements/comment-statement';
 
 
 
@@ -1323,6 +1360,6 @@ define(['lodash', './ballerina-ast-root', './service-definition', './function-de
             return node;
         };
 
-        return BallerinaASTFactory;
+        export default BallerinaASTFactory;
 
-    });
+    

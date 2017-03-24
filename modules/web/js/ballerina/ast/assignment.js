@@ -15,44 +15,44 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', './statements/statement'], function (_, Statement) {
+import _ from 'lodash';
+import Statement from './statements/statement';
 
-    /**
-     * Class to represent an assignment in ballerina.
-     * @constructor
-     */
-    var Assignment = function (args) {
-        Statement.call(this, 'Assignment');
+/**
+ * Class to represent an assignment in ballerina.
+ * @constructor
+ */
+class Assignment extends Statement {
+    constructor(args) {
+        super('Assignment');
         this._variableAccessor = _.get(args, 'accessor', 'var1');
         this._expression = 'a = b';
-    };
+    }
 
-    Assignment.prototype = Object.create(Statement.prototype);
-    Assignment.prototype.constructor = Assignment;
-
-    Assignment.prototype.setVariableAccessor = function (accessor, options) {
+    setVariableAccessor(accessor, options) {
         this.setAttribute('_variableAccessor', accessor, options);
-    };
+    }
 
-    Assignment.prototype.setExpression = function (expression, options) {
+    setExpression(expression, options) {
         this.setAttribute('_expression', expression, options);
-    };
+    }
 
-    Assignment.prototype.getVariableAccessor = function () {
+    getVariableAccessor() {
         return this._variableAccessor;
-    };
+    }
 
-    Assignment.prototype.getExpression = function () {
+    getExpression() {
         return this._expression;
-    };
+    }
 
     /**
      * initialize from json
      * @param jsonNode
      */
-    Assignment.prototype.initFromJson = function (jsonNode) {
+    initFromJson(jsonNode) {
         this.setExpression('a = b', {doSilently: true});
-    };
+    }
+}
 
-    return Assignment;
-});
+export default Assignment;
+

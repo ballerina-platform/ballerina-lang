@@ -16,7 +16,10 @@
  * under the License.
  */
 
-define(['./file-menu', './edit-menu', './help-menu', './code-menu'], function (FileMenu, EditMenu, HelpMenu, CodeMenu) {
+import FileMenu from './file-menu';
+import EditMenu from './edit-menu';
+import HelpMenu from './help-menu';
+import CodeMenu from './code-menu';
     var menuBar = {};
 
     menuBar[FileMenu.id] = FileMenu;
@@ -24,5 +27,4 @@ define(['./file-menu', './edit-menu', './help-menu', './code-menu'], function (F
     menuBar[CodeMenu.id] = CodeMenu;
     menuBar[HelpMenu.id] = HelpMenu;
 
-    return menuBar;
-});
+    export default menuBar;

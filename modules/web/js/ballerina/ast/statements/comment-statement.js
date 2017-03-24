@@ -15,50 +15,51 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', './statement'], function (_, log, Statement) {
+import _ from 'lodash';
+import log from 'log';
+import Statement from './statement';
 
-    /**
-     * Class for comment statement in ballerina.
-     * @constructor
-     * @augments Statement
-     */
-    var CommentStatement = function (args) {
-        Statement.call(this);
+/**
+ * Class for comment statement in ballerina.
+ * @constructor
+ * @augments Statement
+ */
+class CommentStatement extends Statement {
+    constructor(args) {
+        super();
         this.type = "CommentStatement";
         this._commentString = _.get(args, 'commentString', "");
-    };
-
-    CommentStatement.prototype = Object.create(Statement.prototype);
-    CommentStatement.prototype.constructor = CommentStatement;
+    }
 
     /**
      * initialize from json
      * @param jsonNode
      */
-    CommentStatement.prototype.initFromJson = function (jsonNode) {
+    initFromJson(jsonNode) {
         this.setCommentString(jsonNode.comment_string, {doSilently: true});
-    };
+    }
 
     /**
      * sets comment string
      * @param {string} commentString - comment string
      * @param {Object} options - other options
      */
-    CommentStatement.prototype.setCommentString = function (commentString, options) {
+    setCommentString(commentString, options) {
         if (!_.isNil(commentString)) {
             this.setAttribute('_commentString', commentString, options);
         } else {
             log.error("Cannot set undefined to the commentString.");
         }
-    };
+    }
 
     /**
      * returns comment string
      * @returns {*}
      */
-    CommentStatement.prototype.getCommentString = function () {
+    getCommentString() {
         return this._commentString;
-    };
+    }
+}
 
-    return CommentStatement;
-});
+export default CommentStatement;
+

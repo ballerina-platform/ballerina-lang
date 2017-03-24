@@ -16,9 +16,16 @@
  * under the License.
  */
 
-define(['require', 'lodash','jquery', 'log', 'backbone', 'file_browser', 'ballerina', 'ballerina/diagram-render/diagram-render-context',
-        'ballerina/views/source-view', 'workspace/file', 'bootstrap'],
-    function (require, _, $, log, Backbone, FileBrowser, Ballerina, DiagramRenderContext, SourceView, File) {
+import _ from 'lodash';
+import $ from 'jquery';
+import log from 'log';
+import Backbone from 'backbone';
+import FileBrowser from 'file_browser';
+import Ballerina from 'ballerina';
+import DiagramRenderContext from 'ballerina/diagram-render/diagram-render-context';
+import SourceView from 'ballerina/views/source-view';
+import File from 'workspace/file';
+import 'bootstrap';
     var OpenFileDialog = Backbone.View.extend(
         /** @lends SaveToFileDialog.prototype */
         {
@@ -265,5 +272,4 @@ define(['require', 'lodash','jquery', 'log', 'backbone', 'file_browser', 'baller
             },
         });
 
-    return OpenFileDialog;
-});
+    export default OpenFileDialog;

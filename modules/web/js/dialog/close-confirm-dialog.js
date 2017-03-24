@@ -16,18 +16,18 @@
  * under the License.
  */
 
-define(['jquery', './modal-dialog'], function ($, ModalDialog) {
+import $ from 'jquery';
+import ModalDialog from './modal-dialog';
 
-    var CloseConfirmDialog = function (options) {
+class CloseConfirmDialog extends ModalDialog {
+    constructor(options) {
+        super();
         this._options = options;
         this._$container = $(_.get(options, 'container', 'body'));
         this._initialized = false;
-    };
+    }
 
-    CloseConfirmDialog.prototype = Object.create(ModalDialog.prototype);
-    CloseConfirmDialog.prototype.constructor = CloseConfirmDialog;
-
-    CloseConfirmDialog.prototype.init = function () {
+    init() {
         if(this._initialized) {
             return;
         }
@@ -48,7 +48,7 @@ define(['jquery', './modal-dialog'], function ($, ModalDialog) {
         this._$modalContainer.addClass("close-confirm-dialog");
     }
 
-    CloseConfirmDialog.prototype.askConfirmation = function (options) {
+    askConfirmation(options) {
         var self = this;
         this.init();
 
@@ -78,6 +78,6 @@ define(['jquery', './modal-dialog'], function ($, ModalDialog) {
 
         this.show();
     }
+}
 
-    return CloseConfirmDialog;
-});
+export default CloseConfirmDialog;

@@ -15,30 +15,31 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require','lodash', 'log', 'event_channel', './abstract-statement-source-gen-visitor', '../../ast/assignment'],
-    function(require, _, log, EventChannel, AbstractStatementSourceGenVisitor, AssignmentStatement) {
+import _ from 'lodash';
+import log from 'log';
+import EventChannel from 'event_channel';
+import AbstractStatementSourceGenVisitor from './abstract-statement-source-gen-visitor';
+import AssignmentStatement from '../../ast/assignment';
 
-        var AssignmentVisitor = function(parent){
-            AbstractStatementSourceGenVisitor.call(this,parent);
-        };
+class AssignmentVisitor extends AbstractStatementSourceGenVisitor {
+    constructor(parent) {
+        super(parent);
+    }
 
-        AssignmentVisitor.prototype = Object.create(AbstractStatementSourceGenVisitor.prototype);
-        AssignmentVisitor.prototype.constructor = AssignmentVisitor;
+    canVisitAssignment(assignmentStatement) {
+        return assignmentStatement instanceof AssignmentStatement;
+    }
 
-        AssignmentVisitor.prototype.canVisitAssignment = function(assignmentStatement){
-            return assignmentStatement instanceof AssignmentStatement;
-        };
+    beginVisitAssignment(assignmentStatement) {
+        this.appendSource(assignmentStatement.getExpression());
+        log.debug('Begin Visit assignment Definition');
+    }
 
-        AssignmentVisitor.prototype.beginVisitAssignment = function(assignmentStatement){
-            this.appendSource(assignmentStatement.getExpression());
-            log.debug('Begin Visit assignment Definition');
-        };
+    endVisitAssignment(assignmentStatement) {
+        this.appendSource(";\n");
+        this.getParent().appendSource(this.getGeneratedSource());
+        log.debug('End Visit assignment Definition');
+    }
+}
 
-        AssignmentVisitor.prototype.endVisitAssignment = function(assignmentStatement){
-            this.appendSource(";\n");
-            this.getParent().appendSource(this.getGeneratedSource());
-            log.debug('End Visit assignment Definition');
-        };
-
-        return AssignmentVisitor;
-    });
+export default AssignmentVisitor;

@@ -15,50 +15,51 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', 'event_channel', './abstract-source-gen-visitor'],
-    function (_, log, EventChannel, AbstractSourceGenVisitor) {
+import _ from 'lodash';
+import log from 'log';
+import EventChannel from 'event_channel';
+import AbstractSourceGenVisitor from './abstract-source-gen-visitor';
 
+/**
+ * @param parent
+ * @constructor
+ */
+class ConnectorDeclarationVisitor extends AbstractSourceGenVisitor {
+    constructor(parent) {
+        super(parent);
+    }
+
+    canVisitConnectorDeclaration(connectorDeclaration) {
+        return true;
+    }
+
+    beginVisitConnectorDeclaration(connectorDeclaration) {
         /**
-         * @param parent
-         * @constructor
+         * set the configuration start for the connector declaration
+         * If we need to add additional parameters which are dynamically added to the configuration start
+         * that particular source generation has to be constructed here
          */
-        var ConnectorDeclarationVisitor = function (parent) {
-            AbstractSourceGenVisitor.call(this, parent);
-        };
+        var connectorPkg = ((!_.isNil(connectorDeclaration.getConnectorPkgName()))
+                             && (!_.isEqual(connectorDeclaration.getConnectorPkgName(), 'Current Package'))) ?
+            (connectorDeclaration.getConnectorPkgName() + ":") : "";
+        var constructedSource = connectorPkg +
+            connectorDeclaration.getConnectorName() + ' ' + connectorDeclaration.getConnectorVariable() +
+            ' = create ' + connectorPkg + connectorDeclaration.getConnectorName() +
+            '(' + connectorDeclaration.getParams() + ')';
+        this.appendSource(constructedSource);
+        log.debug('Begin Visit Connector Declaration');
+    }
 
-        ConnectorDeclarationVisitor.prototype = Object.create(AbstractSourceGenVisitor.prototype);
-        ConnectorDeclarationVisitor.prototype.constructor = ConnectorDeclarationVisitor;
+    visitConnectorDeclaration(connectorDeclaration) {
+        log.debug('Visit Connector Declaration');
+    }
 
-        ConnectorDeclarationVisitor.prototype.canVisitConnectorDeclaration = function (connectorDeclaration) {
-            return true;
-        };
+    endVisitConnectorDeclaration(connectorDeclaration) {
+        this.appendSource(";\n");
+        this.getParent().appendSource(this.getGeneratedSource());
+        log.debug('End Visit Connector Declaration');
+    }
+}
 
-        ConnectorDeclarationVisitor.prototype.beginVisitConnectorDeclaration = function (connectorDeclaration) {
-            /**
-             * set the configuration start for the connector declaration
-             * If we need to add additional parameters which are dynamically added to the configuration start
-             * that particular source generation has to be constructed here
-             */
-            var connectorPkg = ((!_.isNil(connectorDeclaration.getConnectorPkgName()))
-                                 && (!_.isEqual(connectorDeclaration.getConnectorPkgName(), 'Current Package'))) ?
-                (connectorDeclaration.getConnectorPkgName() + ":") : "";
-            var constructedSource = connectorPkg +
-                connectorDeclaration.getConnectorName() + ' ' + connectorDeclaration.getConnectorVariable() +
-                ' = create ' + connectorPkg + connectorDeclaration.getConnectorName() +
-                '(' + connectorDeclaration.getParams() + ')';
-            this.appendSource(constructedSource);
-            log.debug('Begin Visit Connector Declaration');
-        };
-
-        ConnectorDeclarationVisitor.prototype.visitConnectorDeclaration = function (connectorDeclaration) {
-            log.debug('Visit Connector Declaration');
-        };
-
-        ConnectorDeclarationVisitor.prototype.endVisitConnectorDeclaration = function (connectorDeclaration) {
-            this.appendSource(";\n");
-            this.getParent().appendSource(this.getGeneratedSource());
-            log.debug('End Visit Connector Declaration');
-        };
-
-        return ConnectorDeclarationVisitor;
-    });
+export default ConnectorDeclarationVisitor;
+    

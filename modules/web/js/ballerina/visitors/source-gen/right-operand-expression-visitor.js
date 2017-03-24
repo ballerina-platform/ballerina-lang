@@ -15,34 +15,36 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require', 'lodash', 'log', 'event_channel', './abstract-statement-source-gen-visitor', '../../ast/module',
-        './expression-visitor-factory', './function-invocation-expression-visitor'],
-    function (require, _, log, EventChannel, AbstractStatementSourceGenVisitor, AST, ExpressionVisitorFactory, FunctionInvocationExpressionVisitor) {
+import _ from 'lodash';
+import log from 'log';
+import EventChannel from 'event_channel';
+import AbstractStatementSourceGenVisitor from './abstract-statement-source-gen-visitor';
+import AST from '../../ast/module';
+import ExpressionVisitorFactory from './expression-visitor-factory';
+import FunctionInvocationExpressionVisitor from './function-invocation-expression-visitor';
 
-        var RightOperandExpressionVisitor = function (parent) {
-            AbstractStatementSourceGenVisitor.call(this, parent);
-        };
+class RightOperandExpressionVisitor extends AbstractStatementSourceGenVisitor {
+    constructor(parent) {
+        super(parent);
+    }
 
-        RightOperandExpressionVisitor.prototype = Object.create(AbstractStatementSourceGenVisitor.prototype);
-        RightOperandExpressionVisitor.prototype.constructor = RightOperandExpressionVisitor;
+    canVisitRightOperandExpression(rightOperandExpression) {
+        return true;
+    }
 
-        RightOperandExpressionVisitor.prototype.canVisitRightOperandExpression = function (rightOperandExpression) {
-            return true;
-        };
+    beginVisitRightOperandExpression(rightOperandExpression) {
+        //FIXME: Need to refactor this if logic
+        this.appendSource(" = ");
+        if (!_.isUndefined(rightOperandExpression.getRightOperandExpressionString())) {
+            this.appendSource(rightOperandExpression.getRightOperandExpressionString());
+        }
+        log.debug('Begin Visit Right Operand Expression');
+    }
 
-        RightOperandExpressionVisitor.prototype.beginVisitRightOperandExpression = function (rightOperandExpression) {
-            //FIXME: Need to refactor this if logic
-            this.appendSource(" = ");
-            if (!_.isUndefined(rightOperandExpression.getRightOperandExpressionString())) {
-                this.appendSource(rightOperandExpression.getRightOperandExpressionString());
-            }
-            log.debug('Begin Visit Right Operand Expression');
-        };
+    endVisitRightOperandExpression(rightOperandExpression) {
+        this.getParent().appendSource(this.getGeneratedSource());
+        log.debug('End Visit Right Operand Expression');
+    }
+}
 
-        RightOperandExpressionVisitor.prototype.endVisitRightOperandExpression = function (rightOperandExpression) {
-            this.getParent().appendSource(this.getGeneratedSource());
-            log.debug('End Visit Right Operand Expression');
-        };
-
-        return RightOperandExpressionVisitor;
-    });
+export default RightOperandExpressionVisitor;

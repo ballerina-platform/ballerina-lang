@@ -15,33 +15,34 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', 'event_channel', './abstract-statement-source-gen-visitor'], function(_, log, EventChannel, AbstractStatementSourceGenVisitor) {
+import _ from 'lodash';
+import log from 'log';
+import EventChannel from 'event_channel';
+import AbstractStatementSourceGenVisitor from './abstract-statement-source-gen-visitor';
 
-    var ThrowStatementVisitor = function(parent){
-        AbstractStatementSourceGenVisitor.call(this, parent);
-    };
+class ThrowStatementVisitor extends AbstractStatementSourceGenVisitor {
+    constructor(parent) {
+        super(parent);
+    }
 
-    ThrowStatementVisitor.prototype = Object.create(AbstractStatementSourceGenVisitor.prototype);
-    ThrowStatementVisitor.prototype.constructor = ThrowStatementVisitor;
-
-    ThrowStatementVisitor.prototype.canVisitThrowStatement = function(throwStatement){
+    canVisitThrowStatement(throwStatement) {
         return true;
-    };
+    }
 
-    ThrowStatementVisitor.prototype.beginVisitThrowStatement = function(throwStatement){
+    beginVisitThrowStatement(throwStatement) {
         this.appendSource('throw ');
         log.debug('Begin Visit Throw Statement Definition');
-    };
+    }
 
-    ThrowStatementVisitor.prototype.visitThrowStatement = function(throwStatement){
+    visitThrowStatement(throwStatement) {
         log.debug('Visit Throw Statement Definition');
-    };
+    }
 
-    ThrowStatementVisitor.prototype.endVisitThrowStatement = function(throwStatement){
+    endVisitThrowStatement(throwStatement) {
         this.appendSource(throwStatement.getChildren()[0].getExpression() + ";\n");
         this.getParent().appendSource(this.getGeneratedSource());
         log.debug('End Visit Throw Statement Definition');
-    };
+    }
+}
 
-    return ThrowStatementVisitor;
-});
+export default ThrowStatementVisitor;

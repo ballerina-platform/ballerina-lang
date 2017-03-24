@@ -15,8 +15,10 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', 'event_channel', './abstract-symbol-table-gen-visitor'],
-    function(_, log, EventChannel, AbstractSymbolTableGenVisitor) {
+import _ from 'lodash';
+import log from 'log';
+import EventChannel from 'event_channel';
+import AbstractSymbolTableGenVisitor from './abstract-symbol-table-gen-visitor';
 
         /**
          * @param package
@@ -50,5 +52,5 @@ define(['lodash', 'log', 'event_channel', './abstract-symbol-table-gen-visitor']
             this.getPackage().getConnectorDefinition(connectorActionDefinition.getConnector()).addConnectorActionDefinitions(connectorActionDefinition);
         };
 
-        return ConnectorDefinitionVisitor;
-    });
+        export default ConnectorDefinitionVisitor;
+    

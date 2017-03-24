@@ -15,35 +15,38 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', './package', './environment'], function(_, Package, Environment){
+import _ from 'lodash';
+import Package from './package';
+import Environment from './environment';
 
-    var PackageScopedEnvironment = function (args) {
+class PackageScopedEnvironment {
+    constructor(args) {
         this._packages = _.get(args, 'packages', []);
         this.init();
-    };
+    }
 
-    PackageScopedEnvironment.prototype.init = function () {
+    init() {
         this._packages = _.union(this._packages, Environment.getPackages());
         this._currentPackage = new Package({name:'Current Package'});
         this._packages.push(this._currentPackage);
-    };
+    }
 
-    PackageScopedEnvironment.prototype.getCurrentPackage = function () {
+    getCurrentPackage() {
       return this._currentPackage;
-    };
+    }
 
-    PackageScopedEnvironment.prototype.resetCurrentPackage = function () {
+    resetCurrentPackage() {
         this._currentPackage = new Package({name:'Current Package'});
-    };
+    }
 
     /**
      * @return {[Package]}
      */
-    PackageScopedEnvironment.prototype.getPackages = function() {
+    getPackages() {
         return this._packages;
-    };
+    }
 
-    PackageScopedEnvironment.prototype.searchPackage = function(query, exclude){
+    searchPackage(query, exclude) {
         var search_text = query;
         var exclude_packages = exclude;
         var result = _.filter(this._packages, function (pckg) {
@@ -53,8 +56,8 @@ define(['lodash', './package', './environment'], function(_, Package, Environmen
             return (existing.length == 0) && (_.includes(pckg.getName().toUpperCase(), search_text.toUpperCase()));
         });
         return result;
-    };
+    }
+}
 
-    return PackageScopedEnvironment;
+export default PackageScopedEnvironment;
 
-});

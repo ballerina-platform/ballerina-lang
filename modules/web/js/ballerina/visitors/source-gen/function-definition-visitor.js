@@ -15,84 +15,87 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', 'event_channel', './abstract-source-gen-visitor', './statement-visitor-factory',
-        './connector-declaration-visitor', './variable-declaration-visitor', './worker-declaration-visitor'],
-    function(_, log, EventChannel, AbstractSourceGenVisitor, StatementVisitorFactory, ConnectorDeclarationVisitor,
-             VariableDeclarationVisitor, WorkerDeclarationVisitor) {
+import _ from 'lodash';
+import log from 'log';
+import EventChannel from 'event_channel';
+import AbstractSourceGenVisitor from './abstract-source-gen-visitor';
+import StatementVisitorFactory from './statement-visitor-factory';
+import ConnectorDeclarationVisitor from './connector-declaration-visitor';
+import VariableDeclarationVisitor from './variable-declaration-visitor';
+import WorkerDeclarationVisitor from './worker-declaration-visitor';
 
+/**
+ * @param parent
+ * @constructor
+ */
+class FunctionDefinitionVisitor extends AbstractSourceGenVisitor {
+    constructor(parent) {
+        super(parent);
+    }
+
+    canVisitFunctionDefinition(functionDefinition) {
+        return true;
+    }
+
+    beginVisitFunctionDefinition(functionDefinition) {
         /**
-         * @param parent
-         * @constructor
+         * set the configuration start for the function definition language construct
+         * If we need to add additional parameters which are dynamically added to the configuration start
+         * that particular source generation has to be constructed here
          */
-        var FunctionDefinitionVisitor = function (parent) {
-            AbstractSourceGenVisitor.call(this, parent);
-        };
+        var functionReturnTypes = functionDefinition.getReturnTypesAsString();
+        var functionReturnTypesSource = "";
+        if (!_.isEmpty(functionReturnTypes)) {
+            functionReturnTypesSource = '(' + functionDefinition.getReturnTypesAsString() + ') ';
+        }
 
-        FunctionDefinitionVisitor.prototype = Object.create(AbstractSourceGenVisitor.prototype);
-        FunctionDefinitionVisitor.prototype.constructor = FunctionDefinitionVisitor;
+        var constructedSourceSegment = 'function ' + functionDefinition.getFunctionName() + '(' +
+            functionDefinition.getArgumentsAsString() + ') ' + functionReturnTypesSource + '{';
+        this.appendSource(constructedSourceSegment);
+        log.debug('Begin Visit FunctionDefinition');
+    }
 
-        FunctionDefinitionVisitor.prototype.canVisitFunctionDefinition = function(functionDefinition){
-            return true;
-        };
+    visitFunctionDefinition(functionDefinition) {
+        log.debug('Visit FunctionDefinition');
+    }
 
-        FunctionDefinitionVisitor.prototype.beginVisitFunctionDefinition = function(functionDefinition){
-            /**
-             * set the configuration start for the function definition language construct
-             * If we need to add additional parameters which are dynamically added to the configuration start
-             * that particular source generation has to be constructed here
-             */
-            var functionReturnTypes = functionDefinition.getReturnTypesAsString();
-            var functionReturnTypesSource = "";
-            if (!_.isEmpty(functionReturnTypes)) {
-                functionReturnTypesSource = '(' + functionDefinition.getReturnTypesAsString() + ') ';
-            }
+    endVisitFunctionDefinition(functionDefinition) {
+        this.appendSource("} \n");
+        this.getParent().appendSource(this.getGeneratedSource());
+        log.debug('End Visit FunctionDefinition');
+    }
 
-            var constructedSourceSegment = 'function ' + functionDefinition.getFunctionName() + '(' +
-                functionDefinition.getArgumentsAsString() + ') ' + functionReturnTypesSource + '{';
-            this.appendSource(constructedSourceSegment);
-            log.debug('Begin Visit FunctionDefinition');
-        };
+    visitStatement(statement) {
+        var statementVisitorFactory = new StatementVisitorFactory();
+        var statementVisitor = statementVisitorFactory.getStatementVisitor(statement, this);
+        statement.accept(statementVisitor);
+    }
 
-        FunctionDefinitionVisitor.prototype.visitFunctionDefinition = function(functionDefinition){
-            log.debug('Visit FunctionDefinition');
-        };
+    /**
+     * visits commentStatement
+     * @param {Object} statement - comment statement
+     */
+    visitCommentStatement(statement) {
+        var statementVisitorFactory = new StatementVisitorFactory();
+        var statementVisitor = statementVisitorFactory.getStatementVisitor(statement, this);
+        statement.accept(statementVisitor);
+    }
 
-        FunctionDefinitionVisitor.prototype.endVisitFunctionDefinition = function(functionDefinition){
-            this.appendSource("} \n");
-            this.getParent().appendSource(this.getGeneratedSource());
-            log.debug('End Visit FunctionDefinition');
-        };
+    visitConnectorDeclaration(connectorDeclaration) {
+        var connectorDeclarationVisitor = new ConnectorDeclarationVisitor(this);
+        connectorDeclaration.accept(connectorDeclarationVisitor);
+    }
 
-        FunctionDefinitionVisitor.prototype.visitStatement = function (statement) {
-            var statementVisitorFactory = new StatementVisitorFactory();
-            var statementVisitor = statementVisitorFactory.getStatementVisitor(statement, this);
-            statement.accept(statementVisitor);
-        };
+    visitVariableDeclaration(variableDeclaration) {
+        var variableDeclarationVisitor = new VariableDeclarationVisitor(this);
+        variableDeclaration.accept(variableDeclarationVisitor);
+    }
 
-        /**
-         * visits commentStatement
-         * @param {Object} statement - comment statement
-         */
-        FunctionDefinitionVisitor.prototype.visitCommentStatement = function (statement) {
-            var statementVisitorFactory = new StatementVisitorFactory();
-            var statementVisitor = statementVisitorFactory.getStatementVisitor(statement, this);
-            statement.accept(statementVisitor);
-        };
+    visitWorkerDeclaration(workerDeclaration) {
+        var workerDeclarationVisitor = new WorkerDeclarationVisitor(this);
+        workerDeclaration.accept(workerDeclarationVisitor);
+    }
+}
 
-        FunctionDefinitionVisitor.prototype.visitConnectorDeclaration = function(connectorDeclaration){
-            var connectorDeclarationVisitor = new ConnectorDeclarationVisitor(this);
-            connectorDeclaration.accept(connectorDeclarationVisitor);
-        };
-
-        FunctionDefinitionVisitor.prototype.visitVariableDeclaration = function(variableDeclaration){
-            var variableDeclarationVisitor = new VariableDeclarationVisitor(this);
-            variableDeclaration.accept(variableDeclarationVisitor);
-        };
-
-        FunctionDefinitionVisitor.prototype.visitWorkerDeclaration = function(workerDeclaration){
-            var workerDeclarationVisitor = new WorkerDeclarationVisitor(this);
-            workerDeclaration.accept(workerDeclarationVisitor);
-        };
-
-        return FunctionDefinitionVisitor;
-    });
+export default FunctionDefinitionVisitor;
+    

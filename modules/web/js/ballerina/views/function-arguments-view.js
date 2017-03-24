@@ -15,8 +15,10 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require', 'lodash', 'jquery', 'alerts', 'ballerina/ast/ballerina-ast-factory'],
-    function (require, _, $, Alerts, BallerinaASTFactory) {
+import _ from 'lodash';
+import $ from 'jquery';
+import Alerts from 'alerts';
+import BallerinaASTFactory from 'ballerina/ast/ballerina-ast-factory';
 
         /**
          * Creates the arguments pane.
@@ -331,5 +333,4 @@ define(['require', 'lodash', 'jquery', 'alerts', 'ballerina/ast/ballerina-ast-fa
         argumentsView.createArgumentsPane = createArgumentsPane;
         argumentsView.move = move;
 
-        return argumentsView;
-    });
+        export default argumentsView;

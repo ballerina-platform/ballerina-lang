@@ -15,55 +15,58 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(
-    ['require', 'lodash', 'log', './block-statement-view', '../ast/statements/try-statement'],
-    function (require, _, log, BlockStatementView, TryStatement) {
+import _ from 'lodash';
+import log from 'log';
+import BlockStatementView from './block-statement-view';
+import TryStatement from '../ast/statements/try-statement';
 
-        /**
-         * The view to represent a Try statement which is an AST visitor.
-         * @param {Object} args - Arguments for creating the view.
-         * @param {TryStatement} args.model - The If statement model.
-         * @param {Object} args.container - The HTML container to which the view should be added to.
-         * @param {Object} args.parent - Parent Statement View, which in this case the try-catch statement
-         * @param {Object} [args.viewOptions={}] - Configuration values for the view.
-         * @class TryStatementView
-         * @constructor
-         * @extends BlockStatementView
-         */
-        var TryStatementView = function (args) {
-            _.set(args, "viewOptions.title.text", "Try");
-            BlockStatementView.call(this, args);
-            this.getModel()._isChildOfWorker = args.isChildOfWorker;
-        };
+/**
+ * The view to represent a Try statement which is an AST visitor.
+ * @class TryStatementView
+ * @extends BlockStatementView
+ */
+class TryStatementView extends BlockStatementView {
 
-        TryStatementView.prototype = Object.create(BlockStatementView.prototype);
-        TryStatementView.prototype.constructor = TryStatementView;
+    /**
+     * Constructor for TryStatementView
+     * @param {Object} args - Arguments for creating the view.
+     * @param {TryStatement} args.model - The If statement model.
+     * @param {Object} args.container - The HTML container to which the view should be added to.
+     * @param {Object} args.parent - Parent Statement View, which in this case the try-catch statement
+     * @param {Object} [args.viewOptions={}] - Configuration values for the view.
+     * @constructor
+     */
+    constructor(args) {
+        _.set(args, 'viewOptions.title.text', 'Try');
+        super(args);
+        this.getModel()._isChildOfWorker = args.isChildOfWorker;
+    }
 
-        TryStatementView.prototype.canVisitTryStatement = function(){
-            return true;
-        };
+    canVisitTryStatement() {
+        return true;
+    }
 
-        /**
-         * Set the try statement model
-         * @param {TryStatement} model
-         */
-        TryStatementView.prototype.setModel = function (model) {
-            if (!_.isNil(model) && model instanceof TryStatement) {
-                (this.__proto__.__proto__).setModel(model);
-            } else {
-                log.error("If statement definition is undefined or is of different type." + model);
-                throw "If statement definition is undefined or is of different type." + model;
-            }
-        };
+    /**
+     * Set the try statement model
+     * @param {TryStatement} model
+     */
+    setModel(model) {
+        if (!_.isNil(model) && model instanceof TryStatement) {
+            (this.__proto__.__proto__).setModel(model);
+        } else {
+            log.error('If statement definition is undefined or is of different type.' + model);
+            throw 'If statement definition is undefined or is of different type.' + model;
+        }
+    }
 
-        TryStatementView.prototype.initFromJson = function (jsonNode) {
-            var self = this;
-            _.each(jsonNode.children, function (childNode) {
-                var child = self.getFactory().createFromJson(childNode);
-                child.initFromJson(childNode);
-                self.addChild(child);
-            });
-        };
+    initFromJson(jsonNode) {
+        var self = this;
+        _.each(jsonNode.children, function (childNode) {
+            var child = self.getFactory().createFromJson(childNode);
+            child.initFromJson(childNode);
+            self.addChild(child);
+        });
+    }
+}
 
-        return TryStatementView;
-    });
+export default TryStatementView;

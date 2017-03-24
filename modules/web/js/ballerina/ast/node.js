@@ -15,17 +15,22 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['log', 'require', 'event_channel', 'lodash'], function(log, require, EventChannel, _){
+import log from 'log';
+import EventChannel from 'event_channel';
+import _ from 'lodash';
+import BallerinaAstFactory from './ballerina-ast-factory';
 
-    /**
-     * Constructor for the ASTNode
-     * @class ASTNode
-     * @augments EventChannel
-     * @param {string} type - An identifier for the type of the object.
-     * Example for a service definition : "ServiceDefinition". This is useful when debugging.
-     * @constructor
-     */
-    var ASTNode = function(type) {
+/**
+ * Constructor for the ASTNode
+ * @class ASTNode
+ * @augments EventChannel
+ * @param {string} type - An identifier for the type of the object.
+ * Example for a service definition : "ServiceDefinition". This is useful when debugging.
+ * @constructor
+ */
+class ASTNode extends EventChannel {
+    constructor(type) {
+        super();
         this.object = undefined;
         this.parent = undefined;
         this.children = [];
@@ -43,38 +48,35 @@ define(['log', 'require', 'event_channel', 'lodash'], function(log, require, Eve
 
         this._generateUniqueIdentifiers = undefined;
         this._whitespaceTokens = [];
-    };
+    }
 
-    ASTNode.prototype = Object.create(EventChannel.prototype);
-    ASTNode.prototype.constructor = ASTNode;
-
-    ASTNode.prototype.getParent = function () {
+    getParent() {
         return this.parent;
-    };
+    }
 
-    ASTNode.prototype.setParent = function (parent, options) {
+    setParent(parent, options) {
         this.setAttribute('parent', parent, options);
-    };
+    }
 
-    ASTNode.prototype.getChildren = function () {
+    getChildren() {
         return this.children;
-    };
+    }
 
-    ASTNode.prototype.getType = function () {
+    getType() {
         return this.type;
-    };
+    }
 
-    ASTNode.prototype.getID = function() {
+    getID() {
         return this.id;
-    };
+    }
 
-    ASTNode.prototype.getLength = function () {
+    getLength() {
         return this.length;
-    };
+    }
 
-    ASTNode.prototype.getStartIndex = function () {
+    getStartIndex() {
         return this.startIndex;
-    };
+    }
 
     /**
      * Insert a given child to the children array for a given index or otherwise to the array normally
@@ -84,7 +86,7 @@ define(['log', 'require', 'event_channel', 'lodash'], function(log, require, Eve
      * @fires  ASTNode#child-added
      * @fires  ASTNode#tree-modified
      */
-    ASTNode.prototype.addChild = function (child, index, ignoreTreeModifiedEvent) {
+    addChild(child, index, ignoreTreeModifiedEvent) {
         if (_.isUndefined(index)) {
             this.children.push(child);
         } else {
@@ -113,7 +115,7 @@ define(['log', 'require', 'event_channel', 'lodash'], function(log, require, Eve
                 }
             });
         }
-    };
+    }
 
     /**
      * Remove a given child from the AST tree
@@ -122,7 +124,7 @@ define(['log', 'require', 'event_channel', 'lodash'], function(log, require, Eve
      * @fires  ASTNode#child-removed
      * @fires  ASTNode#tree-modified
      */
-    ASTNode.prototype.removeChild = function (child, ignoreTreeModifiedEvent) {
+    removeChild(child, ignoreTreeModifiedEvent) {
         var parentModelChildren = this.children;
         for (var itr = 0; itr < parentModelChildren.length; itr++) {
             if (parentModelChildren[itr].id === child.id) {
@@ -149,33 +151,32 @@ define(['log', 'require', 'event_channel', 'lodash'], function(log, require, Eve
                 break;
             }
         }
-    };
+    }
 
     /**
      * finds the child from the AST tree by ID
      * @param id
      * @returns {*}
      */
-    ASTNode.prototype.getChildById = function (id) {
+    getChildById(id) {
         return _.find(this.children, ['id', id]);
-    };
+    }
 
     /**
      * remove the child from the AST tree by ID
      * @param id
      * @param ignoreTreeModifiedEvent {boolean}
      */
-    ASTNode.prototype.removeChildById = function (id, ignoreTreeModifiedEvent) {
+    removeChildById(id, ignoreTreeModifiedEvent) {
         var child = this.getChildById(id);
         this.removeChild(child,ignoreTreeModifiedEvent);
-    };
-
+    }
 
     /**
      * Accept function in visitor pattern
      * @param visitor {ASTVisitor}
      */
-    ASTNode.prototype.accept = function (visitor) {
+    accept(visitor) {
         if(visitor.canVisit(this)) {
             visitor.beginVisit(this);
             var self = this;
@@ -191,7 +192,7 @@ define(['log', 'require', 'event_channel', 'lodash'], function(log, require, Eve
             });
             visitor.endVisit(this);
         }
-    };
+    }
 
     /**
      * Indicates whether this can be the parent node for the give node
@@ -199,9 +200,9 @@ define(['log', 'require', 'event_channel', 'lodash'], function(log, require, Eve
      * @param node {ASTNode}
      * @return {boolean} Default is true
      */
-    ASTNode.prototype.canBeParentOf = function (node) {
+    canBeParentOf(node) {
         return true;
-    };
+    }
 
     /**
      * Indicates whether this can be a child node of given node.
@@ -209,41 +210,30 @@ define(['log', 'require', 'event_channel', 'lodash'], function(log, require, Eve
      * @param node {ASTNode}
      * @return {boolean} Default is true
      */
-    ASTNode.prototype.canBeAChildOf = function (node) {
+    canBeAChildOf(node) {
         return true;
-    };
+    }
 
     /**
      * Get factory.
      * @return {BallerinaASTFactory}
      */
-    ASTNode.prototype.getFactory  = function() {
-        return require('./ballerina-ast-factory');
-    };
+    getFactory() {
+        return BallerinaAstFactory;
+    }
 
     /**
      * Get index of child.
      * @param {ASTNode}
      * @return {number}
      */
-    ASTNode.prototype.getIndexOfChild  = function(child) {
+    getIndexOfChild(child) {
         return _.findIndex(this.children, ['id', child.id]);
-    };
+    }
 
-    ASTNode.prototype.initFromJson = function(jsonNode) {
+    initFromJson(jsonNode) {
         throw "InitFromJson not implemented";
-    };
-
-    // Auto generated Id for service definitions (for accordion views)
-    var uuid =  function (){
-        function s4() {
-            return Math.floor((1 + Math.random()) * 0x10000)
-                .toString(16)
-                .substring(1);
-        }
-        return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
-            s4() + '-' + s4() + s4() + s4();
-    };
+    }
 
     /**
      * A generic method to be used for setting node attributes while firing required change events
@@ -254,7 +244,7 @@ define(['log', 'require', 'event_channel', 'lodash'], function(log, require, Eve
      * @param [options.changeTitle=change $attributeName] {String} the title for change
      * @param [options.doSilently=false] {boolean} a flag to indicate whether events should not be fired
      */
-    ASTNode.prototype.setAttribute = function (attributeName, newValue, options) {
+    setAttribute(attributeName, newValue, options) {
 
         var oldValue = _.get(this, attributeName);
 
@@ -292,16 +282,16 @@ define(['log', 'require', 'event_channel', 'lodash'], function(log, require, Eve
                 }
             });
         }
-    };
+    }
 
     /**
      * A generic getter for all attributes of a node
      * @param attributeName
      * @return {*}
      */
-    ASTNode.prototype.getAttribute = function (attributeName) {
+    getAttribute(attributeName) {
         return _.get(this, attributeName);
-    };
+    }
 
     /**
      * A generic method to be used for adding values for node attributes which are arrays while firing required change events
@@ -314,7 +304,7 @@ define(['log', 'require', 'event_channel', 'lodash'], function(log, require, Eve
      * @param [options.changeTitle=Modify $attributeName] {string} the title for change
      * @param [options.doSilently=false] {boolean} a flag to indicate whether events should not be fired
      */
-    ASTNode.prototype.pushToArrayAttribute = function (arrAttrName, newValue, options) {
+    pushToArrayAttribute(arrAttrName, newValue, options) {
         var currentArray = _.get(this, arrAttrName);
 
         // Check if a value already exists for the given key
@@ -366,42 +356,42 @@ define(['log', 'require', 'event_channel', 'lodash'], function(log, require, Eve
                 }
             });
         }
-    };
+    }
 
     /**
      * Checks if an string is valid as an identifier.
      * @param {string} identifier - The string value.
      * @return {boolean} - True if valid, else false.
      */
-    ASTNode.isValidIdentifier = function (identifier) {
+    static isValidIdentifier(identifier) {
         return _.isUndefined(identifier) ? false : /^[a-zA-Z$_][a-zA-Z0-9$_]*$/.test(identifier);
-    };
+    }
 
     /**
      * Removes node from the tree.
      * @param [options] {object}
      * @param [options.ignoreTreeModifiedEvent=false] {boolean} a flag to prevent tree-modified event being fired
      */
-    ASTNode.prototype.remove = function(options) {
+    remove(options) {
         if(!_.isNil(this.getParent())){
             this.trigger('before-remove');
             this.getParent().removeChild(this, _.get(options, 'ignoreTreeModifiedEvent'));
             this.trigger('after-remove');
         }
-    };
+    }
 
-    ASTNode.prototype.setLineNumber = function (lineNumber, options) {
+    setLineNumber(lineNumber, options) {
         this.setAttribute('_lineNumber', parseInt(lineNumber), options);
-    };
+    }
 
-    ASTNode.prototype.getLineNumber = function () {
+    getLineNumber() {
         return this.getAttribute('_lineNumber');
-    };
+    }
 
     /**
      * Function which should be used to generate unique values for attributes. Ex: newStruct, newStruct1, newStruct2.
      */
-    ASTNode.prototype.generateUniqueIdentifiers = function() {};
+    generateUniqueIdentifiers() {}
 
     /**
      * Returned array will contain all the whitespace tokens associated with this particular node. Each token's position in
@@ -421,9 +411,9 @@ define(['log', 'require', 'event_channel', 'lodash'], function(log, require, Eve
      *
      * @return {Array} The array of whitespace tokens associated with this node
      */
-    ASTNode.prototype.getWhitespaceTokens = function () {
+    getWhitespaceTokens() {
         return this._whitespaceTokens;
-    };
+    }
 
     /**
      * Sets whitespace tokens related to this particular node
@@ -447,10 +437,20 @@ define(['log', 'require', 'event_channel', 'lodash'], function(log, require, Eve
      *
      * @param options
      */
-    ASTNode.prototype.setWhitespaceTokens = function (tokens, options) {
+    setWhitespaceTokens(tokens, options) {
         this.setAttribute('_whitespaceTokens', tokens, options);
-    };
+    }
+}
 
-    return ASTNode;
+// Auto generated Id for service definitions (for accordion views)
+var uuid =  function (){
+    function s4() {
+        return Math.floor((1 + Math.random()) * 0x10000)
+            .toString(16)
+            .substring(1);
+    }
+    return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
+        s4() + '-' + s4() + s4() + s4();
+};
 
-});
+export default ASTNode;

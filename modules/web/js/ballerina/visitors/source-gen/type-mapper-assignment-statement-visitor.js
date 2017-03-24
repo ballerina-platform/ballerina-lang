@@ -15,42 +15,42 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require','lodash', 'log', 'event_channel', './abstract-statement-source-gen-visitor', '../../ast/statements/assignment-statement'],
-    function(require, _, log, EventChannel, AbstractStatementSourceGenVisitor, AssignmentStatement) {
+import _ from 'lodash';
+import log from 'log';
+import EventChannel from 'event_channel';
+import AbstractStatementSourceGenVisitor from './abstract-statement-source-gen-visitor';
+import AssignmentStatement from '../../ast/statements/assignment-statement';
+import TypeMapperStatementVisitorFactory from './type-mapper-statement-visitor-factory';
 
-        var TypeMapperAssignmentStatementVisitor = function(parent){
-            AbstractStatementSourceGenVisitor.call(this,parent);
-        };
+class TypeMapperAssignmentStatementVisitor extends AbstractStatementSourceGenVisitor {
+    constructor(parent) {
+        super(parent);
+    }
 
-        TypeMapperAssignmentStatementVisitor.prototype = Object.create(AbstractStatementSourceGenVisitor.prototype);
-        TypeMapperAssignmentStatementVisitor.prototype.constructor = TypeMapperAssignmentStatementVisitor;
+    canVisitAssignmentStatement(assignmentStatement) {
+        return assignmentStatement instanceof AssignmentStatement;
+    }
 
-        TypeMapperAssignmentStatementVisitor.prototype.canVisitAssignmentStatement = function(assignmentStatement){
-            return assignmentStatement instanceof AssignmentStatement;
-        };
+    beginVisitAssignmentStatement(assignmentStatement) {
+        log.debug('Begin Visit Type Mapper Assignment Statement');
+    }
 
-        TypeMapperAssignmentStatementVisitor.prototype.beginVisitAssignmentStatement = function(assignmentStatement){
-            log.debug('Begin Visit Type Mapper Assignment Statement');
-        };
+    visitLeftOperandExpression(expression) {
+        var statementVisitorFactory = new TypeMapperStatementVisitorFactory();
+        var statementVisitor = statementVisitorFactory.getStatementVisitor(expression, this);
+        expression.accept(statementVisitor);
+    }
 
-        TypeMapperAssignmentStatementVisitor.prototype.visitLeftOperandExpression = function(expression){
-            var TypeMapperStatementVisitorFactory = require('./type-mapper-statement-visitor-factory');
-            var statementVisitorFactory = new TypeMapperStatementVisitorFactory();
-            var statementVisitor = statementVisitorFactory.getStatementVisitor(expression, this);
-            expression.accept(statementVisitor);
-        };
+    visitRightOperandExpression(expression) {
+        var statementVisitorFactory = new TypeMapperStatementVisitorFactory();
+        var statementVisitor = statementVisitorFactory.getStatementVisitor(expression, this);
+        expression.accept(statementVisitor);
+    }
 
-        TypeMapperAssignmentStatementVisitor.prototype.visitRightOperandExpression = function(expression){
-            var TypeMapperStatementVisitorFactory = require('./type-mapper-statement-visitor-factory');
-            var statementVisitorFactory = new TypeMapperStatementVisitorFactory();
-            var statementVisitor = statementVisitorFactory.getStatementVisitor(expression, this);
-            expression.accept(statementVisitor);
-        };
+    endVisitAssignmentStatement(assignmentStatement) {
+        this.getParent().appendSource(this.getGeneratedSource() + ";\n");
+        log.debug('End Visit Type Mapper Assignment Statement');
+    }
+}
 
-        TypeMapperAssignmentStatementVisitor.prototype.endVisitAssignmentStatement = function(assignmentStatement){
-            this.getParent().appendSource(this.getGeneratedSource() + ";\n");
-            log.debug('End Visit Type Mapper Assignment Statement');
-        };
-
-        return TypeMapperAssignmentStatementVisitor;
-    });
+export default TypeMapperAssignmentStatementVisitor;

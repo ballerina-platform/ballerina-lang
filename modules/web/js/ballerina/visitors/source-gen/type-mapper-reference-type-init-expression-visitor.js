@@ -15,33 +15,33 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require','lodash', 'log', 'event_channel', './abstract-expression-source-gen-visitor'],
-    function(require, _, log, EventChannel, AbstractExpressionSourceGenVisitor) {
+import _ from 'lodash';
+import log from 'log';
+import EventChannel from 'event_channel';
+import AbstractExpressionSourceGenVisitor from './abstract-expression-source-gen-visitor';
 
-        var TypeMapperRefTypeInitExpressionVisitor = function(parent){
-            AbstractExpressionSourceGenVisitor.call(this,parent);
-        };
+class TypeMapperRefTypeInitExpressionVisitor extends AbstractExpressionSourceGenVisitor {
+    constructor(parent) {
+        super(parent);
+    }
 
-        TypeMapperRefTypeInitExpressionVisitor.prototype = Object.create(AbstractExpressionSourceGenVisitor.prototype);
-        TypeMapperRefTypeInitExpressionVisitor.prototype.constructor = TypeMapperRefTypeInitExpressionVisitor;
+    canVisitReferenceTypeInitExpression(expression) {
+        return true;
+    }
 
-        TypeMapperRefTypeInitExpressionVisitor.prototype.canVisitReferenceTypeInitExpression = function(expression){
-            return true;
-        };
+    beginVisitReferenceTypeInitExpression(expression) {
+        this.appendSource("{}");
+        log.debug('Begin Visit Type Mapper Ref Type Init Expression');
+    }
 
-        TypeMapperRefTypeInitExpressionVisitor.prototype.beginVisitReferenceTypeInitExpression = function(expression){
-            this.appendSource("{}");
-            log.debug('Begin Visit Type Mapper Ref Type Init Expression');
-        };
+    visitReferenceTypeInitExpression(expression) {
+        log.debug('Visit Type Mapper Ref Type Init  Expression');
+    }
 
-        TypeMapperRefTypeInitExpressionVisitor.prototype.visitReferenceTypeInitExpression = function(expression){
-            log.debug('Visit Type Mapper Ref Type Init  Expression');
-        };
+    endVisitReferenceTypeInitExpression(expression) {
+        this.getParent().appendSource(this.getGeneratedSource());
+        log.debug('End Visit Type Mapper Ref Type Init  Expression');
+    }
+}
 
-        TypeMapperRefTypeInitExpressionVisitor.prototype.endVisitReferenceTypeInitExpression = function(expression){
-            this.getParent().appendSource(this.getGeneratedSource());
-            log.debug('End Visit Type Mapper Ref Type Init  Expression');
-        };
-
-        return TypeMapperRefTypeInitExpressionVisitor;
-    });
+export default TypeMapperRefTypeInitExpressionVisitor;

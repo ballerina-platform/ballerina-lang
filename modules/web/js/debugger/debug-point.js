@@ -15,8 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['log', 'lodash', 'require'], 
-    function (log, _, require) {
+import _ from 'lodash';
 
         /**
          * @class DebugPoint
@@ -27,5 +26,4 @@ define(['log', 'lodash', 'require'],
             this.lineNumber = _.get(args, 'lineNumber', 0);
         };
 
-        return DebugPoint;
-    });
+        export default DebugPoint;

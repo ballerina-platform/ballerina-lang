@@ -15,19 +15,20 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'log', 'event_channel', './../ast/module'], function(_, log, EventChannel, AST) {
+import _ from 'lodash';
+import log from 'log';
+import EventChannel from 'event_channel';
+import AST from './../ast/module';
 
-    var ASTVisitor = function() {
-        EventChannel.call(this);
-    };
-
-    ASTVisitor.prototype = Object.create(EventChannel.prototype);
-    ASTVisitor.prototype.constructor = ASTVisitor;
+class ASTVisitor extends EventChannel {
+    constructor() {
+        super();
+    }
 
     /**
      * @param node {ASTNode}
      */
-    ASTVisitor.prototype.canVisit = function(node){
+    canVisit(node) {
         if(node instanceof AST.BallerinaASTRoot){
             return this.canVisitBallerinaASTRoot(node);
         } else if(node instanceof AST.ServiceDefinition){
@@ -77,12 +78,12 @@ define(['lodash', 'log', 'event_channel', './../ast/module'], function(_, log, E
         } else if(node instanceof AST.VariableDefinition){
             return this.canVisitVariableDefinition(node);
         }
-    };
+    }
 
     /**
      * @param node {ASTNode}
      */
-    ASTVisitor.prototype.beginVisit = function(node){
+    beginVisit(node) {
         if(node instanceof AST.BallerinaASTRoot){
             return this.beginVisitBallerinaASTRoot(node);
         } else if(node instanceof AST.ServiceDefinition){
@@ -132,12 +133,12 @@ define(['lodash', 'log', 'event_channel', './../ast/module'], function(_, log, E
         } else if(node instanceof AST.VariableDefinition){
             return this.beginVisitVariableDefinition(node);
         }
-    };
+    }
 
     /**
      * @param node {ASTNode}
      */
-    ASTVisitor.prototype.visit = function(node){
+    visit(node) {
         if(node instanceof AST.BallerinaASTRoot){
             return this.visitBallerinaASTRoot(node);
         } else if(node instanceof AST.ServiceDefinition){
@@ -188,12 +189,12 @@ define(['lodash', 'log', 'event_channel', './../ast/module'], function(_, log, E
             return this.visitVariableDefinition(node);
         }
 
-    };
+    }
 
     /**
      * @param node {ASTNode}
      */
-    ASTVisitor.prototype.endVisit = function(node){
+    endVisit(node) {
         if(node instanceof AST.BallerinaASTRoot){
             return this.endVisitBallerinaASTRoot(node);
         } else if(node instanceof AST.ServiceDefinition){
@@ -244,274 +245,349 @@ define(['lodash', 'log', 'event_channel', './../ast/module'], function(_, log, E
             return this.endVisitVariableDefinition(node);
         }
 
-    };
+    }
 
-    ASTVisitor.prototype.canVisitBallerinaASTRoot = function(ballerinaASTRoot){
+    canVisitBallerinaASTRoot(ballerinaASTRoot) {
         return false;
-    };
-    ASTVisitor.prototype.beginVisitBallerinaASTRoot = function(ballerinaASTRoot){
-    };
-    ASTVisitor.prototype.visitBallerinaASTRoot= function(ballerinaASTRoot){
-    };
-    ASTVisitor.prototype.endVisitBallerinaASTRoot = function(ballerinaASTRoot){
-    };
+    }
 
-    ASTVisitor.prototype.canVisitServiceDefinition = function(serviceDefinition){
+    beginVisitBallerinaASTRoot(ballerinaASTRoot) {
+    }
+
+    visitBallerinaASTRoot(ballerinaASTRoot) {
+    }
+
+    endVisitBallerinaASTRoot(ballerinaASTRoot) {
+    }
+
+    canVisitServiceDefinition(serviceDefinition) {
         return false;
-    };
-    ASTVisitor.prototype.beginVisitServiceDefinition = function(serviceDefinition){
-    };
-    ASTVisitor.prototype.visitServiceDefinition = function(serviceDefinition){
-    };
-    ASTVisitor.prototype.endVisitServiceDefinition = function(serviceDefinition){
-    };
+    }
 
-    ASTVisitor.prototype.canVisitConnectorDefinition = function(connectorDefinition){
+    beginVisitServiceDefinition(serviceDefinition) {
+    }
+
+    visitServiceDefinition(serviceDefinition) {
+    }
+
+    endVisitServiceDefinition(serviceDefinition) {
+    }
+
+    canVisitConnectorDefinition(connectorDefinition) {
         return false;
-    };
-    ASTVisitor.prototype.beginVisitConnectorDefinition = function(connectorDefinition){
-    };
-    ASTVisitor.prototype.visitConnectorDefinition = function(connectorDefinition){
-    };
-    ASTVisitor.prototype.endVisitConnectorDefinition = function(connectorDefinition){
-    };
+    }
 
-    ASTVisitor.prototype.canVisitFunctionDefinition = function(functionDefinition){
+    beginVisitConnectorDefinition(connectorDefinition) {
+    }
+
+    visitConnectorDefinition(connectorDefinition) {
+    }
+
+    endVisitConnectorDefinition(connectorDefinition) {
+    }
+
+    canVisitFunctionDefinition(functionDefinition) {
         return false;
-    };
-    ASTVisitor.prototype.beginVisitFunctionDefinition = function(functionDefinition){
-    };
-    ASTVisitor.prototype.visitFunctionDefinition = function(functionDefinition){
-    };
-    ASTVisitor.prototype.endVisitFunctionDefinition = function(functionDefinition){
-    };
+    }
 
-    ASTVisitor.prototype.canVisitResourceDefinition = function(resourceDefinition){
+    beginVisitFunctionDefinition(functionDefinition) {
+    }
+
+    visitFunctionDefinition(functionDefinition) {
+    }
+
+    endVisitFunctionDefinition(functionDefinition) {
+    }
+
+    canVisitResourceDefinition(resourceDefinition) {
         return false;
-    };
-    ASTVisitor.prototype.beginVisitResourceDefinition = function(resourceDefinition){
-    };
-    ASTVisitor.prototype.visitResourceDefinition = function(resourceDefinition){
-    };
-    ASTVisitor.prototype.endVisitResourceDefinition = function(resourceDefinition){
-    };
+    }
 
-    ASTVisitor.prototype.canVisitFunctionDefinition = function(resourceDefinition){
+    beginVisitResourceDefinition(resourceDefinition) {
+    }
+
+    visitResourceDefinition(resourceDefinition) {
+    }
+
+    endVisitResourceDefinition(resourceDefinition) {
+    }
+
+    canVisitFunctionDefinition(resourceDefinition) {
         return false;
-    };
-    ASTVisitor.prototype.beginVisitFunctionDefinition = function(resourceDefinition){
-    };
-    ASTVisitor.prototype.visitFunctionDefinition = function(resourceDefinition){
-    };
-    ASTVisitor.prototype.endVisitFunctionDefinition = function(resourceDefinition){
-    };
+    }
 
-    ASTVisitor.prototype.canVisitStructDefinition = function(structDefinition){
+    beginVisitFunctionDefinition(resourceDefinition) {
+    }
+
+    visitFunctionDefinition(resourceDefinition) {
+    }
+
+    endVisitFunctionDefinition(resourceDefinition) {
+    }
+
+    canVisitStructDefinition(structDefinition) {
         return false;
-    };
-    ASTVisitor.prototype.beginVisitStructDefinition = function(structDefinition){
-    };
-    ASTVisitor.prototype.visitStructDefinition = function(structDefinition){
-    };
-    ASTVisitor.prototype.endVisitStructDefinition = function(structDefinition){
-    };
+    }
 
-    ASTVisitor.prototype.canVisitTypeMapperDefinition = function(typeMapperDefinition){
+    beginVisitStructDefinition(structDefinition) {
+    }
+
+    visitStructDefinition(structDefinition) {
+    }
+
+    endVisitStructDefinition(structDefinition) {
+    }
+
+    canVisitTypeMapperDefinition(typeMapperDefinition) {
         return false;
-    };
-    ASTVisitor.prototype.beginVisitTypeMapperDefinition = function(typeMapperDefinition){
-    };
-    ASTVisitor.prototype.visitTypeMapperDefinition = function(typeMapperDefinition){
-    };
-    ASTVisitor.prototype.endVisitTypeMapperDefinition = function(typeMapperDefinition){
-    };
+    }
 
-    ASTVisitor.prototype.canVisitResourceParameter = function(resourceParameter){
+    beginVisitTypeMapperDefinition(typeMapperDefinition) {
+    }
+
+    visitTypeMapperDefinition(typeMapperDefinition) {
+    }
+
+    endVisitTypeMapperDefinition(typeMapperDefinition) {
+    }
+
+    canVisitResourceParameter(resourceParameter) {
         return false;
-    };
-    ASTVisitor.prototype.beginVisitResourceParameter = function(resourceParameter){
-    };
-    ASTVisitor.prototype.visitResourceParameter = function(resourceParameter){
-    };
-    ASTVisitor.prototype.endVisitResourceParameter = function(resourceParameter){
-    };
+    }
 
-    ASTVisitor.prototype.canVisitBlockStatement = function(blockStatement){
+    beginVisitResourceParameter(resourceParameter) {
+    }
+
+    visitResourceParameter(resourceParameter) {
+    }
+
+    endVisitResourceParameter(resourceParameter) {
+    }
+
+    canVisitBlockStatement(blockStatement) {
         return false;
-    };
-    ASTVisitor.prototype.beginVisitBlockStatement = function(blockStatement){
-    };
-    ASTVisitor.prototype.visitBlockStatement = function(blockStatement){
-    };
-    ASTVisitor.prototype.endVisitBlockStatement = function(blockStatement){
-    };
+    }
 
-    ASTVisitor.prototype.canVisitReturnType = function(returnType){
+    beginVisitBlockStatement(blockStatement) {
+    }
+
+    visitBlockStatement(blockStatement) {
+    }
+
+    endVisitBlockStatement(blockStatement) {
+    }
+
+    canVisitReturnType(returnType) {
         return false;
-    };
-    ASTVisitor.prototype.beginVisitReturnType = function(returnType){
-    };
-    ASTVisitor.prototype.visitReturnType = function(returnType){
-    };
-    ASTVisitor.prototype.endVisitReturnType = function(returnType){
-    };
+    }
 
-    ASTVisitor.prototype.canVisitPackageDefinition = function(packageDefinition){
+    beginVisitReturnType(returnType) {
+    }
+
+    visitReturnType(returnType) {
+    }
+
+    endVisitReturnType(returnType) {
+    }
+
+    canVisitPackageDefinition(packageDefinition) {
         return false;
-    };
-    ASTVisitor.prototype.beginVisitPackageDefinition = function(packageDefinition){
-    };
-    ASTVisitor.prototype.visitPackageDefinition = function(packageDefinition){
-    };
-    ASTVisitor.prototype.endVisitPackageDefinition = function(packageDefinition){
-    };
+    }
 
-    ASTVisitor.prototype.canVisitImportDeclaration = function(importDeclaration){
+    beginVisitPackageDefinition(packageDefinition) {
+    }
+
+    visitPackageDefinition(packageDefinition) {
+    }
+
+    endVisitPackageDefinition(packageDefinition) {
+    }
+
+    canVisitImportDeclaration(importDeclaration) {
         return false;
-    };
-    ASTVisitor.prototype.beginVisitImportDeclaration = function(importDeclaration){
-    };
-    ASTVisitor.prototype.visitImportDeclaration = function(importDeclaration){
-    };
-    ASTVisitor.prototype.endVisitImportDeclaration = function(importDeclaration){
-    };
+    }
 
-    ASTVisitor.prototype.canVisitConstantDefinition = function(constantDefinition){
+    beginVisitImportDeclaration(importDeclaration) {
+    }
+
+    visitImportDeclaration(importDeclaration) {
+    }
+
+    endVisitImportDeclaration(importDeclaration) {
+    }
+
+    canVisitConstantDefinition(constantDefinition) {
         return false;
-    };
-    ASTVisitor.prototype.beginVisitConstantDefinition = function(constantDefinition){
-    };
-    ASTVisitor.prototype.visitConstantDefinition = function(constantDefinition){
-    };
-    ASTVisitor.prototype.endVisitConstantDefinition = function(constantDefinition){
-    };
+    }
 
-    ASTVisitor.prototype.canVisitWorkerDeclaration = function(importDeclaration){
+    beginVisitConstantDefinition(constantDefinition) {
+    }
+
+    visitConstantDefinition(constantDefinition) {
+    }
+
+    endVisitConstantDefinition(constantDefinition) {
+    }
+
+    canVisitWorkerDeclaration(importDeclaration) {
         return false;
-    };
-    ASTVisitor.prototype.beginVisitWorkerDeclaration = function(importDeclaration){
-    };
-    ASTVisitor.prototype.visitWorkerDeclaration = function(importDeclaration){
-    };
-    ASTVisitor.prototype.endVisitWorkerDeclaration = function(importDeclaration){
-    };
+    }
 
-    ASTVisitor.prototype.canVisitStatement = function(statement){
+    beginVisitWorkerDeclaration(importDeclaration) {
+    }
+
+    visitWorkerDeclaration(importDeclaration) {
+    }
+
+    endVisitWorkerDeclaration(importDeclaration) {
+    }
+
+    canVisitStatement(statement) {
         return false;
-    };
-    ASTVisitor.prototype.beginVisitStatement = function(statement){
-    };
-    ASTVisitor.prototype.visitStatement = function(statement){
-    };
-    ASTVisitor.prototype.endVisitStatement = function(statement){
-    };
+    }
 
-    ASTVisitor.prototype.canVisitExpression = function(statement){
+    beginVisitStatement(statement) {
+    }
+
+    visitStatement(statement) {
+    }
+
+    endVisitStatement(statement) {
+    }
+
+    canVisitExpression(statement) {
         return false;
-    };
-    ASTVisitor.prototype.beginVisitExpression = function(statement){
-    };
-    ASTVisitor.prototype.visitExpression = function(statement){
-    };
-    ASTVisitor.prototype.endVisitExpression = function(statement){
-    };
+    }
 
-    ASTVisitor.prototype.canVisitConnectorAction = function(connectorAction){
+    beginVisitExpression(statement) {
+    }
+
+    visitExpression(statement) {
+    }
+
+    endVisitExpression(statement) {
+    }
+
+    canVisitConnectorAction(connectorAction) {
         return false;
-    };
-    ASTVisitor.prototype.beginVisitConnectorAction = function(connectorAction){
-    };
-    ASTVisitor.prototype.visitConnectorAction = function(connectorAction){
-    };
-    ASTVisitor.prototype.endVisitConnectorAction = function(connectorAction){
-    };
+    }
 
-    ASTVisitor.prototype.canVisitActionInvocationExpression = function(){
+    beginVisitConnectorAction(connectorAction) {
+    }
+
+    visitConnectorAction(connectorAction) {
+    }
+
+    endVisitConnectorAction(connectorAction) {
+    }
+
+    canVisitActionInvocationExpression() {
         return true;
-    };
-    ASTVisitor.prototype.beginVisitActionInvocationExpression = function(expression){
-    };
-    ASTVisitor.prototype.visitActionInvocationExpression = function(expression){
-    };
-    ASTVisitor.prototype.endVisitActionInvocationExpression = function(expression){
-    };
+    }
+
+    beginVisitActionInvocationExpression(expression) {
+    }
+
+    visitActionInvocationExpression(expression) {
+    }
+
+    endVisitActionInvocationExpression(expression) {
+    }
 
     /**
      *
      * @param statement - statement which should be checked
      * @returns {boolean}
      */
-    ASTVisitor.prototype.canVisitFuncInvocationExpression = function(statement){
+    canVisitFuncInvocationExpression(statement) {
         return false;
-    };
+    }
+
     /**
      *
      * @param statement - statement to begin visitFuncInvocationExpression with
      */
-    ASTVisitor.prototype.beginVisitFuncInvocationExpression = function(statement){
-    };
+    beginVisitFuncInvocationExpression(statement) {
+    }
+
     /**
      *
      * @param statement - statement to visit FuncInvocationExpression with
      */
-    ASTVisitor.prototype.visitFuncInvocationExpression = function(statement){
-    };
+    visitFuncInvocationExpression(statement) {
+    }
+
     /**
      *
      * @param statement - statement to end visitFuncInvocationExpression with
      */
-    ASTVisitor.prototype.endVisitFuncInvocationExpression = function(statement){
-    };
+    endVisitFuncInvocationExpression(statement) {
+    }
 
-    ASTVisitor.prototype.canVisitConnectorDeclaration = function(connectorDeclaration){
+    canVisitConnectorDeclaration(connectorDeclaration) {
         return false;
-    };
-    ASTVisitor.prototype.beginVisitConnectorDeclaration = function(connectorDeclaration){
-    };
-    ASTVisitor.prototype.visitConnectorDeclaration = function(connectorDeclaration){
-    };
-    ASTVisitor.prototype.endVisitConnectorDeclaration = function(connectorDeclaration){
-    };
+    }
 
-    ASTVisitor.prototype.canVisitAssignment = function(assignment){
+    beginVisitConnectorDeclaration(connectorDeclaration) {
+    }
+
+    visitConnectorDeclaration(connectorDeclaration) {
+    }
+
+    endVisitConnectorDeclaration(connectorDeclaration) {
+    }
+
+    canVisitAssignment(assignment) {
         return false;
-    };
-    ASTVisitor.prototype.beginVisitAssignment = function(assignment){
-    };
-    ASTVisitor.prototype.visitAssignment = function(assignment){
-    };
-    ASTVisitor.prototype.endVisitAssignment = function(assignment){
-    };
+    }
 
-    ASTVisitor.prototype.canVisitVariableDeclaration = function(variableDeclaration){
+    beginVisitAssignment(assignment) {
+    }
+
+    visitAssignment(assignment) {
+    }
+
+    endVisitAssignment(assignment) {
+    }
+
+    canVisitVariableDeclaration(variableDeclaration) {
         return false;
-    };
-    ASTVisitor.prototype.beginVisitVariableDeclaration = function(variableDeclaration){
-    };
-    ASTVisitor.prototype.visitVariableDeclaration = function(variableDeclaration){
-    };
-    ASTVisitor.prototype.endVisitVariableDeclaration = function(variableDeclaration){
-    };
+    }
 
-    ASTVisitor.prototype.canVisitVariableDefinition = function(variableDefinition){
+    beginVisitVariableDeclaration(variableDeclaration) {
+    }
+
+    visitVariableDeclaration(variableDeclaration) {
+    }
+
+    endVisitVariableDeclaration(variableDeclaration) {
+    }
+
+    canVisitVariableDefinition(variableDefinition) {
         return false;
-    };
-    ASTVisitor.prototype.beginVisitVariableDefinition = function(variableDefinition){
-    };
-    ASTVisitor.prototype.visitVariableDefinition = function(variableDefinition){
-    };
-    ASTVisitor.prototype.endVisitVariableDefinition = function(variableDefinition){
-    };
+    }
 
-    ASTVisitor.prototype.canVisitCommentStatement = function(variableDefinition){
+    beginVisitVariableDefinition(variableDefinition) {
+    }
+
+    visitVariableDefinition(variableDefinition) {
+    }
+
+    endVisitVariableDefinition(variableDefinition) {
+    }
+
+    canVisitCommentStatement(variableDefinition) {
         return false;
-    };
-    ASTVisitor.prototype.beginVisitCommentStatement = function(variableDefinition){
-    };
-    ASTVisitor.prototype.visitCommentStatement = function(variableDefinition){
-    };
-    ASTVisitor.prototype.endVisitCommentStatement = function(variableDefinition){
-    };
+    }
 
-    return ASTVisitor;
-});
+    beginVisitCommentStatement(variableDefinition) {
+    }
+
+    visitCommentStatement(variableDefinition) {
+    }
+
+    endVisitCommentStatement(variableDefinition) {
+    }
+}
+
+export default ASTVisitor;

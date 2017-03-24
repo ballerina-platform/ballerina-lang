@@ -15,72 +15,86 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['log', 'lodash','d3','./point', 'backbone','event_channel', 'ballerina/ast/ballerina-ast-factory'],
-    function (log, _, d3,Point, Backbone, EventChannel, BallerinaASTFactory) {
+import log from 'log';
+import _ from 'lodash';
+import * as d3 from 'd3';
+import Point from './point';
+import EventChannel from 'event_channel';
 
-    var MessageManager = function(args) {
-        log.debug("Initialising Message Manager");
+/**
+ * View for MessageManager
+ * @class MessageManager
+ * @extends EventChannel
+ */
+class MessageManager extends EventChannel {
+    /**
+     * Constructor for MessageManager
+     * @param {args} args for constructor
+     * @constructor
+     */
+    constructor(args) {
+        super();
+        log.debug('Initialising Message Manager');
         this.typeBeingDragged = undefined;
         this._canvas = _.get(args, 'canvas');
-    };
+    }
 
-    MessageManager.prototype = Object.create(EventChannel.prototype);
-    MessageManager.prototype.constructor = MessageManager;
+    setMessageSource(source) {
+        if (!_.isUndefined(source)) {
+            this.messageSource = source;
+        }
+    }
 
-    MessageManager.prototype.setMessageSource = function(source){
-         if (!_.isUndefined(source)) {
-             this.messageSource = source;
-         }
-    };
+    getMessageSource() {
+        return this.messageSource;
+    }
 
-    MessageManager.prototype.getMessageSource = function(){
-       return this.messageSource;
-    };
-
-    MessageManager.prototype.setMessageTarget = function(destination){
+    setMessageTarget(destination) {
         if (!_.isUndefined(destination)) {
             this.messageTarget = destination;
         }
-    };
-    MessageManager.prototype.getMessageTarget = function(){
-        return this.messageTarget;
-    };
+    }
 
-    MessageManager.prototype.setActivatedDropTarget = function (dropTarget) {
+    getMessageTarget() {
+        return this.messageTarget;
+    }
+
+    setActivatedDropTarget(dropTarget) {
         if (!_.isUndefined(dropTarget)) {
             this.activatedDropTarget = dropTarget;
         }
-    };
+    }
 
-    MessageManager.prototype.getActivatedDropTarget = function () {
+    getActivatedDropTarget() {
         return this.activatedDropTarget;
-    };
+    }
 
-    MessageManager.prototype.setValidateCallBack = function (callBackMethod) {
+    setValidateCallBack(callBackMethod) {
         if (!_.isUndefined(callBackMethod)) {
             this.validateCallBack = callBackMethod;
         }
-    };
+    }
 
-    MessageManager.prototype.getValidateCallBack = function () {
+    getValidateCallBack() {
         return this.validateCallBack;
-    };
+    }
 
-    MessageManager.prototype.setActivatedDropTarget = function (activatedDropTarget,validateCallBack) {
-        if (!_.isUndefined(activatedDropTarget)) {
-            if (!_.isEqual(activatedDropTarget, this.getActivatedDropTarget())){
-                /**
-                 * @eventMessageManager#drop-target-changed
-                 * @type ASTNode
-                 */
-                // this.trigger('drop-target-changed', activatedDropTarget);
-            }
-            this.activatedDropTarget = activatedDropTarget;
-        }
-        if (!_.isUndefined(validateCallBack)) {
-            this.setValidateCallBack(validateCallBack);
-        }
-    };
+    // TODO: This method has been duplicated since we need to check whether which is the correct
+    // setActivatedDropTarget(activatedDropTarget, validateCallBack) {
+    //     if (!_.isUndefined(activatedDropTarget)) {
+    //         if (!_.isEqual(activatedDropTarget, this.getActivatedDropTarget())){
+    //             /**
+    //              * @eventMessageManager#drop-target-changed
+    //              * @type ASTNode
+    //              */
+    //             // this.trigger('drop-target-changed', activatedDropTarget);
+    //         }
+    //         this.activatedDropTarget = activatedDropTarget;
+    //     }
+    //     if (!_.isUndefined(validateCallBack)) {
+    //         this.setValidateCallBack(validateCallBack);
+    //     }
+    // }
 
     /**
      * Set the type being dragged at a given moment.
@@ -88,28 +102,28 @@ define(['log', 'lodash','d3','./point', 'backbone','event_channel', 'ballerina/a
      * @param validateDropTargetCallback {DragDropManager~validateDropTargetCallback} - call back to do additional validations on drop target
      *
      */
-    MessageManager.prototype.setTypeBeingDragged = function (type, validateDropTargetCallback) {
+    setTypeBeingDragged(type, validateDropTargetCallback) {
         if (!_.isUndefined(type)) {
             this.typeBeingDragged = type;
         }
         if (!_.isUndefined(validateDropTargetCallback)) {
             this.validateDropTargetCallback = validateDropTargetCallback;
         }
-    };
+    }
 
     /**
      * Gets the type which is being dragged at a given moment - if any.
      * @return type
      */
-    MessageManager.prototype.getTypeBeingDragged = function () {
+    getTypeBeingDragged() {
         return this.typeBeingDragged;
-    };
+    }
 
-    MessageManager.prototype.isOnDrag = function () {
+    isOnDrag() {
         return !_.isNil(this.typeBeingDragged);
-    };
+    }
 
-    MessageManager.prototype.reset = function(){
+    reset() {
         /**
          * @event MessageManager#drag-stop
          * @type {ASTNode}
@@ -118,9 +132,9 @@ define(['log', 'lodash','d3','./point', 'backbone','event_channel', 'ballerina/a
         this.setValidateCallBack( undefined);
         this.setActivatedDropTarget(undefined);
         this.typeBeingDragged = undefined;
-    };
+    }
 
-    MessageManager.prototype.startDrawMessage = function(source, actionInvocationModel, sourcePoint, connectorPoint){
+    startDrawMessage(source, actionInvocationModel, sourcePoint, connectorPoint) {
         var connectorStartPoint,
             connectorEndPoint;
 
@@ -138,41 +152,40 @@ define(['log', 'lodash','d3','./point', 'backbone','event_channel', 'ballerina/a
         var self = this,
             container = d3.select(this._canvas.getSVG().get(0));
 
-        var tempLine = container.append("line")
-            .attr("x1",connectorStartPoint )
-            .attr("y1",connectorEndPoint )
-            .attr("x2",sourcePoint.x() )
-            .attr("y2",sourcePoint.y() )
-            .attr("stroke","#9d9d9d");
-        var points = "" +  sourcePoint.x() + "," + (sourcePoint.y() - 5) + " " + ( sourcePoint.x() + 5) + ","
-            + (sourcePoint.y()) + " " + sourcePoint.x() + "," + (sourcePoint.y() + 5);
-        var arrowPoint = container.append("polyline")
-            .attr("points", points);
+        var tempLine = container.append('line')
+            .attr('x1',connectorStartPoint )
+            .attr('y1',connectorEndPoint )
+            .attr('x2',sourcePoint.x() )
+            .attr('y2',sourcePoint.y() )
+            .attr('stroke','#9d9d9d');
+        var points = '' +  sourcePoint.x() + ',' + (sourcePoint.y() - 5) + ' ' + ( sourcePoint.x() + 5) + ','
+            + (sourcePoint.y()) + ' ' + sourcePoint.x() + ',' + (sourcePoint.y() + 5);
+        var arrowPoint = container.append('polyline')
+            .attr('points', points);
 
-        container.on("mousemove", function () {
+        container.on('mousemove', function () {
             var m = d3.mouse(this);
             //setting an offset of 5 to avoid the mouse pointer overlapping with the arrow
-            tempLine.attr("x2", m[0] - 5);
-            tempLine.attr("y2", sourcePoint.y());
-            var newPoints = "" +  (m[0] - 5) + "," + (sourcePoint.y() - 5) + " " + ( m[0]) + ","
-                + (sourcePoint.y()) + " " +  (m[0]- 5) + "," + ( sourcePoint.y() + 5);
-            arrowPoint.attr("points", newPoints);
+            tempLine.attr('x2', m[0] - 5);
+            tempLine.attr('y2', sourcePoint.y());
+            var newPoints = '' +  (m[0] - 5) + ',' + (sourcePoint.y() - 5) + ' ' + ( m[0]) + ','
+                + (sourcePoint.y()) + ' ' +  (m[0]- 5) + ',' + ( sourcePoint.y() + 5);
+            arrowPoint.attr('points', newPoints);
         });
 
-        container.on("mouseup", function () {
+        container.on('mouseup', function () {
             // unbind current listeners
-            container.on("mousemove", null);
-            container.on("mouseup", null);
-            var startPoint = new Point(tempLine.attr("x1"),tempLine.attr("y1"));
-            var endPoint = new Point(tempLine.attr("x2"),tempLine.attr("y2"));
+            container.on('mousemove', null);
+            container.on('mouseup', null);
+            var startPoint = new Point(tempLine.attr('x1'),tempLine.attr('y1'));
 
             tempLine.remove();
             arrowPoint.remove();
-            self.getMessageSource().getModel().trigger("drawConnectionForAction", startPoint, container);
+            self.getMessageSource().getModel().trigger('drawConnectionForAction', startPoint, container);
             self.trigger('drop-target-changed', undefined);
             self.reset();
         });
-    };
+    }
+}
 
-    return MessageManager;
-});
+export default MessageManager;

@@ -15,9 +15,17 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', '../workspace/file', 'ballerina/diagram-render/diagram-render-context',
-        'ballerina/views/backend', 'ballerina/ast/ballerina-ast-deserializer', '../debugger/debug-manager', 'alerts'],
-    function (require, log, $, _, Tab, Ballerina, File, DiagramRenderContext, Backend, BallerinaASTDeserializer, DebugManager, alerts) {
+import log from 'log';
+import $ from 'jquery';
+import _ from 'lodash';
+import Tab from './tab';
+import Ballerina from 'ballerina';
+import File from '../workspace/file';
+import DiagramRenderContext from 'ballerina/diagram-render/diagram-render-context';
+import Backend from 'ballerina/views/backend';
+import BallerinaASTDeserializer from 'ballerina/ast/ballerina-ast-deserializer';
+import DebugManager from '../debugger/debug-manager';
+import alerts from 'alerts';
     var FileTab;
 
     FileTab = Tab.extend({
@@ -125,7 +133,7 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', '../workspac
 
             var breakPointChangeCallback = function(debugPointChangedFileName) {
                 var fileName = self._file.getName();
-                
+
                 if(debugPointChangedFileName === fileName) {
                     var newBreakpoints = DebugManager.getDebugPoints(fileName);
                     fileEditor.trigger('reset-breakpoints', newBreakpoints);
@@ -206,5 +214,4 @@ define(['require', 'log', 'jquery', 'lodash', './tab', 'ballerina', '../workspac
 
     });
 
-    return FileTab;
-});
+    export default FileTab;

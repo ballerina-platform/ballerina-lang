@@ -15,41 +15,63 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-view',  './function-definition-view', './../ast/ballerina-ast-root',
-        './../ast/ballerina-ast-factory', './../ast/package-definition', './source-view', './swagger-view',
-        './../visitors/source-gen/ballerina-ast-root-visitor','./../visitors/symbol-table/ballerina-ast-root-visitor', './../tool-palette/tool-palette',
-        './../undo-manager/undo-manager','./backend', './../ast/ballerina-ast-deserializer', './connector-definition-view', './struct-definition-view',
-        './../env/package', './../env/package-scoped-environment', './../env/environment', './constant-definitions-pane-view', './../item-provider/tool-palette-item-provider',
-        './package-definition-pane-view','./import-declaration-view', './type-mapper-definition-view', 'alerts', 'typeahead.js'],
-    function (_, $, log, BallerinaView, ServiceDefinitionView, FunctionDefinitionView, BallerinaASTRoot, BallerinaASTFactory,
-              PackageDefinition, SourceView, SwaggerView, SourceGenVisitor, SymbolTableGenVisitor, ToolPalette, UndoManager, Backend, BallerinaASTDeserializer,
-              ConnectorDefinitionView, StructDefinitionView, Package, PackageScopedEnvironment, BallerinaEnvironment,
-              ConstantsDefinitionsPaneView, ToolPaletteItemProvider, PackageDefinitionView, ImportDeclarationView, TypeMapperDefinitionView, alerts, typeahead) {
+import _ from 'lodash';
+import $ from 'jquery';
+import log from 'log';
+import BallerinaView from './ballerina-view';
+import ServiceDefinitionView from './service-definition-view';
+import FunctionDefinitionView from './function-definition-view';
+import BallerinaASTRoot from './../ast/ballerina-ast-root';
+import BallerinaASTFactory from './../ast/ballerina-ast-factory';
+import SourceView from './source-view';
+import SwaggerView from './swagger-view';
+import SourceGenVisitor from './../visitors/source-gen/ballerina-ast-root-visitor';
+import SymbolTableGenVisitor from './../visitors/symbol-table/ballerina-ast-root-visitor';
+import ToolPalette from './../tool-palette/tool-palette';
+import UndoManager from './../undo-manager/undo-manager';
+import Backend from './backend';
+import BallerinaASTDeserializer from './../ast/ballerina-ast-deserializer';
+import ConnectorDefinitionView from './connector-definition-view';
+import StructDefinitionView from './struct-definition-view';
+import PackageScopedEnvironment from './../env/package-scoped-environment';
+import BallerinaEnvironment from './../env/environment';
+import ConstantsDefinitionsPaneView from './constant-definitions-pane-view';
+import ToolPaletteItemProvider from './../item-provider/tool-palette-item-provider';
+import PackageDefinitionView from './package-definition-pane-view';
+import ImportDeclarationView from './import-declaration-view';
+import TypeMapperDefinitionView from './type-mapper-definition-view';
+import alerts from 'alerts';
+import ConstantDefinitionView from './constant-definition-view';
+import 'typeahead.js';
 
         /**
          * The view to represent a ballerina file editor which is an AST visitor.
+ * @class BallerinaFileEditor
+ * @extends BallerinaView
+ */
+class BallerinaFileEditor extends BallerinaView {
+    /**
          * @param {Object} args - Arguments for creating the view.
          * @param {BallerinaASTRoot} args.model - The model for ballerina file editor.
          * @param {Object} args.container - The HTML container to which the view should be added to.
          * @param {Object} [args.viewOptions={}] - Configuration values for the view.
          * @constructor
          */
-        var BallerinaFileEditor = function (args) {
-            // need to set this before super constructor invoke
-            this._parseFailed = _.get(args, "parseFailed");
-            BallerinaView.call(this, args);
+    constructor(args) {
+        super(args);
+        this._parseFailed = _.get(args, 'parseFailed');
             this._canvasList = _.get(args, 'canvasList', []);
             this._debugger = _.get(args, 'debugger');
             this._file = _.get(args, 'file');
-            this._id = _.get(args, "id", "Ballerina Composer");
+        this._id = _.get(args, 'id', 'Ballerina Composer');
 
             if (!this._parseFailed && (_.isNil(this._model) || !(this._model instanceof BallerinaASTRoot))) {
-                log.error("Ballerina AST Root is undefined or is of different type." + this._model);
-                throw "Ballerina AST Root is undefined or is of different type." + this._model;
+            log.error('Ballerina AST Root is undefined or is of different type.' + this._model);
+            throw 'Ballerina AST Root is undefined or is of different type.' + this._model;
             }
 
            if (!_.has(args, 'backendEndpointsOptions')){
-               log.error("Backend endpoints options not defined.");
+            log.error('Backend endpoints options not defined.');
                // not throwing an exception for now since we need to work without a backend.
            }
            this.parserBackend = new Backend({url: _.get(args, 'backendEndpointsOptions.parser.endpoint', {})});
@@ -59,12 +81,9 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
            this._constantDefinitionsPane = undefined;
            this.deserializer = BallerinaASTDeserializer;
            this.init();
-       };
+    }
 
-        BallerinaFileEditor.prototype = Object.create(BallerinaView.prototype);
-        BallerinaFileEditor.prototype.constructor = BallerinaFileEditor;
-
-        BallerinaFileEditor.prototype.getContent = function(){
+    getContent() {
             if (this.isInSourceView()) {
                 return this._sourceView.getContent();
             } else if (this.isInSwaggerView()) {
@@ -75,30 +94,30 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                 this._sourceView.format(true);
                 return this._sourceView.getContent();
             }
-        };
+    }
 
-        BallerinaFileEditor.prototype.isInSourceView = function(){
+    isInSourceView() {
             return _.isEqual(this._activeView, 'source');
-        };
+    }
 
-        BallerinaFileEditor.prototype.isInSwaggerView = function(){
+    isInSwaggerView() {
             return _.isEqual(this._activeView, 'swagger');
-        };
+    }
 
-        BallerinaFileEditor.prototype.isInDesignView = function(){
+    isInDesignView() {
             return _.isEqual(this._activeView, 'design');
-        };
+    }
 
-        BallerinaFileEditor.prototype.setActiveView = function(activeView){
+    setActiveView(activeView) {
            this._activeView = activeView;
            switch (activeView){
-               case "source": this.trigger("source-view-activated"); break;
-               case "design": this.trigger("design-view-activated"); break;
-               case "swagger": this.trigger("swagger-view-activated"); break;
+        case 'source': this.trigger('source-view-activated'); break;
+        case 'design': this.trigger('design-view-activated'); break;
+        case 'swagger': this.trigger('swagger-view-activated'); break;
            }
-        };
+    }
 
-        BallerinaFileEditor.prototype.setModel = function (model) {
+    setModel(model) {
             if(this._parseFailed){
                 return;
             }
@@ -134,71 +153,72 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                     _.set(event, 'editor', this);
                     _.set(event, 'skipInSourceView', true);
                     this.getUndoManager().onUndoableOperation(event);
-                    this.trigger("content-modified");
+                this.trigger('content-modified');
                 }, this);
             } else {
-                log.error("Ballerina AST Root is undefined or is of different type." + model);
-                throw "Ballerina AST Root is undefined or is of different type." + model;
+            log.error('Ballerina AST Root is undefined or is of different type.' + model);
+            throw 'Ballerina AST Root is undefined or is of different type.' + model;
             }
-        };
+    }
 
-        BallerinaFileEditor.prototype.setCanvasList = function (canvases) {
+    setCanvasList(canvases) {
             if (!_.isNil(canvases)) {
                 this._canvasList = canvases;
             } else {
-                log.error("Canvas list cannot be undefined or empty." + canvases);
-                throw "Canvas list cannot be undefined or empty." + canvases;
+            log.error('Canvas list cannot be undefined or empty.' + canvases);
+            throw 'Canvas list cannot be undefined or empty.' + canvases;
             }
-        };
+    }
 
-        BallerinaFileEditor.prototype.setId = function (id) {
+    setId(id) {
             this._id = id;
-        };
+    }
 
-        BallerinaFileEditor.prototype.setViewOptions = function (viewOptions) {
+    setViewOptions(viewOptions) {
             this._viewOptions = viewOptions;
-        };
+    }
 
-        BallerinaFileEditor.prototype.getModel = function () {
+    getModel() {
             return this._model;
-        };
+    }
 
-        BallerinaFileEditor.prototype.getCanvasList = function () {
+    getCanvasList() {
             return this._canvasList;
-        };
+    }
 
-        BallerinaFileEditor.prototype.getId = function () {
+    getId() {
             return this._id;
-        };
+    }
 
-        BallerinaFileEditor.prototype.getViewOptions = function () {
+    getViewOptions() {
             return this._viewOptions;
-        };
+    }
 
-        BallerinaFileEditor.prototype.canVisitBallerinaASTRoot = function (ballerinaASTRoot) {
+    canVisitBallerinaASTRoot() {
             return true;
-        };
-        BallerinaFileEditor.prototype.visitBallerinaASTRoot = function (ballerinaASTRoot) {
+    }
 
-        };
+    visitBallerinaASTRoot() {
 
-        BallerinaFileEditor.prototype.canVisitServiceDefinition = function (serviceDefinition) {
+    }
+
+    canVisitServiceDefinition() {
             return false;
-        };
+    }
 
-        BallerinaFileEditor.prototype.canVisitFunctionDefinition = function (functionDefinition) {
+    canVisitFunctionDefinition() {
             return false;
-        };
+    }
 
-        BallerinaFileEditor.prototype.canVisitPackageDefinition = function (packageDefinition) {
+    canVisitPackageDefinition() {
             return false;
-        };
+    }
 
         /**
          * Creates a packge definition view for a package definition model and calls it's render.
          * @param packageDefinition
          */
-        BallerinaFileEditor.prototype.visitPackageDefinition = function (packageDefinition) {
+    visitPackageDefinition(packageDefinition) {
             var packageDefinitionView = new PackageDefinitionView({
                 viewOptions: this._viewOptions,
                 container: this._$canvasContainer,
@@ -208,9 +228,9 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
             });
             this.diagramRenderingContext.getViewModelMap()[packageDefinition.id] = packageDefinitionView;
             packageDefinitionView.render(this.diagramRenderingContext);
-        };
+    }
 
-        BallerinaFileEditor.prototype.visitImportDeclaration = function (importDeclaration) {
+    visitImportDeclaration(importDeclaration) {
             var importDeclarationView = new ImportDeclarationView({
                 viewOptions: this._viewOptions,
                 container: this._$canvasContainer,
@@ -220,11 +240,10 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
             });
             this.diagramRenderingContext.getViewModelMap()[importDeclaration.id] = importDeclarationView;
             importDeclarationView.render(this.diagramRenderingContext);
-        };
+    }
 
-       BallerinaFileEditor.prototype.visitConstantDefinition = function(constantDefinition) {
-          var container = this._constantDefinitionsPane.getConstantDefViewsContainer(),
-              ConstantDefinitionView = require('./constant-definition-view');
+    visitConstantDefinition(constantDefinition) {
+        var container = this._constantDefinitionsPane.getConstantDefViewsContainer();
 
           var constantDefinitionView = new ConstantDefinitionView({
               parent: this._model,
@@ -238,13 +257,13 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
           this.getDiagramRenderingContext().getViewModelMap()[constantDefinition.id] = constantDefinitionView;
 
           constantDefinitionView.render(this.getDiagramRenderingContext());
-       };
+    }
 
         /**
          * Creates a service definition view for a service definition model and calls it's render.
          * @param serviceDefinition
          */
-        BallerinaFileEditor.prototype.visitServiceDefinition = function (serviceDefinition) {
+    visitServiceDefinition(serviceDefinition) {
             var serviceDefinitionView = new ServiceDefinitionView({
                 viewOptions: this._viewOptions,
                 container: this._$canvasContainer,
@@ -255,13 +274,13 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
             this.diagramRenderingContext.getViewModelMap()[serviceDefinition.id] = serviceDefinitionView;
             serviceDefinitionView.render(this.diagramRenderingContext);
 
-        };
+    }
 
         /**
          * Creates a connector definition view for a connector definition model and calls it's render.
          * @param connectorDefinition
          */
-        BallerinaFileEditor.prototype.visitConnectorDefinition = function (connectorDefinition) {
+    visitConnectorDefinition(connectorDefinition) {
             var connectorDefinitionView = new ConnectorDefinitionView({
                 viewOptions: this._viewOptions,
                 container: this._$canvasContainer,
@@ -271,13 +290,13 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
             });
             this.diagramRenderingContext.getViewModelMap()[connectorDefinition.id] = connectorDefinitionView;
             connectorDefinitionView.render(this.diagramRenderingContext);
-        };
+    }
 
         /**
          * Visits FunctionDefinition
          * @param functionDefinition
          */
-        BallerinaFileEditor.prototype.visitFunctionDefinition = function (functionDefinition) {
+    visitFunctionDefinition(functionDefinition) {
             var functionDefinitionView = new FunctionDefinitionView({
                 viewOptions: this._viewOptions,
                 container: this._$canvasContainer,
@@ -287,9 +306,9 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
             });
             this.diagramRenderingContext.getViewModelMap()[functionDefinition.id] = functionDefinitionView;
             functionDefinitionView.render(this.diagramRenderingContext);
-        };
+    }
 
-        BallerinaFileEditor.prototype.visitStructDefinition = function (structDefinition) {
+    visitStructDefinition(structDefinition) {
             var structDefinitionView = new StructDefinitionView({
                 viewOptions: this._viewOptions,
                 container: this._$canvasContainer,
@@ -299,13 +318,13 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
             });
             this.diagramRenderingContext.getViewModelMap()[structDefinition.id] = structDefinitionView;
             structDefinitionView.render(this.diagramRenderingContext);
-        };
+    }
 
         /**
          * Creates a TypeMapperDefinition view for a TypeMapper Definition model and calls it's render.
          * @param typeMapperDefinition
          */
-        BallerinaFileEditor.prototype.visitTypeMapperDefinition = function (typeMapperDefinition) {
+    visitTypeMapperDefinition(typeMapperDefinition) {
             var typeMapperDefinitionView = new TypeMapperDefinitionView({
                 viewOptions: this._viewOptions,
                 container: this._$canvasContainer,
@@ -315,13 +334,13 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
             });
             typeMapperDefinitionView.render(this.diagramRenderingContext);
             this.diagramRenderingContext.getViewModelMap()[typeMapperDefinition.id] = typeMapperDefinitionView;
-        };
+    }
 
         /**
          * Adds the service definitions, function definitions and connector definitions to
          * {@link BallerinaFileEditor#_canvasList} and calls {@link BallerinaFileEditor#render}.
          */
-        BallerinaFileEditor.prototype.init = function () {
+    init() {
             var viewOptions = this._viewOptions;
             var errMsg;
             if (!_.has(viewOptions, 'design_view.container')) {
@@ -367,14 +386,13 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
 
             this._environment =  new PackageScopedEnvironment();
             this._package = this._environment.getCurrentPackage();
-        };
+    }
 
         /**
          * Rendering the view for each canvas in {@link BallerinaFileEditor#_canvasList}.
-         * @param parent - The parent container.
-         * @param options - View options of the file editor.
+     * @param diagramRenderingContext
          */
-        BallerinaFileEditor.prototype.render = function (diagramRenderingContext, parent, options) {
+    render(diagramRenderingContext) {
             var self = this;
             this.diagramRenderingContext = diagramRenderingContext;
             //TODO remove this for adding filecontext to the map
@@ -411,7 +429,7 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
             sourceViewContainer.append(aceEditorContainer);
             var sourceViewOpts = _.clone(_.get(this._viewOptions, 'source_view'));
             _.set(sourceViewOpts, 'container', aceEditorContainer.get(0));
-            _.set(sourceViewOpts, 'content', "");
+        _.set(sourceViewOpts, 'content', '');
             _.set(sourceViewOpts, 'debugger', this._debugger);
             _.set(sourceViewOpts, 'storage', this._file._storage);
             this._sourceView = new SourceView(sourceViewOpts);
@@ -459,8 +477,8 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                 self.trigger('dispatch-command', id);
             });
 
-            this._debugger.on("resume-execution", _.bind(this._clearExistingDebugHit, this));
-            this._debugger.on("session-completed", _.bind(this._clearExistingDebugHit, this));
+        this._debugger.on('resume-execution', _.bind(this._clearExistingDebugHit, this));
+        this._debugger.on('session-completed', _.bind(this._clearExistingDebugHit, this));
 
             this._sourceView.render();
 
@@ -470,7 +488,7 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
             var swaggerViewContainer = $(this._container).find(_.get(this._viewOptions, 'swagger_view.container'));
             var swaggerViewOpts = _.clone(_.get(this._viewOptions, 'swagger_view'));
             _.set(swaggerViewOpts, 'container', swaggerViewContainer);
-            _.set(swaggerViewOpts, 'content', "");
+        _.set(swaggerViewOpts, 'content', '');
             _.set(swaggerViewOpts, 'backend', new Backend({url : _.get(this._backendEndpointsOptions, 'swagger.endpoint')}));
             this._swaggerView = new SwaggerView(swaggerViewOpts);
             this._swaggerView.render();
@@ -535,7 +553,7 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
 
                     var treeModel = self.generateNodeTree();
                     if (_.isUndefined(treeModel)) {
-                        alerts.error("Cannot switch to Swagger due to parser error");
+                    alerts.error('Cannot switch to Swagger due to parser error');
                         return;
                     }
 
@@ -544,7 +562,7 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                     });
 
                     if (_.isUndefined(serviceDef)) {
-                        alerts.warn("Provide at least one service to generate Swagger definition");
+                    alerts.warn('Provide at least one service to generate Swagger definition');
                         return;
                     }
 
@@ -562,7 +580,7 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                     swaggerViewBtn.hide();
                     self.toolPalette.hide();
                     self.setActiveView('swagger');
-                    alerts.warn("This version only supports one service representation on Swagger");
+                alerts.warn('This version only supports one service representation on Swagger');
                 } catch (err) {
                     alerts.error(err.message);
                 }
@@ -620,7 +638,7 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                     self.rerenderCurrentPackageTool();
                     self.reDraw();
                 }
-                $(".outer-box").mCustomScrollbar("scrollTo", "left");
+            $('.outer-box').mCustomScrollbar('scrollTo', 'left');
             });
 
             this.initDropTarget();
@@ -638,28 +656,28 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                 self.setActiveView('design');
             }
 
-    };
+    }
 
         /**
          * Returns a package object with functions, connectors,
          * actions etc. of the current package
          * @returns {Object}
          */
-        BallerinaFileEditor.prototype.generateCurrentPackage = function () {
+    generateCurrentPackage() {
             var symbolTableGenVisitor = new SymbolTableGenVisitor(this._environment.getCurrentPackage(), this._model);
             this._model.accept(symbolTableGenVisitor);
             return symbolTableGenVisitor.getPackage();
-        };
+    }
 
         /**
          * adding current package to the tool palette with functions, connectors,
          * actions etc. of the current package
          */
-        BallerinaFileEditor.prototype.addCurrentPackageToToolPalette = function () {
+    addCurrentPackageToToolPalette() {
             this.toolPalette.getItemProvider().addImport(this.generateCurrentPackage(), 0);
-        };
+    }
 
-    BallerinaFileEditor.prototype.rerenderCurrentPackageTool = function () {
+    rerenderCurrentPackageTool() {
         var currentPackage = this.generateCurrentPackage();
         var provider = this.toolPalette.getItemProvider();
 
@@ -668,11 +686,11 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
         var options = {
             addToTop: true,
             collapsed: false
-        }
+        };
         provider.addImportToolGroup(currentPackage, options);
-    };
+    }
 
-    BallerinaFileEditor.prototype.initDropTarget = function() {
+    initDropTarget() {
         var self = this,
             dropActiveClass = _.get(this._viewOptions, 'cssClass.design_view_drop');
 
@@ -695,7 +713,7 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                 self._$canvasContainer.addClass(dropActiveClass);
 
                 // reset ui feed back on drop target change
-                self.toolPalette.dragDropManager.once("drop-target-changed", function(){
+                    self.toolPalette.dragDropManager.once('drop-target-changed', function(){
                     self._$canvasContainer.removeClass(dropActiveClass);
                 });
             }
@@ -708,37 +726,37 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                 }
             }
             event.stopPropagation();
-        })
-    };
+            });
+    }
 
         /**
          * generate Ballerina source for this editor page
          * @returns {*}
          */
-        BallerinaFileEditor.prototype.generateSource = function () {
+    generateSource() {
             // Visit the ast model and generate the source
             var sourceGenVisitor = new SourceGenVisitor();
             this._model.accept(sourceGenVisitor);
             return sourceGenVisitor.getGeneratedSource();
-        };
+    }
 
         /**
          * Generates Ballerina node tree for design view
          * @returns {BallerinaASTRoot} generated node tree
          */
-        BallerinaFileEditor.prototype.generateNodeTree = function () {
+    generateNodeTree() {
             var root;
             var source = this._sourceView.getContent();
             if (!_.isEmpty(source.trim())) {
                var response = this.parserBackend.parse(source);
                //if there are errors display the error.
                //@todo: proper error handling need to get the service specs
-               if (response.error != undefined && response.error) {
+            if (response.error !== undefined && response.error) {
                    alerts.error('cannot switch to design view due to parse errors');
                    return;
                } else if (!_.isUndefined(response.errorMessage)) {
                    //TODO : error messages from backend come as message or errorMessage. Make this consistent.
-                   alerts.error("Unable to parse the source: " + response.errorMessage);
+                alerts.error('Unable to parse the source: ' + response.errorMessage);
                    return;
                }
                this._parseFailed = false;
@@ -750,62 +768,62 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                root = this.getModel();
            }
            return root;
-        };
+    }
 
         /**
          * Creating the package view of a ballerina-file-editor.
          * @param canvasContainer - The canvas container.
          * @private
          */
-        BallerinaFileEditor.prototype._createImportDeclarationPane = function (canvasContainer) {
+    _createImportDeclarationPane(canvasContainer) {
             var self = this;
 
             var _paneAppendElement = $(canvasContainer).find('.package-imports-wrapper');
             // Creating import button.
-            this._importDeclarationButton = $("<div class='imports-btn' data-toggle='tooltip' title='Imports' " +
-                "data-placement='bottom'></div>")
+        this._importDeclarationButton = $('<div class=\'imports-btn\' data-toggle=\'tooltip\' title=\'Imports\' ' +
+            'data-placement=\'bottom\'></div>')
                 .appendTo(_paneAppendElement);
 
-            $("<span class='btn-icon'> Imports </span>").appendTo(this._importDeclarationButton).tooltip();
+        $('<span class=\'btn-icon\'> Imports </span>').appendTo(this._importDeclarationButton).tooltip();
 
-            this._importDeclarationMainWrapper = $("<div class='imports-pane'/>").appendTo(_paneAppendElement);
+        this._importDeclarationMainWrapper = $('<div class=\'imports-pane\'/>').appendTo(_paneAppendElement);
 
-            var importDeclarationWrapper = $("<div class='imports-wrapper'/>").appendTo(this._importDeclarationMainWrapper);
+        var importDeclarationWrapper = $('<div class=\'imports-wrapper\'/>').appendTo(this._importDeclarationMainWrapper);
 
-            var collapserWrapper = $("<div class='import-pane-collapser-wrapper btn-icon' data-placement='bottom' " +
-                " title='Open Import Pane' data-toggle='tooltip'/>")
-                .data("collapsed", "true")
+        var collapserWrapper = $('<div class=\'import-pane-collapser-wrapper btn-icon\' data-placement=\'bottom\' ' +
+            ' title=\'Open Import Pane\' data-toggle=\'tooltip\'/>')
+            .data('collapsed', 'true')
                 .appendTo(importDeclarationWrapper);
 
-            $("<i class='fw fw-right'></i>").appendTo(collapserWrapper);
+        $('<i class=\'fw fw-right\'></i>').appendTo(collapserWrapper);
 
             var importDeclarationControlsWrapper = $('<div />').appendTo(importDeclarationWrapper);
 
-            var importDeclarationActionWrapper = $("<div class='imports-action-wrapper'/>").appendTo(importDeclarationControlsWrapper);
+        var importDeclarationActionWrapper = $('<div class=\'imports-action-wrapper\'/>').appendTo(importDeclarationControlsWrapper);
 
             // Creating add imports editor button.
-            var addImportButton = $("<div class='action-icon-wrapper import-add-icon-wrapper' title='Add Import'" +
-                "data-toggle='tooltip' data-placement='bottom'/>")
+        var addImportButton = $('<div class=\'action-icon-wrapper import-add-icon-wrapper\' title=\'Add Import\'' +
+            'data-toggle=\'tooltip\' data-placement=\'bottom\'/>')
                 .appendTo(importDeclarationActionWrapper);
-            $("<i class='fw fw-add'></i>").appendTo(addImportButton);
+        $('<i class=\'fw fw-add\'></i>').appendTo(addImportButton);
 
-            var importsAddPane = $("<div class='action-import-wrapper-heading import-add-action-wrapper'/>")
+        var importsAddPane = $('<div class=\'action-import-wrapper-heading import-add-action-wrapper\'/>')
                 .appendTo(importDeclarationActionWrapper);
 
-            var importValueText = $("<input id='import-package-text' placeholder='Enter Package Name'/>").appendTo(importsAddPane);
+        var importValueText = $('<input id=\'import-package-text\' placeholder=\'Enter Package Name\'/>').appendTo(importsAddPane);
 
             // Creating cancelling add new import button.
-            var importAddCancelButtonPane = $("<div class='action-icon-wrapper import-add-cancel-action-wrapper' " +
-                "data-placement='bottom' title='Cancel' data-toggle='tooltip'/>")
+        var importAddCancelButtonPane = $('<div class=\'action-icon-wrapper import-add-cancel-action-wrapper\' ' +
+            'data-placement=\'bottom\' title=\'Cancel\' data-toggle=\'tooltip\'/>')
                 .appendTo(importsAddPane);
-            $("<span class='fw-stack fw-lg'><i class='fw fw-square fw-stack-2x'></i>" +
-                "<i class='fw fw-cancel fw-stack-1x fw-inverse'></i></span>").appendTo(importAddCancelButtonPane);
+        $('<span class=\'fw-stack fw-lg\'><i class=\'fw fw-square fw-stack-2x\'></i>' +
+            '<i class=\'fw fw-cancel fw-stack-1x fw-inverse\'></i></span>').appendTo(importAddCancelButtonPane);
             // Creating add new import button.
-            var importAddCompleteButtonPane = $("<div class='action-icon-wrapper " +
-                "import-add-complete-action-wrapper' title='Import' data-placement='bottom' data-toggle='tooltip'/>")
+        var importAddCompleteButtonPane = $('<div class=\'action-icon-wrapper ' +
+            'import-add-complete-action-wrapper\' title=\'Import\' data-placement=\'bottom\' data-toggle=\'tooltip\'/>')
                 .appendTo(importsAddPane);
-            $("<span class='fw-stack fw-lg'><i class='fw fw-square fw-stack-2x'></i>" +
-                "<i class='fw fw-check fw-stack-1x fw-inverse'></i></span>").appendTo(importAddCompleteButtonPane);
+        $('<span class=\'fw-stack fw-lg\'><i class=\'fw fw-square fw-stack-2x\'></i>' +
+            '<i class=\'fw fw-check fw-stack-1x fw-inverse\'></i></span>').appendTo(importAddCompleteButtonPane);
 
 
             // Add new constant activate button.
@@ -813,7 +831,7 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                 $(importsAddPane).show();
                 $(this).hide();
                 $(importValueText).focus();
-                self._importDeclarationButton.css("opacity", "1");
+            self._importDeclarationButton.css('opacity', '1');
             });
 
             // Cancel adding a new constant.
@@ -847,10 +865,10 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
 
             //add import suggestions
             var packages = BallerinaEnvironment.getPackages();
-            var packageNames = _.map(packages, function(p){return p._name});
+        var packageNames = _.map(packages, function(p){return p._name;});
 
             importValueText.typeahead({
-                    hint: false,
+                    hint: true,
                     highlight: true,
                     minLength: 1
                 },
@@ -866,7 +884,7 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                 var importTestValue = importValueText.val().trim();
                 if (!_.isEmpty(importTestValue)) {
                     var currentASTRoot = self.getModel();
-                    log.debug("Adding new import");
+                log.debug('Adding new import');
 
                     // Creating new import.
                     var newImportDeclaration = BallerinaASTFactory.createImportDeclaration();
@@ -886,10 +904,10 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                         //Clear the import value box
                         importValueText.typeahead('val','');
                         collapserWrapper.empty();
-                        collapserWrapper.data("collapsed", "false");
-                        $("<i class='fw fw-left'></i>").appendTo(collapserWrapper);
+                    collapserWrapper.data('collapsed', 'false');
+                    $('<i class=\'fw fw-left\'></i>').appendTo(collapserWrapper);
                         importDeclarationWrapper.show();
-                        self._importDeclarationMainWrapper.css("width", "92%");
+                    self._importDeclarationMainWrapper.css('width', '92%');
 
                     } catch (error) {
                         alerts.error(error);
@@ -898,8 +916,8 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
             });
 
             // Add new import upon enter key.
-            $(importValueText).on("change paste keydown", function (e) {
-                if (e.which == 13) {
+        $(importValueText).on('change paste keydown', function (e) {
+            if (e.which === 13) {
                     importAddCompleteButtonPane.click();
                 }
             });
@@ -907,23 +925,23 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
             // The click event for hiding and showing constants.
             collapserWrapper.click(function () {
                 $(this).empty();
-                if ($(this).data("collapsed") === "false") {
-                    $(this).data("collapsed", "true").attr('data-original-title', "Open Import Pane").tooltip('hide');
-                    $("<i class='fw fw-right'></i>").appendTo(this);
+            if ($(this).data('collapsed') === 'false') {
+                $(this).data('collapsed', 'true').attr('data-original-title', 'Open Import Pane').tooltip('hide');
+                $('<i class=\'fw fw-right\'></i>').appendTo(this);
                     importDeclarationWrapper.find('.imports-content-wrapper').hide();
                     importDeclarationActionWrapper.hide();
-                    self._importDeclarationMainWrapper.css("width", "0%");
+                self._importDeclarationMainWrapper.css('width', '0%');
                 } else {
-                    $(this).data("collapsed", "false").attr('data-original-title', "Close Import Pane").tooltip('hide');
-                    $("<i class='fw fw-left'></i>").appendTo(this);
+                $(this).data('collapsed', 'false').attr('data-original-title', 'Close Import Pane').tooltip('hide');
+                $('<i class=\'fw fw-left\'></i>').appendTo(this);
                     importDeclarationActionWrapper.show();
                     importDeclarationWrapper.find('.imports-content-wrapper').show();
-                    self._importDeclarationMainWrapper.css("width", "92%");
+                self._importDeclarationMainWrapper.css('width', '92%');
                 }
             });
-        };
+    }
 
-        BallerinaFileEditor.prototype.reDraw = function (args) {
+    reDraw() {
             var self = this;
             var viewOptions = this._viewOptions;
             if (!_.has(this._viewOptions, 'design_view.container')) {
@@ -970,17 +988,17 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
 
             this.initDropTarget();
             this.trigger('redraw');
-        };
+    }
 
-        BallerinaFileEditor.prototype.getUndoManager = function(){
+    getUndoManager() {
             return this._undoManager;
-        };
+    }
 
-        BallerinaFileEditor.prototype.getSourceView = function(){
+    getSourceView() {
             return this._sourceView;
-        };
+    }
 
-        BallerinaFileEditor.prototype._createConstantDefinitionsView = function(canvasContainer) {
+    _createConstantDefinitionsView(canvasContainer) {
 
             var costantDefinitionWrapper = _.get(this._viewOptions, 'cssClass.canvas_top_control_constants_define');
             var constantsWrapper = canvasContainer.find('.' +costantDefinitionWrapper);
@@ -994,20 +1012,20 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
             this._constantDefinitionsPane = new ConstantsDefinitionsPaneView(constantsDefinitionPaneProperties);
 
             this._constantDefinitionsPane.createConstantDefinitionPane();
-        };
+    }
 
-        BallerinaFileEditor.prototype.highlightExecutionPoint = function () {
+    highlightExecutionPoint() {
             this._sourceView._editor.selection.moveCursorToPosition({row: 1, column: 0});
             this._sourceView._editor.selection.selectLine();
-        };
+    }
 
 
-        BallerinaFileEditor.prototype.debugHit = function (position) {
+    debugHit(position) {
             this._sourceView.debugHit(position);
             this._debugHitDesignView(position);
-        };
+    }
 
-        BallerinaFileEditor.prototype._debugHitDesignView = function(position) {
+    _debugHitDesignView(position) {
             var self = this;
             var modelMap = this.diagramRenderingContext.getViewModelMap();
             // hide previous debug hit
@@ -1023,16 +1041,16 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                     }
                 }
             });
-        };
+    }
 
-        BallerinaFileEditor.prototype._clearExistingDebugHit = function(position) {
+    _clearExistingDebugHit() {
             if(this._currentDebugHit) {
                 this._currentDebugHit.clearDebugHit();
             }
             this._sourceView.clearExistingDebugHit();
-        };
+    }
 
-        BallerinaFileEditor.prototype._showBreakpoint = function (newBreakpoint) {
+    _showBreakpoint(newBreakpoint) {
             var modelMap = this.diagramRenderingContext.getViewModelMap();
             var self = this;
             this._currentBreakpoints = this._currentBreakpoints || [];
@@ -1046,18 +1064,16 @@ define(['lodash', 'jquery', 'log', './ballerina-view', './service-definition-vie
                     }
                 }
             });
-        };
+    }
 
-        BallerinaFileEditor.prototype._hideBreakpoint = function (breakpoint) {
-            var modelMap = this.diagramRenderingContext.getViewModelMap();
-            var self = this;
+    _hideBreakpoint() {
             this._currentBreakpoints = this._currentBreakpoints || [];
             _.each(this._currentBreakpoints, function(aView) {
                 aView.hideDebugIndicator();
             });
-        };
+    }
+}
 
 
 
-        return BallerinaFileEditor;
-    });
+export default BallerinaFileEditor;
