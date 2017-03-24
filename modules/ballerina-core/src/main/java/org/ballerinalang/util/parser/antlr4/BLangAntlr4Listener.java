@@ -240,7 +240,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
         }
 
         boolean isNative = B_KEYWORD_NATIVE.equals(ctx.getChild(0).getText());
-        String functionName = ctx.callableUnitSignature().Identifier(0).getText();
+        String functionName = ctx.callableUnitSignature().Identifier().getText();
         modelBuilder.addFunction(functionName, isNative);
     }
 
@@ -297,7 +297,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
         }
 
         boolean isNative = B_KEYWORD_NATIVE.equals(ctx.getChild(0).getText());
-        String actionName = ctx.callableUnitSignature().Identifier(0).getText();
+        String actionName = ctx.callableUnitSignature().Identifier().getText();
         int annotationCount = ctx.annotationAttachment() != null ? ctx.annotationAttachment().size() : 0;
         modelBuilder.addAction(actionName, isNative, annotationCount);
     }
