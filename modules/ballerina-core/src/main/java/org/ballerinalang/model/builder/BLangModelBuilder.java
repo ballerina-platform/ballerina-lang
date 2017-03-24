@@ -944,17 +944,6 @@ public class BLangModelBuilder {
         variableRefExpr.setVariableDef(variableDef);
 
         Expression rhsExpr = exprAvailable ? exprStack.pop() : null;
-        if (rhsExpr instanceof ArrayInitExpr) {
-//            if (((ArrayInitExpr) rhsExpr).getArgExprs().length == 0
-//                    && variableDef.getTypeName().getDimensions() != ((ArrayInitExpr) rhsExpr).getDimensions()) {
-//                String errMsg = BLangExceptionHelper.constructSemanticError(location,
-//                        SemanticErrors.ARRAY_INITIALIZATION_INCORRECT);
-//                errorMsgs.add(errMsg);
-//            } else {
-//                ((ArrayInitExpr) rhsExpr).setDimensions(variableDef.getTypeName().getDimensions());
-//            }
-//            ((ArrayInitExpr) rhsExpr).setDimensions(variableDef.getTypeName().getDimensions());
-        }
         VariableDefStmt variableDefStmt = new VariableDefStmt(location, variableDef, variableRefExpr, rhsExpr);
 
         if (blockStmtBuilderStack.size() == 0 && currentCUGroupBuilder != null) {
