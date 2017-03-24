@@ -49,7 +49,7 @@ import org.ballerinalang.plugins.idea.psi.SimpleTypeNode;
 import org.ballerinalang.plugins.idea.psi.references.PackageNameReference;
 import org.ballerinalang.plugins.idea.psi.PackagePathNode;
 import org.ballerinalang.plugins.idea.psi.ParameterNode;
-import org.ballerinalang.plugins.idea.psi.references.SimpleTypeReference;
+import org.ballerinalang.plugins.idea.psi.references.NameReference;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -660,7 +660,7 @@ public class BallerinaPsiImplUtil {
         PsiReference[] references = identifier.getReferences();
         for (PsiReference reference : references) {
             // Multi resolve each of the reference.
-            ResolveResult[] resolveResults = ((SimpleTypeReference) reference).multiResolve(false);
+            ResolveResult[] resolveResults = ((NameReference) reference).multiResolve(false);
             for (ResolveResult resolveResult : resolveResults) {
                 // Get the element. This will represent the identifier of the Connector definiton.
                 PsiElement resolvedElement = resolveResult.getElement();

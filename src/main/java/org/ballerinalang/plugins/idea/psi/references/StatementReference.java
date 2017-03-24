@@ -33,6 +33,7 @@ import org.ballerinalang.plugins.idea.psi.StructDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.VariableDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -85,6 +86,13 @@ public class StatementReference extends BallerinaElementReference {
             }
         }
         return results.toArray();
+    }
+
+    @Nullable
+    @Override
+    public PsiElement resolve() {
+        ResolveResult[] resolveResults = multiResolve(false);
+        return resolveResults.length != 0 ? resolveResults[0].getElement() : super.resolve();
     }
 
     @NotNull

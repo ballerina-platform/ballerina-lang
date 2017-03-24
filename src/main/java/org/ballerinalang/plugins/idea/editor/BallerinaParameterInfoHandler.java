@@ -38,7 +38,7 @@ import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
 import org.ballerinalang.plugins.idea.psi.ParameterListNode;
 import org.ballerinalang.plugins.idea.psi.ParameterNode;
 import org.ballerinalang.plugins.idea.psi.SimpleTypeNode;
-import org.ballerinalang.plugins.idea.psi.references.SimpleTypeReference;
+import org.ballerinalang.plugins.idea.psi.references.NameReference;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -144,7 +144,7 @@ public class BallerinaParameterInfoHandler implements ParameterInfoHandlerWithTa
 
                     PsiReference[] references = identifier.getReferences();
                     for (PsiReference psiReference : references) {
-                        ResolveResult[] resolveResults = ((SimpleTypeReference) psiReference).multiResolve(false);
+                        ResolveResult[] resolveResults = ((NameReference) psiReference).multiResolve(false);
                         if (resolveResults.length == 0) {
                             continue;
                         }

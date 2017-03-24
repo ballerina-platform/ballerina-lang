@@ -56,7 +56,7 @@ import org.ballerinalang.plugins.idea.psi.StatementNode;
 import org.ballerinalang.plugins.idea.psi.TypeMapperNode;
 import org.ballerinalang.plugins.idea.psi.VariableReferenceNode;
 import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
-import org.ballerinalang.plugins.idea.psi.references.SimpleTypeReference;
+import org.ballerinalang.plugins.idea.psi.references.NameReference;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -607,11 +607,11 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
             }
             // Get the reference.
             PsiReference reference = nameIdentifier.getReference();
-            if (reference == null || !(reference instanceof SimpleTypeReference)) {
+            if (reference == null || !(reference instanceof NameReference)) {
                 return;
             }
             // Multi resolve the reference.
-            ResolveResult[] resolvedElement = ((SimpleTypeReference) reference).multiResolve(false);
+            ResolveResult[] resolvedElement = ((NameReference) reference).multiResolve(false);
             // For each resolve result, get all actions and add them as lookup elements.
             for (ResolveResult resolveResult : resolvedElement) {
                 PsiElement resolveResultElement = resolveResult.getElement();

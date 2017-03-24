@@ -39,6 +39,7 @@ import org.ballerinalang.plugins.idea.psi.TypeNameNode;
 import org.ballerinalang.plugins.idea.psi.VariableDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.VariableReferenceNode;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -59,6 +60,13 @@ public class VariableReference extends BallerinaElementReference {
     @Override
     public Object[] getVariants() {
         return new Object[0];
+    }
+
+    @Nullable
+    @Override
+    public PsiElement resolve() {
+        ResolveResult[] resolveResults = multiResolve(false);
+        return resolveResults.length != 0 ? resolveResults[0].getElement() : super.resolve();
     }
 
     @NotNull
