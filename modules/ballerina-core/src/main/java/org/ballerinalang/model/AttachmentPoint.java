@@ -19,7 +19,7 @@ package org.ballerinalang.model;
 /**
  * {@code AttachmentPoint} represents places where an annotation can be attached.
  * 
- * @since 0.8.5
+ * @since 0.85
  */
 public enum AttachmentPoint {
     SERVICE("service"),

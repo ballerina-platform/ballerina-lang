@@ -22,7 +22,7 @@ import org.ballerinalang.model.values.BValue;
 /**
  * Holds the value of a ballerina annotation attribute.
  * 
- * @since 0.8.5
+ * @since 0.85
  */
 public class AnnotationAttributeValue  implements Node {
     BValue bValue;
