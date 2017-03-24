@@ -764,8 +764,8 @@ public class BLangExecutor implements NodeExecutor {
 
         // Creating a new arrays
         BArray bArray;
-        int diemnsions = ((BArrayType) arrayInitExpr.getType()).getDimensions();
-        if (diemnsions <= 1 || argExprs.length > 0) {
+        int dimensions = ((BArrayType) arrayInitExpr.getType()).getDimensions();
+        if (dimensions <= 1 || argExprs.length > 0) {
             bArray = arrayInitExpr.getType().getDefaultValue();
             for (int i = 0; i < argExprs.length; i++) {
                 Expression expr = argExprs[i];
@@ -778,14 +778,14 @@ public class BLangExecutor implements NodeExecutor {
         } else {
             bArray = new BArray<>(BArray.class);
             BArray currentBArray = bArray;
-            for (int i = 1; i < diemnsions; i++) {
-                if (i == diemnsions - 1) {
-                    BArray newbArray = arrayInitExpr.getType().getDefaultValue();
-                    currentBArray.add(0, newbArray);
+            for (int i = 1; i < dimensions; i++) {
+                if (i == dimensions - 1) {
+                    BArray leafBArray = arrayInitExpr.getType().getDefaultValue();
+                    currentBArray.add(0, leafBArray);
                 } else {
-                    BArray newbArray = new BArray<>(BArray.class);
-                    currentBArray.add(0, newbArray);
-                    currentBArray = newbArray;
+                    BArray childBArray = new BArray<>(BArray.class);
+                    currentBArray.add(0, childBArray);
+                    currentBArray = childBArray;
                 }
             }
         }
