@@ -18,7 +18,7 @@
 package org.ballerinalang.testerina.natives.test;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.model.Annotation;
+import org.ballerinalang.model.AnnotationAttachment;
 import org.ballerinalang.model.BLangPackage;
 import org.ballerinalang.model.BLangProgram;
 import org.ballerinalang.model.Service;
@@ -151,7 +151,7 @@ public class StartService extends AbstractNativeFunction {
         try {
             String listenerInterface = Constants.DEFAULT_INTERFACE;
             String basePath = service.getSymbolName().getName();
-            for (Annotation annotation : service.getAnnotations()) {
+            for (AnnotationAttachment annotation : service.getAnnotations()) {
                 if (annotation.getName().equals(Constants.PROTOCOL_HTTP + ":" + Constants.ANNOTATION_NAME_BASE_PATH)) {
                     basePath = annotation.getValue();
                     break;
