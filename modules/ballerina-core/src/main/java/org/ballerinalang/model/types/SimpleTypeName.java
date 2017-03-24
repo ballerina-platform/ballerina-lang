@@ -91,11 +91,11 @@ public class SimpleTypeName {
 
     protected String getNameWithArray(String name) {
         if (isArrayType) {
-            String newName = name;
+            String arrayName = name;
             for (int i = 0; i < getDimensions(); i++) {
-                newName = newName + TypeConstants.ARRAY_TNAME;
+                arrayName = arrayName + TypeConstants.ARRAY_TNAME;
             }
-            return newName;
+            return arrayName;
         } else {
             return name;
         }
