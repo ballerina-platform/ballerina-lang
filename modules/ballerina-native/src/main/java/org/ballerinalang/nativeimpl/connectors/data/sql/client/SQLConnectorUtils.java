@@ -712,7 +712,7 @@ public class SQLConnectorUtils {
      */
     public static String getString(Clob data) {
         if (data == null) {
-            return "";
+            return null;
         }
         try (Reader r = new BufferedReader(data.getCharacterStream())) {
             StringBuilder sb = new StringBuilder();
@@ -739,7 +739,7 @@ public class SQLConnectorUtils {
         // the first byte is at position 1"
         // - https://docs.oracle.com/javase/7/docs/api/java/sql/Blob.html#getBytes(long,%20int)
         if (data == null) {
-            return "";
+            return null;
         }
         try {
             byte[] encode = getBase64Encode(
@@ -757,7 +757,7 @@ public class SQLConnectorUtils {
      */
     public static String getString(byte[] data) {
         if (data == null) {
-            return "";
+            return null;
         } else {
             return new String(data, Charset.defaultCharset());
         }
@@ -776,7 +776,7 @@ public class SQLConnectorUtils {
 
     public static String getString(Date value) {
         if (value == null) {
-            return "";
+            return null;
         }
         // lexical form of the date is '-'? yyyy '-' mm '-' dd zzzzzz?
         Calendar calendar = Calendar.getInstance();
@@ -793,7 +793,7 @@ public class SQLConnectorUtils {
 
     public static String getString(Timestamp sqlTimestamp) {
         if (sqlTimestamp == null) {
-            return "";
+            return null;
         }
         Calendar cal = Calendar.getInstance();
         cal.setTimeInMillis(sqlTimestamp.getTime());
@@ -802,7 +802,7 @@ public class SQLConnectorUtils {
 
     public static String getString(Time sqlTimestamp) {
         if (sqlTimestamp == null) {
-            return "";
+            return null;
         }
         Calendar cal = Calendar.getInstance();
         cal.setTimeInMillis(sqlTimestamp.getTime());
@@ -825,7 +825,7 @@ public class SQLConnectorUtils {
 
     public static String getString(Array dataArray) throws SQLException {
         if (dataArray == null) {
-            return "";
+            return null;
         }
         StringJoiner sj = new StringJoiner(",", "[", "]");
         ResultSet rs = dataArray.getResultSet();

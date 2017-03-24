@@ -178,9 +178,9 @@ public class SQLConnectorTest {
         Assert.assertEquals(((BFloat) returns[8]).floatValue(), 0.0F);
         Assert.assertEquals(((BInteger) returns[9]).intValue(), 0);
         Assert.assertEquals(((BInteger) returns[10]).intValue(), 0);
-        Assert.assertEquals(returns[11].stringValue(), "");
-        Assert.assertEquals(returns[12].stringValue(), "");
-        Assert.assertEquals(returns[13].stringValue(), "");
+        Assert.assertEquals(returns[11].stringValue(), null);
+        Assert.assertEquals(returns[12].stringValue(), null);
+        Assert.assertEquals(returns[13].stringValue(), null);
     }
 
     @Test(groups = "ConnectorTest")
@@ -220,7 +220,7 @@ public class SQLConnectorTest {
     @Test(groups = "ConnectorTest")
     public void testNullINOutParameters() {
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "testNullINOutParameters");
-        Assert.assertEquals(returns.length, 12);
+        Assert.assertEquals(returns.length, 14);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 0);
         Assert.assertEquals(((BLong) returns[1]).longValue(), 0);
         Assert.assertEquals(((BFloat) returns[2]).floatValue(), 0.0f);
@@ -232,7 +232,9 @@ public class SQLConnectorTest {
         Assert.assertEquals(((BFloat) returns[8]).floatValue(), 0.0F);
         Assert.assertEquals(((BInteger) returns[9]).intValue(), 0);
         Assert.assertEquals(((BInteger) returns[10]).intValue(), 0);
-        Assert.assertEquals(returns[11].stringValue(), "");
+        Assert.assertEquals(returns[11].stringValue(), null);
+        Assert.assertEquals(returns[12].stringValue(), null);
+        Assert.assertEquals(returns[13].stringValue(), null);
     }
 
     @Test(groups = "ConnectorTest")

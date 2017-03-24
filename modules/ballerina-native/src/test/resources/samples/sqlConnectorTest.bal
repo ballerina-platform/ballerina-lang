@@ -308,12 +308,14 @@ function testNullINParameters() (int) {
     sql:Parameter paraTinyInt = {sqlType:"tinyint", direction:0};
     sql:Parameter paraSmallInt = {sqlType:"smallint", direction:0};
     sql:Parameter paraClob = {sqlType:"clob", direction:0};
+    sql:Parameter paraBlob = {sqlType:"blob", direction:0};
+    sql:Parameter paraBinary = {sqlType:"binary", direction:0};
 
     sql:Parameter[] parameters = [paraID, paraInt, paraLong, paraFloat, paraDouble, paraBool, paraString, paraNumeric,
-            paraDecimal, paraReal, paraTinyInt, paraSmallInt, paraClob];
+            paraDecimal, paraReal, paraTinyInt, paraSmallInt, paraClob, paraBlob, paraBinary];
     int insertCount = sql:ClientConnector.update(testDB, "INSERT INTO DataTypeTable (row_id, int_type, long_type,
             float_type, double_type, boolean_type, string_type, numeric_type, decimal_type, real_type, tinyint_type,
-            smallint_type, clob_type) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)", parameters);
+            smallint_type, clob_type, blob_type, binary_type) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", parameters);
     sql:ClientConnector.close(testDB);
     return insertCount;
 }
@@ -350,7 +352,7 @@ function testINOutParameters()
 }
 
 function testNullINOutParameters()
-    (any, any, any, any, any, any, any, any, any, any, any, any) {
+    (any, any, any, any, any, any, any, any, any, any, any, any, any, any) {
     map propertiesMap = {"jdbcUrl":"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
             "username":"SA", "password":"", "maximumPoolSize":1};
     sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
@@ -376,7 +378,8 @@ function testNullINOutParameters()
     sql:ClientConnector.call(testDB, "{call TestINOUTParams(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)}", parameters);
     sql:ClientConnector.close(testDB);
     return paraInt.value, paraLong.value, paraFloat.value, paraDouble.value, paraBool.value, paraString.value,
-        paraNumeric.value, paraDecimal.value, paraReal.value, paraTinyInt.value, paraSmallInt.value, paraClob.value;
+        paraNumeric.value, paraDecimal.value, paraReal.value, paraTinyInt.value, paraSmallInt.value, paraClob.value,
+        paraBlob.value, paraBinary.value ;
 }
 
 function testEmptySQLType() (int) {
