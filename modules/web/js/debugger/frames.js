@@ -16,23 +16,19 @@
  * under the License.
  */
 import $ from 'jquery';
-import Backbone from 'backbone';
 import _ from 'lodash';
-import log from 'log';
 import EventChannel from 'event_channel';
 import DebugManager from './debug-manager';
 
-var instance;
-
 class Frames extends EventChannel {
-  constructor() {
-      super();
-      var template =
+    constructor() {
+        super();
+        var template =
       '<div class="debug-panel-header debug-frame-header">'+
       '   <span><a class="tool-group-header-title">Frames</a></span>'+
       '</div>'+
       '<div class="panel-group" id="frameAccordion">'+
-      '<% _.forEach(frames, function(frame, index) { %>'+
+      '<% frames.forEach((frame, index) => { %>'+
       '    <div class="panel panel-default">'+
       '      <div class="panel-heading">'+
       '        <h4 class="panel-title">'+
@@ -47,7 +43,7 @@ class Frames extends EventChannel {
       '        <div class="panel-body">'+
       '        <div class="debug-v-tree">'+
       '          <ul>'+
-      '          <% _.forEach(frame.variables, function(v) { %>'+
+      '          <% frame.variables.forEach( v => { %>'+
       '          <li>'+
       '          <strong><%- v.name %></strong> = <%- v.value %> (<%- v.type %>)'+
       '          <ul>'+
@@ -65,121 +61,121 @@ class Frames extends EventChannel {
       '</div>';
 
 
-      this.compiled = _.template(template);
+        this.compiled = _.template(template);
 
-      this.js_tree_options = {
-          "core": {
-              "themes":{
-                  "icons":false
-              }
-          }
-      };
+        this.js_tree_options = {
+            'core': {
+                'themes':{
+                    'icons':false
+                }
+            }
+        };
 
-      DebugManager.on('debug-hit', _.bindKey(this,'render'));
-      DebugManager.on('resume-execution', _.bindKey(this,'clear'));
-      DebugManager.on('session-ended', _.bindKey(this,'clear'));
-      DebugManager.on('session-completed', _.bindKey(this,'clear'));
-  }
+        DebugManager.on('debug-hit', message => { this.render(message); });
+        DebugManager.on('resume-execution', () => { this.clear(); });
+        DebugManager.on('session-ended', () => { this.clear(); });
+        DebugManager.on('session-completed', () => { this.clear(); });
+    }
 
-  setContainer(container) {
-      this.container = container;
-  }
+    setContainer(container) {
+        this.container = container;
+    }
 
-  clear() {
-      this.container.empty();
-  }
+    clear() {
+        this.container.empty();
+    }
 
-  render(message) {
+    render(message) {
       //clear duplicate main
-      message.frames = _.uniqWith(message.frames, function(obj, other){
-          if (_.isEqual(obj.frameName,other.frameName) && _.isEqual(obj.packageName,other.packageName))
-              return true;
-      });
+        message.frames = _.uniqWith(message.frames, function(obj, other){
+            if (_.isEqual(obj.frameName,other.frameName) && _.isEqual(obj.packageName,other.packageName))
+                return true;
+        });
       // drop unnecessary first frame in services
-      var firstFrame = _.head(message.frames);
-      if(firstFrame && firstFrame.frameName !== "main") {
-          message.frames.splice(0, 1);
-      }
-      message.frames = this.process(message.frames);
+        var firstFrame = _.head(message.frames);
+        if(firstFrame && firstFrame.frameName !== 'main') {
+            message.frames.splice(0, 1);
+        }
+        message.frames = this.process(message.frames);
 
-      var html = this.compiled(message);
-      this.container.html(html);
+        var html = this.compiled(message);
+        this.container.html(html);
 
       //render variables tree
-      $(".debug-v-tree").jstree(this.js_tree_options);
-  }
+        $('.debug-v-tree').jstree(this.js_tree_options);
+    }
 
-  process(frames) {
+    process(frames) {
       //reverse order
-      frames = _.reverse(frames);
+        frames = _.reverse(frames);
 
-      _.map(frames, function(frame){
-          _.map(frame.variables, function(item){
-              switch (item.type) {
+        frames.map(function(frame){
+            frame.variables.map( item => {
+                switch (item.type) {
                 case 'BBoolean':
-                  item.type = "boolean";
-                  break;
+                    item.type = 'boolean';
+                    break;
                 case 'BInteger':
-                  item.type = "int";
-                  break;
+                    item.type = 'int';
+                    break;
                 case 'BFloat':
-                  item.type = "float";
-                  break;
+                    item.type = 'float';
+                    break;
                 case 'BLong':
-                  item.type = "long";
-                  break;
+                    item.type = 'long';
+                    break;
                 case 'BDouble':
-                  item.type = "double";
-                  break;
+                    item.type = 'double';
+                    break;
                 case 'BString':
-                  item.type = "string";
-                  break;
+                    item.type = 'string';
+                    break;
                 case 'BJSON':
-                  item.type = "json";
-                  break;
+                    item.type = 'json';
+                    break;
                 case 'BArray':
-                  item.type = "array";
-                  break;
+                    item.type = 'array';
+                    break;
                 case 'BMessage':
-                  item.type = "message";
-                  break;
+                    item.type = 'message';
+                    break;
                 case 'BConnector':
-                  item.type = "connector";
-                  break;
+                    item.type = 'connector';
+                    break;
                 case 'BDataTable':
-                  item.type = "datatable";
-                  break;
+                    item.type = 'datatable';
+                    break;
                 case 'BXML':
-                  item.type = "xml";
-                  break;
+                    item.type = 'xml';
+                    break;
                 case 'BValue':
-                  item.type = "value";
-                  break;
+                    item.type = 'value';
+                    break;
                 case 'BMap':
-                  item.type = "map";
-                  break;
+                    item.type = 'map';
+                    break;
                 case 'BValueType':
-                  item.type = "valuetype";
-                  break;
+                    item.type = 'valuetype';
+                    break;
                 case 'BStruct':
-                  item.type = "struct";
-                  break;
+                    item.type = 'struct';
+                    break;
                 case 'BException':
-                  item.type = "exception";
-                  break;
+                    item.type = 'exception';
+                    break;
                 case 'BRefType':
-                  item.type = "reftype";
-                  break;
+                    item.type = 'reftype';
+                    break;
                 default:
 
-              }
-              return item;
-          });
-          return frame;
-      });
+                }
+                return item;
+            });
+            return frame;
+        });
 
-      return frames;
-  }
+        return frames;
+    }
 }
 
 
