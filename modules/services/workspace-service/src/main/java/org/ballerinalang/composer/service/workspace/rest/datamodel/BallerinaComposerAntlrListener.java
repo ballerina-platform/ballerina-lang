@@ -21,13 +21,14 @@ package org.ballerinalang.composer.service.workspace.rest.datamodel;
 import org.ballerinalang.model.builder.BLangModelBuilder;
 import org.ballerinalang.util.parser.antlr4.BLangAntlr4Listener;
 
+import java.nio.file.Path;
+
 /**
  * A custom listener for ballerina parser
  */
 public class BallerinaComposerAntlrListener extends BLangAntlr4Listener {
 
-
-    public BallerinaComposerAntlrListener(BLangModelBuilder modelBuilder) {
-        super(modelBuilder);
+    public BallerinaComposerAntlrListener(BLangModelBuilder modelBuilder, Path sourceFilePath) {
+        super(modelBuilder, sourceFilePath);
     }
 }
