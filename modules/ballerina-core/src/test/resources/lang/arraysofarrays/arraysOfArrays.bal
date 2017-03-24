@@ -62,4 +62,3 @@ function twoDarrayFunctionCalltest() (int) {
 function arrayTest(int[][] yy) (int) {
     return yy[0][1];
 }
-
