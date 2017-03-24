@@ -531,7 +531,8 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         jsonAnnotation.addProperty(BLangJSONModelConstants.DEFINITION_TYPE, BLangJSONModelConstants
                 .ANNOTATION_ATTACHMENT);
         jsonAnnotation.addProperty(BLangJSONModelConstants.ANNOTATION_NAME, annotation.getName());
-        jsonAnnotation.addProperty(BLangJSONModelConstants.ANNOTATION_VALUE, annotation.getValue());
+        jsonAnnotation.addProperty(BLangJSONModelConstants.ANNOTATION_PACKAGE_NAME, annotation.getPkgName());
+        jsonAnnotation.addProperty(BLangJSONModelConstants.ANNOTATION_PACKAGE_PATH, annotation.getPkgPath());
         this.addPosition(jsonAnnotation, annotation.getNodeLocation());
         JsonArray children = new JsonArray();
         jsonAnnotation.add(BLangJSONModelConstants.CHILDREN, children);
