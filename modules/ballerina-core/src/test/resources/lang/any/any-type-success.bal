@@ -52,3 +52,20 @@ function anyToAnyExplicitCasting() (any) {
 }
 
 
+function multipleReturnWithAny() (any, int) {
+  any abc = jsonReturnFunction();
+  return abc, 7;
+}
+
+
+function multipleParamWithAny() (int) {
+  any abc = jsonReturnFunction();
+  int val = multipleParam(abc, 5);
+  return val;
+}
+
+function multipleParam(any val, int sam) (int) {
+  return sam;
+}
+
+

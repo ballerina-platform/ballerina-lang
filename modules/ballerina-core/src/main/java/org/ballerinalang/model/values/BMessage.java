@@ -31,6 +31,7 @@ import org.wso2.carbon.messaging.MessageUtil;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * {@code BMessage} represents a Carbon Message in Ballerina.
@@ -250,5 +251,34 @@ public final class BMessage implements BRefType<CarbonMessage> {
                     getMessageDataSource()).clone());
         }
         return clonedMessage;
+    }
+
+    /**
+     * Set properties of a message.
+     *
+     * @param propertyName
+     * @param propertyValue
+     */
+    public void setProperty(String propertyName, Object propertyValue) {
+        value.setProperty(propertyName, propertyValue);
+    }
+
+    /**
+     * Retrieve a message property.
+     *
+     * @param propertyName
+     * @return The property value.
+     */
+    public Object getProperty(String propertyName) {
+        return value.getProperty(propertyName);
+    }
+
+    /**
+     * Get all message properties.
+     *
+     * @return Map of all message properties.
+     */
+    public Map<String, Object> getProperties() {
+        return value.getProperties();
     }
 }

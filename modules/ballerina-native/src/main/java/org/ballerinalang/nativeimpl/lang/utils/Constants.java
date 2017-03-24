@@ -40,4 +40,9 @@ public class Constants {
      * HTTP content-type text/plain.
      */
     public static final String TEXT_PLAIN = "text/plain";
+
+    /**
+     * HTTP content-type application/x-www-form-urlencoded.
+     */
+    public static final String APPLICATION_FORM = "application/x-www-form-urlencoded";
 }

@@ -103,7 +103,6 @@ public class SQLConnector extends AbstractNativeConnector {
         hikariDataSource.close();
     }
 
-    @SuppressWarnings("unchecked")
     private void buildDataSource(BMap options) {
         try {
             HikariConfig config = new HikariConfig();
@@ -251,8 +250,7 @@ public class SQLConnector extends AbstractNativeConnector {
         }
     }
 
-    @SuppressWarnings("unchecked")
-    void setDataSourceProperties(BMap options, HikariConfig config) {
+    private void setDataSourceProperties(BMap options, HikariConfig config) {
         Set<BString> keySet = options.keySet();
         for (BString key : keySet) {
             String keyName = key.stringValue();

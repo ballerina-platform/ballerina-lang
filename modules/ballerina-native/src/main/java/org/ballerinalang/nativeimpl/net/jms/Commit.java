@@ -33,6 +33,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonMessage;
 
+import javax.jms.Session;
+
 /**
  * To commit the jms transacted sessions.
  */
@@ -60,7 +62,7 @@ public class Commit extends AbstractNativeFunction {
             throw new BallerinaException(JMSConstants.JMS_SESSION_ACKNOWLEDGEMENT_MODE + " property should hold a "
                     + "integer value. ");
         }
-        if (JMSConstants.SESSION_TRANSACTED_MODE == (Integer) jmsSessionAcknowledgementMode) {
+        if (Session.SESSION_TRANSACTED == (Integer) jmsSessionAcknowledgementMode) {
             carbonMessage
                     .setProperty(JMSConstants.JMS_MESSAGE_DELIVERY_STATUS, JMSConstants.JMS_MESSAGE_DELIVERY_SUCCESS);
             ctx.getBalCallback().done(carbonMessage);
