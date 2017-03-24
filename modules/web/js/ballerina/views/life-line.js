@@ -423,7 +423,7 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
                     //Remove connected arrows
                     d3.select(actionInvocationView._arrowGroup.node()).remove();
                     //Enable arrow redraw point on action invocation
-                    d3.select(actionInvocationView.processorConnectPoint.node()).style("display", "block");
+                    actionInvocationView._processorConnectPoint.attr('cx', actionInvocationView.getBoundingBox().getRight());
                     //Remove message target from action invocation
                     actionInvocationView.messageManager.setMessageSource(actionInvocationView.getActionInvocationExpressionModel());
                     actionInvocationView.updateActivatedTarget();
