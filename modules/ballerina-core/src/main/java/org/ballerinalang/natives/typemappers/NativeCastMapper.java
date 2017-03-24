@@ -17,13 +17,17 @@
  */
 package org.ballerinalang.natives.typemappers;
 
+import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BDouble;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BLong;
 import org.ballerinalang.model.values.BString;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueType;
+import org.ballerinalang.util.exceptions.BLangExceptionHelper;
+import org.ballerinalang.util.exceptions.RuntimeErrors;
 
 import java.util.function.Function;
 
@@ -133,5 +137,132 @@ public class NativeCastMapper {
 
     public static final Function<BValueType, BValueType> XML_TO_STRING_FUNC =
             (rVal) -> new BString(rVal.stringValue());
+
+    /**
+     * below functions are only needed if explicit casting happens from other types to any type.
+     * ex - any n = (any)1;
+     */
+    public static final Function<BValue, BValue> INT_TO_ANY_FUNC =
+            (rVal) -> rVal;
+
+    public static final Function<BValue, BValue> LONG_TO_ANY_FUNC =
+            (rVal) -> rVal;
+
+    public static final Function<BValue, BValue> DOUBLE_TO_ANY_FUNC =
+            (rVal) -> rVal;
+
+    public static final Function<BValue, BValue> FLOAT_TO_ANY_FUNC =
+            (rVal) -> rVal;
+
+    public static final Function<BValue, BValue> STRING_TO_ANY_FUNC =
+            (rVal) -> rVal;
+
+    public static final Function<BValue, BValue> BOOLEAN_TO_ANY_FUNC =
+            (rVal) -> rVal;
+
+    public static final Function<BValue, BValue> JSON_TO_ANY_FUNC =
+            (rVal) -> rVal;
+
+    public static final Function<BValue, BValue> XML_TO_ANY_FUNC =
+            (rVal) -> rVal;
+
+    public static final Function<BValue, BValue> CONNECTOR_TO_ANY_FUNC =
+            (rVal) -> rVal;
+
+    public static final Function<BValue, BValue> EXCEPTION_TO_ANY_FUNC =
+            (rVal) -> rVal;
+
+    public static final Function<BValue, BValue> ANY_TO_ANY_FUNC =
+            (rVal) -> rVal;
+
+    public static final Function<BValue, BValue> ANY_TO_INT_FUNC =
+            (rVal) -> {
+                if (rVal.getType() == BTypes.typeInt) {
+                    return rVal;
+                }
+                throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.CASTING_ANY_TYPE_TO_WRONG_VALUE_TYPE,
+                                                         rVal.getType(), BTypes.typeInt);
+            };
+
+    public static final Function<BValue, BValue> ANY_TO_LONG_FUNC =
+            (rVal) -> {
+                if (rVal.getType() == BTypes.typeLong) {
+                    return rVal;
+                }
+                throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.CASTING_ANY_TYPE_TO_WRONG_VALUE_TYPE,
+                                                         rVal.getType(), BTypes.typeLong);
+            };
+
+    public static final Function<BValue, BValue> ANY_TO_FLOAT_FUNC =
+            (rVal) -> {
+                if (rVal.getType() == BTypes.typeFloat) {
+                    return rVal;
+                }
+                throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.CASTING_ANY_TYPE_TO_WRONG_VALUE_TYPE,
+                                                         rVal.getType(), BTypes.typeFloat);
+            };
+
+    public static final Function<BValue, BValue> ANY_TO_DOUBLE_FUNC =
+            (rVal) -> {
+                if (rVal.getType() == BTypes.typeDouble) {
+                    return rVal;
+                }
+                throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.CASTING_ANY_TYPE_TO_WRONG_VALUE_TYPE,
+                                                         rVal.getType(), BTypes.typeDouble);
+            };
+
+    public static final Function<BValue, BValue> ANY_TO_STRING_FUNC =
+            (rVal) -> {
+                if (rVal.getType() == BTypes.typeString) {
+                    return rVal;
+                }
+                throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.CASTING_ANY_TYPE_TO_WRONG_VALUE_TYPE,
+                                                         rVal.getType(), BTypes.typeString);
+            };
+
+    public static final Function<BValue, BValue> ANY_TO_BOOLEAN_FUNC =
+            (rVal) -> {
+                if (rVal.getType() == BTypes.typeBoolean) {
+                    return rVal;
+                }
+                throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.CASTING_ANY_TYPE_TO_WRONG_VALUE_TYPE,
+                                                         rVal.getType(), BTypes.typeBoolean);
+            };
+
+    public static final Function<BValue, BValue> ANY_TO_JSON_FUNC =
+            (rVal) -> {
+                if (rVal.getType() == BTypes.typeJSON) {
+                    return rVal;
+                }
+                throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.CASTING_ANY_TYPE_TO_WRONG_VALUE_TYPE,
+                                                         rVal.getType(), BTypes.typeJSON);
+            };
+
+    public static final Function<BValue, BValue> ANY_TO_XML_FUNC =
+            (rVal) -> {
+                if (rVal.getType() == BTypes.typeXML) {
+                    return rVal;
+                }
+                throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.CASTING_ANY_TYPE_TO_WRONG_VALUE_TYPE,
+                                                         rVal.getType(), BTypes.typeXML);
+            };
+
+    public static final Function<BValue, BValue> ANY_TO_CONNECTOR_FUNC =
+            (rVal) -> {
+                if (rVal.getType() == BTypes.typeConnector) {
+                    return rVal;
+                }
+                throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.CASTING_ANY_TYPE_TO_WRONG_VALUE_TYPE,
+                                                         rVal.getType(), BTypes.typeXML);
+            };
+
+    public static final Function<BValue, BValue> ANY_TO_EXCEPTION_FUNC =
+            (rVal) -> {
+                if (rVal.getType() == BTypes.typeException) {
+                    return rVal;
+                }
+                throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.CASTING_ANY_TYPE_TO_WRONG_VALUE_TYPE,
+                                                         rVal.getType(), BTypes.typeXML);
+            };
 
 }
