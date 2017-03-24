@@ -109,6 +109,7 @@ import org.ballerinalang.model.statements.VariableDefStmt;
 import org.ballerinalang.model.statements.WhileStmt;
 import org.ballerinalang.model.statements.WorkerInvocationStmt;
 import org.ballerinalang.model.statements.WorkerReplyStmt;
+import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BMapType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
@@ -978,14 +979,50 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
         Expression[] argExprs = arrayInitExprEndNode.getExpression().getArgExprs();
 
         // Creating a new arrays
-        BArray bArray = arrayInitExprEndNode.getExpression().getType().getDefaultValue();
-
-        for (int i = 0; i < argExprs.length; i++) {
-            Expression expr = argExprs[i];
-            BValue value = getTempValue(expr);
-            bArray.add(i, value);
+        BArray bArray;
+        int dimensions = ((BArrayType) arrayInitExprEndNode.getExpression().getType()).getDimensions();
+        if (dimensions <= 1 || argExprs.length > 0) {
+            bArray = arrayInitExprEndNode.getExpression().getType().getDefaultValue();
+            for (int i = 0; i < argExprs.length; i++) {
+                Expression expr = argExprs[i];
+                BValue value = getTempValue(expr);
+                if (value instanceof BArray && i == 0) {
+                    bArray = new BArray<>(BArray.class);
+                }
+                bArray.add(i, value);
+            }
+        } else {
+            bArray = new BArray<>(BArray.class);
+            BArray currentBArray = bArray;
+            for (int i = 1; i < dimensions; i++) {
+                if (i == dimensions - 1) {
+                    BArray newbArray = arrayInitExprEndNode.getExpression().getType().getDefaultValue();
+                    currentBArray.add(0, newbArray);
+                } else {
+                    BArray newbArray = new BArray<>(BArray.class);
+                    currentBArray.add(0, newbArray);
+                    currentBArray = newbArray;
+                }
+            }
         }
+
         setTempValue(arrayInitExprEndNode.getExpression().getTempOffset(), bArray);
+
+//        if (logger.isDebugEnabled()) {
+//            logger.debug("Executing ArrayInitExpr - EndNode");
+//        }
+//        next = arrayInitExprEndNode.next;
+//        Expression[] argExprs = arrayInitExprEndNode.getExpression().getArgExprs();
+//
+//        // Creating a new arrays
+//        BArray bArray = arrayInitExprEndNode.getExpression().getType().getDefaultValue();
+//
+//        for (int i = 0; i < argExprs.length; i++) {
+//            Expression expr = argExprs[i];
+//            BValue value = getTempValue(expr);
+//            bArray.add(i, value);
+//        }
+//        setTempValue(arrayInitExprEndNode.getExpression().getTempOffset(), bArray);
     }
 
     @Override
@@ -1460,22 +1497,7 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
 
             Expression[] exprs = accessExpr.getIndexExpr();
             if (exprs.length > 1) {
-                for (int i = exprs.length - 1; i >= 1; i--) {
-                    BInteger indexVal = (BInteger) getTempValue(accessExpr.getIndexExpr()[i]);
-
-                    // Will have to dynamically populate
-                    if (arrayVal.size() == indexVal.intValue()) {
-                        if (i != 1) {
-                            BArray newBArray = new BArray(BArray.class);
-                            arrayVal.add(indexVal.intValue(), newBArray);
-                        } else {
-                            BArray bArray = new BArray(rValue.getClass());
-                            arrayVal.add(indexVal.intValue(), bArray);
-                        }
-                    }
-
-                    arrayVal = (BArray) arrayVal.get(indexVal.intValue());
-                }
+                arrayVal = retrieveArray(arrayVal, rValue, exprs);
             }
 
             BInteger indexVal = (BInteger) getTempValue(accessExpr.getIndexExpr()[0]);
@@ -1608,10 +1630,9 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
     private void setUnitValue(BValue rValue, BStruct lExprValue, int memoryLocation,
                               StructFieldAccessExpr fieldExpr) {
 
-        Expression indexExpr;
+        Expression[] exprs;
         if (fieldExpr.getVarRef() instanceof ArrayMapAccessExpr) {
-            // ToDo : Talk to hasitha
-            indexExpr = ((ArrayMapAccessExpr) fieldExpr.getVarRef()).getIndexExpr()[0];
+            exprs = ((ArrayMapAccessExpr) fieldExpr.getVarRef()).getIndexExpr();
         } else {
             // If the lExprValue value is not a struct arrays/map, then set the value to the struct
             lExprValue.setValue(memoryLocation, rValue);
@@ -1619,16 +1640,23 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
         }
 
         // Evaluate the index expression and get the value.
-        BValue indexValue = getTempValue(indexExpr);
+//        BValue indexValue = getTempValue(indexExpr);
 
         // Get the arrays/map value from the mermory location
         BValue arrayMapValue = lExprValue.getValue(memoryLocation);
 
         // Set the value to arrays/map's index location
         if (fieldExpr.getRefVarType() instanceof BMapType) {
+            BValue indexValue = getTempValue(exprs[0]);
             ((BMap) arrayMapValue).put(indexValue, rValue);
         } else {
-            ((BArray) arrayMapValue).add(((BInteger) indexValue).intValue(), rValue);
+            BArray arrayVal = (BArray) arrayMapValue;
+            if (exprs.length > 1) {
+                arrayVal = retrieveArray(arrayVal, rValue, exprs);
+            }
+
+            BInteger indexVal = (BInteger) getTempValue(exprs[0]);
+            arrayVal.add(indexVal.intValue(), rValue);
         }
     }
 
@@ -1694,23 +1722,30 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
         }
 
         // If the lExprValue value is not a struct arrays/map, then the unit value is same as the struct
-        Expression indexExpr;
+        Expression[] indexExpr;
         if (currentVarRefExpr instanceof ArrayMapAccessExpr) {
-            // ToDo : Talk to Hasitha
-            indexExpr = ((ArrayMapAccessExpr) currentVarRefExpr).getIndexExpr()[0];
+            indexExpr = ((ArrayMapAccessExpr) currentVarRefExpr).getIndexExpr();
         } else {
             return currentVal;
         }
 
         // Evaluate the index expression and get the value
-        BValue indexValue = getTempValue(indexExpr);
+//        BValue indexValue = getTempValue(indexExpr);
 
+        BValue indexValue;
         BValue unitVal;
         // Get the value from arrays/map's index location
         if (fieldExpr.getRefVarType() instanceof BMapType) {
+            indexValue = getTempValue(indexExpr[0]);
             unitVal = ((BMap) currentVal).get(indexValue);
         } else {
-            unitVal = ((BArray) currentVal).get(((BInteger) indexValue).intValue());
+            BArray bArray = (BArray) currentVal;
+            for (int i = indexExpr.length - 1; i >= 1; i--) {
+                indexValue = getTempValue(indexExpr[i]);
+                bArray = (BArray) bArray.get(((BInteger) indexValue).intValue());
+            }
+            indexValue = getTempValue(indexExpr[0]);
+            unitVal = bArray.get(((BInteger) indexValue).intValue());
         }
 
         if (unitVal == null) {
@@ -1761,5 +1796,26 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
      */
     public boolean isExecutionCompleted() {
         return completed;
+    }
+
+    private BArray retrieveArray(BArray arrayVal, BValue rValue, Expression[] exprs) {
+        for (int i = exprs.length - 1; i >= 1; i--) {
+            BInteger indexVal = (BInteger) getTempValue(exprs[i]);
+
+            // Will have to dynamically populate
+            while (arrayVal.size() <= indexVal.intValue()) {
+                if (i != 1 || rValue instanceof BArray) {
+                    BArray newBArray = new BArray<>(BArray.class);
+                    arrayVal.add(arrayVal.size(), newBArray);
+                } else {
+                    BArray bArray = new BArray<>(rValue.getClass());
+                    arrayVal.add(arrayVal.size(), bArray);
+                }
+            }
+
+            arrayVal = (BArray) arrayVal.get(indexVal.intValue());
+        }
+
+        return arrayVal;
     }
 }
