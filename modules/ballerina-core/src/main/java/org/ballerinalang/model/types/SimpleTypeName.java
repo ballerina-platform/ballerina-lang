@@ -30,7 +30,7 @@ public class SimpleTypeName {
     protected String pkgPath;
     protected SymbolName symbolName;
     protected boolean isArrayType;
-    protected int dimensions;
+    protected int dimensions = 1;
 
     public SimpleTypeName(String name, String pkgName, String pkgPath) {
         this.name = name;

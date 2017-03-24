@@ -2,11 +2,11 @@ import ballerina.lang.datatables;
 import ballerina.data.sql;
 
 function testInsertTableData() (int) {
-    map propertiesMap = {"jdbcUrl" : "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
+    map propertiesMap = {"jdbcUrl":"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         "username":"SA", "password":"", "maximumPoolSize":1};
     sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
-    sql:Parameter[] parameters = [];
 
+    sql:Parameter[] parameters = [];
     int insertCount = sql:ClientConnector.update(testDB, "Insert into Customers
         (firstName,lastName,registrationID,creditLimit,country) values ('James', 'Clerk', 2, 5000.75, 'USA')",
             parameters);
@@ -15,11 +15,11 @@ function testInsertTableData() (int) {
 }
 
 function testCreateTable() (int) {
-    map propertiesMap = {"jdbcUrl" : "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
+    map propertiesMap = {"jdbcUrl":"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         "username":"SA", "password":"", "maximumPoolSize":1};
     sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
-    sql:Parameter[] parameters = [];
 
+    sql:Parameter[] parameters = [];
     int returnValue = sql:ClientConnector.update(testDB, "CREATE TABLE IF NOT EXISTS Students(studentID int,
                 LastName varchar(255))", parameters);
     sql:ClientConnector.close(testDB);
@@ -27,11 +27,11 @@ function testCreateTable() (int) {
 }
 
 function testUpdateTableData() (int) {
-    map propertiesMap = {"jdbcUrl" : "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
+    map propertiesMap = {"jdbcUrl":"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         "username":"SA", "password":"", "maximumPoolSize":1};
     sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
-    sql:Parameter[] parameters = [];
 
+    sql:Parameter[] parameters = [];
     int updateCount = sql:ClientConnector.update(testDB, "Update Customers set country = 'UK' where registrationID = 1",
             parameters);
     sql:ClientConnector.close(testDB);
@@ -39,15 +39,14 @@ function testUpdateTableData() (int) {
 }
 
 function testGeneratedKeyOnInsert() (string) {
-    map propertiesMap = {"jdbcUrl" : "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
+    map propertiesMap = {"jdbcUrl":"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         "username":"SA", "password":"", "maximumPoolSize":1};
     sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
 
     int insertCount;
     string[] generatedID;
     sql:Parameter[] parameters = [];
-
-    insertCount,generatedID = sql:ClientConnector.updateWithGeneratedKeys(testDB,
+    insertCount, generatedID = sql:ClientConnector.updateWithGeneratedKeys(testDB,
         "insert into Customers (firstName,lastName,registrationID,creditLimit,country)
         values ('Mary', 'Williams', 3, 5000.75, 'USA')", parameters);
     sql:ClientConnector.close(testDB);
@@ -55,7 +54,7 @@ function testGeneratedKeyOnInsert() (string) {
 }
 
 function testGeneratedKeyWithColumn() (string) {
-    map propertiesMap = {"jdbcUrl" : "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
+    map propertiesMap = {"jdbcUrl":"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         "username":"SA", "password":"", "maximumPoolSize":1};
     sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
 
@@ -64,8 +63,7 @@ function testGeneratedKeyWithColumn() (string) {
     string[] keyColumns;
     keyColumns = ["CUSTOMERID"];
     sql:Parameter[] parameters = [];
-
-    insertCount,generatedID = sql:ClientConnector.updateWithGeneratedKeys(testDB,
+    insertCount, generatedID = sql:ClientConnector.updateWithGeneratedKeys(testDB,
         "insert into Customers (firstName,lastName,registrationID,creditLimit,country)
         values ('Kathy', 'Williams', 4, 5000.75, 'USA')", parameters, keyColumns);
     sql:ClientConnector.close(testDB);
@@ -73,7 +71,7 @@ function testGeneratedKeyWithColumn() (string) {
 }
 
 function testSelectData() (string) {
-    map propertiesMap = {"jdbcUrl" : "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
+    map propertiesMap = {"jdbcUrl":"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         "username":"SA", "password":"", "maximumPoolSize":1};
     sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
 
@@ -90,13 +88,13 @@ function testSelectData() (string) {
 }
 
 function testCallProcedure() (string) {
-    map propertiesMap = {"jdbcUrl" : "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
+    map propertiesMap = {"jdbcUrl":"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         "username":"SA", "password":"", "maximumPoolSize":1};
     sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
-    sql:Parameter[] parameters = [];
-    sql:ClientConnector.call(testDB, "{call InsertPersonData(100,'James')}", parameters);
 
+    sql:Parameter[] parameters = [];
     string firstName;
+    sql:ClientConnector.call(testDB, "{call InsertPersonData(100,'James')}", parameters);
     datatable dt = sql:ClientConnector.select(testDB, "SELECT  FirstName from Customers where registrationID = 100",
         parameters);
     while (datatables:next(dt)) {
@@ -108,13 +106,13 @@ function testCallProcedure() (string) {
 }
 
 function testCallProcedureWithResultSet() (string) {
-    map propertiesMap = {"jdbcUrl" : "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
+    map propertiesMap = {"jdbcUrl":"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         "username":"SA", "password":"", "maximumPoolSize":1};
     sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
-    sql:Parameter[] parameters = [];
-    datatable dt = sql:ClientConnector.call(testDB, "{call SelectPersonData()}", parameters);
 
+    sql:Parameter[] parameters = [];
     string firstName;
+    datatable dt = sql:ClientConnector.call(testDB, "{call SelectPersonData()}", parameters);
     while (datatables:next(dt)) {
         firstName = datatables:getString(dt, 1);
     }
@@ -124,7 +122,7 @@ function testCallProcedureWithResultSet() (string) {
 }
 
 function testConnectorWithDataSource() (string) {
-    map propertiesMap = {"dataSourceClassName"  :"org.hsqldb.jdbc.JDBCDataSource",
+    map propertiesMap = {"dataSourceClassName":"org.hsqldb.jdbc.JDBCDataSource",
         "dataSource.user":"SA", "dataSource.password":"", "dataSource.loginTimeout":0,
         "dataSource.url":"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR"};
     sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
@@ -142,7 +140,7 @@ function testConnectorWithDataSource() (string) {
 }
 
 function testConnectionPoolProperties() (string) {
-    map propertiesMap = {"jdbcUrl" : "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
+    map propertiesMap = {"jdbcUrl":"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         "driverClassName":"org.hsqldb.jdbcDriver", "username":"SA", "password":"", "maximumPoolSize":1,
         "idleTimeout":600000, "connectionTimeout":30000, "autoCommit":"true", "maxLifetime":1800000,
         "minimumIdle":1, "poolName":"testHSQLPool", "initializationFailTimeout":1,
@@ -166,7 +164,7 @@ function testConnectionPoolProperties() (string) {
 }
 
 function testQueryParameters() (string) {
-    map propertiesMap = {"jdbcUrl" : "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
+    map propertiesMap = {"jdbcUrl":"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
             "username":"SA", "password":"", "maximumPoolSize":1};
     sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
 
@@ -194,7 +192,7 @@ function testInsertTableDataWithParameters() (int) {
 	sql:Parameter para5 = {sqlType:"varchar", value:"UK", direction:0};
     sql:Parameter[] parameters = [para1, para2, para3, para4, para5];
 
-	int insertCount = sql:ClientConnector.update(testDB,"Insert into Customers
+    int insertCount = sql:ClientConnector.update(testDB, "Insert into Customers
         (firstName,lastName,registrationID,creditLimit,country) values (?,?,?,?,?)", parameters);
     sql:ClientConnector.close(testDB);
     return insertCount;
@@ -202,7 +200,7 @@ function testInsertTableDataWithParameters() (int) {
 
 function testOutParameters()
     (string, string, string, string, string, string, string, string, string, string, string, string, string, string) {
-    map propertiesMap = {"jdbcUrl" : "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
+    map propertiesMap = {"jdbcUrl":"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
             "username":"SA", "password":"", "maximumPoolSize":1};
     sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
 
@@ -233,7 +231,7 @@ function testOutParameters()
 
 function testNullOutParameters()
     (string, string, string, string, string, string, string ,string ,string ,string ,string,string,string,string) {
-    map propertiesMap = {"jdbcUrl" : "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
+    map propertiesMap = {"jdbcUrl":"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
             "username":"SA", "password":"", "maximumPoolSize":1};
     sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
 
@@ -253,7 +251,7 @@ function testNullOutParameters()
     sql:Parameter paraBlob = {sqlType:"blob", direction:1};
     sql:Parameter paraBinary = {sqlType:"binary", direction:1};
 
-    sql:Parameter[] parameters=[paraID, paraInt, paraLong, paraFloat, paraDouble, paraBool, paraString, paraNumeric,
+    sql:Parameter[] parameters = [paraID, paraInt, paraLong, paraFloat, paraDouble, paraBool, paraString, paraNumeric,
         paraDecimal, paraReal, paraTinyInt, paraSmallInt, paraClob, paraBlob, paraBinary];
     sql:ClientConnector.call(testDB, "{call TestOutParams(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)}", parameters);
     sql:ClientConnector.close(testDB);
@@ -263,7 +261,7 @@ function testNullOutParameters()
 }
 
 function testINParameters() (int) {
-    map propertiesMap = {"jdbcUrl" : "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
+    map propertiesMap = {"jdbcUrl":"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         "username":"SA", "password":"", "maximumPoolSize":1};
     sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
 
@@ -293,7 +291,7 @@ function testINParameters() (int) {
 }
 
 function testNullINParameters() (int) {
-    map propertiesMap = {"jdbcUrl" : "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
+    map propertiesMap = {"jdbcUrl":"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         "username":"SA", "password":"", "maximumPoolSize":1};
     sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
 
@@ -322,7 +320,7 @@ function testNullINParameters() (int) {
 
 function testINOutParameters()
     (string, string, string, string, string, string, string, string, string, string, string, string, string, string) {
-    map propertiesMap = {"jdbcUrl" : "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
+    map propertiesMap = {"jdbcUrl":"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
             "username":"SA", "password":"", "maximumPoolSize":1};
     sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
 
@@ -353,7 +351,7 @@ function testINOutParameters()
 
 function testNullINOutParameters()
     (string, string, string, string, string, string, string, string, string, string, string, string) {
-    map propertiesMap = {"jdbcUrl" : "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
+    map propertiesMap = {"jdbcUrl":"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
             "username":"SA", "password":"", "maximumPoolSize":1};
     sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
 
@@ -382,9 +380,10 @@ function testNullINOutParameters()
 }
 
 function testEmptySQLType() (int) {
-    map propertiesMap = {"jdbcUrl" : "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
+    map propertiesMap = {"jdbcUrl":"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
                 "username":"SA", "password":"", "maximumPoolSize":1};
     sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
+
     sql:Parameter para1 = {value:"Anne", direction:0};
     sql:Parameter[] parameters = [para1];
     int insertCount = sql:ClientConnector.update(testDB, "Insert into Customers (firstName) values (?)", parameters);
@@ -407,4 +406,75 @@ function testCloseConnectionPool () (int) {
     datatables:close(dt);
     sql:ClientConnector.close(testDB);
     return count;
+}
+function testArrayInParameters() (int insertCount, map int_arr, map long_arr, map double_arr, map string_arr,
+                                       map boolean_arr, map float_arr) {
+    map propertiesMap = {"jdbcUrl":"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
+                         "username":"SA", "password":"", "maximumPoolSize":1};
+    sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
+
+    sql:Parameter para1 = {sqlType:"integer", value:"2", direction:0};
+    sql:Parameter para2 = {sqlType:"array", value:"1", direction:0, structuredType:"integer"};
+    sql:Parameter para3 = {sqlType:"array", value:"10000000, 20000000, 30000000", direction:0, structuredType:"bigint"};
+    sql:Parameter para4 = {sqlType:"array", value:"245.23, 5559.49, 8796.123", direction:0, structuredType:"float"};
+    sql:Parameter para5 = {sqlType:"array", value:"245.23, 5559.49, 8796.123", direction:0, structuredType:"double"};
+    sql:Parameter para6 = {sqlType:"array", value:"TRUE, FALSE, TRUE", direction:0, structuredType:"boolean"};
+    sql:Parameter para7 = {sqlType:"array", value:"Hello,Ballerina", direction:0, structuredType:"varchar"};
+    sql:Parameter[] parameters = [para1, para2, para3, para4, para5, para6, para7];
+
+    insertCount = sql:ClientConnector.update(testDB, "INSERT INTO ArrayTypes (row_id, int_array, long_array,
+        float_array, double_array, boolean_array, string_array) values (?,?,?,?,?,?,?)", parameters);
+
+    sql:Parameter[] params = [];
+    datatable df = sql:ClientConnector.select(testDB, "SELECT int_array, long_array, double_array, boolean_array,
+        string_array, float_array from ArrayTypes where row_id = 2", params);
+    while (datatables:next(df)) {
+        int_arr = datatables:getArray(df, "int_array");
+        long_arr = datatables:getArray(df, "long_array");
+        double_arr = datatables:getArray(df, "double_array");
+        boolean_arr = datatables:getArray(df, "boolean_array");
+        string_arr = datatables:getArray(df, "string_array");
+        float_arr = datatables:getArray(df, "float_array");
+    }
+    datatables:close(df);
+    sql:ClientConnector.close(testDB);
+    return;
+}
+
+function testArrayOutParameters() (string, string, string, string, string, string) {
+    map propertiesMap = {"jdbcUrl":"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
+                         "username":"SA", "password":"", "maximumPoolSize":1};
+    sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
+
+    string firstName;
+    sql:Parameter para1 = {sqlType:"array", direction:1};
+    sql:Parameter para2 = {sqlType:"array", direction:1};
+    sql:Parameter para3 = {sqlType:"array", direction:1};
+    sql:Parameter para4 = {sqlType:"array", direction:1};
+    sql:Parameter para5 = {sqlType:"array", direction:1};
+    sql:Parameter para6 = {sqlType:"array", direction:1};
+    sql:Parameter[] parameters = [para1, para2, para3, para4, para5, para6];
+    sql:ClientConnector.call(testDB, "{call TestArrayOutParams(?,?,?,?,?,?)}", parameters);
+    sql:ClientConnector.close(testDB);
+    return para1.value, para2.value, para3.value, para4.value, para5.value, para6.value;
+}
+
+function testArrayInOutParameters() (string, string, string, string, string, string, string) {
+    map propertiesMap = {"jdbcUrl":"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
+                         "username":"SA", "password":"", "maximumPoolSize":1};
+    sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
+
+    sql:Parameter para1 = {sqlType:"integer", value:"3", direction:0};
+    sql:Parameter para2 = {sqlType:"integer", direction:1};
+    sql:Parameter para3 = {sqlType:"array", value:"10,20,30", direction:2, structuredType:"integer"};
+    sql:Parameter para4 = {sqlType:"array", value:"10000000, 20000000, 30000000", direction:2, structuredType:"bigint"};
+    sql:Parameter para5 = {sqlType:"array", value:"2454.23, 55594.49, 87964.123", direction:2, structuredType:"float"};
+    sql:Parameter para6 = {sqlType:"array", value:"2454.23, 55594.49, 87964.123", direction:2, structuredType:"double"};
+    sql:Parameter para7 = {sqlType:"array", value:"FALSE, FALSE, TRUE", direction:2, structuredType:"boolean"};
+    sql:Parameter para8 = {sqlType:"array", value:"Hello,Ballerina,Lang", direction:2, structuredType:"varchar"};
+    sql:Parameter[] parameters = [para1, para2, para3, para4, para5, para6, para7, para8];
+
+    sql:ClientConnector.call(testDB, "{call TestArrayInOutParams(?,?,?,?,?,?,?,?)}", parameters);
+    sql:ClientConnector.close(testDB);
+    return para2.value, para3.value, para4.value, para5.value, para6.value, para7.value, para8.value;
 }

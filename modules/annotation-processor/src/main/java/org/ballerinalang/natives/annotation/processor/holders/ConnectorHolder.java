@@ -68,7 +68,7 @@ public class ConnectorHolder {
         StringBuilder sb = new StringBuilder();
         Utils.appendAnnotationStrings(sb, annotations);
         sb.append(annotations.size() > 0 ? "\n" : "");
-        sb.append("native connector ").append(balConnector.connectorName());
+        sb.append("connector ").append(balConnector.connectorName());
         Utils.getInputParams(balConnector.args(), sb);
         sb.append(" {\n");
         for (ActionHolder action : actions) {

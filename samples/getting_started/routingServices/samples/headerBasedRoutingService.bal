@@ -1,11 +1,12 @@
 package routingServices.samples;
+
 import ballerina.net.http;
 import ballerina.lang.messages;
 
-@http:BasePath ("/hbr")
+@http:BasePath {value:"/hbr"}
 service headerBasedRouting {
     
-    @http:GET
+    @http:GET{}
     resource cbrResource (message m) {
         http:ClientConnector nasdaqEP = create http:ClientConnector("http://localhost:9090/nasdaqStocks");
         http:ClientConnector nyseEP = create http:ClientConnector("http://localhost:9090/nyseStocks");

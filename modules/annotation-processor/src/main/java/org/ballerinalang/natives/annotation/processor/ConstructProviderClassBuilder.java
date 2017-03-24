@@ -40,6 +40,7 @@ import org.ballerinalang.natives.annotations.BallerinaTypeMapper;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.natives.connectors.AbstractNativeConnector;
 import org.ballerinalang.util.exceptions.BallerinaException;
+import org.ballerinalang.util.exceptions.NativeException;
 import org.ballerinalang.util.repository.BuiltinPackageRepository;
 
 import java.io.File;
@@ -96,7 +97,8 @@ public class ConstructProviderClassBuilder {
                                      "import " + NativeUnit.class.getCanonicalName() + ";\n\n" +
                                      "import " + BLangPackage.class.getCanonicalName() + ";\n\n" +
                                      "import " + BuiltinPackageRepository.class.getCanonicalName() + ";\n\n" +
-                                     "import " + NativePackageProxy.class.getCanonicalName() + ";\n\n";
+                                     "import " + NativePackageProxy.class.getCanonicalName() + ";\n\n" +
+                                     "import " + NativeException.class.getCanonicalName() + ";\n\n";
     
     /**
      * Create a construct provider builder.
@@ -408,7 +410,8 @@ public class ConstructProviderClassBuilder {
         String retrunTypesArrayStr = getReturnTypes(returnTypes);
         String argsNamesArrayStr = getArgNames(arguments);
         String argsTypesArrayStr = getArgTypes(arguments, enclosingScopeName, enclosingScopePkg);
-        String supplierInsertStr = getConstructSuplierInsertionStr(constructVarName, nativeUnitClassVarName);
+        String supplierInsertStr = getConstructSuplierInsertionStr(constructVarName, nativeUnitClassVarName, 
+                constructName, constructPkgName);
         if (constructArgType == null) {
             constructArgType = EMPTY;
         }
@@ -419,9 +422,9 @@ public class ConstructProviderClassBuilder {
             scopeElements = EMPTY;
         }
         return String.format(supplierInsertStr, scope, addMethod, createSymbolStr, nativeProxyClass, nativeUnitClass,
-                constructImplClassName, nativeUnitClass, constructArgType, constructArg, constructName,
-                constructPkgName, argsNamesArrayStr, argsTypesArrayStr, retrunTypesArrayStr, arguments.length,
-                createSymbolStr, scopeElements);
+                constructImplClassName, nativeUnitClass, constructArgType, constructArg, argsNamesArrayStr, 
+                argsTypesArrayStr, retrunTypesArrayStr, arguments.length, createSymbolStr, scopeElements, 
+                NativeException.class.getSimpleName());
     }
 
 
@@ -519,7 +522,8 @@ public class ConstructProviderClassBuilder {
         }
     }
 
-    private String getConstructSuplierInsertionStr(String nativeUnitVarName, String classVarName) {
+    private String getConstructSuplierInsertionStr(String nativeUnitVarName, String classVarName, String name, 
+            String pkgPath) {
         return "\t\t%s.%s(%s,%n" +
                "\t\t    new %s(() -> {%n" +
                "\t\t        %s " + nativeUnitVarName + " = null;%n" +
@@ -527,15 +531,16 @@ public class ConstructProviderClassBuilder {
                "\t\t            Class<?> " + classVarName + " = Class.forName(\"%s\");%n" +
                "\t\t            " + nativeUnitVarName + " = ((%s) " + classVarName + 
                ".getConstructor(%s).newInstance(%s));%n" +
-               "\t\t            " + nativeUnitVarName + ".setName(\"%s\");%n" +
-               "\t\t            " + nativeUnitVarName + ".setPackagePath(\"%s\");%n" +
+               "\t\t            " + nativeUnitVarName + ".setName(\"" + name + "\");%n" +
+               "\t\t            " + nativeUnitVarName + ".setPackagePath(\"" + pkgPath + "\");%n" +
                "\t\t            " + nativeUnitVarName + ".setArgNames(%s);%n" +
                "\t\t            " + nativeUnitVarName + ".setArgTypeNames(%s);%n" +
                "\t\t            " + nativeUnitVarName + ".setReturnParamTypeNames(%s);%n" +
                "\t\t            " + nativeUnitVarName + ".setStackFrameSize(%s);%n" +
                "\t\t            " + nativeUnitVarName + ".setSymbolName(%s);%n" +
                "\t\t            %s" +
-               "\t\t            } catch (Exception ignore) {%n" +
+               "\t\t        } catch (Throwable t) {%n" +
+               "\t\t            throw new %s(\"internal error occured in \'" + pkgPath + ":" + name + "\'\", t);%n" + 
                "\t\t        }%n" +
                "\t\t        return " + nativeUnitVarName + ";%n" +
                "\t\t    })%n" +

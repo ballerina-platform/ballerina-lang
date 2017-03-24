@@ -5,11 +5,11 @@ import ballerina.net.http;
 import ballerina.lang.system;
 import ballerina.lang.jsons;
 
-@http:BasePath ("/ABCBank")
+@http:BasePath {value:"/ABCBank"}
 service ATMLocator {
     
-    @http:POST
-    @http:Path ("/locator")
+    @http:POST{}
+    @http:Path {value:"/locator"}
     resource locator (message m) {
         http:ClientConnector bankInfoService = create http:ClientConnector("http://localhost:9090/bankinfo");
         http:ClientConnector branchLocatorService = create http:ClientConnector("http://localhost:9090/branchlocator");

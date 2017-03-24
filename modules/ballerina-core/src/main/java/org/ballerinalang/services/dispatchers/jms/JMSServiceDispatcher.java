@@ -20,8 +20,8 @@ package org.ballerinalang.services.dispatchers.jms;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.AnnotationAttachment;
+import org.ballerinalang.model.AnnotationAttributeValue;
 import org.ballerinalang.model.Service;
-import org.ballerinalang.model.SymbolName;
 import org.ballerinalang.natives.connectors.BallerinaConnectorManager;
 import org.ballerinalang.services.dispatchers.ServiceDispatcher;
 import org.ballerinalang.util.exceptions.BallerinaException;
@@ -34,6 +34,7 @@ import org.wso2.carbon.messaging.exceptions.ServerConnectorException;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 /**
@@ -68,21 +69,20 @@ public class JMSServiceDispatcher implements ServiceDispatcher {
     @Override
     public void serviceRegistered(Service service) {
         for (AnnotationAttachment annotation : service.getAnnotations()) {
-            Map elementPairs = annotation.getElementPairs();
+            Map<String, AnnotationAttributeValue> elementPairs = annotation.getAttributeNameValuePairs();
             if (!Constants.ANNOTATION_NAME_SOURCE.equals(annotation.getName())) {
                 continue;
             }
-            if (annotation.getElementPairs().size() == 0) {
+            if (elementPairs.size() == 0) {
                 continue;
             }
-            if (!Constants.PROTOCOL_JMS.
-                    equals(annotation.getValueOfElementPair(new SymbolName(Constants.ANNOTATION_PROTOCOL)))) {
+            if (!Constants.PROTOCOL_JMS.equals(annotation.getAttribute(Constants.ANNOTATION_PROTOCOL).toString())) {
                 continue;
             }
-            Set<Map.Entry<SymbolName, String>> annotationSet = elementPairs.entrySet();
+            Set<Entry<String, AnnotationAttributeValue>> annotationSet = elementPairs.entrySet();
             Map<String, String> annotationKeyValuePairs = new HashMap<String, String>();
-            for (Map.Entry<SymbolName, String> entry : annotationSet) {
-                annotationKeyValuePairs.put(entry.getKey().getName(), entry.getValue());
+            for (Entry<String, AnnotationAttributeValue> entry : annotationSet) {
+                annotationKeyValuePairs.put(entry.getKey(), entry.getValue().toString());
             }
             String serviceId = service.getSymbolName().toString();
             serviceMap.put(serviceId, service);

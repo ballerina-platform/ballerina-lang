@@ -22,4 +22,6 @@ package org.ballerinalang.natives.annotation.processor;
 public class Constants {
     
     public static final String BAL_FILES_DIR = "ballerina";
+    public static final String DOC_ANNOTATION_DEFAULT_ATTRIBUTE = "value";
+    public static final String DOC_PACKAGE_NAME = "ballerina.doc";
 }
