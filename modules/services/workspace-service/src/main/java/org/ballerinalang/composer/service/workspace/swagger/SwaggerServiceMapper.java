@@ -86,10 +86,10 @@ public class SwaggerServiceMapper {
         swagger.setInfo(info);
         AnnotationAttachment[] annotations = service.getAnnotations();
         for (AnnotationAttachment o : annotations) {
-            if (o.getName().equals("http:BasePath")) {
+            if (o.getName().equals("BasePath") && o.getPkgName().equals("http")) {
                 swagger.setBasePath(o.getValue());
             }
-            if (o.getName().equals("http:Host")) {
+            if (o.getName().equals("Host") && o.getPkgName().equals("http")) {
                 swagger.setHost(o.getValue());
             }
         }

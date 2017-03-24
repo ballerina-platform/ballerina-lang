@@ -217,7 +217,7 @@ public class SwaggerConverterUtils {
             }
             
             if (entry.httpMethod != null && entry.httpMethod.length() > 0) {
-                resourceBuilder.addAnnotation(createSingleValuedAnnotationAttachment(httpMethod, "http", ""));
+                resourceBuilder.addAnnotation(createSingleValuedAnnotationAttachment(httpMethod, "http", null));
             }
             //handle parameters
             if (entry.getHasQueryParams()) {
@@ -390,7 +390,7 @@ public class SwaggerConverterUtils {
         String path = "/";
         String verb = "";
         for (AnnotationAttachment annotation : ballerinaResource.getAnnotations()) {
-            if (annotation.getName().equalsIgnoreCase("http:Path")) {
+            if (annotation.getName().equalsIgnoreCase("Path") && annotation.getPkgName().equalsIgnoreCase("http")) {
                 path = annotation.getValue();
             } else if (annotation.getName().matches(SwaggerBallerinaConstants.HTTP_VERB_MATCHING_PATTERN)) {
                 verb = annotation.getName();

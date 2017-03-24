@@ -149,7 +149,8 @@ public class SwaggerResourceMapper {
                 String typeName = parameterDef.getTypeName().getName();
                 if (!typeName.equalsIgnoreCase("message") && parameterDef.getAnnotations() != null) {
                     //Add query parameter
-                    if (parameterDef.getAnnotations().get(0).getName().equalsIgnoreCase("http:QueryParam")) {
+                    if (parameterDef.getAnnotations().get(0).getName().equalsIgnoreCase("QueryParam")
+                            && parameterDef.getAnnotations().get(0).getPkgName().equalsIgnoreCase("http")) {
                         QueryParameter queryParameter = new QueryParameter();
                         queryParameter.setType(typeName);
                         queryParameter.setIn("query");
@@ -163,7 +164,8 @@ public class SwaggerResourceMapper {
                         queryParameter.required(true);
                         op.getOperation().addParameter(queryParameter);
                     }
-                    if (parameterDef.getAnnotations().get(0).getName().equalsIgnoreCase("http:PathParam")) {
+                    if (parameterDef.getAnnotations().get(0).getName().equalsIgnoreCase("PathParam")
+                            && parameterDef.getAnnotations().get(0).getPkgName().equalsIgnoreCase("http")) {
                         PathParameter pathParameter = new PathParameter();
                         pathParameter.setType(typeName);
                         String parameterName = parameterDef.getAnnotations().get(0).getValue();
@@ -182,15 +184,19 @@ public class SwaggerResourceMapper {
             if (resourceAnnotations != null) {
                 //TODO add all supported annotation mapping after annotation model finalized.
                 for (AnnotationAttachment annotation : resourceAnnotations) {
-                    if (annotation.getName().equalsIgnoreCase("http:Consumes")) {
+                    if (annotation.getName().equalsIgnoreCase("Consumes") && annotation.getPkgName().equals("http")) {
                         op.getOperation().consumes(annotation.getValue());
-                    } else if (annotation.getName().equalsIgnoreCase("http:Produces")) {
+                    } else if (annotation.getName().equalsIgnoreCase("Produces")
+                            && annotation.getPkgName().equals("http")) {
                         op.getOperation().produces(annotation.getValue());
-                    } else if (annotation.getName().equalsIgnoreCase("http:Path")) {
+                    } else if (annotation.getName().equalsIgnoreCase("Path")
+                            && annotation.getPkgName().equals("http")) {
                         op.setPath(annotation.getValue());
-                    } else if (annotation.getName().equalsIgnoreCase("http:Summary")) {
+                    } else if (annotation.getName().equalsIgnoreCase("Summary")
+                            && annotation.getPkgName().equals("http")) {
                         op.getOperation().setSummary(annotation.getValue());
-                    } else if (annotation.getName().equalsIgnoreCase("http:Description")) {
+                    } else if (annotation.getName().equalsIgnoreCase("Description")
+                            && annotation.getPkgName().equals("http")) {
                         op.getOperation().setDescription(annotation.getValue());
                     } else if (annotation.getName().matches(SwaggerBallerinaConstants.
                             HTTP_VERB_MATCHING_PATTERN)) {

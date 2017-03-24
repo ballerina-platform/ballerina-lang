@@ -26,11 +26,11 @@ public class SwaggerBallerinaConstants {
     public static final String VARIABLE_UUID_NAME = "x-UniqueVariableKey";
     public static final  String HTTP_PACKAGE_PREFIX = "http:";
     public static final String HTTP_VERB_MATCHING_PATTERN = "(?i)|" +
-            HTTP_PACKAGE_PREFIX + Constants.ANNOTATION_METHOD_GET + "|" +
-            HTTP_PACKAGE_PREFIX + Constants.ANNOTATION_METHOD_PUT + "|" +
-            HTTP_PACKAGE_PREFIX + Constants.ANNOTATION_METHOD_POST + "|" +
-            HTTP_PACKAGE_PREFIX + Constants.ANNOTATION_METHOD_DELETE + "|" +
-            HTTP_PACKAGE_PREFIX + Constants.ANNOTATION_METHOD_OPTIONS + "|" +
-            HTTP_PACKAGE_PREFIX + Constants.ANNOTATION_METHOD_PATCH + "|" +
-            "http:HEAD";
+            Constants.ANNOTATION_METHOD_GET + "|" +
+            Constants.ANNOTATION_METHOD_PUT + "|" +
+            Constants.ANNOTATION_METHOD_POST + "|" +
+            Constants.ANNOTATION_METHOD_DELETE + "|" +
+            Constants.ANNOTATION_METHOD_OPTIONS + "|" +
+            Constants.ANNOTATION_METHOD_PATCH + "|" +
+            "HEAD";
 }
