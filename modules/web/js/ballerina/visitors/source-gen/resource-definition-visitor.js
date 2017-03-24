@@ -45,30 +45,27 @@ define(['lodash', 'log', 'event_channel', './abstract-source-gen-visitor', './st
         var self = this;
         _.forEach(resourceDefinition.getAnnotations(), function(annotation) {
             if (!_.isEmpty(annotation.value)) {
+
+                // At the moment we support only the http:Method and http:Path
+
                 var constructedPathAnnotation;
-                if (annotation.key.indexOf(":") === -1) {
+                if (annotation.key.indexOf(":") !== -1) {
                     constructedPathAnnotation = '@' + annotation.key + '("' + annotation.value + '")\n';
-                } else {
-                    constructedPathAnnotation = '@' + annotation.key.split(":")[0] + ':' +
-                        annotation.key.split(":")[1] + '("' + annotation.value + '")\n';
-                }
-
-                // Separately handling the HTTP method annotations.
-                if (_.isEqual(annotation.key, "http:Method")) {
-                    constructedPathAnnotation = "";
-                    var methods = annotation.value.replace( /\n/g, " " ).split(/[\s,]+/);
-                    _.forEach(methods, function(method){
-                        var cleanedMethod = method.trim();
-                        if (!_.isEmpty(cleanedMethod)) {
-                            if (_.includes(cleanedMethod, "http:")) {
-                                constructedPathAnnotation += "@" + cleanedMethod + " \n";
-                            } else {
-                                constructedPathAnnotation += "@http:" + cleanedMethod + " \n";
+                    // Separately handling the HTTP method annotations.
+                    if (_.isEqual(annotation.key, "http:Method")) {
+                        constructedPathAnnotation = "";
+                        var methods = annotation.value.replace( /\n/g, " " ).split(/[\s,]+/);
+                        _.forEach(methods, function(method){
+                            var cleanedMethod = method.trim();
+                            if (!_.isEmpty(cleanedMethod)) {
+                                constructedPathAnnotation += '@http:' + cleanedMethod + " {}\n";
                             }
-                        }
-                    });
+                        });
+                    }
+                    else if (_.isEqual(annotation.key, "http:Path")) {
+                        constructedPathAnnotation = '@http:Path {value:"' + annotation.value +'"}';
+                    }
                 }
-
                 self.appendSource(constructedPathAnnotation);
             }
         });
