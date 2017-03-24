@@ -108,4 +108,20 @@ under the License.
             <class name="org.ballerinalang.nativeimpl.util.TestConfigurationUtil"/>
         </classes>
     </test>
+
+    <test name="ballerina-any-type-test-suite">
+        <parameter name="enableNonBlocking" value="false" />
+        <classes>
+            <class name="org.ballerinalang.nativeimpl.util.TestConfigurationUtil"/>
+            <class name="org.ballerinalang.any.BAnyTypeNativeSuccessScenariosTest"/>
+        </classes>
+    </test>
+    <!-- Non Blocking Test Cases -->
+    <test name="ballerina-any-type-test-suite-non-blocking">
+        <parameter name="enableNonBlocking" value="true" />
+        <classes>
+            <class name="org.ballerinalang.nativeimpl.util.TestConfigurationUtil"/>
+            <class name="org.ballerinalang.any.BAnyTypeNativeSuccessScenariosTest"/>
+        </classes>
+    </test>
 </suite>

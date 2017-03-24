@@ -101,3 +101,48 @@ CREATE PROCEDURE TestINOUTParams (IN id INT, INOUT paramInt INT, INOUT paramBigI
   SELECT binary_type INTO paramBinary FROM DataTypeTable where row_id = id;
   END
 /
+CREATE TABLE IF NOT EXISTS ArrayTypes(
+  row_id        INTEGER,
+  int_array     INTEGER ARRAY,
+  long_array    BIGINT ARRAY,
+  float_array   FLOAT ARRAY,
+  double_array  DOUBLE ARRAY,
+  boolean_array BOOLEAN ARRAY,
+  string_array  VARCHAR(50) ARRAY,
+  PRIMARY KEY (row_id)
+);
+/
+INSERT INTO ArrayTypes (row_id, int_array, long_array, float_array, double_array, boolean_array, string_array)
+  VALUES 1, ARRAY[1, 2, 3], ARRAY [100000000, 200000000, 300000000], ARRAY [245.23, 5559.49, 8796.123],
+  ARRAY [245.23, 5559.49, 8796.123], ARRAY [TRUE, FALSE, TRUE], ARRAY ['Hello', 'Ballerina'];
+/
+CREATE PROCEDURE TestArrayOutParams (OUT intArray INTEGER ARRAY, OUT longArray BIGINT ARRAY, OUT floatArray FLOAT ARRAY,
+  OUT doubleArray DOUBLE ARRAY, OUT boolArray BOOLEAN ARRAY, OUT varcharArray VARCHAR(50) ARRAY)
+  READS SQL DATA
+  BEGIN ATOMIC
+  SELECT int_array INTO intArray FROM ArrayTypes where row_id = 1;
+  SELECT long_array INTO longArray FROM ArrayTypes where row_id = 1;
+  SELECT float_array INTO floatArray FROM ArrayTypes where row_id = 1;
+  SELECT double_array INTO doubleArray FROM ArrayTypes where row_id = 1;
+  SELECT boolean_array INTO boolArray FROM ArrayTypes where row_id = 1;
+  SELECT string_array INTO varcharArray FROM ArrayTypes where row_id = 1;
+  END
+/
+CREATE PROCEDURE TestArrayINOutParams (IN id INT, OUT insertedCount INTEGER, INOUT intArray INTEGER ARRAY, INOUT longArray BIGINT ARRAY,
+  INOUT floatArray FLOAT ARRAY, INOUT doubleArray DOUBLE ARRAY, INOUT boolArray BOOLEAN ARRAY,
+  INOUT varcharArray VARCHAR(50) ARRAY)
+  MODIFIES SQL DATA
+  BEGIN ATOMIC
+  INSERT INTO ArrayTypes (row_id, int_array, long_array, float_array, double_array, boolean_array, string_array)
+  VALUES (id, intArray, longArray, floatArray, doubleArray, boolArray, varcharArray);
+
+  SELECT count(*) INTO insertedCount from ArrayTypes where row_id = id;
+
+  SELECT int_array INTO intArray FROM ArrayTypes where row_id = 1;
+  SELECT long_array INTO longArray FROM ArrayTypes where row_id = 1;
+  SELECT float_array INTO floatArray FROM ArrayTypes where row_id = 1;
+  SELECT double_array INTO doubleArray FROM ArrayTypes where row_id = 1;
+  SELECT boolean_array INTO boolArray FROM ArrayTypes where row_id = 1;
+  SELECT string_array INTO varcharArray FROM ArrayTypes where row_id = 1;
+  END
+/

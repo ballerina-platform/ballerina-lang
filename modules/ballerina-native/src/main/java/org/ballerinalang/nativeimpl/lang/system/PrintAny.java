@@ -1,5 +1,5 @@
 /*
-*   Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+*   Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 *
 *  WSO2 Inc. licenses this file to you under the Apache License,
 *  Version 2.0 (the "License"); you may not use this file except
@@ -33,14 +33,14 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 @BallerinaFunction(
         packageName = "ballerina.lang.system",
         functionName = "print",
-        args = {@Argument(name = "s", type = TypeEnum.STRING)},
+        args = {@Argument(name = "a", type = TypeEnum.ANY)},
         isPublic = true
 )
 @BallerinaAnnotation(annotationName = "Description", attributes = {@Attribute(name = "value",
-        value = "Prints a string value to the STDOUT") })
-@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "s",
-        value = "String value to be printed") })
-public class PrintString extends AbstractNativeFunction {
+        value = "Prints a 'any' value to the STDOUT") })
+@BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "a",
+        value = "any value to be printed") })
+public class PrintAny extends AbstractNativeFunction {
 
     public BValue[] execute(Context ctx) {
         System.out.print(getArgument(ctx, 0).stringValue());

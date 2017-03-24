@@ -17,6 +17,9 @@
 */
 package org.ballerinalang.model.values;
 
+import org.ballerinalang.model.types.BType;
+import org.ballerinalang.model.types.BTypes;
+
 /**
  * The {@code BLong} represents a long value in Ballerina.
  *
@@ -58,6 +61,11 @@ public final class BLong extends BValueType {
     @Override
     public String stringValue() {
         return Long.toString(value);
+    }
+
+    @Override
+    public BType getType() {
+        return BTypes.typeLong;
     }
 
     @Override

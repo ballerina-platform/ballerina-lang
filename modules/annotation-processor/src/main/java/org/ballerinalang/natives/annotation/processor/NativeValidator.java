@@ -25,6 +25,7 @@ import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.natives.NativeConstructLoader;
 import org.ballerinalang.natives.NativePackageProxy;
 import org.ballerinalang.util.exceptions.BallerinaException;
+import org.ballerinalang.util.exceptions.NativeException;
 import org.ballerinalang.util.program.BLangPackages;
 
 import java.io.File;
@@ -86,7 +87,13 @@ public class NativeValidator {
             ServiceLoader.load(NativeConstructLoader.class).iterator();
         while (nativeConstructLoaders.hasNext()) {
             NativeConstructLoader constructLoader = nativeConstructLoaders.next();
-            constructLoader.load(globalScope);
+            try {
+                constructLoader.load(globalScope);
+            } catch (NativeException e) {
+                throw e;
+            } catch (Throwable t) {
+                throw new NativeException("internal error occured", t);
+            }
         }
     }
     
