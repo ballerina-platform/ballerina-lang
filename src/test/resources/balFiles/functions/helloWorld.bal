@@ -1,6 +1,8 @@
-@doc:Description("test method")
-@doc:Param("args: arguments")
-@doc:Return("an integer")
+import ballerina.doc;
+
+@doc:Description{value:"test method"}
+@doc:Param{value:"args: arguments"}
+@doc:Return{value:"an integer"}
 function main (string[] args) (int) {
 	return 0;
 }

@@ -1,3 +1,5 @@
-@doc:Description ("Native function ballerina.model.arrays:copyOf(double[])")
-@doc:Param ("arr: Array to copy" )
+import ballerina.doc;
+
+@doc:Description {value:"Native function ballerina.model.arrays:copyOf(double[])"}
+@doc:Param {value:"arr: Array to copy" }
 native function copyOf (double[] doubleArray) (double[]);

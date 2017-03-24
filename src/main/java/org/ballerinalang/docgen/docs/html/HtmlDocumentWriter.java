@@ -26,7 +26,7 @@ import com.github.jknack.handlebars.io.FileTemplateLoader;
 import org.ballerinalang.docgen.docs.BallerinaDocConstants;
 import org.ballerinalang.docgen.docs.DocumentWriter;
 import org.ballerinalang.docgen.docs.utils.BallerinaDocUtils;
-import org.ballerinalang.model.Annotation;
+import org.ballerinalang.model.AnnotationAttachment;
 import org.ballerinalang.model.BLangPackage;
 import org.ballerinalang.model.BTypeMapper;
 import org.ballerinalang.model.BallerinaAction;
@@ -192,16 +192,16 @@ public class HtmlDocumentWriter implements DocumentWriter {
                                 }
                                 String subName = param.getName() == null ? param.getTypeName().getName() :
                                         param.getName();
-                                for (Annotation annotation : getAnnotations(dataHolder)) {
-                                    if (annotationName.equalsIgnoreCase(annotation.getName())
-                                            && annotation.getValue().startsWith(subName + ":")) {
+                                for (AnnotationAttachment annotation : getAnnotations(dataHolder)) {
+                                    if (isNameEqual(annotationName, annotation) && 
+                                            annotation.getValue().startsWith(subName + ":")) {
                                         return annotation.getValue().split(subName + ":")[1].trim();
                                     }
                                 }
                                 // if the annotation values cannot be found still, return the first matching
                                 // annotation's value
-                                for (Annotation annotation : getAnnotations(dataHolder)) {
-                                    if (annotationName.equalsIgnoreCase(annotation.getName())) {
+                                for (AnnotationAttachment annotation : getAnnotations(dataHolder)) {
+                                    if (isNameEqual(annotationName, annotation)) {
                                         return annotation.getValue();
                                     }
                                 }
@@ -214,8 +214,9 @@ public class HtmlDocumentWriter implements DocumentWriter {
                         if (annotationName == null) {
                             return null;
                         }
-                        for (Annotation annotation : getAnnotations(dataHolder)) {
-                            if (annotationName.equalsIgnoreCase(annotation.getName())) {
+                        
+                        for (AnnotationAttachment annotation : getAnnotations(dataHolder)) {
+                            if (isNameEqual(annotationName, annotation)) {
                                 return annotation.getValue().trim();
                             }
                         }
@@ -274,6 +275,19 @@ public class HtmlDocumentWriter implements DocumentWriter {
             }
         }
     }
+    
+    /**
+     * Check whether an annotation has the provided fully qualified name.
+     * 
+     * @param annotationName fully qualified name
+     * @param annotation Annotation to compare with
+     * @return Flag indicating whether the annotation has the provided fully qualified name
+     */
+    private boolean isNameEqual(String annotationName, AnnotationAttachment annotation) {
+        String [] pkgAndName = annotationName.split(":");
+        return pkgAndName[0].equalsIgnoreCase(annotation.getPkgName()) && 
+                pkgAndName[1].equalsIgnoreCase(annotation.getName());
+    }
 
     /**
      * Returns ballerina file name if package name is set to "." otherwise
@@ -293,7 +307,7 @@ public class HtmlDocumentWriter implements DocumentWriter {
         return bLangPackage.getPackagePath();
     }
 
-    private Annotation[] getAnnotations(DataHolder dataHolder) {
+    private AnnotationAttachment[] getAnnotations(DataHolder dataHolder) {
         if (dataHolder.getCurrentObject() instanceof BallerinaFunction) {
             return ((BallerinaFunction) dataHolder.getCurrentObject()).getAnnotations();
         } else if (dataHolder.getCurrentObject() instanceof BallerinaConnectorDef) {
@@ -305,7 +319,7 @@ public class HtmlDocumentWriter implements DocumentWriter {
         } else if (dataHolder.getCurrentObject() instanceof StructDef) {
             return ((StructDef) dataHolder.getCurrentObject()).getAnnotations();
         } else {
-            return new Annotation[0];
+            return new AnnotationAttachment[0];
         }
     }
 

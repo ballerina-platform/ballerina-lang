@@ -1,9 +1,10 @@
 import ballerina.lang.system;
+import ballerina.doc;
 
-@doc:Description("an Argument")
-@doc:Field("text: a string")
-@doc:Field("argumentId: an id")
-@doc:Field("sentiment: setiment about the argument")
+@doc:Description{value:"an Argument"}
+@doc:Field{value:"text: a string"}
+@doc:Field{value:"argumentId: an id"}
+@doc:Field{value:"sentiment: setiment about the argument"}
 struct Argument {
     string text;
     int argumentId;
@@ -15,8 +16,8 @@ function main (string[] args) {
     testStruct(arg1);
 }
 
-@Description("Test struct data type")
-@Param("argument: Incoming argument")
+@doc:Description{value:"Test struct data type"}
+@doc:Param{value:"argument: Incoming argument"}
 function testStruct(Argument argument) {
     system:println("Hello, World!");
 }
