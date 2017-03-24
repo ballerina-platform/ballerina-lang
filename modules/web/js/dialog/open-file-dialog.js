@@ -172,7 +172,7 @@ define(['require', 'lodash','jquery', 'log', 'backbone', 'file_browser', 'baller
                     successNotification.fadeTo(2000, 200).slideUp(1000, function () {
                         successNotification.slideUp(1000);
                     });
-                };
+                }
 
                 function alertError(errorMessage) {
                     var errorNotification = getErrorNotification(errorMessage);
@@ -180,7 +180,7 @@ define(['require', 'lodash','jquery', 'log', 'backbone', 'file_browser', 'baller
                     errorNotification.fadeTo(2000, 200).slideUp(1000, function () {
                         errorNotification.slideUp(1000);
                     });
-                };
+                }
 
                 function openModel(source){
                     $.ajax({
@@ -261,7 +261,7 @@ define(['require', 'lodash','jquery', 'log', 'backbone', 'file_browser', 'baller
                             openFileWizardError.show();
                         }
                     });
-                };
+                }
             },
         });
 

@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import './dialog.css'
+require('./dialog.css');
 
 define(['./save-to-file-dialog', './open-file-dialog', './new-item-dialog', './delete-item-dialog',
         './folder-open-dialog', './close-confirm-dialog', './replace-confirm-dialog', './settings-dialog'],

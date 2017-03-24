@@ -47,11 +47,11 @@
 }
 
 .headingRectIcon {
-    fill: url(#resourceIcon);
+    fill: url(/#resourceIcon);
 }
 
 .actionHeadingRectIcon {
-    fill: url(#connectorActionIcon);
+    fill: url(/#connectorActionIcon);
 }
 .resourceHeadingIconHolder{
     fill:#000000;
@@ -64,7 +64,7 @@
 .headingCollapsedIcon {
     cursor: pointer;
     opacity: 0.4;
-    fill: url(#collapsedIcon);
+    fill: url(/#collapsedIcon);
 }
 
 .headingCollapsedIcon:hover {
@@ -74,7 +74,7 @@
 .headingExpandIcon {
     cursor: pointer;
     opacity: 0.4;
-    fill: url(#expandIcon);
+    fill: url(/#expandIcon);
 }
 
 .headingExpandIcon:hover {
@@ -83,7 +83,7 @@
 
 .headingDeleteIcon {
     cursor: pointer;
-    fill: url(#deleteIcon);
+    fill: url(/#deleteIcon);
  }
 
 /*Resolves the issue of not showing the css referred svg images not showing in firefox*/
@@ -269,61 +269,61 @@ text-anchor: start;
 
 .property-pane-action-button-edit {
     opacity: 0.3;
-    fill: url(#editIcon);
+    fill: url(/#editIcon);
 }
 
 .property-pane-action-button-edit:hover {
     cursor: pointer;
     opacity: 1;
-    fill: url(#editIcon);
+    fill: url(/#editIcon);
 }
 
 .property-pane-action-button-disable {
     opacity: 0.3;
-    fill: url(#disableIcon);
+    fill: url(/#disableIcon);
 }
 
 .property-pane-action-button-disable:hover {
     cursor: pointer;
     opacity: 1;
-    fill: url(#disableIcon);
+    fill: url(/#disableIcon);
 }
 
 .property-pane-action-button-delete {
     opacity: 0.3;
-    fill: url(#statementDeleteIcon);
+    fill: url(/#statementDeleteIcon);
 }
 
 .property-pane-action-button-delete:hover {
     cursor: pointer;
     opacity: 1;
-    fill: url(#statementDeleteIcon);
+    fill: url(/#statementDeleteIcon);
 }
 
 .property-pane-action-button-breakpoint {
     opacity: 0.3;
-    fill: url(#addBreakpointIcon);
+    fill: url(/#addBreakpointIcon);
 }
 
 .property-pane-action-button-breakpoint:hover {
     cursor: pointer;
     opacity: 1;
-    fill: url(#addBreakpointIcon);
+    fill: url(/#addBreakpointIcon);
 }
 .property-pane-action-button-breakpoint.active:hover {
     cursor: pointer;
     opacity: 1;
-    fill: url(#debugRemoveIcon);
+    fill: url(/#debugRemoveIcon);
 }
 .statement-view-breakpoint-indicator {
     opacity: 0.8;
-    fill: url(#debugIcon);
+    fill: url(/#debugIcon);
 }
 
 .statement-view-breakpoint-indicator:hover {
     cursor: pointer;
     opacity: 1;
-    fill: url(#debugRemoveIcon);
+    fill: url(/#debugRemoveIcon);
 }
 
 .annotation-icon-background-circle {
@@ -342,11 +342,11 @@ text-anchor: start;
 
 .annotation-icon-rect {
     cursor: pointer;
-    fill: url(#annotationIcon);
+    fill: url(/#annotationIcon);
 }
 
 .variable-icon-rect {
-    fill: url(#variableIcon);
+    fill: url(/#variableIcon);
 }
 
 .if-else-svg-group{
@@ -482,12 +482,12 @@ text-anchor: start;
 .headingAnnotationIcon {
     cursor: pointer;
     opacity: 1;
-    fill: url(#annotationIcon);
+    fill: url(/#annotationIcon);
 }
 
 .headingAnnotationBlackIcon {
     cursor: pointer;
-    fill: url(#annotationBlackIcon);
+    fill: url(/#annotationBlackIcon);
 }
 
 .headingAnnotationBlackIcon:hover {
@@ -500,7 +500,7 @@ text-anchor: start;
 
 .deleteRedIcon {
     cursor: pointer;
-    fill: url(#deleteRedIcon);
+    fill: url(/#deleteRedIcon);
 }
 
 .heading-icon-annotation-wrapper-clicked {
@@ -511,12 +511,12 @@ text-anchor: start;
 .headingArgumentsIcon {
     cursor: pointer;
     opacity: 1;
-    fill: url(#argumentsIcon);
+    fill: url(/#argumentsIcon);
 }
 
 .headingArgumentsBlackIcon {
     cursor: pointer;
-    fill: url(#argumentsBlackIcon);
+    fill: url(/#argumentsBlackIcon);
 }
 
 .headingArgumentsBlackIcon:hover {
@@ -526,12 +526,12 @@ text-anchor: start;
 .headingReturnTypeIcon {
     cursor: pointer;
     opacity: 1;
-    fill: url(#returnTypeIcon);
+    fill: url(/#returnTypeIcon);
 }
 
 .headingReturnTypeBlackIcon {
     cursor: pointer;
-    fill: url(#returnTypeBlackIcon);
+    fill: url(/#returnTypeBlackIcon);
 }
 
 .headingReturnTypeBlackIcon:hover {

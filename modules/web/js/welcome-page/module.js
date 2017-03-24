@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import './welcome-page.css'
+require('./welcome-page.css');
 
 define(['require','./first-launch-welcome', './regular-welcome'],
     function (require, FirstLaunchWelcomePage, RegularWelcomePage) {
