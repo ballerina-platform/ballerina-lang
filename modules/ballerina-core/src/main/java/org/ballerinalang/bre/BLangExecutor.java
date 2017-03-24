@@ -767,27 +767,10 @@ public class BLangExecutor implements NodeExecutor {
         int dimensions = ((BArrayType) arrayInitExpr.getType()).getDimensions();
         if (dimensions <= 1 || argExprs.length > 0) {
             bArray = arrayInitExpr.getType().getDefaultValue();
-            for (int i = 0; i < argExprs.length; i++) {
-                Expression expr = argExprs[i];
-                BValue value = expr.execute(this);
-                if (value instanceof BArray && i == 0) {
-                    bArray = new BArray<>(BArray.class);
-                }
-                bArray.add(i, value);
-            }
+            bArray = populateOuterMostArray(bArray, argExprs);
         } else {
             bArray = new BArray<>(BArray.class);
-            BArray currentBArray = bArray;
-            for (int i = 1; i < dimensions; i++) {
-                if (i == dimensions - 1) {
-                    BArray leafBArray = arrayInitExpr.getType().getDefaultValue();
-                    currentBArray.add(0, leafBArray);
-                } else {
-                    BArray childBArray = new BArray<>(BArray.class);
-                    currentBArray.add(0, childBArray);
-                    currentBArray = childBArray;
-                }
-            }
+            createArrayStructure(bArray, dimensions, arrayInitExpr);
         }
 
         return bArray;
@@ -1366,5 +1349,32 @@ public class BLangExecutor implements NodeExecutor {
             bArray = (BArray) bArray.get(indexVal.intValue());
         }
         return bArray.get(((BInteger) indexExpr[0].execute(this)).intValue());
+    }
+
+    private BArray populateOuterMostArray(BArray outerArray, Expression[] values) {
+        for (int i = 0; i < values.length; i++) {
+            Expression expr = values[i];
+            BValue value = expr.execute(this);
+            if (value instanceof BArray && i == 0) {
+                outerArray = new BArray<>(BArray.class);
+            }
+            outerArray.add(i, value);
+        }
+
+        return outerArray;
+    }
+
+    private void createArrayStructure(BArray bArray, int dimensions, ArrayInitExpr leafArray) {
+        BArray currentBArray = bArray;
+        for (int i = 1; i < dimensions; i++) {
+            if (i == dimensions - 1) {
+                BArray leafBArray = leafArray.getType().getDefaultValue();
+                currentBArray.add(0, leafBArray);
+            } else {
+                BArray childBArray = new BArray<>(BArray.class);
+                currentBArray.add(0, childBArray);
+                currentBArray = childBArray;
+            }
+        }
     }
 }
