@@ -164,6 +164,7 @@ public class TypeLattice {
         explicitCastLattice.addEdge(anyV, xmlV, NativeCastMapper.ANY_TO_XML_FUNC);
         explicitCastLattice.addEdge(anyV, connectorV, NativeCastMapper.ANY_TO_CONNECTOR_FUNC);
         explicitCastLattice.addEdge(anyV, exceptionV, NativeCastMapper.ANY_TO_EXCEPTION_FUNC);
+        explicitCastLattice.addEdge(anyV, anyV, NativeCastMapper.ANY_TO_ANY_FUNC);
 
 //        explicitCastLattice.addEdge(jsonV, xmlV, new JSONToXML(), TypeConstants.NATIVE_PACKAGE);
 //        explicitCastLattice.addEdge(xmlV, jsonV, new XMLToJSON(), TypeConstants.NATIVE_PACKAGE);

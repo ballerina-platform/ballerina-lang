@@ -166,6 +166,9 @@ public class NativeCastMapper {
     public static final Function<BValue, BValue> EXCEPTION_TO_ANY_FUNC =
             (rVal) -> rVal;
 
+    public static final Function<BValue, BValue> ANY_TO_ANY_FUNC =
+            (rVal) -> rVal;
+
     public static final Function<BValue, BValue> ANY_TO_INT_FUNC =
             (rVal) -> {
                 if (rVal.getType() == BTypes.typeInt) {
