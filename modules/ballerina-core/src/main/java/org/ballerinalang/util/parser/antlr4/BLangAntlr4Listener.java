@@ -705,14 +705,11 @@ public class BLangAntlr4Listener implements BallerinaListener {
         }
 
         boolean argsAvailable = false;
-        int dimensions = 1;
-        if (ctx.expressionList() != null /*&& ctx.expressionList().size() > 0*/) {
+        if (ctx.expressionList() != null) {
             argsAvailable = true;
-        } else {
-            dimensions = ctx.getChildCount() / 2;
         }
 
-        modelBuilder.createArrayInitExpr(getCurrentLocation(ctx), argsAvailable, dimensions);
+        modelBuilder.createArrayInitExpr(getCurrentLocation(ctx), argsAvailable);
     }
 
     @Override

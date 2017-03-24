@@ -679,7 +679,7 @@ public class BLangModelBuilder {
         exprStack.push(typeCastExpression);
     }
 
-    public void createArrayInitExpr(NodeLocation location, boolean argsAvailable, int dimensions) {
+    public void createArrayInitExpr(NodeLocation location, boolean argsAvailable) {
         List<Expression> argExprList;
         if (argsAvailable) {
             argExprList = exprListStack.pop();
@@ -690,7 +690,7 @@ public class BLangModelBuilder {
         checkArgExprValidity(location, argExprList);
 
         ArrayInitExpr arrayInitExpr = new ArrayInitExpr(location,
-                argExprList.toArray(new Expression[argExprList.size()]), dimensions);
+                argExprList.toArray(new Expression[argExprList.size()]));
         exprStack.push(arrayInitExpr);
     }
 
