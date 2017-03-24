@@ -49,6 +49,8 @@ public class BTypes {
     public static BType typeMap;
     public static BType typeException;
     public static BType typeDatatable;
+    public static BType typeAny;
+    public static BType typeConnector;
 
     private static boolean initialized = false;
     private static Set<String> builtInTypeNames = new HashSet<>();
@@ -73,6 +75,8 @@ public class BTypes {
         globalScope.define(typeMap.getSymbolName(), typeMap);
         globalScope.define(typeException.getSymbolName(), typeException);
         globalScope.define(typeDatatable.getSymbolName(), typeDatatable);
+        globalScope.define(typeAny.getSymbolName(), typeAny);
+        globalScope.define(typeConnector.getSymbolName(), typeConnector);
 
         builtInTypeNames.add(TypeConstants.INT_TNAME);
         builtInTypeNames.add(TypeConstants.STRING_TNAME);
@@ -86,7 +90,8 @@ public class BTypes {
         builtInTypeNames.add(TypeConstants.DATATABLE_TNAME);
         builtInTypeNames.add(TypeConstants.CONNECTOR_TNAME);
         builtInTypeNames.add(TypeConstants.STRUCT_TNAME);
-        
+        builtInTypeNames.add(TypeConstants.ANY_TNAME);
+
         TypeLattice.loadImplicitCastLattice(globalScope);
         TypeLattice.loadExplicitCastLattice(globalScope);
 
@@ -105,6 +110,8 @@ public class BTypes {
         typeMap = new BMapType(TypeConstants.MAP_TNAME, null, globalScope);
         typeException = new BExceptionType(TypeConstants.EXCEPTION_TNAME, null, globalScope);
         typeDatatable = new BDataTableType(TypeConstants.DATATABLE_TNAME, null, globalScope);
+        typeAny = new BAnyType(TypeConstants.ANY_TNAME, null, globalScope);
+        typeConnector = new BConnectorType(TypeConstants.CONNECTOR_TNAME, null, globalScope);
         initialized = true;
     }
 

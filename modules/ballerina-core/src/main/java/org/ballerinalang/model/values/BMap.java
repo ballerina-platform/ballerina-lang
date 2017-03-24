@@ -17,6 +17,9 @@
  */
 package org.ballerinalang.model.values;
 
+import org.ballerinalang.model.types.BType;
+import org.ballerinalang.model.types.BTypes;
+
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
@@ -135,6 +138,11 @@ public class BMap<BString, V extends BValue> implements BRefType {
     @Override
     public String stringValue() {
         return null;
+    }
+
+    @Override
+    public BType getType() {
+        return BTypes.typeMap;
     }
 
     private class MapEntry<K, V> {

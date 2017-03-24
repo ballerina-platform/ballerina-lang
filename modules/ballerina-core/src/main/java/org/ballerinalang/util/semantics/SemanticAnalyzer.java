@@ -798,6 +798,8 @@ public class SemanticAnalyzer implements NodeVisitor {
             if (returnTypes.length != 1) {
                 BLangExceptionHelper.throwSemanticError(varDefStmt, SemanticErrors.ASSIGNMENT_COUNT_MISMATCH, "1",
                         returnTypes.length);
+            } else if (varBType == BTypes.typeAny) {
+                return;
             } else if ((varBType != BTypes.typeMap) && (returnTypes[0] != BTypes.typeMap) &&
                     (!varBType.equals(returnTypes[0]))) {
 
@@ -1188,7 +1190,8 @@ public class SemanticAnalyzer implements NodeVisitor {
             }
 
             for (int i = 0; i < returnParamsOfCU.length; i++) {
-                if (!funcIExprReturnTypes[i].equals(returnParamsOfCU[i].getType())) {
+                if (returnParamsOfCU[i].getType() != BTypes.typeAny &&
+                    !funcIExprReturnTypes[i].equals(returnParamsOfCU[i].getType())) {
                     BLangExceptionHelper.throwSemanticError(returnStmt,
                             SemanticErrors.CANNOT_USE_TYPE_IN_RETURN_STATEMENT, funcIExprReturnTypes[i],
                             returnParamsOfCU[i].getType());
@@ -1225,7 +1228,8 @@ public class SemanticAnalyzer implements NodeVisitor {
                     }
                 }
 
-                if (!typesOfReturnExprs[i].equals(returnParamsOfCU[i].getType())) {
+                if (returnParamsOfCU[i].getType() != BTypes.typeAny &&
+                    !typesOfReturnExprs[i].equals(returnParamsOfCU[i].getType())) {
                     BLangExceptionHelper.throwSemanticError(returnStmt,
                             SemanticErrors.CANNOT_USE_TYPE_IN_RETURN_STATEMENT, typesOfReturnExprs[i],
                             returnParamsOfCU[i].getType());
@@ -1706,7 +1710,7 @@ public class SemanticAnalyzer implements NodeVisitor {
             Expression valueExpr = keyValueExpr.getValueExpr();
             visitSingleValueExpr(valueExpr);
 
-            if (!valueExpr.getType().equals(varDef.getType())) {
+            if (!valueExpr.getType().equals(varDef.getType()) && (varDef.getType() != BTypes.typeAny)) {
                 BLangExceptionHelper.throwSemanticError(keyExpr, SemanticErrors.INCOMPATIBLE_TYPES,
                         varDef.getType(), valueExpr.getType());
             }
@@ -1847,8 +1851,8 @@ public class SemanticAnalyzer implements NodeVisitor {
             typeCastExpression.setTargetType(targetType);
         }
         // Check whether this is a native conversion
-        if (BTypes.isValueType(sourceType) &&
-                BTypes.isValueType(targetType)) {
+        if (sourceType == BTypes.typeAny || targetType == BTypes.typeAny || (BTypes.isValueType(sourceType) &&
+                BTypes.isValueType(targetType))) {
             TypeEdge newEdge = null;
             newEdge = TypeLattice.getExplicitCastLattice().getEdgeFromTypes(sourceType, targetType, null);
             typeCastExpression.setEvalFunc(newEdge.getTypeMapperFunction());
@@ -2183,10 +2187,23 @@ public class SemanticAnalyzer implements NodeVisitor {
             boolean implicitCastPossible = true;
             Expression[] exprs = funcIExpr.getArgExprs();
             for (int i = 0; i < exprs.length; i++) {
-                BType lhsType = ((Function) entry.getValue()).getParameterDefs()[i].getType();
+                BType lhsType;
+                if (entry.getValue() instanceof NativeUnitProxy) {
+                    NativeUnit nativeUnit = ((NativeUnitProxy) entry.getValue()).load();
+                    SimpleTypeName simpleTypeName = nativeUnit.getArgumentTypeNames()[i];
+                    lhsType = BTypes.resolveType(simpleTypeName, currentScope, funcIExpr.getNodeLocation());
+                } else {
+                    if (!(entry.getValue() instanceof Function)) {
+                        continue;
+                    }
+                    lhsType = ((Function) entry.getValue()).getParameterDefs()[i].getType();
+                }
 
                 BType rhsType = exprs[i].getType();
                 if (rhsType != null && lhsType.equals(rhsType)) {
+                    continue;
+                }
+                if (lhsType == BTypes.typeAny) { //if left hand side is any, then no need for casting
                     continue;
                 }
                 TypeCastExpression newExpr = checkWideningPossible(lhsType, exprs[i]);

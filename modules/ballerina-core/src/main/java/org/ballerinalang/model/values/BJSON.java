@@ -23,6 +23,8 @@ import com.fasterxml.jackson.core.JsonParser.Feature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import org.ballerinalang.model.types.BType;
+import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.runtime.message.BallerinaMessageDataSource;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
@@ -219,6 +221,11 @@ public final class BJSON extends BallerinaMessageDataSource implements BRefType<
             handleJsonException("failed to get json as string: ", t);
         }
         return null;
+    }
+
+    @Override
+    public BType getType() {
+        return BTypes.typeJSON;
     }
 
     @Override

@@ -17,6 +17,9 @@
 */
 package org.ballerinalang.model.values;
 
+import org.ballerinalang.model.types.BType;
+import org.ballerinalang.model.types.BTypes;
+
 /**
  * The {@code BFloat} represents a float value in Ballerina.
  *
@@ -58,6 +61,11 @@ public final class BFloat extends BValueType {
     @Override
     public String stringValue() {
         return Float.toString(value);
+    }
+
+    @Override
+    public BType getType() {
+        return BTypes.typeFloat;
     }
 
     @Override
