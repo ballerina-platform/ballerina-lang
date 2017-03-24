@@ -20,12 +20,11 @@ import Workspace from './workspace';
 import BrowserStorage from './browser-storage';
 import ServiceClient from './service-client';
 import File from './file';
-        export default  {
-            Explorer: Explorer,
-            Manager: Workspace,
-            BrowserStorage: BrowserStorage,
-            ServiceClient: ServiceClient,
-            File: File
-        }
-    
 
+export default  {
+    Explorer: Explorer,
+    Manager: Workspace,
+    BrowserStorage: BrowserStorage,
+    ServiceClient: ServiceClient,
+    File: File
+};
