@@ -19,14 +19,15 @@ package org.ballerinalang.plugins.idea.psi.references;
 import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementResolveResult;
-import com.intellij.psi.PsiNameIdentifierOwner;
 import com.intellij.psi.ResolveResult;
+import com.intellij.psi.impl.file.PsiJavaDirectoryImpl;
 import com.intellij.psi.util.PsiTreeUtil;
 import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
 import org.ballerinalang.plugins.idea.psi.ImportDeclarationNode;
-import org.ballerinalang.plugins.idea.psi.PackageNameNode;
+import org.ballerinalang.plugins.idea.psi.PackageDeclarationNode;
 import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,15 +40,20 @@ public class PackageNameReference extends BallerinaElementReference {
 
     @Override
     public boolean isDefinitionNode(PsiElement def) {
-        // Todo - Check whether the node is the last node in the packagePath. This should be done in isReferenceTo()
-        // of reference class
-        return def instanceof PackageNameNode;
+        return def instanceof PsiDirectory;
     }
 
     @NotNull
     @Override
     public Object[] getVariants() {
         return new Object[0];
+    }
+
+    @Nullable
+    @Override
+    public PsiElement resolve() {
+        ResolveResult[] resolveResults = multiResolve(false);
+        return resolveResults.length != 0 ? resolveResults[0].getElement() : super.resolve();
     }
 
     @NotNull
@@ -63,39 +69,56 @@ public class PackageNameReference extends BallerinaElementReference {
         // Check whether this is in a import statement.
         ImportDeclarationNode importDeclarationNode = PsiTreeUtil.getParentOfType(identifierElement,
                 ImportDeclarationNode.class);
-        if (importDeclarationNode == null) {
-            // If this is not in an import statement, we need to resolve the package name to the corresponding import
-            // declaration.
-            // Get all imported packages in the file.
-            List<PsiElement> packages =
-                    BallerinaPsiImplUtil.getAllImportedPackagesInCurrentFile(identifierElement.getContainingFile());
-            // Todo - Show packages which are not imported as well.
-            for (PsiElement pack : packages) {
-                // For all packages, check whether the identifier is equal to the package name. If they are equal,
-                // that means that the current element is what we are looking for.
-                if (identifierElement.getText().equals(pack.getText())) {
-                    // Get the identifier of the package name from the import declaration.
-                    PsiElement[] children = pack.getChildren();
-                    if (children.length == 0) {
-                        continue;
-                    }
-                    // Resolve the directory. Ideally this should return only on element because imports are unique.
-                    // But this can happen if two or more imported  packages have the same. In that case, we suggest
-                    // all matching packages.
-                    PsiDirectory[] directories = BallerinaPsiImplUtil.resolveDirectory(children[0]);
-                    for (PsiDirectory directory : directories) {
-                        results.add(new PsiElementResolveResult(directory));
-                    }
-                }
+        if (importDeclarationNode != null) {
+            // If this is an import declaration, resolve the directory.
+            PsiDirectory[] directories = BallerinaPsiImplUtil.resolveDirectory(identifierElement);
+            for (PsiDirectory directory : directories) {
+                results.add(new PsiElementResolveResult(directory));
             }
-        } else {
-            // If the identifier is in an import declaration,resolve the directory.
+            // Return the results.
+            return results.toArray(new ResolveResult[results.size()]);
+        }
+
+        PackageDeclarationNode packageDeclarationNode = PsiTreeUtil.getParentOfType(identifierElement,
+                PackageDeclarationNode.class);
+        if (packageDeclarationNode != null) {
+            // If this is a package declaration, resolve the directory.
             PsiDirectory[] directories = BallerinaPsiImplUtil.resolveDirectory(identifierElement);
 
             for (PsiDirectory directory : directories) {
                 results.add(new PsiElementResolveResult(directory));
             }
+            // Return the results.
+            return results.toArray(new ResolveResult[results.size()]);
         }
+
+        // If this package node is not in an import declaration or a package declaration, that means the current
+        // packageName is in a NameReferenceNode. So we need to resolve the package name to the corresponding import
+        // declaration and from there, resolve to the correct directory.
+
+        // Get all imported packages in the file.
+        List<PsiElement> packages =
+                BallerinaPsiImplUtil.getAllImportedPackagesInCurrentFile(identifierElement.getContainingFile());
+        // Todo - Show packages which are not imported as well.
+        for (PsiElement pack : packages) {
+            // For all packages, check whether the identifier is equal to the package name. If they are equal,
+            // that means that the current element is what we are looking for.
+            if (identifierElement.getText().equals(pack.getText())) {
+                // Get the identifier of the package name from the import declaration.
+                PsiElement[] children = pack.getChildren();
+                if (children.length == 0) {
+                    continue;
+                }
+                // Resolve the directory. Ideally this should return only one element because imports are unique.
+                // But this can happen if two or more imported  packages have the same. In that case, we suggest
+                // all matching packages.
+                PsiDirectory[] directories = BallerinaPsiImplUtil.resolveDirectory(children[0]);
+                for (PsiDirectory directory : directories) {
+                    results.add(new PsiElementResolveResult(directory));
+                }
+            }
+        }
+        // Return the results.
         return results.toArray(new ResolveResult[results.size()]);
     }
 
@@ -105,11 +128,18 @@ public class PackageNameReference extends BallerinaElementReference {
         if (definitionElement instanceof IdentifierPSINode && isDefinitionNode(definitionElement.getParent())) {
             definitionElement = definitionElement.getParent();
         }
+        // Check whether the definition element is a definition node (PsiDirectory).
         if (isDefinitionNode(definitionElement)) {
-            PsiElement id = ((PsiNameIdentifierOwner) definitionElement).getNameIdentifier();
-            String defName = id != null ? id.getText() : null;
-
-            return refName != null && defName != null && refName.equals(defName);
+            String defName;
+            // If the definitionElement is a instanceof PsiJavaDirectoryImpl, the directory name will be taken as
+            // defName. Otherwise the text of the node is taken as the defName.
+            if (definitionElement instanceof PsiJavaDirectoryImpl) {
+                defName = ((PsiJavaDirectoryImpl) definitionElement).getName();
+            } else {
+                defName = definitionElement.getText();
+            }
+            // Check whether the refName and defName are equal to find a match.
+            return (refName != null) && (defName != null) && refName.equals(defName);
         }
         return false;
     }
