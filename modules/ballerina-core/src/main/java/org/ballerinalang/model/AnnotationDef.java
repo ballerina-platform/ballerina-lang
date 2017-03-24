@@ -48,6 +48,7 @@ public class AnnotationDef implements CompilationUnit, SymbolScope, BLangSymbol,
      */
     public AnnotationDef(SymbolScope enclosingScope) {
         this.symbolMap = new HashMap<>();
+        this.enclosingScope = enclosingScope;
     }
 
     @Override

@@ -137,7 +137,6 @@ import org.ballerinalang.util.exceptions.SemanticException;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -593,12 +592,14 @@ public class SemanticAnalyzer implements NodeVisitor {
         
         // Validate the attached point
         AnnotationDef annotationDef = (AnnotationDef) annotationSymbol;
-        Optional<String> matchingAttachmentPoint = Arrays.stream(annotationDef.getAttachmentPoints())
-                .filter(attachmentPoint -> attachmentPoint.equals(attachedPoint.getValue()))
-                .findAny();
-        if (!matchingAttachmentPoint.isPresent()) {
-            BLangExceptionHelper.throwSemanticError(annotation, SemanticErrors.ANNOTATION_NOT_ALLOWED, 
-                    annotationSymName, attachedPoint);
+        if (annotationDef.getAttachmentPoints() != null && annotationDef.getAttachmentPoints().length > 0) {
+            Optional<String> matchingAttachmentPoint = Arrays.stream(annotationDef.getAttachmentPoints())
+                    .filter(attachmentPoint -> attachmentPoint.equals(attachedPoint.getValue()))
+                    .findAny();
+            if (!matchingAttachmentPoint.isPresent()) {
+                BLangExceptionHelper.throwSemanticError(annotation, SemanticErrors.ANNOTATION_NOT_ALLOWED, 
+                        annotationSymName, attachedPoint);
+            }
         }
         
         // Validate the attributes and their types
@@ -617,40 +618,46 @@ public class SemanticAnalyzer implements NodeVisitor {
     private void validateAttributes(AnnotationAttachment annotation, AnnotationDef annotationDef) {
         annotation.getAttributeNameValuePairs().forEach((attributeName, attributeValue) -> {
             // Check attribute existence
+            AnnotationDef annotationDef2 = annotationDef;
             BLangSymbol attributeSymbol = annotationDef.resolveMembers(new SymbolName(attributeName));
             if (attributeSymbol == null || !(attributeSymbol instanceof AnnotationAttributeDef)) {
                 BLangExceptionHelper.throwSemanticError(annotation, SemanticErrors.NO_SUCH_ATTRIBUTE, 
                     attributeName, annotation.getName());
             }
             
+            // Check types
             AnnotationAttributeDef attributeDef = ((AnnotationAttributeDef) attributeSymbol);
             SimpleTypeName attributeType = attributeDef.getTypeName();
-            SymbolName attributeTypeSymbolName = new SymbolName(attributeType.getName(), 
-                    attributeType.getPackagePath());
             SimpleTypeName valueType = attributeValue.getType();
-            SymbolName valueTypeSymbolName;
+            BLangSymbol valueTypeSymbol = currentScope.resolve(valueType.getSymbolName());
+            BLangSymbol attributeTypeSymbol = annotationDef.resolve(new SymbolName(attributeType.getName(), 
+                    attributeType.getPackagePath()));
             
-            if (attributeType.isArrayType() != valueType.isArrayType()) {
-                BLangExceptionHelper.throwSemanticError(attributeValue, SemanticErrors.INCOMPATIBLE_TYPES_UNKNOWN_FOUND, 
-                    attributeTypeSymbolName);
-                throw new SemanticException("one is array. and other one is not");
-            }
-            
-            if (valueType.isArrayType()) {
+            if (attributeType.isArrayType()) {
+                if (!valueType.isArrayType()) {
+                    BLangExceptionHelper.throwSemanticError(attributeValue, SemanticErrors.INCOMPATIBLE_TYPES, 
+                        attributeTypeSymbol.getSymbolName() + TypeConstants.ARRAY_TNAME, 
+                        valueTypeSymbol.getSymbolName());
+                }
+                
                 AnnotationAttributeValue[] valuesArray = attributeValue.getValueArray();
                 for (AnnotationAttributeValue value : valuesArray) {
-                    valueTypeSymbolName = value.getType().getSymbolName();
-                    if (!attributeTypeSymbolName.equals(valueTypeSymbolName)) {
+                    valueTypeSymbol = currentScope.resolve(value.getType().getSymbolName());
+                    if (attributeTypeSymbol != valueTypeSymbol) {
                         BLangExceptionHelper.throwSemanticError(attributeValue, SemanticErrors.INCOMPATIBLE_TYPES, 
-                            attributeTypeSymbolName, valueTypeSymbolName);
+                            attributeTypeSymbol.getSymbolName(), valueTypeSymbol.getSymbolName());
                     }
                 }
-            }
-            
-            valueTypeSymbolName = valueType.getSymbolName();
-            if (!valueType.isArrayType() && !attributeTypeSymbolName.equals(valueTypeSymbolName)) {
-                BLangExceptionHelper.throwSemanticError(attributeValue, SemanticErrors.INCOMPATIBLE_TYPES, 
-                    attributeTypeSymbolName, valueTypeSymbolName);
+            } else {
+                if (valueType.isArrayType()) {
+                    BLangExceptionHelper.throwSemanticError(attributeValue, 
+                        SemanticErrors.INCOMPATIBLE_TYPES_ARRAY_FOUND, attributeTypeSymbol.getName());
+                }
+                
+                if (attributeTypeSymbol != valueTypeSymbol) {
+                    BLangExceptionHelper.throwSemanticError(attributeValue, SemanticErrors.INCOMPATIBLE_TYPES, 
+                        attributeTypeSymbol.getSymbolName(), valueTypeSymbol.getSymbolName());
+                }
             }
         });
     }
