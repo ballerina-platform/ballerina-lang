@@ -212,9 +212,10 @@ class FunctionDefinitionView extends SVGCanvas {
         return this._viewOptions;
     }
 
-    getChildContainer() {
-        return this._childContainer ;
-    }
+    // TODO: this method this never used so is this._childContainer, remove them.
+    // getChildContainer() {
+    //     return this._childContainer ;
+    // }
 
     canVisitFunctionDefinition() {
         return true;
@@ -704,10 +705,9 @@ class FunctionDefinitionView extends SVGCanvas {
         return this._workerAndConnectorViews;
     }
 
-    // TODO: This method has been duplicated. Check whether if this is the correct method to
-    // getChildContainer() {
-    //     return this.getRootGroup();
-    // }
+    getChildContainer() {
+        return this.getRootGroup();
+    }
 
     /**
      * Return statement container
@@ -868,4 +868,3 @@ class FunctionDefinitionView extends SVGCanvas {
 }
 
 export default FunctionDefinitionView;
-    
