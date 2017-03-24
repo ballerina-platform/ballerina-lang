@@ -116,6 +116,7 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             // Gap between the last statement of a worker/ default worker
             // and the worker/ default worker's BBox's bottom edge
             this._offsetLastStatementGap = 100;
+            this._offsetLastLifeLineGap = 60;
             this._startActionRect = undefined;
             this._startActionText = undefined;
             this._startActionMessageView = undefined;
@@ -417,7 +418,8 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                     workerDeclarationView.getBoundingBox().getRight() > this.getBoundingBox().getRight()) {
                     // Worker is added as the last element for the ConnectorWorkerViewList.
                     // Only Workers are there at the moment
-                    this._parentView.getLifeLineMargin().setPosition(this._parentView.getLifeLineMargin().getPosition() + this._viewOptions.LifeLineCenterGap);
+                    this._parentView.getLifeLineMargin().setPosition(workerDeclarationView.getBoundingBox().getRight()
+                        + this._offsetLastLifeLineGap);
                     this.setContentMinWidth(workerDeclarationView.getBoundingBox().getRight());
                     this.setHeadingMinWidth(workerDeclarationView.getBoundingBox().getRight());
                 }
@@ -1075,8 +1077,8 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             /* If the adding connector (connectorDeclarationView) goes out of this resource definition's view,
              then we need to expand this resource definition's view. */
             if (connectorDeclarationView.getBoundingBox().getRight() > this.getBoundingBox().getRight()) {
-                this._parentView.getLifeLineMargin().setPosition(this._parentView.getLifeLineMargin().getPosition()
-                                                                 + this._viewOptions.LifeLineCenterGap);
+                this._parentView.getLifeLineMargin().setPosition(connectorDeclarationView.getBoundingBox().getRight()
+                                                                 + this._offsetLastLifeLineGap);
                 this.setContentMinWidth(connectorDeclarationView.getBoundingBox().getRight());
                 this.setHeadingMinWidth(connectorDeclarationView.getBoundingBox().getRight());
             }
@@ -1084,7 +1086,8 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             var connectorBBox = connectorDeclarationView.getBoundingBox();
             connectorDeclarationView.listenTo(connectorBBox, 'right-edge-moved', function (offset) {
                 if (connectorBBox.getRight() > self.getBoundingBox().getRight()) {
-                    self._parentView.getLifeLineMargin().setPosition(self._parentView.getLifeLineMargin().getPosition() + self._viewOptions.LifeLineCenterGap);
+                    self._parentView.getLifeLineMargin().setPosition(self._parentView.getLifeLineMargin().getPosition()
+                        + offset);
                     self.setContentMinWidth(connectorBBox.getRight());
                     self.setHeadingMinWidth(connectorBBox.getRight());
                 }
