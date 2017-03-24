@@ -17,38 +17,38 @@
  */
 
 package org.ballerinalang.service;
-
-import org.ballerinalang.core.EnvironmentInitializer;
-import org.ballerinalang.core.utils.MessageUtils;
-import org.ballerinalang.model.BLangProgram;
-import org.ballerinalang.model.util.Services;
-import org.testng.Assert;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Test;
-import org.wso2.carbon.messaging.CarbonMessage;
+//
+//import org.ballerinalang.core.EnvironmentInitializer;
+//import org.ballerinalang.core.utils.MessageUtils;
+//import org.ballerinalang.model.BLangProgram;
+//import org.ballerinalang.model.util.Services;
+//import org.testng.Assert;
+//import org.testng.annotations.AfterClass;
+//import org.testng.annotations.BeforeClass;
+//import org.testng.annotations.Test;
+//import org.wso2.carbon.messaging.CarbonMessage;
 
 /**
  * Service/Resource variable test class.
  */
 public class ServiceVariableTest {
 
-    BLangProgram bLangProgram;
-
-    @BeforeClass
-    public void setup() {
-        bLangProgram = EnvironmentInitializer.setup("lang/service/serviceLevelVariable.bal");
-    }
-
-    @Test
-    public void testServiceLevelVariable() {
-        CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/var/message", "GET");
-        CarbonMessage response = Services.invoke(cMsg);
-        Assert.assertNotNull(response);
-    }
-
-    @AfterClass
-    public void tearDown() {
-        EnvironmentInitializer.cleanup(bLangProgram);
-    }
+//    BLangProgram bLangProgram;
+//
+//    @BeforeClass
+//    public void setup() {
+//        bLangProgram = EnvironmentInitializer.setup("lang/service/serviceLevelVariable.bal");
+//    }
+//
+//    @Test
+//    public void testServiceLevelVariable() {
+//        CarbonMessage cMsg = MessageUtils.generateHTTPMessage("/var/message", "GET");
+//        CarbonMessage response = Services.invoke(cMsg);
+//        Assert.assertNotNull(response);
+//    }
+//
+//    @AfterClass
+//    public void tearDown() {
+//        EnvironmentInitializer.cleanup(bLangProgram);
+//    }
 }

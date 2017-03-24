@@ -17,7 +17,7 @@
 */
 package org.ballerinalang.model.builder;
 
-import org.ballerinalang.model.Annotation;
+import org.ballerinalang.model.AnnotationAttachment;
 import org.ballerinalang.model.BallerinaAction;
 import org.ballerinalang.model.BallerinaConnectorDef;
 import org.ballerinalang.model.NodeLocation;
@@ -49,7 +49,7 @@ public class CallableUnitGroupBuilder {
     protected SymbolName symbolName;
     protected boolean isNative;
 
-    protected List<Annotation> annotationList = new ArrayList<>();
+    protected List<AnnotationAttachment> annotationList = new ArrayList<>();
     protected List<ParameterDef> parameterDefList = new ArrayList<>();
     protected List<Resource> resourceList = new ArrayList<>();
     protected List<BallerinaAction> actionList = new ArrayList<>();
@@ -75,7 +75,7 @@ public class CallableUnitGroupBuilder {
         this.isPublic = isPublic;
     }
 
-    public void addAnnotation(Annotation annotation) {
+    public void addAnnotation(AnnotationAttachment annotation) {
         this.annotationList.add(annotation);
     }
 

@@ -17,7 +17,7 @@
 */
 package org.ballerinalang.model.statements;
 
-import org.ballerinalang.model.Annotation;
+import org.ballerinalang.model.AnnotationAttachment;
 import org.ballerinalang.model.CallableUnit;
 import org.ballerinalang.model.CompilationUnit;
 import org.ballerinalang.model.NodeExecutor;
@@ -285,8 +285,8 @@ public class ForkJoinStmt extends AbstractStatement implements SymbolScope, Comp
      * @return an arrays of annotations
      */
     @Override
-    public Annotation[] getAnnotations() {
-        return new Annotation[0];
+    public AnnotationAttachment[] getAnnotations() {
+        return new AnnotationAttachment[0];
     }
 
     /**

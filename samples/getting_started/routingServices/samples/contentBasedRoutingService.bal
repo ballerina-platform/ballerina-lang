@@ -1,12 +1,13 @@
 package routingServices.samples;
+
 import ballerina.net.http;
 import ballerina.lang.jsons;
 import ballerina.lang.messages;
 
-@http:BasePath ("/cbr")
+@http:BasePath {value:"/cbr"}
 service contentBasedRouting {
     
-    @http:POST
+    @http:POST{}
     resource cbrResource (message m) {
         http:ClientConnector nasdaqEP = create http:ClientConnector("http://localhost:9090/nasdaqStocks");
         http:ClientConnector nyseEP = create http:ClientConnector("http://localhost:9090/nyseStocks");

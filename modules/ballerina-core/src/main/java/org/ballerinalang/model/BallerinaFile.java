@@ -214,6 +214,16 @@ public class BallerinaFile implements Node {
             this.compilationUnitList.add(structDef);
             this.packageBuilder.addStruct(structDef);
         }
+        
+        /**
+         * Add a user defined annotation definition to the ballerina file.
+         * 
+         * @param annotationDef User defined annotation definition
+         */
+        public void addAnnotationDef(AnnotationDef annotationDef) {
+            this.compilationUnitList.add(annotationDef);
+            this.packageBuilder.addAnnotationDef(annotationDef);
+        }
 
         public BallerinaFile build() {
             return new BallerinaFile(

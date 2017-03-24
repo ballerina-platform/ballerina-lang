@@ -19,7 +19,7 @@
 package org.ballerinalang.services.dispatchers.http;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.model.Annotation;
+import org.ballerinalang.model.AnnotationAttachment;
 import org.ballerinalang.model.Resource;
 import org.ballerinalang.model.Service;
 import org.ballerinalang.services.dispatchers.ResourceDispatcher;
@@ -51,7 +51,7 @@ public class HTTPResourceDispatcher implements ResourceDispatcher {
 
         try {
             for (Resource resource : service.getResources()) {
-                Annotation subPathAnnotation = resource.getAnnotation(Constants.PROTOCOL_HTTP,
+                AnnotationAttachment subPathAnnotation = resource.getAnnotation(Constants.PROTOCOL_HTTP,
                         Constants.ANNOTATION_NAME_PATH);
                 String subPathAnnotationVal;
                 if (subPathAnnotation != null) {

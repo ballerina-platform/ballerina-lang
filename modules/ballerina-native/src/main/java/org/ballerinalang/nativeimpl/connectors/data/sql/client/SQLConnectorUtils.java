@@ -31,6 +31,7 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.math.BigDecimal;
 import java.nio.charset.Charset;
+import java.sql.Array;
 import java.sql.Blob;
 import java.sql.CallableStatement;
 import java.sql.Clob;
@@ -40,11 +41,14 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Struct;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.sql.Types;
 import java.util.Base64;
 import java.util.Calendar;
+import java.util.Locale;
+import java.util.StringJoiner;
 import java.util.TimeZone;
 
 /**
@@ -59,7 +63,11 @@ public class SQLConnectorUtils {
         if (value != null) {
             String strValue = value.stringValue();
             if (!strValue.isEmpty()) {
-                val = Integer.parseInt(strValue);
+                try {
+                    val = Integer.parseInt(strValue);
+                } catch (NumberFormatException e) {
+                    throw new BallerinaException("invalid value for integer: " + strValue);
+                }
             }
         }
         try {
@@ -116,7 +124,11 @@ public class SQLConnectorUtils {
         if (value != null) {
             String strValue = value.stringValue();
             if (!strValue.isEmpty()) {
-                val = Double.parseDouble(strValue);
+                try {
+                    val = Double.parseDouble(strValue);
+                } catch (NumberFormatException e) {
+                    throw new BallerinaException("invalid value for double: " + strValue);
+                }
             }
         }
         try {
@@ -148,7 +160,11 @@ public class SQLConnectorUtils {
         if (value != null) {
             String strValue = value.stringValue();
             if (!strValue.isEmpty()) {
-                val = new BigDecimal(strValue);
+                try {
+                    val = new BigDecimal(strValue);
+                } catch (NumberFormatException e) {
+                    throw new BallerinaException("invalid value for numeric: " + strValue);
+                }
             }
         }
         try {
@@ -212,7 +228,11 @@ public class SQLConnectorUtils {
         if (value != null) {
             String strValue = value.stringValue();
             if (!strValue.isEmpty()) {
-                val = Byte.valueOf(strValue);
+                try {
+                    val = Byte.valueOf(strValue);
+                } catch (NumberFormatException e) {
+                    throw new BallerinaException("invalid value for byte: " + strValue);
+                }
             }
         }
         try {
@@ -244,7 +264,11 @@ public class SQLConnectorUtils {
         if (value != null) {
             String strValue = value.stringValue();
             if (!strValue.isEmpty()) {
-                val = Short.parseShort(strValue);
+                try {
+                    val = Short.parseShort(strValue);
+                } catch (NumberFormatException e) {
+                    throw new BallerinaException("invalid value for short: " + strValue);
+                }
             }
         }
         try {
@@ -276,7 +300,11 @@ public class SQLConnectorUtils {
         if (value != null) {
             String strValue = value.stringValue();
             if (!strValue.isEmpty()) {
-                val = Long.parseLong(strValue);
+                try {
+                    val = Long.parseLong(strValue);
+                } catch (NumberFormatException e) {
+                    throw new BallerinaException("invalid value for bigint: " + strValue);
+                }
             }
         }
         try {
@@ -308,7 +336,11 @@ public class SQLConnectorUtils {
         if (value != null) {
             String strValue = value.stringValue();
             if (!strValue.isEmpty()) {
-                val = Float.parseFloat(strValue);
+                try {
+                    val = Float.parseFloat(strValue);
+                } catch (NumberFormatException e) {
+                    throw new BallerinaException("invalid value for float: " + strValue);
+                }
             }
         }
         try {
@@ -340,7 +372,11 @@ public class SQLConnectorUtils {
         if (value != null) {
             String strValue = value.stringValue();
             if (!strValue.isEmpty()) {
-                val = new Date(Long.parseLong(strValue));
+                try {
+                    val = new Date(Long.parseLong(strValue));
+                } catch (NumberFormatException e) {
+                    throw new BallerinaException("invalid value for long: " + strValue);
+                }
             }
         }
         try {
@@ -372,7 +408,11 @@ public class SQLConnectorUtils {
         if (value != null) {
             String strValue = value.stringValue();
             if (!strValue.isEmpty()) {
-                val = new Timestamp(Long.parseLong(strValue));
+                try {
+                    val = new Timestamp(Long.parseLong(strValue));
+                } catch (NumberFormatException e) {
+                    throw new BallerinaException("invalid value for long: " + strValue);
+                }
             }
         }
         try {
@@ -404,7 +444,11 @@ public class SQLConnectorUtils {
         if (value != null) {
             String strValue = value.stringValue();
             if (!strValue.isEmpty()) {
-                val = new Time(Long.parseLong(strValue));
+                try {
+                    val = new Time(Long.parseLong(strValue));
+                } catch (NumberFormatException e) {
+                    throw new BallerinaException("invalid value for long: " + strValue);
+                }
             }
         }
         try {
@@ -515,6 +559,74 @@ public class SQLConnectorUtils {
             }
         } catch (SQLException e) {
             throw new BallerinaException("error in set binary value to statement: " + e.getMessage(), e);
+        }
+    }
+
+    public static void setArrayValue(Connection conn, PreparedStatement stmt, BValue value, int index, int direction,
+            int sqlType, String structuredSQLType) {
+        Object[] val = null;
+        if (value != null) {
+            val = value.stringValue().split(",");
+        }
+
+        try {
+            if (Constants.QueryParamDirection.IN == direction) {
+                if (value == null) {
+                    stmt.setNull(index + 1, sqlType);
+                } else {
+                    Array array = conn.createArrayOf(structuredSQLType, val);
+                    stmt.setArray(index + 1, array);
+                }
+            } else if (Constants.QueryParamDirection.INOUT == direction) {
+                if (value == null) {
+                    stmt.setNull(index + 1, sqlType);
+                } else {
+                    Array array = conn.createArrayOf(structuredSQLType, val);
+                    stmt.setArray(index + 1, array);
+                }
+                ((CallableStatement) stmt).registerOutParameter(index + 1, sqlType, structuredSQLType);
+            } else if (Constants.QueryParamDirection.OUT == direction) {
+                ((CallableStatement) stmt).registerOutParameter(index + 1, sqlType, structuredSQLType);
+            } else {
+                throw new BallerinaException("invalid direction for the parameter with index: " + index);
+            }
+        } catch (SQLException e) {
+            throw new BallerinaException("error in set array value to statement: " + e.getMessage(), e);
+        }
+    }
+
+    public static void setUserDefinedValue(Connection conn, PreparedStatement stmt, BValue value, int index,
+            int direction, int sqlType, String structuredSQLType) {
+        structuredSQLType = structuredSQLType.toUpperCase(Locale.getDefault());
+        Object[] val = null;
+        if (value != null) {
+            val = value.stringValue().split(",");
+        }
+
+        try {
+            if (Constants.QueryParamDirection.IN == direction) {
+                if (value == null) {
+                    stmt.setNull(index + 1, sqlType);
+                } else {
+                    Struct struct = conn.createStruct(structuredSQLType, val);
+                    stmt.setObject(index + 1, struct);
+                }
+            } else if (Constants.QueryParamDirection.INOUT == direction) {
+                if (value == null) {
+                    stmt.setNull(index + 1, sqlType);
+                } else {
+                    Struct struct = conn.createStruct(structuredSQLType, val);
+                    stmt.setObject(index + 1, struct);
+                }
+                ((CallableStatement) stmt)
+                        .registerOutParameter(index + 1, sqlType, structuredSQLType);
+            } else if (Constants.QueryParamDirection.OUT == direction) {
+                ((CallableStatement) stmt).registerOutParameter(index + 1, sqlType, structuredSQLType);
+            } else {
+                throw new BallerinaException("invalid direction for the parameter with index: " + index);
+            }
+        } catch (SQLException e) {
+            throw new BallerinaException("error in set struct value to statement: " + e.getMessage(), e);
         }
     }
 
@@ -709,6 +821,32 @@ public class SQLConnectorUtils {
         appendTime(value, dateString);
         appendTimeZone(value, dateString);
         return dateString.toString();
+    }
+
+    public static String getString(Array dataArray) throws SQLException {
+        if (dataArray == null) {
+            return "";
+        }
+        StringJoiner sj = new StringJoiner(",", "[", "]");
+        ResultSet rs = dataArray.getResultSet();
+        while (rs.next()) {
+            Object arrayEl = rs.getObject(2);
+            String val = String.valueOf(arrayEl);
+            sj.add(val);
+        }
+        return sj.toString();
+    }
+
+    public static String getString(Struct udt) throws SQLException {
+        if (udt.getAttributes() != null) {
+            StringJoiner sj = new StringJoiner(",", "{", "}");
+            Object[] udtValues = udt.getAttributes();
+            for (int i = 0; i < udtValues.length; i++) {
+                sj.add(String.valueOf(udtValues[i]));
+            }
+            return sj.toString();
+        }
+        return null;
     }
 
     private static byte[] getBytesFromBase64String(String base64Str) {
