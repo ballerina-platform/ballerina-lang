@@ -1,7 +1,7 @@
 import ballerina.net.jms;
 import ballerina.lang.messages;
 
-function jmsClientConnectorTest() (boolean) {
+function jmsClientConnectorTestWrongContextFactory() (boolean) {
     jms:ClientConnector jmsEP = create jms:ClientConnector("", "file:///tmp/jndi.properties");
     message queueMessage = {};
     map dataMap = {};
@@ -11,25 +11,13 @@ function jmsClientConnectorTest() (boolean) {
     return true;
 }
 
-function jmsSendNoMessageTest() (boolean) {
+function jmsClientConnectorTestWrongType() (boolean) {
     jms:ClientConnector jmsEP = create jms:ClientConnector("org.wso2.andes.jndi.PropertiesFileInitialContextFactory",
-     "jndi.properties");
-    message queueMessage = {};
-    map dataMap = {};
-    dataMap = {};
-    json jsonData = {};
-    messages:setJsonPayload(queueMessage, jsonData);
-    jms:ClientConnector.send(jmsEP, "QueueConnectionFactory", "MyQueue", "queue", "TextMessage", queueMessage, dataMap);
-    return true;
-}
-
-function jmsSendMapMessageWithoutData() (boolean) {
-    jms:ClientConnector jmsEP = create jms:ClientConnector("org.wso2.andes.jndi.PropertiesFileInitialContextFactory",
-     "jndi.properties");
+     "file:///tmp/jndi.properties");
     message queueMessage = {};
     map dataMap = {};
     dataMap = {};
     messages:setStringPayload(queueMessage, "Hello from ballerina");
-    jms:ClientConnector.send(jmsEP, "QueueConnectionFactory", "MyQueue", "queue", "MapMessage", queueMessage, dataMap);
+    jms:ClientConnector.send(jmsEP, "QueueConnectionFactory", "MyQueue", "queue", "JMSMessage", queueMessage, dataMap);
     return true;
 }

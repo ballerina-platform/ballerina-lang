@@ -34,7 +34,6 @@ import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.natives.connectors.BalConnectorCallback;
 import org.ballerinalang.natives.connectors.BallerinaConnectorManager;
 import org.ballerinalang.runtime.message.BallerinaMessageDataSource;
-import org.ballerinalang.runtime.message.StringDataSource;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -106,25 +105,20 @@ public class Send extends AbstractJMSAction {
             messageType.equalsIgnoreCase(JMSConstants.BYTES_MESSAGE_TYPE)) {
             BallerinaMessageDataSource ballerinaMessageDataSource = bMessage.getMessageDataSource();
             if (ballerinaMessageDataSource != null) {
-                if (ballerinaMessageDataSource instanceof StringDataSource) {
-                    message = new TextCarbonMessage(((StringDataSource) ballerinaMessageDataSource).getValue());
-                } else {
-                    throw new BallerinaException(
-                            "If the message type is " + messageType + ", a string payload must be set", context);
-                }
+                message = new TextCarbonMessage(ballerinaMessageDataSource.getMessageAsString());
             } else if (!(message instanceof TextCarbonMessage)) {
-                throw new BallerinaException(
-                        "If the message type is " + messageType + ", either string payload should be set or " +
-                        "pass a received jms text or bytes message", context);
+                message = new TextCarbonMessage("");
             }
             propertyMap.put(JMSConstants.JMS_MESSAGE_TYPE, messageType);
         } else if (messageType.equalsIgnoreCase(JMSConstants.OBJECT_MESSAGE_TYPE)) {
             message = JMSMessageUtils.toSerializableCarbonMessage(bMessage);
             propertyMap.put(JMSConstants.JMS_MESSAGE_TYPE, JMSConstants.OBJECT_MESSAGE_TYPE);
         } else if (messageType.equalsIgnoreCase(JMSConstants.MAP_MESSAGE_TYPE)) {
+            if (!(message instanceof MapCarbonMessage)) {
+                message = new MapCarbonMessage();
+            }
             BValue bValue = properties.get(new BString(JMSConstants.MAP_DATA));
             if (bValue != null) {
-                message = new MapCarbonMessage();
                 MapCarbonMessage mapCarbonMessage = (MapCarbonMessage) message;
                 if (bValue instanceof BMap) {
                     BMap mapData = (BMap) bValue;
@@ -134,14 +128,12 @@ public class Send extends AbstractJMSAction {
                         mapCarbonMessage.setValue(key.stringValue(), value.stringValue());
                     }
                 }
-            } else if (!(message instanceof MapCarbonMessage)) {
-                throw new BallerinaException(
-                        "If the message type is MapMessage, either set MapData property or pass a received" +
-                        " jms map message", context);
             }
             propertyMap.put(JMSConstants.JMS_MESSAGE_TYPE, JMSConstants.MAP_MESSAGE_TYPE);
-        } else {
+        } else if (messageType.equalsIgnoreCase(JMSConstants.GENERIC_MESSAGE_TYPE)) {
             propertyMap.put(JMSConstants.JMS_MESSAGE_TYPE, JMSConstants.GENERIC_MESSAGE_TYPE);
+        } else {
+            throw new BallerinaException("JMS message type is invalid", context);
         }
         //Getting necessary values from the connector instance.
         propertyMap.put(JMSConstants.NAMING_FACTORY_INITIAL_PARAM_NAME,

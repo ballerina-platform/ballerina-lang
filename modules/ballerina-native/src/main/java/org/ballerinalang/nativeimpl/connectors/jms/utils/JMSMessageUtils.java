@@ -59,6 +59,8 @@ public class JMSMessageUtils {
             } else if (headerMap.get(Constants.CONTENT_TYPE).equals(Constants.TEXT_PLAIN)) {
                 serializableCarbonMessage.setPayload(getStringPayload(message));
             }
+        } else {
+            serializableCarbonMessage.setPayload(getStringPayload(message));
         }
 
         return serializableCarbonMessage;

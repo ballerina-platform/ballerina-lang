@@ -50,23 +50,14 @@ public class JMSClientTest {
             expectedExceptions = { BallerinaException.class },
             expectedExceptionsMessageRegExp = ".*Connector parameters not defined correctly..*")
     public void testJMSClientConnectorWithoutValidInitialContextFactory() throws BallerinaException {
-        BLangFunctions.invoke(bLangProgram, "jmsClientConnectorTest");
+        BLangFunctions.invoke(bLangProgram, "jmsClientConnectorTestWrongContextFactory");
     }
 
-    @Test(description = "Test for jms client connector without valid message",
+    @Test(description = "Test for jms client connector without valid message type",
             expectedExceptions = { BallerinaException.class },
-            expectedExceptionsMessageRegExp = ".*If the message type is TextMessage, a string payload must be set.*")
-    public void testJMSClientConnectorWithoutValidMessage() throws BallerinaException {
-        BLangFunctions.invoke(bLangProgram, "jmsSendNoMessageTest");
-    }
-
-    @Test(description = "Test for jms client connector map message without data",
-            expectedExceptions = { BallerinaException.class },
-            expectedExceptionsMessageRegExp =
-                    ".*If the message type is MapMessage, either set MapData property or pass a " +
-                    "received jms map message*")
-    public void testJMSClientConnectorMapMessageWithoutData() throws BallerinaException {
-        BLangFunctions.invoke(bLangProgram, "jmsSendMapMessageWithoutData");
+            expectedExceptionsMessageRegExp = ".*JMS message type is invalid.*")
+    public void testJMSClientConnectorWithoutValidMessageType() throws BallerinaException {
+        BLangFunctions.invoke(bLangProgram, "jmsClientConnectorTestWrongType");
     }
 
     @AfterClass
