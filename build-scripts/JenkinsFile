@@ -194,6 +194,8 @@ node ("${nodeLabel}") {
             if (isRelease) {
                 tagMap.add([ballerinaParentRepository, ballerinaParentReleaseTag, ballerinaParentVersion]);
                 release(settingsXMLID, ballerinaParentRepository, ballerinaParentVersion, ballerinaParentReleaseTag, ballerinaParentDevVersion, YES);
+                // This is to install parent's newest snapshot version in local m2
+                build(settingsXMLID, ballerinaParentRepository, YES);
             } else {
                 build(settingsXMLID, ballerinaParentRepository, YES);
             }
@@ -205,6 +207,9 @@ node ("${nodeLabel}") {
             if (isRelease) {
                 tagMap.add([ballerinaRepository, ballerinaReleaseTag, ballerinaVersion]);
                 release(settingsXMLID, ballerinaRepository, ballerinaVersion, ballerinaReleaseTag, ballerinaDevVersion, ballerinaSkipTests);
+                //Following two steps are for updating ballerina-parent to latest snapshot
+                updateParent(ballerinaRepository, settingsXMLID, parentUpdateCommitMessage, true);
+                pushCurrentBranch(ballerinaRepository, gitCredentialsID, user);
             } else {
                 build(settingsXMLID, ballerinaRepository, ballerinaSkipTests);
             }
@@ -218,6 +223,11 @@ node ("${nodeLabel}") {
             if (isRelease) {
                 tagMap.add([docerinaRepository, docerinaReleaseTag, docerinaVersion]);
                 release(settingsXMLID, docerinaRepository, docerinaVersion, docerinaReleaseTag, docerinaDevVersion, docerinaSkipTests);
+                //Following steps are for updating ballerina-parent and ballerina to latest snapshot
+                updateParent(docerinaRepository, settingsXMLID, parentUpdateCommitMessage, true);
+                updateProperties(docerinaRepository, settingsXMLID, propertyUpdateCommitMessage,
+                        "${ballerinaGroudId}:*", true);
+                pushCurrentBranch(docerinaRepository, gitCredentialsID, user);
             } else {
                 build(settingsXMLID, docerinaRepository, docerinaSkipTests);
             }
@@ -231,6 +241,11 @@ node ("${nodeLabel}") {
             if (isRelease) {
                 tagMap.add([pluginMavenRepository, pluginMavenReleaseTag, pluginMavenVersion]);
                 release(settingsXMLID, pluginMavenRepository, pluginMavenVersion, pluginMavenReleaseTag, pluginMavenDevVersion, pluginMavenSkipTests);
+                //Following two steps are for updating ballerina-parent to latest snapshot
+                updateParent(pluginMavenRepository, settingsXMLID, parentUpdateCommitMessage, true);
+                updateProperties(pluginMavenRepository, settingsXMLID, propertyUpdateCommitMessage,
+                        "${ballerinaGroudId}:docerina", true);
+                pushCurrentBranch(pluginMavenRepository, gitCredentialsID, user);
             } else {
                 build(settingsXMLID, pluginMavenRepository, pluginMavenSkipTests);
             }
@@ -245,6 +260,11 @@ node ("${nodeLabel}") {
                 if (isRelease) {
                     tagMap.add([composerRepository, composerReleaseTag, composerVersion]);
                     release(settingsXMLID, composerRepository, composerVersion, composerReleaseTag, composerDevVersion, composerSkipTests);
+                    //Following steps are for updating ballerina-parent and ballerina to latest snapshot
+                    updateParent(composerRepository, settingsXMLID, parentUpdateCommitMessage, true);
+                    updateProperties(composerRepository, settingsXMLID, propertyUpdateCommitMessage,
+                            "${ballerinaGroudId}:*", true);
+                    pushCurrentBranch(composerRepository, gitCredentialsID, user);
                 } else {
                     build(settingsXMLID, composerRepository, composerSkipTests);
                 }
@@ -256,6 +276,11 @@ node ("${nodeLabel}") {
                 if (isRelease) {
                     tagMap.add([testerinaRepository, testerinaReleaseTag, testerinaVersion]);
                     release(settingsXMLID, testerinaRepository, testerinaVersion, testerinaReleaseTag, testerinaDevVersion, testerinaSkipTests);
+                    //Following steps are for updating ballerina-parent and ballerina to latest snapshot
+                    updateParent(testerinaRepository, settingsXMLID, parentUpdateCommitMessage, true);
+                    updateProperties(testerinaRepository, settingsXMLID, propertyUpdateCommitMessage,
+                            "${ballerinaGroudId}:*", true);
+                    pushCurrentBranch(testerinaRepository, gitCredentialsID, user);
                 } else {
                     build(settingsXMLID, testerinaRepository, testerinaSkipTests);
                 }
@@ -267,6 +292,11 @@ node ("${nodeLabel}") {
                 if (isRelease) {
                     tagMap.add([connectorsRepository, connectorsReleaseTag, connectorsVersion]);
                     release(settingsXMLID, connectorsRepository, connectorsVersion, connectorsReleaseTag, connectorsDevVersion, connectorsSkipTests);
+                    //Following steps are for updating ballerina-parent and ballerina to latest snapshot
+                    updateParent(connectorsRepository, settingsXMLID, parentUpdateCommitMessage, true);
+                    updateProperties(connectorsRepository, settingsXMLID, propertyUpdateCommitMessage,
+                            "${ballerinaGroudId}:*", true);
+                    pushCurrentBranch(connectorsRepository, gitCredentialsID, user);
                 } else {
                     build(settingsXMLID, connectorsRepository, connectorsSkipTests);
                 }
@@ -278,6 +308,11 @@ node ("${nodeLabel}") {
                 if (isRelease) {
                     tagMap.add([containerSupportRepository, containerSupportReleaseTag, containerSupportVersion]);
                     release(settingsXMLID, containerSupportRepository, containerSupportVersion, containerSupportReleaseTag, containerSupportDevVersion, containerSupportSkipTests);
+                    //Following steps are for updating ballerina-parent and ballerina to latest snapshot
+                    updateParent(containerSupportRepository, settingsXMLID, parentUpdateCommitMessage, true);
+                    updateProperties(containerSupportRepository, settingsXMLID, propertyUpdateCommitMessage,
+                            "${ballerinaGroudId}:*", true);
+                    pushCurrentBranch(containerSupportRepository, gitCredentialsID, user);
                 } else {
                     build(settingsXMLID, containerSupportRepository, containerSupportSkipTests);
                 }
@@ -289,6 +324,11 @@ node ("${nodeLabel}") {
                 if (isRelease) {
                     tagMap.add([toolSwaggerBallerinaRepository, toolSwaggerReleaseTag, toolSwaggerVersion]);
                     release(settingsXMLID, toolSwaggerBallerinaRepository, toolSwaggerVersion, toolSwaggerReleaseTag, toolSwaggerDevVersion, toolSwaggerSkipTests);
+                    //Following steps are for updating ballerina-parent and ballerina to latest snapshot
+                    updateParent(toolSwaggerBallerinaRepository, settingsXMLID, parentUpdateCommitMessage, true);
+                    updateProperties(toolSwaggerBallerinaRepository, settingsXMLID, propertyUpdateCommitMessage,
+                            "${ballerinaGroudId}:*", true);
+                    pushCurrentBranch(toolSwaggerBallerinaRepository, gitCredentialsID, user);
                 } else {
                     build(settingsXMLID, toolSwaggerBallerinaRepository, toolSwaggerSkipTests);
                 }
@@ -303,6 +343,11 @@ node ("${nodeLabel}") {
             if (isRelease) {
                 tagMap.add([toolsDistributionRepository, toolsDistReleaseTag, toolsDistVersion]);
                 release(settingsXMLID, toolsDistributionRepository, toolsDistVersion, toolsDistReleaseTag, toolsDistDevVersion, toolsDistSkipTests);
+                //Following steps are for updating ballerina-parent and ballerina to latest snapshot
+                updateParent(toolsDistributionRepository, settingsXMLID, parentUpdateCommitMessage, true);
+                updateProperties(toolsDistributionRepository, settingsXMLID, propertyUpdateCommitMessage,
+                        "${ballerinaGroudId}:*,${ballerinaConnectorsGroupId}:connectors", true);
+                pushCurrentBranch(toolsDistributionRepository, gitCredentialsID, user);
             } else {
                 build(settingsXMLID, toolsDistributionRepository, toolsDistSkipTests);
             }
@@ -416,6 +461,25 @@ def updateParent(String repositoryName, String settingsXml, String commitMessage
     }
 }
 
+/**
+ * This method pushes current branch to the remote repository.
+ *
+ * @param repositoryName The repository directory
+ * @param credentials GIT credentials ID to be used, in Jenkins credentials
+ * @param user The git user
+ */
+def pushCurrentBranch(String repositoryName, String credentials, String user) {
+    dir(repositoryName) {
+        withCredentials(
+                [[$class          : 'UsernamePasswordMultiBinding',
+                  credentialsId   : credentials,
+                  usernameVariable: 'GIT_USERNAME',
+                  passwordVariable: 'GIT_PASSWORD']]) {
+            sh("git remote set-url origin https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/${user}/${repositoryName}.git")
+            sh("git push origin HEAD");
+        }
+    }
+}
 
 
 /**
