@@ -2175,7 +2175,17 @@ public class SemanticAnalyzer implements NodeVisitor {
             boolean implicitCastPossible = true;
             Expression[] exprs = funcIExpr.getArgExprs();
             for (int i = 0; i < exprs.length; i++) {
-                BType lhsType = ((Function) entry.getValue()).getParameterDefs()[i].getType();
+                BType lhsType;
+                if (entry.getValue() instanceof NativeUnitProxy) {
+                    NativeUnit nativeUnit = ((NativeUnitProxy) entry.getValue()).load();
+                    SimpleTypeName simpleTypeName = nativeUnit.getArgumentTypeNames()[i];
+                    lhsType = BTypes.resolveType(simpleTypeName, currentScope, funcIExpr.getNodeLocation());
+                } else {
+                    if (!(entry.getValue() instanceof Function)) {
+                        continue;
+                    }
+                    lhsType = ((Function) entry.getValue()).getParameterDefs()[i].getType();
+                }
 
                 BType rhsType = exprs[i].getType();
                 if (rhsType != null && lhsType.equals(rhsType)) {
