@@ -43,10 +43,10 @@ public class SwaggerServiceMapperTest {
     public void testBallerinaToSwaggerConversion() {
         String ballerinaServiceDefinition = "import ballerina.net.http;\n" +
                 "\n" +
-                "@BasePath (\"/echo\")\n" +
+                "@http:BasePath {value: \"/echo\"}\n" +
                 "service echo {\n" +
                 "\n" +
-                "    @http:POST\n" +
+                "    @http:POST{}\n" +
                 "    resource echo (message m) {\n" +
                 "        http:convertToResponse(m);\n" +
                 "        reply m;\n" +
