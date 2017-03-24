@@ -104,7 +104,7 @@ public class KafkaOutputTransport extends OutputTransport {
         String topic = topicOption.getValue(transportOptions);
         String partitionNo = partitionOption.getValue(transportOptions);
         try {
-            executorService.submit(new KafkaSender(topic, partitionNo, transportOptions));
+            executorService.submit(new KafkaSender(topic, partitionNo, payload));
         } catch (RejectedExecutionException e) {
             log.error("Job queue is full : " + e.getMessage(), e);
         }
@@ -153,7 +153,6 @@ public class KafkaOutputTransport extends OutputTransport {
         @Override
         public void run() {
             try {
-                System.out.println(message.toString() + " partition: " + partitionNo);
                 if(null == partitionNo) {
                     producer.send(new ProducerRecord<>(topic, message.toString()));
                 } else {
