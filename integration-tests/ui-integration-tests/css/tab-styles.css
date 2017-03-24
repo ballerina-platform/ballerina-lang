@@ -1,0 +1,195 @@
+.closeTab {
+    margin-left: 5px;
+    margin-bottom: 5px;
+}
+
+button.close {
+    -webkit-appearance: none;
+    padding: 0;
+    cursor: pointer;
+    background: 0 0;
+    border: 0;
+    text-shadow: 0 0 0;
+    font-weight: 100;
+    opacity: 0.5;
+    font-size: 26px;
+    line-height: 15px;
+    position: absolute;
+    top: 6px;
+    right: 9px;
+    color: inherit;
+}
+
+#tabs-container > div.tab-headers.tab-headers-bar > ul {
+    border-bottom: 0;
+}
+
+.bottom-right-controls-container {
+    position: absolute;
+    bottom: 0px;
+    right: 30px;
+    z-index: 30;
+    background: #333;
+    color: #fff;
+    padding: 0;
+    border-radius: 2px 2px 0 0;
+    line-height: 30px
+}
+
+.top-right-controls-container {
+    position: absolute;
+    top: 15px;
+    right: 25px;
+}
+
+.toggle-to-design {
+    width: 30px;
+    height: 30px;
+}
+
+.tab-pane {
+}
+
+.grid-background {
+    background: linear-gradient(-90deg, rgba(0, 0, 0, .03) 1px, transparent 1px),
+    linear-gradient(rgba(0, 0, 0, .03) 1px, transparent 1px),
+    linear-gradient(-90deg, rgba(0, 0, 0, .03) 1px, transparent 1px),
+    linear-gradient(rgba(0, 0, 0, .03) 1px, transparent 1px),
+    linear-gradient(transparent 3px, transparent 3px, transparent 78px, transparent 78px),
+    linear-gradient(-90deg, transparent 1px, transparent 1px),
+    linear-gradient(-90deg, transparent 3px, transparent 3px, transparent 78px, transparent 78px),
+    linear-gradient(transparent 1px, transparent 1px), transparent;
+    background-size: 10px 10px,
+    10px 10px,
+    10px 10px,
+    10px 10px,
+    10px 10px,
+    10px 10px,
+    10px 10px,
+    10px 10px;
+}
+
+.toggle-to-source {
+    width: 30px;
+    height: 30px;
+}
+
+.preview-container {
+    display: none;
+}
+
+.source-view-enabled {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+.source-view-disabled {
+    display: none;
+}
+
+.show-div {
+    display: block;
+}
+
+.hide-div {
+    display: none;
+}
+
+.tab-headers {
+    background-color: #333;
+}
+
+.canvas-container {
+    background: none;
+}
+
+#tabs-container > div.tab-headers.tab-headers-bar > ul > li {
+    min-width: 120px;
+    color: rgb(153, 153, 153);
+    font-weight: 100;
+    margin: 0;
+    padding-right: 17px;
+    padding-left: 5px;
+    border-right: 1px;
+    background: #555;
+    border-left: 1px solid #333;
+}
+
+#tabs-container > div.tab-headers.tab-headers-bar > ul > li:first-child {
+    border-left: none;
+}
+
+#tabs-container > div.tab-headers.tab-headers-bar > ul > li.active {
+    background: white;
+    color: #555;
+    border-left: 3px solid #f17b31;
+}
+
+#tabs-container > div.tab-headers.tab-headers-bar > ul > li.active.inverse {
+    color: rgb(190, 190, 190);
+    background: #1D1F21;
+}
+
+#tabs-container > div.tab-headers.tab-headers-bar > ul > li.active.inverse > a {
+    color: rgb(190, 190, 190);
+}
+
+#tabs-container > div.tab-headers.tab-headers-bar > ul > li > button:hover {
+    color: white;
+}
+
+#tabs-container > div.tab-headers.tab-headers-bar > ul > li.active > button:hover {
+    color: #000;
+}
+
+#tabs-container > div.tab-headers.tab-headers-bar > ul > li > a {
+    border: none;
+    padding: 0 5px 0 6px;
+    border-radius: 0;
+    margin: 0;
+    height: 20px;
+    background: none;
+    color: #ccc;
+    font-weight: 300;
+}
+
+#tabs-container > div.tab-headers.tab-headers-bar > ul > li > a:active {
+    opacity: 1;
+}
+
+#tabs-container > div.tab-headers.tab-headers-bar > ul > .active > a {
+    opacity: 1;
+    color: #333;
+}
+
+#tabs-container > div.tab-headers.tab-headers-bar > ul > li > button.close {
+    top: 0;
+    right: 2px;
+    font-size: 20px;
+}
+
+.view-source-btn, .view-swagger-btn, .view-design-btn {
+    float: left;
+    margin: 1px 0 1px 10px;
+    font-size: 12px;
+}
+
+.bottom-view-label {
+    font-size: 12px;
+    padding-left: 5px;
+}
+
+.bottom-right-controls-container .btn-icon span {
+    padding-right: 10px
+}
+
+.bottom-right-controls-container .btn-icon:first-child:after {
+    content: "|";
+    color: #8f8f8f
+}
+
+.bottom-right-controls-container .btn-icon:hover:after {
+    opacity: 0.5
+}
+

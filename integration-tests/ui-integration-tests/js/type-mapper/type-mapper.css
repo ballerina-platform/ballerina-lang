@@ -1,0 +1,123 @@
+.btn-add {
+    color:#446191;
+}
+.btn-remove {
+    color:#3d3d3d;
+    float:right;
+}
+.selector {
+    margin: auto;
+    padding: 10px;
+}
+.source-view {
+    width: 50%;
+    float: left;
+}
+.target-view {
+    margin-left: 70%;
+}
+
+.data-mapper-container {
+    position: relative;
+    width: 100%;
+    height: 100px;
+}
+.property-name {
+    padding: 5px;
+    color: #3d3d3d;
+}
+
+.property-type {
+    padding: 5px;
+    color: #3d3d3d;
+}
+
+.type-mapper-icon {
+    padding: 10px;
+}
+
+.struct {
+    border: 1px solid gray;
+    width: 400px;
+    height: auto;
+    background: #3d3d3d;
+    color: #ffffff;
+    position: absolute;
+}
+.property {
+    padding: 5;
+    font-size: 16px;
+    background-color: #ffffff;
+    color: black;
+}
+
+svg.plumbConnect path {
+    stroke:#3d3d3d;
+}
+
+.jstree-default .jstree-last {
+    background: #ffffff;
+}
+
+.typeMapperList {
+    display: none;
+}
+
+.tree-container{
+    background: #ffffff;
+}
+
+.jstree-default .jstree-hovered {
+    color : #000000;
+}
+
+.jstree-default .jstree-clicked {
+    background : #ffffff;
+    color: #000000;
+}
+
+.func {
+    border: 1px solid gray;
+    width: 400px;
+    height: auto;
+    background: #3d3d3d;
+    color: #ffffff;
+    position: absolute;
+}
+
+.func-property {
+    padding: 5;
+    font-size: 16px;
+    background-color: #ffffff;
+    border: 2px;
+    color: black;
+}
+
+.func-in-property {
+    padding: 5;
+    font-size: 16px;
+    background-color: #ffffff;
+    border: 2px;
+    color: black;
+    cursor: pointer;
+}
+
+.func-out-property {
+    padding: 5;
+    font-size: 16px;
+    background-color: #d9d9d9;
+    border: 2px;
+    color: black;
+    cursor: pointer;
+}
+
+.jstree-themeicon {
+    display:none !important;
+}
+
+.typeMapperContextMenu {
+    position:fixed;
+    border: 1px solid black;
+    padding:5px;
+    display:none;
+}

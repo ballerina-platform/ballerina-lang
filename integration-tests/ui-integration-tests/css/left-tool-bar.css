@@ -1,0 +1,43 @@
+.left-tool-bar .nav-tabs a{
+    padding: 0;
+}
+
+.left-tool-bar .nav-tabs > li{
+    float: none;
+    width: 42px;
+}
+.left-tool-bar .nav-tabs li.active a{
+    border: none;
+}
+
+
+.left-tool-bar .nav-tabs{
+    border: none;
+}
+
+.left-tool-bar .nav-tabs > li.active > a, .left-tool-bar .nav-tabs > li.active > a:hover, .left-tool-bar .nav-tabs > li.active > a:focus,
+.left-tool-bar .nav-tabs > li > a:hover, .left-tool-bar .nav-tabs > li > a:focus {
+    background-color: inherit;
+}
+
+
+.left-tool-bar .nav-tabs li a{
+    padding-top: 11px;
+    border: none;
+    width: 40px;
+    height: 36px;
+}
+
+.left-tool-bar .nav-tabs > li.active i {
+    opacity: 1;
+}
+
+.left-tool-bar .nav-tabs > li i {
+    color: white;
+    opacity: 0.4;
+}
+
+.left-tool-bar .nav-tabs > li i:hover{
+    opacity: 1;
+    cursor: pointer;
+}

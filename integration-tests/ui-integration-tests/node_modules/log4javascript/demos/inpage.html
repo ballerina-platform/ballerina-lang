@@ -1,0 +1,174 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+	<head>
+		<title>log4javascript in-page console demo</title>
+		<meta http-equiv="content-type" content="text/html; charset=iso-8859-1" />
+		<meta name="author" content="Tim Down - tim@log4javascript.org" />
+		<meta name="description" content="log4javascript, a logging framework for JavaScript based on log4j" />
+		<meta name="robots" content="all" />
+		<link rel="stylesheet" type="text/css" media="screen,print" href="../main.css" title="Default" />
+		<script type="text/javascript" src="../js/log4javascript_uncompressed.js"></script>
+		<script type="text/javascript">
+			// <![CDATA[
+			var log = log4javascript.getLogger("main");
+			var appender = new log4javascript.InPageAppender();
+			log.addAppender(appender);
+			log.debug("This is a debugging message from the log4javascript in-page page");
+
+			var words = ["Watford", "eased", "their", "relegation", "fears", "with", "a", "win",
+				"against", "a", "Charlton", "side", "who", "slipped", "further", "towards", "the",
+				"drop", "Don", "Cowie", "drilled", "in", "a", "shot", "to", "put", "the", "Hornets",
+				"ahead", "before", "Tresor", "Kandol", "ended", "a", "powerful", "run", "by",
+				"rounding", "keeper", "Scott", "Loach", "and", "slotting", "in", "to", "level"
+			];
+
+			var loaded = false;
+
+			function generateRandom() {
+				var numberOfEntries = parseInt(document.getElementById("numberOfLogEntries").value);
+				for (var i = 0; i < numberOfEntries; i++) {
+					var numberOfWords = 1 + Math.floor(10 * Math.random());
+					var entryWords = [];
+					for (var j = 0; j < numberOfWords; j++) {
+						entryWords.push(words[Math.floor(Math.random() * words.length)]);
+					}
+					var entryMessage = entryWords.join(" ");
+					var levelNum = Math.floor(Math.random() * 6);
+					switch (levelNum) {
+						case 0:
+							log.trace(entryMessage);
+							break;
+						case 1:
+							log.debug(entryMessage);
+							break;
+						case 2:
+							log.info(entryMessage);
+							break;
+						case 3:
+							log.warn(entryMessage);
+							break;
+						case 4:
+							log.error(entryMessage);
+							break;
+						case 5:
+							log.fatal(entryMessage);
+							break;
+					}
+				}
+			}
+			
+			var consoleVisible = true;
+			
+			function toggleConsole(button) {
+				if (consoleVisible) {
+					appender.hide();
+					button.value = "Show console";
+					consoleVisible = false;
+				} else {
+					appender.show();
+					button.value = "Hide console";
+					consoleVisible = true;
+				}
+			}
+
+			function generateObjectExpansion() {
+				var debugObj = {
+					a: {
+						b: "stuff",
+						c: 3,
+						d: {
+							e: ["a", "b", "c"]
+						}
+					},
+					f: "Things",
+					g: 5
+				};
+				log.debug(debugObj);
+			}
+
+			function generateError() {
+				try {
+					throw new Error("Made up error");
+				} catch (ex) {
+					log.error("Logging an error!", ex);
+				}
+			}
+			// ]]>
+		</script>
+	</head>
+	<body>
+		<div id="container" class="nonav">
+			<div id="header">
+				<h1><a href="/docs/index.html">log4javascript</a></h1>
+			</div>
+			<div id="content">
+				<div id="nav">
+					<a class="navitem" href="../index.html">home</a>
+					| <a class="navitem" href="http://sourceforge.net/projects/log4javascript" target="_blank" title="Download (opens in new window)">download</a>
+					| <a class="navitem" href="../docs/index.html">docs</a>
+					| <a class="navitem" href="../docs/quickstart.html">quick start</a>
+					| <a class="navitem" href="index.html">demos</a>
+					| <a class="navitem" href="http://log4javascript.org" target="_blank">website</a>
+					| <a class="navitem" href="http://www.timdown.co.uk" target="_blank">timdown.co.uk</a>
+				</div>
+				<h1>log4javascript in-page console demo</h1>
+				<p>
+					This demo demonstrates an in-page logger. The example uses the default behaviour, which
+					is to place the log console in a fixed area at the bottom of the page. However, the
+					console may be placed inside any element in the page. To do this, you may specify the ID
+					of the element (even if the page has not yet loaded) or a reference to the element itself.
+				</p>
+				<p>
+					Enter a log message below and click on one of the buttons to log
+					your message at your desired level. You can then filter by
+					log level, toggle word-wrapping and perform text and regular
+					expression searches on the log entries.
+				</p>
+				<div class="example">
+					<input type="button" value="Hide console" onclick="toggleConsole(this)" />
+					<br />
+					<input type="text" id="logText" value="Put log message here" />
+					<input type="button" value="debug" onclick="log.debug(document.getElementById('logText').value)" />
+					<input type="button" value="info" onclick="log.info(document.getElementById('logText').value)" />
+					<input type="button" value="warn" onclick="log.warn(document.getElementById('logText').value)" />
+					<input type="button" value="error" onclick="log.error(document.getElementById('logText').value)" />
+					<input type="button" value="fatal" onclick="log.fatal(document.getElementById('logText').value)" />
+					<br />
+					<input type="button" value="assert 1 equals 1" onclick="log.assert(1 === 1)" />
+					<input type="button" value="assert 1 equals 2" onclick="log.assert(1 === 2)" />
+					<br />
+					Generate <input type="text" size="5" id="numberOfLogEntries" value="50" /> random log entries
+					<input type="button" value="go" onclick="generateRandom()" />
+					<br />
+					<input type="button" value="Log exception" onclick="generateError()" />
+					<input type="button" value="Log example object" onclick="generateObjectExpansion()" />
+					<br />
+					<input type="checkbox" id="enabled" onclick="log4javascript.setEnabled(this.checked)" checked="checked" /> <label for="enabled">logging enabled</label>
+					<br />
+					<input type="text" id="groupName" value="Group name" />
+					<input type="button" value="group" onclick="log.group(document.getElementById('groupName').value)" />
+					<input type="button" value="end group" onclick="log.groupEnd()" />
+					<br />
+					<input type="text" id="timerName" value="Example timer name" />
+					<input type="button" value="start timer" onclick="log.time(document.getElementById('timerName').value)" />
+					<input type="button" value="end timer" onclick="log.timeEnd(document.getElementById('timerName').value)" />
+				</div>
+			</div>
+			<br class="clear" />
+			<div id="log"></div>
+			<div id="footer">
+				<span class="externallinkinfo">
+					<strong>NB.</strong> All external links open in a new window.
+				</span>
+				Written by Tim Down. <a href="mailto:tim@log4javascript.org">tim@log4javascript.org</a>
+				<br />
+				log4javascript is distributed under the <a href="http://www.apache.org/licenses/LICENSE-2.0.html"
+					title="Apache License, Version 2.0 (opens in new window)" target="_blank">Apache License,
+					Version 2.0</a>
+
+			</div>
+		</div>
+
+	</body>
+</html>

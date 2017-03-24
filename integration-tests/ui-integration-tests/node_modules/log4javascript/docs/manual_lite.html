@@ -1,0 +1,383 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+	<head>
+		<title>log4javascript 1.4 Lite manual</title>
+		<meta http-equiv="content-type" content="text/html; charset=iso-8859-1" />
+		<meta name="author" content="Tim Down - tim@log4javascript.org" />
+		<meta name="description" content="log4javascript, a logging framework for JavaScript based on log4j" />
+		<meta name="robots" content="all" />
+		<link rel="stylesheet" type="text/css" media="screen,print" href="../main.css" title="Default" />
+	</head>
+	<body>
+		<div id="container" class="nonav">
+			<div id="header">
+				<h1><a href="index.html">log4javascript</a></h1>
+			</div>
+			<div id="content">
+				<div id="nav">
+					<a class="navitem" href="../index.html">home</a>
+					| <a class="navitem" href="http://sourceforge.net/projects/log4javascript" target="_blank" title="Download (opens in new window)">download</a>
+					| <a class="navitem" href="index.html">docs</a>
+					| <a class="navitem" href="quickstart.html">quick start</a>
+					| <a class="navitem" href="../demos/index.html">demos</a>
+					| <a class="navitem" href="http://log4javascript.org" target="_blank">website</a>
+					| <a class="navitem" href="http://www.timdown.co.uk" target="_blank">timdown.co.uk</a>
+				</div>
+				<h1>log4javascript 1.4 Lite manual</h1>
+				<h2>Contents</h2>
+				<ul>
+					<li><a href="#intro">Introduction</a></li>
+					<li><a href="#log4javascript">log4javascript static properties/methods</a></li>
+					<li><a href="#levels">Levels</a></li>
+					<li><a href="#loggers">Loggers</a></li>
+					<li><a href="#enabling">Enabling / disabling log4javascript Lite</a></li>
+				</ul>
+				<div id="intro">
+					<h2>Introduction</h2>
+					<p>
+						log4javascript Lite is designed to be a basic, lightweight, cross-browser logging tool. It
+						provides functions to log messages of different severity to a pop-up window using the exactly
+						the same syntax as log4javascript. It is designed for situations when the key requirement is just
+						to display logging messages without needing all the features of the standard version of
+						log4javascript. 
+					</p>
+					<p>
+						Below is the complete list of functions and properties available in log4javascript Lite.
+						They make up a small subset of those provided by the standard version of
+						log4javascript. Each function is <strong>named and called identically to the equivalent
+						function in log4javascript</strong>. Please refer to the
+						<a href="manual.html">log4javascript manual</a> for a detailed explanation
+						of all the concepts alluded to in this document.
+					</p>
+					<p class="linktotop">
+						<a href="#container">Top</a>
+					</p>
+				</div>
+				<div id="log4javascript">
+					<h2>log4javascript static properties/methods</h2>
+					<h4>Properties</h4>
+					<ul class="propertieslist">
+						<li class="property">
+							<div class="name">version</div>
+							<div class="summary">
+								The version number of your copy of log4javascript.
+							</div>
+						</li>
+						<li class="property">
+							<div class="name">edition</div>
+							<div class="summary">
+								The edition of your copy of log4javascript ("log4javascript_lite" in this case").
+							</div>
+						</li>
+					</ul>
+					<h4>Methods</h4>
+					<ul class="propertieslist">
+						<li class="method">
+							<div class="name">getDefaultLogger</div>
+							<div class="methodsignature"><code>Logger <strong>getDefaultLogger</strong>()</code></div>
+							<div class="summary">
+								Returns the default and only logger (apart from the null logger). The default logger
+								logs to a simple pop-up window.
+							</div>
+						</li>
+						<li class="method">
+							<div class="name">getNullLogger</div>
+							<div class="methodsignature"><code>Logger <strong>getNullLogger</strong>()</code></div>
+							<div class="summary">
+								Returns an empty logger. Useful for disabling all logging.
+							</div>
+						</li>
+						<li class="method">
+							<div class="name">setEnabled</div>
+							<div class="methodsignature"><code>void <strong>setEnabled</strong>(Boolean <em>enabled</em>)</code></div>
+							<div class="paramsheading">Parameters:</div>
+							<ul class="params">
+								<li class="param">
+									<code class="paramname">enabled</code>
+								</li>
+							</ul>
+							<div class="summary">
+								Enables or disables all logging, depending on <code>enabled</code>.
+							</div>
+						</li>
+						<li class="method">
+							<div class="name">isEnabled</div>
+							<div class="methodsignature"><code>Boolean <strong>isEnabled</strong>()</code></div>
+							<div class="summary">
+								Returns true or false depending on whether logging is enabled.
+							</div>
+						</li>
+						<li class="method">
+							<div class="name">setShowStackTraces</div>
+							<div class="methodsignature"><code>void <strong>setShowStackTraces</strong>(Boolean <em>show</em>)</code></div>
+							<div class="paramsheading">Parameters:</div>
+							<ul class="params">
+								<li class="param">
+									<code class="paramname">show</code>
+								</li>
+							</ul>
+							<div class="summary">
+								Enables or disables displaying of error stack traces, depending on <code>show</code>.
+								By default, stack traces are not displayed. (Only works in Firefox)
+							</div>
+						</li>
+					</ul>
+					<p class="linktotop">
+						<a href="#container">Top</a>
+					</p>
+				</div>
+				<div id="levels">
+					<h2>Levels</h2>
+					<p>
+						Levels are available as static properties of the <code>log4javascript.Level</code>
+						object. In ascending order of severity:
+					</p>
+					<ol>
+						<li><code>log4javascript.Level.ALL</code></li>
+						<li><code>log4javascript.Level.TRACE</code></li>
+						<li><code>log4javascript.Level.DEBUG</code></li>
+						<li><code>log4javascript.Level.INFO</code></li>
+						<li><code>log4javascript.Level.WARN</code></li>
+						<li><code>log4javascript.Level.ERROR</code></li>
+						<li><code>log4javascript.Level.FATAL</code></li>
+						<li><code>log4javascript.Level.NONE</code></li>
+					</ol>
+					<p class="linktotop">
+						<a href="#container">Top</a>
+					</p>
+				</div>
+				<div id="loggers">
+					<h2>Loggers</h2>
+					<p>
+						There are only two loggers in log4javascript Lite: the default logger obtained
+						by calling <code>log4javascript.getDefaultLogger()</code> and the empty logger
+						returned by <code>log4javascript.getNullLogger()</code>.
+					</p>
+					<h4>Logger methods</h4>
+					<ul class="propertieslist">
+						<li class="method">
+							<div class="name">setLevel</div>
+							<div class="methodsignature"><code>void <strong>setLevel</strong>(Level <em>level</em>)</code></div>
+							<div class="paramsheading">Parameters:</div>
+							<ul class="params">
+								<li class="param">
+									<code class="paramname">level</code>
+								</li>
+							</ul>
+							<div class="summary">
+								Sets the level. Log messages of a lower level than <code>level</code> will not be logged.
+								Default value is <code>ALL</code> (unlike in log4javascript, where the default level is
+								<code>DEBUG</code>).
+							</div>
+						</li>
+						<li class="method">
+							<div class="name">getLevel</div>
+							<div class="methodsignature"><code>Level <strong>getLevel</strong>()</code></div>
+							<div class="summary">
+								Returns the level for this logger.
+							</div>
+						</li>
+						<li class="method">
+							<div class="name">trace</div>
+							<div class="methodsignature"><code>void <strong>trace</strong>(Object <em>message1</em>[, Object <em>message2</em>, ... ][, Error <em>exception</em>])</code></div>
+							<div class="paramsheading">Parameters:</div>
+							<ul class="params">
+								<li class="param">
+									<code class="paramname">message1[, message2...]</code>
+								</li>
+								<li class="param">
+									<code class="paramname">exception</code>
+									[<em>optional</em>]
+								</li>
+							</ul>
+							<div class="summary">
+								Logs one or more messages and optionally an error at level <code>TRACE</code>.
+							</div>
+						</li>
+						<li class="method">
+							<div class="name">debug</div>
+							<div class="methodsignature"><code>void <strong>debug</strong>(Object <em>message1</em>[, Object <em>message2</em>, ... ][, Error <em>exception</em>])</code></div>
+							<div class="paramsheading">Parameters:</div>
+							<ul class="params">
+								<li class="param">
+									<code class="paramname">message1[, message2...]</code>
+								</li>
+								<li class="param">
+									<code class="paramname">exception</code>
+									[<em>optional</em>]
+								</li>
+							</ul>
+							<div class="summary">
+								Logs one or more messages and optionally an error at level <code>DEBUG</code>.
+							</div>
+						</li>
+						<li class="method">
+							<div class="name">info</div>
+							<div class="methodsignature"><code>void <strong>info</strong>(Object <em>message1</em>[, Object <em>message2</em>, ... ][, Error <em>exception</em>])</code></div>
+							<div class="paramsheading">Parameters:</div>
+							<ul class="params">
+								<li class="param">
+									<code class="paramname">message1[, message2...]</code>
+								</li>
+								<li class="param">
+									<code class="paramname">exception</code>
+									[<em>optional</em>]
+								</li>
+							</ul>
+							<div class="summary">
+								Logs one or more messages and optionally an error at level <code>INFO</code>.
+							</div>
+						</li>
+						<li class="method">
+							<div class="name">warn</div>
+							<div class="methodsignature"><code>void <strong>warn</strong>(Object <em>message1</em>[, Object <em>message2</em>, ... ][, Error <em>exception</em>])</code></div>
+							<div class="paramsheading">Parameters:</div>
+							<ul class="params">
+								<li class="param">
+									<code class="paramname">message1[, message2...]</code>
+								</li>
+								<li class="param">
+									<code class="paramname">exception</code>
+									[<em>optional</em>]
+								</li>
+							</ul>
+							<div class="summary">
+								Logs one or more messages and optionally an error at level <code>WARN</code>.
+							</div>
+						</li>
+						<li class="method">
+							<div class="name">error</div>
+							<div class="methodsignature"><code>void <strong>error</strong>(Object <em>message1</em>[, Object <em>message2</em>, ... ][, Error <em>exception</em>])</code></div>
+							<div class="paramsheading">Parameters:</div>
+							<ul class="params">
+								<li class="param">
+									<code class="paramname">message1[, message2...]</code>
+								</li>
+								<li class="param">
+									<code class="paramname">exception</code>
+									[<em>optional</em>]
+								</li>
+							</ul>
+							<div class="summary">
+								Logs one or more messages and optionally an error at level <code>ERROR</code>.
+							</div>
+						</li>
+						<li class="method">
+							<div class="name">fatal</div>
+							<div class="methodsignature"><code>void <strong>fatal</strong>(Object <em>message1</em>[, Object <em>message2</em>, ... ][, Error <em>exception</em>])</code></div>
+							<div class="paramsheading">Parameters:</div>
+							<ul class="params">
+								<li class="param">
+									<code class="paramname">message1[, message2...]</code>
+								</li>
+								<li class="param">
+									<code class="paramname">exception</code>
+									[<em>optional</em>]
+								</li>
+							</ul>
+							<div class="summary">
+								Logs one or more messages and optionally an error at level <code>FATAL</code>.
+							</div>
+						</li>
+						<li class="method">
+							<div class="name">isEnabledFor</div>
+							<div class="methodsignature"><code>Boolean <strong>isEnabledFor</strong>(Level <em>level</em>, Error <em>exception</em>)</code></div>
+							<div class="paramsheading">Parameters:</div>
+							<ul class="params">
+								<li class="param">
+									<code class="paramname">level</code>
+								</li>
+							</ul>
+							<div class="summary">
+								Returns whether the logger is enabled for the specified level. 
+							</div>
+						</li>
+						<li class="method">
+							<div class="name">isTraceEnabled</div>
+							<div class="methodsignature"><code>Boolean <strong>isTraceEnabled</strong>()</code></div>
+							<div class="summary">
+								Returns whether the logger is enabled for <code>TRACE</code> messages.
+							</div>
+						</li>
+						<li class="method">
+							<div class="name">isDebugEnabled</div>
+							<div class="methodsignature"><code>Boolean <strong>isDebugEnabled</strong>()</code></div>
+							<div class="summary">
+								Returns whether the logger is enabled for <code>DEBUG</code> messages.
+							</div>
+						</li>
+						<li class="method">
+							<div class="name">isInfoEnabled</div>
+							<div class="methodsignature"><code>Boolean <strong>isInfoEnabled</strong>()</code></div>
+							<div class="summary">
+								Returns whether the logger is enabled for <code>INFO</code> messages.
+							</div>
+						</li>
+						<li class="method">
+							<div class="name">isWarnEnabled</div>
+							<div class="methodsignature"><code>Boolean <strong>isWarnEnabled</strong>()</code></div>
+							<div class="summary">
+								Returns whether the logger is enabled for <code>WARN</code> messages.
+							</div>
+						</li>
+						<li class="method">
+							<div class="name">isErrorEnabled</div>
+							<div class="methodsignature"><code>Boolean <strong>isErrorEnabled</strong>()</code></div>
+							<div class="summary">
+								Returns whether the logger is enabled for <code>ERROR</code> messages.
+							</div>
+						</li>
+						<li class="method">
+							<div class="name">isFatalEnabled</div>
+							<div class="methodsignature"><code>Boolean <strong>isFatalEnabled</strong>()</code></div>
+							<div class="summary">
+								Returns whether the logger is enabled for <code>FATAL</code> messages.
+							</div>
+						</li>
+					</ul>
+					<p class="linktotop">
+						<a href="#container">Top</a>
+					</p>
+				</div>
+				<div id="enabling">
+					<h2>Enabling / disabling log4javascript Lite</h2>
+					<p>
+						All logging can be enabled or disabled in log4javascript Lite in a number of ways:
+					</p>
+					<ul>
+						<li>
+							At any time, you can call
+							<code>log4javascript.setEnabled(<em>enabled</em>)</code>. This will
+							enable or disable all logging, depending on whether <code>enabled</code>
+							is set to <code>true</code> or <code>false</code>.
+						</li>
+						<li>
+							Assign your logger object a value of <code>log4javascript.getNullLogger()</code>.
+						</li>
+						<li>
+							Replace your copy of log4javascript_lite.js with stubs/log4javascript_lite.js, provided in the
+							distribution. This file has a stub version of each of the functions and methods
+							in the log4javascript Lite API and can simply be dropped in in place of the main file.
+						</li>
+					</ul>
+					<p class="linktotop">
+						<a href="#container">Top</a>
+					</p>
+				</div>
+			</div>
+			<div id="footer">
+				<span class="externallinkinfo">
+					<strong>NB.</strong> All external links open in a new window.
+				</span>
+				Written by Tim Down. <a href="mailto:tim@log4javascript.org">tim@log4javascript.org</a>
+				<br />
+				log4javascript is distributed under the <a href="http://www.apache.org/licenses/LICENSE-2.0.html"
+					title="Apache License, Version 2.0 (opens in new window)" target="_blank">Apache License,
+					Version 2.0</a>
+
+			</div>
+		</div>
+
+	</body>
+</html>

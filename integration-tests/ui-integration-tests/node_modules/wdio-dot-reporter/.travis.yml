@@ -1,0 +1,14 @@
+language: node_js
+
+node_js:
+  - '0.11'
+
+script:
+  - ./node_modules/.bin/grunt
+
+after_success:
+  - ./node_modules/.bin/codeclimate-test-reporter < ./coverage/lcov.info
+
+env:
+  global:
+    secure: OQZl5z2tyipt588aR+c3vRClZ53VuF7LTWsN5+VmSfz3SJLcMVc38NmizKIoYJRr96VTzeiMly7ORGxvtJDINDkG0rn1zLNOByLlUhTMRvtExCsP4hzAcMPq6QA6QvficXSwzA7zRYH1FWiPA3ZfSfTWv5qg0TSFxsz4idngNV6aAx7UBSCbdU3NfhqpLmfdlNAFGS/x1O9Hsu9vchkrjrV6MamCGKaNwHoxTW+SUrlW1MfFcjaV8H1TiNhE8sVJKVDbkL/BnV+nJiUgmQAbawNUx4ppiAXz+m7CJ6gw2l7pOWg5xMnLfawKs5BMHnUNN4T8Qa7OGGUaEnx2yUv3zi1C2jACPPZv4SWhGFWeE9jRz7NkBUQmwerJ6vfeJvK9XHwM8frDwaKZkwKa92nNFZLUil2zsAnjjYU0C8QvcOkOLVO2IwFrRfNxbIPcpPoCeKn3LOilKvF2nDVeb5t39I50r9oDoNFoUlXzZcy3VpGSOWZWjaXSxCnSoLkLvVnhF6ToxziqSslqd7xhwx8F5j6rbFw+lQ/z//hPMhK6WbpnUYldNa/O1Q7i6Z+xQKeywFfH8uEdcUpo68NbE5jQ+rLCbACFbcrgyj6LCt9XZfjdga7dvZc4ATzMJzHRBq7Zzof0YkEL/YmziLl0Oek5jXePlQx0fSnM3nBxBSAuvtw=

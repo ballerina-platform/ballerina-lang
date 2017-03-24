@@ -468,6 +468,7 @@
         <module>modules/web</module>
         <module>modules/distribution</module>
         <module>modules/web/test/UITests</module>
+        <module>integration-tests</module>
     </modules>
 
 </project>

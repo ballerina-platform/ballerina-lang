@@ -1,0 +1,11 @@
+parserOptions:
+    sourceType: module
+
+env:
+    browser: true
+
+extends:
+    "eslint:recommended"
+
+rules:
+    no-cond-assign: 0

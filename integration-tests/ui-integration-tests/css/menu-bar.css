@@ -1,0 +1,121 @@
+.menu-group{
+    display: inline-block;
+    color: #999;
+    padding: 0;
+    position: relative;
+}
+
+.menu-list{
+    display: none;
+    position: absolute;
+    background-color: #f9f9f9;
+    min-width: 160px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+}
+
+.menu-bar{
+    height: 35px;
+    line-height: 35px;
+}
+
+.menu-bar .menu-group a {
+    display: block;
+    padding: 0 8px;
+    color: #cbcbcb;
+    transition: all 250ms ease 0s;
+}
+
+.menu-bar .menu-group > a {
+     line-height: 35px;
+}
+
+.menu-bar .menu-group.open a {
+    color: #fff;
+}
+
+.menu-bar .menu-group a:hover {
+    background-color: #383838;
+    color: #fff;
+}
+
+.menu-bar .menu-group.open a:hover {
+    background-color: #f17b31;
+}
+
+.dropdown-menu{
+    font-size: 14px;
+}
+
+.dropdown-menu > .menu-item-enabled {
+    color: #e2e2e2;
+    cursor: pointer;
+}
+
+.dropdown-menu > .menu-item-enabled > a{
+    color: #e2e2e2;
+    padding: 3px 10px;
+    font-weight: 300;
+    height: 27px;
+    float: inherit;
+}
+
+#menu-bar-container > div.menu-group > ul > li{
+    min-width: 200px;
+}
+
+.shortcut-label {
+    margin-left: 30px;
+}
+
+.menu-item-disabled > a > .shortcut-label {
+    color: #777;
+}
+.file-menu-group.open {
+    background-color: #f17b31;
+}
+.menu-bar .menu-group .file-dropdown-menu > li > a:hover, .menu-bar .menu-group .file-dropdown-menu > li > a:focus {
+    text-decoration: none;
+    color: #f47b20;
+    background-color: #000000;
+}
+.file-menu-group{
+    min-height: 27px;
+
+}
+.file-dropdown-menu {
+    background-color: #333;
+    margin-top: 17px;
+    width: 210px;
+}
+.menu-bar .menu-group li.menu-item-disabled > a {
+    color: #777;
+    padding: 3px 10px;
+    height: 27px;
+}
+
+.menu-bar .menu-group .file-dropdown-menu > li.menu-item-disabled > a:hover{
+    color: #777;
+    background-color: #444;
+
+}
+
+.context-menu-list{
+    border-radius: 0;
+    background: #333;
+    border: 1px solid #444;
+}
+.context-menu-list>.context-menu-item {
+    background-color: #333;
+    color: #fff;
+    text-transform: capitalize;
+    padding:3px 10px;
+    font-size: 13px;
+}
+.context-menu-list>.context-menu-item:hover {
+    background-color: #333;
+    color: #f47b20;
+    text-transform: capitalize;
+}
+.btn{
+    border: 0;
+}

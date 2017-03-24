@@ -1,0 +1,269 @@
+/** Regular Welcome Screen related styles | Start -> **/
+.reg-welcome-left {
+    height: 100%;
+    background-color: #FFFFFF;
+}
+.reg-welcome-right {
+    height: 100%;
+    background-color: #f6f7f8;
+}
+
+.btn-new, .btn-new:hover, .btn-new:active, .btn-new:visited {
+    background-color: #f17f31;
+}
+
+.btn-open, .btn-open:hover, .btn-open:active, .btn-open:visited {
+    background-color: #4f5051;
+}
+
+.btn-container {
+    color: #FFFFFF;
+}
+
+.open-recent-section {
+    height: 43%;
+}
+
+.open-template-section {
+    height: 45%;
+}
+
+.separator {
+    /*height: 2%;*/
+}
+
+.open-recent-heading {
+    font-size: 25px;
+    padding-top: 85px;
+    padding-left: 40px;
+    height: 28%;
+}
+
+.open-template-heading {
+    font-size: 25px;
+    padding-top: 58px;
+    padding-left: 40px;
+    height: 20%;
+}
+
+.recent-preview-section {
+    height: 72%;
+    padding-left: 40px;
+    padding-top: 10px;
+}
+
+.template-preview-section {
+    height: 80%;
+    padding-left: 40px;
+    padding-top: 10px;
+}
+
+.preview-div {
+    height: 80%;
+    background-color: #FFFFFF;
+    cursor: pointer;
+    overflow: hidden;
+    border: 1px solid #ccc;
+}
+
+.preview-img {
+    width : 100%;
+}
+
+.preview-name-div {
+    height: 20%;
+    background-color: #515253;
+}
+
+.preview-parent {
+    height: 90%;
+    margin-top: 15px;
+}
+
+.file-name {
+    color: #FFFFFF;
+    font-size: 14px;
+    width: 85%;
+    margin-left: 10px;
+    padding-top: 10px;
+}
+/** Regular Welcome Screen related styles | End -> **/
+
+/** Initial Welcome Screen related styles | Start -> **/
+.initial-background-container {
+    background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAHUlEQVQYV2NkYGAwBuKzQIwXMBJSAJMfVUidcAQAnUQBC6jEGBUAAAAASUVORK5CYII=');
+    background-color: white;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    overflow-y: auto;
+}
+
+.initial-welcome-container {
+    width: 1000px;
+    border: solid 2px #e9e9e9;
+    position: relative;
+    top: 10%;
+    margin: 0 auto;
+    margin-bottom: 30px;
+}
+
+.heading-welcome-container {
+    height: 250px;
+    background-color: #ffffff;
+}
+
+.welcome-title {
+    font-size: 54px;
+    font-weight: bold;
+}
+
+.welcome-icon {
+    margin-top: -20px;
+    width: 250px
+}
+
+.new-welcome-button {
+    width: 190px;
+    height: 45px;
+    background-color: #f17b31;
+    color: #f1f6fa;
+    font-size: 20px;
+}
+.new-welcome-button:hover, .new-welcome-button:active{
+    color: #333333;
+    background-color: #f17b31;
+}
+.open-welcome-button{
+    width: 190px;
+    height: 45px;
+    background-color: #505050;
+    color: #f1f6fa;
+    font-size: 20px;
+}
+
+.open-welcome-button:hover, .open-welcome-button:active{
+    color: #333333;
+    background-color: #505050;
+}
+
+.body-welcome-container {
+    background-color: #f5f5f5;
+    height: 300px;
+    width: 996px;
+}
+
+.welcome-body-title {
+    position: absolute;
+    top: 275px;
+    left: 80px;
+    font-size: 20px;
+    color: #222222;
+    font-weight: 400;
+}
+
+.welcome-samples {
+    position: absolute;
+    border-top: 1px solid #d7d7d7;
+    width: 850px;
+    top: 315px;
+    left: 80px;
+    height: 200px;
+}
+
+.top-heading{
+    padding-top: 30px;
+    width: 100%;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.new-btn-wrap{
+    width: 20%;
+    margin-left: 260px;
+}
+
+.open-btn-wrap{
+    width: 20%;
+}
+
+.carousel-control {
+    width:  4%;
+    color: #ccc;
+    background: none !important;
+}
+.carousel-control:hover{
+    color:#333;
+}
+.right-carousel{
+    margin-top: 90px;
+}
+.left-carousel{
+    margin-top: 90px;
+}
+
+.regular-welcome-left-control {
+    margin-left: 38px;
+    margin-top: 20px;
+}
+
+.regular-welcome-right-control {
+    margin-top: 20px;
+}
+/** Initial Welcome Screen related styles | End -> **/
+
+/** Welcome screen responsive related styles **/
+.btn-wrap {
+    text-align: center;
+}
+
+.btn-wrap button {
+    display: inline-block;
+    margin: 0 5px
+}
+
+.btn-block + .btn-block {
+    margin-top: 0;
+}
+
+@media (max-width: 1040px) {
+    .initial-welcome-container {
+        position: static;
+        top: initial;
+        width: 100%;
+    }
+
+    .top-heading {
+        width: 100%;
+        text-align: center;
+    }
+
+    .welcome-icon {
+        margin-right: initial;
+        max-width: 268px;
+    }
+
+    .initial-welcome-container {
+        border: 0;
+    }
+
+    .body-welcome-container {
+        width:100%;
+    }
+
+    .welcome-body-title {
+        position: static;
+        display: block;
+        padding: 20px
+    }
+
+    .welcome-samples {
+        position: static;
+        width: 100%;
+    }
+
+    .preview-div {
+        height: auto;
+    }
+}

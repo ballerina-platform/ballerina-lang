@@ -1,0 +1,403 @@
+log4javascript change log
+-------------------------
+
+1.4.13 (23/5/2015)
+- Fix for BrowserConsolerAppender regression in last version (feature request
+  14)
+
+1.4.12 (14/5/2015)
+- Fix for BrowserConsolerAppender error in IE <= 8 (issue 18)
+
+1.4.11 (19/2/2015)
+- Fix for CORS requests in IE 10+
+- Remove message when sending remaining Ajax log messages when unloading
+
+1.4.10 (28/9/2014)
+- AMD support added
+- Fix for issue 16: getDefaultLogger() broken in production edition
+
+1.4.9 (12/5/2014)
+- Fix for typo in BrowserConsoleAppender
+
+1.4.8 (18/4/2014)
+- Added support for XMLHttpRequest's withCredentials to AjaxAppender
+
+1.4.7 (7/6/2013)
+- Improved multiple browser console argument handling as per feature request #4
+
+1.4.6 (19/3/2013)
+- Added fix to handle 1223 status code from XMLHttpRequest in IE
+
+1.4.5 (20/2/2013)
+- Changed AjaxAppender to send raw data rather than URL-encoded form data when
+  content-type is not "application/x-www-form-urlencoded"
+
+- Exposed sendAllRemaining() method of AjaxAppender
+
+1.4.4 (8/2/2013)
+- Fixed issue with repeated Content-Type headers in AjaxAppender
+
+- Improved uniqueness of PopUpAppender window name
+
+1.4.3 (18/9/2012)
+- Added addHeader() and getHeaders() methods to AjaxAppender
+
+- Modified sendAllOnUnload feature of AjaxAppender. It now works in WebKit but
+  at the expense of popping up a confirm dialog. That being the case, it is now
+  disabled by default.
+
+- Removed leaked global variable "initialized"
+
+- Fixed bugs #3528265, #3560924, #3560922, #2805479, #3510639 on Sourceforge
+  Tracker
+
+
+1.4.2 (13/10/2011)
+- Fixed JsonLayout trailing comma issue. See
+  http://stackoverflow.com/questions/7735382/asmx-weirdness-deserializing-json-
+  blob-from-log4javascript-logging
+
+- Fixed bugs #3401332, #3185753, #2884623, #2817213 on Sourceforge Tracker
+
+
+1.4.1 (23/3/2009)
+- Fixed document.domain/query string bug (#2519903 on Sourceforge Tracker)
+
+- Added isVisible() method to PopUpAppender
+
+- Added check for whether the console has been closed in isVisible() method of
+  InPageAppender
+
+- Included unit tests in the distribution
+
+
+1.4 (30/10/2008)
+
+- Added time() and timeEnd() methods to Logger
+
+- Added group() and groupEnd() methods to Logger and support for displaying
+  expandable groups to InPageAppender and PopUpAppender
+
+- Added facility to layout custom fields. A custom field value may now
+  optionally be a function which is passed a reference to the layout and a
+  logging event and run at the time the layout's format method is called
+
+- Added option to XmlLayout and JsonLayout to allow multiple messages to be
+  formatted either as one combined message or multiple messages
+
+- Added code to set log4javascript as a property of the window object. This
+  ensures that if log4javascript is loaded via eval() (e.g. Dojo's module
+  loading system), the log4javascript object is guaranteed to be available even
+  though IE does not evaluate the script in the global scope
+
+- Added useDocumentWrite parameter to constructors and isUseDocumentWrite()
+  and setUseDocumentWrite() methods for InPageAppender and PopUpAppender and
+  added console.html to the build so that the appender may use either the
+  existing document.write method or the external HTML file to build the console.
+  This is to allow support for setting document.domain in the main document,
+  which is impossible with the document.write method
+
+- Added milliseconds property to logging events and changed JsonLayout,
+  XmlLayout and HttpPostDataLayout to include milliseconds by default
+
+- Added layout parameter to AjaxAppender and a toString() method on each layout
+
+- Setting configuration properties in appenders via constructor paramaters has
+  been phased out.
+
+- Added window.unload handler for AjaxAppender to send outstanding messages.
+  Doesn't work in Opera
+
+- Implemented log4j-style hierarchical loggers with additive appenders. For
+  example, a logger called "app.stuff" has as its parent the logger called
+  "app", all of whose appenders it inherits
+
+- Changed XmlLayout and JsonLayout to send data as a key/value pair
+
+- Bugfix for inaccessible error details
+
+- An appender can no longer be added more than once to the same logger
+
+- Multiple messages may now be specified in logger methods
+
+- New conversion character 'a' added to PatternLayout. This is the same as 'm'
+  except that if the first message specified is an array then it treats each
+  element of the array as though it had been passed in as a message parameter
+
+- Command line added to console windows with configurable object expansion
+  depth. Command line presence and object expansion depth are configurable in
+  the appender via setShowCommandLine() and setCommandLineObjectExpansionDepth()
+  methods respectively
+
+- Command line history, navigated by cursor keys and stored in a session cookie
+
+- Firebug-inspired command line functions added: $, dir, dirxml, cd, clear,
+  keys, values, expansionDepth
+
+- Fixes for several bugs in object expansion
+
+- Fix for bug in initialization of InPageAppender in IE 5
+
+- Fix to allow searchable HTML in log entries
+
+- Fix for bug which automatically displayed search next/previous buttons when
+  the search box is clicked regardless of whether there were any matches
+
+- Searches in PopUpAppender and InPageAppender now preserve formatting
+
+- More fixes to interaction of search and severity filters in console window
+  used by PopUpAppender and InPageAppender
+
+- Added SwitchableConsoleAppender that allows flipping from an in-page console
+  to a pop-up console window and back again while retaining state
+
+- Custom events added that are raised when PopUpAppender and InPageAppender
+  windows load and unload, and on the main log4javascript object when the main
+  page loads, when the main page is resized and when log4javascript errors occur
+
+- InPageAppender may now be initialized before the page loads by providing an
+  element id for its container, or omitting the container altogether (in which
+  case the appender is added as a fixed div at the bottom of the page)
+
+- Tweaked PopUpAppender and InPageAppender so that the formatted log message is
+  produced when append() is called rather than when the message is actually sent
+  to the console window, thus allowing reliable temporary switching of layouts
+
+- Much improved scrolling to current search match: scrolls only if part of the
+  search match is not visible and centres around it rather than putting flush to
+  the top left
+
+- Removed setReadable() method from JsonLayout - now specified only in the
+  constructor
+
+- Fixed problem in IE where copying selections of log entries would produce two
+  copies of each log entry
+
+
+1.3.1 (20/11/2006)
+
+- Fix to interaction of search and severity filters in console window used by
+  PopUpAppender and InPageAppender
+
+
+1.3 (19/10/2006)
+
+- Fully tested and supported in IE 7 Beta 3
+
+- Added support for FireBug logging levels in BrowserConsoleAppender
+
+- Added optional limit to the number of log messages stored by PopUpAppender and
+  InPageAppender. When this limit is reached, each new message causes the oldest
+  message to be discarded.
+
+- Exceptions passed into logging methods are now displayed in logging output.
+
+- Added facility to pass objects as well as strings to logging methods.
+  Enhanced conversion character 'm' to PatternLayout to expand object properties
+  in the formatted output
+
+- Added stack trace to error reports (alerts and log entries) in Firefox. This
+  is turned off by default but can be switched on via the new
+  log4javascript.setShowStackTraces function
+
+- Added log4javascript_stub.js to distribution - this has stub versions of all
+  objects and methods in log4javascript.js and can be used as a lightweight
+  replacement for log4javascript.js in production systems
+
+- Added log4javascript_compressed.js to distribution - comments and whitespace
+  are removed, resulting in a 30% smaller file
+
+- Added custom fields to layouts
+
+- Added setReopenWhenClosed and isReopenWhenClosed methods to PopUpAppender to
+  allow log4javascript to open a new pop-up console window automatically at the
+  time of the next log entry after the original window was closed
+
+- Layout.ignoresThrowable implemented to allow Layout/Appender combinations to
+  decide whether to display exceptions
+
+- Added NullLayout that performs no formatting on the logging event
+
+- Lowered BrowserConsoleAppender's default threshold to DEBUG and set its
+  default layout to NullLayout so that unformatted objects can be passed into
+  FireBug
+
+- Renamed InlineAppender to InPageAppender (though InlineAppender still works
+  for the sake of backwards compatibility)
+
+- Cosmetic changes to InPageAppender and PopUpAppender
+
+- Added equals() method to Level
+
+- Added removeAppender() and removeAllAppenders() methods to Logger
+
+- Added extensive test script
+
+- Fixed bug where Appender.setLayout and Appender.setThreshold threw an
+  unhandled error if not supplied with a genuine Layout or Level respectively
+
+- Fixed bug where InlinePopUpAppender and PopUpAppender continue to poll their
+  console windows indefinitely (thus generating warnings) if the console window
+  is closed before it has fully loaded
+
+- Fixed bug in w and W symbols in SimpleDateFormat
+
+- Fixed bug with quotes inside messages in JsonLayout
+
+- Fixed bugs in PatternLayout with built-in DATE format and truncation modifiers
+
+- Changed execution order of callbacks in AjaxAppender so that
+  requestSuccessCallback is guaranteed to be called before the next request is
+  sent
+
+- Changed AjaxAppender so that log messages are formatted immediately before
+  a request is sent rather than when append() is called, thus guaranteeing that
+  changes to the layout take effect immediately
+
+- PopUpAppender windows now have unique names per hostname to prevent clashes
+  from multiple instances of log4javascript running on different servers
+
+- Fixed error in XmlLayout's format method when passed an object
+
+- Fixed errors in JsonLayout's handling of strings containing line breaks and/or
+  double quotes
+
+
+1.2 (21/6/2006)
+
+- Tested in and added workaround for a bug in Opera 9 Beta 2 and Opera 9.0
+
+- Tested in Konqueror 3.4 and 3.5 and added workarounds and fixes for browser
+  bugs
+
+- Added addErrorListener and removeErrorListener methods to log4javascript
+  object to allow custom error handling
+
+- Added close() method to PopUpAppender and InlineAppender
+
+- Added test directory with an HTML page containing automated tests
+
+- Added enable/disable logging checkbox to InlinePopUpAppender and PopUpAppender
+  so that unnecessary messages (for instance, from a timer) can be ignored
+
+- An invalid value supplied to a configuration option setter now leaves config
+  property unchanged rather than reverting to the default
+
+- Fixed bug in PopUpAppender in IE on Windows XP Service Pack 2 when accessed
+  via the file system. The browser by default disables JavaScript in the pop-up
+  window until the user opts to enable it, at which point they would previously
+  see an uncaught error in log4javascript. Now, a proper error message is
+  displayed and the appender is disabled.
+
+- Slight alterations to toolbar in InlineAppender and PopUpAppender - text
+  capitalization and title attributes added to inputs
+
+- toString() method added to all appenders
+
+- Correction to errors in XmlLayout's output
+
+- Documentation corrections and additions
+
+
+1.1.1 (17/5/2006)
+
+- Fixed a minor bug with scrolling to the latest message and added "scroll to
+  latest" checkbox to console window in InlineAppender and PopUpAppender
+
+
+1.1 (16/5/2006)
+
+- Added configuration option setters on Appenders and refactored to prevent
+  config properties being altered directly. Several configuration options
+  may not be altered after the appender has been initialized
+
+- Added scrollToLatestMessage constructor parameter, isScrollToLatestMessage
+  and setScrollToLatestMessage methods to InlineAppender and PopUpAppender
+
+- Added isVisible method to InlineAppender
+
+- Changed setShowOneError to setAlertAllErrors in logLog, with obvious change
+  in logic
+
+- Added layout property key configuration options to layout constructors for
+  JsonLayout and HttpPostDataLayout
+
+- Changed the default timestamp property name to "timestamp" instead of
+  "timeStamp" in JsonLayout and HttpPostDataLayout
+
+- Expanded documentation to include a section in the manual about configuring
+  appenders
+
+- Removed browser sniffing code
+
+
+1.0.1 (30/4/2006)
+
+- Option to have new log messages appear at the top added to InlineAppender and
+  PopUpAppender. This option can be specified in the constructor and can also
+  be toggled via a checkbox in the console window
+
+- PopUpAppender changed to not focus the pop-up console window by default, and
+  the demo page altered to create its own logger with focussing turned on,
+  meaning the behaviour in the demo is essentially unchanged
+
+
+1.0 (26/4/2006)
+
+- Tweaks to default values in PopUpAppender and InlineAppender
+
+- Bugfixes and stylistic tweaks resulting from running JSLint on
+  log4javascript.js
+
+
+1.0 beta 2
+
+- Show/hide button removed from InlineAppender, replaced by show() and hide()
+  methods on the InlineAppender object
+
+- batchSeparator, batchHeader and batchFooter added to Layout and applied to
+  JsonLayout - a batch of JSON log messages is now created as an array literal
+
+
+1.0 beta
+
+- TRACE level added, since this was added to log4j in 1.2.12
+
+- PopUpAppender default settings bugfix
+
+- getLevel method added to Logger
+
+- Tweak to vertical alignment of checkboxes and padding of buttons in
+  InlineAppender and PopUpAppender
+
+- Fixed getDefaultLogger and getNullLogger to return loggers other than the
+  root logger
+
+0.96
+
+- Moved console.html to inline document.writes in log4javascript.js
+
+- Fixed getDefaultLogger to return the same object on successive calls
+
+- Fixed scrolling issue in Opera InlineAppender and PopUpAppender
+
+- Scrollbars are now automatic on InlineAppender and PopUpAppender, i.e. they
+  only appear when required
+
+- Fixed bug where regex searches were not applied to new log entries in
+  InlineAppender and PopUpAppender
+
+- Changed Safari font size in InlineAppender and PopUpAppender
+
+0.95
+
+- AjaxAppender enhancements:
+	- waitForResponse added
+	- timer added
+
+- layout parameter added to all appender constructors
+
+0.94
+- First publicly available version
+- IE 5 support added
+- Full support for wrapping in IE added for InlineAppender and PopUpAppender

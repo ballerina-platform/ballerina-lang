@@ -1,0 +1,14 @@
+ui: mocha-bdd
+browsers:
+  - name: chrome
+    version: 27..latest
+  - name: firefox
+    version: 24..latest
+  - name: opera
+    version: 11..latest
+  - name: safari
+    version: 5..latest
+  - name: ipad
+    version: 6.1
+  - name: iphone
+    version: 6.1

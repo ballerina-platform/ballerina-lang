@@ -1,0 +1,555 @@
+.lifeline-title {
+    fill: #000000;
+    text-anchor: middle;
+    cursor: text;
+}
+
+.lifeline-line {
+    stroke: #000000;
+    stroke-width: 1px;
+}
+
+.outer-dashed {
+    stroke-dasharray: 3, 2;
+}
+
+.lifeline-tool-line {
+    stroke: #000000;
+    stroke-width: 1px;
+}
+
+.lifeline-tool-rect {
+    fill: #FFFFFF;
+    fill-opacity: 1;
+}
+
+.tool > line {
+    stroke-width: 1px;
+}
+
+.tool > rect {
+    fill-opacity: 1;
+}
+
+.tool-group-header-collapse {
+    background-color: #f3f3f3;
+}
+
+.resource > line {
+    stroke: #000000;
+}
+
+.headingRect {
+    fill: #FFFFFF;
+    stroke-width: 1;
+    stroke: #000000;
+
+}
+
+.headingRectIcon {
+    fill: url(#resourceIcon);
+}
+
+.actionHeadingRectIcon {
+    fill: url(#connectorActionIcon);
+}
+.resourceHeadingIconHolder{
+    fill:#000000;
+}
+
+.connectorActionHeadingIconHolder{
+    fill:#000000;
+}
+
+.headingCollapsedIcon {
+    cursor: pointer;
+    opacity: 0.4;
+    fill: url(#collapsedIcon);
+}
+
+.headingCollapsedIcon:hover {
+    opacity: 1;
+}
+
+.headingExpandIcon {
+    cursor: pointer;
+    opacity: 0.4;
+    fill: url(#expandIcon);
+}
+
+.headingExpandIcon:hover {
+    opacity: 1;
+}
+
+.headingDeleteIcon {
+    cursor: pointer;
+    fill: url(#deleteIcon);
+ }
+
+/*Resolves the issue of not showing the css referred svg images not showing in firefox*/
+svg use svg {
+    fill: inherit;
+}
+
+.headingDeleteIcon:hover {
+    opacity: 1;
+}
+
+.httpMethodRect {
+    fill: #f3f3f3;
+}
+
+.httpMethodText {
+    fill: #000000;
+}
+
+.resourcePathPrefix {
+    stroke-width: 0.5;
+    stroke: #000000;
+
+}
+
+.resource > rect {
+    fill: #ffffff;
+}
+
+.worker > line {
+    stroke: #000000;
+}
+
+.worker > rect {
+    fill: #ffffff;
+}
+
+.resource-content {
+    fill: #008000;
+    fill-opacity: 0;
+    stroke-width: 1;
+    stroke: #000000;
+}
+
+.connector-action-content {
+    fill: #008000;
+    fill-opacity: 0;
+    stroke-width: 1;
+    stroke: #000000;
+}
+
+.client rect {
+    /*fill: #ffffff;*/
+}
+
+.client polygon {
+    stroke: #000000;
+    fill: #FFFFFF;
+}
+
+.client .lifeline-title {
+    fill: #000000;
+}
+
+.client line {
+    stroke: #000000;
+}
+
+.client text {
+    fill: #000000;
+}
+
+.endpoint > line {
+    stroke: #000000;
+}
+
+.endpoint > rect {
+    fill: #ffffff;
+}
+
+.lifeline-polygon {
+    fill: #ffffff;
+}
+
+.try-block-mediator-tool > rect {
+    fill-opacity: 1;
+    fill: #ffffff;
+}
+
+.try-block-mediator-tool > text {
+    fill-opacity: 1;
+    fill: #ffffff;
+}
+
+.switch-mediator-tool > rect {
+    fill-opacity: 1;
+    fill: #ffffff;
+}
+
+.switch-mediator-tool > text {
+    fill-opacity: 1;
+    fill: #ffffff;
+}
+
+.payload-factory-tool > rect {
+    fill-opacity: 1;
+    fill: #27ae60;
+}
+
+.payload-factory-tool > text {
+    fill-opacity: 1;
+    fill: #ffffff;
+}
+
+.log-mediator-tool > rect {
+    fill-opacity: 1;
+    fill: #2980b9;
+}
+
+.log-mediator-tool > text {
+    fill-opacity: 1;
+    fill: #ffffff;
+}
+
+.message {
+    stroke: #000000;
+    stroke-width: 1px;
+}
+
+.message:hover {
+    cursor: pointer;
+}
+
+.lifeline {
+}
+
+.lifeline:hover {
+    cursor: pointer;
+}
+
+.marker {
+    fill: #000000;
+}
+
+.mediator-title {
+    text-anchor: middle;
+    alignment-baseline: central;
+}
+
+.input-output-text {
+    font-size: 10px;
+}
+
+.source > polygon {
+    fill: #FFFFFF;
+    stroke-width: 1;
+    stroke: #000000;
+}
+
+.action-rect{
+    fill: #FFFFFF;
+    stroke-width: 1;
+    stroke: #333333;
+}
+
+.action-text{
+text-anchor: start;
+    fill:#333333;
+}
+
+.action-line{
+    stroke: #9d9d9d;
+}
+.action-dash-line{
+    stroke: #9d9d9d;
+    stroke-dasharray: 5,5;
+
+}
+.action-arrow{
+   stroke: #9d99d;
+    fill: #000000;
+}
+
+.property-pane-action-button-edit {
+    opacity: 0.3;
+    fill: url(#editIcon);
+}
+
+.property-pane-action-button-edit:hover {
+    cursor: pointer;
+    opacity: 1;
+    fill: url(#editIcon);
+}
+
+.property-pane-action-button-disable {
+    opacity: 0.3;
+    fill: url(#disableIcon);
+}
+
+.property-pane-action-button-disable:hover {
+    cursor: pointer;
+    opacity: 1;
+    fill: url(#disableIcon);
+}
+
+.property-pane-action-button-delete {
+    opacity: 0.3;
+    fill: url(#deleteIcon);
+}
+
+.property-pane-action-button-delete:hover {
+    cursor: pointer;
+    opacity: 1;
+    fill: url(#deleteIcon);
+}
+
+.property-pane-action-button-breakpoint {
+    opacity: 0.3;
+    fill: url(#addBreakpointIcon);
+}
+
+.property-pane-action-button-breakpoint:hover {
+    cursor: pointer;
+    opacity: 1;
+    fill: url(#addBreakpointIcon);
+}
+.property-pane-action-button-breakpoint.active:hover {
+    cursor: pointer;
+    opacity: 1;
+    fill: url(#debugRemoveIcon);
+}
+.statement-view-breakpoint-indicator {
+    opacity: 0.8;
+    fill: url(#debugIcon);
+}
+
+.statement-view-breakpoint-indicator:hover {
+    cursor: pointer;
+    opacity: 1;
+    fill: url(#debugRemoveIcon);
+}
+
+.annotation-icon-background-circle {
+    opacity: 0.4;
+    cursor: pointer;
+}
+
+.variable-icon-background-circle {
+    opacity: 0.4;
+}
+
+.annotation-icon-background-circle:hover {
+    opacity: 1;
+    cursor: pointer;
+}
+
+.annotation-icon-rect {
+    cursor: pointer;
+    fill: url(#annotationIcon);
+}
+
+.variable-icon-rect {
+    fill: url(#variableIcon);
+}
+
+.if-else-svg-group{
+    cursor: pointer;
+}
+
+.service-annotation-header-pane {
+    fill: #eaeaea
+}
+
+.client-life-line{
+    cursor: pointer;
+}
+
+.client-life-line text{
+    cursor: pointer;
+    font-weight: 400;
+}
+
+.client-life-line polygon{
+    stroke: #333;
+    fill: #FFFFFF;
+}
+
+.client-life-line line{
+    stroke: #333;
+}
+
+.default-worker-life-line{
+    cursor: pointer;
+}
+.default-worker-life-line text{
+    cursor: pointer;
+    font-weight: 300;
+    font-size: 14px;
+}
+
+.default-worker-life-line rect{
+    stroke: #000;
+    fill: #e2e2e2;
+    stroke-width: 2px;
+}
+
+.default-worker-life-line line{
+    stroke: #000;
+    stroke-width: 2px;
+}
+
+.connector-life-line {
+    cursor: pointer;
+}
+
+.connector-life-line text {
+    cursor: pointer;
+}
+
+.connector-life-line-top-polygon {
+    fill: white;
+    stroke: black;
+}
+
+.connector-life-line-bottom-polygon {
+    fill: white;
+    stroke: black;
+}
+
+.connector-life-line line{
+    stroke: #000000;
+}
+
+.worker-life-line {
+    cursor: pointer;
+}
+
+.worker-life-line text {
+    cursor: pointer;
+}
+
+.worker-life-line-top-polygon {
+    fill: white;
+    stroke: black;
+}
+
+.worker-life-line-bottom-polygon {
+    fill: white;
+    stroke: black;
+}
+
+.worker-life-line line{
+    stroke: #000000;
+}
+
+.start-action{
+    stroke: #000000;
+    fill: #FFFFFF;
+}
+
+.start-action text{
+    fill: black;
+    stroke-opacity: 0;
+    font-weight: 300;
+}
+
+.statement-container .main-drop-zone{
+    fill-opacity: 0;
+    fill: #008000;
+    stroke-width: 0;
+}
+
+.statement-container .main-drop-zone-hover{
+    fill-opacity: 0.2;
+}
+
+.statement-container .inner-drop-zone{
+    fill-opacity: 0;
+    fill: #008000;
+    stroke-width: 0;
+}
+
+.statement-container .inner-drop-zone-hover{
+    fill-opacity: 0.4;
+}
+
+.operations-separator {
+    stroke: #e8e8e8;
+}
+
+.heading-icon-wrapper {
+    cursor: pointer;
+    fill: #FFF;
+}
+
+.headingAnnotationIcon {
+    cursor: pointer;
+    opacity: 1;
+    fill: url(#annotationIcon);
+}
+
+.headingAnnotationBlackIcon {
+    cursor: pointer;
+    fill: url(#annotationBlackIcon);
+}
+
+.headingAnnotationBlackIcon:hover {
+    opacity: 1;
+}
+
+.headingAnnotationIcon:hover {
+    opacity: 1;
+}
+
+.deleteRedIcon {
+    cursor: pointer;
+    fill: url(#deleteRedIcon);
+}
+
+.heading-icon-annotation-wrapper-clicked {
+    stroke: #000;
+    fill: #000;
+}
+
+.headingArgumentsIcon {
+    cursor: pointer;
+    opacity: 1;
+    fill: url(#argumentsIcon);
+}
+
+.headingArgumentsBlackIcon {
+    cursor: pointer;
+    fill: url(#argumentsBlackIcon);
+}
+
+.headingArgumentsBlackIcon:hover {
+    opacity: 2;
+}
+
+.headingReturnTypeIcon {
+    cursor: pointer;
+    opacity: 1;
+    fill: url(#returnTypeIcon);
+}
+
+.headingReturnTypeBlackIcon {
+    cursor: pointer;
+    fill: url(#returnTypeBlackIcon);
+}
+
+.headingReturnTypeBlackIcon:hover {
+    opacity: 1;
+}
+
+.heading-icon-arguments-wrapper-clicked {
+    stroke: #000;
+    fill: #000;
+}
+
+.heading-icon-return-type-wrapper-clicked {
+    stroke: #000;
+    fill: #000;
+}
+
+.worker-lifeline-grayed {
+    fill: #e2e2e2;
+    stroke: #000000;
+    stroke-width: 2px;
+}

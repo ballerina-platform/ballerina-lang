@@ -1,0 +1,70 @@
+{
+  "name": "ballerina-composer",
+  "version": "0.8.1",
+  "description": "A web based tool for creating integrations in ballerina language.",
+  "scripts": {
+    "clean": "rimraf dist",
+    "build": "npm run webpack",
+    "webpack": "cross-env NODE_ENV=production webpack --config webpack.config.js",
+    "dev": "webpack-dev-server --hot --inline --progress",
+    "runTests": "cross-env NODE_ENV=test mocha-webpack --require ./js/tests/js/spec/setup.js --webpack-config ./webpack.config.js ./js/tests/js/spec/BallerinaTest.js;",
+    "test": "node run-tests.js",
+    "child-process":"node run-child-process.js",
+    "composer": "node run-composer.js",
+    "uiTest":"node run-ui-test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ballerinalang/composer.git"
+  },
+  "author": "",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/ballerinalang/composer/issues"
+  },
+  "homepage": "https://github.com/ballerinalang/composer#readme",
+  "devDependencies": {
+    "babel-cli": "^6.24.0",
+    "babel-preset-es2015": "^6.22.0",
+    "chai": "^3.5.0",
+    "cross-env": "^3.2.3",
+    "css-loader": "^0.26.2",
+    "file-loader": "^0.10.1",
+    "jsdom": "^9.11.0",
+    "mocha": "^3.2.0",
+    "mocha-webpack": "^0.7.0",
+    "rimraf": "^2.6.1",
+    "shelljs": "^0.7.6",
+    "style-loader": "^0.13.2",
+    "url-loader": "^0.5.8",
+    "webpack": "^2.2.1",
+    "webpack-dev-server": "^2.4.1",
+    "yargs": "^1.3.3",
+    "selenium-standalone": "^6.1.0",
+    "webdriverio": "^4.6.2"
+  },
+  "dependencies": {
+    "ace-builds": "^1.2.6",
+    "antlr4": "^4.6.0",
+    "babel-core": "^6.23.1",
+    "babel-loader": "^6.3.2",
+    "backbone": "^1.3.3",
+    "bootstrap": "^3.3.6",
+    "d3": "^4.1.1",
+    "html-loader": "^0.4.5",
+    "html5shiv": "^3.7.3",
+    "jquery": "^1.9.1",
+    "jquery-contextmenu": "^2.4.2",
+    "jquery-mousewheel": "^3.1.13",
+    "jquery-ui": "^1.12.1",
+    "js-yaml": "^3.7.0",
+    "jsplumb": "^2.2.8",
+    "lodash": "^4.13.1",
+    "log4javascript": "^1.4.15",
+    "malihu-custom-scrollbar-plugin": "^3.1.5",
+    "mousetrap": "^1.6.0",
+    "npm": "^4.2.0",
+    "select2": "^4.0.3",
+    "typeahead.js": "^0.11.1"
+  }
+}

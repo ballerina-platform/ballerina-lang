@@ -1,0 +1,13 @@
+language: node_js
+
+node_js:
+  - '0.10'
+
+script: "npm run-script travis"
+
+after_script: "npm run-script cover"
+
+env:
+  global:
+  - secure: imoswT3Ym3I8iPp9hxTSl0ORrNMziwzJkWCbffeNdLV4QsivY4VCwp0xIFn8efQKCUQPRImbjLhOf05hWzGvjja6PNkjvAv/nHo+4MQYvWvjmMnlAlxDmfu7KatGBDQ0vq6W1FFNjT+h2tMs13IVJFwnE90sWwFbS2htcd3MXM4=
+  - secure: e4MxszpP+BdJF5Qu3iAt+YxuQnHBdbRcVOlTHJqWwzbGCQnK0MG0v2BTLT4jyqFB1Qo3qMBF+PgGu+p1D8502MivqWzmKmGq6Qz98twnAE72J7W//LzwU9y7i1b8Zg42Ky556314BjzAPSO5c7fHiVn4I6seBerffmiYbS3UyiU=
