@@ -538,7 +538,8 @@ public class SwaggerConverterUtils {
     protected static AnnotationAttachment createSingleValuedAnnotationAttachment(String annotationName,
                                                                                  String annotationPkg, String value) {
         ConcurrentHashMap<String, AnnotationAttributeValue> attributes = new ConcurrentHashMap<>();
-        attributes.put("value", new AnnotationAttributeValue(new BString(value), new SimpleTypeName("BString")));
+        attributes.put("value", new AnnotationAttributeValue(new BString(value), new SimpleTypeName("BString"),
+                new NodeLocation("<unknown>", 0)));
         return new AnnotationAttachment(null, annotationName, annotationPkg, null, attributes);
     }
 }
