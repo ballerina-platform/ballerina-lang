@@ -16,18 +16,14 @@
  * under the License.
  */
 
-import $ from 'jquery';
-import Backbone from 'backbone';
 import _ from 'lodash';
 import EventChannel from 'event_channel';
 import LaunchChannel from './launch-channel';
 import Console from 'console';
-var instance;
 
 class LaunchManager extends EventChannel {
-    constructor(args) {
+    constructor() {
         super();
-        var self = this;
         this.enable = false;
         this.channel = undefined;
         this.active = false;
@@ -59,64 +55,64 @@ class LaunchManager extends EventChannel {
 
     sendRunApplicationMessage(file) {
         var message = {
-            "command": "RUN_PROGRAM",
-            "fileName" : file.getName(),
-            "filePath" : file.getPath(),
-            "commandArgs": this.getApplicationConfigs(file)
+            'command': 'RUN_PROGRAM',
+            'fileName' : file.getName(),
+            'filePath' : file.getPath(),
+            'commandArgs': this.getApplicationConfigs(file)
         };
         this.channel.sendMessage(message);
     }
 
     sendRunServiceMessage(file) {
         var message = {
-            "command": "RUN_SERVICE",
-            "fileName" : file.getName(),
-            "filePath" : file.getPath()
+            'command': 'RUN_SERVICE',
+            'fileName' : file.getName(),
+            'filePath' : file.getPath()
         };
         this.channel.sendMessage(message);
     }
 
     sendDebugApplicationMessage(file) {
         var message = {
-            "command": "DEBUG_PROGRAM",
-            "fileName" : file.getName(),
-            "filePath" : file.getPath(),
-            "commandArgs": this.getApplicationConfigs(file)
+            'command': 'DEBUG_PROGRAM',
+            'fileName' : file.getName(),
+            'filePath' : file.getPath(),
+            'commandArgs': this.getApplicationConfigs(file)
         };
         this.channel.sendMessage(message);
     }
 
     sendDebugServiceMessage(file) {
         var message = {
-            "command": "DEBUG_SERVICE",
-            "fileName" : file.getName(),
-            "filePath" : file.getPath()
+            'command': 'DEBUG_SERVICE',
+            'fileName' : file.getName(),
+            'filePath' : file.getPath()
         };
         this.channel.sendMessage(message);
     }
 
     processMesssage(message) {
-        if(message.code == "OUTPUT"){
+        if(message.code === 'OUTPUT'){
             if(_.endsWith(message.message, this.debugPort)){
-                this.trigger("debug-active",this.debugPort);
+                this.trigger('debug-active',this.debugPort);
                 return;
             }
         }
-        if(message.code == "EXECUTION_STARTED"){
+        if(message.code === 'EXECUTION_STARTED'){
             this.active = true;
-            this.trigger("execution-started");
+            this.trigger('execution-started');
         }
-        if(message.code == "EXECUTION_STOPED" || message.code == "EXECUTION_TERMINATED"){
+        if(message.code === 'EXECUTION_STOPED' || message.code === 'EXECUTION_TERMINATED'){
             this.active = false;
-            this.trigger("execution-ended");
+            this.trigger('execution-ended');
         }
-        if(message.code == "DEBUG_PORT"){
+        if(message.code === 'DEBUG_PORT'){
             this.debugPort = message.port;
             return;
         }
-        if(message.code == "EXIT"){
+        if(message.code === 'EXIT'){
             this.active = false;
-            this.trigger("session-ended");
+            this.trigger('session-ended');
         }
         Console.println(message);
     }
@@ -134,14 +130,14 @@ class LaunchManager extends EventChannel {
 
     stopProgram() {
         var message = {
-            "command": "TERMINATE",
+            'command': 'TERMINATE',
         };
         this.channel.sendMessage(message);
     }
 
     getApplicationConfigs(file) {
-        var args = this.application.browserStorage.get('launcher-app-configs-' + file.id);
-        return args || "";
+        var args = this.application.browserStorage.get(`launcher-app-configs-${file.id}`);
+        return args || '';
     }
 }
 

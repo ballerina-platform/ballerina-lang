@@ -21,9 +21,9 @@ import _ from 'lodash';
          * @class DebugPoint
          * @args
          */
-        var DebugPoint = function (args) {
-            this.fileName = _.get(args, 'fileName', '');
-            this.lineNumber = _.get(args, 'lineNumber', 0);
-        };
+var DebugPoint = function (args) {
+    this.fileName = _.get(args, 'fileName', '');
+    this.lineNumber = _.get(args, 'lineNumber', 0);
+};
 
-        export default DebugPoint;
+export default DebugPoint;
