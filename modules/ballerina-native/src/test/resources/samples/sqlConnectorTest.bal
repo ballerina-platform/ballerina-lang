@@ -267,7 +267,7 @@ function testINParameters() (int) {
 
     sql:Parameter paraID = {sqlType:"integer", value:3, direction:0};
     sql:Parameter paraInt = {sqlType:"integer", value:1, direction:0};
-    sql:Parameter paraLong = {sqlType:"bigint", value:9223372036854774807L, direction:0};
+    sql:Parameter paraLong = {sqlType:"bigint", value:"9223372036854774807", direction:0};
     sql:Parameter paraFloat = {sqlType:"float", value:123.34, direction:0};
     sql:Parameter paraDouble = {sqlType:"double", value:2139095039, direction:0};
     sql:Parameter paraBool = {sqlType:"boolean", value:true, direction:0};
@@ -326,7 +326,7 @@ function testINOutParameters()
 
     sql:Parameter paraID = {sqlType:"integer", value:5, direction:0};
     sql:Parameter paraInt = {sqlType:"integer", value:10, direction:2};
-    sql:Parameter paraLong = {sqlType:"bigint", value:9223372036854774807L, direction:2};
+    sql:Parameter paraLong = {sqlType:"bigint", value:"9223372036854774807", direction:2};
     sql:Parameter paraFloat = {sqlType:"float", value:123.34, direction:2};
     sql:Parameter paraDouble = {sqlType:"double", value:2139095039, direction:2};
     sql:Parameter paraBool = {sqlType:"boolean", value:true, direction:2};
@@ -414,7 +414,7 @@ function testArrayInParameters() (int insertCount, map int_arr, map long_arr, ma
                          "username":"SA", "password":"", "maximumPoolSize":1};
     sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
 
-    sql:Parameter para1 = {sqlType:"integer", value:"2", direction:0};
+    sql:Parameter para1 = {sqlType:"integer", value:2, direction:0};
     sql:Parameter para2 = {sqlType:"array", value:"1", direction:0, structuredType:"integer"};
     sql:Parameter para3 = {sqlType:"array", value:"10000000, 20000000, 30000000", direction:0, structuredType:"bigint"};
     sql:Parameter para4 = {sqlType:"array", value:"245.23, 5559.49, 8796.123", direction:0, structuredType:"float"};
@@ -442,7 +442,7 @@ function testArrayInParameters() (int insertCount, map int_arr, map long_arr, ma
     return;
 }
 
-function testArrayOutParameters() (string, string, string, string, string, string) {
+function testArrayOutParameters() (any, any, any, any, any, any) {
     map propertiesMap = {"jdbcUrl":"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
                          "username":"SA", "password":"", "maximumPoolSize":1};
     sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
@@ -460,12 +460,12 @@ function testArrayOutParameters() (string, string, string, string, string, strin
     return para1.value, para2.value, para3.value, para4.value, para5.value, para6.value;
 }
 
-function testArrayInOutParameters() (string, string, string, string, string, string, string) {
+function testArrayInOutParameters() (any, any, any, any, any, any, any) {
     map propertiesMap = {"jdbcUrl":"jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
                          "username":"SA", "password":"", "maximumPoolSize":1};
     sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
 
-    sql:Parameter para1 = {sqlType:"integer", value:"3", direction:0};
+    sql:Parameter para1 = {sqlType:"integer", value:3, direction:0};
     sql:Parameter para2 = {sqlType:"integer", direction:1};
     sql:Parameter para3 = {sqlType:"array", value:"10,20,30", direction:2, structuredType:"integer"};
     sql:Parameter para4 = {sqlType:"array", value:"10000000, 20000000, 30000000", direction:2, structuredType:"bigint"};

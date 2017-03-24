@@ -442,8 +442,8 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
             case Constants.SQLDataTypes.ARRAY: {
                 Array value = stmt.getArray(index + 1);
                 paramValue.setValue(1, new BString(SQLConnectorUtils.getString(value)));
-                break;
             }
+            break;
             case Constants.SQLDataTypes.STRUCT: {
                 Object value = stmt.getObject(index + 1);
                 String stringValue = "";
@@ -456,7 +456,7 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
                 }
                 paramValue.setValue(1, new BString(stringValue));
             }
-                break;
+            break;
             default:
                 throw new BallerinaException(
                         "unsupported datatype as out/inout parameter: " + sqlType + " index:" + index);
