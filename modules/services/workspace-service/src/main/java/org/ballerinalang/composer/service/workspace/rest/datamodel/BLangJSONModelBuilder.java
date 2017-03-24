@@ -526,7 +526,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
         this.tempJsonArrayRef.peek().add(jsonAnnotation);
     }
 
-    public JsonObject getJsonObjForAnnotationAttachment(AnnotationAttachment annotation){
+    public JsonObject getJsonObjForAnnotationAttachment(AnnotationAttachment annotation) {
         JsonObject jsonAnnotation = new JsonObject();
         jsonAnnotation.addProperty(BLangJSONModelConstants.DEFINITION_TYPE, BLangJSONModelConstants
                 .ANNOTATION_ATTACHMENT);
@@ -547,7 +547,7 @@ public class BLangJSONModelBuilder implements NodeVisitor {
     private JsonElement getJsonObjForAnnotationAttribute(String k, AnnotationAttributeValue v) {
         JsonObject pair = new JsonObject();
         Object jsonObjForAnnotationAttributeValue = getJsonObjForAnnotationAttributeValue(v);
-        if (jsonObjForAnnotationAttributeValue instanceof String){
+        if (jsonObjForAnnotationAttributeValue instanceof String) {
             pair.addProperty(k, (String) jsonObjForAnnotationAttributeValue);
         } else if (jsonObjForAnnotationAttributeValue instanceof JsonElement) {
             pair.add(k, (JsonElement) jsonObjForAnnotationAttributeValue);
@@ -556,18 +556,18 @@ public class BLangJSONModelBuilder implements NodeVisitor {
     }
 
     private Object getJsonObjForAnnotationAttributeValue(AnnotationAttributeValue v) {
-        if(v.getLiteralValue() != null){
+        if (v.getLiteralValue() != null) {
             return v.getLiteralValue().stringValue();
         } else if (v.getAnnotationValue() != null) {
             // attribute value is an another annotation attachment
             // do a recursive call
             return getJsonObjForAnnotationAttachment(v.getAnnotationValue());
-        } else if (v.getValueArray() != null){
+        } else if (v.getValueArray() != null) {
             // attribute value is an array of attribute values
             JsonArray children = new JsonArray();
-            for(AnnotationAttributeValue value: v.getValueArray()){
+            for (AnnotationAttributeValue value: v.getValueArray()) {
                 Object jsonObjForAnnotationAttributeValue = getJsonObjForAnnotationAttributeValue(value);
-                if (jsonObjForAnnotationAttributeValue instanceof String){
+                if (jsonObjForAnnotationAttributeValue instanceof String) {
                     children.add((String) jsonObjForAnnotationAttributeValue);
                 } else if (jsonObjForAnnotationAttributeValue instanceof JsonElement) {
                     children.add((JsonElement) jsonObjForAnnotationAttributeValue);

@@ -23,9 +23,6 @@ import io.swagger.codegen.CodegenConfig;
 import io.swagger.codegen.CodegenOperation;
 import io.swagger.codegen.CodegenParameter;
 import io.swagger.codegen.DefaultGenerator;
-import io.swagger.models.HttpMethod;
-import io.swagger.models.Operation;
-import io.swagger.models.Path;
 import io.swagger.models.Swagger;
 import io.swagger.parser.Swagger20Parser;
 import io.swagger.util.Json;
@@ -37,6 +34,7 @@ import org.ballerinalang.composer.service.workspace.rest.datamodel.BallerinaComp
 import org.ballerinalang.composer.service.workspace.rest.datamodel.BallerinaComposerModelBuilder;
 import org.ballerinalang.composer.service.workspace.swagger.generators.BallerinaCodeGenerator;
 import org.ballerinalang.model.AnnotationAttachment;
+import org.ballerinalang.model.AnnotationAttributeValue;
 import org.ballerinalang.model.BLangPackage;
 import org.ballerinalang.model.BallerinaFile;
 import org.ballerinalang.model.CompilationUnit;
@@ -50,12 +48,14 @@ import org.ballerinalang.model.Worker;
 import org.ballerinalang.model.statements.VariableDefStmt;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.SimpleTypeName;
+import org.ballerinalang.model.values.BString;
 import org.ballerinalang.util.parser.BallerinaLexer;
 import org.ballerinalang.util.parser.BallerinaParser;
 import org.ballerinalang.util.parser.antlr4.BLangAntlr4Listener;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -111,7 +111,8 @@ public class SwaggerConverterUtils {
         BLangPackage.PackageBuilder packageBuilder = new BLangPackage.PackageBuilder(bLangPackage);
         BallerinaComposerModelBuilder bLangModelBuilder = new BallerinaComposerModelBuilder(packageBuilder,
                 StringUtils.EMPTY);
-        BLangAntlr4Listener ballerinaBaseListener = new BLangAntlr4Listener(bLangModelBuilder);
+        BLangAntlr4Listener ballerinaBaseListener = new BLangAntlr4Listener(bLangModelBuilder,
+                Paths.get("temp/temp.bal")); // TODO get the actual file name and path from client
         ballerinaParser.addParseListener(ballerinaBaseListener);
         ballerinaParser.compilationUnit();
         BallerinaFile bFile = bLangModelBuilder.build();
@@ -145,12 +146,13 @@ public class SwaggerConverterUtils {
             resources1 = mapSwaggerPathsToResources(pathEntry.getValue());
         }
         List<AnnotationAttachment> serviceAnnotationArrayList = new ArrayList<AnnotationAttachment>();
-        serviceAnnotationArrayList.add(new AnnotationAttachment(null, "http:BasePath", swagger.getBasePath(),
-                null));
-        serviceAnnotationArrayList.add(new AnnotationAttachment(null, "http:Host", swagger.getHost(), null));
-        serviceAnnotationArrayList.add(new AnnotationAttachment(null, "http:Info", Json.pretty(swagger.getInfo()),
-                null));
-        service.setAnnotations(serviceAnnotationArrayList.toArray(new AnnotationAttachment[serviceAnnotationArrayList.size()]));
+        serviceAnnotationArrayList.add(createSingleValuedAnnotationAttachment("BasePath",
+                "http", swagger.getBasePath()));
+        serviceAnnotationArrayList.add(createSingleValuedAnnotationAttachment("Host", "http", swagger.getHost()));
+        serviceAnnotationArrayList.add(createSingleValuedAnnotationAttachment("Info", "http",
+                Json.pretty(swagger.getInfo())));
+        service.setAnnotations(serviceAnnotationArrayList
+                .toArray(new AnnotationAttachment[serviceAnnotationArrayList.size()]));
         //Iterate through paths and add them as resources
         service.setResources(resources1);
         return service;
@@ -195,27 +197,27 @@ public class SwaggerConverterUtils {
                     .getInstance()));
             resourceBuilder.setName(operationId);
             if (entry.hasConsumes) {
-                resourceBuilder.addAnnotation(new AnnotationAttachment(null, "http:Consumes", entry.consumes
-                        .get(0).get("mediaType"), null));
+                resourceBuilder.addAnnotation(createSingleValuedAnnotationAttachment("Consumes", "http",  entry.consumes
+                        .get(0).get("mediaType")));
             }
             if (entry.hasProduces) {
-                resourceBuilder.addAnnotation(new AnnotationAttachment(null, "http:Produces",
-                        entry.produces.get(0).get("mediaType"), null));
+                resourceBuilder.addAnnotation(createSingleValuedAnnotationAttachment("Produces", "http",
+                        entry.produces.get(0).get("mediaType")));
             }
             if (entry.summary != null) {
-                resourceBuilder.addAnnotation(new AnnotationAttachment(null, "http:Summary", entry.summary,
-                        null));
+                resourceBuilder.addAnnotation(createSingleValuedAnnotationAttachment("Summary",
+                        "http",  entry.summary));
             }
             if (entry.notes != null) {
-                resourceBuilder.addAnnotation(new AnnotationAttachment(null, "http:Description", entry.notes,
-                        null));
+                resourceBuilder.addAnnotation(createSingleValuedAnnotationAttachment("Description",
+                        "http",  entry.notes));
             }
             if (entry.path != null && entry.path.length() > 0) {
-                resourceBuilder.addAnnotation(new AnnotationAttachment(null, "http:Path", entry.path, null));
-            
+                resourceBuilder.addAnnotation(createSingleValuedAnnotationAttachment("Path", "http", entry.path));
+            }
             
             if (entry.httpMethod != null && entry.httpMethod.length() > 0) {
-                resourceBuilder.addAnnotation(new AnnotationAttachment(null, "http:" + httpMethod, "", null));
+                resourceBuilder.addAnnotation(createSingleValuedAnnotationAttachment(httpMethod, "http", ""));
             }
             //handle parameters
             if (entry.getHasQueryParams()) {
@@ -229,8 +231,8 @@ public class SwaggerConverterUtils {
                     ParameterDef parameterDef = new ParameterDef(new NodeLocation("<unknown>", 0), variableName, new
                             SimpleTypeName(codegenParameter.dataType), new SymbolName("m"), resourceBuilder
                             .buildResource());
-                    AnnotationAttachment annotation = new AnnotationAttachment(null, "http:QueryParam", codegenParameter
-                            .baseName, null);
+                    AnnotationAttachment annotation = createSingleValuedAnnotationAttachment("QueryParam", "http",
+                            codegenParameter.baseName);
                     parameterDef.addAnnotation(annotation);
                     resourceBuilder.addParameter(parameterDef);
                 }
@@ -246,8 +248,8 @@ public class SwaggerConverterUtils {
                     ParameterDef parameterDef = new ParameterDef(new NodeLocation("<unknown>", 0), variableName, new
                             SimpleTypeName(codegenParameter.dataType), new SymbolName("m"), resourceBuilder
                             .buildResource());
-                    AnnotationAttachment annotation = new AnnotationAttachment(null, "http:PathParam", codegenParameter
-                            .baseName, null);
+                    AnnotationAttachment annotation = createSingleValuedAnnotationAttachment("PathParam", "http",
+                            codegenParameter.baseName);
                     parameterDef.addAnnotation(annotation);
                     resourceBuilder.addParameter(parameterDef);
                 }
@@ -269,32 +271,6 @@ public class SwaggerConverterUtils {
             Resource resourceToBeAdd = resourceBuilder.buildResource();
             resourceList.add(resourceToBeAdd);
         }
-        return resourceList.toArray(new Resource[resourceList.size()]);
-    }
-    
-    /**
-     * @param pathMap Swagger path map
-     * @return resource array
-     */
-    public static Resource[] mapPathsToResources(Map<String, Path> pathMap) {
-        //TODO this logic need to be reviewed and fix issues. This is temporary commit to test swagger UI flow
-        List<Resource> resourceList = new ArrayList<Resource>();
-        for (Map.Entry<String, Path> entry : pathMap.entrySet()) {
-            Path path = entry.getValue();
-            Resource.ResourceBuilder resourceBuilder = new Resource.ResourceBuilder(new BLangPackage(GlobalScope
-                    .getInstance()));
-            for (Map.Entry<HttpMethod, Operation> operationEntry : path.getOperationMap().entrySet()) {
-                resourceBuilder.addAnnotation(new AnnotationAttachment(null, operationEntry.getKey().toString()
-                        , null, null));
-                
-                resourceBuilder.setSymbolName(new SymbolName(operationEntry.getKey().name()));
-            }
-            Resource resource = resourceBuilder.buildResource();
-            resourceList.add(resource);
-        }
-        pathMap.forEach((pathString, pathObject) -> {
-            
-        });
         return resourceList.toArray(new Resource[resourceList.size()]);
     }
     
@@ -369,7 +345,8 @@ public class SwaggerConverterUtils {
      * @param annotationsToMerge annotations array to merge
      * @return merged annotations
      */
-    public static AnnotationAttachment[] mergeAnnotations(AnnotationAttachment[] annotations, AnnotationAttachment[] annotationsToMerge) {
+    public static AnnotationAttachment[] mergeAnnotations(AnnotationAttachment[] annotations,
+                                                          AnnotationAttachment[] annotationsToMerge) {
         //TODO this logic need to be reviewed and fix issues. This is temporary commit to test swagger UI flow
         if (annotations == null) {
             return clone(annotationsToMerge);
@@ -556,5 +533,12 @@ public class SwaggerConverterUtils {
         BLangJSONModelBuilder jsonModelBuilder = new BLangJSONModelBuilder(response);
         ballerinaFile.accept(jsonModelBuilder);
         return response.toString();
+    }
+
+    protected static AnnotationAttachment createSingleValuedAnnotationAttachment(String annotationName,
+                                                                                 String annotationPkg, String value) {
+        ConcurrentHashMap<String, AnnotationAttributeValue> attributes = new ConcurrentHashMap<>();
+        attributes.put("value", new AnnotationAttributeValue(new BString(value), new SimpleTypeName("BString")));
+        return new AnnotationAttachment(null, annotationName, annotationPkg, null, attributes);
     }
 }

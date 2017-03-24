@@ -194,7 +194,7 @@ public class BLangFileRestService {
         return result;
     }
 
-    private java.nio.file.Path deriveFilePath(String fileName, String filePath){
+    private java.nio.file.Path deriveFilePath(String fileName, String filePath) {
         return Paths.get(filePath + File.separator + fileName);
     }
     
