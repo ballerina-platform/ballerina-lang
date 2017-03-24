@@ -106,85 +106,47 @@ define(['lodash', 'd3','log', './simple-statement-view', './point', 'd3utils', '
             this.listenTo(model, 'update-property-text', this.updateStatementText);
 
             // mouse events for 'processorConnectPoint'
-            this.processorConnectPoint.on("mousedown", function () {
+            this.getInvokeStartPoint().on("mousedown", function () {
                 d3.event.preventDefault();
                 d3.event.stopPropagation();
-                var x =  parseFloat(self.processorConnectPoint.attr('cx'));
-                var y =  parseFloat(self.processorConnectPoint.attr('cy'));
+                var x =  parseFloat(self.getInvokeStartPoint().attr('cx'));
+                var y =  parseFloat(self.getInvokeStartPoint().attr('cy'));
                 var sourcePoint = self.toGlobalCoordinates(new Point(x, y));
 
                 self.messageManager.startDrawMessage(self, self.getModel(), sourcePoint,
                     self.toGlobalCoordinates(new Point(x, y)));
                 self.messageManager.setTypeBeingDragged(true);
             });
-            this.processorConnectPoint.on("mouseover", function () {
-                self.processorConnectPoint
+            this.getInvokeStartPoint().on("mouseover", function () {
+                self.getInvokeStartPoint()
                     .style("fill", "#444")
                     .style("fill-opacity", 0.5)
                     .style("cursor", 'url(images/BlackHandwriting.cur), pointer');
             });
-            this.processorConnectPoint.on("mouseout", function () {
-                self.processorConnectPoint.style("fill-opacity", 0.01);
+            this.getInvokeStartPoint().on("mouseout", function () {
+                self.getInvokeStartPoint().style("fill-opacity", 0.01);
                 self.messageManager.setTypeBeingDragged(undefined);
             });
 
             this.getBoundingBox().on('top-edge-moved', function(dy){
-                self.processorConnectPoint.attr('cy',  parseFloat(self.processorConnectPoint.attr('cy')) + dy);
+                self.getInvokeStartPoint().attr('cy',  parseFloat(self.getInvokeStartPoint().attr('cy')) + dy);
             });
 
-            this.listenTo(model, 'update-property-text', this.updateStatementText);
-        };
-
-        WorkerInvocationView.prototype.renderArrows = function (context) {
-            this.setDiagramRenderingContext(context);
-
-            var destination = this.getModel().getDestination();
-            if(!_.isUndefined(destination)) {
-                var parent = this.getStatementGroup();
-                this._arrowGroup = D3Utils.group(parent).attr("transform", "translate(0,0)");
-                var width = this.getBoundingBox().w();
-                var height = this.getBoundingBox().h();
-                var x = this.getBoundingBox().getLeft();
-                var y = this.getBoundingBox().getTop();
-                var sourcePointX = x + width;
-                var sourcePointY = y + height / 2;
-                var destinationView = this.getDiagramRenderingContext().getViewOfModel(destination);
-
-                var startPoint = new Point(sourcePointX, sourcePointY);
-                var connectorCenterPointX = this.connector.getMiddleLineCenter().x();
-                var connectorCenterPointY = this.connector.getMiddleLineCenter().y();
-                var startX = Math.round(startPoint.x());
-                this._processorConnector = D3Utils.line(Math.round(startPoint.x()), Math.round(startPoint.y()), Math.round(connectorCenterPointX),
-                    Math.round(startPoint.y()), this._arrowGroup).classed("action-line", true);
-                this._forwardArrowHead = D3Utils.inputTriangle(Math.round(connectorCenterPointX) - 5, Math.round(startPoint.y()), this._arrowGroup).classed("action-arrow", true);
-
-                this.getBoundingBox().on('moved', function (offset) {
-                    var transformX = this._arrowGroup.node().transform.baseVal.consolidate().matrix.e;
-                    var transformY = this._arrowGroup.node().transform.baseVal.consolidate().matrix.f;
-                    this._arrowGroup.node().transform.baseVal.getItem(0).setTranslate(transformX + offset.dx, transformY + offset.dy);
-                }, this);
-
-                this.processorConnectPoint.style("display", "none");
-
-                var arrowHeadEnd = D3Utils.circle(Math.round(connectorCenterPointX) - 5, Math.round(startPoint.y()), 10, parent);
-                arrowHeadEnd
-                    .attr("fill-opacity", 0.01)
-                    .style("fill", "#444");
-
-
-            }
+            this.listenTo(this.getBoundingBox(), 'right-edge-moved', function (dx) {
+                // Move the invoke start point
+                self.getInvokeStartPoint().attr('cx', parseFloat(self.getInvokeStartPoint().attr('cx')) + dx);
+            });
         };
 
         WorkerInvocationView.prototype.renderProcessorConnectPoint = function (renderingContext) {
             var boundingBox = this.getBoundingBox();
-            var width = boundingBox.w();
             var height = boundingBox.h();
-            var x = boundingBox.getLeft();
+            var x = boundingBox.getRight();
             var y = boundingBox.getTop();
 
-            var processorConnectPoint = D3Utils.circle((x + width), ((y + height / 2)), 10, this.getStatementGroup());
+            var processorConnectPoint = D3Utils.circle(x, ((y + height / 2)), 10, this.getStatementGroup());
             processorConnectPoint.attr("fill-opacity", 0.01);
-            this.processorConnectPoint = processorConnectPoint;
+            this._invokeStartPoint = processorConnectPoint;
         };
 
         /**
@@ -201,10 +163,10 @@ define(['lodash', 'd3','log', './simple-statement-view', './point', 'd3utils', '
          * @param {Point} point a point in current user coordinate system
          */
         WorkerInvocationView.prototype.toGlobalCoordinates = function (point) {
-            var pt = this.processorConnectPoint.node().ownerSVGElement.createSVGPoint();
+            var pt = this._invokeStartPoint.node().ownerSVGElement.createSVGPoint();
             pt.x = point.x();
             pt.y = point.y();
-            pt = pt.matrixTransform(this.processorConnectPoint.node().getCTM());
+            pt = pt.matrixTransform(this._invokeStartPoint.node().getCTM());
             return new Point(pt.x, pt.y);
         };
 
@@ -282,18 +244,20 @@ define(['lodash', 'd3','log', './simple-statement-view', './point', 'd3utils', '
                 self._messageView.move(0, dy);
             });
 
+            this.listenTo(this.getBoundingBox(), 'right-edge-moved', this.moveArrowStartHorizontalCallback, this);
+            this.listenTo(destinationStatementContainer.getBoundingBox(), 'width-changed', function (dw) {
+                self.moveStartActionHorizontalCallback(dw/2);
+            }, this);
+            this.listenTo(destinationStatementContainer.getBoundingBox(), 'moved', function (offset) {
+                self.moveStartActionHorizontalCallback(offset.dx);
+            }, this);
+
             // Listen to the destination's before-remove event and remove arrow and start box.
             this.getModel().getDestination().on('before-remove', function(){
                 self._messageView.removeArrow();
                 self._startRect.node().remove();
                 self._startActionText.node().remove();
                 self._startActionGroup.remove();
-            });
-
-            this.listenTo(destinationView.getStatementContainer().getBoundingBox(), 'width-changed', function (dw) {
-                this._messageView.getEnd().move(dw/2, 0);
-                self._startRect.attr('x', parseFloat(self._startRect.attr('x')) + dw/2);
-                self._startActionText.attr('x', parseFloat(self._startActionText.attr('x')) + dw/2);
             });
         };
 
@@ -316,6 +280,64 @@ define(['lodash', 'd3','log', './simple-statement-view', './point', 'd3utils', '
             // resize the bounding box in order to the other objects to resize
             var gap = this.getParent().getStatementContainer().getInnerDropZoneHeight();
             this.getBoundingBox().move(0, -this.getBoundingBox().h() - gap).w(0);
+        };
+
+        /**
+         * Get the worker start point
+         * @return {SVGCircle} - invokeStartPoint
+         */
+        WorkerInvocationView.prototype.getInvokeStartPoint = function () {
+            return this._invokeStartPoint;
+        };
+
+        /**
+         * Get the start action text
+         * @return {SVGText} - startActionText
+         */
+        WorkerInvocationView.prototype.getStartActionText = function () {
+            return this._startActionText;
+        };
+
+        /**
+         * Get the start action rect
+         * @return {SVGRect} - startRect
+         */
+        WorkerInvocationView.prototype.getStartRect = function () {
+            return this._startRect;
+        };
+
+        /**
+         * Get the MessageView
+         * @return {MessageView} - messageView
+         */
+        WorkerInvocationView.prototype.getMessageView = function () {
+            return this._messageView;
+        };
+
+        /**
+         * Move the start action horizontally
+         * @param {number} dx
+         */
+        WorkerInvocationView.prototype.moveStartActionHorizontalCallback = function (dx) {
+            var self = this;
+            // Move the start action Rect, text, and the arrow start point
+            if (!_.isNil(self.getStartRect()) && !_.isNil(self.getStartActionText())) {
+                self.getStartActionText().attr('x', parseFloat(self.getStartActionText().attr('x')) + dx);
+                self.getStartRect().attr('x', parseFloat(self.getStartRect().attr('x')) + dx);
+                self.getMessageView().getEnd().move(dx, 0);
+            }
+        };
+
+        /**
+         * Move the arrow start horizontally
+         * @param {number} dx
+         */
+        WorkerInvocationView.prototype.moveArrowStartHorizontalCallback = function (dx) {
+            var self = this;
+            // Move the arrow start point
+            if (!_.isNil(self.getMessageView())) {
+                self.getMessageView().getStart().x(self.getBoundingBox().getRight());
+            }
         };
 
         return WorkerInvocationView;

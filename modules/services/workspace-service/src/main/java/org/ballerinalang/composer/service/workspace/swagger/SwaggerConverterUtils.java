@@ -47,13 +47,11 @@ import org.ballerinalang.model.Resource;
 import org.ballerinalang.model.Service;
 import org.ballerinalang.model.SymbolName;
 import org.ballerinalang.model.Worker;
-import org.ballerinalang.model.builder.BLangModelBuilder;
 import org.ballerinalang.model.statements.VariableDefStmt;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.SimpleTypeName;
 import org.ballerinalang.util.parser.BallerinaLexer;
 import org.ballerinalang.util.parser.BallerinaParser;
-import org.ballerinalang.util.parser.BallerinaParserErrorStrategy;
 import org.ballerinalang.util.parser.antlr4.BLangAntlr4Listener;
 
 import java.io.File;
@@ -68,12 +66,12 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 
 public class SwaggerConverterUtils {
-
+    
     /**
      * Maximum loop count when creating temp directories.
      */
     private static final int TEMP_DIR_ATTEMPTS = 10000;
-
+    
     /**
      * This method will extract service definitions from ballerina source
      *
@@ -92,7 +90,7 @@ public class SwaggerConverterUtils {
         }
         return services.toArray(new Service[services.size()]);
     }
-
+    
     /**
      * Generate ballerina fine from the String definition
      *
@@ -111,14 +109,15 @@ public class SwaggerConverterUtils {
         BTypes.loadBuiltInTypes(globalScope);
         BLangPackage bLangPackage = new BLangPackage(globalScope);
         BLangPackage.PackageBuilder packageBuilder = new BLangPackage.PackageBuilder(bLangPackage);
-        BallerinaComposerModelBuilder bLangModelBuilder = new BallerinaComposerModelBuilder(packageBuilder, StringUtils.EMPTY);
+        BallerinaComposerModelBuilder bLangModelBuilder = new BallerinaComposerModelBuilder(packageBuilder,
+                StringUtils.EMPTY);
         BLangAntlr4Listener ballerinaBaseListener = new BLangAntlr4Listener(bLangModelBuilder);
         ballerinaParser.addParseListener(ballerinaBaseListener);
         ballerinaParser.compilationUnit();
         BallerinaFile bFile = bLangModelBuilder.build();
         return bFile;
     }
-
+    
     /**
      * This method will generate Ballerina service from Swagger definition.
      *
@@ -131,8 +130,7 @@ public class SwaggerConverterUtils {
         Swagger20Parser swagger20Parser = new Swagger20Parser();
         Swagger swagger = swagger20Parser.parse(swaggerDefinition);
         //Iterate through service annotations and add them to service
-        Service.ServiceBuilder serviceBuilder = new Service.ServiceBuilder(
-                new BLangPackage(GlobalScope.getInstance()));
+        Service.ServiceBuilder serviceBuilder = new Service.ServiceBuilder(new BLangPackage(GlobalScope.getInstance()));
         serviceBuilder.setName(swagger.getBasePath());
         Service service = serviceBuilder.buildService();
         CodegenConfig codegenConfig = new BallerinaCodeGenerator();
@@ -143,24 +141,21 @@ public class SwaggerConverterUtils {
         generator.opts(clientOptInput);
         Map<String, List<CodegenOperation>> paths = generator.processPaths(swagger.getPaths());
         Resource[] resources1 = null;
-        for (String path : paths.keySet()) {
-            List<CodegenOperation> ops = paths.get(path);
-            resources1 = mapSwaggerPathsToResources(ops);
+        for (Map.Entry<String, List<CodegenOperation>> pathEntry : paths.entrySet()) {
+            resources1 = mapSwaggerPathsToResources(pathEntry.getValue());
         }
         List<Annotation> serviceAnnotationArrayList = new ArrayList<Annotation>();
-        serviceAnnotationArrayList.add(new Annotation(null, new SymbolName("http:BasePath"),
-                swagger.getBasePath(), null));
-        serviceAnnotationArrayList.add(new Annotation(null, new SymbolName("http:Host"),
-                swagger.getHost(), null));
-        serviceAnnotationArrayList.add(new Annotation(null, new SymbolName("http:Info"),
-                Json.pretty(swagger.getInfo()).toString(), null));
-        service.setAnnotations(serviceAnnotationArrayList.toArray(
-                new Annotation[serviceAnnotationArrayList.size()]));
+        serviceAnnotationArrayList.add(new Annotation(null, new SymbolName("http:BasePath"), swagger.getBasePath(),
+                null));
+        serviceAnnotationArrayList.add(new Annotation(null, new SymbolName("http:Host"), swagger.getHost(), null));
+        serviceAnnotationArrayList.add(new Annotation(null, new SymbolName("http:Info"), Json.pretty(swagger.getInfo()),
+                null));
+        service.setAnnotations(serviceAnnotationArrayList.toArray(new Annotation[serviceAnnotationArrayList.size()]));
         //Iterate through paths and add them as resources
         service.setResources(resources1);
         return service;
     }
-
+    
     /**
      * Atomically creates a new directory somewhere beneath the system's temporary directory (as defined by the {@code
      * java.io.tmpdir} system property), and returns its name.
@@ -171,25 +166,18 @@ public class SwaggerConverterUtils {
     private static File createTempDir() {
         File baseDir = new File(System.getProperty("java.io.tmpdir"));
         String baseName = System.currentTimeMillis() + "-";
-
+        
         for (int counter = 0; counter < TEMP_DIR_ATTEMPTS; counter++) {
             File tempDir = new File(baseDir, baseName + counter);
             if (tempDir.mkdir()) {
                 return tempDir;
             }
         }
-        throw new IllegalStateException(
-                "Failed to create directory within "
-                        + TEMP_DIR_ATTEMPTS
-                        + " attempts (tried "
-                        + baseName
-                        + "0 to "
-                        + baseName
-                        + (TEMP_DIR_ATTEMPTS - 1)
-                        + ')');
+        throw new IllegalStateException("Failed to create directory within " + TEMP_DIR_ATTEMPTS + " attempts (tried " +
+                                        "" + baseName + "0 to " + baseName + (TEMP_DIR_ATTEMPTS - 1) + ')');
     }
-
-
+    
+    
     /**
      * This method will convert swagger path List into ballerina @Resource array
      *
@@ -198,43 +186,36 @@ public class SwaggerConverterUtils {
      */
     public static Resource[] mapSwaggerPathsToResources(List<CodegenOperation> pathMap) {
         //TODO this logic need to be reviewed and fix issues. This is temporary commit to test swagger UI flow
-
+        
         List<Resource> resourceList = new ArrayList<Resource>();
         for (CodegenOperation entry : pathMap) {
             String httpMethod = entry.httpMethod;
             String operationId = entry.operationId;
-            Resource.ResourceBuilder resourceBuilder = new Resource.ResourceBuilder(
-                    new BLangPackage(GlobalScope.getInstance()));
+            Resource.ResourceBuilder resourceBuilder = new Resource.ResourceBuilder(new BLangPackage(GlobalScope
+                    .getInstance()));
             resourceBuilder.setName(operationId);
             if (entry.hasConsumes) {
-                resourceBuilder.addAnnotation(
-                        new Annotation(null, new SymbolName("http:Consumes"),
-                                entry.consumes.get(0).get("mediaType").toString(), null));
+                resourceBuilder.addAnnotation(new Annotation(null, new SymbolName("http:Consumes"), entry.consumes
+                        .get(0).get("mediaType"), null));
             }
             if (entry.hasProduces) {
-                resourceBuilder.addAnnotation(
-                        new Annotation(null, new SymbolName("http:Produces"),
-                                entry.produces.get(0).get("mediaType"), null));
+                resourceBuilder.addAnnotation(new Annotation(null, new SymbolName("http:Produces"),
+                        entry.produces.get(0).get("mediaType"), null));
             }
             if (entry.summary != null) {
-                resourceBuilder.addAnnotation(
-                        new Annotation(null, new SymbolName("http:Summary"),
-                                entry.summary.toString(), null));
+                resourceBuilder.addAnnotation(new Annotation(null, new SymbolName("http:Summary"), entry.summary,
+                        null));
             }
             if (entry.notes != null) {
-                resourceBuilder.addAnnotation(
-                        new Annotation(null, new SymbolName("http:Description"),
-                                entry.notes.toString(), null));
+                resourceBuilder.addAnnotation(new Annotation(null, new SymbolName("http:Description"), entry.notes,
+                        null));
             }
             if (entry.path != null && entry.path.length() > 0) {
-                resourceBuilder
-                        .addAnnotation(new Annotation(null, new SymbolName("http:Path"),
-                                entry.path.toString(), null));
+                resourceBuilder.addAnnotation(new Annotation(null, new SymbolName("http:Path"), entry.path, null));
             }
-
+            
             if (entry.httpMethod != null && entry.httpMethod.length() > 0) {
-                resourceBuilder.addAnnotation(new Annotation(null, new SymbolName("http:" + httpMethod),
-                        "", null));
+                resourceBuilder.addAnnotation(new Annotation(null, new SymbolName("http:" + httpMethod), "", null));
             }
             //handle parameters
             if (entry.getHasQueryParams()) {
@@ -242,15 +223,14 @@ public class SwaggerConverterUtils {
                     //TODO compare and merge if existing parameter edited.
                     String variableName = (String) codegenParameter.
                             vendorExtensions.get(SwaggerBallerinaConstants.VARIABLE_UUID_NAME);
-                    if((variableName == null ) || variableName.isEmpty()){
+                    if ((variableName == null) || variableName.isEmpty()) {
                         variableName = codegenParameter.baseName;
                     }
-                    ParameterDef parameterDef = new ParameterDef(
-                            new NodeLocation("<unknown>", 0), variableName,
-                            new SimpleTypeName(codegenParameter.dataType), new SymbolName("m"),
-                            resourceBuilder.buildResource());
-                    Annotation annotation = new Annotation(null, new SymbolName("http:QueryParam"),
-                            codegenParameter.baseName, null);
+                    ParameterDef parameterDef = new ParameterDef(new NodeLocation("<unknown>", 0), variableName, new
+                            SimpleTypeName(codegenParameter.dataType), new SymbolName("m"), resourceBuilder
+                            .buildResource());
+                    Annotation annotation = new Annotation(null, new SymbolName("http:QueryParam"), codegenParameter
+                            .baseName, null);
                     parameterDef.addAnnotation(annotation);
                     resourceBuilder.addParameter(parameterDef);
                 }
@@ -260,19 +240,18 @@ public class SwaggerConverterUtils {
                     //TODO compare and merge if existing parameter edited.
                     String variableName = (String) codegenParameter.
                             vendorExtensions.get(SwaggerBallerinaConstants.VARIABLE_UUID_NAME);
-                    if((variableName == null ) || variableName.isEmpty()){
+                    if ((variableName == null) || variableName.isEmpty()) {
                         variableName = codegenParameter.baseName;
                     }
-                        ParameterDef parameterDef = new ParameterDef(
-                            new NodeLocation("<unknown>", 0), variableName,
-                            new SimpleTypeName(codegenParameter.dataType), new SymbolName("m"),
-                            resourceBuilder.buildResource());
-                    Annotation annotation = new Annotation(null, new SymbolName("http:PathParam"),
-                            codegenParameter.baseName, null);
+                    ParameterDef parameterDef = new ParameterDef(new NodeLocation("<unknown>", 0), variableName, new
+                            SimpleTypeName(codegenParameter.dataType), new SymbolName("m"), resourceBuilder
+                            .buildResource());
+                    Annotation annotation = new Annotation(null, new SymbolName("http:PathParam"), codegenParameter
+                            .baseName, null);
                     parameterDef.addAnnotation(annotation);
                     resourceBuilder.addParameter(parameterDef);
                 }
-
+                
             }
             //This resource initiation was required because resource do have both
             //annotation map and array. But there is no way to update array other than
@@ -281,12 +260,10 @@ public class SwaggerConverterUtils {
             resourceBuilder.setName((String) entry.vendorExtensions.
                     get(SwaggerBallerinaConstants.RESOURCE_UUID_NAME));
             //Following code block will generate message input parameter definition for newly created
-            //resource as -->	resource TestPost(message m) {
+            // resource as --> resource TestPost(message m) {
             //This logic can be improved to pass user defined types.
-            ParameterDef parameterDef = new ParameterDef(
-                    new NodeLocation("<unknown>", 0), "m", new SimpleTypeName("message"),
-                    new SymbolName("m"),
-                    resourceBuilder.buildResource());
+            ParameterDef parameterDef = new ParameterDef(new NodeLocation("<unknown>", 0), "m", new SimpleTypeName
+                    ("message"), new SymbolName("m"), resourceBuilder.buildResource());
             //Then add created parameter.
             resourceBuilder.addParameter(parameterDef);
             Resource resourceToBeAdd = resourceBuilder.buildResource();
@@ -294,7 +271,7 @@ public class SwaggerConverterUtils {
         }
         return resourceList.toArray(new Resource[resourceList.size()]);
     }
-
+    
     /**
      * @param pathMap Swagger path map
      * @return resource array
@@ -304,35 +281,35 @@ public class SwaggerConverterUtils {
         List<Resource> resourceList = new ArrayList<Resource>();
         for (Map.Entry<String, Path> entry : pathMap.entrySet()) {
             Path path = entry.getValue();
-            Resource.ResourceBuilder resourceBuilder = new Resource.ResourceBuilder(
-                    new BLangPackage(GlobalScope.getInstance()));
+            Resource.ResourceBuilder resourceBuilder = new Resource.ResourceBuilder(new BLangPackage(GlobalScope
+                    .getInstance()));
             for (Map.Entry<HttpMethod, Operation> operationEntry : path.getOperationMap().entrySet()) {
-                resourceBuilder.addAnnotation(
-                        new Annotation(null, new SymbolName(operationEntry.getKey().toString()), null, null));
-
+                resourceBuilder.addAnnotation(new Annotation(null, new SymbolName(operationEntry.getKey().toString())
+                        , null, null));
+                
                 resourceBuilder.setSymbolName(new SymbolName(operationEntry.getKey().name()));
             }
             Resource resource = resourceBuilder.buildResource();
             resourceList.add(resource);
         }
         pathMap.forEach((pathString, pathObject) -> {
-
+            
         });
         return resourceList.toArray(new Resource[resourceList.size()]);
     }
-
+    
     /**
      * This method will merge swagger definition based to ballerina service.
      *
      * @param ballerinaService ballerina service
-     * @param swaggerService swagger service
+     * @param swaggerService   swagger service
      * @return merged service
      */
     public static Service mergeBallerinaService(Service ballerinaService, Service swaggerService) {
         //TODO this logic need to be reviewed and fix issues. This is temporary commit to test swagger UI flow
         //Secondary service annotations are coming from swagger. So we need to merge and update.
-        ballerinaService.setAnnotations(
-                mergeAnnotations(ballerinaService.getAnnotations(), swaggerService.getAnnotations()));
+        ballerinaService.setAnnotations(mergeAnnotations(ballerinaService.getAnnotations(), swaggerService
+                .getAnnotations()));
         List<Resource> resourceList = new ArrayList<Resource>();
         for (Resource resource : swaggerService.getResources()) {
             boolean isExistingResource = false;
@@ -341,14 +318,14 @@ public class SwaggerConverterUtils {
                     isExistingResource = true;
                     //Here is a resource math. Do assignments
                     //merge annotations
-                    Resource.ResourceBuilder resourceBuilder =
-                            new Resource.ResourceBuilder(originalResource.getEnclosingScope());
+                    Resource.ResourceBuilder resourceBuilder = new Resource.ResourceBuilder(originalResource
+                            .getEnclosingScope());
                     resourceBuilder.setName(originalResource.getName());
                     resourceBuilder.setPkgPath(originalResource.getPackagePath());
                     resourceBuilder.setBody(originalResource.getResourceBody());
                     resourceBuilder.setNodeLocation(originalResource.getNodeLocation());
-                    for (Annotation annotation :
-                            mergeAnnotations(originalResource.getAnnotations(), resource.getAnnotations())) {
+                    for (Annotation annotation : mergeAnnotations(originalResource.getAnnotations(), resource
+                            .getAnnotations())) {
                         resourceBuilder.addAnnotation(annotation);
                     }
                     for (Worker worker : originalResource.getWorkers()) {
@@ -384,11 +361,11 @@ public class SwaggerConverterUtils {
         }
         return serviceBuilder.buildService();
     }
-
+    
     /**
      * This method will merge annotations from two different services or resources.
      *
-     * @param annotations annotations array
+     * @param annotations        annotations array
      * @param annotationsToMerge annotations array to merge
      * @return merged annotations
      */
@@ -414,7 +391,7 @@ public class SwaggerConverterUtils {
             return annotationMap.values().toArray(new Annotation[annotationMap.size()]);
         }
     }
-
+    
     /**
      * Clone annotations array
      *
@@ -424,11 +401,11 @@ public class SwaggerConverterUtils {
     private static Annotation[] clone(Annotation[] annotations) {
         return annotations == null ? null : (Annotation[]) annotations.clone();
     }
-
+    
     /**
      * Check if 2 resources are having same UUID.
      *
-     * @param swaggerResource Swagger resource
+     * @param swaggerResource   Swagger resource
      * @param ballerinaResource Ballerina resources
      * @return whether UUIDs for Swagger and Ballerina resources are matching
      */
@@ -444,8 +421,7 @@ public class SwaggerConverterUtils {
         }
         return swaggerResource.getName().equalsIgnoreCase(generateServiceUUID(path, verb));
     }
-
-
+    
     /**
      * This will generate UUID specific to given resource.
      *
@@ -475,7 +451,7 @@ public class SwaggerConverterUtils {
         }
         return builder.toString().replaceAll("[^a-zA-Z0-9_]", "");
     }
-
+    
     public static String capitalize(String str) {
         int strLen;
         if (str != null && (strLen = str.length()) != 0) {
@@ -486,12 +462,12 @@ public class SwaggerConverterUtils {
             return str;
         }
     }
-
+    
     /**
      * Remove duplicate resources and merge them.
      *
      * @param resourceList resources list
-     * @param resources resources array
+     * @param resources    resources array
      * @return merged resources array without duplicates
      */
     public static Resource[] mergeResources(List<Resource> resourceList, Resource[] resources) {
@@ -499,8 +475,7 @@ public class SwaggerConverterUtils {
             Resource resource = resources[i];
             boolean isMatched = false;
             for (Resource resourceFromList : resourceList) {
-                if (resourceFromList.getSymbolName().getName().equalsIgnoreCase(
-                        resource.getSymbolName().getName())) {
+                if (resourceFromList.getSymbolName().getName().equalsIgnoreCase(resource.getSymbolName().getName())) {
                     isMatched = true;
                     //match means its there in list
                 }
@@ -509,11 +484,11 @@ public class SwaggerConverterUtils {
                 //If this is complete new resource then add it to another list.
                 resourceList.add(resource);
             }
-
+            
         }
         return resourceList.toArray(new Resource[resourceList.size()]);
     }
-
+    
     /**
      * This method will convert ballerina definition to swagger string. Since swagger is subset of ballerina definition
      * we can implement converter logic without data loss.
@@ -537,19 +512,19 @@ public class SwaggerConverterUtils {
         }
         return swaggerDefinition;
     }
-
+    
     /**
      * This method will generate ballerina string from swagger definition. Since ballerina service definition is super
      * set of swagger definition we will take both swagger and ballerina definition and merge swagger changes to
      * ballerina definition selectively to prevent data loss
      *
-     * @param swaggerDefinition  swagger definition to be processed as swagger
-     * @param ballerinaDefinition  ballerina definition to be process as ballerina definition
+     * @param swaggerDefinition   swagger definition to be processed as swagger
+     * @param ballerinaDefinition ballerina definition to be process as ballerina definition
      * @return String representation of converted ballerina source
      * @throws IOException when error occur while processing input swagger and ballerina definitions.
      */
-    public static String generateBallerinaDataModel(String swaggerDefinition, String ballerinaDefinition)
-            throws IOException {
+    public static String generateBallerinaDataModel(String swaggerDefinition, String ballerinaDefinition) throws
+            IOException {
         BallerinaFile ballerinaFile = SwaggerConverterUtils.getBFileFromBallerinaDefinition(ballerinaDefinition);
         //Always assume we have only one resource in bfile.
         //TODO this logic need to be reviewed and fix issues. This is temporary commit to test swagger UI flow
@@ -557,7 +532,7 @@ public class SwaggerConverterUtils {
                 getServiceFromSwaggerDefinition(swaggerDefinition);
         org.ballerinalang.model.Service ballerinaService = SwaggerConverterUtils.
                 getServicesFromBallerinaDefinition(ballerinaDefinition)[0];
-        String serviceName = swaggerService.getSymbolName().getName();
+//        String serviceName = swaggerService.getSymbolName().getName();
         /*for (org.ballerinalang.model.Service currentService : ballerinaFile.getServices()) {
             if (currentService.getSymbolName().getName().equalsIgnoreCase(serviceName)) {
                 ballerinaService = currentService;
@@ -574,7 +549,7 @@ public class SwaggerConverterUtils {
                         mergeBallerinaService(ballerinaService, swaggerService);
                 break;
             }
-
+            
         }
         //Now we have to convert ballerina file to JSON object model composer require.
         JsonObject response = new JsonObject();

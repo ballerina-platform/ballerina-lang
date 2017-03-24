@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import './tool-palette.css';
+require('./tool-palette.css');
 
 define(['require', 'log', 'jquery', 'backbone', './tool-group-view', './tool-group',
         './drag-drop-manager', './../search/search', './../search/import-search-adapter', 'mousetrap', 'mcustom_scroller'],

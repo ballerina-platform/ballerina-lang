@@ -22,7 +22,7 @@ import org.ballerinalang.composer.service.workspace.swagger.impl.ServicesApiServ
  * Service factory class which returns service implementation objects on demand.
  */
 public class ServicesApiServiceFactory {
-    private final static ServicesApiServiceImpl service = new ServicesApiServiceImpl();
+    private static final ServicesApiServiceImpl service = new ServicesApiServiceImpl();
 
     public static ServicesApiServiceImpl getServicesApi() {
         return service;

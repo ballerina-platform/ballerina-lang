@@ -21,10 +21,10 @@ import org.ballerinalang.composer.service.workspace.launcher.util.LaunchUtils;
 import java.io.File;
 
 /**
- *  Command class represent the launcher commands.
+ * Command class represent the launcher commands.
  */
 public class Command {
-
+    
     private String fileName;
     private String filePath;
     private boolean debug = false;
@@ -33,119 +33,120 @@ public class Command {
     private int port;
     private Process program;
     private boolean errorOutputEnabled = true;
-
+    
     public Command(LauncherConstants.ProgramType type, String fileName, String filePath, boolean debug) {
         this.fileName = fileName;
         this.filePath = filePath;
         this.debug = debug;
         this.type = type;
-
-        if(debug){
+        
+        if (debug) {
             this.port = LaunchUtils.getFreePort();
         }
     }
-    public Command(LauncherConstants.ProgramType type, String fileName, String filePath, String commandArgs, boolean debug)
-    {
+    
+    public Command(LauncherConstants.ProgramType type, String fileName, String filePath, String commandArgs, boolean
+            debug) {
         this(type, fileName, filePath, debug);
         this.commandArgs = commandArgs;
     }
-
+    
     public String getFileName() {
         return fileName;
     }
-
+    
     public void setFileName(String fileName) {
         this.fileName = fileName;
     }
-
+    
     public String getFilePath() {
         return filePath;
     }
-
+    
     public void setFilePath(String filePath) {
         this.filePath = filePath;
     }
-
+    
     public boolean isDebug() {
         return debug;
     }
-
+    
     public void setDebug(boolean debug) {
         this.debug = debug;
     }
-
+    
     public LauncherConstants.ProgramType getType() {
         return type;
     }
-
+    
     public void setType(LauncherConstants.ProgramType type) {
         this.type = type;
     }
-
+    
     public int getPort() {
         return port;
     }
-
+    
     public void setPort(int port) {
         this.port = port;
     }
-
+    
     public String getCommandArgs() {
         return commandArgs;
     }
-
+    
     public void setCommandArgs(String commandArgs) {
         this.commandArgs = commandArgs;
     }
-
+    
     @Override
-    public String toString(){
+    public String toString() {
         String ballerinaBin, ballerinaCommand, programType, scriptLocation, debugSwitch = "", commandArgs = "";
         int port = -1;
-
+        
         // path to bi directory
         ballerinaBin = System.getProperty("ballerina.home") + File.separator + "bin" + File.separator;
-
+        
         if (LaunchUtils.isWindows()) {
             ballerinaCommand = "ballerina.bat run ";
         } else {
             ballerinaCommand = "ballerina run ";
         }
-
-        if(type == LauncherConstants.ProgramType.RUN) {
+        
+        if (type == LauncherConstants.ProgramType.RUN) {
             programType = "main ";
-        }else{
+        } else {
             programType = "service ";
         }
-
-        scriptLocation =   getScript();
-
-        if(debug) {
+        
+        scriptLocation = getScript();
+        
+        if (debug) {
             debugSwitch = "  --ballerina.debug " + this.port;
         }
 
-        if(this.commandArgs != null) {
+        if (this.commandArgs != null) {
             commandArgs = " " + this.commandArgs;
         }
         return ballerinaBin + ballerinaCommand + programType + scriptLocation + debugSwitch + commandArgs;
     }
-
+    
     public String getScript() {
         return this.filePath + File.separator + fileName;
     }
-
+    
     public void setProgram(Process program) {
         this.program = program;
     }
-
+    
     public Process getProgram() {
         return program;
     }
-
+    
     public boolean isErrorOutputEnabled() {
         return errorOutputEnabled;
     }
-
+    
     public void setErrorOutputEnabled(boolean errorOutputEnabled) {
         this.errorOutputEnabled = errorOutputEnabled;
     }

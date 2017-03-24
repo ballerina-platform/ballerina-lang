@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  ~ Copyright (c) 2016, WSO2 Inc. (http://wso2.com) All Rights Reserved.
+  ~ Copyright (c) 2016-2017, WSO2 Inc. (http://wso2.com) All Rights Reserved.
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -17,62 +17,37 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <parent>
-        <groupId>org.wso2.msf4j</groupId>
-        <artifactId>msf4j-service</artifactId>
-        <version>2.1.0</version>
+        <groupId>org.ballerinalang</groupId>
+        <artifactId>ballerina-composer-parent</artifactId>
+        <version>0.85-SNAPSHOT</version>
+        <relativePath>../../../pom.xml</relativePath>
     </parent>
+
     <modelVersion>4.0.0</modelVersion>
-
-    <groupId>org.ballerinalang</groupId>
     <artifactId>workspace-service</artifactId>
-    <version>0.8.15-SNAPSHOT</version>
     <name>Ballerina Composer - Workspace Service</name>
-
-    <repositories>
-        <!-- WSO2 released artifact repository -->
-        <repository>
-            <id>wso2.releases</id>
-            <name>WSO2 Releases Repository</name>
-            <url>http://maven.wso2.org/nexus/content/repositories/releases/</url>
-            <releases>
-                <enabled>true</enabled>
-                <updatePolicy>daily</updatePolicy>
-                <checksumPolicy>ignore</checksumPolicy>
-            </releases>
-        </repository>
-    </repositories>
+    <url>http://ballerinalang.org</url>
 
     <dependencies>
         <dependency>
             <groupId>com.google.inject</groupId>
             <artifactId>guice</artifactId>
-            <version>${guice.version}</version>
         </dependency>
         <dependency>
             <groupId>commons-cli</groupId>
             <artifactId>commons-cli</artifactId>
-            <version>${commons-cli.version}</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-log4j12</artifactId>
-            <version>${slf4j-log4j.version}</version>
         </dependency>
         <dependency>
             <groupId>com.google.code.gson</groupId>
             <artifactId>gson</artifactId>
-            <version>${gson.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>${junit.version}</version>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-core</artifactId>
-            <version>${ballerina.version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.wso2.carbon.transport</groupId>
@@ -83,23 +58,19 @@
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-native</artifactId>
-            <version>${ballerina.version}</version>
         </dependency>
         <dependency>
             <groupId>org.wso2.orbit.org.antlr</groupId>
             <artifactId>antlr4-runtime</artifactId>
-            <version>${antlr4.runtime.version}</version>
         </dependency>
         <dependency>
             <groupId>org.testng</groupId>
             <artifactId>testng</artifactId>
-            <version>${testng.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>io.swagger</groupId>
             <artifactId>swagger-core</artifactId>
-            <version>${io.swagger.version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.slf4j</groupId>
@@ -122,7 +93,6 @@
         <dependency>
             <groupId>io.swagger</groupId>
             <artifactId>swagger-jaxrs</artifactId>
-            <version>${io.swagger.version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>javax.ws.rs</groupId>
@@ -145,37 +115,45 @@
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>servlet-api</artifactId>
-            <version>${servlet-api-version}</version>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.datatype</groupId>
             <artifactId>jackson-datatype-joda</artifactId>
-            <version>${com.fasterxml.jackson.datatype.version}</version>
         </dependency>
         <dependency>
             <groupId>io.swagger</groupId>
             <artifactId>swagger-parser</artifactId>
-            <version>${swagger-parser-version}</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>io.swagger</groupId>
             <artifactId>swagger-codegen</artifactId>
-            <version>2.2.1</version>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
-            <version>2.4.5</version>
+            <version>${jackson.core.version}</version>
         </dependency>
-        <!-- https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-annotations -->
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-annotations</artifactId>
-            <version>2.4.5</version>
+            <version>${jackson.core.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>javax.ws.rs</groupId>
+            <artifactId>javax.ws.rs-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon.transport</groupId>
+            <artifactId>org.wso2.carbon.transport.http.netty</artifactId>
+            <!-- Overriding the transport version to suite msf4j -->
+            <version>${org.wso2.carbon.transport.http.netty.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.msf4j</groupId>
+            <artifactId>msf4j-core</artifactId>
         </dependency>
     </dependencies>
-
 
     <build>
         <plugins>
@@ -198,27 +176,56 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <suiteXmlFiles>
+                        <suiteXmlFile>src/test/resources/testng.xml</suiteXmlFile>
+                    </suiteXmlFiles>
+                </configuration>
+            </plugin>
+            <!-- Creating a fatjar/shaded-jar to pack the workspace service as msf4j requires different version of the transport -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>${maven.shadeplugin.version}</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <filters>
+                                <filter>
+                                    <artifact>*:*</artifact>
+                                    <excludes>
+                                        <exclude>META-INF/*.SF</exclude>
+                                        <exclude>META-INF/*.DSA</exclude>
+                                        <exclude>META-INF/*.RSA</exclude>
+                                    </excludes>
+                                </filter>
+                            </filters>
+                            <transformers>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                    <mainClass>${microservice.mainClass}</mainClass>
+                                </transformer>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer" />
+                            </transformers>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
 
     <properties>
         <microservice.mainClass>org.ballerinalang.composer.service.workspace.app.WorkspaceServiceRunner</microservice.mainClass>
-        <!-- dependency versions -->
-        <guice.version>4.1.0</guice.version>
-        <commons-cli.version>1.3.1</commons-cli.version>
-        <junit.version>4.12</junit.version>
-        <slf4j-log4j.version>1.7.5</slf4j-log4j.version>
-        <gson.version>2.7</gson.version>
-        <ballerina.version>0.8.1</ballerina.version>
-        <antlr4.runtime.version>4.5.1.wso2v1</antlr4.runtime.version>
-        <testng.version>6.9.4</testng.version>
-
-        <servlet-api-version>2.5</servlet-api-version>
-        <io.swagger.version>1.5.8</io.swagger.version>
-        <com.fasterxml.jackson.datatype.version>2.4.1</com.fasterxml.jackson.datatype.version>
-        <com.fasterxml.jackson.version>2.7.4</com.fasterxml.jackson.version>
-        <io.swagger.version.range>[1.5.0,1.6.0)</io.swagger.version.range>
-        <com.fasterxml.jackson.version.range>[2.7.0,2.8.0)</com.fasterxml.jackson.version.range>
-        <swagger-parser-version>1.0.25</swagger-parser-version>
+        <maven.findbugsplugin.version.exclude>findbugs-exclude.xml</maven.findbugsplugin.version.exclude>
+        <project.build.sourceEncoding>${file.encoding}</project.build.sourceEncoding>
+        <org.wso2.carbon.transport.http.netty.version>2.1.4</org.wso2.carbon.transport.http.netty.version>
+        <jackson.core.version>2.4.5</jackson.core.version>
+        <maven.shadeplugin.version>2.4.1</maven.shadeplugin.version>
     </properties>
 </project>

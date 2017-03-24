@@ -19,6 +19,9 @@ package org.ballerinalang.composer.service.workspace.rest.datamodel;
 
 import com.google.gson.JsonObject;
 
+/**
+ * Model class for a syntax error that maps to a specific line.
+ */
 public class SyntaxError {
 
     protected int row;
@@ -72,7 +75,7 @@ public class SyntaxError {
         this.type = type;
     }
 
-    public JsonObject toJson(){
+    public JsonObject toJson() {
         JsonObject object = new JsonObject();
         object.addProperty("row", this.row);
         object.addProperty("column", this.column);

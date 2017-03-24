@@ -97,6 +97,10 @@ define(['require', 'lodash', 'jquery', 'log', './../ast/package-definition',
                 currentASTRoot.setPackageName($(this).val());
             });
 
+            currentASTRoot.on('package-name-changed', function() {
+                packageInput.val(currentASTRoot.getPackageName());
+            });
+
             //handle click event on package-btn
             $(packageDefinitionsButton).click(function (e) {
                 if (collpaserIcon.hasClass("fw-right")) {

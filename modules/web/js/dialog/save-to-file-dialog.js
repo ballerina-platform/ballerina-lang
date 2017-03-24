@@ -152,7 +152,7 @@ define(['require', 'lodash', 'jquery', 'log', 'backbone', 'file_browser', 'boots
                     }
                 });
 
-                fileSave.find("button").filter("#saveButton").click(function() {
+                function handleSave() {
                     var _location = location.val();
                     var _configName = configName.val();
                     if (_.isEmpty(_location)) {
@@ -199,7 +199,22 @@ define(['require', 'lodash', 'jquery', 'log', 'backbone', 'file_browser', 'boots
                     } else {
                         saveConfiguration({location: _location, configName: _configName}, callback);
                     }
+                }
+
+                fileSave.find("button").filter("#saveButton").click(function() {
+                    handleSave();
                 });
+
+                function handleKeyPress(e) {
+                    if(e.keyCode === 13 || e.which === 13){
+                      e.stopPropagation();
+                      e.preventDefault();
+                      handleSave();
+                    }
+                }
+                
+                location.keypress(handleKeyPress);
+                configName.keypress(handleKeyPress);
 
                 $(this.dialog_container).append(fileSave);
                 newWizardError.hide();

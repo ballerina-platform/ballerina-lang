@@ -123,11 +123,17 @@ define(['require', 'lodash', 'log', 'jquery', 'alerts', './variable-definition-v
 
             // Add new variable upon enter key.
             $(variableIdentifier).on("change paste keydown", function (e) {
-                if (e.which == 13) {
+                if (_.isEqual(e.which, 13)) {
                     variableAddCompleteButtonPane.click();
                 }
             }).keypress(function (e) {
                 var enteredKey = e.which || e.charCode || e.keyCode;
+
+                // Disabling enter key
+                if (_.isEqual(enteredKey, 13)) {
+                    e.stopPropagation();
+                    return false;
+                }
 
                 var newIdentifier = $(this).val() + String.fromCharCode(enteredKey);
 

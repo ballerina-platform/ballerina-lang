@@ -178,10 +178,15 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
 
                 var currentWorker = workerViews[workerViewIndex];
 
-                if (workerViewIndex === 0 && !_.isNil(workerViews[workerViewIndex + 1])) {
+                if (workerViewIndex === 0) {
                     // Deleted the first worker/ only worker
                     nextWorker = workerViews[workerViewIndex + 1];
-                    // nextWorker.stopListening(currentWorker.getBoundingBox());
+                    // Since we deleted the first worker, now the worker lifeline margin listen to the default worker
+                    this.getWorkerLifeLineMargin().stopListening(currentWorker.getBoundingBox());
+                    this.getWorkerLifeLineMargin().listenTo(this.getDefaultWorker().getBoundingBox(),
+                        'right-edge-moved', function (offset) {
+                            self.getWorkerLifeLineMargin().setPosition(self.getWorkerLifeLineMargin().getPosition() + offset);
+                        });
                 } else if (workerViewIndex === workerViews.length - 1) {
                     // Deleted the last worker
                     this.getWorkerLifeLineMargin().stopListening(currentWorker.getBoundingBox());
@@ -192,7 +197,7 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                         });
                     }
                 } else {
-                    // Deleted an intermediate Connector
+                    // Deleted an intermediate Worker
                     previousWorker = workerViews[workerViewIndex - 1];
                     nextWorker = workerViews[workerViewIndex + 1];
                     currentWorker.stopListening(previousWorker.getBoundingBox());
@@ -612,6 +617,53 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                 self._model.remove();
             });
 
+            var annotationProperties = {
+                model: this._model,
+                activatorElement: headingAnnotationIcon.node(),
+                paneAppendElement: this.getChildContainer().node().ownerSVGElement.parentElement,
+                viewOptions: {
+                    position: {
+                        // "-1" to remove the svg stroke line
+                        left: parseFloat(this.getChildContainer().attr("x")) + parseFloat(this.getChildContainer().attr("width")) - 1,
+                        top: this.getChildContainer().attr("y")
+                    }
+                },
+                view: this
+            };
+
+            this._annotationView = AnnotationView.createAnnotationPane(annotationProperties);
+
+            var argumentsProperties = {
+                model: this._model,
+                activatorElement: headingArgumentsIcon.node(),
+                paneAppendElement: this.getChildContainer().node().ownerSVGElement.parentElement,
+                viewOptions: {
+                    position: {
+                        // "-1" to remove the svg stroke line
+                        left: parseFloat(this.getChildContainer().attr("x")) + parseFloat(this.getChildContainer().attr("width")) - 1,
+                        top: this.getChildContainer().attr("y")
+                    }
+                },
+                view: this
+            };
+
+            this._argumentsView = ArgumentsView.createArgumentsPane(argumentsProperties, diagramRenderingContext);
+
+            // Creating return type pane.
+            var returnTypeProperties = {
+                model: this._model,
+                activatorElement: headingReturnTypesIcon.node(),
+                paneAppendElement: this.getChildContainer().node().ownerSVGElement.parentElement,
+                viewOptions: {
+                    position: new Point(parseFloat(this.getChildContainer().attr("x")) + parseFloat(this.getChildContainer().attr("width")) - 1,
+                        this.getChildContainer().attr("y"))
+                },
+                view: this
+            };
+
+            this._returnTypePaneView = new ReturnTypesPaneView(returnTypeProperties);
+            this._returnTypePaneView.createReturnTypePane(diagramRenderingContext);
+
             this.getBoundingBox().on("height-changed", function(dh){
                 var newHeight = parseFloat(this._contentRect.attr('height')) + dh;
                 this._contentRect.attr('height', (newHeight < 0 ? 0 : newHeight));
@@ -623,6 +675,14 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                 this._headerIconGroup.node().transform.baseVal.getItem(0).setTranslate(transformX + dw, transformY);
                 this._contentRect.attr('width', parseFloat(this._contentRect.attr('width')) + dw);
                 this._headingRect.attr('width', parseFloat(this._headingRect.attr('width')) + dw);
+
+                // repositioning annotation editor view
+                this._annotationView.move({dx: dw});
+                // repositioning argument editor view
+                this._argumentsView.move({dx: dw});
+                // repositioning return type pane view
+                this._returnTypePaneView.move({dx: dw});
+
                 // If the bounding box of the connector action go over the svg's current width
                 if (this.getBoundingBox().getRight() > this._parentView.getSVG().width()) {
                     this._parentView.setSVGWidth(this.getBoundingBox().getRight() + 60);
@@ -675,51 +735,6 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                 // Show/Hide scrolls.
                 self._showHideScrolls(self.getChildContainer().node().ownerSVGElement.parentElement, self.getChildContainer().node().ownerSVGElement);
             });
-
-            var annotationProperties = {
-                model: this._model,
-                activatorElement: headingAnnotationIcon.node(),
-                paneAppendElement: this.getChildContainer().node().ownerSVGElement.parentElement,
-                viewOptions: {
-                    position: {
-                        // "-1" to remove the svg stroke line
-                        left: parseFloat(this.getChildContainer().attr("x")) + parseFloat(this.getChildContainer().attr("width")) - 1,
-                        top: this.getChildContainer().attr("y")
-                    }
-                }
-            };
-
-            AnnotationView.createAnnotationPane(annotationProperties);
-
-            var argumentsProperties = {
-                model: this._model,
-                activatorElement: headingArgumentsIcon.node(),
-                paneAppendElement: this.getChildContainer().node().ownerSVGElement.parentElement,
-                viewOptions: {
-                    position: {
-                        // "-1" to remove the svg stroke line
-                        left: parseFloat(this.getChildContainer().attr("x")) + parseFloat(this.getChildContainer().attr("width")) - 1,
-                        top: this.getChildContainer().attr("y")
-                    }
-                }
-            };
-
-            ArgumentsView.createArgumentsPane(argumentsProperties, diagramRenderingContext);
-
-            // Creating return type pane.
-            var returnTypeProperties = {
-                model: this._model,
-                activatorElement: headingReturnTypesIcon.node(),
-                paneAppendElement: this.getChildContainer().node().ownerSVGElement.parentElement,
-                viewOptions: {
-                    position: new Point(parseFloat(this.getChildContainer().attr("x")) + parseFloat(this.getChildContainer().attr("width")) - 1,
-                        this.getChildContainer().attr("y"))
-                },
-                view: this
-            };
-
-            this._returnTypePaneView = new ReturnTypesPaneView(returnTypeProperties);
-            this._returnTypePaneView.createReturnTypePane(diagramRenderingContext);
 
             var operationButtons = [headingAnnotationIcon.node(), headingArgumentsIcon.node(),
                 headingReturnTypesIcon.node()];
@@ -808,7 +823,8 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             this._statementContainer = new StatementContainer(statementContainerOpts);
 
             this.listenTo(this.getStatementContainer(), 'statement-container-height-adjusted', function (dh) {
-                var deltaMove = self.getDeltaMove(self.getDeepestChild(self, dh), dh);
+                var childrenLength = self.getStatementContainer().getManagedStatements().length;
+                var deltaMove = self.getDeltaMove(self.getDeepestChild(self, dh), dh, childrenLength);
                 self.getHorizontalMargin().setPosition(self.getHorizontalMargin().getPosition() + deltaMove);
             });
             this._statementContainer.render(this.diagramRenderingContext);
@@ -1031,7 +1047,8 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
                 });
 
                 workerDeclarationView.listenTo(statementContainer, 'statement-container-height-adjusted', function (dh) {
-                    var deltaMove = self.getDeltaMove(self.getDeepestChild(self, dh), dh);
+                    var childrenLength = workerDeclarationView.getStatementContainer().getManagedStatements().length;
+                    var deltaMove = self.getDeltaMove(self.getDeepestChild(self, dh), dh, childrenLength);
                     self.getHorizontalMargin().setPosition(self.getHorizontalMargin().getPosition() + deltaMove);
                 });
 
@@ -1270,17 +1287,17 @@ define(['lodash', 'log', 'd3', 'jquery', 'd3utils', './ballerina-view', './../as
             }
         };
 
-        ConnectorActionView.prototype.getDeltaMove = function (deepestChild, dy) {
+        ConnectorActionView.prototype.getDeltaMove = function (deepestChild, dy, childrenLength) {
             var deltaMove = 0;
-            if (dy > 0) {
-                deltaMove = dy;
-            } else {
-                if (_.isNil(deepestChild)) {
+            if (dy < 0) {
+                if (_.isNil(deepestChild) || childrenLength === 1) {
                     deltaMove = dy;
                 } else {
                     deltaMove = -(this.getHorizontalMargin().getPosition() -
                     this.getDiagramRenderingContext().getViewOfModel(deepestChild).getBoundingBox().getBottom() - this._offsetLastStatementGap);
                 }
+            } else {
+                deltaMove = dy;
             }
             return deltaMove;
         };

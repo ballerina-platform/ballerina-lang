@@ -18,23 +18,28 @@ The Ballerina Composer provides a flexible and powerful browser-based tool for c
 The build process of the composer works on Maven and Node Package Manager(npm).
 
 ### Prerequisites
-* JDK 1.8.0  
-* [NPM](https://docs.npmjs.com/getting-started/installing-node) (Tested with 4.2.0)   
-* Maven 3.0.5  
+*   JDK 1.8.0  
+*   [NodeJS](https://nodejs.org/en/) (Version 6.x.x)   
+*   Maven 3.0.5  
 
 ### Steps to build
-* `mvn clean install` - To build the composer. You can find the distribution at `<BALLERINA_COMPOSER>/modules/distribution/target` folder.  
+1.  Clone(`git clone`) [ballerinalang/ballerina-parent](https://github.com/ballerinalang/ballerina-parent) and build using `mvn clean install`. This project contains the parent pom which is used throughout all ballerina projects.
+2.  Clone(`git clone`) and build the [ballerinalang/ballerina](https://github.com/ballerinalang/ballerina) project using `mvn clean install`. This is dependency for the composer project.
+3.  Clone(`git clone`) and build the [ballerinalang/composer](https://github.com/ballerinalang/composer) project using `mvn clean install`.
+4.  Clone(`git clone`) and build the [ballerinalang/container-support](https://github.com/ballerinalang/container-support) project using `mvn clean install`.  You can skip tests using `-Dmaven.test.skip=true`. This is a dependency for the tools-distribution project.  
+5.  Clone(`git clone`) and build [ballerinalang/tools-distribution](https://github.com/ballerinalang/tools-distribution/) project using `mvn clean install`. Find the distribution in `tools-distribution/target` folder.
 
 ### Dev commands on web module(`<BALLERINA_COMPOSER>/modules/web`)
-* `npm install` - Installs all npm dependencies.
-* `npm run clean` - Deletes the `/dist`(distribution folder) in the web module.  
-* `npm run build` or `npm run webpack` - To build the web module.  
-* `npm run dev` - To start development server with hot deployment. Go to [http://localhost:8080](http://localhost:8080) or [http://127.0.0.1:8080](http://127.0.0.1:8080) afterwards.
-* `npm run test` - Executes tests. The tests requires the composer service to run.    
+*   `npm install` - Installs all npm dependencies.
+*   `npm run clean` - Deletes the `/dist`(distribution folder) in the web module.  
+*   `npm run build` or `npm run webpack` - To build the web module.  
+*   `npm run dev` - To start development server with hot deployment. Go to [http://localhost:8080](http://localhost:8080) or [http://127.0.0.1:8080](http://127.0.0.1:8080) afterwards.
+*   `npm run test` - Executes tests. The tests requires the composer service to run.
+*   `npm run lint` - Run [eslint](http://eslint.org/) on the code to find potential problems in the code.
 
 ## Running the Composer
 
-The Composer is included in the full distribution of Ballerina, which you can download from www.ballerinalang.org. After you unzip it, navigate to its `/bin` directory in the command line, and enter the following command:
+The Composer is included in the full distribution of Ballerina Tools Distribution, which you can download from www.ballerinalang.org. After you unzip it, navigate to its `/bin` directory in the command line, and enter the following command:
 
 For Windows
 ```

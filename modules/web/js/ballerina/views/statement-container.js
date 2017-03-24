@@ -89,6 +89,48 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
         this._rootGroup.attr("transform", "translate(" + x + "," + y + ")");
     };
 
+
+    /**
+     * Finds the index in the lifeLine where a statement should be rendered based on managed statements
+     * and the parent's current children and selects the relevant inner drop zone if possible.
+     * This is useful when a statement is added but not by dragging it in. Eg: By undoing a deletion
+     * @param statement {Statement}
+     */
+    StatementContainerView.prototype.selectPossibleInnderDropZone = function (statement) {
+        var children = statement.parent.children;
+        var managedStatements = this._managedStatements;
+        var index;
+        var managedStatementsIndex = 0;
+
+        for(var i=0; i<children.length; i++) {
+            var child = children[i];
+
+            if(statement.id === child.id) {
+                this._selectedInnerDropZoneIndex = managedStatementsIndex;
+            }
+
+            if(managedStatements[managedStatementsIndex].id === child.id) {
+                // This child is already managed
+                // So the possible index among managedStatements should be larger
+                managedStatementsIndex++;
+
+                if(managedStatementsIndex >= managedStatements.length) {
+                    break;
+                }
+            }
+        }
+    }
+
+    /**
+     * Returns true if an inner drop zone is pending. That is if the user is hovering over statement with
+     * possible statement
+     * @returns {Boolean}
+     */
+    StatementContainerView.prototype.hasPendingInnerDropRender = function () {
+        return _.gte(this._selectedInnerDropZoneIndex, 0);
+    }
+
+
     /**
      * Render a given statement
      * @param statement {Statement}
@@ -105,8 +147,11 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
 
         if (!_.isEmpty(this._managedStatements)) {
             // We have previously added statements, and adding a new one to them.
-            var hasPendingInnerDropRender = _.gte(this._selectedInnerDropZoneIndex, 0);
-            if(hasPendingInnerDropRender){
+            if(!this.hasPendingInnerDropRender()) {
+                this.selectPossibleInnderDropZone(statement);
+            }
+
+            if(this.hasPendingInnerDropRender()){
                 var nextStatement = _.nth(this._managedStatements, this._selectedInnerDropZoneIndex),
                     nextStatementView = this.diagramRenderingContext.getViewOfModel(nextStatement),
                     topX = nextStatementView.getBoundingBox().getTopCenterX();
@@ -146,6 +191,7 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
                 });
 
                 statementView.render(this.diagramRenderingContext);
+                this.initInnerDropZoneMoveListeners(statementView, statement);
 
                 // insert at specific position
                 this._managedStatements.splice(this._selectedInnerDropZoneIndex, 0, statement);
@@ -177,6 +223,7 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
                 statementView = this._statementViewFactory.getStatementView(args);
                 this.setLastStatementView(statementView);
                 statementView.render(this.diagramRenderingContext);
+                this.initInnerDropZoneMoveListeners(statementView, statement);
                 this._managedStatements.push(statement);
 
                 // make new view listen to previous view
@@ -209,6 +256,7 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
             statementView = this._statementViewFactory.getStatementView(args);
             this.setLastStatementView(statementView);
             statementView.render(this.diagramRenderingContext);
+            this.initInnerDropZoneMoveListeners(statementView, statement);
             this._managedStatements.push(statement);
 
             statementView.listenTo(this.getBoundingBox(), 'width-changed', function (dw) {
@@ -272,21 +320,6 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
             }
 
         }, this);
-
-        // When the bounding box moved, we move the statement view as well
-        statementView.listenTo(statementView.getBoundingBox(), 'left-edge-moved', function (dx) {
-            var statementViewIndex = _.findIndex(self.getManagedStatements(), function (stmt) {
-                return _.isEqual(stmt.id, statement.id);
-            });
-            self._managedInnerDropzones[statementViewIndex].onLastStatementMovedHorizontally(dx);
-        });
-
-        statementView.listenTo(statementView.getBoundingBox(), 'width-changed', function (dw) {
-            var statementViewIndex = _.findIndex(self.getManagedStatements(), function (stmt) {
-                return _.isEqual(stmt.id, statement.id);
-            });
-            self._managedInnerDropzones[statementViewIndex].onLastStatementMovedHorizontally(dw/2);
-        });
 
         statementView.listenTo(this.getBoundingBox(), 'left-edge-moved', function (dx) {
             statementView.getBoundingBox().x(statementView.getBoundingBox().x() + dx);
@@ -577,6 +610,24 @@ define(['lodash', 'jquery', 'd3', 'log', 'd3utils', './point', './ballerina-view
 
     StatementContainerView.prototype.getWidthGap = function () {
         return _.get(this._viewOptions, 'widthGap');
+    };
+
+    StatementContainerView.prototype.initInnerDropZoneMoveListeners = function (statementView, statementModel) {
+        var self = this;
+        // When the bounding box moved, we move the statement view as well
+        statementView.listenTo(statementView.getBoundingBox(), 'left-edge-moved', function (dx) {
+            var statementViewIndex = _.findIndex(self.getManagedStatements(), function (stmt) {
+                return _.isEqual(stmt.id, statementModel.id);
+            });
+            self._managedInnerDropzones[statementViewIndex].onLastStatementMovedHorizontally(dx);
+        });
+
+        statementView.listenTo(statementView.getBoundingBox(), 'width-changed', function (dw) {
+            var statementViewIndex = _.findIndex(self.getManagedStatements(), function (stmt) {
+                return _.isEqual(stmt.id, statementModel.id);
+            });
+            self._managedInnerDropzones[statementViewIndex].onLastStatementMovedHorizontally(dw/2);
+        });
     };
 
     /**

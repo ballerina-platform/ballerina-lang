@@ -147,33 +147,33 @@ public class SwaggerResourceMapper {
             op.setPath(path);
             for (ParameterDef parameterDef : resource.getParameterDefs()) {
                 String typeName = parameterDef.getTypeName().getName();
-                if (!typeName.equalsIgnoreCase("message") && parameterDef.getAnnotations()!=null) {
+                if (!typeName.equalsIgnoreCase("message") && parameterDef.getAnnotations() != null) {
                     //Add query parameter
-                    if(parameterDef.getAnnotations().get(0).getName().equalsIgnoreCase("http:QueryParam")){
+                    if (parameterDef.getAnnotations().get(0).getName().equalsIgnoreCase("http:QueryParam")) {
                         QueryParameter queryParameter = new QueryParameter();
                         queryParameter.setType(typeName);
                         queryParameter.setIn("query");
-                        queryParameter.setVendorExtension(SwaggerBallerinaConstants.VARIABLE_UUID_NAME,
-                                parameterDef.getName());
+                        queryParameter.setVendorExtension(SwaggerBallerinaConstants.VARIABLE_UUID_NAME, parameterDef
+                                .getName());
                         String parameterName = parameterDef.getAnnotations().get(0).getValue();
-                        if((parameterName == null ) || parameterName.isEmpty()){
+                        if ((parameterName == null) || parameterName.isEmpty()) {
                             parameterName = parameterDef.getName();
                         }
                         queryParameter.setName(parameterName);
                         queryParameter.required(true);
                         op.getOperation().addParameter(queryParameter);
                     }
-                    if(parameterDef.getAnnotations().get(0).getName().equalsIgnoreCase("http:PathParam")){
+                    if (parameterDef.getAnnotations().get(0).getName().equalsIgnoreCase("http:PathParam")) {
                         PathParameter pathParameter = new PathParameter();
                         pathParameter.setType(typeName);
                         String parameterName = parameterDef.getAnnotations().get(0).getValue();
-                        if((parameterName == null ) || parameterName.isEmpty()){
+                        if ((parameterName == null) || parameterName.isEmpty()) {
                             parameterName = parameterDef.getName();
                         }
                         pathParameter.setName(parameterName);
                         pathParameter.setIn("path");
-                        pathParameter.setVendorExtension(SwaggerBallerinaConstants.VARIABLE_UUID_NAME,
-                                parameterDef.getName());
+                        pathParameter.setVendorExtension(SwaggerBallerinaConstants.VARIABLE_UUID_NAME, parameterDef
+                                .getName());
                         pathParameter.required(true);
                         op.getOperation().addParameter(pathParameter);
                     }

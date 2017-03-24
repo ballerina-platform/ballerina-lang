@@ -133,9 +133,12 @@ define(['lodash', 'jquery', 'log', 'alerts', './ballerina-view', './../ast/node'
 
             // Removes the value of the argument in the model and rebind the arguments to the arguments view.
             $(deleteButton).click(function () {
-                $(constantDefinitionWrapper).remove();
-                self.getParent().removeConstantDefinition(self.getModel().getID());
+                self.getModel().remove();
             });
+
+            this.getModel().on('before-remove', function() {
+                  $(constantDefinitionWrapper).remove();
+            })
         };
 
         ConstantDefinitionView.prototype.getParameterWrapper = function () {

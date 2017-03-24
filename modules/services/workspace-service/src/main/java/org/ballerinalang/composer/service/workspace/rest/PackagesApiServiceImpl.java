@@ -25,22 +25,22 @@ import org.ballerinalang.composer.service.workspace.model.Function;
 import org.ballerinalang.composer.service.workspace.model.ModelPackage;
 import org.ballerinalang.composer.service.workspace.model.Parameter;
 import org.ballerinalang.model.GlobalScope;
-import org.ballerinalang.natives.NativePackageProxy;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.ballerinalang.model.types.SimpleTypeName;
 import org.ballerinalang.natives.AbstractNativeFunction;
+import org.ballerinalang.natives.BuiltInNativeConstructLoader;
+import org.ballerinalang.natives.NativePackageProxy;
 import org.ballerinalang.natives.NativeUnitProxy;
 import org.ballerinalang.natives.connectors.AbstractNativeAction;
 import org.ballerinalang.natives.connectors.AbstractNativeConnector;
-import org.ballerinalang.natives.BuiltInNativeConstructLoader;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import javax.ws.rs.core.Response;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
+import javax.ws.rs.core.Response;
 
 /**
  * This is the service implementation class for Packages list related operations
@@ -207,7 +207,8 @@ public class PackagesApiServiceImpl extends PackagesApiService {
      * @param annotations annotations list to be sent
      * @param annotationsFromModel annotation retrieve from native symbol
      * */
-    private void addAnnotations(List<Annotation> annotations, org.ballerinalang.model.Annotation[] annotationsFromModel) {
+    private void addAnnotations(List<Annotation> annotations,
+                                org.ballerinalang.model.Annotation[] annotationsFromModel) {
         Stream.of(annotationsFromModel)
                 .forEach(annotation -> annotations.add(createNewAnnotation(annotation.getName(),
                         annotation.getValue())));

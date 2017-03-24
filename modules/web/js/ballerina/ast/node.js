@@ -278,9 +278,17 @@ define(['log', 'require', 'event_channel', 'lodash'], function(log, require, Eve
                 },
                 undo: function(){
                     this.setAttribute(attributeName, oldValue, {doSilently: true});
+                    if (_.has(options, 'undoCallBack') && _.isFunction(options.undoCallBack)){
+                        var undoCallBack = _.get(options, 'undoCallBack');
+                        undoCallBack();
+                    }
                 },
                 redo: function(){
                     this.setAttribute(attributeName, newValue, {doSilently: true});
+                    if (_.has(options, 'redoCallBack') && _.isFunction(options.redoCallBack)){
+                        var redoCallBack = _.get(options, 'redoCallBack');
+                        redoCallBack();
+                    }
                 }
             });
         }
