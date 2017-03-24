@@ -1007,22 +1007,6 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
         }
 
         setTempValue(arrayInitExprEndNode.getExpression().getTempOffset(), bArray);
-
-//        if (logger.isDebugEnabled()) {
-//            logger.debug("Executing ArrayInitExpr - EndNode");
-//        }
-//        next = arrayInitExprEndNode.next;
-//        Expression[] argExprs = arrayInitExprEndNode.getExpression().getArgExprs();
-//
-//        // Creating a new arrays
-//        BArray bArray = arrayInitExprEndNode.getExpression().getType().getDefaultValue();
-//
-//        for (int i = 0; i < argExprs.length; i++) {
-//            Expression expr = argExprs[i];
-//            BValue value = getTempValue(expr);
-//            bArray.add(i, value);
-//        }
-//        setTempValue(arrayInitExprEndNode.getExpression().getTempOffset(), bArray);
     }
 
     @Override

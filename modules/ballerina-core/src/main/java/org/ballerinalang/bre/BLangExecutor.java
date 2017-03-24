@@ -1215,9 +1215,6 @@ public class BLangExecutor implements NodeExecutor {
             return;
         }
 
-        // Evaluate the index expression and get the value.
-//        BValue indexValue = indexExpr.execute(this);
-
         // Get the arrays/map value from the mermory location
         BValue arrayMapValue = lExprValue.getValue(memoryLocation);
 

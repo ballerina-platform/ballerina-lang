@@ -712,7 +712,6 @@ public class BLangAntlr4Listener implements BallerinaListener {
             dimensions = ctx.getChildCount() / 2;
         }
 
-//        boolean argsAvailable = ctx.expressionList() != null;
         modelBuilder.createArrayInitExpr(getCurrentLocation(ctx), argsAvailable, dimensions);
     }
 
