@@ -1,9 +1,12 @@
-@doc:Description("HelloWorld connector")
-@doc:Param("args: arguments")
+import ballerina.doc;
+
+@doc:Description{value:"HelloWorld connector"}
+@doc:Param{value:"args: arguments"}
 connector HelloWorld(string consumerKey, string consumerSecret, string accessToken, string accessTokenSecret) {
-    @Description("HelloWorld connector action")
-    @Param("args: arguments")
-    @Return("response object")
+    
+    @doc:Description{value:"HelloWorld connector action"}
+    @doc:Param{value:"args: arguments"}
+    @doc:Return{value:"response object"}
     action sayHello(HelloWorld t, string msg) (message) {
         message request;
         message response;
