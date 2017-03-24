@@ -45,13 +45,15 @@ public class AnnotationAttributeDef implements BLangSymbol, Node {
                                   SimpleTypeName typeName,
                                   BasicLiteral annotationAttributeVal,
                                   SymbolName symbolName,
-                                  SymbolScope symbolScope) {
+                                  SymbolScope symbolScope,
+                                  String pkgPath) {
         this.location = location;
         this.typeName = typeName;
         this.attributeName = attributeName;
         this.annotationAttributeVal = annotationAttributeVal;
         this.symbolName = symbolName;
         this.symbolScope = symbolScope;
+        this.pkgPath = pkgPath;
     }
 
     public SimpleTypeName getTypeName() {

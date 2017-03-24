@@ -24,26 +24,31 @@ import org.ballerinalang.model.values.BValue;
  * 
  * @since 0.8.5
  */
-public class AnnotationAttributeValue {
+public class AnnotationAttributeValue  implements Node {
     BValue bValue;
     AnnotationAttachment annotationValue;
     AnnotationAttributeValue[] valueArray;
     NodeLocation location;
     SimpleTypeName type;
     
-    public AnnotationAttributeValue(BValue bValue, SimpleTypeName valueType) {
+    public AnnotationAttributeValue(BValue bValue, SimpleTypeName valueType, NodeLocation location) {
         this.bValue = bValue;
         this.type = valueType;
+        this.location = location;
     }
     
-    public AnnotationAttributeValue(AnnotationAttachment annotationValue, SimpleTypeName valueType) {
+    public AnnotationAttributeValue(AnnotationAttachment annotationValue, SimpleTypeName valueType,
+            NodeLocation location) {
         this.annotationValue = annotationValue;
         this.type = valueType;
+        this.location = location;
     }
     
-    public AnnotationAttributeValue(AnnotationAttributeValue[] valueArray, SimpleTypeName valueType) {
+    public AnnotationAttributeValue(AnnotationAttributeValue[] valueArray, SimpleTypeName valueType, 
+            NodeLocation location) {
         this.valueArray = valueArray;
         this.type = valueType;
+        this.location = location;
     }
     
     public AnnotationAttachment getAnnotationValue() {
@@ -81,5 +86,9 @@ public class AnnotationAttributeValue {
         }
         
         return null;
+    }
+
+    @Override
+    public void accept(NodeVisitor visitor) {
     }
 }
