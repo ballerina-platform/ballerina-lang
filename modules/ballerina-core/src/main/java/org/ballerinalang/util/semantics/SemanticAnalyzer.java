@@ -646,6 +646,13 @@ public class SemanticAnalyzer implements NodeVisitor {
                         BLangExceptionHelper.throwSemanticError(attributeValue, SemanticErrors.INCOMPATIBLE_TYPES, 
                             attributeTypeSymbol.getSymbolName(), valueTypeSymbol.getSymbolName());
                     }
+                    
+                    // If the value of the attribute is another annotation, then recursively
+                    // traverse to its attributes and validate
+                    AnnotationAttachment childAnnotation = value.getAnnotationValue();
+                    if (childAnnotation != null && valueTypeSymbol instanceof AnnotationDef) {
+                        validateAttributes(childAnnotation, (AnnotationDef) valueTypeSymbol);
+                    }
                 }
             } else {
                 if (valueType.isArrayType()) {
@@ -657,10 +664,16 @@ public class SemanticAnalyzer implements NodeVisitor {
                     BLangExceptionHelper.throwSemanticError(attributeValue, SemanticErrors.INCOMPATIBLE_TYPES, 
                         attributeTypeSymbol.getSymbolName(), valueTypeSymbol.getSymbolName());
                 }
+                
+                // If the value of the attribute is another annotation, then recursively
+                // traverse to its attributes and validate
+                AnnotationAttachment childAnnotation = attributeValue.getAnnotationValue();
+                if (childAnnotation != null && valueTypeSymbol instanceof AnnotationDef) {
+                    validateAttributes(childAnnotation, (AnnotationDef) valueTypeSymbol);
+                }
             }
         });
     }
-    
     
     /**
      * Populate default values to the annotation attributes.

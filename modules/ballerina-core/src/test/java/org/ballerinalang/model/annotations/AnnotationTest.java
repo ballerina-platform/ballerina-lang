@@ -91,4 +91,11 @@ public class AnnotationTest {
         bLangProgram = BTestUtils.parseBalFile("lang/annotations/wrongly-attached-annot.bal");
     }
     
+    @Test(description = "Test an child annotation with invalid attribute value",
+            expectedExceptions = {SemanticException.class},
+            expectedExceptionsMessageRegExp = "invalid-inner-attributes.bal:4: incompatible types: expected " +
+                "'string', found 'int'")
+    public void testInvalidInnerAttribute() {
+        bLangProgram = BTestUtils.parseBalFile("lang/annotations/invalid-inner-attributes.bal");
+    }
 }
