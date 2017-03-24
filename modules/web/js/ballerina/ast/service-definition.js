@@ -40,24 +40,6 @@ define(['lodash', './node', 'log', '../utils/common-utils'],
             });
         }
 
-        if (_.isNil(_.find(this._annotations, function (annotation) {
-                return annotation.key == "Source:interface";
-            }))) {
-            this._annotations.push({
-                key: "Source:interface",
-                value: ""
-            });
-        }
-
-        if (_.isNil(_.find(this._annotations, function (annotation) {
-                return annotation.key == "Service:description";
-            }))) {
-            this._annotations.push({
-                key: "Service:description",
-                value: ""
-            });
-        }
-
         // TODO: All the types should be referred from the global constants
         ASTNode.call(this, 'Service');
         this.BallerinaASTFactory = this.getFactory();
@@ -219,9 +201,11 @@ define(['lodash', './node', 'log', '../utils/common-utils'],
         // Populate the annotations array
         for (var itr = 0; itr < this._annotations.length; itr ++) {
             var key = this._annotations[itr].key;
-            for (var itrInner = 0; itrInner < jsonNode.annotations.length; itrInner ++) {
-                if (jsonNode.annotations[itrInner].annotation_name === key) {
-                    this._annotations[itr].value = jsonNode.annotations[itrInner].annotation_value;
+            for (var itrInner = 0; itrInner < jsonNode.annotation_attachments.length; itrInner ++) {
+                var annotationName = jsonNode.annotation_attachments[itrInner].annotation_package_name + ":" +
+                    jsonNode.annotation_attachments[itrInner].annotation_name;
+                if (annotationName === key) {
+                    this._annotations[itr].value = jsonNode.annotation_attachments[itrInner].children[0].value;
                 }
             }
         }
