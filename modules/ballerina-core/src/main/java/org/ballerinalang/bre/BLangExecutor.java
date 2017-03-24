@@ -869,7 +869,7 @@ public class BLangExecutor implements NodeExecutor {
     public BValue visit(TypeCastExpression typeCastExpression) {
         // Check for native type casting
         if (typeCastExpression.getEvalFunc() != null) {
-            BValueType result = (BValueType) typeCastExpression.getRExpr().execute(this);
+            BValue result = (BValue) typeCastExpression.getRExpr().execute(this);
             return typeCastExpression.getEvalFunc().apply(result);
         } else {
             TypeMapper typeMapper = typeCastExpression.getCallableUnit();

@@ -17,6 +17,7 @@
 package org.ballerinalang.model.values;
 
 import org.ballerinalang.model.StructDef;
+import org.ballerinalang.model.types.BType;
 
 /**
  * The {@code BStruct} represents athe value of a user defined struct in Ballerina.
@@ -80,5 +81,10 @@ public final class BStruct implements BRefType<StructDef> {
     @Override
     public String stringValue() {
         return null;
+    }
+
+    @Override
+    public BType getType() {
+        return null; //todo
     }
 }
