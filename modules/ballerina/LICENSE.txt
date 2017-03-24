@@ -43,12 +43,12 @@ netty-common-4.1.7.Final.jar                                                    
 netty-handler-4.1.7.Final.jar                                                   bundle         apache2   2082      
 netty-resolver-4.1.7.Final.jar                                                  bundle         apache2   2081      
 netty-transport-4.1.7.Final.jar                                                 bundle         apache2   2079      
-org.wso2.carbon.connector.framework-4.2.6.jar                                   bundle         apache2   11780     
+org.wso2.carbon.connector.framework-4.2.7.jar                                   bundle         apache2   11780
 org.wso2.carbon.core-5.1.0.jar                                                  bundle         apache2   11763     
 org.wso2.carbon.messaging-2.2.3.jar                                             bundle         apache2   11771     
-org.wso2.carbon.transport.file-4.2.6.jar                                        bundle         apache2   11779     
-org.wso2.carbon.transport.http.netty-4.2.6.jar                                  bundle         apache2   11778     
-org.wso2.carbon.transport.jms-4.2.6.jar                                         bundle         apache2   11777     
+org.wso2.carbon.transport.file-4.2.7.jar                                        bundle         apache2   11779
+org.wso2.carbon.transport.http.netty-4.2.7.jar                                  bundle         apache2   11778
+org.wso2.carbon.transport.jms-4.2.7.jar                                         bundle         apache2   11777
 Saxon-HE-9.7.0.wso2v1.jar                                                       bundle         mpl10     11756     
 slf4j-api-1.7.22.jar                                                            bundle         mit       2078      
 slf4j-jdk14-1.7.22.jar                                                          bundle         mit       2131      
