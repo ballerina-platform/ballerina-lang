@@ -142,10 +142,10 @@ public class BTypes {
                     bType, typeName.getPackagePath(), bType.getSymbolScope(), typeName.getDimensions());
             bType.getSymbolScope().define(typeName.getSymbolName(), bArrayType);
 
-            SimpleTypeName newSimpleTypeName = new SimpleTypeName(typeName.getName(), typeName.getPackagePath(), true);
-            newSimpleTypeName.setPkgPath(typeName.getPackagePath());
-            newSimpleTypeName.setDimensions(typeName.getDimensions() - 1);
-            BTypes.resolveType(newSimpleTypeName, symbolScope, location);
+            SimpleTypeName childSimpleType = new SimpleTypeName(typeName.getName(), typeName.getPackagePath(), true);
+            childSimpleType.setPkgPath(typeName.getPackagePath());
+            childSimpleType.setDimensions(typeName.getDimensions() - 1);
+            BTypes.resolveType(childSimpleType, symbolScope, location);
 
             return bArrayType;
         }
