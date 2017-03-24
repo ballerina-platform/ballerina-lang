@@ -27,7 +27,7 @@ import java.util.Map;
 /**
  * {@code AnnotationDef} represents a user-defined annotation in Ballerina.
  *
- * @since 0.8.5
+ * @since 0.85
  */
 public class AnnotationDef implements CompilationUnit, SymbolScope, BLangSymbol, StructuredUnit {
     private NodeLocation location;
@@ -48,6 +48,7 @@ public class AnnotationDef implements CompilationUnit, SymbolScope, BLangSymbol,
      */
     public AnnotationDef(SymbolScope enclosingScope) {
         this.symbolMap = new HashMap<>();
+        this.enclosingScope = enclosingScope;
     }
 
     @Override

@@ -27,6 +27,7 @@ import org.ballerinalang.bre.WorkerVarLocation;
 import org.ballerinalang.model.Action;
 import org.ballerinalang.model.AnnotationAttachment;
 import org.ballerinalang.model.AnnotationAttributeDef;
+import org.ballerinalang.model.AnnotationAttributeValue;
 import org.ballerinalang.model.AnnotationDef;
 import org.ballerinalang.model.AttachmentPoint;
 import org.ballerinalang.model.BLangPackage;
@@ -589,23 +590,27 @@ public class SemanticAnalyzer implements NodeVisitor {
                     annotationSymName);
         }
         
+        // Validate the attached point
         AnnotationDef annotationDef = (AnnotationDef) annotationSymbol;
-        Optional<String> matchingAttachmentPoint = Arrays.stream(annotationDef.getAttachmentPoints())
-                .filter(attachmentPoint -> attachmentPoint.equals(attachedPoint.getValue()))
-                .findFirst();
-        if (!matchingAttachmentPoint.isPresent()) {
-            BLangExceptionHelper.throwSemanticError(annotation, SemanticErrors.ANNOTATION_NOT_ALLOWED, 
-                    annotationSymName, attachedPoint);
+        if (annotationDef.getAttachmentPoints() != null && annotationDef.getAttachmentPoints().length > 0) {
+            Optional<String> matchingAttachmentPoint = Arrays.stream(annotationDef.getAttachmentPoints())
+                    .filter(attachmentPoint -> attachmentPoint.equals(attachedPoint.getValue()))
+                    .findAny();
+            if (!matchingAttachmentPoint.isPresent()) {
+                BLangExceptionHelper.throwSemanticError(annotation, SemanticErrors.ANNOTATION_NOT_ALLOWED, 
+                        annotationSymName, attachedPoint);
+            }
         }
         
         // Validate the attributes and their types
         validateAttributes(annotation, annotationDef);
         
-        populatedefaultvalues(annotation, annotationDef);
+        // Populate default values for annotation attributes
+        populateDefaultValues(annotation, annotationDef);
     }
 
     /**
-     * Visit and validate attributes of the an annotation attachment.
+     * Visit and validate attributes of an annotation attachment.
      * 
      * @param annotation Annotation attachment to validate attributes
      * @param annotationDef Definition of the annotation 
@@ -619,10 +624,40 @@ public class SemanticAnalyzer implements NodeVisitor {
                     attributeName, annotation.getName());
             }
             
-            // TODO: Check types
+            // Check types
             AnnotationAttributeDef attributeDef = ((AnnotationAttributeDef) attributeSymbol);
             SimpleTypeName attributeType = attributeDef.getTypeName();
             SimpleTypeName valueType = attributeValue.getType();
+            BLangSymbol valueTypeSymbol = currentScope.resolve(valueType.getSymbolName());
+            BLangSymbol attributeTypeSymbol = annotationDef.resolve(new SymbolName(attributeType.getName(), 
+                    attributeType.getPackagePath()));
+            
+            if (attributeType.isArrayType()) {
+                if (!valueType.isArrayType()) {
+                    BLangExceptionHelper.throwSemanticError(attributeValue, SemanticErrors.INCOMPATIBLE_TYPES, 
+                        attributeTypeSymbol.getSymbolName() + TypeConstants.ARRAY_TNAME, 
+                        valueTypeSymbol.getSymbolName());
+                }
+                
+                AnnotationAttributeValue[] valuesArray = attributeValue.getValueArray();
+                for (AnnotationAttributeValue value : valuesArray) {
+                    valueTypeSymbol = currentScope.resolve(value.getType().getSymbolName());
+                    if (attributeTypeSymbol != valueTypeSymbol) {
+                        BLangExceptionHelper.throwSemanticError(attributeValue, SemanticErrors.INCOMPATIBLE_TYPES, 
+                            attributeTypeSymbol.getSymbolName(), valueTypeSymbol.getSymbolName());
+                    }
+                }
+            } else {
+                if (valueType.isArrayType()) {
+                    BLangExceptionHelper.throwSemanticError(attributeValue, 
+                        SemanticErrors.INCOMPATIBLE_TYPES_ARRAY_FOUND, attributeTypeSymbol.getName());
+                }
+                
+                if (attributeTypeSymbol != valueTypeSymbol) {
+                    BLangExceptionHelper.throwSemanticError(attributeValue, SemanticErrors.INCOMPATIBLE_TYPES, 
+                        attributeTypeSymbol.getSymbolName(), valueTypeSymbol.getSymbolName());
+                }
+            }
         });
     }
     
@@ -633,11 +668,11 @@ public class SemanticAnalyzer implements NodeVisitor {
      * @param annotation
      * @param annotationDef
      */
-    private void populatedefaultvalues(AnnotationAttachment annotation, AnnotationDef annotationDef) {
+    private void populateDefaultValues(AnnotationAttachment annotation, AnnotationDef annotationDef) {
         /*
-        Map<SymbolName, AnnotationAttributeValue> attributeValPairs = annotation.getAttributeNameValuePairs();
-        for(AnnotationAttributeDef attributeDef : annotationDef.getAttributeDef()) {
-            SymbolName attributeName = attributeDef.getSymbolName();
+        Map<String, AnnotationAttributeValue> attributeValPairs = annotation.getAttributeNameValuePairs();
+        for(AnnotationAttributeDef attributeDef : annotationDef.getAttributeDefs()) {
+            String attributeName = attributeDef.getName();
             
             // If the annotation attribute contains the key, and if the value is another annotationAttachment,
             // then recursively populate its default values
@@ -650,7 +685,7 @@ public class SemanticAnalyzer implements NodeVisitor {
                 
                 BLangSymbol attributeSymbol = currentScope.resolve(attributeDef.getTypeName().getSymbolName());
                 if (attributeSymbol instanceof AnnotationDef) {
-                    populatedefaultvalues(annotationTypeVal, (AnnotationDef) attributeSymbol);
+                    populateDefaultValues(annotationTypeVal, (AnnotationDef) attributeSymbol);
                 }
                 continue;
             }
@@ -669,8 +704,8 @@ public class SemanticAnalyzer implements NodeVisitor {
                 AnnotationDef childAnnotationDef = (AnnotationDef) attributeSymbol;
                 AnnotationAttachment defaultAnnotation = new AnnotationAttachment(annotation.getNodeLocation(),
                         childAnnotationDef.getName(), childAnnotationDef.getPkgName(),
-                        childAnnotationDef.getPkgPath(), new HashMap<SymbolName, AnnotationAttributeValue>());
-                populatedefaultvalues(defaultAnnotation, childAnnotationDef);
+                        childAnnotationDef.getPkgPath(), new HashMap<String, AnnotationAttributeValue>());
+                populateDefaultValues(defaultAnnotation, childAnnotationDef);
 
                 SimpleTypeName valueType = new SimpleTypeName(defaultAnnotation.getName(),
                         defaultAnnotation.getPkgName(), defaultAnnotation.getPkgPath());
@@ -717,6 +752,10 @@ public class SemanticAnalyzer implements NodeVisitor {
                     (!(typeSymbol instanceof BType) && !(typeSymbol instanceof AnnotationDef))) {
                 BLangExceptionHelper.throwSemanticError(annotationAttributeDef, SemanticErrors.INVALID_ATTRIBUTE_TYPE,
                     fieldType);
+            }
+            
+            if (!(typeSymbol instanceof BType)) {
+                fieldType.setPkgPath(annotationAttributeDef.getPackagePath());
             }
         }
     }
