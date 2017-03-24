@@ -41,6 +41,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Paths;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.OPTIONS;
@@ -66,7 +67,7 @@ public class BLangFileRestService {
         InputStream stream = null;
         try {
             stream = new FileInputStream(new File(location));
-            String response = parseJsonDataModel(stream);
+            String response = parseJsonDataModel(stream, Paths.get(location));
             return Response.ok(response, MediaType.APPLICATION_JSON).build();
         } finally {
             if (null != stream) {
@@ -79,10 +80,11 @@ public class BLangFileRestService {
     @Path("/validate")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response validateBallerinaSource(BFileContent content) throws IOException {
-        InputStream stream = new ByteArrayInputStream(content.getContent().getBytes(StandardCharsets.UTF_8));
-        return Response.status(Response.Status.OK).entity(validate(stream)).header("Access-Control-Allow-Origin",
-                '*').type(MediaType.APPLICATION_JSON).build();
+    public Response validateBallerinaSource(BFile bFile) throws IOException {
+        InputStream stream = new ByteArrayInputStream(bFile.getContent().getBytes(StandardCharsets.UTF_8));
+        return Response.status(Response.Status.OK)
+                .entity(validate(stream, deriveFilePath(bFile.getFileName(), bFile.getFilePath())))
+                .header("Access-Control-Allow-Origin", '*').type(MediaType.APPLICATION_JSON).build();
     }
     
     @OPTIONS
@@ -99,9 +101,9 @@ public class BLangFileRestService {
     @Path("/model/content")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getBallerinaJsonDataModelGivenContent(BFileContent content) throws IOException {
-        InputStream stream = new ByteArrayInputStream(content.getContent().getBytes(StandardCharsets.UTF_8));
-        String response = parseJsonDataModel(stream);
+    public Response getBallerinaJsonDataModelGivenContent(BFile bFile) throws IOException {
+        InputStream stream = new ByteArrayInputStream(bFile.getContent().getBytes(StandardCharsets.UTF_8));
+        String response = parseJsonDataModel(stream, deriveFilePath(bFile.getFileName(), bFile.getFilePath()));
         return Response.ok(response, MediaType.APPLICATION_JSON).header("Access-Control-Allow-Origin", '*').build();
     }
     
@@ -122,7 +124,7 @@ public class BLangFileRestService {
      * @return A string which contains a json model.
      * @throws IOException
      */
-    private String parseJsonDataModel(InputStream stream) throws IOException {
+    private String parseJsonDataModel(InputStream stream, java.nio.file.Path filePath) throws IOException {
         
         ANTLRInputStream antlrInputStream = new ANTLRInputStream(stream);
         BallerinaLexer ballerinaLexer = new BallerinaLexer(antlrInputStream);
@@ -138,7 +140,7 @@ public class BLangFileRestService {
         BLangPackage.PackageBuilder packageBuilder = new BLangPackage.PackageBuilder(bLangPackage);
         BallerinaComposerModelBuilder bLangModelBuilder = new BallerinaComposerModelBuilder(packageBuilder,
                 StringUtils.EMPTY);
-        BLangAntlr4Listener ballerinaBaseListener = new BLangAntlr4Listener(bLangModelBuilder);
+        BLangAntlr4Listener ballerinaBaseListener = new BLangAntlr4Listener(bLangModelBuilder, filePath);
         ballerinaParser.addParseListener(ballerinaBaseListener);
         ballerinaParser.compilationUnit();
         BallerinaFile bFile = bLangModelBuilder.build();
@@ -159,7 +161,7 @@ public class BLangFileRestService {
      * @return List of errors if any
      * @throws IOException
      */
-    private JsonObject validate(InputStream stream) throws IOException {
+    private JsonObject validate(InputStream stream, java.nio.file.Path filePath) throws IOException {
         
         ANTLRInputStream antlrInputStream = new ANTLRInputStream(stream);
         BallerinaLexer ballerinaLexer = new BallerinaLexer(antlrInputStream);
@@ -176,7 +178,7 @@ public class BLangFileRestService {
         
         BallerinaComposerModelBuilder bLangModelBuilder = new BallerinaComposerModelBuilder(packageBuilder,
                 StringUtils.EMPTY);
-        BLangAntlr4Listener ballerinaBaseListener = new BLangAntlr4Listener(bLangModelBuilder);
+        BLangAntlr4Listener ballerinaBaseListener = new BLangAntlr4Listener(bLangModelBuilder, filePath);
         ballerinaParser.addParseListener(ballerinaBaseListener);
         ballerinaParser.compilationUnit();
         
@@ -190,6 +192,10 @@ public class BLangFileRestService {
         result.add("errors", errors);
         
         return result;
+    }
+
+    private java.nio.file.Path deriveFilePath(String fileName, String filePath) {
+        return Paths.get(filePath + File.separator + fileName);
     }
     
 }

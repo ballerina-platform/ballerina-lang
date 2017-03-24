@@ -21,7 +21,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.models.Info;
 import io.swagger.models.Swagger;
 import io.swagger.util.Json;
-import org.ballerinalang.model.Annotation;
+import org.ballerinalang.model.AnnotationAttachment;
 import org.ballerinalang.model.Resource;
 import org.ballerinalang.model.Service;
 import org.slf4j.Logger;
@@ -84,8 +84,8 @@ public class SwaggerServiceMapper {
                 .version("1.0.0")
                 .title("Swagger Resource");
         swagger.setInfo(info);
-        Annotation[] annotations = service.getAnnotations();
-        for (Annotation o : annotations) {
+        AnnotationAttachment[] annotations = service.getAnnotations();
+        for (AnnotationAttachment o : annotations) {
             if (o.getName().equals("http:BasePath")) {
                 swagger.setBasePath(o.getValue());
             }
