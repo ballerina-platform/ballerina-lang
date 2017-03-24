@@ -97,25 +97,25 @@ public class SwaggerResourceMapper {
             String httpOperation = operationAdaptor.getHttpOperation();
             Operation operation = operationAdaptor.getOperation();
             switch (httpOperation) {
-                case SwaggerBallerinaConstants.HTTP_PACKAGE_PREFIX + Constants.ANNOTATION_METHOD_GET:
+                case Constants.ANNOTATION_METHOD_GET:
                     path.get(operation);
                     break;
-                case SwaggerBallerinaConstants.HTTP_PACKAGE_PREFIX + Constants.ANNOTATION_METHOD_PUT:
+                case Constants.ANNOTATION_METHOD_PUT:
                     path.put(operation);
                     break;
-                case SwaggerBallerinaConstants.HTTP_PACKAGE_PREFIX + Constants.ANNOTATION_METHOD_POST:
+                case Constants.ANNOTATION_METHOD_POST:
                     path.post(operation);
                     break;
-                case SwaggerBallerinaConstants.HTTP_PACKAGE_PREFIX + Constants.ANNOTATION_METHOD_DELETE:
+                case Constants.ANNOTATION_METHOD_DELETE:
                     path.delete(operation);
                     break;
-                case SwaggerBallerinaConstants.HTTP_PACKAGE_PREFIX + Constants.ANNOTATION_METHOD_OPTIONS:
+                case Constants.ANNOTATION_METHOD_OPTIONS:
                     path.options(operation);
                     break;
-                case SwaggerBallerinaConstants.HTTP_PACKAGE_PREFIX + Constants.ANNOTATION_METHOD_PATCH:
+                case Constants.ANNOTATION_METHOD_PATCH:
                     path.patch(operation);
                     break;
-                case "http:HEAD":
+                case "HEAD":
                     path.head(operation);
                     break;
                 default:
