@@ -78,4 +78,13 @@ public class BAnyTypeSuccessScenariosTest {
         Assert.assertEquals(intVal.intValue(), 5, "Invalid int value returned.");
     }
 
+    @Test(description = "Test any to any explicit cast")
+    public void testAnyToAnyCast() {
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "anyToAnyExplicitCasting");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BJSON.class);
+        BJSON json = (BJSON) returns[0];
+        Assert.assertEquals(json.stringValue(), "{\"PropertyName\":\"Value\"}", "Invalid json value returned.");
+    }
+
 }

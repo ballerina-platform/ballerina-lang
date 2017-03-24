@@ -45,4 +45,10 @@ function floatReturn()(float) {
 }
 
 
+function anyToAnyExplicitCasting() (any) {
+  any abc = jsonReturnFunction();
+  any val = (any)abc;
+  return val;
+}
+
 

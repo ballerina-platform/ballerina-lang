@@ -160,6 +160,12 @@ public class NativeCastMapper {
     public static final Function<BValue, BValue> BOOLEAN_TO_ANY_FUNC =
             (rVal) -> rVal;
 
+    public static final Function<BValue, BValue> JSON_TO_ANY_FUNC =
+            (rVal) -> rVal;
+
+    public static final Function<BValue, BValue> XML_TO_ANY_FUNC =
+            (rVal) -> rVal;
+
     public static final Function<BValue, BValue> CONNECTOR_TO_ANY_FUNC =
             (rVal) -> rVal;
 
