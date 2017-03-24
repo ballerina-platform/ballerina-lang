@@ -130,10 +130,12 @@ const Debugger = Backbone.View.extend({
     },
 
     renderContent () {
-        const debuggerContainer = $(`<div>
-            <div class="debug-tools-container"></div>
-            <div class="debug-frames-container"></div>
-            </div>`);
+        const debuggerContainer = $(`
+            <div>
+                <div class="debug-tools-container"></div>
+                <div class="debug-frames-container"></div>
+            </div>
+        `);
         debuggerContainer.addClass(_.get(this._options, 'cssClass.container'));
         debuggerContainer.attr('id', _.get(this._options, ('containerId')));
         this._$parent_el.append(debuggerContainer);

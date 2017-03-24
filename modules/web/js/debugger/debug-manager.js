@@ -99,14 +99,16 @@ class DebugManager extends EventChannel {
     }
 
     startDebugger(port) {
-        const url =  'localhost:' + port;
+        const url =  `localhost:${port}`;
         this.connect(url);
     }
 
     init(options) {
         this.enable = true;
         this.launchManager = options.launchManager;
-        this.launchManager.on('debug-active', _.bindKey(this, 'startDebugger'));
+        this.launchManager.on('debug-active', port => {
+            this.startDebugger(port);
+        });
     }
 
     addBreakPoint(lineNumber, fileName) {
@@ -135,7 +137,9 @@ class DebugManager extends EventChannel {
     }
 
     hasBreakPoint(lineNumber, fileName) {
-        return !!_.find(this.debugPoints, {lineNumber: lineNumber, fileName: fileName});
+        return !!this.debugPoints.find( () => {
+            return lineNumber === lineNumber && fileName === fileName;
+        });
     }
 
     isEnabled() {
@@ -143,11 +147,11 @@ class DebugManager extends EventChannel {
     }
 
     getDebugPoints(fileName) {
-        const breakpoints = _.filter(this.debugPoints, breakpoint => {
+        const breakpoints = this.debugPoints.filter(breakpoint => {
             return breakpoint.fileName === fileName;
         });
 
-        const breakpointsLineNumbers = _.map(breakpoints, breakpoint => {
+        const breakpointsLineNumbers = breakpoints.map(breakpoint => {
             return breakpoint.lineNumber;
         });
         return breakpointsLineNumbers;

@@ -38,19 +38,19 @@ class LaunchManager extends EventChannel {
     runService(file) {
         this.channel = new LaunchChannel({ endpoint : this.endpoint, launcher: this });
         this.openConsole();
-        this.channel.on('connected',_.bindKey(this,'sendRunServiceMessage',file));
+        this.channel.on('connected', () => { this.sendRunServiceMessage(file); });
     }
 
     debugApplication(file) {
         this.channel = new LaunchChannel({ endpoint : this.endpoint, launcher: this });
         this.openConsole();
-        this.channel.on('connected',_.bindKey(this,'sendDebugApplicationMessage',file));
+        this.channel.on('connected', () => { this.sendDebugApplicationMessage(file); });
     }
 
     debugService(file) {
         this.channel = new LaunchChannel({ endpoint : this.endpoint, launcher: this });
         this.openConsole();
-        this.channel.on('connected',_.bindKey(this,'sendDebugServiceMessage',file));
+        this.channel.on('connected', () => { this.sendDebugServiceMessage(file); });
     }
 
     sendRunApplicationMessage(file) {

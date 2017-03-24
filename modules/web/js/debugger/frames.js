@@ -28,7 +28,7 @@ class Frames extends EventChannel {
       '   <span><a class="tool-group-header-title">Frames</a></span>'+
       '</div>'+
       '<div class="panel-group" id="frameAccordion">'+
-      '<% _.forEach(frames, function(frame, index) { %>'+
+      '<% frames.forEach((frame, index) => { %>'+
       '    <div class="panel panel-default">'+
       '      <div class="panel-heading">'+
       '        <h4 class="panel-title">'+
@@ -43,7 +43,7 @@ class Frames extends EventChannel {
       '        <div class="panel-body">'+
       '        <div class="debug-v-tree">'+
       '          <ul>'+
-      '          <% _.forEach(frame.variables, function(v) { %>'+
+      '          <% frame.variables.forEach( v => { %>'+
       '          <li>'+
       '          <strong><%- v.name %></strong> = <%- v.value %> (<%- v.type %>)'+
       '          <ul>'+
@@ -109,8 +109,8 @@ class Frames extends EventChannel {
       //reverse order
         frames = _.reverse(frames);
 
-        _.map(frames, function(frame){
-            _.map(frame.variables, function(item){
+        frames.map(function(frame){
+            frame.variables.map( item => {
                 switch (item.type) {
                 case 'BBoolean':
                     item.type = 'boolean';

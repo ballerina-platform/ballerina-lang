@@ -80,7 +80,7 @@ class Tools extends EventChannel {
         const self = this;
         $('#form-run-application-with-args').submit(function(e) {
             e.preventDefault();
-            const args = _.map($(this).serializeArray(), function(input) {
+            const args = $(this).serializeArray().map( input => {
                 return input.value;
             }).join(' ').trim();
             const activeTab = self.application.tabController.getActiveTab();
