@@ -71,9 +71,9 @@ public class BLangJSONModelConstants {
 
     public static final String RESOURCE_DEFINITION = "resource_definition";
 
-    public static final String ANNOTATION_DEFINITION = "annotation";
+    public static final String ANNOTATION_ATTACHMENT = "annotation_attachment";
 
-    public static final String ANNOTATION_DEFINITIONS = "annotations";
+    public static final String ANNOTATION_ATTACHMENTS = "annotation_attachments";
 
     public static final String PARAMETER_DEFINITION = "argument_declaration";
 
