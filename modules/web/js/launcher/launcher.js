@@ -173,20 +173,6 @@ define(['log', 'jquery', 'backbone', 'lodash', 'context_menu', 'mcustom_scroller
                 activateBtn.attr("title", "Run  (" + _.get(self._options, 'command.shortcuts.other.label') + ") ").tooltip();
             }
 
-            this._verticalSeparator.on('drag', function(event){
-                if( event.originalEvent.clientX >= _.get(self._options, 'resizeLimits.minX')
-                    && event.originalEvent.clientX <= _.get(self._options, 'resizeLimits.maxX')){
-                    self._verticalSeparator.css('left', event.originalEvent.clientX);
-                    self._verticalSeparator.css('cursor', 'ew-resize');
-                    var newWidth = event.originalEvent.clientX;
-                    self._$parent_el.parent().width(newWidth);
-                    self._containerToAdjust.css('padding-left', event.originalEvent.clientX);
-                    self._lastWidth = newWidth;
-                    self._isActive = true;
-                }
-                event.preventDefault();
-                event.stopPropagation();
-            });
             this._launcherContainer = launcherContainer;
 
             launcherContainer.mCustomScrollbar({
