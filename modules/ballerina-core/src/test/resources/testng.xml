@@ -45,7 +45,7 @@ under the License.
             <package name="org.ballerinalang.model.statements"/>
             <package name="org.ballerinalang.model.structs"/>
             <package name="org.ballerinalang.model.connectors"/>
-            <!--<package name="org.ballerinalang.model.arraysofarrays"/>-->
+            <package name="org.ballerinalang.model.arraysofarrays"/>
         </packages>
         <classes>
             <class name="org.ballerinalang.TestConfigurationUtil" />

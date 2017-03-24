@@ -31,4 +31,34 @@ public class ArraysOfArraysTest {
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "arrayInitializationAndRetrieval");
         Assert.assertEquals(returns[0].stringValue(), "1");
     }
+
+    @Test(description = "Test Basic arrays of arrays operations")
+    public void testArrayToArrayAssignment() {
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "arrayToArrayAssignment");
+        Assert.assertEquals(returns[0].stringValue(), "9");
+    }
+
+    @Test(description = "Test Basic arrays of arrays operations")
+    public void testThreeDarrayTest() {
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "threeDarray");
+        Assert.assertEquals(returns[0].stringValue(), "2");
+    }
+
+    @Test(description = "Test Basic arrays of arrays operations")
+    public void testThreeDarrayValueAccess() {
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "threeDarrayValueAccess");
+        Assert.assertEquals(returns[0].stringValue(), "99");
+    }
+
+    @Test(description = "Test Basic arrays of arrays operations")
+    public void testThreeDarrayStringValueAccess() {
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "threeDarrayStringValueAccess");
+        Assert.assertEquals(returns[0].stringValue(), "string");
+    }
+
+    @Test(description = "Test Basic arrays of arrays operations")
+    public void testTwoDarrayFunctionCalltest() {
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "twoDarrayFunctionCalltest");
+        Assert.assertEquals(returns[0].stringValue(), "4");
+    }
 }
