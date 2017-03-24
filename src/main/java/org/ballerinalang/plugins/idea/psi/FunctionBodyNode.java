@@ -34,9 +34,9 @@ public class FunctionBodyNode extends ANTLRPsiNode implements ScopeNode {
     @Nullable
     @Override
     public PsiElement resolve(PsiNamedElement element) {
-        if (element.getParent() instanceof CallableUnitNameNode) {
+        if (element.getParent() instanceof NameReferenceNode) {
             return BallerinaPsiImplUtil.resolveElement(this, element, "//functionDefinition/Identifier",
-                    "//connectorDefinition/Identifier");
+                    "//connectorDefinition/Identifier", "//structDefinition/Identifier");
         } else if (element.getParent() instanceof VariableReferenceNode) {
             return BallerinaPsiImplUtil.resolveElement(this, element, "//variableDefinitionStatement/Identifier");
         } else if (element.getParent() instanceof SimpleTypeNode) {

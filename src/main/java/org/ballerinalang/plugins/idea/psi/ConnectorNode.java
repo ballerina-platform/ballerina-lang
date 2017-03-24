@@ -39,7 +39,7 @@ public class ConnectorNode extends IdentifierDefSubtree implements ScopeNode {
         if (element.getParent() instanceof VariableReferenceNode) {
             return SymtabUtils.resolve(this, BallerinaLanguage.INSTANCE, element,
                     "//parameter/Identifier");
-        } else if (element.getParent() instanceof CallableUnitNameNode) {
+        } else if (element.getParent() instanceof NameReferenceNode) {
             return SymtabUtils.resolve(this, BallerinaLanguage.INSTANCE, element,
                     "//functionDefinition/Identifier");
         } else if (element.getParent() instanceof SimpleTypeNode) {

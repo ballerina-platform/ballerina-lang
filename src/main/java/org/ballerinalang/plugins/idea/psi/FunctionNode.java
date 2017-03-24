@@ -44,12 +44,11 @@ public class FunctionNode extends IdentifierDefSubtree implements ScopeNode {
     @Nullable
     @Override
     public PsiElement resolve(PsiNamedElement element) {
-        if (element.getParent() instanceof CallableUnitNameNode) {
+        if (element.getParent() instanceof NameReferenceNode) {
             return SymtabUtils.resolve(this, BallerinaLanguage.INSTANCE, element,
                     "//functionDefinition/Identifier");
         } else if (element.getParent() instanceof VariableReferenceNode) {
-            return BallerinaPsiImplUtil.resolveElement(this, element, "//parameter/Identifier",
-                    "//namedParameter/Identifier");
+            return BallerinaPsiImplUtil.resolveElement(this, element, "//parameter/Identifier");
         } else if (element.getParent() instanceof SimpleTypeNode) {
             return SymtabUtils.resolve(this, BallerinaLanguage.INSTANCE, element,
                     "//connectorDefinition/Identifier");

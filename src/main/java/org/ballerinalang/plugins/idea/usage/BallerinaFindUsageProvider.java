@@ -66,16 +66,12 @@ public class BallerinaFindUsageProvider implements FindUsagesProvider {
                 return "Parameter";
             case RULE_packageName:
                 return "Package";
-            case RULE_namedParameter:
-                return "Named Parameter";
             case RULE_structDefinition:
                 return "Struct";
             case RULE_constantDefinition:
                 return "Constant";
-            case RULE_structField:
-                return "Struct Field";
-            case RULE_simpleType:
-                // Todo - Resolve the SimpleType element and return the correct type.
+            case RULE_fieldDefinition:
+                return "Field";
         }
         return "";
     }

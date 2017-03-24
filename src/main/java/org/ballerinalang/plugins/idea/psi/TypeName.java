@@ -20,9 +20,9 @@
 //import org.antlr.jetbrains.adaptor.psi.ANTLRPsiNode;
 //import org.jetbrains.annotations.NotNull;
 //
-//public class QualifiedTypeNameNode extends ANTLRPsiNode {
+//public class TypeName extends ANTLRPsiNode {
 //
-//    public QualifiedTypeNameNode(@NotNull ASTNode node) {
+//    public TypeName(@NotNull ASTNode node) {
 //        super(node);
 //    }
 //}

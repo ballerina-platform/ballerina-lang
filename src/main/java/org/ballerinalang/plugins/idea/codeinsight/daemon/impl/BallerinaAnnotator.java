@@ -21,8 +21,12 @@ import com.intellij.lang.annotation.AnnotationHolder;
 import com.intellij.lang.annotation.Annotator;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiReference;
+import com.intellij.psi.impl.source.tree.LeafPsiElement;
+import com.intellij.psi.tree.IElementType;
+import org.ballerinalang.plugins.idea.BallerinaTypes;
 import org.ballerinalang.plugins.idea.highlighter.BallerinaSyntaxHighlightingColors;
-import org.ballerinalang.plugins.idea.psi.AnnotationNameNode;
+import org.ballerinalang.plugins.idea.psi.AnnotationAttachmentNode;
+import org.ballerinalang.plugins.idea.psi.NameReferenceNode;
 import org.ballerinalang.plugins.idea.psi.ConstantDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.VariableReferenceNode;
 import org.jetbrains.annotations.NotNull;
@@ -31,9 +35,17 @@ public class BallerinaAnnotator implements Annotator {
 
     @Override
     public void annotate(@NotNull PsiElement element, @NotNull AnnotationHolder holder) {
-        if (element instanceof AnnotationNameNode) {
-            Annotation annotation = holder.createInfoAnnotation(element, null);
-            annotation.setTextAttributes(BallerinaSyntaxHighlightingColors.ANNOTATION);
+        if (element instanceof NameReferenceNode) {
+            if (element.getParent() instanceof AnnotationAttachmentNode) {
+                Annotation annotation = holder.createInfoAnnotation(element, null);
+                annotation.setTextAttributes(BallerinaSyntaxHighlightingColors.ANNOTATION);
+            }
+        } else if (element instanceof LeafPsiElement) {
+            IElementType elementType = ((LeafPsiElement) element).getElementType();
+            if (elementType == BallerinaTypes.AT && element.getParent() instanceof AnnotationAttachmentNode) {
+                Annotation annotation = holder.createInfoAnnotation(element, null);
+                annotation.setTextAttributes(BallerinaSyntaxHighlightingColors.ANNOTATION);
+            }
         } else if (element instanceof ConstantDefinitionNode) {
             PsiElement nameIdentifier = ((ConstantDefinitionNode) element).getNameIdentifier();
             if (nameIdentifier == null) {

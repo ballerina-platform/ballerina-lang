@@ -25,7 +25,7 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiReference;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.util.FunctionUtil;
-import org.ballerinalang.plugins.idea.psi.CallableUnitNameNode;
+import org.ballerinalang.plugins.idea.psi.NameReferenceNode;
 import org.ballerinalang.plugins.idea.psi.FunctionNode;
 import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
 import org.ballerinalang.plugins.idea.psi.SimpleTypeNode;
@@ -43,8 +43,8 @@ public class BallerinaRecursiveCallMarkerProvider implements LineMarkerProvider 
         // Check whether the element is an instance of IdentifierPSINode since recursion can only happen for those
         // (function name and function invocation both are instance of IdentifierPSINode).
         if (element instanceof IdentifierPSINode) {
-            // If it is a function invocation, there should be a parent of CallableUnitNameNode.
-            CallableUnitNameNode parent = PsiTreeUtil.getParentOfType(element, CallableUnitNameNode.class);
+            // If it is a function invocation, there should be a parent of NameReferenceNode.
+            NameReferenceNode parent = PsiTreeUtil.getParentOfType(element, NameReferenceNode.class);
             if (parent == null) {
                 return null;
             }

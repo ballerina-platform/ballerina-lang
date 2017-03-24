@@ -726,14 +726,6 @@ public class BallerinaPsiImplUtil {
                     results.add(parameterDefinition);
                 }
             }
-            Collection<? extends PsiElement> namedParameterDefinitions =
-                    XPath.findAll(BallerinaLanguage.INSTANCE, context, "//namedParameter/Identifier");
-            for (PsiElement namedParameterDefinition : namedParameterDefinitions) {
-                if (!namedParameterDefinition.getText().contains("IntellijIdeaRulezzz") &&
-                        !namedParameterDefinition.getParent().getText().contains("IntellijIdeaRulezzz")) {
-                    results.add(namedParameterDefinition);
-                }
-            }
             if (context != null) {
                 List<PsiElement> allVariablesInResolvableScope = getAllVariablesInResolvableScope(context.getContext());
                 for (PsiElement psiElement : allVariablesInResolvableScope) {

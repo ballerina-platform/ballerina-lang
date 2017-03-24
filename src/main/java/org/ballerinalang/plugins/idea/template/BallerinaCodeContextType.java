@@ -26,8 +26,6 @@ import com.intellij.psi.util.PsiUtilCore;
 import org.ballerinalang.plugins.idea.BallerinaLanguage;
 import org.ballerinalang.plugins.idea.highlighter.BallerinaSyntaxHighlighter;
 import org.ballerinalang.plugins.idea.psi.ActionDefinitionNode;
-import org.ballerinalang.plugins.idea.psi.AnnotationNameNode;
-import org.ballerinalang.plugins.idea.psi.AnnotationNode;
 import org.ballerinalang.plugins.idea.psi.CompilationUnitNode;
 import org.ballerinalang.plugins.idea.psi.ConnectorBodyNode;
 import org.ballerinalang.plugins.idea.psi.ConnectorNode;
@@ -105,8 +103,7 @@ public abstract class BallerinaCodeContextType extends TemplateContextType {
                         return true;
                     }
                     parent = parent.getParent();
-                    if (parent instanceof AnnotationNameNode || parent instanceof AnnotationNode
-                            || parent instanceof ResourceDefinitionNode) {
+                    if (parent instanceof ResourceDefinitionNode) {
                         return false;
                     }
                 }

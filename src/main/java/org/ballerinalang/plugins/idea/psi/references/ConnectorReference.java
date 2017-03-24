@@ -19,7 +19,7 @@ package org.ballerinalang.plugins.idea.psi.references;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementResolveResult;
 import com.intellij.psi.ResolveResult;
-import org.ballerinalang.plugins.idea.psi.CallableUnitNameNode;
+import org.ballerinalang.plugins.idea.psi.NameReferenceNode;
 import org.ballerinalang.plugins.idea.psi.ConnectorNode;
 import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
 import org.ballerinalang.plugins.idea.psi.SimpleTypeNode;
@@ -37,7 +37,7 @@ public class ConnectorReference extends BallerinaElementReference {
 
     @Override
     public boolean isDefinitionNode(PsiElement def) {
-        return def instanceof ConnectorNode || def instanceof SimpleTypeNode || def instanceof CallableUnitNameNode;
+        return def instanceof ConnectorNode || def instanceof SimpleTypeNode || def instanceof NameReferenceNode;
     }
 
     @NotNull

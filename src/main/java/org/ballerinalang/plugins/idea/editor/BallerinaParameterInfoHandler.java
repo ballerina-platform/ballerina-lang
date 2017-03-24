@@ -32,7 +32,6 @@ import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.util.ArrayUtil;
 import com.intellij.util.containers.ContainerUtil;
 import org.ballerinalang.plugins.idea.BallerinaTypes;
-import org.ballerinalang.plugins.idea.psi.ArgumentListNode;
 import org.ballerinalang.plugins.idea.psi.ExpressionListNode;
 import org.ballerinalang.plugins.idea.psi.FunctionInvocationStatementNode;
 import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
@@ -84,7 +83,7 @@ public class BallerinaParameterInfoHandler implements ParameterInfoHandlerWithTa
     @NotNull
     @Override
     public Class getArgumentListClass() {
-        return ArgumentListNode.class;
+        return ExpressionListNode.class;
     }
 
     @Override
@@ -108,13 +107,13 @@ public class BallerinaParameterInfoHandler implements ParameterInfoHandlerWithTa
     @Override
     public Object findElementForParameterInfo(@NotNull CreateParameterInfoContext context) {
         PsiElement psiElement = context.getFile().findElementAt(context.getOffset());
-        return PsiTreeUtil.getParentOfType(psiElement, ArgumentListNode.class);
+        return PsiTreeUtil.getParentOfType(psiElement, ExpressionListNode.class);
     }
 
     @Override
     public void showParameterInfo(@NotNull Object element, @NotNull CreateParameterInfoContext context) {
-        if (element instanceof ArgumentListNode) {
-            PsiElement psiElement = (ArgumentListNode) element;
+        if (element instanceof ExpressionListNode) {
+            PsiElement psiElement = (ExpressionListNode) element;
 
             FunctionInvocationStatementNode parent = PsiTreeUtil.getParentOfType(psiElement,
                     FunctionInvocationStatementNode.class);
@@ -175,14 +174,15 @@ public class BallerinaParameterInfoHandler implements ParameterInfoHandlerWithTa
     @Override
     public Object findElementForUpdatingParameterInfo(@NotNull UpdateParameterInfoContext context) {
         PsiElement psiElement = context.getFile().findElementAt(context.getOffset());
-        return PsiTreeUtil.getParentOfType(psiElement, ArgumentListNode.class);
+        return PsiTreeUtil.getParentOfType(psiElement, ExpressionListNode.class);
     }
 
     @Override
     public void updateParameterInfo(@NotNull Object o, @NotNull UpdateParameterInfoContext context) {
-        if (o instanceof ArgumentListNode) {
+        if (o instanceof ExpressionListNode) {
 
-            ArgumentListNode argumentListNode = ((ArgumentListNode) o);
+            // Todo - Update logic
+            ExpressionListNode argumentListNode = ((ExpressionListNode) o);
             ExpressionListNode expressionListNodes =
                     PsiTreeUtil.getChildOfType(argumentListNode, ExpressionListNode.class);
 

@@ -19,6 +19,18 @@ importDeclaration
     :   'import' packagePath ('as' alias)? ';'
     ;
 
+packagePath
+    :   (packageName '.')* packageName
+    ;
+
+packageName
+    :   Identifier
+    ;
+
+alias
+    :   packageName
+    ;
+
 definition
     :   serviceDefinition
     |   functionDefinition
@@ -64,15 +76,11 @@ actionDefinition
     ;
 
 structDefinition
-    :   'struct' Identifier '{' structDefinitionBody '}'
+    :   'struct' Identifier '{' structBody '}'
     ;
 
-structDefinitionBody
-    :   structField*
-    ;
-
-structField
-    :   typeName Identifier ';'
+structBody
+    :   fieldDefinition*
     ;
 
 annotationDefinition
@@ -105,102 +113,12 @@ typeMapperBody
     ;
 
 constantDefinition
-    :   'const' typeName Identifier '=' literalValue ';'
+    :   'const' valueTypeName Identifier '=' simpleLiteral ';'
     ;
 
 workerDeclaration
     :   'worker' Identifier '(' 'message' Identifier ')'  '{' statement* '}'
     ;
-
-returnParameters
-    : '(' (namedParameterList | returnTypeList) ')'
-    ;
-
-namedParameterList
-    :   namedParameter (',' namedParameter)*
-    ;
-
-namedParameter
-    :   typeName Identifier
-    ;
-
-returnTypeList
-    :   typeName (',' typeName)*
-    ;
-
-qualifiedTypeName
-    :   packagePath ':' unqualifiedTypeName
-    ;
-
-typeMapperType
-    :   simpleType
-    |   withFullSchemaType
-    |   withSchemaIdType
-    |   withScheamURLType
-    ;
-
-unqualifiedTypeName
-    :   simpleType
-    |   simpleTypeArray
-    |   simpleTypeIterate
-    |   withFullSchemaType
-    |   withFullSchemaTypeArray
-    |   withFullSchemaTypeIterate
-    |   withScheamURLType
-    |   withSchemaURLTypeArray
-    |   withSchemaURLTypeIterate
-    |   withSchemaIdType
-    |   withScheamIdTypeArray
-    |   withScheamIdTypeIterate
-    ;
-
-simpleType
-    :   Identifier
-    ;
-
-simpleTypeArray
-    :   Identifier '[' ']'
-    ;
-
-simpleTypeIterate
-    : Identifier '~'
-    ;
-
-withFullSchemaType
-	:	Identifier '<' '{' QuotedStringLiteral '}' Identifier '>'
-	;
-
-withFullSchemaTypeArray
-	:	Identifier '<' '{' QuotedStringLiteral '}' Identifier '>' '[' ']'
-	;
-
-withFullSchemaTypeIterate
-	:	Identifier '<' '{' QuotedStringLiteral '}' Identifier '>' '~'
-	;
-
-withScheamURLType
-	:	Identifier '<' '{' QuotedStringLiteral '}' '>'
-	;
-
-withSchemaURLTypeArray
-	:	Identifier '<' '{' QuotedStringLiteral '}' '>' '[' ']'
-	;
-
-withSchemaURLTypeIterate
-	:	Identifier '<' '{' QuotedStringLiteral '}' '>' '~'
-	;
-
-withSchemaIdType
-	:	Identifier '<' Identifier '>'
-	;
-
-withScheamIdTypeArray
-	:	Identifier '<' Identifier '>' '[' ']'
-	;
-
-withScheamIdTypeIterate
-	:	Identifier '<' Identifier '>' '~'
-	;
 
 typeName
     :   'any'
@@ -239,22 +157,6 @@ xmlLocalName
     :   Identifier
     ;
 
-parameterList
-    :   parameter (',' parameter)*
-    ;
-
-packagePath
-    :   (packageName '.')* packageName
-    ;
-
-packageName
-    :   Identifier
-    ;
-
-alias
-    :   packageName
-    ;
-
  annotationAttachment
      :   '@' nameReference '{' annotationAttributeList? '}'
      ;
@@ -277,43 +179,6 @@ alias
      :   '[' (annotationAttributeValue (',' annotationAttributeValue)*)? ']'
      ;
 
-literalValue
-    :   IntegerLiteral
-    |   FloatingPointLiteral
-    |   QuotedStringLiteral
-    |   BooleanLiteral
-    |   NullLiteral
-    ;
-
- //============================================================================================================
- // ANNOTATION
-
-annotation
-    :    annotationName ( '(' ( elementValuePairs | elementValue )? ')' )?
-    ;
-
-annotationName
-    :    '@' (packageName ':')? Identifier
-    ;
-
- elementValuePairs
-     :   elementValuePair (',' elementValuePair)*
-     ;
-
- elementValuePair
-     :    Identifier '=' elementValue
-     ;
-
- elementValue
-     :   expression
-     |   annotation
-     |   elementValueArrayInitializer
-     ;
-
- elementValueArrayInitializer
-     :   '{' (elementValue (',' elementValue)*)? (',')? '}'
-     ;
-
  //============================================================================================================
 // STATEMENTS / BLOCKS
 
@@ -323,6 +188,7 @@ statement
     |   ifElseStatement
     |   iterateStatement
     |   whileStatement
+    |   continueStatement
     |   breakStatement
     |   forkJoinStatement
     |   tryCatchStatement
@@ -336,11 +202,27 @@ statement
     ;
 
 variableDefinitionStatement
-    :   typeName Identifier ('=' expression)? ';'
+    :   typeName Identifier ('=' (connectorInitExpression | actionInvocation | expression) )? ';'
+    ;
+
+mapStructLiteral
+    :   '{' (mapStructKeyValue (',' mapStructKeyValue)*)? '}'
+    ;
+
+mapStructKeyValue
+    :   expression ':' expression
+    ;
+
+arrayLiteral
+    :   '[' expressionList? ']'
+    ;
+
+connectorInitExpression
+    :   'create' nameReference '(' expressionList? ')'
     ;
 
 assignmentStatement
-    :   variableReferenceList '=' expression ';'
+    :   variableReferenceList '=' (connectorInitExpression | actionInvocation | expression) ';'
     ;
 
 variableReferenceList
@@ -351,12 +233,17 @@ ifElseStatement
     :   'if' '(' expression ')' '{' statement* '}' ('else' 'if' '(' expression ')' '{' statement* '}')* ('else' '{' statement* '}')?
     ;
 
+//todo replace with 'foreach'
 iterateStatement
     :   'iterate' '(' typeName Identifier ':' expression ')' '{' statement* '}'
     ;
 
 whileStatement
     :   'while' '(' expression ')' '{' statement* '}'
+    ;
+
+continueStatement
+    :   'continue' ';'
     ;
 
 breakStatement
@@ -374,8 +261,8 @@ joinClause
     ;
 
 joinConditions
-    :   'any' IntegerLiteral (Identifier (',' Identifier)*)?        # anyJoinCondition
-    |   'all' (Identifier (',' Identifier)*)?                       # allJoinCondition
+    :   'some' IntegerLiteral (Identifier (',' Identifier)*)? 	# anyJoinCondition
+    |   'all' (Identifier (',' Identifier)*)? 		            # allJoinCondition
     ;
 
 // below typeName is only 'message[]'
@@ -383,9 +270,8 @@ timeoutClause
     :   'timeout' '(' expression ')' '(' typeName Identifier ')'  '{' statement* '}'
     ;
 
-// below tyeName is only 'exception'
 tryCatchStatement
-    :   'try' '{' statement* '}' 'catch' '(' typeName Identifier ')' '{' statement* '}'
+    :   'try' '{' statement* '}' 'catch' '(' 'exception' Identifier ')' '{' statement* '}'
     ;
 
 throwStatement
@@ -420,18 +306,10 @@ commentStatement
     :   LINE_COMMENT
     ;
 
-actionInvocationStatement
-    :   actionInvocation argumentList ';'
-    ;
-
 variableReference
     :   Identifier                                  # simpleVariableIdentifier// simple identifier
-    |   Identifier '['expression']'                 # mapArrayVariableIdentifier// arrays and map reference
+    |   Identifier ('['expression']')+              # mapArrayVariableIdentifier// arrays and map reference
     |   variableReference ('.' variableReference)+  # structFieldIdentifier// struct field reference
-    ;
-
-argumentList
-    :   '(' expressionList? ')'
     ;
 
 expressionList
@@ -439,31 +317,31 @@ expressionList
     ;
 
 functionInvocationStatement
-    :   functionName argumentList ';'
+    :   nameReference '(' expressionList? ')' ';'
     ;
 
-functionName
-    :   callableUnitName
+actionInvocationStatement
+    :   actionInvocation ';'
+    |   variableReferenceList '=' actionInvocation ';'
     ;
 
 actionInvocation
-    :   callableUnitName '.' Identifier
-    ;
-
-callableUnitName
-    :   (packagePath ':')? simpleType
+    :   nameReference '.' Identifier '(' expressionList? ')'
     ;
 
 backtickString
-   :   BacktickStringLiteral
-   ;
+    :   BacktickStringLiteral
+    ;
 
 expression
-    :   literalValue                                    # literalExpression
+    :   simpleLiteral                                   # simpleLiteralExpression
+    |   arrayLiteral                                    # arrayLiteralExpression
+    |   mapStructLiteral                                # mapStructLiteralExpression
+    |   valueTypeName '.' Identifier                    # valueTypeTypeExpression
+    |   builtInReferenceTypeName '.' Identifier         # builtInReferenceTypeTypeExpression
     |   variableReference                               # variableReferenceExpression
     |   backtickString                                  # templateExpression
-    |   functionName argumentList                       # functionInvocationExpression
-    |   actionInvocation argumentList                   # actionInvocationExpression
+    |   nameReference '(' expressionList? ')'           # functionInvocationExpression
     |   '(' typeName ')' expression                     # typeCastingExpression
     |   ('+' | '-' | '!') expression                    # unaryExpression
     |   '(' expression ')'                              # bracedExpression
@@ -474,24 +352,24 @@ expression
     |   expression ('==' | '!=') expression             # binaryEqualExpression
     |   expression '&&' expression                      # binaryAndExpression
     |   expression '||' expression                      # binaryOrExpression
-    |   '['']'                                          # arrayInitExpression
-    |   '[' expressionList ']'                          # arrayInitExpression // couldn't match empty array with:  '[' expressionList? ']' hence writing in two branches
-    |   '{' mapStructInitKeyValueList? '}'              # refTypeInitExpression
-    |   'create' typeName argumentList                  # connectorInitExpression
-    ;
-
-mapStructInitKeyValueList
-    :   mapStructInitKeyValue (',' mapStructInitKeyValue)*
-    ;
-
-mapStructInitKeyValue
-    :   expression ':' expression
     ;
 
 //reusable productions
 
 nameReference
-    :   (Identifier ':')? Identifier
+    :   (packageName ':')? Identifier
+    ;
+
+returnParameters
+    : '(' (parameterList | returnTypeList) ')'
+    ;
+
+returnTypeList
+    :   typeName (',' typeName)*
+    ;
+
+parameterList
+    :   parameter (',' parameter)*
     ;
 
 parameter
@@ -521,6 +399,7 @@ BREAK           : 'break';
 CATCH           : 'catch';
 CONNECTOR       : 'connector';
 CONST           : 'const';
+CONTINUE        : 'continue';
 CREATE          : 'create';
 ELSE            : 'else';
 FORK            : 'fork';
@@ -529,12 +408,14 @@ IF              : 'if';
 IMPORT          : 'import';
 ITERATE         : 'iterate';
 JOIN            : 'join';
+NATIVE          : 'native';
 NULL            : 'null';
 PACKAGE         : 'package';
 REPLY           : 'reply';
 RESOURCE        : 'resource';
 RETURN          : 'return';
 SERVICE         : 'service';
+SOME            : 'some';
 STRUCT          : 'struct';
 THROW           : 'throw';
 THROWS          : 'throws';
@@ -543,6 +424,19 @@ TRY             : 'try';
 TYPEMAPPER      : 'typemapper';
 WHILE           : 'while';
 WORKER          : 'worker';
+
+BOOLEAN         : 'boolean';
+INT             : 'int';
+FLOAT           : 'float';
+STRING          : 'string';
+
+MESSAGE         : 'message';
+MAP             : 'map';
+EXCEPTION       : 'exception';
+XML             : 'xml';
+XML_DOCUMENT    : 'xmlDocument';
+JSON            : 'json';
+DATATABLE       : 'datatable';
 
 // Other tokens
 SENDARROW       : '->';

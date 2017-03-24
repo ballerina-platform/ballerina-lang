@@ -101,8 +101,6 @@ public class BallerinaBlock extends AbstractBlock {
                             || parentElementType == TYPE_MAPPER_BODY || parentElementType == WORKER_DECLARATION) {
                         indent = Indent.getSpaceIndent(4);
                     }
-                } else if (childElementType == ELEMENT_VALUE_PAIR) {
-                    indent = Indent.getSpaceIndent(4);
                 }
 
                 Block block = new BallerinaBlock(

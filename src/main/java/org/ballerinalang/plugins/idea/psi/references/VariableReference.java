@@ -29,14 +29,12 @@ import org.ballerinalang.plugins.idea.psi.ConstantDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.FunctionBodyNode;
 import org.ballerinalang.plugins.idea.psi.FunctionNode;
 import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
-import org.ballerinalang.plugins.idea.psi.NamedParameterNode;
 import org.ballerinalang.plugins.idea.psi.ParameterNode;
 import org.ballerinalang.plugins.idea.psi.ResourceDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.StructDefinitionNode;
-import org.ballerinalang.plugins.idea.psi.StructFieldNode;
+import org.ballerinalang.plugins.idea.psi.FieldDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.TypeMapperBodyNode;
 import org.ballerinalang.plugins.idea.psi.TypeMapperNode;
-import org.ballerinalang.plugins.idea.psi.TypeMapperType;
 import org.ballerinalang.plugins.idea.psi.TypeNameNode;
 import org.ballerinalang.plugins.idea.psi.VariableDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.VariableReferenceNode;
@@ -54,8 +52,7 @@ public class VariableReference extends BallerinaElementReference {
     @Override
     public boolean isDefinitionNode(PsiElement def) {
         return def instanceof VariableDefinitionNode || def instanceof ParameterNode
-                || def instanceof NamedParameterNode || def instanceof ConstantDefinitionNode
-                || def instanceof StructFieldNode;
+                || def instanceof ConstantDefinitionNode || def instanceof FieldDefinitionNode;
     }
 
     @NotNull
@@ -110,13 +107,13 @@ public class VariableReference extends BallerinaElementReference {
                 // Now we need to get the struct type. So we get the parent element.
                 PsiElement parentNode = resolvedElement.getParent();
                 if (parentNode == null || !(parentNode instanceof VariableDefinitionNode
-                        || parentNode instanceof ParameterNode || parentNode instanceof NamedParameterNode)) {
+                        || parentNode instanceof ParameterNode)) {
                     continue;
                 }
                 // In a definition, the first child will be the type.
                 PsiElement firstChild = parentNode.getFirstChild();
-                if (firstChild == null || !(firstChild instanceof TypeNameNode
-                        || firstChild instanceof TypeMapperType)) {
+                // Todo - Update conditions
+                if (firstChild == null || !(firstChild instanceof TypeNameNode)) {
                     continue;
                 }
                 // But there can be other children within the first child as well. So we need to navigate into each
@@ -181,17 +178,6 @@ public class VariableReference extends BallerinaElementReference {
                         || commonContext instanceof TypeMapperBodyNode)) {
                     return false;
                 }
-            } else if (definitionElement instanceof NamedParameterNode) {
-                // The parent of myElement must be a VariableReferenceNode. If this is not checked, The named
-                // parameter definition will also be added as a usage when we use Find Usages.
-                if (!(myElement.getParent() instanceof VariableReferenceNode)) {
-                    return false;
-                }
-                PsiElement nameIdentifier = ((NamedParameterNode) definitionElement).getNameIdentifier();
-                if (nameIdentifier == null) {
-                    return false;
-                }
-                return refName.equals(nameIdentifier.getText());
             }
             return refName != null && defName != null && refName.equals(defName);
         }

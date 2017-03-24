@@ -29,6 +29,24 @@ public interface BallerinaVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitImportDeclaration(BallerinaParser.ImportDeclarationContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link BallerinaParser#packagePath}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitPackagePath(BallerinaParser.PackagePathContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link BallerinaParser#packageName}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitPackageName(BallerinaParser.PackageNameContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link BallerinaParser#alias}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitAlias(BallerinaParser.AliasContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link BallerinaParser#definition}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
@@ -89,17 +107,11 @@ public interface BallerinaVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitStructDefinition(BallerinaParser.StructDefinitionContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link BallerinaParser#structDefinitionBody}.
+	 * Visit a parse tree produced by {@link BallerinaParser#structBody}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitStructDefinitionBody(BallerinaParser.StructDefinitionBodyContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link BallerinaParser#structField}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitStructField(BallerinaParser.StructFieldContext ctx);
+	T visitStructBody(BallerinaParser.StructBodyContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link BallerinaParser#annotationDefinition}.
 	 * @param ctx the parse tree
@@ -143,120 +155,6 @@ public interface BallerinaVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitWorkerDeclaration(BallerinaParser.WorkerDeclarationContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link BallerinaParser#returnParameters}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitReturnParameters(BallerinaParser.ReturnParametersContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link BallerinaParser#namedParameterList}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitNamedParameterList(BallerinaParser.NamedParameterListContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link BallerinaParser#namedParameter}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitNamedParameter(BallerinaParser.NamedParameterContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link BallerinaParser#returnTypeList}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitReturnTypeList(BallerinaParser.ReturnTypeListContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link BallerinaParser#qualifiedTypeName}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitQualifiedTypeName(BallerinaParser.QualifiedTypeNameContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link BallerinaParser#typeMapperType}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitTypeMapperType(BallerinaParser.TypeMapperTypeContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link BallerinaParser#unqualifiedTypeName}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitUnqualifiedTypeName(BallerinaParser.UnqualifiedTypeNameContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link BallerinaParser#simpleType}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitSimpleType(BallerinaParser.SimpleTypeContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link BallerinaParser#simpleTypeArray}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitSimpleTypeArray(BallerinaParser.SimpleTypeArrayContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link BallerinaParser#simpleTypeIterate}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitSimpleTypeIterate(BallerinaParser.SimpleTypeIterateContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link BallerinaParser#withFullSchemaType}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitWithFullSchemaType(BallerinaParser.WithFullSchemaTypeContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link BallerinaParser#withFullSchemaTypeArray}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitWithFullSchemaTypeArray(BallerinaParser.WithFullSchemaTypeArrayContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link BallerinaParser#withFullSchemaTypeIterate}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitWithFullSchemaTypeIterate(BallerinaParser.WithFullSchemaTypeIterateContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link BallerinaParser#withScheamURLType}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitWithScheamURLType(BallerinaParser.WithScheamURLTypeContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link BallerinaParser#withSchemaURLTypeArray}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitWithSchemaURLTypeArray(BallerinaParser.WithSchemaURLTypeArrayContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link BallerinaParser#withSchemaURLTypeIterate}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitWithSchemaURLTypeIterate(BallerinaParser.WithSchemaURLTypeIterateContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link BallerinaParser#withSchemaIdType}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitWithSchemaIdType(BallerinaParser.WithSchemaIdTypeContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link BallerinaParser#withScheamIdTypeArray}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitWithScheamIdTypeArray(BallerinaParser.WithScheamIdTypeArrayContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link BallerinaParser#withScheamIdTypeIterate}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitWithScheamIdTypeIterate(BallerinaParser.WithScheamIdTypeIterateContext ctx);
-	/**
 	 * Visit a parse tree produced by {@link BallerinaParser#typeName}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
@@ -293,30 +191,6 @@ public interface BallerinaVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitXmlLocalName(BallerinaParser.XmlLocalNameContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link BallerinaParser#parameterList}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitParameterList(BallerinaParser.ParameterListContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link BallerinaParser#packagePath}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitPackagePath(BallerinaParser.PackagePathContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link BallerinaParser#packageName}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitPackageName(BallerinaParser.PackageNameContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link BallerinaParser#alias}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitAlias(BallerinaParser.AliasContext ctx);
-	/**
 	 * Visit a parse tree produced by {@link BallerinaParser#annotationAttachment}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
@@ -347,48 +221,6 @@ public interface BallerinaVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitAnnotationAttributeArray(BallerinaParser.AnnotationAttributeArrayContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link BallerinaParser#literalValue}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitLiteralValue(BallerinaParser.LiteralValueContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link BallerinaParser#annotation}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitAnnotation(BallerinaParser.AnnotationContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link BallerinaParser#annotationName}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitAnnotationName(BallerinaParser.AnnotationNameContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link BallerinaParser#elementValuePairs}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitElementValuePairs(BallerinaParser.ElementValuePairsContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link BallerinaParser#elementValuePair}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitElementValuePair(BallerinaParser.ElementValuePairContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link BallerinaParser#elementValue}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitElementValue(BallerinaParser.ElementValueContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link BallerinaParser#elementValueArrayInitializer}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitElementValueArrayInitializer(BallerinaParser.ElementValueArrayInitializerContext ctx);
-	/**
 	 * Visit a parse tree produced by {@link BallerinaParser#statement}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
@@ -400,6 +232,30 @@ public interface BallerinaVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitVariableDefinitionStatement(BallerinaParser.VariableDefinitionStatementContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link BallerinaParser#mapStructLiteral}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitMapStructLiteral(BallerinaParser.MapStructLiteralContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link BallerinaParser#mapStructKeyValue}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitMapStructKeyValue(BallerinaParser.MapStructKeyValueContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link BallerinaParser#arrayLiteral}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitArrayLiteral(BallerinaParser.ArrayLiteralContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link BallerinaParser#connectorInitExpression}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitConnectorInitExpression(BallerinaParser.ConnectorInitExpressionContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link BallerinaParser#assignmentStatement}.
 	 * @param ctx the parse tree
@@ -430,6 +286,12 @@ public interface BallerinaVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitWhileStatement(BallerinaParser.WhileStatementContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link BallerinaParser#continueStatement}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitContinueStatement(BallerinaParser.ContinueStatementContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link BallerinaParser#breakStatement}.
 	 * @param ctx the parse tree
@@ -517,12 +379,6 @@ public interface BallerinaVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitCommentStatement(BallerinaParser.CommentStatementContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link BallerinaParser#actionInvocationStatement}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitActionInvocationStatement(BallerinaParser.ActionInvocationStatementContext ctx);
-	/**
 	 * Visit a parse tree produced by the {@code structFieldIdentifier}
 	 * labeled alternative in {@link BallerinaParser#variableReference}.
 	 * @param ctx the parse tree
@@ -544,12 +400,6 @@ public interface BallerinaVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitMapArrayVariableIdentifier(BallerinaParser.MapArrayVariableIdentifierContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link BallerinaParser#argumentList}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitArgumentList(BallerinaParser.ArgumentListContext ctx);
-	/**
 	 * Visit a parse tree produced by {@link BallerinaParser#expressionList}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
@@ -562,11 +412,11 @@ public interface BallerinaVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitFunctionInvocationStatement(BallerinaParser.FunctionInvocationStatementContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link BallerinaParser#functionName}.
+	 * Visit a parse tree produced by {@link BallerinaParser#actionInvocationStatement}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitFunctionName(BallerinaParser.FunctionNameContext ctx);
+	T visitActionInvocationStatement(BallerinaParser.ActionInvocationStatementContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link BallerinaParser#actionInvocation}.
 	 * @param ctx the parse tree
@@ -574,24 +424,11 @@ public interface BallerinaVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitActionInvocation(BallerinaParser.ActionInvocationContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link BallerinaParser#callableUnitName}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitCallableUnitName(BallerinaParser.CallableUnitNameContext ctx);
-	/**
 	 * Visit a parse tree produced by {@link BallerinaParser#backtickString}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitBacktickString(BallerinaParser.BacktickStringContext ctx);
-	/**
-	 * Visit a parse tree produced by the {@code connectorInitExpression}
-	 * labeled alternative in {@link BallerinaParser#expression}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitConnectorInitExpression(BallerinaParser.ConnectorInitExpressionContext ctx);
 	/**
 	 * Visit a parse tree produced by the {@code binaryDivMulModExpression}
 	 * labeled alternative in {@link BallerinaParser#expression}.
@@ -607,12 +444,26 @@ public interface BallerinaVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitBinaryOrExpression(BallerinaParser.BinaryOrExpressionContext ctx);
 	/**
+	 * Visit a parse tree produced by the {@code valueTypeTypeExpression}
+	 * labeled alternative in {@link BallerinaParser#expression}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitValueTypeTypeExpression(BallerinaParser.ValueTypeTypeExpressionContext ctx);
+	/**
 	 * Visit a parse tree produced by the {@code templateExpression}
 	 * labeled alternative in {@link BallerinaParser#expression}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitTemplateExpression(BallerinaParser.TemplateExpressionContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code simpleLiteralExpression}
+	 * labeled alternative in {@link BallerinaParser#expression}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitSimpleLiteralExpression(BallerinaParser.SimpleLiteralExpressionContext ctx);
 	/**
 	 * Visit a parse tree produced by the {@code functionInvocationExpression}
 	 * labeled alternative in {@link BallerinaParser#expression}.
@@ -628,12 +479,12 @@ public interface BallerinaVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitBinaryEqualExpression(BallerinaParser.BinaryEqualExpressionContext ctx);
 	/**
-	 * Visit a parse tree produced by the {@code refTypeInitExpression}
+	 * Visit a parse tree produced by the {@code arrayLiteralExpression}
 	 * labeled alternative in {@link BallerinaParser#expression}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitRefTypeInitExpression(BallerinaParser.RefTypeInitExpressionContext ctx);
+	T visitArrayLiteralExpression(BallerinaParser.ArrayLiteralExpressionContext ctx);
 	/**
 	 * Visit a parse tree produced by the {@code bracedExpression}
 	 * labeled alternative in {@link BallerinaParser#expression}.
@@ -649,12 +500,12 @@ public interface BallerinaVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitVariableReferenceExpression(BallerinaParser.VariableReferenceExpressionContext ctx);
 	/**
-	 * Visit a parse tree produced by the {@code actionInvocationExpression}
+	 * Visit a parse tree produced by the {@code mapStructLiteralExpression}
 	 * labeled alternative in {@link BallerinaParser#expression}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitActionInvocationExpression(BallerinaParser.ActionInvocationExpressionContext ctx);
+	T visitMapStructLiteralExpression(BallerinaParser.MapStructLiteralExpressionContext ctx);
 	/**
 	 * Visit a parse tree produced by the {@code typeCastingExpression}
 	 * labeled alternative in {@link BallerinaParser#expression}.
@@ -677,13 +528,6 @@ public interface BallerinaVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitBinaryAddSubExpression(BallerinaParser.BinaryAddSubExpressionContext ctx);
 	/**
-	 * Visit a parse tree produced by the {@code arrayInitExpression}
-	 * labeled alternative in {@link BallerinaParser#expression}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitArrayInitExpression(BallerinaParser.ArrayInitExpressionContext ctx);
-	/**
 	 * Visit a parse tree produced by the {@code binaryCompareExpression}
 	 * labeled alternative in {@link BallerinaParser#expression}.
 	 * @param ctx the parse tree
@@ -691,12 +535,12 @@ public interface BallerinaVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitBinaryCompareExpression(BallerinaParser.BinaryCompareExpressionContext ctx);
 	/**
-	 * Visit a parse tree produced by the {@code literalExpression}
+	 * Visit a parse tree produced by the {@code builtInReferenceTypeTypeExpression}
 	 * labeled alternative in {@link BallerinaParser#expression}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitLiteralExpression(BallerinaParser.LiteralExpressionContext ctx);
+	T visitBuiltInReferenceTypeTypeExpression(BallerinaParser.BuiltInReferenceTypeTypeExpressionContext ctx);
 	/**
 	 * Visit a parse tree produced by the {@code unaryExpression}
 	 * labeled alternative in {@link BallerinaParser#expression}.
@@ -712,23 +556,29 @@ public interface BallerinaVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitBinaryPowExpression(BallerinaParser.BinaryPowExpressionContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link BallerinaParser#mapStructInitKeyValueList}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitMapStructInitKeyValueList(BallerinaParser.MapStructInitKeyValueListContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link BallerinaParser#mapStructInitKeyValue}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitMapStructInitKeyValue(BallerinaParser.MapStructInitKeyValueContext ctx);
-	/**
 	 * Visit a parse tree produced by {@link BallerinaParser#nameReference}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitNameReference(BallerinaParser.NameReferenceContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link BallerinaParser#returnParameters}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitReturnParameters(BallerinaParser.ReturnParametersContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link BallerinaParser#returnTypeList}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitReturnTypeList(BallerinaParser.ReturnTypeListContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link BallerinaParser#parameterList}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitParameterList(BallerinaParser.ParameterListContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link BallerinaParser#parameter}.
 	 * @param ctx the parse tree

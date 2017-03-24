@@ -25,7 +25,7 @@ import com.intellij.psi.ResolveResult;
 import com.intellij.psi.util.PsiTreeUtil;
 import org.antlr.jetbrains.adaptor.xpath.XPath;
 import org.ballerinalang.plugins.idea.BallerinaLanguage;
-import org.ballerinalang.plugins.idea.psi.CallableUnitNameNode;
+import org.ballerinalang.plugins.idea.psi.NameReferenceNode;
 import org.ballerinalang.plugins.idea.psi.ConnectorNode;
 import org.ballerinalang.plugins.idea.psi.FunctionNode;
 import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
@@ -61,8 +61,8 @@ public class SimpleTypeReference extends BallerinaElementReference {
     @NotNull
     @Override
     public ResolveResult[] multiResolve(boolean incompleteCode) {
-        // Get the CallableUnitNameNode parent. This is to resolve functions from other packages. Ex- system:println().
-        PsiElement parentElement = PsiTreeUtil.getParentOfType(getElement(), CallableUnitNameNode.class);
+        // Get the NameReferenceNode parent. This is to resolve functions from other packages. Ex- system:println().
+        PsiElement parentElement = PsiTreeUtil.getParentOfType(getElement(), NameReferenceNode.class);
         if (parentElement == null) {
             // Get the TypeNameNode parent. This is to resolve Connectors from packages. Ex- http:ClientConnector.
             parentElement = PsiTreeUtil.getParentOfType(getElement(), TypeNameNode.class);
@@ -71,7 +71,7 @@ public class SimpleTypeReference extends BallerinaElementReference {
         // Get the PackagePath node. We need the package path to resolve the corresponding Function/Connector. We use
         // XPath.findAll() here because the PackagePath node might not be a direct child of the parentElement.
         Collection<? extends PsiElement> packagePath =
-                XPath.findAll(BallerinaLanguage.INSTANCE, parentElement, "//packagePath");
+                XPath.findAll(BallerinaLanguage.INSTANCE, parentElement, "//nameReference");
 
         // Check whether a packagePath is found.
         if (!packagePath.iterator().hasNext()) {
