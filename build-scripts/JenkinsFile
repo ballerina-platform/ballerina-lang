@@ -26,6 +26,8 @@ String pluginMavenVersion, pluginMavenReleaseTag, pluginMavenDevVersion, pluginM
 String ballerinaParentVersion, ballerinaParentReleaseTag, ballerinaParentDevVersion;
 String allowCleanUpAfterReleaseFailure = NO;
 String nodeLabel;
+String enableFailFast;
+boolean failFast = true;
 
 def releaseParamInput, buildParamInput;
 
@@ -36,6 +38,8 @@ if (isRelease) {
     releaseParamInput = input(
             id: 'userInput', message: 'Please provide following parameters', parameters: [
             [$class: TEXT_PARAM_DEF_CLASS, description: 'Provide the node label to preform the release', name: 'node-label'],
+
+            [$class: CHOICE_PARAM_DEF_CLASS, choices: yesNoString, description: 'Enable fail-fast for parallel builds', name: 'fail-fast'],
 
             [$class: CHOICE_PARAM_DEF_CLASS, choices: yesNoString, description: 'Delete newly created tags/branches after failure', name: 'clean-up-after-failure'],
 
@@ -90,6 +94,7 @@ if (isRelease) {
     ]);
     allowCleanUpAfterReleaseFailure = releaseParamInput['clean-up-after-failure'];
     nodeLabel = releaseParamInput['node-label'];
+    enableFailFast = releaseParamInput['fail-fast'];
 
     ballerinaParentVersion = releaseParamInput['ballerina-parent-version'];
     ballerinaParentReleaseTag = releaseParamInput['ballerina-parent-release-tag'];
@@ -145,6 +150,8 @@ if (isRelease) {
             id: 'userInput', message: 'Please provide following parameters', parameters: [
             [$class: TEXT_PARAM_DEF_CLASS, description: 'Provide the node label to preform the build', name: 'node-label'],
 
+            [$class: CHOICE_PARAM_DEF_CLASS, choices: yesNoString, description: 'Enable fail-fast for parallel builds', name: 'fail-fast'],
+
             [$class: CHOICE_PARAM_DEF_CLASS, choices: yesNoString, description: 'Skip ballerina Tests', name: 'skip-ballerina-tests'],
             [$class: CHOICE_PARAM_DEF_CLASS, choices: yesNoString, description: 'Skip composer Tests', name: 'skip-composer-tests'],
             [$class: CHOICE_PARAM_DEF_CLASS, choices: yesNoString, description: 'Skip docerina Tests', name: 'skip-docerina-tests'],
@@ -157,6 +164,7 @@ if (isRelease) {
     ]);
 
     nodeLabel = buildParamInput['node-label'];
+    enableFailFast = buildParamInput['fail-fast'];
     ballerinaSkipTests = buildParamInput['skip-ballerina-tests'];
     composerSkipTests = buildParamInput['skip-composer-tests'];
     docerinaSkipTests = buildParamInput['skip-docerina-tests'];
@@ -167,6 +175,8 @@ if (isRelease) {
     toolsDistSkipTests = buildParamInput['skip-tools-distrbution-tests'];
     pluginMavenSkipTests = buildParamInput['skip-plugin-maven-tests'];
 }
+
+failFast = YES.equals(enableFailFast);
 
 node ("${nodeLabel}") {
     def tagMap = [];
@@ -185,8 +195,8 @@ node ("${nodeLabel}") {
     String ballerinaParentRepository = "ballerina-parent";
     String ballerinaGroudId = "org.ballerinalang";
     String ballerinaConnectorsGroupId = "org.wso2.ballerina.connectors"
-    String propertyUpdateCommitMessage = "Updating versions of org.ballerinalang.* dependencies";
-    String parentUpdateCommitMessage = "Updating ballerina-parent version";
+    String propertyUpdateCommitMessage = "Update versions of org.ballerinalang.* dependencies";
+    String parentUpdateCommitMessage = "Update ballerina-parent version";
 
     try {
         stage('Building ballerina-parent') {
@@ -332,7 +342,7 @@ node ("${nodeLabel}") {
                 } else {
                     build(settingsXMLID, toolSwaggerBallerinaRepository, toolSwaggerSkipTests);
                 }
-            }, failFast: true
+            }, failFast: failFast
         }
 
         stage('Building tools-distribution') {
