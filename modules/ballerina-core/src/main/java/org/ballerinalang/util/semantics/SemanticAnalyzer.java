@@ -618,7 +618,6 @@ public class SemanticAnalyzer implements NodeVisitor {
     private void validateAttributes(AnnotationAttachment annotation, AnnotationDef annotationDef) {
         annotation.getAttributeNameValuePairs().forEach((attributeName, attributeValue) -> {
             // Check attribute existence
-            AnnotationDef annotationDef2 = annotationDef;
             BLangSymbol attributeSymbol = annotationDef.resolveMembers(new SymbolName(attributeName));
             if (attributeSymbol == null || !(attributeSymbol instanceof AnnotationAttributeDef)) {
                 BLangExceptionHelper.throwSemanticError(annotation, SemanticErrors.NO_SUCH_ATTRIBUTE, 
