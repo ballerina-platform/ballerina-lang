@@ -75,6 +75,10 @@ public class BLangJSONModelConstants {
 
     public static final String ANNOTATION_ATTACHMENTS = "annotation_attachments";
 
+    public static final String ANNOTATION_PACKAGE_NAME = "annotation_package_name";
+
+    public static final String ANNOTATION_PACKAGE_PATH = "annotation_package_path";
+
     public static final String PARAMETER_DEFINITION = "argument_declaration";
 
     public static final String CONNECTOR_DECLARATION = "connector_declaration";
@@ -268,4 +272,5 @@ public class BLangJSONModelConstants {
     public static final String CATCH_BLOCK = "catch_block";
 
     public static final String THROW_STATEMENT = "throw_statement";
+
 }
