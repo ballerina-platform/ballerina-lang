@@ -20,8 +20,12 @@ package org.ballerinalang.nativeimpl.connectors.data.sql.client;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeEnum;
 import org.ballerinalang.model.values.BArray;
+import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BDataTable;
+import org.ballerinalang.model.values.BDouble;
+import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BLong;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
@@ -341,77 +345,93 @@ public abstract class AbstractSQLAction extends AbstractNativeAction {
     private void setOutParameterValue(CallableStatement stmt, String sqlType, int index, BStruct paramValue) {
         try {
             String sqlDataType = sqlType.toUpperCase(Locale.getDefault());
-            Object elementValue;
-            String stringValue = "";
             switch (sqlDataType) {
-            case Constants.SQLDataTypes.INTEGER:
-                elementValue = stmt.getInt(index + 1);
-                stringValue = elementValue.toString();
-                break;
-            case Constants.SQLDataTypes.VARCHAR:
-                elementValue = stmt.getString(index + 1);
-                stringValue = elementValue == null ? "" : elementValue.toString();
-                break;
+            case Constants.SQLDataTypes.INTEGER: {
+                int value = stmt.getInt(index + 1);
+                paramValue.setValue(1, new BInteger(value)); //Value is the first position of the struct
+            }
+            break;
+            case Constants.SQLDataTypes.VARCHAR: {
+                String value = stmt.getString(index + 1);
+                paramValue.setValue(1, new BString(value));
+            }
+            break;
             case Constants.SQLDataTypes.NUMERIC:
-            case Constants.SQLDataTypes.DECIMAL:
-                elementValue = stmt.getBigDecimal(index + 1);
-                stringValue = elementValue == null ? "" : elementValue.toString();
-                break;
+            case Constants.SQLDataTypes.DECIMAL: {
+                BigDecimal value = stmt.getBigDecimal(index + 1);
+                if (value == null) {
+                    paramValue.setValue(1, new BDouble(0));
+                } else {
+                    paramValue.setValue(1, new BDouble(value.doubleValue()));
+                }
+            }
+            break;
             case Constants.SQLDataTypes.BIT:
-            case Constants.SQLDataTypes.BOOLEAN:
-                elementValue = stmt.getBoolean(index + 1);
-                stringValue = elementValue.toString();
-                break;
-            case Constants.SQLDataTypes.TINYINT:
-                elementValue = stmt.getByte(index + 1);
-                stringValue = elementValue.toString();
-                break;
-            case Constants.SQLDataTypes.SMALLINT:
-                elementValue = stmt.getShort(index + 1);
-                stringValue = elementValue.toString();
-                break;
-            case Constants.SQLDataTypes.BIGINT:
-                elementValue = stmt.getLong(index + 1);
-                stringValue = elementValue.toString();
-                break;
+            case Constants.SQLDataTypes.BOOLEAN: {
+                boolean value = stmt.getBoolean(index + 1);
+                paramValue.setValue(1, new BBoolean(value));
+            }
+            break;
+            case Constants.SQLDataTypes.TINYINT: {
+                byte value = stmt.getByte(index + 1);
+                paramValue.setValue(1, new BInteger(value));
+            }
+            break;
+            case Constants.SQLDataTypes.SMALLINT: {
+                short value = stmt.getShort(index + 1);
+                paramValue.setValue(1, new BInteger(value));
+            }
+            break;
+            case Constants.SQLDataTypes.BIGINT: {
+                long value = stmt.getLong(index + 1);
+                paramValue.setValue(1, new BLong(value));
+            }
+            break;
             case Constants.SQLDataTypes.REAL:
-            case Constants.SQLDataTypes.FLOAT:
-                elementValue = stmt.getFloat(index + 1);
-                stringValue = elementValue.toString();
-                break;
-            case Constants.SQLDataTypes.DOUBLE:
-                elementValue = stmt.getDouble(index + 1);
-                stringValue = elementValue.toString();
-                break;
-            case Constants.SQLDataTypes.CLOB:
-                elementValue = stmt.getClob(index + 1);
-                stringValue = elementValue == null ? "" : SQLConnectorUtils.getString((Clob) elementValue);
-                break;
-            case Constants.SQLDataTypes.BLOB:
-                elementValue = stmt.getBlob(index + 1);
-                stringValue = elementValue == null ? "" : SQLConnectorUtils.getString((Blob) elementValue);
-                break;
-            case Constants.SQLDataTypes.BINARY:
-                elementValue = stmt.getBytes(index + 1);
-                stringValue = elementValue == null ? "" : SQLConnectorUtils.getString((byte[]) elementValue);
-                break;
-            case Constants.SQLDataTypes.DATE:
-                elementValue = stmt.getDate(index + 1);
-                stringValue = elementValue == null ? "" : SQLConnectorUtils.getString((Date) elementValue);
-                break;
-            case Constants.SQLDataTypes.TIMESTAMP:
-                elementValue = stmt.getTimestamp(index + 1);
-                stringValue = elementValue == null ? "" : SQLConnectorUtils.getString((Timestamp) elementValue);
-                break;
-            case Constants.SQLDataTypes.TIME:
-                elementValue = stmt.getTime(index + 1);
-                stringValue = elementValue == null ? "" : SQLConnectorUtils.getString((Time) elementValue);
-                break;
+            case Constants.SQLDataTypes.FLOAT: {
+                float value = stmt.getFloat(index + 1);
+                paramValue.setValue(1, new BFloat(value));
+            }
+            break;
+            case Constants.SQLDataTypes.DOUBLE: {
+                double value = stmt.getDouble(index + 1);
+                paramValue.setValue(1, new BDouble(value));
+            }
+            break;
+            case Constants.SQLDataTypes.CLOB: {
+                Clob value = stmt.getClob(index + 1);
+                paramValue.setValue(1, new BString(SQLConnectorUtils.getString(value)));
+            }
+            break;
+            case Constants.SQLDataTypes.BLOB: {
+                Blob value = stmt.getBlob(index + 1);
+                paramValue.setValue(1, new BString(SQLConnectorUtils.getString(value)));
+            }
+            break;
+            case Constants.SQLDataTypes.BINARY: {
+                byte[] value = stmt.getBytes(index + 1);
+                paramValue.setValue(1, new BString(SQLConnectorUtils.getString(value)));
+            }
+            break;
+            case Constants.SQLDataTypes.DATE: {
+                Date value = stmt.getDate(index + 1);
+                paramValue.setValue(1, new BString(SQLConnectorUtils.getString(value)));
+            }
+            break;
+            case Constants.SQLDataTypes.TIMESTAMP: {
+                Timestamp value = stmt.getTimestamp(index + 1);
+                paramValue.setValue(1, new BString(SQLConnectorUtils.getString(value)));
+            }
+            break;
+            case Constants.SQLDataTypes.TIME: {
+                Time value = stmt.getTime(index + 1);
+                paramValue.setValue(1, new BString(SQLConnectorUtils.getString(value)));
+            }
+            break;
             default:
                 throw new BallerinaException(
                         "unsupported datatype as out/inout parameter: " + sqlType + " index:" + index);
             }
-            paramValue.setValue(1, new BString(stringValue)); //Value is the first position of the struct
         } catch (SQLException e) {
             throw new BallerinaException("error in getting out parameter value: " + e.getMessage(), e);
         }

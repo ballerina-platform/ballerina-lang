@@ -599,6 +599,9 @@ public class SQLConnectorUtils {
      * @param data   clob data
      */
     public static String getString(Clob data) {
+        if (data == null) {
+            return "";
+        }
         try (Reader r = new BufferedReader(data.getCharacterStream())) {
             StringBuilder sb = new StringBuilder();
             int pos;
@@ -623,6 +626,9 @@ public class SQLConnectorUtils {
         // "pos - the ordinal position of the first byte in the BLOB value to be extracted;
         // the first byte is at position 1"
         // - https://docs.oracle.com/javase/7/docs/api/java/sql/Blob.html#getBytes(long,%20int)
+        if (data == null) {
+            return "";
+        }
         try {
             byte[] encode = getBase64Encode(
                     new String(data.getBytes(1L, (int) data.length()), Charset.defaultCharset()));
@@ -635,10 +641,14 @@ public class SQLConnectorUtils {
     /**
      * This will retrieve the string value for the given binary data.
      *
-     * @param data blob data
+     * @param data binary data
      */
     public static String getString(byte[] data) {
-        return new String(data, Charset.defaultCharset());
+        if (data == null) {
+            return "";
+        } else {
+            return new String(data, Charset.defaultCharset());
+        }
     }
 
     /**
@@ -653,6 +663,9 @@ public class SQLConnectorUtils {
     }
 
     public static String getString(Date value) {
+        if (value == null) {
+            return "";
+        }
         // lexical form of the date is '-'? yyyy '-' mm '-' dd zzzzzz?
         Calendar calendar = Calendar.getInstance();
         calendar.clear();
@@ -667,12 +680,18 @@ public class SQLConnectorUtils {
     }
 
     public static String getString(Timestamp sqlTimestamp) {
+        if (sqlTimestamp == null) {
+            return "";
+        }
         Calendar cal = Calendar.getInstance();
         cal.setTimeInMillis(sqlTimestamp.getTime());
         return getString(cal);
     }
 
     public static String getString(Time sqlTimestamp) {
+        if (sqlTimestamp == null) {
+            return "";
+        }
         Calendar cal = Calendar.getInstance();
         cal.setTimeInMillis(sqlTimestamp.getTime());
         return getString(cal);

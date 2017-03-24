@@ -2,6 +2,6 @@ package ballerina.data.sql;
 
 struct Parameter {
 	string sqlType;
-	string value;
+	var value;
 	int direction;
 }

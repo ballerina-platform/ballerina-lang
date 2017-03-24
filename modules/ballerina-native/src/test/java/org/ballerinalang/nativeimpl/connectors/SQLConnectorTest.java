@@ -18,7 +18,11 @@
 package org.ballerinalang.nativeimpl.connectors;
 
 import org.ballerinalang.model.BLangProgram;
+import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BDouble;
+import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BLong;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.util.BTestUtils;
@@ -142,17 +146,17 @@ public class SQLConnectorTest {
     public void testOutParameters() {
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "testOutParameters");
         Assert.assertEquals(returns.length, 14);
-        Assert.assertEquals(((BString) returns[0]).intValue(), 10);
-        Assert.assertEquals(((BString) returns[1]).longValue(), 9223372036854774807L);
-        Assert.assertEquals(((BString) returns[2]).floatValue(), 123.34f);
-        Assert.assertEquals(((BString) returns[3]).doubleValue(), 2139095039D);
-        Assert.assertEquals(Boolean.parseBoolean(returns[4].stringValue()), true);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 10);
+        Assert.assertEquals(((BLong) returns[1]).longValue(), 9223372036854774807L);
+        Assert.assertEquals(((BFloat) returns[2]).floatValue(), 123.34f);
+        Assert.assertEquals(((BDouble) returns[3]).doubleValue(), 2139095039D);
+        Assert.assertEquals(((BBoolean) returns[4]).booleanValue(), true);
         Assert.assertEquals(returns[5].stringValue(), "Hello");
-        Assert.assertEquals(((BString) returns[6]).doubleValue(), 1234.567D);
-        Assert.assertEquals(((BString) returns[7]).doubleValue(), 1234.567D);
-        Assert.assertEquals(((BString) returns[8]).doubleValue(), 1234.567D);
-        Assert.assertEquals(((BString) returns[9]).intValue(), 1);
-        Assert.assertEquals(((BString) returns[10]).intValue(), 5555);
+        Assert.assertEquals(((BDouble) returns[6]).doubleValue(), 1234.567D);
+        Assert.assertEquals(((BDouble) returns[7]).doubleValue(), 1234.567D);
+        Assert.assertEquals(((BFloat) returns[8]).floatValue(), 1234.567F);
+        Assert.assertEquals(((BInteger) returns[9]).intValue(), 1);
+        Assert.assertEquals(((BInteger) returns[10]).intValue(), 5555);
         Assert.assertEquals(returns[11].stringValue(), "very long text");
         Assert.assertEquals(returns[12].stringValue(), "d3NvMiBiYWxsZXJpbmEgYmxvYiB0ZXN0Lg==");
         Assert.assertEquals(returns[13].stringValue(), "wso2 ballerina binary test.");
@@ -162,17 +166,17 @@ public class SQLConnectorTest {
     public void testNullOutParameters() {
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "testNullOutParameters");
         Assert.assertEquals(returns.length, 14);
-        Assert.assertEquals(((BString) returns[0]).intValue(), 0);
-        Assert.assertEquals(((BString) returns[1]).longValue(), 0);
-        Assert.assertEquals(((BString) returns[2]).floatValue(), 0.0f);
-        Assert.assertEquals(((BString) returns[3]).doubleValue(), 0.0D);
-        Assert.assertEquals(Boolean.parseBoolean(returns[4].stringValue()), false);
-        Assert.assertEquals(returns[5].stringValue(), "");
-        Assert.assertEquals(returns[6].stringValue(), "");
-        Assert.assertEquals(returns[6].stringValue(), "");
-        Assert.assertEquals(((BString) returns[8]).doubleValue(), 0.0D);
-        Assert.assertEquals(((BString) returns[9]).intValue(), 0);
-        Assert.assertEquals(((BString) returns[10]).intValue(), 0);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 0);
+        Assert.assertEquals(((BLong) returns[1]).longValue(), 0);
+        Assert.assertEquals(((BFloat) returns[2]).floatValue(), 0.0F);
+        Assert.assertEquals(((BDouble) returns[3]).doubleValue(), 0.0D);
+        Assert.assertEquals(((BBoolean) returns[4]).booleanValue(), false);
+        Assert.assertEquals(returns[5].stringValue(), null);
+        Assert.assertEquals(((BDouble) returns[6]).doubleValue(), 0.0D);
+        Assert.assertEquals(((BDouble) returns[7]).doubleValue(), 0.0D);
+        Assert.assertEquals(((BFloat) returns[8]).floatValue(), 0.0F);
+        Assert.assertEquals(((BInteger) returns[9]).intValue(), 0);
+        Assert.assertEquals(((BInteger) returns[10]).intValue(), 0);
         Assert.assertEquals(returns[11].stringValue(), "");
         Assert.assertEquals(returns[12].stringValue(), "");
         Assert.assertEquals(returns[13].stringValue(), "");
@@ -196,17 +200,17 @@ public class SQLConnectorTest {
     public void testINOutParameters() {
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "testINOutParameters");
         Assert.assertEquals(returns.length, 14);
-        Assert.assertEquals(((BString) returns[0]).intValue(), 10);
-        Assert.assertEquals(((BString) returns[1]).longValue(), 9223372036854774807L);
-        Assert.assertEquals(((BString) returns[2]).floatValue(), 123.34f);
-        Assert.assertEquals(((BString) returns[3]).doubleValue(), 2139095039D);
-        Assert.assertEquals(Boolean.parseBoolean(returns[4].stringValue()), true);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 10);
+        Assert.assertEquals(((BLong) returns[1]).longValue(), 9223372036854774807L);
+        Assert.assertEquals(((BFloat) returns[2]).floatValue(), 123.34F);
+        Assert.assertEquals(((BDouble) returns[3]).doubleValue(), 2139095039D);
+        Assert.assertEquals(((BBoolean) returns[4]).booleanValue(), true);
         Assert.assertEquals(returns[5].stringValue(), "Hello");
-        Assert.assertEquals(((BString) returns[6]).doubleValue(), 1234.567D);
-        Assert.assertEquals(((BString) returns[7]).doubleValue(), 1234.567D);
-        Assert.assertEquals(((BString) returns[8]).doubleValue(), 1234.567D);
-        Assert.assertEquals(((BString) returns[9]).intValue(), 1);
-        Assert.assertEquals(((BString) returns[10]).intValue(), 5555);
+        Assert.assertEquals(((BDouble) returns[6]).doubleValue(), 1234.567D);
+        Assert.assertEquals(((BDouble) returns[7]).doubleValue(), 1234.567D);
+        Assert.assertEquals(((BFloat) returns[8]).floatValue(), 1234.567F);
+        Assert.assertEquals(((BInteger) returns[9]).intValue(), 1);
+        Assert.assertEquals(((BInteger) returns[10]).intValue(), 5555);
         Assert.assertEquals(returns[11].stringValue(), "very long text");
         Assert.assertEquals(returns[12].stringValue(), "YmxvYiBkYXRh");
         Assert.assertEquals(returns[13].stringValue(), "wso2 ballerina binary test.");
@@ -216,17 +220,17 @@ public class SQLConnectorTest {
     public void testNullINOutParameters() {
         BValue[] returns = BLangFunctions.invoke(bLangProgram, "testNullINOutParameters");
         Assert.assertEquals(returns.length, 12);
-        Assert.assertEquals(((BString) returns[0]).intValue(), 0);
-        Assert.assertEquals(((BString) returns[1]).longValue(), 0);
-        Assert.assertEquals(((BString) returns[2]).floatValue(), 0.0f);
-        Assert.assertEquals(((BString) returns[3]).doubleValue(), 0.0D);
-        Assert.assertEquals(Boolean.parseBoolean(returns[4].stringValue()), false);
-        Assert.assertEquals(returns[5].stringValue(), "");
-        Assert.assertEquals(returns[6].stringValue(), "");
-        Assert.assertEquals(returns[6].stringValue(), "");
-        Assert.assertEquals(((BString) returns[8]).doubleValue(), 0.0D);
-        Assert.assertEquals(((BString) returns[9]).intValue(), 0);
-        Assert.assertEquals(((BString) returns[10]).intValue(), 0);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 0);
+        Assert.assertEquals(((BLong) returns[1]).longValue(), 0);
+        Assert.assertEquals(((BFloat) returns[2]).floatValue(), 0.0f);
+        Assert.assertEquals(((BDouble) returns[3]).doubleValue(), 0.0D);
+        Assert.assertEquals(((BBoolean) returns[4]).booleanValue(), false);
+        Assert.assertEquals(returns[5].stringValue(), null);
+        Assert.assertEquals(((BDouble) returns[6]).doubleValue(), 0.0D);
+        Assert.assertEquals(((BDouble) returns[7]).doubleValue(), 0.0D);
+        Assert.assertEquals(((BFloat) returns[8]).floatValue(), 0.0F);
+        Assert.assertEquals(((BInteger) returns[9]).intValue(), 0);
+        Assert.assertEquals(((BInteger) returns[10]).intValue(), 0);
         Assert.assertEquals(returns[11].stringValue(), "");
     }
 

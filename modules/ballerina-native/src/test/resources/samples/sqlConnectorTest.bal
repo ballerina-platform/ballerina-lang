@@ -171,7 +171,7 @@ function testQueryParameters() (string) {
     sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
 
     string firstName;
-    sql:Parameter para1 = {sqlType:"integer", value:"1", direction:0};
+    sql:Parameter para1 = {sqlType:"integer", value:1, direction:0};
     sql:Parameter[] parameters = [para1];
     datatable dt = sql:ClientConnector.select(testDB, "SELECT  FirstName from Customers where registrationID = ?",
         parameters);
@@ -189,8 +189,8 @@ function testInsertTableDataWithParameters() (int) {
     sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
 	sql:Parameter para1 = {sqlType:"varchar", value:"Anne", direction:0};
 	sql:Parameter para2 = {sqlType:"varchar", value:"James", direction:0};
-	sql:Parameter para3 = {sqlType:"integer", value:"3", direction:0};
-	sql:Parameter para4 = {sqlType:"double", value:"5000.75", direction:0};
+	sql:Parameter para3 = {sqlType:"integer", value:3, direction:0};
+	sql:Parameter para4 = {sqlType:"double", value:5000.75, direction:0};
 	sql:Parameter para5 = {sqlType:"varchar", value:"UK", direction:0};
     sql:Parameter[] parameters = [para1, para2, para3, para4, para5];
 
@@ -201,7 +201,7 @@ function testInsertTableDataWithParameters() (int) {
 }
 
 function testOutParameters()
-    (string, string, string, string, string, string, string, string, string, string, string, string, string, string) {
+    (var, var, var, var, var, var, var, var, var, var, var, var, var, var) {
     map propertiesMap = {"jdbcUrl" : "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
             "username":"SA", "password":"", "maximumPoolSize":1};
     sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
@@ -232,7 +232,7 @@ function testOutParameters()
 }
 
 function testNullOutParameters()
-    (string, string, string, string, string, string, string ,string ,string ,string ,string,string,string,string) {
+    (var, var, var, var, var, var, var ,var ,var ,var ,var, var, var, var) {
     map propertiesMap = {"jdbcUrl" : "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
             "username":"SA", "password":"", "maximumPoolSize":1};
     sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
@@ -267,18 +267,18 @@ function testINParameters() (int) {
         "username":"SA", "password":"", "maximumPoolSize":1};
     sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
 
-	sql:Parameter paraID = {sqlType:"integer", value:"3", direction:0};
-    sql:Parameter paraInt = {sqlType:"integer", value:"1", direction:0};
-    sql:Parameter paraLong = {sqlType:"bigint", value:"9223372036854774807", direction:0};
-    sql:Parameter paraFloat = {sqlType:"float", value:"123.34", direction:0};
-    sql:Parameter paraDouble = {sqlType:"double", value:"2139095039", direction:0};
-    sql:Parameter paraBool = {sqlType:"boolean", value:"TRUE", direction:0};
+    sql:Parameter paraID = {sqlType:"integer", value:3, direction:0};
+    sql:Parameter paraInt = {sqlType:"integer", value:1, direction:0};
+    sql:Parameter paraLong = {sqlType:"bigint", value:9223372036854774807L, direction:0};
+    sql:Parameter paraFloat = {sqlType:"float", value:123.34, direction:0};
+    sql:Parameter paraDouble = {sqlType:"double", value:2139095039, direction:0};
+    sql:Parameter paraBool = {sqlType:"boolean", value:true, direction:0};
     sql:Parameter paraString = {sqlType:"varchar", value:"Hello", direction:0};
-    sql:Parameter paraNumeric = {sqlType:"numeric", value:"1234.567", direction:0};
-    sql:Parameter paraDecimal = {sqlType:"decimal", value:"1234.567", direction:0};
-    sql:Parameter paraReal = {sqlType:"real", value:"1234.567", direction:0};
-    sql:Parameter paraTinyInt = {sqlType:"tinyint", value:"1", direction:0};
-    sql:Parameter paraSmallInt = {sqlType:"smallint", value:"5555", direction:0};
+    sql:Parameter paraNumeric = {sqlType:"numeric", value:1234.567, direction:0};
+    sql:Parameter paraDecimal = {sqlType:"decimal", value:1234.567, direction:0};
+    sql:Parameter paraReal = {sqlType:"real", value:1234.567, direction:0};
+    sql:Parameter paraTinyInt = {sqlType:"tinyint", value:1, direction:0};
+    sql:Parameter paraSmallInt = {sqlType:"smallint", value:5555, direction:0};
     sql:Parameter paraClob = {sqlType:"clob", value:"very long text", direction:0};
     sql:Parameter paraBlob = {sqlType:"blob", value:"YmxvYiBkYXRh", direction:0};
     sql:Parameter paraBinary = {sqlType:"binary", value:"d3NvMiBiYWxsZXJpbmEgYmluYXJ5IHRlc3Qu", direction:0};
@@ -296,7 +296,7 @@ function testNullINParameters() (int) {
         "username":"SA", "password":"", "maximumPoolSize":1};
     sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
 
-	sql:Parameter paraID = {sqlType:"integer", value:"4", direction:0};
+	sql:Parameter paraID = {sqlType:"integer", value:4, direction:0};
     sql:Parameter paraInt = {sqlType:"integer", direction:0};
     sql:Parameter paraLong = {sqlType:"bigint", direction:0};
     sql:Parameter paraFloat = {sqlType:"float", direction:0};
@@ -319,23 +319,23 @@ function testNullINParameters() (int) {
 }
 
 function testINOutParameters()
-    (string, string, string, string, string, string, string, string, string, string, string, string, string, string) {
+    (var, var, var, var, var, var, var, var, var, var, var, var, var, var) {
     map propertiesMap = {"jdbcUrl" : "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
             "username":"SA", "password":"", "maximumPoolSize":1};
     sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
 
-    sql:Parameter paraID = {sqlType:"integer", value:"5", direction:0};
-    sql:Parameter paraInt = {sqlType:"integer", value:"10", direction:2};
-    sql:Parameter paraLong = {sqlType:"bigint", value:"9223372036854774807", direction:2};
-    sql:Parameter paraFloat = {sqlType:"float", value:"123.34", direction:2};
-    sql:Parameter paraDouble = {sqlType:"double", value:"2139095039", direction:2};
-    sql:Parameter paraBool = {sqlType:"boolean", value:"true", direction:2};
+    sql:Parameter paraID = {sqlType:"integer", value:5, direction:0};
+    sql:Parameter paraInt = {sqlType:"integer", value:10, direction:2};
+    sql:Parameter paraLong = {sqlType:"bigint", value:9223372036854774807L, direction:2};
+    sql:Parameter paraFloat = {sqlType:"float", value:123.34, direction:2};
+    sql:Parameter paraDouble = {sqlType:"double", value:2139095039, direction:2};
+    sql:Parameter paraBool = {sqlType:"boolean", value:true, direction:2};
     sql:Parameter paraString = {sqlType:"varchar", value:"Hello", direction:2};
-    sql:Parameter paraNumeric = {sqlType:"numeric", value:"1234.567", direction:2};
-    sql:Parameter paraDecimal = {sqlType:"decimal", value:"1234.567", direction:2};
-    sql:Parameter paraReal = {sqlType:"real", value:"1234.567", direction:2};
-    sql:Parameter paraTinyInt = {sqlType:"tinyint", value:"1", direction:2};
-    sql:Parameter paraSmallInt = {sqlType:"smallint", value:"5555", direction:2};
+    sql:Parameter paraNumeric = {sqlType:"numeric", value:1234.567, direction:2};
+    sql:Parameter paraDecimal = {sqlType:"decimal", value:1234.567, direction:2};
+    sql:Parameter paraReal = {sqlType:"real", value:1234.567, direction:2};
+    sql:Parameter paraTinyInt = {sqlType:"tinyint", value:1, direction:2};
+    sql:Parameter paraSmallInt = {sqlType:"smallint", value:5555, direction:2};
     sql:Parameter paraClob = {sqlType:"clob", value:"very long text", direction:2};
     sql:Parameter paraBlob = {sqlType:"blob", value:"YmxvYiBkYXRh", direction:2};
     sql:Parameter paraBinary = {sqlType:"binary", value:"d3NvMiBiYWxsZXJpbmEgYmluYXJ5IHRlc3Qu", direction:2};
@@ -349,7 +349,7 @@ function testINOutParameters()
 }
 
 function testNullINOutParameters()
-    (string, string, string, string, string, string, string, string, string, string, string, string) {
+    (var, var, var, var, var, var, var, var, var, var, var, var) {
     map propertiesMap = {"jdbcUrl" : "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
             "username":"SA", "password":"", "maximumPoolSize":1};
     sql:ClientConnector testDB = create sql:ClientConnector(propertiesMap);
