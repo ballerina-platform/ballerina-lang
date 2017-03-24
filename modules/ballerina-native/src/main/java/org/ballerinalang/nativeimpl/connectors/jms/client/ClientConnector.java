@@ -18,6 +18,8 @@ package org.ballerinalang.nativeimpl.connectors.jms.client;
 
 import org.ballerinalang.model.SymbolScope;
 import org.ballerinalang.model.types.TypeEnum;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.Attribute;
@@ -33,8 +35,9 @@ import org.osgi.service.component.annotations.Component;
 @BallerinaConnector(
         packageName = "ballerina.net.jms",
         connectorName = ClientConnector.CONNECTOR_NAME,
-        args = { @Argument(name = "initialContextFactory", type = TypeEnum.STRING),
-                 @Argument(name = "jndiProviderUrl", type = TypeEnum.STRING) })
+        args = {
+                @Argument(name = "properties", type = TypeEnum.MAP)
+        })
 @Component(
         name = "ballerina.net.connectors.jms",
         immediate = true,
@@ -45,8 +48,7 @@ public class ClientConnector extends AbstractNativeConnector {
 
     public static final String CONNECTOR_NAME = "ClientConnector";
 
-    private String initialContextFactory;
-    private String jndiProviderUrl;
+    private BMap<BString, BString> properties;
 
     public ClientConnector(SymbolScope enclosingScope) {
         super(enclosingScope);
@@ -54,13 +56,14 @@ public class ClientConnector extends AbstractNativeConnector {
 
     @Override
     public boolean init(BValue[] bValueRefs) {
-        if (bValueRefs != null && bValueRefs.length == 2 && !bValueRefs[0].stringValue().equals("") &&
-            !bValueRefs[1].stringValue().equals("")) {
-            initialContextFactory = bValueRefs[0].stringValue();
-            jndiProviderUrl = bValueRefs[1].stringValue();
+        if (bValueRefs != null && bValueRefs.length == 1) {
+
+            properties = (BMap<BString, BString>) bValueRefs[0];
+
         } else {
             throw new BallerinaException("Connector parameters not defined correctly.");
         }
+
         return true;
     }
 
@@ -70,12 +73,8 @@ public class ClientConnector extends AbstractNativeConnector {
         return new ClientConnector(symbolScope);
     }
 
-    String getInitialContextFactory() {
-        return initialContextFactory;
-    }
-
-    String getJndiProviderUrl() {
-        return jndiProviderUrl;
+    public BMap<BString, BString> getProperties() {
+        return properties;
     }
 
     public boolean equals(Object obj) {

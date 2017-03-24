@@ -51,6 +51,10 @@
             <artifactId>hsqldb</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>javax.jms</groupId>
+            <artifactId>javax.jms-api</artifactId>
+        </dependency>
     </dependencies>
     
     <build>

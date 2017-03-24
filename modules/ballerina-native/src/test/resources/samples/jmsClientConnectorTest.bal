@@ -2,34 +2,40 @@ import ballerina.net.jms;
 import ballerina.lang.messages;
 
 function jmsClientConnectorTest() (boolean) {
-    jms:ClientConnector jmsEP = create jms:ClientConnector("", "file:///tmp/jndi.properties");
+    map properties = {"providerUrl":"jndi.properties",
+                        "connectionFactoryJNDIName": "QueueConnectionFactory",
+                        "connectionFactoryType" : "queue"};
+
+    jms:ClientConnector jmsEP = create jms:ClientConnector(properties);
     message queueMessage = {};
-    map dataMap = {};
-    dataMap = {};
     messages:setStringPayload(queueMessage, "Hello from ballerina");
-    jms:ClientConnector.send(jmsEP, "QueueConnectionFactory", "MyQueue", "queue", "TextMessage", queueMessage, dataMap);
+    jms:ClientConnector.send(jmsEP, "MyQueue", "TextMessage", queueMessage);
     return true;
 }
 
 function jmsSendNoMessageTest() (boolean) {
-    jms:ClientConnector jmsEP = create jms:ClientConnector("org.wso2.andes.jndi.PropertiesFileInitialContextFactory",
-     "jndi.properties");
+    map properties = {"factoryInitial":"org.wso2.andes.jndi.PropertiesFileInitialContextFactory",
+                        "providerUrl":"jndi.properties",
+                        "connectionFactoryJNDIName": "QueueConnectionFactory",
+                        "connectionFactoryType" : "queue"};
+
+    jms:ClientConnector jmsEP = create jms:ClientConnector(properties);
     message queueMessage = {};
-    map dataMap = {};
-    dataMap = {};
     json jsonData = {};
     messages:setJsonPayload(queueMessage, jsonData);
-    jms:ClientConnector.send(jmsEP, "QueueConnectionFactory", "MyQueue", "queue", "TextMessage", queueMessage, dataMap);
+    jms:ClientConnector.send(jmsEP, "MyQueue", "TextMessage", queueMessage);
     return true;
 }
 
 function jmsSendMapMessageWithoutData() (boolean) {
-    jms:ClientConnector jmsEP = create jms:ClientConnector("org.wso2.andes.jndi.PropertiesFileInitialContextFactory",
-     "jndi.properties");
+    map properties = {"factoryInitial":"org.wso2.andes.jndi.PropertiesFileInitialContextFactory",
+                        "providerUrl":"jndi.properties",
+                        "connectionFactoryJNDIName": "QueueConnectionFactory",
+                        "connectionFactoryType" : "queue"};
+
+    jms:ClientConnector jmsEP = create jms:ClientConnector(properties);
     message queueMessage = {};
-    map dataMap = {};
-    dataMap = {};
     messages:setStringPayload(queueMessage, "Hello from ballerina");
-    jms:ClientConnector.send(jmsEP, "QueueConnectionFactory", "MyQueue", "queue", "MapMessage", queueMessage, dataMap);
+    jms:ClientConnector.send(jmsEP, "MyQueue", "MapMessage", queueMessage);
     return true;
 }
