@@ -24,6 +24,7 @@ import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BMessage;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.nativeimpl.connectors.jms.utils.JMSConstants;
 import org.ballerinalang.nativeimpl.connectors.jms.utils.JMSMessageUtils;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.Attribute;
@@ -41,11 +42,9 @@ import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.MapCarbonMessage;
 import org.wso2.carbon.messaging.TextCarbonMessage;
 import org.wso2.carbon.messaging.exceptions.ClientConnectorException;
-import org.wso2.carbon.transport.jms.utils.JMSConstants;
 
-import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * {@code Post} is the send action implementation of the JMS Connector.
@@ -87,14 +86,14 @@ public class Send extends AbstractJMSAction {
             throw new BallerinaException("Ballerina message not found", context);
         }
         CarbonMessage message = bMessage.value();
-        //Create property map to send to transport.
-        Map<String, String> propertyMap = new HashMap<>();
-        //Getting the map of properties.
-        BMap properties = ((ClientConnector) connector).getProperties();
 
-        for (BString key : (Set<BString>) properties.keySet()) {
-            propertyMap.put(key.stringValue(), (properties.get(key)).stringValue());
-        }
+        //Getting the map of properties.
+        BMap<BString, BString> properties = ((ClientConnector) connector).getProperties();
+
+        //Create property map to send to transport.
+        Map<String, String> propertyMap = properties.keySet()
+                .stream()
+                .collect(Collectors.toMap(BString::stringValue, k -> properties.get(k).stringValue()));
 
         //Creating message content according to the message type.
         String messageType = getArgument(context, 2).stringValue();

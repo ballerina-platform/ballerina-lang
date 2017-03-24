@@ -46,7 +46,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 @BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "msg",
         value = "The current message object") })
 @BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "propertyName",
-        value = "The name of the propertyt") })
+        value = "The name of the property") })
 @BallerinaAnnotation(annotationName = "Param", attributes = {@Attribute(name = "propertyValue",
         value = "The value of the property") })
 public class SetProperty extends AbstractNativeFunction {
@@ -57,7 +57,10 @@ public class SetProperty extends AbstractNativeFunction {
         BString propertyName = (BString) getArgument(context, 1);
         BString propertyValue = (BString) getArgument(context, 2);
 
-        msg.setProperty(propertyName.stringValue(), propertyValue.stringValue());
+        if (propertyName != null && propertyValue != null) {
+            msg.setProperty(propertyName.stringValue(), propertyValue.stringValue());
+        }
+
         return VOID_RETURN;
     }
 }
