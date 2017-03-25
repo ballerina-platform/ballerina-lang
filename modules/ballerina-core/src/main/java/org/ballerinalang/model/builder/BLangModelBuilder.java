@@ -288,7 +288,7 @@ public class BLangModelBuilder {
             currentStructBuilder.addField(variableDef);
         } else if (currentScope instanceof AnnotationDef) {
             AnnotationAttributeDef annotationField = new AnnotationAttributeDef(location, fieldName, typeName, 
-                (BasicLiteral) expr, symbolName, currentScope);
+                (BasicLiteral) expr, symbolName, currentScope, currentPackagePath);
             currentScope.define(symbolName, annotationField);
             annotationDefBuilder.addAttributeDef(annotationField);
         }
@@ -389,7 +389,7 @@ public class BLangModelBuilder {
         }
         BasicLiteral basicLiteral = (BasicLiteral) expr;
         BValue value = basicLiteral.getBValue();
-        annotationAttributeValues.push(new AnnotationAttributeValue(value, basicLiteral.getTypeName()));
+        annotationAttributeValues.push(new AnnotationAttributeValue(value, basicLiteral.getTypeName(), location));
     }
     
     /**
@@ -400,7 +400,7 @@ public class BLangModelBuilder {
     public void createAnnotationTypeAttributeValue(NodeLocation location) {
         AnnotationAttachment value = annonAttachmentStack.pop();
         SimpleTypeName valueType = new SimpleTypeName(value.getName(), value.getPkgName(), value.getPkgPath());
-        annotationAttributeValues.push(new AnnotationAttributeValue(value, valueType));
+        annotationAttributeValues.push(new AnnotationAttributeValue(value, valueType, location));
     }
     
     /**
@@ -412,7 +412,7 @@ public class BLangModelBuilder {
         SimpleTypeName valueType = new SimpleTypeName(null, true);
         AnnotationAttributeValue arrayValue = new AnnotationAttributeValue(
             annotationAttributeValues.toArray(new AnnotationAttributeValue[annotationAttributeValues.size()]),
-            valueType);
+            valueType, location);
         arrayValue.setNodeLocation(location);
         annotationAttributeValues.clear();
         annotationAttributeValues.push(arrayValue);

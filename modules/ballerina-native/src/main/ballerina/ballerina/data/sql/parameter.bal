@@ -5,7 +5,7 @@ import ballerina.doc;
 @doc:Description { value: "Parameter struct "}
 struct Parameter {
 	string sqlType;
-	string value;
+	any value;
 	int direction;
 	string structuredType;
 }

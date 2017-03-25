@@ -25,7 +25,7 @@ import org.ballerinalang.model.types.SimpleTypeName;
  * <p>
  * Attributes may be of type string, int, double, boolean, or can be another annotation.
  *
- * @since 0.8.5
+ * @since 0.85
  */
 public class AnnotationAttributeDef implements BLangSymbol, Node {
     protected NodeLocation location;
@@ -45,13 +45,15 @@ public class AnnotationAttributeDef implements BLangSymbol, Node {
                                   SimpleTypeName typeName,
                                   BasicLiteral annotationAttributeVal,
                                   SymbolName symbolName,
-                                  SymbolScope symbolScope) {
+                                  SymbolScope symbolScope,
+                                  String pkgPath) {
         this.location = location;
         this.typeName = typeName;
         this.attributeName = attributeName;
         this.annotationAttributeVal = annotationAttributeVal;
         this.symbolName = symbolName;
         this.symbolScope = symbolScope;
+        this.pkgPath = pkgPath;
     }
 
     public SimpleTypeName getTypeName() {

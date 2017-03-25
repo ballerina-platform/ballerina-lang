@@ -7,6 +7,7 @@ annotation Description attach service, function {
     QueryParam[] queryParamValue;
     QueryParam[] queryParamValue2;
     string[] paramValue2;
+    Args args;
 }
 
 annotation Param attach service, function, connector {
@@ -20,4 +21,8 @@ annotation QueryParam attach service {
 
 annotation Doc attach service, function, connector {
     Description des;
+}
+
+annotation Args attach parameter {
+    string value;
 }

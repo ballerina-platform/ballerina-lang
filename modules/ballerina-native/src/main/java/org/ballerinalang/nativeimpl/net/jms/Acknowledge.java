@@ -33,6 +33,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.messaging.CarbonMessage;
 
+import javax.jms.Session;
+
 /**
  * Acknowledge the jms message.
  */
@@ -69,7 +71,7 @@ public class Acknowledge extends AbstractNativeFunction {
             throw new BallerinaException(JMSConstants.JMS_SESSION_ACKNOWLEDGEMENT_MODE + " property should hold a "
                     + "integer value. ");
         }
-        if (JMSConstants.CLIENT_ACKNOWLEDGEMENT_MODE == (Integer) jmsSessionAcknowledgementMode) {
+        if (Session.CLIENT_ACKNOWLEDGE == (Integer) jmsSessionAcknowledgementMode) {
             if (JMSConstants.JMS_MESSAGE_DELIVERY_SUCCESS.equalsIgnoreCase(deliveryStatus)
                     || JMSConstants.JMS_MESSAGE_DELIVERY_ERROR.equalsIgnoreCase(deliveryStatus)) {
                 carbonMessage.setProperty(JMSConstants.JMS_MESSAGE_DELIVERY_STATUS, deliveryStatus);

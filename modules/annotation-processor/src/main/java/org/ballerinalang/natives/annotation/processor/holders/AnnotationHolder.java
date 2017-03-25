@@ -47,7 +47,8 @@ public class AnnotationHolder {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append("@" + annotation.annotationName() + " {");
+        String pkgName = annotation.packageName().isEmpty() ? "" : annotation.packageName() + ":";
+        sb.append("@" + pkgName + annotation.annotationName() + " {");
         List<Attribute> attributes = getAttributes();
         sb.append(attributes.stream().map(p -> p.name() + ":\"" + p.value() + "\" ").collect(Collectors.joining(",")));
         sb.append("}");

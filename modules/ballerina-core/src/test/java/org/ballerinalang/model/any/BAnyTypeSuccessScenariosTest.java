@@ -87,4 +87,25 @@ public class BAnyTypeSuccessScenariosTest {
         Assert.assertEquals(json.stringValue(), "{\"PropertyName\":\"Value\"}", "Invalid json value returned.");
     }
 
+    @Test(description = "Test Multiple returns with any")
+    public void testMultipleReturnWithAny() {
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "multipleReturnWithAny");
+        Assert.assertEquals(returns.length, 2);
+        Assert.assertSame(returns[0].getClass(), BJSON.class);
+        Assert.assertSame(returns[1].getClass(), BInteger.class);
+        BJSON json = (BJSON) returns[0];
+        BInteger intVal = (BInteger) returns[1];
+        Assert.assertEquals(json.stringValue(), "{\"PropertyName\":\"Value\"}", "Invalid json value returned.");
+        Assert.assertEquals(intVal.intValue(), 7, "Invalid int value returned.");
+    }
+
+    @Test(description = "Test multiple params with any")
+    public void testMultipleParamWithAny() {
+        BValue[] returns = BLangFunctions.invoke(bLangProgram, "multipleParamWithAny");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BInteger.class);
+        BInteger intVal = (BInteger) returns[0];
+        Assert.assertEquals(intVal.intValue(), 5, "Invalid int value returned.");
+    }
+
 }

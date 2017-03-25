@@ -87,7 +87,8 @@ public enum SemanticErrors {
     ANNOTATION_NOT_ALLOWED("annotation.not.allowed", "SEMANTIC_0062"),
     NO_SUCH_ATTRIBUTE("no.such.attribute", "SEMANTIC_0063"),
     INVALID_DEFAULT_VALUE("invalid.default.value", "SEMANTIC_0064"),
-    INVALID_ATTRIBUTE_TYPE("invalid.attribute.type", "SEMANTIC_0065");
+    INVALID_ATTRIBUTE_TYPE("invalid.attribute.type", "SEMANTIC_0065"),
+    INCOMPATIBLE_TYPES_ARRAY_FOUND("incompatible.types.array.found", "SEMANTIC_0066");
 
     private String errorMsgKey;
     private String errorCode;
