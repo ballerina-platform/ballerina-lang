@@ -1647,12 +1647,6 @@ public class SemanticAnalyzer implements NodeVisitor {
         }
 
         BType expectedElementType = ((BArrayType) inheritedType).getElementType();
-        if (((BArrayType) arrayInitExpr.getType()).getDimensions() > 1) {
-            String name = inheritedType.getName();
-            expectedElementType = BTypes.resolveType(
-                    new SimpleTypeName(name.substring(0, name.length() - 2)),
-                    currentScope, arrayInitExpr.getNodeLocation());
-        }
 
         for (int i = 0; i < argExprs.length; i++) {
             visitSingleValueExpr(argExprs[i]);
@@ -1923,11 +1917,11 @@ public class SemanticAnalyzer implements NodeVisitor {
             }
 
             // Set type of the arrays access expression
-            String typeName = (arrayMapVarRefExpr.getType()).getName();
-            typeName = typeName.substring(0, typeName.length() - (arrayMapAccessExpr.getIndexExpr().length * 2));
-            BType typeOfArray = BTypes.resolveType(new SimpleTypeName(typeName),
-                    currentScope, arrayMapAccessExpr.getNodeLocation());
-            arrayMapAccessExpr.setType(typeOfArray);
+            BType expectedType =  arrayMapVarRefExpr.getType();
+            for (int i = 0; i < arrayMapAccessExpr.getIndexExpr().length; i++) {
+                expectedType =  ((BArrayType) expectedType).getElementType();
+            }
+            arrayMapAccessExpr.setType(expectedType);
 
         } else if (arrayMapVarRefExpr.getType() instanceof BMapType) {
 

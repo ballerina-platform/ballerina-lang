@@ -8,6 +8,7 @@ function valueAssignmentAndRetrieval() (int) {
 
 function arrayInitializationAndRetrieval() (int) {
     int[][] x = [];
+    x[0] = [];
     x[0][0] = 1;
 
     return x[0][0];
@@ -38,22 +39,27 @@ function threeDarrayValueAccess() (int) {
     int[][][] xxx;
     xxx = [];
 
-    xxx[1][2][3] = 99;
+    xxx[0] = [];
+    xxx[0][0] = [];
+    xxx[0][0][0] = 99;
 
-    return xxx[1][2][3];
+    return xxx[0][0][0];
 }
 
 function threeDarrayStringValueAccess() (string) {
     string[][][] xxx;
     xxx = [];
 
-    xxx[1][2][3] = "string";
+    xxx[0] = [];
+    xxx[0][0] = [];
+    xxx[0][0][0] = "string";
 
-    return xxx[1][2][3];
+    return xxx[0][0][0];
 }
 
 function twoDarrayFunctionCalltest() (int) {
     int[][] xx = [];
+    xx[0] = [];
     xx[0][1] = 4;
 
     return arrayTest(xx);

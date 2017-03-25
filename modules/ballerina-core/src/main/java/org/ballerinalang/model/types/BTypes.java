@@ -145,14 +145,15 @@ public class BTypes {
         // If bType is not null, then element type of this arrays type is available.
         // We should define the arrays type here.
         if (bType != null) {
-            BArrayType bArrayType = new BArrayType(typeName.getSymbolName().getName(),
-                    bType, typeName.getPackagePath(), bType.getSymbolScope(), typeName.getDimensions());
-            bType.getSymbolScope().define(typeName.getSymbolName(), bArrayType);
-
             SimpleTypeName childSimpleType = new SimpleTypeName(typeName.getName(), typeName.getPackagePath(), true);
             childSimpleType.setPkgPath(typeName.getPackagePath());
             childSimpleType.setDimensions(typeName.getDimensions() - 1);
             BTypes.resolveType(childSimpleType, symbolScope, location);
+
+            BArrayType bArrayType = new BArrayType(typeName.getSymbolName().getName(),
+                    BTypes.resolveType(childSimpleType, symbolScope, location),
+                    typeName.getPackagePath(), bType.getSymbolScope(), typeName.getDimensions());
+            bType.getSymbolScope().define(typeName.getSymbolName(), bArrayType);
 
             return bArrayType;
         }

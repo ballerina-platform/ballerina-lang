@@ -700,15 +700,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
             return;
         }
 
-        if (ctx.exception != null) {
-            return;
-        }
-
-        boolean argsAvailable = false;
-        if (ctx.expressionList() != null) {
-            argsAvailable = true;
-        }
-
+        boolean argsAvailable = ctx.expressionList() != null;
         modelBuilder.createArrayInitExpr(getCurrentLocation(ctx), argsAvailable);
     }
 

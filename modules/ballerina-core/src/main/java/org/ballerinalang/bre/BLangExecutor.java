@@ -69,7 +69,6 @@ import org.ballerinalang.model.statements.VariableDefStmt;
 import org.ballerinalang.model.statements.WhileStmt;
 import org.ballerinalang.model.statements.WorkerInvocationStmt;
 import org.ballerinalang.model.statements.WorkerReplyStmt;
-import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BMapType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
@@ -740,7 +739,8 @@ public class BLangExecutor implements NodeExecutor {
                 // Get the value stored in the index
                 if (collectionValue instanceof BArray) {
                     BArray bArray = (BArray) collectionValue;
-                    return getValueFromArray(bArray, indexExpr);
+                    bArray = retrieveArray(bArray, indexExpr);
+                    return bArray.get(((BInteger) indexExpr[0].execute(this)).intValue());
                 } else {
                     return collectionValue;
                 }
@@ -763,14 +763,12 @@ public class BLangExecutor implements NodeExecutor {
         Expression[] argExprs = arrayInitExpr.getArgExprs();
 
         // Creating a new arrays
-        BArray bArray;
-        int dimensions = ((BArrayType) arrayInitExpr.getType()).getDimensions();
-        if (dimensions <= 1 || argExprs.length > 0) {
-            bArray = arrayInitExpr.getType().getDefaultValue();
-            bArray = populateOuterMostArray(bArray, argExprs);
-        } else {
-            bArray = new BArray<>(BArray.class);
-            createArrayStructure(bArray, dimensions, arrayInitExpr);
+        BArray bArray = arrayInitExpr.getType().getDefaultValue();
+
+        for (int i = 0; i < argExprs.length; i++) {
+            Expression expr = argExprs[i];
+            BValue value = expr.execute(this);
+            bArray.add(i, value);
         }
 
         return bArray;
@@ -1019,7 +1017,7 @@ public class BLangExecutor implements NodeExecutor {
 
             Expression[] exprs = accessExpr.getIndexExpr();
             if (exprs.length > 1) {
-                arrayVal = retrieveArray(arrayVal, rValue, exprs);
+                arrayVal = retrieveArray(arrayVal, exprs);
             }
 
             BInteger indexVal = (BInteger) exprs[0].execute(this);
@@ -1208,7 +1206,7 @@ public class BLangExecutor implements NodeExecutor {
         } else {
             BArray arrayVal = (BArray) arrayMapValue;
             if (exprs.length > 1) {
-                arrayVal = retrieveArray(arrayVal, rValue, exprs);
+                arrayVal = retrieveArray(arrayVal, exprs);
             }
 
             BInteger indexVal = (BInteger) exprs[0].execute(this);
@@ -1322,59 +1320,25 @@ public class BLangExecutor implements NodeExecutor {
         controlStack.popFrame();
     }
 
-    private BArray retrieveArray(BArray arrayVal, BValue rValue, Expression[] exprs) {
+    private BArray retrieveArray(BArray arrayVal, Expression[] exprs) {
         for (int i = exprs.length - 1; i >= 1; i--) {
             BInteger indexVal = (BInteger) exprs[i].execute(this);
 
+            // TODO: Remove this part if we don't need dynamically create arrays
             // Will have to dynamically populate
-            while (arrayVal.size() <= indexVal.intValue()) {
-                if (i != 1 || rValue instanceof BArray) {
-                    BArray newBArray = new BArray<>(BArray.class);
-                    arrayVal.add(arrayVal.size(), newBArray);
-                } else {
-                    BArray bArray = new BArray<>(rValue.getClass());
-                    arrayVal.add(arrayVal.size(), bArray);
-                }
-            }
+//            while (arrayVal.size() <= indexVal.intValue()) {
+//                if (i != 1 || rValue instanceof BArray) {
+//                    BArray newBArray = new BArray<>(BArray.class);
+//                    arrayVal.add(arrayVal.size(), newBArray);
+//                } else {
+//                    BArray bArray = new BArray<>(rValue.getClass());
+//                    arrayVal.add(arrayVal.size(), bArray);
+//                }
+//            }
 
             arrayVal = (BArray) arrayVal.get(indexVal.intValue());
         }
 
         return arrayVal;
-    }
-
-    private BValue getValueFromArray(BArray bArray, Expression[] indexExpr) {
-        for (int i = indexExpr.length - 1; i >= 1; i--) {
-            BInteger indexVal = (BInteger) indexExpr[i].execute(this);
-            bArray = (BArray) bArray.get(indexVal.intValue());
-        }
-        return bArray.get(((BInteger) indexExpr[0].execute(this)).intValue());
-    }
-
-    private BArray populateOuterMostArray(BArray outerArray, Expression[] values) {
-        for (int i = 0; i < values.length; i++) {
-            Expression expr = values[i];
-            BValue value = expr.execute(this);
-            if (value instanceof BArray && i == 0) {
-                outerArray = new BArray<>(BArray.class);
-            }
-            outerArray.add(i, value);
-        }
-
-        return outerArray;
-    }
-
-    private void createArrayStructure(BArray bArray, int dimensions, ArrayInitExpr leafArray) {
-        BArray currentBArray = bArray;
-        for (int i = 1; i < dimensions; i++) {
-            if (i == dimensions - 1) {
-                BArray leafBArray = leafArray.getType().getDefaultValue();
-                currentBArray.add(0, leafBArray);
-            } else {
-                BArray childBArray = new BArray<>(BArray.class);
-                currentBArray.add(0, childBArray);
-                currentBArray = childBArray;
-            }
-        }
     }
 }
