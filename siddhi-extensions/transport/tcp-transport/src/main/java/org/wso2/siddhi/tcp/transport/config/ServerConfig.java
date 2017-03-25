@@ -23,6 +23,7 @@ import org.wso2.siddhi.tcp.transport.utils.Constant;
 public class ServerConfig {
     private int receiverThreads = Constant.DEFAULT_RECEIVER_THREADS;
     private int workerThreads = Constant.DEFAULT_WORKER_THREADS;
+    private int queueSizeOfTcpTransport = Constant.DEFAULT_QUEUE_SIZE_OF_TCP_TRANSPORT;
     private int port = Constant.DEFAULT_PORT;
     private String host = Constant.DEFAULT_HOST;
 
@@ -40,6 +41,14 @@ public class ServerConfig {
 
     public void setWorkerThreads(int workerThreads) {
         this.workerThreads = workerThreads;
+    }
+
+    public int getQueueSizeOfTcpTransport() {
+        return queueSizeOfTcpTransport;
+    }
+
+    public void setQueueSizeOfTcpTransport(int queueSizeOfTcpTransport) {
+        this.queueSizeOfTcpTransport = queueSizeOfTcpTransport;
     }
 
     public int getPort() {

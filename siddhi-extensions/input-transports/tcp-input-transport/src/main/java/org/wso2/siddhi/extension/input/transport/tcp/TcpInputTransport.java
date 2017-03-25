@@ -42,10 +42,12 @@ public class TcpInputTransport extends InputTransport {
     static String PORT = "port";
     static String WORKER_THREADS = "workerThreads";
     static String RECEIVER_THREADS = "receiverThreads";
+    static String QUEUE_SIZE = "queueSize";
 
     private ServerConfig serverConfig;
     private TcpNettyServer tcpNettyServer;
     private SourceEventListener sourceEventListener;
+
 
     @Override
     public void init(SourceEventListener sourceEventListener, OptionHolder optionHolder, ExecutionPlanContext executionPlanContext) {
@@ -58,6 +60,8 @@ public class TcpInputTransport extends InputTransport {
                 Integer.toString(serverConfig.getReceiverThreads()))));
         serverConfig.setWorkerThreads(Integer.parseInt(optionHolder.validateAndGetStaticValue(WORKER_THREADS,
                 Integer.toString(serverConfig.getWorkerThreads()))));
+        serverConfig.setQueueSizeOfTcpTransport(Integer.parseInt(optionHolder.validateAndGetStaticValue(QUEUE_SIZE,
+                Integer.toString(serverConfig.getQueueSizeOfTcpTransport()))));
         tcpNettyServer = new TcpNettyServer();
         tcpNettyServer.addStreamListener(new StreamListener() {
             @Override
@@ -91,6 +95,16 @@ public class TcpInputTransport extends InputTransport {
     public void destroy() {
         tcpNettyServer.removeStreamListener(sourceEventListener.getStreamDefinition().getId());
         tcpNettyServer = null;
+    }
+
+    @Override
+    public void pause() {
+        tcpNettyServer.isPaused(true);
+    }
+
+    @Override
+    public void resume() {
+        tcpNettyServer.isPaused(false);
     }
 
     @Override

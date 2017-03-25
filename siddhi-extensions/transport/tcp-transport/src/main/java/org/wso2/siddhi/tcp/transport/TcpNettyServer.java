@@ -18,9 +18,18 @@
 package org.wso2.siddhi.tcp.transport;
 
 import io.netty.bootstrap.ServerBootstrap;
-import io.netty.channel.*;
+import io.netty.buffer.EmptyByteBuf;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelInboundHandlerAdapter;
+import io.netty.channel.ChannelInitializer;
+import io.netty.channel.ChannelOption;
+import io.netty.channel.ChannelPipeline;
+import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
+import org.apache.commons.collections4.queue.CircularFifoQueue;
 import org.apache.log4j.Logger;
 import org.wso2.siddhi.query.api.definition.Attribute;
 import org.wso2.siddhi.query.api.definition.StreamDefinition;
@@ -37,9 +46,11 @@ public class TcpNettyServer {
     private StreamTypeHolder streamInfoHolder = new StreamTypeHolder();
     private ChannelFuture channelFuture;
     private String hostAndPort;
+    private FlowController flowController;
 
     public static void main(String[] args) {
-        StreamDefinition streamDefinition = StreamDefinition.id("StockStream").attribute("symbol", Attribute.Type.STRING)
+        StreamDefinition streamDefinition = StreamDefinition.id("StockStream").attribute("symbol", Attribute.Type
+                .STRING)
                 .attribute("price", Attribute.Type.INT).attribute("volume", Attribute.Type.INT);
 
         TcpNettyServer tcpNettyServer = new TcpNettyServer();
@@ -55,22 +66,25 @@ public class TcpNettyServer {
         workerGroup = new NioEventLoopGroup(serverConfig.getWorkerThreads());
         hostAndPort = serverConfig.getHost() + ":" + serverConfig.getPort();
         try {
+            flowController = new FlowController(serverConfig.getQueueSizeOfTcpTransport());
             // More terse code to setup the server
             ServerBootstrap bootstrap = new ServerBootstrap();
             bootstrap.group(bossGroup, workerGroup)
                     .channel(NioServerSocketChannel.class)
+                    .childOption(ChannelOption.AUTO_READ, false)
                     .childHandler(new ChannelInitializer() {
 
                         @Override
                         protected void initChannel(Channel channel) throws Exception {
                             ChannelPipeline p = channel.pipeline();
-                            p.addLast(
-                                    new EventDecoder(streamInfoHolder));
+                            p.addLast(flowController);
+                            p.addLast(new EventDecoder(streamInfoHolder));
                         }
                     });
 
             // Bind and start to accept incoming connections.
             channelFuture = bootstrap.bind(serverConfig.getHost(), serverConfig.getPort()).sync();
+
             log.info("Tcp Server started in " + hostAndPort + "");
         } catch (InterruptedException e) {
             log.error("Error when booting up tcp server on '" + hostAndPort + "' " + e.getMessage(), e);
@@ -92,16 +106,62 @@ public class TcpNettyServer {
 
     }
 
+    public void isPaused(boolean paused) {
+        flowController.isPaused(paused);
+    }
+
     public void addStreamListener(StreamListener streamListener) {
         streamInfoHolder.putStreamCallback(streamListener);
     }
 
     public void removeStreamListener(String streamId) {
         streamInfoHolder.removeStreamCallback(streamId);
-
     }
-
 }
 
+/**
+ * This {@link io.netty.channel.ChannelInboundHandlerAdapter} implementation is used to control the flow when the
+ * transport is needed to be paused or resumed. When the transport is paused, this would keep the read messages in
+ * an internal {@link CircularFifoQueue} with a user defined size (default is
+ * {@link org.wso2.siddhi.tcp.transport.utils.Constant#DEFAULT_QUEUE_SIZE_OF_TCP_TRANSPORT}).
+ */
+class FlowController extends ChannelInboundHandlerAdapter {
+    private ChannelHandlerContext channelHandlerContext;
+    private final CircularFifoQueue<Object> queue;
+    private boolean paused;
 
+    FlowController(int size) {
+        queue = new CircularFifoQueue<>(size);
+    }
 
+    void isPaused(boolean paused) {
+        this.paused = paused;
+        channelRead(channelHandlerContext, null);
+    }
+
+    public void channelActive(ChannelHandlerContext ctx) {
+        channelHandlerContext = ctx;
+        // since auto-read is set to false, we have to trigger the read
+        ctx.channel().read();
+    }
+
+    public void channelRead(final ChannelHandlerContext ctx, Object msg) {
+        // since auto-read is set to false, we have to trigger the read
+        ctx.channel().read();
+
+        if (msg != null) {
+            // queue the message
+            queue.add(msg);
+        }
+
+        if (!paused) {
+            // deque the messages if the transport is not paused
+            queue.forEach(e -> {
+                if (!(e instanceof EmptyByteBuf)) {
+                    ctx.fireChannelRead(e);
+                }
+            });
+            queue.clear();
+        }
+    }
+}

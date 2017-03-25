@@ -34,9 +34,11 @@ public class KafkaConsumerThread implements Runnable {
     private final KafkaConsumer<byte[], byte[]> consumer;
     private SourceEventListener sourceEventListener;
     private static final Logger log = Logger.getLogger(KafkaConsumerThread.class);
-    private static volatile boolean active = true;
     private String topics[];
     private HashMap <String, HashMap<Integer, Long>> topicOffsetMap = new HashMap<>();
+    private boolean paused;
+    private boolean inactive;
+    private List<TopicPartition> partitionsList = new ArrayList<>();
 
     public KafkaConsumerThread(SourceEventListener sourceEventListener, String topics[], String partitions[],
                                Properties props, HashMap<String, HashMap<Integer, Long>> topicOffsetMap) {
@@ -45,7 +47,6 @@ public class KafkaConsumerThread implements Runnable {
         this.topicOffsetMap = topicOffsetMap;
         this.topics = topics;
         if(null != partitions) {
-            List<TopicPartition> partitionsList = new ArrayList<>();
             for (String topic : topics) {
                 if(null == topicOffsetMap.get(topic)) {
                     this.topicOffsetMap.put(topic, new HashMap<>());
@@ -80,32 +81,45 @@ public class KafkaConsumerThread implements Runnable {
         log.info("Subscribed for topics: " + Arrays.toString(topics));
     }
 
+    public void pause() {
+        paused = true;
+    }
+
+    public void resume() {
+        paused = false;
+    }
+
     @Override
     public void run() {
-        while (active) {
-            //The time, in milliseconds, spent waiting in poll if data is not available. If 0, returns immediately with
-            //any records that are available now. Must not be negative
-            ConsumerRecords<byte[], byte[]> records = consumer.poll(200);
-            for (ConsumerRecord record : records) {
-                String evento = record.value().toString();
-                if (log.isDebugEnabled()) {
-                    log.debug("Event received in Kafka Event Adaptor: " + evento + ", offSet: " + record.offset() +
-                            ", key: " + record.key() + ", topic: " + record.topic() + ", partition: " + record.partition());
+        while (!inactive) {
+            while (!paused) {
+                ConsumerRecords<byte[], byte[]> records = consumer.poll(200);
+                for (ConsumerRecord record : records) {
+                    String event = record.value().toString();
+                    if (log.isDebugEnabled()) {
+                        log.debug("Event received in Kafka Event Adaptor: " + event + ", offSet: " + record.offset() +
+                                ", key: " + record.key() + ", topic: " + record.topic() + ", partition: " + record
+                                .partition());
+                    }
+                    topicOffsetMap.get(record.topic()).put(record.partition(), record.offset());
+                    sourceEventListener.onEvent(event);
                 }
-                topicOffsetMap.get(record.topic()).put(record.partition(), record.offset());
-                sourceEventListener.onEvent(evento);
+                try {
+                    consumer.commitAsync();
+                } catch (CommitFailedException e) {
+                    log.error("Kafka commit failed for topic/s" + Arrays.toString(topics), e);
+                }
             }
             try {
-                consumer.commitAsync();
-            } catch (CommitFailedException e) {
-                log.error("Kafka commit failed for topic/s" + Arrays.toString(topics), e);
+                Thread.sleep(1);
+            } catch (InterruptedException ignore) {
             }
         }
         consumer.close();
     }
 
     public void shutdownConsumer() {
-        active = false;
+        inactive = true;
     }
 
     public HashMap <String, HashMap<Integer, Long>> getTopicOffsetMap() {

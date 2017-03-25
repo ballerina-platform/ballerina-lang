@@ -40,6 +40,7 @@ import org.junit.Test;
 import org.wso2.siddhi.core.ExecutionPlanRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
+import org.wso2.siddhi.core.stream.input.source.InputTransport;
 import org.wso2.siddhi.core.stream.output.StreamCallback;
 import org.wso2.siddhi.core.util.EventPrinter;
 import org.wso2.siddhi.extension.input.mapper.text.TextInputMapper;
@@ -55,6 +56,8 @@ import org.wso2.siddhi.query.api.expression.Variable;
 
 import java.io.IOException;
 import java.rmi.RemoteException;
+import java.util.Collection;
+import java.util.List;
 import java.util.Properties;
 
 public class KafkaInputTransportTestCase {
@@ -130,6 +133,64 @@ public class KafkaInputTransportTestCase {
             Thread.sleep(5000);
             Assert.assertEquals(4, count);
             Assert.assertTrue(eventArrived);
+            executionPlanRuntime.shutdown();
+        } catch (ZkTimeoutException ex) {
+            log.warn("No zookeeper may not be available.", ex);
+        }
+    }
+
+    @Test
+    public void testKafkaPauseAndResume() throws InterruptedException {
+        try{
+            log.info("Creating test for multiple topics and partitions and thread partition wise");
+            String topics[] = new String[]{"kafka_topic3","kafka_topic4"};
+            createTopic(topics, 2);
+            SiddhiManager siddhiManager = new SiddhiManager();
+            siddhiManager.setExtension("inputmapper:text", TextInputMapper.class);
+            ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(
+                    "@Plan:name('TestExecutionPlan') " +
+                            "define stream BarStream (symbol string, price float, volume long); " +
+                            "@info(name = 'query1') " +
+                            "@source(type='kafka', topic='kafka_topic3,kafka_topic4', group.id='test', threading" +
+                            ".option='partition.wise', " +
+                            "bootstrap.servers='localhost:9092', partition.no.list='0,1', " +
+                            "@map(type='text'))" +
+                            "Define stream FooStream (symbol string, price float, volume long);" +
+                            "from FooStream select symbol, price, volume insert into BarStream;");
+            executionPlanRuntime.addCallback("BarStream", new StreamCallback() {
+                @Override
+                public void receive(Event[] events) {
+                    for (Event event : events) {
+                        System.out.println(event);
+                        eventArrived = true;
+                        count++;
+                    }
+
+                }
+            });
+            executionPlanRuntime.start();
+            Thread.sleep(2000);
+            kafkaPublisher(topics, 2, 2);
+            Thread.sleep(5000);
+            Assert.assertEquals(4, count);
+            Assert.assertTrue(eventArrived);
+
+            Collection<List<InputTransport>> inputTransports = executionPlanRuntime.getInputTransports();
+            // pause the transports
+            inputTransports.forEach(e -> e.forEach(InputTransport::pause));
+
+            eventArrived = false;
+            count = 0;
+            kafkaPublisher(topics, 2, 2);
+            Thread.sleep(5000);
+            Assert.assertFalse(eventArrived);
+
+            // resume the transports
+            inputTransports.forEach(e -> e.forEach(InputTransport::resume));
+            Thread.sleep(5000);
+            Assert.assertEquals(4, count);
+            Assert.assertTrue(eventArrived);
+
             executionPlanRuntime.shutdown();
         } catch (ZkTimeoutException ex) {
             log.warn("No zookeeper may not be available.", ex);
