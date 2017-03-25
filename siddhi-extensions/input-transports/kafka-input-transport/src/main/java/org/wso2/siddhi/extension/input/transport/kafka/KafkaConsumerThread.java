@@ -93,6 +93,8 @@ public class KafkaConsumerThread implements Runnable {
     public void run() {
         while (!inactive) {
             while (!paused) {
+                // The time, in milliseconds, spent waiting in poll if data is not available. If 0, returns
+                // immediately with any records that are available now. Must not be negative
                 ConsumerRecords<byte[], byte[]> records = consumer.poll(200);
                 for (ConsumerRecord record : records) {
                     String event = record.value().toString();
