@@ -173,21 +173,6 @@ let Launcher = Backbone.View.extend({
         } else {
             activateBtn.attr('title', `Run ( ${_.get(this._options, 'command.shortcuts.other.label')} ) `).tooltip();
         }
-
-        this._verticalSeparator.on('drag', event => {
-            if( event.originalEvent.clientX >= _.get(this._options, 'resizeLimits.minX')
-                    && event.originalEvent.clientX <= _.get(this._options, 'resizeLimits.maxX')){
-                this._verticalSeparator.css('left', event.originalEvent.clientX);
-                this._verticalSeparator.css('cursor', 'ew-resize');
-                const newWidth = event.originalEvent.clientX;
-                this._$parent_el.parent().width(newWidth);
-                this._containerToAdjust.css('padding-left', event.originalEvent.clientX);
-                this._lastWidth = newWidth;
-                this._isActive = true;
-            }
-            event.preventDefault();
-            event.stopPropagation();
-        });
         this._launcherContainer = launcherContainer;
 
         launcherContainer.mCustomScrollbar({

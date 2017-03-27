@@ -138,7 +138,7 @@ class BallerinaStatementView extends StatementVisitor {
         var svgDefinitions = deleteButtonPaneGroup.append('defs');
 
         var deleteButtonPattern = svgDefinitions.append('pattern')
-            .attr('id', 'deleteIcon')
+            .attr('id', 'statementDeleteIcon')
             .attr('width', '100%')
             .attr('height', '100%');
 
