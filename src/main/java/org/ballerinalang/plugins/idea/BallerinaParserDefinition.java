@@ -43,6 +43,7 @@ import org.ballerinalang.plugins.idea.psi.ActionInvocationNode;
 import org.ballerinalang.plugins.idea.psi.AliasNode;
 import org.ballerinalang.plugins.idea.psi.AnnotationAttachmentNode;
 import org.ballerinalang.plugins.idea.psi.BallerinaFile;
+import org.ballerinalang.plugins.idea.psi.ConnectorInitExpressionNode;
 import org.ballerinalang.plugins.idea.psi.NameReferenceNode;
 import org.ballerinalang.plugins.idea.psi.CompilationUnitNode;
 import org.ballerinalang.plugins.idea.psi.ConnectorBodyNode;
@@ -257,6 +258,8 @@ public class BallerinaParserDefinition implements ParserDefinition {
                 return new ReturnTypeListNode(node);
 //            case BallerinaParser.RULE_nameReference:
 //                return new NameReferenceNode(node);
+            case BallerinaParser.RULE_connectorInitExpression:
+                return new ConnectorInitExpressionNode(node);
             default:
                 return new ANTLRPsiNode(node);
         }

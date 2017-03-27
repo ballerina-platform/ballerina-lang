@@ -34,6 +34,7 @@ import com.intellij.util.containers.ContainerUtil;
 import org.antlr.jetbrains.adaptor.psi.IdentifierDefSubtree;
 import org.ballerinalang.plugins.idea.BallerinaTypes;
 import org.ballerinalang.plugins.idea.psi.ActionInvocationNode;
+import org.ballerinalang.plugins.idea.psi.ConnectorInitExpressionNode;
 import org.ballerinalang.plugins.idea.psi.ExpressionListNode;
 import org.ballerinalang.plugins.idea.psi.FunctionInvocationStatementNode;
 import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
@@ -148,12 +149,14 @@ public class BallerinaParameterInfoHandler implements ParameterInfoHandlerWithTa
                 // So if the parent is null, we consider the FunctionInvocationStatementNode as the parent node.
                 parent = PsiTreeUtil.getParentOfType(expressionListNode, FunctionInvocationStatementNode.class);
             }
-            // Todo - Handle separately
             if (parent == null) {
                 // So if the parent is null, we consider the ActionInvocationNode as the parent node.
                 parent = PsiTreeUtil.getParentOfType(expressionListNode, ActionInvocationNode.class);
             }
-            // Todo - Connection Init expression
+            if (parent == null) {
+                // So if the parent is null, we consider the ActionInvocationNode as the parent node.
+                parent = PsiTreeUtil.getParentOfType(expressionListNode, ConnectorInitExpressionNode.class);
+            }
             // Still if the parent is null, we return from the method since we cannot process the current node.
             if (parent == null) {
                 return;
@@ -176,6 +179,8 @@ public class BallerinaParameterInfoHandler implements ParameterInfoHandlerWithTa
             namedIdentifierDefNode = PsiTreeUtil.findChildOfType(parent, NameReferenceNode.class);
         } else if (parent instanceof ActionInvocationNode) {
             namedIdentifierDefNode = parent;
+        }else if(parent instanceof ConnectorInitExpressionNode){
+            namedIdentifierDefNode = PsiTreeUtil.findChildOfType(parent, NameReferenceNode.class);
         }
 
         if (namedIdentifierDefNode != null) {
