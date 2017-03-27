@@ -31,12 +31,16 @@ import com.intellij.psi.tree.IElementType;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.util.ArrayUtil;
 import com.intellij.util.containers.ContainerUtil;
+import org.antlr.jetbrains.adaptor.psi.IdentifierDefSubtree;
 import org.ballerinalang.plugins.idea.BallerinaTypes;
+import org.ballerinalang.plugins.idea.psi.ActionInvocationNode;
 import org.ballerinalang.plugins.idea.psi.ExpressionListNode;
 import org.ballerinalang.plugins.idea.psi.FunctionInvocationStatementNode;
+import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
 import org.ballerinalang.plugins.idea.psi.NameReferenceNode;
 import org.ballerinalang.plugins.idea.psi.ParameterListNode;
 import org.ballerinalang.plugins.idea.psi.ParameterNode;
+import org.ballerinalang.plugins.idea.psi.references.ActionInvocationReference;
 import org.ballerinalang.plugins.idea.psi.references.NameReference;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -144,6 +148,12 @@ public class BallerinaParameterInfoHandler implements ParameterInfoHandlerWithTa
                 // So if the parent is null, we consider the FunctionInvocationStatementNode as the parent node.
                 parent = PsiTreeUtil.getParentOfType(expressionListNode, FunctionInvocationStatementNode.class);
             }
+            // Todo - Handle separately
+            if (parent == null) {
+                // So if the parent is null, we consider the ActionInvocationNode as the parent node.
+                parent = PsiTreeUtil.getParentOfType(expressionListNode, ActionInvocationNode.class);
+            }
+            // Todo - Connection Init expression
             // Still if the parent is null, we return from the method since we cannot process the current node.
             if (parent == null) {
                 return;
@@ -160,10 +170,17 @@ public class BallerinaParameterInfoHandler implements ParameterInfoHandlerWithTa
         // create a list.
         List<ParameterListNode> list = new ArrayList<>();
         // Function name will be at NameReferenceNode. So we search for this child node.
-        NameReferenceNode nameReferenceNode = PsiTreeUtil.findChildOfType(parent, NameReferenceNode.class);
-        if (nameReferenceNode != null) {
+        PsiElement namedIdentifierDefNode = null;
+
+        if (parent instanceof ExpressionListNode || parent instanceof FunctionInvocationStatementNode) {
+            namedIdentifierDefNode = PsiTreeUtil.findChildOfType(parent, NameReferenceNode.class);
+        } else if (parent instanceof ActionInvocationNode) {
+            namedIdentifierDefNode = parent;
+        }
+
+        if (namedIdentifierDefNode != null) {
             // Get the identifier of this node.
-            PsiElement nameIdentifier = nameReferenceNode.getNameIdentifier();
+            PsiElement nameIdentifier = ((IdentifierDefSubtree) namedIdentifierDefNode).getNameIdentifier();
             if (nameIdentifier != null) {
                 // Get the reference for this node. This can be used to resolve functions defined in the same
                 // package. Otherwise, we have to use the getReferences() as below.
@@ -190,27 +207,53 @@ public class BallerinaParameterInfoHandler implements ParameterInfoHandlerWithTa
                 PsiReference[] references = nameIdentifier.getReferences();
                 // Iterate through all references. In most cases, there will be only one item.
                 for (PsiReference psiReference : references) {
-                    // Multi resolve the reference.
-                    ResolveResult[] resolveResults = ((NameReference) psiReference).multiResolve(false);
-                    //If it cannot be resolved, continue with the next item.
-                    if (resolveResults.length == 0) {
-                        continue;
-                    }
-                    // If it can be resolved, iterate through all resolve results.
-                    for (ResolveResult resolveResult : resolveResults) {
-                        // Get the resolved element. This will be a identifier node.
-                        PsiElement resolvedElement = resolveResult.getElement();
-                        if (resolvedElement == null) {
+                    if (psiReference instanceof NameReference) {
+                        // Multi resolve the reference.
+                        ResolveResult[] resolveResults = ((NameReference) psiReference).multiResolve(false);
+                        //If it cannot be resolved, continue with the next item.
+                        if (resolveResults.length == 0) {
                             continue;
                         }
-                        // Get the parent node (FunctionNode).
-                        PsiElement parentElement = resolvedElement.getParent();
-                        // Get the ParameterListNode.
-                        ParameterListNode parameterListNode =
-                                PsiTreeUtil.findChildOfType(parentElement, ParameterListNode.class);
-                        // Add to the list if it is not null;
-                        if (parameterListNode != null) {
-                            list.add(parameterListNode);
+                        // If it can be resolved, iterate through all resolve results.
+                        for (ResolveResult resolveResult : resolveResults) {
+                            // Get the resolved element. This will be a identifier node.
+                            PsiElement resolvedElement = resolveResult.getElement();
+                            if (resolvedElement == null) {
+                                continue;
+                            }
+                            // Get the parent node (FunctionNode).
+                            PsiElement parentElement = resolvedElement.getParent();
+                            // Get the ParameterListNode.
+                            ParameterListNode parameterListNode =
+                                    PsiTreeUtil.findChildOfType(parentElement, ParameterListNode.class);
+                            // Add to the list if it is not null;
+                            if (parameterListNode != null) {
+                                list.add(parameterListNode);
+                            }
+                        }
+                    } else if (psiReference instanceof ActionInvocationReference) {
+                        // Multi resolve the reference.
+                        ResolveResult[] resolveResults = ((ActionInvocationReference) psiReference).multiResolve(false);
+                        //If it cannot be resolved, continue with the next item.
+                        if (resolveResults.length == 0) {
+                            continue;
+                        }
+                        // If it can be resolved, iterate through all resolve results.
+                        for (ResolveResult resolveResult : resolveResults) {
+                            // Get the resolved element. This will be a identifier node.
+                            PsiElement resolvedElement = resolveResult.getElement();
+                            if (resolvedElement == null) {
+                                continue;
+                            }
+                            // Get the parent node (FunctionNode).
+                            PsiElement parentElement = resolvedElement.getParent();
+                            // Get the ParameterListNode.
+                            ParameterListNode parameterListNode =
+                                    PsiTreeUtil.findChildOfType(parentElement, ParameterListNode.class);
+                            // Add to the list if it is not null;
+                            if (parameterListNode != null) {
+                                list.add(parameterListNode);
+                            }
                         }
                     }
                 }
