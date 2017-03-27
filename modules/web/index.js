@@ -242,7 +242,8 @@ var config = {
     },
     about_dialog:{
         selector: "#modalAbout"
-    },settings_dialog:{
+    },
+    settings_dialog:{
         selector: "#modalSettings",
         submit_button: "#saveSettingsButton"
     },

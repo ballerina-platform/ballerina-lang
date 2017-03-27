@@ -54,6 +54,7 @@ class ServiceDefinitionView extends SVGCanvas {
         this._totalHeight = 170;
         //set initial connector margin for the service
         this._lifelineMargin = new Axis(0, false);
+        this._viewOptions.minLifeLinePosition = _.get(args, 'minLifeLinePosition', 700);
 
         if (_.isNil(this._model) || !(this._model instanceof ServiceDefinition)) {
             log.error('Service definition is undefined or is of different type.' + this._model);
@@ -292,15 +293,15 @@ class ServiceDefinitionView extends SVGCanvas {
         }
     }
 
-    canVisitServiceDefinition(serviceDefinition) {
+    canVisitServiceDefinition() {
         return true;
     }
 
-    visitServiceDefinition(serviceDefinition) {
+    visitServiceDefinition() {
 
     }
 
-    canVisitResourceDefinition(resourceDefinition) {
+    canVisitResourceDefinition() {
         return false;
     }
 
@@ -310,8 +311,8 @@ class ServiceDefinitionView extends SVGCanvas {
      */
     visitResourceDefinition(resourceDefinition) {
         log.debug('Visiting resource definition');
-        var self = this;
         var resourceContainer = this.getChildContainer();
+        var resourceDefinitionView;
         // If more than 1 resource
         if (this.getResourceViewList().length > 0) {
             var prevView = _.last(this._resourceViewList);
@@ -331,11 +332,11 @@ class ServiceDefinitionView extends SVGCanvas {
                     width:width
                 }
             };
-            var resourceDefinitionView = new ResourceDefinitionView({model: resourceDefinition,container: resourceContainer,
+            resourceDefinitionView = new ResourceDefinitionView({model: resourceDefinition,container: resourceContainer,
                 toolPalette: this.toolPalette, messageManager: this.messageManager, viewOptions: viewOpts, parentView: this});
         }
         else {
-            var resourceDefinitionView = new ResourceDefinitionView({model: resourceDefinition, container: resourceContainer,
+            resourceDefinitionView = new ResourceDefinitionView({model: resourceDefinition, container: resourceContainer,
                 toolPalette: this.toolPalette,messageManager: this.messageManager, parentView: this});
         }
         this.diagramRenderingContext.getViewModelMap()[resourceDefinition.id] = resourceDefinitionView;
@@ -357,7 +358,7 @@ class ServiceDefinitionView extends SVGCanvas {
         this.setSVGHeight(this._totalHeight);
     }
 
-    canVisitConnectorDeclaration(connectorDeclaration) {
+    canVisitConnectorDeclaration() {
         return true;
     }
 
@@ -394,8 +395,6 @@ class ServiceDefinitionView extends SVGCanvas {
 
         connectorDeclarationView.setParent(this);
 
-        var siblingConnectors = connectorDeclarationView._parent._model.children;
-
         connectorDeclarationView.render();
 
         if (this._connectorViewList.length === 0) {
@@ -416,7 +415,10 @@ class ServiceDefinitionView extends SVGCanvas {
 
         if (this.getResourceViewList().length > 0) {
             // If we have added resources
-            var newLifeLineMarginPosition = this.getLifeLineMargin().getPosition() - this._viewOptions.LifeLineCenterGap;
+            var lifeLineMarginPosition = this.getLifeLineMargin().getPosition() - this._viewOptions.LifeLineCenterGap;
+            var farthestLifeLine = this.getFarthestLifeLineOfResources();
+            var farthestLifeLineMargin = !_.isNil(farthestLifeLine) ? farthestLifeLine.getBoundingBox().getRight() + 60 : -1;
+            var newLifeLineMarginPosition = _.max([lifeLineMarginPosition, farthestLifeLineMargin, this._viewOptions.minLifeLinePosition]);
             this.getLifeLineMargin().setPosition(newLifeLineMarginPosition);
         } else {
             // When there are no resources added
@@ -549,6 +551,18 @@ class ServiceDefinitionView extends SVGCanvas {
             // Add an offset of 60 to the current connector's BBox's right value
             this.setSVGWidth(connectorView.getBoundingBox().getRight() + 60);
         }
+    }
+
+    getFarthestLifeLineOfResources() {
+        var farthestLifeLine = [];
+        var sortedFarthestLifeLineArr;
+        _.forEach(this.getResourceViewList(), function (resource) {
+            farthestLifeLine.push(_.last(resource.getConnectorWorkerViewList()));
+        });
+        sortedFarthestLifeLineArr = _.sortBy(farthestLifeLine, function (lifeline) {
+            return !_.isNil(lifeline) ? lifeline.getBoundingBox().getRight() : -1;
+        });
+        return _.last(sortedFarthestLifeLineArr);
     }
 }
 

@@ -112,6 +112,7 @@ class ConnectorActionView extends BallerinaView {
 
         this._connectorActionGroup = undefined;
         this._offsetLastStatementGap = 100;
+        this._offsetLastLifeLineGap = 60;
         this.init();
     }
 
@@ -965,16 +966,17 @@ class ConnectorActionView extends BallerinaView {
         /* If the adding connector (connectorDeclarationView) goes out of this action definition's view,
          then we need to expand this action definition's view. */
         if (connectorDeclarationView.getBoundingBox().getRight() > this.getBoundingBox().getRight()) {
-            this._parentView.getLifeLineMargin().setPosition(this._parentView.getLifeLineMargin().getPosition()
-                + this._viewOptions.LifeLineCenterGap);
+            this._parentView.getLifeLineMargin().setPosition(connectorDeclarationView.getBoundingBox().getRight()
+                + this._offsetLastLifeLineGap);
             this.setContentMinWidth(connectorDeclarationView.getBoundingBox().getRight());
             this.setHeadingMinWidth(connectorDeclarationView.getBoundingBox().getRight());
         }
 
         var connectorBBox = connectorDeclarationView.getBoundingBox();
-        connectorDeclarationView.listenTo(connectorBBox, 'right-edge-moved', function () {
+        connectorDeclarationView.listenTo(connectorBBox, 'right-edge-moved', function (offset) {
             if (connectorBBox.getRight() > self.getBoundingBox().getRight()) {
-                self._parentView.getLifeLineMargin().setPosition(self._parentView.getLifeLineMargin().getPosition() + self._viewOptions.LifeLineCenterGap);
+                self._parentView.getLifeLineMargin().setPosition(self._parentView.getLifeLineMargin().getPosition() +
+                    offset);
                 self.setContentMinWidth(connectorBBox.getRight());
                 self.setHeadingMinWidth(connectorBBox.getRight());
             }
@@ -1076,7 +1078,8 @@ class ConnectorActionView extends BallerinaView {
                 workerDeclarationView.getBoundingBox().getRight() > this.getBoundingBox().getRight()) {
                 // Worker is added as the last element for the ConnectorWorkerViewList.
                 // Only Connectors are there at the moment
-                this._parentView.getLifeLineMargin().setPosition(this._parentView.getLifeLineMargin().getPosition() + this._viewOptions.LifeLineCenterGap);
+                this._parentView.getLifeLineMargin().setPosition(workerDeclarationView.getBoundingBox().getRight()
+                    + this._offsetLastLifeLineGap);
                 this.setContentMinWidth(workerDeclarationView.getBoundingBox().getRight());
                 this.setHeadingMinWidth(workerDeclarationView.getBoundingBox().getRight());
             }

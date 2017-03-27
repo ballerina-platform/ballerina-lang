@@ -362,8 +362,8 @@ class WorkspaceManager {
     }
 
     showAboutDialog(){
-        var aboutModal = $(_.get(this.app, 'config.about_dialog.selector'));
-        aboutModal.modal('show');
+        var aboutDialog = $(_.get(this, 'config.about_dialog.selector'));
+        aboutDialog.modal('show');
     }
 
     showUserGuide() {

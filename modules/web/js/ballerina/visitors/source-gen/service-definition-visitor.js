@@ -46,12 +46,10 @@ class ServiceDefinitionVisitor extends AbstractSourceGenVisitor {
         var self = this;
         _.forEach(serviceDefinition.getAnnotations(), function(annotation) {
             if (!_.isEmpty(annotation.value)) {
-                var constructedPathAnnotation;
-                if (annotation.key.indexOf(":") === -1) {
-                    constructedPathAnnotation = '@' + annotation.key + '("' + annotation.value + '")\n';
-                } else {
-                    constructedPathAnnotation = '@' + annotation.key.split(":")[0] + ":"
-                        + annotation.key.split(":")[1] + '("' + annotation.value + '")\n';
+                var constructedPathAnnotation = '';
+                if (annotation.key.indexOf(':') !== -1) {
+                    constructedPathAnnotation = '@' + annotation.key.split(':')[0] + ':'
+                        + annotation.key.split(':')[1] + '{value:"' + annotation.value + '"}\n';
                 }
                 self.appendSource(constructedPathAnnotation);
             }

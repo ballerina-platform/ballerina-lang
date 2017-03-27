@@ -19,11 +19,15 @@
 package org.ballerinalang.composer.service.workspace.rest.datamodel;
 
 /**
- * Wraps BFileContent as String.
+ * Wraps BFile as String.
  */
-public class BFileContent {
+public class BFile {
 
     private String content;
+
+    private String fileName;
+
+    private String filePath;
 
     public String getContent() {
         return content;
@@ -33,4 +37,19 @@ public class BFileContent {
         this.content = content;
     }
 
+    public String getFileName() {
+        return fileName;
+    }
+
+    public void setFileName(String fileName) {
+        this.fileName = fileName;
+    }
+
+    public String getFilePath() {
+        return filePath;
+    }
+
+    public void setFilePath(String filePath) {
+        this.filePath = filePath;
+    }
 }

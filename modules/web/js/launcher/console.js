@@ -16,17 +16,15 @@
  * under the License.
  */
 import $ from 'jquery';
-import _ from 'lodash';
 import EventChannel from 'event_channel';
-var instance;
 
 class Console extends EventChannel {
-    constructor(args) {
+    constructor() {
         super();
         this.container = $('#console-container');
         this.console = $('#console');
 
-        this.container.on('click', '.closeConsole', _.bindKey(this, 'hide'));
+        this.container.on('click', '.closeConsole', () => { this.hide(); });
     }
 
     show() {
@@ -46,8 +44,8 @@ class Console extends EventChannel {
     }
 
     println(message) {
-        this.console.append('<span class="' + message.type + '">' + message.message + '<span>');
-        this.console.append("<br />");
+        this.console.append(`<span class="${message.type}">${message.message}<span>`);
+        this.console.append('<br />');
         //todo need a proper fix
         this.console.scrollTop(100000);
     }
