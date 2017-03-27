@@ -68,7 +68,7 @@ class AnnotationView {
             .appendTo(addIconWrapper);
 
         // Adding a value to a new annotation.
-        $(addButton).click(function (event) {
+        $(addButton).click((event) => {
             var annotationType = annotationTypeDropDown.val();
             var annotationValue = annotationValueInput.val();
 
@@ -194,7 +194,7 @@ class AnnotationView {
         });
 
         // Creating annotation info.
-        _.forEach(model.getAnnotations(), function (annotation, index) {
+        _.forEach(model.getAnnotations(), (annotation, index) => {
             if (!_.isEmpty(annotation.value)) {
 
                 var annotationWrapper = $('<div/>', {
@@ -219,7 +219,7 @@ class AnnotationView {
 
                 // Removes the value of the annotation in the model and rebind the annotations to the dropdown and
                 // to the annotation view.
-                deleteIcon.click(function () {
+                deleteIcon.click(() => {
                     model.addAnnotation(annotation.key, '');
                     $(annotationWrapper).remove();
                     this._addAnnotationsToDropdown(model, annotationTypeDropDown, headerWrapper);
