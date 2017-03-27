@@ -1947,7 +1947,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         if (arrayMapVarRefExpr.getType() instanceof BArrayType) {
 
             // Check the type of the index expression
-            for (Expression indexExpr : arrayMapAccessExpr.getIndexExpr()) {
+            for (Expression indexExpr : arrayMapAccessExpr.getIndexExprs()) {
                 visitSingleValueExpr(indexExpr);
                 if (indexExpr.getType() != BTypes.typeInt) {
                     BLangExceptionHelper.throwSemanticError(arrayMapAccessExpr, SemanticErrors.NON_INTEGER_ARRAY_INDEX,
@@ -1957,7 +1957,7 @@ public class SemanticAnalyzer implements NodeVisitor {
 
             // Set type of the arrays access expression
             BType expectedType =  arrayMapVarRefExpr.getType();
-            for (int i = 0; i < arrayMapAccessExpr.getIndexExpr().length; i++) {
+            for (int i = 0; i < arrayMapAccessExpr.getIndexExprs().length; i++) {
                 expectedType =  ((BArrayType) expectedType).getElementType();
             }
             arrayMapAccessExpr.setType(expectedType);
@@ -1965,7 +1965,7 @@ public class SemanticAnalyzer implements NodeVisitor {
         } else if (arrayMapVarRefExpr.getType() instanceof BMapType) {
 
             // Check the type of the index expression
-            Expression indexExpr = arrayMapAccessExpr.getIndexExpr()[0];
+            Expression indexExpr = arrayMapAccessExpr.getIndexExprs()[0];
             visitSingleValueExpr(indexExpr);
             if (indexExpr.getType() != BTypes.typeString) {
                 BLangExceptionHelper.throwSemanticError(arrayMapAccessExpr, SemanticErrors.NON_STRING_MAP_INDEX,

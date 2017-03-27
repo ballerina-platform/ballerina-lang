@@ -1024,7 +1024,7 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
                 throw new BallerinaException("variable '" + arrayVarRefExpr.getVarName() + "' is null");
             }
 
-            Expression[] indexExpr = arrayMapAccessExpr.getIndexExpr();
+            Expression[] indexExpr = arrayMapAccessExpr.getIndexExprs();
 
             // Check whether this collection access expression is in the left hand of an assignment expression
             // If yes skip setting the value;
@@ -1479,17 +1479,17 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
         if (!(accessExpr.getType() == BTypes.typeMap)) {
             BArray arrayVal = (BArray) getTempValue(accessExpr.getRExpr());
 
-            Expression[] exprs = accessExpr.getIndexExpr();
+            Expression[] exprs = accessExpr.getIndexExprs();
             if (exprs.length > 1) {
                 arrayVal = retrieveArray(arrayVal, rValue, exprs);
             }
 
-            BInteger indexVal = (BInteger) getTempValue(accessExpr.getIndexExpr()[0]);
+            BInteger indexVal = (BInteger) getTempValue(accessExpr.getIndexExprs()[0]);
             arrayVal.add(indexVal.intValue(), rValue);
 
         } else {
             BMap<BString, BValue> mapVal = (BMap<BString, BValue>) getTempValue(accessExpr.getRExpr());
-            BString indexVal = (BString) getTempValue(accessExpr.getIndexExpr()[0]);
+            BString indexVal = (BString) getTempValue(accessExpr.getIndexExprs()[0]);
             mapVal.put(indexVal, rValue);
             // set the type of this expression here
             // accessExpr.setType(rExpr.getType());
@@ -1616,7 +1616,7 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
 
         Expression[] exprs;
         if (fieldExpr.getVarRef() instanceof ArrayMapAccessExpr) {
-            exprs = ((ArrayMapAccessExpr) fieldExpr.getVarRef()).getIndexExpr();
+            exprs = ((ArrayMapAccessExpr) fieldExpr.getVarRef()).getIndexExprs();
         } else {
             // If the lExprValue value is not a struct arrays/map, then set the value to the struct
             lExprValue.setValue(memoryLocation, rValue);
@@ -1708,7 +1708,7 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
         // If the lExprValue value is not a struct arrays/map, then the unit value is same as the struct
         Expression[] indexExpr;
         if (currentVarRefExpr instanceof ArrayMapAccessExpr) {
-            indexExpr = ((ArrayMapAccessExpr) currentVarRefExpr).getIndexExpr();
+            indexExpr = ((ArrayMapAccessExpr) currentVarRefExpr).getIndexExprs();
         } else {
             return currentVal;
         }

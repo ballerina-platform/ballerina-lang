@@ -729,7 +729,7 @@ public class BLangExecutor implements NodeExecutor {
             throw new BallerinaException("variable '" + arrayVarRefExpr.getVarName() + "' is null");
         }
 
-        Expression[] indexExpr = arrayMapAccessExpr.getIndexExpr();
+        Expression[] indexExpr = arrayMapAccessExpr.getIndexExprs();
 
         // Check whether this collection access expression is in the left hand of an assignment expression
         // If yes skip setting the value;
@@ -1015,7 +1015,7 @@ public class BLangExecutor implements NodeExecutor {
         if (!(accessExpr.getType() == BTypes.typeMap)) {
             BArray arrayVal = (BArray) accessExpr.getRExpr().execute(this);
 
-            Expression[] exprs = accessExpr.getIndexExpr();
+            Expression[] exprs = accessExpr.getIndexExprs();
             if (exprs.length > 1) {
                 arrayVal = retrieveArray(arrayVal, exprs);
             }
@@ -1025,7 +1025,7 @@ public class BLangExecutor implements NodeExecutor {
 
         } else {
             BMap<BString, BValue> mapVal = (BMap<BString, BValue>) accessExpr.getRExpr().execute(this);
-            BString indexVal = (BString) accessExpr.getIndexExpr()[0].execute(this);
+            BString indexVal = (BString) accessExpr.getIndexExprs()[0].execute(this);
             mapVal.put(indexVal, rValue);
             // set the type of this expression here
             // accessExpr.setType(rExpr.getType());
@@ -1189,7 +1189,7 @@ public class BLangExecutor implements NodeExecutor {
 
         Expression[] exprs;
         if (fieldExpr.getVarRef() instanceof ArrayMapAccessExpr) {
-            exprs = ((ArrayMapAccessExpr) fieldExpr.getVarRef()).getIndexExpr();
+            exprs = ((ArrayMapAccessExpr) fieldExpr.getVarRef()).getIndexExprs();
         } else {
             // If the lExprValue value is not a struct arrays/map, then set the value to the struct
             lExprValue.setValue(memoryLocation, rValue);
@@ -1270,7 +1270,7 @@ public class BLangExecutor implements NodeExecutor {
         // If the lExprValue value is not a struct arrays/map, then the unit value is same as the struct
         Expression[] indexExpr;
         if (currentVarRefExpr instanceof ArrayMapAccessExpr) {
-            indexExpr = ((ArrayMapAccessExpr) currentVarRefExpr).getIndexExpr();
+            indexExpr = ((ArrayMapAccessExpr) currentVarRefExpr).getIndexExprs();
         } else {
             return currentVal;
         }

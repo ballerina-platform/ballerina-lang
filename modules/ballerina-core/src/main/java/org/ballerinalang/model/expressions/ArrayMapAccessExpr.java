@@ -60,7 +60,7 @@ public class ArrayMapAccessExpr extends UnaryExpression implements ReferenceExpr
         return symbolName;
     }
 
-    public Expression[] getIndexExpr() {
+    public Expression[] getIndexExprs() {
         return indexExpr;
     }
 
