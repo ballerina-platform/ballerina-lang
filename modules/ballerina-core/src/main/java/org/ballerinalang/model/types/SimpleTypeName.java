@@ -81,10 +81,6 @@ public class SimpleTypeName {
         return isArrayType;
     }
 
-    public void setArrayType(boolean isArrayType) {
-        this.isArrayType = isArrayType;
-    }
-
     public String getNameWithPkg() {
         return (pkgName == null || pkgName.equals("")) ? name : pkgName + ":" + name;
     }
@@ -110,7 +106,8 @@ public class SimpleTypeName {
         return dimensions;
     }
 
-    public void setDimensions(int dimensions) {
-        this.dimensions = dimensions;
+    public void setArrayType(int dimentions) {
+        this.isArrayType = true;
+        this.dimensions =  dimentions;
     }
 }

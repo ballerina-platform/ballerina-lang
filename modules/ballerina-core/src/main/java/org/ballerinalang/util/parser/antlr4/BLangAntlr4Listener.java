@@ -468,8 +468,7 @@ public class BLangAntlr4Listener implements BallerinaListener {
         if (ctx.typeName() != null) {
             // This is an array type
             SimpleTypeName typeName = typeNameStack.peek();
-            typeName.setArrayType(true);
-            typeName.setDimensions((ctx.getChildCount() - 1) / 2);
+            typeName.setArrayType((ctx.getChildCount() - 1) / 2);
             return;
         }
 

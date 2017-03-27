@@ -104,7 +104,7 @@ public class ArrayMapAccessExpr extends UnaryExpression implements ReferenceExpr
             this.arrayMapVarRefExpr = arrayMapVarRefExpr;
         }
 
-        public void setIndexExpr(Expression[] rExpr) {
+        public void setIndexExprs(Expression[] rExpr) {
             this.indexExpr = rExpr;
         }
 

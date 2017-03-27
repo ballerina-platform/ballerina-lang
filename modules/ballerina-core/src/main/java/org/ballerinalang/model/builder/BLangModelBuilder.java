@@ -507,7 +507,7 @@ public class BLangModelBuilder {
 
         ArrayMapAccessExpr.ArrayMapAccessExprBuilder builder = new ArrayMapAccessExpr.ArrayMapAccessExprBuilder();
         builder.setVarName(symName);
-        builder.setIndexExpr(indexExprs);
+        builder.setIndexExprs(indexExprs);
         builder.setArrayMapVarRefExpr(arrayVarRefExpr);
         builder.setNodeLocation(location);
 

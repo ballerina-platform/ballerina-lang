@@ -1827,7 +1827,7 @@ public class SemanticAnalyzer implements NodeVisitor {
                 builder.setArrayMapVarRefExpr(arrayMapVarRefExpr);
                 builder.setVarName(mapOrArrName);
                 Expression[] exprs = {indexExpr};
-                builder.setIndexExpr(exprs);
+                builder.setIndexExprs(exprs);
                 ArrayMapAccessExpr arrayMapAccessExpr = builder.build();
                 visit(arrayMapAccessExpr);
                 argExprList.add(arrayMapAccessExpr);
