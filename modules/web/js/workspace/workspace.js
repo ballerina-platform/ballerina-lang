@@ -337,7 +337,7 @@ class WorkspaceManager {
             var file = activeTab.getFile();
             if(file.isPersisted()){
                 if(file.isDirty()){
-                    var response = self._serviceClient.writeFile(file);
+                    var response = this._serviceClient.writeFile(file);
                     if(response.error){
                         alerts.error(response.message);
                         return;
