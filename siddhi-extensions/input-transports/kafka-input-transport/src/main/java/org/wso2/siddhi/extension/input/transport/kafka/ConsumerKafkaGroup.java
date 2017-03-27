@@ -69,7 +69,8 @@ public class ConsumerKafkaGroup {
             } else if (KafkaInputTransport.TOPIC_WISE.equals(threadingOption)) {
                 for (String topic : topics) {
                     KafkaConsumerThread kafkaConsumerThread =
-                            new KafkaConsumerThread(sourceEventListener, new String[]{topic}, partitions, props, topicOffsetMap);
+                            new KafkaConsumerThread(sourceEventListener, new String[]{topic}, partitions, props,
+                                                    topicOffsetMap);
                     kafkaConsumerThreadList.add(kafkaConsumerThread);
                     executorService.submit(kafkaConsumerThread);
                     log.info("Kafka Consumer thread starting to listen on topic: " + topic +
@@ -79,8 +80,8 @@ public class ConsumerKafkaGroup {
                 for (String topic : topics) {
                     for (String partition : partitions) {
                         KafkaConsumerThread kafkaConsumerThread =
-                                new KafkaConsumerThread(sourceEventListener, new String[]{topic}, new String[]{partition},
-                                                        props, topicOffsetMap);
+                                new KafkaConsumerThread(sourceEventListener, new String[]{topic},
+                                                        new String[]{partition}, props, topicOffsetMap);
                         kafkaConsumerThreadList.add(kafkaConsumerThread);
                         executorService.submit(kafkaConsumerThread);
                         log.info("Kafka Consumer thread starting to listen on topic: " + topic +

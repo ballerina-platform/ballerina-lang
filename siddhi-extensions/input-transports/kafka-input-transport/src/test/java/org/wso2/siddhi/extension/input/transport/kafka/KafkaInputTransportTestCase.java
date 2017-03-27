@@ -95,10 +95,11 @@ public class KafkaInputTransportTestCase {
                     "@Plan:name('TestExecutionPlan') " +
                     "define stream BarStream (symbol string, price float, volume long); " +
                     "@info(name = 'query1') " +
-                        "@source(type='kafka', topic='kafka_topic,kafka_topic2', group.id='test', threading.option='partition.wise', " +
-                                "bootstrap.servers='localhost:9092', partition.no.list='0,1', " +
-                                "@map(type='text'))" +
-                                    "Define stream FooStream (symbol string, price float, volume long);" +
+                        "@source(type='kafka', topic='kafka_topic,kafka_topic2', group.id='test', " +
+                            "threading.option='partition.wise', bootstrap.servers='localhost:9092', " +
+                            "partition.no.list='0,1', " +
+                            "@map(type='text'))" +
+                                "Define stream FooStream (symbol string, price float, volume long);" +
                     "from FooStream select symbol, price, volume insert into BarStream;");
             executionPlanRuntime.addCallback("BarStream", new StreamCallback() {
                 @Override
@@ -238,8 +239,9 @@ public class KafkaInputTransportTestCase {
                     "@Plan:name('TestExecutionPlan') " +
                     "define stream BarStream (symbol string, price float, volume long); " +
                     "@info(name = 'query1') " +
-                        "@source(type='kafka', topic='kafka_topic,kafka_topic2', group.id='test', threading.option='single.thread', " +
-                            "bootstrap.servers='localhost:9092', partition.no.list='0,1', " +
+                        "@source(type='kafka', topic='kafka_topic,kafka_topic2', group.id='test', " +
+                            "threading.option='single.thread', bootstrap.servers='localhost:9092', " +
+                            "partition.no.list='0,1', " +
                             "@map(type='text'))" +
                                 "Define stream FooStream (symbol string, price float, volume long);" +
                     "from FooStream select symbol, price, volume insert into BarStream;");
@@ -300,10 +302,10 @@ public class KafkaInputTransportTestCase {
                     "@Plan:name('TestExecutionPlan') " +
                     "define stream BarStream (symbol string, price float, volume long); " +
                     "@info(name = 'query1') " +
-                        "@source(type='kafka', topic='simple_topic,simple_topic2', group.id='test', threading.option='single.thread', " +
-                            "bootstrap.servers='localhost:9092', " +
-                                "@map(type='text'))" +
-                                    "Define stream FooStream (symbol string, price float, volume long);" +
+                        "@source(type='kafka', topic='simple_topic,simple_topic2', group.id='test', " +
+                            "threading.option='single.thread', bootstrap.servers='localhost:9092', " +
+                            "@map(type='text'))" +
+                                "Define stream FooStream (symbol string, price float, volume long);" +
                     "from FooStream select symbol, price, volume insert into BarStream;");
             executionPlanRuntime.addCallback("BarStream", new StreamCallback() {
                 @Override

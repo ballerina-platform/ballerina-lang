@@ -59,7 +59,8 @@ public class KafkaOutputTransport extends OutputTransport {
     private static final Logger log = Logger.getLogger(KafkaOutputTransport.class);
 
     @Override
-    protected void init(StreamDefinition outputStreamDefinition, OptionHolder optionHolder, ExecutionPlanContext executionPlanContext) {
+    protected void init(StreamDefinition outputStreamDefinition, OptionHolder optionHolder,
+                        ExecutionPlanContext executionPlanContext) {
         kafkaConnect = optionHolder.validateAndGetStaticValue(KAFKA_BROKER_LIST);
         optionalConfigs = optionHolder.validateAndGetStaticValue(KAFKA_OPTIONAL_CONFIGURATION_PROPERTIES, null);
         topicOption = optionHolder.validateAndGetOption(KAFKA_PUBLISH_TOPIC);
