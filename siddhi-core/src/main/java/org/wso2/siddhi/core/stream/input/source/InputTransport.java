@@ -48,6 +48,10 @@ public abstract class InputTransport implements Snapshotable {
 
     public abstract void destroy();
 
+    public abstract void pause();
+
+    public abstract void resume();
+
     public void connectWithRetry(ExecutorService executorService) {
         tryConnect = true;
         try {

@@ -76,6 +76,16 @@ public class InMemoryInputTransport extends InputTransport {
     }
 
     @Override
+    public void pause() {
+        InMemoryBroker.unsubscribe(subscriber);
+    }
+
+    @Override
+    public void resume() {
+        InMemoryBroker.subscribe(subscriber);
+    }
+
+    @Override
     public Map<String, Object> currentState() {
         return null;
     }

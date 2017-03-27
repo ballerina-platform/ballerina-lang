@@ -92,9 +92,28 @@ public class KafkaInputTransport extends InputTransport{
 
     @Override
     public void destroy() {
+        consumerKafkaGroup = null;
+    }
+
+    @Override
+    public void pause() {
         if (consumerKafkaGroup != null) {
-            consumerKafkaGroup.shutdown();
-            log.debug("Kafka Adapter disconnected for topic/s" + optionHolder.validateAndGetStaticValue(ADAPTOR_SUBSCRIBER_TOPIC));
+            consumerKafkaGroup.pause();
+            if (log.isDebugEnabled()) {
+                log.debug("Kafka Adapter paused for topic/s" + optionHolder.validateAndGetStaticValue
+                        (ADAPTOR_SUBSCRIBER_TOPIC));
+            }
+        }
+    }
+
+    @Override
+    public void resume() {
+        if (consumerKafkaGroup != null) {
+            consumerKafkaGroup.resume();
+            if (log.isDebugEnabled()) {
+                log.debug("Kafka Adapter resumed for topic/s" + optionHolder.validateAndGetStaticValue
+                        (ADAPTOR_SUBSCRIBER_TOPIC));
+            }
         }
     }
 
