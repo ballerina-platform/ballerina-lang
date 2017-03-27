@@ -117,7 +117,13 @@ public class BallerinaParameterInfoHandler implements ParameterInfoHandlerWithTa
         if (")".equals(element.getText())) {
             element = context.getFile().findElementAt(context.getOffset() - 1);
         }
-        return PsiTreeUtil.getParentOfType(element, ExpressionListNode.class);
+        PsiElement expressionListNode = PsiTreeUtil.getParentOfType(element, ExpressionListNode.class);
+        // ExpressionListNode can be null if there are no arguments provided.
+        if (expressionListNode != null) {
+            return expressionListNode;
+        }
+        // So we return the FunctionInvocationStatementNode in that case.
+        return PsiTreeUtil.getParentOfType(element, FunctionInvocationStatementNode.class);
     }
 
     @Override
@@ -127,9 +133,6 @@ public class BallerinaParameterInfoHandler implements ParameterInfoHandlerWithTa
         // Since we know the type, we check and cast the object.
         if (element instanceof ExpressionListNode) {
             ExpressionListNode expressionListNode = (ExpressionListNode) element;
-            // This method can be a overloaded method. So there can be multiple signatures. To store all of these, we
-            // create a list.
-            List<ParameterListNode> list = new ArrayList<>();
             // We need to get the ExpressionListNode parent of current ExpressionListNode.
             // Current ExpressionListNode - "WSO2"
             // Parent ExpressionListNode - setName("WSO2")
@@ -145,72 +148,81 @@ public class BallerinaParameterInfoHandler implements ParameterInfoHandlerWithTa
             if (parent == null) {
                 return;
             }
-            // Function name will be at NameReferenceNode. So we search for this child node.
-            NameReferenceNode nameReferenceNode = PsiTreeUtil.findChildOfType(parent, NameReferenceNode.class);
-            if (nameReferenceNode != null) {
-                // Get the identifier of this node.
-                PsiElement nameIdentifier = nameReferenceNode.getNameIdentifier();
-                if (nameIdentifier != null) {
-                    // Get the reference for this node. This can be used to resolve functions defined in the same
-                    // package. Otherwise, we have to use the getReferences() as below.
-                    PsiReference reference = nameIdentifier.getReference();
-                    if (reference != null) {
-                        // Resolve the reference
-                        PsiElement resolvedElement = reference.resolve();
-                        if (resolvedElement != null) {
-                            // Resolved element will be the identifier of the function node. So we get the parent
-                            // node (FunctionNode).
-                            PsiElement functionNode = resolvedElement.getParent();
-                            // Since we need the ParameterListNode, search for ParameterListNode child node.
-                            ParameterListNode parameterListNode =
-                                    PsiTreeUtil.findChildOfType(functionNode, ParameterListNode.class);
-                            // Add to the list if the result is not null.
-                            if (parameterListNode != null) {
-                                list.add(parameterListNode);
-                            }
+            setItemsToShow(expressionListNode, parent, context);
+        } else if (element instanceof FunctionInvocationStatementNode) {
+            FunctionInvocationStatementNode functionInvocationStatementNode = (FunctionInvocationStatementNode) element;
+            setItemsToShow(functionInvocationStatementNode, functionInvocationStatementNode, context);
+        }
+    }
+
+    private void setItemsToShow(PsiElement element, PsiElement parent, CreateParameterInfoContext context) {
+        // This method can be a overloaded method. So there can be multiple signatures. To store all of these, we
+        // create a list.
+        List<ParameterListNode> list = new ArrayList<>();
+        // Function name will be at NameReferenceNode. So we search for this child node.
+        NameReferenceNode nameReferenceNode = PsiTreeUtil.findChildOfType(parent, NameReferenceNode.class);
+        if (nameReferenceNode != null) {
+            // Get the identifier of this node.
+            PsiElement nameIdentifier = nameReferenceNode.getNameIdentifier();
+            if (nameIdentifier != null) {
+                // Get the reference for this node. This can be used to resolve functions defined in the same
+                // package. Otherwise, we have to use the getReferences() as below.
+                PsiReference reference = nameIdentifier.getReference();
+                if (reference != null) {
+                    // Resolve the reference
+                    PsiElement resolvedElement = reference.resolve();
+                    if (resolvedElement != null) {
+                        // Resolved element will be the identifier of the function node. So we get the parent
+                        // node (FunctionNode).
+                        PsiElement functionNode = resolvedElement.getParent();
+                        // Since we need the ParameterListNode, search for ParameterListNode child node.
+                        ParameterListNode parameterListNode =
+                                PsiTreeUtil.findChildOfType(functionNode, ParameterListNode.class);
+                        // Add to the list if the result is not null.
+                        if (parameterListNode != null) {
+                            list.add(parameterListNode);
                         }
                     }
+                }
 
-                    // getReference() will only resolve function definitions within the same package. If the function
-                    // definition is not in the same package, we need to use the getReferences() method as below.
-                    PsiReference[] references = nameIdentifier.getReferences();
-                    // Iterate through all references. In most cases, there will be only one item.
-                    for (PsiReference psiReference : references) {
-                        // Multi resolve the reference.
-                        ResolveResult[] resolveResults =
-                                ((NameReference) psiReference).multiResolve(false);
-                        //If it cannot be resolved, continue with the next item.
-                        if (resolveResults.length == 0) {
+                // getReference() will only resolve function definitions within the same package. If the function
+                // definition is not in the same package, we need to use the getReferences() method as below.
+                PsiReference[] references = nameIdentifier.getReferences();
+                // Iterate through all references. In most cases, there will be only one item.
+                for (PsiReference psiReference : references) {
+                    // Multi resolve the reference.
+                    ResolveResult[] resolveResults = ((NameReference) psiReference).multiResolve(false);
+                    //If it cannot be resolved, continue with the next item.
+                    if (resolveResults.length == 0) {
+                        continue;
+                    }
+                    // If it can be resolved, iterate through all resolve results.
+                    for (ResolveResult resolveResult : resolveResults) {
+                        // Get the resolved element. This will be a identifier node.
+                        PsiElement resolvedElement = resolveResult.getElement();
+                        if (resolvedElement == null) {
                             continue;
                         }
-                        // If it can be resolved, iterate through all resolve results.
-                        for (ResolveResult resolveResult : resolveResults) {
-                            // Get the resolved element. This will be a identifier node.
-                            PsiElement resolvedElement = resolveResult.getElement();
-                            if (resolvedElement == null) {
-                                continue;
-                            }
-                            // Get the parent node (FunctionNode).
-                            PsiElement parentElement = resolvedElement.getParent();
-                            // Get the ParameterListNode.
-                            ParameterListNode parameterListNode =
-                                    PsiTreeUtil.findChildOfType(parentElement, ParameterListNode.class);
-                            // Add to the list if it is not null;
-                            if (parameterListNode != null) {
-                                list.add(parameterListNode);
-                            }
+                        // Get the parent node (FunctionNode).
+                        PsiElement parentElement = resolvedElement.getParent();
+                        // Get the ParameterListNode.
+                        ParameterListNode parameterListNode =
+                                PsiTreeUtil.findChildOfType(parentElement, ParameterListNode.class);
+                        // Add to the list if it is not null;
+                        if (parameterListNode != null) {
+                            list.add(parameterListNode);
                         }
                     }
                 }
-                // If there are no items to show, set a custom object. Otherwise set the list as an array.
-                if (list.isEmpty()) {
-                    // Todo - change how to identify no parameter situation
-                    context.setItemsToShow(new Object[]{"Empty"});
-                } else {
-                    context.setItemsToShow(list.toArray(new ParameterListNode[list.size()]));
-                }
-                context.showHint(expressionListNode, expressionListNode.getTextRange().getStartOffset(), this);
             }
+            // If there are no items to show, set a custom object. Otherwise set the list as an array.
+            if (list.isEmpty()) {
+                // Todo - change how to identify no parameter situation
+                context.setItemsToShow(new Object[]{"Empty"});
+            } else {
+                context.setItemsToShow(list.toArray(new ParameterListNode[list.size()]));
+            }
+            context.showHint(element, element.getTextRange().getStartOffset(), this);
         }
     }
 
@@ -229,7 +241,13 @@ public class BallerinaParameterInfoHandler implements ParameterInfoHandlerWithTa
         if (")".equals(element.getText())) {
             element = context.getFile().findElementAt(context.getOffset() - 1);
         }
-        return PsiTreeUtil.getParentOfType(element, ExpressionListNode.class);
+        PsiElement expressionListNode = PsiTreeUtil.getParentOfType(element, ExpressionListNode.class);
+        // ExpressionListNode can be null if there are no arguments provided.
+        if (expressionListNode != null) {
+            return expressionListNode;
+        }
+        // So we return the FunctionInvocationStatementNode in that case.
+        return PsiTreeUtil.getParentOfType(element, FunctionInvocationStatementNode.class);
     }
 
     @Override
@@ -344,7 +362,8 @@ public class BallerinaParameterInfoHandler implements ParameterInfoHandlerWithTa
             // This will be called if there are no arguments in the method.
             // Todo - change how to identify no parameter situation
             // We set the "no.parameters" message to the popup.
-            context.setupUIComponentPresentation(CodeInsightBundle.message("parameter.info.no.parameters"), 0, 0, false, false, false,
+            context.setupUIComponentPresentation(CodeInsightBundle.message("parameter.info.no.parameters"), 0, 0,
+                    false, false, false,
                     context.getDefaultParameterColor());
         } else {
             // Disable the popup for other types.
