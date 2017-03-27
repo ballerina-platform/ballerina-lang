@@ -44,6 +44,7 @@ import org.wso2.siddhi.core.util.statistics.MemoryUsageTracker;
 import org.wso2.siddhi.query.api.definition.AbstractDefinition;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -152,6 +153,10 @@ public class ExecutionPlanRuntime {
 
     public InputHandler getInputHandler(String streamId) {
         return inputManager.getInputHandler(streamId);
+    }
+
+    public Collection<List<InputTransport>> getInputTransports() {
+        return eventSourceMap.values();
     }
 
     public synchronized void shutdown() {

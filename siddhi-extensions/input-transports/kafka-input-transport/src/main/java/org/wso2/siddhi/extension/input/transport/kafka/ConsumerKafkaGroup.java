@@ -45,6 +45,14 @@ public class ConsumerKafkaGroup {
         this.executorService = executorService;
     }
 
+    public void pause() {
+        kafkaConsumerThreadList.forEach(KafkaConsumerThread::pause);
+    }
+
+    public void resume() {
+        kafkaConsumerThreadList.forEach(KafkaConsumerThread::resume);
+    }
+
     public void shutdown() {
         kafkaConsumerThreadList.forEach(KafkaConsumerThread::shutdownConsumer);
     }
