@@ -55,6 +55,8 @@ public class ConsumerKafkaGroup {
                 KafkaConsumerThread kafkaConsumerThread =
                         new KafkaConsumerThread(sourceEventListener, topics, partitions, props, topicOffsetMap);
                 kafkaConsumerThreadList.add(kafkaConsumerThread);
+                log.info("Kafka Consumer thread starting to listen on topic/s: " + Arrays.toString(topics) +
+                        " with partition/s: " + Arrays.toString(partitions));
                 kafkaConsumerThread.run();
             } else if (KafkaInputTransport.TOPIC_WISE.equals(threadingOption)) {
                 for (String topic : topics) {
@@ -62,6 +64,8 @@ public class ConsumerKafkaGroup {
                             new KafkaConsumerThread(sourceEventListener, new String[]{topic}, partitions, props, topicOffsetMap);
                     kafkaConsumerThreadList.add(kafkaConsumerThread);
                     executorService.submit(kafkaConsumerThread);
+                    log.info("Kafka Consumer thread starting to listen on topic: " + topic +
+                            " with partition/s: " + Arrays.toString(partitions));
                 }
             } else if (KafkaInputTransport.PARTITION_WISE.equals(threadingOption)) {
                 for (String topic : topics) {
@@ -71,10 +75,11 @@ public class ConsumerKafkaGroup {
                                                         props, topicOffsetMap);
                         kafkaConsumerThreadList.add(kafkaConsumerThread);
                         executorService.submit(kafkaConsumerThread);
+                        log.info("Kafka Consumer thread starting to listen on topic: " + topic +
+                                " with partition: " + partition);
                     }
                 }
             }
-            log.info("Kafka Consumer thread/s starting to listen on topic/s: " + Arrays.toString(topics));
         } catch (Throwable t) {
             log.error("Error while creating KafkaConsumerThread for topic/s: " + Arrays.toString(topics), t);
         }
