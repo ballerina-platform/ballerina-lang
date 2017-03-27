@@ -26,19 +26,19 @@
     <fileSets>
         <fileSet>
             <directory>
-                ${project.build.directory}/extracted-distributions/ballerina-${project.version}-zip/ballerina-${project.version}
+                ${project.build.directory}/extracted-distributions/ballerina-zip/ballerina-${project.version}
             </directory>
             <outputDirectory>.</outputDirectory>
         </fileSet>
         <fileSet>
             <directory>
-                ${project.build.directory}/extracted-distributions/ballerina-composer-web-${ballerina.composer.version}-zip/ballerina-composer-web-${ballerina.composer.version}
+                ${project.build.directory}/extracted-distributions/ballerina-composer-web-zip/ballerina-composer-web-${ballerina.composer.version}
             </directory>
             <outputDirectory>.</outputDirectory>
         </fileSet>
         <fileSet>
             <directory>
-                ${project.build.directory}/extracted-distributions/testerina-core-${testerina.version}-jar//META-INF/natives
+                ${project.build.directory}/extracted-distributions/testerina-core-jar//META-INF/natives
             </directory>
             <outputDirectory>src</outputDirectory>
         </fileSet>
@@ -50,7 +50,7 @@
         </fileSet>
         <fileSet>
             <directory>
-                ${project.build.directory}/extracted-distributions/connectors-${ballerina.connectors.version}-jar//META-INF/natives
+                ${project.build.directory}/extracted-distributions/connectors-jar//META-INF/natives
             </directory>
             <outputDirectory>src</outputDirectory>
         </fileSet>
@@ -97,7 +97,7 @@
         <!-- Composer specific files -->
         <file>
             <source>
-                ${project.build.directory}/extracted-distributions/workspace-service-${ballerina.composer.version}-jar/netty-transports.yml
+                ${project.build.directory}/extracted-distributions/workspace-service-jar/netty-transports.yml
             </source>
             <outputDirectory>resources/composer/services</outputDirectory>
             <filtered>true</filtered>

@@ -52,13 +52,13 @@
 
         <fileSet>
             <directory>
-                ${project.build.directory}/extracted-distributions/ballerina-native-${ballerina.runtime.version}-jar/META-INF/natives
+                ${project.build.directory}/extracted-distributions/ballerina-native-jar/META-INF/natives
             </directory>
             <outputDirectory>src</outputDirectory>
         </fileSet>
         <fileSet>
             <directory>
-                ${project.build.directory}/extracted-distributions/ballerina-samples-${ballerina.runtime.version}-zip/ballerina-samples-${ballerina.runtime.version}
+                ${project.build.directory}/extracted-distributions/ballerina-samples-zip/ballerina-samples-${ballerina.runtime.version}
             </directory>
             <outputDirectory>samples</outputDirectory>
             <excludes>
