@@ -59,7 +59,7 @@ class ResourceParameter extends Argument {
     getParameterAsString() {
         var paramAsString = !_.isUndefined(this.getAnnotationType()) ? this.getAnnotationType() : "";
         paramAsString += !_.isUndefined(this.getAnnotationText()) && !_.isEmpty(this.getAnnotationText()) ?
-        "(\"" + this.getAnnotationText() + "\")" : "";
+        "{value:\"" + this.getAnnotationText() + "\"} " : "";
         paramAsString += " " + this.getType() + " ";
         paramAsString += this.getIdentifier();
 
@@ -84,10 +84,10 @@ class ResourceParameter extends Argument {
         this.setIdentifier(jsonNode.parameter_name, {doSilently: true});
 
         // As of now we only support one annotation.
-        if (_.isEqual(_.size(jsonNode.children), 1) && _.isEqual(jsonNode.children[0].type, "annotation")) {
+        if (_.isEqual(_.size(jsonNode.children), 1) && _.isEqual(jsonNode.children[0].type, 'annotation_attachment')) {
             var annotationJson = jsonNode.children[0];
-            this.setAnnotationType("@" + annotationJson.annotation_name, {doSilently: true});
-            this.setAnnotationText(annotationJson.annotation_value, {doSilently: true});
+            this.setAnnotationType('@' + annotationJson.annotation_package_name + ':' + annotationJson.annotation_name, {doSilently: true});
+            this.setAnnotationText(annotationJson.children[0].value, {doSilently: true});
         }
     }
 }
