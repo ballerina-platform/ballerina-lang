@@ -109,7 +109,6 @@ import org.ballerinalang.model.statements.VariableDefStmt;
 import org.ballerinalang.model.statements.WhileStmt;
 import org.ballerinalang.model.statements.WorkerInvocationStmt;
 import org.ballerinalang.model.statements.WorkerReplyStmt;
-import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BMapType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
@@ -979,33 +978,13 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
         Expression[] argExprs = arrayInitExprEndNode.getExpression().getArgExprs();
 
         // Creating a new arrays
-        BArray bArray;
-        int dimensions = ((BArrayType) arrayInitExprEndNode.getExpression().getType()).getDimensions();
-        if (dimensions <= 1 || argExprs.length > 0) {
-            bArray = arrayInitExprEndNode.getExpression().getType().getDefaultValue();
-            for (int i = 0; i < argExprs.length; i++) {
-                Expression expr = argExprs[i];
-                BValue value = getTempValue(expr);
-                if (value instanceof BArray && i == 0) {
-                    bArray = new BArray<>(BArray.class);
-                }
-                bArray.add(i, value);
-            }
-        } else {
-            bArray = new BArray<>(BArray.class);
-            BArray currentBArray = bArray;
-            for (int i = 1; i < dimensions; i++) {
-                if (i == dimensions - 1) {
-                    BArray newbArray = arrayInitExprEndNode.getExpression().getType().getDefaultValue();
-                    currentBArray.add(0, newbArray);
-                } else {
-                    BArray newbArray = new BArray<>(BArray.class);
-                    currentBArray.add(0, newbArray);
-                    currentBArray = newbArray;
-                }
-            }
-        }
+        BArray bArray = arrayInitExprEndNode.getExpression().getType().getDefaultValue();
 
+        for (int i = 0; i < argExprs.length; i++) {
+            Expression expr = argExprs[i];
+            BValue value = getTempValue(expr);
+            bArray.add(i, value);
+        }
         setTempValue(arrayInitExprEndNode.getExpression().getTempOffset(), bArray);
     }
 
@@ -1033,10 +1012,7 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
                 // Get the value stored in the index
                 if (collectionValue instanceof BArray) {
                     BArray bArray = (BArray) collectionValue;
-                    for (int i = indexExpr.length - 1; i >= 1; i--) {
-                        BInteger indexVal = (BInteger) getTempValue(indexExpr[i]);
-                        bArray = (BArray) bArray.get(indexVal.intValue());
-                    }
+                    bArray = retrieveArray(bArray, indexExpr);
                     result = bArray.get(((BInteger) getTempValue(indexExpr[0])).intValue());
                 } else {
                     result = collectionValue;
@@ -1481,7 +1457,7 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
 
             Expression[] exprs = accessExpr.getIndexExprs();
             if (exprs.length > 1) {
-                arrayVal = retrieveArray(arrayVal, rValue, exprs);
+                arrayVal = retrieveArray(arrayVal, exprs);
             }
 
             BInteger indexVal = (BInteger) getTempValue(accessExpr.getIndexExprs()[0]);
@@ -1636,7 +1612,7 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
         } else {
             BArray arrayVal = (BArray) arrayMapValue;
             if (exprs.length > 1) {
-                arrayVal = retrieveArray(arrayVal, rValue, exprs);
+                arrayVal = retrieveArray(arrayVal, exprs);
             }
 
             BInteger indexVal = (BInteger) getTempValue(exprs[0]);
@@ -1782,20 +1758,21 @@ public abstract class BLangAbstractExecutionVisitor extends BLangExecutionVisito
         return completed;
     }
 
-    private BArray retrieveArray(BArray arrayVal, BValue rValue, Expression[] exprs) {
+    private BArray retrieveArray(BArray arrayVal, Expression[] exprs) {
         for (int i = exprs.length - 1; i >= 1; i--) {
             BInteger indexVal = (BInteger) getTempValue(exprs[i]);
 
+            // TODO: Remove this part if we don't need dynamically create arrays
             // Will have to dynamically populate
-            while (arrayVal.size() <= indexVal.intValue()) {
-                if (i != 1 || rValue instanceof BArray) {
-                    BArray newBArray = new BArray<>(BArray.class);
-                    arrayVal.add(arrayVal.size(), newBArray);
-                } else {
-                    BArray bArray = new BArray<>(rValue.getClass());
-                    arrayVal.add(arrayVal.size(), bArray);
-                }
-            }
+//            while (arrayVal.size() <= indexVal.intValue()) {
+//                if (i != 1 || rValue instanceof BArray) {
+//                    BArray newBArray = new BArray<>(BArray.class);
+//                    arrayVal.add(arrayVal.size(), newBArray);
+//                } else {
+//                    BArray bArray = new BArray<>(rValue.getClass());
+//                    arrayVal.add(arrayVal.size(), bArray);
+//                }
+//            }
 
             arrayVal = (BArray) arrayVal.get(indexVal.intValue());
         }
