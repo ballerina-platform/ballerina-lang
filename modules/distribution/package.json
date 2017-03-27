@@ -1,0 +1,23 @@
+{
+  "name": "composer-distribution",
+  "version": "1.0.0",
+  "description": "An electron based standalone distribution for ballerina lang composer",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ballerinalang/composer.git"
+  },
+  "keywords": [
+    "BallerinaLang",
+    "Composer"
+  ],
+  "author": "WSO2",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/ballerinalang/composer/issues"
+  },
+  "homepage": "https://github.com/ballerinalang/composer#readme"
+}
