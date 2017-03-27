@@ -319,7 +319,7 @@ class WorkspaceManager {
         if (undoManager.hasUndo()) {
             undoManager.undo();
         }
-        self.updateUndoRedoMenus();
+        this.updateUndoRedoMenus();
     }
 
     handleRedo() {
@@ -328,7 +328,7 @@ class WorkspaceManager {
         if (undoManager.hasRedo()) {
             undoManager.redo();
         }
-        self.updateUndoRedoMenus();
+        this.updateUndoRedoMenus();
     }
 
     handleSave(options) {
