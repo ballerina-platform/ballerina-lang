@@ -235,6 +235,8 @@ public class BLangModelBuilder {
         ConstDef constantDef = new ConstDef(location, constName, typeName, currentPackagePath,
                 symbolName, currentScope, exprStack.pop());
 
+        getAnnotationAttachments().forEach(attachment -> constantDef.addAnnotation(attachment));
+        
         // Add constant definition to current file;
         bFileBuilder.addConst(constantDef);
 
@@ -355,6 +357,8 @@ public class BLangModelBuilder {
     public void addAnnotationtDef(NodeLocation location, String name) {
         annotationDefBuilder.setName(name);
         annotationDefBuilder.setPackagePath(currentPackagePath);
+        
+        getAnnotationAttachments().forEach(attachment -> annotationDefBuilder.addAnnotation(attachment));
         
         AnnotationDef annotationDef = annotationDefBuilder.build();
         bFileBuilder.addAnnotationDef(annotationDef);
