@@ -198,6 +198,13 @@ class ConnectorDefinitionView extends SVGCanvas {
                 self.getModel().setConnectorName($(this).text());
             }).on('click', function (event) {
                 event.stopPropagation();
+            }).on('blur', function (event) {
+                if ($(this).text().length > 50) {
+                    var textToDisplay = $(this).text().substring(0, 47) + '...';
+                    $(this).text(textToDisplay);
+                }
+            }).on('focus', function (event) {
+                $(this).text(self._model.getConnectorName());
             }).keypress(function (e) {
                 /* Ignore Delete and Backspace keypress in firefox and capture other keypress events.
                  (Chrome and IE ignore keypress event of these keys in browser level)*/
@@ -580,7 +587,7 @@ class ConnectorDefinitionView extends SVGCanvas {
             return !_.isNil(lifeline) ? lifeline.getBoundingBox().getRight() : -1;
         });
         return _.last(sortedFarthestLifeLineArr);
-    }
+    };
 }
 
 export default ConnectorDefinitionView;

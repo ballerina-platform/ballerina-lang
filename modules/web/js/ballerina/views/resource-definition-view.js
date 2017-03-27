@@ -721,6 +721,13 @@ class ResourceDefinitionView extends BallerinaView {
             if (e.keyCode === 13) {
                 return false;
             }
+        }).on('blur', function (event) {
+            if ($(this).text().length > 50) {
+                var textToDisplay = $(this).text().substring(0, 47) + '...';
+                nameSpan.text(textToDisplay);
+            }
+        }).on('focus', function (event) {
+            nameSpan.text(self._model.getResourceName());
         });
 
         this._contentGroup = contentGroup;
