@@ -55,7 +55,7 @@ functionDefinition
     ;
 
 callableUnitSignature
-    :   Identifier '(' parameterList? ')' returnParameters? ('throws' Identifier)?
+    :   Identifier '(' parameterList? ')' returnParameters? ('throws' 'exception')?
     ;
 
 connectorDefinition
