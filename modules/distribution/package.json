@@ -4,7 +4,29 @@
   "description": "An electron based standalone distribution for ballerina lang composer",
   "main": "index.js",
   "scripts": {
+    "postinstall": "install-app-deps",
+    "pack": "build --dir",
+    "dist": "build",
+    "dist-all": "build --mac --win --linux",
     "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "build": {
+    "appId": "org.ballerinalang.composer.standalone",
+    "asar": false,
+    "mac": {
+      "category": "public.app-category.productivity",
+      "target": "dmg"
+    },
+    "win": {
+      "target": [
+        "nsis"
+      ]
+    },
+    "linux": {
+      "target": [
+        "deb"
+      ]
+    }
   },
   "repository": {
     "type": "git",
@@ -14,10 +36,18 @@
     "BallerinaLang",
     "Composer"
   ],
-  "author": "WSO2",
+  "author": {
+    "name" : "ballerinalang.org",
+    "email" : "https://groups.google.com/forum/#!forum/ballerina-dev",
+    "url" : "https://groups.google.com/forum/#!forum/ballerina-dev"
+  },
   "license": "Apache-2.0",
   "bugs": {
     "url": "https://github.com/ballerinalang/composer/issues"
   },
-  "homepage": "https://github.com/ballerinalang/composer#readme"
+  "homepage": "https://github.com/ballerinalang/composer#readme",
+  "devDependencies": {
+    "electron": "^1.6.2",
+    "electron-builder": "^16.4.2"
+  }
 }
