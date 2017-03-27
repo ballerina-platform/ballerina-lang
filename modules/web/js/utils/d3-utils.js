@@ -180,6 +180,7 @@ import log from 'log';
             .attr("y", center.y())
             .attr('text-anchor', "middle")
             .attr('alignment-baseline', "central")
+            .attr('dominant-baseline', "central") // alignment-baseline doesn't work in firefox https://goo.gl/jJ6RAB
             .text(function () {
                 return text;
             });
