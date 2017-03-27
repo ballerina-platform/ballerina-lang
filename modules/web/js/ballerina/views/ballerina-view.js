@@ -37,6 +37,7 @@ class BallerinaView extends ASTVisitor {
     constructor(args) {
         super(args);
         this._parent = _.get(args, 'parent');
+        this._parseFailed = _.get(args, 'parseFailed');
         this.setModel(_.get(args, 'model'));
         this._container = _.get(args, 'container');
         this._viewOptions = _.get(args, 'viewOptions', {});
@@ -121,4 +122,3 @@ var uuid =  function (){
 };
 
 export default BallerinaView;
-    
