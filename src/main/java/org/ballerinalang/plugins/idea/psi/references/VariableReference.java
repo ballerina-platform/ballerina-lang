@@ -26,7 +26,7 @@ import org.ballerinalang.plugins.idea.psi.ActionDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.ConnectorBodyNode;
 import org.ballerinalang.plugins.idea.psi.ConnectorNode;
 import org.ballerinalang.plugins.idea.psi.ConstantDefinitionNode;
-import org.ballerinalang.plugins.idea.psi.FunctionBodyNode;
+import org.ballerinalang.plugins.idea.psi.CallableUnitBodyNode;
 import org.ballerinalang.plugins.idea.psi.FunctionNode;
 import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
 import org.ballerinalang.plugins.idea.psi.ParameterNode;
@@ -182,7 +182,7 @@ public class VariableReference extends BallerinaElementReference {
                 // If the common context is file, that means the myElement is not in the scope where the
                 // definitionElement is defined in.
                 PsiElement commonContext = PsiTreeUtil.findCommonContext(definitionElement, myElement);
-                if (!(commonContext instanceof FunctionBodyNode || commonContext instanceof ConnectorBodyNode
+                if (!(commonContext instanceof CallableUnitBodyNode || commonContext instanceof ConnectorBodyNode
                         || commonContext instanceof TypeMapperBodyNode)) {
                     return false;
                 }

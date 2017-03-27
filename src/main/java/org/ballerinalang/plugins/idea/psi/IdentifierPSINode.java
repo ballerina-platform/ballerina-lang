@@ -28,6 +28,7 @@ import org.antlr.jetbrains.adaptor.psi.ANTLRPsiLeafNode;
 import org.antlr.jetbrains.adaptor.psi.Trees;
 import org.ballerinalang.plugins.idea.BallerinaLanguage;
 import org.ballerinalang.plugins.idea.BallerinaParserDefinition;
+import org.ballerinalang.plugins.idea.psi.references.ActionInvocationReference;
 import org.ballerinalang.plugins.idea.psi.references.PackageNameReference;
 import org.ballerinalang.plugins.idea.psi.references.NameReference;
 import org.ballerinalang.plugins.idea.psi.references.StatementReference;
@@ -97,8 +98,8 @@ public class IdentifierPSINode extends ANTLRPsiLeafNode implements PsiNamedEleme
                     return new PackageNameReference(this);
 //                case RULE_connectorDefinition:
 //                    return new ConnectorReference(this);
-//                case RULE_actionInvocation:
-//                    return new ActionInvocationReference(this);
+                case RULE_actionInvocation:
+                    return new ActionInvocationReference(this);
                 case RULE_statement:
                     return new StatementReference(this);
                 //                case RULE_simpleType:

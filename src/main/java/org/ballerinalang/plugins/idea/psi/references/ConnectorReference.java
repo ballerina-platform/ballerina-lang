@@ -22,7 +22,7 @@
 //import org.ballerinalang.plugins.idea.psi.NameReferenceNode;
 //import org.ballerinalang.plugins.idea.psi.ConnectorNode;
 //import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
-//import org.ballerinalang.plugins.idea.psi.SimpleTypeNode;
+//import org.ballerinalang.plugins.idea.psi.TypeNameNode;
 //import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
 //import org.jetbrains.annotations.NotNull;
 //
@@ -37,7 +37,7 @@
 //
 //    @Override
 //    public boolean isDefinitionNode(PsiElement def) {
-//        return def instanceof ConnectorNode || def instanceof SimpleTypeNode || def instanceof NameReferenceNode;
+//        return def instanceof ConnectorNode || def instanceof TypeNameNode || def instanceof NameReferenceNode;
 //    }
 //
 //    @NotNull

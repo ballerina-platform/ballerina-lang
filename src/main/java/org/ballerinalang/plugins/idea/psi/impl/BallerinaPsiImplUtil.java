@@ -39,13 +39,15 @@ import org.antlr.jetbrains.adaptor.psi.Trees;
 import org.antlr.jetbrains.adaptor.xpath.XPath;
 import org.ballerinalang.plugins.idea.BallerinaFileType;
 import org.ballerinalang.plugins.idea.BallerinaLanguage;
+import org.ballerinalang.plugins.idea.psi.ActionInvocationNode;
 import org.ballerinalang.plugins.idea.psi.AliasNode;
 import org.ballerinalang.plugins.idea.psi.ConnectorNode;
 import org.ballerinalang.plugins.idea.psi.ExpressionNode;
 import org.ballerinalang.plugins.idea.psi.FunctionInvocationStatementNode;
 import org.ballerinalang.plugins.idea.psi.ImportDeclarationNode;
+import org.ballerinalang.plugins.idea.psi.NameReferenceNode;
 import org.ballerinalang.plugins.idea.psi.PackageNameNode;
-import org.ballerinalang.plugins.idea.psi.SimpleTypeNode;
+import org.ballerinalang.plugins.idea.psi.TypeNameNode;
 import org.ballerinalang.plugins.idea.psi.references.PackageNameReference;
 import org.ballerinalang.plugins.idea.psi.PackagePathNode;
 import org.ballerinalang.plugins.idea.psi.ParameterNode;
@@ -638,43 +640,118 @@ public class BallerinaPsiImplUtil {
         List<PsiElement> results = new ArrayList<>();
         // Get tht parent element.
         PsiElement parent = element.getParent();
-        // Get the CallableUnitName node.
-        Collection<? extends PsiElement> callableUnits =
-                XPath.findAll(BallerinaLanguage.INSTANCE, parent, "//callableUnitName");
-        if (callableUnits.isEmpty()) {
+        // Get the ActionInvocation node.
+        Collection<? extends PsiElement> actionInvocationNodes = XPath.findAll(BallerinaLanguage.INSTANCE, parent,
+                "//actionInvocation");
+        // If there is no actionInvocationNodes, return empty results.
+        if (actionInvocationNodes.isEmpty()) {
             return results;
         }
-        // There can be only one callableUnitName. So we get the next item from the iterator.
-        PsiElement callableUnit = callableUnits.iterator().next();
-        // Get the SimpleTypeNode. This is the Connector name and we use this to resolve the Connector location.
-        SimpleTypeNode simpleTypeNode = PsiTreeUtil.getChildOfType(callableUnit, SimpleTypeNode.class);
-        if (simpleTypeNode == null) {
+        // There can be only one actionInvocation. So we get the next item from the iterator.
+        PsiElement actionInvocationNode = actionInvocationNodes.iterator().next();
+        if (!(actionInvocationNode instanceof ActionInvocationNode)) {
             return results;
         }
-        // Get the identifier.
-        PsiElement identifier = simpleTypeNode.getNameIdentifier();
-        if (identifier == null) {
+        // Get the NameReferenceNode. We use this to resolve to the correct Connector Definition.
+        NameReferenceNode nameReferenceNode = PsiTreeUtil.getChildOfType(actionInvocationNode, NameReferenceNode.class);
+        if (nameReferenceNode == null) {
             return results;
         }
-        // Get the reference.
-        PsiReference[] references = identifier.getReferences();
-        for (PsiReference reference : references) {
-            // Multi resolve each of the reference.
-            ResolveResult[] resolveResults = ((NameReference) reference).multiResolve(false);
-            for (ResolveResult resolveResult : resolveResults) {
-                // Get the element. This will represent the identifier of the Connector definiton.
-                PsiElement resolvedElement = resolveResult.getElement();
-                if (resolvedElement == null) {
-                    continue;
+        // Get the name identifier of nameReferenceNode.
+        PsiElement nameIdentifier = nameReferenceNode.getNameIdentifier();
+        if (nameIdentifier == null) {
+            return results;
+        }
+        // Get the references.
+        PsiReference[] nameReference = nameIdentifier.getReferences();
+        if (nameReference.length == 0) {
+            return results;
+        }
+        // Iterate through all references.
+        for (PsiReference reference : nameReference) {
+            // Resolve the reference.
+            PsiElement resolvedElement = reference.resolve();
+            // Resolved element will be not null for connector variables.
+            if (resolvedElement != null) {
+                // Get the variable definition node.
+                PsiElement variableDefinitionNode = resolvedElement.getParent();
+                if (variableDefinitionNode == null) {
+                    return results;
                 }
-                // Get the ConnectorDefinitionNode parent node. This is used to get all the actions/native actions.
-                ConnectorNode connectorNode = PsiTreeUtil.getParentOfType(resolvedElement, ConnectorNode.class);
-                // Get all actions/native actions.
-                List<PsiElement> allActions = getAllActionsFromAConnector(connectorNode);
-                for (PsiElement action : allActions) {
-                    // Get the matching action/native action.
-                    if (element.getText().equals(action.getText())) {
-                        results.add(action);
+                // Get the TypeNameNode. This contains the connector type.
+                TypeNameNode typeNameNode = PsiTreeUtil.getChildOfType(variableDefinitionNode, TypeNameNode.class);
+                if (typeNameNode == null) {
+                    return results;
+                }
+                // Get the connector name.
+                NameReferenceNode typeNameReferenceNode = PsiTreeUtil.findChildOfType(variableDefinitionNode,
+                        NameReferenceNode.class);
+                if (typeNameReferenceNode == null) {
+                    return results;
+                }
+                // Get the name identifier of the connector variable.
+                PsiElement typeNameIdentifier = typeNameReferenceNode.getNameIdentifier();
+                if (typeNameIdentifier == null) {
+                    return results;
+                }
+                // Get the references.
+                PsiReference[] references = typeNameIdentifier.getReferences();
+                // Iterate through all references.
+                for (PsiReference psiReference : references) {
+                    // Resolve reference.
+                    PsiElement resolvedReference = psiReference.resolve();
+                    // If the resolvedReference is null, multi resolve the reference.
+                    if (resolvedReference == null) {
+                        // Multi resolve.
+                        ResolveResult[] resolveResults = ((NameReference) psiReference).multiResolve(false);
+                        // Iterate through each result.
+                        for (ResolveResult resolveResult : resolveResults) {
+                            // Get the element.
+                            PsiElement resolveResultElement = resolveResult.getElement();
+                            // Get the ConnectorDefinitionNode parent node. This is used to get all the
+                            // actions/native actions.
+                            PsiElement connectorNode = resolveResultElement.getParent();
+                            // Get all actions/native actions.
+                            List<PsiElement> allActions = getAllActionsFromAConnector(connectorNode);
+                            for (PsiElement action : allActions) {
+                                // Get the matching action/native action.
+                                if (element.getText().equals(action.getText())) {
+                                    results.add(action);
+                                }
+                            }
+                        }
+                    } else {
+                        // Get the ConnectorDefinitionNode parent node. This is used to get all the
+                        // actions/native actions.
+                        PsiElement connectorNode = resolvedReference.getParent();
+                        // Get all actions/native actions.
+                        List<PsiElement> allActions = getAllActionsFromAConnector(connectorNode);
+                        for (PsiElement action : allActions) {
+                            // Get the matching action/native action.
+                            if (element.getText().equals(action.getText())) {
+                                results.add(action);
+                            }
+                        }
+                    }
+                }
+            } else {
+                // Multi resolve each of the reference.
+                ResolveResult[] resolveResults = ((NameReference) reference).multiResolve(false);
+                for (ResolveResult resolveResult : resolveResults) {
+                    // Get the element. This will represent the identifier of the Connector definition.
+                    resolvedElement = resolveResult.getElement();
+                    if (resolvedElement == null) {
+                        continue;
+                    }
+                    // Get the ConnectorDefinitionNode parent node. This is used to get all the actions/native actions.
+                    ConnectorNode connectorNode = PsiTreeUtil.getParentOfType(resolvedElement, ConnectorNode.class);
+                    // Get all actions/native actions.
+                    List<PsiElement> allActions = getAllActionsFromAConnector(connectorNode);
+                    for (PsiElement action : allActions) {
+                        // Get the matching action/native action.
+                        if (element.getText().equals(action.getText())) {
+                            results.add(action);
+                        }
                     }
                 }
             }

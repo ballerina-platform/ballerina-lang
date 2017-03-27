@@ -28,7 +28,7 @@ import org.ballerinalang.plugins.idea.psi.ConstantDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
 import org.ballerinalang.plugins.idea.psi.PackageNameNode;
 import org.ballerinalang.plugins.idea.psi.ParameterNode;
-import org.ballerinalang.plugins.idea.psi.SimpleTypeNode;
+import org.ballerinalang.plugins.idea.psi.TypeNameNode;
 import org.ballerinalang.plugins.idea.psi.StructDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.VariableDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
@@ -47,44 +47,43 @@ public class StatementReference extends BallerinaElementReference {
     @Override
     public boolean isDefinitionNode(PsiElement def) {
         return def instanceof PackageNameNode || def instanceof VariableDefinitionNode || def instanceof ParameterNode
-                || def instanceof ConstantDefinitionNode || def instanceof SimpleTypeNode
+                || def instanceof ConstantDefinitionNode || def instanceof TypeNameNode
                 || def instanceof StructDefinitionNode;
     }
 
     @NotNull
     @Override
     public Object[] getVariants() {
-
         List results = new ArrayList<>();
-        String text = getElement().getText();
-
-        PsiElement prevSibling = getElement().getParent().getPrevSibling();
-        if (prevSibling != null && prevSibling.getPrevSibling() != null) {
-            text = prevSibling.getPrevSibling().getText();
-        }
-
-        if (text.endsWith(":")) {
-            List<PsiElement> allImportedPackages = BallerinaPsiImplUtil.getAllImportedPackages(getElement());
-
-            for (PsiElement importedPackage : allImportedPackages) {
-                if (text.equals(importedPackage.getText() + ":")) {
-                    PsiElement packageIdentifier = ((IdentifierDefSubtree) importedPackage).getNameIdentifier();
-
-                    ResolveResult[] resolveResults = ((PackageNameReference) packageIdentifier.getReference())
-                            .multiResolve(false);
-
-                    for (ResolveResult resolveResult : resolveResults) {
-
-                        List<PsiElement> allMatchingElementsFromPackage = BallerinaPsiImplUtil
-                                .getAllMatchingElementsFromPackage((PsiDirectory) resolveResult.getElement(),
-                                        "//functionDefinition");
-                        for (PsiElement psiElement : allMatchingElementsFromPackage) {
-                            results.add(psiElement);
-                        }
-                    }
-                }
-            }
-        }
+//        String text = getElement().getText();
+//
+//        PsiElement prevSibling = getElement().getParent().getPrevSibling();
+//        if (prevSibling != null && prevSibling.getPrevSibling() != null) {
+//            text = prevSibling.getPrevSibling().getText();
+//        }
+//
+//        if (text.endsWith(":")) {
+//            List<PsiElement> allImportedPackages = BallerinaPsiImplUtil.getAllImportedPackages(getElement());
+//
+//            for (PsiElement importedPackage : allImportedPackages) {
+//                if (text.equals(importedPackage.getText() + ":")) {
+//                    PsiElement packageIdentifier = ((IdentifierDefSubtree) importedPackage).getNameIdentifier();
+//
+//                    ResolveResult[] resolveResults = ((PackageNameReference) packageIdentifier.getReference())
+//                            .multiResolve(false);
+//
+//                    for (ResolveResult resolveResult : resolveResults) {
+//
+//                        List<PsiElement> allMatchingElementsFromPackage = BallerinaPsiImplUtil
+//                                .getAllMatchingElementsFromPackage((PsiDirectory) resolveResult.getElement(),
+//                                        "//functionDefinition");
+//                        for (PsiElement psiElement : allMatchingElementsFromPackage) {
+//                            results.add(psiElement);
+//                        }
+//                    }
+//                }
+//            }
+//        }
         return results.toArray();
     }
 

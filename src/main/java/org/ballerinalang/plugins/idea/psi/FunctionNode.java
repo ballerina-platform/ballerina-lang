@@ -49,7 +49,7 @@ public class FunctionNode extends IdentifierDefSubtree implements ScopeNode {
                     "//functionDefinition/Identifier");
         } else if (element.getParent() instanceof VariableReferenceNode) {
             return BallerinaPsiImplUtil.resolveElement(this, element, "//parameter/Identifier");
-        } else if (element.getParent() instanceof SimpleTypeNode) {
+        } else if (element.getParent() instanceof TypeNameNode) {
             return SymtabUtils.resolve(this, BallerinaLanguage.INSTANCE, element,
                     "//connectorDefinition/Identifier");
         }
@@ -77,10 +77,10 @@ public class FunctionNode extends IdentifierDefSubtree implements ScopeNode {
                     return builder.toString();
                 }
                 // Get the parameters.
-                Collection<SimpleTypeNode> parameterTypeNodes = PsiTreeUtil.findChildrenOfType(parameterListNode,
-                        SimpleTypeNode.class);
+                Collection<TypeNameNode> parameterTypeNodes = PsiTreeUtil.findChildrenOfType(parameterListNode,
+                        TypeNameNode.class);
                 builder.append(" (");
-                for (SimpleTypeNode typeNode : parameterTypeNodes) {
+                for (TypeNameNode typeNode : parameterTypeNodes) {
                     builder.append(typeNode.getText()).append(",");
                 }
                 // Remove the extra ',' at the end.
@@ -94,10 +94,10 @@ public class FunctionNode extends IdentifierDefSubtree implements ScopeNode {
                     return builder.toString();
                 }
                 // Get the return types.
-                Collection<SimpleTypeNode> returnTypeNodes = PsiTreeUtil.findChildrenOfType(parameterListNode,
-                        SimpleTypeNode.class);
+                Collection<TypeNameNode> returnTypeNodes = PsiTreeUtil.findChildrenOfType(parameterListNode,
+                        TypeNameNode.class);
                 builder.append(" (");
-                for (SimpleTypeNode typeNode : returnTypeNodes) {
+                for (TypeNameNode typeNode : returnTypeNodes) {
                     builder.append(typeNode.getText()).append(",");
                 }
                 // Remove the extra ',' at the end.

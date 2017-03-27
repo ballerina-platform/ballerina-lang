@@ -51,7 +51,7 @@ import org.ballerinalang.plugins.idea.psi.PackageDeclarationNode;
 import org.ballerinalang.plugins.idea.psi.PackageNameNode;
 import org.ballerinalang.plugins.idea.psi.ParameterNode;
 import org.ballerinalang.plugins.idea.psi.ResourceDefinitionNode;
-import org.ballerinalang.plugins.idea.psi.SimpleTypeNode;
+import org.ballerinalang.plugins.idea.psi.TypeNameNode;
 import org.ballerinalang.plugins.idea.psi.StatementNode;
 import org.ballerinalang.plugins.idea.psi.TypeMapperNode;
 import org.ballerinalang.plugins.idea.psi.VariableReferenceNode;
@@ -343,7 +343,7 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
             } else {
                 // Todo - Handle scenario
             }
-        } else if (parent instanceof SimpleTypeNode || parent instanceof NameReferenceNode) {
+        } else if (parent instanceof TypeNameNode || parent instanceof NameReferenceNode) {
             PsiElement sibling = parent.getParent().getPrevSibling();
 
             if (sibling == null) {
@@ -595,13 +595,13 @@ public class BallerinaCompletionContributor extends CompletionContributor implem
             if (nameReferenceNode == null) {
                 return;
             }
-            // Get the SimpleTypeNode.
-            SimpleTypeNode simpleTypeNode = PsiTreeUtil.getChildOfType(nameReferenceNode, SimpleTypeNode.class);
-            if (simpleTypeNode == null) {
+            // Get the TypeNameNode.
+            TypeNameNode typeNameNode = PsiTreeUtil.getChildOfType(nameReferenceNode, TypeNameNode.class);
+            if (typeNameNode == null) {
                 return;
             }
             // Get the identifier.
-            PsiElement nameIdentifier = simpleTypeNode.getNameIdentifier();
+            PsiElement nameIdentifier = typeNameNode.getNameIdentifier();
             if (nameIdentifier == null) {
                 return;
             }

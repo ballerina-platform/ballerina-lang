@@ -32,9 +32,9 @@ import org.ballerinalang.plugins.idea.psi.IdentifierPSINode;
 import org.ballerinalang.plugins.idea.psi.PackageNameNode;
 import org.ballerinalang.plugins.idea.psi.StructDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.TypeNameNode;
+import org.ballerinalang.plugins.idea.psi.VariableDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -48,7 +48,8 @@ public class NameReference extends BallerinaElementReference {
 
     @Override
     public boolean isDefinitionNode(PsiElement def) {
-        return (def instanceof FunctionNode) || (def instanceof ConnectorNode) || (def instanceof StructDefinitionNode);
+        return (def instanceof FunctionNode) || (def instanceof ConnectorNode) || (def instanceof StructDefinitionNode)
+                ||(def instanceof VariableDefinitionNode);
     }
 
     @NotNull
@@ -57,12 +58,12 @@ public class NameReference extends BallerinaElementReference {
         return new Object[0];
     }
 
-    @Nullable
-    @Override
-    public PsiElement resolve() {
-        ResolveResult[] resolveResults = multiResolve(false);
-        return resolveResults.length != 0 ? resolveResults[0].getElement() : super.resolve();
-    }
+//    @Nullable
+//    @Override
+//    public PsiElement resolve() {
+//        ResolveResult[] resolveResults = multiResolve(false);
+//        return resolveResults.length != 0 ? resolveResults[0].getElement() : super.resolve();
+//    }
 
     @NotNull
     @Override

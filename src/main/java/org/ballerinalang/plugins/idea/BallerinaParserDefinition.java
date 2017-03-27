@@ -50,7 +50,7 @@ import org.ballerinalang.plugins.idea.psi.ConnectorNode;
 import org.ballerinalang.plugins.idea.psi.ConstantDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.ExpressionListNode;
 import org.ballerinalang.plugins.idea.psi.ExpressionNode;
-import org.ballerinalang.plugins.idea.psi.FunctionBodyNode;
+import org.ballerinalang.plugins.idea.psi.CallableUnitBodyNode;
 import org.ballerinalang.plugins.idea.psi.FunctionInvocationStatementNode;
 import org.ballerinalang.plugins.idea.psi.FunctionNode;
 import org.ballerinalang.plugins.idea.psi.ImportDeclarationNode;
@@ -63,7 +63,7 @@ import org.ballerinalang.plugins.idea.psi.ParameterNode;
 import org.ballerinalang.plugins.idea.psi.ResourceDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.ReturnTypeListNode;
 import org.ballerinalang.plugins.idea.psi.ServiceBodyNode;
-import org.ballerinalang.plugins.idea.psi.SimpleTypeNode;
+import org.ballerinalang.plugins.idea.psi.TypeNameNode;
 import org.ballerinalang.plugins.idea.psi.StatementNode;
 import org.ballerinalang.plugins.idea.psi.StructDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.FieldDefinitionNode;
@@ -176,7 +176,7 @@ public class BallerinaParserDefinition implements ParserDefinition {
             case BallerinaParser.RULE_functionDefinition:
                 return new FunctionNode(node);
             case BallerinaParser.RULE_callableUnitBody:
-                return new FunctionBodyNode(node);
+                return new CallableUnitBodyNode(node);
             case BallerinaParser.RULE_nameReference:
                 return new NameReferenceNode(node);
             case BallerinaParser.RULE_variableReference:
@@ -220,7 +220,7 @@ public class BallerinaParserDefinition implements ParserDefinition {
             case BallerinaParser.RULE_statement:
                 return new StatementNode(node);
             case BallerinaParser.RULE_typeName:
-                return new SimpleTypeNode(node);
+                return new TypeNameNode(node);
 //            case BallerinaParser.RULE_qualifiedTypeName:
 //                return new QualifiedTypeNameNode(node);
             case BallerinaParser.RULE_actionInvocation:
