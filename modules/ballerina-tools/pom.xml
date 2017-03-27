@@ -94,6 +94,7 @@
                             <overWriteReleases>false</overWriteReleases>
                             <overWriteSnapshots>true</overWriteSnapshots>
                             <useSubDirectoryPerArtifact>true</useSubDirectoryPerArtifact>
+                            <stripVersion>true</stripVersion>
                         </configuration>
                     </execution>
                 </executions>
@@ -112,7 +113,7 @@
                         <configuration>
                             <outputDir>${project.build.directory}/api-docs</outputDir>
                             <sourceDir>
-                                ${project.build.directory}/extracted-distributions/ballerina-${ballerina.runtime.version}-zip/ballerina-${ballerina.runtime.version}/src
+                                ${project.build.directory}/extracted-distributions/ballerina-zip/ballerina-${ballerina.runtime.version}/src
                             </sourceDir>
                             <nativeCode>true</nativeCode>
                         </configuration>
