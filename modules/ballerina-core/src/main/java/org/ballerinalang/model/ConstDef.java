@@ -18,7 +18,6 @@
 package org.ballerinalang.model;
 
 import org.ballerinalang.model.expressions.Expression;
-import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.SimpleTypeName;
 import org.ballerinalang.model.values.BValue;
 
@@ -35,29 +34,12 @@ public class ConstDef extends VariableDef implements CompilationUnit {
                     String name,
                     SimpleTypeName typeName,
                     String pkgPath,
-                    boolean isPublic,
                     SymbolName symbolName,
                     SymbolScope symbolScope,
                     Expression rhsExpr) {
 
         super(location, name, typeName, symbolName, symbolScope);
         this.pkgPath = pkgPath;
-        this.isPublic = isPublic;
-        this.rhsExpr = rhsExpr;
-    }
-
-    public ConstDef(BType type, SymbolName symbolName, BValue value) {
-        super(null, "", null, null, null);
-        this.type = type;
-        this.symbolName = symbolName;
-        this.value = value;
-    }
-
-    public ConstDef(NodeLocation location, BType type, SymbolName symbolName, Expression rhsExpr) {
-        super(null, "", null, null, null);
-        this.location = location;
-        this.type = type;
-        this.symbolName = symbolName;
         this.rhsExpr = rhsExpr;
     }
 

@@ -33,6 +33,8 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.carbon.messaging.DefaultCarbonMessage;
 
+import javax.jms.Session;
+
 /**
  * Test cases for ballerina.net.jms native functions.
  */
@@ -46,32 +48,9 @@ public class NetJMSTest {
     }
 
     @Test
-    public void testGetMessageType() {
-        DefaultCarbonMessage cMsg = new DefaultCarbonMessage();
-        cMsg.setProperty(JMSConstants.JMS_MESSAGE_TYPE, JMSConstants.TEXT_MESSAGE_TYPE);
-        BMessage msg = new BMessage();
-        msg.setValue(cMsg);
-        Context ctx = new Context(cMsg);
-        BValue[] inputArgs = { msg };
-        BValue[] returnVals = BLangFunctions.invoke(bLangProgram, "testGetMessageType", inputArgs, ctx);
-        Assert.assertEquals(returnVals.length, 1);
-        BString sc = (BString) returnVals[0];
-        Assert.assertEquals(sc.stringValue(), JMSConstants.TEXT_MESSAGE_TYPE);
-        cMsg.setProperty(JMSConstants.JMS_MESSAGE_TYPE, JMSConstants.MAP_MESSAGE_TYPE);
-        msg = new BMessage();
-        msg.setValue(cMsg);
-        ctx = new Context(cMsg);
-        BValue[] inputArgs1 = { msg };
-        returnVals = BLangFunctions.invoke(bLangProgram, "testGetMessageType", inputArgs1, ctx);
-        Assert.assertEquals(returnVals.length, 1);
-        sc = (BString) returnVals[0];
-        Assert.assertEquals(sc.stringValue(), JMSConstants.MAP_MESSAGE_TYPE);
-    }
-
-    @Test
     public void testAcknowledge() {
         DefaultCarbonMessage cMsg = new DefaultCarbonMessage();
-        cMsg.setProperty(JMSConstants.JMS_SESSION_ACKNOWLEDGEMENT_MODE, JMSConstants.CLIENT_ACKNOWLEDGEMENT_MODE);
+        cMsg.setProperty(JMSConstants.JMS_SESSION_ACKNOWLEDGEMENT_MODE, Session.CLIENT_ACKNOWLEDGE);
         BMessage msg = new BMessage();
         msg.setValue(cMsg);
         Context ctx = new Context(cMsg);
@@ -89,7 +68,7 @@ public class NetJMSTest {
     @Test
     public void testCommit() {
         DefaultCarbonMessage cMsg = new DefaultCarbonMessage();
-        cMsg.setProperty(JMSConstants.JMS_SESSION_ACKNOWLEDGEMENT_MODE, JMSConstants.SESSION_TRANSACTED_MODE);
+        cMsg.setProperty(JMSConstants.JMS_SESSION_ACKNOWLEDGEMENT_MODE, Session.SESSION_TRANSACTED);
         BMessage msg = new BMessage();
         msg.setValue(cMsg);
         Context ctx = new Context(cMsg);
@@ -103,7 +82,7 @@ public class NetJMSTest {
     @Test
     public void testRollback() {
         DefaultCarbonMessage cMsg = new DefaultCarbonMessage();
-        cMsg.setProperty(JMSConstants.JMS_SESSION_ACKNOWLEDGEMENT_MODE, JMSConstants.SESSION_TRANSACTED_MODE);
+        cMsg.setProperty(JMSConstants.JMS_SESSION_ACKNOWLEDGEMENT_MODE, Session.SESSION_TRANSACTED);
         BMessage msg = new BMessage();
         msg.setValue(cMsg);
         Context ctx = new Context(cMsg);

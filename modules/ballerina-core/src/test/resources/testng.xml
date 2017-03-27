@@ -29,6 +29,7 @@ under the License.
             <package name="org.ballerinalang.model.statements"/>
             <package name="org.ballerinalang.model.structs"/>
             <package name="org.ballerinalang.model.connectors"/>
+            <package name="org.ballerinalang.model.annotations"/>
         </packages>
     </test>
 
@@ -61,6 +62,14 @@ under the License.
     <test name="ballerina-interpreter-test-suite" preserve-order="true" parallel="false">
         <classes>
             <class name="org.ballerinalang.core.interpreter.DebuggerTest"/>
+        </classes>
+    </test>
+
+    <test name="ballerina-any-type-test-suite">
+        <classes>
+            <class name="org.ballerinalang.model.any.BAnyTypeSuccessScenariosTest"/>
+            <class name="org.ballerinalang.model.any.BAnyTypeInvalidCastError"/>
+            <class name="org.ballerinalang.model.any.BAnyTypeToIntImplicitCastError"/>
         </classes>
     </test>
 </suite>

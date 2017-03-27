@@ -18,7 +18,7 @@ package org.ballerinalang.natives.connectors;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.Action;
-import org.ballerinalang.model.Annotation;
+import org.ballerinalang.model.AnnotationAttachment;
 import org.ballerinalang.model.NativeUnit;
 import org.ballerinalang.model.NodeLocation;
 import org.ballerinalang.model.NodeVisitor;
@@ -48,7 +48,7 @@ public abstract class AbstractNativeAction implements NativeUnit, Action {
     protected boolean isPublic = true;
     protected SymbolName symbolName;
 
-    private List<Annotation> annotations;
+    private List<AnnotationAttachment> annotations;
     private List<ParameterDef> parameterDefs;
     private List<ParameterDef> returnParams;
     private int stackFrameSize;
@@ -124,8 +124,8 @@ public abstract class AbstractNativeAction implements NativeUnit, Action {
      * @return list of Annotations
      */
     @Override
-    public Annotation[] getAnnotations() {
-        return annotations.toArray(new Annotation[annotations.size()]);
+    public AnnotationAttachment[] getAnnotations() {
+        return annotations.toArray(new AnnotationAttachment[annotations.size()]);
     }
 
     /**

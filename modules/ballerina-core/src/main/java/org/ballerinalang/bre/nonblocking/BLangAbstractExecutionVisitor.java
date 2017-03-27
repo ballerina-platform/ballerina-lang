@@ -32,7 +32,9 @@ import org.ballerinalang.bre.StructVarLocation;
 import org.ballerinalang.bre.WorkerRunner;
 import org.ballerinalang.bre.WorkerVarLocation;
 import org.ballerinalang.model.Action;
-import org.ballerinalang.model.Annotation;
+import org.ballerinalang.model.AnnotationAttachment;
+import org.ballerinalang.model.AnnotationAttributeDef;
+import org.ballerinalang.model.AnnotationDef;
 import org.ballerinalang.model.BLangPackage;
 import org.ballerinalang.model.BLangProgram;
 import org.ballerinalang.model.BTypeMapper;
@@ -1155,7 +1157,7 @@ public abstract class BLangAbstractExecutionVisitor implements BLangExecutionVis
         }
         // Check for native type casting
         if (typeCastExpression.getEvalFunc() != null) {
-            BValueType result = (BValueType) getTempValue(typeCastExpression.getRExpr());
+            BValue result = (BValue) getTempValue(typeCastExpression.getRExpr());
             setTempValue(typeCastExpression.getTempOffset(), typeCastExpression.getEvalFunc().apply(result));
         } else {
             TypeMapper typeMapper = typeCastExpression.getCallableUnit();
@@ -1404,7 +1406,15 @@ public abstract class BLangAbstractExecutionVisitor implements BLangExecutionVis
     }
 
     @Override
-    public void visit(Annotation annotation) {
+    public void visit(AnnotationAttachment annotation) {
+    }
+
+    @Override
+    public void visit(AnnotationAttributeDef annotationAttributeDef) {
+    }
+
+    @Override
+    public void visit(AnnotationDef annotationDef) {
     }
 
     @Override

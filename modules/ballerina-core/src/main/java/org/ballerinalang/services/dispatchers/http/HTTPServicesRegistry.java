@@ -19,9 +19,8 @@
 
 package org.ballerinalang.services.dispatchers.http;
 
-import org.ballerinalang.model.Annotation;
+import org.ballerinalang.model.AnnotationAttachment;
 import org.ballerinalang.model.Service;
-import org.ballerinalang.model.SymbolName;
 import org.ballerinalang.natives.connectors.BallerinaConnectorManager;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
@@ -83,15 +82,15 @@ public class HTTPServicesRegistry {
         }
         String listenerInterface = Constants.DEFAULT_INTERFACE;
         String basePath = service.getSymbolName().getName();
-        for (Annotation annotation : service.getAnnotations()) {
+        for (AnnotationAttachment annotation : service.getAnnotations()) {
             if (annotation.getName().equals(Constants.ANNOTATION_NAME_SOURCE)) {
                 String sourceInterfaceVal = annotation
-                        .getValueOfElementPair(new SymbolName(Constants.ANNOTATION_SOURCE_KEY_INTERFACE));
+                        .getAttribute(Constants.ANNOTATION_SOURCE_KEY_INTERFACE).toString();
                 if (sourceInterfaceVal != null) {   //TODO: Filter non-http protocols
                     listenerInterface = sourceInterfaceVal;
                 }
-            } else if (annotation.getName().equals(
-                    Constants.PROTOCOL_HTTP + ":" + Constants.ANNOTATION_NAME_BASE_PATH)) {
+            } else if (annotation.getPkgName().equals(Constants.PROTOCOL_HTTP) &&
+                       annotation.getName().equals(Constants.ANNOTATION_NAME_BASE_PATH)) {
                 basePath = annotation.getValue();
             }
         }
@@ -137,19 +136,18 @@ public class HTTPServicesRegistry {
         // String basePath = Constants.DEFAULT_BASE_PATH;
         String basePath = service.getSymbolName().getName();
 
-        for (Annotation annotation : service.getAnnotations()) {
+        for (AnnotationAttachment annotation : service.getAnnotations()) {
             if (annotation.getName().equals(Constants.ANNOTATION_NAME_SOURCE)) {
                 String sourceInterfaceVal = annotation
-                        .getValueOfElementPair(new SymbolName(Constants.ANNOTATION_SOURCE_KEY_INTERFACE));
+                        .getAttribute(Constants.ANNOTATION_SOURCE_KEY_INTERFACE).toString();
                 if (sourceInterfaceVal != null) {   //TODO: Filter non-http protocols
                     listenerInterface = sourceInterfaceVal;
                 }
-            } else if (annotation.getName().equals(
-                    Constants.PROTOCOL_HTTP + ":" + Constants.ANNOTATION_NAME_BASE_PATH)) {
+            } else if (annotation.getPkgName().equals(Constants.PROTOCOL_HTTP) &&
+                       annotation.getName().equals(Constants.ANNOTATION_NAME_BASE_PATH)) {
                 basePath = annotation.getValue();
             }
         }
-
 
         if (!basePath.startsWith(Constants.DEFAULT_BASE_PATH)) {
             basePath = Constants.DEFAULT_BASE_PATH.concat(basePath);
@@ -182,15 +180,15 @@ public class HTTPServicesRegistry {
     public boolean serviceExists(Service service) {
         String listenerInterface = Constants.DEFAULT_INTERFACE;
         String basePath = service.getSymbolName().getName();
-        for (Annotation annotation : service.getAnnotations()) {
+        for (AnnotationAttachment annotation : service.getAnnotations()) {
             if (annotation.getName().equals(Constants.ANNOTATION_NAME_SOURCE)) {
                 String sourceInterfaceVal = annotation
-                        .getValueOfElementPair(new SymbolName(Constants.ANNOTATION_SOURCE_KEY_INTERFACE));
+                        .getAttribute(Constants.ANNOTATION_SOURCE_KEY_INTERFACE).toString();
                 if (sourceInterfaceVal != null) {   //TODO: Filter non-http protocols
                     listenerInterface = sourceInterfaceVal;
                 }
-            } else if (annotation.getName().equals(
-                    Constants.PROTOCOL_HTTP + ":" + Constants.ANNOTATION_NAME_BASE_PATH)) {
+            } else if (annotation.getPkgName().equals(Constants.PROTOCOL_HTTP) &&
+                       annotation.getName().equals(Constants.ANNOTATION_NAME_BASE_PATH)) {
                 basePath = annotation.getValue();
             }
         }

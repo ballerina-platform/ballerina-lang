@@ -53,7 +53,7 @@ public class BallerinaFunction implements Function, SymbolScope, CompilationUnit
     protected SymbolName symbolName;
     protected boolean isNative;
 
-    private Annotation[] annotations;
+    private AnnotationAttachment[] annotations;
     private ParameterDef[] parameterDefs;
     private BType[] parameterTypes;
     private Worker[] workers;
@@ -124,7 +124,7 @@ public class BallerinaFunction implements Function, SymbolScope, CompilationUnit
      * @return list of Annotations
      */
     @Override
-    public Annotation[] getAnnotations() {
+    public AnnotationAttachment[] getAnnotations() {
         return this.annotations;
     }
 
@@ -277,7 +277,7 @@ public class BallerinaFunction implements Function, SymbolScope, CompilationUnit
             bFunc.pkgPath = this.pkgPath;
             bFunc.symbolName = new SymbolName(name, pkgPath);
 
-            bFunc.annotations = this.annotationList.toArray(new Annotation[this.annotationList.size()]);
+            bFunc.annotations = this.annotationList.toArray(new AnnotationAttachment[this.annotationList.size()]);
             bFunc.parameterDefs = this.parameterDefList.toArray(new ParameterDef[this.parameterDefList.size()]);
             bFunc.returnParameters = this.returnParamList.toArray(new ParameterDef[this.returnParamList.size()]);
             bFunc.workers = this.workerList.toArray(new Worker[this.workerList.size()]);

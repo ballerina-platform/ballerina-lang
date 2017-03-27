@@ -28,6 +28,8 @@ import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
+import org.ballerinalang.natives.annotations.Attribute;
+import org.ballerinalang.natives.annotations.BallerinaAnnotation;
 import org.ballerinalang.natives.annotations.BallerinaConnector;
 import org.ballerinalang.natives.connectors.AbstractNativeConnector;
 import org.ballerinalang.util.exceptions.BallerinaException;
@@ -51,6 +53,9 @@ import java.util.Set;
         name = "ballerina.data.connectors.sql",
         immediate = true,
         service = AbstractNativeConnector.class)
+
+@BallerinaAnnotation(annotationName = "Description",
+                     attributes = {@Attribute(name = "value", value = "Native Client Client Connector")})
 public class SQLConnector extends AbstractNativeConnector {
 
     static final String CONNECTOR_PACKAGE = "ballerina.data.sql";
@@ -98,7 +103,6 @@ public class SQLConnector extends AbstractNativeConnector {
         hikariDataSource.close();
     }
 
-    @SuppressWarnings("unchecked")
     private void buildDataSource(BMap options) {
         try {
             HikariConfig config = new HikariConfig();
@@ -246,8 +250,7 @@ public class SQLConnector extends AbstractNativeConnector {
         }
     }
 
-    @SuppressWarnings("unchecked")
-    void setDataSourceProperties(BMap options, HikariConfig config) {
+    private void setDataSourceProperties(BMap options, HikariConfig config) {
         Set<BString> keySet = options.keySet();
         for (BString key : keySet) {
             String keyName = key.stringValue();

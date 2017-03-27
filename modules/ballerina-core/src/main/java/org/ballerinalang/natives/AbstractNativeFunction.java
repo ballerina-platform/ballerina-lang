@@ -19,7 +19,7 @@
 package org.ballerinalang.natives;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.model.Annotation;
+import org.ballerinalang.model.AnnotationAttachment;
 import org.ballerinalang.model.Function;
 import org.ballerinalang.model.NativeUnit;
 import org.ballerinalang.model.NodeLocation;
@@ -57,7 +57,7 @@ public abstract class AbstractNativeFunction implements NativeUnit, Function {
     protected boolean isPublic = true;
     protected SymbolName symbolName;
 
-    private List<Annotation> annotations;
+    private List<AnnotationAttachment> annotations;
     private List<ParameterDef> parameterDefs;
     private List<ParameterDef> returnParams;
     private int stackFrameSize;
@@ -151,8 +151,8 @@ public abstract class AbstractNativeFunction implements NativeUnit, Function {
      * @return list of Annotations
      */
     @Override
-    public Annotation[] getAnnotations() {
-        return annotations.toArray(new Annotation[annotations.size()]);
+    public AnnotationAttachment[] getAnnotations() {
+        return annotations.toArray(new AnnotationAttachment[annotations.size()]);
     }
 
     /**

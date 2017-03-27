@@ -55,7 +55,7 @@ public class Resource implements Node, SymbolScope, CallableUnit {
 
     // TODO Refactor
     private int stackFrameSize;
-    private Annotation[] annotations;
+    private AnnotationAttachment[] annotations;
     private ParameterDef[] parameterDefs;
     private BType[] parameterTypes;
     private Worker[] workers;
@@ -79,12 +79,10 @@ public class Resource implements Node, SymbolScope, CallableUnit {
      * @param name name of the annotation
      * @return Annotation
      */
-    public Annotation getAnnotation(String packageName, String name) {
+    public AnnotationAttachment getAnnotation(String packageName, String name) {
         /* ToDo : Annotations should be a map. */
-
-        String annotationFqn = packageName.concat(":").concat(name);
-        for (Annotation annotation : annotations) {
-            if (annotation.getName().equals(annotationFqn)) {
+        for (AnnotationAttachment annotation : annotations) {
+            if (annotation.getPkgName().equals(packageName) && annotation.getName().equals(name)) {
                 return annotation;
             }
         }
@@ -96,7 +94,7 @@ public class Resource implements Node, SymbolScope, CallableUnit {
      *
      * @return list of Annotations
      */
-    public Annotation[] getResourceAnnotations() {
+    public AnnotationAttachment[] getResourceAnnotations() {
         return annotations;
     }
 
@@ -148,7 +146,7 @@ public class Resource implements Node, SymbolScope, CallableUnit {
      * @return list of Annotations
      */
     @Override
-    public Annotation[] getAnnotations() {
+    public AnnotationAttachment[] getAnnotations() {
         return this.annotations;
     }
 
@@ -293,7 +291,7 @@ public class Resource implements Node, SymbolScope, CallableUnit {
             resource.pkgPath = this.pkgPath;
             resource.symbolName = new SymbolName(name, pkgPath);
 
-            resource.annotations = this.annotationList.toArray(new Annotation[this.annotationList.size()]);
+            resource.annotations = this.annotationList.toArray(new AnnotationAttachment[this.annotationList.size()]);
             resource.parameterDefs = this.parameterDefList.toArray(new ParameterDef[this.parameterDefList.size()]);
             resource.workers = this.workerList.toArray(new Worker[this.workerList.size()]);
             resource.resourceBody = this.body;

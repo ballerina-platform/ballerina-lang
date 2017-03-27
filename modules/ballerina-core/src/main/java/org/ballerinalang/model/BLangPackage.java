@@ -48,6 +48,7 @@ public class BLangPackage implements SymbolScope, BLangSymbol, Node {
     protected StructDef[] structDefs;
     protected Function mainFunction;
     protected TypeMapper[] typeMappers;
+    protected AnnotationDef[] annotationDefs;
 
     protected List<BLangPackage> dependentPkgs = new ArrayList<>();
 
@@ -162,6 +163,10 @@ public class BLangPackage implements SymbolScope, BLangSymbol, Node {
         return typeMappers;
     }
 
+    public AnnotationDef[] getAnnotationDefs() {
+        return annotationDefs;
+    }
+    
     // Methods in the SymbolScope interface
 
     @Override
@@ -269,7 +274,8 @@ public class BLangPackage implements SymbolScope, BLangSymbol, Node {
         private List<StructDef> structDefList = new ArrayList<>();
         private TypeLattice typeLattice = new TypeLattice();
         private List<TypeMapper> typeMapperList = new ArrayList<>();
-
+        private List<AnnotationDef> annotationDefList = new ArrayList<>();
+        
         private List<BallerinaFile> ballerinaFileList = new ArrayList<>();
 
         public PackageBuilder(BLangPackage bLangPackage) {
@@ -318,6 +324,11 @@ public class BLangPackage implements SymbolScope, BLangSymbol, Node {
             this.structDefList.add(structDef);
         }
 
+        public void addAnnotationDef(AnnotationDef annotationDef) {
+            this.compilationUnitList.add(annotationDef);
+            this.annotationDefList.add(annotationDef);
+        }
+        
         public void addBallerinaFile(BallerinaFile bFile) {
             this.ballerinaFileList.add(bFile);
         }
@@ -337,6 +348,7 @@ public class BLangPackage implements SymbolScope, BLangSymbol, Node {
             bLangPackage.typeLattice = this.typeLattice;
             bLangPackage.ballerinaFiles = ballerinaFileList.toArray(new BallerinaFile[0]);
             bLangPackage.typeMappers = this.typeMapperList.toArray(new TypeMapper[0]);
+            bLangPackage.annotationDefs = this.annotationDefList.toArray(new AnnotationDef[0]);
             return bLangPackage;
         }
     }

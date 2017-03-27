@@ -5,8 +5,8 @@ import ballerina.connectors.salesforce as sf;
 
 service HelloService {
 
-  @POST
-  @Path ("/tweet")
+  @POST {}
+  @Path {value:"/tweet"}
   resource tweet (message m) {
       int a;
       a = 10;

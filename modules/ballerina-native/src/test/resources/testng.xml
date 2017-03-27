@@ -56,4 +56,10 @@ under the License.
             <package name="org.ballerinalang.service"/>
         </packages>
     </test>
+
+    <test name="ballerina-any-type-test-suite">
+        <classes>
+            <class name="org.ballerinalang.any.BAnyTypeNativeSuccessScenariosTest"/>
+        </classes>
+    </test>
 </suite>

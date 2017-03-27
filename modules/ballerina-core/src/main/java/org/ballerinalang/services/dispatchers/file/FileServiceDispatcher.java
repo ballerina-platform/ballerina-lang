@@ -19,7 +19,8 @@
 package org.ballerinalang.services.dispatchers.file;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.model.Annotation;
+import org.ballerinalang.model.AnnotationAttachment;
+import org.ballerinalang.model.AnnotationAttributeValue;
 import org.ballerinalang.model.Service;
 import org.ballerinalang.model.SymbolName;
 import org.ballerinalang.natives.connectors.BallerinaConnectorManager;
@@ -32,6 +33,7 @@ import org.wso2.carbon.messaging.exceptions.ServerConnectorException;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 /**
@@ -63,9 +65,9 @@ public class FileServiceDispatcher implements ServiceDispatcher {
 
     @Override
     public void serviceRegistered(Service service) {
-        for (Annotation annotation : service.getAnnotations()) {
+        for (AnnotationAttachment annotation : service.getAnnotations()) {
             if (annotation.getName().equals(Constants.ANNOTATION_NAME_SOURCE)) {
-                Map elementsMap = annotation.getElementPairs();
+                Map<String, AnnotationAttributeValue> elementsMap = annotation.getAttributeNameValuePairs();
 
                 Object protocolObj = elementsMap.get(new SymbolName(Constants.ANNOTATION_PROTOCOL));
                 if (protocolObj == null) {
@@ -112,11 +114,11 @@ public class FileServiceDispatcher implements ServiceDispatcher {
         }
     }
 
-    private static Map<String, String> getServerConnectorParamMap(Map map) {
+    private static Map<String, String> getServerConnectorParamMap(Map<String, AnnotationAttributeValue> map) {
         Map<String, String> convertedMap = new HashMap<>();
-        Set<Map.Entry> entrySet = map.entrySet();
-        for (Map.Entry entry : entrySet) {
-            convertedMap.put(((SymbolName) entry.getKey()).getName(), (String) entry.getValue());
+        Set<Entry<String, AnnotationAttributeValue>> entrySet = map.entrySet();
+        for (Map.Entry<String, AnnotationAttributeValue> entry : entrySet) {
+            convertedMap.put(entry.getKey(), entry.getValue().toString());
         }
         return convertedMap;
     }
