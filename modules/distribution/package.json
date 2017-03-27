@@ -1,17 +1,18 @@
 {
-  "name": "composer-distribution",
+  "name": "ballerina-composer",
   "version": "1.0.0",
-  "description": "An electron based standalone distribution for ballerina lang composer",
+  "description": "A Electron based standalone distribution of Ballerina Composer",
   "main": "index.js",
   "scripts": {
     "postinstall": "install-app-deps",
     "pack": "build --dir",
     "dist": "build",
     "dist-all": "build --mac --win --linux",
+    "pre-build": "node pre-build.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "build": {
-    "appId": "org.ballerinalang.composer.standalone",
+    "appId": "org.ballerinalang.composer",
     "asar": false,
     "mac": {
       "category": "public.app-category.productivity",
@@ -33,7 +34,7 @@
     "url": "git+https://github.com/ballerinalang/composer.git"
   },
   "keywords": [
-    "BallerinaLang",
+    "Ballerina", "BallerinaLang",
     "Composer"
   ],
   "author": {
@@ -48,6 +49,7 @@
   "homepage": "https://github.com/ballerinalang/composer#readme",
   "devDependencies": {
     "electron": "^1.6.2",
-    "electron-builder": "^16.4.2"
+    "electron-builder": "^16.4.2",
+    "unzip2": "^0.2.5"
   }
 }
