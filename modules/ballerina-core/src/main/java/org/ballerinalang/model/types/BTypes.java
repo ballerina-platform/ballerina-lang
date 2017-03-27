@@ -51,6 +51,7 @@ public class BTypes {
     public static BType typeDatatable;
     public static BType typeAny;
     public static BType typeConnector;
+    public static BType typeUnknown;
 
     private static boolean initialized = false;
     private static Set<String> builtInTypeNames = new HashSet<>();
@@ -112,6 +113,7 @@ public class BTypes {
         typeDatatable = new BDataTableType(TypeConstants.DATATABLE_TNAME, null, globalScope);
         typeAny = new BAnyType(TypeConstants.ANY_TNAME, null, globalScope);
         typeConnector = new BConnectorType(TypeConstants.CONNECTOR_TNAME, null, globalScope);
+        typeUnknown = new BUnknownType(TypeConstants.UNKNOWN_TNAME, globalScope);
         initialized = true;
     }
 
@@ -135,7 +137,7 @@ public class BTypes {
 
         // Now check whether this is an arrays type
         if (typeName.isArrayType()) {
-            BLangSymbol bTypeSymbol = symbolScope.resolve(new SymbolName(typeName.getName(), 
+            BLangSymbol bTypeSymbol = symbolScope.resolve(new SymbolName(typeName.getName(),
                     typeName.getPackagePath()));
             if (bTypeSymbol instanceof BType) {
                 bType = (BType) bTypeSymbol;
