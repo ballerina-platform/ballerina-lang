@@ -147,7 +147,7 @@ public class BTypes {
         if (bType != null) {
             SimpleTypeName childSimpleType = new SimpleTypeName(typeName.getName(), typeName.getPackagePath(), true);
             childSimpleType.setPkgPath(typeName.getPackagePath());
-            childSimpleType.setDimensions(typeName.getDimensions() - 1);
+            childSimpleType.setArrayType(typeName.getDimensions() - 1);
 
             BArrayType bArrayType = new BArrayType(typeName.getSymbolName().getName(),
                     BTypes.resolveType(childSimpleType, symbolScope, location),
