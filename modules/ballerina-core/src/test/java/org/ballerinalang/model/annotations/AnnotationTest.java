@@ -117,7 +117,8 @@ public class AnnotationTest {
     @Test(description = "Test self annotating and annotation")
     public void testSelfAnnotating() {
         BLangProgram bLangProgram = BTestUtils.parseBalFile("lang/annotations/doc/");
-        AnnotationAttachment[] annottations = bLangProgram.getLibraryPackages()[0].getAnnotationDefs()[0].getAnnotations();
+        AnnotationAttachment[] annottations = bLangProgram.getLibraryPackages()[0].getAnnotationDefs()[0]
+                .getAnnotations();
         
         String attributeValue = annottations[0].getAttribute("value").getLiteralValue().stringValue();
         Assert.assertEquals(attributeValue, "Self annotating an annotation");
