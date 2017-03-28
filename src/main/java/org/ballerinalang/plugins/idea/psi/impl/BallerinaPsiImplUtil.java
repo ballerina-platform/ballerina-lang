@@ -672,7 +672,7 @@ public class BallerinaPsiImplUtil {
             // Resolve the reference.
             PsiElement resolvedElement = reference.resolve();
             // Resolved element will be not null for connector variables.
-            if (resolvedElement != null) {
+            if (resolvedElement != null && !(resolvedElement.getParent() instanceof ConnectorNode)) {
                 // Get the variable definition node.
                 PsiElement variableDefinitionNode = resolvedElement.getParent();
                 if (variableDefinitionNode == null) {
@@ -708,6 +708,9 @@ public class BallerinaPsiImplUtil {
                         for (ResolveResult resolveResult : resolveResults) {
                             // Get the element.
                             PsiElement resolveResultElement = resolveResult.getElement();
+                            if (resolveResultElement == null) {
+                                continue;
+                            }
                             // Get the ConnectorDefinitionNode parent node. This is used to get all the
                             // actions/native actions.
                             PsiElement connectorNode = resolveResultElement.getParent();
@@ -735,22 +738,39 @@ public class BallerinaPsiImplUtil {
                     }
                 }
             } else {
-                // Multi resolve each of the reference.
-                ResolveResult[] resolveResults = ((NameReference) reference).multiResolve(false);
-                for (ResolveResult resolveResult : resolveResults) {
-                    // Get the element. This will represent the identifier of the Connector definition.
-                    resolvedElement = resolveResult.getElement();
-                    if (resolvedElement == null) {
-                        continue;
-                    }
-                    // Get the ConnectorDefinitionNode parent node. This is used to get all the actions/native actions.
-                    ConnectorNode connectorNode = PsiTreeUtil.getParentOfType(resolvedElement, ConnectorNode.class);
+                // Try to resolve the reference. This is used to resolve actions in the same package.
+                PsiElement resolved = reference.resolve();
+                if (resolved != null) {
+                    // Get the ConnectorDefinitionNode parent node. This is used to get all the actions/native
+                    // actions.
+                    ConnectorNode connectorNode = PsiTreeUtil.getParentOfType(resolved, ConnectorNode.class);
                     // Get all actions/native actions.
                     List<PsiElement> allActions = getAllActionsFromAConnector(connectorNode);
                     for (PsiElement action : allActions) {
                         // Get the matching action/native action.
                         if (element.getText().equals(action.getText())) {
                             results.add(action);
+                        }
+                    }
+                } else {
+                    // Multi resolve each of the reference.
+                    ResolveResult[] resolveResults = ((NameReference) reference).multiResolve(false);
+                    for (ResolveResult resolveResult : resolveResults) {
+                        // Get the element. This will represent the identifier of the Connector definition.
+                        resolvedElement = resolveResult.getElement();
+                        if (resolvedElement == null) {
+                            continue;
+                        }
+                        // Get the ConnectorDefinitionNode parent node. This is used to get all the actions/native
+                        // actions.
+                        ConnectorNode connectorNode = PsiTreeUtil.getParentOfType(resolvedElement, ConnectorNode.class);
+                        // Get all actions/native actions.
+                        List<PsiElement> allActions = getAllActionsFromAConnector(connectorNode);
+                        for (PsiElement action : allActions) {
+                            // Get the matching action/native action.
+                            if (element.getText().equals(action.getText())) {
+                                results.add(action);
+                            }
                         }
                     }
                 }

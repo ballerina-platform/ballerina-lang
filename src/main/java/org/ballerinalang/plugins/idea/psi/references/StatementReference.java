@@ -54,37 +54,7 @@ public class StatementReference extends BallerinaElementReference {
     @NotNull
     @Override
     public Object[] getVariants() {
-        List results = new ArrayList<>();
-//        String text = getElement().getText();
-//
-//        PsiElement prevSibling = getElement().getParent().getPrevSibling();
-//        if (prevSibling != null && prevSibling.getPrevSibling() != null) {
-//            text = prevSibling.getPrevSibling().getText();
-//        }
-//
-//        if (text.endsWith(":")) {
-//            List<PsiElement> allImportedPackages = BallerinaPsiImplUtil.getAllImportedPackages(getElement());
-//
-//            for (PsiElement importedPackage : allImportedPackages) {
-//                if (text.equals(importedPackage.getText() + ":")) {
-//                    PsiElement packageIdentifier = ((IdentifierDefSubtree) importedPackage).getNameIdentifier();
-//
-//                    ResolveResult[] resolveResults = ((PackageNameReference) packageIdentifier.getReference())
-//                            .multiResolve(false);
-//
-//                    for (ResolveResult resolveResult : resolveResults) {
-//
-//                        List<PsiElement> allMatchingElementsFromPackage = BallerinaPsiImplUtil
-//                                .getAllMatchingElementsFromPackage((PsiDirectory) resolveResult.getElement(),
-//                                        "//functionDefinition");
-//                        for (PsiElement psiElement : allMatchingElementsFromPackage) {
-//                            results.add(psiElement);
-//                        }
-//                    }
-//                }
-//            }
-//        }
-        return results.toArray();
+        return new Object[0];
     }
 
     @Nullable
@@ -109,8 +79,13 @@ public class StatementReference extends BallerinaElementReference {
                 for (PsiElement importedPackage : allImportedPackages) {
                     if (text.equals(importedPackage.getText() + ":")) {
                         PsiElement packageIdentifier = ((IdentifierDefSubtree) importedPackage).getNameIdentifier();
-
+                        if (packageIdentifier == null) {
+                            continue;
+                        }
                         PsiReference packageReference = packageIdentifier.getReference();
+                        if (packageReference == null) {
+                            continue;
+                        }
                         PsiElement resolved = packageReference.resolve();
 
                         List<PsiElement> allFunctions =
@@ -158,11 +133,9 @@ public class StatementReference extends BallerinaElementReference {
                 }
                 temp = temp.getParent();
             }
-
             if (!inScope) {
                 return false;
             }
-
             return refName != null && defName != null && refName.equals(defName);
         }
         return false;

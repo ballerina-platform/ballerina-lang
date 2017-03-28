@@ -23,8 +23,8 @@ import org.ballerinalang.plugins.idea.psi.VariableDefinitionNode;
 import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class ActionInvocationReference extends BallerinaElementReference {
 
@@ -46,12 +46,10 @@ public class ActionInvocationReference extends BallerinaElementReference {
     @NotNull
     @Override
     public ResolveResult[] multiResolve(boolean incompleteCode) {
-        //Todo: Use java8
         List<PsiElement> actions = BallerinaPsiImplUtil.resolveAction(getElement());
-        List<ResolveResult> results = new ArrayList<>();
-        for (PsiElement action : actions) {
-            results.add(new PsiElementResolveResult(action));
-        }
+        List<ResolveResult> results = actions.stream()
+                .map(PsiElementResolveResult::new)
+                .collect(Collectors.toList());
         return results.toArray(new ResolveResult[results.size()]);
     }
 
