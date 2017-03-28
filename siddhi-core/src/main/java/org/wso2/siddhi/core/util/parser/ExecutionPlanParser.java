@@ -212,6 +212,8 @@ public class ExecutionPlanParser {
                             executionPlanRuntimeBuilder.getEventSinkMap(),
                             executionPlanRuntimeBuilder.getLockSynchronizer());
                     executionPlanRuntimeBuilder.addQuery(queryRuntime);
+                }else if (executionElement instanceof AggregationDefinition){
+                    // TODO: 3/24/17 add aggregator
                 } else {
                     PartitionRuntime partitionRuntime = PartitionParser.parse(executionPlanRuntimeBuilder,
                             (Partition) executionElement, executionPlanContext,

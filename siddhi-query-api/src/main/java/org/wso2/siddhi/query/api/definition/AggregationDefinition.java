@@ -41,7 +41,7 @@ public class AggregationDefinition extends AbstractDefinition {
         return this;
     }
 
-    public Selector getSelector(){
+    public Selector getSelector() {
         return this.selector;
     }
 
@@ -54,12 +54,16 @@ public class AggregationDefinition extends AbstractDefinition {
         return this;
     }
 
+    public Variable getAggregateAttribute() {
+        return this.aggregateAttribute;
+    }
+
     public AggregationDefinition every(TimePeriod timePeriod) {
         this.timePeriod = timePeriod;
         return this;
     }
 
-    public TimePeriod getTimePeriod(){
+    public TimePeriod getTimePeriod() {
         return this.timePeriod;
     }
 
@@ -68,7 +72,7 @@ public class AggregationDefinition extends AbstractDefinition {
         return this;
     }
 
-    public InputStream getInputStream(){
+    public InputStream getInputStream() {
         return this.inputStream;
     }
 
@@ -77,7 +81,7 @@ public class AggregationDefinition extends AbstractDefinition {
         return this;
     }
 
-    public Annotation getAnnotation(){
+    public Annotation getAnnotation() {
         return this.annotation;
     }
 

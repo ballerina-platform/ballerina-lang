@@ -13,7 +13,7 @@ public class InMemoryIncrementalStore implements IncrementalStore {
     public InMemoryIncrementalStore(List<FunctionExecutor> baseFunctionExecutors) {
         incrementalStore = new ConcurrentHashMap<>();
         for(FunctionExecutor executor : baseFunctionExecutors){
-            incrementalStore.putIfAbsent(executor)
+           // incrementalStore.putIfAbsent(executor);
         }
     }
 

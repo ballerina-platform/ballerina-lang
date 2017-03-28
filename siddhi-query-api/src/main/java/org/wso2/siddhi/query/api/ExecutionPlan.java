@@ -85,10 +85,11 @@ public class ExecutionPlan {
             throw new ExecutionPlanValidationException("Aggregation Definition should not be null");
         }
         if (aggregationDefinition.getId() == null) {
-            throw new ExecutionPlanValidationException("Stream Id should not be null for Aggregation Definition");
+            throw new ExecutionPlanValidationException("Aggregation Id should not be null for Aggregation Definition");
         }
         checkDuplicateDefinition(aggregationDefinition);
         this.aggregationDefinitionMap.put(aggregationDefinition.getId(), aggregationDefinition);
+
         return this;
     }
 
