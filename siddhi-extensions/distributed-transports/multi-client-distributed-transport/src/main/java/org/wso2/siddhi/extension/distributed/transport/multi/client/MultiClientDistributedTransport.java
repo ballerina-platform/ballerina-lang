@@ -105,6 +105,7 @@ public class MultiClientDistributedTransport extends DistributedTransport {
         StringBuilder errorMessages = null;
         int errorCount = 0;
 
+
         for (int i=0; i < transports.size(); i++){
             try {
                 if (!transports.get(i).isConnected()) {

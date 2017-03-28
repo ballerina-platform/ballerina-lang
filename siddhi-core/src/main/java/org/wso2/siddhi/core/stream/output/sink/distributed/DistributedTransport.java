@@ -18,6 +18,7 @@
 
 package org.wso2.siddhi.core.stream.output.sink.distributed;
 
+import org.apache.log4j.Logger;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.exception.ConnectionUnavailableException;
 import org.wso2.siddhi.core.stream.output.sink.OutputTransport;
@@ -32,7 +33,7 @@ import java.util.List;
  * This is the base class for Distributed transports. All distributed transport types must inherit from this class
  */
 public abstract class DistributedTransport extends OutputTransport {
-
+    private static final Logger log = Logger.getLogger(DistributedTransport.class);
     private OptionHolder sinkOptionHolder;
     protected PublishingStrategy publishingStrategy;
     protected StreamDefinition streamDefinition;
@@ -54,14 +55,27 @@ public abstract class DistributedTransport extends OutputTransport {
 
     @Override
     public void publish(Object payload, DynamicOptions transportOptions) throws ConnectionUnavailableException {
+        int errorCount = 0;
+        StringBuilder errorMessages = null;
         List<Integer> destinationsToPublish = publishingStrategy.getDestinationsToPublish(payload, transportOptions);
-        destinationsToPublish.forEach(destinationId -> {
+        for  (Integer destinationId : destinationsToPublish){
             try {
                 publish(payload, transportOptions, destinationId);
             } catch (ConnectionUnavailableException e) {
-                e.printStackTrace();
+                errorCount++;
+                if (errorMessages == null){
+                    errorMessages = new StringBuilder();
+                }
+                errorMessages.append("[Destination ").append(destinationId).append("]:").append(e.getMessage());
+                log.warn("Failed to publish destination ID " + destinationId);
             }
-        });
+        }
+
+        // Throwing an exception to notify that connection to some destinations have failed
+        if (errorCount > 0){
+            throw new ConnectionUnavailableException(errorCount + "/" + destinationsToPublish.size() + " connections failed " +
+                    "while trying to publish with following error messages:" + errorMessages.toString());
+        }
     }
 
     public void initDistributedTransport(List<OptionHolder> destinationOptionHolders,
