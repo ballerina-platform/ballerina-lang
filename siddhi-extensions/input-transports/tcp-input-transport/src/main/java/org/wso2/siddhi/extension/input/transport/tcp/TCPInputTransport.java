@@ -37,7 +37,6 @@ import java.util.Map;
 )
 public class TCPInputTransport extends InputTransport {
     static String CONTEXT = "context";
-    static String QUEUE_SIZE = "queueSize";
 
     private SourceEventListener sourceEventListener;
     private String context;

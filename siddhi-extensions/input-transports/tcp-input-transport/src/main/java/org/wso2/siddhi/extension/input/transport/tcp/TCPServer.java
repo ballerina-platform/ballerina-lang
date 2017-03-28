@@ -58,4 +58,8 @@ public class TCPServer {
     public synchronized void removeStreamListener(String streamId) {
         tcpNettyServer.removeStreamListener(streamId);
     }
+
+    public void isPaused(boolean paused) {
+        tcpNettyServer.isPaused(paused);
+    }
 }
